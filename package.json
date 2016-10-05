@@ -1,10 +1,17 @@
 {
   "name": "botskin",
   "version": "0.0.1",
+  "engines": {
+    "node": ">=4.0"
+  },
   "description": "The world's first CMS for bots. Easily create, manage and extend chatbots.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "skin": "./bin/skin",
+    "botskin": "./bin/skin"
   },
   "repository": {
     "type": "git",
@@ -21,5 +28,8 @@
   "bugs": {
     "url": "https://github.com/slvnperron/botskin/issues"
   },
-  "homepage": "https://github.com/slvnperron/botskin#readme"
+  "homepage": "https://github.com/slvnperron/botskin#readme",
+  "dependencies": {
+    "commander": "^2.9.0"
+  }
 }
