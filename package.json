@@ -1,0 +1,25 @@
+{
+  "name": "botskin",
+  "version": "0.0.1",
+  "description": "The world's first CMS for bots. Easily create, manage and extend chatbots.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/slvnperron/botskin.git"
+  },
+  "keywords": [
+    "bots",
+    "chatbots",
+    "bot",
+    "chatbot"
+  ],
+  "author": "Protorisk (DIFC)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/slvnperron/botskin/issues"
+  },
+  "homepage": "https://github.com/slvnperron/botskin#readme"
+}
