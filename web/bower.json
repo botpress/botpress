@@ -1,20 +1,17 @@
 {
-  "name": "Angle",
-  "version": "0.0.0",
-  "authors": [
-    "@themicon_co"
-  ],
-  "description": "Angle - Bootstrap Admin App + jQuery",
-  "main": "index.html",
+  "name": "botskin",
+  "version": "0.0.1",
+  "authors": [ "Protorisk (DIFC) Ltd." ],
+  "description": "botskin",
+  "main": "dist/index.html",
   "keywords": [
-    "bootstrap",
-    "jquery",
-    "admin",
-    "theme",
-    "dashboard"
+    "botskin",
+    "bot",
+    "chatbot",
+    "bots"
   ],
-  "license": "http://support.wrapbootstrap.com/knowledge_base/topics/usage-licenses",
-  "homepage": "http://themicon.co",
+  "license": "ISC",
+  "homepage": "http://botskin.io",
   "private": true,
   "ignore": [
     "**/.*"
