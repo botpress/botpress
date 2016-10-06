@@ -1,0 +1,316 @@
+/* ========================================================================
+     Component: animate
+ ========================================================================== */
+
+
+// Timing functions
+// -----------------------------------
+
+// Cubic
+$easeInCubic:  cubic-bezier(0.550, 0.055, 0.675, 0.190);
+$easeOutCubic:  cubic-bezier(0.215, 0.610, 0.355, 1.000);
+$easeInOutCubic :  cubic-bezier(0.645, 0.045, 0.355, 1.000);
+
+// Circ
+$easeInCirc:  cubic-bezier(0.600, 0.040, 0.980, 0.335);
+$easeOutCirc:  cubic-bezier(0.075, 0.820, 0.165, 1.000);
+$easeInOutCirc:  cubic-bezier(0.785, 0.135, 0.150, 0.860);
+
+// Expo
+$easeInExpo:  cubic-bezier(0.950, 0.050, 0.795, 0.035);
+$easeOutExpo:  cubic-bezier(0.190, 1.000, 0.220, 1.000);
+$easeInOutExpo:  cubic-bezier(1.000, 0.000, 0.000, 1.000);
+
+// Quad
+$easeInQuad:  cubic-bezier(0.550, 0.085, 0.680, 0.530);
+$easeOutQuad:  cubic-bezier(0.250, 0.460, 0.450, 0.940);
+$easeInOutQuad:  cubic-bezier(0.455, 0.030, 0.515, 0.955);
+
+// Quart
+$easeInQuart:  cubic-bezier(0.895, 0.030, 0.685, 0.220);
+$easeOutQuart:  cubic-bezier(0.165, 0.840, 0.440, 1.000);
+$easeInOutQuart :  cubic-bezier(0.770, 0.000, 0.175, 1.000);
+
+// Quint
+$easeInQuint:  cubic-bezier(0.755, 0.050, 0.855, 0.060);
+$easeOutQuint:  cubic-bezier(0.230, 1.000, 0.320, 1.000);
+$easeInOutQuint :  cubic-bezier(0.860, 0.000, 0.070, 1.000);
+
+// Sine
+$easeInSine:  cubic-bezier(0.470, 0.000, 0.745, 0.715);
+$easeOutSine:  cubic-bezier(0.390, 0.575, 0.565, 1.000);
+$easeInOutSine:  cubic-bezier(0.445, 0.050, 0.550, 0.950);
+
+// Back
+$easeInBack:  cubic-bezier(0.600, -0.280, 0.735, 0.045);
+$easeOutBack:  cubic-bezier(0.175,  0.885, 0.320, 1.275);
+$easeInOutBack:  cubic-bezier(0.680, -0.550, 0.265, 1.550);
+
+$animate-duration: 0.5s;
+
+// Animations for React-Animation-Group
+// -------------------------------------
+
+// Placeholder to show the leaving content
+// while the one entering is animated
+%rag-fluid {
+    position: absolute;
+    top: 1px;
+    left: 0;
+    right: 0;
+    max-height: 100%;
+    overflow: hidden;
+}
+
+.rag-fadeIn-enter {
+    @include animation(fadeIn $animate-duration);
+}
+.rag-fadeIn-leave {
+    @extend %rag-fluid;
+    @include animation(fadeOut $animate-duration);
+}
+
+.rag-fadeInUp-enter {
+    @include animation(fadeInUp $animate-duration);
+}
+.rag-fadeInUp-leave {
+    @extend %rag-fluid;
+    @include animation(fadeOutDown $animate-duration);
+}
+
+.rag-fadeInDown-enter {
+    @include animation(fadeInDown $animate-duration);
+}
+.rag-fadeInDown-leave {
+    @extend %rag-fluid;
+    @include animation(fadeOutUp $animate-duration);
+}
+
+.rag-fadeInRight-enter {
+    @include animation(fadeInRight $animate-duration);
+}
+.rag-fadeInRight-leave {
+    @extend %rag-fluid;
+    @include animation(fadeOutLeft $animate-duration);
+}
+
+.rag-fadeInLeft-enter {
+    @include animation(fadeInLeft $animate-duration);
+}
+.rag-fadeInLeft-leave {
+    @extend %rag-fluid;
+    @include animation(fadeOutRight $animate-duration);
+}
+
+.rag-fadeInUpBig-enter {
+    @include animation(fadeInDownBig $animate-duration);
+}
+.rag-fadeInUpBig-leave {
+    @extend %rag-fluid;
+    @include animation(fadeOutDownBig $animate-duration);
+}
+
+.rag-fadeInDownBig-enter {
+    @include animation(fadeInUpBig $animate-duration);
+}
+.rag-fadeInDownBig-leave {
+    @extend %rag-fluid;
+    @include animation(fadeOutUpBig $animate-duration);
+}
+
+.rag-fadeInRightBig-enter {
+    @include animation(fadeInRightBig $animate-duration);
+}
+.rag-fadeInRightBig-leave {
+    @extend %rag-fluid;
+    @include animation(fadeOutLeftBig $animate-duration);
+}
+
+.rag-fadeInLeftBig-enter {
+    @include animation(fadeInLeftBig $animate-duration);
+}
+.rag-fadeInLeftBig-leave {
+    @extend %rag-fluid;
+    @include animation(fadeOutRightBig $animate-duration);
+}
+
+.rag-zoomBackDown-enter {
+    @include animation(fadeInDown 1s $easeOutQuint);
+}
+.rag-zoomBackDown-leave {
+    @extend %rag-fluid;
+    @include animation(zoomBack 1s $easeOutQuint);
+}
+
+// New Animations
+// -----------------------------------
+
+@-webkit-keyframes fadeOutUpShort {
+  0% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    -webkit-transform: translate3d(0, -20px, 0);
+    transform: translate3d(0, -20px, 0);
+  }
+}
+
+@keyframes fadeOutUpShort {
+  0% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    -webkit-transform: translate3d(0, -20px, 0);
+    -ms-transform: translate3d(0, -20px, 0);
+    transform: translate3d(0, -20px, 0);
+  }
+}
+
+.fadeOutUpShort {
+  -webkit-animation-name: fadeOutUpShort;
+  animation-name: fadeOutUpShort;
+}
+
+@-webkit-keyframes fadeInUpShort {
+  0% {
+    opacity: 0;
+    -webkit-transform: translate3d(0, 20px, 0);
+    transform: translate3d(0, 20px, 0);
+  }
+
+  100% {
+    opacity: 1;
+    -webkit-transform: none;
+    transform: none;
+  }
+}
+
+@keyframes fadeInUpShort {
+  0% {
+    opacity: 0;
+    -webkit-transform: translate3d(0, 20px, 0);
+    -ms-transform: translate3d(0, 20px, 0);
+    transform: translate3d(0, 20px, 0);
+  }
+
+  100% {
+    opacity: 1;
+    -webkit-transform: none;
+    -ms-transform: none;
+    transform: none;
+  }
+}
+
+.fadeInUpShort {
+  -webkit-animation-name: fadeInUpShort;
+  animation-name: fadeInUpShort;
+}
+
+
+@-webkit-keyframes zoomInShort {
+  0% {
+    opacity: 0;
+    -webkit-transform: scale3d(.95, .95, .95);
+    transform: scale3d(.95, .95, .95);
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes zoomInShort {
+  0% {
+    opacity: 0;
+    -webkit-transform: scale3d(.95, .95, .95);
+    -ms-transform: scale3d(.95, .95, .95);
+    transform: scale3d(.95, .95, .95);
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+.zoomInShort {
+  -webkit-animation-name: zoomInShort;
+  animation-name: zoomInShort;
+}
+
+@-webkit-keyframes zoomBack {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+    -webkit-transform: scale3d(.5, .5, .5);
+    transform: scale3d(.5, .5, .5);
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes zoomBack {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+    -webkit-transform: scale3d(.5, .5, .5);
+    -ms-transform: scale3d(.5, .5, .5);
+    transform: scale3d(.5, .5, .5);
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+.zoomBack {
+  -webkit-animation-name: zoomBack;
+  animation-name: zoomBack;
+}
+
+
+@-webkit-keyframes fadeInLeft {
+  0% {
+    opacity: 0;
+    -webkit-transform: translate3d(-20px, 0, 0);
+    transform: translate3d(-20px, 0, 0);
+  }
+
+  100% {
+    opacity: 1;
+    -webkit-transform: none;
+    transform: none;
+  }
+}
+
+@keyframes fadeInLeft {
+  0% {
+    opacity: 0;
+    -webkit-transform: translate3d(-20px, 0, 0);
+    -ms-transform: translate3d(-20px, 0, 0);
+    transform: translate3d(-20px, 0, 0);
+  }
+
+  100% {
+    opacity: 1;
+    -webkit-transform: none;
+    -ms-transform: none;
+    transform: none;
+  }
+}
+
+.fadeInLeft {
+  -webkit-animation-name: fadeInLeft;
+  animation-name: fadeInLeft;
+}

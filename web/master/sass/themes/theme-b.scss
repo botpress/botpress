@@ -1,0 +1,220 @@
+
+@import '../app/variables';
+@import '../bootstrap/bootstrap/mixins/gradients';
+@import '../app/media-queries';
+
+
+// 
+// Variables to change general look 
+// 
+
+// LAYOUT
+
+$content-bg:                    #f5f7fa;
+$aside-bg:                      #fff;
+// NAVBAR TOP
+
+$nav-top-bg:                    $brand-green;
+$nav-top-bg-start:              $nav-top-bg;
+$nav-top-bg-end:                $brand-green-light;
+$nav-header-bg:                 transparent;
+
+$nav-top-item-mobile:           $nav-top-bg;
+$nav-top-item-mobile-active:    darken($nav-top-item-mobile, 20%);
+
+$nav-top-item-desktop:          #fff;
+$nav-top-item-desktop-active:   darken($nav-top-item-desktop, 20%);
+
+// SIDEBAR
+
+$sidebar-bg:                      $aside-bg;
+
+$sidebar-item-color:              #515253;
+$sidebar-item-color-active:       $nav-top-bg;
+$sidebar-item-bg-active:          darken($sidebar-bg, 1%);
+
+$sidebar-icon-color:              inherits;
+$sidebar-icon-color-active:       $nav-top-bg;
+
+$sidebar-bullet-color:            rgba(0,0,0,.25);
+$sidebar-bullet-color-active:     $sidebar-icon-color-active;
+
+$sidebar-heading-color:           #919DA8;
+$sidebar-label-color:             $sidebar-item-color;
+
+// OFFSIDEBAR
+
+$offsidebar-bg:           #fff;
+$offsidebar-border-color: greyscale(darken($offsidebar-bg, 20%));
+$offsidebar-color:        $text-color;
+
+
+/* ========================================================================
+   Component: layout
+ ========================================================================== */
+
+body,
+.wrapper > section {
+  background-color: $content-bg;
+}
+.wrapper > .aside { 
+  background-color: $aside-bg;
+}
+/* ========================================================================
+   Component: top-navbar
+ ========================================================================== */
+
+// Navbar Mobile General styles
+// ------------------------------
+
+.topnavbar {
+  background-color: #fff;
+  .navbar-header {
+    background-color: $nav-header-bg;
+    @include gradient-horizontal($nav-top-bg-start, $nav-top-bg-end);
+    @media only screen and (min-width: $mq-tablet) {
+      background-image: none;
+    }
+  }
+  .navbar-nav > li > .navbar-text {
+    color: $nav-top-item-mobile;
+  }
+  .navbar-nav > li > a,
+  .navbar-nav > .open > a {
+    color: $nav-top-item-mobile;
+    &:hover, &:focus {
+      color: $nav-top-item-mobile-active;
+    }
+  }
+
+  // Navbar link active style
+  .navbar-nav > .active > a,
+  .navbar-nav > .open   > a {
+    &, &:hover, &:focus {
+      background-color: transparent;
+    }
+  }
+
+  // the button to toggle search
+  .navbar-nav > li > [data-toggle='navbar-search'] {
+    color: $nav-top-item-desktop;
+  }
+  
+  .nav-wrapper {
+    background-color: $nav-top-bg;
+    @include gradient-horizontal($nav-top-bg-start, $nav-top-bg-end);
+  }
+}
+
+// Navbar Desktop styles
+// ------------------------------
+
+@media only screen and (min-width: $mq-tablet) {
+
+  // Navbar top styles
+  .topnavbar {
+    background-color: $nav-top-bg;
+    @include gradient-horizontal($nav-top-bg-start, $nav-top-bg-end);
+
+    .navbar-nav > .open > a {
+      &, &:hover, &:focus {
+        box-shadow: 0 -3px 0 rgba(255,255,255,.5) inset;
+      }
+    }
+    .navbar-nav > li > .navbar-text {
+        color: $nav-top-item-desktop;
+    }
+    .navbar-nav > li > a,
+    .navbar-nav > .open > a {
+      color: $nav-top-item-desktop;
+      &:hover, &:focus {
+        color: $nav-top-item-mobile-active;
+      }
+    }
+
+  } // .topnavbar
+
+}
+
+/* ========================================================================
+   Component: sidebar
+ ========================================================================== */
+
+.sidebar {
+  background-color: $sidebar-bg; 
+
+  .nav-heading {
+    color: $sidebar-heading-color;
+  }
+
+  // Items
+  .nav {
+    > li {
+      > a,
+      > .nav-item {
+        color: $sidebar-item-color;
+        &:focus, &:hover {
+          color: $sidebar-item-color-active;
+        }
+        // Item icon
+        > em {
+          color: $sidebar-icon-color;
+        }
+      }
+
+      // Active item state
+      &.active,
+      &.open {
+        &,
+        > a,
+        .nav {
+          background-color: $sidebar-item-bg-active;
+          color: $sidebar-item-color-active;
+        }
+        > a > em {
+          color: $sidebar-icon-color-active;
+        }  
+      }
+      &.active {
+        border-left-color: $sidebar-item-color-active;
+      }
+    }
+  }
+}
+
+.sidebar-subnav {
+  background-color: $sidebar-bg;
+  > .sidebar-subnav-header {
+    color: $sidebar-item-color;
+  }
+  > li  {
+    > a,
+    > .nav-item {
+      color: $sidebar-item-color;
+      &:focus, &:hover {
+        color: $sidebar-item-color-active;
+      }
+    }
+
+    &.active {
+      > a,
+      > .nav-item {
+        color: $sidebar-icon-color-active;
+        &:after {
+          border-color: $sidebar-bullet-color-active;
+          background-color: $sidebar-bullet-color-active;
+        }
+      }
+    }
+  } // li
+}
+
+/* ========================================================================
+   Component: offsidebar
+ ========================================================================== */
+
+.offsidebar {
+  border-left: 1px solid $offsidebar-border-color;
+  background-color: $offsidebar-bg;
+  color: $offsidebar-color;
+}

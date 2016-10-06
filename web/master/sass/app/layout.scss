@@ -1,0 +1,555 @@
+/* ========================================================================
+     Component: layout
+ ========================================================================== */
+
+//
+// Main layout
+// This file controls the presentation of all components
+//  .wrapper
+//    > section
+//      > .content-wrapper
+//    > .aside
+//
+// If modified or removed make sure to check the variable
+// shared with other components
+// -------------------------------------------------------------
+
+$aside-wd:                                220px;
+$aside-wd-collapsed:                      70px;
+$aside-wd-collapsed-text:                 90px;
+$aside-bg:                                #fff;
+
+$content-bg:                              $body-bg;
+$content-heading-bg:                      #fafbfc;
+$content-heading-border:                  #cfdbe2;
+$content-padding:                         20px;
+
+$footer-hg:                               60px;
+
+$navbar-hg:                               $navbar-height;
+
+$boxed-max-width:                         1140px;
+$z-index-main-section:                    111;
+
+html {
+  /* $replace rtl */ direction: ltr;
+  height: 100%;
+  // http://updates.html5rocks.com/2013/12/300ms-tap-delay-gone-away
+  -ms-touch-action: manipulation;
+    touch-action: manipulation;
+}
+
+html, body, #app {
+  // overflow-x: hidden;
+  height: 100%;
+}
+
+// Main wrapper
+// -----------------------------
+.wrapper {
+  position: relative;
+  width: 100%;
+  height: auto;
+  min-height: 100%;
+  overflow-x: hidden;
+  &.ng-leave {
+    display: none;
+  }
+
+  // Contains the main sidebar
+  > .aside {
+    // visibility: hidden;
+    position: absolute;
+    width: $aside-wd;
+
+    top: 0; left: 0;
+    bottom: 0;
+    z-index: $z-index-main-section + 5;
+    // @include transition(visibility 0s linear .3s);
+    @include backface-visibility(hidden);
+    background-color: $aside-bg;
+
+    .aside-inner {
+      padding-top: $navbar-hg * 2;
+      height: 100%;
+      width: $aside-wd;
+      overflow: hidden;
+    }
+
+    > .nav-floating {
+
+      // position: handled from directive
+      left: inherit;
+      margin-left: $aside-wd;
+      z-index: $z-index-main-section * 10;
+
+      min-width: 190px;
+      overflow: auto;
+    }
+
+  }
+
+  .dropdown-backdrop {
+    z-index: $z-index-main-section - 2;
+  }
+
+  // Contains the main content
+  > section {
+    position: relative;
+    height: 100%;
+    margin-left: 0;
+    // overflow: hidden;
+    z-index: $z-index-main-section;
+    background-color: $content-bg;
+    margin-bottom: $footer-hg !important; // ensure a space for the footer
+  }
+
+  // Page Footer
+  > footer {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: $footer-hg;
+    border-top: 1px solid $gray-light;
+    padding: $content-padding;
+    z-index: $z-index-main-section - 2;
+    > p {
+      margin: 0;
+    }
+  }
+}
+.modal-open .wrapper {
+  z-index: 0;
+}
+
+// Page main content
+// -----------------------------
+.content-wrapper {
+  padding: 15px;
+  width: 100%;
+  // styling to visually wrap the component
+  border-top: 1px solid rgba(0,0,0,.15);
+  margin-top: -1px;
+
+  > .unwrap {
+    margin: -15px; // expand over wrapper padding
+    @media only screen and (min-width: $mq-tablet) {
+      margin: -20px; // expand over wrapper padding
+    }
+  }
+
+  > h3,
+  > .content-heading {
+    font-size: $font-size-h3;
+    line-height: $headings-line-height;
+    color: #929292;
+    margin: -15px;
+    margin-bottom: 20px;
+    padding: 15px;
+    font-weight: normal;
+    background-color: $content-heading-bg;
+    border-bottom: 1px solid $content-heading-border;
+    > small {
+      display: block;
+      font-size: 12px;
+      color: $text-muted;
+    }
+  }
+  > button, > .btn {
+    margin: 10px 10px 0 0;
+  }
+
+  .container,
+  .container-fluid {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  @media only screen and (min-width: $mq-tablet) {
+    padding: $content-padding;
+    //overflow: auto; // required for portlets
+    > h3,
+    > .content-heading {
+      margin: -$content-padding;
+      margin-bottom: $content-padding;
+      padding: $content-padding;
+    }
+    > button, > .btn {
+      margin: 0;
+    }
+  }
+}
+
+// Desktop layout
+// -----------------------------
+
+@media only screen and (min-width: $mq-tablet) {
+
+  body {
+    min-height: 100%;
+  }
+
+  .wrapper {
+
+    > .aside {
+      .aside-inner {
+        padding-top: $navbar-hg;
+      }
+    }
+
+    > section,
+    > footer {
+      margin-left: $aside-wd;
+    }
+
+    > section {
+      // with just a margin we can make the
+      // right sidebar always visible
+      &.has-sidebar-right {
+        margin-right: $aside-wd + 20;
+        + .offsidebar {
+          z-index: 1;
+        }
+      }
+    }
+  }
+
+}
+
+// Aside toggled layout
+// On mobile acts like offcanvas
+// -----------------------------
+
+
+@media only screen and (max-width: $mq-up-to-tablet) {
+  .wrapper {
+    > .aside {
+      margin-left: -$aside-wd;
+    }
+  }
+  .aside-toggled {
+    .wrapper {
+      > section,
+      > footer {
+        margin-left: $aside-wd;
+      }
+
+      > .aside {
+        margin-left: 0;
+      }
+    }
+  }
+
+  .csstransforms3d  {
+
+    .wrapper {
+        @include backface-visibility(hidden);
+        > section,
+        > footer {
+          margin-left: 0;
+          @include translate3d(0,0,0);
+          @include transition-transform(.3s ease);
+        }
+        > .aside {
+          margin-left: 0;
+          @include translate3d(-$aside-wd,0,0);
+          @include transition-transform(.3s ease);
+
+        }
+    }
+
+    .aside-toggled {
+      .wrapper {
+        > section,
+        > footer {
+          @include translate3d($aside-wd,0,0);
+        }
+        > .aside {
+          @include translate3d(0,0,0);
+        }
+      }
+    }
+
+  }
+
+}
+
+// Toggle and collapsed behavior overrides
+
+@media only screen and (max-width: $mq-up-to-tablet) {
+
+  .aside-collapsed .wrapper {
+    > .aside {
+      margin-left: -$aside-wd-collapsed;
+    }
+  }
+
+  .aside-collapsed.aside-toggled {
+    .wrapper {
+      > section,
+      > footer {
+        margin-left: $aside-wd-collapsed;
+      }
+
+      > .aside {
+        margin-left: 0;
+      }
+    }
+  }
+
+
+  .csstransforms3d  {
+
+    .aside-collapsed .wrapper {
+        @include backface-visibility(hidden);
+        > section,
+        > footer {
+          margin-left: 0;
+          @include translate3d(0,0,0);
+          @include transition-transform(.3s ease);
+        }
+        > .aside {
+          margin-left: 0;
+          @include translate3d(-$aside-wd-collapsed,0,0);
+          @include transition-transform(.3s ease);
+
+        }
+    }
+
+    .aside-collapsed.aside-toggled {
+      .wrapper {
+        > section,
+        > footer {
+          @include translate3d($aside-wd-collapsed,0,0);
+        }
+        > .aside {
+          @include translate3d(0,0,0);
+        }
+      }
+    }
+
+  }
+
+}
+
+// Aside collapsed layout
+// -------------------------------
+
+// Aside status toggled via JS
+.aside-collapsed {
+  overflow-y: auto;
+  .wrapper {
+    > .aside {
+      &, > .aside-inner {
+        width: $aside-wd-collapsed;
+      }
+      > .nav-floating {
+        margin-left: $aside-wd-collapsed;
+      }
+    }
+  }
+}
+
+// Margin only exists above tablet
+@media only screen and (min-width: $mq-tablet) {
+  // Aside status toggled via JS
+  .aside-collapsed {
+    .wrapper {
+      > section,
+      > footer {
+        margin-left: $aside-wd-collapsed;
+      }
+    }
+  }
+}
+
+// ------------------------------
+// Collapsed variation with text
+// ------------------------------
+
+@media only screen and (max-width: $mq-up-to-tablet) {
+
+  .aside-collapsed-text .wrapper {
+    > .aside {
+      margin-left: -$aside-wd-collapsed-text;
+    }
+  }
+
+  .aside-collapsed-text.aside-toggled {
+    .wrapper {
+      > section,
+      > footer {
+        margin-left: $aside-wd-collapsed-text;
+      }
+
+      > .aside {
+        margin-left: 0;
+      }
+    }
+  }
+
+
+  .csstransforms3d  {
+
+    .aside-collapsed-text .wrapper {
+        @include backface-visibility(hidden);
+        > section,
+        > footer {
+          margin-left: 0;
+          @include translate3d(0,0,0);
+          @include transition-transform(.3s ease);
+        }
+        > .aside {
+          margin-left: 0;
+          @include translate3d(-$aside-wd-collapsed-text,0,0);
+          @include transition-transform(.3s ease);
+
+        }
+    }
+
+    .aside-collapsed-text.aside-toggled {
+      .wrapper {
+        > section,
+        > footer {
+          @include translate3d($aside-wd-collapsed-text,0,0);
+        }
+        > .aside {
+          @include translate3d(0,0,0);
+        }
+      }
+    }
+
+  }
+
+}
+
+// Aside collapsed layout
+// -------------------------------
+
+// Aside status toggled via JS
+.aside-collapsed-text {
+  overflow-y: auto;
+  .wrapper {
+    > .aside {
+      &, > .aside-inner {
+        width: $aside-wd-collapsed-text;
+      }
+      > .nav-floating {
+        margin-left: $aside-wd-collapsed-text;
+      }
+    }
+  }
+}
+
+// Margin only exists above tablet
+@media only screen and (min-width: $mq-tablet) {
+  // Aside status toggled via JS
+  .aside-collapsed-text {
+    .wrapper {
+      > section,
+      > footer {
+        margin-left: $aside-wd-collapsed-text;
+      }
+    }
+  }
+}
+
+// end collapsed variation with text
+// mixin to remove transformations
+@mixin disable-transform()
+{
+   -webkit-transform: none;
+   -moz-transform: none;
+   -opera-transform: none;
+   -ms-transform: none;
+   transform: none;
+}
+
+// Fixed layout
+// -----------------------------
+.layout-fixed {
+
+  @media (max-width: $boxed-max-width) {
+    &.aside-toggled,
+    &.offsidebar-open {
+      overflow-y: hidden;
+    }
+  }
+
+  .wrapper {
+    .topnavbar-wrapper {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: $z-index-main-section + 10;
+    }
+    > aside {
+      position: fixed;
+    }
+    /* only applied to sidebar */
+    > .aside {
+      /* safari fix */
+      height: 1px;
+      min-height: 100%;
+      /* ios blanks space fix */
+      > .aside-inner {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+      }
+    }
+    > section {
+      margin-top: ($navbar-hg + 2) * 2;
+      @media only screen and (min-width: $mq-tablet) {
+        margin-top: $navbar-hg;
+      }
+    }
+  }
+}
+
+/* IE10+ hack: safari fix breaks ie so we need to target ie only to restore */
+_:-ms-lang(x), .layout-fixed .wrapper > .aside > .aside-inner {
+  position: static !important;
+}
+
+// Boxed layout (only for desktops)
+// -----------------------------
+
+.layout-boxed {
+
+  @media only screen and (min-width: $mq-desktop) {
+    overflow: auto !important;
+    .wrapper {
+      margin: 0 auto;
+      overflow: hidden;
+      box-shadow: 0 0 13px rgba(0,0,0,.25);
+
+      .offsidebar {
+        position: absolute !important;
+      }
+
+      > .aside {
+        left: inherit;
+      }
+      &, & .topnavbar-wrapper {
+        width: 970px;
+      }
+    }
+
+    &.layout-fixed {
+      .wrapper > .aside > .aside-inner {
+        left: inherit;
+      }
+    }
+  }
+  // max size for large devices
+  @media only screen and (min-width: $mq-desktop-lg) {
+    .wrapper {
+      &, & .topnavbar-wrapper {
+        width: $boxed-max-width;
+      }
+    }
+  }
+
+} // boxed

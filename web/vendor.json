@@ -1,0 +1,16 @@
+[
+  "bower_components/modernizr/modernizr.custom.js",
+  "bower_components/jquery/dist/jquery.js",
+  "bower_components/bootstrap/dist/js/bootstrap.js",
+  "bower_components/bootstrap/dist/css/bootstrap.css",
+  "bower_components/jQuery-Storage-API/jquery.storageapi.js",
+  "bower_components/jquery.easing/js/jquery.easing.js",
+  "bower_components/whirl/dist/whirl.css",
+  "bower_components/animo.js/animo.js",
+  "bower_components/fontawesome/css/font-awesome.min.css",
+  "bower_components/fontawesome/fonts/*",
+  "bower_components/animate.css/animate.min.css",
+  "bower_components/jquery-localize-i18n/dist/jquery.localize.js",
+  "bower_components/simple-line-icons/css/simple-line-icons.css",
+  "bower_components/simple-line-icons/fonts/*"
+]

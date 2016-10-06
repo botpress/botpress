@@ -1,0 +1,80 @@
+/* ========================================================================
+     Component: user-block
+ ========================================================================== */
+ 
+ // for use as navbar item
+.has-user-block {
+  display: block;
+  overflow: hidden;
+  border: 0 !important;
+  width: 100% !important;
+}
+
+.user-block {
+  position: relative;
+  padding: 25px 0 10px;
+  cursor: pointer;
+  @include clearfix();
+  
+  > .user-block-picture {
+    position: relative;
+    width: 60px;
+    margin: 0 auto;
+    > img {
+      max-width: 100%;
+      height: auto;
+    }
+  }
+
+  .user-block-info {
+    padding-top: 15px;
+    text-align: center;
+    white-space: nowrap;
+    .user-block-name,
+    .user-block-role {
+      display: block;
+
+    }
+
+    .user-block-name {
+      color: #7D848F;
+    }
+    .user-block-role {
+      font-size: 12px;
+      color: #aaa;
+    }
+  }
+}
+
+.user-block-status {
+  position: relative;
+  > .circle {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    border: 2px solid #fff;
+  }
+}
+
+// Adapt to collapsed mode
+.aside-collapsed,
+.aside-collapsed-text {
+
+  .user-block {
+    padding: 15px 0 14px;
+    margin: 0;
+    text-align: center;
+
+    > .user-block-picture {
+      float: none;
+      margin: 0  auto;
+      width: 50px;
+      > .user-block-status {
+        display: block;
+      }
+    }
+    .user-block-info {
+      display: none;
+    }
+  }
+}

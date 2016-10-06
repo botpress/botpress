@@ -1,0 +1,275 @@
+/* ========================================================================
+   Component: layout-extra
+ ========================================================================== */
+
+
+// Hide footer and expand content to the bottom
+.hidden-footer {
+  .wrapper > footer {
+    display: none;
+  }
+  .wrapper > section {
+    margin-bottom: 0 !important;
+  }
+}
+
+// Layout mode based on display: table;
+// See more at http://colintoh.com/blog/display-table-anti-hero
+
+.layout-fs {
+  .wrapper > section {
+    position: absolute;
+    top: ($navbar-hg + 2) * 2;
+    left: 0;
+    right: 0;
+    bottom: $footer-hg;
+    height: auto;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    @media only screen and (min-width: $mq-mobile) {
+      overflow: hidden;
+    }
+    
+    @media only screen and (min-width: $mq-tablet) {
+      top: $navbar-hg;
+    }
+
+    > .content-wrapper {
+      width: 100%;
+      height: 100%;
+      padding: 0;
+    }
+
+  }
+  
+  &.hidden-footer {
+    .wrapper > section {
+      bottom: 0;
+    }
+  }
+}
+
+// Table display types to use under .layout-fs
+.d-table,
+.d-table-fixed {
+  display: table;
+  width: 100%;
+  height: 100%;
+  min-height: 240px;
+  border-spacing: 0;
+}
+
+.d-table-fixed {
+  table-layout: fixed;
+}
+
+.d-row {
+  display: table-row;
+  height: 100%;
+}
+
+.d-cell,
+.d-cell-wrapper {
+  position: relative;
+  display: table-cell;
+  height: 100%;
+  width: 100%;
+  vertical-align: top;
+  overflow: auto;
+}
+
+// used as a variant to include
+// content with variable height
+.d-cell-wrapper {
+  display: block;
+  .d-cell-inner {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+  }
+}
+
+// Use .d-table-fixed to make columns fixed
+// and stacked on mobiles (below tablets)
+@media only screen and (max-width: $mq-up-to-tablet) {
+  .d-table-fixed {
+    display: block;
+    > .d-cell {
+      display: block;
+      width: auto;
+      height: auto;
+    }
+  }
+}
+
+/* Target Firefox only */
+@-moz-document url-prefix() {
+  .d-table, .d-table-desktop {
+    height: 240px;
+    min-height: 100%;
+  }
+  .d-cell-inner {
+    overflow: auto;
+  }
+}
+
+// Table layout helpers
+.fh {
+  height: 100% !important;
+}
+.fw {
+  width: 100% !important;
+}
+.scroll {
+  overflow: auto;
+}
+.scroll-y {
+  overflow-y: auto;
+}
+.scroll-y {
+  overflow-y: auto;
+}
+
+// Layout Horizontal Nav
+// ----------------------------------- 
+
+.layout-h {
+  .wrapper {
+    > section {
+      max-width: 1140px;
+      margin-left: auto;
+      margin-right: auto;
+      > .content-wrapper > h3 {
+        display: none;
+      }
+      .content-heading {
+        background-color: transparent;
+        border: 0;
+      }
+    }
+    > section {
+      margin-top: 0;
+    }
+    > .offsidebar {
+      margin-top: $navbar-hg;
+    }
+    > footer {
+      margin: 0;
+    }
+  }
+  &.layout-fixed .wrapper {
+    > section,
+    > .offsidebar {
+      margin-top: $navbar-hg;
+    }
+  }
+}
+
+
+// Aside float
+// ----------------------------------- 
+
+$float-space: 15px;
+.aside-float {
+
+  .wrapper {
+    box-shadow: 0 0 0 #000; // removes
+    > footer {
+      border: 0;
+    }
+    > .aside {
+      padding: $float-space 0;
+      background: transparent;
+      > .aside-inner {
+        height: 100%;
+        top: $float-space;
+        bottom: $float-space;
+        left: inherit;
+      }
+      .sidebar {
+        border: 1px solid $gray-light;
+      }
+      .sidebar:after {
+        display: none;
+      }
+    }
+    @media only screen and (min-width: $mq-tablet) {
+      > section {
+        padding-left: $float-space;
+      }
+      > footer {
+        left: $float-space;
+      }
+    }
+    .content-wrapper {
+      border: 0;
+      > h3,
+      > .content-heading {
+        padding-top: 30px;
+        border: 0;
+        background-color: transparent;
+      }
+      > .unwrap { // disables unwrap
+        margin: 0 !important;
+      }
+    }
+  }
+  
+  &.aside-toggled .wrapper {
+    // small delay to add some effect to sidebar slide
+    > .aside {
+      @include transition-delay(0.05s);
+      > .aside-inner {
+        margin-left: $float-space;
+      }
+    }
+    > section {
+      padding-left: $float-space;
+    }
+    > footer {
+      left: $float-space;
+    }
+  }
+  
+  // adapt header logo
+  @media only screen and (min-width: $mq-tablet) {
+    &.aside-collapsed .topnavbar .navbar-header {
+      width: $aside-wd-collapsed + ($float-space * 2);
+    }
+    &.aside-collapsed-text .topnavbar .navbar-header {
+      width: $aside-wd-collapsed-text + ($float-space * 2);
+    }
+    &.layout-fs {
+      .wrapper > section > .content-wrapper {
+        padding: 0 0 0 20px;
+      }
+    }
+    .wrapper > .aside > .aside-inner {
+      margin-left: $float-space;
+    }
+  }
+  // boxed behavior
+  @media only screen and (min-width: $mq-desktop) {
+    &.layout-boxed {
+      .wrapper > .aside > .aside-inner {
+        margin-left: 0;
+      }
+      .wrapper > section {
+        padding-left: 0;
+      }
+    }
+  }
+  // toggle state
+  &.aside-toggled {
+    &.layout-fs {
+      .wrapper > section > .content-wrapper {
+        padding: 0 0 0 20px;
+      }
+    }
+  }
+
+}

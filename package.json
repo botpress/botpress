@@ -7,7 +7,8 @@
   "description": "The world's first CMS for bots. Easily create, manage and extend chatbots.",
   "main": "./lib/skin.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "cd web && npm install && bower install && gulp"
   },
   "bin": {
     "skin": "./bin/skin",

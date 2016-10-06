@@ -1,0 +1,347 @@
+/* ========================================================================
+     Component: top-navbar
+ ========================================================================== */
+
+//
+// Horizontal top navbar
+// based on the bootstrap navbar styles and markup
+// ----------------------------------------------------
+
+// helper mixin to disable bs gradient mixin
+@mixin gradient-remove() {
+  background-image: none;
+  background-repeat: no-repeat;
+  filter: none;
+}
+
+$nav-header-wd:                 $aside-wd;
+$nav-header-wd-toggled:         $aside-wd-collapsed;
+
+$nav-header-wd-toggled-text:    $aside-wd-collapsed-text;
+
+$nav-top-bg:                    $brand-info;
+$nav-top-bg-start:              $nav-top-bg;
+$nav-top-bg-end:                $brand-info-light;
+$nav-header-bg:                 transparent;
+
+$nav-top-item-mobile:           $nav-top-bg;
+$nav-top-item-mobile-active:    darken($nav-top-item-mobile, 20%);
+
+$nav-top-item-desktop:          #fff;
+$nav-top-item-desktop-active:   $nav-top-item-mobile-active;
+
+
+// Navbar top layout
+.topnavbar {
+  -webkit-backface-visibility: hidden; /* fixes chrome jump */
+  margin-bottom: 0;
+  border-radius: 0;
+  background-color: #fff;
+  z-index: 1050;
+  border: 0;
+  border-bottom: 1px solid rgba(0,0,0,.15);
+
+  @media only screen and (min-width: $mq-tablet) {
+    .navbar-header {
+      width: $nav-header-wd;
+      text-align: center;
+      .navbar-brand {
+        width: 100%;
+      }
+    }
+  }
+}
+
+// Navbar Mobile General styles
+// ------------------------------
+
+.topnavbar {
+  position: relative;
+
+  .navbar-header {
+    background-color: $nav-header-bg;
+    @include gradient-horizontal($nav-top-bg-start, $nav-top-bg-end);
+    @media only screen and (min-width: $mq-tablet) {
+      background-image: none;
+    }
+  }
+
+  .navbar-header {
+    position: relative;
+    // overlaps nav-wrapper
+    z-index: 11;
+
+    // Reset default to allow handle via different logo size
+    .navbar-brand {
+      padding: 0;
+    }
+
+    // Different Logo size depends on the navbar state
+    .brand-logo,
+    .brand-logo-collapsed {
+      > img {
+        margin: 0 auto;
+      }
+    }
+    .brand-logo {
+      display: block;
+      padding: 10px 15px;
+    }
+    .brand-logo-collapsed {
+      display: none;
+      padding: 6px 15px;
+    }
+  }
+
+  .navbar-nav > li > .navbar-text {
+    color: $nav-top-item-mobile;
+  }
+
+  .navbar-nav > li > a,
+  .navbar-nav > .open > a {
+    color: $nav-top-item-mobile;
+    &:hover, &:focus {
+      color: $nav-top-item-mobile-active;
+    }
+  }
+
+  // Navbar link active style
+  .navbar-nav > .active > a,
+  .navbar-nav > .open   > a {
+    &, &:hover, &:focus {
+      background-color: transparent;
+    }
+  }
+
+  // the button to toggle search
+  .navbar-nav > li > [data-toggle='navbar-search'] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 20;
+    font-size: 16px;
+    line-height: $navbar-height;
+    color: #fff;
+    padding-top: 0;
+    padding-bottom: 0;
+    @include transition(color .3s ease);
+    @media only screen and (min-width: $mq-tablet) {
+      color: $nav-top-item-desktop;
+    }
+  }
+
+  @media only screen and (max-width: $mq-up-to-tablet) {
+    .navbar-text {
+      margin: 10px;
+    }
+  }
+
+}
+
+@media only screen and (max-width: $mq-up-to-tablet) {
+  .sidebar-toggle {
+    position: absolute !important;
+    top: 5px;
+    right: 0;
+    z-index: 3001;
+    // Add color only for the icon
+    > em {
+      color: white;
+    }
+  }
+}
+
+// contains elements below header
+.nav-wrapper {
+  padding: 0 15px;
+  background-color: transparent;
+
+  // restore floating props for navbar items
+  .nav.navbar-nav {
+    float: left;
+    &.navbar-right {
+      float: right;
+    }
+  }
+  .nav > li {
+    position: static;
+    float: left;
+  }
+
+  // fullwidth dropdowns
+  .navbar-nav .open .dropdown-menu {
+    position: absolute;
+    background-color: rgb(255, 255, 255);
+    left: 0px;
+    right: 0px;
+    border-top: 1px solid #e1e1e1;
+    border-bottom: 1px solid #e1e1e1;
+  }
+}
+
+// Navbar Search Form
+// ------------------------------
+.topnavbar {
+
+  .navbar-form {
+    position: absolute;
+    top: -100%;
+    left: 0;
+    right: 0;
+    margin: 0;
+    padding: 0;
+    height: $navbar-height;
+    z-index: 9001;
+    @include transition(all .3s);
+    border: 0;
+    border-bottom: 1px solid #e1e2e3;
+
+    .form-group {
+      height: 100%;
+      width: 100%;
+    }
+
+    .form-control {
+      height: 100%;
+      border: 0;
+      border-radius: 0;
+      width: 100%;
+    }
+    &.open {
+      top: 0;
+    }
+    // re locate and center feedback
+    .has-feedback .form-control-feedback {
+      height: 30px;
+      cursor: pointer;
+      top: 50%;
+      margin-top: -15px;
+      line-height: 30px;
+      margin-right: 10px;
+      color: #c1c2c3;
+      font-size: 1.5em;
+      pointer-events: auto; // make icon clickable
+    }
+  }
+
+  @media only screen and (min-width: $mq-tablet) {
+    .navbar-form {
+      left: $nav-header-wd;
+    }
+  }
+
+}
+
+// Navbar Desktop styles
+// ------------------------------
+
+@media only screen and (min-width: $mq-tablet) {
+
+  // Navbar top styles
+  .topnavbar {
+
+    border: 0;
+    background-color: $nav-top-bg;
+    @include gradient-horizontal($nav-top-bg-start, $nav-top-bg-end);
+
+    .navbar-header {
+      @include gradient-remove();
+    }
+
+    // Dropdown link open style
+    .navbar-nav > a {
+      box-shadow: 0 0 0 #000 inset;
+      @include transition(all .2s);
+    }
+
+    .navbar-nav > .open > a {
+      &, &:hover, &:focus {
+        box-shadow: 0 -3px 0 $brand-primary inset;
+        @include transition(all .2s);
+      }
+    }
+
+    .navbar-nav > li > .navbar-text {
+      color: $nav-top-item-desktop;
+    }
+
+    .navbar-nav > li > a,
+    .navbar-nav > .open > a {
+      color: $nav-top-item-desktop;
+      &:hover, &:focus {
+        color: $nav-top-item-desktop-active;
+      }
+    }
+
+    // relocate search toggle button
+    .navbar-nav > li > [data-toggle='navbar-search'] {
+      position: static;
+    }
+
+  } // .topnavbar
+
+
+  .nav-wrapper {
+    @include clearfix();
+    position: relative;
+    //background-color: $nav-top-bg;
+    box-shadow: 0 1px 2px rgba(0,0,0,.15);
+    // behined nav-header
+    z-index: 10;
+
+    // restore nav items positions
+    .nav > li {
+      position: relative;
+    }
+
+    // restore opened dropdown
+    .navbar-nav .open .dropdown-menu {
+      left: auto;
+      right: auto;
+    }
+    .navbar-nav.navbar-right .open .dropdown-menu {
+      left: auto;
+      right: 0;
+    }
+  }
+}
+
+@media only screen and (min-width: $mq-tablet) {
+  .aside-collapsed {
+    .topnavbar {
+      .navbar-header {
+        .brand-logo { display: none; }
+        .brand-logo-collapsed { display: block; }
+      }
+
+      .navbar-header {
+        width: $nav-header-wd-toggled;
+      }
+
+      .navbar-form {
+        left: $nav-header-wd-toggled;
+      }
+    }
+  }
+}
+
+// Header on aside collapsed with Text
+@media only screen and (min-width: $mq-tablet) {
+  .aside-collapsed-text {
+    .topnavbar {
+      .navbar-header {
+        .brand-logo { display: none; }
+        .brand-logo-collapsed { display: block; }
+      }
+
+      .navbar-header {
+        width: $nav-header-wd-toggled-text;
+      }
+
+      .navbar-form {
+        left: $nav-header-wd-toggled-text;
+      }
+    }
+  }
+}
+

@@ -1,0 +1,326 @@
+/* ========================================================================
+     Component: bootstrap-reset
+ ========================================================================== */
+
+// @import (reference) "../backend-angular/vendor/fontawesome/css/font-awesome.min.css"
+
+
+//
+// Use this file to reset simple bootstrap styles
+// instead of modifying the core files
+// Makes easy to update new framework versions
+// --------------------------------------------------
+
+*:focus {
+  outline: 0 !important
+}
+
+a {
+  outline: none !important;
+  &.text-muted {
+    &:hover, &:focus {
+      color: darken($text-muted, 10%);
+    }
+  }
+}
+
+hr {
+  border-top: 1px solid $gray-light;
+}
+
+// custom element
+[data-now] {
+  display: inline-block;
+}
+
+
+.list-group {
+  line-height: 1.3;
+  .list-group-item {
+    padding: 10px;
+    .panel > & {
+      border-top: 0;
+    }
+  }
+
+}
+
+.navbar-toggle {
+  .icon-bar {
+    background-color: #fff;
+  }
+}
+
+.page-header {
+  border-bottom-color: $gray-light;
+}
+
+.panel {
+  .panel-heading {
+    border-bottom: 0;
+    font-size: 14px;
+    a {
+      text-decoration: none !important;
+    }
+  }
+  &.panel-default {
+    border-top-width: 3px;    
+  }
+}
+
+.well {
+  border: 1px solid $gray;
+}
+
+.jumbotron {
+  border: 1px solid $gray;
+  @media only screen and (min-width: $mq-tablet) {
+    padding: $jumbotron-padding ($jumbotron-padding/2);
+  }
+}
+
+.nav-tabs > li > a {
+  font-weight: bold;
+  color: $text-color;
+  background-color: $gray-lighter;
+  margin: 0;
+  border: 1px solid $gray;
+  border-radius: 0;
+  padding: 10px 20px;
+}
+
+.nav-tabs > li.active > a {
+  &, &:hover, &:focus {
+    color: inherit;
+    border-bottom-color: #fff;
+  }
+}
+.tab-content {
+  padding: 10px 20px;
+  border-style: solid;
+  border-width: 0 1px 1px 1px;
+  border-color: $gray;
+  .nav-pills + & {
+    border: 0;
+    padding: 0;
+  }
+}
+
+
+.btn {
+  border-radius: 3px;
+  font-size: 13px;
+  border-color: transparent;
+  -webkit-appearance: none;
+  outline: none !important;
+  @include transition(all .1s);
+  &.btn-link {
+    box-shadow: none;
+    border: 0;
+  }
+  &.btn-default {
+    border-color: $btn-default-border;
+  }
+  .input-group & {
+    font-size: 14px;
+    border-color: $input-border;
+  }
+  .input-group .input-sm + .input-group-btn & {
+    font-size: 13px;
+  }
+}
+
+// FORMS
+
+.form-control {
+  box-shadow: 0 0 0 #000 !important;
+}
+
+.input-sm,
+select.input-sm {
+  height: 31px;
+}
+
+fieldset {
+  padding-bottom: 20px;
+  border-bottom: 1px dashed #eee;
+  margin-bottom: 20px;
+  &.last-child,
+  &:last-child {
+    border-bottom: 0;
+  }
+  .form-group {
+    margin-bottom: 0;
+  }
+}
+
+@media only screen and (max-width: $mq-up-to-tablet) {
+  // Remove Input Shadows on iPad
+  input[type="text"], input[type="email"], input[type="search"], input[type="password"] {
+    -webkit-appearance: none;
+  }
+}
+
+// TABLES
+
+.table {
+
+  // Bottom align for column headings
+  > thead > tr > th {
+    border-bottom-width: 1px;
+  }
+
+  // Account for multiple tbody instances
+  > tbody + tbody {
+    border-bottom-width: 1px;
+  }
+
+}
+
+.table-bordered {
+  > thead > tr {
+    > th,
+    > td {
+      border-bottom-width: 1px;
+    }
+  }
+}
+
+
+.progress {
+  @include box-shadow(0 0 0 #000);
+  border-radius: $border-radius-small;
+  border: 1px solid $progress-bg;
+  background-color: #fff;
+  .progress-bar {
+    @include box-shadow(0 0 0 #000);
+  }
+}
+
+// Popover
+// --------------------------------------------------
+
+.popover {
+  box-shadow: 0 0 0 #000;
+  border-color: #eee;
+  border-bottom: 2px solid $gray-light;
+  border-radius: $border-radius-small;
+  .popover-title {
+    border: 0;
+  }
+}
+
+
+// NAV
+.nav {
+  &.nav-pills {
+    .active > a {
+      background-color: $brand-primary;
+    }
+  }
+}
+
+// DROPDOWN
+.dropdown-menu {
+  border-radius: $border-radius-small;
+}
+
+.dropdown-header {
+  color: #a1a2a3;
+}
+
+.navbar-top .navbar-nav > .active > a {
+  color: #999;
+  &:hover, &:focus {
+    color: #d1d2d3;
+  }
+}
+
+
+.navbar-default .navbar-nav .open .dropdown-menu > li > a {
+  color: #666;
+  &:hover, &:focus {
+    color: #222;
+  }
+}
+
+// CAROUSEL
+
+.carousel {
+  .carousel-indicators {
+    bottom: 0;
+  }
+  .carousel-control {
+    &.left,
+    &.right {
+      background-image: none;
+    }
+    // Add support for font awesome
+    em {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      z-index: 5;
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      margin-top: -10px;
+      margin-left: -10px;
+    }
+  }
+}
+
+// allow font awesome to be placed instead of glyphicon in slider
+// .glyphicon:extend(.fa all) {
+//   &.glyphicon-chevron-right:extend(.fa-chevron-right all) {};
+//   &.glyphicon-chevron-left:extend(.fa-chevron-left all) {};
+//   &.glyphicon-chevron-up:extend(.fa-chevron-up all) {};
+//   &.glyphicon-chevron-down:extend(.fa-chevron-down all) {};
+//   &.glyphicon-folder-open:extend(.fa-folder-open all) {};
+// }
+
+
+// fix modal backdrop to work with bootstrap ui
+// standard BS js uses a calculated height
+.modal-backdrop {
+  position: fixed;
+  bottom: 0;
+}
+
+// fix for ie9 (dropdwon no showing)
+.topnavbar,
+.navbar,
+.navbar .dropdown-menu {
+  filter: none !important;
+}
+
+// allow font awesome to be placed instead of glyphicon in slider
+$fa-var-chevron-down: "\f078";
+$fa-var-chevron-left: "\f053";
+$fa-var-chevron-right: "\f054";
+$fa-var-chevron-up: "\f077";
+$fa-var-folder-open: "\f07c";
+.glyphicon {
+  display: inline-block;
+  font: normal normal normal 14px/1 FontAwesome; // shortening font declaration
+  font-size: inherit; // can't have font-size inherit on line above, so need to override
+  text-rendering: auto; // optimizelegibility throws things off #1094
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  &.glyphicon-chevron-right:before {
+    content: $fa-var-chevron-right;
+  };
+  &.glyphicon-chevron-left:before {
+    content: $fa-var-chevron-left;
+  };
+  &.glyphicon-chevron-up:before {
+    content: $fa-var-chevron-up;
+  };
+  &.glyphicon-chevron-down:before {
+    content: $fa-var-chevron-down;
+  };
+  &.glyphicon-folder-open:before {
+    content: $fa-var-folder-open;
+  };
+
+}

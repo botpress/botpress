@@ -1,0 +1,289 @@
+/* ========================================================================
+     Component: sidebar
+ ========================================================================== */
+
+$sidebar-bg:                      $aside-bg;
+
+$sidebar-item-color:              #515253;
+$sidebar-item-color-active:       $nav-top-bg;
+$sidebar-item-bg-active:          darken($sidebar-bg, 1%);
+
+$sidebar-icon-color:              inherits;
+$sidebar-icon-color-active:       $nav-top-bg;
+
+$sidebar-bullet-color:            rgba(0,0,0,.25);
+$sidebar-bullet-color-active:     $sidebar-icon-color-active;
+
+$sidebar-heading-color:           #919DA8;
+$sidebar-label-color:             $sidebar-item-color;
+
+$submenu-header-hg:               40px;   // Submenu header when hover collapse sidebar
+$sidebar-item-border-wd:          3px;
+$scrollbar-wd:                    17px;
+
+.sidebar {
+  height: 100%;
+  padding-bottom: 20px;
+  background-color: $sidebar-bg;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+
+  // draw a divider for the sidebar
+  &:after {
+    content:"";
+    background: rgba(0,0,0,.15);
+    position: absolute;
+    display: block;
+    top:0;
+    bottom: 0;
+    right: 0;
+    width: 1px;
+    -webkit-transform: translateZ(0px);
+  }
+
+  .nav-heading {
+    padding: 12px 15px;
+    color: $sidebar-heading-color;
+    font-size: 13px;
+    letter-spacing: .035em;
+    pointer-events: none;
+    cursor: default;
+  }
+
+  // Items
+  // First main level
+  > .nav {
+    position: relative;
+
+    // Only the first item in sidebar
+    > .nav-heading:first-child {
+      padding-top: 20px;
+    }
+
+    > li {
+      border-left: $sidebar-item-border-wd solid transparent;
+      @include transition(border-left-color 0.4s ease);
+
+      > a,
+      > .nav-item {
+        padding: 12px 24px;
+        color: $sidebar-item-color;
+        letter-spacing: .025em;
+        font-weight: normal;
+        cursor: pointer;
+
+        &:focus, &:hover {
+          text-decoration: none;
+          outline: none;
+          color: $sidebar-item-color-active;
+        }
+        // Item icon
+        > em {
+          width: 1.8em;
+          display: inline-block;
+          font-style: normal;
+          font-weight: normal;
+          line-height: 1;
+          -webkit-font-smoothing: antialiased;
+          color: $sidebar-icon-color;
+        }
+      }
+
+      // Active item state
+      &.active,
+      &.open {
+        &,
+        > a,
+        > .nav-item,
+        .nav {
+          background-color: $sidebar-item-bg-active;
+          color: $sidebar-item-color-active;
+        }
+        > .nav-item > em,
+        > a > em {
+          color: $sidebar-icon-color-active;
+        }
+      }
+
+      &.active {
+        border-left-color: $sidebar-item-color-active;
+      }
+    }
+    .label {
+      display: block;
+    }
+  }
+}
+
+// Hides the scrollbar only on desktops
+$tablet-landscape: 1025px;
+@media only screen and (min-width: $tablet-landscape) {
+  .sidebar:not(.show-scrollbar) {
+    margin-right: -$scrollbar-wd;
+    overflow-y: scroll;
+  }
+}
+
+// Sub Levels
+.sidebar-subnav {
+  background-color: $sidebar-bg;
+
+  > .sidebar-subnav-header {
+    color: $sidebar-item-color;
+    display: none;
+    padding: 10px 20px;
+    font-weight: bold;
+  }
+
+  > li  {
+    border-left: 0 !important;
+    > a,
+    > .nav-item {
+      display: block;
+      position: relative;
+      padding: 10px 20px;
+      padding-left: 53px;
+      font-weight: normal;
+      background-color: transparent !important;
+      color: $sidebar-item-color;
+      &:focus, &:hover {
+        color: $sidebar-item-color-active;
+      }
+      // submenu icons
+      > em {
+        display: inline-block;
+        width: 1.8em;
+        margin: 0 0 0 -2em;
+      }
+    }
+
+    &.active {
+      > a,
+      > .nav-item {
+        color: $sidebar-icon-color-active;
+        &:after {
+          border-color: $sidebar-bullet-color-active;
+          background-color: $sidebar-bullet-color-active;
+        }
+      }
+    }
+
+    // Nested levels
+    .nav > li {
+      padding-left: 5px;
+    }
+
+  } // li
+
+  // This only happend when sidebar is collapsed and the submenu
+  // visibility is toggled via js
+  &.nav-floating {
+    border: 1px solid rgba(0,0,0,0.15);
+    margin-left: -1px;
+    // we resuse the collapse element so we need to override
+    &, .collapse {
+      height: auto !important;
+      display: block !important;
+      visibility: visible !important;
+    }
+    > .sidebar-subnav-header {
+      display: block;
+    }
+    // reduce padding when item is on sidebar collapsed
+    li > a,
+    li > .nav-item {
+      padding-left: 20px;
+      // submenu icons
+      em {
+        margin-left: 0;
+      }
+    }
+  }
+}
+
+// Desktop styles
+// ---------------------------------
+
+@media only screen and (min-width: $mq-tablet) {
+
+  .sidebar > .nav {
+
+    .label {
+      margin: 2px 0 0 0;
+    }
+  }
+
+} // @media @desktop
+
+// Collapsed state styles
+.aside-collapsed,
+.aside-collapsed-text {
+
+  .sidebar {
+    overflow-x: hidden;
+    // Applies to first level items
+    > .nav {
+
+      .nav,
+      > .nav-heading,
+      > li > .nav-item > span,
+      > li > a > span {
+        display: none !important;
+      }
+
+      > li {
+        width: $aside-wd-collapsed - 1;
+        > a, > .nav-item {
+          text-indent: -$sidebar-item-border-wd;
+          padding: 20px 0;
+          text-align: center;
+          > em {
+            font-size: 1.6em; // increase icons size
+            width: auto;
+          }
+          &:focus { // accessibility
+            background-color: transparent;
+            > em {
+              color: inherit;
+            }
+          }
+        }
+      }
+    }
+
+    // labels in menu items
+    .nav {
+      .label {
+        position: absolute;
+        top: 10px;
+        right: 5px;
+        text-indent: 0;
+      }
+    }
+
+  } // .sidebar
+} // .aside-collapsed/text
+
+.aside-collapsed-text {
+
+  .sidebar {
+    > .nav {
+
+      > li > .nav-item > span,
+      > li > a > span {
+        display: block !important;
+        font-size: 12px;
+      }
+
+      > li {
+        width: $aside-wd-collapsed-text - 2;
+        > a {
+          padding: 14px 0;
+          > em {
+            font-size: 1.4em;
+          }
+        }
+      }
+    }
+  }
+}

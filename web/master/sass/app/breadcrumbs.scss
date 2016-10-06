@@ -1,0 +1,33 @@
+/* ========================================================================
+   Component: breadcrumbs
+ ========================================================================== */
+
+.breadcrumb {
+  font-weight: normal;
+  border-radius: 0;
+  color: $text-muted;
+  padding: 10px 20px;
+}
+
+h3,
+.content-heading {
+  // Breadcrumb next to view title
+  + .breadcrumb {
+    margin: -25px -25px 20px -20px;
+    background-color: $content-heading-bg;
+    border-top: 1px solid $content-heading-border;
+    border-bottom: 1px solid $content-heading-border;
+  }
+  // Breadcrumb below title
+  > .breadcrumb {
+    background: transparent;
+    font-size: 13px;
+    border: 0;
+    padding: 10px 10px 0 0;
+    margin-bottom: 0;
+    // Breadcrumb right aligned
+    &.pull-right {
+      margin: -2px 0 0;
+    }
+  }
+}

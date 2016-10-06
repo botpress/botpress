@@ -1,0 +1,47 @@
+/* ========================================================================
+   Component: layout-animation.less
+ ========================================================================== */
+
+.wrapper > .aside {
+  @include transition(#{"width .2s cubic-bezier(0.35, 0, 0.25, 1), translate .2s cubic-bezier(0.35, 0, 0.25, 1)"});
+}
+.aside-inner,
+.navbar-header,
+.sidebar > .nav > li {
+  @include transition(width .2s cubic-bezier(0.35, 0, 0.25, 1));
+}
+.wrapper > section {
+  @include transition(margin-left .2s cubic-bezier(0.35, 0, 0.25, 1));
+}
+.sidebar > .nav .label {
+  @include animation(fadeInRight 1s);
+  @include animation-fill-mode(both);
+}
+.aside-collapsed .sidebar > .nav .label,
+.aside-collapsed-text .sidebar > .nav .label {
+  @include animation(fadeIn 1s);
+}
+.sidebar .nav > li > a {
+  @include animation(fadeInLeft .5s); 
+}
+
+.sidebar > .nav > .nav-heading, 
+.sidebar > .nav > li > a > span,
+.navbar-brand .brand-logo {
+  @include animation(fadeIn 1s); 
+}
+
+.sidebar li > a, .sidebar li > .nav-item,
+.sidebar > .nav > .nav-heading {
+  white-space: nowrap;
+}
+
+.aside-collapsed,
+.aside-collapsed-text {
+  .user-block-picture {
+    @include transition(width .2s cubic-bezier(0.35, 0, 0.25, 1));
+  }
+  .user-block {
+    @include transition(padding .2s cubic-bezier(0.35, 0, 0.25, 1));
+  }
+}
