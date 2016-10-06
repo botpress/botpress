@@ -14,42 +14,33 @@ var args = require('yargs').argv,
     webpackHotMiddleware = require('webpack-hot-middleware'),
     webpack = require('webpack');
 
-// production mode (see build task)
-// Example:
-//    gulp --prod
 var isProduction = !!args.prod;
 
-if (isProduction)
-    log('Starting production build...');
+if (isProduction) {
+  log('Starting production build...');
+}
 
 // styles sourcemaps
 var useSourceMaps = false;
-
-// Switch to sass mode.
-// Example:
-//    gulp --usesass
-var useSass = true; // args.usesass // ReactJS project defaults to SASS only
+var useSass = true;
 
 // ignore everything that begins with underscore
 var hidden_files = '**/_*.*';
 var ignored_files = '!' + hidden_files;
 
-// MAIN PATHS
 var paths = {
-    app: 'master/',
-    dist: 'dist/',
+    app: __dirname + '/master/',
+    dist: __dirname + '/dist/',
     markup: 'jade/',
     styles: 'sass/',
     scripts: 'jsx/'
 }
 
-// if sass -> switch to sass folder
 if (useSass) {
     log('Using SASS stylesheets...');
-    paths.styles = 'sass/';
+    paths.styles = __dirname + 'sass/';
 }
 
-// VENDOR CONFIG
 var vendor = {
     source: './vendor.json',
     dist: paths.dist + 'vendor',
@@ -59,7 +50,6 @@ var vendor = {
     }
 };
 
-// SOURCES CONFIG
 var source = {
     scripts: {
         app: [paths.app + paths.scripts + '**/*.{jsx,js}'],
@@ -80,7 +70,6 @@ var source = {
     serverAssets: [paths.app + 'server/**/*']
 };
 
-// BUILD TARGET CONFIG
 var build = {
     scripts: paths.dist + 'js',
     styles: paths.dist + 'css',
@@ -88,8 +77,6 @@ var build = {
     fonts: paths.dist + 'fonts',
     serverAssets: paths.dist + 'server'
 };
-
-// PLUGINS OPTIONS
 
 var vendorUglifyOpts = {
     mangle: {
@@ -111,12 +98,6 @@ var webpackConfig = require(
 
 var bundler = webpack(webpackConfig);
 
-//---------------
-// TASKS
-//---------------
-
-
-// JS APP
 gulp.task('scripts:app', function() {
     log('Building scripts..');
     // Minify and copy all JavaScript (except vendor scripts)
@@ -135,8 +116,6 @@ gulp.task('scripts:app', function() {
         .pipe( $.if(isProduction, reload({ stream: true})) );
 });
 
-// VENDOR BUILD
-// copy file from bower folder into the app vendor folder
 gulp.task('vendor', function() {
     log('Copying vendor assets..');
 
@@ -181,7 +160,6 @@ gulp.task('vendor', function() {
 
 });
 
-// APP LESS
 gulp.task('styles:app', function() {
     log('Building application styles..');
     return gulp.src(source.styles.app)
@@ -196,7 +174,6 @@ gulp.task('styles:app', function() {
         }));
 });
 
-// APP RTL
 gulp.task('styles:app:rtl', function() {
     log('Building application RTL styles..');
     return gulp.src(source.styles.app)
@@ -216,7 +193,6 @@ gulp.task('styles:app:rtl', function() {
         }));
 });
 
-// LESS THEMES
 gulp.task('styles:themes', function() {
     log('Building application theme styles..');
     return gulp.src(source.styles.themes)
@@ -245,16 +221,11 @@ gulp.task('server-assets', function() {
 })
 
 gulp.task('templates:index', function() {
+  console.log(source.templates.index, paths.dist)
     return gulp.src(source.templates.index)
         .pipe(gulp.dest(paths.dist))
 })
 
-
-//---------------
-// WATCH
-//---------------
-
-// Rerun the task when a file changes
 gulp.task('watch', function() {
     log('Watching source files..');
 
@@ -266,7 +237,6 @@ gulp.task('watch', function() {
 
 });
 
-// Serve files with auto reaload
 gulp.task('browsersync', function() {
     log('Starting BrowserSync..');
 
@@ -286,10 +256,7 @@ gulp.task('browsersync', function() {
 
     browserSync({
         notify: false,
-        server: {
-            baseDir: paths.dist,
-            middleware: middlewares
-        },
+        proxy: 'localhost:3000',
         files: [source.scripts.app]
     });
 
@@ -361,3 +328,5 @@ function handleError(err) {
 function log(msg) {
     $.util.log($.util.colors.blue(msg));
 }
+
+module.exports = gulp;

@@ -1,8 +1,8 @@
 {
-  "name": "Angle",
-  "version": "0.0.0",
-  "description": "Angle - Bootstrap Admin App + jQuery",
-  "author": "@themicon_co",
+  "name": "botskin",
+  "version": "0.0.1",
+  "description": "The world's first CMS for bots. Easily create, manage and extend chatbots.",
+  "author": "Protorisk (DIFC)",
   "dependencies": {
     "classnames": "^2.2.5",
     "history": "^2.1.2",
