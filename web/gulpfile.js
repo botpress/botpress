@@ -37,7 +37,6 @@ var paths = {
 }
 
 if (useSass) {
-    log('Using SASS stylesheets...');
     paths.styles = __dirname + 'sass/';
 }
 
@@ -137,7 +136,7 @@ gulp.task('vendor', function() {
     return gulp.src(vendorSrc, {
             base: 'bower_components'
         })
-        .pipe($.expectFile(vendorSrc))
+        .pipe($.expectFile({ silent: true }, vendorSrc))
         .pipe(jsFilter)
             .pipe($.if(isProduction, $.uglify(vendorUglifyOpts)))
             .pipe($.concat(vendor.bundle.js))
@@ -221,7 +220,6 @@ gulp.task('server-assets', function() {
 })
 
 gulp.task('templates:index', function() {
-  console.log(source.templates.index, paths.dist)
     return gulp.src(source.templates.index)
         .pipe(gulp.dest(paths.dist))
 })
@@ -289,7 +287,7 @@ gulp.task('default', gulpsync.sync([
     'vendor',
     'assets',
     'watch'
-]));
+]), done);
 
 gulp.task('assets', [
     'fonts',
@@ -316,17 +314,20 @@ function done() {
     log('************');
     log('* All Done * You can start editing your code, BrowserSync will update your browser after any change..');
     log('************');
+    this.emit('done');
 }
 
-// Error handler
 function handleError(err) {
     log(err.toString());
     this.emit('end');
 }
 
-// log to console using
 function log(msg) {
-    $.util.log($.util.colors.blue(msg));
+    if (!gulp.skipLogs) {
+      $.util.log($.util.colors.blue(msg));
+    } else {
+      $.util.log = function() { }
+    }
 }
 
 module.exports = gulp;
