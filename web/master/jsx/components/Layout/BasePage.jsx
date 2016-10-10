@@ -1,15 +1,13 @@
-import React from 'react';
+import React from 'react'
 
 class BasePage extends React.Component {
-
-    render() {
-        return (
-            <div className="wrapper">
-                {this.props.children}
-            </div>
-        );
-    }
-
+  render() {
+    return (
+      <div className="wrapper">
+        {this.props.children}
+      </div>
+    )
+  }
 }
 
-export default BasePage;
+export default BasePage

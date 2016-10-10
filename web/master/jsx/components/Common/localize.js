@@ -23,7 +23,10 @@ export default () => {
     };
 
     // Set initial language
-    setLanguage(opts);
+    setTimeout(function() {
+      // TODO Fix localization using pure react
+      setLanguage(opts);
+    }, 1)
 
     // Listen for changes
     $(document).on('click', '[data-set-lang]', function() {
@@ -38,7 +41,6 @@ export default () => {
 
             activateDropdown($(this));
         }
-
     });
 
 

@@ -8,7 +8,6 @@ import initLoadCss from './components/Common/load-css'
 
 import Base from './components/Layout/Base'
 import BasePage from './components/Layout/BasePage'
-import BaseHorizontal from './components/Layout/BaseHorizontal'
 
 import SingleView from './components/SingleView/SingleView'
 import SubMenu from './components/SubMenu/SubMenu'
