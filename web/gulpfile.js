@@ -318,8 +318,10 @@ function done() {
 }
 
 function handleError(err) {
-    log(err.toString());
-    this.emit('end');
+  this.emit('err', err);
+  console.log(err.toString())
+  log(err.toString());
+  this.emit('end');
 }
 
 function log(msg) {
