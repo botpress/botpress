@@ -29,10 +29,10 @@ class Header extends React.Component {
         <div className="navbar-header">
           <a href="#/" className="navbar-brand">
             <div className="brand-logo">
-              <img src="img/logo.png" alt="App Logo" className="img-responsive" />
+              <img src="/img/logo.png" alt="App Logo" className="img-responsive" />
             </div>
             <div className="brand-logo-collapsed">
-              <img src="img/logo-single.png" alt="App Logo" className="img-responsive" />
+              <img src="/img/logo-single.png" alt="App Logo" className="img-responsive" />
             </div>
           </a>
         </div>

@@ -1,4 +1,5 @@
 import React from 'react'
+import axios from 'axios'
 
 import Header from './Header'
 import Sidebar from './Sidebar'
@@ -15,9 +16,10 @@ class Base extends React.Component {
 
   componentDidMount() {
     if(!this.state.modules) {
-      window.setTimeout(() => {
-        this.setState({ modules: [{ name: 'skin-messenger', menuText: 'Messenger', menuIcon: 'icon-social-facebook' }] })
-      }, 2000)
+      axios.get('/api/modules')
+      .then((result) => {
+        this.setState({ modules: result.data })
+      })
     }
   }
 

@@ -4,6 +4,7 @@
   "description": "The world's first CMS for bots. Easily create, manage and extend chatbots.",
   "author": "Protorisk (DIFC)",
   "dependencies": {
+    "axios": "^0.15.0",
     "classnames": "^2.2.5",
     "history": "^2.1.2",
     "pubsub-js": "^1.5.3",

@@ -4,6 +4,7 @@ import { Router, Route, Link, hashHistory, useRouterHistory, IndexRoute } from '
 import { createHistory } from 'history'
 
 import Base from './Layout/Base'
+import ModuleView from './ModuleView'
 import SingleView from './SingleView/SingleView'
 import SubMenu from './SubMenu/SubMenu'
 
@@ -24,6 +25,7 @@ class Botskin extends React.Component {
         <IndexRoute component={SingleView} />
         <Route path="singleview" component={SingleView}/>
         <Route path="submenu" component={SubMenu}/>
+        <Route path="modules/:moduleName" component={ModuleView}/>
       </Route>
       {/*<Route path="*" component={NotFound}/>*/}
     </Router>
