@@ -2,36 +2,26 @@ var path = require('path');
 var webpack = require('webpack');
 
 module.exports = {
-    entry: [
-        path.resolve(__dirname, 'master/jsx/App')
-    ],
+    entry: {
+        app: path.resolve(__dirname, 'master/jsx/App')
+    },
     output: {
-        path: path.resolve(__dirname, 'build'),
-        publicPath: '/dist/',
-        filename: 'app.bundle.js'
+        path: path.resolve(__dirname, 'dist/js'),
+        filename: '[name].dll.bundle.js'
     },
     resolve: {
         extensions: ['', '.js', '.jsx']
     },
     plugins: [
         new webpack.optimize.OccurenceOrderPlugin(),
-        new webpack.DefinePlugin({
-            'process.env': {
-                'NODE_ENV': JSON.stringify('production')
-            }
-        }),
-        new webpack.optimize.UglifyJsPlugin({
-            compressor: {
-                warnings: false
-            }
+        new webpack.NoErrorsPlugin(),
+        new webpack.DllReferencePlugin({
+            context: __dirname,
+            manifest: require(path.join(__dirname, 'dist/js', 'vendor-manifest.json')),
         })
     ],
     module: {
         loaders: [{
-            test: /\.jsx?$/,
-            exclude: /node_modules/,
-            loaders: ['react-hot-loader/webpack']
-        }, {
             test: /\.jsx?$/,
             exclude: /node_modules/,
             loader: 'babel',
@@ -47,4 +37,4 @@ module.exports = {
             loader: 'url?prefix=font/&limit=10000'
         }]
     }
-};
+}
