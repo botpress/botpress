@@ -80,16 +80,9 @@ $nav-top-item-desktop-active:   $nav-top-item-mobile-active;
     .brand-logo,
     .brand-logo-collapsed {
       > img {
-        margin: 0 auto;
+        margin: 10px;
+        height: 35px;
       }
-    }
-    .brand-logo {
-      display: block;
-      padding: 10px 15px;
-    }
-    .brand-logo-collapsed {
-      display: none;
-      padding: 6px 15px;
     }
   }
 
@@ -344,4 +337,3 @@ $nav-top-item-desktop-active:   $nav-top-item-mobile-active;
     }
   }
 }
-

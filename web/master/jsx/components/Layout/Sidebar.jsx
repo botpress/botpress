@@ -8,13 +8,6 @@ class Sidebar extends React.Component {
 
   constructor(props, context) {
     super(props, context)
-
-    this.state = {
-      collapse: {
-        singleview: this.routeActive(['singleview']),
-        submenu: this.routeActive(['submenu'])
-      }
-    }
   }
 
   componentDidMount() {
@@ -30,22 +23,10 @@ class Sidebar extends React.Component {
     return false
   }
 
-  toggleItemCollapse(stateName) {
-    var newCollapseState = {}
-    for (let c in this.state.collapse) {
-      if (this.state.collapse[c] === true && c !== stateName)
-      this.state.collapse[c] = false;
-    }
-    this.setState({
-      collapse: {
-        [stateName]: !this.state.collapse[stateName]
-      }
-    })
-  }
-
   renderModuleItem(module) {
-    return (<li key={`menu_module_${module.name}`} className={ this.routeActive(module.name) ? 'active' : '' }>
-      <Link to={'/modules/' + module.name} title={module.menuText}>
+    const path = `/modules/${module.name}`
+    return (<li key={`menu_module_${module.name}`} className={ this.routeActive(path) ? 'active' : '' }>
+      <Link to={path} title={module.menuText}>
         <em className={module.menuIcon || 'icon-puzzle'}></em>
         <span>{module.menuText}</span>
       </Link>

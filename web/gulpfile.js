@@ -31,13 +31,12 @@ var ignored_files = '!' + hidden_files;
 var paths = {
     app: __dirname + '/master/',
     dist: __dirname + '/dist/',
-    markup: 'jade/',
     styles: 'sass/',
     scripts: 'jsx/'
 }
 
 if (useSass) {
-    paths.styles = __dirname + 'sass/';
+    paths.styles = 'sass/';
 }
 
 var vendor = {
