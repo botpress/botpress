@@ -5,6 +5,11 @@ import { Grid, Row, Col, Dropdown, MenuItem } from 'react-bootstrap';
 class ModuleView extends React.Component {
 
     render() {
+
+      const req = require.context("~/modules", true, /\.jsx|\.js/i)
+      console.log(req.keys())
+      const Plugin = req('./skin-messenger/index.jsx')['default']
+
         return (
             <ContentWrapper>
                 <div className="content-heading">
@@ -13,11 +18,9 @@ class ModuleView extends React.Component {
                 <Row>
                     <Col xs={12} className="text-center">
                         <h2 className="text-thin">Here we show the module</h2>
-                        {/* <p>
-                            This project is an application skeleton. You can use it to quickly bootstrap your ReactJS webapp projects and dev environment for these projects.
-                            <br/>
-                            The seed app doesn't do much and has most of the feature removed so you can add theme as per your needs just following the demo app examples.
-                        </p> */}
+                        <div>
+                          <Plugin></Plugin>
+                        </div>
                     </Col>
                 </Row>
             </ContentWrapper>

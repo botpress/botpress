@@ -10,7 +10,10 @@ module.exports = {
         filename: '[name].dll.bundle.js'
     },
     resolve: {
-        extensions: ['', '.js', '.jsx']
+        extensions: ['', '.js', '.jsx'],
+        alias: {
+            '~': __dirname
+        }
     },
     plugins: [
         new webpack.optimize.OccurenceOrderPlugin(),
@@ -35,6 +38,9 @@ module.exports = {
         }, {
             test: /\.woff|\.woff2|\.svg|.eot|\.ttf/,
             loader: 'url?prefix=font/&limit=10000'
+        }, {
+            test: /\.json$/,
+            loader: "json-loader"
         }]
     }
 }
