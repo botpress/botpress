@@ -21,7 +21,7 @@ class Botskin extends React.Component {
   render() {
     const { modules } = this.props
     return <Router history={appHistory}>
-      <Route path="/" component={Base}>
+      <Route path="/" component={Base} skin={this}>
         <IndexRoute component={SingleView} />
         <Route path="singleview" component={SingleView}/>
         <Route path="submenu" component={SubMenu}/>

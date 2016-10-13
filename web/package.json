@@ -8,6 +8,7 @@
     "classnames": "^2.2.5",
     "history": "^2.1.2",
     "json-loader": "^0.5.4",
+    "lodash": "^4.16.4",
     "pubsub-js": "^1.5.3",
     "react": "^15.3.1",
     "react-addons-css-transition-group": "^15.3.1",

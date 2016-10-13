@@ -25,14 +25,15 @@ class Base extends React.Component {
 
   render() {
     const { modules } = this.state
-
+    const el = React.cloneElement(this.props.children, {
+      skin: this.props.route.skin,
+      modules: modules
+    })
     return (
       <div className="wrapper">
         <Header />
         <Sidebar modules={modules} />
-        <section>
-          {this.props.children}
-        </section>
+        <section>{el}</section>
         <Footer />
       </div>
     )
