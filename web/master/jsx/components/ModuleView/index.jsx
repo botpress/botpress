@@ -1,46 +1,50 @@
 import React from 'react';
 import ContentWrapper from '../Layout/ContentWrapper';
-import { Grid, Row, Col, Dropdown, MenuItem } from 'react-bootstrap';
+import {Grid, Row, Col, Dropdown, MenuItem} from 'react-bootstrap';
 import _ from 'lodash'
+
+import ModuleComponent from './ModuleComponent'
 
 class ModuleView extends React.Component {
 
     renderWrapper(children, moduleName) {
-      return <ContentWrapper>
-          <div className="content-heading">
-            {moduleName || this.props.params.moduleName}
-          </div>
-          <Row>
+        return <ContentWrapper>
+            <div className="content-heading">
+                {moduleName || this.props.params.moduleName}
+            </div>
             {children}
-          </Row>
-      </ContentWrapper>
+        </ContentWrapper>
+    }
+
+    renderNotFound() {
+        const err = (
+            <div id="panelDemo12" className="panel panel-warning">
+                <div className="panel-heading">Module not found</div>
+                <div className="panel-body">
+                    <h4>The module is not properly registered</h4>
+                    <p>It seems like you are trying to load a module that has not been registered. Please make sure the module is registered then restart the bot.</p>
+                    <p>
+                        <a role="button" className="btn btn-primary btn-lg">Learn more</a>
+                    </p>
+                </div>
+            </div>)
+        return this.renderWrapper(err)
     }
 
     render() {
-
-      try {
-        const module = _.find(this.props.modules, { name: this.props.params.moduleName })
-        if(!module) {
-          throw new Error(`Module "${this.props.params.moduleName}" is not registered.`)
+        const module = _.find(this.props.modules, {name: this.props.params.moduleName})
+        if (!module) {
+            if (!this.props.modules) {
+                return <div></div> // TODO Loading
+            } else {
+                return this.renderNotFound()
+            }
         }
 
         const req = require.context("~/modules", true, /\.jsx|\.js/i)
-        const Plugin = req('./' + module.name + '/index.jsx').default
-        return (this.renderWrapper(<Plugin skin={this.props.skin}/>, module.menuText));
-      }
-      catch (err) {
-        return this.renderWrapper(<Col lg={ 4 }>
-            <div id="panelDemo12" className="panel panel-danger">
-                <div className="panel-heading">Could not display module</div>
-                <div className="panel-body">
-                    <h4>An error occured while loading the module</h4>
-                    <p>{err.message}</p>
-                </div>
-                <div className="panel-footer">Developer? <a>click here</a> to see why this might happen</div>
-            </div>
-        </Col>)
-      }
-
+        const plugin = req('./' + module.name + '/index.jsx').default
+        const wrappedPlugin = <ModuleComponent component={plugin} name={module.name} skin={this.props.skin}/>
+        return (this.renderWrapper(wrappedPlugin, module.menuText));
     }
 }
 
