@@ -8,6 +8,8 @@ import ModuleView from './ModuleView'
 import SingleView from './SingleView/SingleView'
 import SubMenu from './SubMenu/SubMenu'
 
+import EventBus from './Common/EventBus'
+
 const appHistory = useRouterHistory(createHistory)({
   basename: '/'
 })
@@ -17,6 +19,11 @@ appHistory.listen(function(ev) {
 })
 
 class Botskin extends React.Component {
+
+  componentDidMount() {
+    EventBus.default.start()
+    this.events = EventBus.default
+  }
 
   render() {
     const { modules } = this.props
