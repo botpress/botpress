@@ -6,7 +6,7 @@ import { createHistory } from 'history'
 import Base from './Layout/Base'
 import ModuleView from './ModuleView'
 import SingleView from './SingleView/SingleView'
-import SubMenu from './SubMenu/SubMenu'
+import NotificationPage from './Notifications'
 
 import EventBus from './Common/EventBus'
 
@@ -20,7 +20,8 @@ appHistory.listen(function(ev) {
 
 class Botskin extends React.Component {
 
-  componentDidMount() {
+  constructor(props) {
+    super(props)
     EventBus.default.start()
     this.events = EventBus.default
   }
@@ -31,7 +32,7 @@ class Botskin extends React.Component {
       <Route path="/" component={Base} skin={this}>
         <IndexRoute component={SingleView} />
         <Route path="singleview" component={SingleView}/>
-        <Route path="submenu" component={SubMenu}/>
+        <Route path="notifications" component={NotificationPage}/>
         <Route path="modules/:moduleName" component={ModuleView}/>
       </Route>
       {/*<Route path="*" component={NotFound}/>*/}

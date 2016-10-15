@@ -29,9 +29,10 @@ class Base extends React.Component {
       skin: this.props.route.skin,
       modules: modules
     })
+
     return (
       <div className="wrapper">
-        <Header />
+        <Header skin={this.props.route.skin} />
         <Sidebar modules={modules} />
         <section>{el}</section>
         <Footer />

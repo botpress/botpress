@@ -3,6 +3,8 @@ import pubsub from 'pubsub-js'
 import HeaderRun from './Header.run'
 import { NavDropdown, MenuItem } from 'react-bootstrap'
 
+import NotificationHub from '../Notifications/Hub'
+
 class Header extends React.Component {
   componentDidMount() {
       HeaderRun()
@@ -14,12 +16,7 @@ class Header extends React.Component {
   }
 
   render() {
-    const ddAlertTitle = (
-      <span>
-        <em className="icon-bell"></em>
-        <span className="label label-danger">11</span>
-      </span>
-    )
+    const notifications = <NotificationHub skin={this.props.skin} />
 
     return (
     <header className="topnavbar-wrapper">
@@ -48,15 +45,7 @@ class Header extends React.Component {
         { /* END Left navbar */ }
         { /* START Right Navbar */ }
         <ul className="nav navbar-nav navbar-right">
-          { /* START Alert menu */ }
-          <NavDropdown noCaret eventKey={ 3 } title={ ddAlertTitle } id="basic-nav-dropdown" >
-            <MenuItem className="animated flipInX" eventKey={3.1}>Login</MenuItem>
-            <MenuItem className="animated flipInX" eventKey={3.2}>Profile</MenuItem>
-            <MenuItem className="animated flipInX" eventKey={3.3}>Dashboard</MenuItem>
-            <MenuItem divider />
-            <MenuItem className="animated flipInX" eventKey={3.3}>Logout</MenuItem>
-          </NavDropdown>
-          { /* END Alert menu */ }
+          {notifications}
         </ul>
         { /* END Right Navbar */ }
         </div>
