@@ -1,5 +1,10 @@
 var path = require('path');
 var webpack = require('webpack');
+var ExtractTextPlugin = require('extract-text-webpack-plugin')
+
+var extractCssPlugin = new ExtractTextPlugin('../css/app.custom.css', {
+  allChunks: true
+})
 
 module.exports = {
     entry: {
@@ -21,7 +26,8 @@ module.exports = {
         new webpack.DllReferencePlugin({
             context: __dirname,
             manifest: require(path.join(__dirname, 'dist/js', 'vendor-manifest.json')),
-        })
+        }),
+        extractCssPlugin
     ],
     module: {
         loaders: [{
@@ -30,11 +36,15 @@ module.exports = {
             loader: 'babel',
             query: {
                 presets: ['es2015', 'react'],
+                plugins: ['transform-object-rest-spread'],
                 compact: false
             }
         }, {
             test: /\.css$/,
-            loader: "style-loader!css-loader"
+            loader: ExtractTextPlugin.extract(
+              'style-loader',
+              'css-loader?sourceMap&modules&importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]'
+            )
         }, {
             test: /\.woff|\.woff2|\.svg|.eot|\.ttf/,
             loader: 'url?prefix=font/&limit=10000'
