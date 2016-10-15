@@ -38,6 +38,7 @@
     "express": "^4.14.0",
     "lodash": "^4.16.4",
     "mware": "0.0.3",
+    "node-uuid": "^1.4.7",
     "socket.io": "^1.5.0"
   },
   "devDependencies": {}
