@@ -1,0 +1,31 @@
+.markAsReadButton {
+  top: 22px;
+  right: 12px;
+}
+
+.item {
+  width: 400px;
+  border-left: 4px solid #e2e2e2;
+}
+
+.item-unread {
+  background-color: #f6f8ff;
+  border-left: 4px solid #aeccee;
+}
+
+.topMenu {
+  padding: 10px 12px;
+  border-bottom: 1px solid #d1d1d1;
+  color: #5f5f5f;
+  font-size: 13px;
+}
+
+.dropdown {
+  padding: 0;
+}
+
+.message {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
