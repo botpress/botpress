@@ -41,7 +41,10 @@ class NotificationHub extends NotificationComponent {
 
     return <NavDropdown id="notificationsDropdown" style={{padding: 0}} noCaret eventKey={ 3 } title={label} className={styles.dropdown}>
       <MenuItem header className={styles.topMenu}>
-        <strong>Notifications</strong>
+        <span>
+          <strong>Notifications</strong>
+          &nbsp;&nbsp;&middot;&nbsp;&nbsp;total of {notifications.length}
+        </span>
         <div className="pull-right">
           <a href="#" onClick={() => this.markAllAsRead()}>Mark all as read</a>
           &nbsp;&nbsp;&middot;&nbsp;&nbsp;
