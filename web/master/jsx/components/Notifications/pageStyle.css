@@ -47,3 +47,7 @@
 .bar-btn {
   margin-left: 10px;
 }
+
+.mark-read-btn:hover {
+  cursor: pointer;
+}

@@ -97,9 +97,9 @@ class NotificationComponent extends React.Component {
       let checkButton = null
       if(this.state.selectedIndex == i && !notif.read) {
         const tooltip = <Tooltip id="ttip">Mark as read</Tooltip>
-
+        const checkClassName = classnames('icon-check', styles['mark-read-btn'])
         checkButton = <OverlayTrigger placement="left" overlay={ tooltip }>
-        <em className="icon-check" onClick={(event) => {
+        <em className={checkClassName} onClick={(event) => {
           event.preventDefault()
           event.stopPropagation()
           this.markAsRead(notif)
