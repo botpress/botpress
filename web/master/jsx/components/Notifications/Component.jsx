@@ -81,7 +81,12 @@ class NotificationComponent extends React.Component {
 
       const date = moment(new Date(notif.date)).fromNow()
 
-      const className = classnames('animated', 'fadeIn', 'notif', styles.item, {
+      const className = classnames({
+        animated: true,
+        fadeIn: true,
+        notif: true,
+        [styles.item]: true,
+        [styles['level-' + notif.level]]: true,
         [styles['item-unread']]: !notif.read
       })
 
