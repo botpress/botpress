@@ -66,6 +66,10 @@ class NotificationComponent extends React.Component {
     this.props.skin.events.emit('notifications.allRead')
   }
 
+  trashAll() {
+    this.props.skin.events.emit('notifications.trashAll')
+  }
+
   renderMenuItems(displayedNotifications) {
     const styles = this.styles
     const ItemComponent = this.itemComponent
