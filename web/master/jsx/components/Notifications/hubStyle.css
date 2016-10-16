@@ -40,3 +40,10 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.zero-notif {
+  width: 400px;
+  padding: 20px;
+  font-size: 15px;
+  text-align: center;
+}

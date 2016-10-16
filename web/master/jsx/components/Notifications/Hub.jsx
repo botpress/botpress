@@ -16,6 +16,12 @@ class NotificationHub extends NotificationComponent {
     return <div className={styles.message}>{message}</div>
   }
 
+  renderNoNotification() {
+    return <MenuItem header className={styles['zero-notif']}>
+      <div>You have no notifications !</div>
+    </MenuItem>
+  }
+
   render() {
     const notifications = this.state.notifications || []
     const unread = _.filter(notifications, { read: false })
@@ -51,6 +57,7 @@ class NotificationHub extends NotificationComponent {
           <a href="/notifications">Show all</a>
         </div>
       </MenuItem>
+      {(notifications.length === 0 && this.renderNoNotification())}
       {this.renderMenuItems(displayedNotifications)}
     </NavDropdown>
   }
