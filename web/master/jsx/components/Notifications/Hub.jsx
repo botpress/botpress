@@ -2,6 +2,7 @@ import React from 'react'
 import { NavDropdown, MenuItem } from 'react-bootstrap'
 import _ from 'lodash'
 import NotificationComponent from './Component'
+import classnames from 'classnames'
 
 import styles from './hubStyle.css'
 
@@ -17,12 +18,25 @@ class NotificationHub extends NotificationComponent {
 
   render() {
     const notifications = this.state.notifications || []
-    const unreadCount = _.filter(notifications, { read: false }).length
+    const unread = _.filter(notifications, { read: false })
+    const unreadCount = unread.length
     const displayedNotifications = _.take(notifications, 6)
+
+    const hasError = _.some(unread, (notif) => {
+      return notif.level === 'error'
+    })
+
+    const className = classnames('label', {
+      'label-danger': hasError,
+      'label-default': !hasError
+    })
 
     const label = <span>
       <em className="icon-bell"></em>
-      <span className="label label-danger" style={{ opacity: unreadCount > 0 ? 1 : 0}}>{unreadCount}</span>
+      <span className={className}
+        style={{ opacity: unreadCount > 0 ? 1 : 0}}>
+        {unreadCount}
+      </span>
     </span>
 
     return <NavDropdown id="notificationsDropdown" style={{padding: 0}} noCaret eventKey={ 3 } title={label} className={styles.dropdown}>
