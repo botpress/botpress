@@ -7,6 +7,7 @@ import Base from './Layout/Base'
 import ModuleView from './ModuleView'
 import SingleView from './SingleView/SingleView'
 import NotificationPage from './Notifications'
+import LoggerView from './Logger'
 
 import EventBus from './Common/EventBus'
 
@@ -33,6 +34,7 @@ class Botskin extends React.Component {
         <IndexRoute component={SingleView} />
         <Route path="singleview" component={SingleView}/>
         <Route path="notifications" component={NotificationPage}/>
+        <Route path="logs" component={LoggerView}/>
         <Route path="modules/:moduleName" component={ModuleView}/>
       </Route>
       {/*<Route path="*" component={NotFound}/>*/}

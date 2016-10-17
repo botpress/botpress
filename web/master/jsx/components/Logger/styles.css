@@ -1,0 +1,56 @@
+.logs-panel {
+  background-color: #191f28;
+  color: rgba(255, 255, 255, 0.85);
+  border: none;
+  margin-top: -4px;
+  border-radius: 0px;
+  border-bottom-right-radius: 3px;
+  border-bottom-left-radius: 3px;
+  border-top: #b1b1b1 2px solid;
+  min-height: 300px;
+  position: relative;
+}
+
+.logs-panel-footer {
+  position: absolute;
+  bottom: 0px;
+  text-align: center;
+  width: 100%;
+  background-color: #404040;
+  border-bottom-right-radius: 3px;
+  border-bottom-left-radius: 3px;
+  padding: 2px 0;
+}
+
+.logs-panel-footer a {
+  color: white;
+}
+
+.logs-panel-footer a:hover {
+  color: white;
+}
+
+.panel {
+  margin-bottom: 0px;
+}
+
+.panel-checkbox {
+  margin: 8px 0;
+}
+
+ul.events {
+  word-wrap: break-word;
+  list-style: none;
+  padding: 0;
+}
+
+.line span {
+  margin-left: 7px;
+}
+
+.line .level-silly { color: #6c6c6c; }
+.line .level-debug { color: #f1edff; }
+.line .level-verbose { color: #c9c9c9; }
+.line .level-info { color: #6cbdff; }
+.line .level-warn { color: #fce465; }
+.line .level-error { color: #fe5151; }
