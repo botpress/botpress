@@ -116,7 +116,7 @@ class NotificationComponent extends React.Component {
           className={className}
           onMouseOver={() => this.setState({ selectedIndex: i})}>
         <Row>
-          <Col lg={11} onClick={() => this.onNotifClicked(notif)}>
+          <Col xs={11} onClick={() => this.onNotifClicked(notif)}>
             <strong className={styles.header}>
               <em className={notif.icon}>&nbsp;</em>
               {notif.name}
@@ -124,7 +124,7 @@ class NotificationComponent extends React.Component {
             {this.renderMessage(notif.message)}
             <small className="text-muted">{date}</small>
           </Col>
-          <Col lg={1} className={styles.markAsReadButton}>
+          <Col xs={1} className={styles.markAsReadButton}>
             {checkButton}
           </Col>
         </Row>
