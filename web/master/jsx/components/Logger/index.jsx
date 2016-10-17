@@ -87,12 +87,14 @@ class LoggerView extends React.Component {
     return <ContentWrapper>
       <Panel className={styles.panel}>
         <form className="pull-left">
-          <Checkbox className={styles['panel-checkbox']} checked={this.state.autoRefresh} inline onChange={this.toggleAutoRefresh}>
+          <Checkbox className={styles['panel-checkbox']}
+            checked={this.state.autoRefresh}
+            inline onChange={this.toggleAutoRefresh}>
             Auto refresh
           </Checkbox>
         </form>
         <div className="pull-right">
-          <Button>Export logs archive</Button>
+          <Button href="/api/logs/archive">Export logs archive</Button>
         </div>
       </Panel>
       <div className={logsPanelClassName}>

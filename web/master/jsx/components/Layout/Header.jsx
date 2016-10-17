@@ -42,16 +42,16 @@ class Header extends React.Component {
             </a>
           </li>
         </ul>
-        { /* END Left navbar */ }
-        { /* START Right Navbar */ }
         <ul className="nav navbar-nav navbar-right">
+          <li>
+            <a href="/logs">
+              <em className="fa fa-file-text-o"></em>
+            </a>
+          </li>
           {notifications}
         </ul>
-        { /* END Right Navbar */ }
         </div>
-        { /* END Nav wrapper */ }
       </nav>
-      { /* END Top Navbar */ }
     </header>
     )
   }
