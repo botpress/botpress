@@ -18,7 +18,7 @@ class LoggerView extends React.Component {
 
   constructor(props) {
     super(props)
-    this.state = { autoRefresh: true, logs: null, limit: 50, hasMore: false }
+    this.state = { autoRefresh: true, logs: null, limit: 25, hasMore: false }
     this.toggleAutoRefresh = this.toggleAutoRefresh.bind(this)
     this.queryLogs = this.queryLogs.bind(this)
     this.loadMore = this.loadMore.bind(this)
@@ -92,7 +92,7 @@ class LoggerView extends React.Component {
           </Checkbox>
         </form>
         <div className="pull-right">
-          <Button>Export</Button>
+          <Button>Export logs archive</Button>
         </div>
       </Panel>
       <div className={logsPanelClassName}>
