@@ -51,10 +51,10 @@ class LoggerView extends React.Component {
   }
 
   renderLine(line) {
-    const ago = moment(new Date(line.timestamp)).format('MMM DD HH:mm:ss')
+    const time = moment(new Date(line.timestamp)).format('MMM DD HH:mm:ss')
 
     return <li className={styles.line}>
-      <span className={styles.ago}>{ago}</span>
+      <span className={styles.time}>{time}</span>
       <span className={styles['level-' + line.level]}>{line.level + ': '}</span>
       <span className={styles.message}>{line.message}</span>
     </li>
@@ -103,9 +103,12 @@ class LoggerView extends React.Component {
             {logs}
           </ul>
         </div>
-        {canLoadMore && <div href="#" className={styles['logs-panel-footer']}>
-          <a href="#" onClick={this.loadMore}>Load more</a>
-        </div>}
+        {
+          canLoadMore &&
+          <div href="#" className={styles['logs-panel-footer']} onClick={this.loadMore}>
+            Load more
+          </div>
+        }
       </div>
     </ContentWrapper>
   }
