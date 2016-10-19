@@ -104,7 +104,7 @@ module.exports = ({ modules, skipLogs }) => {
 
     var bundler = webpack(webpackConfig)
 
-    gulp.task('scripts:app', function() {
+    gulp.task('scripts:app', ['modules'] , function() {
         log('Building scripts..')
             // Minify and copy all JavaScript (except vendor scripts)
         return gulp.src(source.scripts.entry)
