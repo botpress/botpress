@@ -17,7 +17,7 @@ class EventBus extends EventEmitter2 {
     }
 
     // TODO Change this to support prod
-    const socket = this.socket = io.connect('http://localhost:3000')
+    const socket = this.socket = io.connect('http://localhost:3000', { query: 'token=' + 'TOKEN' })
     socket.on('event', (event) => {
       this.emit(event.name, event.data, 'server')
     })

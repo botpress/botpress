@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom'
 import { Router, Route, Link, hashHistory, useRouterHistory, IndexRoute } from 'react-router'
 import { createHistory } from 'history'
 
+import EnsureAuthenticated from './Authentication/EnsureAuthenticated'
+
 import Base from './Layout/Base'
 import ModuleView from './ModuleView'
 import SingleView from './SingleView/SingleView'
@@ -30,7 +32,7 @@ class Botskin extends React.Component {
   render() {
     const { modules } = this.props
     return <Router history={appHistory}>
-      <Route path="/" component={Base} skin={this}>
+      <Route path="/" component={EnsureAuthenticated(Base)} skin={this}>
         <IndexRoute component={SingleView} />
         <Route path="singleview" component={SingleView}/>
         <Route path="notifications" component={NotificationPage}/>
