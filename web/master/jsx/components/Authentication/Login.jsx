@@ -1,14 +1,94 @@
 import React from 'react';
-// import ContentWrapper from '../Layout/ContentWrapper';
-import {Grid, Row, Col, Dropdown, MenuItem} from 'react-bootstrap';
+import {Button, FormGroup, FormControl, ControlLabel, HelpBlock} from 'react-bootstrap';
+import classnames from 'classnames'
+
+import styles from './loginStyles.css'
+import { login } from './auth'
 
 class LoginPage extends React.Component {
 
-  render() {
-    return <div>
-      You need to be logged in: {(!!window.PRODUCTION).toString()}
+  constructor(props, context) {
+    super(props, context)
+    this.state = { user: 'admin', password: '', error: null, loading: false }
+  }
+
+  renderGlobalStyle() {
+    return <style>
+      {"\
+        body{\
+          background-color: #e4eaec;\
+        }\
+      "}
+      </style>
+  }
+
+  handlePasswordChange(event) {
+    this.setState({ password: event.target.value })
+  }
+
+  handleSubmit(event) {
+    event.preventDefault()
+    this.setState({ loading: true })
+
+    login(this.state.user, this.state.password)
+    .then((result) => {
+      this.setState({ error: null })
+      this.context.router.push(this.props.location.query.returnTo || '/')
+    })
+    .catch((err) => {
+      this.setState({ error: err.message, loading: false })
+    })
+
+    return false
+  }
+
+  renderLoading() {
+    const className = classnames(styles.loading)
+    return this.state.loading && <div className={className}>
+      <div style={{ marginTop: '140px' }} className="whirl helicopter"></div>
     </div>
   }
+
+  render() {
+  const panelStyle = classnames('panel', styles['panel-center'], {
+    [styles['panel-center-tall']]: !!this.state.error
+  })
+  const headerStyle = classnames('panel-heading', 'text-center', styles.header)
+  const errorStyle = classnames(styles.error)
+
+  return <div>{this.renderGlobalStyle()}
+      <div className="block-center mt-xl wd-xl">
+        <div className={panelStyle}>
+          <div className={headerStyle}>
+            <h4>Login</h4>
+          </div>
+          <div className="panel-body">
+            {this.renderLoading()}
+            {this.state.error && <p className={errorStyle}>{this.state.error}</p>}
+            <form onSubmit={this.handleSubmit.bind(this)}>
+              <FormGroup>
+                <ControlLabel>User</ControlLabel>
+                <FormControl type="text" placeholder="" value="admin" readOnly />
+              </FormGroup>
+              <FormGroup>
+                <ControlLabel>Password</ControlLabel>
+                <FormControl
+                  type="password"
+                  placeholder=""
+                  value={this.state.password}
+                  onChange={this.handlePasswordChange.bind(this)}/>
+              </FormGroup>
+              <Button className="pull-right" type="submit">Login</Button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+}
+
+LoginPage.contextTypes = {
+  router: React.PropTypes.object
 }
 
 export default LoginPage
