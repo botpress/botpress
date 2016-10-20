@@ -40,6 +40,7 @@
     "jsonwebtoken": "^7.1.9",
     "lodash": "^4.16.4",
     "moment": "^2.15.1",
+    "ms": "^0.7.1",
     "mware": "0.0.3",
     "node-uuid": "^1.4.7",
     "socket.io": "^1.5.0",
