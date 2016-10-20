@@ -5,7 +5,7 @@ import LoginPage from './Login'
 
 import axios from 'axios'
 
-import { getToken, logout } from './auth'
+import { getToken, logout, authEvents } from './auth'
 
 export default function ensureAuthenticated(WrappedComponent) {
 
@@ -26,14 +26,17 @@ export default function ensureAuthenticated(WrappedComponent) {
       this.state = { authorized: false }
       this.setupAuth = this.setupAuth.bind(this)
       this.checkAuth = this.checkAuth.bind(this)
+      this.promptLogin = this.promptLogin.bind(this)
     }
 
     componentDidMount() {
       this.setupAuth()
+      authEvents.on('logout', this.promptLogin)
     }
 
     componentWillUnmount() {
       clearInterval(this.checkInterval)
+      authEvents.off('logout', this.promptLogin)
     }
 
     promptLogin() {

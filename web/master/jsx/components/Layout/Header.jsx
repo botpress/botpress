@@ -5,6 +5,8 @@ import { NavDropdown, MenuItem } from 'react-bootstrap'
 
 import NotificationHub from '../Notifications/Hub'
 
+import { logout } from '../Authentication/auth'
+
 class Header extends React.Component {
   componentDidMount() {
       HeaderRun()
@@ -13,6 +15,18 @@ class Header extends React.Component {
   toggleUserblock(e) {
     e.preventDefault()
     pubsub.publish('toggleUserblock')
+  }
+
+  renderLogoutButton() {
+    if(!window.AUTH_ENABLED) {
+      return null
+    }
+
+    return <li>
+      <a href="#" onClick={logout}>
+        <em className="fa fa-power-off"></em>
+      </a>
+    </li>
   }
 
   render() {
@@ -49,6 +63,7 @@ class Header extends React.Component {
             </a>
           </li>
           {notifications}
+          {this.renderLogoutButton()}
         </ul>
         </div>
       </nav>
