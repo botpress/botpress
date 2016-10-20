@@ -50,10 +50,10 @@ class LoggerView extends React.Component {
     this.setState({ autoRefresh: !this.state.autoRefresh })
   }
 
-  renderLine(line) {
+  renderLine(line, index) {
     const time = moment(new Date(line.timestamp)).format('MMM DD HH:mm:ss')
 
-    return <li className={styles.line}>
+    return <li key={`log_event_${index}`} className={styles.line}>
       <span className={styles.time}>{time}</span>
       <span className={styles['level-' + line.level]}>{line.level + ': '}</span>
       <span className={styles.message}>{line.message}</span>
