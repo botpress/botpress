@@ -38,9 +38,9 @@ program
       }
     }
 
-    const botfile = path.join(projectPath, 'bot.json');
+    const botfile = path.join(projectPath, 'botfile.js');
     if(!fs.existsSync(botfile)) {
-      util.print('error', `(fatal) No ${chalk.bold('bot.json')} file found at: ` + botfile);
+      util.print('error', `(fatal) No ${chalk.bold('botfile.js')} file found at: ` + botfile);
       process.exit(1);
     }
 
