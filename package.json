@@ -7,6 +7,9 @@
   "description": "The world's first CMS for bots. Easily create, manage and extend chatbots.",
   "main": "./lib/skin.js",
   "scripts": {
+    "prepublish": "npm run compile && mv bin/skin bin/skin-dev && mv bin/skin-prod bin/skin",
+    "postpublish": "mv bin/skin bin/skin-prod && mv bin/skin-dev bin/skin",
+    "compile": "babel -d lib/ src/",
     "test": "echo \"Error: no test specified\" && exit 1",
     "postinstall": "cd web && npm install && bower install"
   },
@@ -47,5 +50,18 @@
     "socketio-jwt": "^4.5.0",
     "winston": "^2.2.0"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "babel-cli": "^6.16.0",
+    "babel-preset-es2015": "^6.16.0",
+    "babel-preset-es2016": "^6.16.0",
+    "babel-preset-latest": "^6.16.0",
+    "babel-preset-stage-0": "^6.16.0",
+    "babel-register": "^6.16.3"
+  },
+  "babel": {
+    "presets": [
+      "latest",
+      "stage-0"
+    ]
+  }
 }
