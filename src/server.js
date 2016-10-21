@@ -1,15 +1,13 @@
-const express = require('express')
-const chalk = require('chalk')
-const path = require('path')
-const Promise = require('bluebird')
-const _ = require('lodash')
-const socketio = require('socket.io')
-const socketioJwt = require('socketio-jwt')
-const http = require('http')
-const bodyParser = require('body-parser')
-const ms = require('ms')
-
-const util = require('./util')
+import express from 'express'
+import path from 'path'
+import Promise from 'bluebird'
+import _ from 'lodash'
+import socketio from 'socket.io'
+import socketioJwt from 'socketio-jwt'
+import http from 'http'
+import bodyParser from 'body-parser'
+import ms from 'ms'
+import util from './util'
 
 const setupSocket = function(app, skin) {
   const server = http.createServer(app)

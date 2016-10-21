@@ -1,20 +1,19 @@
-const _ = require('lodash')
-const fs = require('fs')
-const path = require('path')
-const uuid = require('node-uuid')
+import _ from 'lodash'
+import fs from 'fs'
+import path from 'path'
+import uuid from 'node-uuid'
 
-const { resolveModuleRootPath } = require('./util')
+import { resolveModuleRootPath } from './util'
 
 module.exports = (skin, modules) => {
 
-  const notificationsFile = path.join(skin.dataLocation, 'notifications.json')
+  const notificationsFile = path.join(skin.dataLocation, skin.botfile.notification.file)
 
   // TODO Make this function overridable
   function loadNotifications() {
     if(fs.existsSync(notificationsFile)) {
       return JSON.parse(fs.readFileSync(notificationsFile))
     }
-
     return []
   }
 
@@ -91,8 +90,7 @@ module.exports = (skin, modules) => {
     }
 
     let notifications = loadNotifications()
-    const maxNotifications = 30 // TODO Check settings
-    if(notifications.length >= maxNotifications) {
+    if(notifications.length >= skin.botfile.notification.maxLength) {
       notifications.pop()
     }
 

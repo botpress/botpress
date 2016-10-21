@@ -1,9 +1,11 @@
-const winston = require('winston')
-const path = require('path')
-const Promise = require('bluebird')
-const moment = require('moment')
+import winston from 'winston'
+import path from 'path'
+import Promise from 'bluebird'
+import moment from 'moment'
 
-const { isDeveloping } = require('./util')
+import  { isDeveloping } from './util'
+
+const logFile = path.join(skin.dataLocation, skin.botfile.log.file)
 
 module.exports = (skin) => {
   const logger = new winston.Logger({
@@ -18,16 +20,13 @@ module.exports = (skin) => {
   })
 
   logger.enableFileTransport = () => {
-    const logFile = path.join(skin.dataLocation, 'skin.log')
-
     logger.add(winston.transports.File, {
       filename: logFile,
-      maxsize: 1e6, // TODO 1mb, make this a config
+      maxsize: skin.botfile.log.maxSize
     })
   }
 
   logger.archiveToFile = () => {
-    const logFile = path.join(skin.dataLocation, 'skin.log')
     return Promise.resolve(logFile)
   }
 

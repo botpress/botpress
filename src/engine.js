@@ -1,5 +1,5 @@
-const _ = require('lodash')
-const mware = require('mware')
+import _ from 'lodash'
+import mware from 'mware'
 
 const createMiddleware = function() {
 

@@ -1,9 +1,8 @@
-const fs = require('fs')
-const path = require('path')
-const crypto = require('crypto')
-const jwt = require('jsonwebtoken')
-
-const util = require('./util')
+import fs from 'fs'
+import path from 'path'
+import crypto from 'crypto'
+import jwt from 'jsonwebtoken'
+import util from './util'
 
 module.exports = (skin) => {
 

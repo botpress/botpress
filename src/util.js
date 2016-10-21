@@ -1,7 +1,7 @@
-const chalk = require('chalk')
-const path = require('path')
-const Module = require('module')
-const fs = require('fs')
+import chalk from 'chalk'
+import path from 'path'
+import Module from 'module'
+import fs from 'fs'
 
 const IS_DEV = process.env.NODE_ENV !== 'production'
 

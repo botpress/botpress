@@ -1,17 +1,15 @@
-const path = require('path')
-const fs = require('fs')
-const _ = require('lodash')
-const chalk = require('chalk')
-const domain = require('domain')
+import path from 'path'
+import fs from 'fs'
+import _ from 'lodash'
+import domain from 'domain'
+import WebServer from './server'
+import applyEngine from './engine'
+import EventBus from './bus'
+import NotificationProvider from './notif'
+import Logger from './logger'
+import Security from './security'
 
-const WebServer = require('./server')
-const applyEngine = require('./engine')
-const EventBus = require('./bus')
-const NotificationProvider = require('./notif')
-const Logger = require('./logger')
-const Security = require('./security')
-
-const { resolveFromDir, isDeveloping, resolveModuleRootPath } = require('./util')
+import { resolveFromDir, isDeveloping, resolveModuleRootPath } from './util'
 
 class skin {
   constructor({ botfile }) {

@@ -1,9 +1,8 @@
-const program = require('commander');
-const path = require('path');
-const fs = require('fs');
-const chalk = require('chalk');
-
-const util = require('./util');
+import program from 'commander'
+import path from 'path'
+import fs from 'fs'
+import chalk from 'chalk'
+import util from './util'
 
 program
   .command('init')
