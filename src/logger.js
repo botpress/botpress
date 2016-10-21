@@ -5,9 +5,11 @@ import moment from 'moment'
 
 import  { isDeveloping } from './util'
 
-const logFile = path.join(skin.dataLocation, skin.botfile.log.file)
+
 
 module.exports = (skin) => {
+  const logFile = path.join(skin.dataLocation, skin.botfile.log.file)
+  
   const logger = new winston.Logger({
     level: isDeveloping ? 'debug' : 'info',
     transports: [
