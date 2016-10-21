@@ -113,7 +113,7 @@ const serveStatic = function(app, skin) {
     return new Promise(function(resolve, reject) {
       // backup current working directory
       const cwd = process.cwd()
-      skin.logger.verbose('compiling website...')
+      skin.logger.verbose('compiling website, please wait...')
       try {
         process.chdir(path.join(__dirname, '../web'))
         const Tasks = require(path.join(__dirname, '../web/tasks'))
@@ -173,7 +173,9 @@ class WebServer {
 
     .then (() => {
       server.listen(3000, () => { // TODO Port in config
-        this.skin.logger.info('listening on port 3000')
+        this.skin.logger.info('┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓')
+        this.skin.logger.info('┃ bot launched, visit: http://localhost:3000 ┃')
+        this.skin.logger.info('┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛')
       })
     })
   }

@@ -9,6 +9,9 @@
   border-top: #b1b1b1 2px solid;
   min-height: 300px;
   position: relative;
+  font-family: Courier;
+  font-style: normal;
+  font-variant: normal;
 }
 
 .logs-panel :global(.panel-body) {
