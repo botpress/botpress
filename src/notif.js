@@ -9,47 +9,45 @@ module.exports = (skin, modules) => {
 
   const notificationsFile = path.join(skin.dataLocation, skin.botfile.notification.file)
 
-  // TODO Make this function overridable
-  function loadNotifications() {
+  skin.loadNotifications = () => {
     if(fs.existsSync(notificationsFile)) {
       return JSON.parse(fs.readFileSync(notificationsFile))
     }
     return []
   }
 
-  // TODO Make this function overridable
-  function saveNotifications(notifications) {
+  skin.saveNotifications = (notifications) => {
     fs.writeFileSync(notificationsFile, JSON.stringify(notifications))
   }
 
   skin.events.on('notifications.getAll', () => {
-    skin.events.emit('notifications.all', loadNotifications())
+    skin.events.emit('notifications.all', skin.loadNotifications())
   })
 
   skin.events.on('notifications.read', (id) => {
-    let notifications = loadNotifications()
+    let notifications = skin.loadNotifications()
     notifications = notifications.map((notif) => {
       if(notif.id === id) {
         notif.read = true
       }
       return notif
     })
-    saveNotifications(notifications)
+    skin.saveNotifications(notifications)
     skin.events.emit('notifications.all', notifications)
   })
 
   skin.events.on('notifications.allRead', () => {
-    let notifications = loadNotifications()
+    let notifications = skin.loadNotifications()
     notifications = notifications.map((notif) => {
       notif.read = true
       return notif
     })
-    saveNotifications(notifications)
+    skin.saveNotifications(notifications)
     skin.events.emit('notifications.all', notifications)
   })
 
   skin.events.on('notifications.trashAll', () => {
-    saveNotifications([])
+    skin.saveNotifications([])
     skin.events.emit('notifications.all', [])
   })
 
@@ -89,13 +87,13 @@ module.exports = (skin, modules) => {
       read: false
     }
 
-    let notifications = loadNotifications()
+    let notifications = skin.loadNotifications()
     if(notifications.length >= skin.botfile.notification.maxLength) {
       notifications.pop()
     }
 
     notifications.unshift(notification)
-    saveNotifications(notifications)
+    skin.saveNotifications(notifications)
 
     skin.events.emit('notifications.new', notification)
   }
