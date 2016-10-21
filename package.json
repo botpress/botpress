@@ -7,8 +7,6 @@
   "description": "The world's first CMS for bots. Easily create, manage and extend chatbots.",
   "main": "./lib/skin.js",
   "scripts": {
-    "prepublish": "npm run compile && mv bin/skin bin/skin-dev && mv bin/skin-prod bin/skin",
-    "postpublish": "mv bin/skin bin/skin-prod && mv bin/skin-dev bin/skin",
     "compile": "babel -d lib/ src/",
     "test": "echo \"Error: no test specified\" && exit 1",
     "postinstall": "cd web && npm install && bower install"
