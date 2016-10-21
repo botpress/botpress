@@ -2,3 +2,8 @@
 
 require('babel-register');
 require('../src/cli.js');
+
+// TODO: Automate this during publish
+
+//  This is for production
+// require('../lib/cli.js');
