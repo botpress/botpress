@@ -8,7 +8,7 @@ module.exports = function(projectPath, options) {
 
   if(!skip) {
     try {
-      skin = require(path.join(projectPath, 'node_modules', 'botskin'));
+      skin = require(path.join(projectPath, 'node_modules', '@botskin/botskin'));
     }
     catch (err)
     {
