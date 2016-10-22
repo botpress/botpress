@@ -79,5 +79,23 @@ module.exports = function() {
     fs.writeFileSync('data/bot.log', '')
     fs.writeFileSync('data/notification.json', '[]')
 
+    const install = spawn('npm', ['install'])
+
+    install.stdout.on('data', (data) => {
+      process.stdout.write(data.toString())
+    })
+
+    install.stderr.on('data', (data) => {
+      process.stdout.write(data.toString())
+    })
+
+    install.on('close', (code) => {
+      if(code > 0) {
+        console.log(chalk.red('FAILED'))
+      } else {
+        console.log(chalk.green('SUCCESS'))
+        console.log(nextStepText)
+      }
+    })
   })
 }
