@@ -72,6 +72,7 @@ module.exports = (skin, modules) => {
     })
 
     let options = {
+      // TODO should probably go in settings as defaults
       moduleId: 'skin',
       icon: 'icon-puzzle',
       name: 'skin',

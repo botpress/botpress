@@ -120,7 +120,10 @@ const serveStatic = function(app, skin) {
         const modules = _.map(_.values(skin.modules), (mod) => {
           return { name: mod.name, path: `${mod.root}/views/**.*` }
         })
-        const gulp = Tasks({ modules, skipLogs: true })
+
+        const landingPagePath = path.join(skin.projectLocation, 'ui/**.*')
+
+        const gulp = Tasks({ landingPagePath, modules, skipLogs: true })
         gulp.on('done', resolve)
         gulp.on('error', (err) => {
           skin.logger.error('Gulp error', err)

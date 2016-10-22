@@ -46,5 +46,6 @@ jspm_packages
 web/bower_components
 web/dist
 web/modules
+web/landing
 data/
 lib/

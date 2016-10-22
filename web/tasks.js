@@ -8,7 +8,7 @@ var args = require('yargs').argv,
     gulpsync = $.sync(gulp),
     webpack = require('webpack');
 
-module.exports = ({ modules, skipLogs }) => {
+module.exports = ({ landingPagePath, modules, skipLogs }) => {
 
     function done() {
         this.emit('done')
@@ -43,6 +43,7 @@ module.exports = ({ modules, skipLogs }) => {
         app: __dirname + '/master/',
         dist: __dirname + '/dist/',
         modules: __dirname + '/modules/',
+        landing: __dirname + '/landing/',
         styles: 'sass/',
         scripts: 'jsx/'
     }
@@ -104,7 +105,7 @@ module.exports = ({ modules, skipLogs }) => {
 
     var bundler = webpack(webpackConfig)
 
-    gulp.task('scripts:app', ['modules'] , function() {
+    gulp.task('scripts:app', ['landing', 'modules'] , function() {
         log('Building scripts..')
             // Minify and copy all JavaScript (except vendor scripts)
         return gulp.src(source.scripts.entry)
@@ -174,6 +175,11 @@ module.exports = ({ modules, skipLogs }) => {
 
     gulp.task('modules', gulpsync.sync(moduleTasks))
 
+    gulp.task('landing', function() {
+      return gulp.src(landingPagePath)
+        .pipe(gulp.dest(paths.landing))
+    })
+
     gulp.task('styles:app', function() {
         log('Building application styles..')
         return gulp.src(source.styles.app)
@@ -225,6 +231,8 @@ module.exports = ({ modules, skipLogs }) => {
         for(var mod of modules) {
           gulp.watch(mod.path, ['modules', 'scripts:app'])
         }
+
+        gulp.watch(landingPagePath, ['landing', 'scripts:app'])
     })
 
     //---------------
@@ -243,6 +251,7 @@ module.exports = ({ modules, skipLogs }) => {
     ]), done)
 
     gulp.task('assets', [
+        'landing',
         'modules',
         'fonts',
         'images',
@@ -255,10 +264,15 @@ module.exports = ({ modules, skipLogs }) => {
 
     gulp.task('clean', function(done) {
         log('Clean dist folder..')
-        del(paths.dist, {
-            force: true
-        }).then(function() {
-            done()
+        del(paths.dist, { force: true })
+        .then(function() {
+          del(paths.modules, { force: true })
+        })
+        .then (function() {
+          del(paths.landing, { force: true })
+        })
+        .then (function() {
+          done()
         })
     })
 
