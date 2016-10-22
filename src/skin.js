@@ -131,9 +131,9 @@ class skin {
     const self = this
 
     botDomain.on('error', function(err) {
-      this.logger.error('(fatal) An unhandled exception occured in your bot', err)
+      self.logger.error('(fatal) An unhandled exception occured in your bot', err)
       if (isDeveloping) {
-        this.logger.error(err.stack)
+        self.logger.error(err.stack)
       }
       return process.exit(1)
     })
