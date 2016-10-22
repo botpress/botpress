@@ -33,3 +33,7 @@
 
 // Print CSS
 @import "app/print";
+
+.gitter-chat-embed {
+  z-index: 10000 !important;
+}

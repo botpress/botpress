@@ -3,7 +3,6 @@ import axios from 'axios'
 
 import Header from './Header'
 import Sidebar from './Sidebar'
-import Footer from './Footer'
 
 class Base extends React.Component {
 
@@ -35,7 +34,6 @@ class Base extends React.Component {
         <Header skin={this.props.route.skin} />
         <Sidebar modules={modules} />
         <section>{el}</section>
-        <Footer />
       </div>
     )
   }
