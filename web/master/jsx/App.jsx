@@ -8,7 +8,7 @@ import EnsureAuthenticated from './components/Authentication/EnsureAuthenticated
 import LoginPage from './components/Authentication/Login'
 import Base from './components/Layout/Base'
 import ModuleView from './components/ModuleView'
-import SingleView from './components/SingleView/SingleView'
+import Home from './components/Home'
 import NotificationPage from './components/Notifications'
 import LoggerView from './components/Logger'
 
@@ -38,8 +38,8 @@ const skin = {
 ReactDOM.render(<Router history={appHistory}>
   <Route path="/login" component={LoginPage} />
   <Route path="/" component={EnsureAuthenticated(Base)} skin={skin} >
-    <IndexRoute component={SingleView} />
-    <Route path="singleview" component={SingleView}/>
+    <IndexRoute component={Home} />
+    <Route path="home" component={Home}/>
     <Route path="notifications" component={NotificationPage}/>
     <Route path="logs" component={LoggerView}/>
     <Route path="modules/:moduleName" component={ModuleView}/>
