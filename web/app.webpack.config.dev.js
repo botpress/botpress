@@ -32,10 +32,10 @@ module.exports = {
     module: {
         loaders: [{
             test: /\.jsx?$/,
-            exclude: /node_modules/,
+            exclude: /web\/node_modules/,
             loader: 'babel',
             query: {
-                presets: ['es2015', 'react'],
+                presets: ['es2015', 'stage-0', 'react'],
                 plugins: ['transform-object-rest-spread'],
                 compact: false
             }

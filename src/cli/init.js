@@ -35,6 +35,8 @@ module.exports = function() {
 
   _.each(['package.json', 'botfile.js', 'index.js'], assertDoesntExist)
 
+  const currentDirectoryName = path.basename(path.resolve('./'))
+
   var schema = {
     properties: {
       name: {
@@ -42,7 +44,8 @@ module.exports = function() {
         pattern: /^[a-z0-9][a-z0-9-_\.]+$/,
         message: 'name must be only lowercase letters, ' +
           'digits, dashes, underscores and dots.',
-        required: true
+        required: true,
+        default: currentDirectoryName
       },
       description: {
         required: false,

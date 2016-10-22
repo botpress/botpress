@@ -10,6 +10,8 @@ var args = require('yargs').argv,
 
 module.exports = ({ landingPagePath, modules, skipLogs }) => {
 
+    var vendorWebpackConfig = require('./vendor.webpack.config.js')
+
     function done() {
         this.emit('done')
     }
@@ -97,72 +99,79 @@ module.exports = ({ landingPagePath, modules, skipLogs }) => {
         reduceIdents: false
     }
 
-    var webpackConfig = require(
-        isProduction ?
-        './app.webpack.config.prod' :
-        './app.webpack.config.dev'
-    )
 
-    var bundler = webpack(webpackConfig)
 
     gulp.task('scripts:app', ['landing', 'modules'] , function() {
-        log('Building scripts..')
-            // Minify and copy all JavaScript (except vendor scripts)
-        return gulp.src(source.scripts.entry)
-            .pipe($.if(useSourceMaps, $.sourcemaps.init()))
-            .pipe(webpackStream(webpackConfig))
-            .on("error", handleError)
-            .pipe($.if(isProduction, $.uglify({
-                preserveComments: 'some'
-            })))
-            .on("error", handleError)
-            .pipe($.if(useSourceMaps, $.sourcemaps.write()))
-            .pipe(gulp.dest(build.scripts))
+      var webpackConfig = require(
+          isProduction ?
+          './app.webpack.config.prod' :
+          './app.webpack.config.dev')
+
+      log('Building scripts..')
+
+      // Minify and copy all JavaScript (except vendor scripts)
+      return gulp.src(source.scripts.entry)
+          .pipe($.if(useSourceMaps, $.sourcemaps.init()))
+          .pipe(webpackStream(webpackConfig))
+          .on("error", handleError)
+          .pipe($.if(isProduction, $.uglify({
+              preserveComments: 'some'
+          })))
+          .on("error", handleError)
+          .pipe($.if(useSourceMaps, $.sourcemaps.write()))
+          .pipe(gulp.dest(build.scripts))
     })
 
-    gulp.task('vendor', function() {
-        log('Copying vendor assets..')
-
-        var jsFilter = $.filter('**/*.js', {
-            restore: true
-        })
-        var cssFilter = $.filter('**/*.css', {
-            restore: true
-        })
-        var imgFilter = $.filter('**/*.{png,jpg}', {
-            restore: true
-        })
-        var fontsFilter = $.filter('**/*.{ttf,woff,woff2,eof,svg}', {
-            restore: true
-        })
-
-        var vendorSrc = JSON.parse(fs.readFileSync(vendor.source, 'utf8'))
-
-        return gulp.src(vendorSrc, {
-                base: 'bower_components'
-            })
-            .pipe($.expectFile({
-                silent: true
-            }, vendorSrc))
-            .pipe(jsFilter)
-            .pipe($.if(isProduction, $.uglify(vendorUglifyOpts)))
-            .pipe($.concat(vendor.bundle.js))
-            .pipe(gulp.dest(build.scripts))
-            .pipe(jsFilter.restore)
-            .pipe(cssFilter)
-            .pipe($.if(isProduction, $.cssnano(cssnanoOpts)))
-            .pipe($.concat(vendor.bundle.css))
-            .pipe(gulp.dest(build.styles))
-            .pipe(cssFilter.restore)
-            .pipe(imgFilter)
-            .pipe($.flatten())
-            .pipe(gulp.dest(build.images))
-            .pipe(imgFilter.restore)
-            .pipe(fontsFilter)
-            .pipe($.flatten())
-            .pipe(gulp.dest(build.fonts))
-            .pipe(fontsFilter.restore)
+    gulp.task('vendor:webpack', function(done){
+      webpack(vendorWebpackConfig, done)
     })
+
+    gulp.task('vendor:static', function() {
+
+          log('Copying vendor assets..')
+
+          var jsFilter = $.filter('**/*.js', {
+              restore: true
+          })
+          var cssFilter = $.filter('**/*.css', {
+              restore: true
+          })
+          var imgFilter = $.filter('**/*.{png,jpg}', {
+              restore: true
+          })
+          var fontsFilter = $.filter('**/*.{ttf,woff,woff2,eof,svg}', {
+              restore: true
+          })
+
+          var vendorSrc = JSON.parse(fs.readFileSync(vendor.source, 'utf8'))
+
+          return gulp.src(vendorSrc, {
+                  base: 'bower_components'
+              })
+              .pipe($.expectFile({
+                  silent: true
+              }, vendorSrc))
+              .pipe(jsFilter)
+              .pipe($.if(isProduction, $.uglify(vendorUglifyOpts)))
+              .pipe($.concat(vendor.bundle.js))
+              .pipe(gulp.dest(build.scripts))
+              .pipe(jsFilter.restore)
+              .pipe(cssFilter)
+              .pipe($.if(isProduction, $.cssnano(cssnanoOpts)))
+              .pipe($.concat(vendor.bundle.css))
+              .pipe(gulp.dest(build.styles))
+              .pipe(cssFilter.restore)
+              .pipe(imgFilter)
+              .pipe($.flatten())
+              .pipe(gulp.dest(build.images))
+              .pipe(imgFilter.restore)
+              .pipe(fontsFilter)
+              .pipe($.flatten())
+              .pipe(gulp.dest(build.fonts))
+              .pipe(fontsFilter.restore)
+    })
+
+    gulp.task('vendor', ['vendor:webpack','vendor:static'])
 
     const moduleTasks = modules.map((mod) => {
       const taskName = 'module:' + mod.name
