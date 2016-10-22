@@ -44,6 +44,7 @@
     "ms": "^0.7.1",
     "mware": "0.0.3",
     "node-uuid": "^1.4.7",
+    "prompt": "^1.0.0",
     "socket.io": "^1.5.0",
     "socketio-jwt": "^4.5.0",
     "winston": "^2.2.0"

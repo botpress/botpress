@@ -1,2 +1,83 @@
+import { spawn } from 'child_process'
+import prompt from 'prompt'
+import chalk from 'chalk'
+import path from 'path'
+import _ from 'lodash'
+import fs from 'fs'
+
+//   >> index.js (si existe deja throw?) (hello world: notif, logger, pipes, events)
+//     >> Notif success par defaut
+//     >> Plein de log (boot, events, timer?)
+//   >> HELLO WORLD page (HTML view)
+
+const introductionText = '' // TODO put text here
+const nextStepText = 'now run ' + chalk.bold('`skin start`') + ' in your terminal'
+
+const assertDoesntExist = (file) => {
+  if(fs.existsSync(file)) {
+    console.log('CRASH') // TODO put error text here
+    process.exit(1)
+  }
+}
+
+const getTemplate = (template) => {
+  const templatePath = path.join(__dirname, 'templates', template)
+  const templateContent = fs.readFileSync(templatePath)
+  return _.template(templateContent)
+}
+
+const generateTemplate = (filename, variables = {}) => {
+  const template = getTemplate(filename)
+  const compiled = template(variables)
+  fs.writeFileSync(filename, compiled)
+}
+
 module.exports = function() {
+
+  console.log(introductionText)
+
+  _.each(['package.json', 'botfile.js', 'index.js'], assertDoesntExist)
+
+  var schema = {
+    properties: {
+      name: {
+        description: chalk.white('name:'),
+        pattern: /^[a-z0-9][a-z0-9-_\.]+$/,
+        message: 'name must be only lowercase letters, ' +
+          'digits, dashes, underscores and dots.',
+        required: true
+      },
+      description: {
+        required: false,
+        description: chalk.white('description:')
+      },
+      author: {
+        required: false,
+        description: chalk.white('author:')
+      },
+      version: {
+        required: false,
+        description: chalk.white('version:'),
+        default: '1.0.0'
+      },
+    }
+  }
+
+  prompt.message = ''
+  prompt.delimiter = ''
+
+  prompt.start();
+
+  prompt.get(schema, function (err, result) {
+
+    generateTemplate('package.json', result)
+    generateTemplate('LICENSE')
+    generateTemplate('botfile.js')
+    generateTemplate('index.js')
+
+    fs.mkdirSync('data')
+    fs.writeFileSync('data/bot.log', '')
+    fs.writeFileSync('data/notification.json', '[]')
+
+  })
 }
