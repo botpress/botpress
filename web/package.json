@@ -68,5 +68,6 @@
     "prestart": "bower install",
     "start": "npm install",
     "poststart": "gulp"
-  }
+  },
+  "babel": {}
 }

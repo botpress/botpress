@@ -9,7 +9,11 @@ module.exports = {
         path: path.resolve(__dirname, 'dist/js'),
         filename: '[name].dll.bundle.js'
     },
+    resolveLoader: {
+        root: path.join(__dirname, 'node_modules')
+    },
     resolve: {
+        root: [ path.join(__dirname, 'node_modules') ],
         extensions: ['', '.js', '.jsx']
     },
     plugins: [

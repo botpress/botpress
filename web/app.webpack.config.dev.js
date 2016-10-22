@@ -15,10 +15,14 @@ module.exports = {
         filename: '[name].dll.bundle.js'
     },
     resolve: {
+        root: [ path.join(__dirname, 'node_modules') ],
         extensions: ['', '.js', '.jsx'],
         alias: {
             '~': __dirname
         }
+    },
+    resolveLoader: {
+        root: path.join(__dirname, 'node_modules')
     },
     plugins: [
         new webpack.optimize.OccurenceOrderPlugin(),
@@ -33,7 +37,7 @@ module.exports = {
         loaders: [{
             test: /\.jsx?$/,
             exclude: /web\/node_modules/,
-            loader: 'babel',
+            loader: 'babel-loader',
             query: {
                 presets: ['es2015', 'stage-0', 'react'],
                 plugins: ['transform-object-rest-spread'],
