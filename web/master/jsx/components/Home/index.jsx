@@ -8,8 +8,11 @@ export default class Home extends React.Component {
     try{
       const req = require.context("~/landing", true, /\.jsx|\.js/i)
       const Landing = req('./index.jsx').default
+      // TODO Wrap this and mount this
+      // onto a separate DOM element (see ModuleComponent)
       return <Landing key="landing_page" />
     } catch (err) {
+      // TODO Display better error and solution paths
       return <div>No landing page</div>
     }
   }

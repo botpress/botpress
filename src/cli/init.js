@@ -5,9 +5,6 @@ import path from 'path'
 import _ from 'lodash'
 import fs from 'fs'
 
-//   >> index.js (si existe deja throw?) (hello world: notif, logger, pipes, events)
-//     >> Notif success par defaut
-//     >> Plein de log (boot, events, timer?)
 //   >> HELLO WORLD page (HTML view)
 
 const introductionText = '' // TODO put text here
