@@ -71,18 +71,34 @@ module.exports = (skin, modules) => {
       return mod.root === callingModuleRoot
     })
 
-    if(!url || typeof(url) !== 'string') {
-      url = `/modules/${module.name}`
+    let options = {
+      moduleId: 'skin',
+      icon: 'icon-puzzle',
+      name: 'skin',
+      url: '/'
+    }
+
+    if(module) {
+      // because the bot itself can send notifications
+      options = {
+        modileId: module.name,
+        icon: module.settings.menuIcon,
+        name: module.settings.menuText
+      }
+
+      if(!url || typeof(url) !== 'string') {
+        options.url = `/modules/${module.name}`
+      }
     }
 
     const notification = {
-      message,
-      level,
-      url,
       id: uuid.v4(),
-      moduleId: module.name,
-      icon: module.settings.menuIcon || 'icon-puzzle',
-      name: module.settings.menuText || module.name,
+      message: message,
+      level: level,
+      moduleId: options.moduleId,
+      icon: options.icon,
+      name: options.name,
+      url: options.url,
       date: new Date(),
       read: false
     }
