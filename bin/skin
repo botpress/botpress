@@ -1,9 +1,13 @@
 #!/usr/bin/env node
 
-require('babel-register');
-require('../src/cli.js');
+var path = require('path');
 
-// TODO: Automate this during publish
+var fs = require('fs')
+var path = require('path')
 
-//  This is for production
-// require('../lib/cli.js');
+if(fs.existsSync(path.join(__dirname, '../src'))) {
+  require('babel-register');
+  require(path.join(__dirname, '../src/cli'));
+} else {
+  require(path.join(__dirname, '../lib/cli'));
+}
