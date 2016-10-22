@@ -182,6 +182,12 @@ module.exports = ({ landingPagePath, modules, skipLogs }) => {
       return taskName
     })
 
+    gulp.task('modules:createDir', function() {
+      fs.mkdirSync(path.join(__dirname, 'modules'))
+    })
+
+    moduleTasks.push('modules:createDir')
+
     gulp.task('modules', gulpsync.sync(moduleTasks))
 
     gulp.task('landing', function() {
