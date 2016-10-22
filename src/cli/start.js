@@ -1,5 +1,7 @@
 import path from 'path'
 import fs from 'fs'
+import util from '../util'
+import chalk from 'chalk'
 
 module.exports = function(projectPath, options) {
   const skip = !!options.skip;
