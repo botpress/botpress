@@ -4,7 +4,7 @@
   "description": "<%= description %>",
   "main": "index.js",
   "dependencies": {
-    "botskin": ".."
+    "botskin": "~1.0.0"
   },
   "devDependencies": {},
   "scripts": {
