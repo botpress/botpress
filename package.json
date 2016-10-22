@@ -1,5 +1,5 @@
 {
-  "name": "botskin",
+  "name": "@botskin/botskin",
   "version": "0.0.1",
   "engines": {
     "node": ">=4.0"
@@ -26,7 +26,7 @@
     "chatbot"
   ],
   "author": "Protorisk (DIFC)",
-  "license": "ISC",
+  "license": "AGPL-v3",
   "bugs": {
     "url": "https://github.com/slvnperron/botskin/issues"
   },
