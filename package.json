@@ -1,6 +1,6 @@
 {
   "name": "@botskin/botskin",
-  "version": "0.0.8",
+  "version": "0.0.10",
   "engines": {
     "node": ">=4.0"
   },
