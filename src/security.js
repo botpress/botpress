@@ -22,7 +22,6 @@ module.exports = (skin) => {
 
   if (!secret || secret.length < 15) {
     secret = createNewSecret()
-    skin.logger.warn('current secret wasn\'t safe enough, created a new one')
   }
 
   const adminPassword = process.env.SKIN_ADMIN_PASSWORD ||
