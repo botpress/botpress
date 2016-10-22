@@ -1,0 +1,16 @@
+{
+  "name": "<%= name %>",
+  "version": "<%= version %>",
+  "description": "<%= description %>",
+  "main": "index.js",
+  "dependencies": {
+    "botskin": ".."
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "skin start",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "<%= author %>",
+  "license": "AGPL-3.0"
+}
