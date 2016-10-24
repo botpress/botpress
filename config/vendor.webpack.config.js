@@ -1,40 +1,23 @@
-var path = require('path');
 var webpack = require('webpack');
+var path = require('path');
 
 module.exports = {
-    entry: {
-      vendor: ['react', 'react-bootstrap', 'axios', 'react-router', 'history', 'pubsub-js']
-    },
-    output: {
-        path: path.resolve(__dirname, 'dist/js'),
-        filename: '[name].dll.bundle.js',
-        library: '[name]_dll'
-    },
-    resolve: {
-        root: [ path.join(__dirname, 'node_modules') ],
-        extensions: ['', '.js', '.jsx']
-    },
-    plugins: [
+  entry: {
+    vendor: ['react', 'react-bootstrap', 'axios', 'react-router', 'history', 'boostrap']
+  },
+  output: {
+    path: path.resolve(__dirname, '../lib/web/js'),
+    filename: '[name].dll.bundle.js',
+    library: '[name]_dll'
+  },
+  resolve: {
+    root: [path.join(__dirname, '..', 'node_modules')],
+    extensions: ['', '.js', '.jsx', '.css']
+  },
+  plugins: [
         new webpack.DllPlugin({
-          path: path.join(__dirname, "dist/js", "[name]-manifest.json"),
-          name: "[name]_dll"
-        })
-    ],
-    module: {
-        loaders: [{
-            test: /\.jsx?$/,
-            exclude: /node_modules/,
-            loader: 'babel',
-            query: {
-                presets: ['es2015', 'react'],
-                compact: false
-            }
-        }, {
-            test: /\.css$/,
-            loader: "style-loader!css-loader"
-        }, {
-            test: /\.woff|\.woff2|\.svg|.eot|\.ttf/,
-            loader: 'url?prefix=font/&limit=10000'
-        }]
-    }
+      path: path.join(__dirname, "../lib/web/js", "[name]-manifest.json"),
+      name: "[name]_dll"
+    })
+    ]
 }
