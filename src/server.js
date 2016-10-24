@@ -100,11 +100,11 @@ const serveStatic = function(app, skin) {
     })(window || {})`)
   })
 
-  app.use(express.static(path.join(__dirname, '../web/dist')))
+  app.use(express.static(path.join(__dirname, '../lib/web')))
 
   app.get('*', (req, res, next) => {
     if(/html/i.test(req.headers.accept)) {
-      return res.sendFile(path.join(__dirname, '../web/dist/index.html'))
+      return res.sendFile(path.join(__dirname, '../lib/web/index.html'))
     }
     next()
   })
