@@ -4,8 +4,9 @@ var CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   bail: true,
+  devtool: 'source-map',
   entry: {
-    app: path.resolve(__dirname, '../src/web/master/App.jsx')
+    app: path.resolve(__dirname, '../src/web/master/index.jsx')
   },
   output: {
     path: path.resolve(__dirname, '../lib/web/js'),

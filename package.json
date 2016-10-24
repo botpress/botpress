@@ -1,36 +1,28 @@
 {
   "name": "@botskin/botskin",
-  "version": "0.0.10",
-  "engines": {
-    "node": ">=4.0"
-  },
   "description": "The world's first CMS for bots. Easily create, manage and extend chatbots.",
-  "main": "index.js",
-  "scripts": {
-    "compile": "babel src/ -d lib/",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "postinstall": "cd web && npm install && bower install"
+  "version": "0.0.10",
+  "author": "Protorisk (DIFC)",
+  "babel": {
+    "presets": [
+      "latest",
+      "stage-0",
+      "react"
+    ],
+    "plugins": [
+      "transform-object-rest-spread"
+    ],
+    "ignore": [
+      "cli/templates/**"
+    ]
   },
   "bin": {
     "skin": "./bin/skin",
     "botskin": "./bin/skin"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/slvnperron/botskin.git"
-  },
-  "keywords": [
-    "bots",
-    "chatbots",
-    "bot",
-    "chatbot"
-  ],
-  "author": "Protorisk (DIFC)",
-  "license": "AGPL-v3",
   "bugs": {
     "url": "https://github.com/slvnperron/botskin/issues"
   },
-  "homepage": "https://github.com/slvnperron/botskin#readme",
   "dependencies": {
     "axios": "^0.15.0",
     "bluebird": "^3.4.6",
@@ -55,6 +47,7 @@
     "react-dom": "^15.3.1",
     "react-fontawesome": "^1.2.0",
     "react-router": "^2.8.1",
+    "react-sidebar": "^2.2.1",
     "simple-line-icons": "^2.4.1",
     "socket.io": "^1.5.0",
     "socketio-jwt": "^4.5.0",
@@ -62,6 +55,7 @@
   },
   "devDependencies": {
     "babel-cli": "^6.16.0",
+    "babel-loader": "^6.2.5",
     "babel-plugin-transform-object-rest-spread": "^6.16.0",
     "babel-preset-latest": "^6.16.0",
     "babel-preset-react": "^6.11.1",
@@ -77,17 +71,24 @@
     "style-loader": "^0.13.1",
     "webpack": "^1.13.2"
   },
-  "babel": {
-    "presets": [
-      "latest",
-      "stage-0",
-      "react"
-    ],
-    "plugins": [
-      "transform-object-rest-spread"
-    ],
-    "ignore": [
-      "cli/templates/**"
-    ]
+  "engines": {
+    "node": ">=4.0"
+  },
+  "homepage": "https://github.com/slvnperron/botskin#readme",
+  "keywords": [
+    "bot",
+    "bots",
+    "chatbot",
+    "chatbots"
+  ],
+  "license": "AGPL-3.0",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/slvnperron/botskin.git"
+  },
+  "scripts": {
+    "compile": "babel src/ -d lib/",
+    "test": "echo \"Error: no test specified\" && exit 1"
   }
 }

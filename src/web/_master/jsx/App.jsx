@@ -14,20 +14,12 @@ import LoggerView from './components/Logger'
 
 import EventBus from './components/Common/EventBus'
 
-import initLoadCss from './components/Common/load-css'
-initLoadCss()
-
 const appHistory = useRouterHistory(createHistory)({
   basename: '/'
 })
 
 appHistory.listen(function(ev) {
   $('body').removeClass('aside-toggled')
-})
-
-// Disable warning "Synchronous XMLHttpRequest on the main thread is deprecated.."
-$.ajaxPrefilter(function(options, originalOptions, jqXHR) {
-  options.async = true
 })
 
 EventBus.default.setup()
