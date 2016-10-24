@@ -1,13 +1,13 @@
 import prompt from 'prompt'
 import chalk from 'chalk'
+import Promise from 'bluebird'
 
-module.exports = function(value, options) {
+module.exports = function(argument, options) {
 
-  var getKeywords = function(value, cb){
+  const getKeywords = Promise.method((argument) => {
 
-    if(typeof(value) === 'string'){
-      cb(null, value)
-
+    if(typeof(argument) === 'string'){
+      return argument;
     } else {
       var schema = {
         properties: {
@@ -24,15 +24,19 @@ module.exports = function(value, options) {
       prompt.delimiter = ''
       prompt.start();
 
-      prompt.get(schema, function (err, result) {
-          cb(err, result.keyword)
+      return Promise.fromCallback(function (callback){
+        prompt.get(schema, callback)
       })
-    }
-  }
+      .then((result) => result.keyword)
 
-  getKeywords(value, function(err, data){
-     if (err) return console.error(err);
-     console.log("You are actualy looking for: "+ data);
+    }
   })
 
+  const printResult = (keyword) => {
+    console.log("You are actualy looking for: "+ keyword);
+  }
+
+  getKeywords(argument)
+
+  .then(printResult)
 }
