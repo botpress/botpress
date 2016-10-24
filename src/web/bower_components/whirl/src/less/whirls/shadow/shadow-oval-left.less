@@ -1,0 +1,25 @@
+/* whirl shadow oval left - makes use of box shadowing effects
+in addition to offsetting the width and the height to angle the shadow*/
+@box-shadow-height: @height;
+@box-shadow-width: @width;
+@box-shadow-color: rgba(0, 0, 0, .5);
+
+.whirl.shadow.oval.left:after, .whirl.shadow.oval:after {
+  animation: spin-shadow .25s infinite linear;
+  border: none;
+  border-radius: 40% 100%;
+}
+@keyframes spin-shadow {
+  0% {
+    box-shadow: inset (@box-shadow-width / 8) (@box-shadow-width / 8) (@box-shadow-width / 8) @box-shadow-color;
+  }
+  25% {
+    box-shadow: inset -(@box-shadow-width / 8) (@box-shadow-width / 8) (@box-shadow-width / 8) @box-shadow-color;
+  }
+  50% {
+    box-shadow: inset -(@box-shadow-width / 8) -(@box-shadow-width / 8) (@box-shadow-width / 8) @box-shadow-color;
+  }
+  100% {
+    box-shadow: inset (@box-shadow-width / 8) -(@box-shadow-width / 8) (@box-shadow-width / 8) @box-shadow-color;
+  }
+}

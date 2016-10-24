@@ -1,0 +1,26 @@
+{
+  "name": "simple-line-icons",
+  "version": "2.3.2",
+  "description": "Simple and elegent line icons.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thesabbir/simple-line-icons.git"
+  },
+  "keywords": [
+    "icon",
+    "simple",
+    "line",
+    "css",
+    "webfont"
+  ],
+  "author": "Sabbir Ahmed",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/thesabbir/simple-line-icons/issues"
+  },
+  "homepage": "https://thesabbir.github.io/simple-line-icons"
+}

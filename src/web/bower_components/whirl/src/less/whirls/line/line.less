@@ -1,0 +1,20 @@
+/*whirl line - a simple strafing line animation*/
+@line-width: @width;
+@line-height: @height / 2;
+@line-color: rgba(0, 0, 0, .5);
+
+.whirl.line:after {
+  height: @line-height;
+  border-radius: 0;
+  border: none;
+  box-shadow: inset -(@line-width / 4) 0px 0px @line-color;
+  animation: line .75s infinite linear;
+}
+@keyframes line {
+  from {
+    width: 10px;
+  }
+  to {
+    width: @line-width + 10px;
+  }
+}

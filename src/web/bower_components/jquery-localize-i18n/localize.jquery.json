@@ -1,0 +1,26 @@
+{
+  "name": "jquery.localize",
+  "title": "Localize",
+  "description": "A jQuery plugin that makes it easy to i18n your static web site.",
+  "version": "0.2.0",
+  "homepage": "https://github.com/coderifous/jquery-localize",
+  "author": {
+    "name": "coderifous",
+    "email": "jim@thegarvin.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/coderifous/jquery-localize.git"
+  },
+  "bugs": "https://github.com/coderifous/jquery-localize/issues",
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/coderifous/jquery-localize/blob/master/LICENSE-MIT"
+    }
+  ],
+  "dependencies": {
+    "jquery": "*"
+  },
+  "keywords": []
+}

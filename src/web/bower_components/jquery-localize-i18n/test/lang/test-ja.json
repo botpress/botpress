@@ -1,0 +1,26 @@
+{
+  "test": {
+    "nested": "nested success",
+    "input": "input success",
+    "input_as_obj": {
+        "value": "input_as_obj value success",
+        "title": "input_as_obj title success"
+    },
+    "optgroup": "optgroup success",
+    "option": "option success",
+    "ruby_image": {
+      "src": "ruby_round.gif",
+      "alt": "a round ruby",
+      "title": "A Round Ruby"
+    },
+    "link": {
+      "text": "success",
+      "href": "http://success"
+    }
+  },
+  "basic": "basic success",
+  "with_title": {
+    "text": "with_title text success",
+    "title": "with_title title success"
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "name": "jquery-storage-api",
+  "title": "jQuery Storage API",
+  "version": "1.9.2",
+  "main": "jquery.storageapi.js",
+  "description": "jQuery Storage API is a plugin that simplify access to storages (HTML5) & cookies, add namespace storage functionality and provide compatiblity for old browsers with cookies!",
+  "keywords": [
+    "jquery",
+    "storage",
+    "html5",
+    "localStorage",
+    "sessionStorage",
+    "cookie",
+    "namespace"
+  ],
+  "author": {
+    "name": "Julien Maurel",
+    "url": "https://github.com/julien-maurel"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://www.opensource.org/licenses/mit-license.php"
+    }
+  ],
+  "homepage": "https://github.com/julien-maurel/jQuery-Storage-API",
+  "bugs": "https://github.com/julien-maurel/jQuery-Storage-API/issues",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/julien-maurel/jQuery-Storage-API.git"
+  },
+  "ignore": [
+    "Jasmine",
+    "/*.md",
+    "/*.txt",
+    "/*.json"
+  ],
+  "dependencies": {
+    "jquery": ">=1.4"
+  }
+}

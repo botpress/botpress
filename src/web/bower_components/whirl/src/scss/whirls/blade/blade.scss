@@ -1,0 +1,15 @@
+/* whirl blade spinner.
+experimental spinner that tries to create a blade effect.*/
+$blade-color: #E74C3C;
+
+.whirl.blade:after {
+  height: $height /2;
+  width: $width / 2;
+  margin: -$height/4 0 0 (-($width / 4) + ($width / 2));
+  border-right: $border-width solid transparent;
+  border-top: $border-width solid transparent;
+  border-left: $border-width solid transparent;
+  border-bottom: $border-width solid $blade-color;
+  opacity: 1;
+  transform-origin: left;
+}

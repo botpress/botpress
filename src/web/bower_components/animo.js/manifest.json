@@ -1,0 +1,20 @@
+{
+  "name": "animo",
+  "version": "1.0.2",
+  "description": "A powerful little tool for managing CSS animations",
+  "author": "Daniel Raftery",
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/ThrivingKings/animo.js/blob/master/LICENSE"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ThrivingKings/animo.js.git"
+  },
+  "homepage": "http://labs.bigroomstudios.com/libraries/animo-js",
+  "dependencies": {
+    "jquery": ">=2.0.0"
+  }
+}

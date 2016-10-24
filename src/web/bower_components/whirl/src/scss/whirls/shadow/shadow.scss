@@ -1,0 +1,25 @@
+/* whirl shadow - makes use of box shadowing effects */
+$box-shadow-height: $height;
+$box-shadow-width: $width;
+$box-shadow-color: rgba(0, 0, 0, .5);
+
+.whirl.shadow:after {
+  animation: spin-shadow .25s infinite linear;
+  border-radius: 100%;
+  border: none;
+
+}
+@keyframes spin-shadow {
+  0% {
+    box-shadow: inset ($box-shadow-width / 8) ($box-shadow-width / 8) ($box-shadow-width / 8) $box-shadow-color;
+  }
+  25% {
+    box-shadow: inset -($box-shadow-width / 8) ($box-shadow-width / 8) ($box-shadow-width / 8) $box-shadow-color;
+  }
+  50% {
+    box-shadow: inset -($box-shadow-width / 8) -($box-shadow-width / 8) ($box-shadow-width / 8) $box-shadow-color;
+  }
+  100% {
+    box-shadow: inset ($box-shadow-width / 8) -($box-shadow-width / 8) ($box-shadow-width / 8) $box-shadow-color;
+  }
+}

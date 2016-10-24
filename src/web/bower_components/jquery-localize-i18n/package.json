@@ -1,0 +1,33 @@
+{
+  "name": "jquery-localize",
+  "description": "A jQuery plugin that makes it easy to i18n your static web site.",
+  "version": "0.2.0",
+  "homepage": "https://github.com/coderifous/jquery-localize",
+  "license": "MIT",
+  "main": "dist/jquery.localize.js",
+  "author": {
+    "name": "coderifous",
+    "email": "jim@thegarvin.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/coderifous/jquery-localize.git"
+  },
+  "bugs": "https://github.com/coderifous/jquery-localize/issues",
+  "engines": {
+    "node": ">= 0.8.0"
+  },
+  "scripts": {
+    "prepublish": "grunt",
+    "test": "grunt test"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.2",
+    "grunt-cli": "^0.1.13",
+    "grunt-contrib-clean": "~0.4.0",
+    "grunt-contrib-coffee": "~0.10.0",
+    "grunt-contrib-connect": "~0.6.0",
+    "grunt-contrib-qunit": "~0.2.0",
+    "grunt-contrib-uglify": "~0.2.0"
+  }
+}
