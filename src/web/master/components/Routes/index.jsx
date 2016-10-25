@@ -18,10 +18,11 @@ appHistory.listen(function(ev) {
   // $('body').removeClass('aside-toggled') // TODO jQuery shit
 })
 
-export default (skin) => {
+export default () => {
   return (
     <Router history={appHistory}>
-      <Route path="/" component={Layout} skin={skin}>
+      <Route path="/" component={Layout}>
+        <Route path="home" component={Home}/>
         <IndexRoute component={Home}/>
       </Route>
 

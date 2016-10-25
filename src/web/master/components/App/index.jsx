@@ -1,27 +1,30 @@
 import React, {Component} from 'react'
 import axios from 'axios'
+import {
+  Provider,
+  connect,
+  nuclearMixin,
+} from 'nuclear-js-react-addons'
 
 import EventBus from './EventBus'
 import routes from '../Routes'
+
+import reactor from '~/reactor'
+import ModulesStore from '~/stores/ModulesStore'
+import actions from '~/actions'
 
 export default class App extends Component {
 
   constructor(props) {
     super(props)
-    // EventBus.default.setup()
-    this.state = {
-      modules: null,
-      events: EventBus.default
-    }
+
+    reactor.registerStores({
+      'modules': ModulesStore
+    })
   }
 
   componentDidMount() {
-    if(!this.state.modules) {
-      axios.get('/api/modules')
-      .then((result) => {
-        this.setState({ modules: result.data })
-      })
-    }
+    actions.fetchModules()
   }
 
   render() {
@@ -29,6 +32,8 @@ export default class App extends Component {
     //   skin: this.props.route.skin,
     //   modules: modules
     // })
-    return routes({ modules: this.state.modules, events: this.state.events })
+    return <Provider reactor={reactor}>
+      {routes()}
+    </Provider>
   }
 }
