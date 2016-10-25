@@ -2,6 +2,21 @@ var webpack = require('webpack');
 var path = require('path');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
 
+var resolveBabel = function(name) {
+  return path.join(__dirname, '..', 'node_modules', name)
+}
+
+var babelPlugins = [
+  resolveBabel('babel-plugin-transform-object-rest-spread'),
+  resolveBabel('babel-plugin-transform-decorators-legacy')
+];
+
+var babelPresets = [
+  resolveBabel('babel-preset-es2015'),
+  resolveBabel('babel-preset-stage-0'),
+  resolveBabel('babel-preset-react')
+];
+
 module.exports = {
   bail: true,
   devtool: 'source-map',
@@ -44,11 +59,11 @@ module.exports = {
   module: {
     loaders: [{
         test: /\.jsx?$/,
-        exclude: /node_modules/,
+        exclude: /botskin\/node_modules/,
         loader: 'babel-loader',
         query: {
-          presets: ['es2015', 'stage-0', 'react'],
-          plugins: ['transform-object-rest-spread', 'transform-decorators-legacy'],
+          presets: babelPresets,
+          plugins: babelPlugins,
           compact: false
         }
         },

@@ -15,6 +15,8 @@ module.exports = function(options) {
     emitter.emit('compiled.vendor');
 
     var appConfig = require('../config/app.webpack.config.js')
+    appConfig.resolve.alias['#'] = path.join(options.projectLocation, 'node_modules')
+
     var appCompiler = webpack(appConfig);
 
     var onAppCompiled = function(err, stats) {

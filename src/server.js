@@ -124,7 +124,7 @@ const serveStatic = function(app, skin) {
 
       const landingPagePath = path.join(skin.projectLocation, 'ui/**.*')
 
-      const events = compiler({ watch: true });
+      const events = compiler({ watch: true, projectLocation: skin.projectLocation });
       events.on('error.*', (err) => {
         skin.logger.error('Error compiling website', err)
         reject(err)
