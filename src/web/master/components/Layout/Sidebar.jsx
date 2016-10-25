@@ -65,7 +65,7 @@ class Sidebar extends Component {
   renderModuleItem(module) {
     const path = `/modules/${module.name}`
     return <li key={`menu_module_${module.name}`} className={this.routeActive(path)
-      ? 'active'
+      ? style.active
       : ''}>
       <Link to={path} title={module.menuText}>
         <em className={module.menuIcon || 'icon-puzzle'}></em>

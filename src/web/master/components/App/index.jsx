@@ -3,7 +3,7 @@ import axios from 'axios'
 import {
   Provider,
   connect,
-  nuclearMixin,
+  nuclearMixin
 } from 'nuclear-js-react-addons'
 
 import EventBus from './EventBus'
