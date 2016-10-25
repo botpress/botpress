@@ -9,6 +9,8 @@ import bodyParser from 'body-parser'
 import ms from 'ms'
 import util from './util'
 
+import compiler from '../scripts/compile'
+
 const setupSocket = function(app, skin) {
   const server = http.createServer(app)
   const io = socketio(server)
@@ -109,39 +111,27 @@ const serveStatic = function(app, skin) {
     next()
   })
 
-  if (util.isDeveloping || process.env.WATCH_CHANGES) {
-    return new Promise(function(resolve, reject) {
-      // backup current working directory
-      const cwd = process.cwd()
-      skin.logger.verbose('compiling website, please wait...')
-      try {
-        process.chdir(path.join(__dirname, '../web'))
-        const Tasks = require(path.join(__dirname, '../web/tasks'))
-        const modules = _.map(_.values(skin.modules), (mod) => {
-          return { name: mod.name, path: `${mod.root}/views/**.*` }
-        })
-
-        const landingPagePath = path.join(skin.projectLocation, 'ui/**.*')
-
-        const gulp = Tasks({ landingPagePath, modules, skipLogs: true })
-        gulp.on('done', resolve)
-        gulp.on('error', (err) => {
-          skin.logger.error('Gulp error', err)
-        })
-
-        gulp.start('default')
-      }
-      catch (err) {
-        reject(err)
-      }
-      finally {
-        // restore initial working directory
-        process.chdir(cwd);
-      }
-    })
-  } else {
+  if (!util.isDeveloping && !process.env.WATCH_CHANGES) {
     return Promise.resolve()
   }
+
+  return new Promise(function(resolve, reject) {
+    skin.logger.verbose('compiling website, please wait...')
+
+      const modules = _.map(_.values(skin.modules), (mod) => {
+        return { name: mod.name, path: `${mod.root}/views/**.*` }
+      })
+
+      const landingPagePath = path.join(skin.projectLocation, 'ui/**.*')
+
+      const events = compiler({ watch: true });
+      events.on('error.*', (err) => {
+        skin.logger.error('Error compiling website', err)
+        reject(err)
+      })
+
+      events.on('compiled.app', resolve)
+  })
 }
 
 const authenticationMiddleware = (skin) => function(req, res, next) {

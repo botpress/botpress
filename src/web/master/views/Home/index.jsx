@@ -4,6 +4,6 @@ const style = require('./style.scss')
 
 export default class HomeView extends Component {
   render() {
-    return <h1>This works!</h1>
+    return <h1>This works!!!</h1>
   }
 }
