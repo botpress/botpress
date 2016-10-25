@@ -1,33 +1,13 @@
 import React from 'react'
-import axios from 'axios'
 
 import Header from './Header'
 import Sidebar from './Sidebar'
 
-class Base extends React.Component {
-
-  constructor(props) {
-    super(props)
-    this.state = {
-      modules: null
-    }
-  }
-
-  componentDidMount() {
-    if(!this.state.modules) {
-      axios.get('/api/modules')
-      .then((result) => {
-        this.setState({ modules: result.data })
-      })
-    }
-  }
+class Layout extends React.Component {
 
   render() {
-    const { modules } = this.state
-    // const el = React.cloneElement(this.props.children, {
-    //   skin: this.props.route.skin,
-    //   modules: modules
-    // })
+    // const { modules } = this.state
+    const modules = this.props.route.skin
 
     return (
       <div className="wrapper">
@@ -41,4 +21,4 @@ class Base extends React.Component {
   }
 }
 
-export default Base
+export default Layout

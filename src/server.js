@@ -116,7 +116,7 @@ const serveStatic = function(app, skin) {
   }
 
   return new Promise(function(resolve, reject) {
-    skin.logger.verbose('compiling website, please wait...')
+    skin.logger.info('compiling website, please wait...')
 
       const modules = _.map(_.values(skin.modules), (mod) => {
         return { name: mod.name, path: `${mod.root}/views/**.*` }
