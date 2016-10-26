@@ -1,0 +1,7 @@
+nav.navbar {
+  border-radius: 0;
+}
+
+.navbar :global(.container) {
+  width: 100%;
+}

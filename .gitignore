@@ -1,5 +1,5 @@
 # Logs
-logs
+/logs
 *.log
 npm-debug.log*
 
@@ -49,3 +49,5 @@ web/modules
 web/landing
 data/
 lib/
+/src/web/__modules.jsx
+!/src/web/views/logs
