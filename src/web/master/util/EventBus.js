@@ -1,6 +1,6 @@
 import EventEmitter2 from 'eventemitter2'
 
-// import { getToken, authEvents } from '../Authentication/auth'
+import { getToken, authEvents } from '~/util/Auth'
 
 class EventBus extends EventEmitter2 {
 
@@ -15,7 +15,7 @@ class EventBus extends EventEmitter2 {
 
     this.onAny(this.dispatchClientEvent)
 
-    // authEvents.on('new_token', this.setup) // TODO
+    authEvents.on('new_token', this.setup)
   }
 
   dispatchSocketEvent(event) {

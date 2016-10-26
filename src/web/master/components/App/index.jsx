@@ -6,6 +6,7 @@ import {
   nuclearMixin
 } from 'nuclear-js-react-addons'
 
+import { authEvents } from '~/util/Auth'
 import EventBus from '~/util/EventBus'
 import routes from '../Routes'
 
@@ -25,14 +26,21 @@ export default class App extends Component {
     })
 
     this.state = { events: EventBus.default }
-    EventBus.default.setup() // TODO remove that once auth is done
+    EventBus.default.setup()
+  }
+
+  fetchData() {
+    actions.fetchModules()
+    actions.fetchNotifications()
   }
 
   componentDidMount() {
     // This acts as the app lifecycle management.
     // If this grows too much, move to a dedicated lifecycle manager.
-    actions.fetchModules()
-    actions.fetchNotifications()
+    this.fetchData()
+
+    authEvents.on('login', this.fetchData)
+    authEvents.on('new_token', this.fetchData)
 
     EventBus.default.on('notifications.all', (notifications) => {
       actions.replaceNotifications(notifications)

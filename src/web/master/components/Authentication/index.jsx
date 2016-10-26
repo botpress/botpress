@@ -1,11 +1,9 @@
 import React from 'react'
 import {Grid, Row, Col, Dropdown, MenuItem} from 'react-bootstrap'
 
-import LoginPage from './Login'
-
 import axios from 'axios'
 
-import { getToken, logout, authEvents } from './auth'
+import { getToken, logout, authEvents } from '~/util/Auth'
 
 export default function ensureAuthenticated(WrappedComponent) {
 
@@ -19,7 +17,11 @@ export default function ensureAuthenticated(WrappedComponent) {
     return tokenStillValid
   }
 
-  class AuthenticationManager extends React.Component {
+  class AuthenticationWrapper extends React.Component {
+
+    static contextTypes = {
+      router: React.PropTypes.object
+    }
 
     constructor(props, context) {
       super(props, context)
@@ -40,7 +42,9 @@ export default function ensureAuthenticated(WrappedComponent) {
     }
 
     promptLogin() {
-      this.context.router.push('/login?returnTo=' + location.pathname)
+      if(location.pathname !== '/login') {
+        this.context.router.push('/login?returnTo=' + location.pathname)
+      }
     }
 
     setupAuth() {
@@ -74,9 +78,5 @@ export default function ensureAuthenticated(WrappedComponent) {
     }
   }
 
-  AuthenticationManager.contextTypes = {
-    router: React.PropTypes.object
-  }
-
-  return AuthenticationManager
+  return AuthenticationWrapper
 }

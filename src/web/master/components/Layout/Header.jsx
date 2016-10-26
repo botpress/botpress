@@ -2,10 +2,10 @@ import React from 'react'
 import {Navbar, Nav, NavItem, NavDropdown, MenuItem, Glyphicon} from 'react-bootstrap'
 import {Link} from 'react-router'
 
-const style = require('./Header.scss')
-
 import NotificationHub from '~/components/Notifications/Hub'
-// import { logout } from '../Authentication/auth'
+import { logout } from '~/util/Auth'
+
+import style from './Header.scss'
 
 class Header extends React.Component {
 
@@ -14,13 +14,11 @@ class Header extends React.Component {
       return null
     }
 
-    return <li>
-      {/* TODO */}
-      <a href="#">
-        {/* <a href="#" onClick={logout}> */}
-        <em className="fa fa-power-off"></em>
-      </a>
-    </li>
+    return (<li>
+        <a href="#" onClick={logout}>
+          <em className="glyphicon glyphicon-off"></em>
+        </a>
+    </li>)
   }
 
   render() {
@@ -44,50 +42,10 @@ class Header extends React.Component {
             </Link>
           </li>
           <NotificationHub />
+          {this.renderLogoutButton()}
         </Nav>
       </Navbar.Collapse>
     </Navbar>
-  }
-
-  render2() {
-    return (
-      <header className="topnavbar-wrapper">
-        {/* START Top Navbar */}
-        <nav role="navigation" className="navbar topnavbar">
-          {/* START navbar header */}
-          <div className="navbar-header">
-            <a href="/" className="navbar-brand">
-              <div className="brand-logo">
-
-              </div>
-            </a>
-          </div>
-          {/* END navbar header */}
-          {/* START Nav wrapper */}
-          <div className="nav-wrapper">
-            {/* START Left navbar */}
-            <ul className="nav navbar-nav">
-              <li>
-                {/* Button to show/hide the sidebar on mobile. Visible on mobile only. */}
-                <a href="#" data-toggle-state="aside-toggled" data-no-persist="true" className="visible-xs sidebar-toggle">
-                  <em className="fa fa-navicon"></em>
-                </a>
-              </li>
-            </ul>
-            <ul className="nav navbar-nav navbar-right">
-              <li>
-                <a href="/logs">
-                  <em className="fa fa-file-text-o"></em>
-                </a>
-              </li>
-
-              {/* TODO */}
-              {this.renderLogoutButton()}
-            </ul>
-          </div>
-        </nav>
-      </header>
-    )
   }
 }
 
