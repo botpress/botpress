@@ -47,8 +47,8 @@ class EventBus extends EventEmitter2 {
       this.socket.disconnect()
     }
 
-    // TODO Change this to support prod
-    const socket = this.socket = io.connect('http://localhost:3000', { query })
+    let socketUrl = window.location.origin
+    const socket = this.socket = io.connect(socketUrl, { query })
     socket.on('event', this.dispatchSocketEvent)
   }
 }

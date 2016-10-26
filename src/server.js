@@ -68,6 +68,10 @@ const serveApi = function(app, skin) {
     res.send(modules)
   })
 
+  app.get('/api/notifications', (req, res, next) => {
+    res.send(skin.loadNotifications())
+  })
+
   app.get('/api/logs', (req, res, next) => {
     const options = {
       from: new Date() - 7 * 24 * 60 * 60 * 1000,

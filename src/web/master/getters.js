@@ -1,3 +1,4 @@
 const modules = ['modules']
+const notifications = ['notifications']
 
-export default { modules }
+export default { modules, notifications }

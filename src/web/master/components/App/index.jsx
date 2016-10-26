@@ -6,11 +6,12 @@ import {
   nuclearMixin
 } from 'nuclear-js-react-addons'
 
-import EventBus from './EventBus'
+import EventBus from '~/util/EventBus'
 import routes from '../Routes'
 
 import reactor from '~/reactor'
 import ModulesStore from '~/stores/ModulesStore'
+import NotificationsStore from '~/stores/NotificationsStore'
 import actions from '~/actions'
 
 export default class App extends Component {
@@ -19,12 +20,27 @@ export default class App extends Component {
     super(props)
 
     reactor.registerStores({
-      'modules': ModulesStore
+      'modules': ModulesStore,
+      'notifications': NotificationsStore
     })
+
+    this.state = { events: EventBus.default }
+    EventBus.default.setup() // TODO remove that once auth is done
   }
 
   componentDidMount() {
+    // This acts as the app lifecycle management.
+    // If this grows too much, move to a dedicated lifecycle manager.
     actions.fetchModules()
+    actions.fetchNotifications()
+
+    EventBus.default.on('notifications.all', (notifications) => {
+      actions.replaceNotifications(notifications)
+    })
+
+    EventBus.default.on('notifications.new', (notification) => {
+      actions.addNotifications([ notification ])
+    })
   }
 
   render() {
