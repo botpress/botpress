@@ -49,5 +49,5 @@ web/modules
 web/landing
 data/
 lib/
-/src/web/master/modules.jsx
-!/src/web/master/views/logs
+/src/web/modules.jsx
+!/src/web/views/logs

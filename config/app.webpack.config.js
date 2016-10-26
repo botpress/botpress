@@ -21,7 +21,7 @@ module.exports = {
   bail: true,
   devtool: 'source-map',
   entry: {
-    app: path.resolve(__dirname, '../src/web/master/index.jsx')
+    app: path.resolve(__dirname, '../src/web/index.jsx')
   },
   output: {
     path: path.resolve(__dirname, '../lib/web/js'),
@@ -32,7 +32,7 @@ module.exports = {
     root: [path.join(__dirname, '..', 'node_modules')],
     extensions: ['', '.js', '.jsx', '.css'],
     alias: {
-      '~': path.resolve(__dirname, '../src/web/master')
+      '~': path.resolve(__dirname, '../src/web')
     }
   },
   resolveLoader: {
@@ -47,11 +47,11 @@ module.exports = {
     }),
     new CopyWebpackPlugin([
       {
-        from: path.resolve(__dirname, '../src/web/master/index.html'),
+        from: path.resolve(__dirname, '../src/web/index.html'),
         to: path.resolve(__dirname, '../lib/web/index.html')
       },
       {
-        from: path.resolve(__dirname, '../src/web/master/img'),
+        from: path.resolve(__dirname, '../src/web/img'),
         to: path.resolve(__dirname, '../lib/web/img')
       }
     ])
