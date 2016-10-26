@@ -1,5 +1,6 @@
 import React from 'react'
-import {Navbar, Nav, NavItem, NavDropdown, MenuItem} from 'react-bootstrap'
+import {Navbar, Nav, NavItem, NavDropdown, MenuItem, Glyphicon} from 'react-bootstrap'
+import {Link} from 'react-router'
 
 const style = require('./Header.scss')
 
@@ -37,7 +38,11 @@ class Header extends React.Component {
           </NavDropdown>
         </Nav>
         <Nav pullRight>
-          <NavItem eventKey={1} href="#">Link Right</NavItem>
+          <li role="presentation">
+            <Link to="/logs">
+                <Glyphicon glyph="list-alt"/>
+            </Link>
+          </li>
           <NotificationHub />
         </Nav>
       </Navbar.Collapse>

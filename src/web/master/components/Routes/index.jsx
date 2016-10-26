@@ -13,6 +13,7 @@ import Layout from '~/components/Layout'
 import Home from '~/views/Home'
 import Module from '~/views/Module'
 import Notifications from '~/views/Notifications'
+import Logs from '~/views/Logs'
 
 const appHistory = useRouterHistory(createHistory)({basename: '/'})
 
@@ -28,6 +29,7 @@ export default () => {
         <IndexRoute component={Home}/>
         <Route path="modules/:moduleName" component={Module}/>
         <Route path="notifications" component={Notifications}/>
+        <Route path="logs" component={Logs}/>
       </Route>
 
       {/* <Route path="/login" component={LoginPage}/>

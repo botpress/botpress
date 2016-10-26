@@ -25,7 +25,6 @@ class NotificationHub extends NotificationComponent {
       <div>You have no notifications !</div>
     </MenuItem>
   }
-
   render() {
     const notifications = this.props.notifications.toJS() || []
     const unread = _.filter(notifications, { read: false })
