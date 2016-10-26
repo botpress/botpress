@@ -3,7 +3,7 @@ import axios from 'axios'
 import reactor from '~/reactor'
 import EventBus from '~/util/EventBus'
 
-import actionTypes from './actionTypes'
+import actionTypes from '~/actions/actionTypes'
 const { MODULES_RECEIVED, ALL_NOTIFICATIONS_RECEIVED, NEW_NOTIFICATIONS_RECEIVED } = actionTypes
 
 export default {

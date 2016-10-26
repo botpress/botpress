@@ -5,7 +5,7 @@ import NotificationComponent from './index.jsx'
 import classnames from 'classnames'
 
 import {connect} from 'nuclear-js-react-addons'
-import getters from '~/getters'
+import getters from '~/stores/getters'
 
 import styles from './hubStyle.scss'
 
@@ -48,7 +48,7 @@ class NotificationHub extends NotificationComponent {
       </span>
     </span>
 
-    return <NavDropdown id="notificationsDropdown" style={{padding: 0}} noCaret eventKey={ 3 } title={label} className={styles.dropdown}>
+    return <NavDropdown id="notificationsDropdown" style={{padding: 0}} noCaret title={label} className={styles.dropdown}>
       <MenuItem header className={styles.topMenu}>
         <span>
           <strong>Notifications</strong>

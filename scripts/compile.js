@@ -10,7 +10,7 @@ var vendorConfig = require('../config/vendor.webpack.config.js')
 var modulesTemplate = _.template("export const modules = {<%= modules %>}");
 var moduleTemplate = _.template("'<%= name %>': require('#/<%= name %>/views/index.jsx').default");
 
-var modulesMapPath = path.join(__dirname, '..', 'src/web/modules.jsx')
+var modulesMapPath = path.join(__dirname, '..', 'src/web/__modules.jsx')
 
 module.exports = function(options) {
   var emitter = new EventEmmiter({ wildcard: true });

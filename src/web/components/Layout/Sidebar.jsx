@@ -5,7 +5,7 @@ import ReactSidebar from 'react-sidebar'
 import {connect} from 'nuclear-js-react-addons'
 
 import SidebarHeader from './SidebarHeader'
-import getters from '~/getters'
+import getters from '~/stores/getters'
 
 const style = require('./Sidebar.scss')
 

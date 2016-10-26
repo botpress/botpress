@@ -25,11 +25,13 @@ class Header extends React.Component {
     return <Navbar inverse className={style.navbar}>
       <Navbar.Collapse>
         <Nav pullRight>
-          <li role="presentation">
+          <NavItem href="/logs"><Glyphicon glyph="list-alt"/></NavItem>
+          {/* FIX There's an error here */}
+          {/* <li role="presentation">
             <Link to="/logs">
                 <Glyphicon glyph="list-alt"/>
             </Link>
-          </li>
+          </li> */}
           <NotificationHub />
           {this.renderLogoutButton()}
         </Nav>

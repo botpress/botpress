@@ -2,14 +2,14 @@ import React from 'react';
 import _ from 'lodash'
 
 import {connect} from 'nuclear-js-react-addons'
-import getters from '~/getters'
+import getters from '~/stores/getters'
 
 import ContentWrapper from '~/components/Layout/ContentWrapper';
 import InjectedComponent from '~/components/Injected'
 
 import EventBus from '~/util/EventBus'
 
-const allModules = require("~/modules").modules
+const allModules = require("~/__modules").modules
 
 @connect(props => ({modules: getters.modules}))
 export default class ModuleView extends React.Component {

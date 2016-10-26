@@ -1,6 +1,6 @@
 import { Store, toImmutable } from 'nuclear-js'
 
-import actionTypes from '../actions/actionTypes'
+import actionTypes from '~/actions/actionTypes'
 const { ALL_NOTIFICATIONS_RECEIVED, NEW_NOTIFICATIONS_RECEIVED } = actionTypes
 
 export default Store({
@@ -19,6 +19,6 @@ function allNotificationsReceived(state, { notifications }) {
 }
 
 function newNotificationsReceived(state, { notifications }) {
-  const newNotifications = toImmutable(notifications)
+  const newNotifications = notifications.map(toImmutable)
   return state.unshift(...newNotifications)
 }

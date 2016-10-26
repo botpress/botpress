@@ -6,7 +6,7 @@ import NotificationComponent from '~/components/Notifications'
 import ContentWrapper from '~/components/Layout/ContentWrapper';
 
 import {connect} from 'nuclear-js-react-addons'
-import getters from '~/getters'
+import getters from '~/stores/getters'
 
 import styles from './style.scss'
 

@@ -1,6 +1,6 @@
 import { Store, toImmutable } from 'nuclear-js'
 
-import actionTypes from '../actions/actionTypes'
+import actionTypes from '~/actions/actionTypes'
 const { MODULES_RECEIVED } = actionTypes
 
 export default Store({
