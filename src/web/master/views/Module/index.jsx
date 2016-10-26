@@ -7,6 +7,8 @@ import getters from '~/getters'
 import ContentWrapper from '~/components/Layout/ContentWrapper';
 import InjectedComponent from '~/components/Injected'
 
+import EventBus from '~/util/EventBus'
+
 const allModules = require("~/modules").modules
 
 @connect(props => ({modules: getters.modules}))
@@ -56,8 +58,11 @@ export default class ModuleView extends React.Component {
     }
 
     const moduleComponent = allModules[moduleName]
+    const skin = {
+      events: EventBus.default
+    }
 
-    const wrappedPlugin = <InjectedComponent component={moduleComponent} name={module.name}/>
+    const wrappedPlugin = <InjectedComponent component={moduleComponent} name={module.name} skin={skin}/>
     return (this.renderWrapper(wrappedPlugin, module.menuText));
   }
 }
