@@ -20,5 +20,5 @@ function allNotificationsReceived(state, { notifications }) {
 
 function newNotificationsReceived(state, { notifications }) {
   const newNotifications = toImmutable(notifications)
-  return state.push(newNotifications)
+  return state.unshift(...newNotifications)
 }

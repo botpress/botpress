@@ -3,7 +3,7 @@ import {Navbar, Nav, NavItem, NavDropdown, MenuItem} from 'react-bootstrap'
 
 const style = require('./Header.scss')
 
-// import NotificationHub from '../Notifications/Hub' // TODO
+import NotificationHub from '~/components/Notifications/Hub'
 // import { logout } from '../Authentication/auth'
 
 class Header extends React.Component {
@@ -38,15 +38,13 @@ class Header extends React.Component {
         </Nav>
         <Nav pullRight>
           <NavItem eventKey={1} href="#">Link Right</NavItem>
-          <NavItem eventKey={2} href="#">Link Right</NavItem>
+          <NotificationHub />
         </Nav>
       </Navbar.Collapse>
     </Navbar>
   }
 
   render2() {
-    // const notifications = <NotificationHub skin={this.props.skin} />
-
     return (
       <header className="topnavbar-wrapper">
         {/* START Top Navbar */}
@@ -77,7 +75,7 @@ class Header extends React.Component {
                   <em className="fa fa-file-text-o"></em>
                 </a>
               </li>
-              {/* {notifications} */}
+
               {/* TODO */}
               {this.renderLogoutButton()}
             </ul>
