@@ -41,9 +41,13 @@
   white-space: nowrap;
 }
 
-.zero-notif {
+.empty {
   width: 400px;
   padding: 20px;
   font-size: 15px;
   text-align: center;
+}
+
+.invisible {
+  opacity: 0;
 }

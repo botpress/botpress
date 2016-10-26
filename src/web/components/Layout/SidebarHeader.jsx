@@ -1,12 +1,11 @@
-import React from 'react'
+import React, {Component} from 'react'
 import {Navbar, Nav, NavItem, NavDropdown, MenuItem} from 'react-bootstrap'
 import classnames from 'classnames'
 
-const headerStyle = require('./Header.scss');
-const style = require('./SidebarHeader.scss');
+import headerStyle from './Header.scss'
+import style from './SidebarHeader.scss'
 
-class SidebarHeader extends React.Component {
-
+export default class SidebarHeader extends Component {
   render() {
     const headerClass = classnames(style.header, headerStyle.navbar)
 
@@ -14,7 +13,7 @@ class SidebarHeader extends React.Component {
       <Navbar.Header>
         <Navbar.Brand>
           <a href="#" className={style.logo}>
-            <img src="/img/logo.png" alt="Botskin Logo" className="img-responsive"/>
+            <img src="/img/logo.png" alt="Botskin Logo"/>
           </a>
         </Navbar.Brand>
         <Navbar.Toggle/>
@@ -22,5 +21,3 @@ class SidebarHeader extends React.Component {
     </Navbar>
   }
 }
-
-export default SidebarHeader

@@ -1,24 +1,23 @@
-import React from 'react'
-import {Navbar, Nav, NavItem, NavDropdown, MenuItem, Glyphicon} from 'react-bootstrap'
-import {Link} from 'react-router'
+import React,{Component} from 'react'
+import {Navbar, Nav, NavItem, Glyphicon} from 'react-bootstrap'
 
 import NotificationHub from '~/components/Notifications/Hub'
 import { logout } from '~/util/Auth'
 
 import style from './Header.scss'
 
-class Header extends React.Component {
+class Header extends Component {
 
   renderLogoutButton() {
     if (!window.AUTH_ENABLED) {
       return null
     }
 
-    return (<li>
+    return <li>
         <a href="#" onClick={logout}>
           <em className="glyphicon glyphicon-off"></em>
         </a>
-    </li>)
+    </li>
   }
 
   render() {
@@ -26,12 +25,6 @@ class Header extends React.Component {
       <Navbar.Collapse>
         <Nav pullRight>
           <NavItem href="/logs"><Glyphicon glyph="list-alt"/></NavItem>
-          {/* FIX There's an error here */}
-          {/* <li role="presentation">
-            <Link to="/logs">
-                <Glyphicon glyph="list-alt"/>
-            </Link>
-          </li> */}
           <NotificationHub />
           {this.renderLogoutButton()}
         </Nav>

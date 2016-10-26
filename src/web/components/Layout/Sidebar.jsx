@@ -1,5 +1,6 @@
 import React, {Component} from 'react'
 import {Link} from 'react-router'
+import classnames from 'classnames'
 
 import ReactSidebar from 'react-sidebar'
 import {connect} from 'nuclear-js-react-addons'
@@ -50,23 +51,25 @@ class Sidebar extends Component {
   routeActive(paths) {
     paths = Array.isArray(paths) ? paths : [paths]
     for (let p in paths) {
-      if (this.context.router.isActive(paths[p]) === true)
-      return true
+      if (this.context.router.isActive(paths[p])) {
+        return true
+      }
     }
+
     return false
   }
 
   isAtHome() {
-    return location.pathname === ''
-      || location.pathname === '/'
-      || location.pathname === '/home'
+    return ['', '/', '/home'].includes(location.pathname)
   }
 
   renderModuleItem(module) {
     const path = `/modules/${module.name}`
-    return <li key={`menu_module_${module.name}`} className={this.routeActive(path)
-      ? style.active
-      : ''}>
+    const className = classnames({
+      [style.active]: this.routeActive(path)
+    })
+
+    return <li key={`menu_module_${module.name}`} className={className}>
       <Link to={path} title={module.menuText}>
         <em className={module.menuIcon || 'icon-puzzle'}></em>
         <span>{module.menuText}</span>
@@ -77,24 +80,27 @@ class Sidebar extends Component {
   render() {
     const modules = this.props.modules
     const items = modules.toJS().map(this.renderModuleItem)
+    const className = classnames({ [style.active] : this.isAtHome() })
 
     const sidebarContent = <div>
       <SidebarHeader/>
       <ul className="nav">
-        <li key="menu_home" className={this.isAtHome() ? style.active : '' }>
-          <Link to='home' title='Home'>
-            <span>Home</span>
-          </Link>
+        <li key="menu_home" className={className}>
+          <Link to='home' title='Home'>Home</Link>
         </li>
-        <li className="nav-heading ">
-          <span>Modules</span>
-        </li>
-        {items || this.renderLoading()}
+        <li className="nav-heading ">Modules</li>
+        {items}
       </ul>
     </div>
 
+    const { sidebarOpen: open, sidebarDocked: docked } = this.state
+
     return (
-      <ReactSidebar sidebar={sidebarContent} open={this.state.sidebarOpen} docked={this.state.sidebarDocked} onSetOpen={this.onSetSidebarOpen}>
+      <ReactSidebar
+        sidebar={sidebarContent}
+        open={open}
+        docked={docked}
+        onSetOpen={this.onSetSidebarOpen}>
         {this.props.children}
       </ReactSidebar>
     )

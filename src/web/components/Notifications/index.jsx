@@ -1,6 +1,5 @@
 import React, {Component} from 'react'
-import { NavDropdown, MenuItem, Row, Col, Tooltip, OverlayTrigger } from 'react-bootstrap'
-import _ from 'lodash'
+import { Row, Col, Tooltip, OverlayTrigger } from 'react-bootstrap'
 import moment from 'moment'
 import classnames from 'classnames'
 
@@ -20,12 +19,11 @@ export default class NotificationComponent extends Component {
     this.styles = styles
 
     this.state = { selectedIndex: null }
-  }
 
-  askForNotifications() {
-    console.log('>> Ask for all notifications')
-    // const { skin } = this.props
-    // skin.events.emit('notifications.getAll')
+    this.markAllAsRead = this.markAllAsRead.bind(this)
+    this.onNotifClicked = this.onNotifClicked.bind(this)
+    this.markAsRead = this.markAsRead.bind(this)
+    this.trashAll = this.trashAll.bind(this)
   }
 
   onNotifClicked(notif) {
@@ -45,8 +43,55 @@ export default class NotificationComponent extends Component {
     EventBus.default.emit('notifications.trashAll')
   }
 
-  renderMenuItems(displayedNotifications) {
+  renderMarkAsReadButton(notification, index) {
+    if(this.state.selectedIndex !== index || notification.read) {
+      return null
+    }
+
+    const onClickHandler = (event) => {
+      event.preventDefault()
+      event.stopPropagation()
+      this.markAsRead(notification)
+      return false
+    }
+
+    const tooltip = <Tooltip id="ttip">Mark as read</Tooltip>
+    const checkClassName = classnames('glyphicon glyphicon-ok', this.styles['mark-read-btn'])
+
+    return <OverlayTrigger placement="left" overlay={tooltip}>
+      <em className={checkClassName} onClick={onClickHandler}></em>
+    </OverlayTrigger>
+  }
+
+  renderMenuItem(notification, index) {
+    const ItemComponent = this.itemComponent
     const styles = this.styles
+    const date = moment(new Date(notification.date)).fromNow()
+    const className = getNotificationStyle(styles, notification)
+    const checkButton = this.renderMarkAsReadButton(notification, index)
+
+    return <ItemComponent
+        key={notification.id}
+        className={className}
+        onMouseOver={() => this.setState({ selectedIndex: index})}
+        onMouseLeave={() => this.setState({ selectedIndex: -1})}>
+      <Row>
+        <Col xs={11} onClick={() => this.onNotifClicked(notification)}>
+          <strong className={styles.header}>
+            <em className={notification.icon}></em>
+            &nbsp; {notification.name}
+          </strong>
+          {this.renderMessage(notification.message)}
+          <small className="text-muted">{date}</small>
+        </Col>
+        <Col xs={1} className={styles.markAsReadButton}>
+          {checkButton}
+        </Col>
+      </Row>
+    </ItemComponent>
+  }
+
+  renderMenuItems(displayedNotifications) {
     const ItemComponent = this.itemComponent
 
     const renderDivider = (index) => {
@@ -56,58 +101,18 @@ export default class NotificationComponent extends Component {
         return this.renderDivider && <ItemComponent divider style={{margin: 0}} />
       }
     }
-    return displayedNotifications.map((notif, i) => {
 
-      const date = moment(new Date(notif.date)).fromNow()
-
-      const className = classnames({
-        animated: true,
-        fadeIn: true,
-        notif: true,
-        [styles.item]: true,
-        [styles['level-' + notif.level]]: true,
-        [styles['item-unread']]: !notif.read
-      })
-
-      let checkButton = null
-      if(this.state.selectedIndex == i && !notif.read) {
-        const tooltip = <Tooltip id="ttip">Mark as read</Tooltip>
-        const checkClassName = classnames('glyphicon glyphicon-ok', styles['mark-read-btn'])
-        checkButton = <OverlayTrigger placement="left" overlay={ tooltip }>
-        <em className={checkClassName} onClick={(event) => {
-          event.preventDefault()
-          event.stopPropagation()
-          this.markAsRead(notif)
-          return false
-        }
-      }>
-      </em>
-      </OverlayTrigger>
-      }
-
-      const item = (
-        <ItemComponent
-          key={notif.id}
-          className={className}
-          onMouseOver={() => this.setState({ selectedIndex: i})}
-          onMouseLeave={() => this.setState({ selectedIndex: -1})}>
-        <Row>
-          <Col xs={11} onClick={() => this.onNotifClicked(notif)}>
-            <strong className={styles.header}>
-              <em className={notif.icon}>&nbsp;</em>
-              {notif.name}
-            </strong>
-            {this.renderMessage(notif.message)}
-            <small className="text-muted">{date}</small>
-          </Col>
-          <Col xs={1} className={styles.markAsReadButton}>
-            {checkButton}
-          </Col>
-        </Row>
-      </ItemComponent>
-    )
-
-      return [item , renderDivider(i) ]
-    })
+    return displayedNotifications.map((notif, i) => [this.renderMenuItem(notif, i) , renderDivider(i) ])
   }
+}
+
+function getNotificationStyle(styles, notification) {
+  return classnames({
+    animated: true,
+    fadeIn: true,
+    notif: true,
+    [styles.item]: true,
+    [styles['level-' + notification.level]]: true,
+    [styles['item-unread']]: !notification.read
+  })
 }

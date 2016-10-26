@@ -43,17 +43,15 @@ export default class InjectedComponent extends Component {
       const element = <Component key={this.componentId} {...passthroughProps} />
       ReactDOM.render(element, node)
     } catch (err) {
-      const element = (
-          <div className="panel panel-danger">
-              <div className="panel-heading">Could not display component</div>
-              <div className="panel-body">
-                  <h4>An error occured while loading the component</h4>
-                  <p>{err.message}</p>
-              </div>
-              {/* TODO Put documentation / help here */}
-              <div className="panel-footer">Developer? <a>click here</a> to see why this might happen</div>
-          </div>
-        )
+      const element = <div className="panel panel-danger">
+        <div className="panel-heading">Could not display component</div>
+        <div className="panel-body">
+            <h4>An error occured while loading the component</h4>
+            <p>{err.message}</p>
+        </div>
+        {/* TODO Put documentation / help here */}
+        <div className="panel-footer">Developer? <a>click here</a> to see why this might happen</div>
+      </div>
 
       ReactDOM.render(element, node)
     }
