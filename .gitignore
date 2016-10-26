@@ -49,3 +49,4 @@ web/modules
 web/landing
 data/
 lib/
+/src/web/master/modules.jsx

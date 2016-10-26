@@ -76,7 +76,6 @@ class Sidebar extends Component {
 
   render() {
     const modules = this.props.modules
-    console.log(modules)
     const items = modules.toJS().map(this.renderModuleItem)
 
     const sidebarContent = <div>

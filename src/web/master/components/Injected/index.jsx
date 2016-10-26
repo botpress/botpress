@@ -1,0 +1,60 @@
+import React, {Component} from 'react'
+import ReactDOM from 'react-dom'
+import _ from 'lodash'
+
+export default class InjectedComponent extends Component {
+
+  static propTypes: {
+    component: React.PropTypes.func.isRequired
+  }
+
+  constructor(props) {
+    super(props)
+    this.componentId = 'component_' + Math.random().toString().substr(2)
+  }
+
+  componentDidUpdate() {
+    this.internalRender()
+  }
+
+  componentDidMount() {
+    this.internalRender()
+  }
+
+  componentWillUnmount() {
+    try {
+      ReactDOM.unmountComponentAtNode(ReactDOM.findDOMNode(this))
+    } catch (err) {
+      // TODO Handle error gracefully
+    }
+  }
+
+  render() {
+    return <div className="component-mount"></div>
+  }
+
+  internalRender() {
+    const node = ReactDOM.findDOMNode(this)
+
+    try {
+      const Component = this.props.component
+      const passthroughProps = _.omit(this.props, 'component')
+      const element = <Component key={this.componentId} {...passthroughProps} />
+      ReactDOM.render(element, node)
+    } catch (err) {
+      const element = (
+          <div className="panel panel-danger">
+              <div className="panel-heading">Could not display component</div>
+              <div className="panel-body">
+                  <h4>An error occured while loading the component</h4>
+                  <p>{err.message}</p>
+              </div>
+              {/* TODO Put documentation / help here */}
+              <div className="panel-footer">Developer? <a>click here</a> to see why this might happen</div>
+          </div>
+        )
+
+      ReactDOM.render(element, node)
+    }
+  }
+}
