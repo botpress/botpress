@@ -89,7 +89,8 @@ export default class NotificationComponent extends Component {
         <ItemComponent
           key={notif.id}
           className={className}
-          onMouseOver={() => this.setState({ selectedIndex: i})}>
+          onMouseOver={() => this.setState({ selectedIndex: i})}
+          onMouseLeave={() => this.setState({ selectedIndex: -1})}>
         <Row>
           <Col xs={11} onClick={() => this.onNotifClicked(notif)}>
             <strong className={styles.header}>

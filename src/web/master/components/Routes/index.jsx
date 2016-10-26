@@ -12,6 +12,7 @@ import {createHistory} from 'history'
 import Layout from '~/components/Layout'
 import Home from '~/views/Home'
 import Module from '~/views/Module'
+import Notifications from '~/views/Notifications'
 
 const appHistory = useRouterHistory(createHistory)({basename: '/'})
 
@@ -26,6 +27,7 @@ export default () => {
         <Route path="home" component={Home}/>
         <IndexRoute component={Home}/>
         <Route path="modules/:moduleName" component={Module}/>
+        <Route path="notifications" component={Notifications}/>
       </Route>
 
       {/* <Route path="/login" component={LoginPage}/>
