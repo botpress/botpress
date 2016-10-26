@@ -1,9 +1,9 @@
 import React from 'react'
-import {Grid, Row, Col, Dropdown, MenuItem} from 'react-bootstrap'
-
 import axios from 'axios'
 
 import { getToken, logout, authEvents } from '~/util/Auth'
+
+const CHECK_AUTH_INTERVAL = 60 * 1000
 
 export default function ensureAuthenticated(WrappedComponent) {
 
@@ -25,7 +25,9 @@ export default function ensureAuthenticated(WrappedComponent) {
 
     constructor(props, context) {
       super(props, context)
+
       this.state = { authorized: false }
+
       this.setupAuth = this.setupAuth.bind(this)
       this.checkAuth = this.checkAuth.bind(this)
       this.promptLogin = this.promptLogin.bind(this)
@@ -55,7 +57,7 @@ export default function ensureAuthenticated(WrappedComponent) {
         this.setState({ authorized: tokenStillValid })
         if(tokenStillValid) {
           this.checkAuth()
-          this.checkInterval = setInterval(this.checkAuth, 60 * 1000)
+          this.checkInterval = setInterval(this.checkAuth, CHECK_AUTH_INTERVAL)
         } else {
           this.promptLogin()
         }

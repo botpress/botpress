@@ -9,8 +9,10 @@ var vendorConfig = require('../config/vendor.webpack.config.js')
 
 var modulesTemplate = _.template("export const modules = {<%= modules %>}");
 var moduleTemplate = _.template("'<%= name %>': require('#/<%= name %>/views/index.jsx').default");
+var landingPageTemplate = _.template("export const landing = require('<%= path %>').default");
 
 var modulesMapPath = path.join(__dirname, '..', 'src/web/__modules.jsx')
+var landingPagePath = path.join(__dirname, '..', 'src/web/__landing.jsx')
 
 module.exports = function(options) {
   var emitter = new EventEmmiter({ wildcard: true });
@@ -24,6 +26,11 @@ module.exports = function(options) {
     var inner = modules.join(',');
     var modulesFile = modulesTemplate({ modules: inner });
     fs.writeFileSync(modulesMapPath, modulesFile);
+  }
+
+  if(options && options.landingPagePath) {
+    var landingPageFile = landingPageTemplate({ path: options.landingPagePath })
+    fs.writeFileSync(landingPagePath, landingPageFile)
   }
 
   vendorCompiler.run(function(err, stats) {

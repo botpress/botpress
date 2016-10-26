@@ -122,9 +122,15 @@ const serveStatic = function(app, skin) {
   return new Promise(function(resolve, reject) {
     skin.logger.info('compiling website, please wait...')
 
-      const landingPagePath = path.join(skin.projectLocation, 'ui/**.*')
+      const landingPagePath = path.join(skin.projectLocation, 'ui/index.jsx')
 
-      const events = compiler({ watch: true, projectLocation: skin.projectLocation, modules: skin.modules });
+      const events = compiler({
+        watch: true,
+        landingPagePath,
+        projectLocation: skin.projectLocation,
+        modules: skin.modules
+      })
+
       events.on('error.*', (err) => {
         skin.logger.error('Error compiling website', err)
         reject(err)

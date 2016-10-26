@@ -10,7 +10,8 @@ export default class InjectedComponent extends Component {
 
   constructor(props) {
     super(props)
-    this.componentId = 'component_' + Math.random().toString().substr(2)
+    const uuid = `${Math.random()}`.substr(2)
+    this.componentId = 'component_' + uuid
   }
 
   componentDidUpdate() {
@@ -25,7 +26,7 @@ export default class InjectedComponent extends Component {
     try {
       ReactDOM.unmountComponentAtNode(ReactDOM.findDOMNode(this))
     } catch (err) {
-      // TODO Handle error gracefully
+      console.error(err)
     }
   }
 
