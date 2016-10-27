@@ -1,0 +1,14 @@
+{
+  "name": "<%= name %>",
+  "version": "<%= version %>",
+  "description": "<%= description %>",
+  "main": "index.js",
+  "botskin": {
+    "menuText": "<%= name %>"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "<%= author %>",
+  "license": "AGPL-3.0"
+}

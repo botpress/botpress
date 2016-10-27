@@ -8,6 +8,7 @@ import fs from 'fs'
 //   >> HELLO WORLD page (HTML view)
 
 const introductionText = '' // TODO put text here
+const waitingText = 'please wait, we are installing everythings for you...'
 const nextStepText = 'now run ' + chalk.bold('`skin start`') + ' in your terminal'
 
 const assertDoesntExist = (file) => {
@@ -18,7 +19,7 @@ const assertDoesntExist = (file) => {
 }
 
 const getTemplate = (template) => {
-  const templatePath = path.join(__dirname, 'templates', template)
+  const templatePath = path.join(__dirname, 'templates/init', template)
   const templateContent = fs.readFileSync(templatePath)
   return _.template(templateContent)
 }
@@ -82,6 +83,7 @@ module.exports = function() {
     fs.writeFileSync('data/bot.log', '')
     fs.writeFileSync('data/notification.json', '[]')
 
+    console.log(waitingText);
     const install = spawn('npm', ['install'])
 
     install.stdout.on('data', (data) => {
