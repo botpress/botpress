@@ -6,6 +6,7 @@ import getters from '~/stores/getters'
 
 import ContentWrapper from '~/components/Layout/ContentWrapper';
 import InjectedComponent from '~/components/Injected'
+import PageHeader from '~/components/Layout/PageHeader'
 
 import EventBus from '~/util/EventBus'
 
@@ -24,9 +25,7 @@ export default class ModuleView extends React.Component {
 
   renderWrapper(children, moduleName) {
     return <ContentWrapper>
-      <div className="content-heading">
-        {moduleName || this.props.params.moduleName}
-      </div>
+      {PageHeader(moduleName || this.props.params.moduleName)}
       {children}
     </ContentWrapper>
   }

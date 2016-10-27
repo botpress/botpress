@@ -1,3 +1,22 @@
+@import '../../palette.scss';
+
+.sidebar {
+  background-color: $sidebar-color;
+  color: $sidebar-text-color;
+  height: 100%;
+}
+
+.sidebar ul li a {
+  &:hover, &:focus, &:active {
+    background-color: $sidebar-hover-color;
+  }
+
+  color: $sidebar-text-color;
+}
+
 .active {
-  a { color: red; }
+  a {
+    background-color: $sidebar-hover-color;
+    border-left: 5px solid $sidebar-primary-color;
+  }
 }
