@@ -1,23 +1,11 @@
-import { spawn } from 'child_process'
 import prompt from 'prompt'
 import chalk from 'chalk'
 import path from 'path'
-import _ from 'lodash'
 import fs from 'fs'
+import _ from 'lodash'
+import util from '../util'
 
 const MODULE_NAME_CONVENTION_BEGINS = 'skin-'
-
-const info = (message) => {
-  return chalk.green('info: ') + message;
-}
-
-const warn = (message) => {
-  return chalk.yellow('warn: ') + message;
-}
-
-const error = (message) => {
-  return chalk.red('err: ') + message;
-}
 
 const introductionText = 'you are now creating a new module for your bot.'
 const nextStepText = 'your module is now setup and ready to be develop.'
@@ -34,20 +22,16 @@ const generateTemplate = (directory, filename, variables = {}) => {
   fs.writeFileSync(path.join(directory, filename), compiled)
 }
 
-const isDirectoryExists = (directory) => {
-   return (fs.existsSync(directory) || fs.existsSync(MODULE_NAME_CONVENTION_BEGINS + directory))
-}
-
-const addSkinToDirectory = (directory) => {
-  console.log(warn('the name of your module needs to begin by skin-'))
-  console.log(warn('we rename your module to '+ chalk.bold(MODULE_NAME_CONVENTION_BEGINS + directory)))
+const prefixDirectoryNameWithSkin = (directory) => {
+  util.print('warn','the name of your module needs to begin by skin-')
+  util.print('warn','we renamed your module to '+ chalk.bold(MODULE_NAME_CONVENTION_BEGINS + directory))
   return MODULE_NAME_CONVENTION_BEGINS + directory
 }
 
 
 module.exports = function() {
 
-  console.log(info(introductionText))
+  util.print(introductionText)
 
   const currentDirectoryName = path.basename(path.resolve('./'))
 
@@ -85,11 +69,11 @@ module.exports = function() {
     var moduleDirectory = result.name
 
     if(moduleDirectory.substring(5) !== MODULE_NAME_CONVENTION_BEGINS){
-      moduleDirectory = addSkinToDirectory(moduleDirectory)
+      moduleDirectory = prefixDirectoryNameWithSkin(moduleDirectory)
     }
 
-    if(isDirectoryExists(moduleDirectory)) {
-      console.log(error('directory name already exists in the current folder.'))
+    if(fs.existsSync(moduleDirectory)) {
+      util.print('error','directory name already exists in the current folder.')
       process.exit(1)
     } else {
       fs.mkdirSync(moduleDirectory)
@@ -98,11 +82,11 @@ module.exports = function() {
       generateTemplate(moduleDirectory, 'LICENSE')
       generateTemplate(moduleDirectory, 'index.js')
 
-      fs.mkdirSync(moduleDirectory+'/views')
+      fs.mkdirSync(moduleDirectory + '/views')
       generateTemplate(moduleDirectory, '/views/index.jsx')
       generateTemplate(moduleDirectory, '/views/test.scss')
 
-      console.log(info(nextStepText))
+      util.print('success',nextStepText)
     }
   })
 }
