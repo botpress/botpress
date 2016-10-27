@@ -64,7 +64,8 @@ module.exports = {
         query: {
           presets: babelPresets,
           plugins: babelPlugins,
-          compact: false
+          compact: false,
+          babelrc: false
         }
         },
       {
