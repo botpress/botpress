@@ -33,8 +33,6 @@ module.exports = function() {
 
   util.print(introductionText)
 
-  const currentDirectoryName = path.basename(path.resolve('./'))
-
   var schema = {
     properties: {
       name: {
