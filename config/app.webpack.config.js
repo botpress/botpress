@@ -3,7 +3,12 @@ var path = require('path');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
 
 var resolveBabel = function(name) {
-  return path.join(__dirname, '..', 'node_modules', name)
+  try {
+    return require.resolve(path.join(__dirname, '..', 'node_modules', name))
+  }
+  catch (err) {
+    return require.resolve(name)
+  }
 }
 
 var babelPlugins = [

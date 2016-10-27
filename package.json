@@ -55,10 +55,7 @@
     "simple-line-icons": "^2.4.1",
     "socket.io": "^1.5.0",
     "socketio-jwt": "^4.5.0",
-    "winston": "^2.2.0"
-  },
-  "devDependencies": {
-    "babel-cli": "^6.16.0",
+    "winston": "^2.2.0",
     "babel-loader": "^6.2.5",
     "babel-plugin-transform-decorators-legacy": "^1.3.4",
     "babel-plugin-transform-object-rest-spread": "^6.16.0",
@@ -75,6 +72,9 @@
     "sass-loader": "^4.0.2",
     "style-loader": "^0.13.1",
     "webpack": "^1.13.2"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.16.0"
   },
   "engines": {
     "node": ">=4.0"
