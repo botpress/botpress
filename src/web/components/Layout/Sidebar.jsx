@@ -100,6 +100,7 @@ class Sidebar extends Component {
         sidebar={sidebarContent}
         open={open}
         docked={docked}
+        styles={{ sidebar: { zIndex: 20 } }}
         onSetOpen={this.onSetSidebarOpen}>
         {this.props.children}
       </ReactSidebar>

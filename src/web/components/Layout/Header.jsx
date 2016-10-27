@@ -1,5 +1,6 @@
 import React,{Component} from 'react'
 import {Navbar, Nav, NavItem, Glyphicon} from 'react-bootstrap'
+import classnames from 'classnames'
 
 import NotificationHub from '~/components/Notifications/Hub'
 import { logout } from '~/util/Auth'
@@ -21,7 +22,9 @@ class Header extends Component {
   }
 
   render() {
-    return <Navbar inverse className={style.navbar}>
+    const className = classnames(style.navbar, style['app-navbar'])
+
+    return <Navbar inverse className={className}>
       <Navbar.Collapse>
         <Nav pullRight>
           <NavItem href="/logs"><Glyphicon glyph="list-alt"/></NavItem>
