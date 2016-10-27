@@ -13,7 +13,8 @@
       "transform-object-rest-spread"
     ],
     "ignore": [
-      "cli/templates/**"
+      "cli/templates/**",
+      "src/web/**"
     ]
   },
   "bin": {
