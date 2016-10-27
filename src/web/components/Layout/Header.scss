@@ -1,5 +1,17 @@
-nav.navbar {
-  border-radius: 0;
+@import '../../palette.scss';
+
+.navbar {
+  border: none;
+  margin-bottom: 0;
+  background-color: $header-color;
+  color: $content-color-dark;
+}
+
+.app-navbar {
+  position: fixed;
+  right: 0;
+  width: 100%;
+  z-index: 10;
 }
 
 .navbar :global(.container) {

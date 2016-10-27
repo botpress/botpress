@@ -3,7 +3,12 @@ var path = require('path');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
 
 var resolveBabel = function(name) {
-  return path.join(__dirname, '..', 'node_modules', name)
+  try {
+    return require.resolve(path.join(__dirname, '..', 'node_modules', name))
+  }
+  catch (err) {
+    return require.resolve(name)
+  }
 }
 
 var babelPlugins = [
@@ -59,12 +64,13 @@ module.exports = {
   module: {
     loaders: [{
         test: /\.jsx?$/,
-        exclude: /botskin\/node_modules/,
+        exclude: null, // This is dynamically generated (see compiler.js)
         loader: 'babel-loader',
         query: {
           presets: babelPresets,
           plugins: babelPlugins,
-          compact: false
+          compact: false,
+          babelrc: false
         }
         },
       {

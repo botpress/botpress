@@ -82,7 +82,7 @@ class Sidebar extends Component {
     const items = modules.toJS().map(this.renderModuleItem)
     const className = classnames({ [style.active] : this.isAtHome() })
 
-    const sidebarContent = <div>
+    const sidebarContent = <div className={style.sidebar}>
       <SidebarHeader/>
       <ul className="nav">
         <li key="menu_home" className={className}>
@@ -100,6 +100,7 @@ class Sidebar extends Component {
         sidebar={sidebarContent}
         open={open}
         docked={docked}
+        styles={{ sidebar: { zIndex: 20, boxShadow: 0 } }}
         onSetOpen={this.onSetSidebarOpen}>
         {this.props.children}
       </ReactSidebar>

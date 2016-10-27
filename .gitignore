@@ -50,4 +50,5 @@ web/landing
 data/
 lib/
 /src/web/__modules.jsx
+/src/web/__landing.jsx
 !/src/web/views/logs

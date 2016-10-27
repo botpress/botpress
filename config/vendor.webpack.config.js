@@ -3,7 +3,16 @@ var path = require('path');
 
 module.exports = {
   entry: {
-    vendor: ['react', 'react-bootstrap', 'axios', 'react-router', 'history', 'boostrap']
+    vendor: ['react',
+      'react-bootstrap',
+      'axios',
+      'react-router',
+      'history',
+      'boostrap',
+      'moment',
+      'lodash',
+      'nuclear-js',
+      'classnames']
   },
   output: {
     path: path.resolve(__dirname, '../lib/web/js'),

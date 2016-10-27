@@ -1,3 +1,5 @@
+@import '../../palette.scss';
+
 .logo {
   padding: 3px;
 
@@ -7,5 +9,7 @@
 }
 
 .header {
-  width: 300px;
+  width: 200px;
+  background-color: $sidebar-color;
+  color: $sidebar-text-color;
 }

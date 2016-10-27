@@ -1,1 +1,0 @@
-export const landing = require('/Users/slvn/Desktop/bot1/ui/index.jsx').default

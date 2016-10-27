@@ -1,5 +1,7 @@
 import React, {Component} from 'react'
 
+import style from './ContentWrapper.scss'
+
 class ContentWrapper extends Component {
   render() {
     var childElement = this.props.children
@@ -9,7 +11,7 @@ class ContentWrapper extends Component {
     }
 
     return (
-      <div className="content-wrapper">
+      <div className={style['content-wrapper']}>
         {childElement}
       </div>
     )
