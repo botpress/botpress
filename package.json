@@ -93,7 +93,7 @@
     "url": "git+https://github.com/slvnperron/botskin.git"
   },
   "scripts": {
-    "compile": "babel src/ -d lib/",
+    "compile": "babel src/ -d lib/ &&  cp -a src/cli/templates/. lib/cli/templates",
     "test": "echo \"Error: no test specified\" && exit 1"
   }
 }
