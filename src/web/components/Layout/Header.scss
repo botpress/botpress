@@ -1,6 +1,10 @@
+@import '../../palette.scss';
+
 .navbar {
-  border-radius: 0;
+  border: none;
   margin-bottom: 0;
+  background-color: $header-color;
+  color: $content-color-dark;
 }
 
 .app-navbar {

@@ -1,0 +1,18 @@
+@import '../../palette.scss';
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 220px;
+  height: 50px;
+  padding: 10px;
+  z-index: 20;
+
+  color: $content-color-normal;
+  font-size: 24px;
+}
+
+.header :global(.glyphicon) {
+  font-size: 18px;
+  line-height: 30px;
+}

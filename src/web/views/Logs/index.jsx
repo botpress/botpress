@@ -4,13 +4,15 @@ import {
   Col,
   Button,
   Checkbox,
-  Panel
+  Panel,
+  Glyphicon
 } from 'react-bootstrap'
 import axios from 'axios'
 import _ from 'lodash'
 import classnames from 'classnames'
 import moment from 'moment'
 
+import PageHeader from '~/components/Layout/PageHeader'
 import ContentWrapper from '~/components/Layout/ContentWrapper'
 
 import styles from './style.scss'
@@ -86,6 +88,7 @@ class LoggerView extends Component {
     const canLoadMore = this.state.limit < 500 && this.state.hasMore
 
     return <ContentWrapper>
+      {PageHeader(<span><Glyphicon glyph="list-alt"/> Logs</span>)}
       <Panel className={styles.panel}>
         <form className="pull-left">
           <Checkbox className={styles['panel-checkbox']}
