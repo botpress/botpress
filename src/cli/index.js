@@ -7,6 +7,7 @@ import util from '../util'
 import init from './init'
 import search from './search'
 import start from './start'
+import create from './create'
 
 program
   .command('init')
@@ -14,7 +15,7 @@ program
   .action(init);
 
 program
-  .command('search')
+  .command('search [keyword]')
   .description('Search the public repository for modules')
   .action(search);
 
@@ -23,6 +24,11 @@ program
   .description('Starts running a bot')
   .option('-s, --skip', 'skip lookup for project local skin installation')
   .action(start);
+
+program
+  .command('create')
+  .description('Create a new module for chatbot development or distribution')
+  .action(create);
 
 program
   .version('0.0.1')
