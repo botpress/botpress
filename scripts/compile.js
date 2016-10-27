@@ -19,6 +19,12 @@ module.exports = function(options) {
 
   var vendorCompiler = webpack(vendorConfig);
 
+
+  var projectRootDir = path.basename(options.projectLocation);
+  var landingExclusion = new RegExp(projectRootDir + '/ui/');
+  var sourceExclusion = new RegExp('botskin/src/web/');
+  var babelExcludeExpressions = [landingExclusion, sourceExclusion];
+
   if(options && options.modules) {
     var modules = _.values(options.modules).map(function(mod) {
       return moduleTemplate(mod)
@@ -26,6 +32,12 @@ module.exports = function(options) {
     var inner = modules.join(',');
     var modulesFile = modulesTemplate({ modules: inner });
     fs.writeFileSync(modulesMapPath, modulesFile);
+
+    // Adding the module to the babel exclusion filters
+    _.keys(options.modules).map(function(name) {
+      var regex = new RegExp(name + '/', 'i');
+      babelExcludeExpressions.push(regex);
+    })
   }
 
   if(options && options.landingPagePath) {
@@ -39,6 +51,14 @@ module.exports = function(options) {
 
     var appConfig = require('../config/app.webpack.config.js')
     appConfig.resolve.alias['#'] = path.join(options.projectLocation, 'node_modules')
+    var babelLoader = _.find(appConfig.module.loaders, function(loader) {
+      return /babel/.test(loader.loader);
+    });
+    babelLoader.exclude = function(path) {
+      return !_.some(babelExcludeExpressions, function(reg) {
+        return reg.test(path);
+      });
+    };
 
     var appCompiler = webpack(appConfig);
 

@@ -64,7 +64,7 @@ module.exports = {
   module: {
     loaders: [{
         test: /\.jsx?$/,
-        exclude: /botskin\/node_modules/,
+        exclude: null, // This is dynamically generated (see compiler.js)
         loader: 'babel-loader',
         query: {
           presets: babelPresets,
