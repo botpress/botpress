@@ -17,7 +17,7 @@ var babelPlugins = [
 ];
 
 var babelPresets = [
-  resolveBabel('babel-preset-es2015'),
+  resolveBabel('babel-preset-latest'),
   resolveBabel('babel-preset-stage-0'),
   resolveBabel('babel-preset-react')
 ];
