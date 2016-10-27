@@ -12,7 +12,10 @@ module.exports = {
       'moment',
       'lodash',
       'nuclear-js',
-      'classnames']
+      'classnames',
+      'eventemitter2',
+      'react-sidebar',
+      'nuclear-js-react-addons']
   },
   output: {
     path: path.resolve(__dirname, '../lib/web/js'),
