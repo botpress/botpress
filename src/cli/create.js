@@ -67,7 +67,7 @@ module.exports = function() {
     var moduleDirectory = result.name
 
     if(moduleDirectory.substring(5) !== MODULE_NAME_CONVENTION_BEGINS){
-      moduleDirectory = prefixDirectoryNameWithSkin(moduleDirectory)
+      result.name = moduleDirectory = prefixDirectoryNameWithSkin(moduleDirectory)
     }
 
     if(fs.existsSync(moduleDirectory)) {
