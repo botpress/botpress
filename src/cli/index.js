@@ -27,14 +27,14 @@ program
   .action(start);
 
 program
+  .command('install <module>')
+  .description('Install module on your current repository')
+  .action(install);
+
+program
   .command('create')
   .description('Create a new module for development or distribution')
   .action(create);
-
-  program
-    .command('install <module>')
-    .description('Install module on your current repository')
-    .action(install);
 
 program
   .version('0.0.1')
