@@ -8,6 +8,7 @@ import init from './init'
 import search from './search'
 import start from './start'
 import create from './create'
+import install from './install'
 
 program
   .command('init')
@@ -27,8 +28,13 @@ program
 
 program
   .command('create')
-  .description('Create a new module for chatbot development or distribution')
+  .description('Create a new module for development or distribution')
   .action(create);
+
+  program
+    .command('install <module>')
+    .description('Install module on your current repository')
+    .action(install);
 
 program
   .version('0.0.1')

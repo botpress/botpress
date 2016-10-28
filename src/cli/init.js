@@ -4,6 +4,7 @@ import chalk from 'chalk'
 import path from 'path'
 import _ from 'lodash'
 import fs from 'fs'
+import util from '../util'
 
 //   >> HELLO WORLD page (HTML view)
 
@@ -13,7 +14,7 @@ const nextStepText = 'now run ' + chalk.bold('`skin start`') + ' in your termina
 
 const assertDoesntExist = (file) => {
   if(fs.existsSync(file)) {
-    console.log('CRASH') // TODO put error text here
+    util.print('error', 'package.json or botfile.js are already in repository, remove them before running this command again.')
     process.exit(1)
   }
 }
@@ -32,7 +33,7 @@ const generateTemplate = (filename, variables = {}) => {
 
 module.exports = function() {
 
-  console.log(introductionText)
+  util.print(introductionText)
 
   _.each(['package.json', 'botfile.js', 'index.js'], assertDoesntExist)
 
@@ -83,7 +84,7 @@ module.exports = function() {
     fs.writeFileSync('data/bot.log', '')
     fs.writeFileSync('data/notification.json', '[]')
 
-    console.log(waitingText);
+    util.print(waitingText);
     const install = spawn('npm', ['install'])
 
     install.stdout.on('data', (data) => {
@@ -96,10 +97,10 @@ module.exports = function() {
 
     install.on('close', (code) => {
       if(code > 0) {
-        console.log(chalk.red('FAILED'))
+        util.print('error', 'an error occured during installation')
       } else {
-        console.log(chalk.green('SUCCESS'))
-        console.log(nextStepText)
+        util.print('success', 'installation is completed successfully'))
+        util.print(nextStepText)
       }
     })
   })
