@@ -4,6 +4,8 @@ import _ from 'lodash'
 
 import NotificationComponent from '~/components/Notifications'
 import ContentWrapper from '~/components/Layout/ContentWrapper';
+import PageHeader from '~/components/Layout/PageHeader';
+import {Glyphicon} from 'react-bootstrap'
 
 import {connect} from 'nuclear-js-react-addons'
 import getters from '~/stores/getters'
@@ -34,9 +36,7 @@ export default class NotificationHub extends NotificationComponent {
         const readTip = <Tooltip id="ttip">Mark all as read</Tooltip>
 
         return <ContentWrapper>
-            <div className="content-heading">
-                Notifications
-            </div>
+            {PageHeader(<span><Glyphicon glyph="bell"/> Notifications</span>)}
             <Panel>
               <div className="pull-right">
                 <OverlayTrigger placement="left" overlay={readTip}>
