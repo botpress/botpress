@@ -52,3 +52,6 @@ lib/
 /src/web/__modules.jsx
 /src/web/__landing.jsx
 !/src/web/views/logs
+
+# for vim 
+*.swp
