@@ -66,7 +66,7 @@ module.exports = function() {
   prompt.get(schema, function (err, result) {
     var moduleDirectory = result.name
 
-    if(moduleDirectory.substring(5) !== MODULE_NAME_CONVENTION_BEGINS){
+    if(moduleDirectory.substring(0,5) !== MODULE_NAME_CONVENTION_BEGINS){
       result.name = moduleDirectory = prefixDirectoryNameWithSkin(moduleDirectory)
     }
 
