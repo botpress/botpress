@@ -99,7 +99,7 @@ module.exports = function() {
       if(code > 0) {
         util.print('error', 'an error occured during installation')
       } else {
-        util.print('success', 'installation is completed successfully')
+        util.print('success', 'installation has completed successfully')
         util.print(nextStepText)
       }
     })
