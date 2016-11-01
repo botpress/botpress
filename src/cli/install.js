@@ -6,7 +6,7 @@ const waitingText = 'please wait, we are trying to install your new module...'
 module.exports = function(argument) {
   if(argument && typeof(argument) === 'string'){
     util.print(waitingText);
-    
+
     const install = spawn('npm', ['install', '--save', argument])
 
     install.stdout.on('data', (data) => {
@@ -14,7 +14,7 @@ module.exports = function(argument) {
     })
 
     install.stderr.on('data', (data) => {
-      process.stdout.write(data.toString())
+      process.stderr.write(data.toString())
     })
 
     install.on('close', (code) => {
@@ -24,7 +24,7 @@ module.exports = function(argument) {
         util.print('success', "module's installation has completed successfully")
       }
     })
-  }else{
+  } else {
     util.print('error', 'module name or path is not valid')
   }
 }
