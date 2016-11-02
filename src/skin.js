@@ -83,12 +83,12 @@ class skin {
     modules.forEach((mod) => {
       const loader = require(mod.entry)
 
-      if(typeof loader !== 'function') {
+      if(typeof loader !== 'object') {
         return this.logger.warn('Ignoring module ' + mod.name +
           ', invalid entry point signature.')
       }
 
-      mod.handlers = loader(this)
+      mod.handlers = loader
       this.modules[mod.name] = mod
       loadedCount++
     })
@@ -120,6 +120,7 @@ class skin {
     NotificationProvider(this, modules)
 
     applyEngine(this)
+
     this._loadModules(modules)
 
     const server = this.server = new WebServer({ skin: this })
