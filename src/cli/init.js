@@ -84,6 +84,8 @@ module.exports = function() {
     fs.writeFileSync('data/bot.log', '')
     fs.writeFileSync('data/notification.json', '[]')
 
+    fs.mkdirSync('modules_config')
+
     util.print(waitingText);
     const install = spawn('npm', ['install'])
 
