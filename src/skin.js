@@ -147,4 +147,4 @@ class skin {
   }
 }
 
-module.exports = skin;
+module.exports = skin

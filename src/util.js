@@ -11,23 +11,23 @@ const print = function(...args) {
     warn: function() { return chalk.yellow('WARN', ...arguments) },
     error: function() { return chalk.red('ERR', ...arguments) },
     success: function() { return chalk.green('OK', ...arguments) }
-  };
-
-  let level = mapping[args[0]];
-  const matched = !!level;
-
-  if(!matched) {
-    level = mapping.info;
-  } else {
-    args.splice(0, 1);
   }
 
-  console.log(chalk.black.bgWhite('[skin]'), '\t', level(...args));
+  let level = mapping[args[0]]
+  const matched = !!level
+
+  if(!matched) {
+    level = mapping.info
+  } else {
+    args.splice(0, 1)
+  }
+
+  console.log(chalk.black.bgWhite('[skin]'), '\t', level(...args))
 }
 
 const resolveFromDir = function (fromDir, moduleId) {
-	fromDir = path.resolve(fromDir);
-	const fromFile = path.join(fromDir, 'noop.js');
+	fromDir = path.resolve(fromDir)
+	const fromFile = path.join(fromDir, 'noop.js')
   try {
   	return Module._resolveFilename(moduleId, {
   		id: fromFile,

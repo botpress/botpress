@@ -61,7 +61,7 @@ module.exports = function() {
   prompt.message = ''
   prompt.delimiter = ''
 
-  prompt.start();
+  prompt.start()
 
   prompt.get(schema, function (err, result) {
     var moduleDirectory = result.name

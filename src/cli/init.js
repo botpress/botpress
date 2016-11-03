@@ -68,7 +68,7 @@ module.exports = function() {
   prompt.message = ''
   prompt.delimiter = ''
 
-  prompt.start();
+  prompt.start()
 
   prompt.get(schema, function (err, result) {
 
@@ -84,7 +84,7 @@ module.exports = function() {
     fs.writeFileSync('data/bot.log', '')
     fs.writeFileSync('data/notification.json', '[]')
 
-    util.print(waitingText);
+    util.print(waitingText)
     const install = spawn('npm', ['install'])
 
     install.stdout.on('data', (data) => {
