@@ -89,6 +89,13 @@ class skin {
       }
 
       mod.handlers = loader
+
+      try {
+        loader.init && loader.init(this)
+      } catch (err) {
+        this.logger.warn('Error during module initialization: ', err)
+      }
+
       this.modules[mod.name] = mod
       loadedCount++
     })
