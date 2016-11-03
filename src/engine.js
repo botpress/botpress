@@ -7,19 +7,19 @@ const createMiddleware = function() {
   const _error = mware()
 
   const use = function(middleware) {
-    if(typeof(middleware) !== 'function') {
+    if (typeof(middleware) !== 'function') {
       throw new TypeError('Expected all middleware arguments to be functions')
     }
 
-    if(middleware.length === 2) {
+    if (middleware.length === 2) {
       _use(middleware)
-    } else if(middleware.length === 3) {
+    } else if (middleware.length === 3) {
       _error(middleware)
     }
   }
 
   const dispatch = function(event) {
-    if(!_.isPlainObject(event)) {
+    if (!_.isPlainObject(event)) {
       throw new TypeError('Expected all dispatch arguments to be plain event objects')
     }
 
@@ -30,13 +30,13 @@ const createMiddleware = function() {
       raw: function(value) { return true }
     }
 
-    if(!_.conformsTo(event, conformity)) {
+    if (!_.conformsTo(event, conformity)) {
       throw new TypeError('Expected event to contain (type: string), ' +
         '(platform: string), (text: string), (raw: any)')
     }
 
     _use.run(event, function(err) {
-      if(err) {
+      if (err) {
         _error.run(err, event, _.noop)
       }
     })
@@ -49,7 +49,7 @@ const createMiddleware = function() {
 
     if (typeof(arguments[0]) === 'function') {
       _.forEach(arguments, use)
-    } else if(_.isPlainObject(arguments[0])) {
+    } else if (_.isPlainObject(arguments[0])) {
       _.forEach(arguments, dispatch)
     } else {
       throw new TypeError('Expected a middleware function or a plain object to ' +

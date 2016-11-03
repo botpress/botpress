@@ -66,11 +66,11 @@ module.exports = function() {
   prompt.get(schema, function (err, result) {
     var moduleDirectory = result.name
 
-    if(moduleDirectory.substring(5) !== MODULE_NAME_CONVENTION_BEGINS){
+    if (moduleDirectory.substring(5) !== MODULE_NAME_CONVENTION_BEGINS) {
       result.name = moduleDirectory = prefixDirectoryNameWithSkin(moduleDirectory)
     }
 
-    if(fs.existsSync(moduleDirectory)) {
+    if (fs.existsSync(moduleDirectory)) {
       util.print('error','directory name already exists in the current folder.')
       process.exit(1)
     } else {

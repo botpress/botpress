@@ -16,7 +16,7 @@ const print = function(...args) {
   let level = mapping[args[0]]
   const matched = !!level
 
-  if(!matched) {
+  if (!matched) {
     level = mapping.info
   } else {
     args.splice(0, 1)
@@ -41,9 +41,9 @@ const resolveFromDir = function (fromDir, moduleId) {
 
 const resolveModuleRootPath = function(entryPath) {
   let current = path.dirname(entryPath)
-  while(current !== '/') {
+  while (current !== '/') {
     const lookup = path.join(current, 'package.json')
-    if(fs.existsSync(lookup)) {
+    if (fs.existsSync(lookup)) {
       return current
     }
     current = path.resolve(path.join(current, '..'))

@@ -8,7 +8,7 @@ module.exports = function(projectPath, options) {
   let skin = require(path.join(__dirname, '../skin'))
   projectPath = path.resolve(projectPath || '.')
 
-  if(!skip) {
+  if (!skip) {
     try {
       skin = require(path.join(projectPath, 'node_modules', '@botskin/botskin'))
     }
@@ -20,7 +20,7 @@ module.exports = function(projectPath, options) {
   }
 
   const botfile = path.join(projectPath, 'botfile.js')
-  if(!fs.existsSync(botfile)) {
+  if (!fs.existsSync(botfile)) {
     util.print('error', `(fatal) No ${chalk.bold('botfile.js')} file found at: ` + botfile)
     process.exit(1)
   }

@@ -10,7 +10,7 @@ module.exports = (skin, modules) => {
   const notificationsFile = path.join(skin.dataLocation, skin.botfile.notification.file)
 
   skin.loadNotifications = () => {
-    if(fs.existsSync(notificationsFile)) {
+    if (fs.existsSync(notificationsFile)) {
       return JSON.parse(fs.readFileSync(notificationsFile))
     }
     return []
@@ -27,7 +27,7 @@ module.exports = (skin, modules) => {
   skin.events.on('notifications.read', (id) => {
     let notifications = skin.loadNotifications()
     notifications = notifications.map((notif) => {
-      if(notif.id === id) {
+      if (notif.id === id) {
         notif.read = true
       }
       return notif
@@ -57,7 +57,7 @@ module.exports = (skin, modules) => {
       throw new Error('`message` is mandatory and should be a string')
     }
 
-    if(!level || typeof(level) !== 'string' || !_.includes(['info', 'error', 'success'], level.toLowerCase())) {
+    if (!level || typeof(level) !== 'string' || !_.includes(['info', 'error', 'success'], level.toLowerCase())) {
       level = 'info'
     } else {
       level = level.toLowerCase()
@@ -79,7 +79,7 @@ module.exports = (skin, modules) => {
       url: '/'
     }
 
-    if(module) {
+    if (module) {
       // because the bot itself can send notifications
       options = {
         modileId: module.name,
@@ -87,7 +87,7 @@ module.exports = (skin, modules) => {
         name: module.settings.menuText
       }
 
-      if(!url || typeof(url) !== 'string') {
+      if (!url || typeof(url) !== 'string') {
         options.url = `/modules/${module.name}`
       }
     }
@@ -105,7 +105,7 @@ module.exports = (skin, modules) => {
     }
 
     let notifications = skin.loadNotifications()
-    if(notifications.length >= skin.botfile.notification.maxLength) {
+    if (notifications.length >= skin.botfile.notification.maxLength) {
       notifications.pop()
     }
 

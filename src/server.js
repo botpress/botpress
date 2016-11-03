@@ -15,7 +15,7 @@ const setupSocket = function(app, skin) {
   const server = http.createServer(app)
   const io = socketio(server)
 
-  if(skin.requiresAuth) {
+  if (skin.requiresAuth) {
     io.use(socketioJwt.authorize({
       secret: skin.getSecret(),
       handshake: true
@@ -31,7 +31,7 @@ const setupSocket = function(app, skin) {
   })
 
   skin.events.onAny(function(event, data, from) {
-    if(from === 'client') {
+    if (from === 'client') {
       // we sent this ourselves
       return
     }
@@ -109,7 +109,7 @@ const serveStatic = function(app, skin) {
   app.use(express.static(path.join(__dirname, '../lib/web')))
 
   app.get('*', (req, res, next) => {
-    if(/html/i.test(req.headers.accept)) {
+    if (/html/i.test(req.headers.accept)) {
       return res.sendFile(path.join(__dirname, '../lib/web/index.html'))
     }
     next()
@@ -141,11 +141,11 @@ const serveStatic = function(app, skin) {
 }
 
 const authenticationMiddleware = (skin) => function(req, res, next) {
-  if(!skin.requiresAuth) {
+  if (!skin.requiresAuth) {
     return next()
   }
 
-  if(skin.authenticate(req.headers.authorization)) {
+  if (skin.authenticate(req.headers.authorization)) {
     next()
   } else {
     res.status(401).location('/login').end()
