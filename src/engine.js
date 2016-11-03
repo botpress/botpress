@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import mware from 'mware'
 
-const createMiddleware = function() {
+const createMiddleware = function(skin, middlewareName) {
 
   const _use = mware()
   const _error = mware()
@@ -35,6 +35,9 @@ const createMiddleware = function() {
         '(platform: string), (text: string), (raw: any)')
     }
 
+    // Provide skin to the event handlers
+    event.skin = skin
+
     _use.run(event, function(err) {
       if (err) {
         _error.run(err, event, _.noop)
@@ -51,6 +54,23 @@ const createMiddleware = function() {
       _.forEach(arguments, use)
     } else if (_.isPlainObject(arguments[0])) {
       _.forEach(arguments, dispatch)
+    } else if (typeof(arguments[0]) === 'string') {
+      const moduleName = arguments[0].toLowerCase()
+      const module = skin.modules[moduleName]
+      if (module && module.handlers[middlewareName]) {
+        const handler = module.handlers[middlewareName]
+        if (typeof(handler) !== 'function') {
+          return skin.logger.warn('Could not register ' 
+            + middlewareName + ' middleware for "' 
+            + moduleName + '". Expected a function.')
+        }
+        use(handler)
+        skin.logger.debug('Registered middleware for module: ', arguments[0])
+      } else {
+        return skin.logger.warn('Could not find ' 
+            + middlewareName + ' middleware in module "' 
+            + moduleName + '"')
+      }
     } else {
       throw new TypeError('Expected a middleware function or a plain object to ' +
         'dispatch in parameters but got ' + typeof(arguments[0]))
@@ -59,6 +79,6 @@ const createMiddleware = function() {
 }
 
 module.exports = function(skin) {
-  skin.incoming = createMiddleware()
-  skin.outgoing = createMiddleware()
+  skin.incoming = createMiddleware(skin, 'incoming')
+  skin.outgoing = createMiddleware(skin, 'outgoing')
 }

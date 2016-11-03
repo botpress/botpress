@@ -1,5 +1,6 @@
 module.exports = {
   dataDir: "./data",
+  modulesConfigDir: "./modules_config",
   disableFileLogs: false,
   notification: {
     file: 'notifications.json',

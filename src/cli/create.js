@@ -6,6 +6,7 @@ import _ from 'lodash'
 import util from '../util'
 
 const MODULE_NAME_CONVENTION_BEGINS = 'skin-'
+const MODULE_NAME_REGEX = new RegExp(/^skin-.*/g)
 
 const introductionText = 'you are now creating a new module for your bot.'
 const nextStepText = 'your module is now setup and ready to be develop.'
@@ -66,7 +67,7 @@ module.exports = function() {
   prompt.get(schema, function (err, result) {
     var moduleDirectory = result.name
 
-    if (moduleDirectory.substring(5) !== MODULE_NAME_CONVENTION_BEGINS) {
+    if (!MODULE_NAME_REGEX.test(moduleDirectory)) {
       result.name = moduleDirectory = prefixDirectoryNameWithSkin(moduleDirectory)
     }
 

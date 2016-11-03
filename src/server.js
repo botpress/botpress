@@ -93,6 +93,17 @@ const serveApi = function(app, skin) {
       res.download(archivePath)
     })
   })
+
+  const routers = {}
+  skin.getRouter = function(name) {
+    if (!routers[name]) {
+      const router = express.Router()
+      routers[name] = router
+      app.use(`/api/${name}/`, router)
+    }
+
+    return routers[name]
+  }
 }
 
 const serveStatic = function(app, skin) {
@@ -172,6 +183,11 @@ class WebServer {
 
     .then (() => {
       server.listen(3000, () => { // TODO Port in config
+
+        for (var mod of _.values(this.skin.modules)) {
+          mod.handlers.ready && mod.handlers.ready(this.skin)
+        }
+
         this.skin.logger.info('┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓')
         this.skin.logger.info('┃ bot launched, visit: http://localhost:3000 ┃')
         this.skin.logger.info('┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛')
