@@ -1,6 +1,6 @@
 {
   "parser": "babel-eslint",
   "rules": {
-    "no-extra-semi": "warn"
+    "semi": ["warn", "never"]
   }
 }
