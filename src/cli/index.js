@@ -13,34 +13,34 @@ import install from './install'
 program
   .command('init')
   .description('Create a new bot in current directory')
-  .action(init);
+  .action(init)
 
 program
   .command('search [keyword]')
   .description('Search the public repository for modules')
-  .action(search);
+  .action(search)
 
 program
   .command('start [path]')
   .description('Starts running a bot')
   .option('-s, --skip', 'skip lookup for project local skin installation')
-  .action(start);
+  .action(start)
 
 program
   .command('install <module>')
   .description('Install module on your current repository')
-  .action(install);
+  .action(install)
 
 program
   .command('create')
   .description('Create a new module for development or distribution')
-  .action(create);
+  .action(create)
 
 program
   .version('0.0.1')
   .description('Easily create, manage and extend chatbots.')
-  .parse(process.argv);
+  .parse(process.argv)
 
 if (!program.args.length) {
-  program.help();
+  program.help()
 }

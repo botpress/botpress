@@ -23,11 +23,11 @@ class skin {
       ? path.resolve(this.botfile.dataDir)
       : path.resolve(this.projectLocation, this.botfile.dataDir || 'data')
 
-    if(!fs.existsSync(this.dataLocation)) {
+    if (!fs.existsSync(this.dataLocation)) {
       this.logger.info('creating data directory: ' + this.dataLocation)
       try {
         fs.mkdirSync(this.dataLocation)
-      } catch(err) {
+      } catch (err) {
         this.logger.error('(fatal) error creating directory: ', err.message)
         process.exit(1)
       }
@@ -37,7 +37,7 @@ class skin {
   _scanModules() {
     const packagePath = path.join(this.projectLocation, 'package.json')
 
-    if(!fs.existsSync(packagePath)) {
+    if (!fs.existsSync(packagePath)) {
       return this.logger.warn("No package.json found at project root, " +
         "which means skin can't load any module for the bot.")
     }
@@ -45,25 +45,25 @@ class skin {
     const botPackage = require(packagePath)
 
     let deps = botPackage.dependencies || {}
-    if(isDeveloping) {
+    if (isDeveloping) {
       deps = _.merge(deps, botPackage.devDependencies || {})
     }
 
     return _.reduce(deps, (result, value, key) => {
-      if(!/^skin-/i.test(key)) {
+      if (!/^skin-/i.test(key)) {
         return result
       }
       const entry = resolveFromDir(this.projectLocation, key)
-      if(!entry) {
+      if (!entry) {
         return result
       }
       const root = resolveModuleRootPath(entry)
-      if(!root) {
+      if (!root) {
         return result
       }
 
       const modulePackage = require(path.join(root, 'package.json'))
-      if(!modulePackage.botskin) {
+      if (!modulePackage.botskin) {
         return result
       }
 
@@ -83,7 +83,7 @@ class skin {
     modules.forEach((mod) => {
       const loader = require(mod.entry)
 
-      if(typeof loader !== 'object') {
+      if (typeof loader !== 'object') {
         return this.logger.warn('Ignoring module ' + mod.name +
           ', invalid entry point signature.')
       }
@@ -100,7 +100,7 @@ class skin {
       loadedCount++
     })
 
-    if(loadedCount > 0) {
+    if (loadedCount > 0) {
       this.logger.info(`loaded ${loadedCount} modules`)
     }
   }
@@ -155,4 +155,4 @@ class skin {
   }
 }
 
-module.exports = skin;
+module.exports = skin

@@ -23,26 +23,26 @@ class EventBus extends EventEmitter2 {
   }
 
   dispatchClientEvent(name, data, from) {
-    if(from === 'server') {
+    if (from === 'server') {
       // we sent this event ourselves
       return
     }
 
-    if(this.socket) {
+    if (this.socket) {
       this.socket.emit('event', { name, data: data })
     }
   }
 
   setup() {
     let query = ''
-    if(window.AUTH_ENABLED) {
+    if (window.AUTH_ENABLED) {
       const token = getToken()
-      if(!!token) {
+      if (!!token) {
         query = 'token=' + token.token
       }
     }
 
-    if(this.socket) {
+    if (this.socket) {
       this.socket.off('event', this.dispatchEvent)
       this.socket.disconnect()
     }
