@@ -70,6 +70,7 @@ class skin {
       return result.push({
         name: key,
         root: root,
+        homepage: modulePackage.homepage,
         settings: modulePackage.botskin,
         entry: entry
       }) && result

@@ -23,9 +23,21 @@ export default class ModuleView extends React.Component {
     super(props, context)
   }
 
-  renderWrapper(children, moduleName) {
+  renderLink() {
+    if(this.props.modules.size <= 0) {
+      return null
+    }
+    const module = this.props.modules.find((value) => value.get('name') === this.props.params.moduleName).toJS()
+    if(!module.homepage) {
+      return null
+    }
+    return <small> &middot; <a target="_blank" href={module.homepage}>docs</a></small>
+  }
+
+  renderWrapper(children) {
+
     return <ContentWrapper>
-      {PageHeader(moduleName || this.props.params.moduleName)}
+      {PageHeader(<span> <b>{this.props.params.moduleName}</b> {this.renderLink()}</span>)}
       {children}
     </ContentWrapper>
   }

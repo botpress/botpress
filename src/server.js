@@ -61,6 +61,7 @@ const serveApi = function(app, skin) {
     const modules = _.map(skin.modules, (module) => {
       return {
         name: module.name,
+        homepage: module.homepage,
         menuText: module.settings.menuText || module.name,
         menuIcon: module.settings.menuIcon || 'icon-puzzle'
       }
