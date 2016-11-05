@@ -8,7 +8,7 @@ export const authEvents = (new EventEmitter2())
 export const getToken = () => {
   const tokenStr = localStorage.getItem(storageKey)
 
-  if(!!tokenStr) {
+  if (!!tokenStr) {
     const token = JSON.parse(tokenStr)
     axios.defaults.headers.common['authorization'] = token.token
     return token
@@ -34,7 +34,7 @@ export const logout = () => {
 export const login = (user, password) => {
   return axios.post('/api/login', { user, password })
   .then((result) => {
-    if(result.data.success) {
+    if (result.data.success) {
       setToken(result.data.token)
       authEvents.emit('login')
     } else {

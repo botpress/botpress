@@ -4,8 +4,8 @@ import util from '../util'
 const waitingText = 'please wait, we are trying to install your new module...'
 
 module.exports = function(argument) {
-  if(argument && typeof(argument) === 'string'){
-    util.print(waitingText);
+  if (argument && typeof(argument) === 'string') {
+    util.print(waitingText)
 
     const install = spawn('npm', ['install', '--save', argument])
 
@@ -18,7 +18,7 @@ module.exports = function(argument) {
     })
 
     install.on('close', (code) => {
-      if(code > 0) {
+      if (code > 0) {
         util.print('error', "an error occured during module's installation")
       } else {
         util.print('success', "module's installation has completed successfully")

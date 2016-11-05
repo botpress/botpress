@@ -7,19 +7,19 @@ const createMiddleware = function(skin, middlewareName) {
   const _error = mware()
 
   const use = function(middleware) {
-    if(typeof(middleware) !== 'function') {
+    if (typeof(middleware) !== 'function') {
       throw new TypeError('Expected all middleware arguments to be functions')
     }
 
-    if(middleware.length === 2) {
+    if (middleware.length === 2) {
       _use(middleware)
-    } else if(middleware.length === 3) {
+    } else if (middleware.length === 3) {
       _error(middleware)
     }
   }
 
   const dispatch = function(event) {
-    if(!_.isPlainObject(event)) {
+    if (!_.isPlainObject(event)) {
       throw new TypeError('Expected all dispatch arguments to be plain event objects')
     }
 
@@ -30,7 +30,7 @@ const createMiddleware = function(skin, middlewareName) {
       raw: function(value) { return true }
     }
 
-    if(!_.conformsTo(event, conformity)) {
+    if (!_.conformsTo(event, conformity)) {
       throw new TypeError('Expected event to contain (type: string), ' +
         '(platform: string), (text: string), (raw: any)')
     }
@@ -39,7 +39,7 @@ const createMiddleware = function(skin, middlewareName) {
     event.skin = skin
 
     _use.run(event, function(err) {
-      if(err) {
+      if (err) {
         _error.run(err, event, _.noop)
       }
     })
@@ -52,14 +52,14 @@ const createMiddleware = function(skin, middlewareName) {
 
     if (typeof(arguments[0]) === 'function') {
       _.forEach(arguments, use)
-    } else if(_.isPlainObject(arguments[0])) {
+    } else if (_.isPlainObject(arguments[0])) {
       _.forEach(arguments, dispatch)
-    } else if(typeof(arguments[0]) === 'string') {
+    } else if (typeof(arguments[0]) === 'string') {
       const moduleName = arguments[0].toLowerCase()
       const module = skin.modules[moduleName]
-      if(module && module.handlers[middlewareName]) {
+      if (module && module.handlers[middlewareName]) {
         const handler = module.handlers[middlewareName]
-        if(typeof(handler) !== 'function') {
+        if (typeof(handler) !== 'function') {
           return skin.logger.warn('Could not register ' 
             + middlewareName + ' middleware for "' 
             + moduleName + '". Expected a function.')

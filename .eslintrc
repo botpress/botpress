@@ -1,0 +1,8 @@
+{
+  "parser": "babel-eslint",
+  "rules": {
+    "semi": ["warn", "never"],
+    "keyword-spacing": "warn",
+    "space-before-blocks": [ "warn", "always" ]
+  }
+}

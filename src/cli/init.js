@@ -13,7 +13,7 @@ const waitingText = 'please wait, we are installing everything for you...'
 const nextStepText = 'now run ' + chalk.bold('`skin start`') + ' in your terminal'
 
 const assertDoesntExist = (file) => {
-  if(fs.existsSync(file)) {
+  if (fs.existsSync(file)) {
     util.print('error', 'package.json or botfile.js are already in repository, remove them before running this command again.')
     process.exit(1)
   }
@@ -68,7 +68,7 @@ module.exports = function() {
   prompt.message = ''
   prompt.delimiter = ''
 
-  prompt.start();
+  prompt.start()
 
   prompt.get(schema, function (err, result) {
 
@@ -86,7 +86,7 @@ module.exports = function() {
 
     fs.mkdirSync('modules_config')
 
-    util.print(waitingText);
+    util.print(waitingText)
     const install = spawn('npm', ['install'])
 
     install.stdout.on('data', (data) => {
@@ -98,7 +98,7 @@ module.exports = function() {
     })
 
     install.on('close', (code) => {
-      if(code > 0) {
+      if (code > 0) {
         util.print('error', 'an error occured during installation')
       } else {
         util.print('success', 'installation has completed successfully')

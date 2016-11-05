@@ -62,16 +62,16 @@ module.exports = function() {
   prompt.message = ''
   prompt.delimiter = ''
 
-  prompt.start();
+  prompt.start()
 
   prompt.get(schema, function (err, result) {
     var moduleDirectory = result.name
 
-    if(!MODULE_NAME_REGEX.test(moduleDirectory)){
+    if (!MODULE_NAME_REGEX.test(moduleDirectory)) {
       result.name = moduleDirectory = prefixDirectoryNameWithSkin(moduleDirectory)
     }
 
-    if(fs.existsSync(moduleDirectory)) {
+    if (fs.existsSync(moduleDirectory)) {
       util.print('error','directory name already exists in the current folder.')
       process.exit(1)
     } else {
@@ -83,7 +83,7 @@ module.exports = function() {
 
       fs.mkdirSync(moduleDirectory + '/views')
       generateTemplate(moduleDirectory, '/views/index.jsx')
-      generateTemplate(moduleDirectory, '/views/test.scss')
+      generateTemplate(moduleDirectory, '/views/style.scss')
 
       util.print('success',nextStepText)
     }

@@ -6,8 +6,8 @@ module.exports = function(argument, options) {
 
   const getKeywords = Promise.method((argument) => {
 
-    if(typeof(argument) === 'string'){
-      return argument;
+    if (typeof(argument) === 'string') {
+      return argument
     } else {
       var schema = {
         properties: {
@@ -22,9 +22,9 @@ module.exports = function(argument, options) {
 
       prompt.message = ''
       prompt.delimiter = ''
-      prompt.start();
+      prompt.start()
 
-      return Promise.fromCallback(function (callback){
+      return Promise.fromCallback(function (callback) {
         prompt.get(schema, callback)
       })
       .then((result) => result.keyword)
@@ -33,7 +33,7 @@ module.exports = function(argument, options) {
   })
 
   const printResult = (keyword) => {
-    console.log("You are actualy looking for: "+ keyword);
+    console.log("You are actualy looking for: "+ keyword)
   }
 
   getKeywords(argument)

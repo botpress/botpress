@@ -1,19 +1,10 @@
 import React from 'react'
-import { Button } from 'react-bootstrap'
 
-import style from './test.scss'
+import style from './style.scss'
 
-export default class HelloModule extends React.Component {
-
-  clickHandler() {
-    const skin = this.props.skin
-    skin.events.emit('hello.notification', null)
-  }
+export default class TemplateModule extends React.Component {
 
   render() {
-    return <div>
-      <Button onClick={this.clickHandler.bind(this)}>Send notification example</Button>
-      <p className={style.hello}>This should be red.</p>
-    </div>
+    return <h4>This module is empty...</h4>
   }
 }
