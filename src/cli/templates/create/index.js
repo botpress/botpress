@@ -1,15 +1,14 @@
-module.exports = (skin) => {
+module.exports = {
+  ingoing: function(event, next) {
 
-  setInterval(() => {
-    skin.notif({
-      message: 'Hello, notification'
-    })
-  }, 8000)
+  },
+  outgoing: function(event, next) {
 
-  skin.events.on('hello.notification', () => {
-    skin.notif({
-      message: 'Hello, notification',
-      level: 'error'
-    })
-  })
+  },
+  init: function(skin) {
+
+  },
+  ready: function(skin) {
+
+  }
 }

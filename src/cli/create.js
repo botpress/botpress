@@ -83,7 +83,7 @@ module.exports = function() {
 
       fs.mkdirSync(moduleDirectory + '/views')
       generateTemplate(moduleDirectory, '/views/index.jsx')
-      generateTemplate(moduleDirectory, '/views/test.scss')
+      generateTemplate(moduleDirectory, '/views/style.scss')
 
       util.print('success',nextStepText)
     }
