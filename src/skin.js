@@ -8,6 +8,7 @@ import EventBus from './bus'
 import NotificationProvider from './notif'
 import Logger from './logger'
 import Security from './security'
+import Listeners from './listeners'
 
 import { resolveFromDir, isDeveloping, resolveModuleRootPath } from './util'
 
@@ -127,6 +128,10 @@ class skin {
     NotificationProvider(this, modules)
 
     applyEngine(this)
+
+    this.hear = (condition, callback) => {
+      this.incoming(Listeners.hear(condition, callback))
+    }
 
     this._loadModules(modules)
 

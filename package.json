@@ -75,7 +75,8 @@
     "winston": "^2.2.0"
   },
   "devDependencies": {
-    "babel-cli": "^6.16.0"
+    "babel-cli": "^6.16.0",
+    "mocha": "^3.1.2"
   },
   "engines": {
     "node": ">=4.0"
@@ -95,6 +96,6 @@
   },
   "scripts": {
     "compile": "babel src/ -d lib/ &&  cp -a src/cli/templates/. lib/cli/templates",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha test"
   }
 }
