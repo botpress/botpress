@@ -1,3 +1,5 @@
+require('script!requirejs/require.js')
+
 import React from 'react';
 import _ from 'lodash'
 
@@ -10,8 +12,6 @@ import PageHeader from '~/components/Layout/PageHeader'
 
 import EventBus from '~/util/EventBus'
 
-const allModules = require("~/__modules").modules
-
 @connect(props => ({modules: getters.modules}))
 export default class ModuleView extends React.Component {
 
@@ -21,6 +21,10 @@ export default class ModuleView extends React.Component {
 
   constructor(props, context) {
     super(props, context)
+
+    this.state = {
+      moduleComponent: null
+    }
   }
 
   renderLink() {
@@ -59,6 +63,25 @@ export default class ModuleView extends React.Component {
     return this.renderWrapper(err)
   }
 
+  loadModule(name) {
+    const moduleName = name || this.props.params.moduleName
+    const moduleRequest = `/js/modules/${moduleName}.js`
+    this.setState({ moduleComponent: null })
+    requirejs([ moduleRequest ], (md) => {
+      this.setState({ moduleComponent: md.default })
+    }, (err) => {
+      this.setState({ error: err, moduleComponent: null })
+    })
+  }
+
+  componentDidMount() {
+    this.loadModule()
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.loadModule(nextProps.params.moduleName)
+  }
+
   render() {
     const { moduleName } = this.props.params
     const modules = this.props.modules.toJS()
@@ -68,7 +91,16 @@ export default class ModuleView extends React.Component {
       return this.renderNotFound()
     }
 
-    const moduleComponent = allModules[moduleName]
+    const { moduleComponent } = this.state
+
+    if (!moduleComponent) {
+      if (this.state.error) {
+        return this.renderNotFound()
+      } else {
+        return <h1>Loading module...</h1>
+      }
+    }
+
     const skin = {
       events: EventBus.default
     }

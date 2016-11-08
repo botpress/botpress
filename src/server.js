@@ -2,6 +2,7 @@ import express from 'express'
 import path from 'path'
 import Promise from 'bluebird'
 import _ from 'lodash'
+import fs from 'fs'
 import socketio from 'socket.io'
 import socketioJwt from 'socketio-jwt'
 import http from 'http'
@@ -108,6 +109,18 @@ const serveApi = function(app, skin) {
 }
 
 const serveStatic = function(app, skin) {
+
+  for(let name in skin.modules) {
+    const module = skin.modules[name]
+    const bundlePath = path.join(module.root, module.settings.webBundle || 'bin/web.bundle.js')
+    const requestPath = `/js/modules/${name}.js`
+    
+    app.use(requestPath, (req, res, next) => {
+      const content = fs.readFileSync(bundlePath)
+      res.contentType('text/javascript')  
+      res.send(content)
+    })
+  }
 
   app.use('/js/env.js', (req, res, next) => {
     res.contentType('text/javascript')
