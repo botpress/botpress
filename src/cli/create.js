@@ -20,7 +20,8 @@ const getTemplate = (template) => {
 const generateTemplate = (directory, filename, variables = {}) => {
   const template = getTemplate(filename)
   const compiled = template(variables)
-  fs.writeFileSync(path.join(directory, filename), compiled)
+  const destination = path.join(directory, filename.replace(/_\._/, '.'))
+  fs.writeFileSync(destination, compiled)
 }
 
 const prefixDirectoryNameWithSkin = (directory) => {
@@ -79,11 +80,15 @@ module.exports = function() {
 
       generateTemplate(moduleDirectory, 'package.json', result)
       generateTemplate(moduleDirectory, 'LICENSE')
-      generateTemplate(moduleDirectory, 'index.js')
+      generateTemplate(moduleDirectory, '_._gitignore')
+      generateTemplate(moduleDirectory, '_._npmignore')
 
-      fs.mkdirSync(moduleDirectory + '/views')
-      generateTemplate(moduleDirectory, '/views/index.jsx')
-      generateTemplate(moduleDirectory, '/views/style.scss')
+      fs.mkdirSync(moduleDirectory + '/src')
+      generateTemplate(moduleDirectory, 'index.js')
+      
+      fs.mkdirSync(moduleDirectory + '/src/views')
+      generateTemplate(moduleDirectory, '/views/src/index.jsx')
+      generateTemplate(moduleDirectory, '/views/src/style.scss')
 
       util.print('success',nextStepText)
     }

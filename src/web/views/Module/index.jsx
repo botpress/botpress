@@ -70,6 +70,7 @@ export default class ModuleView extends React.Component {
     requirejs([ moduleRequest ], (md) => {
       this.setState({ moduleComponent: md.default })
     }, (err) => {
+      console.log(err)
       this.setState({ error: err, moduleComponent: null })
     })
   }

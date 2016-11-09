@@ -116,9 +116,14 @@ const serveStatic = function(app, skin) {
     const requestPath = `/js/modules/${name}.js`
     
     app.use(requestPath, (req, res, next) => {
-      const content = fs.readFileSync(bundlePath)
-      res.contentType('text/javascript')  
-      res.send(content)
+      try {
+        const content = fs.readFileSync(bundlePath)
+        res.contentType('text/javascript')  
+        res.send(content)
+      }
+      catch(err){
+        skin.logger.warn('Could not serve module [' + name + '] at: ' + bundlePath)
+      }
     })
   }
 
