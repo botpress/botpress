@@ -1,12 +1,13 @@
 require('script!requirejs/require.js')
 
-import React from 'react';
+import React from 'react'
 import _ from 'lodash'
+import axios from 'axios'
 
 import {connect} from 'nuclear-js-react-addons'
 import getters from '~/stores/getters'
 
-import ContentWrapper from '~/components/Layout/ContentWrapper';
+import ContentWrapper from '~/components/Layout/ContentWrapper'
 import InjectedComponent from '~/components/Injected'
 import PageHeader from '~/components/Layout/PageHeader'
 
@@ -28,11 +29,11 @@ export default class ModuleView extends React.Component {
   }
 
   renderLink() {
-    if(this.props.modules.size <= 0) {
+    if (this.props.modules.size <= 0) {
       return null
     }
     const module = this.props.modules.find((value) => value.get('name') === this.props.params.moduleName).toJS()
-    if(!module.homepage) {
+    if (!module.homepage) {
       return null
     }
     return <small> &middot; <a target="_blank" href={module.homepage}>docs</a></small>
@@ -103,10 +104,11 @@ export default class ModuleView extends React.Component {
     }
 
     const skin = {
-      events: EventBus.default
+      events: EventBus.default,
+      axios: axios
     }
 
     const wrappedPlugin = <InjectedComponent component={moduleComponent} name={module.name} skin={skin}/>
-    return (this.renderWrapper(wrappedPlugin, module.menuText));
+    return (this.renderWrapper(wrappedPlugin, module.menuText))
   }
 }
