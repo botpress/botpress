@@ -1,13 +1,5 @@
 #!/usr/bin/env node
 
-var path = require('path');
-
-var fs = require('fs')
 var path = require('path')
 
-if(fs.existsSync(path.join(__dirname, '../src/cli'))) {
-  require('babel-register');
-  require(path.join(__dirname, '../src/cli'));
-} else {
-  require(path.join(__dirname, '../lib/cli'));
-}
+require(path.join(__dirname, '../lib/cli'))

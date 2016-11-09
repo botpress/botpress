@@ -6,8 +6,6 @@ import _ from 'lodash'
 import fs from 'fs'
 import util from '../util'
 
-//   >> HELLO WORLD page (HTML view)
-
 const introductionText = '' // TODO put text here
 const waitingText = 'please wait, we are installing everything for you...'
 const nextStepText = 'now run ' + chalk.bold('`skin start`') + ' in your terminal'

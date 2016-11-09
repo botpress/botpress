@@ -2,14 +2,13 @@ import express from 'express'
 import path from 'path'
 import Promise from 'bluebird'
 import _ from 'lodash'
+import fs from 'fs'
 import socketio from 'socket.io'
 import socketioJwt from 'socketio-jwt'
 import http from 'http'
 import bodyParser from 'body-parser'
 import ms from 'ms'
 import util from './util'
-
-import compiler from '../scripts/compile'
 
 const setupSocket = function(app, skin) {
   const server = http.createServer(app)
@@ -109,6 +108,23 @@ const serveApi = function(app, skin) {
 
 const serveStatic = function(app, skin) {
 
+  for (let name in skin.modules) {
+    const module = skin.modules[name]
+    const bundlePath = path.join(module.root, module.settings.webBundle || 'bin/web.bundle.js')
+    const requestPath = `/js/modules/${name}.js`
+    
+    app.use(requestPath, (req, res, next) => {
+      try {
+        const content = fs.readFileSync(bundlePath)
+        res.contentType('text/javascript')  
+        res.send(content)
+      }
+      catch (err) {
+        skin.logger.warn('Could not serve module [' + name + '] at: ' + bundlePath)
+      }
+    })
+  }
+
   app.use('/js/env.js', (req, res, next) => {
     res.contentType('text/javascript')
     res.send(`(function(window) {
@@ -127,29 +143,7 @@ const serveStatic = function(app, skin) {
     next()
   })
 
-  if (!util.isDeveloping && !process.env.WATCH_CHANGES) {
-    return Promise.resolve()
-  }
-
-  return new Promise(function(resolve, reject) {
-    skin.logger.info('compiling website, please wait...')
-
-      const landingPagePath = path.join(skin.projectLocation, 'ui/index.jsx')
-
-      const events = compiler({
-        watch: true,
-        landingPagePath,
-        projectLocation: skin.projectLocation,
-        modules: skin.modules
-      })
-
-      events.on('error.*', (err) => {
-        skin.logger.error('Error compiling website', err)
-        reject(err)
-      })
-
-      events.on('compiled.app', resolve)
-  })
+  return Promise.resolve(true)
 }
 
 const authenticationMiddleware = (skin) => function(req, res, next) {
@@ -181,18 +175,16 @@ class WebServer {
     const server = setupSocket(app, this.skin)
     serveApi(app, this.skin)
     serveStatic(app, this.skin)
+    
+    server.listen(3000, () => { // TODO Port in config
 
-    .then (() => {
-      server.listen(3000, () => { // TODO Port in config
+      for (var mod of _.values(this.skin.modules)) {
+        mod.handlers.ready && mod.handlers.ready(this.skin)
+      }
 
-        for (var mod of _.values(this.skin.modules)) {
-          mod.handlers.ready && mod.handlers.ready(this.skin)
-        }
-
-        this.skin.logger.info('┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓')
-        this.skin.logger.info('┃ bot launched, visit: http://localhost:3000 ┃')
-        this.skin.logger.info('┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛')
-      })
+      this.skin.logger.info('┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓')
+      this.skin.logger.info('┃ bot launched, visit: http://localhost:3000 ┃')
+      this.skin.logger.info('┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛')
     })
   }
 

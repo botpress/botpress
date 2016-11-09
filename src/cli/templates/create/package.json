@@ -4,7 +4,8 @@
   "description": "<%= description %>",
   "main": "index.js",
   "botskin": {
-    "menuText": "<%= name %>"
+    "menuText": "<%= name %>",
+    "webBundle": "bin/web.bundle.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
