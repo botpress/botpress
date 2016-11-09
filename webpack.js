@@ -67,4 +67,4 @@ if (process.argv.indexOf('--compile') !== -1) {
   compiler.watch(null, postProcess)
 }
 
-module.exports = webConfig
+module.exports = { web: webConfig }

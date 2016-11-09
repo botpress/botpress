@@ -79,9 +79,10 @@
   },
   "devDependencies": {
     "babel-cli": "^6.16.0",
-    "mocha": "^3.1.2",
     "babel-eslint": "^7.1.0",
-    "eslint": "^3.9.0"
+    "eslint": "^3.9.0",
+    "mocha": "^3.1.2",
+    "webpack-node-externals": "^1.5.4"
   },
   "engines": {
     "node": ">=4.0"
@@ -99,8 +100,14 @@
     "type": "git",
     "url": "git+https://github.com/slvnperron/botskin.git"
   },
+  "watch": {
+    "compile": {
+      "patterns": ["src"]
+    }
+  },
   "scripts": {
-    "compile": "babel src/ -d lib/ &&  cp -a src/cli/templates/. lib/cli/templates",
-    "test": "mocha test"
+    "compile": "babel src/ -d lib/ && cp -a src/cli/templates/. lib/cli/templates && node webpack.js --compile",
+    "test": "mocha test",
+    "watch": "npm-watch"
   }
 }

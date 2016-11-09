@@ -10,8 +10,6 @@ import bodyParser from 'body-parser'
 import ms from 'ms'
 import util from './util'
 
-import compiler from '../scripts/compile'
-
 const setupSocket = function(app, skin) {
   const server = http.createServer(app)
   const io = socketio(server)
@@ -145,30 +143,7 @@ const serveStatic = function(app, skin) {
     next()
   })
 
-  if (!util.isDeveloping && !process.env.WATCH_CHANGES) {
-    return Promise.resolve()
-  }
-
   return Promise.resolve(true)
-  // return new Promise(function(resolve, reject) {
-  //   skin.logger.info('compiling website, please wait...')
-
-  //     const landingPagePath = path.join(skin.projectLocation, 'ui/index.jsx')
-
-  //     const events = compiler({
-  //       watch: true,
-  //       landingPagePath,
-  //       projectLocation: skin.projectLocation,
-  //       modules: skin.modules
-  //     })
-
-  //     events.on('error.*', (err) => {
-  //       skin.logger.error('Error compiling website', err)
-  //       reject(err)
-  //     })
-
-  //     events.on('compiled.app', resolve)
-  // })
 }
 
 const authenticationMiddleware = (skin) => function(req, res, next) {
@@ -200,18 +175,16 @@ class WebServer {
     const server = setupSocket(app, this.skin)
     serveApi(app, this.skin)
     serveStatic(app, this.skin)
+    
+    server.listen(3000, () => { // TODO Port in config
 
-    .then (() => {
-      server.listen(3000, () => { // TODO Port in config
+      for (var mod of _.values(this.skin.modules)) {
+        mod.handlers.ready && mod.handlers.ready(this.skin)
+      }
 
-        for (var mod of _.values(this.skin.modules)) {
-          mod.handlers.ready && mod.handlers.ready(this.skin)
-        }
-
-        this.skin.logger.info('┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓')
-        this.skin.logger.info('┃ bot launched, visit: http://localhost:3000 ┃')
-        this.skin.logger.info('┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛')
-      })
+      this.skin.logger.info('┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓')
+      this.skin.logger.info('┃ bot launched, visit: http://localhost:3000 ┃')
+      this.skin.logger.info('┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛')
     })
   }
 
