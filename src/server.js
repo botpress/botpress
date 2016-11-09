@@ -110,7 +110,7 @@ const serveApi = function(app, skin) {
 
 const serveStatic = function(app, skin) {
 
-  for(let name in skin.modules) {
+  for (let name in skin.modules) {
     const module = skin.modules[name]
     const bundlePath = path.join(module.root, module.settings.webBundle || 'bin/web.bundle.js')
     const requestPath = `/js/modules/${name}.js`
@@ -121,7 +121,7 @@ const serveStatic = function(app, skin) {
         res.contentType('text/javascript')  
         res.send(content)
       }
-      catch(err){
+      catch (err) {
         skin.logger.warn('Could not serve module [' + name + '] at: ' + bundlePath)
       }
     })
@@ -149,25 +149,26 @@ const serveStatic = function(app, skin) {
     return Promise.resolve()
   }
 
-  return new Promise(function(resolve, reject) {
-    skin.logger.info('compiling website, please wait...')
+  return Promise.resolve(true)
+  // return new Promise(function(resolve, reject) {
+  //   skin.logger.info('compiling website, please wait...')
 
-      const landingPagePath = path.join(skin.projectLocation, 'ui/index.jsx')
+  //     const landingPagePath = path.join(skin.projectLocation, 'ui/index.jsx')
 
-      const events = compiler({
-        watch: true,
-        landingPagePath,
-        projectLocation: skin.projectLocation,
-        modules: skin.modules
-      })
+  //     const events = compiler({
+  //       watch: true,
+  //       landingPagePath,
+  //       projectLocation: skin.projectLocation,
+  //       modules: skin.modules
+  //     })
 
-      events.on('error.*', (err) => {
-        skin.logger.error('Error compiling website', err)
-        reject(err)
-      })
+  //     events.on('error.*', (err) => {
+  //       skin.logger.error('Error compiling website', err)
+  //       reject(err)
+  //     })
 
-      events.on('compiled.app', resolve)
-  })
+  //     events.on('compiled.app', resolve)
+  // })
 }
 
 const authenticationMiddleware = (skin) => function(req, res, next) {
