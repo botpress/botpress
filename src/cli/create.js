@@ -72,23 +72,26 @@ module.exports = function() {
       result.name = moduleDirectory = prefixDirectoryNameWithSkin(moduleDirectory)
     }
 
-    if (fs.existsSync(moduleDirectory)) {
+    if (fs.existsSync(path.join(moduleDirectory, 'package.json'))) {
       util.print('error','directory name already exists in the current folder.')
       process.exit(1)
     } else {
-      fs.mkdirSync(moduleDirectory)
+      if (!fs.existsSync(moduleDirectory)) {
+        fs.mkdirSync(moduleDirectory)
+      }
 
       generateTemplate(moduleDirectory, 'package.json', result)
       generateTemplate(moduleDirectory, 'LICENSE')
+      generateTemplate(moduleDirectory, 'webpack.js')
       generateTemplate(moduleDirectory, '_._gitignore')
       generateTemplate(moduleDirectory, '_._npmignore')
 
       fs.mkdirSync(moduleDirectory + '/src')
-      generateTemplate(moduleDirectory, 'index.js')
+      generateTemplate(moduleDirectory, 'src/index.js')
       
       fs.mkdirSync(moduleDirectory + '/src/views')
-      generateTemplate(moduleDirectory, '/views/src/index.jsx')
-      generateTemplate(moduleDirectory, '/views/src/style.scss')
+      generateTemplate(moduleDirectory, 'src/views/index.jsx')
+      generateTemplate(moduleDirectory, 'src/views/style.scss')
 
       util.print('success',nextStepText)
     }
