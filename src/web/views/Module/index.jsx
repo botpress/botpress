@@ -68,12 +68,19 @@ export default class ModuleView extends React.Component {
     const moduleName = name || this.props.params.moduleName
     const moduleRequest = `/js/modules/${moduleName}.js`
     this.setState({ moduleComponent: null })
-    requirejs([ moduleRequest ], (md) => {
-      this.setState({ moduleComponent: md.default })
-    }, (err) => {
-      console.log(err)
-      this.setState({ error: err, moduleComponent: null })
-    })
+
+    if (!window.botskin || !window.botskin[moduleName]) {
+      var script = document.createElement("script")
+      script.type = "text/javascript"
+      script.onload = () => {
+        script.onload = null
+        this.setState({ moduleComponent: botskin[moduleName].default })
+      }
+      script.src = moduleRequest
+      document.getElementsByTagName("head")[0].appendChild(script)
+    } else {
+      this.setState({ moduleComponent: botskin[moduleName].default })
+    }
   }
 
   componentDidMount() {

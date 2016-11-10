@@ -1,5 +1,5 @@
-import React from 'react'
-import ReactDOM from 'react-dom'
+import React from 'expose?React!react'
+import ReactDOM from 'expose?ReactDOM!react-dom'
 
 require("bootstrap/dist/css/bootstrap.css")
 var App = require('./components/App').default

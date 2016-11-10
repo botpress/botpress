@@ -1,5 +1,6 @@
 var webpack = require('webpack')
 var nodeExternals = require('webpack-node-externals')
+var pkg = require('./package.json')
 
 var nodeConfig = {
   devtool: 'source-map',
@@ -37,7 +38,8 @@ var webConfig = {
     path: './bin',
     publicPath: '/js/modules/',
     filename: 'web.bundle.js',
-    libraryTarget: 'umd'
+    libraryTarget: 'assign',
+    library: ['botskin', pkg.name]
   },
   resolve: {
     extensions: ['', '.js', '.jsx']
