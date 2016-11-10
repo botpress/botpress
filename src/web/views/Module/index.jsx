@@ -1,5 +1,3 @@
-require('script!requirejs/require.js')
-
 import React from 'react'
 import _ from 'lodash'
 import axios from 'axios'
