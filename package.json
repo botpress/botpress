@@ -1,7 +1,7 @@
 {
   "name": "@botskin/botskin",
   "description": "The world's first CMS for bots. Easily create, manage and extend chatbots.",
-  "version": "0.0.16",
+  "version": "0.0.17",
   "author": "Protorisk (DIFC)",
   "babel": {
     "presets": [
@@ -68,6 +68,7 @@
     "keymirror": "^0.1.1",
     "mocha": "^3.1.2",
     "node-sass": "^3.10.1",
+    "npm-watch": "^0.1.6",
     "nuclear-js": "^1.4.0",
     "nuclear-js-react-addons": "^0.4.1",
     "react": "^15.3.1",
