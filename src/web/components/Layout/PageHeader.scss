@@ -7,12 +7,23 @@
   height: 50px;
   padding: 10px;
   z-index: 20;
+  line-height: 30px;
+  color: $content-color-light;
+  font-size: 18px;
 
-  color: $content-color-normal;
-  font-size: 24px;
+  .icon {
+    font-size: 14px;
+    margin: 0 5px;
+    color: $content-color-normal;
+  }
+
+  a {
+    color: $content-color-lighter;
+  }
 }
 
 .header :global(.glyphicon) {
-  font-size: 18px;
+  margin: 0 5px;
+  font-size: 14px;
   line-height: 30px;
 }

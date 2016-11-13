@@ -1,0 +1,29 @@
+a {
+  transition: background-color .15s ease-in-out,border-color .15s ease-in-out,color .15s ease-in-out;
+}
+
+body {
+  font-family: "Open Sans", sans-serif;
+  font-weight: 300;
+}
+
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+  font-weight: 300;
+}
+
+:global(.panel) {
+
+  border: none;
+  border-radius: 3px;
+  box-shadow: none;
+  background-color: #fff;
+
+  :global(.panel-heading) {
+    padding: 15px 20px;
+    border-color: #f7f7f7;
+    background-color: #fff;    
+    text-transform: uppercase;
+    font-size: 12px;
+    font-weight: 350;
+  }
+}

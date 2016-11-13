@@ -33,6 +33,10 @@
 
 .dropdown {
   padding: 0;
+
+  &:global(.open) > a {
+    background-color: #f1f1f1 !important;
+  }
 }
 
 .message {

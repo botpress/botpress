@@ -6,6 +6,15 @@
   height: 100%;
 }
 
+.sidebar ul li {
+  font-size: 16px;
+  line-height: 44px;
+  border-top: 1px solid #2d2d2d;
+  a {
+    padding: 0 15px;
+  }
+}
+
 .sidebar ul li a {
   &:hover, &:focus, &:active {
     background-color: $sidebar-hover-color;

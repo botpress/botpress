@@ -12,6 +12,13 @@
   right: 0;
   width: 100%;
   z-index: 10;
+
+  li a {
+    color: $content-color-light !important;
+    &:hover {
+      color: $content-color-normal !important;
+    }
+  }
 }
 
 .navbar :global(.container) {

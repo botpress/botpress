@@ -88,7 +88,7 @@ class Sidebar extends Component {
         <li key="menu_home" className={className}>
           <Link to='home' title='Home'>Home</Link>
         </li>
-        <li className="nav-heading ">Modules</li>
+        {/*<li className="nav-heading ">Modules</li>*/}
         {items}
       </ul>
     </div>
@@ -100,7 +100,8 @@ class Sidebar extends Component {
         sidebar={sidebarContent}
         open={open}
         docked={docked}
-        styles={{ sidebar: { zIndex: 20, boxShadow: 0 } }}
+        shadow={false}
+        styles={{ sidebar: { zIndex: 20 } }}
         onSetOpen={this.onSetSidebarOpen}>
         {this.props.children}
       </ReactSidebar>
