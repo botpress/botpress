@@ -12,6 +12,14 @@
   border-top: 1px solid #2d2d2d;
   a {
     padding: 0 15px;
+
+    :global(.icon) {
+      display: inline;
+      vertical-align: middle;
+      color: $sidebar-primary-color;
+      padding: 0 10px 0 0;
+      font-size: 18px;
+    }
   }
 }
 

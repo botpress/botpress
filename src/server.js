@@ -62,7 +62,7 @@ const serveApi = function(app, skin) {
         name: module.name,
         homepage: module.homepage,
         menuText: module.settings.menuText || module.name,
-        menuIcon: module.settings.menuIcon || 'icon-puzzle'
+        menuIcon: module.settings.menuIcon || 'view_module'
       }
     })
     res.send(modules)

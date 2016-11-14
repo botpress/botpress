@@ -71,7 +71,7 @@ class Sidebar extends Component {
 
     return <li key={`menu_module_${module.name}`} className={className}>
       <Link to={path} title={module.menuText}>
-        <em className={module.menuIcon || 'icon-puzzle'}></em>
+        <i className="icon material-icons">{module.menuIcon}</i>
         <span>{module.menuText}</span>
       </Link>
     </li>
