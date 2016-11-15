@@ -1,3 +1,5 @@
+import 'source-map-support/register'
+
 import path from 'path'
 import fs from 'fs'
 import _ from 'lodash'
@@ -9,6 +11,7 @@ import NotificationProvider from './notif'
 import Logger from './logger'
 import Security from './security'
 import Listeners from './listeners'
+import Database from './database'
 
 import { resolveFromDir, isDeveloping, resolveModuleRootPath } from './util'
 
@@ -133,6 +136,9 @@ class skin {
     this.hear = (condition, callback) => {
       this.incoming(Listeners.hear(condition, callback))
     }
+
+    const dbLocation = path.join(this.dataLocation, 'db.sqlite')
+    this.db = Database(dbLocation)
 
     this._loadModules(modules)
 
