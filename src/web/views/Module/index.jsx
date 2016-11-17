@@ -67,17 +67,17 @@ export default class ModuleView extends React.Component {
     const moduleRequest = `/js/modules/${moduleName}.js`
     this.setState({ moduleComponent: null })
 
-    if (!window.botskin || !window.botskin[moduleName]) {
+    if (!window.botpress || !window.botpress[moduleName]) {
       var script = document.createElement("script")
       script.type = "text/javascript"
       script.onload = () => {
         script.onload = null
-        this.setState({ moduleComponent: botskin[moduleName].default })
+        this.setState({ moduleComponent: botpress[moduleName].default })
       }
       script.src = moduleRequest
       document.getElementsByTagName("head")[0].appendChild(script)
     } else {
-      this.setState({ moduleComponent: botskin[moduleName].default })
+      this.setState({ moduleComponent: botpress[moduleName].default })
     }
   }
 
@@ -108,12 +108,12 @@ export default class ModuleView extends React.Component {
       }
     }
 
-    const skin = {
+    const bp = {
       events: EventBus.default,
       axios: axios
     }
 
-    const wrappedPlugin = <InjectedComponent component={moduleComponent} name={module.name} skin={skin}/>
+    const wrappedPlugin = <InjectedComponent component={moduleComponent} name={module.name} bp={bp}/>
     return (this.renderWrapper(wrappedPlugin, module.menuText))
   }
 }

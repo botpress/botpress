@@ -5,10 +5,10 @@ module.exports = {
   // outgoing: function(event, next) {
 
   // },
-  init: function(skin) {
+  init: function(bp) {
 
   },
-  ready: function(skin) {
+  ready: function(bp) {
 
   }
 }
