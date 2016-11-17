@@ -59,8 +59,12 @@ class Sidebar extends Component {
     return false
   }
 
-  isAtHome() {
-    return ['', '/', '/home'].includes(location.pathname)
+  isAtDashboard() {
+    return ['', '/', '/dashboard'].includes(location.pathname)
+  }
+
+  isAtManage() {
+    return ['/manage'].includes(location.pathname)
   }
 
   renderModuleItem(module) {
@@ -80,13 +84,23 @@ class Sidebar extends Component {
   render() {
     const modules = this.props.modules
     const items = modules.toJS().map(this.renderModuleItem)
-    const className = classnames({ [style.active] : this.isAtHome() })
+    const dashboardClassName = classnames({ [style.active] : this.isAtDashboard() })
+    const manageClassName = classnames({ [style.active] : this.isAtManage() })
 
     const sidebarContent = <div className={style.sidebar}>
       <SidebarHeader/>
       <ul className="nav">
-        <li key="menu_home" className={className}>
-          <Link to='home' title='Home'>Home</Link>
+        <li key="dashboard" className={dashboardClassName}>
+          <Link to='dashboard' title='Dashboard'>
+            <i className="icon material-icons">dashboard</i>
+            Dashboard
+          </Link>
+        </li>
+        <li key="manage" className={manageClassName}>
+          <Link to='manage' title='Modules'>
+            <i className="icon material-icons">build</i>
+            Modules
+          </Link>
         </li>
         {/*<li className="nav-heading ">Modules</li>*/}
         {items}

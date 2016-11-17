@@ -6,14 +6,14 @@ import {Glyphicon} from 'react-bootstrap'
 
 const style = require('./style.scss')
 
-export default class DashboardView extends React.Component {
+export default class HomeView extends React.Component {
   constructor(props, context) {
     super(props, context)
   }
 
   render() {
     return <ContentWrapper>
-      {PageHeader(<span><Glyphicon glyph="home"/> Dashboard</span>)}
+      {PageHeader(<span><i className="icon material-icons">dashboard</i> Dashboard</span>)}
       <h1>Dashboard</h1>
     </ContentWrapper>
   }
