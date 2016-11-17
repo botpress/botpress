@@ -13,7 +13,7 @@ export default class HomeView extends React.Component {
 
   render() {
     return <ContentWrapper>
-      {PageHeader(<span><i className="icon material-icons">dashboard</i> Dashboard</span>)}
+      {PageHeader(<span> Dashboard</span>)}
       <h1>Dashboard</h1>
     </ContentWrapper>
   }

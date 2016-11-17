@@ -13,7 +13,7 @@ export default class ManageView extends React.Component {
 
   render() {
     return <ContentWrapper>
-      {PageHeader(<span><i className="icon material-icons">build</i> Manage</span>)}
+      {PageHeader(<span> Manage</span>)}
       <h1>Manage</h1>
     </ContentWrapper>
   }
