@@ -1,7 +1,7 @@
 import _ from 'lodash'
 
 const hear = function(conditions, callback) {
-  if(!_.isPlainObject(conditions)) {
+  if (!_.isPlainObject(conditions)) {
     conditions = { text: conditions }
   }
 
@@ -19,9 +19,9 @@ const hear = function(conditions, callback) {
       }      
     })
 
-    if(result && _.isFunction(callback)) {
-      if(callback.length <= 1) {
-        if(_.isFunction(next)) { 
+    if (result && _.isFunction(callback)) {
+      if (callback.length <= 1) {
+        if (_.isFunction(next)) { 
           next()
         }
         callback(event)
@@ -29,7 +29,7 @@ const hear = function(conditions, callback) {
         callback(event, next)
       }
     } else {
-      if(_.isFunction(next)) { 
+      if (_.isFunction(next)) { 
         next()
       }
     }

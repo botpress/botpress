@@ -15,7 +15,7 @@ import Database from './database'
 
 import { resolveFromDir, isDeveloping, resolveModuleRootPath } from './util'
 
-class skin {
+class botpress {
   constructor({ botfile }) {
     this.projectLocation = path.dirname(botfile)
     this.botfile = require(botfile)
@@ -43,7 +43,7 @@ class skin {
 
     if (!fs.existsSync(packagePath)) {
       return this.logger.warn("No package.json found at project root, " +
-        "which means skin can't load any module for the bot.")
+        "which means botpress can't load any module for the bot.")
     }
 
     const botPackage = require(packagePath)
@@ -54,7 +54,7 @@ class skin {
     }
 
     return _.reduce(deps, (result, value, key) => {
-      if (!/^skin-/i.test(key)) {
+      if (!/^botpress-/i.test(key)) {
         return result
       }
       const entry = resolveFromDir(this.projectLocation, key)
@@ -67,7 +67,7 @@ class skin {
       }
 
       const modulePackage = require(path.join(root, 'package.json'))
-      if (!modulePackage.botskin) {
+      if (!modulePackage.botpress) {
         return result
       }
 
@@ -75,7 +75,7 @@ class skin {
         name: key,
         root: root,
         homepage: modulePackage.homepage,
-        settings: modulePackage.botskin,
+        settings: modulePackage.botpress,
         entry: entry
       }) && result
     }, [])
@@ -111,7 +111,7 @@ class skin {
   }
 
   start() {
-    // change the current working directory to skin's installation path
+    // change the current working directory to botpress's installation path
     // the bot's location is kept in this.projectLocation
     process.chdir(path.join(__dirname, '../'))
 
@@ -142,7 +142,7 @@ class skin {
 
     this._loadModules(modules)
 
-    const server = this.server = new WebServer({ skin: this })
+    const server = this.server = new WebServer({ botpress: this })
     server.start()
 
     // load the bot's entry point
@@ -167,4 +167,4 @@ class skin {
   }
 }
 
-module.exports = skin
+module.exports = botpress

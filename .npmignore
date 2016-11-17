@@ -1,4 +1,1 @@
 src/**
-!src/web/**
-bin/skin-prod
-bin/skin-dev
