@@ -28,7 +28,7 @@ class LoggerView extends Component {
   }
 
   componentDidMount() {
-    if(!this.state.logs) {
+    if (!this.state.logs) {
       this.queryLogs()
       this.refreshInterval = setInterval(this.queryLogs, 1000)
     }
@@ -44,7 +44,7 @@ class LoggerView extends Component {
   }
 
   toggleAutoRefresh() {
-    if(this.state.autoRefresh) {
+    if (this.state.autoRefresh) {
       clearInterval(this.refreshInterval)
     } else {
       this.refreshInterval = setInterval(this.queryLogs, 1000)
@@ -55,11 +55,12 @@ class LoggerView extends Component {
 
   renderLine(line, index) {
     const time = moment(new Date(line.timestamp)).format('MMM DD HH:mm:ss')
+    const message = line.message.replace(/\[\d\d?m/ig, '')
 
     return <li key={`log_event_${index}`} className={styles.line}>
       <span className={styles.time}>{time}</span>
       <span className={styles['level-' + line.level]}>{line.level + ': '}</span>
-      <span className={styles.message}>{line.message}</span>
+      <span className={styles.message}>{message}</span>
     </li>
   }
 

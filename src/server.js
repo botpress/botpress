@@ -8,6 +8,8 @@ import socketioJwt from 'socketio-jwt'
 import http from 'http'
 import bodyParser from 'body-parser'
 import ms from 'ms'
+import chalk from 'chalk'
+
 import util from './util'
 
 const setupSocket = function(app, bp) {
@@ -182,9 +184,7 @@ class WebServer {
         mod.handlers.ready && mod.handlers.ready(this.bp)
       }
 
-      this.bp.logger.info('┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓')
-      this.bp.logger.info('┃ bot launched, visit: http://localhost:3000 ┃')
-      this.bp.logger.info('┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛')
+      this.bp.logger.info(chalk.green.bold('bot launched, visit: http://localhost:3000'))
     })
   }
 

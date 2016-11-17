@@ -63,14 +63,14 @@ const createMiddleware = function(bp, middlewareName) {
       if (module && module.handlers[middlewareName]) {
         const handler = module.handlers[middlewareName]
         if (typeof(handler) !== 'function') {
-          return bp.logger.warn('Could not register ' 
+          return bp.logger.warn('could not register ' 
             + middlewareName + ' middleware for "' 
-            + moduleName + '". Expected a function.')
+            + moduleName + '"... expected a function')
         }
         use(handler)
-        bp.logger.debug('Registered middleware for module: ', arguments[0])
+        bp.logger.debug('registered middleware for module: ' + arguments[0])
       } else {
-        return bp.logger.warn('Could not find ' 
+        return bp.logger.warn('could not find ' 
             + middlewareName + ' middleware in module "' 
             + moduleName + '"')
       }
