@@ -69,6 +69,7 @@ export default class NotificationComponent extends Component {
     const date = moment(new Date(notification.date)).fromNow()
     const className = getNotificationStyle(styles, notification)
     const checkButton = this.renderMarkAsReadButton(notification, index)
+    const iconClass = classnames('icon', 'material-icons', this.styles.icon)
 
     return <ItemComponent
         key={notification.id}
@@ -78,7 +79,7 @@ export default class NotificationComponent extends Component {
       <Row>
         <Col xs={11} onClick={() => this.onNotifClicked(notification)}>
           <strong className={styles.header}>
-            <em className={notification.icon}></em>
+            <i className={iconClass}>{notification.icon}</i>
             &nbsp; {notification.name}
           </strong>
           {this.renderMessage(notification.message)}
