@@ -40,7 +40,10 @@ const createMiddleware = function(skin, middlewareName) {
 
     _use.run(event, function(err) {
       if (err) {
-        _error.run(err, event, _.noop)
+        _error.run(err, event, () => {
+          skin.logger.error('[botskin] Unhandled error in middleware (' 
+            + middlewareName + '), error:', err.message)
+        })
       }
     })
   }
