@@ -4,11 +4,11 @@ import crypto from 'crypto'
 import jwt from 'jsonwebtoken'
 import util from './util'
 
-module.exports = (skin) => {
+module.exports = (bp) => {
 
   // reading secret from data or creating new secret
   let secret = ''
-  const secretPath = path.join(skin.dataLocation, 'secret.key')
+  const secretPath = path.join(bp.dataLocation, 'secret.key')
 
   const createNewSecret = () => {
     secret = crypto.randomBytes(256).toString()
@@ -24,26 +24,26 @@ module.exports = (skin) => {
     secret = createNewSecret()
   }
 
-  const adminPassword = process.env.SKIN_ADMIN_PASSWORD ||
-    (skin.botfile.login && skin.botfile.login.password) ||
+  const adminPassword = process.env.BOTPRESS_ADMIN_PASSWORD ||
+    (bp.botfile.login && bp.botfile.login.password) ||
     'password'
 
-  const enabled = skin.requiresAuth =
-    (skin.botfile.login && skin.botfile.login.enabled) &&
+  const enabled = bp.requiresAuth =
+    (bp.botfile.login && bp.botfile.login.enabled) &&
     !util.isDeveloping
 
   // a per-ip cache that logs login attempts
   let attempts = {}
   let lastCleanTimestamp = new Date()
-  const maxAttempts = (skin.botfile.login && skin.botfile.login.maxAttempts) || 3
-  const resetAfter = (skin.botfile.login && skin.botfile.login.resetAfter) || 5 * 60 * 1000 // 5mins
+  const maxAttempts = (bp.botfile.login && bp.botfile.login.maxAttempts) || 3
+  const resetAfter = (bp.botfile.login && bp.botfile.login.resetAfter) || 5 * 60 * 1000 // 5mins
 
-  const loginTokenExpiry = skin.authTokenExpiry =
-    (skin.botfile.login && skin.botfile.login.tokenExpiry) || '6 hours'
+  const loginTokenExpiry = bp.authTokenExpiry =
+    (bp.botfile.login && bp.botfile.login.tokenExpiry) || '6 hours'
 
   // login function that returns a {success, reason, token} object
   // accounts for number of bad attempts
-  skin.login = function(user, password, ip = 'all') {
+  bp.login = function(user, password, ip = 'all') {
     // reset the cache if time elapsed
     if (new Date() - lastCleanTimestamp >= resetAfter) {
       attempts = {}
@@ -73,7 +73,7 @@ module.exports = (skin) => {
     }
   }
 
-  skin.authenticate = function(token) {
+  bp.authenticate = function(token) {
     try {
       const decoded = jwt.verify(token, secret)
       return decoded.user === 'admin'
@@ -82,5 +82,5 @@ module.exports = (skin) => {
     }
   }
 
-  skin.getSecret = () => secret
+  bp.getSecret = () => secret
 }

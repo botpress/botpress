@@ -22,7 +22,7 @@ const print = function(...args) {
     args.splice(0, 1)
   }
 
-  console.log(chalk.black.bgWhite('[skin]'), '\t', level(...args))
+  console.log(chalk.black.bgWhite('[botpress]'), '\t', level(...args))
 }
 
 const resolveFromDir = function (fromDir, moduleId) {

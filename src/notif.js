@@ -5,53 +5,53 @@ import uuid from 'node-uuid'
 
 import { resolveModuleRootPath } from './util'
 
-module.exports = (skin, modules) => {
+module.exports = (bp, modules) => {
 
-  const notificationsFile = path.join(skin.dataLocation, skin.botfile.notification.file)
+  const notificationsFile = path.join(bp.dataLocation, bp.botfile.notification.file)
 
-  skin.loadNotifications = () => {
+  bp.loadNotifications = () => {
     if (fs.existsSync(notificationsFile)) {
       return JSON.parse(fs.readFileSync(notificationsFile))
     }
     return []
   }
 
-  skin.saveNotifications = (notifications) => {
+  bp.saveNotifications = (notifications) => {
     fs.writeFileSync(notificationsFile, JSON.stringify(notifications))
   }
 
-  skin.events.on('notifications.getAll', () => {
-    skin.events.emit('notifications.all', skin.loadNotifications())
+  bp.events.on('notifications.getAll', () => {
+    bp.events.emit('notifications.all', bp.loadNotifications())
   })
 
-  skin.events.on('notifications.read', (id) => {
-    let notifications = skin.loadNotifications()
+  bp.events.on('notifications.read', (id) => {
+    let notifications = bp.loadNotifications()
     notifications = notifications.map((notif) => {
       if (notif.id === id) {
         notif.read = true
       }
       return notif
     })
-    skin.saveNotifications(notifications)
-    skin.events.emit('notifications.all', notifications)
+    bp.saveNotifications(notifications)
+    bp.events.emit('notifications.all', notifications)
   })
 
-  skin.events.on('notifications.allRead', () => {
-    let notifications = skin.loadNotifications()
+  bp.events.on('notifications.allRead', () => {
+    let notifications = bp.loadNotifications()
     notifications = notifications.map((notif) => {
       notif.read = true
       return notif
     })
-    skin.saveNotifications(notifications)
-    skin.events.emit('notifications.all', notifications)
+    bp.saveNotifications(notifications)
+    bp.events.emit('notifications.all', notifications)
   })
 
-  skin.events.on('notifications.trashAll', () => {
-    skin.saveNotifications([])
-    skin.events.emit('notifications.all', [])
+  bp.events.on('notifications.trashAll', () => {
+    bp.saveNotifications([])
+    bp.events.emit('notifications.all', [])
   })
 
-  skin.notif = ({ message, url, level }) => {
+  bp.notif = ({ message, url, level }) => {
 
     if (!message || typeof(message) !== 'string') {
       throw new Error('`message` is mandatory and should be a string')
@@ -73,9 +73,9 @@ module.exports = (skin, modules) => {
 
     let options = {
       // TODO should probably go in settings as defaults
-      moduleId: 'skin',
+      moduleId: 'botpress',
       icon: 'view_module',
-      name: 'skin',
+      name: 'botpress',
       url: '/'
     }
 
@@ -105,15 +105,15 @@ module.exports = (skin, modules) => {
       read: false
     }
 
-    let notifications = skin.loadNotifications()
-    if (notifications.length >= skin.botfile.notification.maxLength) {
+    let notifications = bp.loadNotifications()
+    if (notifications.length >= bp.botfile.notification.maxLength) {
       notifications.pop()
     }
 
     notifications.unshift(notification)
-    skin.saveNotifications(notifications)
+    bp.saveNotifications(notifications)
 
-    skin.events.emit('notifications.new', notification)
+    bp.events.emit('notifications.new', notification)
   }
 }
 

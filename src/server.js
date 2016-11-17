@@ -10,26 +10,26 @@ import bodyParser from 'body-parser'
 import ms from 'ms'
 import util from './util'
 
-const setupSocket = function(app, skin) {
+const setupSocket = function(app, bp) {
   const server = http.createServer(app)
   const io = socketio(server)
 
-  if (skin.requiresAuth) {
+  if (bp.requiresAuth) {
     io.use(socketioJwt.authorize({
-      secret: skin.getSecret(),
+      secret: bp.getSecret(),
       handshake: true
     }))
   }
 
   io.on('connection', function(socket) {
-    skin.logger.verbose('socket connected')
+    bp.logger.verbose('socket connected')
 
     socket.on('event', function(event) {
-      skin.events.emit(event.name, event.data, 'client')
+      bp.events.emit(event.name, event.data, 'client')
     })
   })
 
-  skin.events.onAny(function(event, data, from) {
+  bp.events.onAny(function(event, data, from) {
     if (from === 'client') {
       // we sent this ourselves
       return
@@ -43,21 +43,21 @@ const setupSocket = function(app, skin) {
   return server
 }
 
-const serveApi = function(app, skin) {
+const serveApi = function(app, bp) {
 
   app.post('/api/login', (req, res, next) => {
-    const result = skin.login(req.body.user, req.body.password, req.ip)
+    const result = bp.login(req.body.user, req.body.password, req.ip)
     res.send(result)
   })
 
-  app.get('/api/*', authenticationMiddleware(skin))
+  app.get('/api/*', authenticationMiddleware(bp))
 
   app.get('/api/ping', (req, res, next) => {
     res.send('pong')
   })
 
   app.get('/api/modules', (req, res, next) => {
-    const modules = _.map(skin.modules, (module) => {
+    const modules = _.map(bp.modules, (module) => {
       return {
         name: module.name,
         homepage: module.homepage,
@@ -69,7 +69,7 @@ const serveApi = function(app, skin) {
   })
 
   app.get('/api/notifications', (req, res, next) => {
-    res.send(skin.loadNotifications())
+    res.send(bp.loadNotifications())
   })
 
   app.get('/api/logs', (req, res, next) => {
@@ -81,21 +81,21 @@ const serveApi = function(app, skin) {
       order: 'desc',
       fields: ['message', 'level', 'timestamp']
     }
-    skin.logger.query(options, (err, results) => {
+    bp.logger.query(options, (err, results) => {
       if (err) return console.log(err)
       res.send(results.file)
     })
   })
 
   app.get('/api/logs/archive', (req, res, next) => {
-    skin.logger.archiveToFile()
+    bp.logger.archiveToFile()
     .then((archivePath) => {
       res.download(archivePath)
     })
   })
 
   const routers = {}
-  skin.getRouter = function(name) {
+  bp.getRouter = function(name) {
     if (!routers[name]) {
       const router = express.Router()
       routers[name] = router
@@ -106,10 +106,10 @@ const serveApi = function(app, skin) {
   }
 }
 
-const serveStatic = function(app, skin) {
+const serveStatic = function(app, bp) {
 
-  for (let name in skin.modules) {
-    const module = skin.modules[name]
+  for (let name in bp.modules) {
+    const module = bp.modules[name]
     const bundlePath = path.join(module.root, module.settings.webBundle || 'bin/web.bundle.js')
     const requestPath = `/js/modules/${name}.js`
     
@@ -120,7 +120,7 @@ const serveStatic = function(app, skin) {
         res.send(content)
       }
       catch (err) {
-        skin.logger.warn('Could not serve module [' + name + '] at: ' + bundlePath)
+        bp.logger.warn('Could not serve module [' + name + '] at: ' + bundlePath)
       }
     })
   }
@@ -129,8 +129,8 @@ const serveStatic = function(app, skin) {
     res.contentType('text/javascript')
     res.send(`(function(window) {
       window.DEV_MODE = ${util.isDeveloping};
-      window.AUTH_ENABLED = ${skin.requiresAuth};
-      window.AUTH_TOKEN_DURATION = ${ms(skin.authTokenExpiry)};
+      window.AUTH_ENABLED = ${bp.requiresAuth};
+      window.AUTH_TOKEN_DURATION = ${ms(bp.authTokenExpiry)};
     })(window || {})`)
   })
 
@@ -146,12 +146,12 @@ const serveStatic = function(app, skin) {
   return Promise.resolve(true)
 }
 
-const authenticationMiddleware = (skin) => function(req, res, next) {
-  if (!skin.requiresAuth) {
+const authenticationMiddleware = (bp) => function(req, res, next) {
+  if (!bp.requiresAuth) {
     return next()
   }
 
-  if (skin.authenticate(req.headers.authorization)) {
+  if (bp.authenticate(req.headers.authorization)) {
     next()
   } else {
     res.status(401).location('/login').end()
@@ -160,8 +160,8 @@ const authenticationMiddleware = (skin) => function(req, res, next) {
 
 class WebServer {
 
-  constructor({ skin }) {
-    this.skin = skin
+  constructor({ bp }) {
+    this.bp = bp
   }
 
   start() {
@@ -172,19 +172,19 @@ class WebServer {
     // TODO Add proxy trusting config
     // app.enable('trust proxy')
 
-    const server = setupSocket(app, this.skin)
-    serveApi(app, this.skin)
-    serveStatic(app, this.skin)
+    const server = setupSocket(app, this.bp)
+    serveApi(app, this.bp)
+    serveStatic(app, this.bp)
     
     server.listen(3000, () => { // TODO Port in config
 
-      for (var mod of _.values(this.skin.modules)) {
-        mod.handlers.ready && mod.handlers.ready(this.skin)
+      for (var mod of _.values(this.bp.modules)) {
+        mod.handlers.ready && mod.handlers.ready(this.bp)
       }
 
-      this.skin.logger.info('┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓')
-      this.skin.logger.info('┃ bot launched, visit: http://localhost:3000 ┃')
-      this.skin.logger.info('┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛')
+      this.bp.logger.info('┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓')
+      this.bp.logger.info('┃ bot launched, visit: http://localhost:3000 ┃')
+      this.bp.logger.info('┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛')
     })
   }
 
