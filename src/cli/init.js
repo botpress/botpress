@@ -75,9 +75,6 @@ module.exports = function() {
     generateTemplate('botfile.js')
     generateTemplate('index.js')
 
-    fs.mkdirSync('ui')
-    generateTemplate('ui/index.jsx')
-
     fs.mkdirSync('data')
     fs.writeFileSync('data/bot.log', '')
     fs.writeFileSync('data/notification.json', '[]')
