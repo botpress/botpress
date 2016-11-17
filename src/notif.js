@@ -84,7 +84,8 @@ module.exports = (skin, modules) => {
       options = {
         modileId: module.name,
         icon: module.settings.menuIcon,
-        name: module.settings.menuText
+        name: module.settings.menuText,
+        url: url
       }
 
       if (!url || typeof(url) !== 'string') {
