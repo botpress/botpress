@@ -160,8 +160,8 @@ const authenticationMiddleware = (bp) => function(req, res, next) {
 
 class WebServer {
 
-  constructor({ bp }) {
-    this.bp = bp
+  constructor({ botpress }) {
+    this.bp = botpress
   }
 
   start() {
