@@ -1,7 +1,7 @@
 {
-  "name": "@botskin/botskin",
+  "name": "@botskin/botpress",
   "description": "The world's first CMS for bots. Easily create, manage and extend chatbots.",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "author": "Protorisk (DIFC)",
   "babel": {
     "presets": [
@@ -18,11 +18,11 @@
     ]
   },
   "bin": {
-    "skin": "./bin/skin",
-    "botskin": "./bin/skin"
+    "bp": "./bin/botpress",
+    "botpress": "./bin/botpress"
   },
   "bugs": {
-    "url": "https://github.com/slvnperron/botskin/issues"
+    "url": "https://github.com/botpress/botpress/issues"
   },
   "dependencies": {
     "bluebird": "^3.4.6",
@@ -91,7 +91,7 @@
   "engines": {
     "node": ">=4.0"
   },
-  "homepage": "https://github.com/slvnperron/botskin#readme",
+  "homepage": "https://github.com/botpress/botpress#readme",
   "keywords": [
     "bot",
     "bots",
@@ -102,7 +102,7 @@
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/slvnperron/botskin.git"
+    "url": "git+https://github.com/botpress/botpress.git"
   },
   "scripts": {
     "compile": "babel src/ -d lib/ && cp -a src/cli/templates/. lib/cli/templates && node webpack.js --compile",

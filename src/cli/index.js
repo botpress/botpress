@@ -23,7 +23,7 @@ program
 program
   .command('start [path]')
   .description('Starts running a bot')
-  .option('-s, --skip', 'skip lookup for project local skin installation')
+  .option('-s, --skip', 'skip lookup for project local botpress installation')
   .action(start)
 
 program

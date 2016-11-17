@@ -5,8 +5,8 @@ import fs from 'fs'
 import _ from 'lodash'
 import util from '../util'
 
-const MODULE_NAME_CONVENTION_BEGINS = 'skin-'
-const MODULE_NAME_REGEX = new RegExp(/^skin-.*/g)
+const MODULE_NAME_CONVENTION_BEGINS = 'botpress-'
+const MODULE_NAME_REGEX = new RegExp(/^botpress-.*/g)
 
 const introductionText = 'you are now creating a new module for your bot.'
 const nextStepText = 'your module is now setup and ready to be develop.'
@@ -24,8 +24,8 @@ const generateTemplate = (directory, filename, variables = {}) => {
   fs.writeFileSync(destination, compiled)
 }
 
-const prefixDirectoryNameWithSkin = (directory) => {
-  util.print('warn','the name of your module needs to begin by skin-')
+const prefixDirectoryNameWithBotpress = (directory) => {
+  util.print('warn','the name of your module needs to begin by "botpress-"')
   util.print('warn','we renamed your module to '+ chalk.bold(MODULE_NAME_CONVENTION_BEGINS + directory))
   return MODULE_NAME_CONVENTION_BEGINS + directory
 }
@@ -69,7 +69,7 @@ module.exports = function() {
     var moduleDirectory = result.name
 
     if (!MODULE_NAME_REGEX.test(moduleDirectory)) {
-      result.name = moduleDirectory = prefixDirectoryNameWithSkin(moduleDirectory)
+      result.name = moduleDirectory = prefixDirectoryNameWithBotpress(moduleDirectory)
     }
 
     if (fs.existsSync(path.join(moduleDirectory, 'package.json'))) {

@@ -1,15 +1,15 @@
-module.exports = function(skin) {
+module.exports = function(bp) {
 
-  skin.logger.info('Congratulations, your bot is now alive')
+  bp.logger.info('Congratulations, your bot is now alive')
 
-  skin.notif({
+  bp.notif({
     level: 'success',
     message: 'First notification! ' +
       'Please check `index.js` line 5 to remove this message.'
   })
 
-  skin.events.on('bot.click', function() {
-    skin.logger.info('You clicked on me.')
+  bp.events.on('bot.click', function() {
+    bp.logger.info('You clicked on me.')
   })
 
 }

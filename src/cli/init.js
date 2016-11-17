@@ -8,7 +8,7 @@ import util from '../util'
 
 const introductionText = '' // TODO put text here
 const waitingText = 'please wait, we are installing everything for you...'
-const nextStepText = 'now run ' + chalk.bold('`skin start`') + ' in your terminal'
+const nextStepText = 'now run ' + chalk.bold('`bp start`') + ' in your terminal'
 
 const assertDoesntExist = (file) => {
   if (fs.existsSync(file)) {

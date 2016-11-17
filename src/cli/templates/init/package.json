@@ -4,10 +4,10 @@
   "description": "<%= description %>",
   "main": "index.js",
   "dependencies": {
-    "@botskin/botskin": "0.x"
+    "@botskin/botpress": "0.x"
   },
   "scripts": {
-    "start": "skin start",
+    "start": "botpress start",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "<%= author %>",

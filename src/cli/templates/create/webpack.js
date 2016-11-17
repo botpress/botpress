@@ -39,7 +39,7 @@ var webConfig = {
     publicPath: '/js/modules/',
     filename: 'web.bundle.js',
     libraryTarget: 'assign',
-    library: ['botskin', pkg.name]
+    library: ['botpress', pkg.name]
   },
   resolve: {
     extensions: ['', '.js', '.jsx']

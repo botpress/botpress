@@ -3,8 +3,9 @@
   "version": "<%= version %>",
   "description": "<%= description %>",
   "main": "bin/node.bundle.js",
-  "botskin": {
+  "botpress": {
     "menuText": "<%= name %>",
+    "menuIcon": "view_module",
     "webBundle": "bin/web.bundle.js"
   },
   "scripts": {
