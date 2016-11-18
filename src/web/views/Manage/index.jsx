@@ -6,6 +6,8 @@ import ModulesComponent from '~/components/Modules'
 
 import axios from 'axios'
 
+import actions from '~/actions'
+
 const style = require('./style.scss')
 
 export default class ManageView extends React.Component {
@@ -20,11 +22,18 @@ export default class ManageView extends React.Component {
   }
 
   queryModules() {
-    axios.get('/api/manager/modules')
+    return axios.get('/api/manager/modules')
     .then((result) => {
       this.setState({
         modules: result.data
       })
+    })
+  }
+
+  refresh() {
+    this.queryModules()
+    .then(() => {
+      setTimeout(actions.fetchModules, 5000)
     })
   }
 
@@ -33,7 +42,7 @@ export default class ManageView extends React.Component {
       <ContentWrapper>
         {PageHeader(<span> Modules</span>)}
         <div className={style.modules}>
-          <ModulesComponent modules={this.state.modules} refresh={this.queryModules}/>
+          <ModulesComponent modules={this.state.modules} refresh={this.refresh.bind(this)}/>
         </div>
       </ContentWrapper>
     )

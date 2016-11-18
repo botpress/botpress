@@ -17,37 +17,39 @@ module.exports = (bp) => {
   }
 
   const listAllModules = () => {
+
+    const installed = listInstalledModules()
     return [
       {
-        name: '../messenger',
+        name: 'messenger',
         stars: 5000,
         docLink: 'http://www.github.com/botpress/botpress-messenger',
         icon: 'message',
         description: 'Official Facebook Messenger module for botpress',
         downloads: 3000,
-        installed: true,
+        installed: _.some(installed, m => m === 'botpress-messenger'),
         license: 'AGPL-3',
         author: 'Sylvain Perron and Dany Fortin-Simard'
       },
       {
-        name: '../analytics',
+        name: 'analytics',
         stars: 32342,
         docLink: 'http://www.github.com/botpress/botpress-messenger',
         icon: 'message',
         description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
         downloads: 45006,
-        installed: false,
+        installed: _.some(installed, m => m === 'botpress-analytics'),
         license: 'Proprietery',
         author: 'Dany Fortin-Simard'
       },
       {
-        name: '../rivescript',
+        name: 'rivescript',
         stars: 24,
         docLink: 'http://www.github.com/botpress/botpress-messenger',
         icon: 'message',
         description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
         downloads: 3000,
-        installed: true,
+        installed: _.some(installed, m => m === 'botpress-rivescript'),
         license: 'AGPL-3',
         author: 'Sylvain Perron'
       }

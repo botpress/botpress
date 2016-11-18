@@ -44,7 +44,7 @@ class ModuleComponent extends Component {
     .catch(fin)
   }
 
-  handleUninstall(module) {
+  handleUninstall() {
     const fin = () => {
       this.setState({ loading: false })
       this.props.refresh && this.props.refresh()
@@ -77,9 +77,8 @@ class ModuleComponent extends Component {
   renderManageButton() {
     const { installed } = this.props.module
 
-    const text = installed ? 'Install' : 'Uninstall'
-    const action = installed ? this.handleInstall : this.handleUninstall
-    const color = installed ? '#58d1b0' : '#bfbfbf'
+    const text = installed ? 'Uninstall' : 'Install'
+    const action = installed ? this.handleUninstall : this.handleInstall
 
     const className = classnames({
       [style.install]: installed,
