@@ -13,7 +13,7 @@ export default class DashboardView extends React.Component {
 
   render() {
     return <ContentWrapper>
-      {PageHeader(<span><Glyphicon glyph="home"/> Dashboard</span>)}
+      {PageHeader(<span> Dashboard</span>)}
       <h1>Dashboard</h1>
     </ContentWrapper>
   }

@@ -11,7 +11,8 @@ import {createHistory} from 'history'
 
 import EnsureAuthenticated from '~/components/Authentication'
 import Layout from '~/components/Layout'
-import Home from '~/views/Home'
+import Dashboard from '~/views/Dashboard'
+import Manage from '~/views/Manage'
 import Module from '~/views/Module'
 import Notifications from '~/views/Notifications'
 import Logs from '~/views/Logs'
@@ -24,8 +25,9 @@ export default () => {
     <Router history={appHistory}>
       <Route path="/login" component={Login}/>
       <Route path="/" component={EnsureAuthenticated(Layout)}>
-        <Route path="home" component={Home}/>
-        <IndexRoute component={Home}/>
+        <Route path="dashboard" component={Dashboard}/>
+        <IndexRoute component={Dashboard}/>
+        <Route path="manage" component={Manage}/>
         <Route path="modules/:moduleName" component={Module}/>
         <Route path="notifications" component={Notifications}/>
         <Route path="logs" component={Logs}/>

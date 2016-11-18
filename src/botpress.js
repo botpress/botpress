@@ -12,6 +12,7 @@ import Logger from './logger'
 import Security from './security'
 import Listeners from './listeners'
 import Database from './database'
+import Manager from './manager'
 
 import { resolveFromDir, isDeveloping, resolveModuleRootPath } from './util'
 
@@ -139,6 +140,8 @@ class botpress {
 
     const dbLocation = path.join(this.dataLocation, 'db.sqlite')
     this.db = Database(dbLocation)
+
+    this.manager = Manager()
 
     this._loadModules(modules)
 

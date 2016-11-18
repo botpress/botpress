@@ -98,6 +98,10 @@ const serveApi = function(app, bp) {
     res.send(bp.loadNotifications())
   })
 
+  app.get('/api/manager/modules', (req, res, next) => {
+    res.send(bp.manager.get())
+  })
+
   app.get('/api/logs', (req, res, next) => {
     const options = {
       from: new Date() - 7 * 24 * 60 * 60 * 1000,
@@ -142,11 +146,11 @@ const serveStatic = function(app, bp) {
     const module = bp.modules[name]
     const bundlePath = path.join(module.root, module.settings.webBundle || 'bin/web.bundle.js')
     const requestPath = `/js/modules/${name}.js`
-    
+
     app.use(requestPath, (req, res, next) => {
       try {
         const content = fs.readFileSync(bundlePath)
-        res.contentType('text/javascript')  
+        res.contentType('text/javascript')
         res.send(content)
       }
       catch (err) {
@@ -199,7 +203,7 @@ class WebServer {
     const server = setupSocket(app, this.bp)
     serveApi(app, this.bp)
     serveStatic(app, this.bp)
-    
+
     server.listen(3000, () => { // TODO Port in config
 
       for (var mod of _.values(this.bp.modules)) {
