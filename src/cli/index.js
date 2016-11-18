@@ -9,6 +9,8 @@ import search from './search'
 import start from './start'
 import create from './create'
 import install from './install'
+import uninstall from './uninstall'
+import list from './list'
 
 program
   .command('init')
@@ -22,17 +24,32 @@ program
 
 program
   .command('start [path]')
+  .alias('s')
   .description('Starts running a bot')
   .option('-s, --skip', 'skip lookup for project local botpress installation')
   .action(start)
 
 program
-  .command('install <module>')
-  .description('Install module on your current repository')
+  .command('install <module> [modules...]')
+  .alias('i')
+  .description('Add modules to the current bot')
   .action(install)
 
 program
+  .command('uninstall <module> [modules...]')
+  .alias('u')
+  .description('Remove modules from the current bot')
+  .action(uninstall)
+
+program
+  .command('list')
+  .alias('ls')
+  .description('List installed modules')
+  .action(list)
+
+program
   .command('create')
+  .alias('c')
   .description('Create a new module for development or distribution')
   .action(create)
 

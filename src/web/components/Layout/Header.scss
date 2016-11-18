@@ -12,6 +12,10 @@
   right: 0;
   width: 100%;
   z-index: 10;
+  border-bottom-style: solid;
+  border-width: 1px;
+  border-color: #eeeeee;
+  border-radius: 0;
 
   li a {
     color: $content-color-light !important;

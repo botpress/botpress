@@ -4,6 +4,8 @@ import path from 'path'
 import fs from 'fs'
 import _ from 'lodash'
 import domain from 'domain'
+import cluster from 'cluster'
+
 import WebServer from './server'
 import applyEngine from './engine'
 import EventBus from './bus'
@@ -14,7 +16,14 @@ import Listeners from './listeners'
 import Database from './database'
 import Manager from './manager'
 
-import { resolveFromDir, isDeveloping, resolveModuleRootPath } from './util'
+import { 
+  resolveFromDir,
+  isDeveloping,
+  resolveModuleRootPath,
+  print
+} from './util'
+
+const RESTART_EXIT_CODE = 107
 
 class botpress {
   constructor({ botfile }) {
@@ -111,7 +120,7 @@ class botpress {
     }
   }
 
-  start() {
+  _start() {
     // change the current working directory to botpress's installation path
     // the bot's location is kept in this.projectLocation
     process.chdir(path.join(__dirname, '../'))
@@ -141,7 +150,7 @@ class botpress {
     const dbLocation = path.join(this.dataLocation, 'db.sqlite')
     this.db = Database(dbLocation)
 
-    this.manager = Manager()
+    this.manager = Manager(this)
 
     this._loadModules(modules)
 
@@ -167,6 +176,30 @@ class botpress {
         projectEntry.call(projectEntry, self)
       }
     })
+  }
+
+  start() {
+    if (cluster.isMaster) {
+      cluster.fork()
+
+      cluster.on('exit', (worker, code, signal) => {
+        cluster.fork()
+
+        if (code === RESTART_EXIT_CODE) {
+          print('info', '*** restarted worker process ***')
+        }
+      })
+    }
+
+    if (cluster.isWorker) {
+      this._start()
+    }
+  }
+
+  restart(interval = 0) {
+    setTimeout(() => {
+      process.exit(RESTART_EXIT_CODE)
+    }, interval)
   }
 }
 

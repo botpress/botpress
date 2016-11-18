@@ -31,21 +31,21 @@ class Sidebar extends Component {
   }
 
   onSetSidebarOpen(open) {
-    this.setState({sidebarOpen: open});
+    this.setState({sidebarOpen: open})
   }
 
   componentWillMount() {
-    var mql = window.matchMedia(`(min-width: 800px)`);
-    mql.addListener(this.mediaQueryChanged);
-    this.setState({mql: mql, sidebarDocked: mql.matches});
+    var mql = window.matchMedia(`(min-width: 800px)`)
+    mql.addListener(this.mediaQueryChanged)
+    this.setState({mql: mql, sidebarDocked: mql.matches})
   }
 
   componentWillUnmount() {
-    this.state.mql.removeListener(this.mediaQueryChanged);
+    this.state.mql.removeListener(this.mediaQueryChanged)
   }
 
   mediaQueryChanged() {
-    this.setState({sidebarDocked: this.state.mql.matches});
+    this.setState({sidebarDocked: this.state.mql.matches})
   }
 
   routeActive(paths) {
@@ -90,21 +90,25 @@ class Sidebar extends Component {
     const sidebarContent = <div className={style.sidebar}>
       <SidebarHeader/>
       <ul className="nav">
-        <li key="dashboard" className={dashboardClassName}>
+        <li key="dashboard">
           <Link to='dashboard' title='Dashboard'>
             <i className="icon material-icons">dashboard</i>
             Dashboard
           </Link>
         </li>
-        <li key="manage" className={manageClassName}>
+        <li key="manage">
           <Link to='manage' title='Modules'>
             <i className="icon material-icons">build</i>
             Modules
           </Link>
         </li>
-        {/*<li className="nav-heading ">Modules</li>*/}
         {items}
       </ul>
+      <div className={style.license}>
+        <Link to='license' title='License'>
+          License
+        </Link>
+      </div>
     </div>
 
     const { sidebarOpen: open, sidebarDocked: docked } = this.state

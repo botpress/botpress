@@ -51,7 +51,7 @@ const serveApi = function(app, bp) {
   const maybeApply = (name, fn) => {
     return (req, res, next) => {
       const router = req.path.match(/\/api\/(botpress-[^\/]+).*$/i)
-      
+
       if (!router) {
         return fn(req, res, next)
       }
@@ -59,11 +59,11 @@ const serveApi = function(app, bp) {
       if (!routersConditions[router[1]]) {
         return fn(req, res, next)
       }
-      
+
       if (routersConditions[router[1]][name] === false) {
         next()
       } else {
-        return fn(req, res, next) 
+        return fn(req, res, next)
       }
     }
   }
@@ -100,6 +100,41 @@ const serveApi = function(app, bp) {
 
   app.get('/api/manager/modules', (req, res, next) => {
     res.send(bp.manager.get())
+  })
+
+  app.get('/api/manager/modules/popular', (req, res, next) => {
+    res.send(bp.manager.getPopular())
+  })
+  app.get('/api/manager/modules/featured', (req, res, next) => {
+    res.send(bp.manager.getFeatured())
+  })
+
+  app.get('/api/manager/information', (req, res, next) => {
+    res.send(bp.manager.getInformation())
+  })
+
+  app.post('/api/manager/modules/:name', (req, res, next) => {
+    const { name } = req.params
+    bp.manager.install(name)
+    .then(() => {
+      res.sendStatus(200)
+      bp.restart(1000)
+    })
+    .catch(err => res.status(500).send({
+      message: err && err.message
+    }))
+  })
+
+  app.delete('/api/manager/modules/:name', (req, res, next) => {
+    const { name } = req.params
+    bp.manager.uninstall(name)
+    .then(() => {
+      res.sendStatus(200)
+      bp.restart(1000)
+    })
+    .catch(err => res.status(500).send({
+      message: err && err.message
+    }))
   })
 
   app.get('/api/logs', (req, res, next) => {
