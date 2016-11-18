@@ -6,7 +6,7 @@ import {Glyphicon} from 'react-bootstrap'
 
 const style = require('./style.scss')
 
-export default class HomeView extends React.Component {
+export default class DashboardView extends React.Component {
   constructor(props, context) {
     super(props, context)
   }
