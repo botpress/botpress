@@ -6,7 +6,11 @@ import _ from 'lodash'
 import fs from 'fs'
 import util from '../util'
 
-const introductionText = '' // TODO put text here
+const introductionText = "\nHey there, thanks for using botpress!" +
+  "\nWe'll walk you through the creation of your new bot." +
+  "\nFor more information or help, please visit http://github.com/botpress/botpress"
+  + "\n---------------"
+
 const waitingText = 'please wait, we are installing everything for you...'
 const nextStepText = 'now run ' + chalk.bold('`bp start`') + ' in your terminal'
 
@@ -74,9 +78,6 @@ module.exports = function() {
     generateTemplate('LICENSE')
     generateTemplate('botfile.js')
     generateTemplate('index.js')
-
-    fs.mkdirSync('ui')
-    generateTemplate('ui/index.jsx')
 
     fs.mkdirSync('data')
     fs.writeFileSync('data/bot.log', '')

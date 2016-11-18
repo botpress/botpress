@@ -47,6 +47,30 @@ const setupSocket = function(app, bp) {
 
 const serveApi = function(app, bp) {
 
+  const routersConditions = {}
+  const maybeApply = (name, fn) => {
+    return (req, res, next) => {
+      const router = req.path.match(/\/api\/(botpress-[^\/]+).*$/i)
+      
+      if (!router) {
+        return fn(req, res, next)
+      }
+
+      if (!routersConditions[router[1]]) {
+        return fn(req, res, next)
+      }
+      
+      if (routersConditions[router[1]][name] === false) {
+        next()
+      } else {
+        return fn(req, res, next) 
+      }
+    }
+  }
+
+  app.use(maybeApply('bodyParser.json', bodyParser.json()))
+  app.use(maybeApply('bodyParser.urlencoded', bodyParser.urlencoded({ extended: true })))
+
   app.post('/api/login', (req, res, next) => {
     const result = bp.login(req.body.user, req.body.password, req.ip)
     res.send(result)
@@ -101,11 +125,15 @@ const serveApi = function(app, bp) {
   })
 
   const routers = {}
-  bp.getRouter = function(name) {
+  bp.getRouter = function(name, conditions) {
     if (!routers[name]) {
       const router = express.Router()
       routers[name] = router
       app.use(`/api/${name}/`, router)
+    }
+
+    if (conditions) {
+      routersConditions[name] = Object.assign(routersConditions[name] || {}, conditions)
     }
 
     return routers[name]
@@ -172,12 +200,6 @@ class WebServer {
 
   start() {
     const app = express()
-    app.use(bodyParser.json())
-    app.use(bodyParser.urlencoded({ extended: true }))
-
-    // TODO Add proxy trusting config
-    // app.enable('trust proxy')
-
     const server = setupSocket(app, this.bp)
     serveApi(app, this.bp)
     serveStatic(app, this.bp)
