@@ -56,7 +56,7 @@ module.exports = (bp) => {
       let prefix = ''
 
       if (basename !== name) {
-        prefix = name.substr(0, name.length - basename)
+        prefix = name.substr(0, name.length - basename.length)
       }
 
       if (basename.replace(/botpress-?/i, '').length === 0) {
@@ -93,11 +93,10 @@ module.exports = (bp) => {
 
   const installModules = Promise.method((...names) => {
     let modules = resolveModuleNames(names)
-    const modulesCommand = modules.join(' ')
 
-    const install = spawn('npm', ['install', '--save', modulesCommand])
+    const install = spawn('npm', ['install', '--save', ...modules])
 
-    log('info', 'Installing modules: ' + modulesCommand)
+    log('info', 'Installing modules: ' + modules.join(', '))
 
     return runSpawn(install)
     .then(() => log('success', 'Modules successfully installed'))
@@ -106,18 +105,22 @@ module.exports = (bp) => {
 
   const uninstallModules = Promise.method((...names) => {
     let modules = resolveModuleNames(names)
-    const modulesCommand = modules.join(' ')
 
-    const uninstall = spawn('npm', ['uninstall', '--save', modulesCommand])
+    const uninstall = spawn('npm', ['uninstall', '--save', ...modules])
 
-    log('info', 'Uninstalling modules: ' + modulesCommand)
+    log('info', 'Uninstalling modules: ' + modules.join(', '))
 
     return runSpawn(uninstall)
     .then(() => log('success', 'Modules successfully removed'))
     .catch(() => log('error', 'An error occured during modules removal.'))
   })
 
+  const listInstalledModules = Promise.method(() => {
+
+  })
+
   return {
+    getInstalled: listInstalledModules,
     get: listAllModules,
     install: installModules,
     uninstall: uninstallModules
