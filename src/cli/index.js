@@ -9,6 +9,7 @@ import search from './search'
 import start from './start'
 import create from './create'
 import install from './install'
+import uninstall from './uninstall'
 
 program
   .command('init')
@@ -27,8 +28,15 @@ program
   .action(start)
 
 program
-  .command('install <module>')
-  .description('Install module on your current repository')
+  .command('install <module> [modules...]')
+  .alias('i')
+  .description('Add modules to the current bot')
+  .action(install)
+
+program
+  .command('uninstall <module> [...modules]')
+  .alias('un').alias('remove').alias('r').alias('unlink').alias('rm')
+  .description('Remove modules from the current bot')
   .action(install)
 
 program

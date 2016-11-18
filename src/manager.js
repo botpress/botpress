@@ -90,7 +90,7 @@ module.exports = (bp) => {
           log('error', 'An error occured during modules installation.')
           reject()
         } else {
-          log('info', 'Modules successfully installed')
+          log('success', 'Modules successfully installed')
           resolve()
         }
       })
