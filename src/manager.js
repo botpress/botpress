@@ -1,9 +1,10 @@
+import { spawn } from 'child_process'
 import path from 'path'
 import Promise from 'bluebird'
 
 import  { isDeveloping } from './util'
 
-const getListOfAllModules = () => {
+const listAllModules = () => {
   return [
     {
       name: 'Messenger',
@@ -11,7 +12,7 @@ const getListOfAllModules = () => {
       docLink: 'http://www.github.com/botpress/botpress-messenger',
       icon: 'message',
       description: 'Official Facebook Messenger module for botpress',
-      license: 'AGPL-3',
+      license: 'AGPL-3.0',
       author: 'Sylvain Perron and Dany Fortin-Simard'
     },
     {
@@ -20,7 +21,7 @@ const getListOfAllModules = () => {
       docLink: 'http://www.github.com/botpress/botpress-messenger',
       icon: 'close',
       description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-      license: 'AGPL-3',
+      license: 'AGPL-3.0',
       author: 'Dany Fortin-Simard'
     },
     {
@@ -29,24 +30,54 @@ const getListOfAllModules = () => {
       docLink: 'http://www.github.com/botpress/botpress-messenger',
       icon: 'open',
       description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-      license: 'AGPL-3',
+      license: 'AGPL-3.0',
       author: 'Sylvain Perron'
     }
   ]
 }
 
-const installModule = (name) => {
+const installModules = Promise.method((...names) => {
 
-}
+  names.forEach(name => {
+    if (!name || typeof(name) !== 'string') {
+      throw new TypeError('Expected module name to be a string')
+    }
+  })
 
-const uninstallModule = (name) => {
+  const modulesCommand = names.join(' ')
+  const install = spawn('npm', ['install', '--save', modulesCommand])
 
-}
+  // util.print(waitingText)
+
+  return new Promise((resolve, reject) => {
+    install.stdout.on('data', (data) => {
+      process.stdout.write(data.toString())
+    })
+
+    install.stderr.on('data', (data) => {
+      process.stderr.write(data.toString())
+    })
+
+    install.on('close', (code) => {
+      if (code > 0) {
+        reject()
+        // util.print('error', "an error occured during module's installation")
+      } else {
+        resolve()
+        // util.print('success', "module's installation has completed successfully")
+      }
+    })
+  })
+})
+
+const uninstallModules = Promise.method((...names) => {
+
+})
 
 module.exports = () => {
   return {
-    get: getListOfAllModules,
-    install: installModule,
-    uninstall: uninstallModule
+    get: listAllModules,
+    install: installModules,
+    uninstall: uninstallModules
   }
 }
