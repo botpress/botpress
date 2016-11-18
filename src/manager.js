@@ -19,7 +19,7 @@ module.exports = (bp) => {
   const listAllModules = () => {
     return [
       {
-        name: 'messenger',
+        name: '../messenger',
         stars: 5000,
         docLink: 'http://www.github.com/botpress/botpress-messenger',
         icon: 'message',
@@ -30,7 +30,7 @@ module.exports = (bp) => {
         author: 'Sylvain Perron and Dany Fortin-Simard'
       },
       {
-        name: 'analytics',
+        name: '../analytics',
         stars: 32342,
         docLink: 'http://www.github.com/botpress/botpress-messenger',
         icon: 'message',
@@ -41,7 +41,7 @@ module.exports = (bp) => {
         author: 'Dany Fortin-Simard'
       },
       {
-        name: 'rivescript',
+        name: '../rivescript',
         stars: 24,
         docLink: 'http://www.github.com/botpress/botpress-messenger',
         icon: 'message',
