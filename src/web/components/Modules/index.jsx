@@ -55,7 +55,7 @@ class ModuleComponent extends Component {
 
     return (
       <div>
-        <a href={docLink}>
+        <a href={docLink} target="_blank">
           <h3 className={style.moduleTitle}>
             <i className='icon material-icons'>{icon}</i>
             {name}
