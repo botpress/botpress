@@ -16,7 +16,10 @@ const style = require('./style.scss')
 export default class DashboardView extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { loading: false }
+    this.state = {
+      loading: false,
+      information: {}
+    }
   }
 
   componentDidMount() {
@@ -52,16 +55,36 @@ export default class DashboardView extends React.Component {
     })
   }
 
-
-  renderInformationSection() {
+  renderInformation(label, value) {
     return (
-      <Panel header='Information'>
-      </Panel>
+      <Row>
+        <Col sm={2}>
+          {label}
+        </Col>
+        <Col sm={10}>
+          {value}
+        </Col>
+      </Row>
     )
   }
+  renderInformationSection() {
+    return (
+      <Row>
+        <Col sm={12}>
+          <Panel header='Information'>
+            {this.renderInformation('Name', this.state.information.name)}
+            {this.renderInformation('Description', this.state.information.description)}
+            {this.renderInformation('Author', this.state.information.author)}
+            {this.renderInformation('Version', this.state.information.version)}
+            {this.renderInformation('License', this.state.information.license)}
+          </Panel>
+        </Col>
+      </Row>
+    )
+  }
+
   renderModulesSection() {
     return (
-      <Grid fluid>
         <Row>
           <Col sm={6}>
             <Panel header='Popular modules'>
@@ -74,7 +97,6 @@ export default class DashboardView extends React.Component {
             </Panel>
           </Col>
         </Row>
-      </Grid>
     )
   }
 
@@ -82,9 +104,12 @@ export default class DashboardView extends React.Component {
     return (
       <ContentWrapper>
         {PageHeader(<span> Dashboard</span>)}
-        {this.renderInformationSection()}
-        {this.renderModulesSection()}
+        <Grid fluid>
+          {this.renderInformationSection()}
+          {this.renderModulesSection()}
+        </Grid>
       </ContentWrapper>
+
     )
   }
 }
