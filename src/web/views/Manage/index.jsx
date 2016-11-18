@@ -11,7 +11,7 @@ const style = require('./style.scss')
 export default class ManageView extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { modules: []}
+    this.state = { modules: [] }
   }
 
   componentDidMount() {
@@ -30,7 +30,7 @@ export default class ManageView extends React.Component {
   render() {
     return (
       <ContentWrapper>
-        {PageHeader(<span> Manage modules</span>)}
+        {PageHeader(<span> Modules</span>)}
         <div className={style.modules}>
           <ModulesComponent modules={this.state.modules}/>
         </div>
