@@ -11,6 +11,7 @@ import {
 } from 'react-bootstrap'
 
 import Button from 'react-bootstrap-button-loader'
+import classnames from 'classnames'
 
 import _ from 'lodash'
 import axios from 'axios'
@@ -74,8 +75,13 @@ class ModuleComponent extends Component {
     const action = installed ? this.handleInstall : this.handleUninstall
     const color = installed ? '#58d1b0' : '#bfbfbf'
 
+    const className = classnames({
+      [style.install]: installed,
+      [style.uninstall]: !installed
+    })
+
     return (
-      <Button style={{backgroundColor: color}} onClick={action} loading={this.state.loading}>
+      <Button className={className} onClick={action} loading={this.state.loading}>
         {text}
       </Button>
     )

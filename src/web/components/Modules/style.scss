@@ -69,5 +69,26 @@ a {
     padding-top: 4px;
     padding-bottom: 4px;
     border-style: none;
+    transition: background-color .15s ease-in-out,border-color .15s ease-in-out,color .15s ease-in-out;
+
+    &:hover {
+      color: #ffffff;
+    }
+  }
+
+  button.install {
+    background-color: #46CBA0;
+
+    &:hover {
+      background-color: #40BD94;
+    }
+  }
+
+  button.uninstall {
+    background-color: #B1B1B1; 
+
+    &:hover {
+      background-color: #A5A5A5;       
+    }
   }
 }
