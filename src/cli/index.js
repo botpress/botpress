@@ -23,6 +23,7 @@ program
 
 program
   .command('start [path]')
+  .alias('s')
   .description('Starts running a bot')
   .option('-s, --skip', 'skip lookup for project local botpress installation')
   .action(start)
@@ -41,6 +42,7 @@ program
 
 program
   .command('create')
+  .alias('c')
   .description('Create a new module for development or distribution')
   .action(create)
 
