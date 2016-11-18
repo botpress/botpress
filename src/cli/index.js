@@ -34,10 +34,10 @@ program
   .action(install)
 
 program
-  .command('uninstall <module> [...modules]')
-  .alias('un').alias('remove').alias('r').alias('unlink').alias('rm')
+  .command('uninstall <module> [modules...]')
+  .alias('u')
   .description('Remove modules from the current bot')
-  .action(install)
+  .action(uninstall)
 
 program
   .command('create')

@@ -46,9 +46,8 @@ module.exports = (bp) => {
     ]
   }
 
-  const installModules = Promise.method((...names) => {
-
-    let modules = names.map(name => {
+  const resolveModuleNames = (names) => {
+    return names.map(name => {
       if (!name || typeof(name) !== 'string') {
         throw new TypeError('Expected module name to be a string')
       }
@@ -70,35 +69,52 @@ module.exports = (bp) => {
 
       return prefix + basename
     })
+  }
 
-    const modulesCommand = modules.join(' ')
-    const install = spawn('npm', ['install', '--save', modulesCommand])
-
-    log('info', 'Installing modules: ' + modulesCommand)
-
+  const runSpawn = (command) => {
     return new Promise((resolve, reject) => {
-      install.stdout.on('data', (data) => {
+      command.stdout.on('data', (data) => {
         process.stdout.write(data.toString())
       })
 
-      install.stderr.on('data', (data) => {
+      command.stderr.on('data', (data) => {
         process.stderr.write(data.toString())
       })
 
-      install.on('close', (code) => {
+      command.on('close', (code) => {
         if (code > 0) {
-          log('error', 'An error occured during modules installation.')
           reject()
         } else {
-          log('success', 'Modules successfully installed')
           resolve()
         }
       })
     })
+  }
+
+  const installModules = Promise.method((...names) => {
+    let modules = resolveModuleNames(names)
+    const modulesCommand = modules.join(' ')
+
+    const install = spawn('npm', ['install', '--save', modulesCommand])
+
+    log('info', 'Installing modules: ' + modulesCommand)
+
+    return runSpawn(install)
+    .then(() => log('success', 'Modules successfully installed'))
+    .catch(() => log('error', 'An error occured during modules installation.'))
   })
 
   const uninstallModules = Promise.method((...names) => {
+    let modules = resolveModuleNames(names)
+    const modulesCommand = modules.join(' ')
 
+    const uninstall = spawn('npm', ['uninstall', '--save', modulesCommand])
+
+    log('info', 'Uninstalling modules: ' + modulesCommand)
+
+    return runSpawn(uninstall)
+    .then(() => log('success', 'Modules successfully removed'))
+    .catch(() => log('error', 'An error occured during modules removal.'))
   })
 
   return {
