@@ -5,11 +5,12 @@ import PageHeader from '~/components/Layout/PageHeader'
 
 import {
   Panel,
-  Button,
   Grid,
   Row,
   Col
 } from 'react-bootstrap'
+
+import Button from 'react-bootstrap-button-loader'
 
 import _ from 'lodash'
 import axios from 'axios'
@@ -20,100 +21,115 @@ const numberWithCommas = (x) => {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
 }
 
-export default class ModulesComponent extends Component {
+class ModuleComponent extends Component {
+  
   constructor(props) {
     super(props)
 
-    this.renderModule = this.renderModule.bind(this)
+    this.state = { loading: false }
+
     this.handleInstall = this.handleInstall.bind(this)
     this.handleUninstall = this.handleUninstall.bind(this)
   }
 
-  handleInstall(module) {
-    axios.post('/api/manager/modules/' + module.name)
-    .then(res => {
-      console.log(res.data)
-    })
+  handleInstall() {
+    const fin = () => this.setState({ loading: false })
+    this.setState({ loading: true })
+    axios.post('/api/manager/modules/' + this.props.module.name)
+    .then(fin)
+    .catch(fin)
   }
 
   handleUninstall(module) {
-    axios.delete('/api/manager/modules/' + module.name)
-    .then(res => {
-      console.log(res.data)
-    })
+    const fin = () => this.setState({ loading: false })
+    this.setState({ loading: true })
+    axios.delete('/api/manager/modules/' + this.props.module.name)
+    .then()
+    .then(fin)
+    .catch(fin)
   }
 
-  renderLeftSideModule(module) {
+  renderLeftSideModule() {
+    const { docLink, icon, description, author, license, name } = this.props.module
+
     return (
       <div>
-        <a href={module.docLink}>
+        <a href={docLink}>
           <h3 className={style.moduleTitle}>
-            <i className='icon material-icons'>{module.icon}</i>
-            {module.name}
+            <i className='icon material-icons'>{icon}</i>
+            {name}
           </h3>
         </a>
-        <p className={style.moduleDescription}>{module.description}</p>
-        <p className={style.moduleAuthor}>{module.author}</p>
-        <p className={style.moduleLicense}>{module.license}</p>
+        <p className={style.moduleDescription}>{description}</p>
+        <p className={style.moduleAuthor}>{author}</p>
+        <p className={style.moduleLicense}>{license}</p>
       </div>
     )
   }
 
-  renderManageButton(module) {
-    let buttonStyle = module.installed ? 'success' : 'danger'
-    let text = module.installed ? 'Install' : 'Uninstall'
-    let icon = module.installed ? 'add' : 'remove'
-    let action = module.installed
-      ? () => this.handleInstall(module)
-      : () => this.handleUninstall(module)
+  renderManageButton() {
+    const { installed } = this.props.module
+
+    let buttonStyle = installed ? 'success' : 'danger'
+    let text = installed ? 'Install' : 'Uninstall'
+    let icon = installed ? 'add' : 'remove'
+    let action = installed ? this.handleInstall : this.handleUninstall
 
     return (
-      <Button bsStyle={buttonStyle} onClick={action}>
+      <Button bsStyle={buttonStyle} onClick={action} loading={this.state.loading}>
         <i className='icon material-icons'>{icon}</i>
         {text}
       </Button>
     )
   }
 
-  renderRightSideModule(module) {
+  renderRightSideModule() {
+    const { stars, downloads } = this.props.module
+
     return (
       <div>
         <div className={style.moduleIcons}>
           <i className='icon material-icons'>stars</i>
-          {numberWithCommas(module.stars)}
+          {numberWithCommas(stars)}
         </div>
         <div className={style.moduleIcons}>
           <i className='icon material-icons'>cloud_download</i>
-          {numberWithCommas(module.downloads)}
+          {numberWithCommas(downloads)}
         </div>
         <div className={style.moduleButton}>
-          {this.renderManageButton(module)}
+          {this.renderManageButton()}
         </div>
       </div>
     )
   }
 
-  renderModule(module) {
+  render() {
+    const module = this.props.module
+
     return (
       <Panel key={module.name} className={style.modulePanel}>
         <Grid fluid>
           <Row>
             <Col sm={8}>
-              {this.renderLeftSideModule(module)}
+              {this.renderLeftSideModule()}
             </Col>
             <Col sm={4} className={style.moduleRightSide}>
-              {this.renderRightSideModule(module)}
+              {this.renderRightSideModule()}
             </Col>
           </Row>
         </Grid>
       </Panel>
     )
   }
+}
 
+export default class ModulesComponent extends Component {
   render() {
     return (
       <div>
-        {_.values(_.map(this.props.modules, this.renderModule))}
+        {_.values(_.map(this.props.modules, module => {
+          return <ModuleComponent key={module.name} module={module}/>
+        }))}
       </div>
     )
   }

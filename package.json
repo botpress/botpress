@@ -39,6 +39,7 @@
     "mware": "0.0.3",
     "node-uuid": "^1.4.7",
     "prompt": "^1.0.0",
+    "react-bootstrap-button-loader": "^1.0.7",
     "socket.io": "^1.5.0",
     "socketio-jwt": "^4.5.0",
     "source-map-support": "^0.4.6",
