@@ -19,7 +19,7 @@ module.exports = (bp) => {
   const listAllModules = () => {
     return [
       {
-        name: 'Messenger',
+        name: 'messenger',
         stars: 5000,
         docLink: 'http://www.github.com/botpress/botpress-messenger',
         icon: 'message',
@@ -30,7 +30,7 @@ module.exports = (bp) => {
         author: 'Sylvain Perron and Dany Fortin-Simard'
       },
       {
-        name: 'Analytics',
+        name: 'analytics',
         stars: 32342,
         docLink: 'http://www.github.com/botpress/botpress-messenger',
         icon: 'message',
@@ -41,7 +41,7 @@ module.exports = (bp) => {
         author: 'Dany Fortin-Simard'
       },
       {
-        name: 'RiveScript',
+        name: 'rivescript',
         stars: 24,
         docLink: 'http://www.github.com/botpress/botpress-messenger',
         icon: 'message',
@@ -146,11 +146,11 @@ module.exports = (bp) => {
   const runSpawn = (command) => {
     return new Promise((resolve, reject) => {
       command.stdout.on('data', (data) => {
-        process.stdout.write(data.toString())
+        log('info', data.toString())
       })
 
       command.stderr.on('data', (data) => {
-        process.stderr.write(data.toString())
+        log('error', data.toString())
       })
 
       command.on('close', (code) => {
@@ -166,25 +166,35 @@ module.exports = (bp) => {
   const installModules = Promise.method((...names) => {
     let modules = resolveModuleNames(names)
 
-    const install = spawn('npm', ['install', '--save', ...modules])
+    const install = spawn('npm', ['install', '--save', ...modules], {
+      cwd: bp && bp.projectLocation
+    })
 
     log('info', 'Installing modules: ' + modules.join(', '))
 
     return runSpawn(install)
     .then(() => log('success', 'Modules successfully installed'))
-    .catch(() => log('error', 'An error occured during modules installation.'))
+    .catch(err => {
+      log('error', 'An error occured during modules installation.')
+      throw err
+    })
   })
 
   const uninstallModules = Promise.method((...names) => {
     let modules = resolveModuleNames(names)
 
-    const uninstall = spawn('npm', ['uninstall', '--save', ...modules])
+    const uninstall = spawn('npm', ['uninstall', '--save', ...modules], {
+      cwd: bp && bp.projectLocation
+    })
 
     log('info', 'Uninstalling modules: ' + modules.join(', '))
 
     return runSpawn(uninstall)
     .then(() => log('success', 'Modules successfully removed'))
-    .catch(() => log('error', 'An error occured during modules removal.'))
+    .catch(err => {
+      log('error', 'An error occured during modules removal.')
+      throw err
+    })
   })
 
   const listInstalledModules = () => {

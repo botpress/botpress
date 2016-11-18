@@ -12,11 +12,12 @@ import {
 } from 'react-bootstrap'
 
 import _ from 'lodash'
+import axios from 'axios'
 
 const style = require('./style.scss')
 
 const numberWithCommas = (x) => {
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
 }
 
 export default class ModulesComponent extends Component {
@@ -28,12 +29,18 @@ export default class ModulesComponent extends Component {
     this.handleUninstall = this.handleUninstall.bind(this)
   }
 
-  handleInstall(name) {
-    console.log('install')
+  handleInstall(module) {
+    axios.post('/api/manager/modules/' + module.name)
+    .then(res => {
+      console.log(res.data)
+    })
   }
 
-  handleUninstall(name) {
-    console.log('uninstall')
+  handleUninstall(module) {
+    axios.delete('/api/manager/modules/' + module.name)
+    .then(res => {
+      console.log(res.data)
+    })
   }
 
   renderLeftSideModule(module) {
@@ -56,7 +63,9 @@ export default class ModulesComponent extends Component {
     let buttonStyle = module.installed ? 'success' : 'danger'
     let text = module.installed ? 'Install' : 'Uninstall'
     let icon = module.installed ? 'add' : 'remove'
-    let action = module.installed ? this.handleInstall : this.handleUninstall
+    let action = module.installed
+      ? () => this.handleInstall(module)
+      : () => this.handleUninstall(module)
 
     return (
       <Button bsStyle={buttonStyle} onClick={action}>

@@ -113,6 +113,30 @@ const serveApi = function(app, bp) {
     res.send(bp.manager.getInformation())
   })
 
+  app.post('/api/manager/modules/:name', (req, res, next) => {
+    const { name } = req.params
+    bp.manager.install(name)
+    .then(() => {
+      res.sendStatus(200)
+      bp.restart(1000)
+    })
+    .catch(err => res.status(500).send({
+      message: err && err.message
+    }))
+  })
+
+  app.delete('/api/manager/modules/:name', (req, res, next) => {
+    const { name } = req.params
+    bp.manager.uninstall(name)
+    .then(() => {
+      res.sendStatus(200)
+      bp.restart(1000)
+    })
+    .catch(err => res.status(500).send({
+      message: err && err.message
+    }))
+  })
+
   app.get('/api/logs', (req, res, next) => {
     const options = {
       from: new Date() - 7 * 24 * 60 * 60 * 1000,
