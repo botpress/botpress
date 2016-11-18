@@ -31,21 +31,21 @@ class Sidebar extends Component {
   }
 
   onSetSidebarOpen(open) {
-    this.setState({sidebarOpen: open});
+    this.setState({sidebarOpen: open})
   }
 
   componentWillMount() {
-    var mql = window.matchMedia(`(min-width: 800px)`);
-    mql.addListener(this.mediaQueryChanged);
-    this.setState({mql: mql, sidebarDocked: mql.matches});
+    var mql = window.matchMedia(`(min-width: 800px)`)
+    mql.addListener(this.mediaQueryChanged)
+    this.setState({mql: mql, sidebarDocked: mql.matches})
   }
 
   componentWillUnmount() {
-    this.state.mql.removeListener(this.mediaQueryChanged);
+    this.state.mql.removeListener(this.mediaQueryChanged)
   }
 
   mediaQueryChanged() {
-    this.setState({sidebarDocked: this.state.mql.matches});
+    this.setState({sidebarDocked: this.state.mql.matches})
   }
 
   routeActive(paths) {
