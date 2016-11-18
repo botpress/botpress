@@ -2,6 +2,7 @@ import React from 'react'
 
 import ContentWrapper from '~/components/Layout/ContentWrapper'
 import PageHeader from '~/components/Layout/PageHeader'
+
 import {
   Panel,
   Button,
@@ -9,6 +10,7 @@ import {
   Row,
   Col
 } from 'react-bootstrap'
+
 import axios from 'axios'
 import _ from 'lodash'
 
@@ -48,13 +50,13 @@ export default class ManageView extends React.Component {
   renderLeftSideModule(module) {
     return (
       <div>
-        <div>
+        <h3 className={style.moduleTitle}>
           <i className='icon material-icons'>{module.icon}</i>
           {module.name}
-        </div>
-        <div>{module.description}</div>
-        <div>{module.author}</div>
-        <div>{module.license}</div>
+        </h3>
+        <p className={style.moduleDescription}>{module.description}</p>
+        <p className={style.moduleAuthor}>{module.author}</p>
+        <p className={style.moduleLicense}>{module.license}</p>
       </div>
     )
   }
@@ -62,7 +64,7 @@ export default class ManageView extends React.Component {
   renderManageButton(module) {
     let buttonStyle = module.installed ? 'success' : 'danger'
     let text = module.installed ? 'Install' : 'Uninstall'
-    let icon = module.installed ? 'add_circle' : 'remove_circle'
+    let icon = module.installed ? 'add' : 'remove'
     let action = module.installed ? this.handleInstall : this.handleUninstall
 
     return (
@@ -76,15 +78,15 @@ export default class ManageView extends React.Component {
   renderRightSideModule(module) {
     return (
       <div>
-        <div>
-          <i className='icon material-icons'>star_rate</i>
+        <div className={style.moduleIcons}>
+          <i className='icon material-icons'>stars</i>
           {module.stars}
         </div>
-        <div>
+        <div className={style.moduleIcons}>
           <i className='icon material-icons'>cloud_download</i>
           {module.downloads}
         </div>
-        <div>
+        <div className={style.moduleButton}>
           {this.renderManageButton(module)}
         </div>
       </div>
@@ -93,13 +95,13 @@ export default class ManageView extends React.Component {
 
   renderModule(module) {
     return (
-      <Panel key={module.name} className={style.module}>
+      <Panel key={module.name} className={style.modulePanel}>
         <Grid fluid>
           <Row>
             <Col sm={8}>
               {this.renderLeftSideModule(module)}
             </Col>
-            <Col sm={4}>
+            <Col sm={4} className={style.moduleRightSide}>
               {this.renderRightSideModule(module)}
             </Col>
           </Row>
@@ -108,19 +110,11 @@ export default class ManageView extends React.Component {
     )
   }
 
-  renderModules() {
-    return (
-      <Panel header='Official list of modules'>
-          {_.values(_.map(this.state.modules, this.renderModule))}
-      </Panel>
-    )
-  }
-
   render() {
     return (
       <ContentWrapper>
         {PageHeader(<span> Manage modules</span>)}
-        {this.renderModules()}
+        {_.values(_.map(this.state.modules, this.renderModule))}
       </ContentWrapper>
     )
   }
