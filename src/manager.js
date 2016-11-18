@@ -1,6 +1,8 @@
 import { spawn } from 'child_process'
 import path from 'path'
+import fs from 'fs'
 import Promise from 'bluebird'
+import _ from 'lodash'
 
 import  { print, isDeveloping } from './util'
 
@@ -121,9 +123,20 @@ module.exports = (bp) => {
     .catch(() => log('error', 'An error occured during modules removal.'))
   })
 
-  const listInstalledModules = Promise.method(() => {
+  const listInstalledModules = () => {
+    let projectLocation = (bp && bp.projectLocation) || './'
+    let packagePath = path.resolve(projectLocation, './package.json')
 
-  })
+    if (!fs.existsSync(packagePath)) {
+      log('warn', 'Could not find bot\'s package.json file')
+      return []
+    }
+
+    const packageJson = JSON.parse(fs.readFileSync(packagePath))
+    const prodDeps = _.keys(packageJson.dependencies)
+
+    return _.filter(prodDeps, dep => /botpress-.+/i.test(dep))
+  }
 
   return {
     getInstalled: listInstalledModules,

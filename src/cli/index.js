@@ -10,6 +10,7 @@ import start from './start'
 import create from './create'
 import install from './install'
 import uninstall from './uninstall'
+import list from './list'
 
 program
   .command('init')
@@ -39,6 +40,12 @@ program
   .alias('u')
   .description('Remove modules from the current bot')
   .action(uninstall)
+
+program
+  .command('list')
+  .alias('ls')
+  .description('List installed modules')
+  .action(list)
 
 program
   .command('create')
