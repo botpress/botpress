@@ -34,7 +34,10 @@ class ModuleComponent extends Component {
   }
 
   handleInstall() {
-    const fin = () => this.setState({ loading: false })
+    const fin = () => {
+      this.setState({ loading: false })
+      this.props.refresh && this.props.refresh()
+    }
     this.setState({ loading: true })
     axios.post('/api/manager/modules/' + this.props.module.name)
     .then(fin)
@@ -42,7 +45,10 @@ class ModuleComponent extends Component {
   }
 
   handleUninstall(module) {
-    const fin = () => this.setState({ loading: false })
+    const fin = () => {
+      this.setState({ loading: false })
+      this.props.refresh && this.props.refresh()
+    }
     this.setState({ loading: true })
     axios.delete('/api/manager/modules/' + this.props.module.name)
     .then()
@@ -132,7 +138,7 @@ export default class ModulesComponent extends Component {
     return (
       <div>
         {_.values(_.map(this.props.modules, module => {
-          return <ModuleComponent key={module.name} module={module}/>
+          return <ModuleComponent key={module.name} module={module} refresh={this.props.refresh}/>
         }))}
       </div>
     )

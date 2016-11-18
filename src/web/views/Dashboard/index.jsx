@@ -21,6 +21,9 @@ export default class DashboardView extends React.Component {
       loading: false,
       information: {}
     }
+
+    this.queryModulesPopular = this.queryModulesPopular.bind(this)
+    this.queryFeaturedModules = this.queryFeaturedModules.bind(this)
   }
 
   componentDidMount() {
@@ -77,12 +80,12 @@ export default class DashboardView extends React.Component {
         <Row>
           <Col sm={6}>
             <Panel header='Popular modules'>
-              <ModulesComponent modules={this.state.popularModules} />
+              <ModulesComponent modules={this.state.popularModules} refresh={this.queryModulesPopular}/>
             </Panel>
           </Col>
           <Col sm={6}>
             <Panel header='Featured modules'>
-              <ModulesComponent modules={this.state.featuredModules} />
+              <ModulesComponent modules={this.state.featuredModules} refresh={this.queryFeaturedModules}/>
             </Panel>
           </Col>
         </Row>

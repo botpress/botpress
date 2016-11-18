@@ -12,6 +12,7 @@ export default class ManageView extends React.Component {
   constructor(props) {
     super(props)
     this.state = { modules: [] }
+    this.queryModules = this.queryModules.bind(this)
   }
 
   componentDidMount() {
@@ -32,7 +33,7 @@ export default class ManageView extends React.Component {
       <ContentWrapper>
         {PageHeader(<span> Modules</span>)}
         <div className={style.modules}>
-          <ModulesComponent modules={this.state.modules}/>
+          <ModulesComponent modules={this.state.modules} refresh={this.queryModules}/>
         </div>
       </ContentWrapper>
     )
