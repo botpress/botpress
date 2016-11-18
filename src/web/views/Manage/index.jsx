@@ -20,6 +20,8 @@ export default class ManageView extends React.Component {
     this.state = { modules : [] }
 
     this.renderModule = this.renderModule.bind(this)
+    this.handleInstall = this.handleInstall.bind(this)
+    this.handleUninstall = this.handleUninstall.bind(this)
   }
 
   componentDidMount() {
@@ -35,40 +37,63 @@ export default class ManageView extends React.Component {
     })
   }
 
+  handleInstall(name) {
+    console.log('install')
+  }
+
+  handleUninstall(name) {
+    console.log('uninstall')
+  }
+
   renderLeftSideModule(module) {
     return (
       <div>
-        <h3>
+        <div>
           <i className='icon material-icons'>{module.icon}</i>
-          &nbsp;
           {module.name}
-        </h3>
-        <p>{module.description}</p>
-        <p>{module.author}</p>
-        <p>{module.license}</p>
+        </div>
+        <div>{module.description}</div>
+        <div>{module.author}</div>
+        <div>{module.license}</div>
       </div>
+    )
+  }
+
+  renderManageButton(module) {
+    let buttonStyle = module.installed ? 'success' : 'danger'
+    let text = module.installed ? 'Install' : 'Uninstall'
+    let icon = module.installed ? 'add_circle' : 'remove_circle'
+    let action = module.installed ? this.handleInstall : this.handleUninstall
+
+    return (
+      <Button bsStyle={buttonStyle} onClick={action}>
+        <i className='icon material-icons'>{icon}</i>
+        {text}
+      </Button>
     )
   }
 
   renderRightSideModule(module) {
     return (
       <div>
-        <h4>
-          <i className='icon material-icons'>star rate</i>
-          &nbsp;
+        <div>
+          <i className='icon material-icons'>star_rate</i>
           {module.stars}
-        </h4>
-        <Button bsStyle='success'>
-          <i className='icon material-icons'>add</i>
-          &nbsp; Install
-        </Button>
+        </div>
+        <div>
+          <i className='icon material-icons'>cloud_download</i>
+          {module.downloads}
+        </div>
+        <div>
+          {this.renderManageButton(module)}
+        </div>
       </div>
     )
   }
 
   renderModule(module) {
     return (
-      <Panel className={style.module}>
+      <Panel key={module.name} className={style.module}>
         <Grid fluid>
           <Row>
             <Col sm={8}>
