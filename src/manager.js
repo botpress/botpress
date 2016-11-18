@@ -54,6 +54,70 @@ module.exports = (bp) => {
     ]
   }
 
+  const listPopularModules = () => {
+    return [
+      {
+        name: 'Messenger',
+        stars: 5000,
+        docLink: 'http://www.github.com/botpress/botpress-messenger',
+        icon: 'message',
+        description: 'Official Facebook Messenger module for botpress',
+        downloads: 3000,
+        installed: true,
+        license: 'AGPL-3',
+        author: 'Sylvain Perron and Dany Fortin-Simard'
+      },
+      {
+        name: 'Analytics',
+        stars: 32342,
+        docLink: 'http://www.github.com/botpress/botpress-messenger',
+        icon: 'message',
+        description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
+        downloads: 45006,
+        installed: false,
+        license: 'Proprietery',
+        author: 'Dany Fortin-Simard'
+      }
+    ]
+  }
+
+  const listFeaturedModules = () => {
+    return [
+      {
+        name: 'Broadcast',
+        stars: 432,
+        docLink: 'http://www.github.com/botpress/botpress-messenger',
+        icon: 'message',
+        description: 'Official Broadcast module for botpress',
+        downloads: 3000,
+        installed: false,
+        license: 'AGPL-3',
+        author: 'Sylvain Perron and Dany Fortin-Simard'
+      },
+      {
+        name: 'RiveScript',
+        stars: 24,
+        docLink: 'http://www.github.com/botpress/botpress-messenger',
+        icon: 'message',
+        description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
+        downloads: 3000,
+        installed: true,
+        license: 'AGPL-3',
+        author: 'Sylvain Perron'
+      }
+    ]
+  }
+
+  const getInformation = () => {
+    return {
+      name: "The master of all chatbots",
+      version: "1.3.4",
+      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
+      author: 'Dany Fortin-Simard',
+      license: 'AGPL-3'
+    }
+  }
+
   const resolveModuleNames = (names) => {
     return names.map(name => {
       if (!name || typeof(name) !== 'string') {
@@ -141,6 +205,9 @@ module.exports = (bp) => {
   return {
     getInstalled: listInstalledModules,
     get: listAllModules,
+    getPopular: listPopularModules,
+    getFeatured: listFeaturedModules,
+    getInformation: getInformation,
     install: installModules,
     uninstall: uninstallModules
   }

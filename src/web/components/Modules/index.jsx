@@ -15,6 +15,10 @@ import _ from 'lodash'
 
 const style = require('./style.scss')
 
+const numberWithCommas = (x) => {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
 export default class ModulesComponent extends Component {
   constructor(props) {
     super(props)
@@ -35,10 +39,12 @@ export default class ModulesComponent extends Component {
   renderLeftSideModule(module) {
     return (
       <div>
-        <h3 className={style.moduleTitle}>
-          <i className='icon material-icons'>{module.icon}</i>
-          {module.name}
-        </h3>
+        <a href={module.docLink}>
+          <h3 className={style.moduleTitle}>
+            <i className='icon material-icons'>{module.icon}</i>
+            {module.name}
+          </h3>
+        </a>
         <p className={style.moduleDescription}>{module.description}</p>
         <p className={style.moduleAuthor}>{module.author}</p>
         <p className={style.moduleLicense}>{module.license}</p>
@@ -65,11 +71,11 @@ export default class ModulesComponent extends Component {
       <div>
         <div className={style.moduleIcons}>
           <i className='icon material-icons'>stars</i>
-          {module.stars}
+          {numberWithCommas(module.stars)}
         </div>
         <div className={style.moduleIcons}>
           <i className='icon material-icons'>cloud_download</i>
-          {module.downloads}
+          {numberWithCommas(module.downloads)}
         </div>
         <div className={style.moduleButton}>
           {this.renderManageButton(module)}

@@ -1,3 +1,5 @@
+@import '../../palette.scss';
+
 .modulePanel {
   border-style: solid;
   border-width: 1px;
@@ -6,7 +8,12 @@
   position: relative;
 }
 
+a {
+  color: $content-color-light;
+}
+
 .moduleTitle {
+  color: $content-color-normal;
   margin-top: 0px;
   margin-bottom: 15px;
   i {
@@ -17,6 +24,9 @@
 
 .moduleDescription {
   color: gray;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .moduleAuthor {
