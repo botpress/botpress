@@ -3,7 +3,8 @@ import {
   Panel,
   Grid,
   Row,
-  Col
+  Col,
+  ControlLabel
 } from 'react-bootstrap'
 import ContentWrapper from '~/components/Layout/ContentWrapper'
 import PageHeader from '~/components/Layout/PageHeader'
@@ -55,28 +56,16 @@ export default class DashboardView extends React.Component {
     })
   }
 
-  renderInformation(label, value) {
-    return (
-      <Row>
-        <Col sm={2}>
-          {label}
-        </Col>
-        <Col sm={10}>
-          {value}
-        </Col>
-      </Row>
-    )
-  }
   renderInformationSection() {
     return (
       <Row>
         <Col sm={12}>
-          <Panel header='Information'>
-            {this.renderInformation('Name', this.state.information.name)}
-            {this.renderInformation('Description', this.state.information.description)}
-            {this.renderInformation('Author', this.state.information.author)}
-            {this.renderInformation('Version', this.state.information.version)}
-            {this.renderInformation('License', this.state.information.license)}
+          <Panel className={style.information}>
+            <h3 className={style.informationName}>{this.state.information.name}</h3>
+            <p className={style.informationDescription}>{this.state.information.description}</p>
+            <p className={style.informationAuthor}>Created by <strong>{this.state.information.author}</strong> </p>
+            <p className={style.informationVersion}>Version {this.state.information.version}</p>
+            <p className={style.informationLicense}>Licensed under {this.state.information.license}</p>
           </Panel>
         </Col>
       </Row>
