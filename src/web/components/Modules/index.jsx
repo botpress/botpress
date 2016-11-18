@@ -22,7 +22,7 @@ const numberWithCommas = (x) => {
 }
 
 class ModuleComponent extends Component {
-  
+
   constructor(props) {
     super(props)
 
@@ -70,14 +70,12 @@ class ModuleComponent extends Component {
   renderManageButton() {
     const { installed } = this.props.module
 
-    let buttonStyle = installed ? 'success' : 'danger'
-    let text = installed ? 'Install' : 'Uninstall'
-    let icon = installed ? 'add' : 'remove'
-    let action = installed ? this.handleInstall : this.handleUninstall
+    const text = installed ? 'Install' : 'Uninstall'
+    const action = installed ? this.handleInstall : this.handleUninstall
+    const color = installed ? '#58d1b0' : '#bfbfbf'
 
     return (
-      <Button bsStyle={buttonStyle} onClick={action} loading={this.state.loading}>
-        <i className='icon material-icons'>{icon}</i>
+      <Button style={{backgroundColor: color}} onClick={action} loading={this.state.loading}>
         {text}
       </Button>
     )

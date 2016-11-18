@@ -90,21 +90,25 @@ class Sidebar extends Component {
     const sidebarContent = <div className={style.sidebar}>
       <SidebarHeader/>
       <ul className="nav">
-        <li key="dashboard" className={dashboardClassName}>
+        <li key="dashboard">
           <Link to='dashboard' title='Dashboard'>
             <i className="icon material-icons">dashboard</i>
             Dashboard
           </Link>
         </li>
-        <li key="manage" className={manageClassName}>
+        <li key="manage">
           <Link to='manage' title='Modules'>
             <i className="icon material-icons">build</i>
             Modules
           </Link>
         </li>
-        {/*<li className="nav-heading ">Modules</li>*/}
         {items}
       </ul>
+      <div className={style.license}>
+        <Link to='license' title='License'>
+          License
+        </Link>
+      </div>
     </div>
 
     const { sidebarOpen: open, sidebarDocked: docked } = this.state
