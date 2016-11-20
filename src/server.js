@@ -123,7 +123,7 @@ const serveApi = function(app, bp) {
   })
 
   app.get('/api/bot/information', (req, res, next) => {
-    res.send(bp.bot.getInformation()) 
+    res.send(bp.bot.getInformation())
   })
 
   app.get('/api/bot/contributor', (req, res, next) => {
@@ -131,11 +131,11 @@ const serveApi = function(app, bp) {
   })
 
   app.get('/api/license', (req, res, next) => {
-    res.send(bp.license.getLicenses())
+    res.send(bp.licensing.getLicenses())
   })
 
   app.post('/api/license', (req, res, next) => {
-    bp.license.changeLicense(req.body.license)
+    bp.licensing.changeLicense(req.body.license)
     .then(() => {
       res.sendStatus(200)
     })

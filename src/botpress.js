@@ -15,7 +15,7 @@ import Security from './security'
 import Listeners from './listeners'
 import Database from './database'
 import Module from './module'
-import License from './license'
+import Licensing from './licensing'
 import Bot from './bot'
 
 import {
@@ -153,7 +153,7 @@ class botpress {
     this.db = Database(dbLocation)
 
     this.module = Module(this)
-    this.license = License(this)
+    this.licensing = Licensing(this)
     this.bot = Bot(this)
 
     this._loadModules(modules)
