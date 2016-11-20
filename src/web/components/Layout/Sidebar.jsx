@@ -97,13 +97,13 @@ class Sidebar extends Component {
     const sidebarContent = <div className={style.sidebar}>
       <SidebarHeader/>
       <ul className="nav">
-        <li key="dashboard">
+        <li className={dashboardClassName} key="dashboard">
           <Link to='dashboard' title='Dashboard'>
             <i className="icon material-icons">dashboard</i>
             Dashboard
           </Link>
         </li>
-        <li key="manage">
+        <li className={manageClassName} key="manage">
           <Link to='manage' title='Modules'>
             <i className="icon material-icons">build</i>
             Modules
