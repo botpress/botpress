@@ -117,8 +117,18 @@ const serveApi = function(app, bp) {
     res.send(bp.manager.getContributor())
   })
 
-  app.get('/api/manager/licenses', (req, res, next) => {
+  app.get('/api/manager/license', (req, res, next) => {
     res.send(bp.manager.getLicenses())
+  })
+
+  app.post('/api/manager/license', (req, res, next) => {
+    bp.manager.changeLicense(req.body.license)
+    .then(() => {
+      res.sendStatus(200)
+    })
+    .catch(err => res.status(500).send({
+      message: err && err.message
+    }))
   })
 
   app.post('/api/manager/modules/:name', (req, res, next) => {

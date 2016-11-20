@@ -128,19 +128,38 @@ module.exports = (bp) => {
   }
 
   const getLicenses = () => {
+    let projectLocation = (bp && bp.projectLocation) || './'
+    let packagePath = path.resolve(projectLocation, './package.json')
+
+    if (!fs.existsSync(packagePath)) {
+      log('warn', 'Could not find bot\'s package.json file')
+      return []
+    }
+
+    const packageJson = JSON.parse(fs.readFileSync(packagePath))
+    const actualLicense = packageJson.license
+
+    const licensesPath = path.join(__dirname, '../licenses')
+    const licenseAGPL = fs.readFileSync(path.join(licensesPath, 'LICENSE_AGPL3')).toString()
+    const licenseBotpress = fs.readFileSync(path.join(licensesPath, 'LICENSE_BOTPRESS')).toString()
+
     return {
       agpl: {
         name: 'AGPL-3.0',
-        licensedUnder: true,
-        text: 'AGPL-3 sdflkjasdlfnljasdlfj'
+        licensedUnder: actualLicense === 'AGPL-3.0',
+        text: licenseAGPL
       },
       botpress: {
         name: 'Botpress',
-        licensedUnder: false,
-        text: 'balbalablsblasbflbalbdflbaslsbflabsfl'
+        licensedUnder: actualLicense === 'Botpress',
+        text: licenseBotpress
       }
     }
   }
+
+  const changeLicense = Promise.method((license) => {
+    console.log(license)
+  })
 
   const resolveModuleNames = (names) => {
     return names.map(name => {
@@ -243,6 +262,7 @@ module.exports = (bp) => {
     getFeatured: listFeaturedModules,
     getInformation: getInformation,
     getLicenses: getLicenses,
+    changeLicense: changeLicense,
     getContributor: getContributor,
     install: installModules,
     uninstall: uninstallModules

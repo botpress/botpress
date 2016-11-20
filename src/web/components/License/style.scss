@@ -1,0 +1,33 @@
+ :global(.modal-dialog) {
+  width: 750px;
+}
+
+.textArea {
+  overflow-y: scroll;
+  width: 100%;
+  height: 300px;
+  border-radius: 5px;
+  padding: 10px;
+  border-color: lightgrey;
+  margin: 10px 0px 10px 0px;
+}
+
+.alert {
+  text-align: center;
+}
+
+.radioButton {
+  float: left;
+  label {
+    margin-right: 10px;
+  }
+  input {
+    margin: 5px;
+  }
+}
+
+.acceptCheckBox {
+  input {
+    margin: 5px;
+  }
+}
