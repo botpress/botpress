@@ -82,6 +82,43 @@ const createMiddleware = function(bp, middlewareName) {
 }
 
 module.exports = function(bp) {
-  bp.incoming = createMiddleware(bp, 'incoming')
-  bp.outgoing = createMiddleware(bp, 'outgoing')
+
+  bp.middlewares = []
+
+  bp.registerMiddleware = (middleware) => {
+    if (!middleware || !middleware.name) {
+      bp.logger.error('A unique middleware name is mandatory')
+      return false
+    }
+
+    if (!middleware.handler) {
+      bp.logger.error('A middleware handler is mandatory')
+      return false
+    }
+
+    if (!middleware.type || (middleware.type !== 'incoming' && middleware.type !== 'outgoing')) {
+      bp.logger.error('A middleware type (incoming or outgoing) is required')
+      return false
+    }
+
+    middleware.order = middleware.order || 0
+    middleware.enabled = typeof middleware.enabled === 'undefined' ? true: !!middleware.enabled
+
+    if (_.some(bp.middlewares, m => m.name === middleware.name)) {
+      bp.logger.error('An other middleware with the same name has already been registered')
+      return false
+    }
+
+    bp.middlewares.push(middleware)
+  }
+
+  bp.loadMiddlewares = () => {
+    bp.incoming = createMiddleware(bp, 'incoming')
+    bp.outgoing = createMiddleware(bp, 'outgoing')
+
+    let sorted = _.orderBy(bp.middlewares, 'order')
+    sorted.forEach(m => {
+      bp[m.type](m.handler) // apply middleware
+    })
+  }
 }
