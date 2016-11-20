@@ -37,7 +37,7 @@ module.exports = (bp) => {
     .then(({ data }) => data)
   }
 
-  const getRandomHero = () => {
+  const getRandomHero = Promise.method(() => {
     const modulesCachePath = path.join(bp.dataLocation, './modules-cache.json')
 
     return listAllModules()
@@ -55,7 +55,7 @@ module.exports = (bp) => {
         module: module.name
       }
     })
-  }
+  })
 
   const mapModuleList = (modules) => {
     const installed = listInstalledModules()
@@ -134,29 +134,6 @@ module.exports = (bp) => {
     })
   })
 
-  const getInformation = Promise.method(() => {
-    const packageJson = readPackage()
-
-    return getRandomHero()
-    .then(hero => ({
-      name: packageJson.name,
-      version: packageJson.version,
-      description: packageJson.description || 'No description',
-      author: packageJson.author || '<no author>',
-      license: packageJson.license || 'AGPL-v3.0',
-      hero: hero
-    }))
-  })
-
-  const getContributor = () => {
-    return {
-      message: "Thanks to <strong>Sylvain Perron</strong> for his contribution on <strong>botpress-messenger</strong>!",
-      img: "https://avatars.githubusercontent.com/u/1315508?v=3"
-    }
-  }
-
-  const licensesPath = path.join(__dirname, '../licenses')
-
   const getPackageJSONPath = () => {
     let projectLocation = (bp && bp.projectLocation) || './'
     let packagePath = path.resolve(projectLocation, './package.json')
@@ -168,49 +145,6 @@ module.exports = (bp) => {
 
     return packagePath
   }
-
-  const getLicensePath = () => {
-    let projectLocation = (bp && bp.projectLocation) || './'
-    let licensePath = path.resolve(projectLocation, './LICENSE')
-
-    if (!fs.existsSync(licensePath)) {
-      log('warn', 'Could not find bot\'s license file')
-      return []
-    }
-
-    return licensePath
-  }
-
-  const getLicenses = () => {
-    const packageJSON = JSON.parse(fs.readFileSync(getPackageJSONPath()))
-    const actualLicense = packageJSON.license
-    const licenseAGPL = fs.readFileSync(path.join(licensesPath, 'LICENSE_AGPL3')).toString()
-    const licenseBotpress = fs.readFileSync(path.join(licensesPath, 'LICENSE_BOTPRESS')).toString()
-
-    return {
-      agpl: {
-        name: 'AGPL-3.0',
-        licensedUnder: actualLicense === 'AGPL-3.0',
-        text: licenseAGPL
-      },
-      botpress: {
-        name: 'Botpress',
-        licensedUnder: actualLicense === 'Botpress',
-        text: licenseBotpress
-      }
-    }
-  }
-
-  const changeLicense = Promise.method((license) => {
-    const licenseFile = (license === 'AGPL-3.0') ? 'LICENSE_AGPL3' : 'LICENSE_BOTPRESS'
-    const licenseContent = fs.readFileSync(path.join(licensesPath, licenseFile))
-    fs.writeFileSync(getLicensePath(), licenseContent)
-
-    let packageJSON = JSON.parse(fs.readFileSync(getPackageJSONPath()))
-    packageJSON.license = license
-
-    fs.writeFileSync(getPackageJSONPath(), JSON.stringify(packageJSON))
-  })
 
   const resolveModuleNames = (names) => {
     return names.map(name => {
@@ -276,7 +210,6 @@ module.exports = (bp) => {
 
   const uninstallModules = Promise.method((...names) => {
     let modules = resolveModuleNames(names)
-
     const uninstall = spawn('npm', ['uninstall', '--save', ...modules], {
       cwd: bp && bp.projectLocation
     })
@@ -301,13 +234,10 @@ module.exports = (bp) => {
 
   return {
     getInstalled: listInstalledModules,
-    get: listAllModules,
+    getListAllModules: listAllModules,
     getPopular: listPopularModules,
     getFeatured: listFeaturedModules,
-    getInformation: getInformation,
-    getLicenses: getLicenses,
-    changeLicense: changeLicense,
-    getContributor: getContributor,
+    getRandomHero: getRandomHero,
     install: installModules,
     uninstall: uninstallModules
   }

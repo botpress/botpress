@@ -20,25 +20,28 @@ const style = require('./style.scss')
 export default class DashboardView extends React.Component {
   constructor(props) {
     super(props)
-    this.state = {
-      loading: false,
-      information: {},
-      contributor: {}
-    }
+    this.state = { loading: true }
 
+    this.queryInformation = this.queryInformation.bind(this)
+    this.queryHero = this.queryHero.bind(this)
     this.queryModulesPopular = this.queryModulesPopular.bind(this)
     this.queryFeaturedModules = this.queryFeaturedModules.bind(this)
   }
 
   componentDidMount() {
     this.queryInformation()
-    this.queryContributor()
-    this.queryModulesPopular()
-    this.queryFeaturedModules()
+    .then(this.queryHero)
+    .then(this.queryModulesPopular)
+    .then(this.queryFeaturedModules)
+    .then(() => {
+      this.setState({
+        loading: false
+      })
+    })
   }
 
   queryInformation() {
-    return axios.get('/api/manager/information')
+    return axios.get('/api/bot/information')
     .then((result) => {
       this.setState({
         information: result.data
@@ -46,17 +49,17 @@ export default class DashboardView extends React.Component {
     })
   }
 
-  queryContributor() {
-    axios.get('/api/manager/contributor')
+  queryHero() {
+    return axios.get('/api/module/hero')
     .then((result) => {
       this.setState({
-        contributor: result.data
+        hero: result.data
       })
     })
   }
 
   queryModulesPopular() {
-    return axios.get('/api/manager/modules/popular')
+    return axios.get('/api/module/popular')
     .then((result) => {
       this.setState({
         popularModules: result.data
@@ -65,7 +68,7 @@ export default class DashboardView extends React.Component {
   }
 
   queryFeaturedModules() {
-    return axios.get('/api/manager/modules/featured')
+    return axios.get('/api/module/featured')
     .then((result) => {
       this.setState({
         featuredModules: result.data
@@ -98,7 +101,7 @@ export default class DashboardView extends React.Component {
             <div className={style.raysAnim}>
               <div className={style.rays}></div>
             </div>
-            <HeroComponent className={style.contributionContent} {...this.state.information.hero}/>
+            <HeroComponent className={style.contributionContent} {...this.state.hero}/>
           </Panel>
         </Col>
       </Row>
@@ -123,6 +126,9 @@ export default class DashboardView extends React.Component {
   }
 
   render() {
+    if (this.state.loading) {
+      return null
+    }
     return (
       <ContentWrapper>
         {PageHeader(<span> Dashboard</span>)}

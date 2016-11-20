@@ -9,11 +9,11 @@ export default Store({
   },
 
   initialize() {
-    this.on(BOT_INFORMATION_RECEIVED, informationReceived)
+    this.on(BOT_INFORMATION_RECEIVED, botInformationReceived)
   }
 })
 
-function informationReceived(state, { information }) {
+function botInformationReceived(state, { information }) {
   let newInformation = toImmutable(information)
   return state.merge(newInformation)
 }

@@ -8,7 +8,8 @@ const {
   MODULES_RECEIVED,
   ALL_NOTIFICATIONS_RECEIVED,
   NEW_NOTIFICATIONS_RECEIVED,
-  TOGGLE_LICENSE_MODAL
+  TOGGLE_LICENSE_MODAL,
+  BOT_INFORMATION_RECEIVED
 } = actionTypes
 
 export default {
@@ -38,10 +39,10 @@ export default {
     reactor.dispatch(TOGGLE_LICENSE_MODAL)
   },
 
-  informationReceived() {
-    axios.get('/api/information')
+  fetchBotInformation() {
+    axios.get('/api/bot/information')
     .then((result) => {
-      reactor.dispatch(BOT_INFORMATION_RECEIVED, { information: result.data })
+      reactor.dispatch(BOT_INFORMATION_RECEIVED, { botInformation: result.data })
     })
   }
 }
