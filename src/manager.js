@@ -131,7 +131,7 @@ module.exports = (bp) => {
 
   const licensesPath = path.join(__dirname, '../licenses')
 
-  const getPackageJSON = () => {
+  const getPackageJSONPath = () => {
     let projectLocation = (bp && bp.projectLocation) || './'
     let packagePath = path.resolve(projectLocation, './package.json')
 
@@ -140,13 +140,24 @@ module.exports = (bp) => {
       return []
     }
 
-    return JSON.parse(fs.readFileSync(packagePath))
+    return packagePath
+  }
+
+  const getLicensePath = () => {
+    let projectLocation = (bp && bp.projectLocation) || './'
+    let licensePath = path.resolve(projectLocation, './LICENSE')
+
+    if (!fs.existsSync(licensePath)) {
+      log('warn', 'Could not find bot\'s license file')
+      return []
+    }
+
+    return licensePath
   }
 
   const getLicenses = () => {
-    const actualLicense = getPackageJSON().license
-
-    const licensesPath = path.join(__dirname, '../licenses')
+    const packageJSON = JSON.parse(fs.readFileSync(getPackageJSONPath()))
+    const actualLicense = packageJSON.license
     const licenseAGPL = fs.readFileSync(path.join(licensesPath, 'LICENSE_AGPL3')).toString()
     const licenseBotpress = fs.readFileSync(path.join(licensesPath, 'LICENSE_BOTPRESS')).toString()
 
@@ -165,9 +176,14 @@ module.exports = (bp) => {
   }
 
   const changeLicense = Promise.method((license) => {
-    const newLicenseFile = (license === 'agpl') ? 'LICENSE_AGPL3' : 'LICENSE_BOTPRESS'
+    const licenseFile = (license === 'AGPL-3.0') ? 'LICENSE_AGPL3' : 'LICENSE_BOTPRESS'
+    const licenseContent = fs.readFileSync(path.join(licensesPath, licenseFile))
+    fs.writeFileSync(getLicensePath(), licenseContent)
 
-    console.log(newLicenseFile)
+    let packageJSON = JSON.parse(fs.readFileSync(getPackageJSONPath()))
+    packageJSON.license = license
+
+    fs.writeFileSync(getPackageJSONPath(), JSON.stringify(packageJSON))
   })
 
   const resolveModuleNames = (names) => {
@@ -250,7 +266,8 @@ module.exports = (bp) => {
   })
 
   const listInstalledModules = () => {
-    const prodDeps = _.keys(getPackageJSON().dependencies)
+    const packageJSON = JSON.parse(fs.readFileSync(getPackageJSONPath()))
+    const prodDeps = _.keys(packageJSON.dependencies)
 
     return _.filter(prodDeps, dep => /botpress-.+/i.test(dep))
   }
