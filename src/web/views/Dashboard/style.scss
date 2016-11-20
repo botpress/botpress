@@ -1,5 +1,10 @@
 @import '../../palette.scss';
 
+@-webkit-keyframes rays {
+  from { -webkit-transform: rotate(0deg); }
+  to { -webkit-transform: rotate(360deg); }
+}
+
 .information {
   height: 255px;
   padding: 15px 25px 15px 25px;
@@ -32,21 +37,44 @@
   position: relative;
   height: 255px;
   text-align: center;
+  overflow: hidden;
+
+  :global(.panel-body) {
+    padding: 0;
+    height: 100%;
+  }
+
+  .raysAnim {
+    height: 400%;
+    width: 400%;
+    margin-top: -100%;
+    margin-left: -100%;
+    -webkit-transform-origin: center center;
+    -webkit-animation: rays 60s infinite linear;
+
+    .rays {
+      height: 100%;
+      background: url(/img/rays.png) no-repeat;
+      background-size: cover;
+      opacity: 0.05;
+    }
+  }
 
   .contributionContent {
+    width: 100%;
     text-align: center;
     line-height: 25px;
     position: absolute;
-    padding-right: 20px;
+    padding: 15px;
     top: 50%;
     transform: translateY(-50%);
 
     img {
-      box-shadow: 3px 3px 5px #868686;
-      height: 60px;
-      width: 60px;
+      background-color: lightgrey;
+      height: 70px;
+      width: 70px;
       margin-bottom: 30px;
-      border-radius: 3px;
+      border-radius: 5px;
     }
 
     strong {

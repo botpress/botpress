@@ -114,7 +114,8 @@ const serveApi = function(app, bp) {
   })
 
   app.get('/api/manager/information', (req, res, next) => {
-    res.send(bp.manager.getInformation())
+    bp.manager.getInformation()
+    .then(info => res.send(info))
   })
 
   app.get('/api/manager/contributor', (req, res, next) => {

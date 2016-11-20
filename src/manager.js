@@ -37,6 +37,26 @@ module.exports = (bp) => {
     .then(({ data }) => data)
   }
 
+  const getRandomHero = () => {
+    const modulesCachePath = path.join(bp.dataLocation, './modules-cache.json')
+
+    return listAllModules()
+    .then(() => {
+      const { modules } = JSON.parse(fs.readFileSync(modulesCachePath))
+      
+      const module = _.sample(modules)
+      const hero = _.sample(module.contributors)
+
+      return {
+        username: hero.login,
+        github: hero.html_url,
+        avatar: hero.avatar_url,
+        contributions: hero.contributions,
+        module: module.name
+      }
+    })
+  }
+
   const mapModuleList = (modules) => {
     const installed = listInstalledModules()
     return modules.map(mod => ({
@@ -114,17 +134,19 @@ module.exports = (bp) => {
     })
   })
 
-  const getInformation = () => {
+  const getInformation = Promise.method(() => {
     const packageJson = readPackage()
 
-    return {
+    return getRandomHero()
+    .then(hero => ({
       name: packageJson.name,
       version: packageJson.version,
       description: packageJson.description || 'No description',
       author: packageJson.author || '<no author>',
-      license: packageJson.license || 'AGPL-v3.0'
-    }
-  }
+      license: packageJson.license || 'AGPL-v3.0',
+      hero: hero
+    }))
+  })
 
   const getContributor = () => {
     return {

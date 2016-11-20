@@ -9,6 +9,7 @@ import {
 import ContentWrapper from '~/components/Layout/ContentWrapper'
 import PageHeader from '~/components/Layout/PageHeader'
 import ModulesComponent from '~/components/Modules'
+import HeroComponent from '~/components/Hero'
 
 import actions from '~/actions'
 
@@ -83,7 +84,7 @@ export default class DashboardView extends React.Component {
   renderInformationAndContributionSection() {
     return (
       <Row>
-        <Col sm={9}>
+        <Col sm={8}>
           <Panel className={style.information}>
             <h3 className={style.informationName}>{this.state.information.name}</h3>
             <p className={style.informationDescription}>{this.state.information.description}</p>
@@ -92,12 +93,12 @@ export default class DashboardView extends React.Component {
             <p>Licensed under {this.state.information.license}</p>
           </Panel>
         </Col>
-        <Col sm={3}>
+        <Col sm={4}>
           <Panel className={style.contribution}>
-            <div className={style.contributionContent}>
-              <img src={this.state.contributor.img}/>
-              <p dangerouslySetInnerHTML={{__html: this.state.contributor.message}}></p>
+            <div className={style.raysAnim}>
+              <div className={style.rays}></div>
             </div>
+            <HeroComponent className={style.contributionContent} {...this.state.information.hero}/>
           </Panel>
         </Col>
       </Row>

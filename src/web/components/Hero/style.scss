@@ -1,0 +1,12 @@
+@import '../../palette.scss';
+
+.root {
+  h4 {
+    font-size: 20px;
+  }
+}
+
+.username {
+  color: $primary_color;
+  font-weight: 500;
+}
