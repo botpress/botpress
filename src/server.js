@@ -94,6 +94,10 @@ const serveApi = function(app, bp) {
     res.send(modules)
   })
 
+  app.get('/api/middlewares', (req, res, next) => {
+    res.send(bp.middlewares)
+  })
+
   app.get('/api/notifications', (req, res, next) => {
     res.send(bp.loadNotifications())
   })
