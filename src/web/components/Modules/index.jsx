@@ -81,8 +81,8 @@ class ModuleComponent extends Component {
     const action = installed ? this.handleUninstall : this.handleInstall
 
     const className = classnames({
-      [style.install]: installed,
-      [style.uninstall]: !installed
+      [style.install]: !installed,
+      [style.uninstall]: installed
     })
 
     return (
