@@ -4,7 +4,8 @@ import {
   Grid,
   Row,
   Col,
-  ControlLabel
+  ControlLabel,
+  Link
 } from 'react-bootstrap'
 import ContentWrapper from '~/components/Layout/ContentWrapper'
 import PageHeader from '~/components/Layout/PageHeader'
@@ -73,6 +74,10 @@ class DashboardView extends React.Component {
     })
   }
 
+  openLicenseComponent() {
+    actions.toggleLicenseModal()
+  }
+
   refresh() {
     this.queryFeaturedModules()
     .then(this.queryModulesPopular)
@@ -90,7 +95,11 @@ class DashboardView extends React.Component {
             <p className={style.informationDescription}>{this.props.botInformation.get('description')}</p>
             <p className={style.informationAuthor}>Created by <strong>{this.props.botInformation.get('author')}</strong> </p>
             <p className={style.informationVersion}>Version {this.props.botInformation.get('version')}</p>
-            <p>Licensed under {this.props.botInformation.get('license')}</p>
+            <p className={style.informationLicense}>
+              Licensed under {this.props.botInformation.get('license')} (
+              <a href='#' onClick={this.openLicenseComponent}>Change</a>)
+            </p>
+
           </Panel>
         </Col>
         <Col sm={4}>
