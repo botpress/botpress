@@ -38,3 +38,16 @@
     border-left: 5px solid $sidebar-primary-color;
   }
 }
+
+.license {
+  font-size: 12px;
+  position: absolute;
+  bottom: 10px;
+  width: 100%;
+  text-align: center;
+
+
+  a:hover {
+    color: $sidebar-primary-color;
+  }
+}

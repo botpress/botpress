@@ -7,8 +7,8 @@ import EventBus from '~/util/EventBus'
 import routes from '../Routes'
 
 import reactor from '~/reactor'
-import { ModulesStore, NotificationsStore} from '~/stores'
 import actions from '~/actions'
+import { ModulesStore, NotificationsStore, UIStore} from '~/stores'
 
 export default class App extends Component {
 
@@ -16,10 +16,14 @@ export default class App extends Component {
     super(props)
     reactor.registerStores({
       'modules': ModulesStore,
-      'notifications': NotificationsStore
+      'notifications': NotificationsStore,
+      'UI': UIStore
     })
 
-    this.state = { events: EventBus.default }
+    this.state = {
+      events: EventBus.default
+     }
+
     EventBus.default.setup()
   }
 
@@ -43,11 +47,14 @@ export default class App extends Component {
     EventBus.default.on('notifications.new', (notification) => {
       actions.addNotifications([ notification ])
     })
+
   }
 
   render() {
-    return <Provider reactor={reactor}>
-      {routes()}
-    </Provider>
+    return (
+      <Provider reactor={reactor}>
+        {routes()}
+      </Provider>
+    )
   }
 }

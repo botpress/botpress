@@ -113,6 +113,14 @@ const serveApi = function(app, bp) {
     res.send(bp.manager.getInformation())
   })
 
+  app.get('/api/manager/contributor', (req, res, next) => {
+    res.send(bp.manager.getContributor())
+  })
+
+  app.get('/api/manager/licenses', (req, res, next) => {
+    res.send(bp.manager.getLicenses())
+  })
+
   app.post('/api/manager/modules/:name', (req, res, next) => {
     const { name } = req.params
     bp.manager.install(name)

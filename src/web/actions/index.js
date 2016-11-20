@@ -4,7 +4,12 @@ import reactor from '~/reactor'
 import EventBus from '~/util/EventBus'
 
 import actionTypes from '~/actions/actionTypes'
-const { MODULES_RECEIVED, ALL_NOTIFICATIONS_RECEIVED, NEW_NOTIFICATIONS_RECEIVED } = actionTypes
+const {
+  MODULES_RECEIVED,
+  ALL_NOTIFICATIONS_RECEIVED,
+  NEW_NOTIFICATIONS_RECEIVED,
+  TOGGLE_LICENSE_MODAL
+} = actionTypes
 
 export default {
   fetchModules() {
@@ -27,5 +32,9 @@ export default {
 
   addNotifications(notifications) {
     reactor.dispatch(NEW_NOTIFICATIONS_RECEIVED, { notifications })
+  },
+
+  toggleLicenseModal() {
+    reactor.dispatch(TOGGLE_LICENSE_MODAL)
   }
 }

@@ -1,8 +1,8 @@
 @import '../../palette.scss';
 
 .information {
+  height: 255px;
   padding: 15px 25px 15px 25px;
-
 }
 
 .informationName {
@@ -28,6 +28,34 @@
   margin-bottom: 5px;
 }
 
-.informationLicense {
+.contribution {
+  position: relative;
+  height: 255px;
+  text-align: center;
 
+  .contributionContent {
+    text-align: center;
+    line-height: 25px;
+    position: absolute;
+    padding-right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+
+    img {
+      box-shadow: 3px 3px 5px #868686;
+      height: 60px;
+      width: 60px;
+      margin-bottom: 30px;
+      border-radius: 3px;
+    }
+
+    strong {
+      font-weight: bolder;
+    }
+
+    p {
+      margin: 0;
+    }
+
+  }
 }
