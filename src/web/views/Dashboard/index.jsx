@@ -10,6 +10,8 @@ import ContentWrapper from '~/components/Layout/ContentWrapper'
 import PageHeader from '~/components/Layout/PageHeader'
 import ModulesComponent from '~/components/Modules'
 
+import actions from '~/actions'
+
 import axios from 'axios'
 
 const style = require('./style.scss')
@@ -33,7 +35,7 @@ export default class DashboardView extends React.Component {
   }
 
   queryInformation() {
-    axios.get('/api/manager/information')
+    return axios.get('/api/manager/information')
     .then((result) => {
       this.setState({
         information: result.data
@@ -42,7 +44,7 @@ export default class DashboardView extends React.Component {
   }
 
   queryModulesPopular() {
-    axios.get('/api/manager/modules/popular')
+    return axios.get('/api/manager/modules/popular')
     .then((result) => {
       this.setState({
         popularModules: result.data
@@ -51,11 +53,19 @@ export default class DashboardView extends React.Component {
   }
 
   queryFeaturedModules() {
-    axios.get('/api/manager/modules/featured')
+    return axios.get('/api/manager/modules/featured')
     .then((result) => {
       this.setState({
         featuredModules: result.data
       })
+    })
+  }
+
+  refresh() {
+    this.queryFeaturedModules()
+    .then(this.queryModulesPopular)
+    .then(() => {
+      setTimeout(actions.fetchModules, 5000)
     })
   }
 
@@ -80,12 +90,12 @@ export default class DashboardView extends React.Component {
         <Row>
           <Col sm={6}>
             <Panel header='Popular modules'>
-              <ModulesComponent modules={this.state.popularModules} refresh={this.queryModulesPopular}/>
+              <ModulesComponent modules={this.state.popularModules} refresh={this.refresh.bind(this)}/>
             </Panel>
           </Col>
           <Col sm={6}>
             <Panel header='Featured modules'>
-              <ModulesComponent modules={this.state.featuredModules} refresh={this.queryFeaturedModules}/>
+              <ModulesComponent modules={this.state.featuredModules} refresh={this.refresh.bind(this)}/>
             </Panel>
           </Col>
         </Row>
