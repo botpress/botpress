@@ -6,6 +6,8 @@ import _ from 'lodash'
 
 import  { print, isDeveloping } from './util'
 
+
+
 module.exports = (bp) => {
 
   const log = (level, ...args) => {
@@ -127,7 +129,9 @@ module.exports = (bp) => {
     }
   }
 
-  const getLicenses = () => {
+  const licensesPath = path.join(__dirname, '../licenses')
+
+  const getPackageJSON = () => {
     let projectLocation = (bp && bp.projectLocation) || './'
     let packagePath = path.resolve(projectLocation, './package.json')
 
@@ -136,8 +140,11 @@ module.exports = (bp) => {
       return []
     }
 
-    const packageJson = JSON.parse(fs.readFileSync(packagePath))
-    const actualLicense = packageJson.license
+    return JSON.parse(fs.readFileSync(packagePath))
+  }
+
+  const getLicenses = () => {
+    const actualLicense = getPackageJSON().license
 
     const licensesPath = path.join(__dirname, '../licenses')
     const licenseAGPL = fs.readFileSync(path.join(licensesPath, 'LICENSE_AGPL3')).toString()
@@ -158,7 +165,9 @@ module.exports = (bp) => {
   }
 
   const changeLicense = Promise.method((license) => {
-    console.log(license)
+    const newLicenseFile = (license === 'agpl') ? 'LICENSE_AGPL3' : 'LICENSE_BOTPRESS'
+
+    console.log(newLicenseFile)
   })
 
   const resolveModuleNames = (names) => {
@@ -241,16 +250,7 @@ module.exports = (bp) => {
   })
 
   const listInstalledModules = () => {
-    let projectLocation = (bp && bp.projectLocation) || './'
-    let packagePath = path.resolve(projectLocation, './package.json')
-
-    if (!fs.existsSync(packagePath)) {
-      log('warn', 'Could not find bot\'s package.json file')
-      return []
-    }
-
-    const packageJson = JSON.parse(fs.readFileSync(packagePath))
-    const prodDeps = _.keys(packageJson.dependencies)
+    const prodDeps = _.keys(getPackageJSON().dependencies)
 
     return _.filter(prodDeps, dep => /botpress-.+/i.test(dep))
   }
