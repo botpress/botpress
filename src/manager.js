@@ -42,7 +42,7 @@ module.exports = (bp) => {
     return modules.map(mod => ({
       name: mod.name,
       stars: mod.github.stargazers_count,
-      downloads: mod.github.forks_count,
+      forks: mod.github.forks_count,
       docLink: mod.homepage,
       version: mod['dist-tags'].latest,
       keywords: mod.keywords,
