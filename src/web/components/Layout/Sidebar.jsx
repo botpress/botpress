@@ -7,6 +7,7 @@ import {connect} from 'nuclear-js-react-addons'
 
 import SidebarHeader from './SidebarHeader'
 import getters from '~/stores/getters'
+import actions from '~/actions'
 
 const style = require('./Sidebar.scss')
 
@@ -22,12 +23,14 @@ class Sidebar extends Component {
 
     this.state = {
       sidebarOpen: false,
-      sidebarDocked: false
+      sidebarDocked: false,
+      license: "AGPL-3.0"
     }
 
     this.onSetSidebarOpen = this.onSetSidebarOpen.bind(this)
     this.mediaQueryChanged = this.mediaQueryChanged.bind(this)
     this.renderModuleItem = this.renderModuleItem.bind(this)
+    this.openLicenseComponent = this.openLicenseComponent.bind(this)
   }
 
   onSetSidebarOpen(open) {
@@ -81,6 +84,10 @@ class Sidebar extends Component {
     </li>
   }
 
+  openLicenseComponent() {
+    actions.toggleLicenseModal()
+  }
+
   render() {
     const modules = this.props.modules
     const items = modules.toJS().map(this.renderModuleItem)
@@ -105,11 +112,12 @@ class Sidebar extends Component {
         {items}
       </ul>
       <div className={style.license}>
-        <Link to='license' title='License'>
-          License
+        <Link to='#' title='License' onClick={this.openLicenseComponent}>
+          License under {this.state.license}
         </Link>
       </div>
     </div>
+
 
     const { sidebarOpen: open, sidebarDocked: docked } = this.state
 

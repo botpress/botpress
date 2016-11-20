@@ -21,7 +21,8 @@ export default class DashboardView extends React.Component {
     super(props)
     this.state = {
       loading: false,
-      information: {}
+      information: {},
+      contributor: {}
     }
 
     this.queryModulesPopular = this.queryModulesPopular.bind(this)
@@ -30,6 +31,7 @@ export default class DashboardView extends React.Component {
 
   componentDidMount() {
     this.queryInformation()
+    this.queryContributor()
     this.queryModulesPopular()
     this.queryFeaturedModules()
   }
@@ -39,6 +41,15 @@ export default class DashboardView extends React.Component {
     .then((result) => {
       this.setState({
         information: result.data
+      })
+    })
+  }
+
+  queryContributor() {
+    axios.get('/api/manager/contributor')
+    .then((result) => {
+      this.setState({
+        contributor: result.data
       })
     })
   }
@@ -69,16 +80,24 @@ export default class DashboardView extends React.Component {
     })
   }
 
-  renderInformationSection() {
+  renderInformationAndContributionSection() {
     return (
       <Row>
-        <Col sm={12}>
+        <Col sm={9}>
           <Panel className={style.information}>
             <h3 className={style.informationName}>{this.state.information.name}</h3>
             <p className={style.informationDescription}>{this.state.information.description}</p>
             <p className={style.informationAuthor}>Created by <strong>{this.state.information.author}</strong> </p>
             <p className={style.informationVersion}>Version {this.state.information.version}</p>
-            <p className={style.informationLicense}>Licensed under {this.state.information.license}</p>
+            <p>Licensed under {this.state.information.license}</p>
+          </Panel>
+        </Col>
+        <Col sm={3}>
+          <Panel className={style.contribution}>
+            <div className={style.contributionContent}>
+              <img src={this.state.contributor.img}/>
+              <p dangerouslySetInnerHTML={{__html: this.state.contributor.message}}></p>
+            </div>
           </Panel>
         </Col>
       </Row>
@@ -107,11 +126,10 @@ export default class DashboardView extends React.Component {
       <ContentWrapper>
         {PageHeader(<span> Dashboard</span>)}
         <Grid fluid>
-          {this.renderInformationSection()}
+          {this.renderInformationAndContributionSection()}
           {this.renderModulesSection()}
         </Grid>
       </ContentWrapper>
-
     )
   }
 }

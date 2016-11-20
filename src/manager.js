@@ -126,6 +126,28 @@ module.exports = (bp) => {
     }
   }
 
+  const getContributor = () => {
+    return {
+      message: "Thanks to <strong>Sylvain Perron</strong> for his contribution on <strong>botpress-messenger</strong>!",
+      img: "https://avatars.githubusercontent.com/u/1315508?v=3"
+    }
+  }
+
+  const getLicenses = () => {
+    return {
+      agpl: {
+        name: 'AGPL-3.0',
+        licensedUnder: true,
+        text: 'AGPL-3 sdflkjasdlfnljasdlfj'
+      },
+      botpress: {
+        name: 'Botpress',
+        licensedUnder: false,
+        text: 'balbalablsblasbflbalbdflbaslsbflabsfl'
+      }
+    }
+  }
+
   const resolveModuleNames = (names) => {
     return names.map(name => {
       if (!name || typeof(name) !== 'string') {
@@ -230,6 +252,8 @@ module.exports = (bp) => {
     getPopular: listPopularModules,
     getFeatured: listFeaturedModules,
     getInformation: getInformation,
+    getLicenses: getLicenses,
+    getContributor: getContributor,
     install: installModules,
     uninstall: uninstallModules
   }
