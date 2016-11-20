@@ -98,6 +98,10 @@ const serveApi = function(app, bp) {
     res.send(bp.loadNotifications())
   })
 
+  app.get('/api/information', (req, res, next) => {
+    res.send(bp.getInformation())
+  })
+
   app.get('/api/manager/modules', (req, res, next) => {
     res.send(bp.manager.get())
   })
@@ -117,7 +121,7 @@ const serveApi = function(app, bp) {
     res.send(bp.manager.getContributor())
   })
 
-  app.get('/api/manager/license', (req, res, next) => {
+  app.get('/api/manager/licenses', (req, res, next) => {
     res.send(bp.manager.getLicenses())
   })
 

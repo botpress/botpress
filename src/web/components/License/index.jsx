@@ -31,7 +31,7 @@ export default class LicenseComponent extends React.Component {
   }
 
   getLicenses() {
-    axios.get('/api/manager/license')
+    axios.get('/api/manager/licenses')
     .then((result) => {
       this.setState({
         licenses: result.data,

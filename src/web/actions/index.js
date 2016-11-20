@@ -36,5 +36,12 @@ export default {
 
   toggleLicenseModal() {
     reactor.dispatch(TOGGLE_LICENSE_MODAL)
+  },
+
+  informationReceived() {
+    axios.get('/api/information')
+    .then((result) => {
+      reactor.dispatch(BOT_INFORMATION_RECEIVED, { information: result.data })
+    })
   }
 }
