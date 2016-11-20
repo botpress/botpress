@@ -11,7 +11,10 @@ import actions from '~/actions'
 
 const style = require('./Sidebar.scss')
 
-@connect(props => ({ modules: getters.modules }))
+@connect(props => ({
+  modules: getters.modules,
+  botInformation: getters.botInformation
+}))
 class Sidebar extends Component {
 
   static contextTypes = {
@@ -23,8 +26,7 @@ class Sidebar extends Component {
 
     this.state = {
       sidebarOpen: false,
-      sidebarDocked: false,
-      license: "AGPL-3.0"
+      sidebarDocked: false
     }
 
     this.onSetSidebarOpen = this.onSetSidebarOpen.bind(this)
@@ -113,7 +115,7 @@ class Sidebar extends Component {
       </ul>
       <div className={style.license}>
         <Link to='#' title='License' onClick={this.openLicenseComponent}>
-          License under {this.state.license}
+          License under {this.props.botInformation.get('license')}
         </Link>
       </div>
     </div>

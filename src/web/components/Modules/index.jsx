@@ -39,7 +39,7 @@ class ModuleComponent extends Component {
       this.props.refresh && this.props.refresh()
     }
     this.setState({ loading: true })
-    axios.post('/api/manager/modules/' + this.props.module.name)
+    axios.post('/api/module/install/' + this.props.module.name)
     .then(fin)
     .catch(fin)
   }
@@ -50,7 +50,7 @@ class ModuleComponent extends Component {
       this.props.refresh && this.props.refresh()
     }
     this.setState({ loading: true })
-    axios.delete('/api/manager/modules/' + this.props.module.name)
+    axios.delete('/api/module/uninstall/' + this.props.module.name)
     .then()
     .then(fin)
     .catch(fin)

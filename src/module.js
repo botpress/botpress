@@ -37,13 +37,13 @@ module.exports = (bp) => {
     .then(({ data }) => data)
   }
 
-  const getRandomHero = () => {
+  const getRandomHero = Promise.method(() => {
     const modulesCachePath = path.join(bp.dataLocation, './modules-cache.json')
 
     return listAllModules()
     .then(() => {
       const { modules } = JSON.parse(fs.readFileSync(modulesCachePath))
-      
+
       const module = _.sample(modules)
       const hero = _.sample(module.contributors)
 
@@ -55,7 +55,7 @@ module.exports = (bp) => {
         module: module.name
       }
     })
-  }
+  })
 
   const mapModuleList = (modules) => {
     const installed = listInstalledModules()
@@ -134,40 +134,16 @@ module.exports = (bp) => {
     })
   })
 
-  const getInformation = Promise.method(() => {
-    const packageJson = readPackage()
+  const getPackageJSONPath = () => {
+    let projectLocation = (bp && bp.projectLocation) || './'
+    let packagePath = path.resolve(projectLocation, './package.json')
 
-    return getRandomHero()
-    .then(hero => ({
-      name: packageJson.name,
-      version: packageJson.version,
-      description: packageJson.description || 'No description',
-      author: packageJson.author || '<no author>',
-      license: packageJson.license || 'AGPL-v3.0',
-      hero: hero
-    }))
-  })
-
-  const getContributor = () => {
-    return {
-      message: "Thanks to <strong>Sylvain Perron</strong> for his contribution on <strong>botpress-messenger</strong>!",
-      img: "https://avatars.githubusercontent.com/u/1315508?v=3"
+    if (!fs.existsSync(packagePath)) {
+      log('warn', 'Could not find bot\'s package.json file')
+      return []
     }
-  }
 
-  const getLicenses = () => {
-    return {
-      agpl: {
-        name: 'AGPL-3.0',
-        licensedUnder: true,
-        text: 'AGPL-3 sdflkjasdlfnljasdlfj'
-      },
-      botpress: {
-        name: 'Botpress',
-        licensedUnder: false,
-        text: 'balbalablsblasbflbalbdflbaslsbflabsfl'
-      }
-    }
+    return packagePath
   }
 
   const resolveModuleNames = (names) => {
@@ -234,7 +210,6 @@ module.exports = (bp) => {
 
   const uninstallModules = Promise.method((...names) => {
     let modules = resolveModuleNames(names)
-
     const uninstall = spawn('npm', ['uninstall', '--save', ...modules], {
       cwd: bp && bp.projectLocation
     })
@@ -249,33 +224,20 @@ module.exports = (bp) => {
     })
   })
 
-  const readPackage = () => {
-    let projectLocation = (bp && bp.projectLocation) || './'
-    let packagePath = path.resolve(projectLocation, './package.json')
-
-    if (!fs.existsSync(packagePath)) {
-      log('warn', 'Could not find bot\'s package.json file')
-      return []
-    }
-
-    return JSON.parse(fs.readFileSync(packagePath))
-  }
 
   const listInstalledModules = () => {
-    const packageJson = readPackage()
-    const prodDeps = _.keys(packageJson.dependencies)
+    const packageJSON = JSON.parse(fs.readFileSync(getPackageJSONPath()))
+    const prodDeps = _.keys(packageJSON.dependencies)
 
     return _.filter(prodDeps, dep => /botpress-.+/i.test(dep))
   }
 
   return {
     getInstalled: listInstalledModules,
-    get: listAllModules,
+    getListAllModules: listAllModules,
     getPopular: listPopularModules,
     getFeatured: listFeaturedModules,
-    getInformation: getInformation,
-    getLicenses: getLicenses,
-    getContributor: getContributor,
+    getRandomHero: getRandomHero,
     install: installModules,
     uninstall: uninstallModules
   }

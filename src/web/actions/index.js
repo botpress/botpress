@@ -8,7 +8,9 @@ const {
   MODULES_RECEIVED,
   ALL_NOTIFICATIONS_RECEIVED,
   NEW_NOTIFICATIONS_RECEIVED,
-  TOGGLE_LICENSE_MODAL
+  TOGGLE_LICENSE_MODAL,
+  BOT_INFORMATION_RECEIVED,
+  LICENSE_CHANGED
 } = actionTypes
 
 export default {
@@ -36,5 +38,16 @@ export default {
 
   toggleLicenseModal() {
     reactor.dispatch(TOGGLE_LICENSE_MODAL)
+  },
+
+  fetchBotInformation() {
+    axios.get('/api/bot/information')
+    .then((result) => {
+      reactor.dispatch(BOT_INFORMATION_RECEIVED, { botInformation: result.data })
+    })
+  },
+
+  licenseChanged(license) {
+    reactor.dispatch(LICENSE_CHANGED, { license })
   }
 }

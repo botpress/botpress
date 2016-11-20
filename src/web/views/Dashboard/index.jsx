@@ -12,40 +12,39 @@ import ModulesComponent from '~/components/Modules'
 import HeroComponent from '~/components/Hero'
 import MiddlewaresComponent from '~/components/Middlewares'
 
+import {connect} from 'nuclear-js-react-addons'
+import getters from '~/stores/getters'
 import actions from '~/actions'
 
 import axios from 'axios'
 
 const style = require('./style.scss')
 
-export default class DashboardView extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      loading: false,
-      information: {},
-      contributor: {},
-      middlewares: []
-    }
+@connect(props => ({botInformation: getters.botInformation}))
+class DashboardView extends React.Component {
 
+  static contextTypes = {
+    router: React.PropTypes.object.isRequired
+  }
+
+  constructor(props, context) {
+    super(props, context)
+    this.state = { loading: true, middlewares: [] }
+
+    this.queryHero = this.queryHero.bind(this)
     this.queryModulesPopular = this.queryModulesPopular.bind(this)
     this.queryFeaturedModules = this.queryFeaturedModules.bind(this)
     this.queryMiddlewares = this.queryMiddlewares.bind(this)
   }
 
   componentDidMount() {
-    this.queryInformation()
-    this.queryContributor()
-    this.queryModulesPopular()
-    this.queryFeaturedModules()
-    this.queryMiddlewares()
-  }
-
-  queryInformation() {
-    return axios.get('/api/manager/information')
-    .then((result) => {
+    this.queryHero()
+    .then(this.queryModulesPopular)
+    .then(this.queryFeaturedModules)
+    .then(this.queryMiddlewares)
+    .then(() => {
       this.setState({
-        information: result.data
+        loading: false
       })
     })
   }
@@ -59,17 +58,17 @@ export default class DashboardView extends React.Component {
     })
   }
 
-  queryContributor() {
-    axios.get('/api/manager/contributor')
+  queryHero() {
+    return axios.get('/api/module/hero')
     .then((result) => {
       this.setState({
-        contributor: result.data
+        hero: result.data
       })
     })
   }
 
   queryModulesPopular() {
-    return axios.get('/api/manager/modules/popular')
+    return axios.get('/api/module/popular')
     .then((result) => {
       this.setState({
         popularModules: result.data
@@ -78,7 +77,7 @@ export default class DashboardView extends React.Component {
   }
 
   queryFeaturedModules() {
-    return axios.get('/api/manager/modules/featured')
+    return axios.get('/api/module/featured')
     .then((result) => {
       this.setState({
         featuredModules: result.data
@@ -99,11 +98,11 @@ export default class DashboardView extends React.Component {
       <Row>
         <Col sm={8}>
           <Panel className={style.information}>
-            <h3 className={style.informationName}>{this.state.information.name}</h3>
-            <p className={style.informationDescription}>{this.state.information.description}</p>
-            <p className={style.informationAuthor}>Created by <strong>{this.state.information.author}</strong> </p>
-            <p className={style.informationVersion}>Version {this.state.information.version}</p>
-            <p>Licensed under {this.state.information.license}</p>
+            <h3 className={style.informationName}>{this.props.botInformation.get('name')}</h3>
+            <p className={style.informationDescription}>{this.props.botInformation.get('description')}</p>
+            <p className={style.informationAuthor}>Created by <strong>{this.props.botInformation.get('author')}</strong> </p>
+            <p className={style.informationVersion}>Version {this.props.botInformation.get('version')}</p>
+            <p>Licensed under {this.props.botInformation.get('license')}</p>
           </Panel>
         </Col>
         <Col sm={4}>
@@ -111,7 +110,7 @@ export default class DashboardView extends React.Component {
             <div className={style.raysAnim}>
               <div className={style.rays}></div>
             </div>
-            <HeroComponent className={style.contributionContent} {...this.state.information.hero}/>
+            <HeroComponent className={style.contributionContent} {...this.state.hero}/>
           </Panel>
         </Col>
       </Row>
@@ -148,6 +147,9 @@ export default class DashboardView extends React.Component {
   }
 
   render() {
+    if (this.state.loading) {
+      return null
+    }
     return (
       <ContentWrapper>
         {PageHeader(<span> Dashboard</span>)}
@@ -160,3 +162,5 @@ export default class DashboardView extends React.Component {
     )
   }
 }
+
+export default DashboardView

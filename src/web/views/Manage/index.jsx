@@ -22,7 +22,7 @@ export default class ManageView extends React.Component {
   }
 
   queryModules() {
-    return axios.get('/api/manager/modules')
+    return axios.get('/api/module/all')
     .then((result) => {
       this.setState({
         modules: result.data

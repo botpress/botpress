@@ -113,37 +113,55 @@ const serveApi = function(app, bp) {
     res.send(bp.loadNotifications())
   })
 
-  app.get('/api/manager/modules', (req, res, next) => {
-    bp.manager.get()
+  app.get('/api/bot/information', (req, res, next) => {
+    res.send(bp.bot.getBotInformation())
+  })
+
+  app.get('/api/module/all', (req, res, next) => {
+    bp.module.getListAllModules()
     .then(modules => res.send(modules))
   })
 
-  app.get('/api/manager/modules/popular', (req, res, next) => {
-    bp.manager.getPopular()
+  app.get('/api/module/popular', (req, res, next) => {
+    bp.module.getPopular()
     .then(popular => res.send(popular))
   })
-  
-  app.get('/api/manager/modules/featured', (req, res, next) => {
-    bp.manager.getFeatured()
+
+  app.get('/api/module/featured', (req, res, next) => {
+    bp.module.getFeatured()
     .then(featured => res.send(featured))
   })
 
-  app.get('/api/manager/information', (req, res, next) => {
-    bp.manager.getInformation()
-    .then(info => res.send(info))
+  app.get('/api/module/hero', (req, res, next) => {
+    bp.module.getRandomHero()
+    .then(hero => res.send(hero))
   })
 
-  app.get('/api/manager/contributor', (req, res, next) => {
-    res.send(bp.manager.getContributor())
+  app.get('/api/bot/information', (req, res, next) => {
+    res.send(bp.bot.getInformation())
   })
 
-  app.get('/api/manager/licenses', (req, res, next) => {
-    res.send(bp.manager.getLicenses())
+  app.get('/api/bot/contributor', (req, res, next) => {
+    res.send(bp.bot.getContributor())
   })
 
-  app.post('/api/manager/modules/:name', (req, res, next) => {
+  app.get('/api/license', (req, res, next) => {
+    res.send(bp.licensing.getLicenses())
+  })
+
+  app.post('/api/license', (req, res, next) => {
+    bp.licensing.changeLicense(req.body.license)
+    .then(() => {
+      res.sendStatus(200)
+    })
+    .catch(err => res.status(500).send({
+      message: err && err.message
+    }))
+  })
+
+  app.post('/api/module/install/:name', (req, res, next) => {
     const { name } = req.params
-    bp.manager.install(name)
+    bp.module.install(name)
     .then(() => {
       res.sendStatus(200)
       bp.restart(1000)
@@ -153,9 +171,9 @@ const serveApi = function(app, bp) {
     }))
   })
 
-  app.delete('/api/manager/modules/:name', (req, res, next) => {
+  app.delete('/api/module/uninstall/:name', (req, res, next) => {
     const { name } = req.params
-    bp.manager.uninstall(name)
+    bp.module.uninstall(name)
     .then(() => {
       res.sendStatus(200)
       bp.restart(1000)
