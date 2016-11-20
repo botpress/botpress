@@ -13,7 +13,7 @@ export default Store({
   }
 })
 
-function botInformationReceived(state, { information }) {
-  let newInformation = toImmutable(information)
+function botInformationReceived(state, { botInformation }) {
+  let newInformation = toImmutable(botInformation)
   return state.merge(newInformation)
 }

@@ -11,40 +11,37 @@ import PageHeader from '~/components/Layout/PageHeader'
 import ModulesComponent from '~/components/Modules'
 import HeroComponent from '~/components/Hero'
 
+import {connect} from 'nuclear-js-react-addons'
+import getters from '~/stores/getters'
 import actions from '~/actions'
 
 import axios from 'axios'
 
 const style = require('./style.scss')
 
-export default class DashboardView extends React.Component {
-  constructor(props) {
-    super(props)
+@connect(props => ({botInformation: getters.botInformation}))
+class DashboardView extends React.Component {
+
+  static contextTypes = {
+    router: React.PropTypes.object.isRequired
+  }
+
+  constructor(props, context) {
+    super(props, context)
     this.state = { loading: true }
 
-    this.queryInformation = this.queryInformation.bind(this)
     this.queryHero = this.queryHero.bind(this)
     this.queryModulesPopular = this.queryModulesPopular.bind(this)
     this.queryFeaturedModules = this.queryFeaturedModules.bind(this)
   }
 
   componentDidMount() {
-    this.queryInformation()
-    .then(this.queryHero)
+    this.queryHero()
     .then(this.queryModulesPopular)
     .then(this.queryFeaturedModules)
     .then(() => {
       this.setState({
         loading: false
-      })
-    })
-  }
-
-  queryInformation() {
-    return axios.get('/api/bot/information')
-    .then((result) => {
-      this.setState({
-        information: result.data
       })
     })
   }
@@ -89,11 +86,11 @@ export default class DashboardView extends React.Component {
       <Row>
         <Col sm={8}>
           <Panel className={style.information}>
-            <h3 className={style.informationName}>{this.state.information.name}</h3>
-            <p className={style.informationDescription}>{this.state.information.description}</p>
-            <p className={style.informationAuthor}>Created by <strong>{this.state.information.author}</strong> </p>
-            <p className={style.informationVersion}>Version {this.state.information.version}</p>
-            <p>Licensed under {this.state.information.license}</p>
+            <h3 className={style.informationName}>{this.props.botInformation.get('name')}</h3>
+            <p className={style.informationDescription}>{this.props.botInformation.get('description')}</p>
+            <p className={style.informationAuthor}>Created by <strong>{this.props.botInformation.get('author')}</strong> </p>
+            <p className={style.informationVersion}>Version {this.props.botInformation.get('version')}</p>
+            <p>Licensed under {this.props.botInformation.get('license')}</p>
           </Panel>
         </Col>
         <Col sm={4}>
@@ -140,3 +137,5 @@ export default class DashboardView extends React.Component {
     )
   }
 }
+
+export default DashboardView
