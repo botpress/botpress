@@ -130,12 +130,12 @@ module.exports = (bp) => {
   const getLicenses = () => {
     return {
       agpl: {
-        name: 'AGPL-3.0'
+        name: 'AGPL-3.0',
         licensedUnder: true,
         text: 'AGPL-3 sdflkjasdlfnljasdlfj'
       },
       botpress: {
-        name: 'Botpress'
+        name: 'Botpress',
         licensedUnder: false,
         text: 'balbalablsblasbflbalbdflbaslsbflabsfl'
       }
