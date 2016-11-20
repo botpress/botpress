@@ -101,6 +101,10 @@ module.exports = function(bp) {
 
     let sorted = _.orderBy(bp.middlewares, 'order')
     sorted.forEach(m => {
+      if (!m.enabled) {
+        return bp.logger.debug('SKIPPING middleware:', m.name, ' [Reason=disabled]')
+      }
+
       bp.logger.debug('Loading middleware:', m.name)
       bp[m.type](m.handler) // apply middleware
     })
