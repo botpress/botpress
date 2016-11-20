@@ -49,7 +49,6 @@ export default class App extends Component {
     EventBus.default.on('notifications.new', (notification) => {
       actions.addNotifications([ notification ])
     })
-
   }
 
   render() {

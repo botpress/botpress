@@ -47,8 +47,10 @@ export default class LicenseComponent extends React.Component {
 
   handleSave() {
     const selectedLicense = this.state.licenses[this.state.selectedOption]
-    axios.post('/api/license', { license: selectedLicense.name })
+    const newLicense = selectedLicense.name
+    axios.post('/api/license', { license: newLicense })
     .then(() => {
+      actions.licenseChanged(newLicense)
       this.handleClose()
     })
     .catch((err) => {

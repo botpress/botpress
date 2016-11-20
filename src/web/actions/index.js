@@ -9,7 +9,8 @@ const {
   ALL_NOTIFICATIONS_RECEIVED,
   NEW_NOTIFICATIONS_RECEIVED,
   TOGGLE_LICENSE_MODAL,
-  BOT_INFORMATION_RECEIVED
+  BOT_INFORMATION_RECEIVED,
+  LICENSE_CHANGED
 } = actionTypes
 
 export default {
@@ -44,5 +45,9 @@ export default {
     .then((result) => {
       reactor.dispatch(BOT_INFORMATION_RECEIVED, { botInformation: result.data })
     })
+  },
+
+  licenseChanged(license) {
+    reactor.dispatch(LICENSE_CHANGED, { license })
   }
 }
