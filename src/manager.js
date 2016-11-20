@@ -115,12 +115,14 @@ module.exports = (bp) => {
   })
 
   const getInformation = () => {
+    const packageJson = readPackage()
+
     return {
-      name: "The master of all chatbots",
-      version: "1.3.4",
-      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-      author: 'Dany Fortin-Simard',
-      license: 'AGPL-3'
+      name: packageJson.name,
+      version: packageJson.version,
+      description: packageJson.description || 'No description',
+      author: packageJson.author || '<no author>',
+      license: packageJson.license || 'AGPL-v3.0'
     }
   }
 
@@ -203,7 +205,7 @@ module.exports = (bp) => {
     })
   })
 
-  const listInstalledModules = () => {
+  const readPackage = () => {
     let projectLocation = (bp && bp.projectLocation) || './'
     let packagePath = path.resolve(projectLocation, './package.json')
 
@@ -212,7 +214,11 @@ module.exports = (bp) => {
       return []
     }
 
-    const packageJson = JSON.parse(fs.readFileSync(packagePath))
+    return JSON.parse(fs.readFileSync(packagePath))
+  }
+
+  const listInstalledModules = () => {
+    const packageJson = readPackage()
     const prodDeps = _.keys(packageJson.dependencies)
 
     return _.filter(prodDeps, dep => /botpress-.+/i.test(dep))
