@@ -9,6 +9,9 @@ import {
 import ContentWrapper from '~/components/Layout/ContentWrapper'
 import PageHeader from '~/components/Layout/PageHeader'
 import ModulesComponent from '~/components/Modules'
+import HeroComponent from '~/components/Hero'
+
+import actions from '~/actions'
 
 import axios from 'axios'
 
@@ -35,7 +38,7 @@ export default class DashboardView extends React.Component {
   }
 
   queryInformation() {
-    axios.get('/api/manager/information')
+    return axios.get('/api/manager/information')
     .then((result) => {
       this.setState({
         information: result.data
@@ -53,7 +56,7 @@ export default class DashboardView extends React.Component {
   }
 
   queryModulesPopular() {
-    axios.get('/api/manager/modules/popular')
+    return axios.get('/api/manager/modules/popular')
     .then((result) => {
       this.setState({
         popularModules: result.data
@@ -62,7 +65,7 @@ export default class DashboardView extends React.Component {
   }
 
   queryFeaturedModules() {
-    axios.get('/api/manager/modules/featured')
+    return axios.get('/api/manager/modules/featured')
     .then((result) => {
       this.setState({
         featuredModules: result.data
@@ -70,10 +73,18 @@ export default class DashboardView extends React.Component {
     })
   }
 
+  refresh() {
+    this.queryFeaturedModules()
+    .then(this.queryModulesPopular)
+    .then(() => {
+      setTimeout(actions.fetchModules, 5000)
+    })
+  }
+
   renderInformationAndContributionSection() {
     return (
       <Row>
-        <Col sm={9}>
+        <Col sm={8}>
           <Panel className={style.information}>
             <h3 className={style.informationName}>{this.state.information.name}</h3>
             <p className={style.informationDescription}>{this.state.information.description}</p>
@@ -82,12 +93,12 @@ export default class DashboardView extends React.Component {
             <p>Licensed under {this.state.information.license}</p>
           </Panel>
         </Col>
-        <Col sm={3}>
+        <Col sm={4}>
           <Panel className={style.contribution}>
-            <div className={style.contributionContent}>
-              <img src={this.state.contributor.img}/>
-              <p dangerouslySetInnerHTML={{__html: this.state.contributor.message}}></p>
+            <div className={style.raysAnim}>
+              <div className={style.rays}></div>
             </div>
+            <HeroComponent className={style.contributionContent} {...this.state.information.hero}/>
           </Panel>
         </Col>
       </Row>
@@ -99,12 +110,12 @@ export default class DashboardView extends React.Component {
         <Row>
           <Col sm={6}>
             <Panel header='Popular modules'>
-              <ModulesComponent modules={this.state.popularModules} refresh={this.queryModulesPopular}/>
+              <ModulesComponent modules={this.state.popularModules} refresh={this.refresh.bind(this)}/>
             </Panel>
           </Col>
           <Col sm={6}>
             <Panel header='Featured modules'>
-              <ModulesComponent modules={this.state.featuredModules} refresh={this.queryFeaturedModules}/>
+              <ModulesComponent modules={this.state.featuredModules} refresh={this.refresh.bind(this)}/>
             </Panel>
           </Col>
         </Row>

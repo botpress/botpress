@@ -81,8 +81,8 @@ class ModuleComponent extends Component {
     const action = installed ? this.handleUninstall : this.handleInstall
 
     const className = classnames({
-      [style.install]: installed,
-      [style.uninstall]: !installed
+      [style.install]: !installed,
+      [style.uninstall]: installed
     })
 
     return (
@@ -93,17 +93,17 @@ class ModuleComponent extends Component {
   }
 
   renderRightSideModule() {
-    const { stars, downloads } = this.props.module
+    const { stars, forks } = this.props.module
 
     return (
       <div>
         <div className={style.moduleIcons}>
-          <i className='icon material-icons'>stars</i>
+          <i className='icon material-icons'>star</i>
           {numberWithCommas(stars)}
         </div>
         <div className={style.moduleIcons}>
-          <i className='icon material-icons'>cloud_download</i>
-          {numberWithCommas(downloads)}
+          <i className='icon material-icons'>merge_type</i>
+          {numberWithCommas(forks)}
         </div>
         <div className={style.moduleButton}>
           {this.renderManageButton()}

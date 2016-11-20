@@ -4,8 +4,12 @@
   border-style: solid;
   border-width: 1px;
   border-radius: 5px;
-  border-color: lightgray;
+  border-color: #efefef;
   position: relative;
+
+  &>div {
+    padding: 15px 10px;
+  }
 }
 
 a {
@@ -30,7 +34,7 @@ a {
 }
 
 .moduleAuthor {
-  margin-bottom: 0px;
+  margin-bottom: 2px;
 }
 
 .moduleLicense {

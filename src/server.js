@@ -103,18 +103,23 @@ const serveApi = function(app, bp) {
   })
 
   app.get('/api/manager/modules', (req, res, next) => {
-    res.send(bp.manager.get())
+    bp.manager.get()
+    .then(modules => res.send(modules))
   })
 
   app.get('/api/manager/modules/popular', (req, res, next) => {
-    res.send(bp.manager.getPopular())
+    bp.manager.getPopular()
+    .then(popular => res.send(popular))
   })
+  
   app.get('/api/manager/modules/featured', (req, res, next) => {
-    res.send(bp.manager.getFeatured())
+    bp.manager.getFeatured()
+    .then(featured => res.send(featured))
   })
 
   app.get('/api/manager/information', (req, res, next) => {
-    res.send(bp.manager.getInformation())
+    bp.manager.getInformation()
+    .then(info => res.send(info))
   })
 
   app.get('/api/manager/contributor', (req, res, next) => {

@@ -3,10 +3,14 @@ import path from 'path'
 import fs from 'fs'
 import Promise from 'bluebird'
 import _ from 'lodash'
+import moment from 'moment'
+import axios from 'axios'
 
 import  { print, isDeveloping } from './util'
 
-
+const MODULES_URL = 'https://s3.amazonaws.com/botpress-io/all-modules.json'
+const POPULAR_URL = 'https://s3.amazonaws.com/botpress-io/popular-modules.json'
+const FEATURED_URL = 'https://s3.amazonaws.com/botpress-io/featured-modules.json'
 
 module.exports = (bp) => {
 
@@ -18,109 +22,131 @@ module.exports = (bp) => {
     }
   }
 
-  const listAllModules = () => {
+  const fetchAllModules = () => {
+    return axios.get(MODULES_URL)
+    .then(({ data }) => data)
+  }
 
+  const fetchPopular = () => {
+    return axios.get(POPULAR_URL)
+    .then(({ data }) => data)
+  }
+
+  const fetchFeatured = () => {
+    return axios.get(FEATURED_URL)
+    .then(({ data }) => data)
+  }
+
+  const getRandomHero = () => {
+    const modulesCachePath = path.join(bp.dataLocation, './modules-cache.json')
+
+    return listAllModules()
+    .then(() => {
+      const { modules } = JSON.parse(fs.readFileSync(modulesCachePath))
+
+      const module = _.sample(modules)
+      const hero = _.sample(module.contributors)
+
+      return {
+        username: hero.login,
+        github: hero.html_url,
+        avatar: hero.avatar_url,
+        contributions: hero.contributions,
+        module: module.name
+      }
+    })
+  }
+
+  const mapModuleList = (modules) => {
     const installed = listInstalledModules()
-    return [
-      {
-        name: 'messenger',
-        stars: 5000,
-        docLink: 'http://www.github.com/botpress/botpress-messenger',
-        icon: 'message',
-        description: 'Official Facebook Messenger module for botpress',
-        downloads: 3000,
-        installed: _.some(installed, m => m === 'botpress-messenger'),
-        license: 'AGPL-3',
-        author: 'Sylvain Perron and Dany Fortin-Simard'
-      },
-      {
-        name: 'analytics',
-        stars: 32342,
-        docLink: 'http://www.github.com/botpress/botpress-messenger',
-        icon: 'message',
-        description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-        downloads: 45006,
-        installed: _.some(installed, m => m === 'botpress-analytics'),
-        license: 'Proprietery',
-        author: 'Dany Fortin-Simard'
-      },
-      {
-        name: 'rivescript',
-        stars: 24,
-        docLink: 'http://www.github.com/botpress/botpress-messenger',
-        icon: 'message',
-        description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-        downloads: 3000,
-        installed: _.some(installed, m => m === 'botpress-rivescript'),
-        license: 'AGPL-3',
-        author: 'Sylvain Perron'
-      }
-    ]
+    return modules.map(mod => ({
+      name: mod.name,
+      stars: mod.github.stargazers_count,
+      forks: mod.github.forks_count,
+      docLink: mod.homepage,
+      version: mod['dist-tags'].latest,
+      keywords: mod.keywords,
+      fullName: mod.github.full_name,
+      updated: mod.github.updated_at,
+      issues: mod.github.open_issues_count,
+      icon: mod.package.botpress.menuIcon,
+      description: mod.description,
+      installed: _.includes(installed, mod.name),
+      license: mod.license,
+      author: mod.author.name
+    }))
   }
 
-  const listPopularModules = () => {
-    return [
-      {
-        name: 'Messenger',
-        stars: 5000,
-        docLink: 'http://www.github.com/botpress/botpress-messenger',
-        icon: 'message',
-        description: 'Official Facebook Messenger module for botpress',
-        downloads: 3000,
-        installed: true,
-        license: 'AGPL-3',
-        author: 'Sylvain Perron and Dany Fortin-Simard'
-      },
-      {
-        name: 'Analytics',
-        stars: 32342,
-        docLink: 'http://www.github.com/botpress/botpress-messenger',
-        icon: 'message',
-        description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-        downloads: 45006,
-        installed: false,
-        license: 'Proprietery',
-        author: 'Dany Fortin-Simard'
-      }
-    ]
-  }
+  const listAllModules = Promise.method(() => {
 
-  const listFeaturedModules = () => {
-    return [
-      {
-        name: 'Broadcast',
-        stars: 432,
-        docLink: 'http://www.github.com/botpress/botpress-messenger',
-        icon: 'message',
-        description: 'Official Broadcast module for botpress',
-        downloads: 3000,
-        installed: false,
-        license: 'AGPL-3',
-        author: 'Sylvain Perron and Dany Fortin-Simard'
-      },
-      {
-        name: 'RiveScript',
-        stars: 24,
-        docLink: 'http://www.github.com/botpress/botpress-messenger',
-        icon: 'message',
-        description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-        downloads: 3000,
-        installed: true,
-        license: 'AGPL-3',
-        author: 'Sylvain Perron'
-      }
-    ]
-  }
-
-  const getInformation = () => {
-    return {
-      name: "The master of all chatbots",
-      version: "1.3.4",
-      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-      author: 'Dany Fortin-Simard',
-      license: 'AGPL-3'
+    if (!fs) {
+      return [] // TODO Fetch & return
     }
-  }
+
+    const modulesCachePath = path.join(bp.dataLocation, './modules-cache.json')
+    if (!fs.existsSync(modulesCachePath)) {
+      fs.writeFileSync(modulesCachePath, JSON.stringify({
+        modules: [],
+        updated: null
+      }))
+    }
+
+    const { modules, updated } = JSON.parse(fs.readFileSync(modulesCachePath))
+
+    if (updated && moment().diff(moment(updated), 'minutes') <= 30) {
+      return mapModuleList(modules)
+    }
+
+    return Promise.props({
+      modules: fetchAllModules(),
+      popular: fetchPopular(),
+      featured: fetchFeatured()
+    })
+    .then(({ modules, featured, popular }) => {
+      fs.writeFileSync(modulesCachePath, JSON.stringify({
+        modules: modules,
+        popular: popular,
+        featured: featured,
+        updated: new Date()
+      }))
+
+      return mapModuleList(modules)
+    })
+  })
+
+  const listPopularModules = Promise.method(() => {
+    const modulesCachePath = path.join(bp.dataLocation, './modules-cache.json')
+
+    return listAllModules()
+    .then(modules => {
+      const { popular } = JSON.parse(fs.readFileSync(modulesCachePath))
+      return _.filter(modules, m => _.includes(popular, m.name))
+    })
+  })
+
+  const listFeaturedModules = Promise.method(() => {
+    const modulesCachePath = path.join(bp.dataLocation, './modules-cache.json')
+
+    return listAllModules()
+    .then(modules => {
+      const { featured } = JSON.parse(fs.readFileSync(modulesCachePath))
+      return _.filter(modules, m => _.includes(featured, m.name))
+    })
+  })
+
+  const getInformation = Promise.method(() => {
+    const packageJson = readPackage()
+
+    return getRandomHero()
+    .then(hero => ({
+      name: packageJson.name,
+      version: packageJson.version,
+      description: packageJson.description || 'No description',
+      author: packageJson.author || '<no author>',
+      license: packageJson.license || 'AGPL-v3.0',
+      hero: hero
+    }))
+  })
 
   const getContributor = () => {
     return {
@@ -264,6 +290,7 @@ module.exports = (bp) => {
       throw err
     })
   })
+
 
   const listInstalledModules = () => {
     const packageJSON = JSON.parse(fs.readFileSync(getPackageJSONPath()))
