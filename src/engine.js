@@ -1,5 +1,7 @@
 import _ from 'lodash'
 import mware from 'mware'
+import path from 'path'
+import fs from 'fs'
 
 const createMiddleware = function(bp, middlewareName) {
 
@@ -65,8 +67,31 @@ const createMiddleware = function(bp, middlewareName) {
 }
 
 module.exports = function(bp) {
+  const middlewaresFilePath = path.join(bp.dataLocation, 'middlewares.json')
+
+  const readMiddlewaresCustomizations = () => {  
+    if (!fs.existsSync(middlewaresFilePath)) {
+      fs.writeFileSync(middlewaresFilePath, '{}')
+    }
+    return JSON.parse(fs.readFileSync(middlewaresFilePath))
+  }
+
+  const writeMiddlewaresCustomizations = () => {
+    fs.writeFileSync(middlewaresFilePath, JSON.stringify(bp.middlewareCustomizations))
+  }
+
+  bp.setMiddlewaresCustomizations = (name, order, enabled = true) => {
+    bp.middlewareCustomizations[name] = { order, enabled }
+    writeMiddlewaresCustomizations()
+  }
+
+  bp.resetMiddlewaresCustomizations = () => {
+    bp.middlewareCustomizations = {}
+    writeMiddlewaresCustomizations()
+  }
 
   bp.middlewares = []
+  bp.middlewareCustomizations = readMiddlewaresCustomizations()
 
   bp.registerMiddleware = (middleware) => {
     if (!middleware || !middleware.name) {
@@ -95,12 +120,21 @@ module.exports = function(bp) {
     bp.middlewares.push(middleware)
   }
 
+  bp.getMiddlewares = () => {
+    return _.orderBy(bp.middlewares.map(middleware => {
+      const customization = bp.middlewareCustomizations[middleware.name]
+      if (customization) {
+        return Object.assign({}, middleware, customization)
+      }
+      return middleware
+    }), 'order')
+  }
+
   bp.loadMiddlewares = () => {
     bp.incoming = createMiddleware(bp, 'incoming')
     bp.outgoing = createMiddleware(bp, 'outgoing')
 
-    let sorted = _.orderBy(bp.middlewares, 'order')
-    sorted.forEach(m => {
+    bp.getMiddlewares().forEach(m => {
       if (!m.enabled) {
         return bp.logger.debug('SKIPPING middleware:', m.name, ' [Reason=disabled]')
       }

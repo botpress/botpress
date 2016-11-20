@@ -10,6 +10,7 @@ import ContentWrapper from '~/components/Layout/ContentWrapper'
 import PageHeader from '~/components/Layout/PageHeader'
 import ModulesComponent from '~/components/Modules'
 import HeroComponent from '~/components/Hero'
+import MiddlewaresComponent from '~/components/Middlewares'
 
 import actions from '~/actions'
 
@@ -23,11 +24,13 @@ export default class DashboardView extends React.Component {
     this.state = {
       loading: false,
       information: {},
-      contributor: {}
+      contributor: {},
+      middlewares: []
     }
 
     this.queryModulesPopular = this.queryModulesPopular.bind(this)
     this.queryFeaturedModules = this.queryFeaturedModules.bind(this)
+    this.queryMiddlewares = this.queryMiddlewares.bind(this)
   }
 
   componentDidMount() {
@@ -35,6 +38,7 @@ export default class DashboardView extends React.Component {
     this.queryContributor()
     this.queryModulesPopular()
     this.queryFeaturedModules()
+    this.queryMiddlewares()
   }
 
   queryInformation() {
@@ -42,6 +46,15 @@ export default class DashboardView extends React.Component {
     .then((result) => {
       this.setState({
         information: result.data
+      })
+    })
+  }
+
+  queryMiddlewares() {
+    return axios.get('/api/middlewares')
+    .then(result => {
+      this.setState({
+        middlewares: result.data
       })
     })
   }
@@ -122,12 +135,25 @@ export default class DashboardView extends React.Component {
     )
   }
 
+  renderMiddlewaresSection() {
+    return (
+      <Row>
+        <Col sm={12}>
+          <Panel header='Middlewares'>
+            <MiddlewaresComponent middlewares={this.state.middlewares} />
+          </Panel>
+        </Col>
+      </Row>
+    )
+  }
+
   render() {
     return (
       <ContentWrapper>
         {PageHeader(<span> Dashboard</span>)}
         <Grid fluid>
           {this.renderInformationAndContributionSection()}
+          {this.renderMiddlewaresSection()}
           {this.renderModulesSection()}
         </Grid>
       </ContentWrapper>

@@ -95,7 +95,18 @@ const serveApi = function(app, bp) {
   })
 
   app.get('/api/middlewares', (req, res, next) => {
-    res.send(bp.middlewares)
+    res.send(bp.getMiddlewares())
+  })
+
+  app.post('/api/middlewares/customizations', (req, res, next) => {
+    const { name, order, enabled } = req.body
+    bp.setMiddlewaresCustomizations(name, order, enabled)
+    res.send(bp.getMiddlewares())
+  })
+
+  app.delete('/api/middlewares/customizations', (req, res, next) => {
+    bp.resetMiddlewaresCustomizations
+    res.send(bp.getMiddlewares())
   })
 
   app.get('/api/notifications', (req, res, next) => {

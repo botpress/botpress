@@ -1,0 +1,13 @@
+.dragging {
+  border: 1px dashed #666;
+}
+
+.middleware {
+  padding: 10px;
+  cursor: pointer;
+
+  &:hover {
+    color: #666;
+    background-color: #efefef;  
+  }
+}
