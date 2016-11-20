@@ -253,7 +253,7 @@ class WebServer {
     serveStatic(app, this.bp)
 
     server.listen(3000, () => { // TODO Port in config
-
+      this.bp.events.emit('ready')
       for (var mod of _.values(this.bp.modules)) {
         mod.handlers.ready && mod.handlers.ready(this.bp)
       }

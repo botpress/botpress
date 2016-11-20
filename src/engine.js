@@ -57,23 +57,6 @@ const createMiddleware = function(bp, middlewareName) {
       _.forEach(arguments, use)
     } else if (_.isPlainObject(arguments[0])) {
       _.forEach(arguments, dispatch)
-    } else if (typeof(arguments[0]) === 'string') {
-      const moduleName = arguments[0].toLowerCase()
-      const module = bp.modules[moduleName]
-      if (module && module.handlers[middlewareName]) {
-        const handler = module.handlers[middlewareName]
-        if (typeof(handler) !== 'function') {
-          return bp.logger.warn('could not register ' 
-            + middlewareName + ' middleware for "' 
-            + moduleName + '"... expected a function')
-        }
-        use(handler)
-        bp.logger.debug('registered middleware for module: ' + arguments[0])
-      } else {
-        return bp.logger.warn('could not find ' 
-            + middlewareName + ' middleware in module "' 
-            + moduleName + '"')
-      }
     } else {
       throw new TypeError('Expected a middleware function or a plain object to ' +
         'dispatch in parameters but got ' + typeof(arguments[0]))
@@ -118,6 +101,7 @@ module.exports = function(bp) {
 
     let sorted = _.orderBy(bp.middlewares, 'order')
     sorted.forEach(m => {
+      bp.logger.debug('Loading middleware:', m.name)
       bp[m.type](m.handler) // apply middleware
     })
   }
