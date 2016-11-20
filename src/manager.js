@@ -3,8 +3,12 @@ import path from 'path'
 import fs from 'fs'
 import Promise from 'bluebird'
 import _ from 'lodash'
+import moment from 'moment'
+import axios from 'axios'
 
 import  { print, isDeveloping } from './util'
+
+const MODULES_URL = 'https://s3.amazonaws.com/botpress-io/all-modules.json'
 
 module.exports = (bp) => {
 
@@ -16,98 +20,68 @@ module.exports = (bp) => {
     }
   }
 
-  const listAllModules = () => {
-
-    const installed = listInstalledModules()
-    return [
-      {
-        name: 'messenger',
-        stars: 5000,
-        docLink: 'http://www.github.com/botpress/botpress-messenger',
-        icon: 'message',
-        description: 'Official Facebook Messenger module for botpress',
-        downloads: 3000,
-        installed: _.some(installed, m => m === 'botpress-messenger'),
-        license: 'AGPL-3',
-        author: 'Sylvain Perron and Dany Fortin-Simard'
-      },
-      {
-        name: 'analytics',
-        stars: 32342,
-        docLink: 'http://www.github.com/botpress/botpress-messenger',
-        icon: 'message',
-        description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-        downloads: 45006,
-        installed: _.some(installed, m => m === 'botpress-analytics'),
-        license: 'Proprietery',
-        author: 'Dany Fortin-Simard'
-      },
-      {
-        name: 'rivescript',
-        stars: 24,
-        docLink: 'http://www.github.com/botpress/botpress-messenger',
-        icon: 'message',
-        description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-        downloads: 3000,
-        installed: _.some(installed, m => m === 'botpress-rivescript'),
-        license: 'AGPL-3',
-        author: 'Sylvain Perron'
-      }
-    ]
+  const fetchAllModules = () => {
+    return axios.get(MODULES_URL)
+    .then(({ data }) => data)
   }
 
+  const mapModuleList = (modules) => {
+    const installed = listInstalledModules()
+    return modules.map(mod => ({
+      name: mod.name,
+      stars: mod.github.stargazers_count,
+      downloads: mod.github.forks_count,
+      docLink: mod.homepage,
+      version: mod['dist-tags'].latest,
+      keywords: mod.keywords,
+      fullName: mod.github.full_name,
+      updated: mod.github.updated_at,
+      issues: mod.github.open_issues_count,
+      icon: mod.package.botpress.menuIcon,
+      description: mod.description,
+      installed: _.some(installed, m => m === mod.name),
+      license: mod.license,
+      author: mod.author.name
+    }))
+  }
+
+  const listAllModules = Promise.method(() => {
+
+    if (!fs) {
+      return [] // TODO Fetch & return
+    }
+
+    const modulesCachePath = path.join(bp.dataLocation, './modules-cache.json')
+    if (!fs.existsSync(modulesCachePath)) {
+      fs.writeFileSync(modulesCachePath, JSON.stringify({
+        modules: [],
+        updated: null
+      }))
+    }
+
+    const { modules, updated } = JSON.parse(fs.readFileSync(modulesCachePath))
+
+    if (updated && moment().diff(moment(updated), 'minutes') <= 30) {
+      return mapModuleList(modules)
+    }
+
+    return fetchAllModules()
+    .then(modules => {
+      fs.writeFileSync(modulesCachePath, JSON.stringify({
+        modules: modules,
+        updated: new Date()
+      }))
+
+      return mapModuleList(modules)
+    })
+  })
+
   const listPopularModules = () => {
-    return [
-      {
-        name: 'Messenger',
-        stars: 5000,
-        docLink: 'http://www.github.com/botpress/botpress-messenger',
-        icon: 'message',
-        description: 'Official Facebook Messenger module for botpress',
-        downloads: 3000,
-        installed: true,
-        license: 'AGPL-3',
-        author: 'Sylvain Perron and Dany Fortin-Simard'
-      },
-      {
-        name: 'Analytics',
-        stars: 32342,
-        docLink: 'http://www.github.com/botpress/botpress-messenger',
-        icon: 'message',
-        description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-        downloads: 45006,
-        installed: false,
-        license: 'Proprietery',
-        author: 'Dany Fortin-Simard'
-      }
-    ]
+    return []
   }
 
   const listFeaturedModules = () => {
-    return [
-      {
-        name: 'Broadcast',
-        stars: 432,
-        docLink: 'http://www.github.com/botpress/botpress-messenger',
-        icon: 'message',
-        description: 'Official Broadcast module for botpress',
-        downloads: 3000,
-        installed: false,
-        license: 'AGPL-3',
-        author: 'Sylvain Perron and Dany Fortin-Simard'
-      },
-      {
-        name: 'RiveScript',
-        stars: 24,
-        docLink: 'http://www.github.com/botpress/botpress-messenger',
-        icon: 'message',
-        description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-        downloads: 3000,
-        installed: true,
-        license: 'AGPL-3',
-        author: 'Sylvain Perron'
-      }
-    ]
+    return []
   }
 
   const getInformation = () => {

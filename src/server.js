@@ -99,7 +99,8 @@ const serveApi = function(app, bp) {
   })
 
   app.get('/api/manager/modules', (req, res, next) => {
-    res.send(bp.manager.get())
+    bp.manager.get()
+    .then(modules => res.send(modules))
   })
 
   app.get('/api/manager/modules/popular', (req, res, next) => {
