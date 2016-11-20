@@ -104,10 +104,13 @@ const serveApi = function(app, bp) {
   })
 
   app.get('/api/manager/modules/popular', (req, res, next) => {
-    res.send(bp.manager.getPopular())
+    bp.manager.getPopular()
+    .then(popular => res.send(popular))
   })
+  
   app.get('/api/manager/modules/featured', (req, res, next) => {
-    res.send(bp.manager.getFeatured())
+    bp.manager.getFeatured()
+    .then(featured => res.send(featured))
   })
 
   app.get('/api/manager/information', (req, res, next) => {

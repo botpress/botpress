@@ -9,6 +9,8 @@ import axios from 'axios'
 import  { print, isDeveloping } from './util'
 
 const MODULES_URL = 'https://s3.amazonaws.com/botpress-io/all-modules.json'
+const POPULAR_URL = 'https://s3.amazonaws.com/botpress-io/popular-modules.json'
+const FEATURED_URL = 'https://s3.amazonaws.com/botpress-io/featured-modules.json'
 
 module.exports = (bp) => {
 
@@ -22,6 +24,16 @@ module.exports = (bp) => {
 
   const fetchAllModules = () => {
     return axios.get(MODULES_URL)
+    .then(({ data }) => data)
+  }
+
+  const fetchPopular = () => {
+    return axios.get(POPULAR_URL)
+    .then(({ data }) => data)
+  }
+
+  const fetchFeatured = () => {
+    return axios.get(FEATURED_URL)
     .then(({ data }) => data)
   }
 
@@ -39,7 +51,7 @@ module.exports = (bp) => {
       issues: mod.github.open_issues_count,
       icon: mod.package.botpress.menuIcon,
       description: mod.description,
-      installed: _.some(installed, m => m === mod.name),
+      installed: _.includes(installed, mod.name),
       license: mod.license,
       author: mod.author.name
     }))
@@ -65,10 +77,16 @@ module.exports = (bp) => {
       return mapModuleList(modules)
     }
 
-    return fetchAllModules()
-    .then(modules => {
+    return Promise.props({
+      modules: fetchAllModules(),
+      popular: fetchPopular(),
+      featured: fetchFeatured()
+    })
+    .then(({ modules, featured, popular }) => {
       fs.writeFileSync(modulesCachePath, JSON.stringify({
         modules: modules,
+        popular: popular,
+        featured: featured,
         updated: new Date()
       }))
 
@@ -76,13 +94,25 @@ module.exports = (bp) => {
     })
   })
 
-  const listPopularModules = () => {
-    return []
-  }
+  const listPopularModules = Promise.method(() => {
+    const modulesCachePath = path.join(bp.dataLocation, './modules-cache.json')
 
-  const listFeaturedModules = () => {
-    return []
-  }
+    return listAllModules()
+    .then(modules => {
+      const { popular } = JSON.parse(fs.readFileSync(modulesCachePath))
+      return _.filter(modules, m => _.includes(popular, m.name))
+    })
+  })
+
+  const listFeaturedModules = Promise.method(() => {
+    const modulesCachePath = path.join(bp.dataLocation, './modules-cache.json')
+
+    return listAllModules()
+    .then(modules => {
+      const { featured } = JSON.parse(fs.readFileSync(modulesCachePath))
+      return _.filter(modules, m => _.includes(featured, m.name))
+    })
+  })
 
   const getInformation = () => {
     return {
