@@ -98,6 +98,10 @@ const serveApi = function(app, bp) {
     res.send(bp.loadNotifications())
   })
 
+  app.get('/api/information', (req, res, next) => {
+    res.send(bp.getInformation())
+  })
+
   app.get('/api/manager/modules', (req, res, next) => {
     bp.manager.get()
     .then(modules => res.send(modules))
@@ -124,6 +128,16 @@ const serveApi = function(app, bp) {
 
   app.get('/api/manager/licenses', (req, res, next) => {
     res.send(bp.manager.getLicenses())
+  })
+
+  app.post('/api/manager/license', (req, res, next) => {
+    bp.manager.changeLicense(req.body.license)
+    .then(() => {
+      res.sendStatus(200)
+    })
+    .catch(err => res.status(500).send({
+      message: err && err.message
+    }))
   })
 
   app.post('/api/manager/modules/:name', (req, res, next) => {

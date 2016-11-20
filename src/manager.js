@@ -43,7 +43,7 @@ module.exports = (bp) => {
     return listAllModules()
     .then(() => {
       const { modules } = JSON.parse(fs.readFileSync(modulesCachePath))
-      
+
       const module = _.sample(modules)
       const hero = _.sample(module.contributors)
 
@@ -155,20 +155,62 @@ module.exports = (bp) => {
     }
   }
 
+  const licensesPath = path.join(__dirname, '../licenses')
+
+  const getPackageJSONPath = () => {
+    let projectLocation = (bp && bp.projectLocation) || './'
+    let packagePath = path.resolve(projectLocation, './package.json')
+
+    if (!fs.existsSync(packagePath)) {
+      log('warn', 'Could not find bot\'s package.json file')
+      return []
+    }
+
+    return packagePath
+  }
+
+  const getLicensePath = () => {
+    let projectLocation = (bp && bp.projectLocation) || './'
+    let licensePath = path.resolve(projectLocation, './LICENSE')
+
+    if (!fs.existsSync(licensePath)) {
+      log('warn', 'Could not find bot\'s license file')
+      return []
+    }
+
+    return licensePath
+  }
+
   const getLicenses = () => {
+    const packageJSON = JSON.parse(fs.readFileSync(getPackageJSONPath()))
+    const actualLicense = packageJSON.license
+    const licenseAGPL = fs.readFileSync(path.join(licensesPath, 'LICENSE_AGPL3')).toString()
+    const licenseBotpress = fs.readFileSync(path.join(licensesPath, 'LICENSE_BOTPRESS')).toString()
+
     return {
       agpl: {
         name: 'AGPL-3.0',
-        licensedUnder: true,
-        text: 'AGPL-3 sdflkjasdlfnljasdlfj'
+        licensedUnder: actualLicense === 'AGPL-3.0',
+        text: licenseAGPL
       },
       botpress: {
         name: 'Botpress',
-        licensedUnder: false,
-        text: 'balbalablsblasbflbalbdflbaslsbflabsfl'
+        licensedUnder: actualLicense === 'Botpress',
+        text: licenseBotpress
       }
     }
   }
+
+  const changeLicense = Promise.method((license) => {
+    const licenseFile = (license === 'AGPL-3.0') ? 'LICENSE_AGPL3' : 'LICENSE_BOTPRESS'
+    const licenseContent = fs.readFileSync(path.join(licensesPath, licenseFile))
+    fs.writeFileSync(getLicensePath(), licenseContent)
+
+    let packageJSON = JSON.parse(fs.readFileSync(getPackageJSONPath()))
+    packageJSON.license = license
+
+    fs.writeFileSync(getPackageJSONPath(), JSON.stringify(packageJSON))
+  })
 
   const resolveModuleNames = (names) => {
     return names.map(name => {
@@ -249,21 +291,10 @@ module.exports = (bp) => {
     })
   })
 
-  const readPackage = () => {
-    let projectLocation = (bp && bp.projectLocation) || './'
-    let packagePath = path.resolve(projectLocation, './package.json')
-
-    if (!fs.existsSync(packagePath)) {
-      log('warn', 'Could not find bot\'s package.json file')
-      return []
-    }
-
-    return JSON.parse(fs.readFileSync(packagePath))
-  }
 
   const listInstalledModules = () => {
-    const packageJson = readPackage()
-    const prodDeps = _.keys(packageJson.dependencies)
+    const packageJSON = JSON.parse(fs.readFileSync(getPackageJSONPath()))
+    const prodDeps = _.keys(packageJSON.dependencies)
 
     return _.filter(prodDeps, dep => /botpress-.+/i.test(dep))
   }
@@ -275,6 +306,7 @@ module.exports = (bp) => {
     getFeatured: listFeaturedModules,
     getInformation: getInformation,
     getLicenses: getLicenses,
+    changeLicense: changeLicense,
     getContributor: getContributor,
     install: installModules,
     uninstall: uninstallModules
