@@ -1,22 +1,30 @@
 import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
 import { sortable } from 'react-sortable'
-import { Row, Col } from 'react-bootstrap'
+import { Row, Col, Checkbox } from 'react-bootstrap'
 import _ from 'lodash'
 import classnames from 'classnames'
+import Button from 'react-bootstrap-button-loader'
+
+import axios from 'axios'
 
 import style from './style.scss'
 
 class MiddlewareComponent extends Component {
 
   static propTypes = {
-    middleware: React.PropTypes.object.isRequired
+    middleware: React.PropTypes.object.isRequired,
+    toggleEnabled: React.PropTypes.func.isRequired
   }
 
   render() {
-    const { name } = this.props.middleware
+
+    const { name, enabled } = this.props.middleware
     const className = classnames(this.props.className, style.middleware)
-    return <div className={className}>- {name}</div>
+    return <div className={className}>
+      {name}
+      <Checkbox checked={enabled} onChange={this.props.toggleEnabled} />
+    </div>
   }
 }
 
@@ -33,31 +41,55 @@ var SortableListItem = sortable(ListItem)
 
 export default class MiddlewaresComponent extends Component {
 
-  static propTypes = {
-    middlewares: React.PropTypes.array.isRequired
-  }
-
   constructor(props, context) {
     super(props, context)
-    this.state = { 
+    this.state = {
+      loading: true,
       incoming: [], 
       outgoing: [],
       incomingDragIndex: null,
       incomingItems: [],
       outgoingDragIndex: null,
-      outgoingItems: []
+      outgoingItems: [],
+      initialStateHash: null
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    const incoming = _.filter(nextProps.middlewares, { type: 'incoming' })
-    const outgoing = _.filter(nextProps.middlewares, { type: 'outgoing' })
-    this.setState({ 
+  getStateHash() {
+    let hash = ''
+    this.state.incomingItems.forEach(m => {
+      const middleware = _.find(this.state.incoming, { name: m })
+      hash += m + ':' + middleware.enabled + ' '
+    })
+    this.state.outgoingItems.forEach(m => {
+      const middleware = _.find(this.state.outgoing, { name: m })
+      hash += m + ':' + middleware.enabled + ' '
+    })
+    return hash
+  }
+
+  setMiddlewares(middlewares) {
+    const incoming = _.filter(middlewares, { type: 'incoming' })
+    const outgoing = _.filter(middlewares, { type: 'outgoing' })
+    const incomingItems = _.map(incoming, i => i.name)
+    const outgoingItems = _.map(outgoing, i => i.name)
+
+    this.setState({
+      loading: false,
       incoming, 
       outgoing, 
-      incomingItems: _.map(incoming, i => i.name),
-      outgoingItems: _.map(outgoing, i => i.name)
+      incomingItems,
+      outgoingItems,
+      initialIncomingOrder: incomingItems.join(' '),
+      initialOutgoingOrder: outgoingItems.join(' ')
     })
+
+    setImmediate(() => this.setState({ initialStateHash: this.getStateHash() }))
+  }
+
+  componentDidMount() {
+    axios.get('/api/middlewares')
+    .then(({ data }) => this.setMiddlewares(data))
   }
 
   handleSort(type) {
@@ -89,6 +121,7 @@ export default class MiddlewaresComponent extends Component {
       const className = classnames({
         [style.dragging]: currentlyDragging
       })
+      const toggleFn = this.toggleEnabled(item, type)
 
       return <SortableListItem 
         key={i}
@@ -97,21 +130,80 @@ export default class MiddlewaresComponent extends Component {
         draggingIndex={this.state[dragIndexKey]} 
         sortId={i}
         outline="list">
-        <MiddlewareComponent middleware={middleware} className={className} />
+        <MiddlewareComponent toggleEnabled={toggleFn} middleware={middleware} className={className} />
       </SortableListItem>
     })
   }
 
-  render() {
-    return <Row>
-      <Col sm={12} md={6}>
-        {this.renderSortable('incoming')}
-      </Col>
+  isDirty() {
+    return this.state.initialStateHash !== this.getStateHash()
+  }
 
-      <Col sm={12} md={6}>
-        {this.renderSortable('outgoing')}
-      </Col>
+  renderIsDirty() {
+    if (!this.isDirty()) {
+      return null
+    }
+
+    return <Row>
+      Changes will take effect only when saved
     </Row>
+  }
+
+  saveChanges() {
+    this.setState({ loading: true })
+
+    const middlewares = []
+
+    this.state.incomingItems.forEach((item, i) => {
+      const middleware = _.find(this.state.incoming, { name: item })
+      middlewares.push({ name: item, order: i, enabled: middleware.enabled })
+    })
+
+    this.state.outgoingItems.forEach((item, i) => {
+      const middleware = _.find(this.state.outgoing, { name: item })
+      middlewares.push({ name: item, order: i, enabled: middleware.enabled })
+    })
+
+    axios.post('/api/middlewares/customizations', { middlewares })
+    .then(({ data }) => this.setMiddlewares(data))
+  }
+
+  toggleEnabled(middleware, type) {
+    return (event) => {
+      const newProp = _.map(this.state[type], m => {
+        if (m.name === middleware) {
+          return Object.assign({}, m, { enabled: !m.enabled })
+        }
+
+        return m
+      })
+
+      this.setState({ [type]: newProp })
+    }
+  }
+
+  render() {
+    if (this.state.loading) {
+      return <div>Loading...</div>
+    }
+
+    return <div>
+      <Row>
+        <Col sm={12} md={6}>
+          {this.renderSortable('incoming')}
+        </Col>
+
+        <Col sm={12} md={6}>
+          {this.renderSortable('outgoing')}
+        </Col>
+      </Row>
+      {this.renderIsDirty()}
+      <Row>
+        <Button className={style.saveButton} onClick={::this.saveChanges} loading={this.state.loading}>
+          Save changes
+        </Button>
+      </Row>
+    </div>
   }
 
 }

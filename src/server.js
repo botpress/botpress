@@ -99,13 +99,15 @@ const serveApi = function(app, bp) {
   })
 
   app.post('/api/middlewares/customizations', (req, res, next) => {
-    const { name, order, enabled } = req.body
-    bp.setMiddlewaresCustomizations(name, order, enabled)
+    const { middlewares } = req.body
+    bp.setMiddlewaresCustomizations(middlewares)
+    bp.loadMiddlewares()
     res.send(bp.getMiddlewares())
   })
 
   app.delete('/api/middlewares/customizations', (req, res, next) => {
-    bp.resetMiddlewaresCustomizations
+    bp.resetMiddlewaresCustomizations()
+    bp.loadMiddlewares()
     res.send(bp.getMiddlewares())
   })
 

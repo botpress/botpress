@@ -29,31 +29,20 @@ class DashboardView extends React.Component {
 
   constructor(props, context) {
     super(props, context)
-    this.state = { loading: true, middlewares: [] }
+    this.state = { loading: true }
 
     this.queryHero = this.queryHero.bind(this)
     this.queryModulesPopular = this.queryModulesPopular.bind(this)
     this.queryFeaturedModules = this.queryFeaturedModules.bind(this)
-    this.queryMiddlewares = this.queryMiddlewares.bind(this)
   }
 
   componentDidMount() {
     this.queryHero()
     .then(this.queryModulesPopular)
     .then(this.queryFeaturedModules)
-    .then(this.queryMiddlewares)
     .then(() => {
       this.setState({
         loading: false
-      })
-    })
-  }
-
-  queryMiddlewares() {
-    return axios.get('/api/middlewares')
-    .then(result => {
-      this.setState({
-        middlewares: result.data
       })
     })
   }
@@ -139,7 +128,7 @@ class DashboardView extends React.Component {
       <Row>
         <Col sm={12}>
           <Panel header='Middlewares'>
-            <MiddlewaresComponent middlewares={this.state.middlewares} />
+            <MiddlewaresComponent />
           </Panel>
         </Col>
       </Row>

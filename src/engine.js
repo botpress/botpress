@@ -80,8 +80,11 @@ module.exports = function(bp) {
     fs.writeFileSync(middlewaresFilePath, JSON.stringify(bp.middlewareCustomizations))
   }
 
-  bp.setMiddlewaresCustomizations = (name, order, enabled = true) => {
-    bp.middlewareCustomizations[name] = { order, enabled }
+  bp.setMiddlewaresCustomizations = (middlewares) => {
+    middlewares.forEach(middleware => {
+      const { name, order, enabled } = middleware
+      bp.middlewareCustomizations[name] = { order, enabled }
+    })
     writeMiddlewaresCustomizations()
   }
 
