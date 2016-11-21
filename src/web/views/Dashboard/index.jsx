@@ -103,7 +103,7 @@ class DashboardView extends React.Component {
 
           </Panel>
         </Col>
-        <Col xs={12} sm={8} md={4}>
+        <Col xs={12} sm={8} md={4} smOffset={2} mdOffset={0}>
           <Panel className={style.contribution}>
             <div className={style.raysAnim}>
               <div className={style.rays}></div>
