@@ -27,14 +27,54 @@ import {
 
 const RESTART_EXIT_CODE = 107
 
+/**
+ * Global context botpress
+ *
+ * @property {string} projectLocation
+ * @property {Object} botfile
+ * @property {Logger} logger
+ *
+ * @property {Function} login - check security.js
+ * @property {Function} authenticate - check security.js
+ * @property {Function} getSecret - check security.js
+ *
+ * @example
+ *
+ * const botfile = fs.readFileSync(path)
+ * const bot = new botpress({ botfile })
+ * bot.start()
+ */
 class botpress {
+  /**
+   * Create botpress
+   *
+   * @param {string} obj.botfile - the config path
+   */
   constructor({ botfile }) {
     this._setVersion()
+
+    /**
+     * The project location, which is the folder where botfile.js located
+     */
     this.projectLocation = path.dirname(botfile)
+
+    /**
+     * The botfile config object
+     */
     this.botfile = require(botfile)
   }
 
+  /**
+   * Resolve the rest of paths, currently only for setting up `dataLocation`
+   *
+   * If the folder `${dataLocation}` doesn't exist, it will automatically create one.
+   */
   _resolvePaths() {
+
+    /**
+     * Path of folder which data will be stored.
+     * default to `${projectLocation}/data`
+     */
     this.dataLocation =
       this.botfile.dataDir && path.isAbsolute(this.botfile.dataDir)
       ? path.resolve(this.botfile.dataDir)
@@ -129,6 +169,16 @@ class botpress {
     }
   }
 
+  /**
+   * Start the bot instance
+   *
+   * It will do the following initiation steps:
+   *
+   * 1. setup logger
+   * 2. resolve paths (dataLocation)
+   * 3. inject security functions
+   * 4. load modules
+   */
   _start() {
     // change the current working directory to botpress's installation path
     // the bot's location is kept in this.projectLocation
@@ -136,11 +186,11 @@ class botpress {
 
     const logger = this.logger = Logger(this)
 
-    this._resolvePaths()
-
     if (!this.botfile.disableFileLogs) {
       logger.enableFileTransport()
     }
+
+    this._resolvePaths()
 
     Security(this)
 
