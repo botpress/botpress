@@ -224,23 +224,21 @@ export default class MiddlewaresComponent extends Component {
   }
 
   renderList(type, title, tooltip) {
-    return <Col sm={12} md={6}>
-      <ListGroup className={style.middlewareList}>
-        <ListGroupItem>
-          <div className={style.header}>
-            {this.renderIsDirty()}
-            <h4>{title}</h4>
-            <OverlayTrigger placement="right" overlay={tooltip}>
-              <a className={style.help}>what's this?</a>
-            </OverlayTrigger>
-          </div>
-        </ListGroupItem>
-        {this.renderSortable(type)}
-        <ListGroupItem>
-          <div className={style.footer}></div>
-        </ListGroupItem>
-      </ListGroup>
-    </Col>
+    return <ListGroup className={style.middlewareList}>
+      <ListGroupItem>
+        <div className={style.header}>
+          {this.renderIsDirty()}
+          <h4>{title}</h4>
+          <OverlayTrigger placement="right" overlay={tooltip}>
+            <a className={style.help}>what's this?</a>
+          </OverlayTrigger>
+        </div>
+      </ListGroupItem>
+      {this.renderSortable(type)}
+      <ListGroupItem>
+        <div className={style.footer}></div>
+      </ListGroupItem>
+    </ListGroup>
   }
 
   render() {

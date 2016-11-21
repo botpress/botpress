@@ -116,19 +116,15 @@ class DashboardView extends React.Component {
   }
 
   renderPopularModules() {
-    return <Col sm={12} md={6}>
-      <Panel header='Popular modules'>
-        <ModulesComponent modules={this.state.popularModules} refresh={this.refresh.bind(this)}/>
-      </Panel>
-    </Col>
+    return <Panel header='Popular modules'>
+      <ModulesComponent modules={this.state.popularModules} refresh={this.refresh.bind(this)}/>
+    </Panel>
   }
 
   renderFeaturedModules() {
-    return <Col sm={12} md={6}>
-      <Panel header='Featured modules'>
-        <ModulesComponent modules={this.state.featuredModules} refresh={this.refresh.bind(this)}/>
-      </Panel>
-    </Col>
+    return <Panel header='Featured modules'>
+      <ModulesComponent modules={this.state.featuredModules} refresh={this.refresh.bind(this)}/>
+    </Panel>
   }
 
   render() {
@@ -141,10 +137,14 @@ class DashboardView extends React.Component {
         <Grid fluid>
           {this.renderInformationAndContributionSection()}
           <Row>
+          <Col sm={12} md={6}>
             <MiddlewaresComponent type="incoming"/>
-            <MiddlewaresComponent type="outgoing"/>
             {this.renderPopularModules()}
+          </Col>
+          <Col sm={12} md={6}>
+            <MiddlewaresComponent type="outgoing"/>
             {this.renderFeaturedModules()}
+          </Col>
           </Row>
         </Grid>
       </ContentWrapper>
