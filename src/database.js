@@ -47,13 +47,16 @@ function saveUser({ id, platform, gender, timezone, locale }) {
     created_on: moment(new Date()).format('x')
   }
 
-  var query = knex('users').insert(userRow)
-  .where(function() {
-    return this.select(knex.raw(1)).from('users').where('id', '=', userId)
-  })
-  query = query.toString().replace(/^insert/i, 'insert or ignore')
+  return getDb()
+  .then(knex => {
+    var query = knex('users').insert(userRow)
+    .where(function() {
+      return this.select(knex.raw(1)).from('users').where('id', '=', userId)
+    })
+    query = query.toString().replace(/^insert/i, 'insert or ignore')
 
-  return knex.raw(query)
+    return knex.raw(query)
+  })
 }
 
 module.exports = (location) => {
