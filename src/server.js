@@ -94,6 +94,23 @@ const serveApi = function(app, bp) {
     res.send(modules)
   })
 
+  app.get('/api/middlewares', (req, res, next) => {
+    res.send(bp.getMiddlewares())
+  })
+
+  app.post('/api/middlewares/customizations', (req, res, next) => {
+    const { middlewares } = req.body
+    bp.setMiddlewaresCustomizations(middlewares)
+    bp.loadMiddlewares()
+    res.send(bp.getMiddlewares())
+  })
+
+  app.delete('/api/middlewares/customizations', (req, res, next) => {
+    bp.resetMiddlewaresCustomizations()
+    bp.loadMiddlewares()
+    res.send(bp.getMiddlewares())
+  })
+
   app.get('/api/notifications', (req, res, next) => {
     res.send(bp.loadNotifications())
   })
@@ -271,7 +288,7 @@ class WebServer {
     serveStatic(app, this.bp)
 
     server.listen(3000, () => { // TODO Port in config
-
+      this.bp.events.emit('ready')
       for (var mod of _.values(this.bp.modules)) {
         mod.handlers.ready && mod.handlers.ready(this.bp)
       }

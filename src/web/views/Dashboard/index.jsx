@@ -11,6 +11,7 @@ import ContentWrapper from '~/components/Layout/ContentWrapper'
 import PageHeader from '~/components/Layout/PageHeader'
 import ModulesComponent from '~/components/Modules'
 import HeroComponent from '~/components/Hero'
+import MiddlewaresComponent from '~/components/Middlewares'
 
 import {connect} from 'nuclear-js-react-addons'
 import getters from '~/stores/getters'
@@ -131,6 +132,18 @@ class DashboardView extends React.Component {
     )
   }
 
+  renderMiddlewaresSection() {
+    return (
+      <Row>
+        <Col sm={12}>
+          <Panel header='Middlewares'>
+            <MiddlewaresComponent />
+          </Panel>
+        </Col>
+      </Row>
+    )
+  }
+
   render() {
     if (this.state.loading) {
       return null
@@ -140,6 +153,7 @@ class DashboardView extends React.Component {
         {PageHeader(<span> Dashboard</span>)}
         <Grid fluid>
           {this.renderInformationAndContributionSection()}
+          {this.renderMiddlewaresSection()}
           {this.renderModulesSection()}
         </Grid>
       </ContentWrapper>
