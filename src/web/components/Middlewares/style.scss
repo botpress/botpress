@@ -4,54 +4,105 @@
   border: 1px dashed #666;
 }
 
+.middlewareList {
+  :global(.list-group-item) {
+    padding: 0;
+  }
+}
+
+.header {
+  padding: 20px;
+
+  h4 {
+    display: inline;
+    margin: 10px 0;
+  }
+
+  .help {
+    font-size: 12px;
+    margin-left: 10px;
+    color: $content-color-primary-title;
+
+    &:hover {
+      cursor: default;
+      color: $primary-color;  
+    }
+  }
+}
+
+.footer {
+  height: 5px;
+  background-color: #fbfbfb;
+}
+
 .middleware {
-  padding: 10px;
+  padding: 10px 15px;
   cursor: pointer;
-  width: 300px;
-  border-radius: 5px;
-  background-color: #eeeeee;
-  margin: 5px auto 5px auto;
-  text-align: center;
 
   &:hover {
     color: #666;
-    background-color: #dddddd;
-  }
-
-  input {
-    margin-right: 5px;
+    background-color: #F6F6F6;
   }
 }
 
-.arrow {
-  width: 0;
-  height: 0;
-  margin: 0px auto 0px auto;
-
-  border-left: 40px solid transparent;
-  border-right: 40px solid transparent;
-
-  border-top: 10px solid $sidebar-primary-color;
-  
+.circle {
+  transition: background-color .5s ease-in-out;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  float: left;
+  background-color: $content-color-lighter;
+  margin-right: 10px;
+  margin-top: 3px;
 }
 
-.line {
-  width: 50px;
-  height: 5px;
-  margin: 0px auto 0px auto;
-  background-color: $sidebar-primary-color
-
+.helpIcon {
+  color: $content-color-lighter;
+  position: absolute;
+  top: 25px;
+  right: 25px;
+  width: 18px;
+  height: 18px;
 }
 
-.middlewareEntry {
-  text-align: center;
-  font-weight: bolder;
-  padding: 10px;
-  width: 300px;
-  border-radius: 5px;
-  background-color: #eeeeee;
-  margin: 5px auto 5px auto;
+.enabled {
+  transition: background-color .15s ease-in-out, border-color .5s ease-in-out;
+  border-left: 5px solid $primary-color;
+
+  .circle {
+    background-color: $primary-color;
+  }
 }
+
+.disabled {
+  transition: border-color .5s ease-in-out;
+  border-left: 5px solid $content-color-lighter; 
+}
+
 .saveButton {
 
+  border: none;
+  background-color: $primary-color;
+  color: white;
+  text-weight: bolder;
+  position: absolute;
+  right: 15px;
+  top: 16px;
+  font-size: 14px;
+  text-align: center;
+  width: 70px;
+  height: 30px;
+  opacity: 0;
+  transition: opacity .5s ease-in-out, background-color .15s ease-in-out;
+
+  &.dirty {
+    opacity: 0.5;
+  }
+
+  &.dirty:hover {
+    background-color: $primary-color;
+    opacity: 0.7;
+    color: white;
+  }
 }

@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
 import { sortable } from 'react-sortable'
-import { Row, Col, Checkbox } from 'react-bootstrap'
+import { Row, Col, Checkbox, ListGroup, ListGroupItem, Tooltip, OverlayTrigger } from 'react-bootstrap'
 import _ from 'lodash'
 import classnames from 'classnames'
 import Button from 'react-bootstrap-button-loader'
@@ -19,15 +19,23 @@ class MiddlewareComponent extends Component {
 
   render() {
 
-    const { name, enabled } = this.props.middleware
-    const className = classnames(this.props.className, style.middleware)
+    const { name, enabled, module, description } = this.props.middleware
+    const className = classnames(this.props.className, style.middleware, enabled ? style.enabled : style.disabled)
+    const tooltip = description ? <Tooltip>{description}</Tooltip> : null
+
     return (
       <div>
-        <div className={style.line}></div>
-        <div className={style.arrow}></div>
-        <div className={className}>
-          <input type='checkbox' checked={enabled} onChange={this.props.toggleEnabled} />
-          <span>{name}</span>
+        <div className={className} onClick={this.props.toggleEnabled}>
+          <div className={style.helpIcon}>
+            <OverlayTrigger placement="left" overlay={tooltip}>
+              <i className="material-icons">help</i>
+            </OverlayTrigger>
+          </div>
+          <div>
+            <span className={style.circle}></span>
+            <h4>{module}</h4>
+          </div>
+          <div>Handler: <b>{name || 'N/A'}</b></div>
         </div>
       </div>
     )
@@ -37,8 +45,9 @@ class MiddlewareComponent extends Component {
 var ListItem = React.createClass({
   displayName: 'SortableListItem',
   render: function() {
+    const className = classnames('list-item')
     return (
-      <div {...this.props} className="list-item">{this.props.children}</div>
+      <ListGroupItem {...this.props} className={className}>{this.props.children}</ListGroupItem>
     )
   }
 })
@@ -146,13 +155,11 @@ export default class MiddlewaresComponent extends Component {
   }
 
   renderIsDirty() {
-    if (!this.isDirty()) {
-      return null
-    }
+    const className = classnames(style.saveButton, this.isDirty() ? style.dirty : null)
 
-    return <Row>
-      Changes will take effect only when saved
-    </Row>
+    return <Button className={className} onClick={::this.saveChanges} loading={this.state.loading}>
+      Save
+    </Button>
   }
 
   saveChanges() {
@@ -193,25 +200,54 @@ export default class MiddlewaresComponent extends Component {
       return <div>Loading...</div>
     }
 
-    return <div>
-      <Row>
-        <Col sm={12} md={6}>
-          <div className={style.middlewareEntry}>Connectors</div>
-          {this.renderSortable('incoming')}
-        </Col>
+    const incomingTooltip = <Tooltip>An incoming middleware is a message processor&nbsp;
+    that has the potential to track, alter or swallow messages.&nbsp;
+    Usually, messages are put (piped) into the incoming middleware queue&nbsp;
+    by <strong>connector modules</strong> such as Facebook Messenger, Slack...</Tooltip>
 
-        <Col sm={12} md={6}>
-          <div className={style.middlewareEntry}>Incoming results</div>
+    const outgoingTooltip = <Tooltip>An outgoing middleware is a message processor&nbsp;
+    that has the potential to track, alter or swallow messages to be sent.&nbsp;
+    Usually, messages are put (piped) into the outgoing middleware queue by user code or incoming modules.&nbsp;
+    <strong>Connector modules</strong> are in charge of sending the messages to the users, thus they should&nbsp;
+    usually be placed at the end of the processing pipe.</Tooltip>
+
+    return <Row>
+      <Col sm={12} md={6}>
+        <ListGroup className={style.middlewareList}>
+          <ListGroupItem>
+            <div className={style.header}>
+              {this.renderIsDirty()}
+              <h4>Incoming middlewares</h4>
+              <OverlayTrigger placement="right" overlay={incomingTooltip}>
+                <a className={style.help}>what's this?</a>
+              </OverlayTrigger>
+            </div>
+          </ListGroupItem>
+          {this.renderSortable('incoming')}
+          <ListGroupItem>
+            <div className={style.footer}></div>
+          </ListGroupItem>
+        </ListGroup>
+      </Col>
+
+      <Col sm={12} md={6}>
+        <ListGroup className={style.middlewareList}>
+          <ListGroupItem>
+            <div className={style.header}>
+              {this.renderIsDirty()}
+              <h4>Outgoing middlewares</h4>
+              <OverlayTrigger placement="right" overlay={outgoingTooltip}>
+                <a className={style.help}>what's this?</a>
+              </OverlayTrigger>
+            </div>
+          </ListGroupItem>
           {this.renderSortable('outgoing')}
-        </Col>
-      </Row>
-      {this.renderIsDirty()}
-      <Row>
-        <Button className={style.saveButton} onClick={::this.saveChanges} loading={this.state.loading}>
-          Save changes
-        </Button>
-      </Row>
-    </div>
+          <ListGroupItem>
+            <div className={style.footer}></div>
+          </ListGroupItem>
+        </ListGroup>
+      </Col>
+    </Row>
   }
 
 }
