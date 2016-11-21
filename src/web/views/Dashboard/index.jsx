@@ -90,7 +90,7 @@ class DashboardView extends React.Component {
   renderInformationAndContributionSection() {
     return (
       <Row>
-        <Col sm={8}>
+        <Col sm={12} md={8}>
           <Panel className={style.information}>
             <h3 className={style.informationName}>{this.props.botInformation.get('name')}</h3>
             <p className={style.informationDescription}>{this.props.botInformation.get('description')}</p>
@@ -103,7 +103,7 @@ class DashboardView extends React.Component {
 
           </Panel>
         </Col>
-        <Col sm={4}>
+        <Col xs={12} sm={8} md={4}>
           <Panel className={style.contribution}>
             <div className={style.raysAnim}>
               <div className={style.rays}></div>
@@ -115,31 +115,20 @@ class DashboardView extends React.Component {
     )
   }
 
-  renderModulesSection() {
-    return (
-        <Row>
-          <Col sm={6}>
-            <Panel header='Popular modules'>
-              <ModulesComponent modules={this.state.popularModules} refresh={this.refresh.bind(this)}/>
-            </Panel>
-          </Col>
-          <Col sm={6}>
-            <Panel header='Featured modules'>
-              <ModulesComponent modules={this.state.featuredModules} refresh={this.refresh.bind(this)}/>
-            </Panel>
-          </Col>
-        </Row>
-    )
+  renderPopularModules() {
+    return <Col sm={12} md={6}>
+      <Panel header='Popular modules'>
+        <ModulesComponent modules={this.state.popularModules} refresh={this.refresh.bind(this)}/>
+      </Panel>
+    </Col>
   }
 
-  renderMiddlewaresSection() {
-    return (
-      <Row>
-        <Col sm={12}>
-          <MiddlewaresComponent />
-        </Col>
-      </Row>
-    )
+  renderFeaturedModules() {
+    return <Col sm={12} md={6}>
+      <Panel header='Featured modules'>
+        <ModulesComponent modules={this.state.featuredModules} refresh={this.refresh.bind(this)}/>
+      </Panel>
+    </Col>
   }
 
   render() {
@@ -151,8 +140,12 @@ class DashboardView extends React.Component {
         {PageHeader(<span> Dashboard</span>)}
         <Grid fluid>
           {this.renderInformationAndContributionSection()}
-          {this.renderMiddlewaresSection()}
-          {this.renderModulesSection()}
+          <Row>
+            <MiddlewaresComponent type="incoming"/>
+            <MiddlewaresComponent type="outgoing"/>
+            {this.renderPopularModules()}
+            {this.renderFeaturedModules()}
+          </Row>
         </Grid>
       </ContentWrapper>
     )

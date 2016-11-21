@@ -21,7 +21,7 @@ class MiddlewareComponent extends Component {
 
     const { name, enabled, module, description } = this.props.middleware
     const className = classnames(this.props.className, style.middleware, enabled ? style.enabled : style.disabled)
-    const tooltip = description ? <Tooltip>{description}</Tooltip> : null
+    const tooltip = description ? <Tooltip id={`module-${name}-description`}>{description}</Tooltip> : null
 
     return (
       <div>
@@ -55,6 +55,10 @@ var ListItem = React.createClass({
 var SortableListItem = sortable(ListItem)
 
 export default class MiddlewaresComponent extends Component {
+
+  static propTypes = {
+    type: React.PropTypes.string.isRequired
+  }
 
   constructor(props, context) {
     super(props, context)
@@ -151,7 +155,8 @@ export default class MiddlewaresComponent extends Component {
   }
 
   isDirty() {
-    return this.state.initialStateHash !== this.getStateHash()
+    return this.state.initialStateHash !== null 
+      && this.state.initialStateHash !== this.getStateHash()
   }
 
   renderIsDirty() {
@@ -195,59 +200,56 @@ export default class MiddlewaresComponent extends Component {
     }
   }
 
-  render() {
-    if (this.state.loading) {
-      return <div>Loading...</div>
-    }
-
-    const incomingTooltip = <Tooltip>An incoming middleware is a message processor&nbsp;
+  renderIncoming() {
+    const tooltip = <Tooltip id='header-incoming-tooltip'>An incoming middleware is a message processor&nbsp;
     that has the potential to track, alter or swallow messages.&nbsp;
     Usually, messages are put (piped) into the incoming middleware queue&nbsp;
     by <strong>connector modules</strong> such as Facebook Messenger, Slack...</Tooltip>
 
-    const outgoingTooltip = <Tooltip>An outgoing middleware is a message processor&nbsp;
+    const title = 'Incoming middlewares'
+
+    return this.renderList('incoming', title, tooltip)
+  }
+
+  renderOutgoing() {
+    const tooltip = <Tooltip id='header-outgoing-tooltip'>An outgoing middleware is a message processor&nbsp;
     that has the potential to track, alter or swallow messages to be sent.&nbsp;
     Usually, messages are put (piped) into the outgoing middleware queue by user code or incoming modules.&nbsp;
     <strong>Connector modules</strong> are in charge of sending the messages to the users, thus they should&nbsp;
     usually be placed at the end of the processing pipe.</Tooltip>
 
-    return <Row>
-      <Col sm={12} md={6}>
-        <ListGroup className={style.middlewareList}>
-          <ListGroupItem>
-            <div className={style.header}>
-              {this.renderIsDirty()}
-              <h4>Incoming middlewares</h4>
-              <OverlayTrigger placement="right" overlay={incomingTooltip}>
-                <a className={style.help}>what's this?</a>
-              </OverlayTrigger>
-            </div>
-          </ListGroupItem>
-          {this.renderSortable('incoming')}
-          <ListGroupItem>
-            <div className={style.footer}></div>
-          </ListGroupItem>
-        </ListGroup>
-      </Col>
+    const title = 'Outgoing middlewares'
 
-      <Col sm={12} md={6}>
-        <ListGroup className={style.middlewareList}>
-          <ListGroupItem>
-            <div className={style.header}>
-              {this.renderIsDirty()}
-              <h4>Outgoing middlewares</h4>
-              <OverlayTrigger placement="right" overlay={outgoingTooltip}>
-                <a className={style.help}>what's this?</a>
-              </OverlayTrigger>
-            </div>
-          </ListGroupItem>
-          {this.renderSortable('outgoing')}
-          <ListGroupItem>
-            <div className={style.footer}></div>
-          </ListGroupItem>
-        </ListGroup>
-      </Col>
-    </Row>
+    return this.renderList('outgoing', title, tooltip)
   }
 
+  renderList(type, title, tooltip) {
+    return <Col sm={12} md={6}>
+      <ListGroup className={style.middlewareList}>
+        <ListGroupItem>
+          <div className={style.header}>
+            {this.renderIsDirty()}
+            <h4>{title}</h4>
+            <OverlayTrigger placement="right" overlay={tooltip}>
+              <a className={style.help}>what's this?</a>
+            </OverlayTrigger>
+          </div>
+        </ListGroupItem>
+        {this.renderSortable(type)}
+        <ListGroupItem>
+          <div className={style.footer}></div>
+        </ListGroupItem>
+      </ListGroup>
+    </Col>
+  }
+
+  render() {
+    if (this.state.loading) {
+      return <div>Loading...</div>
+    }
+
+    return this.props.type === 'incoming' 
+      ? this.renderIncoming()
+      : this.renderOutgoing()
+  }
 }

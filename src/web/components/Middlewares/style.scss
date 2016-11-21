@@ -43,6 +43,15 @@
     color: #666;
     background-color: #F6F6F6;
   }
+
+  h4 {
+    color: $content-color-lighter;
+    transition: color 0.5s ease-in-out;
+  }
+
+  &.enabled h4 {
+    color: $content-color-primary-title;
+  }
 }
 
 .circle {
