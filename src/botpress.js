@@ -29,6 +29,7 @@ const RESTART_EXIT_CODE = 107
 
 class botpress {
   constructor({ botfile }) {
+    this._setVersion()
     this.projectLocation = path.dirname(botfile)
     this.botfile = require(botfile)
   }
@@ -48,6 +49,12 @@ class botpress {
         process.exit(1)
       }
     }
+  }
+
+  _setVersion() {
+    const botpressPackagePath = path.join(__dirname, '../package.json')
+    const botpressJson = JSON.parse(fs.readFileSync(botpressPackagePath))
+    this.version = botpressJson.version
   }
 
   _scanModules() {
@@ -187,10 +194,11 @@ class botpress {
       cluster.fork()
 
       cluster.on('exit', (worker, code, signal) => {
-        cluster.fork()
-
         if (code === RESTART_EXIT_CODE) {
+          cluster.fork()
           print('info', '*** restarted worker process ***')
+        } else {
+          process.exit(code)
         }
       })
     }

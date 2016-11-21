@@ -26,7 +26,6 @@ program
   .command('start [path]')
   .alias('s')
   .description('Starts running a bot')
-  .option('-s, --skip', 'skip lookup for project local botpress installation')
   .action(start)
 
 program

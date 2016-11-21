@@ -62,8 +62,37 @@ module.exports = (bp) => {
     fs.writeFileSync(getPackageJSONPath(), JSON.stringify(packageJSON))
   })
 
+  const applyLicenseMiddleware = () => {
+    bp.hear(/^BOT_LICENSE$/, (event, next) => {
+      let packageJSON = JSON.parse(fs.readFileSync(getPackageJSONPath()))
+      const license = packageJSON.license
+      const botName = packageJSON.name
+      const author = packageJSON.author
+      const response = "Bot: " + botName + "\n" 
+        + "Created by: " + author + "\n"
+        + "License: " + license + "\n"
+        + "Botpress: " + bp.version
+
+      if (bp[event.platform] && bp[event.platform].pipeText) {
+        bp[event.platform].pipeText(event.user.id, response)
+      } else {
+        bp.outgoing({
+          platform: event.platform,
+          type: 'text',
+          text: response,
+          raw: {
+            to: event.user.id,
+            message: response,
+            responseTo: event
+          }
+        })
+      }
+    })
+  }
+
   return {
     getLicenses: getLicenses,
     changeLicense: changeLicense,
+    applyLicenseMiddleware: applyLicenseMiddleware
   }
 }

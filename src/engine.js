@@ -3,6 +3,8 @@ import mware from 'mware'
 import path from 'path'
 import fs from 'fs'
 
+import licensing from './licensing'
+
 const createMiddleware = function(bp, middlewareName) {
 
   const _use = mware()
@@ -136,6 +138,8 @@ module.exports = function(bp) {
   bp.loadMiddlewares = () => {
     bp.incoming = createMiddleware(bp, 'incoming')
     bp.outgoing = createMiddleware(bp, 'outgoing')
+
+    licensing(bp).applyLicenseMiddleware()
 
     bp.getMiddlewares().forEach(m => {
       if (!m.enabled) {
