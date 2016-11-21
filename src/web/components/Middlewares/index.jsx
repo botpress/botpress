@@ -172,15 +172,17 @@ export default class MiddlewaresComponent extends Component {
 
     const middlewares = []
 
-    this.state.incomingItems.forEach((item, i) => {
-      const middleware = _.find(this.state.incoming, { name: item })
-      middlewares.push({ name: item, order: i, enabled: middleware.enabled })
-    })
-
-    this.state.outgoingItems.forEach((item, i) => {
-      const middleware = _.find(this.state.outgoing, { name: item })
-      middlewares.push({ name: item, order: i, enabled: middleware.enabled })
-    })
+    if (this.props.type === 'incoming') {
+      this.state.incomingItems.forEach((item, i) => {
+        const middleware = _.find(this.state.incoming, { name: item })
+        middlewares.push({ name: item, order: i, enabled: middleware.enabled })
+      })
+    } else {
+      this.state.outgoingItems.forEach((item, i) => {
+        const middleware = _.find(this.state.outgoing, { name: item })
+        middlewares.push({ name: item, order: i, enabled: middleware.enabled })
+      })
+    }
 
     axios.post('/api/middlewares/customizations', { middlewares })
     .then(({ data }) => this.setMiddlewares(data))
