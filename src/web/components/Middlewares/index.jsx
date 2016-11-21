@@ -21,10 +21,16 @@ class MiddlewareComponent extends Component {
 
     const { name, enabled } = this.props.middleware
     const className = classnames(this.props.className, style.middleware)
-    return <div className={className}>
-      {name}
-      <Checkbox checked={enabled} onChange={this.props.toggleEnabled} />
-    </div>
+    return (
+      <div>
+        <div className={style.line}></div>
+        <div className={style.arrow}></div>
+        <div className={className}>
+          <input type='checkbox' checked={enabled} onChange={this.props.toggleEnabled} />
+          <span>{name}</span>
+        </div>
+      </div>
+    )
   }
 }
 
@@ -45,7 +51,7 @@ export default class MiddlewaresComponent extends Component {
     super(props, context)
     this.state = {
       loading: true,
-      incoming: [], 
+      incoming: [],
       outgoing: [],
       incomingDragIndex: null,
       incomingItems: [],
@@ -76,8 +82,8 @@ export default class MiddlewaresComponent extends Component {
 
     this.setState({
       loading: false,
-      incoming, 
-      outgoing, 
+      incoming,
+      outgoing,
       incomingItems,
       outgoingItems,
       initialIncomingOrder: incomingItems.join(' '),
@@ -123,11 +129,11 @@ export default class MiddlewaresComponent extends Component {
       })
       const toggleFn = this.toggleEnabled(item, type)
 
-      return <SortableListItem 
+      return <SortableListItem
         key={i}
-        updateState={::this.handleSort(type)} 
-        items={items} 
-        draggingIndex={this.state[dragIndexKey]} 
+        updateState={::this.handleSort(type)}
+        items={items}
+        draggingIndex={this.state[dragIndexKey]}
         sortId={i}
         outline="list">
         <MiddlewareComponent toggleEnabled={toggleFn} middleware={middleware} className={className} />
@@ -190,10 +196,12 @@ export default class MiddlewaresComponent extends Component {
     return <div>
       <Row>
         <Col sm={12} md={6}>
+          <div className={style.middlewareEntry}>Connectors</div>
           {this.renderSortable('incoming')}
         </Col>
 
         <Col sm={12} md={6}>
+          <div className={style.middlewareEntry}>Incoming results</div>
           {this.renderSortable('outgoing')}
         </Col>
       </Row>

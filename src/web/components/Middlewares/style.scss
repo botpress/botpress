@@ -1,3 +1,5 @@
+@import '../../palette.scss';
+
 .dragging {
   border: 1px dashed #666;
 }
@@ -5,13 +7,51 @@
 .middleware {
   padding: 10px;
   cursor: pointer;
+  width: 300px;
+  border-radius: 5px;
+  background-color: #eeeeee;
+  margin: 5px auto 5px auto;
+  text-align: center;
 
   &:hover {
     color: #666;
-    background-color: #efefef;  
+    background-color: #dddddd;
+  }
+
+  input {
+    margin-right: 5px;
   }
 }
 
-.saveButton {
+.arrow {
+  width: 0;
+  height: 0;
+  margin: 0px auto 0px auto;
+
+  border-left: 40px solid transparent;
+  border-right: 40px solid transparent;
+
+  border-top: 10px solid $sidebar-primary-color;
   
+}
+
+.line {
+  width: 50px;
+  height: 5px;
+  margin: 0px auto 0px auto;
+  background-color: $sidebar-primary-color
+
+}
+
+.middlewareEntry {
+  text-align: center;
+  font-weight: bolder;
+  padding: 10px;
+  width: 300px;
+  border-radius: 5px;
+  background-color: #eeeeee;
+  margin: 5px auto 5px auto;
+}
+.saveButton {
+
 }
