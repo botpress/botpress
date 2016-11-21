@@ -136,9 +136,7 @@ class DashboardView extends React.Component {
     return (
       <Row>
         <Col sm={12}>
-          <Panel header='Middlewares'>
-            <MiddlewaresComponent />
-          </Panel>
+          <MiddlewaresComponent />
         </Col>
       </Row>
     )
