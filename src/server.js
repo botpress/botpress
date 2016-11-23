@@ -257,6 +257,7 @@ const serveStatic = function(app, bp) {
   app.use('/js/env.js', (req, res, next) => {
     res.contentType('text/javascript')
     res.send(`(function(window) {
+      window.NODE_ENV = "${process.env.NODE_ENV || 'development'}";
       window.DEV_MODE = ${util.isDeveloping};
       window.AUTH_ENABLED = ${bp.requiresAuth};
       window.AUTH_TOKEN_DURATION = ${ms(bp.authTokenExpiry)};
