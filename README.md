@@ -39,7 +39,7 @@ botpress will install the necessary packages for you automatically
 Step 3: install the module you need, for example: botpress-messenger
 
 ```
-> npm install botpress-messenger
+> botpress install botpress-messenger
 ```
 
 Step 4: register modules as middlewares, like following:
