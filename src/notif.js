@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import fs from 'fs'
 import path from 'path'
-import uuid from 'node-uuid'
+import uuid from 'uuid'
 
 import { resolveModuleRootPath } from './util'
 

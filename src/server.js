@@ -9,7 +9,7 @@ import http from 'http'
 import bodyParser from 'body-parser'
 import ms from 'ms'
 import chalk from 'chalk'
-import uuid from 'node-uuid'
+import uuid from 'uuid'
 
 import util from './util'
 
