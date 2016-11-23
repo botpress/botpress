@@ -65,7 +65,10 @@ export default class ModuleView extends React.Component {
   loadModule(name) {
     const moduleName = name || this.props.params.moduleName
     const moduleRequest = `/js/modules/${moduleName}.js`
-    this.setState({ moduleComponent: null })
+    if (moduleName === this.state.moduleName) {
+      return
+    }
+    this.setState({ moduleComponent: null, moduleName: moduleName })
 
     if (!window.botpress || !window.botpress[moduleName]) {
       var script = document.createElement("script")
