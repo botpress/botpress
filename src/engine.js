@@ -69,6 +69,17 @@ const createMiddleware = function(bp, middlewareName) {
 }
 
 module.exports = function(bp) {
+  bp.incoming = bp.outgoing = function() {
+    let message = 'Middleware called before middlewares have been loaded. This is a no-op.'
+     + ' Have you forgotten to call `bp.loadMiddlewares()` in your bot?'
+
+    if (arguments && typeof(arguments[0]) === 'object') {
+      message += '\nCalled with: ' + JSON.stringify(arguments[0], null, 2)
+    }
+
+    bp.logger.warn(message)
+  }
+
   const middlewaresFilePath = path.join(bp.dataLocation, 'middlewares.json')
 
   const readMiddlewaresCustomizations = () => {  
