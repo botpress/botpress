@@ -51,8 +51,7 @@ const serveApi = function(app, bp) {
   const routersConditions = {}
   const maybeApply = (name, fn) => {
     return (req, res, next) => {
-      const router = req.path.match(/\/api\/(botpress-[^\/]+).*$/i)
-
+      const router = req.originalUrl.match(/\/api\/(botpress-[^\/]+).*$/i)
       if (!router) {
         return fn(req, res, next)
       }
@@ -61,7 +60,10 @@ const serveApi = function(app, bp) {
         return fn(req, res, next)
       }
 
-      if (routersConditions[router[1]][name] === false) {
+      const condition = routersConditions[router[1]][name]
+      if (condition === false) {
+        next()
+      } else if (typeof(condition) === 'function' && condition(req) === false) {
         next()
       } else {
         return fn(req, res, next)
@@ -77,7 +79,7 @@ const serveApi = function(app, bp) {
     res.send(result)
   })
 
-  app.get('/api/*', authenticationMiddleware(bp))
+  app.use('/api/*', maybeApply('auth', authenticationMiddleware(bp)))
 
   app.get('/api/ping', (req, res, next) => {
     res.send('pong')
