@@ -8,6 +8,7 @@
 .information {
   height: 255px;
   padding: 15px 25px 15px 25px;
+  position: relative;
 }
 
 .informationName {
@@ -37,6 +38,28 @@
   a:hover {
     color: $sidebar-primary-color;
   }
+}
+
+.whereFrom {
+  position: absolute;
+  bottom: 5px;
+  right: 15px;
+  font-size: 12px;
+  color: $content-color-lighter;
+}
+
+.heroContainer {
+  position: relative;
+}
+
+.heroInfo {
+  position: absolute;
+  display: inline;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+  color: #bee6db;
+  font-size: 12px;
 }
 
 .contribution {

@@ -5,6 +5,8 @@ import {
   Row,
   Col,
   ControlLabel,
+  Tooltip,
+  OverlayTrigger,
   Link
 } from 'react-bootstrap'
 import ContentWrapper from '~/components/Layout/ContentWrapper'
@@ -88,6 +90,12 @@ class DashboardView extends React.Component {
   }
 
   renderInformationAndContributionSection() {
+    const heroTooltip = <Tooltip id='heroTooltip'>
+      These are people randomly selected from the list of contributors&nbsp;
+      to various open-source components of the botpress ecosystem.&nbsp;
+      We feel they deserve to be publicly recognized for their contributions.
+      </Tooltip>
+
     return (
       <Row>
         <Col sm={12} md={8}>
@@ -100,16 +108,23 @@ class DashboardView extends React.Component {
               Licensed under {this.props.botInformation.get('license')} (
               <a href='#' onClick={this.openLicenseComponent}>Change</a>)
             </p>
-
+            <div className={style.whereFrom}>Info extracted from package.json</div>
           </Panel>
         </Col>
         <Col xs={12} sm={8} md={4} smOffset={2} mdOffset={0}>
+        <div className={style.heroContainer}>
+          <div className={style.heroInfo}>
+            <OverlayTrigger placement="left" overlay={heroTooltip}>
+              <i className="material-icons">info</i>
+            </OverlayTrigger>
+          </div>
           <Panel className={style.contribution}>
             <div className={style.raysAnim}>
               <div className={style.rays}></div>
             </div>
             <HeroComponent className={style.contributionContent} {...this.state.hero}/>
           </Panel>
+        </div>
         </Col>
       </Row>
     )
