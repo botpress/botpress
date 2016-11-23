@@ -47,6 +47,7 @@
     "winston": "^2.2.0"
   },
   "devDependencies": {
+    "autoprefixer": "^6.5.3",
     "babel-cli": "^6.16.0",
     "babel-core": "^6.18.0",
     "babel-eslint": "^7.1.0",
@@ -74,6 +75,7 @@
     "npm-watch": "^0.1.6",
     "nuclear-js": "^1.4.0",
     "nuclear-js-react-addons": "^0.4.1",
+    "postcss-loader": "^1.1.1",
     "react": "^15.3.1",
     "react-addons-css-transition-group": "^15.3.1",
     "react-bootstrap": "^0.30.3",
