@@ -82,7 +82,7 @@ module.exports = (bp, modules) => {
     if (module) {
       // because the bot itself can send notifications
       options = {
-        modileId: module.name,
+        moduleId: module.name,
         icon: module.settings.menuIcon,
         name: module.settings.menuText,
         url: url
@@ -114,6 +114,11 @@ module.exports = (bp, modules) => {
     bp.saveNotifications(notifications)
 
     bp.events.emit('notifications.new', notification)
+
+    const logMessage = '[notification::' + notification.moduleId + '] ' + notification.message
+    if (bp.logger) {
+      (bp.logger[level] || bp.logger.info)(logMessage)
+    }
   }
 }
 
