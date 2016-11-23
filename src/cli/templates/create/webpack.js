@@ -26,7 +26,7 @@ var nodeConfig = {
       }
     }, {
       test: /\.json$/,
-      loader: "json-loader"
+      loader: 'json-loader'
     }]
   }
 }
@@ -55,7 +55,7 @@ var webConfig = {
       }
     }, {
       test: /\.scss$/,
-      loaders: ['style', 'css?modules&importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]', 'sass']
+      loaders: ['style', 'css?modules&importLoaders=1&localIdentName=' + pkg.name + '__[name]__[local]___[hash:base64:5]', 'sass']
     }, {
       test: /\.css$/,
       loaders: ['style', 'css']
@@ -64,7 +64,7 @@ var webConfig = {
       loader: 'file?name=../fonts/[name].[ext]'
     }, {
       test: /\.json$/,
-      loader: "json-loader"
+      loader: 'json-loader'
     }]
   }
 }
