@@ -42,27 +42,14 @@ Step 3: install the module you need, for example: botpress-messenger
 > botpress install botpress-messenger
 ```
 
-Step 4: register modules as middlewares, like following:
-
-```js
-// in the file ./index.js
-
-module.exports = function(bp) {
-
-  bp.outgoing('botpress-analytics')
-  bp.outgoing('botpress-messenger')
-
-  bp.incoming('botpress-analytics')
-  bp.incoming('botpress-rivescript')
-
-}
-```
-
-The sequence of registering is the sequence of middleware execution.
-So sequence matters.
+The module will be registered automatically by botpress system.
 
 
-Step 5: start server
+One thing need to notice is that, the sequence of registering is
+the sequence of middleware execution. You can config the order in the dashboard panel.
+
+
+Step 4: start server
 
 ```
 > botpress start
@@ -164,33 +151,7 @@ const botpress = {
 
 #### Hooks
 
-And every modules can receive events in to and out from botpress system by module callbacks:
-
-*incoming*
-
-```javascript
-{
-  incoming: function(event, next) {
-    // this function will be invoked if there is an event coming in
-    // if there is an error please call next(err)
-    // please call next() after finish
-  }
-}
-```
-
-*outgoing*
-
-```javascript
-{
-  outgoing: function(event, next) {
-    // this function will be invoked if there is an event going out
-    // if there is an error please call next(err)
-    // please call next() after finish
-  }
-}
-```
-
-And there are some hooks will be invoked:
+There are some basic hooks will be invoked:
 
 *init*
 
@@ -201,6 +162,7 @@ And there are some hooks will be invoked:
    */
   init: function(bp) {
     // this function will be invoked after botpress initialized and before the server started
+    // registerMiddleware should be invoked here
   }
 }
 ```
@@ -226,11 +188,45 @@ And there are some hooks will be invoked:
 }
 ```
 
+And every modules can receive events in to and out from botpress system by registering middlewares.
+
+For example:
+
+```javascript
+
+const outgingMiddleware = (event, next) => {
+  // handle event
+
+  if (/* there is an error */) return next(err)
+
+  next() // remember to call next after finish all process
+}
+
+
+bp.registerMiddleware({
+  name: 'messenger.sendMessages', // middleware name, should be unique in a project
+  type: 'outgoing',               // incoming or outgoing
+  order: 100,                     // the order of recieving event, lower is earlier
+  handler: outgoingMiddleware,    // the handler callback
+  module: 'botpress-messenger',   // belongs to which module, for dispaly
+
+  // description, for display
+  description: 'Sends out messages that targets platform = messenger.' +
+  ' This middleware should be placed at the end as it swallows events once sent.'
+})
+
+```
+
+
 #### Interfaces:
 
 Every module includes one interface endpoint `src/views/index.jsx`.
-s you can see this is a React component. Botpress will automatically load this into dashboard panel.
-And botpress will inject `axios` into react props.
+As you can see, this is a React component. Botpress will automatically load
+this into dashboard panel.
+
+There is a `axios` instance injected by botpress system. Botpress provides this as
+a conveninent http client which contains proper authentication headers. You can get that
+by `this.props.bp.axios`.
 
 ## Contributing
 
