@@ -4,7 +4,7 @@
   "description": "<%= description %>",
   "main": "index.js",
   "dependencies": {
-    "@botskin/botpress": "0.x"
+    "botpress": "0.x"
   },
   "scripts": {
     "start": "botpress start",

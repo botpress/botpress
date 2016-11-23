@@ -8,7 +8,7 @@ module.exports = function(projectPath, options) {
   projectPath = path.resolve(projectPath || '.')
 
   try {
-    botpress = require(path.join(projectPath, 'node_modules', '@botskin/botpress'))
+    botpress = require(path.join(projectPath, 'node_modules', 'botpress'))
   }
   catch (err)
   {
