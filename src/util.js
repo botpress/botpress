@@ -5,6 +5,8 @@ import fs from 'fs'
 
 const IS_DEV = process.env.NODE_ENV !== 'production'
 
+const NPM_CMD = /^win/.test(process.platform) ? 'npm.cmd' : 'npm'
+
 const print = function(...args) {
   const mapping = {
     info: chalk.white,
@@ -55,5 +57,6 @@ module.exports = {
   print,
   resolveFromDir,
   isDeveloping: IS_DEV,
-  resolveModuleRootPath
+  resolveModuleRootPath,
+  npmCmd: NPM_CMD
 }
