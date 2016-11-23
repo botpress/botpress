@@ -1,9 +1,9 @@
 import { print } from '../util'
-import ModulesManager from '../manager'
+import ModulesManager from '../module'
 
 module.exports = function() {
-  let manager = ModulesManager()
-  let modules = manager.getInstalled()
+  let modulesManager = ModulesManager()
+  let modules = modulesManager.getInstalled()
 
   if (!modules || modules.length === 0) {
     print('info', "There are no module installed.")
