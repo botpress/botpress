@@ -1,5 +1,5 @@
 {
-  "name": "@botskin/botpress",
+  "name": "botpress",
   "description": "The world's first CMS for bots. Easily create, manage and extend chatbots.",
   "version": "0.0.27",
   "author": "Protorisk (DIFC)",
