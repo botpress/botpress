@@ -9,6 +9,7 @@ import http from 'http'
 import bodyParser from 'body-parser'
 import ms from 'ms'
 import chalk from 'chalk'
+import uuid from 'node-uuid'
 
 import util from './util'
 
@@ -46,7 +47,7 @@ const setupSocket = function(app, bp) {
 }
 
 const serveApi = function(app, bp) {
-
+  let logsSecret = uuid.v4()
   const routersConditions = {}
   const maybeApply = (name, fn) => {
     return (req, res, next) => {
@@ -200,9 +201,18 @@ const serveApi = function(app, bp) {
     })
   })
 
-  app.get('/api/logs/archive', (req, res, next) => {
+  app.get('/api/logs/key', (req, res, next) => {
+    res.send({ secret: logsSecret })
+  })
+
+  app.get('/logs/archive/:key', (req, res, next) => {
+    if (req.params.key !== logsSecret) {
+      return res.sendStatus(403)
+    }
+
     bp.logger.archiveToFile()
     .then((archivePath) => {
+      logsSecret = uuid.v4()
       res.download(archivePath)
     })
   })

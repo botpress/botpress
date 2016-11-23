@@ -29,6 +29,7 @@ class LoggerView extends Component {
 
   componentDidMount() {
     if (!this.state.logs) {
+      this.getArchiveKey()
       this.queryLogs()
       this.refreshInterval = setInterval(this.queryLogs, 1000)
     }
@@ -68,6 +69,11 @@ class LoggerView extends Component {
     return <div style={{ marginTop: '20px' }} className="whirl traditional"></div>
   }
 
+  getArchiveKey() {
+    axios.get('/api/logs/key')
+    .then(({data}) => this.setState({ archiveUrl: '/logs/archive/' + data.secret }))
+  }
+
   queryLogs() {
     axios.get('/api/logs', {
       params: {
@@ -99,7 +105,7 @@ class LoggerView extends Component {
           </Checkbox>
         </form>
         <div className="pull-right">
-          <Button href="/api/logs/archive">Export logs archive</Button>
+          <Button href={this.state.archiveUrl}>Export logs archive</Button>
         </div>
       </Panel>
       <div className={logsPanelClassName}>

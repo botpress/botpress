@@ -172,15 +172,17 @@ export default class MiddlewaresComponent extends Component {
 
     const middlewares = []
 
-    this.state.incomingItems.forEach((item, i) => {
-      const middleware = _.find(this.state.incoming, { name: item })
-      middlewares.push({ name: item, order: i, enabled: middleware.enabled })
-    })
-
-    this.state.outgoingItems.forEach((item, i) => {
-      const middleware = _.find(this.state.outgoing, { name: item })
-      middlewares.push({ name: item, order: i, enabled: middleware.enabled })
-    })
+    if (this.props.type === 'incoming') {
+      this.state.incomingItems.forEach((item, i) => {
+        const middleware = _.find(this.state.incoming, { name: item })
+        middlewares.push({ name: item, order: i, enabled: middleware.enabled })
+      })
+    } else {
+      this.state.outgoingItems.forEach((item, i) => {
+        const middleware = _.find(this.state.outgoing, { name: item })
+        middlewares.push({ name: item, order: i, enabled: middleware.enabled })
+      })
+    }
 
     axios.post('/api/middlewares/customizations', { middlewares })
     .then(({ data }) => this.setMiddlewares(data))
@@ -224,23 +226,21 @@ export default class MiddlewaresComponent extends Component {
   }
 
   renderList(type, title, tooltip) {
-    return <Col sm={12} md={6}>
-      <ListGroup className={style.middlewareList}>
-        <ListGroupItem>
-          <div className={style.header}>
-            {this.renderIsDirty()}
-            <h4>{title}</h4>
-            <OverlayTrigger placement="right" overlay={tooltip}>
-              <a className={style.help}>what's this?</a>
-            </OverlayTrigger>
-          </div>
-        </ListGroupItem>
-        {this.renderSortable(type)}
-        <ListGroupItem>
-          <div className={style.footer}></div>
-        </ListGroupItem>
-      </ListGroup>
-    </Col>
+    return <ListGroup className={style.middlewareList}>
+      <ListGroupItem>
+        <div className={style.header}>
+          {this.renderIsDirty()}
+          <h4>{title}</h4>
+          <OverlayTrigger placement="right" overlay={tooltip}>
+            <a className={style.help}>what's this?</a>
+          </OverlayTrigger>
+        </div>
+      </ListGroupItem>
+      {this.renderSortable(type)}
+      <ListGroupItem>
+        <div className={style.footer}></div>
+      </ListGroupItem>
+    </ListGroup>
   }
 
   render() {

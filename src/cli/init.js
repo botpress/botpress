@@ -30,7 +30,8 @@ const getTemplate = (template) => {
 const generateTemplate = (filename, variables = {}) => {
   const template = getTemplate(filename)
   const compiled = template(variables)
-  fs.writeFileSync(filename, compiled)
+  const destination = path.join(filename.replace(/_\._/, '.'))
+  fs.writeFileSync(destination, compiled)
 }
 
 module.exports = function() {
@@ -78,6 +79,7 @@ module.exports = function() {
     generateTemplate('LICENSE')
     generateTemplate('botfile.js')
     generateTemplate('index.js')
+    generateTemplate('_._gitignore')
 
     fs.mkdirSync('data')
     fs.writeFileSync('data/bot.log', '')

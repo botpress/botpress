@@ -59,7 +59,7 @@ module.exports = (bp) => {
     let packageJSON = JSON.parse(fs.readFileSync(getPackageJSONPath()))
     packageJSON.license = license
 
-    fs.writeFileSync(getPackageJSONPath(), JSON.stringify(packageJSON))
+    fs.writeFileSync(getPackageJSONPath(), JSON.stringify(packageJSON, null, 2))
   })
 
   const applyLicenseMiddleware = () => {
