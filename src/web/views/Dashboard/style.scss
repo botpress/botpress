@@ -1,8 +1,8 @@
 @import '../../palette.scss';
 
-@-webkit-keyframes rays {
-  from { -webkit-transform: rotate(0deg); }
-  to { -webkit-transform: rotate(360deg); }
+@keyframes rays {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 .information {
@@ -55,8 +55,8 @@
     width: 400%;
     margin-top: -100%;
     margin-left: -100%;
-    -webkit-transform-origin: center center;
-    -webkit-animation: rays 60s infinite linear;
+    transform-origin: center center;
+    animation: rays 60s infinite linear;
 
     .rays {
       height: 100%;
