@@ -6,7 +6,7 @@ import _ from 'lodash'
 import moment from 'moment'
 import axios from 'axios'
 
-import  { print, isDeveloping } from './util'
+import  { print, isDeveloping, npmCmd } from './util'
 
 const MODULES_URL = 'https://s3.amazonaws.com/botpress-io/all-modules.json'
 const POPULAR_URL = 'https://s3.amazonaws.com/botpress-io/popular-modules.json'
@@ -194,7 +194,7 @@ module.exports = (bp) => {
   const installModules = Promise.method((...names) => {
     let modules = resolveModuleNames(names)
 
-    const install = spawn('npm', ['install', '--save', ...modules], {
+    const install = spawn(npmCmd, ['install', '--save', ...modules], {
       cwd: bp && bp.projectLocation
     })
 
@@ -210,7 +210,7 @@ module.exports = (bp) => {
 
   const uninstallModules = Promise.method((...names) => {
     let modules = resolveModuleNames(names)
-    const uninstall = spawn('npm', ['uninstall', '--save', ...modules], {
+    const uninstall = spawn(npmCmd, ['uninstall', '--save', ...modules], {
       cwd: bp && bp.projectLocation
     })
 

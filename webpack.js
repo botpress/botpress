@@ -1,6 +1,7 @@
 var webpack = require('webpack')
 var path = require('path')
 var CopyWebpackPlugin = require('copy-webpack-plugin')
+var autoprefixer = require('autoprefixer')
 
 var webConfig = {
   bail: true,
@@ -40,7 +41,7 @@ var webConfig = {
       }
     }, {
       test: /\.scss$/,
-      loaders: ['style', 'css?modules&importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]', 'sass']
+      loaders: ['style', 'css?modules&importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]', 'postcss', 'sass']
     }, {
       test: /\.css$/,
       loaders: ['style', 'css']
@@ -51,7 +52,8 @@ var webConfig = {
       test: /\.json$/,
       loader: "json-loader"
     }]
-  }
+  },
+  postcss: [ autoprefixer({ browsers: ['last 2 versions'] }) ]
 }
 
 

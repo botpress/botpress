@@ -1,7 +1,7 @@
 {
-  "name": "@botskin/botpress",
+  "name": "botpress",
   "description": "The world's first CMS for bots. Easily create, manage and extend chatbots.",
-  "version": "0.0.26",
+  "version": "0.0.28",
   "author": "Protorisk (DIFC)",
   "babel": {
     "presets": [
@@ -38,15 +38,16 @@
     "moment": "^2.15.1",
     "ms": "^0.7.1",
     "mware": "0.0.3",
-    "node-uuid": "^1.4.7",
     "prompt": "^1.0.0",
     "socket.io": "^1.5.0",
     "socketio-jwt": "^4.5.0",
     "source-map-support": "^0.4.6",
     "sqlite3": "^3.1.8",
+    "uuid": "^3.0.0",
     "winston": "^2.2.0"
   },
   "devDependencies": {
+    "autoprefixer": "^6.5.3",
     "babel-cli": "^6.16.0",
     "babel-core": "^6.18.0",
     "babel-eslint": "^7.1.0",
@@ -74,6 +75,7 @@
     "npm-watch": "^0.1.6",
     "nuclear-js": "^1.4.0",
     "nuclear-js-react-addons": "^0.4.1",
+    "postcss-loader": "^1.1.1",
     "react": "^15.3.1",
     "react-addons-css-transition-group": "^15.3.1",
     "react-bootstrap": "^0.30.3",
@@ -106,8 +108,13 @@
     "type": "git",
     "url": "git+https://github.com/botpress/botpress.git"
   },
+  "os": [
+    "darwin",
+    "linux",
+    "!win32"
+  ],
   "scripts": {
-    "compile": "babel src/ -d lib/ -s && cp -a src/cli/templates/. lib/cli/templates && node webpack.js --compile",
+    "compile": "rm -rf lib/ && babel src/ -d lib/ -s && cp -a src/cli/templates/. lib/cli/templates && node webpack.js --compile",
     "test": "mocha test",
     "watch": "npm-watch"
   },

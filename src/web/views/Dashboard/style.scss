@@ -1,13 +1,14 @@
 @import '../../palette.scss';
 
-@-webkit-keyframes rays {
-  from { -webkit-transform: rotate(0deg); }
-  to { -webkit-transform: rotate(360deg); }
+@keyframes rays {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 .information {
   height: 255px;
   padding: 15px 25px 15px 25px;
+  position: relative;
 }
 
 .informationName {
@@ -39,6 +40,28 @@
   }
 }
 
+.whereFrom {
+  position: absolute;
+  bottom: 5px;
+  right: 15px;
+  font-size: 12px;
+  color: $content-color-lighter;
+}
+
+.heroContainer {
+  position: relative;
+}
+
+.heroInfo {
+  position: absolute;
+  display: inline;
+  top: 10px;
+  right: 10px;
+  z-index: 5;
+  color: #bee6db;
+  font-size: 12px;
+}
+
 .contribution {
   position: relative;
   height: 255px;
@@ -55,8 +78,8 @@
     width: 400%;
     margin-top: -100%;
     margin-left: -100%;
-    -webkit-transform-origin: center center;
-    -webkit-animation: rays 60s infinite linear;
+    transform-origin: center center;
+    animation: rays 60s infinite linear;
 
     .rays {
       height: 100%;

@@ -9,7 +9,7 @@ import http from 'http'
 import bodyParser from 'body-parser'
 import ms from 'ms'
 import chalk from 'chalk'
-import uuid from 'node-uuid'
+import uuid from 'uuid'
 
 import util from './util'
 
@@ -51,8 +51,7 @@ const serveApi = function(app, bp) {
   const routersConditions = {}
   const maybeApply = (name, fn) => {
     return (req, res, next) => {
-      const router = req.path.match(/\/api\/(botpress-[^\/]+).*$/i)
-
+      const router = req.originalUrl.match(/\/api\/(botpress-[^\/]+).*$/i)
       if (!router) {
         return fn(req, res, next)
       }
@@ -61,7 +60,10 @@ const serveApi = function(app, bp) {
         return fn(req, res, next)
       }
 
-      if (routersConditions[router[1]][name] === false) {
+      const condition = routersConditions[router[1]][name]
+      if (condition === false) {
+        next()
+      } else if (typeof(condition) === 'function' && condition(req) === false) {
         next()
       } else {
         return fn(req, res, next)
@@ -77,7 +79,7 @@ const serveApi = function(app, bp) {
     res.send(result)
   })
 
-  app.get('/api/*', authenticationMiddleware(bp))
+  app.use('/api/*', maybeApply('auth', authenticationMiddleware(bp)))
 
   app.get('/api/ping', (req, res, next) => {
     res.send('pong')
@@ -255,6 +257,7 @@ const serveStatic = function(app, bp) {
   app.use('/js/env.js', (req, res, next) => {
     res.contentType('text/javascript')
     res.send(`(function(window) {
+      window.NODE_ENV = "${process.env.NODE_ENV || 'development'}";
       window.DEV_MODE = ${util.isDeveloping};
       window.AUTH_ENABLED = ${bp.requiresAuth};
       window.AUTH_TOKEN_DURATION = ${ms(bp.authTokenExpiry)};

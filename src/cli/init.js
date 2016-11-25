@@ -88,7 +88,7 @@ module.exports = function() {
     fs.mkdirSync('modules_config')
 
     util.print(waitingText)
-    const install = spawn('npm', ['install'])
+    const install = spawn(util.npmCmd, ['install'])
 
     install.stdout.on('data', (data) => {
       process.stdout.write(data.toString())

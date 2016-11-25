@@ -17,7 +17,7 @@ module.exports = function(projectPath, options) {
   projectPath = path.resolve(projectPath || '.')
 
   try {
-    botpress = require(path.join(projectPath, 'node_modules', '@botskin/botpress'))
+    botpress = require(path.join(projectPath, 'node_modules', 'botpress'))
   } catch (err) {
     util.print('error', '(fatal) The project does not have botpress installed as a dependency')
     util.print('You need to `npm install botpress --save` in the bot\'s project')
