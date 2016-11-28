@@ -101,6 +101,8 @@ bp.notifications.send({
 })
 ```
 
+Read more about the [Core Notification API](TODO).
+
 ## Logging
 
 ## Authentication
