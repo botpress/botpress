@@ -39,6 +39,10 @@ For a more detailed usage guide, please read the [Getting Started Guide](TODO).
 
 ## Example
 
+There's a [video in YouTube](TODO) that shows how to create a Hello World messenger bot in under 45 seconds.
+
+Many more code examples are available in the **[Examples repository](TODO)**
+
 ## Documentation
 
 ## Community
