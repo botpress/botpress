@@ -72,6 +72,9 @@ bp.registerMiddleware({
 
 Once all middlewares have been registered (usually modules should register middlewares immediatly in their initialization), **you must load them** using [`bp.loadMiddlewares()`](TODO), which will create the incoming and outgoing chains automatically.
 
+Once middlewares are loaded, you'll see them displayed in your bot's interface:
+
+![](/assets/screenshot-middlewares.png)
 
 ## Full Messages Lifecycle Example
 
