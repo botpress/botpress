@@ -76,6 +76,14 @@ Once middlewares are loaded, you'll see them displayed in your bot's interface:
 
 ![](/assets/screenshot-middlewares.png)
 
+## Ordering middlewares
+
+By default, middlewares are ordered by **ascending order** according to their `order` property set on registration. The order can then be manually overwritten:
+
+![](/assets/screenshot-middlewares-order.png)
+
+You can also re-order them programmatically using [middlewares customizations](TODO).
+
 ## Full Messages Lifecycle Example
 
 Imagine you have a travel bot that is available on Facebook Messenger and Slack and that can handle many languages.
@@ -102,11 +110,3 @@ Now lets look at how a complete interaction might be handled by your bot.
 11. botpress-messenger sends the message to Facebook Messenger through the Send API
 
 All of this happens behind the scene and is handled by the modules middlewares. As a bot developer, all you have to worry about is writing the bot's logic.
-
-## Ordering middlewares
-
-TODO
-
-## Error handling
-
-TODO
