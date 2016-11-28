@@ -70,6 +70,8 @@ bp.registerMiddleware({
 })
 ```
 
+Once all middlewares have been registered (usually modules should register middlewares immediatly in their initialization), **you must load them** using [`bp.loadMiddlewares()`](TODO), which will create the incoming and outgoing chains automatically.
+
 
 ## Full Messages Lifecycle Example
 
