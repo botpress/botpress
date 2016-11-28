@@ -6,6 +6,6 @@
     * [Botfile](botfile.md)
     * [Middlewares](middlewares.md)
     * [Database](database.md)
-    * HTTP Server
-    * Creating a module
+    * [HTTP Server](http-server.md)
+    * [Creating a module](creating-a-module.md)
 
