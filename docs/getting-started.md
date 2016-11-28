@@ -120,4 +120,4 @@ NODE_ENV=production botpress start
 
 ![](/assets/screenshot-login.png)
 
-You can configure the authentication details in the [botfile](TODO).
+You can easily configure the authentication details in the [botfile](TODO).
