@@ -62,7 +62,30 @@ In your bot's entry point (`index.js`), you have access to the botpress instance
 
 [`bp.hear`](TODO) is an utility function to capture and process messages. Behind the scene, botpress simply appends an [incoming middleware](TODO), but we don't need to know about these for now.
 
+**Example**:
+```js
+// file: index.js
+module.exports = function(bp) {
+    // listens for the "hello world" string
+    bp.hear('hello world', function(message) {
+        // do something with the message
+    })
+}
+```
 
+[`bp.hear`](TODO) has much more powerful listening capabilities such as listening on regexes:
+
+```js
+bp.hear(/hello/i, function(message) { /* do something */ })
+```
+
+or even platform-specific events:
+
+```js
+bp.hear({ platform: 'facebook', text: /hello/i }, /* ... */)
+```
+
+Please read the [Core Reference](TODO) for more information
 
 ## Notifications
 
