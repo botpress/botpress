@@ -52,6 +52,12 @@ You may uninstall modules with the [`botpress uninstall`](TODO) command:
 botpress uninstall messenger
 ```
 
+## Middlewares
+
+Middlewares are a critical component of botpress. Simply put, they are functions that process messages. Think of it this way: everything that enter or leave your bot is coming in (or out) from middlewares.
+
+If you have used [Express](TODO) before, botpress middlewares are very similar to express's middlewares.
+
 ## Processing messages
 
 ## Notifications
