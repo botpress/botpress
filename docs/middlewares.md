@@ -18,8 +18,16 @@ Botpress has two middlewares: [incoming](TODO) and [outgoing](TODO)
 
 ## Messages Lifecycle
 
+TODO
+
 ## Registering middlewares
+
+TODO
 
 ## Ordering middlewares
 
+TODO
+
 ## Error handling
+
+TODO
