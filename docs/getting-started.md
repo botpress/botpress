@@ -107,7 +107,9 @@ Read more about the [Core Notification API](TODO).
 
 ## Logging
 
-[`bp.logger`](TODO) is an instance of [`winston`](https://github.com/winstonjs/winston). You can use to log messages, which will automatically show up in your bot's console and web interface.
+Using [`bp.logger`](TODO) is the preferred way of logging things in your bot. `bp.logger` is an instance of the great [`winston`](https://github.com/winstonjs/winston) library. 
+
+You can use to log messages, which will automatically show up in your bot's console and web interface.
 
 ![](/assets/screenshot-logs.png)
 
