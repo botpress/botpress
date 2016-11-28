@@ -85,7 +85,7 @@ or even platform-specific events:
 bp.hear({ platform: 'facebook', text: /hello/i }, /* ... */)
 ```
 
-Please read the [Core Reference](TODO) for more ways of using [`bp.hear`](TODO)
+Please read the [Core Reference](TODO) for to discover more ways of using [`bp.hear`](TODO)
 
 ## Notifications
 
