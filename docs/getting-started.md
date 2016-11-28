@@ -52,11 +52,15 @@ You may uninstall modules with the [`botpress uninstall`](TODO) command:
 botpress uninstall messenger
 ```
 
+## The `bp` instance
 
+In your bot's entry point (`index.js`), you have access to the botpress instance `bp`. From now on, we will simply refer to this instance as **`bp`**.
+
+`bp` is the only object you need to work with when creating a bot. It contains everything you need to process messages, send notifications, send messages, communicate with modules, setup custom HTTP routes, log stuff to the console and more.
 
 ## Processing messages
 
-Botpress comes with an utility function to capture messages on the incoming middleware: `bp.hear`
+`bp.hear` is an utility function to capture and process messages. Behind the scene, botpress simply appends an [incoming middleware](TODO), but we don't need to know about these for now.
 
 ## Notifications
 
