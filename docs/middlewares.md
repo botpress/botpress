@@ -16,6 +16,41 @@ Botpress has two middleware chains: [incoming](TODO) and [outgoing](TODO)
 
 **Outgoing**: [botpress-messenger](TODO) listens (through a middleware function) for messages it can process on the outgoing middleware and sends them to Facebook through the Messenger Send API.
 
+## Middleware Chain
+
+A middleware chain is simply a collection of middlewares that are called in a [predertermined order](TODO). Each middleware in the chain has the freedom to:
+- execute arbitrary code
+- mutate the event
+- call the next middleware
+- interupting the chain by never calling the next middleware (what we call swallowing the event)
+- interrupting the chain by throwing an error
+
+## A simple middleware
+
+A middleware is simply a function that takes an event as the first parameter and a `next` function as the second parameter.
+
+Here's an example of the 5 possible cases:
+
+```js
+var middleware = function(event, next) {
+    // chain interruption (error)
+    if (internetDisconnected()) 
+        return next(new Error('Not connected'))
+    
+    if (isUserBanned(event.user.id))
+        return // swallow the event
+
+    // arbitraty code execution
+    var translation = Translator.translate(event.text)
+
+    // event mutation
+    event.text = translation
+    
+    // call next middleware
+    next()
+}
+```
+
 ## Full Messages Lifecycle Example
 
 Imagine you have a travel bot that is available on Facebook Messenger and Slack and that can handle many languages.
