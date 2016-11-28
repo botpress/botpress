@@ -58,6 +58,8 @@ Middlewares are a critical component of botpress. Simply put, they are functions
 
 If you have used [Express](TODO) before, botpress middlewares are very similar to express's middlewares.
 
+Botpress has two middlewares: [incoming](TODO) and [outgoing](TODO)
+
 **To receive messages**: An installed module must pipe messages into the [incoming middleware](TODO)
 
 **To send messages**: You (or a module) must pipe messages into the [outgoing middleware](TODO) and have a module able to send it to the right platform
