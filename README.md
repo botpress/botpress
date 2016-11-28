@@ -14,7 +14,7 @@ npm install -g botpress
 
 ## Usage
 
-Creating a bot is simple, simple run [`botpress init`](TODO) inside an empty directory:
+Creating a bot is simple, simply run [`botpress init`](TODO) inside an empty directory:
 
 ```
 mkdir my-bot && cd my-bot
