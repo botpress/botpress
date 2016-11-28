@@ -2,7 +2,7 @@
 
 ---
 
-Botpress is an open-source bot creation tool written in Javascript. It is powered by a rich set of modules built by the community. Botpress is on a mission to make bots ubiquitous and profitable for everybody.
+Botpress is an open-source bot creation tool written in Javascript. It is powered by a rich set of open-source (and proprietary) modules built by the community. Botpress is on a mission to make bots ubiquitous and profitable for everybody.
 
 ## Installation
 
