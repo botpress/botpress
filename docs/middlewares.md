@@ -53,6 +53,24 @@ var middleware = function(event, next) {
 
 The return value of the middleware can be anything or nothing, it isn't used.
 
+## Registering middlewares
+
+You need to register a middleware for botpress to know about it and use it. You may do so with the [`bp.registerMiddleware`](TODO) method:
+
+```js
+// code taken from botpress-messenger
+bp.registerMiddleware({
+    name: 'messenger.sendMessages',
+    type: 'outgoing',
+    order: 100,
+    handler: outgoingMiddleware,
+    module: 'botpress-messenger',
+    description: 'Sends out messages that targets platform = '
+    + 'messenger. This middleware should be placed at the end as it swallows events once sent.'
+})
+```
+
+
 ## Full Messages Lifecycle Example
 
 Imagine you have a travel bot that is available on Facebook Messenger and Slack and that can handle many languages.
@@ -79,10 +97,6 @@ Now lets look at how a complete interaction might be handled by your bot.
 11. botpress-messenger sends the message to Facebook Messenger through the Send API
 
 All of this happens behind the scene and is handled by the modules middlewares. As a bot developer, all you have to worry about is writing the bot's logic.
-
-## Registering middlewares
-
-TODO
 
 ## Ordering middlewares
 
