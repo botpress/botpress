@@ -91,6 +91,16 @@ You can read the [Core Reference](TODO) for to discover more ways of using [`bp.
 
 Notifications appear in the bot's web interface. They are a mean for modules and your bot logic to alert the bot administrators about what is going on.
 
+**Example**:
+
+```js
+bp.notifications.send({
+    level: 'success',
+    title: 'Bot started',
+    message: 'Bot successfully started!'
+})
+```
+
 ## Logging
 
 ## Authentication
