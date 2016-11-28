@@ -21,7 +21,7 @@ mkdir my-bot && cd my-bot
 botpress init
 ```
 
-Once your bot created, you may [start](TODO) your bot:
+Once your bot is created, you may [start](TODO) it:
 
 ```
 botpress start
