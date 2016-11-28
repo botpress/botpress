@@ -62,9 +62,15 @@ If you have used [Express](TODO) before, botpress middlewares are very similar t
 
 **To send messages**: You (or a module) must pipe messages into the [outgoing middleware](TODO) and have a module able to send it to the right platform
 
+### Example
+
+**Incoming**: [botpress-messenger](TODO) connects to Facebook and receives messages from its built-in Webhook. It then pipes messages into the incoming middleware, which your bot can process.
+
+**Outgoing**: [botpress-messenger](TODO) listens (through a middleware function) for messages it can process on the outgoing middleware and sends them to Facebook through the Messenger Send API.
+
 ## Processing messages
 
-Botpress comes with an utility function to capture incoming messages.
+Botpress comes with an utility function to capture messages on the incoming middleware: `bp.hear`
 
 ## Notifications
 
