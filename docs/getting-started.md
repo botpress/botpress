@@ -21,11 +21,11 @@ The global command line tool is available as `botpress` and `bp`. For example, r
 `botpress init` is the only safe and preffered way of creating a Botpress bot. This command must be run inside an empty directory as it will create some files required to run your bot. The following files will be generated:
 
 ```js
-    - botfile.js //
-    - index.js //
-    - package.json //
-    - LICENSE //
-    - .gitignore // 
+    - botfile.js // your bot's configuration. botpress uses this
+    - index.js // your bot's entry point. bot logic goes here
+    - package.json // regular node package.json file
+    - LICENSE // your bot license, either AGPLv3 or Botpress License
+    - .gitignore // ignoring some botpress-created files by default
 ```
 
 ## Installing modules
