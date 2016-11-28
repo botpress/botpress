@@ -107,6 +107,8 @@ Read more about the [Core Notification API](TODO).
 
 ## Logging
 
+[`bp.logger`](TODO) is an instance of [`winston`](https://github.com/winstonjs/winston)
+
 ![](/assets/screenshot-logs.png)
 
 ## Authentication
