@@ -1,2 +1,2 @@
-![](/images/botpress-dark.png "botpress logo")
+![](/images/botpress-dark.png)
 
