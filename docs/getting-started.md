@@ -107,5 +107,17 @@ Read more about the [Core Notification API](TODO).
 
 ## Logging
 
+![](/assets/screenshot-logs.png)
+
 ## Authentication
 
+Running your bot with `NODE_ENV` environement variable set to `production` will result in authentication turned on by default.
+
+**Usage**:
+```
+NODE_ENV=production botpress start
+```
+
+![](/assets/screenshot-login.png)
+
+You can configure the authentication details in the [botfile](TODO).
