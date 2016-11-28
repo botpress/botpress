@@ -60,7 +60,9 @@ In your bot's entry point (`index.js`), you have access to the botpress instance
 
 ## Processing messages
 
-`bp.hear` is an utility function to capture and process messages. Behind the scene, botpress simply appends an [incoming middleware](TODO), but we don't need to know about these for now.
+[`bp.hear`](TODO) is an utility function to capture and process messages. Behind the scene, botpress simply appends an [incoming middleware](TODO), but we don't need to know about these for now.
+
+
 
 ## Notifications
 
