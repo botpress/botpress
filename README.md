@@ -27,7 +27,7 @@ Once your bot is created, you may [start](TODO) it:
 botpress start
 ```
 
-This will provide you with a web interface available at `http://localhost:3000`
+This will provide you with a web interface available at **`http://localhost:3000`**
 
 You then need to install some [modules](TODO). You can do so directly in the web interface or using the [`botpress install`](TODO) CLI command:
 
