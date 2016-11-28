@@ -58,5 +58,8 @@ Many more code examples are available in the **[Examples repository](TODO)**
 
 ## Community
 
+There's a [public chatroom](https://gitter.im/botpress/core) where you are welcome to join and ask any question and even help others.
+
 ## License
 
+Botpress is dual-licensed under [AGPLv3](/licenses/LICENSE_AGPL3) and the [Botpress Proprietary License](/licenses/LICENSE_BOTPRESS).
