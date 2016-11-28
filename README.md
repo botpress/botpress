@@ -29,7 +29,7 @@ botpress start
 
 This will provide you with a web interface available at **`http://localhost:3000`**
 
-You then need to install some [modules](TODO). You can do so directly in the web interface or using the [`botpress install`](TODO) CLI command:
+You then need to install some [modules](TODO). You can do so directly in the web interface, or using the [`botpress install`](TODO) CLI command:
 
 ```
 botpress install messenger
@@ -39,7 +39,7 @@ For a more detailed usage guide, please read the [Getting Started Guide](TODO).
 
 ## Examples
 
-There's a [video in YouTube](TODO) that shows how to create a Hello World messenger bot in under 45 seconds.
+There's a [video on YouTube](TODO) that shows how to create a Hello World Messenger Bot in under 45 seconds.
 
 - [Hello World Messenger Bot](TODO)
 - [Todolist Messenger Bot](TODO)
