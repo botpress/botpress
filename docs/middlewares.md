@@ -58,7 +58,7 @@ The return value of the middleware can be anything or nothing, it isn't used.
 You need to register a middleware for botpress to know about it and use it. You may do so with the [`bp.registerMiddleware`](TODO) method:
 
 ```js
-// code taken from botpress-messenger
+// ** code taken from botpress-messenger **
 bp.registerMiddleware({
     name: 'messenger.sendMessages',
     type: 'outgoing',
