@@ -37,9 +37,14 @@ botpress install messenger
 
 For a more detailed usage guide, please read the [Getting Started Guide](TODO).
 
-## Example
+## Examples
 
 There's a [video in YouTube](TODO) that shows how to create a Hello World messenger bot in under 45 seconds.
+
+- [Hello World Messenger Bot](TODO)
+- [Todolist Messenger Bot](TODO)
+- [Scheduling Messages](TODO)
+- [Bot Analytics](TODO)
 
 Many more code examples are available in the **[Examples repository](TODO)**
 
