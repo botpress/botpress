@@ -30,6 +30,22 @@ The global command line tool is available as `botpress` and `bp`. For example, r
 
 ## Installing modules
 
+Botpress aims to be as lightweight as possible and includes only what is necessary to almost all bots. Much of the functionalities your bot will have will come from modules. Modules must be installed separately using the `botpress install` command.
+
+A list of all available modules can be found in your bot's web interface. Modules are published to NPM and botpress crawls and indexes available and valid modules to make it easier for you to install them.
+
+The following commands are all valid:
+
+```
+botpress install botpress-messenger
+botpress install messenger
+botpress i messenger
+bp i messenger
+bp i messenger analytics rivescript broadcast
+bp i ~/john/Desktop/botpress-local-module
+bp i ../local-module
+```
+
 ## Processing messages
 
 ## Notifications
