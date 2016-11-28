@@ -10,8 +10,8 @@ import WebServer from './server'
 import applyEngine from './engine'
 import EventBus from './bus'
 import NotificationProvider from './notif'
-import Logger from './logger'
-import Security from './security'
+import createLogger from './logger'
+import createSecurity from './security'
 import Listeners from './listeners'
 import Database from './database'
 import Module from './module'
@@ -26,6 +26,74 @@ import {
 } from './util'
 
 const RESTART_EXIT_CODE = 107
+
+const getVersion = () => {
+  const botpressPackagePath = path.join(__dirname, '../package.json')
+  const botpressJson = JSON.parse(fs.readFileSync(botpressPackagePath))
+  return botpressJson.version
+}
+
+const getDataLocation = (dataDir, projectLocation) => (
+  dataDir && path.isAbsolute(dataDir)
+    ? path.resolve(dataDir)
+    : path.resolve(projectLocation, dataDir || 'data')
+)
+
+const mkdirIfNeeded = (path, logger) => {
+  if (!fs.existsSync(path)) {
+    logger.info('creating data directory: ' + path)
+
+    try {
+      fs.mkdirSync(path)
+    } catch (err) {
+      logger.error('(fatal) error creating directory: ', err.message)
+      process.exit(1)
+    }
+  }
+}
+
+const scanModules = (projectLocation, logger) => {
+  const packagePath = path.join(projectLocation, 'package.json')
+
+  if (!fs.existsSync(packagePath)) {
+    return logger.warn("No package.json found at project root, " +
+      "which means botpress can't load any module for the bot.")
+  }
+
+  const botPackage = require(packagePath)
+
+  let deps = botPackage.dependencies || {}
+  if (isDeveloping) {
+    deps = _.merge(deps, botPackage.devDependencies || {})
+  }
+
+  return _.reduce(deps, (result, value, key) => {
+    if (!/^botpress-/i.test(key)) {
+      return result
+    }
+    const entry = resolveFromDir(this.projectLocation, key)
+    if (!entry) {
+      return result
+    }
+    const root = resolveModuleRootPath(entry)
+    if (!root) {
+      return result
+    }
+
+    const modulePackage = require(path.join(root, 'package.json'))
+    if (!modulePackage.botpress) {
+      return result
+    }
+
+    return result.push({
+      name: key,
+      root: root,
+      homepage: modulePackage.homepage,
+      settings: modulePackage.botpress,
+      entry: entry
+    }) && result
+  }, [])
+}
 
 /**
  * Global context botpress
@@ -51,7 +119,7 @@ class botpress {
    * @param {string} obj.botfile - the config path
    */
   constructor({ botfile }) {
-    this._setVersion()
+    this.version = getVersion()
 
     /**
      * The project location, which is the folder where botfile.js located
@@ -62,82 +130,6 @@ class botpress {
      * The botfile config object
      */
     this.botfile = require(botfile)
-  }
-
-  /**
-   * Resolve the rest of paths, currently only for setting up `dataLocation`
-   *
-   * If the folder `${dataLocation}` doesn't exist, it will automatically create one.
-   */
-  _resolvePaths() {
-
-    /**
-     * Path of folder which data will be stored.
-     * default to `${projectLocation}/data`
-     */
-    this.dataLocation =
-      this.botfile.dataDir && path.isAbsolute(this.botfile.dataDir)
-      ? path.resolve(this.botfile.dataDir)
-      : path.resolve(this.projectLocation, this.botfile.dataDir || 'data')
-
-    if (!fs.existsSync(this.dataLocation)) {
-      this.logger.info('creating data directory: ' + this.dataLocation)
-      try {
-        fs.mkdirSync(this.dataLocation)
-      } catch (err) {
-        this.logger.error('(fatal) error creating directory: ', err.message)
-        process.exit(1)
-      }
-    }
-  }
-
-  _setVersion() {
-    const botpressPackagePath = path.join(__dirname, '../package.json')
-    const botpressJson = JSON.parse(fs.readFileSync(botpressPackagePath))
-    this.version = botpressJson.version
-  }
-
-  _scanModules() {
-    const packagePath = path.join(this.projectLocation, 'package.json')
-
-    if (!fs.existsSync(packagePath)) {
-      return this.logger.warn("No package.json found at project root, " +
-        "which means botpress can't load any module for the bot.")
-    }
-
-    const botPackage = require(packagePath)
-
-    let deps = botPackage.dependencies || {}
-    if (isDeveloping) {
-      deps = _.merge(deps, botPackage.devDependencies || {})
-    }
-
-    return _.reduce(deps, (result, value, key) => {
-      if (!/^botpress-/i.test(key)) {
-        return result
-      }
-      const entry = resolveFromDir(this.projectLocation, key)
-      if (!entry) {
-        return result
-      }
-      const root = resolveModuleRootPath(entry)
-      if (!root) {
-        return result
-      }
-
-      const modulePackage = require(path.join(root, 'package.json'))
-      if (!modulePackage.botpress) {
-        return result
-      }
-
-      return result.push({
-        name: key,
-        root: root,
-        homepage: modulePackage.homepage,
-        settings: modulePackage.botpress,
-        entry: entry
-      }) && result
-    }, [])
   }
 
   _loadModules(modules) {
@@ -184,17 +176,23 @@ class botpress {
     // the bot's location is kept in this.projectLocation
     process.chdir(path.join(__dirname, '../'))
 
-    const logger = this.logger = Logger(this)
+    const {projectLocation, botfile} = this
 
-    if (!this.botfile.disableFileLogs) {
-      logger.enableFileTransport()
-    }
+    const dataLocation = getDataLocation(botfile.dataDir, projectLocation)
+    const logger = createLogger(dataLocation, botfile.log)
+    mkdirIfNeeded(dataLocation, logger)
 
-    this._resolvePaths()
+    const security = createSecurity(dataLocation, botfile.login)
 
-    Security(this)
+    const modules = scanModules(projectLocation, logger)
 
-    const modules = this._scanModules()
+    _.assign(this, {
+      dataLocation,
+      logger,
+      security
+    })
+
+    // ----- the following haven't been finished -----
 
     // initialize event bus
     this.events = new EventBus()
