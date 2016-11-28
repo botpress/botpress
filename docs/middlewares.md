@@ -51,6 +51,8 @@ var middleware = function(event, next) {
 }
 ```
 
+The return value of the middleware can be anything or nothing, it isn't used.
+
 ## Full Messages Lifecycle Example
 
 Imagine you have a travel bot that is available on Facebook Messenger and Slack and that can handle many languages.
