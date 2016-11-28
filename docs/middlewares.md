@@ -60,11 +60,11 @@ You need to register a middleware for botpress to know about it and use it. You 
 ```js
 // ** code taken from botpress-messenger **
 bp.registerMiddleware({
-    name: 'messenger.sendMessages',
-    type: 'outgoing',
-    order: 100,
-    handler: outgoingMiddleware,
-    module: 'botpress-messenger',
+    name: 'messenger.sendMessages', // friendly name
+    type: 'outgoing', // either incoming or outgoing
+    order: 100, // arbitrary number
+    handler: outgoingMiddleware, // the middleware function
+    module: 'botpress-messenger', // the name of the module, if any
     description: 'Sends out messages that targets platform = '
     + 'messenger. This middleware should be placed at the end as it swallows events once sent.'
 })
