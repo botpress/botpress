@@ -101,8 +101,11 @@ bp.notifications.send({
 })
 ```
 
+![](/assets/screenshot-notifications)
+
 Read more about the [Core Notification API](TODO).
 
 ## Logging
 
 ## Authentication
+
