@@ -111,6 +111,11 @@ Using [`bp.logger`](TODO) is the preferred way of logging things in your bot. `b
 
 You can use to log messages, which will automatically show up in your bot's console and web interface.
 
+**Example**:
+```js
+bp.logger.info('Just logging this to the console')
+```
+
 ![](/assets/screenshot-logs.png)
 
 ## Authentication
