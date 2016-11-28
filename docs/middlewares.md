@@ -4,11 +4,11 @@ Middlewares are a critical component of botpress. Simply put, they are functions
 
 If you have used [Express](TODO) before, botpress middlewares are very similar to express's middlewares.
 
-Botpress has two middlewares: [incoming](TODO) and [outgoing](TODO)
+Botpress has two middleware chains: [incoming](TODO) and [outgoing](TODO)
 
-**To receive messages**: An installed module must pipe messages into the [incoming middleware](TODO)
+**To receive messages**: An installed module must pipe messages into the [incoming middleware chain](TODO)
 
-**To send messages**: You (or a module) must pipe messages into the [outgoing middleware](TODO) and have a module able to send it to the right platform
+**To send messages**: You (or a module) must pipe messages into the [outgoing middleware chain](TODO) and have a module able to send it to the right platform
 
 ### Example
 
@@ -16,9 +16,32 @@ Botpress has two middlewares: [incoming](TODO) and [outgoing](TODO)
 
 **Outgoing**: [botpress-messenger](TODO) listens (through a middleware function) for messages it can process on the outgoing middleware and sends them to Facebook through the Messenger Send API.
 
-## Messages Lifecycle
+## Full Messages Lifecycle Example
 
-TODO
+Imagine you have a travel bot that is available on Facebook Messenger and Slack and that can handle many languages.
+
+Your bot's installed modules would probably look a bit like:
+- [botpress-messenger](TODO) for I/O with Facebook Messenger
+- [botpress-slack](TODO) for I/O with Slack
+- [botpress-analytics](TODO) to have an overview of how people use your bot
+- botpress-translate _(fictive)_ to translate incoming and outgoing messages
+- ~/my-bot/private\_modules/botpress-travel _(fictive)_ your bot's travel logic goes here
+
+Now lets look at how a complete interaction might be handled by your bot.
+
+1. A user types a message in French to your bot in Facebook Messenger
+2. Facebook pushes the message to your bot via the built-in botpress-messenger's Webhook
+3. botpress-messenger retrieves user information and stores them in the built-in database
+4. botpress-messenger parses the message and **calls the first incoming middleware** _(botpress-analytics)_
+5. botpress-analytics tracks the message then **calls the next middleware** in the chain _(botpress-translate)_
+6. botpress-translate translates the message from French to English (by mutating it) then calls the next middleware in the chain _(botpress-travel)_
+7. botpress-travel processes the message and responds by calling the `bp.messenger.pipeText` method
+8. botpress-messenger takes the response and **calls the outgoing middlewares chain**
+9. botpress-translate translates the message from English to French (by mutating it) then calls the next middleware in the outgoing chain _(botpress-analytics)_
+10. botpress-analytics tracks the message then calls the next middleware _(botpress-messenger)_
+11. botpress-messenger sends the message to Facebook Messenger through the Send API
+
+All of this happens behind the scene and is handled by the modules middlewares. As a bot developer, all you have to worry about is writing the bot's logic.
 
 ## Registering middlewares
 
