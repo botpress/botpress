@@ -2,6 +2,7 @@
 
 A bot CMS built with nodejs
 
+![](/images/botpress-dark.png "botpress logo")
 
 
 ## General Concept
