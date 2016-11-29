@@ -47,7 +47,14 @@ As you can see, all the module's logic is inside the `/src` directory. A module 
 
 ### Backend
 
+A module entry point is an object that exposes two methods: `init` and `ready`.
 
+Both methods take **`bp`** as their first argument and does not need to return anything.
+
+- `init(bp)` is called on module initialization (before the bot is started). Middlewares registration usually goes here.
+- `ready(bp)` is called once all modules are loaded and the bot is fully started. Routing and module logic usually go here.
+
+To see examples of how modules are implemented, you may look at the source of existing modules such as [`botpress-messenger`](https://github.com/botpress/botpress-messenger/blob/master/src/index.js).
 
 ### Frontend
 
