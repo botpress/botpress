@@ -50,8 +50,8 @@ Many more code examples are available in the **[Examples repository](TODO)**
 
 ## Documentation
 
-- [Getting Started Guide](TODO)
-- [Advanced Topics](TODO)
+- [Getting Started Guide](/docs/getting-started.md)
+- [Advanced Topics](/docs/advanced-topics.md)
 - [CLI Reference](TODO)
 - [Core Reference](TODO)
 
