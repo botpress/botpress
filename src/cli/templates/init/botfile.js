@@ -1,5 +1,13 @@
 module.exports = {
+
+  /**
+   * where the content stored
+   *
+   * default value is './data'
+   * you can access this property from `bp.dataLocation`
+   */
   dataDir: "./data",
+
   modulesConfigDir: "./modules_config",
   disableFileLogs: false,
   notification: {
@@ -10,6 +18,10 @@ module.exports = {
     file: 'bot.log',
     maxSize: 1e6 // 1mb
   },
+
+  /**
+   * Access control of dashboard admin pabel
+   */
   login: {
     enabled: true,
     tokenExpiry: "6 hours",

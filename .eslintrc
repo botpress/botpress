@@ -3,6 +3,7 @@
   "rules": {
     "semi": ["warn", "never"],
     "keyword-spacing": "warn",
-    "space-before-blocks": [ "warn", "always" ]
+    "space-before-blocks": [ "warn", "always" ],
+    "no-trailing-spaces": "warn"
   }
 }
