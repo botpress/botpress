@@ -7,17 +7,17 @@ import util from './util'
 /**
  * Security helper for botpress
  *
- * A function which inject security related funciton into botpress, including:
+ * Constructor of following functions
  *
  *   - login(user, password, ip)
  *   - authenticate(token)
  *   - getSecret()
  *
- * It will find or create a secret.key in `bp.dataLocation`, then setup the adminPassword for user login.
+ * It will find or create a secret.key in `dataLocation`, then setup the adminPassword for user login.
  *
  * NOTE: current only valid user name is "admin"
  */
-module.exports = (dataLocation, loginConfig) => {
+module.exports = (dataLocation, securityConfig) => {
 
   // reading secret from data or creating new secret
   let secret = ''
@@ -38,21 +38,21 @@ module.exports = (dataLocation, loginConfig) => {
   }
 
   const adminPassword = process.env.BOTPRESS_ADMIN_PASSWORD ||
-    (loginConfig && loginConfig.password) ||
+    (securityConfig && securityConfig.password) ||
     'password'
 
-  const enabled = loginConfig=
-    (loginConfig && loginConfig.enabled) &&
+  const enabled = securityConfig =
+    (securityConfig && securityConfig.enabled) &&
     !util.isDeveloping
 
   // a per-ip cache that logs login attempts
   let attempts = {}
   let lastCleanTimestamp = new Date()
-  const maxAttempts = (loginConfig && loginConfig.maxAttempts) || 3
-  const resetAfter = (loginConfig && loginConfig.resetAfter) || 5 * 60 * 1000 // 5mins
+  const maxAttempts = (securityConfig && securityConfig.maxAttempts) || 3
+  const resetAfter = (securityConfig && securityConfig.resetAfter) || 5 * 60 * 1000 // 5mins
 
-  const loginTokenExpiry = loginConfig.authTokenExpiry =
-    (loginConfig && loginConfig.tokenExpiry) || '6 hours'
+  const loginTokenExpiry = securityConfig.authTokenExpiry =
+    (securityConfig && securityConfig.tokenExpiry) || '6 hours'
 
   // login function that returns a {success, reason, token} object
   // accounts for number of bad attempts
