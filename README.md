@@ -54,7 +54,6 @@ Many more code examples are available in the **[Examples repository](TODO)**
 - [Advanced Topics](TODO)
 - [CLI Reference](TODO)
 - [Core Reference](TODO)
-- [API Reference](TODO)
 
 ## Community
 
