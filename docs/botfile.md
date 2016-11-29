@@ -25,3 +25,4 @@ The configuration can be accessed programmatically directly in the `bp.botfile` 
 
 ## Customization
 
+Since the botfile is a regular commonjs module, arbitrary code can be run in the botfile in order to compute the required fields. The exported value must always be the final configuration object and should be synchronous. You should never mutate the configuration at run time.
