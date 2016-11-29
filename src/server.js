@@ -115,7 +115,7 @@ const serveApi = function(app, bp) {
   })
 
   app.get('/api/notifications', (req, res, next) => {
-    res.send(bp.loadNotifications())
+    res.send(bp.notif.load())
   })
 
   app.get('/api/bot/information', (req, res, next) => {

@@ -9,19 +9,18 @@ import cluster from 'cluster'
 import WebServer from './server'
 import applyEngine from './engine'
 import EventBus from './bus'
-import NotificationProvider from './notif'
 import createLogger from './logger'
 import createSecurity from './security'
+import createNotif from './notif'
 import Listeners from './listeners'
 import Database from './database'
 import Module from './module'
 import Licensing from './licensing'
 import Bot from './bot'
+import {scanModules, loadModules} from './module_loader'
 
 import {
-  resolveFromDir,
   isDeveloping,
-  resolveModuleRootPath,
   print
 } from './util'
 
@@ -50,49 +49,6 @@ const mkdirIfNeeded = (path, logger) => {
       process.exit(1)
     }
   }
-}
-
-const scanModules = (projectLocation, logger) => {
-  const packagePath = path.join(projectLocation, 'package.json')
-
-  if (!fs.existsSync(packagePath)) {
-    return logger.warn("No package.json found at project root, " +
-      "which means botpress can't load any module for the bot.")
-  }
-
-  const botPackage = require(packagePath)
-
-  let deps = botPackage.dependencies || {}
-  if (isDeveloping) {
-    deps = _.merge(deps, botPackage.devDependencies || {})
-  }
-
-  return _.reduce(deps, (result, value, key) => {
-    if (!/^botpress-/i.test(key)) {
-      return result
-    }
-    const entry = resolveFromDir(this.projectLocation, key)
-    if (!entry) {
-      return result
-    }
-    const root = resolveModuleRootPath(entry)
-    if (!root) {
-      return result
-    }
-
-    const modulePackage = require(path.join(root, 'package.json'))
-    if (!modulePackage.botpress) {
-      return result
-    }
-
-    return result.push({
-      name: key,
-      root: root,
-      homepage: modulePackage.homepage,
-      settings: modulePackage.botpress,
-      entry: entry
-    }) && result
-  }, [])
 }
 
 /**
@@ -132,35 +88,6 @@ class botpress {
     this.botfile = require(botfile)
   }
 
-  _loadModules(modules) {
-    let loadedCount = 0
-    this.modules = {}
-
-    modules.forEach((mod) => {
-      const loader = require(mod.entry)
-
-      if (typeof loader !== 'object') {
-        return this.logger.warn('Ignoring module ' + mod.name +
-          ', invalid entry point signature.')
-      }
-
-      mod.handlers = loader
-
-      try {
-        loader.init && loader.init(this)
-      } catch (err) {
-        this.logger.warn('Error during module initialization: ', err)
-      }
-
-      this.modules[mod.name] = mod
-      loadedCount++
-    })
-
-    if (loadedCount > 0) {
-      this.logger.info(`loaded ${loadedCount} modules`)
-    }
-  }
-
   /**
    * Start the bot instance
    *
@@ -185,19 +112,20 @@ class botpress {
     const security = createSecurity(dataLocation, botfile.login)
 
     const modules = scanModules(projectLocation, logger)
+    const events = new EventBus()
+    const notif = createNotif(dataLocation, botfile.notification, events, logger)
 
     _.assign(this, {
       dataLocation,
       logger,
-      security
+      security, // login, authenticate, getSecret
+      events,
+      notif,    // load, save, send
+
+      // TODO To be continued
     })
 
     // ----- the following haven't been finished -----
-
-    // initialize event bus
-    this.events = new EventBus()
-    NotificationProvider(this, modules)
-
     applyEngine(this)
 
     this.hear = (condition, callback) => {
@@ -211,7 +139,7 @@ class botpress {
     this.licensing = Licensing(this)
     this.bot = Bot(this)
 
-    this._loadModules(modules)
+    this.modules = loadModules(modules, this, logger)
 
     const server = this.server = new WebServer({ botpress: this })
     server.start()
@@ -241,7 +169,7 @@ class botpress {
     if (cluster.isMaster) {
       cluster.fork()
 
-      cluster.on('exit', (worker, code, signal) => {
+      cluster.on('exit', (worker, code/* , signal */) => {
         if (code === RESTART_EXIT_CODE) {
           cluster.fork()
           print('info', '*** restarted worker process ***')
