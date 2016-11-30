@@ -65,6 +65,23 @@ Botpress will pass an instance of the front-end `bp` instance and a pre-configur
 - `bp` exposes `bp.events`, which is an instance of the [EventBus](TODO)
 - [`axios`](https://github.com/mzabriskie/axios) is pre-configured to provide the required authentication token by the API routes
 
+#### Example
+
+```js
+import React from 'react'
+
+export default class TemplateModule extends React.Component {
+
+  emitEvent() {
+    this.props.bp.events.emit('test.clicked', { a: '123' })
+  }
+  render() {
+    return <button onClick={::this.emitEvent}>Click me</button>
+  }
+}
+```
+
+To see more examples of how modules are implemented, you make have a look to the source of existing modules such as [`botpress-messenger`](https://github.com/botpress/botpress-messenger/blob/master/src/views/index.jsx).
 ### Compiling
 
 ### Testing & Local development
