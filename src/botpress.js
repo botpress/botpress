@@ -122,7 +122,7 @@ class botpress {
     const notifications = createNotif(dataLocation, botfile.notification, events, logger)
     const about = createAbout(projectLocation)
     const licensing = createLicensing(projectLocation)
-    const middlewares = createMiddlewares(this, projectLocation, logger)
+    const middlewares = createMiddlewares(this, dataLocation, projectLocation, logger)
     const {hear, middleware: hearMiddleware} = createHearMiddleware()
     const db = createDatabase(dbLocation)
 

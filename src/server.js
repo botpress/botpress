@@ -75,7 +75,7 @@ const serveApi = function(app, bp) {
   app.use(maybeApply('bodyParser.urlencoded', bodyParser.urlencoded({ extended: true })))
 
   app.post('/api/login', (req, res) => {
-    const result = bp.login(req.body.user, req.body.password, req.ip)
+    const result = bp.security.login(req.body.user, req.body.password, req.ip)
     res.send(result)
   })
 
@@ -237,8 +237,8 @@ const serveApi = function(app, bp) {
 
 const serveStatic = function(app, bp) {
 
-  for (let name in bp.modules) {
-    const module = bp.modules[name]
+  for (let name in bp._loadedModules) {
+    const module = bp._loadedModules[name]
     const bundlePath = path.join(module.root, module.settings.webBundle || 'bin/web.bundle.js')
     const requestPath = `/js/modules/${name}.js`
 
@@ -255,12 +255,13 @@ const serveStatic = function(app, bp) {
   }
 
   app.use('/js/env.js', (req, res) => {
+    const { tokenExpiry, enabled } = bp.botfile.login
     res.contentType('text/javascript')
     res.send(`(function(window) {
       window.NODE_ENV = "${process.env.NODE_ENV || 'development'}";
       window.DEV_MODE = ${util.isDeveloping};
-      window.AUTH_ENABLED = ${bp.requiresAuth};
-      window.AUTH_TOKEN_DURATION = ${ms(bp.authTokenExpiry)};
+      window.AUTH_ENABLED = ${enabled};
+      window.AUTH_TOKEN_DURATION = ${ms(tokenExpiry)};
     })(window || {})`)
   })
 

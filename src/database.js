@@ -20,7 +20,6 @@ const initializeDb = knex => {
 module.exports = (dbLocation) => {
 
   let knex = null
-  let dbLocation = null
 
   const getDb = () => {
     if (knex) {

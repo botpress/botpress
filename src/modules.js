@@ -94,7 +94,7 @@ module.exports = (logger, projectLocation, dataLocation) => {
       if (!/^botpress-/i.test(key)) {
         return result
       }
-      const entry = resolveFromDir(this.projectLocation, key)
+      const entry = resolveFromDir(projectLocation, key)
       if (!entry) {
         return result
       }

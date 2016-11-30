@@ -2,7 +2,6 @@ import fs from 'fs'
 import path from 'path'
 import crypto from 'crypto'
 import jwt from 'jsonwebtoken'
-import util from './util'
 
 /**
  * Security helper for botpress
@@ -37,22 +36,12 @@ module.exports = (dataLocation, securityConfig) => {
     secret = createNewSecret()
   }
 
-  const adminPassword = process.env.BOTPRESS_ADMIN_PASSWORD ||
-    (securityConfig && securityConfig.password) ||
-    'password'
-
-  const enabled = securityConfig =
-    (securityConfig && securityConfig.enabled) &&
-    !util.isDeveloping
+  const adminPassword = process.env.BOTPRESS_ADMIN_PASSWORD || securityConfig.password
 
   // a per-ip cache that logs login attempts
   let attempts = {}
   let lastCleanTimestamp = new Date()
-  const maxAttempts = (securityConfig && securityConfig.maxAttempts) || 3
-  const resetAfter = (securityConfig && securityConfig.resetAfter) || 5 * 60 * 1000 // 5mins
-
-  const loginTokenExpiry = securityConfig.authTokenExpiry =
-    (securityConfig && securityConfig.tokenExpiry) || '6 hours'
+  const {maxAttempts, resetAfter, tokenExpiry} = securityConfig
 
   // login function that returns a {success, reason, token} object
   // accounts for number of bad attempts
@@ -75,7 +64,7 @@ module.exports = (dataLocation, securityConfig) => {
       attempts[ip] = 0
       return {
         success: true,
-        token: jwt.sign({ user: 'admin' }, secret, { expiresIn: loginTokenExpiry })
+        token: jwt.sign({ user: 'admin' }, secret, { expiresIn: tokenExpiry })
       }
     } else {
       attempts[ip] = (attempts[ip] || 0) + 1
