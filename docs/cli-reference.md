@@ -61,3 +61,10 @@ botpress list
 
 ### `create` &gt; `c` {#cli-create}
 
+Create and initializes a new module.
+
+```
+botpress create
+```
+
+**Note:** unlike `init`, this command does not run `npm install` after initialization, you need to run it yourself.
