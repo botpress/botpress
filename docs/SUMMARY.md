@@ -9,4 +9,6 @@
     * [HTTP Server](http-server.md)
     * [Events](events.md)
     * [Creating a module](creating-a-module.md)
+* [CLI Reference](cli-reference.md)
+* [Core Reference](core-reference.md)
 
