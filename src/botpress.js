@@ -14,10 +14,9 @@ import createSecurity from './security'
 import createNotif from './notif'
 import createHearMiddleware from './hear'
 import Database from './database'
-import Module from './module'
 import createLicensing from './licensing'
 import createAbout from './about'
-import {scanModules, loadModules} from './module_loader'
+import createModules from './modules'
 
 import {
   isDeveloping,
@@ -111,7 +110,11 @@ class botpress {
 
     const security = createSecurity(dataLocation, botfile.login)
 
-    const modules = scanModules(projectLocation, logger)
+    const modules = createModules(logger, projectLocation, dataLocation)
+
+    const moduleDefinitions = modules._scan()
+    const loadedModules = modules._load(moduleDefinitions, this)
+
     const events = new EventBus()
     const notifications = createNotif(dataLocation, botfile.notification, events, logger)
     const about = createAbout(projectLocation)
@@ -130,17 +133,15 @@ class botpress {
       about,
       middlewares,
       hear,
-      licensing
+      licensing,
+      modules,
+      _loadedModules: loadedModules
       // TODO To be continued
     })
 
     // ----- the following haven't been finished -----
     const dbLocation = path.join(this.dataLocation, 'db.sqlite')
     this.db = Database(dbLocation)
-
-    this.module = Module(this)
-
-    this.modules = loadModules(modules, this, logger)
 
     const server = this.server = new WebServer({ botpress: this })
     server.start()

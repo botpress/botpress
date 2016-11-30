@@ -86,7 +86,7 @@ const serveApi = function(app, bp) {
   })
 
   app.get('/api/modules', (req, res) => {
-    const modules = _.map(bp.modules, (module) => {
+    const modules = _.map(bp._loadedModules, (module) => {
       return {
         name: module.name,
         homepage: module.homepage,
@@ -123,22 +123,22 @@ const serveApi = function(app, bp) {
   })
 
   app.get('/api/module/all', (req, res) => {
-    bp.module.getListAllModules()
+    bp.modules.listAllCommunityModules()
     .then(modules => res.send(modules))
   })
 
   app.get('/api/module/popular', (req, res) => {
-    bp.module.getPopular()
+    bp.modules.listPopularCommunityModules()
     .then(popular => res.send(popular))
   })
 
   app.get('/api/module/featured', (req, res) => {
-    bp.module.getFeatured()
+    bp.modules.listFeaturedCommunityModules()
     .then(featured => res.send(featured))
   })
 
   app.get('/api/module/hero', (req, res) => {
-    bp.module.getRandomHero()
+    bp.modules.getRandomCommunityHero()
     .then(hero => res.send(hero))
   })
 
@@ -166,7 +166,7 @@ const serveApi = function(app, bp) {
 
   app.post('/api/module/install/:name', (req, res) => {
     const { name } = req.params
-    bp.module.install(name)
+    bp.modules.install(name)
     .then(() => {
       res.sendStatus(200)
       bp.restart(1000)
@@ -178,7 +178,7 @@ const serveApi = function(app, bp) {
 
   app.delete('/api/module/uninstall/:name', (req, res) => {
     const { name } = req.params
-    bp.module.uninstall(name)
+    bp.modules.uninstall(name)
     .then(() => {
       res.sendStatus(200)
       bp.restart(1000)
@@ -302,7 +302,7 @@ class WebServer {
 
     server.listen(3000, () => { // TODO Port in config
       this.bp.events.emit('ready')
-      for (var mod of _.values(this.bp.modules)) {
+      for (var mod of _.values(this.bp._loadedModules)) {
         mod.handlers.ready && mod.handlers.ready(this.bp)
       }
 
