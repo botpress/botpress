@@ -10,7 +10,7 @@ import EventBus from './bus'
 import createMiddlewares from './middlewares'
 import createLogger from './logger'
 import createSecurity from './security'
-import createNotif from './notif'
+import createNotifications from './notifications'
 import createHearMiddleware from './hear'
 import createDatabase from './database'
 import createLicensing from './licensing'
@@ -119,7 +119,7 @@ class botpress {
     const loadedModules = modules._load(moduleDefinitions, this)
 
     const events = new EventBus()
-    const notifications = createNotif(dataLocation, botfile.notification, events, logger)
+    const notifications = createNotifications(dataLocation, botfile.notification, moduleDefinitions, events, logger)
     const about = createAbout(projectLocation)
     const licensing = createLicensing(projectLocation)
     const middlewares = createMiddlewares(this, dataLocation, projectLocation, logger)

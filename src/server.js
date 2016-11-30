@@ -17,9 +17,9 @@ const setupSocket = function(app, bp) {
   const server = http.createServer(app)
   const io = socketio(server)
 
-  if (bp.requiresAuth) {
+  if (bp.botfile.login.enabled) {
     io.use(socketioJwt.authorize({
-      secret: bp.getSecret(),
+      secret: bp.security.getSecret(),
       handshake: true
     }))
   }
@@ -278,11 +278,11 @@ const serveStatic = function(app, bp) {
 }
 
 const authenticationMiddleware = (bp) => function(req, res, next) {
-  if (!bp.requiresAuth) {
+  if (!bp.botfile.login.enabled) {
     return next()
   }
 
-  if (bp.authenticate(req.headers.authorization)) {
+  if (bp.security.authenticate(req.headers.authorization)) {
     next()
   } else {
     res.status(401).location('/login').end()
