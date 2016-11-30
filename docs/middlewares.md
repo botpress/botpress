@@ -107,6 +107,7 @@ Now lets look at how a complete interaction might be handled by your bot.
 8. botpress-messenger takes the response and **calls the outgoing middlewares chain**
 9. botpress-translate translates the message from English to French (by mutating it) then calls the next middleware in the outgoing chain _(botpress-analytics)_
 10. botpress-analytics tracks the message then calls the next middleware _(botpress-messenger)_
-11. botpress-messenger sends the message to Facebook Messenger through the Send API
+11. botpress-slack will ignore the message because it doesn't know how to process messages with `type: facebook`
+12. botpress-messenger sends the message to Facebook Messenger through the Send API
 
 All of this happens behind the scene and is handled by the modules middlewares. As a bot developer, all you have to worry about is writing the bot's logic.
