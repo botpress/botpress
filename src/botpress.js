@@ -3,12 +3,11 @@ import 'source-map-support/register'
 import path from 'path'
 import fs from 'fs'
 import _ from 'lodash'
-import domain from 'domain'
 import cluster from 'cluster'
 
-import WebServer from './server'
-import createMiddlewares from './middlewares'
 import EventBus from './bus'
+
+import createMiddlewares from './middlewares'
 import createLogger from './logger'
 import createSecurity from './security'
 import createNotif from './notif'
@@ -17,6 +16,8 @@ import createDatabase from './database'
 import createLicensing from './licensing'
 import createAbout from './about'
 import createModules from './modules'
+
+import WebServer from './server'
 
 import {
   isDeveloping,
@@ -139,32 +140,26 @@ class botpress {
       licensing,
       modules,
       db,
-
       _loadedModules: loadedModules
-      // TODO To be continued
     })
 
-    // ----- the following haven't been finished -----
-    const server = this.server = new WebServer({ botpress: this })
+    const server = new WebServer({ botpress: this })
     server.start()
 
-    // load the bot's entry point
-    const botDomain = domain.create()
-    const self = this
+    const projectEntry = require(projectLocation)
+    if (typeof(projectEntry) === 'function') {
+      projectEntry.call(projectEntry, this)
+    } else {
+      logger.error('[FATAL] The bot entry point must be a function that takes an instance of bp')
+      process.exit(1)
+    }
 
-    botDomain.on('error', function(err) {
-      self.logger.error('(fatal) An unhandled exception occured in your bot', err)
+    process.on('uncaughtException', err => {
+      logger.error('(fatal) An unhandled exception occured in your bot', err)
       if (isDeveloping) {
-        self.logger.error(err.stack)
+        logger.error(err.stack)
       }
-      return process.exit(1)
-    })
-
-    botDomain.run(function() {
-      const projectEntry = require(projectLocation)
-      if (typeof(projectEntry) === 'function') {
-        projectEntry.call(projectEntry, self)
-      }
+      process.exit(1)
     })
   }
 
