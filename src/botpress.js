@@ -12,7 +12,7 @@ import EventBus from './bus'
 import createLogger from './logger'
 import createSecurity from './security'
 import createNotif from './notif'
-import Listeners from './listeners'
+import createHearMiddleware from './hear'
 import Database from './database'
 import Module from './module'
 import Licensing from './licensing'
@@ -116,6 +116,9 @@ class botpress {
     const notifications = createNotif(dataLocation, botfile.notification, events, logger)
     const about = Bot(projectLocation, logger)
     const middlewares = createMiddlewares(this, projectLocation, logger)
+    const {hear, middleware: hearMiddleware} = createHearMiddleware()
+
+    middlewares.register(hearMiddleware)
 
     _.assign(this, {
       dataLocation,
@@ -124,15 +127,12 @@ class botpress {
       events,
       notifications,    // load, save, send
       about,
-      middlewares
+      middlewares,
+      hear
       // TODO To be continued
     })
 
     // ----- the following haven't been finished -----
-    this.hear = (condition, callback) => {
-      this.incoming(Listeners.hear(condition, callback))
-    }
-
     const dbLocation = path.join(this.dataLocation, 'db.sqlite')
     this.db = Database(dbLocation)
 
