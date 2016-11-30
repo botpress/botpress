@@ -58,7 +58,7 @@ const resolveProjectFile = (file, projectLocation, throwIfNotExist) => {
 
   if (!fs.existsSync(packagePath)) {
     if (throwIfNotExist) {
-      throw new Error('[FATAL] Could not find bot\'s package.json file')
+      throw new Error('Could not find bot\'s package.json file')
     }
     return null
   }
