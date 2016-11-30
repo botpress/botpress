@@ -7,7 +7,7 @@ import domain from 'domain'
 import cluster from 'cluster'
 
 import WebServer from './server'
-import applyEngine from './engine'
+import createMiddlewares from './middlewares'
 import EventBus from './bus'
 import createLogger from './logger'
 import createSecurity from './security'
@@ -115,6 +115,7 @@ class botpress {
     const events = new EventBus()
     const notifications = createNotif(dataLocation, botfile.notification, events, logger)
     const about = Bot(projectLocation, logger)
+    const middlewares = createMiddlewares(this, projectLocation, logger)
 
     _.assign(this, {
       dataLocation,
@@ -122,13 +123,12 @@ class botpress {
       security, // login, authenticate, getSecret
       events,
       notifications,    // load, save, send
-      about
+      about,
+      middlewares
       // TODO To be continued
     })
 
     // ----- the following haven't been finished -----
-    applyEngine(this)
-
     this.hear = (condition, callback) => {
       this.incoming(Listeners.hear(condition, callback))
     }
