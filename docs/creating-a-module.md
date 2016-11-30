@@ -83,8 +83,33 @@ export default class TemplateModule extends React.Component {
 ```
 
 To see more examples of how modules are implemented, you make have a look to the source of existing modules such as [`botpress-messenger`](https://github.com/botpress/botpress-messenger/blob/master/src/views/index.jsx).
-### Compiling
+
+### Bundling
+
+**Note: modules code are transpilled by default with the `react`, `stage-0` and `latest` [Babel](http://babeljs.io) presets. For more details, please have a look at the `webpack.js` file in your module's root.**
+
+In order for the module to be loaded by botpress, it needs to be bundled into two files:
+
+- **`bin/node.bundle.js`**
+- **`bin/web.bundle.js`**
+
+In order to do that, your module's `package.json` includes two commands:
+
+- `npm run compile`: bundles the module
+- `npm run watch`: continuous bundling, waiting for changes
 
 ### Testing & Local development
+
+You can install a module you are currently developping by simply installing it:
+
+```
+botpress install ../path/to/my/module
+```
+
+Then you can use the [`npm link`](https://docs.npmjs.com/cli/link) command to link the module with a symbolic link (instead of having to re-install it at every change):
+
+```
+npm link ../path/to/my/botpress-module
+```
 
 ### Publishing
