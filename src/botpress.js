@@ -15,7 +15,7 @@ import createNotif from './notif'
 import createHearMiddleware from './hear'
 import Database from './database'
 import Module from './module'
-import Licensing from './licensing'
+import createLicensing from './licensing'
 import createAbout from './about'
 import {scanModules, loadModules} from './module_loader'
 
@@ -115,6 +115,7 @@ class botpress {
     const events = new EventBus()
     const notifications = createNotif(dataLocation, botfile.notification, events, logger)
     const about = createAbout(projectLocation)
+    const licensing = createLicensing(projectLocation)
     const middlewares = createMiddlewares(this, projectLocation, logger)
     const {hear, middleware: hearMiddleware} = createHearMiddleware()
 
@@ -128,7 +129,8 @@ class botpress {
       notifications,    // load, save, send
       about,
       middlewares,
-      hear
+      hear,
+      licensing
       // TODO To be continued
     })
 
@@ -137,7 +139,6 @@ class botpress {
     this.db = Database(dbLocation)
 
     this.module = Module(this)
-    this.licensing = Licensing(this)
 
     this.modules = loadModules(modules, this, logger)
 

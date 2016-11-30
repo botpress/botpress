@@ -1,20 +1,11 @@
-import path from 'path'
 import fs from 'fs'
+import {resolveProjectFile} from './util'
 
 module.exports = (projectLocation) => {
 
-  const getPackageJSONPath = () => {
-    const packagePath = path.resolve(projectLocation || './', './package.json')
-
-    if (!fs.existsSync(packagePath)) {
-      throw new Error('[FATAL] Could not find bot\'s package.json file')
-    }
-
-    return packagePath
-  }
-
   const getBotInformation = () => {
-    const packageJson = JSON.parse(fs.readFileSync(getPackageJSONPath()))
+    const packageJsonPath = resolveProjectFile('package.json', projectLocation, true)
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath))
 
     return {
       name: packageJson.name,
@@ -25,7 +16,5 @@ module.exports = (projectLocation) => {
     }
   }
 
-  return {
-    getBotInformation: getBotInformation
-  }
+  return { getBotInformation }
 }

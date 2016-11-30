@@ -53,10 +53,24 @@ const resolveModuleRootPath = function(entryPath) {
   return null
 }
 
+const resolveProjectFile = (file, projectLocation, throwIfNotExist) => {
+  const packagePath = path.resolve(projectLocation || './', file)
+
+  if (!fs.existsSync(packagePath)) {
+    if (throwIfNotExist) {
+      throw new Error('[FATAL] Could not find bot\'s package.json file')
+    }
+    return null
+  }
+
+  return packagePath
+}
+
 module.exports = {
   print,
   resolveFromDir,
   isDeveloping: IS_DEV,
   resolveModuleRootPath,
+  resolveProjectFile,
   npmCmd: NPM_CMD
 }

@@ -54,7 +54,7 @@ const createMiddleware = function(bp, middlewareName) {
   return { use, dispatch }
 }
 
-module.exports = function(bp, dataLocation, logger) {
+module.exports = function(bp, dataLocation, projectLocation, logger) {
   const middlewaresFilePath = path.join(dataLocation, 'middlewares.json')
   let incoming, outgoing, middlewares, customizations
 
@@ -134,7 +134,8 @@ module.exports = function(bp, dataLocation, logger) {
     incoming = createMiddleware(bp, 'incoming')
     outgoing = createMiddleware(bp, 'outgoing')
 
-    licensing(bp).applyLicenseMiddleware() // TODO Fix that
+    const {middleware: licenseMiddleware} = licensing(projectLocation)
+    incoming.use(licenseMiddleware)
 
     list().forEach(m => {
       if (!m.enabled) {
