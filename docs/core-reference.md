@@ -1,16 +1,16 @@
 ## Core Reference {#core}
 
-### EventBus #{core-eventbus}
+### EventBus {#core-eventbus}
 
-### Database #{core-database}
+### Database {#core-database}
 
-### Middlewares #{core-middlewares}
+### Middlewares {#core-middlewares}
 
-### Logger #{core-logger}
+### Logger {#core-logger}
 
 ### Modules {#core-modules}
 
-### Notifications #{core-notifications}
+### Notifications {#core-notifications}
 
 ### HTTP Server {#core-server}
 
