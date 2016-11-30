@@ -1,16 +1,16 @@
 ## Core Reference {#core}
 
-### EventBus {#core-eventbus}
+### EventBus > `bp.events`{#core-eventbus}
 
-### Database {#core-database}
+### Database > `bp.db`{#core-database}
 
-### Middlewares {#core-middlewares}
+### Middlewares > `bp.middlewares` {#core-middlewares}
 
-### Logger {#core-logger}
+### Logger > `bp.logger` {#core-logger}
 
-### Modules {#core-modules}
+### Modules > `bp.modules` {#core-modules}
 
-### Notifications {#core-notifications}
+### Notifications > `bp.notifications` {#core-notifications}
 
-### HTTP Server {#core-server}
+### HTTP Server > `bp.server` {#core-server}
 
