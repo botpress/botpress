@@ -58,6 +58,13 @@ To see examples of how modules are implemented, you may look at the source of ex
 
 ### Frontend
 
+The front-end of a module is a [React Component](https://facebook.github.io/react/docs/react-component.html). All you have to do is import React and export a React.Component class in `/src/views/index.jsx`.
+
+Botpress will pass an instance of the front-end `bp` instance and a pre-configured `axios` to your module component:
+
+- `bp` exposes `bp.events`, which is an instance of the [EventBus](TODO)
+- [`axios`](https://github.com/mzabriskie/axios) is pre-configured to provide the required authentication token by the API routes
+
 ### Compiling
 
 ### Testing & Local development
