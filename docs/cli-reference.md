@@ -1,6 +1,6 @@
-## CLI Reference
+## CLI Reference {#cli}
 
-### `init`
+### `init` {#cliinit}
 
 Creates and initializes a new bot. Will prompt the user with questions.
 
@@ -10,7 +10,7 @@ botpress init
 
 **Note:** Must be run inside an empty directory
 
-### `start` > `s`
+### `start` &gt; `s` {#clistart}
 
 Starts a bot. This command is only at the root of a valid botpress project.
 
@@ -26,10 +26,11 @@ If botpress is not installed globally, you may run a bot using `npm start`:
 cd path/to/bot && npm start
 ```
 
-### `install` > `i`
+### `install` &gt; `i` {#cliinstall}
 
-### `uninstall` > `u`
+### `uninstall` &gt; `u` {#cliuninstall}
 
-### `list` > `ls`
+### `list` &gt; `ls` {#clilist}
 
-### `create` > `c`
+### `create` &gt; `c` {#clicreate}
+
