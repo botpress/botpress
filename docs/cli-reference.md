@@ -45,6 +45,12 @@ bp i ~/Desktop/my-module
 
 ### `uninstall` &gt; `u` {#cli-uninstall}
 
+Uninstalls a local or community module. This is the equivalent of running `npm uninstall -S botpress-<name>`
+
+```
+botpress uninstall messenger
+```
+
 ### `list` &gt; `ls` {#cli-list}
 
 ### `create` &gt; `c` {#cli-create}
