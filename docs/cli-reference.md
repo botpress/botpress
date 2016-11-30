@@ -68,3 +68,5 @@ botpress create
 ```
 
 **Note:** unlike `init`, this command does not run `npm install` after initialization, you need to run it yourself.
+
+**Note 2:** module names must start with `botpress-` and this command will enforce this rule. To know more about modules, please read the [Create a module](TODO) section.
