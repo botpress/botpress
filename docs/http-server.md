@@ -28,7 +28,7 @@ bp.getRouter('botpress-messenger', { auth: false })
 You can also conditionally disable authentication:
 
 ```js
-bp.getRouter('botpress-messenger, {
+bp.getRouter('botpress-messenger', {
     auth: (req) => req.method.toLowerCase() === 'post'
 }
 ```
