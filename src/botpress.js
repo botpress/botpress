@@ -145,7 +145,6 @@ class botpress {
     server.start()
 
     // load the bot's entry point
-    const projectLocation = this.projectLocation
     const botDomain = domain.create()
     const self = this
 
@@ -169,7 +168,7 @@ class botpress {
     if (cluster.isMaster) {
       cluster.fork()
 
-      cluster.on('exit', (worker, code/* , signal */) => {
+      cluster.on('exit', (worker, code /* , signal */) => {
         if (code === RESTART_EXIT_CODE) {
           cluster.fork()
           print('info', '*** restarted worker process ***')
