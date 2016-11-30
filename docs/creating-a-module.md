@@ -113,3 +113,21 @@ npm link ../path/to/my/botpress-module
 ```
 
 ### Publishing
+
+To publish your module:
+
+```
+npm publish
+```
+
+Botpress crawls and indexes modules periodically. It may take up to 45 minutes before your module shows up in the list of available modules. Even if it doesn't show up, it is available to install right away via the [`botpress install`](TODO) command.
+
+Note that the **all of the following criteras must be met** before a module can appear as a community module:
+
+1. You must have filled and signed the [Distribution Agreement](TODO). The agreement shows up automatically before running `npm publish`.
+2. The module name must start with `botpress-`
+3. The license must be set to `AGPL 3.0` or `Botpress License`
+4. The `package.json` must have a valid `botpress` section
+5. The code of the module must be hosted on GitHub, be public and the `repository` field in your `package.json` must point to it
+
+If you have done all of the following, please [contact us](https://gitter.im/botpress/core) and we will quickly resolve the issue.
