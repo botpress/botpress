@@ -54,7 +54,7 @@ const createMiddleware = function(bp, middlewareName) {
   return { use, dispatch }
 }
 
-module.exports = function({bp, dataLocation, logger}) {
+module.exports = function(bp, dataLocation, logger) {
   const middlewaresFilePath = path.join(dataLocation, 'middlewares.json')
   let incoming, outgoing, middlewares, customizations
 

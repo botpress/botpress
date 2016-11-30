@@ -1,20 +1,15 @@
+import mware from 'mware'
 import listeners from './listeners'
 
 module.exports = () => {
 
-  const fns = []
+  const { use, run } = mware()
   const handler = (event, next) => {
-    let nextCalled = false
-    let stubNext = function() {
-      nextCalled = true
+    run(event, function() {
       next.apply(this, arguments)
-    }
-
-    for (let fn of fns) {
-      if (nextCalled) break
-      fn(event, stubNext)
-    }
+    })
   }
+
   const middleware = {
     name: 'hear',
     type: 'incoming',
@@ -25,7 +20,7 @@ module.exports = () => {
   }
 
   const hear = (condition, callback) => {
-    fns.push(listeners.hear(condition, callback))
+    use(listeners.hear(condition, callback))
   }
 
   return { hear, middleware }

@@ -1,14 +1,13 @@
 import path from 'path'
 import fs from 'fs'
 
-module.exports = ({projectLocation, logger}) => {
+module.exports = (projectLocation) => {
 
   const getPackageJSONPath = () => {
-    let packagePath = path.resolve(projectLocation || './', './package.json')
+    const packagePath = path.resolve(projectLocation || './', './package.json')
 
     if (!fs.existsSync(packagePath)) {
-      logger.warn('Could not find bot\'s package.json file')
-      return []
+      throw new Error('[FATAL] Could not find bot\'s package.json file')
     }
 
     return packagePath

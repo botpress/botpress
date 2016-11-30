@@ -16,7 +16,7 @@ import createHearMiddleware from './hear'
 import Database from './database'
 import Module from './module'
 import Licensing from './licensing'
-import Bot from './bot'
+import createAbout from './about'
 import {scanModules, loadModules} from './module_loader'
 
 import {
@@ -114,7 +114,7 @@ class botpress {
     const modules = scanModules(projectLocation, logger)
     const events = new EventBus()
     const notifications = createNotif(dataLocation, botfile.notification, events, logger)
-    const about = Bot(projectLocation, logger)
+    const about = createAbout(projectLocation)
     const middlewares = createMiddlewares(this, projectLocation, logger)
     const {hear, middleware: hearMiddleware} = createHearMiddleware()
 
