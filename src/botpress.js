@@ -113,15 +113,16 @@ class botpress {
 
     const modules = scanModules(projectLocation, logger)
     const events = new EventBus()
-    const notif = createNotif(dataLocation, botfile.notification, events, logger)
+    const notifications = createNotif(dataLocation, botfile.notification, events, logger)
+    const about = Bot(projectLocation, logger)
 
     _.assign(this, {
       dataLocation,
       logger,
       security, // login, authenticate, getSecret
       events,
-      notif,    // load, save, send
-
+      notifications,    // load, save, send
+      about
       // TODO To be continued
     })
 
@@ -137,7 +138,6 @@ class botpress {
 
     this.module = Module(this)
     this.licensing = Licensing(this)
-    this.bot = Bot(this)
 
     this.modules = loadModules(modules, this, logger)
 

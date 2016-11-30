@@ -115,11 +115,11 @@ const serveApi = function(app, bp) {
   })
 
   app.get('/api/notifications', (req, res, next) => {
-    res.send(bp.notif.load())
+    res.send(bp.notifications.load())
   })
 
   app.get('/api/bot/information', (req, res, next) => {
-    res.send(bp.bot.getBotInformation())
+    res.send(bp.about.getBotInformation())
   })
 
   app.get('/api/module/all', (req, res, next) => {
