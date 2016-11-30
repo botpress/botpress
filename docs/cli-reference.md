@@ -53,5 +53,11 @@ botpress uninstall messenger
 
 ### `list` &gt; `ls` {#cli-list}
 
+Lists the botpress modules installed.
+
+```
+botpress list
+```
+
 ### `create` &gt; `c` {#cli-create}
 
