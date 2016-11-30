@@ -4,6 +4,19 @@ import crypto from 'crypto'
 import jwt from 'jsonwebtoken'
 import util from './util'
 
+/**
+ * Security helper for botpress
+ *
+ * A function which inject security related funciton into botpress, including:
+ *
+ *   - login(user, password, ip)
+ *   - authenticate(token)
+ *   - getSecret()
+ *
+ * It will find or create a secret.key in `bp.dataLocation`, then setup the adminPassword for user login.
+ *
+ * NOTE: current only valid user name is "admin"
+ */
 module.exports = (bp) => {
 
   // reading secret from data or creating new secret
@@ -73,6 +86,10 @@ module.exports = (bp) => {
     }
   }
 
+  /**
+   * @param {string} token
+   * @return {boolean} whether the token is valid
+   */
   bp.authenticate = function(token) {
     try {
       const decoded = jwt.verify(token, secret)
@@ -82,5 +99,10 @@ module.exports = (bp) => {
     }
   }
 
+  /**
+   * Get secret key
+   *
+   * @return {string}
+   */
   bp.getSecret = () => secret
 }

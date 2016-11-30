@@ -45,7 +45,7 @@ const createMiddleware = function(bp, middlewareName) {
     _use.run(event, function(err) {
       if (err) {
         _error.run(err, event, () => {
-          bp.logger.error('[botpress] Unhandled error in middleware (' 
+          bp.logger.error('[botpress] Unhandled error in middleware ('
             + middlewareName + '), error:', err.message)
         })
       }
@@ -82,7 +82,7 @@ module.exports = function(bp) {
 
   const middlewaresFilePath = path.join(bp.dataLocation, 'middlewares.json')
 
-  const readMiddlewaresCustomizations = () => {  
+  const readMiddlewaresCustomizations = () => {
     if (!fs.existsSync(middlewaresFilePath)) {
       fs.writeFileSync(middlewaresFilePath, '{}')
     }
