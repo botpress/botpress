@@ -28,6 +28,21 @@ cd path/to/bot && npm start
 
 ### `install` &gt; `i` {#cli-install}
 
+Install a local or community module in your bot. This is the equivalent of running `npm install -S botpress-<name>`.
+
+```
+botpress install botpress-messenger
+
+# botpress- is optional:
+botpress install messenger
+
+# even shorter:
+bp i messenger
+
+# local paths are valid:
+bp i ~/Desktop/my-module
+```
+
 ### `uninstall` &gt; `u` {#cli-uninstall}
 
 ### `list` &gt; `ls` {#cli-list}
