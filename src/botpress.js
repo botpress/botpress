@@ -13,7 +13,7 @@ import createLogger from './logger'
 import createSecurity from './security'
 import createNotif from './notif'
 import createHearMiddleware from './hear'
-import Database from './database'
+import createDatabase from './database'
 import createLicensing from './licensing'
 import createAbout from './about'
 import createModules from './modules'
@@ -105,6 +105,8 @@ class botpress {
     const {projectLocation, botfile} = this
 
     const dataLocation = getDataLocation(botfile.dataDir, projectLocation)
+    const dbLocation = path.join(dataLocation, 'db.sqlite')
+
     const logger = createLogger(dataLocation, botfile.log)
     mkdirIfNeeded(dataLocation, logger)
 
@@ -121,6 +123,7 @@ class botpress {
     const licensing = createLicensing(projectLocation)
     const middlewares = createMiddlewares(this, projectLocation, logger)
     const {hear, middleware: hearMiddleware} = createHearMiddleware()
+    const db = createDatabase(dbLocation)
 
     middlewares.register(hearMiddleware)
 
@@ -135,14 +138,13 @@ class botpress {
       hear,
       licensing,
       modules,
+      db,
+
       _loadedModules: loadedModules
       // TODO To be continued
     })
 
     // ----- the following haven't been finished -----
-    const dbLocation = path.join(this.dataLocation, 'db.sqlite')
-    this.db = Database(dbLocation)
-
     const server = this.server = new WebServer({ botpress: this })
     server.start()
 
