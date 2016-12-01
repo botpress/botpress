@@ -47,19 +47,21 @@ module.exports = (projectLocation) => {
   const middleware = listeners.hear(/^BOT_LICENSE$/, (event, next) => {
     const packageJsonPath = resolveProjectFile('package.json', projectLocation, true)
     const { license, name, author } = JSON.parse(fs.readFileSync(packageJsonPath))
+    const bp = event.bp
+
+    const info = bp.about.getBotInformation()
 
     const response = "Bot: " + name + "\n"
       + "Created by: " + author + "\n"
       + "License: " + license + "\n"
       + "Botpress: " + bp.version
 
-    const bp = event.bp
     const userId = event.user && event.user.id
 
     if (bp[event.platform] && bp[event.platform].pipeText) {
       bp[event.platform].pipeText(userId, response)
     } else {
-      bp.sendOutgoing({
+      bp.middlewares.sendOutgoing({
         platform: event.platform,
         type: 'text',
         text: response,

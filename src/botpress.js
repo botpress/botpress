@@ -75,8 +75,6 @@ class botpress {
    * @param {string} obj.botfile - the config path
    */
   constructor({ botfile }) {
-    this.version = getVersion()
-
     /**
      * The project location, which is the folder where botfile.js located
      */
@@ -103,6 +101,8 @@ class botpress {
     // the bot's location is kept in this.projectLocation
     process.chdir(path.join(__dirname, '../'))
 
+    const version = getVersion()
+
     const {projectLocation, botfile} = this
 
     const dataLocation = getDataLocation(botfile.dataDir, projectLocation)
@@ -116,7 +116,6 @@ class botpress {
     const modules = createModules(logger, projectLocation, dataLocation)
 
     const moduleDefinitions = modules._scan()
-    const loadedModules = modules._load(moduleDefinitions, this)
 
     const events = new EventBus()
     const notifications = createNotifications(dataLocation, botfile.notification, moduleDefinitions, events, logger)
@@ -129,6 +128,7 @@ class botpress {
     middlewares.register(hearMiddleware)
 
     _.assign(this, {
+      version,
       dataLocation,
       logger,
       security, // login, authenticate, getSecret
@@ -139,7 +139,12 @@ class botpress {
       hear,
       licensing,
       modules,
-      db,
+      db
+    })
+
+    const loadedModules = modules._load(moduleDefinitions, this)
+
+    _.assign(this, {
       _loadedModules: loadedModules
     })
 
