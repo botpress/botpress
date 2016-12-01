@@ -137,14 +137,16 @@ bp.middlewares.sendIncoming({
 
 The logger is an instance of the excellent [`winstonjs`](https://github.com/winstonjs/winston).
 
-##### `verbose(args...)`
-##### `debug(args...)`
-##### `info(args...)`
-##### `warn(args...)`
-##### `error(args...)`
+#### `verbose(args...)`
+#### `debug(args...)`
+#### `info(args...)`
+#### `warn(args...)`
+#### `error(args...)`
 
 ### Modules > `bp.modules` {#core-modules}
 
 ### Notifications > `bp.notifications` {#core-notifications}
+
+#### ``
 
 ### HTTP Server > `bp.getRouter() -> Express Router` {#core-server}
