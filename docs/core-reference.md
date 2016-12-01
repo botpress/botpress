@@ -163,8 +163,20 @@ The logger is an instance of the excellent [`winstonjs`](https://github.com/wins
 
 ### Notifications > `bp.notifications` {#core-notifications}
 
-#### `send(NotificationDefinition)`
+#### `send(NotificationDefinition) -> void`
+
+Sends and persist a notification to the Botpress UI. Useful to get the bot administrator's attention.
+
+##### NotificationDefinition
+
+```js
+{
+  message: string, // *required*
+  url: string, // on notification click, possibility to bring the user to an URL
+  level: string // default: info
+}
+```
 
 ---
 
-### HTTP Server > `bp.getRouter() -> Express Router` {#core-server}
+### HTTP Server > `bp.getRouter(moduleName, [options]) -> Express Router` {#core-server}
