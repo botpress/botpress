@@ -12,7 +12,7 @@ export default class SidebarHeader extends Component {
     return <Navbar inverse className={headerClass}>
       <Navbar.Header>
         <Navbar.Brand>
-          <a href="#" className={style.logo}>
+          <a href="/" className={style.logo}>
             <img src="/img/logo.png" alt="Botpress Logo"/>
           </a>
         </Navbar.Brand>

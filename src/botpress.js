@@ -19,18 +19,14 @@ import createModules from './modules'
 
 import WebServer from './server'
 
+import { getBotpressVersion } from './util'
+
 import {
   isDeveloping,
   print
 } from './util'
 
 const RESTART_EXIT_CODE = 107
-
-const getVersion = () => {
-  const botpressPackagePath = path.join(__dirname, '../package.json')
-  const botpressJson = JSON.parse(fs.readFileSync(botpressPackagePath))
-  return botpressJson.version
-}
 
 const getDataLocation = (dataDir, projectLocation) => (
   dataDir && path.isAbsolute(dataDir)
@@ -75,6 +71,7 @@ class botpress {
    * @param {string} obj.botfile - the config path
    */
   constructor({ botfile }) {
+    this.version = getBotpressVersion()
     /**
      * The project location, which is the folder where botfile.js located
      */
@@ -101,8 +98,6 @@ class botpress {
     // the bot's location is kept in this.projectLocation
     process.chdir(path.join(__dirname, '../'))
 
-    const version = getVersion()
-
     const {projectLocation, botfile} = this
 
     const dataLocation = getDataLocation(botfile.dataDir, projectLocation)
@@ -128,7 +123,6 @@ class botpress {
     middlewares.register(hearMiddleware)
 
     _.assign(this, {
-      version,
       dataLocation,
       logger,
       security, // login, authenticate, getSecret
@@ -165,6 +159,13 @@ class botpress {
         logger.error(err.stack)
       }
       process.exit(1)
+    })
+
+    process.on('unhandledRejection', (reason, p) => {
+      logger.error('Unhandled Rejection in Promise: ', p, 'Reason:', reason)
+      if (isDeveloping && reason && reason.stack) {
+        logger.error(reason.stack)
+      }
     })
   }
 

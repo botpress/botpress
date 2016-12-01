@@ -66,11 +66,18 @@ const resolveProjectFile = (file, projectLocation, throwIfNotExist) => {
   return packagePath
 }
 
+const getBotpressVersion = () => {
+  const botpressPackagePath = path.join(__dirname, '../package.json')
+  const botpressJson = JSON.parse(fs.readFileSync(botpressPackagePath))
+  return botpressJson.version
+}
+
 module.exports = {
   print,
   resolveFromDir,
   isDeveloping: IS_DEV,
   resolveModuleRootPath,
   resolveProjectFile,
-  npmCmd: NPM_CMD
+  npmCmd: NPM_CMD,
+  getBotpressVersion
 }

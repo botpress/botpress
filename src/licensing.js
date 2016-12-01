@@ -70,8 +70,6 @@ module.exports = (projectLocation) => {
         }
       })
     }
-
-    next()
   })
 
   return {

@@ -1,5 +1,4 @@
 import React, {Component} from 'react'
-import axios from 'axios'
 import { Provider } from 'nuclear-js-react-addons'
 
 import { authEvents } from '~/util/Auth'
@@ -49,6 +48,12 @@ export default class App extends Component {
     EventBus.default.on('notifications.new', (notification) => {
       actions.addNotifications([ notification ])
     })
+
+    this.fetchModulesInterval = setInterval(actions.fetchModules, 10000)
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.fetchModulesInterval)
   }
 
   render() {

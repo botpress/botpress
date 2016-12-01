@@ -1,9 +1,7 @@
 module.exports = {
 
   /**
-   * where the content stored
-   *
-   * default value is './data'
+   * where the content is stored
    * you can access this property from `bp.dataLocation`
    */
   dataDir: "./data",
@@ -20,10 +18,10 @@ module.exports = {
   },
 
   /**
-   * Access control of dashboard admin pabel
+   * Access control of admin pabel
    */
   login: {
-    enabled: true,
+    enabled: process.env.NODE_ENV === 'production',
     tokenExpiry: "6 hours",
     password: "password",
     maxAttempts: 3,

@@ -1,26 +1,18 @@
 import program from 'commander'
-import path from 'path'
-import fs from 'fs'
-import chalk from 'chalk'
-import util from '../util'
 
 import init from './init'
-import search from './search'
 import start from './start'
 import create from './create'
 import install from './install'
 import uninstall from './uninstall'
 import list from './list'
 
+import { getBotpressVersion } from '../util'
+
 program
   .command('init')
   .description('Create a new bot in current directory')
   .action(init)
-
-program
-  .command('search [keyword]')
-  .description('Search the public repository for modules')
-  .action(search)
 
 program
   .command('start [path]')
@@ -53,7 +45,7 @@ program
   .action(create)
 
 program
-  .version('0.0.1')
+  .version(getBotpressVersion())
   .description('Easily create, manage and extend chatbots.')
   .parse(process.argv)
 

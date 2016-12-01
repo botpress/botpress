@@ -1,7 +1,7 @@
 {
   "name": "botpress",
   "description": "The world's first CMS for bots. Easily create, manage and extend chatbots.",
-  "version": "0.0.30",
+  "version": "0.0.33",
   "author": "Protorisk (DIFC)",
   "babel": {
     "presets": [
@@ -111,7 +111,7 @@
   "os": [
     "darwin",
     "linux",
-    "!win32"
+    "win32"
   ],
   "scripts": {
     "compile": "rm -rf lib/ && babel src/ -d lib/ -s && cp -a src/cli/templates/. lib/cli/templates && node webpack.js --compile",
