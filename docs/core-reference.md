@@ -148,4 +148,3 @@ The logger is an instance of the excellent [`winstonjs`](https://github.com/wins
 ### Notifications > `bp.notifications` {#core-notifications}
 
 ### HTTP Server > `bp.getRouter() -> Express Router` {#core-server}
-
