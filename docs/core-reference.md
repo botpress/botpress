@@ -30,6 +30,25 @@ bp.events.on('messenger.*', event => /* ... */)
 
 ### Database > `bp.db`{#core-database}
 
+#### `get() -> Promise(knex)`
+
+Returns an instance of the [knex](http://knexjs.org/) database query builder. It is configured to use a SQLite3 database located in `${dataDir}/db.sqlite`.
+
+#### `saveUser(UserObject) -> Promise()`
+
+Saves a user in the built-in `users` table. **Does not** overwrite existing entries (they are ignored). An entry is considered unique by the union of `id` and `platform`.
+
+##### User Object
+
+```js
+{ id: string, // *required*
+  platform: string, // *required*
+  gender: string, // nullable
+  timezone: integer (-12, +14), // nullable
+  locale: string // nullable
+}
+```
+
 ### Middlewares > `bp.middlewares` {#core-middlewares}
 
 ### Logger > `bp.logger` {#core-logger}
