@@ -3,9 +3,9 @@ import listeners from './listeners'
 
 module.exports = () => {
 
-  const { use, run } = mware()
+  const chain = mware()
   const handler = (event, next) => {
-    run(event, function() {
+    chain.run(event, function() {
       next.apply(this, arguments)
     })
   }
@@ -20,7 +20,7 @@ module.exports = () => {
   }
 
   const hear = (condition, callback) => {
-    use(listeners.hear(condition, callback))
+    chain(listeners.hear(condition, callback))
   }
 
   return { hear, middleware }
