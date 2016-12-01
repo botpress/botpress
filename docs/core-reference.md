@@ -163,7 +163,7 @@ The logger is an instance of the excellent [`winstonjs`](https://github.com/wins
 
 ### Notifications > `bp.notifications` {#core-notifications}
 
-#### ``
+#### `send(NotificationDefinition)`
 
 ---
 
