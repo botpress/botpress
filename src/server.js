@@ -74,18 +74,18 @@ const serveApi = function(app, bp) {
   app.use(maybeApply('bodyParser.json', bodyParser.json()))
   app.use(maybeApply('bodyParser.urlencoded', bodyParser.urlencoded({ extended: true })))
 
-  app.post('/api/login', (req, res, next) => {
+  app.post('/api/login', (req, res) => {
     const result = bp.login(req.body.user, req.body.password, req.ip)
     res.send(result)
   })
 
   app.use('/api/*', maybeApply('auth', authenticationMiddleware(bp)))
 
-  app.get('/api/ping', (req, res, next) => {
+  app.get('/api/ping', (req, res) => {
     res.send('pong')
   })
 
-  app.get('/api/modules', (req, res, next) => {
+  app.get('/api/modules', (req, res) => {
     const modules = _.map(bp.modules, (module) => {
       return {
         name: module.name,
@@ -97,64 +97,64 @@ const serveApi = function(app, bp) {
     res.send(modules)
   })
 
-  app.get('/api/middlewares', (req, res, next) => {
-    res.send(bp.getMiddlewares())
+  app.get('/api/middlewares', (req, res) => {
+    res.send(bp.middlewares.list())
   })
 
-  app.post('/api/middlewares/customizations', (req, res, next) => {
+  app.post('/api/middlewares/customizations', (req, res) => {
     const { middlewares } = req.body
-    bp.setMiddlewaresCustomizations(middlewares)
-    bp.loadMiddlewares()
-    res.send(bp.getMiddlewares())
+    bp.middlewares.setCustomizations(middlewares)
+    bp.middlewares.load()
+    res.send(bp.middlewares.list())
   })
 
-  app.delete('/api/middlewares/customizations', (req, res, next) => {
-    bp.resetMiddlewaresCustomizations()
-    bp.loadMiddlewares()
-    res.send(bp.getMiddlewares())
+  app.delete('/api/middlewares/customizations', (req, res) => {
+    bp.middlewares.resetCustomizations()
+    bp.middlewares.load()
+    res.send(bp.middlewares.list())
   })
 
-  app.get('/api/notifications', (req, res, next) => {
-    res.send(bp.loadNotifications())
+  app.get('/api/notifications', (req, res) => {
+    res.send(bp.notifications.load())
   })
 
-  app.get('/api/bot/information', (req, res, next) => {
-    res.send(bp.bot.getBotInformation())
+  app.get('/api/bot/information', (req, res) => {
+    res.send(bp.about.getBotInformation())
   })
 
-  app.get('/api/module/all', (req, res, next) => {
+  app.get('/api/module/all', (req, res) => {
     bp.module.getListAllModules()
     .then(modules => res.send(modules))
   })
 
-  app.get('/api/module/popular', (req, res, next) => {
+  app.get('/api/module/popular', (req, res) => {
     bp.module.getPopular()
     .then(popular => res.send(popular))
   })
 
-  app.get('/api/module/featured', (req, res, next) => {
+  app.get('/api/module/featured', (req, res) => {
     bp.module.getFeatured()
     .then(featured => res.send(featured))
   })
 
-  app.get('/api/module/hero', (req, res, next) => {
+  app.get('/api/module/hero', (req, res) => {
     bp.module.getRandomHero()
     .then(hero => res.send(hero))
   })
 
-  app.get('/api/bot/information', (req, res, next) => {
+  app.get('/api/bot/information', (req, res) => {
     res.send(bp.bot.getInformation())
   })
 
-  app.get('/api/bot/contributor', (req, res, next) => {
+  app.get('/api/bot/contributor', (req, res) => {
     res.send(bp.bot.getContributor())
   })
 
-  app.get('/api/license', (req, res, next) => {
+  app.get('/api/license', (req, res) => {
     res.send(bp.licensing.getLicenses())
   })
 
-  app.post('/api/license', (req, res, next) => {
+  app.post('/api/license', (req, res) => {
     bp.licensing.changeLicense(req.body.license)
     .then(() => {
       res.sendStatus(200)
@@ -164,7 +164,7 @@ const serveApi = function(app, bp) {
     }))
   })
 
-  app.post('/api/module/install/:name', (req, res, next) => {
+  app.post('/api/module/install/:name', (req, res) => {
     const { name } = req.params
     bp.module.install(name)
     .then(() => {
@@ -176,7 +176,7 @@ const serveApi = function(app, bp) {
     }))
   })
 
-  app.delete('/api/module/uninstall/:name', (req, res, next) => {
+  app.delete('/api/module/uninstall/:name', (req, res) => {
     const { name } = req.params
     bp.module.uninstall(name)
     .then(() => {
@@ -188,7 +188,7 @@ const serveApi = function(app, bp) {
     }))
   })
 
-  app.get('/api/logs', (req, res, next) => {
+  app.get('/api/logs', (req, res) => {
     const options = {
       from: new Date() - 7 * 24 * 60 * 60 * 1000,
       until: new Date(),
@@ -203,11 +203,11 @@ const serveApi = function(app, bp) {
     })
   })
 
-  app.get('/api/logs/key', (req, res, next) => {
+  app.get('/api/logs/key', (req, res) => {
     res.send({ secret: logsSecret })
   })
 
-  app.get('/logs/archive/:key', (req, res, next) => {
+  app.get('/logs/archive/:key', (req, res) => {
     if (req.params.key !== logsSecret) {
       return res.sendStatus(403)
     }
@@ -242,7 +242,7 @@ const serveStatic = function(app, bp) {
     const bundlePath = path.join(module.root, module.settings.webBundle || 'bin/web.bundle.js')
     const requestPath = `/js/modules/${name}.js`
 
-    app.use(requestPath, (req, res, next) => {
+    app.use(requestPath, (req, res) => {
       try {
         const content = fs.readFileSync(bundlePath)
         res.contentType('text/javascript')
@@ -254,7 +254,7 @@ const serveStatic = function(app, bp) {
     })
   }
 
-  app.use('/js/env.js', (req, res, next) => {
+  app.use('/js/env.js', (req, res) => {
     res.contentType('text/javascript')
     res.send(`(function(window) {
       window.NODE_ENV = "${process.env.NODE_ENV || 'development'}";

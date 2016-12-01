@@ -5,7 +5,7 @@ import moment from 'moment'
 
 import  { isDeveloping } from './util'
 
-module.exports = (bp) => {
+module.exports = (dataLocation, logConfig) => {
   const logger = new winston.Logger({
     level: isDeveloping ? 'debug' : 'info',
     transports: [
@@ -18,18 +18,22 @@ module.exports = (bp) => {
   })
 
   logger.enableFileTransport = () => {
-    const logFile = path.join(bp.dataLocation, bp.botfile.log.file)
+    const logFile = path.join(dataLocation, logConfig.file)
 
     logger.add(winston.transports.File, {
       filename: logFile,
-      maxsize: bp.botfile.log.maxSize
+      maxsize: logConfig.maxSize
     })
   }
 
   logger.archiveToFile = () => {
-    const logFile = path.join(bp.dataLocation, bp.botfile.log.file)
+    const logFile = path.join(dataLocation, logConfig.file)
 
     return Promise.resolve(logFile)
+  }
+
+  if (!logConfig.disableFileLogs) {
+    logger.enableFileTransport()
   }
 
   return logger

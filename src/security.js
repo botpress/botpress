@@ -7,21 +7,21 @@ import util from './util'
 /**
  * Security helper for botpress
  *
- * A function which inject security related funciton into botpress, including:
+ * Constructor of following functions
  *
  *   - login(user, password, ip)
  *   - authenticate(token)
  *   - getSecret()
  *
- * It will find or create a secret.key in `bp.dataLocation`, then setup the adminPassword for user login.
+ * It will find or create a secret.key in `dataLocation`, then setup the adminPassword for user login.
  *
  * NOTE: current only valid user name is "admin"
  */
-module.exports = (bp) => {
+module.exports = (dataLocation, securityConfig) => {
 
   // reading secret from data or creating new secret
   let secret = ''
-  const secretPath = path.join(bp.dataLocation, 'secret.key')
+  const secretPath = path.join(dataLocation, 'secret.key')
 
   const createNewSecret = () => {
     secret = crypto.randomBytes(256).toString()
@@ -38,25 +38,25 @@ module.exports = (bp) => {
   }
 
   const adminPassword = process.env.BOTPRESS_ADMIN_PASSWORD ||
-    (bp.botfile.login && bp.botfile.login.password) ||
+    (securityConfig && securityConfig.password) ||
     'password'
 
-  const enabled = bp.requiresAuth =
-    (bp.botfile.login && bp.botfile.login.enabled) &&
+  const enabled = securityConfig =
+    (securityConfig && securityConfig.enabled) &&
     !util.isDeveloping
 
   // a per-ip cache that logs login attempts
   let attempts = {}
   let lastCleanTimestamp = new Date()
-  const maxAttempts = (bp.botfile.login && bp.botfile.login.maxAttempts) || 3
-  const resetAfter = (bp.botfile.login && bp.botfile.login.resetAfter) || 5 * 60 * 1000 // 5mins
+  const maxAttempts = (securityConfig && securityConfig.maxAttempts) || 3
+  const resetAfter = (securityConfig && securityConfig.resetAfter) || 5 * 60 * 1000 // 5mins
 
-  const loginTokenExpiry = bp.authTokenExpiry =
-    (bp.botfile.login && bp.botfile.login.tokenExpiry) || '6 hours'
+  const loginTokenExpiry = securityConfig.authTokenExpiry =
+    (securityConfig && securityConfig.tokenExpiry) || '6 hours'
 
   // login function that returns a {success, reason, token} object
   // accounts for number of bad attempts
-  bp.login = function(user, password, ip = 'all') {
+  const login = function(user, password, ip = 'all') {
     // reset the cache if time elapsed
     if (new Date() - lastCleanTimestamp >= resetAfter) {
       attempts = {}
@@ -90,7 +90,7 @@ module.exports = (bp) => {
    * @param {string} token
    * @return {boolean} whether the token is valid
    */
-  bp.authenticate = function(token) {
+  const authenticate = function(token) {
     try {
       const decoded = jwt.verify(token, secret)
       return decoded.user === 'admin'
@@ -104,5 +104,11 @@ module.exports = (bp) => {
    *
    * @return {string}
    */
-  bp.getSecret = () => secret
+  const getSecret = () => secret
+
+  return {
+    login,
+    authenticate,
+    getSecret
+  }
 }
