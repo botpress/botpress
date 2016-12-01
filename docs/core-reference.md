@@ -77,6 +77,23 @@ module.exports = function(bp) {
 ```
 
 #### `register(MiddlewareDefinition) -> void`
+
+##### Example
+
+```js
+// Taken from botpress-messenger/src/index.js
+
+bp.middlewares.register({
+  name: 'messenger.sendMessages',
+  type: 'outgoing',
+  order: 100,
+  handler: outgoingMiddleware,
+  module: 'botpress-messenger',
+  description: 'Sends out messages that targets platform = messenger.' +
+  ' This middleware should be placed at the end as it swallows events once sent.'
+})
+```
+
 #### `sendIncoming(MiddlewareEvent) -> void`
 #### `sendOutgoing(MiddlewareEvent) -> void`
 
