@@ -6,13 +6,13 @@ If you have used [Express](TODO) before, botpress middlewares are very similar t
 
 Botpress has two middleware chains: [incoming](TODO) and [outgoing](TODO)
 
-**To receive messages**: An installed module must pipe messages into the [incoming middleware chain](TODO)
+**To receive messages**: An installed module must send messages into the [incoming middleware chain](TODO)
 
-**To send messages**: You (or a module) must pipe messages into the [outgoing middleware chain](TODO) and have a module able to send it to the right platform
+**To send messages**: You (or a module) must send messages into the [outgoing middleware chain](TODO) and have a module able to send it to the right platform
 
 ### Example
 
-**Incoming**: [botpress-messenger](TODO) connects to Facebook and receives messages from its built-in Webhook. It then pipes messages into the incoming middleware, which your bot can process.
+**Incoming**: [botpress-messenger](TODO) connects to Facebook and receives messages from its built-in Webhook. It then sends messages into the incoming middleware, which your bot can process.
 
 **Outgoing**: [botpress-messenger](TODO) listens (through a middleware function) for messages it can process on the outgoing middleware and sends them to Facebook through the Messenger Send API.
 
@@ -103,7 +103,7 @@ Now lets look at how a complete interaction might be handled by your bot.
 4. botpress-messenger parses the message and **calls the first incoming middleware** _(botpress-analytics)_
 5. botpress-analytics tracks the message then **calls the next middleware** in the chain _(botpress-translate)_
 6. botpress-translate translates the message from French to English (by mutating it) then calls the next middleware in the chain _(botpress-travel)_
-7. botpress-travel processes the message and responds by calling the `bp.messenger.pipeText` method
+7. botpress-travel processes the message and responds by calling the `bp.messenger.sendText` method
 8. botpress-messenger takes the response and **calls the outgoing middlewares chain**
 9. botpress-translate translates the message from English to French (by mutating it) then calls the next middleware in the outgoing chain _(botpress-analytics)_
 10. botpress-analytics tracks the message then calls the next middleware _(botpress-messenger)_

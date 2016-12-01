@@ -205,7 +205,7 @@ export default class MiddlewaresComponent extends Component {
   renderIncoming() {
     const tooltip = <Tooltip id='header-incoming-tooltip'>An incoming middleware is a message processor&nbsp;
     that has the potential to track, alter or swallow messages.&nbsp;
-    Usually, messages are put (piped) into the incoming middleware queue&nbsp;
+    Usually, messages are put (sent) into the incoming middleware queue&nbsp;
     by <strong>connector modules</strong> such as Facebook Messenger, Slack...</Tooltip>
 
     const title = 'Incoming middlewares'
@@ -216,9 +216,9 @@ export default class MiddlewaresComponent extends Component {
   renderOutgoing() {
     const tooltip = <Tooltip id='header-outgoing-tooltip'>An outgoing middleware is a message processor&nbsp;
     that has the potential to track, alter or swallow messages to be sent.&nbsp;
-    Usually, messages are put (piped) into the outgoing middleware queue by user code or incoming modules.&nbsp;
+    Usually, messages are put (sent) into the outgoing middleware queue by user code or incoming modules.&nbsp;
     <strong>Connector modules</strong> are in charge of sending the messages to the users, thus they should&nbsp;
-    usually be placed at the end of the processing pipe.</Tooltip>
+    usually be placed at the end of the chain.</Tooltip>
 
     const title = 'Outgoing middlewares'
 

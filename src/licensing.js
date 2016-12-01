@@ -56,8 +56,8 @@ module.exports = (projectLocation) => {
 
     const userId = event.user && event.user.id
 
-    if (bp[event.platform] && bp[event.platform].pipeText) {
-      bp[event.platform].pipeText(userId, response)
+    if (bp[event.platform] && bp[event.platform].sendText) {
+      bp[event.platform].sendText(userId, response)
     } else {
       bp.middlewares.sendOutgoing({
         platform: event.platform,
