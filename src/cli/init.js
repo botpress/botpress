@@ -63,7 +63,7 @@ module.exports = function() {
       version: {
         required: false,
         description: chalk.white('version:'),
-        default: '1.0.0'
+        default: '0.0.1'
       },
     }
   }
