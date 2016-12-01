@@ -54,9 +54,9 @@ Saves a user in the built-in `users` table. **Does not** overwrite existing entr
 ```js
 { id: string, // *required*
   platform: string, // *required*
-  gender: string, // nullable
-  timezone: integer (-12, +14), // nullable
-  locale: string // nullable
+  gender: string,
+  timezone: integer (-12, +14),
+  locale: string
 }
 ```
 
