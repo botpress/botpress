@@ -1,6 +1,6 @@
-## CLI Reference {#cli}
+## CLI Reference
 
-### `init` {#cli-init}
+### `init`
 
 Creates and initializes a new bot. Will prompt the user with questions.
 
@@ -10,7 +10,7 @@ botpress init
 
 **Note:** Must be run inside an empty directory
 
-### `start` &gt; `s` {#cli-start}
+### `start` &gt; `s`
 
 Starts a bot. This command is only at the root of a valid botpress project.
 
@@ -26,7 +26,7 @@ If botpress is not installed globally, you may run a bot using `npm start`:
 cd path/to/bot && npm start
 ```
 
-### `install` &gt; `i` {#cli-install}
+### `install` &gt; `i`
 
 Install a local or community module in your bot. This is the equivalent of running `npm install -S botpress-<name>`.
 
@@ -43,7 +43,7 @@ bp i messenger
 bp i ~/Desktop/my-module
 ```
 
-### `uninstall` &gt; `u` {#cli-uninstall}
+### `uninstall` &gt; `u`
 
 Uninstalls a local or community module. This is the equivalent of running `npm uninstall -S botpress-<name>`
 
@@ -51,7 +51,7 @@ Uninstalls a local or community module. This is the equivalent of running `npm u
 botpress uninstall messenger
 ```
 
-### `list` &gt; `ls` {#cli-list}
+### `list` &gt; `ls`
 
 Lists the botpress modules installed.
 
@@ -59,7 +59,7 @@ Lists the botpress modules installed.
 botpress list
 ```
 
-### `create` &gt; `c` {#cli-create}
+### `create` &gt; `c`
 
 Create and initializes a new module.
 
