@@ -78,6 +78,19 @@ module.exports = function(bp) {
 
 #### `register(MiddlewareDefinition) -> void`
 
+##### MiddlewareDefinition
+
+```js
+{
+  name: string, // *required*
+  type: string(ingoing|outgoing), // *required*
+  order: int,
+  handler: function, // *required*
+  module: string,
+  description: string
+}
+```
+
 ##### Example
 
 ```js
