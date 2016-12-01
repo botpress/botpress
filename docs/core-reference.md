@@ -62,6 +62,24 @@ Saves a user in the built-in `users` table. **Does not** overwrite existing entr
 
 ### Middlewares > `bp.middlewares` {#core-middlewares}
 
+#### `load() -> void`
+
+Loads (or reloads) all the middleware in the correct order (ordered by their `order` property. Customizations (custom order and enabled/disabled) set in the UI are also taken into account.
+
+This method **must** be called in your bot initialization in order for it to work properly.
+
+##### Example
+
+```js
+module.exports = function(bp) {
+  bp.middlewares.load()
+}
+```
+
+#### `register(MiddlewareDefinition) -> void`
+#### `sendIncoming(MiddlewareEvent) -> void`
+#### `sendOutgoing(MiddlewareEvent) -> void`
+
 ### Logger > `bp.logger` {#core-logger}
 
 ### Modules > `bp.modules` {#core-modules}
