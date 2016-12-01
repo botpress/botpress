@@ -53,7 +53,7 @@ export const scanModules = (projectLocation, logger) => {
 
 export const loadModules = (modules, botpress, logger) => {
   let loadedCount = 0
-  const modules = {}
+  const loadedModules = {}
 
   modules.forEach((mod) => {
     const loader = require(mod.entry)
@@ -71,7 +71,7 @@ export const loadModules = (modules, botpress, logger) => {
       logger.warn('Error during module initialization: ', err)
     }
 
-    modules[mod.name] = mod
+    loadedModules[mod.name] = mod
     loadedCount++
   })
 
@@ -79,5 +79,5 @@ export const loadModules = (modules, botpress, logger) => {
     logger.info(`loaded ${loadedCount} modules`)
   }
 
-  return modules
+  return loadedModules
 }

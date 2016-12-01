@@ -1,16 +1,13 @@
 import path from 'path'
 import fs from 'fs'
-import Promise from 'bluebird'
 
-module.exports = (bp) => {
+module.exports = (projectLocation) => {
 
   const getPackageJSONPath = () => {
-    let projectLocation = (bp && bp.projectLocation) || './'
-    let packagePath = path.resolve(projectLocation, './package.json')
+    const packagePath = path.resolve(projectLocation || './', './package.json')
 
     if (!fs.existsSync(packagePath)) {
-      log('warn', 'Could not find bot\'s package.json file')
-      return []
+      throw new Error('[FATAL] Could not find bot\'s package.json file')
     }
 
     return packagePath

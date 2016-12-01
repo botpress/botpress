@@ -7,16 +7,16 @@ import domain from 'domain'
 import cluster from 'cluster'
 
 import WebServer from './server'
-import applyEngine from './engine'
+import createMiddlewares from './middlewares'
 import EventBus from './bus'
 import createLogger from './logger'
 import createSecurity from './security'
 import createNotif from './notif'
-import Listeners from './listeners'
+import createHearMiddleware from './hear'
 import Database from './database'
 import Module from './module'
 import Licensing from './licensing'
-import Bot from './bot'
+import createAbout from './about'
 import {scanModules, loadModules} from './module_loader'
 
 import {
@@ -113,31 +113,31 @@ class botpress {
 
     const modules = scanModules(projectLocation, logger)
     const events = new EventBus()
-    const notif = createNotif(dataLocation, botfile.notification, events, logger)
+    const notifications = createNotif(dataLocation, botfile.notification, events, logger)
+    const about = createAbout(projectLocation)
+    const middlewares = createMiddlewares(this, projectLocation, logger)
+    const {hear, middleware: hearMiddleware} = createHearMiddleware()
+
+    middlewares.register(hearMiddleware)
 
     _.assign(this, {
       dataLocation,
       logger,
       security, // login, authenticate, getSecret
       events,
-      notif,    // load, save, send
-
+      notifications,    // load, save, send
+      about,
+      middlewares,
+      hear
       // TODO To be continued
     })
 
     // ----- the following haven't been finished -----
-    applyEngine(this)
-
-    this.hear = (condition, callback) => {
-      this.incoming(Listeners.hear(condition, callback))
-    }
-
     const dbLocation = path.join(this.dataLocation, 'db.sqlite')
     this.db = Database(dbLocation)
 
     this.module = Module(this)
     this.licensing = Licensing(this)
-    this.bot = Bot(this)
 
     this.modules = loadModules(modules, this, logger)
 
@@ -145,7 +145,6 @@ class botpress {
     server.start()
 
     // load the bot's entry point
-    const projectLocation = this.projectLocation
     const botDomain = domain.create()
     const self = this
 
@@ -169,7 +168,7 @@ class botpress {
     if (cluster.isMaster) {
       cluster.fork()
 
-      cluster.on('exit', (worker, code/* , signal */) => {
+      cluster.on('exit', (worker, code /* , signal */) => {
         if (code === RESTART_EXIT_CODE) {
           cluster.fork()
           print('info', '*** restarted worker process ***')
