@@ -108,6 +108,18 @@ bp.middlewares.register({
 ```
 
 #### `sendIncoming(MiddlewareEvent) -> void`
+
+##### MiddlewareEvent
+
+```js
+{
+  type: string, // *required*, e.g. 'message', 'postback'
+  platform: string, // *required*, e.g. 'facebook', 'slack'
+  text: string, // *required*, the textual representation of the event value
+  raw: any // *required*, the raw event, as received from the platform
+}
+```
+
 #### `sendOutgoing(MiddlewareEvent) -> void`
 
 ### Logger > `bp.logger` {#core-logger}
