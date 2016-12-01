@@ -173,7 +173,7 @@ Sends and persist a notification to the Botpress UI. Useful to get the bot admin
 {
   message: string, // *required*
   url: string, // on notification click, possibility to bring the user to an URL
-  level: string // default: info
+  level: string // default: info. choices: info, error, success
 }
 ```
 
