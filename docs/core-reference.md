@@ -135,6 +135,14 @@ bp.middlewares.sendIncoming({
 
 ### Logger > `bp.logger` {#core-logger}
 
+The logger is an instance of the excellent [`winstonjs`](https://github.com/winstonjs/winston).
+
+##### `verbose(args...)`
+##### `debug(args...)`
+##### `info(args...)`
+##### `warn(args...)`
+##### `error(args...)`
+
 ### Modules > `bp.modules` {#core-modules}
 
 ### Notifications > `bp.notifications` {#core-notifications}
