@@ -84,8 +84,8 @@ module.exports = function(bp) {
 {
   name: string, // *required*
   type: string(ingoing|outgoing), // *required*
-  order: int,
   handler: function, // *required*
+  order: int,
   module: string,
   description: string
 }
