@@ -180,3 +180,18 @@ Sends and persist a notification to the Botpress UI. Useful to get the bot admin
 ---
 
 ### HTTP Server > `bp.getRouter(moduleName, [options]) -> Express Router` {#core-server}
+
+Returns an [Express Router](http://expressjs.com/en/4x/api.html#express.router) for the specified module. The exposed API methods will be available at: `/api/<moduleName>/<methods>`.
+
+By default, routes have a couple of middlewares installed, which you can turn on or off if needed:
+
+- [**`bodyParser.json`**](https://github.com/expressjs/body-parser)
+- [**`bodyParser.urlencoded`**](https://github.com/expressjs/body-parser)
+- **`auth`**: the default botpress authentication
+
+##### Example
+
+```js
+bp.getRouter('botpress-awesome', { auth: req => false })
+.get('ping', (req, res) => res.send('pong'))
+```
