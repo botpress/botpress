@@ -6,17 +6,24 @@ import _ from 'lodash'
 import moment from 'moment'
 import axios from 'axios'
 
-import  { print, isDeveloping, npmCmd } from './util'
+import {
+  print,
+  isDeveloping,
+  npmCmd,
+  resolveModuleRootPath,
+  resolveFromDir,
+  resolveProjectFile
+} from './util'
 
 const MODULES_URL = 'https://s3.amazonaws.com/botpress-io/all-modules.json'
 const POPULAR_URL = 'https://s3.amazonaws.com/botpress-io/popular-modules.json'
 const FEATURED_URL = 'https://s3.amazonaws.com/botpress-io/featured-modules.json'
 
-module.exports = (bp) => {
+module.exports = (logger, projectLocation, dataLocation) => {
 
   const log = (level, ...args) => {
-    if (bp && bp.logger[level]) {
-      bp.logger[level].apply(this, args)
+    if (logger && logger[level]) {
+      logger[level].apply(this, args)
     } else {
       print.apply(this, [level, ...args])
     }
@@ -37,10 +44,84 @@ module.exports = (bp) => {
     .then(({ data }) => data)
   }
 
-  const getRandomHero = Promise.method(() => {
-    const modulesCachePath = path.join(bp.dataLocation, './modules-cache.json')
+  const loadModules = (moduleDefinitions, botpress) => {
+    let loadedCount = 0
+    const loadedModules = {}
 
-    return listAllModules()
+    moduleDefinitions.forEach(mod => {
+      const loader = require(mod.entry)
+
+      if (typeof loader !== 'object') {
+        return logger.warn('Ignoring module ' + mod.name +
+          ', invalid entry point signature.')
+      }
+
+      mod.handlers = loader
+
+      try {
+        loader.init && loader.init(botpress)
+      } catch (err) {
+        logger.warn('Error during module initialization: ', err)
+      }
+
+      loadedModules[mod.name] = mod
+      loadedCount++
+    })
+
+    if (loadedCount > 0) {
+      logger.info(`loaded ${loadedCount} modules`)
+    }
+
+    return loadedModules
+  }
+
+  const scanModules = () => {
+    const packagePath = path.join(projectLocation, 'package.json')
+
+    if (!fs.existsSync(packagePath)) {
+      return logger.warn("No package.json found at project root, " +
+        "which means botpress can't load any module for the bot.")
+    }
+
+    const botPackage = require(packagePath)
+
+    let deps = botPackage.dependencies || {}
+    if (isDeveloping) {
+      deps = _.merge(deps, botPackage.devDependencies || {})
+    }
+
+    return _.reduce(deps, (result, value, key) => {
+      if (!/^botpress-/i.test(key)) {
+        return result
+      }
+      const entry = resolveFromDir(projectLocation, key)
+      if (!entry) {
+        return result
+      }
+      const root = resolveModuleRootPath(entry)
+      if (!root) {
+        return result
+      }
+
+      const modulePackage = require(path.join(root, 'package.json'))
+      if (!modulePackage.botpress) {
+        return result
+      }
+
+      return result.push({
+        name: key,
+        root: root,
+        homepage: modulePackage.homepage,
+        settings: modulePackage.botpress,
+        entry: entry
+      }) && result
+    }, [])
+  }
+
+  const getRandomCommunityHero = Promise.method(() => {
+    const modulesCachePath = path.join(dataLocation, './modules-cache.json')
+
+    return listAllCommunityModules()
     .then(() => {
       const { modules } = JSON.parse(fs.readFileSync(modulesCachePath))
 
@@ -77,13 +158,13 @@ module.exports = (bp) => {
     }))
   }
 
-  const listAllModules = Promise.method(() => {
+  const listAllCommunityModules = Promise.method(() => {
 
     if (!fs) {
       return [] // TODO Fetch & return
     }
 
-    const modulesCachePath = path.join(bp.dataLocation, './modules-cache.json')
+    const modulesCachePath = path.join(dataLocation, './modules-cache.json')
     if (!fs.existsSync(modulesCachePath)) {
       fs.writeFileSync(modulesCachePath, JSON.stringify({
         modules: [],
@@ -114,37 +195,25 @@ module.exports = (bp) => {
     })
   })
 
-  const listPopularModules = Promise.method(() => {
-    const modulesCachePath = path.join(bp.dataLocation, './modules-cache.json')
+  const listPopularCommunityModules = Promise.method(() => {
+    const modulesCachePath = path.join(dataLocation, './modules-cache.json')
 
-    return listAllModules()
+    return listAllCommunityModules()
     .then(modules => {
       const { popular } = JSON.parse(fs.readFileSync(modulesCachePath))
       return _.filter(modules, m => _.includes(popular, m.name))
     })
   })
 
-  const listFeaturedModules = Promise.method(() => {
-    const modulesCachePath = path.join(bp.dataLocation, './modules-cache.json')
+  const listFeaturedCommunityModules = Promise.method(() => {
+    const modulesCachePath = path.join(dataLocation, './modules-cache.json')
 
-    return listAllModules()
+    return listAllCommunityModules()
     .then(modules => {
       const { featured } = JSON.parse(fs.readFileSync(modulesCachePath))
       return _.filter(modules, m => _.includes(featured, m.name))
     })
   })
-
-  const getPackageJSONPath = () => {
-    let projectLocation = (bp && bp.projectLocation) || './'
-    let packagePath = path.resolve(projectLocation, './package.json')
-
-    if (!fs.existsSync(packagePath)) {
-      log('warn', 'Could not find bot\'s package.json file')
-      return []
-    }
-
-    return packagePath
-  }
 
   const resolveModuleNames = (names) => {
     return names.map(name => {
@@ -195,7 +264,7 @@ module.exports = (bp) => {
     let modules = resolveModuleNames(names)
 
     const install = spawn(npmCmd, ['install', '--save', ...modules], {
-      cwd: bp && bp.projectLocation
+      cwd: projectLocation
     })
 
     log('info', 'Installing modules: ' + modules.join(', '))
@@ -211,7 +280,7 @@ module.exports = (bp) => {
   const uninstallModules = Promise.method((...names) => {
     let modules = resolveModuleNames(names)
     const uninstall = spawn(npmCmd, ['uninstall', '--save', ...modules], {
-      cwd: bp && bp.projectLocation
+      cwd: projectLocation
     })
 
     log('info', 'Uninstalling modules: ' + modules.join(', '))
@@ -226,19 +295,22 @@ module.exports = (bp) => {
 
 
   const listInstalledModules = () => {
-    const packageJSON = JSON.parse(fs.readFileSync(getPackageJSONPath()))
-    const prodDeps = _.keys(packageJSON.dependencies)
+    const packagePath = resolveProjectFile('package.json', projectLocation, true)
+    const { dependencies } = JSON.parse(fs.readFileSync(packagePath))
+    const prodDeps = _.keys(dependencies)
 
     return _.filter(prodDeps, dep => /botpress-.+/i.test(dep))
   }
 
   return {
-    getInstalled: listInstalledModules,
-    getListAllModules: listAllModules,
-    getPopular: listPopularModules,
-    getFeatured: listFeaturedModules,
-    getRandomHero: getRandomHero,
+    listAllCommunityModules,
+    listPopularCommunityModules,
+    listFeaturedCommunityModules,
+    getRandomCommunityHero,
     install: installModules,
-    uninstall: uninstallModules
+    uninstall: uninstallModules,
+    listInstalled: listInstalledModules,
+    _scan: scanModules,
+    _load: loadModules
   }
 }

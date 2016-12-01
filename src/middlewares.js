@@ -6,7 +6,6 @@ import fs from 'fs'
 import licensing from './licensing'
 
 const createMiddleware = function(bp, middlewareName) {
-
   const _use = mware()
   const _error = mware()
 
@@ -31,7 +30,7 @@ const createMiddleware = function(bp, middlewareName) {
       type: function(value) { return typeof(value) === 'string' },
       platform: function(value) { return typeof(value) === 'string' },
       text: function(value) { return typeof(value) === 'string' },
-      raw: function(value) { return true }
+      raw: function() { return true }
     }
 
     if (!_.conformsTo(event, conformity)) {
@@ -52,24 +51,14 @@ const createMiddleware = function(bp, middlewareName) {
     })
   }
 
-  return function() {
-    if (arguments.length === 0) {
-      throw new TypeError('Expected a middleware function or a plain object to dispatch in parameters')
-    }
-
-    if (typeof(arguments[0]) === 'function') {
-      _.forEach(arguments, use)
-    } else if (_.isPlainObject(arguments[0])) {
-      _.forEach(arguments, dispatch)
-    } else {
-      throw new TypeError('Expected a middleware function or a plain object to ' +
-        'dispatch in parameters but got ' + typeof(arguments[0]))
-    }
-  }
+  return { use, dispatch }
 }
 
-module.exports = function(bp) {
-  bp.incoming = bp.outgoing = function() {
+module.exports = function(bp, dataLocation, projectLocation, logger) {
+  const middlewaresFilePath = path.join(dataLocation, 'middlewares.json')
+  let incoming, outgoing, middlewares, customizations
+
+  const noopChain = function() {
     let message = 'Middleware called before middlewares have been loaded. This is a no-op.'
      + ' Have you forgotten to call `bp.loadMiddlewares()` in your bot?'
 
@@ -77,68 +66,63 @@ module.exports = function(bp) {
       message += '\nCalled with: ' + JSON.stringify(arguments[0], null, 2)
     }
 
-    bp.logger.warn(message)
+    logger.warn(message)
   }
 
-  const middlewaresFilePath = path.join(bp.dataLocation, 'middlewares.json')
-
-  const readMiddlewaresCustomizations = () => {
+  const readCustomizations = () => {
     if (!fs.existsSync(middlewaresFilePath)) {
       fs.writeFileSync(middlewaresFilePath, '{}')
     }
     return JSON.parse(fs.readFileSync(middlewaresFilePath))
   }
 
-  const writeMiddlewaresCustomizations = () => {
-    fs.writeFileSync(middlewaresFilePath, JSON.stringify(bp.middlewareCustomizations))
+  const writeCustomizations = () => {
+    fs.writeFileSync(middlewaresFilePath, JSON.stringify(customizations))
   }
 
-  bp.setMiddlewaresCustomizations = (middlewares) => {
+  const setCustomizations = (middlewares) => {
     middlewares.forEach(middleware => {
       const { name, order, enabled } = middleware
-      bp.middlewareCustomizations[name] = { order, enabled }
+      customizations[name] = { order, enabled }
     })
-    writeMiddlewaresCustomizations()
+    writeCustomizations()
   }
 
-  bp.resetMiddlewaresCustomizations = () => {
-    bp.middlewareCustomizations = {}
-    writeMiddlewaresCustomizations()
+  const resetCustomizations = () => {
+    customizations = {}
+    writeCustomizations()
   }
 
-  bp.middlewares = []
-  bp.middlewareCustomizations = readMiddlewaresCustomizations()
-
-  bp.registerMiddleware = (middleware) => {
+  const register = (middleware) => {
     if (!middleware || !middleware.name) {
-      bp.logger.error('A unique middleware name is mandatory')
+      logger.error('A unique middleware name is mandatory')
       return false
     }
 
     if (!middleware.handler) {
-      bp.logger.error('A middleware handler is mandatory')
+      logger.error('A middleware handler is mandatory')
       return false
     }
 
     if (!middleware.type || (middleware.type !== 'incoming' && middleware.type !== 'outgoing')) {
-      bp.logger.error('A middleware type (incoming or outgoing) is required')
+      logger.error('A middleware type (incoming or outgoing) is required')
       return false
     }
 
     middleware.order = middleware.order || 0
     middleware.enabled = typeof middleware.enabled === 'undefined' ? true: !!middleware.enabled
 
-    if (_.some(bp.middlewares, m => m.name === middleware.name)) {
-      bp.logger.error('An other middleware with the same name has already been registered')
+    if (_.some(middlewares, m => m.name === middleware.name)) {
+      logger.error('An other middleware with the same name has already been registered')
       return false
     }
 
-    bp.middlewares.push(middleware)
+    middlewares.push(middleware)
   }
 
-  bp.getMiddlewares = () => {
-    return _.orderBy(bp.middlewares.map(middleware => {
-      const customization = bp.middlewareCustomizations[middleware.name]
+  const list = () => {
+    return _.orderBy(middlewares.map(middleware => {
+      const customization = customizations[middleware.name]
       if (customization) {
         return Object.assign({}, middleware, customization)
       }
@@ -146,19 +130,48 @@ module.exports = function(bp) {
     }), 'order')
   }
 
-  bp.loadMiddlewares = () => {
-    bp.incoming = createMiddleware(bp, 'incoming')
-    bp.outgoing = createMiddleware(bp, 'outgoing')
+  const load = () => {
+    incoming = createMiddleware(bp, 'incoming')
+    outgoing = createMiddleware(bp, 'outgoing')
 
-    licensing(bp).applyLicenseMiddleware()
+    const {middleware: licenseMiddleware} = licensing(projectLocation)
+    incoming.use(licenseMiddleware)
 
-    bp.getMiddlewares().forEach(m => {
+    list().forEach(m => {
       if (!m.enabled) {
-        return bp.logger.debug('SKIPPING middleware:', m.name, ' [Reason=disabled]')
+        return logger.debug('SKIPPING middleware:', m.name, ' [Reason=disabled]')
       }
 
-      bp.logger.debug('Loading middleware:', m.name)
-      bp[m.type](m.handler) // apply middleware
+      logger.debug('Loading middleware:', m.name)
+
+      if (m.type === 'incoming') {
+        incoming.use(m.handler)
+      } else {
+        outgoing.use(m.handler)
+      }
     })
+  }
+
+  const sendToMiddleware = type => event => {
+    let mw = type === 'incoming' ? incoming : outgoing
+    mw.dispatch(event)
+  }
+
+  const sendIncoming = sendToMiddleware('incoming')
+  const sendOutgoing = sendToMiddleware('outgoing')
+
+  incoming = outgoing = noopChain
+  middlewares = []
+  customizations = readCustomizations()
+
+  return {
+    load,
+    list,
+    register,
+    sendIncoming,
+    sendOutgoing,
+    getCustomizations: () => customizations,
+    setCustomizations,
+    resetCustomizations
   }
 }

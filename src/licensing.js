@@ -1,98 +1,82 @@
 import path from 'path'
 import fs from 'fs'
 import Promise from 'bluebird'
-import _ from 'lodash'
 
-module.exports = (bp) => {
+import listeners from './listeners'
+import {resolveProjectFile} from './util'
+
+module.exports = (projectLocation) => {
 
   const licensesPath = path.join(__dirname, '../licenses')
 
-  const getPackageJSONPath = () => {
-    let projectLocation = (bp && bp.projectLocation) || './'
-    let packagePath = path.resolve(projectLocation, './package.json')
-
-    if (!fs.existsSync(packagePath)) {
-      log('warn', 'Could not find bot\'s package.json file')
-      return []
-    }
-
-    return packagePath
-  }
-
-  const getLicensePath = () => {
-    let projectLocation = (bp && bp.projectLocation) || './'
-    let licensePath = path.resolve(projectLocation, './LICENSE')
-
-    if (!fs.existsSync(licensePath)) {
-      log('warn', 'Could not find bot\'s license file')
-      return []
-    }
-
-    return licensePath
-  }
-
   const getLicenses = () => {
-    const packageJSON = JSON.parse(fs.readFileSync(getPackageJSONPath()))
-    const actualLicense = packageJSON.license
-    const licenseAGPL = fs.readFileSync(path.join(licensesPath, 'LICENSE_AGPL3')).toString()
-    const licenseBotpress = fs.readFileSync(path.join(licensesPath, 'LICENSE_BOTPRESS')).toString()
+    const packageJsonPath = resolveProjectFile('package.json', projectLocation, true)
+    const { license } = JSON.parse(fs.readFileSync(packageJsonPath))
+
+    const agplContent = fs.readFileSync(path.join(licensesPath, 'LICENSE_AGPL3')).toString()
+    const botpressContent = fs.readFileSync(path.join(licensesPath, 'LICENSE_BOTPRESS')).toString()
 
     return {
       agpl: {
         name: 'AGPL-3.0',
-        licensedUnder: actualLicense === 'AGPL-3.0',
-        text: licenseAGPL
+        licensedUnder: license === 'AGPL-3.0',
+        text: agplContent
       },
       botpress: {
         name: 'Botpress',
-        licensedUnder: actualLicense === 'Botpress',
-        text: licenseBotpress
+        licensedUnder: license === 'Botpress',
+        text: botpressContent
       }
     }
   }
 
   const changeLicense = Promise.method((license) => {
-    const licenseFile = (license === 'AGPL-3.0') ? 'LICENSE_AGPL3' : 'LICENSE_BOTPRESS'
-    const licenseContent = fs.readFileSync(path.join(licensesPath, licenseFile))
-    fs.writeFileSync(getLicensePath(), licenseContent)
+    const packageJsonPath = resolveProjectFile('package.json', projectLocation, true)
 
-    let packageJSON = JSON.parse(fs.readFileSync(getPackageJSONPath()))
-    packageJSON.license = license
+    const licensePath = resolveProjectFile('LICENSE', projectLocation, true)
+    const licenseFileName = (license === 'AGPL-3.0') ? 'LICENSE_AGPL3' : 'LICENSE_BOTPRESS'
+    const licenseContent = fs.readFileSync(path.join(licensesPath, licenseFileName))
 
-    fs.writeFileSync(getPackageJSONPath(), JSON.stringify(packageJSON, null, 2))
+    const pkg = JSON.parse(fs.readFileSync(packageJsonPath))
+    pkg.license = license
+
+    fs.writeFileSync(licensePath, licenseContent)
+    fs.writeFileSync(packageJsonPath, JSON.stringify(pkg, null, 2))
   })
 
-  const applyLicenseMiddleware = () => {
-    bp.hear(/^BOT_LICENSE$/, (event, next) => {
-      let packageJSON = JSON.parse(fs.readFileSync(getPackageJSONPath()))
-      const license = packageJSON.license
-      const botName = packageJSON.name
-      const author = packageJSON.author
-      const response = "Bot: " + botName + "\n" 
-        + "Created by: " + author + "\n"
-        + "License: " + license + "\n"
-        + "Botpress: " + bp.version
+  const middleware = listeners.hear(/^BOT_LICENSE$/, (event, next) => {
+    const packageJsonPath = resolveProjectFile('package.json', projectLocation, true)
+    const { license, name, author } = JSON.parse(fs.readFileSync(packageJsonPath))
+    const bp = event.bp
 
-      if (bp[event.platform] && bp[event.platform].pipeText) {
-        bp[event.platform].pipeText(event.user.id, response)
-      } else {
-        bp.outgoing({
-          platform: event.platform,
-          type: 'text',
-          text: response,
-          raw: {
-            to: event.user.id,
-            message: response,
-            responseTo: event
-          }
-        })
-      }
-    })
-  }
+    const response = "Bot: " + name + "\n"
+      + "Created by: " + author + "\n"
+      + "License: " + license + "\n"
+      + "Botpress: " + bp.version
+
+    const userId = event.user && event.user.id
+
+    if (bp[event.platform] && bp[event.platform].pipeText) {
+      bp[event.platform].pipeText(userId, response)
+    } else {
+      bp.middlewares.sendOutgoing({
+        platform: event.platform,
+        type: 'text',
+        text: response,
+        raw: {
+          to: userId,
+          message: response,
+          responseTo: event
+        }
+      })
+    }
+
+    next()
+  })
 
   return {
-    getLicenses: getLicenses,
-    changeLicense: changeLicense,
-    applyLicenseMiddleware: applyLicenseMiddleware
+    getLicenses,
+    changeLicense,
+    middleware
   }
 }

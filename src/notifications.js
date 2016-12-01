@@ -5,64 +5,77 @@ import uuid from 'uuid'
 
 import { resolveModuleRootPath } from './util'
 
-module.exports = (bp, modules) => {
-
-  const notificationsFile = path.join(bp.dataLocation, bp.botfile.notification.file)
-
-  bp.loadNotifications = () => {
-    if (fs.existsSync(notificationsFile)) {
-      return JSON.parse(fs.readFileSync(notificationsFile))
+// TODO this can be an util
+const createJsonStore = (filePath, initData) => ({
+  load: () => {
+    if (fs.existsSync(filePath)) {
+      return JSON.parse(fs.readFileSync(filePath))
     }
-    return []
-  }
 
-  bp.saveNotifications = (notifications) => {
-    fs.writeFileSync(notificationsFile, JSON.stringify(notifications))
-  }
+    return initData
+  },
 
-  bp.events.on('notifications.getAll', () => {
-    bp.events.emit('notifications.all', bp.loadNotifications())
+  save: data => {
+    fs.writeFileSync(filePath, JSON.stringify(data))
+  }
+})
+
+const bindEvents = (loadNotifs, saveNotifs, events) => {
+  events.on('notifications.getAll', () => {
+    events.emit('notifications.all', loadNotifs())
   })
 
-  bp.events.on('notifications.read', (id) => {
-    let notifications = bp.loadNotifications()
-    notifications = notifications.map((notif) => {
-      if (notif.id === id) {
+  const markReadIf = cond => {
+    const notifications = loadNotifs()
+    .map(notif => {
+      if (cond(notif)) {
         notif.read = true
       }
       return notif
     })
-    bp.saveNotifications(notifications)
-    bp.events.emit('notifications.all', notifications)
+
+    saveNotifs(notifications)
+    events.emit('notifications.all', notifications)
+  }
+
+  events.on('notifications.read', (id) => {
+    markReadIf(notif => notif.id === id)
   })
 
-  bp.events.on('notifications.allRead', () => {
-    let notifications = bp.loadNotifications()
-    notifications = notifications.map((notif) => {
-      notif.read = true
-      return notif
-    })
-    bp.saveNotifications(notifications)
-    bp.events.emit('notifications.all', notifications)
+  events.on('notifications.allRead', () => {
+    markReadIf(() => true)
   })
 
-  bp.events.on('notifications.trashAll', () => {
-    bp.saveNotifications([])
-    bp.events.emit('notifications.all', [])
+  events.on('notifications.trashAll', () => {
+    saveNotifs([])
+    events.emit('notifications.all', [])
   })
+}
 
-  bp.notif = ({ message, url, level }) => {
+export default (dataLocation, notifConfig, modules, events, logger) => {
+  const notificationsFile = path.join(dataLocation, notifConfig.file)
+
+  const {
+    load: loadNotifs,
+    save: saveNotifs,
+  } = createJsonStore(notificationsFile, [])
+
+  bindEvents(loadNotifs, saveNotifs, events)
+
+  const sendNotif = ({ message, url, level }) => {
 
     if (!message || typeof(message) !== 'string') {
       throw new Error('`message` is mandatory and should be a string')
     }
 
-    if (!level || typeof(level) !== 'string' || !_.includes(['info', 'error', 'success'], level.toLowerCase())) {
+    if (
+      !level || typeof(level) !== 'string' ||
+      !_.includes(['info', 'error', 'success'], level.toLowerCase())
+    ) {
       level = 'info'
     } else {
       level = level.toLowerCase()
     }
-
 
     const callingFile = getOriginatingModule()
     const callingModuleRoot = resolveModuleRootPath(callingFile)
@@ -105,20 +118,26 @@ module.exports = (bp, modules) => {
       read: false
     }
 
-    let notifications = bp.loadNotifications()
-    if (notifications.length >= bp.botfile.notification.maxLength) {
+    let notifications = loadNotifs()
+    if (notifications.length >= notifConfig.maxLength) {
       notifications.pop()
     }
 
     notifications.unshift(notification)
-    bp.saveNotifications(notifications)
+    saveNotifs(notifications)
 
-    bp.events.emit('notifications.new', notification)
+    events.emit('notifications.new', notification)
 
     const logMessage = '[notification::' + notification.moduleId + '] ' + notification.message
-    if (bp.logger) {
-      (bp.logger[level] || bp.logger.info)(logMessage)
+    if (logger) {
+      (logger[level] || logger.info)(logMessage)
     }
+  }
+
+  return {
+    load: loadNotifs,
+    save: saveNotifs,
+    send: sendNotif,
   }
 }
 
