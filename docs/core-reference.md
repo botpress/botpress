@@ -1,5 +1,7 @@
 ## Core Reference {#core}
 
+---
+
 ### EventBus > `bp.events`{#core-eventbus}
 
 The EventBus is an instance of [EventEmmitter2](https://github.com/asyncly/EventEmitter2), so all of its features are available. 
@@ -27,6 +29,8 @@ bp.events.on('messenger.connected', event => {
 // accepts wildcards (*)
 bp.events.on('messenger.*', event => /* ... */)
 ```
+
+---
 
 ### Database > `bp.db`{#core-database}
 
@@ -59,6 +63,8 @@ Saves a user in the built-in `users` table. **Does not** overwrite existing entr
   locale: string
 }
 ```
+
+---
 
 ### Middlewares > `bp.middlewares` {#core-middlewares}
 
@@ -133,6 +139,8 @@ bp.middlewares.sendIncoming({
 
 #### `sendOutgoing(MiddlewareEvent) -> void`
 
+---
+
 ### Logger > `bp.logger` {#core-logger}
 
 The logger is an instance of the excellent [`winstonjs`](https://github.com/winstonjs/winston).
@@ -143,10 +151,20 @@ The logger is an instance of the excellent [`winstonjs`](https://github.com/wins
 #### `warn(args...)`
 #### `error(args...)`
 
+---
+
 ### Modules > `bp.modules` {#core-modules}
+
+#### `install(name, [name2], [...]) -> Promise()`
+#### `uninstall(name, [name2], [...]) -> Promise()`
+#### `listInstalled() -> string[]`
+
+---
 
 ### Notifications > `bp.notifications` {#core-notifications}
 
 #### ``
+
+---
 
 ### HTTP Server > `bp.getRouter() -> Express Router` {#core-server}
