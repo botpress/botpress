@@ -120,6 +120,17 @@ bp.middlewares.register({
 }
 ```
 
+##### Example
+
+```js
+bp.middlewares.sendIncoming({
+  type: 'postback',
+  platform: 'facebook',
+  text: 'GET_STARTED',
+  raw: fbEvent // complex object
+})
+```
+
 #### `sendOutgoing(MiddlewareEvent) -> void`
 
 ### Logger > `bp.logger` {#core-logger}
