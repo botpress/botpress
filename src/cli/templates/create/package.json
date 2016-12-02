@@ -30,6 +30,7 @@
     "babel-register": "^6.18.0",
     "classnames": "^2.2.5",
     "copy-webpack-plugin": "^4.0.0",
+    "core-js": "^2.4.1",
     "css-loader": "^0.25.0",
     "extract-text-webpack-plugin": "^1.0.1",
     "file-loader": "^0.9.0",
