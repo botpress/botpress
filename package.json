@@ -1,8 +1,8 @@
 {
   "name": "botpress",
   "description": "The world's first CMS for bots. Easily create, manage and extend chatbots.",
-  "version": "0.0.36",
-  "author": "Protorisk (DIFC)",
+  "version": "0.0.37",
+  "author": "Botpress",
   "babel": {
     "presets": [
       "latest",
