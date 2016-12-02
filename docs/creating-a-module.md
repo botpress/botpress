@@ -43,7 +43,7 @@ As you can see, all the module's logic is inside the `/src` directory. A module 
 
 - `/src/index.js` The module's backend entry point. This is where the module logic goes.
 
-- `/src/views/index.jsx` The module's frontend entry component (written in [React](TODO)). This is where the frontend logic goes.
+- `/src/views/index.jsx` The module's frontend entry component (written in [React](https://facebook.github.io/react/)). This is where the frontend logic goes.
 
 ### Backend
 
@@ -62,7 +62,7 @@ The front-end of a module is a [React Component](https://facebook.github.io/reac
 
 Botpress will pass an instance of the front-end `bp` instance and a pre-configured `axios` to your module component:
 
-- `bp` exposes `bp.events`, which is an instance of the [EventBus](TODO)
+- `bp` exposes `bp.events`, which is an instance of the [EventBus](events.md)
 - [`axios`](https://github.com/mzabriskie/axios) is pre-configured to provide the required authentication token by the API routes
 
 #### Example
@@ -120,11 +120,11 @@ To publish your module:
 npm publish
 ```
 
-Botpress crawls and indexes modules periodically. It may take up to 45 minutes before your module shows up in the list of available modules. Even if it doesn't show up, it is available to install right away via the [`botpress install`](TODO) command.
+Botpress crawls and indexes modules periodically. It may take up to 45 minutes before your module shows up in the list of available modules. Even if it doesn't show up, it is available to install right away via the [`botpress install`](cli-reference.md#install--i) command.
 
 Note that the **all of the following criteras must be met** before a module can appear as a community module:
 
-1. You must have filled and signed the [Distribution Agreement](TODO). The agreement shows up automatically before running `npm publish`.
+1. You must have filled and signed the **Distribution Agreement** _(available soon)_. The agreement shows up automatically before running `npm publish`.
 2. The module name must start with `botpress-`
 3. The license must be set to `AGPL 3.0` or `Botpress License`
 4. The `package.json` must have a valid `botpress` section

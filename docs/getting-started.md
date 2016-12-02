@@ -30,7 +30,7 @@ The global command line tool is available as `botpress` and `bp`. For example, r
 
 ## Installing modules
 
-Botpress aims to be as lightweight as possible and includes only what is necessary to almost all bots. Much of the functionalities your bot will have will come from modules. Modules must be installed separately using the [`botpress install`](TODO) command.
+Botpress aims to be as lightweight as possible and includes only what is necessary to almost all bots. Much of the functionalities your bot will have will come from modules. Modules must be installed separately using the [`botpress install`](cli-reference.md#install--i) command.
 
 A list of all available modules can be found in your bot's web interface. Modules are published to NPM and botpress crawls and indexes available and valid modules to make it easier for you to install them.
 
@@ -46,7 +46,7 @@ bp i ~/john/Desktop/botpress-local-module
 bp i ../local-module
 ```
 
-You may uninstall modules with the [`botpress uninstall`](TODO) command:
+You may uninstall modules with the [`botpress uninstall`](cli-reference.md#uninstall--u) command:
 
 ```
 botpress uninstall messenger
@@ -60,7 +60,7 @@ In your bot's entry point (`index.js`), you have access to the botpress instance
 
 ## Processing messages
 
-[`bp.hear`](TODO) is an utility function to capture and process messages. Behind the scene, botpress simply appends an [incoming middleware](TODO), but we don't need to know about these for now.
+[`bp.hear`](core-reference.md#hear) is an utility function to capture and process messages. Behind the scene, botpress simply appends an [incoming middleware](middlewares.md), but we don't need to know about these for now.
 
 **Example**:
 ```js
@@ -73,7 +73,7 @@ module.exports = function(bp) {
 }
 ```
 
-[`bp.hear`](TODO) has much more powerful listening capabilities such as listening on regexes:
+[`bp.hear`](core-reference.md#hear) has much more powerful listening capabilities such as listening on regexes:
 
 ```js
 bp.hear(/hello/i, function(message) { /* do something */ })
@@ -85,7 +85,7 @@ or even platform-specific events:
 bp.hear({ platform: 'facebook', text: /hello/i }, /* ... */)
 ```
 
-You can read the [Core Reference](TODO) for to discover more ways of using [`bp.hear`](TODO)
+You can read the [Core Reference](core-reference.md) for to discover more ways of using [`bp.hear`](core-reference.md#hear)
 
 ## Notifications
 
@@ -103,11 +103,11 @@ bp.notifications.send({
 
 ![](/assets/screenshot-notifications)
 
-Read more about the [Core Notification API](TODO).
+Read more about the [Core Notification API](core-reference.md).
 
 ## Logging
 
-Using [`bp.logger`](TODO) is the preferred way of logging things in your bot. `bp.logger` is an instance of the great [`winston`](https://github.com/winstonjs/winston) library. 
+Using [`bp.logger`](core-reference.md) is the preferred way of logging things in your bot. `bp.logger` is an instance of the great [`winston`](https://github.com/winstonjs/winston) library. 
 
 You can use to log messages, which will automatically show up in your bot's console and web interface.
 
@@ -129,4 +129,4 @@ NODE_ENV=production botpress start
 
 ![](/assets/screenshot-login.png)
 
-You can easily configure the authentication details in the [botfile](TODO).
+You can easily configure the authentication details in the [botfile](botfile.md).

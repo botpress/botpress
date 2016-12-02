@@ -2,23 +2,23 @@
 
 Middlewares are a critical component of botpress. Simply put, they are functions that process messages. Think of it this way: everything that enter or leave your bot is coming in (or out) from middlewares.
 
-If you have used [Express](TODO) before, botpress middlewares are very similar to express's middlewares.
+If you have used [Express](http://expressjs.com/) before, botpress middlewares are very similar to express's middlewares.
 
-Botpress has two middleware chains: [incoming](TODO) and [outgoing](TODO)
+Botpress has two middleware chains: [incoming](middlewares.md#sendincomingmiddlewareevent---void) and [outgoing](middlewares.md#sendoutgoingmiddlewareevent---void)
 
-**To receive messages**: An installed module must send messages into the [incoming middleware chain](TODO)
+**To receive messages**: An installed module must send messages into the incoming middleware chain
 
-**To send messages**: You (or a module) must send messages into the [outgoing middleware chain](TODO) and have a module able to send it to the right platform
+**To send messages**: You (or a module) must send messages into the outgoing middleware chain and have a module able to send it to the right platform
 
 ### Example
 
-**Incoming**: [botpress-messenger](TODO) connects to Facebook and receives messages from its built-in Webhook. It then sends messages into the incoming middleware, which your bot can process.
+**Incoming**: [botpress-messenger](https://github.com/botpress/botpress-messenger) connects to Facebook and receives messages from its built-in Webhook. It then sends messages into the incoming middleware, which your bot can process.
 
-**Outgoing**: [botpress-messenger](TODO) listens (through a middleware function) for messages it can process on the outgoing middleware and sends them to Facebook through the Messenger Send API.
+**Outgoing**: [botpress-messenger](https://github.com/botpress/botpress-messenger) listens (through a middleware function) for messages it can process on the outgoing middleware and sends them to Facebook through the Messenger Send API.
 
 ## Middleware Chain
 
-A middleware chain is simply a collection of middlewares that are called in a [predertermined order](TODO). Each middleware in the chain has the freedom to:
+A middleware chain is simply a collection of middlewares that are called in a predertermined order. Each middleware in the chain has the freedom to:
 - execute arbitrary code
 - mutate the event
 - call the next middleware
@@ -55,7 +55,7 @@ The return value of the middleware can be anything or nothing, it isn't used.
 
 ## Registering middlewares
 
-You need to register a middleware for botpress to know about it and use it. You may do so with the [`bp.registerMiddleware`](TODO) method:
+You need to register a middleware for botpress to know about it and use it. You may do so with the [`bp.registerMiddleware`](core-reference.md) method:
 
 ```js
 // ** code taken from botpress-messenger **
@@ -70,7 +70,7 @@ bp.registerMiddleware({
 })
 ```
 
-Once all middlewares have been registered (usually modules should register middlewares immediatly in their initialization), **you must load them** using [`bp.loadMiddlewares()`](TODO), which will create the incoming and outgoing chains automatically.
+Once all middlewares have been registered (usually modules should register middlewares immediatly in their initialization), **you must load them** using [`bp.loadMiddlewares()`](core-reference.md), which will create the incoming and outgoing chains automatically.
 
 Once middlewares are loaded, you'll see them displayed in your bot's interface:
 
@@ -82,16 +82,16 @@ By default, middlewares are ordered by **ascending order** according to their `o
 
 ![](/assets/screenshot-middlewares-order.png)
 
-You can also re-order them programmatically using [middlewares customizations](TODO).
+You can also re-order them programmatically using middlewares customizations.
 
 ## Full Messages Lifecycle Example
 
 Imagine you have a travel bot that is available on Facebook Messenger and Slack and that can handle many languages.
 
 Your bot's installed modules would probably look a bit like:
-- [botpress-messenger](TODO) for I/O with Facebook Messenger
-- [botpress-slack](TODO) for I/O with Slack
-- [botpress-analytics](TODO) to have an overview of how people use your bot
+- [botpress-messenger](https://github.com/botpress/botpress-messenger) for I/O with Facebook Messenger
+- [botpress-slack](https://github.com/botpress/botpress-slack) for I/O with Slack
+- [botpress-analytics](https://github.com/botpress/botpress-analytics) to have an overview of how people use your bot
 - botpress-translate _(fictive)_ to translate incoming and outgoing messages
 - ~/my-bot/private\_modules/botpress-travel _(fictive)_ your bot's travel logic goes here
 

@@ -14,14 +14,14 @@ npm install -g botpress
 
 ## Usage
 
-Creating a bot is simple, simply run [`botpress init`](TODO) inside an empty directory:
+Creating a bot is simple, simply run [`botpress init`](/docs/cli-reference.md#init) inside an empty directory:
 
 ```
 mkdir my-bot && cd my-bot
 botpress init
 ```
 
-Once your bot is created, you may [start](TODO) it:
+Once your bot is created, you may [start](/docs/cli-reference.md#start--s) it:
 
 ```
 botpress start
@@ -29,31 +29,31 @@ botpress start
 
 This will provide you with a web interface available at **`http://localhost:3000`**
 
-You then need to install some [modules](TODO). You can do so directly in the web interface, or using the [`botpress install`](TODO) CLI command:
+You then need to install some modules. You can do so directly in the web interface, or using the [`botpress install`](/docs/cli-reference.md#install--i) CLI command:
 
 ```
 botpress install messenger
 ```
 
-For a more detailed usage guide, please read the [Getting Started Guide](TODO).
+For a more detailed usage guide, please read the [Getting Started Guide](/docs/getting-started.md).
 
 ## Examples
 
 There's a [video on YouTube](TODO) that shows how to create a Hello World Messenger Bot in under 45 seconds.
 
 - [Hello World Messenger Bot](TODO)
-- [Todolist Messenger Bot](TODO)
-- [Scheduling Messages](TODO)
-- [Bot Analytics](TODO)
+- Todolist Messenger Bot _(soon)_
+- Scheduling Messages _(soon)_
+- Bot Analytics _(soon)_
 
-Many more code examples are available in the **[Examples repository](TODO)**
+Many more code examples are available in the **[Examples repository](https://github.com/botpress/botpress-examples)**
 
 ## Documentation
 
 - [Getting Started Guide](/docs/getting-started.md)
 - [Advanced Topics](/docs/advanced-topics.md)
-- [CLI Reference](TODO)
-- [Core Reference](TODO)
+- [CLI Reference](/docs/cli-reference.md)
+- [Core Reference](/docs/core-reference.md)
 
 ## Community
 

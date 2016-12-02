@@ -6,7 +6,7 @@ You may define your own APIs with the help of Routers (`express.Router`). From t
 
 > Use the express.Router class to create modular, mountable route handlers. A Router instance is a complete middleware and routing system; for this reason, it is often referred to as a “mini-app”.
 
-To get a Router, simply call the [`getRouter(moduleName)`](TODO) method. The name of the module is required as API routes are scoped by modules.
+To get a Router, simply call the [`getRouter(moduleName)`](core-reference.md) method. The name of the module is required as API routes are scoped by modules.
 
 ### API Example
 
