@@ -50,7 +50,7 @@ For a more detailed usage guide, please read the [Getting Started Guide](/docs/g
 
 ## Documentation
 
-- [Getting Started Guide](/docs/getting-started.md)
+- [Getting Started](/docs/getting-started.md)
 - [Basics](/docs/basics.md)
 - [Advanced Topics](/docs/advanced-topics.md)
 - [CLI Reference](/docs/cli-reference.md)
@@ -59,8 +59,9 @@ For a more detailed usage guide, please read the [Getting Started Guide](/docs/g
 ## Examples
 
 There's some tutorial that might help you getting started, it's easy to and it takes about less than 10 minutes.
-- [Hello World Messenger Bot - Code](https://github.com/botpress/botpress-examples/tree/master/hello-world-bot)
-- [Hello world Messenger Bot - Rivescript](https://github.com/botpress/botpress-examples/tree/master/hello-world-rivescript-bot)
+
+- [Hello World Messenger Bot](https://github.com/botpress/botpress-examples/tree/master/hello-world-bot)
+- [Hello world Messenger Bot using Rivescript](https://github.com/botpress/botpress-examples/tree/master/hello-world-rivescript-bot)
 - [Motivation Messenger Bot](https://github.com/botpress/botpress-examples/tree/master/motivation-bot)
 
 
