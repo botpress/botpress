@@ -1,19 +1,19 @@
 <a href='http://botpress.io'><img src='/assets/screenshot-ui.png'></a>
 # <a href='http://botpress.io'><img src='https://httpsimage.com/img/botpress-logo-120.png' height='60'></a>
 
-Botpress is an open-source bot creation tool written in Javascript. It is powered by a rich set of open-source (and proprietary) modules built by the community.
-
-## Vision & Mission
-
-Botpress is on a mission to make bots ubiquitous and profitable for everybody.
-
-## Target audience
-
-
+Botpress is an open-source bot creation tool written in Javascript. It is powered by a rich set of open-source (and proprietary) modules built by the community. In fact, Botpress is a tool that helps creating awesome chatbots and have total control over it.
 
 ## ALPHA TESTERS
 
 Important: **Make sure to join the official Facebook Group (https://www.facebook.com/groups/656491441198667/)!**
+
+## Vision & Mission
+
+Botpress is on mission to make bots ubiquitous and profitable for everybody. At Botpress, we think that using close source building tools is not the right way to build awesome chatbots. To be able to create something great, it's important to have full control over it ant it's exactly what Botpress offers!   
+
+## Target audience
+
+Botpress is at an early stage and we are looking for **node developers** to build new modules, create chatbots and help the community to build something **huge**... Everyone will benefits to have a powerful open-source tool with a wide variety of specialized modules. 
 
 ## Installation
 
@@ -46,7 +46,7 @@ You then need to install some modules. You can do so directly in the web interfa
 botpress install messenger
 ```
 
-For a more detailed usage guide, please read the [Getting Started Guide](/docs/getting-started.md).
+For a more detailed usage guide, please read the [Basics](/docs/basics.md).
 
 ## Documentation
 
@@ -60,15 +60,15 @@ For a more detailed usage guide, please read the [Getting Started Guide](/docs/g
 
 There's some tutorial that might help you getting started, it's easy to and it takes about less than 10 minutes.
 
-- [Hello World Messenger Bot](https://github.com/botpress/botpress-examples/tree/master/hello-world-bot)
-- [Hello world Messenger Bot using Rivescript](https://github.com/botpress/botpress-examples/tree/master/hello-world-rivescript-bot)
-- [Motivation Messenger Bot](https://github.com/botpress/botpress-examples/tree/master/motivation-bot)
+- [Hello World Bot](https://github.com/botpress/botpress-examples/tree/master/hello-world-bot)
+- [Hello World Bot using Rivescript](https://github.com/botpress/botpress-examples/tree/master/hello-world-rivescript-bot)
+- [Motivation Bot](https://github.com/botpress/botpress-examples/tree/master/motivation-bot)
 
+There's also some [videos on YouTube](#TODO) that shows how to create and code your bot using Botpress.
 
-There's a [video on YouTube](TODO) that shows how to create a Hello World Messenger Bot in under 45 seconds.
-
-- [Hello World Messenger Bot](https://github.com/botpress/botpress-examples/tree/master/hello-world-bot)
-- Todolist Messenger Bot _(soon)_
+- [Getting started](#TODO)
+- [Hello World Bot](#TODO)
+- Todolist Bot _(soon)_
 - Scheduling Messages _(soon)_
 - Bot Analytics _(soon)_
 
