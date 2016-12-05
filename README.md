@@ -48,6 +48,14 @@ botpress install messenger
 
 For a more detailed usage guide, please read the [Getting Started Guide](/docs/getting-started.md).
 
+## Documentation
+
+- [Getting Started Guide](/docs/getting-started.md)
+- [Basics](/docs/basics.md)
+- [Advanced Topics](/docs/advanced-topics.md)
+- [CLI Reference](/docs/cli-reference.md)
+- [Core Reference](/docs/core-reference.md)
+
 ## Examples
 
 There's some tutorial that might help you getting started, it's easy to and it takes about less than 10 minutes.
@@ -64,14 +72,6 @@ There's a [video on YouTube](TODO) that shows how to create a Hello World Messen
 - Bot Analytics _(soon)_
 
 Many more code examples are available in the **[Examples repository](https://github.com/botpress/botpress-examples)**
-
-## Documentation
-
-- [Getting Started Guide](/docs/getting-started.md)
-- [Basics](/docs/basics.md)
-- [Advanced Topics](/docs/advanced-topics.md)
-- [CLI Reference](/docs/cli-reference.md)
-- [Core Reference](/docs/core-reference.md)
 
 ## Community
 
