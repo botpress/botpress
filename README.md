@@ -1,7 +1,7 @@
 <a href='http://botpress.io'><img src='/assets/screenshot-ui.png'></a>
 # <a href='http://botpress.io'><img src='https://httpsimage.com/img/botpress-logo-120.png' height='60'></a>
 
-Botpress is an open-source bot creation tool written in Javascript. It is powered by a rich set of open-source (and proprietary) modules built by the community. In fact, Botpress is a tool that helps creating awesome chatbots and have total control over it.
+Botpress is an open-source bot creation tool written in Javascript. It is powered by a rich set of open-source (and proprietary) modules built by the community. In fact, Botpress helps you to build easily awesome chatbots by using modules and by being able to customize anything you want to. Developers will now have total over the development of their bots!
 
 ## ALPHA TESTERS
 
@@ -9,11 +9,11 @@ Important: **Make sure to join the official Facebook Group (https://www.facebook
 
 ## Vision & Mission
 
-Botpress is on mission to make bots ubiquitous and profitable for everybody. At Botpress, we think that using close source building tools is not the right way to build awesome chatbots. To be able to create something great, it's important to have full control over it ant it's exactly what Botpress offers!   
+Botpress is on mission to make bots ubiquitous and profitable for everybody. At Botpress, we think that using close source building tools like ChatFuel is not the right way to build awesome and powerful chatbots. To be able to create something **great**, it's important to have full control over your chatbots ant it's exactly what Botpress offers you!   
 
 ## Target audience
 
-Botpress is at an early stage and we are looking for **node developers** to build new modules, create chatbots and help the community to build something **huge**... Everyone will benefits to have a powerful open-source tool with a wide variety of specialized modules. 
+Botpress is at an early stage and we are looking for **node developers** to build new modules, create chatbots and help the community to build something that will be **huge**... Over time, everyone will benefits to have a powerful open-source tool that helps to build easily and quickly chatbots by using a wide variety of specialized modules.
 
 ## Installation
 
@@ -25,20 +25,20 @@ npm install -g botpress
 
 ## Usage
 
-Creating a bot is simple, simply run [`botpress init`](/docs/cli-reference.md#init) inside an empty directory:
+Creating a bot is simple, you simply need to run [`botpress init`](/docs/cli-reference.md#init) in command line inside an empty directory:
 
 ```
 mkdir my-bot && cd my-bot
 botpress init
 ```
 
-Once your bot is created, you may [start](/docs/cli-reference.md#start--s) it:
+Once your bot is created, you need to [start](/docs/cli-reference.md#start--s) it:
 
 ```
 botpress start
 ```
 
-This will provide you with a web interface available at **`http://localhost:3000`**
+This will provide you locally a web interface available at **`http://localhost:3000`**
 
 You then need to install some modules. You can do so directly in the web interface, or using the [`botpress install`](/docs/cli-reference.md#install--i) CLI command:
 
@@ -64,7 +64,7 @@ There's some tutorial that might help you getting started, it's easy to and it t
 - [Hello World Bot using Rivescript](https://github.com/botpress/botpress-examples/tree/master/hello-world-rivescript-bot)
 - [Motivation Bot](https://github.com/botpress/botpress-examples/tree/master/motivation-bot)
 
-There's also some [videos on YouTube](#TODO) that shows how to create and code your bot using Botpress.
+There's also some [videos on YouTube](https://www.youtube.com/channel/UCEHfE71jUmWbe_5DtbO3fIA) that shows how to create and code your bot using Botpress.
 
 - [Getting started](#TODO)
 - [Hello World Bot](#TODO)
