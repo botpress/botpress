@@ -66,8 +66,7 @@ There's some tutorial that might help you getting started, it's easy to and it t
 
 There's also some [videos on YouTube](https://www.youtube.com/channel/UCEHfE71jUmWbe_5DtbO3fIA) that shows how to create and code your bot using Botpress.
 
-- [Getting started](#TODO)
-- [Hello World Bot](#TODO)
+- [Create a Facebook Messenger chatbot in 3 minutes](https://www.youtube.com/watch?v=GO2yJ51ILl0)
 - Todolist Bot _(soon)_
 - Scheduling Messages _(soon)_
 - Bot Analytics _(soon)_
