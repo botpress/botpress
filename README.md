@@ -9,7 +9,7 @@ Important: **Make sure to join the official Facebook Group (https://www.facebook
 
 ## Vision & Mission
 
-Botpress is on mission to make bots ubiquitous and profitable for everybody. At Botpress, we think that using closed-source tools like ChatFuel is not the right approach for building awesome and powerful bots. To be able to create something **great**, it's important to have full control of your tools and to leverage the community efforts as much as possible.
+Botpress is on mission to make bots ubiquitous and profitable for everybody. At Botpress, we think that using closed-source tools like Chatfuel is not the right approach for building awesome and powerful bots. To be able to create something **great**, it's important to have full control of your tools and to leverage the community efforts as much as possible.
 
 ## Initial target audience
 
@@ -101,7 +101,7 @@ There's also some [videos on YouTube](https://www.youtube.com/channel/UCEHfE71jU
 - Scheduling Messages _(soon)_
 - Bot Analytics _(soon)_
 
-Many more code examples are available in the **[Examples repository](https://github.com/botpress/botpress-examples)**
+Many more code examples are available in the [Examples repository](https://github.com/botpress/botpress-examples)
 
 ## Community
 
