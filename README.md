@@ -1,7 +1,15 @@
 <a href='http://botpress.io'><img src='/assets/screenshot-ui.png'></a>
 # <a href='http://botpress.io'><img src='https://httpsimage.com/img/botpress-logo-120.png' height='60'></a>
 
-Botpress is an open-source bot creation tool written in Javascript. It is powered by a rich set of open-source (and proprietary) modules built by the community. Botpress is on a mission to make bots ubiquitous and profitable for everybody.
+Botpress is an open-source bot creation tool written in Javascript. It is powered by a rich set of open-source (and proprietary) modules built by the community.
+
+## Vision & Mission
+
+Botpress is on a mission to make bots ubiquitous and profitable for everybody.
+
+## Target audience
+
+
 
 ## ALPHA TESTERS
 
@@ -42,9 +50,15 @@ For a more detailed usage guide, please read the [Getting Started Guide](/docs/g
 
 ## Examples
 
+There's some tutorial that might help you getting started, it's easy to and it takes about less than 10 minutes.
+- [Hello World Messenger Bot - Code](https://github.com/botpress/botpress-examples/tree/master/hello-world-bot)
+- [Hello world Messenger Bot - Rivescript](https://github.com/botpress/botpress-examples/tree/master/hello-world-rivescript-bot)
+- [Motivation Messenger Bot](https://github.com/botpress/botpress-examples/tree/master/motivation-bot)
+
+
 There's a [video on YouTube](TODO) that shows how to create a Hello World Messenger Bot in under 45 seconds.
 
-- [Hello World Messenger Bot](TODO)
+- [Hello World Messenger Bot](https://github.com/botpress/botpress-examples/tree/master/hello-world-bot)
 - Todolist Messenger Bot _(soon)_
 - Scheduling Messages _(soon)_
 - Bot Analytics _(soon)_
@@ -54,6 +68,7 @@ Many more code examples are available in the **[Examples repository](https://git
 ## Documentation
 
 - [Getting Started Guide](/docs/getting-started.md)
+- [Basics](/docs/basics.md)
 - [Advanced Topics](/docs/advanced-topics.md)
 - [CLI Reference](/docs/cli-reference.md)
 - [Core Reference](/docs/core-reference.md)
@@ -64,6 +79,6 @@ There's a [public chatroom](https://gitter.im/botpress/core) where you are welco
 
 ## License
 
-Botpress is dual-licensed under [AGPLv3](/licenses/LICENSE_AGPL3) and the [Botpress Proprietary License](/licenses/LICENSE_BOTPRESS). 
+Botpress is dual-licensed under [AGPLv3](/licenses/LICENSE_AGPL3) and the [Botpress Proprietary License](/licenses/LICENSE_BOTPRESS).
 
 By default, any bot created with Botpress is licensed under AGPLv3, but you may change to the Botpress License from within your bot's web interface in a few clicks.
