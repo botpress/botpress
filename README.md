@@ -1,7 +1,7 @@
 <a href='http://botpress.io'><img src='/assets/screenshot-ui.png'></a>
 # <a href='http://botpress.io'><img src='https://httpsimage.com/img/botpress-logo-120.png' height='60'></a>
 
-Botpress is an open-source bot creation tool written in Javascript. It is powered by a rich set of open-source (and proprietary) modules built by the community. We like to say that Botpress is like the Wordpress of Chatbots; anyone can create and reuse other people's modules.
+Botpress is an open-source bot creation tool written in Javascript. It is powered by a rich set of open-source (and proprietary) modules built by the community. We like to say that **Botpress is like the Wordpress of Chatbots**; anyone can create and reuse other people's modules.
 
 ## ALPHA TESTERS
 
