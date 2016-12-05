@@ -9,11 +9,11 @@ Important: **Make sure to join the official Facebook Group (https://www.facebook
 
 ## Vision & Mission
 
-Botpress is on mission to make bots ubiquitous and profitable for everybody. At Botpress, we think that using closed-source tools like Chatfuel is not the right approach for building awesome and powerful bots. To be able to create something **great**, it's important to have full control of your tools and to leverage the community efforts as much as possible.
+Botpress is on mission to make bots ubiquitous and profitable for everybody. At Botpress, we think that using closed-source tools like Chatfuel is not the right approach for building awesome and powerful bots. To be able to create something great, it's important to have full control of your tools and to leverage the community efforts as much as possible.
 
 ## Initial target audience
 
-Botpress is at an early stage and we are looking for **nodejs developers** to build new modules, create chatbots and help the community to build something that will be **huge**... Over time, everyone will benefit from having a powerful open-source ecosystem with a wide variety of specialized modules.
+Botpress is at an early stage and we are looking for **nodejs developers** to build new modules, create chatbots and help the community to build something that will be huge... Over time, everyone will benefit from having a powerful open-source ecosystem with a wide variety of specialized modules.
 
 If you are not a programmer or that this is your first bot, please consider using [Chatfuel](https://chatfuel.com/), [FlowXO](https://flowxo.com/) or [Motion.ai](motion.ai), these are great tools we recommend for begineers and for non-coders.
 
@@ -45,8 +45,8 @@ This will provide you locally a web interface available at **`http://localhost:3
 ## Adding stuff to your bot
 
 At this point, your bot does nothing, you need to add features. There's two ways to add features:
-- **installing and configuring modules**
-- **coding**.
+- Installing and configuring modules
+- Coding
 
 ### Installing and configuring modules
 
