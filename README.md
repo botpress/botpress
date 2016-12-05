@@ -1,7 +1,7 @@
 <a href='http://botpress.io'><img src='/assets/screenshot-ui.png'></a>
 # <a href='http://botpress.io'><img src='https://httpsimage.com/img/botpress-logo-120.png' height='60'></a>
 
-Botpress is an open-source bot creation tool written in Javascript. It is powered by a rich set of open-source (and proprietary) modules built by the community. In fact, Botpress helps you to easily build awesome chatbots by re-using modules and by being 100% customizable. Developers now have total control over the development of their bots!
+Botpress is an open-source bot creation tool written in Javascript. It is powered by a rich set of open-source (and proprietary) modules built by the community. We like to say that Botpress is like the Wordpress of Chatbots; anyone can create and reuse other people's modules.
 
 ## ALPHA TESTERS
 
@@ -9,11 +9,11 @@ Important: **Make sure to join the official Facebook Group (https://www.facebook
 
 ## Vision & Mission
 
-Botpress is on mission to make bots ubiquitous and profitable for everybody. At Botpress, we think that using closed-source tools like ChatFuel is not the right approach to building awesome and powerful bots. To be able to create something **great**, it's important to have full control of your tools and to leverage the community efforts as much as possible.
+Botpress is on mission to make bots ubiquitous and profitable for everybody. At Botpress, we think that using closed-source tools like ChatFuel is not the right approach for building awesome and powerful bots. To be able to create something **great**, it's important to have full control of your tools and to leverage the community efforts as much as possible.
 
 ## Initial target audience
 
-Botpress is at an early stage and we are looking for **nodejs developers** to build new modules, create chatbots and help the community to build something that will be **huge**... Over time, everyone will benefit from having a powerful open-source ecosystem, with a wide variety of specialized modules.
+Botpress is at an early stage and we are looking for **nodejs developers** to build new modules, create chatbots and help the community to build something that will be **huge**... Over time, everyone will benefit from having a powerful open-source ecosystem with a wide variety of specialized modules.
 
 If you are not a programmer or that this is your first bot, please consider using [Chatfuel](https://chatfuel.com/), [FlowXO](https://flowxo.com/) or [Motion.ai](motion.ai), these are great tools we recommend for begineers and for non-coders.
 
@@ -27,14 +27,14 @@ npm install -g botpress
 
 ## Creating a bot
 
-Creating a bot is simple, you simply need to run [`botpress init`](/docs/cli-reference.md#init) in a terminal inside an empty directory:
+Creating a bot is simple, you need to run [`botpress init`](/docs/cli-reference.md#init) in a terminal inside an empty directory:
 
 ```
 mkdir my-bot && cd my-bot
 botpress init
 ```
 
-Once your bot is created, you need to run [`botpress start`](/docs/cli-reference.md#start--s):
+Once your bot is created, you need to run [`botpress start`](/docs/cli-reference.md#start--s) to start your bot:
 
 ```
 botpress start
@@ -44,7 +44,9 @@ This will provide you locally a web interface available at **`http://localhost:3
 
 ## Adding stuff to your bot
 
-At this point, your bot does nothing, you need to add features. There's two ways to add features: **installing + configuring modules** or **coding**.
+At this point, your bot does nothing, you need to add features. There's two ways to add features:
+- **installing and configuring modules**
+- **coding**.
 
 ### Installing and configuring modules
 
@@ -64,7 +66,7 @@ There are not a lot of modules yet, we count on the community to develop many us
 
 ### Coding to add features
 
-As the number of modules increase, we expect that the amount of code you'll need to write will lower more everyday. Developers can add code directly in the bot (i.e. `index.js`) and access the core and modules features. For example, if you wish to respond to a `GETTING_STARTED` event on Facebook Messenger, you might code something along these lines:
+As the number of modules increase, we expect that the amount of code you'll need to write will lower everyday. Developers can add code directly in the bot (i.e. `index.js`) and access the core and modules features. For example, if you wish to respond to a `GETTING_STARTED` event on Facebook Messenger, you might code something along these lines:
 
 ```js
 bp.hear({ type: 'postback', text: 'GETTING_STARTED' }, (event, next) => {
@@ -73,6 +75,8 @@ bp.hear({ type: 'postback', text: 'GETTING_STARTED' }, (event, next) => {
 ```
 
 For an overview of the core components, please read the [Basics](/docs/basics.md).
+
+To create a basic Hello World bot, please read the [Getting Started](/docs/getting-started.md).
 
 ## Documentation
 
