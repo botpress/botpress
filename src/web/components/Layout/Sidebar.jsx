@@ -15,6 +15,7 @@ const style = require('./Sidebar.scss')
   modules: getters.modules,
   botInformation: getters.botInformation
 }))
+
 class Sidebar extends Component {
 
   static contextTypes = {
@@ -96,6 +97,8 @@ class Sidebar extends Component {
     const dashboardClassName = classnames({ [style.active] : this.isAtDashboard() })
     const manageClassName = classnames({ [style.active] : this.isAtManage() })
 
+    const productionText = this.props.botInformation.get('production') ? "in production" : "in development"
+
     const sidebarContent = <div className={style.sidebar}>
       <SidebarHeader/>
       <ul className="nav">
@@ -113,7 +116,9 @@ class Sidebar extends Component {
         </li>
         {items}
       </ul>
-      <div className={style.license}>
+      <div className={style.bottomInformation}>
+        <div className={style.name}>{this.props.botInformation.get('name')}</div>
+        <div className={style.production}>{productionText}</div>
         <Link to='#' title='License' onClick={this.openLicenseComponent}>
           License under {this.props.botInformation.get('license')}
         </Link>
