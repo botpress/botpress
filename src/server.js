@@ -301,7 +301,7 @@ class WebServer {
     serveApi(app, this.bp)
     serveStatic(app, this.bp)
 
-    server.listen(3000, () => { // TODO Port in config
+    server.listen(this.bp.botfile.port || 3000, () => {
       this.bp.events.emit('ready')
       for (var mod of _.values(this.bp._loadedModules)) {
         mod.handlers.ready && mod.handlers.ready(this.bp)
