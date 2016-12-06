@@ -42,8 +42,14 @@ export default {
 
   fetchBotInformation() {
     axios.get('/api/bot/information')
-    .then((result) => {
-      reactor.dispatch(BOT_INFORMATION_RECEIVED, { botInformation: result.data })
+    .then((information) => {
+      axios.get('/api/bot/production')
+      .then((production) => {
+        const botInformationWithProduction = information.data
+        botInformationWithProduction.production = production.data
+
+        reactor.dispatch(BOT_INFORMATION_RECEIVED, { botInformation: botInformationWithProduction })
+      })
     })
   },
 

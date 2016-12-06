@@ -146,6 +146,10 @@ const serveApi = function(app, bp) {
     res.send(bp.bot.getInformation())
   })
 
+  app.get('/api/bot/production', (req, res) => {
+    res.send(!util.isDeveloping)
+  })
+
   app.get('/api/bot/contributor', (req, res) => {
     res.send(bp.bot.getContributor())
   })
