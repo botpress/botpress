@@ -103,6 +103,16 @@ There's also some [videos on YouTube](https://www.youtube.com/channel/UCEHfE71jU
 
 Many more code examples are available in the [Examples repository](https://github.com/botpress/botpress-examples)
 
+## Roadmap
+
+The primary focus is to create as many good modules as possible to make Botpress the best platform for botmakers. Here are a couple of modules that would be useful along with their assigned leader:
+
+### botpress-wit.ai [@devenbhooshan](https://github.com/devenbhooshan)
+### botpress-transcript [@rodrigocnascimento](https://github.com/@rodrigocnascimento)
+### botpress-subscription [@slvnperron](https://github.com/@slvnperron)
+### botpress-slack [@rayshih](https://github.com/@rayshih)
+### YOUR MODULE HERE :) ? Please send a pull request!
+
 ## Community
 
 There's a [public chatroom](https://gitter.im/botpress/core) where you are welcome to join and ask any question and even help others.
