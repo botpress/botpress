@@ -101,10 +101,12 @@ class botpress {
     const {projectLocation, botfile} = this
 
     const dataLocation = getDataLocation(botfile.dataDir, projectLocation)
+    const modulesConfigDir = getDataLocation(botfile.modulesConfigDir, projectLocation)
     const dbLocation = path.join(dataLocation, 'db.sqlite')
 
     const logger = createLogger(dataLocation, botfile.log)
     mkdirIfNeeded(dataLocation, logger)
+    mkdirIfNeeded(modulesConfigDir, logger)
 
     const security = createSecurity(dataLocation, botfile.login)
 
