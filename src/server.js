@@ -298,16 +298,17 @@ class WebServer {
   start() {
     const app = express()
     const server = setupSocket(app, this.bp)
+    const port = this.bp.botfile.port || 3000
     serveApi(app, this.bp)
     serveStatic(app, this.bp)
 
-    server.listen(this.bp.botfile.port || 3000, () => {
+    server.listen(port, () => {
       this.bp.events.emit('ready')
       for (var mod of _.values(this.bp._loadedModules)) {
         mod.handlers.ready && mod.handlers.ready(this.bp)
       }
 
-      this.bp.logger.info(chalk.green.bold('bot launched, visit: http://localhost:3000'))
+      this.bp.logger.info(chalk.green.bold('bot launched, visit: http://localhost:' + port))
     })
   }
 
