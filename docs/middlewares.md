@@ -1,8 +1,8 @@
-## Introduction to Middlewares
+## Introduction to Middleware
 
-Middlewares are a critical component of botpress. Simply put, they are functions that process messages. Think of it this way: everything that enter or leave your bot is coming in (or out) from middlewares.
+Middleware is a critical component of botpress. Simply put, it is a collection of functions that process messages. Think of it this way: everything that enters or leaves your bot is coming in to (or out from) the middleware.
 
-If you have used [Express](http://expressjs.com/) before, botpress middlewares are very similar to express's middlewares.
+If you have used [Express](http://expressjs.com/) before, botpress middleware is very similar to express's middleware.
 
 Botpress has two middleware chains: [incoming](middlewares.md#sendincomingmiddlewareevent---void) and [outgoing](middlewares.md#sendoutgoingmiddlewareevent---void)
 
@@ -18,16 +18,16 @@ Botpress has two middleware chains: [incoming](middlewares.md#sendincomingmiddle
 
 ## Middleware Chain
 
-A middleware chain is simply a collection of middlewares that are called in a predertermined order. Each middleware in the chain has the freedom to:
+A middleware chain is simply a collection of middleware functions that are called in a predertermined order. Each middleware function in the chain has the freedom to:
 - execute arbitrary code
 - mutate the event
 - call the next middleware
-- interupting the chain by never calling the next middleware (what we call swallowing the event)
-- interrupting the chain by throwing an error
+- interupt the chain by never calling the next middleware (what we call swallowing the event)
+- interrupt the chain by throwing an error
 
-## A simple middleware
+## A simple middleware function
 
-A middleware is simply a function that takes an event as the first parameter and a `next` function as the second parameter.
+A middleware function is simply a function that takes an event as the first parameter and a `next` function as the second parameter.
 
 Here's an example of the 5 possible cases:
 
@@ -46,16 +46,16 @@ var middleware = function(event, next) {
     // event mutation
     event.text = translation
     
-    // call next middleware
+    // call next middleware function
     next()
 }
 ```
 
-The return value of the middleware can be anything or nothing, it isn't used.
+The return value of the middleware function can be anything or nothing, it isn't used.
 
 ## Registering middlewares
 
-You need to register a middleware for botpress to know about it and use it. You may do so with the [`bp.registerMiddleware`](core-reference.md) method:
+You need to register a middleware function for botpress to know about it and use it. You may do so with the [`bp.registerMiddleware`](core-reference.md) method:
 
 ```js
 // ** code taken from botpress-messenger **
@@ -70,19 +70,19 @@ bp.registerMiddleware({
 })
 ```
 
-Once all middlewares have been registered (usually modules should register middlewares immediatly in their initialization), **you must load them** using [`bp.loadMiddlewares()`](core-reference.md), which will create the incoming and outgoing chains automatically.
+Once all middleware functions have been registered (usually modules should register middleware functions immediatly in their initialization), **you must load them** using [`bp.loadMiddlewares()`](core-reference.md), which will create the incoming and outgoing chains automatically.
 
-Once middlewares are loaded, you'll see them displayed in your bot's interface:
+Once middleware functions are loaded, you'll see them displayed in your bot's interface:
 
 ![](/assets/screenshot-middlewares.png)
 
-## Ordering middlewares
+## Ordering middleware functions
 
-By default, middlewares are ordered by **ascending order** according to their `order` property set on registration. The order can then be manually overwritten:
+By default, middleware functions are ordered by **ascending order** according to their `order` property set on registration. The order can then be manually overwritten:
 
 ![](/assets/screenshot-middlewares-order.png)
 
-You can also re-order them programmatically using middlewares customizations.
+You can also re-order them programmatically using middleware function customizations.
 
 ## Full Messages Lifecycle Example
 
@@ -99,15 +99,15 @@ Now lets look at how a complete interaction might be handled by your bot.
 
 1. A user types a message in French to your bot in Facebook Messenger
 2. Facebook pushes the message to your bot via the built-in botpress-messenger's Webhook
-3. botpress-messenger retrieves user information and stores them in the built-in database
-4. botpress-messenger parses the message and **calls the first incoming middleware** _(botpress-analytics)_
-5. botpress-analytics tracks the message then **calls the next middleware** in the chain _(botpress-translate)_
-6. botpress-translate translates the message from French to English (by mutating it) then calls the next middleware in the chain _(botpress-travel)_
+3. botpress-messenger retrieves the user information and stores it in the built-in database
+4. botpress-messenger parses the message and **calls the first incoming middleware function** _(botpress-analytics)_
+5. botpress-analytics tracks the message then **calls the next middleware function** in the chain _(botpress-translate)_
+6. botpress-translate translates the message from French to English (by mutating it) then calls the next middleware function in the chain _(botpress-travel)_
 7. botpress-travel processes the message and responds by calling the `bp.messenger.sendText` method
 8. botpress-messenger takes the response and **calls the outgoing middlewares chain**
-9. botpress-translate translates the message from English to French (by mutating it) then calls the next middleware in the outgoing chain _(botpress-analytics)_
-10. botpress-analytics tracks the message then calls the next middleware _(botpress-messenger)_
+9. botpress-translate translates the message from English to French (by mutating it) then calls the next middleware function in the outgoing chain _(botpress-analytics)_
+10. botpress-analytics tracks the message then calls the next middleware function _(botpress-messenger)_
 11. botpress-slack will ignore the message because it doesn't know how to process messages with `type: facebook`
 12. botpress-messenger sends the message to Facebook Messenger through the Send API
 
-All of this happens behind the scene and is handled by the modules middlewares. As a bot developer, all you have to worry about is writing the bot's logic.
+All of this happens behind the scene and is handled by the modules middleware. As a bot developer, all you have to worry about is writing the bot's logic.
