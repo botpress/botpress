@@ -107,11 +107,16 @@ Many more code examples are available in the [Examples repository](https://githu
 
 The primary focus is to create as many good modules as possible to make Botpress the best platform for botmakers. Here are a couple of modules that would be useful along with their assigned leader:
 
-### botpress-wit.ai [@devenbhooshan](https://github.com/devenbhooshan)
-### botpress-transcript [@rodrigocnascimento](https://github.com/@rodrigocnascimento)
-### botpress-subscription [@slvnperron](https://github.com/@slvnperron)
-### botpress-slack [@rayshih](https://github.com/@rayshih)
-### YOUR MODULE HERE :) ? Please send a pull request!
+- **botpress-wit.ai** [@devenbhooshan](https://github.com/devenbhooshan)
+- **botpress-transcript** [@rodrigocnascimento](https://github.com/@rodrigocnascimento)
+- **botpress-subscription** [@slvnperron](https://github.com/@slvnperron)
+- **botpress-slack** [@rayshih](https://github.com/@rayshih)
+- **botpress-hitl** [@danyfs](https://github.com/@danyfs)
+- **botpress-telegram** 
+- **botpress-kik**
+- **botpress-sms**
+
+**Your next module here :) ?** Please send a pull request!
 
 ## Community
 
