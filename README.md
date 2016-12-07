@@ -122,8 +122,8 @@ The primary focus is to create as many good modules as possible to make Botpress
 - **Flows**
 - **User Segmentation and targeting**
 - **AI**
-- - **Sentiment analysis**
-- - **Context management**
+  - **Sentiment analysis**
+  - **Context management**
 
 **Your next module here :) ?** Please send a pull request!
 
