@@ -116,6 +116,15 @@ The primary focus is to create as many good modules as possible to make Botpress
 - **botpress-kik**
 - **botpress-sms**
 
+### Further ideas to work on
+- **Bot templates**
+- **Forms/Polls/Trivias**
+- **Flows**
+- **User Segmentation and targeting**
+- **AI**
+- - **Sentiment analysis**
+- - **Context management**
+
 **Your next module here :) ?** Please send a pull request!
 
 ## Community
