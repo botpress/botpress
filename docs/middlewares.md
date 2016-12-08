@@ -22,7 +22,7 @@ A middleware chain is simply a collection of middleware functions that are calle
 - execute arbitrary code
 - mutate the event
 - call the next middleware
-- interupt the chain by never calling the next middleware (what we call swallowing the event)
+- interrupt the chain by never calling the next middleware (what we call swallowing the event)
 - interrupt the chain by throwing an error
 
 ## A simple middleware function
@@ -34,9 +34,9 @@ Here's an example of the 5 possible cases:
 ```js
 var middleware = function(event, next) {
     // chain interruption (error)
-    if (internetDisconnected()) 
+    if (internetDisconnected())
         return next(new Error('Not connected'))
-    
+
     if (isUserBanned(event.user.id))
         return // swallow the event
 
@@ -45,7 +45,7 @@ var middleware = function(event, next) {
 
     // event mutation
     event.text = translation
-    
+
     // call next middleware function
     next()
 }
