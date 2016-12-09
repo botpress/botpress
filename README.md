@@ -109,8 +109,9 @@ The primary focus is to create as many good modules as possible to make Botpress
 
 - **botpress-wit.ai** [@devenbhooshan](https://github.com/devenbhooshan)
 - **botpress-transcript** [@rodrigocnascimento](https://github.com/@rodrigocnascimento)
-- **botpress-subscription** [@slvnperron](https://github.com/@slvnperron)
-- **botpress-slack** [@rayshih](https://github.com/@rayshih)
+- **[botpress-subscription](https://github.com/botpress/botpress-subscription)** [@slvnperron](https://github.com/@slvnperron)
+- **[botpress-slack](https://github.com/botpress/botpress-slack)** [@rayshih](https://github.com/@rayshih)
+- **[botpress-scheduler](https://github.com/botpress/botpress-scheduler)** [@slvnperron](https://github.com/@slvnperron)
 - **botpress-hitl** [@danyfs](https://github.com/@danyfs)
 - **botpress-telegram** 
 - **botpress-kik**
