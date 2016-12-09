@@ -15,7 +15,7 @@ Botpress is on mission to make bots ubiquitous and profitable for everybody. At 
 
 Botpress is at an early stage and we are looking for **nodejs developers** to build new modules, create chatbots and help the community to build something that will be huge... Over time, everyone will benefit from having a powerful open-source ecosystem with a wide variety of specialized modules.
 
-If you are not a programmer or that this is your first bot, please consider using [Chatfuel](https://chatfuel.com/), [FlowXO](https://flowxo.com/) or [Motion.ai](motion.ai), these are great tools we recommend for begineers and for non-coders.
+If you are not a programmer or that this is your first bot, please consider using [Chatfuel](https://chatfuel.com/), [FlowXO](https://flowxo.com/) or [Motion.ai](http://motion.ai), these are great tools we recommend for begineers and for non-coders.
 
 ## Installation
 
