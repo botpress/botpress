@@ -14,7 +14,12 @@ import chalk from 'chalk'
  */
 module.exports = function(projectPath, options) {
   let botpress = null
-  projectPath = path.resolve(projectPath || '.')
+
+  if (!projectPath || typeof(projectPath) !== 'string') {
+    projectPath = '.'
+  }
+
+  projectPath = path.resolve('.')
 
   try {
     botpress = require(path.join(projectPath, 'node_modules', 'botpress'))
