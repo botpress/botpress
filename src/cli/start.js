@@ -19,9 +19,14 @@ module.exports = function(projectPath, options) {
   try {
     botpress = require(path.join(projectPath, 'node_modules', 'botpress'))
   } catch (err) {
-    util.print('error', '(fatal) The project does not have botpress installed as a dependency')
-    util.print('You need to `npm install botpress --save` in the bot\'s project')
-    util.print('Please refer to `botpress init` to create a new bot the proper way')
+    util.print('error', err.message)
+    util.print('error', err.stack)
+    util.print('error', '(fatal) Could not load the local version of botpress')
+    util.print('Hint: 1) have you used `botpress init` to create a new bot the proper way?')
+    util.print('Hint: 2) Do you have read and write permissions on the current directory?')
+    util.print('-------------')
+    util.print('If none of the above works, this might be a bug in botpress. ' +
+      'Please contact the Botpress Team on gitter and provide the printed error above.')
     process.exit(1)
   }
 
