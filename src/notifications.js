@@ -78,7 +78,7 @@ export default (dataLocation, notifConfig, modules, events, logger) => {
     }
 
     const callingFile = getOriginatingModule()
-    const callingModuleRoot = resolveModuleRootPath(callingFile)
+    const callingModuleRoot = callingFile && resolveModuleRootPath(callingFile)
 
     const module = _.find(modules, (mod) => {
       return mod.root === callingModuleRoot
