@@ -114,15 +114,23 @@ Many more code examples are available in the [Examples repository](https://githu
 
 The primary focus is to create as many good modules as possible to make Botpress the best platform for botmakers. Here are a couple of modules that would be useful along with their assigned leader:
 
-- **botpress-wit.ai** [@devenbhooshan](https://github.com/devenbhooshan)
-- **botpress-transcript** [@rodrigocnascimento](https://github.com/rodrigocnascimento)
-- **[botpress-subscription](https://github.com/botpress/botpress-subscription)** [@slvnperron](https://github.com/slvnperron)
-- **[botpress-slack](https://github.com/botpress/botpress-slack)** [@rayshih](https://github.com/rayshih)
-- **[botpress-scheduler](https://github.com/botpress/botpress-scheduler)** [@slvnperron](https://github.com/slvnperron)
-- **botpress-hitl** [@danyfs](https://github.com/danyfs)
-- **botpress-telegram** 
-- **botpress-kik**
-- **botpress-sms**
+| Module                                                                       | Maintainer
+|-----------------------------------------------------------------------------|---------------------------
+| **[botpress-wit.ai](https://github.com/botpress/botpress-wit)** | [@devenbhooshan](https://github.com/devenbhooshan)
+| **[botpress-subscription](https://github.com/botpress/botpress-subscription)** | [@slvnperron](https://github.com/slvnperron)
+| **[botpress-terminal](https://github.com/botpress/botpress-terminal)** | [@slvnperron](https://github.com/slvnperron)
+| **[botpress-analytics](https://github.com/botpress/botpress-analytics)** | [@danyfs](https://github.com/danyfs)
+| **[botpress-rivescript](https://github.com/botpress/botpress-rivescript)** | [@danyfs](https://github.com/danyfs)
+| **[botpress-messenger](https://github.com/botpress/botpress-messenger)** | [@slvnperron](https://github.com/slvnperron)
+| **[botpress-slack](https://github.com/botpress/botpress-slack)** | [@rayshih](https://github.com/rayshih)
+| **[botpress-dialog](https://github.com/dialoganalytics/botpress-dialog)** | [@phildionne](https://github.com/phildionne)
+| **[botpress-scheduler](https://github.com/botpress/botpress-scheduler)** | [@slvnperron](https://github.com/slvnperron)
+| **botpress-inspector** | no body yet 
+| **botpress-transcript** | [@rodrigocnascimento](https://github.com/rodrigocnascimento)
+| **botpress-hitl** | [@danyfs](https://github.com/danyfs)
+| **botpress-telegram** | no body yet 
+| **botpress-kik** | no body yet
+| **botpress-sms** | no body yet
 
 ## Contributing
 
