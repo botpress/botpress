@@ -17,6 +17,13 @@ Botpress is at an early stage and we are looking for **nodejs developers** to bu
 
 If you are not a programmer or that this is your first bot, please consider using [Chatfuel](https://chatfuel.com/), [FlowXO](https://flowxo.com/) or [Motion.ai](http://motion.ai), these are great tools we recommend for begineers and for non-coders.
 
+
+## <a name="what-it-looks-like"> What it looks like </a>
+
+<img alt="Botpress" height="150" src="assets/shot_01.png">
+<img alt="Botpress" height="150" src="assets/shot_02.png">
+<img alt="Botpress" height="150" src="assets/shot_03.png">
+
 ## Installation
 
 Botpress requires [node](https://nodejs.org) (version >= 4.2) and uses [npm](https://www.npmjs.com) as package manager.
