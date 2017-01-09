@@ -138,6 +138,8 @@ For starters, there are [some open issues](https://github.com/botpress/botpress/
 
 If you would like to contribute any new feature or bug fix, please make sure that there is a GitHub issue first. If there is not, simply open one and assign it to yourself. If you are unsure on how to get started, ask us anything in the [Gitter chatroom](https://gitter.im/botpress/core) or email me at `contribute [AT] botpress.io`.
 
+Contributions to Botpress will be dual-licensed under AGPLv3 and the Botpress Proprietary License.  This means that all contributors need to agree to the dual-license before their contributions can be accepted.
+
 ### Further ideas to work on
 - **Bot templates**
 - **Forms/Polls/Trivias**
