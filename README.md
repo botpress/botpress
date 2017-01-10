@@ -3,6 +3,9 @@
 
 Botpress is an open-source bot creation tool written in Javascript. It is powered by a rich set of open-source (and proprietary) modules built by the community. We like to say that **Botpress is like the Wordpress of Chatbots**; anyone can create and reuse other people's modules.
 
+| 📖 [Documentation](https://docs.botpress.io) | ⚗️ [Cookbook](https://github.com/botpress/cookbook) | 🖥 [Website](https://botpress.io) | 💬 [Chatroom](https://gitter.im/botpress/core) | 📦 [Modules](https://www.npmjs.com/search?q=botpress) |
+| ------------- | ------- | -------- | ------- | -------- |
+
 ## BETA TESTERS
 
 Important: **Make sure to join the official Facebook Group (https://www.facebook.com/groups/656491441198667/)!**
@@ -87,7 +90,7 @@ To create a basic Hello World bot, please read the [Getting Started](/docs/getti
 
 ## Documentation
 
-- [Getting Started](/docs/getting-started.md)
+- [**Beginner's Guide** (start with this!)](/docs/getting-started.md)
 - [Basics](/docs/basics.md)
 - [Advanced Topics](/docs/advanced-topics.md)
 - [CLI Reference](/docs/cli-reference.md)
