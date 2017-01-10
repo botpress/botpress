@@ -1,4 +1,29 @@
-## Getting started
+# A begineer's Guide to Botpress
+
+Looking to get started with Botpress but unsure how? This page is for you! We'll start by demystifying what botpress is exactly, then we'll create a hello world bot on Messenger.
+
+## What Botpress is not
+
+- A SaaS Bot building platform
+- A no-coding bot building platform
+- A code-from-scratch bot building platform
+- In competition with other bot building tools
+- Extremely hard to use and reserved to PhD's
+- A side project that will be abandonned in a few weeks
+- A cure to cancer
+
+## What Botpress is
+
+- A code-first bot building platform
+- On premise (i.e. runs locally, host it yourself)
+- Modular & open-source (don't reinvent the wheel)
+- Community-focused. We want everybody to contribute and create modules.
+- Leveraging as many other tools as possible
+- Easy to learn and feeling natural for node developers
+- A serious project backed by a real company
+- Highly productive
+
+## Your very first Messenger bot
 
 In this section, we will see how easy it is to build a Messenger bot using Botpress.
 
