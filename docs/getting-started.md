@@ -1,134 +1,138 @@
 ## Getting started
 
-In this section, we will explained how easy it is to build a chatbot using Botpress and Messenger. In 9 simple steps, anyone could have an 'hello world' linked to his own Facebook Page.
+In this section, we will see how easy it is to build a Messenger bot using Botpress.
 
-### 1. Install
+### 1. Install the botpress CLI on your computer
 
-First thing you need to have `botpress` installed as a general dependency using `npm`. If it's done yet, you only need to install it using the following command.
+You need to have `botpress` installed as a global dependency using `npm`. If it's done yet, run the following command:
 
 ```
 npm install -g botpress
 ```
 
-### 2. Create a new repository
+### 2. Creating a new bot
 
-Once `botpress` has been installed, in your command line tool, you need to create a new repository and move into it.
+Once botpress has been installed, you need to create a new directory and move into it.
 
-```js
-mkdir hello-world-bot && cd hello-world-bot // Mac and Linux users
+```
+# On Mac & Unix
+mkdir hello-world-bot && cd hello-world-bot
 
-md hello-world-bot && cd hello-world-bot // Windows users
+# On Windows
+md hello-world-bot && cd hello-world-bot
 ```
 
-### 3. Initialization
-
-Now, let's simply use command line interface of `botpress` to initialize your bot. To do it, you need to run the following command.
+Then you can use the botpress CLI to initialize a new bot inside this directory. This will automatically create a sample bot inside an empty directory, will all the files you need to run it with botpress.
 
 ```
 botpress init
 ```
 
-### 4. Install modules
+At this point, **botpress is installed locally** (as a npm dependency) and this is just a regular nodejs application.
 
-In your command line again, you need to install [botpress-messenger](https://github.com/botpress/botpress-messenger) module to be able to connect your bot to your Facebook Page.
+### 3. Installing Messenger
+
+You now have a bot, but it does nothing. Your bot is not connected to any messaging platform and does not process incoming text at all. We'll fix that now.
+
+Since your bot is just a regular nodejs program, we can install npm modules to add features to our bot. If you [search NPM for botpress](https://www.npmjs.com/search?q=botpress), you'll see there's many modules.
+
+[**botpress-messenger**](https://github.com/botpress/botpress-messenger) seems to be the module we need to connect our bot to Facebook Messenger. Let's install it as a local dependency:
 
 ```
-botpress install messenger
+npm install --save botpress-messenger
 ```
 
-### 5. Start
+> Tip: There's a shortcut: `botpress install messenger`. And there's also an alias: `botpress i messenger`. An even shorter one: `bp i messenger`.
 
-Once you have everything is installed, you can start your bot and see what have been installed on it.
+### 4. Running the bot
+
+Now that we have a bot with Messenger installed, we can run this bot. Just like any nodejs applications, you can use `npm start`, or if you prefer to use the botpress commands:
 
 ```
 botpress start
 ```
 
-Go to **http://localhost:3000** and from there you can install other modules if you want to, but for this tutorial we only need `botpress-messenger` which is supposed to be already installed.
+Head to [**http://localhost:3000**](http://localhost:3000) to see your bot's graphical interface. You should see the Messenger module we just installed showing up at the left!
 
-### 6. Configure Messenger connexion settings
+### 5. Configure Messenger connexion settings
 
-Before starting coding it, we need to configure it then it will be linked directly to your Facebook Page. To do this step, you can follow our [5 steps](https://github.com/botpress/botpress-messenger#get-started) guide in botpress-messenger documentation.
+Before we can actually start adding stuff, we need to link your bot to a Facebook Page. The Messenger module [has an entire step-by-step tutorial](https://github.com/botpress/botpress-messenger#get-started) on how to do this, but if you ever created a Messenger bot before you probably don't need to read it.
+
+Summary:
+
+1. Create a [Facebook Page](https://www.facebook.com/pages/create) if you don't already have one.
+2. Create a [Messenger Application](https://developers.facebook.com/) if you don't already have one. 
+3. Grab your **App ID**, **App Secret** and **Token Access**, and copy them directly in the botpress-messenger UI.
+4. Use [**ngrok**](https://ngrok.com/) to create a secure ssl tunnel to your computer (so that facebook can talk to your bot). We added a convenience ngrok button directly in botpress-messenger so that you don't have to update it manually. If you experience any problem, we suggest you use the ngrok CLI instead.
+5. Click **connect**. Done.
 
 <img src='../assets/screenshot-connexion-settings.png' height=300px />
 
-Briefly, you only need to create a [Facebook Page](https://www.facebook.com/pages/create) if you don't already have one and create a new [Messenger Application](https://developers.facebook.com/) on Facebook Developers Interface. After that, you need to find your **App ID**, **App Secret** and **Token Access**, and copy them directly in your web messenger [module interface](http://localhost:3000/modules/botpress-messenger). Finally, you only need to activate [**ngrok**](https://ngrok.com/), **validate** and **connect** your bot.
+To test that your bot is well connected to the facebook page, you can talk to the bot and say "BOT_LICENSE".
 
-### 7. Open in editor
+You should see something like:
 
-Once all the setup is done, we are now ready to code your bot. First thing you need to do is to open your repository with your favorite editor (Sublime, Atom, WebStorm, Netbeans...). As you can see, some files and directories have already been created when you initialize it before to accelerate development.
+> Bot: motivation-bot
+> Created by: Botpress Team
+> License: AGPL-3.0
+> Botpress: 0.0.41
 
-```js
-- botfile.js // your bot's configuration. botpress uses this
-- index.js // your bot's entry point. bot logic goes here
-- package.json // regular node package.json file
-- LICENSE // your bot license, either AGPLv3 or Botpress License
-- .gitignore // ignoring some botpress-created files by default
-```
+### 6. Simple Hello World
 
-### 8. Start coding
-
-Now, open `index.js` file and write (or copy) those lines of code. In fact, this is a simple TODO list to add directly in your code.
+Now, open `index.js` at the root of your bot. You should see these three lines:
 
 ```js
 module.exports = function(bp) {
   bp.middlewares.load()
-
-  /* Things to do:
-    [ ] Answering to hello world
-    [ ] Answering to any other message
-  */
 }
 ```
 
-**Note:** When you are coding, using TODO is a good practice to adopt because it helps to stay focus and always be able to know exactly what you need to do next...
+Some explanations:
 
-### 9. Answering to hello world
+**Line 1**: The entry point of a botpress bot is always a function accepting `bp`, which is the global botpress context object. Everything you need from botpress and the modules is accessible from this context object. The `bp` object contains the default botpress API, and the **modules augment** (mutates) the bp context object to offer features to your bot.
 
-First, we will setup a basic answer to 'hello world' from 'facebook'. You simply need to write (or copy) those lines in `index.js`.
+**Line 2**: Botpress relies on a middlewares architecture to process incoming and outgoing messages/interactions. You can read more about the Botpress middlewares [here](https://docs.botpress.io/middlewares.html) but for now all you need to know is that this line is necessary to correctly setup and load the modules.
+
+Now we are going to implement a simple Hello World:
 
 ```js
 module.exports = function(bp) {
   bp.middlewares.load()
 
-  //Catch 'hello world' from 'facebook'
-  bp.hear({
-    platform: 'facebook',
-    type: 'message',
-    text: 'hello world'
-  }, (event, next) => {
-    const id = event.user.id
-    const last_name = event.user.last_name
+  bp.hear('hello', event => { // Capture messages that are 'hello'
+    bp.messenger.sendText(event.user.id, 'Hello, world!') // Respond to the user with 'Hello, world!'
+  })
+}
+```
+
+Note: Here we listen on a hardcoded "hello" string, but the [`hear`](https://docs.botpress.io/core-reference.html) command is pretty powerful and can do much more.
+
+Now stop your bot (by killing the current nodejs process that runs it, i.e. CTRL-C on Mac) and start it again. Now the bot should answer to 'hello'!
+
+### 7. A bit fancier Hello World
+
+Now let's explore a little more the power of the `botpress-messenger` module.
+
+What if we wanted our bot to respond to the user by its name? The messenger module automatically fetched the user profiles and inject it in the `event.user` object. The user profiles are cached by the module to keep your bot running fast:
+
+```js
+module.exports = function(bp) {
+  bp.middlewares.load()
+
+  bp.hear(/hello/i, (event, next) => { // We use a regex instead of a hardcoded string
     const first_name = event.user.first_name
 
-    const text = 'Congrats ' + first_name + " " + last_name + "! Your first chatbot using Botpress is now alive."
-    bp.messenger.sendText(id, text)
+    bp.messenger.sendText(event.user.id, 'Hello, ' + first_name, { typing: true })
   })
 }
 ```
 
-Here, we use `hear` which is a built-in function of `bp` to listen on specific `event` conditions. In this case, as you can see it, we are listening on `platform: 'facebook'`, `type: 'message'`, and `text: 'hello world'` then when those conditions are respected, `callback` function is called and it send a custom answer to this specific `user`.
+Note that the sendText function also takes a third argument, and we configured it to set typing to true. This has the effect of showing typing indicators to simulate the bot typing on a keyboard.
 
-**Note**: You can restart your bot in command line by running `botpress start` and your bot will now answer to 'hello world' when you talk to him directly on Messenger.
+## Having more fun
 
-### 10. Answering to any other message
+This was just the very beginning of what you can do with Botpress. If you would like to get started with real fun stuff, make sure to:
 
-From there, your bot now answer to 'hello world', but it doesn't answer to anything else... We will now fix that and add a default answer to other message. To do it, you only need to `hear` on different conditions.
-
-```js
-module.exports = funstion(bp) {
-
-  // ... (Catch 'hello world form 'facebook' code)
-
-  //Catch any 'message' from 'facebook'
-  bp.hear({
-    platform: 'facebook',
-    type: 'message',
-    text: /.+/i
-  }, (event, next) => {
-    bp.messenger.sendText(event.user.id, "Sorry, I only answer to 'hello world'...")
-  })
-}
-```
-
-As you can see, `hear` support regex expression and in our case, it's exactly what we want to. If you don't have any experience using regex, just notice that `text: /.+/i` will be respected for any text entry.
+1. Read the rest of the documentation
+2. Check out the [Cookbook](https://github.com/botpress/cookbook), which contains lots of code recipes for common bot tasks
+3. Read our demo bot [Boost](https://github.com/botpress/Boost)'s source code
