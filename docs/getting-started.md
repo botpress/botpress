@@ -66,7 +66,7 @@ Summary:
 4. Use [**ngrok**](https://ngrok.com/) to create a secure ssl tunnel to your computer (so that facebook can talk to your bot). We added a convenience ngrok button directly in botpress-messenger so that you don't have to update it manually. If you experience any problem, we suggest you use the ngrok CLI instead.
 5. Click **connect**. Done.
 
-<img src='../assets/screenshot-connexion-settings.png' height=300px />
+<img src='https://raw.githubusercontent.com/botpress/botpress/master/assets/screenshot-connexion-settings.png' height=300px />
 
 To test that your bot is well connected to the facebook page, you can talk to the bot and say "BOT_LICENSE".
 
