@@ -23,6 +23,18 @@ Looking to get started with Botpress but unsure how? This page is for you! We'll
 - A serious project backed by a real company
 - Highly productive
 
+## What you get by using Botpress
+
+Before creating Botpress, we created many bots using all the tools available on the market. When you build a bot, you basically have the choice between using a SaaS platform (like Chatfuel, FlowXO, Motion.ai) or coding a bot from scratch. Let's look at why both don't work:
+
+- The SaaS thing looks very interesting because it's very easy to get started and requires no coding skills. The problems come when you want to actually get your bot to do stuff that are not supported by the SaaS or that you want to customize the overall experience. Some let you call APIs to run custom code, which defies the first purpose of being hassle-free and no-coding-required.
+
+- Coding a bot from scratch is often the first reflex for developers. Sure, it's a bit longer and we need to learn how things work. But that's what makes us programmers. We like to create things ourselves, and that's fine! But... how am I supposed to schedule broadcasts? Fetch and cache user profiles? Save and process customer orders? Add Human-in-the-loop capabilities? See where my bot messed up in production? Edit the content live without redeploying the bot? Do A/B testing? Hmmmm..
+
+That's why we created Botpress. We combined all the advantages of the SaaS and the "from Scratch" into an easy-to-use modular framework. All these things that would take you weeks to implement from scratch are available as Botpress Modules. Everything is accessible from a rich graphical interface, so once your bot is coded literally anybody can manage it.
+
+THe philosophy behind botpress is that if there's something you want your bot to do and that thing is not specific to only your bot, then **there should be a module for it**. If there's not, we hope that you will take the time to make a positive contribution to the rest of us and **create the missing module**.
+
 ## Your very first Messenger bot
 
 In this section, we will see how easy it is to build a Messenger bot using Botpress.
