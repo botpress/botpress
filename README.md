@@ -119,7 +119,7 @@ The primary focus is to create as many good modules as possible to make Botpress
 
 | Module                                                                       | Maintainer
 |-----------------------------------------------------------------------------|---------------------------
-| **[botpress-wit.ai](https://github.com/botpress/botpress-wit)** | [@devenbhooshan](https://github.com/devenbhooshan)
+| **[botpress-wit.ai](https://github.com/botpress/botpress-wit)** | [@danyfs](https://github.com/danyfs)
 | **[botpress-subscription](https://github.com/botpress/botpress-subscription)** | [@slvnperron](https://github.com/slvnperron)
 | **[botpress-terminal](https://github.com/botpress/botpress-terminal)** | [@slvnperron](https://github.com/slvnperron)
 | **[botpress-analytics](https://github.com/botpress/botpress-analytics)** | [@danyfs](https://github.com/danyfs)
