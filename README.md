@@ -88,6 +88,16 @@ For an overview of the core components, please read the [Basics](/docs/basics.md
 
 To create a basic Hello World bot, please read the [Getting Started](/docs/getting-started.md).
 
+### Stats Collection
+
+By default, anonymized usage statistics are sent to the Botpress Team. We rely on them to know where we need to allocate our efforts.
+
+**Note**: we don't collect any personal information, we do not collect the content of the chats and nothing that could potentially breach your (or your user's) privacy. We use a one-way encryption algorithm to hash the data and we transmit them via a secure ssl connection. We also batch the data and make sure it won't slow down or interfere with your bot's performance.
+
+#### Opting out of the stats collection
+
+In your Botfile, simply set the `optOutStats` variable to `true`.
+
 ## Documentation
 
 - [**Beginner's Guide** (start with this!)](/docs/getting-started.md)
