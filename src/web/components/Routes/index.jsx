@@ -7,6 +7,7 @@ import {
   useRouterHistory,
   IndexRoute
 } from 'react-router'
+import ReactGA from 'react-ga'
 import {createHistory} from 'history'
 
 import EnsureAuthenticated from '~/components/Authentication'
@@ -20,9 +21,19 @@ import Login from '~/views/Login'
 
 const appHistory = useRouterHistory(createHistory)({basename: '/'})
 
+function logPageView() {
+  ReactGA.set({ page: window.location.pathname })
+  ReactGA.pageview(window.location.pathname)
+}
+
 export default () => {
+
+  if (!window.OPT_OUT_STATS) {
+    ReactGA.initialize('UA-90044826-1')
+  }
+
   return (
-    <Router history={appHistory}>
+    <Router history={appHistory} onUpdate={logPageView}>
       <Route path="/login" component={Login}/>
       <Route path="/" component={EnsureAuthenticated(Layout)}>
         <Route path="dashboard" component={Dashboard}/>

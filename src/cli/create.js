@@ -4,6 +4,7 @@ import path from 'path'
 import fs from 'fs'
 import _ from 'lodash'
 import util from '../util'
+import stats from '../stats'
 
 const MODULE_NAME_CONVENTION_BEGINS = 'botpress-'
 const MODULE_NAME_REGEX = new RegExp(/^botpress-.*/g)
@@ -32,6 +33,7 @@ const prefixDirectoryNameWithBotpress = (directory) => {
 
 
 module.exports = function() {
+  stats({}).track('cli', 'modules', 'create')
 
   util.print(introductionText)
 

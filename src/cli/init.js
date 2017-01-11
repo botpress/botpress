@@ -5,6 +5,7 @@ import path from 'path'
 import _ from 'lodash'
 import fs from 'fs'
 import util from '../util'
+import stats from '../stats'
 
 const introductionText = "\nHey there, thanks for using botpress!" +
   "\nWe'll walk you through the creation of your new bot." +
@@ -35,6 +36,7 @@ const generateTemplate = (filename, variables = {}) => {
 }
 
 module.exports = function() {
+  stats({}).track('cli', 'bot', 'init')
 
   util.print(introductionText)
 

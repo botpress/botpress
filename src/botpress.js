@@ -16,6 +16,7 @@ import createDatabase from './database'
 import createLicensing from './licensing'
 import createAbout from './about'
 import createModules from './modules'
+import stats from './stats'
 
 import WebServer from './server'
 
@@ -81,6 +82,8 @@ class botpress {
      * The botfile config object
      */
     this.botfile = require(botfile)
+
+    this.stats = stats(this.botfile)
   }
 
   /**
@@ -94,6 +97,9 @@ class botpress {
    * 4. load modules
    */
   _start() {
+
+    this.stats.track('bot', 'started')
+
     // change the current working directory to botpress's installation path
     // the bot's location is kept in this.projectLocation
     process.chdir(path.join(__dirname, '../'))
@@ -140,6 +146,8 @@ class botpress {
 
     const loadedModules = modules._load(moduleDefinitions, this)
 
+    this.stats.track('bot', 'modules', 'loaded', loadedModules.length)
+
     _.assign(this, {
       _loadedModules: loadedModules
     })
@@ -160,11 +168,15 @@ class botpress {
       if (isDeveloping) {
         logger.error(err.stack)
       }
+
+      this.stats.trackException(err.message)
       process.exit(1)
     })
 
     process.on('unhandledRejection', (reason, p) => {
       logger.error('Unhandled Rejection in Promise: ', p, 'Reason:', reason)
+
+      this.stats.trackException(reason)
       if (isDeveloping && reason && reason.stack) {
         logger.error(reason.stack)
       }
@@ -178,6 +190,8 @@ class botpress {
       cluster.on('exit', (worker, code /* , signal */) => {
         if (code === RESTART_EXIT_CODE) {
           cluster.fork()
+
+          this.stats.track('bot', 'restarted')
           print('info', '*** restarted worker process ***')
         } else {
           process.exit(code)

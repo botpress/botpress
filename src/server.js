@@ -25,7 +25,7 @@ const setupSocket = function(app, bp) {
   }
 
   io.on('connection', function(socket) {
-    bp.logger.verbose('socket connected')
+    bp.stats.track('socket', 'connected')
 
     socket.on('event', function(event) {
       bp.events.emit(event.name, event.data, 'client')
@@ -75,6 +75,7 @@ const serveApi = function(app, bp) {
   app.use(maybeApply('bodyParser.urlencoded', bodyParser.urlencoded({ extended: true })))
 
   app.post('/api/login', (req, res) => {
+    bp.stats.track('api', 'auth', 'login')
     const result = bp.security.login(req.body.user, req.body.password, req.ip)
     res.send(result)
   })
@@ -102,6 +103,7 @@ const serveApi = function(app, bp) {
   })
 
   app.post('/api/middlewares/customizations', (req, res) => {
+    bp.stats.track('api', 'middlewares', 'customizations')
     const { middlewares } = req.body
     bp.middlewares.setCustomizations(middlewares)
     bp.middlewares.load()
@@ -109,6 +111,7 @@ const serveApi = function(app, bp) {
   })
 
   app.delete('/api/middlewares/customizations', (req, res) => {
+    bp.stats.track('api', 'middlewares', 'customizations')
     bp.middlewares.resetCustomizations()
     bp.middlewares.load()
     res.send(bp.middlewares.list())
@@ -159,6 +162,7 @@ const serveApi = function(app, bp) {
   })
 
   app.post('/api/license', (req, res) => {
+    bp.stats.track('api', 'license', 'change')
     bp.licensing.changeLicense(req.body.license)
     .then(() => {
       res.sendStatus(200)
@@ -169,6 +173,7 @@ const serveApi = function(app, bp) {
   })
 
   app.post('/api/module/install/:name', (req, res) => {
+    bp.stats.track('api', 'modules', 'install')
     const { name } = req.params
     bp.modules.install(name)
     .then(() => {
@@ -181,6 +186,7 @@ const serveApi = function(app, bp) {
   })
 
   app.delete('/api/module/uninstall/:name', (req, res) => {
+    bp.stats.track('api', 'modules', 'uninstall')
     const { name } = req.params
     bp.modules.uninstall(name)
     .then(() => {
@@ -212,6 +218,7 @@ const serveApi = function(app, bp) {
   })
 
   app.get('/logs/archive/:key', (req, res) => {
+    bp.stats.track('api', 'logs', 'archive')
     if (req.params.key !== logsSecret) {
       return res.sendStatus(403)
     }
@@ -260,12 +267,14 @@ const serveStatic = function(app, bp) {
 
   app.use('/js/env.js', (req, res) => {
     const { tokenExpiry, enabled } = bp.botfile.login
+    const optOutStats = !!bp.botfile.optOutStats
     res.contentType('text/javascript')
     res.send(`(function(window) {
       window.NODE_ENV = "${process.env.NODE_ENV || 'development'}";
       window.DEV_MODE = ${util.isDeveloping};
       window.AUTH_ENABLED = ${enabled};
       window.AUTH_TOKEN_DURATION = ${ms(tokenExpiry)};
+      window.OPT_OUT_STATS = ${optOutStats};
     })(window || {})`)
   })
 
