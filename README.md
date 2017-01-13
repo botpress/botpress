@@ -173,3 +173,5 @@ There's a [public chatroom](https://gitter.im/botpress/core) where you are welco
 Botpress is dual-licensed under [AGPLv3](/licenses/LICENSE_AGPL3) and the [Botpress Proprietary License](/licenses/LICENSE_BOTPRESS).
 
 By default, any bot created with Botpress is licensed under AGPLv3, but you may change to the Botpress License from within your bot's web interface in a few clicks.
+
+For more information about how the dual-license works and why it works that way please see the <a href="https://botpress.io/faq">FAQS</a>.
