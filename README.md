@@ -12,13 +12,13 @@ Important: **Make sure to join the official Facebook Group (https://www.facebook
 
 ## Vision & Mission
 
-Botpress is on mission to make bots ubiquitous and profitable for everybody. At Botpress, we think that using closed-source tools like Chatfuel is not the right approach for building awesome and powerful bots. To be able to create something great, it's important to have full control of your tools and to leverage the community efforts as much as possible.
+Botpress is on mission to make bots ubiquitous and profitable for everybody. At Botpress, we think that using closed-source tools like Chatfuel is not the right approach for building awesome and powerful bots, but Chatfuel is great for quickly creating straight-forward conversational bots. To be able to create something great, it's important to have full control of your tools and to leverage the community efforts as much as possible.
 
 ## Initial target audience
 
 Botpress is at an early stage and we are looking for **nodejs developers** to build new modules, create chatbots and help the community to build something that will be huge... Over time, everyone will benefit from having a powerful open-source ecosystem with a wide variety of specialized modules.
 
-If you are not a programmer or that this is your first bot, please consider using [Chatfuel](https://chatfuel.com/), [FlowXO](https://flowxo.com/) or [Motion.ai](http://motion.ai), these are great tools we recommend for begineers and for non-coders.
+If you are not a programmer or this is your first bot, please consider using [Chatfuel](https://chatfuel.com/), [FlowXO](https://flowxo.com/) or [Motion.ai](http://motion.ai), these are great tools we recommend for beginners and for non-coders.
 
 
 ## <a name="what-it-looks-like"> What it looks like </a>
@@ -54,7 +54,7 @@ This will provide you locally a web interface available at **`http://localhost:3
 
 ## Adding stuff to your bot
 
-At this point, your bot does nothing, you need to add features. There's two ways to add features:
+At this point, your bot does nothing, you need to add features. There are two ways to add features:
 - Installing and configuring modules
 - Coding
 
@@ -62,7 +62,7 @@ At this point, your bot does nothing, you need to add features. There's two ways
 
 For example, there's a `botpress-messenger` module that will make your bot connect to Facebook Messenger and easily send/receive messages.
 
-You can install modules directly in the web interface, or using the [`botpress install`](/docs/cli-reference.md#install--i) command:
+You can install modules directly in the web interface, or by using the [`botpress install`](/docs/cli-reference.md#install--i) command:
 
 ```
 botpress install messenger
@@ -108,13 +108,13 @@ In your Botfile, simply set the `optOutStats` variable to `true`.
 
 ## Examples
 
-There's some tutorial that might help you getting started, it's easy to and it takes about less than 10 minutes.
+Here are some tutorials that might help you get started. They are easy to follow and take about 10 minutes to work through.
 
 - [Hello World Bot](https://github.com/botpress/botpress-examples/tree/master/hello-world-bot)
 - [Hello World Bot using Rivescript](https://github.com/botpress/botpress-examples/tree/master/hello-world-rivescript-bot)
 - [Motivation Bot](https://github.com/botpress/botpress-examples/tree/master/motivation-bot)
 
-There's also some [videos on YouTube](https://www.youtube.com/channel/UCEHfE71jUmWbe_5DtbO3fIA) that shows how to create and code your bot using Botpress.
+Here are some [videos on YouTube](https://www.youtube.com/channel/UCEHfE71jUmWbe_5DtbO3fIA) that show you how to create and code your bot using Botpress.
 
 - [Create a Facebook Messenger chatbot in 3 minutes](https://www.youtube.com/watch?v=GO2yJ51ILl0)
 - Todolist Bot _(soon)_
@@ -125,7 +125,7 @@ Many more code examples are available in the [Examples repository](https://githu
 
 ## Roadmap
 
-The primary focus is to create as many good modules as possible to make Botpress the best platform for botmakers. Here are a couple of modules that would be useful along with their assigned leader:
+The primary focus is to create as many good modules as possible to make Botpress the best platform for botmakers. Here are a some modules that we think would be useful along with their assigned leader:
 
 | Module                                                                       | Maintainer
 |-----------------------------------------------------------------------------|---------------------------
@@ -149,7 +149,7 @@ The primary focus is to create as many good modules as possible to make Botpress
 
 For starters, there are [some open issues](https://github.com/botpress/botpress/issues?q=is%3Aissue+is%3Aopen+label%3Afor-new-contributors) with the `for-new-contributors` tag which are ideal for starting to contribute. They are all relatively easy to get started with.
 
-If you would like to contribute any new feature or bug fix, please make sure that there is a GitHub issue first. If there is not, simply open one and assign it to yourself. If you are unsure on how to get started, ask us anything in the [Gitter chatroom](https://gitter.im/botpress/core) or email me at `contribute [AT] botpress.io`.
+If you would like to contribute any new feature or bug fix, please make sure that there is a GitHub issue first. If there is not, simply open one and assign it to yourself. If you are unsure on how to get started, ask us anything in the [Gitter chatroom](https://gitter.im/botpress/core) or email us at `contribute [AT] botpress.io`.
 
 Contributions to Botpress will be dual-licensed under AGPLv3 and the Botpress Proprietary License.  This means that all contributors need to agree to the dual-license before their contributions can be accepted.
 
@@ -166,7 +166,7 @@ Contributions to Botpress will be dual-licensed under AGPLv3 and the Botpress Pr
 
 ## Community
 
-There's a [public chatroom](https://gitter.im/botpress/core) where you are welcome to join and ask any question and even help others.
+There's a [public chatroom](https://gitter.im/botpress/core) that you are welcome to join. Please ask any question and help others if you can.
 
 ## License
 
