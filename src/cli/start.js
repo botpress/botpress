@@ -19,7 +19,7 @@ module.exports = function(projectPath, options) {
     projectPath = '.'
   }
 
-  projectPath = path.resolve('.')
+  projectPath = path.resolve(projectPath)
 
   try {
     botpress = require(path.join(projectPath, 'node_modules', 'botpress'))
