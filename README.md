@@ -125,7 +125,9 @@ Many more code examples are available in the [Examples repository](https://githu
 
 ## Roadmap
 
-The primary focus is to create as many good modules as possible to make Botpress the best platform for botmakers. Here are a some modules that we think would be useful along with their assigned leader:
+The primary focus is to create as many good modules as possible to make Botpress the best platform for botmakers. We have a [public Roadmap](https://trello.com/b/vcT3ILLI/botpress-public-roadmap) available on Trello, you can participate to it by voting for suggestions and adding new ones.
+
+Here are a some modules that we think would be useful along with their assigned leader:
 
 | Module                                                                       | Maintainer
 |-----------------------------------------------------------------------------|---------------------------
