@@ -1,4 +1,4 @@
-# A Begineer's Guide to Botpress
+# A Beginner's Guide to Botpress
 
 Looking to get started with Botpress but unsure how? This page is for you! We'll start by demystifying what botpress is exactly, then we'll create a hello world bot on Messenger.
 
