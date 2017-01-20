@@ -2,6 +2,7 @@ var webpack = require('webpack')
 var path = require('path')
 var CopyWebpackPlugin = require('copy-webpack-plugin')
 var autoprefixer = require('autoprefixer')
+var HardSourceWebpackPlugin = require('hard-source-webpack-plugin')
 
 var webConfig = {
   bail: true,
@@ -26,7 +27,16 @@ var webConfig = {
     }, {
       from: path.resolve(__dirname, './src/web/img'),
       to: path.resolve(__dirname, './lib/web/img')
-    }])
+    }]),
+    new HardSourceWebpackPlugin({
+      cacheDirectory: __dirname + '/.cache/',
+      recordsPath: __dirname + '/.cache/records.json',
+      environmentPaths: {
+        root: process.cwd(),
+        directories: ['node_modules'],
+        files: ['package.json', 'webpack.js'],
+      }
+    })
   ],
   module: {
     loaders: [{
