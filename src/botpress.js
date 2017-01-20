@@ -17,6 +17,7 @@ import createLicensing from './licensing'
 import createAbout from './about'
 import createModules from './modules'
 import stats from './stats'
+import packageJson from '../package.json'
 
 import WebServer from './server'
 
@@ -114,6 +115,8 @@ class botpress {
     mkdirIfNeeded(dataLocation, logger)
     mkdirIfNeeded(modulesConfigDir, logger)
 
+    logger.info(`Starting botpress version ${packageJson.version}`)
+    
     const security = createSecurity(dataLocation, botfile.login)
 
     const modules = createModules(logger, projectLocation, dataLocation)
