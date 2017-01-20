@@ -1,3 +1,5 @@
+import os from 'os'
+import crypto from 'crypto'
 import ua from 'universal-analytics'
 import { machineId } from 'node-machine-id'
 
@@ -6,7 +8,13 @@ module.exports = (botfile) => {
   let visitor = null
   let queued = []
 
-  machineId().then(mid => {
+  machineId()
+  .catch(() => {
+    const hash = crypto.createHash('sha256')
+    hash.update(os.arch() + os.hostname() + os.platform() + os.type())
+    return hash.digest('hex')
+  })
+  .then(mid => {
     visitor = ua('UA-90044826-1', mid, {strictCidFormat: false})
     queued.forEach(a => a())
     queued = []
