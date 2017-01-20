@@ -89,7 +89,7 @@ export default (dataLocation, notifConfig, modules, events, logger) => {
       moduleId: 'botpress',
       icon: 'view_module',
       name: 'botpress',
-      url: '/'
+      url: url || '/'
     }
 
     if (module) {
