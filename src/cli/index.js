@@ -12,6 +12,7 @@ import { getBotpressVersion } from '../util'
 program
   .command('init')
   .description('Create a new bot in current directory')
+  .option('-y, --yes', 'Say yes to every prompt and use default values')
   .action(init)
 
 program
