@@ -35,7 +35,41 @@ const generateTemplate = (filename, variables = {}) => {
   fs.writeFileSync(destination, compiled)
 }
 
-module.exports = function() {
+const generate = (result) => {
+  generateTemplate('package.json', result)
+  generateTemplate('LICENSE')
+  generateTemplate('botfile.js')
+  generateTemplate('index.js')
+  generateTemplate('_._gitignore')
+
+  fs.mkdirSync('data')
+  fs.writeFileSync('data/bot.log', '')
+  fs.writeFileSync('data/notification.json', '[]')
+
+  fs.mkdirSync('modules_config')
+
+  util.print(waitingText)
+  const install = spawn(util.npmCmd, ['install'])
+
+  install.stdout.on('data', (data) => {
+    process.stdout.write(data.toString())
+  })
+
+  install.stderr.on('data', (data) => {
+    process.stdout.write(data.toString())
+  })
+
+  install.on('close', (code) => {
+    if (code > 0) {
+      util.print('error', 'an error occured during installation')
+    } else {
+      util.print('success', 'installation has completed successfully')
+      util.print(nextStepText)
+    }
+  })
+}
+
+module.exports = function(program) {
   stats({}).track('cli', 'bot', 'init')
 
   util.print(introductionText)
@@ -70,43 +104,19 @@ module.exports = function() {
     }
   }
 
-  prompt.message = ''
-  prompt.delimiter = ''
-
-  prompt.start()
-
-  prompt.get(schema, function (err, result) {
-
-    generateTemplate('package.json', result)
-    generateTemplate('LICENSE')
-    generateTemplate('botfile.js')
-    generateTemplate('index.js')
-    generateTemplate('_._gitignore')
-
-    fs.mkdirSync('data')
-    fs.writeFileSync('data/bot.log', '')
-    fs.writeFileSync('data/notification.json', '[]')
-
-    fs.mkdirSync('modules_config')
-
-    util.print(waitingText)
-    const install = spawn(util.npmCmd, ['install'])
-
-    install.stdout.on('data', (data) => {
-      process.stdout.write(data.toString())
+  if (program.yes) {
+    generate({
+      name: currentDirectoryName,
+      description: '',
+      author: '',
+      version: '0.0.1'
     })
-
-    install.stderr.on('data', (data) => {
-      process.stdout.write(data.toString())
+  } else {
+    prompt.message = ''
+    prompt.delimiter = ''
+    prompt.start()
+    prompt.get(schema, function (err, result) {
+      generate(result)
     })
-
-    install.on('close', (code) => {
-      if (code > 0) {
-        util.print('error', 'an error occured during installation')
-      } else {
-        util.print('success', 'installation has completed successfully')
-        util.print(nextStepText)
-      }
-    })
-  })
+  }
 }
