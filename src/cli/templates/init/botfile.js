@@ -21,7 +21,7 @@ module.exports = {
   },
 
   /**
-  * Access control of admin pabel
+  * Access control of admin panel
   */
   login: {
     enabled: process.env.NODE_ENV === 'production',
