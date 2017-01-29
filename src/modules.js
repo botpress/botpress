@@ -225,7 +225,7 @@ module.exports = (logger, projectLocation, dataLocation) => {
       let prefix = ''
 
       if (basename !== name) {
-        prefix = name.substr(0, name.length - basename.length)
+        prefix = name.substr(0, name.length - basename.length - 1)
       }
 
       if (basename.replace(/botpress-?/i, '').length === 0) {
