@@ -1,6 +1,6 @@
 ## Creating a module
 
-Creating a module for botpress is extremely easy and straightforward. You may choose to create local modules or to publish them back to the community (please!). In either way, the process is exactly the same; so you may choose to create a module for yourself and later publish it.
+Creating a module for botpress is extremely easy and straightforward. You may choose to create local modules or to publish them back to the community (please!). Either way, the process is exactly the same; so you may choose to create a module for yourself and publish it later.
 
 ### Anatomy of a module
 
@@ -49,7 +49,7 @@ As you can see, all the module's logic is inside the `/src` directory. A module 
 
 A module entry point is an object that exposes two methods: `init` and `ready`.
 
-Both methods take **`bp`** as their first argument and does not need to return anything.
+Both methods take **`bp`** as their first argument and do not need to return anything.
 
 - `init(bp)` is called on module initialization (before the bot is started). Middlewares registration usually goes here.
 - `ready(bp)` is called once all modules are loaded and the bot is fully started. Routing and module logic usually go here.
@@ -82,7 +82,7 @@ export default class TemplateModule extends React.Component {
 }
 ```
 
-To see more examples of how modules are implemented, you make have a look to the source of existing modules such as [`botpress-messenger`](https://github.com/botpress/botpress-messenger/blob/master/src/views/index.jsx).
+To see more examples of how modules are implemented, you may look at the source of existing modules such as [`botpress-messenger`](https://github.com/botpress/botpress-messenger/blob/master/src/views/index.jsx).
 
 ### Bundling
 
@@ -100,7 +100,7 @@ In order to do that, your module's `package.json` includes two commands:
 
 ### Testing & Local development
 
-You can install a module you are currently developping by simply installing it:
+You can install a module you are currently developing by simply installing it:
 
 ```
 botpress install ../path/to/my/module
@@ -120,7 +120,7 @@ To publish your module:
 npm publish
 ```
 
-Botpress crawls and indexes modules periodically. It may take up to 45 minutes before your module shows up in the list of available modules. Even if it doesn't show up, it is available to install right away via the [`botpress install`](cli-reference.md#install--i) command.
+Botpress crawls and indexes modules periodically. It may take up to 45 minutes before your module shows up in the list of available modules. Even before it shows up, it is available to install via the [`botpress install`](cli-reference.md#install--i) command.
 
 Note that the **all of the following criteras must be met** before a module can appear as a community module:
 
@@ -130,4 +130,4 @@ Note that the **all of the following criteras must be met** before a module can 
 4. The `package.json` must have a valid `botpress` section
 5. The code of the module must be hosted on GitHub, be public and the `repository` field in your `package.json` must point to it
 
-If you have done all of the following, please [contact us](https://gitter.im/botpress/core) and we will quickly resolve the issue.
+If you have done all of the above and are still having problems, please [contact us](https://gitter.im/botpress/core) and we will aim to quickly resolve the issue for you.
