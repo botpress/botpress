@@ -8,7 +8,7 @@ Botpress is an open-source bot creation tool written in Javascript. It is powere
 
 ## BETA TESTERS
 
-Important: **Make sure to join the official Facebook Group (https://www.facebook.com/groups/656491441198667/)!**
+Important: **Make sure to join the official Slack Community (https://slack.botpress.io)!**
 
 ## Vision & Mission
 
