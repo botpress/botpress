@@ -7,13 +7,13 @@ Here's an overview of the variables and what they do:
 - `dataDir`: The data directory where all your bot's data will be saved, including the built-in database file and the modules data.
 - `modulesConfigDir`: The modules configuration directory. Configuration is separate from regular data (`dataDir`) because you might want to checkin configuration to source-control.
 - `disableFileLogs`: Setting to true will disable persisting logs to file system.
-- `notification.file`: The name of the files were notifications are persisted NOTE: _(will be moved to the database in an upcoming version)_
-- `notification.maxLength`: The maximum number of notifications to persist
+- `notification.file`: The name of the files where notifications are allowed[?] NOTE: _(will be moved to the database in an upcoming version)_
+- `notification.maxLength`: The maximum number of notifications to allow[?]
 - `log.file`: The name of the log files
 - `log.maxSize`: The maximum size of log files
 - `login.enabled`: If login is required
 - `login.tokenExpiry`: The lifetime of an authentication token, after which clients will need to re-authenticate
-- `login.password`: The password required to login. NOTE: the username is always `admin` as of writing
+- `login.password`: The password required to login. NOTE: the username is always `admin` (at time of writing)
 - `login.maxAttempts`: The maximum amount of login attempts in the `login.resetAfter` time
 - `login.resetAfter`: Resets login attempts after this time
 
