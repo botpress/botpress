@@ -6,7 +6,7 @@ The database is located at `${dataDir}/db.sqlite`.
 
 ### Tables
 
-There is a single built-in table called `users`. There's also a method [`db.saveUser`](core-reference.md/#saveuseruserobject---promise) that connectors modules should use to save users to the database.
+There is a single built-in table called `users`. There's also a method [`db.saveUser`](core-reference.md/#saveuseruserobject---promise) that connectors' modules should use to save users to the database.
 
 The convention is to prepend the name of your module to your tables, for example `analytics-interactions`, `messenger-config`.
 
