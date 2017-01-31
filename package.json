@@ -83,9 +83,9 @@
     "react-addons-css-transition-group": "^15.3.1",
     "react-bootstrap": "^0.30.3",
     "react-bootstrap-button-loader": "^1.0.7",
-    "react-ga": "^2.1.2",
     "react-dom": "^15.3.1",
     "react-fontawesome": "^1.2.0",
+    "react-ga": "^2.1.2",
     "react-router": "^2.8.1",
     "react-sidebar": "^2.2.1",
     "react-sortable": "^1.2.0",
@@ -108,10 +108,7 @@
   ],
   "license": "AGPL-3.0",
   "main": "index.js",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/botpress/botpress.git"
-  },
+  "repository": "git+https://github.com/botpress/botpress.git",
   "os": [
     "darwin",
     "linux",
