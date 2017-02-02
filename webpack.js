@@ -13,6 +13,10 @@ var webConfig = {
     publicPath: '/js/',
     filename: 'web.bundle.js'
   },
+  externals: {
+    'react': 'react',
+    'react-dom': 'reactDOM'
+  },
   resolve: {
     extensions: ['', '.js', '.jsx', '.css'],
     alias: {
