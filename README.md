@@ -140,9 +140,11 @@ Here are a some modules that we think would be useful along with their assigned 
 | **[botpress-slack](https://github.com/botpress/botpress-slack)** | [@rayshih](https://github.com/rayshih)
 | **[botpress-dialog](https://github.com/dialoganalytics/botpress-dialog)** | [@phildionne](https://github.com/phildionne)
 | **[botpress-scheduler](https://github.com/botpress/botpress-scheduler)** | [@slvnperron](https://github.com/slvnperron)
+| **[botpress-hitl](https://github.com/botpress/botpress-hitl)** | [@danyfs](https://github.com/danyfs)
+| **[botpress-botkit](https://github.com/botpress/botpress-botkit)** | [@slvnperron](https://github.com/slvnperron)
+| **[botpress-api.ai](https://github.com/botpress/botpress-api.ai)** | [@slvnperron](https://github.com/slvnperron)
 | **botpress-inspector** | no body yet 
 | **botpress-transcript** | [@rodrigocnascimento](https://github.com/rodrigocnascimento)
-| **botpress-hitl** | [@danyfs](https://github.com/danyfs)
 | **botpress-telegram** | no body yet 
 | **botpress-kik** | no body yet
 | **botpress-sms** | no body yet
