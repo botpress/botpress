@@ -116,7 +116,7 @@ class botpress {
     mkdirIfNeeded(modulesConfigDir, logger)
 
     logger.info(`Starting botpress version ${packageJson.version}`)
-    
+  
     const security = createSecurity(dataLocation, botfile.login)
 
     const modules = createModules(logger, projectLocation, dataLocation)
@@ -129,7 +129,10 @@ class botpress {
     const licensing = createLicensing(projectLocation)
     const middlewares = createMiddlewares(this, dataLocation, projectLocation, logger)
     const {hear, middleware: hearMiddleware} = createHearMiddleware()
-    const db = createDatabase(dbLocation)
+    const db = createDatabase({
+      sqlite: { location: dbLocation },
+      postgres: botfile.postgres
+    })
 
     middlewares.register(hearMiddleware)
 

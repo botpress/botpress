@@ -57,7 +57,6 @@ module.exports = (dbLocation) => {
           .from('users')
           .where('id', '=', userId)
       })
-      query = query.toString().replace(/^insert/i, 'insert or ignore')
 
       return knex.raw(query)
     })
