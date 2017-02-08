@@ -39,6 +39,7 @@
     "ms": "^0.7.1",
     "mware": "0.0.3",
     "node-machine-id": "^1.1.3",
+    "pg": "^6.1.2",
     "prompt": "^1.0.0",
     "socket.io": "^1.5.0",
     "socketio-jwt": "^4.5.0",
