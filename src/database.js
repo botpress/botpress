@@ -19,6 +19,8 @@ const initializeDb = knex => {
       table.enu('gender', ['unknown', 'male', 'female'])
       table.integer('timezone')
       table.string('picture_url')
+      table.string('first_name')
+      table.string('last_name')
       table.string('locale')
       table.timestamp('created_on')
     })
@@ -58,7 +60,7 @@ module.exports = ({ sqlite, postgres }) => {
     .then(() => knex)
   }
 
-  const saveUser = ({ id, platform, gender, timezone, locale }) => {
+  const saveUser = ({ id, platform, gender, timezone, locale, picture_url, first_name, last_name }) => {
     const userId =  platform + ':' + id
     const userRow = {
       id: userId,
@@ -67,7 +69,10 @@ module.exports = ({ sqlite, postgres }) => {
       gender: gender || 'unknown',
       timezone: timezone || null,
       locale: locale || null,
-      created_on: moment(new Date()).toISOString()
+      created_on: moment(new Date()).toISOString(),
+      picture_url: picture_url,
+      last_name: last_name,
+      first_name: first_name
     }
 
     return getDb()
