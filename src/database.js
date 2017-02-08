@@ -6,18 +6,26 @@ const initializeDb = knex => {
     throw new Error('you must initialize the database before')
   }
 
-  return knex.schema.createTableIfNotExists('users', function (table) {
-    table.string('id').primary()
-    table.string('userId')
-    table.string('platform')
-    table.enu('gender', ['unknown', 'male', 'female'])
-    table.integer('timezone')
-    table.string('locale')
-    table.timestamp('created_on')
+  return knex.schema.hasTable('users')
+  .then(exists => {
+    if (exists) return
+
+    // We can't use createTableIfNotExists with postgres
+    // https://github.com/tgriesser/knex/issues/1303
+    return knex.schema.createTableIfNotExists('users', function (table) {
+      table.string('id').primary()
+      table.string('userId')
+      table.string('platform')
+      table.enu('gender', ['unknown', 'male', 'female'])
+      table.integer('timezone')
+      table.string('picture_url')
+      table.string('locale')
+      table.timestamp('created_on')
+    })
   })
 }
 
-module.exports = (dbLocation) => {
+module.exports = ({ sqlite, postgres }) => {
 
   let knex = null
 
@@ -26,11 +34,25 @@ module.exports = (dbLocation) => {
       return Promise.resolve(knex)
     }
 
-    knex = require('knex')({
-      client: 'sqlite3',
-      connection: { filename: dbLocation },
-      useNullAsDefault: true
-    })
+    if (postgres.enabled) {
+      knex = require('knex')({
+        client: 'pg',
+        connection: {
+          host: postgres.host,
+          port: postgres.port,
+          user: postgres.user,
+          password: postgres.password,
+          database: postgres.database
+        },
+        useNullAsDefault: true
+      })
+    } else {
+      knex = require('knex')({
+        client: 'sqlite3',
+        connection: { filename: sqlite.location },
+        useNullAsDefault: true
+      })
+    }
 
     return initializeDb(knex)
     .then(() => knex)
@@ -45,7 +67,7 @@ module.exports = (dbLocation) => {
       gender: gender || 'unknown',
       timezone: timezone || null,
       locale: locale || null,
-      created_on: moment(new Date()).format('x')
+      created_on: moment(new Date()).toISOString()
     }
 
     return getDb()
@@ -58,6 +80,12 @@ module.exports = (dbLocation) => {
           .where('id', '=', userId)
       })
 
+      if (postgres.enabled) {
+        query = query + ' on conflict (id) do nothing'
+      } else { // SQLite
+        query = query.toString().replace(/^insert/i, 'insert or ignore')
+      }
+
       return knex.raw(query)
     })
   }
@@ -65,6 +93,6 @@ module.exports = (dbLocation) => {
   return {
     get: getDb,
     saveUser,
-    location: dbLocation
+    location: postgres.enabled ? 'postgres' : sqlite.location
   }
 }
