@@ -1,8 +1,8 @@
-# Debugging
+## Debugging
 
 Here you find how to configure your favorite IDE to debug your code.
 
-## Visual Studio Code
+### Visual Studio Code
 Press f1 and look for launch.json. Inside the "configurations" array, insert the following object:
 ```json
 {
