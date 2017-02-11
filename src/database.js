@@ -1,29 +1,25 @@
 import Promise from 'bluebird'
 import moment from 'moment'
+import helpers from './database_helpers'
 
-const initializeDb = knex => {
+const initializeCoreDatabase = knex => {
   if (!knex) {
     throw new Error('you must initialize the database before')
   }
 
-  return knex.schema.hasTable('users')
-  .then(exists => {
-    if (exists) return
+  helpers(knex).date.now()
 
-    // We can't use createTableIfNotExists with postgres
-    // https://github.com/tgriesser/knex/issues/1303
-    return knex.schema.createTableIfNotExists('users', function (table) {
-      table.string('id').primary()
-      table.string('userId')
-      table.string('platform')
-      table.enu('gender', ['unknown', 'male', 'female'])
-      table.integer('timezone')
-      table.string('picture_url')
-      table.string('first_name')
-      table.string('last_name')
-      table.string('locale')
-      table.timestamp('created_on')
-    })
+  return helpers(knex).createTableIfNotExists('users', function (table) {
+    table.string('id').primary()
+    table.string('userId')
+    table.string('platform')
+    table.enu('gender', ['unknown', 'male', 'female'])
+    table.integer('timezone')
+    table.string('picture_url')
+    table.string('first_name')
+    table.string('last_name')
+    table.string('locale')
+    table.timestamp('created_on')
   })
 }
 
@@ -56,7 +52,7 @@ module.exports = ({ sqlite, postgres }) => {
       })
     }
 
-    return initializeDb(knex)
+    return initializeCoreDatabase(knex)
     .then(() => knex)
   }
 
