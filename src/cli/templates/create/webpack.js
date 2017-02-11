@@ -10,7 +10,7 @@ var nodeConfig = {
     filename: 'node.bundle.js',
     libraryTarget: 'commonjs2'
   },
-  externals: [nodeExternals()],
+  externals: [nodeExternals(), 'botpress'],
   target: 'node',
   resolve: {
     extensions: ['', '.js']
