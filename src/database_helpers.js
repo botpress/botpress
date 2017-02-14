@@ -71,6 +71,7 @@ module.exports = knex => {
       isBetween: (d1, d2, d3) => {
         d1 = columnOrDateFormat(d1)
         d2 = columnOrDateFormat(d2)
+        d3 = columnOrDateFormat(d3)
 
         return knex.raw(`${d1} BETWEEN ${d2} AND ${d3}`)
       },
@@ -80,7 +81,22 @@ module.exports = knex => {
         d2 = columnOrDateFormat(d2)
 
         return knex.raw(`date(${d1}) = date(${d2})`)
+      },
+
+      hourOfDay: date => {
+        date = columnOrDateFormat(date)
+        return isLite(knex)
+          ? knex.raw(`strftime('%H', ${date})`)
+          : knex.raw(`to_char(${date}, 'HH24')`)
       }
+    },
+
+    bool: {
+
+      true: () => isLite(knex) ? 1 : true,
+      false: () => isLite(knex) ? 0 : false,
+      parse: value => isLite(knex) ? !!value : value
+
     }
 
   }
