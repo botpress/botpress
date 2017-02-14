@@ -116,7 +116,7 @@ class botpress {
     mkdirIfNeeded(modulesConfigDir, logger)
 
     logger.info(`Starting botpress version ${packageJson.version}`)
-  
+
     const security = createSecurity(dataLocation, botfile.login)
 
     const modules = createModules(logger, projectLocation, dataLocation)

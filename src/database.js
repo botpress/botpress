@@ -1,6 +1,8 @@
 import Promise from 'bluebird'
 import moment from 'moment'
+
 import helpers from './database_helpers'
+import kvs from './kvs'
 
 const initializeCoreDatabase = knex => {
   if (!knex) {
@@ -91,9 +93,36 @@ module.exports = ({ sqlite, postgres }) => {
     })
   }
 
+  let kvs_instance = null
+  const getKvs = () => {
+    if (!kvs_instance) {
+      return getDb()
+      .then(knex => {
+        kvs_instance = new kvs(knex)
+        return kvs_instance.bootstrap()
+        .then(() => kvs_instance)
+      })
+    } else {
+      return Promise.resolve(kvs_instance)
+    }
+  }
+
+  const kvsGet = function() {
+    const args = arguments
+    return getKvs()
+    .then(instance => instance.get.apply(null, args))
+  }
+
+  const kvsSet = function() {
+    const args = arguments
+    return getKvs()
+    .then(instance => instance.set.apply(null, args))
+  }
+
   return {
     get: getDb,
     saveUser,
-    location: postgres.enabled ? 'postgres' : sqlite.location
+    location: postgres.enabled ? 'postgres' : sqlite.location,
+    kvs: { get: kvsGet, set: kvsSet }
   }
 }

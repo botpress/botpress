@@ -8,8 +8,7 @@ import _ from 'lodash'
     and wait for promise to resolve
     - tableName: overrides the KVS table's name
 */
-module.exports = (knex, options) => {
-
+module.exports = (knex, options = {}) => {
   const getSetCallback = options.betweenGetAndSetCallback || (() => Promise.resolve())
   const tableName = options.tableName || 'kvs'
 
