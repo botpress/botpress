@@ -22,7 +22,7 @@ const amendOption = (option, name) => {
 
   const validation = option.validation || (() => true)
 
-  if (option.default && !validations[option.type](option.default, validation)) {
+  if (typeof(option.default) !== 'undefined' && !validations[option.type](option.default, validation)) {
     throw new Error(`Invalid default value (${option.default}) for (${name})`)
   }
 
@@ -46,7 +46,7 @@ const amendOptions = options => {
 const validateSet = (options, name, value) => {
 
   // if name is not in options, throw
-  if (_.includes(_.keys(options)), name) {
+  if (!_.includes(_.keys(options), name)) {
     throw new Error('Unrecognized configuration key: ' + name)
   }
 
@@ -71,12 +71,16 @@ const validateSave = (options, object) => {
 }
 
 const validateName = name => {
-  if (!/[A-Z_-]+/i.test(name)) {
+  if (!name || !/^[A-Z_-]+$/i.test(name)) {
     throw new Error('Invalid configuration name: ' + name + '. The name must only contain letters, _ and -')
   }
 }
 
-const createConfig = ({ kvs, name, options }) => {
+const createConfig = ({ kvs, name, options = {} }) => {
+
+  if (!kvs || !kvs.get || !kvs.set) {
+    throw new Error(`A valid 'kvs' is mandatory to createConfig`)
+  }
 
   validateName(name)
   options = amendOptions(options)
@@ -105,7 +109,7 @@ const createConfig = ({ kvs, name, options }) => {
   // loadAll() -> Promise(obj)
   // get(key) -> Promise(value)
   // set(key, value) -> Promise()
-  return { saveAll, loadAll, get, set }
+  return { saveAll, loadAll, get, set, options }
 }
 
 module.exports = { createConfig }
