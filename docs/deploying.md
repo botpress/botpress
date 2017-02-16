@@ -2,6 +2,66 @@
 
 Here you find how to deploy your application to a Server.
 
+
+## Heroku
+
+1. Set up botpress locally with all the dependent modules installed and configured
+  * (if using messenger module) make sure you disable Ngork before uploading to heroku
+
+2. You need a [free Heroku account](https://signup.heroku.com/dc) and [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli) installed
+
+3. Check package.json to be sure all dependencies are included
+  1. you can add custom dependencies using `npm install <pkg> --save`
+  2. Add node version to `packages.json`
+	```javascript
+	"engines": {
+	    "node": "7.1.0"
+	  },
+	```
+
+4. Specifying a start script [Procfile](https://devcenter.heroku.com/articles/procfile) or make sure you have the start script in your packages.json
+
+
+So your final package.json should look something like this:
+```javascript
+{
+  "name": "AwsomeBot",
+  "version": "0.0.1",
+  "description": "botishness",
+  "main": "index.js",
+  "dependencies": {
+    "botpress": "0.x",
+    "botpress-analytics": "^1.0.7",
+    "botpress-hitl": "0.0.1",
+    "botpress-messenger": "^1.0.16",
+    "botpress-scheduler": "^1.0.1",
+    "botpress-subscription": "^1.0.2"
+  },
+  "scripts": {
+    "start": "botpress start",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "sbeta",
+  "license": "AGPL-3.0",
+  "engines": {
+    "node": ">6.0.0"
+  }
+}
+
+```
+
+
+5. Try it locally and see if it works: `heroku local web`
+
+6. Go to Heroku dashboard and make a new app and from there you can follow the instruction to get botpress on heruko `Deploy using Heroku Git`
+
+7. Go to Heroku dashboard -> Settings and in the Config Variables section add a password for your dashboard:
+```
+BOTPRESS_PASSWORD : <YOUR_ST0nG_PasSwoRd>
+```
+
+----------------------------------------------------------------------------------------------
+
 ## Amazon AWS (EC2)
 
 #### 1 - First you need to have a custom domain name bought (can be bought in AWS)
@@ -75,13 +135,13 @@ Obs2: If you use windows [Git Bash (Distributed with Git for Windows)](https://g
 
 7.2 - Next you need to compile some source files
 
-```sudo apt-get install build-essential``` 
+```sudo apt-get install build-essential```
 
 7.3 - You can run ```npm --version``` and ```node --version``` to check if instalation is ok.
 
 #### 8 - [Install pm2 to manage process](https://github.com/Unitech/pm2)
 
-```npm install -g pm2`` 
+```npm install -g pm2``
 
 #### 9 - [Setup Nginx and pm2](https://doesnotscale.com/deploying-node-js-with-pm2-and-nginx/)
 
