@@ -92,7 +92,8 @@ const serveApi = function(app, bp) {
         name: module.name,
         homepage: module.homepage,
         menuText: module.settings.menuText || module.name,
-        menuIcon: module.settings.menuIcon || 'view_module'
+        menuIcon: module.settings.menuIcon || 'view_module',
+        noInterface: !!module.settings.noInterface
       }
     })
     res.send(modules)

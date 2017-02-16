@@ -92,8 +92,9 @@ class Sidebar extends Component {
   }
 
   render() {
+
     const modules = this.props.modules
-    const items = modules.toJS().map(this.renderModuleItem)
+    const items = modules.toJS().filter(x => !x.noInterface).map(this.renderModuleItem)
     const dashboardClassName = classnames({ [style.active] : this.isAtDashboard() })
     const manageClassName = classnames({ [style.active] : this.isAtManage() })
 
