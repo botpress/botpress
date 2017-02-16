@@ -1,6 +1,6 @@
 # Deployment
 
-Here you find how to deploy your application to a Server.
+Here you find how to deploy your application.
 
 
 ## Heroku
@@ -57,9 +57,9 @@ Here you find how to deploy your application to a Server.
 6. Go to Heroku dashboard and make a new app and from there you can follow the instruction to get botpress on heruko `Deploy using Heroku Git`
 
 7. Go to Heroku dashboard -> Settings and in the Config Variables section add a password for your dashboard:
-```
-BOTPRESS_PASSWORD : <YOUR_ST0nG_PasSwoRd>
-```
+    ```
+    BOTPRESS_PASSWORD : <YOUR_ST0nG_PasSwoRd>
+    ```
 
 ----------------------------------------------------------------------------------------------
 
