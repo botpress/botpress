@@ -131,7 +131,8 @@ const createConfig = ({ kvs, name, options = {} }) => {
 
   const get = name => {
     return kvs.get('__config', name + '.' + name)
-    .then(value => overwriteFromEnvValues(options, { [name]: value }))
+    .then(value => overwriteFromDefaultValues(options, { [name]: value }))
+    .then(all => overwriteFromEnvValues(options, all))
     .then(obj => obj[name])
   }
 
