@@ -124,7 +124,7 @@ const createConfig = ({ kvs, name, options = {} }) => {
 
   const loadAll = () => {
     return kvs.get('__config', name)
-    .then(all => overwriteFromDefaultValues(options, all))
+    .then(all => overwriteFromDefaultValues(options, all || {}))
     .then(all => overwriteFromEnvValues(options, all))
     .then(all => removeUnusedKeys(options, all))
   }
