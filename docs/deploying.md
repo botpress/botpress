@@ -22,33 +22,34 @@ Here you find how to deploy your application to a Server.
 4. Specifying a start script [Procfile](https://devcenter.heroku.com/articles/procfile) or make sure you have the start script in your packages.json
 
 
-So your final package.json should look something like this:
-```javascript
-{
-  "name": "AwsomeBot",
-  "version": "0.0.1",
-  "description": "botishness",
-  "main": "index.js",
-  "dependencies": {
-    "botpress": "0.x",
-    "botpress-analytics": "^1.0.7",
-    "botpress-hitl": "0.0.1",
-    "botpress-messenger": "^1.0.16",
-    "botpress-scheduler": "^1.0.1",
-    "botpress-subscription": "^1.0.2"
-  },
-  "scripts": {
-    "start": "botpress start",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "sbeta",
-  "license": "AGPL-3.0",
-  "engines": {
-    "node": ">6.0.0"
-  }
-}
+  * So your final package.json should look something like this:
 
-```
+    ```javascript
+    {
+      "name": "AwsomeBot",
+      "version": "0.0.1",
+      "description": "botishness",
+      "main": "index.js",
+      "dependencies": {
+        "botpress": "0.x",
+        "botpress-analytics": "^1.0.7",
+        "botpress-hitl": "0.0.1",
+        "botpress-messenger": "^1.0.16",
+        "botpress-scheduler": "^1.0.1",
+        "botpress-subscription": "^1.0.2"
+      },
+      "scripts": {
+        "start": "botpress start",
+        "test": "echo \"Error: no test specified\" && exit 1"
+      },
+      "author": "sbeta",
+      "license": "AGPL-3.0",
+      "engines": {
+        "node": ">6.0.0"
+      }
+    }
+
+    ```
 
 
 5. Try it locally and see if it works: `heroku local web`
@@ -123,31 +124,31 @@ OBS: You may need confirm the domain you using. AWS sends an email to address of
 
 8. Now you connected, run this commands
 
-```Bash
-cd ~
+    ```Bash
+    cd ~
 
-curl -sL https://deb.nodesource.com/setup_6.x -o nodesource_setup.sh
+    curl -sL https://deb.nodesource.com/setup_6.x -o nodesource_setup.sh
 
-sudo bash nodesource_setup.sh
-```
+    sudo bash nodesource_setup.sh
+    ```
 
   1. Then install NodeJs and NPM with
 
-```Bash
-sudo apt-get install nodejs
-```
+    ```Bash
+    sudo apt-get install nodejs
+    ```
 
   2. Next you need to compile some source files
 
-```Bash
-sudo apt-get install build-essential
-```
+    ```Bash
+    sudo apt-get install build-essential
+    ```
 
   3. You can run `npm --version` and `node --version` to check if installation is ok.
 
-9. [Install pm2 to manage process](https://github.com/Unitech/pm2)
+9. Install [pm2](https://github.com/Unitech/pm2) to manage process
 
-`npm install -g pm2`
+    `npm install -g pm2`
 
 10. [Setup Nginx and pm2](https://doesnotscale.com/deploying-node-js-with-pm2-and-nginx/)
 
