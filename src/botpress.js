@@ -119,7 +119,12 @@ class botpress {
 
     const security = createSecurity(dataLocation, botfile.login)
 
-    const modules = createModules(logger, projectLocation, dataLocation)
+    const db = createDatabase({
+      sqlite: { location: dbLocation },
+      postgres: botfile.postgres
+    })
+
+    const modules = createModules(logger, projectLocation, dataLocation, db.kvs)
 
     const moduleDefinitions = modules._scan()
 
@@ -129,10 +134,6 @@ class botpress {
     const licensing = createLicensing(projectLocation)
     const middlewares = createMiddlewares(this, dataLocation, projectLocation, logger)
     const {hear, middleware: hearMiddleware} = createHearMiddleware()
-    const db = createDatabase({
-      sqlite: { location: dbLocation },
-      postgres: botfile.postgres
-    })
 
     middlewares.register(hearMiddleware)
 

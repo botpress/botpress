@@ -318,7 +318,7 @@ class WebServer {
     server.listen(port, () => {
       this.bp.events.emit('ready')
       for (var mod of _.values(this.bp._loadedModules)) {
-        mod.handlers.ready && mod.handlers.ready(this.bp)
+        mod.handlers.ready && mod.handlers.ready(this.bp, mod.configuration)
       }
 
       this.bp.logger.info(chalk.green.bold('bot launched, visit: http://localhost:' + port))

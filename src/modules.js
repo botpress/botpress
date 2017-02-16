@@ -5,6 +5,7 @@ import Promise from 'bluebird'
 import _ from 'lodash'
 import moment from 'moment'
 import axios from 'axios'
+import { createConfig } from './configurator'
 
 import {
   print,
@@ -19,7 +20,7 @@ const MODULES_URL = 'https://s3.amazonaws.com/botpress-io/all-modules.json'
 const POPULAR_URL = 'https://s3.amazonaws.com/botpress-io/popular-modules.json'
 const FEATURED_URL = 'https://s3.amazonaws.com/botpress-io/featured-modules.json'
 
-module.exports = (logger, projectLocation, dataLocation) => {
+module.exports = (logger, projectLocation, dataLocation, kvs) => {
 
   const log = (level, ...args) => {
     if (logger && logger[level]) {
@@ -59,7 +60,17 @@ module.exports = (logger, projectLocation, dataLocation) => {
       mod.handlers = loader
 
       try {
-        loader.init && loader.init(botpress)
+        mod.configuration = createConfig({
+          kvs: kvs,
+          name: mod.name,
+          options: loader.config || {}
+        })
+      } catch (err) {
+        logger.error('Invalid module configuration in module ' + mod.name + ': ', err)
+      }
+
+      try {
+        loader.init && loader.init(botpress, mod.configuration)
       } catch (err) {
         logger.warn('Error during module initialization: ', err)
       }
