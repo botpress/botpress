@@ -76,6 +76,38 @@ const validateName = name => {
   }
 }
 
+const overwriteFromDefaultValues = (options, object) => {
+  _.each(_.keys(options), name => {
+    if (typeof object[name] === 'undefined') {
+      object[name] = options[name].default
+    }
+  })
+
+  return object
+}
+
+const overwriteFromEnvValues = (options, object) => {
+  return _.mapValues(object, (_v, name) => {
+    if (options[name] && options[name].env && process.env[options[name].env]) {
+      return process.env[options[name].env]
+    }
+
+    return _v
+  })
+}
+
+const removeUnusedKeys = (options, object) => {
+  const final = {}
+
+  _.each(_.keys(options), name => {
+    if (typeof object[name] !== 'undefined') {
+      final[name] = object[name]
+    }
+  })
+
+  return final
+}
+
 const createConfig = ({ kvs, name, options = {} }) => {
 
   if (!kvs || !kvs.get || !kvs.set) {
@@ -91,13 +123,16 @@ const createConfig = ({ kvs, name, options = {} }) => {
   }
 
   const loadAll = () => {
-    // TODO: Overwrite these with ENV variables
     return kvs.get('__config', name)
+    .then(all => overwriteFromDefaultValues(options, all))
+    .then(all => overwriteFromEnvValues(options, all))
+    .then(all => removeUnusedKeys(options, all))
   }
 
   const get = name => {
-    // TODO: Overwrite these with ENV variables
     return kvs.get('__config', name + '.' + name)
+    .then(value => overwriteFromEnvValues(options, { [name]: value }))
+    .then(obj => obj[name])
   }
 
   const set = (name, value) => {
