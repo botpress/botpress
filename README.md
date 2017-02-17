@@ -174,6 +174,10 @@ There's a [Slack community](https://slack.botpress.io) where you are welcome to 
 
 Get an invite and join us now! 👉[https://slack.botpress.io](https://slack.botpress.io)
 
+## Pricing
+
+Botpress is licensed under an open source and commercial license. Even though it can be freely used and distributed under an open source license, this does not mean that there are no restrictions on its use.  **The main restriction is that any code that uses the botpress code under the  open source license must be open source itself.** For this reason commercial bots would normally be built using botpress licensed under the commercial license because commercial enterprises would want to use their own proprietary code with botpress and don't want to be forced to make this code open source. The commercial license has a cost for enterprises. Please visit our <a href="https://botpress.io/faq">FAQS</a> for more information.
+
 ## License
 
 Botpress is dual-licensed under [AGPLv3](/licenses/LICENSE_AGPL3) and the [Botpress Proprietary License](/licenses/LICENSE_BOTPRESS).
