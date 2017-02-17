@@ -71,7 +71,7 @@ const validateSave = (options, object) => {
 }
 
 const validateName = name => {
-  if (!name || !/^[A-Z_-]+$/i.test(name)) {
+  if (!name || !/^[A-Z0-9_-]+$/i.test(name)) {
     throw new Error('Invalid configuration name: ' + name + '. The name must only contain letters, _ and -')
   }
 }

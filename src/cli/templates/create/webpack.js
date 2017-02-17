@@ -22,7 +22,7 @@ var nodeConfig = {
       exclude: /node_modules/,
       query: {
         presets: ['latest', 'stage-0'],
-        plugins: ['transform-object-rest-spread']
+        plugins: ['transform-object-rest-spread', 'transform-async-to-generator']
       }
     }, {
       test: /\.json$/,
