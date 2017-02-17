@@ -64,7 +64,7 @@ module.exports = (knex, options = {}) => {
   const bootstrap = () => {
     return helpers(knex).createTableIfNotExists(tableName, function(table) {
       table.string('key').primary()
-      table.string('value')
+      table.text('value')
       table.timestamp('modified_on')
     })
   }
