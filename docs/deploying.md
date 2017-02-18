@@ -75,7 +75,7 @@ OBS: You may need confirm the domain you using. AWS sends an email to address of
 3. Go to [AWS Certificate Manager](https://console.aws.amazon.com/acm/) click o request a new Certificate
   1. In the field domain name, create a wildcard **.yourdomain.com** and click review and request.
 
-  2. Amazon will send an confirmation email to the email linked to the domain, click on link to confirm this domain belongs to you.
+  2. Amazon will send a confirmation email to the email linked to the domain, click on link to confirm this domain belongs to you.
 
 4. Go to [Amazon EC2](https://console.aws.amazon.com/ec2/) in the left bar under _Network & Security_ click on Keypairs.
 
@@ -83,7 +83,7 @@ OBS: You may need confirm the domain you using. AWS sends an email to address of
 
 5. Click on instances, launch instances, select ubuntu server 16.04 LTS, Select The instance type you desire and launch.
 
-  1. When it's online, select your created instance and, if you don't selected a security group, there's created a new one.
+  1. When it's online, select your created instance and, if you don't select a security group, there's created a new one.
 
   2. Click on this name and you will be in Security Groups List (There's a link in left panel).
 
@@ -101,7 +101,7 @@ OBS: You may need confirm the domain you using. AWS sends an email to address of
 
   5. (Step 4) Select new Target Group, name it as default (or anyway you like), keep protocol http and port 80 in target group.´
 
-  6. (Step 4) In health checks select protocol http and put an path to health status. (The AWS will ping this url to check if the server is alive)
+  6. (Step 4) In health checks select protocol http and put a path to health status. (The AWS will ping this url to check if the server is alive)
 
   7. Select the machines you want to put under this load balance (We created just one for this example) and create.
 
