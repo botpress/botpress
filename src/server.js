@@ -201,6 +201,7 @@ const serveApi = function(app, bp) {
 
   app.delete('/api/guided-tour', (req, res) => {
     fs.unlink(path.join(bp.projectLocation, '.welcome'), () => {
+      bp.isFirstRun = false
       res.sendStatus(200)
     })
   })

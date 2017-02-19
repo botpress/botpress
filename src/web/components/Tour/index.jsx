@@ -24,15 +24,16 @@ export default class GuidedTour extends React.Component {
   }
 
   handleClose() {
-    // TODO: Call the dismiss api
-    this.setState({ finished: true })
+    axios.delete('/api/guided-tour').then(() => {
+      this.setState({ finished: true })
+    })
   }
 
   handleNext() {
     if (this.state.step < STEPS_COUNT - 1) {
       this.setState({ step: this.state.step + 1 })
     } else {
-      this.setState({ finished: true })
+      this.handleClose()
     }
   }
 
