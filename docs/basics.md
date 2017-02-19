@@ -18,7 +18,7 @@ The global command line tool is available as `botpress` and `bp`. For example, r
 
 ## Creating a bot
 
-`botpress init` is the only safe and preffered way of creating a Botpress bot. This command must be run inside an empty directory as it will create some files required to run your bot. The following files will be generated:
+`botpress init` is the only safe and preferred way of creating a Botpress bot. This command must be run inside an empty directory as it will create some files required to run your bot. The following files will be generated:
 
 ```js
     - botfile.js // your bot's configuration. botpress uses this
@@ -120,7 +120,7 @@ bp.logger.info('Just logging this to the console')
 
 ## Authentication
 
-Running your bot with `NODE_ENV` environement variable set to `production` will result in authentication turned on by default.
+Running your bot with `NODE_ENV` environment variable set to `production` will result in authentication turned on by default.
 
 **Usage**:
 ```
