@@ -5,7 +5,7 @@
 * [CLI Reference](cli-reference.md)
 * [Core Reference](core-reference.md)
 * [Debugging](/docs/debugging.md)
-* * [Deploying](deploying.md)
+* [Deploying](deploying.md)
 
 
 
