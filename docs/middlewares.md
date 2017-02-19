@@ -70,7 +70,7 @@ bp.middlewares.register({
 })
 ```
 
-Once all middleware functions have been registered (usually modules should register middleware functions immediatly in their initialization), **you must load them** using [`bp.middlewares.load()`](core-reference.md#load---void), which will create the incoming and outgoing chains automatically.
+Once all middleware functions have been registered (usually modules should register middleware functions immediately in their initialization), **you must load them** using [`bp.middlewares.load()`](core-reference.md#load---void), which will create the incoming and outgoing chains automatically.
 
 Once middleware functions are loaded, you'll see them displayed in your bot's interface:
 
