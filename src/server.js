@@ -240,6 +240,11 @@ const serveApi = function(app, bp) {
 
   const routers = {}
   bp.getRouter = function(name, conditions) {
+
+    if (!/^botpress-/.test(name)) {
+      throw new Error('The name of a router must start with `botpress-`, but received: ' + name)
+    }
+
     if (!routers[name]) {
       const router = express.Router()
       routers[name] = router
