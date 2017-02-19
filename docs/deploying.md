@@ -1,9 +1,9 @@
-# Deployment
+## Deployment
 
 Here you find how to deploy your application.
 
 
-## Heroku
+### Heroku
 
 1. Set up botpress locally with all the dependent modules installed and configured
   * (if using messenger module) make sure you disable Ngork before uploading to heroku
@@ -63,7 +63,7 @@ Here you find how to deploy your application.
 
 ----------------------------------------------------------------------------------------------
 
-## Amazon AWS (EC2)
+### Amazon AWS (EC2)
 
 1. First you need to have a custom domain name bought (can be bought in AWS)
 
