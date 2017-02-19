@@ -107,6 +107,7 @@ class botpress {
 
     const {projectLocation, botfile} = this
 
+    const isFirstRun = fs.existsSync(path.join(projectLocation, '.welcome'))
     const dataLocation = getDataLocation(botfile.dataDir, projectLocation)
     const modulesConfigDir = getDataLocation(botfile.modulesConfigDir, projectLocation)
     const dbLocation = path.join(dataLocation, 'db.sqlite')
@@ -139,6 +140,7 @@ class botpress {
 
     _.assign(this, {
       dataLocation,
+      isFirstRun,
       logger,
       security, // login, authenticate, getSecret
       events,

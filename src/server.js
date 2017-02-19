@@ -199,6 +199,12 @@ const serveApi = function(app, bp) {
     }))
   })
 
+  app.delete('/api/guided-tour', (req, res) => {
+    fs.unlink(path.join(bp.projectLocation, '.welcome'), () => {
+      res.sendStatus(200)
+    })
+  })
+
   app.get('/api/logs', (req, res) => {
     const options = {
       from: new Date() - 7 * 24 * 60 * 60 * 1000,
@@ -269,6 +275,7 @@ const serveStatic = function(app, bp) {
   app.use('/js/env.js', (req, res) => {
     const { tokenExpiry, enabled } = bp.botfile.login
     const optOutStats = !!bp.botfile.optOutStats
+    const { isFirstRun } = bp
     res.contentType('text/javascript')
     res.send(`(function(window) {
       window.NODE_ENV = "${process.env.NODE_ENV || 'development'}";
@@ -276,6 +283,7 @@ const serveStatic = function(app, bp) {
       window.AUTH_ENABLED = ${enabled};
       window.AUTH_TOKEN_DURATION = ${ms(tokenExpiry)};
       window.OPT_OUT_STATS = ${optOutStats};
+      window.SHOW_GUIDED_TOUR = ${isFirstRun};
     })(window || {})`)
   })
 
