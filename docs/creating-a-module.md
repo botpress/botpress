@@ -86,7 +86,7 @@ To see more examples of how modules are implemented, you make have a look to the
 
 ### Bundling
 
-**Note: modules code are transpilled by default with the `react`, `stage-0` and `latest` [Babel](http://babeljs.io) presets. For more details, please have a look at the `webpack.js` file in your module's root.**
+**Note: modules code are transpiled by default with the `react`, `stage-0` and `latest` [Babel](http://babeljs.io) presets. For more details, please have a look at the `webpack.js` file in your module's root.**
 
 In order for the module to be loaded by botpress, it needs to be bundled into two files:
 
@@ -100,7 +100,7 @@ In order to do that, your module's `package.json` includes two commands:
 
 ### Testing & Local development
 
-You can install a module you are currently developping by simply installing it:
+You can install a module you are currently developing by simply installing it:
 
 ```
 botpress install ../path/to/my/module
@@ -122,7 +122,7 @@ npm publish
 
 Botpress crawls and indexes modules periodically. It may take up to 45 minutes before your module shows up in the list of available modules. Even if it doesn't show up, it is available to install right away via the [`botpress install`](cli-reference.md#install--i) command.
 
-Note that the **all of the following criteras must be met** before a module can appear as a community module:
+Note that the **all of the following criteria must be met** before a module can appear as a community module:
 
 1. You must have filled and signed the **Distribution Agreement** _(available soon)_. The agreement shows up automatically before running `npm publish`.
 2. The module name must start with `botpress-`

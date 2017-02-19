@@ -79,7 +79,7 @@ OBS: You may need confirm the domain you using. AWS sends an email to address of
 
 4. Go to [Amazon EC2](https://console.aws.amazon.com/ec2/) in the left bar under _Network & Security_ click on Keypairs.
 
-  1. Click on create, name your keypair and will be downloaded automatically. SAVE IT IN A SECURE PLACE OR YOU WILL NOT BE ABLE TO ACESS THIS MACHINE AGAIN!!
+  1. Click on create, name your keypair and will be downloaded automatically. SAVE IT IN A SECURE PLACE OR YOU WILL NOT BE ABLE TO ACCESS THIS MACHINE AGAIN!!
 
 5. Click on instances, launch instances, select ubuntu server 16.04 LTS, Select The instance type you desire and launch.
 
