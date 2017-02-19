@@ -10,7 +10,8 @@ const {
   NEW_NOTIFICATIONS_RECEIVED,
   TOGGLE_LICENSE_MODAL,
   BOT_INFORMATION_RECEIVED,
-  LICENSE_CHANGED
+  LICENSE_CHANGED,
+  TOGGLE_ABOUT_MODAL
 } = actionTypes
 
 export default {
@@ -38,6 +39,10 @@ export default {
 
   toggleLicenseModal() {
     reactor.dispatch(TOGGLE_LICENSE_MODAL)
+  },
+
+  toggleAboutModal() {
+    reactor.dispatch(TOGGLE_ABOUT_MODAL)
   },
 
   fetchBotInformation() {

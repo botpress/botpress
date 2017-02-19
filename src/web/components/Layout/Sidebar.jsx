@@ -91,6 +91,10 @@ class Sidebar extends Component {
     actions.toggleLicenseModal()
   }
 
+  openAbout() {
+    actions.toggleAboutModal()
+  }
+
   render() {
 
     const modules = this.props.modules
@@ -122,6 +126,10 @@ class Sidebar extends Component {
         <div className={style.production}>{productionText}</div>
         <Link to='#' title='License' onClick={this.openLicenseComponent}>
           License under {this.props.botInformation.get('license')}
+        </Link>
+        <br />
+        <Link to="#" title="About" onClick={::this.openAbout}>
+          About Botpress
         </Link>
       </div>
     </div>

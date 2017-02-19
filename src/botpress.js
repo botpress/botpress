@@ -111,12 +111,13 @@ class botpress {
     const dataLocation = getDataLocation(botfile.dataDir, projectLocation)
     const modulesConfigDir = getDataLocation(botfile.modulesConfigDir, projectLocation)
     const dbLocation = path.join(dataLocation, 'db.sqlite')
+    const version = packageJson.version
 
     const logger = createLogger(dataLocation, botfile.log)
     mkdirIfNeeded(dataLocation, logger)
     mkdirIfNeeded(modulesConfigDir, logger)
 
-    logger.info(`Starting botpress version ${packageJson.version}`)
+    logger.info(`Starting botpress version ${version}`)
 
     const security = createSecurity(dataLocation, botfile.login)
 
@@ -141,6 +142,7 @@ class botpress {
     _.assign(this, {
       dataLocation,
       isFirstRun,
+      version,
       logger,
       security, // login, authenticate, getSecret
       events,
