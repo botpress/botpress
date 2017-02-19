@@ -275,7 +275,7 @@ const serveStatic = function(app, bp) {
   app.use('/js/env.js', (req, res) => {
     const { tokenExpiry, enabled } = bp.botfile.login
     const optOutStats = !!bp.botfile.optOutStats
-    const { isFirstRun } = bp
+    const { isFirstRun, version } = bp
     res.contentType('text/javascript')
     res.send(`(function(window) {
       window.NODE_ENV = "${process.env.NODE_ENV || 'development'}";
@@ -284,6 +284,7 @@ const serveStatic = function(app, bp) {
       window.AUTH_TOKEN_DURATION = ${ms(tokenExpiry)};
       window.OPT_OUT_STATS = ${optOutStats};
       window.SHOW_GUIDED_TOUR = ${isFirstRun};
+      window.BOTPRESS_VERSION = "${version}";
     })(window || {})`)
   })
 

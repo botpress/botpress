@@ -3,6 +3,7 @@ import React from 'react'
 import Header from './Header'
 import Sidebar from './Sidebar'
 import LicenseComponent from '~/components/License'
+import GuidedTour from '~/components/Tour'
 
 import actions from '~/actions'
 import getters from '~/stores/getters'
@@ -28,6 +29,7 @@ class Layout extends React.Component {
           <Header />
           <section className={style.container}>{this.props.children}</section>
         </Sidebar>
+        <GuidedTour opened={window.SHOW_GUIDED_TOUR}/>
         <LicenseComponent opened={this.props.UI.get('licenseModalOpened')} />
       </div>
     )
