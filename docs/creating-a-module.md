@@ -100,7 +100,7 @@ In order to do that, your module's `package.json` includes two commands:
 
 ### Testing & Local development
 
-You can install a module you are currently developing by simply installing it:
+You can install a module you are currently developing as follows:
 
 ```
 botpress install ../path/to/my/module
