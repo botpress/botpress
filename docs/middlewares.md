@@ -51,7 +51,7 @@ var middleware = function(event, next) {
 }
 ```
 
-The return value of the middleware function can be anything or nothing, it isn't used.
+The return value of the middleware function isn't used by Botpress.
 
 ## Registering middlewares
 
