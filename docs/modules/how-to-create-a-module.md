@@ -1,4 +1,4 @@
-## Creating a module
+## How to create a module
 
 Creating a module for botpress is extremely easy and straightforward. You may choose to create local modules or to publish them back to the community (please!). In either way, the process is exactly the same; so you may choose to create a module for yourself and later publish it.
 
