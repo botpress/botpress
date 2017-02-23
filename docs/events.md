@@ -4,7 +4,7 @@ Just like middlewares are for all communications between the external world and 
 
 Events are sent and listened on by botpress's [EventBus](events.md), which is just like a regular [EventEmitter](https://nodejs.org/api/events.html) except that events are distributed in real-time to all listeners on the server-side and the client-side through websockets. This means that you can emit events in your React code and capture them in the module's node codebase.
 
-When developping a module, it is considered good practice to emit events for the various tasks it does.
+When developing a module, it is considered good practice to emit events for the various tasks it does.
 
 ## Example
 

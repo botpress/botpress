@@ -8,14 +8,14 @@ Looking to get started with Botpress but unsure how? This page is for you! We'll
 - A no-coding bot building platform
 - A code-from-scratch bot building platform
 - In competition with other bot building tools
-- Extremely hard to use and reserved to PhD's
-- A side project that will be abandonned in a few weeks
-- A cure to cancer
+- Extremely hard to use and reserved for PhD's
+- A side project that will be abandoned in a few weeks
+- A cure for cancer
 
 ## What Botpress is
 
 - A code-first bot building platform
-- On premise (i.e. runs locally, host it yourself)
+- On-premise (i.e. runs locally, host it yourself)
 - Modular & open-source (don't reinvent the wheel)
 - Community-focused. We want everybody to contribute and create modules.
 - Leveraging as many other tools as possible
@@ -25,15 +25,15 @@ Looking to get started with Botpress but unsure how? This page is for you! We'll
 
 ## What you get by using Botpress
 
-Before creating Botpress, we created many bots using all the tools available on the market. When you build a bot, you basically have the choice between using a SaaS platform (like Chatfuel, FlowXO, Motion.ai) or coding a bot from scratch. Let's look at why both don't work:
+Before creating Botpress, we created many bots using all the tools available on the market. What we found is that when you build a bot, you basically have the choice between using a SaaS platform (like Chatfuel, FlowXO, Motion.ai) or coding a bot from scratch. Let's look at why both don't work:
 
-- The SaaS thing looks very interesting because it's very easy to get started and requires no coding skills. The problems come when you want to actually get your bot to do stuff that are not supported by the SaaS or that you want to customize the overall experience. Some let you call APIs to run custom code, which defies the first purpose of being hassle-free and no-coding-required.
+- The SaaS thing looks interesting because it's very easy to get started and requires no coding skills. The problems come when you want to get your bot to do things that aren't supported by the SaaS or if you want to customize the overall experience. Some platforms let you call APIs to run custom code, but this defies the purpose of being hassle-free and not requiring coding.
 
-- Coding a bot from scratch is often the first reflex for developers. Sure, it's a bit longer and we need to learn how things work. But that's what makes us programmers. We like to create things ourselves, and that's fine! But... how am I supposed to schedule broadcasts? Fetch and cache user profiles? Save and process customer orders? Add Human-in-the-loop capabilities? See where my bot messed up in production? Edit the content live without redeploying the bot? Do A/B testing? Hmmmm..
+- Coding a bot from scratch is often the first reflex for developers. Sure, it takes a bit longer and we need to learn how things work. But that's what makes us programmers. We like to create things ourselves, and that's fine! But... how am I supposed to schedule broadcasts? Fetch and cache user profiles? Save and process customer orders? Add Human-in-the-loop capabilities? See where my bot messed up in production? Edit the content live without redeploying the bot? Do A/B testing? Hmmmm..
 
-That's why we created Botpress. We combined all the advantages of the SaaS and the "from Scratch" into an easy-to-use modular framework. All these things that would take you weeks to implement from scratch are available as Botpress Modules. Everything is accessible from a rich graphical interface, so once your bot is coded literally anybody can manage it.
+That's why we created Botpress. We combined all the advantages of the SaaS and the "from Scratch" into an easy-to-use modular framework. All these things that would take you weeks to implement from scratch are available as Botpress Modules. Everything is accessible from a rich graphical interface, so once your bot is coded, literally anybody can manage it.
 
-THe philosophy behind botpress is that if there's something you want your bot to do and that thing is not specific to only your bot, then **there should be a module for it**. If there's not, we hope that you will take the time to make a positive contribution to the rest of us and **create the missing module**.
+The philosophy behind botpress is that if there's something you want your bot to do and that thing is not specific to only your bot, then **there should be a module for it**. If there isn't, then we hope that you will take the time to make a positive contribution to the community and **create the missing module**.
 
 ## Your very first Messenger bot
 
@@ -41,7 +41,7 @@ In this section, we will see how easy it is to build a Messenger bot using Botpr
 
 ### 1. Install the botpress CLI on your computer
 
-You need to have `botpress` installed as a global dependency using `npm`. If it's done yet, run the following command:
+You need to have `botpress` installed as a global dependency using `npm`. If you haven't done that yet, just run the following command:
 
 ```
 npm install -g botpress
@@ -59,7 +59,7 @@ mkdir hello-world-bot && cd hello-world-bot
 md hello-world-bot && cd hello-world-bot
 ```
 
-Then you can use the botpress CLI to initialize a new bot inside this directory. This will automatically create a sample bot inside an empty directory, will all the files you need to run it with botpress.
+Then you can use the botpress CLI to initialize a new bot inside this directory. This will automatically create a sample bot inside an empty directory, with all the files you need to run it with botpress.
 
 ```
 botpress init
@@ -69,9 +69,9 @@ At this point, **botpress is installed locally** (as a npm dependency) and this 
 
 ### 3. Installing Messenger
 
-You now have a bot, but it does nothing. Your bot is not connected to any messaging platform and does not process incoming text at all. We'll fix that now.
+You now have a bot, but it does nothing. Your bot is not connected to any messaging platform and does not process incoming text. We'll fix that now.
 
-Since your bot is just a regular nodejs program, we can install npm modules to add features to our bot. If you [search NPM for botpress](https://www.npmjs.com/search?q=botpress), you'll see there's many modules.
+Since your bot is just a regular nodejs program, we can install npm modules to add features to our bot. If you [search NPM for botpress](https://www.npmjs.com/search?q=botpress), you'll see there are many modules.
 
 [**botpress-messenger**](https://github.com/botpress/botpress-messenger) seems to be the module we need to connect our bot to Facebook Messenger. Let's install it as a local dependency:
 
@@ -79,7 +79,7 @@ Since your bot is just a regular nodejs program, we can install npm modules to a
 npm install --save botpress-messenger
 ```
 
-> Tip: There's a shortcut: `botpress install messenger`. And there's also an alias: `botpress i messenger`. An even shorter one: `bp i messenger`.
+> Tip: There's a shortcut: `botpress install messenger`. And there's also an alias: `botpress i messenger`. And an even shorter one: `bp i messenger`.
 
 ### 4. Running the bot
 
@@ -89,18 +89,18 @@ Now that we have a bot with Messenger installed, we can run this bot. Just like 
 botpress start
 ```
 
-Head to [**http://localhost:3000**](http://localhost:3000) to see your bot's graphical interface. You should see the Messenger module we just installed showing up at the left!
+Head to [**http://localhost:3000**](http://localhost:3000) to see your bot's graphical interface. You should see the Messenger module we just installed showing up on the left!
 
-### 5. Configure Messenger connexion settings
+### 5. Configure Messenger connection settings
 
-Before we can actually start adding stuff, we need to link your bot to a Facebook Page. The Messenger module [has an entire step-by-step tutorial](https://github.com/botpress/botpress-messenger#get-started) on how to do this, but if you ever created a Messenger bot before you probably don't need to read it.
+Before we can actually start adding stuff, we need to link your bot to a Facebook Page. The Messenger module [has an entire step-by-step tutorial](https://github.com/botpress/botpress-messenger#get-started) on how to do this, but if you have ever created a Messenger bot before you probably don't need to read it.
 
 Summary:
 
 1. Create a [Facebook Page](https://www.facebook.com/pages/create) if you don't already have one.
 2. Create a [Messenger Application](https://developers.facebook.com/) if you don't already have one. 
 3. Grab your **App ID**, **App Secret** and **Token Access**, and copy them directly in the botpress-messenger UI.
-4. Use [**ngrok**](https://ngrok.com/) to create a secure ssl tunnel to your computer (so that facebook can talk to your bot). We added a convenience ngrok button directly in botpress-messenger so that you don't have to update it manually. If you experience any problem, we suggest you use the ngrok CLI instead.
+4. Use [**ngrok**](https://ngrok.com/) to create a secure ssl tunnel to your computer (so that facebook can talk to your bot). We added a convenient ngrok button directly in botpress-messenger so that you don't have to update it manually. If you experience any problem, we suggest you use the ngrok CLI instead.
 5. Click **connect**. Done.
 
 <img src='https://raw.githubusercontent.com/botpress/botpress/master/assets/screenshot-connexion-settings.png' height=300px />
@@ -142,7 +142,7 @@ module.exports = function(bp) {
 }
 ```
 
-Note: Here we listen on a hardcoded "hello" string, but the [`hear`](https://docs.botpress.io/core-reference.html) command is pretty powerful and can do much more.
+Note: Here we are listening out for a hardcoded "hello" string, but the [`hear`](https://docs.botpress.io/core-reference.html) command is pretty powerful and can do much more.
 
 Now stop your bot (by killing the current nodejs process that runs it, i.e. CTRL-C on Mac) and start it again. Now the bot should answer to 'hello'!
 
@@ -150,7 +150,7 @@ Now stop your bot (by killing the current nodejs process that runs it, i.e. CTRL
 
 Now let's explore a little more the power of the `botpress-messenger` module.
 
-What if we wanted our bot to respond to the user by its name? The messenger module automatically fetched the user profiles and inject it in the `event.user` object. The user profiles are cached by the module to keep your bot running fast:
+What if we wanted our bot to respond to the user by its name? The messenger module automatically fetches the user profile and injects it in the `event.user` object. The user profiles are cached by the module to keep your bot running fast:
 
 ```js
 module.exports = function(bp) {
@@ -168,7 +168,7 @@ Note that the sendText function also takes a third argument, and we configured i
 
 ## Having more fun
 
-This was just the very beginning of what you can do with Botpress. If you would like to get started with real fun stuff, make sure to:
+This was just the very beginning of what you can do with Botpress. If you would like to get started with the real fun stuff, be sure to:
 
 1. Read the rest of the documentation
 2. Check out the [Cookbook](https://github.com/botpress/cookbook), which contains lots of code recipes for common bot tasks

@@ -44,6 +44,10 @@ var webConfig = {
   resolve: {
     extensions: ['', '.js', '.jsx']
   },
+  externals: {
+    'react': 'react',
+    'react-dom': 'reactDOM'
+  },
   module: {
     loaders: [{
       test: /\.jsx?$/,
