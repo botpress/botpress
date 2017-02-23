@@ -45,8 +45,8 @@ var webConfig = {
     extensions: ['', '.js', '.jsx']
   },
   externals: {
-    'react': 'react',
-    'react-dom': 'reactDOM'
+    'react': 'React',
+    'react-dom': 'ReactDOM'
   },
   module: {
     loaders: [{
