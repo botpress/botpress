@@ -4,7 +4,7 @@ This page will be improved soon!
 
 For while, you can see the specific guides below:
 
-* [Deploy to Heroku](managing/deploy-to-heroku.md)
-* [Deploy to AWS](managing/deploy-to-aws.md)
-* [Deploy to Google Cloud](managing/deploy-to-google-cloud.md)
-* [Deploy to Azure](managing/deploy-to-azure.md)
+* [Deploy to Heroku](deploy-to-heroku.md)
+* [Deploy to AWS](deploy-to-aws.md)
+* [Deploy to Google Cloud](deploy-to-google-cloud.md)
+* [Deploy to Azure](deploy-to-azure.md)
