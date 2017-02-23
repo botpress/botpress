@@ -1,4 +1,4 @@
-## Debugging
+# How to Debug your bot
 
 Here you find how to configure your favorite IDE to debug your code.
 
