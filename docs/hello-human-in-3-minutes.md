@@ -107,7 +107,7 @@ module.exports = function(bp) {
 }
 ```
 
-Note: Here we are listening out for a hardcoded "hello" string, but the hear command is pretty powerful and can do much more. You can learn more about the [`hear middleware`](https://docs.botpress.io/creating-your-bot/how-to-use-the-hear-middleware.html) accessing the documentation.
+Note: Here we are listening out for a hardcoded "hello" string, but the hear command is pretty powerful and can do much more. You can learn more about the [`hear middleware`](creating-your-bot/how-to-use-the-hear-middleware.md) accessing the documentation.
 
 Now stop your bot (by killing the current nodejs process that runs it, i.e. CTRL-C on Mac) and start it again. Now the bot should answer to 'hello'!
 
@@ -135,6 +135,6 @@ Note that the sendText function also takes a third argument, and we configured i
 
 This was just the very beginning of what you can do with Botpress. If you would like to get started with the real fun stuff, be sure to:
 
-1. Continue reading [the documentation](https://docs.botpress.io/introduction.html)
+1. Continue reading [the documentation](introduction/README.md)
 2. Check out the [Cookbook](https://github.com/botpress/cookbook), which contains lots of code recipes for common bot tasks
 3. Read our demo bot [Boost](https://github.com/botpress/Boost)'s source code
