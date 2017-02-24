@@ -1,3 +1,5 @@
+# How to create Custom Routes with the HTTP Server
+
 ## Built-in HTTP Server
 
 Botpress uses and exposes an instance of [`express`](http://expressjs.com/). The web interface is served by Express as well as the built-in botpress API.

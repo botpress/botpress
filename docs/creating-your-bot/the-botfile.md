@@ -1,4 +1,4 @@
-## Botfile
+## The Botfile
 
 The **botfile.js** is located at the root of a bot project and contains all the configuration required by Botpress to operate.
 
@@ -16,8 +16,6 @@ Here's an overview of the variables and what they do:
 - `login.password`: The password required to login. NOTE: the username is always `admin` as of writing
 - `login.maxAttempts`: The maximum amount of login attempts in the `login.resetAfter` time
 - `login.resetAfter`: Resets login attempts after this time
-
-
 
 ## Accessing configuration
 
