@@ -21,12 +21,21 @@ class Header extends Component {
     </li>
   }
 
+  renderSlackButton() {
+    return <li>
+        <a className={style.slack} href="https://slack.botpress.io" target="_blank">
+          <img src="/img/slack_mark.svg" />
+        </a>
+    </li>
+  }
+
   render() {
     const className = classnames(style.navbar, style['app-navbar'])
 
     return <Navbar inverse className={className}>
       <Navbar.Collapse>
         <Nav pullRight>
+          {this.renderSlackButton()}
           <NavItem href="/logs"><Glyphicon glyph="list-alt"/></NavItem>
           <NotificationHub />
           {this.renderLogoutButton()}

@@ -1,4 +1,4 @@
-## Creating a module
+## How to create a module
 
 Creating a module for botpress is extremely easy and straightforward. You may choose to create local modules or to publish them back to the community (please!). Either way, the process is exactly the same; so you may choose to create a module for yourself and publish it later.
 
@@ -54,7 +54,7 @@ Both methods take **`bp`** as their first argument and do not need to return any
 - `init(bp)` is called on module initialization (before the bot is started). Middlewares registration usually goes here.
 - `ready(bp)` is called once all modules are loaded and the bot is fully started. Routing and module logic usually go here.
 
-To see examples of how modules are implemented, you may look at the source of existing modules such as [`botpress-messenger`](https://github.com/botpress/botpress-messenger/blob/master/src/index.js).
+To see more examples of how modules are implemented, you may look at the source of existing modules such as [`botpress-messenger`](https://github.com/botpress/botpress-messenger/blob/master/src/views/index.jsx).
 
 ### Frontend
 
@@ -130,4 +130,4 @@ Note that the **all of the following criteria must be met** before a module can 
 4. The `package.json` must have a valid `botpress` section
 5. The code of the module must be hosted on GitHub, be public and the `repository` field in your `package.json` must point to it
 
-If you have done all of the above and are still having problems, please [contact us](https://gitter.im/botpress/core) and we will aim to quickly resolve the issue for you.
+If you have done all of the above and are still having problems, please [contact us](https://slack.botpress.io) and we will aim to quickly resolve the issue for you.

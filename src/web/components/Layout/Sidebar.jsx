@@ -91,9 +91,14 @@ class Sidebar extends Component {
     actions.toggleLicenseModal()
   }
 
+  openAbout() {
+    actions.toggleAboutModal()
+  }
+
   render() {
+
     const modules = this.props.modules
-    const items = modules.toJS().map(this.renderModuleItem)
+    const items = modules.toJS().filter(x => !x.noInterface).map(this.renderModuleItem)
     const dashboardClassName = classnames({ [style.active] : this.isAtDashboard() })
     const manageClassName = classnames({ [style.active] : this.isAtManage() })
 
@@ -121,6 +126,10 @@ class Sidebar extends Component {
         <div className={style.production}>{productionText}</div>
         <Link to='#' title='License' onClick={this.openLicenseComponent}>
           License under {this.props.botInformation.get('license')}
+        </Link>
+        <br />
+        <Link to="#" title="About" onClick={::this.openAbout}>
+          About Botpress
         </Link>
       </div>
     </div>

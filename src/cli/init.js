@@ -41,6 +41,7 @@ const generate = (result) => {
   generateTemplate('botfile.js')
   generateTemplate('index.js')
   generateTemplate('_._gitignore')
+  generateTemplate('_._welcome')
 
   fs.mkdirSync('data')
   fs.writeFileSync('data/bot.log', '')

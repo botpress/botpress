@@ -1,4 +1,3 @@
-
 module.exports = {
 
   /**
@@ -29,5 +28,17 @@ module.exports = {
     password: process.env.BOTPRESS_PASSWORD || 'password',
     maxAttempts: 3,
     resetAfter: 5 * 60 * 10000 // 5 minutes
+  },
+
+  /**
+  * Postgres configuration
+  */
+  postgres: {
+    enabled: process.env.DATABASE === 'postgres',
+    host: process.env.PG_HOST || '127.0.0.1',
+    port: process.env.PG_PORT || 5432,
+    user: process.env.PG_USER || '',
+    password: process.env.PG_PASSWORD || '',
+    database: process.env.PG_DB || ''
   }
 }

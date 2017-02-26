@@ -1,3 +1,5 @@
+/* eslint-env babel-eslint, node, mocha */
+
 const _ = require('lodash')
 const Promise = require('bluebird')
 const listeners = require('../lib/listeners')

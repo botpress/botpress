@@ -1,4 +1,9 @@
-## CLI Reference
+## How to use the CLI
+
+You can manage your bot using our powerful CLI tool.
+
+You need to have `botpress` package installed. If you don't have yet, see the [How Start Using](introduction/how-to-start-using.md) guide.
+See below the all available commands.
 
 ### `init`
 
@@ -69,4 +74,4 @@ botpress create
 
 **Note:** unlike `init`, this command does not run `npm install` after initialization, you need to run it yourself.
 
-**Note 2:** module names must start with `botpress-` and this command will enforce this rule. To know more about modules, please read the [Create a module](creating-a-module.md) section.
+**Note 2:** module names must start with `botpress-` and this command will enforce this rule. To know more about modules, please read the [Modules Section](modules/README.md).
