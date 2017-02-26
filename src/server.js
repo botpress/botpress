@@ -266,6 +266,22 @@ const serveStatic = function(app, bp) {
     const bundlePath = path.join(module.root, module.settings.webBundle || 'bin/web.bundle.js')
     const requestPath = `/js/modules/${name}.js`
 
+    if (module.settings.menuIcon === 'custom') {
+      const iconRequestPath = `/img/modules/${name}.png`
+      const iconPath = path.join(module.root, 'icon.png')
+
+      app.use(iconRequestPath, (req, res) => {
+        try {
+          const content = fs.readFileSync(iconPath)
+          res.contentType('image/png')
+          res.send(content)
+        }
+        catch (err) {
+          bp.logger.warn('Could not serve module icon [' + name + '] at: ' + iconPath)
+        }
+      })
+    }
+
     app.use(requestPath, (req, res) => {
       try {
         const content = fs.readFileSync(bundlePath)

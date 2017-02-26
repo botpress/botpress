@@ -75,13 +75,18 @@ class Sidebar extends Component {
 
   renderModuleItem(module) {
     const path = `/modules/${module.name}`
+    const iconPath = `/img/modules/${module.name}.png`
     const className = classnames({
       [style.active]: this.routeActive(path)
     })
+    const hasCustomIcon = module.menuIcon === 'custom'
+    const moduleIcon = hasCustomIcon
+      ? <img className={style.customIcon} src={iconPath} />
+      : <i className="icon material-icons">{module.menuIcon}</i>
 
     return <li key={`menu_module_${module.name}`} className={className}>
       <Link to={path} title={module.menuText}>
-        <i className="icon material-icons">{module.menuIcon}</i>
+        {moduleIcon}
         <span>{module.menuText}</span>
       </Link>
     </li>
