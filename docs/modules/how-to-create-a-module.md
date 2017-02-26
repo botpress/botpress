@@ -82,7 +82,7 @@ export default class TemplateModule extends React.Component {
 }
 ```
 
-To see more examples of how modules are implemented, you make have a look to the source of existing modules such as [`botpress-messenger`](https://github.com/botpress/botpress-messenger/blob/master/src/views/index.jsx).
+To see more examples of how modules are implemented, you may look at the source of existing modules such as [`botpress-messenger`](https://github.com/botpress/botpress-messenger/blob/master/src/views/index.jsx).
 
 ### Bundling
 
@@ -130,4 +130,4 @@ Note that the **all of the following criteria must be met** before a module can 
 4. The `package.json` must have a valid `botpress` section
 5. The code of the module must be hosted on GitHub, be public and the `repository` field in your `package.json` must point to it
 
-If you have done all of the above and are still having problems, please [contact us](https://gitter.im/botpress/core) and we will aim to quickly resolve the issue for you.
+If you have done all of the above and are still having problems, please [contact us](https://slack.botpress.io) and we will aim to quickly resolve the issue for you.

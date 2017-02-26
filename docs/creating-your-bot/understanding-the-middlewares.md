@@ -1,6 +1,6 @@
 ## Understanding the Middlewares
 
-Middleware is a critical component of botpress. Simply put, it is a collection of functions that process messages. Think of it this way: everything that enters or leaves your bot is coming in to (or out from) the middleware.
+Middleware is a critical component of botpress. Simply put, it is a collection of functions that process messages. Think of it this way: everything that enters or leaves your bot is coming in to (or out of) the middleware.
 
 If you have used [Express](http://expressjs.com/) before, botpress middleware is very similar to express's middleware.
 
@@ -51,7 +51,7 @@ var middleware = function(event, next) {
 }
 ```
 
-The return value of the middleware function can be anything or nothing, it isn't used.
+The return value of the middleware function isn't used by Botpress.
 
 ## Registering middlewares
 
@@ -110,4 +110,4 @@ Now lets look at how a complete interaction might be handled by your bot.
 11. botpress-slack will ignore the message because it doesn't know how to process messages with `type: facebook`
 12. botpress-messenger sends the message to Facebook Messenger through the Send API
 
-All of this happens behind the scene and is handled by the modules middleware. As a bot developer, all you have to worry about is writing the bot's logic.
+All of this happens behind the scenes and is handled by the modules middleware. As a bot developer, all you have to worry about is writing the bot's logic.
