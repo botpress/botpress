@@ -135,6 +135,6 @@ Note that the sendText function also takes a third argument, and we configured i
 
 This was just the very beginning of what you can do with Botpress. If you would like to get started with the real fun stuff, be sure to:
 
-1. Continue reading [the documentation](getting-started/README.md)
+1. Continue reading [the documentation](how-botpress-works.md)
 2. Check out the [Cookbook](https://github.com/botpress/cookbook), which contains lots of code recipes for common bot tasks
 3. Read our demo bot [Boost](https://github.com/botpress/Boost)'s source code
