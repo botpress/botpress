@@ -1,7 +1,7 @@
 # Summary
 
-* [Hello Human in 3 minutes](hello-human-in-3-minutes.md)
 1. [Introduction](introduction/README.md)
+    * [Hello Human in 3 minutes](hello-human-in-3-minutes.md)
     * [What is Botpress?](introduction/what-is-botpress.md)
     * [How Botpress Works?](introduction/how-botpress-works.md)
     * [How to start using Botpress](introduction/how-to-start-using.md)
