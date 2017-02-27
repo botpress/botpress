@@ -1,0 +1,60 @@
+{% extends "layout.html" %}
+
+{% block head %}
+    {{ super() }}
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="{{ "images/apple-touch-icon-precomposed-152.png"|resolveAsset }}">
+    <link rel="shortcut icon" href="{{ "images/favicon.ico"|resolveAsset }}" type="image/x-icon">
+{% endblock %}
+
+{% block style %}
+    {### Include theme css before plugins css ###}
+    <link rel="stylesheet" href="{{ "style.css"|resolveAsset }}">
+
+    {{ super() }}
+
+    {### Custom stylesheets for the book ###}
+
+    {% for type, style in config.styles %}
+        {% if fileExists(style) and type == "website" %}
+        <link rel="stylesheet" href="{{ style|resolveFile }}">
+        {% endif %}
+    {% endfor %}
+{% endblock %}
+
+<div class="container-fluid" id="menuPages">
+    <nav class="navbar navbar-inverse" id="menu">
+        <!-- MENU -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#menubar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="http://botpress.io/index">
+                <img src="http://botpress.io/img/logo_transparent.png" id="logoMenu">
+            </a>
+        </div>
+
+        <div class="collapse navbar-collapse navbar-right" id="menubar">
+            <ul class="nav navbar-nav navMenu">
+            <li><a target="_blank" href="https://www.npmjs.com/search?q=botpress">Modules</a></li>
+            <li><a target="_blank" href="https://github.com/botpress/botpress">GitHub</a></li>
+            <li><a target="_blank" href="https://docs.botpress.io/">Docs</a></li>
+            <li><a target="_blank" href="https://slack.botpress.io/">Community</a></li>
+
+            <li>
+                <div class="stars">
+                <iframe allowtransparency="true" scrolling="no" frameborder="0" src="https://buttons.github.io/buttons.html#href=https%3A%2F%2Fgithub.com%2Fbotpress%2Fbotpress&amp;text=Star%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20&amp;data-count-api=%2Frepos%2Fbotpress%2Fbotpress%23stargazers_count&amp;data-count-href=%2Fbotpress%2Fbotpress%2Fstargazers&amp;data-count-aria-label=%23%20stargazers%20on%20GitHub&amp;data-style=mega&amp;data-icon=octicon-star&amp;aria-label=Star%20botpress%2Fbotpress%20on%20GitHub" style="width: 114px; height: 28px; border: none;"></iframe>
+                </div>
+            </li>
+            </ul>
+        </div>
+    </nav>
+</div>
+
+{% block body %}{% endblock %}
