@@ -1,4 +1,5 @@
 import React, {Component} from 'react'
+import classnames from 'classnames'
 
 import style from './ContentWrapper.scss'
 
@@ -11,7 +12,7 @@ class ContentWrapper extends Component {
     }
 
     return (
-      <div className={style['content-wrapper']}>
+      <div className={classnames(style['content-wrapper'], 'bp-content-wrapper')}>
         {childElement}
       </div>
     )

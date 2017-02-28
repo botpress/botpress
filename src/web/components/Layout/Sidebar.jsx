@@ -77,7 +77,8 @@ class Sidebar extends Component {
     const path = `/modules/${module.name}`
     const iconPath = `/img/modules/${module.name}.png`
     const className = classnames({
-      [style.active]: this.routeActive(path)
+      [style.active]: this.routeActive(path),
+      'bp-sidebar-active': this.routeActive(path)
     })
     const hasCustomIcon = module.menuIcon === 'custom'
     const moduleIcon = hasCustomIcon
@@ -109,7 +110,7 @@ class Sidebar extends Component {
 
     const productionText = this.props.botInformation.get('production') ? "in production" : "in development"
 
-    const sidebarContent = <div className={style.sidebar}>
+    const sidebarContent = <div className={classnames(style.sidebar, 'bp-sidebar')}>
       <SidebarHeader/>
       <ul className="nav">
         <li className={dashboardClassName} key="dashboard">
@@ -126,9 +127,9 @@ class Sidebar extends Component {
         </li>
         {items}
       </ul>
-      <div className={style.bottomInformation}>
-        <div className={style.name}>{this.props.botInformation.get('name')}</div>
-        <div className={style.production}>{productionText}</div>
+      <div className={classnames(style.bottomInformation, 'bp-sidebar-footer')}>
+        <div className={classnames(style.name, 'bp-name')}>{this.props.botInformation.get('name')}</div>
+        <div className={classnames(style.production, 'bp-production')}>{productionText}</div>
         <Link to='#' title='License' onClick={this.openLicenseComponent}>
           License under {this.props.botInformation.get('license')}
         </Link>

@@ -23,14 +23,14 @@ class Header extends Component {
 
   renderSlackButton() {
     return <li>
-        <a className={style.slack} href="https://slack.botpress.io" target="_blank">
+        <a className={classnames(style.slack, 'bp-slack')} href="https://slack.botpress.io" target="_blank">
           <img src="/img/slack_mark.svg" />
         </a>
     </li>
   }
 
   render() {
-    const className = classnames(style.navbar, style['app-navbar'])
+    const className = classnames(style.navbar, style['app-navbar'], 'bp-navbar')
 
     return <Navbar inverse className={className}>
       <Navbar.Collapse>
