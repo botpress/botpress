@@ -19,6 +19,7 @@ import {
 const MODULES_URL = 'https://s3.amazonaws.com/botpress-io/all-modules.json'
 const POPULAR_URL = 'https://s3.amazonaws.com/botpress-io/popular-modules.json'
 const FEATURED_URL = 'https://s3.amazonaws.com/botpress-io/featured-modules.json'
+const FETCH_TIMEOUT = 5000
 
 module.exports = (logger, projectLocation, dataLocation, kvs) => {
 
@@ -31,18 +32,21 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
   }
 
   const fetchAllModules = () => {
-    return axios.get(MODULES_URL)
+    return axios.get(MODULES_URL, { timeout: FETCH_TIMEOUT })
     .then(({ data }) => data)
+    .catch(() => logger.error('Could not fetch modules'))
   }
 
   const fetchPopular = () => {
-    return axios.get(POPULAR_URL)
+    return axios.get(POPULAR_URL, { timeout: FETCH_TIMEOUT })
     .then(({ data }) => data)
+    .catch(() => logger.error('Could not fetch popular modules'))
   }
 
   const fetchFeatured = () => {
-    return axios.get(FEATURED_URL)
+    return axios.get(FEATURED_URL, { timeout: FETCH_TIMEOUT })
     .then(({ data }) => data)
+    .catch(() => logger.error('Could not fetch featured modules'))
   }
 
   const loadModules = (moduleDefinitions, botpress) => {
@@ -137,6 +141,17 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
       const { modules } = JSON.parse(fs.readFileSync(modulesCachePath))
 
       const module = _.sample(modules)
+
+      if (!module) {
+        return {
+          username: 'danyfs',
+          github: 'https://github.com/danyfs',
+          avatar: 'https://avatars1.githubusercontent.com/u/5629987?v=3',
+          contributions: 'many',
+          module: 'botpress'
+        }
+      }
+
       const hero = _.sample(module.contributors)
 
       return {
@@ -190,19 +205,31 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
     }
 
     return Promise.props({
-      modules: fetchAllModules(),
+      newModules: fetchAllModules(),
       popular: fetchPopular(),
       featured: fetchFeatured()
     })
-    .then(({ modules, featured, popular }) => {
+    .then(({ newModules, featured, popular }) => {
+
+      if (!newModules || !featured || !popular || !newModules.length || !featured.length || !popular.length) {
+        if (modules.length > 0) {
+          logger.debug('Fetched invalid modules, report this to the Botpress Team')
+          return mapModuleList(modules)
+        } else {
+          newModules = newModules || []
+          popular = popular || []
+          featured = featured || []
+        }
+      }
+
       fs.writeFileSync(modulesCachePath, JSON.stringify({
-        modules: modules,
+        modules: newModules,
         popular: popular,
         featured: featured,
         updated: new Date()
       }))
 
-      return mapModuleList(modules)
+      return mapModuleList(newModules)
     })
   })
 
