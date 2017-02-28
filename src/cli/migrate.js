@@ -29,7 +29,7 @@ module.exports = function(fromVersion) {
       util.print('success', `Migration ${file.replace('.js', '')} applied successfully`)
     })
   })
-  .then(() => {
+  .finally(() => {
     util.print('success', 'Migration completed.')
     process.exit(0)
   })
