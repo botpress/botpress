@@ -85,6 +85,8 @@ class botpress {
     this.botfile = require(botfile)
 
     this.stats = stats(this.botfile)
+
+    this.interval = null
   }
 
   /**
@@ -100,6 +102,12 @@ class botpress {
   _start() {
 
     this.stats.track('bot', 'started')
+
+    if (!this.interval) {
+      this.inverval = setInterval(() => {
+        this.stats.track('bot', 'running')
+      }, 30 * 1000)
+    }
 
     // change the current working directory to botpress's installation path
     // the bot's location is kept in this.projectLocation
