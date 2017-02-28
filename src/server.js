@@ -10,6 +10,7 @@ import bodyParser from 'body-parser'
 import ms from 'ms'
 import chalk from 'chalk'
 import uuid from 'uuid'
+import sass from 'node-sass'
 
 import util from './util'
 
@@ -308,6 +309,19 @@ const serveStatic = function(app, bp) {
       window.SHOW_GUIDED_TOUR = ${isFirstRun};
       window.BOTPRESS_VERSION = "${version}";
     })(window || {})`)
+  })
+
+  let customTheme = ''
+  const themeLocation = path.join(bp.projectLocation, 'theme.scss')
+  if (fs.existsSync(themeLocation)) {
+    const content = fs.readFileSync(themeLocation)
+    const compile = sass.renderSync({ data: `#app {${content}}` })
+    customTheme = compile.css.toString()
+  }
+
+  app.use('/style/custom-theme.css', (req, res) => {
+    res.contentType('text/css')
+    res.send(customTheme)
   })
 
   app.use(express.static(path.join(__dirname, '../lib/web')))
