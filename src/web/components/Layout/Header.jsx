@@ -22,11 +22,9 @@ class Header extends Component {
   }
 
   renderSlackButton() {
-    return <li>
-        <a className={classnames(style.slack, 'bp-slack')} href="https://slack.botpress.io" target="_blank">
-          <img src="/img/slack_mark.svg" />
-        </a>
-    </li>
+    return <span className={classnames(style.slack, 'bp-slack')} >
+      <img src="/img/slack_mark.svg" />
+    </span>
   }
 
   render() {
@@ -35,7 +33,7 @@ class Header extends Component {
     return <Navbar inverse className={className}>
       <Navbar.Collapse>
         <Nav pullRight>
-          {this.renderSlackButton()}
+          <NavItem href="https://slack.botpress.io" target="_blank">{this.renderSlackButton()}</NavItem>
           <NavItem href="/logs"><Glyphicon glyph="list-alt"/></NavItem>
           <NotificationHub />
           {this.renderLogoutButton()}
