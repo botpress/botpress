@@ -10,6 +10,7 @@ module.exports = bot_path => {
   const dbLocation = path.resolve(path.join(bot_path, botfile.dataDir, 'db.sqlite'))
 
   return migrate_database_schema(dbLocation)
+  .then(() => migrate_botfile(botfilePath))
 }
 
 
@@ -38,3 +39,29 @@ function migrate_database_schema(dbLocation) {
   })
 }
 
+function migrate_botfile(botfilePath) {
+  const before = fs.readFileSync(botfilePath).toString()
+
+  if (before.indexOf('postgres:') >= 0) {
+    util.print('warn', 'Did not migrate botfile as it seemed like `postgres` was already present. Please migrate manually if this is a mistake.')
+    return false
+  }
+
+  const after = before.replace(/module\.exports.*?=.*?{/i, `module.exports = {
+
+  /**
+  * Postgres configuration
+  */
+  postgres: {
+    enabled: process.env.DATABASE === 'postgres',
+    host: process.env.PG_HOST || '127.0.0.1',
+    port: process.env.PG_PORT || 5432,
+    user: process.env.PG_USER || '',
+    password: process.env.PG_PASSWORD || '',
+    database: process.env.PG_DB || ''
+  },`)
+
+  fs.writeFileSync(botfilePath, after)
+
+  util.print('info', 'Updated botfile')
+}
