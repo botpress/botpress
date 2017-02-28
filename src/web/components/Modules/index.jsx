@@ -62,14 +62,14 @@ class ModuleComponent extends Component {
     return (
       <div>
         <a href={docLink} target="_blank">
-          <h3 className={style.moduleTitle}>
+          <h3 className={classnames(style.moduleTitle, 'bp-module-title')}>
             <i className='icon material-icons'>{icon}</i>
             {name}
           </h3>
         </a>
-        <p className={style.moduleDescription}>{description}</p>
-        <p className={style.moduleAuthor}>{author}</p>
-        <p className={style.moduleLicense}>{license}</p>
+        <p className={classnames(style.moduleDescription, 'bp-module-description')}>{description}</p>
+        <p className={classnames(style.moduleAuthor, 'bp-module-author')}>{author}</p>
+        <p className={classnames(style.moduleLicense, 'bp-module-license')}>{license}</p>
       </div>
     )
   }
@@ -116,7 +116,7 @@ class ModuleComponent extends Component {
     const module = this.props.module
 
     return (
-      <Panel key={module.name} className={style.modulePanel}>
+      <Panel key={module.name} className={classnames(style.modulePanel, 'bp-module-panel')}>
         <Grid fluid>
           <Row>
             <Col sm={8}>

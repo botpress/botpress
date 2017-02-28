@@ -23,7 +23,7 @@ export default class NotificationHub extends NotificationComponent {
   }
 
   renderMessage(message) {
-    return <div className={styles.message}>{message}</div>
+    return <div className={classnames(styles.message, 'bp-hub-message')}>{message}</div>
   }
 
   renderEmptyPanel() {
@@ -54,8 +54,8 @@ export default class NotificationHub extends NotificationComponent {
       <span className={className}>{unreadCount}</span>
     </span>
 
-    return <NavDropdown id="notificationsDropdown" noCaret={!unreadCount} title={label} className={styles.dropdown}>
-      <MenuItem header className={styles.topMenu}>
+    return <NavDropdown id="notificationsDropdown" noCaret={!unreadCount} title={label} className={classnames(styles.dropdown, 'bp-notifications-dropdown')}>
+      <MenuItem header className={classnames(styles.topMenu, 'bp-top-menu')}>
         <span>
           <strong>Notifications</strong>
           &nbsp; &middot; &nbsp;
