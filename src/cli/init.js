@@ -42,6 +42,7 @@ const generate = (result) => {
   generateTemplate('index.js')
   generateTemplate('_._gitignore')
   generateTemplate('_._welcome')
+  generateTemplate('theme.scss')
 
   fs.mkdirSync('data')
   fs.writeFileSync('data/bot.log', '')
