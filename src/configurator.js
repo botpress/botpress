@@ -96,6 +96,16 @@ const overwriteFromEnvValues = (options, object) => {
   })
 }
 
+const overwriteFromBotfileValues = (config_name, options, botfile, object) => {
+  return _.mapValues(object, (_v, name) => {
+    if (botfile && botfile.config && botfile.config[config_name] && typeof botfile.config[config_name][name] !== 'undefined') {
+      return botfile.config[config_name][name]
+    }
+
+    return _v
+  })
+}
+
 const removeUnusedKeys = (options, object) => {
   const final = {}
 
@@ -108,7 +118,7 @@ const removeUnusedKeys = (options, object) => {
   return final
 }
 
-const createConfig = ({ kvs, name, options = {} }) => {
+const createConfig = ({ kvs, name, botfile = {}, options = {} }) => {
 
   if (!kvs || !kvs.get || !kvs.set) {
     throw new Error(`A valid 'kvs' is mandatory to createConfig`)
@@ -125,6 +135,7 @@ const createConfig = ({ kvs, name, options = {} }) => {
   const loadAll = () => {
     return kvs.get('__config', name)
     .then(all => overwriteFromDefaultValues(options, all || {}))
+    .then(all => overwriteFromBotfileValues(name, options, botfile, all))
     .then(all => overwriteFromEnvValues(options, all))
     .then(all => removeUnusedKeys(options, all))
   }
@@ -132,6 +143,7 @@ const createConfig = ({ kvs, name, options = {} }) => {
   const get = name => {
     return kvs.get('__config', name + '.' + name)
     .then(value => overwriteFromDefaultValues(options, { [name]: value }))
+    .then(all => overwriteFromBotfileValues(name, options, botfile, all))
     .then(all => overwriteFromEnvValues(options, all))
     .then(obj => obj[name])
   }
@@ -140,11 +152,7 @@ const createConfig = ({ kvs, name, options = {} }) => {
     validateSet(options, name, value)
     return kvs.set('__config', value, name + '.' + name)
   }
-
-  // saveAll(obj) -> Promise()
-  // loadAll() -> Promise(obj)
-  // get(key) -> Promise(value)
-  // set(key, value) -> Promise()
+  
   return { saveAll, loadAll, get, set, options }
 }
 
