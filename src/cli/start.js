@@ -13,7 +13,7 @@ import chalk from 'chalk'
  * 3. Start the botpress instance.
  */
 module.exports = function(projectPath, options) {
-  let botpress = null
+  let Botpress = null
 
   if (!projectPath || typeof(projectPath) !== 'string') {
     projectPath = '.'
@@ -22,7 +22,7 @@ module.exports = function(projectPath, options) {
   projectPath = path.resolve(projectPath)
 
   try {
-    botpress = require(path.join(projectPath, 'node_modules', 'botpress'))
+    Botpress = require(path.join(projectPath, 'node_modules', 'botpress')).Botpress
   } catch (err) {
     util.print('error', err.message)
     util.print('error', err.stack)
@@ -41,6 +41,6 @@ module.exports = function(projectPath, options) {
     process.exit(1)
   }
 
-  const bot = new botpress({ botfile })
+  const bot = new Botpress({ botfile })
   bot.start()
 }

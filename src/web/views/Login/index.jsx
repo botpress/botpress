@@ -45,7 +45,7 @@ export default class LoginPage extends Component {
   }
 
   renderLoading() {
-    const className = classnames(styles.loading)
+    const className = classnames(styles.loading, 'bp-loading')
     return this.state.loading && <div className={className}>
       <div style={{
         marginTop: '140px'
@@ -54,10 +54,10 @@ export default class LoginPage extends Component {
   }
 
   render() {
-    const panelStyle = classnames('panel', styles['panel-center'], {
+    const panelStyle = classnames('panel', 'bp-login', styles['panel-center'], {
       [styles['panel-center-tall']]: !!this.state.error
     })
-    const headerStyle = classnames('panel-heading', 'text-center', styles.header)
+    const headerStyle = classnames('panel-heading', 'text-center', styles.header, 'bp-header')
     const errorStyle = classnames(styles.error)
 
     return <div>{this.renderGlobalStyle()}

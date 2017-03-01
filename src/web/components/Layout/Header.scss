@@ -28,3 +28,17 @@
 .navbar :global(.container) {
   width: 100%;
 }
+
+.slack {
+  
+  img {
+    opacity: 0.8;
+    width: 17px;
+    height: 17px;
+    cursor: pointer;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+}

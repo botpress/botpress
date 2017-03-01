@@ -114,6 +114,9 @@ function getNotificationStyle(styles, notification) {
     notif: true,
     [styles.item]: true,
     [styles['level-' + notification.level]]: true,
-    [styles['item-unread']]: !notification.read
+    [styles['item-unread']]: !notification.read,
+    'bp-item': true,
+    ['bp-level-' + notification.level]: true,
+    'bp-item-unread': !notification.read
   })
 }

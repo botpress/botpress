@@ -5,6 +5,7 @@ import start from './start'
 import create from './create'
 import install from './install'
 import uninstall from './uninstall'
+import migrate from './migrate'
 import list from './list'
 
 import { getBotpressVersion } from '../util'
@@ -44,6 +45,11 @@ program
   .alias('c')
   .description('Create a new module for development or distribution')
   .action(create)
+
+program
+  .command('migrate <fromVersion>')
+  .description('Migrates the current bot from version X')
+  .action(migrate)
 
 program
   .version(getBotpressVersion())

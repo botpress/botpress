@@ -85,6 +85,8 @@ class botpress {
     this.botfile = require(botfile)
 
     this.stats = stats(this.botfile)
+
+    this.interval = null
   }
 
   /**
@@ -101,25 +103,38 @@ class botpress {
 
     this.stats.track('bot', 'started')
 
+    if (!this.interval) {
+      this.inverval = setInterval(() => {
+        this.stats.track('bot', 'running')
+      }, 30 * 1000)
+    }
+
     // change the current working directory to botpress's installation path
     // the bot's location is kept in this.projectLocation
     process.chdir(path.join(__dirname, '../'))
 
     const {projectLocation, botfile} = this
 
+    const isFirstRun = fs.existsSync(path.join(projectLocation, '.welcome'))
     const dataLocation = getDataLocation(botfile.dataDir, projectLocation)
     const modulesConfigDir = getDataLocation(botfile.modulesConfigDir, projectLocation)
     const dbLocation = path.join(dataLocation, 'db.sqlite')
+    const version = packageJson.version
 
     const logger = createLogger(dataLocation, botfile.log)
     mkdirIfNeeded(dataLocation, logger)
     mkdirIfNeeded(modulesConfigDir, logger)
 
-    logger.info(`Starting botpress version ${packageJson.version}`)
-    
+    logger.info(`Starting botpress version ${version}`)
+
     const security = createSecurity(dataLocation, botfile.login)
 
-    const modules = createModules(logger, projectLocation, dataLocation)
+    const db = createDatabase({
+      sqlite: { location: dbLocation },
+      postgres: botfile.postgres
+    })
+
+    const modules = createModules(logger, projectLocation, dataLocation, db.kvs)
 
     const moduleDefinitions = modules._scan()
 
@@ -129,12 +144,13 @@ class botpress {
     const licensing = createLicensing(projectLocation)
     const middlewares = createMiddlewares(this, dataLocation, projectLocation, logger)
     const {hear, middleware: hearMiddleware} = createHearMiddleware()
-    const db = createDatabase(dbLocation)
 
     middlewares.register(hearMiddleware)
 
     _.assign(this, {
       dataLocation,
+      isFirstRun,
+      version,
       logger,
       security, // login, authenticate, getSecret
       events,

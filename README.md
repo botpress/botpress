@@ -186,3 +186,7 @@ Botpress is dual-licensed under [AGPLv3](/licenses/LICENSE_AGPL3) and the [Botpr
 By default, any bot created with Botpress is licensed under AGPLv3, but you may change to the Botpress License from within your bot's web interface in a few clicks.
 
 For more information about how the dual-license works and why it works that way please see the <a href="https://botpress.io/faq">FAQS</a>.
+
+## Credits
+
+Emoji provided free by [EmojiOne](http://emojione.com)

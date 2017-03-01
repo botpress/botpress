@@ -1,10 +1,10 @@
-## Introduction to Middleware
+## Understanding the Middlewares
 
 Middleware is a critical component of botpress. Simply put, it is a collection of functions that process messages. Think of it this way: everything that enters or leaves your bot is coming in to (or out of) the middleware.
 
 If you have used [Express](http://expressjs.com/) before, botpress middleware is very similar to express's middleware.
 
-Botpress has two middleware chains: [incoming](middlewares.md#sendincomingmiddlewareevent---void) and [outgoing](middlewares.md#sendoutgoingmiddlewareevent---void)
+Botpress has two middleware chains: [incoming](creating-your-bot/understading-the-middlewares.md#sendincomingmiddlewareevent---void) and [outgoing](creating-your-bot/understading-the-middlewares.md#sendoutgoingmiddlewareevent---void)
 
 **To receive messages**: An installed module must send messages into the incoming middleware chain
 

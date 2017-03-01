@@ -75,13 +75,19 @@ class Sidebar extends Component {
 
   renderModuleItem(module) {
     const path = `/modules/${module.name}`
+    const iconPath = `/img/modules/${module.name}.png`
     const className = classnames({
-      [style.active]: this.routeActive(path)
+      [style.active]: this.routeActive(path),
+      'bp-sidebar-active': this.routeActive(path)
     })
+    const hasCustomIcon = module.menuIcon === 'custom'
+    const moduleIcon = hasCustomIcon
+      ? <img className={style.customIcon} src={iconPath} />
+      : <i className="icon material-icons">{module.menuIcon}</i>
 
     return <li key={`menu_module_${module.name}`} className={className}>
       <Link to={path} title={module.menuText}>
-        <i className="icon material-icons">{module.menuIcon}</i>
+        {moduleIcon}
         <span>{module.menuText}</span>
       </Link>
     </li>
@@ -91,15 +97,20 @@ class Sidebar extends Component {
     actions.toggleLicenseModal()
   }
 
+  openAbout() {
+    actions.toggleAboutModal()
+  }
+
   render() {
+
     const modules = this.props.modules
-    const items = modules.toJS().map(this.renderModuleItem)
+    const items = modules.toJS().filter(x => !x.noInterface).map(this.renderModuleItem)
     const dashboardClassName = classnames({ [style.active] : this.isAtDashboard() })
     const manageClassName = classnames({ [style.active] : this.isAtManage() })
 
     const productionText = this.props.botInformation.get('production') ? "in production" : "in development"
 
-    const sidebarContent = <div className={style.sidebar}>
+    const sidebarContent = <div className={classnames(style.sidebar, 'bp-sidebar')}>
       <SidebarHeader/>
       <ul className="nav">
         <li className={dashboardClassName} key="dashboard">
@@ -116,11 +127,15 @@ class Sidebar extends Component {
         </li>
         {items}
       </ul>
-      <div className={style.bottomInformation}>
-        <div className={style.name}>{this.props.botInformation.get('name')}</div>
-        <div className={style.production}>{productionText}</div>
+      <div className={classnames(style.bottomInformation, 'bp-sidebar-footer')}>
+        <div className={classnames(style.name, 'bp-name')}>{this.props.botInformation.get('name')}</div>
+        <div className={classnames(style.production, 'bp-production')}>{productionText}</div>
         <Link to='#' title='License' onClick={this.openLicenseComponent}>
           License under {this.props.botInformation.get('license')}
+        </Link>
+        <br />
+        <Link to="#" title="About" onClick={::this.openAbout}>
+          About Botpress
         </Link>
       </div>
     </div>

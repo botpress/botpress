@@ -10,6 +10,7 @@ import bodyParser from 'body-parser'
 import ms from 'ms'
 import chalk from 'chalk'
 import uuid from 'uuid'
+import sass from 'node-sass'
 
 import util from './util'
 
@@ -92,7 +93,8 @@ const serveApi = function(app, bp) {
         name: module.name,
         homepage: module.homepage,
         menuText: module.settings.menuText || module.name,
-        menuIcon: module.settings.menuIcon || 'view_module'
+        menuIcon: module.settings.menuIcon || 'view_module',
+        noInterface: !!module.settings.noInterface
       }
     })
     res.send(modules)
@@ -198,6 +200,13 @@ const serveApi = function(app, bp) {
     }))
   })
 
+  app.delete('/api/guided-tour', (req, res) => {
+    fs.unlink(path.join(bp.projectLocation, '.welcome'), () => {
+      bp.isFirstRun = false
+      res.sendStatus(200)
+    })
+  })
+
   app.get('/api/logs', (req, res) => {
     const options = {
       from: new Date() - 7 * 24 * 60 * 60 * 1000,
@@ -232,6 +241,11 @@ const serveApi = function(app, bp) {
 
   const routers = {}
   bp.getRouter = function(name, conditions) {
+
+    if (!/^botpress-/.test(name)) {
+      throw new Error('The name of a router must start with `botpress-`, but received: ' + name)
+    }
+
     if (!routers[name]) {
       const router = express.Router()
       routers[name] = router
@@ -253,6 +267,22 @@ const serveStatic = function(app, bp) {
     const bundlePath = path.join(module.root, module.settings.webBundle || 'bin/web.bundle.js')
     const requestPath = `/js/modules/${name}.js`
 
+    if (module.settings.menuIcon === 'custom') {
+      const iconRequestPath = `/img/modules/${name}.png`
+      const iconPath = path.join(module.root, 'icon.png')
+
+      app.use(iconRequestPath, (req, res) => {
+        try {
+          const content = fs.readFileSync(iconPath)
+          res.contentType('image/png')
+          res.send(content)
+        }
+        catch (err) {
+          bp.logger.warn('Could not serve module icon [' + name + '] at: ' + iconPath)
+        }
+      })
+    }
+
     app.use(requestPath, (req, res) => {
       try {
         const content = fs.readFileSync(bundlePath)
@@ -268,6 +298,7 @@ const serveStatic = function(app, bp) {
   app.use('/js/env.js', (req, res) => {
     const { tokenExpiry, enabled } = bp.botfile.login
     const optOutStats = !!bp.botfile.optOutStats
+    const { isFirstRun, version } = bp
     res.contentType('text/javascript')
     res.send(`(function(window) {
       window.NODE_ENV = "${process.env.NODE_ENV || 'development'}";
@@ -275,7 +306,22 @@ const serveStatic = function(app, bp) {
       window.AUTH_ENABLED = ${enabled};
       window.AUTH_TOKEN_DURATION = ${ms(tokenExpiry)};
       window.OPT_OUT_STATS = ${optOutStats};
+      window.SHOW_GUIDED_TOUR = ${isFirstRun};
+      window.BOTPRESS_VERSION = "${version}";
     })(window || {})`)
+  })
+
+  let customTheme = ''
+  const themeLocation = path.join(bp.projectLocation, 'theme.scss')
+  if (fs.existsSync(themeLocation)) {
+    const content = fs.readFileSync(themeLocation)
+    const compile = sass.renderSync({ data: `#app {${content}}` })
+    customTheme = compile.css.toString()
+  }
+
+  app.use('/style/custom-theme.css', (req, res) => {
+    res.contentType('text/css')
+    res.send(customTheme)
   })
 
   app.use(express.static(path.join(__dirname, '../lib/web')))
@@ -318,7 +364,7 @@ class WebServer {
     server.listen(port, () => {
       this.bp.events.emit('ready')
       for (var mod of _.values(this.bp._loadedModules)) {
-        mod.handlers.ready && mod.handlers.ready(this.bp)
+        mod.handlers.ready && mod.handlers.ready(this.bp, mod.configuration)
       }
 
       this.bp.logger.info(chalk.green.bold('bot launched, visit: http://localhost:' + port))
