@@ -1,7 +1,9 @@
 # How Botpress Works
 
-This page will be writed soon!
+On Botpress everything works as middleware. Every message that enters or leaves your bot, pass for an incoming or outgoing middleware.
 
-We'll explain here how botpress works with a simple image explaining the lifecycle of the application.
+By the way, a picture is worth a thousand words:
 
-If you want to help, feel free to send a pull request.
+<img alt="Midleware flow" width="254" src="assets/midlewares-flow.png">
+
+You can learn more reading the section _[Understanding the Middleware](../creating-your-bot/understanding-the-middlewares.md)_.
