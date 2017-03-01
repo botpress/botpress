@@ -121,7 +121,7 @@
     "win32"
   ],
   "scripts": {
-    "compile": "rm -rf lib/ && babel src/ -d lib/ -s && cp -a src/cli/templates/. lib/cli/templates && node webpack.js --compile",
+    "compile": "rm -rf lib/ && ./node_modules/.bin/babel src/ -d lib/ -s && cp -a src/cli/templates/. lib/cli/templates && node webpack.js --compile",
     "test": "mocha test",
     "watch": "npm-watch"
   },
