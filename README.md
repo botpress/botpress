@@ -10,6 +10,10 @@ Botpress is an open-source bot creation tool written in Javascript. It is powere
 
 Important: **Make sure to join the official Slack Community (https://slack.botpress.io)!**
 
+### Looking to migrate from 0.0 to 0.1 ?
+
+https://gist.github.com/slvnperron/9a3027f4d798c7d6b6b6a9b9b6bdfa7b
+
 ## Vision & Mission
 
 Botpress is on mission to make bots ubiquitous and profitable for everybody. At Botpress, we think that using closed-source tools like Chatfuel is not the right approach for building awesome and powerful bots, but Chatfuel is great for quickly creating straight-forward conversational bots. To be able to create something great, it's important to have full control of your tools and to leverage the community efforts as much as possible.
