@@ -208,7 +208,7 @@ export default class MiddlewaresComponent extends Component {
     Usually, messages are put (sent) into the incoming middleware queue&nbsp;
     by <strong>connector modules</strong> such as Facebook Messenger, Slack...</Tooltip>
 
-    const title = 'Incoming middlewares'
+    const title = 'Incoming middleware'
 
     return this.renderList('incoming', title, tooltip)
   }
@@ -220,7 +220,7 @@ export default class MiddlewaresComponent extends Component {
     <strong>Connector modules</strong> are in charge of sending the messages to the users, thus they should&nbsp;
     usually be placed at the end of the chain.</Tooltip>
 
-    const title = 'Outgoing middlewares'
+    const title = 'Outgoing middleware'
 
     return this.renderList('outgoing', title, tooltip)
   }
