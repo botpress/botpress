@@ -75,3 +75,28 @@ module.exports = {
   }
 }
 ```
+
+## Where is the configuration saved? / Is the configuration persisted in database?
+
+The configuration is persisted in the database. In fact, it is persisted using the built-in Key-Value store.
+
+## Can I overwrite the configuration at run time? / Can I use environement variables to set configuration?
+
+You may overwrite the configuration or provide default values from environement variables. To do so, simply assign a value to the `env` property of the configuration key. In the example above, `accessToken` can be overwritten by the `WIT_TOKEN` environement variable.
+
+## Can I commit to source-control some values?
+
+You may overwrite the configuration from inside your botfile using the `config` key followed by the name of the module:
+
+```js
+// botfile.js
+{
+  // usual botfile ...
+  config: {
+    'botpress-messenger': {
+      displayGetStarted: true,
+      greetingMessage: 'Hello!'
+    }
+  }
+}
+```
