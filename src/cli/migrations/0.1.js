@@ -2,6 +2,7 @@ import Knex from 'knex'
 import path from 'path'
 import fs from 'fs'
 
+import kvs from '../../kvs'
 import util from '../../util'
 
 module.exports = bot_path => {
@@ -36,6 +37,10 @@ function migrate_database_schema(dbLocation) {
   })
   .catch(() => {
     util.print('warn', 'Did not migrate table `users` as schema was already up to date')
+  })
+  .then(() => kvs(knex).bootstrap())
+  .catch(() => {
+    util.print('warn', 'Did not create table `kvs` as schema was already up to date')
   })
   .then(() => {
 
