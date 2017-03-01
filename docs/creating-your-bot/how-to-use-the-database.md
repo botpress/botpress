@@ -52,6 +52,51 @@ bp.db.get()
     .then(users => /* ... */)
 })
 ```
+
+## Key-Value-Store (KVS)
+
+For convinience, a simple Key-Value-Store is built-in Botpress. You can rely on the KVS to store information about your users, contexts, state, etc.
+
+The KVS is available as `bp.db.kvs`. There only two methods: `get` and `set`.
+
+### How does it work?
+
+The KVS stores values as JSON, meaning that you can store anything in it and it will be serialized/undeserialized.
+
+Essentially, you can imagine a key-value store as a big table that can store anything.
+
+[key -> value]
+['hello' -> 'world']
+['botpress' -> 'version 0.1']
+['users' -> { Sylvain: 'admin' }]
+
+**Limitation: you can't store circular referenced structures**
+
+### get(key, [path]) -> Promise(value)
+
+Returns the value of a key from the store. Optionally, you can provide a `path` argument that will only return the value inside the object. 
+
+#### Example of `path`
+
+Let's say that there' already an object stored under the key `users`:
+
+> KEY(users) -> VALUE({ Sylvain: { role: 'Admin' } })
+
+Let's say I'm only interested in getting Sylvain's role, not getting the whole object:
+
+```js
+bp.db.kvs.get('users', 'Sylvain.role')
+.then(role => console.log(role)) // will print 'Admin'
+```
+
+### set(key, value, [path]) -> Promise()
+
+This sets the **value** at **key**. Optionally, you can provide a path.
+
+If you do provide path, **the object will be merged**, i.e. it will not be entirely overwritten.
+
+For example, if you have the value `{ a: 1, b: { _b: 2 } }` and you set: `set('key', 5, 'b._b')`, then the value will become `{ a: 1, b: { _b: 5 } }`.
+
 ## Database Helpers
 
 There are a couple of database helpers available to bots and modules. The goal of the helpers is to help abstract the dual-database queries and operations. Before writing SQL for your bot or for your module, it is very important to understand what SQL will work on both environement and what won't.
