@@ -65,7 +65,7 @@ export default (dataLocation, notifConfig, modules, events, logger) => {
   const sendNotif = ({ message, url, level }) => {
 
     if (!message || typeof(message) !== 'string') {
-      throw new Error('`message` is mandatory and should be a string')
+      throw new Error('\'message\' is mandatory and should be a string')
     }
 
     if (
@@ -128,7 +128,7 @@ export default (dataLocation, notifConfig, modules, events, logger) => {
 
     events.emit('notifications.new', notification)
 
-    const logMessage = '[notification::' + notification.moduleId + '] ' + notification.message
+    const logMessage = `[notification::${notification.moduleId}] ${notification.message}`
     if (logger) {
       (logger[level] || logger.info)(logMessage)
     }

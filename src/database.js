@@ -6,7 +6,7 @@ import kvs from './kvs'
 
 const initializeCoreDatabase = knex => {
   if (!knex) {
-    throw new Error('you must initialize the database before')
+    throw new Error('You must initialize the database before')
   }
 
   helpers(knex).date.now()
@@ -84,7 +84,7 @@ module.exports = ({ sqlite, postgres }) => {
       })
 
       if (postgres.enabled) {
-        query = query + ' on conflict (id) do nothing'
+        query = `${query} on conflict (id) do nothing`
       } else { // SQLite
         query = query.toString().replace(/^insert/i, 'insert or ignore')
       }
