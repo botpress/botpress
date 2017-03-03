@@ -42,7 +42,8 @@ module.exports = ({ sqlite, postgres }) => {
           port: postgres.port,
           user: postgres.user,
           password: postgres.password,
-          database: postgres.database
+          database: postgres.database,
+          ssl: postgres.ssl
         },
         useNullAsDefault: true
       })
