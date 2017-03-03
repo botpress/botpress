@@ -47,11 +47,16 @@
     ```
 
 
-5. Try it locally and see if it works: `heroku local web`
+5. Change botfile.js to use the port exposed in the environment variable `PORT`:
+```
+  port: process.env.PORT || 3000,
+``` 
 
-6. Go to Heroku dashboard and make a new app and from there you can follow the instruction to get botpress on heruko `Deploy using Heroku Git`
+6. Try it locally and see if it works: `heroku local web`
 
-7. Go to Heroku dashboard -> Settings and in the Config Variables section add a password for your dashboard:
+7. Go to Heroku dashboard and make a new app and from there you can follow the instruction to get botpress on heruko `Deploy using Heroku Git`
+
+8. Go to Heroku dashboard -> Settings and in the Config Variables section add a password for your dashboard:
     ```
     BOTPRESS_PASSWORD : <YOUR_ST0nG_PasSwoRd>
     ```
