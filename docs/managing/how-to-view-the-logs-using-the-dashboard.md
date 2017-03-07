@@ -1,5 +1,5 @@
 # How to view the logs using the Dashboard
 
-This page will be writed soon!
+You can acess the logs page at `[localhost:3000/logs](http://localhost:3000/logs)`. Also, it's acessible by the icon at superior toolbar.
 
-If you want to help, feel free to send a pull request.
+<img alt="Midleware flow" width="400" src="assets/screenshot-logs.png">
