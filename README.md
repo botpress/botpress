@@ -41,14 +41,14 @@ npm install -g botpress
 
 ## Creating a bot
 
-Creating a bot is simple, you need to run [`botpress init`](/docs/cli-reference.md#init) in a terminal inside an empty directory:
+Creating a bot is simple, you need to run [`botpress init`](https://docs.botpress.io/getting-started/how-to-use-the-cli.html#init) in a terminal inside an empty directory:
 
 ```
 mkdir my-bot && cd my-bot
 botpress init
 ```
 
-Once your bot is created, you need to run [`botpress start`](/docs/cli-reference.md#start--s) to start your bot:
+Once your bot is created, you need to run [`botpress start`](https://docs.botpress.io/getting-started/how-to-use-the-cli.html#start--s) to start your bot:
 
 ```
 botpress start
@@ -66,7 +66,7 @@ At this point, your bot does nothing, you need to add features. There are two wa
 
 For example, there's a `botpress-messenger` module that will make your bot connect to Facebook Messenger and easily send/receive messages.
 
-You can install modules directly in the web interface, or by using the [`botpress install`](/docs/cli-reference.md#install--i) command:
+You can install modules directly in the web interface, or by using the [`botpress install`](https://docs.botpress.io/getting-started/how-to-use-the-cli.html#install--i) command:
 
 ```
 botpress install messenger
@@ -88,9 +88,9 @@ bp.hear({ type: 'postback', text: 'GETTING_STARTED' }, (event, next) => {
 })
 ```
 
-For an overview of the core components, please read the [Basics](/docs/basics.md).
+To create a basic Hello Human bot in 3 minutes, please read the [Getting Started](https://docs.botpress.io/getting-started/).
 
-To create a basic Hello World bot, please read the [Getting Started](/docs/getting-started.md).
+For learn all concepts of Botpress, please read our [Documentation](https://docs.botpress.io/)
 
 ### Stats Collection
 
@@ -104,11 +104,11 @@ In your Botfile, simply set the `optOutStats` variable to `true`.
 
 ## Documentation
 
-- [**Beginner's Guide** (start with this!)](/docs/getting-started.md)
-- [Basics](/docs/basics.md)
-- [Advanced Topics](/docs/advanced-topics.md)
-- [CLI Reference](/docs/cli-reference.md)
-- [Core Reference](/docs/core-reference.md)
+- [**Hello Human in 3 minutes** (start with this!)](https://docs.botpress.io/getting-started/hello-human-in-3-minutes.html)
+- [Getting Started](https://docs.botpress.io/getting-started/)
+- [How to create and manage Modules](https://docs.botpress.io/modules/)
+- [Creating your bot](https://docs.botpress.io/creating-your-bot/)
+- [Management, Monitoring and Deployment](https://docs.botpress.io/managing/)
 
 ## Examples
 
