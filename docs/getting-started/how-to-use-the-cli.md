@@ -2,7 +2,7 @@
 
 You can manage your bot using our powerful CLI tool.
 
-You need to have `botpress` package installed. If you don't have yet, see the [How Start Using](introduction/how-to-start-using.md) guide.
+You need to have `botpress` package installed. If you don't have yet, see the [How Start Using](getting-started/how-to-start-using.md) guide.
 See below the all available commands.
 
 ### `init`

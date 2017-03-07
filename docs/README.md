@@ -1,12 +1,14 @@
-# Summary
+# Introduction
 
-* [Hello Human in 3 minutes](hello-human-in-3-minutes.md)
-1. [Introduction](introduction/README.md)
-    * [What is Botpress?](introduction/what-is-botpress.md)
-    * [How Botpress Works?](introduction/how-botpress-works.md)
-    * [How to start using Botpress](introduction/how-to-start-using.md)
-    * [How to use the CLI tool](introduction/how-to-use-the-cli.md)
-    * [How to use the Dashboard](introduction/how-to-use-the-dashboard.md)
+Welcome to Botpress! This page is a summary of the all documentation that you can found here. We hope that you can find all of you need. If you not found any information, talk with us on [Slack](http://slack.botpress.io) or please create an issue at our [Github](http://github.com/botpress/botpress/issues). Enjoy Botpress!
+
+1. [Getting Started](getting-started/README.md)
+    * [Hello Human in 3 minutes](getting-started/hello-human-in-3-minutes.md)
+    * [What is Botpress?](getting-started/what-is-botpress.md)
+    * [How Botpress Works?](getting-started/how-botpress-works.md)
+    * [How to start using Botpress](getting-started/how-to-start-using.md)
+    * [How to use the CLI tool](getting-started/how-to-use-the-cli.md)
+    * [How to use the Dashboard](getting-started/how-to-use-the-dashboard.md)
 1. [Modules](modules/README.md)
     * [How to use modules](modules/how-to-use-modules.md)
     * [How to create a module](modules/how-to-create-a-module.md)
