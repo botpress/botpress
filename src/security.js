@@ -55,7 +55,7 @@ module.exports = (dataLocation, securityConfig) => {
     if (attempts[ip] >= maxAttempts) {
       return {
         success: false,
-        reason: 'too many login attempts, try again later'
+        reason: 'Too many login attempts. Try again later.'
       }
     }
 
@@ -70,7 +70,7 @@ module.exports = (dataLocation, securityConfig) => {
       attempts[ip] = (attempts[ip] || 0) + 1
       return {
         success: false,
-        reason: 'bad user/password combination'
+        reason: 'Bad username / password combination.'
       }
     }
   }

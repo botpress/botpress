@@ -38,12 +38,12 @@ const getDataLocation = (dataDir, projectLocation) => (
 
 const mkdirIfNeeded = (path, logger) => {
   if (!fs.existsSync(path)) {
-    logger.info('creating data directory: ' + path)
+    logger.info(`Creating data directory: ${path}`)
 
     try {
       fs.mkdirSync(path)
     } catch (err) {
-      logger.error('(fatal) error creating directory: ', err.message)
+      logger.error(`[FATAL] Error creating directory: ${err.message}`)
       process.exit(1)
     }
   }
@@ -183,7 +183,7 @@ class botpress {
     }
 
     process.on('uncaughtException', err => {
-      logger.error('(fatal) An unhandled exception occured in your bot', err)
+      logger.error('[FATAL] An unhandled exception occured in your bot', err)
       if (isDeveloping) {
         logger.error(err.stack)
       }

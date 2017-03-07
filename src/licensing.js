@@ -49,10 +49,10 @@ module.exports = (projectLocation) => {
     const { license, name, author } = JSON.parse(fs.readFileSync(packageJsonPath))
     const bp = event.bp
 
-    const response = "Bot: " + name + "\n"
-      + "Created by: " + author + "\n"
-      + "License: " + license + "\n"
-      + "Botpress: " + bp.version
+    const response = `Bot:  ${name}
+      Created by: ${author}
+      License: ${license}
+      Botpress: ${bp.version}`
 
     const userId = event.user && event.user.id
 

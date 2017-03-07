@@ -44,8 +44,7 @@ const createMiddleware = function(bp, middlewareName) {
     _use.run(event, function(err) {
       if (err) {
         _error.run(err, event, () => {
-          bp.logger.error('[botpress] Unhandled error in middleware ('
-            + middlewareName + '), error:', err.message)
+          bp.logger.error(`[BOTPRESS] Unhandled error in middleware (${middlewareName}). Error: ${err.message}`)
         })
       }
     })
@@ -113,7 +112,7 @@ module.exports = function(bp, dataLocation, projectLocation, logger) {
     middleware.enabled = typeof middleware.enabled === 'undefined' ? true: !!middleware.enabled
 
     if (_.some(middlewares, m => m.name === middleware.name)) {
-      logger.error('An other middleware with the same name has already been registered')
+      logger.error('Another middleware with the same name has already been registered')
       return false
     }
 

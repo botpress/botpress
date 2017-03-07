@@ -57,8 +57,7 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
       const loader = require(mod.entry)
 
       if (typeof loader !== 'object') {
-        return logger.warn('Ignoring module ' + mod.name +
-          ', invalid entry point signature.')
+        return logger.warn(`Ignoring module ${mod.name}. Invalid entry point signature.`)
       }
 
       mod.handlers = loader
@@ -71,7 +70,7 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
           options: loader.config || {}
         })
       } catch (err) {
-        logger.error('Invalid module configuration in module ' + mod.name + ': ', err)
+        logger.error(`Invalid module configuration in module ${mod.name}:`, err)
       }
 
       try {
@@ -85,7 +84,7 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
     })
 
     if (loadedCount > 0) {
-      logger.info(`loaded ${loadedCount} modules`)
+      logger.info(`Loaded ${loadedCount} modules`)
     }
 
     return loadedModules
@@ -95,8 +94,8 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
     const packagePath = path.join(projectLocation, 'package.json')
 
     if (!fs.existsSync(packagePath)) {
-      return logger.warn("No package.json found at project root, " +
-        "which means botpress can't load any module for the bot.")
+      return logger.warn('No package.json found at project root, ' +
+        'which means botpress can\'t load any module for the bot.')
     }
 
     const botPackage = require(packagePath)
@@ -214,7 +213,7 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
 
       if (!newModules || !featured || !popular || !newModules.length || !featured.length || !popular.length) {
         if (modules.length > 0) {
-          logger.debug('Fetched invalid modules, report this to the Botpress Team')
+          logger.debug('Fetched invalid modules. Report this to the Botpress Team.')
           return mapModuleList(modules)
         } else {
           newModules = newModules || []
@@ -268,11 +267,11 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
       }
 
       if (basename.replace(/botpress-?/i, '').length === 0) {
-        throw new Error('Invalid module name: ' + basename)
+        throw new Error(`Invalid module name: ${basename}`)
       }
 
       if (!/^botpress-/i.test(basename)) {
-        basename = 'botpress-' + basename
+        basename = `botpress-${basename}`
       }
 
       return prefix + basename
@@ -322,7 +321,7 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
       cwd: projectLocation
     })
 
-    log('info', 'Uninstalling modules: ' + modules.join(', '))
+    log('info', `Uninstalling modules: ${modules.join(', ')}`)
 
     return runSpawn(uninstall)
     .then(() => log('success', 'Modules successfully removed'))

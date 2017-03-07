@@ -243,7 +243,7 @@ const serveApi = function(app, bp) {
   bp.getRouter = function(name, conditions) {
 
     if (!/^botpress-/.test(name)) {
-      throw new Error('The name of a router must start with `botpress-`, but received: ' + name)
+      throw new Error(`The name of a router must start with 'botpress-'. Received: ${name}`)
     }
 
     if (!routers[name]) {
@@ -278,7 +278,7 @@ const serveStatic = function(app, bp) {
           res.send(content)
         }
         catch (err) {
-          bp.logger.warn('Could not serve module icon [' + name + '] at: ' + iconPath)
+          bp.logger.warn(`Could not serve module icon [${name}] at: ${iconPath}`)
         }
       })
     }
@@ -290,7 +290,7 @@ const serveStatic = function(app, bp) {
         res.send(content)
       }
       catch (err) {
-        bp.logger.warn('Could not serve module [' + name + '] at: ' + bundlePath)
+        bp.logger.warn(`Could not serve module [${name}] at: ${bundlePath}`)
       }
     })
   }
@@ -367,7 +367,7 @@ class WebServer {
         mod.handlers.ready && mod.handlers.ready(this.bp, mod.configuration)
       }
 
-      this.bp.logger.info(chalk.green.bold('bot launched, visit: http://localhost:' + port))
+      this.bp.logger.info(chalk.green.bold('Bot launched. Visit: http://localhost:' + port))
     })
   }
 
