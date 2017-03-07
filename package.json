@@ -107,10 +107,18 @@
   },
   "homepage": "https://github.com/botpress/botpress#readme",
   "keywords": [
-    "bot",
     "bots",
+    "chatbots",
+    "bot framework",
+    "messenger",
+    "facebook",
+    "slack",
+    "botkit",
+    "microsoft bot framework",
+    "bot builder",
+    "bot",
     "chatbot",
-    "chatbots"
+    "api"
   ],
   "license": "AGPL-3.0",
   "main": "index.js",
