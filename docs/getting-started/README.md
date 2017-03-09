@@ -1,4 +1,4 @@
-## Introduction
+## Getting Started
 
 * [Hello Human in 3 minutes](hello-human-in-3-minutes.md)
 * [What is Botpress?](what-is-botpress.md)
