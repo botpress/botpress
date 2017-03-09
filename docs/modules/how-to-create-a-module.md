@@ -120,7 +120,7 @@ To publish your module:
 npm publish
 ```
 
-Botpress crawls and indexes modules periodically. It may take up to 45 minutes before your module shows up in the list of available modules. Even before it shows up, it is available to install via the [`botpress install`](cli-reference.md#install--i) command.
+Botpress crawls and indexes modules periodically. It may take up to 45 minutes before your module shows up in the list of available modules. Even before it shows up, it is available to install via the [`botpress install`](../getting-started/how-to-use-the-cli.md#install--i) command.
 
 Note that the **all of the following criteria must be met** before a module can appear as a community module:
 

@@ -93,7 +93,7 @@ Some explanations:
 
 **Line 1**: The entry point of a botpress bot is always a function accepting `bp`, which is the global botpress context object. Everything you need from botpress and the modules is accessible from this context object. The `bp` object contains the default botpress API, and the **modules augment** (mutates) the bp context object to offer features to your bot.
 
-**Line 2**: Botpress relies on a middlewares architecture to process incoming and outgoing messages/interactions. You can read more about the [Botpress Middlewares](https://docs.botpress.io/creating-your-bot/understanding-the-middlewares.html) on documentation, but for now all you need to know is that this line is necessary to correctly setup and load the modules.
+**Line 2**: Botpress relies on a middlewares architecture to process incoming and outgoing messages/interactions. You can read more about the [Botpress Middlewares](../creating-your-bot/understanding-the-middlewares.html) on documentation, but for now all you need to know is that this line is necessary to correctly setup and load the modules.
 
 Now we are going to implement a simple Hello Human:
 
@@ -107,7 +107,7 @@ module.exports = function(bp) {
 }
 ```
 
-Note: Here we are listening out for a hardcoded "hello" string, but the hear command is pretty powerful and can do much more. You can learn more about the [`hear middleware`](https://docs.botpress.io/creating-your-bot//how-to-use-the-hear-middleware.md) accessing the documentation.
+Note: Here we are listening out for a hardcoded "hello" string, but the hear command is pretty powerful and can do much more. You can learn more about the [`hear middleware`](../creating-your-bot//how-to-use-the-hear-middleware.md) accessing the documentation.
 
 Now stop your bot (by killing the current nodejs process that runs it, i.e. CTRL-C on Mac) and start it again. Now the bot should answer to 'hello'!
 

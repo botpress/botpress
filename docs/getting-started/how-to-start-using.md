@@ -10,14 +10,14 @@ npm install -g botpress
 
 ## Creating a bot
 
-Creating a bot is simple, you need to run [`botpress init`](/docs/cli-reference.md#init) in a terminal inside an empty directory:
+Creating a bot is simple, you need to run [`botpress init`](how-to-use-the-cli.md#init) in a terminal inside an empty directory:
 
 ```
 mkdir my-bot && cd my-bot
 botpress init
 ```
 
-Once your bot is created, you need to run [`botpress start`](/docs/cli-reference.md#start--s) to start your bot:
+Once your bot is created, you need to run [`botpress start`](how-to-use-the-cli.md#start--s) to start your bot:
 
 ```
 botpress start
@@ -35,7 +35,7 @@ At this point, your bot does nothing, you need to add features. There are two wa
 
 For example, there's a `botpress-messenger` module that will make your bot connect to Facebook Messenger and easily send/receive messages.
 
-You can install modules directly in the web interface, or by using the [`botpress install`](/docs/cli-reference.md#install--i) command:
+You can install modules directly in the web interface, or by using the [`botpress install`](how-to-use-the-cli.md#install--i) command:
 
 ```
 botpress install messenger
@@ -59,6 +59,6 @@ bp.hear({ type: 'postback', text: 'GETTING_STARTED' }, (event, next) => {
 
 ## Having more fun
 
-To create a basic Hello Human bot, please read the [Hello Human in 3 minutes](/docs/hello-human-in-3-minutes.md).
+To create a basic Hello Human bot, please read the [Hello Human in 3 minutes](hello-human-in-3-minutes.md).
 
-For learn more about what's next, please read the [Creating your bot](/docs/creating-your-bot/) section.
+For learn more about what's next, please read the [Creating your bot](../creating-your-bot/readme.md) section.
