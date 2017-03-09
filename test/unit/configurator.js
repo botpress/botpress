@@ -1,7 +1,7 @@
 /* eslint-env babel-eslint, node, mocha */
 
 const expect = require('chai').expect
-const { createConfig } = require('../lib/configurator.js')
+const { createConfig } = require('../../lib/configurator.js')
 const Promise = require('bluebird')
 const _ = require('lodash')
 

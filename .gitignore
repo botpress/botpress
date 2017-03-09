@@ -53,6 +53,8 @@ lib/
 /src/web/__landing.jsx
 !/src/web/views/logs
 .cache/
+test/e2e/bot
+.idea/
 
 # for vim 
 *.swp
