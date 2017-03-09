@@ -28,6 +28,7 @@ Welcome to Botpress! This page is a summary of the all documentation that you ca
     * [How to create Custom Routes with the HTTP Server](creating-your-bot/how-to-use-the-http-server.md)
     * [How to use the built-in Database](creating-your-bot/how-to-use-the-database.md)
     * [How to Debug your bot](creating-your-bot/how-to-debug.md)
+    * [How to test your bot](creating-your-bot/how-to-test.md)
     * [How to manage conversation flow](creating-your-bot/how-to-manage-conversation-flow.md)
 1. [Management, Monitoring and Deployment](managing/README.md)
     * [How to view the logs using the Dashboard](managing/how-to-view-the-logs-using-the-dashboard.md)
