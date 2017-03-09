@@ -4,7 +4,7 @@ Middleware is a critical component of botpress. Simply put, it is a collection o
 
 If you have used [Express](http://expressjs.com/) before, botpress middleware is very similar to express's middleware.
 
-Botpress has two middleware chains: [incoming](creating-your-bot/understading-the-middlewares.md#sendincomingmiddlewareevent---void) and [outgoing](creating-your-bot/understading-the-middlewares.md#sendoutgoingmiddlewareevent---void)
+Botpress has two middleware chains: [incoming](understading-the-middlewares.md#sendincomingmiddlewareevent---void) and [outgoing](understading-the-middlewares.md#sendoutgoingmiddlewareevent---void)
 
 **To receive messages**: An installed module must send messages into the incoming middleware chain
 
@@ -55,7 +55,7 @@ The return value of the middleware function isn't used by Botpress.
 
 ## Registering middlewares
 
-You need to register a middleware function for botpress to know about it and use it. You may do so with the [`bp.middlewares.register`](core-reference.md#registermiddlewaredefinition---void) method:
+You need to register a middleware function for botpress to know about it and use it. You may do so with the [`bp.middlewares.register`](understading-the-middlewares.md#registermiddlewaredefinition---void) method:
 
 ```js
 // ** code taken from botpress-messenger **
@@ -111,3 +111,76 @@ Now lets look at how a complete interaction might be handled by your bot.
 12. botpress-messenger sends the message to Facebook Messenger through the Send API
 
 All of this happens behind the scenes and is handled by the modules middleware. As a bot developer, all you have to worry about is writing the bot's logic.
+
+## API reference
+
+#### `load()> void`
+
+Loads (or reloads) all the middleware in the correct order (ordered by their `order` property. Customizations (custom order and enabled/disabled) set in the UI are also taken into account.
+
+This method **must** be called in your bot initialization in order for it to work properly.
+
+##### Example
+
+```js
+module.exports = function(bp) {
+  bp.middlewares.load()
+}
+```
+
+#### `register(MiddlewareDefinition)> void`
+
+##### MiddlewareDefinition
+
+```js
+{
+  name: string, // *required*
+  type: string(ingoing|outgoing), // *required*
+  handler: function, // *required*
+  order: int,
+  module: string,
+  description: string
+}
+```
+
+##### Example
+
+```js
+// Taken from botpress-messenger/src/index.js
+
+bp.middlewares.register({
+  name: 'messenger.sendMessages',
+  type: 'outgoing',
+  order: 100,
+  handler: outgoingMiddleware,
+  module: 'botpress-messenger',
+  description: 'Sends out messages that targets platform = messenger.' +
+  ' This middleware should be placed at the end as it swallows events once sent.'
+})
+```
+
+#### `sendIncoming(MiddlewareEvent)> void`
+
+##### MiddlewareEvent
+
+```js
+{
+  type: string, // *required*, e.g. 'message', 'postback'
+  platform: string, // *required*, e.g. 'facebook', 'slack'
+  text: string, // *required*, the textual representation of the event value
+  raw: any // *required*, the raw event, as received from the platform
+}
+```
+
+##### Example
+
+```js
+bp.middlewares.sendIncoming({
+  type: 'postback',
+  platform: 'facebook',
+  text: 'GET_STARTED',
+  raw: fbEvent // complex object
+})
+```
+
+#### `sendOutgoing(MiddlewareEvent)> void`
