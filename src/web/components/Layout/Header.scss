@@ -5,6 +5,25 @@
   margin-bottom: 0;
   background-color: $header-color;
   color: $content-color-dark;
+
+  :global(.btn-group) {
+
+    button {
+      margin-top: 2px;
+      
+      &:hover, &:active, &:focus, &:visited {
+        background: none !important;
+        -webkit-box-shadow: none !important;
+        box-shadow: none !important; 
+      }
+    }
+  }
+
+  :global(.open) {
+    :global(.material-icons) {
+      color: $content-color-normal !important;
+    }
+  }
 }
 
 .app-navbar {
@@ -19,6 +38,7 @@
 
   li a {
     color: $content-color-light !important;
+    
     &:hover {
       color: $content-color-normal !important;
     }
@@ -41,4 +61,20 @@
       opacity: 1;
     }
   }
+}
+
+.account {
+
+  padding-top: 8px !important;
+  padding-bottom: 0px !important;
+  border: none;
+
+  :global(.material-icons) {
+    font-size: 32px;
+
+    &:hover {
+      color: $content-color-normal !important;
+    }
+  }
+
 }

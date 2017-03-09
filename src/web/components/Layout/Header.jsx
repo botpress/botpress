@@ -1,5 +1,12 @@
 import React,{Component} from 'react'
-import {Navbar, Nav, NavItem, Glyphicon} from 'react-bootstrap'
+import {
+  Navbar, 
+  Nav, 
+  NavItem, 
+  Glyphicon,
+  MenuItem,
+  DropdownButton
+} from 'react-bootstrap'
 import classnames from 'classnames'
 
 import NotificationHub from '~/components/Notifications/Hub'
@@ -14,11 +21,16 @@ class Header extends Component {
       return null
     }
 
-    return <li>
-        <a href="#" onClick={logout}>
-          <em className="glyphicon glyphicon-off"></em>
+    const label = <i className="material-icons">account_circle</i>
+
+    return  <DropdownButton className={style.account} noCaret title={label}>
+      <MenuItem eventKey="1">
+        <a className={style.account} href="#" onClick={logout}>
+          Logout
         </a>
-    </li>
+      </MenuItem>
+      <MenuItem eventKey="2">Dropdown link</MenuItem>
+    </DropdownButton>
   }
 
   renderSlackButton() {
