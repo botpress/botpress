@@ -25,7 +25,7 @@ Botpress is at an early stage and we are looking for **nodejs developers** to bu
 If you are not a programmer or this is your first bot, please consider using [Chatfuel](https://chatfuel.com/), [FlowXO](https://flowxo.com/) or [Motion.ai](http://motion.ai), these are great tools we recommend for beginners and for non-coders.
 
 
-## <a name="what-it-looks-like"> What it looks like </a>
+## <a name="what-it-looks-like">What it looks like </a>
 
 <img alt="Botpress" height="150" src="assets/shot_01.png">
 <img alt="Botpress" height="150" src="assets/shot_02.png">
