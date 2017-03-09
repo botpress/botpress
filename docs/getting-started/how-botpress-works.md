@@ -4,6 +4,6 @@ On Botpress everything works as middleware. Every message that enters or leaves 
 
 By the way, a picture is worth a thousand words:
 
-<img alt="Midleware flow" width="254" src="assets/midlewares-flow.png">
+<img alt="Midleware flow" width="254" src="https://raw.githubusercontent.com/botpress/botpress/master/assets/midlewares-flow.png">
 
 You can learn more reading the section _[Understanding the Middleware](../creating-your-bot/understanding-the-middlewares.md)_.

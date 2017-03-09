@@ -74,13 +74,13 @@ Once all middleware functions have been registered (usually modules should regis
 
 Once middleware functions are loaded, you'll see them displayed in your bot's interface:
 
-![](/assets/screenshot-middlewares.png)
+![](https://raw.githubusercontent.com/botpress/botpress/master/assets/screenshot-middlewares.png)
 
 ## Ordering middleware functions
 
 By default, middleware functions are ordered by **ascending order** according to their `order` property set on registration. The order can then be manually overwritten:
 
-![](/assets/screenshot-middlewares-order.png)
+![](https://raw.githubusercontent.com/botpress/botpress/master/assets/screenshot-middlewares-order.png)
 
 You can also re-order them programmatically using middleware function customizations.
 

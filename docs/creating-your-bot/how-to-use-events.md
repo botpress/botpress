@@ -38,7 +38,7 @@ export default class TemplateModule extends React.Component {
 }
 ```
 
-![](/assets/video-events-demo.gif)
+![](https://raw.githubusercontent.com/botpress/botpress/master/assets/video-events-demo.gif)
 
 
 ## When not to use Events
