@@ -29,7 +29,7 @@
     * [How to test your bot](creating-your-bot/how-to-test.md)
     * [How to manage conversation flow](creating-your-bot/how-to-manage-conversation-flow.md)
 1. [Management, Monitoring and Deployment](managing/README.md)
-    * [What to do before you deploy your bot](what-to-do-before-you-deploy-your-bot.md)
+    * [What to do before you deploy your bot](managing/what-to-do-before-you-deploy-your-bot.md)
     * [How to view the logs using the Dashboard](managing/how-to-view-the-logs-using-the-dashboard.md)
     * [How to use terminal inside the Dashboard](managing/how-to-use-terminal-inside-the-dashboard.md)
     * [How to change configuration using the Dashboard](managing/how-to-change-configuration-using-the-dashboard.md)
