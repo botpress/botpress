@@ -55,7 +55,7 @@ The return value of the middleware function isn't used by Botpress.
 
 ## Registering middlewares
 
-You need to register a middleware function for botpress to know about it and use it. You may do so with the [`bp.middlewares.register`](understading-the-middlewares.md#registermiddlewaredefinition---void) method:
+You need to register a middleware function for botpress to know about it and use it. You may do so with the [`bp.middlewares.register`](understading-the-middlewares.md#registermiddlewaredefinition-void) method:
 
 ```js
 // ** code taken from botpress-messenger **
@@ -70,7 +70,7 @@ bp.middlewares.register({
 })
 ```
 
-Once all middleware functions have been registered (usually modules should register middleware functions immediately in their initialization), **you must load them** using [`bp.middlewares.load()`](core-reference.md#load---void), which will create the incoming and outgoing chains automatically.
+Once all middleware functions have been registered (usually modules should register middleware functions immediately in their initialization), **you must load them** using [`bp.middlewares.load()`](understading-the-middlewares.md#load-void), which will create the incoming and outgoing chains automatically.
 
 Once middleware functions are loaded, you'll see them displayed in your bot's interface:
 
