@@ -107,7 +107,7 @@ module.exports = function(bp) {
 }
 ```
 
-Note: Here we are listening out for a hardcoded "hello" string, but the hear command is pretty powerful and can do much more. You can learn more about the [`hear middleware`](creating-your-bot/how-to-use-the-hear-middleware.md) accessing the documentation.
+Note: Here we are listening out for a hardcoded "hello" string, but the hear command is pretty powerful and can do much more. You can learn more about the [`hear middleware`](https://docs.botpress.io/creating-your-bot//how-to-use-the-hear-middleware.md) accessing the documentation.
 
 Now stop your bot (by killing the current nodejs process that runs it, i.e. CTRL-C on Mac) and start it again. Now the bot should answer to 'hello'!
 
