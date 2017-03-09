@@ -46,17 +46,30 @@
 
     ```
 
-
 5. Change botfile.js to use the port exposed in the environment variable `PORT`:
-```
-  port: process.env.PORT || 3000,
-``` 
+    ```
+      port: process.env.PORT || 3000,
+    ``` 
 
-6. Try it locally and see if it works: `heroku local web`
+6. Make sure sure your bot is configured to connect to a Postgres database, as instructed in the [How to use the built-in Database](../creating-your-bot/how-to-use-the-database.md#connecting-to-a-postgres-95-database) article.
 
-7. Go to Heroku dashboard and make a new app and from there you can follow the instruction to get botpress on heruko `Deploy using Heroku Git`
+7. Try it locally and see if it works: `heroku local web`
 
-8. Go to Heroku dashboard -> Settings and in the Config Variables section add a password for your dashboard:
+8. Go to Heroku dashboard and make a new app and from there you can follow the instruction to get botpress on heruko `Deploy using Heroku Git`
+
+9. Still in the Heroku dashboard, add the Postgres Add-on to your app, following the `Heroku Postgres` instructions.
+
+10. Go to Heroku dashboard -> Settings and in the Config Variables section add a password for your dashboard:
     ```
     BOTPRESS_PASSWORD : <YOUR_ST0nG_PasSwoRd>
+    ```
+11. Still in the Config Variables section, add the following variables to enable the database connection (you can find the values in the Postgres Add-on dashboard -> Administration -> Database Credentials):
+
+    ```
+    DATABASE : 'postgres'
+    PG_HOST : <Your database host>
+    PG_PORT : <Your database port>
+    PG_USER : <Your database user>
+    PG_PASSWORD : <Your database password>
+    PG_DB : <Your database identifier>
     ```
