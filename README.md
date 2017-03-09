@@ -10,7 +10,7 @@ Botpress is an open-source bot creation tool written in Javascript. It is powere
 
 Important: **Make sure to join the official Slack Community (https://slack.botpress.io)!**
 
-### Looking to migrate from 0.0 to 0.1 ?
+### Looking to migrate from 0.0 to 0.1?
 
 https://gist.github.com/slvnperron/9a3027f4d798c7d6b6b6a9b9b6bdfa7b
 
