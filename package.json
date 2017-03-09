@@ -70,7 +70,6 @@
     "copy-webpack-plugin": "^4.0.0",
     "css-loader": "^0.25.0",
     "eslint": "^3.9.0",
-    "eslint-plugin-testcafe": "^0.2.1",
     "exports-loader": "^0.6.3",
     "expose-loader": "^0.7.1",
     "extract-text-webpack-plugin": "^1.0.1",
@@ -80,7 +79,6 @@
     "json-loader": "^0.5.4",
     "keymirror": "^0.1.1",
     "mocha": "^3.1.2",
-    "ncp": "^2.0.0",
     "npm-watch": "^0.1.6",
     "nuclear-js": "^1.4.0",
     "nuclear-js-react-addons": "^0.4.1",
@@ -100,7 +98,6 @@
     "script-loader": "^0.7.0",
     "simple-line-icons": "^2.4.1",
     "style-loader": "^0.13.1",
-    "testcafe": "^0.13.0",
     "tmp": "0.0.31",
     "webpack": "^1.13.2",
     "webpack-node-externals": "^1.5.4"
@@ -133,11 +130,8 @@
   ],
   "scripts": {
     "compile": "rm -rf lib/ && babel src/ -d lib/ -s && cp -a src/cli/templates/. lib/cli/templates && node webpack.js --compile",
-    "test": "npm run compile && mocha test/unit && npm run init-test-bot && npm run e2e",
-    "watch": "npm-watch",
-    "init-test-bot": "rm -rf test/e2e/bot && node test/e2e/init-bot",
-    "run-test-bot": "node test/e2e/start-bot.js",
-    "e2e": "testcafe chrome test/e2e/tests/**/*.js -a \"npm run run-test-bot\" --app-init-delay 10000"
+    "test": "mocha test",
+    "watch": "npm-watch"
   },
   "watch": {
     "compile": {

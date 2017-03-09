@@ -1,9 +1,0 @@
-{
-  "plugins": [
-    "testcafe"
-  ],
-  "extends": [
-    "../../../.eslintrc",
-    "plugin:testcafe/recommended"
-  ]
-}
