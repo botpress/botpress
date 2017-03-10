@@ -5,14 +5,27 @@ import {
   NavItem, 
   Glyphicon,
   MenuItem,
-  DropdownButton
+  NavDropdown
 } from 'react-bootstrap'
 import classnames from 'classnames'
 
 import NotificationHub from '~/components/Notifications/Hub'
-import { logout } from '~/util/Auth'
+import { logout, getToken } from '~/util/Auth'
 
 import style from './Header.scss'
+
+
+const getProfileImgUrl = () => {
+  const token = getToken()
+
+  if (!token) {
+    return null
+  }
+
+  //TODO: Remove and replace by the function to get the url from the token
+  return "https://avatars2.githubusercontent.com/u/1315508?v=3"
+}
+
 
 class Header extends Component {
 
@@ -21,16 +34,17 @@ class Header extends Component {
       return null
     }
 
-    const label = <i className="material-icons">account_circle</i>
-
-    return  <DropdownButton className={style.account} noCaret title={label}>
-      <MenuItem eventKey="1">
-        <a className={style.account} href="#" onClick={logout}>
-          Logout
-        </a>
-      </MenuItem>
+    const url = getProfileImgUrl()
+    let label = <img src={url}></img>
+    
+    if (!url) {
+      label = <i className="material-icons">account_circle</i>
+    }
+    
+    return  <NavDropdown className={style.account} noCaret title={label} id="account-button">
+      <MenuItem eventKey="1" onClick={logout}>Logout</MenuItem>
       <MenuItem eventKey="2">Dropdown link</MenuItem>
-    </DropdownButton>
+    </NavDropdown>
   }
 
   renderSlackButton() {
@@ -42,7 +56,7 @@ class Header extends Component {
   render() {
     const className = classnames(style.navbar, style['app-navbar'], 'bp-navbar')
 
-    return <Navbar inverse className={className}>
+    return <Navbar className={className}>
       <Navbar.Collapse>
         <Nav pullRight>
           <NavItem href="https://slack.botpress.io" target="_blank">{this.renderSlackButton()}</NavItem>
