@@ -9,9 +9,11 @@ import {
 import classnames from 'classnames'
 
 import NotificationHub from '~/components/Notifications/Hub'
-import ProfileMenu from '~/components/Profile/BasicMenu'
+
 
 import { getToken, logout } from '~/util/Auth'
+
+import ProfileMenu from '~/components/Profile/BasicMenu'
 
 import style from './Header.scss'
 
@@ -27,6 +29,8 @@ const getProfileImgUrl = () => {
   }
 
   return profile.imgUrl
+
+  return null
 }
 
 class Header extends Component {

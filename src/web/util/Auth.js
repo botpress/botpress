@@ -2,7 +2,6 @@ import EventEmitter2 from 'eventemitter2'
 import axios from 'axios'
 
 const storageKey = 'bp/token'
-
 export const authEvents = (new EventEmitter2())
 
 export const getToken = () => {

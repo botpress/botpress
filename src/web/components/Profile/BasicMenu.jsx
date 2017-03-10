@@ -4,7 +4,9 @@ import { MenuItem } from 'react-bootstrap'
 class BasicMenu extends Component {
 
 	render() {
-		return <MenuItem onClick={this.props.logout}>Logout</MenuItem>
+		return <div>
+			<a href="#" onClick={this.props.logout}>Logout</a>
+		</div>
 	}
 }
 
