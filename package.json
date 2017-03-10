@@ -44,6 +44,7 @@
     "node-sass": "^3.13.1",
     "pg": "^6.1.2",
     "prompt": "^1.0.0",
+    "react-markdown": "^2.4.5",
     "socket.io": "^1.5.0",
     "socketio-jwt": "^4.5.0",
     "source-map-support": "^0.4.6",
