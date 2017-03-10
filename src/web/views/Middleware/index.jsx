@@ -18,7 +18,7 @@ const documentation = `
   
   Every middleware has to be registered to appear and you will be able to  do so with the \`bp.middlewares.register()\` method.
 
-  For more details about middlewares, look to the [documentation](https://docs.botpress.io/creating-your-bot/understanding-the-middlewares.html).
+  For more details about middleware, look at the [documentation](https://docs.botpress.io/creating-your-bot/understanding-the-middlewares.html).
   
   ##### **Ordering middleware**
 
@@ -32,6 +32,30 @@ const documentation = `
 export default class ManageView extends React.Component {
   constructor(props) {
     super(props)
+
+    this.state = {
+      collapse: true
+    }
+  }
+
+  getDocumentation() {
+    if (this.state.collapse) {
+      return documentation.substring(0, 194) + "..."
+    }
+    return documentation
+  }
+
+  getReadMore() {
+    return this.state.collapse ? 'Read more' : 'Hide'
+  }
+
+  handleReadMore(event) {
+    this.setState({
+      collapse: !this.state.collapse
+    })
+
+    event.preventDefault()
+    event.stopPropagation()
   }
 
   render() {
@@ -43,7 +67,10 @@ export default class ManageView extends React.Component {
         		<Panel className={style.documentation}>
               <Row className={style.explication}>
                 <Col sm={12}>
-                  <Markdown source={documentation} />
+                  <Markdown source={this.getDocumentation()} />
+                  <div>
+                    <a href="#" onClick={::this.handleReadMore}>{this.getReadMore()}</a>
+                  </div>
                 </Col>
               </Row>
         		</Panel>
