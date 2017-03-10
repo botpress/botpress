@@ -14,13 +14,13 @@ import sass from 'node-sass'
 
 import util from './util'
 
-const setupSocket = function(app, bp) {
+const setupSocket = async function(app, bp) {
   const server = http.createServer(app)
   const io = socketio(server)
 
   if (bp.botfile.login.enabled) {
     io.use(socketioJwt.authorize({
-      secret: bp.security.getSecret(),
+      secret: await bp.security.getSecret(),
       handshake: true
     }))
   }
@@ -75,9 +75,9 @@ const serveApi = function(app, bp) {
   app.use(maybeApply('bodyParser.json', bodyParser.json()))
   app.use(maybeApply('bodyParser.urlencoded', bodyParser.urlencoded({ extended: true })))
 
-  app.post('/api/login', (req, res) => {
+  app.post('/api/login', async (req, res) => {
     bp.stats.track('api', 'auth', 'login')
-    const result = bp.security.login(req.body.user, req.body.password, req.ip)
+    const result = await bp.security.login(req.body.user, req.body.password, req.ip)
     res.send(result)
   })
 
@@ -336,12 +336,12 @@ const serveStatic = function(app, bp) {
   return Promise.resolve(true)
 }
 
-const authenticationMiddleware = (bp) => function(req, res, next) {
+const authenticationMiddleware = bp => async function(req, res, next) {
   if (!bp.botfile.login.enabled) {
     return next()
   }
 
-  if (bp.security.authenticate(req.headers.authorization)) {
+  if (await bp.security.authenticate(req.headers.authorization)) {
     next()
   } else {
     res.status(401).location('/login').end()
@@ -354,9 +354,9 @@ class WebServer {
     this.bp = botpress
   }
 
-  start() {
+  async start() {
     const app = express()
-    const server = setupSocket(app, this.bp)
+    const server = await setupSocket(app, this.bp)
     const port = this.bp.botfile.port || 3000
     serveApi(app, this.bp)
     serveStatic(app, this.bp)

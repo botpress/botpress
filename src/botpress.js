@@ -51,21 +51,7 @@ const mkdirIfNeeded = (path, logger) => {
 
 /**
  * Global context botpress
- *
- * @property {string} projectLocation
- * @property {Object} botfile
- * @property {Logger} logger
- *
- * @property {Function} login - check security.js
- * @property {Function} authenticate - check security.js
- * @property {Function} getSecret - check security.js
- *
- * @example
- *
- * const botfile = fs.readFileSync(path)
- * const bot = new botpress({ botfile })
- * bot.start()
- */
+*/
 class botpress {
   /**
    * Create botpress
@@ -127,11 +113,15 @@ class botpress {
 
     logger.info(`Starting botpress version ${version}`)
 
-    const security = createSecurity(dataLocation, botfile.login)
-
     const db = createDatabase({
       sqlite: { location: dbLocation },
       postgres: botfile.postgres
+    })
+
+    const security = createSecurity({
+      dataLocation,
+      securityConfig: botfile.login,
+      db
     })
 
     const modules = createModules(logger, projectLocation, dataLocation, db.kvs)
