@@ -1,6 +1,7 @@
 import Promise from 'bluebird'
-import helpers from './database_helpers'
 import _ from 'lodash'
+
+import helpers from './helpers'
 
 /*
   Possible options:

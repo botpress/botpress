@@ -2,7 +2,7 @@ import Knex from 'knex'
 import path from 'path'
 import fs from 'fs'
 
-import kvs from '../../kvs'
+import kvs from '../../database/kvs'
 import util from '../../util'
 
 module.exports = bot_path => {

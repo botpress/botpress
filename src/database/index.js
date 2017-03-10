@@ -1,7 +1,7 @@
 import Promise from 'bluebird'
 import moment from 'moment'
 
-import helpers from './database_helpers'
+import helpers from './helpers'
 import kvs from './kvs'
 
 const initializeCoreDatabase = knex => {
