@@ -11,7 +11,7 @@ import classnames from 'classnames'
 import NotificationHub from '~/components/Notifications/Hub'
 import ProfileMenu from '~/components/Profile/BasicMenu'
 
-import { getToken } from '~/util/Auth'
+import { getToken, logout } from '~/util/Auth'
 
 import style from './Header.scss'
 
@@ -44,7 +44,7 @@ class Header extends Component {
     }
     
     return  <NavDropdown className={style.account} noCaret title={label} id="account-button">
-      <ProfileMenu/>
+      <ProfileMenu logout={logout}/>
     </NavDropdown>
   }
 
