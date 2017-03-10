@@ -4,28 +4,30 @@ import {
   Nav, 
   NavItem, 
   Glyphicon,
-  MenuItem,
   NavDropdown
 } from 'react-bootstrap'
 import classnames from 'classnames'
 
 import NotificationHub from '~/components/Notifications/Hub'
-import { logout, getToken } from '~/util/Auth'
+import ProfileMenu from '~/components/Profile/BasicMenu'
+
+import { getToken } from '~/util/Auth'
 
 import style from './Header.scss'
-
 
 const getProfileImgUrl = () => {
   const token = getToken()
 
-  if (!token) {
+  const encoded = token.token.replace(/\w+\./, '').replace(/\.[\w|\-|_]+/, '')
+  
+  const profile = JSON.parse(Buffer(encoded, 'base64').toString())
+
+  if (!profile.imgUrl) {
     return null
   }
 
-  //TODO: Remove and replace by the function to get the url from the token
-  return "https://avatars2.githubusercontent.com/u/1315508?v=3"
+  return profile.imgUrl
 }
-
 
 class Header extends Component {
 
@@ -42,8 +44,7 @@ class Header extends Component {
     }
     
     return  <NavDropdown className={style.account} noCaret title={label} id="account-button">
-      <MenuItem eventKey="1" onClick={logout}>Logout</MenuItem>
-      <MenuItem eventKey="2">Dropdown link</MenuItem>
+      <ProfileMenu/>
     </NavDropdown>
   }
 
