@@ -1,7 +1,7 @@
 import Promise from 'bluebird'
 import moment from 'moment'
 
-import helpers from './helpers'
+import coreTables from './core_tables'
 import kvs from './kvs'
 
 const initializeCoreDatabase = knex => {
@@ -9,20 +9,7 @@ const initializeCoreDatabase = knex => {
     throw new Error('You must initialize the database before')
   }
 
-  helpers(knex).date.now()
-
-  return helpers(knex).createTableIfNotExists('users', function (table) {
-    table.string('id').primary()
-    table.string('userId')
-    table.string('platform')
-    table.enu('gender', ['unknown', 'male', 'female'])
-    table.integer('timezone')
-    table.string('picture_url')
-    table.string('first_name')
-    table.string('last_name')
-    table.string('locale')
-    table.timestamp('created_on')
-  })
+  return Promise.mapSeries(coreTables, fn => fn(knex))
 }
 
 module.exports = ({ sqlite, postgres }) => {
