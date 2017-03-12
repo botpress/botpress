@@ -60,6 +60,7 @@ module.exports = {
   sqlite: sqlite,
   postgres: postgres,
   createSampleTable: createSampleTable,
+  doBoth: fn => () => fn && fn(postgres).then(fn(sqlite)),
   itBoth: itBoth(() => emptyTable),
   run: (name, cb) => {
     describe('Setup', function() {
