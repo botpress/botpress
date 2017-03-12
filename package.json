@@ -98,6 +98,7 @@
     "sass-loader": "^4.0.2",
     "script-loader": "^0.7.0",
     "simple-line-icons": "^2.4.1",
+    "sinon": "^1.17.7",
     "style-loader": "^0.13.1",
     "tmp": "0.0.31",
     "webpack": "^1.13.2",
