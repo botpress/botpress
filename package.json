@@ -131,7 +131,7 @@
   ],
   "scripts": {
     "compile": "rm -rf lib/ && babel src/ -d lib/ -s && cp -a src/cli/templates/. lib/cli/templates && node webpack.js --compile",
-    "test": "mocha test",
+    "test": "mocha --compilers js:babel-core/register --require test/index.js test/**",
     "watch": "npm-watch"
   },
   "watch": {
