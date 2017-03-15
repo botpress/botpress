@@ -2,6 +2,12 @@
 
 Looking to get started with Botpress but unsure how? Let's create a Messenger Bot in 3 minutes!
 
+## TLDR
+
+Here's a YouTube video if you'd like to see how easy it is to get started with Botpress.
+
+[![Youtube Screenshot](https://s3.amazonaws.com/botpress-io/images/youtube-3-minutes-messenger.png)](https://www.youtube.com/watch?v=GO2yJ51ILl0)
+
 ## 1. Installation
 
 Botpress requires [node](https://nodejs.org) (version >= 4.2) and uses [npm](https://www.npmjs.com) as package manager.
@@ -135,6 +141,6 @@ Note that the sendText function also takes a third argument, and we configured i
 
 This was just the very beginning of what you can do with Botpress. If you would like to get started with the real fun stuff, be sure to:
 
-1. Continue reading [the documentation](how-botpress-works.md)
-2. Check out the [Cookbook](https://github.com/botpress/cookbook), which contains lots of code recipes for common bot tasks
-3. Read our demo bot [Boost](https://github.com/botpress/Boost)'s source code
+1. Continue reading [the documentation](what-is-botpress.md)
+2. Read our demo bot [Boost](https://github.com/botpress/Boost)'s source code
+3. Check out the [Cookbook](https://github.com/botpress/cookbook), which contains lots of code recipes for common bot tasks
