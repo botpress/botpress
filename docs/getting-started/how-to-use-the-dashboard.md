@@ -1,14 +1,14 @@
 # How to use the Dashboard
 
-Botpress ships a beautiful dashboard acessible by default on `localhost:3000`.
+Botpress ships with a beautiful dashboard acessible by default on `localhost:3000`. The dashboard is meant for Bot Administrators, Content Managers, Data Scientists and Marketing People to be able to do their job without having to learn how to code. This comes in extremely useful for bots in production.
 
-You can do a lot of things there:
+By default, you can do a lot of things there:
 
 * Manage Middleware Flow
 * Install and uninstall modules
 * See botpress logs in real-time
-* Change modules configurations
-* Get real-time notifications about your bot
+* Configure & utilize modules
+* Get real-time notifications from your bot
 * and more
 
 Let's learn a little about each functionality.
@@ -27,14 +27,16 @@ You can manage your all modules using the *Modules* menu on sidebar. It provide 
 
 You can see logs clicking on the icon at toolbar. It will show recents logs and the option to export archive log.
 
-## Change modules configuration
+## Configure & utilize modules
 
-The majority of the modules provide an UI to manage configurations. When you install a new module, is created a new menu item on sidebar and you can access it.
+The majority of the modules provide a UI so that users can use them graphically without involving code. Modules automatically appear in the left sidebar after being installed.
 
 ## Get real-time notifications
 
-All notifications is acessible for a toolbar icon at top. You can mark all as read and see recents notifications.
+All notifications are acessible in the Botpress topbar menu. You can mark all as read and see recents notifications.
 
 ## And more!
 
-Also, you can manage your license and more is coming! If you are missing any features at Dashboard, feel free to [create an issue at our Github](https://github.com/botpress/botpress/issues) or talk us on [Slack](http://slack.botpress.io/).
+You can also change your Botpress license from the UI, see the About dialog, etc..
+
+If you are missing any features at Dashboard, feel free to create an issue [on our Github](https://github.com/botpress/botpress/issues) or talk to us on [Slack](http://slack.botpress.io/).

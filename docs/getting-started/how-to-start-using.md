@@ -1,4 +1,4 @@
-# How to start using
+# How to start using Botpress
 
 ## Installation
 
