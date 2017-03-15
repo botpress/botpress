@@ -25,6 +25,8 @@ A middleware chain is simply a collection of middleware functions that are calle
 - interrupt the chain by never calling the next middleware (what we call swallowing the event)
 - interrupt the chain by throwing an error
 
+<img alt="Middleware Chain" width="600" src="https://raw.githubusercontent.com/botpress/botpress/master/assets/middleware-chain.png">
+
 ## A simple middleware function
 
 A middleware function is simply a function that takes an event as the first parameter and a `next` function as the second parameter.
