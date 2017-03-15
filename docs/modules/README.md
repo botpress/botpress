@@ -1,6 +1,6 @@
 ## Modules
 
-* [How to use modules](how-to-use-modules.md)
+<!-- * [How to use modules](how-to-use-modules.md) -->
 * [How to create a module](how-to-create-a-module.md)
     * [Modules Guidelines](modules-guidelines.md)
     * [How do I deploy a module to the community?](how-to-deploy-a-module.md)
