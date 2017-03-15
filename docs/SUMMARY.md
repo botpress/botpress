@@ -15,6 +15,7 @@
     * [How to create Custom Routes with the HTTP Server](creating-your-bot/how-to-use-the-http-server.md)
     * [How to use the built-in Database](creating-your-bot/how-to-use-the-database.md)
     * [How to Debug your bot](creating-your-bot/how-to-debug.md)
+    * [How to switch to the Botpress License](creating-your-bot/botpress-license.md)
 3. [Modules](modules/README.md)
     * [How to create a module](modules/how-to-create-a-module.md)
         * [How to configure my module](modules/how-to-configure-my-module.md)
