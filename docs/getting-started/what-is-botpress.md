@@ -6,7 +6,7 @@ In doubt about Botpress? This page is for you. Let's start demystifying what bot
 
 For the same reason why millions of people use Wordpress to create a website, people use Botpress to create bots. Botpress handles everything generic about bots so that you can really focus on building conversational masterpieces and deliver real value to your customers. You don't have to write everything from scratch; most (if not everything) has already been implemented in Botpress Core or by community modules. Just write your logic.
 
-<img alt="What is Botpress" width="400" src="https://raw.githubusercontent.com/botpress/botpress/master/assets/what-is-botpress.png">
+<img alt="What is Botpress" width="600" src="https://raw.githubusercontent.com/botpress/botpress/master/assets/what-is-botpress.png">
 
 ## What Botpress is not
 
