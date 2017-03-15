@@ -27,9 +27,7 @@ If you are not a programmer or this is your first bot, please consider using [Ch
 
 ## <a name="what-it-looks-like">What it looks like </a>
 
-<img alt="Botpress" height="150" src="assets/shot_01.png">
-<img alt="Botpress" height="150" src="assets/shot_02.png">
-<img alt="Botpress" height="150" src="assets/shot_03.png">
+<img alt="Botpress" height="150" src="assets/shot_01.png"><img alt="Botpress" height="150" src="assets/shot_02.png"><img alt="Botpress" height="150" src="assets/shot_03.png">
 
 ## Installation
 
