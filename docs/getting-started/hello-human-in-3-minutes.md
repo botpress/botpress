@@ -10,7 +10,7 @@ Here's a YouTube video if you'd like to see how easy it is to get started with B
 
 ## 1. Installation
 
-Botpress requires [node](https://nodejs.org) (version >= 4.2) and uses [npm](https://www.npmjs.com) as package manager.
+Botpress requires [node](https://nodejs.org) (version >= 4.6) and uses [npm](https://www.npmjs.com) as package manager.
 
 You need to have `botpress` installed as a global dependency using `npm`. If you haven't done that yet, just run the following command:
 

@@ -33,7 +33,7 @@ If you are not a programmer or this is your first bot, please consider using [Ch
 
 ## Installation
 
-Botpress requires [node](https://nodejs.org) (version >= 4.2) and uses [npm](https://www.npmjs.com) as package manager.
+Botpress requires [node](https://nodejs.org) (version >= 4.6) and uses [npm](https://www.npmjs.com) as package manager.
 
 ```
 npm install -g botpress
