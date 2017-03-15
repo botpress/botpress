@@ -1,6 +1,6 @@
 # Introduction
 
-Welcome to Botpress! This page is a summary of the all documentation that you can found here. We hope that you can find all of you need. If you not found any information, talk with us on [Slack](http://slack.botpress.io) or please create an issue at our [Github](http://github.com/botpress/botpress/issues). Enjoy Botpress!
+Welcome to Botpress! This page is a summary of the all documentation available. If you feel there is anything missing or unclear, please come and talk to us on [Slack](http://slack.botpress.io) or create an issue on our [Github](http://github.com/botpress/botpress/issues). We hope you'll enjoy Botpress!
 
 1. [Getting Started](getting-started/README.md)
     * [Hello Human in 3 minutes](getting-started/hello-human-in-3-minutes.md)
