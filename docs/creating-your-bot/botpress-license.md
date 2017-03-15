@@ -10,8 +10,8 @@ The Botpress License is currently free if your bot has less than 150,000 interac
 
 On your bot's dashboard, locate the "Licensed under AGPL-3.0" link at the bottom left corner of the screen.
 
-<img alt="Middleware Chain" src="https://raw.githubusercontent.com/botpress/botpress/master/assets/licensing-dashboard.png">
+<img alt="License Dashboard" src="https://raw.githubusercontent.com/botpress/botpress/master/assets/licensing-dashboard.jpg">
 
 Click on it and you'll see a window from which you can switch your license to the Botpress License.
 
-<img alt="Middleware Chain" width="600" src="https://raw.githubusercontent.com/botpress/botpress/master/assets/licensing-window.png">
+<img alt="License Window" width="600" src="https://raw.githubusercontent.com/botpress/botpress/master/assets/licensing-window.jpg">
