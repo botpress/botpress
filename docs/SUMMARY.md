@@ -7,18 +7,7 @@
     * [How to start using Botpress](getting-started/how-to-start-using.md)
     * [How to use the Dashboard](getting-started/how-to-use-the-dashboard.md)
     * [Reference: CLI tool](getting-started/how-to-use-the-cli.md)
-1. [Modules](modules/README.md)
-    <!-- * [How to use modules](modules/how-to-use-modules.md) -->
-    * [How to create a module](modules/how-to-create-a-module.md)
-        <!-- * [Modules Guidelines](modules/modules-guidelines.md) -->
-        <!-- * [How do I deploy a module to the community?](modules/how-to-deploy-a-module.md) -->
-        * [How to configure my module](modules/how-to-configure-my-module.md)
-        <!-- * [Which APIs should my module expose?](modules/which-apis-should-my-module-expose.md) -->
-        <!-- * [When should I use the Events vs APIs?](modules/when-should-i-use-the-events-vs-apis.md) -->
-        <!-- * [Should I create a UI for my module?](modules/should-i-create-a-ui-for-my-module.md) -->
-        * [How can I change the icon of my module and its name in the menu?](modules/how-to-change-the-icon-and-name.md)
-        <!-- * [How do I write documentation for my module?](modules/how-to-write-documentation.md) -->
-1. [Creating your bot](creating-your-bot/README.md)
+2. [Creating your bot](creating-your-bot/README.md)
     * [The botfile.js configuration file](creating-your-bot/the-botfile.md)
     * [Understanding the middlewares flow](creating-your-bot/understanding-the-middlewares.md)
     * [How to use the hear middleware](creating-your-bot/how-to-use-the-hear-middleware.md)
@@ -26,15 +15,12 @@
     * [How to create Custom Routes with the HTTP Server](creating-your-bot/how-to-use-the-http-server.md)
     * [How to use the built-in Database](creating-your-bot/how-to-use-the-database.md)
     * [How to Debug your bot](creating-your-bot/how-to-debug.md)
-    <!-- * [How to test your bot](creating-your-bot/how-to-test.md) -->
-    <!-- * [How to manage conversation flow](creating-your-bot/how-to-manage-conversation-flow.md) -->
-1. [Management, Monitoring and Deployment](managing/README.md)
-    <!-- * [What to do before you deploy your bot](managing/what-to-do-before-you-deploy-your-bot.md) -->
+3. [Modules](modules/README.md)
+    * [How to create a module](modules/how-to-create-a-module.md)
+        * [How to configure my module](modules/how-to-configure-my-module.md)
+        * [How can I change the icon of my module and its name in the menu?](modules/how-to-change-the-icon-and-name.md)
+4. [Management, Monitoring and Deployment](managing/README.md)
     * [How to view the logs using the Dashboard](managing/how-to-view-the-logs-using-the-dashboard.md)
-    <!-- * [How to use terminal inside the Dashboard](managing/how-to-use-terminal-inside-the-dashboard.md) -->
-    <!-- * [How to change configuration using the Dashboard](managing/how-to-change-configuration-using-the-dashboard.md) -->
     * [How to deploy your bot](managing/how-to-deploy.md)
         * [Deploy to Heroku](managing/deploy-to-heroku.md)
         * [Deploy to AWS](managing/deploy-to-aws.md)
-        <!-- * [Deploy to Google Cloud](managing/deploy-to-google-cloud.md) -->
-        <!-- * [Deploy to Azure](managing/deploy-to-azure.md) -->
