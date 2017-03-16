@@ -76,7 +76,7 @@ var webConfig = {
 
 var compiler = webpack([nodeConfig, webConfig])
 var postProcess = function(err, stats) {
-  if (err) throw err
+  if (err) { throw err }
   console.log(stats.toString('minimal'))
 }
 

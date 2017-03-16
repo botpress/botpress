@@ -28,7 +28,7 @@ module.exports = ({ dataLocation, securityConfig }) => {
   // a per-ip cache that logs login attempts
   let attempts = {}
   let lastCleanTimestamp = new Date()
-  const {maxAttempts, resetAfter} = securityConfig
+  const { maxAttempts, resetAfter } = securityConfig
 
   function attempt(ip) {
     // reset the cache if time elapsed

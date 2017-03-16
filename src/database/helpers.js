@@ -44,7 +44,7 @@ module.exports = knex => {
     createTableIfNotExists: (tableName, cb) => {
       return knex.schema.hasTable(tableName)
       .then(exists => {
-        if (exists) return
+        if (exists) { return }
         return knex.schema.createTableIfNotExists(tableName, cb)
       })
     },

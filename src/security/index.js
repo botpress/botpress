@@ -25,7 +25,7 @@ module.exports = ({ dataLocation, securityConfig, db }) => {
   const login = async function(user, password, ip = 'all') {
     const canAttempt = await authentication.attempt(ip)
     if (!canAttempt) {
-      return { success: false, reason: 'Too many login attempts. Try again later.'}
+      return { success: false, reason: 'Too many login attempts. Try again later.' }
     }
 
     const loginUser = await authentication.authenticate(user, password, ip)

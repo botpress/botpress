@@ -133,7 +133,7 @@ module.exports = function(bp, dataLocation, projectLocation, logger) {
     incoming = createMiddleware(bp, 'incoming')
     outgoing = createMiddleware(bp, 'outgoing')
 
-    const {middleware: licenseMiddleware} = licensing(projectLocation)
+    const { middleware: licenseMiddleware } = licensing(projectLocation)
     incoming.use(licenseMiddleware)
 
     list().forEach(m => {

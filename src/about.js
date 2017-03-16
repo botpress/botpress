@@ -1,5 +1,5 @@
 import fs from 'fs'
-import {resolveProjectFile} from './util'
+import { resolveProjectFile } from './util'
 
 module.exports = (projectLocation) => {
 

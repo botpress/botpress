@@ -3,7 +3,7 @@ import fs from 'fs'
 import Promise from 'bluebird'
 
 import listeners from './listeners'
-import {resolveProjectFile} from './util'
+import { resolveProjectFile } from './util'
 
 module.exports = (projectLocation) => {
 

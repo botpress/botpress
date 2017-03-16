@@ -99,7 +99,7 @@ class botpress {
     // the bot's location is kept in this.projectLocation
     process.chdir(path.join(__dirname, '../'))
 
-    const {projectLocation, botfile} = this
+    const { projectLocation, botfile } = this
 
     const isFirstRun = fs.existsSync(path.join(projectLocation, '.welcome'))
     const dataLocation = getDataLocation(botfile.dataDir, projectLocation)
@@ -133,7 +133,7 @@ class botpress {
     const about = createAbout(projectLocation)
     const licensing = createLicensing(projectLocation)
     const middlewares = createMiddlewares(this, dataLocation, projectLocation, logger)
-    const {hear, middleware: hearMiddleware} = createHearMiddleware()
+    const { hear, middleware: hearMiddleware } = createHearMiddleware()
 
     middlewares.register(hearMiddleware)
 

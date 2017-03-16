@@ -47,7 +47,7 @@ module.exports = ({ sqlite, postgres }) => {
   }
 
   const saveUser = ({ id, platform, gender, timezone, locale, picture_url, first_name, last_name }) => {
-    const userId =  platform + ':' + id
+    const userId = platform + ':' + id
     const userRow = {
       id: userId,
       userId: id,

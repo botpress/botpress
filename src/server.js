@@ -217,7 +217,7 @@ const serveApi = function(app, bp) {
       fields: ['message', 'level', 'timestamp']
     }
     bp.logger.query(options, (err, results) => {
-      if (err) return console.log(err)
+      if (err) { return console.log(err) }
       res.send(results.file)
     })
   })
@@ -276,8 +276,7 @@ const serveStatic = function(app, bp) {
           const content = fs.readFileSync(iconPath)
           res.contentType('image/png')
           res.send(content)
-        }
-        catch (err) {
+        } catch (err) {
           bp.logger.warn(`Could not serve module icon [${name}] at: ${iconPath}`)
         }
       })
@@ -288,8 +287,7 @@ const serveStatic = function(app, bp) {
         const content = fs.readFileSync(bundlePath)
         res.contentType('text/javascript')
         res.send(content)
-      }
-      catch (err) {
+      } catch (err) {
         bp.logger.warn(`Could not serve module [${name}] at: ${bundlePath}`)
       }
     })
