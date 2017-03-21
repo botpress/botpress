@@ -79,11 +79,11 @@ module.exports = function(bp, dataLocation, projectLocation, logger) {
     fs.writeFileSync(middlewaresFilePath, JSON.stringify(customizations))
   }
 
-  const setCustomizations = (middlewares) => {
-    middlewares.forEach(middleware => {
+  const setCustomizations = middlewares => {
+    _.each(middlewares, (middleware => {
       const { name, order, enabled } = middleware
       customizations[name] = { order, enabled }
-    })
+    }))
     writeCustomizations()
   }
 
@@ -136,7 +136,7 @@ module.exports = function(bp, dataLocation, projectLocation, logger) {
     const { middleware: licenseMiddleware } = licensing(projectLocation)
     incoming.use(licenseMiddleware)
 
-    list().forEach(m => {
+    _.each(list(), (m => {
       if (!m.enabled) {
         return logger.debug('SKIPPING middleware:', m.name, ' [Reason=disabled]')
       }
@@ -148,7 +148,7 @@ module.exports = function(bp, dataLocation, projectLocation, logger) {
       } else {
         outgoing.use(m.handler)
       }
-    })
+    }))
   }
 
   const sendToMiddleware = type => event => {
