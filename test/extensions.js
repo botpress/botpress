@@ -6,12 +6,6 @@ const expect = require('chai').expect
 
 import { requireExtension } from '../src/extensions'
 
-//TODO: Require works for edition (Ultimate C, Pro A, Lite A)
-//TODO: Require works for downgrade (Ultimate -> Pro) A
-//TODO: Require works for downgrade (Ultimate -> Lite) B
-//TODO: Require works for downgrade (Pro -> Lite) B
-//TODO: Throws correctly (D)
-
 describe('Extensions Loader', () => {
   const tmpFiles = []
   const writeFile = (path, content) => {
