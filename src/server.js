@@ -14,8 +14,7 @@ import sass from 'node-sass'
 
 import util from './util'
 
-const setupSocket = async function(app, bp) {
-  const server = http.createServer(app)
+const setupSocket = async function(server, bp) {
   const io = socketio(server)
 
   if (bp.botfile.login.enabled) {
@@ -354,9 +353,11 @@ class WebServer {
 
   async start() {
     const app = express()
-    const server = await setupSocket(app, this.bp)
+    const server = http.createServer(app)
     const port = this.bp.botfile.port || 3000
+    
     serveApi(app, this.bp)
+    await setupSocket(server, this.bp)
     serveStatic(app, this.bp)
 
     server.listen(port, () => {
