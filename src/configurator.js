@@ -98,7 +98,10 @@ const overwriteFromEnvValues = (options, object) => {
 
 const overwriteFromBotfileValues = (config_name, options, botfile, object) => {
   return _.mapValues(object, (_v, name) => {
-    if (botfile && botfile.config && botfile.config[config_name] && typeof botfile.config[config_name][name] !== 'undefined') {
+    if (botfile 
+      && botfile.config 
+      && botfile.config[config_name] 
+      && typeof botfile.config[config_name][name] !== 'undefined') {
       return botfile.config[config_name][name]
     }
 

@@ -17,7 +17,8 @@ const nextStepText = 'now run ' + chalk.bold('`bp start`') + ' in your terminal'
 
 const assertDoesntExist = (file) => {
   if (fs.existsSync(file)) {
-    util.print('error', 'package.json or botfile.js are already in repository, remove them before running this command again.')
+    util.print('error', 'package.json or botfile.js are already in repository, ' +
+      'remove them before running this command again.')
     process.exit(1)
   }
 }

@@ -33,7 +33,9 @@ function migrate_database_schema(dbLocation) {
   .then(() => knex('users').update({ created_on: knex.raw(updateUsers) }))
   .then(rows => {
     util.print('info', 'Updated ' + rows + ' users')
-    util.print('warn', 'Users table was migrated to new schema but existing users will miss the following fields: `picture_url`, `first_name`, `last_name`. They have been left to `null`.')
+    util.print('warn', 'Users table was migrated to new schema but existing '
+      + 'users will miss the following fields: `picture_url`, `first_name`, '
+      + '`last_name`. They have been left to `null`.')
   })
   .catch(() => {
     util.print('warn', 'Did not migrate table `users` as schema was already up to date')
@@ -45,8 +47,13 @@ function migrate_database_schema(dbLocation) {
   .then(() => {
 
     if (!process.env.DELETE_TABLES) {
-      util.print('warn', "This migration must delete the tables of the following modules: `botpress-scheduler`, `botpress-analytics`, `botpress-hitl` and `botpress-subscription`.")
-      util.print('warn', "This step has been skipped because you didn't provide the DELETE_TABLES=true environement variable.")
+      util.print('warn', "This migration must delete the tables of "
+        + "the following modules: `botpress-scheduler`, `botpress-analytics`, "
+        + "`botpress-hitl` and `botpress-subscription`.")
+
+      util.print('warn', "This step has been skipped because you didn't provide "
+        + "the DELETE_TABLES=true environement variable.")
+
       util.print('warn', "Please backup your data if necessary then re-run with DELETE_TABLES=true")
       return false
     }
@@ -78,7 +85,8 @@ function migrate_botfile(botfilePath) {
   const before = fs.readFileSync(botfilePath).toString()
 
   if (before.indexOf('postgres:') >= 0) {
-    util.print('warn', 'Did not migrate botfile as it seemed like `postgres` was already present. Please migrate manually if this is a mistake.')
+    util.print('warn', 'Did not migrate botfile as it seemed like `postgres`'
+      + ' was already present. Please migrate manually if this is a mistake.')
     return false
   }
 
