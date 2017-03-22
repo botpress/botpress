@@ -16,13 +16,12 @@ function requireEdition(file, edition) {
 
 function requireExtension(file) {
   const edition = process.env.BOTPRESS_EDITION || 'lite'
-  console.log('CURRENT EDITION = ', edition)
   const editions = ['ultimate', 'pro', 'lite']
 
   let index = editions.indexOf(edition)
   let extension = null
   while(extension == null) {
-    let extension = requireEdition(file, editions[index++])
+    extension = requireEdition(file, editions[index++])
   }
 
   return extension
