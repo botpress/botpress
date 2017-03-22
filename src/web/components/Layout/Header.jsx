@@ -8,8 +8,7 @@ import {
 } from 'react-bootstrap'
 import classnames from 'classnames'
 
-import NotificationHub from '~/components/Notifications/Hub'
-
+import { requireExtension } from '~/../extensions.js'
 
 import { getToken, logout } from '~/util/Auth'
 
@@ -36,6 +35,9 @@ const getProfileImgUrl = () => {
 class Header extends Component {
 
   renderLogoutButton() {
+
+    const Menu = requireExtension('views/menu.jsx')
+    
     if (!window.AUTH_ENABLED) {
       return null
     }
@@ -48,7 +50,7 @@ class Header extends Component {
     }
     
     return  <NavDropdown className={style.account} noCaret title={label} id="account-button">
-      <ProfileMenu logout={logout}/>
+      <Menu logout={logout}/>
     </NavDropdown>
   }
 
