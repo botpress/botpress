@@ -1,7 +1,7 @@
 import Promise from 'bluebird'
 import moment from 'moment'
 
-import coreTables from './core_tables'
+import tables from './tables'
 import kvs from './kvs'
 
 const initializeCoreDatabase = knex => {
@@ -9,7 +9,7 @@ const initializeCoreDatabase = knex => {
     throw new Error('You must initialize the database before')
   }
 
-  return Promise.mapSeries(coreTables, fn => fn(knex))
+  return Promise.mapSeries(tables, fn => fn(knex))
 }
 
 module.exports = ({ sqlite, postgres }) => {
