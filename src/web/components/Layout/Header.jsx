@@ -10,7 +10,7 @@ import {
 import classnames from 'classnames'
 
 import NotificationHub from '~/components/Notifications/Hub'
-import ProfileMenu from '+/views/menu'
+import ProfileMenu from '+/views/Menu'
 
 import { getToken, logout } from '~/util/Auth'
 
