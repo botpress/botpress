@@ -2,7 +2,8 @@ require("babel-polyfill")
 
 var path = require('path')
 
-module.exports = {
-  Botpress: require(path.join(__dirname, 'lib/botpress.js')),
-  DatabaseHelpers: require(path.join(__dirname, 'lib/database/helpers.js'))
-}
+var Botpress = require('./src/botpress.js')
+var DatabaseHelpers = require('./src/database/helpers.js')
+var CLI = require('./src/cli')
+
+module.exports = { Botpress, DatabaseHelpers, CLI }

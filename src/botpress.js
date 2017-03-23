@@ -68,7 +68,7 @@ class botpress {
     /**
      * The botfile config object
      */
-    this.botfile = require(botfile)
+    this.botfile = eval('require')(botfile)
 
     this.stats = stats(this.botfile)
 
@@ -164,7 +164,7 @@ class botpress {
     const server = new WebServer({ botpress: this })
     server.start()
 
-    const projectEntry = require(projectLocation)
+    const projectEntry = eval('require')(projectLocation)
     if (typeof(projectEntry) === 'function') {
       projectEntry.call(projectEntry, this)
     } else {

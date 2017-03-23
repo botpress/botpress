@@ -3,6 +3,47 @@ var path = require('path')
 var CopyWebpackPlugin = require('copy-webpack-plugin')
 var autoprefixer = require('autoprefixer')
 var HardSourceWebpackPlugin = require('hard-source-webpack-plugin')
+var nodeExternals = require('webpack-node-externals')
+
+var nodeConfig = {
+  devtool: 'source-map',
+  entry: [path.resolve(__dirname, './index.js')],
+  output: {
+    path: './bin',
+    filename: 'node.bundle.js',
+    libraryTarget: 'commonjs2',
+    publicPath: __dirname
+  },
+  externals: [nodeExternals()],
+  target: 'node',
+  node: {
+    __dirname: false
+  },
+  resolve: {
+    extensions: ['', '.js'],
+    alias: {
+      '~': path.resolve(__dirname, './src'),
+      '+': path.resolve(__dirname, './extensions/lite')
+    }
+  },
+  module: {
+    loaders: [{
+      test: /\.js$/,
+      loader: 'babel-loader',
+      exclude: /node_modules/,
+      query: {
+        presets: ['latest', 'stage-0'],
+        plugins: ['transform-object-rest-spread']
+      }
+    }, {
+      test: /\.json$/,
+      loader: 'json-loader'
+    }, {
+      test: /\/extensions\//,
+      loader: path.resolve(__dirname, './extensions/extensions-loader.js')
+    }]
+  }
+}
 
 var webConfig = {
   bail: true,
@@ -70,11 +111,10 @@ var webConfig = {
   postcss: [ autoprefixer({ browsers: ['last 2 versions'] }) ]
 }
 
-
-var compiler = webpack(webConfig)
+var compiler = webpack([webConfig, nodeConfig])
 var postProcess = function(err, stats) {
   if (err) throw err
-  console.log(stats.toString('normal'))
+  console.log(stats.toString())
 }
 
 if (process.argv.indexOf('--compile') !== -1) {
@@ -83,4 +123,4 @@ if (process.argv.indexOf('--compile') !== -1) {
   compiler.watch(null, postProcess)
 }
 
-module.exports = { web: webConfig }
+module.exports = { web: webConfig, node: nodeConfig }

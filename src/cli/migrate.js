@@ -23,7 +23,7 @@ module.exports = function(fromVersion) {
   })
 
   return Promise.mapSeries(toApply, file => {
-    const migration = require(path.join(__dirname, 'migrations', file))
+    const migration = eval('require')(path.join(__dirname, 'migrations', file))
     return migration(path.resolve('.'))
     .then(() => {
       util.print('success', `Migration ${file.replace('.js', '')} applied successfully`)
