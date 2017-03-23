@@ -19,6 +19,10 @@ import Module from '~/views/Module'
 import Notifications from '~/views/Notifications'
 import Logs from '~/views/Logs'
 import Login from '~/views/Login'
+import Admin from '+/views/Admin'
+import Initialization from '+/views/Initialization'
+import Profile from '+/views/Profile'
+import Password from '+/views/Password'
 
 const appHistory = useRouterHistory(createHistory)({basename: '/'})
 
@@ -36,6 +40,8 @@ export default () => {
   return (
     <Router history={appHistory} onUpdate={logPageView}>
       <Route path="/login" component={Login}/>
+      <Route path="/initialization" component={Initialization}/>
+      <Route path="/password" component={Password}/>
       <Route path="/" component={EnsureAuthenticated(Layout)}>
         <Route path="dashboard" component={Dashboard}/>
         <IndexRoute component={Dashboard}/>
@@ -44,6 +50,8 @@ export default () => {
         <Route path="modules/:moduleName" component={Module}/>
         <Route path="notifications" component={Notifications}/>
         <Route path="logs" component={Logs}/>
+        <Route path="admin" component={Admin}/>
+        <Route path="profile" component={Profile}/>
       </Route>
     </Router>
   )
