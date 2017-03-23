@@ -16,7 +16,8 @@ var webConfig = {
   resolve: {
     extensions: ['', '.js', '.jsx', '.css'],
     alias: {
-      '~': path.resolve(__dirname, './src/web')
+      '~': path.resolve(__dirname, './src/web'),
+      '+': path.resolve(__dirname, './extensions/lite')
     }
   },
   plugins: [
@@ -61,6 +62,9 @@ var webConfig = {
     }, {
       test: /\.json$/,
       loader: "json-loader"
+    }, {
+      test: /\/extensions\//,
+      loader: path.resolve(__dirname, './extensions/extensions-loader.js')
     }]
   },
   postcss: [ autoprefixer({ browsers: ['last 2 versions'] }) ]

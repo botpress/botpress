@@ -138,7 +138,8 @@
   "watch": {
     "compile": {
       "patterns": [
-        "src"
+        "src",
+        "extensions"
       ],
       "extensions": "js,jsx,scss,json,html"
     }

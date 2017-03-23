@@ -10,7 +10,7 @@ function requireEdition(file, edition) {
   } else if (!exists) {
     return null
   } else {
-    return fs.readFileSync(extensionPath)
+    return fs.readFileSync(extensionPath).toString()
   }
 }
 

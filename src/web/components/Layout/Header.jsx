@@ -1,4 +1,4 @@
-import React,{Component} from 'react'
+import React, { Component } from 'react'
 import {
   Navbar, 
   Nav, 
@@ -6,13 +6,13 @@ import {
   Glyphicon,
   NavDropdown
 } from 'react-bootstrap'
+
 import classnames from 'classnames'
 
-import { requireExtension } from '~/../extensions.js'
+import NotificationHub from '~/components/Notifications/Hub'
+import ProfileMenu from '+/views/menu'
 
 import { getToken, logout } from '~/util/Auth'
-
-import ProfileMenu from '~/components/Profile/BasicMenu'
 
 import style from './Header.scss'
 
@@ -35,8 +35,6 @@ const getProfileImgUrl = () => {
 class Header extends Component {
 
   renderLogoutButton() {
-
-    const Menu = requireExtension('views/menu.jsx')
     
     if (!window.AUTH_ENABLED) {
       return null
@@ -49,8 +47,8 @@ class Header extends Component {
       label = <i className="material-icons">account_circle</i>
     }
     
-    return  <NavDropdown className={style.account} noCaret title={label} id="account-button">
-      <Menu logout={logout}/>
+    return <NavDropdown className={style.account} noCaret title={label} id="account-button">
+      <ProfileMenu logout={logout}/>  
     </NavDropdown>
   }
 

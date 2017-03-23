@@ -4,7 +4,7 @@ import fs from 'fs'
 import path from 'path'
 const expect = require('chai').expect
 
-import { requireExtension } from '../src/extensions'
+import { requireExtension } from '../extensions/extensions'
 
 describe('Extensions Loader', () => {
   const tmpFiles = []
@@ -31,28 +31,28 @@ describe('Extensions Loader', () => {
   it('Require works for edition', function() {
 
     process.env.BOTPRESS_EDITION = 'ultimate'
-    expect(requireExtension('c.js')()).to.equal('ultimate')
+    expect(requireExtension('c.js')).to.contain('ultimate')
 
     process.env.BOTPRESS_EDITION = 'pro'
-    expect(requireExtension('a.js')()).to.equal('pro')
+    expect(requireExtension('a.js')).to.contain('pro')
 
     process.env.BOTPRESS_EDITION = 'lite'
-    expect(requireExtension('b.js')()).to.equal('lite')
+    expect(requireExtension('b.js')).to.contain('lite')
   })
 
   it('Require works for downgrade (Ultimate -> Pro)', function() {
     process.env.BOTPRESS_EDITION = 'ultimate'
-    expect(requireExtension('a.js')()).to.equal('pro')
+    expect(requireExtension('a.js')).to.contain('pro')
   })
 
   it('Require works for downgrade (Ultimate -> Lite)', function() {
     process.env.BOTPRESS_EDITION = 'ultimate'
-    expect(requireExtension('b.js')()).to.equal('lite')
+    expect(requireExtension('b.js')).to.contain('lite')
   })
 
   it('Require works for downgrade (Pro -> Lite)', function() {
     process.env.BOTPRESS_EDITION = 'pro'
-    expect(requireExtension('b.js')()).to.equal('lite')
+    expect(requireExtension('b.js')).to.contain('lite')
   })
 
   it('File require does not exist in lite', function() {
