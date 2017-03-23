@@ -2,7 +2,8 @@ const fs = require('fs')
 const path = require('path')
 
 function requireEdition(file, edition) {
-  const extensionPath = path.resolve(__dirname, '../extensions', edition, file)
+  const enterprisePath = edition === 'lite' ? '' : 'enterprise'
+  const extensionPath = path.resolve(__dirname, '../extensions', enterprisePath, edition, file)
   const exists = fs.existsSync(extensionPath)
 
   if (!exists && edition === 'lite') {
