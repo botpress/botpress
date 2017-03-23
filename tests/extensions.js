@@ -19,8 +19,8 @@ describe('Extensions Loader', () => {
     const fileContent = edition => `module.exports = () => '${edition}'`
 
     writeFile(extensionPath('lite', 'b.js'), fileContent('lite'))
-    writeFile(extensionPath('pro', 'a.js'), fileContent('pro'))
-    writeFile(extensionPath('ultimate', 'c.js'), fileContent('ultimate'))
+    writeFile(extensionPath('enterprise/pro', 'a.js'), fileContent('pro'))
+    writeFile(extensionPath('enterprise/ultimate', 'c.js'), fileContent('ultimate'))
     
   })
 
