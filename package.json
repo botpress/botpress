@@ -131,8 +131,7 @@
     "win32"
   ],
   "scripts": {
-    "compile": "rm -rf lib/ && node webpack.js --compile",
-    "initial": "rm -rf lib/ && babel src/ -d lib/ -s && cp -a src/cli/templates/. lib/cli/templates && node webpack.js --compile",
+    "compile": "rm -rf lib/ && node webpack.js --compile && mkdir -p lib/cli/templates && cp -a src/cli/templates/. lib/cli/templates",
     "test": "mocha --compilers js:babel-core/register --require tests/index.js tests/** extensions/**/tests/**",
     "watch": "npm-watch"
   },
