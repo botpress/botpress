@@ -54,7 +54,7 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
     const loadedModules = {}
 
     moduleDefinitions.forEach(mod => {
-      const loader = require(mod.entry)
+      const loader = eval('require')(mod.entry)
 
       if (typeof loader !== 'object') {
         return logger.warn(`Ignoring module ${mod.name}. Invalid entry point signature.`)
@@ -98,7 +98,7 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
         'which means botpress can\'t load any module for the bot.')
     }
 
-    const botPackage = require(packagePath)
+    const botPackage = eval('require')(packagePath)
 
     let deps = botPackage.dependencies || {}
     if (isDeveloping) {
@@ -118,7 +118,7 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
         return result
       }
 
-      const modulePackage = require(path.join(root, 'package.json'))
+      const modulePackage = eval('require')(path.join(root, 'package.json'))
       if (!modulePackage.botpress) {
         return result
       }
