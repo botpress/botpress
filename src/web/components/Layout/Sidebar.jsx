@@ -1,9 +1,9 @@
-import React, {Component} from 'react'
-import {Link} from 'react-router'
+import React, { Component } from 'react'
+import { Link } from 'react-router'
 import classnames from 'classnames'
 
 import ReactSidebar from 'react-sidebar'
-import {connect} from 'nuclear-js-react-addons'
+import { connect } from 'nuclear-js-react-addons'
 
 import SidebarHeader from './SidebarHeader'
 import getters from '~/stores/getters'
@@ -37,13 +37,13 @@ class Sidebar extends Component {
   }
 
   onSetSidebarOpen(open) {
-    this.setState({sidebarOpen: open})
+    this.setState({ sidebarOpen: open })
   }
 
   componentWillMount() {
     var mql = window.matchMedia(`(min-width: 800px)`)
     mql.addListener(this.mediaQueryChanged)
-    this.setState({mql: mql, sidebarDocked: mql.matches})
+    this.setState({ mql: mql, sidebarDocked: mql.matches })
   }
 
   componentWillUnmount() {
@@ -51,7 +51,7 @@ class Sidebar extends Component {
   }
 
   mediaQueryChanged() {
-    this.setState({sidebarDocked: this.state.mql.matches})
+    this.setState({ sidebarDocked: this.state.mql.matches })
   }
 
   routeActive(paths) {

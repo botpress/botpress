@@ -14,7 +14,7 @@ import PageHeader from '~/components/Layout/PageHeader'
 import ModulesComponent from '~/components/Modules'
 import HeroComponent from '~/components/Hero'
 
-import {connect} from 'nuclear-js-react-addons'
+import { connect } from 'nuclear-js-react-addons'
 import getters from '~/stores/getters'
 import actions from '~/actions'
 
@@ -22,7 +22,7 @@ import axios from 'axios'
 
 const style = require('./style.scss')
 
-@connect(props => ({botInformation: getters.botInformation}))
+@connect(props => ({ botInformation: getters.botInformation }))
 class DashboardView extends React.Component {
 
   static contextTypes = {

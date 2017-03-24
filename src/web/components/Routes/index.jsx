@@ -8,7 +8,7 @@ import {
   IndexRoute
 } from 'react-router'
 import ReactGA from 'react-ga'
-import {createHistory} from 'history'
+import { createHistory } from 'history'
 
 import EnsureAuthenticated from '~/components/Authentication'
 import Layout from '~/components/Layout'
@@ -24,7 +24,7 @@ import Initialization from '+/views/Initialization'
 import Profile from '+/views/Profile'
 import Password from '+/views/Password'
 
-const appHistory = useRouterHistory(createHistory)({basename: '/'})
+const appHistory = useRouterHistory(createHistory)({ basename: '/' })
 
 function logPageView() {
   ReactGA.set({ page: window.location.pathname })

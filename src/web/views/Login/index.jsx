@@ -1,9 +1,9 @@
-import React, {Component} from 'react'
-import {Button, FormGroup, FormControl, ControlLabel, HelpBlock} from 'react-bootstrap'
+import React, { Component } from 'react'
+import { Button, FormGroup, FormControl, ControlLabel, HelpBlock } from 'react-bootstrap'
 import classnames from 'classnames'
 
 import styles from './style.scss'
-import {login} from '~/util/Auth'
+import { login } from '~/util/Auth'
 
 export default class LoginPage extends Component {
   static contextTypes = {
@@ -28,19 +28,19 @@ export default class LoginPage extends Component {
   }
 
   handlePasswordChange(event) {
-    this.setState({password: event.target.value})
+    this.setState({ password: event.target.value })
   }
 
   handleSubmit(event) {
     event.preventDefault()
-    this.setState({loading: true})
+    this.setState({ loading: true })
 
     login(this.state.user, this.state.password)
     .then((result) => {
-      this.setState({error: null})
+      this.setState({ error: null })
       this.context.router.push(this.props.location.query.returnTo || '/')
     }).catch((err) => {
-      this.setState({error: err.message, loading: false})
+      this.setState({ error: err.message, loading: false })
     })
   }
 

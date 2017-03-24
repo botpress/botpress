@@ -1,4 +1,4 @@
-import React, {Component} from 'react'
+import React, { Component } from 'react'
 import { Row, Col, Tooltip, OverlayTrigger } from 'react-bootstrap'
 import moment from 'moment'
 import classnames from 'classnames'
@@ -74,8 +74,8 @@ export default class NotificationComponent extends Component {
     return <ItemComponent
         key={notification.id}
         className={className}
-        onMouseOver={() => this.setState({ selectedIndex: index})}
-        onMouseLeave={() => this.setState({ selectedIndex: -1})}>
+        onMouseOver={() => this.setState({ selectedIndex: index })}
+        onMouseLeave={() => this.setState({ selectedIndex: -1 })}>
       <Row>
         <Col xs={11} onClick={() => this.onNotifClicked(notification)}>
           <strong className={styles.header}>
@@ -99,11 +99,11 @@ export default class NotificationComponent extends Component {
       if (index + 1 === displayedNotifications.length) {
         return null
       } else {
-        return this.renderDivider && <ItemComponent divider style={{margin: 0}} />
+        return this.renderDivider && <ItemComponent divider style={{ margin: 0 }} />
       }
     }
 
-    return displayedNotifications.map((notif, i) => [this.renderMenuItem(notif, i) , renderDivider(i) ])
+    return displayedNotifications.map((notif, i) => [this.renderMenuItem(notif, i) , renderDivider(i)])
   }
 }
 
