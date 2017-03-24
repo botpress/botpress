@@ -68,7 +68,7 @@
 
 
     // Legacy
-    "max-len": [1, 120, 2] // specify the maximum length of a line in your program (off by default)
+    "max-len": ["error", 120, { ignoreRegExpLiterals: true }]
   }
 }
 
