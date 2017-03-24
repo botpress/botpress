@@ -42,7 +42,10 @@ var nodeConfig = {
       loader: 'json-loader'
     }]
   },
-  plugins: [ExtensionsPlugin()]
+  plugins: [
+    ExtensionsPlugin.beforeResolve,
+    ExtensionsPlugin.afterResolve
+  ]
 }
 
 var webConfig = {
@@ -62,7 +65,8 @@ var webConfig = {
     }
   },
   plugins: [
-    ExtensionsPlugin(),
+    ExtensionsPlugin.beforeResolve,
+    ExtensionsPlugin.afterResolve,
     new webpack.NoErrorsPlugin(),
     new CopyWebpackPlugin([{
       from: path.resolve(__dirname, './src/web/index.html'),
@@ -114,7 +118,7 @@ var webConfig = {
 var compiler = webpack([webConfig, nodeConfig])
 var postProcess = function(err, stats) {
   if (err) throw err
-  console.log(stats.toString())
+  console.log(stats.toString('minimal'))
 }
 
 if (process.argv.indexOf('--compile') !== -1) {
