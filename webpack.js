@@ -2,14 +2,16 @@ var webpack = require('webpack')
 var path = require('path')
 var CopyWebpackPlugin = require('copy-webpack-plugin')
 var autoprefixer = require('autoprefixer')
-var HardSourceWebpackPlugin = require('hard-source-webpack-plugin')
+// var HardSourceWebpackPlugin = require('hard-source-webpack-plugin')
 var nodeExternals = require('webpack-node-externals')
+
+var ExtensionsPlugin = require('./extensions/extensions-plugin')
 
 var nodeConfig = {
   devtool: 'source-map',
   entry: [path.resolve(__dirname, './index.js')],
   output: {
-    path: './bin',
+    path: './lib',
     filename: 'node.bundle.js',
     libraryTarget: 'commonjs2',
     publicPath: __dirname
@@ -38,11 +40,9 @@ var nodeConfig = {
     }, {
       test: /\.json$/,
       loader: 'json-loader'
-    }, {
-      test: /\/extensions\//,
-      loader: path.resolve(__dirname, './extensions/extensions-loader.js')
     }]
-  }
+  },
+  plugins: [ExtensionsPlugin()]
 }
 
 var webConfig = {
@@ -62,6 +62,7 @@ var webConfig = {
     }
   },
   plugins: [
+    ExtensionsPlugin(),
     new webpack.NoErrorsPlugin(),
     new CopyWebpackPlugin([{
       from: path.resolve(__dirname, './src/web/index.html'),
@@ -69,16 +70,17 @@ var webConfig = {
     }, {
       from: path.resolve(__dirname, './src/web/img'),
       to: path.resolve(__dirname, './lib/web/img')
-    }]),
-    new HardSourceWebpackPlugin({
-      cacheDirectory: __dirname + '/.cache/',
-      recordsPath: __dirname + '/.cache/records.json',
-      environmentPaths: {
-        root: process.cwd(),
-        directories: ['node_modules'],
-        files: ['package.json', 'webpack.js'],
-      }
-    })
+    }])
+    // TODO: Fix caching to take into account changes to extensions and environement variables
+    // new HardSourceWebpackPlugin({
+    //   cacheDirectory: __dirname + '/.cache/',
+    //   recordsPath: __dirname + '/.cache/records.json',
+    //   environmentPaths: {
+    //     root: process.cwd(),
+    //     directories: ['node_modules'],
+    //     files: ['package.json', 'webpack.js'],
+    //   }
+    // })
   ],
   module: {
     loaders: [{
@@ -89,7 +91,8 @@ var webConfig = {
         presets: ['latest', 'stage-0', 'react'],
         plugins: ['transform-object-rest-spread', 'transform-decorators-legacy'],
         compact: false,
-        babelrc: false
+        babelrc: false,
+        cacheDirectory: true
       }
     }, {
       test: /\.scss$/,
@@ -103,9 +106,6 @@ var webConfig = {
     }, {
       test: /\.json$/,
       loader: "json-loader"
-    }, {
-      test: /\/extensions\//,
-      loader: path.resolve(__dirname, './extensions/extensions-loader.js')
     }]
   },
   postcss: [ autoprefixer({ browsers: ['last 2 versions'] }) ]

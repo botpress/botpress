@@ -123,7 +123,7 @@
     "api"
   ],
   "license": "AGPL-3.0",
-  "main": "bin/node.bundle.js",
+  "main": "lib/node.bundle.js",
   "repository": "git+https://github.com/botpress/botpress.git",
   "os": [
     "darwin",
