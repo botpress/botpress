@@ -19,6 +19,7 @@ import Module from '~/views/Module'
 import Notifications from '~/views/Notifications'
 import Logs from '~/views/Logs'
 import Login from '~/views/Login'
+
 import Admin from '+/views/Admin'
 import Initialization from '+/views/Initialization'
 import Profile from '+/views/Profile'

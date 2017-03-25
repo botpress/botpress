@@ -5,6 +5,8 @@ import classnames from 'classnames'
 import styles from './style.scss'
 import { login } from '~/util/Auth'
 
+import Decorators from '+/views/Login/Decorators.jsx'
+
 export default class LoginPage extends Component {
   static contextTypes = {
     router: React.PropTypes.object
@@ -29,6 +31,10 @@ export default class LoginPage extends Component {
 
   handlePasswordChange(event) {
     this.setState({ password: event.target.value })
+  }
+
+  handleUserChange(event) {
+    this.setState({ user: event.target.value })
   }
 
   handleSubmit(event) {
@@ -72,11 +78,11 @@ export default class LoginPage extends Component {
             <form onSubmit={this.handleSubmit.bind(this)}>
               <FormGroup>
                 <ControlLabel>User</ControlLabel>
-                <FormControl type="text" placeholder="" value="admin" readOnly/>
+                <Decorators.User value={this.state.user} onChange={::this.handleUserChange}/>
               </FormGroup>
               <FormGroup>
                 <ControlLabel>Password</ControlLabel>
-                <FormControl type="password" placeholder="" value={this.state.password} onChange={this.handlePasswordChange.bind(this)}/>
+                <FormControl type="password" placeholder="" value={this.state.password} onChange={::this.handlePasswordChange}/>
               </FormGroup>
               <Button className="pull-right" type="submit">Login</Button>
             </form>
