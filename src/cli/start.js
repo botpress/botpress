@@ -22,7 +22,7 @@ module.exports = function(projectPath, options) {
   projectPath = path.resolve(projectPath)
 
   try {
-    Botpress = eval('require')(path.join(projectPath, 'node_modules', 'botpress')).Botpress
+    Botpress = eval('require')(path.join(projectPath, 'node_modules', 'botpress')).Botpress()
   } catch (err) {
     util.print('error', err.message)
     util.print('error', err.stack)
