@@ -14,6 +14,8 @@ import sass from 'node-sass'
 
 import util from './util'
 
+import ExtraApiProviders from '+/api'
+
 const setupSocket = async function(server, bp) {
   const io = socketio(server)
 
@@ -47,6 +49,9 @@ const setupSocket = async function(server, bp) {
 }
 
 const serveApi = function(app, bp) {
+
+  const extraProviders = ExtraApiProviders.map(p => p(bp))
+
   let logsSecret = uuid.v4()
   const routersConditions = {}
   const maybeApply = (name, fn) => {
@@ -78,6 +83,14 @@ const serveApi = function(app, bp) {
     bp.stats.track('api', 'auth', 'login')
     const result = await bp.security.login(req.body.user, req.body.password, req.ip)
     res.send(result)
+  })
+
+  // Add unsecured APIs from external providers (extensions)
+  extraProviders.forEach(p => {
+    if (p && p.addUnsecuredApi) {
+      bp.logger.debug('Adding extra unsecured routes: ' + p.name)
+      app = p.addUnsecuredApi(app)
+    }
   })
 
   app.use('/api/*', maybeApply('auth', authenticationMiddleware(bp)))
@@ -215,6 +228,7 @@ const serveApi = function(app, bp) {
       order: 'desc',
       fields: ['message', 'level', 'timestamp']
     }
+
     bp.logger.query(options, (err, results) => {
       if (err) { return console.log(err) }
       res.send(results.file)
@@ -236,6 +250,14 @@ const serveApi = function(app, bp) {
       logsSecret = uuid.v4()
       res.download(archivePath)
     })
+  })
+
+  // Add secured APIs from external providers (extensions)
+  extraProviders.forEach(p => {
+    if (p && p.addSecuredApi) {
+      bp.logger.debug('Adding extra secured routes: ' + p.name)
+      app = p.addSecuredApi(app)
+    }
   })
 
   const routers = {}
