@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken'
 import _ from 'lodash'
 
-import Authentication from './basic_authentication' // BPEE
+import Authentication from '+/authentication'
 
 /**
  * Security helper for botpress
