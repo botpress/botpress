@@ -3,44 +3,6 @@
   "description": "The world's first CMS for bots. Easily create, manage and extend chatbots.",
   "version": "0.1.7",
   "author": "Botpress",
-  "babel": {
-    "presets": [
-      "latest",
-      "stage-0",
-      "react"
-    ],
-    "plugins": [
-      "transform-object-rest-spread"
-    ],
-    "ignore": [
-      "cli/templates/**",
-      "src/web/**"
-    ],
-    "env": {
-      "tests": {
-        "plugins": [
-          "transform-object-rest-spread",
-          [
-            "babel-plugin-root-import",
-            [
-              {
-                "rootPathPrefix": "~",
-                "rootPathSuffix": "./src"
-              },
-              {
-                "rootPathPrefix": "#",
-                "rootPathSuffix": "."
-              },
-              {
-                "rootPathPrefix": "+",
-                "rootPathSuffix": "./extensions/enterprise/pro"
-              }
-            ]
-          ]
-        ]
-      }
-    }
-  },
   "bin": {
     "bp": "./bin/botpress",
     "botpress": "./bin/botpress"
