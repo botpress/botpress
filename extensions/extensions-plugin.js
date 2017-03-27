@@ -6,6 +6,7 @@ var path = require('path')
 var { requireExtension } = require('./extensions.js')
 
 const afterResolve = new webpack.NormalModuleReplacementPlugin(/extensions/i, function(res) {
+
   let customEdition = null
   const [rest, edition] = (res.rawRequest && res.rawRequest.match(/\?edition=(.+)/i)) || []
 
