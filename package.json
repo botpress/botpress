@@ -121,7 +121,7 @@
     "win32"
   ],
   "scripts": {
-    "compile": "rm -rf lib/ && node webpack.js --compile && mkdir -p lib/cli/templates && cp -a src/cli/templates/. lib/cli/templates",
+    "compile": "./build.sh",
     "test": "BABEL_ENV=tests mocha --compilers js:babel-core/register --require tests/index.js tests/** extensions/**/tests/**",
     "watch": "npm-watch",
     "lint": "eslint {src,extensions}/**/*.js*"
