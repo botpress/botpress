@@ -96,7 +96,7 @@
     "webpack-node-externals": "^1.5.4"
   },
   "engines": {
-    "node": ">=4.0"
+    "node": ">=4.6.0"
   },
   "homepage": "https://github.com/botpress/botpress#readme",
   "keywords": [
