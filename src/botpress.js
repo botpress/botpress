@@ -19,6 +19,7 @@ import createModules from './modules'
 import stats from './stats'
 import packageJson from '../package.json'
 import createEmails from '+/emails'
+import createMediator from '+/mediator'
 
 import WebServer from './server'
 
@@ -136,6 +137,7 @@ class botpress {
     const middlewares = createMiddlewares(this, dataLocation, projectLocation, logger)
     const { hear, middleware: hearMiddleware } = createHearMiddleware()
     const emails = createEmails({ emailConfig: botfile.emails })
+    const mediator = createMediator(this)
 
     middlewares.register(hearMiddleware)
 
@@ -153,7 +155,8 @@ class botpress {
       licensing,
       modules,
       db,
-      emails
+      emails,
+      mediator
     })
 
     const loadedModules = modules._load(moduleDefinitions, this)
@@ -163,6 +166,8 @@ class botpress {
     _.assign(this, {
       _loadedModules: loadedModules
     })
+
+    mediator.install()
 
     const server = new WebServer({ botpress: this })
     server.start()
