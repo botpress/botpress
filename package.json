@@ -29,6 +29,7 @@
     "mware": "0.0.3",
     "node-machine-id": "^1.1.3",
     "node-sass": "^3.13.1",
+    "nodemailer": "^2.7.2",
     "pg": "^6.1.2",
     "prompt": "^1.0.0",
     "socket.io": "^1.5.0",
