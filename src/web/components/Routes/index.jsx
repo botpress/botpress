@@ -19,10 +19,7 @@ import Module from '~/views/Module'
 import Notifications from '~/views/Notifications'
 import Logs from '~/views/Logs'
 
-import LoginRoutes from '+/views/Login/Routes.jsx'
-
-import Admin from '+/views/Admin'
-import Profile from '+/views/Profile'
+import AdditionnalRoutes from '+/views/Routes/index.jsx'
 
 const appHistory = useRouterHistory(createHistory)({ basename: '/' })
 
@@ -39,7 +36,8 @@ export default () => {
 
   return (
     <Router history={appHistory} onUpdate={logPageView}>
-      {LoginRoutes()}
+      {AdditionnalRoutes.addLoginRoutes()}
+      {AdditionnalRoutes.addUnsecuredRoutes()}
       <Route path="/" component={EnsureAuthenticated(Layout)}>
         <Route path="dashboard" component={Dashboard}/>
         <IndexRoute component={Dashboard}/>
@@ -48,8 +46,7 @@ export default () => {
         <Route path="modules/:moduleName" component={Module}/>
         <Route path="notifications" component={Notifications}/>
         <Route path="logs" component={Logs}/>
-        <Route path="admin" component={Admin}/>
-        <Route path="profile" component={Profile}/>
+        {AdditionnalRoutes.addSecuredRoutes()}
       </Route>
     </Router>
   )
