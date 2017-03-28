@@ -82,7 +82,7 @@ export default class LoginPage extends Component {
           <div className="panel-body">
             {this.renderLoading()}
             {this.state.error && <p className={errorStyle}>{this.state.error}</p>}
-            {changedPassword && <p className={successStyle}>Password changed successfully</p>}
+            {hasChangedPassword && <p className={successStyle}>Password changed successfully</p>}
             <form onSubmit={this.handleSubmit.bind(this)}>
               <FormGroup>
                 <ControlLabel>User</ControlLabel>
