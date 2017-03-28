@@ -12,24 +12,13 @@ import classnames from 'classnames'
 import NotificationHub from '~/components/Notifications/Hub'
 import ProfileMenu from '+/views/ProfileMenu'
 
-import { getToken, logout } from '~/util/Auth'
+import { getCurrentUser, logout } from '~/util/Auth'
 
 import style from './Header.scss'
 
 const getProfileImgUrl = () => {
-  const token = getToken()
-
-  const encoded = token.token.replace(/\w+\./, '').replace(/\.[\w|\-|_]+/, '')
-  
-  const profile = JSON.parse(Buffer(encoded, 'base64').toString())
-
-  if (!profile.imgUrl) {
-    return null
-  }
-
-  return profile.imgUrl
-
-  return null
+  const user = getCurrentUser()
+  return user.avatar_url ? '/api/enterprise/accounts/avatars/' + user.avatar_url : null
 }
 
 class Header extends Component {
