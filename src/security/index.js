@@ -53,7 +53,7 @@ module.exports = ({ dataLocation, securityConfig, db }) => {
     try {
       const secret = await authentication.getSecret()
       const decoded = jwt.verify(token, secret)
-      return decoded.user && decoded.user.roles && _.includes(decoded.user.roles, 'admin')
+      return decoded.user
     } catch (err) {
       return false
     }
