@@ -60,13 +60,18 @@ export default class LoginPage extends Component {
   }
 
   render() {
+    const hasChangedPassword = !!this.props.location.query.reset
+    const hasAnError = !!this.state.error
+
+    const tallPanelStyle = hasChangedPassword || hasAnError
+
     const panelStyle = classnames('panel', 'bp-login', styles['panel-center'], {
-      [styles['panel-center-tall']]: !!this.state.error
+      [styles['panel-center-tall']]: tallPanelStyle
     })
+
     const headerStyle = classnames('panel-heading', 'text-center', styles.header, 'bp-header')
     const errorStyle = classnames(styles.error)
     const successStyle = classnames(styles.success)
-    const changedPassword = !!this.props.location.query.reset
 
     return <div>{this.renderGlobalStyle()}
       <div className="block-center mt-xl wd-xl">
