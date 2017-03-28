@@ -18,12 +18,11 @@ import Middleware from '~/views/Middleware'
 import Module from '~/views/Module'
 import Notifications from '~/views/Notifications'
 import Logs from '~/views/Logs'
-import Login from '~/views/Login'
+
+import LoginRoutes from '+/views/Login/Routes.jsx'
 
 import Admin from '+/views/Admin'
-import Initialization from '+/views/Initialization'
 import Profile from '+/views/Profile'
-import Password from '+/views/Password'
 
 const appHistory = useRouterHistory(createHistory)({ basename: '/' })
 
@@ -40,9 +39,7 @@ export default () => {
 
   return (
     <Router history={appHistory} onUpdate={logPageView}>
-      <Route path="/login" component={Login}/>
-      <Route path="/initialization" component={Initialization}/>
-      <Route path="/password" component={Password}/>
+      {LoginRoutes()}
       <Route path="/" component={EnsureAuthenticated(Layout)}>
         <Route path="dashboard" component={Dashboard}/>
         <IndexRoute component={Dashboard}/>
