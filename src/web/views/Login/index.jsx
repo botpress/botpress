@@ -22,6 +22,10 @@ export default class LoginPage extends Component {
     }
   }
 
+  componentDidMount() {
+    Decorators.LoginInitialization && Decorators.LoginInitialization(this)
+  }
+
   renderGlobalStyle() {
     return <style>
       {
