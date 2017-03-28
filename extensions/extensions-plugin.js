@@ -18,7 +18,7 @@ const afterResolve = new webpack.NormalModuleReplacementPlugin(/extensions/i, fu
   
   if (!res.userRequest 
     || res.userRequest.indexOf('extensions/empty.jsx') >= 0
-    || res.userRequest.indexOf('extensions/enterprise') >= 0) {
+    || (res.userRequest.indexOf('extensions/enterprise') >= 0)) {
     return
   }
 
@@ -30,10 +30,14 @@ const afterResolve = new webpack.NormalModuleReplacementPlugin(/extensions/i, fu
 const beforeResolve = new webpack.NormalModuleReplacementPlugin(/\+\/views/i, function(res) {
   const req = res.request.replace('+', path.join(__dirname, '/lite'))
 
+  if (req.indexOf('?edition=') >= 0) {
+    return
+  }
+
   try {
     const replacement = requireExtension(req)
     res.request = req.replace('/extensions/lite', replacement)
-  } catch (er) {
+  } catch (err) {
     res.request = path.join(__dirname, 'empty.jsx')
   }
 })
