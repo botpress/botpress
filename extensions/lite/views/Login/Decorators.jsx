@@ -4,4 +4,6 @@ const User = props => {
   return <FormControl type="text" placeholder="" value={props.value} readOnly/>
 }
 
-module.exports = { User }
+const ForgotPassword = props => null
+
+module.exports = { User, ForgotPassword }
