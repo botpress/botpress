@@ -8,6 +8,7 @@ import {
 } from 'react-bootstrap'
 
 import classnames from 'classnames'
+import axios from 'axios'
 
 import NotificationHub from '~/components/Notifications/Hub'
 import ProfileMenu from '+/views/ProfileMenu'
@@ -16,12 +17,50 @@ import { getCurrentUser, logout } from '~/util/Auth'
 
 import style from './Header.scss'
 
-const getProfileImgUrl = () => {
-  const user = getCurrentUser()
-  return user.avatar_url ? '/api/enterprise/accounts/avatars/' + user.avatar_url : null
-}
-
 class Header extends Component {
+
+  constructor(props) {
+    super(props)
+
+    this.state = {
+      loading: true
+    }
+  }
+
+  componentDidMount() {
+    const user = getCurrentUser()
+
+    if (!this.isLiteAdmin(user)) {
+      this.fetchProfile()
+    }
+  }
+
+  isLiteAdmin(user) {
+    if (user && user.id === 0 && user.email === 'admin@botpress.io') {
+      return true
+    }
+    return false
+  }
+
+  getProfileImgUrl() {
+    return this.state.avatarURL ? '/api/enterprise/accounts/avatars/' + this.state.avatarURL : null
+  }
+
+  fetchProfile() {
+    return axios.get('/api/enterprise/my-account')
+    .then(res => {
+      this.setState({
+        ...res.data,
+        loading: false
+      })
+    })
+    .catch(err => {
+      this.setState({
+        error: "An error occured while fetching the profile: " + err,
+        loading: false
+      })
+    })
+  }
 
   renderLogoutButton() {
     
@@ -29,7 +68,7 @@ class Header extends Component {
       return null
     }
 
-    const url = getProfileImgUrl()
+    const url = this.getProfileImgUrl()
     let label = <img src={url}></img>
     
     if (!url) {
