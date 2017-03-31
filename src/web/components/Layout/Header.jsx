@@ -17,49 +17,25 @@ import { getCurrentUser, logout } from '~/util/Auth'
 
 import style from './Header.scss'
 
+import { connect } from 'nuclear-js-react-addons'
+import getters from '~/stores/getters'
+
+@connect(props => ({ user: getters.user }))
 class Header extends Component {
 
-  constructor(props) {
-    super(props)
+  constructor(props, context) {
+    super(props, context)
 
     this.state = {
       loading: true
     }
   }
 
-  componentDidMount() {
-    const user = getCurrentUser()
-
-    if (!this.isLiteAdmin(user)) {
-      this.fetchProfile()
-    }
-  }
-
-  isLiteAdmin(user) {
-    if (user && user.id === 0 && user.email === 'admin@botpress.io') {
-      return true
-    }
-    return false
-  }
-
   getProfileImgUrl() {
-    return this.state.avatarURL ? '/api/enterprise/accounts/avatars/' + this.state.avatarURL : null
-  }
-
-  fetchProfile() {
-    return axios.get('/api/enterprise/my-account')
-    .then(res => {
-      this.setState({
-        ...res.data,
-        loading: false
-      })
-    })
-    .catch(err => {
-      this.setState({
-        error: "An error occured while fetching the profile: " + err,
-        loading: false
-      })
-    })
+    if (!this.props.user.get('avatarURL')) {
+      return null
+    }
+    return '/api/enterprise/accounts/avatars/' + this.props.user.get('avatarURL')
   }
 
   renderLogoutButton() {
@@ -100,6 +76,10 @@ class Header extends Component {
       </Navbar.Collapse>
     </Navbar>
   }
+}
+
+Header.contextTypes = {
+  reactor: React.PropTypes.object.isRequired
 }
 
 export default Header
