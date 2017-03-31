@@ -11,7 +11,8 @@ const {
   TOGGLE_LICENSE_MODAL,
   BOT_INFORMATION_RECEIVED,
   LICENSE_CHANGED,
-  TOGGLE_ABOUT_MODAL
+  TOGGLE_ABOUT_MODAL,
+  USER_RECEIVED
 } = actionTypes
 
 export default {
@@ -60,5 +61,12 @@ export default {
 
   licenseChanged(license) {
     reactor.dispatch(LICENSE_CHANGED, { license })
+  },
+
+  fetchUser() {
+    axios.get('/api/my-account')
+    .then((result) => {
+      reactor.dispatch(USER_RECEIVED, { user: result.data })
+    })
   }
 }
