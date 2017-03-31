@@ -7,5 +7,6 @@ export default keyMirror({
   TOGGLE_LICENSE_MODAL: null,
   BOT_INFORMATION_RECEIVED: null,
   LICENSE_CHANGED: null,
-  TOGGLE_ABOUT_MODAL: null
+  TOGGLE_ABOUT_MODAL: null,
+  USER_RECEIVED: null
 })
