@@ -6,6 +6,7 @@ import fs from 'fs'
 import _ from 'lodash'
 import cluster from 'cluster'
 
+import ServiceLocator from '+/ServiceLocator'
 import EventBus from './bus'
 
 import createMiddlewares from './middlewares'
@@ -159,6 +160,8 @@ class botpress {
       emails,
       mediator
     })
+
+    ServiceLocator.init({ bp: this })
 
     const loadedModules = modules._load(moduleDefinitions, this)
 

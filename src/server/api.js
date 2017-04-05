@@ -2,6 +2,7 @@ import _ from 'lodash'
 import bodyParser from 'body-parser'
 import express from 'express'
 
+import ServiceLocator from '+/ServiceLocator'
 import anonymousApis from './anonymous'
 import securedApis from './secured'
 
@@ -15,7 +16,9 @@ module.exports = bp => {
       return next()
     }
 
-    if (await bp.security.authenticate(req.headers.authorization)) {
+    const user = await bp.security.authenticate(req.headers.authorization)
+    if (!!user) {
+      res.user = user
       next()
     } else {
       res.status(401).location('/login').end()
@@ -38,24 +41,45 @@ module.exports = bp => {
         routersConditions[name] = Object.assign(routersConditions[name] || {}, conditions)
       }
 
+      installProtector(routers[name])
       return routers[name]
     }
   }
 
   function installProtector(app) {
-    app.secure = function(operation, res) {
+    app.secure = function(operation, ressource) {
 
       const wrap = method => function(name, handler) {
-        return app[method].call(name, function(req, res, next) {
+        return app[method].call(app, name, async function(req, res, next) {
+          try {
+            if (!res.user) {
+              return handler(req, res, next)
+            }
 
-          // TODO Default protection here
+            const authorizeApi = await ServiceLocator.getService('authorizeApi', false)
 
-          handler(req, res, next)
+            if (!authorizeApi) {
+              return handler(req, res, next)
+            }
+
+            const authorized = await authorizeApi({ userId: res.user.id, operation, ressource })
+
+            if (authorized) {
+              return handler(req, res, next)
+            }
+
+            return res.sendStatus(401)
+          } catch (err) {
+            return res.status(500).send({ message: err.message })
+          }
         })
       }
 
       return { 
-        get: wrap('get')
+        get: wrap('get'),
+        post: wrap('post'),
+        put: wrap('put'),
+        delete: wrap('delete')
       }
     }
   }
