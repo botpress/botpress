@@ -15,6 +15,7 @@ import Authentication from '+/authentication'
  * It will find or create a secret.key in `dataLocation`, then setup the adminPassword for user login.
  *
  */
+
 module.exports = ({ dataLocation, securityConfig, db }) => {
 
   const authentication = Authentication({ dataLocation, securityConfig, db })

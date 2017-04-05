@@ -1,5 +1,6 @@
 import 'source-map-support/register'
 
+import chalk from 'chalk'
 import path from 'path'
 import fs from 'fs'
 import _ from 'lodash'
@@ -21,7 +22,7 @@ import packageJson from '../package.json'
 import createEmails from '+/emails'
 import createMediator from '+/mediator'
 
-import WebServer from './server'
+import createServer from './server'
 
 import { getBotpressVersion } from './util'
 
@@ -169,8 +170,17 @@ class botpress {
 
     mediator.install()
 
-    const server = new WebServer({ botpress: this })
+    const server = createServer(this)
     server.start()
+    .then(() => {
+      events.emit('ready')
+      for (let mod of _.values(loadedModules)) {
+        mod.handlers.ready && mod.handlers.ready(this, mod.configuration)
+      }
+
+      const { port } = botfile
+      logger.info(chalk.green.bold('Bot launched. Visit: http://localhost:' + port))
+    })
 
     const projectEntry = eval('require')(projectLocation)
     if (typeof(projectEntry) === 'function') {
