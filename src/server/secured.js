@@ -14,7 +14,8 @@ module.exports = (bp, app) => {
     res.send('pong')
   })
 
-  app.get('/api/modules', (req, res) => {
+  app.secure('read', 'modules/list')
+  .get('/api/modules', (req, res) => {
     const modules = _.map(bp._loadedModules, (module) => {
       return {
         name: module.name,
@@ -27,11 +28,13 @@ module.exports = (bp, app) => {
     res.send(modules)
   })
 
-  app.get('/api/middlewares', (req, res) => {
+  app.secure('read', 'middleware/list')
+  .get('/api/middlewares', (req, res) => {
     res.send(bp.middlewares.list())
   })
 
-  app.post('/api/middlewares/customizations', (req, res) => {
+  app.secure('write', 'middleware/customizations')
+  .post('/api/middlewares/customizations', (req, res) => {
     bp.stats.track('api', 'middlewares', 'customizations')
     const { middlewares } = req.body
     bp.middlewares.setCustomizations(middlewares)
@@ -39,58 +42,64 @@ module.exports = (bp, app) => {
     res.send(bp.middlewares.list())
   })
 
-  app.delete('/api/middlewares/customizations', (req, res) => {
+  app.secure('write', 'middleware/customizations')
+  .delete('/api/middlewares/customizations', (req, res) => {
     bp.stats.track('api', 'middlewares', 'customizations')
     bp.middlewares.resetCustomizations()
     bp.middlewares.load()
     res.send(bp.middlewares.list())
   })
 
-  app.get('/api/notifications', (req, res) => {
+  app.secure('read', 'notifications')
+  .get('/api/notifications', (req, res) => {
     res.send(bp.notifications.load())
   })
 
-  app.get('/api/bot/information', (req, res) => {
+  app.secure('read', 'bot/information')
+  .get('/api/bot/information', (req, res) => {
     res.send(bp.about.getBotInformation())
   })
 
-  app.get('/api/module/all', (req, res) => {
+  app.secure('read', 'modules/list/community')
+  .get('/api/module/all', (req, res) => {
     bp.modules.listAllCommunityModules()
     .then(modules => res.send(modules))
   })
 
-  app.get('/api/module/popular', (req, res) => {
+  app.secure('read', 'modules/list/community')
+  .get('/api/module/popular', (req, res) => {
     bp.modules.listPopularCommunityModules()
     .then(popular => res.send(popular))
   })
 
-  app.get('/api/module/featured', (req, res) => {
+  app.secure('read', 'modules/list/community')
+  .get('/api/module/featured', (req, res) => {
     bp.modules.listFeaturedCommunityModules()
     .then(featured => res.send(featured))
   })
 
-  app.get('/api/module/hero', (req, res) => {
+  app.secure('read', 'modules/list/community')
+  .get('/api/module/hero', (req, res) => {
     bp.modules.getRandomCommunityHero()
     .then(hero => res.send(hero))
-  })
-
-  app.get('/api/bot/information', (req, res) => {
-    res.send(bp.bot.getInformation())
   })
 
   app.get('/api/bot/production', (req, res) => {
     res.send(!util.isDeveloping)
   })
 
-  app.get('/api/bot/contributor', (req, res) => {
+  app.secure('read', 'modules/list/community')
+  .get('/api/bot/contributor', (req, res) => {
     res.send(bp.bot.getContributor())
   })
 
-  app.get('/api/license', (req, res) => {
+  app.secure('read', 'bot/information/license')
+  .get('/api/license', (req, res) => {
     res.send(bp.licensing.getLicenses())
   })
 
-  app.post('/api/license', (req, res) => {
+  app.secure('write', 'bot/information/license')
+  .post('/api/license', (req, res) => {
     bp.stats.track('api', 'license', 'change')
     bp.licensing.changeLicense(req.body.license)
     .then(() => {
@@ -101,7 +110,8 @@ module.exports = (bp, app) => {
     }))
   })
 
-  app.post('/api/module/install/:name', (req, res) => {
+  app.secure('write', 'modules/list/install')
+  .post('/api/module/install/:name', (req, res) => {
     bp.stats.track('api', 'modules', 'install')
     const { name } = req.params
     bp.modules.install(name)
@@ -114,7 +124,8 @@ module.exports = (bp, app) => {
     }))
   })
 
-  app.delete('/api/module/uninstall/:name', (req, res) => {
+  app.secure('write', 'modules/list/uninstall')
+  .delete('/api/module/uninstall/:name', (req, res) => {
     bp.stats.track('api', 'modules', 'uninstall')
     const { name } = req.params
     bp.modules.uninstall(name)
@@ -134,7 +145,8 @@ module.exports = (bp, app) => {
     })
   })
 
-  app.get('/api/logs', (req, res) => {
+  app.secure('read', 'bot/logs')
+  .get('/api/logs', (req, res) => {
     const options = {
       from: new Date() - 7 * 24 * 60 * 60 * 1000,
       until: new Date(),
@@ -150,11 +162,13 @@ module.exports = (bp, app) => {
     })
   })
 
-  app.get('/api/logs/key', (req, res) => {
+  app.secure('read', 'bot/logs')
+  .get('/api/logs/key', (req, res) => {
     res.send({ secret: logsSecret })
   })
 
-  app.get('/logs/archive/:key', (req, res) => {
+  app.secure('read', 'bot/logs/archive')
+  .get('/logs/archive/:key', (req, res) => {
     bp.stats.track('api', 'logs', 'archive')
     if (req.params.key !== logsSecret) {
       return res.sendStatus(403)
