@@ -9,6 +9,8 @@ import SidebarHeader from './SidebarHeader'
 import getters from '~/stores/getters'
 import actions from '~/actions'
 
+import RulesChecker from '+/views/RulesChecker'
+
 const style = require('./Sidebar.scss')
 
 @connect(props => ({
@@ -118,24 +120,30 @@ class Sidebar extends Component {
     const sidebarContent = <div className={classnames(style.sidebar, 'bp-sidebar')}>
       <SidebarHeader/>
       <ul className="nav">
-        <li className={dashboardClassName} key="dashboard">
-          <Link to='dashboard' title='Dashboard'>
-            <i className="icon material-icons">dashboard</i>
-            Dashboard
-          </Link>
-        </li>
-        <li className={manageClassName} key="manage">
-          <Link to='manage' title='Modules'>
-            <i className="icon material-icons">build</i>
-            Modules
-          </Link>
-        </li>
-        <li className={middlewareClassName} key="middleware">
-          <Link to='middleware' title='Middleware'>
-            <i className="icon material-icons">settings</i>
-            Middleware
-          </Link>
-        </li>
+        <RulesChecker res='dashboard' op='read'>
+          <li className={dashboardClassName} key="dashboard">
+            <Link to='dashboard' title='Dashboard'>
+              <i className="icon material-icons">dashboard</i>
+              Dashboard
+            </Link>
+          </li>
+        </RulesChecker>
+        <RulesChecker res='modules/list' op='read'>
+          <li className={manageClassName} key="manage">
+            <Link to='manage' title='Modules'>
+              <i className="icon material-icons">build</i>
+              Modules
+            </Link>
+          </li>
+        </RulesChecker>
+        <RulesChecker res='middleware' op='read'>
+          <li className={middlewareClassName} key="middleware">
+            <Link to='middleware' title='Middleware'>
+              <i className="icon material-icons">settings</i>
+              Middleware
+            </Link>
+          </li>
+        </RulesChecker>
         {items}
       </ul>
       <div className={classnames(style.bottomInformation, 'bp-sidebar-footer')}>
