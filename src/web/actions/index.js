@@ -3,7 +3,9 @@ import reactor from '~/reactor'
 
 import actions from '+/actions'
 
-import {
+import actionTypes from '~/actions/actionTypes'
+
+const {
   MODULES_RECEIVED,
   ALL_NOTIFICATIONS_RECEIVED,
   NEW_NOTIFICATIONS_RECEIVED,
@@ -12,7 +14,7 @@ import {
   LICENSE_CHANGED,
   TOGGLE_ABOUT_MODAL,
   USER_RECEIVED
-} from '~/actions/actionTypes'
+} = actionTypes
 
 const fetchModules = () => {
   axios.get('/api/modules')
