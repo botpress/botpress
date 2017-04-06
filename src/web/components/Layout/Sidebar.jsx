@@ -144,9 +144,7 @@ class Sidebar extends Component {
             </Link>
           </li>
         </RulesChecker>
-        <RulesChecker res='modules/list' op='read'>
-          {items}
-        </RulesChecker>
+        {items}
       </ul>
       <div className={classnames(style.bottomInformation, 'bp-sidebar-footer')}>
         <div className={classnames(style.name, 'bp-name')}>{this.props.botInformation.get('name')}</div>
