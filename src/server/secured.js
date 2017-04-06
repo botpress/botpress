@@ -182,5 +182,5 @@ module.exports = (bp, app) => {
   })
 
   const apis = ExtraApiProviders(bp, app)
-  apis.secured.map(x => x()) // Install all secured APIs
+  apis.secured.map(x => x && x()) // Install all secured APIs
 }

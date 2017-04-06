@@ -18,7 +18,7 @@ module.exports = bp => {
 
     const user = await bp.security.authenticate(req.headers.authorization)
     if (!!user) {
-      res.user = user
+      req.user = user
       next()
     } else {
       res.status(401).location('/login').end()
@@ -52,7 +52,7 @@ module.exports = bp => {
       const wrap = method => function(name, handler) {
         return app[method].call(app, name, async function(req, res, next) {
           try {
-            if (!res.user) {
+            if (!req.user) {
               return handler(req, res, next)
             }
 
@@ -62,7 +62,7 @@ module.exports = bp => {
               return handler(req, res, next)
             }
 
-            const authorized = await authorizeApi({ userId: res.user.id, operation, ressource })
+            const authorized = await authorizeApi({ userId: req.user.id, operation, ressource })
 
             if (authorized) {
               return handler(req, res, next)

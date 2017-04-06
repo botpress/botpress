@@ -9,6 +9,6 @@ module.exports = (bp, app) => {
   })
 
   const apis = ExtraApiProviders(bp, app)
-  apis.anonymous.map(x => x()) // Install all anonymous APIs
+  apis.anonymous.map(x => x && x()) // Install all anonymous APIs
   
 }
