@@ -1,6 +1,10 @@
 import reactor from '~/reactor'
 
-import { RULES_RECEIVED } from '~/actions/actionTypes'
+import actionTypes from '~/actions/actionTypes'
+
+const {
+	RULES_RECEIVED
+} = actionTypes
 
 const fetchRules = () => {
 	reactor.dispatch(RULES_RECEIVED, { rules: null })
