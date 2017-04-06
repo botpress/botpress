@@ -8,5 +8,6 @@ export default keyMirror({
   BOT_INFORMATION_RECEIVED: null,
   LICENSE_CHANGED: null,
   TOGGLE_ABOUT_MODAL: null,
-  USER_RECEIVED: null
+  USER_RECEIVED: null,
+  RULES_RECEIVED: null
 })
