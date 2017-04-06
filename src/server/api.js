@@ -68,7 +68,7 @@ module.exports = bp => {
               return handler(req, res, next)
             }
 
-            return res.sendStatus(401)
+            return res.sendStatus(403) // HTTP Forbidden
           } catch (err) {
             return res.status(500).send({ message: err.message })
           }
