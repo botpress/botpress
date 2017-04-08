@@ -77,7 +77,7 @@ module.exports = function(program) {
         fs.mkdirSync(program);
         process.chdir(program);
   }else{
-    util.print('error',program + " directory already exists");
+    util.print('error',program + " directory already exist");
     return;
   }
   stats({}).track('cli', 'bot', 'init')
