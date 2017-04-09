@@ -73,12 +73,15 @@ const generate = (result) => {
 }
 
 module.exports = function(program) {
-  if (!fs.existsSync(program)){
-        fs.mkdirSync(program);
-        process.chdir(program);
-  }else{
-    util.print('error',program + " directory already exist");
-    return;
+  var dirName = process.argv[3];
+  if(dirName != undefined){
+    if (!fs.existsSync(dirName)){
+          fs.mkdirSync(dirName);
+          process.chdir(dirName);
+    }else{
+      util.print('error',dirName + " directory already exists");
+      return;
+    }
   }
   stats({}).track('cli', 'bot', 'init')
 
