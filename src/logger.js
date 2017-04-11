@@ -3,7 +3,7 @@ import path from 'path'
 import Promise from 'bluebird'
 import moment from 'moment'
 
-import  { isDeveloping } from './util'
+import { isDeveloping } from './util'
 
 module.exports = (dataLocation, logConfig) => {
   const logger = new winston.Logger({

@@ -7,4 +7,4 @@
 * [How to create Custom Routes with the HTTP Server](how-to-use-the-http-server.md)
 * [How to use the built-in Database](how-to-use-the-database.md)
 * [How to Debug your bot](how-to-debug.md)
-* [How to manage conversation flow](how-to-manage-conversation-flow.md)
+* [How to switch to the Botpress License](botpress-license.md)

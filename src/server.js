@@ -14,13 +14,12 @@ import sass from 'node-sass'
 
 import util from './util'
 
-const setupSocket = function(app, bp) {
-  const server = http.createServer(app)
+const setupSocket = async function(server, bp) {
   const io = socketio(server)
 
   if (bp.botfile.login.enabled) {
     io.use(socketioJwt.authorize({
-      secret: bp.security.getSecret(),
+      secret: await bp.security.getSecret(),
       handshake: true
     }))
   }
@@ -75,9 +74,9 @@ const serveApi = function(app, bp) {
   app.use(maybeApply('bodyParser.json', bodyParser.json()))
   app.use(maybeApply('bodyParser.urlencoded', bodyParser.urlencoded({ extended: true })))
 
-  app.post('/api/login', (req, res) => {
+  app.post('/api/login', async (req, res) => {
     bp.stats.track('api', 'auth', 'login')
-    const result = bp.security.login(req.body.user, req.body.password, req.ip)
+    const result = await bp.security.login(req.body.user, req.body.password, req.ip)
     res.send(result)
   })
 
@@ -217,7 +216,7 @@ const serveApi = function(app, bp) {
       fields: ['message', 'level', 'timestamp']
     }
     bp.logger.query(options, (err, results) => {
-      if (err) return console.log(err)
+      if (err) { return console.log(err) }
       res.send(results.file)
     })
   })
@@ -243,7 +242,7 @@ const serveApi = function(app, bp) {
   bp.getRouter = function(name, conditions) {
 
     if (!/^botpress-/.test(name)) {
-      throw new Error('The name of a router must start with `botpress-`, but received: ' + name)
+      throw new Error(`The name of a router must start with 'botpress-'. Received: ${name}`)
     }
 
     if (!routers[name]) {
@@ -276,9 +275,8 @@ const serveStatic = function(app, bp) {
           const content = fs.readFileSync(iconPath)
           res.contentType('image/png')
           res.send(content)
-        }
-        catch (err) {
-          bp.logger.warn('Could not serve module icon [' + name + '] at: ' + iconPath)
+        } catch (err) {
+          bp.logger.warn(`Could not serve module icon [${name}] at: ${iconPath}`)
         }
       })
     }
@@ -288,9 +286,8 @@ const serveStatic = function(app, bp) {
         const content = fs.readFileSync(bundlePath)
         res.contentType('text/javascript')
         res.send(content)
-      }
-      catch (err) {
-        bp.logger.warn('Could not serve module [' + name + '] at: ' + bundlePath)
+      } catch (err) {
+        bp.logger.warn(`Could not serve module [${name}] at: ${bundlePath}`)
       }
     })
   }
@@ -336,12 +333,12 @@ const serveStatic = function(app, bp) {
   return Promise.resolve(true)
 }
 
-const authenticationMiddleware = (bp) => function(req, res, next) {
+const authenticationMiddleware = bp => async function(req, res, next) {
   if (!bp.botfile.login.enabled) {
     return next()
   }
 
-  if (bp.security.authenticate(req.headers.authorization)) {
+  if (await bp.security.authenticate(req.headers.authorization)) {
     next()
   } else {
     res.status(401).location('/login').end()
@@ -354,11 +351,13 @@ class WebServer {
     this.bp = botpress
   }
 
-  start() {
+  async start() {
     const app = express()
-    const server = setupSocket(app, this.bp)
+    const server = http.createServer(app)
     const port = this.bp.botfile.port || 3000
+    
     serveApi(app, this.bp)
+    await setupSocket(server, this.bp)
     serveStatic(app, this.bp)
 
     server.listen(port, () => {
@@ -367,7 +366,7 @@ class WebServer {
         mod.handlers.ready && mod.handlers.ready(this.bp, mod.configuration)
       }
 
-      this.bp.logger.info(chalk.green.bold('bot launched, visit: http://localhost:' + port))
+      this.bp.logger.info(chalk.green.bold('Bot launched. Visit: http://localhost:' + port))
     })
   }
 

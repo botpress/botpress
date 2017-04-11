@@ -10,6 +10,10 @@ Botpress is an open-source bot creation tool written in Javascript. It is powere
 
 Important: **Make sure to join the official Slack Community (https://slack.botpress.io)!**
 
+### Looking to migrate from 0.0 to 0.1?
+
+https://gist.github.com/slvnperron/9a3027f4d798c7d6b6b6a9b9b6bdfa7b
+
 ## Vision & Mission
 
 Botpress is on mission to make bots ubiquitous and profitable for everybody. At Botpress, we think that using closed-source tools like Chatfuel is not the right approach for building awesome and powerful bots, but Chatfuel is great for quickly creating straight-forward conversational bots. To be able to create something great, it's important to have full control of your tools and to leverage the community efforts as much as possible.
@@ -21,15 +25,13 @@ Botpress is at an early stage and we are looking for **nodejs developers** to bu
 If you are not a programmer or this is your first bot, please consider using [Chatfuel](https://chatfuel.com/), [FlowXO](https://flowxo.com/) or [Motion.ai](http://motion.ai), these are great tools we recommend for beginners and for non-coders.
 
 
-## <a name="what-it-looks-like"> What it looks like </a>
+## <a name="what-it-looks-like">What it looks like </a>
 
-<img alt="Botpress" height="150" src="assets/shot_01.png">
-<img alt="Botpress" height="150" src="assets/shot_02.png">
-<img alt="Botpress" height="150" src="assets/shot_03.png">
+<img alt="Botpress" height="150" src="assets/shot_01.png"><img alt="Botpress" height="150" src="assets/shot_02.png"><img alt="Botpress" height="150" src="assets/shot_03.png">
 
 ## Installation
 
-Botpress requires [node](https://nodejs.org) (version >= 4.2) and uses [npm](https://www.npmjs.com) as package manager.
+Botpress requires [node](https://nodejs.org) (version >= 4.6) and uses [npm](https://www.npmjs.com) as package manager.
 
 ```
 npm install -g botpress
@@ -37,14 +39,14 @@ npm install -g botpress
 
 ## Creating a bot
 
-Creating a bot is simple, you need to run [`botpress init`](/docs/cli-reference.md#init) in a terminal inside an empty directory:
+Creating a bot is simple, you need to run [`botpress init`](https://docs.botpress.io/getting-started/how-to-use-the-cli.html#init) in a terminal inside an empty directory:
 
 ```
 mkdir my-bot && cd my-bot
 botpress init
 ```
 
-Once your bot is created, you need to run [`botpress start`](/docs/cli-reference.md#start--s) to start your bot:
+Once your bot is created, you need to run [`botpress start`](https://docs.botpress.io/getting-started/how-to-use-the-cli.html#start--s) to start your bot:
 
 ```
 botpress start
@@ -62,7 +64,7 @@ At this point, your bot does nothing, you need to add features. There are two wa
 
 For example, there's a `botpress-messenger` module that will make your bot connect to Facebook Messenger and easily send/receive messages.
 
-You can install modules directly in the web interface, or by using the [`botpress install`](/docs/cli-reference.md#install--i) command:
+You can install modules directly in the web interface, or by using the [`botpress install`](https://docs.botpress.io/getting-started/how-to-use-the-cli.html#install--i) command:
 
 ```
 botpress install messenger
@@ -84,9 +86,9 @@ bp.hear({ type: 'postback', text: 'GETTING_STARTED' }, (event, next) => {
 })
 ```
 
-For an overview of the core components, please read the [Basics](/docs/basics.md).
+To create a basic Hello Human bot in 3 minutes, please read the [Getting Started](https://docs.botpress.io/getting-started/).
 
-To create a basic Hello World bot, please read the [Getting Started](/docs/getting-started.md).
+For learn all concepts of Botpress, please read our [Documentation](https://docs.botpress.io/)
 
 ### Stats Collection
 
@@ -100,11 +102,11 @@ In your Botfile, simply set the `optOutStats` variable to `true`.
 
 ## Documentation
 
-- [**Beginner's Guide** (start with this!)](/docs/getting-started.md)
-- [Basics](/docs/basics.md)
-- [Advanced Topics](/docs/advanced-topics.md)
-- [CLI Reference](/docs/cli-reference.md)
-- [Core Reference](/docs/core-reference.md)
+- [**Hello Human in 3 minutes** (start with this!)](https://docs.botpress.io/getting-started/hello-human-in-3-minutes.html)
+- [Getting Started](https://docs.botpress.io/getting-started/)
+- [How to create and manage Modules](https://docs.botpress.io/modules/)
+- [Creating your bot](https://docs.botpress.io/creating-your-bot/)
+- [Management, Monitoring and Deployment](https://docs.botpress.io/managing/)
 
 ## Examples
 
@@ -144,6 +146,7 @@ Here are a some modules that we think would be useful along with their assigned 
 | **[botpress-hitl](https://github.com/botpress/botpress-hitl)** | [@danyfs](https://github.com/danyfs)
 | **[botpress-botkit](https://github.com/botpress/botpress-botkit)** | [@slvnperron](https://github.com/slvnperron)
 | **[botpress-api.ai](https://github.com/botpress/botpress-api.ai)** | [@slvnperron](https://github.com/slvnperron)
+| **[botpress-wordhop](https://github.com/wordhop-io/botpress-wordhop)** | [@wordhop-io](https://github.com/wordhop-io)
 | **botpress-inspector** | no body yet 
 | **botpress-transcript** | [@rodrigocnascimento](https://github.com/rodrigocnascimento)
 | **botpress-telegram** | no body yet 

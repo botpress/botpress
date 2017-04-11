@@ -38,12 +38,12 @@ const getDataLocation = (dataDir, projectLocation) => (
 
 const mkdirIfNeeded = (path, logger) => {
   if (!fs.existsSync(path)) {
-    logger.info('creating data directory: ' + path)
+    logger.info(`Creating data directory: ${path}`)
 
     try {
       fs.mkdirSync(path)
     } catch (err) {
-      logger.error('(fatal) error creating directory: ', err.message)
+      logger.error(`[FATAL] Error creating directory: ${err.message}`)
       process.exit(1)
     }
   }
@@ -51,21 +51,7 @@ const mkdirIfNeeded = (path, logger) => {
 
 /**
  * Global context botpress
- *
- * @property {string} projectLocation
- * @property {Object} botfile
- * @property {Logger} logger
- *
- * @property {Function} login - check security.js
- * @property {Function} authenticate - check security.js
- * @property {Function} getSecret - check security.js
- *
- * @example
- *
- * const botfile = fs.readFileSync(path)
- * const bot = new botpress({ botfile })
- * bot.start()
- */
+*/
 class botpress {
   /**
    * Create botpress
@@ -113,7 +99,7 @@ class botpress {
     // the bot's location is kept in this.projectLocation
     process.chdir(path.join(__dirname, '../'))
 
-    const {projectLocation, botfile} = this
+    const { projectLocation, botfile } = this
 
     const isFirstRun = fs.existsSync(path.join(projectLocation, '.welcome'))
     const dataLocation = getDataLocation(botfile.dataDir, projectLocation)
@@ -127,11 +113,15 @@ class botpress {
 
     logger.info(`Starting botpress version ${version}`)
 
-    const security = createSecurity(dataLocation, botfile.login)
-
     const db = createDatabase({
       sqlite: { location: dbLocation },
       postgres: botfile.postgres
+    })
+
+    const security = createSecurity({
+      dataLocation,
+      securityConfig: botfile.login,
+      db
     })
 
     const modules = createModules(logger, projectLocation, dataLocation, db.kvs)
@@ -143,7 +133,7 @@ class botpress {
     const about = createAbout(projectLocation)
     const licensing = createLicensing(projectLocation)
     const middlewares = createMiddlewares(this, dataLocation, projectLocation, logger)
-    const {hear, middleware: hearMiddleware} = createHearMiddleware()
+    const { hear, middleware: hearMiddleware } = createHearMiddleware()
 
     middlewares.register(hearMiddleware)
 
@@ -183,7 +173,7 @@ class botpress {
     }
 
     process.on('uncaughtException', err => {
-      logger.error('(fatal) An unhandled exception occured in your bot', err)
+      logger.error('[FATAL] An unhandled exception occured in your bot', err)
       if (isDeveloping) {
         logger.error(err.stack)
       }

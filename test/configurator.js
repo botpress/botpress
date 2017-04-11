@@ -41,7 +41,6 @@ describe('configurator', function() {
       const fns = [
           () => createConfig({ kvs, name: '' }),
           () => createConfig({ kvs, name: null }),
-          () => createConfig({ kvs, name: '123' }),
           () => createConfig({ kvs, name: 'botpress-#$' })
         ]
 

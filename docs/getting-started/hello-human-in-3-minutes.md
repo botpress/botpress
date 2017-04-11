@@ -2,9 +2,15 @@
 
 Looking to get started with Botpress but unsure how? Let's create a Messenger Bot in 3 minutes!
 
+## TLDR
+
+Here's a YouTube video if you'd like to see how easy it is to get started with Botpress.
+
+[![Youtube Screenshot](https://s3.amazonaws.com/botpress-io/images/youtube-3-minutes-messenger.png)](https://www.youtube.com/watch?v=GO2yJ51ILl0)
+
 ## 1. Installation
 
-Botpress requires [node](https://nodejs.org) (version >= 4.2) and uses [npm](https://www.npmjs.com) as package manager.
+Botpress requires [node](https://nodejs.org) (version >= 4.6) and uses [npm](https://www.npmjs.com) as package manager.
 
 You need to have `botpress` installed as a global dependency using `npm`. If you haven't done that yet, just run the following command:
 
@@ -93,7 +99,7 @@ Some explanations:
 
 **Line 1**: The entry point of a botpress bot is always a function accepting `bp`, which is the global botpress context object. Everything you need from botpress and the modules is accessible from this context object. The `bp` object contains the default botpress API, and the **modules augment** (mutates) the bp context object to offer features to your bot.
 
-**Line 2**: Botpress relies on a middlewares architecture to process incoming and outgoing messages/interactions. You can read more about the [Botpress Middlewares](https://docs.botpress.io/creating-your-bot/understanding-the-middlewares.html) on documentation, but for now all you need to know is that this line is necessary to correctly setup and load the modules.
+**Line 2**: Botpress relies on a middlewares architecture to process incoming and outgoing messages/interactions. You can read more about the [Botpress Middlewares](../creating-your-bot/understanding-the-middlewares.html) on documentation, but for now all you need to know is that this line is necessary to correctly setup and load the modules.
 
 Now we are going to implement a simple Hello Human:
 
@@ -107,7 +113,7 @@ module.exports = function(bp) {
 }
 ```
 
-Note: Here we are listening out for a hardcoded "hello" string, but the hear command is pretty powerful and can do much more. You can learn more about the [`hear middleware`](creating-your-bot/how-to-use-the-hear-middleware.md) accessing the documentation.
+Note: Here we are listening out for a hardcoded "hello" string, but the hear command is pretty powerful and can do much more. You can learn more about the [`hear middleware`](../creating-your-bot//how-to-use-the-hear-middleware.md) accessing the documentation.
 
 Now stop your bot (by killing the current nodejs process that runs it, i.e. CTRL-C on Mac) and start it again. Now the bot should answer to 'hello'!
 
@@ -135,6 +141,6 @@ Note that the sendText function also takes a third argument, and we configured i
 
 This was just the very beginning of what you can do with Botpress. If you would like to get started with the real fun stuff, be sure to:
 
-1. Continue reading [the documentation](introduction/README.md)
-2. Check out the [Cookbook](https://github.com/botpress/cookbook), which contains lots of code recipes for common bot tasks
-3. Read our demo bot [Boost](https://github.com/botpress/Boost)'s source code
+1. Continue reading [the documentation](what-is-botpress.md)
+2. Read our demo bot [Boost](https://github.com/botpress/Boost)'s source code
+3. Check out the [Cookbook](https://github.com/botpress/cookbook), which contains lots of code recipes for common bot tasks

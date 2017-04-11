@@ -1,28 +1,15 @@
 import Promise from 'bluebird'
 import moment from 'moment'
 
-import helpers from './database_helpers'
+import coreTables from './core_tables'
 import kvs from './kvs'
 
 const initializeCoreDatabase = knex => {
   if (!knex) {
-    throw new Error('you must initialize the database before')
+    throw new Error('You must initialize the database before')
   }
 
-  helpers(knex).date.now()
-
-  return helpers(knex).createTableIfNotExists('users', function (table) {
-    table.string('id').primary()
-    table.string('userId')
-    table.string('platform')
-    table.enu('gender', ['unknown', 'male', 'female'])
-    table.integer('timezone')
-    table.string('picture_url')
-    table.string('first_name')
-    table.string('last_name')
-    table.string('locale')
-    table.timestamp('created_on')
-  })
+  return Promise.mapSeries(coreTables, fn => fn(knex))
 }
 
 module.exports = ({ sqlite, postgres }) => {
@@ -42,7 +29,8 @@ module.exports = ({ sqlite, postgres }) => {
           port: postgres.port,
           user: postgres.user,
           password: postgres.password,
-          database: postgres.database
+          database: postgres.database,
+          ssl: postgres.ssl
         },
         useNullAsDefault: true
       })
@@ -59,7 +47,7 @@ module.exports = ({ sqlite, postgres }) => {
   }
 
   const saveUser = ({ id, platform, gender, timezone, locale, picture_url, first_name, last_name }) => {
-    const userId =  platform + ':' + id
+    const userId = platform + ':' + id
     const userRow = {
       id: userId,
       userId: id,
@@ -84,7 +72,7 @@ module.exports = ({ sqlite, postgres }) => {
       })
 
       if (postgres.enabled) {
-        query = query + ' on conflict (id) do nothing'
+        query = `${query} on conflict (id) do nothing`
       } else { // SQLite
         query = query.toString().replace(/^insert/i, 'insert or ignore')
       }

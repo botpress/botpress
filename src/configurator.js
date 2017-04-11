@@ -47,11 +47,11 @@ const validateSet = (options, name, value) => {
 
   // if name is not in options, throw
   if (!_.includes(_.keys(options), name)) {
-    throw new Error('Unrecognized configuration key: ' + name)
+    throw new Error(`Unrecognized configuration key: ${name}`)
   }
 
   if (!validations[options[name].type](value, options[name].validation)) {
-    throw new Error('Invalid value for key: ' + name)
+    throw new Error(`Invalid value for key: ${name}`)
   }
 }
 
@@ -61,7 +61,7 @@ const validateSave = (options, object) => {
 
   _.each(requiredKeys, required => {
     if (!_.includes(objKeys, required)) {
-      throw new Error(`Missing required configuration "${required}"`)
+      throw new Error(`Missing required configuration: '${required}'`)
     }
   })
 
@@ -72,7 +72,7 @@ const validateSave = (options, object) => {
 
 const validateName = name => {
   if (!name || !/^[A-Z0-9._-]+$/i.test(name)) {
-    throw new Error('Invalid configuration name: ' + name + '. The name must only contain letters, _ and -')
+    throw new Error(`Invalid configuration name: ${name}. The name must only contain letters, _ and -`)
   }
 }
 
@@ -98,7 +98,10 @@ const overwriteFromEnvValues = (options, object) => {
 
 const overwriteFromBotfileValues = (config_name, options, botfile, object) => {
   return _.mapValues(object, (_v, name) => {
-    if (botfile && botfile.config && botfile.config[config_name] && typeof botfile.config[config_name][name] !== 'undefined') {
+    if (botfile 
+      && botfile.config 
+      && botfile.config[config_name] 
+      && typeof botfile.config[config_name][name] !== 'undefined') {
       return botfile.config[config_name][name]
     }
 
@@ -121,7 +124,7 @@ const removeUnusedKeys = (options, object) => {
 const createConfig = ({ kvs, name, botfile = {}, options = {} }) => {
 
   if (!kvs || !kvs.get || !kvs.set) {
-    throw new Error(`A valid 'kvs' is mandatory to createConfig`)
+    throw new Error('A valid \'kvs\' is mandatory to createConfig')
   }
 
   validateName(name)

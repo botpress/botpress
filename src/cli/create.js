@@ -85,7 +85,8 @@ module.exports = function() {
     
     
     if (dirname !== result.name) {
-      util.print('warn', `We usually recommend that the name of the module directory (${dirname}) be the same as the module name (${result.name})`)
+      util.print('warn', 'We usually recommend that the name of the module directory'
+        + ` (${dirname}) be the same as the module name (${result.name})`)
     }
 
     if (fs.existsSync(path.join(moduleDirectory, 'package.json'))) {

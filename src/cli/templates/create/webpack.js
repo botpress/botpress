@@ -59,7 +59,8 @@ var webConfig = {
       }
     }, {
       test: /\.scss$/,
-      loaders: ['style', 'css?modules&importLoaders=1&localIdentName=' + pkg.name + '__[name]__[local]___[hash:base64:5]', 'sass']
+      loaders: ['style', 'css?modules&importLoaders=1&localIdentName=' 
+        + pkg.name + '__[name]__[local]___[hash:base64:5]', 'sass']
     }, {
       test: /\.css$/,
       loaders: ['style', 'css']
@@ -76,7 +77,7 @@ var webConfig = {
 
 var compiler = webpack([nodeConfig, webConfig])
 var postProcess = function(err, stats) {
-  if (err) throw err
+  if (err) { throw err }
   console.log(stats.toString('minimal'))
 }
 

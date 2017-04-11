@@ -13,7 +13,6 @@ import ContentWrapper from '~/components/Layout/ContentWrapper'
 import PageHeader from '~/components/Layout/PageHeader'
 import ModulesComponent from '~/components/Modules'
 import HeroComponent from '~/components/Hero'
-import MiddlewaresComponent from '~/components/Middlewares'
 
 import {connect} from 'nuclear-js-react-addons'
 import getters from '~/stores/getters'
@@ -153,11 +152,9 @@ class DashboardView extends React.Component {
           {this.renderInformationAndContributionSection()}
           <Row>
           <Col sm={12} md={6}>
-            <MiddlewaresComponent type="incoming"/>
             {this.renderPopularModules()}
           </Col>
           <Col sm={12} md={6}>
-            <MiddlewaresComponent type="outgoing"/>
             {this.renderFeaturedModules()}
           </Col>
           </Row>

@@ -1,3 +1,5 @@
+/* global io */
+
 import EventEmitter2 from 'eventemitter2'
 
 import { getToken, authEvents } from '~/util/Auth'

@@ -74,7 +74,7 @@ export default class GuidedTour extends React.Component {
 
   renderStep_1() {
     return <div>
-      <p>{emojify(':rocket:', 100)}</p>
+      <p>{emojify(':package:', 100)}</p>
       <p className={style.big}>There's a module for that.</p>
       <p>Whenever there's a piece of functionality that you need for your bot, think modules.</p>
       <hr />
@@ -88,14 +88,14 @@ export default class GuidedTour extends React.Component {
 
   renderStep_2() {
     return <div>
-      <p>{emojify(':warning:', 50)}</p>
+      <p>{emojify(':rocket:', 100)}</p>
       <p className={style.big}>Before you deploy your bot...</p>
       <ul className={style.left}>
-        <li>We recommend you <a target="_blank" href="#">enable the Postgres database</a> persistence for production environments</li>
+        <li>We recommend you <a target="_blank" href="https://docs.botpress.io/creating-your-bot/how-to-use-the-database.html">enable the Postgres database</a> for production environments</li>
         <li>Do <strong>not</strong> store keys, passwords or any sensitive information in your botfile. Use environment variables instead.</li>
-        <li>If your bot is not open-source, you must <a target="_blank" href="#">switch to the Botpress License</a>, which is free for bots with <span className={style.emp}>less than 150.000 interactions per month.</span></li>
+        <li>If your bot is not open-source, you must <a target="_blank" href="https://docs.botpress.io/creating-your-bot/botpress-license.html">switch to the Botpress License</a>, which is currently free for bots with <span className={style.emp}>less than 150.000 interactions per month.</span></li>
       </ul>
-      <p>Deployment tutorials are <a href="https://docs.botpress.io/deploying.html" target="_blank">available here.</a></p>
+      <p>Deployment tutorials are <a href="https://docs.botpress.io/managing/how-to-deploy.html" target="_blank">available here.</a></p>
     </div>
   }
 
@@ -109,8 +109,8 @@ export default class GuidedTour extends React.Component {
     const bodyStyle = classnames("text-center", style.body)
 
     return (
-      <Modal 
-        show={!this.state.finished && this.props.opened} 
+      <Modal
+        show={!this.state.finished && this.props.opened}
         onHide={::this.handleClose}
         backdrop='static'>
         <Modal.Header>

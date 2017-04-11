@@ -1,9 +1,8 @@
-## How to use the CLI
+## Reference: CLI
 
-You can manage your bot using our powerful CLI tool.
+The CLI (Command Line Interface) allows you to easily manage your bot from the command line.
 
-You need to have `botpress` package installed. If you don't have yet, see the [How Start Using](introduction/how-to-start-using.md) guide.
-See below the all available commands.
+You need to have the `botpress` package installed globally (`npm install -g botpress`) to use these commands.
 
 ### `init`
 
@@ -25,7 +24,7 @@ botpress start
 botpress start ../path/to/bot
 ```
 
-If botpress is not installed globally, you may run a bot using `npm start`:
+If botpress is not installed globally on the host, you may run a bot using `npm start`:
 
 ```
 cd path/to/bot && npm start
@@ -33,7 +32,7 @@ cd path/to/bot && npm start
 
 ### `install` &gt; `i`
 
-Install a local or community module in your bot. This is the equivalent of running `npm install -S botpress-<name>`.
+Install a local or community module. This is the equivalent of running `npm install -S botpress-<name>`, but we strongly suggest to use `botpress install` instead as we might introduce additional logic (like version checking) at a later stage.
 
 ```
 botpress install botpress-messenger
@@ -74,4 +73,4 @@ botpress create
 
 **Note:** unlike `init`, this command does not run `npm install` after initialization, you need to run it yourself.
 
-**Note 2:** module names must start with `botpress-` and this command will enforce this rule. To know more about modules, please read the [Modules Section](modules/README.md).
+**Note 2:** module names must start with `botpress-` and this command will enforce this rule. To know more about modules, please read the [Modules Section](../modules/README.md).

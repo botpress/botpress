@@ -5,6 +5,36 @@
   margin-bottom: 0;
   background-color: $header-color;
   color: $content-color-dark;
+
+  :global(.navbar-nav) {
+
+    a {
+      &:hover, &:active, &:focus, &:visited {
+        background: none !important;
+        -webkit-box-shadow: none !important;
+        box-shadow: none !important; 
+      }
+    }
+  }
+
+  :global(.open) {
+    :global(.material-icons) {
+      color: $content-color-normal !important;
+    }
+  }
+
+  :global(.dropdown-menu) {
+    a {
+      padding: 5px 10px !important; 
+      width: 100%;
+      display: block;
+      text-decoration: none;
+    }
+  }
+}
+
+:global(.navbar-default .navbar-nav > .open > a) {
+  background-color: #ffffff !important;
 }
 
 .app-navbar {
@@ -19,6 +49,7 @@
 
   li a {
     color: $content-color-light !important;
+    
     &:hover {
       color: $content-color-normal !important;
     }
@@ -41,4 +72,29 @@
       opacity: 1;
     }
   }
+}
+
+.account {
+
+  padding-top: 8px !important;
+  padding-bottom: 0px !important;
+  border: none;
+
+  a {
+    padding: 0px !important;
+  }
+
+  img {
+    height: 32px;
+    border-radius: 50%;
+  }
+
+  :global(.material-icons) {
+    font-size: 32px;
+
+    &:hover {
+      color: $content-color-normal !important;
+    }
+  }
+
 }

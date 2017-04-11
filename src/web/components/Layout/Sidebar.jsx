@@ -73,6 +73,10 @@ class Sidebar extends Component {
     return ['/manage'].includes(location.pathname)
   }
 
+  isAtMiddleware() {
+    return ['/middleware'].includes(location.pathname)
+  }
+
   renderModuleItem(module) {
     const path = `/modules/${module.name}`
     const iconPath = `/img/modules/${module.name}.png`
@@ -107,6 +111,7 @@ class Sidebar extends Component {
     const items = modules.toJS().filter(x => !x.noInterface).map(this.renderModuleItem)
     const dashboardClassName = classnames({ [style.active] : this.isAtDashboard() })
     const manageClassName = classnames({ [style.active] : this.isAtManage() })
+    const middlewareClassName = classnames({ [style.active] : this.isAtMiddleware() })
 
     const productionText = this.props.botInformation.get('production') ? "in production" : "in development"
 
@@ -123,6 +128,12 @@ class Sidebar extends Component {
           <Link to='manage' title='Modules'>
             <i className="icon material-icons">build</i>
             Modules
+          </Link>
+        </li>
+        <li className={middlewareClassName} key="middleware">
+          <Link to='middleware' title='Middleware'>
+            <i className="icon material-icons">settings</i>
+            Middleware
           </Link>
         </li>
         {items}

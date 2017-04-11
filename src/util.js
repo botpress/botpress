@@ -28,16 +28,16 @@ const print = function(...args) {
 }
 
 const resolveFromDir = function (fromDir, moduleId) {
-	fromDir = path.resolve(fromDir)
-	const fromFile = path.join(fromDir, 'noop.js')
+  fromDir = path.resolve(fromDir)
+  const fromFile = path.join(fromDir, 'noop.js')
   try {
-  	return Module._resolveFilename(moduleId, {
-  		id: fromFile,
-  		filename: fromFile,
-  		paths: Module._nodeModulePaths(fromDir)
-  	})
+    return Module._resolveFilename(moduleId, {
+      id: fromFile,
+      filename: fromFile,
+      paths: Module._nodeModulePaths(fromDir)
+    })
   } catch (err) {
-  	return null
+    return null
   }
 }
 

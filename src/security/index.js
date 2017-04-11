@@ -1,0 +1,67 @@
+import jwt from 'jsonwebtoken'
+import _ from 'lodash'
+
+import Authentication from './basic_authentication' // BPEE
+
+/**
+ * Security helper for botpress
+ *
+ * Constructor of following functions
+ *
+ *   - login(user, password, ip)
+ *   - authenticate(token)
+ *   - getSecret()
+ *
+ * It will find or create a secret.key in `dataLocation`, then setup the adminPassword for user login.
+ *
+ */
+module.exports = ({ dataLocation, securityConfig, db }) => {
+
+  const authentication = Authentication({ dataLocation, securityConfig, db })
+  const { tokenExpiry } = securityConfig
+
+  // login function that returns a {success, reason, token} object
+  // accounts for number of bad attempts
+  const login = async function(user, password, ip = 'all') {
+    const canAttempt = await authentication.attempt(ip)
+    if (!canAttempt) {
+      return { success: false, reason: 'Too many login attempts. Try again later.' }
+    }
+
+    const loginUser = await authentication.authenticate(user, password, ip)
+
+    if (loginUser) {
+      const secret = await authentication.getSecret()
+
+      return {
+        success: true,
+        token: jwt.sign({ user: loginUser }, secret, { expiresIn: tokenExpiry })
+      }
+    } else {
+      return {
+        success: false,
+        reason: 'Bad username / password'
+      }
+    }
+  }
+
+  /**
+   * @param {string} token
+   * @return {boolean} whether the token is valid
+   */
+  const authenticate = async function(token) {
+    try {
+      const secret = await authentication.getSecret()
+      const decoded = jwt.verify(token, secret)
+      return decoded.user && decoded.user.roles && _.includes(decoded.user.roles, 'admin')
+    } catch (err) {
+      return false
+    }
+  }
+
+  return {
+    login,
+    authenticate,
+    getSecret: authentication.getSecret
+  }
+}
