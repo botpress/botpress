@@ -4,7 +4,7 @@ import _ from 'lodash'
 import NotificationComponent from './index.jsx'
 import classnames from 'classnames'
 
-import {connect} from 'nuclear-js-react-addons'
+import { connect } from 'nuclear-js-react-addons'
 import getters from '~/stores/getters'
 
 import styles from './hubStyle.scss'

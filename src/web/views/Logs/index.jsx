@@ -1,4 +1,4 @@
-import React, {Component} from 'react'
+import React, { Component } from 'react'
 import {
   Row,
   Col,
@@ -71,7 +71,7 @@ class LoggerView extends Component {
 
   getArchiveKey() {
     axios.get('/api/logs/key')
-    .then(({data}) => this.setState({ archiveUrl: '/logs/archive/' + data.secret }))
+    .then(({ data }) => this.setState({ archiveUrl: '/logs/archive/' + data.secret }))
   }
 
   queryLogs() {

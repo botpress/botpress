@@ -2,7 +2,51 @@ var webpack = require('webpack')
 var path = require('path')
 var CopyWebpackPlugin = require('copy-webpack-plugin')
 var autoprefixer = require('autoprefixer')
-var HardSourceWebpackPlugin = require('hard-source-webpack-plugin')
+// var HardSourceWebpackPlugin = require('hard-source-webpack-plugin')
+var nodeExternals = require('webpack-node-externals')
+
+var ExtensionsPlugin = require('./extensions/extensions-plugin')
+
+var nodeConfig = {
+  devtool: 'source-map',
+  entry: [path.resolve(__dirname, './index.js')],
+  output: {
+    path: './lib',
+    filename: 'node.bundle.js',
+    libraryTarget: 'commonjs2',
+    publicPath: __dirname
+  },
+  externals: [nodeExternals()],
+  target: 'node',
+  node: {
+    __dirname: false
+  },
+  resolve: {
+    extensions: ['', '.js'],
+    alias: {
+      '~': path.resolve(__dirname, './src'),
+      '+': path.resolve(__dirname, './extensions/lite')
+    }
+  },
+  module: {
+    loaders: [{
+      test: /\.js$/,
+      loader: 'babel-loader',
+      exclude: /node_modules/,
+      query: {
+        presets: ['latest', 'stage-0'],
+        plugins: ['transform-object-rest-spread']
+      }
+    }, {
+      test: /\.json$/,
+      loader: 'json-loader'
+    }]
+  },
+  plugins: [
+    ExtensionsPlugin.beforeResolve,
+    ExtensionsPlugin.afterResolve
+  ]
+}
 
 var webConfig = {
   bail: true,
@@ -16,10 +60,13 @@ var webConfig = {
   resolve: {
     extensions: ['', '.js', '.jsx', '.css'],
     alias: {
-      '~': path.resolve(__dirname, './src/web')
+      '~': path.resolve(__dirname, './src/web'),
+      '+': path.resolve(__dirname, './extensions/lite')
     }
   },
   plugins: [
+    ExtensionsPlugin.beforeResolve,
+    ExtensionsPlugin.afterResolve,
     new webpack.NoErrorsPlugin(),
     new CopyWebpackPlugin([{
       from: path.resolve(__dirname, './src/web/index.html'),
@@ -27,16 +74,17 @@ var webConfig = {
     }, {
       from: path.resolve(__dirname, './src/web/img'),
       to: path.resolve(__dirname, './lib/web/img')
-    }]),
-    new HardSourceWebpackPlugin({
-      cacheDirectory: __dirname + '/.cache/',
-      recordsPath: __dirname + '/.cache/records.json',
-      environmentPaths: {
-        root: process.cwd(),
-        directories: ['node_modules'],
-        files: ['package.json', 'webpack.js'],
-      }
-    })
+    }])
+    // TODO: Fix caching to take into account changes to extensions and environement variables
+    // new HardSourceWebpackPlugin({
+    //   cacheDirectory: __dirname + '/.cache/',
+    //   recordsPath: __dirname + '/.cache/records.json',
+    //   environmentPaths: {
+    //     root: process.cwd(),
+    //     directories: ['node_modules'],
+    //     files: ['package.json', 'webpack.js'],
+    //   }
+    // })
   ],
   module: {
     loaders: [{
@@ -47,7 +95,8 @@ var webConfig = {
         presets: ['latest', 'stage-0', 'react'],
         plugins: ['transform-object-rest-spread', 'transform-decorators-legacy'],
         compact: false,
-        babelrc: false
+        babelrc: false,
+        cacheDirectory: true
       }
     }, {
       test: /\.scss$/,
@@ -66,11 +115,10 @@ var webConfig = {
   postcss: [ autoprefixer({ browsers: ['last 2 versions'] }) ]
 }
 
-
-var compiler = webpack(webConfig)
+var compiler = webpack([webConfig, nodeConfig])
 var postProcess = function(err, stats) {
   if (err) throw err
-  console.log(stats.toString('normal'))
+  console.log(stats.toString('minimal'))
 }
 
 if (process.argv.indexOf('--compile') !== -1) {
@@ -79,4 +127,4 @@ if (process.argv.indexOf('--compile') !== -1) {
   compiler.watch(null, postProcess)
 }
 
-module.exports = { web: webConfig }
+module.exports = { web: webConfig, node: nodeConfig }

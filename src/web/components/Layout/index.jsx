@@ -8,7 +8,7 @@ import GuidedTour from '~/components/Tour'
 
 import actions from '~/actions'
 import getters from '~/stores/getters'
-import {connect} from 'nuclear-js-react-addons'
+import { connect } from 'nuclear-js-react-addons'
 
 import style from './style.scss'
 

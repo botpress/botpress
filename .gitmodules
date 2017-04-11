@@ -1,0 +1,3 @@
+[submodule "extensions/enterprise"]
+	path = extensions/enterprise
+	url = git@github.com:botpress/enterprise.git

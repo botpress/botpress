@@ -1,9 +1,11 @@
-import React, {Component} from 'react'
-import {Button, FormGroup, FormControl, ControlLabel, HelpBlock} from 'react-bootstrap'
+import React, { Component } from 'react'
+import { Button, FormGroup, FormControl, ControlLabel, HelpBlock } from 'react-bootstrap'
 import classnames from 'classnames'
 
 import styles from './style.scss'
-import {login} from '~/util/Auth'
+import { login } from '~/util/Auth'
+
+import Decorators from '+/views/Login/Decorators.jsx'
 
 export default class LoginPage extends Component {
   static contextTypes = {
@@ -20,6 +22,10 @@ export default class LoginPage extends Component {
     }
   }
 
+  componentDidMount() {
+    Decorators.LoginInitialization && Decorators.LoginInitialization(this)
+  }
+
   renderGlobalStyle() {
     return <style>
       {
@@ -28,19 +34,23 @@ export default class LoginPage extends Component {
   }
 
   handlePasswordChange(event) {
-    this.setState({password: event.target.value})
+    this.setState({ password: event.target.value })
+  }
+
+  handleUserChange(event) {
+    this.setState({ user: event.target.value })
   }
 
   handleSubmit(event) {
     event.preventDefault()
-    this.setState({loading: true})
+    this.setState({ loading: true })
 
     login(this.state.user, this.state.password)
     .then((result) => {
-      this.setState({error: null})
+      this.setState({ error: null })
       this.context.router.push(this.props.location.query.returnTo || '/')
     }).catch((err) => {
-      this.setState({error: err.message, loading: false})
+      this.setState({ error: err.message, loading: false })
     })
   }
 
@@ -54,11 +64,18 @@ export default class LoginPage extends Component {
   }
 
   render() {
+    const hasChangedPassword = !!this.props.location.query.reset
+    const hasAnError = !!this.state.error
+
+    const tallPanelStyle = hasChangedPassword || hasAnError
+
     const panelStyle = classnames('panel', 'bp-login', styles['panel-center'], {
-      [styles['panel-center-tall']]: !!this.state.error
+      [styles['panel-center-tall']]: tallPanelStyle
     })
+
     const headerStyle = classnames('panel-heading', 'text-center', styles.header, 'bp-header')
     const errorStyle = classnames(styles.error)
+    const successStyle = classnames(styles.success)
 
     return <div>{this.renderGlobalStyle()}
       <div className="block-center mt-xl wd-xl">
@@ -69,16 +86,18 @@ export default class LoginPage extends Component {
           <div className="panel-body">
             {this.renderLoading()}
             {this.state.error && <p className={errorStyle}>{this.state.error}</p>}
+            {hasChangedPassword && <p className={successStyle}>Password changed successfully</p>}
             <form onSubmit={this.handleSubmit.bind(this)}>
               <FormGroup>
                 <ControlLabel>User</ControlLabel>
-                <FormControl type="text" placeholder="" value="admin" readOnly/>
+                <Decorators.User value={this.state.user} onChange={::this.handleUserChange}/>
               </FormGroup>
               <FormGroup>
                 <ControlLabel>Password</ControlLabel>
-                <FormControl type="password" placeholder="" value={this.state.password} onChange={this.handlePasswordChange.bind(this)}/>
+                <FormControl type="password" placeholder="" value={this.state.password} onChange={::this.handlePasswordChange}/>
               </FormGroup>
               <Button className="pull-right" type="submit">Login</Button>
+              <Decorators.ForgotPassword />
             </form>
           </div>
         </div>

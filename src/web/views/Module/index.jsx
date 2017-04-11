@@ -2,7 +2,7 @@ import React from 'react'
 import _ from 'lodash'
 import axios from 'axios'
 
-import {connect} from 'nuclear-js-react-addons'
+import { connect } from 'nuclear-js-react-addons'
 import getters from '~/stores/getters'
 
 import ContentWrapper from '~/components/Layout/ContentWrapper'
@@ -11,7 +11,7 @@ import PageHeader from '~/components/Layout/PageHeader'
 
 import EventBus from '~/util/EventBus'
 
-@connect(props => ({modules: getters.modules}))
+@connect(props => ({ modules: getters.modules }))
 export default class ModuleView extends React.Component {
 
   static contextTypes = {
