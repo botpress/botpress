@@ -1,24 +1,18 @@
-module.exports = bp => {
+module.exports = (bp, app) => {
 
-  const addSecuredApi = app => {
+  const installSecured = () => {
+    
     app.get('/api/my-account', async (req, res) => {
-
-      const token = req.headers.authorization
-      let user = await bp.security.authenticate(token)
-      
-      res.send(user)
+      res.send(req.user)
     })
 
-    return app
   }
 
-  const addUnsecuredApi = app => {
-    return app
-  }
+  const installAnonymous = () => {}
 
   return {
     name: '[Lite] Accounts Management',
-    addSecuredApi,
-    addUnsecuredApi
+    installSecured,
+    installAnonymous
   }
 }

@@ -12,6 +12,7 @@ import axios from 'axios'
 
 import NotificationHub from '~/components/Notifications/Hub'
 import ProfileMenu from '+/views/ProfileMenu'
+import RulesChecker from '+/views/RulesChecker'
 
 import { getCurrentUser, logout } from '~/util/Auth'
 
@@ -69,8 +70,12 @@ class Header extends Component {
       <Navbar.Collapse>
         <Nav pullRight>
           <NavItem href="https://slack.botpress.io" target="_blank">{this.renderSlackButton()}</NavItem>
-          <NavItem href="/logs"><Glyphicon glyph="list-alt"/></NavItem>
-          <NotificationHub />
+          <RulesChecker res='bot/logs' op='read'>
+            <NavItem href="/logs"><Glyphicon glyph="list-alt"/></NavItem>
+          </RulesChecker>
+          <RulesChecker res='notifications' op='read'>
+            <NotificationHub />
+          </RulesChecker>
           {this.renderLogoutButton()}
         </Nav>
       </Navbar.Collapse>

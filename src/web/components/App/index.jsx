@@ -7,7 +7,14 @@ import routes from '../Routes'
 
 import reactor from '~/reactor'
 import actions from '~/actions'
-import { ModulesStore, NotificationsStore, UIStore, BotStore, UserStore } from '~/stores'
+import {
+  ModulesStore,
+  NotificationsStore,
+  UIStore,
+  BotStore,
+  UserStore,
+  RulesStore
+} from '~/stores'
 
 export default class App extends Component {
 
@@ -18,7 +25,8 @@ export default class App extends Component {
       'notifications': NotificationsStore,
       'UI': UIStore,
       'botInformation': BotStore,
-      'user': UserStore
+      'user': UserStore,
+      'rules': RulesStore
     })
 
     this.state = {
@@ -33,6 +41,7 @@ export default class App extends Component {
     actions.fetchNotifications()
     actions.fetchBotInformation()
     actions.fetchUser()
+    actions.fetchRules()
   }
 
   componentDidMount() {

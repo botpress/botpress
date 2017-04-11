@@ -15,6 +15,7 @@ import Authentication from '+/authentication'
  * It will find or create a secret.key in `dataLocation`, then setup the adminPassword for user login.
  *
  */
+
 module.exports = ({ dataLocation, securityConfig, db }) => {
 
   const authentication = Authentication({ dataLocation, securityConfig, db })
@@ -53,7 +54,10 @@ module.exports = ({ dataLocation, securityConfig, db }) => {
     try {
       const secret = await authentication.getSecret()
       const decoded = jwt.verify(token, secret)
-      return decoded.user
+      const verified = authentication.verifyUser
+        ? await authentication.verifyUser(decoded)
+        : true
+      return verified && decoded.user
     } catch (err) {
       return false
     }
