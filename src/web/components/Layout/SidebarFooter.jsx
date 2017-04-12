@@ -11,6 +11,7 @@ import actions from '~/actions'
 const style = require('./SidebarFooter.scss')
 
 @connect(props => ({
+  botInformation: getters.botInformation,
   license : getters.license
 }))
 
@@ -34,59 +35,57 @@ class SidebarFooter extends Component {
 
   renderProgressBar() {
     const limit = this.props.license.get('limit')
-    
-    let color = '#58d1b0'
-    let width = limit && limit.get('progress') * 100 + '%'
 
-    if (limit && limit.get('progress') >= 0.70) {
-      color = '#FFFD77'
-    }
+    const progressClassNames = classnames(style.progressBar, 'bp-progress')
 
-    if (limit && limit.get('progress') >= 0.90) {
-      color = '#FEA464'
-    }
-
-    if (limit && limit.get('reached')) {
-      color = '#F86768'
-    }
+    const progress = limit && limit.get('progree')
+    const usedClassNames = classnames({
+      [style.used]: true,
+      ['bp-used']: true,
+      [style.warning]: progress >= 0.75,
+      ['bp-warning']: progress >= 0.75,
+      [style.urgent]: progress >= 0.90,
+      ['bp-urgent']: progress >= 0.90,
+      [style.reached]: progress >= 1,
+      ['bp-reached']: progress >= 1
+    })
 
     const usedStyle = {
-      backgroundColor: color,
-      width: width
+      width: limit && limit.get('progress') * 100 + '%'
     }
 
     if (limit && limit.get('progress')) {
-      return <div className={style.progressBar}>
-          <div style={usedStyle} className={style.used}></div>
+      return <div className={progressClassNames}>
+          <div style={usedStyle} className={usedClassNames}></div>
         </div>
     }
 
     return null
   }
 
-  renderStatusDiv(message, color) {
-    const dotStyle = {
-      backgroundColor: color
-    }
+  renderStatusDiv(message) {
+    const limit = this.props.license.get('limit')
 
-    return <div>
-        <div style={dotStyle} className={style.dot}></div>
+    const statusClassNames = classnames(style.status, 'bp-status')
+
+    const dotClassNames = classnames({
+      [style.dot]: true,
+      ['bp-dot']: true,
+      [style.reached]: limit && limit.get('reached'),
+      ['bp-reached']: limit && limit.get('reached')
+    })
+
+    return <div className={statusClassNames}>
+        <div className={dotClassNames}></div>
         {message}
       </div>
   }
 
   renderLicenseStatus() {
-    
     const limit = this.props.license.get('limit')
-    let color = '#58d1b0'
-
-    if (limit && limit.get('reached')) {
-      color = '#F86768'
-    }
-
 
     if (limit && limit.get('message')) {
-      return <div>{this.renderStatusDiv(limit.get('message'), color)}</div>
+      return this.renderStatusDiv(limit.get('message'))
     }
 
     const date = this.props.license.get('date')
@@ -94,7 +93,8 @@ class SidebarFooter extends Component {
     if (date) {
       const expiration = moment(date).format("MMM Do YYYY")
       const text = 'Valid until ' + expiration
-      return <div>{this.renderStatusDiv(text, color)}</div>
+
+      return this.renderStatusDiv(text)
     }
 
     return null
@@ -105,7 +105,9 @@ class SidebarFooter extends Component {
     const licensed = this.props.license.get('licensed')
 
     if ((limit && limit.get('reached')) || !licensed) {
-      return <a className={style.buy} href='https://botpress.io'>
+      const classNames = classnames(style.buy, 'bp-buy')
+
+      return <a className={classNames} href='https://botpress.io'>
         Buy a license
       </a>
     }
@@ -120,7 +122,9 @@ class SidebarFooter extends Component {
       license = this.props.license.get('name')
     }
 
-    return <Link className={style.license} to='#' title='License' onClick={::this.openLicenseComponent}>
+    const classNames = classnames(style.license,'bp-edition-license')
+
+    return <Link className={classNames} to='#' title='License' onClick={::this.openLicenseComponent}>
         {license}
       </Link>
   }
@@ -132,15 +136,19 @@ class SidebarFooter extends Component {
 
     const name = this.props.botInformation && this.props.botInformation.get('name')
     
-    return <div className={classnames(style.bottomInformation, 'bp-sidebar-footer')}>
-      <div className={classnames(style.name, 'bp-name')}>{name}</div>
-      <div className={classnames(style.production, 'bp-production')}>{production}</div>
+    const sidebarFooterClassNames = classnames(style.bottomInformation, 'bp-sidebar-footer')
+    const nameClassNames = classnames(style.name, 'bp-name')
+    const productionClassNames = classnames(style.production, 'bp-production')
+    const aboutClassNames = classnames(style.about, 'bp-about')
+
+    return <div className={sidebarFooterClassNames}>
+      <div className={nameClassNames}>{name}</div>
+      <div className={productionClassNames}>{production}</div>
       {this.renderLicense()}
       {this.renderProgressBar()}
       {this.renderLicenseStatus()}
       {this.renderBuyLink()}
-      <br />
-      <Link to="#" title="About" onClick={::this.openAbout}>
+      <Link className={aboutClassNames} to="#" title="About" onClick={::this.openAbout}>
         About Botpress
       </Link>
     </div>

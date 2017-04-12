@@ -46,18 +46,39 @@
     margin-bottom: 5px;
 
     .used {
+      background-color: #58d1b0;
       height: 100%;
+    }
+
+    .warning {
+      background-color: #FFFD77;
+    }
+
+    .urgent {
+      background-color: #FEA464;
+    }
+
+    .reached {
+      background-color: #F86768;
     }
   }
 
-  .dot {
-    display: inline-block;
-    height: 6px;
-    width: 6px;
-    border-radius: 50%;
-    margin-bottom: 1px;
-    margin-right: 4px;
+  .status {
+    .dot {
+      background-color: #21CF9E;
+      display: inline-block;
+      height: 6px;
+      width: 6px;
+      border-radius: 50%;
+      margin-bottom: 1px;
+      margin-right: 4px;
+    }
+
+    .reached {
+      background-color: #D84744;
+    }
   }
+  
 
   .buy {
     font-size: 14px;
