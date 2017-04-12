@@ -78,19 +78,25 @@ class Sidebar extends Component {
     return ['/middleware'].includes(location.pathname)
   }
 
+  getActiveClassNames = (condition) => {
+    return classnames({
+      'bp-sidebar-active': condition,
+      [style.active]: condition
+    })
+  }
+
   renderModuleItem(module) {
     const path = `/modules/${module.name}`
     const iconPath = `/img/modules/${module.name}.png`
-    const className = classnames({
-      [style.active]: this.routeActive(path),
-      'bp-sidebar-active': this.routeActive(path)
-    })
+
+    const classNames = this.getActiveClassNames(this.routeActive(path))
+
     const hasCustomIcon = module.menuIcon === 'custom'
     const moduleIcon = hasCustomIcon
       ? <img className={style.customIcon} src={iconPath} />
       : <i className="icon material-icons">{module.menuIcon}</i>
 
-    return <li key={`menu_module_${module.name}`} className={className}>
+    return <li key={`menu_module_${module.name}`} className={classNames}>
       <Link to={path} title={module.menuText}>
         {moduleIcon}
         <span>{module.menuText}</span>
@@ -102,9 +108,9 @@ class Sidebar extends Component {
 
     const modules = this.props.modules
     const items = modules.toJS().filter(x => !x.noInterface).map(this.renderModuleItem)
-    const dashboardClassName = classnames({ [style.active] : this.isAtDashboard() })
-    const manageClassName = classnames({ [style.active] : this.isAtManage() })
-    const middlewareClassName = classnames({ [style.active] : this.isAtMiddleware() })
+    const dashboardClassName = this.getActiveClassNames(this.isAtDashboard())
+    const manageClassName = this.getActiveClassNames(this.isAtManage())
+    const middlewareClassName = this.getActiveClassNames(this.isAtMiddleware())
 
     const sidebarContent = <div className={classnames(style.sidebar, 'bp-sidebar')}>
       <SidebarHeader/>
