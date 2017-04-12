@@ -86,7 +86,7 @@ class ModuleComponent extends Component {
     })
 
     return (
-      <button className={className} onClick={action} loading={this.state.loading}>
+      <button className={className} onClick={action}>
         {text}
       </button>
     )
