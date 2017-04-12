@@ -11,6 +11,7 @@ const {
   NEW_NOTIFICATIONS_RECEIVED,
   TOGGLE_LICENSE_MODAL,
   BOT_INFORMATION_RECEIVED,
+  LICENSE_RECEIVED,
   LICENSE_CHANGED,
   TOGGLE_ABOUT_MODAL,
   USER_RECEIVED
@@ -59,6 +60,13 @@ const fetchBotInformation = () => {
   })
 }
 
+const fetchLicense = () => {
+  axios.get('/api/license')
+  .then(({ data }) => {
+    reactor.dispatch(LICENSE_RECEIVED, { license: data })
+  })
+}
+
 const licenseChanged = (license) => {
   reactor.dispatch(LICENSE_CHANGED, { license })
 }
@@ -78,6 +86,7 @@ module.exports = {
   toggleLicenseModal,
   toggleAboutModal,
   fetchBotInformation,
+  fetchLicense,
   licenseChanged,
   fetchUser,
   ...actions
