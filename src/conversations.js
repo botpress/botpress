@@ -87,6 +87,13 @@ class Thread extends EventEmmiter {
 
     for (let handler of handlers) {
       if (handler.pattern && matches(handler.pattern, event)) {
+        if (_.isRegExp(handler.pattern)) {
+          const match = handler.pattern.exec(event.text)
+          if (match) {
+            event.match = match[1]
+          }
+        }
+
         handler.callback && handler.callback(event)
         return // Interrupt further processing
       }
