@@ -1,4 +1,5 @@
 import React from 'react'
+import classnames from 'classnames'
 
 import Header from './Header'
 import Sidebar from './Sidebar'
@@ -25,10 +26,10 @@ class Layout extends React.Component {
 
   render() {
     return (
-      <div className="wrapper">
+      <div className={classnames('wrapper', 'bp-wrapper')}>
         <Sidebar>
           <Header />
-          <section className={style.container}>{this.props.children}</section>
+          <section className={classnames(style.container, 'bp-container')}>{this.props.children}</section>
         </Sidebar>
         <GuidedTour opened={window.SHOW_GUIDED_TOUR}/>
         <LicenseComponent opened={this.props.UI.get('licenseModalOpened')} />
