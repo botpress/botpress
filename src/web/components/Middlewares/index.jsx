@@ -4,7 +4,6 @@ import { sortable } from 'react-sortable'
 import { Row, Col, Checkbox, ListGroup, ListGroupItem, Tooltip, OverlayTrigger } from 'react-bootstrap'
 import _ from 'lodash'
 import classnames from 'classnames'
-import Button from 'react-bootstrap-button-loader'
 
 import axios from 'axios'
 
@@ -20,7 +19,13 @@ class MiddlewareComponent extends Component {
   render() {
 
     const { name, enabled, module, description } = this.props.middleware
-    const className = classnames(this.props.className, style.middleware, enabled ? style.enabled : style.disabled, 'bp-middleware')
+    const className = classnames({ 
+      [this.props.className]: true, 
+      [style.middleware]: true,
+      ['bp-middleware']: true,
+      [style.disabled]: !enabled,
+      ['bp-disabled']: !enabled
+    })
     const tooltip = description ? <Tooltip id={`module-${name}-description`}>{description}</Tooltip> : null
 
     return (
@@ -160,11 +165,11 @@ export default class MiddlewaresComponent extends Component {
   }
 
   renderIsDirty() {
-    const className = classnames(style.saveButton, this.isDirty() ? style.dirty : null)
+    const classNames = classnames('bp-button', style.saveButton, this.isDirty() ? style.dirty : null)
 
-    return <Button className={className} onClick={::this.saveChanges} loading={this.state.loading}>
+    return <button className={classNames} onClick={::this.saveChanges} loading={this.state.loading}>
       Save
-    </Button>
+    </button>
   }
 
   saveChanges() {
@@ -232,7 +237,7 @@ export default class MiddlewaresComponent extends Component {
           {this.renderIsDirty()}
           <h4>{title}</h4>
           <OverlayTrigger placement="right" overlay={tooltip}>
-            <a className={style.help}>what's this?</a>
+            <a className={classnames(style.help, 'bp-help')}>what's this?</a>
           </OverlayTrigger>
         </div>
       </ListGroupItem>
