@@ -40,7 +40,7 @@ export default class ModuleView extends React.Component {
   renderWrapper(children) {
 
     return <ContentWrapper>
-      {PageHeader(<span> <b>{this.props.params.moduleName}</b> {this.renderLink()}</span>)}
+      {PageHeader(<span>{this.props.params.moduleName} {this.renderLink()}</span>)}
       {children}
     </ContentWrapper>
   }
