@@ -12,6 +12,7 @@ import {
   NotificationsStore,
   UIStore,
   BotStore,
+  LicenseStore,
   UserStore,
   RulesStore
 } from '~/stores'
@@ -25,6 +26,7 @@ export default class App extends Component {
       'notifications': NotificationsStore,
       'UI': UIStore,
       'botInformation': BotStore,
+      'license': LicenseStore,
       'user': UserStore,
       'rules': RulesStore
     })
@@ -40,6 +42,7 @@ export default class App extends Component {
     actions.fetchModules()
     actions.fetchNotifications()
     actions.fetchBotInformation()
+    actions.fetchLicense()
     actions.fetchUser()
     actions.fetchRules()
   }
