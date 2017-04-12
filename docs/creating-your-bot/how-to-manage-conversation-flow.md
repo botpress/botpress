@@ -58,3 +58,23 @@ Continue the execution of the current thread
 #### Conversation | `convo.switchTo(threadName)`
 
 Switches to the thread named `threadName`. Upon switching to a new thread, `next()` is automatically called (meaning any message / questions queued will be sent).
+
+#### Conversation | `convo.stop([string_reason])`
+
+Stops the conversation, meaning it stop processing incoming messages and will eventually be garbage collected.
+
+Emits the `stop` event
+
+An optional `reason` can be given, which is passed to the `stop` event and is also self-emitted. (see example below with `aborted`)
+
+#### Conversation | `convo.messageTypes` -> []
+
+Get or set the types of messages that will be treated as a `question` answer.
+
+For example, `convo.messageTypes = ['postback']` will make the conversation listen only for Messenger Postbacks
+
+Defaults to: `['text', 'message']`
+
+#### Thread | `thread.addMessage(MessageObject)`
+
+#### Thread | `thread.addQuestion(MessageObject, handlers)`
