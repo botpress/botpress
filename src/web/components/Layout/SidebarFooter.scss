@@ -1,0 +1,69 @@
+@import '../../palette.scss';
+
+.bottomInformation {
+  font-size: 12px;
+  position: absolute;
+  bottom: 10px;
+  width: 100%;
+  text-align: left;
+  padding-left: 20px;
+
+  .license {
+    margin-bottom: 5px;
+    display: block;
+
+    &:hover {
+      color: $sidebar-primary-color;
+    }
+  }
+
+  a:hover {
+    color: $sidebar-primary-color;
+  }
+
+  .name {
+    font-size: 16px;
+    color: #c7c7c7;
+  }
+
+  .production {
+    margin-bottom: 10px;
+  }
+
+  .logo {
+    margin: 20px 0 10px 15px !important;
+    padding: 3px;
+
+    img {
+      width: 110px;
+    }
+  }
+
+  .progressBar {
+    height: 8px;
+    border: solid 1px #878787;
+    margin-right: 20px;
+    margin-bottom: 5px;
+
+    .used {
+      height: 100%;
+    }
+  }
+
+  .dot {
+    display: inline-block;
+    height: 6px;
+    width: 6px;
+    border-radius: 50%;
+    margin-bottom: 1px;
+    margin-right: 4px;
+  }
+
+  .buy {
+    font-size: 14px;
+    font-weight: 400;
+    color: #c7c7c7;
+    display: block;
+    margin-top: 5px;
+  }
+}
