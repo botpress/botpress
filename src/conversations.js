@@ -1,6 +1,7 @@
 import EventEmmiter from 'eventemitter2'
 import ms from 'ms'
 import _ from 'lodash'
+import Promise from 'bluebird'
 
 import { matches } from './listeners'
 
@@ -85,12 +86,15 @@ class Thread extends EventEmmiter {
     const handlers = (this.waiting && this._last && this._last.handlers) || []
 
     for (let handler of handlers) {
-      if (matches(handler.pattern, event)) {
+      if (handler.pattern && matches(handler.pattern, event)) {
         handler.callback && handler.callback(event)
         return // Interrupt further processing
       }
     }
 
+    const defaultHandler = _.find(handlers, { default: true })
+
+    defaultHandler && defaultHandler.callback && defaultHandler.callback(event)
   }
 
   repeat() {
@@ -100,7 +104,7 @@ class Thread extends EventEmmiter {
 
 class Conversation extends EventEmmiter {
 
-  constructor({ initialEvent, middleware, logger, clockSpeed = 500 }) {
+  constructor({ initialEvent, middleware, logger, messageTypes, clockSpeed = 500 }) {
     super()
     this.logger = logger
     this.middleware = middleware
@@ -117,7 +121,33 @@ class Conversation extends EventEmmiter {
     this._timeoutInterval = ms('5 minutes')
     this._useTimeout = false
     this._clock = setInterval(::this.tick, clockSpeed)
+    this._clockSpeed = clockSpeed
     this._processing = false
+    this.messageTypes = messageTypes || ['message', 'text']
+    this._outgoing = []
+    this.endWhenDone = true
+
+    this.sendNext() // Infinite loop. Must be called only once.
+  }
+
+  get threads() {
+    return Object.assign({}, this._threads)
+  }
+
+  async sendNext() {
+    const msg = this._outgoing.shift()
+
+    if (msg) {
+      await Promise.resolve(this.middleware
+      && this.middleware.sendOutgoing 
+      && this.middleware.sendOutgoing(msg))
+    }
+
+    await Promise.delay(this._clockSpeed)
+    
+    if (this.status === 'active' || this._outgoing.length > 0) {
+      setImmediate(::this.sendNext)
+    }
   }
 
   teardown() {
@@ -147,8 +177,8 @@ class Conversation extends EventEmmiter {
     this.clearTimeout()
 
     this._timeoutHandle = this._useTimeout && setTimeout(() => {
-      this.emit('timeout')
       // TODO If there's a timeout thread, switch to it
+      this.emit('timeout')
     }, this._timeoutInterval)
   }
 
@@ -187,15 +217,20 @@ class Conversation extends EventEmmiter {
     if (msg) {
       this.say(msg.message, this.initialEvent)
     } else {
-      // TODO No more message
+      this.endWhenDone && this.stop('done')
     }
   }
 
   async processIncoming(event) {
+
+    if (!_.includes(this.messageTypes, event.type)) {
+      return
+    }
+
     this._timeoutHandle && this.resetTimeout()
     const before = await this.emitAsync('beforeProcessing', event)
     if (_.some(before, a => a === false)) {
-      return // TODO Abort processing
+      return
     }
 
     const thread = this.getCurrentThread()
@@ -208,16 +243,18 @@ class Conversation extends EventEmmiter {
     this.resetTimeout()
   }
 
-  say(msg) {
+  async say(msg) {
     const message = formatMessage(msg)
-    this.middleware 
-      && this.middleware.sendOutgoing 
-      && this.middleware.sendOutgoing(msg)
+    this._outgoing.push(msg)
+
+    if (this.status !== 'active') {
+      this.sendNext() // restart sending process once
+    }
   }
 
   activate() {
     if (this.status === 'new') {
-      this.status = 'active' // TODO Do something else
+      this.status = 'active'
       this.emit('activated')
     } else {
       throw new Error('Conversation was already activated')
@@ -236,20 +273,23 @@ class Conversation extends EventEmmiter {
     this._cache[name] = value
   }
 
-  repeat() {
+  async repeat() {
     const thread = this._threads[this.currentThread]
     const msg = thread && thread.repeat()
 
     if (msg) {
-      console.log('REPEAT:', msg)
-      this.say(msg.message)
+      return this.say(msg)
     }
   }
 
   stop(reason) {
-    this.clearTimeout()
     this.status = reason
     this.emit(reason)
+
+    if (reason !== 'stop') {
+      this.emit('stop', reason)
+    }
+    this.teardown()
   }
 }
 
@@ -313,5 +353,13 @@ module.exports = ({ logger, middleware, clockSpeed = 500 }) => {
     return convo
   }
 
-  return { start, create }
+  function find(event) {
+    for (let convo of convos) {
+      if (belongsToConvo(convo, event) && convo.status === 'active') {
+        return convo
+      }
+    }
+  }
+
+  return { start, create, find }
 }
