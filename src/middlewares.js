@@ -2,6 +2,7 @@ import _ from 'lodash'
 import mware from 'mware'
 import path from 'path'
 import fs from 'fs'
+import Promise from 'bluebird'
 
 import licensing from './licensing'
 
@@ -48,6 +49,8 @@ const createMiddleware = function(bp, middlewareName) {
         })
       }
     })
+
+    return event._promise || Promise.resolve()
   }
 
   return { use, dispatch }
@@ -153,7 +156,7 @@ module.exports = function(bp, dataLocation, projectLocation, logger) {
 
   const sendToMiddleware = type => event => {
     let mw = type === 'incoming' ? incoming : outgoing
-    mw.dispatch ? mw.dispatch(event) : mw(event)
+    return mw.dispatch ? mw.dispatch(event) : mw(event)
   }
 
   const sendIncoming = sendToMiddleware('incoming')
