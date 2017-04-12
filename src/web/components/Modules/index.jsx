@@ -81,14 +81,14 @@ class ModuleComponent extends Component {
     const action = installed ? this.handleUninstall : this.handleInstall
 
     const className = classnames({
-      [style.install]: !installed,
+      ['bp-button']: true,
       [style.uninstall]: installed
     })
 
     return (
-      <Button className={className} onClick={action} loading={this.state.loading}>
+      <button className={className} onClick={action} loading={this.state.loading}>
         {text}
-      </Button>
+      </button>
     )
   }
 
