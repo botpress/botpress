@@ -14,7 +14,7 @@
     "compile": "node webpack.js --compile"
   },
   "author": "<%= author %>",
-  "license": "AGPL-3.0",
+  "license": "Botpress Proprietary License",
   "devDependencies": {
     "webpack-node-externals": "^1.5.4",
     "react": "^15.3.2",
