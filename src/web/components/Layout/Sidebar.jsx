@@ -6,6 +6,7 @@ import ReactSidebar from 'react-sidebar'
 import { connect } from 'nuclear-js-react-addons'
 
 import SidebarHeader from './SidebarHeader'
+import SidebarFooter from './SidebarFooter'
 import getters from '~/stores/getters'
 import actions from '~/actions'
 
@@ -14,8 +15,7 @@ import RulesChecker from '+/views/RulesChecker'
 const style = require('./Sidebar.scss')
 
 @connect(props => ({
-  modules: getters.modules,
-  botInformation: getters.botInformation
+  modules: getters.modules
 }))
 
 class Sidebar extends Component {
@@ -35,7 +35,6 @@ class Sidebar extends Component {
     this.onSetSidebarOpen = this.onSetSidebarOpen.bind(this)
     this.mediaQueryChanged = this.mediaQueryChanged.bind(this)
     this.renderModuleItem = this.renderModuleItem.bind(this)
-    this.openLicenseComponent = this.openLicenseComponent.bind(this)
   }
 
   onSetSidebarOpen(open) {
@@ -99,14 +98,6 @@ class Sidebar extends Component {
     </li>
   }
 
-  openLicenseComponent() {
-    actions.toggleLicenseModal()
-  }
-
-  openAbout() {
-    actions.toggleAboutModal()
-  }
-
   render() {
 
     const modules = this.props.modules
@@ -114,8 +105,6 @@ class Sidebar extends Component {
     const dashboardClassName = classnames({ [style.active] : this.isAtDashboard() })
     const manageClassName = classnames({ [style.active] : this.isAtManage() })
     const middlewareClassName = classnames({ [style.active] : this.isAtMiddleware() })
-
-    const productionText = this.props.botInformation.get('production') ? "in production" : "in development"
 
     const sidebarContent = <div className={classnames(style.sidebar, 'bp-sidebar')}>
       <SidebarHeader/>
@@ -146,19 +135,8 @@ class Sidebar extends Component {
         </RulesChecker>
         {items}
       </ul>
-      <div className={classnames(style.bottomInformation, 'bp-sidebar-footer')}>
-        <div className={classnames(style.name, 'bp-name')}>{this.props.botInformation.get('name')}</div>
-        <div className={classnames(style.production, 'bp-production')}>{productionText}</div>
-        <Link to='#' title='License' onClick={this.openLicenseComponent}>
-          License under {this.props.botInformation.get('license')}
-        </Link>
-        <br />
-        <Link to="#" title="About" onClick={::this.openAbout}>
-          About Botpress
-        </Link>
-      </div>
+      <SidebarFooter />
     </div>
-
 
     const { sidebarOpen: open, sidebarDocked: docked } = this.state
 
