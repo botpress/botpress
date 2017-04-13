@@ -50,8 +50,14 @@ class SidebarFooter extends Component {
       ['bp-reached']: progress >= 1
     })
 
+    let width = limit && limit.get('progress') * 100 + '%'
+    
+    if (limit && limit.get('reached')) {
+      width = '100%'
+    }
+
     const usedStyle = {
-      width: limit && limit.get('progress') * 100 + '%'
+      width: width
     }
 
     if (limit && limit.get('progress')) {
