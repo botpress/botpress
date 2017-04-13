@@ -136,7 +136,7 @@ class botpress {
     const events = new EventBus()
     const notifications = createNotifications(dataLocation, botfile.notification, moduleDefinitions, events, logger)
     const about = createAbout(projectLocation)
-    const licensing = createLicensing(projectLocation)
+    const licensing = createLicensing({ logger, projectLocation, version, db, botfile })
     const middlewares = createMiddlewares(this, dataLocation, projectLocation, logger)
     const { hear, middleware: hearMiddleware } = createHearMiddleware()
     const emails = createEmails({ emailConfig: botfile.emails })

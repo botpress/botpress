@@ -44,7 +44,10 @@ var nodeConfig = {
   },
   plugins: [
     ExtensionsPlugin.beforeResolve,
-    ExtensionsPlugin.afterResolve
+    ExtensionsPlugin.afterResolve,
+    new webpack.DefinePlugin({
+      BP_EDITION: JSON.stringify(process.env.BOTPRESS_EDITION || 'lite')
+    })
   ]
 }
 

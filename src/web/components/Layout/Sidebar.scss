@@ -39,37 +39,6 @@
   }
 }
 
-.bottomInformation {
-  font-size: 12px;
-  position: absolute;
-  bottom: 10px;
-  width: 100%;
-  text-align: left;
-  padding-left: 20px;
-
-  a:hover {
-    color: $sidebar-primary-color;
-  }
-
-  .name {
-    font-size: 16px;
-    color: #c7c7c7;
-  }
-
-  .production {
-    margin-bottom: 10px;
-  }
-
-  .logo {
-    margin: 20px 0 10px 15px !important;
-    padding: 3px;
-
-    img {
-      width: 110px;
-    }
-  }
-}
-
 .customIcon {
   width: 28px;
   height: 18px;
