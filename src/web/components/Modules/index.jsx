@@ -63,7 +63,9 @@ class ModuleComponent extends Component {
       <div>
         <a href={docLink} target="_blank">
           <h3 className={classnames(style.moduleTitle, 'bp-module-title')}>
-            <i className='icon material-icons'>{icon}</i>
+            <i className='icon material-icons'>
+              {icon === 'custom' ? 'extension' : icon}
+            </i>
             {name}
           </h3>
         </a>

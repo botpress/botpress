@@ -167,7 +167,7 @@ export default class MiddlewaresComponent extends Component {
   renderIsDirty() {
     const classNames = classnames('bp-button', style.saveButton, this.isDirty() ? style.dirty : null)
 
-    return <button className={classNames} onClick={::this.saveChanges} loading={this.state.loading}>
+    return <button className={classNames} onClick={::this.saveChanges}>
       Save
     </button>
   }
