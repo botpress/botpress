@@ -70,19 +70,31 @@ b {
 
   border: 1px solid transparent;
   border-radius: 4px;
-
+    
+  outline: 0;
   transition: background-color .15s ease-in-out,border-color .15s ease-in-out,color .15s ease-in-out;
 
-  &:hover {
+  &:hover, &:focus, &:active {
     color: $btn-text-color;
     background-color: $btn-bg-color-hover;
+    outline: 0;
+    box-shadow: none;
+    border: 1px solid transparent;
+  }
+}
+
+:global(.bp-button-default) {
+  background-color: $btn-default-bg-color;
+
+  &:hover, &:focus {
+    background-color: $btn-default-bg-color-hover;
   }
 }
 
 :global(.bp-button-danger) {
   background-color: $btn-danger-bg-color;
 
-  &:hover {
+  &:hover, &:focus {
     background-color: $btn-danger-bg-color-hover;
   }
 }
