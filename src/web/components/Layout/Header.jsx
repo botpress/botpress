@@ -64,9 +64,9 @@ class Header extends Component {
   }
 
   render() {
-    const className = classnames(style.navbar, style['app-navbar'], 'bp-navbar')
+    const classNames = classnames(style.navbar, style['app-navbar'], 'bp-navbar')
 
-    return <Navbar className={className}>
+    return <Navbar className={classNames}>
       <Navbar.Collapse>
         <Nav pullRight>
           <NavItem href="https://slack.botpress.io" target="_blank">{this.renderSlackButton()}</NavItem>
