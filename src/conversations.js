@@ -161,6 +161,7 @@ class Conversation extends EventEmmiter {
     // Dispose of timeouts and intervals
     clearInterval(this._clock)
     this.clearTimeout()
+    this.status = 'destroyed'
   }
 
   getCurrentThread() {
@@ -368,5 +369,13 @@ module.exports = ({ logger, middleware, clockSpeed = 500 }) => {
     }
   }
 
-  return { start, create, find }
+  function destroy() {
+    for (let convo of convos) {
+      convo.teardown()
+    }
+
+    convos = []
+  }
+
+  return { start, create, find, destroy }
 }

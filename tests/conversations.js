@@ -25,7 +25,7 @@ const response = text => ({
   platform: 'facebook'
 })
 
-describe.only('conversations', function() {
+describe('conversations', function() {
   let incoming = null
   let outgoing = null
 
@@ -41,6 +41,10 @@ describe.only('conversations', function() {
 
   beforeEach(function() {
     conversations = Conversations({ middleware: middleware, clockSpeed: 5 })
+  })
+
+  afterEach(function() {
+    conversations.destroy()
   })
 
   describe('start', function() {
