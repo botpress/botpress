@@ -25,7 +25,8 @@ postgres: {
   port: process.env.PG_PORT || 5432,
   user: process.env.PG_USER || '',
   password: process.env.PG_PASSWORD || '',
-  database: process.env.PG_DB || ''
+  database: process.env.PG_DB || '',
+  ssl: process.env.PG_SSL || false
 }
 ```
 
@@ -36,6 +37,18 @@ The connection parameters are self-explanatory.
 ### Using Postgres on Heroku
 
 TODO: Contributions to this documentation are welcomed
+
+Heroku provides Postgres databases, however these dbs do not have static authentication details.  Thankfully, Heroku puts a connection string in the environment variables for you that stays up to date with your postgres instance.  To add your Heroku Postgres db connection, use the `connection` property in the `postgres` configuration object.
+
+```js
+postgres: {
+  enabled: process.env.DATABASE === 'postgres',
+  connection: process.env.DATABASE_URL,
+  ssl: process.env.PG_SSL || false
+}
+```
+
+Also make sure to enable SSL by setting the `PG_SSL` env variable to `true`.
 
 ### Tables
 

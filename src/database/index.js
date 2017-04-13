@@ -22,23 +22,40 @@ module.exports = ({ sqlite, postgres }) => {
     }
 
     if (postgres.enabled) {
-      knex = require('knex')({
-        client: 'pg',
-        connection: {
-          host: postgres.host,
-          port: postgres.port,
-          user: postgres.user,
-          password: postgres.password,
-          database: postgres.database,
-          ssl: postgres.ssl
-        },
-        useNullAsDefault: true
-      })
+
+      // If we're passing in a postgres connection string, 
+      // use that instead of the other params
+      if (postgres.connection) {
+        knex = require('knex')({
+          client: 'pg',
+          connection: postgres.connection,
+          useNullAsDefault: true
+        })
+      } else {
+        knex = require('knex')({
+          client: 'pg',
+          connection: {
+            host: postgres.host,
+            port: postgres.port,
+            user: postgres.user,
+            password: postgres.password,
+            database: postgres.database,
+            ssl: postgres.ssl
+          },
+          useNullAsDefault: true
+        })
+      }
+      
     } else {
       knex = require('knex')({
         client: 'sqlite3',
         connection: { filename: sqlite.location },
-        useNullAsDefault: true
+        useNullAsDefault: true,
+        pool: { 
+          afterCreate: (conn, cb) => {
+            conn.run('PRAGMA foreign_keys = ON', cb)
+          }
+        }
       })
     }
 
