@@ -93,9 +93,8 @@ module.exports = (bp, app) => {
     res.send(bp.bot.getContributor())
   })
 
-  app.secure('read', 'bot/information/license')
-  .get('/api/license', (req, res) => {
-    res.send(bp.licensing.getLicenses())
+  app.get('/api/license', async (req, res) => {
+    res.send(await bp.licensing.getLicensing())
   })
 
   app.secure('write', 'bot/information/license')
