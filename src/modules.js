@@ -17,8 +17,6 @@ import {
 } from './util'
 
 const MODULES_URL = 'https://s3.amazonaws.com/botpress-io/all-modules.json'
-const POPULAR_URL = 'https://s3.amazonaws.com/botpress-io/popular-modules.json'
-const FEATURED_URL = 'https://s3.amazonaws.com/botpress-io/featured-modules.json'
 const FETCH_TIMEOUT = 5000
 
 module.exports = (logger, projectLocation, dataLocation, kvs) => {
@@ -35,18 +33,6 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
     return axios.get(MODULES_URL, { timeout: FETCH_TIMEOUT })
     .then(({ data }) => data)
     .catch(() => logger.error('Could not fetch modules'))
-  }
-
-  const fetchPopular = () => {
-    return axios.get(POPULAR_URL, { timeout: FETCH_TIMEOUT })
-    .then(({ data }) => data)
-    .catch(() => logger.error('Could not fetch popular modules'))
-  }
-
-  const fetchFeatured = () => {
-    return axios.get(FEATURED_URL, { timeout: FETCH_TIMEOUT })
-    .then(({ data }) => data)
-    .catch(() => logger.error('Could not fetch featured modules'))
   }
 
   const loadModules = (moduleDefinitions, botpress) => {
@@ -180,7 +166,12 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
       description: mod.description,
       installed: _.includes(installed, mod.name),
       license: mod.license,
-      author: mod.author.name
+      author: mod.author.name,
+      title: mod.title,
+      category: mod.category,
+      featured: mod.featured,
+      popular: mod.popular,
+      official: mod.official
     }))
   }
 
@@ -205,51 +196,25 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
     }
 
     return Promise.props({
-      newModules: fetchAllModules(),
-      popular: fetchPopular(),
-      featured: fetchFeatured()
+      newModules: fetchAllModules()
     })
-    .then(({ newModules, featured, popular }) => {
+    .then(({ newModules }) => {
 
-      if (!newModules || !featured || !popular || !newModules.length || !featured.length || !popular.length) {
+      if (!newModules || !newModules.length) {
         if (modules.length > 0) {
           logger.debug('Fetched invalid modules. Report this to the Botpress Team.')
           return mapModuleList(modules)
         } else {
           newModules = newModules || []
-          popular = popular || []
-          featured = featured || []
         }
       }
 
       fs.writeFileSync(modulesCachePath, JSON.stringify({
         modules: newModules,
-        popular: popular,
-        featured: featured,
         updated: new Date()
       }))
 
       return mapModuleList(newModules)
-    })
-  })
-
-  const listPopularCommunityModules = Promise.method(() => {
-    const modulesCachePath = path.join(dataLocation, './modules-cache.json')
-
-    return listAllCommunityModules()
-    .then(modules => {
-      const { popular } = JSON.parse(fs.readFileSync(modulesCachePath))
-      return _.filter(modules, m => _.includes(popular, m.name))
-    })
-  })
-
-  const listFeaturedCommunityModules = Promise.method(() => {
-    const modulesCachePath = path.join(dataLocation, './modules-cache.json')
-
-    return listAllCommunityModules()
-    .then(modules => {
-      const { featured } = JSON.parse(fs.readFileSync(modulesCachePath))
-      return _.filter(modules, m => _.includes(featured, m.name))
     })
   })
 
@@ -342,8 +307,6 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
 
   return {
     listAllCommunityModules,
-    listPopularCommunityModules,
-    listFeaturedCommunityModules,
     getRandomCommunityHero,
     install: installModules,
     uninstall: uninstallModules,

@@ -57,7 +57,7 @@ class ModuleComponent extends Component {
   }
 
   renderLeftSideModule() {
-    const { docLink, icon, description, author, license, name } = this.props.module
+    const { docLink, icon, description, author, license, title } = this.props.module
 
     return (
       <div>
@@ -66,7 +66,7 @@ class ModuleComponent extends Component {
             <i className='icon material-icons'>
               {icon === 'custom' ? 'extension' : icon}
             </i>
-            {name}
+            {title}
           </h3>
         </a>
         <p className={classnames(style.moduleDescription, 'bp-module-description')}>{description}</p>
@@ -85,7 +85,7 @@ class ModuleComponent extends Component {
     const className = classnames({
       ['bp-button']: true,
       [style.uninstall]: installed,
-      ['bp-button-uninstall']: installed
+      ['bp-button-default']: installed
     })
 
     return (

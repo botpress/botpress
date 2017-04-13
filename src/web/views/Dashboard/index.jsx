@@ -12,6 +12,7 @@ import {
 
 import classnames from 'classnames'
 import axios from 'axios'
+import _ from 'lodash'
 
 import ContentWrapper from '~/components/Layout/ContentWrapper'
 import PageHeader from '~/components/Layout/PageHeader'
@@ -29,13 +30,11 @@ export default class DashboardView extends React.Component {
     
     this.state = { loading: true }
 
-    this.queryModulesPopular = this.queryModulesPopular.bind(this)
-    this.queryFeaturedModules = this.queryFeaturedModules.bind(this)
+    this.queryAllModules = this.queryAllModules.bind(this)
   }
 
   componentDidMount() {
-    this.queryModulesPopular()
-    .then(this.queryFeaturedModules)
+    this.queryAllModules()
     .then(() => {
       this.setState({
         loading: false
@@ -43,27 +42,19 @@ export default class DashboardView extends React.Component {
     })
   }
 
-  queryModulesPopular() {
-    return axios.get('/api/module/popular')
+  queryAllModules() {
+    return axios.get('/api/module/all')
     .then((result) => {
+      console.log(result.data)
       this.setState({
-        popularModules: result.data
-      })
-    })
-  }
-
-  queryFeaturedModules() {
-    return axios.get('/api/module/featured')
-    .then((result) => {
-      this.setState({
-        featuredModules: result.data
+        popularModules: _.filter(result.data, m => m.popular),
+        featuredModules: _.filter(result.data, m => m.featured),
       })
     })
   }
 
   refresh() {
-    this.queryFeaturedModules()
-    .then(this.queryModulesPopular)
+    this.queryAllModules()
     .then(() => {
       setTimeout(actions.fetchModules, 5000)
     })

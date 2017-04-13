@@ -67,18 +67,6 @@ module.exports = (bp, app) => {
   })
 
   app.secure('read', 'modules/list/community')
-  .get('/api/module/popular', (req, res) => {
-    bp.modules.listPopularCommunityModules()
-    .then(popular => res.send(popular))
-  })
-
-  app.secure('read', 'modules/list/community')
-  .get('/api/module/featured', (req, res) => {
-    bp.modules.listFeaturedCommunityModules()
-    .then(featured => res.send(featured))
-  })
-
-  app.secure('read', 'modules/list/community')
   .get('/api/module/hero', (req, res) => {
     bp.modules.getRandomCommunityHero()
     .then(hero => res.send(hero))
