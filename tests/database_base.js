@@ -31,7 +31,12 @@ const sqlite = knex({
   connection: {
     filename: process.env.SQLITE_FILE || sqlite_db.name
   },
-  useNullAsDefault: true
+  useNullAsDefault: true,
+  pool: { 
+    afterCreate: (conn, cb) => {
+      conn.run('PRAGMA foreign_keys = ON', cb)
+    }
+  }
 })
 
 const createSampleTable = () => {

@@ -50,7 +50,12 @@ module.exports = ({ sqlite, postgres }) => {
       knex = require('knex')({
         client: 'sqlite3',
         connection: { filename: sqlite.location },
-        useNullAsDefault: true
+        useNullAsDefault: true,
+        pool: { 
+          afterCreate: (conn, cb) => {
+            conn.run('PRAGMA foreign_keys = ON', cb)
+          }
+        }
       })
     }
 

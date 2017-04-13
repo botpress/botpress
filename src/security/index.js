@@ -66,6 +66,7 @@ module.exports = ({ dataLocation, securityConfig, db }) => {
   return {
     login,
     authenticate,
-    getSecret: authentication.getSecret
+    getSecret: authentication.getSecret,
+    _authentication: authentication
   }
 }

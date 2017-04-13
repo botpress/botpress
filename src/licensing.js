@@ -107,7 +107,6 @@ Botpress: ${bp.version}`
     const users = await getUsers()
     const { customerId, licenseKey } = botfile
     const verificationMethod = 'cid_token'
-
     return axios.post(BOTPRESS_LICENSE_SERVER, {
       method: verificationMethod,
       customerId,
