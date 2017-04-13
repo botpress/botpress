@@ -27,7 +27,7 @@ export default class ManageView extends React.Component {
     super(props)
     this.state = { 
       modules: [],
-      tags: [DEFAULT_TAG, 'Connector', 'Analytics', 'Marketing', 'NLP', 'others'], 
+      tags: [DEFAULT_TAG, 'Connector', 'Analytics', 'Marketing', 'NLP', 'Others'], 
       tag: DEFAULT_TAG,
       search: '',
       loading: true
