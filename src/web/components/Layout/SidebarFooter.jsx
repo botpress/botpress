@@ -143,20 +143,23 @@ class SidebarFooter extends Component {
     const name = this.props.botInformation && this.props.botInformation.get('name')
     
     const sidebarFooterClassNames = classnames(style.bottomInformation, 'bp-sidebar-footer')
+    const sidebarInnerClassNames = classnames(style.innerFooter, 'bp-inner-footer')
     const nameClassNames = classnames(style.name, 'bp-name')
     const productionClassNames = classnames(style.production, 'bp-production')
     const aboutClassNames = classnames(style.about, 'bp-about')
 
     return <div className={sidebarFooterClassNames}>
-      <div className={nameClassNames}>{name}</div>
-      <div className={productionClassNames}>{production}</div>
-      {this.renderLicense()}
-      {this.renderProgressBar()}
-      {this.renderLicenseStatus()}
-      {this.renderBuyLink()}
-      <Link className={aboutClassNames} to="#" title="About" onClick={::this.openAbout}>
-        About Botpress
-      </Link>
+      <div className={sidebarInnerClassNames}>
+        <div className={nameClassNames}>{name}</div>
+        <div className={productionClassNames}>{production}</div>
+        {this.renderLicense()}
+        {this.renderProgressBar()}
+        {this.renderLicenseStatus()}
+        {this.renderBuyLink()}
+        <Link className={aboutClassNames} to="#" title="About" onClick={::this.openAbout}>
+          About Botpress
+        </Link>
+      </div>
     </div>
   }
 }

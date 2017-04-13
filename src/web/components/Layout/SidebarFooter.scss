@@ -1,12 +1,25 @@
 @import '../../palette.scss';
 
 .bottomInformation {
+  height: 150px; // Needs to match with Sidebar styles
+  width: 200px; // Needs to match with Sidebar styles
+
+  color: $sidebar-primary-color;
+
   font-size: 12px;
-  position: absolute;
-  bottom: 10px;
-  width: 100%;
+  position: fixed;
+  bottom: 0px;
+
   text-align: left;
   padding-left: 20px;
+  padding-bottom: 10px;
+  padding-top: 10px;
+  background-color: $sidebar-color;
+
+  .innerFooter {
+    position: absolute;
+    bottom: 10px;
+  }
 
   .license {
     margin-bottom: 5px;

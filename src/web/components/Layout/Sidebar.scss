@@ -1,5 +1,9 @@
 @import '../../palette.scss';
 
+.sidebarReact {
+  bottom: 150px !important;
+}
+
 .sidebar {
   background-color: $sidebar-color;
   color: $sidebar-text-color;

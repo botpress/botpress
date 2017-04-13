@@ -141,13 +141,13 @@ class Sidebar extends Component {
         </RulesChecker>
         {items}
       </ul>
-      <SidebarFooter />
     </div>
 
     const { sidebarOpen: open, sidebarDocked: docked } = this.state
 
     return (
       <ReactSidebar
+        sidebarClassName={classnames(style.sidebarReact, 'bp-sidebar-react')}
         sidebar={sidebarContent}
         open={open}
         docked={docked}
