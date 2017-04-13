@@ -166,7 +166,7 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
       description: mod.description,
       installed: _.includes(installed, mod.name),
       license: mod.license,
-      author: mod.author.name,
+      author: !mod.author.name ? mod.author : mod.author.name,
       title: mod.title,
       category: mod.category,
       featured: mod.featured,
