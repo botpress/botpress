@@ -9,8 +9,7 @@ import stats from '../stats'
 
 const introductionText = "\nHey there, thanks for using botpress!" +
   "\nWe'll walk you through the creation of your new bot." +
-  "\nFor more information or help, please visit http://github.com/botpress/botpress"
-  + "\n---------------"
+  "\nFor more information or help, please visit http://github.com/botpress/botpress" + "\n---------------"
 
 const waitingText = 'please wait, we are installing everything for you...'
 const nextStepText = 'now run ' + chalk.bold('`bp start`') + ' in your terminal'
@@ -73,6 +72,16 @@ const generate = (result) => {
 }
 
 module.exports = function(program) {
+  var dirName = process.argv[3];
+  if (dirName != undefined) {
+    if (!fs.existsSync(dirName)) {
+      fs.mkdirSync(dirName);
+      process.chdir(dirName);
+    } else {
+      util.print('error', dirName + " directory already exists");
+      return;
+    }
+  }
   stats({}).track('cli', 'bot', 'init')
 
   util.print(introductionText)
@@ -118,7 +127,7 @@ module.exports = function(program) {
     prompt.message = ''
     prompt.delimiter = ''
     prompt.start()
-    prompt.get(schema, function (err, result) {
+    prompt.get(schema, function(err, result) {
       generate(result)
     })
   }

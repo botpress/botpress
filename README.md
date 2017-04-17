@@ -42,8 +42,9 @@ npm install -g botpress
 Creating a bot is simple, you need to run [`botpress init`](https://docs.botpress.io/getting-started/how-to-use-the-cli.html#init) in a terminal inside an empty directory:
 
 ```
-mkdir my-bot && cd my-bot
-botpress init
+mkdir my-bot && cd my-bot && botpress init
+OR
+botpress init my-bot
 ```
 
 Once your bot is created, you need to run [`botpress start`](https://docs.botpress.io/getting-started/how-to-use-the-cli.html#start--s) to start your bot:
