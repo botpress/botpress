@@ -95,7 +95,7 @@ class Sidebar extends Component {
 
     const hasCustomIcon = module.menuIcon === 'custom'
     const moduleIcon = hasCustomIcon
-      ? <img className={style.customIcon} src={iconPath} />
+      ? <img className={classnames(style.customIcon, 'bp-custom-icon')} src={iconPath} />
       : <i className="icon material-icons">{module.menuIcon}</i>
 
     return <li key={`menu_module_${module.name}`} className={classNames}>
