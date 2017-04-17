@@ -38,7 +38,7 @@ class SidebarFooter extends Component {
 
     const progressClassNames = classnames(style.progressBar, 'bp-progress')
 
-    const progress = limit && limit.get('progree')
+    const progress = limit && limit.get('progress')
     const usedClassNames = classnames({
       [style.used]: true,
       ['bp-used']: true,
@@ -135,6 +135,19 @@ class SidebarFooter extends Component {
       </Link>
   }
 
+  renderAllLicenseElements() {
+    if (!window.AUTH_ENABLED) {
+      return null
+    }
+
+    return <div>
+        {this.renderLicense()}
+        {this.renderProgressBar()}
+        {this.renderLicenseStatus()}
+        {this.renderBuyLink()}
+      </div>
+  }
+
   render() {
     const isProduction = this.props.botInformation && this.props.botInformation.get('production') 
 
@@ -152,10 +165,7 @@ class SidebarFooter extends Component {
       <div className={sidebarInnerClassNames}>
         <div className={nameClassNames}>{name}</div>
         <div className={productionClassNames}>{production}</div>
-        {this.renderLicense()}
-        {this.renderProgressBar()}
-        {this.renderLicenseStatus()}
-        {this.renderBuyLink()}
+        {this.renderAllLicenseElements()}
         <Link className={aboutClassNames} to="#" title="About" onClick={::this.openAbout}>
           About Botpress
         </Link>
