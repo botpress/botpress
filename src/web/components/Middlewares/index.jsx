@@ -47,15 +47,15 @@ class MiddlewareComponent extends Component {
   }
 }
 
-var ListItem = React.createClass({
-  displayName: 'SortableListItem',
-  render: function() {
+class ListItem extends Component {
+
+  render() {
     const className = classnames('list-item')
     return (
       <ListGroupItem {...this.props} className={className}>{this.props.children}</ListGroupItem>
     )
   }
-})
+}
 
 var SortableListItem = sortable(ListItem)
 
