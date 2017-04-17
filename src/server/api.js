@@ -12,6 +12,18 @@ const routers = {}
 module.exports = bp => {
 
   async function _authenticationMiddleware(req, res, next) {
+    res.maybeSendRequireLogin = () => {
+      if (!bp.botfile.login.enabled) {
+        res.status(400).send({
+          message: 'Login must be turned on for this API method'
+        })
+        
+        return true
+      } else {
+        return false
+      }
+    }
+
     if (!bp.botfile.login.enabled) {
       return next()
     }
