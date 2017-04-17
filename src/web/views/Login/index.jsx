@@ -1,4 +1,6 @@
 import React, { Component } from 'react'
+import PropTypes from 'prop-types'
+
 import { Button, FormGroup, FormControl, ControlLabel, HelpBlock } from 'react-bootstrap'
 import classnames from 'classnames'
 
@@ -9,7 +11,7 @@ import Decorators from '+/views/Login/Decorators.jsx'
 
 export default class LoginPage extends Component {
   static contextTypes = {
-    router: React.PropTypes.object
+    router: PropTypes.object
   }
 
   constructor(props, context) {

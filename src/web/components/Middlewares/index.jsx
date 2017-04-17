@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 import ReactDOM from 'react-dom'
 import { sortable } from 'react-sortable'
+
 import { Row, Col, Checkbox, ListGroup, ListGroupItem, Tooltip, OverlayTrigger } from 'react-bootstrap'
 import _ from 'lodash'
 import classnames from 'classnames'
@@ -12,8 +14,8 @@ import style from './style.scss'
 class MiddlewareComponent extends Component {
 
   static propTypes = {
-    middleware: React.PropTypes.object.isRequired,
-    toggleEnabled: React.PropTypes.func.isRequired
+    middleware: PropTypes.object.isRequired,
+    toggleEnabled: PropTypes.func.isRequired
   }
 
   render() {
@@ -62,7 +64,7 @@ var SortableListItem = sortable(ListItem)
 export default class MiddlewaresComponent extends Component {
 
   static propTypes = {
-    type: React.PropTypes.string.isRequired
+    type: PropTypes.string.isRequired
   }
 
   constructor(props, context) {

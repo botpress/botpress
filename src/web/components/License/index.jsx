@@ -1,4 +1,6 @@
 import React, { Component } from 'react'
+import PropTypes from 'prop-types'
+
 import {
   Modal,
   Button
@@ -18,7 +20,7 @@ import style from './style.scss'
 class License extends Component {
 
   static contextTypes = {
-    router: React.PropTypes.object.isRequired
+    router: PropTypes.object.isRequired
   }
 
   constructor(props, context) {
@@ -74,7 +76,7 @@ class License extends Component {
 }
 
 License.contextTypes = {
-  reactor: React.PropTypes.object.isRequired
+  reactor: PropTypes.object.isRequired
 }
 
 export default License

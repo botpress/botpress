@@ -1,4 +1,6 @@
 import React from 'react'
+import PropTypes from 'prop-types'
+
 import _ from 'lodash'
 import axios from 'axios'
 
@@ -15,7 +17,7 @@ import EventBus from '~/util/EventBus'
 export default class ModuleView extends React.Component {
 
   static contextTypes = {
-    router: React.PropTypes.object.isRequired
+    router: PropTypes.object.isRequired
   }
 
   constructor(props, context) {

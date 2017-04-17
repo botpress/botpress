@@ -1,4 +1,6 @@
 import React, { Component } from 'react'
+import PropTypes from 'prop-types'
+
 import { Link } from 'react-router'
 import classnames from 'classnames'
 import moment from 'moment'
@@ -18,7 +20,7 @@ const style = require('./SidebarFooter.scss')
 class SidebarFooter extends Component {
 
   static contextTypes = {
-    router: React.PropTypes.object.isRequired
+    router: PropTypes.object.isRequired
   }
 
   constructor(props, context) {
@@ -175,7 +177,7 @@ class SidebarFooter extends Component {
 }
 
 SidebarFooter.contextTypes = {
-  reactor: React.PropTypes.object.isRequired
+  reactor: PropTypes.object.isRequired
 }
 
 export default SidebarFooter

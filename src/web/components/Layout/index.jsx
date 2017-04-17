@@ -1,4 +1,6 @@
 import React from 'react'
+import PropTypes from 'prop-types'
+
 import classnames from 'classnames'
 
 import Header from './Header'
@@ -19,7 +21,7 @@ import style from './style.scss'
 class Layout extends React.Component {
 
   static contextTypes = {
-    reactor: React.PropTypes.object.isRequired
+    reactor: PropTypes.object.isRequired
   }
 
   constructor(props, context) {

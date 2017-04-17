@@ -1,4 +1,6 @@
 import React, { Component } from 'react'
+import PropTypes from 'prop-types'
+
 import { Row, Col, Tooltip, OverlayTrigger } from 'react-bootstrap'
 import moment from 'moment'
 import classnames from 'classnames'
@@ -8,7 +10,7 @@ import EventBus from '~/util/EventBus'
 export default class NotificationComponent extends Component {
 
   static contextTypes = {
-    router: React.PropTypes.object.isRequired
+    router: PropTypes.object.isRequired
   }
 
   constructor(props, context, { itemComponent, renderDivider, styles }) {

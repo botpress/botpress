@@ -1,4 +1,6 @@
 import React, { Component } from 'react'
+import PropTypes from 'prop-types'
+
 import {
   Navbar, 
   Nav, 
@@ -84,7 +86,7 @@ class Header extends Component {
 }
 
 Header.contextTypes = {
-  reactor: React.PropTypes.object.isRequired
+  reactor: PropTypes.object.isRequired
 }
 
 export default Header
