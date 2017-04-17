@@ -43,8 +43,11 @@ export default class App extends Component {
     actions.fetchNotifications()
     actions.fetchBotInformation()
     actions.fetchLicense()
-    actions.fetchUser()
-    actions.fetchRules()
+    
+    if (window.AUTH_ENABLED) {
+      actions.fetchUser()
+      actions.fetchRules()
+    }
   }
 
   componentDidMount() {
