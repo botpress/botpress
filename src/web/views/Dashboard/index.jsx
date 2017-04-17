@@ -45,7 +45,6 @@ export default class DashboardView extends React.Component {
   queryAllModules() {
     return axios.get('/api/module/all')
     .then((result) => {
-      console.log(result.data)
       this.setState({
         popularModules: _.filter(result.data, m => m.popular),
         featuredModules: _.filter(result.data, m => m.featured),
