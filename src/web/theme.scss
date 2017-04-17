@@ -49,6 +49,15 @@ b {
 }
 
 
+:global(.bp-primary-color-text) {
+  color: $primary-color;
+}
+
+:global(.bp-primary-color-bg) {
+  color: $text-color;
+  background-color: $primary-color;
+}
+
 :global(.bp-button) {
   color: $btn-text-color;
   background-color: $btn-bg-color;
@@ -62,7 +71,7 @@ b {
   text-align: center;
   white-space: nowrap;
   
-  margin: 0px 1px;
+  margin: 1px 1px;
   padding-top: 4px;
   padding-bottom: 4px;
   padding-left: 20px;
