@@ -59,11 +59,13 @@ export default class LoginPage extends Component {
   }
 
   componentDidMount() {
-    document.body.className=classnames('bp-body', 'bp-body-login', styles['body'])
+    const app = document.getElementById('app')
+    app.className = classnames(app.className, 'bp-body-login')
   }
 
   componentWillUnmount() {
-    document.body.className="bp-body"
+    const app = document.getElementById('app')
+    app.className = classnames(app.className.replace('bp-body-login', ''))
   }
 
   render() {
