@@ -35,6 +35,10 @@ export default class App extends Component {
       events: EventBus.default
     }
 
+    if (window.APP_NAME) {
+      window.document.title = window.APP_NAME
+    }
+
     EventBus.default.setup()
   }
 

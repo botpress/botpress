@@ -64,6 +64,8 @@ module.exports = bp => {
     app.use('/js/env.js', (req, res) => {
       const { tokenExpiry, enabled } = bp.botfile.login
       const optOutStats = !!bp.botfile.optOutStats
+      const appName = bp.botfile.appName || 'Botpress'
+      
       const { isFirstRun, version } = bp
       res.contentType('text/javascript')
       res.send(`(function(window) {
@@ -74,6 +76,7 @@ module.exports = bp => {
         window.OPT_OUT_STATS = ${optOutStats};
         window.SHOW_GUIDED_TOUR = ${isFirstRun};
         window.BOTPRESS_VERSION = "${version}";
+        window.APP_NAME = "${appName}";
       })(window || {})`)
     })
 
