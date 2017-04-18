@@ -28,11 +28,7 @@ export default class ModuleView extends React.Component {
     }
   }
 
-  renderLink() {
-    if (this.props.modules.size <= 0) {
-      return null
-    }
-    const module = this.props.modules.find((value) => value.get('name') === this.props.params.moduleName).toJS()
+  renderLink(module) {
     if (!module.homepage) {
       return null
     }
@@ -40,9 +36,14 @@ export default class ModuleView extends React.Component {
   }
 
   renderWrapper(children) {
+    if (this.props.modules.size <= 0) {
+      return null
+    }
 
+    const module = this.props.modules.find((value) => value.get('name') === this.props.params.moduleName).toJS()
+    
     return <ContentWrapper>
-      {PageHeader(<span>{this.props.params.moduleName} {this.renderLink()}</span>)}
+      {PageHeader(<span>{module.menuText} {this.renderLink(module)}</span>)}
       {children}
     </ContentWrapper>
   }
