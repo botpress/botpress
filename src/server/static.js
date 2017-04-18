@@ -79,6 +79,8 @@ module.exports = bp => {
 
     serveCustomTheme(app)
 
+    app.use(express.static(path.join(bp.projectLocation, 'static')))
+    
     app.use(express.static(path.join(__dirname, '../lib/web')))
 
     app.get('*', (req, res, next) => {
