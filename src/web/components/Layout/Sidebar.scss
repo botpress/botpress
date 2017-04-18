@@ -11,6 +11,10 @@
   max-width: 200px;
 }
 
+.sidebar ul {
+  background-color: $sidebar-color;
+}
+
 .sidebar ul li {
   font-size: 16px;
   line-height: 44px;
