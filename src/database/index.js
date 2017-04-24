@@ -21,18 +21,20 @@ module.exports = ({ sqlite, postgres }) => {
       return Promise.resolve(knex)
     }
 
+    let _knex = null
+
     if (postgres.enabled) {
 
       // If we're passing in a postgres connection string, 
       // use that instead of the other params
       if (postgres.connection) {
-        knex = require('knex')({
+        _knex = require('knex')({
           client: 'pg',
           connection: postgres.connection,
           useNullAsDefault: true
         })
       } else {
-        knex = require('knex')({
+        _knex = require('knex')({
           client: 'pg',
           connection: {
             host: postgres.host,
@@ -47,7 +49,7 @@ module.exports = ({ sqlite, postgres }) => {
       }
       
     } else {
-      knex = require('knex')({
+      _knex = require('knex')({
         client: 'sqlite3',
         connection: { filename: sqlite.location },
         useNullAsDefault: true,
@@ -59,8 +61,11 @@ module.exports = ({ sqlite, postgres }) => {
       })
     }
 
-    return initializeCoreDatabase(knex)
-    .then(() => knex)
+    return initializeCoreDatabase(_knex)
+    .then(() => {
+      knex = _knex
+      return knex
+    })
   }
 
   const saveUser = ({ id, platform, gender, timezone, locale, picture_url, first_name, last_name }) => {
@@ -103,9 +108,12 @@ module.exports = ({ sqlite, postgres }) => {
     if (!kvs_instance) {
       return getDb()
       .then(knex => {
-        kvs_instance = new kvs(knex)
-        return kvs_instance.bootstrap()
-        .then(() => kvs_instance)
+        let _kvs = new kvs(knex)
+        return _kvs.bootstrap()
+        .then(() => {
+          kvs_instance = _kvs
+          return kvs_instance
+        })
       })
     } else {
       return Promise.resolve(kvs_instance)
