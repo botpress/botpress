@@ -41,5 +41,18 @@ module.exports = {
     password: process.env.PG_PASSWORD || '',
     database: process.env.PG_DB || '',
     ssl: process.env.PG_SSL || false
+  },
+
+  /**
+  * License configuration
+  * By default, your bot is licensed under Botpress Proprietary License, you can change it for 'AGPL-3.0'
+  * in your 'package.json' if you want to create an open-source chatbot. Otherwise, depending on the edition
+  * you are using, you need to respect some criterias.
+  * Please visit: https://botpress.io/license or contact us at contact@botpress.io
+  */
+  license: {
+    // -> Update this if you bought a Botpress license <-
+    // customerId: process.env.BOTPRESS_CUSTOMER_ID || '',
+    // licenseKey: process.env.BOTPRESS_LICENSE_KEY || ''
   }
 }

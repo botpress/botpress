@@ -23,7 +23,7 @@ const assertDoesntExist = (file) => {
 }
 
 const getTemplate = (template) => {
-  const templatePath = path.join(__dirname, 'templates/init', template)
+  const templatePath = path.join(__dirname, 'cli/templates/init', template)
   const templateContent = fs.readFileSync(templatePath)
   return _.template(templateContent)
 }

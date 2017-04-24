@@ -2,7 +2,7 @@
 
 const _ = require('lodash')
 const Promise = require('bluebird')
-const listeners = require('../lib/listeners')
+const listeners = require('../src/listeners')
 
 describe('hear', function() {
 

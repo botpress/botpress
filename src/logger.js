@@ -19,7 +19,6 @@ module.exports = (dataLocation, logConfig) => {
 
   logger.enableFileTransport = () => {
     const logFile = path.join(dataLocation, logConfig.file)
-
     logger.add(winston.transports.File, {
       filename: logFile,
       maxsize: logConfig.maxSize

@@ -12,7 +12,7 @@ module.exports = function(fromVersion) {
     throw new Error('You must be inside a bot directory to run a migration')
   }
 
-  let files = _.sortBy(fs.readdirSync(path.join(__dirname, 'migrations')), x => x)
+  let files = _.sortBy(require.context('./migrations/').keys(), x => x)
 
   const toApply = _.filter(files, f => {
     if (!/.js$/i.test(f)) {
@@ -23,7 +23,7 @@ module.exports = function(fromVersion) {
   })
 
   return Promise.mapSeries(toApply, file => {
-    const migration = require(path.join(__dirname, 'migrations', file))
+    const migration = require('./migrations/' + file)
     return migration(path.resolve('.'))
     .then(() => {
       util.print('success', `Migration ${file.replace('.js', '')} applied successfully`)

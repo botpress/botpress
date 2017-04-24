@@ -1,5 +1,5 @@
-import React, {Component} from 'react'
-import {Navbar, Nav, NavItem, NavDropdown, MenuItem} from 'react-bootstrap'
+import React, { Component } from 'react'
+import { Navbar, Nav, NavItem, NavDropdown, MenuItem } from 'react-bootstrap'
 import classnames from 'classnames'
 
 import headerStyle from './Header.scss'

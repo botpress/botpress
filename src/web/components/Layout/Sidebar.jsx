@@ -1,25 +1,29 @@
-import React, {Component} from 'react'
-import {Link} from 'react-router'
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
+
+import { Link } from 'react-router'
 import classnames from 'classnames'
 
 import ReactSidebar from 'react-sidebar'
-import {connect} from 'nuclear-js-react-addons'
+import { connect } from 'nuclear-js-react-addons'
 
 import SidebarHeader from './SidebarHeader'
+import SidebarFooter from './SidebarFooter'
 import getters from '~/stores/getters'
 import actions from '~/actions'
+
+import RulesChecker from '+/views/RulesChecker'
 
 const style = require('./Sidebar.scss')
 
 @connect(props => ({
-  modules: getters.modules,
-  botInformation: getters.botInformation
+  modules: getters.modules
 }))
 
 class Sidebar extends Component {
 
   static contextTypes = {
-    router: React.PropTypes.object.isRequired
+    router: PropTypes.object.isRequired
   }
 
   constructor(props, context) {
@@ -33,17 +37,16 @@ class Sidebar extends Component {
     this.onSetSidebarOpen = this.onSetSidebarOpen.bind(this)
     this.mediaQueryChanged = this.mediaQueryChanged.bind(this)
     this.renderModuleItem = this.renderModuleItem.bind(this)
-    this.openLicenseComponent = this.openLicenseComponent.bind(this)
   }
 
   onSetSidebarOpen(open) {
-    this.setState({sidebarOpen: open})
+    this.setState({ sidebarOpen: open })
   }
 
   componentWillMount() {
     var mql = window.matchMedia(`(min-width: 800px)`)
     mql.addListener(this.mediaQueryChanged)
-    this.setState({mql: mql, sidebarDocked: mql.matches})
+    this.setState({ mql: mql, sidebarDocked: mql.matches })
   }
 
   componentWillUnmount() {
@@ -51,7 +54,7 @@ class Sidebar extends Component {
   }
 
   mediaQueryChanged() {
-    this.setState({sidebarDocked: this.state.mql.matches})
+    this.setState({ sidebarDocked: this.state.mql.matches })
   }
 
   routeActive(paths) {
@@ -77,19 +80,25 @@ class Sidebar extends Component {
     return ['/middleware'].includes(location.pathname)
   }
 
+  getActiveClassNames = (condition) => {
+    return classnames({
+      'bp-sidebar-active': condition,
+      [style.active]: condition
+    })
+  }
+
   renderModuleItem(module) {
     const path = `/modules/${module.name}`
     const iconPath = `/img/modules/${module.name}.png`
-    const className = classnames({
-      [style.active]: this.routeActive(path),
-      'bp-sidebar-active': this.routeActive(path)
-    })
+
+    const classNames = this.getActiveClassNames(this.routeActive(path))
+
     const hasCustomIcon = module.menuIcon === 'custom'
     const moduleIcon = hasCustomIcon
-      ? <img className={style.customIcon} src={iconPath} />
+      ? <img className={classnames(style.customIcon, 'bp-custom-icon')} src={iconPath} />
       : <i className="icon material-icons">{module.menuIcon}</i>
 
-    return <li key={`menu_module_${module.name}`} className={className}>
+    return <li key={`menu_module_${module.name}`} className={classNames}>
       <Link to={path} title={module.menuText}>
         {moduleIcon}
         <span>{module.menuText}</span>
@@ -97,65 +106,50 @@ class Sidebar extends Component {
     </li>
   }
 
-  openLicenseComponent() {
-    actions.toggleLicenseModal()
-  }
-
-  openAbout() {
-    actions.toggleAboutModal()
-  }
-
   render() {
 
     const modules = this.props.modules
     const items = modules.toJS().filter(x => !x.noInterface).map(this.renderModuleItem)
-    const dashboardClassName = classnames({ [style.active] : this.isAtDashboard() })
-    const manageClassName = classnames({ [style.active] : this.isAtManage() })
-    const middlewareClassName = classnames({ [style.active] : this.isAtMiddleware() })
-
-    const productionText = this.props.botInformation.get('production') ? "in production" : "in development"
+    const dashboardClassName = this.getActiveClassNames(this.isAtDashboard())
+    const manageClassName = this.getActiveClassNames(this.isAtManage())
+    const middlewareClassName = this.getActiveClassNames(this.isAtMiddleware())
 
     const sidebarContent = <div className={classnames(style.sidebar, 'bp-sidebar')}>
       <SidebarHeader/>
       <ul className="nav">
-        <li className={dashboardClassName} key="dashboard">
-          <Link to='dashboard' title='Dashboard'>
-            <i className="icon material-icons">dashboard</i>
-            Dashboard
-          </Link>
-        </li>
-        <li className={manageClassName} key="manage">
-          <Link to='manage' title='Modules'>
-            <i className="icon material-icons">build</i>
-            Modules
-          </Link>
-        </li>
-        <li className={middlewareClassName} key="middleware">
-          <Link to='middleware' title='Middleware'>
-            <i className="icon material-icons">settings</i>
-            Middleware
-          </Link>
-        </li>
+        <RulesChecker res='dashboard' op='read'>
+          <li className={dashboardClassName} key="dashboard">
+            <Link to='dashboard' title='Dashboard'>
+              <i className="icon material-icons">dashboard</i>
+              Dashboard
+            </Link>
+          </li>
+        </RulesChecker>
+        <RulesChecker res='modules/list' op='read'>
+          <li className={manageClassName} key="manage">
+            <Link to='manage' title='Modules'>
+              <i className="icon material-icons">build</i>
+              Modules
+            </Link>
+          </li>
+        </RulesChecker>
+        <RulesChecker res='middleware' op='read'>
+          <li className={middlewareClassName} key="middleware">
+            <Link to='middleware' title='Middleware'>
+              <i className="icon material-icons">settings</i>
+              Middleware
+            </Link>
+          </li>
+        </RulesChecker>
         {items}
       </ul>
-      <div className={classnames(style.bottomInformation, 'bp-sidebar-footer')}>
-        <div className={classnames(style.name, 'bp-name')}>{this.props.botInformation.get('name')}</div>
-        <div className={classnames(style.production, 'bp-production')}>{productionText}</div>
-        <Link to='#' title='License' onClick={this.openLicenseComponent}>
-          License under {this.props.botInformation.get('license')}
-        </Link>
-        <br />
-        <Link to="#" title="About" onClick={::this.openAbout}>
-          About Botpress
-        </Link>
-      </div>
     </div>
-
 
     const { sidebarOpen: open, sidebarDocked: docked } = this.state
 
     return (
       <ReactSidebar
+        sidebarClassName={classnames(style.sidebarReact, 'bp-sidebar-react')}
         sidebar={sidebarContent}
         open={open}
         docked={docked}
@@ -169,7 +163,7 @@ class Sidebar extends Component {
 }
 
 Sidebar.contextTypes = {
-  reactor: React.PropTypes.object.isRequired
+  reactor: PropTypes.object.isRequired
 }
 
 export default Sidebar

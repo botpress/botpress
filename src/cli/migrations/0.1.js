@@ -7,7 +7,7 @@ import util from '../../util'
 
 module.exports = bot_path => {
   const botfilePath = path.join(bot_path, 'botfile.js')
-  const botfile = require(botfilePath)
+  const botfile = eval('require')(botfilePath)
   const dbLocation = path.resolve(path.join(bot_path, botfile.dataDir, 'db.sqlite'))
 
   return migrate_database_schema(dbLocation)

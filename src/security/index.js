@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken'
 import _ from 'lodash'
 
-import Authentication from './basic_authentication' // BPEE
+import Authentication from '+/authentication'
 
 /**
  * Security helper for botpress
@@ -15,6 +15,7 @@ import Authentication from './basic_authentication' // BPEE
  * It will find or create a secret.key in `dataLocation`, then setup the adminPassword for user login.
  *
  */
+
 module.exports = ({ dataLocation, securityConfig, db }) => {
 
   const authentication = Authentication({ dataLocation, securityConfig, db })
@@ -53,7 +54,10 @@ module.exports = ({ dataLocation, securityConfig, db }) => {
     try {
       const secret = await authentication.getSecret()
       const decoded = jwt.verify(token, secret)
-      return decoded.user && decoded.user.roles && _.includes(decoded.user.roles, 'admin')
+      const verified = authentication.verifyUser
+        ? await authentication.verifyUser(decoded)
+        : true
+      return verified && decoded.user
     } catch (err) {
       return false
     }
@@ -62,6 +66,7 @@ module.exports = ({ dataLocation, securityConfig, db }) => {
   return {
     login,
     authenticate,
-    getSecret: authentication.getSecret
+    getSecret: authentication.getSecret,
+    _authentication: authentication
   }
 }

@@ -1,4 +1,4 @@
-import React, {Component} from 'react'
+import React, { Component } from 'react'
 import { Provider } from 'nuclear-js-react-addons'
 
 import { authEvents } from '~/util/Auth'
@@ -7,7 +7,15 @@ import routes from '../Routes'
 
 import reactor from '~/reactor'
 import actions from '~/actions'
-import { ModulesStore, NotificationsStore, UIStore, BotStore} from '~/stores'
+import {
+  ModulesStore,
+  NotificationsStore,
+  UIStore,
+  BotStore,
+  LicenseStore,
+  UserStore,
+  RulesStore
+} from '~/stores'
 
 export default class App extends Component {
 
@@ -17,12 +25,19 @@ export default class App extends Component {
       'modules': ModulesStore,
       'notifications': NotificationsStore,
       'UI': UIStore,
-      'botInformation': BotStore
+      'botInformation': BotStore,
+      'license': LicenseStore,
+      'user': UserStore,
+      'rules': RulesStore
     })
 
     this.state = {
       events: EventBus.default
-     }
+    }
+
+    if (window.APP_NAME) {
+      window.document.title = window.APP_NAME
+    }
 
     EventBus.default.setup()
   }
@@ -31,6 +46,12 @@ export default class App extends Component {
     actions.fetchModules()
     actions.fetchNotifications()
     actions.fetchBotInformation()
+    actions.fetchLicense()
+    
+    if (window.AUTH_ENABLED) {
+      actions.fetchUser()
+      actions.fetchRules()
+    }
   }
 
   componentDidMount() {
@@ -46,7 +67,7 @@ export default class App extends Component {
     })
 
     EventBus.default.on('notifications.new', (notification) => {
-      actions.addNotifications([ notification ])
+      actions.addNotifications([notification])
     })
 
     this.fetchModulesInterval = setInterval(actions.fetchModules, 10000)

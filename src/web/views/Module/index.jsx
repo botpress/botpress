@@ -1,8 +1,10 @@
 import React from 'react'
+import PropTypes from 'prop-types'
+
 import _ from 'lodash'
 import axios from 'axios'
 
-import {connect} from 'nuclear-js-react-addons'
+import { connect } from 'nuclear-js-react-addons'
 import getters from '~/stores/getters'
 
 import ContentWrapper from '~/components/Layout/ContentWrapper'
@@ -11,11 +13,11 @@ import PageHeader from '~/components/Layout/PageHeader'
 
 import EventBus from '~/util/EventBus'
 
-@connect(props => ({modules: getters.modules}))
+@connect(props => ({ modules: getters.modules }))
 export default class ModuleView extends React.Component {
 
   static contextTypes = {
-    router: React.PropTypes.object.isRequired
+    router: PropTypes.object.isRequired
   }
 
   constructor(props, context) {
@@ -26,11 +28,7 @@ export default class ModuleView extends React.Component {
     }
   }
 
-  renderLink() {
-    if (this.props.modules.size <= 0) {
-      return null
-    }
-    const module = this.props.modules.find((value) => value.get('name') === this.props.params.moduleName).toJS()
+  renderLink(module) {
     if (!module.homepage) {
       return null
     }
@@ -38,9 +36,14 @@ export default class ModuleView extends React.Component {
   }
 
   renderWrapper(children) {
+    if (this.props.modules.size <= 0) {
+      return null
+    }
 
+    const module = this.props.modules.find((value) => value.get('name') === this.props.params.moduleName).toJS()
+    
     return <ContentWrapper>
-      {PageHeader(<span> <b>{this.props.params.moduleName}</b> {this.renderLink()}</span>)}
+      {PageHeader(<span>{module.menuText} {this.renderLink(module)}</span>)}
       {children}
     </ContentWrapper>
   }
