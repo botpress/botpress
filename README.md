@@ -158,17 +158,6 @@ If you would like to contribute any new feature or bug fix, please make sure tha
 
 Contributions to Botpress will be dual-licensed under AGPLv3 and the Botpress Proprietary License.  This means that all contributors need to agree to the dual-license before their contributions can be accepted.
 
-### Further ideas to work on
-- **Bot templates**
-- **Forms/Polls/Trivias**
-- **Flows**
-- **User Segmentation and targeting**
-- **AI**
-  - **Sentiment analysis**
-  - **Context management**
-
-**Your next module here :) ?** Please send a pull request!
-
 ## Community
 
 There's a [Slack community](https://slack.botpress.io) where you are welcome to join us, ask any question and even help others.
