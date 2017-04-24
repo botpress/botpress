@@ -30,6 +30,11 @@
     }
   }
 
+  .unlicensed {
+    color: #D84744;
+    font-weight: bold;
+  }
+
   a:hover {
     color: $sidebar-primary-color;
   }

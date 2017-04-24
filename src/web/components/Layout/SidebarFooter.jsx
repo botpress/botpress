@@ -130,7 +130,9 @@ class SidebarFooter extends Component {
       license = this.props.license.get('name')
     }
 
-    const classNames = classnames(style.license,'bp-edition-license')
+    const classNames = classnames(style.license, 'bp-edition-license', {
+      [style.unlicensed]: !this.props.license.get('licensed')
+    })
 
     return <Link className={classNames} to='#' title='License' onClick={::this.openLicenseComponent}>
         {license}

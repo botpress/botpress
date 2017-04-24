@@ -35,7 +35,7 @@ module.exports = ({ logger, version, projectLocation, db, botfile }) => {
       },
       botpress: {
         name: 'Botpress',
-        licensedUnder: license === 'Botpress',
+        licensedUnder: license.toLowerCase().indexOf('botpress') >= 0,
         text: botpressContent
       }
     }
@@ -105,7 +105,8 @@ Botpress: ${bp.version}`
 
   const updateLicense = async () => {
     const users = await getUsers()
-    const { customerId, licenseKey } = botfile
+    const { customerId, licenseKey } = botfile.license || {}
+
     const verificationMethod = 'cid_token'
     return axios.post(BOTPRESS_LICENSE_SERVER, {
       method: verificationMethod,
@@ -115,10 +116,14 @@ Botpress: ${bp.version}`
       edition: BP_EDITION
     })
     .then(({ data }) => {
-      logger.info('>>>> LICENSE CHECK', data)
+      data && data.success && setLastStatus(data)
 
-      if (data && data.success) {
-        setLastStatus(data)
+      if (!data.success || !data.licensed) {
+        const msg = (data && data.message)
+          || (data && data.limit && data.limit.message)
+          || 'Unknown error'
+          
+        logger.warn('[License] License check failed: ' + msg)
       }
     })
   }
@@ -126,7 +131,7 @@ Botpress: ${bp.version}`
   setInterval(() => updateLicense(), ms('1 hours'))
   updateLicense() // Check license on boot
 
-  const dealExpired = lastCheck => {
+  const dealWithExpiredLicense = lastCheck => {
     if (isDeveloping) {
       return
     }
@@ -140,11 +145,11 @@ Botpress: ${bp.version}`
 
       if (since > 3 && since < GRACE_PERIOD) {
         logger.warn(`License was not verified since ${since} hours.`)
-        logger.warn('Botpress will turn unlicensed in ' + (GRACE_PERIOD - since) + ' hours')
+        logger.warn('Botpress will cease functionning in ' + (GRACE_PERIOD - since) + ' hours')
       }
 
       if (since >= GRACE_PERIOD) {
-        logger.error("Botpress is now unlicensed and will not function properly.")
+        logger.error("[FATAL] Botpress is now unlicensed and will exit soon")
         logger.error("Please get a license and/or contact support@botpress.io")
         setTimeout(() => process.exit(), 5000)
       }
@@ -153,20 +158,20 @@ Botpress: ${bp.version}`
 
   const getLicensing = async function() {
     const lastCheck = await lastCheckStatus()
-    dealExpired(lastCheck)
+    dealWithExpiredLicense(lastCheck)
     
     const licenses = getLicenses()
     let currentLicense = _.find(licenses, { licensedUnder: true })
-    currentLicense = currentLicense || licenses.agpl
+    currentLicense = currentLicense || licenses.botpress
 
     const result = {
-      licensed: lastCheck.licensed,
-      name: 'Botpress ' + BP_EDITION,
+      licensed: lastCheck && lastCheck.licensed,
+      name: 'Botpress ' + _.capitalize(BP_EDITION),
       text: currentLicense.text,
-      status: lastCheck.status
+      status: lastCheck && lastCheck.status
     }
 
-    if (lastCheck.limit && lastCheck.limit.message) {
+    if (lastCheck && lastCheck.limit && lastCheck.limit.message) {
       result.limit = lastCheck.limit
     }
 
