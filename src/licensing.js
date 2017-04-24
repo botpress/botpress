@@ -129,7 +129,10 @@ Botpress: ${bp.version}`
   }
 
   setInterval(() => updateLicense(), ms('1 hours'))
-  updateLicense() // Check license on boot
+  
+  // Check license on boot
+  updateLicense()
+  .then(() => assertLicensed())
 
   const dealWithExpiredLicense = lastCheck => {
     if (isDeveloping) {
@@ -148,18 +151,34 @@ Botpress: ${bp.version}`
         logger.warn('Botpress will cease functionning in ' + (GRACE_PERIOD - since) + ' hours')
       }
 
-      if (since >= GRACE_PERIOD) {
-        logger.error("[FATAL] Botpress is now unlicensed and will exit soon")
-        logger.error("Please get a license and/or contact support@botpress.io")
-        setTimeout(() => process.exit(), 5000)
+      if (since >= GRACE_PERIOD || !lastCheck.licensed) {
+        quitForUnlicensed()
       }
     }
   }
 
+  const dealWithUnlicensed = lastCheck => {
+    if (!lastCheck && BP_EDITION !== 'lite') {
+      quitForUnlicensed()
+    }
+  }
+
+  const quitForUnlicensed = () => {
+    logger.error("[FATAL] Botpress is now unlicensed and will exit soon")
+    logger.error("Please get a license and/or contact support@botpress.io")
+    setTimeout(() => process.exit(), 5000)
+  }
+
+  const assertLicensed = async check => {
+    const lastCheck = check || await lastCheckStatus()
+    dealWithExpiredLicense(lastCheck)
+    dealWithUnlicensed(lastCheck)
+  }
+
   const getLicensing = async function() {
     const lastCheck = await lastCheckStatus()
-    dealWithExpiredLicense(lastCheck)
-    
+    assertLicensed(lastCheck)
+
     const licenses = getLicenses()
     let currentLicense = _.find(licenses, { licensedUnder: true })
     currentLicense = currentLicense || licenses.botpress
