@@ -66,6 +66,7 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
       }
 
       loadedModules[mod.name] = mod
+      logger.info(`Loaded ${mod.name}, version ${mod.version}`)
       loadedCount++
     })
 
@@ -114,6 +115,7 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
         root: root,
         homepage: modulePackage.homepage,
         settings: modulePackage.botpress,
+        version: modulePackage.version,
         entry: entry
       }) && result
     }, [])
