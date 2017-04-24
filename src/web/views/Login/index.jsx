@@ -26,6 +26,8 @@ export default class LoginPage extends Component {
 
   componentDidMount() {
     Decorators.LoginInitialization && Decorators.LoginInitialization(this)
+    const app = document.getElementById('app')
+    app.className = classnames(app.className, 'bp-body-login')
   }
 
   handlePasswordChange(event) {
@@ -56,11 +58,6 @@ export default class LoginPage extends Component {
         marginTop: '140px'
       }} className="whirl helicopter"></div>
     </div>
-  }
-
-  componentDidMount() {
-    const app = document.getElementById('app')
-    app.className = classnames(app.className, 'bp-body-login')
   }
 
   componentWillUnmount() {
