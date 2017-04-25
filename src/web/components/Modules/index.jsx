@@ -1,4 +1,4 @@
-import React, {Component} from 'react'
+import React, { Component } from 'react'
 
 import ContentWrapper from '~/components/Layout/ContentWrapper'
 import PageHeader from '~/components/Layout/PageHeader'
@@ -57,14 +57,16 @@ class ModuleComponent extends Component {
   }
 
   renderLeftSideModule() {
-    const { docLink, icon, description, author, license, name } = this.props.module
+    const { docLink, icon, description, author, license, title } = this.props.module
 
     return (
       <div>
         <a href={docLink} target="_blank">
           <h3 className={classnames(style.moduleTitle, 'bp-module-title')}>
-            <i className='icon material-icons'>{icon}</i>
-            {name}
+            <i className='icon material-icons'>
+              {icon === 'custom' ? 'extension' : icon}
+            </i>
+            {title}
           </h3>
         </a>
         <p className={classnames(style.moduleDescription, 'bp-module-description')}>{description}</p>
@@ -81,8 +83,9 @@ class ModuleComponent extends Component {
     const action = installed ? this.handleUninstall : this.handleInstall
 
     const className = classnames({
-      [style.install]: !installed,
-      [style.uninstall]: installed
+      ['bp-button']: true,
+      [style.uninstall]: installed,
+      ['bp-button-default']: installed
     })
 
     return (

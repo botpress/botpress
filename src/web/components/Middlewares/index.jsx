@@ -1,10 +1,11 @@
 import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 import ReactDOM from 'react-dom'
 import { sortable } from 'react-sortable'
+
 import { Row, Col, Checkbox, ListGroup, ListGroupItem, Tooltip, OverlayTrigger } from 'react-bootstrap'
 import _ from 'lodash'
 import classnames from 'classnames'
-import Button from 'react-bootstrap-button-loader'
 
 import axios from 'axios'
 
@@ -13,14 +14,20 @@ import style from './style.scss'
 class MiddlewareComponent extends Component {
 
   static propTypes = {
-    middleware: React.PropTypes.object.isRequired,
-    toggleEnabled: React.PropTypes.func.isRequired
+    middleware: PropTypes.object.isRequired,
+    toggleEnabled: PropTypes.func.isRequired
   }
 
   render() {
 
     const { name, enabled, module, description } = this.props.middleware
-    const className = classnames(this.props.className, style.middleware, enabled ? style.enabled : style.disabled, 'bp-middleware')
+    const className = classnames({ 
+      [this.props.className]: true, 
+      [style.middleware]: true,
+      ['bp-middleware']: true,
+      [style.disabled]: !enabled,
+      ['bp-disabled']: !enabled
+    })
     const tooltip = description ? <Tooltip id={`module-${name}-description`}>{description}</Tooltip> : null
 
     return (
@@ -42,22 +49,22 @@ class MiddlewareComponent extends Component {
   }
 }
 
-var ListItem = React.createClass({
-  displayName: 'SortableListItem',
-  render: function() {
+class ListItem extends Component {
+
+  render() {
     const className = classnames('list-item')
     return (
       <ListGroupItem {...this.props} className={className}>{this.props.children}</ListGroupItem>
     )
   }
-})
+}
 
 var SortableListItem = sortable(ListItem)
 
 export default class MiddlewaresComponent extends Component {
 
   static propTypes = {
-    type: React.PropTypes.string.isRequired
+    type: PropTypes.string.isRequired
   }
 
   constructor(props, context) {
@@ -160,11 +167,11 @@ export default class MiddlewaresComponent extends Component {
   }
 
   renderIsDirty() {
-    const className = classnames(style.saveButton, this.isDirty() ? style.dirty : null)
+    const classNames = classnames('bp-button', style.saveButton, this.isDirty() ? style.dirty : null)
 
-    return <Button className={className} onClick={::this.saveChanges} loading={this.state.loading}>
+    return <button className={classNames} onClick={::this.saveChanges}>
       Save
-    </Button>
+    </button>
   }
 
   saveChanges() {
@@ -232,7 +239,7 @@ export default class MiddlewaresComponent extends Component {
           {this.renderIsDirty()}
           <h4>{title}</h4>
           <OverlayTrigger placement="right" overlay={tooltip}>
-            <a className={style.help}>what's this?</a>
+            <a className={classnames(style.help, 'bp-help')}>what's this?</a>
           </OverlayTrigger>
         </div>
       </ListGroupItem>

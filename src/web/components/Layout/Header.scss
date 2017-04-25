@@ -25,9 +25,7 @@
 
   :global(.dropdown-menu) {
     a {
-      padding: 5px 10px !important; 
       width: 100%;
-      display: block;
       text-decoration: none;
     }
   }
@@ -86,7 +84,9 @@
 
   img {
     height: 32px;
+    width: 32px;
     border-radius: 50%;
+    border: solid 1px #C3C3C3;
   }
 
   :global(.material-icons) {
@@ -94,6 +94,15 @@
 
     &:hover {
       color: $content-color-normal !important;
+    }
+  }
+
+  :global(.dropdown-menu) {
+    a {
+      padding: 5px 10px !important; 
+      width: 100%;
+      display: block;
+      text-decoration: none;
     }
   }
 

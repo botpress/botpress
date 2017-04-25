@@ -1,0 +1,108 @@
+@import '../../palette.scss';
+
+.bottomInformation {
+  height: 150px; // Needs to match with Sidebar styles
+  width: 200px; // Needs to match with Sidebar styles
+
+  color: $sidebar-primary-color;
+
+  font-size: 12px;
+  position: fixed;
+  bottom: 0px;
+
+  text-align: left;
+  padding-left: 20px;
+  padding-bottom: 10px;
+  padding-top: 10px;
+  background-color: $sidebar-color;
+
+  .innerFooter {
+    position: absolute;
+    bottom: 10px;
+  }
+
+  .license {
+    margin-bottom: 5px;
+    display: block;
+
+    &:hover {
+      color: $sidebar-primary-color;
+    }
+  }
+
+  .unlicensed {
+    color: #D84744;
+    font-weight: bold;
+  }
+
+  a:hover {
+    color: $sidebar-primary-color;
+  }
+
+  .name {
+    font-size: 16px;
+    color: #c7c7c7;
+  }
+
+  .production {
+    margin-bottom: 10px;
+  }
+
+  .logo {
+    margin: 20px 0 10px 15px !important;
+    padding: 3px;
+
+    img {
+      width: 110px;
+    }
+  }
+
+  .progressBar {
+    height: 8px;
+    border: solid 1px #878787;
+    margin-right: 20px;
+    margin-bottom: 5px;
+
+    .used {
+      background-color: #58d1b0;
+      height: 100%;
+    }
+
+    .warning {
+      background-color: #FFFD77;
+    }
+
+    .urgent {
+      background-color: #FEA464;
+    }
+
+    .reached {
+      background-color: #F86768;
+    }
+  }
+
+  .status {
+    .dot {
+      background-color: #21CF9E;
+      display: inline-block;
+      height: 6px;
+      width: 6px;
+      border-radius: 50%;
+      margin-bottom: 1px;
+      margin-right: 4px;
+    }
+
+    .reached {
+      background-color: #D84744;
+    }
+  }
+  
+
+  .buy {
+    font-size: 14px;
+    font-weight: 400;
+    color: #c7c7c7;
+    display: block;
+    margin-top: 5px;
+  }
+}

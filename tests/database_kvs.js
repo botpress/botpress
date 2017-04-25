@@ -1,7 +1,7 @@
 /* eslint-env babel-eslint, node, mocha */
 
 const {itBoth, run} = require('./database_base')
-const kvs = require('../lib/database/kvs')
+const kvs = require('../src/database/kvs')
 const expect = require('chai').expect
 const Promise = require('bluebird')
 const _ = require('lodash')

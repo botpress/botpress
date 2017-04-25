@@ -1,22 +1,8 @@
 {
   "name": "botpress",
   "description": "The world's first CMS for bots. Easily create, manage and extend chatbots.",
-  "version": "0.1.7",
+  "version": "0.2.1",
   "author": "Botpress",
-  "babel": {
-    "presets": [
-      "latest",
-      "stage-0",
-      "react"
-    ],
-    "plugins": [
-      "transform-object-rest-spread"
-    ],
-    "ignore": [
-      "cli/templates/**",
-      "src/web/**"
-    ]
-  },
   "bin": {
     "bp": "./bin/botpress",
     "botpress": "./bin/botpress"
@@ -33,8 +19,11 @@
     "chalk": "^1.1.3",
     "commander": "^2.9.0",
     "dotenv": "^4.0.0",
+    "email-templates": "^2.5.4",
     "eventemitter2": "^2.1.3",
     "express": "^4.14.0",
+    "formidable": "^1.1.1",
+    "handlebars": "^4.0.6",
     "jsonwebtoken": "^7.1.9",
     "knex": "^0.12.6",
     "lodash": "^4.16.4",
@@ -43,6 +32,7 @@
     "mware": "0.0.3",
     "node-machine-id": "^1.1.3",
     "node-sass": "^3.13.1",
+    "nodemailer": "^2.7.2",
     "pg": "^6.1.2",
     "prompt": "^1.0.0",
     "socket.io": "^1.5.0",
@@ -59,6 +49,7 @@
     "babel-core": "^6.18.0",
     "babel-eslint": "^7.1.0",
     "babel-loader": "^6.2.5",
+    "babel-plugin-root-import": "^5.1.0",
     "babel-plugin-transform-decorators-legacy": "^1.3.4",
     "babel-plugin-transform-object-rest-spread": "^6.16.0",
     "babel-preset-latest": "^6.16.0",
@@ -84,8 +75,10 @@
     "nuclear-js": "^1.4.0",
     "nuclear-js-react-addons": "^0.4.1",
     "postcss-loader": "^1.1.1",
+    "prop-types": "^15.5.8",
     "react": "^15.3.1",
     "react-addons-css-transition-group": "^15.3.1",
+    "react-addons-update": "^15.4.2",
     "react-bootstrap": "^0.30.3",
     "react-bootstrap-button-loader": "^1.0.7",
     "react-dom": "^15.3.1",
@@ -124,7 +117,7 @@
     "api"
   ],
   "license": "AGPL-3.0",
-  "main": "index.js",
+  "main": "lib/node.bundle.js",
   "repository": "git+https://github.com/botpress/botpress.git",
   "os": [
     "darwin",
@@ -132,14 +125,16 @@
     "win32"
   ],
   "scripts": {
-    "compile": "rm -rf lib/ && babel src/ -d lib/ -s && cp -a src/cli/templates/. lib/cli/templates && node webpack.js --compile",
-    "test": "mocha --compilers js:babel-core/register --require test/index.js test/**",
-    "watch": "npm-watch"
+    "compile": "./build.sh",
+    "test": "BABEL_ENV=tests mocha --compilers js:babel-core/register --require tests/index.js tests/** extensions/**/tests/**",
+    "watch": "npm-watch",
+    "lint": "eslint {src,extensions}/**/*.js*"
   },
   "watch": {
     "compile": {
       "patterns": [
-        "src"
+        "src",
+        "extensions"
       ],
       "extensions": "js,jsx,scss,json,html"
     }

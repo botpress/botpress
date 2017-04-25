@@ -5,8 +5,8 @@
   
   :global(.btn) {
     font-size: 14px;
-    color: white;
-    background-color: $primary-btn-color;
+    color: $btn-text-color;
+    background-color: $btn-bg-color;
     opacity: 0.75;
     border: none;
     text-align: center;
@@ -16,9 +16,9 @@
     transition: opacity .15s ease-in-out, background-color .15s ease-in-out;
 
     &:hover {
-      background-color: $primary-btn-color;
+      background-color: $btn-bg-color-hover;
       opacity: 1;
-      color: white;
+      color: $btn-text-color;
     }
   }
 

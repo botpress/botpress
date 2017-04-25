@@ -10,10 +10,6 @@ Botpress is an open-source bot creation tool written in Javascript. It is powere
 
 Important: **Make sure to join the official Slack Community (https://slack.botpress.io)!**
 
-### Looking to migrate from 0.0 to 0.1?
-
-https://gist.github.com/slvnperron/9a3027f4d798c7d6b6b6a9b9b6bdfa7b
-
 ## Vision & Mission
 
 Botpress is on mission to make bots ubiquitous and profitable for everybody. At Botpress, we think that using closed-source tools like Chatfuel is not the right approach for building awesome and powerful bots, but Chatfuel is great for quickly creating straight-forward conversational bots. To be able to create something great, it's important to have full control of your tools and to leverage the community efforts as much as possible.
@@ -42,8 +38,9 @@ npm install -g botpress
 Creating a bot is simple, you need to run [`botpress init`](https://docs.botpress.io/getting-started/how-to-use-the-cli.html#init) in a terminal inside an empty directory:
 
 ```
-mkdir my-bot && cd my-bot
-botpress init
+mkdir my-bot && cd my-bot && botpress init
+OR
+botpress init my-bot
 ```
 
 Once your bot is created, you need to run [`botpress start`](https://docs.botpress.io/getting-started/how-to-use-the-cli.html#start--s) to start your bot:
@@ -161,26 +158,11 @@ If you would like to contribute any new feature or bug fix, please make sure tha
 
 Contributions to Botpress will be dual-licensed under AGPLv3 and the Botpress Proprietary License.  This means that all contributors need to agree to the dual-license before their contributions can be accepted.
 
-### Further ideas to work on
-- **Bot templates**
-- **Forms/Polls/Trivias**
-- **Flows**
-- **User Segmentation and targeting**
-- **AI**
-  - **Sentiment analysis**
-  - **Context management**
-
-**Your next module here :) ?** Please send a pull request!
-
 ## Community
 
 There's a [Slack community](https://slack.botpress.io) where you are welcome to join us, ask any question and even help others.
 
 Get an invite and join us now! 👉[https://slack.botpress.io](https://slack.botpress.io)
-
-## Pricing
-
-Botpress is licensed under an open source and commercial license. Even though it can be freely used and distributed under an open source license, this does not mean that there are no restrictions on its use.  **The main restriction is that any code that uses the botpress code under the  open source license must be open source itself.** For this reason commercial bots would normally be built using botpress licensed under the commercial license because commercial enterprises would want to use their own proprietary code with botpress and don't want to be forced to make this code open source. The commercial license has a cost for enterprises. Please visit our <a href="https://botpress.io/faq">FAQS</a> for more information.
 
 ## License
 

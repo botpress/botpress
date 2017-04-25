@@ -1,10 +1,12 @@
 import 'source-map-support/register'
 
+import chalk from 'chalk'
 import path from 'path'
 import fs from 'fs'
 import _ from 'lodash'
 import cluster from 'cluster'
 
+import ServiceLocator from '+/ServiceLocator'
 import EventBus from './bus'
 
 import createMiddlewares from './middlewares'
@@ -16,10 +18,13 @@ import createDatabase from './database'
 import createLicensing from './licensing'
 import createAbout from './about'
 import createModules from './modules'
+import createConversations from './conversations'
 import stats from './stats'
 import packageJson from '../package.json'
+import createEmails from '+/emails'
+import createMediator from '+/mediator'
 
-import WebServer from './server'
+import createServer from './server'
 
 import { getBotpressVersion } from './util'
 
@@ -68,7 +73,7 @@ class botpress {
     /**
      * The botfile config object
      */
-    this.botfile = require(botfile)
+    this.botfile = eval('require')(botfile)
 
     this.stats = stats(this.botfile)
 
@@ -131,9 +136,12 @@ class botpress {
     const events = new EventBus()
     const notifications = createNotifications(dataLocation, botfile.notification, moduleDefinitions, events, logger)
     const about = createAbout(projectLocation)
-    const licensing = createLicensing(projectLocation)
+    const licensing = createLicensing({ logger, projectLocation, version, db, botfile })
     const middlewares = createMiddlewares(this, dataLocation, projectLocation, logger)
     const { hear, middleware: hearMiddleware } = createHearMiddleware()
+    const emails = createEmails({ emailConfig: botfile.emails })
+    const mediator = createMediator(this)
+    const convo = createConversations({ logger, middleware: middlewares })
 
     middlewares.register(hearMiddleware)
 
@@ -150,8 +158,13 @@ class botpress {
       hear,
       licensing,
       modules,
-      db
+      db,
+      emails,
+      mediator,
+      convo
     })
+
+    ServiceLocator.init({ bp: this })
 
     const loadedModules = modules._load(moduleDefinitions, this)
 
@@ -161,10 +174,21 @@ class botpress {
       _loadedModules: loadedModules
     })
 
-    const server = new WebServer({ botpress: this })
-    server.start()
+    mediator.install()
 
-    const projectEntry = require(projectLocation)
+    const server = createServer(this)
+    server.start()
+    .then(() => {
+      events.emit('ready')
+      for (let mod of _.values(loadedModules)) {
+        mod.handlers.ready && mod.handlers.ready(this, mod.configuration)
+      }
+
+      const { port } = botfile
+      logger.info(chalk.green.bold('Bot launched. Visit: http://localhost:' + port))
+    })
+
+    const projectEntry = eval('require')(projectLocation)
     if (typeof(projectEntry) === 'function') {
       projectEntry.call(projectEntry, this)
     } else {

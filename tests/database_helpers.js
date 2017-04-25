@@ -1,7 +1,7 @@
 /* eslint-env babel-eslint, node, mocha */
 
 const {itBoth, run} = require('./database_base')
-const helpers = require('../lib/database/helpers')
+const helpers = require('../src/database/helpers')
 const expect = require('chai').expect
 const moment = require('moment')
 

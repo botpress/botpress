@@ -1,11 +1,13 @@
-import React, {Component} from 'react'
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 import ReactDOM from 'react-dom'
+
 import _ from 'lodash'
 
 export default class InjectedComponent extends Component {
 
   static propTypes: {
-    component: React.PropTypes.func.isRequired
+    component: PropTypes.func.isRequired
   }
 
   constructor(props) {

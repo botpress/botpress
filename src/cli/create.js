@@ -17,7 +17,7 @@ const documentation = "Tip: when coding your bot, use the command `npm run watch
   "`npm link ../path/to/botpress-module` so that your bot always points to the most recent version."
 
 const getTemplate = (template) => {
-  const templatePath = path.join(__dirname, 'templates/create' , template)
+  const templatePath = path.join(__dirname, 'cli/templates/create' , template)
   const templateContent = fs.readFileSync(templatePath)
   return _.template(templateContent)
 }

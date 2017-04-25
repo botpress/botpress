@@ -1,4 +1,6 @@
-import React,{Component} from 'react'
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
+
 import {
   Navbar, 
   Nav, 
@@ -6,49 +8,54 @@ import {
   Glyphicon,
   NavDropdown
 } from 'react-bootstrap'
+
 import classnames from 'classnames'
+import axios from 'axios'
 
 import NotificationHub from '~/components/Notifications/Hub'
+import ProfileMenu from '+/views/ProfileMenu'
+import RulesChecker from '+/views/RulesChecker'
 
-
-import { getToken, logout } from '~/util/Auth'
-
-import ProfileMenu from '~/components/Profile/BasicMenu'
+import { getCurrentUser, logout } from '~/util/Auth'
 
 import style from './Header.scss'
 
-const getProfileImgUrl = () => {
-  const token = getToken()
+import { connect } from 'nuclear-js-react-addons'
+import getters from '~/stores/getters'
 
-  const encoded = token.token.replace(/\w+\./, '').replace(/\.[\w|\-|_]+/, '')
-  
-  const profile = JSON.parse(Buffer(encoded, 'base64').toString())
-
-  if (!profile.imgUrl) {
-    return null
-  }
-
-  return profile.imgUrl
-
-  return null
-}
-
+@connect(props => ({ user: getters.user }))
 class Header extends Component {
 
+  constructor(props, context) {
+    super(props, context)
+
+    this.state = {
+      loading: true
+    }
+  }
+
+  getProfileImgUrl() {
+    if (!this.props.user.get('avatarURL')) {
+      return null
+    }
+    return '/api/enterprise/accounts/avatars/' + this.props.user.get('avatarURL')
+  }
+
   renderLogoutButton() {
+    
     if (!window.AUTH_ENABLED) {
       return null
     }
 
-    const url = getProfileImgUrl()
+    const url = this.getProfileImgUrl()
     let label = <img src={url}></img>
     
     if (!url) {
       label = <i className="material-icons">account_circle</i>
     }
     
-    return  <NavDropdown className={style.account} noCaret title={label} id="account-button">
-      <ProfileMenu logout={logout}/>
+    return <NavDropdown className={style.account} noCaret title={label} id="account-button">
+      <ProfileMenu logout={logout}/>  
     </NavDropdown>
   }
 
@@ -59,19 +66,27 @@ class Header extends Component {
   }
 
   render() {
-    const className = classnames(style.navbar, style['app-navbar'], 'bp-navbar')
+    const classNames = classnames(style.navbar, style['app-navbar'], 'bp-navbar')
 
-    return <Navbar className={className}>
+    return <Navbar className={classNames}>
       <Navbar.Collapse>
         <Nav pullRight>
           <NavItem href="https://slack.botpress.io" target="_blank">{this.renderSlackButton()}</NavItem>
-          <NavItem href="/logs"><Glyphicon glyph="list-alt"/></NavItem>
-          <NotificationHub />
+          <RulesChecker res='bot/logs' op='read'>
+            <NavItem href="/logs"><Glyphicon glyph="list-alt"/></NavItem>
+          </RulesChecker>
+          <RulesChecker res='notifications' op='read'>
+            <NotificationHub />
+          </RulesChecker>
           {this.renderLogoutButton()}
         </Nav>
       </Navbar.Collapse>
     </Navbar>
   }
+}
+
+Header.contextTypes = {
+  reactor: PropTypes.object.isRequired
 }
 
 export default Header
