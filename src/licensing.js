@@ -100,7 +100,7 @@ Botpress: ${bp.version}`
 
     return knex('users')
       .select(knex.raw('count(*) as count'))
-      .then().get(0).then(obj => obj && obj.count) || 0
+      .then().get(0).then(obj => obj && parseInt(obj.count))
   }
 
   const updateLicense = async () => {
@@ -112,7 +112,7 @@ Botpress: ${bp.version}`
       method: verificationMethod,
       customerId,
       licenseKey,
-      users,
+      users: users || 0,
       edition: BP_EDITION
     })
     .then(({ data }) => {
