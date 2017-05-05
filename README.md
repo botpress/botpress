@@ -144,9 +144,9 @@ Here are a some modules that we think would be useful along with their assigned 
 | **[botpress-botkit](https://github.com/botpress/botpress-botkit)** | [@slvnperron](https://github.com/slvnperron)
 | **[botpress-api.ai](https://github.com/botpress/botpress-api.ai)** | [@slvnperron](https://github.com/slvnperron)
 | **[botpress-wordhop](https://github.com/wordhop-io/botpress-wordhop)** | [@wordhop-io](https://github.com/wordhop-io)
-| **botpress-inspector** | no body yet 
+| **botpress-inspector** | no body yet
 | **botpress-transcript** | [@rodrigocnascimento](https://github.com/rodrigocnascimento)
-| **botpress-telegram** | no body yet 
+| **botpress-telegram** | no body yet
 | **botpress-kik** | no body yet
 | **botpress-sms** | no body yet
 
