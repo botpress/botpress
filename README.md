@@ -10,7 +10,7 @@ Botpress is an open-source bot creation tool written in Javascript. It is powere
 
 ## Vision & Mission
 
-Botpress is on mission to make bots ubiquitous and profitable for everybody. At Botpress, we think that using closed-source tools like Chatfuel is not the right approach for building awesome and powerful bots, but Chatfuel is great for quickly creating straight-forward conversational bots. To be able to create something great, it's important to have full control of your tools and to leverage the community efforts as much as possible.
+Botpress is on a mission to make useful bots ubiquitous by powering developers with the best possible tools to build & manage chatbots. We believe that in order to create great bots, major time should be spent on UX, **not** on the surrounding (and generic) features like Connectors, NLP, Broadcasting, Analytics, Flow and more.
 
 ## <a name="what-it-looks-like">What it looks like </a>
 
