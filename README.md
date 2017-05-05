@@ -1,5 +1,5 @@
 <a href='http://botpress.io'><img src='https://s3.amazonaws.com/botpress-io/images/screenshot-ui.png'></a>
-# <a href='http://botpress.io'><img src='https://httpsimage.com/img/botpress-logo-120.png' height='60'></a>
+# <a href='http://botpress.io'><img src='https://httpsimage.com/img/botpress-logo-120.png' height='40'></a>
 
 Botpress is an open-source bot creation tool written in Javascript. It is powered by a rich set of open-source modules built by the community. We like to say that **Botpress is like the Wordpress of Chatbots**; anyone can create and reuse other people's modules.
 
