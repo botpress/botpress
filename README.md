@@ -33,8 +33,6 @@ npm install -g botpress
 Creating a bot is simple, you need to run [`botpress init`](https://docs.botpress.io/getting-started/how-to-use-the-cli.html#init) in a terminal inside an empty directory:
 
 ```
-mkdir my-bot && cd my-bot && botpress init
-OR
 botpress init my-bot
 ```
 
@@ -49,10 +47,10 @@ This will provide you locally a web interface available at **`http://localhost:3
 ## Adding stuff to your bot
 
 At this point, your bot does nothing, you need to add features. There are two ways to add features:
-- Installing and configuring modules
+- Installing modules
 - Coding
 
-### Installing and configuring modules
+### Installing modules
 
 For example, there's a `botpress-messenger` module that will make your bot connect to Facebook Messenger and easily send/receive messages.
 
@@ -66,8 +64,6 @@ Once installed, modules expose two things:
 - A graphical interface (available in the left panel). This makes configuration easy and convenient. You don't need to know about coding to use the graphical interface.
 - Features via APIs. Each module has a detailed documentation on how to use their API.
 
-There are not a lot of modules yet, we count on the community to develop many useful ones! Please [get in touch with us](https://slack.botpress.io) if you would like to develop modules but you are not sure on how to get started.
-
 ### Coding to add features
 
 As the number of modules increase, we expect that the amount of code you'll need to write will lower everyday. Developers can add code directly in the bot (i.e. `index.js`) and access the core and modules features. For example, if you wish to respond to a `GETTING_STARTED` event on Facebook Messenger, you might code something along these lines:
@@ -80,7 +76,7 @@ bp.hear({ type: 'postback', text: 'GETTING_STARTED' }, (event, next) => {
 
 To create a basic Hello Human bot in 3 minutes, please read the [Getting Started](https://docs.botpress.io/getting-started/).
 
-For learn all concepts of Botpress, please read our [Documentation](https://docs.botpress.io/)
+For learn all about Botpress, please read our full [Documentation](https://docs.botpress.io/)
 
 ## Documentation
 
@@ -98,20 +94,9 @@ Here are some tutorials that might help you get started. They are easy to follow
 - [Hello World Bot using Rivescript](https://github.com/botpress/botpress-examples/tree/master/hello-world-rivescript-bot)
 - [Motivation Bot](https://github.com/botpress/botpress-examples/tree/master/motivation-bot)
 
-Here are some [videos on YouTube](https://www.youtube.com/channel/UCEHfE71jUmWbe_5DtbO3fIA) that show you how to create and code your bot using Botpress.
+## Modules
 
-- [Create a Facebook Messenger chatbot in 3 minutes](https://www.youtube.com/watch?v=GO2yJ51ILl0)
-- Todolist Bot _(soon)_
-- Scheduling Messages _(soon)_
-- Bot Analytics _(soon)_
-
-Many more code examples are available in the [Examples repository](https://github.com/botpress/botpress-examples)
-
-## Roadmap
-
-The primary focus is to create as many good modules as possible to make Botpress the best platform for botmakers. We have a [public Roadmap](https://trello.com/b/vcT3ILLI/botpress-public-roadmap) available on Trello, you can participate to it by voting for suggestions and adding new ones.
-
-Here are a some modules that we think would be useful along with their assigned leader:
+This is a non-exclusive list of modules Botpress has. See [the full list of modules](https://www.npmjs.com/search?q=botpress).
 
 | Module                                                                       | Maintainer
 |-----------------------------------------------------------------------------|---------------------------
@@ -147,7 +132,7 @@ Contributions to Botpress will be dual-licensed under AGPLv3 and the Botpress Pr
 
 There's a [Slack community](https://slack.botpress.io) where you are welcome to join us, ask any question and even help others.
 
-Get an invite and join us now! 👉[https://slack.botpress.io](https://slack.botpress.io)
+Get an invite and join us now! 👉 [https://slack.botpress.io](https://slack.botpress.io)
 
 ## License
 
