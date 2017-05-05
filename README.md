@@ -3,7 +3,7 @@
 
 Botpress is an open-source bot creation tool written in Javascript. It is powered by a rich set of open-source modules built by the community. We like to say that **Botpress is like the Wordpress of Chatbots**; anyone can create and reuse other people's modules.
 
-| 📖 [Documentation](https://docs.botpress.io) | ⚗️ [Cookbook](https://github.com/botpress/cookbook) | 🖥 [Website](https://botpress.io) | 💬 [Community](https://slack.botpress.io) | 📦 [Modules](https://www.npmjs.com/search?q=botpress) | 🚀 [Roadmap](https://trello.com/b/vcT3ILLI/botpress-public-roadmap) |
+| 📖 [Documentation](https://docs.botpress.io) | 🍿 [YouTube](https://www.youtube.com/channel/UCEHfE71jUmWbe_5DtbO3fIA) | 🖥 [Website](https://botpress.io) | 💬 [Slack](https://slack.botpress.io) | 📦 [Modules](https://www.npmjs.com/search?q=botpress) | 🚀 [Blog](https://botpress.io/blog) |
 | ------------- | ------- | -------- | ------- | -------- | -------- |
 
 ## BETA TESTERS
