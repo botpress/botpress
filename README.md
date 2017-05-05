@@ -6,24 +6,19 @@ Botpress is an open-source bot creation tool written in Javascript. It is powere
 | 📖 [Documentation](https://docs.botpress.io) | 🍿 [YouTube](https://www.youtube.com/channel/UCEHfE71jUmWbe_5DtbO3fIA) | 🖥 [Website](https://botpress.io) | 💬 [Slack](https://slack.botpress.io) | 📦 [Modules](https://www.npmjs.com/search?q=botpress) | 🚀 [Blog](https://botpress.io/blog) |
 | ------------- | ------- | -------- | ------- | -------- | -------- |
 
-## BETA TESTERS
-
 Important: **Make sure to join the official Slack Community (https://slack.botpress.io)!**
 
 ## Vision & Mission
 
 Botpress is on mission to make bots ubiquitous and profitable for everybody. At Botpress, we think that using closed-source tools like Chatfuel is not the right approach for building awesome and powerful bots, but Chatfuel is great for quickly creating straight-forward conversational bots. To be able to create something great, it's important to have full control of your tools and to leverage the community efforts as much as possible.
 
-## Initial target audience
-
-Botpress is at an early stage and we are looking for **nodejs developers** to build new modules, create chatbots and help the community to build something that will be huge... Over time, everyone will benefit from having a powerful open-source ecosystem with a wide variety of specialized modules.
-
-If you are not a programmer or this is your first bot, please consider using [Chatfuel](https://chatfuel.com/), [FlowXO](https://flowxo.com/) or [Motion.ai](http://motion.ai), these are great tools we recommend for beginners and for non-coders.
-
-
 ## <a name="what-it-looks-like">What it looks like </a>
 
 <img alt="Botpress" height="150" src="assets/shot_01.png"><img alt="Botpress" height="150" src="assets/shot_02.png"><img alt="Botpress" height="150" src="assets/shot_03.png">
+
+## Getting Started Quickly
+
+The best way to get quickly get started using Botpress is to watch our [video tutorials](https://www.youtube.com/watch?v=HTpUmDz9kRY).
 
 ## Installation
 
@@ -86,16 +81,6 @@ bp.hear({ type: 'postback', text: 'GETTING_STARTED' }, (event, next) => {
 To create a basic Hello Human bot in 3 minutes, please read the [Getting Started](https://docs.botpress.io/getting-started/).
 
 For learn all concepts of Botpress, please read our [Documentation](https://docs.botpress.io/)
-
-### Stats Collection
-
-By default, anonymized usage statistics are sent to the Botpress Team. We rely on them to know where we need to allocate our efforts.
-
-**Note**: we don't collect any personal information, we do not collect the content of the chats and nothing that could potentially breach your (or your user's) privacy. We use a one-way encryption algorithm to hash the data and we transmit them via a secure ssl connection. We also batch the data and make sure it won't slow down or interfere with your bot's performance.
-
-#### Opting out of the stats collection
-
-In your Botfile, simply set the `optOutStats` variable to `true`.
 
 ## Documentation
 
