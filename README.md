@@ -33,6 +33,8 @@ Botpress is a free & open-source bot-building platform that ships with:
 
 The best way to get quickly get started using Botpress is to watch our [video tutorials](https://www.youtube.com/watch?v=HTpUmDz9kRY).
 
+<a name="youtube" href="https://www.youtube.com/watch?v=HTpUmDz9kRY"><img alt="Botpress" height="150" src="assets/youtube_tutorial.png"></a>
+
 ## Installation
 
 Botpress requires [node](https://nodejs.org) (version >= 4.6) and uses [npm](https://www.npmjs.com) as package manager.
