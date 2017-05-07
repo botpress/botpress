@@ -3,14 +3,27 @@
 
 Botpress is an open-source bot creation tool written in Javascript. It is powered by a rich set of open-source modules built by the community. We like to say that **Botpress is like the Wordpress of Chatbots**; anyone can create and reuse other people's modules.
 
+---
+
 | 📖 [Documentation](https://docs.botpress.io) | 🍿 [YouTube](https://www.youtube.com/channel/UCEHfE71jUmWbe_5DtbO3fIA) | 🖥 [Website](https://botpress.io) | 💬 [Slack](https://slack.botpress.io) | 📦 [Modules](https://www.npmjs.com/search?q=botpress) | 🚀 [Blog](https://botpress.io/blog) |
 | ------------- | ------- | -------- | ------- | -------- | -------- |
 
+---
+
 ⚠️  Make sure you join our [Slack Community](https://slack.botpress.io) for help, announcements, gigs and fun!
 
-## Vision & Mission
+## What is Botpress
 
-Botpress is on a mission to make useful bots ubiquitous by powering developers with the best possible tools to build & manage chatbots. We believe that in order to create great bots, major time should be spent on UX, **not** on the surrounding (and generic) features like Connectors, NLP, Broadcasting, Analytics, Flow and more.
+Botpress is on a mission to make useful bots ubiquitous by powering developers with the best possible tools to build & manage chatbots. We believe that in order to create great bots, major time should be spent on UX, **not** on the surrounding (and generic) features. 
+
+Botpress is a free & open-source bot-building platform that ships with:
+* **Connectors** to the major chat platforms
+* **Modular ecosystem** with over 29 modules
+* **Flow-management** system
+* **Graphical interface** to edit and manage your bot in production
+* **Notification centre** to see what's hapenning with your bot
+* **Data persistence** to database
+* **Built-in API** to integrate with external systems
 
 ## <a name="what-it-looks-like">What it looks like </a>
 
