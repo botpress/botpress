@@ -8,5 +8,6 @@ module.exports = (logger, db, botfile) => ({
       text: null,
       status: 'Active'
     }
-  }
+  },
+  getFeatures: () => ({})
 })

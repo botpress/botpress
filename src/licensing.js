@@ -89,6 +89,7 @@ Botpress: ${bp.version}`
       })
     },
     changeLicense,
-    middleware
+    middleware,
+    getFeatures: guard.getFeatures
   }
 }
