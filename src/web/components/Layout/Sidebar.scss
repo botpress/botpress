@@ -1,7 +1,7 @@
 @import '../../palette.scss';
 
 .sidebarReact {
-  bottom: 150px !important;
+  bottom: 0px !important;
 }
 
 .sidebar {
@@ -51,4 +51,8 @@
   width: 28px;
   height: 18px;
   padding-right: 10px;
+}
+
+.empty {
+  height: 120px;
 }

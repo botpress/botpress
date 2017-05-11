@@ -114,6 +114,11 @@ class Sidebar extends Component {
     const manageClassName = this.getActiveClassNames(this.isAtManage())
     const middlewareClassName = this.getActiveClassNames(this.isAtMiddleware())
 
+    const emptyClassName = classnames({
+      [style.empty]: true,
+      'bp-empty': true
+    })
+
     const sidebarContent = <div className={classnames(style.sidebar, 'bp-sidebar')}>
       <SidebarHeader/>
       <ul className="nav">
@@ -142,6 +147,7 @@ class Sidebar extends Component {
           </li>
         </RulesChecker>
         {items}
+        <li className={emptyClassName} key="empty"></li>
       </ul>
     </div>
 
@@ -154,6 +160,7 @@ class Sidebar extends Component {
         open={open}
         docked={docked}
         shadow={false}
+        transitions={false}
         styles={{ sidebar: { zIndex: 20 } }}
         onSetOpen={this.onSetSidebarOpen}>
         {this.props.children}
