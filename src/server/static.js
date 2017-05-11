@@ -47,7 +47,7 @@ module.exports = bp => {
       return
     }
 
-    if (!bp.licensing.getFeatures().whitelabel) {
+    if (bp.licensing.getFeatures().whitelabel !== true) {
       return
     }
 
