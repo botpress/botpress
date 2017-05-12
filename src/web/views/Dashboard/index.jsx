@@ -77,7 +77,7 @@ export default class DashboardView extends React.Component {
     }
     return (
       <ContentWrapper>
-        {PageHeader(<span> Dashboard</span>)}
+        <PageHeader><span> Dashboard</span></PageHeader>
         <Grid fluid className={'bp-dashboard'}>
           <InformationRowComponent />
           <Row>

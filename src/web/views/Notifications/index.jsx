@@ -36,7 +36,7 @@ export default class NotificationHub extends NotificationComponent {
     const readTip = <Tooltip id="ttip">Mark all as read</Tooltip>
 
     return <ContentWrapper>
-            {PageHeader(<span> Notifications</span>)}
+            <PageHeader><span> Notifications</span></PageHeader>
             <Panel>
               <div className="pull-right">
                 <OverlayTrigger placement="left" overlay={readTip}>

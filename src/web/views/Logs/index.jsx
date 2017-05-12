@@ -95,7 +95,7 @@ class LoggerView extends Component {
     const canLoadMore = this.state.limit < 500 && this.state.hasMore
 
     return <ContentWrapper>
-      {PageHeader(<span> Logs</span>)}
+      <PageHeader><span> Logs</span></PageHeader>
       <Panel className={styles.panel}>
         <form className="pull-left">
           <Checkbox className={styles['panel-checkbox']}

@@ -43,7 +43,7 @@ export default class ModuleView extends React.Component {
     const module = this.props.modules.find((value) => value.get('name') === this.props.params.moduleName).toJS()
     
     return <ContentWrapper>
-      {PageHeader(<span>{module.menuText} {this.renderLink(module)}</span>)}
+      <PageHeader><span>{module.menuText} {this.renderLink(module)}</span></PageHeader>
       {children}
     </ContentWrapper>
   }
