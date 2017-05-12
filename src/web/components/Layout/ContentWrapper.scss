@@ -1,6 +1,15 @@
 @import '../../palette.scss';
 
-.content-wrapper {
+.contentWrapper {
   padding: 20px 40px;
   margin: 0;
+
+  transition: 0.3s;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.contentWrapper.show {
+  opacity: 1;
+  visibility: visible; 
 }

@@ -252,7 +252,7 @@ export default class MiddlewaresComponent extends Component {
 
   render() {
     if (this.state.loading) {
-      return <div>Loading...</div>
+      return null
     }
 
     return this.props.type === 'incoming' 

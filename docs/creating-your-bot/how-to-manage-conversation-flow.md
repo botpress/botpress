@@ -15,7 +15,7 @@ Botpress has many ways to handle conversation flows.
 
 #### `bp.convo.create(event)` -> convo
 
-Creates and starts a conversation immediately. To create a conversation, an initial `event` is required. The event is most often taken from a `bp.hear` (see example below).
+Creates a conversation but the conversation is not activated. You need to call `activate()` to start the conversation. To create a conversation, an initial `event` is required. The event is most often taken from a `bp.hear` (see example below).
 
 #### `bp.convo.start(event, [callback])` -> convo
 

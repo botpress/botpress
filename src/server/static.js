@@ -1,3 +1,5 @@
+/* global BP_EDITION */
+
 import Promise from 'bluebird'
 import express from 'express'
 import path from 'path'
@@ -40,6 +42,15 @@ module.exports = bp => {
   }
 
   function serveCustomTheme(app) {
+
+    if (BP_EDITION === 'lite') {
+      return
+    }
+
+    if (bp.licensing.getFeatures().whitelabel !== true) {
+      return
+    }
+
     let customTheme = ''
     const themeLocation = path.join(bp.projectLocation, 'theme.scss')
     if (fs.existsSync(themeLocation)) {

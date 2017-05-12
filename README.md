@@ -1,33 +1,39 @@
 <a href='http://botpress.io'><img src='https://s3.amazonaws.com/botpress-io/images/screenshot-ui.png'></a>
-# <a href='http://botpress.io'><img src='https://httpsimage.com/img/botpress-logo-120.png' height='60'></a>
+# [Botpress](https://botpress.io) — The only sane way of building great bots
 
 Botpress is an open-source bot creation tool written in Javascript. It is powered by a rich set of open-source modules built by the community. We like to say that **Botpress is like the Wordpress of Chatbots**; anyone can create and reuse other people's modules.
 
-| 📖 [Documentation](https://docs.botpress.io) | ⚗️ [Cookbook](https://github.com/botpress/cookbook) | 🖥 [Website](https://botpress.io) | 💬 [Community](https://slack.botpress.io) | 📦 [Modules](https://www.npmjs.com/search?q=botpress) | 🚀 [Roadmap](https://trello.com/b/vcT3ILLI/botpress-public-roadmap) |
+---
+
+| 📖 [Documentation](https://docs.botpress.io) | 🍿 [YouTube](https://www.youtube.com/channel/UCEHfE71jUmWbe_5DtbO3fIA) | 🖥 [Website](https://botpress.io) | 💬 [Slack](https://slack.botpress.io) | 📦 [Modules](https://www.npmjs.com/search?q=botpress) | 🚀 [Blog](https://botpress.io/blog) |
 | ------------- | ------- | -------- | ------- | -------- | -------- |
 
-## BETA TESTERS
+---
 
-Important: **Make sure to join the official Slack Community (https://slack.botpress.io)!**
+⚠️  Make sure you join our [Slack Community](https://slack.botpress.io) for help, announcements, gigs and fun!
 
-### Looking to migrate from 0.0 to 0.1?
+## What is Botpress
 
-https://gist.github.com/slvnperron/9a3027f4d798c7d6b6b6a9b9b6bdfa7b
+Botpress is on a mission to make useful bots ubiquitous by powering developers with the best possible tools to build & manage chatbots. We believe that in order to create great bots, major time should be spent on UX, **not** on the surrounding (and generic) features. 
 
-## Vision & Mission
-
-Botpress is on mission to make bots ubiquitous and profitable for everybody. At Botpress, we think that using closed-source tools like Chatfuel is not the right approach for building awesome and powerful bots, but Chatfuel is great for quickly creating straight-forward conversational bots. To be able to create something great, it's important to have full control of your tools and to leverage the community efforts as much as possible.
-
-## Initial target audience
-
-Botpress is at an early stage and we are looking for **nodejs developers** to build new modules, create chatbots and help the community to build something that will be huge... Over time, everyone will benefit from having a powerful open-source ecosystem with a wide variety of specialized modules.
-
-If you are not a programmer or this is your first bot, please consider using [Chatfuel](https://chatfuel.com/), [FlowXO](https://flowxo.com/) or [Motion.ai](http://motion.ai), these are great tools we recommend for beginners and for non-coders.
-
+Botpress is a free & open-source bot-building platform that ships with:
+* **Connectors** to the major chat platforms
+* **Modular ecosystem** with over 29 modules
+* **Flow-management** system
+* **Graphical interface** to edit and manage your bot in production
+* **Notification centre** to see what's hapenning with your bot
+* **Data persistence** to database
+* **Built-in API** to integrate with external systems
 
 ## <a name="what-it-looks-like">What it looks like </a>
 
 <img alt="Botpress" height="150" src="assets/shot_01.png"><img alt="Botpress" height="150" src="assets/shot_02.png"><img alt="Botpress" height="150" src="assets/shot_03.png">
+
+## Getting Started Quickly
+
+The best way to get quickly get started using Botpress is to watch our [video tutorials](https://www.youtube.com/watch?v=HTpUmDz9kRY).
+
+<a name="youtube" href="https://www.youtube.com/watch?v=HTpUmDz9kRY"><img alt="Botpress" height="150" src="assets/youtube_tutorial.png"></a>
 
 ## Installation
 
@@ -42,8 +48,6 @@ npm install -g botpress
 Creating a bot is simple, you need to run [`botpress init`](https://docs.botpress.io/getting-started/how-to-use-the-cli.html#init) in a terminal inside an empty directory:
 
 ```
-mkdir my-bot && cd my-bot && botpress init
-OR
 botpress init my-bot
 ```
 
@@ -58,10 +62,10 @@ This will provide you locally a web interface available at **`http://localhost:3
 ## Adding stuff to your bot
 
 At this point, your bot does nothing, you need to add features. There are two ways to add features:
-- Installing and configuring modules
+- Installing modules
 - Coding
 
-### Installing and configuring modules
+### Installing modules
 
 For example, there's a `botpress-messenger` module that will make your bot connect to Facebook Messenger and easily send/receive messages.
 
@@ -75,8 +79,6 @@ Once installed, modules expose two things:
 - A graphical interface (available in the left panel). This makes configuration easy and convenient. You don't need to know about coding to use the graphical interface.
 - Features via APIs. Each module has a detailed documentation on how to use their API.
 
-There are not a lot of modules yet, we count on the community to develop many useful ones! Please [get in touch with us](https://slack.botpress.io) if you would like to develop modules but you are not sure on how to get started.
-
 ### Coding to add features
 
 As the number of modules increase, we expect that the amount of code you'll need to write will lower everyday. Developers can add code directly in the bot (i.e. `index.js`) and access the core and modules features. For example, if you wish to respond to a `GETTING_STARTED` event on Facebook Messenger, you might code something along these lines:
@@ -89,17 +91,7 @@ bp.hear({ type: 'postback', text: 'GETTING_STARTED' }, (event, next) => {
 
 To create a basic Hello Human bot in 3 minutes, please read the [Getting Started](https://docs.botpress.io/getting-started/).
 
-For learn all concepts of Botpress, please read our [Documentation](https://docs.botpress.io/)
-
-### Stats Collection
-
-By default, anonymized usage statistics are sent to the Botpress Team. We rely on them to know where we need to allocate our efforts.
-
-**Note**: we don't collect any personal information, we do not collect the content of the chats and nothing that could potentially breach your (or your user's) privacy. We use a one-way encryption algorithm to hash the data and we transmit them via a secure ssl connection. We also batch the data and make sure it won't slow down or interfere with your bot's performance.
-
-#### Opting out of the stats collection
-
-In your Botfile, simply set the `optOutStats` variable to `true`.
+For learn all about Botpress, please read our full [Documentation](https://docs.botpress.io/)
 
 ## Documentation
 
@@ -117,20 +109,9 @@ Here are some tutorials that might help you get started. They are easy to follow
 - [Hello World Bot using Rivescript](https://github.com/botpress/botpress-examples/tree/master/hello-world-rivescript-bot)
 - [Motivation Bot](https://github.com/botpress/botpress-examples/tree/master/motivation-bot)
 
-Here are some [videos on YouTube](https://www.youtube.com/channel/UCEHfE71jUmWbe_5DtbO3fIA) that show you how to create and code your bot using Botpress.
+## Modules
 
-- [Create a Facebook Messenger chatbot in 3 minutes](https://www.youtube.com/watch?v=GO2yJ51ILl0)
-- Todolist Bot _(soon)_
-- Scheduling Messages _(soon)_
-- Bot Analytics _(soon)_
-
-Many more code examples are available in the [Examples repository](https://github.com/botpress/botpress-examples)
-
-## Roadmap
-
-The primary focus is to create as many good modules as possible to make Botpress the best platform for botmakers. We have a [public Roadmap](https://trello.com/b/vcT3ILLI/botpress-public-roadmap) available on Trello, you can participate to it by voting for suggestions and adding new ones.
-
-Here are a some modules that we think would be useful along with their assigned leader:
+This is a non-exclusive list of modules Botpress has. See [the full list of modules](https://www.npmjs.com/search?q=botpress).
 
 | Module                                                                       | Maintainer
 |-----------------------------------------------------------------------------|---------------------------
@@ -148,9 +129,9 @@ Here are a some modules that we think would be useful along with their assigned 
 | **[botpress-botkit](https://github.com/botpress/botpress-botkit)** | [@slvnperron](https://github.com/slvnperron)
 | **[botpress-api.ai](https://github.com/botpress/botpress-api.ai)** | [@slvnperron](https://github.com/slvnperron)
 | **[botpress-wordhop](https://github.com/wordhop-io/botpress-wordhop)** | [@wordhop-io](https://github.com/wordhop-io)
-| **botpress-inspector** | no body yet 
+| **botpress-inspector** | no body yet
 | **botpress-transcript** | [@rodrigocnascimento](https://github.com/rodrigocnascimento)
-| **botpress-telegram** | no body yet 
+| **botpress-telegram** | no body yet
 | **botpress-kik** | no body yet
 | **botpress-sms** | no body yet
 
@@ -162,26 +143,11 @@ If you would like to contribute any new feature or bug fix, please make sure tha
 
 Contributions to Botpress will be dual-licensed under AGPLv3 and the Botpress Proprietary License.  This means that all contributors need to agree to the dual-license before their contributions can be accepted.
 
-### Further ideas to work on
-- **Bot templates**
-- **Forms/Polls/Trivias**
-- **Flows**
-- **User Segmentation and targeting**
-- **AI**
-  - **Sentiment analysis**
-  - **Context management**
-
-**Your next module here :) ?** Please send a pull request!
-
 ## Community
 
 There's a [Slack community](https://slack.botpress.io) where you are welcome to join us, ask any question and even help others.
 
-Get an invite and join us now! 👉[https://slack.botpress.io](https://slack.botpress.io)
-
-## Pricing
-
-Botpress is licensed under an open source and commercial license. Even though it can be freely used and distributed under an open source license, this does not mean that there are no restrictions on its use.  **The main restriction is that any code that uses the botpress code under the  open source license must be open source itself.** For this reason commercial bots would normally be built using botpress licensed under the commercial license because commercial enterprises would want to use their own proprietary code with botpress and don't want to be forced to make this code open source. The commercial license has a cost for enterprises. Please visit our <a href="https://botpress.io/faq">FAQS</a> for more information.
+Get an invite and join us now! 👉 [https://slack.botpress.io](https://slack.botpress.io)
 
 ## License
 
