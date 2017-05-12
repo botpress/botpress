@@ -83,7 +83,11 @@ export default class ModuleView extends React.Component {
       script.src = moduleRequest
       document.getElementsByTagName("head")[0].appendChild(script)
     } else {
-      this.setState({ moduleComponent: botpress[moduleName].default })
+      this.setState({ moduleComponent: null })
+      setImmediate(() => {
+        this.setState({ moduleComponent: botpress[moduleName].default })
+      })
+      
     }
   }
 
@@ -110,7 +114,7 @@ export default class ModuleView extends React.Component {
       if (this.state.error) {
         return this.renderNotFound()
       } else {
-        return <h1>Loading module...</h1>
+        return null
       }
     }
 
