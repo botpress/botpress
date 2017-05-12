@@ -22,8 +22,13 @@ import style from './Header.scss'
 
 import { connect } from 'nuclear-js-react-addons'
 import getters from '~/stores/getters'
+import actions from '~/actions'
 
-@connect(props => ({ user: getters.user }))
+@connect(props => ({ 
+  user: getters.user,
+  UI: getters.UI
+}))
+
 class Header extends Component {
 
   constructor(props, context) {
@@ -39,6 +44,11 @@ class Header extends Component {
       return null
     }
     return '/api/enterprise/accounts/avatars/' + this.props.user.get('avatarURL')
+  }
+
+  handleFullscreen() {
+    const newViewMode = this.props.UI.get('viewMode') < 1 ? 1 : 0
+    actions.viewModeChanged(newViewMode)
   }
 
   renderLogoutButton() {
@@ -59,6 +69,12 @@ class Header extends Component {
     </NavDropdown>
   }
 
+  renderFullScreenButton() {
+    return <span className={classnames(style.fullScreen, 'bp-full-screen')} >
+      <Glyphicon glyph="fullscreen"/>
+    </span>
+  }
+
   renderSlackButton() {
     return <span className={classnames(style.slack, 'bp-slack')} >
       <img src="/img/slack_mark.svg" />
@@ -66,12 +82,17 @@ class Header extends Component {
   }
 
   render() {
+    if (this.props.UI.get('viewMode') >= 3) {
+      return null
+    }
+
     const classNames = classnames(style.navbar, style['app-navbar'], 'bp-navbar')
 
     return <Navbar className={classNames}>
       <Navbar.Collapse>
         <Nav pullRight>
           <NavItem href="https://slack.botpress.io" target="_blank">{this.renderSlackButton()}</NavItem>
+          <NavItem onClick={::this.handleFullscreen}>{this.renderFullScreenButton()}</NavItem>
           <RulesChecker res='bot/logs' op='read'>
             <NavItem href="/logs"><Glyphicon glyph="list-alt"/></NavItem>
           </RulesChecker>
