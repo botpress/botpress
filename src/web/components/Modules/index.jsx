@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 
 import ContentWrapper from '~/components/Layout/ContentWrapper'
-import PageHeader from '~/components/Layout/PageHeader'
 
 import {
   Panel,
