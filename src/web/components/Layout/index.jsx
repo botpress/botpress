@@ -28,12 +28,30 @@ class Layout extends React.Component {
     super(props, context)
   }
 
+  componentDidMount() {
+    const viewMode = this.props.location.query && this.props.location.query.viewMode
+    
+    setImmediate(() => {
+      actions.viewModeChanged(viewMode ? viewMode : 0)
+    })
+  }
+
   render() {
+    if (this.props.UI.get('viewMode') < 0) {
+      return null
+    }
+
+    const hasHeader = this.props.UI.get('viewMode') <= 2
+    const classNames = classnames({
+      [style.container]: hasHeader, 
+      'bp-container': hasHeader
+    })
+
     return (
       <div className={classnames('wrapper', 'bp-wrapper')}>
         <Sidebar>
           <Header />
-          <section className={classnames(style.container, 'bp-container')}>{this.props.children}</section>
+          <section className={classNames}>{this.props.children}</section>
         </Sidebar>
         <SidebarFooter />
         <GuidedTour opened={window.SHOW_GUIDED_TOUR}/>
@@ -42,6 +60,10 @@ class Layout extends React.Component {
       </div>
     )
   }
+}
+
+Layout.contextTypes = {
+  reactor: PropTypes.object.isRequired
 }
 
 export default Layout
