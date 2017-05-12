@@ -17,7 +17,8 @@ import RulesChecker from '+/views/RulesChecker'
 const style = require('./Sidebar.scss')
 
 @connect(props => ({
-  modules: getters.modules
+  modules: getters.modules,
+  UI: getters.UI
 }))
 
 class Sidebar extends Component {
@@ -151,14 +152,14 @@ class Sidebar extends Component {
       </ul>
     </div>
 
-    const { sidebarOpen: open, sidebarDocked: docked } = this.state
+    const isOpen = this.props.UI.get('viewMode') < 1
 
     return (
       <ReactSidebar
         sidebarClassName={classnames(style.sidebarReact, 'bp-sidebar-react')}
         sidebar={sidebarContent}
-        open={open}
-        docked={docked}
+        open={isOpen}
+        docked={isOpen}
         shadow={false}
         transitions={false}
         styles={{ sidebar: { zIndex: 20 } }}
