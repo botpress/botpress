@@ -69,29 +69,6 @@ class Sidebar extends Component {
     return false
   }
 
-  isAtDashboard() {
-    return ['', '/', '/dashboard'].includes(location.pathname)
-  }
-
-  isAtManage() {
-    return ['/manage'].includes(location.pathname)
-  }
-
-  isAtMiddleware() {
-    return ['/middleware'].includes(location.pathname)
-  }
-
-  isAtUMM() {
-    return ['/umm'].includes(location.pathname)
-  }
-
-  getActiveClassNames = (condition) => {
-    return classnames({
-      'bp-sidebar-active': condition,
-      [style.active]: condition
-    })
-  }
-
   renderModuleItem(module) {
     const path = `/modules/${module.name}`
     const iconPath = `/img/modules/${module.name}.png`
@@ -111,55 +88,57 @@ class Sidebar extends Component {
     </li>
   }
 
+  getActiveClassNames = (condition) => {
+    return classnames({
+      'bp-sidebar-active': condition,
+      [style.active]: condition
+    })
+  }
+  
+  renderBasicItem(name, path, rule, activePaths, icon) {
+    const isAt = (paths) => {
+      return paths.includes(location.pathname)
+    }
+
+    const className = this.getActiveClassNames(isAt(activePaths))
+
+    return <RulesChecker res={rule.res} op={rule.op}>
+        <li className={className} key={path}>
+          <Link to={path} title={name}>
+            <i className="icon material-icons">{icon}</i>
+            {name}
+          </Link>
+        </li>
+      </RulesChecker>
+  }
+
   render() {
 
     const modules = this.props.modules
     const items = modules.toJS().filter(x => !x.noInterface).map(this.renderModuleItem)
-    const dashboardClassName = this.getActiveClassNames(this.isAtDashboard())
-    const manageClassName = this.getActiveClassNames(this.isAtManage())
-    const middlewareClassName = this.getActiveClassNames(this.isAtMiddleware())
-    const ummClassName = this.getActiveClassNames(this.isAtUMM())
 
     const emptyClassName = classnames({
       [style.empty]: true,
       'bp-empty': true
     })
 
+    const dashboardRules = { res:'dashboard', op:'read' }
+    const modulesRules = { res:'modules/list', op:'read' }
+    const ummRules = { res:'umm', op:'read' }
+    const middlewareRules = { res:'middleware', op:'read' }
+
+    const dashboardPaths = ['', '/', '/dashboard']
+    const modulesPaths = ['/manage']
+    const ummPaths = ['/umm']
+    const middlewarePaths = ['/middleware']
+
     const sidebarContent = <div className={classnames(style.sidebar, 'bp-sidebar')}>
       <SidebarHeader/>
       <ul className="nav">
-        <RulesChecker res='dashboard' op='read'>
-          <li className={dashboardClassName} key="dashboard">
-            <Link to='dashboard' title='Dashboard'>
-              <i className="icon material-icons">dashboard</i>
-              Dashboard
-            </Link>
-          </li>
-        </RulesChecker>
-        <RulesChecker res='modules/list' op='read'>
-          <li className={manageClassName} key="manage">
-            <Link to='manage' title='Modules'>
-              <i className="icon material-icons">build</i>
-              Modules
-            </Link>
-          </li>
-        </RulesChecker>
-        <RulesChecker res='umm' op='read'>
-          <li className={ummClassName} key="umm">
-            <Link to='umm' title='UMM'>
-              <i className="icon material-icons">code</i>
-              Markdown
-            </Link>
-          </li>
-        </RulesChecker>
-        <RulesChecker res='middleware' op='read'>
-          <li className={middlewareClassName} key="middleware">
-            <Link to='middleware' title='Middleware'>
-              <i className="icon material-icons">settings</i>
-              Middleware
-            </Link>
-          </li>
-        </RulesChecker>
+        {this.renderBasicItem('Dashboard', 'dashboard', dashboardRules, dashboardPaths, 'dashboard')}
+        {this.renderBasicItem('Modules', 'manage', modulesRules, modulesPaths, 'build')}
+        {this.renderBasicItem('UMM', 'umm', ummRules, ummPaths, 'code')}
+        {this.renderBasicItem('Middleware', 'middleware', middlewareRules, middlewarePaths, 'settings')}
         {items}
         <li className={emptyClassName} key="empty"></li>
       </ul>
