@@ -81,6 +81,10 @@ class Sidebar extends Component {
     return ['/middleware'].includes(location.pathname)
   }
 
+  isAtUMM() {
+    return ['/umm'].includes(location.pathname)
+  }
+
   getActiveClassNames = (condition) => {
     return classnames({
       'bp-sidebar-active': condition,
@@ -114,6 +118,7 @@ class Sidebar extends Component {
     const dashboardClassName = this.getActiveClassNames(this.isAtDashboard())
     const manageClassName = this.getActiveClassNames(this.isAtManage())
     const middlewareClassName = this.getActiveClassNames(this.isAtMiddleware())
+    const ummClassName = this.getActiveClassNames(this.isAtUMM())
 
     const emptyClassName = classnames({
       [style.empty]: true,
@@ -136,6 +141,14 @@ class Sidebar extends Component {
             <Link to='manage' title='Modules'>
               <i className="icon material-icons">build</i>
               Modules
+            </Link>
+          </li>
+        </RulesChecker>
+        <RulesChecker res='umm' op='read'>
+          <li className={ummClassName} key="umm">
+            <Link to='umm' title='UMM'>
+              <i className="icon material-icons">code</i>
+              Markdown
             </Link>
           </li>
         </RulesChecker>
