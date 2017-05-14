@@ -1,0 +1,40 @@
+nameOfMyBloc: # this is the name of the message bloc
+
+  - text: Hello! This message is generic across all platforms. It is text.
+  
+  - if: {{name}} # executes only if this is true
+    text: Your name is {{name}}!
+
+  - unless: {{name}} # executes only if this is false
+    text: I don't know your name...
+  
+  - wait: 2s
+
+  - text: Here's the latest news # default message (if no platform matches)
+    typing: true # property that applies to all platforms
+    on: # You can have platform-specific properties
+      messenger: # this only to messenger
+          list: # A list template
+            - title: Trump won the elections # The same properties as the official Messenger Platform
+              image_url: { resource: 'name' } # If the content is hosted on Botpress, only link to the resource
+              subtitle: The world may never be the same again
+              buttons:
+                - title: Name of the button
+                  type: web_url
+                  url: https://google.com
+                - title: Name of the button 2
+                  type: postback
+                  payload: hello
+      skype: {} # this only to skype
+
+  - What would you like to do next? # "text: " is not necessary
+  
+  {{#tweets}} # This is an example of programmatically generated list of messages from data
+  - '{{author}}: {{text}}'
+  {{/tweets}}
+
+  - on: messenger # Only sent on messenger
+    quick_replies: # Quick Replies are always tied to the message before
+      - Play a game
+      - Small talk
+      - Whatever :)
