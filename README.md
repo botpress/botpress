@@ -17,13 +17,13 @@ Botpress is an open-source bot creation tool written in Javascript. It is powere
 Botpress is on a mission to make useful bots ubiquitous by powering developers with the best possible tools to build & manage chatbots. We believe that in order to create great bots, major time should be spent on UX, **not** on the surrounding (and generic) features. 
 
 Botpress is a free & open-source bot-building platform that ships with:
-* **Connectors** to the major chat platforms
-* **Modular ecosystem** with over 29 modules
-* **Flow-management** system
+* [**Connectors**](https://www.npmjs.com/search?q=botpress-connector) to the major chat platforms
+* [**Modular ecosystem**](https://www.npmjs.com/search?q=botpress) with over 29 modules
+* [**Flow-management**](https://docs.botpress.io/creating-your-bot/how-to-manage-conversation-flow.html) system
 * **Graphical interface** to edit and manage your bot in production
 * **Notification centre** to see what's hapenning with your bot
-* **Data persistence** to database
-* **Built-in API** to integrate with external systems
+* [**Data persistence**](https://docs.botpress.io/creating-your-bot/how-to-use-the-database.html) to database
+* [**Built-in API**](https://docs.botpress.io/creating-your-bot/how-to-use-the-http-server.html) to integrate with external systems
 
 ## <a name="what-it-looks-like">What it looks like </a>
 
