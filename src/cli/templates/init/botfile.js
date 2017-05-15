@@ -27,7 +27,7 @@ module.exports = {
     tokenExpiry: '6 hours',
     password: process.env.BOTPRESS_PASSWORD || 'password',
     maxAttempts: 3,
-    resetAfter: 5 * 60 * 10000 // 5 minutes
+    resetAfter: 10 * 60 * 1000 // 10 minutes
   },
 
   /**
