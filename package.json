@@ -36,6 +36,7 @@
     "nodemailer": "^2.7.2",
     "pg": "^6.1.2",
     "prompt": "^1.0.0",
+    "react-codemirror": "^1.0.0",
     "socket.io": "^1.5.0",
     "socketio-jwt": "^4.5.0",
     "source-map-support": "^0.4.6",
