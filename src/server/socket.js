@@ -17,13 +17,22 @@ module.exports = bp => {
       bp.stats.track('socket', 'connected')
 
       socket.on('event', function(event) {
-        bp.events.emit(event.name, event.data, 'client')
+        bp.events.emit(event.name, event.data, 'client', { socketId: socket.id })
       })
     })
 
     bp.events.onAny(function(event, data, from) {
       if (from === 'client') {
         return // we sent this ourselves
+      }
+
+      if (data && (data.__socketId || data.__room)) {
+        // Send only to this socketId or room
+        console.log(io.rooms, io, data.__socketId)
+        return io.to(data.__socketId || data.__room).emit('event', {
+          name: event,
+          data: data
+        })
       }
 
       // broadcast event to the front-end clients
