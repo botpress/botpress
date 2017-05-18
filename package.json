@@ -23,6 +23,7 @@
     "express": "^4.14.0",
     "formidable": "^1.1.1",
     "handlebars": "^4.0.6",
+    "howler": "^2.0.3",
     "js-yaml": "^3.8.4",
     "jsonwebtoken": "^7.1.9",
     "knex": "^0.12.6",
