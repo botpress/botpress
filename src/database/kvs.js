@@ -44,7 +44,7 @@ module.exports = (knex, options = {}) => {
     .then(original => {
       return getSetCallback()
       .then(() => {
-        if (original) {
+        if (!_.isNil(original)) {
           const newObj = setValue(Object.assign({}, original))
           return knex(tableName).where({ key }).update({
             value: JSON.stringify(newObj),
