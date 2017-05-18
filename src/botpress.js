@@ -143,7 +143,7 @@ class botpress {
     const emails = createEmails({ emailConfig: botfile.emails })
     const mediator = createMediator(this)
     const convo = createConversations({ logger, middleware: middlewares })
-    const umm = createUMM({ logger })
+    //const umm = createUMM({ logger })
 
     middlewares.register(hearMiddleware)
 
@@ -163,8 +163,8 @@ class botpress {
       db,
       emails,
       mediator,
-      convo,
-      umm
+      convo
+      //umm
     })
 
     ServiceLocator.init({ bp: this })
