@@ -137,7 +137,7 @@ class Sidebar extends Component {
       <ul className="nav">
         {this.renderBasicItem('Dashboard', 'dashboard', dashboardRules, dashboardPaths, 'dashboard')}
         {this.renderBasicItem('Modules', 'manage', modulesRules, modulesPaths, 'build')}
-        {this.renderBasicItem('UMM', 'umm', ummRules, ummPaths, 'code')}
+        {/*this.renderBasicItem('UMM', 'umm', ummRules, ummPaths, 'code')*/}
         {this.renderBasicItem('Middleware', 'middleware', middlewareRules, middlewarePaths, 'settings')}
         {items}
         <li className={emptyClassName} key="empty"></li>
