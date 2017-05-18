@@ -1,17 +1,25 @@
 
 import React, { Component } from 'react'
 import classnames from 'classnames'
+import axios from 'axios'
+import _ from 'lodash'
 
 import ContentWrapper from '~/components/Layout/ContentWrapper'
 import PageHeader from '~/components/Layout/PageHeader'
 
+import Search from './Search'
 import List from './List'
+import Actions from './Actions'
 import Code from './Code'
+import Platform from './Platform'
 import Preview from './Preview'
+
 
 import { Grid, Row, Col, Panel } from 'react-bootstrap'
 
 const style = require('./style.scss')
+
+const REFRESH_TIME_PREVIEW = 2 * 1000 // 2 seconds
 
 export default class UMMView extends Component {
   constructor(props) {
@@ -23,57 +31,45 @@ export default class UMMView extends Component {
   }
 
   componentDidMount() {
-    this.fetchBlocks()
-
+    
     this.setState({
       loading: false
+    })
+
+    // this.fetchListOfTools()
+    // .then(this.fetchBlocks)
+    // .then(() => {
+    //   this.setState({
+    //     loading: false
+    //   })  
+    // })
+  }
+
+  fetchListOfTools() {
+    return axios.get('/api/umm/tools')
+    .then((res) => {
+      this.setState({
+        tools: res.data
+      })
     })
   }
 
   fetchBlocks() {
-    this.state = {
-      blocks: {}
-    }
-  }
+    const document = ''
+    const platform = 'messenger'
 
-  renderLeftSection() {
-    const classNames = classnames({
-      [style.left]: true,
-      'bp-umm-left': true
+    return axios.post('/api/umm/preview', { document, platform })
+    .then((res) => {
+      this.setState({
+        ...res.data
+      })
     })
-
-    return <Row className={classNames}>
-        <Col md={12}>
-          <List />
-        </Col>
-      </Row>
   }
 
-  renderCenterSection() {
-    const classNames = classnames({
-      [style.center]: true,
-      'bp-umm-center': true
-    })
-
-    return <Row className={classNames}>
-        <Col md={12}>
-          <Code />
-        </Col>
-      </Row>
+  refreshPreview() {
+    _.throttle(this.fetchBlocks, REFRESH_TIME_PREVIEW)
   }
 
-  renderRightSection() {
-    const classNames = classnames({
-      [style.right]: true,
-      'bp-umm-right': true
-    })
-
-    return <Row className={classNames}>
-        <Col md={12}>
-          <Preview />
-        </Col>
-      </Row>
-  }
 
   render() {
     if (this.state.loading) {
@@ -88,19 +84,32 @@ export default class UMMView extends Component {
     return (
       <ContentWrapper>
         <PageHeader><span>Universal Message Markdown</span></PageHeader>
-        <Grid fluid>
-          <Row className={classNames}>
-            <Col md={2}>
-              {this.renderLeftSection()}
-            </Col>
-            <Col md={5}>
-              {this.renderCenterSection()}
-            </Col>
-            <Col md={5}>
-              {this.renderRightSection()}
-            </Col>
-          </Row>
-        </Grid>
+        <table className={classNames}>
+          <tbody>
+            <tr>
+              <td style={{ 'width': '20%' }}>
+                <Search />
+              </td>
+              <td style={{ 'width': '40%' }}>
+                <Actions />
+              </td>
+              <td style={{ 'width': '40%' }}>
+                <Platform />
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <List />
+              </td>
+              <td>
+                <Code />
+              </td>
+              <td>
+                <Preview />
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </ContentWrapper>
     )
   }
