@@ -21,7 +21,7 @@ a {
   margin-top: 0px;
   margin-bottom: 15px;
   font-size: 20px;
-  
+
   i {
     vertical-align: bottom;
     padding-right: 10px;
@@ -68,10 +68,17 @@ a {
   margin-right: 15px;
 
   button.uninstall {
-    background-color: #B1B1B1; 
+    background-color: #B1B1B1;
 
     &:hover {
-      background-color: #A5A5A5;       
+      background-color: #A5A5A5;
     }
   }
 }
+
+.customIcon {
+  width: 28px;
+  height: 18px;
+  padding-right: 10px;
+}
+
