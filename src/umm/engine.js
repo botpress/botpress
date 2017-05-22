@@ -28,7 +28,7 @@ const mapBlocs = (rawBlocs, options, processors, incomingEvent) => {
 
   function premapInstruction({ instruction, index, instructions, detectedPlatforms, bloc }) {
 
-    if (typeof instruction === 'string') {
+    if (typeof instruction === 'string' || _.isArray(instruction)) {
       return [{
         text: instruction
       }]
@@ -95,9 +95,12 @@ const mapBlocs = (rawBlocs, options, processors, incomingEvent) => {
       return ret
     }
 
+    if (_.isArray(instruction.text)) {
+      instruction.text = _.sample(instruction.text)
+    }
+
     const processor = currentPlatform && processors[currentPlatform]
     if (processor) {
-      console.log('....', instruction)
       const msg = processor({ instruction, messages, blocName: bloc, event: incomingEvent })
       if (msg) {
         ret.push(msg)
