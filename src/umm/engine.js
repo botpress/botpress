@@ -1,6 +1,3 @@
-import fs from 'fs'
-import path from 'path'
-
 import Mustache from 'mustache'
 import yaml from 'js-yaml'
 import ms from 'ms'
@@ -16,11 +13,10 @@ class ParsingError extends Error {
   }
 }
 
-const mapBlocs = (rawBlocs, context, options) => {
+const mapBlocs = (rawBlocs, options, processors, incomingEvent) => {
 
   const {
     currentPlatform,
-    platforms = [],
     throwIfNoPlatform = false
   } = options
 
@@ -83,10 +79,13 @@ const mapBlocs = (rawBlocs, context, options) => {
   function mapInstruction({ instruction, messages, bloc }) {
     const ret = []
 
-    if (instruction.wait) {
+    if (!_.isNil(instruction.wait)) {
       ret.push({
         __internal: true,
-        wait: ms(instruction.wait || 1000 )
+        type: 'wait',
+        wait: _.isString(instruction.wait)
+          ? ms(instruction.wait || 1000 )
+          : (parseInt(instruction.wait) || 1000)
       })
     }
 
@@ -96,13 +95,18 @@ const mapBlocs = (rawBlocs, context, options) => {
       return ret
     }
 
-    if (!currentPlatform) {
+    const processor = currentPlatform && processors[currentPlatform]
+    if (processor) {
+      console.log('....', instruction)
+      const msg = processor({ instruction, messages, blocName: bloc, event: incomingEvent })
+      if (msg) {
+        ret.push(msg)
+      }
 
+      return ret
     }
 
-    ret.push(instruction)
-
-    return ret
+    throw new Error('Unsupported platform: ' + currentPlatform)
   }
 
   function mapBloc(bloc, name) {
@@ -119,7 +123,7 @@ const mapBlocs = (rawBlocs, context, options) => {
         index, 
         instructions: bloc, 
         detectedPlatforms, 
-        bloc: name 
+        bloc: name
       })
 
       add && _.forEach(add, i => instructions.push(i))
@@ -139,7 +143,7 @@ const mapBlocs = (rawBlocs, context, options) => {
 
 } // mapBlocs
 
-module.exports = ({ markdown, context, options, processors }) => {
+module.exports = ({ markdown, context, options, processors, incomingEvent }) => {
   Mustache.parse(markdown)
   const mustached = Mustache.render(markdown, context)
 
@@ -148,5 +152,5 @@ module.exports = ({ markdown, context, options, processors }) => {
   const rawBlocs = {}
   yaml.safeLoadAll(mustached, rawBloc => Object.assign(rawBlocs, rawBloc))
 
-  return mapBlocs(rawBlocs, context, options)
+  return mapBlocs(rawBlocs, options, processors, incomingEvent)
 }
