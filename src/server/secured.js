@@ -168,6 +168,34 @@ module.exports = (bp, app) => {
     })
   })
 
+  app.secure('read', 'bot/umm/blocs')
+  .get('/umm/blocs', (req, res) => {
+    const content = bp.umm.getDocument()
+    res.send({ content: content })
+  })
+
+  app.secure('read', 'bot/umm/templates')
+  .get('/umm/templates', (req, res) => {
+    // TODO Implement this
+  })
+
+  app.secure('write', 'bot/umm/blocs')
+  .post('/umm/blocs', (req, res) => {
+    const { content } = (req.body || {})
+    if (_.isNil(content)) {
+      return res.status(400).send({ message: 'You need to specify the content' })
+    }
+
+    bp.umm.saveDocument(content)
+
+    return res.sendStatus(200)
+  })
+
+  app.secure('write', 'bot/umm/simulation')
+  .post('/umm/simulate', (req, res) => {
+    // TODO Run simulation
+  })
+
   const apis = ExtraApiProviders(bp, app)
   apis.secured.map(x => x && x()) // Install all secured APIs
 }
