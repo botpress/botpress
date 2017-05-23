@@ -193,7 +193,13 @@ module.exports = (bp, app) => {
 
   app.secure('write', 'bot/umm/simulation')
   .post('/umm/simulate', (req, res) => {
-    // TODO Run simulation
+    try {
+      const { context, content, outputPlatform, incomingEvent } = req.body
+      const blocs = bp.umm.parse({ context, outputPlatform, markdown: content, incomingEvent })
+      res.send(blocs)
+    } catch (err) {
+      res.status(400).send({ message: err.message })
+    }
   })
 
   const apis = ExtraApiProviders(bp, app)
