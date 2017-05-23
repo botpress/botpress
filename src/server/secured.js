@@ -176,7 +176,7 @@ module.exports = (bp, app) => {
 
   app.secure('read', 'bot/umm/templates')
   .get('/umm/templates', (req, res) => {
-    // TODO Implement this
+    res.send({ templates: bp.umm.getTemplates() })
   })
 
   app.secure('write', 'bot/umm/blocs')
