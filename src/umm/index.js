@@ -7,7 +7,7 @@ import Promise from 'bluebird'
 
 import Engine from './engine'
 
-module.exports = ({ logger, middlewares }) => {
+module.exports = ({ logger, middlewares, botfile, projectLocation }) => {
 
   const processors = {} // A map of all the platforms that can process outgoing messages
   const templates = {} // A map of all the platforms templates
@@ -43,13 +43,29 @@ module.exports = ({ logger, middlewares }) => {
     return _.merge({}, templates) // Return a deep copy
   }
 
+  function getStoragePath() {
+    const ummPath = botfile.ummFilePath
+    if (path.isAbsolute(ummPath)) {
+      return ummPath
+    } else {
+      return path.resolve(projectLocation, ummPath)
+    }
+  }
+
+  function saveDocument(content) {
+    return fs.writeFileSync(getStoragePath(), content, 'utf8')
+  }
+
+  function getDocument() {
+    return fs.readFileSync(getStoragePath(), 'utf8').toString()
+  }
+
   function processIncoming(event, next) {
     event.reply = (blocName, additionalData = {}) => {
 
       blocName = blocName[0] === '#' ? blocName.substr(1) : blocName
-
-      // TODO Read from files or database
-      const markdown = fs.readFileSync(path.resolve(__dirname, '../test.yml'), 'utf8').toString()
+      
+      const markdown = getDocument()
 
       // TODO Add more context
       const fullContext = Object.assign({
@@ -93,5 +109,5 @@ module.exports = ({ logger, middlewares }) => {
     handler: processIncoming
   }
 
-  return { registerConnector, parse, getTemplates, incomingMiddleware }
+  return { registerConnector, parse, getTemplates, incomingMiddleware, getDocument, saveDocument }
 }

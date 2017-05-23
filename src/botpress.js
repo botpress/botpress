@@ -143,7 +143,7 @@ class botpress {
     const emails = createEmails({ emailConfig: botfile.emails })
     const mediator = createMediator(this)
     const convo = createConversations({ logger, middleware: middlewares })
-    const umm = createUMM({ logger, middlewares })
+    const umm = createUMM({ logger, middlewares, projectLocation, botfile })
 
     middlewares.register(umm.incomingMiddleware)
     middlewares.register(hearMiddleware)
