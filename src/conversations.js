@@ -19,6 +19,11 @@ const formatMessage = (msg, initialEvent) => {
         message: msg
       }
     }
+  } else if (typeof msg === 'function') {
+    // This is a 'wrapped' or 'delayed' execution message
+    // It is going to be evaluated at send time, this this has a risk of failing
+    // If the function execution fails
+    return msg
   } else {
     if (msg && msg.type && msg.platform && msg.text) {
       return msg
@@ -241,7 +246,14 @@ class Conversation extends EventEmmiter {
     const thread = this.getCurrentThread()
     const msg = thread.dequeue()
     if (msg) {
-      this.say(msg.message, this.initialEvent)
+      let message = msg.message
+
+      if (typeof message === 'function') {
+        // Executes (unwrap) the message on the fly
+        message = msg.message()
+      }
+
+      this.say(message, this.initialEvent)
     } else {
       this.endWhenDone && this.stop('done')
     }
