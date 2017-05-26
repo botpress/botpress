@@ -19,6 +19,11 @@ const formatMessage = (msg, initialEvent) => {
         message: msg
       }
     }
+  } else if (typeof msg === 'function') {
+    // This is a 'wrapped' or 'delayed' execution message
+    // It is going to be evaluated at send time, this this has a risk of failing
+    // If the function execution fails
+    return msg
   } else {
     if (msg && msg.type && msg.platform && msg.text) {
       return msg
@@ -41,14 +46,20 @@ class Thread extends EventEmmiter {
     this.bp = bp
     this.convo = convo
     this.queue = [] // Queue of messages and questions to say / ask next
+    this.archive = [] // Archive of unqueued questions. We store them so we can re-create (restart) the thread.
     this.waiting = false // Thread is waiting when it asked for a question
     this._last = null
+  }
+
+  enqueue(message) {
+    this.queue.push(message)
+    this.archive.push(message)
   }
 
   addMessage(msg) {
     const message = formatMessage(msg, this.initialEvent)
 
-    this.queue.push({
+    this.enqueue({
       type: 'message',
       message: message
     })
@@ -58,7 +69,7 @@ class Thread extends EventEmmiter {
     validateHandlers(handlers)
     const message = formatMessage(msg, this.initialEvent)
 
-    this.queue.push({
+    this.enqueue({
       type: 'question',
       message: message,
       handlers: handlers
@@ -106,6 +117,12 @@ class Thread extends EventEmmiter {
 
   repeat() {
     return this._last && this._last.message
+  }
+
+  restart() {
+    this.queue = this.archive.map(i => i)
+    this._last = null
+    this.waiting = false
   }
 }
 
@@ -201,7 +218,7 @@ class Conversation extends EventEmmiter {
     return thread
   }
 
-  async switchTo(name) {
+  async switchTo(name, restart = true) {
     if (this.currentThread === name) {
       return // Don't switch if it's already the current thread
     }
@@ -216,6 +233,12 @@ class Conversation extends EventEmmiter {
     }
 
     this.currentThread = name
+
+    if (restart) {
+      const thread = this.getCurrentThread()
+      thread && thread.restart()
+    }
+
     this.emit('switched', name)
   }
 
@@ -223,7 +246,14 @@ class Conversation extends EventEmmiter {
     const thread = this.getCurrentThread()
     const msg = thread.dequeue()
     if (msg) {
-      this.say(msg.message, this.initialEvent)
+      let message = msg.message
+
+      if (typeof message === 'function') {
+        // Executes (unwrap) the message on the fly
+        message = msg.message()
+      }
+
+      this.say(message, this.initialEvent)
     } else {
       this.endWhenDone && this.stop('done')
     }
