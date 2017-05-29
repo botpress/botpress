@@ -62,21 +62,21 @@
 
     &.btn1 {
       background-color: #fff;
-      color: #58d1b0;
+      a { color: #58d1b0; }
       transition: background-color .12s, transform .12s cubic-bezier(.2,.7,.5,1) 0ms, opacity .12s cubic-bezier(.2,.7,.5,1) 0ms, bottom .12s cubic-bezier(.2,.7,.5,1) 0ms;
     }
     
     &.btn2 {
       background-color: #58d1b0;
       &:hover { background-color: #5EE1BC; }
-      color: #fff;
+      a { color: #fff; }
       transition: background-color .12s, transform .12s cubic-bezier(.2,.7,.5,1) 40ms, opacity .12s cubic-bezier(.2,.7,.5,1) 40ms, bottom .12s cubic-bezier(.2,.7,.5,1) 40ms;
     }
 
     &.btn3 {
       background-color: #242424;
       &:hover { background-color: #3B3B3B; }
-      color: #fff;
+      a { color: #fff; }
       transition: background-color .12s, transform .12s cubic-bezier(.2,.7,.5,1) 80ms, opacity .12s cubic-bezier(.2,.7,.5,1) 80ms, bottom .12s cubic-bezier(.2,.7,.5,1) 80ms;
     }
 

@@ -43,17 +43,17 @@ export default class HelpButton extends React.Component {
         <ul>
           <li className={btnClass('btn1')} style={{ bottom: (basePosition + 0) + 'px' }}>
             <OverlayTrigger placement="left" overlay={community}>
-              <i className="icon material-icons">group</i>
+              <a href='https://slack.botpress.io' target='_blank'><i className="icon material-icons">group</i></a>
             </OverlayTrigger>
           </li>
           <li className={btnClass('btn2')} style={{ bottom: (basePosition + 60) + 'px' }}>
             <OverlayTrigger placement="left" overlay={documentation}>
-              <i className="icon material-icons">book</i>
+              <a href='https://docs.botpress.io' target='_blank'><i className="icon material-icons">book</i></a>
             </OverlayTrigger>
           </li>
           <li className={btnClass('btn3')} style={{ bottom: (basePosition + 120) + 'px' }}>
             <OverlayTrigger placement="left" overlay={tutorials}>
-              <i className="icon material-icons">video_library</i>
+              <a href='https://www.youtube.com/watch?v=HTpUmDz9kRY' target='_blank'><i className="icon material-icons">video_library</i></a>
             </OverlayTrigger>
           </li>
         </ul>
