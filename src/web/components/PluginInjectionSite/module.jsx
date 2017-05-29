@@ -46,7 +46,6 @@ export default class InjectedModuleView extends React.Component {
 
   setViewInState(moduleName, viewName) {
     if (_.isNil(_.get(window, `botpress.${moduleName}.${viewName}`))) {
-      console.log('IS NILL', moduleName, viewName, window.botpress)
       this.setState({
         error: new Error(`Subview "${viewName}" doesn't exist for module "${moduleName}"`),
         moduleComponent: null
