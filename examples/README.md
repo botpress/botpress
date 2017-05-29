@@ -4,15 +4,15 @@ The following examples are here to help you getting started and adding new compl
 
 You have access to *snippets* of code and graphical *demonstration* for each example so you know exactly what you will get and how to implement it.
 
-### Where to find examples
+## Where to find examples
 
 You can find examples here on [our Github](https://github.com/botpress/botpress/examples), but your can also look at them on [our website](https://botpres.io/examples) where you will have a better overview.
 
-### How to use examples
+## How to use examples
 
 What you need to do is to look at the following examples, follow the step-by-step guide that have been created for you and copy-paste the section you need in your code.
 
-### Add a new example
+## Add a new example
 
 We always appreciate when people are contributing and helping us making our tool better and easier to use every day. So, you are all welcome to create a new example that might help others.
 
