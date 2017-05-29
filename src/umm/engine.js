@@ -59,13 +59,26 @@ const mapBlocs = (rawBlocs, options, processors, incomingEvent) => {
     let i = Object.assign({}, instruction)
     if (instruction.on) {
       if (typeof instruction.on === 'string') {
-        if (currentPlatform.toLowerCase() !== instruction.on.toLowerCase()) {
+        const platforms = instruction.on.toLowerCase().split('+').map(_.trim)
+        if (!_.includes(platforms, currentPlatform.toLowerCase())) {
           return []
         } else {
           i['__platformSpecific'] = true
         }
       } else if (_.isPlainObject(instruction.on)) {
         const on = _.mapKeys(instruction.on, (__, key) => key.toLowerCase())
+
+        // This allows multiple platforms to be specified
+        // e.g. "messenger+slack+web"
+        _.keys(on).forEach(key => {
+          if (key.indexOf('+') >= 0) {
+            _.split(key, '+').forEach(alias => {
+              const trimmed = _.trim(alias)
+              on[trimmed] = _.merge({}, on[trimmed] || {}, on[key])
+            })
+          }
+        })
+
         i = Object.assign(i, on[currentPlatform.toLowerCase()], { on: currentPlatform })
       } else {
         throw new ParsingError(bloc, index, '"on" must be a string or a plain object but was a ' 
@@ -87,6 +100,12 @@ const mapBlocs = (rawBlocs, options, processors, incomingEvent) => {
           ? ms(instruction.wait || 1000 )
           : (parseInt(instruction.wait) || 1000)
       })
+    }
+
+    if (!_.isNil(instruction.typing)) {
+      instruction.typing = _.isString(instruction.typing)
+          ? ms(instruction.typing || 1000)
+          : (parseInt(instruction.typing) || 1000)
     }
 
     const raw = _.omit(instruction, ['unless', 'if', 'on', 'wait'])

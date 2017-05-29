@@ -45,7 +45,7 @@ export default () => {
         <Route path="manage" component={Manage}/>
         <Route path="middleware" component={Middleware}/>
         <Route path="umm" component={UMM}/>
-        <Route path="modules/:moduleName" component={Module}/>
+        <Route path="modules/:moduleName(/:subView)" component={Module}/>
         <Route path="notifications" component={Notifications}/>
         <Route path="logs" component={Logs}/>
         {AdditionnalRoutes.addSecuredRoutes()}

@@ -22,7 +22,8 @@ module.exports = (bp, app) => {
         homepage: module.homepage,
         menuText: module.settings.menuText || module.name,
         menuIcon: module.settings.menuIcon || 'view_module',
-        noInterface: !!module.settings.noInterface
+        noInterface: !!module.settings.noInterface,
+        plugins: module.settings.plugins || []
       }
     })
     res.send(modules)

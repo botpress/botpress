@@ -28,7 +28,6 @@ module.exports = bp => {
 
       if (data && (data.__socketId || data.__room)) {
         // Send only to this socketId or room
-        console.log(io.rooms, io, data.__socketId)
         return io.to(data.__socketId || data.__room).emit('event', {
           name: event,
           data: data

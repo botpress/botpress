@@ -13,7 +13,7 @@ module.exports = bp => {
   function serveModule(app, module) {
     const name = module.name
     const bundlePath = path.join(module.root, module.settings.webBundle || 'bin/web.bundle.js')
-    const requestPath = `/js/modules/${name}.js`
+    
 
     if (module.settings.menuIcon === 'custom') {
       const iconRequestPath = `/img/modules/${name}.png`
@@ -30,6 +30,7 @@ module.exports = bp => {
       })
     }
 
+    const requestPath = `/js/modules/${name}.js`
     app.use(requestPath, (req, res) => {
       try {
         const content = fs.readFileSync(bundlePath)
