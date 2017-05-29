@@ -1,8 +1,8 @@
 # Examples
 
-The following examples are here to help you getting started and adding new complex functionnalities to your bots. By using them, you will improve the speed of development for each of your bots.
+The following examples are here to help you getting started and/or adding new complex functionnalities to your bots. By using them, you will improve the speed of development for each of your bots.
 
-You have access to *snippets* of code and graphical *demonstration* for each example so you know exactly what you will get and how to implement it.
+For each example, you have access to *snippets* of code and graphical *demonstration* so you know exactly what you will get and how to implement them.
 
 ## Where to find examples
 
@@ -10,30 +10,30 @@ You can find examples here on [our Github](https://github.com/botpress/botpress/
 
 ## How to use examples
 
-What you need to do is to look at the following examples, follow the step-by-step guide that have been created for you and copy-paste the section you need in your code.
+What you need to do is to look at the following examples, follow the step-by-step guide that have been created for you, copy-paste the section you need in your code and adapt it to your context.
 
 ## Add a new example
 
-We always appreciate when people are contributing and helping us making our tool better and easier to use every day. So, you are all welcome to create a new example that might help others.
+We always appreciate when people are contributing and helping us making our tool better and easier for everyone to use. So, you are all welcome to create a new example that might help other developers of [our community](https://slack.botpress.io).
 
-#### 1. Create it
+#### 1. Code it
 
-First of all, you will need to create your example by coding it. Before starting, take some time to be certain that there's not another example in our list is already available for the same usecase.
+First of all, you will need to create your example by coding it. Before getting started, be certain that there's no other example in our list that is already available for the same usecase.
 
-Please, take the time to be sure that there's no error in your code and if there's an upgrade or you find a better way of doing it, update your code if you can.
+Once, it is done, please, take the time to be sure that there's **no error** in your code. Also, if there's an upgrade or you find a better way of coding it, it would be really appreciated if you update your example.
 
 
-##### Folder's structure to respect
+##### Folder structure to respect
 
 ```js
   description.json
-  demonstration.gif
+  demo.gif
   README.md
 ```
 
 #### 2. Create a descriptiion file
 
-In your repo, you will need to add a `description.json` file. We need this file for our website to add *title*, *description* and *author* to each example.
+In your repo, you will need to add a `description.json` file. We need this file for our website to add **title**, **description** and **author** to each example.
 
 ```js
 {
@@ -45,21 +45,23 @@ In your repo, you will need to add a `description.json` file. We need this file 
 
 #### 3. Record a GIF
 
-To show a demo of your example on our website we need to have a short GIF that shows what it is doing concretly. The GIF needs to respect the standard ratio of *9:16* that almost every cellphone respects.
+To show a demo of your example on our website we need to have a short GIF (*demo.gif*) that shows what it is doing concretly. The GIF needs to respect the standard ratio of **9:16** that almost every cellphone respects.
 
-Here, we added some links to help you find an app to be able to record your screen on your personal mobile.
+Here, we added some links to help you find an *app* to be able to record your screen on your personal cellphone.
 
 - [AZ Screen Recorder](https://play.google.com/store/apps/details?id=com.hecorat.screenrecorder.free)
 - [Screen Recorder](https://play.google.com/store/apps/details?id=com.duapps.recorder)
 - [Screen Recorder](https://play.google.com/store/apps/details?id=com.nll.screenrecorder)
 
-#### 3. Write a short README.md
+#### 4. Write a short README.md
 
-This is the most important 
+This is the most important part. In fact, what you need to do is to create a detailed **step-by-step** guide so everyone will be able to replicate what you have done. For example, you can look at our **hello world** example to have a better idea.
 
-#### 4. Create a pull request
+#### 5. Create a pull request
 
-The last step is to create a pull request so we will add your new example to our list. We will review each example to be sure that there's no error, it is pertinent and we have everyting we need to sync it with our website.
+The last step is simple, but if you want to share with others you will need to create a pull request. So, we will add your new example to our list. 
+
+*We will review each example to be sure that there's **no error**, it is pertinent and we have everyting we need to sync it with our website.*
 
 ## Get inspired
 
