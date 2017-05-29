@@ -43,6 +43,8 @@ module.exports = {
     ssl: process.env.PG_SSL || false
   },
 
+  ummFilePath: 'content.yml',
+
   /**
   * License configuration
   * By default, your bot is licensed under Botpress Proprietary License, you can change it for 'AGPL-3.0'
