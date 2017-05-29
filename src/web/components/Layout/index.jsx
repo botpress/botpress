@@ -11,6 +11,8 @@ import LicenseComponent from '~/components/License'
 import AboutComponent from '~/components/About'
 import GuidedTour from '~/components/Tour'
 
+import PluginInjectionSite from '~/components/PluginInjectionSite'
+
 import actions from '~/actions'
 import getters from '~/stores/getters'
 import { connect } from 'nuclear-js-react-addons'
@@ -57,6 +59,7 @@ class Layout extends React.Component {
         <GuidedTour opened={window.SHOW_GUIDED_TOUR}/>
         <LicenseComponent opened={this.props.UI.get('licenseModalOpened')} />
         <AboutComponent opened={this.props.UI.get('aboutModalOpened')} />
+        <PluginInjectionSite site={'overlay'}/>
       </div>
     )
   }
