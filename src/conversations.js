@@ -147,7 +147,7 @@ class Conversation extends EventEmmiter {
     this._clock = setInterval(::this.tick, clockSpeed)
     this._clockSpeed = clockSpeed
     this._processing = false
-    this.messageTypes = messageTypes || ['message', 'text']
+    this.messageTypes = messageTypes || ['message', 'text', 'quick_reply']
     this._outgoing = []
     this.endWhenDone = true
 
