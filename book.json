@@ -1,3 +1,4 @@
 {
-    "root": "./docs"
+    "root": "./docs",
+    "plugins": ["youtube"]
 }

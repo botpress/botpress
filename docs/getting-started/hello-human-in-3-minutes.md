@@ -6,7 +6,7 @@ Looking to get started with Botpress but unsure how? Let's create a Messenger Bo
 
 Here's a YouTube video if you'd like to see how easy it is to get started with Botpress.
 
-[![Youtube Screenshot](https://s3.amazonaws.com/botpress-io/images/youtube-3-minutes-messenger.png)](https://www.youtube.com/watch?v=GO2yJ51ILl0)
+{% youtube src="http://www.youtube.com/watch?v=4ZYXeenqocY" %}{% endyoutube %}
 
 ## 1. Installation
 
