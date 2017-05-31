@@ -1,4 +1,4 @@
-import keyMirror from 'keyMirror'
+import keyMirror from 'keymirror'
 
 export default keyMirror({
   MODULES_RECEIVED: null,
