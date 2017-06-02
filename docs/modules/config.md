@@ -1,4 +1,4 @@
-# How to configure my module
+# Module Configuration
 
 The configuration of your module must be set in your module's entry point:
 
