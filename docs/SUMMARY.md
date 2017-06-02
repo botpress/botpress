@@ -2,7 +2,6 @@
 
 - [Installation and Bootstrap](starting/setup.md)
 - [Quick Start > Tutorials](starting/tutorials.md)
-- [Code Examples](https://botpress.io/examples)
 
 ### Foundamentals
 
