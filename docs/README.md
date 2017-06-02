@@ -10,6 +10,12 @@ For the same reason why millions of people use Wordpress to create a website, pe
 
 <img alt="What is Botpress" width="600" src="https://raw.githubusercontent.com/botpress/botpress/master/assets/what-is-botpress.png">
 
+## What you will get
+
+A video is worth a thousand pictures.
+
+{{ 'https://www.youtube.com/watch?v=WE18-LgZNwE' | video }}
+
 ## The mission
 
 Botpress simply professionalizes chatbot development. We believe that the bot ecosystem needs a leading, world-class, professional and fast-evolving tool for developers. We're commited to build and invent the tools that will pioneer the conversational revolution.
@@ -40,9 +46,3 @@ There are many things Botpress does differently, but probably the biggest differ
 - Easy to learn and feeling natural for node developers
 - A serious project backed by a real company
 - Highly productive
-
-## What does it look like?
-
-A video is worth a thousand pictures.
-
-{{ 'https://www.youtube.com/watch?v=WE18-LgZNwE' | video }}
