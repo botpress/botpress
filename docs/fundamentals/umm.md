@@ -1,15 +1,10 @@
 # Universal Message Markdown (UMM)
 
+> **TLDR:** UMM is the best way to send messages. It is meant to be used by programmers and non-programmers. You define blocs of content in the `content.yml` file. See the [usage examples](#examples).
+
+---
+
 The Universal Message Markdown (abbreviated as “UMM") is a simple, lightweight markdown language that makes it really easy for everybody to create message templates for one or many messaging platforms. The purpose of the language is to favour speed, simplicity and flexibility. There is virtually no learning curve, making it is as easy to use by content editors than for developers.
-
-## The problems with programmatic content creation
-
-There are many problems with traditional, programmatic definition of messages like you must use on the other frameworks. Just to name a few:
-     - Content Editors must learn how to code and redeploy the bot
-     - The Content ends up being mixed with the Flow
-     - No visual feedback on how the message will actually look like
-     - Hard or impossible to leverage platform-specific message types
-     - Steep learning curve and not straightforward
 
 ## The focus of UMM
 
@@ -25,11 +20,13 @@ It works on any platform because it doesn’t abstract or hinder their features.
 - Source-controlled for easy collaboration, deployment and review
 - Visual feedback (like traditional Markdown)
 
-## How it works
+## Cool, how do I use it?
 
-The UMM language is essentially only a combination of two things: YAML + Mustache templates. Using YAML, you create blocs that define one or many messages and how they will be sent by the different messaging platforms. The messages can contain some templating variables (using Mustache syntax). At Send Time, the UMM engine will process the bloc, replacing variables first then hand off the processing of the bloc to the appropriate connector module. It’s really that simple.
+UMM is currently located in a single file: `content.yml`. Simply open this file and you'll see some default content there.
 
-## Examples
+You can send [reactive](./events.md#reactive) or [proactive](./events.md#proactive) UMM messages.
+
+## Examples {#examples}
 
 A single bloc sending two messages:
 
@@ -138,6 +135,19 @@ blocName:
       facebook:
         text: Different Hello on Facebook
 ```
+
+## The problems with programmatic content creation
+
+There are many problems with traditional, programmatic definition of messages like you must use on the other frameworks. Just to name a few:
+     - Content Editors must learn how to code and redeploy the bot
+     - The Content ends up being mixed with the Flow
+     - No visual feedback on how the message will actually look like
+     - Hard or impossible to leverage platform-specific message types
+     - Steep learning curve and not straightforward
+
+## How it works
+
+The UMM language is essentially only a combination of two things: YAML + Mustache templates. Using YAML, you create blocs that define one or many messages and how they will be sent by the different messaging platforms. The messages can contain some templating variables (using Mustache syntax). At Send Time, the UMM engine will process the bloc, replacing variables first then hand off the processing of the bloc to the appropriate connector module. It’s really that simple.
 
 ## Where can you use UMM?
 
