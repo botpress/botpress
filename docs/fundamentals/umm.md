@@ -1,6 +1,8 @@
 # Universal Message Markdown (UMM)
 
-> **TLDR:** UMM is the best way to send messages. It is meant to be used by programmers and non-programmers. You define blocs of content in the `content.yml` file. See the [usage examples](#examples).
+> **[info] TLDR — Summary**
+>
+> UMM is the best way to send messages. It is meant to be used by programmers and non-programmers. You define blocs of content in the `content.yml` file. See the [usage examples](#examples).
 
 ---
 
