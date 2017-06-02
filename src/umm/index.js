@@ -44,7 +44,7 @@ module.exports = ({ logger, middlewares, botfile, projectLocation }) => {
   }
 
   function getStoragePath() {
-    const ummPath = botfile.ummFilePath || 'content.yml'
+    const ummPath = _.get(botfile, 'umm.contentPath') || 'content.yml'
     if (path.isAbsolute(ummPath)) {
       return ummPath
     } else {
