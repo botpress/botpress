@@ -1,17 +1,21 @@
-# How to manage conversation flow
+# Managing the conversation Flow
 
-## Other techniques
+## The Different Techniques
 
-Botpress has many ways to handle conversation flows. 
+Botpress has many ways to handle conversation flows:
 
 - **Built-in Flow Manager** (recommended, see below)
-- The [**RiveScript**](https://github.com/botpress/botpress-rivescript) module is a very powerful scripting language for chatbots
-- For those familiar with Botkit, there's a [botpress-botkit](https://github.com/botpress/botpress-botkit) module (**deprecated**, see our Built-in Flow Manager below)
+- The [**RiveScript**](https://github.com/botpress/botpress-rivescript) module is a scripting language for chatbots
 - [API.AI](https://github.com/botpress/botpress-api.ai)
 - [wit-ai](https://github.com/botpress/botpress-wit)
 
+**This document is about the build-in Flow Manager (Convo)**
 
 ## Built-in Flow Manager (`bp.convo`)
+
+**`convo`** ships with Botpress and does not need to be installed. It is available through the global `bp` instance.
+
+### API Reference
 
 #### `bp.convo.create(event)` -> convo
 
