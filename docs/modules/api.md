@@ -1,4 +1,4 @@
-# How to create Custom Routes with the HTTP Server
+# Making your module expose an API
 
 ## Built-in HTTP Server
 
