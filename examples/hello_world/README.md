@@ -1,4 +1,4 @@
-# Hello Human in 3 minutes
+# Hello Human
 
 Looking to get started with Botpress but unsure how? Let's create a Messenger Bot in 3 minutes!
 
