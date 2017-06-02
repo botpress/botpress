@@ -192,6 +192,13 @@ class botpress {
       logger.info(chalk.green.bold('Bot launched. Visit: http://localhost:' + port))
     })
 
+    const middlewareAutoLoading = _.get(botfile, 'middleware.autoLoading')
+    if (!_.isNil(middlewareAutoLoading) && middlewareAutoLoading === false) {
+      logger.debug('Middleware Auto Loading was disabled. Call bp.middlewares.load() manually.')
+    } else {
+      middlewares.load()
+    }
+
     const projectEntry = eval('require')(projectLocation)
     if (typeof(projectEntry) === 'function') {
       projectEntry.call(projectEntry, this)
