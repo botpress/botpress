@@ -1,3 +1,5 @@
+# Configuration
+
 ## The Botfile
 
 The **botfile.js** is located at the root of a bot project and contains all the configuration required by Botpress to operate.
