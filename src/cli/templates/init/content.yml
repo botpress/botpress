@@ -1,4 +1,4 @@
-welcome: # this is the #welcome bloc references in index.js
+welcome: # this is the #welcome bloc referenced in index.js
   - typing: true
     text: # Picks one randomly
       - Hey there!
