@@ -16,6 +16,26 @@ A video is worth a thousand pictures.
 
 {{ 'https://www.youtube.com/watch?v=WE18-LgZNwE' | video }}
 
+## Full example of a Botpress bot
+
+```js
+// index.js
+
+// A botpress bot is simply a function that takes an instance of Botpress (bp) as an argument
+module.exports = function(bp) {
+
+  // All your bot logic goes here
+
+  // Listens for a message (this is a Regex)
+  // GET_STARTED is the first message you get on Facebook Messenger
+  bp.hear(/GET_STARTED|hello|hi|hey/i, (event, next) => {
+    event.reply('#welcome') // #welcome is the name of a message bloc defined in `content.yml`
+  })
+}
+```
+
+
+
 ## The mission
 
 Botpress simply professionalizes chatbot development. We believe that the bot ecosystem needs a leading, world-class, professional and fast-evolving tool for developers. We're commited to build and invent the tools that will pioneer the conversational revolution.
