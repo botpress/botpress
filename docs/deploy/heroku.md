@@ -1,4 +1,4 @@
-# How to deploy to Heroku
+# Deploying to Heroku
 
 1. Set up botpress locally with all the dependent modules installed and configured
   * (if using messenger module) make sure you disable Ngork before uploading to heroku
@@ -8,11 +8,11 @@
 3. Check package.json to be sure all dependencies are included
   1. you can add custom dependencies using `npm install <pkg> --save`
   2. Add node version to `packages.json`
-	```javascript
-	"engines": {
-	    "node": "7.1.0"
-	  },
-	```
+  ```javascript
+  "engines": {
+      "node": "7.1.0"
+    },
+  ```
 
 4. Specifying a start script [Procfile](https://devcenter.heroku.com/articles/procfile) or make sure you have the start script in your packages.json
 
