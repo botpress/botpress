@@ -1,10 +1,8 @@
 # Universal Message Markdown (UMM)
 
-> **[info] TLDR — Summary**
->
-> UMM is the best way to send messages. It is meant to be used by programmers and non-programmers. You define blocs of content in the `content.yml` file. See the [usage examples](#examples).
-
----
+{% hint style='tldr' %}
+**TLDR**: UMM is the best way to send messages. It is meant to be used by programmers and non-programmers. You define blocs of content in the `content.yml` file. See the [usage examples](#examples).
+{% endhint %}
 
 The Universal Message Markdown (abbreviated as “UMM") is a simple, lightweight markdown language that makes it really easy for everybody to create message templates for one or many messaging platforms. The purpose of the language is to favour speed, simplicity and flexibility. There is virtually no learning curve, making it is as easy to use by content editors than for developers.
 
@@ -22,11 +20,47 @@ It works on any platform because it doesn’t abstract or hinder their features.
 - Source-controlled for easy collaboration, deployment and review
 - Visual feedback (like traditional Markdown)
 
+## Where can you use UMM?
+
+UMM is currently in its initial phase and you can use it to reply to any incoming messages. If it turns out to be appreciated by the community, we’ll roll out UMM support in all major modules and build additional visual support for it.
+
 ## Cool, how do I use it?
 
 UMM is currently located in a single file: `content.yml`. Simply open this file and you'll see some default content there.
 
 You can send [reactive](./events.md#reactive) or [proactive](./events.md#proactive) UMM messages.
+
+### Short usage guide
+
+Open your `content.yml` file and put the following code in it:
+
+```yaml
+helloBloc:
+  - Hello {{user.first_name}} !
+
+sayAge:
+  - Wow! {{age}} is pretty old!
+
+byeBloc:
+  - Goodbye, {{user.first_name}} :)
+```
+
+Then you can use these two UMM blocs in your code (`index.js`):
+
+```js
+bp.hear(/hello/i, (event, next) => {
+  event.reply('#helloBloc')
+})
+
+bp.hear(/I am (.+) years old/i, (event, next) => {
+  // You can pass arbitrary variables to the second argument of `reply`
+  event.reply('#sayAge', { age: event.captured[0] })
+})
+
+bp.hear(/bye/i, (event, next) => {
+  event.reply('#byeBloc')
+})
+```
 
 ## Examples {#examples}
 
@@ -141,16 +175,13 @@ blocName:
 ## The problems with programmatic content creation
 
 There are many problems with traditional, programmatic definition of messages like you must use on the other frameworks. Just to name a few:
-     - Content Editors must learn how to code and redeploy the bot
-     - The Content ends up being mixed with the Flow
-     - No visual feedback on how the message will actually look like
-     - Hard or impossible to leverage platform-specific message types
-     - Steep learning curve and not straightforward
+
+ - Content Editors must learn how to code and redeploy the bot
+ - The Content ends up being mixed with the Flow
+ - No visual feedback on how the message will actually look like
+ - Hard or impossible to leverage platform-specific message types
+ - Steep learning curve and not straightforward
 
 ## How it works
 
 The UMM language is essentially only a combination of two things: YAML + Mustache templates. Using YAML, you create blocs that define one or many messages and how they will be sent by the different messaging platforms. The messages can contain some templating variables (using Mustache syntax). At Send Time, the UMM engine will process the bloc, replacing variables first then hand off the processing of the bloc to the appropriate connector module. It’s really that simple.
-
-## Where can you use UMM?
-
-UMM is currently in its initial phase and you can use it to reply to any incoming messages. If it turns out to be appreciated by the community, we’ll roll out UMM support in all major modules and build additional visual support for it.
