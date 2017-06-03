@@ -12,7 +12,18 @@ const matches = function(conditions, event) {
     if (_.isFunction(comparrer)) {
       return comparrer(eventValue, event) === true
     } else if (_.isRegExp(comparrer)) {
-      return comparrer.test(eventValue)
+      const matches = comparrer.test(eventValue)
+      
+      if (matches && _.isString(eventValue)) {
+        if (_.isNil(event.captured)) {
+          event.captured = []
+        }
+        
+        const a = _.tail(comparrer.exec(eventValue))
+        a.forEach(m => event.captured.push(m))
+      }
+
+      return matches
     } else {
       return _.isEqual(comparrer, eventValue)
     }
