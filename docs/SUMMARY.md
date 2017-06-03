@@ -1,7 +1,6 @@
 ### Getting Started
 
 - [Installation and Bootstrap](starting/setup.md)
-- [Quick Start > Tutorials](starting/tutorials.md)
 
 ### Foundamentals
 
@@ -11,7 +10,7 @@
   - [Sending Messages](./fundamentals/events.md#send)
 - [Conversations](./fundamentals/conversations.md)
     - [Flow Management (Convo)](./fundamentals/flow.md)
-    - [Content Creation (UMM)](./fundamentals/umm.md)
+    - [Content Management (UMM)](./fundamentals/umm.md)
 - [Data Storage](./fundamentals/database.md)
     - [Key-Value-Store](./fundamentals/database.md#kvs)
 - [Configuration](./fundamentals/botfile.md)
