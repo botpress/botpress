@@ -8,6 +8,8 @@ module.exports = {
     version: pkg.version,
     assets: 'https://raw.githubusercontent.com/botpress/botpress/next/assets'
   },
+  styles: {
+    website: "./docs/website.css"
   },
   pluginsConfig: {
     sitemap: {
