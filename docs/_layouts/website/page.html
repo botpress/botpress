@@ -13,6 +13,12 @@
             }
             removeGitbook();
             gitbook.events.bind('page.change', removeGitbook);
+
+            var link = document.createElement('link')
+            link.setAttribute('rel', 'stylesheet')
+            link.setAttribute('type', 'text/css')
+            link.setAttribute('href', 'https://cdn.rawgit.com/botpress/botpress/next/docs/_layouts/website/style.css')
+            document.getElementsByTagName('head')[0].appendChild(link)
           })
         };
     </script>
