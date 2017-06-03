@@ -9,7 +9,7 @@ module.exports = {
     assets: 'https://raw.githubusercontent.com/botpress/botpress/next/assets'
   },
   styles: {
-    website: "./docs/_layouts/website/style.css"
+    website: "./_layouts/website/style.css"
   },
   pluginsConfig: {
     sitemap: {
