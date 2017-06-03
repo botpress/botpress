@@ -1,12 +1,12 @@
 # Events
 
-> **TLDR:** You can listen for incoming messages using the [`bp.hear`](#hear) middleware helper. You can reply to messages using the `event.reply` [UMM](./umm.md) feature.
-
----
+{% hint style='tldr' %}
+**TLDR:** You can listen for incoming messages using the [`bp.hear`](#hear) middleware helper. You can reply to messages using the `event.reply` [UMM](./umm.md) feature.
+{% endhint %}
 
 ## Receiving Messages (Incoming) {#receive}
 
-Your bot will receive events as soon as it is connected to a chat platform (you need to setup a Connector Module for the platform you want) and a user speaks to it. Incoming messages all go throught what we call the **Incoming Middleware Chain**. 
+Your bot will receive events as soon as it is connected to a chat platform (you need to setup a Connector Module for the platform you want) and a user speaks to it. Incoming messages all go through what we call the **Incoming Middleware Chain**. 
 
 > **Info**: [Middleware Chains](../advanced/middleware.md) are an advanced concept that you likely don't need to know about right now; all you need to know is that modules execute some kind of processing on the incoming message that they can do all sort of things like translating the messages to different languages, tagging the message with NLP entities or even stop the message from being processed by your bot.
 
@@ -28,7 +28,7 @@ The handler takes the MiddlewareEvent as the first argument and takes the `next`
 
 ```js
 bp.hear('hello', (event, next) => {
-  /* swallow the event by never calling next() */
+  // swallow the event by never calling next()
 })
 ```
 
@@ -36,20 +36,21 @@ bp.hear('hello', (event, next) => {
 
 ```js
 bp.hear(/^hello$/i, event => {
-  /* next not specified so will be called automatically */
+  // next not specified so will be called automatically
 })
 ```
 
 #### Examples (object)
 
 ```js
-const complexCondition = {
-  'user.first_name': /watson$/i,
-  'raw.phone.number': value => !Number.isNaN(value),
+bp.hear({
+  text: 'hello', // simple condition
+  'user.first_name': /watson$/i, // checking a deep property in object
+  'raw.phone.number': value => !Number.isNaN(value), // matcher function
   platform: 'sms'
-}
-
-bp.hear(complexCondition, smsHandler)
+}, event => {
+  // all the conditions matched
+})
 ```
 
 ---
@@ -60,16 +61,26 @@ The act of sending a message is called **Outgoing**. There are two ways to send 
 
 ### Reactive Outgoing {#reactive}
 
-The easiest way to reply to an incoming message is by calling the [`reply`](../reference/event.md#reply) method on the incoming [`event`](../reference/event.md#incoming) itself. The first argument of the `reply` function is the name of a [UMM bloc](../reference/umm.md#bloc), which we will cover a bit later in this guide.
+The easiest way to reply to an incoming message is by calling the `reply` method on the incoming `event` itself. The first argument of the `reply` function is the name of a [UMM bloc](../reference/umm.md#bloc), which we will cover a bit later in this guide.
 
 ##### Example
 
 ```js
-function receiveHello(event, next) {
-  event.reply('#helloBloc')
-}
+bp.hear(/^hello$/i, (event, next) => {
+  event.reply('#welcome')
+})
+```
+
+```js
+bp.hear(/^my order$/i, (event, next) => {
+  event.reply('#orderSummary', { // You can pass arbitrary data to UMM
+    orderId: 12463,
+    item: 'Nike Shoes',
+    price: '$156'
+  })
+})
 ```
 
 ### Proactive Outgoing {#proactive}
 
-TODO: Coming soon
+This section is coming soon
