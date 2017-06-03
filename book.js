@@ -4,6 +4,7 @@ module.exports = {
   root: "./docs",
   title: "Botpress Official Documentation",
   plugins: ["noembed", "sitemap", "expandable-chapters", "hints"],
+  gitbook: ">= 3.0.0",
   variables: {
     version: pkg.version,
     assets: 'https://raw.githubusercontent.com/botpress/botpress/next/assets'
