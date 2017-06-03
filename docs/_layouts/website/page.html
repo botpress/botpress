@@ -5,9 +5,15 @@
 
     <script>
         window.onload = function() {
-            var link = jQuery('.gitbook-link').parent();
-            link.prev().remove();
-            link.remove();
+          require(['gitbook', 'jQuery'], function(gitbook, $) {
+            function removeGitbook() {
+              var link = $('.gitbook-link').parent();
+              link.prev().remove();
+              link.remove();
+            }
+            removeGitbook();
+            gitbook.events.bind('page.change', removeGitbook);
+          })
         };
     </script>
 
