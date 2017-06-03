@@ -3,9 +3,11 @@ var pkg = require('./package.json')
 module.exports = {
   root: "./docs",
   title: "Botpress Official Documentation",
-  plugins: ["noembed", "sitemap", "expandable-chapters", "alerts"],
+  plugins: ["noembed", "sitemap", "expandable-chapters", "hints"],
   variables: {
-    version: pkg.version
+    version: pkg.version,
+    assets: 'https://raw.githubusercontent.com/botpress/botpress/next/assets'
+  },
   },
   pluginsConfig: {
     sitemap: {
