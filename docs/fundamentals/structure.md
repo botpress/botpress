@@ -51,7 +51,20 @@ The only important files you'll ever risk to deal with are: `index.js`, `content
 
 #### index.js
 
+{% hint style='tldr' %}
 **TLDR: This file contains all your bot's logic**.
+{% endhint %}
+
+##### Example
+
+```js
+module.exports = function(bp) {
+  // GET_STARTED is the first message you get on Facebook Messenger
+  bp.hear(/GET_STARTED|hello|hi|hey/i, (event, next) => {
+    event.reply('#welcome') // #welcome is the name of a message bloc defined in `content.yml`
+  })
+}
+```
 
 This is your bot's entry point. This is what Botpress will **load** when doing `npm start`. This file should always export a function accepting an instance of Botpress (abbreviated `bp`).
 
@@ -68,6 +81,16 @@ Since this is the entry point, all the logic goes there. Of course, you are 100%
 #### content.yaml
 
 This file contains all the conversational content your bot is going to speak to users. It's a Botpress-specific language called UMM ([Universal Message Markdown](./umm.md)). More about this later.
+
+##### Example
+
+```yaml
+welcome:
+  - Hello, world!
+
+bye:
+  - Good bye!
+```
 
 #### botfile.js
 
