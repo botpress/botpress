@@ -6,6 +6,10 @@ Botpress also officially supports (and recommends) using [**Postgres**](#postgre
 
 > **HEADS UP TO MODULE MAKERS:** Even though Botpress supports two databases, it should not affect the bot makers. Modules have the responsability of being compatible with **both SQLite AND Postgres**. No module will be accepted in the Botpress Modules Store if it has not been properly designed (and tested) to work with both databases. If you are building a module, we have [some utilities](../advanced/database_helpers.md) to abstract the underlying databases for you.
 
+{% hint style='working' %}
+**WARNING**: If you're deploying your bot to Heroku, you need to [Setup Postgres](#heroku) otherwise you will lose your data and configuration every day (because the file system is reset daily).
+{% endhint %}
+
 ## Built-in SQLite database
 
 The database is located at `${dataDir}/db.sqlite`. It is used, enabled and created automatically by default for all bots.
