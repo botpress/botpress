@@ -3,7 +3,7 @@ var pkg = require('./package.json')
 module.exports = {
   root: "./docs",
   title: "Botpress Official Documentation",
-  plugins: ["noembed", "sitemap", "expandable-chapters", "hints"],
+  plugins: ["noembed", "sitemap", "expandable-chapters", "hints", "anchors"],
   gitbook: ">= 3.0.0",
   variables: {
     version: pkg.version,
