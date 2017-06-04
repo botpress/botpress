@@ -33,8 +33,35 @@ const formatMessage = (msg, initialEvent) => {
   }
 }
 
+const formatBloc = (blocName, data = {}) => {
+  if (!_.isString(blocName)) {
+    throw new Error('Invalid bloc name, espected string')
+  }
+
+  return {
+    isBloc: true,
+    bloc: blocName,
+    data: data
+  }
+}
+
+const isBlocCall = args => {
+  return _.isString(args[0]) && args[0].startsWith('#')
+}
+
 const validateHandlers = handlers => {
-  // TODO
+  if (_.isFunction(handlers)) {
+    return [{
+      default: true,
+      callback: handlers
+    }]
+  }
+
+  if (!_.isArray(handlers)) {
+    throw new Error('Invalid handler(s) for question, expected a function or an array of handlers (see doc).')
+  }
+
+  return handlers
 }
 
 class Thread extends EventEmmiter {
@@ -57,16 +84,46 @@ class Thread extends EventEmmiter {
   }
 
   addMessage(msg) {
-    const message = formatMessage(msg, this.initialEvent)
+    if (isBlocCall(arguments)) {
+      // Add bloc
+      const blocName = arguments[0]
+      const blocData = arguments[1]
 
+      return this.enqueue({
+        type: 'message',
+        message: formatBloc(blocName, blocData)
+      })
+    }
+
+    // Add raw message
+    const message = formatMessage(msg, this.initialEvent)
     this.enqueue({
       type: 'message',
       message: message
     })
   }
 
-  addQuestion(msg, handlers) {
-    validateHandlers(handlers)
+  // Two signatures possible:
+  // msg, handlers
+  // bloc, data, handlers
+  addQuestion(msg) {
+    const handlers = validateHandlers(_.last(arguments))
+
+    if (isBlocCall(arguments)) {
+      // Add bloc question
+      const blocName = arguments[0]
+      const blocData = arguments.length >= 3 // Because of handlers and data is optional
+        ? arguments[1]
+        : null
+
+      return this.enqueue({
+        type: 'question',
+        message: formatBloc(blocName, blocData),
+        handlers: handlers
+      })
+    }
+    
+    // Add raw message question
     const message = formatMessage(msg, this.initialEvent)
 
     this.enqueue({
@@ -147,6 +204,7 @@ class Conversation extends EventEmmiter {
     this._clock = setInterval(::this.tick, clockSpeed)
     this._clockSpeed = clockSpeed
     this._processing = false
+    this._sendLock = false
     this.messageTypes = messageTypes || ['message', 'text', 'quick_reply']
     this._outgoing = []
     this.endWhenDone = true
@@ -159,18 +217,39 @@ class Conversation extends EventEmmiter {
   }
 
   async sendNext() {
-    const msg = this._outgoing.shift()
-
-    if (msg) {
-      await Promise.resolve(this.middleware
-      && this.middleware.sendOutgoing 
-      && this.middleware.sendOutgoing(msg))
+    if (this._sendLock) {
+      return
+    } else {
+      this._sendLock = true
     }
 
-    await Promise.delay(this._clockSpeed)
-    
-    if (this.status === 'active' || this._outgoing.length > 0) {
-      setImmediate(::this.sendNext)
+    try {
+      const msg = this._outgoing.shift()
+
+      if (msg) {
+
+        if (msg.isBloc === true) {
+          // Send bloc
+          if (!this.initialEvent || !this.initialEvent.reply) {
+            throw new Error("Convo doesn't have default event or does not support UMM")
+          }
+
+          await Promise.resolve(this.initialEvent.reply(msg.bloc, msg.data))
+        } else {
+          // Raw message
+          await Promise.resolve(this.middleware
+          && this.middleware.sendOutgoing 
+          && this.middleware.sendOutgoing(msg))
+        }
+      }
+
+      await Promise.delay(this._clockSpeed)
+      
+      if (this.status === 'active' || this._outgoing.length > 0) {
+        setImmediate(::this.sendNext)
+      }
+    } finally {
+      this._sendLock = false
     }
   }
 
@@ -282,8 +361,17 @@ class Conversation extends EventEmmiter {
   }
 
   async say(msg) {
-    const message = formatMessage(msg)
-    this._outgoing.push(msg)
+    let message = null
+
+    if (msg && msg.isBloc === true) {
+      message = msg
+    } else {
+      message = isBlocCall(arguments)
+        ? formatBloc(...arguments)
+        : formatMessage(msg)
+    }
+
+    this._outgoing.push(message)
 
     if (this.status !== 'active') {
       this.sendNext() // restart sending process once
