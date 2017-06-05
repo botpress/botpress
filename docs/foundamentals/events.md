@@ -83,4 +83,40 @@ bp.hear(/^my order$/i, (event, next) => {
 
 ### Proactive Outgoing {#proactive}
 
-This section is coming soon
+If you want to send a message at any time and that you don't have easy access to a previous `event` that you can `reply()` to, you might want to consider using the **Proactive Sending** feature of UMM.
+
+#### Sending to a user (platform independent) {#proactive_user}
+
+Since all users are saved to the database, if you have the **userId** (or the full user object), you can send that user a message and the underlying module will do the job. Usually, a userId looks like so: `facebook:7473118532`, but may differ from platform to platform.
+
+##### Examples
+
+```js
+// With the full user object
+bp.umm.sendToUser(event.user, '#proactiveBloc')
+```
+
+```js
+// With just the user id
+bp.umm.sendToUser('facebook:7562284991', '#proactiveBloc', { some: 'data' })
+```
+
+```js
+const Promise = require('bluebird')
+
+// Proactively broadcasts a message to all users
+// Don't actually do this. If you need to broadcast a message you should use the broadcast module
+// The broadcast module handles failures, retries automatically, logs stuff etc.
+bp.db.get().then(knex => knex('users').select('id'))
+.then(users => users.map(u => u.id))
+.then(userIds => {
+  return Promise.mapSeries(userIds, userId => {
+    bp.umm.sendToUser(userId, '#proactive')
+  })
+})
+.then(() => bp.logger.info('Done sending to all users'))
+```
+
+#### Other way of sending to a channel, group, user, etc.. (platform-specific) {#proactive_location}
+
+**TODO:** Currently unsupported.
