@@ -26,10 +26,10 @@ The flow of a conversation is essentially how your bot handles incoming messages
 99% of the bots on the market are based on Static Decision Trees.
 {% endhint %}
 
-We believe that it is the responsability of the **Botmaster (you)** to implement a great Flow. For most bots, the Flow should be written with code.
+We believe that it is the responsibility of the **Botmaster (you)** to implement a great Flow. For most bots, the Flow should be written with code.
 
 {% hint style='tldr' %}
-**PRO TIP**: The Flow plays a critical part of the User Experience and should be well thought upfront. **Flows should never be edited on-the-fly by amateurs** because you risk compromising the UX (which most online bot-building tools allow you to do).
+**PRO TIP**: The Flow plays a critical part of the User Experience and should be well thought out upfront. **Flows should never be edited on-the-fly by amateurs** because you risk compromising the UX (which most online bot-building tools allow you to do).
 {% endhint %}
 
 As you will see in the next sections, Botpress tries to provide you with the best tools to create the best possible Flows (using [bp.convo](./flow.md)).

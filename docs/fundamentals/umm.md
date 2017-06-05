@@ -4,7 +4,7 @@
 **TLDR**: UMM is the best way to send messages. It is meant to be used by programmers and non-programmers. You define blocs of content in the `content.yml` file. See the [usage examples](#examples).
 {% endhint %}
 
-The Universal Message Markdown (abbreviated as “UMM") is a simple, lightweight markdown language that makes it really easy for everybody to create message templates for one or many messaging platforms. The purpose of the language is to favour speed, simplicity and flexibility. There is virtually no learning curve, making it is as easy to use by content editors than for developers.
+The Universal Message Markdown (abbreviated as “UMM") is a simple, lightweight markdown language that makes it really easy for everybody to create message templates for one or many messaging platforms. The purpose of the language is to favour speed, simplicity and flexibility. There is virtually no learning curve, making it is as easy to use for content editors as it is for developers.
 
 ## The focus of UMM
 

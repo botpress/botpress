@@ -48,7 +48,7 @@ Botpress simply professionalizes chatbot development. We believe that the bot ec
 
 We have used professionally the other bot making frameworks and we faced many frustrations. We don't want to critize anybody's hard work, but we don't believe the other tools are anywhere close to what developers need to create truly great and useful bots.
 
-There are many things Botpress does differently, but probably the biggest difference is the highly modular ecosystem. There's a module for about everything your bot should do, so you can focus on what truly matters.
+There are many things Botpress does differently, but probably the biggest difference is the highly modular ecosystem. There's a module for just about everything your bot should do, so you can focus on what truly matters.
 
 | Botpress is **NOT** | Botpress **IS** |
 |---|---|
