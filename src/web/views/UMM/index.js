@@ -33,7 +33,6 @@ export default class UMMView extends Component {
     this.fetchCode()
     .then(::this.fetchPlatforms)
     .then(::this.fetchTemplates)
-    .then(::this.fetchViews)
     .then(::this.simulate)
     .then(() => {
       this.setState({
@@ -66,16 +65,6 @@ export default class UMMView extends Component {
     .then(({ data }) => {
       this.setState({
         template: data.templates
-      })
-    })
-  }
-
-  fetchViews() {
-    return axios.get('/umm/views')
-    .then(({ data }) => {
-      console.log(data)
-      this.setState({
-        views: data.views
       })
     })
   }
