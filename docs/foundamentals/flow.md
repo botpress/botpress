@@ -150,11 +150,44 @@ Defaults to: `['text', 'message']`
 
 #### Thread | `thread.addMessage(bloc, [data])`
 
-##### Usage
+##### Examples
+
+**No data**
 
 ```js
 bp.convo.start(event, convo => {
   convo.threads['default'].addMessage('#welcome')
+})
+```
+
+**Data as object**
+
+```js
+bp.convo.start(event, convo => {
+  convo.threads['default'].addMessage('#welcome', { key: 'value' })
+})
+```
+
+**Deferred Data (synchronous)**
+
+```js
+bp.convo.start(event, convo => {
+  convo.threads['default'].addMessage('#sayLast', () => {
+    return { last: convo.get('last') }
+  })
+})
+```
+
+**Deferred Data (async with Promises)**
+
+```js
+bp.convo.start(event, convo => {
+  convo.threads['default'].addMessage('#sayLast', () => {
+    // You can return promises
+    return Promise.delay(1000).then(() => {
+      return { last: convo.get('last') }  
+    })
+  })
 })
 ```
 

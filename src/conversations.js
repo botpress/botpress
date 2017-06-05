@@ -234,7 +234,13 @@ class Conversation extends EventEmmiter {
             throw new Error("Convo doesn't have default event or does not support UMM")
           }
 
-          await Promise.resolve(this.initialEvent.reply(msg.bloc, msg.data))
+          let data = msg.data
+
+          if (_.isFunction(data)) {
+            data = await Promise.resolve(data())
+          }
+
+          await Promise.resolve(this.initialEvent.reply(msg.bloc, data))
         } else {
           // Raw message
           await Promise.resolve(this.middleware
