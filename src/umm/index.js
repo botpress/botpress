@@ -1,4 +1,4 @@
-import fs from 'fs' // TODO remove
+import fs from 'fs'
 import path from 'path'
 import util from 'util'
 
@@ -6,8 +6,9 @@ import _ from 'lodash'
 import Promise from 'bluebird'
 
 import Engine from './engine'
+import Proactive from './proactive'
 
-module.exports = ({ logger, middlewares, botfile, projectLocation }) => {
+module.exports = ({ logger, middlewares, botfile, projectLocation, db }) => {
 
   const processors = {} // A map of all the platforms that can process outgoing messages
   const templates = {} // A map of all the platforms templates
@@ -60,41 +61,47 @@ module.exports = ({ logger, middlewares, botfile, projectLocation }) => {
     return fs.readFileSync(getStoragePath(), 'utf8').toString()
   }
 
+  function doSendBloc(bloc) {
+    return Promise.mapSeries(bloc, message => {
+      if (message.__internal) {
+        if (message.type === 'wait') {
+          return Promise.delay(message.wait)
+        }
+      } else {
+        return middlewares.sendOutgoing(message)
+      }
+    })
+  }
+
+  function sendBloc(incomingEvent, blocName, additionalData = {}) {
+    blocName = blocName[0] === '#' ? blocName.substr(1) : blocName
+      
+    const markdown = getDocument()
+
+    // TODO Add more context
+    const fullContext = Object.assign({
+      user: incomingEvent.user,
+      originalEvent: incomingEvent
+    }, additionalData)
+
+    const blocs = parse({
+      context: fullContext,
+      outputPlatform: incomingEvent.platform,
+      markdown: markdown,
+      incomingEvent: incomingEvent
+    })
+
+    // TODO check if message OK and catch errors
+    // TODO throw if bloc does not exist
+    
+    const bloc = blocs[blocName]
+
+    return doSendBloc(bloc)
+  }
+
   function processIncoming(event, next) {
     event.reply = (blocName, additionalData = {}) => {
-
-      blocName = blocName[0] === '#' ? blocName.substr(1) : blocName
-      
-      const markdown = getDocument()
-
-      // TODO Add more context
-      const fullContext = Object.assign({
-        user: event.user,
-        originalEvent: event
-      }, additionalData)
-
-      const blocs = parse({
-        context: fullContext,
-        outputPlatform: event.platform,
-        markdown: markdown,
-        incomingEvent: event
-      })
-
-      // TODO check if message OK and catch errors
-      // TODO throw if bloc does not exist
-      
-      const bloc = blocs[blocName]
-
-      return Promise.mapSeries(bloc, message => {
-        if (message.__internal) {
-          // TODO Extract this
-          if (message.type === 'wait') {
-            return Promise.delay(message.wait)
-          }
-        } else {
-          return middlewares.sendOutgoing(message)
-        }
-      })
+      return sendBloc(event, blocName, additionalData)
     }
 
     next()
@@ -109,5 +116,7 @@ module.exports = ({ logger, middlewares, botfile, projectLocation }) => {
     handler: processIncoming
   }
 
-  return { registerConnector, parse, getTemplates, incomingMiddleware, getDocument, saveDocument }
+  const proactiveMethods = Proactive({ sendBloc, db })
+
+  return { registerConnector, parse, getTemplates, incomingMiddleware, getDocument, saveDocument, ...proactiveMethods }
 }
