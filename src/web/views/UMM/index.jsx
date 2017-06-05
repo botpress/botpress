@@ -173,7 +173,7 @@ export default class UMMView extends Component {
               </td>
               <td>
                 <Preview
-                  block={this.state.blocks} />
+                  blocks={this.state.blocks} />
               </td>
             </tr>
           </tbody>
