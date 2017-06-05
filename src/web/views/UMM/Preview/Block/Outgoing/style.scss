@@ -1,0 +1,15 @@
+$bg-color-messenger: #0084ff;
+$color-messenger: #fff;
+
+.outgoing {
+  padding-bottom: 5px;
+
+  .text {
+    background-color: $bg-color-messenger;
+    color: $color-messenger;
+    
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 1.3em;
+  }
+}
