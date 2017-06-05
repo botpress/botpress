@@ -13,16 +13,6 @@ require('codemirror/mode/yaml/yaml')
 export default class CodeView extends Component {
   constructor(props) {
     super(props)
-
-    this.state = {
-      code: ''
-    }
-  }
-
-  handleUpdateChange(newCode) {
-    this.setState({
-      code: newCode
-    })
   }
 
   renderEditor() {
@@ -42,8 +32,8 @@ export default class CodeView extends Component {
 
     return <CodeMirror 
       className={classNames}
-      value={this.state.code}
-      onChange={::this.handleUpdateChange}
+      value={this.props.code}
+      onChange={this.props.update}
       options={options} />
   }
 

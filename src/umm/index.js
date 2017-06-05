@@ -10,6 +10,7 @@ import Engine from './engine'
 module.exports = ({ logger, middlewares, botfile, projectLocation }) => {
 
   const processors = {} // A map of all the platforms that can process outgoing messages
+  const platforms = [] //List of the supported platforms
   const templates = {} // A map of all the platforms templates
 
   function registerConnector({ platform, processOutgoing, templates }) {
@@ -21,6 +22,7 @@ module.exports = ({ logger, middlewares, botfile, projectLocation }) => {
 
     logger.verbose(`[UMM] Enabled for ${platform}`) // TODO remove that
 
+    platforms.push(platform)
     processors[platform] = processOutgoing
     templates[platform] = templates
   }
@@ -41,6 +43,10 @@ module.exports = ({ logger, middlewares, botfile, projectLocation }) => {
 
   function getTemplates() {
     return _.merge({}, templates) // Return a deep copy
+  }
+
+  function getPlatforms() {
+    return platforms
   }
 
   function getStoragePath() {
@@ -109,5 +115,13 @@ module.exports = ({ logger, middlewares, botfile, projectLocation }) => {
     handler: processIncoming
   }
 
-  return { registerConnector, parse, getTemplates, incomingMiddleware, getDocument, saveDocument }
+  return { 
+    registerConnector,
+    parse,
+    getTemplates,
+    getPlatforms,
+    incomingMiddleware,
+    getDocument,
+    saveDocument
+  }
 }

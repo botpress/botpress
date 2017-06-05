@@ -3,6 +3,7 @@ import React, { Component } from 'react'
 import classnames from 'classnames'
 import axios from 'axios'
 import _ from 'lodash'
+import { Grid, Row, Col, Panel } from 'react-bootstrap'
 
 import ContentWrapper from '~/components/Layout/ContentWrapper'
 import PageHeader from '~/components/Layout/PageHeader'
@@ -14,12 +15,10 @@ import Code from './Code'
 import Platform from './Platform'
 import Preview from './Preview'
 
-
-import { Grid, Row, Col, Panel } from 'react-bootstrap'
-
 const style = require('./style.scss')
 
 const REFRESH_TIME_PREVIEW = 2 * 1000 // 2 seconds
+const CONTEXT = require('./context.js')
 
 export default class UMMView extends Component {
   constructor(props) {
@@ -31,45 +30,113 @@ export default class UMMView extends Component {
   }
 
   componentDidMount() {
-    
-    this.setState({
-      loading: false
-    })
-
-    // this.fetchListOfTools()
-    // .then(this.fetchBlocks)
-    // .then(() => {
-    //   this.setState({
-    //     loading: false
-    //   })  
-    // })
-  }
-
-  fetchListOfTools() {
-    return axios.get('/api/umm/tools')
-    .then((res) => {
+    this.fetchCode()
+    .then(::this.fetchPlatforms)
+    .then(::this.fetchTemplates)
+    .then(::this.fetchViews)
+    .then(::this.simulate)
+    .then(() => {
       this.setState({
-        tools: res.data
+        loading: false
       })
     })
   }
 
-  fetchBlocks() {
-    const document = ''
-    const platform = 'messenger'
-
-    return axios.post('/api/umm/preview', { document, platform })
-    .then((res) => {
+  fetchCode() {
+    return axios.get('/umm/blocs')
+    .then(({ data }) => {
       this.setState({
-        ...res.data
+        code: data.content
+      })
+    })  
+  }
+
+  fetchPlatforms() {
+    return axios.get('/umm/platforms')
+    .then(({ data }) => {
+      this.setState({
+        selectedPlatform: data.platforms[0] || null,
+        supportedPlatforms: data.platforms
+      })
+    })
+  }
+
+  fetchTemplates() {
+    return axios.get('/umm/templates')
+    .then(({ data }) => {
+      this.setState({
+        template: data.templates
+      })
+    })
+  }
+
+  fetchViews() {
+    return axios.get('/umm/views')
+    .then(({ data }) => {
+      console.log(data)
+      this.setState({
+        views: data.views
+      })
+    })
+  }
+
+  simulate() {
+    return axios.post('/umm/simulate', {
+      content: this.state.code,
+      outputPlatform: this.state.selectedPlatform,
+      context: CONTEXT,
+      incomingEvent: CONTEXT
+    })
+    .then(({ data }) => {
+      this.setState({
+        blocks: data
       })
     })
   }
 
   refreshPreview() {
-    _.throttle(this.fetchBlocks, REFRESH_TIME_PREVIEW)
+    _.throttle(this.simulate, REFRESH_TIME_PREVIEW)
   }
 
+  handleSearchChanged(search) {
+    this.setState({
+      search: search
+    })
+  }
+
+  handleSelectedBlockChanged(block) {
+    this.setState({
+      selectedBlock: block
+    })
+  }
+
+  handleSelectedPlatformChanged(platform) {
+    this.setState({
+      selectedPlatform: platform
+    })
+  }
+
+  handleDocumentChanged(code) {
+    this.setState({
+      code: code
+    })
+  }
+
+  handleSave() {
+    this.setState({
+      loading: true
+    })
+
+    return axios.post('/umm/blocs', {
+      content: this.state.code
+    })
+    .then(::this.simulate)
+    .then(() => {
+      this.setState({
+        loading: false
+      })
+    })
+  }
 
   render() {
     if (this.state.loading) {
@@ -88,24 +155,36 @@ export default class UMMView extends Component {
           <tbody>
             <tr>
               <td style={{ 'width': '20%' }}>
-                <Search />
+                <Search search={this.state.search} update={::this.handleSearchChanged}/>
               </td>
               <td style={{ 'width': '40%' }}>
-                <Actions />
+                <Actions 
+                  templates={this.state.templates} />
               </td>
               <td style={{ 'width': '40%' }}>
-                <Platform />
+                <Platform 
+                  selected={this.state.selectedPlatform}
+                  platforms={this.state.supportedPlatforms} 
+                  update={::this.handleSelectedPlatformChanged}
+                  save={::this.handleSave}/>
               </td>
             </tr>
             <tr>
               <td>
-                <List />
+                <List
+                  blocks={this.state.blocks} 
+                  search={this.state.search}
+                  selected={this.state.selectedBlock}
+                  update={::this.handleSelectedBlockChanged} />
               </td>
               <td>
-                <Code />
+                <Code 
+                  code={this.state.code}
+                  update={::this.handleDocumentChanged} />
               </td>
               <td>
-                <Preview />
+                <Preview
+                  block={this.state.blocks} />
               </td>
             </tr>
           </tbody>
