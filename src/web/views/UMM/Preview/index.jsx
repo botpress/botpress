@@ -1,0 +1,28 @@
+import React, { Component } from 'react'
+import classnames from 'classnames'
+import _ from 'lodash'
+
+import Block from './Block'
+
+const style = require('./style.scss')
+
+export default class Preview extends Component {
+  constructor(props) {
+    super(props)
+  }
+
+  renderBlock(block, key) {
+    return <Block key={key} data={block} />
+  }
+
+  render() {
+    const classNames = classnames({
+      [style.preview]: true,
+      'bp-umm-preview': true
+    })
+
+    return <div className={classNames}>
+        {_.map(this.props.blocks, this.renderBlock)}
+      </div>
+  }
+}

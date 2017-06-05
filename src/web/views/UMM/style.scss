@@ -3,6 +3,10 @@
   height: 100%;
   background-color: #FFFFFF;
 
+  td {
+    vertical-align: top;
+  }
+
   .left {
     width: 20%;
     float: left;
