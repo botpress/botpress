@@ -1,4 +1,4 @@
-# Fundamentals
+# Foundamentals
 
 ## Conversations
 

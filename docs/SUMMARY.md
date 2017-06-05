@@ -4,16 +4,16 @@
 
 ### Foundamentals
 
-- [Project Structure](./fundamentals/structure.md)
-- [Events](./fundamentals/events.md)
-  - [Receiving Messages](./fundamentals/events.md#receive)
-  - [Sending Messages](./fundamentals/events.md#send)
-- [Conversations](./fundamentals/conversations.md)
-    - [Flow Management (Convo)](./fundamentals/flow.md)
-    - [Content Management (UMM)](./fundamentals/umm.md)
-- [Data Storage](./fundamentals/database.md)
-    - [Key-Value-Store](./fundamentals/database.md#kvs)
-- [Configuration](./fundamentals/botfile.md)
+- [Project Structure](./foundamentals/structure.md)
+- [Events](./foundamentals/events.md)
+  - [Receiving Messages](./foundamentals/events.md#receive)
+  - [Sending Messages](./foundamentals/events.md#send)
+- [Conversations](./foundamentals/conversations.md)
+    - [Flow Management (Convo)](./foundamentals/flow.md)
+    - [Content Management (UMM)](./foundamentals/umm.md)
+- [Data Storage](./foundamentals/database.md)
+    - [Key-Value-Store](./foundamentals/database.md#kvs)
+- [Configuration](./foundamentals/botfile.md)
 
 ### Deploying your bot
 
