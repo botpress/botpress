@@ -17,7 +17,7 @@ import Preview from './Preview'
 
 const style = require('./style.scss')
 
-const REFRESH_TIME_PREVIEW = 2 * 1000 // 2 seconds
+const REFRESH_TIME_PREVIEW = 3 * 1000 // 3 seconds
 const CONTEXT = require('./context.js')
 
 export default class UMMView extends Component {
@@ -27,6 +27,8 @@ export default class UMMView extends Component {
     this.state = {
       loading: true
     }
+
+    this.throttled = _.throttle(this.simulate, REFRESH_TIME_PREVIEW, { 'trailing': false })
   }
 
   componentDidMount() {
@@ -45,6 +47,7 @@ export default class UMMView extends Component {
     return axios.get('/umm/blocs')
     .then(({ data }) => {
       this.setState({
+        hashCode: data.content,
         code: data.content
       })
     })  
@@ -64,7 +67,7 @@ export default class UMMView extends Component {
     return axios.get('/umm/templates')
     .then(({ data }) => {
       this.setState({
-        template: data.templates
+        templates: data.templates
       })
     })
   }
@@ -78,13 +81,19 @@ export default class UMMView extends Component {
     })
     .then(({ data }) => {
       this.setState({
+        error: null,
         blocks: data
+      })
+    })
+    .catch((err) => {
+      this.setState({
+        error: err.response.data.message
       })
     })
   }
 
   refreshPreview() {
-    _.throttle(this.simulate, REFRESH_TIME_PREVIEW)
+    return _.throttle(this.simulate, REFRESH_TIME_PREVIEW)
   }
 
   handleSearchChanged(search) {
@@ -99,9 +108,9 @@ export default class UMMView extends Component {
     })
   }
 
-  handleSelectedPlatformChanged(platform) {
+  handleSelectedPlatformChanged(event) {
     this.setState({
-      selectedPlatform: platform
+      selectedPlatform: event.target.value
     })
   }
 
@@ -109,6 +118,25 @@ export default class UMMView extends Component {
     this.setState({
       code: code
     })
+
+    const editor = document.getElementsByClassName('CodeMirror')[0].CodeMirror
+    const positions = editor.getCursor()
+    editor.setValue(code)
+    editor.setCursor(positions)
+
+    this.throttled()
+  }
+
+  handleAddTemplateToDocument(template) {
+    const code = this.state.code + "\n\n" + template
+    this.setState({
+      code: code
+    })
+
+    const editor = document.getElementsByClassName('CodeMirror')[0].CodeMirror
+    editor.setValue(code)
+
+    this.throttled()
   }
 
   handleSave() {
@@ -137,6 +165,8 @@ export default class UMMView extends Component {
       'bp-umm': true
     })
 
+    const hasChanged = this.state.hashCode && (this.state.hashCode !== this.state.code)
+
     return (
       <ContentWrapper>
         <PageHeader><span>Universal Message Markdown</span></PageHeader>
@@ -148,14 +178,17 @@ export default class UMMView extends Component {
               </td>
               <td style={{ 'width': '40%' }}>
                 <Actions 
-                  templates={this.state.templates} />
+                  templates={this.state.templates}
+                  error={this.state.error}
+                  add={::this.handleAddTemplateToDocument} />
               </td>
               <td style={{ 'width': '40%' }}>
                 <Platform 
                   selected={this.state.selectedPlatform}
                   platforms={this.state.supportedPlatforms} 
                   update={::this.handleSelectedPlatformChanged}
-                  save={::this.handleSave}/>
+                  save={::this.handleSave}
+                  changed={hasChanged}/>
               </td>
             </tr>
             <tr>
@@ -167,7 +200,8 @@ export default class UMMView extends Component {
                   update={::this.handleSelectedBlockChanged} />
               </td>
               <td>
-                <Code 
+                <Code
+                  erro={this.state.error}
                   code={this.state.code}
                   update={::this.handleDocumentChanged} />
               </td>
