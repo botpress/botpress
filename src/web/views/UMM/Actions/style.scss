@@ -1,7 +1,21 @@
 $header-bg-color: #5d5d5d;
+$error-color: #ff8e6c;
 
 .actions {
   background-color: $header-bg-color;
   height: 50px;
   padding: 9px 10px;
+  position: relative;
+
+  :global(.btn-group) {
+    margin-right: 10px;
+  }
+
+  :global(.glyphicon) {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    font-size: 24px;
+    color: $error-color;
+  }
 }
