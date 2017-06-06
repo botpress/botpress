@@ -20,10 +20,6 @@
 */
 
 module.exports = function(bp) {
-
-  // Loads all the middleware
-  bp.middlewares.load()
-
   // Listens for a first message (this is a Regex)
   // GET_STARTED is the first message you get on Facebook Messenger
   bp.hear(/GET_STARTED|hello|hi|test|hey|holla/i, (event, next) => {
