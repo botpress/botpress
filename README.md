@@ -127,15 +127,8 @@ This is a non-exclusive list of modules Botpress has. See [the full list of modu
 | **[botpress-dialog](https://github.com/dialoganalytics/botpress-dialog)** | [@phildionne](https://github.com/phildionne)
 | **[botpress-scheduler](https://github.com/botpress/botpress-scheduler)** | [@slvnperron](https://github.com/slvnperron)
 | **[botpress-hitl](https://github.com/botpress/botpress-hitl)** | [@danyfs](https://github.com/danyfs)
-| **[botpress-botkit](https://github.com/botpress/botpress-botkit)** | [@slvnperron](https://github.com/slvnperron)
 | **[botpress-api.ai](https://github.com/botpress/botpress-api.ai)** | [@slvnperron](https://github.com/slvnperron)
-| **[botpress-wordhop](https://github.com/wordhop-io/botpress-wordhop)** | [@wordhop-io](https://github.com/wordhop-io)
 | **[botpress-web](https://github.com/botpress/botpress-web)** | [@slvnperron](https://github.com/slvnperron)
-| **botpress-inspector** | no body yet
-| **botpress-transcript** | [@rodrigocnascimento](https://github.com/rodrigocnascimento)
-| **botpress-telegram** | no body yet
-| **botpress-kik** | no body yet
-| **botpress-sms** | no body yet
 
 ## Contributing
 
