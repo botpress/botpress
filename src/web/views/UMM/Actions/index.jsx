@@ -1,10 +1,14 @@
 import React, { Component } from 'react'
-import classnames from 'classnames'
-
 import {
+  Tooltip,
+  OverlayTrigger,
   SplitButton,
-  MenuItem
+  MenuItem,
+  Glyphicon
 } from 'react-bootstrap'
+
+import classnames from 'classnames'
+import _ from 'lodash'
 
 const style = require('./style.scss')
 
@@ -13,12 +17,36 @@ export default class ActionsView extends Component {
     super(props)
   }
 
-  renderSelectors() {
-    return <SplitButton bsStyle='default' title='Messenger' key={0} id='messenger-selector'>
-      <MenuItem eventKey="1">Messenger</MenuItem>
-      <MenuItem eventKey="2">Another action</MenuItem>
-      <MenuItem eventKey="3">Something else here</MenuItem>
+  renderItem(item, key) {
+    return <MenuItem key={key} eventKey={key}
+      onClick={() => this.props.add(item.template)}>
+        {item.type}
+      </MenuItem>
+  }
+
+  renderSelectorButton(items, key) {
+    if (!items) {
+      return null
+    }
+
+    return <SplitButton id={key}
+        key={key} bsStyle='default' title={key}>
+      {_.map(items, ::this.renderItem)}
     </SplitButton>
+  }
+
+  renderError() {
+    if (!this.props.error) {
+      return null
+    }
+
+    const tooltip = <Tooltip id="tooltip">
+        {this.props.error}
+      </Tooltip>
+
+    return <OverlayTrigger placement="bottom" overlay={tooltip}>
+      <Glyphicon glyph="glyphicon glyphicon-info-sign" />
+    </OverlayTrigger>
   }
 
   render() {
@@ -28,7 +56,8 @@ export default class ActionsView extends Component {
     })
 
     return <div className={classNames}>
-        {this.renderSelectors()}
+        {_.map(this.props.templates, ::this.renderSelectorButton)}
+        {this.renderError()}
       </div>
   } 
 }
