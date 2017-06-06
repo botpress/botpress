@@ -11,7 +11,7 @@ module.exports = ({ logger, middlewares, botfile, projectLocation }) => {
 
   const processors = {} // A map of all the platforms that can process outgoing messages
   const platforms = [] //List of the supported platforms
-  const templates = {} // A map of all the platforms templates
+  const allTemplates = {} // A map of all the platforms templates
 
   function registerConnector({ platform, processOutgoing, templates }) {
 
@@ -24,7 +24,7 @@ module.exports = ({ logger, middlewares, botfile, projectLocation }) => {
 
     platforms.push(platform)
     processors[platform] = processOutgoing
-    templates[platform] = templates
+    allTemplates[platform] = templates
   }
 
   function parse({ context, outputPlatform, markdown = null, incomingEvent = null }) {
@@ -42,7 +42,7 @@ module.exports = ({ logger, middlewares, botfile, projectLocation }) => {
   }
 
   function getTemplates() {
-    return _.merge({}, templates) // Return a deep copy
+    return _.merge({}, allTemplates) // Return a deep copy
   }
 
   function getPlatforms() {
