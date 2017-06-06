@@ -8,12 +8,6 @@ const style = require('./style.scss')
 export default class Block extends Component {
   constructor(props) {
     super(props)
-
-    this.block = null
-  }
-
-  componentDidMount() {
-    console.log(this.block.clientHeight)
   }
 
   renderOutgoing(data, key) {
@@ -26,7 +20,7 @@ export default class Block extends Component {
       'bp-umm-block': true
     })
 
-    return <div className={classNames} ref={(block) => this.block = block}>
+    return <div className={classNames}>
         {this.props.data.map(this.renderOutgoing)}
       </div>
   }
