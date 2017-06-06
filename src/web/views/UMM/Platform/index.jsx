@@ -18,7 +18,9 @@ export default class PlatformView extends Component {
     const classNames = classnames({
       'bp-button': true,
       [style.saveButton]: true,
-      'bp-save-button': true
+      'bp-save-button': true,
+      [style.changedButton]: this.props.changed,
+      'bp-changed-button': this.props.changed
     })
 
     return <Button className={classNames}
