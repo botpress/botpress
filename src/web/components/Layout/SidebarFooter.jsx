@@ -14,7 +14,8 @@ const style = require('./SidebarFooter.scss')
 
 @connect(props => ({
   botInformation: getters.botInformation,
-  license : getters.license
+  license : getters.license,
+  UI: getters.UI
 }))
 
 class SidebarFooter extends Component {
@@ -153,6 +154,10 @@ class SidebarFooter extends Component {
   }
 
   render() {
+    if (this.props.UI.get('viewMode') >= 1) {
+      return null
+    }
+
     const isProduction = this.props.botInformation && this.props.botInformation.get('production') 
 
     const production = isProduction ? "in production" : "in development"

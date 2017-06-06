@@ -40,6 +40,7 @@ const generate = (result) => {
   generateTemplate('LICENSE')
   generateTemplate('botfile.js')
   generateTemplate('index.js')
+  generateTemplate('content.yml')
   generateTemplate('_._gitignore')
   generateTemplate('_._welcome')
   generateTemplate('theme.scss')

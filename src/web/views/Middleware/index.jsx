@@ -61,10 +61,10 @@ export default class ManageView extends React.Component {
   render() {
     return (
       <ContentWrapper>
-        {PageHeader(<span> Middleware</span>)}
+        <PageHeader><span> Middleware</span></PageHeader>
         <Grid fluid>
-        	<Row>
-        		<Panel className={style.documentation}>
+          <Row>
+            <Panel className={style.documentation}>
               <Row className={style.explication}>
                 <Col sm={12}>
                   <Markdown source={this.getDocumentation()} />
@@ -73,14 +73,14 @@ export default class ManageView extends React.Component {
                   </div>
                 </Col>
               </Row>
-        		</Panel>
-        	</Row>
+            </Panel>
+          </Row>
           <Row>
             <Col sm={12} md={6} mdOffset={0}>
-            	<MiddlewaresComponent type="incoming"/>
+              <MiddlewaresComponent type="incoming"/>
             </Col>
             <Col sm={12} md={6} mdOffset={0}>
-            	<MiddlewaresComponent type="outgoing"/>
+              <MiddlewaresComponent type="outgoing"/>
             </Col>
           </Row>
         </Grid>

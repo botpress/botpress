@@ -164,7 +164,7 @@ export default class ManageView extends React.Component {
 
     return (
       <ContentWrapper>
-        {PageHeader(<span> Modules</span>)}
+        <PageHeader><span> Modules</span></PageHeader>
         <Grid fluid>
           <Row>
             <Col sm={12} md={10} mdOffset={1}>

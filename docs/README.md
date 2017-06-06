@@ -1,30 +1,62 @@
 # Introduction
 
-Welcome to Botpress! This page is a summary of the all documentation available. If you feel there is anything missing or unclear, please come and talk to us on [Slack](http://slack.botpress.io) or create an issue on our [Github](http://github.com/botpress/botpress/issues). We hope you'll enjoy Botpress!
+Botpress is an open-source bot creation tool written in Javascript. It is powered by a rich set of open-source modules built by the community. We like to say that **Botpress is like the Wordpress of Chatbots**; anyone can create and reuse other people's modules.
 
-1. [Getting Started](getting-started/README.md)
-    * [Hello Human in 3 minutes](getting-started/hello-human-in-3-minutes.md)
-    * [What is Botpress?](getting-started/what-is-botpress.md)
-    * [How Botpress Works?](getting-started/how-botpress-works.md)
-    * [How to start using Botpress](getting-started/how-to-start-using.md)
-    * [How to use the Dashboard](getting-started/how-to-use-the-dashboard.md)
-    * [Reference: CLI tool](getting-started/how-to-use-the-cli.md)
-2. [Creating your bot](creating-your-bot/README.md)
-    * [The botfile.js configuration file](creating-your-bot/the-botfile.md)
-    * [Understanding the middlewares flow](creating-your-bot/understanding-the-middlewares.md)
-    * [How to use the hear middleware](creating-your-bot/how-to-use-the-hear-middleware.md)
-    * [How to manage conversation flow](creating-your-bot/how-to-manage-conversation-flow.md)
-    * [How to use Events](creating-your-bot/how-to-use-events.md)
-    * [How to create Custom Routes with the HTTP Server](creating-your-bot/how-to-use-the-http-server.md)
-    * [How to use the built-in Database](creating-your-bot/how-to-use-the-database.md)
-    * [How to Debug your bot](creating-your-bot/how-to-debug.md)
-    * [How to switch to the Botpress License](creating-your-bot/botpress-license.md)
-3. [Modules](modules/README.md)
-    * [How to create a module](modules/how-to-create-a-module.md)
-        * [How to configure my module](modules/how-to-configure-my-module.md)
-        * [How can I change the icon of my module and its name in the menu?](modules/how-to-change-the-icon-and-name.md)
-4. [Management, Monitoring and Deployment](managing/README.md)
-    * [How to view the logs using the Dashboard](managing/how-to-view-the-logs-using-the-dashboard.md)
-    * [How to deploy your bot](managing/how-to-deploy.md)
-        * [Deploy to Heroku](managing/deploy-to-heroku.md)
-        * [Deploy to AWS](managing/deploy-to-aws.md)
+## Why should I use Botpress?
+
+For the same reason why millions of people use Wordpress to create a website, people use Botpress to create bots. Botpress handles everything generic about bots so that you can really focus on building conversational masterpieces and deliver real value to your customers. You don't have to write everything from scratch; most (if not everything) has already been implemented in Botpress Core or by community modules. Just write your logic.
+
+## What does it look like?
+
+A video is worth a thousand pictures.
+
+{{ 'https://www.youtube.com/watch?v=WE18-LgZNwE' | video }}
+
+## Full example of a Botpress bot
+
+<img alt="Lifecycle of a Message" height="300" src="{{ book.assets }}/hello_world_botpress.jpg">
+
+```js
+// index.js
+
+// A botpress bot is simply a function that takes an instance of Botpress (bp) as an argument
+module.exports = function(bp) {
+  // All your bot logic goes here...
+
+  // Listens for a message (this is a Regex)
+  // GET_STARTED is the first message you get on Facebook Messenger
+  bp.hear(/GET_STARTED|hello|hi|hey/i, (event, next) => {
+    event.reply('#welcome') // #welcome is the name of a message bloc defined in `content.yml`
+  })
+}
+```
+
+```yaml
+# content.yml
+
+welcome:
+  - Hello, world!
+  - I am a simple bot created on Botpress
+  - I don't do anything else, so goodbye for now!
+```
+
+## The mission
+
+Botpress simply professionalizes chatbot development. We believe that the bot ecosystem needs a leading, world-class, professional and fast-evolving tool for developers. We're commited to build and invent the tools that will pioneer the conversational revolution.
+
+## What's the difference between Botpress and the other frameworks?
+
+We have used professionally the other bot making frameworks and we faced many frustrations. We don't want to critize anybody's hard work, but we don't believe the other tools are anywhere close to what developers need to create truly great and useful bots.
+
+There are many things Botpress does differently, but probably the biggest difference is the highly modular ecosystem. There's a module for just about everything your bot should do, so you can focus on what truly matters.
+
+| Botpress is **NOT** | Botpress **IS** |
+|---|---|
+| For everyone    |   Currently only aimed at developers
+| A SaaS Bot building platform  |   On-premise (i.e. runs locally, host it yourself)
+| A no-coding bot building platform   |   A code-first bot building framework
+| A code-from-scratch bot building framework   |   Code-only-the-logic framework
+| In competition with other bot building tools    |   Free, modular & open-source
+| Extremely hard to use and reserved for PhD's    |   Easy to learn and feeling natural for node developers
+| A side project that will be abandoned in a few weeks    |   A serious project backed by a real company
+| A cure for cancer   |   Highly productive

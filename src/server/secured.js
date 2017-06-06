@@ -22,7 +22,8 @@ module.exports = (bp, app) => {
         homepage: module.homepage,
         menuText: module.settings.menuText || module.name,
         menuIcon: module.settings.menuIcon || 'view_module',
-        noInterface: !!module.settings.noInterface
+        noInterface: !!module.settings.noInterface,
+        plugins: module.settings.plugins || []
       }
     })
     res.send(modules)
@@ -166,6 +167,40 @@ module.exports = (bp, app) => {
       logsSecret = uuid.v4()
       res.download(archivePath)
     })
+  })
+
+  app.secure('read', 'bot/umm/blocs')
+  .get('/umm/blocs', (req, res) => {
+    const content = bp.umm.getDocument()
+    res.send({ content: content })
+  })
+
+  app.secure('read', 'bot/umm/templates')
+  .get('/umm/templates', (req, res) => {
+    res.send({ templates: bp.umm.getTemplates() })
+  })
+
+  app.secure('write', 'bot/umm/blocs')
+  .post('/umm/blocs', (req, res) => {
+    const { content } = (req.body || {})
+    if (_.isNil(content)) {
+      return res.status(400).send({ message: 'You need to specify the content' })
+    }
+
+    bp.umm.saveDocument(content)
+
+    return res.sendStatus(200)
+  })
+
+  app.secure('write', 'bot/umm/simulation')
+  .post('/umm/simulate', (req, res) => {
+    try {
+      const { context, content, outputPlatform, incomingEvent } = req.body
+      const blocs = bp.umm.parse({ context, outputPlatform, markdown: content, incomingEvent })
+      res.send(blocs)
+    } catch (err) {
+      res.status(400).send({ message: err.message })
+    }
   })
 
   const apis = ExtraApiProviders(bp, app)

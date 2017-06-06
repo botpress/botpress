@@ -77,6 +77,9 @@ var webConfig = {
     }, {
       from: path.resolve(__dirname, './src/web/img'),
       to: path.resolve(__dirname, './lib/web/img')
+    }, {
+      from: path.resolve(__dirname, './src/web/audio'),
+      to: path.resolve(__dirname, './lib/web/audio')
     }])
     // TODO: Fix caching to take into account changes to extensions and environement variables
     // new HardSourceWebpackPlugin({

@@ -62,7 +62,7 @@ export default (dataLocation, notifConfig, modules, events, logger) => {
 
   bindEvents(loadNotifs, saveNotifs, events)
 
-  const sendNotif = ({ message, url, level }) => {
+  const sendNotif = ({ message, url, level, sound }) => {
 
     if (!message || typeof(message) !== 'string') {
       throw new Error('\'message\' is mandatory and should be a string')
@@ -115,6 +115,7 @@ export default (dataLocation, notifConfig, modules, events, logger) => {
       name: options.name,
       url: options.url,
       date: new Date(),
+      sound: sound || false,
       read: false
     }
 

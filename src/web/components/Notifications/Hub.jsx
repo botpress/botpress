@@ -1,8 +1,9 @@
 import React from 'react'
 import { NavDropdown, MenuItem } from 'react-bootstrap'
 import _ from 'lodash'
-import NotificationComponent from './index.jsx'
 import classnames from 'classnames'
+
+import NotificationComponent from './index.jsx'
 
 import { connect } from 'nuclear-js-react-addons'
 import getters from '~/stores/getters'
