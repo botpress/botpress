@@ -119,6 +119,7 @@ This is a non-exclusive list of modules Botpress has. See [the full list of modu
 | **[botpress-subscription](https://github.com/botpress/botpress-subscription)** | [@slvnperron](https://github.com/slvnperron)
 | **[botpress-terminal](https://github.com/botpress/botpress-terminal)** | [@slvnperron](https://github.com/slvnperron)
 | **[botpress-analytics](https://github.com/botpress/botpress-analytics)** | [@danyfs](https://github.com/danyfs)
+| **[botpress-broadcast](https://github.com/botpress/botpress-broadcast)** | [@slvnperron](https://github.com/slvnperron)
 | **[botpress-rivescript](https://github.com/botpress/botpress-rivescript)** | [@danyfs](https://github.com/danyfs)
 | **[botpress-messenger](https://github.com/botpress/botpress-messenger)** | [@slvnperron](https://github.com/slvnperron)
 | **[botpress-slack](https://github.com/botpress/botpress-slack)** | [@danyfs](https://github.com/danyfs)
@@ -129,6 +130,7 @@ This is a non-exclusive list of modules Botpress has. See [the full list of modu
 | **[botpress-botkit](https://github.com/botpress/botpress-botkit)** | [@slvnperron](https://github.com/slvnperron)
 | **[botpress-api.ai](https://github.com/botpress/botpress-api.ai)** | [@slvnperron](https://github.com/slvnperron)
 | **[botpress-wordhop](https://github.com/wordhop-io/botpress-wordhop)** | [@wordhop-io](https://github.com/wordhop-io)
+| **[botpress-web](https://github.com/botpress/botpress-web)** | [@slvnperron](https://github.com/slvnperron)
 | **botpress-inspector** | no body yet
 | **botpress-transcript** | [@rodrigocnascimento](https://github.com/rodrigocnascimento)
 | **botpress-telegram** | no body yet
