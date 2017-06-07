@@ -157,7 +157,6 @@ export default class CodeView extends Component {
       lineWrapping: true,
       indentUnit: 1,
       tabSize: 1,
-      showInvisibles: true,
       scrollbarStyle: null
     }
 
