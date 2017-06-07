@@ -18,7 +18,9 @@ export default class Preview extends Component {
   render() {
     const classNames = classnames({
       [style.preview]: true,
-      'bp-umm-preview': true
+      'bp-umm-preview': true,
+      [style.loading]: this.props.loading,
+      'bp-umm-preview-loading': this.props.loading
     })
 
     return <div className={classNames}>
