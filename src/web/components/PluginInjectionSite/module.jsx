@@ -82,7 +82,12 @@ export default class InjectedModuleView extends React.Component {
       axios: axios
     }
 
-    return <InjectedComponent component={moduleComponent} name={this.props.moduleName} bp={bp}/>
+    const passthroughProps = _.omit(this.props, ['moduleName', 'viewName']) 
+    
+    return <InjectedComponent
+      component={moduleComponent}
+      name={this.props.moduleName}
+      bp={bp} {...passthroughProps} />
   }
 }
 
