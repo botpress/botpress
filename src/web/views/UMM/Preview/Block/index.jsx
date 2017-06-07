@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import classnames from 'classnames'
 
-import Outgoing from './Outgoing'
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
 
 const style = require('./style.scss')
