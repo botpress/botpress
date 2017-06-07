@@ -11,23 +11,60 @@ require('codemirror/theme/zenburn.css')
 require('codemirror/mode/yaml/yaml')
 
 const LAST_LINE_REGEX = /^(.+):/
+const REFRESH_INTERVAL = 2000 // 2seconds
+const TIME_EDITING = 3000 // 3seconds
+const ANIM_TIME = 500
+const WAIT_TIME = 2000
 
 export default class CodeView extends Component {
   constructor(props) {
     super(props)
 
+    this.state = {
+      lastEditTime: null
+    }
+
     this.codeMirror = null
+    this.timer = null
+
+    this.isEditing = this.isEditing.bind(this)
   }
 
   componentDidMount() {
-    this.refreshAdjustments()
+    setTimeout(() => this.refreshPositionAdjustments(), WAIT_TIME)
+
+    this.timer = setInterval(() => {
+      if (!this.isEditing() && this.props.code !== this.state.lastCode) {
+        this.props.setLoading(true)
+        setTimeout(() => this.refreshPositionAdjustments(), ANIM_TIME)
+      }
+    }, REFRESH_INTERVAL)
   }
 
-  refreshAdjustments() {
-    this.getBlockDivs()
+  componentWillUnmount() {
+    clearInterval(this.timer)
+  }
+
+  isEditing() {
+    if (!this.state.lastEditTime) {
+      return false
+    }
+
+    const timeSinceLastEdit = Date.now() - this.state.lastEditTime
+    return timeSinceLastEdit <= TIME_EDITING
+  }
+
+  refreshPositionAdjustments() {
+    return this.getBlockDivs()
     .then(::this.getLastLines)
     .then(::this.getLineDivs)
     .then(::this.setHeights)
+    .then(() => {
+      this.setState({
+        lastCode: this.props.code
+      })
+      this.props.setLoading(false)
+    })
   }
 
   getBlockDivs() {
@@ -77,7 +114,9 @@ export default class CodeView extends Component {
 
           lineDivs.push({
             lastLine: lines[index],
-            numberOfRows: index - beginIndex + 1
+            numberOfRows: index - beginIndex + 1,
+            beginIndex: beginIndex,
+            endIndex: index
           })
 
           beginIndex = index + 1
@@ -92,14 +131,19 @@ export default class CodeView extends Component {
     })
   }
 
-  setHeight(line, block, i, rowHeight) {
-    const linesHeight = rowHeight * line.numberOfRows
+  setHeight(line, block, i, rows) {
+    const rowHeight = 20
+
+    let linesHeight = 0
+    for (let k = line.beginIndex; k <= line.endIndex; k++) {
+      linesHeight += rows[k].clientHeight
+    }
+
     const blockHeight = block.clientHeight
 
     let numberOfRowToAdd = Math.floor((blockHeight - linesHeight) / rowHeight) + 1
 
     if (linesHeight <= blockHeight) {
-
       let toAdd = ""
       
       for (let count = 0; count < numberOfRowToAdd; count++) {
@@ -112,18 +156,17 @@ export default class CodeView extends Component {
     }
 
     numberOfRowToAdd = numberOfRowToAdd > 0 ? numberOfRowToAdd : 0
-    const marginBottom = ((line.numberOfRows + numberOfRowToAdd) * rowHeight) - (blockHeight)
+    let marginBottom = linesHeight + (numberOfRowToAdd * rowHeight) - (blockHeight)
     
+    if (blockHeight <= 20) {
+      marginBottom = 0
+    }
+
     block.setAttribute('style', 'margin-bottom: ' + marginBottom + 'px;')
   }
 
   setHeights() {
-    const row = document.getElementsByClassName('CodeMirror-line')[0]
-    let rowHeight = 0
-    
-    if (row) {
-      rowHeight = row.clientHeight
-    }
+    const rows = document.getElementsByClassName('CodeMirror-line')
     
     return new Promise((resolve, reject) => {
       _.forEach(this.state.lineDivs, (line, i) => {
@@ -131,7 +174,7 @@ export default class CodeView extends Component {
         const block = this.state.blockDivs[i]
         
         if (!this.props.error && block) {
-          this.setHeight(line, block, i, rowHeight)
+          this.setHeight(line, block, i, rows)
         }
       })
 
@@ -141,7 +184,10 @@ export default class CodeView extends Component {
 
   handleCodeChanged(event) {
     this.props.update(event)
-    this.refreshAdjustments()
+
+    this.setState({
+      lastEditTime: Date.now()
+    })
   }
 
   renderEditor() {
