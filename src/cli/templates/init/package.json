@@ -4,7 +4,7 @@
   "description": "<%= description %>",
   "main": "index.js",
   "dependencies": {
-    "botpress": "0.x",
+    "botpress": "1.x",
     "botpress-web": "1.x"
   },
   "scripts": {
