@@ -25,7 +25,8 @@ export default class UMMView extends Component {
     super(props)
 
     this.state = {
-      loading: true
+      loading: true,
+      previewLoading: true
     }
 
     this.throttled = _.throttle(this.simulate, REFRESH_TIME_PREVIEW, { 'trailing': false })
@@ -112,6 +113,18 @@ export default class UMMView extends Component {
     this.setState({
       selectedPlatform: event.target.value
     })
+
+    this.setState({
+      previewLoading: true
+    })
+
+    setTimeout(() => {
+      this.simulate()
+      this.setState({
+        previewLoading: false
+      })
+    }, 300)
+    
   }
 
   handleDocumentChanged(code) {
@@ -152,6 +165,12 @@ export default class UMMView extends Component {
       this.setState({
         loading: false
       })
+    })
+  }
+
+  handlePreviewLoadingChanged(loading) {
+    this.setState({
+      previewLoading: loading
     })
   }
 
@@ -203,11 +222,13 @@ export default class UMMView extends Component {
                 <Code
                   erro={this.state.error}
                   code={this.state.code}
-                  update={::this.handleDocumentChanged} />
+                  update={::this.handleDocumentChanged}
+                  setLoading={::this.handlePreviewLoadingChanged} />
               </td>
               <td>
                 <Preview
-                  blocks={this.state.blocks} />
+                  blocks={this.state.blocks}
+                  loading={this.state.previewLoading} />
               </td>
             </tr>
           </tbody>
