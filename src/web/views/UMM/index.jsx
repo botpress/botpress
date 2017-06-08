@@ -135,7 +135,7 @@ export default class UMMView extends Component {
     const editor = document.getElementsByClassName('CodeMirror')[0]
     if (editor) {
       const cm = editor.CodeMirror
-      
+
       const positions = cm.getCursor()
       cm.setValue(code)
       cm.setCursor(positions)
@@ -157,17 +157,12 @@ export default class UMMView extends Component {
   }
 
   handleSave() {
-    this.setState({
-      loading: true
-    })
-
     return axios.post('/umm/blocs', {
       content: this.state.code
     })
-    .then(::this.simulate)
     .then(() => {
       this.setState({
-        loading: false
+        hashCode: this.state.code
       })
     })
   }

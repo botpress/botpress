@@ -32,10 +32,11 @@ export default class CodeView extends Component {
   }
 
   componentDidMount() {
+    this.setState({
+      loading: false
+    })
+    
     setTimeout(() => { 
-      this.setState({
-        loading: false
-      })
       this.refreshPositionAdjustments() 
     }, WAIT_TIME)
 
