@@ -17,7 +17,7 @@ import Preview from './Preview'
 
 const style = require('./style.scss')
 
-const REFRESH_TIME_PREVIEW = 3 * 1000 // 3 seconds
+const REFRESH_TIME_PREVIEW = 1000
 const CONTEXT = require('./context.js')
 
 export default class UMMView extends Component {
@@ -29,7 +29,7 @@ export default class UMMView extends Component {
       previewLoading: true
     }
 
-    this.throttled = _.throttle(this.simulate, REFRESH_TIME_PREVIEW, { 'trailing': false })
+    this.throttled = _.throttle(this.simulate, REFRESH_TIME_PREVIEW)
   }
 
   componentDidMount() {
@@ -192,16 +192,16 @@ export default class UMMView extends Component {
         <table className={classNames}>
           <tbody>
             <tr>
-              <td style={{ 'width': '20%' }}>
+              <td style={{ width: '20%' }}>
                 <Search search={this.state.search} update={::this.handleSearchChanged}/>
               </td>
-              <td style={{ 'width': '40%' }}>
+              <td style={{ width: '40%' }}>
                 <Actions 
                   templates={this.state.templates}
                   error={this.state.error}
                   add={::this.handleAddTemplateToDocument} />
               </td>
-              <td style={{ 'width': '40%' }}>
+              <td style={{ width: '40%' }}>
                 <Platform 
                   selected={this.state.selectedPlatform}
                   platforms={this.state.supportedPlatforms} 
@@ -211,21 +211,21 @@ export default class UMMView extends Component {
               </td>
             </tr>
             <tr>
-              <td>
+              <td style={{ width: '20%' }}>
                 <List
                   blocks={this.state.blocks} 
                   search={this.state.search}
                   selected={this.state.selectedBlock}
                   update={::this.handleSelectedBlockChanged} />
               </td>
-              <td>
-                <Code
+              <td style={{ width: '40%' }}>
+                <Code 
                   erro={this.state.error}
                   code={this.state.code}
                   update={::this.handleDocumentChanged}
                   setLoading={::this.handlePreviewLoadingChanged} />
               </td>
-              <td>
+              <td style={{ width: '40%' }}>
                 <Preview
                   blocks={this.state.blocks}
                   loading={this.state.previewLoading} />

@@ -10,7 +10,13 @@ export default class Block extends Component {
     super(props)
   }
 
-  renderOutgoing({ platform, type, text, raw }, key) {
+  renderOutgoing(data, key) {
+    let { platform, type, text, wait, raw } = data
+
+    if (type === 'wait') {
+      return null
+    }
+
     if (platform === 'facebook') {
       platform = 'messenger'
     }

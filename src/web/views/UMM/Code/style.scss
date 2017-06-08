@@ -10,6 +10,7 @@ $content-bg-color: #3f3f3f;
   }
 
   :global(.CodeMirror-gutters) {
-    border: none;
+    border-right: 1px solid #5d5d5d;
+    padding-right: 1px;
   }
 }
