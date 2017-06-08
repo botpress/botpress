@@ -21,6 +21,7 @@ export default class CodeView extends Component {
     super(props)
 
     this.state = {
+      loading: true,
       lastEditTime: null
     }
 
@@ -31,7 +32,12 @@ export default class CodeView extends Component {
   }
 
   componentDidMount() {
-    setTimeout(() => this.refreshPositionAdjustments(), WAIT_TIME)
+    setTimeout(() => { 
+      this.setState({
+        loading: false
+      })
+      this.refreshPositionAdjustments() 
+    }, WAIT_TIME)
 
     this.timer = setInterval(() => {
       if (!this.isEditing() && this.props.code !== this.state.lastCode) {
@@ -42,6 +48,10 @@ export default class CodeView extends Component {
   }
 
   componentWillUnmount() {
+    this.setState({
+      loading: true
+    })
+
     clearInterval(this.timer)
   }
 
@@ -222,6 +232,10 @@ export default class CodeView extends Component {
   }
 
   render() {
+    if (this.state.loading) {
+      return null
+    }
+
     const classNames = classnames({
       [style.code]: true,
       'bp-umm-code': true
