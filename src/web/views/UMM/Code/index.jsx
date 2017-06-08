@@ -35,7 +35,7 @@ export default class CodeView extends Component {
     this.setState({
       loading: false
     })
-    
+
     setTimeout(() => { 
       this.refreshPositionAdjustments() 
     }, WAIT_TIME)
@@ -224,7 +224,10 @@ export default class CodeView extends Component {
           var spaces = Array(cm.getOption("indentUnit") + 1).join(" ")
           cm.replaceSelection(spaces)
         }
-      }
+      },
+      addons: [
+        require('codemirror/addon/search/searchcursor')
+      ]
     }
 
     return <CodeMirror 

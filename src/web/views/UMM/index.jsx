@@ -104,6 +104,13 @@ export default class UMMView extends Component {
   }
 
   handleSelectedBlockChanged(block) {
+    const editor = document.getElementsByClassName('CodeMirror')[0]
+    const cm = editor.CodeMirror
+
+    const res = cm.getSearchCursor(block, { line: 0, ch: 0 })
+    res.findNext()
+    cm.getDoc().setSelection(res.from(), res.to())
+
     this.setState({
       selectedBlock: block
     })
