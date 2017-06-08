@@ -10,11 +10,11 @@ require('codemirror/lib/codemirror.css')
 require('codemirror/theme/zenburn.css')
 require('codemirror/mode/yaml/yaml')
 
-const LAST_LINE_REGEX = /^(.+):/
-const REFRESH_INTERVAL = 2000 // 2seconds
-const TIME_EDITING = 3000 // 3seconds
-const ANIM_TIME = 500
-const WAIT_TIME = 2000
+const LAST_LINE_REGEX = /^(\w.+):/
+const REFRESH_INTERVAL = 1000 
+const TIME_EDITING = 2000
+const ANIM_TIME = 300
+const WAIT_TIME = 1500
 
 export default class CodeView extends Component {
   constructor(props) {
@@ -201,9 +201,17 @@ export default class CodeView extends Component {
       mode: 'yaml',
       lineNumbers: true,
       lineWrapping: true,
-      indentUnit: 1,
-      tabSize: 1,
-      scrollbarStyle: null
+      scrollbarStyle: null,
+      indentWithTabs: false,
+      tabSize: 2,
+      indentUnit: 2,
+      smartIndent: true,
+      extraKeys: {
+        Tab: function(cm) {
+          var spaces = Array(cm.getOption("indentUnit") + 1).join(" ")
+          cm.replaceSelection(spaces)
+        }
+      }
     }
 
     return <CodeMirror 
