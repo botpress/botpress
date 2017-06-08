@@ -132,12 +132,16 @@ export default class UMMView extends Component {
       code: code
     })
 
-    const editor = document.getElementsByClassName('CodeMirror')[0].CodeMirror
-    const positions = editor.getCursor()
-    editor.setValue(code)
-    editor.setCursor(positions)
+    const editor = document.getElementsByClassName('CodeMirror')[0]
+    if (editor) {
+      const cm = editor.CodeMirror
+      
+      const positions = cm.getCursor()
+      cm.setValue(code)
+      cm.setCursor(positions)
 
-    this.throttled()
+      this.throttled()
+    }
   }
 
   handleAddTemplateToDocument(template) {

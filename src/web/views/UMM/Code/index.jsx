@@ -146,7 +146,9 @@ export default class CodeView extends Component {
 
     let linesHeight = 0
     for (let k = line.beginIndex; k <= line.endIndex; k++) {
-      linesHeight += rows[k].clientHeight
+      if (rows[k]) {
+        linesHeight += rows[k].clientHeight
+      }
     }
 
     const blockHeight = block.clientHeight
