@@ -1,5 +1,7 @@
 
 import React, { Component } from 'react'
+import ReactDOM from 'react-dom'
+
 import classnames from 'classnames'
 import axios from 'axios'
 import _ from 'lodash'
@@ -97,6 +99,12 @@ export default class UMMView extends Component {
     return _.throttle(this.simulate, REFRESH_TIME_PREVIEW)
   }
 
+  highlightAndMoveTo(cm, value) {
+    const res = cm.getSearchCursor(value, { line: 0, ch: 0 })
+    res.findNext()
+    cm.getDoc().setSelection(res.from(), res.to())
+  }
+
   handleSearchChanged(search) {
     this.setState({
       search: search
@@ -107,9 +115,7 @@ export default class UMMView extends Component {
     const editor = document.getElementsByClassName('CodeMirror')[0]
     const cm = editor.CodeMirror
 
-    const res = cm.getSearchCursor(block, { line: 0, ch: 0 })
-    res.findNext()
-    cm.getDoc().setSelection(res.from(), res.to())
+    this.highlightAndMoveTo(cm, block)
 
     this.setState({
       selectedBlock: block
@@ -152,15 +158,25 @@ export default class UMMView extends Component {
   }
 
   handleAddTemplateToDocument(template) {
-    const code = this.state.code + "\n\n" + template
+    const code = this.state.code + '\n' + template + '\n'
     this.setState({
       code: code
     })
 
-    const editor = document.getElementsByClassName('CodeMirror')[0].CodeMirror
-    editor.setValue(code)
+    const editor = document.getElementsByClassName('CodeMirror')[0]
+    
+    if (editor) {
+      const cm = editor.CodeMirror
+      cm.setValue(code)
 
-    this.throttled()
+      setImmediate(() => {
+        this.throttled()
+        
+        this.highlightAndMoveTo(cm, template)
+        const node = ReactDOM.findDOMNode(this.end)
+        node.scrollIntoView({ behavior: "smooth" })
+      })
+    }
   }
 
   handleSave() {
@@ -224,12 +240,13 @@ export default class UMMView extends Component {
                   selected={this.state.selectedBlock}
                   update={::this.handleSelectedBlockChanged} />
               </td>
-              <td style={{ width: '40%' }}>
+              <td style={{ width: '40%' }} className={classnames(style.tdCode, 'bp-umm-td-code')}>
                 <Code 
                   erro={this.state.error}
                   code={this.state.code}
                   update={::this.handleDocumentChanged}
                   setLoading={::this.handlePreviewLoadingChanged} />
+                <div ref={(e) => { this.end = e }} />
               </td>
               <td style={{ width: '40%' }}>
                 <Preview

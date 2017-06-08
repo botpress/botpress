@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+
 import {
   Tooltip,
   OverlayTrigger,
@@ -17,9 +18,16 @@ export default class ActionsView extends Component {
     super(props)
   }
 
+  handleClick(event, item) {
+    event.preventDefault()
+    this.props.add(item.template)
+  }
+
   renderItem(item, key) {
     return <MenuItem key={key} eventKey={key}
-      onClick={() => this.props.add(item.template)}>
+      onClick={(event) => {
+        this.handleClick(event, item)
+      }}>
         {item.type}
       </MenuItem>
   }
