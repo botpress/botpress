@@ -14,7 +14,7 @@ module.exports = {
   },
   pluginsConfig: {
     sitemap: {
-      hostname: "https://docs.botpress.io/"
+      hostname: "https://botpress.io/docs/"
     }
   }
 }
