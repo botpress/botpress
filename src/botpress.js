@@ -5,6 +5,7 @@ import path from 'path'
 import fs from 'fs'
 import _ from 'lodash'
 import cluster from 'cluster'
+import dotenv from 'dotenv'
 
 import ServiceLocator from '+/ServiceLocator'
 import EventBus from './bus'
@@ -106,6 +107,14 @@ class botpress {
     process.chdir(path.join(__dirname, '../'))
 
     const { projectLocation, botfile } = this
+
+    const envPath = path.resolve(projectLocation, '.env')
+    if (fs.existsSync(envPath)) {
+      const envConfig = dotenv.parse(fs.readFileSync(envPath))
+      for (var k in envConfig) {
+        process.env[k] = envConfig[k]
+      }
+    }
 
     const isFirstRun = fs.existsSync(path.join(projectLocation, '.welcome'))
     const dataLocation = getDataLocation(botfile.dataDir, projectLocation)
