@@ -143,7 +143,7 @@ class botpress {
     const emails = createEmails({ emailConfig: botfile.emails })
     const mediator = createMediator(this)
     const convo = createConversations({ logger, middleware: middlewares })
-    const umm = createUMM({ logger, middlewares, projectLocation, botfile })
+    const umm = createUMM({ logger, middlewares, projectLocation, botfile, db })
 
     middlewares.register(umm.incomingMiddleware)
     middlewares.register(hearMiddleware)
@@ -191,6 +191,13 @@ class botpress {
       const { port } = botfile
       logger.info(chalk.green.bold('Bot launched. Visit: http://localhost:' + port))
     })
+
+    const middlewareAutoLoading = _.get(botfile, 'middleware.autoLoading')
+    if (!_.isNil(middlewareAutoLoading) && middlewareAutoLoading === false) {
+      logger.debug('Middleware Auto Loading was disabled. Call bp.middlewares.load() manually.')
+    } else {
+      middlewares.load()
+    }
 
     const projectEntry = eval('require')(projectLocation)
     if (typeof(projectEntry) === 'function') {

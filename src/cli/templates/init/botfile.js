@@ -1,26 +1,46 @@
 module.exports = {
 
-  /**
-  * where the content is stored
-  * you can access this property from `bp.dataLocation`
+  /*
+    Where the content is stored
+    You can access this property from `bp.dataLocation`
   */
   dataDir: process.env.BOTPRESS_DATA_DIR || './data',
 
-  modulesConfigDir: process.env.BOTPRESS_CONFIG_DIR || './modules_config',
-  disableFileLogs: false,
+  /*
+    The port on which the API and UI will be available
+   */
   port: process.env.BOTPRESS_PORT || process.env.PORT || 3000,
-  optOutStats: false,
-  notification: {
-    file: 'notifications.json',
-    maxLength: 50
-  },
+
+  /*
+    Some modules might generate static configuration files
+   */
+  modulesConfigDir: process.env.BOTPRESS_CONFIG_DIR || './modules_config',
+
+  /*
+    By default logs are enabled and available in `dataDir`
+   */
+  disableFileLogs: false,
   log: {
     file: 'bot.log',
     maxSize: 1e6 // 1mb
   },
 
-  /**
-  * Access control of admin panel
+  /*
+    Botpress collects some anonymous usage statistics to help us put our efforts at the right place
+   */
+  optOutStats: false,
+
+  /*
+    Where the notifications are stored.
+    TODO: These should be stored in the database
+   */
+  notification: {
+    file: 'notifications.json',
+    maxLength: 50
+  },
+
+  /*
+    Access control of admin panel
   */
   login: {
     enabled: process.env.NODE_ENV === 'production',
@@ -30,11 +50,13 @@ module.exports = {
     resetAfter: 10 * 60 * 1000 // 10 minutes
   },
 
-  /**
-  * Postgres configuration
+  /*
+    Postgres configuration
+    If Postgres is not enabled, Botpress uses SQLite 3 (file-based database)
   */
   postgres: {
     enabled: process.env.DATABASE === 'postgres',
+    connection: process.env.DATABASE_URL,
     host: process.env.PG_HOST || '127.0.0.1',
     port: process.env.PG_PORT || 5432,
     user: process.env.PG_USER || '',
@@ -43,18 +65,25 @@ module.exports = {
     ssl: process.env.PG_SSL || false
   },
 
-  ummFilePath: 'content.yml',
+  umm: {
+    /*
+      The file containing the UMM Content (Universal Message Markdown)
+      Can be an absolute or relative path (to your bot location)
+    */
+    contentPath: 'content.yml'
+  },
 
-  /**
-  * License configuration
-  * By default, your bot is licensed under Botpress Proprietary License, you can change it for 'AGPL-3.0'
-  * in your 'package.json' if you want to create an open-source chatbot. Otherwise, depending on the edition
-  * you are using, you need to respect some criterias.
-  * Please visit: https://botpress.io/license or contact us at contact@botpress.io
-  */
+  middleware: {
+    /*
+      By default Botpress will automatically load all the middlewares before starting your bot
+      If this is set to false, you should call `bp.middlewares.load` manually
+     */
+    autoLoading: true
+  },
+
+  // **** Update this if you bought a Botpress license ****
   license: {
-    // -> Update this if you bought a Botpress license <-
-    // customerId: process.env.BOTPRESS_CUSTOMER_ID || '',
-    // licenseKey: process.env.BOTPRESS_LICENSE_KEY || ''
+    // customerId: process.env.BOTPRESS_CUSTOMER_ID || 'your_customer_id_here',
+    // licenseKey: process.env.BOTPRESS_LICENSE_KEY || 'your_key_here'
   }
 }

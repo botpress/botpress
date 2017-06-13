@@ -1,6 +1,6 @@
 # Video Tutorials
 
-## Botcast by James Campbell
+## Botcast series
 
 ### Episode 1
 
