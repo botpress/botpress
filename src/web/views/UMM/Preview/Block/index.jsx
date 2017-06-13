@@ -1,4 +1,10 @@
 import React, { Component } from 'react'
+import {
+  Tooltip,
+  OverlayTrigger,
+  Glyphicon
+} from 'react-bootstrap'
+
 import classnames from 'classnames'
 
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
@@ -10,11 +16,28 @@ export default class Block extends Component {
     super(props)
   }
 
+  renderWaiting(wait, key) {
+    const classNames = classnames({
+      [style.waiting]: true,
+      'bp-umm-waiting': true
+    })
+
+    const tooltip = <Tooltip id="tooltip">
+      Waiting <strong>{wait}</strong> seconds after sending...
+    </Tooltip>
+
+    return <div className={classNames} key={key}>
+      <OverlayTrigger placement="top" overlay={tooltip}>
+        <Glyphicon glyph='time' />
+      </OverlayTrigger>
+    </div>
+  }
+
   renderOutgoing(data, key) {
     let { platform, type, text, wait, raw } = data
 
     if (type === 'wait') {
-      return null
+      return this.renderWaiting(wait, key)
     }
 
     if (platform === 'facebook') {
@@ -42,7 +65,7 @@ export default class Block extends Component {
     })
 
     return <div className={classNames}>
-        {this.props.data.map(this.renderOutgoing)}
+        {this.props.data.map(::this.renderOutgoing)}
       </div>
   }
 }
