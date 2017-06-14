@@ -1,4 +1,8 @@
 import _ from 'lodash'
+import fs from 'fs'
+import path from 'path'
+import yaml from 'js-yaml'
+import Promise from 'bluebird'
 
 const validations = {
   'any': (value, validation) => validation(value),
@@ -109,6 +113,29 @@ const overwriteFromBotfileValues = (config_name, options, botfile, object) => {
   })
 }
 
+const overwriteFromConfigFileValues = async (config_name, options, projectLocation, object) => {
+  if (!projectLocation) {
+    return object
+  }
+
+  const configFilePath = path.resolve(projectLocation, `${config_name}.config.yml`)
+
+  if (!fs.existsSync(configFilePath)) {
+    return object
+  }
+
+  const configFromFile = await Promise.fromCallback(callback => {
+    yaml.safeLoadAll(fs.readFileSync(configFilePath), value => callback(null, value))
+  })
+
+  return _.mapValues(object, (_v, name) => {
+    if (typeof configFromFile[name] !== 'undefined') {
+      return configFromFile[name]
+    }
+    return _v
+  })
+}
+
 const removeUnusedKeys = (options, object) => {
   const final = {}
 
@@ -121,7 +148,7 @@ const removeUnusedKeys = (options, object) => {
   return final
 }
 
-const createConfig = ({ kvs, name, botfile = {}, options = {} }) => {
+const createConfig = ({ kvs, name, botfile = {}, options = {}, projectLocation = null }) => {
 
   if (!kvs || !kvs.get || !kvs.set) {
     throw new Error('A valid \'kvs\' is mandatory to createConfig')
@@ -139,6 +166,7 @@ const createConfig = ({ kvs, name, botfile = {}, options = {} }) => {
     return kvs.get('__config', name)
     .then(all => overwriteFromDefaultValues(options, all || {}))
     .then(all => overwriteFromBotfileValues(name, options, botfile, all))
+    .then(all => overwriteFromConfigFileValues(name, options, projectLocation, all))
     .then(all => overwriteFromEnvValues(options, all))
     .then(all => removeUnusedKeys(options, all))
   }
@@ -147,6 +175,7 @@ const createConfig = ({ kvs, name, botfile = {}, options = {} }) => {
     return kvs.get('__config', name + '.' + name)
     .then(value => overwriteFromDefaultValues(options, { [name]: value }))
     .then(all => overwriteFromBotfileValues(name, options, botfile, all))
+    .then(all => overwriteFromConfigFileValues(name, options, projectLocation, all))
     .then(all => overwriteFromEnvValues(options, all))
     .then(obj => obj[name])
   }
