@@ -28,7 +28,8 @@ export default class UMMView extends Component {
 
     this.state = {
       loading: true,
-      previewLoading: true
+      previewLoading: true,
+      refresh: false
     }
 
     this.throttled = _.throttle(this.simulate, REFRESH_TIME_PREVIEW)
@@ -132,9 +133,10 @@ export default class UMMView extends Component {
     })
 
     setTimeout(() => {
-      this.simulate()
+      this.throttled()
       this.setState({
-        previewLoading: false
+        previewLoading: false,
+        refresh: true
       })
     }, 300)
     
@@ -196,6 +198,12 @@ export default class UMMView extends Component {
     })
   }
 
+  handleResetRefresh() {
+    this.setState({
+      refresh: false
+    })
+  }
+
   render() {
     if (this.state.loading) {
       return null
@@ -244,6 +252,8 @@ export default class UMMView extends Component {
                 <Code 
                   erro={this.state.error}
                   code={this.state.code}
+                  refresh={this.state.refresh}
+                  resetRefresh={::this.handleResetRefresh}
                   update={::this.handleDocumentChanged}
                   setLoading={::this.handlePreviewLoadingChanged} />
                 <div ref={(e) => { this.end = e }} />

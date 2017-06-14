@@ -41,8 +41,16 @@ export default class CodeView extends Component {
     }, WAIT_TIME)
 
     this.timer = setInterval(() => {
-      if (!this.isEditing() && this.props.code !== this.state.lastCode) {
+      const codeChanged = !this.isEditing() && this.props.code !== this.state.lastCode
+      const needToRefresh = this.props.refresh
+
+      if (codeChanged || needToRefresh) {
         this.props.setLoading(true)
+        
+        if (needToRefresh) {
+          this.props.resetRefresh()
+        }
+        
         setTimeout(() => this.refreshPositionAdjustments(), ANIM_TIME)
       }
     }, REFRESH_INTERVAL)

@@ -12,6 +12,13 @@ export default class Preview extends Component {
   }
 
   renderBlock(block, key) {
+    if (_.size(block) === 0) {
+      const data = [
+        { type: key, unsupported: true }
+      ]
+      return <Block key={key} data={data} />
+    }
+
     return <Block key={key} data={block} />
   }
 

@@ -33,8 +33,18 @@ export default class Block extends Component {
     </div>
   }
 
+  renderUnsupported(type, key) {
+    return <div key={key}>
+        {'Type of message is not supported on this platform (' + type + ')...'}'
+      </div>
+  }
+
   renderOutgoing(data, key) {
-    let { platform, type, text, wait, raw } = data
+    let { platform, type, text, wait, raw, unsupported } = data
+
+    if (!_.isUndefined(unsupported)) {
+      return this.renderUnsupported(type, key)
+    }
 
     if (type === 'wait') {
       return this.renderWaiting(wait, key)
