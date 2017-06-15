@@ -5,7 +5,6 @@ import express from 'express'
 import path from 'path'
 import fs from 'fs'
 import ms from 'ms'
-import sass from 'node-sass'
 import util from '../util'
 
 module.exports = bp => {
@@ -43,21 +42,13 @@ module.exports = bp => {
   }
 
   function serveCustomTheme(app) {
-
-    if (BP_EDITION === 'lite') {
-      return
-    }
-
-    if (bp.licensing.getFeatures().whitelabel !== true) {
-      return
-    }
-
     let customTheme = ''
-    const themeLocation = path.join(bp.projectLocation, 'theme.scss')
-    if (fs.existsSync(themeLocation)) {
-      const content = fs.readFileSync(themeLocation)
-      const compile = sass.renderSync({ data: `#app {${content}}` })
-      customTheme = compile.css.toString()
+
+    if (BP_EDITION !== 'lite' && bp.licensing.getFeatures().whitelabel === true) {
+      const themeLocation = path.join(bp.projectLocation, 'theme.css')
+      if (fs.existsSync(themeLocation)) {
+        customTheme = fs.readFileSync(themeLocation)
+      }
     }
 
     app.use('/style/custom-theme.css', (req, res) => {

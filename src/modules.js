@@ -53,6 +53,7 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
           kvs: kvs,
           name: mod.name,
           botfile: botpress.botfile,
+          projectLocation,
           options: loader.config || {}
         })
       } catch (err) {

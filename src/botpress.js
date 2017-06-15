@@ -20,6 +20,7 @@ import createLicensing from './licensing'
 import createAbout from './about'
 import createModules from './modules'
 import createUMM from './umm'
+import createUsers from './users'
 import createConversations from './conversations'
 import stats from './stats'
 import packageJson from '../package.json'
@@ -153,6 +154,7 @@ class botpress {
     const mediator = createMediator(this)
     const convo = createConversations({ logger, middleware: middlewares })
     const umm = createUMM({ logger, middlewares, projectLocation, botfile, db })
+    const users = createUsers({ db })
 
     middlewares.register(umm.incomingMiddleware)
     middlewares.register(hearMiddleware)
@@ -174,7 +176,8 @@ class botpress {
       emails,
       mediator,
       convo,
-      umm
+      umm,
+      users
     })
 
     ServiceLocator.init({ bp: this })
