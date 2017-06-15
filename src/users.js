@@ -72,8 +72,26 @@ module.exports = ({ db }) => {
     })
   }
 
-  async function list(from, limit) {
+  async function getCreationDate(userId) {
     const knex = await db.get()
+
+    return knex('users')
+    .where({ userId })
+    .select('created_on')
+    .limit(1)
+    .then()
+    .get(0)
+    .then(ret => ret && ret.created_on)
+  }
+
+  async function list(limit = 50, fromId = null) {
+    const knex = await db.get()
+
+    let fromDate = helpers(knex).date.now()
+    
+    if (!_.isNil(fromId)) {
+      fromDate = await getCreationDate(fromId)
+    }
 
     return knex('users')
     .select(
@@ -84,8 +102,13 @@ module.exports = ({ db }) => {
       'locale',
       'picture_url',
       'first_name',
-      'last_name'
+      'last_name',
+      'created_on'
     )
+    .orderBy('created_on', 'desc')
+    .whereNot('userId', fromId)
+    .where('created_on', '<', fromDate)
+    .limit(limit)
     .then(users => {
       return Promise.all(_.map(users, async (user) => {
         const tags = await getTags(user.userId)
@@ -96,5 +119,5 @@ module.exports = ({ db }) => {
     })
   }
 
-  return { tag, untag, hasTag, getTag, getTags, list }
+  return { tag, untag, hasTag, getTag, getTags, list, getCreationDate }
 }
