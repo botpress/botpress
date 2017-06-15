@@ -89,6 +89,7 @@ module.exports = ({ db }) => {
     .then(users => {
       return Promise.all(_.map(users, async (user) => {
         const tags = await getTags(user.userId)
+        user.id = user.userId
         user.tags = tags
         return user
       }))
