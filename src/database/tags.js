@@ -10,6 +10,6 @@ module.exports = knex => {
     table.string('tag')
     table.string('value')
     table.timestamp('tagged_on')
-    table.primary(['userId', 'tag'])
+    table.unique(['userId', 'tag'])
   })
 }
