@@ -119,5 +119,16 @@ module.exports = ({ db }) => {
     })
   }
 
-  return { tag, untag, hasTag, getTag, getTags, list, getCreationDate }
+
+  async function count() {
+    const knex = await db.get()
+
+    return knex('users')
+    .count('* as count')
+    .get(0)
+    .then(ret => ret)
+  }
+
+
+  return { tag, untag, hasTag, getTag, getTags, list, count }
 }
