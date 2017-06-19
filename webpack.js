@@ -56,8 +56,8 @@ var webConfig = {
   bail: true,
   devtool: 'source-map',
   entry: {
-    web: './src/web/index.jsx'
-    // lite: './src/web/lite.jsx'
+    web: './src/web/index.jsx',
+    lite: './src/web/lite.jsx'
   },
   output: {
     path: './lib/web/js',
@@ -90,9 +90,9 @@ var webConfig = {
     new CopyWebpackPlugin([{
       from: path.resolve(__dirname, './src/web/index.html'),
       to: path.resolve(__dirname, './lib/web/index.html')
-    // }, {
-    //   from: path.resolve(__dirname, './src/web/lite.html'),
-    //   to: path.resolve(__dirname, './lib/web/lite.html')
+    }, {
+      from: path.resolve(__dirname, './src/web/lite.html'),
+      to: path.resolve(__dirname, './lib/web/lite.html')
     },
     {
       from: path.resolve(__dirname, './src/web/img'),
