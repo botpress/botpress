@@ -1,5 +1,4 @@
 import React from 'react'
-import _ from 'lodash'
 import axios from 'axios'
 
 import InjectedComponent from '~/components/Injected'
@@ -15,9 +14,10 @@ export default class InjectedModuleView extends React.Component {
     }
   }
 
-  loadModule(modName, viewName) {
+  loadModule(modName, viewName, lite) {
     const moduleName = modName || this.props.moduleName
     const subView = viewName || this.props.viewName || 'default'
+    const isLite = lite || this.props.lite || false
 
     if (moduleName === this.state.moduleName && subView == this.state.viewName) {
       return
@@ -31,28 +31,39 @@ export default class InjectedModuleView extends React.Component {
       script.onload = () => {
         script.onload = null
         setImmediate(() => {
-          this.setViewInState(moduleName, subView)
+          this.setViewInState(moduleName, subView, isLite)
         })
       }
-      script.src = `/js/modules/${moduleName}.js`
+
+      if (isLite) {
+        script.src = `/js/lite-modules/${moduleName}/${subView}.js`
+      } else {
+        script.src = `/js/modules/${moduleName}.js`
+      }
+      
       document.getElementsByTagName("head")[0].appendChild(script)
     } else {
       this.setState({ moduleComponent: null })
       setImmediate(() => {
-        this.setViewInState(moduleName, subView)
+        this.setViewInState(moduleName, subView, isLite)
       })
     }
   }
 
-  setViewInState(moduleName, viewName) {
-    if (_.isNil(_.get(window, ['botpress', moduleName, viewName]))) {
+  setViewInState(moduleName, viewName, isLite) {
+
+    const module = isLite 
+      ? window.botpress && window.botpress[moduleName].default
+      : window.botpress && window.botpress[moduleName] && window.botpress[moduleName][viewName]
+
+    if (!module) {
       this.setState({
         error: new Error(`Subview "${viewName}" doesn't exist for module "${moduleName}"`),
         moduleComponent: null
       })
     } else {
       this.setState({
-        moduleComponent: window.botpress[moduleName][viewName],
+        moduleComponent: module,
         error: null
       })
     }
@@ -63,7 +74,7 @@ export default class InjectedModuleView extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    this.loadModule(nextProps.moduleName, nextProps.viewName)
+    this.loadModule(nextProps.moduleName, nextProps.viewName, nextProps.lite)
   }
 
   render() {

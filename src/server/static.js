@@ -11,8 +11,6 @@ module.exports = bp => {
 
   function serveModule(app, module) {
     const name = module.name
-    const bundlePath = path.join(module.root, module.settings.webBundle || 'bin/web.bundle.js')
-    
 
     if (module.settings.menuIcon === 'custom') {
       const iconRequestPath = `/img/modules/${name}.png`
@@ -29,15 +27,36 @@ module.exports = bp => {
       })
     }
 
-    const requestPath = `/js/modules/${name}.js`
-    app.use(requestPath, (req, res) => {
-      try {
+    const liteDir = path.join(module.root, module.settings.liteDir || 'bin/lite')
+    const liteViews = fs.existsSync(liteDir)
+      ? fs.readdirSync(liteDir).filter(b => b.endsWith('.js'))
+      : []
+
+    app.use(`/js/modules/${name}.js`, (req, res) => {
+      const settingsKey = module.settings.webBundle
+      const bundlePath = path.join(module.root, settingsKey || 'bin/web.bundle.js')
+
+      try {  
         const content = fs.readFileSync(bundlePath)
         res.contentType('text/javascript')
         res.send(content)
       } catch (err) {
         bp.logger.warn(`Could not serve module [${name}] at: ${bundlePath}`)
       }
+    })
+
+    liteViews.forEach(view => {
+      const bundlePath = path.join(liteDir, view)
+
+      app.use(`/js/lite-modules/${name}/${view}`, (req, res) => {
+        try {
+          const content = fs.readFileSync(bundlePath)
+          res.contentType('text/javascript')
+          res.send(content)
+        } catch (err) {
+          bp.logger.warn(`Could not serve Lite module [${name}/${view}] at: ${bundlePath}`)
+        }
+      })
     })
   }
 
@@ -91,6 +110,10 @@ module.exports = bp => {
 
     app.get('*', (req, res, next) => {
       if (/html/i.test(req.headers.accept)) {
+        if (req.url && /^\/lite\//i.test(req.url)) {
+          return res.sendFile(path.join(__dirname, '../lib/web/lite.html'))
+        }
+        
         return res.sendFile(path.join(__dirname, '../lib/web/index.html'))
       }
       next()

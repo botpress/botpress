@@ -2,8 +2,6 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import ReactDOM from 'react-dom'
 
-import _ from 'lodash'
-
 export default class InjectedComponent extends Component {
 
   static propTypes: {
@@ -41,7 +39,7 @@ export default class InjectedComponent extends Component {
 
     try {
       const Component = this.props.component
-      const passthroughProps = _.omit(this.props, 'component')
+      const passthroughProps = Object.assign({}, this.props, { component: null })
       const element = <Component key={this.componentId} {...passthroughProps} />
       ReactDOM.render(element, node)
     } catch (err) {
