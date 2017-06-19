@@ -98,6 +98,7 @@
     "sinon": "^1.17.7",
     "style-loader": "^0.13.1",
     "tmp": "0.0.31",
+    "uglifyjs-webpack-plugin": "^0.4.3",
     "webpack": "^1.13.2",
     "webpack-node-externals": "^1.5.4"
   },
