@@ -36,8 +36,11 @@ const mapBlocs = (rawBlocs, options, processors, incomingEvent) => {
 
     // Parsing conditionals
     const evaluate = (val, exp) => {
+
       if (typeof exp === 'boolean') {
         return val === exp
+      } if (_.isArrayLike(exp)) {
+        return val ? !_.isEmpty(exp) : _.isEmpty(exp)
       } else {
         return val ? !!exp : !exp
       }

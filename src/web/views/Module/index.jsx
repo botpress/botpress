@@ -38,13 +38,14 @@ export default class ModuleView extends React.Component {
     </ContentWrapper>
   }
 
-  renderNotFound() {
+  renderNotFound(err) {
     return (
       <div className="panel panel-warning">
         <div className="panel-heading">Module not found</div>
         <div className="panel-body">
           <h4>The module is not properly registered</h4>
           <p>It seems like you are trying to load a module that has not been registered. Please make sure the module is registered then restart the bot.</p>
+          {err && <p>{err}</p>}
           <p>
             {/* TODO update doc & help */}
             <a role="button" className="btn btn-primary btn-lg">Learn more</a>

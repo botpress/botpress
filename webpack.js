@@ -4,6 +4,7 @@ var CopyWebpackPlugin = require('copy-webpack-plugin')
 var autoprefixer = require('autoprefixer')
 // var HardSourceWebpackPlugin = require('hard-source-webpack-plugin')
 var nodeExternals = require('webpack-node-externals')
+const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
 
 var ExtensionsPlugin = require('./extensions/extensions-plugin')
 
@@ -54,11 +55,14 @@ var nodeConfig = {
 var webConfig = {
   bail: true,
   devtool: 'source-map',
-  entry: ['./src/web/index.jsx'],
+  entry: {
+    web: './src/web/index.jsx'
+    // lite: './src/web/lite.jsx'
+  },
   output: {
     path: './lib/web/js',
     publicPath: '/js/',
-    filename: 'web.bundle.js'
+    filename: '[name].bundle.js'
   },
   resolve: {
     extensions: ['', '.js', '.jsx', '.css'],
@@ -70,11 +74,27 @@ var webConfig = {
   plugins: [
     ExtensionsPlugin.beforeResolve,
     ExtensionsPlugin.afterResolve,
+    new webpack.DefinePlugin({
+      BP_EDITION: JSON.stringify(process.env.BOTPRESS_EDITION || 'lite'),
+      'process.env': {
+        'NODE_ENV': JSON.stringify('production')
+      }
+    }),
+    new UglifyJSPlugin({
+      compress: { warnings: false },
+      comments: false,
+      minimize: false,
+      sourceMap: true
+    }),
     new webpack.NoErrorsPlugin(),
     new CopyWebpackPlugin([{
       from: path.resolve(__dirname, './src/web/index.html'),
       to: path.resolve(__dirname, './lib/web/index.html')
-    }, {
+    // }, {
+    //   from: path.resolve(__dirname, './src/web/lite.html'),
+    //   to: path.resolve(__dirname, './lib/web/lite.html')
+    },
+    {
       from: path.resolve(__dirname, './src/web/img'),
       to: path.resolve(__dirname, './lib/web/img')
     }, {
@@ -100,7 +120,7 @@ var webConfig = {
       query: {
         presets: ['latest', 'stage-0', 'react'],
         plugins: ['transform-object-rest-spread', 'transform-decorators-legacy'],
-        compact: false,
+        compact: true,
         babelrc: false,
         cacheDirectory: true
       }
@@ -118,7 +138,7 @@ var webConfig = {
       loader: "json-loader"
     }]
   },
-  postcss: [ autoprefixer({ browsers: ['last 2 versions'] }) ]
+  postcss: [autoprefixer({ browsers: ['last 2 versions'] })]
 }
 
 var compiler = webpack([webConfig, nodeConfig])
