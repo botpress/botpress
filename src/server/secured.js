@@ -180,6 +180,11 @@ module.exports = (bp, app) => {
     res.send({ templates: bp.umm.getTemplates() })
   })
 
+  app.secure('read', 'bot/umm/platforms')
+  .get('/umm/platforms', (req, res) => {
+    res.send({ platforms: bp.umm.getPlatforms() })
+  })
+
   app.secure('write', 'bot/umm/blocs')
   .post('/umm/blocs', (req, res) => {
     const { content } = (req.body || {})

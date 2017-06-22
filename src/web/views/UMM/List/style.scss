@@ -3,4 +3,28 @@ $content-bg-color: #FFFFFF;
 .list {
   min-height: 85vh;
   background-color: $content-bg-color;
+
+  ul {
+    list-style: none;
+    padding-left: 20px;
+    padding-top: 10px;
+
+    li {
+      padding: 2px 0;
+      
+      a {
+        text-decoration: none;
+        
+        &:hover {
+          color: black;
+          cursor: pointer;
+        }
+        
+        &.selected {
+          color: black;
+          font-weight: 500;
+        }
+      }
+    }
+  }
 }
