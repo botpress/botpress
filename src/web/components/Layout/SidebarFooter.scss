@@ -6,7 +6,7 @@
   height: 140px; // Needs to match with Sidebar styles
   width: 200px; // Needs to match with Sidebar styles
 
-  color: $sidebar-primary-color;
+  color: $color-light-text;
 
   font-size: 12px;
   position: fixed;
@@ -14,23 +14,14 @@
 
   text-align: left;
 
-  background: rgba(36,36,36,0.5);
-  background: -moz-linear-gradient(buttom, rgba(36,36,36,1) 60%, rgba(36,36,36,0) 100%);
-  background: -webkit-gradient(left bottom, left top, color-stop(60%, rgba(36,36,36,0)), color-stop(100%, rgba(36,36,36,0)));
-  background: -webkit-linear-gradient(bottom, rgba(36,36,36,1) 60%, rgba(36,36,36,0) 100%);
-  background: -o-linear-gradient(bottom, rgba(36,36,36,1) 60%, rgba(36,36,36,0) 100%);
-  background: -ms-linear-gradient(bottom, rgba(36,36,36,1) 60%, rgba(36,36,36,0) 100%);
-  background: linear-gradient(to top, rgba(36,36,36,1) 60%, rgba(36,36,36,0) 100%);
-
   .innerFooter {
-    border-top: 1px solid #565656;
-    background-color: $sidebar-color;
+    background-color: $color-white-bg;
     position: absolute;
     bottom: 0px;
     width: 100%;
     opacity: 1;
     padding-top: 10px;
-    padding-left: 20px;
+    padding-left: 40px;
     padding-bottom: 10px;
   }
 
