@@ -80,9 +80,13 @@ class Sidebar extends Component {
       ? <img className={classnames(style.customIcon, 'bp-custom-icon')} src={iconPath} />
       : <i className="icon material-icons">{module.menuIcon}</i>
 
+    const circleClassName = classnames(style.circle, 'bp-sidebar-circle')
+    
     return <li key={`menu_module_${module.name}`} className={classNames}>
       <Link to={path} title={module.menuText}>
-        {moduleIcon}
+        <div className={circleClassName}>
+          {moduleIcon}
+        </div>
         <span>{module.menuText}</span>
       </Link>
     </li>
@@ -101,12 +105,14 @@ class Sidebar extends Component {
     }
 
     const className = this.getActiveClassNames(isAt(activePaths))
-
+    const circleClassName = classnames(style.circle, 'bp-sidebar-circle')
     return <RulesChecker res={rule.res} op={rule.op}>
         <li className={className} key={path}>
           <Link to={path} title={name}>
-            <i className="icon material-icons">{icon}</i>
-            {name}
+            <div className={circleClassName}>
+              <i className="icon material-icons">{icon}</i>
+            </div>
+            <span>{name}</span>
           </Link>
         </li>
       </RulesChecker>
