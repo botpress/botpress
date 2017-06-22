@@ -7,6 +7,7 @@
 .middlewareList {
   :global(.list-group-item) {
     padding: 0;
+    border-color: $color-gray-bg;
   }
 }
 
