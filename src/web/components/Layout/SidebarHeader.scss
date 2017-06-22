@@ -1,7 +1,7 @@
 @import '../../palette.scss';
 
 .logo {
-  margin: 20px 0 10px 15px !important;
+  margin: 50px 0 40px 44px !important;
   padding: 3px;
 
   img {
@@ -10,8 +10,8 @@
 }
 
 .header {
-  width: 200px;
-  max-width: 200px;
-  background-color: $sidebar-color;
-  color: $sidebar-text-color;
+  width: 250px;
+  max-width: 250px;
+  background-color: $color-white-bg;
+  color: $color-white-bg;
 }
