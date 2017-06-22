@@ -12,7 +12,7 @@ import { Grid, Row, Col, Panel } from 'react-bootstrap'
 const style = require('./style.scss')
 
 const documentation = `
-  #### **Documentation**
+  #### Documentation
 
   A middleware chain is simply a collection of middleware functions that are called in a predertermined order.
   
