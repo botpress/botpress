@@ -1,7 +1,7 @@
 {
   "name": "botpress",
   "description": "The world's first CMS for bots. Easily create, manage and extend chatbots.",
-  "version": "1.0.5",
+  "version": "1.0.9",
   "author": "Botpress",
   "bin": {
     "bp": "./bin/botpress",
@@ -98,6 +98,7 @@
     "sinon": "^1.17.7",
     "style-loader": "^0.13.1",
     "tmp": "0.0.31",
+    "uglifyjs-webpack-plugin": "^0.4.3",
     "webpack": "^1.13.2",
     "webpack-node-externals": "^1.5.4"
   },

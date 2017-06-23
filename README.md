@@ -5,8 +5,15 @@ Botpress is an open-source bot creation tool written in Javascript. It is powere
 
 ---
 
-| 📖 [Documentation](https://docs.botpress.io) | 🍿 [YouTube](https://www.youtube.com/channel/UCEHfE71jUmWbe_5DtbO3fIA) | 🖥 [Website](https://botpress.io) | 💬 [Slack](https://slack.botpress.io) | 📦 [Modules](https://www.npmjs.com/search?q=botpress) | 🚀 [Blog](https://botpress.io/blog) |
-| ------------- | ------- | -------- | ------- | -------- | -------- |
+##### Learn Botpress
+
+| 📖 [Documentation](https://botpress.io/docs) | 🎓 [Examples](https://botpress.io/examples) | 🍿 [YouTube Tutorials](https://www.youtube.com/channel/UCEHfE71jUmWbe_5DtbO3fIA) |
+| ------------- | ------- | -------- |
+
+##### Follow us
+
+| 🖥 [Website](https://botpress.io) | 💬 [Slack](https://slack.botpress.io) | 📦 [Modules](https://www.npmjs.com/search?q=botpress) | 🚀 [Blog](https://botpress.io/blog) |
+| ------------- | ------- | -------- | --------- |
 
 ---
 
@@ -19,11 +26,11 @@ Botpress is on a mission to make useful bots ubiquitous by powering developers w
 Botpress is a free & open-source bot-building platform that ships with:
 * [**Connectors**](https://www.npmjs.com/search?q=botpress-connector) to the major chat platforms
 * [**Modular ecosystem**](https://www.npmjs.com/search?q=botpress) with over 29 modules
-* [**Flow-management**](https://docs.botpress.io/creating-your-bot/how-to-manage-conversation-flow.html) system
+* [**Flow-management**](https://botpress.io/docs/foundamentals/flow.html) system
 * **Graphical interface** to edit and manage your bot in production
 * **Notification centre** to see what's hapenning with your bot
-* [**Data persistence**](https://docs.botpress.io/creating-your-bot/how-to-use-the-database.html) to database
-* [**Built-in API**](https://docs.botpress.io/creating-your-bot/how-to-use-the-http-server.html) to integrate with external systems
+* [**Data persistence**](https://botpress.io/docs/foundamentals/database.html) to database
+* [**Built-in API**](https://botpress.io/docs/modules/api.html) to integrate with external systems
 
 ## <a name="what-it-looks-like">What it looks like </a>
 
@@ -45,13 +52,13 @@ npm install -g botpress
 
 ## Creating a bot
 
-Creating a bot is simple, you need to run [`botpress init`](https://docs.botpress.io/getting-started/how-to-use-the-cli.html#init) in a terminal inside an empty directory:
+Creating a bot is simple, you need to run [`botpress init`](https://botpress.io/docs/reference/cli.html#init) in a terminal inside an empty directory:
 
 ```
 botpress init my-bot
 ```
 
-Once your bot is created, you need to run [`botpress start`](https://docs.botpress.io/getting-started/how-to-use-the-cli.html#start--s) to start your bot:
+Once your bot is created, you need to run [`botpress start`](https://botpress.io/docs/reference/cli.html#init) to start your bot:
 
 ```
 botpress start
@@ -69,7 +76,7 @@ At this point, your bot does nothing, you need to add features. There are two wa
 
 For example, there's a `botpress-messenger` module that will make your bot connect to Facebook Messenger and easily send/receive messages.
 
-You can install modules directly in the web interface, or by using the [`botpress install`](https://docs.botpress.io/getting-started/how-to-use-the-cli.html#install--i) command:
+You can install modules directly in the web interface, or by using the [`botpress install`](https://botpress.io/docs/reference/cli.html#install) command:
 
 ```
 botpress install messenger
@@ -89,25 +96,17 @@ bp.hear({ type: 'postback', text: 'GETTING_STARTED' }, (event, next) => {
 })
 ```
 
-To create a basic Hello Human bot in 3 minutes, please read the [Getting Started](https://docs.botpress.io/getting-started/).
+To create a basic Hello Human bot in one minute, please read the [Getting Started](https://botpress.io/docs/starting/setup.html).
 
-For learn all about Botpress, please read our full [Documentation](https://docs.botpress.io/)
+For learn all about Botpress, please read our full [Documentation](https://botpress.io/docs)
 
 ## Documentation
 
-- [**Hello Human in 3 minutes** (start with this!)](https://docs.botpress.io/getting-started/hello-human-in-3-minutes.html)
-- [Getting Started](https://docs.botpress.io/getting-started/)
-- [How to create and manage Modules](https://docs.botpress.io/modules/)
-- [Creating your bot](https://docs.botpress.io/creating-your-bot/)
-- [Management, Monitoring and Deployment](https://docs.botpress.io/managing/)
+- [Getting Started](https://botpress.io/docs)
+- [Deploying your bot to **Heroku**](https://botpress.io/docs/deploy/heroku.html)
+- [How to create your own Module](https://botpress.io/docs/modules/how.html)
 
-## Examples
-
-Here are some tutorials that might help you get started. They are easy to follow and take about 10 minutes to work through.
-
-- [Hello World Bot](https://github.com/botpress/botpress-examples/tree/master/hello-world-bot)
-- [Hello World Bot using Rivescript](https://github.com/botpress/botpress-examples/tree/master/hello-world-rivescript-bot)
-- [Motivation Bot](https://github.com/botpress/botpress-examples/tree/master/motivation-bot)
+## [🎓 Examples](botpress.io/examples)
 
 ## Modules
 

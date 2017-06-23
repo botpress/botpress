@@ -15,6 +15,7 @@ import createLogger from './logger'
 import createSecurity from './security'
 import createNotifications from './notifications'
 import createHearMiddleware from './hear'
+import createFallbackMiddleware from './fallback'
 import createDatabase from './database'
 import createLicensing from './licensing'
 import createAbout from './about'
@@ -150,6 +151,7 @@ class botpress {
     const licensing = createLicensing({ logger, projectLocation, version, db, botfile })
     const middlewares = createMiddlewares(this, dataLocation, projectLocation, logger)
     const { hear, middleware: hearMiddleware } = createHearMiddleware()
+    const { middleware: fallbackMiddleware } = createFallbackMiddleware(this)
     const emails = createEmails({ emailConfig: botfile.emails })
     const mediator = createMediator(this)
     const convo = createConversations({ logger, middleware: middlewares })
@@ -158,6 +160,7 @@ class botpress {
 
     middlewares.register(umm.incomingMiddleware)
     middlewares.register(hearMiddleware)
+    middlewares.register(fallbackMiddleware)
 
     _.assign(this, {
       dataLocation,
