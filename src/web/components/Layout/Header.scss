@@ -19,11 +19,12 @@
 
   :global(.open) {
     :global(.material-icons) {
-      color: $content-color-normal !important;
+      color: $color-light-text !important;
     }
   }
 
   :global(.dropdown-menu) {
+    border: 1px solid $color-gray-bg;
     a {
       width: 100%;
       text-decoration: none;
@@ -32,7 +33,8 @@
 }
 
 :global(.navbar-default .navbar-nav > .open > a) {
-  background-color: #ffffff !important;
+  background-color: $color-gray-bg !important;
+  color: $color-dark-text !important;
 }
 
 .app-navbar {
@@ -46,10 +48,10 @@
   border-radius: 0;
 
   li a {
-    color: $content-color-light !important;
+    color: $color-light-text !important;
     
     &:hover {
-      color: $content-color-normal !important;
+      color: $color-dark-text !important;
     }
   }
 }
@@ -93,7 +95,7 @@
     font-size: 32px;
 
     &:hover {
-      color: $content-color-normal !important;
+      color: $color-light-text !important;
     }
   }
 
