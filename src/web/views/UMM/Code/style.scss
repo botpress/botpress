@@ -34,4 +34,12 @@
   :global(.cm-s-zenburn .CodeMirror-focused div.CodeMirror-selected) {
     background-color: $color-gray-bg;
   }
+
+  :global(.cm-s-zenburn .CodeMirror-focused div.CodeMirror-selected) {
+    background-color: $color-gray-bg;
+  }
+
+  :global(.cm-s-zenburn .CodeMirror-cursor) {
+    border-left: 1px solid $color-light-text;
+  }
 }
