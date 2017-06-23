@@ -1,16 +1,37 @@
-$content-bg-color: #3f3f3f;
+@import '../../../palette.scss';
 
 .code {
   min-height: 85vh;
-  background-color: $content-bg-color;
+  background-color: $color-white-bg;
 
   :global(.CodeMirror) {
     height: 100%;
-    background-color: $content-bg-color;
+    background-color: $color-white-bg;
   }
 
-  :global(.CodeMirror-gutters) {
-    border-right: 1px solid #5d5d5d;
+  :global(.cm-s-zenburn .CodeMirror-gutters) {
+    border-right: 1px solid $color-white-bg;
     padding-right: 1px;
+    background-color: $color-white-bg !important;
+  }
+
+  :global(.cm-s-zenburn) {
+    color: $color-light-text;
+  }
+
+  :global(.cm-s-zenburn span.cm-atom) {
+    color: $color-main;
+  }
+
+  :global(.cm-s-zenburn span.cm-meta) {
+    color: $color-main;
+  }
+
+  :global(.cm-s-zenburn div.CodeMirror-selected) {
+    background-color: $color-gray-bg;
+  }
+  
+  :global(.cm-s-zenburn .CodeMirror-focused div.CodeMirror-selected) {
+    background-color: $color-gray-bg;
   }
 }
