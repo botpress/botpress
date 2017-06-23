@@ -1,3 +1,5 @@
+@import '../../palette.scss';
+
 .markAsReadButton {
   top: 22px;
   right: 12px;
@@ -7,6 +9,10 @@
   padding-top: 4px;
   width: 100%;
   border-left: 4px solid #e2e2e2;
+
+   i {
+    color: $color-light-text;
+   }
 }
 
 .item-unread.level-info {
