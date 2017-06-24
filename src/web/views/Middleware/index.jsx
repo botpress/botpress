@@ -18,7 +18,7 @@ const documentation = `
   
   Every middleware has to be registered to appear and you will be able to  do so with the \`bp.middlewares.register()\` method.
 
-  For more details about middleware, look at the [documentation](https://docs.botpress.io/creating-your-bot/understanding-the-middlewares.html).
+  For more details about middleware, look at the [documentation](https://botpress.io/docs/advanced/middleware.html).
   
   ##### **Ordering middleware**
 
