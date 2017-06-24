@@ -48,7 +48,7 @@ export default class HelpButton extends React.Component {
           </li>
           <li className={btnClass('btn2')} style={{ bottom: (basePosition + 60) + 'px' }}>
             <OverlayTrigger placement="left" overlay={documentation}>
-              <a href='https://docs.botpress.io' target='_blank'><i className="icon material-icons">book</i></a>
+              <a href='https://botpress.io/docs' target='_blank'><i className="icon material-icons">book</i></a>
             </OverlayTrigger>
           </li>
           <li className={btnClass('btn3')} style={{ bottom: (basePosition + 120) + 'px' }}>

@@ -91,11 +91,11 @@ export default class GuidedTour extends React.Component {
       <p>{emojify(':rocket:', 100)}</p>
       <p className={style.big}>Before you deploy your bot...</p>
       <ul className={style.left}>
-        <li>We recommend you <a target="_blank" href="https://docs.botpress.io/creating-your-bot/how-to-use-the-database.html">enable the Postgres database</a> for production environments</li>
+        <li>We recommend you <a target="_blank" href="https://botpress.io/docs/foundamentals/database.html#postgres">enable the Postgres database</a> for production environments</li>
         <li>Do <strong>not</strong> store keys, passwords or any sensitive information in your botfile. Use environment variables instead.</li>
-        <li>If your bot is not open-source, you must <a target="_blank" href="https://docs.botpress.io/creating-your-bot/botpress-license.html">switch to the Botpress License</a>, which is currently free for bots with <span className={style.emp}>less than 150.000 interactions per month.</span></li>
+        <li>Switch to the <b>Botpress License</b> (the default license is AGPL), which is 100% free for all bots and more permissive than AGPL.</li>
       </ul>
-      <p>Deployment tutorials are <a href="https://docs.botpress.io/managing/how-to-deploy.html" target="_blank">available here.</a></p>
+      <p>Deployment tutorials are <a href="https://botpress.io/docs/deploy/heroku.html" target="_blank">available here.</a></p>
     </div>
   }
 
