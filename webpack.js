@@ -92,7 +92,7 @@ var webConfig = {
       to: path.resolve(__dirname, './lib/web/index.html')
     }, {
       from: path.resolve(__dirname, './src/web/lite.html'),
-      to: path.resolve(__dirname, './lib/web/lite.html')
+      to: path.resolve(__dirname, './lib/web/lite/index.html')
     },
     {
       from: path.resolve(__dirname, './src/web/img'),
