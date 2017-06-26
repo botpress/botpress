@@ -5,6 +5,7 @@ import path from 'path'
 import fs from 'fs'
 import _ from 'lodash'
 import cluster from 'cluster'
+import dotenv from 'dotenv'
 
 import ServiceLocator from '+/ServiceLocator'
 import EventBus from './bus'
@@ -14,6 +15,7 @@ import createLogger from './logger'
 import createSecurity from './security'
 import createNotifications from './notifications'
 import createHearMiddleware from './hear'
+import createFallbackMiddleware from './fallback'
 import createDatabase from './database'
 import createLicensing from './licensing'
 import createAbout from './about'
@@ -108,6 +110,14 @@ class botpress {
 
     const { projectLocation, botfile } = this
 
+    const envPath = path.resolve(projectLocation, '.env')
+    if (fs.existsSync(envPath)) {
+      const envConfig = dotenv.parse(fs.readFileSync(envPath))
+      for (var k in envConfig) {
+        process.env[k] = envConfig[k]
+      }
+    }
+
     const isFirstRun = fs.existsSync(path.join(projectLocation, '.welcome'))
     const dataLocation = getDataLocation(botfile.dataDir, projectLocation)
     const modulesConfigDir = getDataLocation(botfile.modulesConfigDir, projectLocation)
@@ -141,6 +151,7 @@ class botpress {
     const licensing = createLicensing({ logger, projectLocation, version, db, botfile })
     const middlewares = createMiddlewares(this, dataLocation, projectLocation, logger)
     const { hear, middleware: hearMiddleware } = createHearMiddleware()
+    const { middleware: fallbackMiddleware } = createFallbackMiddleware(this)
     const emails = createEmails({ emailConfig: botfile.emails })
     const mediator = createMediator(this)
     const convo = createConversations({ logger, middleware: middlewares })
@@ -149,6 +160,7 @@ class botpress {
 
     middlewares.register(umm.incomingMiddleware)
     middlewares.register(hearMiddleware)
+    middlewares.register(fallbackMiddleware)
 
     _.assign(this, {
       dataLocation,
