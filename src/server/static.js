@@ -11,12 +11,13 @@ module.exports = bp => {
 
   function serveModule(app, module) {
     const name = module.name
+    const shortName = module.name.replace(/botpress-/i, '')
 
     if (module.settings.menuIcon === 'custom') {
       const iconRequestPath = `/img/modules/${name}.png`
       const iconPath = path.join(module.root, 'icon.png')
 
-      app.use(iconRequestPath, (req, res) => {
+      app.get(iconRequestPath, (req, res) => {
         try {
           const content = fs.readFileSync(iconPath)
           res.contentType('image/png')
@@ -32,31 +33,27 @@ module.exports = bp => {
       ? fs.readdirSync(liteDir).filter(b => b.endsWith('.js'))
       : []
 
-    app.use(`/js/modules/${name}.js`, (req, res) => {
+    app.get([
+      `/js/modules/${shortName}`, // The full module view
+      `/js/modules/${name}.js`, // <<-- DEPRECATED: Will be removed shortly. Only use shortNames
+      `/js/modules/${shortName}/:subview` // Lite view
+    ], (req, res) => {
       const settingsKey = module.settings.webBundle
-      const bundlePath = path.join(module.root, settingsKey || 'bin/web.bundle.js')
+      let bundlePath = path.join(module.root, settingsKey || 'bin/web.bundle.js')
 
-      try {  
+      if (req.params && req.params.subview) {
+        // Render lite view
+        bundlePath = path.join(liteDir, req.params.subview + '.bundle.js')
+      }
+
+      try {
         const content = fs.readFileSync(bundlePath)
         res.contentType('text/javascript')
         res.send(content)
       } catch (err) {
         bp.logger.warn(`Could not serve module [${name}] at: ${bundlePath}`)
+        res.sendStatus(404)
       }
-    })
-
-    liteViews.forEach(view => {
-      const bundlePath = path.join(liteDir, view)
-
-      app.use(`/js/lite-modules/${name}/${view}`, (req, res) => {
-        try {
-          const content = fs.readFileSync(bundlePath)
-          res.contentType('text/javascript')
-          res.send(content)
-        } catch (err) {
-          bp.logger.warn(`Could not serve Lite module [${name}/${view}] at: ${bundlePath}`)
-        }
-      })
     })
   }
 

@@ -36,7 +36,7 @@ export default class InjectedModuleView extends React.Component {
       }
 
       if (isLite) {
-        script.src = `/js/lite-modules/${moduleName}/${subView}.js`
+        script.src = `/js/modules/${moduleName}/${subView}`
       } else {
         script.src = `/js/modules/${moduleName}.js`
       }
@@ -52,13 +52,17 @@ export default class InjectedModuleView extends React.Component {
 
   setViewInState(moduleName, viewName, isLite) {
 
+    const fullModuleName = moduleName.startsWith('botpress-')
+      ? moduleName
+      : 'botpress-' + moduleName
+
     const module = isLite 
-      ? window.botpress && window.botpress[moduleName].default
-      : window.botpress && window.botpress[moduleName] && window.botpress[moduleName][viewName]
+      ? window.botpress && window.botpress[fullModuleName].default
+      : window.botpress && window.botpress[fullModuleName] && window.botpress[fullModuleName][viewName]
 
     if (!module) {
       this.setState({
-        error: new Error(`Subview "${viewName}" doesn't exist for module "${moduleName}"`),
+        error: new Error(`Subview "${viewName}" doesn't exist for module "${fullModuleName}"`),
         moduleComponent: null
       })
     } else {

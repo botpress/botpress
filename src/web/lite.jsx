@@ -3,21 +3,28 @@ import ReactDOM from 'expose?ReactDOM!react-dom'
 
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
 
-console.log(window.location)
-
-const moduleName = 'botpress-messenger-views'
-const subView = 'hello.bundle'
+const { m, v } = parseQueryString()
 
 const LiteView = props => {
-  const moduleView = <InjectedModuleView
-    moduleName={moduleName}
-    viewName={subView}
+  return <InjectedModuleView
+    moduleName={m}
+    viewName={v}
     lite={true}
-    onNotFound={() => {
-      console.log('View NOT FOUND')
-    }} />
-
-  return moduleView
+    onNotFound={() => <h1>Module ${m} with view ${v} not found</h1>} />
 }
 
 ReactDOM.render(<LiteView />, document.getElementById('app'))
+
+function parseQueryString() {
+  let queryString = window.location.search || '?'
+  queryString = queryString.substring(1)
+
+  let params = {}, queries, temp, i, l
+  queries = queryString.split('&')
+
+  for(i = 0, l = queries.length; i < l; i++) {
+    temp = queries[i].split('=')
+    params[temp[0]] = temp[1]
+  }
+  return params
+}
