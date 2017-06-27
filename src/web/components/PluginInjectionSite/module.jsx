@@ -85,6 +85,7 @@ export default class InjectedModuleView extends React.Component {
     const { moduleComponent } = this.state
 
     if (!!this.state.error) {
+      console.log('Error rendering plugin', this.state.error)
       return (this.props.onNotFound && this.props.onNotFound(this.state.error)) || null
     }
 
