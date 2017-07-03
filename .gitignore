@@ -57,3 +57,5 @@ lib/
 # for vim 
 *.swp
 *.sly
+
+_book/

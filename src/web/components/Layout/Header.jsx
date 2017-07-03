@@ -75,12 +75,6 @@ class Header extends Component {
     </span>
   }
 
-  renderSlackButton() {
-    return <span className={classnames(style.slack, 'bp-slack')} >
-      <img src="/img/slack_mark.svg" />
-    </span>
-  }
-
   render() {
     if (this.props.UI.get('viewMode') >= 3) {
       return null
@@ -91,7 +85,6 @@ class Header extends Component {
     return <Navbar className={classNames}>
       <Navbar.Collapse>
         <Nav pullRight>
-          <NavItem href="https://slack.botpress.io" target="_blank">{this.renderSlackButton()}</NavItem>
           <NavItem onClick={::this.handleFullscreen}>{this.renderFullScreenButton()}</NavItem>
           <RulesChecker res='bot/logs' op='read'>
             <NavItem href="/logs"><Glyphicon glyph="list-alt"/></NavItem>

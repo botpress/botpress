@@ -6,6 +6,7 @@ import classnames from 'classnames'
 import Header from './Header'
 import Sidebar from './Sidebar'
 import SidebarFooter from './SidebarFooter'
+import HelpButton from './HelpButton'
 
 import LicenseComponent from '~/components/License'
 import AboutComponent from '~/components/About'
@@ -60,6 +61,7 @@ class Layout extends React.Component {
         <LicenseComponent opened={this.props.UI.get('licenseModalOpened')} />
         <AboutComponent opened={this.props.UI.get('aboutModalOpened')} />
         <PluginInjectionSite site={'overlay'}/>
+        <HelpButton />
       </div>
     )
   }
