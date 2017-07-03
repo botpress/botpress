@@ -18,7 +18,7 @@ module.exports = bp => {
     }
 
     admin.on('connection', function(socket) {
-      const visitorId = _.get('socket', 'handshake.query.visitorId')
+      const visitorId = _.get(socket, 'handshake.query.visitorId')
       bp.stats.track('socket', 'connected')
 
       socket.on('event', function(event) {
@@ -32,8 +32,12 @@ module.exports = bp => {
     })
 
     guest.on('connection', function(socket) {
-      const visitorId = _.get('socket', 'handshake.query.visitorId')
+      const visitorId = _.get(socket, 'handshake.query.visitorId')
       bp.stats.track('socket', 'connected')
+
+      if (visitorId && visitorId.length > 0) {
+        socket.join('visitor:' + visitorId)
+      }
 
       socket.on('event', function(event) {
         bp.events.emit(event.name, event.data, 'client', {

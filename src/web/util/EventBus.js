@@ -57,7 +57,7 @@ class EventBus extends EventEmitter2 {
       this.guestSocket.disconnect()
     }
 
-    let socketUrl = window.location.origin 
+    let socketUrl = window.location.origin
     
     this.adminSocket = io(socketUrl + '/admin', { query })
     this.adminSocket.on('event', this.dispatchSocketEvent)

@@ -101,5 +101,3 @@ export default class InjectedModuleView extends React.Component {
     return <InjectedComponent component={moduleComponent} name={this.props.moduleName} bp={bp}/>
   }
 }
-
-// <InjectedModuleView moduleName={} viewName={} onNotFound={}/>

@@ -61,6 +61,7 @@ export const getUniqueVisitorId = () => {
   const localUserId = localStorage.getItem('bp/socket/user')
   if (localUserId) {
     userId = localUserId
+    window.__BP_VISITOR_ID = localUserId
   } else {
     localStorage.setItem('bp/socket/user', userId)
   }
