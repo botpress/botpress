@@ -70,83 +70,64 @@ export default class CodeView extends Component {
   }
 
   refreshPositionAdjustments() {
-    return this.getBlockDivs()
-    .then(::this.getLastLines)
-    .then(::this.getLineDivs)
-    .then(::this.setHeights)
-    .then(() => {
-      this.setState({
-        lastCode: this.props.code
-      })
-      this.props.onLoaded && this.props.onLoaded()
+    const blockDivs = this.getBlockDivs()
+    const lastLines = this.getLastLines()
+    const lineDivs = this.getLineDivs(lastLines)
+    
+    this.setHeights(blockDivs, lastLines, lineDivs)
+    
+    this.setState({
+      lastCode: this.props.code
     })
+
+    this.props.onLoaded && this.props.onLoaded()
   }
 
   getBlockDivs() {
-    return new Promise((resolve, reject) => {
-      const blocks = document.getElementsByClassName('bp-umm-block')
-
-      this.setState({
-        blockDivs: blocks
-      })
-
-      return resolve()
-    })
+    return document.getElementsByClassName('bp-umm-block')
   }
 
   getLastLines() {
-    return new Promise((resolve, reject) => {
-      const lines = []
-      _.forEach(this.props.code.split('\n'), (line, i) => {
-        if (LAST_LINE_REGEX.test(line)) {
-          const contentNext = line.match(LAST_LINE_REGEX)[1]
+    const lines = []
+    _.forEach(this.props.code.split('\n'), (line, i) => {
+      if (LAST_LINE_REGEX.test(line)) {
+        const contentNext = line.match(LAST_LINE_REGEX)[1]
 
-          lines.push({ 
-            index: i,
-            contentNext: contentNext 
-          })
-        }
-      })
-
-      this.setState({
-        lastLines: lines
-      })
-
-      return resolve()
+        lines.push({ 
+          index: i,
+          contentNext: contentNext 
+        })
+      }
     })
+
+    return lines
   }
 
-  getLineDivs() {
+  getLineDivs(lastLines) {
     const lines = document.getElementsByClassName('CodeMirror-line')
     let beginIndex = 0
+    
+    const lineDivs = []
 
-    return new Promise((resolve, reject) => {
-      const lineDivs = []
+    _.forEach(lastLines, (last) => {
+      if (last.index !== 0) {
+        const index = last.index - 1
 
-      _.forEach(this.state.lastLines, (last) => {
-        if (last.index !== 0) {
-          const index = last.index - 1
+        lineDivs.push({
+          lastLine: lines[index],
+          numberOfRows: index - beginIndex + 1,
+          beginIndex: beginIndex,
+          endIndex: index
+        })
 
-          lineDivs.push({
-            lastLine: lines[index],
-            numberOfRows: index - beginIndex + 1,
-            beginIndex: beginIndex,
-            endIndex: index
-          })
-
-          beginIndex = index + 1
-        }
-      })
-
-      this.setState({
-        lineDivs: lineDivs
-      })
-
-      return resolve()
+        beginIndex = index + 1
+      }
     })
+
+    return lineDivs
   }
 
-  setHeight(line, block, i, rows) {
+  setHeight(line, block, i, rows, lastLines) {
     const rowHeight = 20
 
     let linesHeight = 0
@@ -167,7 +148,7 @@ export default class CodeView extends Component {
         toAdd += "\n"
       }
 
-      const content = this.state.lastLines[i + 1].contentNext
+      const content = lastLines[i + 1].contentNext
       const code = this.props.code.replace(content, toAdd + content)
       this.props.update(code)
     }
@@ -182,20 +163,16 @@ export default class CodeView extends Component {
     block.setAttribute('style', 'margin-bottom: ' + marginBottom + 'px;')
   }
 
-  setHeights() {
+  setHeights(blockDivs, lastLines, lineDivs) {
     const rows = document.getElementsByClassName('CodeMirror-line')
-    
-    return new Promise((resolve, reject) => {
-      _.forEach(this.state.lineDivs, (line, i) => {
+  
+    _.forEach(lineDivs, (line, i) => {
 
-        const block = this.state.blockDivs[i]
-        
-        if (!this.props.error && block) {
-          this.setHeight(line, block, i, rows)
-        }
-      })
-
-      return resolve()
+      const block = blockDivs[i]
+      
+      if (!this.props.error && block) {
+        this.setHeight(line, block, i, rows, lastLines)
+      }
     })
   }
 
