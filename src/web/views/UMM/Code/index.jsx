@@ -25,9 +25,7 @@ export default class CodeView extends Component {
       lastEditTime: null
     }
 
-    this.codeMirror = null
     this.timer = null
-
     this.isEditing = this.isEditing.bind(this)
   }
 
@@ -36,24 +34,8 @@ export default class CodeView extends Component {
       loading: false
     })
 
-    setTimeout(() => { 
-      this.refreshPositionAdjustments() 
-    }, WAIT_TIME)
-
-    this.timer = setInterval(() => {
-      const codeChanged = !this.isEditing() && this.props.code !== this.state.lastCode
-      const needToRefresh = this.props.refresh
-
-      if (codeChanged || needToRefresh) {
-        this.props.setLoading(true)
-        
-        if (needToRefresh) {
-          this.props.resetRefresh()
-        }
-        
-        setTimeout(() => this.refreshPositionAdjustments(), ANIM_TIME)
-      }
-    }, REFRESH_INTERVAL)
+    setTimeout(::this.refreshPositionAdjustments, WAIT_TIME)
+    this.timer = setInterval(::this.refreshViewIfNeeded, REFRESH_INTERVAL)
   }
 
   componentWillUnmount() {
@@ -73,6 +55,20 @@ export default class CodeView extends Component {
     return timeSinceLastEdit <= TIME_EDITING
   }
 
+  refreshViewIfNeeded() {
+    const codeChanged = !this.isEditing() && this.props.code !== this.state.lastCode
+
+    if (codeChanged || this.props.shouldRefresh) {
+      this.props.onLoading && this.props.onLoading()
+      
+      if (this.props.shouldRefresh) {
+        this.props.resetRefresh()
+      }
+      
+      setTimeout(::this.refreshPositionAdjustments, ANIM_TIME)
+    }
+  }
+
   refreshPositionAdjustments() {
     return this.getBlockDivs()
     .then(::this.getLastLines)
@@ -82,7 +78,7 @@ export default class CodeView extends Component {
       this.setState({
         lastCode: this.props.code
       })
-      this.props.setLoading(false)
+      this.props.onLoaded && this.props.onLoaded()
     })
   }
 
