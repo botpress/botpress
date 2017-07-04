@@ -192,9 +192,15 @@ export default class UMMView extends Component {
     })
   }
 
-  handlePreviewLoadingChanged(loading) {
+  handlePreviewLoading() {
     this.setState({
-      previewLoading: loading
+      previewLoading: true
+    })
+  }
+
+  handlePreviewLoaded() {
+    this.setState({
+      previewLoading: false
     })
   }
 
@@ -252,10 +258,11 @@ export default class UMMView extends Component {
                 <Code 
                   erro={this.state.error}
                   code={this.state.code}
-                  refresh={this.state.refresh}
+                  shouldRefresh={this.state.refresh}
                   resetRefresh={::this.handleResetRefresh}
                   update={::this.handleDocumentChanged}
-                  setLoading={::this.handlePreviewLoadingChanged} />
+                  onLoading={::this.handlePreviewLoading}
+                  onLoaded={::this.handlePreviewLoaded} />
                 <div ref={(e) => { this.end = e }} />
               </td>
               <td style={{ width: '40%' }}>

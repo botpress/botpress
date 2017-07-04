@@ -25,19 +25,13 @@ export default class ActionsView extends Component {
 
   renderItem(item, key) {
     return <MenuItem key={key} eventKey={key}
-      onClick={(event) => {
-        this.handleClick(event, item)
-      }}>
+      onClick={event => this.handleClick(event, item)}>
         {item.type}
       </MenuItem>
   }
 
   renderSelectorButton(items, key) {
-    if (!items) {
-      return null
-    }
-
-    return <SplitButton id={key}
+    return items && <SplitButton id={key}
         key={key} bsStyle='default' title={key}>
       {_.map(items, ::this.renderItem)}
     </SplitButton>

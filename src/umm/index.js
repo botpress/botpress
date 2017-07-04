@@ -11,7 +11,6 @@ import Proactive from './proactive'
 module.exports = ({ logger, middlewares, botfile, projectLocation, db }) => {
 
   const processors = {} // A map of all the platforms that can process outgoing messages
-  const platforms = [] //List of the supported platforms
   const allTemplates = {} // A map of all the platforms templates
 
   function registerConnector({ platform, processOutgoing, templates }) {
@@ -23,7 +22,6 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db }) => {
 
     logger.verbose(`[UMM] Enabled for ${platform}`) // TODO remove that
 
-    platforms.push(platform)
     processors[platform] = processOutgoing
     allTemplates[platform] = templates
   }
@@ -47,7 +45,7 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db }) => {
   }
 
   function getPlatforms() {
-    return platforms
+    return _.keys(allTemplates)
   }
 
   function getStoragePath() {

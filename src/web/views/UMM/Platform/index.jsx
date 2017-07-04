@@ -30,7 +30,7 @@ export default class PlatformView extends Component {
   }
 
   renderPlatformSelect(value, key) {
-    return <option key={key}value={value}>
+    return <option key={key} value={value}>
         {value}
       </option>
   }
