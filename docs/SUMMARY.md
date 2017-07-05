@@ -47,3 +47,5 @@
   - [Exposing an API](./modules/api.md)
   - [Configuration](./modules/config.md)
   - [Module Icon](./modules/icon.md)
+  - [Light Views](./modules/light_views.md)
+  
