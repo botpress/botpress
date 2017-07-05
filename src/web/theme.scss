@@ -90,7 +90,7 @@ b {
 
   &:hover, &:focus, &:active {
     color: $btn-text-color;
-    background-color: $btn-bg-color-hover;
+    background-color: $btn-bg-color-hover !important;
     outline: 0;
     box-shadow: none;
     border: none;
@@ -101,7 +101,7 @@ b {
   background-color: $btn-default-bg-color;
 
   &:hover, &:focus {
-    background-color: $btn-default-bg-color-hover;
+    background-color: $btn-default-bg-color-hover !important;
   }
 }
 
@@ -109,7 +109,7 @@ b {
   background-color: $btn-danger-bg-color;
 
   &:hover, &:focus {
-    background-color: $btn-danger-bg-color-hover;
+    background-color: $btn-danger-bg-color-hover !important;
   }
 }
 
