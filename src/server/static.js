@@ -11,14 +11,13 @@ module.exports = bp => {
 
   function serveModule(app, module) {
     const name = module.name
-    const bundlePath = path.join(module.root, module.settings.webBundle || 'bin/web.bundle.js')
-    
+    const shortName = module.name.replace(/botpress-/i, '')
 
     if (module.settings.menuIcon === 'custom') {
       const iconRequestPath = `/img/modules/${name}.png`
       const iconPath = path.join(module.root, 'icon.png')
 
-      app.use(iconRequestPath, (req, res) => {
+      app.get(iconRequestPath, (req, res) => {
         try {
           const content = fs.readFileSync(iconPath)
           res.contentType('image/png')
@@ -29,14 +28,31 @@ module.exports = bp => {
       })
     }
 
-    const requestPath = `/js/modules/${name}.js`
-    app.use(requestPath, (req, res) => {
+    const liteDir = path.join(module.root, module.settings.liteDir || 'bin/lite')
+    const liteViews = fs.existsSync(liteDir)
+      ? fs.readdirSync(liteDir).filter(b => b.endsWith('.js'))
+      : []
+
+    app.get([
+      `/js/modules/${shortName}`, // The full module view
+      `/js/modules/${name}.js`, // <<-- DEPRECATED: Will be removed shortly. Only use shortNames
+      `/js/modules/${shortName}/:subview` // Lite view
+    ], (req, res) => {
+      const settingsKey = module.settings.webBundle
+      let bundlePath = path.join(module.root, settingsKey || 'bin/web.bundle.js')
+
+      if (req.params && req.params.subview) {
+        // Render lite view
+        bundlePath = path.join(liteDir, req.params.subview + '.bundle.js')
+      }
+
       try {
         const content = fs.readFileSync(bundlePath)
         res.contentType('text/javascript')
         res.send(content)
       } catch (err) {
         bp.logger.warn(`Could not serve module [${name}] at: ${bundlePath}`)
+        res.sendStatus(404)
       }
     })
   }
@@ -91,6 +107,10 @@ module.exports = bp => {
 
     app.get('*', (req, res, next) => {
       if (/html/i.test(req.headers.accept)) {
+        if (req.url && /^\/lite\//i.test(req.url)) {
+          return res.sendFile(path.join(__dirname, '../lib/web/lite.html'))
+        }
+        
         return res.sendFile(path.join(__dirname, '../lib/web/index.html'))
       }
       next()
