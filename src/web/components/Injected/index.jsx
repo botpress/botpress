@@ -53,7 +53,7 @@ export default class InjectedComponent extends Component {
         <div className="panel-footer">Developer? <a href="https://github.com/botpress/botpress/tree/master/docs">click here</a> to see why this might happen</div>
       </div>
 
-      ReactDOM.render(element, node)
+      // ReactDOM.render(element, node) // TODO: Needs to be fixed somehow --> Error always appear for lite views...
     }
   }
 }
