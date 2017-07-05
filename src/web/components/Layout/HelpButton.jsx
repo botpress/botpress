@@ -36,14 +36,14 @@ export default class HelpButton extends React.Component {
 
     return <div className={style.container}>
       <div className={style.button} onClick={::this.toggleShown}>
-        <i className={showIcon(false)}>forum</i>
+        <i className={showIcon(false)}>group</i>
         <i className={showIcon(true)}>close</i>
       </div>
       <div className={style.menu}>
         <ul>
           <li className={btnClass('btn1')} style={{ bottom: (basePosition + 0) + 'px' }}>
             <OverlayTrigger placement="left" overlay={community}>
-              <a href='https://slack.botpress.io' target='_blank'><i className="icon material-icons">group</i></a>
+              <a href='https://slack.botpress.io' target='_blank'><i className="icon material-icons">forum</i></a>
             </OverlayTrigger>
           </li>
           <li className={btnClass('btn2')} style={{ bottom: (basePosition + 60) + 'px' }}>
