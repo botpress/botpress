@@ -74,8 +74,21 @@ var webConfig = {
   }
 }
 
+const liteConfig = Object.assign({}, webConfig, {
+  // Add your lite views here, see example below
+  entry: {
+    // example: './src/views/example.lite.jsx'
+  },
+  output: {
+    path: './bin/lite',
+    publicPath: '/js/lite-modules/',
+    filename: '[name].bundle.js',
+    libraryTarget: 'assign',
+    library: ['botpress', pkg.name]
+  }
+})
 
-var compiler = webpack([nodeConfig, webConfig])
+var compiler = webpack([nodeConfig, webConfig, liteConfig])
 var postProcess = function(err, stats) {
   if (err) { throw err }
   console.log(stats.toString('minimal'))
@@ -89,5 +102,6 @@ if (process.argv.indexOf('--compile') !== -1) {
 
 module.exports = {
   web: webConfig,
-  node: nodeConfig
+  node: nodeConfig,
+  lite: liteConfig
 }
