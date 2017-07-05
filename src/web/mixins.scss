@@ -1,0 +1,26 @@
+@import './palette.scss';
+
+@mixin bp-font($size, $color, $transform, $align){
+  font-family: "Lato", "Open Sans", sans-serif;
+  font-size: $size;
+  text-transform: $transform;
+  color: $color;
+  text-align: $align;
+}
+
+
+@mixin bp-sidebar-text() {
+  @include bp-font(13px, $color-light-text, uppercase, left)
+
+  &:hover {
+    color: $color-dark-text;
+  }
+}
+
+@mixin bp-sidebar-link() {
+  height:55px;
+}
+
+@mixin bp-sidebar-border() {
+  border-left: solid 2px $color-main;
+} 

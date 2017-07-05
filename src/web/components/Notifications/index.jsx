@@ -73,6 +73,7 @@ export default class NotificationComponent extends Component {
     const checkButton = this.renderMarkAsReadButton(notification, index)
     const iconClass = classnames('icon', 'material-icons', this.styles.icon)
 
+    const icon = notification.icon !== 'custom' ? notification.icon : 'info'
     return <ItemComponent
         key={notification.id}
         className={className}
@@ -81,7 +82,7 @@ export default class NotificationComponent extends Component {
       <Row>
         <Col xs={11} onClick={() => this.onNotifClicked(notification)}>
           <strong className={styles.header}>
-            <i className={iconClass}>{notification.icon}</i>
+            <i className={iconClass}>{icon}</i>
             &nbsp; {notification.name}
           </strong>
           {this.renderMessage(notification.message)}

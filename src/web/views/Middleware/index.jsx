@@ -12,13 +12,13 @@ import { Grid, Row, Col, Panel } from 'react-bootstrap'
 const style = require('./style.scss')
 
 const documentation = `
-  #### **Documentation**
+  #### Documentation
 
   A middleware chain is simply a collection of middleware functions that are called in a predertermined order.
   
   Every middleware has to be registered to appear and you will be able to  do so with the \`bp.middlewares.register()\` method.
 
-  For more details about middleware, look at the [documentation](https://docs.botpress.io/creating-your-bot/understanding-the-middlewares.html).
+  For more details about middleware, look at the [documentation](https://botpress.io/docs/advanced/middleware.html).
   
   ##### **Ordering middleware**
 

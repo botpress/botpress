@@ -1,12 +1,14 @@
+@import '../../palette.scss';
+
 .logs-panel {
-  background-color: #191f28;
-  color: rgba(255, 255, 255, 0.85);
+  background-color: $color-white-bg;
+  color: $color-light-text;
   border: none;
   margin-top: -4px;
   border-radius: 0px;
   border-bottom-right-radius: 3px;
   border-bottom-left-radius: 3px;
-  border-top: #b1b1b1 2px solid;
+  border-top: 1px solid $color-seperative-lines;
   min-height: 300px;
   position: relative;
   font-family: Courier;
@@ -23,7 +25,7 @@
   bottom: 0px;
   text-align: center;
   width: 100%;
-  background-color: #404040;
+  background-color: $color-white-bg;
   border-bottom-right-radius: 3px;
   border-bottom-left-radius: 3px;
   padding: 2px 0;
@@ -39,7 +41,7 @@
 }
 
 .logs-panel-footer:hover {
-  background-color: #505050;
+  background-color: $color-seperative-lines;
 }
 
 .panel {

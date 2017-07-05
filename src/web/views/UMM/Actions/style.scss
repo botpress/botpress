@@ -1,8 +1,9 @@
-$header-bg-color: #5d5d5d;
+@import '../../../palette.scss';
+
 $error-color: #ff8e6c;
 
 .actions {
-  background-color: $header-bg-color;
+  background-color: $color-white-bg;
   height: 50px;
   padding: 9px 10px;
   position: relative;
@@ -18,4 +19,14 @@ $error-color: #ff8e6c;
     font-size: 24px;
     color: $error-color;
   }
+
+  button, ul li a {
+    color: $color-light-text;
+
+    &:hover, &:focus, &:active {
+      background-color: $color-gray-bg;
+      color: $color-light-text;
+    }
+  }
 }
+
