@@ -18,17 +18,30 @@ export default class PlatformView extends Component {
     const classNames = classnames({
       'bp-button': true,
       [style.saveButton]: true,
-      'bp-save-button': true
+      'bp-save-button': true,
+      [style.changedButton]: this.props.changed,
+      'bp-changed-button': this.props.changed
     })
 
-    return <Button className={classNames}>Save</Button>
+    return <Button className={classNames}
+        onClick={this.props.save}>
+          Save
+      </Button>
+  }
+
+  renderPlatformSelect(value, key) {
+    return <option key={key} value={value}>
+        {value}
+      </option>
   }
 
   renderPlatformSelectors() {
     return <FormGroup>
-      <FormControl componentClass="select" placeholder="select">
-        <option value="select">select</option>
-        <option value="other">...</option>
+      <FormControl 
+        componentClass="select"
+        value={this.props.selected}
+        onChange={this.props.update}>
+        {this.props.platforms.map(this.renderPlatformSelect)}
       </FormControl>
     </FormGroup>
   }

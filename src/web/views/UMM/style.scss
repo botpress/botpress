@@ -1,7 +1,13 @@
+$code-bg-color: #3f3f3f;
+
 .umm {
   width: 100%;
   height: 100%;
   background-color: #FFFFFF;
+
+  td {
+    vertical-align: top;
+  }
 
   .left {
     width: 20%;
@@ -16,5 +22,9 @@
   .right {
     width: 40%;
     float: left;
+  }
+
+  .tdCode {
+    background-color: $code-bg-color;
   }
 }

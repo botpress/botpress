@@ -1,0 +1,24 @@
+$border-color: #C9C8CF;
+$wait-line-color: #EEEAF1;
+$wait-color: #B8B6B9;
+
+.block {
+  padding: 10px;
+  border-top: solid 1px $border-color;
+  position: relative;
+}
+
+.waiting {
+  border-bottom: dashed 1px $wait-line-color;
+  position: relative;
+  margin: 12px 40px 12px 0;
+
+  span {
+    position: absolute;
+    display: block;
+    right: -30px;
+    top: -7px;
+    font-size: 16px;
+    color: $wait-color;
+  }
+}

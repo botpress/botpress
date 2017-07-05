@@ -11,7 +11,7 @@ import Proactive from './proactive'
 module.exports = ({ logger, middlewares, botfile, projectLocation, db }) => {
 
   const processors = {} // A map of all the platforms that can process outgoing messages
-  const templates = {} // A map of all the platforms templates
+  const allTemplates = {} // A map of all the platforms templates
 
   function registerConnector({ platform, processOutgoing, templates }) {
 
@@ -23,7 +23,7 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db }) => {
     logger.verbose(`[UMM] Enabled for ${platform}`) // TODO remove that
 
     processors[platform] = processOutgoing
-    templates[platform] = templates
+    allTemplates[platform] = templates
   }
 
   function parse({ context, outputPlatform, markdown = null, incomingEvent = null }) {
@@ -41,7 +41,11 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db }) => {
   }
 
   function getTemplates() {
-    return _.merge({}, templates) // Return a deep copy
+    return _.merge({}, allTemplates) // Return a deep copy
+  }
+
+  function getPlatforms() {
+    return _.keys(allTemplates)
   }
 
   function getStoragePath() {
@@ -116,7 +120,18 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db }) => {
     handler: processIncoming
   }
 
+
   const proactiveMethods = Proactive({ sendBloc, db })
 
-  return { registerConnector, parse, getTemplates, incomingMiddleware, getDocument, saveDocument, ...proactiveMethods }
+  return { 
+    registerConnector, 
+    parse, 
+    getTemplates, 
+    getPlatforms, 
+    incomingMiddleware, 
+    getDocument, 
+    saveDocument, 
+    ...proactiveMethods
+  }
+
 }
