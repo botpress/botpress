@@ -1,5 +1,6 @@
 import React from 'react'
 import axios from 'axios'
+import _ from 'lodash'
 
 import InjectedComponent from '~/components/Injected'
 import EventBus from '~/util/EventBus'
