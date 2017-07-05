@@ -1,7 +1,7 @@
-1.0.10 / 2017-07-05
+1.0.11 / 2017-07-05
 ==================
 
-  * 1.0.10
+  * 1.0.11
   * There's a new kind of views that botpress can now serve: **Lightweight Views**. The purpose of these is so that modules can serve UIs that don't require any of the heavy botpress styling & APIs. The default Botpress view weighs about 1.5mb and each module about 500kb. The lightweight views weigh about 200kb total.
 
 1.0.9 / 2017-06-24
