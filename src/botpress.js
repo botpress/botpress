@@ -114,7 +114,9 @@ class botpress {
     if (fs.existsSync(envPath)) {
       const envConfig = dotenv.parse(fs.readFileSync(envPath))
       for (var k in envConfig) {
-        process.env[k] = envConfig[k]
+        if (_.isNil(process.env[k]) || process.env.ENV_OVERLOAD) {
+          process.env[k] = envConfig[k]
+        }
       }
     }
 
