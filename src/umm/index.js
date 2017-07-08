@@ -71,7 +71,14 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db }) => {
   }
 
   function saveDocument(content) {
-    return fs.writeFileSync(storagePath, content, 'utf8')
+    if (_.isObject(content)) {
+      return Promise.map(Object.keys(content), fileName => {
+        const filePath = path.join(storagePath, fileName + '.yml')
+        return fs.writeFileAsync(filePath, content[fileName], 'utf8')
+      })
+    }
+
+    return fs.writeFileAsync(storagePath, content, 'utf8')
   }
 
   async function getDocument() {
