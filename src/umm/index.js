@@ -13,6 +13,7 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db }) => {
 
   const processors = {} // A map of all the platforms that can process outgoing messages
   const templates = {} // A map of all the platforms templates
+  const storagePath = getStoragePath()
 
   function registerConnector({ platform, processOutgoing, templates }) {
 
@@ -70,11 +71,10 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db }) => {
   }
 
   function saveDocument(content) {
-    return fs.writeFileSync(getStoragePath(), content, 'utf8')
+    return fs.writeFileSync(storagePath, content, 'utf8')
   }
 
   async function getDocument() {
-    const storagePath = getStoragePath()
     const stats = await fs.statAsync(storagePath)
 
     if (stats.isDirectory()) {
@@ -89,7 +89,7 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db }) => {
       return Promise.props(contents)
     }
 
-    return fs.readFileAsync(getStoragePath(), 'utf8')
+    return fs.readFileAsync(storagePath, 'utf8')
   }
 
   function doSendBloc(bloc) {
