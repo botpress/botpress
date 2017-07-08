@@ -1,4 +1,3 @@
-import fs from 'fs'
 import path from 'path'
 import util from 'util'
 
@@ -7,6 +6,8 @@ import Promise from 'bluebird'
 
 import Engine from './engine'
 import Proactive from './proactive'
+
+const fs = Promise.promisifyAll(require('fs'))
 
 module.exports = ({ logger, middlewares, botfile, projectLocation, db }) => {
 
@@ -72,23 +73,23 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db }) => {
     return fs.writeFileSync(getStoragePath(), content, 'utf8')
   }
 
-  function getDocument() {
+  async function getDocument() {
     const storagePath = getStoragePath()
-    const stats = fs.statSync(storagePath)
+    const stats = await fs.statAsync(storagePath)
 
     if (stats.isDirectory()) {
-      const files = fs.readdirSync(storagePath)
+      const files = await fs.readdirAsync(storagePath)
       const contents = {}
 
       files.forEach(file => {
         const filename = path.basename(file, path.extname(file))
-        contents[filename] = fs.readFileSync(path.join(storagePath, file), 'utf8').toString()
+        contents[filename] = fs.readFileAsync(path.join(storagePath, file), 'utf8')
       })
 
-      return contents
+      return Promise.props(contents)
     }
 
-    return fs.readFileSync(getStoragePath(), 'utf8').toString()
+    return fs.readFileAsync(getStoragePath(), 'utf8')
   }
 
   function doSendBloc(bloc) {
@@ -103,7 +104,7 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db }) => {
     })
   }
 
-  function sendBloc(incomingEvent, blocName, additionalData = {}) {
+  async function sendBloc(incomingEvent, blocName, additionalData = {}) {
     blocName = blocName[0] === '#' ? blocName.substr(1) : blocName
     const split = blocName.split('.')
     let fileName = null
@@ -113,7 +114,7 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db }) => {
       blocName = split[1]
     }
 
-    let markdown = getDocument()
+    let markdown = await getDocument()
 
     // TODO Add more context
     const fullContext = Object.assign({
