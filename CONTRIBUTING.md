@@ -15,8 +15,20 @@ As contributors you should be respectful and considerate of others - both contri
 
 ### Your Responsibilities
 * Ensure contributions are unit tested and that all tests pass before submitting any pull-request
+
+  To run the tests run
+  ```
+  npm run test
+  ```
+  at a command prompt
 * Ensure that the code lints cleanly
-* If you do find any issues or think of a feature please create a Github issue for this first. Discuss things transparently and get community feedback.
+
+  To lint the code run
+  ```
+  npm run lint
+  ```
+  at a command prompt
+* If you do find any issues or think of a feature please [create a Github issue](https://help.github.com/articles/creating-an-issue/) for this first. Discuss things transparently and get community feedback.
 
 # Your First Contribution
 If you're not sure where to start issues we've labelled some issues with [#for-new-contributors](https://github.com/botpress/botpress/issues?q=is%3Aissue+is%3Aopen+label%3Afor-new-contributors) so these are a great place to start!
@@ -32,10 +44,10 @@ Working on your first Pull Request? You can learn how from this *free* series, [
 
 At this point, you're ready to make your changes! Feel free to ask for help; everyone is a beginner at first :smile_cat:
 
-If a maintainer asks you to "rebase" your PR, they're saying that a lot of code has changed, and that you need to update your branch so it's easier to merge.
+If a maintainer asks you to "rebase" your PR, they're saying that a lot of code has changed, and that you need to update your branch so it's easier to merge. Git can be confusing at times, but essentially this means the project history ends up being cleaner - there's an overview of why we might ask you to rebase [here](https://www.atlassian.com/git/tutorials/merging-vs-rebasing).
 
 # Getting started
-Contributions to Botpress will be dual-licensed under AGPLv3 and the Botpress Proprietary License. This means that all contributors need to agree to the dual-license before their contributions can be accepted.
+Contributions to Botpress will be dual-licensed under AGPLv3 and the Botpress Proprietary License. This means that all contributors need to agree to the dual-license before their contributions can be accepted. This is an automatic process when creating the pull-request.
 
 ## How to report a bug
 When filing an issue, make sure to answer these five questions:
