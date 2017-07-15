@@ -71,3 +71,15 @@ Pull requests are reviewed as and when the maintainers have the time, however we
 
 # Community
 The maintainers can be found on [Slack](https://slack.botpress.io/) and will try to reply to most messages.
+
+# Setting up your local dev environment
+If you are interested in contributing to Botpress, you will need to create a local development environment. These instructions were tested on OSX using iTerm for CLI.
+
+These instructions assume a parent directory `bar` and we will be adding two child directories: `botpress` and `foobot`, our example bot.
+
+1. Fork the [botpress repo](https://github.com/botpress/botpress) & copy the link
+2. In your CLI, create and navigate to the `bar` directory: `$ mkdir bar && cd bar`
+3. Now, clone the forked repo. `bar $ git clone `
+*With Yarn*
+
+*With NPM*
