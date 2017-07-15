@@ -15,7 +15,7 @@
   The Botpress Team
   ----
   Getting Started (Youtube Video): https://www.youtube.com/watch?v=HTpUmDz9kRY
-  Documentation: https://docs.botpress.io/
+  Documentation: https://botpress.io/docs
   Our Slack Community: https://slack.botpress.io
 */
 

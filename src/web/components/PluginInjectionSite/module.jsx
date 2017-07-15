@@ -1,5 +1,6 @@
 import React from 'react'
 import axios from 'axios'
+import _ from 'lodash'
 
 import InjectedComponent from '~/components/Injected'
 import EventBus from '~/util/EventBus'
@@ -98,6 +99,11 @@ export default class InjectedModuleView extends React.Component {
       axios: axios
     }
 
-    return <InjectedComponent component={moduleComponent} name={this.props.moduleName} bp={bp}/>
+    const passthroughProps = _.omit(this.props, ['moduleName', 'viewName']) 
+    
+    return <InjectedComponent
+      component={moduleComponent}
+      name={this.props.moduleName}
+      bp={bp} {...passthroughProps} />
   }
 }

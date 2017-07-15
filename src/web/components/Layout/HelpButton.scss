@@ -1,23 +1,23 @@
 .container {
   position: absolute;
-  right: 60px;
-  bottom: 80px;
+  right: 118px;
+  bottom: 88px;
 }
 
 .button {
   position: relative;
-  width: 56px;
-  height: 56px;
+  width: 52px;
+  height: 52px;
   background-color: #242424;
   color: #fff;
-  border-radius: 50%;
+  border-radius: 5px;
   cursor: pointer;
   box-shadow: 0 8px 16px 0 rgba(0,0,0,.13);
   transition: background-color .12s cubic-bezier(.2,.7,.5,1),box-shadow .12s cubic-bezier(.2,.7,.5,1);
 
   :global(.icon) {
     font-size: 32px;
-    margin: 12px;
+    margin: 10px;
   }
 
   &:hover {

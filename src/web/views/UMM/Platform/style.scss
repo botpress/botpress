@@ -1,4 +1,4 @@
-$header-bg-color: #B0AEB2;
+$header-bg-color: #ffffff;
 
 .platform {
   background-color: $header-bg-color;
@@ -12,8 +12,14 @@ $header-bg-color: #B0AEB2;
   }
 
   .saveButton {
+    opacity: 0;
     position: absolute;
     right: 10px;
     top: 9px;
+    transition: opacity 0.5s ease;
+  }
+
+  .changedButton {
+    opacity: 1;
   }
 }

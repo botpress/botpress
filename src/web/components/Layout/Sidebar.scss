@@ -1,56 +1,79 @@
 @import '../../palette.scss';
+@import '../../mixins';
 
 .sidebarReact {
   bottom: 0px !important;
+  box-shadow: 8px 0px 40px 0px rgba(0, 0, 0, 0.04);
 }
 
 .sidebar {
-  background-color: $sidebar-color;
-  color: $sidebar-text-color;
+  background-color: $color-white-bg;
   height: 100%;
-  max-width: 200px;
+  max-width: 250px;
 }
 
 .sidebar ul {
-  background-color: $sidebar-color;
+  background-color: $color-white-bg;
 }
 
 .sidebar ul li {
-  font-size: 16px;
-  line-height: 44px;
-  border-top: 1px solid #2d2d2d;
+  line-height: 50px;
+
   a {
-    padding: 0 15px;
+    padding: 0 20px;
+    height: 60px;
 
     :global(.icon) {
-      display: inline;
-      vertical-align: middle;
-      color: $sidebar-primary-color;
-      padding: 0 10px 0 0;
-      font-size: 18px;
+      color: $color-gray-icons;
+      margin: 7px;
+      display: block;
+      font-size: 20px;
     }
   }
 }
 
-.sidebar ul li a {
-  &:hover, &:focus, &:active {
-    background-color: $sidebar-hover-color;
+.sidebar ul li {
+  a {
+    border-left: solid 4px $color-white-bg;
+
+    &:hover, &:focus, &:active {
+      background-color: $color-white-bg;
+      color: $color-dark-text;
+    }
+
+    @include bp-sidebar-text();
   }
 
-  color: $sidebar-text-color;
-}
+  &.active {
+    a {
+      border-left: solid 4px $color-main;
+    }
+  }
 
-.active {
-  a {
-    background-color: $sidebar-hover-color;
-    border-left: 5px solid $sidebar-primary-color;
+  span {
+    position: absolute;
+    top: 21px;
+    left: 70px;
+    line-height: 20px
   }
 }
 
 .customIcon {
-  width: 28px;
-  height: 18px;
-  padding-right: 10px;
+  width: 21px;
+  height: 21px;
+  filter: grayscale(1);
+  display: block;
+  margin: 7px;
+}
+
+.circle {
+  display: inline-block;
+  border: solid 1px $color-seperative-lines;
+  height: 36px;
+  width: 36px;
+  margin-top: 12px;
+  margin-bottom: 12px;
+  border-radius: 22px;
 }
 
 .empty {

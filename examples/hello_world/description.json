@@ -1,0 +1,8 @@
+{
+  "id": "hello_world",
+  "title": "Hello world",
+  "description": "Short example of an hello world bot.",
+  "tags": ["messenger", "text"],
+  "version": "0.2.11",
+  "author": "Dany Fortin-Simard"
+}

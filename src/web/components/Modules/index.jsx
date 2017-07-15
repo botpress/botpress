@@ -67,17 +67,20 @@ class ModuleComponent extends Component {
       ? <img className={classnames(style.customIcon, 'bp-custom-icon')} src={iconPath} />
       : <i className="icon material-icons">{icon === "custom" ? "extension" : icon}</i>
 
+    const circleClassNames = classnames(style.circle, 'bp-module-circle')
+
     return (
       <div>
         <a href={docLink} target="_blank">
-          <h3 className={classnames(style.moduleTitle, 'bp-module-title')}>
+          <div className={circleClassNames}>
             {moduleIcon}
+          </div>
+          <h3 className={classnames(style.moduleTitle, 'bp-module-title')}>
             {title}
           </h3>
         </a>
+        <h4 className={classnames(style.moduleSubtitle, 'bp-module-subtitle')}>{author} - {license}</h4>
         <p className={classnames(style.moduleDescription, 'bp-module-description')}>{description}</p>
-        <p className={classnames(style.moduleAuthor, 'bp-module-author')}>{author}</p>
-        <p className={classnames(style.moduleLicense, 'bp-module-license')}>{license}</p>
       </div>
     )
   }

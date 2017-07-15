@@ -5,7 +5,9 @@
   "main": "index.js",
   "dependencies": {
     "botpress": "1.x",
-    "botpress-web": "1.x"
+    "botpress-web": "1.x",
+    "botpress-audience": "1.x",
+    "botpress-analytics": "2.x"
   },
   "scripts": {
     "start": "botpress start",

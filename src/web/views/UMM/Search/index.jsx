@@ -24,7 +24,9 @@ export default class SearchView extends Component {
           <FormControl  
             id='searchTextInput'
             type='text'
-            placeholder='Search' />
+            placeholder='Search'
+            value={this.props.search}
+            onChange={(event) => this.props.update(event.target.value)}/>
         </FormGroup>
       </div>
   }
