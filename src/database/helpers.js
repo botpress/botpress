@@ -97,6 +97,15 @@ module.exports = knex => {
       false: () => isLite(knex) ? 0 : false,
       parse: value => isLite(knex) ? !!value : value
 
+    },
+
+    json: {
+      set: obj => {
+        return isLite(knex) ? obj && JSON.stringify(obj) : obj
+      },
+      get: obj => {
+        return isLite(knex) ? obj && JSON.parse(obj) : obj
+      }
     }
 
   }
