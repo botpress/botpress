@@ -10,7 +10,7 @@ In simple terms, every single incoming messages are received (and processed) by 
 
 A middleware chain, as the name suggests, is simply an ordered list of **middleware functions**. These middleware functions are what your bot is principaly made of, as they dictate how your bot reacts to incoming and outgoing messages.
 
-You can learn more reading the section _[Understanding the Middleware](../creating-your-bot/understanding-the-middlewares.md)_.
+You can learn more reading the section _[Understanding the Middleware](../advanced/middleware.md)_.
 
 ### How Botpress bots run
 
