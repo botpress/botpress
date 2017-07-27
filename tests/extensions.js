@@ -24,7 +24,7 @@ describe('Extensions Loader', () => {
 
   before(function() {
 
-    const extensionPath = (edition, file) => path.resolve(__dirname, '../extensions', edition, file)
+    const extensionPath = (edition, file) => path.resolve(__dirname, '../extensions', edition, file || '')
     const fileContent = edition => `module.exports = () => '${edition}'`
 
     writeDir(extensionPath('lite'))
