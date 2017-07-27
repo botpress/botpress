@@ -8,6 +8,10 @@ jobs:
     docker:
       # specify the version you desire here
       - image: circleci/node:7.10
+      - image: postgres:9.5
+        environment:
+          - POSTGRES_USER=botpress
+          - POSTGRES_DB=test
       
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
@@ -35,3 +39,6 @@ jobs:
         
       # run tests!
       - run: yarn test
+        environment:
+          - PG_USER=botpress
+          - PG_DB=test
