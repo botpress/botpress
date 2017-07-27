@@ -8,9 +8,16 @@ import { requireExtension } from '../extensions/extensions'
 
 describe('Extensions Loader', () => {
   const tmpFiles = []
+  const tmpDirs = []
   const writeFile = (path, content) => {
     tmpFiles.push(path)
     fs.writeFileSync(path, content)
+  }
+  const writeDir = path => {
+    if (!fs.existsSync(path)) {
+      fs.mkdirSync(path)
+      tmpDirs.unshift(path)
+    }
   }
 
   const makeRequest = file => path.resolve(__dirname, '../extensions/lite', file)
@@ -20,6 +27,11 @@ describe('Extensions Loader', () => {
     const extensionPath = (edition, file) => path.resolve(__dirname, '../extensions', edition, file)
     const fileContent = edition => `module.exports = () => '${edition}'`
 
+    writeDir(extensionPath('lite'))
+    writeDir(extensionPath('enterprise'))
+    writeDir(extensionPath('enterprise/pro'))
+    writeDir(extensionPath('enterprise/ultimate'))
+      
     writeFile(extensionPath('lite', 'b.js'), fileContent('lite'))
     writeFile(extensionPath('enterprise/pro', 'a.js'), fileContent('pro'))
     writeFile(extensionPath('enterprise/ultimate', 'c.js'), fileContent('ultimate'))
@@ -28,6 +40,7 @@ describe('Extensions Loader', () => {
 
   after(function() {
     tmpFiles.forEach(f => fs.unlinkSync(f))
+    tmpDirs.forEach(f => fs.rmdirSync(f))
   })
 
   it('Require works for edition', function() {
