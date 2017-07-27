@@ -37,8 +37,9 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
         
-      - name: Run tests
-        command: yarn test
-        environment:
-          PG_USER: botpress
-          PG_DB: test
+      - run:
+          name: Run tests
+          command: yarn test
+          environment:
+            PG_USER: botpress
+            PG_DB: test
