@@ -10,8 +10,10 @@ Here's how to create one:
 
 1. Create a react component under a `.jsx` file that exports the component class by default (`export default`)
 
-2. In your module's `webpack.js` file, locate the `lite` configuration. In the `entry` object, name your view and point to the file.
+2. In your module's `webpack.config.js` file, locate the `lite` configuration. In the `entry` object, name your view and point to the file.
 
-3. Re-bundle your module (`npm run compile`)
+3. In your module's `webpack.config.js` file, un-comment `, liteConfig` from the `module.exports =` line.
+
+4. Re-bundle your module (`npm run compile`)
 
 See the [botpress-web](https://github.com/botpress/botpress-platform-webchat) module for an example
