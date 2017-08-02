@@ -153,6 +153,12 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db }) => {
 
     const bloc = blocs[blocName]
 
+    if (_.isNil(bloc)) {
+      const error = `[UMM] Bloc not defined (#${bloc})`
+      logger.error(error)
+      throw new Error(error)
+    }
+
     return doSendBloc(bloc)
   }
 
