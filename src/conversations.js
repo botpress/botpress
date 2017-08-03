@@ -374,7 +374,7 @@ class Conversation extends EventEmmiter {
     } else {
       message = isBlocCall(arguments)
         ? formatBloc(...arguments)
-        : formatMessage(msg)
+        : formatMessage(msg, this.initialEvent)
     }
 
     this._outgoing.push(message)
