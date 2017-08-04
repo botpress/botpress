@@ -304,4 +304,15 @@ describe('conversations', function() {
 
   })
 
+  it('convo.say() supports simple string', function(done) {
+    const convo = conversations.start(eventFrom(user(1)))
+
+    outgoing = event => {
+      expect(event).property('text').to.equal('Hello')
+      done()
+    }
+
+    convo.say('Hello')
+  })
+
 })
