@@ -2,6 +2,7 @@ import path from 'path'
 import fs from 'fs'
 import util from '../util'
 import chalk from 'chalk'
+import nodemon from 'nodemon'
 
 /**
  * Entry point of botpress
@@ -41,6 +42,38 @@ module.exports = function(projectPath, options) {
     process.exit(1)
   }
 
-  const bot = new Botpress({ botfile })
-  bot.start()
+  const getDefaultWatchIgnore = () => {
+    const bf = eval('require')(botfile)
+    const dataDir = util.getDataLocation(bf.dataDir, projectPath)
+    const modulesConfigDir = util.getDataLocation(bf.modulesConfigDir, projectPath)
+    return [
+      dataDir,
+      modulesConfigDir,
+      'node_modules'
+    ]
+  }
+
+  const opts = options.opts()
+  if (opts.watch || opts.w) {
+    util.print('info', '*** watching files for changes ***')
+    util.print('info', '*** press CTRL-c twice(!) to exit ***') // https://github.com/remy/nodemon/issues/394
+
+    const argvWithoutWatch = process.argv.filter(arg => !/^(--watch|-w)$/.test(arg))
+    const nodemonOptions = {
+      cwd: process.cwd(),
+      exec: argvWithoutWatch.join(' '),
+      ext: opts.watchExt,
+      watch: (opts.watchDir && opts.watchDir.length) ? opts.watchDir : undefined,
+      ignore: (opts.watchIgnore && opts.watchIgnore.length) ? opts.watchIgnore : getDefaultWatchIgnore(),
+      stdin: false,
+      restartable: false
+    }
+
+    nodemon(nodemonOptions).on('restart', (changedFile, two) => util.print('info', '*** restarting botpress because of file change: ', changedFile))
+
+  } else {
+    const bot = new Botpress({botfile})
+    bot.start()
+  }
+
 }
