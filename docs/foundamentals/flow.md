@@ -64,7 +64,7 @@ bp.hear('hello', (event, next) => {
 
 #### Conversation | `convo.threads`
 
-`convo.threads` is a ready-only map containing all the threads in the conversation. You can get a thread using `convo.threads[name]`.
+`convo.threads` is a read-only map containing all the threads in the conversation. You can get a thread using `convo.threads[name]`.
 
 ##### Usage
 
