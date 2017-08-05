@@ -120,7 +120,7 @@ module.exports = function() {
 
       install.on('close', (code) => {
         if (code > 0) {
-          util.print('error', 'An error occured during the dependencies installation of your module')
+          util.print('error', 'An error occurred during the dependencies installation of your module')
         } else {
           util.print('success', 'Module dependencies installed')
           util.print(doneText)
