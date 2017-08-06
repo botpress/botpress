@@ -3,6 +3,7 @@ import fs from 'fs'
 import util from '../util'
 import chalk from 'chalk'
 import nodemon from 'nodemon'
+import { monitorCtrlC } from 'monitorctrlc'
 
 /**
  * Entry point of botpress
@@ -56,7 +57,6 @@ module.exports = function(projectPath, options) {
   const opts = options.opts()
   if (opts.watch || opts.w) {
     util.print('info', '*** watching files for changes ***')
-    util.print('info', '*** press CTRL-c twice(!) to exit ***') // https://github.com/remy/nodemon/issues/394
 
     const argvWithoutWatch = process.argv.filter(arg => !/^(--watch|-w)$/.test(arg))
     const nodemonOptions = {
@@ -69,7 +69,13 @@ module.exports = function(projectPath, options) {
       restartable: false
     }
 
-    nodemon(nodemonOptions).on('restart', (changedFile, two) => util.print('info', '*** restarting botpress because of file change: ', changedFile))
+    const mon = nodemon(nodemonOptions)
+    mon.on('restart', (changedFile, two) => util.print('info', '*** restarting botpress because of file change: ', changedFile))
+
+    monitorCtrlC(() => {
+      mon.emit('quit')
+      setTimeout(() => process.exit(), 100)
+    })
 
   } else {
     const bot = new Botpress({botfile})
