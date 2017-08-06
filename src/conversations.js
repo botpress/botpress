@@ -144,8 +144,21 @@ class Thread extends EventEmmiter {
     return this.queue.length > 0 ? this.queue[0] : null
   }
 
-  dequeue() {
-    const msg = this.queue.shift()
+  async dequeue() {
+    let msg = null
+
+    while(true) {
+      msg = this.queue.shift()
+
+      if (msg && msg.condition && _.isFunction(msg.condition)) {
+        const exec = await msg.condition()
+        if (!exec) {
+          continue
+        }
+      }
+
+      break
+    }
 
     this._last = msg
     this.waiting = msg && msg.type === 'question'
@@ -334,9 +347,9 @@ class Conversation extends EventEmmiter {
     this.emit('switched', name)
   }
 
-  next() {
+  async next() {
     const thread = this.getCurrentThread()
-    const msg = thread.dequeue()
+    const msg = await thread.dequeue()
     if (msg) {
       let message = msg.message
 
