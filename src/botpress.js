@@ -225,7 +225,7 @@ class botpress {
     }
 
     process.on('uncaughtException', err => {
-      logger.error('[FATAL] An unhandled exception occured in your bot', err)
+      logger.error('[FATAL] An unhandled exception occurred in your bot', err)
       if (isDeveloping) {
         logger.error(err.stack)
       }

@@ -278,7 +278,7 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
     return runSpawn(install)
     .then(() => log('success', 'Modules successfully installed'))
     .catch(err => {
-      log('error', 'An error occured during modules installation.')
+      log('error', 'An error occurred during modules installation.')
       throw err
     })
   })
@@ -294,7 +294,7 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
     return runSpawn(uninstall)
     .then(() => log('success', 'Modules successfully removed'))
     .catch(err => {
-      log('error', 'An error occured during modules removal.')
+      log('error', 'An error occurred during modules removal.')
       throw err
     })
   })
