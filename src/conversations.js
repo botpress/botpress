@@ -84,22 +84,11 @@ class Thread extends EventEmmiter {
   }
 
   addMessage(msg) {
-    if (isBlocCall(arguments)) {
-      // Add bloc
-      const blocName = arguments[0]
-      const blocData = arguments[1]
-
-      return this.enqueue({
-        type: 'message',
-        message: formatBloc(blocName, blocData)
-      })
-    }
-
-    // Add raw message
-    const message = formatMessage(msg, this.initialEvent)
-    this.enqueue({
-      type: 'message',
-      message: message
+    return this.add({ 
+      content: arguments[0],
+      data: arguments[1],
+      handler: null,
+      condition: null
     })
   }
 
@@ -108,28 +97,46 @@ class Thread extends EventEmmiter {
   // bloc, data, handlers
   addQuestion(msg) {
     const handlers = validateHandlers(_.last(arguments))
+    const content = arguments[0]
+    const data = arguments.length >= 3 ? arguments[1] : null
 
-    if (isBlocCall(arguments)) {
-      // Add bloc question
-      const blocName = arguments[0]
-      const blocData = arguments.length >= 3 // Because of handlers and data is optional
-        ? arguments[1]
-        : null
+    return this.add({ 
+      content, 
+      handler: handlers, 
+      condition: null, 
+      data 
+    })
+  }
 
+  /* { 
+    content: 'string or #umm'
+    handler?: function(response) // If no handler = message + next()
+    condition?: function() // return bool|Promise<bool> to execute it or not
+    data?: object|func<object>|func<Promise<object>> to feed data to the UMM
+  } */
+  add({ content, handler, condition, data }) {
+    const handlers = handler ? validateHandlers(handler) : null
+    const type = handlers ? 'question' : 'message'
+
+    const isBloc = _.isString(content) && content.startsWith('#')
+
+    if (isBloc) {
       return this.enqueue({
-        type: 'question',
-        message: formatBloc(blocName, blocData),
-        handlers: handlers
+        type: type,
+        message: formatBloc(content, data),
+        handlers: handlers,
+        condition: condition
       })
     }
     
     // Add raw message question
-    const message = formatMessage(msg, this.initialEvent)
+    const message = formatMessage(content, this.initialEvent)
 
     this.enqueue({
-      type: 'question',
+      type: type,
       message: message,
-      handlers: handlers
+      handlers: handlers,
+      condition: condition
     })
   }
 
@@ -137,8 +144,21 @@ class Thread extends EventEmmiter {
     return this.queue.length > 0 ? this.queue[0] : null
   }
 
-  dequeue() {
-    const msg = this.queue.shift()
+  async dequeue() {
+    let msg = null
+
+    while(true) {
+      msg = this.queue.shift()
+
+      if (msg && msg.condition && _.isFunction(msg.condition)) {
+        const exec = await msg.condition()
+        if (!exec) {
+          continue
+        }
+      }
+
+      break
+    }
 
     this._last = msg
     this.waiting = msg && msg.type === 'question'
@@ -327,9 +347,9 @@ class Conversation extends EventEmmiter {
     this.emit('switched', name)
   }
 
-  next() {
+  async next() {
     const thread = this.getCurrentThread()
-    const msg = thread.dequeue()
+    const msg = await thread.dequeue()
     if (msg) {
       let message = msg.message
 
