@@ -223,10 +223,31 @@ module.exports = (bp, app) => {
   })
 
   app.secure('read', 'bot/content')
+  .get('/content/categories/all/items', (req, res) => {
+    res.send([
+      {
+        id: 'trivia-1984',
+        category: 'trivia',
+        previewText: 'Who was the first president of the United States?',
+        createdOn: new Date(),
+        createdBy: 'admin'
+      },
+      {
+        id: 'trivia-5335',
+        category: 'trivia',
+        previewText: 'In what year did Michael Jackson died?',
+        createdOn: new Date(),
+        createdBy: 'admin'
+      }
+    ])
+  })
+
+  app.secure('read', 'bot/content')
   .get('/content/categories/:id/items', (req, res) => {
     res.send([
       { 
         id: 'trivia-1984',
+        category: 'trivia',
         previewText: 'Who was the first president of the United States?',
         createdOn: new Date(),
         createdBy: 'admin'
