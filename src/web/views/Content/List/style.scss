@@ -3,4 +3,52 @@ $content-bg-color: #FFFFFF;
 .list {
   min-height: 85vh;
   background-color: $content-bg-color;
+
+  button {
+    margin-left: 6px;
+    width: 160px;
+
+    &.disabled {
+      background-color: #B5B3B6;
+      cursor: not-allowed;
+    }
+  }
+
+  ul {
+    list-style: none;
+    padding: 10px;
+
+    li {
+      margin-bottom: 5px;
+      padding-left: 6px;
+      line-height: 24px;
+      border-left: solid 3px #fff;
+      
+      a {
+        color: #000000;
+        font-weight: bolder;
+        text-decoration: none;
+
+        &:hover {
+          color: #444444;
+        }
+      }
+
+      &.selected {
+        border-color: #46CBA0;
+        
+        a {
+          font-weight: bold; 
+        }
+      }
+
+      .title {
+        margin-right: 5px;
+      }
+
+      .count {
+        opacity: 0.7;
+      }
+    }
+  }
 }

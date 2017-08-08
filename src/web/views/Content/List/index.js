@@ -10,14 +10,27 @@ export default class ListView extends Component {
   }
 
   renderAddButton() {
-    return <button className='bp-button' onClick={() => this.props.handleAdd()}>Add</button>
+    const classNames = classnames({
+      'bp-button': true,
+      [style.disabled]: this.props.selectedId === 'all'
+    })
+
+    return <button 
+        className={classNames} 
+        onClick={() => this.props.handleAdd()}>
+          Add
+      </button>
   }
 
   renderCategory(c) {
-    return <li>
+    const classNames = classnames({
+      [style.selected]: c.id === this.props.selectedId
+    })
+
+    return <li className={classNames}>
         <a onClick={() => this.props.handleCategorySelected(c.id)}>
           <span className={style.title}>{c.title}</span>
-          {c.count ? <span className={style.count}>{c.count}</span> : null}
+          {c.count ? <span className={style.count}>{'(' + c.count + ')  '}</span> : null}
         </a>
       </li>
   }
