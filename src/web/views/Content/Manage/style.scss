@@ -1,0 +1,61 @@
+$content-bg-color: #FFFFFF;
+
+.manage {
+  min-height: 85vh;
+  background-color: $content-bg-color;
+
+  .header {
+    position: relative;
+    height: 40px;
+
+    :global(.checkbox) {
+      margin-top: 5px;
+      margin-bottom: 5px;
+      height: 18px;
+    }
+
+    button {
+      height: 30px;
+      width: 34px;
+      position: relative;
+      
+      i {
+        position: absolute;
+        left: 6px;
+        top: 6px;
+        font-size: 18px;
+        line-height: 18px;
+
+        color: #807F81;
+      }
+
+      margin-right: 2px;
+    }
+
+    .left, .right {
+      position: absolute;
+      top: 5px;
+    }
+
+    .left {  
+      left: 0px;
+    }
+
+    .right {
+      right: 5px;
+    }
+  }
+
+  .container {
+    margin-right: 6px;
+
+    table {
+      :global(.checkbox) {
+        margin-top: 0px;
+        margin-bottom: 0px;
+        height: 20px;
+      }
+    }  
+  }
+  
+}
