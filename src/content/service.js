@@ -130,8 +130,14 @@ module.exports = ({ db, projectLocation, logger }) => {
     return item
   }
 
-  async function deleteCategoryItems() {
-    
+  async function deleteCategoryItems(ids) {
+    if (!_.isArray(ids) || _.some(ids, id => !_.isString(id))) {
+      throw new Error('Expected an array of Ids to delete')
+    }
+
+    const knex = await db.get()
+
+    return knex('content_items').whereIn('categoryId', ids).del()
   }
 
   return { 
@@ -141,7 +147,7 @@ module.exports = ({ db, projectLocation, logger }) => {
     
     createCategoryItem,
     listCategoryItems,
-    // deleteCategoryItems,
+    deleteCategoryItems,
 
     // getItem,
     // getItemsByMetadata
