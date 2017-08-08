@@ -233,7 +233,8 @@ module.exports = (bp, app) => {
 
   app.secure('read', 'bot/content')
   .post('/content/categories/all/bulk_delete', async (req, res) => {
-    res.send(await bp.contentManager.deleteCategoryItems(req.body))
+    await bp.contentManager.deleteCategoryItems(req.body)
+    res.sendStatus(200)
   })
 
   const apis = ExtraApiProviders(bp, app)
