@@ -95,6 +95,7 @@ export default class ContentView extends Component {
 
   handleCreate(data) {
     this.createItem(data, this.state.selectedId)
+    .then(::this.fetchCategories)
     .then(() => { return this.fetchCategoryMessages(this.state.selectedId) })
     .then(() => { this.setState({ showModal: false } ) })
   }
@@ -106,6 +107,7 @@ export default class ContentView extends Component {
 
   handleDeleteSelected(ids) {
     this.deleteItems(ids)
+    .then(::this.fetchCategories)
     .then(() => { return this.fetchCategoryMessages(this.state.selectedId) })
   }
 
