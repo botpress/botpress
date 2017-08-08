@@ -4,6 +4,9 @@ import fs from 'fs'
 import _ from 'lodash'
 import Promise from 'bluebird'
 import glob from 'node-glob'
+import uuid from 'uuid'
+
+import helpers from '../database/helpers'
 
 module.exports = ({ db, projectLocation, logger }) => {
 
@@ -48,9 +51,7 @@ module.exports = ({ db, projectLocation, logger }) => {
   }
 
   async function listAvailableCategories() {
-
     const knex = await db.get()
-
 
     return await Promise.mapAll(categories, async category => {
 
@@ -83,12 +84,44 @@ module.exports = ({ db, projectLocation, logger }) => {
     }
   }
 
+  async function createCategoryItem({ categoryId, formData }) {
+    categoryId = categoryId && categoryId.toLowerCase()
+    const category = _.find(categories, { id: categoryId })
+
+    if (_.isNil(category)) {
+      throw new Error(`Category "${categoryId}" is not a valid registered categoryId`)
+    }
+
+
+    if (_.isNil(formData) || !_.isObject(formData)) {
+      throw new Error('"formData" must be a valid Json object')
+    }
+
+    const metadata = (category.computeMetadata && await category.computeMetadata(formData)) || {}
+    const previewText = (category.computePreviewText && await category.computePreviewText(formData)) 
+      || 'No preview'
+    
+    const randomId = `${categoryId}-${uuid.v4().split('-').join('').substr(0, 6)}`
+
+    const knex = await db.get()
+    
+    return await knex('content_items').insert({
+      id: randomId,
+      formData: JSON.stringify(formData),
+      metadata: JSON.stringify(metadata),
+      categoryId: categoryId,
+      previewText: previewText,
+      created_by: 'admin',
+      created_on: helpers(knex).date.now()
+    })
+  }
+
   return { 
     scanAndRegisterCategories,
     listAvailableCategories,
     getCategorySchema,
     
-    // createCategoryItem,
+    createCategoryItem,
     // listCategoryItems,
     // deleteCategoryItems,
 
