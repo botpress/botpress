@@ -173,7 +173,7 @@ module.exports = ({ db, projectLocation, logger }) => {
 
     const knex = await db.get()
 
-    return knex('content_items').whereIn('categoryId', ids).del()
+    return knex('content_items').whereIn('id', ids).del()
   }
 
   async function getItem(itemId) {
