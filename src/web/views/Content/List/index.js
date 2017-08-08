@@ -10,20 +10,29 @@ export default class ListView extends Component {
   }
 
   renderAddButton() {
-    return <button className='bp-button' onClick={() => this.props.handleAddItem()}>Add</button>
+    return <button className='bp-button' onClick={() => this.props.handleAdd()}>Add</button>
+  }
+
+  renderCategory(c) {
+    return <li>
+        <a onClick={() => this.props.handleCategorySelected(c.id)}>
+          <span className={style.title}>{c.title}</span>
+          {c.count ? <span className={style.count}>{c.count}</span> : null}
+        </a>
+      </li>
   }
 
   renderCategories() {
-    const categories = _.concat(['All'], (this.props.categories || []))
+    const all = { 
+      id: 'all',
+      title: 'All',
+      count: null
+    }
+
+    const categories = _.concat([all], (this.props.categories || []))
 
     return <ul>
-        {categories.map((name) => {
-          return <li>
-            <a onClick={() => this.props.handleCategorySelected(name)}>
-              {name}
-            </a>
-          </li>
-        })}
+        {categories.map(::this.renderCategory)}
       </ul>
   }
 
@@ -34,6 +43,7 @@ export default class ListView extends Component {
     })
 
     return <div className={classNames}>
+      {this.renderAddButton()}
       {this.renderCategories()}
     </div>
   }

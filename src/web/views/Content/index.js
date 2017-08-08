@@ -22,7 +22,7 @@ export default class ContentView extends Component {
 
   componentDidMount() {
     this.fetchAllCategoriesMessages()
-    .then(this.fetchCategories)
+    .then(::this.fetchCategories)
     .then(() => {
       this.setState({
         loading: false
@@ -48,8 +48,8 @@ export default class ContentView extends Component {
     })
   }
 
-  fetchCategoryMessages(category) {
-    return axios.get('/content/categories/' + category + '/items')
+  fetchCategoryMessages(id) {
+    return axios.get('/content/categories/' + id + '/items')
     .then(({ data }) => {
       this.setState({
         messages: data
@@ -57,8 +57,8 @@ export default class ContentView extends Component {
     })
   }
 
-  fetchSchema(category) {
-    return axios.get('/content/categories/' + category + '/schema')
+  fetchSchema(id) {
+    return axios.get('/content/categories/' + id + '/schema')
     .then(({ data }) => {
       this.setState({
         schema: data
@@ -66,8 +66,8 @@ export default class ContentView extends Component {
     })
   }
 
-  createItem(data, category) {
-    return axios.post('/content/categories/' + category + '/items', data)
+  createItem(data, id) {
+    return axios.post('/content/categories/' + id + '/items', data)
     .then(res => {
       console.log('POST: New item created...')
       console.log(res)
@@ -87,12 +87,18 @@ export default class ContentView extends Component {
     console.log('ADD')
   }
 
-  handleCatogorySelected(name) {
+  handleCategorySelected(id) {
+    console.log('SELECTED: ', id)
+
     this.setState({
-      selected: name
+      selected: id
     })
 
-    this.fetchCategory(name)
+    this.fetchCategory(id)
+  }
+
+  handleDeleteSelected(ids) {
+    console.log('DELETE: ', ids)
   }
  
   render() {
@@ -113,12 +119,14 @@ export default class ContentView extends Component {
             <tr>
               <td style={{ 'width': '20%' }}>
                 <List
+                  categories={this.state.categories || []}
                   handleAdd={::this.handleAdd}
                   handleCategorySelected={::this.handleCategorySelected} />
               </td>
               <td style={{ 'width': '80%' }}>
                 <Manage 
-                  selected={this.state.selected} />
+                  items={this.state.items || []}
+                  handleDeleteSelected={::this.handleDeleteSelected} />
               </td>
             </tr>
           </tbody>

@@ -8,8 +8,40 @@ export default class ManageView extends Component {
     super(props)
   }
 
-  renderItems() {
-    <div>{this.props.selected || 'All'}</div>
+  handleDeleteSelected() {
+    const ids = []
+    this.props.handleDeleteSelected(ids)
+  }
+
+  renderTableHeader() {
+    return <th>
+        <td></td>
+        <td>ID</td>
+        <td>Category</td>
+        <td>Preview</td>
+      </th>
+  }
+
+  renderItem(i) {
+    return <tr>
+        <td></td>
+        <td>{i.id}</td>
+        <td>{i.categoryId}</td>
+        <td>{i.previewText}}</td>
+      </tr>
+  }
+
+  renderTable() {
+    return <table>
+      {this.renderTableHeader()}
+      {this.props.items.map(this.renderItem)}
+    </table>
+  }
+
+  renderHeader() {
+    return <div>
+      <button className='bp-button' onClick={::this.handleDeleteSelected}>Delete</button>
+    </div>
   }
 
   render() {
@@ -19,8 +51,8 @@ export default class ManageView extends Component {
     })
 
     return <div className={classNames}>
-      Manage
-      {this.renderItems()}
+      {this.renderHeader()}
+      {this.renderTable()}
     </div>
   }
 }
