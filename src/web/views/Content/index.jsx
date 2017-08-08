@@ -5,6 +5,7 @@ import axios from 'axios'
 
 import List from './list'
 import Manage from './manage'
+import CreateModal from './modal'
 
 import ContentWrapper from '~/components/Layout/ContentWrapper'
 import PageHeader from '~/components/Layout/PageHeader'
@@ -16,13 +17,17 @@ export default class ContentView extends Component {
     super(props)
 
     this.state = {
-      loading: true
+      loading: true,
+      showModal: false
     }
   }
 
   componentDidMount() {
     this.fetchAllCategoriesMessages()
     .then(::this.fetchCategories)
+    .then(() => {
+      return this.fetchSchema('trivia')
+    })
     .then(() => {
       this.setState({
         loading: false
@@ -74,7 +79,6 @@ export default class ContentView extends Component {
     })
   }
 
-
   deleteItems(data) {
     return axios.delete('/content/categories/all/items', data)
     .then(res => {
@@ -83,22 +87,30 @@ export default class ContentView extends Component {
     })
   } 
 
-  handleAdd() {
-    console.log('ADD')
+  handleToggleModal() {
+    this.setState({
+      showModal: !this.state.showModal
+    })
+  }
+
+  handleCreate(data) {
+    this.createItem(data, this.state.selectedId)
+    .then(() => { return this.fetchCategoryMessages(this.state.selectedId) })
+    .then(() => { this.setState({ showModal: false } ) })
   }
 
   handleCategorySelected(id) {
-    console.log('SELECTED: ', id)
-
-    this.setState({
-      selected: id
-    })
-
-    this.fetchCategory(id)
+    this.fetchCategoryMessages(id)
+    .then(() => { this.setState({ selectedId: id }) })    
   }
 
   handleDeleteSelected(ids) {
-    console.log('DELETE: ', ids)
+    this.deleteItems(ids)
+    .then(() => { return this.fetchCategoryMessages(this.state.selectedId) })
+  }
+
+  handleRefresh() {
+    this.fetchCategoryMessages(this.state.selectedId || 'all')
   }
  
   render() {
@@ -120,17 +132,25 @@ export default class ContentView extends Component {
               <td style={{ 'width': '20%' }}>
                 <List
                   categories={this.state.categories || []}
-                  handleAdd={::this.handleAdd}
+                  selectedId={this.state.selectedId || 'all'}
+                  handleAdd={::this.handleToggleModal}
                   handleCategorySelected={::this.handleCategorySelected} />
               </td>
               <td style={{ 'width': '80%' }}>
                 <Manage 
-                  items={this.state.items || []}
+                  messages={this.state.messages || []}
+                  handleRefresh={::this.handleRefresh}
                   handleDeleteSelected={::this.handleDeleteSelected} />
               </td>
             </tr>
           </tbody>
         </table>
+        <CreateModal 
+          show={this.state.showModal}
+          schema={(this.state.schema && this.state.schema.json) || {}}
+          uiSchema={(this.state.schema && this.state.schema.ui) || {}}
+          handleCreate={::this.handleCreate}
+          handleClose={::this.handleToggleModal} />
       </ContentWrapper>
     )
   }
