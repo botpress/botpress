@@ -153,7 +153,7 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db, contentMa
     let markdown = await getDocument()
 
     // TODO Add more context
-    const fullContext = Object.assign({
+    const fullContext = Object.assign({}, initialData, {
       user: incomingEvent.user,
       originalEvent: incomingEvent
     }, additionalData)
