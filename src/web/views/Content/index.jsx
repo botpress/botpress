@@ -72,7 +72,7 @@ export default class ContentView extends Component {
   }
 
   createItem(data, id) {
-    return axios.post('/content/categories/' + id + '/items', data)
+    return axios.post('/content/categories/' + id + '/items', { formData: data })
     .then(res => {
       console.log('POST: New item created...')
       console.log(res)
@@ -80,7 +80,7 @@ export default class ContentView extends Component {
   }
 
   deleteItems(data) {
-    return axios.delete('/content/categories/all/items', data)
+    return axios.post('/content/categories/all/bulk_delete', data)
     .then(res => {
       console.log('DELETE: Array of ids deleted...')
       console.log(res)
