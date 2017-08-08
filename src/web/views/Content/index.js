@@ -3,6 +3,9 @@ import React, { Component } from 'react'
 import classnames from 'classnames'
 import axios from 'axios'
 
+import List from './list'
+import Manage from './manage'
+
 import ContentWrapper from '~/components/Layout/ContentWrapper'
 import PageHeader from '~/components/Layout/PageHeader'
 
@@ -23,6 +26,17 @@ export default class ContentView extends Component {
     })
   }
 
+  handleAdd() {
+    console.log('ADD')
+  }
+
+  handleCatogorySelected(name) {
+    console.log('SELECTED: ', name)
+    
+    this.setState({
+      selected: name
+    })
+  }
  
   render() {
     if (this.state.loading) {
@@ -41,18 +55,13 @@ export default class ContentView extends Component {
           <tbody>
             <tr>
               <td style={{ 'width': '20%' }}>
-                <h3>Title 1</h3>
+                <List
+                  handleAdd={::this.handleAdd}
+                  handleCategorySelected={::this.handleCategorySelected} />
               </td>
               <td style={{ 'width': '80%' }}>
-                <h3>Title 2</h3>
-              </td>
-            </tr>
-            <tr>                
-              <td>
-                <h2>Section 1</h2>
-              </td>
-              <td>
-                <h2>Section 2</h2>
+                <Manage 
+                  selected={this.state.selected} />
               </td>
             </tr>
           </tbody>
