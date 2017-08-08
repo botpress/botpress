@@ -214,8 +214,8 @@ module.exports = (bp, app) => {
   app.secure('read', 'bot/content')
   .get('/content/categories/:id/schema', (req, res) => {
     res.send({
-      json: {},
-      ui: {},
+      json: require('./jsonData.json'),
+      ui: require('./ui.json'),
       title: 'Trivia Questions',
       description: 'Create a new Trivia question with up to 5 potential answers.',
       ummBloc: '#name-of-bloc'
