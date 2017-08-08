@@ -104,7 +104,7 @@ module.exports = ({ db, projectLocation, logger }) => {
     const randomId = `${categoryId}-${uuid.v4().split('-').join('').substr(0, 6)}`
 
     const knex = await db.get()
-    
+
     return await knex('content_items').insert({
       id: randomId,
       formData: JSON.stringify(formData),
@@ -116,13 +116,31 @@ module.exports = ({ db, projectLocation, logger }) => {
     })
   }
 
+  async function listCategoryItems(categoryId) {
+    const knex = await db.get()
+
+    const items = await knex('content_items').where({
+      categoryId: categoryId
+    }).then()
+
+    return items.map(transformCategoryItem)
+  }
+
+  function transformCategoryItem(item) {
+    return item
+  }
+
+  async function deleteCategoryItems() {
+    
+  }
+
   return { 
     scanAndRegisterCategories,
     listAvailableCategories,
     getCategorySchema,
     
     createCategoryItem,
-    // listCategoryItems,
+    listCategoryItems,
     // deleteCategoryItems,
 
     // getItem,
