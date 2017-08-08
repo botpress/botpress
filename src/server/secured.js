@@ -224,7 +224,7 @@ module.exports = (bp, app) => {
   })
 
   app.secure('read', 'bot/content')
-  .post('/content/categories/all/items', async (req, res) => {
+  .post('/content/categories/:id/items', async (req, res) => {
     res.send(await bp.contentManager.createCategoryItem({
       formData: req.body.formData,
       categoryId: req.params.id 
@@ -232,7 +232,7 @@ module.exports = (bp, app) => {
   })
 
   app.secure('read', 'bot/content')
-  .post('/content/categories/:id/bulk_delete', async (req, res) => {
+  .post('/content/categories/all/bulk_delete', async (req, res) => {
     res.send(await bp.contentManager.deleteCategoryItems(req.body))
   })
 
