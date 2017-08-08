@@ -204,67 +204,36 @@ module.exports = (bp, app) => {
   })
 
   app.secure('read', 'bot/content')
-  .get('/content/categories', (req, res) => {
-    res.send([
-      { id: 'trivia', title: 'Trivia Questions', count: '1080' },
-      { id: 'promotions', title: 'Promotions', count: '153' }
-    ])
+  .get('/content/categories', async (req, res) => {
+    res.send(await bp.contentManager.listAvailableCategories())
   })
 
   app.secure('read', 'bot/content')
-  .get('/content/categories/:id/schema', (req, res) => {
-    res.send({
-      json: require('./jsonData.json'),
-      ui: require('./ui.json'),
-      title: 'Trivia Questions',
-      description: 'Create a new Trivia question with up to 5 potential answers.',
-      ummBloc: '#name-of-bloc'
-    })
+  .get('/content/categories/:id/schema', async (req, res) => {
+    res.send(await bp.contentManager.getCategorySchema(req.params.id))
   })
 
   app.secure('read', 'bot/content')
-  .get('/content/categories/all/items', (req, res) => {
-    res.send([
-      {
-        id: 'trivia-1984',
-        categoryId: 'trivia',
-        previewText: 'Who was the first president of the United States?',
-        createdOn: new Date(),
-        createdBy: 'admin'
-      },
-      {
-        id: 'trivia-5335',
-        categoryId: 'trivia',
-        previewText: 'In what year did Michael Jackson died?',
-        createdOn: new Date(),
-        createdBy: 'admin'
-      }
-    ])
+  .get('/content/categories/all/items', async (req, res) => {
+    res.send(await bp.contentManager.listCategoryItems(null))
   })
 
   app.secure('read', 'bot/content')
-  .get('/content/categories/:id/items', (req, res) => {
-    res.send([
-      { 
-        id: 'trivia-1984',
-        categoryId: 'trivia',
-        previewText: 'Who was the first president of the United States?',
-        createdOn: new Date(),
-        createdBy: 'admin'
-      }
-    ])
+  .get('/content/categories/:id/items', async (req, res) => {
+    res.send(await bp.contentManager.listCategoryItems(req.params.id))
   })
 
   app.secure('read', 'bot/content')
-  .post('/content/categories/:id/items', (req, res) => {
-    if (!req.body.formData) { return res.status(500).send("Missing the data") }
-    res.sendStatus(200)
+  .post('/content/categories/:id/items', async (req, res) => {
+    res.send(await bp.contentManager.createCategoryItem({
+      formData: req.body.formData,
+      categoryId: req.params.id 
+    }))
   })
 
   app.secure('read', 'bot/content')
-  .post('/content/categories/:id/bulk_delete', (req, res) => {
-    if (!_.isArray(req.body)) { return res.status(500).send("Body must be an array of ids") }
-    res.sendStatus(200)
+  .post('/content/categories/:id/bulk_delete', async (req, res) => {
+    res.send(await bp.contentManager.deleteCategoryItems(req.body))
   })
 
   const apis = ExtraApiProviders(bp, app)

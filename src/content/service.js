@@ -119,9 +119,15 @@ module.exports = ({ db, projectLocation, logger }) => {
   async function listCategoryItems(categoryId) {
     const knex = await db.get()
 
-    const items = await knex('content_items').where({
-      categoryId: categoryId
-    }).then()
+    let items = null
+
+    if (categoryId) {
+      items = await knex('content_items').where({
+        categoryId: categoryId
+      }).then()
+    } else {
+      items = await knex('content_items').then()
+    }
 
     return items.map(transformCategoryItem)
   }
@@ -147,7 +153,7 @@ module.exports = ({ db, projectLocation, logger }) => {
     
     createCategoryItem,
     listCategoryItems,
-    deleteCategoryItems,
+    deleteCategoryItems
 
     // getItem,
     // getItemsByMetadata
