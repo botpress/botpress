@@ -21,21 +21,78 @@ export default class ContentView extends Component {
   }
 
   componentDidMount() {
-    this.setState({
-      loading: false
+    this.fetchAllCategoriesMessages()
+    .then(this.fetchCategories)
+    .then(() => {
+      this.setState({
+        loading: false
+      })  
     })
   }
+
+  fetchCategories() {
+    return axios.get('/content/categories')
+    .then(({ data }) => {
+      this.setState({
+        categories: data
+      })
+    })
+  }
+
+  fetchAllCategoriesMessages() {
+    return axios.get('/content/categories/all/items')
+    .then(({ data }) => {
+      this.setState({
+        messages: data
+      })
+    })
+  }
+
+  fetchCategoryMessages(category) {
+    return axios.get('/content/categories/' + category + '/items')
+    .then(({ data }) => {
+      this.setState({
+        messages: data
+      })
+    })
+  }
+
+  fetchSchema(category) {
+    return axios.get('/content/categories/' + category + '/schema')
+    .then(({ data }) => {
+      this.setState({
+        schema: data
+      })
+    })
+  }
+
+  createItem(data, category) {
+    return axios.post('/content/categories/' + category + '/items', data)
+    .then(res => {
+      console.log('POST: New item created...')
+      console.log(res)
+    })
+  }
+
+
+  deleteItems(data) {
+    return axios.delete('/content/categories/all/items', data)
+    .then(res => {
+      console.log('DELETE: Array of ids deleted...')
+      console.log(res)
+    })
+  } 
 
   handleAdd() {
     console.log('ADD')
   }
 
   handleCatogorySelected(name) {
-    console.log('SELECTED: ', name)
-    
     this.setState({
       selected: name
     })
+
+    this.fetchCategory(name)
   }
  
   render() {
