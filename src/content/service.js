@@ -96,13 +96,26 @@ module.exports = ({ db, projectLocation, logger }) => {
 
 
     if (_.isNil(formData) || !_.isObject(formData)) {
-      throw new Error('"formData" must be a valid Json object')
+      throw new Error('"formData" must be a valid object')
     }
 
-    const metadata = (category.computeMetadata && await category.computeMetadata(formData)) || {}
+    formData = (category.computeFormData && await category.computeFormData(formData)) || formData
+    const metadata = (category.computeMetadata && await category.computeMetadata(formData)) || []
     const previewText = (category.computePreviewText && await category.computePreviewText(formData)) 
       || 'No preview'
     
+    if (!_.isArray(metadata)) {
+      throw new Error('computeMetadata must return an array of string')
+    }
+
+    if (!_.isString(previewText)) {
+      throw new Error('computePreviewText must return a string')
+    }
+
+    if (_.isNil(formData) || !_.isObject(formData)) {
+      throw new Error('computeFormData must return a valid object')
+    }
+
     const randomId = `${categoryId}-${uuid.v4().split('-').join('').substr(0, 6)}`
 
     const knex = await db.get()
@@ -110,7 +123,7 @@ module.exports = ({ db, projectLocation, logger }) => {
     return await knex('content_items').insert({
       id: randomId,
       formData: JSON.stringify(formData),
-      metadata: JSON.stringify(metadata),
+      metadata: '|' + metadata.join('|') + '|',
       categoryId: categoryId,
       previewText: previewText,
       created_by: 'admin',
@@ -151,9 +164,21 @@ module.exports = ({ db, projectLocation, logger }) => {
   async function getItem(itemId) {
     const knex = await db.get()
 
-    return knex('content_items')
+    const item = await knex('content_items')
     .where({ id: itemId })
     .then().get(0).then()
+
+    return _.first(transformCategoryItem(item ? [item] : []))
+  }
+
+  async function getItemsByMetadata(metadata) {
+    const knex = await db.get()
+
+    const items = await knex('content_items')
+    .where('metadata', 'like', '%|' + metadata + '|%')
+    .then()
+
+    return transformCategoryItem(items)
   }
 
   return { 
@@ -166,6 +191,6 @@ module.exports = ({ db, projectLocation, logger }) => {
     deleteCategoryItems,
 
     getItem,
-    // getItemsByMetadata
+    getItemsByMetadata
   }
 }
