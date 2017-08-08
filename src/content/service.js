@@ -3,7 +3,7 @@ import fs from 'fs'
 
 import _ from 'lodash'
 import Promise from 'bluebird'
-import glob from 'node-glob'
+import glob from 'glob'
 import uuid from 'uuid'
 
 import helpers from '../database/helpers'
@@ -15,18 +15,20 @@ module.exports = ({ db, projectLocation, logger }) => {
   async function scanAndRegisterCategories() {
     categories = []
     
-    const formDir = path.resolve(projectLocation, '/content/forms')
+    const formDir = path.resolve(projectLocation, './content/forms')
     
-    if (!await fs.exists(formDir)) {
+    if (!fs.existsSync(formDir)) {
       return categories
     }
 
     const searchOptions = { cwd: formDir }
-    const files = await Promise.fromCallback(callback => glob('**.form.js', searchOptions))
+
+    const files = await Promise.fromCallback(callback => glob('**/*.form.js', searchOptions, callback))
 
     files.forEach(file => {
       try {
-        const category = eval('require')(file) // Dynamic loading require eval for Webpack
+        const filePath = path.resolve(formDir, './' + file)
+        const category = eval('require')(filePath) // Dynamic loading require eval for Webpack
         const requiredFields = ['id', 'title', 'ummBloc', 'jsonSchema']
 
         requiredFields.forEach(field => {
@@ -53,7 +55,7 @@ module.exports = ({ db, projectLocation, logger }) => {
   async function listAvailableCategories() {
     const knex = await db.get()
 
-    return await Promise.mapAll(categories, async category => {
+    return await Promise.map(categories, async category => {
 
       const count = await knex('content_items')
       .where({ categoryId: category.id })
