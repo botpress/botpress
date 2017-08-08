@@ -148,7 +148,22 @@ module.exports = ({ db, projectLocation, logger }) => {
   }
 
   function transformCategoryItem(item) {
-    return item
+    if (!item) {
+      return item
+    }
+
+    let metadata = item.metadata || ''
+    metadata = _.remove(metadata.split('|'), _.isEmpty)
+
+    return {
+      id: item.id,
+      formData: JSON.parse(item.formData),
+      categoryId: item.categoryId,
+      previewText: item.previewText,
+      metadata: metadata,
+      createdBy: item.created_by,
+      createdOn: item.created_on
+    }
   }
 
   async function deleteCategoryItems(ids) {
