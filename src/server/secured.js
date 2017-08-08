@@ -227,14 +227,14 @@ module.exports = (bp, app) => {
     res.send([
       {
         id: 'trivia-1984',
-        category: 'trivia',
+        categoryId: 'trivia',
         previewText: 'Who was the first president of the United States?',
         createdOn: new Date(),
         createdBy: 'admin'
       },
       {
         id: 'trivia-5335',
-        category: 'trivia',
+        categoryId: 'trivia',
         previewText: 'In what year did Michael Jackson died?',
         createdOn: new Date(),
         createdBy: 'admin'
@@ -247,7 +247,7 @@ module.exports = (bp, app) => {
     res.send([
       { 
         id: 'trivia-1984',
-        category: 'trivia',
+        categoryId: 'trivia',
         previewText: 'Who was the first president of the United States?',
         createdOn: new Date(),
         createdBy: 'admin'
