@@ -148,6 +148,14 @@ module.exports = ({ db, projectLocation, logger }) => {
     return knex('content_items').whereIn('categoryId', ids).del()
   }
 
+  async function getItem(itemId) {
+    const knex = await db.get()
+
+    return knex('content_items')
+    .where({ id: itemId })
+    .then().get(0).then()
+  }
+
   return { 
     scanAndRegisterCategories,
     listAvailableCategories,
@@ -155,9 +163,9 @@ module.exports = ({ db, projectLocation, logger }) => {
     
     createCategoryItem,
     listCategoryItems,
-    deleteCategoryItems
+    deleteCategoryItems,
 
-    // getItem,
+    getItem,
     // getItemsByMetadata
   }
 }
