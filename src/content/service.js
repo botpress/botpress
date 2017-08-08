@@ -155,8 +155,6 @@ module.exports = ({ db, projectLocation, logger }) => {
     let metadata = item.metadata || ''
     metadata = _.remove(metadata.split('|'), _.isEmpty)
 
-    console.log(item, item.formData)
-
     return {
       id: item.id,
       formData: JSON.parse(item.formData),
@@ -185,7 +183,7 @@ module.exports = ({ db, projectLocation, logger }) => {
     .where({ id: itemId })
     .then().get(0).then()
 
-    return _.first(transformCategoryItem(item ? [item] : []))
+    return transformCategoryItem(item)
   }
 
   async function getItemsByMetadata(metadata) {
