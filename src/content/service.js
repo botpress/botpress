@@ -155,6 +155,8 @@ module.exports = ({ db, projectLocation, logger }) => {
     let metadata = item.metadata || ''
     metadata = _.remove(metadata.split('|'), _.isEmpty)
 
+    console.log(item, item.formData)
+
     return {
       id: item.id,
       formData: JSON.parse(item.formData),
