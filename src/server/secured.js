@@ -225,9 +225,18 @@ module.exports = (bp, app) => {
 
   app.secure('read', 'bot/content')
   .post('/content/categories/:id/items', async (req, res) => {
-    res.send(await bp.contentManager.createCategoryItem({
+    res.send(await bp.contentManager.createOrUpdateCategoryItem({
       formData: req.body.formData,
-      categoryId: req.params.id 
+      categoryId: req.params.id
+    }))
+  })
+
+  app.secure('read', 'bot/content')
+  .post('/content/categories/:id/items/:itemId', async (req, res) => {
+    res.send(await bp.contentManager.createOrUpdateCategoryItem({
+      itemId: req.params.itemId,
+      formData: req.body.formData,
+      categoryId: req.params.id
     }))
   })
 

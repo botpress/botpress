@@ -86,14 +86,13 @@ module.exports = ({ db, projectLocation, logger }) => {
     }
   }
 
-  async function createCategoryItem({ categoryId, formData }) {
+  async function createOrUpdateCategoryItem({ itemId, categoryId, formData }) {
     categoryId = categoryId && categoryId.toLowerCase()
     const category = _.find(categories, { id: categoryId })
 
     if (_.isNil(category)) {
       throw new Error(`Category "${categoryId}" is not a valid registered categoryId`)
     }
-
 
     if (_.isNil(formData) || !_.isObject(formData)) {
       throw new Error('"formData" must be a valid object')
@@ -120,16 +119,23 @@ module.exports = ({ db, projectLocation, logger }) => {
 
     const knex = await db.get()
 
-    return await knex('content_items').insert({
-      id: randomId,
+    const body = {
       data: JSON.stringify(data),
       formData: JSON.stringify(formData),
       metadata: '|' + metadata.join('|') + '|',
-      categoryId: categoryId,
       previewText: previewText,
       created_by: 'admin',
       created_on: helpers(knex).date.now()
-    })
+    }
+
+    if (itemId) {
+      return await knex('content_items').update(body).where({ id: itemId })
+    }
+
+    return await knex('content_items').insert(Object.assign({
+      id: randomId,
+      categoryId: categoryId
+    }, body))
   }
 
   async function listCategoryItems(categoryId, from = 0, count = 50) {
@@ -207,7 +213,7 @@ module.exports = ({ db, projectLocation, logger }) => {
     listAvailableCategories,
     getCategorySchema,
     
-    createCategoryItem,
+    createOrUpdateCategoryItem,
     listCategoryItems,
     deleteCategoryItems,
 
