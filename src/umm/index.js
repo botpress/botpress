@@ -89,6 +89,10 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db, contentMa
       const contents = {}
 
       files.forEach(file => {
+        if (!file.endsWith('.yml')) {
+          return
+        }
+
         const filename = path.basename(file, path.extname(file))
         contents[filename] = fs.readFileAsync(path.join(storagePath, file), 'utf8')
       })
@@ -139,7 +143,7 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db, contentMa
       }
 
       blocName = itemBloc.substr(1)
-      initialData = Object.assign(initialData, contentItem.formData)
+      initialData = Object.assign(initialData, contentItem.data)
     }
 
     const split = blocName.split('.')
