@@ -5,7 +5,8 @@ import moment from 'moment'
 
 import {
   Checkbox,
-  Table
+  Table,
+  Button
 } from 'react-bootstrap'
 
 const style = require('./style.scss')
@@ -21,8 +22,6 @@ export default class ManageView extends Component {
   }
 
   handleCheckboxChanged(id) {
-    console.log('CHECK: ', id)
-
     const modified = this.state.checkedIds
 
     if (_.includes(this.state.checkedIds, id)) {    
@@ -54,14 +53,6 @@ export default class ManageView extends Component {
         checkedIds: ids
       })
     })
-  }
-
-  handlePreviousClicked() {
-    console.log('PREVIOUS') // TODO: Not implemented yet (server and client)
-  }
-
-  handleNextClicked() {
-    console.log('NEXT') // TODO: Not implemented yet (server and client)
   }
 
   handleDeleteSelected() {
@@ -100,26 +91,46 @@ export default class ManageView extends Component {
     </div>
   }
 
+  renderPaging() {
+    const of = this.props.count
+
+    let from = (this.props.page - 1) * this.props.messagesPerPage + 1
+    let to = this.props.page * this.props.messagesPerPage
+    
+    to = to <= of ? to : of
+
+    const text = from + ' - ' + to + ' of ' + of
+    
+    return <span className={style.paging}>{text}</span>
+  }
+
   renderHeader() {
     return <div className={style.header}>
       <div className={style.left}>
-        <button onClick={::this.handleAllCheckedChanged}>
+        <Button onClick={::this.handleAllCheckedChanged}>
           <Checkbox checked={this.state.allChecked} onClick={::this.handleAllCheckedChanged}/>
-        </button>
-        <button onClick={() => this.props.handleRefresh}>
+        </Button>
+        <Button onClick={this.props.handleRefresh}>
           <i className='material-icons'>refresh</i>
-        </button> 
-        <button onClick={::this.handleDeleteSelected}>
+        </Button> 
+        <Button
+          onClick={::this.handleDeleteSelected}
+          disabled={_.isEmpty(this.state.checkedIds.length)}>
           <i className='material-icons'>delete</i>
-        </button>
+        </Button>
       </div>
       <div className={style.right}>
-        <button onClick={::this.handlePreviousClicked}>
+        {this.renderPaging()}
+        <Button
+          onClick={this.props.handlePrevious}
+          disabled={this.props.page === 1}>
           <i className='material-icons'>keyboard_arrow_left</i>
-        </button>
-        <button onClick={::this.handleNextClicked}>
+        </Button>
+        <Button
+          onClick={this.props.handleNext}
+          disabled={this.props.page * this.props.messagesPerPage >= this.props.count}>
           <i className='material-icons'>keyboard_arrow_right</i>
-        </button>
+        </Button>
       </div>
     </div>
   }
