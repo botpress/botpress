@@ -57,15 +57,20 @@ export default class ManageView extends Component {
 
   handleDeleteSelected() {
     this.props.handleDeleteSelected(this.state.checkedIds)
+    
+    this.setState({
+      checkedIds: [],
+      allChecked: false
+    })
   }
 
   renderTableHeader() {
     return <tr>
-        <th style={{ 'width': '20%' }}></th>
-        <th style={{ 'width': '20%' }}>ID</th>
-        <th style={{ 'width': '20%' }}>Category</th>
-        <th style={{ 'width': '20%' }}>Preview</th>
-        <th style={{ 'width': '20%' }}>Created</th>
+        <th></th>
+        <th>ID</th>
+        <th>Category</th>
+        <th>Preview</th>
+        <th>Created</th>
       </tr>
   }
 
@@ -73,11 +78,13 @@ export default class ManageView extends Component {
     const checked = _.includes(this.state.checkedIds, m.id)
 
     return <tr>
-        <td><Checkbox checked={checked} onClick={() => ::this.handleCheckboxChanged(m.id)}/></td>
-        <td>{m.id}</td>
-        <td>{m.categoryId}</td>
-        <td>{m.previewText}</td>
-        <td>{moment(m.createdOn).format('MMMM Do YYYY, h:mm')}</td>
+        <td style={{ 'width': '2%', 'minWidth': '34px' }}>
+          <Checkbox checked={checked} onClick={() => ::this.handleCheckboxChanged(m.id)}/>
+        </td>
+        <td style={{ 'width': '16%' }}>{m.id}</td>
+        <td style={{ 'width': '16%' }}>{m.categoryId}</td>
+        <td style={{ 'width': '46%' }}>{m.previewText}</td>
+        <td style={{ 'width': '20%' }}>{moment(m.createdOn).format('MMMM Do YYYY, h:mm')}</td>
       </tr>
   }
 
@@ -97,6 +104,7 @@ export default class ManageView extends Component {
     let from = (this.props.page - 1) * this.props.messagesPerPage + 1
     let to = this.props.page * this.props.messagesPerPage
     
+    from = of !== 0 ? from : 0
     to = to <= of ? to : of
 
     const text = from + ' - ' + to + ' of ' + of
@@ -115,7 +123,7 @@ export default class ManageView extends Component {
         </Button> 
         <Button
           onClick={::this.handleDeleteSelected}
-          disabled={_.isEmpty(this.state.checkedIds.length)}>
+          disabled={_.isEmpty(this.state.checkedIds)}>
           <i className='material-icons'>delete</i>
         </Button>
       </div>

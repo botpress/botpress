@@ -13,7 +13,7 @@ import PageHeader from '~/components/Layout/PageHeader'
 
 const style = require('./style.scss')
 
-const MESSAGES_PER_PAGE = 2
+const MESSAGES_PER_PAGE = 20
 
 export default class ContentView extends Component {
   constructor(props) {
@@ -55,8 +55,7 @@ export default class ContentView extends Component {
   }
 
   fetchCategoryMessages(id) {
-    const start = (this.state.page - 1) * MESSAGES_PER_PAGE - 1
-    const from = start >= 0 ? start : 0
+    const from = (this.state.page - 1) * MESSAGES_PER_PAGE
     const count = MESSAGES_PER_PAGE
 
     return axios.get('/content/categories/' + id + '/items?from=' + from + '&count=' + count)
