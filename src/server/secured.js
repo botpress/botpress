@@ -214,13 +214,13 @@ module.exports = (bp, app) => {
   })
 
   app.secure('read', 'bot/content')
-  .get('/content/categories/all/items', async (req, res) => {
-    res.send(await bp.contentManager.listCategoryItems(null))
-  })
-
-  app.secure('read', 'bot/content')
   .get('/content/categories/:id/items', async (req, res) => {
-    res.send(await bp.contentManager.listCategoryItems(req.params.id))
+
+    if (req.params.id === 'all') {
+      req.params.id = null
+    }
+
+    res.send(await bp.contentManager.listCategoryItems(req.params.id, req.query.from || 0, req.query.count || 50))
   })
 
   app.secure('read', 'bot/content')
