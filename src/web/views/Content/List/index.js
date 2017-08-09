@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import classnames from 'classnames'
 import _ from 'lodash'
+import { Button } from 'react-bootstrap'
 
 const style = require('./style.scss')
 
@@ -15,11 +16,12 @@ export default class ListView extends Component {
       [style.disabled]: this.props.selectedId === 'all'
     })
 
-    return <button 
+    return <Button 
         className={classNames} 
-        onClick={() => this.props.handleAdd()}>
+        onClick={() => this.props.handleAdd()}
+        disabled={this.props.selectedId == 'all'}>
           Add
-      </button>
+      </Button>
   }
 
   renderCategory(c) {

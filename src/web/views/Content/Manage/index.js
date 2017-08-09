@@ -5,7 +5,8 @@ import moment from 'moment'
 
 import {
   Checkbox,
-  Table
+  Table,
+  Button
 } from 'react-bootstrap'
 
 const style = require('./style.scss')
@@ -21,8 +22,6 @@ export default class ManageView extends Component {
   }
 
   handleCheckboxChanged(id) {
-    console.log('CHECK: ', id)
-
     const modified = this.state.checkedIds
 
     if (_.includes(this.state.checkedIds, id)) {    
@@ -56,25 +55,22 @@ export default class ManageView extends Component {
     })
   }
 
-  handlePreviousClicked() {
-    console.log('PREVIOUS') // TODO: Not implemented yet (server and client)
-  }
-
-  handleNextClicked() {
-    console.log('NEXT') // TODO: Not implemented yet (server and client)
-  }
-
   handleDeleteSelected() {
     this.props.handleDeleteSelected(this.state.checkedIds)
+    
+    this.setState({
+      checkedIds: [],
+      allChecked: false
+    })
   }
 
   renderTableHeader() {
     return <tr>
-        <th style={{ 'width': '20%' }}></th>
-        <th style={{ 'width': '20%' }}>ID</th>
-        <th style={{ 'width': '20%' }}>Category</th>
-        <th style={{ 'width': '20%' }}>Preview</th>
-        <th style={{ 'width': '20%' }}>Created</th>
+        <th></th>
+        <th>ID</th>
+        <th>Category</th>
+        <th>Preview</th>
+        <th>Created</th>
       </tr>
   }
 
@@ -82,11 +78,13 @@ export default class ManageView extends Component {
     const checked = _.includes(this.state.checkedIds, m.id)
 
     return <tr>
-        <td><Checkbox checked={checked} onClick={() => ::this.handleCheckboxChanged(m.id)}/></td>
-        <td>{m.id}</td>
-        <td>{m.categoryId}</td>
-        <td>{m.previewText}</td>
-        <td>{moment(m.createdOn).format('MMMM Do YYYY, h:mm')}</td>
+        <td style={{ 'width': '2%', 'minWidth': '34px' }}>
+          <Checkbox checked={checked} onClick={() => ::this.handleCheckboxChanged(m.id)}/>
+        </td>
+        <td style={{ 'width': '16%' }}>{m.id}</td>
+        <td style={{ 'width': '16%' }}>{m.categoryId}</td>
+        <td style={{ 'width': '46%' }}>{m.previewText}</td>
+        <td style={{ 'width': '20%' }}>{moment(m.createdOn).format('MMMM Do YYYY, h:mm')}</td>
       </tr>
   }
 
@@ -100,26 +98,47 @@ export default class ManageView extends Component {
     </div>
   }
 
+  renderPaging() {
+    const of = this.props.count
+
+    let from = (this.props.page - 1) * this.props.messagesPerPage + 1
+    let to = this.props.page * this.props.messagesPerPage
+    
+    from = of !== 0 ? from : 0
+    to = to <= of ? to : of
+
+    const text = from + ' - ' + to + ' of ' + of
+    
+    return <span className={style.paging}>{text}</span>
+  }
+
   renderHeader() {
     return <div className={style.header}>
       <div className={style.left}>
-        <button onClick={::this.handleAllCheckedChanged}>
+        <Button onClick={::this.handleAllCheckedChanged}>
           <Checkbox checked={this.state.allChecked} onClick={::this.handleAllCheckedChanged}/>
-        </button>
-        <button onClick={() => this.props.handleRefresh}>
+        </Button>
+        <Button onClick={this.props.handleRefresh}>
           <i className='material-icons'>refresh</i>
-        </button> 
-        <button onClick={::this.handleDeleteSelected}>
+        </Button> 
+        <Button
+          onClick={::this.handleDeleteSelected}
+          disabled={_.isEmpty(this.state.checkedIds)}>
           <i className='material-icons'>delete</i>
-        </button>
+        </Button>
       </div>
       <div className={style.right}>
-        <button onClick={::this.handlePreviousClicked}>
+        {this.renderPaging()}
+        <Button
+          onClick={this.props.handlePrevious}
+          disabled={this.props.page === 1}>
           <i className='material-icons'>keyboard_arrow_left</i>
-        </button>
-        <button onClick={::this.handleNextClicked}>
+        </Button>
+        <Button
+          onClick={this.props.handleNext}
+          disabled={this.props.page * this.props.messagesPerPage >= this.props.count}>
           <i className='material-icons'>keyboard_arrow_right</i>
-        </button>
+        </Button>
       </div>
     </div>
   }

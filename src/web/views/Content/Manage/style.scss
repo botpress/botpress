@@ -9,8 +9,9 @@ $content-bg-color: #FFFFFF;
     height: 40px;
 
     :global(.checkbox) {
-      margin-top: 5px;
-      margin-bottom: 5px;
+      margin-top: 0px;
+      margin-bottom: 0px;
+      margin-left: -2px;
       height: 18px;
     }
 
@@ -43,6 +44,10 @@ $content-bg-color: #FFFFFF;
 
     .right {
       right: 5px;
+
+      .paging {
+        margin-right: 10px;
+      }
     }
   }
 

@@ -2,6 +2,7 @@
 import React, { Component } from 'react'
 import classnames from 'classnames'
 import axios from 'axios'
+import _ from 'lodash'
 
 import List from './list'
 import Manage from './manage'
@@ -12,18 +13,22 @@ import PageHeader from '~/components/Layout/PageHeader'
 
 const style = require('./style.scss')
 
+const MESSAGES_PER_PAGE = 20
+
 export default class ContentView extends Component {
   constructor(props) {
     super(props)
 
     this.state = {
       loading: true,
-      showModal: false
+      showModal: false,
+      selectedId: 'all',
+      page: 1
     }
   }
 
   componentDidMount() {
-    this.fetchAllCategoriesMessages()
+    this.fetchCategoryMessages(this.state.selectedId)
     .then(::this.fetchCategories)
     .then(() => {
       return this.fetchSchema('trivia')
@@ -38,23 +43,22 @@ export default class ContentView extends Component {
   fetchCategories() {
     return axios.get('/content/categories')
     .then(({ data }) => {
-      this.setState({
-        categories: data
-      })
-    })
-  }
+      const count = this.state.selectedId === 'all' 
+        ? _.sumBy(data, 'count') || 0
+        : _.find(data, { id: this.state.selectedId }).count
 
-  fetchAllCategoriesMessages() {
-    return axios.get('/content/categories/all/items')
-    .then(({ data }) => {
       this.setState({
-        messages: data
+        categories: data,
+        count: count
       })
     })
   }
 
   fetchCategoryMessages(id) {
-    return axios.get('/content/categories/' + id + '/items')
+    const from = (this.state.page - 1) * MESSAGES_PER_PAGE
+    const count = MESSAGES_PER_PAGE
+
+    return axios.get('/content/categories/' + id + '/items?from=' + from + '&count=' + count)
     .then(({ data }) => {
       this.setState({
         messages: data
@@ -114,6 +118,26 @@ export default class ContentView extends Component {
   handleRefresh() {
     this.fetchCategoryMessages(this.state.selectedId || 'all')
   }
+
+  handlePrevious() {
+    this.setState({
+      page: (this.state.page - 1) || 1
+    })
+
+    setImmediate(() => {
+      this.fetchCategoryMessages(this.state.selectedId)
+    })
+  }
+
+  handleNext() {
+    this.setState({
+      page: this.state.page + 1
+    })
+
+    setImmediate(() => {
+      this.fetchCategoryMessages(this.state.selectedId)
+    })
+  }
  
   render() {
     if (this.state.loading) {
@@ -139,8 +163,13 @@ export default class ContentView extends Component {
                   handleCategorySelected={::this.handleCategorySelected} />
               </td>
               <td style={{ 'width': '80%' }}>
-                <Manage 
+                <Manage
+                  page={this.state.page}
+                  count={this.state.count}
+                  messagesPerPage={MESSAGES_PER_PAGE}
                   messages={this.state.messages || []}
+                  handlePrevious={::this.handlePrevious}
+                  handleNext={::this.handleNext}
                   handleRefresh={::this.handleRefresh}
                   handleDeleteSelected={::this.handleDeleteSelected} />
               </td>
