@@ -27,13 +27,11 @@ export default class AddMessageModal extends React.Component {
     })
   }
 
-  handleCreate(event) {
-    this.props.handleCreate(event.formData)
+  handleSubmit(event) {
+    this.props.handleCreateOrUpdate(event.formData)
   }
 
   render() {
-    const log = (type) => console.log.bind(console, type)
-
     return (
       <Modal container={document.getElementById('app')}
         className={style.modal} show={this.props.show}
@@ -42,7 +40,8 @@ export default class AddMessageModal extends React.Component {
           <Form
             schema={this.props.schema}
             uiSchema={this.props.uiSchema}
-            onSubmit={::this.handleCreate} />
+            formData={this.props.formData}
+            onSubmit={::this.handleSubmit} />
           <button 
             className={classnames('bp-button', 'bp-button-danger', style.cancel)}
             onClick={this.props.handleClose}>

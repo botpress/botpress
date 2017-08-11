@@ -6,7 +6,9 @@ import moment from 'moment'
 import {
   Checkbox,
   Table,
-  Button
+  Button,
+  FormControl,
+  FormGroup
 } from 'react-bootstrap'
 
 const style = require('./style.scss')
@@ -64,6 +66,21 @@ export default class ManageView extends Component {
     })
   }
 
+  handleKeyPress(target) {
+    if (target.charCode==13){
+      this.props.handleSearch(this.state.search)
+      this.setState({
+        search: ''
+      })
+    }
+  }
+
+  handleSearchChanged(event) {
+    this.setState({
+      search: event.target.value
+    })
+  }
+
   renderTableHeader() {
     return <tr>
         <th></th>
@@ -77,14 +94,22 @@ export default class ManageView extends Component {
   renderMessage(m) {
     const checked = _.includes(this.state.checkedIds, m.id)
 
-    return <tr>
+    return <tr className={style.item} >
         <td style={{ 'width': '2%', 'minWidth': '34px' }}>
           <Checkbox checked={checked} onClick={() => ::this.handleCheckboxChanged(m.id)}/>
         </td>
-        <td style={{ 'width': '16%' }}>{m.id}</td>
-        <td style={{ 'width': '16%' }}>{m.categoryId}</td>
-        <td style={{ 'width': '46%' }}>{m.previewText}</td>
-        <td style={{ 'width': '20%' }}>{moment(m.createdOn).format('MMMM Do YYYY, h:mm')}</td>
+        <td style={{ 'width': '16%' }} onClick={() => this.props.handleModalShow(m.id)}>
+          {m.id}
+        </td>
+        <td style={{ 'width': '16%' }} onClick={() => this.props.handleModalShow(m.id)}>
+          {m.categoryId}
+        </td>
+        <td style={{ 'width': '46%' }} onClick={() => this.props.handleModalShow(m.id)}>
+          {m.previewText}
+        </td>
+        <td style={{ 'width': '20%' }} onClick={() => this.props.handleModalShow(m.id)}>
+          {moment(m.createdOn).format('MMMM Do YYYY, h:mm')}
+        </td>
       </tr>
   }
 
@@ -112,9 +137,8 @@ export default class ManageView extends Component {
     return <span className={style.paging}>{text}</span>
   }
 
-  renderHeader() {
-    return <div className={style.header}>
-      <div className={style.left}>
+  renderActionButtons() {
+    return <span>
         <Button onClick={::this.handleAllCheckedChanged}>
           <Checkbox checked={this.state.allChecked} onClick={::this.handleAllCheckedChanged}/>
         </Button>
@@ -126,9 +150,11 @@ export default class ManageView extends Component {
           disabled={_.isEmpty(this.state.checkedIds)}>
           <i className='material-icons'>delete</i>
         </Button>
-      </div>
-      <div className={style.right}>
-        {this.renderPaging()}
+      </span>
+  }
+
+  renderPagingButtons() {
+    return <span className={style.pagingButtons}>
         <Button
           onClick={this.props.handlePrevious}
           disabled={this.props.page === 1}>
@@ -139,6 +165,41 @@ export default class ManageView extends Component {
           disabled={this.props.page * this.props.messagesPerPage >= this.props.count}>
           <i className='material-icons'>keyboard_arrow_right</i>
         </Button>
+      </span>
+  }
+
+  renderUploadButtons() {
+    return <span className={style.uploadButtons}>
+        <Button onClick={this.props.handleUpload}>
+          <i className='material-icons'>file_upload</i>
+        </Button>
+        <Button onClick={this.props.handleDownload}>
+          <i className='material-icons'>file_download</i>
+        </Button>
+      </span>
+  }
+
+  renderSearchBar() {
+    return <FormGroup className={style.search}>
+        <FormControl
+          type="text"
+          placeholder="Search"
+          value={this.state.search}
+          onChange={::this.handleSearchChanged}
+          onKeyPress={::this.handleKeyPress}/>
+      </FormGroup>
+  }
+
+  renderHeader() {
+    return <div className={style.header}>
+      <div className={style.left}>
+        {this.renderActionButtons()}
+        {this.renderSearchBar()}
+        {this.renderUploadButtons()}
+      </div>
+      <div className={style.right}>
+        {this.renderPaging()}
+        {this.renderPagingButtons()}
       </div>
     </div>
   }

@@ -22,6 +22,7 @@ export default class ContentView extends Component {
     this.state = {
       loading: true,
       showModal: false,
+      modifyId: null,
       selectedId: 'all',
       page: 1
     }
@@ -75,11 +76,17 @@ export default class ContentView extends Component {
     })
   }
 
-  createItem(data, id) {
-    return axios.post('/content/categories/' + id + '/items', { formData: data })
+  createOrUpdateItem(data) {
+    let url = '/content/categories/' + this.state.selectedId + '/items'
+
+    if (this.state.modifyId) {
+      const categoryId = _.find(this.state.messages, { id: this.state.modifyId }).categoryId
+      url = '/content/categories/' + categoryId + '/items/' + this.state.modifyId
+    }
+
+    return axios.post(url, { formData: data })
     .then(res => {
       console.log('POST: New item created...')
-      console.log(res)
     })
   }
 
@@ -87,18 +94,18 @@ export default class ContentView extends Component {
     return axios.post('/content/categories/all/bulk_delete', data)
     .then(res => {
       console.log('DELETE: Array of ids deleted...')
-      console.log(res)
     })
   } 
 
   handleToggleModal() {
     this.setState({
-      showModal: !this.state.showModal
+      showModal: !this.state.showModal,
+      modifyId: null
     })
   }
 
-  handleCreate(data) {
-    this.createItem(data, this.state.selectedId)
+  handleCreateOrUpdate(data) {
+    this.createOrUpdateItem(data)
     .then(::this.fetchCategories)
     .then(() => { return this.fetchCategoryMessages(this.state.selectedId) })
     .then(() => { this.setState({ showModal: false } ) })
@@ -113,6 +120,13 @@ export default class ContentView extends Component {
     this.deleteItems(ids)
     .then(::this.fetchCategories)
     .then(() => { return this.fetchCategoryMessages(this.state.selectedId) })
+  }
+
+  handleModalShow(id) {
+    this.setState({
+      modifyId: id,
+      showModal: true
+    })
   }
 
   handleRefresh() {
@@ -137,6 +151,18 @@ export default class ContentView extends Component {
     setImmediate(() => {
       this.fetchCategoryMessages(this.state.selectedId)
     })
+  }
+
+  handleUpload() {
+    console.log('UPLOAD')
+  }
+
+  handleDownload() {
+    console.log('DOWNLOAD')
+  }
+
+  handleSearch(input) {
+    console.log('SEARCH: ', input)
   }
  
   render() {
@@ -171,7 +197,11 @@ export default class ContentView extends Component {
                   handlePrevious={::this.handlePrevious}
                   handleNext={::this.handleNext}
                   handleRefresh={::this.handleRefresh}
-                  handleDeleteSelected={::this.handleDeleteSelected} />
+                  handleModalShow={::this.handleModalShow}
+                  handleDeleteSelected={::this.handleDeleteSelected}
+                  handleUpload={::this.handleUpload} 
+                  handleDownload={::this.handleDownload}
+                  handleSearch={::this.handleSearch} />
               </td>
             </tr>
           </tbody>
@@ -180,7 +210,8 @@ export default class ContentView extends Component {
           show={this.state.showModal}
           schema={(this.state.schema && this.state.schema.json) || {}}
           uiSchema={(this.state.schema && this.state.schema.ui) || {}}
-          handleCreate={::this.handleCreate}
+          formData={this.state.modifyId ? _.find(this.state.messages, { id: this.state.modifyId }).formData : null}
+          handleCreateOrUpdate={::this.handleCreateOrUpdate}
           handleClose={::this.handleToggleModal} />
       </ContentWrapper>
     )

@@ -3,10 +3,12 @@ $content-bg-color: #FFFFFF;
 .list {
   min-height: 85vh;
   background-color: $content-bg-color;
+  padding-right: 60px;
+  padding-left: 6px;
 
   button {
     margin-left: 6px;
-    width: 160px;
+    width: 100%;
 
     &.disabled {
       background-color: #B5B3B6;

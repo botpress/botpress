@@ -7,6 +7,7 @@ $content-bg-color: #FFFFFF;
   .header {
     position: relative;
     height: 40px;
+    margin: 5px 0;
 
     :global(.checkbox) {
       margin-top: 0px;
@@ -30,7 +31,7 @@ $content-bg-color: #FFFFFF;
         color: #807F81;
       }
 
-      margin-right: 2px;
+      margin-right: 8px;
     }
 
     .left, .right {
@@ -40,6 +41,22 @@ $content-bg-color: #FFFFFF;
 
     .left {  
       left: 0px;
+
+      .search {
+        position: relative;
+        width: 300px;
+        display: inline-block;
+        margin-right: 100px;
+        margin-left: 100px;
+
+        :global(.form-control) {
+          position: absolute;
+          top: -4px;
+
+          height: 30px;
+        }
+      }
+      
     }
 
     .right {
@@ -52,13 +69,17 @@ $content-bg-color: #FFFFFF;
   }
 
   .container {
-    margin-right: 6px;
+    margin-right: 13px;
 
     table {
       :global(.checkbox) {
         margin-top: 0px;
         margin-bottom: 0px;
         height: 20px;
+      }
+
+      .item {
+        cursor: pointer;
       }
     }  
   }
