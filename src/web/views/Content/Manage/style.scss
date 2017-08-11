@@ -81,7 +81,12 @@ $content-bg-color: #FFFFFF;
       .item {
         cursor: pointer;
       }
-    }  
+    }
   }
-  
+
+  .empty {
+    text-align: center;
+    font-weight: bolder;
+    margin-top: 35px;
+  }
 }

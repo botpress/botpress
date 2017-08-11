@@ -8,7 +8,9 @@ import {
   Table,
   Button,
   FormControl,
-  FormGroup
+  FormGroup,
+  Tooltip,
+  OverlayTrigger
 } from 'react-bootstrap'
 
 const style = require('./style.scss')
@@ -99,7 +101,7 @@ export default class ManageView extends Component {
           <Checkbox checked={checked} onClick={() => ::this.handleCheckboxChanged(m.id)}/>
         </td>
         <td style={{ 'width': '16%' }} onClick={() => this.props.handleModalShow(m.id)}>
-          {m.id}
+          {'#!' + m.id}
         </td>
         <td style={{ 'width': '16%' }} onClick={() => this.props.handleModalShow(m.id)}>
           {m.categoryId}
@@ -114,6 +116,12 @@ export default class ManageView extends Component {
   }
 
   renderTable() {
+    if (this.props.messages && this.props.messages.length === 0) {
+      return <div className={style.empty}>
+        There's no content yet. You can create some using the 'Add' button.
+      </div>
+    }
+
     return <div className={style.container}>
       <Table striped bordered condensed hover>
         <tbody>
@@ -169,13 +177,20 @@ export default class ManageView extends Component {
   }
 
   renderUploadButtons() {
+    const importTooltips = <Tooltip id="tooltip">Import</Tooltip>
+    const exportTooltips = <Tooltip id="tooltip">Export</Tooltip>
+
     return <span className={style.uploadButtons}>
-        <Button onClick={this.props.handleUpload}>
-          <i className='material-icons'>file_upload</i>
-        </Button>
-        <Button onClick={this.props.handleDownload}>
-          <i className='material-icons'>file_download</i>
-        </Button>
+        <OverlayTrigger placement="top" overlay={importTooltips}>
+          <Button onClick={this.props.handleUpload}>
+            <i className='material-icons'>file_upload</i>
+          </Button>
+        </OverlayTrigger>
+        <OverlayTrigger placement="top" overlay={exportTooltips}>
+          <Button onClick={this.props.handleDownload}>
+            <i className='material-icons'>file_download</i>
+          </Button>
+        </OverlayTrigger>
       </span>
   }
 
