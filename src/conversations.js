@@ -292,7 +292,7 @@ class Conversation extends EventEmmiter {
 
   tick() {
     const thread = this.getCurrentThread()
-    if (this.status === 'active' && !thread.waiting && !!thread.peek()) {
+    if (this.status === 'active' && !thread.waiting) {
       this.next()
     }
   }
@@ -349,6 +349,11 @@ class Conversation extends EventEmmiter {
 
   async next() {
     const thread = this.getCurrentThread()
+
+    if (!thread.peek()) {
+      return this.endWhenDone && this.stop('done')
+    }
+
     const msg = await thread.dequeue()
     if (msg) {
       let message = msg.message
@@ -359,8 +364,6 @@ class Conversation extends EventEmmiter {
       }
 
       this.say(message, this.initialEvent)
-    } else {
-      this.endWhenDone && this.stop('done')
     }
   }
 
