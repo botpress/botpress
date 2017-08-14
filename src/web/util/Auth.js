@@ -57,13 +57,13 @@ export const login = (user, password) => {
 }
 
 export const getUniqueVisitorId = () => {
-  let userId = uuid.v4()
-  const localUserId = localStorage.getItem('bp/socket/user')
-  if (localUserId) {
-    userId = localUserId
-    window.__BP_VISITOR_ID = localUserId
-  } else {
+  let userId = localStorage.getItem('bp/socket/user')
+  
+  if (!userId) {
+    userId = uuid.v4()
     localStorage.setItem('bp/socket/user', userId)
   }
+
+  window.__BP_VISITOR_ID = userId
   return userId
 }
