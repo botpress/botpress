@@ -64,7 +64,7 @@ To add generated content to the flow, you need to get the `id` (by code or in th
 
 ```js
   bp.hear(/^question$/i, (event, next) => {
-    event.reply('#!trivia-150eea)
+    event.reply('#!trivia-150eea')
   })
 ```
 
