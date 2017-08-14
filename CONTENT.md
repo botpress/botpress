@@ -19,7 +19,7 @@ The Content Manager interface offers different functionnalities. You can **add**
 
 <img src="https://rawgit.com/botpress/botpress/dfs-content/assets/content-view.png" height="200px">
 
-## How to create `forms`
+## How to create forms
 
 By using a simple JSON schema you can create all different kind of form you will need to generate new content. Here's an example of form you can create. 
 
@@ -58,7 +58,7 @@ jsonSchema: {
   }
 ```
 
-## How to use in the `flows`
+## How to use in the flows
 
 To add generated content to the flow, you need to get the `id` (by code or in the UI) of the content. 
 
