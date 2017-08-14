@@ -1,18 +1,67 @@
 # Content Manager
 
-<img src='https://s3.amazonaws.com/botpress-io/images/screenshot-ui.png'>
+The Official Botpress Content Manager have built on top of the popular libary **[react-jsonschema-form](https://github.com/mozilla-services/react-jsonschema-form)**.
 
 ## How it works
 
 
 
-## Customizable forms
+#### Developers
 
+To be able to use the Content Manager, developers need to set the different form by code.
 
+1. They need to create a `${NAME}.form.js` for each form the content manager will need.
+2. Add them at the right place. Each `*.form.js` file should be place in the directory `./content/forms` of your bot.
+3. Test each form using the UI.
+
+#### Content managers
+
+The Content Manager interface offers different functionnalities. You can **add**, **modify** **delete**, **select**, **import** and **export** content by using the interface.
+
+<img src="https://rawgit.com/botpress/botpress/dfs-content/assets/content-view.png" height="200px">
+
+### Create forms
+
+By using a simple JSON schema you can create all different kind of form you will need to generate new content. Here's an example of form you can create. 
+
+<img src="https://rawgit.com/botpress/botpress/dfs-content/assets/content-form.png" height="200px">
+
+#### Partial section of `trivia.form.js`
+
+```json
+jsonSchema: {
+    "title": "Trivia Questions",
+    "description": "Create a new Trivia question with up to 5 choices and only one correct answer",
+    "type": "object",
+    "required": [
+      "question",
+      "good",
+      "bad"
+    ],
+    "properties": {
+      "question": {
+        "type": "string",
+        "title": "Question"
+      },
+      "good": {
+        "type": "string",
+        "title": "Good answer"
+      },
+      "bad": {
+        "title": "Bad Answers",
+        "type": "array",
+        "items": {
+          "type": "string",
+          "default": ""
+        }
+      }
+    }
+  }
+```
 
 ## Full example
 
-We implemented a full example for simple trivia question interactions.
+We implemented a full example for simple trivia question interactions. 
 
 ### `content.yml`
 ```yaml
@@ -81,7 +130,7 @@ module.exports = function(bp) {
 
 
 
-### `trivia.form.js`
+### `/content/form/trivia.form.js`
 
 ```js
 const _ = require('lodash')
@@ -143,3 +192,7 @@ module.exports = {
   computeMetadata: null
 }
 ```
+
+## Credits
+
+Thanks to **[react-jsonschema-form](https://github.com/mozilla-services/react-jsonschema-form)**.
