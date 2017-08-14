@@ -1,16 +1,16 @@
 # Content Manager
 
-The Official Botpress Content Manager have built on top of the popular libary **[react-jsonschema-form](https://github.com/mozilla-services/react-jsonschema-form)**.
+The Official Content Manager of Botpress have built on top of the popular library **[react-jsonschema-form](https://github.com/mozilla-services/react-jsonschema-form)**.
 
 ## How it works
 
 ### Developers
 
-To be able to use the Content Manager, developers need to set the different form by code.
+To be able to use the Content Manager, developers need to setup the different form by code.
 
-1. They need to create a `${NAME}.form.js` for each form the content manager will need.
+1. Need to create a `${NAME}.form.js` for each form the content manager will need.
 2. Add them at the right place. Each `*.form.js` file should be place in the directory `./content/forms` of your bot.
-3. Test each form using the UI.
+3. Test each form using the UI to be sure they work well.
 4. Add content to the right place in the flows.
 
 ### Content managers
@@ -21,14 +21,16 @@ The Content Manager interface offers different functionnalities. You can **add**
 
 ## How to create forms
 
-By using a simple JSON schema you can create all different kind of form you will need to generate new content. Here's an example of form you can create. 
+By using a JSON schema you can create all different kind of form you will need to generate new content. Here's an example of form you can create. 
 
 <img src="https://rawgit.com/botpress/botpress/dfs-content/assets/content-form.png" height="200px">
 
 #### Partial section of `trivia.form.js`
 
-```json
-jsonSchema: {
+```js
+  [...]
+
+  jsonSchema: {
     "title": "Trivia Questions",
     "description": "Create a new Trivia question with up to 5 choices and only one correct answer",
     "type": "object",
@@ -56,11 +58,17 @@ jsonSchema: {
       }
     }
   }
+
+  [...]
 ```
+
+> **Note**
+> 
+> You should look to the specific documentation of **[react-jsonschema-form](https://github.com/mozilla-services/react-jsonschema-form)** to see all supported type of input.
 
 ## How to use in the flows
 
-To add generated content to the flow, you need to get the `id` (by code or in the UI) of the content. 
+To add generated content to the flow, you need to get the `id` (by **code** or in the **UI**) of the content. 
 
 ```js
   bp.hear(/^question$/i, (event, next) => {
@@ -82,14 +90,14 @@ Here's an example of how you can get the `ids` by code from a list and how to se
 
 > **Important**
 > 
-> You need to use `#!` instead of `#` to select generated content. 
+> You need to use `#!` instead of `#` to select dynamic content. 
 
 
 ## Full example
 
 We implemented a full example for simple trivia question interactions. 
 
-### `content.yml`
+#### `content.yml`
 ```yaml
 
 welcome:
@@ -120,7 +128,7 @@ trivia-bad:
 ```
 
 
-### `index.js`
+#### `index.js`
 ```js
 const _ = require('lodash')
 
@@ -154,7 +162,7 @@ module.exports = function(bp) {
 }
 ```
 
-### `/content/form/trivia.form.js`
+#### `/content/form/trivia.form.js`
 
 ```js
 const _ = require('lodash')
