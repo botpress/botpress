@@ -4,23 +4,22 @@ The Official Botpress Content Manager have built on top of the popular libary **
 
 ## How it works
 
-
-
-#### Developers
+### Developers
 
 To be able to use the Content Manager, developers need to set the different form by code.
 
 1. They need to create a `${NAME}.form.js` for each form the content manager will need.
 2. Add them at the right place. Each `*.form.js` file should be place in the directory `./content/forms` of your bot.
 3. Test each form using the UI.
+4. Add content to the right place in the flows.
 
-#### Content managers
+### Content managers
 
 The Content Manager interface offers different functionnalities. You can **add**, **modify** **delete**, **select**, **import** and **export** content by using the interface.
 
 <img src="https://rawgit.com/botpress/botpress/dfs-content/assets/content-view.png" height="200px">
 
-### Create forms
+## How to create (form)
 
 By using a simple JSON schema you can create all different kind of form you will need to generate new content. Here's an example of form you can create. 
 
@@ -58,6 +57,33 @@ jsonSchema: {
     }
   }
 ```
+
+## How to use (flow)
+
+To add generated content to the flow, you need to get the `id` (by code or in the UI) of the content. 
+
+```js
+  bp.hear(/^question$/i, (event, next) => {
+    event.reply('#!trivia-150eea)
+  })
+```
+
+Here's an example of how you can get the `ids` by code from a list and how to select a random one. 
+
+```js
+  bp.hear(/^question$/i, (event, next) => {
+    bp.contentManager.listCategoryItems('trivia')
+    .then(items => {
+      const random = _.first(_.shuffle(items))  
+      event.reply('#!' + random.id)
+    })
+  })
+```
+
+> **Important**
+> 
+> You need to use `#!` instead of `#` to select generated content. 
+
 
 ## Full example
 
@@ -127,8 +153,6 @@ module.exports = function(bp) {
   }
 }
 ```
-
-
 
 ### `/content/form/trivia.form.js`
 
