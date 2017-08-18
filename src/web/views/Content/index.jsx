@@ -32,7 +32,7 @@ export default class ContentView extends Component {
     this.fetchCategoryMessages(this.state.selectedId)
     .then(::this.fetchCategories)
     .then(() => {
-      return this.fetchSchema('trivia')
+      return this.fetchSchema(this.state.selectedId)
     })
     .then(() => {
       this.setState({
