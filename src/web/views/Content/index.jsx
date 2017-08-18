@@ -29,6 +29,7 @@ export default class ContentView extends Component {
   }
 
   componentDidMount() {
+    console.log(this.state.selectedId)
     this.fetchCategoryMessages(this.state.selectedId)
     .then(::this.fetchCategories)
     .then(() => {
@@ -113,7 +114,8 @@ export default class ContentView extends Component {
 
   handleCategorySelected(id) {
     this.fetchCategoryMessages(id)
-    .then(() => { this.setState({ selectedId: id }) })    
+    .then(() => { this.setState({ selectedId: id }) })
+    .then(() => { this.fetchSchema(id) })
   }
 
   handleDeleteSelected(ids) {
