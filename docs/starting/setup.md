@@ -42,4 +42,4 @@ Then navigate to [localhost](http://localhost:3000) to speak with your bot!
 
 # Next steps {#next}
 
-Your bot currently doesn't do much right now! You must instruct him what to do by writing code. We suggest that you read the [Foundamentals](https://github.com/botpress/botpress/tree/master/docs/foundamentals) section to learn how Botpress works and how you can write a cool bot!
+Your bot currently doesn't do much right now! You must instruct him what to do by writing code. We suggest that you read the [Foundamentals](../foundamentals/structure.md) section to learn how Botpress works and how you can write a cool bot!
