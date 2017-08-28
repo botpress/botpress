@@ -23,7 +23,7 @@ bp.db.get()
 ```
 
 {% hint style='info' %}
-**Note:** Botpress is using [Knex](http://knexjs.org). When you do a `bp.de.get()`, you're simply getting a ready-to-use instance of Knex.
+**Note:** Botpress is using [Knex](http://knexjs.org). When you do a `bp.db.get()`, you're simply getting a ready-to-use instance of Knex.
 
 Examples: [select](http://knexjs.org/#Builder-select), [insert](http://knexjs.org/#Builder-insert), [update](http://knexjs.org/#Builder-update), [delete](http://knexjs.org/#Builder-del / delete)
 {% endhint %}
