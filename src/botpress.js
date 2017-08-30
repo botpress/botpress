@@ -99,7 +99,7 @@ class botpress {
     this.stats.track('bot', 'started')
 
     if (!this.interval) {
-      this.inverval = setInterval(() => {
+      this.interval = setInterval(() => {
         this.stats.track('bot', 'running')
       }, 30 * 1000)
     }
