@@ -75,6 +75,11 @@ class botpress {
     this.projectLocation = path.dirname(botfile)
 
     /**
+     * Setup env with dotenv *before* requiring the botfile config
+     */
+    this._setupEnv();
+
+    /**
      * The botfile config object
      */
     this.botfile = eval('require')(botfile)
@@ -109,16 +114,6 @@ class botpress {
     process.chdir(path.join(__dirname, '../'))
 
     const { projectLocation, botfile } = this
-
-    const envPath = path.resolve(projectLocation, '.env')
-    if (fs.existsSync(envPath)) {
-      const envConfig = dotenv.parse(fs.readFileSync(envPath))
-      for (var k in envConfig) {
-        if (_.isNil(process.env[k]) || process.env.ENV_OVERLOAD) {
-          process.env[k] = envConfig[k]
-        }
-      }
-    }
 
     const isFirstRun = fs.existsSync(path.join(projectLocation, '.welcome'))
     const dataLocation = getDataLocation(botfile.dataDir, projectLocation)
@@ -269,6 +264,18 @@ class botpress {
     setTimeout(() => {
       process.exit(RESTART_EXIT_CODE)
     }, interval)
+  }
+
+  _setupEnv() {
+    const envPath = path.resolve(this.projectLocation, '.env')
+    if (fs.existsSync(envPath)) {
+      const envConfig = dotenv.parse(fs.readFileSync(envPath))
+      for (var k in envConfig) {
+        if (_.isNil(process.env[k]) || process.env.ENV_OVERLOAD) {
+          process.env[k] = envConfig[k]
+        }
+      }
+    }
   }
 }
 
