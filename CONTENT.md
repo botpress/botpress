@@ -162,7 +162,7 @@ module.exports = function(bp) {
 }
 ```
 
-#### `/content/form/trivia.form.js`
+#### `/content/forms/trivia.form.js`
 
 ```js
 const _ = require('lodash')
