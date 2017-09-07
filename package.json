@@ -41,7 +41,7 @@
     "socket.io-client": "^2.0.3",
     "socketio-jwt": "^4.5.0",
     "source-map-support": "^0.4.6",
-    "sqlite3": "^3.1.8",
+    "sqlite3": "3.1.8",
     "universal-analytics": "^0.4.8",
     "uuid": "^3.0.0",
     "winston": "^2.2.0"
