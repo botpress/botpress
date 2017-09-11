@@ -223,7 +223,7 @@ module.exports = (bp, app) => {
     res.send(await bp.contentManager.listCategoryItems(req.params.id, req.query.from || 0, req.query.count || 50))
   })
 
-  app.secure('read', 'bot/content')
+  app.secure('write', 'bot/content')
   .post('/content/categories/:id/items', async (req, res) => {
     res.send(await bp.contentManager.createOrUpdateCategoryItem({
       formData: req.body.formData,
@@ -231,16 +231,17 @@ module.exports = (bp, app) => {
     }))
   })
 
-  app.secure('read', 'bot/content')
+  app.secure('write', 'bot/content')
   .post('/content/categories/:id/items/:itemId', async (req, res) => {
-    res.send(await bp.contentManager.createOrUpdateCategoryItem({
+    await bp.contentManager.createOrUpdateCategoryItem({
       itemId: req.params.itemId,
       formData: req.body.formData,
       categoryId: req.params.id
-    }))
+    })
+    res.sendStatus(200)
   })
 
-  app.secure('read', 'bot/content')
+  app.secure('write', 'bot/content')
   .post('/content/categories/all/bulk_delete', async (req, res) => {
     await bp.contentManager.deleteCategoryItems(req.body)
     res.sendStatus(200)
