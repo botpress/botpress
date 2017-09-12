@@ -95,21 +95,20 @@ export default class ManageView extends Component {
 
   renderMessage(m) {
     const checked = _.includes(this.state.checkedIds, m.id)
-
     return <tr className={style.item} >
         <td style={{ 'width': '2%', 'minWidth': '34px' }}>
-          <Checkbox checked={checked} onClick={() => ::this.handleCheckboxChanged(m.id)}/>
+          <Checkbox checked={checked} onClick={() => ::this.handleCheckboxChanged(m.id, m.categoryId)}/>
         </td>
-        <td style={{ 'width': '16%' }} onClick={() => this.props.handleModalShow(m.id)}>
+        <td style={{ 'width': '16%' }} onClick={() => this.props.handleModalShow(m.id, m.categoryId)}>
           {'#!' + m.id}
         </td>
-        <td style={{ 'width': '16%' }} onClick={() => this.props.handleModalShow(m.id)}>
+        <td style={{ 'width': '16%' }} onClick={() => this.props.handleModalShow(m.id, m.categoryId)}>
           {m.categoryId}
         </td>
-        <td style={{ 'width': '46%' }} onClick={() => this.props.handleModalShow(m.id)}>
+        <td style={{ 'width': '46%' }} onClick={() => this.props.handleModalShow(m.id, m.categoryId)}>
           {m.previewText}
         </td>
-        <td style={{ 'width': '20%' }} onClick={() => this.props.handleModalShow(m.id)}>
+        <td style={{ 'width': '20%' }} onClick={() => this.props.handleModalShow(m.id, m.categoryId)}>
           {moment(m.createdOn).format('MMMM Do YYYY, h:mm')}
         </td>
       </tr>

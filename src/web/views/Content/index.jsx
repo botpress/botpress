@@ -29,7 +29,6 @@ export default class ContentView extends Component {
   }
 
   componentDidMount() {
-    console.log(this.state.selectedId)
     this.fetchCategoryMessages(this.state.selectedId)
     .then(::this.fetchCategories)
     .then(() => {
@@ -124,11 +123,25 @@ export default class ContentView extends Component {
     .then(() => { return this.fetchCategoryMessages(this.state.selectedId) })
   }
 
-  handleModalShow(id) {
-    this.setState({
-      modifyId: id,
-      showModal: true
-    })
+  handleModalShow(id, categoryId) {
+
+    const showmodal = () => setTimeout(() => {
+      this.setState({
+        modifyId: id,
+        showModal: true
+      })
+    }, 250)
+
+    if (!this.state.schema || this.state.selectedId !== categoryId) {
+      this.fetchSchema(categoryId)
+      .then(() => {
+        console.log(this.state.schema)
+        showmodal()
+        
+      })
+    } else {
+      showmodal()
+    }
   }
 
   handleRefresh() {

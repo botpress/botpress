@@ -151,7 +151,7 @@ module.exports = ({ db, projectLocation, logger }) => {
     }
 
     items = await query
-      .orderBy('createdOn')
+      .orderBy('created_on')
       .offset(from)
       .limit(count).then()
 
