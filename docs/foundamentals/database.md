@@ -2,7 +2,7 @@
 
 All bots built with Botpress ships with a **SQLite 3** database by default. The reason is that it is easy and quick for people to test botpress in any environement and does not depend on 3rd-party database.
 
-Botpress also officially supports (and recommends) using [**Postgres**](#postgres) (version >= 5.5), **which needs to be turned on manually**.
+Botpress also officially supports (and recommends) using [**Postgres**](#postgres) (version >= 9.5), **which needs to be turned on manually**.
 
 > **HEADS UP TO MODULE MAKERS:** Even though Botpress supports two databases, it should not affect the bot makers. Modules have the responsability of being compatible with **both SQLite AND Postgres**. No module will be accepted in the Botpress Modules Store if it has not been properly designed (and tested) to work with both databases. If you are building a module, we have [some utilities](../advanced/database_helpers.md) to abstract the underlying databases for you.
 
