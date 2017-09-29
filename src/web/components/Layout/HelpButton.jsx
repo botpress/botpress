@@ -53,7 +53,9 @@ export default class HelpButton extends React.Component {
           </li>
           <li className={btnClass('btn3')} style={{ bottom: (basePosition + 120) + 'px' }}>
             <OverlayTrigger placement="left" overlay={tutorials}>
-              <a href='https://www.youtube.com/watch?v=HTpUmDz9kRY' target='_blank'><i className="icon material-icons">video_library</i></a>
+              <a href='https://www.youtube.com/watch?v=HTpUmDz9kRY' target='_blank'>
+                <i className="icon material-icons">video_library</i>
+              </a>
             </OverlayTrigger>
           </li>
         </ul>

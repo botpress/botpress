@@ -55,7 +55,8 @@ export default class NotificationHub extends NotificationComponent {
       <span className={className}>{unreadCount}</span>
     </span>
 
-    return <NavDropdown id="notificationsDropdown" noCaret={!unreadCount} title={label} className={classnames(styles.dropdown, 'bp-notifications-dropdown')}>
+    return <NavDropdown id="notificationsDropdown" noCaret={!unreadCount}
+        title={label} className={classnames(styles.dropdown, 'bp-notifications-dropdown')}>
       <MenuItem header className={classnames(styles.topMenu, 'bp-top-menu')}>
         <span>
           <strong>Notifications</strong>
