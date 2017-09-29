@@ -31,7 +31,7 @@ export default class ModuleView extends React.Component {
     }
 
     const module = this.props.modules.find((value) => value.get('name') === this.props.params.moduleName).toJS()
-    
+
     return <ContentWrapper>
       <PageHeader><span>{module.menuText} {this.renderLink(module)}</span></PageHeader>
       {children}
@@ -44,7 +44,10 @@ export default class ModuleView extends React.Component {
         <div className="panel-heading">Module not found</div>
         <div className="panel-body">
           <h4>The module is not properly registered</h4>
-          <p>It seems like you are trying to load a module that has not been registered. Please make sure the module is registered then restart the bot.</p>
+          <p>
+            It seems like you are trying to load a module that has not been registered.
+            Please make sure the module is registered then restart the bot.
+          </p>
           {err && <p>{err}</p>}
           <p>
             {/* TODO update doc & help */}
@@ -57,7 +60,7 @@ export default class ModuleView extends React.Component {
 
   render() {
     const { moduleName, subView } = this.props.params
-    
+
     const modules = this.props.modules.toJS()
     const module = _.find(modules, { name: moduleName })
 

@@ -131,6 +131,7 @@
     "win32"
   ],
   "scripts": {
+    "prepare": "npm run compile",
     "compile": "./build.sh",
     "test": "run-script-os",
     "test:linux:darwin": "BABEL_ENV=tests mocha --compilers js:babel-core/register --require tests/index.js tests/** extensions/**/tests/**",

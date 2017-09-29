@@ -104,7 +104,8 @@ export default class LoginPage extends Component {
                 </FormGroup>
                 <FormGroup>
                   <ControlLabel>Password</ControlLabel>
-                  <FormControl type="password" placeholder="" value={this.state.password} onChange={::this.handlePasswordChange}/>
+                  <FormControl type="password" placeholder="" value={this.state.password}
+                    onChange={::this.handlePasswordChange}/>
                 </FormGroup>
                 <Button className="pull-right" type="submit">Login</Button>
                 <Decorators.ForgotPassword />
