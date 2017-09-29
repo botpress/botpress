@@ -226,14 +226,17 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
       if (!name || typeof(name) !== 'string') {
         throw new TypeError('Expected module name to be a string')
       }
-
       let basename = path.basename(name)
       let prefix = ''
 
       if (basename !== name) {
-        prefix = name.substr(0, name.length - basename.length - 1)
+        prefix = name.substr(0, name.length - basename.length)
+        if(!/\/$/i.test(prefix)){
+          throw new Error(`Invalid Prefix name. Check your path. You probably gave a directory link. 
+          path/to/my_module -> correct
+          path/to/my_module/ -> incorrect`)
+        }
       }
-
       if (basename.replace(/botpress-?/i, '').length === 0) {
         throw new Error(`Invalid module name: ${basename}`)
       }
