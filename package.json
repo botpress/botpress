@@ -130,6 +130,7 @@
     "win32"
   ],
   "scripts": {
+    "prepare": "npm run compile",
     "compile": "./build.sh",
     "test": "BABEL_ENV=tests mocha --compilers js:babel-core/register --require tests/index.js tests/** extensions/**/tests/**",
     "watch": "npm-watch",

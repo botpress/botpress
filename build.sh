@@ -1,3 +1,5 @@
+#!/bin/bash
+
 emails_tpl="extensions/enterprise/pro/emails/templates"
 
 echo "Cleaning old build"
