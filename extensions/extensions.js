@@ -12,7 +12,7 @@ function requireEdition(file, edition) {
   } else if (!exists) {
     return null
   } else {
-    return '/extensions/' + enterprisePath + edition
+    return path.join('/extensions/', enterprisePath, edition)
   }
 }
 

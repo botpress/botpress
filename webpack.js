@@ -146,6 +146,12 @@ var postProcess = function(err, stats) {
   if (err) throw err
   console.log(stats.toString('minimal'))
 }
+var runCompiler = function(cb) {
+  compiler.run(function(err, stats) {
+    postProcess(err, stats)
+    cb()
+  })
+}
 
 if (process.argv.indexOf('--compile') !== -1) {
   compiler.run(postProcess)
@@ -153,4 +159,4 @@ if (process.argv.indexOf('--compile') !== -1) {
   compiler.watch(null, postProcess)
 }
 
-module.exports = { web: webConfig, node: nodeConfig }
+module.exports = { web: webConfig, node: nodeConfig, run: runCompiler }
