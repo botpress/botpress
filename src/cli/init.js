@@ -64,7 +64,7 @@ const generate = (result) => {
 
   install.on('close', (code) => {
     if (code > 0) {
-      util.print('error', 'an error occured during installation')
+      util.print('error', 'an error occurred during installation')
     } else {
       util.print('success', 'installation has completed successfully')
       util.print(nextStepText)

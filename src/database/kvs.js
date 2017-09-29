@@ -28,9 +28,24 @@ module.exports = (knex, options = {}) => {
     })
   }
 
-  const set = (key, value, path) => {
+  const _set = (key, value, operation = 'update') => {
     const now = helpers(knex).date.now()
 
+    if (operation === 'update') {
+      return knex(tableName).where({ key }).update({
+        value: JSON.stringify(value),
+        modified_on: now
+      }).then()
+    } else {
+      return knex(tableName).insert({
+        key: key,
+        value: JSON.stringify(value),
+        modified_on: now
+      }).then()
+    }
+  }
+
+  const set = (key, value, path) => {
     const setValue = obj => {
       if (path) {
         _.set(obj, path, value)
@@ -46,17 +61,11 @@ module.exports = (knex, options = {}) => {
       .then(() => {
         if (!_.isNil(original)) {
           const newObj = setValue(Object.assign({}, original))
-          return knex(tableName).where({ key }).update({
-            value: JSON.stringify(newObj),
-            modified_on: now
-          }).then()
+          return _set(key, newObj, 'update')
         } else {
           const obj = setValue({})
-          return knex(tableName).insert({
-            key: key,
-            value: JSON.stringify(obj),
-            modified_on: now
-          }).then()
+          return _set(key, obj, 'insert')
+          .catch(() => _set(key, obj, 'update'))
         }
       })
     })
