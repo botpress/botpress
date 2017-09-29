@@ -77,7 +77,7 @@ class botpress {
     /**
      * Setup env with dotenv *before* requiring the botfile config
      */
-    this._setupEnv();
+    this._setupEnv()
 
     /**
      * The botfile config object

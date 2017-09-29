@@ -7,9 +7,9 @@ const {
 } = actionTypes
 
 const fetchRules = () => {
-	reactor.dispatch(RULES_RECEIVED, { rules: null })
+  reactor.dispatch(RULES_RECEIVED, { rules: null })
 }
 
 module.exports = {
-	fetchRules
+  fetchRules
 }

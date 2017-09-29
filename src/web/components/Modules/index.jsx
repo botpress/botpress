@@ -62,7 +62,7 @@ class ModuleComponent extends Component {
     const isLoaded = this.props.isLoaded
     const iconPath = `/img/modules/${name}.png`
 
-    const hasCustomIcon = icon  === 'custom' && isLoaded
+    const hasCustomIcon = icon === 'custom' && isLoaded
     const moduleIcon = hasCustomIcon
       ? <img className={classnames(style.customIcon, 'bp-custom-icon')} src={iconPath} />
       : <i className="icon material-icons">{icon === "custom" ? "extension" : icon}</i>
@@ -146,15 +146,16 @@ class ModuleComponent extends Component {
 }))
 export default class ModulesComponent extends Component {
   render() {
-    var installedModules = {};
+    var installedModules = {}
     this.props.installedModules.map((module)=>{
       const name = module.get("name")
       installedModules[name] = true
-    });
+    })
     return (
       <div>
         {_.values(_.map(this.props.modules, module => {
-          return <ModuleComponent key={module.name} module={module} refresh={this.props.refresh} isLoaded={installedModules[module.name]}/>
+          return <ModuleComponent key={module.name} module={module}
+            refresh={this.props.refresh} isLoaded={installedModules[module.name]}/>
         }))}
       </div>
     )
