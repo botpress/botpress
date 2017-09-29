@@ -135,7 +135,7 @@
   ],
   "scripts": {
     "prepare": "npm run compile",
-    "compile": "./build.sh",
+    "compile": "node ./build.js",
     "test": "BABEL_ENV=tests mocha --compilers js:babel-core/register --require tests/index.js tests/** extensions/**/tests/**",
     "watch": "npm-watch",
     "lint": "eslint {src,extensions}/**/*.js*"
