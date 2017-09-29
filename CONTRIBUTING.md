@@ -16,18 +16,30 @@ As contributors you should be respectful and considerate of others - both contri
 ### Your Responsibilities
 * Ensure contributions are unit tested and that all tests pass before submitting any pull-request
 
+  Before you run the tests, you need a PostgreSQL server running on your machine. If you have
+  [Docker](https://www.docker.com/) installed, you can run
+
+  ```
+  docker run -p 5432:5432 -e POSTGRES_USER=$USER postgres
+  ```
+
+  at the command prompt, to automatically download and start a PostgreSQL server. You don't need to
+  understand or install PostgreSQL Server yourself. (Press `CTRL-c` to stop it.)
+
   To run the tests run
   ```
   npm run test
   ```
-  at a command prompt
+  at a command prompt.
+
 * Ensure that the code lints cleanly
 
   To lint the code run
   ```
   npm run lint
   ```
-  at a command prompt
+  at a command prompt.
+
 * If you do find any issues or think of a feature please [create a Github issue](https://help.github.com/articles/creating-an-issue/) for this first. Discuss things transparently and get community feedback.
 
 # Your First Contribution
