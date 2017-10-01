@@ -93,7 +93,7 @@ class botpress {
    * 3. inject security functions
    * 4. load modules
    */
-  _start() {
+  async _start() {
     this.stats.track('bot', 'started')
 
     if (!this.interval) {
@@ -136,7 +136,8 @@ class botpress {
     const moduleDefinitions = modules._scan()
 
     const events = new EventBus()
-    const notifications = createNotifications(dataLocation, botfile.notification, moduleDefinitions, events, logger)
+
+    const notifications = createNotifications({ knex: await db.get(), modules: moduleDefinitions, logger, events })
     const about = createAbout(projectLocation)
     const licensing = createLicensing({ logger, projectLocation, version, db, botfile })
     const middlewares = createMiddlewares(this, dataLocation, projectLocation, logger)
@@ -184,6 +185,7 @@ class botpress {
     })
 
     mediator.install()
+    notifications._bindEvents()
 
     const server = createServer(this)
     server.start().then(() => {
