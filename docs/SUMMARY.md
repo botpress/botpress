@@ -13,6 +13,7 @@
     - [Content Management (UMM)](./foundamentals/umm.md)
 - [Data Storage](./foundamentals/database.md)
     - [Key-Value-Store](./foundamentals/database.md#kvs)
+    - [User Tags](./foundamentals/tags.md)
 - [Configuration](./foundamentals/botfile.md)
 
 ### Deploying your bot
