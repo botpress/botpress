@@ -43,7 +43,7 @@
     "socket.io-client": "^2.0.3",
     "socketio-jwt": "^4.5.0",
     "source-map-support": "^0.4.6",
-    "sqlite3": "^3.1.8",
+    "sqlite3": "3.1.8",
     "universal-analytics": "^0.4.8",
     "uuid": "^3.0.0",
     "winston": "^2.2.0"
@@ -126,23 +126,18 @@
   "license": "AGPL-3.0",
   "main": "lib/node.bundle.js",
   "repository": "git+https://github.com/botpress/botpress.git",
-  "os": [
-    "darwin",
-    "linux",
-    "win32"
-  ],
+  "os": ["darwin", "linux", "win32"],
   "scripts": {
+    "prepare": "npm run compile",
     "compile": "./build.sh",
-    "test": "BABEL_ENV=tests mocha --compilers js:babel-core/register --require tests/index.js tests/** extensions/**/tests/**",
+    "test":
+      "BABEL_ENV=tests mocha --compilers js:babel-core/register --require tests/index.js tests/** extensions/**/tests/**",
     "watch": "npm-watch",
     "lint": "eslint {src,extensions}/**/*.js*"
   },
   "watch": {
     "compile": {
-      "patterns": [
-        "src",
-        "extensions"
-      ],
+      "patterns": ["src", "extensions"],
       "extensions": "js,jsx,scss,json,html"
     }
   }
