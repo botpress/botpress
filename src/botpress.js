@@ -32,18 +32,12 @@ import createServer from './server'
 
 import { getBotpressVersion } from './util'
 
-import {
-  isDeveloping,
-  print
-} from './util'
+import { isDeveloping, print } from './util'
 
 const RESTART_EXIT_CODE = 107
 
-const getDataLocation = (dataDir, projectLocation) => (
-  dataDir && path.isAbsolute(dataDir)
-    ? path.resolve(dataDir)
-    : path.resolve(projectLocation, dataDir || 'data')
-)
+const getDataLocation = (dataDir, projectLocation) =>
+  dataDir && path.isAbsolute(dataDir) ? path.resolve(dataDir) : path.resolve(projectLocation, dataDir || 'data')
 
 const mkdirIfNeeded = (path, logger) => {
   if (!fs.existsSync(path)) {
@@ -100,7 +94,6 @@ class botpress {
    * 4. load modules
    */
   _start() {
-
     this.stats.track('bot', 'started')
 
     if (!this.interval) {
@@ -166,7 +159,7 @@ class botpress {
       logger,
       security, // login, authenticate, getSecret
       events,
-      notifications,    // load, save, send
+      notifications, // load, save, send
       about,
       middlewares,
       hear,
@@ -193,8 +186,7 @@ class botpress {
     mediator.install()
 
     const server = createServer(this)
-    server.start()
-    .then(() => {
+    server.start().then(() => {
       events.emit('ready')
       for (let mod of _.values(loadedModules)) {
         mod.handlers.ready && mod.handlers.ready(this, mod.configuration)
@@ -212,7 +204,7 @@ class botpress {
     }
 
     const projectEntry = eval('require')(projectLocation)
-    if (typeof(projectEntry) === 'function') {
+    if (typeof projectEntry === 'function') {
       projectEntry.call(projectEntry, this)
     } else {
       logger.error('[FATAL] The bot entry point must be a function that takes an instance of bp')

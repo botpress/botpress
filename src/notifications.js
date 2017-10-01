@@ -26,8 +26,7 @@ const bindEvents = (loadNotifs, saveNotifs, events) => {
   })
 
   const markReadIf = cond => {
-    const notifications = loadNotifs()
-    .map(notif => {
+    const notifications = loadNotifs().map(notif => {
       if (cond(notif)) {
         notif.read = true
       }
@@ -38,7 +37,7 @@ const bindEvents = (loadNotifs, saveNotifs, events) => {
     events.emit('notifications.all', notifications)
   }
 
-  events.on('notifications.read', (id) => {
+  events.on('notifications.read', id => {
     markReadIf(notif => notif.id === id)
   })
 
@@ -55,23 +54,16 @@ const bindEvents = (loadNotifs, saveNotifs, events) => {
 export default (dataLocation, notifConfig, modules, events, logger) => {
   const notificationsFile = path.join(dataLocation, notifConfig.file)
 
-  const {
-    load: loadNotifs,
-    save: saveNotifs,
-  } = createJsonStore(notificationsFile, [])
+  const { load: loadNotifs, save: saveNotifs } = createJsonStore(notificationsFile, [])
 
   bindEvents(loadNotifs, saveNotifs, events)
 
   const sendNotif = ({ message, url, level, sound }) => {
-
-    if (!message || typeof(message) !== 'string') {
-      throw new Error('\'message\' is mandatory and should be a string')
+    if (!message || typeof message !== 'string') {
+      throw new Error("'message' is mandatory and should be a string")
     }
 
-    if (
-      !level || typeof(level) !== 'string' ||
-      !_.includes(['info', 'error', 'success'], level.toLowerCase())
-    ) {
+    if (!level || typeof level !== 'string' || !_.includes(['info', 'error', 'success'], level.toLowerCase())) {
       level = 'info'
     } else {
       level = level.toLowerCase()
@@ -80,7 +72,7 @@ export default (dataLocation, notifConfig, modules, events, logger) => {
     const callingFile = getOriginatingModule()
     const callingModuleRoot = callingFile && resolveModuleRootPath(callingFile)
 
-    const module = _.find(modules, (mod) => {
+    const module = _.find(modules, mod => {
       return mod.root === callingModuleRoot
     })
 
@@ -101,7 +93,7 @@ export default (dataLocation, notifConfig, modules, events, logger) => {
         url: url
       }
 
-      if (!url || typeof(url) !== 'string') {
+      if (!url || typeof url !== 'string') {
         options.url = `/modules/${module.name}`
       }
     }
@@ -131,21 +123,21 @@ export default (dataLocation, notifConfig, modules, events, logger) => {
 
     const logMessage = `[notification::${notification.moduleId}] ${notification.message}`
     if (logger) {
-      (logger[level] || logger.info)(logMessage)
+      ;(logger[level] || logger.info)(logMessage)
     }
   }
 
   return {
     load: loadNotifs,
     save: saveNotifs,
-    send: sendNotif,
+    send: sendNotif
   }
 }
 
 function getOriginatingModule() {
   // TODO Explain hack
   var origPrepareStackTrace = Error.prepareStackTrace
-  Error.prepareStackTrace = function (_, stack) {
+  Error.prepareStackTrace = function(_, stack) {
     return stack
   }
   var err = new Error()
