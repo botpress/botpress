@@ -83,10 +83,10 @@ export default class ManageView extends Component {
     return (
       <tr>
         <th />
-        <th>ID</th>
+        <th>UMM Id</th>
         <th>Category</th>
         <th>Preview</th>
-        <th>Created</th>
+        <th>Created on</th>
       </tr>
     )
   }
@@ -105,13 +105,13 @@ export default class ManageView extends Component {
         <td style={{ width: '16%' }} onClick={() => this.props.handleModalShow(m.id, m.categoryId)}>
           {'#!' + m.id}
         </td>
-        <td style={{ width: '16%' }} onClick={() => this.props.handleModalShow(m.id, m.categoryId)}>
+        <td style={{ width: '8%' }} onClick={() => this.props.handleModalShow(m.id, m.categoryId)}>
           {m.categoryId}
         </td>
-        <td style={{ width: '46%' }} onClick={() => this.props.handleModalShow(m.id, m.categoryId)}>
+        <td style={{ width: '58%' }} onClick={() => this.props.handleModalShow(m.id, m.categoryId)}>
           {m.previewText}
         </td>
-        <td style={{ width: '20%' }} onClick={() => this.props.handleModalShow(m.id, m.categoryId)}>
+        <td style={{ width: '18%' }} onClick={() => this.props.handleModalShow(m.id, m.categoryId)}>
           {moment(m.createdOn).format('MMMM Do YYYY, h:mm')}
         </td>
       </tr>
