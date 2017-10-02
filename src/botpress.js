@@ -148,7 +148,7 @@ class botpress {
     const mediator = createMediator(this)
     const convo = createConversations({ logger, middleware: middlewares })
     const users = createUsers({ db })
-    const contentManager = createContentManager({ db, logger, projectLocation })
+    const contentManager = createContentManager({ db, logger, projectLocation, botfile })
     const umm = createUMM({ logger, middlewares, projectLocation, botfile, db, contentManager })
 
     middlewares.register(umm.incomingMiddleware)

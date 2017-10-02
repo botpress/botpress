@@ -8,15 +8,14 @@ import uuid from 'uuid'
 
 import helpers from '../database/helpers'
 
-module.exports = ({ db, projectLocation, logger }) => {
-
+module.exports = ({ db, botfile, projectLocation, logger }) => {
   let categories = []
 
   async function scanAndRegisterCategories() {
     categories = []
-    
-    const formDir = path.resolve(projectLocation, './content/forms')
-    
+
+    const formDir = path.resolve(projectLocation, botfile.formsDir || './content/forms')
+
     if (!fs.existsSync(formDir)) {
       return categories
     }
