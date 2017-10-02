@@ -13,8 +13,19 @@ export default class ManageView extends Component {
 
     this.state = {
       checkedIds: [],
-      allChecked: false
+      allChecked: false,
+      search: ''
     }
+  }
+
+  componentDidMount() {
+    const fn = () => {
+      if (this.props.handleSearch) {
+        this.props.handleSearch(this.state.search)
+      }
+    }
+
+    this.debouncedHandleSearch = _.debounce(fn.bind(this), 1000)
   }
 
   handleCheckboxChanged(id) {
@@ -60,19 +71,12 @@ export default class ManageView extends Component {
     })
   }
 
-  handleKeyPress(target) {
-    if (target.charCode == 13) {
-      this.props.handleSearch(this.state.search)
-      this.setState({
-        search: ''
-      })
-    }
-  }
-
   handleSearchChanged(event) {
     this.setState({
       search: event.target.value
     })
+
+    this.debouncedHandleSearch && this.debouncedHandleSearch()
   }
 
   renderTableHeader() {
@@ -193,13 +197,7 @@ export default class ManageView extends Component {
   renderSearchBar() {
     return (
       <FormGroup className={style.search}>
-        <FormControl
-          type="text"
-          placeholder="Search"
-          value={this.state.search}
-          onChange={::this.handleSearchChanged}
-          onKeyPress={::this.handleKeyPress}
-        />
+        <FormControl type="text" placeholder="Search" value={this.state.search} onChange={::this.handleSearchChanged} />
       </FormGroup>
     )
   }

@@ -196,36 +196,36 @@ module.exports = (bp, app) => {
     }
   })
 
-  app.secure('read', 'bot/content')
-  .get('/content/categories', async (req, res) => {
+  app.secure('read', 'bot/content').get('/content/categories', async (req, res) => {
     res.send(await bp.contentManager.listAvailableCategories())
   })
 
-  app.secure('read', 'bot/content')
-  .get('/content/categories/:id/schema', async (req, res) => {
+  app.secure('read', 'bot/content').get('/content/categories/:id/schema', async (req, res) => {
     res.send(await bp.contentManager.getCategorySchema(req.params.id))
   })
 
-  app.secure('read', 'bot/content')
-  .get('/content/categories/:id/items', async (req, res) => {
-
+  app.secure('read', 'bot/content').get('/content/categories/:id/items', async (req, res) => {
     if (req.params.id === 'all') {
       req.params.id = null
     }
 
-    res.send(await bp.contentManager.listCategoryItems(req.params.id, req.query.from || 0, req.query.count || 50))
+    const from = req.query.from || 0
+    const count = req.query.count || 50
+    const searchTerm = req.query.search
+
+    res.send(await bp.contentManager.listCategoryItems(req.params.id, from, count, searchTerm))
   })
 
-  app.secure('write', 'bot/content')
-  .post('/content/categories/:id/items', async (req, res) => {
-    res.send(await bp.contentManager.createOrUpdateCategoryItem({
-      formData: req.body.formData,
-      categoryId: req.params.id
-    }))
+  app.secure('write', 'bot/content').post('/content/categories/:id/items', async (req, res) => {
+    res.send(
+      await bp.contentManager.createOrUpdateCategoryItem({
+        formData: req.body.formData,
+        categoryId: req.params.id
+      })
+    )
   })
 
-  app.secure('write', 'bot/content')
-  .post('/content/categories/:id/items/:itemId', async (req, res) => {
+  app.secure('write', 'bot/content').post('/content/categories/:id/items/:itemId', async (req, res) => {
     await bp.contentManager.createOrUpdateCategoryItem({
       itemId: req.params.itemId,
       formData: req.body.formData,
@@ -234,8 +234,7 @@ module.exports = (bp, app) => {
     res.sendStatus(200)
   })
 
-  app.secure('write', 'bot/content')
-  .post('/content/categories/all/bulk_delete', async (req, res) => {
+  app.secure('write', 'bot/content').post('/content/categories/all/bulk_delete', async (req, res) => {
     await bp.contentManager.deleteCategoryItems(req.body)
     res.sendStatus(200)
   })

@@ -154,7 +154,7 @@ module.exports = ({ db, botfile, projectLocation, logger }) => {
     )
   }
 
-  async function listCategoryItems(categoryId, from = 0, count = 50) {
+  async function listCategoryItems(categoryId, from = 0, count = 50, searchTerm) {
     const knex = await db.get()
 
     let items = null
@@ -164,6 +164,10 @@ module.exports = ({ db, botfile, projectLocation, logger }) => {
       query = query.where({
         categoryId: categoryId
       })
+    }
+
+    if (searchTerm) {
+      query = query.andWhere('metadata', 'like', `%${searchTerm}%`).orWhere('formData', 'like', `%${searchTerm}%`)
     }
 
     items = await query

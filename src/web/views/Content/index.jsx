@@ -58,11 +58,15 @@ export default class ContentView extends Component {
     const from = (this.state.page - 1) * MESSAGES_PER_PAGE
     const count = MESSAGES_PER_PAGE
 
-    return axios.get('/content/categories/' + id + '/items?from=' + from + '&count=' + count).then(({ data }) => {
-      this.setState({
-        messages: data
+    return axios
+      .get('/content/categories/' + id + '/items', {
+        params: { from: from, count: count, search: this.state.searchTerm }
       })
-    })
+      .then(({ data }) => {
+        this.setState({
+          messages: data
+        })
+      })
   }
 
   fetchSchema(id) {
@@ -175,7 +179,13 @@ export default class ContentView extends Component {
   }
 
   handleSearch(input) {
-    console.log('SEARCH: ', input)
+    this.setState({
+      searchTerm: input
+    })
+
+    setImmediate(() => {
+      this.fetchCategoryMessages(this.state.selectedId)
+    })
   }
 
   render() {
@@ -210,6 +220,7 @@ export default class ContentView extends Component {
                   count={this.state.count}
                   messagesPerPage={MESSAGES_PER_PAGE}
                   messages={this.state.messages || []}
+                  searchTerm={this.state.searchTerm}
                   handlePrevious={::this.handlePrevious}
                   handleNext={::this.handleNext}
                   handleRefresh={::this.handleRefresh}
