@@ -125,11 +125,13 @@ class Sidebar extends Component {
     const dashboardRules = { res:'dashboard', op:'read' }
     const modulesRules = { res:'modules/list', op:'read' }
     const ummRules = { res:'umm', op:'read' }
+    const contentRules = { res: 'content', op:'read' }
     const middlewareRules = { res:'middleware', op:'read' }
 
     const dashboardPaths = ['', '/', '/dashboard']
     const modulesPaths = ['/manage']
     const ummPaths = ['/umm']
+    const contentPaths = ['/content']
     const middlewarePaths = ['/middleware']
 
     const sidebarContent = <div className={classnames(style.sidebar, 'bp-sidebar')}>
@@ -138,6 +140,7 @@ class Sidebar extends Component {
         {this.renderBasicItem('Dashboard', 'dashboard', dashboardRules, dashboardPaths, 'dashboard')}
         {this.renderBasicItem('Modules', 'manage', modulesRules, modulesPaths, 'build')}
         {/*this.renderBasicItem('UMM', 'umm', ummRules, ummPaths, 'code')*/}
+        {this.renderBasicItem('Content', 'content', contentRules, contentPaths, 'create')}
         {this.renderBasicItem('Middleware', 'middleware', middlewareRules, middlewarePaths, 'settings')}
         {items}
         <li className={emptyClassName} key="empty"></li>

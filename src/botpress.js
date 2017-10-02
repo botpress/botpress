@@ -22,6 +22,7 @@ import createAbout from './about'
 import createModules from './modules'
 import createUMM from './umm'
 import createUsers from './users'
+import createContentManager from './content/service'
 import createConversations from './conversations'
 import stats from './stats'
 import packageJson from '../package.json'
@@ -146,8 +147,9 @@ class botpress {
     const emails = createEmails({ emailConfig: botfile.emails })
     const mediator = createMediator(this)
     const convo = createConversations({ logger, middleware: middlewares })
-    const umm = createUMM({ logger, middlewares, projectLocation, botfile, db })
     const users = createUsers({ db })
+    const contentManager = createContentManager({ db, logger, projectLocation, botfile })
+    const umm = createUMM({ logger, middlewares, projectLocation, botfile, db, contentManager })
 
     middlewares.register(umm.incomingMiddleware)
     middlewares.register(hearMiddleware)
@@ -171,7 +173,8 @@ class botpress {
       mediator,
       convo,
       umm,
-      users
+      users,
+      contentManager
     })
 
     ServiceLocator.init({ bp: this })
@@ -183,6 +186,8 @@ class botpress {
     _.assign(this, {
       _loadedModules: loadedModules
     })
+
+    contentManager.scanAndRegisterCategories()
 
     mediator.install()
     notifications._bindEvents()

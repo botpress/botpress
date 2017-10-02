@@ -1,5 +1,4 @@
 module.exports = {
-
   /*
     Where the content is stored
     You can access this property from `bp.dataLocation`
@@ -15,6 +14,11 @@ module.exports = {
     Some modules might generate static configuration files
    */
   modulesConfigDir: process.env.BOTPRESS_CONFIG_DIR || './modules_config',
+
+  /*
+    Path to Content Forms
+   */
+  formsDir: './forms',
 
   /*
     By default logs are enabled and available in `dataDir`

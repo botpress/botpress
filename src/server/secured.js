@@ -2,6 +2,8 @@ import _ from 'lodash'
 import fs from 'fs'
 import path from 'path'
 import uuid from 'uuid'
+import multer from 'multer'
+import Promise from 'bluebird'
 
 import util from '../util'
 import ExtraApiProviders from '+/api'
@@ -194,6 +196,78 @@ module.exports = (bp, app) => {
     } catch (err) {
       res.status(400).send({ message: err.message })
     }
+  })
+
+  app.secure('read', 'bot/content').get('/content/categories', async (req, res) => {
+    res.send(await bp.contentManager.listAvailableCategories())
+  })
+
+  app.secure('read', 'bot/content').get('/content/categories/:id/schema', async (req, res) => {
+    res.send(await bp.contentManager.getCategorySchema(req.params.id))
+  })
+
+  app.secure('read', 'bot/content').get('/content/categories/:id/items', async (req, res) => {
+    if (req.params.id === 'all') {
+      req.params.id = null
+    }
+
+    const from = req.query.from || 0
+    const count = req.query.count || 50
+    const searchTerm = req.query.search
+
+    res.send(await bp.contentManager.listCategoryItems(req.params.id, from, count, searchTerm))
+  })
+
+  app.secure('read', 'bot/content').get('/content/export', async (req, res) => {
+    res.setHeader('Content-disposition', 'attachment; filename=content-export.json')
+    res.send(await bp.contentManager.exportContent())
+  })
+
+  app.secure('write', 'bot/content').post('/content/categories/:id/items', async (req, res) => {
+    res.send(
+      await bp.contentManager.createOrUpdateCategoryItem({
+        formData: req.body.formData,
+        categoryId: req.params.id
+      })
+    )
+  })
+
+  const contentUploadMulter = multer({
+    limits: {
+      fileSize: 1024 * 1000 * 10, // 10mb
+      files: 5 // Max 5 files
+    },
+    fileFilter: (req, file, cb) => {
+      if (file.mimetype !== 'application/json') {
+        cb(null, false)
+      } else {
+        cb(null, true)
+      }
+    }
+  })
+
+  app.secure('write', 'bot/content').post('/content/upload', contentUploadMulter.array('files[]'), async (req, res) => {
+    try {
+      const documents = req.files.map(file => JSON.parse(file.buffer.toString()))
+      await Promise.mapSeries(documents, doc => bp.contentManager.importContent(doc))
+      res.send({ success: true })
+    } catch (err) {
+      res.status(500).send(err.message)
+    }
+  })
+
+  app.secure('write', 'bot/content').post('/content/categories/:id/items/:itemId', async (req, res) => {
+    await bp.contentManager.createOrUpdateCategoryItem({
+      itemId: req.params.itemId,
+      formData: req.body.formData,
+      categoryId: req.params.id
+    })
+    res.sendStatus(200)
+  })
+
+  app.secure('write', 'bot/content').post('/content/categories/all/bulk_delete', async (req, res) => {
+    await bp.contentManager.deleteCategoryItems(req.body)
+    res.sendStatus(200)
   })
 
   const apis = ExtraApiProviders(bp, app)
