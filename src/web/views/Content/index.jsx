@@ -1,4 +1,3 @@
-
 import React, { Component } from 'react'
 import classnames from 'classnames'
 import axios from 'axios'
@@ -30,23 +29,23 @@ export default class ContentView extends Component {
 
   componentDidMount() {
     this.fetchCategoryMessages(this.state.selectedId)
-    .then(::this.fetchCategories)
-    .then(() => {
-      return this.fetchSchema(this.state.selectedId)
-    })
-    .then(() => {
-      this.setState({
-        loading: false
-      })  
-    })
+      .then(::this.fetchCategories)
+      .then(() => {
+        return this.fetchSchema(this.state.selectedId)
+      })
+      .then(() => {
+        this.setState({
+          loading: false
+        })
+      })
   }
 
   fetchCategories() {
-    return axios.get('/content/categories')
-    .then(({ data }) => {
-      const count = this.state.selectedId === 'all' 
-        ? _.sumBy(data, 'count') || 0
-        : _.find(data, { id: this.state.selectedId }).count
+    return axios.get('/content/categories').then(({ data }) => {
+      const count =
+        this.state.selectedId === 'all'
+          ? _.sumBy(data, 'count') || 0
+          : _.find(data, { id: this.state.selectedId }).count
 
       this.setState({
         categories: data,
@@ -59,8 +58,7 @@ export default class ContentView extends Component {
     const from = (this.state.page - 1) * MESSAGES_PER_PAGE
     const count = MESSAGES_PER_PAGE
 
-    return axios.get('/content/categories/' + id + '/items?from=' + from + '&count=' + count)
-    .then(({ data }) => {
+    return axios.get('/content/categories/' + id + '/items?from=' + from + '&count=' + count).then(({ data }) => {
       this.setState({
         messages: data
       })
@@ -68,8 +66,7 @@ export default class ContentView extends Component {
   }
 
   fetchSchema(id) {
-    return axios.get('/content/categories/' + id + '/schema')
-    .then(({ data }) => {
+    return axios.get('/content/categories/' + id + '/schema').then(({ data }) => {
       this.setState({
         schema: data
       })
@@ -84,18 +81,12 @@ export default class ContentView extends Component {
       url = '/content/categories/' + categoryId + '/items/' + this.state.modifyId
     }
 
-    return axios.post(url, { formData: data })
-    .then(res => {
-      console.log('POST: New item created...')
-    })
+    return axios.post(url, { formData: data }).then()
   }
 
   deleteItems(data) {
-    return axios.post('/content/categories/all/bulk_delete', data)
-    .then(res => {
-      console.log('DELETE: Array of ids deleted...')
-    })
-  } 
+    return axios.post('/content/categories/all/bulk_delete', data).then()
+  }
 
   handleToggleModal() {
     this.setState({
@@ -106,38 +97,45 @@ export default class ContentView extends Component {
 
   handleCreateOrUpdate(data) {
     this.createOrUpdateItem(data)
-    .then(::this.fetchCategories)
-    .then(() => { return this.fetchCategoryMessages(this.state.selectedId) })
-    .then(() => { this.setState({ showModal: false } ) })
+      .then(::this.fetchCategories)
+      .then(() => {
+        return this.fetchCategoryMessages(this.state.selectedId)
+      })
+      .then(() => {
+        this.setState({ showModal: false })
+      })
   }
 
   handleCategorySelected(id) {
     this.fetchCategoryMessages(id)
-    .then(() => { this.setState({ selectedId: id }) })
-    .then(() => { this.fetchSchema(id) })
+      .then(() => {
+        this.setState({ selectedId: id })
+      })
+      .then(() => {
+        this.fetchSchema(id)
+      })
   }
 
   handleDeleteSelected(ids) {
     this.deleteItems(ids)
-    .then(::this.fetchCategories)
-    .then(() => { return this.fetchCategoryMessages(this.state.selectedId) })
+      .then(::this.fetchCategories)
+      .then(() => {
+        return this.fetchCategoryMessages(this.state.selectedId)
+      })
   }
 
   handleModalShow(id, categoryId) {
-
-    const showmodal = () => setTimeout(() => {
-      this.setState({
-        modifyId: id,
-        showModal: true
-      })
-    }, 250)
+    const showmodal = () =>
+      setTimeout(() => {
+        this.setState({
+          modifyId: id,
+          showModal: true
+        })
+      }, 250)
 
     if (!this.state.schema || this.state.selectedId !== categoryId) {
-      this.fetchSchema(categoryId)
-      .then(() => {
-        console.log(this.state.schema)
+      this.fetchSchema(categoryId).then(() => {
         showmodal()
-        
       })
     } else {
       showmodal()
@@ -150,7 +148,7 @@ export default class ContentView extends Component {
 
   handlePrevious() {
     this.setState({
-      page: (this.state.page - 1) || 1
+      page: this.state.page - 1 || 1
     })
 
     setImmediate(() => {
@@ -179,7 +177,7 @@ export default class ContentView extends Component {
   handleSearch(input) {
     console.log('SEARCH: ', input)
   }
- 
+
   render() {
     if (this.state.loading) {
       return null
@@ -192,18 +190,21 @@ export default class ContentView extends Component {
 
     return (
       <ContentWrapper>
-        <PageHeader><span>Content Manager</span></PageHeader>
+        <PageHeader>
+          <span>Content Manager</span>
+        </PageHeader>
         <table className={classNames}>
           <tbody>
             <tr>
-              <td style={{ 'width': '20%' }}>
+              <td style={{ width: '20%' }}>
                 <List
                   categories={this.state.categories || []}
                   selectedId={this.state.selectedId || 'all'}
                   handleAdd={::this.handleToggleModal}
-                  handleCategorySelected={::this.handleCategorySelected} />
+                  handleCategorySelected={::this.handleCategorySelected}
+                />
               </td>
-              <td style={{ 'width': '80%' }}>
+              <td style={{ width: '80%' }}>
                 <Manage
                   page={this.state.page}
                   count={this.state.count}
@@ -214,20 +215,22 @@ export default class ContentView extends Component {
                   handleRefresh={::this.handleRefresh}
                   handleModalShow={::this.handleModalShow}
                   handleDeleteSelected={::this.handleDeleteSelected}
-                  handleUpload={::this.handleUpload} 
+                  handleUpload={::this.handleUpload}
                   handleDownload={::this.handleDownload}
-                  handleSearch={::this.handleSearch} />
+                  handleSearch={::this.handleSearch}
+                />
               </td>
             </tr>
           </tbody>
         </table>
-        <CreateModal 
+        <CreateModal
           show={this.state.showModal}
           schema={(this.state.schema && this.state.schema.json) || {}}
           uiSchema={(this.state.schema && this.state.schema.ui) || {}}
           formData={this.state.modifyId ? _.find(this.state.messages, { id: this.state.modifyId }).formData : null}
           handleCreateOrUpdate={::this.handleCreateOrUpdate}
-          handleClose={::this.handleToggleModal} />
+          handleClose={::this.handleToggleModal}
+        />
       </ContentWrapper>
     )
   }

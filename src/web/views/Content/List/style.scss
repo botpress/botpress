@@ -1,22 +1,20 @@
-$content-bg-color: #FFFFFF;
-
 .list {
   min-height: 85vh;
-  background-color: $content-bg-color;
+  // background-color: $content-bg-color;
   padding-right: 60px;
   padding-left: 6px;
 
   button {
     margin-left: 6px;
-    margin-top: 13px;
+    margin-top: 18px;
     width: 100%;
 
     &.disabled {
-      background-color: #B5B3B6;
+      background-color: #b5b3b6;
       cursor: not-allowed;
 
       &:hover {
-        background-color: #B5B3B6;
+        background-color: #b5b3b6;
       }
     }
   }
@@ -24,13 +22,14 @@ $content-bg-color: #FFFFFF;
   ul {
     list-style: none;
     padding: 10px;
+    margin-top: 20px;
 
     li {
       margin-bottom: 5px;
       padding-left: 6px;
       line-height: 24px;
       border-left: solid 3px #fff;
-      
+
       a {
         cursor: pointer;
         color: #000000;
@@ -43,10 +42,10 @@ $content-bg-color: #FFFFFF;
       }
 
       &.selected {
-        border-color: #46CBA0;
-        
+        border-color: #46cba0;
+
         a {
-          font-weight: bold; 
+          font-weight: bold;
         }
       }
 

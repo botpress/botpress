@@ -1,7 +1,6 @@
 .content {
   width: 100%;
   height: 100%;
-  background-color: #FFFFFF;
 }
 
 .modal {
@@ -16,12 +15,12 @@
   }
 
   :global(.btn-info) {
-    background-color: #46CBA0;
-    border-color: #46CBA0;
-    
+    background-color: #46cba0;
+    border-color: #46cba0;
+
     &:hover {
-      background-color: #40BD94;
-      border-color: #40BD94;
+      background-color: #40bd94;
+      border-color: #40bd94;
     }
   }
 }

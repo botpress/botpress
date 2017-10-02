@@ -1,13 +1,12 @@
-$content-bg-color: #FFFFFF;
-
 .manage {
   min-height: 85vh;
-  background-color: $content-bg-color;
+  // background-color: $content-bg-color;
 
   .header {
-    position: relative;
-    height: 40px;
+    padding: 10px 0;
+    height: 60px;
     margin: 5px 0;
+    border-bottom: 1px solid #c9c8ca;
 
     :global(.checkbox) {
       margin-top: 0px;
@@ -20,7 +19,7 @@ $content-bg-color: #FFFFFF;
       height: 30px;
       width: 34px;
       position: relative;
-      
+
       i {
         position: absolute;
         left: 6px;
@@ -28,20 +27,13 @@ $content-bg-color: #FFFFFF;
         font-size: 18px;
         line-height: 18px;
 
-        color: #807F81;
+        color: #807f81;
       }
 
       margin-right: 8px;
     }
 
-    .left, .right {
-      position: absolute;
-      top: 5px;
-    }
-
-    .left {  
-      left: 0px;
-
+    .left {
       .search {
         position: relative;
         width: 300px;
@@ -56,7 +48,6 @@ $content-bg-color: #FFFFFF;
           height: 30px;
         }
       }
-      
     }
 
     .right {
