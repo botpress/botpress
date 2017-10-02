@@ -93,8 +93,12 @@ export default class ManageView extends Component {
 
   renderMessage(m) {
     const checked = _.includes(this.state.checkedIds, m.id)
+    const className = classnames(style.item, {
+      [style.selected]: checked
+    })
+
     return (
-      <tr className={style.item}>
+      <tr className={className}>
         <td style={{ width: '2%', minWidth: '34px' }}>
           <Checkbox checked={checked} onClick={() => ::this.handleCheckboxChanged(m.id, m.categoryId)} />
         </td>
@@ -175,19 +179,19 @@ export default class ManageView extends Component {
   }
 
   renderUploadButtons() {
-    const importTooltips = <Tooltip id="tooltip">Import</Tooltip>
-    const exportTooltips = <Tooltip id="tooltip">Export</Tooltip>
+    const importTooltips = <Tooltip id="tooltip">Import JSON content</Tooltip>
+    const exportTooltips = <Tooltip id="tooltip">Export all as JSON</Tooltip>
 
     return (
       <span className={style.uploadButtons}>
         <OverlayTrigger placement="top" overlay={importTooltips}>
           <Button onClick={this.props.handleUpload}>
-            <i className="material-icons">file_upload</i>
+            <i className="material-icons">backup</i>
           </Button>
         </OverlayTrigger>
         <OverlayTrigger placement="top" overlay={exportTooltips}>
           <Button onClick={this.props.handleDownload}>
-            <i className="material-icons">file_download</i>
+            <i className="material-icons">get_app</i>
           </Button>
         </OverlayTrigger>
       </span>

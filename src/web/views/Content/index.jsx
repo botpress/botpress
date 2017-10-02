@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import classnames from 'classnames'
 import axios from 'axios'
 import _ from 'lodash'
+import Dropzone from 'react-dropzone'
 
 import List from './list'
 import Manage from './manage'
@@ -171,11 +172,33 @@ export default class ContentView extends Component {
   }
 
   handleUpload() {
-    console.log('UPLOAD')
+    this.dropzone.open()
   }
 
   handleDownload() {
-    console.log('DOWNLOAD')
+    var url = '/content/export'
+    window.open(url, '_blank')
+  }
+
+  handleDropFiles(acceptedFiles) {
+    const txt = `Upload will overwrite existing content if there is conflicting ID's. 
+      Confirm the upload ${acceptedFiles.length} files?`
+
+    if (acceptedFiles.length > 0 && confirm(txt) == true) {
+      var formData = new FormData()
+      acceptedFiles.forEach(file => {
+        formData.append('files[]', file)
+      })
+      axios
+        .post('/content/upload', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        })
+        .then(() => {
+          this.fetchCategoryMessages(this.state.selectedId)
+        })
+    }
   }
 
   handleSearch(input) {
@@ -215,21 +238,29 @@ export default class ContentView extends Component {
                 />
               </td>
               <td style={{ width: '80%' }}>
-                <Manage
-                  page={this.state.page}
-                  count={this.state.count}
-                  messagesPerPage={MESSAGES_PER_PAGE}
-                  messages={this.state.messages || []}
-                  searchTerm={this.state.searchTerm}
-                  handlePrevious={::this.handlePrevious}
-                  handleNext={::this.handleNext}
-                  handleRefresh={::this.handleRefresh}
-                  handleModalShow={::this.handleModalShow}
-                  handleDeleteSelected={::this.handleDeleteSelected}
-                  handleUpload={::this.handleUpload}
-                  handleDownload={::this.handleDownload}
-                  handleSearch={::this.handleSearch}
-                />
+                <Dropzone
+                  accept="application/json"
+                  onDrop={this.handleDropFiles}
+                  style={{}}
+                  disableClick
+                  ref={node => (this.dropzone = node)}
+                >
+                  <Manage
+                    page={this.state.page}
+                    count={this.state.count}
+                    messagesPerPage={MESSAGES_PER_PAGE}
+                    messages={this.state.messages || []}
+                    searchTerm={this.state.searchTerm}
+                    handlePrevious={::this.handlePrevious}
+                    handleNext={::this.handleNext}
+                    handleRefresh={::this.handleRefresh}
+                    handleModalShow={::this.handleModalShow}
+                    handleDeleteSelected={::this.handleDeleteSelected}
+                    handleUpload={::this.handleUpload}
+                    handleDownload={::this.handleDownload}
+                    handleSearch={::this.handleSearch}
+                  />
+                </Dropzone>
               </td>
             </tr>
           </tbody>
