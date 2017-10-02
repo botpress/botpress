@@ -28,11 +28,11 @@ module.exports = ({ db, botfile, projectLocation, logger }) => {
       try {
         const filePath = path.resolve(formDir, './' + file)
         const category = eval('require')(filePath) // Dynamic loading require eval for Webpack
-        const requiredFields = ['id', 'title', 'ummBloc', 'jsonSchema']
+        const requiredFields = ['id', 'title', 'jsonSchema']
 
         requiredFields.forEach(field => {
           if (_.isNil(category[field])) {
-            throw new Error('"id" is required but missing')
+            throw new Error(field + ' is required but missing in Content Form file: ' + file)
           }
         })
 
@@ -55,11 +55,12 @@ module.exports = ({ db, botfile, projectLocation, logger }) => {
     const knex = await db.get()
 
     return await Promise.map(categories, async category => {
-
       const count = await knex('content_items')
-      .where({ categoryId: category.id })
-      .select(knex.raw('count(*) as count'))
-      .then().get(0).then(row => (row && row.count) || 0)
+        .where({ categoryId: category.id })
+        .select(knex.raw('count(*) as count'))
+        .then()
+        .get(0)
+        .then(row => (row && row.count) || 0)
 
       return {
         id: category.id,
@@ -97,11 +98,10 @@ module.exports = ({ db, botfile, projectLocation, logger }) => {
       throw new Error('"formData" must be a valid object')
     }
 
-    let data = (category.computeFormData && await category.computeFormData(formData)) || formData
-    const metadata = (category.computeMetadata && await category.computeMetadata(formData)) || []
-    const previewText = (category.computePreviewText && await category.computePreviewText(formData)) 
-      || 'No preview'
-    
+    let data = (category.computeFormData && (await category.computeFormData(formData))) || formData
+    const metadata = (category.computeMetadata && (await category.computeMetadata(formData))) || []
+    const previewText = (category.computePreviewText && (await category.computePreviewText(formData))) || 'No preview'
+
     if (!_.isArray(metadata)) {
       throw new Error('computeMetadata must return an array of string')
     }
@@ -114,7 +114,17 @@ module.exports = ({ db, botfile, projectLocation, logger }) => {
       throw new Error('computeFormData must return a valid object')
     }
 
-    const randomId = `${categoryId}-${uuid.v4().split('-').join('').substr(0, 6)}`
+    let prefix = category.ummBloc || categoryId
+
+    if (prefix.startsWith('#')) {
+      prefix = prefix.substr(1)
+    }
+
+    const randomId = `${prefix}-${uuid
+      .v4()
+      .split('-')
+      .join('')
+      .substr(0, 6)}`
 
     const knex = await db.get()
 
@@ -128,13 +138,20 @@ module.exports = ({ db, botfile, projectLocation, logger }) => {
     }
 
     if (itemId) {
-      return await knex('content_items').update(body).where({ id: itemId })
+      return await knex('content_items')
+        .update(body)
+        .where({ id: itemId })
     }
 
-    return await knex('content_items').insert(Object.assign({
-      id: randomId,
-      categoryId: categoryId
-    }, body))
+    return await knex('content_items').insert(
+      Object.assign(
+        {
+          id: randomId,
+          categoryId: categoryId
+        },
+        body
+      )
+    )
   }
 
   async function listCategoryItems(categoryId, from = 0, count = 50) {
@@ -142,7 +159,7 @@ module.exports = ({ db, botfile, projectLocation, logger }) => {
 
     let items = null
     let query = knex('content_items')
-    
+
     if (categoryId) {
       query = query.where({
         categoryId: categoryId
@@ -152,7 +169,8 @@ module.exports = ({ db, botfile, projectLocation, logger }) => {
     items = await query
       .orderBy('created_on')
       .offset(from)
-      .limit(count).then()
+      .limit(count)
+      .then()
 
     return items.map(transformCategoryItem)
   }
@@ -184,15 +202,19 @@ module.exports = ({ db, botfile, projectLocation, logger }) => {
 
     const knex = await db.get()
 
-    return knex('content_items').whereIn('id', ids).del()
+    return knex('content_items')
+      .whereIn('id', ids)
+      .del()
   }
 
   async function getItem(itemId) {
     const knex = await db.get()
 
     const item = await knex('content_items')
-    .where({ id: itemId })
-    .then().get(0).then()
+      .where({ id: itemId })
+      .then()
+      .get(0)
+      .then()
 
     return transformCategoryItem(item)
   }
@@ -201,17 +223,17 @@ module.exports = ({ db, botfile, projectLocation, logger }) => {
     const knex = await db.get()
 
     const items = await knex('content_items')
-    .where('metadata', 'like', '%|' + metadata + '|%')
-    .then()
+      .where('metadata', 'like', '%|' + metadata + '|%')
+      .then()
 
     return transformCategoryItem(items)
   }
 
-  return { 
+  return {
     scanAndRegisterCategories,
     listAvailableCategories,
     getCategorySchema,
-    
+
     createOrUpdateCategoryItem,
     listCategoryItems,
     deleteCategoryItems,
