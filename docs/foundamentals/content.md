@@ -65,13 +65,70 @@ The content manager uses the [JSON Schema](https://mozilla-services.github.io/re
 [Link to `react-jsonschema-form`](https://github.com/mozilla-services/react-jsonschema-form)
 
 
-#### Field [`uiSchema`](https://github.com/mozilla-services/react-jsonschema-form) (**Required**)
+#### Field [`uiSchema`](https://github.com/mozilla-services/react-jsonschema-form) (_Optional_)
 
 The content manager uses the [JSON Schema](https://mozilla-services.github.io/react-jsonschema-form/) standard to power the forms. The `uiSchema` property is just using `react-jsonschema-form` and passing it as the `uiSchema` property.
 
 [Link to `react-jsonschema-form`](https://github.com/mozilla-services/react-jsonschema-form)
 
 
-#### Field `ummBloc`
+#### Field `ummBloc` (_Optional_)
 
+Optionally, you can assign a UMM bloc to a content category. When doing so, Botpress will generate a virtual bloc (starting by `#!`) which you can use to send a message directly. 
+
+For example, if you have a category called `trivia`, generating trivia questions (content) would generate blocs that look like `#!trivia-h73k41`, which you can use anywhere as a regular UMM bloc (e.g. `event.reply('#!trivia-h73k41')`).
+
+#### Field `computeFormData(data) -> Object|Promise<Object>` (_Optional_)
+
+Optionally, you can manipulate the raw data coming from the form, so that you can persist that manipulated version of it.
+
+If you provide `computeFormData`, Botpress will use it to manipulate the data, and that modified data will be used by the UMM engine (if using `ummBloc`).
+
+##### Example A (Trivia)
+
+```js
+const _ = require('lodash')
+// ...
+
+computeFormData: formData => {
+  const good = { payload: 'TRIVIA_GOOD', text: formData.good }
+  const bad = formData.bad.map(i => ({ payload: 'TRIVIA_BAD', text: i }))
+  const choices = [good, ...bad]
+
+  return {
+    question: formData.question,
+    choices: _.shuffle(choices)
+  }
+}
+```
+
+##### Example B
+
+```js
+computeFormData: data => {
+  return {
+    full_name: data.first_name + ' ' + data.last_name
+  }
+}
+```
+
+#### Field `computePreviewText(data) -> string|Promise<string>` (_Optional_)
+
+Optionally, you can modify the Preview text in the UI view.
+
+##### Example (Trivia)
+
+```js
+computePreviewText: formData => 'Question: ' + formData.question
+``` 
+
+#### Field `computeMetadata(data) -> Array<string>|Promise<Array<string>>` (_Optional_)
+
+Optionally, you can generate Metadata for content, which can be used to search content in the UI
+
+##### Example (Trivia)
+
+```js
+computeMetadata: formData => ['TRIVIA', new Date().getYear()] // Index the year so you can search by years
+```
 
