@@ -14,7 +14,8 @@ The built-in Content Manager allows your bot administrators to **add and edit co
 The Content Manager is essentially an automatic form generator.
 
 <img src="https://rawgit.com/botpress/botpress/master/assets/content-preview.png" height="200px"/>
-<img src="https://rawgit.com/botpress/botpress/master/assets/content-new.png" height="200px"/>
+<img src="https://rawgit.com/botpress/botpress/master/assets/content-new.png" width="500px"/>
+<img src="https://rawgit.com/botpress/botpress/master/assets/content-bank.png" width="500px"/>
 
 Using the interface, you can:
 - See the list of **categories** (left panel)
