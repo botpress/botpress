@@ -35,21 +35,18 @@ class ContentWrapper extends Component {
     }
 
     const hasPadding = this.props.UI.get('viewMode') < 2
+    const stretch = this.props.stretch === true
 
     const classNames = classnames({
       [style.contentWrapper]: true,
       'bp-content-wrapper': true,
-      [style.contentWrapperPadding]: hasPadding,
-      'bp-content-wrapper-padding': hasPadding, 
+      [style.contentWrapperPadding]: !stretch && hasPadding,
+      'bp-content-wrapper-padding': !stretch && hasPadding,
       [style.show]: this.state.show,
       'bp-content-wrapper-show': this.state.show
     })
 
-    return (
-      <div className={classNames}>
-        {childElement}
-      </div>
-    )
+    return <div className={classNames}>{childElement}</div>
   }
 }
 

@@ -1,12 +1,5 @@
 import React from 'react'
-import {
-  Router,
-  Route,
-  Link,
-  hashHistory,
-  useRouterHistory,
-  IndexRoute
-} from 'react-router'
+import { Router, Route, Link, hashHistory, useRouterHistory, IndexRoute } from 'react-router'
 import ReactGA from 'react-ga'
 import { createHistory } from 'history'
 
@@ -17,6 +10,7 @@ import Manage from '~/views/Manage'
 import Middleware from '~/views/Middleware'
 import UMM from '~/views/UMM'
 import Content from '~/views/Content'
+import FlowBuilder from '~/views/FlowBuilder'
 import Module from '~/views/Module'
 import Notifications from '~/views/Notifications'
 import Logs from '~/views/Logs'
@@ -31,7 +25,6 @@ function logPageView() {
 }
 
 export default () => {
-
   if (!window.OPT_OUT_STATS) {
     ReactGA.initialize('UA-90044826-1')
   }
@@ -41,15 +34,16 @@ export default () => {
       {AdditionnalRoutes.addLoginRoutes()}
       {AdditionnalRoutes.addUnsecuredRoutes()}
       <Route path="/" component={EnsureAuthenticated(Layout)}>
-        <Route path="dashboard" component={Dashboard}/>
-        <IndexRoute component={Dashboard}/>
-        <Route path="manage" component={Manage}/>
-        <Route path="middleware" component={Middleware}/>
-        <Route path="content" component={Content}/>
-        <Route path="umm" component={UMM}/>
-        <Route path="modules/:moduleName(/:subView)" component={Module}/>
-        <Route path="notifications" component={Notifications}/>
-        <Route path="logs" component={Logs}/>
+        <Route path="dashboard" component={Dashboard} />
+        <IndexRoute component={Dashboard} />
+        <Route path="manage" component={Manage} />
+        <Route path="middleware" component={Middleware} />
+        <Route path="content" component={Content} />
+        <Route path="flows" component={FlowBuilder} />
+        <Route path="umm" component={UMM} />
+        <Route path="modules/:moduleName(/:subView)" component={Module} />
+        <Route path="notifications" component={Notifications} />
+        <Route path="logs" component={Logs} />
         {AdditionnalRoutes.addSecuredRoutes()}
       </Route>
     </Router>
