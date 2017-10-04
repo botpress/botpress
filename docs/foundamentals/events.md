@@ -18,7 +18,7 @@ There exists a special built-in middleware that allows your bot to listen for me
 
 Utility function to easily register incoming middlewares. 
 
-The condition can be a string, a regex or an object. In case of an object, all conditions must match for the handler to be called.
+The condition can be a string, a regex, an object or an array of these. In case of an object, all conditions must match for the handler to be called. In case of an array, it acts as an OR meaning the first condition to match will cause the handler to be called.
 
 The handler takes the MiddlewareEvent as the first argument and takes the `next` middleware caller as the second argument. If the `next` argument is not specified in your handler, botpress assumes you wanted to call it and calls it at the end of the synchronous execution of the handler.
 
@@ -50,6 +50,17 @@ bp.hear({
   platform: 'sms'
 }, event => {
   // all the conditions matched
+})
+```
+
+#### Examples (array)
+
+```js
+bp.hear([
+    {'nlp.metadata.intentName': 'getting_started'}, // first condition
+    {'type': 'postback', 'text': 'getting_started'} // second condition
+  ], event => {
+    // one of the conditions matched
 })
 ```
 
