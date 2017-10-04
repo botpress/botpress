@@ -15,7 +15,7 @@ The Content Manager is essentially an automatic form generator.
 
 <img src="https://rawgit.com/botpress/botpress/master/assets/content-preview.png" height="200px"/>
 <img src="https://rawgit.com/botpress/botpress/master/assets/content-new.png" width="500px"/>
-<img src="https://rawgit.com/botpress/botpress/master/assets/content-bank.png" width="500px"/>
+<img src="https://rawgit.com/botpress/botpress/master/assets/content-bank.png" height="200px"/>
 
 Using the interface, you can:
 - See the list of **categories** (left panel)
