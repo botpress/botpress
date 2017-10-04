@@ -61,6 +61,16 @@ describe('hear', function() {
       hearNo(t => t === 'hello, world')(event)
     ])
   })
+  
+  it('condition is array', () => {
+    return Promise.all([
+      hearYes([{ text: /world/, platform: 'twitter' }, { text: /world/, type: 'message' }])(event),
+      hearYes([{ text: /world/, type: 'message' }, { text: /world/, platform: 'twitter' }])(event),
+      hearNo([{ text: /banana/, type: 'message' }, { text: /world/, platform: 'twitter' }])(event),
+      hearYes([t => t === 'Hello world', 'world'])(event),
+      hearNo([{ text: /banana/, type: 'message' }, /hello/])(event),
+    ])
+  })
 
   it('Many conditions', () => {
     return Promise.all([
