@@ -22,6 +22,9 @@ As contributors you should be respectful and considerate of others - both contri
   ```
   docker run -p 5432:5432 -e POSTGRES_USER=$USER postgres
   ```
+  notes on running docker command on Windows:
+  * Windows CMD: replace `$USER` with `%USERNAME%`
+  * Windows PowerShell: replace `$USER` with `$env:UserName`
 
   at the command prompt, to automatically download and start a PostgreSQL server. You don't need to
   understand or install PostgreSQL Server yourself. (Press `CTRL-c` to stop it.)
