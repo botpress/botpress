@@ -24,6 +24,7 @@ module.exports = function(projectPath, options) {
   projectPath = path.resolve(projectPath)
 
   try {
+    // eslint-disable-next-line no-eval
     Botpress = eval('require')(path.join(projectPath, 'node_modules', 'botpress')).Botpress()
   } catch (err) {
     util.print('error', err.message)

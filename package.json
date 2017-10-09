@@ -140,7 +140,7 @@
     "compile": "./build.sh",
     "test": "BABEL_ENV=tests mocha --compilers js:babel-core/register --require tests/index.js tests/** extensions/**/tests/**",
     "watch": "npm-watch",
-    "lint": "eslint {src,extensions}/**/*.js*"
+    "lint": "eslint {src,extensions}/**/*.{js,jsx}"
   },
   "watch": {
     "compile": {
