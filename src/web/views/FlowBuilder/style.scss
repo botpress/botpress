@@ -1,0 +1,41 @@
+.diagram :global(.storm-diagrams-canvas) {
+  width: 100%;
+  height: calc(100vh - 16px);
+  min-height: 500px;
+  background: url('/img/grid.png') repeat;
+}
+
+.wrapper {
+  background-color: white;
+}
+
+.flowName {
+  line-height: 22px;
+  font-size: 18px;
+  font-weight: 300;
+  color: #000;
+
+  &.defaultValue {
+    font-style: italic;
+    font-weight: 400;
+    color: #999;
+  }
+
+  width: 200px;
+
+  border: 1px solid #fff;
+  padding: 2px 5px;
+  border-radius: 3px;
+
+  &:hover {
+    border: 1px solid #eee;
+  }
+
+  &:focus {
+    outline-color: transparent;
+    outline-style: none;
+    font-weight: 300;
+    font-style: normal;
+    border: 1px solid #2d74f3;
+  }
+}

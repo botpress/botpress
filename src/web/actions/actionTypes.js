@@ -11,5 +11,6 @@ export default keyMirror({
   VIEW_MODE_CHANGED: null,
   TOGGLE_ABOUT_MODAL: null,
   USER_RECEIVED: null,
-  RULES_RECEIVED: null
+  RULES_RECEIVED: null,
+  UPDATE_GLOBAL_STYLE: null
 })

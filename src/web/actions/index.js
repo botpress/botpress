@@ -15,7 +15,8 @@ const {
   LICENSE_CHANGED,
   TOGGLE_ABOUT_MODAL,
   USER_RECEIVED,
-  VIEW_MODE_CHANGED
+  VIEW_MODE_CHANGED,
+  UPDATE_GLOBAL_STYLE
 } = actionTypes
 
 const fetchModules = () => {
@@ -77,6 +78,10 @@ const viewModeChanged = mode => {
   reactor.dispatch(VIEW_MODE_CHANGED, { mode: mode })
 }
 
+const setGlobalStyle = style => {
+  reactor.dispatch(UPDATE_GLOBAL_STYLE, { style })
+}
+
 module.exports = {
   fetchModules,
   fetchNotifications,
@@ -89,5 +94,6 @@ module.exports = {
   licenseChanged,
   fetchUser,
   viewModeChanged,
+  setGlobalStyle,
   ...actions
 }

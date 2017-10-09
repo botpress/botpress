@@ -1,13 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 
-import {
-  Navbar, 
-  Nav, 
-  NavItem, 
-  Glyphicon,
-  NavDropdown
-} from 'react-bootstrap'
+import { Navbar, Nav, NavItem, Glyphicon, NavDropdown } from 'react-bootstrap'
 
 import classnames from 'classnames'
 import axios from 'axios'
@@ -24,13 +18,11 @@ import { connect } from 'nuclear-js-react-addons'
 import getters from '~/stores/getters'
 import actions from '~/actions'
 
-@connect(props => ({ 
+@connect(props => ({
   user: getters.user,
   UI: getters.UI
 }))
-
 class Header extends Component {
-
   constructor(props, context) {
     super(props, context)
 
@@ -52,27 +44,30 @@ class Header extends Component {
   }
 
   renderLogoutButton() {
-    
     if (!window.AUTH_ENABLED) {
       return null
     }
 
     const url = this.getProfileImgUrl()
-    let label = <img src={url}></img>
-    
+    let label = <img src={url} />
+
     if (!url) {
       label = <i className="material-icons">account_circle</i>
     }
-    
-    return <NavDropdown className={style.account} noCaret title={label} id="account-button">
-      <ProfileMenu logout={logout}/>  
-    </NavDropdown>
+
+    return (
+      <NavDropdown className={style.account} noCaret title={label} id="account-button">
+        <ProfileMenu logout={logout} />
+      </NavDropdown>
+    )
   }
 
   renderFullScreenButton() {
-    return <span className={classnames(style.fullScreen, 'bp-full-screen')} >
-      <Glyphicon glyph="fullscreen"/>
-    </span>
+    return (
+      <span className={classnames(style.fullScreen, 'bp-full-screen')}>
+        <Glyphicon glyph="fullscreen" />
+      </span>
+    )
   }
 
   render() {
@@ -81,21 +76,26 @@ class Header extends Component {
     }
 
     const classNames = classnames(style.navbar, style['app-navbar'], 'bp-navbar')
+    const customStyle = this.props.UI.get('customStyle')['bp-navbar']
 
-    return <Navbar className={classNames}>
-      <Navbar.Collapse>
-        <Nav pullRight>
-          <NavItem onClick={::this.handleFullscreen}>{this.renderFullScreenButton()}</NavItem>
-          <RulesChecker res='bot/logs' op='read'>
-            <NavItem href="/logs"><Glyphicon glyph="list-alt"/></NavItem>
-          </RulesChecker>
-          <RulesChecker res='notifications' op='read'>
-            <NotificationHub />
-          </RulesChecker>
-          {this.renderLogoutButton()}
-        </Nav>
-      </Navbar.Collapse>
-    </Navbar>
+    return (
+      <Navbar className={classNames} style={customStyle}>
+        <Navbar.Collapse>
+          <Nav pullRight>
+            <NavItem onClick={::this.handleFullscreen}>{this.renderFullScreenButton()}</NavItem>
+            <RulesChecker res="bot/logs" op="read">
+              <NavItem href="/logs">
+                <Glyphicon glyph="list-alt" />
+              </NavItem>
+            </RulesChecker>
+            <RulesChecker res="notifications" op="read">
+              <NotificationHub />
+            </RulesChecker>
+            {this.renderLogoutButton()}
+          </Nav>
+        </Navbar.Collapse>
+      </Navbar>
+    )
   }
 }
 

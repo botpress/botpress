@@ -43,7 +43,8 @@ class ContentWrapper extends Component {
       [style.contentWrapperPadding]: !stretch && hasPadding,
       'bp-content-wrapper-padding': !stretch && hasPadding,
       [style.show]: this.state.show,
-      'bp-content-wrapper-show': this.state.show
+      'bp-content-wrapper-show': this.state.show,
+      [this.props.className]: true
     })
 
     return <div className={classNames}>{childElement}</div>
