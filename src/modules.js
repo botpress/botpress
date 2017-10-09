@@ -40,6 +40,7 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
     const loadedModules = {}
 
     moduleDefinitions.forEach(mod => {
+      // eslint-disable-next-line no-eval
       const loader = eval('require')(mod.entry)
 
       if (typeof loader !== 'object') {
@@ -86,6 +87,7 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
         'which means botpress can\'t load any module for the bot.')
     }
 
+    // eslint-disable-next-line no-eval
     const botPackage = eval('require')(packagePath)
 
     let deps = botPackage.dependencies || {}
@@ -106,6 +108,7 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
         return result
       }
 
+      // eslint-disable-next-line no-eval
       const modulePackage = eval('require')(path.join(root, 'package.json'))
       if (!modulePackage.botpress) {
         return result
