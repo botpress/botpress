@@ -55,7 +55,7 @@
     "autoprefixer": "^6.5.3",
     "babel-cli": "^6.16.0",
     "babel-core": "^6.18.0",
-    "babel-eslint": "^7.1.0",
+    "babel-eslint": "^8.0.1",
     "babel-loader": "^6.2.5",
     "babel-plugin-root-import": "^5.1.0",
     "babel-plugin-transform-decorators-legacy": "^1.3.4",
@@ -69,7 +69,7 @@
     "classnames": "^2.2.5",
     "copy-webpack-plugin": "^4.0.0",
     "css-loader": "^0.25.0",
-    "eslint": "^3.9.0",
+    "eslint": "^4.8.0",
     "exports-loader": "^0.6.3",
     "expose-loader": "^0.7.1",
     "extract-text-webpack-plugin": "^1.0.1",
@@ -140,7 +140,7 @@
     "compile": "./build.sh",
     "test": "BABEL_ENV=tests mocha --compilers js:babel-core/register --require tests/index.js tests/** extensions/**/tests/**",
     "watch": "npm-watch",
-    "lint": "eslint {src,extensions}/**/*.{js,jsx}"
+    "lint": "eslint --ignore-path .gitignore --ext=.js,.jsx ."
   },
   "watch": {
     "compile": {
