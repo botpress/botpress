@@ -32,16 +32,16 @@ const matches = function(conditions, event) {
 
 const hear = function(conditions, callback) {
   return (event, next) => {
-    let result = false;
+    let result = false
     if (_.isArray(conditions)) {
       for (let conditionsItem of conditions) {
         if (matches(conditionsItem, event)) {
-          result = true;
-          break;
+          result = true
+          break
         }
       }
     } else {
-      result = matches(conditions, event);
+      result = matches(conditions, event)
     }
 
     if (result && _.isFunction(callback)) {
