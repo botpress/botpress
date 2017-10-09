@@ -8,7 +8,7 @@ import uninstall from './uninstall'
 import migrate from './migrate'
 import list from './list'
 
-import { getBotpressVersion } from '../util'
+import { getBotpressVersion, collectArgs } from '../util'
 
 program
   .command('init')
@@ -16,10 +16,15 @@ program
   .option('-y, --yes', 'Say yes to every prompt and use default values')
   .action(init)
 
+const defaultWatchExt = '.js,.jsx,.json,.yml'
 program
   .command('start [path]')
   .alias('s')
   .description('Starts running a bot')
+  .option('-w, --watch', 'Watch bot for changes, and restart automatically')
+  .option('--watchExt <extensions>', `When watching, which file extensions to watch. Default: "${defaultWatchExt}"`, defaultWatchExt)
+  .option('--watchDir <dir>', `When watching, what to watch. Can be repeated. Default: Directory of botfile.js`, collectArgs, [])
+  .option('--watchIgnore <file|dir>', `When watching, what to ignore. Can be repeated. Default: dataDir, watchExt from botfile.js, and node_modules`, collectArgs, [])
   .action(start)
 
 program
