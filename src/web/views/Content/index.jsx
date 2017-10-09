@@ -4,8 +4,8 @@ import axios from 'axios'
 import _ from 'lodash'
 import Dropzone from 'react-dropzone'
 
-import List from './list'
-import Manage from './manage'
+import List from './List'
+import Manage from './Manage'
 import CreateModal from './modal'
 
 import ContentWrapper from '~/components/Layout/ContentWrapper'
