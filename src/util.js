@@ -66,11 +66,23 @@ const resolveProjectFile = (file, projectLocation, throwIfNotExist) => {
   return packagePath
 }
 
+const getDataLocation = (dataDir, projectLocation) => (
+  dataDir && path.isAbsolute(dataDir)
+    ? path.resolve(dataDir)
+    : path.resolve(projectLocation, dataDir || 'data')
+)
+
 const getBotpressVersion = () => {
   const botpressPackagePath = path.join(__dirname, '../package.json')
   const botpressJson = JSON.parse(fs.readFileSync(botpressPackagePath))
   return botpressJson.version
 }
+
+const collectArgs = (val, memo) => {
+  memo.push(val)
+  return memo
+}
+
 
 module.exports = {
   print,
@@ -78,6 +90,8 @@ module.exports = {
   isDeveloping: IS_DEV,
   resolveModuleRootPath,
   resolveProjectFile,
+  getDataLocation,
   npmCmd: NPM_CMD,
-  getBotpressVersion
+  getBotpressVersion,
+  collectArgs
 }

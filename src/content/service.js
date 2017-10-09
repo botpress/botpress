@@ -27,6 +27,7 @@ module.exports = ({ db, botfile, projectLocation, logger }) => {
     files.forEach(file => {
       try {
         const filePath = path.resolve(formDir, './' + file)
+        // eslint-disable-next-line no-eval
         const category = eval('require')(filePath) // Dynamic loading require eval for Webpack
         const requiredFields = ['id', 'title', 'jsonSchema']
 
