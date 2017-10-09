@@ -60,7 +60,7 @@ Creating a bot is simple, you need to run [`botpress init`](https://botpress.io/
 botpress init my-bot
 ```
 
-Once your bot is created, you need to run [`botpress start`](https://botpress.io/docs/reference/cli.html#init) to start your bot:
+Once your bot is created, you need to run [`botpress start`](https://botpress.io/docs/reference/cli.html#start) to start your bot:
 
 ```
 botpress start

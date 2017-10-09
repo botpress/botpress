@@ -3980,6 +3980,12 @@ moment@2.x.x, moment@^2.15.1:
   version "2.17.1"
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.17.1.tgz#fed9506063f36b10f066c8b59a144d7faebe1d82"
 
+monitorctrlc@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/monitorctrlc/-/monitorctrlc-2.0.1.tgz#46331b79ffe30973c0c0d224edcef7b986e89d54"
+  dependencies:
+    chalk "^1.1.3"
+
 ms@0.7.1:
   version "0.7.1"
   resolved "https://registry.yarnpkg.com/ms/-/ms-0.7.1.tgz#9cd13c03adbff25b65effde7ce864ee952017098"
@@ -4220,7 +4226,7 @@ nodemailer@^2.7.2:
     nodemailer-smtp-transport "2.7.2"
     socks "1.1.9"
 
-nodemon@^1.3.8:
+nodemon@^1.11.0, nodemon@^1.3.8:
   version "1.11.0"
   resolved "https://registry.yarnpkg.com/nodemon/-/nodemon-1.11.0.tgz#226c562bd2a7b13d3d7518b49ad4828a3623d06c"
   dependencies:

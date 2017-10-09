@@ -2,6 +2,8 @@ import path from 'path'
 import fs from 'fs'
 import util from '../util'
 import chalk from 'chalk'
+import nodemon from 'nodemon'
+import { monitorCtrlC } from 'monitorctrlc'
 
 /**
  * Entry point of botpress
@@ -41,6 +43,43 @@ module.exports = function(projectPath, options) {
     process.exit(1)
   }
 
-  const bot = new Botpress({ botfile })
-  bot.start()
+  const getDefaultWatchIgnore = () => {
+    const bf = eval('require')(botfile)
+    const dataDir = util.getDataLocation(bf.dataDir, projectPath)
+    const modulesConfigDir = util.getDataLocation(bf.modulesConfigDir, projectPath)
+    return [
+      dataDir,
+      modulesConfigDir,
+      'node_modules'
+    ]
+  }
+
+  const opts = options.opts()
+  if (opts.watch || opts.w) {
+    util.print('info', '*** watching files for changes ***')
+
+    const argvWithoutWatch = process.argv.filter(arg => !/^(--watch|-w)$/.test(arg))
+    const nodemonOptions = {
+      cwd: process.cwd(),
+      exec: argvWithoutWatch.join(' '),
+      ext: opts.watchExt,
+      watch: (opts.watchDir && opts.watchDir.length) ? opts.watchDir : undefined,
+      ignore: (opts.watchIgnore && opts.watchIgnore.length) ? opts.watchIgnore : getDefaultWatchIgnore(),
+      stdin: false,
+      restartable: false
+    }
+
+    const mon = nodemon(nodemonOptions)
+    mon.on('restart', (changedFile, two) => util.print('info', '*** restarting botpress because of file change: ', changedFile))
+
+    monitorCtrlC(() => {
+      mon.emit('quit')
+      setTimeout(() => process.exit(), 100)
+    })
+
+  } else {
+    const bot = new Botpress({botfile})
+    bot.start()
+  }
+
 }
