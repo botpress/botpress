@@ -13,8 +13,8 @@ module.exports = knex => {
 
   const dateParse = exp => {
     return isLite(knex)
-    ? knex.raw(`strftime('%Y-%m-%dT%H:%M:%fZ', ${exp})`)
-    : knex.raw(exp)
+      ? knex.raw(`strftime('%Y-%m-%dT%H:%M:%fZ', ${exp})`)
+      : knex.raw(exp)
   }
 
   const dateFormat = date => {
@@ -43,10 +43,10 @@ module.exports = knex => {
     // https://github.com/tgriesser/knex/issues/1303
     createTableIfNotExists: (tableName, cb) => {
       return knex.schema.hasTable(tableName)
-      .then(exists => {
-        if (exists) { return }
-        return knex.schema.createTableIfNotExists(tableName, cb)
-      })
+        .then(exists => {
+          if (exists) { return }
+          return knex.schema.createTableIfNotExists(tableName, cb)
+        })
     },
 
     date: {

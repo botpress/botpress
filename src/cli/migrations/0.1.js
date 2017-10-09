@@ -12,7 +12,7 @@ module.exports = bot_path => {
   const dbLocation = path.resolve(path.join(bot_path, botfile.dataDir, 'db.sqlite'))
 
   return migrate_database_schema(dbLocation)
-  .then(() => migrate_botfile(botfilePath))
+    .then(() => migrate_botfile(botfilePath))
 }
 
 
@@ -31,55 +31,55 @@ function migrate_database_schema(dbLocation) {
     table.string('first_name')
     table.string('last_name')
   })
-  .then(() => knex('users').update({ created_on: knex.raw(updateUsers) }))
-  .then(rows => {
-    util.print('info', 'Updated ' + rows + ' users')
-    util.print('warn', 'Users table was migrated to new schema but existing '
+    .then(() => knex('users').update({ created_on: knex.raw(updateUsers) }))
+    .then(rows => {
+      util.print('info', 'Updated ' + rows + ' users')
+      util.print('warn', 'Users table was migrated to new schema but existing '
       + 'users will miss the following fields: `picture_url`, `first_name`, '
       + '`last_name`. They have been left to `null`.')
-  })
-  .catch(() => {
-    util.print('warn', 'Did not migrate table `users` as schema was already up to date')
-  })
-  .then(() => kvs(knex).bootstrap())
-  .catch(() => {
-    util.print('warn', 'Did not create table `kvs` as schema was already up to date')
-  })
-  .then(() => {
+    })
+    .catch(() => {
+      util.print('warn', 'Did not migrate table `users` as schema was already up to date')
+    })
+    .then(() => kvs(knex).bootstrap())
+    .catch(() => {
+      util.print('warn', 'Did not create table `kvs` as schema was already up to date')
+    })
+    .then(() => {
 
-    if (!process.env.DELETE_TABLES) {
-      util.print('warn', "This migration must delete the tables of "
+      if (!process.env.DELETE_TABLES) {
+        util.print('warn', "This migration must delete the tables of "
         + "the following modules: `botpress-scheduler`, `botpress-analytics`, "
         + "`botpress-hitl` and `botpress-subscription`.")
 
-      util.print('warn', "This step has been skipped because you didn't provide "
+        util.print('warn', "This step has been skipped because you didn't provide "
         + "the DELETE_TABLES=true environement variable.")
 
-      util.print('warn', "Please backup your data if necessary then re-run with DELETE_TABLES=true")
-      return false
-    }
+        util.print('warn', "Please backup your data if necessary then re-run with DELETE_TABLES=true")
+        return false
+      }
 
-    return dropTableIfExists(knex, 'analytics_interactions')
-    .then(() => dropTableIfExists(knex, 'analytics_runs'))
-    .then(() => dropTableIfExists(knex, 'broadcast_outbox'))
-    .then(() => dropTableIfExists(knex, 'broadcast_schedules'))
-    .then(() => dropTableIfExists(knex, 'hitl_messages'))
-    .then(() => dropTableIfExists(knex, 'hitl_sessions'))
-    .then(() => dropTableIfExists(knex, 'subscription_users'))
-    .then(() => dropTableIfExists(knex, 'subscriptions'))
-    .then(() => dropTableIfExists(knex, 'scheduler_schedules'))
-    .then(() => dropTableIfExists(knex, 'scheduler_tasks'))
-    .then(() => util.print('info', 'Dropped module tables'))
-  })
+      return dropTableIfExists(knex, 'analytics_interactions')
+        .then(() => dropTableIfExists(knex, 'analytics_runs'))
+        .then(() => dropTableIfExists(knex, 'broadcast_outbox'))
+        .then(() => dropTableIfExists(knex, 'broadcast_schedules'))
+        .then(() => dropTableIfExists(knex, 'hitl_messages'))
+        .then(() => dropTableIfExists(knex, 'hitl_sessions'))
+        .then(() => dropTableIfExists(knex, 'subscription_users'))
+        .then(() => dropTableIfExists(knex, 'subscriptions'))
+        .then(() => dropTableIfExists(knex, 'scheduler_schedules'))
+        .then(() => dropTableIfExists(knex, 'scheduler_tasks'))
+        .then(() => util.print('info', 'Dropped module tables'))
+    })
 }
 
 function dropTableIfExists(knex, tableName) {
   return knex.schema.hasTable(tableName)
-  .then(has => {
-    if (has) {
-      return knex.schema.dropTable(tableName)
-    }
-  })
+    .then(has => {
+      if (has) {
+        return knex.schema.dropTable(tableName)
+      }
+    })
 }
 
 function migrate_botfile(botfilePath) {

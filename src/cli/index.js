@@ -22,9 +22,23 @@ program
   .alias('s')
   .description('Starts running a bot')
   .option('-w, --watch', 'Watch bot for changes, and restart automatically')
-  .option('--watchExt <extensions>', `When watching, which file extensions to watch. Default: "${defaultWatchExt}"`, defaultWatchExt)
-  .option('--watchDir <dir>', `When watching, what to watch. Can be repeated. Default: Directory of botfile.js`, collectArgs, [])
-  .option('--watchIgnore <file|dir>', `When watching, what to ignore. Can be repeated. Default: dataDir, watchExt from botfile.js, and node_modules`, collectArgs, [])
+  .option(
+    '--watchExt <extensions>',
+    `When watching, which file extensions to watch. Default: "${defaultWatchExt}"`,
+    defaultWatchExt
+  )
+  .option(
+    '--watchDir <dir>',
+    `When watching, what to watch. Can be repeated. Default: Directory of botfile.js`,
+    collectArgs,
+    []
+  )
+  .option(
+    '--watchIgnore <file|dir>',
+    `When watching, what to ignore. Can be repeated. Default: dataDir, watchExt from botfile.js, and node_modules`,
+    collectArgs,
+    []
+  )
   .action(start)
 
 program

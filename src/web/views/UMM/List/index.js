@@ -4,7 +4,7 @@ import classnames from 'classnames'
 import {
   FormGroup,
   FormControl
- } from 'react-bootstrap'
+} from 'react-bootstrap'
 
 const style = require('./style.scss')
 
