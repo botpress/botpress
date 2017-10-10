@@ -3,7 +3,7 @@ import reactor from '~/reactor'
 import actionTypes from '~/actions/actionTypes'
 
 const {
-	RULES_RECEIVED
+  RULES_RECEIVED
 } = actionTypes
 
 const fetchRules = () => {

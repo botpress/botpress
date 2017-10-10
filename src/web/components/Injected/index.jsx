@@ -46,8 +46,8 @@ export default class InjectedComponent extends Component {
       const element = <div className="panel panel-danger">
         <div className="panel-heading">Could not display component</div>
         <div className="panel-body">
-            <h4>An error occurred while loading the component</h4>
-            <p>{err.message}</p>
+          <h4>An error occurred while loading the component</h4>
+          <p>{err.message}</p>
         </div>
         {/* TODO Put documentation / help here */}
         <div className="panel-footer">

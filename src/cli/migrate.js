@@ -25,12 +25,12 @@ module.exports = function(fromVersion) {
   return Promise.mapSeries(toApply, file => {
     const migration = require('./migrations/' + file)
     return migration(path.resolve('.'))
-    .then(() => {
-      util.print('success', `Migration ${file.replace('.js', '')} applied successfully`)
+      .then(() => {
+        util.print('success', `Migration ${file.replace('.js', '')} applied successfully`)
+      })
+  })
+    .finally(() => {
+      util.print('success', 'Migration completed.')
+      process.exit(0)
     })
-  })
-  .finally(() => {
-    util.print('success', 'Migration completed.')
-    process.exit(0)
-  })
 }

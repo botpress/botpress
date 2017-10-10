@@ -39,10 +39,10 @@ describe('configurator', function() {
 
     it('throws if invalid name', function() {
       const fns = [
-          () => createConfig({ kvs, name: '' }),
-          () => createConfig({ kvs, name: null }),
-          () => createConfig({ kvs, name: 'botpress-#$' })
-        ]
+        () => createConfig({ kvs, name: '' }),
+        () => createConfig({ kvs, name: null }),
+        () => createConfig({ kvs, name: 'botpress-#$' })
+      ]
 
       _.each(fns, fn => expect(fn).to.throw(/invalid configuration name/i))
     })
@@ -87,13 +87,13 @@ describe('configurator', function() {
       }
 
       const fns = [
-          () => createConfig(createWith({ type: 'string', default: false })),
-          () => createConfig(createWith({ type: 'string', default: null })),
-          () => createConfig(createWith({ type: 'string', default: 'hello', validation: () => false })),
-          () => createConfig(createWith({ type: 'bool', default: '' })),
-          () => createConfig(createWith({ type: 'choice', default: null })),
-          () => createConfig(createWith({ type: 'choice', validation: ['A', 'B'], default: 'C' }))
-        ]
+        () => createConfig(createWith({ type: 'string', default: false })),
+        () => createConfig(createWith({ type: 'string', default: null })),
+        () => createConfig(createWith({ type: 'string', default: 'hello', validation: () => false })),
+        () => createConfig(createWith({ type: 'bool', default: '' })),
+        () => createConfig(createWith({ type: 'choice', default: null })),
+        () => createConfig(createWith({ type: 'choice', validation: ['A', 'B'], default: 'C' }))
+      ]
 
       _.each(fns, fn => expect(fn).to.throw(/invalid default value/i))
     })

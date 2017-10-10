@@ -27,7 +27,7 @@ module.exports = function(argument, options) {
       return Promise.fromCallback(function (callback) {
         prompt.get(schema, callback)
       })
-      .then((result) => result.keyword)
+        .then((result) => result.keyword)
 
     }
   })
@@ -38,5 +38,5 @@ module.exports = function(argument, options) {
 
   getKeywords(argument)
 
-  .then(printResult)
+    .then(printResult)
 }
