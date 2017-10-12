@@ -51,7 +51,12 @@ export default class Toolbar extends Component {
 
           <div className={style.separator} />
 
-          <Button className={style.btn} bsStyle="default" disabled={!hasUnsavedChanges}>
+          <Button
+            className={style.btn}
+            bsStyle="default"
+            // disabled={!hasUnsavedChanges}
+            onClick={() => this.props.onSaveFlow && this.props.onSaveFlow()}
+          >
             <OverlayTrigger placement="bottom" overlay={createTooltip('save', 'Save')}>
               <i className="material-icons">save</i>
             </OverlayTrigger>
