@@ -8,6 +8,7 @@ import PageHeader from '~/components/Layout/PageHeader'
 
 import Toolbar from './toolbar'
 import Diagram from './diagram'
+import SidePanel from './sidePanel'
 
 const style = require('./style.scss')
 
@@ -15,7 +16,8 @@ export default class FlowBuilder extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      flowName: 'Untitled Flow'
+      flowName: 'Untitled Flow',
+      selectedNode: null
     }
   }
 
@@ -64,9 +66,31 @@ export default class FlowBuilder extends Component {
             onKeyDown={::this.onFlowNameKey}
           />
         </PageHeader>
-        <Toolbar />
-        <div className={style.diagram}>
-          <Diagram />
+        <Toolbar
+          onSaveFlow={() => {
+            console.log('Save Flow', this.diagram)
+            const json = this.diagram.serialize()
+            console.log(json)
+          }}
+        />
+        <div className={style.workspace}>
+          <div className={classnames(style.sidePanel, 'pull-left')}>
+            <SidePanel ref={e => (this.sidePanel = e)} selectedNode={this.state.selectedNode} />
+          </div>
+          <div
+            className={classnames(style.diagram, 'pull-right')}
+            onClick={() => {
+              const node = this.diagram.getSelectedNode()
+              console.log('Selected node --->', node)
+              if (this.state.selectedNode !== node) {
+                this.setState({
+                  selectedNode: node
+                })
+              }
+            }}
+          >
+            <Diagram ref={e => (this.diagram = e)} />
+          </div>
         </div>
       </ContentWrapper>
     )
