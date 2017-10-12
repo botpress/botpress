@@ -56,19 +56,19 @@ module.exports = (knex, options = {}) => {
     }
 
     return get(key)
-    .then(original => {
-      return getSetCallback()
-      .then(() => {
-        if (!_.isNil(original)) {
-          const newObj = setValue(Object.assign({}, original))
-          return _set(key, newObj, 'update')
-        } else {
-          const obj = setValue({})
-          return _set(key, obj, 'insert')
-          .catch(() => _set(key, obj, 'update'))
-        }
+      .then(original => {
+        return getSetCallback()
+          .then(() => {
+            if (!_.isNil(original)) {
+              const newObj = setValue(Object.assign({}, original))
+              return _set(key, newObj, 'update')
+            } else {
+              const obj = setValue({})
+              return _set(key, obj, 'insert')
+                .catch(() => _set(key, obj, 'update'))
+            }
+          })
       })
-    })
   }
 
   const bootstrap = () => {

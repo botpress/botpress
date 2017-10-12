@@ -45,6 +45,7 @@ module.exports = function(projectPath, options) {
   }
 
   const getDefaultWatchIgnore = () => {
+    // eslint-disable-next-line no-eval
     const bf = eval('require')(botfile)
     const dataDir = util.getDataLocation(bf.dataDir, projectPath)
     const modulesConfigDir = util.getDataLocation(bf.modulesConfigDir, projectPath)
@@ -71,7 +72,11 @@ module.exports = function(projectPath, options) {
     }
 
     const mon = nodemon(nodemonOptions)
-    mon.on('restart', (changedFile, two) => util.print('info', '*** restarting botpress because of file change: ', changedFile))
+    mon.on(
+      'restart',
+      (changedFile, two) =>
+        util.print('info', '*** restarting botpress because of file change: ', changedFile)
+    )
 
     monitorCtrlC(() => {
       mon.emit('quit')
@@ -79,7 +84,7 @@ module.exports = function(projectPath, options) {
     })
 
   } else {
-    const bot = new Botpress({botfile})
+    const bot = new Botpress({ botfile })
     bot.start()
   }
 

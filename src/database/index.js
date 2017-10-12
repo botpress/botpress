@@ -85,23 +85,23 @@ module.exports = ({ sqlite, postgres }) => {
     }
 
     return getDb()
-    .then(knex => {
-      var query = knex('users').insert(userRow)
-      .where(function() {
-        return this
-          .select(knex.raw(1))
-          .from('users')
-          .where('id', '=', userId)
+      .then(knex => {
+        var query = knex('users').insert(userRow)
+          .where(function() {
+            return this
+              .select(knex.raw(1))
+              .from('users')
+              .where('id', '=', userId)
+          })
+
+        if (postgres.enabled) {
+          query = `${query} on conflict (id) do nothing`
+        } else { // SQLite
+          query = query.toString().replace(/^insert/i, 'insert or ignore')
+        }
+
+        return knex.raw(query)
       })
-
-      if (postgres.enabled) {
-        query = `${query} on conflict (id) do nothing`
-      } else { // SQLite
-        query = query.toString().replace(/^insert/i, 'insert or ignore')
-      }
-
-      return knex.raw(query)
-    })
   }
 
   let kvs_instance = null
@@ -124,13 +124,13 @@ module.exports = ({ sqlite, postgres }) => {
   const kvsGet = function() {
     const args = arguments
     return getKvs()
-    .then(instance => instance.get.apply(null, args))
+      .then(instance => instance.get.apply(null, args))
   }
 
   const kvsSet = function() {
     const args = arguments
     return getKvs()
-    .then(instance => instance.set.apply(null, args))
+      .then(instance => instance.set.apply(null, args))
   }
 
   return {

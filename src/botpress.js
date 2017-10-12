@@ -264,7 +264,7 @@ class botpress {
     }
 
     if (cluster.isWorker) {
-      process.send({workerStatus: 'starting'})
+      process.send({ workerStatus: 'starting' })
       this._start()
     }
   }

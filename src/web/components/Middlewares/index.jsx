@@ -115,7 +115,7 @@ export default class MiddlewaresComponent extends Component {
 
   componentDidMount() {
     axios.get('/api/middlewares')
-    .then(({ data }) => this.setMiddlewares(data))
+      .then(({ data }) => this.setMiddlewares(data))
   }
 
   handleSort(type) {
@@ -192,7 +192,7 @@ export default class MiddlewaresComponent extends Component {
     }
 
     axios.post('/api/middlewares/customizations', { middlewares })
-    .then(({ data }) => this.setMiddlewares(data))
+      .then(({ data }) => this.setMiddlewares(data))
   }
 
   toggleEnabled(middleware, type) {
@@ -224,7 +224,7 @@ export default class MiddlewaresComponent extends Component {
     const tooltip = <Tooltip id='header-outgoing-tooltip'>An outgoing middleware is a message processor&nbsp;
     that has the potential to track, alter or swallow messages to be sent.&nbsp;
     Usually, messages are put (sent) into the outgoing middleware queue by user code or incoming modules.&nbsp;
-    <strong>Connector modules</strong> are in charge of sending the messages to the users, thus they should&nbsp;
+      <strong>Connector modules</strong> are in charge of sending the messages to the users, thus they should&nbsp;
     usually be placed at the end of the chain.</Tooltip>
 
     const title = 'Outgoing middleware'

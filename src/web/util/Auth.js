@@ -46,14 +46,14 @@ export const logout = () => {
 
 export const login = (user, password) => {
   return axios.post('/api/login', { user, password })
-  .then((result) => {
-    if (result.data.success) {
-      setToken(result.data.token)
-      authEvents.emit('login')
-    } else {
-      throw new Error(result.data.reason)
-    }
-  })
+    .then((result) => {
+      if (result.data.success) {
+        setToken(result.data.token)
+        authEvents.emit('login')
+      } else {
+        throw new Error(result.data.reason)
+      }
+    })
 }
 
 export const getUniqueVisitorId = () => {

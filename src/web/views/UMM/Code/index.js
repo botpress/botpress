@@ -54,8 +54,8 @@ export default class CodeView extends Component {
     })
 
     return <div className={classNames}>
-        {this.renderEditor()}
-      </div>
+      {this.renderEditor()}
+    </div>
   }
 }
 
