@@ -1,0 +1,28 @@
+.node :global(.panel-heading) {
+  text-transform: none;
+  padding: 10px 5px;
+
+  :global(.panel-title) {
+    font-weight: 500;
+    font-size: 13px;
+  }
+}
+
+.node h4 {
+  color: #333;
+  font-weight: 500;
+  margin-top: 3px;
+}
+
+.addAction {
+  width: 100%;
+}
+
+.actions {
+  margin-top: 10px;
+  width: 100%;
+
+  button {
+    border-radius: 3px;
+  }
+}
