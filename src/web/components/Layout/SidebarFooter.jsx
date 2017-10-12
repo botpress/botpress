@@ -65,8 +65,8 @@ class SidebarFooter extends Component {
 
     if (limit && limit.get('progress')) {
       return <div className={progressClassNames}>
-          <div style={usedStyle} className={usedClassNames}></div>
-        </div>
+        <div style={usedStyle} className={usedClassNames}></div>
+      </div>
     }
 
     return null
@@ -85,9 +85,9 @@ class SidebarFooter extends Component {
     })
 
     return <div className={statusClassNames}>
-        <div className={dotClassNames}></div>
-        {message}
-      </div>
+      <div className={dotClassNames}></div>
+      {message}
+    </div>
   }
 
   renderLicenseStatus() {
@@ -136,8 +136,8 @@ class SidebarFooter extends Component {
     })
 
     return <Link className={classNames} to='#' title='License' onClick={::this.openLicenseComponent}>
-        {license}
-      </Link>
+      {license}
+    </Link>
   }
 
   renderAllLicenseElements() {
@@ -146,11 +146,11 @@ class SidebarFooter extends Component {
     }
 
     return <div>
-        {this.renderLicense()}
-        {this.renderProgressBar()}
-        {this.renderLicenseStatus()}
-        {this.renderBuyLink()}
-      </div>
+      {this.renderLicense()}
+      {this.renderProgressBar()}
+      {this.renderLicenseStatus()}
+      {this.renderBuyLink()}
+    </div>
   }
 
   render() {

@@ -41,8 +41,8 @@ class ModuleComponent extends Component {
     }
     this.setState({ loading: true })
     axios.post('/api/module/install/' + this.props.module.name)
-    .then(fin)
-    .catch(fin)
+      .then(fin)
+      .catch(fin)
   }
 
   handleUninstall() {
@@ -52,9 +52,9 @@ class ModuleComponent extends Component {
     }
     this.setState({ loading: true })
     axios.delete('/api/module/uninstall/' + this.props.module.name)
-    .then()
-    .then(fin)
-    .catch(fin)
+      .then()
+      .then(fin)
+      .catch(fin)
   }
 
   renderLeftSideModule() {

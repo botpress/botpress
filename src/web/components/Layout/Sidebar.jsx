@@ -103,13 +103,13 @@ class Sidebar extends Component {
     const className = this.getActiveClassNames(isAt(activePaths))
 
     return <RulesChecker res={rule.res} op={rule.op}>
-        <li className={className} key={path}>
-          <Link to={path} title={name}>
-            <i className="icon material-icons">{icon}</i>
-            {name}
-          </Link>
-        </li>
-      </RulesChecker>
+      <li className={className} key={path}>
+        <Link to={path} title={name}>
+          <i className="icon material-icons">{icon}</i>
+          {name}
+        </Link>
+      </li>
+    </RulesChecker>
   }
 
   render() {

@@ -35,28 +35,28 @@ export default class DashboardView extends React.Component {
 
   componentDidMount() {
     this.queryAllModules()
-    .then(() => {
-      this.setState({
-        loading: false
+      .then(() => {
+        this.setState({
+          loading: false
+        })
       })
-    })
   }
 
   queryAllModules() {
     return axios.get('/api/module/all')
-    .then((result) => {
-      this.setState({
-        popularModules: _.filter(result.data, m => m.popular),
-        featuredModules: _.filter(result.data, m => m.featured),
+      .then((result) => {
+        this.setState({
+          popularModules: _.filter(result.data, m => m.popular),
+          featuredModules: _.filter(result.data, m => m.featured),
+        })
       })
-    })
   }
 
   refresh() {
     this.queryAllModules()
-    .then(() => {
-      setTimeout(actions.fetchModules, 5000)
-    })
+      .then(() => {
+        setTimeout(actions.fetchModules, 5000)
+      })
   }
 
   renderPopularModules() {

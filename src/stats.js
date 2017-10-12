@@ -9,16 +9,16 @@ module.exports = (botfile) => {
   let queued = []
 
   machineId()
-  .catch(() => {
-    const hash = crypto.createHash('sha256')
-    hash.update(os.arch() + os.hostname() + os.platform() + os.type())
-    return hash.digest('hex')
-  })
-  .then(mid => {
-    visitor = ua('UA-90044826-1', mid, { strictCidFormat: false })
-    queued.forEach(a => a())
-    queued = []
-  })
+    .catch(() => {
+      const hash = crypto.createHash('sha256')
+      hash.update(os.arch() + os.hostname() + os.platform() + os.type())
+      return hash.digest('hex')
+    })
+    .then(mid => {
+      visitor = ua('UA-90044826-1', mid, { strictCidFormat: false })
+      queued.forEach(a => a())
+      queued = []
+    })
 
   const track = (category, action, label = null, value = null) => {
     if (!!botfile.optOutStats) {

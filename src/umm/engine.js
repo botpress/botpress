@@ -107,8 +107,8 @@ const mapBlocs = (rawBlocs, options, processors, incomingEvent) => {
 
     if (!_.isNil(instruction.typing)) {
       instruction.typing = _.isString(instruction.typing)
-          ? ms(instruction.typing || 1000)
-          : (parseInt(instruction.typing) || 1000)
+        ? ms(instruction.typing || 1000)
+        : (parseInt(instruction.typing) || 1000)
     }
 
     const raw = _.omit(instruction, ['unless', 'if', 'on', 'wait'])

@@ -47,11 +47,11 @@ export default class UMMView extends Component {
 
   fetchListOfTools() {
     return axios.get('/api/umm/tools')
-    .then((res) => {
-      this.setState({
-        tools: res.data
+      .then((res) => {
+        this.setState({
+          tools: res.data
+        })
       })
-    })
   }
 
   fetchBlocks() {
@@ -59,11 +59,11 @@ export default class UMMView extends Component {
     const platform = 'messenger'
 
     return axios.post('/api/umm/preview', { document, platform })
-    .then((res) => {
-      this.setState({
-        ...res.data
+      .then((res) => {
+        this.setState({
+          ...res.data
+        })
       })
-    })
   }
 
   refreshPreview() {

@@ -23,18 +23,18 @@ export default class HeroComponent extends React.Component {
 
   componentDidMount() {
     this.queryHero()
-    .then(() => {
-      this.setState({ loading: false })
-    })
+      .then(() => {
+        this.setState({ loading: false })
+      })
   }
 
   queryHero() {
     return axios.get('/api/module/hero')
-    .then((result) => {
-      this.setState({
-        ...result.data
+      .then((result) => {
+        this.setState({
+          ...result.data
+        })
       })
-    })
   }
 
   renderUsername() {
@@ -65,25 +65,25 @@ export default class HeroComponent extends React.Component {
         These are people randomly selected from the list of contributors&nbsp;
         to various open-source components of the botpress ecosystem.&nbsp;
         We feel they deserve to be publicly recognized for their contributions.
-      </Tooltip>
+    </Tooltip>
 
     return <div className={classnames(style.heroContainer, 'bp-hero')}>
-        <div className={classnames(style.heroInfo, 'bp-info')}>
-          <OverlayTrigger placement="left" overlay={heroTooltip}>
-            <i className="material-icons">info</i>
-          </OverlayTrigger>
-        </div>
-        <Panel className={classnames(style.contribution, 'bp-contribution')}>
-          <div className={classnames(style.raysAnim, 'bp-rays-anim')}>
-            <div className={classnames(style.rays, 'bp-rays')}></div>
-          </div>
-          <div className={classnames(style.root, 'bp-root')}>
-            <div className={classnames(style.contributionContent, 'bp-content')}>
-              <img src={this.state.avatar}/>
-              {this.renderPhrase()}
-            </div>
-          </div>
-        </Panel>
+      <div className={classnames(style.heroInfo, 'bp-info')}>
+        <OverlayTrigger placement="left" overlay={heroTooltip}>
+          <i className="material-icons">info</i>
+        </OverlayTrigger>
       </div>
+      <Panel className={classnames(style.contribution, 'bp-contribution')}>
+        <div className={classnames(style.raysAnim, 'bp-rays-anim')}>
+          <div className={classnames(style.rays, 'bp-rays')}></div>
+        </div>
+        <div className={classnames(style.root, 'bp-root')}>
+          <div className={classnames(style.contributionContent, 'bp-content')}>
+            <img src={this.state.avatar}/>
+            {this.renderPhrase()}
+          </div>
+        </div>
+      </Panel>
+    </div>
   }
 }
