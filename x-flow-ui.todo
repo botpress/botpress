@@ -2,6 +2,12 @@ Server:
   - Serve flows endpoint
     - flows location (botfile -> defaults to /flows/**.flow.json and /flows/**.meta.json )
     - getFlowMetadata() -> Generate initial metadata if absent
+    - (later) If production, load flow from database if most recent
+
+  - Save flow (id -> meta + data)
+    - (later) Validate actionsk & conditions are valid
+    - Save to files + timestamp + version
+    - (later) If in production, save modifications to database
 
 Architecture:
   - Split the Workspace
