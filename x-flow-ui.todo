@@ -3,7 +3,10 @@ Architecture:
   ✔ Use a Flux library to dispatch actions / Display store content @done (17-10-13 16:25)
     ✔ Redux @done (17-10-13 16:25)
     ✔ Store { flowsById: { '3877455-322234': {} }, currentFlow: '488834-23334' } @done (17-10-13 16:25)
-
+    - Fetch Flows
+    - Current Flow
+    - Switch Flow
+    - Switch Node
 
 Side Panel:
   - Add Action
@@ -49,6 +52,7 @@ Flow:
     - Prompt if unsaved changes before change flow
     - Default name (unnamed flow)
   - Keep unsaved changes in local storage
+  - Error when two outgoing links from same Condition node
 
 File Explorator:
   - On Main panel when Selected = None
