@@ -1,3 +1,9 @@
+Server:
+  - Serve flows endpoint
+    - flows location (botfile -> defaults to /flows/**.flow.json and /flows/**.meta.json )
+    - getFlowMetadata() -> Generate initial metadata if absent
+    - 
+
 Architecture:
   - Split the Workspace
   ✔ Use a Flux library to dispatch actions / Display store content @done (17-10-13 16:25)
