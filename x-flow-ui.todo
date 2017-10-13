@@ -2,7 +2,6 @@ Server:
   - Serve flows endpoint
     - flows location (botfile -> defaults to /flows/**.flow.json and /flows/**.meta.json )
     - getFlowMetadata() -> Generate initial metadata if absent
-    - 
 
 Architecture:
   - Split the Workspace
