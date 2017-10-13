@@ -5,6 +5,8 @@ import _ from 'lodash'
 
 import { Row, Col, Panel, Button } from 'react-bootstrap'
 
+import ActionItem from '../common/action'
+
 const style = require('./style.scss')
 
 export default class SidePanel extends Component {
@@ -24,10 +26,18 @@ export default class SidePanel extends Component {
     }
   }
 
+  addAction(property, action) {
+    const { node } = this.props
+    if (!_.isArray(node[property])) {
+      node[property] = []
+    }
+
+    node[property].push(action)
+    // TODO Refresh UI
+  }
+
   render() {
     const { node } = this.props
-
-    const getActionStyle = item => (item.startsWith('@') ? style.msg : style.fn)
 
     return (
       <div className={classnames(style.node, style['standard-node'])}>
@@ -35,11 +45,15 @@ export default class SidePanel extends Component {
 
         <Panel style={style['section-onEnter']} collapsible defaultExpanded={this.state.onEnterOpen} header="On enter">
           {node.onEnter &&
-            node.onEnter.map(item => {
-              return <div className={getActionStyle(item)}>{item}</div>
-            })}
+            node.onEnter.map(item => (
+              <ActionItem className={style.item} text={item}>
+                <div className={style.remove}>
+                  <a href="#">Remove</a>
+                </div>
+              </ActionItem>
+            ))}
           <div className={style.actions}>
-            <Button className={style.addAction}>Add action</Button>
+            <Button className={style.addAction}>Add action (Alt+q)</Button>
           </div>
         </Panel>
 
@@ -49,22 +63,16 @@ export default class SidePanel extends Component {
           defaultExpanded={this.state.onReceiveOpen}
           header="On receive"
         >
-          {node.onReceive &&
-            node.onReceive.map(item => {
-              return <div className={getActionStyle(item)}>{item}</div>
-            })}
+          {node.onReceive && node.onReceive.map(item => <ActionItem className={style.item} text={item} />)}
           <div className={style.actions}>
-            <Button className={style.addAction}>Add action</Button>
+            <Button className={style.addAction}>Add action (Alt+w)</Button>
           </div>
         </Panel>
 
         <Panel style={style['section-next']} collapsible defaultExpanded={this.state.nextOpen} header="Next node">
-          {node.next &&
-            node.next.map(item => {
-              return <div>{item.condition}</div>
-            })}
+          {node.next && node.next.map(item => <ActionItem className={style.item} text={item.condition} />)}
           <div className={style.actions}>
-            <Button className={style.addAction}>Add condition</Button>
+            <Button className={style.addAction}>Add condition (Alt+e)</Button>
           </div>
         </Panel>
       </div>

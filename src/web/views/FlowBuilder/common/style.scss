@@ -1,0 +1,15 @@
+.action-item {
+  &.fn {
+    font-size: 90%;
+    color: blue;
+  }
+
+  &.msg {
+    font-size: 90%;
+    color: #1cbd57;
+  }
+
+  .icon {
+    margin-right: 8px;
+  }
+}

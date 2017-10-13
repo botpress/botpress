@@ -8,6 +8,27 @@
   }
 }
 
+.item {
+  padding: 5px 0;
+
+  .remove {
+    display: none;
+  }
+
+  &:hover {
+    background: #fefefe;
+    color: red;
+
+    .remove {
+      display: block;
+    }
+  }
+}
+
+.item + .item {
+  border-top: 1px solid #f9f9f9;
+}
+
 .node h4 {
   color: #333;
   font-weight: 500;

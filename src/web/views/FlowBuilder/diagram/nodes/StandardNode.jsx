@@ -5,35 +5,43 @@ import _ from 'lodash'
 
 const { PortWidget, NodeModel, PortModel, NodeWidgetFactory } = require('storm-react-diagrams')
 
+import ActionItem from '../../common/action'
+
 const style = require('./style.scss')
 
 export class StandardIncomingPortModel extends PortModel {
-  constructor(name) {
+  constructor(name, type = 'normal') {
     super(name)
+    this.type = type
   }
 
   serialize() {
-    return _.merge(super.serialize(), {})
+    return _.merge(super.serialize(), {
+      type: this.type
+    })
   }
 
   deSerialize(data) {
     super.deSerialize(data)
-    // this.position = data.position
+    this.type = data.type
   }
 }
 
 export class StandardOutgoingPortModel extends PortModel {
-  constructor(name) {
+  constructor(name, type = 'normal') {
     super(name)
+    this.type = type
   }
 
   serialize() {
-    return _.merge(super.serialize(), {})
+    return _.merge(super.serialize(), {
+      type: this.type
+    })
   }
 
   deSerialize(data) {
     super.deSerialize(data)
-    // this.position = data.position
+    this.type = data.type
   }
 }
 
@@ -44,6 +52,17 @@ export class StandardWidgetFactory extends NodeWidgetFactory {
 
   generateReactWidget(diagramEngine, node) {
     return StandardNodeWidgetFactory({ node: node })
+  }
+}
+
+export class StandardPortWidget extends React.Component {
+  render() {
+    const className = classnames(this.props.className, {
+      [style.inputPort]: this.props.node.ports[this.props.name].type === 'entry',
+      [style.exitPort]: this.props.node.ports[this.props.name].type === 'exit'
+    })
+
+    return <PortWidget {...this.props} className={className} />
   }
 }
 
@@ -66,33 +85,31 @@ export class StandardNodeWidget extends React.Component {
     return (
       <div className={style['standard-node']}>
         <div className={style.topPort}>
-          <PortWidget name="in" node={node} />
+          <StandardPortWidget name="in" node={node} />
         </div>
         <div className={style.header} />
         <div className={style.content}>
           <div className={classnames(style['section-onEnter'], style.section)}>
             {node.onEnter &&
               node.onEnter.map(item => {
-                return <div className={classnames(style.item, getElementCls(item))}>{item}</div>
+                return <ActionItem className={style.item} text={item} />
               })}
           </div>
           <div className={classnames(style['section-title'], style.section)}>{node.name}</div>
           <div className={classnames(style['section-onReceive'], style.section)}>
             {node.onReceive &&
               node.onReceive.map(item => {
-                return <div className={classnames(style.item, getElementCls(item))}>{item}</div>
+                return <ActionItem className={style.item} text={item} />
               })}
           </div>
           <div className={classnames(style['section-next'], style.section)}>
             {node.next &&
               node.next.map((item, i) => {
                 const outputPortName = `out${i}`
-                console.log(item)
-
                 return (
-                  <div className={classnames(style.item, style.fn)}>
-                    <div className="">{item.condition}</div>
-                    <PortWidget name={outputPortName} node={node} />
+                  <div className={classnames(style.item)}>
+                    <ActionItem className="" text={item.condition} />
+                    <StandardPortWidget name={outputPortName} node={node} />
                   </div>
                 )
               })}
@@ -113,7 +130,8 @@ export class StandardNodeModel extends NodeModel {
 
     // We create as many output port as needed
     for (var i = 0; i < next.length; i++) {
-      this.addPort(new StandardOutgoingPortModel('out' + i))
+      const nodeType = next[i].node.startsWith('#') ? 'exit' : 'normal'
+      this.addPort(new StandardOutgoingPortModel('out' + i, nodeType))
     }
 
     if (_.isString(onEnter)) {
