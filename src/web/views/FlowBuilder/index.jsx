@@ -7,7 +7,7 @@ import SplitPane from 'react-split-pane'
 import ContentWrapper from '~/components/Layout/ContentWrapper'
 import PageHeader from '~/components/Layout/PageHeader'
 
-import Toolbar from './toolbar'
+import Toolbar from './containers/toolbar'
 import Diagram from './diagram'
 import SidePanel from './sidePanel'
 

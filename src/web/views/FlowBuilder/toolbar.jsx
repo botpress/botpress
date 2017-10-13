@@ -43,7 +43,14 @@ export default class Toolbar extends Component {
             </OverlayTrigger>
           </Button>
 
-          <Button className={style.btn} bsStyle="default">
+          <Button
+            className={style.btn}
+            bsStyle="default"
+            onClick={() => {
+              console.log(this.props)
+              this.props.fetchFlows()
+            }}
+          >
             <OverlayTrigger placement="bottom" overlay={createTooltip('search', 'Search flows')}>
               <i className="material-icons">search</i>
             </OverlayTrigger>
