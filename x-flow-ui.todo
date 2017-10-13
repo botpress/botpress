@@ -1,0 +1,61 @@
+Architecture:
+  - Split the Workspace
+  - Use a Flux library to dispatch actions / Display store content
+
+Side Panel:
+  - Add Action
+    - Invoke Action
+    - Message Action
+      - Support for mustaches {{var}}
+        - Provide auto-complete, based on preview flow runs
+      - Support for UMM Templating
+        - UMM Definitions in comments
+    - Lightweight Modal
+    - (Later) Validation of the name of the function to remote server
+  - Delete Action
+  - Re-order Actions
+  - Add Condition
+    - Box with pure Javascript condition
+    - (Later) Past state data suggestion
+  - Rename Node (Instant rename + update everywhere)
+    - (Later) Alert that other flows make reference to this node, do you want to rename them as well?
+  - Delete Node (at the bottom, red danger button with a confirm dialog)
+
+Toolbar:
+  - Add new node
+    - Give it a default name
+    - Mode = Insert | Change cursor
+    - Click = insert on the actual workspace
+    - ESC = Cancel, Red button (CANCEL) at the top left corner too
+  - Add call to external flow
+    - Save as above
+    - Side Panel, select the external node
+      - Optionally, specify the entry point (defaults to "default")
+  - Copy & Paste of a node to the flow
+    - Paste = Mode = Insert | Change Cursor
+
+Flow:
+  - Keep track of pending changes
+    - Undo to previous version
+    - Redo to restore
+  - Save changes (submit changes to the server)
+    - WARN: We need to keep track of nodes by Id and not by name since name can change
+    - Submit the nodes + values + metadata [x,y]
+    - Submit the links + values + metadata [points]
+  - Create a new flow (unsaved)
+    - Prompt if unsaved changes before change flow
+    - Default name (unnamed flow)
+  - Keep unsaved changes in local storage
+
+File Explorator:
+  - On Main panel when Selected = None
+  - (See all flows, last modified date, # of nodes, who modified it)
+    - Search/Filter of the flows
+    - Load flow on Enter
+      - Prompt if unsaved changes before change flow
+
+Workspace:
+  - Save workspace disposition to local storage
+  - Reset workspace disposition
+  - Collapse Side Panel
+  - Add shortcuts to All major actions
