@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import classnames from 'classnames'
 import axios from 'axios'
 import _ from 'lodash'
+import SplitPane from 'react-split-pane'
 
 import ContentWrapper from '~/components/Layout/ContentWrapper'
 import PageHeader from '~/components/Layout/PageHeader'
@@ -74,23 +75,26 @@ export default class FlowBuilder extends Component {
           }}
         />
         <div className={style.workspace}>
-          <div className={classnames(style.sidePanel, 'pull-left')}>
-            <SidePanel ref={e => (this.sidePanel = e)} selectedNode={this.state.selectedNode} />
-          </div>
-          <div
-            className={classnames(style.diagram, 'pull-right')}
-            onClick={() => {
-              const node = this.diagram.getSelectedNode()
-              console.log('Selected node --->', node)
-              if (this.state.selectedNode !== node) {
-                this.setState({
-                  selectedNode: node
-                })
-              }
-            }}
-          >
-            <Diagram ref={e => (this.diagram = e)} />
-          </div>
+          <SplitPane split="vertical" minSize={200} defaultSize={250}>
+            <div className={classnames(style.sidePanel)}>
+              <SidePanel ref={e => (this.sidePanel = e)} selectedNode={this.state.selectedNode} />
+            </div>
+
+            <div
+              className={classnames(style.diagram)}
+              onClick={() => {
+                const node = this.diagram.getSelectedNode()
+                console.log('Selected node --->', node)
+                if (this.state.selectedNode !== node) {
+                  this.setState({
+                    selectedNode: node
+                  })
+                }
+              }}
+            >
+              <Diagram ref={e => (this.diagram = e)} />
+            </div>
+          </SplitPane>
         </div>
       </ContentWrapper>
     )

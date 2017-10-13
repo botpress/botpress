@@ -97,6 +97,7 @@
     "react-router": "^2.8.1",
     "react-sidebar": "^2.2.1",
     "react-sortable": "^1.2.0",
+    "react-split-pane": "^0.1.66",
     "sass-loader": "^4.0.2",
     "script-loader": "^0.7.0",
     "simple-line-icons": "^2.4.1",
