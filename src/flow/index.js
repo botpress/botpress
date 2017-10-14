@@ -20,11 +20,11 @@ module.exports = ({ logger, botfile, projectLocation }) => {
     const flowFiles = await Promise.fromCallback(callback => glob('**/*.flow.json', searchOptions, callback))
     const uiFiles = await Promise.fromCallback(callback => glob('**/*.ui.json', searchOptions, callback))
 
-    console.log(flowFiles, uiFiles, flowsDir)
+    const flows = []
 
     flowFiles.forEach(file => {
       const filePath = path.resolve(flowsDir, './' + file)
-      const flow = eval('require')(filePath) // eslint-disable-line
+      const flow = JSON.parse(fs.readFileSync(filePath))
 
       const uiEqPath = file.replace(/\.flow/g, '.ui')
       const uiEq = _.find(uiFiles, e => e === uiEqPath) || {}
@@ -59,8 +59,55 @@ module.exports = ({ logger, botfile, projectLocation }) => {
         return logger.warn(errorPrefix + ', expected `startnode` to point to an existing flow node')
       }
 
-      // TODO Validate Nodes Schema
+      const unplacedNodes = []
+
+      flow.nodes = _.map(flow.nodes, node => {
+        // TODO Better node validation
+        if (!_.isString(node.id) || node.id.length <= 3) {
+          logger.warn(errorPrefix + ', expected all nodes to have a valid id')
+          return null
+        }
+
+        const uiNode = _.find(uiEq.nodes, { id: node.id }) || {}
+
+        if (_.isNil(uiNode.x) || _.isNil(uiNode.y)) {
+          unplacedNodes.push(node)
+        }
+
+        if (_.isString(node.onEnter)) {
+          node.onEnter = [node.onEnter]
+        }
+
+        if (_.isString(node.onReceive)) {
+          node.onReceive = [node.onReceive]
+        }
+
+        if (_.isString(node.next)) {
+          node.next = [node.next]
+        }
+
+        return _.merge(node, uiNode)
+      })
+
+      const unplacedY = (_.maxBy(flow.nodes, 'y') || { y: 0 }).y + 250
+      let unplacedX = 50
+
+      unplacedNodes.forEach(node => {
+        node.y = unplacedY
+        node.x = unplacedX
+        unplacedX += 200
+      })
+
+      return flows.push({
+        location: file,
+        version: flow.version,
+        name: flow.name,
+        nodes: _.filter(flow.nodes, node => !!node),
+        startnode: flow.startnode
+      })
     })
+
+    return flows
   }
 
   async function loadFlows() {}
