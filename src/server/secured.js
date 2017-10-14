@@ -270,6 +270,11 @@ module.exports = (bp, app) => {
     res.sendStatus(200)
   })
 
+  app.secure('read', 'bot/flows').get('/flows/all', async (req, res) => {
+    const flows = await bp.flowEngine.scanFlows()
+    return res.send(flows)
+  })
+
   const apis = ExtraApiProviders(bp, app)
   apis.secured.map(x => x && x()) // Install all secured APIs
 }
