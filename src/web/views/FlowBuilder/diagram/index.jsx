@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import ReactDOM from 'react-dom'
 import classnames from 'classnames'
 import axios from 'axios'
 import _ from 'lodash'
@@ -30,7 +31,7 @@ export default class FlowBuilder extends Component {
 
     this.diagramEngine.registerLinkFactory(new DefaultLinkFactory())
 
-    this.newModel()
+    this.setModel()
   }
 
   setTranslation(x = 0, y = 0) {
@@ -43,80 +44,62 @@ export default class FlowBuilder extends Component {
     return this.activeModel.serializeDiagram()
   }
 
-  newModel() {
+  setModel() {
     this.activeModel = new DiagramModel()
-
     this.activeModel.setGridSize(25)
-
     this.diagramEngine.setDiagramModel(this.activeModel)
 
-    var node1 = new DefaultNodeModel('Node 1', 'rgb(0,192,255)')
-    var port1 = node1.addPort(new DefaultPortModel(false, 'out-1', 'Out'))
-    node1.x = 100
-    node1.y = 100
+    const currentFlow = this.props.currentFlow
+    if (!currentFlow) {
+      return
+    }
 
-    var username = new StandardNodeModel({
-      name: 'username',
-      onEnter: ['@I need your username!'],
-      onReceive: ['onUsernameData', '@ You said that you are {{username}}'],
-      next: [
-        {
-          condition: 'true',
-          node: 'password'
-        }
-      ]
+    const nodes = currentFlow.nodes.map(node => {
+      const model = new StandardNodeModel(node)
+      model.x = node.x
+      model.y = node.y
+      return model
     })
 
-    var password = new StandardNodeModel({
-      name: 'password',
-      onEnter: ['@Please enter your password'],
-      onReceive: ['something', 'onPasswordData'],
-      next: [
-        {
-          condition: 'true',
-          node: 'authentication'
-        }
-      ]
-    })
+    nodes.forEach(node => this.activeModel.addNode(node))
+  }
 
-    var authentication = new StandardNodeModel({
-      name: 'authentication',
-      onEnter: ['onEnterAuthentication'],
-      next: [
-        {
-          condition: 'isAuthenticated(userState)===true',
-          node: '#loginSuccess'
-        },
-        {
-          condition: 'isAuthenticated(userState)===false',
-          node: '#loginFailure'
-        }
-      ]
-    })
-
-    username.x = authentication.x = password.x = 400
-
-    username.y = 200
-    password.y = 500
-    authentication.y = 800
-
-    var link1 = new LinkModel()
-    link1.setSourcePort(username.ports['out0'])
-    link1.setTargetPort(password.ports['in'])
-
-    this.activeModel.addNode(node1)
-    this.activeModel.addNode(username)
-    this.activeModel.addNode(password)
-    this.activeModel.addNode(authentication)
-
-    this.activeModel.addLink(link1)
+  componentDidUpdate() {
+    this.setModel()
   }
 
   getSelectedNode() {
     return _.first(this.activeModel.getSelectedItems() || [], { selected: true })
   }
 
-  componentDidMount() {}
+  componentDidMount() {
+    ReactDOM.findDOMNode(this.diagramWidget).addEventListener('mousedown', ::this.onDiagramClick)
+    ReactDOM.findDOMNode(this.diagramWidget).addEventListener('click', ::this.onDiagramClick)
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    return true
+  }
+
+  componentWillUnmount() {
+    ReactDOM.findDOMNode(this.diagramWidget).removeEventListener('mousedown', ::this.onDiagramClick)
+    ReactDOM.findDOMNode(this.diagramWidget).removeEventListener('click', ::this.onDiagramClick)
+  }
+
+  onDiagramClick() {
+    const selectedNode = this.getSelectedNode()
+    const currentNode = this.props.currentFlowNode
+
+    // No node selected
+    if (!selectedNode && currentNode) {
+      return this.props.switchFlowNode(null)
+    }
+
+    // Selected a new node
+    if (selectedNode && (!currentNode || selectedNode.id !== currentNode.id)) {
+      this.props.switchFlowNode(selectedNode.id)
+    }
+  }
 
   render() {
     return <DiagramWidget ref={w => (this.diagramWidget = w)} diagramEngine={this.diagramEngine} />

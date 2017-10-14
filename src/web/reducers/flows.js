@@ -1,4 +1,5 @@
 import { handleActions } from 'redux-actions'
+import _ from 'lodash'
 
 import {
   fetchFlows,
@@ -28,7 +29,13 @@ const reducer = handleActions(
     [receiveFlows]: (state, { payload }) => ({
       ...state,
       fetchingFlows: false,
-      flowsById: payload
+      flowsById: payload,
+      currentFlow: state.currentFlow || _.first(_.keys(payload))
+    }),
+
+    [switchFlowNode]: (state, { payload }) => ({
+      ...state,
+      currentFlowNode: payload
     })
   },
   defaultState

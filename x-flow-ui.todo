@@ -1,7 +1,7 @@
 Server:
-  - Serve flows endpoint
+  ✔ Serve flows endpoint @done (17-10-14 14:00)
     ✔ flows location (botfile -> defaults to /flows/**.flow.json and /flows/**.meta.json ) @done (17-10-13 21:38)
-    - getFlowMetadata() -> Generate initial metadata if absent
+    ✔ getFlowMetadata() -> Generate initial metadata if absent @done (17-10-14 13:59)
     - (later) If production, load flow from database if most recent
 
   - Save flow (id -> meta + data)
@@ -14,10 +14,10 @@ Architecture:
   ✔ Use a Flux library to dispatch actions / Display store content @done (17-10-13 16:25)
     ✔ Redux @done (17-10-13 16:25)
     ✔ Store { flowsById: { '3877455-322234': {} }, currentFlow: '488834-23334' } @done (17-10-13 16:25)
-    - Fetch Flows
-    - Current Flow
+    ✔ Fetch Flows @done (17-10-14 15:28)
+    ✔ Current Flow @done (17-10-14 15:28)
     - Switch Flow
-    - Switch Node
+    ✔ Switch Node @done (17-10-14 15:28)
 
 Side Panel:
   - Add Action

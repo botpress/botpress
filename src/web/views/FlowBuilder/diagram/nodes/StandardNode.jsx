@@ -124,8 +124,8 @@ export class StandardNodeWidget extends React.Component {
 }
 
 export class StandardNodeModel extends NodeModel {
-  constructor({ onEnter = [], onReceive = [], next = [], name }) {
-    super('standard')
+  constructor({ onEnter = [], onReceive = [], next = [], name, id, x, y }) {
+    super('standard', id)
     this.addPort(new StandardIncomingPortModel('in'))
 
     // We create as many output port as needed
@@ -150,6 +150,13 @@ export class StandardNodeModel extends NodeModel {
     this.onReceive = onReceive
     this.next = next
     this.name = name
+
+    if (x) {
+      this.x = x
+    }
+    if (y) {
+      this.y = y
+    }
   }
 
   serialize() {

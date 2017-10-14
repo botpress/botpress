@@ -7,9 +7,9 @@ import SplitPane from 'react-split-pane'
 import ContentWrapper from '~/components/Layout/ContentWrapper'
 import PageHeader from '~/components/Layout/PageHeader'
 
-import Toolbar from './containers/toolbar'
-import Diagram from './diagram'
-import SidePanel from './sidePanel'
+import Toolbar from './containers/Toolbar'
+import Diagram from './containers/Diagram'
+import SidePanel from './containers/SidePanel'
 
 const style = require('./style.scss')
 
@@ -77,22 +77,11 @@ export default class FlowBuilder extends Component {
         <div className={style.workspace}>
           <SplitPane split="vertical" minSize={200} defaultSize={250}>
             <div className={classnames(style.sidePanel)}>
-              <SidePanel ref={e => (this.sidePanel = e)} selectedNode={this.state.selectedNode} />
+              <SidePanel />
             </div>
 
-            <div
-              className={classnames(style.diagram)}
-              onClick={() => {
-                const node = this.diagram.getSelectedNode()
-                console.log('Selected node --->', node)
-                if (this.state.selectedNode !== node) {
-                  this.setState({
-                    selectedNode: node
-                  })
-                }
-              }}
-            >
-              <Diagram ref={e => (this.diagram = e)} />
+            <div className={classnames(style.diagram)}>
+              <Diagram />
             </div>
           </SplitPane>
         </div>

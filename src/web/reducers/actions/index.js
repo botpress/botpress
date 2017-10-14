@@ -3,6 +3,7 @@
 
 import { createAction } from 'redux-actions'
 import axios from 'axios'
+import _ from 'lodash'
 
 export const requestFlows = createAction('FLOWS/REQUEST')
 export const receiveFlows = createAction('FLOWS/RECEIVE', flows => flows, () => ({ receiveAt: new Date() }))
@@ -10,15 +11,9 @@ export const receiveFlows = createAction('FLOWS/RECEIVE', flows => flows, () => 
 export const fetchFlows = () => dispatch => {
   dispatch(requestFlows())
 
-  axios.get('https://google.com').then(({ data }) => {
-    console.log('Receive flows')
-    dispatch(
-      receiveFlows([
-        {
-          id: 1234
-        }
-      ])
-    )
+  axios.get('/flows/all').then(({ data }) => {
+    const flows = _.keyBy(data, 'name')
+    dispatch(receiveFlows(flows))
   })
 }
 
