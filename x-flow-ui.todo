@@ -1,6 +1,6 @@
 Server:
   - Serve flows endpoint
-    - flows location (botfile -> defaults to /flows/**.flow.json and /flows/**.meta.json )
+    ✔ flows location (botfile -> defaults to /flows/**.flow.json and /flows/**.meta.json ) @done (17-10-13 21:38)
     - getFlowMetadata() -> Generate initial metadata if absent
     - (later) If production, load flow from database if most recent
 
