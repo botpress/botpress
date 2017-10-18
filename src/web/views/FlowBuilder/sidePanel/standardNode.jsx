@@ -5,6 +5,7 @@ import _ from 'lodash'
 
 import { Row, Col, Panel, Button } from 'react-bootstrap'
 
+import EditableInput from '../common/EditableInput'
 import ActionItem from '../common/action'
 
 const style = require('./style.scss')
@@ -25,6 +26,18 @@ export default class SidePanel extends Component {
     // TODO Refresh UI
   }
 
+  removeAction(name, index) {
+    return e => {
+      const clone = [...this.props.node[name]]
+      _.pullAt(clone, [index])
+      this.props.updateNode({
+        [name]: clone
+      })
+      e.preventDefault()
+      return false
+    }
+  }
+
   render() {
     const { node } = this.props
 
@@ -34,13 +47,18 @@ export default class SidePanel extends Component {
 
     return (
       <div className={classnames(style.node, style['standard-node'])}>
-        <h4>{node.name}</h4>
-
+        <EditableInput
+          value={node.name}
+          className={style.name}
+          onChanged={value => {
+            this.props.updateNode({ name: value })
+          }}
+        />
         <Panel style={style['section-onEnter']} collapsible defaultExpanded={true} header="On enter">
-          {onEnter.map(item => (
+          {onEnter.map((item, i) => (
             <ActionItem className={style.item} text={item}>
               <div className={style.remove}>
-                <a href="#">Remove</a>
+                <a onClick={::this.removeAction('onEnter', i)}>Remove</a>
               </div>
             </ActionItem>
           ))}
@@ -50,14 +68,26 @@ export default class SidePanel extends Component {
         </Panel>
 
         <Panel style={style['section-onReceive']} collapsible defaultExpanded={true} header="On receive">
-          {onReceive.map(item => <ActionItem className={style.item} text={item} />)}
+          {onReceive.map((item, i) => (
+            <ActionItem className={style.item} text={item}>
+              <div className={style.remove}>
+                <a onClick={::this.removeAction('onReceive', i)}>Remove</a>
+              </div>
+            </ActionItem>
+          ))}
           <div className={style.actions}>
             <Button className={style.addAction}>Add action (Alt+w)</Button>
           </div>
         </Panel>
 
         <Panel style={style['section-next']} collapsible defaultExpanded={true} header="Next node">
-          {next.map(item => <ActionItem className={style.item} text={item.condition} />)}
+          {next.map((item, i) => (
+            <ActionItem className={style.item} text={item.condition}>
+              <div className={style.remove}>
+                <a onClick={::this.removeAction('next', i)}>Remove</a>
+              </div>
+            </ActionItem>
+          ))}
           <div className={style.actions}>
             <Button className={style.addAction}>Add condition (Alt+e)</Button>
           </div>

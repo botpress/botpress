@@ -29,14 +29,14 @@ Side Panel:
         - UMM Definitions in comments
     - Lightweight Modal
     - (Later) Validation of the name of the function to remote server
-  - Delete Action
+  ✔ Delete Action @done (17-10-14 17:31)
   - Re-order Actions
   - Add Condition
     - Box with pure Javascript condition
     - (Later) Past state data suggestion
-  - Rename Node (Instant rename + update everywhere)
+  ✔ Rename Node (Instant rename + update everywhere) @done (17-10-14 17:31)
     - (Later) Alert that other flows make reference to this node, do you want to rename them as well?
-  - Delete Node (at the bottom, red danger button with a confirm dialog)
+  - Delete Node Button
 
 Toolbar:
   - Add new node

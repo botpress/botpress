@@ -15,7 +15,7 @@ export default class SidePanel extends Component {
 
   render() {
     if (this.props.currentFlowNode) {
-      return <StandardNode node={this.props.currentFlowNode} />
+      return <StandardNode node={this.props.currentFlowNode} updateNode={this.props.updateFlowNode} />
     }
 
     return <div>No node selected</div>

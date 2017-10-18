@@ -7,6 +7,8 @@ import SplitPane from 'react-split-pane'
 import ContentWrapper from '~/components/Layout/ContentWrapper'
 import PageHeader from '~/components/Layout/PageHeader'
 
+import EditableInput from './common/EditableInput'
+
 import Toolbar from './containers/Toolbar'
 import Diagram from './containers/Diagram'
 import SidePanel from './containers/SidePanel'
@@ -17,54 +19,19 @@ export default class FlowBuilder extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      flowName: 'Untitled Flow',
-      selectedNode: null
-    }
-  }
-
-  componentDidMount() {}
-
-  onFlowNameChanged(event) {
-    this.setState({
-      flowName: event.target.value
-    })
-  }
-
-  onFlowNameKey(event) {
-    if (event.keyCode === 13) {
-      // Enter
-      event.target.blur()
-    }
-  }
-
-  onFlowNameBlur(event) {
-    if (!this.state.flowName.length) {
-      this.setState({
-        flowName: 'Untitled Flow'
-      })
+      selectedNode: null,
+      flowName: ''
     }
   }
 
   render() {
-    //<span>Flow Builder</span>
-
-    const inputWidth = Math.max(120, 20 + 8 * this.state.flowName.length) + 'px'
-    const inputClass = classnames({
-      [style.flowName]: true,
-      [style.defaultValue]: this.state.flowName === 'Untitled Flow'
-    })
     return (
       <ContentWrapper stretch={true} className={style.wrapper}>
         <PageHeader className={style.header} width="100%">
-          <input
-            className={inputClass}
-            type="text"
-            style={{ width: inputWidth }}
-            autocomplete="off"
+          <EditableInput
+            defaultValue="Untitled Flow"
             value={this.state.flowName}
-            onBlur={::this.onFlowNameBlur}
-            onChange={::this.onFlowNameChanged}
-            onKeyDown={::this.onFlowNameKey}
+            onChanged={value => this.setState({ flowName: value })}
           />
         </PageHeader>
         <Toolbar

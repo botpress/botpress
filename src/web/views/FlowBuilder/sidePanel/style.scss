@@ -13,13 +13,19 @@
 
   .remove {
     display: none;
+
+    a {
+      cursor: pointer;
+    }
   }
 
   &:hover {
     background: #fefefe;
-    color: red;
+    border-left: 2px solid #999;
+    padding-left: 10px;
 
     .remove {
+      padding: 10px 0;
       display: block;
     }
   }
@@ -29,10 +35,14 @@
   border-top: 1px solid #f9f9f9;
 }
 
-.node h4 {
+.node .name {
   color: #333;
   font-weight: 500;
   margin-top: 3px;
+  background: none;
+  width: 100% !important;
+  margin-bottom: 10px;
+  border: 1px dashed #999;
 }
 
 .addAction {

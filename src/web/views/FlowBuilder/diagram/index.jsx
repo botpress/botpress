@@ -64,10 +64,6 @@ export default class FlowBuilder extends Component {
     nodes.forEach(node => this.activeModel.addNode(node))
   }
 
-  componentDidUpdate() {
-    this.setModel()
-  }
-
   getSelectedNode() {
     return _.first(this.activeModel.getSelectedItems() || [], { selected: true })
   }
@@ -77,13 +73,31 @@ export default class FlowBuilder extends Component {
     ReactDOM.findDOMNode(this.diagramWidget).addEventListener('click', ::this.onDiagramClick)
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
-    return true
-  }
-
   componentWillUnmount() {
     ReactDOM.findDOMNode(this.diagramWidget).removeEventListener('mousedown', ::this.onDiagramClick)
     ReactDOM.findDOMNode(this.diagramWidget).removeEventListener('click', ::this.onDiagramClick)
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (!prevProps.currentFlow || _.get(prevProps, 'currentFlow.name') !== _.get(this, 'props.currentFlow.name')) {
+      // Update the diagram model only if we changed the current flow
+      this.setModel()
+    } else {
+      // Update the current model with the new properties
+
+      this.props.currentFlow &&
+        this.props.currentFlow.nodes.forEach(node => {
+          const model = this.activeModel.getNode(node.id)
+          _.assign(model, {
+            name: node.name,
+            onEnter: node.onEnter,
+            onReceive: node.onReceive,
+            next: node.next
+          })
+        })
+
+      this.diagramWidget.forceUpdate()
+    }
   }
 
   onDiagramClick() {

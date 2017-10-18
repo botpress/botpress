@@ -13,7 +13,7 @@ import {
 } from './actions'
 
 const defaultState = {
-  flowsById: {},
+  flowsByName: {},
   fetchingFlows: false,
   currentFlow: null,
   currentFlowNode: null
@@ -29,14 +29,31 @@ const reducer = handleActions(
     [receiveFlows]: (state, { payload }) => ({
       ...state,
       fetchingFlows: false,
-      flowsById: payload,
+      flowsByName: payload,
       currentFlow: state.currentFlow || _.first(_.keys(payload))
     }),
 
     [switchFlowNode]: (state, { payload }) => ({
       ...state,
       currentFlowNode: payload
-    })
+    }),
+
+    [updateFlowNode]: (state, { payload }) => ({
+      ...state,
+      flowsByName: (state.flowsByName = {
+        ...state.flowsByName,
+        [state.currentFlow]: {
+          ...state.flowsByName[state.currentFlow],
+          nodes: state.flowsByName[state.currentFlow].nodes.map(node => {
+            if (node.id !== state.currentFlowNode) {
+              return node
+            }
+
+            return { ...node, ...payload }
+          })
+        }
+      })
+    }) // END updateFlowNode
   },
   defaultState
 )

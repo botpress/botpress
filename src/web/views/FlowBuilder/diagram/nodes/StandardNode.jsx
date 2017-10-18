@@ -91,15 +91,15 @@ export class StandardNodeWidget extends React.Component {
         <div className={style.content}>
           <div className={classnames(style['section-onEnter'], style.section)}>
             {node.onEnter &&
-              node.onEnter.map(item => {
-                return <ActionItem className={style.item} text={item} />
+              node.onEnter.map((item, i) => {
+                return <ActionItem key={i} className={style.item} text={item} />
               })}
           </div>
           <div className={classnames(style['section-title'], style.section)}>{node.name}</div>
           <div className={classnames(style['section-onReceive'], style.section)}>
             {node.onReceive &&
-              node.onReceive.map(item => {
-                return <ActionItem className={style.item} text={item} />
+              node.onReceive.map((item, i) => {
+                return <ActionItem key={i} className={style.item} text={item} />
               })}
           </div>
           <div className={classnames(style['section-next'], style.section)}>
@@ -107,8 +107,8 @@ export class StandardNodeWidget extends React.Component {
               node.next.map((item, i) => {
                 const outputPortName = `out${i}`
                 return (
-                  <div className={classnames(style.item)}>
-                    <ActionItem className="" text={item.condition} />
+                  <div key={i} className={classnames(style.item)}>
+                    <ActionItem text={item.condition} />
                     <StandardPortWidget name={outputPortName} node={node} />
                   </div>
                 )
