@@ -97,6 +97,7 @@ These instructions assume a parent directory `bar` and we will be adding two chi
 5. Navigate into your local `botpress` folder `bar $ cd botpress`
 
 *Yarn (recommended)*
+
 6. Install the dependencies `bar/botpress $ yarn install`
 7. Compile and run the botpress server `bar/botpress $ yarn run watch`
 8. Open a new terminal/CLI tab
@@ -109,6 +110,7 @@ These instructions assume a parent directory `bar` and we will be adding two chi
 You will note that if you want to access the CLI while `botpress` and `foobot` are running, you will need to open a third tab.
 
 *NPM*
+
 6. Install the dependencies `bar/botpress $ npm install`
 7. Compile and run the botpress server `bar/botpress $ npm run watch`
 8. Open a new terminal/CLI tab
