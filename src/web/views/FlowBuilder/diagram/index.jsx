@@ -118,9 +118,18 @@ export default class FlowBuilder extends Component {
     }
   }
 
-  onDiagramClick() {
+  onDiagramClick(event) {
     const selectedNode = this.getSelectedNode()
     const currentNode = this.props.currentFlowNode
+
+    let { x, y } = this.diagramEngine.getRelativePoint(event.clientX, event.clientY)
+
+    console.log(
+      'Click ->',
+      this.activeModel.getOffsetX() + ' / ' + this.activeModel.getOffsetY(),
+      '||',
+      x - this.activeModel.getOffsetX() + ' / ' + (y - this.activeModel.getOffsetY()) // This works
+    )
 
     // No node selected
     if (!selectedNode && currentNode) {

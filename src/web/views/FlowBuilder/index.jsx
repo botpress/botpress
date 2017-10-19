@@ -19,7 +19,6 @@ export default class FlowBuilder extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      selectedNode: null,
       flowName: ''
     }
   }
