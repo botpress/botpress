@@ -2,9 +2,9 @@ var webpack = require('webpack')
 var path = require('path')
 var CopyWebpackPlugin = require('copy-webpack-plugin')
 var autoprefixer = require('autoprefixer')
-// var HardSourceWebpackPlugin = require('hard-source-webpack-plugin')
 var nodeExternals = require('webpack-node-externals')
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
+const HardSourceWebpackPlugin = require('hard-source-webpack-plugin')
 
 var ExtensionsPlugin = require('./extensions/extensions-plugin')
 
@@ -30,18 +30,21 @@ var nodeConfig = {
     }
   },
   module: {
-    loaders: [{
-      test: /\.js$/,
-      loader: 'babel-loader',
-      exclude: /node_modules/,
-      query: {
-        presets: ['latest', 'stage-0'],
-        plugins: ['transform-object-rest-spread']
+    loaders: [
+      {
+        test: /\.js$/,
+        loader: 'babel-loader',
+        exclude: /node_modules/,
+        query: {
+          presets: ['latest', 'stage-0'],
+          plugins: ['transform-object-rest-spread']
+        }
+      },
+      {
+        test: /\.json$/,
+        loader: 'json-loader'
       }
-    }, {
-      test: /\.json$/,
-      loader: 'json-loader'
-    }]
+    ]
   },
   plugins: [
     ExtensionsPlugin.beforeResolve,
@@ -74,33 +77,38 @@ var webConfig = {
   plugins: [
     ExtensionsPlugin.beforeResolve,
     ExtensionsPlugin.afterResolve,
+    new HardSourceWebpackPlugin(),
     new webpack.DefinePlugin({
       BP_EDITION: JSON.stringify(process.env.BOTPRESS_EDITION || 'lite'),
       'process.env': {
-        'NODE_ENV': JSON.stringify('production')
+        NODE_ENV: JSON.stringify('production')
       }
     }),
-    new UglifyJSPlugin({
-      compress: { warnings: false },
-      comments: false,
-      minimize: false,
-      sourceMap: true
-    }),
+    // new UglifyJSPlugin({
+    //   compress: { warnings: false },
+    //   comments: false,
+    //   minimize: false,
+    //   sourceMap: true
+    // }),
     new webpack.NoErrorsPlugin(),
-    new CopyWebpackPlugin([{
-      from: path.resolve(__dirname, './src/web/index.html'),
-      to: path.resolve(__dirname, './lib/web/index.html')
-    }, {
-      from: path.resolve(__dirname, './src/web/lite.html'),
-      to: path.resolve(__dirname, './lib/web/lite/index.html')
-    },
-    {
-      from: path.resolve(__dirname, './src/web/img'),
-      to: path.resolve(__dirname, './lib/web/img')
-    }, {
-      from: path.resolve(__dirname, './src/web/audio'),
-      to: path.resolve(__dirname, './lib/web/audio')
-    }])
+    new CopyWebpackPlugin([
+      {
+        from: path.resolve(__dirname, './src/web/index.html'),
+        to: path.resolve(__dirname, './lib/web/index.html')
+      },
+      {
+        from: path.resolve(__dirname, './src/web/lite.html'),
+        to: path.resolve(__dirname, './lib/web/lite/index.html')
+      },
+      {
+        from: path.resolve(__dirname, './src/web/img'),
+        to: path.resolve(__dirname, './lib/web/img')
+      },
+      {
+        from: path.resolve(__dirname, './src/web/audio'),
+        to: path.resolve(__dirname, './lib/web/audio')
+      }
+    ])
     // TODO: Fix caching to take into account changes to extensions and environement variables
     // new HardSourceWebpackPlugin({
     //   cacheDirectory: __dirname + '/.cache/',
@@ -113,30 +121,41 @@ var webConfig = {
     // })
   ],
   module: {
-    loaders: [{
-      test: /\.jsx?$/i,
-      exclude: /node_modules/i,
-      loader: 'babel-loader',
-      query: {
-        presets: ['latest', 'stage-0', 'react'],
-        plugins: ['transform-object-rest-spread', 'transform-decorators-legacy'],
-        compact: true,
-        babelrc: false,
-        cacheDirectory: true
+    loaders: [
+      {
+        test: /\.jsx?$/i,
+        exclude: /node_modules/i,
+        loader: 'babel-loader',
+        query: {
+          presets: ['latest', 'stage-0', 'react'],
+          plugins: ['transform-object-rest-spread', 'transform-decorators-legacy'],
+          compact: true,
+          babelrc: false,
+          cacheDirectory: true
+        }
+      },
+      {
+        test: /\.scss$/,
+        loaders: [
+          'style',
+          'css?modules&importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]',
+          'postcss',
+          'sass'
+        ]
+      },
+      {
+        test: /\.css$/,
+        loaders: ['style', 'css']
+      },
+      {
+        test: /\.woff|\.woff2|\.svg|.eot|\.ttf/,
+        loader: 'file?name=../fonts/[name].[ext]'
+      },
+      {
+        test: /\.json$/,
+        loader: 'json-loader'
       }
-    }, {
-      test: /\.scss$/,
-      loaders: ['style', 'css?modules&importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]', 'postcss', 'sass']
-    }, {
-      test: /\.css$/,
-      loaders: ['style', 'css']
-    }, {
-      test: /\.woff|\.woff2|\.svg|.eot|\.ttf/,
-      loader: 'file?name=../fonts/[name].[ext]'
-    }, {
-      test: /\.json$/,
-      loader: "json-loader"
-    }]
+    ]
   },
   postcss: [autoprefixer({ browsers: ['last 2 versions'] })]
 }

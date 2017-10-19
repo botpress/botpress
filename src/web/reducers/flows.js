@@ -38,6 +38,17 @@ const reducer = handleActions(
       currentFlowNode: payload
     }),
 
+    [updateFlow]: (state, { payload }) => ({
+      ...state,
+      flowsByName: (state.flowsByName = {
+        ...state.flowsByName,
+        [state.currentFlow]: {
+          ...state.flowsByName[state.currentFlow],
+          ...payload
+        }
+      })
+    }),
+
     [updateFlowNode]: (state, { payload }) => ({
       ...state,
       flowsByName: (state.flowsByName = {

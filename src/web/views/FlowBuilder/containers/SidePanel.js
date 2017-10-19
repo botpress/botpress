@@ -1,7 +1,7 @@
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
-import { updateFlowNode } from '~/reducers/actions'
+import { updateFlowNode, updateFlow } from '~/reducers/actions'
 import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
 
 import SidePanel from '../sidePanel'
@@ -14,7 +14,8 @@ const mapStateToProps = (state, ownProps) => ({
 const mapDispatchToProps = (dispatch, ownProps) =>
   bindActionCreators(
     {
-      updateFlowNode: updateFlowNode
+      updateFlowNode: updateFlowNode,
+      updateFlow: updateFlow
     },
     dispatch
   )

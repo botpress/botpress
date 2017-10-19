@@ -8,14 +8,19 @@
   }
 }
 
+.node {
+  position: relative;
+}
+
 .item {
   padding: 5px 0;
 
-  .remove {
+  .actions {
     display: none;
 
     a {
       cursor: pointer;
+      margin-right: 5px;
     }
   }
 
@@ -24,7 +29,7 @@
     border-left: 2px solid #999;
     padding-left: 10px;
 
-    .remove {
+    .actions {
       padding: 10px 0;
       display: block;
     }
@@ -43,6 +48,15 @@
   width: 100% !important;
   margin-bottom: 10px;
   border: 1px dashed #999;
+  padding: 5px 8px;
+
+  &:hover {
+    background: #f1f1f1;
+  }
+
+  &:focus {
+    background: #f5f5f5;
+  }
 }
 
 .addAction {
@@ -56,4 +70,13 @@
   button {
     border-radius: 3px;
   }
+}
+
+.tip {
+  font-size: 90%;
+  color: #777;
+}
+
+.bottomSection {
+  text-align: center;
 }

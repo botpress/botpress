@@ -47,7 +47,6 @@ export default class FlowBuilder extends Component {
   setModel() {
     this.activeModel = new DiagramModel()
     this.activeModel.setGridSize(25)
-    this.diagramEngine.setDiagramModel(this.activeModel)
 
     const currentFlow = this.props.currentFlow
     if (!currentFlow) {
@@ -62,6 +61,37 @@ export default class FlowBuilder extends Component {
     })
 
     nodes.forEach(node => this.activeModel.addNode(node))
+
+    this.diagramEngine.setDiagramModel(this.activeModel)
+    this.diagramWidget.forceUpdate()
+  }
+
+  syncModel() {
+    // Remove nodes that have been deleted
+    _.keys(this.activeModel.getNodes()).forEach(nodeId => {
+      if (!_.find(this.props.currentFlow.nodes, { id: nodeId })) {
+        this.activeModel.removeNode(nodeId)
+      }
+    })
+
+    this.props.currentFlow &&
+      this.props.currentFlow.nodes.forEach(node => {
+        const model = this.activeModel.getNode(node.id)
+
+        if (model === null) {
+          // Node was added
+          throw new Error('Todo')
+        }
+
+        _.assign(model, {
+          name: node.name,
+          onEnter: node.onEnter,
+          onReceive: node.onReceive,
+          next: node.next
+        })
+      })
+
+    this.diagramWidget.forceUpdate()
   }
 
   getSelectedNode() {
@@ -84,19 +114,7 @@ export default class FlowBuilder extends Component {
       this.setModel()
     } else {
       // Update the current model with the new properties
-
-      this.props.currentFlow &&
-        this.props.currentFlow.nodes.forEach(node => {
-          const model = this.activeModel.getNode(node.id)
-          _.assign(model, {
-            name: node.name,
-            onEnter: node.onEnter,
-            onReceive: node.onReceive,
-            next: node.next
-          })
-        })
-
-      this.diagramWidget.forceUpdate()
+      this.syncModel()
     }
   }
 
@@ -116,6 +134,6 @@ export default class FlowBuilder extends Component {
   }
 
   render() {
-    return <DiagramWidget ref={w => (this.diagramWidget = w)} diagramEngine={this.diagramEngine} />
+    return <DiagramWidget ref={w => (this.diagramWidget = w)} deleteKeys={[]} diagramEngine={this.diagramEngine} />
   }
 }

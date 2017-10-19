@@ -10,6 +10,7 @@ import * as actions from './reducers/actions'
 require('bootstrap/dist/css/bootstrap.css')
 require('storm-react-diagrams/dist/style.css')
 require('./theme.scss')
+require('react-select/dist/react-select.css')
 
 var App = require('./components/App').default
 
