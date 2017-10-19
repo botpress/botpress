@@ -32,14 +32,11 @@ import createMediator from '+/mediator'
 
 import createServer from './server'
 
-import { getBotpressVersion } from './util'
+import { getDataLocation, getBotpressVersion } from './util'
 
 import { isDeveloping, print } from './util'
 
 const RESTART_EXIT_CODE = 107
-
-const getDataLocation = (dataDir, projectLocation) =>
-  dataDir && path.isAbsolute(dataDir) ? path.resolve(dataDir) : path.resolve(projectLocation, dataDir || 'data')
 
 const mkdirIfNeeded = (path, logger) => {
   if (!fs.existsSync(path)) {
@@ -78,6 +75,7 @@ class botpress {
     /**
      * The botfile config object
      */
+    // eslint-disable-next-line no-eval
     this.botfile = eval('require')(botfile)
 
     this.stats = stats(this.botfile)
@@ -213,6 +211,7 @@ class botpress {
       middlewares.load()
     }
 
+    // eslint-disable-next-line no-eval
     const projectEntry = eval('require')(projectLocation)
     if (typeof projectEntry === 'function') {
       projectEntry.call(projectEntry, this)
@@ -243,21 +242,32 @@ class botpress {
 
   start() {
     if (cluster.isMaster) {
-      cluster.fork()
+
+      let firstWorkerHasStartedAlready = false
+      const receiveMessageFromWorker = message => {
+        if (message && message.workerStatus === 'starting') {
+          if (!firstWorkerHasStartedAlready) {
+            firstWorkerHasStartedAlready = true
+          } else {
+            print('info', '*** restarted worker process ***')
+            this.stats.track('bot', 'restarted')
+          }
+        }
+      }
 
       cluster.on('exit', (worker, code /* , signal */) => {
         if (code === RESTART_EXIT_CODE) {
-          cluster.fork()
-
-          this.stats.track('bot', 'restarted')
-          print('info', '*** restarted worker process ***')
+          cluster.fork().on('message', receiveMessageFromWorker)
         } else {
           process.exit(code)
         }
       })
+
+      cluster.fork().on('message', receiveMessageFromWorker)
     }
 
     if (cluster.isWorker) {
+      process.send({ workerStatus: 'starting' })
       this._start()
     }
   }

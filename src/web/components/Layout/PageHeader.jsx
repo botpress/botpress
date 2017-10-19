@@ -36,8 +36,8 @@ class PageHeader extends Component {
     })
 
     return <div className={classNames}>
-        {this.props.children}
-      </div>
+      {this.props.children}
+    </div>
   }
 }
 

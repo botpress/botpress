@@ -50,8 +50,8 @@ const createSampleTable = () => {
   }
 
   return postgres.schema.createTable(name, tableCb)
-  .then(() => sqlite.schema.createTable(name, tableCb))
-  .then(() => name)
+    .then(() => sqlite.schema.createTable(name, tableCb))
+    .then(() => name)
 }
 
 const itBoth = sampleTableGetter => (name, fn) => {
@@ -76,12 +76,12 @@ module.exports = {
 
       beforeEach(function() {
         return createSampleTable()
-        .then(name => emptyTable = name)
+          .then(name => emptyTable = name)
       })
 
       itBoth('Tables created', function(knex) {
         return knex.schema.hasTable(emptyTable)
-        .then(has => expect(has).to.equal(true))
+          .then(has => expect(has).to.equal(true))
       })
 
       describe(name, cb)

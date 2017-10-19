@@ -17,28 +17,30 @@ As contributors you should be respectful and considerate of others - both contri
 * Ensure contributions are unit tested and that all tests pass before submitting any pull-request
 
   Before you run the tests, you need a PostgreSQL server running on your machine. If you have
-  [Docker](https://www.docker.com/) installed, you can run
+  [Docker](https://www.docker.com/) installed, you can run the following at the command prompt,
+  to automatically download and start a PostgreSQL server. You don't need to
+  understand or install PostgreSQL Server yourself.
 
+  To run local PostgreSQL server at the command prompt.
   ```
   docker run -p 5432:5432 -e POSTGRES_USER=$USER postgres
   ```
+  notes:
+  * Press `CTRL-c` to stop it.
+  * Windows Command Prompt: replace `$USER` with `%USERNAME%`
+  * Windows PowerShell: replace `$USER` with `$env:UserName`
 
-  at the command prompt, to automatically download and start a PostgreSQL server. You don't need to
-  understand or install PostgreSQL Server yourself. (Press `CTRL-c` to stop it.)
-
-  To run the tests run
+  To run the tests run at the command prompt.
   ```
   npm run test
   ```
-  at a command prompt.
 
 * Ensure that the code lints cleanly
 
-  To lint the code run
+  To lint the code run at the command prompt.
   ```
   npm run lint
   ```
-  at a command prompt.
 
 * If you do find any issues or think of a feature please [create a Github issue](https://help.github.com/articles/creating-an-issue/) for this first. Discuss things transparently and get community feedback.
 
@@ -95,6 +97,7 @@ These instructions assume a parent directory `bar` and we will be adding two chi
 5. Navigate into your local `botpress` folder `bar $ cd botpress`
 
 *Yarn (recommended)*
+
 6. Install the dependencies `bar/botpress $ yarn install`
 7. Compile and run the botpress server `bar/botpress $ yarn run watch`
 8. Open a new terminal/CLI tab
@@ -107,6 +110,7 @@ These instructions assume a parent directory `bar` and we will be adding two chi
 You will note that if you want to access the CLI while `botpress` and `foobot` are running, you will need to open a third tab.
 
 *NPM*
+
 6. Install the dependencies `bar/botpress $ npm install`
 7. Compile and run the botpress server `bar/botpress $ npm run watch`
 8. Open a new terminal/CLI tab

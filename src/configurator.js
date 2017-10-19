@@ -164,20 +164,20 @@ const createConfig = ({ kvs, name, botfile = {}, options = {}, projectLocation =
 
   const loadAll = () => {
     return kvs.get('__config', name)
-    .then(all => overwriteFromDefaultValues(options, all || {}))
-    .then(all => overwriteFromBotfileValues(name, options, botfile, all))
-    .then(all => overwriteFromConfigFileValues(name, options, projectLocation, all))
-    .then(all => overwriteFromEnvValues(options, all))
-    .then(all => removeUnusedKeys(options, all))
+      .then(all => overwriteFromDefaultValues(options, all || {}))
+      .then(all => overwriteFromBotfileValues(name, options, botfile, all))
+      .then(all => overwriteFromConfigFileValues(name, options, projectLocation, all))
+      .then(all => overwriteFromEnvValues(options, all))
+      .then(all => removeUnusedKeys(options, all))
   }
 
   const get = name => {
     return kvs.get('__config', name + '.' + name)
-    .then(value => overwriteFromDefaultValues(options, { [name]: value }))
-    .then(all => overwriteFromBotfileValues(name, options, botfile, all))
-    .then(all => overwriteFromConfigFileValues(name, options, projectLocation, all))
-    .then(all => overwriteFromEnvValues(options, all))
-    .then(obj => obj[name])
+      .then(value => overwriteFromDefaultValues(options, { [name]: value }))
+      .then(all => overwriteFromBotfileValues(name, options, botfile, all))
+      .then(all => overwriteFromConfigFileValues(name, options, projectLocation, all))
+      .then(all => overwriteFromEnvValues(options, all))
+      .then(obj => obj[name])
   }
 
   const set = (name, value) => {

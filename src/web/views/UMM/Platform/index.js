@@ -5,7 +5,7 @@ import {
   Button,
   FormGroup,
   FormControl
- } from 'react-bootstrap'
+} from 'react-bootstrap'
 
 const style = require('./style.scss')
 
@@ -40,8 +40,8 @@ export default class PlatformView extends Component {
     })
 
     return <div className={classNames}>
-        {this.renderPlatformSelectors()}
-        {this.renderSaveButton()}
-      </div>
+      {this.renderPlatformSelectors()}
+      {this.renderSaveButton()}
+    </div>
   }
 }

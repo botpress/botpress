@@ -71,7 +71,7 @@ class LoggerView extends Component {
 
   getArchiveKey() {
     axios.get('/api/logs/key')
-    .then(({ data }) => this.setState({ archiveUrl: '/logs/archive/' + data.secret }))
+      .then(({ data }) => this.setState({ archiveUrl: '/logs/archive/' + data.secret }))
   }
 
   queryLogs() {
@@ -80,13 +80,13 @@ class LoggerView extends Component {
         limit: this.state.limit
       }
     })
-    .then((result) => {
-      if(this.state.cancelLoading) { return }
-      this.setState({
-        logs: result.data,
-        hasMore: result.data && result.data.length >= this.state.limit
+      .then((result) => {
+        if(this.state.cancelLoading) { return }
+        this.setState({
+          logs: result.data,
+          hasMore: result.data && result.data.length >= this.state.limit
+        })
       })
-    })
   }
 
   render() {
