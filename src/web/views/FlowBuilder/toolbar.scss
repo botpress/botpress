@@ -40,6 +40,10 @@
   vertical-align: middle;
   cursor: pointer;
 
+  &:focus {
+    outline: none !important;
+  }
+
   i {
     padding: 4px 3px;
     font-size: 21px;

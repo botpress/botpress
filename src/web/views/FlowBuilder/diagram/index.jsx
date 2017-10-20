@@ -1,4 +1,6 @@
 import React, { Component } from 'react'
+import { Button, Label } from 'react-bootstrap'
+
 import ReactDOM from 'react-dom'
 import classnames from 'classnames'
 import axios from 'axios'
@@ -143,6 +145,24 @@ export default class FlowBuilder extends Component {
   }
 
   render() {
-    return <DiagramWidget ref={w => (this.diagramWidget = w)} deleteKeys={[]} diagramEngine={this.diagramEngine} />
+    const isInserting = this.props.currentDiagramAction && this.props.currentDiagramAction.startsWith('insert_')
+    const classNames = classnames({ [style.insertNode]: isInserting })
+    const cancelInsert = () => this.props.setDiagramAction(null)
+
+    return (
+      <div className={classNames} style={{ width: '100%', height: '100%' }}>
+        {isInserting && (
+          <div className={style.insertMode}>
+            <div>
+              <Label bsStyle="primary">Insertion Mode</Label>
+            </div>
+            <Button bsStyle="danger" onClick={cancelInsert}>
+              Cancel
+            </Button>
+          </div>
+        )}
+        <DiagramWidget ref={w => (this.diagramWidget = w)} deleteKeys={[]} diagramEngine={this.diagramEngine} />
+      </div>
+    )
   }
 }

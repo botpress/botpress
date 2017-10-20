@@ -9,14 +9,16 @@ import {
   updateFlow,
   saveFlow,
   updateFlowNode,
-  switchFlowNode
+  switchFlowNode,
+  setDiagramAction
 } from './actions'
 
 const defaultState = {
   flowsByName: {},
   fetchingFlows: false,
   currentFlow: null,
-  currentFlowNode: null
+  currentFlowNode: null,
+  currentDiagramAction: null
 }
 
 const reducer = handleActions(
@@ -64,7 +66,12 @@ const reducer = handleActions(
           })
         }
       })
-    }) // END updateFlowNode
+    }), // END updateFlowNode
+
+    [setDiagramAction]: (state, { payload }) => ({
+      ...state,
+      currentDiagramAction: payload
+    })
   },
   defaultState
 )

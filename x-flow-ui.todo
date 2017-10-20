@@ -41,7 +41,7 @@ Side Panel:
 Toolbar:
   - Add new node
     - Give it a default name
-    - Mode = Insert | Change cursor
+    ✔ Mode = Insert | Change cursor @done (17-10-19 19:59)
     - Click = insert on the actual workspace
     - ESC = Cancel, Red button (CANCEL) at the top left corner too
   - Add call to external flow
@@ -49,7 +49,7 @@ Toolbar:
     - Side Panel, select the external node
       - Optionally, specify the entry point (defaults to "default")
   - Copy & Paste of a node to the flow
-    - Paste = Mode = Insert | Change Cursor
+    - Paste = Mode = Insert | Change Cvbnvhgnbvbnvbvcnode.idcghcjghchjgfhghggfhfghursor
 
 Flow:
   - Keep track of pending changes

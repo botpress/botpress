@@ -24,3 +24,5 @@ export const updateFlow = createAction('FLOWS/FLOW/UPDATE')
 export const switchFlow = createAction('FLOWS/FLOW/SWITCH')
 export const updateFlowNode = createAction('FLOWS/FLOW/UPDATE_NODE')
 export const switchFlowNode = createAction('FLOWS/FLOW/SWITCH_NODE')
+
+export const setDiagramAction = createAction('FLOWS/FLOW/SET_ACTION')

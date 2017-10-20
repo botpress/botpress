@@ -34,6 +34,13 @@ export default class Toolbar extends Component {
 
     const hasUnsavedChanges = false
 
+    const isInsertNodeMode = this.props.currentDiagramAction === 'insert_node'
+    const isInsertSubflowMode = this.props.currentDiagramAction === 'insert_subflow'
+
+    const toggleInsertMode = action => element => {
+      this.props.setDiagramAction(this.props.currentDiagramAction === action ? null : action)
+    }
+
     return (
       <div className={style.wrapper}>
         <div className={style.toolbar}>
@@ -97,13 +104,23 @@ export default class Toolbar extends Component {
 
           <div className={style.separator} />
 
-          <Button className={style.btn} bsStyle="default">
+          <Button
+            className={style.btn}
+            bsStyle="default"
+            active={isInsertNodeMode}
+            onClick={toggleInsertMode('insert_node')}
+          >
             <OverlayTrigger placement="bottom" overlay={createTooltip('addNode', 'Insert New Node')}>
               <i className="material-icons">add_box</i>
             </OverlayTrigger>
           </Button>
 
-          <Button className={style.btn} bsStyle="default">
+          <Button
+            className={style.btn}
+            bsStyle="default"
+            active={isInsertSubflowMode}
+            onClick={toggleInsertMode('insert_subflow')}
+          >
             <OverlayTrigger placement="bottom" overlay={createTooltip('subflow', 'Insert Subflow')}>
               <i className="material-icons">link</i>
             </OverlayTrigger>
