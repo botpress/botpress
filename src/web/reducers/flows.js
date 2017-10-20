@@ -10,7 +10,9 @@ import {
   saveFlow,
   updateFlowNode,
   switchFlowNode,
-  setDiagramAction
+  setDiagramAction,
+  createFlowNode,
+  removeFlowNode
 } from './actions'
 
 const defaultState = {
@@ -42,18 +44,18 @@ const reducer = handleActions(
 
     [updateFlow]: (state, { payload }) => ({
       ...state,
-      flowsByName: (state.flowsByName = {
+      flowsByName: {
         ...state.flowsByName,
         [state.currentFlow]: {
           ...state.flowsByName[state.currentFlow],
           ...payload
         }
-      })
+      }
     }),
 
     [updateFlowNode]: (state, { payload }) => ({
       ...state,
-      flowsByName: (state.flowsByName = {
+      flowsByName: {
         ...state.flowsByName,
         [state.currentFlow]: {
           ...state.flowsByName[state.currentFlow],
@@ -65,8 +67,48 @@ const reducer = handleActions(
             return { ...node, ...payload }
           })
         }
-      })
+      }
     }), // END updateFlowNode
+
+    [removeFlowNode]: (state, { payload }) => ({
+      ...state,
+      flowsByName: {
+        ...state.flowsByName,
+        [state.currentFlow]: {
+          ...state.flowsByName[state.currentFlow],
+          nodes: state.flowsByName[state.currentFlow].nodes.filter(node => {
+            return node.id !== payload
+          })
+        }
+      }
+    }),
+
+    [createFlowNode]: (state, { payload }) => ({
+      ...state,
+      flowsByName: {
+        ...state.flowsByName,
+        [state.currentFlow]: {
+          ...state.flowsByName[state.currentFlow],
+          nodes: [
+            ...state.flowsByName[state.currentFlow].nodes,
+            _.merge(
+              {
+                id: Math.random()
+                  .toString()
+                  .substr(2, 10),
+                name: 'untitled_node',
+                x: 0,
+                y: 0,
+                next: [],
+                onEnter: [],
+                onReceive: []
+              },
+              payload
+            )
+          ]
+        }
+      }
+    }),
 
     [setDiagramAction]: (state, { payload }) => ({
       ...state,

@@ -82,7 +82,10 @@ export default class FlowBuilder extends Component {
 
         if (model === null) {
           // Node was added
-          throw new Error('Todo')
+          const model = new StandardNodeModel(node)
+          model.x = node.x
+          model.y = node.y
+          this.activeModel.addNode(model)
         }
 
         _.assign(model, {
@@ -124,14 +127,15 @@ export default class FlowBuilder extends Component {
     const selectedNode = this.getSelectedNode()
     const currentNode = this.props.currentFlowNode
 
-    let { x, y } = this.diagramEngine.getRelativePoint(event.clientX, event.clientY)
+    if (this.props.currentDiagramAction && this.props.currentDiagramAction.startsWith('insert_')) {
+      let { x, y } = this.diagramEngine.getRelativePoint(event.clientX, event.clientY)
 
-    console.log(
-      'Click ->',
-      this.activeModel.getOffsetX() + ' / ' + this.activeModel.getOffsetY(),
-      '||',
-      x - this.activeModel.getOffsetX() + ' / ' + (y - this.activeModel.getOffsetY()) // This works
-    )
+      x -= this.activeModel.getOffsetX()
+      y -= this.activeModel.getOffsetY()
+
+      this.props.createFlowNode({ x, y })
+      this.props.setDiagramAction(null)
+    }
 
     // No node selected
     if (!selectedNode && currentNode) {

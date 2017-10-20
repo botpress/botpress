@@ -125,11 +125,7 @@ export default class SidePanel extends Component {
   }
 
   handleRemoveNode() {
-    this.props.updateFlow({
-      nodes: _.filter(this.props.flow.nodes, node => {
-        return node !== this.props.node
-      })
-    })
+    this.props.removeFlowNode(this.props.node.id)
   }
 
   renderBottomSection() {

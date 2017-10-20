@@ -1,7 +1,7 @@
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
-import { fetchFlows, switchFlowNode, setDiagramAction } from '~/reducers/actions'
+import { fetchFlows, switchFlowNode, setDiagramAction, createFlowNode } from '~/reducers/actions'
 import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
 
 import Diagram from '../diagram'
@@ -18,7 +18,8 @@ const mapDispatchToProps = (dispatch, ownProps) =>
     {
       fetchFlows: fetchFlows,
       switchFlowNode: switchFlowNode,
-      setDiagramAction: setDiagramAction
+      setDiagramAction: setDiagramAction,
+      createFlowNode: createFlowNode
     },
     dispatch
   )

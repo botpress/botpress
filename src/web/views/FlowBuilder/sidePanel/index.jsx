@@ -21,6 +21,7 @@ export default class SidePanel extends Component {
           node={this.props.currentFlowNode}
           updateNode={this.props.updateFlowNode}
           updateFlow={this.props.updateFlow}
+          removeFlowNode={this.props.removeFlowNode}
         />
       )
     }
