@@ -39,11 +39,11 @@ Side Panel:
   ✔ Delete Node Button @done (17-10-19 15:58)
 
 Toolbar:
-  - Add new node
-    - Give it a default name
+  ✔ Add new node @done (17-10-19 20:29)
+    ✔ Give it a default name @done (17-10-19 20:29)
     ✔ Mode = Insert | Change cursor @done (17-10-19 19:59)
-    - Click = insert on the actual workspace
-    - ESC = Cancel, Red button (CANCEL) at the top left corner too
+    ✔ Click = insert on the actual workspace @done (17-10-19 20:24)
+    - ESC = Cancel, Red button (CANCEL) at the top left corner too [react-shortcuts]
   - Add call to external flow
     - Save as above
     - Side Panel, select the external node
