@@ -3,7 +3,6 @@ import PropTypes from 'prop-types'
 import ReactDOM from 'react-dom'
 
 export default class InjectedComponent extends Component {
-
   static propTypes: {
     component: PropTypes.func.isRequired
   }
@@ -31,7 +30,7 @@ export default class InjectedComponent extends Component {
   }
 
   render() {
-    return <div className="component-mount"></div>
+    return <div className="component-mount" />
   }
 
   internalRender() {
@@ -43,20 +42,23 @@ export default class InjectedComponent extends Component {
       const element = <Component key={this.componentId} {...passthroughProps} />
       ReactDOM.render(element, node)
     } catch (err) {
-      const element = <div className="panel panel-danger">
-        <div className="panel-heading">Could not display component</div>
-        <div className="panel-body">
-          <h4>An error occurred while loading the component</h4>
-          <p>{err.message}</p>
+      const element = (
+        <div className="panel panel-danger">
+          <div className="panel-heading">Could not display component</div>
+          <div className="panel-body">
+            <h4>An error occurred while loading the component</h4>
+            <p>{err.message}</p>
+          </div>
+          {/* TODO Put documentation / help here */}
+          <div className="panel-footer">
+            Developer? <a href="https://github.com/botpress/botpress/tree/master/docs">click here</a>
+            to see why this might happen
+          </div>
         </div>
-        {/* TODO Put documentation / help here */}
-        <div className="panel-footer">
-          Developer? <a href="https://github.com/botpress/botpress/tree/master/docs">click here</a>
-          to see why this might happen
-        </div>
-      </div>
+      )
 
       ReactDOM.render(element, node)
+      console.error && console.error('Error loading component', err)
     }
   }
 }
