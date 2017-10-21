@@ -130,8 +130,13 @@ export default class FlowBuilder extends Component {
     if (this.props.currentDiagramAction && this.props.currentDiagramAction.startsWith('insert_')) {
       let { x, y } = this.diagramEngine.getRelativePoint(event.clientX, event.clientY)
 
-      x -= this.activeModel.getOffsetX()
-      y -= this.activeModel.getOffsetY()
+      const zoomFactor = this.activeModel.getZoomLevel() / 100
+
+      x /= zoomFactor
+      y /= zoomFactor
+
+      x -= this.activeModel.getOffsetX() / zoomFactor
+      y -= this.activeModel.getOffsetY() / zoomFactor
 
       this.props.createFlowNode({ x, y })
       this.props.setDiagramAction(null)
