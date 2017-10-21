@@ -49,12 +49,13 @@ Toolbar:
     - Side Panel, select the external node
       - Optionally, specify the entry point (defaults to "default")
   - Copy & Paste of a node to the flow
-    - Paste = Mode = Insert | Change Cvbnvhgnbvbnvbvcnode.idcghcjghchjgfhghggfhfghursor
+    - Paste = Mode = Insert | Change
 
 Flow:
   - Keep track of pending changes
     - Undo to previous version
     - Redo to restore
+  - flowStatesById { FLOW-1: { lastVersion: Time-based-id, lastSyncOn: Date, initialState: {}, initialHash: '', isDirty: true, changes: [{}, {}, {}, {} (up to 15)] } }
   - Save changes (submit changes to the server)
     - WARN: We need to keep track of nodes by Id and not by name since name can change
     - Submit the nodes + values + metadata [x,y]
