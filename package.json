@@ -99,6 +99,7 @@
     "react-router": "^2.8.1",
     "react-sidebar": "^2.2.1",
     "react-sortable": "^1.2.0",
+    "run-script-os": "^1.0.2",
     "sass-loader": "^4.0.2",
     "script-loader": "^0.7.0",
     "simple-line-icons": "^2.4.1",
@@ -138,7 +139,9 @@
   "scripts": {
     "prepare": "npm run compile",
     "compile": "./build.sh",
-    "test": "BABEL_ENV=tests mocha --compilers js:babel-core/register --require tests/index.js tests/** extensions/**/tests/**",
+    "test": "run-script-os",
+    "test:linux:darwin": "BABEL_ENV=tests mocha --compilers js:babel-core/register --require tests/index.js tests/** extensions/**/tests/**",
+    "test:win32": "SET BABEL_ENV=tests && mocha --compilers js:babel-core/register --require tests/index.js tests/** extensions/**/tests/** && SET BABEL_ENV=",
     "watch": "npm-watch",
     "lint": "eslint --ignore-path .gitignore --ext=.js,.jsx ."
   },
