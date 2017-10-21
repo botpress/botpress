@@ -58,4 +58,6 @@ lib/
 *.swp
 *.sly
 
+**/.DS_Store
+
 _book/
