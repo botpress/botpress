@@ -1,7 +1,7 @@
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
-import { fetchFlows, switchFlowNode, setDiagramAction, createFlowNode } from '~/reducers/actions'
+import { fetchFlows, switchFlowNode, setDiagramAction, createFlowNode } from '~/actions'
 import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
 
 import Diagram from '../diagram'

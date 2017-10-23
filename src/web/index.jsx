@@ -5,14 +5,14 @@ import { Provider } from 'react-redux'
 import thunk from 'redux-thunk'
 import reducer from './reducers'
 
-import * as actions from './reducers/actions'
+import * as actions from '~/actions'
+
+import App from './components/App'
 
 require('bootstrap/dist/css/bootstrap.css')
 require('storm-react-diagrams/dist/style.css')
 require('./theme.scss')
 require('react-select/dist/react-select.css')
-
-var App = require('./components/App').default
 
 const composeEnhancers =
   typeof window === 'object' && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
