@@ -1,6 +1,7 @@
 {
   "name": "botpress",
-  "description": "The world's first CMS for bots. Easily create, manage and extend chatbots.",
+  "description":
+    "The world's first CMS for bots. Easily create, manage and extend chatbots.",
   "version": "1.1.2",
   "author": "Botpress",
   "bin": {
@@ -76,14 +77,17 @@
     "file-loader": "^0.9.0",
     "hard-source-webpack-plugin": "^0.3.7",
     "history": "^2.1.2",
+    "husky": "0.14.3",
     "json-loader": "^0.5.4",
     "keymirror": "^0.1.1",
+    "lint-staged": "4.3.0",
     "mocha": "^3.1.2",
     "node-sass": "^3.13.1",
     "npm-watch": "^0.1.6",
     "nuclear-js": "^1.4.0",
     "nuclear-js-react-addons": "^0.4.1",
     "postcss-loader": "^1.1.1",
+    "prettier": "1.7.4",
     "prop-types": "^15.5.8",
     "react": "^15.3.1",
     "react-addons-css-transition-group": "^15.3.1",
@@ -130,25 +134,26 @@
   "license": "AGPL-3.0",
   "main": "lib/node.bundle.js",
   "repository": "git+https://github.com/botpress/botpress.git",
-  "os": [
-    "darwin",
-    "linux",
-    "win32"
-  ],
+  "os": ["darwin", "linux", "win32"],
   "scripts": {
     "prepare": "npm run compile",
     "compile": "./build.sh",
-    "test": "BABEL_ENV=tests mocha --compilers js:babel-core/register --require tests/index.js tests/** extensions/**/tests/**",
+    "test":
+      "BABEL_ENV=tests mocha --compilers js:babel-core/register --require tests/index.js tests/** extensions/**/tests/**",
     "watch": "npm-watch",
-    "lint": "eslint --ignore-path .gitignore --ext=.js,.jsx ."
+    "precommit": "lint-staged"
   },
   "watch": {
     "compile": {
-      "patterns": [
-        "src",
-        "extensions"
-      ],
+      "patterns": ["src", "extensions"],
       "extensions": "js,jsx,scss,json,html"
     }
+  },
+  "lint-staged": {
+    "*.{js,jsx,json,css}": ["prettier --write", "git add"]
+  },
+  "pre-commit": {
+    "run": "precommit",
+    "silent": true
   }
 }
