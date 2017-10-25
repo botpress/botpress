@@ -44,19 +44,19 @@ module.exports = ({ logger, botfile, projectLocation }) => {
       }
 
       if (!_.isString(flow.name) || !validateFlowName(flow.name)) {
-        return logger.warn(errorPrefix + ', expected valid `name`')
+        return logger.warn(`, name of the flow is invalid (${flow.name})`)
       }
 
-      if (!_.isString(flow.startnode)) {
-        return logger.warn(errorPrefix + ', expected valid `startnode`')
+      if (!_.isString(flow.startNode)) {
+        return logger.warn(errorPrefix + ', expected valid `startNode`')
       }
 
       if (!_.isArray(flow.nodes)) {
         return logger.warn(errorPrefix + ', expected `nodes` to be an array of nodes')
       }
 
-      if (!_.find(flow.nodes, { name: flow.startnode })) {
-        return logger.warn(errorPrefix + ', expected `startnode` to point to an existing flow node')
+      if (!_.find(flow.nodes, { name: flow.startNode })) {
+        return logger.warn(errorPrefix + ', expected `startNode` to point to an existing flow node')
       }
 
       const unplacedNodes = []
