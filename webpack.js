@@ -8,7 +8,7 @@ const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
 var ExtensionsPlugin = require('./extensions/extensions-plugin')
 
 var nodeConfig = {
-  devtool: 'source-map',
+  devtool: 'eval-cheap-module-source-map',
   entry: [path.resolve(__dirname, './index.js')],
   output: {
     path: path.resolve(__dirname, './lib'),
@@ -56,15 +56,28 @@ var nodeConfig = {
 
 var webConfig = {
   bail: true,
-  devtool: 'source-map',
+  devtool: 'eval-cheap-module-source-map',
   entry: {
+    vendor: [
+      'axios',
+      'bluebird',
+      'howler',
+      'knex',
+      'lodash',
+      'moment',
+      'react',
+      'react-bootstrap',
+      'react-codemirror',
+      'react-dom',
+      'react-jsonschema-form'
+    ],
     web: './src/web/index.jsx',
     lite: './src/web/lite.jsx'
   },
   output: {
     path: path.resolve(__dirname, './lib/web/js'),
     publicPath: '/js/',
-    filename: '[name].bundle.js'
+    filename: '[name]-[hash].bundle.js'
   },
   resolve: {
     extensions: ['.js', '.jsx', '.css'],
@@ -74,6 +87,10 @@ var webConfig = {
     }
   },
   plugins: [
+    new webpack.optimize.CommonsChunkPlugin({
+      name: 'vendor',
+      minChunks: Infinity
+    }),
     ExtensionsPlugin.beforeResolve,
     ExtensionsPlugin.afterResolve,
     new webpack.DefinePlugin({
@@ -82,9 +99,7 @@ var webConfig = {
         NODE_ENV: JSON.stringify('production')
       }
     }),
-    new UglifyJSPlugin({
-      sourceMap: true
-    }),
+    new UglifyJSPlugin({ sourceMap: true, cache: true }),
     new webpack.NoEmitOnErrorsPlugin(),
     new CopyWebpackPlugin([
       {
