@@ -180,6 +180,37 @@ class WorkflowEngine {
     return context
   }
 
+  async _processInstructions(instructions, userState, event, context) {
+    if (_.isString(instructions)) {
+      instructions = [instructions]
+    }
+
+    if (!_.isArray(instructions)) {
+      throw new Error(`Unexpected instructions.
+        Expected an array but received: ${typeof instructions}
+        Flow: ${context.currentFlow.name}
+        Node: ${context.node}`)
+    }
+
+    await Promise.mapSeries(instructions, async instruction => {
+      if (instruction.startsWith('@')) {
+        await this._dispatchOutput(
+          {
+            type: 'text',
+            value: instruction.substr(1)
+          },
+          userState,
+          event,
+          context
+        )
+      } else {
+        userState = await this._invokeAction(instruction, userState, event, context)
+      }
+    })
+
+    return userState
+  }
+
   _findNode(name) {}
 
   _findFlow(flowName) {}
