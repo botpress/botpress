@@ -1,10 +1,11 @@
 import _ from 'lodash'
-import EventEmitter2 from 'eventemitter2'
+import Promise from 'bluebird'
 
 const loggerShim = { debug: () => {} }
 const callSubflowRegex = /^flow /i
+const MAX_STACK_SIZE = 100
 
-class WorkflowEngine extends EventEmitter2 {
+class WorkflowEngine {
   constructor(flows, stateManager, options, logger = loggerShim) {
     super()
 
@@ -12,6 +13,7 @@ class WorkflowEngine extends EventEmitter2 {
     this.flows = flows
     this.stateManager = stateManager
     this.defaultFlow = _.get(options, 'defaultFlow') || 'main'
+    this.outputProcessors = []
   }
 
   /**
@@ -56,12 +58,37 @@ class WorkflowEngine extends EventEmitter2 {
 
   async _processNode(stateId, context, nodeName, event) {
     let switchedFlow = false
+    let switchedNode = false
 
     if (callSubflowRegex.test(nodeName)) {
+      // e.g. 'flow login'
+      this._trace('--> Going to subflow: ' + nodeName, context, null)
       context = this._gotoSubflow(nodeName, context)
       switchedFlow = true
-    } else if (nodeName === '##') {
     } else if (nodeName.startsWith('#')) {
+      // e.g. '#success'
+      this._trace('<-- Returning to flow: ' + nodeName, context, null)
+      context = this._gotoPreviousFlow(context)
+      switchedFlow = true
+    } else if (context.node !== nodeName) {
+      this._trace('Going to node: ' + nodeName)
+      switchedNode = true
+      context.node = nodeName
+    }
+
+    let userState = await this.stateManager.getState(stateId)
+    let node = _.find(context.currentFlow, context.node)
+
+    if (!node || !node.name) {
+      throw new Error(`Could not find node "${context.node}" in flow "${context.currentFlow.name}"`)
+    }
+
+    if (switchedFlow || switchedNode) {
+      this._trace('Entering new node ' + context.node, context, userState)
+      await this._setContext(stateId, context)
+
+      if (node.onEnter) {
+      }
     }
   }
 
@@ -90,11 +117,11 @@ class WorkflowEngine extends EventEmitter2 {
   }
 
   _getContext(stateId) {
-    return this.stateManager.getState(stateId)
+    return this.stateManager.getState(stateId + '__context')
   }
 
   _setContext(stateId, state) {
-    return this.stateManager.setState(stateId, state)
+    return this.stateManager.setState(stateId + '__context', state)
   }
 
   _gotoSubflow(nodeName, context) {
@@ -118,6 +145,37 @@ class WorkflowEngine extends EventEmitter2 {
       flow: subflow,
       node: subflowNode
     })
+
+    if (context.flowStack.length >= MAX_STACK_SIZE) {
+      throw new Error(
+        `Exceeded maximum flow stack size (${MAX_STACK_SIZE}). 
+         This might be due to an unexpected infinite loop in your flows.
+         Current flow: ${subflow}
+         Current node: ${subflowNode}`
+      )
+      // TODO END FLOW ?
+    }
+
+    return context
+  }
+
+  _gotoPreviousFlow(nodeName, context) {
+    if (context.flowStack.length <= 1) {
+      this._trace('Flow tried to go back to previous flow but there was none. Exiting flow.', context, null)
+      // TODO END FLOW
+    } else {
+      context.flowStack.pop()
+      let { flow, node } = _.last()
+
+      if (nodeName !== '##') {
+        node = nodeName.substr(1)
+      }
+
+      Object.assign(context, {
+        currentFlow: this._findFlow(flow),
+        node: node
+      })
+    }
 
     return context
   }
