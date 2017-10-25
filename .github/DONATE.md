@@ -1,6 +1,6 @@
 ## Give a One-time Donation
 
-We are using PayPal for contributing, because it's easier for everyone to make a transaction.
+We are using PayPal for contributing, because it's easier for everyone to make a transaction. We plan to use a Bitcoin Wallet in the future for saving on transaction feeds.
 
 Our PayPal address is : [FILL_PAYPAL_ADDRES]
 
