@@ -9,7 +9,7 @@ Our PayPal address is : [FILL_PAYPAL_ADDRES]
 
 ### Why Should I Donate ?
 
-Botpress is free and open source framework. Our mission is creating the best bot framework. All the donation will directly go on Botpress development.
+Botpress is free and open source framework. Our mission it's to create the best bot framework. All the donation will directly go on Botpress development.
 
 If you are interesting to donate for a particular module let us know. We will be very happy to hear your conviction and importance about this module.
 
