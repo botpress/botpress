@@ -1,10 +1,13 @@
 import _ from 'lodash'
 import EventEmitter2 from 'eventemitter2'
 
+const loggerShim = { debug: () => {} }
+
 class WorkflowEngine extends EventEmitter2 {
-  constructor(flows, stateManager, options) {
+  constructor(flows, stateManager, options, logger = loggerShim) {
     super()
 
+    this.logger = logger
     this.flows = flows
     this.stateManager = stateManager
     this.defaultFlow = _.get(options, 'defaultFlow') || 'main'
@@ -19,13 +22,42 @@ class WorkflowEngine extends EventEmitter2 {
    * @return {Promise<State>}         Returns a promise that resolves with the new state
    *                                  when the flow is done processing
    */
-  async processMessage(stateId, event) {}
+  async processMessage(stateId, event) {
+    let context = this._getOrCreateContext(stateId)
+    let state = null
+
+    if (!context.currentFlow) {
+      throw new Error('Expected currentFlow to be defined for stateId=' + stateId)
+    }
+
+    const catchAllOnReceive = _.get(context, 'currentFlow.catchAll.onReceive')
+    if (catchAllOnReceive) {
+      state = await this._executeInstructions(context)
+    } else {
+      state = await this.stateManager.getState(stateId)
+    }
+
+    // If there's a 'next' defined in catchAll, this will try to match any condition and if it is matched it
+    // will run the node defined in the next instead of the current context node
+    const catchAllNext = _.get(context, 'currentFlow.catchAll.next')
+    if (catchAllNext) {
+      for (let i = 0; i < catchAllNext.length; i++) {
+        return await this._processNode(stateId, catchAllNext[i].node, event)
+      }
+    }
+
+    return await this._processNode(stateId, context.node, event)
+  }
 
   async _getOrCreateContext(stateId) {
     let state = await this._getContext(stateId)
 
     if (!state) {
       const flow = this._findFlow(this.defaultFlow)
+
+      if (!flow) {
+        throw new Error(`Could not find the default flow "${this.defaultFlow}"`)
+      }
 
       const state = {
         currentFlow: flow,
@@ -54,4 +86,8 @@ class WorkflowEngine extends EventEmitter2 {
   _findNode(name) {}
 
   _findFlow(flowName) {}
+
+  _trace(message, state) {
+    this.logger.debug(message)
+  }
 }
