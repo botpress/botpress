@@ -132,7 +132,20 @@ This is a non-exclusive list of modules Botpress has. See [the full list of modu
 | **[botpress-web](https://github.com/botpress/botpress-web)** | [@slvnperron](https://github.com/slvnperron)
 
 ## Contributing
-Check out our [contributing guide](/.github/CONTRIBUTING.md) and our [community code of conduct](/.github/CODE_OF_CONDUCT.md).
+
+Thanks you for your interest in Botpress. Here are some of the many ways to contribute.
+
+  - Check out our [contributing guide](/.github/CONTRIBUTING.md)
+  - Look at our [code of conduct](/.github/CODE_OF_CONDUCT.md) 
+  - Engage with us on Social Media 
+    - Follow us on [Twitter](https://twitter.com/getbotpress)
+    - Like us on [Facebook](https://www.facebook.com/botpress)
+    - Join our channel on [Slack](https://slack.botpress.io)
+  - Answer and ask question on the Slack community 
+  - [Donate](/.github/DONATE.md) to the projet 
+  - [Write and edit the documentation](/.github/CONTRIBUTING.md)
+  - Check misspelling in our docs.
+
 
 ## Community
 
