@@ -32,6 +32,7 @@ class WorkflowEngine extends EventEmitter2 {
 
     const catchAllOnReceive = _.get(context, 'currentFlow.catchAll.onReceive')
     if (catchAllOnReceive) {
+      this._trace('Executing catchAll : onReceive', context, null)
       state = await this._executeInstructions(context)
     } else {
       state = await this.stateManager.getState(stateId)
@@ -42,12 +43,19 @@ class WorkflowEngine extends EventEmitter2 {
     const catchAllNext = _.get(context, 'currentFlow.catchAll.next')
     if (catchAllNext) {
       for (let i = 0; i < catchAllNext.length; i++) {
+        this._trace(`catchAll #${i} matched, processing node ${catchAllNext[i].node}`, context, state)
         return await this._processNode(stateId, catchAllNext[i].node, event)
       }
+      this._trace('No catchAll next matched', context, state)
     }
 
+    this._trace('Processing node ' + context.node, context, state)
     return await this._processNode(stateId, context.node, event)
   }
+
+  async _processNode(stateId, nodeName, event) {}
+
+  async _transitionToNextNodes(node, userState, stateId, event) {}
 
   async _getOrCreateContext(stateId) {
     let state = await this._getContext(stateId)
@@ -79,15 +87,11 @@ class WorkflowEngine extends EventEmitter2 {
     return this.stateManager.setState(stateId, state)
   }
 
-  async _processNode(stateId, nodeName, event) {}
-
-  async _transitionToNextNodes(node, userState, stateId, event) {}
-
   _findNode(name) {}
 
   _findFlow(flowName) {}
 
-  _trace(message, state) {
+  _trace(message, context, state) {
     this.logger.debug(message)
   }
 }
