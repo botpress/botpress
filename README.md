@@ -141,8 +141,8 @@ Thanks you for your interest in Botpress. Here are some of the many ways to cont
     - Follow us on [Twitter](https://twitter.com/getbotpress)
     - Like us on [Facebook](https://www.facebook.com/botpress)
     - Join our channel on [Slack](https://slack.botpress.io)
-  - Answer and ask question on the Slack community 
-  - [Donate](/.github/DONATE.md) to the projet 
+  - Answer and ask questions on the Slack community 
+  - [Donate](/.github/DONATE.md) to the project 
   - [Write and edit the documentation](/.github/CONTRIBUTING.md)
   - Check misspelling in our docs.
 
