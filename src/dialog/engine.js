@@ -2,6 +2,7 @@ import _ from 'lodash'
 import EventEmitter2 from 'eventemitter2'
 
 const loggerShim = { debug: () => {} }
+const callSubflowRegex = /^flow /i
 
 class WorkflowEngine extends EventEmitter2 {
   constructor(flows, stateManager, options, logger = loggerShim) {
@@ -44,16 +45,25 @@ class WorkflowEngine extends EventEmitter2 {
     if (catchAllNext) {
       for (let i = 0; i < catchAllNext.length; i++) {
         this._trace(`catchAll #${i} matched, processing node ${catchAllNext[i].node}`, context, state)
-        return await this._processNode(stateId, catchAllNext[i].node, event)
+        return await this._processNode(stateId, context, catchAllNext[i].node, event)
       }
       this._trace('No catchAll next matched', context, state)
     }
 
     this._trace('Processing node ' + context.node, context, state)
-    return await this._processNode(stateId, context.node, event)
+    return await this._processNode(stateId, context, context.node, event)
   }
 
-  async _processNode(stateId, nodeName, event) {}
+  async _processNode(stateId, context, nodeName, event) {
+    let switchedFlow = false
+
+    if (callSubflowRegex.test(nodeName)) {
+      context = this._gotoSubflow(nodeName, context)
+      switchedFlow = true
+    } else if (nodeName === '##') {
+    } else if (nodeName.startsWith('#')) {
+    }
+  }
 
   async _transitionToNextNodes(node, userState, stateId, event) {}
 
@@ -85,6 +95,31 @@ class WorkflowEngine extends EventEmitter2 {
 
   _setContext(stateId, state) {
     return this.stateManager.setState(stateId, state)
+  }
+
+  _gotoSubflow(nodeName, context) {
+    nodeName = nodeName.replace(callSubflowRegex, '')
+    let subflow, subflowNode
+
+    if (nodeName.indexOf('.') > 0) {
+      subflow = nodeName.substr(0, nodeName.indexOf('.'))
+      subflowNode = nodeName.substr(nodeName.indexOf('.') + 1)
+    } else {
+      subflow = nodeName
+      subflowNode = this._findFlow(subflow).startNode
+    }
+
+    Object.assign(context, {
+      currentFlow: this._findFlow(subflow),
+      node: subflowNode
+    })
+
+    context.flowStack.push({
+      flow: subflow,
+      node: subflowNode
+    })
+
+    return context
   }
 
   _findNode(name) {}
