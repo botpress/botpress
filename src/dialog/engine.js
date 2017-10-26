@@ -87,8 +87,21 @@ class WorkflowEngine {
       await this._setContext(stateId, context)
 
       if (node.onEnter) {
+        userState = await this._processInstructions(node.onEnter, userState, event, context)
       }
+
+      if (!node.onReceive) {
+        await this._transitionToNextNodes(node, userState, stateId, event)
+      }
+    } else { // i.e. we were already on that node before we received the message
+      if (node.onReceive) {
+        userState = await this._processInstructions(node.onReceive, userState, event, context)
+      }
+
+      await this._transitionToNextNodes(node, userState, stateId, event)
     }
+
+    return userState
   }
 
   async _transitionToNextNodes(node, userState, stateId, event) {}
