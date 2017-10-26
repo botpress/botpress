@@ -1,19 +1,15 @@
 import React from 'react'
+import { connect } from 'react-redux'
 import { NavDropdown, MenuItem } from 'react-bootstrap'
 import _ from 'lodash'
 import classnames from 'classnames'
 
 import NotificationComponent from './index.jsx'
-
-import { connect } from 'nuclear-js-react-addons'
-import getters from '~/stores/getters'
-
 import styles from './hubStyle.scss'
 
 const NB_OF_NOTIFICATIONS_TO_DISPLAY = 6
 
-@connect(props => ({ notifications: getters.notifications }))
-export default class NotificationHub extends NotificationComponent {
+class NotificationHub extends NotificationComponent {
 
   constructor(props, context) {
     super(props, context, {
@@ -34,7 +30,7 @@ export default class NotificationHub extends NotificationComponent {
   }
 
   render() {
-    const notifications = this.props.notifications.toJS() || []
+    const notifications = this.props.notifications || []
     const isEmpty = notifications.length === 0
     const displayedNotifications = _.take(notifications, NB_OF_NOTIFICATIONS_TO_DISPLAY)
     const unread = _.filter(notifications, { read: false })
@@ -74,3 +70,7 @@ export default class NotificationHub extends NotificationComponent {
     </NavDropdown>
   }
 }
+
+const mapStateToProps = state => ({ notifications: state.notifications })
+
+export default connect(mapStateToProps)(NotificationHub)

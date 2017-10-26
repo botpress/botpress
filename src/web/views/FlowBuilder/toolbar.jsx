@@ -1,22 +1,20 @@
-import React, { Component } from 'react'
-import classnames from 'classnames'
-import axios from 'axios'
-import _ from 'lodash'
-
-import actions from '~/actions'
-
+import React from 'react'
+import { bindActionCreators } from 'redux'
+import { connect } from 'react-redux'
 import { Button, OverlayTrigger, Tooltip } from 'react-bootstrap'
+
+import { updateGlobalStyle } from '~/actions'
 
 const style = require('./toolbar.scss')
 
-export default class Toolbar extends Component {
+class Toolbar extends React.Component {
   constructor(props) {
     super(props)
     this.state = {}
   }
 
   componentDidMount() {
-    actions.setGlobalStyle({
+    this.props.updateGlobalStyle({
       'bp-navbar': {
         borderBottom: 'none'
       }
@@ -24,7 +22,7 @@ export default class Toolbar extends Component {
   }
 
   componentWillUnmount() {
-    actions.setGlobalStyle({
+    this.props.updateGlobalStyle({
       'bp-navbar': {}
     })
   }
@@ -130,3 +128,7 @@ export default class Toolbar extends Component {
     )
   }
 }
+
+const mapDispatchToProps = dispatch => bindActionCreators({ updateGlobalStyle }, dispatch)
+
+export default connect(null, mapDispatchToProps)(Toolbar)

@@ -1,24 +1,17 @@
-import React, { Component } from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
+import { bindActionCreators } from 'redux'
+import { connect } from 'react-redux'
 
 import { Link } from 'react-router'
 import classnames from 'classnames'
 import moment from 'moment'
 
-import { connect } from 'nuclear-js-react-addons'
-
-import getters from '~/stores/getters'
-import actions from '~/actions'
+import { toggleLicenseModal, toggleAboutModal } from '~/actions'
 
 const style = require('./SidebarFooter.scss')
 
-@connect(props => ({
-  botInformation: getters.botInformation,
-  license : getters.license,
-  UI: getters.UI
-}))
-
-class SidebarFooter extends Component {
+class SidebarFooter extends React.Component {
 
   static contextTypes = {
     router: PropTypes.object.isRequired
@@ -29,15 +22,15 @@ class SidebarFooter extends Component {
   }
 
   openLicenseComponent() {
-    actions.toggleLicenseModal()
+    this.props.toggleLicenseModal()
   }
 
   openAbout() {
-    actions.toggleAboutModal()
+    this.props.toggleAboutModal()
   }
 
   renderProgressBar() {
-    const limit = this.props.license.get('limit')
+    const limit = this.props.license.limit
 
     const progressClassNames = classnames(style.progressBar, 'bp-progress')
 
@@ -73,7 +66,7 @@ class SidebarFooter extends Component {
   }
 
   renderStatusDiv(message) {
-    const limit = this.props.license.get('limit')
+    const limit = this.props.license.limit
 
     const statusClassNames = classnames(style.status, 'bp-status')
 
@@ -91,13 +84,13 @@ class SidebarFooter extends Component {
   }
 
   renderLicenseStatus() {
-    const limit = this.props.license.get('limit')
+    const limit = this.props.license.limit
 
     if (limit && limit.get('message')) {
       return this.renderStatusDiv(limit.get('message'))
     }
 
-    const date = this.props.license.get('date')
+    const date = this.props.license.date
 
     if (date) {
       const expiration = moment(date).format("MMM Do YYYY")
@@ -110,8 +103,8 @@ class SidebarFooter extends Component {
   }
 
   renderBuyLink() {
-    const limit = this.props.license.get('limit')
-    const licensed = this.props.license.get('licensed')
+    const limit = this.props.license.limit
+    const licensed = this.props.license.licensed
 
     if ((limit && limit.get('reached')) || !licensed) {
       const classNames = classnames(style.buy, 'bp-buy')
@@ -127,12 +120,12 @@ class SidebarFooter extends Component {
   renderLicense() {
     let license = 'Unlicensed'
     
-    if (this.props.license.get('licensed')) {
-      license = this.props.license.get('name')
+    if (this.props.license.licensed) {
+      license = this.props.license.name
     }
 
     const classNames = classnames(style.license, 'bp-edition-license', {
-      [style.unlicensed]: !this.props.license.get('licensed')
+      [style.unlicensed]: !this.props.license.licensed
     })
 
     return <Link className={classNames} to='#' title='License' onClick={::this.openLicenseComponent}>
@@ -154,15 +147,15 @@ class SidebarFooter extends Component {
   }
 
   render() {
-    if (this.props.UI.get('viewMode') >= 1) {
+    if (this.props.viewMode >= 1) {
       return null
     }
 
-    const isProduction = this.props.botInformation && this.props.botInformation.get('production') 
+    const isProduction = this.props.botInformation && this.props.botInformation.production
 
     const production = isProduction ? "in production" : "in development"
 
-    const name = this.props.botInformation && this.props.botInformation.get('name')
+    const name = this.props.botInformation && this.props.botInformation.name
     
     const sidebarFooterClassNames = classnames(style.bottomInformation, 'bp-sidebar-footer')
     const sidebarInnerClassNames = classnames(style.innerFooter, 'bp-inner-footer')
@@ -183,8 +176,15 @@ class SidebarFooter extends Component {
   }
 }
 
-SidebarFooter.contextTypes = {
-  reactor: PropTypes.object.isRequired
-}
+const mapStateToProps = state => ({
+  botInformation: state.bot,
+  license: state.license,
+  viewMode: state.ui.viewMode
+})
 
-export default SidebarFooter
+const mapDispatchToProps = dispatch => bindActionCreators(
+  { toggleLicenseModal, toggleAboutModal },
+  dispatch
+)
+
+export default connect(mapStateToProps, mapDispatchToProps)(SidebarFooter)

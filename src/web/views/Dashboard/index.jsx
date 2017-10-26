@@ -1,16 +1,8 @@
 import React from 'react'
-import {
-  Panel,
-  Grid,
-  Row,
-  Col,
-  ControlLabel,
-  Tooltip,
-  OverlayTrigger,
-  Link
-} from 'react-bootstrap'
+import { bindActionCreators } from 'redux'
+import { connect } from 'react-redux'
+import { Panel, Grid, Row, Col } from 'react-bootstrap'
 
-import classnames from 'classnames'
 import axios from 'axios'
 import _ from 'lodash'
 
@@ -18,12 +10,11 @@ import ContentWrapper from '~/components/Layout/ContentWrapper'
 import PageHeader from '~/components/Layout/PageHeader'
 import ModulesComponent from '~/components/Modules'
 import InformationRowComponent from '+/views/Information'
-
-import actions from '~/actions'
+import { fetchModules } from '~/actions'
 
 const style = require('./style.scss')
 
-export default class DashboardView extends React.Component {
+class DashboardView extends React.Component {
 
   constructor(props, context) {
     super(props, context)
@@ -35,11 +26,7 @@ export default class DashboardView extends React.Component {
 
   componentDidMount() {
     this.queryAllModules()
-      .then(() => {
-        this.setState({
-          loading: false
-        })
-      })
+      .then(() => this.setState({ loading: false }))
   }
 
   queryAllModules() {
@@ -54,9 +41,7 @@ export default class DashboardView extends React.Component {
 
   refresh() {
     this.queryAllModules()
-      .then(() => {
-        setTimeout(actions.fetchModules, 5000)
-      })
+      .then(() => setTimeout(this.props.fetchModules, 5000))
   }
 
   renderPopularModules() {
@@ -93,3 +78,7 @@ export default class DashboardView extends React.Component {
     )
   }
 }
+
+const mapDispatchToProps = dispatch => bindActionCreators({ fetchModules }, dispatch)
+
+export default connect(null, mapDispatchToProps)(DashboardView)

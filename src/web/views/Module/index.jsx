@@ -1,18 +1,15 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import { connect } from 'react-redux'
 
 import _ from 'lodash'
-
-import { connect } from 'nuclear-js-react-addons'
-import getters from '~/stores/getters'
 
 import ContentWrapper from '~/components/Layout/ContentWrapper'
 import PageHeader from '~/components/Layout/PageHeader'
 
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
 
-@connect(props => ({ modules: getters.modules }))
-export default class ModuleView extends React.Component {
+class ModuleView extends React.Component {
 
   static contextTypes = {
     router: PropTypes.object.isRequired
@@ -30,7 +27,7 @@ export default class ModuleView extends React.Component {
       return null
     }
 
-    const module = this.props.modules.find((value) => value.get('name') === this.props.params.moduleName).toJS()
+    const module = this.props.modules.find((value) => value.get('name') === this.props.params.moduleName)
 
     return <ContentWrapper>
       <PageHeader><span>{module.menuText} {this.renderLink(module)}</span></PageHeader>
@@ -61,7 +58,7 @@ export default class ModuleView extends React.Component {
   render() {
     const { moduleName, subView } = this.props.params
 
-    const modules = this.props.modules.toJS()
+    const modules = this.props.modules
     const module = _.find(modules, { name: moduleName })
 
     if (!module) {
@@ -80,3 +77,11 @@ export default class ModuleView extends React.Component {
     return this.renderWrapper(moduleView, module.menuText)
   }
 }
+
+const mapStateToProps = (state, ownProps) => ({
+  modules: state.modules,
+})
+
+const mapDispatchToProps = (dispatch, ownProps) => {}
+
+export default connect(mapStateToProps, mapDispatchToProps)(ModuleView)
