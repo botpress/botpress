@@ -7,8 +7,6 @@ const MAX_STACK_SIZE = 100
 
 class WorkflowEngine {
   constructor(flows, stateManager, options, logger = loggerShim) {
-    super()
-
     this.logger = logger
     this.flows = flows
     this.stateManager = stateManager
@@ -19,7 +17,7 @@ class WorkflowEngine {
   /**
    * Process a new incoming message from the user.
    * This will execute and run the flow until the flow ends or gets paused by user input
-   * @param  {string} stateId The Id of the state. 
+   * @param  {string} stateId The Id of the state.
    *                          This is usually unique per user/group/channel, depending on the platform.
    * @param  {BPIncomingEvent} event   The incoming event (message)
    * @return {Promise<State>}         Returns a promise that resolves with the new state
@@ -46,6 +44,7 @@ class WorkflowEngine {
     const catchAllNext = _.get(context, 'currentFlow.catchAll.next')
     if (catchAllNext) {
       for (let i = 0; i < catchAllNext.length; i++) {
+        // TODO Missing condition (if matches condition)
         this._trace(`catchAll #${i} matched, processing node ${catchAllNext[i].node}`, context, state)
         return await this._processNode(stateId, context, catchAllNext[i].node, event)
       }
