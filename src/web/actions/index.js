@@ -16,6 +16,7 @@ export const fetchFlows = () => dispatch => {
 }
 
 // export const fetchFlowsDefinitions = createAction('FLOWS_DEFINITIONS_FETCH')
+
 export const saveFlow = createAction('FLOWS/FLOW/SAVE')
 export const updateFlow = createAction('FLOWS/FLOW/UPDATE')
 export const switchFlow = createAction('FLOWS/FLOW/SWITCH')
@@ -23,7 +24,9 @@ export const updateFlowNode = createAction('FLOWS/FLOW/UPDATE_NODE')
 export const switchFlowNode = createAction('FLOWS/FLOW/SWITCH_NODE')
 export const createFlowNode = createAction('FLOWS/FLOW/CREATE')
 export const removeFlowNode = createAction('FLOWS/FLOW/REMOVE')
+
 export const setDiagramAction = createAction('FLOWS/FLOW/SET_ACTION')
+
 
 // License
 export const licenseChanged = createAction('LICENSE/CHANGED')
