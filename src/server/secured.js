@@ -271,7 +271,7 @@ module.exports = (bp, app) => {
   })
 
   app.secure('read', 'bot/flows').get('/flows/all', async (req, res) => {
-    const flows = await bp.dialogEngine.scanFlows()
+    const flows = await bp.dialogEngine.getFlows()
     return res.send(flows)
   })
 

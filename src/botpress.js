@@ -23,7 +23,11 @@ import createModules from './modules'
 import createUMM from './umm'
 import createUsers from './users'
 import createContentManager from './content/service'
-import createDialogEngine from './dialog'
+
+import FlowProvider from './dialog/provider'
+import StateManager from './dialog/state'
+import DialogEngine from './dialog/engine'
+
 import createConversations from './conversations'
 import stats from './stats'
 import packageJson from '../package.json'
@@ -149,7 +153,10 @@ class botpress {
     const users = createUsers({ db })
     const contentManager = createContentManager({ db, logger, projectLocation, botfile })
     const umm = createUMM({ logger, middlewares, projectLocation, botfile, db, contentManager })
-    const dialogEngine = createDialogEngine({ logger, projectLocation, botfile })
+
+    const dialogStateManager = StateManager()
+    const flowProvider = FlowProvider({ logger, projectLocation, botfile })
+    const dialogEngine = new DialogEngine(flowProvider, dialogStateManager, null, logger)
 
     middlewares.register(umm.incomingMiddleware)
     middlewares.register(hearMiddleware)

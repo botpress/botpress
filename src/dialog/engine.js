@@ -8,11 +8,13 @@ const MAX_STACK_SIZE = 100
 
 class DialogEngine {
 
-  constructor(flows, stateManager, options, logger = loggerShim) {
+  constructor(flowsProvider, stateManager, options, logger = loggerShim) {
     this.logger = logger
-    this.flows = flows
+    this.provider= flowsProvider
+    this.flowsLoaded = false
+    this.flows = []
     this.stateManager = stateManager
-    this.defaultFlow = _.get(options, 'defaultFlow') || 'main'
+    this.defaultFlow = _.get(options, 'defaultFlow') || 'main.flow.json'
     this.outputProcessors = []
   }
 
@@ -26,7 +28,13 @@ class DialogEngine {
    *                                  when the flow is done processing
    */
   async processMessage(stateId, event) {
-    let context = this._getOrCreateContext(stateId)
+    this._trace('Processing incoming message')
+
+    if (!this.flowsLoaded) {
+      await this.reloadFlows()
+    }
+
+    let context = await this._getOrCreateContext(stateId)
     let state = await this.stateManager.getState(stateId)
 
     if (!context.currentFlow) {
@@ -44,7 +52,8 @@ class DialogEngine {
     const catchAllNext = _.get(context, 'currentFlow.catchAll.next')
     if (catchAllNext) {
       for (let i = 0; i < catchAllNext.length; i++) {
-        if (await WorkflowEngine._evaluateCondition(catchAllNext[i].condition, state)) {
+        this._trace(`catchAll #${i}, evaluation only of "${catchAllNext[i].condition}"`, context, state)
+        if (await this._evaluateCondition(catchAllNext[i].condition, state)) {
           this._trace(`catchAll #${i} matched, processing node ${catchAllNext[i].node}`, context, state)
           return await this._processNode(stateId, context, catchAllNext[i].node, event)
         }
@@ -54,6 +63,20 @@ class DialogEngine {
 
     this._trace('Processing node ' + context.node, context, state)
     return await this._processNode(stateId, context, context.node, event)
+  }
+
+  async reloadFlows() {
+    this._trace('Loading flows')
+    this.flows = await this.provider.loadAll()
+    this.flowsLoaded = true
+  }
+
+  async getFlows() {
+    if (!this.flowsLoaded) {
+      await this.reloadFlows()
+    }
+
+    return this.flows
   }
 
   async _processNode(stateId, context, nodeName, event) {
@@ -76,7 +99,7 @@ class DialogEngine {
     }
 
     let userState = await this.stateManager.getState(stateId)
-    let node = WorkflowEngine._findNode(context.currentFlow, context.node)
+    let node = DialogEngine._findNode(context.currentFlow, context.node)
 
     if (!node || !node.name) {
       throw new Error(`Could not find node "${context.node}" in flow "${context.currentFlow.name}"`)
@@ -109,8 +132,9 @@ class DialogEngine {
 
   async _transitionToNextNodes(node, context, userState, stateId, event) {
     const nextNodes = node.next || []
-    for (let i = 0; i < nextNodes; i++) {
-      if (await WorkflowEngine._evaluateCondition(nextNodes[i].condition, userState)) {
+    for (let i = 0; i < nextNodes.length; i++) {
+      this._trace(`Evaluating next node #${i} (${nextNodes[i].condition})`)
+      if (await this._evaluateCondition(nextNodes[i].condition, userState)) {
         if (/end/i.test(nextNodes[i].node)) { // Node "END" or "end" ends the flow (reserved keyword)
           await this._endFlow(stateId)
           return {}
@@ -126,6 +150,7 @@ class DialogEngine {
   }
 
   async _endFlow(stateId) {
+    this._trace('Ending flow for: ' + stateId, null, null)
     await this.stateManager.clearState(stateId) // TODO Implement
     await this._setContext(stateId, null)
   }
@@ -133,17 +158,17 @@ class DialogEngine {
   async _getOrCreateContext(stateId) {
     let state = await this._getContext(stateId)
 
-    if (!state) {
+    if (!state || !state.currentFlow) {
       const flow = this._findFlow(this.defaultFlow)
 
       if (!flow) {
         throw new Error(`Could not find the default flow "${this.defaultFlow}"`)
       }
 
-      const state = {
+      state = {
         currentFlow: flow,
         node: flow.startNode,
-        flowStack: [flow.startNode]
+        flowStack: [{ flow: flow.name, node: flow.startNode }]
       }
 
       await this._setContext(stateId, state)
@@ -235,7 +260,7 @@ class DialogEngine {
           context
         )
       } else {
-        userState = await WorkflowEngine._invokeAction(instruction, userState, event, context)
+        userState = await DialogEngine._invokeAction(instruction, userState, event, context)
       }
     })
 
@@ -251,7 +276,11 @@ class DialogEngine {
     return userState
   }
 
-  static async _evaluateCondition(condition, userState) {
+  async _evaluateCondition(condition, userState) {
+    if (/^true|always|yes$/i.test(condition) || condition === '') {
+      return true
+    }
+
     const vm = new VM({
       timeout: 5000
     })
@@ -259,7 +288,12 @@ class DialogEngine {
     vm.freeze(userState, 's')
     vm.freeze(userState, 'state')
 
-    return await vm.run(condition) == true
+    try {
+      return await vm.run(condition) == true
+    } catch (err) {
+      this._trace(`ERROR evaluating condition "${condition}": ${err.message}`, null, userState)
+      return false
+    }
   }
 
   static _findNode(flow, nodeName, throwIfNotFound = false) {
