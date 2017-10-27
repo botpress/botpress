@@ -290,3 +290,5 @@ class DialogEngine {
     this.logger.debug(message)
   }
 }
+
+module.exports = DialogEngine

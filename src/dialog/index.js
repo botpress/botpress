@@ -47,10 +47,6 @@ module.exports = ({ logger, botfile, projectLocation }) => {
         return logger.warn(errorPrefix + ', unsupported `version` of the schema "' + flow.version + '"')
       }
 
-      if (!_.isString(flow.name) || !validateFlowName(flow.name)) {
-        return logger.warn(`, name of the flow is invalid (${flow.name})`)
-      }
-
       if (!_.isString(flow.startNode)) {
         return logger.warn(errorPrefix + ', expected valid `startNode`')
       }
@@ -107,7 +103,7 @@ module.exports = ({ logger, botfile, projectLocation }) => {
         version: flow.version,
         name: flow.name,
         nodes: _.filter(flow.nodes, node => !!node),
-        startnode: flow.startnode
+        startNode: flow.startNode
       })
     })
 
@@ -115,7 +111,18 @@ module.exports = ({ logger, botfile, projectLocation }) => {
   }
 
   async function loadFlows() {
-    new DialogEngine()
+    //flows, stateManager, options, logger = loggerShim
+    const flows = await this.scanFlows()
+    const stateManager = {
+      setState: () => {},
+      getState: () => {},
+      clearState: () => {}
+    }
+    const options = null
+    const logger = null
+
+    const engine = new DialogEngine(flows, stateManager, options, logger)
+    return engine
   }
 
   return { scanFlows, loadFlows }
