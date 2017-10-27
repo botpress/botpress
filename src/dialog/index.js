@@ -4,6 +4,8 @@ import glob from 'glob'
 import _ from 'lodash'
 import Promise from 'bluebird'
 
+import DialogEngine from './engine'
+
 const validateFlowName = name => /^[a-z]{1}[a-z_0-9-]{1,20}$/.test(name)
 
 module.exports = ({ logger, botfile, projectLocation }) => {
@@ -112,7 +114,9 @@ module.exports = ({ logger, botfile, projectLocation }) => {
     return flows
   }
 
-  async function loadFlows() {}
+  async function loadFlows() {
+    new DialogEngine()
+  }
 
   return { scanFlows, loadFlows }
 }

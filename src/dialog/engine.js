@@ -6,7 +6,7 @@ const loggerShim = { debug: () => {} }
 const callSubflowRegex = /(.+\.flow\.json)\s?@?\s?(.+)?/i // e.g. './login.flow.json' or './login.flow.json @ username'
 const MAX_STACK_SIZE = 100
 
-class WorkflowEngine {
+class DialogEngine {
 
   constructor(flows, stateManager, options, logger = loggerShim) {
     this.logger = logger
