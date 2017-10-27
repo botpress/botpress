@@ -1,11 +1,13 @@
 import _ from 'lodash'
 import Promise from 'bluebird'
+import { VM } from 'vm2'
 
 const loggerShim = { debug: () => {} }
-const callSubflowRegex = /^flow /i
+const callSubflowRegex = /(.+\.flow\.json)\s?@?\s?(.+)?/i // e.g. './login.flow.json' or './login.flow.json @ username'
 const MAX_STACK_SIZE = 100
 
 class WorkflowEngine {
+
   constructor(flows, stateManager, options, logger = loggerShim) {
     this.logger = logger
     this.flows = flows
@@ -25,7 +27,7 @@ class WorkflowEngine {
    */
   async processMessage(stateId, event) {
     let context = this._getOrCreateContext(stateId)
-    let state = null
+    let state = await this.stateManager.getState(stateId)
 
     if (!context.currentFlow) {
       throw new Error('Expected currentFlow to be defined for stateId=' + stateId)
@@ -34,9 +36,7 @@ class WorkflowEngine {
     const catchAllOnReceive = _.get(context, 'currentFlow.catchAll.onReceive')
     if (catchAllOnReceive) {
       this._trace('Executing catchAll : onReceive', context, null)
-      state = await this._executeInstructions(context)
-    } else {
-      state = await this.stateManager.getState(stateId)
+      state = await this._processInstructions(catchAllOnReceive, state, event, context)
     }
 
     // If there's a 'next' defined in catchAll, this will try to match any condition and if it is matched it
@@ -44,9 +44,10 @@ class WorkflowEngine {
     const catchAllNext = _.get(context, 'currentFlow.catchAll.next')
     if (catchAllNext) {
       for (let i = 0; i < catchAllNext.length; i++) {
-        // TODO Missing condition (if matches condition)
-        this._trace(`catchAll #${i} matched, processing node ${catchAllNext[i].node}`, context, state)
-        return await this._processNode(stateId, context, catchAllNext[i].node, event)
+        if (await WorkflowEngine._evaluateCondition(catchAllNext[i].condition, state)) {
+          this._trace(`catchAll #${i} matched, processing node ${catchAllNext[i].node}`, context, state)
+          return await this._processNode(stateId, context, catchAllNext[i].node, event)
+        }
       }
       this._trace('No catchAll next matched', context, state)
     }
@@ -60,7 +61,6 @@ class WorkflowEngine {
     let switchedNode = false
 
     if (callSubflowRegex.test(nodeName)) {
-      // e.g. 'flow login'
       this._trace('--> Going to subflow: ' + nodeName, context, null)
       context = this._gotoSubflow(nodeName, context)
       switchedFlow = true
@@ -76,35 +76,59 @@ class WorkflowEngine {
     }
 
     let userState = await this.stateManager.getState(stateId)
-    let node = _.find(context.currentFlow, context.node)
+    let node = WorkflowEngine._findNode(context.currentFlow, context.node)
 
     if (!node || !node.name) {
       throw new Error(`Could not find node "${context.node}" in flow "${context.currentFlow.name}"`)
     }
 
     if (switchedFlow || switchedNode) {
-      this._trace('Entering new node ' + context.node, context, userState)
+      this._trace(`Entering node "${node.name}" (${node.id})`, context, userState)
       await this._setContext(stateId, context)
 
       if (node.onEnter) {
+        this._trace(`Executing onEnter instructions`, context, userState)
         userState = await this._processInstructions(node.onEnter, userState, event, context)
       }
 
       if (!node.onReceive) {
-        await this._transitionToNextNodes(node, userState, stateId, event)
+        this._trace(`Node has no 'onReceive', not waiting for user input and skipping to next nodes`,
+          context, userState)
+        await this._transitionToNextNodes(node, context, userState, stateId, event)
       }
     } else { // i.e. we were already on that node before we received the message
       if (node.onReceive) {
         userState = await this._processInstructions(node.onReceive, userState, event, context)
       }
 
-      await this._transitionToNextNodes(node, userState, stateId, event)
+      await this._transitionToNextNodes(node, context, userState, stateId, event)
     }
 
     return userState
   }
 
-  async _transitionToNextNodes(node, userState, stateId, event) {}
+  async _transitionToNextNodes(node, context, userState, stateId, event) {
+    const nextNodes = node.next || []
+    for (let i = 0; i < nextNodes; i++) {
+      if (await WorkflowEngine._evaluateCondition(nextNodes[i].condition, userState)) {
+        if (/end/i.test(nextNodes[i].node)) { // Node "END" or "end" ends the flow (reserved keyword)
+          await this._endFlow(stateId)
+          return {}
+        } else {
+          return await this._processNode(stateId, context, nextNodes[i].node, event)
+        }
+      }
+    }
+
+    // You reach this if there were no next nodes, in which case we end the flow
+    await this._endFlow(stateId)
+    return {}
+  }
+
+  async _endFlow(stateId) {
+    await this.stateManager.clearState(stateId) // TODO Implement
+    await this._setContext(stateId, null)
+  }
 
   async _getOrCreateContext(stateId) {
     let state = await this._getContext(stateId)
@@ -137,14 +161,9 @@ class WorkflowEngine {
   }
 
   _gotoSubflow(nodeName, context) {
-    nodeName = nodeName.replace(callSubflowRegex, '')
-    let subflow, subflowNode
+    let [, subflow, subflowNode] = nodeName.match(callSubflowRegex)
 
-    if (nodeName.indexOf('.') > 0) {
-      subflow = nodeName.substr(0, nodeName.indexOf('.'))
-      subflowNode = nodeName.substr(nodeName.indexOf('.') + 1)
-    } else {
-      subflow = nodeName
+    if (_.isNil(subflowNode)) {
       subflowNode = this._findFlow(subflow).startNode
     }
 
@@ -216,16 +235,56 @@ class WorkflowEngine {
           context
         )
       } else {
-        userState = await this._invokeAction(instruction, userState, event, context)
+        userState = await WorkflowEngine._invokeAction(instruction, userState, event, context)
       }
     })
 
     return userState
   }
 
-  _findNode(name) {}
+  async _dispatchOutput(output, userState, event, context) {
+    console.log('-->> Dispatch output :' + JSON.stringify(output) + ' (TODO)')
+  }
 
-  _findFlow(flowName) {}
+  static async _invokeAction(instruction, userState, event, context) {
+    console.log('-->> Invoke action:' + JSON.stringify(instruction) + ' (TODO)')
+    return userState
+  }
+
+  static async _evaluateCondition(condition, userState) {
+    const vm = new VM({
+      timeout: 5000
+    })
+
+    vm.freeze(userState, 's')
+    vm.freeze(userState, 'state')
+
+    return await vm.run(condition) == true
+  }
+
+  static _findNode(flow, nodeName, throwIfNotFound = false) {
+    if (throwIfNotFound && _.isNil(flow)) {
+      throw new Error(`Could not find node ${nodeName} because the flow was not defined (null)`)
+    }
+
+    const node =_.find(flow.nodes, { name: nodeName })
+
+    if (throwIfNotFound && _.isNil(nodeName)) {
+      throw new Error(`Could not find node "${nodeName}" in flow "${flow.name}"`)
+    }
+
+    return node
+  }
+
+  _findFlow(flowName, throwIfNotFound = false) {
+    const flow =_.find(this.flows, { name: flowName })
+
+    if (throwIfNotFound && _.isNil(flow)) {
+      throw new Error(`Could not find flow "${flowName}"`)
+    }
+
+    return flow
+  }
 
   _trace(message, context, state) {
     this.logger.debug(message)

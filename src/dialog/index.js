@@ -26,6 +26,8 @@ module.exports = ({ logger, botfile, projectLocation }) => {
       const filePath = path.resolve(flowsDir, './' + file)
       const flow = JSON.parse(fs.readFileSync(filePath))
 
+      flow.name = file // e.g. 'login.flow.json' or 'shapes/circle.flow.json'
+
       const uiEqPath = file.replace(/\.flow/g, '.ui')
       const uiEq = _.find(uiFiles, e => e === uiEqPath) || {}
 
