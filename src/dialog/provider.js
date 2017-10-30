@@ -99,6 +99,7 @@ module.exports = ({ logger, botfile, projectLocation }) => {
         version: flow.version,
         name: flow.name,
         nodes: _.filter(flow.nodes, node => !!node),
+        catchAll: flow.catchAll, // TODO Validate catchAll
         startNode: flow.startNode
       })
     })

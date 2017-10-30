@@ -42,6 +42,7 @@ class DialogEngine {
     }
 
     const catchAllOnReceive = _.get(context, 'currentFlow.catchAll.onReceive')
+
     if (catchAllOnReceive) {
       this._trace('Executing catchAll : onReceive', context, null)
       state = await this._processInstructions(catchAllOnReceive, state, event, context)
@@ -77,6 +78,16 @@ class DialogEngine {
     }
 
     return this.flows
+  }
+
+  async registerOutputProcessor(processor) {
+    if (_.isNil(processor) || !_.isFunction(processor.send) || !_.isString(processor.id)) {
+      throw new Error('Invalid processor. Processor must have a function `send` defined and a valid `id`')
+    }
+
+    _.remove(this.outputProcessors, p => p.id === processor.id)
+
+    this.outputProcessors.push(processor)
   }
 
   async _processNode(stateId, context, nodeName, event) {
@@ -268,10 +279,18 @@ class DialogEngine {
   }
 
   async _dispatchOutput(output, userState, event, context) {
-    console.log('-->> Dispatch output :' + JSON.stringify(output) + ' (TODO)')
+    this.outputProcessors.forEach(processor => {
+      processor.send({
+        message: output,
+        state: userState,
+        originalEvent: event,
+        flowContext: context
+      })
+    })
   }
 
   static async _invokeAction(instruction, userState, event, context) {
+
     console.log('-->> Invoke action:' + JSON.stringify(instruction) + ' (TODO)')
     return userState
   }
