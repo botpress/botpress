@@ -1,18 +1,17 @@
 var webpack = require('webpack')
 var path = require('path')
 var CopyWebpackPlugin = require('copy-webpack-plugin')
-var autoprefixer = require('autoprefixer')
+// var HardSourceWebpackPlugin = require('hard-source-webpack-plugin')
 var nodeExternals = require('webpack-node-externals')
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
-const HardSourceWebpackPlugin = require('hard-source-webpack-plugin')
 
 var ExtensionsPlugin = require('./extensions/extensions-plugin')
 
 var nodeConfig = {
-  devtool: 'source-map',
+  devtool: 'eval-cheap-module-source-map',
   entry: [path.resolve(__dirname, './index.js')],
   output: {
-    path: './lib',
+    path: path.resolve(__dirname, './lib'),
     filename: 'node.bundle.js',
     libraryTarget: 'commonjs2',
     publicPath: __dirname
@@ -23,26 +22,26 @@ var nodeConfig = {
     __dirname: false
   },
   resolve: {
-    extensions: ['', '.js'],
+    extensions: ['.js'],
     alias: {
       '~': path.resolve(__dirname, './src'),
       '+': path.resolve(__dirname, './extensions/lite')
     }
   },
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.js$/,
-        loader: 'babel-loader',
-        exclude: /node_modules/,
-        query: {
-          presets: ['latest', 'stage-0'],
-          plugins: ['transform-object-rest-spread']
-        }
-      },
-      {
-        test: /\.json$/,
-        loader: 'json-loader'
+        use: [
+          {
+            loader: 'babel-loader',
+            options: {
+              presets: ['latest', 'stage-0'],
+              plugins: ['transform-object-rest-spread']
+            }
+          }
+        ],
+        exclude: /node_modules/
       }
     ]
   },
@@ -57,40 +56,51 @@ var nodeConfig = {
 
 var webConfig = {
   bail: true,
-  devtool: 'source-map',
+  devtool: 'eval-cheap-module-source-map',
   entry: {
+    vendor: [
+      'axios',
+      'bluebird',
+      'howler',
+      'knex',
+      'lodash',
+      'moment',
+      'react',
+      'react-bootstrap',
+      'react-codemirror',
+      'react-dom',
+      'react-jsonschema-form'
+    ],
     web: './src/web/index.jsx',
     lite: './src/web/lite.jsx'
   },
   output: {
-    path: './lib/web/js',
+    path: path.resolve(__dirname, './lib/web/js'),
     publicPath: '/js/',
     filename: '[name].bundle.js'
   },
   resolve: {
-    extensions: ['', '.js', '.jsx', '.css'],
+    extensions: ['.js', '.jsx', '.css'],
     alias: {
       '~': path.resolve(__dirname, './src/web'),
       '+': path.resolve(__dirname, './extensions/lite')
     }
   },
   plugins: [
+    new webpack.optimize.CommonsChunkPlugin({
+      name: 'vendor',
+      minChunks: Infinity
+    }),
     ExtensionsPlugin.beforeResolve,
     ExtensionsPlugin.afterResolve,
-    new HardSourceWebpackPlugin(),
     new webpack.DefinePlugin({
       BP_EDITION: JSON.stringify(process.env.BOTPRESS_EDITION || 'lite'),
       'process.env': {
         NODE_ENV: JSON.stringify('production')
       }
     }),
-    // new UglifyJSPlugin({
-    //   compress: { warnings: false },
-    //   comments: false,
-    //   minimize: false,
-    //   sourceMap: true
-    // }),
-    new webpack.NoErrorsPlugin(),
+    new UglifyJSPlugin({ sourceMap: true, cache: true }),
+    new webpack.NoEmitOnErrorsPlugin(),
     new CopyWebpackPlugin([
       {
         from: path.resolve(__dirname, './src/web/index.html'),
@@ -121,43 +131,47 @@ var webConfig = {
     // })
   ],
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.jsx?$/i,
         exclude: /node_modules/i,
-        loader: 'babel-loader',
-        query: {
-          presets: ['latest', 'stage-0', 'react'],
-          plugins: ['transform-object-rest-spread', 'transform-decorators-legacy'],
-          compact: true,
-          babelrc: false,
-          cacheDirectory: true
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['latest', 'stage-0', 'react'],
+            plugins: ['transform-object-rest-spread', 'transform-decorators-legacy'],
+            compact: true,
+            babelrc: false,
+            cacheDirectory: true
+          }
         }
       },
       {
         test: /\.scss$/,
-        loaders: [
-          'style',
-          'css?modules&importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]',
-          'postcss',
-          'sass'
+        use: [
+          { loader: 'style-loader' },
+          {
+            loader: 'css-loader',
+            options: {
+              modules: true,
+              importLoaders: 1,
+              localIdentName: '[name]__[local]___[hash:base64:5]'
+            }
+          },
+          { loader: 'postcss-loader' },
+          { loader: 'sass-loader' }
         ]
       },
       {
         test: /\.css$/,
-        loaders: ['style', 'css']
+        use: ['style-loader', 'css-loader']
       },
       {
         test: /\.woff|\.woff2|\.svg|.eot|\.ttf/,
-        loader: 'file?name=../fonts/[name].[ext]'
-      },
-      {
-        test: /\.json$/,
-        loader: 'json-loader'
+        use: [{ loader: 'file-loader', options: { name: '../fonts/[name].[ext]' } }]
       }
     ]
-  },
-  postcss: [autoprefixer({ browsers: ['last 2 versions'] })]
+  }
 }
 
 var compiler = webpack([webConfig, nodeConfig])

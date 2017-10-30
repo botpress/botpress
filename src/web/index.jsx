@@ -1,5 +1,6 @@
-import React from 'expose?React!react'
-import ReactDOM from 'expose?ReactDOM!react-dom'
+import React from 'expose-loader?React!react'
+import ReactDOM from 'expose-loader?ReactDOM!react-dom'
+
 import { createStore, applyMiddleware, compose } from 'redux'
 import { Provider } from 'react-redux'
 import thunk from 'redux-thunk'
