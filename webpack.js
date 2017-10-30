@@ -77,7 +77,7 @@ var webConfig = {
   output: {
     path: path.resolve(__dirname, './lib/web/js'),
     publicPath: '/js/',
-    filename: '[name]-[hash].bundle.js'
+    filename: '[name].bundle.js'
   },
   resolve: {
     extensions: ['.js', '.jsx', '.css'],
