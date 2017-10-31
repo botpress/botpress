@@ -7,20 +7,12 @@ import moment from 'moment'
 import axios from 'axios'
 import { createConfig } from './configurator'
 
-import {
-  print,
-  isDeveloping,
-  npmCmd,
-  resolveModuleRootPath,
-  resolveFromDir,
-  resolveProjectFile
-} from './util'
+import { print, isDeveloping, npmCmd, resolveModuleRootPath, resolveFromDir, resolveProjectFile } from './util'
 
 const MODULES_URL = 'https://s3.amazonaws.com/botpress-io/all-modules.json'
 const FETCH_TIMEOUT = 5000
 
 module.exports = (logger, projectLocation, dataLocation, kvs) => {
-
   const log = (level, ...args) => {
     if (logger && logger[level]) {
       logger[level].apply(this, args)
@@ -30,18 +22,24 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
   }
 
   const fetchAllModules = () => {
-    return axios.get(MODULES_URL, { timeout: FETCH_TIMEOUT })
+    return axios
+      .get(MODULES_URL, { timeout: FETCH_TIMEOUT })
       .then(({ data }) => data)
       .catch(() => logger.error('Could not fetch modules'))
   }
 
-  const loadModules = (moduleDefinitions, botpress) => {
+  const loadModules = async (moduleDefinitions, botpress) => {
     let loadedCount = 0
     const loadedModules = {}
 
-    moduleDefinitions.forEach(mod => {
-      // eslint-disable-next-line no-eval
-      const loader = eval('require')(mod.entry)
+    await Promise.mapSeries(moduleDefinitions, async mod => {
+      let loader = null
+      try {
+        // eslint-disable-next-line no-eval
+        loader = eval('require')(mod.entry)
+      } catch (err) {
+        return logger.error(`Error loading module "${mod.name}": ` + err.message)
+      }
 
       if (typeof loader !== 'object') {
         return logger.warn(`Ignoring module ${mod.name}. Invalid entry point signature.`)
@@ -62,7 +60,7 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
       }
 
       try {
-        loader.init && loader.init(botpress, mod.configuration)
+        loader.init && (await loader.init(botpress, mod.configuration))
       } catch (err) {
         logger.warn('Error during module initialization: ', err)
       }
@@ -83,8 +81,9 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
     const packagePath = path.join(projectLocation, 'package.json')
 
     if (!fs.existsSync(packagePath)) {
-      return logger.warn('No package.json found at project root, ' +
-        'which means botpress can\'t load any module for the bot.')
+      return logger.warn(
+        'No package.json found at project root, ' + "which means botpress can't load any module for the bot."
+      )
     }
 
     // eslint-disable-next-line no-eval
@@ -95,68 +94,73 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
       deps = _.merge(deps, botPackage.devDependencies || {})
     }
 
-    return _.reduce(deps, (result, value, key) => {
-      if (!/^botpress-/i.test(key)) {
-        return result
-      }
-      const entry = resolveFromDir(projectLocation, key)
-      if (!entry) {
-        return result
-      }
-      const root = resolveModuleRootPath(entry)
-      if (!root) {
-        return result
-      }
+    return _.reduce(
+      deps,
+      (result, value, key) => {
+        if (!/^botpress-/i.test(key)) {
+          return result
+        }
+        const entry = resolveFromDir(projectLocation, key)
+        if (!entry) {
+          return result
+        }
+        const root = resolveModuleRootPath(entry)
+        if (!root) {
+          return result
+        }
 
-      // eslint-disable-next-line no-eval
-      const modulePackage = eval('require')(path.join(root, 'package.json'))
-      if (!modulePackage.botpress) {
-        return result
-      }
+        // eslint-disable-next-line no-eval
+        const modulePackage = eval('require')(path.join(root, 'package.json'))
+        if (!modulePackage.botpress) {
+          return result
+        }
 
-      return result.push({
-        name: key,
-        root: root,
-        homepage: modulePackage.homepage,
-        settings: modulePackage.botpress,
-        version: modulePackage.version,
-        entry: entry
-      }) && result
-    }, [])
+        return (
+          result.push({
+            name: key,
+            root: root,
+            homepage: modulePackage.homepage,
+            settings: modulePackage.botpress,
+            version: modulePackage.version,
+            entry: entry
+          }) && result
+        )
+      },
+      []
+    )
   }
 
   const getRandomCommunityHero = Promise.method(() => {
     const modulesCachePath = path.join(dataLocation, './modules-cache.json')
 
-    return listAllCommunityModules()
-      .then(() => {
-        const { modules } = JSON.parse(fs.readFileSync(modulesCachePath))
+    return listAllCommunityModules().then(() => {
+      const { modules } = JSON.parse(fs.readFileSync(modulesCachePath))
 
-        const module = _.sample(modules)
+      const module = _.sample(modules)
 
-        if (!module) {
-          return {
-            username: 'danyfs',
-            github: 'https://github.com/danyfs',
-            avatar: 'https://avatars1.githubusercontent.com/u/5629987?v=3',
-            contributions: 'many',
-            module: 'botpress'
-          }
-        }
-
-        const hero = _.sample(module.contributors)
-
+      if (!module) {
         return {
-          username: hero.login,
-          github: hero.html_url,
-          avatar: hero.avatar_url,
-          contributions: hero.contributions,
-          module: module.name
+          username: 'danyfs',
+          github: 'https://github.com/danyfs',
+          avatar: 'https://avatars1.githubusercontent.com/u/5629987?v=3',
+          contributions: 'many',
+          module: 'botpress'
         }
-      })
+      }
+
+      const hero = _.sample(module.contributors)
+
+      return {
+        username: hero.login,
+        github: hero.html_url,
+        avatar: hero.avatar_url,
+        contributions: hero.contributions,
+        module: module.name
+      }
+    })
   })
 
-  const mapModuleList = (modules) => {
+  const mapModuleList = modules => {
     const installed = listInstalledModules()
     return modules.map(mod => ({
       name: mod.name,
@@ -182,17 +186,19 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
   }
 
   const listAllCommunityModules = Promise.method(() => {
-
     if (!fs) {
       return [] // TODO Fetch & return
     }
 
     const modulesCachePath = path.join(dataLocation, './modules-cache.json')
     if (!fs.existsSync(modulesCachePath)) {
-      fs.writeFileSync(modulesCachePath, JSON.stringify({
-        modules: [],
-        updated: null
-      }))
+      fs.writeFileSync(
+        modulesCachePath,
+        JSON.stringify({
+          modules: [],
+          updated: null
+        })
+      )
     }
 
     const { modules, updated } = JSON.parse(fs.readFileSync(modulesCachePath))
@@ -203,30 +209,31 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
 
     return Promise.props({
       newModules: fetchAllModules()
-    })
-      .then(({ newModules }) => {
-
-        if (!newModules || !newModules.length) {
-          if (modules.length > 0) {
-            logger.debug('Fetched invalid modules. Report this to the Botpress Team.')
-            return mapModuleList(modules)
-          } else {
-            newModules = newModules || []
-          }
+    }).then(({ newModules }) => {
+      if (!newModules || !newModules.length) {
+        if (modules.length > 0) {
+          logger.debug('Fetched invalid modules. Report this to the Botpress Team.')
+          return mapModuleList(modules)
+        } else {
+          newModules = newModules || []
         }
+      }
 
-        fs.writeFileSync(modulesCachePath, JSON.stringify({
+      fs.writeFileSync(
+        modulesCachePath,
+        JSON.stringify({
           modules: newModules,
           updated: new Date()
-        }))
+        })
+      )
 
-        return mapModuleList(newModules)
-      })
+      return mapModuleList(newModules)
+    })
   })
 
-  const resolveModuleNames = (names) => {
+  const resolveModuleNames = names => {
     return names.map(name => {
-      if (!name || typeof(name) !== 'string') {
+      if (!name || typeof name !== 'string') {
         throw new TypeError('Expected module name to be a string')
       }
 
@@ -249,17 +256,17 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
     })
   }
 
-  const runSpawn = (command) => {
+  const runSpawn = command => {
     return new Promise((resolve, reject) => {
-      command.stdout.on('data', (data) => {
+      command.stdout.on('data', data => {
         log('info', data.toString())
       })
 
-      command.stderr.on('data', (data) => {
+      command.stderr.on('data', data => {
         log('error', data.toString())
       })
 
-      command.on('close', (code) => {
+      command.on('close', code => {
         if (code > 0) {
           reject()
         } else {
@@ -301,7 +308,6 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
         throw err
       })
   })
-
 
   const listInstalledModules = () => {
     const packagePath = resolveProjectFile('package.json', projectLocation, true)
