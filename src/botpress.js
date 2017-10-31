@@ -187,7 +187,7 @@ class botpress {
 
     ServiceLocator.init({ bp: this })
 
-    const loadedModules = modules._load(moduleDefinitions, this)
+    const loadedModules = await modules._load(moduleDefinitions, this)
 
     this.stats.track('bot', 'modules', 'loaded', loadedModules.length)
 
@@ -288,7 +288,7 @@ class botpress {
     const envPath = path.resolve(this.projectLocation, '.env')
     if (fs.existsSync(envPath)) {
       const envConfig = dotenv.parse(fs.readFileSync(envPath))
-      for (var k in envConfig) {
+      for (let k in envConfig) {
         if (_.isNil(process.env[k]) || process.env.ENV_OVERLOAD) {
           process.env[k] = envConfig[k]
         }
