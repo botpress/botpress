@@ -11,8 +11,11 @@
 - [Conversations](./foundamentals/conversations.md)
     - [Flow Management (Convo)](./foundamentals/flow.md)
     - [Content Management (UMM)](./foundamentals/umm.md)
+- [Content Management](./foundamentals/content.md)
 - [Data Storage](./foundamentals/database.md)
     - [Key-Value-Store](./foundamentals/database.md#kvs)
+    - [User Tags](./foundamentals/tags.md)
+    - [Notifications](./foundamentals/notifications.md)
 - [Configuration](./foundamentals/botfile.md)
 
 ### Deploying your bot

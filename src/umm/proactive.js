@@ -50,7 +50,7 @@ module.exports = ({ sendBloc, db }) => {
       user: user,
       type: 'proactive',
       text: text,
-      raw: { forged: true, message: text }
+      raw: { forged: true, message: text, to: user && user.id }
     }
 
     return sendBloc(forgedEvent, bloc, data)

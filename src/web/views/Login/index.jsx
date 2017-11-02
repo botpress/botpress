@@ -43,12 +43,12 @@ export default class LoginPage extends Component {
     this.setState({ loading: true })
 
     login(this.state.user, this.state.password)
-    .then((result) => {
-      this.setState({ error: null })
-      this.context.router.push(this.props.location.query.returnTo || '/')
-    }).catch((err) => {
-      this.setState({ error: err.message, loading: false })
-    })
+      .then((result) => {
+        this.setState({ error: null })
+        this.context.router.push(this.props.location.query.returnTo || '/')
+      }).catch((err) => {
+        this.setState({ error: err.message, loading: false })
+      })
   }
 
   renderLoading() {
@@ -104,7 +104,8 @@ export default class LoginPage extends Component {
                 </FormGroup>
                 <FormGroup>
                   <ControlLabel>Password</ControlLabel>
-                  <FormControl type="password" placeholder="" value={this.state.password} onChange={::this.handlePasswordChange}/>
+                  <FormControl type="password" placeholder="" value={this.state.password}
+                    onChange={::this.handlePasswordChange}/>
                 </FormGroup>
                 <Button className="pull-right" type="submit">Login</Button>
                 <Decorators.ForgotPassword />

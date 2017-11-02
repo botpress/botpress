@@ -5,8 +5,8 @@ class Menu extends Component {
 
   render() {
     return <div>
-			<a href="#" onClick={this.props.logout}>Logout</a>
-		</div>
+      <a href="#" onClick={this.props.logout}>Logout</a>
+    </div>
   }
 }
 

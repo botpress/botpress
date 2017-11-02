@@ -46,24 +46,24 @@ export const logout = () => {
 
 export const login = (user, password) => {
   return axios.post('/api/login', { user, password })
-  .then((result) => {
-    if (result.data.success) {
-      setToken(result.data.token)
-      authEvents.emit('login')
-    } else {
-      throw new Error(result.data.reason)
-    }
-  })
+    .then((result) => {
+      if (result.data.success) {
+        setToken(result.data.token)
+        authEvents.emit('login')
+      } else {
+        throw new Error(result.data.reason)
+      }
+    })
 }
 
 export const getUniqueVisitorId = () => {
-  let userId = uuid.v4()
-  const localUserId = localStorage.getItem('bp/socket/user')
-  if (localUserId) {
-    userId = localUserId
-    window.__BP_VISITOR_ID = localUserId
-  } else {
+  let userId = localStorage.getItem('bp/socket/user')
+  
+  if (!userId) {
+    userId = uuid.v4()
     localStorage.setItem('bp/socket/user', userId)
   }
+
+  window.__BP_VISITOR_ID = userId
   return userId
 }

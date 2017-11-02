@@ -1,6 +1,6 @@
 /* eslint-env babel-eslint, node, mocha */
 
-const {itBoth, run} = require('./database_base')
+const { itBoth, run } = require('./database_base')
 const kvs = require('../src/database/kvs')
 const expect = require('chai').expect
 const Promise = require('bluebird')
@@ -22,19 +22,19 @@ run('kvs', function() {
 
     storeTeardown = () => {
       return knex.schema.dropTable(storeTable)
-      .then(() => {
-        store = null
-        storeTable = null
-        storeTeardown = null
-      })
+        .then(() => {
+          store = null
+          storeTable = null
+          storeTeardown = null
+        })
     }
 
     return store.bootstrap()
-    .then(() => {
-      return Promise.mapSeries(_.keys(defaultStoreValues), key => {
-        return store.set(key, defaultStoreValues[key])
+      .then(() => {
+        return Promise.mapSeries(_.keys(defaultStoreValues), key => {
+          return store.set(key, defaultStoreValues[key])
+        })
       })
-    })
   }
 
   afterEach(function() {
@@ -46,29 +46,29 @@ run('kvs', function() {
     itBoth('Returns null if key doesn\'t exist', function(knex) {
       return createStore(knex).then(() => {
         return store.get('hello')
-        .then(value => {
-          expect(value).to.equal(null)
-        })
+          .then(value => {
+            expect(value).to.equal(null)
+          })
       })
     })
 
     itBoth('Returns value if key exists', function(knex) {
       return createStore(knex).then(() => {
         return store.get('default_key')
-        .then(value => {
-          expect(value).to.not.equal(null)
-          expect(value.a).to.equal('1')
-          expect(value.b.deep).to.equal('deep_value')
-        })
+          .then(value => {
+            expect(value).to.not.equal(null)
+            expect(value.a).to.equal('1')
+            expect(value.b.deep).to.equal('deep_value')
+          })
       })
     })
 
     itBoth('Returns value at path if key exists', function(knex) {
       return createStore(knex).then(() => {
         return store.get('default_key', 'b.deep')
-        .then(value => {
-          expect(value).to.equal('deep_value')
-        })
+          .then(value => {
+            expect(value).to.equal('deep_value')
+          })
       })
     })
 
@@ -79,43 +79,43 @@ run('kvs', function() {
     itBoth('Sets value if key doesn\'t exist', function(knex) {
       return createStore(knex).then(() => {
         return store.set('hello', 'world')
-        .then(() => store.get('hello'))
-        .then(value => {
-          expect(value).to.equal('world')
-        })
+          .then(() => store.get('hello'))
+          .then(value => {
+            expect(value).to.equal('world')
+          })
       })
     })
 
     itBoth('Overwrite existing keys', function(knex) {
       return createStore(knex).then(() => {
         return store.set('default_key', { a: '2' })
-        .then(() => store.get('default_key'))
-        .then(value => {
-          expect(value.a).to.equal('2')
-          expect(value.b).to.be.undefined
-        })
+          .then(() => store.get('default_key'))
+          .then(value => {
+            expect(value.a).to.equal('2')
+            expect(value.b).to.be.undefined
+          })
       })
     })
 
     itBoth('Overwrite existing keys at path keeps existing values', function(knex) {
       return createStore(knex).then(() => {
         return store.set('default_key', '2', 'a')
-        .then(() => store.get('default_key'))
-        .then(value => {
-          expect(value.a).to.equal('2')
-          expect(value.b.deep).to.equal('deep_value')
-        })
+          .then(() => store.get('default_key'))
+          .then(value => {
+            expect(value.a).to.equal('2')
+            expect(value.b.deep).to.equal('deep_value')
+          })
       })
     })
 
     itBoth('Deep overwrite', function(knex) {
       return createStore(knex).then(() => {
         return store.set('default_key', 'new', 'b.deep')
-        .then(() => store.get('default_key'))
-        .then(value => {
-          expect(value.a).to.equal('1')
-          expect(value.b.deep).to.equal('new')
-        })
+          .then(() => store.get('default_key'))
+          .then(value => {
+            expect(value.a).to.equal('1')
+            expect(value.b.deep).to.equal('new')
+          })
       })
     })
 

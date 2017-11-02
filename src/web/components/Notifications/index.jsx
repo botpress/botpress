@@ -74,10 +74,10 @@ export default class NotificationComponent extends Component {
     const iconClass = classnames('icon', 'material-icons', this.styles.icon)
 
     return <ItemComponent
-        key={notification.id}
-        className={className}
-        onMouseOver={() => this.setState({ selectedIndex: index })}
-        onMouseLeave={() => this.setState({ selectedIndex: -1 })}>
+      key={notification.id}
+      className={className}
+      onMouseOver={() => this.setState({ selectedIndex: index })}
+      onMouseLeave={() => this.setState({ selectedIndex: -1 })}>
       <Row>
         <Col xs={11} onClick={() => this.onNotifClicked(notification)}>
           <strong className={styles.header}>

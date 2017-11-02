@@ -15,16 +15,20 @@ const documentation = `
   #### **Documentation**
 
   A middleware chain is simply a collection of middleware functions that are called in a predertermined order.
-  
-  Every middleware has to be registered to appear and you will be able to  do so with the \`bp.middlewares.register()\` method.
+
+  Every middleware has to be registered to appear and you will be able to  do so with
+  the \`bp.middlewares.register()\` method.
 
   For more details about middleware, look at the [documentation](https://botpress.io/docs/advanced/middleware.html).
-  
+
   ##### **Ordering middleware**
 
-  All middleware functions that are registered (usually every modules are registered in their initialization). You must load them using \`bp.middlewares.load()\` in your \`index.js\`, which will create the incoming and outgoing chains automatically.
+  All middleware functions that are registered (usually every modules are registered in their initialization).
+  You must load them using \`bp.middlewares.load()\` in your \`index.js\`, which will create the incoming
+  and outgoing chains automatically.
 
-  By default, middleware functions are ordered by ascending order according to their \`order\` property set on registration. The order can then be manually overwritten here by using **drag-n-drop**.
+  By default, middleware functions are ordered by ascending order according to their \`order\` property
+  set on registration. The order can then be manually overwritten here by using **drag-n-drop**.
 
   You can also re-order them programmatically using middleware function customizations.
   `

@@ -28,7 +28,7 @@ export default class ActionsView extends Component {
     })
 
     return <div className={classNames}>
-        {this.renderSelectors()}
-      </div>
+      {this.renderSelectors()}
+    </div>
   } 
 }

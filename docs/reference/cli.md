@@ -26,6 +26,13 @@ botpress start ../path/to/bot
 
 If botpress is not installed globally on the host, you may run a bot using `npm start`:
 
+During development, you may want to start the bot with the `--watch` flag. It will then automatically restart whenever you edit your bot's files.
+
+```
+botpress start --watch
+botpress start --watch --help   # To configure exactly what to watch
+```
+
 ```
 cd path/to/bot && npm start
 ```

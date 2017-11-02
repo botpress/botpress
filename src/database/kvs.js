@@ -13,6 +13,36 @@ module.exports = (knex, options = {}) => {
   const getSetCallback = options.betweenGetAndSetCallback || (() => Promise.resolve())
   const tableName = options.tableName || 'kvs'
 
+  const upsert = (key, value) => {
+    let sql
+
+    const params = {
+      tableName,
+      keyCol: 'key',
+      valueCol: 'value',
+      modifiedOnCol: 'modified_on',
+      key,
+      value: JSON.stringify(value),
+      now: helpers(knex).date.now()
+    }
+
+    if (helpers(knex).isLite()) {
+      sql = `
+        INSERT OR REPLACE INTO :tableName: (:keyCol:, :valueCol:, :modifiedOnCol:)
+        VALUES (:key, :value, :now)
+      `
+    } else {
+      sql = `
+        INSERT INTO :tableName: (:keyCol:, :valueCol:, :modifiedOnCol:)
+        VALUES (:key, :value, :now)
+        ON CONFLICT (:keyCol:) DO UPDATE
+          SET :valueCol: = :value, :modifiedOnCol: = :now
+      `
+    }
+
+    return knex.raw(sql, params)
+  }
+
   const get = (key, path) => {
     return knex(tableName).where({ key }).limit(1).then().get(0).then(row => {
       if (!row) {
@@ -29,7 +59,9 @@ module.exports = (knex, options = {}) => {
   }
 
   const set = (key, value, path) => {
-    const now = helpers(knex).date.now()
+    if (!path) {
+      return upsert(key, value)
+    }
 
     const setValue = obj => {
       if (path) {
@@ -41,25 +73,16 @@ module.exports = (knex, options = {}) => {
     }
 
     return get(key)
-    .then(original => {
-      return getSetCallback()
-      .then(() => {
-        if (!_.isNil(original)) {
-          const newObj = setValue(Object.assign({}, original))
-          return knex(tableName).where({ key }).update({
-            value: JSON.stringify(newObj),
-            modified_on: now
-          }).then()
-        } else {
-          const obj = setValue({})
-          return knex(tableName).insert({
-            key: key,
-            value: JSON.stringify(obj),
-            modified_on: now
-          }).then()
-        }
+      .then(original => {
+        return getSetCallback()
+          .then(() => {
+            if (!_.isNil(original)) {
+              return upsert(key, setValue(Object.assign({}, original)))
+            } else {
+              return upsert(key, setValue({}))
+            }
+          })
       })
-    })
   }
 
   const bootstrap = () => {

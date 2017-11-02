@@ -23,7 +23,7 @@ Botpress is an open-source bot creation tool written in Javascript. It is powere
 
 ## What is Botpress
 
-Botpress is on a mission to make useful bots ubiquitous by powering developers with the best possible tools to build & manage chatbots. We believe that in order to create great bots, major time should be spent on UX, **not** on the surrounding (and generic) features. 
+Botpress is on a mission to make useful bots ubiquitous by powering developers with the best possible tools to build & manage chatbots. We believe that in order to create great bots, major time should be spent on UX, **not** on the surrounding (and generic) features.
 
 Botpress is a free & open-source bot-building platform that ships with:
 * [**Connectors**](https://www.npmjs.com/search?q=botpress-connector) to the major chat platforms
@@ -60,7 +60,7 @@ Creating a bot is simple, you need to run [`botpress init`](https://botpress.io/
 botpress init my-bot
 ```
 
-Once your bot is created, you need to run [`botpress start`](https://botpress.io/docs/reference/cli.html#init) to start your bot:
+Once your bot is created, you need to run [`botpress start`](https://botpress.io/docs/reference/cli.html#start) to start your bot:
 
 ```
 botpress start
@@ -132,7 +132,7 @@ This is a non-exclusive list of modules Botpress has. See [the full list of modu
 | **[botpress-web](https://github.com/botpress/botpress-web)** | [@slvnperron](https://github.com/slvnperron)
 
 ## Contributing
-Check out our [contributing guide](./CONTRIBUTING.md) and our [community code of conduct](./CODE_OF_CONDUCT.md).
+Check out our [contributing guide](/.github/CONTRIBUTING.md) and our [community code of conduct](/.github/CODE_OF_CONDUCT.md).
 
 ## Community
 

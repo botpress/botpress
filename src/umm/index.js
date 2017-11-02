@@ -9,7 +9,7 @@ import Proactive from './proactive'
 
 const fs = Promise.promisifyAll(require('fs'))
 
-module.exports = ({ logger, middlewares, botfile, projectLocation, db }) => {
+module.exports = ({ logger, middlewares, botfile, projectLocation, db, contentManager }) => {
 
   const processors = {} // A map of all the platforms that can process outgoing messages
   const templates = {} // A map of all the platforms templates
@@ -89,6 +89,10 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db }) => {
       const contents = {}
 
       files.forEach(file => {
+        if (!file.endsWith('.yml')) {
+          return
+        }
+
         const filename = path.basename(file, path.extname(file))
         contents[filename] = fs.readFileAsync(path.join(storagePath, file), 'utf8')
       })
@@ -113,6 +117,35 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db }) => {
 
   async function sendBloc(incomingEvent, blocName, additionalData = {}) {
     blocName = blocName[0] === '#' ? blocName.substr(1) : blocName
+
+    let initialData = {}
+
+    if (blocName.startsWith('!')) {
+      const itemName = blocName.substr(1)
+      const contentItem = await contentManager.getItem(itemName)
+
+      if (!contentItem) {
+        throw new Error(`Could not find content item with ID "${itemName}" in the Content Manager`)
+      }
+
+      const { categoryId: itemCategoryId } = contentItem
+
+      const itemCategory = await contentManager.getCategorySchema(itemCategoryId)
+
+      if (!itemCategory) {
+        throw new Error(`Could not find category "${itemCategoryId}" in the Content Manager` 
+          + ` for item with ID "${itemName}"`)
+      }
+
+      const itemBloc = itemCategory.ummBloc
+      if (!_.isString(itemBloc) || !itemBloc.startsWith('#') || itemBloc.length <= 1) {
+        throw new Error(`Invalid UMM bloc "${itemBloc}" in category ${itemCategoryId} of Content Manager`)
+      }
+
+      blocName = itemBloc.substr(1)
+      initialData = Object.assign(initialData, contentItem.data)
+    }
+
     const split = blocName.split('.')
     let fileName = null
 
@@ -124,7 +157,7 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db }) => {
     let markdown = await getDocument()
 
     // TODO Add more context
-    const fullContext = Object.assign({
+    const fullContext = Object.assign({}, initialData, {
       user: incomingEvent.user,
       originalEvent: incomingEvent
     }, additionalData)
@@ -152,6 +185,12 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db }) => {
     // TODO throw if bloc does not exist
 
     const bloc = blocs[blocName]
+
+    if (_.isNil(bloc)) {
+      const error = `[UMM] Bloc not defined (#${blocName})`
+      logger.error(error)
+      throw new Error(error)
+    }
 
     return doSendBloc(bloc)
   }
