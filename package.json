@@ -133,7 +133,7 @@
   "repository": "git+https://github.com/botpress/botpress.git",
   "os": ["darwin", "linux", "win32"],
   "scripts": {
-    "prepare": "npm run compile",
+    "prepare": "npm run compile-prod",
     "compile": "./build.sh",
     "compile-prod": "NODE_ENV=production ./build.sh && ls -lh ./lib/web/js && echo \"DONE\"",
     "test":
