@@ -14,6 +14,10 @@ class ModuleView extends React.Component {
     router: PropTypes.object.isRequired
   }
 
+  shouldComponentUpdate(nextProps) {
+    return JSON.stringify(nextProps) !== JSON.stringify(this.props)
+  }
+
   renderLink(module) {
     if (!module || !module.homepage) {
       return null

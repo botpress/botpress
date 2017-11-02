@@ -275,6 +275,11 @@ module.exports = (bp, app) => {
     return res.send(flows)
   })
 
+  app.secure('read', 'bot/flows').get('/flows/available_functions', async (req, res) => {
+    const functions = bp.dialogEngine.getAvailableFunctions()
+    return res.send(functions)
+  })
+
   const apis = ExtraApiProviders(bp, app)
   apis.secured.map(x => x && x()) // Install all secured APIs
 }

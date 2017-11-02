@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import classnames from 'classnames'
-import axios from 'axios'
 import _ from 'lodash'
 
 const { PortWidget, NodeModel, PortModel, NodeWidgetFactory } = require('storm-react-diagrams')
@@ -80,8 +79,6 @@ export class StandardNodeWidget extends React.Component {
   render() {
     const node = this.props.node
 
-    const getElementCls = element => (element.startsWith('@') ? style.msg : style.fn)
-
     return (
       <div className={style['standard-node']}>
         <div className={style.topPort}>
@@ -141,6 +138,8 @@ export class StandardNodeModel extends NodeModel {
     if (_.isString(onReceive)) {
       onReceive = [onReceive]
     }
+
+    onReceive = onReceive.map(x => x.function || x)
 
     if (!_.isArray(next) && _.isObjectLike(next)) {
       next = [next]

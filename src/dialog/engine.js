@@ -7,15 +7,16 @@ const callSubflowRegex = /(.+\.flow\.json)\s?@?\s?(.+)?/i // e.g. './login.flow.
 const MAX_STACK_SIZE = 100
 
 class DialogEngine {
-
   constructor(flowsProvider, stateManager, options, logger = loggerShim) {
     this.logger = logger
-    this.provider= flowsProvider
+    this.provider = flowsProvider
     this.flowsLoaded = false
     this.flows = []
     this.stateManager = stateManager
     this.defaultFlow = _.get(options, 'defaultFlow') || 'main.flow.json'
     this.outputProcessors = []
+    this.functions = {}
+    this.functionMetadataProvider = null
   }
 
   /**
@@ -80,7 +81,14 @@ class DialogEngine {
     return this.flows
   }
 
-  async registerOutputProcessor(processor) {
+  /**
+   * Registers a new output processor (there can be many, which all get triggered on output).
+   * @param {OutpoutProcessor} processor - Is an object with {id, send}
+   * @param {string} processor.id - The unique id of the processor
+   * @param {Function} processor.send - The `send` function of the processor
+   * @returns {void}
+   */
+  registerOutputProcessor(processor) {
     if (_.isNil(processor) || !_.isFunction(processor.send) || !_.isString(processor.id)) {
       throw new Error('Invalid processor. Processor must have a function `send` defined and a valid `id`')
     }
@@ -88,6 +96,69 @@ class DialogEngine {
     _.remove(this.outputProcessors, p => p.id === processor.id)
 
     this.outputProcessors.push(processor)
+  }
+
+  /**
+   * Sets the provider of function metadata.
+   * The provider is simply an async function that returns metadata information from the function name alone.
+   * The metadata lookup is done upon new functions registration
+   * @param {Function} A function taking the name of a function, returning metadata of that function
+   * Valid metadata could include: "description" and "args[]"
+   * @returns {void}
+   */
+  setFunctionMetadataProvider(provider) {
+    if (!_.isFunction(provider)) {
+      throw new Error('Expected the function metadata provider to be a function')
+    }
+
+    this.functionMetadataProvider = provider
+  }
+
+  /**
+   * Introduce new functions to the Flows that they can call.
+   * @param {Object} fnMap
+   * @param {bool} [overwrite=false] - Whether or not it should overwrite existing functions with the same name.
+   * Note that if overwrite is false, an error will be thrown on conflict.
+   * @returns {Promise.<void>}
+   */
+  async registerFunctions(fnMap, overwrite = false) {
+    const toRegister = {}
+    _.keys(fnMap).forEach(name => {
+      if (this.functions[name] && !overwrite) {
+        throw new Error(`There is already a function named "${name}" registered`)
+      }
+
+      let handler = fnMap[name]
+      let metadata = null
+
+      if (!_.isFunction(fnMap[name])) {
+        if (!_.isObject(fnMap[name]) || !_.isFunction(fnMap[name].handler)) {
+          throw new Error(`Expected function "${name}" to be a function or an object with a 'hander' function`)
+        }
+
+        handler = fnMap[name].handler
+        metadata = Object.assign({}, fnMap[name], { name: name, handler: null })
+      }
+
+      if (this.functionMetadataProvider) {
+        metadata = Object.assign({}, this.functionMetadataProvider(name) || {}, metadata || {})
+      }
+
+      toRegister[name] = {
+        name: name,
+        metadata: metadata,
+        fn: handler
+      }
+    })
+
+    Object.assign(this.functions, toRegister)
+  }
+
+  /**
+   * Returns all the available functions along with their metadata
+   */
+  getAvailableFunctions() {
+    return _.values(this.functions).map(x => Object.assign({}, x, { fn: null }))
   }
 
   async _processNode(stateId, context, nodeName, event) {
@@ -126,11 +197,15 @@ class DialogEngine {
       }
 
       if (!node.onReceive) {
-        this._trace(`Node has no 'onReceive', not waiting for user input and skipping to next nodes`,
-          context, userState)
+        this._trace(
+          `Node has no 'onReceive', not waiting for user input and skipping to next nodes`,
+          context,
+          userState
+        )
         await this._transitionToNextNodes(node, context, userState, stateId, event)
       }
-    } else { // i.e. we were already on that node before we received the message
+    } else {
+      // i.e. we were already on that node before we received the message
       if (node.onReceive) {
         userState = await this._processInstructions(node.onReceive, userState, event, context)
       }
@@ -146,7 +221,8 @@ class DialogEngine {
     for (let i = 0; i < nextNodes.length; i++) {
       this._trace(`Evaluating next node #${i} (${nextNodes[i].condition})`)
       if (await this._evaluateCondition(nextNodes[i].condition, userState)) {
-        if (/end/i.test(nextNodes[i].node)) { // Node "END" or "end" ends the flow (reserved keyword)
+        if (/end/i.test(nextNodes[i].node)) {
+          // Node "END" or "end" ends the flow (reserved keyword)
           await this._endFlow(stateId)
           return {}
         } else {
@@ -170,7 +246,7 @@ class DialogEngine {
     let state = await this._getContext(stateId)
 
     if (!state || !state.currentFlow) {
-      const flow = this._findFlow(this.defaultFlow)
+      const flow = this._findFlow(this.defaultFlow, true)
 
       if (!flow) {
         throw new Error(`Could not find the default flow "${this.defaultFlow}"`)
@@ -199,12 +275,14 @@ class DialogEngine {
   _gotoSubflow(nodeName, context) {
     let [, subflow, subflowNode] = nodeName.match(callSubflowRegex)
 
+    const flow = this._findFlow(subflow, true)
+
     if (_.isNil(subflowNode)) {
-      subflowNode = this._findFlow(subflow).startNode
+      subflowNode = flow.startNode
     }
 
     Object.assign(context, {
-      currentFlow: this._findFlow(subflow),
+      currentFlow: flow,
       node: subflowNode
     })
 
@@ -239,7 +317,7 @@ class DialogEngine {
       }
 
       Object.assign(context, {
-        currentFlow: this._findFlow(flow),
+        currentFlow: this._findFlow(flow, true),
         node: node
       })
     }
@@ -248,19 +326,12 @@ class DialogEngine {
   }
 
   async _processInstructions(instructions, userState, event, context) {
-    if (_.isString(instructions)) {
+    if (!_.isArray(instructions)) {
       instructions = [instructions]
     }
 
-    if (!_.isArray(instructions)) {
-      throw new Error(`Unexpected instructions.
-        Expected an array but received: ${typeof instructions}
-        Flow: ${context.currentFlow.name}
-        Node: ${context.node}`)
-    }
-
     await Promise.mapSeries(instructions, async instruction => {
-      if (instruction.startsWith('@')) {
+      if (_.isString(instruction) && instruction.startsWith('@')) {
         await this._dispatchOutput(
           {
             type: 'text',
@@ -271,7 +342,7 @@ class DialogEngine {
           context
         )
       } else {
-        userState = await DialogEngine._invokeAction(instruction, userState, event, context)
+        userState = await this._invokeAction(instruction, userState, event, context)
       }
     })
 
@@ -289,9 +360,38 @@ class DialogEngine {
     })
   }
 
-  static async _invokeAction(instruction, userState, event, context) {
+  async _invokeAction(instruction, userState, event, context) {
+    let name = null
+    let args = null
 
-    console.log('-->> Invoke action:' + JSON.stringify(instruction) + ' (TODO)')
+    if (_.isString(instruction)) {
+      name = instruction
+    } else if (_.isObject(instruction)) {
+      if (!instruction.function) {
+        this._trace(`ERROR instruction object has no 'function' property set with instruction name`, context, userState)
+        return userState
+      }
+      name = instruction.function
+      args = instruction.args
+    }
+
+    if (!this.functions[name]) {
+      this._trace(`ERROR function "${name}" not found`, context, userState)
+    } else {
+      try {
+        this._trace(`executing function "${name}"`, context, userState)
+        const ret = await this.functions[name].fn(userState, event, args)
+        this._trace(`done executing function "${name}"`, context, userState)
+
+        if (ret && _.isObject(ret)) {
+          this._trace(`function "${name}" has replaced the state`, context, userState)
+          return ret
+        }
+      } catch (err) {
+        this._trace(`ERROR function "${name}" thrown an error: ${err && err.message}`, context, userState)
+      }
+    }
+
     return userState
   }
 
@@ -304,11 +404,15 @@ class DialogEngine {
       timeout: 5000
     })
 
+    _.keys(this.functions).forEach(name => {
+      vm.freeze(this.functions[name].fn, name)
+    })
+
     vm.freeze(userState, 's')
     vm.freeze(userState, 'state')
 
     try {
-      return await vm.run(condition) == true
+      return (await vm.run(condition)) == true
     } catch (err) {
       this._trace(`ERROR evaluating condition "${condition}": ${err.message}`, null, userState)
       return false
@@ -320,7 +424,7 @@ class DialogEngine {
       throw new Error(`Could not find node ${nodeName} because the flow was not defined (null)`)
     }
 
-    const node =_.find(flow.nodes, { name: nodeName })
+    const node = _.find(flow.nodes, { name: nodeName })
 
     if (throwIfNotFound && _.isNil(nodeName)) {
       throw new Error(`Could not find node "${nodeName}" in flow "${flow.name}"`)
@@ -330,7 +434,7 @@ class DialogEngine {
   }
 
   _findFlow(flowName, throwIfNotFound = false) {
-    const flow =_.find(this.flows, { name: flowName })
+    const flow = _.find(this.flows, { name: flowName })
 
     if (throwIfNotFound && _.isNil(flow)) {
       throw new Error(`Could not find flow "${flowName}"`)

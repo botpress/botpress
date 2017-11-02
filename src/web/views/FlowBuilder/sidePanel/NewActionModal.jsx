@@ -1,39 +1,10 @@
 import React, { Component } from 'react'
-import { Alert, Modal, Button, Radio, Form, FormGroup, Col, OverlayTrigger, Tooltip } from 'react-bootstrap'
+import { Modal, Button, Radio, Col, OverlayTrigger, Tooltip } from 'react-bootstrap'
+import Form from 'react-jsonschema-form'
 import Select from 'react-select'
 import axios from 'axios'
 
 const style = require('./style.scss')
-
-// TODO Fetch functions from the server
-const availableFunctions = [
-  {
-    name: 'extractIntent',
-    from: 'botpress',
-    args: []
-  },
-  {
-    name: 'logMessage',
-    description: '',
-    from: 'botpress',
-    args: []
-  },
-  {
-    name: 'pauseBot',
-    from: 'botpress',
-    args: []
-  },
-  {
-    name: 'resumeBot',
-    from: 'botpress',
-    args: []
-  },
-  {
-    name: 'resetState',
-    from: 'botpress',
-    args: []
-  }
-]
 
 export default class NewActionModal extends Component {
   constructor(props) {
@@ -41,14 +12,73 @@ export default class NewActionModal extends Component {
 
     this.state = {
       actionType: 'message',
-      functionSuggestions: availableFunctions.map(fn => ({ label: fn.name, value: fn.name })),
+      functionSuggestions: [],
       functionInputValue: '',
       messageInputValue: ''
     }
   }
 
+  componentDidMount() {
+    this.fetchAvailableFunctions()
+  }
+
+  fetchAvailableFunctions() {
+    return axios.get('/flows/available_functions').then(({ data }) => {
+      this.setState({ functionSuggestions: data.map(x => ({ label: x.name, value: x.name })) })
+    })
+  }
+
   onChangeType(type) {
     this.setState({ actionType: type })
+  }
+
+  renderGenericParamsFilling() {
+    const schema = {
+      type: 'object',
+      required: ['name'],
+      properties: {
+        name: { type: 'string', minLength: 3 },
+        description: { type: 'string' }
+      }
+    }
+
+    const uiSchema = {
+      description: {
+        'ui:widget': 'textarea'
+      }
+    }
+
+    function Tpl(props) {
+      const { id, classNames, label, help, required, description, rawErrors = [], children } = props
+      return (
+        <div className={classNames}>
+          <label htmlFor={id}>
+            {label}
+            {required ? '*' : null}
+          </label>
+          {description}
+          {children}
+          {rawErrors.map(error => (
+            <div style={{ color: 'blue' }}>
+              <h1>{error}</h1>
+            </div>
+          ))}
+          {help}
+        </div>
+      )
+    }
+
+    let formData = {
+      name: 'actionName',
+      decription: 'empty'
+    }
+
+    return (
+      <div>
+        <div>This function has metadata about parameters.</div>
+        <Form schema={schema} uiSchema={uiSchema} FieldTemplate={Tpl} formData={formData} liveValidate />
+      </div>
+    )
   }
 
   renderSectionCode() {
@@ -78,6 +108,7 @@ export default class NewActionModal extends Component {
         <OverlayTrigger placement="bottom" overlay={tooltip}>
           <div className={style.tip}>Not seeing your function here?</div>
         </OverlayTrigger>
+        {this.renderGenericParamsFilling()}
       </div>
     )
   }
