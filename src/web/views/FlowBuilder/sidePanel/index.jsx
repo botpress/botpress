@@ -1,9 +1,7 @@
 import React, { Component } from 'react'
-import classnames from 'classnames'
-import axios from 'axios'
-import _ from 'lodash'
 
 import StandardNode from './standardNode'
+import FlowInformation from './flowInformation'
 
 const style = require('./style.scss')
 
@@ -26,6 +24,6 @@ export default class SidePanel extends Component {
       )
     }
 
-    return <div>No node selected</div>
+    return <FlowInformation {...this.props} />
   }
 }

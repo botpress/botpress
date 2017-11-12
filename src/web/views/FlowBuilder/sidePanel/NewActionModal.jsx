@@ -32,6 +32,14 @@ export default class NewActionModal extends Component {
     this.setState({ actionType: type })
   }
 
+  resetState() {
+    this.setState({
+      actionType: 'message',
+      functionInputValue: '',
+      messageInputValue: ''
+    })
+  }
+
   renderGenericParamsFilling() {
     const schema = {
       type: 'object',
@@ -157,14 +165,18 @@ export default class NewActionModal extends Component {
 
   render() {
     const props = this.props
+    const noop = () => {}
 
-    const onClose = props.onClose || (() => {})
-    const onAdd = () =>
-      (props.onAdd || (() => {}))({
+    const onClose = props.onClose || noop
+    const onAdd = () => {
+      const handler = props.onAdd || noop
+      this.resetState()
+      handler({
         type: this.state.actionType,
         functionName: this.state.functionInputValue,
         message: this.state.messageInputValue
       })
+    }
 
     return (
       <Modal animation={false} show={props.show} onHide={onClose}>
