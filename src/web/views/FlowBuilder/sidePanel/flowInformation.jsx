@@ -6,6 +6,7 @@ import { Panel, Button } from 'react-bootstrap'
 
 import EditableInput from '../common/EditableInput'
 import ActionItem from '../common/action'
+import ConditionItem from '../common/condition'
 
 import NewActionModal from './NewActionModal'
 

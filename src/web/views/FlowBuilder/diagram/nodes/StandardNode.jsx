@@ -5,6 +5,7 @@ import _ from 'lodash'
 const { PortWidget, NodeModel, PortModel, NodeWidgetFactory } = require('storm-react-diagrams')
 
 import ActionItem from '../../common/action'
+import ConditionItem from '../../common/condition'
 
 const style = require('./style.scss')
 
@@ -105,7 +106,7 @@ export class StandardNodeWidget extends React.Component {
                 const outputPortName = `out${i}`
                 return (
                   <div key={i} className={classnames(style.item)}>
-                    <ActionItem text={item.condition} />
+                    <ConditionItem text={item.condition} />
                     <StandardPortWidget name={outputPortName} node={node} />
                   </div>
                 )

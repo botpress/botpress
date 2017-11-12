@@ -20,26 +20,6 @@ export default class SidePanel extends Component {
     }
   }
 
-  renderConditionSection(section, title) {
-    const { node } = this.props
-    const items = node[section] || []
-
-    return (
-      <Panel style={style['section-' + section]} collapsible defaultExpanded={true} header={title}>
-        {items.map((item, i) => (
-          <ActionItem className={style.item} text={item.condition}>
-            <div className={style.remove}>
-              <a onClick={() => ::this.removeAction(section, i)}>Remove</a>
-            </div>
-          </ActionItem>
-        ))}
-        <div className={style.actions}>
-          <Button className={style.addAction}>Add condition</Button>
-        </div>
-      </Panel>
-    )
-  }
-
   handleRemoveNode() {
     this.props.removeFlowNode(this.props.node.id)
   }
