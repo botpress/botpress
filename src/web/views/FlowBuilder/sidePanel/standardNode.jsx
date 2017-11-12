@@ -1,13 +1,12 @@
 import React, { Component } from 'react'
 import classnames from 'classnames'
-import _ from 'lodash'
 
-import { Panel, Button } from 'react-bootstrap'
+import { Button } from 'react-bootstrap'
 
 import EditableInput from '../common/EditableInput'
-import ActionItem from '../common/action'
 
 import ActionSection from './ActionSection'
+import TransitionSection from './TransitionSection'
 
 const style = require('./style.scss')
 
@@ -50,7 +49,11 @@ export default class SidePanel extends Component {
           header="On Receive"
           onItemsUpdated={items => this.props.updateNode({ onReceive: items })}
         />
-        {this.renderConditionSection('next', 'Next nodes')}
+        <TransitionSection
+          items={node['next']}
+          header="Transitions"
+          onItemsUpdated={items => this.props.updateNode({ next: items })}
+        />
         {::this.renderBottomSection()}
       </div>
     )
