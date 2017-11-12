@@ -27,8 +27,8 @@ export default class ActionItem extends Component {
   }
 
   render() {
-    const isAction = typeof action !== 'string' || !action.startsWith('@')
     const action = this.props.text
+    const isAction = typeof action !== 'string' || !action.startsWith('@')
 
     if (isAction) {
       return this.renderAction()
