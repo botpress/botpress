@@ -3,8 +3,6 @@ import React, { Component } from 'react'
 import StandardNode from './standardNode'
 import FlowInformation from './flowInformation'
 
-const style = require('./style.scss')
-
 export default class SidePanel extends Component {
   constructor(props) {
     super(props)

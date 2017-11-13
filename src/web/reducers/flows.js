@@ -4,6 +4,8 @@ import _ from 'lodash'
 import {
   fetchFlows,
   requestFlows,
+  requestSaveFlow,
+  receiveSaveFlow,
   receiveFlows,
   switchFlow,
   updateFlow,
@@ -35,6 +37,16 @@ const reducer = handleActions(
       fetchingFlows: false,
       flowsByName: payload,
       currentFlow: state.currentFlow || _.first(_.keys(payload))
+    }),
+
+    [requestSaveFlow]: state => ({
+      ...state,
+      savingFlows: true
+    }),
+
+    [receiveSaveFlow]: state => ({
+      ...state,
+      savingFlows: false
     }),
 
     [switchFlowNode]: (state, { payload }) => ({

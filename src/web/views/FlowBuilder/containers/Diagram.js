@@ -1,7 +1,7 @@
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
-import { fetchFlows, switchFlowNode, setDiagramAction, createFlowNode } from '~/actions'
+import { fetchFlows, switchFlowNode, setDiagramAction, createFlowNode, saveFlow } from '~/actions'
 import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
 
 import Diagram from '../diagram'
@@ -19,11 +19,12 @@ const mapDispatchToProps = (dispatch, ownProps) =>
       fetchFlows: fetchFlows,
       switchFlowNode: switchFlowNode,
       setDiagramAction: setDiagramAction,
-      createFlowNode: createFlowNode
+      createFlowNode: createFlowNode,
+      saveFlow: saveFlow
     },
     dispatch
   )
 
-const ConnectedDiagram = connect(mapStateToProps, mapDispatchToProps)(Diagram)
+const ConnectedDiagram = connect(mapStateToProps, mapDispatchToProps, null, { withRef: true })(Diagram)
 
 export default ConnectedDiagram

@@ -1,7 +1,5 @@
 import React, { Component } from 'react'
 import classnames from 'classnames'
-import axios from 'axios'
-import _ from 'lodash'
 import SplitPane from 'react-split-pane'
 
 import ContentWrapper from '~/components/Layout/ContentWrapper'
@@ -35,9 +33,7 @@ export default class FlowBuilder extends Component {
         </PageHeader>
         <Toolbar
           onSaveFlow={() => {
-            console.log('Save Flow', this.diagram)
-            const json = this.diagram.serialize()
-            console.log(json)
+            this.diagram.saveFlow()
           }}
         />
         <div className={style.workspace}>
@@ -47,7 +43,13 @@ export default class FlowBuilder extends Component {
             </div>
 
             <div className={classnames(style.diagram)}>
-              <Diagram />
+              <Diagram
+                ref={el => {
+                  if (!!el) {
+                    this.diagram = el.getWrappedInstance()
+                  }
+                }}
+              />
             </div>
           </SplitPane>
         </div>

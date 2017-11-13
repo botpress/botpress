@@ -12,8 +12,6 @@ const {
   DefaultNodeFactory,
   DefaultLinkFactory,
   DiagramModel,
-  DefaultNodeModel,
-  DefaultPortModel,
   LinkModel
 } = require('storm-react-diagrams')
 
@@ -50,19 +48,58 @@ export default class FlowBuilder extends Component {
     this.activeModel = new DiagramModel()
     this.activeModel.setGridSize(25)
 
+    // this.activeModel.addListener({
+    //   linksUpdated: (entity, isAdded) => {
+    //     console.log('LINK UPDATED --->', entity, isAdded)
+    //   }
+    // })
+
     const currentFlow = this.props.currentFlow
     if (!currentFlow) {
       return
     }
 
+    const linksToCreate = []
+
     const nodes = currentFlow.nodes.map(node => {
       const model = new StandardNodeModel(node)
       model.x = node.x
       model.y = node.y
+
+      console.log('NODE::', node)
+
       return model
     })
 
+    nodes.map(node => {
+      if (_.isArray(node.next)) {
+        node.next.forEach((next, index) => {
+          const target = next.node
+          if (/END/i.test(target)) {
+            // Handle end connection
+          } else if (target.indexOf('.') !== -1) {
+            // Handle subflow connection
+          } else {
+            const sourcePort = node.ports['out' + index]
+            const targetNode = _.find(nodes, { name: next.node })
+
+            if (!targetNode) {
+              // TODO Show warning that target node doesn't exist
+              return
+            }
+
+            const targetPort = targetNode.ports['in']
+            const link = new LinkModel()
+            link.setSourcePort(sourcePort)
+            link.setTargetPort(targetPort)
+            linksToCreate.push(link)
+          }
+        })
+      }
+    })
+
     nodes.forEach(node => this.activeModel.addNode(node))
+    linksToCreate.forEach(link => this.activeModel.addLink(link))
 
     this.diagramEngine.setDiagramModel(this.activeModel)
     this.diagramWidget.forceUpdate()
@@ -151,6 +188,42 @@ export default class FlowBuilder extends Component {
     if (selectedNode && (!currentNode || selectedNode.id !== currentNode.id)) {
       this.props.switchFlowNode(selectedNode.id)
     }
+  }
+
+  saveFlow() {
+    const model = this.serialize()
+
+    const nodes = model.nodes.map(node => {
+      return {
+        id: node.id,
+        onEnter: node.onEnter,
+        onReceive: node.onReceive,
+        next: node.next,
+        position: {
+          x: node.x,
+          y: node.y
+        }
+      }
+    })
+
+    const links = model.links.map(link => {
+      return {
+        source: link.source,
+        target: link.target,
+        points: link.points.map(pt => ({ x: pt.x, y: pt.y }))
+      }
+    })
+
+    const currentFlow = this.props.currentFlow
+
+    this.props.saveFlow({
+      flow: currentFlow.name,
+      location: currentFlow.location,
+      startNode: currentFlow.startNode,
+      catchAll: currentFlow.catchAll,
+      links: links,
+      nodes: nodes
+    })
   }
 
   render() {

@@ -15,9 +15,19 @@ export const fetchFlows = () => dispatch => {
   })
 }
 
+export const requestSaveFlow = createAction('FLOWS/SAVE')
+export const receiveSaveFlow = createAction('FLOWS/SAVE/RECEIVE', flows => flows, () => ({ receiveAt: new Date() }))
+
+export const saveFlow = flow => dispatch => {
+  dispatch(requestSaveFlow())
+
+  axios.post('/flows/save', flow).then(() => {
+    dispatch(receiveSaveFlow())
+  })
+}
+
 // export const fetchFlowsDefinitions = createAction('FLOWS_DEFINITIONS_FETCH')
 
-export const saveFlow = createAction('FLOWS/FLOW/SAVE')
 export const updateFlow = createAction('FLOWS/FLOW/UPDATE')
 export const switchFlow = createAction('FLOWS/FLOW/SWITCH')
 export const updateFlowNode = createAction('FLOWS/FLOW/UPDATE_NODE')
@@ -26,7 +36,6 @@ export const createFlowNode = createAction('FLOWS/FLOW/CREATE')
 export const removeFlowNode = createAction('FLOWS/FLOW/REMOVE')
 
 export const setDiagramAction = createAction('FLOWS/FLOW/SET_ACTION')
-
 
 // License
 export const licenseChanged = createAction('LICENSE/CHANGED')
@@ -53,13 +62,12 @@ export const fetchUser = () => dispatch => {
 // Bot
 export const botInfoReceived = createAction('BOT/INFO_RECEIVED')
 export const fetchBotInformation = () => dispatch => {
-  axios.all([axios.get('/api/bot/information'), axios.get('/api/bot/production')])
-    .then(
-      axios.spread((information, production) => {
-        const info = Object.assign({}, information.data, { production: production.data })
-        dispatch(botInfoReceived(info))
-      })
-    )
+  axios.all([axios.get('/api/bot/information'), axios.get('/api/bot/production')]).then(
+    axios.spread((information, production) => {
+      const info = Object.assign({}, information.data, { production: production.data })
+      dispatch(botInfoReceived(info))
+    })
+  )
 }
 
 // Modules
