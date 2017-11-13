@@ -91,7 +91,7 @@ module.exports = ({ logger, botfile, projectLocation }) => {
       unplacedNodes.forEach(node => {
         node.y = unplacedY
         node.x = unplacedX
-        unplacedX += 200
+        unplacedX += 250
       })
 
       return flows.push({
@@ -107,5 +107,38 @@ module.exports = ({ logger, botfile, projectLocation }) => {
     return flows
   }
 
-  return { loadAll }
+  async function saveFlow(flow) {
+    // console.log('Save that!', flow)
+
+    const uiContent = {
+      nodes: flow.nodes.map(node => ({
+        id: node.id,
+        position: node.position
+      })),
+      links: flow.links
+    }
+
+    const flowContent = {
+      version: '0.1',
+      startNode: flow.startNode,
+      catchAll: flow.catchAll,
+      nodes: flow.nodes
+    }
+
+    flowContent.nodes.forEach(node => delete node['position'])
+
+    // TODO Validate that uiContent is valid
+    // TODO Validate that flowContent is valid
+
+    const relDir = botfile.flowsDir || './flows'
+    const flowPath = path.resolve(projectLocation, relDir, './' + flow.location)
+    const uiPath = flowPath.replace(/\.flow\.json/i, '.ui.json')
+
+    fs.writeFileSync(flowPath, JSON.stringify(flowContent, null, 2))
+    fs.writeFileSync(uiPath, JSON.stringify(uiContent, null, 2))
+
+    return
+  }
+
+  return { loadAll, saveFlow }
 }

@@ -280,6 +280,11 @@ module.exports = (bp, app) => {
     return res.send(functions)
   })
 
+  app.secure('write', 'bot/flows').post('/flows/save', async (req, res) => {
+    await bp.dialogEngine.provider.saveFlow(req.body)
+    return res.sendStatus(200)
+  })
+
   const apis = ExtraApiProviders(bp, app)
   apis.secured.map(x => x && x()) // Install all secured APIs
 }

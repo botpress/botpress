@@ -196,6 +196,7 @@ export default class FlowBuilder extends Component {
     const nodes = model.nodes.map(node => {
       return {
         id: node.id,
+        name: node.name,
         onEnter: node.onEnter,
         onReceive: node.onReceive,
         next: node.next,

@@ -19,7 +19,6 @@ import {
 } from '~/actions'
 
 class App extends Component {
-
   constructor(props) {
     super(props)
 
@@ -39,7 +38,7 @@ class App extends Component {
     this.props.fetchNotifications()
     this.props.fetchBotInformation()
     this.props.fetchLicense()
-    
+
     if (window.AUTH_ENABLED) {
       this.props.fetchUser()
       this.props.fetchRules()
@@ -51,18 +50,18 @@ class App extends Component {
     // If this grows too much, move to a dedicated lifecycle manager.
     this.fetchData()
 
-    authEvents.on('login', this.fetchData)
-    authEvents.on('new_token', this.fetchData)
+    authEvents.on('login', ::this.fetchData)
+    authEvents.on('new_token', ::this.fetchData)
 
-    EventBus.default.on('notifications.all', (notifications) => {
+    EventBus.default.on('notifications.all', notifications => {
       this.props.replaceNotifications(notifications)
     })
 
-    EventBus.default.on('notifications.new', (notification) => {
+    EventBus.default.on('notifications.new', notification => {
       this.props.addNotifications([notification])
     })
 
-    this.fetchModulesInterval = setInterval(this.props.fetchModules, 10000)
+    this.fetchModulesInterval = setInterval(::this.props.fetchModules, 10000)
   }
 
   componentWillUnmount() {
@@ -70,9 +69,7 @@ class App extends Component {
   }
 
   render() {
-    return (
-      routes()
-    )
+    return routes()
   }
 }
 
