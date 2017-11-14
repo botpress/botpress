@@ -12,7 +12,8 @@ const {
   DefaultNodeFactory,
   DefaultLinkFactory,
   DiagramModel,
-  LinkModel
+  LinkModel,
+  PointModel
 } = require('storm-react-diagrams')
 
 import { StandardNodeModel, StandardWidgetFactory } from './nodes/StandardNode'
@@ -88,10 +89,21 @@ export default class FlowBuilder extends Component {
               return
             }
 
+            const existingLink = _.find(currentFlow.links, { source: node.id, target: targetNode.id })
+
             const targetPort = targetNode.ports['in']
             const link = new LinkModel()
             link.setSourcePort(sourcePort)
             link.setTargetPort(targetPort)
+
+            if (existingLink) {
+              link.setPoints(
+                existingLink.points.map(pt => {
+                  return new PointModel(link, { x: pt.x, y: pt.y })
+                })
+              )
+            }
+
             linksToCreate.push(link)
           }
         })

@@ -26,63 +26,27 @@ module.exports = ({ logger, botfile, projectLocation }) => {
 
       flow.name = file // e.g. 'login.flow.json' or 'shapes/circle.flow.json'
 
-      const uiEqPath = file.replace(/\.flow/g, '.ui')
-      const uiEq = _.find(uiFiles, e => e === uiEqPath) || {}
+      validateSchema(flow)
 
-      // Schema Validation
-      const errorPrefix = `[Flow] Error loading "${file}"`
-      if (!flow || !_.isObjectLike(flow)) {
-        return logger.warn(errorPrefix + ', invalid JSON flow schema')
+      const uiEqPath = path.resolve(flowsDir, './' + file.replace(/\.flow/g, '.ui'))
+      let uiEq = {}
+
+      if (fs.existsSync(uiEqPath)) {
+        uiEq = JSON.parse(fs.readFileSync(uiEqPath))
       }
 
-      if (!flow.version || !_.isString(flow.version)) {
-        return logger.warn(errorPrefix + ', expected valid version but found none')
-      }
+      Object.assign(flow, { links: uiEq.links })
 
-      if (!flow.version.startsWith('0.')) {
-        return logger.warn(errorPrefix + ', unsupported `version` of the schema "' + flow.version + '"')
-      }
-
-      if (!_.isString(flow.startNode)) {
-        return logger.warn(errorPrefix + ', expected valid `startNode`')
-      }
-
-      if (!_.isArray(flow.nodes)) {
-        return logger.warn(errorPrefix + ', expected `nodes` to be an array of nodes')
-      }
-
-      if (!_.find(flow.nodes, { name: flow.startNode })) {
-        return logger.warn(errorPrefix + ', expected `startNode` to point to an existing flow node')
-      }
-
+      // Take position from UI files or create default position
       const unplacedNodes = []
-
-      flow.nodes = _.map(flow.nodes, node => {
-        // TODO Better node validation
-        if (!_.isString(node.id) || node.id.length <= 3) {
-          logger.warn(errorPrefix + ', expected all nodes to have a valid id')
-          return null
-        }
-
+      flow.nodes.forEach(node => {
         const uiNode = _.find(uiEq.nodes, { id: node.id }) || {}
 
-        if (_.isNil(uiNode.x) || _.isNil(uiNode.y)) {
+        Object.assign(node, uiNode.position)
+
+        if (_.isNil(node.x) || _.isNil(node.y)) {
           unplacedNodes.push(node)
         }
-
-        if (_.isString(node.onEnter)) {
-          node.onEnter = [node.onEnter]
-        }
-
-        if (_.isString(node.onReceive)) {
-          node.onReceive = [node.onReceive]
-        }
-
-        if (_.isString(node.next)) {
-          node.next = [node.next]
-        }
-
-        return _.merge(node, uiNode)
       })
 
       const unplacedY = (_.maxBy(flow.nodes, 'y') || { y: 0 }).y + 250
@@ -100,7 +64,8 @@ module.exports = ({ logger, botfile, projectLocation }) => {
         name: flow.name,
         nodes: _.filter(flow.nodes, node => !!node),
         catchAll: flow.catchAll, // TODO Validate catchAll
-        startNode: flow.startNode
+        startNode: flow.startNode,
+        links: flow.links
       })
     })
 
@@ -109,6 +74,11 @@ module.exports = ({ logger, botfile, projectLocation }) => {
 
   async function saveFlow(flow) {
     // console.log('Save that!', flow)
+    flow = Object.assign({}, flow, {
+      version: '0.1'
+    })
+
+    validateSchema(flow)
 
     const uiContent = {
       nodes: flow.nodes.map(node => ({
@@ -119,16 +89,13 @@ module.exports = ({ logger, botfile, projectLocation }) => {
     }
 
     const flowContent = {
-      version: '0.1',
+      version: flow.version,
       startNode: flow.startNode,
       catchAll: flow.catchAll,
       nodes: flow.nodes
     }
 
     flowContent.nodes.forEach(node => delete node['position'])
-
-    // TODO Validate that uiContent is valid
-    // TODO Validate that flowContent is valid
 
     const relDir = botfile.flowsDir || './flows'
     const flowPath = path.resolve(projectLocation, relDir, './' + flow.location)
@@ -141,4 +108,57 @@ module.exports = ({ logger, botfile, projectLocation }) => {
   }
 
   return { loadAll, saveFlow }
+}
+
+function validateSchema(flow) {
+  const errorPrefix = `[Flow] Error loading "${flow.location}"`
+
+  if (!flow || !_.isObjectLike(flow)) {
+    return logger.warn(errorPrefix + ', invalid JSON flow schema')
+  }
+
+  if (!flow.version || !_.isString(flow.version)) {
+    return logger.warn(errorPrefix + ', expected valid version but found none')
+  }
+
+  if (!flow.version.startsWith('0.')) {
+    return logger.warn(errorPrefix + ', unsupported `version` of the schema "' + flow.version + '"')
+  }
+
+  if (!_.isString(flow.startNode)) {
+    return logger.warn(errorPrefix + ', expected valid `startNode`')
+  }
+
+  if (!_.isArray(flow.nodes)) {
+    return logger.warn(errorPrefix + ', expected `nodes` to be an array of nodes')
+  }
+
+  if (!_.find(flow.nodes, { name: flow.startNode })) {
+    return logger.warn(errorPrefix + ', expected `startNode` to point to an existing flow node')
+  }
+
+  flow.nodes &&
+    flow.nodes.forEach(node => {
+      // TODO Better node validation
+
+      // TODO Validate that connections are valid
+      // TODO Validate that conditions are valid
+
+      if (!_.isString(node.id) || node.id.length <= 3) {
+        logger.warn(errorPrefix + ', expected all nodes to have a valid id')
+        return null
+      }
+
+      if (_.isString(node.onEnter)) {
+        node.onEnter = [node.onEnter]
+      }
+
+      if (_.isString(node.onReceive)) {
+        node.onReceive = [node.onReceive]
+      }
+
+      if (_.isString(node.next)) {
+        node.next = [node.next]
+      }
+    })
 }
