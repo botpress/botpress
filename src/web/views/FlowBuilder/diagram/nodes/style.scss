@@ -78,6 +78,14 @@
   }
 }
 
-.exitPort {
-  background-color: red;
+.startPort :global(.port) {
+  background-color: lime !important;
+}
+
+.endPort :global(.port) {
+  background-color: red !important;
+}
+
+.subflowPort :global(.port) {
+  background-color: blue !important;
 }

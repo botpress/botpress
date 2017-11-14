@@ -57,12 +57,18 @@ export class StandardWidgetFactory extends NodeWidgetFactory {
 
 export class StandardPortWidget extends React.Component {
   render() {
+    const type = this.props.node.ports[this.props.name].type
     const className = classnames(this.props.className, {
-      [style.inputPort]: this.props.node.ports[this.props.name].type === 'entry',
-      [style.exitPort]: this.props.node.ports[this.props.name].type === 'exit'
+      [style.startPort]: type === 'start',
+      [style.subflowPort]: type === 'subflow',
+      [style.endPort]: type === 'end'
     })
 
-    return <PortWidget {...this.props} className={className} />
+    return (
+      <div className={className}>
+        <PortWidget {...this.props} />
+      </div>
+    )
   }
 }
 
@@ -122,13 +128,23 @@ export class StandardNodeWidget extends React.Component {
 }
 
 export class StandardNodeModel extends NodeModel {
-  constructor({ onEnter = [], onReceive = [], next = [], name, id, x, y }) {
+  constructor({ onEnter = [], onReceive = [], next = [], name, id, x, y, isStartNode }) {
     super('standard', id)
-    this.addPort(new StandardIncomingPortModel('in'))
+
+    let inNodeType = isStartNode ? 'start' : 'normal'
+
+    this.addPort(new StandardIncomingPortModel('in', inNodeType))
 
     // We create as many output port as needed
     for (var i = 0; i < next.length; i++) {
-      const nodeType = next[i].node.startsWith('#') ? 'exit' : 'normal'
+      let nodeType = 'normal'
+
+      if (next[i].node.toLowerCase() === 'end') {
+        nodeType = 'end'
+      } else if (/\.flow\.json/i.test(next[i].node)) {
+        nodeType = 'subflow'
+      }
+
       this.addPort(new StandardOutgoingPortModel('out' + i, nodeType))
     }
 

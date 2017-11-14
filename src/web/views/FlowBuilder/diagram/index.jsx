@@ -63,11 +63,9 @@ export default class FlowBuilder extends Component {
     const linksToCreate = []
 
     const nodes = currentFlow.nodes.map(node => {
-      const model = new StandardNodeModel(node)
+      const model = new StandardNodeModel({ ...node, isStartNode: currentFlow.startNode === node.name })
       model.x = node.x
       model.y = node.y
-
-      console.log('NODE::', node)
 
       return model
     })
@@ -121,7 +119,15 @@ export default class FlowBuilder extends Component {
     // Remove nodes that have been deleted
     _.keys(this.activeModel.getNodes()).forEach(nodeId => {
       if (!_.find(this.props.currentFlow.nodes, { id: nodeId })) {
+        const ports = this.activeModel.getNode(nodeId).getPorts()
         this.activeModel.removeNode(nodeId)
+        _.values(ports).forEach(port => {
+          _.values(
+            port.getLinks().forEach(link => {
+              this.activeModel.removeLink(link)
+            })
+          )
+        })
       }
     })
 
@@ -131,7 +137,7 @@ export default class FlowBuilder extends Component {
 
         if (model === null) {
           // Node was added
-          const model = new StandardNodeModel(node)
+          const model = new StandardNodeModel({ ...node, isStartNode: this.props.currentFlow.startNode === node.name })
           model.x = node.x
           model.y = node.y
           this.activeModel.addNode(model)
