@@ -122,11 +122,9 @@ export default class FlowBuilder extends Component {
         const ports = this.activeModel.getNode(nodeId).getPorts()
         this.activeModel.removeNode(nodeId)
         _.values(ports).forEach(port => {
-          _.values(
-            port.getLinks().forEach(link => {
-              this.activeModel.removeLink(link)
-            })
-          )
+          _.values(port.getLinks()).forEach(link => {
+            this.activeModel.removeLink(link)
+          })
         })
       }
     })
