@@ -89,3 +89,13 @@
 .subflowPort :global(.port) {
   background-color: blue !important;
 }
+
+.subflowPort .subflow {
+  position: relative;
+  padding: 5px;
+  right: -210px;
+  display: inline;
+  border-radius: 3px;
+  top: -18px;
+  background: rgba(0, 0, 0, 0.08);
+}

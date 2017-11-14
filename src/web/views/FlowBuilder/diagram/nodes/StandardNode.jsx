@@ -56,6 +56,13 @@ export class StandardWidgetFactory extends NodeWidgetFactory {
 }
 
 export class StandardPortWidget extends React.Component {
+  renderSubflowNode() {
+    const node = this.props.node
+    const index = Number(this.props.name.replace('out', ''))
+    const subflow = node.next[index].node
+    return <div className={style.subflow}>{subflow}</div>
+  }
+
   render() {
     const type = this.props.node.ports[this.props.name].type
     const className = classnames(this.props.className, {
@@ -67,6 +74,7 @@ export class StandardPortWidget extends React.Component {
     return (
       <div className={className}>
         <PortWidget {...this.props} />
+        {type === 'subflow' && this.renderSubflowNode()}
       </div>
     )
   }
