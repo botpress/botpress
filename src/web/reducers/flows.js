@@ -108,7 +108,11 @@ const reducer = handleActions(
                 id: Math.random()
                   .toString()
                   .substr(2, 10),
-                name: 'untitled_node',
+                name:
+                  'node-' +
+                  Math.random()
+                    .toString()
+                    .substr(2, 4),
                 x: 0,
                 y: 0,
                 next: [],
