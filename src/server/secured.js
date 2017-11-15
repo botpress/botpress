@@ -169,8 +169,9 @@ module.exports = (bp, app) => {
   })
 
   app.secure('read', 'bot/umm/blocs').get('/umm/blocs', (req, res) => {
-    const content = bp.umm.getDocument()
-    res.send({ content: content })
+    const content = bp.umm.getDocument().then(content => {
+      res.send({ content: content })
+    })
   })
 
   app.secure('read', 'bot/umm/templates').get('/umm/templates', (req, res) => {
@@ -191,7 +192,12 @@ module.exports = (bp, app) => {
   app.secure('write', 'bot/umm/simulation').post('/umm/simulate', (req, res) => {
     try {
       const { context, content, outputPlatform, incomingEvent } = req.body
-      const blocs = bp.umm.parse({ context, outputPlatform, markdown: content, incomingEvent })
+      const blocs = bp.umm.parse({
+        context,
+        outputPlatform,
+        markdown: content,
+        incomingEvent
+      })
       res.send(blocs)
     } catch (err) {
       res.status(400).send({ message: err.message })

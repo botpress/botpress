@@ -10,13 +10,11 @@ import Proactive from './proactive'
 const fs = Promise.promisifyAll(require('fs'))
 
 module.exports = ({ logger, middlewares, botfile, projectLocation, db, contentManager }) => {
-
   const processors = {} // A map of all the platforms that can process outgoing messages
   const templates = {} // A map of all the platforms templates
   const storagePath = getStoragePath()
 
   function registerConnector({ platform, processOutgoing, templates }) {
-
     // TODO throw if templates not array
     // TODO throw if platform not string
     // TODO throw if processOutgoing not a function
@@ -46,14 +44,23 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db, contentMa
     return _.merge({}, templates) // Return a deep copy
   }
 
+  function getI18n() {
+    let i18n = _.get(botfile, 'umm.i18n')
+    if (_.isNil(i18n)) return false
+    else if (!_.isArray(i18n)) throw new Error('I18N should be an array')
+
+    return i18n
+  }
+
   function getStoragePath() {
     const resolve = file => path.resolve(projectLocation, file)
     let ummPath = _.get(botfile, 'umm.contentPath')
+    let defaultLanguage = _.get(botfile, 'umm.default_locale')
+    let i18n = getI18n()
 
     if (!ummPath) {
       const single = resolve('content.yml')
       const folder = resolve('content')
-
       if (fs.existsSync(single)) {
         ummPath = single
       } else if (fs.existsSync(folder)) {
@@ -62,11 +69,17 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db, contentMa
         throw new Error('UMM content location not found')
       }
     }
-
-    if (path.isAbsolute(ummPath)) {
+    if (path.isAbsolute(ummPath) && !_.isNil(i18n)) {
       return ummPath
     } else {
-      return path.resolve(projectLocation, ummPath)
+      _.forEach(i18n, value => {
+        let i18nPath = resolve(`${ummPath}/${value}`)
+        if (!fs.existsSync(i18nPath)) {
+          throw new Error(`UMM i18n ${value} Folder those not exist in ${i18nPath}`)
+        }
+      })
+
+      return resolve(`${ummPath}/${defaultLanguage}`) || resolve(`${ummPath}`)
     }
   }
 
@@ -82,6 +95,7 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db, contentMa
   }
 
   async function getDocument() {
+    // TODO I can have multiple file
     const stats = await fs.statAsync(storagePath)
 
     if (stats.isDirectory()) {
@@ -95,6 +109,7 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db, contentMa
 
         const filename = path.basename(file, path.extname(file))
         contents[filename] = fs.readFileAsync(path.join(storagePath, file), 'utf8')
+        return contents
       })
 
       return Promise.props(contents)
@@ -133,8 +148,9 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db, contentMa
       const itemCategory = await contentManager.getCategorySchema(itemCategoryId)
 
       if (!itemCategory) {
-        throw new Error(`Could not find category "${itemCategoryId}" in the Content Manager` 
-          + ` for item with ID "${itemName}"`)
+        throw new Error(
+          `Could not find category "${itemCategoryId}" in the Content Manager` + ` for item with ID "${itemName}"`
+        )
       }
 
       const itemBloc = itemCategory.ummBloc
@@ -157,10 +173,15 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db, contentMa
     let markdown = await getDocument()
 
     // TODO Add more context
-    const fullContext = Object.assign({}, initialData, {
-      user: incomingEvent.user,
-      originalEvent: incomingEvent
-    }, additionalData)
+    const fullContext = Object.assign(
+      {},
+      initialData,
+      {
+        user: incomingEvent.user,
+        originalEvent: incomingEvent
+      },
+      additionalData
+    )
 
     if (_.isObject(markdown)) {
       if (!fileName) {
@@ -214,5 +235,13 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db, contentMa
 
   const proactiveMethods = Proactive({ sendBloc, db })
 
-  return { registerConnector, parse, getTemplates, incomingMiddleware, getDocument, saveDocument, ...proactiveMethods }
+  return {
+    registerConnector,
+    parse,
+    getTemplates,
+    incomingMiddleware,
+    getDocument,
+    saveDocument,
+    ...proactiveMethods
+  }
 }
