@@ -182,6 +182,42 @@ export default class FlowBuilder extends Component {
     const selectedNode = this.getSelectedNode()
     const currentNode = this.props.currentFlowNode
 
+    // Sanitizing the links, making sure that:
+    // 1) All links are connected to ONE [out] and [in] port
+    // 2) All ports have only ONE outbound link
+    const links = _.values(this.activeModel.getLinks())
+    links.forEach(link => {
+      // If there's not two ports attached to the link
+      if (!link.sourcePort || !link.targetPort) {
+        link.remove()
+        return this.diagramWidget.forceUpdate()
+      }
+
+      // We need at least one input port
+      if (link.sourcePort.name !== 'in' && link.targetPort.name !== 'in') {
+        link.remove()
+        return this.diagramWidget.forceUpdate()
+      }
+
+      // We need at least one output port
+      if (!link.sourcePort.name.startsWith('out') && !link.targetPort.name.startsWith('out')) {
+        link.remove()
+        return this.diagramWidget.forceUpdate()
+      }
+
+      // If ports have more than one outbout link
+      ;[link.sourcePort, link.targetPort].forEach(port => {
+        if (!port) {
+          return
+        }
+        const portLinks = _.values(port.links)
+        if (port.name.startsWith('out') && portLinks.length > 1) {
+          _.last(portLinks).remove()
+          this.diagramWidget.forceUpdate()
+        }
+      })
+    })
+
     if (this.props.currentDiagramAction && this.props.currentDiagramAction.startsWith('insert_')) {
       let { x, y } = this.diagramEngine.getRelativePoint(event.clientX, event.clientY)
 
