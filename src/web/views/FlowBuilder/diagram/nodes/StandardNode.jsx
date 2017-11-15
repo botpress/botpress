@@ -10,38 +10,30 @@ import ConditionItem from '../../common/condition'
 const style = require('./style.scss')
 
 export class StandardIncomingPortModel extends PortModel {
-  constructor(name, type = 'normal') {
+  constructor(name) {
     super(name)
-    this.type = type
   }
 
   serialize() {
-    return _.merge(super.serialize(), {
-      type: this.type
-    })
+    return _.merge(super.serialize(), {})
   }
 
   deSerialize(data) {
     super.deSerialize(data)
-    this.type = data.type
   }
 }
 
 export class StandardOutgoingPortModel extends PortModel {
-  constructor(name, type = 'normal') {
+  constructor(name) {
     super(name)
-    this.type = type
   }
 
   serialize() {
-    return _.merge(super.serialize(), {
-      type: this.type
-    })
+    return _.merge(super.serialize(), {})
   }
 
   deSerialize(data) {
     super.deSerialize(data)
-    this.type = data.type
   }
 }
 
@@ -72,7 +64,18 @@ export class StandardPortWidget extends React.Component {
   }
 
   render() {
-    const type = this.props.node.ports[this.props.name].type
+    let type = 'normal'
+
+    const nextNode = this.props.node.ports[this.props.name]
+
+    if (this.props.name === 'in' && this.props.node.isStartNode) {
+      type = 'start'
+    } else if (nextNode.node && nextNode.node.toLowerCase() === 'end') {
+      type = 'end'
+    } else if (/\.flow\.json/i.test(nextNode.node)) {
+      type = 'subflow'
+    }
+
     const className = classnames(this.props.className, style.portContainer, {
       [style.startPort]: type === 'start',
       [style.subflowPort]: type === 'subflow',
@@ -150,21 +153,14 @@ export class StandardNodeModel extends NodeModel {
   constructor({ onEnter = [], onReceive = [], next = [], name, id, x, y, isStartNode }) {
     super('standard', id)
 
+    this.isStartNode = isStartNode
     let inNodeType = isStartNode ? 'start' : 'normal'
 
     this.addPort(new StandardIncomingPortModel('in', inNodeType))
 
     // We create as many output port as needed
     for (var i = 0; i < next.length; i++) {
-      let nodeType = 'normal'
-
-      if (next[i].node.toLowerCase() === 'end') {
-        nodeType = 'end'
-      } else if (/\.flow\.json/i.test(next[i].node)) {
-        nodeType = 'subflow'
-      }
-
-      this.addPort(new StandardOutgoingPortModel('out' + i, nodeType))
+      this.addPort(new StandardOutgoingPortModel('out' + i))
     }
 
     if (_.isString(onEnter)) {

@@ -33,10 +33,21 @@ class Toolbar extends React.Component {
     const hasUnsavedChanges = false
 
     const isInsertNodeMode = this.props.currentDiagramAction === 'insert_node'
-    const isInsertSubflowMode = this.props.currentDiagramAction === 'insert_subflow'
 
     const toggleInsertMode = action => element => {
       this.props.setDiagramAction(this.props.currentDiagramAction === action ? null : action)
+    }
+
+    const canMakeStartNode = () => {
+      const current = this.props.currentFlow && this.props.currentFlow.startNode
+      const potential = this.props.currentFlowNode && this.props.currentFlowNode.name
+      return current && potential && current !== potential
+    }
+
+    const setAsCurrentNode = () => {
+      this.props.updateFlow({
+        startNode: this.props.currentFlowNode.name
+      })
     }
 
     return (
@@ -113,14 +124,11 @@ class Toolbar extends React.Component {
             </OverlayTrigger>
           </Button>
 
-          <Button
-            className={style.btn}
-            bsStyle="default"
-            active={isInsertSubflowMode}
-            onClick={toggleInsertMode('insert_subflow')}
-          >
-            <OverlayTrigger placement="bottom" overlay={createTooltip('subflow', 'Insert Subflow')}>
-              <i className="material-icons">link</i>
+          <div className={style.separator} />
+
+          <Button className={style.btn} bsStyle="default" disabled={!canMakeStartNode()} onClick={setAsCurrentNode}>
+            <OverlayTrigger placement="bottom" overlay={createTooltip('makeStartNode', 'Set as Start node')}>
+              <i className="material-icons">stars</i>
             </OverlayTrigger>
           </Button>
         </div>

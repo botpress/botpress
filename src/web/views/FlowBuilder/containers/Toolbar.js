@@ -1,22 +1,24 @@
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
-import { fetchFlows, setDiagramAction } from '~/actions'
-import { getCurrentFlow } from '~/reducers'
+import { fetchFlows, setDiagramAction, updateFlow } from '~/actions'
+import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
 
 import Toolbar from '../toolbar.jsx'
 
 const mapStateToProps = (state, ownProps) => ({
   flows: state.flows,
   currentFlow: getCurrentFlow(state),
-  currentDiagramAction: state.flows.currentDiagramAction
+  currentDiagramAction: state.flows.currentDiagramAction,
+  currentFlowNode: getCurrentFlowNode(state)
 })
 
 const mapDispatchToProps = (dispatch, ownProps) =>
   bindActionCreators(
     {
       fetchFlows: fetchFlows,
-      setDiagramAction: setDiagramAction
+      setDiagramAction: setDiagramAction,
+      updateFlow: updateFlow
     },
     dispatch
   )

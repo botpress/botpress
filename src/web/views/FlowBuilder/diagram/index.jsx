@@ -144,7 +144,8 @@ export default class FlowBuilder extends Component {
           name: node.name,
           onEnter: node.onEnter,
           onReceive: node.onReceive,
-          next: node.next
+          next: node.next,
+          isStartNode: this.props.currentFlow.startNode === node.name
         })
       })
 
