@@ -3,7 +3,6 @@ import { Button, Label } from 'react-bootstrap'
 
 import ReactDOM from 'react-dom'
 import classnames from 'classnames'
-import axios from 'axios'
 import _ from 'lodash'
 
 const {
@@ -215,7 +214,23 @@ export default class FlowBuilder extends Component {
         name: node.name,
         onEnter: node.onEnter,
         onReceive: node.onReceive,
-        next: node.next,
+        next: node.next.map((next, index) => {
+          const port = _.find(node.ports, { name: 'out' + index })
+
+          if (!port || !port.links || !port.links.length) {
+            return next
+          }
+
+          const link = _.find(model.links, { id: port.links[0] })
+          const otherNodeId = link.source === node.id ? link.target : link.source
+          const otherNode = _.find(model.nodes, { id: otherNodeId })
+
+          if (!otherNode) {
+            return next
+          }
+
+          return { condition: next.condition, node: otherNode.name }
+        }),
         position: {
           x: node.x,
           y: node.y
