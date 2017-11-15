@@ -67,13 +67,17 @@ export class StandardPortWidget extends React.Component {
     return <div className={style.label}>End of flow</div>
   }
 
+  renderStartNode() {
+    return <div className={style.label}>Start</div>
+  }
+
   render() {
     const type = this.props.node.ports[this.props.name].type
-    const className = classnames(this.props.className, {
+    const className = classnames(this.props.className, style.portContainer, {
       [style.startPort]: type === 'start',
       [style.subflowPort]: type === 'subflow',
       [style.endPort]: type === 'end',
-      [style.portLabel]: /end|subflow/i.test(type)
+      [style.portLabel]: /end|subflow|start/i.test(type)
     })
 
     return (
@@ -81,6 +85,7 @@ export class StandardPortWidget extends React.Component {
         <PortWidget {...this.props} />
         {type === 'subflow' && this.renderSubflowNode()}
         {type === 'end' && this.renderEndNode()}
+        {type === 'start' && this.renderStartNode()}
       </div>
     )
   }

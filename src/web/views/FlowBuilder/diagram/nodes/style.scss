@@ -53,9 +53,6 @@
 }
 
 .section-next .item :global(.port) {
-  position: absolute;
-  right: -15px;
-  top: 0px;
   background: rgba(0, 0, 0, 0.2);
 
   &:global(.selected) {
@@ -80,6 +77,8 @@
 
 .startPort :global(.port) {
   background-color: lime !important;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
 }
 
 .endPort :global(.port) {
@@ -94,13 +93,20 @@
   border-bottom-right-radius: 20px;
 }
 
+.section-next .portContainer {
+  position: absolute;
+  right: -200px;
+  top: 3px;
+  width: 200px;
+}
+
 .portLabel .label {
   position: relative;
   padding: 5px;
-  right: -210px;
+  right: -20px;
   display: inline;
   border-radius: 3px;
-  top: -18px;
+  top: -16px;
   background: rgba(0, 0, 0, 0.08);
 }
 
@@ -110,4 +116,11 @@
 
 .endPort .label {
   color: red;
+}
+
+.startPort .label {
+  color: green;
+  font-size: 11px;
+  right: -83px;
+  top: -40px;
 }
