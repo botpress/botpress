@@ -44,19 +44,9 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db, contentMa
     return _.merge({}, templates) // Return a deep copy
   }
 
-  function getI18n() {
-    let i18n = _.get(botfile, 'umm.i18n')
-    if (_.isNil(i18n)) return false
-    else if (!_.isArray(i18n)) throw new Error('I18N should be an array')
-
-    return i18n
-  }
-
   function getStoragePath() {
     const resolve = file => path.resolve(projectLocation, file)
     let ummPath = _.get(botfile, 'umm.contentPath')
-    let defaultLanguage = _.get(botfile, 'umm.default_locale')
-    let i18n = getI18n()
 
     if (!ummPath) {
       const single = resolve('content.yml')
@@ -69,17 +59,10 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db, contentMa
         throw new Error('UMM content location not found')
       }
     }
-    if (path.isAbsolute(ummPath) && !_.isNil(i18n)) {
+    if (path.isAbsolute(ummPath)) {
       return ummPath
     } else {
-      _.forEach(i18n, value => {
-        let i18nPath = resolve(`${ummPath}/${value}`)
-        if (!fs.existsSync(i18nPath)) {
-          throw new Error(`UMM i18n ${value} Folder those not exist in ${i18nPath}`)
-        }
-      })
-
-      return resolve(`${ummPath}/${defaultLanguage}`) || resolve(`${ummPath}`)
+      return path.resolve(projectLocation, ummPath)
     }
   }
 

@@ -42,7 +42,7 @@
     "prompt": "1.0.0",
     "react-codemirror": "^1.0.0",
     "react-jsonschema-form": "^0.49.0",
-    "snyk": "1.49.2",
+    "snyk": "^1.49.2",
     "socket.io": "2.0.2",
     "socket.io-client": "2.0.3",
     "socketio-jwt": "^4.5.0",
