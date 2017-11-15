@@ -74,7 +74,8 @@ module.exports = ({ db }) => {
         })
       })
   }
-
+  
+  // TODO: Fix this, list of tags is always empty
   async function list(limit = 50, from = 0) {
     const knex = await db.get()
 
@@ -111,7 +112,8 @@ module.exports = ({ db }) => {
         )
       )
   }
-
+  
+  // TODO: Fix this, just doesn't work
   async function listWithTags(tags, limit = 50, from = 0) {
     const knex = await db.get()
 
