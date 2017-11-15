@@ -78,7 +78,6 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db, contentMa
   }
 
   async function getDocument() {
-    // TODO I can have multiple file
     const stats = await fs.statAsync(storagePath)
 
     if (stats.isDirectory()) {
