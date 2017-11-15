@@ -158,11 +158,13 @@ export default class FlowBuilder extends Component {
   componentDidMount() {
     ReactDOM.findDOMNode(this.diagramWidget).addEventListener('mousedown', ::this.onDiagramClick)
     ReactDOM.findDOMNode(this.diagramWidget).addEventListener('click', ::this.onDiagramClick)
+    document.getElementById('diagramContainer').addEventListener('keyup', ::this.onKeyUp)
   }
 
   componentWillUnmount() {
     ReactDOM.findDOMNode(this.diagramWidget).removeEventListener('mousedown', ::this.onDiagramClick)
     ReactDOM.findDOMNode(this.diagramWidget).removeEventListener('click', ::this.onDiagramClick)
+    document.getElementById('diagramContainer').removeEventListener('keyup', ::this.onKeyUp)
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -258,13 +260,25 @@ export default class FlowBuilder extends Component {
     })
   }
 
+  onKeyUp(event) {
+    if (event.code === 'Backspace') {
+      const elements = this.diagramEngine.getDiagramModel().getSelectedItems()
+      elements.forEach(element => {
+        if (!this.diagramEngine.isModelLocked(element)) {
+          element.remove()
+        }
+      })
+      this.diagramWidget.forceUpdate()
+    }
+  }
+
   render() {
     const isInserting = this.props.currentDiagramAction && this.props.currentDiagramAction.startsWith('insert_')
     const classNames = classnames({ [style.insertNode]: isInserting })
     const cancelInsert = () => this.props.setDiagramAction(null)
 
     return (
-      <div className={classNames} style={{ width: '100%', height: '100%' }}>
+      <div id="diagramContainer" tabIndex="1" className={classNames} style={{ width: '100%', height: '100%' }}>
         {isInserting && (
           <div className={style.insertMode}>
             <div>

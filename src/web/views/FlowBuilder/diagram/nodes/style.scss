@@ -84,13 +84,17 @@
 
 .endPort :global(.port) {
   background-color: red !important;
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
 }
 
 .subflowPort :global(.port) {
   background-color: blue !important;
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
 }
 
-.subflowPort .subflow {
+.portLabel .label {
   position: relative;
   padding: 5px;
   right: -210px;
@@ -98,4 +102,12 @@
   border-radius: 3px;
   top: -18px;
   background: rgba(0, 0, 0, 0.08);
+}
+
+.subflowPort .label {
+  color: blue;
+}
+
+.endPort .label {
+  color: red;
 }
