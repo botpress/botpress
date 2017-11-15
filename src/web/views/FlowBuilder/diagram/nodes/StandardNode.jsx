@@ -66,14 +66,20 @@ export class StandardPortWidget extends React.Component {
   render() {
     let type = 'normal'
 
-    const nextNode = this.props.node.ports[this.props.name]
+    if (this.props.name === 'in') {
+      if (this.props.node.isStartNode) {
+        type = 'start'
+      }
+    } else {
+      const index = Number(this.props.name.replace(/out/i, ''))
+      const nextNode = _.get(this.props.node, 'next.' + index)
 
-    if (this.props.name === 'in' && this.props.node.isStartNode) {
-      type = 'start'
-    } else if (nextNode.node && nextNode.node.toLowerCase() === 'end') {
-      type = 'end'
-    } else if (/\.flow\.json/i.test(nextNode.node)) {
-      type = 'subflow'
+      if (nextNode.node && nextNode.node.toLowerCase() === 'end') {
+        type = 'end'
+      } else if (/\.flow\.json/i.test(nextNode.node)) {
+        type = 'subflow'
+      }
+      console.log(nextNode, type)
     }
 
     const className = classnames(this.props.className, style.portContainer, {
