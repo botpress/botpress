@@ -135,7 +135,6 @@
   "os": ["darwin", "linux", "win32"],
   "scripts": {
     "prepare": "npm run snyk-protect; npm run compile-prod",
-    "prepare": "npm run compile-prod",
     "compile": "./build.sh",
     "compile-prod": "NODE_ENV=production ./build.sh && ls -lh ./lib/web/js && echo \"DONE\"",
     "test":
