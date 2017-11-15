@@ -1,7 +1,7 @@
 {
   "name": "botpress",
   "description": "The world's first CMS for bots. Easily create, manage and extend chatbots.",
-  "version": "1.1.2",
+  "version": "1.1.10",
   "author": "Botpress",
   "bin": {
     "bp": "./bin/botpress",
@@ -134,8 +134,10 @@
   "repository": "git+https://github.com/botpress/botpress.git",
   "os": ["darwin", "linux", "win32"],
   "scripts": {
-    "prepare": "npm run snyk-protect; npm run compile",
+    "prepare": "npm run snyk-protect; npm run compile-prod",
+    "prepare": "npm run compile-prod",
     "compile": "./build.sh",
+    "compile-prod": "NODE_ENV=production ./build.sh && ls -lh ./lib/web/js && echo \"DONE\"",
     "test":
       "snyk test && BABEL_ENV=tests mocha --compilers js:babel-core/register --require tests/index.js tests/** extensions/**/tests/**",
     "watch": "npm-watch",
@@ -154,16 +156,6 @@
   "pre-commit": {
     "run": "precommit",
     "silent": true
-  },
-  "prettier": {
-    "printWidth": 120,
-    "singleQuote": true,
-    "trailingComma": "none",
-    "bracketSpacing": true,
-    "jsxBracketSameLine": false,
-    "parser": "babylon",
-    "semi": false,
-    "requirePragma": false
   },
   "snyk": true
 }

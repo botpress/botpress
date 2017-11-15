@@ -8,7 +8,7 @@ const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
 var ExtensionsPlugin = require('./extensions/extensions-plugin')
 
 var nodeConfig = {
-  devtool: 'eval-cheap-module-source-map',
+  devtool: process.env.NODE_ENV === 'production' ? 'source-map' : 'eval-cheap-module-source-map',
   entry: [path.resolve(__dirname, './index.js')],
   output: {
     path: path.resolve(__dirname, './lib'),
@@ -56,28 +56,28 @@ var nodeConfig = {
 
 var webConfig = {
   bail: true,
-  devtool: 'eval-cheap-module-source-map',
+  devtool: process.env.NODE_ENV === 'production' ? 'source-map' : 'eval-cheap-module-source-map',
   entry: {
-    vendor: [
-      'axios',
-      'bluebird',
-      'howler',
-      'knex',
-      'lodash',
-      'moment',
-      'react',
-      'react-bootstrap',
-      'react-codemirror',
-      'react-dom',
-      'react-jsonschema-form'
-    ],
+    // vendor: [ // This doesn't work with lite.bundle.js
+    //   'axios',
+    //   'bluebird',
+    //   'howler',
+    //   'knex',
+    //   'lodash',
+    //   'moment',
+    //   'react',
+    //   'react-bootstrap',
+    //   'react-codemirror',
+    //   'react-dom',
+    //   'react-jsonschema-form'
+    // ],
     web: './src/web/index.jsx',
     lite: './src/web/lite.jsx'
   },
   output: {
     path: path.resolve(__dirname, './lib/web/js'),
     publicPath: '/js/',
-    filename: '[name]-[hash].bundle.js'
+    filename: '[name].bundle.js'
   },
   resolve: {
     extensions: ['.js', '.jsx', '.css'],
@@ -87,10 +87,10 @@ var webConfig = {
     }
   },
   plugins: [
-    new webpack.optimize.CommonsChunkPlugin({
-      name: 'vendor',
-      minChunks: Infinity
-    }),
+    // new webpack.optimize.CommonsChunkPlugin({
+    //   name: 'vendor',
+    //   minChunks: Infinity
+    // }),
     ExtensionsPlugin.beforeResolve,
     ExtensionsPlugin.afterResolve,
     new webpack.DefinePlugin({
@@ -183,6 +183,12 @@ var postProcess = function(err, stats) {
 }
 
 if (process.argv.indexOf('--compile') !== -1) {
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('*****')
+    console.log('WARNING: You are currently building Botpress in development; NOT generating a production build')
+    console.log('Run with NODE_ENV=production to create a production build instead')
+    console.log('*****')
+  }
   compiler.run(postProcess)
 } else if (process.argv.indexOf('--watch') !== -1) {
   compiler.watch(null, postProcess)

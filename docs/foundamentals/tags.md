@@ -8,7 +8,7 @@ Tags are a way to segment or store information about specific users. A user can 
 
 ### Tag a user (`bp.users.tag(userId, tag, [value]) -> Promise<null>`)
 
-### Untag a user (`bp.users.tag(userId, tag) -> Promise<null>`)
+### Untag a user (`bp.users.untag(userId, tag) -> Promise<null>`)
 
 ### Check if user has tag (`bp.users.hasTag(userId, tag) -> Promise<bool>`)
 
