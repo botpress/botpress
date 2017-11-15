@@ -79,7 +79,6 @@ export class StandardPortWidget extends React.Component {
       } else if (/\.flow\.json/i.test(nextNode.node)) {
         type = 'subflow'
       }
-      console.log(nextNode, type)
     }
 
     const className = classnames(this.props.className, style.portContainer, {
