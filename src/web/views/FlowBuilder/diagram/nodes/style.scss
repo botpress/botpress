@@ -95,9 +95,14 @@
 
 .section-next .portContainer {
   position: absolute;
-  right: -200px;
+  right: -20px;
   top: 3px;
+  width: 20px;
+}
+
+.section-next .portContainer.portLabel {
   width: 200px;
+  right: -200px;
 }
 
 .portContainer.startPort {
