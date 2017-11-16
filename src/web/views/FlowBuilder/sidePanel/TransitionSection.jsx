@@ -5,6 +5,8 @@ import { Panel, Button } from 'react-bootstrap'
 
 import ConditionItem from '../common/condition'
 
+import NewConditionModal from './properties/NewConditionModal'
+
 const style = require('./style.scss')
 
 export default class TransitionSection extends Component {
@@ -27,11 +29,7 @@ export default class TransitionSection extends Component {
   }
 
   onAdd(options) {
-    const action = options.type === 'message' ? '@' + options.message : options.functionName
-
-    const copy = [...(this.props.items || []), action]
-
-    this.props.onItemsUpdated(copy)
+    console.log('Add:', options)
     this.setState({ showNewConditionModal: false })
   }
 
@@ -72,11 +70,12 @@ export default class TransitionSection extends Component {
             </Button>
           </div>
         </Panel>
-        {/*<NewActionModal*/}
-        {/*show={this.state.showNewConditionModal}*/}
-        {/*onClose={() => this.setState({ showNewConditionModal: false })}*/}
-        {/*onAdd={::this.onAddAction}*/}
-        {/*/>*/}
+        <NewConditionModal
+          subflows={this.props.subflows}
+          show={this.state.showNewConditionModal}
+          onClose={() => this.setState({ showNewConditionModal: false })}
+          onAdd={::this.onAdd}
+        />
       </div>
     )
   }

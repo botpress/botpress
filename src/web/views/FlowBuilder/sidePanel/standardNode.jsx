@@ -52,6 +52,7 @@ export default class SidePanel extends Component {
         <TransitionSection
           items={node['next']}
           header="Transitions"
+          subflows={this.props.subflows}
           onItemsUpdated={items => this.props.updateNode({ next: items })}
         />
         {::this.renderBottomSection()}
