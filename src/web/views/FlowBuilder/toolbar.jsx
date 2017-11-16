@@ -63,7 +63,6 @@ class Toolbar extends React.Component {
             className={style.btn}
             bsStyle="default"
             onClick={() => {
-              console.log(this.props)
               this.props.fetchFlows()
             }}
           >

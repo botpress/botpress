@@ -1,8 +1,10 @@
 import React, { Component } from 'react'
-import { Modal, Button, Radio, Col, OverlayTrigger, Tooltip } from 'react-bootstrap'
-import Form from 'react-jsonschema-form'
+import { Modal, Button, Radio, Col, OverlayTrigger, Tooltip, Table } from 'react-bootstrap'
 import Select from 'react-select'
 import axios from 'axios'
+import classnames from 'classnames'
+
+import ParametersTable from './ParametersTable'
 
 const style = require('../style.scss')
 
@@ -14,7 +16,8 @@ export default class NewActionModal extends Component {
       actionType: 'message',
       functionSuggestions: [],
       functionInputValue: '',
-      messageInputValue: ''
+      messageInputValue: '',
+      arguments: { 1: { key: '', value: '' } }
     }
   }
 
@@ -38,55 +41,6 @@ export default class NewActionModal extends Component {
       functionInputValue: '',
       messageInputValue: ''
     })
-  }
-
-  renderGenericParamsFilling() {
-    const schema = {
-      type: 'object',
-      required: ['name'],
-      properties: {
-        name: { type: 'string', minLength: 3 },
-        description: { type: 'string' }
-      }
-    }
-
-    const uiSchema = {
-      description: {
-        'ui:widget': 'textarea'
-      }
-    }
-
-    function Tpl(props) {
-      const { id, classNames, label, help, required, description, rawErrors = [], children } = props
-      return (
-        <div className={classNames}>
-          <label htmlFor={id}>
-            {label}
-            {required ? '*' : null}
-          </label>
-          {description}
-          {children}
-          {rawErrors.map(error => (
-            <div style={{ color: 'blue' }}>
-              <h1>{error}</h1>
-            </div>
-          ))}
-          {help}
-        </div>
-      )
-    }
-
-    let formData = {
-      name: 'actionName',
-      decription: 'empty'
-    }
-
-    return (
-      <div>
-        <div>This function has metadata about parameters.</div>
-        <Form schema={schema} uiSchema={uiSchema} FieldTemplate={Tpl} formData={formData} liveValidate />
-      </div>
-    )
   }
 
   renderSectionCode() {
@@ -116,21 +70,12 @@ export default class NewActionModal extends Component {
         <OverlayTrigger placement="bottom" overlay={tooltip}>
           <div className={style.tip}>Not seeing your function here?</div>
         </OverlayTrigger>
-        {this.renderGenericParamsFilling()}
+        <ParametersTable ref={el => (this.parametersTable = el)} />
       </div>
     )
   }
 
   renderSectionMessage() {
-    // const selectMessageType = <Select
-    //         name="functionToInvoke"
-    //         value={this.state.messageContentTypeInputValue}
-    //         options={this.state.contentTypeSuggestions}
-    //         onChange={val => {
-    //           this.setState({ messageContentTypeInputValue: val && val.value })
-    //         }}
-    //       />
-
     const handleChange = event => {
       this.setState({ messageInputValue: event.target.value })
     }

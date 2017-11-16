@@ -17,7 +17,6 @@ export default class SidePanel extends Component {
 
   onAddActionClicked(options) {
     const { node } = this.props
-    console.log(options)
     const action = options.type === 'message' ? '@' + options.message : options.functionName
 
     const section = this.state.currentSection
@@ -133,8 +132,6 @@ export default class SidePanel extends Component {
   }
 
   render() {
-    console.log(this.props)
-
     return null
     // const { node } = this.props
     //
