@@ -1,4 +1,6 @@
 import React from 'react'
+import { connect } from 'react-redux'
+import { bindActionCreators } from 'redux'
 import {
   Grid,
   Row,
@@ -15,14 +17,13 @@ import classnames from 'classnames'
 import ContentWrapper from '~/components/Layout/ContentWrapper'
 import PageHeader from '~/components/Layout/PageHeader'
 import ModulesComponent from '~/components/Modules'
-
-import actions from '~/actions'
+import { fetchModules } from '~/actions'
 
 const style = require('./style.scss')
 
 const DEFAULT_TAG = "All"
 
-export default class ManageView extends React.Component {
+class ManageView extends React.Component {
   constructor(props) {
     super(props)
     this.state = { 
@@ -56,7 +57,7 @@ export default class ManageView extends React.Component {
   refresh() {
     this.queryModules()
       .then(() => {
-        setTimeout(actions.fetchModules, 5000)
+        setTimeout(this.props.fetchModules, 5000)
       })
   }
 
@@ -178,3 +179,7 @@ export default class ManageView extends React.Component {
     )
   }
 }
+
+const mapDispatchToProps = dispatch => bindActionCreators({ fetchModules }, dispatch)
+
+export default connect(null, mapDispatchToProps)(ManageView)

@@ -1,15 +1,11 @@
 import React from 'react'
+import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
-
 import _ from 'lodash'
-
-import { connect } from 'nuclear-js-react-addons'
-import getters from '~/stores/getters'
 
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
 
-@connect(props => ({ modules: getters.modules }))
-export default class ModuleView extends React.Component {
+class ModuleView extends React.Component {
 
   static contextTypes = {
     router: PropTypes.object.isRequired
@@ -25,7 +21,7 @@ export default class ModuleView extends React.Component {
     }
 
     const injectionSide = nextProps.site
-    const modules = nextProps.modules.toJS()
+    const modules = nextProps.modules
     const pluginsToRender = []
 
     modules.forEach(module => {
@@ -54,3 +50,7 @@ export default class ModuleView extends React.Component {
     </div>
   }
 }
+
+const mapStateToProps = state => ({ modules: state.modules })
+
+export default connect(mapStateToProps)(ModuleView)

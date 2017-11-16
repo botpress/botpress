@@ -1,16 +1,10 @@
-import React, { Component } from 'react'
-import PropTypes from 'prop-types'
+import React from 'react'
+import { connect } from 'react-redux'
 
 import classnames from 'classnames'
-import { connect } from 'nuclear-js-react-addons'
-import getters from '~/stores/getters'
-
 import style from './ContentWrapper.scss'
 
-@connect(props => ({
-  UI: getters.UI
-}))
-class ContentWrapper extends Component {
+class ContentWrapper extends React.Component {
   constructor(props) {
     super(props)
 
@@ -34,7 +28,7 @@ class ContentWrapper extends Component {
       childElement = <div className="unwrap">{this.props.children}</div>
     }
 
-    const hasPadding = this.props.UI.get('viewMode') < 2
+    const hasPadding = this.props.viewMode < 2
     const stretch = this.props.stretch === true
 
     const classNames = classnames({
@@ -51,8 +45,6 @@ class ContentWrapper extends Component {
   }
 }
 
-ContentWrapper.contextTypes = {
-  reactor: PropTypes.object.isRequired
-}
+const mapStateToProps = state => ({ viewMode: state.ui.viewMode })
 
-export default ContentWrapper
+export default connect(mapStateToProps)(ContentWrapper)

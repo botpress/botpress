@@ -13,7 +13,7 @@ import {
   setDiagramAction,
   createFlowNode,
   removeFlowNode
-} from './actions'
+} from '~/actions'
 
 const defaultState = {
   flowsByName: {},

@@ -1,35 +1,27 @@
 import React, { Component } from 'react'
-import { Provider } from 'nuclear-js-react-addons'
+
+import { bindActionCreators } from 'redux'
+import { connect } from 'react-redux'
 
 import { authEvents } from '~/util/Auth'
 import EventBus from '~/util/EventBus'
 import routes from '../Routes'
 
-import reactor from '~/reactor'
-import actions from '~/actions'
 import {
-  ModulesStore,
-  NotificationsStore,
-  UIStore,
-  BotStore,
-  LicenseStore,
-  UserStore,
-  RulesStore
-} from '~/stores'
+  fetchLicense,
+  fetchUser,
+  fetchBotInformation,
+  fetchModules,
+  fetchRules,
+  fetchNotifications,
+  replaceNotifications,
+  addNotifications
+} from '~/actions'
 
-export default class App extends Component {
+class App extends Component {
 
   constructor(props) {
     super(props)
-    reactor.registerStores({
-      'modules': ModulesStore,
-      'notifications': NotificationsStore,
-      'UI': UIStore,
-      'botInformation': BotStore,
-      'license': LicenseStore,
-      'user': UserStore,
-      'rules': RulesStore
-    })
 
     this.state = {
       events: EventBus.default
@@ -43,14 +35,14 @@ export default class App extends Component {
   }
 
   fetchData() {
-    actions.fetchModules()
-    actions.fetchNotifications()
-    actions.fetchBotInformation()
-    actions.fetchLicense()
+    this.props.fetchModules()
+    this.props.fetchNotifications()
+    this.props.fetchBotInformation()
+    this.props.fetchLicense()
     
     if (window.AUTH_ENABLED) {
-      actions.fetchUser()
-      actions.fetchRules()
+      this.props.fetchUser()
+      this.props.fetchRules()
     }
   }
 
@@ -63,14 +55,14 @@ export default class App extends Component {
     authEvents.on('new_token', this.fetchData)
 
     EventBus.default.on('notifications.all', (notifications) => {
-      actions.replaceNotifications(notifications)
+      this.props.replaceNotifications(notifications)
     })
 
     EventBus.default.on('notifications.new', (notification) => {
-      actions.addNotifications([notification])
+      this.props.addNotifications([notification])
     })
 
-    this.fetchModulesInterval = setInterval(actions.fetchModules, 10000)
+    this.fetchModulesInterval = setInterval(this.props.fetchModules, 10000)
   }
 
   componentWillUnmount() {
@@ -79,9 +71,24 @@ export default class App extends Component {
 
   render() {
     return (
-      <Provider reactor={reactor}>
-        {routes()}
-      </Provider>
+      routes()
     )
   }
 }
+
+const mapDispatchToProps = (dispatch, ownProps) =>
+  bindActionCreators(
+    {
+      fetchLicense,
+      fetchUser,
+      fetchBotInformation,
+      fetchModules,
+      fetchRules,
+      fetchNotifications,
+      replaceNotifications,
+      addNotifications
+    },
+    dispatch
+  )
+
+export default connect(null, mapDispatchToProps)(App)

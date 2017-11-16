@@ -1,28 +1,19 @@
-import React, { Component } from 'react'
-import PropTypes from 'prop-types'
+import React from 'react'
+import { bindActionCreators } from 'redux'
+import { connect } from 'react-redux'
 
 import { Navbar, Nav, NavItem, Glyphicon, NavDropdown } from 'react-bootstrap'
-
 import classnames from 'classnames'
-import axios from 'axios'
 
 import NotificationHub from '~/components/Notifications/Hub'
 import ProfileMenu from '+/views/ProfileMenu'
 import RulesChecker from '+/views/RulesChecker'
 
-import { getCurrentUser, logout } from '~/util/Auth'
-
+import { logout } from '~/util/Auth'
 import style from './Header.scss'
+import { viewModeChanged } from '~/actions'
 
-import { connect } from 'nuclear-js-react-addons'
-import getters from '~/stores/getters'
-import actions from '~/actions'
-
-@connect(props => ({
-  user: getters.user,
-  UI: getters.UI
-}))
-class Header extends Component {
+class Header extends React.Component {
   constructor(props, context) {
     super(props, context)
 
@@ -32,15 +23,15 @@ class Header extends Component {
   }
 
   getProfileImgUrl() {
-    if (!this.props.user.get('avatarURL')) {
+    if (!this.props.user.avatarURL) {
       return null
     }
-    return '/api/enterprise/accounts/avatars/' + this.props.user.get('avatarURL')
+    return '/api/enterprise/accounts/avatars/' + this.props.user.avatarURL
   }
 
   handleFullscreen() {
-    const newViewMode = this.props.UI.get('viewMode') < 1 ? 1 : 0
-    actions.viewModeChanged(newViewMode)
+    const newViewMode = this.props.viewMode < 1 ? 1 : 0
+    this.props.viewModeChanged(newViewMode)
   }
 
   renderLogoutButton() {
@@ -71,12 +62,12 @@ class Header extends Component {
   }
 
   render() {
-    if (this.props.UI.get('viewMode') >= 3) {
+    if (this.props.viewMode >= 3) {
       return null
     }
 
     const classNames = classnames(style.navbar, style['app-navbar'], 'bp-navbar')
-    const customStyle = this.props.UI.get('customStyle')['bp-navbar']
+    const customStyle = this.props.customStyle['bp-navbar']
 
     return (
       <Navbar className={classNames} style={customStyle}>
@@ -99,8 +90,12 @@ class Header extends Component {
   }
 }
 
-Header.contextTypes = {
-  reactor: PropTypes.object.isRequired
-}
+const mapStateToProps = (state) => ({
+  user: state.user,
+  viewMode: state.ui.viewMode,
+  customStyle: state.ui.customStyle
+})
 
-export default Header
+const mapDispatchToProps = dispatch => bindActionCreators({ viewModeChanged }, dispatch)
+
+export default connect(mapStateToProps, mapDispatchToProps)(Header)

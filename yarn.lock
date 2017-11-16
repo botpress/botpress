@@ -3013,7 +3013,7 @@ hoek@4.x.x:
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/hoek/-/hoek-4.2.0.tgz#72d9d0754f7fe25ca2d01ad8f8f9a9449a89526d"
 
-hoist-non-react-statics@^1.0.2, hoist-non-react-statics@^1.2.0:
+hoist-non-react-statics@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/hoist-non-react-statics/-/hoist-non-react-statics-1.2.0.tgz#aa448cf0986d55cc40773b17174b7dd066cb7cfb"
 
@@ -3132,10 +3132,6 @@ ignore@^3.3.3:
 image-size@^0.3.5:
   version "0.3.5"
   resolved "https://registry.yarnpkg.com/image-size/-/image-size-0.3.5.tgz#83240eab2fb5b00b04aab8c74b0471e9cba7ad8c"
-
-immutable@^3.8.1:
-  version "3.8.2"
-  resolved "https://registry.yarnpkg.com/immutable/-/immutable-3.8.2.tgz#c2439951455bb39913daf281376f1530e104adf3"
 
 import-lazy@^2.1.0:
   version "2.1.0"
@@ -4527,19 +4523,6 @@ nth-check@~1.0.1:
   dependencies:
     boolbase "~1.0.0"
 
-nuclear-js-react-addons@^0.4.1:
-  version "0.4.1"
-  resolved "https://registry.yarnpkg.com/nuclear-js-react-addons/-/nuclear-js-react-addons-0.4.1.tgz#23e8b0a00c20e90b6bfe4cfcc7b627d5a61c4cfb"
-  dependencies:
-    hoist-non-react-statics "^1.0.2"
-    object-assign "*"
-
-nuclear-js@^1.4.0:
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/nuclear-js/-/nuclear-js-1.4.0.tgz#6c9c001b0673f0ae9d8f8b188c4da04ed693a7be"
-  dependencies:
-    immutable "^3.8.1"
-
 num2fraction@^1.2.2:
   version "1.2.2"
   resolved "https://registry.yarnpkg.com/num2fraction/-/num2fraction-1.2.2.tgz#6f682b6a027a4e9ddfa4564cd2589d1d4e669ede"
@@ -4552,7 +4535,7 @@ oauth-sign@~0.8.1, oauth-sign@~0.8.2:
   version "0.8.2"
   resolved "https://registry.yarnpkg.com/oauth-sign/-/oauth-sign-0.8.2.tgz#46a6ab7f0aead8deae9ec0565780b7d4efeb9d43"
 
-object-assign@*, object-assign@4.1.0, object-assign@^4.0.1:
+object-assign@4.1.0, object-assign@^4.0.1:
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/object-assign/-/object-assign-4.1.0.tgz#7a3b3d0e98063d43f4c03f2e8ae6cd51a86883a0"
 

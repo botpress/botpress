@@ -1,7 +1,7 @@
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
-import { updateFlowNode, updateFlow, removeFlowNode } from '~/reducers/actions'
+import { updateFlowNode, updateFlow, removeFlowNode } from '~/actions'
 import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
 
 import SidePanel from '../sidePanel'
