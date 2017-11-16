@@ -140,7 +140,7 @@ export default class FlowBuilder extends Component {
           this.activeModel.addNode(model)
         }
 
-        _.assign(model, {
+        model.setData({
           name: node.name,
           onEnter: node.onEnter,
           onReceive: node.onReceive,

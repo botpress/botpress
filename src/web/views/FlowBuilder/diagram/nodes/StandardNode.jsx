@@ -101,7 +101,7 @@ export class StandardPortWidget extends React.Component {
 
 export class StandardNodeWidget extends React.Component {
   static defaultProps = {
-    size: 150,
+    size: 200,
     node: null
   }
 
@@ -155,37 +155,10 @@ export class StandardNodeWidget extends React.Component {
 }
 
 export class StandardNodeModel extends NodeModel {
-  constructor({ onEnter = [], onReceive = [], next = [], name, id, x, y, isStartNode }) {
+  constructor({ id, x, y, name, onEnter = [], onReceive = [], next = [], isStartNode = false }) {
     super('standard', id)
 
-    this.isStartNode = isStartNode
-    let inNodeType = isStartNode ? 'start' : 'normal'
-
-    this.addPort(new StandardIncomingPortModel('in', inNodeType))
-
-    // We create as many output port as needed
-    for (var i = 0; i < next.length; i++) {
-      this.addPort(new StandardOutgoingPortModel('out' + i))
-    }
-
-    if (_.isString(onEnter)) {
-      onEnter = [onEnter]
-    }
-
-    if (_.isString(onReceive)) {
-      onReceive = [onReceive]
-    }
-
-    onReceive = onReceive.map(x => x.function || x)
-
-    if (!_.isArray(next) && _.isObjectLike(next)) {
-      next = [next]
-    }
-
-    this.onEnter = onEnter
-    this.onReceive = onReceive
-    this.next = next
-    this.name = name
+    this.setData({ name, onEnter, onReceive, next, isStartNode })
 
     if (x) {
       this.x = x
@@ -207,16 +180,42 @@ export class StandardNodeModel extends NodeModel {
   deSerialize(data) {
     super.deSerialize(data)
 
-    this.name = data.name
-    this.onEnter = data.onEnter
-    this.onReceive = data.onReceive
-    this.next = data.next
+    this.setData({ name: data.name, onEnter: data.onEnter, onReceive: data.onReceive, next: data.next })
+  }
 
-    // TODO
-    console.log('deSerialize: TODO -> Remove / Add output ports', this.getPorts())
-    // TODO this.addPort(port)
-    // this.removePort(port)
-    // this.getPort(name)
+  setData({ name, onEnter = [], onReceive = [], next = [], isStartNode }) {
+    this.isStartNode = isStartNode
+    let inNodeType = isStartNode ? 'start' : 'normal'
+
+    if (!this.ports['in']) {
+      this.addPort(new StandardIncomingPortModel('in', inNodeType))
+    }
+
+    // We create as many output port as needed
+    for (var i = 0; i < next.length; i++) {
+      if (!this.ports['out' + i]) {
+        this.addPort(new StandardOutgoingPortModel('out' + i))
+      }
+    }
+
+    if (_.isString(onEnter)) {
+      onEnter = [onEnter]
+    }
+
+    if (_.isString(onReceive)) {
+      onReceive = [onReceive]
+    }
+
+    onReceive = onReceive.map(x => x.function || x)
+
+    if (!_.isArray(next) && _.isObjectLike(next)) {
+      next = [next]
+    }
+
+    this.onEnter = onEnter
+    this.onReceive = onReceive
+    this.next = next
+    this.name = name
   }
 }
 
