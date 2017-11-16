@@ -28,9 +28,10 @@ export default class TransitionSection extends Component {
     this.props.onItemsUpdated(clone)
   }
 
-  onAdd(options) {
-    console.log('Add:', options)
+  onAdd(item) {
+    const clone = [...this.props.items, item]
     this.setState({ showNewConditionModal: false })
+    this.props.onItemsUpdated(clone)
   }
 
   onRemove(index) {

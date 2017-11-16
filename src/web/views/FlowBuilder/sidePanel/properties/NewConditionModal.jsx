@@ -60,9 +60,18 @@ export default class NewConditionModal extends Component {
   }
 
   onAddClick() {
-    console.log('On add click')
     if (this.validation()) {
-      this.props.onAdd({ ...this.state })
+      const payload = { condition: this.state.condition }
+
+      if (this.state.typeOfTransition === 'subflow') {
+        payload.node = this.state.flowToSubflow.value
+      } else if (this.state.typeOfTransition === 'end') {
+        payload.node = 'END'
+      } else {
+        payload.node = ''
+      }
+
+      this.props.onAdd(payload)
       this.resetForm()
     }
   }
