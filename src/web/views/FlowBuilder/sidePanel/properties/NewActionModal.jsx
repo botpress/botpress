@@ -2,11 +2,10 @@ import React, { Component } from 'react'
 import { Modal, Button, Radio, Col, OverlayTrigger, Tooltip, Table } from 'react-bootstrap'
 import Select from 'react-select'
 import axios from 'axios'
-import classnames from 'classnames'
 
 import ParametersTable from './ParametersTable'
 
-const style = require('../style.scss')
+const style = require('./style.scss')
 
 export default class NewActionModal extends Component {
   constructor(props) {
@@ -54,10 +53,29 @@ export default class NewActionModal extends Component {
       </Tooltip>
     )
 
+    const tooltip2 = (
+      <Tooltip id="whatIsThis">
+        You can provide function calls extra parameters if they have been coded to support them. You can generally
+        ignore this for most functions. Please see the documentation to know more.
+      </Tooltip>
+    )
+
+    const help = (
+      <OverlayTrigger placement="bottom" overlay={tooltip}>
+        <span className={style.tip}>Missing your function?</span>
+      </OverlayTrigger>
+    )
+
+    const paramsHelp = (
+      <OverlayTrigger placement="bottom" overlay={tooltip2}>
+        <span className={style.tip}>What is this?</span>
+      </OverlayTrigger>
+    )
+
     return (
       <div>
-        <Col sm={4}>Function to invoke:</Col>
-        <Col sm={8}>
+        <h5>Function to invoke {help}</h5>
+        <div className={style.section}>
           <Select
             name="functionToInvoke"
             value={this.state.functionInputValue}
@@ -66,11 +84,11 @@ export default class NewActionModal extends Component {
               this.setState({ functionInputValue: val && val.value })
             }}
           />
-        </Col>
-        <OverlayTrigger placement="bottom" overlay={tooltip}>
-          <div className={style.tip}>Not seeing your function here?</div>
-        </OverlayTrigger>
-        <ParametersTable ref={el => (this.parametersTable = el)} />
+        </div>
+        <h5>Function parameters {paramsHelp}</h5>
+        <div className={style.section}>
+          <ParametersTable ref={el => (this.parametersTable = el)} />
+        </div>
       </div>
     )
   }
@@ -94,8 +112,8 @@ export default class NewActionModal extends Component {
 
     return (
       <div>
-        <Col sm={4}>Message {help}: </Col>
-        <Col sm={8}>
+        <h5>Message {help}:</h5>
+        <div className={style.section}>
           <input
             type="text"
             name="message"
@@ -103,7 +121,7 @@ export default class NewActionModal extends Component {
             value={this.state.messageInputValue}
             onChange={handleChange}
           />
-        </Col>
+        </div>
       </div>
     )
   }
@@ -129,18 +147,16 @@ export default class NewActionModal extends Component {
           <Modal.Title>Add new action</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <div>
-            <Col sm={4}>The bot will:</Col>
-            <Col sm={8}>
-              <Radio checked={this.state.actionType === 'message'} onChange={this.onChangeType.bind(this, 'message')}>
-                💬 Say something
-              </Radio>
-              <Radio checked={this.state.actionType === 'code'} onChange={this.onChangeType.bind(this, 'code')}>
-                ⚡ Execute code
-              </Radio>
-            </Col>
+          <h5>The bot will:</h5>
+          <div className={style.section}>
+            <Radio checked={this.state.actionType === 'message'} onChange={this.onChangeType.bind(this, 'message')}>
+              💬 Say something
+            </Radio>
+            <Radio checked={this.state.actionType === 'code'} onChange={this.onChangeType.bind(this, 'code')}>
+              ⚡ Execute code
+            </Radio>
           </div>
-          <hr />
+
           {this.state.actionType === 'message' ? this.renderSectionMessage() : this.renderSectionCode()}
         </Modal.Body>
         <Modal.Footer>
