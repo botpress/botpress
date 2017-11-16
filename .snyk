@@ -28,13 +28,13 @@ patch:
   'npm:ms:20170412':
     - socket.io > socket.io-adapter > socket.io-parser > debug > ms:
         patched: '2017-11-15T15:52:54.917Z'
+      socketio-jwt > jsonwebtoken > ms:
+        patched: '2017-11-15T16:19:23.993Z'
     - node-pre-gyp > tar-pack > debug > ms:
         patched: '2017-11-15T16:19:23.993Z'
     - socketio-jwt > jsonwebtoken > ms:
         patched: '2017-11-15T15:52:54.917Z'
-    - socketio-jwt > jsonwebtoken > ms:
-        patched: '2017-11-15T16:19:23.993Z'
-    - ms:
+      ms:
         patched: '2017-11-15T16:19:23.993Z'
   'npm:qs:20170213':
     - node-pre-gyp > request > qs:
