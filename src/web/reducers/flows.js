@@ -54,6 +54,14 @@ const reducer = handleActions(
       currentFlowNode: payload
     }),
 
+    [switchFlow]: (state, { payload }) => {
+      return {
+        ...state,
+        currentFlowNode: null,
+        currentFlow: payload
+      }
+    },
+
     [updateFlow]: (state, { payload }) => ({
       ...state,
       flowsByName: {
