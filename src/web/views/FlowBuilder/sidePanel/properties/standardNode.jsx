@@ -3,12 +3,12 @@ import classnames from 'classnames'
 
 import { Button } from 'react-bootstrap'
 
-import EditableInput from '../common/EditableInput'
+import EditableInput from '../../common/EditableInput'
 
 import ActionSection from './ActionSection'
 import TransitionSection from './TransitionSection'
 
-const style = require('./style.scss')
+const style = require('../style.scss')
 
 export default class SidePanel extends Component {
   renameNode(text) {

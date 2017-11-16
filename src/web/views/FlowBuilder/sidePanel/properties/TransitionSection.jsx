@@ -3,11 +3,11 @@ import _ from 'lodash'
 
 import { Panel, Button } from 'react-bootstrap'
 
-import ConditionItem from '../common/condition'
+import ConditionItem from '../../common/condition'
 
-import NewConditionModal from './properties/NewConditionModal'
+import NewConditionModal from './NewConditionModal'
 
-const style = require('./style.scss')
+const style = require('../style.scss')
 
 export default class TransitionSection extends Component {
   constructor(props) {

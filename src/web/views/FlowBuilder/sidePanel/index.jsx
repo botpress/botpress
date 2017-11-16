@@ -3,7 +3,7 @@ import React, { Component } from 'react'
 import { Tabs, Tab } from 'react-bootstrap'
 import _ from 'lodash'
 
-import StandardNode from './standardNode'
+import StandardNode from './properties/standardNode'
 import FlowInformation from './flowInformation'
 
 import FlowsList from './flows/list'

@@ -4,7 +4,7 @@ import Form from 'react-jsonschema-form'
 import Select from 'react-select'
 import axios from 'axios'
 
-const style = require('./style.scss')
+const style = require('../style.scss')
 
 export default class NewActionModal extends Component {
   constructor(props) {

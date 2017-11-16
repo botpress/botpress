@@ -4,9 +4,9 @@ import _ from 'lodash'
 import { Panel, Button } from 'react-bootstrap'
 
 import NewActionModal from './NewActionModal'
-import ActionItem from '../common/action'
+import ActionItem from '../../common/action'
 
-const style = require('./style.scss')
+const style = require('../style.scss')
 
 export default class ActionSection extends Component {
   constructor(props) {
