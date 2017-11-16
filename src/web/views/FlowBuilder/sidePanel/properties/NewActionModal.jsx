@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Modal, Button, Radio, Col, OverlayTrigger, Tooltip, Table } from 'react-bootstrap'
+import { Modal, Button, Radio, OverlayTrigger, Tooltip, Panel, Well } from 'react-bootstrap'
 import Select from 'react-select'
 import axios from 'axios'
 
@@ -16,7 +16,7 @@ export default class NewActionModal extends Component {
       functionSuggestions: [],
       functionInputValue: '',
       messageInputValue: '',
-      arguments: { 1: { key: '', value: '' } }
+      functionParams: {}
     }
   }
 
@@ -72,6 +72,20 @@ export default class NewActionModal extends Component {
       </OverlayTrigger>
     )
 
+    const onParamsChange = params => {
+      params = _.values(params).reduce((sum, n) => {
+        if (n.key === '') {
+          return sum
+        }
+        return { ...sum, [n.key]: n.value }
+      }, {})
+      this.setState({ functionParams: params })
+    }
+
+    const args = JSON.stringify(this.state.functionParams, null, 4)
+
+    const callPreview = `${this.state.functionInputValue}(state, event, ${args})`
+
     return (
       <div>
         <h5>Function to invoke {help}</h5>
@@ -87,7 +101,12 @@ export default class NewActionModal extends Component {
         </div>
         <h5>Function parameters {paramsHelp}</h5>
         <div className={style.section}>
-          <ParametersTable ref={el => (this.parametersTable = el)} />
+          <ParametersTable ref={el => (this.parametersTable = el)} onChange={onParamsChange} />
+        </div>
+
+        <h5>Preview</h5>
+        <div className={style.section}>
+          <pre>{callPreview}</pre>
         </div>
       </div>
     )
