@@ -4,6 +4,8 @@ import { ListGroup, ListGroupItem } from 'react-bootstrap'
 
 import _ from 'lodash'
 
+const style = require('./style.scss')
+
 export default class FlowsList extends Component {
   constructor(props) {
     super(props)
@@ -28,6 +30,6 @@ export default class FlowsList extends Component {
   }
 
   render() {
-    return <ListGroup>{this.props.flows.map((f, i) => this.renderFlow(f, i))}</ListGroup>
+    return <ListGroup className={style.list}>{this.props.flows.map((f, i) => this.renderFlow(f, i))}</ListGroup>
   }
 }

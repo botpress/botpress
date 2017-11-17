@@ -75,3 +75,16 @@
 .bottomSection {
   text-align: center;
 }
+
+.panelTop {
+  background: #fafafa;
+  overflow: hidden;
+  margin: 0 5px 0 0;
+  width: 100%;
+}
+
+.panelDown {
+  margin: 0 5px 0 0;
+  background: #fafafa;
+  min-height: 200px;
+}

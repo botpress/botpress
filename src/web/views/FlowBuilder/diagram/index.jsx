@@ -326,7 +326,12 @@ export default class FlowBuilder extends Component {
     const cancelInsert = () => this.props.setDiagramAction(null)
 
     return (
-      <div id="diagramContainer" tabIndex="1" className={classNames} style={{ width: '100%', height: '100%' }}>
+      <div
+        id="diagramContainer"
+        tabIndex="1"
+        className={classNames}
+        style={{ outline: 'none', width: '100%', height: '100%' }}
+      >
         {isInserting && (
           <div className={style.insertMode}>
             <div>

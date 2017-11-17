@@ -1,12 +1,16 @@
 import React, { Component } from 'react'
+import SplitPane from 'react-split-pane'
 
 import { Tabs, Tab } from 'react-bootstrap'
 import _ from 'lodash'
+import classnames from 'classnames'
 
 import StandardNode from './properties/standardNode'
 import FlowInformation from './flowInformation'
 
 import FlowsList from './flows/list'
+
+const style = require('./style.scss')
 
 export default class SidePanel extends Component {
   constructor(props) {
@@ -16,14 +20,26 @@ export default class SidePanel extends Component {
 
   render() {
     return (
-      <Tabs animation={false}>
-        <Tab eventKey={1} title="Flows">
-          <FlowsList flows={this.props.flows} switchFlow={this.props.switchFlow} currentFlow={this.props.currentFlow} />
-        </Tab>
-        <Tab eventKey={3} title="Node">
-          {this.renderBefore()}
-        </Tab>
-      </Tabs>
+      <SplitPane split="horizontal" minSize={50} defaultSize={200}>
+        <div className={classnames(style.panelTop)}>
+          <Tabs animation={false}>
+            <Tab eventKey={1} title="Flows">
+              <FlowsList
+                flows={this.props.flows}
+                switchFlow={this.props.switchFlow}
+                currentFlow={this.props.currentFlow}
+              />
+            </Tab>
+          </Tabs>
+        </div>
+        <div className={classnames(style.panelDown)}>
+          <Tabs animation={false}>
+            <Tab eventKey={3} title="Object Properties">
+              {this.renderBefore()}
+            </Tab>
+          </Tabs>
+        </div>
+      </SplitPane>
     )
   }
 
