@@ -12,10 +12,15 @@ export default class EditableInput extends Component {
 
   componentDidMount() {
     this.mapUpdate(this.props)
+    this.props.onMount && this.props.onMount(this.input)
   }
 
   componentDidUpdate() {
     this.mapUpdate(this.props)
+  }
+
+  getInput() {
+    return this.input
   }
 
   _update(value) {
@@ -60,6 +65,7 @@ export default class EditableInput extends Component {
       <input
         className={inputClass}
         type="text"
+        ref={el => (this.input = el)}
         style={{ width: inputWidth }}
         autocomplete="off"
         value={this.props.value || this.props.defaultValue}

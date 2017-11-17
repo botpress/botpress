@@ -138,6 +138,12 @@ export default class FlowBuilder extends Component {
           model.x = node.x
           model.y = node.y
           this.activeModel.addNode(model)
+
+          setTimeout(() => {
+            // Select newly inserted nodes
+            model.setSelected(true)
+            this.props.switchFlowNode(node.id)
+          }, 150)
         }
 
         model &&

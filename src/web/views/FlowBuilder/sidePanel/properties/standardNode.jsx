@@ -36,9 +36,16 @@ export default class SidePanel extends Component {
   render() {
     const { node } = this.props
 
+    const onNameMounted = input => {
+      if (input.value.startsWith('node-')) {
+        input.focus()
+        input.setSelectionRange(0, 1000)
+      }
+    }
+
     return (
       <div className={classnames(style.node, style['standard-node'])}>
-        <EditableInput value={node.name} className={style.name} onChanged={::this.renameNode} />
+        <EditableInput onMount={onNameMounted} value={node.name} className={style.name} onChanged={::this.renameNode} />
         <ActionSection
           items={node['onEnter']}
           header="On Enter"
