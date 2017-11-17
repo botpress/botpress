@@ -1,10 +1,10 @@
 .node :global(.panel-heading) {
   text-transform: none;
-  padding: 10px 5px;
+  padding: 8px 5px 5px 5px;
 
   :global(.panel-title) {
-    font-weight: 500;
-    font-size: 13px;
+    font-weight: 600;
+    font-size: 12px;
   }
 }
 
@@ -43,11 +43,10 @@
 .node .name {
   color: #333;
   font-weight: 500;
-  margin-top: 3px;
+  border-radius: 0px;
   background: none;
   width: 100% !important;
-  margin-bottom: 10px;
-  border: 1px dashed #999;
+  border: 1px dashed #d0d0d0;
   padding: 5px 8px;
 
   &:hover {
@@ -87,4 +86,13 @@
   margin: 0 5px 0 0;
   background: #fafafa;
   min-height: 200px;
+}
+
+.standard-node {
+  :global(.panel) {
+    margin-bottom: 0px;
+  }
+  :global(.panel-heading) {
+    background-color: #fbfbfb;
+  }
 }
