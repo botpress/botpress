@@ -130,23 +130,24 @@ export default class FlowBuilder extends Component {
 
     this.props.currentFlow &&
       this.props.currentFlow.nodes.forEach(node => {
-        const model = this.activeModel.getNode(node.id)
+        let model = this.activeModel.getNode(node.id)
 
         if (model === null) {
           // Node was added
-          const model = new StandardNodeModel({ ...node, isStartNode: this.props.currentFlow.startNode === node.name })
+          model = new StandardNodeModel({ ...node, isStartNode: this.props.currentFlow.startNode === node.name })
           model.x = node.x
           model.y = node.y
           this.activeModel.addNode(model)
         }
 
-        model.setData({
-          name: node.name,
-          onEnter: node.onEnter,
-          onReceive: node.onReceive,
-          next: node.next,
-          isStartNode: this.props.currentFlow.startNode === node.name
-        })
+        model &&
+          model.setData({
+            name: node.name,
+            onEnter: node.onEnter,
+            onReceive: node.onReceive,
+            next: node.next,
+            isStartNode: this.props.currentFlow.startNode === node.name
+          })
       })
 
     this.diagramWidget.forceUpdate()
