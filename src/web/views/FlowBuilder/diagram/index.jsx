@@ -111,7 +111,7 @@ export default class FlowBuilder extends Component {
     linksToCreate.forEach(link => this.activeModel.addLink(link))
 
     this.diagramEngine.setDiagramModel(this.activeModel)
-    this.diagramWidget.forceUpdate()
+    this.diagramWidget && this.diagramWidget.forceUpdate()
   }
 
   syncModel() {
