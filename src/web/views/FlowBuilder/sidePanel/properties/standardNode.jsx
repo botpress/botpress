@@ -12,7 +12,7 @@ const style = require('../style.scss')
 
 export default class SidePanel extends Component {
   renameNode(text) {
-    let newText = text.replace(/[^a-z0-9-_\.]/i, '').toLowerCase()
+    let newText = text.replace(/[^a-z0-9-_\.]/i, '_').toLowerCase()
 
     if (newText.length > 0 && newText !== this.props.node.name) {
       this.props.updateNode({ name: newText })
