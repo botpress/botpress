@@ -31,6 +31,8 @@ class App extends Component {
       window.document.title = window.APP_NAME
     }
 
+    this.fetchData = this.fetchData.bind(this)
+
     EventBus.default.setup()
   }
 

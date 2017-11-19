@@ -6,15 +6,12 @@ var path = require('path')
 var { requireExtension } = require('./extensions.js')
 
 const afterResolve = new webpack.NormalModuleReplacementPlugin(/extensions/i, function(res) {
-
-  let customEdition = null
   const [rest, edition] = (res.rawRequest && res.rawRequest.match(/\?edition=(.+)/i)) || []
 
-  edition && _.each(['lite', 'pro', 'ultimate'], e => {
-    if (edition.toLowerCase().startsWith(e)) {
-      customEdition = e
-    }
-  })
+  const customEdition = _.find(
+    ['lite', 'pro', 'ultimate'],
+    e => edition && edition.toLowerCase().startsWith(e)
+  )
   
   if (!res.userRequest 
     || res.userRequest.indexOf('extensions/empty.jsx') >= 0
