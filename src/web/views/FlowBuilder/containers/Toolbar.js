@@ -1,7 +1,7 @@
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
-import { fetchFlows, setDiagramAction } from '~/reducers/actions'
+import { fetchFlows, setDiagramAction } from '~/actions'
 import { getCurrentFlow } from '~/reducers'
 
 import Toolbar from '../toolbar.jsx'

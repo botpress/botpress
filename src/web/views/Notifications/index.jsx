@@ -1,19 +1,14 @@
-import React from 'react'
+import { connect } from 'react-redux'
 import { ListGroup, ListGroupItem, Panel, Button, Tooltip, OverlayTrigger } from 'react-bootstrap'
 import _ from 'lodash'
 
 import NotificationComponent from '~/components/Notifications'
 import ContentWrapper from '~/components/Layout/ContentWrapper'
 import PageHeader from '~/components/Layout/PageHeader'
-import { Glyphicon } from 'react-bootstrap'
-
-import { connect } from 'nuclear-js-react-addons'
-import getters from '~/stores/getters'
 
 import styles from './style.scss'
 
-@connect(props => ({ notifications: getters.notifications }))
-export default class NotificationHub extends NotificationComponent {
+class NotificationHub extends NotificationComponent {
 
   constructor(props, context) {
     super(props, context, {
@@ -28,7 +23,7 @@ export default class NotificationHub extends NotificationComponent {
   }
 
   render() {
-    const notifications = this.props.notifications.toJS() || []
+    const notifications = this.props.notifications || []
     const unreadCount = _.filter(notifications, { read: false }).length
     const canTrash = notifications.length > 0
 
@@ -62,3 +57,7 @@ export default class NotificationHub extends NotificationComponent {
     </ContentWrapper>
   }
 }
+
+const mapStateToProps = state => ({ notifications: state.notifications })
+
+export default connect(mapStateToProps)(NotificationHub)

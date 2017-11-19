@@ -1,7 +1,7 @@
 {
   "name": "botpress",
   "description": "The world's first CMS for bots. Easily create, manage and extend chatbots.",
-  "version": "1.1.2",
+  "version": "1.1.10",
   "author": "Botpress",
   "bin": {
     "bp": "./bin/botpress",
@@ -37,7 +37,7 @@
     "mware": "0.0.3",
     "node-machine-id": "^1.1.3",
     "nodemailer": "^2.7.2",
-    "nodemon": "^1.11.0",
+    "nodemon": "^1.12.1",
     "pg": "^6.1.2",
     "prompt": "^1.0.0",
     "react-codemirror": "^1.0.0",
@@ -55,8 +55,7 @@
     "autoprefixer": "^6.5.3",
     "babel-cli": "^6.16.0",
     "babel-core": "^6.18.0",
-    "babel-eslint": "^8.0.1",
-    "babel-loader": "^6.2.5",
+    "babel-loader": "^7.1.2",
     "babel-plugin-root-import": "^5.1.0",
     "babel-plugin-transform-decorators-legacy": "^1.3.4",
     "babel-plugin-transform-object-rest-spread": "^6.16.0",
@@ -67,23 +66,24 @@
     "bootstrap": "^3.3.7",
     "chai": "^3.5.0",
     "classnames": "^2.2.5",
-    "copy-webpack-plugin": "^4.0.0",
+    "copy-webpack-plugin": "^4.2.0",
     "css-loader": "^0.25.0",
-    "eslint": "^4.8.0",
     "exports-loader": "^0.6.3",
     "expose-loader": "^0.7.1",
-    "extract-text-webpack-plugin": "^1.0.1",
+    "extract-text-webpack-plugin": "^3.0.1",
     "file-loader": "^0.9.0",
     "hard-source-webpack-plugin": "^0.4.9",
     "history": "^2.1.2",
+    "husky": "0.14.3",
     "json-loader": "^0.5.4",
     "keymirror": "^0.1.1",
+    "lint-staged": "4.3.0",
     "mocha": "^3.1.2",
-    "node-sass": "^3.13.1",
+    "node-sass": "^4.5.3",
     "npm-watch": "^0.1.6",
-    "nuclear-js": "^1.4.0",
-    "nuclear-js-react-addons": "^0.4.1",
     "postcss-loader": "^1.1.1",
+    "postcss-loader": "^2.0.8",
+    "prettier": "1.7.4",
     "prop-types": "^15.5.8",
     "react": "^15.3.1",
     "react-addons-css-transition-group": "^15.3.1",
@@ -107,14 +107,13 @@
     "redux-thunk": "^2.2.0",
     "sass-loader": "^4.0.2",
     "script-loader": "^0.7.0",
-    "simple-line-icons": "^2.4.1",
     "sinon": "^1.17.7",
     "storm-react-diagrams": "^3.1.2",
     "style-loader": "^0.13.1",
     "tmp": "0.0.31",
-    "uglifyjs-webpack-plugin": "^0.4.3",
-    "webpack": "^1.13.2",
-    "webpack-node-externals": "^1.5.4"
+    "uglifyjs-webpack-plugin": "^1.0.1",
+    "webpack": "^3.8.1",
+    "webpack-node-externals": "^1.6.0"
   },
   "engines": {
     "node": ">=4.6.0"
@@ -137,25 +136,27 @@
   "license": "AGPL-3.0",
   "main": "lib/node.bundle.js",
   "repository": "git+https://github.com/botpress/botpress.git",
-  "os": [
-    "darwin",
-    "linux",
-    "win32"
-  ],
+  "os": ["darwin", "linux", "win32"],
   "scripts": {
-    "prepare": "npm run compile",
+    "prepare": "npm run compile-prod",
     "compile": "./build.sh",
-    "test": "BABEL_ENV=tests mocha --compilers js:babel-core/register --require tests/index.js tests/** extensions/**/tests/**",
+    "compile-prod": "NODE_ENV=production ./build.sh && ls -lh ./lib/web/js && echo \"DONE\"",
+    "test":
+      "BABEL_ENV=tests mocha --compilers js:babel-core/register --require tests/index.js tests/** extensions/**/tests/**",
     "watch": "npm-watch",
-    "lint": "eslint --ignore-path .gitignore --ext=.js,.jsx ."
+    "precommit": "lint-staged"
   },
   "watch": {
     "compile": {
-      "patterns": [
-        "src",
-        "extensions"
-      ],
+      "patterns": ["src", "extensions"],
       "extensions": "js,jsx,scss,json,html"
     }
+  },
+  "lint-staged": {
+    "*.{js,jsx,json,css}": ["prettier --write", "git add"]
+  },
+  "pre-commit": {
+    "run": "precommit",
+    "silent": true
   }
 }

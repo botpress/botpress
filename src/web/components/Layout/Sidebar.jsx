@@ -1,26 +1,17 @@
-import React, { Component } from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
+import { connect } from 'react-redux'
 
 import { Link } from 'react-router'
 import classnames from 'classnames'
 
 import ReactSidebar from 'react-sidebar'
-import { connect } from 'nuclear-js-react-addons'
-
 import SidebarHeader from './SidebarHeader'
-import SidebarFooter from './SidebarFooter'
-import getters from '~/stores/getters'
-import actions from '~/actions'
-
 import RulesChecker from '+/views/RulesChecker'
 
 const style = require('./Sidebar.scss')
 
-@connect(props => ({
-  modules: getters.modules,
-  UI: getters.UI
-}))
-class Sidebar extends Component {
+class Sidebar extends React.Component {
   static contextTypes = {
     router: PropTypes.object.isRequired
   }
@@ -119,7 +110,6 @@ class Sidebar extends Component {
   render() {
     const modules = this.props.modules
     const items = modules
-      .toJS()
       .filter(x => !x.noInterface)
       .map(this.renderModuleItem)
 
@@ -157,7 +147,7 @@ class Sidebar extends Component {
       </div>
     )
 
-    const isOpen = this.props.UI.get('viewMode') < 1
+    const isOpen = this.props.viewMode < 1
 
     return (
       <ReactSidebar
@@ -176,8 +166,6 @@ class Sidebar extends Component {
   }
 }
 
-Sidebar.contextTypes = {
-  reactor: PropTypes.object.isRequired
-}
+const mapStateToProps = state => ({ viewMode: state.ui.viewMode, modules: state.modules })
 
-export default Sidebar
+export default connect(mapStateToProps)(Sidebar)

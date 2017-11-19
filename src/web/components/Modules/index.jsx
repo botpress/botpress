@@ -1,21 +1,12 @@
-import React, { Component } from 'react'
-
-import ContentWrapper from '~/components/Layout/ContentWrapper'
-
-import {
-  Panel,
-  Grid,
-  Row,
-  Col
-} from 'react-bootstrap'
+import React from 'react'
+import { connect } from 'react-redux'
+import { Panel, Grid, Row, Col } from 'react-bootstrap'
 
 import Button from 'react-bootstrap-button-loader'
 import classnames from 'classnames'
 
 import _ from 'lodash'
 import axios from 'axios'
-import { connect } from 'nuclear-js-react-addons'
-import getters from '~/stores/getters'
 
 const style = require('./style.scss')
 
@@ -23,7 +14,7 @@ const numberWithCommas = (x) => {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
 }
 
-class ModuleComponent extends Component {
+class ModuleComponent extends React.Component {
 
   constructor(props) {
     super(props)
@@ -141,14 +132,11 @@ class ModuleComponent extends Component {
   }
 }
 
-@connect(props => ({
-  installedModules: getters.modules
-}))
-export default class ModulesComponent extends Component {
+class ModulesComponent extends React.Component {
   render() {
     var installedModules = {}
-    this.props.installedModules.map((module)=>{
-      const name = module.get("name")
+    this.props.installedModules.map(module => {
+      const name = module.name
       installedModules[name] = true
     })
     return (
@@ -161,3 +149,7 @@ export default class ModulesComponent extends Component {
     )
   }
 }
+
+const mapStateToProps = state => ({ installedModules: state.modules })
+
+export default connect(mapStateToProps)(ModulesComponent)
