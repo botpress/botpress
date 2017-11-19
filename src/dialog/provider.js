@@ -16,7 +16,6 @@ module.exports = ({ logger, botfile, projectLocation }) => {
     const searchOptions = { cwd: flowsDir }
 
     const flowFiles = await Promise.fromCallback(callback => glob('**/*.flow.json', searchOptions, callback))
-    const uiFiles = await Promise.fromCallback(callback => glob('**/*.ui.json', searchOptions, callback))
 
     const flows = []
 
@@ -66,7 +65,7 @@ module.exports = ({ logger, botfile, projectLocation }) => {
         version: flow.version,
         name: flow.name,
         nodes: _.filter(flow.nodes, node => !!node),
-        catchAll: flow.catchAll, // TODO Validate catchAll
+        catchAll: flow.catchAll,
         startNode: flow.startNode,
         links: flow.links
       })
@@ -138,6 +137,24 @@ module.exports = ({ logger, botfile, projectLocation }) => {
 
     if (!_.find(flow.nodes, { name: flow.startNode })) {
       return errorPrefix + ', expected `startNode` to point to an existing flow node'
+    }
+
+    if (flow.catchAll) {
+      if (flow.catchAll.onEnter) {
+        return errorPrefix + ', catchAll does not support "onEnter"'
+      }
+
+      if (flow.catchAll.onReceive) {
+        if (_.isString(flow.catchAll.onReceive)) {
+          flow.catchAll.onReceive = [flow.catchAll.onReceive]
+        }
+      }
+
+      if (flow.catchAll.next) {
+        if (_.isString(flow.catchAll.next)) {
+          flow.catchAll.next = [flow.catchAll.next]
+        }
+      }
     }
 
     const errs =
