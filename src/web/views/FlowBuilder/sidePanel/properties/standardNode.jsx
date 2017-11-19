@@ -10,7 +10,7 @@ import TransitionSection from './TransitionSection'
 
 const style = require('../style.scss')
 
-export default class SidePanel extends Component {
+export default class StandardNodePropertiesPanel extends Component {
   renameNode(text) {
     let newText = text.replace(/[^a-z0-9-_\.]/i, '_').toLowerCase()
 

@@ -6,7 +6,7 @@ import _ from 'lodash'
 import classnames from 'classnames'
 
 import StandardNode from './properties/standardNode'
-import FlowInformation from './flowInformation'
+import FlowInformation from './properties/flowInformation'
 
 import FlowsList from './flows/list'
 
@@ -19,6 +19,8 @@ export default class SidePanel extends Component {
   }
 
   render() {
+    const objectPropertiesTitle = !!this.props.currentFlowNode ? 'Node Properties' : 'Flow Properties'
+
     return (
       <SplitPane split="horizontal" minSize={50} defaultSize={200}>
         <div className={classnames(style.panelTop)}>
@@ -34,7 +36,7 @@ export default class SidePanel extends Component {
         </div>
         <div className={classnames(style.panelDown)}>
           <Tabs animation={false}>
-            <Tab eventKey={3} title="Object Properties">
+            <Tab eventKey={3} title={objectPropertiesTitle}>
               {this.renderBefore()}
             </Tab>
           </Tabs>
@@ -59,6 +61,6 @@ export default class SidePanel extends Component {
       )
     }
 
-    return <FlowInformation {...this.props} />
+    return <FlowInformation {...this.props} subflows={subflows} />
   }
 }
