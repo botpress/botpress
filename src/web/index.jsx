@@ -9,7 +9,7 @@ import reducer from './reducers'
 import * as actions from '~/actions'
 
 require('bootstrap/dist/css/bootstrap.css')
-require('storm-react-diagrams/dist/style.css')
+require('storm-react-diagrams/dist/style.min.css')
 require('react-select/dist/react-select.css')
 require('./theme.scss')
 

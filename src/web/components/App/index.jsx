@@ -30,6 +30,8 @@ class App extends Component {
       window.document.title = window.APP_NAME
     }
 
+    this.fetchData = this.fetchData.bind(this)
+
     EventBus.default.setup()
   }
 
@@ -50,8 +52,8 @@ class App extends Component {
     // If this grows too much, move to a dedicated lifecycle manager.
     this.fetchData()
 
-    authEvents.on('login', ::this.fetchData)
-    authEvents.on('new_token', ::this.fetchData)
+    authEvents.on('login', this.fetchData)
+    authEvents.on('new_token', this.fetchData)
 
     EventBus.default.on('notifications.all', notifications => {
       this.props.replaceNotifications(notifications)
@@ -61,7 +63,7 @@ class App extends Component {
       this.props.addNotifications([notification])
     })
 
-    this.fetchModulesInterval = setInterval(::this.props.fetchModules, 10000)
+    this.fetchModulesInterval = setInterval(this.props.fetchModules, 10000)
   }
 
   componentWillUnmount() {
