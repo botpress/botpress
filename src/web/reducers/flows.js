@@ -84,7 +84,7 @@ const reducer = handleActions(
               return node
             }
 
-            return { ...node, ...payload }
+            return { ...node, ...payload, lastModified: new Date() }
           })
         }
       }

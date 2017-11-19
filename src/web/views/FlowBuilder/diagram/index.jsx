@@ -40,26 +40,14 @@ export default class FlowBuilder extends Component {
     this.diagramWidget.forceUpdate()
   }
 
-  serialize() {
-    return this.activeModel.serializeDiagram()
-  }
-
   setModel() {
     this.activeModel = new DiagramModel()
     this.activeModel.setGridSize(25)
-
-    // this.activeModel.addListener({
-    //   linksUpdated: (entity, isAdded) => {
-    //     console.log('LINK UPDATED --->', entity, isAdded)
-    //   }
-    // })
 
     const currentFlow = this.props.currentFlow
     if (!currentFlow) {
       return
     }
-
-    const linksToCreate = []
 
     const nodes = currentFlow.nodes.map(node => {
       const model = new StandardNodeModel({ ...node, isStartNode: currentFlow.startNode === node.name })
@@ -69,62 +57,69 @@ export default class FlowBuilder extends Component {
       return model
     })
 
-    nodes.map(node => {
-      if (_.isArray(node.next)) {
-        node.next.forEach((next, index) => {
-          const target = next.node
-          if (/END/i.test(target)) {
-            // Handle end connection
-          } else if (target.indexOf('.') !== -1) {
-            // Handle subflow connection
-          } else {
-            const sourcePort = node.ports['out' + index]
-            const targetNode = _.find(nodes, { name: next.node })
-
-            if (!targetNode) {
-              // TODO Show warning that target node doesn't exist
-              return
-            }
-
-            const existingLink = _.find(currentFlow.links, { source: node.id, target: targetNode.id })
-
-            const targetPort = targetNode.ports['in']
-            const link = new LinkModel()
-            link.setSourcePort(sourcePort)
-            link.setTargetPort(targetPort)
-
-            if (existingLink) {
-              link.setPoints(
-                existingLink.points.map(pt => {
-                  return new PointModel(link, { x: pt.x, y: pt.y })
-                })
-              )
-            }
-
-            linksToCreate.push(link)
-          }
-        })
-      }
-    })
-
     nodes.forEach(node => this.activeModel.addNode(node))
-    linksToCreate.forEach(link => this.activeModel.addLink(link))
+    nodes.forEach(node => this.createNodeLinks(node, nodes, this.props.currentFlow.links))
 
     this.diagramEngine.setDiagramModel(this.activeModel)
     this.diagramWidget && this.diagramWidget.forceUpdate()
   }
 
+  createNodeLinks(node, allNodes, existingLinks = []) {
+    if (!_.isArray(node.next)) {
+      return
+    }
+
+    node.next.forEach((next, index) => {
+      const target = next.node
+      if (/END/i.test(target)) {
+        // Handle end connection
+      } else if (target.indexOf('.') !== -1) {
+        // Handle subflow connection
+      } else {
+        const sourcePort = node.ports['out' + index]
+        const targetNode = _.find(allNodes, { name: next.node })
+
+        if (!targetNode) {
+          // TODO Show warning that target node doesn't exist
+          return
+        }
+
+        const existingLink = _.find(existingLinks, { source: node.id, target: targetNode.id })
+        const targetPort = targetNode.ports['in']
+        const link = new LinkModel()
+        link.setSourcePort(sourcePort)
+        link.setTargetPort(targetPort)
+
+        if (existingLink) {
+          link.setPoints(
+            existingLink.points.map(pt => {
+              return new PointModel(link, { x: pt.x, y: pt.y })
+            })
+          )
+        }
+
+        this.activeModel.addLink(link)
+      }
+    })
+  }
+
+  deleteNode(nodeId) {
+    const ports = this.activeModel.getNode(nodeId).getPorts()
+    this.activeModel.removeNode(nodeId)
+    _.values(ports).forEach(port => {
+      _.values(port.getLinks()).forEach(link => {
+        this.activeModel.removeLink(link)
+      })
+    })
+  }
+
   syncModel() {
+    let snapshot = _.memoize(::this.serialize) // Don't serialize more than once
+
     // Remove nodes that have been deleted
     _.keys(this.activeModel.getNodes()).forEach(nodeId => {
       if (!_.find(this.props.currentFlow.nodes, { id: nodeId })) {
-        const ports = this.activeModel.getNode(nodeId).getPorts()
-        this.activeModel.removeNode(nodeId)
-        _.values(ports).forEach(port => {
-          _.values(port.getLinks()).forEach(link => {
-            this.activeModel.removeLink(link)
-          })
-        })
+        this.deleteNode(nodeId)
       }
     })
 
@@ -132,31 +127,65 @@ export default class FlowBuilder extends Component {
       this.props.currentFlow.nodes.forEach(node => {
         let model = this.activeModel.getNode(node.id)
 
-        if (model === null) {
-          // Node was added
-          model = new StandardNodeModel({ ...node, isStartNode: this.props.currentFlow.startNode === node.name })
-          model.x = node.x
-          model.y = node.y
-          this.activeModel.addNode(model)
-
-          setTimeout(() => {
-            // Select newly inserted nodes
-            model.setSelected(true)
-            this.props.switchFlowNode(node.id)
-          }, 150)
+        if (!model) {
+          // Node doesn't exist
+          this.addNode(node)
+        } else if (model.lastModified !== node.lastModified) {
+          // Node has been modified
+          this.syncNode(node, model, snapshot())
         }
-
-        model &&
-          model.setData({
-            name: node.name,
-            onEnter: node.onEnter,
-            onReceive: node.onReceive,
-            next: node.next,
-            isStartNode: this.props.currentFlow.startNode === node.name
-          })
       })
 
     this.diagramWidget.forceUpdate()
+  }
+
+  addNode(node) {
+    const model = new StandardNodeModel({ ...node, isStartNode: this.props.currentFlow.startNode === node.name })
+    model.x = node.x
+    model.y = node.y
+    this.activeModel.addNode(model)
+
+    setTimeout(() => {
+      // Select newly inserted nodes
+      model.setSelected(true)
+      this.props.switchFlowNode(node.id)
+    }, 150)
+
+    model.setData({
+      name: node.name,
+      onEnter: node.onEnter,
+      onReceive: node.onReceive,
+      next: node.next,
+      isStartNode: this.props.currentFlow.startNode === node.name
+    })
+
+    model.lastModified = node.lastModified
+  }
+
+  syncNode(node, model, snapshot) {
+    model.setData({
+      name: node.name,
+      onEnter: node.onEnter,
+      onReceive: node.onReceive,
+      next: node.next,
+      isStartNode: this.props.currentFlow.startNode === node.name
+    })
+
+    const ports = model.getOutPorts()
+    ports.forEach(port => {
+      _.values(port.links).forEach(link => {
+        this.activeModel.removeLink(link)
+        port.removeLink(link)
+      })
+    })
+
+    // Recreate all the links
+    // If there's an existing link saved for target,port .. reuse the point locations
+
+    const allNodes = _.values(this.activeModel.getNodes())
+    this.createNodeLinks(model, allNodes, snapshot.links)
+
+    model.lastModified = node.lastModified
   }
 
   getSelectedNode() {
@@ -251,8 +280,8 @@ export default class FlowBuilder extends Component {
     }
   }
 
-  saveFlow() {
-    const model = this.serialize()
+  serialize() {
+    const model = this.activeModel.serializeDiagram()
 
     const nodes = model.nodes.map(node => {
       return {
@@ -285,12 +314,28 @@ export default class FlowBuilder extends Component {
     })
 
     const links = model.links.map(link => {
-      return {
+      const instance = this.activeModel.getLink(link.id)
+      const model = {
         source: link.source,
         target: link.target,
         points: link.points.map(pt => ({ x: pt.x, y: pt.y }))
       }
+
+      if (instance.sourcePort.name === 'in') {
+        // We reverse the model so that target is always an input port
+        model.source = link.target
+        model.target = link.source
+        model.points = _.reverse(model.points)
+      }
+
+      return model
     })
+
+    return { links, nodes }
+  }
+
+  saveFlow() {
+    const { nodes, links } = this.serialize()
 
     const currentFlow = this.props.currentFlow
 

@@ -183,6 +183,10 @@ export class StandardNodeModel extends NodeModel {
     this.setData({ name: data.name, onEnter: data.onEnter, onReceive: data.onReceive, next: data.next })
   }
 
+  getOutPorts() {
+    return _.filter(_.values(this.ports), p => p.name.startsWith('out'))
+  }
+
   setData({ name, onEnter = [], onReceive = [], next = [], isStartNode }) {
     this.isStartNode = isStartNode
     let inNodeType = isStartNode ? 'start' : 'normal'
