@@ -1,6 +1,5 @@
-import { createAction } from 'redux-actions'
+import { rulesReceived } from '~/actions'
 
-export const rulesReceived = createAction('RULES/RECEIVED')
 export const fetchRules = () => dispatch => {
   dispatch(rulesReceived([]))
 }
