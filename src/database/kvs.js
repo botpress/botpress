@@ -13,39 +13,61 @@ module.exports = (knex, options = {}) => {
   const getSetCallback = options.betweenGetAndSetCallback || (() => Promise.resolve())
   const tableName = options.tableName || 'kvs'
 
-  const get = (key, path) => {
-    return knex(tableName).where({ key }).limit(1).then().get(0).then(row => {
-      if (!row) {
-        return null
-      }
+  const upsert = (key, value) => {
+    let sql
 
-      const obj = JSON.parse(row.value)
-      if (!path) {
-        return obj
-      }
+    const params = {
+      tableName,
+      keyCol: 'key',
+      valueCol: 'value',
+      modifiedOnCol: 'modified_on',
+      key,
+      value: JSON.stringify(value),
+      now: helpers(knex).date.now()
+    }
 
-      return _.at(obj, [path])[0]
-    })
+    if (helpers(knex).isLite()) {
+      sql = `
+        INSERT OR REPLACE INTO :tableName: (:keyCol:, :valueCol:, :modifiedOnCol:)
+        VALUES (:key, :value, :now)
+      `
+    } else {
+      sql = `
+        INSERT INTO :tableName: (:keyCol:, :valueCol:, :modifiedOnCol:)
+        VALUES (:key, :value, :now)
+        ON CONFLICT (:keyCol:) DO UPDATE
+          SET :valueCol: = :value, :modifiedOnCol: = :now
+      `
+    }
+
+    return knex.raw(sql, params)
   }
 
-  const _set = (key, value, operation = 'update') => {
-    const now = helpers(knex).date.now()
+  const get = (key, path) => {
+    return knex(tableName)
+      .where({ key })
+      .limit(1)
+      .then()
+      .get(0)
+      .then(row => {
+        if (!row) {
+          return null
+        }
 
-    if (operation === 'update') {
-      return knex(tableName).where({ key }).update({
-        value: JSON.stringify(value),
-        modified_on: now
-      }).then()
-    } else {
-      return knex(tableName).insert({
-        key: key,
-        value: JSON.stringify(value),
-        modified_on: now
-      }).then()
-    }
+        const obj = JSON.parse(row.value)
+        if (!path) {
+          return obj
+        }
+
+        return _.at(obj, [path])[0]
+      })
   }
 
   const set = (key, value, path) => {
+    if (!path) {
+      return upsert(key, value)
+    }
+
     const setValue = obj => {
       if (path) {
         _.set(obj, path, value)
@@ -55,20 +77,15 @@ module.exports = (knex, options = {}) => {
       }
     }
 
-    return get(key)
-      .then(original => {
-        return getSetCallback()
-          .then(() => {
-            if (!_.isNil(original)) {
-              const newObj = setValue(Object.assign({}, original))
-              return _set(key, newObj, 'update')
-            } else {
-              const obj = setValue({})
-              return _set(key, obj, 'insert')
-                .catch(() => _set(key, obj, 'update'))
-            }
-          })
+    return get(key).then(original => {
+      return getSetCallback().then(() => {
+        if (!_.isNil(original)) {
+          return upsert(key, setValue(Object.assign({}, original)))
+        } else {
+          return upsert(key, setValue({}))
+        }
       })
+    })
   }
 
   const bootstrap = () => {

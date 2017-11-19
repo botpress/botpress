@@ -54,10 +54,11 @@ lib/
 !/src/web/views/logs
 .cache/
 
-# for vim 
+# for vim
 *.swp
 *.sly
 
 **/.DS_Store
 
 _book/
+.idea/**

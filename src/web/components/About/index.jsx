@@ -5,10 +5,7 @@ import { Modal } from 'react-bootstrap'
 
 import { toggleAboutModal } from '~/actions'
 
-import style from './style.scss'
-
 class AboutComponent extends React.Component {
-
   constructor(props) {
     super(props)
 
@@ -26,7 +23,9 @@ class AboutComponent extends React.Component {
           <Modal.Title>About Botpress</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <h3>Botpress <b>v{window.BOTPRESS_VERSION}</b></h3>
+          <h3>
+            Botpress <b>v{window.BOTPRESS_VERSION}</b>
+          </h3>
           <h5>The only sane way of building great bots</h5>
           <br />
           Emoji provided free by <a href="http://emojione.com/">EmojiOne</a>

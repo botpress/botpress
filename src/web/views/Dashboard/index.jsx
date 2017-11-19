@@ -12,48 +12,50 @@ import ModulesComponent from '~/components/Modules'
 import InformationRowComponent from '+/views/Information'
 import { fetchModules } from '~/actions'
 
-const style = require('./style.scss')
-
 class DashboardView extends React.Component {
-
   constructor(props, context) {
     super(props, context)
-    
+
     this.state = { loading: true }
 
     this.queryAllModules = this.queryAllModules.bind(this)
   }
 
   componentDidMount() {
-    this.queryAllModules()
-      .then(() => this.setState({ loading: false }))
+    this.queryAllModules().then(() => {
+      this.setState({
+        loading: false
+      })
+    })
   }
 
   queryAllModules() {
-    return axios.get('/api/module/all')
-      .then((result) => {
-        this.setState({
-          popularModules: _.filter(result.data, m => m.popular),
-          featuredModules: _.filter(result.data, m => m.featured),
-        })
+    return axios.get('/api/module/all').then(result => {
+      this.setState({
+        popularModules: _.filter(result.data, m => m.popular),
+        featuredModules: _.filter(result.data, m => m.featured)
       })
+    })
   }
 
   refresh() {
-    this.queryAllModules()
-      .then(() => setTimeout(this.props.fetchModules, 5000))
+    this.queryAllModules().then(() => setTimeout(this.props.fetchModules, 5000))
   }
 
   renderPopularModules() {
-    return <Panel header='Popular modules'>
-      <ModulesComponent modules={this.state.popularModules} refresh={this.refresh.bind(this)}/>
-    </Panel>
+    return (
+      <Panel header="Popular modules">
+        <ModulesComponent modules={this.state.popularModules} refresh={this.refresh.bind(this)} />
+      </Panel>
+    )
   }
 
   renderFeaturedModules() {
-    return <Panel header='Featured modules'>
-      <ModulesComponent modules={this.state.featuredModules} refresh={this.refresh.bind(this)}/>
-    </Panel>
+    return (
+      <Panel header="Featured modules">
+        <ModulesComponent modules={this.state.featuredModules} refresh={this.refresh.bind(this)} />
+      </Panel>
+    )
   }
 
   render() {
@@ -62,7 +64,9 @@ class DashboardView extends React.Component {
     }
     return (
       <ContentWrapper>
-        <PageHeader><span> Dashboard</span></PageHeader>
+        <PageHeader>
+          <span> Dashboard</span>
+        </PageHeader>
         <Grid fluid className={'bp-dashboard'}>
           <InformationRowComponent />
           <Row>
