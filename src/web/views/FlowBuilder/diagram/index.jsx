@@ -133,6 +133,14 @@ export default class FlowBuilder extends Component {
         } else if (model.lastModified !== node.lastModified) {
           // Node has been modified
           this.syncNode(node, model, snapshot())
+        } else {
+          model.setData({
+            name: node.name,
+            onEnter: node.onEnter,
+            onReceive: node.onReceive,
+            next: node.next,
+            isStartNode: this.props.currentFlow.startNode === node.name
+          })
         }
       })
 
