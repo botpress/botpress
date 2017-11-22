@@ -6,19 +6,22 @@ var path = require('path')
 var { requireExtension } = require('./extensions.js')
 
 const afterResolve = new webpack.NormalModuleReplacementPlugin(/extensions/i, function(res) {
-
   let customEdition = null
   const [rest, edition] = (res.rawRequest && res.rawRequest.match(/\?edition=(.+)/i)) || []
 
-  edition && _.each(['lite', 'pro', 'ultimate'], e => {
-    if (edition.toLowerCase().startsWith(e)) {
-      customEdition = e
-    }
-  })
-  
-  if (!res.userRequest 
-    || res.userRequest.indexOf('extensions/empty.jsx') >= 0
-    || (res.userRequest.indexOf('extensions/enterprise') >= 0)) {
+  edition &&
+    _.each(['lite', 'pro', 'ultimate'], e => {
+      if (edition.toLowerCase().startsWith(e)) {
+        customEdition = e
+      }
+    })
+
+  if (
+    !res.userRequest ||
+    res.userRequest.indexOf('extensions/empty.jsx') >= 0 ||
+    res.userRequest.indexOf('extensions/enterprise') >= 0 ||
+    res.userRequest.indexOf('botpress/node_modules') >= 0
+  ) {
     return
   }
 
