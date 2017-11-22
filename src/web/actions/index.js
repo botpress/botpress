@@ -29,6 +29,7 @@ export const saveFlow = flow => dispatch => {
 // export const fetchFlowsDefinitions = createAction('FLOWS_DEFINITIONS_FETCH')
 
 export const updateFlow = createAction('FLOWS/FLOW/UPDATE')
+export const renameFlow = createAction('FLOWS/FLOW/RENAME')
 export const switchFlow = createAction('FLOWS/FLOW/SWITCH')
 export const updateFlowNode = createAction('FLOWS/FLOW/UPDATE_NODE')
 export const switchFlowNode = createAction('FLOWS/FLOW/SWITCH_NODE')

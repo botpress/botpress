@@ -9,6 +9,7 @@ import {
   receiveFlows,
   switchFlow,
   updateFlow,
+  renameFlow,
   saveFlow,
   updateFlowNode,
   switchFlowNode,
@@ -37,6 +38,12 @@ const reducer = handleActions(
       fetchingFlows: false,
       flowsByName: payload,
       currentFlow: state.currentFlow || _.first(_.keys(payload))
+    }),
+
+    [renameFlow]: (state, { payload }) => ({
+      ...state,
+      flowsByName: doRenameFlow({ flow: state.currentFlow, name: payload, flows: _.values(state.flowsByName) }),
+      currentFlow: payload
     }),
 
     [requestSaveFlow]: state => ({
@@ -141,5 +148,28 @@ const reducer = handleActions(
   },
   defaultState
 )
+
+function doRenameFlow({ flow, name, flows }) {
+  return _.reduce(
+    flows,
+    function(obj, f) {
+      if (f.name === flow) {
+        f.name = name
+        f.location = name
+      }
+
+      if (f.nodes) {
+        let json = JSON.stringify(f.nodes)
+        json = json.replace(flow, name)
+        f.nodes = JSON.parse(json)
+      }
+
+      obj[f.name] = f
+
+      return obj
+    },
+    {}
+  )
+}
 
 export default reducer
