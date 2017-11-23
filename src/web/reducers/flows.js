@@ -193,7 +193,7 @@ function doCreateNewFlow(name) {
     links: [],
     nodes: [
       {
-        id: new Date().getTime(),
+        id: 'NODE-' + new Date().getTime(),
         name: 'entry',
         onEnter: [],
         onReceive: [],

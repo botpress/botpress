@@ -22,7 +22,15 @@ export default class SidePanel extends Component {
     const objectPropertiesTitle = !!this.props.currentFlowNode ? 'Node Properties' : 'Flow Properties'
 
     return (
-      <SplitPane split="horizontal" minSize={50} defaultSize={200}>
+      <SplitPane
+        split="horizontal"
+        minSize={50}
+        defaultSize={200}
+        pane2Style={{
+          overflowY: 'auto',
+          maxHeight: '100%'
+        }}
+      >
         <div className={classnames(style.panelTop)}>
           <Tabs animation={false}>
             <Tab eventKey={1} title="Flows">

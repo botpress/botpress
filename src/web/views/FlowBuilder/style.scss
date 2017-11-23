@@ -60,7 +60,7 @@
 
 .sidePanel {
   width: 100%;
-  height: 100%;
+  height: calc(100vh - 93px);
   background: #fafafa;
   border-right: 2px solid #cecece;
   padding: 0;
