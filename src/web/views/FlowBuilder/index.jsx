@@ -30,6 +30,9 @@ export default class FlowBuilder extends Component {
           onSaveFlow={() => {
             this.diagram.saveFlow()
           }}
+          onCreateFlow={name => {
+            this.diagram.createFlow(name)
+          }}
         />
         <div className={style.workspace}>
           <SplitPane split="vertical" minSize={200} defaultSize={250}>

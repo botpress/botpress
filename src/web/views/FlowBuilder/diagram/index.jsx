@@ -40,6 +40,10 @@ export default class FlowBuilder extends Component {
     this.diagramWidget.forceUpdate()
   }
 
+  createFlow(name) {
+    this.props.createFlow(name + '.flow.json')
+  }
+
   setModel() {
     this.activeModel = new DiagramModel()
     this.activeModel.setGridSize(25)

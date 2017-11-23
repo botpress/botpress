@@ -11,6 +11,10 @@ export default class Topbar extends React.Component {
       return
     }
 
+    if (/[^A-Z0-9-_\/]/i.test(name)) {
+      return alert('ERROR: The flow name can only contain letters, numbers, underscores and hyphens.')
+    }
+
     const flows = _.map(this.props.flows, f => this.cleanFlowName(f.name).toLowerCase())
 
     if (name !== this.getCurrentFlowName() && _.includes(flows, name.toLowerCase())) {

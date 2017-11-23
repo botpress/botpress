@@ -50,10 +50,26 @@ class Toolbar extends React.Component {
       })
     }
 
+    const promptNewFlow = () => {
+      let name = prompt('Enter the name of the new flow')
+
+      if (!name) {
+        return
+      }
+
+      name = name.replace(/\.flow\.json$/i, '')
+
+      if (/[^A-Z0-9-_\/]/i.test(name)) {
+        return alert('ERROR: The flow name can only contain letters, numbers, underscores and hyphens.')
+      }
+
+      this.props.onCreateFlow(name)
+    }
+
     return (
       <div className={style.wrapper}>
         <div className={style.toolbar}>
-          <Button className={style.btn} bsStyle="default">
+          <Button className={style.btn} bsStyle="default" onClick={promptNewFlow}>
             <OverlayTrigger placement="bottom" overlay={createTooltip('addFlow', 'Create new flow')}>
               <i className="material-icons">create_new_folder</i>
             </OverlayTrigger>

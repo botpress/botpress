@@ -15,6 +15,7 @@ import {
   switchFlowNode,
   setDiagramAction,
   createFlowNode,
+  createFlow,
   removeFlowNode
 } from '~/actions'
 
@@ -78,6 +79,16 @@ const reducer = handleActions(
           ...payload
         }
       }
+    }),
+
+    [createFlow]: (state, { payload: name }) => ({
+      ...state,
+      flowsByName: {
+        ...state.flowsByName,
+        [name]: doCreateNewFlow(name)
+      },
+      currentFlow: name,
+      currentFlowNode: null
     }),
 
     [updateFlowNode]: (state, { payload }) => ({
@@ -170,6 +181,28 @@ function doRenameFlow({ flow, name, flows }) {
     },
     {}
   )
+}
+
+function doCreateNewFlow(name) {
+  return {
+    version: '0.1',
+    name: name,
+    location: name,
+    startNode: 'entry',
+    catchAll: {},
+    links: [],
+    nodes: [
+      {
+        id: new Date().getTime(),
+        name: 'entry',
+        onEnter: [],
+        onReceive: [],
+        next: [],
+        x: 100,
+        y: 100
+      }
+    ]
+  }
 }
 
 export default reducer
