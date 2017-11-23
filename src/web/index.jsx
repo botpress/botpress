@@ -4,8 +4,8 @@ import ReactDOM from 'expose-loader?ReactDOM!react-dom'
 import { createStore, applyMiddleware, compose } from 'redux'
 import { Provider } from 'react-redux'
 import thunk from 'redux-thunk'
-import reducer from './reducers'
 
+import reducer from './reducers'
 import * as actions from '~/actions'
 
 require('bootstrap/dist/css/bootstrap.css')

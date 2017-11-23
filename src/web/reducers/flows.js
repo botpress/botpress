@@ -1,5 +1,8 @@
 import { handleActions } from 'redux-actions'
+import reduceReducers from 'reduce-reducers'
 import _ from 'lodash'
+
+import { hashCode } from '~/util'
 
 import {
   fetchFlows,
@@ -27,7 +30,7 @@ const defaultState = {
   currentDiagramAction: null
 }
 
-const reducer = handleActions(
+let reducer = handleActions(
   {
     [requestFlows]: state => ({
       ...state,
@@ -203,6 +206,119 @@ function doCreateNewFlow(name) {
       }
     ]
   }
+}
+
+// *****
+// Reducer that creates snapshots of the flows (for undo / redo)
+// *****
+
+reducer = reduceReducers(
+  reducer,
+  handleActions(
+    {
+      [updateFlow]: createSnapshot,
+      [renameFlow]: createSnapshot,
+      [updateFlowNode]: createSnapshot,
+      [createFlowNode]: createSnapshot,
+      [createFlow]: createSnapshot,
+      [removeFlowNode]: createSnapshot
+    },
+    defaultState
+  )
+)
+
+function createSnapshot(state) {
+  return state
+}
+
+// *****
+// Reducer that creates the 'initial hash' of flows (for dirty detection)
+// Resets the 'dirty' state when a flow is saved
+// *****
+
+reducer = reduceReducers(
+  reducer,
+  handleActions(
+    {
+      [receiveFlows]: state => {
+        const hashes = computeFlowsHash(state)
+        return { ...state, currentHashes: hashes, initialHashes: hashes }
+      },
+
+      [receiveSaveFlow]: state => {
+        const hashes = computeFlowsHash(state)
+        return { ...state, currentHashes: hashes, initialHashes: hashes }
+      },
+
+      [updateFlow]: updateCurrentHash,
+      [renameFlow]: updateCurrentHash,
+      [updateFlowNode]: updateCurrentHash,
+
+      [createFlowNode]: updateCurrentHash,
+      [createFlow]: updateCurrentHash,
+      [removeFlowNode]: updateCurrentHash
+    },
+    defaultState
+  )
+)
+
+function computeFlowsHash(state) {
+  const hashAction = (hash, action) => {
+    if (_.isArray(action)) {
+      action.forEach(c => {
+        if (_.isString(c)) {
+          hash += c
+        } else {
+          hash += c.node
+          hash += c.condition
+        }
+      })
+    }
+    return hash
+  }
+
+  return _.values(state.flowsByName).reduce((obj, curr) => {
+    if (!curr) {
+      return obj
+    }
+
+    let buff = ''
+    buff += curr.name
+    buff += curr.startNode
+
+    if (curr.catchAll) {
+      buff = hashAction(buff, curr.catchAll.onReceive)
+      buff = hashAction(buff, curr.catchAll.onEnter)
+      buff = hashAction(buff, curr.catchAll.next)
+    }
+
+    _.orderBy(curr.nodes, 'id').forEach(node => {
+      buff = hashAction(buff, node.onReceive)
+      buff = hashAction(buff, node.onEnter)
+      buff = hashAction(buff, node.next)
+      buff += node.id
+      buff += node.name
+      buff += node.x
+      buff += node.y
+    })
+
+    _.orderBy(curr.links, l => l.source + l.target).forEach(link => {
+      buff += link.source
+      buff += link.target
+      link.points &&
+        link.points.forEach(p => {
+          buff += p.x
+          buff += p.y
+        })
+    })
+
+    obj[curr.name] = hashCode(buff)
+    return obj
+  }, {})
+}
+
+function updateCurrentHash(state) {
+  return { ...state, currentHashes: computeFlowsHash(state) }
 }
 
 export default reducer

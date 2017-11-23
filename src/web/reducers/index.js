@@ -24,3 +24,19 @@ export const getCurrentFlowNode = state => {
   const currentFlow = getCurrentFlow(state)
   return currentFlow && _.find(currentFlow.nodes, { id: state.flows.currentFlowNode })
 }
+
+export const getDirtyFlows = state => {
+  if (!state.flows || !state.flows.currentHashes || !state.flows.initialHashes) {
+    return []
+  }
+
+  const dirtyFlows = []
+
+  _.keys(state.flows.flowsByName).forEach(flow => {
+    if (state.flows.initialHashes[flow] !== state.flows.currentHashes[flow]) {
+      dirtyFlows.push(flow)
+    }
+  })
+
+  return dirtyFlows
+}

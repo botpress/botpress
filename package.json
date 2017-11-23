@@ -104,6 +104,7 @@
     "react-sidebar": "^2.2.1",
     "react-sortable": "^1.2.0",
     "react-split-pane": "^0.1.66",
+    "reduce-reducers": "^0.1.2",
     "redux": "^3.7.2",
     "redux-actions": "^2.2.1",
     "redux-thunk": "^2.2.0",
@@ -141,7 +142,6 @@
   "repository": "git+https://github.com/botpress/botpress.git",
   "os": ["darwin", "linux", "win32"],
   "scripts": {
-    "prepare": "npm run compile-prod",
     "compile": "./build.sh",
     "compile-prod": "NODE_ENV=production ./build.sh && ls -lh ./lib/web/js && echo \"DONE\"",
     "test":

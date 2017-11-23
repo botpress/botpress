@@ -13,18 +13,24 @@ export default class FlowsList extends Component {
   }
 
   switchToFlow(flow) {
-    console.log('Switch to:', flow)
     this.props.switchFlow(flow.name)
   }
 
-  renderFlow(flow, index) {
+  renderFlow(flow) {
     const isCurrentFlow = flow.name === _.get(this.props, 'currentFlow.name')
+    const isDirty = _.includes(this.props.dirtyFlows, flow.name)
+
+    const dirtyMarker = isDirty ? '*' : ''
 
     return isCurrentFlow ? (
-      <ListGroupItem>{flow.name} (current)</ListGroupItem>
+      <ListGroupItem>
+        {flow.name}
+        {dirtyMarker} (current)
+      </ListGroupItem>
     ) : (
       <ListGroupItem href="#" onClick={() => this.switchToFlow(flow)}>
         {flow.name}
+        {dirtyMarker}
       </ListGroupItem>
     )
   }

@@ -36,6 +36,7 @@ export default class SidePanel extends Component {
             <Tab eventKey={1} title="Flows">
               <FlowsList
                 flows={this.props.flows}
+                dirtyFlows={this.props.dirtyFlows}
                 switchFlow={this.props.switchFlow}
                 currentFlow={this.props.currentFlow}
               />
