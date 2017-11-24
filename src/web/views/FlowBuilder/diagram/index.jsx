@@ -49,6 +49,7 @@ export default class FlowBuilder extends Component {
   setModel() {
     this.activeModel = new DiagramModel()
     this.activeModel.setGridSize(25)
+    this.activeModel.linksHash = null
 
     const currentFlow = this.props.currentFlow
     if (!currentFlow) {
@@ -305,8 +306,17 @@ export default class FlowBuilder extends Component {
       selectedNode.oldY = selectedNode.y
     }
 
+    this.checkForLinksUpdate()
+  }
+
+  checkForLinksUpdate() {
     const newLinks = this.serializeLinks()
     const newLinksHash = hashCode(JSON.stringify(newLinks))
+
+    if (!this.activeModel.linksHash) {
+      this.activeModel.linksHash = newLinksHash
+    }
+
     if (this.activeModel.linksHash !== newLinksHash) {
       this.activeModel.linksHash = newLinksHash
       this.props.updateFlow({
