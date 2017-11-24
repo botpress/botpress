@@ -7,8 +7,10 @@ import {
   setDiagramAction,
   createFlowNode,
   saveFlow,
+  updateFlowNode,
   removeFlowNode,
-  createFlow
+  createFlow,
+  updateFlow
 } from '~/actions'
 
 import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
@@ -31,7 +33,9 @@ const mapDispatchToProps = (dispatch, ownProps) =>
       createFlowNode: createFlowNode,
       saveFlow: saveFlow,
       removeFlowNode: removeFlowNode,
-      createFlow: createFlow
+      createFlow: createFlow,
+      updateFlowNode: updateFlowNode,
+      updateFlow: updateFlow
     },
     dispatch
   )

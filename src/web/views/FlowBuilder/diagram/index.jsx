@@ -5,6 +5,8 @@ import ReactDOM from 'react-dom'
 import classnames from 'classnames'
 import _ from 'lodash'
 
+import { hashCode } from '~/util'
+
 const {
   DiagramWidget,
   DiagramEngine,
@@ -55,8 +57,8 @@ export default class FlowBuilder extends Component {
 
     const nodes = currentFlow.nodes.map(node => {
       const model = new StandardNodeModel({ ...node, isStartNode: currentFlow.startNode === node.name })
-      model.x = node.x
-      model.y = node.y
+      model.x = model.oldX = node.x
+      model.y = model.oldY = node.y
 
       return model
     })
@@ -153,8 +155,8 @@ export default class FlowBuilder extends Component {
 
   addNode(node) {
     const model = new StandardNodeModel({ ...node, isStartNode: this.props.currentFlow.startNode === node.name })
-    model.x = node.x
-    model.y = node.y
+    model.x = model.oldX = node.x
+    model.y = model.oldY = node.y
     this.activeModel.addNode(model)
 
     setTimeout(() => {
@@ -290,6 +292,27 @@ export default class FlowBuilder extends Component {
     if (selectedNode && (!currentNode || selectedNode.id !== currentNode.id)) {
       this.props.switchFlowNode(selectedNode.id)
     }
+
+    if (selectedNode) {
+      if (selectedNode.oldX !== selectedNode.x || selectedNode.oldY !== selectedNode.y) {
+        this.props.updateFlowNode({
+          x: selectedNode.x,
+          y: selectedNode.y
+        })
+      }
+
+      selectedNode.oldX = selectedNode.x
+      selectedNode.oldY = selectedNode.y
+    }
+
+    const newLinks = this.serializeLinks()
+    const newLinksHash = hashCode(JSON.stringify(newLinks))
+    if (this.activeModel.linksHash !== newLinksHash) {
+      this.activeModel.linksHash = newLinksHash
+      this.props.updateFlow({
+        links: newLinks
+      })
+    }
   }
 
   serialize() {
@@ -325,7 +348,15 @@ export default class FlowBuilder extends Component {
       }
     })
 
-    const links = model.links.map(link => {
+    const links = this.serializeLinks()
+
+    return { links, nodes }
+  }
+
+  serializeLinks() {
+    const model = this.activeModel.serializeDiagram()
+
+    return model.links.map(link => {
       const instance = this.activeModel.getLink(link.id)
       const model = {
         source: link.source,
@@ -342,8 +373,6 @@ export default class FlowBuilder extends Component {
 
       return model
     })
-
-    return { links, nodes }
   }
 
   saveFlow() {
