@@ -15,14 +15,23 @@ export const fetchFlows = () => dispatch => {
   })
 }
 
-export const requestSaveFlow = createAction('FLOWS/SAVE')
-export const receiveSaveFlow = createAction('FLOWS/SAVE/RECEIVE', flows => flows, () => ({ receiveAt: new Date() }))
+export const requestSaveFlows = createAction('FLOWS/SAVE')
+export const receiveSaveFlows = createAction('FLOWS/SAVE/RECEIVE', flows => flows, () => ({ receiveAt: new Date() }))
 
-export const saveFlow = flow => dispatch => {
-  dispatch(requestSaveFlow())
+export const saveAllFlows = flows => (dispatch, getState) => {
+  dispatch(requestSaveFlows())
 
-  axios.post('/flows/save', flow).then(() => {
-    dispatch(receiveSaveFlow())
+  const flows = _.values(getState().flows.flowsByName).map(flow => ({
+    flow: flow.name,
+    location: flow.location,
+    startNode: flow.startNode,
+    catchAll: flow.catchAll,
+    links: flow.links,
+    nodes: flow.nodes
+  }))
+
+  axios.post('/flows/save', flows).then(() => {
+    dispatch(receiveSaveFlows())
   })
 }
 

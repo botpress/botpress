@@ -7,8 +7,8 @@ import { hashCode } from '~/util'
 import {
   fetchFlows,
   requestFlows,
-  requestSaveFlow,
-  receiveSaveFlow,
+  requestSaveFlows,
+  receiveSaveFlows,
   receiveFlows,
   switchFlow,
   updateFlow,
@@ -50,12 +50,12 @@ let reducer = handleActions(
       currentFlow: payload
     }),
 
-    [requestSaveFlow]: state => ({
+    [requestSaveFlows]: state => ({
       ...state,
       savingFlows: true
     }),
 
-    [receiveSaveFlow]: state => ({
+    [receiveSaveFlows]: state => ({
       ...state,
       savingFlows: false
     }),
@@ -245,7 +245,7 @@ reducer = reduceReducers(
         return { ...state, currentHashes: hashes, initialHashes: hashes }
       },
 
-      [receiveSaveFlow]: state => {
+      [receiveSaveFlows]: state => {
         const hashes = computeFlowsHash(state)
         return { ...state, currentHashes: hashes, initialHashes: hashes }
       },

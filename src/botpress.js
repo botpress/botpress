@@ -155,7 +155,7 @@ class botpress {
     const umm = createUMM({ logger, middlewares, projectLocation, botfile, db, contentManager })
 
     const dialogStateManager = StateManager()
-    const flowProvider = FlowProvider({ logger, projectLocation, botfile })
+    const flowProvider = new FlowProvider({ logger, projectLocation, botfile })
     const dialogEngine = new DialogEngine(flowProvider, dialogStateManager, null, logger)
 
     middlewares.register(umm.incomingMiddleware)
@@ -274,7 +274,9 @@ class botpress {
 
     if (cluster.isWorker) {
       process.send({ workerStatus: 'starting' })
-      this._start()
+      this._start().catch(err => {
+        print('error', 'Error starting botpress: ', err.message)
+      })
     }
   }
 

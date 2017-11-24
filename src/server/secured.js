@@ -281,7 +281,7 @@ module.exports = (bp, app) => {
   })
 
   app.secure('write', 'bot/flows').post('/flows/save', async (req, res) => {
-    await bp.dialogEngine.provider.saveFlow(req.body)
+    await bp.dialogEngine.provider.saveFlows(req.body)
     return res.sendStatus(200)
   })
 

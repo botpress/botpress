@@ -385,19 +385,9 @@ export default class FlowBuilder extends Component {
     })
   }
 
-  saveFlow() {
-    const { nodes, links } = this.serialize()
-
-    const currentFlow = this.props.currentFlow
-
-    this.props.saveFlow({
-      flow: currentFlow.name,
-      location: currentFlow.location,
-      startNode: currentFlow.startNode,
-      catchAll: currentFlow.catchAll,
-      links: links,
-      nodes: nodes
-    })
+  saveAllFlows() {
+    // const { nodes, links } = this.serialize()
+    this.props.saveAllFlows()
   }
 
   deleteSelectedElements() {

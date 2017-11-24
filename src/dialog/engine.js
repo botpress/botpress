@@ -17,6 +17,11 @@ class DialogEngine {
     this.outputProcessors = []
     this.functions = {}
     this.functionMetadataProvider = null
+
+    flowsProvider.on('flowsChanged', () => {
+      this.flows = []
+      this.flowsLoaded = false
+    })
   }
 
   /**

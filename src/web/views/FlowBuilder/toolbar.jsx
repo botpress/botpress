@@ -99,9 +99,9 @@ class Toolbar extends React.Component {
             className={style.btn}
             bsStyle="default"
             // disabled={!hasUnsavedChanges}
-            onClick={() => this.props.onSaveFlow && this.props.onSaveFlow()}
+            onClick={() => this.props.onSaveAllFlows && this.props.onSaveAllFlows()}
           >
-            <OverlayTrigger placement="bottom" overlay={createTooltip('save', 'Save')}>
+            <OverlayTrigger placement="bottom" overlay={createTooltip('saveAll', 'Save all')}>
               <i className="material-icons">save</i>
             </OverlayTrigger>
           </Button>

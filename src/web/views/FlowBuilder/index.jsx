@@ -27,8 +27,8 @@ export default class FlowBuilder extends Component {
           <Topbar />
         </PageHeader>
         <Toolbar
-          onSaveFlow={() => {
-            this.diagram.saveFlow()
+          onSaveAllFlows={() => {
+            this.diagram.saveAllFlows()
           }}
           onCreateFlow={name => {
             this.diagram.createFlow(name)

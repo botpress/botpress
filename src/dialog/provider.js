@@ -3,11 +3,23 @@ import fs from 'fs'
 import glob from 'glob'
 import _ from 'lodash'
 import Promise from 'bluebird'
+import EventEmitter2 from 'eventemitter2'
 
-module.exports = ({ logger, botfile, projectLocation }) => {
-  async function loadAll() {
-    const relDir = botfile.flowsDir || './flows'
-    const flowsDir = path.resolve(projectLocation, relDir)
+export default class FlowProvider extends EventEmitter2 {
+  constructor({ logger, botfile, projectLocation }) {
+    super({
+      wildcard: true,
+      maxListeners: 100
+    })
+
+    this.logger = logger
+    this.botfile = botfile
+    this.projectLocation = projectLocation
+  }
+
+  async loadAll() {
+    const relDir = this.botfile.flowsDir || './flows'
+    const flowsDir = path.resolve(this.projectLocation, relDir)
 
     if (!fs.existsSync(flowsDir)) {
       return []
@@ -25,9 +37,9 @@ module.exports = ({ logger, botfile, projectLocation }) => {
 
       flow.name = file // e.g. 'login.flow.json' or 'shapes/circle.flow.json'
 
-      const schemaError = validateSchema(flow)
+      const schemaError = this._validateSchema(flow)
       if (schemaError) {
-        return logger.warn(schemaError)
+        return this.logger.warn(schemaError)
       }
 
       const uiEqPath = path.resolve(flowsDir, './' + file.replace(/\.flow/g, '.ui'))
@@ -74,13 +86,23 @@ module.exports = ({ logger, botfile, projectLocation }) => {
     return flows
   }
 
-  async function saveFlow(flow) {
-    // console.log('Save that!', flow)
+  async saveFlows(flows) {
+    const flowsToSave = await Promise.mapSeries(flows, flow => this._prepareSaveFlow(flow))
+
+    for (let { flowPath, uiPath, flowContent, uiContent } of flowsToSave) {
+      fs.writeFileSync(flowPath, JSON.stringify(flowContent, null, 2))
+      fs.writeFileSync(uiPath, JSON.stringify(uiContent, null, 2))
+    }
+
+    this.emit('flowsChanged')
+  }
+
+  async _prepareSaveFlow(flow) {
     flow = Object.assign({}, flow, {
       version: '0.1'
     })
 
-    const schemaError = validateSchema(flow)
+    const schemaError = this._validateSchema(flow)
     if (schemaError) {
       throw new Error(schemaError)
     }
@@ -102,17 +124,14 @@ module.exports = ({ logger, botfile, projectLocation }) => {
 
     flowContent.nodes.forEach(node => delete node['position'])
 
-    const relDir = botfile.flowsDir || './flows'
-    const flowPath = path.resolve(projectLocation, relDir, './' + flow.location)
+    const relDir = this.botfile.flowsDir || './flows'
+    const flowPath = path.resolve(this.projectLocation, relDir, './' + flow.location)
     const uiPath = flowPath.replace(/\.flow\.json/i, '.ui.json')
 
-    fs.writeFileSync(flowPath, JSON.stringify(flowContent, null, 2))
-    fs.writeFileSync(uiPath, JSON.stringify(uiContent, null, 2))
-
-    return
+    return { flowPath, uiPath, flowContent, uiContent }
   }
 
-  function validateSchema(flow) {
+  _validateSchema(flow) {
     const errorPrefix = `[Flow] Error loading "${flow.location}"`
 
     if (!flow || !_.isObjectLike(flow)) {
@@ -184,6 +203,4 @@ module.exports = ({ logger, botfile, projectLocation }) => {
 
     return _.first(errs, e => !!e)
   }
-
-  return { loadAll, saveFlow }
 }
