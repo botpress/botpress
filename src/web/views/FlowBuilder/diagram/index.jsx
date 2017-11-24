@@ -361,26 +361,30 @@ export default class FlowBuilder extends Component {
     })
   }
 
-  onKeyUp(event) {
-    if (event.code === 'Backspace') {
-      let elements = this.diagramEngine.getDiagramModel().getSelectedItems()
-      elements = _.sortBy(elements, 'nodeType')
+  deleteSelectedElements() {
+    let elements = this.diagramEngine.getDiagramModel().getSelectedItems()
+    elements = _.sortBy(elements, 'nodeType')
 
-      // Use sorting to make the nodes first in the array, deleting the node before the links
-      for (let element of elements) {
-        if (!this.diagramEngine.isModelLocked(element)) {
-          if (element.isStartNode) {
-            return alert("You can't delete the start node.")
-          } else if (element.nodeType === 'standard') {
-            this.props.removeFlowNode(element.id)
-          } else {
-            // it's a link, a point or something else
-            element.remove()
-          }
+    // Use sorting to make the nodes first in the array, deleting the node before the links
+    for (let element of elements) {
+      if (!this.diagramEngine.isModelLocked(element)) {
+        if (element.isStartNode) {
+          return alert("You can't delete the start node.")
+        } else if (element.nodeType === 'standard') {
+          this.props.removeFlowNode(element.id)
+        } else {
+          // it's a link, a point or something else
+          element.remove()
         }
       }
+    }
 
-      this.diagramWidget.forceUpdate()
+    this.diagramWidget.forceUpdate()
+  }
+
+  onKeyUp(event) {
+    if (event.code === 'Backspace') {
+      this.deleteSelectedElements()
     }
   }
 

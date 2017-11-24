@@ -20,7 +20,6 @@ const mapDispatchToProps = (dispatch, ownProps) =>
     {
       updateFlowNode: updateFlowNode,
       updateFlow: updateFlow,
-      removeFlowNode: removeFlowNode,
       switchFlow: switchFlow
     },
     dispatch

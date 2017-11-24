@@ -19,20 +19,6 @@ export default class StandardNodePropertiesPanel extends Component {
     }
   }
 
-  handleRemoveNode() {
-    this.props.removeFlowNode(this.props.node.id)
-  }
-
-  renderBottomSection() {
-    return (
-      <div className={style.bottomSection}>
-        <Button className={style.deleteNode} bsStyle="danger" onClick={::this.handleRemoveNode}>
-          Delete node
-        </Button>
-      </div>
-    )
-  }
-
   render() {
     const { node } = this.props
 
@@ -62,7 +48,6 @@ export default class StandardNodePropertiesPanel extends Component {
           subflows={this.props.subflows}
           onItemsUpdated={items => this.props.updateNode({ next: items })}
         />
-        {::this.renderBottomSection()}
       </div>
     )
   }

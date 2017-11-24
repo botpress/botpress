@@ -33,6 +33,9 @@ export default class FlowBuilder extends Component {
           onCreateFlow={name => {
             this.diagram.createFlow(name)
           }}
+          onDelete={() => {
+            this.diagram.deleteSelectedElements()
+          }}
         />
         <div className={style.workspace}>
           <SplitPane split="vertical" minSize={200} defaultSize={250}>

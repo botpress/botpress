@@ -146,6 +146,12 @@ class Toolbar extends React.Component {
               <i className="material-icons">stars</i>
             </OverlayTrigger>
           </Button>
+
+          <Button className={style.btn} bsStyle="default" onClick={this.props.onDelete}>
+            <OverlayTrigger placement="bottom" overlay={createTooltip('delete', 'Delete')}>
+              <i className="material-icons">delete</i>
+            </OverlayTrigger>
+          </Button>
         </div>
       </div>
     )
