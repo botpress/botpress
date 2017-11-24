@@ -24,7 +24,8 @@ const afterResolve = new webpack.NormalModuleReplacementPlugin(/extensions/i, fu
   ) {
     return
   }
-
+  
+  console.log('[CircleCI]', res.userRequest, res.userRequest.indexOf('/node_modules/'))
   const replacement = requireExtension(res.userRequest, customEdition)
   res.request = res.request.replace('/extensions/lite', replacement)
   res.resource = res.resource.replace('/extensions/lite', replacement)
