@@ -3,6 +3,8 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { Button, OverlayTrigger, Tooltip } from 'react-bootstrap'
 
+import _ from 'lodash'
+
 import { updateGlobalStyle } from '~/actions'
 
 const style = require('./toolbar.scss')
@@ -61,6 +63,10 @@ class Toolbar extends React.Component {
 
       if (/[^A-Z0-9-_\/]/i.test(name)) {
         return alert('ERROR: The flow name can only contain letters, numbers, underscores and hyphens.')
+      }
+
+      if (_.includes(this.props.flowsNames, name + '.flow.json')) {
+        return alert('ERROR: This flow already exists')
       }
 
       this.props.onCreateFlow(name)

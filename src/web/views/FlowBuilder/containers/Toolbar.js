@@ -7,7 +7,7 @@ import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
 import Toolbar from '../toolbar.jsx'
 
 const mapStateToProps = (state, ownProps) => ({
-  flows: state.flows,
+  flowsNames: _.keys(state.flows.flowsByName),
   currentFlow: getCurrentFlow(state),
   currentDiagramAction: state.flows.currentDiagramAction,
   currentFlowNode: getCurrentFlowNode(state)
