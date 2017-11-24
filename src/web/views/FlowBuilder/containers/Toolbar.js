@@ -2,7 +2,7 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
 import { fetchFlows, setDiagramAction, updateFlow } from '~/actions'
-import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
+import { getCurrentFlow, getCurrentFlowNode, getDirtyFlows } from '~/reducers'
 
 import Toolbar from '../toolbar.jsx'
 
@@ -10,7 +10,8 @@ const mapStateToProps = (state, ownProps) => ({
   flowsNames: _.keys(state.flows.flowsByName),
   currentFlow: getCurrentFlow(state),
   currentDiagramAction: state.flows.currentDiagramAction,
-  currentFlowNode: getCurrentFlowNode(state)
+  currentFlowNode: getCurrentFlowNode(state),
+  dirtyFlows: getDirtyFlows(state)
 })
 
 const mapDispatchToProps = (dispatch, ownProps) =>

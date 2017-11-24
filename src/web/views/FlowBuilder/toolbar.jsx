@@ -32,7 +32,7 @@ class Toolbar extends React.Component {
   render() {
     const createTooltip = (name, text) => <Tooltip id={name}>{text}</Tooltip>
 
-    const hasUnsavedChanges = false
+    const hasUnsavedChanges = !_.isEmpty(this.props.dirtyFlows)
 
     const isInsertNodeMode = this.props.currentDiagramAction === 'insert_node'
 
@@ -98,7 +98,7 @@ class Toolbar extends React.Component {
           <Button
             className={style.btn}
             bsStyle="default"
-            // disabled={!hasUnsavedChanges}
+            disabled={!hasUnsavedChanges}
             onClick={() => this.props.onSaveAllFlows && this.props.onSaveAllFlows()}
           >
             <OverlayTrigger placement="bottom" overlay={createTooltip('saveAll', 'Save all')}>
