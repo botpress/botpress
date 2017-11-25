@@ -108,13 +108,13 @@ class Toolbar extends React.Component {
 
           <div className={style.separator} />
 
-          <Button className={style.btn} bsStyle="default">
+          <Button className={style.btn} bsStyle="default" disabled={!this.props.canUndo} onClick={this.props.undo}>
             <OverlayTrigger placement="bottom" overlay={createTooltip('undo', 'Undo')}>
               <i className="material-icons">undo</i>
             </OverlayTrigger>
           </Button>
 
-          <Button className={style.btn} bsStyle="default">
+          <Button className={style.btn} bsStyle="default" disabled={!this.props.canRedo} onClick={this.props.redo}>
             <OverlayTrigger placement="bottom" overlay={createTooltip('redo', 'Redo')}>
               <i className="material-icons">redo</i>
             </OverlayTrigger>

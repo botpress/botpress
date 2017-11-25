@@ -19,16 +19,26 @@ import {
   setDiagramAction,
   createFlowNode,
   createFlow,
-  removeFlowNode
+  removeFlowNode,
+  flowEditorUndo,
+  flowEditorRedo
 } from '~/actions'
+
+const SNAPSHOT_SIZE = 25
 
 const defaultState = {
   flowsByName: {},
   fetchingFlows: false,
   currentFlow: null,
   currentFlowNode: null,
-  currentDiagramAction: null
+  currentDiagramAction: null,
+  currentSnapshotIndex: 0,
+  snapshots: []
 }
+
+// *****
+// Reducer that deals with non-recordable (no snapshot taking)
+// *****
 
 let reducer = handleActions(
   {
@@ -42,12 +52,6 @@ let reducer = handleActions(
       fetchingFlows: false,
       flowsByName: payload,
       currentFlow: state.currentFlow || _.first(_.keys(payload))
-    }),
-
-    [renameFlow]: (state, { payload }) => ({
-      ...state,
-      flowsByName: doRenameFlow({ flow: state.currentFlow, name: payload, flows: _.values(state.flowsByName) }),
-      currentFlow: payload
     }),
 
     [requestSaveFlows]: state => ({
@@ -73,94 +77,146 @@ let reducer = handleActions(
       }
     },
 
-    [updateFlow]: (state, { payload }) => ({
-      ...state,
-      flowsByName: {
-        ...state.flowsByName,
-        [state.currentFlow]: {
-          ...state.flowsByName[state.currentFlow],
-          ...payload
-        }
-      }
-    }),
-
-    [createFlow]: (state, { payload: name }) => ({
-      ...state,
-      flowsByName: {
-        ...state.flowsByName,
-        [name]: doCreateNewFlow(name)
-      },
-      currentFlow: name,
-      currentFlowNode: null
-    }),
-
-    [updateFlowNode]: (state, { payload }) => ({
-      ...state,
-      flowsByName: {
-        ...state.flowsByName,
-        [state.currentFlow]: {
-          ...state.flowsByName[state.currentFlow],
-          nodes: state.flowsByName[state.currentFlow].nodes.map(node => {
-            if (node.id !== state.currentFlowNode) {
-              return node
-            }
-
-            return { ...node, ...payload, lastModified: new Date() }
-          })
-        }
-      }
-    }), // END updateFlowNode
-
-    [removeFlowNode]: (state, { payload }) => ({
-      ...state,
-      flowsByName: {
-        ...state.flowsByName,
-        [state.currentFlow]: {
-          ...state.flowsByName[state.currentFlow],
-          nodes: state.flowsByName[state.currentFlow].nodes.filter(node => {
-            return node.id !== payload
-          })
-        }
-      }
-    }),
-
-    [createFlowNode]: (state, { payload }) => ({
-      ...state,
-      flowsByName: {
-        ...state.flowsByName,
-        [state.currentFlow]: {
-          ...state.flowsByName[state.currentFlow],
-          nodes: [
-            ...state.flowsByName[state.currentFlow].nodes,
-            _.merge(
-              {
-                id: Math.random()
-                  .toString()
-                  .substr(2, 10),
-                name:
-                  'node-' +
-                  Math.random()
-                    .toString()
-                    .substr(2, 4),
-                x: 0,
-                y: 0,
-                next: [],
-                onEnter: [],
-                onReceive: []
-              },
-              payload
-            )
-          ]
-        }
-      }
-    }),
-
     [setDiagramAction]: (state, { payload }) => ({
       ...state,
       currentDiagramAction: payload
     })
   },
   defaultState
+)
+
+// *****
+// Reducer that creates snapshots of the flows (for undo / redo)
+// *****
+
+reducer = reduceReducers(
+  reducer,
+  handleActions(
+    {
+      [updateFlow]: createSnapshot,
+      [renameFlow]: createSnapshot,
+      [updateFlowNode]: createSnapshot,
+      [createFlowNode]: createSnapshot,
+      [createFlow]: createSnapshot,
+      [removeFlowNode]: createSnapshot,
+
+      [flowEditorUndo]: state => {
+        if (_.isEmpty(state.snapshots) || state.snapshots.length <= state.currentSnapshotIndex) {
+          return state
+        }
+
+        const snapshot = state.snapshots[state.currentSnapshotIndex]
+
+        return { ...applySnapshot(state, snapshot), currentSnapshotIndex: state.currentSnapshotIndex + 1 }
+      },
+
+      [flowEditorRedo]: state => {
+        if (state.currentSnapshotIndex <= 0) {
+          return state
+        }
+        console.log(state.snapshots.length, state.currentSnapshotIndex - 1)
+        const snapshot = state.snapshots[state.currentSnapshotIndex - 1]
+        return { ...applySnapshot(state, snapshot), currentSnapshotIndex: state.currentSnapshotIndex - 1 }
+      }
+    },
+    defaultState
+  )
+)
+
+reducer = reduceReducers(
+  reducer,
+  handleActions(
+    {
+      [renameFlow]: (state, { payload }) => ({
+        ...state,
+        flowsByName: doRenameFlow({ flow: state.currentFlow, name: payload, flows: _.values(state.flowsByName) }),
+        currentFlow: payload
+      }),
+
+      [updateFlow]: (state, { payload }) => ({
+        ...state,
+        flowsByName: {
+          ...state.flowsByName,
+          [state.currentFlow]: {
+            ...state.flowsByName[state.currentFlow],
+            ...payload
+          }
+        }
+      }),
+
+      [createFlow]: (state, { payload: name }) => ({
+        ...state,
+        flowsByName: {
+          ...state.flowsByName,
+          [name]: doCreateNewFlow(name)
+        },
+        currentFlow: name,
+        currentFlowNode: null
+      }),
+
+      [updateFlowNode]: (state, { payload }) => ({
+        ...state,
+        flowsByName: {
+          ...state.flowsByName,
+          [state.currentFlow]: {
+            ...state.flowsByName[state.currentFlow],
+            nodes: state.flowsByName[state.currentFlow].nodes.map(node => {
+              if (node.id !== state.currentFlowNode) {
+                return node
+              }
+
+              return { ...node, ...payload, lastModified: new Date() }
+            })
+          }
+        }
+      }), // END updateFlowNode
+
+      [removeFlowNode]: (state, { payload }) => ({
+        ...state,
+        flowsByName: {
+          ...state.flowsByName,
+          [state.currentFlow]: {
+            ...state.flowsByName[state.currentFlow],
+            nodes: state.flowsByName[state.currentFlow].nodes.filter(node => {
+              return node.id !== payload
+            })
+          }
+        }
+      }),
+
+      [createFlowNode]: (state, { payload }) => ({
+        ...state,
+        flowsByName: {
+          ...state.flowsByName,
+          [state.currentFlow]: {
+            ...state.flowsByName[state.currentFlow],
+            nodes: [
+              ...state.flowsByName[state.currentFlow].nodes,
+              _.merge(
+                {
+                  id: Math.random()
+                    .toString()
+                    .substr(2, 10),
+                  name:
+                    'node-' +
+                    Math.random()
+                      .toString()
+                      .substr(2, 4),
+                  x: 0,
+                  y: 0,
+                  next: [],
+                  onEnter: [],
+                  onReceive: []
+                },
+                payload
+              )
+            ]
+          }
+        }
+      })
+    },
+    defaultState
+  )
 )
 
 function doRenameFlow({ flow, name, flows }) {
@@ -208,27 +264,37 @@ function doCreateNewFlow(name) {
   }
 }
 
-// *****
-// Reducer that creates snapshots of the flows (for undo / redo)
-// *****
-
-reducer = reduceReducers(
-  reducer,
-  handleActions(
-    {
-      [updateFlow]: createSnapshot,
-      [renameFlow]: createSnapshot,
-      [updateFlowNode]: createSnapshot,
-      [createFlowNode]: createSnapshot,
-      [createFlow]: createSnapshot,
-      [removeFlowNode]: createSnapshot
-    },
-    defaultState
-  )
-)
+function applySnapshot(state, snapshot) {
+  return {
+    ...state,
+    currentFlow: snapshot.activeFlow,
+    currentFlowNode: snapshot.activeFlowNode,
+    flowsByName: snapshot.flowsByName
+  }
+}
 
 function createSnapshot(state) {
-  return state
+  const snapshot = {
+    activeFlow: state.currentFlow,
+    activeFlowNode: state.currentFlowNode,
+    flowsByName: Object.assign({}, state.flowsByName)
+  }
+
+  const lastSnapshot = _.head(state.snapshots)
+
+  let snapshots = _.take(state.snapshots, SNAPSHOT_SIZE)
+
+  if (
+    state.currentSnapshotIndex === 0 &&
+    state.snapshots.length > 1 &&
+    lastSnapshot &&
+    snapshot.activeFlow === lastSnapshot.activeFlow &&
+    (!!snapshot.activeFlowNode && snapshot.activeFlowNode === lastSnapshot.activeFlowNode)
+  ) {
+    snapshots = _.drop(snapshots, 1) // We merge the current and last snapshots
+  }
+
+  return { ...state, snapshots: [snapshot, ...snapshots], currentSnapshotIndex: 0 }
 }
 
 // *****

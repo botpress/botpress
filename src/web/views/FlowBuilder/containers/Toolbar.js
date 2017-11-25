@@ -1,8 +1,8 @@
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
-import { fetchFlows, setDiagramAction, updateFlow } from '~/actions'
-import { getCurrentFlow, getCurrentFlowNode, getDirtyFlows } from '~/reducers'
+import { fetchFlows, setDiagramAction, updateFlow, flowEditorRedo, flowEditorUndo } from '~/actions'
+import { getCurrentFlow, getCurrentFlowNode, getDirtyFlows, canFlowUndo, canFlowRedo } from '~/reducers'
 
 import Toolbar from '../toolbar.jsx'
 
@@ -11,7 +11,9 @@ const mapStateToProps = (state, ownProps) => ({
   currentFlow: getCurrentFlow(state),
   currentDiagramAction: state.flows.currentDiagramAction,
   currentFlowNode: getCurrentFlowNode(state),
-  dirtyFlows: getDirtyFlows(state)
+  dirtyFlows: getDirtyFlows(state),
+  canUndo: canFlowUndo(state),
+  canRedo: canFlowRedo(state)
 })
 
 const mapDispatchToProps = (dispatch, ownProps) =>
@@ -19,7 +21,9 @@ const mapDispatchToProps = (dispatch, ownProps) =>
     {
       fetchFlows: fetchFlows,
       setDiagramAction: setDiagramAction,
-      updateFlow: updateFlow
+      updateFlow: updateFlow,
+      undo: flowEditorUndo,
+      redo: flowEditorRedo
     },
     dispatch
   )

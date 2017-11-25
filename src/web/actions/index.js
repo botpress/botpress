@@ -47,6 +47,9 @@ export const switchFlowNode = createAction('FLOWS/FLOW/SWITCH_NODE')
 export const createFlowNode = createAction('FLOWS/FLOW/CREATE')
 export const removeFlowNode = createAction('FLOWS/FLOW/REMOVE')
 
+export const flowEditorUndo = createAction('FLOWS/EDITOR/UNDO')
+export const flowEditorRedo = createAction('FLOWS/EDITOR/REDO')
+
 export const setDiagramAction = createAction('FLOWS/FLOW/SET_ACTION')
 
 // License

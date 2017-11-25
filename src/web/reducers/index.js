@@ -40,3 +40,11 @@ export const getDirtyFlows = state => {
 
   return dirtyFlows
 }
+
+export const canFlowUndo = state => {
+  return state.flows.currentSnapshotIndex < state.flows.snapshots.length
+}
+
+export const canFlowRedo = state => {
+  return state.flows.currentSnapshotIndex > 0
+}
