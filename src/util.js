@@ -10,9 +10,15 @@ const NPM_CMD = /^win/.test(process.platform) ? 'npm.cmd' : 'npm'
 const print = function(...args) {
   const mapping = {
     info: chalk.white,
-    warn: function() { return chalk.yellow('WARN', ...arguments) },
-    error: function() { return chalk.red('ERR', ...arguments) },
-    success: function() { return chalk.green('OK', ...arguments) }
+    warn: function() {
+      return chalk.yellow('WARN', ...arguments)
+    },
+    error: function() {
+      return chalk.red('ERR', ...arguments)
+    },
+    success: function() {
+      return chalk.green('OK', ...arguments)
+    }
   }
 
   let level = mapping[args[0]]
@@ -27,7 +33,7 @@ const print = function(...args) {
   console.log(chalk.black.bgWhite('[botpress]'), '\t', level(...args))
 }
 
-const resolveFromDir = function (fromDir, moduleId) {
+const resolveFromDir = function(fromDir, moduleId) {
   fromDir = path.resolve(fromDir)
   const fromFile = path.join(fromDir, 'noop.js')
   try {
@@ -58,7 +64,7 @@ const resolveProjectFile = (file, projectLocation, throwIfNotExist) => {
 
   if (!fs.existsSync(packagePath)) {
     if (throwIfNotExist) {
-      throw new Error('Could not find bot\'s package.json file')
+      throw new Error("Could not find bot's package.json file")
     }
     return null
   }
@@ -66,11 +72,8 @@ const resolveProjectFile = (file, projectLocation, throwIfNotExist) => {
   return packagePath
 }
 
-const getDataLocation = (dataDir, projectLocation) => (
-  dataDir && path.isAbsolute(dataDir)
-    ? path.resolve(dataDir)
-    : path.resolve(projectLocation, dataDir || 'data')
-)
+const getDataLocation = (dataDir, projectLocation) =>
+  dataDir && path.isAbsolute(dataDir) ? path.resolve(dataDir) : path.resolve(projectLocation, dataDir || 'data')
 
 const getBotpressVersion = () => {
   const botpressPackagePath = path.join(__dirname, '../package.json')
@@ -82,7 +85,6 @@ const collectArgs = (val, memo) => {
   memo.push(val)
   return memo
 }
-
 
 module.exports = {
   print,

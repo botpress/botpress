@@ -13,11 +13,11 @@ class License extends React.Component {
     super(props, context)
 
     this.state = { loading: true }
-    
+
     this.handleClose = this.handleClose.bind(this)
   }
 
-  componentDidMount () {
+  componentDidMount() {
     this.setState({
       loading: false
     })
@@ -30,7 +30,7 @@ class License extends React.Component {
   renderLicenseTextArea() {
     return (
       <div>
-        <textarea readOnly={true} className={style.textArea} value={this.props.license.text}/>
+        <textarea readOnly={true} className={style.textArea} value={this.props.license.text} />
       </div>
     )
   }
@@ -40,7 +40,7 @@ class License extends React.Component {
   }
 
   render() {
-    if(this.state.loading) {
+    if (this.state.loading) {
       return null
     }
 
@@ -49,12 +49,8 @@ class License extends React.Component {
         <Modal.Header closeButton>
           <Modal.Title>{this.props.license.name}</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
-          {this.renderLicenseTextArea()}
-        </Modal.Body>
-        <Modal.Footer>
-          {this.renderCancelButton()}
-        </Modal.Footer>
+        <Modal.Body>{this.renderLicenseTextArea()}</Modal.Body>
+        <Modal.Footer>{this.renderCancelButton()}</Modal.Footer>
       </Modal>
     )
   }

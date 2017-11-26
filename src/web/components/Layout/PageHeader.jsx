@@ -29,9 +29,7 @@ class PageHeader extends React.Component {
       'bp-page-header-no-sidebar': !hasSidebar
     })
 
-    return <div className={classNames}>
-      {this.props.children}
-    </div>
+    return <div className={classNames}>{this.props.children}</div>
   }
 }
 

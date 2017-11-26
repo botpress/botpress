@@ -24,12 +24,10 @@ function registerService(name, fn) {
 }
 
 async function getService(name, throwIfNotFound = true) {
-  await initPromise
-    .timeout(5000)
-    .catch(err => {
-      throw new Error('ServiceLocator was not initialized')
-    })
-  
+  await initPromise.timeout(5000).catch(err => {
+    throw new Error('ServiceLocator was not initialized')
+  })
+
   if (throwIfNotFound && !_services[name]) {
     throw new Error(`Service '${name}' not registered`)
   }

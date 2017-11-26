@@ -1,10 +1,7 @@
 import React, { Component } from 'react'
 import classnames from 'classnames'
 
-import {
-  FormGroup,
-  FormControl
-} from 'react-bootstrap'
+import { FormGroup, FormControl } from 'react-bootstrap'
 
 const style = require('./style.scss')
 
@@ -19,6 +16,6 @@ export default class ListView extends Component {
       [style.list]: true
     })
 
-    return <div className={classNames}></div>
+    return <div className={classNames} />
   }
 }

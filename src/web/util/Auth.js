@@ -3,7 +3,7 @@ import axios from 'axios'
 import uuid from 'uuid'
 
 const storageKey = 'bp/token'
-export const authEvents = (new EventEmitter2())
+export const authEvents = new EventEmitter2()
 
 export const getToken = () => {
   const tokenStr = localStorage.getItem(storageKey)
@@ -23,17 +23,21 @@ export const getCurrentUser = () => {
   if (!token) {
     return null
   }
-  
+
   const encoded = token.token.replace(/\w+\./, '').replace(/\.[\w|\-|_]+/, '')
   const decoded = JSON.parse(Buffer(encoded, 'base64').toString())
-  
+
   return decoded.user
 }
 
-export const setToken = (token) => {
-  localStorage.setItem(storageKey, JSON.stringify({
-    token, time: new Date()
-  }))
+export const setToken = token => {
+  localStorage.setItem(
+    storageKey,
+    JSON.stringify({
+      token,
+      time: new Date()
+    })
+  )
 
   axios.defaults.headers.common['authorization'] = token
   authEvents.emit('new_token')
@@ -45,20 +49,19 @@ export const logout = () => {
 }
 
 export const login = (user, password) => {
-  return axios.post('/api/login', { user, password })
-    .then((result) => {
-      if (result.data.success) {
-        setToken(result.data.token)
-        authEvents.emit('login')
-      } else {
-        throw new Error(result.data.reason)
-      }
-    })
+  return axios.post('/api/login', { user, password }).then(result => {
+    if (result.data.success) {
+      setToken(result.data.token)
+      authEvents.emit('login')
+    } else {
+      throw new Error(result.data.reason)
+    }
+  })
 }
 
 export const getUniqueVisitorId = () => {
   let userId = localStorage.getItem('bp/socket/user')
-  
+
   if (!userId) {
     userId = uuid.v4()
     localStorage.setItem('bp/socket/user', userId)

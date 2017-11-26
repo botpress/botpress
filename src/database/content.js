@@ -5,7 +5,7 @@
 import helpers from './helpers'
 
 module.exports = knex => {
-  return helpers(knex).createTableIfNotExists('content_items', function (table) {
+  return helpers(knex).createTableIfNotExists('content_items', function(table) {
     table.string('id').primary()
     table.text('data')
     table.text('formData')

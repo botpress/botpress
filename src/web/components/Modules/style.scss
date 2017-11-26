@@ -7,7 +7,7 @@
   border-color: #efefef;
   position: relative;
 
-  &>div {
+  & > div {
     padding: 15px 10px;
   }
 }
@@ -61,17 +61,17 @@ a {
 }
 
 .moduleButton {
-  position:absolute;
+  position: absolute;
   bottom: 0px;
   right: 0px;
   margin-bottom: 15px;
   margin-right: 15px;
 
   button.uninstall {
-    background-color: #B1B1B1;
+    background-color: #b1b1b1;
 
     &:hover {
-      background-color: #A5A5A5;
+      background-color: #a5a5a5;
     }
   }
 }
@@ -81,4 +81,3 @@ a {
   height: 18px;
   padding-right: 10px;
 }
-

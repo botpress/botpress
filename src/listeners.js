@@ -13,12 +13,12 @@ const matches = function(conditions, event) {
       return comparrer(eventValue, event) === true
     } else if (_.isRegExp(comparrer)) {
       const matches = comparrer.test(eventValue)
-      
+
       if (matches && _.isString(eventValue)) {
         if (_.isNil(event.captured)) {
           event.captured = []
         }
-        
+
         const a = _.tail(comparrer.exec(eventValue))
         a.forEach(m => event.captured.push(m))
       }
@@ -46,7 +46,7 @@ const hear = function(conditions, callback) {
 
     if (result && _.isFunction(callback)) {
       if (callback.length <= 1) {
-        if (_.isFunction(next)) { 
+        if (_.isFunction(next)) {
           next()
         }
         callback(event)
@@ -54,7 +54,7 @@ const hear = function(conditions, callback) {
         callback(event, next)
       }
     } else {
-      if (_.isFunction(next)) { 
+      if (_.isFunction(next)) {
         next()
       }
     }

@@ -3,7 +3,6 @@ import socketio from 'socket.io'
 import socketioJwt from 'socketio-jwt'
 
 module.exports = bp => {
-
   async function install(server) {
     const io = socketio(server)
 
@@ -11,10 +10,12 @@ module.exports = bp => {
     const guest = io.of('/guest')
 
     if (bp.botfile.login.enabled) {
-      admin.use(socketioJwt.authorize({
-        secret: await bp.security.getSecret(),
-        handshake: true
-      }))
+      admin.use(
+        socketioJwt.authorize({
+          secret: await bp.security.getSecret(),
+          handshake: true
+        })
+      )
     }
 
     admin.on('connection', function(socket) {

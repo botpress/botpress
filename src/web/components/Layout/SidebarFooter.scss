@@ -1,6 +1,5 @@
 @import '../../palette.scss';
 
-
 .bottomInformation {
   z-index: 100;
   height: 140px; // Needs to match with Sidebar styles
@@ -14,13 +13,18 @@
 
   text-align: left;
 
-  background: rgba(36,36,36,0.5);
-  background: -moz-linear-gradient(buttom, rgba(36,36,36,1) 60%, rgba(36,36,36,0) 100%);
-  background: -webkit-gradient(left bottom, left top, color-stop(60%, rgba(36,36,36,0)), color-stop(100%, rgba(36,36,36,0)));
-  background: -webkit-linear-gradient(bottom, rgba(36,36,36,1) 60%, rgba(36,36,36,0) 100%);
-  background: -o-linear-gradient(bottom, rgba(36,36,36,1) 60%, rgba(36,36,36,0) 100%);
-  background: -ms-linear-gradient(bottom, rgba(36,36,36,1) 60%, rgba(36,36,36,0) 100%);
-  background: linear-gradient(to top, rgba(36,36,36,1) 60%, rgba(36,36,36,0) 100%);
+  background: rgba(36, 36, 36, 0.5);
+  background: -moz-linear-gradient(buttom, rgba(36, 36, 36, 1) 60%, rgba(36, 36, 36, 0) 100%);
+  background: -webkit-gradient(
+    left bottom,
+    left top,
+    color-stop(60%, rgba(36, 36, 36, 0)),
+    color-stop(100%, rgba(36, 36, 36, 0))
+  );
+  background: -webkit-linear-gradient(bottom, rgba(36, 36, 36, 1) 60%, rgba(36, 36, 36, 0) 100%);
+  background: -o-linear-gradient(bottom, rgba(36, 36, 36, 1) 60%, rgba(36, 36, 36, 0) 100%);
+  background: -ms-linear-gradient(bottom, rgba(36, 36, 36, 1) 60%, rgba(36, 36, 36, 0) 100%);
+  background: linear-gradient(to top, rgba(36, 36, 36, 1) 60%, rgba(36, 36, 36, 0) 100%);
 
   .innerFooter {
     border-top: 1px solid #565656;
@@ -44,7 +48,7 @@
   }
 
   .unlicensed {
-    color: #D84744;
+    color: #d84744;
     font-weight: bold;
   }
 
@@ -82,21 +86,21 @@
     }
 
     .warning {
-      background-color: #FFFD77;
+      background-color: #fffd77;
     }
 
     .urgent {
-      background-color: #FEA464;
+      background-color: #fea464;
     }
 
     .reached {
-      background-color: #F86768;
+      background-color: #f86768;
     }
   }
 
   .status {
     .dot {
-      background-color: #21CF9E;
+      background-color: #21cf9e;
       display: inline-block;
       height: 6px;
       width: 6px;
@@ -106,10 +110,9 @@
     }
 
     .reached {
-      background-color: #D84744;
+      background-color: #d84744;
     }
   }
-  
 
   .buy {
     font-size: 14px;

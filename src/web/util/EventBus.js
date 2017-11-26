@@ -6,7 +6,6 @@ import io from 'socket.io-client'
 import { getToken, authEvents, getUniqueVisitorId } from '~/util/Auth'
 
 class EventBus extends EventEmitter2 {
-
   constructor() {
     super({
       wildcard: true,
@@ -58,7 +57,7 @@ class EventBus extends EventEmitter2 {
     }
 
     let socketUrl = window.location.origin
-    
+
     this.adminSocket = io(socketUrl + '/admin', { query })
     this.adminSocket.on('event', this.dispatchSocketEvent)
 

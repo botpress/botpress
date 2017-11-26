@@ -8,14 +8,13 @@ var { requireExtension } = require('./extensions.js')
 const afterResolve = new webpack.NormalModuleReplacementPlugin(/extensions/i, function(res) {
   const [rest, edition] = (res.rawRequest && res.rawRequest.match(/\?edition=(.+)/i)) || []
 
-  const customEdition = _.find(
-    ['lite', 'pro', 'ultimate'],
-    e => edition && edition.toLowerCase().startsWith(e)
-  )
-  
-  if (!res.userRequest 
-    || res.userRequest.indexOf('extensions/empty.jsx') >= 0
-    || (res.userRequest.indexOf('extensions/enterprise') >= 0)) {
+  const customEdition = _.find(['lite', 'pro', 'ultimate'], e => edition && edition.toLowerCase().startsWith(e))
+
+  if (
+    !res.userRequest ||
+    res.userRequest.indexOf('extensions/empty.jsx') >= 0 ||
+    res.userRequest.indexOf('extensions/enterprise') >= 0
+  ) {
     return
   }
 

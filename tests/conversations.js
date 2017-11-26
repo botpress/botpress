@@ -48,7 +48,6 @@ describe('conversations', function() {
   })
 
   describe('start', function() {
-
     it('returns a conversation', function() {
       const convo = conversations.start(eventFrom(user(1)))
       expect(convo).not.to.be.null
@@ -71,15 +70,18 @@ describe('conversations', function() {
 
     it('activated by default', function() {
       const convo = conversations.start(eventFrom(user(1)))
-      expect(convo).property('status').to.equal('active')
+      expect(convo)
+        .property('status')
+        .to.equal('active')
     })
-
   })
 
   describe('create', function() {
     it('not activated', function() {
       const convo = conversations.create(eventFrom(user(1)))
-      expect(convo).property('status').to.equal('new')
+      expect(convo)
+        .property('status')
+        .to.equal('new')
     })
 
     it('activate', function() {
@@ -87,12 +89,13 @@ describe('conversations', function() {
 
       convo.activate()
 
-      expect(convo).property('status').to.equal('active')
+      expect(convo)
+        .property('status')
+        .to.equal('active')
     })
   })
 
   describe('incoming processing', function() {
-
     it('does not process if conversation new', function(done) {
       const convo = conversations.create(eventFrom(user(1)))
 
@@ -132,11 +135,9 @@ describe('conversations', function() {
 
       setTimeout(done, 5)
     })
-
   })
 
   describe('Flow - Default thread', function() {
-
     it('addMessage is not sent if not started', function(done) {
       const convo = conversations.create(eventFrom(user(1)))
 
@@ -151,7 +152,9 @@ describe('conversations', function() {
       const convo = conversations.start(eventFrom(user(1)))
 
       outgoing = event => {
-        expect(event).property('text').to.equal('Hello')
+        expect(event)
+          .property('text')
+          .to.equal('Hello')
         done()
       }
 
@@ -162,7 +165,9 @@ describe('conversations', function() {
       const convo = conversations.start(eventFrom(user(1)))
 
       outgoing = event => {
-        expect(event).property('text').to.equal('Hello')
+        expect(event)
+          .property('text')
+          .to.equal('Hello')
         done()
       }
 
@@ -203,11 +208,9 @@ describe('conversations', function() {
       convo.defaultThread.addQuestion(response('0'), [])
       convo.defaultThread.addMessage(response('1'))
     })
-
   })
 
   describe('Flow - Ask question', function() {
-
     it('Correct handler gets called', function(done) {
       const convo = conversations.start(eventFrom(user(1)))
 
@@ -246,9 +249,12 @@ describe('conversations', function() {
 
       convo.defaultThread.addQuestion(response('Hello'), [
         { pattern: 'no', callback: () => done('Nope') },
-        { pattern: 'yes', callback: () => {
-          convo.next()
-        } }
+        {
+          pattern: 'yes',
+          callback: () => {
+            convo.next()
+          }
+        }
       ])
 
       convo.defaultThread.addMessage(response('done'))
@@ -257,20 +263,16 @@ describe('conversations', function() {
         incoming(eventFrom(user(1), 'yes'))
       }, 5)
     })
-
   })
 
   describe('Thread switching', function() {
-
     it('Correct handler gets called', function(done) {
-      const convo = conversations.create(eventFrom(user(1)))      
+      const convo = conversations.create(eventFrom(user(1)))
       const thread = convo.createThread('hello')
 
       let handler = () => done('Not yet')
 
-      thread.addQuestion(response('Anything'), [
-        { pattern: 'yes', callback: () => handler() }
-      ])
+      thread.addQuestion(response('Anything'), [{ pattern: 'yes', callback: () => handler() }])
 
       convo.activate()
 
@@ -280,19 +282,15 @@ describe('conversations', function() {
       setTimeout(() => {
         incoming(eventFrom(user(1), 'yes'))
       }, 5)
-      
     })
 
-    it('Other thread doesn\'t get call if no switch', function(done) {
+    it("Other thread doesn't get call if no switch", function(done) {
       conversations.start(eventFrom(user(1)), convo => {
-
         const thread = convo.createThread('hello')
 
         let handler = () => done('Not yet')
 
-        thread.addQuestion(response('Anything'), [
-          { pattern: 'yes', callback: () => handler() }
-        ])
+        thread.addQuestion(response('Anything'), [{ pattern: 'yes', callback: () => handler() }])
 
         setTimeout(() => {
           incoming(eventFrom(user(1), 'yes'))
@@ -301,18 +299,18 @@ describe('conversations', function() {
         setTimeout(done, 15)
       })
     })
-
   })
 
   it('convo.say() supports simple string', function(done) {
     const convo = conversations.start(eventFrom(user(1)))
 
     outgoing = event => {
-      expect(event).property('text').to.equal('Hello')
+      expect(event)
+        .property('text')
+        .to.equal('Hello')
       done()
     }
 
     convo.say('Hello')
   })
-
 })

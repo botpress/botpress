@@ -21,14 +21,14 @@ function requireExtension(file, edition) {
 
   const length = '/extensions/lite/'.length
   const start = file.indexOf('/extensions/lite/')
-  
+
   file = file.substr(start + length)
   const upTo = file.indexOf('?') > 0 ? file.indexOf('?') : file.length
   file = file.substr(0, upTo)
 
   let index = editions.indexOf(edition)
   let extension = null
-  while(extension == null) {
+  while (extension == null) {
     extension = requireEdition(file, editions[index++])
   }
 

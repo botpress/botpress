@@ -40,11 +40,14 @@ export default class CodeView extends Component {
       scrollbarStyle: null
     }
 
-    return <CodeMirror 
-      className={classNames}
-      value={this.state.code}
-      onChange={::this.handleUpdateChange}
-      options={options} />
+    return (
+      <CodeMirror
+        className={classNames}
+        value={this.state.code}
+        onChange={::this.handleUpdateChange}
+        options={options}
+      />
+    )
   }
 
   render() {
@@ -53,9 +56,6 @@ export default class CodeView extends Component {
       'bp-umm-code': true
     })
 
-    return <div className={classNames}>
-      {this.renderEditor()}
-    </div>
+    return <div className={classNames}>{this.renderEditor()}</div>
   }
 }
-
