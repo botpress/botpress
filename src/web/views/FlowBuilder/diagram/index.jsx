@@ -48,7 +48,7 @@ export default class FlowBuilder extends Component {
 
   setModel() {
     this.activeModel = new DiagramModel()
-    this.activeModel.setGridSize(25)
+    this.activeModel.setGridSize(5)
     this.activeModel.linksHash = null
 
     const currentFlow = this.props.currentFlow
