@@ -35,6 +35,7 @@ import createEmails from '+/emails'
 import createMediator from '+/mediator'
 
 import createServer from './server'
+import Queue from '+/queue'
 
 import { getDataLocation, getBotpressVersion } from './util'
 
@@ -141,9 +142,21 @@ class botpress {
 
     const events = new EventBus()
 
-    const notifications = createNotifications({ knex: await db.get(), modules: moduleDefinitions, logger, events })
+    const notifications = createNotifications({
+      knex: await db.get(),
+      modules: moduleDefinitions,
+      logger,
+      events
+    })
     const about = createAbout(projectLocation)
-    const licensing = createLicensing({ logger, projectLocation, version, db, botfile })
+    const licensing = createLicensing({
+      logger,
+      projectLocation,
+      version,
+      db,
+      botfile,
+      bp: this
+    })
     const middlewares = createMiddlewares(this, dataLocation, projectLocation, logger)
     const { hear, middleware: hearMiddleware } = createHearMiddleware()
     const { middleware: fallbackMiddleware } = createFallbackMiddleware(this)
@@ -151,12 +164,39 @@ class botpress {
     const mediator = createMediator(this)
     const convo = createConversations({ logger, middleware: middlewares })
     const users = createUsers({ db })
-    const contentManager = createContentManager({ db, logger, projectLocation, botfile })
-    const umm = createUMM({ logger, middlewares, projectLocation, botfile, db, contentManager })
+    const contentManager = createContentManager({
+      db,
+      logger,
+      projectLocation,
+      botfile
+    })
+    const umm = createUMM({
+      logger,
+      middlewares,
+      projectLocation,
+      botfile,
+      db,
+      contentManager
+    })
 
     const dialogStateManager = StateManager()
     const flowProvider = new FlowProvider({ logger, projectLocation, botfile })
     const dialogEngine = new DialogEngine(flowProvider, dialogStateManager, null, logger)
+
+    const incomingQueue = new Queue('Incoming', logger, {
+      redis: botfile.redis
+    })
+    incomingQueue.subscribe(job => middlewares.sendIncomingImmediately(job.event))
+
+    const outgoingQueue = new Queue('Outgoing', logger, {
+      redis: botfile.redis
+    })
+    outgoingQueue.subscribe(job => middlewares.sendOutgoingImmediately(job.event))
+
+    const messages = {
+      in: { enqueue: event => incomingQueue.enqueue({ event }) },
+      out: { enqueue: event => outgoingQueue.enqueue({ event }) }
+    }
 
     middlewares.register(umm.incomingMiddleware)
     middlewares.register(hearMiddleware)
@@ -182,7 +222,8 @@ class botpress {
       umm,
       users,
       contentManager,
-      dialogEngine
+      dialogEngine,
+      messages
     })
 
     ServiceLocator.init({ bp: this })
