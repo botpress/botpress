@@ -4,8 +4,8 @@
 
 import helpers from './helpers'
 
-module.exports = knex => {
-  return helpers(knex).createTableIfNotExists('content_items', function(table) {
+module.exports = knex =>
+  helpers(knex).createTableIfNotExists('content_items', table => {
     table.string('id').primary()
     table.text('data')
     table.text('formData')
@@ -15,4 +15,3 @@ module.exports = knex => {
     table.string('created_by')
     table.timestamp('created_on')
   })
-}

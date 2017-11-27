@@ -2,11 +2,9 @@ if (!global._babelPolyfill) {
   require('babel-polyfill')
 }
 
-var path = require('path')
+const DatabaseHelpers = require('./src/database/helpers.js')
 
-var DatabaseHelpers = require('./src/database/helpers.js')
-
-var CLI = () => require('./src/cli')
-var Botpress = () => require('./src/botpress.js')
+const CLI = () => require('./src/cli')
+const Botpress = () => require('./src/botpress.js')
 
 module.exports = { Botpress, DatabaseHelpers, CLI }

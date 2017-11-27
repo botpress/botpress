@@ -196,7 +196,7 @@ class botpress {
     const server = createServer(this)
     server.start().then(() => {
       events.emit('ready')
-      for (let mod of _.values(loadedModules)) {
+      for (const mod of _.values(loadedModules)) {
         mod.handlers.ready && mod.handlers.ready(this, mod.configuration)
       }
 
@@ -281,7 +281,7 @@ class botpress {
     const envPath = path.resolve(this.projectLocation, '.env')
     if (fs.existsSync(envPath)) {
       const envConfig = dotenv.parse(fs.readFileSync(envPath))
-      for (var k in envConfig) {
+      for (const k in envConfig) {
         if (_.isNil(process.env[k]) || process.env.ENV_OVERLOAD) {
           process.env[k] = envConfig[k]
         }

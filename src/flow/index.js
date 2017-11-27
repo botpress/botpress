@@ -7,7 +7,7 @@ import Promise from 'bluebird'
 const validateFlowName = name => /^[a-z]{1}[a-z_0-9-]{1,20}$/.test(name)
 
 module.exports = ({ logger, botfile, projectLocation }) => {
-  async function scanFlows() {
+  const scanFlows = async () => {
     const relDir = botfile.flowsDir || './flows'
     const flowsDir = path.resolve(projectLocation, relDir)
 
@@ -110,7 +110,7 @@ module.exports = ({ logger, botfile, projectLocation }) => {
     return flows
   }
 
-  async function loadFlows() {}
+  const loadFlows = async () => {}
 
   return { scanFlows, loadFlows }
 }

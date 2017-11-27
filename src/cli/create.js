@@ -40,7 +40,7 @@ const prefixModuleNameWithBotpress = name => {
   return name
 }
 
-module.exports = function() {
+module.exports = () => {
   const moduleDirectory = path.resolve('.')
   const dirname = path.basename(moduleDirectory)
 
@@ -48,7 +48,7 @@ module.exports = function() {
 
   util.print(introductionText)
 
-  var schema = {
+  const schema = {
     properties: {
       name: {
         description: chalk.white('module name:'),
@@ -75,10 +75,9 @@ module.exports = function() {
 
   prompt.message = ''
   prompt.delimiter = ''
-
   prompt.start()
 
-  prompt.get(schema, function(err, result) {
+  prompt.get(schema, (err, result) => {
     result.name = prefixModuleNameWithBotpress(result.name)
 
     if (dirname !== result.name) {

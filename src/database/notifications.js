@@ -5,7 +5,7 @@
 import helpers from './helpers'
 
 module.exports = knex => {
-  return helpers(knex).createTableIfNotExists('notifications', function(table) {
+  return helpers(knex).createTableIfNotExists('notifications', table => {
     table.string('id').unique()
     table.string('message')
     table.string('level')

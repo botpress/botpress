@@ -8,10 +8,17 @@ import uuid from 'uuid'
 
 import helpers from '../database/helpers'
 
+const getShortUid = () =>
+  uuid
+    .v4()
+    .split('-')
+    .join('')
+    .substr(0, 6)
+
 module.exports = ({ db, botfile, projectLocation, logger }) => {
   let categories = []
 
-  async function scanAndRegisterCategories() {
+  const scanAndRegisterCategories = async () => {
     categories = []
 
     const formDir = path.resolve(projectLocation, botfile.formsDir || './content/forms')
@@ -52,7 +59,7 @@ module.exports = ({ db, botfile, projectLocation, logger }) => {
     return categories
   }
 
-  async function listAvailableCategories() {
+  const listAvailableCategories = async () => {
     const knex = await db.get()
 
     return await Promise.map(categories, async category => {
@@ -72,7 +79,7 @@ module.exports = ({ db, botfile, projectLocation, logger }) => {
     })
   }
 
-  async function getCategorySchema(categoryId) {
+  const getCategorySchema = async categoryId => {
     const category = _.find(categories, { id: categoryId })
     if (_.isNil(category)) {
       return null
@@ -87,7 +94,7 @@ module.exports = ({ db, botfile, projectLocation, logger }) => {
     }
   }
 
-  async function createOrUpdateCategoryItem({ itemId, categoryId, formData }) {
+  const createOrUpdateCategoryItem = async ({ itemId, categoryId, formData }) => {
     categoryId = categoryId && categoryId.toLowerCase()
     const category = _.find(categories, { id: categoryId })
 
@@ -99,7 +106,7 @@ module.exports = ({ db, botfile, projectLocation, logger }) => {
       throw new Error('"formData" must be a valid object')
     }
 
-    let data = (category.computeFormData && (await category.computeFormData(formData))) || formData
+    const data = (category.computeFormData && (await category.computeFormData(formData))) || formData
     const metadata = (category.computeMetadata && (await category.computeMetadata(formData))) || []
     const previewText = (category.computePreviewText && (await category.computePreviewText(formData))) || 'No preview'
 
@@ -115,17 +122,8 @@ module.exports = ({ db, botfile, projectLocation, logger }) => {
       throw new Error('computeFormData must return a valid object')
     }
 
-    let prefix = category.ummBloc || categoryId
-
-    if (prefix.startsWith('#')) {
-      prefix = prefix.substr(1)
-    }
-
-    const randomId = `${prefix}-${uuid
-      .v4()
-      .split('-')
-      .join('')
-      .substr(0, 6)}`
+    const prefix = (category.ummBloc || categoryId).replace(/^#/, '')
+    const randomId = `${prefix}-${getShortUid()}`
 
     const knex = await db.get()
 
@@ -155,10 +153,9 @@ module.exports = ({ db, botfile, projectLocation, logger }) => {
     )
   }
 
-  async function listCategoryItems(categoryId, from = 0, count = 50, searchTerm) {
+  const listCategoryItems = async (categoryId, from = 0, count = 50, searchTerm) => {
     const knex = await db.get()
 
-    let items = null
     let query = knex('content_items')
 
     if (categoryId) {
@@ -171,7 +168,7 @@ module.exports = ({ db, botfile, projectLocation, logger }) => {
       query = query.andWhere('metadata', 'like', `%${searchTerm}%`).orWhere('formData', 'like', `%${searchTerm}%`)
     }
 
-    items = await query
+    const items = await query
       .orderBy('created_on')
       .offset(from)
       .limit(count)
@@ -180,13 +177,12 @@ module.exports = ({ db, botfile, projectLocation, logger }) => {
     return items.map(transformCategoryItem)
   }
 
-  function transformCategoryItem(item) {
+  const transformCategoryItem = item => {
     if (!item) {
       return item
     }
 
-    let metadata = item.metadata || ''
-    metadata = _.filter(metadata.split('|'), i => i.length > 0)
+    const metadata = _.filter((item.metadata || '').split('|'), i => i.length > 0)
 
     return {
       id: item.id,
@@ -200,7 +196,7 @@ module.exports = ({ db, botfile, projectLocation, logger }) => {
     }
   }
 
-  async function deleteCategoryItems(ids) {
+  const deleteCategoryItems = async ids => {
     if (!_.isArray(ids) || _.some(ids, id => !_.isString(id))) {
       throw new Error('Expected an array of Ids to delete')
     }
@@ -212,7 +208,7 @@ module.exports = ({ db, botfile, projectLocation, logger }) => {
       .del()
   }
 
-  async function getItem(itemId) {
+  const getItem = async itemId => {
     const knex = await db.get()
 
     const item = await knex('content_items')
@@ -224,7 +220,7 @@ module.exports = ({ db, botfile, projectLocation, logger }) => {
     return transformCategoryItem(item)
   }
 
-  async function getItemsByMetadata(metadata) {
+  const getItemsByMetadata = async metadata => {
     const knex = await db.get()
 
     const items = await knex('content_items')
@@ -234,7 +230,7 @@ module.exports = ({ db, botfile, projectLocation, logger }) => {
     return transformCategoryItem(items)
   }
 
-  async function exportContent(ids = null) {
+  const exportContent = async (ids = null) => {
     const knex = await db.get()
 
     let query = knex('content_items').select('*')
@@ -248,7 +244,7 @@ module.exports = ({ db, botfile, projectLocation, logger }) => {
     return items.map(item => transformCategoryItem(item))
   }
 
-  async function importContent(documents) {
+  const importContent = async documents => {
     const knex = await db.get()
 
     return Promise.mapSeries(documents, doc => {

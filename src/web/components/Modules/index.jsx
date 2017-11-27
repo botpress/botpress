@@ -133,7 +133,7 @@ class ModuleComponent extends React.Component {
 
 class ModulesComponent extends React.Component {
   render() {
-    var installedModules = {}
+    const installedModules = {}
     this.props.installedModules.map(module => {
       const name = module.name
       installedModules[name] = true

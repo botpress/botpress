@@ -1,11 +1,11 @@
-var webpack = require('webpack')
-var _ = require('lodash')
-var fs = require('fs')
-var path = require('path')
+const webpack = require('webpack')
+const _ = require('lodash')
+const fs = require('fs')
+const path = require('path')
 
-var { requireExtension } = require('./extensions.js')
+const { requireExtension } = require('./extensions.js')
 
-const afterResolve = new webpack.NormalModuleReplacementPlugin(/extensions/i, function(res) {
+const afterResolve = new webpack.NormalModuleReplacementPlugin(/extensions/i, res => {
   const [rest, edition] = (res.rawRequest && res.rawRequest.match(/\?edition=(.+)/i)) || []
 
   const customEdition = _.find(['lite', 'pro', 'ultimate'], e => edition && edition.toLowerCase().startsWith(e))
@@ -23,7 +23,7 @@ const afterResolve = new webpack.NormalModuleReplacementPlugin(/extensions/i, fu
   res.resource = res.resource.replace('/extensions/lite', replacement)
 })
 
-const beforeResolve = new webpack.NormalModuleReplacementPlugin(/\+\/views/i, function(res) {
+const beforeResolve = new webpack.NormalModuleReplacementPlugin(/\+\/views/i, res => {
   const req = res.request.replace('+', path.join(__dirname, '/lite'))
 
   if (req.indexOf('?edition=') >= 0) {

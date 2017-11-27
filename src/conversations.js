@@ -45,9 +45,7 @@ const formatBloc = (blocName, data = {}) => {
   }
 }
 
-const isBlocCall = args => {
-  return _.isString(args[0]) && args[0].startsWith('#')
-}
+const isBlocCall = msg => _.isString(msg) && msg.startsWith('#')
 
 const validateHandlers = handlers => {
   if (_.isFunction(handlers)) {
@@ -84,10 +82,10 @@ class Thread extends EventEmmiter {
     this.archive.push(message)
   }
 
-  addMessage(msg) {
+  addMessage(content, data) {
     return this.add({
-      content: arguments[0],
-      data: arguments[1],
+      content,
+      data,
       handler: null,
       condition: null
     })
@@ -96,9 +94,8 @@ class Thread extends EventEmmiter {
   // Two signatures possible:
   // msg, handlers
   // bloc, data, handlers
-  addQuestion(msg) {
+  addQuestion(content) {
     const handlers = validateHandlers(_.last(arguments))
-    const content = arguments[0]
     const data = arguments.length >= 3 ? arguments[1] : null
 
     return this.add({
@@ -109,7 +106,7 @@ class Thread extends EventEmmiter {
     })
   }
 
-  /* { 
+  /* {
     content: 'string or #umm'
     handler?: function(response) // If no handler = message + next()
     condition?: function() // return bool|Promise<bool> to execute it or not
@@ -119,7 +116,7 @@ class Thread extends EventEmmiter {
     const handlers = handler ? validateHandlers(handler) : null
     const type = handlers ? 'question' : 'message'
 
-    const isBloc = _.isString(content) && content.startsWith('#')
+    const isBloc = isBlocCall(content)
 
     if (isBloc) {
       return this.enqueue({
@@ -174,7 +171,7 @@ class Thread extends EventEmmiter {
   process(event) {
     const handlers = (this.waiting && this._last && this._last.handlers) || []
 
-    for (let handler of handlers) {
+    for (const handler of handlers) {
       if (handler.pattern && matches(handler.pattern, event)) {
         if (_.isRegExp(handler.pattern)) {
           const match = handler.pattern.exec(event.text)
@@ -387,14 +384,9 @@ class Conversation extends EventEmmiter {
     this.resetTimeout()
   }
 
-  async say(msg) {
-    let message = null
-
-    if (msg && msg.isBloc === true) {
-      message = msg
-    } else {
-      message = isBlocCall(arguments) ? formatBloc(...arguments) : formatMessage(msg, this.initialEvent)
-    }
+  async say(msg, data) {
+    const message =
+      msg && msg.isBloc === true ? msg : isBlocCall(msg) ? formatBloc(msg, data) : formatMessage(msg, this.initialEvent)
 
     this._outgoing.push(message)
 
@@ -461,13 +453,13 @@ module.exports = ({ logger, middleware, clockSpeed = 500 }) => {
     order: 25,
     module: 'botpress',
     description: 'Built-in conversation flow manager',
-    handler: function(event, next) {
+    handler: (event, next) => {
       // Clean up and free from memory ended conversations
       convos = _.filter(convos, c => {
         return _.includes(['new', 'active'], c.status)
       })
 
-      for (let convo of convos) {
+      for (const convo of convos) {
         if (belongsToConvo(convo, event) && convo.status === 'active') {
           convo.processIncoming(event)
           return // Stop the processing, only one convo per event. Swallow the event
@@ -484,7 +476,7 @@ module.exports = ({ logger, middleware, clockSpeed = 500 }) => {
     }
   }
 
-  function start(event, callback) {
+  const start = (event, callback) => {
     const convo = create(event)
     callback && callback(convo)
 
@@ -492,7 +484,7 @@ module.exports = ({ logger, middleware, clockSpeed = 500 }) => {
     return convo
   }
 
-  function create(event) {
+  const create = event => {
     validateEvent(event)
     const convo = new Conversation({
       logger,
@@ -504,16 +496,16 @@ module.exports = ({ logger, middleware, clockSpeed = 500 }) => {
     return convo
   }
 
-  function find(event) {
-    for (let convo of convos) {
+  const find = event => {
+    for (const convo of convos) {
       if (belongsToConvo(convo, event) && convo.status === 'active') {
         return convo
       }
     }
   }
 
-  function destroy() {
-    for (let convo of convos) {
+  const destroy = () => {
+    for (const convo of convos) {
       convo.teardown()
     }
 

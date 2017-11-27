@@ -2,7 +2,7 @@ import _ from 'lodash'
 import helpers from './database/helpers'
 
 module.exports = ({ db }) => {
-  async function tag(userId, tag, value = true) {
+  const tag = async (userId, tag, value = true) => {
     const knex = await db.get()
 
     tag = _.toUpper(tag)
@@ -31,7 +31,7 @@ module.exports = ({ db }) => {
     return true
   }
 
-  async function untag(userId, tag) {
+  const untag = async (userId, tag) => {
     const knex = await db.get()
 
     return knex('users_tags')
@@ -40,7 +40,7 @@ module.exports = ({ db }) => {
       .then()
   }
 
-  async function hasTag(userId, tag) {
+  const hasTag = async (userId, tag) => {
     const knex = await db.get()
 
     return knex('users_tags')
@@ -50,7 +50,7 @@ module.exports = ({ db }) => {
       .then(ret => ret.length > 0)
   }
 
-  async function getTag(userId, tag) {
+  const getTag = async (userId, tag) => {
     const knex = await db.get()
 
     return knex('users_tags')
@@ -62,7 +62,7 @@ module.exports = ({ db }) => {
       .then(ret => ret && ret.value)
   }
 
-  async function getTags(userId) {
+  const getTags = async userId => {
     const knex = await db.get()
 
     return knex('users_tags')
@@ -76,7 +76,7 @@ module.exports = ({ db }) => {
   }
 
   // TODO: Fix this, list of tags is always empty
-  async function list(limit = 50, from = 0) {
+  const list = async (limit = 50, from = 0) => {
     const knex = await db.get()
 
     const isLite = helpers(knex).isLite()
@@ -114,7 +114,7 @@ module.exports = ({ db }) => {
   }
 
   // TODO: Fix this, just doesn't work
-  async function listWithTags(tags, limit = 50, from = 0) {
+  const listWithTags = async (tags, limit = 50, from = 0) => {
     const knex = await db.get()
 
     tags = _.filter(tags, t => _.isString(t)).map(t => t.toUpperCase())
@@ -169,7 +169,7 @@ module.exports = ({ db }) => {
       )
   }
 
-  async function count() {
+  const count = async () => {
     const knex = await db.get()
 
     return knex('users')

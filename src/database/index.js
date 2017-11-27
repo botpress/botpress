@@ -82,7 +82,7 @@ module.exports = ({ sqlite, postgres }) => {
     }
 
     return getDb().then(knex => {
-      var query = knex('users')
+      let query = knex('users')
         .insert(userRow)
         .where(function() {
           return this.select(knex.raw(1))
@@ -101,32 +101,26 @@ module.exports = ({ sqlite, postgres }) => {
     })
   }
 
-  let kvs_instance = null
+  let kvsInstance = null
 
   const createKvs = async () => {
     const knex = await getDb()
-    let _kvs = new kvs(knex)
+    const _kvs = new kvs(knex)
     await _kvs.bootstrap()
     return _kvs
   }
 
   const getKvs = async () => {
-    if (!kvs_instance) {
-      kvs_instance = createKvs()
+    if (!kvsInstance) {
+      kvsInstance = createKvs()
     }
 
-    return await kvs_instance
+    return await kvsInstance
   }
 
-  const kvsGet = function() {
-    const args = arguments
-    return getKvs().then(instance => instance.get.apply(null, args))
-  }
+  const kvsGet = (...args) => getKvs().then(instance => instance.get.apply(null, args))
 
-  const kvsSet = function() {
-    const args = arguments
-    return getKvs().then(instance => instance.set.apply(null, args))
-  }
+  const kvsSet = (...args) => getKvs().then(instance => instance.set.apply(null, args))
 
   return {
     get: getDb,

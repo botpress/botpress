@@ -140,8 +140,8 @@ export default class GuidedTour extends React.Component {
   }
 
   renderCurrentStep() {
-    let currentStep = Math.min(this.state.step, STEPS_COUNT - 1)
-    return this['renderStep_' + currentStep]()
+    const currentStep = Math.min(this.state.step, STEPS_COUNT - 1)
+    return this[`renderStep_${currentStep}`]()
   }
 
   render() {

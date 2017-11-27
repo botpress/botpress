@@ -2,9 +2,9 @@ import { print } from '../util'
 
 import createModules from '../modules'
 
-module.exports = function() {
-  let modulesManager = createModules(null, './', null)
-  let modules = modulesManager.listInstalled()
+module.exports = () => {
+  const modulesManager = createModules(null, './', null)
+  const modules = modulesManager.listInstalled()
 
   if (!modules || modules.length === 0) {
     print('info', 'There are no module installed.')

@@ -3,6 +3,7 @@ import yaml from 'js-yaml'
 import ms from 'ms'
 import _ from 'lodash'
 
+// TODO: can use typed-error that handles stack capturing
 class ParsingError extends Error {
   constructor(bloc, instructionIndex, error) {
     super(`Error parsing bloc '${bloc}' at instruction ${instructionIndex + 1}: ${error}`)
@@ -22,7 +23,7 @@ const mapBlocs = (rawBlocs, options, processors, incomingEvent) => {
 
   return _.mapValues(rawBlocs, mapBloc)
 
-  function premapInstruction({ instruction, index, instructions, detectedPlatforms, bloc }) {
+  const premapInstruction = ({ instruction, index, instructions, detectedPlatforms, bloc }) => {
     if (typeof instruction === 'string' || _.isArray(instruction)) {
       return [
         {
@@ -95,7 +96,7 @@ const mapBlocs = (rawBlocs, options, processors, incomingEvent) => {
     return [i]
   }
 
-  function mapInstruction({ instruction, messages, bloc }) {
+  const mapInstruction = ({ instruction, messages, bloc }) => {
     const ret = []
 
     if (!_.isNil(instruction.wait)) {
@@ -135,7 +136,7 @@ const mapBlocs = (rawBlocs, options, processors, incomingEvent) => {
     throw new Error('Unsupported platform: ' + currentPlatform)
   }
 
-  function mapBloc(bloc, name) {
+  const mapBloc = (bloc, name) => {
     // if the bloc isn't an array, error
 
     const messages = []

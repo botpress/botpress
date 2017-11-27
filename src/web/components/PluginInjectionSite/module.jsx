@@ -25,7 +25,7 @@ export default class InjectedModuleView extends React.Component {
     this.setState({ moduleComponent: null, moduleName: moduleName, viewName: viewName })
 
     if (!window.botpress || !window.botpress[moduleName]) {
-      var script = document.createElement('script')
+      const script = document.createElement('script')
       script.type = 'text/javascript'
       script.onload = () => {
         script.onload = null

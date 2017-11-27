@@ -8,7 +8,7 @@ import ms from 'ms'
 import util from '../util'
 
 module.exports = bp => {
-  function serveModule(app, module) {
+  const serveModule = (app, module) => {
     const name = module.name
     const shortName = module.name.replace(/botpress-/i, '')
 
@@ -38,12 +38,10 @@ module.exports = bp => {
       ],
       (req, res) => {
         const settingsKey = module.settings.webBundle
-        let bundlePath = path.join(module.root, settingsKey || 'bin/web.bundle.js')
-
-        if (req.params && req.params.subview) {
-          // Render lite view
-          bundlePath = path.join(liteDir, req.params.subview + '.bundle.js')
-        }
+        const bundlePath =
+          req.params && req.params.subview
+            ? path.join(liteDir, req.params.subview + '.bundle.js') // Render lite view
+            : path.join(module.root, settingsKey || 'bin/web.bundle.js')
 
         try {
           const content = fs.readFileSync(bundlePath)
@@ -57,7 +55,7 @@ module.exports = bp => {
     )
   }
 
-  function serveCustomTheme(app) {
+  const serveCustomTheme = app => {
     let customTheme = ''
 
     if (BP_EDITION !== 'lite' && bp.licensing.getFeatures().whitelabel === true) {
@@ -73,8 +71,8 @@ module.exports = bp => {
     })
   }
 
-  async function install(app) {
-    for (let name in bp._loadedModules) {
+  const install = async app => {
+    for (const name in bp._loadedModules) {
       const module = bp._loadedModules[name]
       serveModule(app, module)
     }

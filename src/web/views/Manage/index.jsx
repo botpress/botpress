@@ -56,8 +56,7 @@ class ManageView extends React.Component {
     const result = []
 
     modules.forEach(m => {
-      let search = _.join([m.name, m.description, m.author], ' ')
-      search = _.lowerCase(search)
+      const search = [m.name, m.description, m.author].join(' ').toLowerCase()
 
       if (_.includes(search, this.state.search)) {
         result.push(m)

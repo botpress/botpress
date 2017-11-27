@@ -176,16 +176,16 @@ export default class ContentView extends Component {
   }
 
   handleDownload() {
-    var url = '/content/export'
+    const url = '/content/export'
     window.open(url, '_blank')
   }
 
   handleDropFiles(acceptedFiles) {
-    const txt = `Upload will overwrite existing content if there is conflicting ID's. 
+    const txt = `Upload will overwrite existing content if there is conflicting ID's.
       Confirm the upload ${acceptedFiles.length} files?`
 
     if (acceptedFiles.length > 0 && confirm(txt) == true) {
-      var formData = new FormData()
+      const formData = new FormData()
       acceptedFiles.forEach(file => {
         formData.append('files[]', file)
       })

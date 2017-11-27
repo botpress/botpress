@@ -14,7 +14,7 @@ import { monitorCtrlC } from 'monitorctrlc'
  * 2. Find the `botfile.js` which will be injected into the creator to create the instance.
  * 3. Start the botpress instance.
  */
-module.exports = function(projectPath, options) {
+module.exports = (projectPath, options) => {
   let Botpress = null
 
   if (!projectPath || typeof projectPath !== 'string') {

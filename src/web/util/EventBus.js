@@ -30,12 +30,12 @@ class EventBus extends EventEmitter2 {
       return
     }
 
-    let c = name.startsWith('guest.') ? this.guestSocket : this.adminSocket
+    const c = name.startsWith('guest.') ? this.guestSocket : this.adminSocket
     c && c.emit('event', { name, data: data })
   }
 
   setup() {
-    let query = {
+    const query = {
       visitorId: getUniqueVisitorId()
     }
 
@@ -56,7 +56,7 @@ class EventBus extends EventEmitter2 {
       this.guestSocket.disconnect()
     }
 
-    let socketUrl = window.location.origin
+    const socketUrl = window.location.origin
 
     this.adminSocket = io(socketUrl + '/admin', { query })
     this.adminSocket.on('event', this.dispatchSocketEvent)
