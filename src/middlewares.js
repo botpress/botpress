@@ -69,13 +69,13 @@ module.exports = function(bp, dataLocation, projectLocation, logger) {
   const middlewaresFilePath = path.join(dataLocation, 'middlewares.json')
   let incoming, outgoing, middlewares, customizations
 
-  const noopChain = function() {
+  const noopChain = function(arg) {
     let message =
       'Middleware called before middlewares have been loaded. This is a no-op.' +
       ' Have you forgotten to call `bp.loadMiddlewares()` in your bot?'
 
-    if (arguments && typeof arguments[0] === 'object') {
-      message += '\nCalled with: ' + JSON.stringify(arguments[0], null, 2)
+    if (arg && typeof arg === 'object') {
+      message += '\nCalled with: ' + JSON.stringify(arg, null, 2)
     }
 
     logger.warn(message)

@@ -118,15 +118,9 @@ module.exports = ({ sqlite, postgres }) => {
     return await kvsInstance
   }
 
-  const kvsGet = function() {
-    const args = arguments
-    return getKvs().then(instance => instance.get.apply(null, args))
-  }
+  const kvsGet = (...args) => getKvs().then(instance => instance.get.apply(null, args))
 
-  const kvsSet = function() {
-    const args = arguments
-    return getKvs().then(instance => instance.set.apply(null, args))
-  }
+  const kvsSet = (...args) => getKvs().then(instance => instance.set.apply(null, args))
 
   return {
     get: getDb,

@@ -45,9 +45,7 @@ const formatBloc = (blocName, data = {}) => {
   }
 }
 
-const isBlocCall = args => {
-  return _.isString(args[0]) && args[0].startsWith('#')
-}
+const isBlocCall = msg => _.isString(msg) && msg.startsWith('#')
 
 const validateHandlers = handlers => {
   if (_.isFunction(handlers)) {
@@ -84,10 +82,10 @@ class Thread extends EventEmmiter {
     this.archive.push(message)
   }
 
-  addMessage(msg) {
+  addMessage(content, data) {
     return this.add({
-      content: arguments[0],
-      data: arguments[1],
+      content,
+      data,
       handler: null,
       condition: null
     })
@@ -96,9 +94,8 @@ class Thread extends EventEmmiter {
   // Two signatures possible:
   // msg, handlers
   // bloc, data, handlers
-  addQuestion(msg) {
+  addQuestion(content) {
     const handlers = validateHandlers(_.last(arguments))
-    const content = arguments[0]
     const data = arguments.length >= 3 ? arguments[1] : null
 
     return this.add({
@@ -119,7 +116,7 @@ class Thread extends EventEmmiter {
     const handlers = handler ? validateHandlers(handler) : null
     const type = handlers ? 'question' : 'message'
 
-    const isBloc = _.isString(content) && content.startsWith('#')
+    const isBloc = isBlocCall(content)
 
     if (isBloc) {
       return this.enqueue({
@@ -387,11 +384,9 @@ class Conversation extends EventEmmiter {
     this.resetTimeout()
   }
 
-  async say(msg) {
+  async say(msg, data) {
     const message =
-      msg && msg.isBloc === true
-        ? msg
-        : isBlocCall(arguments) ? formatBloc(...arguments) : formatMessage(msg, this.initialEvent)
+      msg && msg.isBloc === true ? msg : isBlocCall(msg) ? formatBloc(msg, data) : formatMessage(msg, this.initialEvent)
 
     this._outgoing.push(message)
 
