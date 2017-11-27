@@ -6,7 +6,6 @@ const Promise = require('bluebird')
 const _ = require('lodash')
 
 describe('configurator', function() {
-
   let getCalled = false
   let setCalled = false
 
@@ -36,7 +35,6 @@ describe('configurator', function() {
   })
 
   describe('createConfig', function() {
-
     it('throws if invalid name', function() {
       const fns = [
         () => createConfig({ kvs, name: '' }),
@@ -107,11 +105,9 @@ describe('configurator', function() {
       expect(config.options.key1.env).to.not.be.undefined
       expect(config.options.key1.default).to.not.be.undefined
     })
-
   })
 
   describe('validateSave', function() {
-
     it('dont throw if missing mandatory key', function() {
       const args = getValidCreateArgs()
       const config = createConfig(args)
@@ -135,5 +131,4 @@ describe('configurator', function() {
       expect(fn).to.throw(/key2/i)
     })
   })
-
 })

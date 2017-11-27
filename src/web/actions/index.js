@@ -50,13 +50,12 @@ export const fetchUser = () => dispatch => {
 // Bot
 export const botInfoReceived = createAction('BOT/INFO_RECEIVED')
 export const fetchBotInformation = () => dispatch => {
-  axios.all([axios.get('/api/bot/information'), axios.get('/api/bot/production')])
-    .then(
-      axios.spread((information, production) => {
-        const info = Object.assign({}, information.data, { production: production.data })
-        dispatch(botInfoReceived(info))
-      })
-    )
+  axios.all([axios.get('/api/bot/information'), axios.get('/api/bot/production')]).then(
+    axios.spread((information, production) => {
+      const info = Object.assign({}, information.data, { production: production.data })
+      dispatch(botInfoReceived(info))
+    })
+  )
 }
 
 // Modules

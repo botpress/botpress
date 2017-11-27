@@ -3,10 +3,8 @@ import chalk from 'chalk'
 import Promise from 'bluebird'
 
 module.exports = function(argument, options) {
-
-  const getKeywords = Promise.method((argument) => {
-
-    if (typeof(argument) === 'string') {
+  const getKeywords = Promise.method(argument => {
+    if (typeof argument === 'string') {
       return argument
     } else {
       var schema = {
@@ -24,19 +22,15 @@ module.exports = function(argument, options) {
       prompt.delimiter = ''
       prompt.start()
 
-      return Promise.fromCallback(function (callback) {
+      return Promise.fromCallback(function(callback) {
         prompt.get(schema, callback)
-      })
-        .then((result) => result.keyword)
-
+      }).then(result => result.keyword)
     }
   })
 
-  const printResult = (keyword) => {
-    console.log("You are actualy looking for: "+ keyword)
+  const printResult = keyword => {
+    console.log('You are actualy looking for: ' + keyword)
   }
 
-  getKeywords(argument)
-
-    .then(printResult)
+  getKeywords(argument).then(printResult)
 }

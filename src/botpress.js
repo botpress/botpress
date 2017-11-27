@@ -242,7 +242,6 @@ class botpress {
 
   start() {
     if (cluster.isMaster) {
-
       let firstWorkerHasStartedAlready = false
       const receiveMessageFromWorker = message => {
         if (message && message.workerStatus === 'starting') {

@@ -23,7 +23,6 @@ describe('Extensions Loader', () => {
   const makeRequest = file => path.resolve(__dirname, '../extensions/lite', file)
 
   before(function() {
-
     const extensionPath = (edition, file) => path.resolve(__dirname, '../extensions', edition, file || '')
     const fileContent = edition => `module.exports = () => '${edition}'`
 
@@ -31,11 +30,10 @@ describe('Extensions Loader', () => {
     writeDir(extensionPath('enterprise'))
     writeDir(extensionPath('enterprise/pro'))
     writeDir(extensionPath('enterprise/ultimate'))
-      
+
     writeFile(extensionPath('lite', 'b.js'), fileContent('lite'))
     writeFile(extensionPath('enterprise/pro', 'a.js'), fileContent('pro'))
     writeFile(extensionPath('enterprise/ultimate', 'c.js'), fileContent('ultimate'))
-    
   })
 
   after(function() {
@@ -44,7 +42,6 @@ describe('Extensions Loader', () => {
   })
 
   it('Require works for edition', function() {
-
     process.env.BOTPRESS_EDITION = 'ultimate'
     expect(requireExtension(makeRequest('c.js'))).to.contain('ultimate')
 
@@ -74,5 +71,4 @@ describe('Extensions Loader', () => {
     process.env.BOTPRESS_EDITION = 'ultimate'
     expect(() => requireExtension(makeRequest('d.js'))).to.throw()
   })
-
 })

@@ -17,7 +17,6 @@ import Authentication from '+/authentication'
  */
 
 module.exports = ({ dataLocation, securityConfig, db }) => {
-
   const authentication = Authentication({ dataLocation, securityConfig, db })
   const { tokenExpiry } = securityConfig
 
@@ -54,9 +53,7 @@ module.exports = ({ dataLocation, securityConfig, db }) => {
     try {
       const secret = await authentication.getSecret()
       const decoded = jwt.verify(token, secret)
-      const verified = authentication.verifyUser
-        ? await authentication.verifyUser(decoded)
-        : true
+      const verified = authentication.verifyUser ? await authentication.verifyUser(decoded) : true
       return verified && decoded.user
     } catch (err) {
       return false

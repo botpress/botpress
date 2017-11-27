@@ -51,10 +51,12 @@ const isBlocCall = args => {
 
 const validateHandlers = handlers => {
   if (_.isFunction(handlers)) {
-    return [{
-      default: true,
-      callback: handlers
-    }]
+    return [
+      {
+        default: true,
+        callback: handlers
+      }
+    ]
   }
 
   if (!_.isArray(handlers)) {
@@ -65,7 +67,6 @@ const validateHandlers = handlers => {
 }
 
 class Thread extends EventEmmiter {
-
   constructor(name, bp, convo) {
     super()
     this.initialEvent = convo.initialEvent
@@ -84,7 +85,7 @@ class Thread extends EventEmmiter {
   }
 
   addMessage(msg) {
-    return this.add({ 
+    return this.add({
       content: arguments[0],
       data: arguments[1],
       handler: null,
@@ -100,11 +101,11 @@ class Thread extends EventEmmiter {
     const content = arguments[0]
     const data = arguments.length >= 3 ? arguments[1] : null
 
-    return this.add({ 
-      content, 
-      handler: handlers, 
-      condition: null, 
-      data 
+    return this.add({
+      content,
+      handler: handlers,
+      condition: null,
+      data
     })
   }
 
@@ -128,7 +129,7 @@ class Thread extends EventEmmiter {
         condition: condition
       })
     }
-    
+
     // Add raw message question
     const message = formatMessage(content, this.initialEvent)
 
@@ -147,7 +148,7 @@ class Thread extends EventEmmiter {
   async dequeue() {
     let msg = null
 
-    while(true) {
+    while (true) {
       msg = this.queue.shift()
 
       if (msg && msg.condition && _.isFunction(msg.condition)) {
@@ -204,7 +205,6 @@ class Thread extends EventEmmiter {
 }
 
 class Conversation extends EventEmmiter {
-
   constructor({ initialEvent, middleware, logger, messageTypes, clockSpeed = 500 }) {
     super()
     this.logger = logger
@@ -247,7 +247,6 @@ class Conversation extends EventEmmiter {
       const msg = this._outgoing.shift()
 
       if (msg) {
-
         if (msg.isBloc === true) {
           // Send bloc
           if (!this.initialEvent || !this.initialEvent.reply) {
@@ -263,14 +262,12 @@ class Conversation extends EventEmmiter {
           await Promise.resolve(this.initialEvent.reply(msg.bloc, data))
         } else {
           // Raw message
-          await Promise.resolve(this.middleware
-          && this.middleware.sendOutgoing 
-          && this.middleware.sendOutgoing(msg))
+          await Promise.resolve(this.middleware && this.middleware.sendOutgoing && this.middleware.sendOutgoing(msg))
         }
       }
 
       await Promise.delay(this._clockSpeed)
-      
+
       if (this.status === 'active' || this._outgoing.length > 0) {
         setImmediate(::this.sendNext)
       }
@@ -306,10 +303,12 @@ class Conversation extends EventEmmiter {
   resetTimeout() {
     this.clearTimeout()
 
-    this._timeoutHandle = this._useTimeout && setTimeout(() => {
-      // TODO If there's a timeout thread, switch to it
-      this.emit('timeout')
-    }, this._timeoutInterval)
+    this._timeoutHandle =
+      this._useTimeout &&
+      setTimeout(() => {
+        // TODO If there's a timeout thread, switch to it
+        this.emit('timeout')
+      }, this._timeoutInterval)
   }
 
   createThread(name) {
@@ -368,7 +367,6 @@ class Conversation extends EventEmmiter {
   }
 
   async processIncoming(event) {
-
     if (!_.includes(this.messageTypes, event.type)) {
       return
     }
@@ -395,9 +393,7 @@ class Conversation extends EventEmmiter {
     if (msg && msg.isBloc === true) {
       message = msg
     } else {
-      message = isBlocCall(arguments)
-        ? formatBloc(...arguments)
-        : formatMessage(msg, this.initialEvent)
+      message = isBlocCall(arguments) ? formatBloc(...arguments) : formatMessage(msg, this.initialEvent)
     }
 
     this._outgoing.push(message)
@@ -454,8 +450,9 @@ module.exports = ({ logger, middleware, clockSpeed = 500 }) => {
   const belongsToConvo = (convo, event) => {
     const initial = convo.initialEvent
 
-    return convo.initialEvent.platform === event.platform
-      && _.get(initial, 'user.id', '') === _.get(event, 'user.id', '')
+    return (
+      convo.initialEvent.platform === event.platform && _.get(initial, 'user.id', '') === _.get(event, 'user.id', '')
+    )
   }
 
   middleware.register({
@@ -465,7 +462,6 @@ module.exports = ({ logger, middleware, clockSpeed = 500 }) => {
     module: 'botpress',
     description: 'Built-in conversation flow manager',
     handler: function(event, next) {
-
       // Clean up and free from memory ended conversations
       convos = _.filter(convos, c => {
         return _.includes(['new', 'active'], c.status)

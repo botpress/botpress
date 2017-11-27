@@ -3,8 +3,7 @@ import crypto from 'crypto'
 import ua from 'universal-analytics'
 import { machineId } from 'node-machine-id'
 
-module.exports = (botfile) => {
-
+module.exports = botfile => {
   let visitor = null
   let queued = []
 
@@ -30,7 +29,9 @@ module.exports = (botfile) => {
       return
     }
 
-    visitor.event(category, action, label, value, () => { /* ignore errors */ })
+    visitor.event(category, action, label, value, () => {
+      /* ignore errors */
+    })
   }
 
   const trackException = message => {
@@ -43,7 +44,9 @@ module.exports = (botfile) => {
       return
     }
 
-    visitor.event(message, () => { /* ignore errors */ })
+    visitor.event(message, () => {
+      /* ignore errors */
+    })
   }
 
   return { track, trackException }

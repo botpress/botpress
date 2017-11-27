@@ -109,9 +109,7 @@ class Sidebar extends React.Component {
 
   render() {
     const modules = this.props.modules
-    const items = modules
-      .filter(x => !x.noInterface)
-      .map(this.renderModuleItem)
+    const items = modules.filter(x => !x.noInterface).map(this.renderModuleItem)
 
     const emptyClassName = classnames({
       [style.empty]: true,

@@ -6,25 +6,33 @@ const expect = require('chai').expect
 const moment = require('moment')
 
 run('helpers', function() {
-
   describe('createTableIfNotExists', function() {
-
     itBoth('Creates if not exists', function(knex) {
-      const randomName = 'tmp_rnd_' + Math.random().toString().substr(2)
+      const randomName =
+        'tmp_rnd_' +
+        Math.random()
+          .toString()
+          .substr(2)
 
-      return helpers(knex).createTableIfNotExists(randomName, function(table) {
-        table.increments('id')
-      })
+      return helpers(knex)
+        .createTableIfNotExists(randomName, function(table) {
+          table.increments('id')
+        })
         .then(() => knex.schema.hasTable(randomName))
         .then(has => expect(has).to.equal(true))
     })
 
-    itBoth('Doesn\'t throw if already exists', function(knex) {
-      const randomName = 'tmp_rnd_' + Math.random().toString().substr(2)
+    itBoth("Doesn't throw if already exists", function(knex) {
+      const randomName =
+        'tmp_rnd_' +
+        Math.random()
+          .toString()
+          .substr(2)
 
-      return helpers(knex).createTableIfNotExists(randomName, function(table) {
-        table.increments('id')
-      })
+      return helpers(knex)
+        .createTableIfNotExists(randomName, function(table) {
+          table.increments('id')
+        })
         .then(() => knex.schema.hasTable(randomName))
         .then(has => expect(has).to.equal(true))
         .then(() => {
@@ -33,13 +41,12 @@ run('helpers', function() {
           })
         })
     })
-
   })
 
   describe('date', function() {
-
     itBoth('now works', function(knex, sampleTable) {
-      knex(sampleTable).insert({ tTimestamp: helpers(knex).date.now() })
+      knex(sampleTable)
+        .insert({ tTimestamp: helpers(knex).date.now() })
         .then(() => knex(sampleTable).select('*'))
         .then(rows => {
           const delta = moment().diff(moment(rows[0].tTimestamp), 'milliseconds')
@@ -48,11 +55,15 @@ run('helpers', function() {
     })
 
     itBoth('format works', function(knex, sampleTable) {
-
       const now = helpers(knex).date.now()
-      const later = helpers(knex).date.format(moment().add(1, 'days').toDate())
+      const later = helpers(knex).date.format(
+        moment()
+          .add(1, 'days')
+          .toDate()
+      )
 
-      knex(sampleTable).insert({ tTimestamp: now })
+      knex(sampleTable)
+        .insert({ tTimestamp: now })
         .then(() => knex(sampleTable).insert({ tTimestamp: later }))
         .then(() => knex(sampleTable).select('*'))
         .then(rows => {
@@ -62,12 +73,20 @@ run('helpers', function() {
     })
 
     itBoth('isBefore works (col < exp)', function(knex, sampleTable) {
-
       const now = helpers(knex).date.now()
-      const later = helpers(knex).date.format(moment().add(1, 'days').toDate())
-      const between = helpers(knex).date.format(moment().add(1, 'hour').toDate())
+      const later = helpers(knex).date.format(
+        moment()
+          .add(1, 'days')
+          .toDate()
+      )
+      const between = helpers(knex).date.format(
+        moment()
+          .add(1, 'hour')
+          .toDate()
+      )
 
-      knex(sampleTable).insert({ tTimestamp: now })
+      knex(sampleTable)
+        .insert({ tTimestamp: now })
         .then(() => knex(sampleTable).insert({ tTimestamp: later }))
         .then(() => {
           return knex(sampleTable)
@@ -81,12 +100,18 @@ run('helpers', function() {
     })
 
     itBoth('isBefore works (col < date)', function(knex, sampleTable) {
-
       const now = helpers(knex).date.now()
-      const later = helpers(knex).date.format(moment().add(1, 'days').toDate())
-      const between = moment().add(1, 'hour').toDate()
+      const later = helpers(knex).date.format(
+        moment()
+          .add(1, 'days')
+          .toDate()
+      )
+      const between = moment()
+        .add(1, 'hour')
+        .toDate()
 
-      knex(sampleTable).insert({ tTimestamp: now })
+      knex(sampleTable)
+        .insert({ tTimestamp: now })
         .then(() => knex(sampleTable).insert({ tTimestamp: later }))
         .then(() => {
           return knex(sampleTable)
@@ -100,12 +125,18 @@ run('helpers', function() {
     })
 
     itBoth('isAfter works (col < date)', function(knex, sampleTable) {
-
       const now = helpers(knex).date.now()
-      const later = helpers(knex).date.format(moment().add(1, 'days').toDate())
-      const between = moment().add(1, 'hour').toDate()
+      const later = helpers(knex).date.format(
+        moment()
+          .add(1, 'days')
+          .toDate()
+      )
+      const between = moment()
+        .add(1, 'hour')
+        .toDate()
 
-      knex(sampleTable).insert({ tTimestamp: now })
+      knex(sampleTable)
+        .insert({ tTimestamp: now })
         .then(() => knex(sampleTable).insert({ tTimestamp: later }))
         .then(() => {
           return knex(sampleTable)
@@ -119,11 +150,15 @@ run('helpers', function() {
     })
 
     itBoth('isBetween works', function(knex, sampleTable) {
-
       const now = helpers(knex).date.now()
-      const later = helpers(knex).date.format(moment().add(1, 'days').toDate())
+      const later = helpers(knex).date.format(
+        moment()
+          .add(1, 'days')
+          .toDate()
+      )
 
-      knex(sampleTable).insert({ tTimestamp: now })
+      knex(sampleTable)
+        .insert({ tTimestamp: now })
         .then(() => knex(sampleTable).insert({ tTimestamp: later }))
         .then(() => {
           return knex(sampleTable)
@@ -136,14 +171,21 @@ run('helpers', function() {
         })
     })
 
-
     itBoth('isSameDay works', function(knex, sampleTable) {
-
       const now = helpers(knex).date.now()
-      const laterToday = helpers(knex).date.format(moment().add(1, 'hours').toDate())
-      const tomorrow = helpers(knex).date.format(moment().add(1, 'days').toDate())
+      const laterToday = helpers(knex).date.format(
+        moment()
+          .add(1, 'hours')
+          .toDate()
+      )
+      const tomorrow = helpers(knex).date.format(
+        moment()
+          .add(1, 'days')
+          .toDate()
+      )
 
-      knex(sampleTable).insert({ tTimestamp: now })
+      knex(sampleTable)
+        .insert({ tTimestamp: now })
         .then(() => knex(sampleTable).insert({ tTimestamp: laterToday }))
         .then(() => knex(sampleTable).insert({ tTimestamp: tomorrow }))
         .then(() => {
@@ -155,7 +197,5 @@ run('helpers', function() {
           expect(rows.length).to.equal(2)
         })
     })
-
   })
-
 })

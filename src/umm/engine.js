@@ -14,11 +14,7 @@ class ParsingError extends Error {
 }
 
 const mapBlocs = (rawBlocs, options, processors, incomingEvent) => {
-
-  const {
-    currentPlatform,
-    throwIfNoPlatform = false
-  } = options
+  const { currentPlatform, throwIfNoPlatform = false } = options
 
   if (!currentPlatform && throwIfNoPlatform) {
     throw new Error('You need to supply `currentplatform`')
@@ -27,25 +23,26 @@ const mapBlocs = (rawBlocs, options, processors, incomingEvent) => {
   return _.mapValues(rawBlocs, mapBloc)
 
   function premapInstruction({ instruction, index, instructions, detectedPlatforms, bloc }) {
-
     if (typeof instruction === 'string' || _.isArray(instruction)) {
-      return [{
-        text: instruction
-      }]
+      return [
+        {
+          text: instruction
+        }
+      ]
     }
 
     // Parsing conditionals
     const evaluate = (val, exp) => {
-
       if (typeof exp === 'boolean') {
         return val === exp
-      } if (_.isArrayLike(exp)) {
+      }
+      if (_.isArrayLike(exp)) {
         return val ? !_.isEmpty(exp) : _.isEmpty(exp)
       } else {
         return val ? !!exp : !exp
       }
     }
-    
+
     if (!_.isNil(instruction.if) && !_.isNil(instruction.unless)) {
       throw new ParsingError(bloc, index, "Message can't be both 'if' and 'else'.")
     }
@@ -62,7 +59,10 @@ const mapBlocs = (rawBlocs, options, processors, incomingEvent) => {
     let i = Object.assign({}, instruction)
     if (instruction.on) {
       if (typeof instruction.on === 'string') {
-        const platforms = instruction.on.toLowerCase().split('+').map(_.trim)
+        const platforms = instruction.on
+          .toLowerCase()
+          .split('+')
+          .map(_.trim)
         if (!_.includes(platforms, currentPlatform.toLowerCase())) {
           return []
         } else {
@@ -84,8 +84,11 @@ const mapBlocs = (rawBlocs, options, processors, incomingEvent) => {
 
         i = Object.assign(i, on[currentPlatform.toLowerCase()], { on: currentPlatform })
       } else {
-        throw new ParsingError(bloc, index, '"on" must be a string or a plain object but was a ' 
-          + typeof(instruction.on))
+        throw new ParsingError(
+          bloc,
+          index,
+          '"on" must be a string or a plain object but was a ' + typeof instruction.on
+        )
       }
     }
 
@@ -99,16 +102,14 @@ const mapBlocs = (rawBlocs, options, processors, incomingEvent) => {
       ret.push({
         __internal: true,
         type: 'wait',
-        wait: _.isString(instruction.wait)
-          ? ms(instruction.wait || 1000 )
-          : (parseInt(instruction.wait) || 1000)
+        wait: _.isString(instruction.wait) ? ms(instruction.wait || 1000) : parseInt(instruction.wait) || 1000
       })
     }
 
     if (!_.isNil(instruction.typing)) {
       instruction.typing = _.isString(instruction.typing)
         ? ms(instruction.typing || 1000)
-        : (parseInt(instruction.typing) || 1000)
+        : parseInt(instruction.typing) || 1000
     }
 
     const raw = _.omit(instruction, ['unless', 'if', 'on', 'wait'])
@@ -143,11 +144,11 @@ const mapBlocs = (rawBlocs, options, processors, incomingEvent) => {
 
     // Premapping allows for modifications, drop and addition of instructions
     _.forEach(bloc, (instruction, index) => {
-      const add = premapInstruction({ 
-        instruction, 
-        index, 
-        instructions: bloc, 
-        detectedPlatforms, 
+      const add = premapInstruction({
+        instruction,
+        index,
+        instructions: bloc,
+        detectedPlatforms,
         bloc: name
       })
 
@@ -165,7 +166,6 @@ const mapBlocs = (rawBlocs, options, processors, incomingEvent) => {
 
     return messages
   }
-
 } // mapBlocs
 
 module.exports = ({ markdown, context, options, processors, incomingEvent }) => {

@@ -10,7 +10,6 @@ import PageHeader from '~/components/Layout/PageHeader'
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
 
 class ModuleView extends React.Component {
-
   static contextTypes = {
     router: PropTypes.object.isRequired
   }
@@ -19,7 +18,15 @@ class ModuleView extends React.Component {
     if (!module.homepage) {
       return null
     }
-    return <small> &middot; <a target="_blank" href={module.homepage}>docs</a></small>
+    return (
+      <small>
+        {' '}
+        &middot;{' '}
+        <a target="_blank" href={module.homepage}>
+          docs
+        </a>
+      </small>
+    )
   }
 
   renderWrapper(children) {
@@ -27,12 +34,18 @@ class ModuleView extends React.Component {
       return null
     }
 
-    const module = this.props.modules.find((value) => value.get('name') === this.props.params.moduleName)
+    const module = this.props.modules.find(value => value.get('name') === this.props.params.moduleName)
 
-    return <ContentWrapper>
-      <PageHeader><span>{module.menuText} {this.renderLink(module)}</span></PageHeader>
-      {children}
-    </ContentWrapper>
+    return (
+      <ContentWrapper>
+        <PageHeader>
+          <span>
+            {module.menuText} {this.renderLink(module)}
+          </span>
+        </PageHeader>
+        {children}
+      </ContentWrapper>
+    )
   }
 
   renderNotFound(err) {
@@ -42,13 +55,15 @@ class ModuleView extends React.Component {
         <div className="panel-body">
           <h4>The module is not properly registered</h4>
           <p>
-            It seems like you are trying to load a module that has not been registered.
-            Please make sure the module is registered then restart the bot.
+            It seems like you are trying to load a module that has not been registered. Please make sure the module is
+            registered then restart the bot.
           </p>
           {err && <p>{err}</p>}
           <p>
             {/* TODO update doc & help */}
-            <a role="button" className="btn btn-primary btn-lg">Learn more</a>
+            <a role="button" className="btn btn-primary btn-lg">
+              Learn more
+            </a>
           </p>
         </div>
       </div>
@@ -65,10 +80,9 @@ class ModuleView extends React.Component {
       return this.renderWrapper(this.renderNotFound())
     }
 
-    const moduleView = <InjectedModuleView
-      moduleName={moduleName}
-      viewName={subView}
-      onNotFound={this.renderNotFound} />
+    const moduleView = (
+      <InjectedModuleView moduleName={moduleName} viewName={subView} onNotFound={this.renderNotFound} />
+    )
 
     if (!moduleView) {
       return null
@@ -79,7 +93,7 @@ class ModuleView extends React.Component {
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  modules: state.modules,
+  modules: state.modules
 })
 
 const mapDispatchToProps = (dispatch, ownProps) => {}

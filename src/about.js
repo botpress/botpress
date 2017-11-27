@@ -1,8 +1,7 @@
 import fs from 'fs'
 import { resolveProjectFile } from './util'
 
-module.exports = (projectLocation) => {
-
+module.exports = projectLocation => {
   const getBotInformation = () => {
     const packageJsonPath = resolveProjectFile('package.json', projectLocation, true)
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath))

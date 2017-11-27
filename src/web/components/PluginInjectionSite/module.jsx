@@ -5,7 +5,6 @@ import InjectedComponent from '~/components/Injected'
 import EventBus from '~/util/EventBus'
 
 export default class InjectedModuleView extends React.Component {
-
   constructor(props, context) {
     super(props, context)
 
@@ -26,8 +25,8 @@ export default class InjectedModuleView extends React.Component {
     this.setState({ moduleComponent: null, moduleName: moduleName, viewName: viewName })
 
     if (!window.botpress || !window.botpress[moduleName]) {
-      var script = document.createElement("script")
-      script.type = "text/javascript"
+      var script = document.createElement('script')
+      script.type = 'text/javascript'
       script.onload = () => {
         script.onload = null
         setImmediate(() => {
@@ -40,8 +39,8 @@ export default class InjectedModuleView extends React.Component {
       } else {
         script.src = `/js/modules/${moduleName}.js`
       }
-      
-      document.getElementsByTagName("head")[0].appendChild(script)
+
+      document.getElementsByTagName('head')[0].appendChild(script)
     } else {
       this.setState({ moduleComponent: null })
       setImmediate(() => {
@@ -51,12 +50,9 @@ export default class InjectedModuleView extends React.Component {
   }
 
   setViewInState(moduleName, viewName, isLite) {
+    const fullModuleName = moduleName.startsWith('botpress-') ? moduleName : 'botpress-' + moduleName
 
-    const fullModuleName = moduleName.startsWith('botpress-')
-      ? moduleName
-      : 'botpress-' + moduleName
-
-    const module = isLite 
+    const module = isLite
       ? window.botpress && window.botpress[fullModuleName].default
       : window.botpress && window.botpress[fullModuleName] && window.botpress[fullModuleName][viewName]
 
@@ -98,6 +94,6 @@ export default class InjectedModuleView extends React.Component {
       axios: axios
     }
 
-    return <InjectedComponent component={moduleComponent} name={this.props.moduleName} bp={bp}/>
+    return <InjectedComponent component={moduleComponent} name={this.props.moduleName} bp={bp} />
   }
 }

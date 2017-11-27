@@ -90,7 +90,7 @@ class Header extends React.Component {
   }
 }
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = state => ({
   user: state.user,
   viewMode: state.ui.viewMode,
   customStyle: state.ui.customStyle

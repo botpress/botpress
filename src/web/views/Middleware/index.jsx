@@ -1,4 +1,3 @@
-
 import React from 'react'
 
 import ContentWrapper from '~/components/Layout/ContentWrapper'
@@ -44,7 +43,7 @@ export default class ManageView extends React.Component {
 
   getDocumentation() {
     if (this.state.collapse) {
-      return documentation.substring(0, 194) + "..."
+      return documentation.substring(0, 194) + '...'
     }
     return documentation
   }
@@ -65,7 +64,9 @@ export default class ManageView extends React.Component {
   render() {
     return (
       <ContentWrapper>
-        <PageHeader><span> Middleware</span></PageHeader>
+        <PageHeader>
+          <span> Middleware</span>
+        </PageHeader>
         <Grid fluid>
           <Row>
             <Panel className={style.documentation}>
@@ -73,7 +74,9 @@ export default class ManageView extends React.Component {
                 <Col sm={12}>
                   <Markdown source={this.getDocumentation()} />
                   <div>
-                    <a href="#" onClick={::this.handleReadMore}>{this.getReadMore()}</a>
+                    <a href="#" onClick={::this.handleReadMore}>
+                      {this.getReadMore()}
+                    </a>
                   </div>
                 </Col>
               </Row>
@@ -81,10 +84,10 @@ export default class ManageView extends React.Component {
           </Row>
           <Row>
             <Col sm={12} md={6} mdOffset={0}>
-              <MiddlewaresComponent type="incoming"/>
+              <MiddlewaresComponent type="incoming" />
             </Col>
             <Col sm={12} md={6} mdOffset={0}>
-              <MiddlewaresComponent type="outgoing"/>
+              <MiddlewaresComponent type="outgoing" />
             </Col>
           </Row>
         </Grid>

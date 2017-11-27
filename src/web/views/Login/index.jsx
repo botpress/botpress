@@ -43,21 +43,29 @@ export default class LoginPage extends Component {
     this.setState({ loading: true })
 
     login(this.state.user, this.state.password)
-      .then((result) => {
+      .then(result => {
         this.setState({ error: null })
         this.context.router.push(this.props.location.query.returnTo || '/')
-      }).catch((err) => {
+      })
+      .catch(err => {
         this.setState({ error: err.message, loading: false })
       })
   }
 
   renderLoading() {
     const className = classnames(styles.loading, 'bp-loading')
-    return this.state.loading && <div className={className}>
-      <div style={{
-        marginTop: '140px'
-      }} className="whirl helicopter"></div>
-    </div>
+    return (
+      this.state.loading && (
+        <div className={className}>
+          <div
+            style={{
+              marginTop: '140px'
+            }}
+            className="whirl helicopter"
+          />
+        </div>
+      )
+    )
   }
 
   componentWillUnmount() {
@@ -83,37 +91,48 @@ export default class LoginPage extends Component {
     const errorStyle = classnames(styles.error)
     const successStyle = classnames(styles.success)
 
-    return <div>
-      <div className="block-center mt-xl wd-xl">
-        <div className={blockStyle}>
-          <div className={logoStyle}>
-            <img src="/img/logo_grey.png"></img>
-          </div>
-          <div className={panelStyle}>
-            <div className={headerStyle}>
-              <h4>Login</h4>
+    return (
+      <div>
+        <div className="block-center mt-xl wd-xl">
+          <div className={blockStyle}>
+            <div className={logoStyle}>
+              <img src="/img/logo_grey.png" />
             </div>
-            <div className="panel-body">
-              {this.renderLoading()}
-              {this.state.error && <p className={errorStyle}>{this.state.error}</p>}
-              {hasChangedPassword && <p className={successStyle}>Password changed successfully</p>}
-              <form onSubmit={this.handleSubmit.bind(this)}>
-                <FormGroup>
-                  <ControlLabel>User</ControlLabel>
-                  <Decorators.User value={this.state.user} onChange={::this.handleUserChange}/>
-                </FormGroup>
-                <FormGroup>
-                  <ControlLabel>Password</ControlLabel>
-                  <FormControl type="password" placeholder="" value={this.state.password}
-                    onChange={::this.handlePasswordChange}/>
-                </FormGroup>
-                <Button className="pull-right" type="submit">Login</Button>
-                <Decorators.ForgotPassword />
-              </form>
-            </div> { /* End Panel Body */ }
-          </div> { /* End Panel */ }
-        </div> { /* End Block */ }
+            <div className={panelStyle}>
+              <div className={headerStyle}>
+                <h4>Login</h4>
+              </div>
+              <div className="panel-body">
+                {this.renderLoading()}
+                {this.state.error && <p className={errorStyle}>{this.state.error}</p>}
+                {hasChangedPassword && <p className={successStyle}>Password changed successfully</p>}
+                <form onSubmit={this.handleSubmit.bind(this)}>
+                  <FormGroup>
+                    <ControlLabel>User</ControlLabel>
+                    <Decorators.User value={this.state.user} onChange={::this.handleUserChange} />
+                  </FormGroup>
+                  <FormGroup>
+                    <ControlLabel>Password</ControlLabel>
+                    <FormControl
+                      type="password"
+                      placeholder=""
+                      value={this.state.password}
+                      onChange={::this.handlePasswordChange}
+                    />
+                  </FormGroup>
+                  <Button className="pull-right" type="submit">
+                    Login
+                  </Button>
+                  <Decorators.ForgotPassword />
+                </form>
+              </div>{' '}
+              {/* End Panel Body */}
+            </div>{' '}
+            {/* End Panel */}
+          </div>{' '}
+          {/* End Block */}
+        </div>
       </div>
-    </div>
+    )
   }
 }

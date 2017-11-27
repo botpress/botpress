@@ -60,11 +60,25 @@ ul.events {
   margin-left: 7px;
 }
 
-.line .time { color: #808080; }
+.line .time {
+  color: #808080;
+}
 
-.line .level-silly { color: #6c6c6c; }
-.line .level-debug { color: #b59fff; }
-.line .level-verbose { color: #a4fffc; }
-.line .level-info { color: #6cbdff; }
-.line .level-warn { color: #fce465; }
-.line .level-error { color: #fe5151; }
+.line .level-silly {
+  color: #6c6c6c;
+}
+.line .level-debug {
+  color: #b59fff;
+}
+.line .level-verbose {
+  color: #a4fffc;
+}
+.line .level-info {
+  color: #6cbdff;
+}
+.line .level-warn {
+  color: #fce465;
+}
+.line .level-error {
+  color: #fe5151;
+}

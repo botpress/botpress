@@ -4,7 +4,6 @@ import crypto from 'crypto'
 import Promise from 'bluebird'
 
 module.exports = ({ dataLocation, securityConfig }) => {
-
   // reading secret from data or creating new secret
   let secret = ''
   const secretPath = path.join(dataLocation, 'secret.key')
@@ -41,8 +40,12 @@ module.exports = ({ dataLocation, securityConfig }) => {
   }
 
   function authenticate(user, password, ip) {
-    if (typeof(user) === 'string' && user.toLowerCase() === 'admin' &&
-      typeof(password) === 'string' && password === adminPassword) {
+    if (
+      typeof user === 'string' &&
+      user.toLowerCase() === 'admin' &&
+      typeof password === 'string' &&
+      password === adminPassword
+    ) {
       attempts[ip] = 0
       return {
         id: 0,

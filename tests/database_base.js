@@ -32,7 +32,7 @@ const sqlite = knex({
     filename: process.env.SQLITE_FILE || sqlite_db.name
   },
   useNullAsDefault: true,
-  pool: { 
+  pool: {
     afterCreate: (conn, cb) => {
       conn.run('PRAGMA foreign_keys = ON', cb)
     }
@@ -40,7 +40,11 @@ const sqlite = knex({
 })
 
 const createSampleTable = () => {
-  const name = 'tmp_' + Math.random().toString().substr(2)
+  const name =
+    'tmp_' +
+    Math.random()
+      .toString()
+      .substr(2)
 
   const tableCb = table => {
     table.increments('tId').primary()
@@ -49,7 +53,8 @@ const createSampleTable = () => {
     table.enu('tEnu', ['a', 'b', 'c'])
   }
 
-  return postgres.schema.createTable(name, tableCb)
+  return postgres.schema
+    .createTable(name, tableCb)
     .then(() => sqlite.schema.createTable(name, tableCb))
     .then(() => name)
 }
@@ -69,19 +74,16 @@ module.exports = {
   itBoth: itBoth(() => emptyTable),
   run: (name, cb) => {
     describe('Setup', function() {
-
       before(function() {
         return postgres.raw('DROP SCHEMA public CASCADE; CREATE SCHEMA public;')
       })
 
       beforeEach(function() {
-        return createSampleTable()
-          .then(name => emptyTable = name)
+        return createSampleTable().then(name => (emptyTable = name))
       })
 
       itBoth('Tables created', function(knex) {
-        return knex.schema.hasTable(emptyTable)
-          .then(has => expect(has).to.equal(true))
+        return knex.schema.hasTable(emptyTable).then(has => expect(has).to.equal(true))
       })
 
       describe(name, cb)

@@ -33,7 +33,9 @@
 }
 
 .sidebar ul li a {
-  &:hover, &:focus, &:active {
+  &:hover,
+  &:focus,
+  &:active {
     background-color: $sidebar-hover-color;
   }
 

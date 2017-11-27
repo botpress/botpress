@@ -9,7 +9,7 @@ module.exports = (dataLocation, logConfig) => {
   const logger = new winston.Logger({
     level: isDeveloping ? 'debug' : 'info',
     transports: [
-      new (winston.transports.Console)({
+      new winston.transports.Console({
         prettyPrint: true,
         colorize: true,
         timestamp: () => moment().format('HH:mm:ss')
