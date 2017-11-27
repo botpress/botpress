@@ -12,7 +12,7 @@ module.exports = function(fromVersion) {
     throw new Error('You must be inside a bot directory to run a migration')
   }
 
-  let files = _.sortBy(require.context('./migrations/').keys(), x => x)
+  const files = _.sortBy(require.context('./migrations/').keys(), x => x)
 
   const toApply = _.filter(files, f => {
     if (!/.js$/i.test(f)) {

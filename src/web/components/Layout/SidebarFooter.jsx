@@ -123,14 +123,11 @@ class SidebarFooter extends React.Component {
   }
 
   renderLicense() {
-    let license = 'Unlicensed'
-
-    if (this.props.license.licensed) {
-      license = this.props.license.name
-    }
+    const { licensed } = this.props.license
+    const license = licensed ? this.props.license.name : 'Unlicensed'
 
     const classNames = classnames(style.license, 'bp-edition-license', {
-      [style.unlicensed]: !this.props.license.licensed
+      [style.unlicensed]: !licensed
     })
 
     return (

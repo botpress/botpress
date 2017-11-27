@@ -232,7 +232,7 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
         throw new TypeError('Expected module name to be a string')
       }
 
-      let basename = path.basename(name)
+      const basename = path.basename(name)
       let prefix = ''
 
       if (basename !== name) {
@@ -272,7 +272,7 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
   }
 
   const installModules = Promise.method((...names) => {
-    let modules = resolveModuleNames(names)
+    const modules = resolveModuleNames(names)
 
     const install = spawn(npmCmd, ['install', '--save', ...modules], {
       cwd: projectLocation
@@ -289,7 +289,7 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
   })
 
   const uninstallModules = Promise.method((...names) => {
-    let modules = resolveModuleNames(names)
+    const modules = resolveModuleNames(names)
     const uninstall = spawn(npmCmd, ['uninstall', '--save', ...modules], {
       cwd: projectLocation
     })

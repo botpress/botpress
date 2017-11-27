@@ -38,12 +38,10 @@ module.exports = bp => {
       ],
       (req, res) => {
         const settingsKey = module.settings.webBundle
-        let bundlePath = path.join(module.root, settingsKey || 'bin/web.bundle.js')
-
-        if (req.params && req.params.subview) {
-          // Render lite view
-          bundlePath = path.join(liteDir, req.params.subview + '.bundle.js')
-        }
+        const bundlePath =
+          req.params && req.params.subview
+            ? path.join(liteDir, req.params.subview + '.bundle.js') // Render lite view
+            : path.join(module.root, settingsKey || 'bin/web.bundle.js')
 
         try {
           const content = fs.readFileSync(bundlePath)
@@ -74,7 +72,7 @@ module.exports = bp => {
   }
 
   async function install(app) {
-    for (let name in bp._loadedModules) {
+    for (const name in bp._loadedModules) {
       const module = bp._loadedModules[name]
       serveModule(app, module)
     }

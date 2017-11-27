@@ -55,7 +55,8 @@ module.exports = bp => {
         return // we sent this ourselves
       }
 
-      let c = event.startsWith('guest.') ? guest : admin
+      // TODO: use more meaningful name
+      const c = event.startsWith('guest.') ? guest : admin
 
       if (data && (data.__socketId || data.__room)) {
         // Send only to this socketId or room

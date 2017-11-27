@@ -29,7 +29,7 @@ describe('conversations', function() {
   let incoming = null
   let outgoing = null
 
-  let middleware = {
+  const middleware = {
     register: function({ handler }) {
       incoming = handler
     },
@@ -40,7 +40,7 @@ describe('conversations', function() {
   }
 
   beforeEach(function() {
-    conversations = Conversations({ middleware: middleware, clockSpeed: 5 })
+    conversations = Conversations({ middleware, clockSpeed: 5 })
   })
 
   afterEach(function() {
@@ -288,9 +288,9 @@ describe('conversations', function() {
       conversations.start(eventFrom(user(1)), convo => {
         const thread = convo.createThread('hello')
 
-        let handler = () => done('Not yet')
+        const handler = () => done('Not yet')
 
-        thread.addQuestion(response('Anything'), [{ pattern: 'yes', callback: () => handler() }])
+        thread.addQuestion(response('Anything'), [{ pattern: 'yes', callback: handler }])
 
         setTimeout(() => {
           incoming(eventFrom(user(1), 'yes'))

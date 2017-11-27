@@ -40,11 +40,7 @@ class Header extends React.Component {
     }
 
     const url = this.getProfileImgUrl()
-    let label = <img src={url} />
-
-    if (!url) {
-      label = <i className="material-icons">account_circle</i>
-    }
+    const label = url ? <img src={url} /> : <i className="material-icons">account_circle</i>
 
     return (
       <NavDropdown className={style.account} noCaret title={label} id="account-button">

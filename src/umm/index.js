@@ -178,7 +178,7 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db, contentMa
       markdown = markdown[fileName]
     }
 
-    let blocs = parse({
+    const blocs = parse({
       context: fullContext,
       outputPlatform: incomingEvent.platform,
       markdown: markdown,

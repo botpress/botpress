@@ -4,7 +4,7 @@ import services from '+/services'
 const _services = {}
 let resolveInit = false
 
-let initPromise = new Promise(resolve => {
+const initPromise = new Promise(resolve => {
   resolveInit = resolve
 })
 

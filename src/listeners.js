@@ -34,7 +34,7 @@ const hear = function(conditions, callback) {
   return (event, next) => {
     let result = false
     if (_.isArray(conditions)) {
-      for (let conditionsItem of conditions) {
+      for (const conditionsItem of conditions) {
         if (matches(conditionsItem, event)) {
           result = true
           break

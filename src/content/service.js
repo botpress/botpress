@@ -8,6 +8,13 @@ import uuid from 'uuid'
 
 import helpers from '../database/helpers'
 
+const getShortUid = () =>
+  uuid
+    .v4()
+    .split('-')
+    .join('')
+    .substr(0, 6)
+
 module.exports = ({ db, botfile, projectLocation, logger }) => {
   let categories = []
 
@@ -99,7 +106,7 @@ module.exports = ({ db, botfile, projectLocation, logger }) => {
       throw new Error('"formData" must be a valid object')
     }
 
-    let data = (category.computeFormData && (await category.computeFormData(formData))) || formData
+    const data = (category.computeFormData && (await category.computeFormData(formData))) || formData
     const metadata = (category.computeMetadata && (await category.computeMetadata(formData))) || []
     const previewText = (category.computePreviewText && (await category.computePreviewText(formData))) || 'No preview'
 
@@ -115,17 +122,8 @@ module.exports = ({ db, botfile, projectLocation, logger }) => {
       throw new Error('computeFormData must return a valid object')
     }
 
-    let prefix = category.ummBloc || categoryId
-
-    if (prefix.startsWith('#')) {
-      prefix = prefix.substr(1)
-    }
-
-    const randomId = `${prefix}-${uuid
-      .v4()
-      .split('-')
-      .join('')
-      .substr(0, 6)}`
+    const prefix = (category.ummBloc || categoryId).replace(/^#/, '')
+    const randomId = `${prefix}-${getShortUid()}`
 
     const knex = await db.get()
 
@@ -158,7 +156,6 @@ module.exports = ({ db, botfile, projectLocation, logger }) => {
   async function listCategoryItems(categoryId, from = 0, count = 50, searchTerm) {
     const knex = await db.get()
 
-    let items = null
     let query = knex('content_items')
 
     if (categoryId) {
@@ -171,7 +168,7 @@ module.exports = ({ db, botfile, projectLocation, logger }) => {
       query = query.andWhere('metadata', 'like', `%${searchTerm}%`).orWhere('formData', 'like', `%${searchTerm}%`)
     }
 
-    items = await query
+    const items = await query
       .orderBy('created_on')
       .offset(from)
       .limit(count)
@@ -185,8 +182,7 @@ module.exports = ({ db, botfile, projectLocation, logger }) => {
       return item
     }
 
-    let metadata = item.metadata || ''
-    metadata = _.filter(metadata.split('|'), i => i.length > 0)
+    const metadata = _.filter((item.metadata || '').split('|'), i => i.length > 0)
 
     return {
       id: item.id,

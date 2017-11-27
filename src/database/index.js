@@ -101,21 +101,21 @@ module.exports = ({ sqlite, postgres }) => {
     })
   }
 
-  let kvs_instance = null
+  let kvsInstance = null
 
   const createKvs = async () => {
     const knex = await getDb()
-    let _kvs = new kvs(knex)
+    const _kvs = new kvs(knex)
     await _kvs.bootstrap()
     return _kvs
   }
 
   const getKvs = async () => {
-    if (!kvs_instance) {
-      kvs_instance = createKvs()
+    if (!kvsInstance) {
+      kvsInstance = createKvs()
     }
 
-    return await kvs_instance
+    return await kvsInstance
   }
 
   const kvsGet = function() {

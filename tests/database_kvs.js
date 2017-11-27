@@ -6,6 +6,11 @@ const expect = require('chai').expect
 const Promise = require('bluebird')
 const _ = require('lodash')
 
+const randomId = () =>
+  Math.random()
+    .toString()
+    .substr(2)
+
 run('kvs', function() {
   let store = null
   let storeTable = null
@@ -16,11 +21,8 @@ run('kvs', function() {
   }
 
   const createStore = knex => {
-    storeTable =
-      'tmp_store_' +
-      Math.random()
-        .toString()
-        .substr(2)
+    storeTable = `tmp_store_${randomId()}`
+
     store = kvs(knex, { tableName: storeTable })
 
     storeTeardown = () => {

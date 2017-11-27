@@ -49,7 +49,7 @@ class Sidebar extends React.Component {
 
   routeActive(paths) {
     paths = Array.isArray(paths) ? paths : [paths]
-    for (let p in paths) {
+    for (const p in paths) {
       if (this.context.router.isActive(paths[p])) {
         return true
       }

@@ -168,7 +168,7 @@ module.exports = function(bp, dataLocation, projectLocation, logger) {
   }
 
   const sendToMiddleware = type => event => {
-    let mw = type === 'incoming' ? incoming : outgoing
+    const mw = type === 'incoming' ? incoming : outgoing
     return mw.dispatch ? mw.dispatch(event) : mw(event)
   }
 

@@ -61,7 +61,7 @@ export default class SidePanel extends Component {
   }
 
   renameNode(text) {
-    let newText = text.replace(/[^a-z0-9-_\.]/i, '').toLowerCase()
+    const newText = text.replace(/[^a-z0-9-_\.]/i, '').toLowerCase()
 
     if (newText.length > 0 && newText !== this.props.node.name) {
       this.props.updateNode({ name: newText })

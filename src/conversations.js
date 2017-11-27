@@ -109,7 +109,7 @@ class Thread extends EventEmmiter {
     })
   }
 
-  /* { 
+  /* {
     content: 'string or #umm'
     handler?: function(response) // If no handler = message + next()
     condition?: function() // return bool|Promise<bool> to execute it or not
@@ -174,7 +174,7 @@ class Thread extends EventEmmiter {
   process(event) {
     const handlers = (this.waiting && this._last && this._last.handlers) || []
 
-    for (let handler of handlers) {
+    for (const handler of handlers) {
       if (handler.pattern && matches(handler.pattern, event)) {
         if (_.isRegExp(handler.pattern)) {
           const match = handler.pattern.exec(event.text)
@@ -388,13 +388,10 @@ class Conversation extends EventEmmiter {
   }
 
   async say(msg) {
-    let message = null
-
-    if (msg && msg.isBloc === true) {
-      message = msg
-    } else {
-      message = isBlocCall(arguments) ? formatBloc(...arguments) : formatMessage(msg, this.initialEvent)
-    }
+    const message =
+      msg && msg.isBloc === true
+        ? msg
+        : isBlocCall(arguments) ? formatBloc(...arguments) : formatMessage(msg, this.initialEvent)
 
     this._outgoing.push(message)
 
@@ -467,7 +464,7 @@ module.exports = ({ logger, middleware, clockSpeed = 500 }) => {
         return _.includes(['new', 'active'], c.status)
       })
 
-      for (let convo of convos) {
+      for (const convo of convos) {
         if (belongsToConvo(convo, event) && convo.status === 'active') {
           convo.processIncoming(event)
           return // Stop the processing, only one convo per event. Swallow the event
@@ -505,7 +502,7 @@ module.exports = ({ logger, middleware, clockSpeed = 500 }) => {
   }
 
   function find(event) {
-    for (let convo of convos) {
+    for (const convo of convos) {
       if (belongsToConvo(convo, event) && convo.status === 'active') {
         return convo
       }
@@ -513,7 +510,7 @@ module.exports = ({ logger, middleware, clockSpeed = 500 }) => {
   }
 
   function destroy() {
-    for (let convo of convos) {
+    for (const convo of convos) {
       convo.teardown()
     }
 

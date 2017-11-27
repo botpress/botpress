@@ -196,7 +196,7 @@ class botpress {
     const server = createServer(this)
     server.start().then(() => {
       events.emit('ready')
-      for (let mod of _.values(loadedModules)) {
+      for (const mod of _.values(loadedModules)) {
         mod.handlers.ready && mod.handlers.ready(this, mod.configuration)
       }
 
