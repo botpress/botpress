@@ -82,7 +82,7 @@ module.exports = ({ sqlite, postgres }) => {
     }
 
     return getDb().then(knex => {
-      var query = knex('users')
+      let query = knex('users')
         .insert(userRow)
         .where(function() {
           return this.select(knex.raw(1))

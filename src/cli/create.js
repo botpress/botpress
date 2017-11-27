@@ -48,7 +48,7 @@ module.exports = function() {
 
   util.print(introductionText)
 
-  var schema = {
+  const schema = {
     properties: {
       name: {
         description: chalk.white('module name:'),
@@ -75,7 +75,6 @@ module.exports = function() {
 
   prompt.message = ''
   prompt.delimiter = ''
-
   prompt.start()
 
   prompt.get(schema, function(err, result) {

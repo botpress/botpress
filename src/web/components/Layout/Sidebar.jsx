@@ -34,7 +34,7 @@ class Sidebar extends React.Component {
   }
 
   componentWillMount() {
-    var mql = window.matchMedia(`(min-width: 800px)`)
+    const mql = window.matchMedia(`(min-width: 800px)`)
     mql.addListener(this.mediaQueryChanged)
     this.setState({ mql: mql, sidebarDocked: mql.matches })
   }

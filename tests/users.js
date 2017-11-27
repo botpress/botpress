@@ -23,7 +23,7 @@ run('users', function() {
     knexInstance = knex
     await usersTable(knex)
     await tagsTable(knex)
-    for (var i = 0; i <= 10; i++) {
+    for (let i = 0; i <= 10; i++) {
       const id = 'dummy-' + i
       const userRow = {
         id: 'tests:' + id,

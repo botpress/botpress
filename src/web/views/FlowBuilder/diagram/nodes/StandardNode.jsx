@@ -129,7 +129,7 @@ export class StandardNodeModel extends NodeModel {
     this.addPort(new StandardIncomingPortModel('in'))
 
     // We create as many output port as needed
-    for (var i = 0; i < next.length; i++) {
+    for (let i = 0; i < next.length; i++) {
       const nodeType = next[i].node.startsWith('#') ? 'exit' : 'normal'
       this.addPort(new StandardOutgoingPortModel('out' + i, nodeType))
     }

@@ -7,7 +7,7 @@ module.exports = function(argument, options) {
     if (typeof argument === 'string') {
       return argument
     } else {
-      var schema = {
+      const schema = {
         properties: {
           keyword: {
             description: chalk.white('keyword:'),

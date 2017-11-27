@@ -60,7 +60,7 @@ class ListItem extends Component {
   }
 }
 
-var SortableListItem = sortable(ListItem)
+const SortableListItem = sortable(ListItem)
 
 export default class MiddlewaresComponent extends Component {
   static propTypes = {

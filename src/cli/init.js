@@ -76,7 +76,7 @@ const generate = result => {
 }
 
 module.exports = function(program) {
-  var dirName = process.argv[3]
+  const dirName = process.argv[3]
   if (dirName != undefined) {
     if (!fs.existsSync(dirName)) {
       fs.mkdirSync(dirName)
@@ -94,7 +94,7 @@ module.exports = function(program) {
 
   const currentDirectoryName = path.basename(path.resolve('./'))
 
-  var schema = {
+  const schema = {
     properties: {
       name: {
         description: chalk.white('name:'),
@@ -130,6 +130,7 @@ module.exports = function(program) {
     prompt.message = ''
     prompt.delimiter = ''
     prompt.start()
+
     prompt.get(schema, function(err, result) {
       generate(result)
     })

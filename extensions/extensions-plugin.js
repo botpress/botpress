@@ -1,9 +1,9 @@
-var webpack = require('webpack')
-var _ = require('lodash')
-var fs = require('fs')
-var path = require('path')
+const webpack = require('webpack')
+const _ = require('lodash')
+const fs = require('fs')
+const path = require('path')
 
-var { requireExtension } = require('./extensions.js')
+const { requireExtension } = require('./extensions.js')
 
 const afterResolve = new webpack.NormalModuleReplacementPlugin(/extensions/i, function(res) {
   const [rest, edition] = (res.rawRequest && res.rawRequest.match(/\?edition=(.+)/i)) || []

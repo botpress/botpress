@@ -32,10 +32,10 @@ const notifications = ({ knex, modules, logger, events }) => {
   /**
    * Create and append a new Notification in the Hub. Emits a `notifications.new` event.
    * @param  {string} options.message     (required) The body message of the notification
-   * @param  {string} options.redirectUrl (optional) The URL the users will be redirected to 
+   * @param  {string} options.redirectUrl (optional) The URL the users will be redirected to
    *                                      when clicking on the notification
    * @param  {string} options.level       (optional) The level (info, success, error, warning). Defaults to `info`.
-   * @param  {bool} options.enableSound (optional) Whether the notification will trigger a buzzing sound 
+   * @param  {bool} options.enableSound (optional) Whether the notification will trigger a buzzing sound
    *                                    if a user is currently logged on the dashboard. (defaults to `false`)
    * @return {Promise}
    */
@@ -196,12 +196,12 @@ const notifications = ({ knex, modules, logger, events }) => {
 module.exports = notifications
 
 function getOriginatingModule() {
-  var origPrepareStackTrace = Error.prepareStackTrace
+  const origPrepareStackTrace = Error.prepareStackTrace
   Error.prepareStackTrace = function(_, stack) {
     return stack
   }
-  var err = new Error()
-  var stack = err.stack
+  const err = new Error()
+  const stack = err.stack
   Error.prepareStackTrace = origPrepareStackTrace
   stack.shift()
 
