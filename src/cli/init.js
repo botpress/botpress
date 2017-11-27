@@ -75,9 +75,9 @@ const generate = result => {
   })
 }
 
-module.exports = function(program) {
+module.exports = program => {
   const dirName = process.argv[3]
-  if (dirName != undefined) {
+  if (dirName) {
     if (!fs.existsSync(dirName)) {
       fs.mkdirSync(dirName)
       process.chdir(dirName)
@@ -131,7 +131,8 @@ module.exports = function(program) {
     prompt.delimiter = ''
     prompt.start()
 
-    prompt.get(schema, function(err, result) {
+    prompt.get(schema, (err, result) => {
+      // TODO: ignore err altogether?
       generate(result)
     })
   }

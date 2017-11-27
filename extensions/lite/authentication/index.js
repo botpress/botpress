@@ -29,7 +29,7 @@ module.exports = ({ dataLocation, securityConfig }) => {
   let lastCleanTimestamp = new Date()
   const { maxAttempts, resetAfter } = securityConfig
 
-  function attempt(ip) {
+  const attempt = ip => {
     // reset the cache if time elapsed
     if (new Date() - lastCleanTimestamp >= resetAfter) {
       attempts = {}
@@ -39,7 +39,7 @@ module.exports = ({ dataLocation, securityConfig }) => {
     return (attempts[ip] || 0) < maxAttempts
   }
 
-  function authenticate(user, password, ip) {
+  const authenticate = (user, password, ip) => {
     if (
       typeof user === 'string' &&
       user.toLowerCase() === 'admin' &&
@@ -61,19 +61,13 @@ module.exports = ({ dataLocation, securityConfig }) => {
     }
   }
 
-  function getSecret() {
-    return secret
-  }
-
-  function resetSecret() {
-    return createNewSecret()
-  }
+  const getSecret = () => secret
 
   // Public API
   return {
     attempt: Promise.method(attempt),
     authenticate: Promise.method(authenticate),
     getSecret: Promise.method(getSecret),
-    resetSecret: Promise.method(resetSecret)
+    resetSecret: Promise.method(createNewSecret)
   }
 }

@@ -22,7 +22,7 @@ const LiteView = props => {
 
 ReactDOM.render(<LiteView />, document.getElementById('app'))
 
-function parseQueryString() {
+const parseQueryString = () => {
   const queryString = (window.location.search || '').substring(1) || ''
 
   const params = {}

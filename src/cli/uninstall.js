@@ -6,7 +6,7 @@ import stats from '../stats'
 
 const waitingText = 'please wait, we are trying to uninstall the modules...'
 
-module.exports = function(module, modules) {
+module.exports = (module, modules) => {
   stats({}).track('cli', 'modules', 'install')
   util.print('info', waitingText)
   const modulesManager = createModules(null, './', null)

@@ -40,7 +40,7 @@ const prefixModuleNameWithBotpress = name => {
   return name
 }
 
-module.exports = function() {
+module.exports = () => {
   const moduleDirectory = path.resolve('.')
   const dirname = path.basename(moduleDirectory)
 
@@ -77,7 +77,7 @@ module.exports = function() {
   prompt.delimiter = ''
   prompt.start()
 
-  prompt.get(schema, function(err, result) {
+  prompt.get(schema, (err, result) => {
     result.name = prefixModuleNameWithBotpress(result.name)
 
     if (dirname !== result.name) {

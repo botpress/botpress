@@ -113,8 +113,8 @@ export default class NotificationComponent extends Component {
   }
 }
 
-function getNotificationStyle(styles, notification) {
-  return classnames({
+const getNotificationStyle = (styles, notification) =>
+  classnames({
     animated: true,
     fadeIn: true,
     notif: true,
@@ -125,4 +125,3 @@ function getNotificationStyle(styles, notification) {
     ['bp-level-' + notification.level]: true,
     'bp-item-unread': !notification.read
   })
-}

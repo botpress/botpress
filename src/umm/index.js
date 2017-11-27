@@ -14,7 +14,7 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db, contentMa
   const templates = {} // A map of all the platforms templates
   const storagePath = getStoragePath()
 
-  function registerConnector({ platform, processOutgoing, templates }) {
+  const registerConnector = ({ platform, processOutgoing, templates }) => {
     // TODO throw if templates not array
     // TODO throw if platform not string
     // TODO throw if processOutgoing not a function
@@ -26,7 +26,7 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db, contentMa
     templates[platform] = templates
   }
 
-  function parse({ context, outputPlatform, markdown = null, incomingEvent = null }) {
+  const parse = ({ context, outputPlatform, markdown = null, incomingEvent = null }) => {
     // TODO throw if context empty
 
     // TODO throw if markdown nil <<<==== Pick default markdown
@@ -40,11 +40,9 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db, contentMa
     return Engine({ markdown, context, options, processors, incomingEvent })
   }
 
-  function getTemplates() {
-    return _.merge({}, templates) // Return a deep copy
-  }
+  const getTemplates = () => _.merge({}, templates) // Return a deep copy
 
-  function getStoragePath() {
+  const getStoragePath = () => {
     const resolve = file => path.resolve(projectLocation, file)
     let ummPath = _.get(botfile, 'umm.contentPath')
 
@@ -68,7 +66,7 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db, contentMa
     }
   }
 
-  function saveDocument(content) {
+  const saveDocument = content => {
     if (_.isObject(content)) {
       return Promise.map(Object.keys(content), fileName => {
         const filePath = path.join(storagePath, fileName + '.yml')
@@ -79,7 +77,7 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db, contentMa
     return fs.writeFileAsync(storagePath, content, 'utf8')
   }
 
-  async function getDocument() {
+  const getDocument = async () => {
     const stats = await fs.statAsync(storagePath)
 
     if (stats.isDirectory()) {
@@ -101,8 +99,8 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db, contentMa
     return fs.readFileAsync(storagePath, 'utf8')
   }
 
-  function doSendBloc(bloc) {
-    return Promise.mapSeries(bloc, message => {
+  const doSendBloc = bloc =>
+    Promise.mapSeries(bloc, message => {
       if (message.__internal) {
         if (message.type === 'wait') {
           return Promise.delay(message.wait)
@@ -111,9 +109,8 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db, contentMa
         return middlewares.sendOutgoing(message)
       }
     })
-  }
 
-  async function sendBloc(incomingEvent, blocName, additionalData = {}) {
+  const sendBloc = async (incomingEvent, blocName, additionalData = {}) => {
     blocName = blocName[0] === '#' ? blocName.substr(1) : blocName
 
     let initialData = {}
@@ -199,7 +196,7 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db, contentMa
     return doSendBloc(bloc)
   }
 
-  function processIncoming(event, next) {
+  const processIncoming = (event, next) => {
     event.reply = (blocName, additionalData = {}) => {
       return sendBloc(event, blocName, additionalData)
     }

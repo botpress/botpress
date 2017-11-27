@@ -1,6 +1,6 @@
 import _ from 'lodash'
 
-const matches = function(conditions, event) {
+const matches = (conditions, event) => {
   if (!_.isPlainObject(conditions)) {
     conditions = { text: conditions }
   }
@@ -30,7 +30,7 @@ const matches = function(conditions, event) {
   })
 }
 
-const hear = function(conditions, callback) {
+const hear = (conditions, callback) => {
   return (event, next) => {
     let result = false
     if (_.isArray(conditions)) {

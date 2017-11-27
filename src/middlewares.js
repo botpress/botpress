@@ -6,11 +6,11 @@ import Promise from 'bluebird'
 
 import licensing from './licensing'
 
-const createMiddleware = function(bp, middlewareName) {
+const createMiddleware = (bp, middlewareName) => {
   const _use = mware()
   const _error = mware()
 
-  const use = function(middleware) {
+  const use = middleware => {
     if (typeof middleware !== 'function') {
       throw new TypeError('Expected all middleware arguments to be functions')
     }
@@ -22,24 +22,16 @@ const createMiddleware = function(bp, middlewareName) {
     }
   }
 
-  const dispatch = function(event) {
+  const dispatch = event => {
     if (!_.isPlainObject(event)) {
       throw new TypeError('Expected all dispatch arguments to be plain event objects')
     }
 
     const conformity = {
-      type: function(value) {
-        return typeof value === 'string'
-      },
-      platform: function(value) {
-        return typeof value === 'string'
-      },
-      text: function(value) {
-        return typeof value === 'string'
-      },
-      raw: function() {
-        return true
-      }
+      type: value => typeof value === 'string',
+      platform: value => typeof value === 'string',
+      text: value => typeof value === 'string',
+      raw: () => true
     }
 
     if (!_.conformsTo(event, conformity)) {
@@ -51,7 +43,7 @@ const createMiddleware = function(bp, middlewareName) {
     // Provide botpress to the event handlers
     event.bp = bp
 
-    _use.run(event, function(err) {
+    _use.run(event, err => {
       if (err) {
         _error.run(err, event, () => {
           bp.logger.error(`[BOTPRESS] Unhandled error in middleware (${middlewareName}). Error: ${err.message}`)
@@ -65,11 +57,11 @@ const createMiddleware = function(bp, middlewareName) {
   return { use, dispatch }
 }
 
-module.exports = function(bp, dataLocation, projectLocation, logger) {
+module.exports = (bp, dataLocation, projectLocation, logger) => {
   const middlewaresFilePath = path.join(dataLocation, 'middlewares.json')
   let incoming, outgoing, middlewares, customizations
 
-  const noopChain = function(arg) {
+  const noopChain = arg => {
     let message =
       'Middleware called before middlewares have been loaded. This is a no-op.' +
       ' Have you forgotten to call `bp.loadMiddlewares()` in your bot?'

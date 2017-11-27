@@ -8,7 +8,7 @@ import ms from 'ms'
 import util from '../util'
 
 module.exports = bp => {
-  function serveModule(app, module) {
+  const serveModule = (app, module) => {
     const name = module.name
     const shortName = module.name.replace(/botpress-/i, '')
 
@@ -55,7 +55,7 @@ module.exports = bp => {
     )
   }
 
-  function serveCustomTheme(app) {
+  const serveCustomTheme = app => {
     let customTheme = ''
 
     if (BP_EDITION !== 'lite' && bp.licensing.getFeatures().whitelabel === true) {
@@ -71,7 +71,7 @@ module.exports = bp => {
     })
   }
 
-  async function install(app) {
+  const install = async app => {
     for (const name in bp._loadedModules) {
       const module = bp._loadedModules[name]
       serveModule(app, module)

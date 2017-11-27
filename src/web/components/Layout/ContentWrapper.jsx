@@ -22,12 +22,12 @@ class ContentWrapper extends React.Component {
   }
 
   render() {
-    const { unwrapm, viewMode, stretch, children } = this.props
+    const { unwrapm, viewMode, stretch: _stretch, children } = this.props
 
     const childElement = unwrap ? <div className="unwrap">{children}</div> : children
 
     const hasPadding = viewMode < 2
-    stretch = stretch === true
+    const stretch = _stretch === true
 
     const classNames = classnames({
       [style.contentWrapper]: true,

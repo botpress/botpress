@@ -232,7 +232,7 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
         throw new TypeError('Expected module name to be a string')
       }
 
-      const basename = path.basename(name)
+      let basename = path.basename(name)
       let prefix = ''
 
       if (basename !== name) {

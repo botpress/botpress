@@ -5,7 +5,7 @@ const { createConfig } = require('../src/configurator.js')
 const Promise = require('bluebird')
 const _ = require('lodash')
 
-describe('configurator', function() {
+describe('configurator', () => {
   let getCalled = false
   let setCalled = false
 
@@ -30,12 +30,12 @@ describe('configurator', function() {
     }
   })
 
-  beforeEach(function() {
+  beforeEach(() => {
     getCalled = setCalled = false
   })
 
-  describe('createConfig', function() {
-    it('throws if invalid name', function() {
+  describe('createConfig', () => {
+    it('throws if invalid name', () => {
       const fns = [
         () => createConfig({ kvs, name: '' }),
         () => createConfig({ kvs, name: null }),
@@ -45,7 +45,7 @@ describe('configurator', function() {
       _.each(fns, fn => expect(fn).to.throw(/invalid configuration name/i))
     })
 
-    it('throws if option missing type', function() {
+    it('throws if option missing type', () => {
       const args = getValidCreateArgs()
       delete args.options.key1.type
       const fn = () => createConfig(args)
@@ -53,7 +53,7 @@ describe('configurator', function() {
       expect(fn).to.throw(/key1/i)
     })
 
-    it('throws if option invalid type', function() {
+    it('throws if option invalid type', () => {
       const args = getValidCreateArgs()
       args.options.key1.type = 'rocket'
       const fn = () => createConfig(args)
@@ -61,14 +61,14 @@ describe('configurator', function() {
       expect(fn).to.throw(/key1/i)
     })
 
-    it('validation is defaulted to true', function() {
+    it('validation is defaulted to true', () => {
       const args = getValidCreateArgs()
       const config = createConfig(args)
 
       expect(config.options.key1.validation()).to.equal(true)
     })
 
-    it('validation is not overriden when already set', function() {
+    it('validation is not overriden when already set', () => {
       const args = getValidCreateArgs()
       args.options.key1.validation = () => false
       const config = createConfig(args)
@@ -76,7 +76,7 @@ describe('configurator', function() {
       expect(config.options.key1.validation()).to.equal(false)
     })
 
-    it('throws invalid default values', function() {
+    it('throws invalid default values', () => {
       const createWith = key1 => {
         const valid = getValidCreateArgs()
         delete valid.options.key1
@@ -96,7 +96,7 @@ describe('configurator', function() {
       _.each(fns, fn => expect(fn).to.throw(/invalid default value/i))
     })
 
-    it('returns amended options', function() {
+    it('returns amended options', () => {
       const args = getValidCreateArgs()
       const config = createConfig(args)
 
@@ -107,15 +107,15 @@ describe('configurator', function() {
     })
   })
 
-  describe('validateSave', function() {
-    it('dont throw if missing mandatory key', function() {
+  describe('validateSave', () => {
+    it('dont throw if missing mandatory key', () => {
       const args = getValidCreateArgs()
       const config = createConfig(args)
       const fn = () => config.saveAll({ key2: 'B' })
       expect(fn).to.not.throw()
     })
 
-    it('throws if missing required key', function() {
+    it('throws if missing required key', () => {
       const args = getValidCreateArgs()
       args.options.key1.required = true
 
@@ -124,7 +124,7 @@ describe('configurator', function() {
       expect(fn).to.throw(/key1/i)
     })
 
-    it('throws if invalid value', function() {
+    it('throws if invalid value', () => {
       const args = getValidCreateArgs()
       const config = createConfig(args)
       const fn = () => config.saveAll({ key2: 'C' })

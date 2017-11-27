@@ -5,7 +5,7 @@ import path from 'path'
 import _ from 'lodash'
 import Promise from 'bluebird'
 
-module.exports = function(fromVersion) {
+module.exports = fromVersion => {
   stats({}).track('cli', 'migration', fromVersion)
 
   if (!fs.existsSync('./botfile.js')) {

@@ -25,30 +25,30 @@ const response = text => ({
   platform: 'facebook'
 })
 
-describe('conversations', function() {
+describe('conversations', () => {
   let incoming = null
   let outgoing = null
 
   const middleware = {
-    register: function({ handler }) {
+    register: ({ handler }) => {
       incoming = handler
     },
 
-    sendOutgoing: function(event) {
+    sendOutgoing: event => {
       outgoing && outgoing(event)
     }
   }
 
-  beforeEach(function() {
+  beforeEach(() => {
     conversations = Conversations({ middleware, clockSpeed: 5 })
   })
 
-  afterEach(function() {
+  afterEach(() => {
     conversations.destroy()
   })
 
-  describe('start', function() {
-    it('returns a conversation', function() {
+  describe('start', () => {
+    it('returns a conversation', () => {
       const convo = conversations.start(eventFrom(user(1)))
       expect(convo).not.to.be.null
       expect(convo).property('createThread').not.to.be.null
@@ -63,12 +63,12 @@ describe('conversations', function() {
       expect(convo).property('on').not.to.be.null
     })
 
-    it('expects an event to create a conversation', function() {
+    it('expects an event to create a conversation', () => {
       const fn = () => conversations.start()
       expect(fn).to.throw(/event/i)
     })
 
-    it('activated by default', function() {
+    it('activated by default', () => {
       const convo = conversations.start(eventFrom(user(1)))
       expect(convo)
         .property('status')
@@ -76,15 +76,15 @@ describe('conversations', function() {
     })
   })
 
-  describe('create', function() {
-    it('not activated', function() {
+  describe('create', () => {
+    it('not activated', () => {
       const convo = conversations.create(eventFrom(user(1)))
       expect(convo)
         .property('status')
         .to.equal('new')
     })
 
-    it('activate', function() {
+    it('activate', () => {
       const convo = conversations.create(eventFrom(user(1)))
 
       convo.activate()
@@ -95,8 +95,8 @@ describe('conversations', function() {
     })
   })
 
-  describe('incoming processing', function() {
-    it('does not process if conversation new', function(done) {
+  describe('incoming processing', () => {
+    it('does not process if conversation new', done => {
       const convo = conversations.create(eventFrom(user(1)))
 
       convo.on('beforeProcessing', () => done('processing called'))
@@ -113,7 +113,7 @@ describe('conversations', function() {
       incoming(eventFrom(user(1)))
     })
 
-    it('does not process if different platform', function(done) {
+    it('does not process if different platform', done => {
       const convo = conversations.start(eventFrom(user(1)))
 
       const newEvent = eventFrom(user(1))
@@ -125,7 +125,7 @@ describe('conversations', function() {
       setTimeout(done, 5)
     })
 
-    it('does not process if different users', function(done) {
+    it('does not process if different users', done => {
       const convo = conversations.start(eventFrom(user(1)))
 
       const newEvent = eventFrom(user(2))
@@ -137,8 +137,8 @@ describe('conversations', function() {
     })
   })
 
-  describe('Flow - Default thread', function() {
-    it('addMessage is not sent if not started', function(done) {
+  describe('Flow - Default thread', () => {
+    it('addMessage is not sent if not started', done => {
       const convo = conversations.create(eventFrom(user(1)))
 
       outgoing = event => done('Should not have been called')
@@ -148,7 +148,7 @@ describe('conversations', function() {
       setTimeout(done, 10)
     })
 
-    it('On addMessage is sent', function(done) {
+    it('On addMessage is sent', done => {
       const convo = conversations.start(eventFrom(user(1)))
 
       outgoing = event => {
@@ -161,7 +161,7 @@ describe('conversations', function() {
       convo.defaultThread.addMessage(response('Hello'))
     })
 
-    it('On addQuestion is sent', function(done) {
+    it('On addQuestion is sent', done => {
       const convo = conversations.start(eventFrom(user(1)))
 
       outgoing = event => {
@@ -174,7 +174,7 @@ describe('conversations', function() {
       convo.defaultThread.addQuestion(response('Hello'), [])
     })
 
-    it('Multiple messages are sent in a row and in order', function(done) {
+    it('Multiple messages are sent in a row and in order', done => {
       const convo = conversations.start(eventFrom(user(1)))
 
       let count = 0
@@ -192,7 +192,7 @@ describe('conversations', function() {
       convo.defaultThread.addMessage(response('3'))
     })
 
-    it('Questions wait for answer', function(done) {
+    it('Questions wait for answer', done => {
       const convo = conversations.start(eventFrom(user(1)))
 
       outgoing = event => {
@@ -210,8 +210,8 @@ describe('conversations', function() {
     })
   })
 
-  describe('Flow - Ask question', function() {
-    it('Correct handler gets called', function(done) {
+  describe('Flow - Ask question', () => {
+    it('Correct handler gets called', done => {
       const convo = conversations.start(eventFrom(user(1)))
 
       outgoing = () => {}
@@ -226,7 +226,7 @@ describe('conversations', function() {
       }, 5)
     })
 
-    it('Only one gets called (first declared)', function(done) {
+    it('Only one gets called (first declared)', done => {
       const convo = conversations.start(eventFrom(user(1)))
 
       outgoing = () => {}
@@ -242,7 +242,7 @@ describe('conversations', function() {
       }, 5)
     })
 
-    it('Convo.next', function(done) {
+    it('Convo.next', done => {
       const convo = conversations.start(eventFrom(user(1)))
 
       outgoing = event => event.text === 'done' && done()
@@ -265,8 +265,8 @@ describe('conversations', function() {
     })
   })
 
-  describe('Thread switching', function() {
-    it('Correct handler gets called', function(done) {
+  describe('Thread switching', () => {
+    it('Correct handler gets called', done => {
       const convo = conversations.create(eventFrom(user(1)))
       const thread = convo.createThread('hello')
 
@@ -284,7 +284,7 @@ describe('conversations', function() {
       }, 5)
     })
 
-    it("Other thread doesn't get call if no switch", function(done) {
+    it("Other thread doesn't get call if no switch", done => {
       conversations.start(eventFrom(user(1)), convo => {
         const thread = convo.createThread('hello')
 
@@ -301,7 +301,7 @@ describe('conversations', function() {
     })
   })
 
-  it('convo.say() supports simple string', function(done) {
+  it('convo.say() supports simple string', done => {
     const convo = conversations.start(eventFrom(user(1)))
 
     outgoing = event => {

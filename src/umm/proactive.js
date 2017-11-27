@@ -4,12 +4,12 @@ import _ from 'lodash'
 import Promise from 'bluebird'
 
 module.exports = ({ sendBloc, db }) => {
-  async function getUser(id) {
+  const getUser = async id => {
     const knex = await db.get()
     const users = await knex('users')
       .where(function() {
         if (id.indexOf(':') > 0) {
-          this.where({ id: id })
+          this.where({ id })
         } else {
           this.where('userId', id)
         }
@@ -31,7 +31,7 @@ module.exports = ({ sendBloc, db }) => {
    * @param  {object} data Additional data to provide to the bloc
    * @return {Promise}      A promise that the bloc is sent
    */
-  async function sendToUser(user, bloc, data) {
+  const sendToUser = async (user, bloc, data) => {
     if (!_.isString(bloc)) {
       throw new Error('Invalid bloc id: ' + bloc)
     }

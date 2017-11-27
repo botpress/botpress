@@ -8,17 +8,17 @@ import { getToken, logout, authEvents, setToken } from '~/util/Auth'
 
 const CHECK_AUTH_INTERVAL = 60 * 1000
 
-export default function ensureAuthenticated(WrappedComponent) {
-  const validateToken = () => {
-    const token = getToken()
-    const elapsed = new Date() - new Date(token.time)
-    const tokenStillValid = !!token && elapsed < window.AUTH_TOKEN_DURATION
-    if (!tokenStillValid) {
-      logout()
-    }
-    return tokenStillValid
+const validateToken = () => {
+  const token = getToken()
+  const elapsed = new Date() - new Date(token.time)
+  const tokenStillValid = !!token && elapsed < window.AUTH_TOKEN_DURATION
+  if (!tokenStillValid) {
+    logout()
   }
+  return tokenStillValid
+}
 
+const ensureAuthenticated = WrappedComponent => {
   class AuthenticationWrapper extends React.Component {
     static contextTypes = {
       router: PropTypes.object
@@ -93,3 +93,5 @@ export default function ensureAuthenticated(WrappedComponent) {
 
   return AuthenticationWrapper
 }
+
+export default ensureAuthenticated

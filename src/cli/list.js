@@ -2,7 +2,7 @@ import { print } from '../util'
 
 import createModules from '../modules'
 
-module.exports = function() {
+module.exports = () => {
   const modulesManager = createModules(null, './', null)
   const modules = modulesManager.listInstalled()
 

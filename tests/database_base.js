@@ -73,18 +73,12 @@ module.exports = {
   doBoth: fn => () => fn && fn(postgres).then(fn(sqlite)),
   itBoth: itBoth(() => emptyTable),
   run: (name, cb) => {
-    describe('Setup', function() {
-      before(function() {
-        return postgres.raw('DROP SCHEMA public CASCADE; CREATE SCHEMA public;')
-      })
+    describe('Setup', () => {
+      before(() => postgres.raw('DROP SCHEMA public CASCADE; CREATE SCHEMA public;'))
 
-      beforeEach(function() {
-        return createSampleTable().then(name => (emptyTable = name))
-      })
+      beforeEach(() => createSampleTable().then(name => (emptyTable = name)))
 
-      itBoth('Tables created', function(knex) {
-        return knex.schema.hasTable(emptyTable).then(has => expect(has).to.equal(true))
-      })
+      itBoth('Tables created', knex => knex.schema.hasTable(emptyTable).then(has => expect(has).to.equal(true)))
 
       describe(name, cb)
     })

@@ -33,7 +33,7 @@ const print = function(...args) {
   console.log(chalk.black.bgWhite('[botpress]'), '\t', level(...args))
 }
 
-const resolveFromDir = function(fromDir, moduleId) {
+const resolveFromDir = (fromDir, moduleId) => {
   fromDir = path.resolve(fromDir)
   const fromFile = path.join(fromDir, 'noop.js')
   try {
@@ -47,7 +47,7 @@ const resolveFromDir = function(fromDir, moduleId) {
   }
 }
 
-const resolveModuleRootPath = function(entryPath) {
+const resolveModuleRootPath = entryPath => {
   let current = path.dirname(entryPath)
   while (current !== '/') {
     const lookup = path.join(current, 'package.json')

@@ -453,7 +453,7 @@ module.exports = ({ logger, middleware, clockSpeed = 500 }) => {
     order: 25,
     module: 'botpress',
     description: 'Built-in conversation flow manager',
-    handler: function(event, next) {
+    handler: (event, next) => {
       // Clean up and free from memory ended conversations
       convos = _.filter(convos, c => {
         return _.includes(['new', 'active'], c.status)
@@ -476,7 +476,7 @@ module.exports = ({ logger, middleware, clockSpeed = 500 }) => {
     }
   }
 
-  function start(event, callback) {
+  const start = (event, callback) => {
     const convo = create(event)
     callback && callback(convo)
 
@@ -484,7 +484,7 @@ module.exports = ({ logger, middleware, clockSpeed = 500 }) => {
     return convo
   }
 
-  function create(event) {
+  const create = event => {
     validateEvent(event)
     const convo = new Conversation({
       logger,
@@ -496,7 +496,7 @@ module.exports = ({ logger, middleware, clockSpeed = 500 }) => {
     return convo
   }
 
-  function find(event) {
+  const find = event => {
     for (const convo of convos) {
       if (belongsToConvo(convo, event) && convo.status === 'active') {
         return convo
@@ -504,7 +504,7 @@ module.exports = ({ logger, middleware, clockSpeed = 500 }) => {
     }
   }
 
-  function destroy() {
+  const destroy = () => {
     for (const convo of convos) {
       convo.teardown()
     }

@@ -2,7 +2,7 @@ import prompt from 'prompt'
 import chalk from 'chalk'
 import Promise from 'bluebird'
 
-module.exports = function(argument, options) {
+module.exports = (argument, options) => {
   const getKeywords = Promise.method(argument => {
     if (typeof argument === 'string') {
       return argument
@@ -22,9 +22,9 @@ module.exports = function(argument, options) {
       prompt.delimiter = ''
       prompt.start()
 
-      return Promise.fromCallback(function(callback) {
+      return Promise.fromCallback(callback => {
         prompt.get(schema, callback)
-      }).then(result => result.keyword)
+      }).then(({ keyword }) => keyword)
     }
   })
 

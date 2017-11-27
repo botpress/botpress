@@ -19,7 +19,7 @@ import AdditionnalRoutes from '+/views/Routes/index.jsx'
 
 const appHistory = useRouterHistory(createHistory)({ basename: '/' })
 
-function logPageView() {
+const logPageView = () => {
   ReactGA.set({ page: window.location.pathname })
   ReactGA.pageview(window.location.pathname)
 }
