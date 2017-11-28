@@ -28,11 +28,21 @@
 
   li {
     padding: 5px 10px;
+    cursor: pointer;
 
     &:hover {
-      text-decoration: none;
       color: #262626;
       background-color: #f5f5f5;
     }
   }
+}
+
+:global(.popover).popover {
+  :global(.arrow) {
+    display: none;
+  }
+}
+
+:global(.popover-content).popover {
+  padding: 10px 0;
 }

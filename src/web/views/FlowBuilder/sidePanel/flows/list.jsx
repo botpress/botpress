@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
+import classnames from 'classnames'
 
 import { ListGroup, ListGroupItem, Popover, Button, MenuItem, Overlay } from 'react-bootstrap'
 
@@ -33,10 +34,10 @@ export default class FlowsList extends Component {
     }
 
     const dropdown = (
-      <Popover id={`flow-${index}-dropdown`}>
+      <Popover id={`flow-${index}-dropdown`} bsClass={classnames(style.popover, 'popover')}>
         <ul className={style.menu}>
-          <MenuItem onClick={handleDelete}>Delete</MenuItem>
-          <MenuItem>Duplicate</MenuItem>
+          <li onClick={handleDelete}>Delete</li>
+          <li>Duplicate</li>
         </ul>
       </Popover>
     )
