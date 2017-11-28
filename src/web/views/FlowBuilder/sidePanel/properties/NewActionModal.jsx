@@ -156,7 +156,8 @@ export default class NewActionModal extends Component {
       handler({
         type: this.state.actionType,
         functionName: this.state.functionInputValue,
-        message: this.state.messageInputValue
+        message: this.state.messageInputValue,
+        parameters: this.state.functionParams
       })
     }
 

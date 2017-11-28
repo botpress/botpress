@@ -28,7 +28,13 @@ export default class ActionSection extends Component {
   }
 
   onAddAction(options) {
-    const action = options.type === 'message' ? '@' + options.message : options.functionName
+    let action = null
+
+    if (options.type === 'message') {
+      action = '@' + options.message // TODO Update this to "say #bloc [message]" structure
+    } else {
+      action = options.functionName + ' ' + JSON.stringify(options.parameters || {})
+    }
 
     const copy = [...(this.props.items || []), action]
 
