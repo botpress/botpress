@@ -10,6 +10,8 @@ phases:
 
   pre_build:
     commands:
+      - echo ~/
+      - cd docs2/
       - bundle install
       - yarn install
   build:
