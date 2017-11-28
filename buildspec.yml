@@ -6,8 +6,6 @@ phases:
       - gem install jekyll bundler
   pre_build:
     commands:
-      - echo "$(pwd)"
-      - echo "$(ls .)" 
       - cd docs2/
       - echo "***** Install Dependancy Ruby *****"
       - bundle install

@@ -32,7 +32,7 @@ html.site-fullscreen .content {
 
   .CodeMirror {
     height: 100%;
-    font-family: "Roboto Mono", Menlo, monospace;
+    font-family: 'Roboto Mono', Menlo, monospace;
     font-size: 12px;
     -webkit-font-smoothing: subpixel-antialiased;
   }
@@ -52,7 +52,7 @@ html.site-fullscreen .content {
     padding: 0;
 
     &:after {
-      content: "";
+      content: '';
       display: block;
       clear: both;
     }
@@ -159,17 +159,26 @@ html.site-fullscreen .content {
 }
 
 @-webkit-keyframes sk-bouncedelay {
-  0%, 80%, 100% { -webkit-transform: scale(0) }
-  40% { -webkit-transform: scale(1.0) }
+  0%,
+  80%,
+  100% {
+    -webkit-transform: scale(0);
+  }
+  40% {
+    -webkit-transform: scale(1);
+  }
 }
 
 @keyframes sk-bouncedelay {
-  0%, 80%, 100% {
+  0%,
+  80%,
+  100% {
     -webkit-transform: scale(0);
     transform: scale(0);
-  } 40% {
-    -webkit-transform: scale(1.0);
-    transform: scale(1.0);
+  }
+  40% {
+    -webkit-transform: scale(1);
+    transform: scale(1);
   }
 }
 

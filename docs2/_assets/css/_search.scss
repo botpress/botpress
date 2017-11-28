@@ -69,12 +69,12 @@
   .ds-dropdown-menu {
     box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1) !important;
 
-    [class^=ds-dataset-] {
+    [class^='ds-dataset-'] {
       border: none !important;
     }
   }
 
-  .ds-dropdown-menu [class^=ds-dataset-],
+  .ds-dropdown-menu [class^='ds-dataset-'],
   .algolia-docsearch-suggestion {
     background: $flow-gray-darkest !important;
     color: white !important;

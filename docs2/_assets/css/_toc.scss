@@ -1,4 +1,8 @@
-h1, h2, h3, h4, h5 {
+h1,
+h2,
+h3,
+h4,
+h5 {
   .toc {
     background: red;
     display: inline-block;
@@ -9,7 +13,7 @@ h1, h2, h3, h4, h5 {
   }
 
   .toc::before {
-    content: "#";
+    content: '#';
   }
 
   &:hover .toc {

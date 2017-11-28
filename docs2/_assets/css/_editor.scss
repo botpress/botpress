@@ -1,4 +1,3 @@
-
 ///////////////////////////////////////////////////////////////////////////////
 
 .language-sh pre {
@@ -131,7 +130,7 @@ pre.highlight {
   cursor: help;
 
   &::before {
-    content: "";
+    content: '';
     display: block;
     position: absolute;
     bottom: 0;
@@ -208,7 +207,6 @@ pre.highlight {
 // pre.highlight code {
 //   width: 100%;
 //   white-space: pre; }
-
 
 // .language-bash div.highlight table,
 // .language-bash pre.highlight code {

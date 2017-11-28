@@ -56,8 +56,8 @@
 
 @include media-breakpoint-up('lg') {
   .footer-item + .footer-item::before {
-    padding-left: .25em;
-    padding-right: .25em;
-    content: " · ";
+    padding-left: 0.25em;
+    padding-right: 0.25em;
+    content: ' · ';
   }
 }
