@@ -5,7 +5,7 @@ phases:
       - gem install jekyll bundler
       - echo "****** Install Yarn And NodeJS ******"
       - curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add - echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
-      - echo ""****** Update nodeJs and Yarn "******"
+      - echo "****** Update nodeJs and Yarn ******"
       - sudo apt-get update && sudo apt-get install yarn
 
   pre_build:
@@ -20,7 +20,7 @@ phases:
       - cd docs2/
       - jenkyll build
       - echo "******* Uploading to S3 *******"
-      - aws s3 sync _site/ botpress-docs
+      - aws s3 sync _site/ s3://botpress-docs
   # post_build:
     #commands:
       # - command
