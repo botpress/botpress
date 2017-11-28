@@ -102,6 +102,7 @@ reducer = reduceReducers(
       [createFlowNode]: createSnapshot,
       [linkFlowNodes]: createSnapshot,
       [createFlow]: createSnapshot,
+      [deleteFlow]: createSnapshot,
       [removeFlowNode]: createSnapshot,
 
       [flowEditorUndo]: state => {
@@ -398,6 +399,7 @@ reducer = reduceReducers(
 
       [createFlowNode]: updateCurrentHash,
       [createFlow]: updateCurrentHash,
+      [deleteFlow]: updateCurrentHash,
       [removeFlowNode]: updateCurrentHash
     },
     defaultState
