@@ -109,7 +109,7 @@ class ManageView extends React.Component {
 
   renderTag(label) {
     const handleChange = event => {
-      ;::this.handleChangeCategory(event, label)
+      this.handleChangeCategory(event, label)
     }
 
     const classNames = classnames({
