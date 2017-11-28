@@ -12,11 +12,13 @@ const style = require('../style.scss')
 
 export default class StandardNodePropertiesPanel extends Component {
   renameNode(text) {
-    let newText = text.replace(/[^a-z0-9-_\.]/i, '_').toLowerCase()
-
-    if (newText.length > 0 && newText !== this.props.node.name) {
-      this.props.updateNode({ name: newText })
+    if (text.length > 0 && text !== this.props.node.name) {
+      this.props.updateNode({ name: text })
     }
+  }
+
+  transformText(text) {
+    return text.replace(/[^a-z0-9-_\.]/gi, '_')
   }
 
   render() {
@@ -31,7 +33,13 @@ export default class StandardNodePropertiesPanel extends Component {
 
     return (
       <div className={classnames(style.node, style['standard-node'])}>
-        <EditableInput onMount={onNameMounted} value={node.name} className={style.name} onChanged={::this.renameNode} />
+        <EditableInput
+          onMount={onNameMounted}
+          value={node.name}
+          className={style.name}
+          onChanged={::this.renameNode}
+          transform={this.transformText}
+        />
         <ActionSection
           items={node['onEnter']}
           header="On Enter"

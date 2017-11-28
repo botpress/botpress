@@ -1,44 +1,32 @@
 import React, { Component } from 'react'
 import classnames from 'classnames'
-import _ from 'lodash'
 
 const style = require('./style.scss')
 
 export default class EditableInput extends Component {
   constructor(props) {
     super(props)
-    this.update = this._update
+    this.state = {
+      value: null
+    }
   }
 
   componentDidMount() {
-    this.mapUpdate(this.props)
     this.props.onMount && this.props.onMount(this.input)
+    this.setState({ value: this.props.value || this.props.defaultValue })
   }
 
-  componentDidUpdate() {
-    this.mapUpdate(this.props)
-  }
-
-  getInput() {
-    return this.input
-  }
-
-  _update(value) {
-    this.props.onChanged && this.props.onChanged(value)
-  }
-
-  mapUpdate(props) {
-    if (props.debounce) {
-      this.update = _.debounce(this._update, props.debounce)
-    } else {
-      this.update = this._update
-    }
+  componentWillReceiveProps(nextProps) {
+    this.setState({ value: nextProps.value || nextProps.defaultValue })
   }
 
   onChanged(event) {
-    if (event.target.value !== this.props.value) {
-      this.update(event.target.value)
+    let txt = event.target.value
+    if (this.props.transform) {
+      txt = this.props.transform(txt)
     }
+
+    this.setState({ value: txt })
   }
 
   onKeyDown(event) {
@@ -48,9 +36,11 @@ export default class EditableInput extends Component {
     }
   }
 
-  onBlur(event) {
+  onBlur() {
     if (!this.props.value.length) {
-      this.update(this.props.defaultValue || '')
+      this.props.onChanged && this.props.onChanged(this.state.defaultValue)
+    } else {
+      this.props.onChanged && this.props.onChanged(this.state.value)
     }
   }
 
@@ -68,7 +58,7 @@ export default class EditableInput extends Component {
         ref={el => (this.input = el)}
         style={{ width: inputWidth }}
         autocomplete="off"
-        value={this.props.value || this.props.defaultValue}
+        value={this.state.value || this.props.defaultValue}
         onBlur={::this.onBlur}
         onChange={::this.onChanged}
         onKeyDown={::this.onKeyDown}
