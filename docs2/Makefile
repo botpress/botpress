@@ -32,10 +32,10 @@ build: test-jekyll symlinks
 	bundle exec jekyll build $(BUILD_FLAGS)
 
 algolie:
-	ALGOLIA_API_KEY=5735bfc8e574388155a4d85de48e6893 bundle exec jekyll algolia push
+	bundle exec jekyll algolia push
 
 serve-developpement : 
-	ALGOLIA_API_KEY=5735bfc8e574388155a4d85de48e6893 bundle exec jekyll serve  --host="::" --port=7000 --watch
+	bundle exec jekyll serve  --host="::" --port=7000 --watch
 
 serve-production: test-jekyll
 	@JEKYLL_ENV=production bundle exec jekyll serve --host="::" --port=8080
