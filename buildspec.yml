@@ -4,7 +4,7 @@ phases:
     commands:
       - gem install jekyll bundler
       - echo "****** Install Yarn And NodeJS ******"
-      - curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add - echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+      - curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add - echo "deb https://dl.yarnpkg.com/debian/ stable main"
       - echo "****** Update nodeJs and Yarn ******"
       - sudo apt-get update && sudo apt-get install yarn
 
