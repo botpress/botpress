@@ -110,7 +110,10 @@ reducer = reduceReducers(
 
         const snapshot = state.snapshots[state.currentSnapshotIndex]
 
-        return { ...applySnapshot(state, snapshot), currentSnapshotIndex: state.currentSnapshotIndex + 1 }
+        return {
+          ...applySnapshot(state, snapshot),
+          currentSnapshotIndex: state.currentSnapshotIndex + 1
+        }
       },
 
       [flowEditorRedo]: state => {
@@ -119,7 +122,10 @@ reducer = reduceReducers(
         }
         console.log(state.snapshots.length, state.currentSnapshotIndex - 1)
         const snapshot = state.snapshots[state.currentSnapshotIndex - 1]
-        return { ...applySnapshot(state, snapshot), currentSnapshotIndex: state.currentSnapshotIndex - 1 }
+        return {
+          ...applySnapshot(state, snapshot),
+          currentSnapshotIndex: state.currentSnapshotIndex - 1
+        }
       }
     },
     defaultState
@@ -132,7 +138,11 @@ reducer = reduceReducers(
     {
       [renameFlow]: (state, { payload }) => ({
         ...state,
-        flowsByName: doRenameFlow({ flow: state.currentFlow, name: payload, flows: _.values(state.flowsByName) }),
+        flowsByName: doRenameFlow({
+          flow: state.currentFlow,
+          name: payload,
+          flows: _.values(state.flowsByName)
+        }),
         currentFlow: payload
       }),
 
@@ -157,22 +167,28 @@ reducer = reduceReducers(
         currentFlowNode: null
       }),
 
-      [updateFlowNode]: (state, { payload }) => ({
-        ...state,
-        flowsByName: {
-          ...state.flowsByName,
-          [state.currentFlow]: {
-            ...state.flowsByName[state.currentFlow],
-            nodes: state.flowsByName[state.currentFlow].nodes.map(node => {
-              if (node.id !== state.currentFlowNode) {
-                return node
-              }
+      [updateFlowNode]: (state, { payload }) => {
+        const currentFlow = state.flowsByName[state.currentFlow]
+        const currentNode = _.find(state.flowsByName[state.currentFlow].nodes, { id: state.currentFlowNode })
+        return {
+          ...state,
+          flowsByName: {
+            ...state.flowsByName,
+            [state.currentFlow]: {
+              ...currentFlow,
+              startNode:
+                currentFlow.startNode === currentNode.name && payload.name ? payload.name : currentFlow.startNode,
+              nodes: currentFlow.nodes.map(node => {
+                if (node.id !== state.currentFlowNode) {
+                  return node
+                }
 
-              return { ...node, ...payload, lastModified: new Date() }
-            })
+                return { ...node, ...payload, lastModified: new Date() }
+              })
+            }
           }
         }
-      }),
+      },
 
       [linkFlowNodes]: (state, { payload }) => {
         const flow = state.flowsByName[state.currentFlow]
@@ -323,7 +339,11 @@ function createSnapshot(state) {
     snapshots = _.drop(snapshots, 1) // We merge the current and last snapshots
   }
 
-  return { ...state, snapshots: [snapshot, ...snapshots], currentSnapshotIndex: 0 }
+  return {
+    ...state,
+    snapshots: [snapshot, ...snapshots],
+    currentSnapshotIndex: 0
+  }
 }
 
 // *****

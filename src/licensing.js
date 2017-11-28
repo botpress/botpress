@@ -8,8 +8,7 @@ import listeners from './listeners'
 import { resolveProjectFile, isDeveloping } from './util'
 import LicenseGuard from '+/license'
 
-module.exports = ({ logger, version, projectLocation, db, botfile }) => {
-
+module.exports = ({ logger, version, projectLocation, db, botfile, bp }) => {
   const licensesPath = path.join(__dirname, '../licenses')
 
   const getLicenses = () => {
@@ -33,11 +32,11 @@ module.exports = ({ logger, version, projectLocation, db, botfile }) => {
     }
   }
 
-  const changeLicense = Promise.method((license) => {
+  const changeLicense = Promise.method(license => {
     const packageJsonPath = resolveProjectFile('package.json', projectLocation, true)
 
     const licensePath = resolveProjectFile('LICENSE', projectLocation, true)
-    const licenseFileName = (license === 'AGPL-3.0') ? 'LICENSE_AGPL3' : 'LICENSE_BOTPRESS'
+    const licenseFileName = license === 'AGPL-3.0' ? 'LICENSE_AGPL3' : 'LICENSE_BOTPRESS'
     const licenseContent = fs.readFileSync(path.join(licensesPath, licenseFileName))
 
     const pkg = JSON.parse(fs.readFileSync(packageJsonPath))
@@ -50,7 +49,6 @@ module.exports = ({ logger, version, projectLocation, db, botfile }) => {
   const middleware = listeners.hear(/^BOT_LICENSE$/, (event, next) => {
     const packageJsonPath = resolveProjectFile('package.json', projectLocation, true)
     const { license, name, author } = JSON.parse(fs.readFileSync(packageJsonPath))
-    const bp = event.bp
 
     const response = `Bot:  ${name}
 Created by: ${author}
