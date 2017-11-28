@@ -16,7 +16,6 @@ phases:
   build:
     commands:
       - echo "******* Building Jekyll site *******"
-      - cd docs2/
       - jenkyll build
       - echo "******* Uploading to S3 *******"
       - aws s3 sync _site/ s3://botpress-docs
