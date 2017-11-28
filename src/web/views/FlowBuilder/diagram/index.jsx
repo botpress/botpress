@@ -364,12 +364,13 @@ export default class FlowBuilder extends Component {
   }
 
   serializeLinks() {
-    const model = this.activeModel.serializeDiagram()
+    const diagram = this.activeModel.serializeDiagram()
 
-    return model.links.map(link => {
+    return diagram.links.map(link => {
       const instance = this.activeModel.getLink(link.id)
       const model = {
         source: link.source,
+        sourcePort: instance.sourcePort.name,
         target: link.target,
         points: link.points.map(pt => ({ x: pt.x, y: pt.y }))
       }
@@ -377,6 +378,7 @@ export default class FlowBuilder extends Component {
       if (instance.sourcePort.name === 'in') {
         // We reverse the model so that target is always an input port
         model.source = link.target
+        model.sourcePort = instance.targetPort.name
         model.target = link.source
         model.points = _.reverse(model.points)
       }
