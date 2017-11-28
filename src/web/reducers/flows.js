@@ -120,7 +120,6 @@ reducer = reduceReducers(
         if (state.currentSnapshotIndex <= 0) {
           return state
         }
-        console.log(state.snapshots.length, state.currentSnapshotIndex - 1)
         const snapshot = state.snapshots[state.currentSnapshotIndex - 1]
         return {
           ...applySnapshot(state, snapshot),
@@ -146,16 +145,29 @@ reducer = reduceReducers(
         currentFlow: payload
       }),
 
-      [updateFlow]: (state, { payload }) => ({
-        ...state,
-        flowsByName: {
-          ...state.flowsByName,
-          [state.currentFlow]: {
-            ...state.flowsByName[state.currentFlow],
-            ...payload
+      [updateFlow]: (state, { payload }) => {
+        const currentFlow = state.flowsByName[state.currentFlow]
+        return {
+          ...state,
+          flowsByName: {
+            ...state.flowsByName,
+            [state.currentFlow]: {
+              ...currentFlow,
+              nodes: currentFlow.nodes.map(node => {
+                const nodeLinks = (payload.links || []).filter(link => link.source === node.id)
+                let next = node.next.map((value, index) => {
+                  const link = nodeLinks.find(link => Number(link.sourcePort.replace('out', '')) === index)
+                  const targetNode = _.find(currentFlow.nodes, { id: (link || {}).target })
+                  return { ...value, node: (targetNode && targetNode.name) || value.node }
+                })
+
+                return { ...node, next, lastModified: new Date() }
+              }),
+              ...payload
+            }
           }
         }
-      }),
+      },
 
       [createFlow]: (state, { payload: name }) => ({
         ...state,
@@ -170,17 +182,23 @@ reducer = reduceReducers(
       [updateFlowNode]: (state, { payload }) => {
         const currentFlow = state.flowsByName[state.currentFlow]
         const currentNode = _.find(state.flowsByName[state.currentFlow].nodes, { id: state.currentFlowNode })
+        const needsUpdate = name => name === (currentNode || {}).name && payload.name
         return {
           ...state,
           flowsByName: {
             ...state.flowsByName,
             [state.currentFlow]: {
               ...currentFlow,
-              startNode:
-                currentFlow.startNode === currentNode.name && payload.name ? payload.name : currentFlow.startNode,
+              startNode: needsUpdate(currentFlow.startNode) ? payload.name : currentFlow.startNode,
               nodes: currentFlow.nodes.map(node => {
                 if (node.id !== state.currentFlowNode) {
-                  return node
+                  return {
+                    ...node,
+                    next: node.next.map(transition => ({
+                      ...transition,
+                      node: needsUpdate(transition.node) ? payload.name : transition.node
+                    }))
+                  }
                 }
 
                 return { ...node, ...payload, lastModified: new Date() }
