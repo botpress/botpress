@@ -11,12 +11,12 @@ phases:
       - cd docs2/
       - echo "***** Install Dependancy Ruby *****"
       - bundle install
-      - echo "***** Yarn Install *****"
+      - echo "***** Npm Install *****"
       - npm install
   build:
     commands:
       - echo "******* Building Jekyll site *******"
-      - bundle exec jekyll build
+      - jekyll build
       - echo "******* Uploading to S3 *******"
       - aws s3 sync _site/ s3://botpress-docs
   # post_build:
