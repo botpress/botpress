@@ -14,7 +14,7 @@ const bpApp = combineReducers({ flows, license, ui, user, bot, modules, rules, n
 
 export default bpApp
 
-export const getCurrentFlow = state => state.flows.flowsByName[state.flows.currentFlow]
+export const getCurrentFlow = state => state.flows.flowsByName[state.flows.currentFlow] || null
 
 export const getCurrentFlowNode = state => {
   if (!state.flows || !state.flows.currentFlow || !state.flows.currentFlowNode) {

@@ -38,6 +38,7 @@ export default class SidePanel extends Component {
                 flows={this.props.flows}
                 dirtyFlows={this.props.dirtyFlows}
                 switchFlow={this.props.switchFlow}
+                deleteFlow={this.props.deleteFlow}
                 currentFlow={this.props.currentFlow}
               />
             </Tab>
@@ -55,7 +56,7 @@ export default class SidePanel extends Component {
   }
 
   renderBefore() {
-    const subflows = _.filter(_.map(this.props.flows, f => f.name), f => f !== this.props.currentFlow.name)
+    const subflows = _.filter(_.map(this.props.flows, f => f.name), f => f !== _.get(this.props, 'currentFlow.name'))
 
     if (this.props.currentFlowNode) {
       return (

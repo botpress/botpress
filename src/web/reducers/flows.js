@@ -20,6 +20,7 @@ import {
   setDiagramAction,
   createFlowNode,
   createFlow,
+  deleteFlow,
   removeFlowNode,
   flowEditorUndo,
   flowEditorRedo,
@@ -177,6 +178,13 @@ reducer = reduceReducers(
         },
         currentFlow: name,
         currentFlowNode: null
+      }),
+
+      [deleteFlow]: (state, { payload: name }) => ({
+        ...state,
+        currentFlow: state.currentFlow === name ? null : state.currentFlow,
+        currentFlowNode: state.currentFlow === name ? null : state.currentFlowNode,
+        flowsByName: _.omit(state.flowsByName, name)
       }),
 
       [updateFlowNode]: (state, { payload }) => {

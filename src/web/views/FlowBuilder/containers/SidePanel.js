@@ -1,7 +1,7 @@
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
-import { updateFlowNode, updateFlow, removeFlowNode, switchFlow } from '~/actions'
+import { updateFlowNode, updateFlow, removeFlowNode, switchFlow, deleteFlow } from '~/actions'
 import { getCurrentFlow, getCurrentFlowNode, getDirtyFlows } from '~/reducers'
 
 import _ from 'lodash'
@@ -20,7 +20,8 @@ const mapDispatchToProps = (dispatch, ownProps) =>
     {
       updateFlowNode: updateFlowNode,
       updateFlow: updateFlow,
-      switchFlow: switchFlow
+      switchFlow: switchFlow,
+      deleteFlow: deleteFlow
     },
     dispatch
   )

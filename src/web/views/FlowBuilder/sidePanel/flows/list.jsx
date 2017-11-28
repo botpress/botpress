@@ -28,7 +28,7 @@ export default class FlowsList extends Component {
       hideOverlay()
       setTimeout(() => {
         if (confirm('Are you sure you want to delete this flow?') === true) {
-          alert('DONE')
+          this.props.deleteFlow(flow.name)
         }
       }, 250)
     }
