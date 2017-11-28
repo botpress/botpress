@@ -15,13 +15,15 @@ import {
   renameFlow,
   saveFlow,
   updateFlowNode,
+  patchFlowNode,
   switchFlowNode,
   setDiagramAction,
   createFlowNode,
   createFlow,
   removeFlowNode,
   flowEditorUndo,
-  flowEditorRedo
+  flowEditorRedo,
+  linkFlowNodes
 } from '~/actions'
 
 const SNAPSHOT_SIZE = 25
@@ -97,6 +99,7 @@ reducer = reduceReducers(
       [renameFlow]: createSnapshot,
       [updateFlowNode]: createSnapshot,
       [createFlowNode]: createSnapshot,
+      [linkFlowNodes]: createSnapshot,
       [createFlow]: createSnapshot,
       [removeFlowNode]: createSnapshot,
 
@@ -169,7 +172,33 @@ reducer = reduceReducers(
             })
           }
         }
-      }), // END updateFlowNode
+      }),
+
+      [linkFlowNodes]: (state, { payload }) => {
+        const flow = state.flowsByName[state.currentFlow]
+
+        const nodes = flow.nodes.map(node => {
+          if (node.id !== payload.node) {
+            return node
+          }
+
+          const clone = Object.assign({}, node)
+          clone.next[payload.index].node = payload.target
+
+          return clone
+        })
+
+        return {
+          ...state,
+          flowsByName: {
+            ...state.flowsByName,
+            [state.currentFlow]: {
+              ...flow,
+              nodes: nodes
+            }
+          }
+        }
+      },
 
       [removeFlowNode]: (state, { payload }) => ({
         ...state,
@@ -318,6 +347,7 @@ reducer = reduceReducers(
 
       [updateFlow]: updateCurrentHash,
       [renameFlow]: updateCurrentHash,
+      [linkFlowNodes]: updateCurrentHash,
       [updateFlowNode]: updateCurrentHash,
 
       [createFlowNode]: updateCurrentHash,

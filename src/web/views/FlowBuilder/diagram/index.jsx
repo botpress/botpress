@@ -208,13 +208,11 @@ export default class FlowBuilder extends Component {
   }
 
   componentDidMount() {
-    ReactDOM.findDOMNode(this.diagramWidget).addEventListener('mousedown', ::this.onDiagramClick)
     ReactDOM.findDOMNode(this.diagramWidget).addEventListener('click', ::this.onDiagramClick)
     document.getElementById('diagramContainer').addEventListener('keyup', ::this.onKeyUp)
   }
 
   componentWillUnmount() {
-    ReactDOM.findDOMNode(this.diagramWidget).removeEventListener('mousedown', ::this.onDiagramClick)
     ReactDOM.findDOMNode(this.diagramWidget).removeEventListener('click', ::this.onDiagramClick)
     document.getElementById('diagramContainer').removeEventListener('keyup', ::this.onKeyUp)
   }
@@ -267,6 +265,21 @@ export default class FlowBuilder extends Component {
           this.diagramWidget.forceUpdate()
         }
       })
+
+      // We make sure that the link was added to the node
+      const outPort = link.sourcePort.name.startsWith('out') ? link.sourcePort : link.targetPort
+      const targetPort = link.sourcePort.name.startsWith('out') ? link.targetPort : link.sourcePort
+      const outIndex = Number(outPort.name.substr(3))
+      const next = outPort.parentNode.next[outIndex]
+      if (next.node !== targetPort.parentNode.name) {
+        console.log('LINK ', outPort.parentNode.name, '-->', targetPort.parentNode.name)
+        this.props.linkFlowNodes({
+          node: outPort.parentNode.id,
+          index: outIndex,
+          condition: next.condition,
+          target: targetPort.parentNode.name
+        }) // Update node that isn't selected
+      }
     })
 
     if (this.props.currentDiagramAction && this.props.currentDiagramAction.startsWith('insert_')) {

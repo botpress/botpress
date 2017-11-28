@@ -10,7 +10,8 @@ import {
   updateFlowNode,
   removeFlowNode,
   createFlow,
-  updateFlow
+  updateFlow,
+  linkFlowNodes
 } from '~/actions'
 
 import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
@@ -35,7 +36,8 @@ const mapDispatchToProps = (dispatch, ownProps) =>
       removeFlowNode: removeFlowNode,
       createFlow: createFlow,
       updateFlowNode: updateFlowNode,
-      updateFlow: updateFlow
+      updateFlow: updateFlow,
+      linkFlowNodes: linkFlowNodes
     },
     dispatch
   )

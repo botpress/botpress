@@ -42,6 +42,7 @@ export const renameFlow = createAction('FLOWS/FLOW/RENAME')
 export const createFlow = createAction('FLOWS/CREATE')
 export const switchFlow = createAction('FLOWS/SWITCH')
 
+export const linkFlowNodes = createAction('FLOWS/FLOW/LINK')
 export const updateFlowNode = createAction('FLOWS/FLOW/UPDATE_NODE')
 export const switchFlowNode = createAction('FLOWS/FLOW/SWITCH_NODE')
 export const createFlowNode = createAction('FLOWS/FLOW/CREATE')
