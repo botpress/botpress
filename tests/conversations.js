@@ -110,7 +110,7 @@ describe('conversations', function() {
       incoming(eventFrom(user(1)))
     })
 
-    it('does not process if different plaform', function(done) {
+    it('does not process if different platform', function(done) {
       const convo = conversations.start(eventFrom(user(1)))
 
       const newEvent = eventFrom(user(1))
@@ -283,7 +283,7 @@ describe('conversations', function() {
       
     })
 
-    it('Other thread doesnt get call if no switch', function(done) {
+    it('Other thread doesn\'t get call if no switch', function(done) {
       conversations.start(eventFrom(user(1)), convo => {
 
         const thread = convo.createThread('hello')
@@ -302,6 +302,17 @@ describe('conversations', function() {
       })
     })
 
+  })
+
+  it('convo.say() supports simple string', function(done) {
+    const convo = conversations.start(eventFrom(user(1)))
+
+    outgoing = event => {
+      expect(event).property('text').to.equal('Hello')
+      done()
+    }
+
+    convo.say('Hello')
   })
 
 })

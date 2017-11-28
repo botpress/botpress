@@ -14,28 +14,27 @@ const {
   LICENSE_RECEIVED,
   LICENSE_CHANGED,
   TOGGLE_ABOUT_MODAL,
-  USER_RECEIVED
+  USER_RECEIVED,
+  VIEW_MODE_CHANGED
 } = actionTypes
 
 const fetchModules = () => {
-  axios.get('/api/modules')
-  .then((res) => {
+  axios.get('/api/modules').then(res => {
     reactor.dispatch(MODULES_RECEIVED, { modules: res.data })
   })
 }
 
 const fetchNotifications = () => {
-  axios.get('/api/notifications')
-  .then((res) => {
+  axios.get('/api/notifications/inbox').then(res => {
     reactor.dispatch(ALL_NOTIFICATIONS_RECEIVED, { notifications: res.data })
   })
 }
 
-const replaceNotifications = (allNotifications) => {
+const replaceNotifications = allNotifications => {
   reactor.dispatch(ALL_NOTIFICATIONS_RECEIVED, { notifications: allNotifications })
 }
 
-const addNotifications = (notifications) => {
+const addNotifications = notifications => {
   reactor.dispatch(NEW_NOTIFICATIONS_RECEIVED, { notifications })
 }
 
@@ -48,10 +47,8 @@ const toggleAboutModal = () => {
 }
 
 const fetchBotInformation = () => {
-  axios.get('/api/bot/information')
-  .then((information) => {
-    axios.get('/api/bot/production')
-    .then((production) => {
+  axios.get('/api/bot/information').then(information => {
+    axios.get('/api/bot/production').then(production => {
       const botInformationWithProduction = information.data
       botInformationWithProduction.production = production.data
 
@@ -61,21 +58,23 @@ const fetchBotInformation = () => {
 }
 
 const fetchLicense = () => {
-  axios.get('/api/license')
-  .then(({ data }) => {
+  axios.get('/api/license').then(({ data }) => {
     reactor.dispatch(LICENSE_RECEIVED, { license: data })
   })
 }
 
-const licenseChanged = (license) => {
+const licenseChanged = license => {
   reactor.dispatch(LICENSE_CHANGED, { license })
 }
 
 const fetchUser = () => {
-  axios.get('/api/my-account')
-  .then((res) => {
+  axios.get('/api/my-account').then(res => {
     reactor.dispatch(USER_RECEIVED, { user: res.data })
   })
+}
+
+const viewModeChanged = mode => {
+  reactor.dispatch(VIEW_MODE_CHANGED, { mode: mode })
 }
 
 module.exports = {
@@ -89,5 +88,6 @@ module.exports = {
   fetchLicense,
   licenseChanged,
   fetchUser,
+  viewModeChanged,
   ...actions
 }

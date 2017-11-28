@@ -71,7 +71,7 @@ class LoggerView extends Component {
 
   getArchiveKey() {
     axios.get('/api/logs/key')
-    .then(({ data }) => this.setState({ archiveUrl: '/logs/archive/' + data.secret }))
+      .then(({ data }) => this.setState({ archiveUrl: '/logs/archive/' + data.secret }))
   }
 
   queryLogs() {
@@ -80,13 +80,13 @@ class LoggerView extends Component {
         limit: this.state.limit
       }
     })
-    .then((result) => {
-      if(this.state.cancelLoading) { return }
-      this.setState({
-        logs: result.data,
-        hasMore: result.data && result.data.length >= this.state.limit
+      .then((result) => {
+        if(this.state.cancelLoading) { return }
+        this.setState({
+          logs: result.data,
+          hasMore: result.data && result.data.length >= this.state.limit
+        })
       })
-    })
   }
 
   render() {
@@ -95,7 +95,7 @@ class LoggerView extends Component {
     const canLoadMore = this.state.limit < 500 && this.state.hasMore
 
     return <ContentWrapper>
-      {PageHeader(<span> Logs</span>)}
+      <PageHeader><span> Logs</span></PageHeader>
       <Panel className={styles.panel}>
         <form className="pull-left">
           <Checkbox className={styles['panel-checkbox']}

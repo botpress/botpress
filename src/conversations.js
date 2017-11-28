@@ -19,6 +19,11 @@ const formatMessage = (msg, initialEvent) => {
         message: msg
       }
     }
+  } else if (typeof msg === 'function') {
+    // This is a 'wrapped' or 'delayed' execution message
+    // It is going to be evaluated at send time, this this has a risk of failing
+    // If the function execution fails
+    return msg
   } else {
     if (msg && msg.type && msg.platform && msg.text) {
       return msg
@@ -28,8 +33,35 @@ const formatMessage = (msg, initialEvent) => {
   }
 }
 
+const formatBloc = (blocName, data = {}) => {
+  if (!_.isString(blocName)) {
+    throw new Error('Invalid bloc name, espected string')
+  }
+
+  return {
+    isBloc: true,
+    bloc: blocName,
+    data: data
+  }
+}
+
+const isBlocCall = args => {
+  return _.isString(args[0]) && args[0].startsWith('#')
+}
+
 const validateHandlers = handlers => {
-  // TODO
+  if (_.isFunction(handlers)) {
+    return [{
+      default: true,
+      callback: handlers
+    }]
+  }
+
+  if (!_.isArray(handlers)) {
+    throw new Error('Invalid handler(s) for question, expected a function or an array of handlers (see doc).')
+  }
+
+  return handlers
 }
 
 class Thread extends EventEmmiter {
@@ -41,27 +73,70 @@ class Thread extends EventEmmiter {
     this.bp = bp
     this.convo = convo
     this.queue = [] // Queue of messages and questions to say / ask next
+    this.archive = [] // Archive of unqueued questions. We store them so we can re-create (restart) the thread.
     this.waiting = false // Thread is waiting when it asked for a question
     this._last = null
   }
 
-  addMessage(msg) {
-    const message = formatMessage(msg, this.initialEvent)
+  enqueue(message) {
+    this.queue.push(message)
+    this.archive.push(message)
+  }
 
-    this.queue.push({
-      type: 'message',
-      message: message
+  addMessage(msg) {
+    return this.add({ 
+      content: arguments[0],
+      data: arguments[1],
+      handler: null,
+      condition: null
     })
   }
 
-  addQuestion(msg, handlers) {
-    validateHandlers(handlers)
-    const message = formatMessage(msg, this.initialEvent)
+  // Two signatures possible:
+  // msg, handlers
+  // bloc, data, handlers
+  addQuestion(msg) {
+    const handlers = validateHandlers(_.last(arguments))
+    const content = arguments[0]
+    const data = arguments.length >= 3 ? arguments[1] : null
 
-    this.queue.push({
-      type: 'question',
+    return this.add({ 
+      content, 
+      handler: handlers, 
+      condition: null, 
+      data 
+    })
+  }
+
+  /* { 
+    content: 'string or #umm'
+    handler?: function(response) // If no handler = message + next()
+    condition?: function() // return bool|Promise<bool> to execute it or not
+    data?: object|func<object>|func<Promise<object>> to feed data to the UMM
+  } */
+  add({ content, handler, condition, data }) {
+    const handlers = handler ? validateHandlers(handler) : null
+    const type = handlers ? 'question' : 'message'
+
+    const isBloc = _.isString(content) && content.startsWith('#')
+
+    if (isBloc) {
+      return this.enqueue({
+        type: type,
+        message: formatBloc(content, data),
+        handlers: handlers,
+        condition: condition
+      })
+    }
+    
+    // Add raw message question
+    const message = formatMessage(content, this.initialEvent)
+
+    this.enqueue({
+      type: type,
       message: message,
-      handlers: handlers
+      handlers: handlers,
+      condition: condition
     })
   }
 
@@ -69,8 +144,21 @@ class Thread extends EventEmmiter {
     return this.queue.length > 0 ? this.queue[0] : null
   }
 
-  dequeue() {
-    const msg = this.queue.shift()
+  async dequeue() {
+    let msg = null
+
+    while(true) {
+      msg = this.queue.shift()
+
+      if (msg && msg.condition && _.isFunction(msg.condition)) {
+        const exec = await msg.condition()
+        if (!exec) {
+          continue
+        }
+      }
+
+      break
+    }
 
     this._last = msg
     this.waiting = msg && msg.type === 'question'
@@ -107,6 +195,12 @@ class Thread extends EventEmmiter {
   repeat() {
     return this._last && this._last.message
   }
+
+  restart() {
+    this.queue = this.archive.map(i => i)
+    this._last = null
+    this.waiting = false
+  }
 }
 
 class Conversation extends EventEmmiter {
@@ -130,7 +224,8 @@ class Conversation extends EventEmmiter {
     this._clock = setInterval(::this.tick, clockSpeed)
     this._clockSpeed = clockSpeed
     this._processing = false
-    this.messageTypes = messageTypes || ['message', 'text']
+    this._sendLock = false
+    this.messageTypes = messageTypes || ['message', 'text', 'quick_reply']
     this._outgoing = []
     this.endWhenDone = true
 
@@ -142,18 +237,45 @@ class Conversation extends EventEmmiter {
   }
 
   async sendNext() {
-    const msg = this._outgoing.shift()
-
-    if (msg) {
-      await Promise.resolve(this.middleware
-      && this.middleware.sendOutgoing 
-      && this.middleware.sendOutgoing(msg))
+    if (this._sendLock) {
+      return
+    } else {
+      this._sendLock = true
     }
 
-    await Promise.delay(this._clockSpeed)
-    
-    if (this.status === 'active' || this._outgoing.length > 0) {
-      setImmediate(::this.sendNext)
+    try {
+      const msg = this._outgoing.shift()
+
+      if (msg) {
+
+        if (msg.isBloc === true) {
+          // Send bloc
+          if (!this.initialEvent || !this.initialEvent.reply) {
+            throw new Error("Convo doesn't have default event or does not support UMM")
+          }
+
+          let data = msg.data
+
+          if (_.isFunction(data)) {
+            data = await Promise.resolve(data())
+          }
+
+          await Promise.resolve(this.initialEvent.reply(msg.bloc, data))
+        } else {
+          // Raw message
+          await Promise.resolve(this.middleware
+          && this.middleware.sendOutgoing 
+          && this.middleware.sendOutgoing(msg))
+        }
+      }
+
+      await Promise.delay(this._clockSpeed)
+      
+      if (this.status === 'active' || this._outgoing.length > 0) {
+        setImmediate(::this.sendNext)
+      }
+    } finally {
+      this._sendLock = false
     }
   }
 
@@ -170,7 +292,7 @@ class Conversation extends EventEmmiter {
 
   tick() {
     const thread = this.getCurrentThread()
-    if (this.status === 'active' && !thread.waiting && !!thread.peek()) {
+    if (this.status === 'active' && !thread.waiting) {
       this.next()
     }
   }
@@ -201,7 +323,7 @@ class Conversation extends EventEmmiter {
     return thread
   }
 
-  async switchTo(name) {
+  async switchTo(name, restart = true) {
     if (this.currentThread === name) {
       return // Don't switch if it's already the current thread
     }
@@ -216,16 +338,32 @@ class Conversation extends EventEmmiter {
     }
 
     this.currentThread = name
+
+    if (restart) {
+      const thread = this.getCurrentThread()
+      thread && thread.restart()
+    }
+
     this.emit('switched', name)
   }
 
-  next() {
+  async next() {
     const thread = this.getCurrentThread()
-    const msg = thread.dequeue()
+
+    if (!thread.peek()) {
+      return this.endWhenDone && this.stop('done')
+    }
+
+    const msg = await thread.dequeue()
     if (msg) {
-      this.say(msg.message, this.initialEvent)
-    } else {
-      this.endWhenDone && this.stop('done')
+      let message = msg.message
+
+      if (typeof message === 'function') {
+        // Executes (unwrap) the message on the fly
+        message = msg.message()
+      }
+
+      this.say(message, this.initialEvent)
     }
   }
 
@@ -252,8 +390,17 @@ class Conversation extends EventEmmiter {
   }
 
   async say(msg) {
-    const message = formatMessage(msg)
-    this._outgoing.push(msg)
+    let message = null
+
+    if (msg && msg.isBloc === true) {
+      message = msg
+    } else {
+      message = isBlocCall(arguments)
+        ? formatBloc(...arguments)
+        : formatMessage(msg, this.initialEvent)
+    }
+
+    this._outgoing.push(message)
 
     if (this.status !== 'active') {
       this.sendNext() // restart sending process once

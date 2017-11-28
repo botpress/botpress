@@ -45,19 +45,19 @@ export default class ManageView extends React.Component {
     this.setState({ loading: true })
 
     return axios.get('/api/module/all')
-    .then((result) => {
-      this.setState({
-        modules: result.data,
-        loading: false
+      .then((result) => {
+        this.setState({
+          modules: result.data,
+          loading: false
+        })
       })
-    })
   }
 
   refresh() {
     this.queryModules()
-    .then(() => {
-      setTimeout(actions.fetchModules, 5000)
-    })
+      .then(() => {
+        setTimeout(actions.fetchModules, 5000)
+      })
   }
 
   getResultFromSearch(modules) {
@@ -100,16 +100,16 @@ export default class ManageView extends React.Component {
     const classNames = classnames(style.search, 'bp-search')
 
     return <Row>
-        <Col sm={12}>
-          <FormGroup>
-            <FormControl id="search"
-              type="text"
-              placeholder="Search"
-              className={classNames}
-              onChange={::this.handleSearchChange}/>
-          </FormGroup>
-        </Col>
-      </Row>
+      <Col sm={12}>
+        <FormGroup>
+          <FormControl id="search"
+            type="text"
+            placeholder="Search"
+            className={classNames}
+            onChange={::this.handleSearchChange}/>
+        </FormGroup>
+      </Col>
+    </Row>
   }
 
   renderTag(label) {
@@ -123,16 +123,16 @@ export default class ManageView extends React.Component {
     })
 
     return <Button key={label} className={classNames} onClick={handleChange}>
-        {label}
-      </Button>
+      {label}
+    </Button>
   }
 
   renderTags() {
     return <Row>
-        <Col sm={12} className={style.tags}>
-          {this.state.tags.map(this.renderTag)}
-        </Col>
-      </Row>
+      <Col sm={12} className={style.tags}>
+        {this.state.tags.map(this.renderTag)}
+      </Col>
+    </Row>
   }
 
   renderModules() {
@@ -148,13 +148,13 @@ export default class ManageView extends React.Component {
     const [first, second] = _.chunk(modules, splitOn)
 
     return <Row>
-        <Col sm={6}>
-          <ModulesComponent modules={first} refresh={this.refresh.bind(this)}/>
-        </Col>
-        <Col sm={6}>
-          <ModulesComponent modules={second} refresh={this.refresh.bind(this)}/>
-        </Col>
-      </Row>
+      <Col sm={6}>
+        <ModulesComponent modules={first} refresh={this.refresh.bind(this)}/>
+      </Col>
+      <Col sm={6}>
+        <ModulesComponent modules={second} refresh={this.refresh.bind(this)}/>
+      </Col>
+    </Row>
   }
 
   render() {
@@ -164,7 +164,7 @@ export default class ManageView extends React.Component {
 
     return (
       <ContentWrapper>
-        {PageHeader(<span> Modules</span>)}
+        <PageHeader><span> Modules</span></PageHeader>
         <Grid fluid>
           <Row>
             <Col sm={12} md={10} mdOffset={1}>

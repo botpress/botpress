@@ -1,28 +1,54 @@
-# Summary
+### Getting Started
 
-1. [Getting Started](getting-started/README.md)
-    * [Hello Human in 3 minutes](getting-started/hello-human-in-3-minutes.md)
-    * [What is Botpress?](getting-started/what-is-botpress.md)
-    * [How Botpress Works?](getting-started/how-botpress-works.md)
-    * [How to start using Botpress](getting-started/how-to-start-using.md)
-    * [How to use the Dashboard](getting-started/how-to-use-the-dashboard.md)
-    * [Reference: CLI tool](getting-started/how-to-use-the-cli.md)
-2. [Creating your bot](creating-your-bot/README.md)
-    * [The botfile.js configuration file](creating-your-bot/the-botfile.md)
-    * [Understanding the middlewares flow](creating-your-bot/understanding-the-middlewares.md)
-    * [How to use the hear middleware](creating-your-bot/how-to-use-the-hear-middleware.md)
-    * [How to manage conversation flow](creating-your-bot/how-to-manage-conversation-flow.md)
-    * [How to use Events](creating-your-bot/how-to-use-events.md)
-    * [How to create Custom Routes with the HTTP Server](creating-your-bot/how-to-use-the-http-server.md)
-    * [How to use the built-in Database](creating-your-bot/how-to-use-the-database.md)
-    * [How to Debug your bot](creating-your-bot/how-to-debug.md)
-    * [How to switch to the Botpress License](creating-your-bot/botpress-license.md)
-3. [Modules](modules/README.md)
-    * [How to create a module](modules/how-to-create-a-module.md)
-        * [How to configure my module](modules/how-to-configure-my-module.md)
-        * [How can I change the icon of my module and its name in the menu?](modules/how-to-change-the-icon-and-name.md)
-4. [Management, Monitoring and Deployment](managing/README.md)
-    * [How to view the logs using the Dashboard](managing/how-to-view-the-logs-using-the-dashboard.md)
-    * [How to deploy your bot](managing/how-to-deploy.md)
-        * [Deploy to Heroku](managing/deploy-to-heroku.md)
-        * [Deploy to AWS](managing/deploy-to-aws.md)
+- [Installation and Bootstrap](starting/setup.md)
+
+### Foundamentals
+
+- [Project Structure](./foundamentals/structure.md)
+- [Events](./foundamentals/events.md)
+  - [Receiving Messages](./foundamentals/events.md#receive)
+  - [Sending Messages](./foundamentals/events.md#send)
+- [Conversations](./foundamentals/conversations.md)
+    - [Flow Management (Convo)](./foundamentals/flow.md)
+    - [Content Management (UMM)](./foundamentals/umm.md)
+- [Content Management](./foundamentals/content.md)
+- [Data Storage](./foundamentals/database.md)
+    - [Key-Value-Store](./foundamentals/database.md#kvs)
+    - [User Tags](./foundamentals/tags.md)
+    - [Notifications](./foundamentals/notifications.md)
+- [Configuration](./foundamentals/botfile.md)
+
+### Deploying your bot
+
+- [Heroku](./deploy/heroku.md)
+- [AWS](./deploy/aws.md)
+
+### Advanced concepts
+
+- [Middleware Chains](./advanced/middleware.md)
+- [Database Helpers](./advanced/database_helpers.md)
+- [Debugging your bot](./advanced/debug.md)
+
+### 
+
+### Reference
+
+- [Command Line Interface (CLI)](reference/cli.md)
+  - [init](reference/cli.md#init)
+  - [list](reference/cli.md#list)
+  - [install](reference/cli.md#install)
+  - [uninstall](reference/cli.md#uninstall)
+  - [create](reference/cli.md#create)
+  - [version](reference/cli.md#version)
+
+### 
+
+### Module Development
+
+- [How to create a module](./modules/how.md)
+  - [Events](./modules/events.md)
+  - [Exposing an API](./modules/api.md)
+  - [Configuration](./modules/config.md)
+  - [Module Icon](./modules/icon.md)
+  - [Light Views](./modules/light_views.md)
+  

@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 
 import ContentWrapper from '~/components/Layout/ContentWrapper'
-import PageHeader from '~/components/Layout/PageHeader'
 
 import {
   Panel,
@@ -15,6 +14,8 @@ import classnames from 'classnames'
 
 import _ from 'lodash'
 import axios from 'axios'
+import { connect } from 'nuclear-js-react-addons'
+import getters from '~/stores/getters'
 
 const style = require('./style.scss')
 
@@ -40,8 +41,8 @@ class ModuleComponent extends Component {
     }
     this.setState({ loading: true })
     axios.post('/api/module/install/' + this.props.module.name)
-    .then(fin)
-    .catch(fin)
+      .then(fin)
+      .catch(fin)
   }
 
   handleUninstall() {
@@ -51,21 +52,26 @@ class ModuleComponent extends Component {
     }
     this.setState({ loading: true })
     axios.delete('/api/module/uninstall/' + this.props.module.name)
-    .then()
-    .then(fin)
-    .catch(fin)
+      .then()
+      .then(fin)
+      .catch(fin)
   }
 
   renderLeftSideModule() {
-    const { docLink, icon, description, author, license, title } = this.props.module
+    const { docLink, icon, description, author, license, title, name } = this.props.module
+    const isLoaded = this.props.isLoaded
+    const iconPath = `/img/modules/${name}.png`
+
+    const hasCustomIcon = icon === 'custom' && isLoaded
+    const moduleIcon = hasCustomIcon
+      ? <img className={classnames(style.customIcon, 'bp-custom-icon')} src={iconPath} />
+      : <i className="icon material-icons">{icon === "custom" ? "extension" : icon}</i>
 
     return (
       <div>
         <a href={docLink} target="_blank">
           <h3 className={classnames(style.moduleTitle, 'bp-module-title')}>
-            <i className='icon material-icons'>
-              {icon === 'custom' ? 'extension' : icon}
-            </i>
+            {moduleIcon}
             {title}
           </h3>
         </a>
@@ -135,12 +141,21 @@ class ModuleComponent extends Component {
   }
 }
 
+@connect(props => ({
+  installedModules: getters.modules
+}))
 export default class ModulesComponent extends Component {
   render() {
+    var installedModules = {}
+    this.props.installedModules.map((module)=>{
+      const name = module.get("name")
+      installedModules[name] = true
+    })
     return (
       <div>
         {_.values(_.map(this.props.modules, module => {
-          return <ModuleComponent key={module.name} module={module} refresh={this.props.refresh}/>
+          return <ModuleComponent key={module.name} module={module}
+            refresh={this.props.refresh} isLoaded={installedModules[module.name]}/>
         }))}
       </div>
     )

@@ -1,4 +1,4 @@
-import keyMirror from 'keyMirror'
+import keyMirror from 'keymirror'
 
 export default keyMirror({
   MODULES_RECEIVED: null,
@@ -8,6 +8,7 @@ export default keyMirror({
   BOT_INFORMATION_RECEIVED: null,
   LICENSE_RECEIVED: null,
   LICENSE_CHANGED: null,
+  VIEW_MODE_CHANGED: null,
   TOGGLE_ABOUT_MODAL: null,
   USER_RECEIVED: null,
   RULES_RECEIVED: null

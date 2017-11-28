@@ -36,29 +36,29 @@ export default class NotificationHub extends NotificationComponent {
     const readTip = <Tooltip id="ttip">Mark all as read</Tooltip>
 
     return <ContentWrapper>
-            {PageHeader(<span> Notifications</span>)}
-            <Panel>
-              <div className="pull-right">
-                <OverlayTrigger placement="left" overlay={readTip}>
-                  <Button disabled={unreadCount === 0}
-                    onClick={this.markAllAsRead.bind(this)}>
-                    <em className="glyphicon glyphicon-eye-open"></em>
-                  </Button>
-                </OverlayTrigger>
-                <OverlayTrigger placement="left" overlay={trashTip}>
-                  <Button className={styles['bar-btn']}
-                    disabled={!canTrash}
-                    onClick={this.trashAll.bind(this)}>
-                    <em className="glyphicon glyphicon-trash"></em>
-                  </Button>
-                </OverlayTrigger>
-              </div>
-            </Panel>
-            <ListGroup style={{
-              padding: 0
-            }}>
-                {this.renderMenuItems(notifications)}
-            </ListGroup>
-        </ContentWrapper>
+      <PageHeader><span> Notifications</span></PageHeader>
+      <Panel>
+        <div className="pull-right">
+          <OverlayTrigger placement="left" overlay={readTip}>
+            <Button disabled={unreadCount === 0}
+              onClick={this.markAllAsRead.bind(this)}>
+              <em className="glyphicon glyphicon-eye-open"></em>
+            </Button>
+          </OverlayTrigger>
+          <OverlayTrigger placement="left" overlay={trashTip}>
+            <Button className={styles['bar-btn']}
+              disabled={!canTrash}
+              onClick={this.trashAll.bind(this)}>
+              <em className="glyphicon glyphicon-trash"></em>
+            </Button>
+          </OverlayTrigger>
+        </div>
+      </Panel>
+      <ListGroup style={{
+        padding: 0
+      }}>
+        {this.renderMenuItems(notifications)}
+      </ListGroup>
+    </ContentWrapper>
   }
 }

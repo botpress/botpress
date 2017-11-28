@@ -31,8 +31,8 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
 
   const fetchAllModules = () => {
     return axios.get(MODULES_URL, { timeout: FETCH_TIMEOUT })
-    .then(({ data }) => data)
-    .catch(() => logger.error('Could not fetch modules'))
+      .then(({ data }) => data)
+      .catch(() => logger.error('Could not fetch modules'))
   }
 
   const loadModules = (moduleDefinitions, botpress) => {
@@ -40,6 +40,7 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
     const loadedModules = {}
 
     moduleDefinitions.forEach(mod => {
+      // eslint-disable-next-line no-eval
       const loader = eval('require')(mod.entry)
 
       if (typeof loader !== 'object') {
@@ -53,6 +54,7 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
           kvs: kvs,
           name: mod.name,
           botfile: botpress.botfile,
+          projectLocation,
           options: loader.config || {}
         })
       } catch (err) {
@@ -85,6 +87,7 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
         'which means botpress can\'t load any module for the bot.')
     }
 
+    // eslint-disable-next-line no-eval
     const botPackage = eval('require')(packagePath)
 
     let deps = botPackage.dependencies || {}
@@ -105,6 +108,7 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
         return result
       }
 
+      // eslint-disable-next-line no-eval
       const modulePackage = eval('require')(path.join(root, 'package.json'))
       if (!modulePackage.botpress) {
         return result
@@ -125,31 +129,31 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
     const modulesCachePath = path.join(dataLocation, './modules-cache.json')
 
     return listAllCommunityModules()
-    .then(() => {
-      const { modules } = JSON.parse(fs.readFileSync(modulesCachePath))
+      .then(() => {
+        const { modules } = JSON.parse(fs.readFileSync(modulesCachePath))
 
-      const module = _.sample(modules)
+        const module = _.sample(modules)
 
-      if (!module) {
-        return {
-          username: 'danyfs',
-          github: 'https://github.com/danyfs',
-          avatar: 'https://avatars1.githubusercontent.com/u/5629987?v=3',
-          contributions: 'many',
-          module: 'botpress'
+        if (!module) {
+          return {
+            username: 'danyfs',
+            github: 'https://github.com/danyfs',
+            avatar: 'https://avatars1.githubusercontent.com/u/5629987?v=3',
+            contributions: 'many',
+            module: 'botpress'
+          }
         }
-      }
 
-      const hero = _.sample(module.contributors)
+        const hero = _.sample(module.contributors)
 
-      return {
-        username: hero.login,
-        github: hero.html_url,
-        avatar: hero.avatar_url,
-        contributions: hero.contributions,
-        module: module.name
-      }
-    })
+        return {
+          username: hero.login,
+          github: hero.html_url,
+          avatar: hero.avatar_url,
+          contributions: hero.contributions,
+          module: module.name
+        }
+      })
   })
 
   const mapModuleList = (modules) => {
@@ -200,24 +204,24 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
     return Promise.props({
       newModules: fetchAllModules()
     })
-    .then(({ newModules }) => {
+      .then(({ newModules }) => {
 
-      if (!newModules || !newModules.length) {
-        if (modules.length > 0) {
-          logger.debug('Fetched invalid modules. Report this to the Botpress Team.')
-          return mapModuleList(modules)
-        } else {
-          newModules = newModules || []
+        if (!newModules || !newModules.length) {
+          if (modules.length > 0) {
+            logger.debug('Fetched invalid modules. Report this to the Botpress Team.')
+            return mapModuleList(modules)
+          } else {
+            newModules = newModules || []
+          }
         }
-      }
 
-      fs.writeFileSync(modulesCachePath, JSON.stringify({
-        modules: newModules,
-        updated: new Date()
-      }))
+        fs.writeFileSync(modulesCachePath, JSON.stringify({
+          modules: newModules,
+          updated: new Date()
+        }))
 
-      return mapModuleList(newModules)
-    })
+        return mapModuleList(newModules)
+      })
   })
 
   const resolveModuleNames = (names) => {
@@ -275,11 +279,11 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
     log('info', 'Installing modules: ' + modules.join(', '))
 
     return runSpawn(install)
-    .then(() => log('success', 'Modules successfully installed'))
-    .catch(err => {
-      log('error', 'An error occured during modules installation.')
-      throw err
-    })
+      .then(() => log('success', 'Modules successfully installed'))
+      .catch(err => {
+        log('error', 'An error occurred during modules installation.')
+        throw err
+      })
   })
 
   const uninstallModules = Promise.method((...names) => {
@@ -291,11 +295,11 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
     log('info', `Uninstalling modules: ${modules.join(', ')}`)
 
     return runSpawn(uninstall)
-    .then(() => log('success', 'Modules successfully removed'))
-    .catch(err => {
-      log('error', 'An error occured during modules removal.')
-      throw err
-    })
+      .then(() => log('success', 'Modules successfully removed'))
+      .catch(err => {
+        log('error', 'An error occurred during modules removal.')
+        throw err
+      })
   })
 
 

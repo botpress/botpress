@@ -12,60 +12,61 @@ const initializeCoreDatabase = knex => {
   return Promise.mapSeries(tables, fn => fn(knex))
 }
 
+const createKnex = async ({ sqlite, postgres }) => {
+  let _knex = null
+
+  if (postgres.enabled) {
+
+    // If we're passing in a postgres connection string, 
+    // use that instead of the other params
+    if (postgres.connection) {
+      _knex = require('knex')({
+        client: 'pg',
+        connection: postgres.connection,
+        useNullAsDefault: true
+      })
+    } else {
+      _knex = require('knex')({
+        client: 'pg',
+        connection: {
+          host: postgres.host,
+          port: postgres.port,
+          user: postgres.user,
+          password: postgres.password,
+          database: postgres.database,
+          ssl: postgres.ssl
+        },
+        useNullAsDefault: true
+      })
+    }
+    
+  } else {
+    _knex = require('knex')({
+      client: 'sqlite3',
+      connection: { filename: sqlite.location },
+      useNullAsDefault: true,
+      pool: { 
+        afterCreate: (conn, cb) => {
+          conn.run('PRAGMA foreign_keys = ON', cb)
+        }
+      }
+    })
+  }
+
+  await initializeCoreDatabase(_knex)
+  return _knex
+}
+
 module.exports = ({ sqlite, postgres }) => {
 
   let knex = null
 
-  const getDb = () => {
-    if (knex) {
-      return Promise.resolve(knex)
+  const getDb = async () => {
+    if (!knex) {
+      knex = createKnex({ sqlite, postgres })
     }
 
-    let _knex = null
-
-    if (postgres.enabled) {
-
-      // If we're passing in a postgres connection string, 
-      // use that instead of the other params
-      if (postgres.connection) {
-        _knex = require('knex')({
-          client: 'pg',
-          connection: postgres.connection,
-          useNullAsDefault: true
-        })
-      } else {
-        _knex = require('knex')({
-          client: 'pg',
-          connection: {
-            host: postgres.host,
-            port: postgres.port,
-            user: postgres.user,
-            password: postgres.password,
-            database: postgres.database,
-            ssl: postgres.ssl
-          },
-          useNullAsDefault: true
-        })
-      }
-      
-    } else {
-      _knex = require('knex')({
-        client: 'sqlite3',
-        connection: { filename: sqlite.location },
-        useNullAsDefault: true,
-        pool: { 
-          afterCreate: (conn, cb) => {
-            conn.run('PRAGMA foreign_keys = ON', cb)
-          }
-        }
-      })
-    }
-
-    return initializeCoreDatabase(_knex)
-    .then(() => {
-      knex = _knex
-      return knex
-    })
+    return await knex
   }
 
   const saveUser = ({ id, platform, gender, timezone, locale, picture_url, first_name, last_name }) => {
@@ -84,52 +85,52 @@ module.exports = ({ sqlite, postgres }) => {
     }
 
     return getDb()
-    .then(knex => {
-      var query = knex('users').insert(userRow)
-      .where(function() {
-        return this
-          .select(knex.raw(1))
-          .from('users')
-          .where('id', '=', userId)
+      .then(knex => {
+        var query = knex('users').insert(userRow)
+          .where(function() {
+            return this
+              .select(knex.raw(1))
+              .from('users')
+              .where('id', '=', userId)
+          })
+
+        if (postgres.enabled) {
+          query = `${query} on conflict (id) do nothing`
+        } else { // SQLite
+          query = query.toString().replace(/^insert/i, 'insert or ignore')
+        }
+
+        return knex.raw(query)
       })
-
-      if (postgres.enabled) {
-        query = `${query} on conflict (id) do nothing`
-      } else { // SQLite
-        query = query.toString().replace(/^insert/i, 'insert or ignore')
-      }
-
-      return knex.raw(query)
-    })
   }
 
   let kvs_instance = null
-  const getKvs = () => {
+
+  const createKvs = async () => {
+    const knex = await getDb()
+    let _kvs = new kvs(knex)
+    await _kvs.bootstrap()
+    return _kvs
+  }
+
+  const getKvs = async () => {
     if (!kvs_instance) {
-      return getDb()
-      .then(knex => {
-        let _kvs = new kvs(knex)
-        return _kvs.bootstrap()
-        .then(() => {
-          kvs_instance = _kvs
-          return kvs_instance
-        })
-      })
-    } else {
-      return Promise.resolve(kvs_instance)
+      kvs_instance = createKvs()
     }
+
+    return await kvs_instance
   }
 
   const kvsGet = function() {
     const args = arguments
     return getKvs()
-    .then(instance => instance.get.apply(null, args))
+      .then(instance => instance.get.apply(null, args))
   }
 
   const kvsSet = function() {
     const args = arguments
     return getKvs()
-    .then(instance => instance.set.apply(null, args))
+      .then(instance => instance.set.apply(null, args))
   }
 
   return {

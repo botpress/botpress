@@ -1,14 +1,5 @@
 import React from 'react'
-import {
-  Panel,
-  Grid,
-  Row,
-  Col,
-  ControlLabel,
-  Tooltip,
-  OverlayTrigger,
-  Link
-} from 'react-bootstrap'
+import { Panel, Grid, Row, Col, ControlLabel, Tooltip, OverlayTrigger, Link } from 'react-bootstrap'
 
 import classnames from 'classnames'
 import axios from 'axios'
@@ -21,21 +12,17 @@ import InformationRowComponent from '+/views/Information'
 
 import actions from '~/actions'
 
-const style = require('./style.scss')
-
 export default class DashboardView extends React.Component {
-
   constructor(props, context) {
     super(props, context)
-    
+
     this.state = { loading: true }
 
     this.queryAllModules = this.queryAllModules.bind(this)
   }
 
   componentDidMount() {
-    this.queryAllModules()
-    .then(() => {
+    this.queryAllModules().then(() => {
       this.setState({
         loading: false
       })
@@ -43,32 +30,34 @@ export default class DashboardView extends React.Component {
   }
 
   queryAllModules() {
-    return axios.get('/api/module/all')
-    .then((result) => {
+    return axios.get('/api/module/all').then(result => {
       this.setState({
         popularModules: _.filter(result.data, m => m.popular),
-        featuredModules: _.filter(result.data, m => m.featured),
+        featuredModules: _.filter(result.data, m => m.featured)
       })
     })
   }
 
   refresh() {
-    this.queryAllModules()
-    .then(() => {
+    this.queryAllModules().then(() => {
       setTimeout(actions.fetchModules, 5000)
     })
   }
 
   renderPopularModules() {
-    return <Panel header='Popular modules'>
-      <ModulesComponent modules={this.state.popularModules} refresh={this.refresh.bind(this)}/>
-    </Panel>
+    return (
+      <Panel header="Popular modules">
+        <ModulesComponent modules={this.state.popularModules} refresh={this.refresh.bind(this)} />
+      </Panel>
+    )
   }
 
   renderFeaturedModules() {
-    return <Panel header='Featured modules'>
-      <ModulesComponent modules={this.state.featuredModules} refresh={this.refresh.bind(this)}/>
-    </Panel>
+    return (
+      <Panel header="Featured modules">
+        <ModulesComponent modules={this.state.featuredModules} refresh={this.refresh.bind(this)} />
+      </Panel>
+    )
   }
 
   render() {
@@ -77,7 +66,9 @@ export default class DashboardView extends React.Component {
     }
     return (
       <ContentWrapper>
-        {PageHeader(<span> Dashboard</span>)}
+        <PageHeader>
+          <span> Dashboard</span>
+        </PageHeader>
         <Grid fluid className={'bp-dashboard'}>
           <InformationRowComponent />
           <Row>
