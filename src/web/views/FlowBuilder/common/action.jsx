@@ -1,17 +1,29 @@
 import React, { Component } from 'react'
 import classnames from 'classnames'
 import { Popover, OverlayTrigger } from 'react-bootstrap'
+import _ from 'lodash'
 
 const style = require('./style.scss')
 
 export default class ActionItem extends Component {
   renderAction() {
-    const action = this.props.text
-    const actionName = action.function || action
+    const action = this.props.text.trim()
+
+    let actionName = action
+    let parameters = {}
+
+    if (action.indexOf(' ') >= 0) {
+      const tokens = action.split(' ')
+      actionName = _.head(tokens) + ' (args)'
+      parameters = JSON.parse(_.tail(tokens).join(' '))
+    }
+
+    const callPreview = JSON.stringify(parameters, null, 2)
 
     const popoverHoverFocus = (
       <Popover id="popover-action" title={`⚡ ${actionName}`}>
-        Call of this function
+        Called with these arguments:
+        <pre>{callPreview}</pre>
       </Popover>
     )
 
