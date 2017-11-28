@@ -9,6 +9,28 @@ import securedApis from './secured'
 const routersConditions = {}
 const routers = {}
 
+const maybeApply = (name, fn) => {
+  return (req, res, next) => {
+    const router = req.originalUrl.match(/\/api\/(botpress-[^\/]+).*$/i)
+    if (!router) {
+      return fn(req, res, next)
+    }
+
+    if (!routersConditions[router[1]]) {
+      return fn(req, res, next)
+    }
+
+    const condition = routersConditions[router[1]][name]
+    if (condition === false) {
+      next()
+    } else if (typeof condition === 'function' && condition(req) === false) {
+      next()
+    } else {
+      return fn(req, res, next)
+    }
+  }
+}
+
 module.exports = bp => {
   const _authenticationMiddleware = async (req, res, next) => {
     res.maybeSendRequireLogin = () => {
@@ -36,27 +58,6 @@ module.exports = bp => {
         .status(401)
         .location('/login')
         .end()
-    }
-  }
-
-  const installRouter = app => {
-    bp.getRouter = (name, conditions) => {
-      if (!/^botpress-/.test(name)) {
-        throw new Error(`The name of a router must start with 'botpress-'. Received: ${name}`)
-      }
-
-      if (!routers[name]) {
-        const router = express.Router()
-        routers[name] = router
-        app.use(`/api/${name}/`, router)
-      }
-
-      if (conditions) {
-        routersConditions[name] = Object.assign(routersConditions[name] || {}, conditions)
-      }
-
-      installProtector(routers[name])
-      return routers[name]
     }
   }
 
@@ -99,6 +100,27 @@ module.exports = bp => {
     }
   }
 
+  const installRouter = app => {
+    bp.getRouter = (name, conditions) => {
+      if (!/^botpress-/.test(name)) {
+        throw new Error(`The name of a router must start with 'botpress-'. Received: ${name}`)
+      }
+
+      if (!routers[name]) {
+        const router = express.Router()
+        routers[name] = router
+        app.use(`/api/${name}/`, router)
+      }
+
+      if (conditions) {
+        routersConditions[name] = Object.assign(routersConditions[name] || {}, conditions)
+      }
+
+      installProtector(routers[name])
+      return routers[name]
+    }
+  }
+
   const installMaybeUse = app => {
     app.maybeUse = function() {
       if (arguments.length === 3) {
@@ -125,26 +147,4 @@ module.exports = bp => {
   }
 
   return { install }
-}
-
-const maybeApply = (name, fn) => {
-  return (req, res, next) => {
-    const router = req.originalUrl.match(/\/api\/(botpress-[^\/]+).*$/i)
-    if (!router) {
-      return fn(req, res, next)
-    }
-
-    if (!routersConditions[router[1]]) {
-      return fn(req, res, next)
-    }
-
-    const condition = routersConditions[router[1]][name]
-    if (condition === false) {
-      next()
-    } else if (typeof condition === 'function' && condition(req) === false) {
-      next()
-    } else {
-      return fn(req, res, next)
-    }
-  }
 }

@@ -2,6 +2,16 @@ import _ from 'lodash'
 import helpers from './database/helpers'
 
 module.exports = ({ db }) => {
+  const hasTag = async (userId, tag) => {
+    const knex = await db.get()
+
+    return knex('users_tags')
+      .select('userId')
+      .where({ userId, tag: _.toUpper(tag) })
+      .limit(1)
+      .then(ret => ret.length > 0)
+  }
+
   const tag = async (userId, tag, value = true) => {
     const knex = await db.get()
 
@@ -38,16 +48,6 @@ module.exports = ({ db }) => {
       .where({ userId, tag: _.toUpper(tag) })
       .del()
       .then()
-  }
-
-  const hasTag = async (userId, tag) => {
-    const knex = await db.get()
-
-    return knex('users_tags')
-      .select('userId')
-      .where({ userId, tag: _.toUpper(tag) })
-      .limit(1)
-      .then(ret => ret.length > 0)
   }
 
   const getTag = async (userId, tag) => {

@@ -153,6 +153,25 @@ module.exports = ({ db, botfile, projectLocation, logger }) => {
     )
   }
 
+  const transformCategoryItem = item => {
+    if (!item) {
+      return item
+    }
+
+    const metadata = _.filter((item.metadata || '').split('|'), i => i.length > 0)
+
+    return {
+      id: item.id,
+      data: JSON.parse(item.data),
+      formData: JSON.parse(item.formData),
+      categoryId: item.categoryId,
+      previewText: item.previewText,
+      metadata: metadata,
+      createdBy: item.created_by,
+      createdOn: item.created_on
+    }
+  }
+
   const listCategoryItems = async (categoryId, from = 0, count = 50, searchTerm) => {
     const knex = await db.get()
 
@@ -175,25 +194,6 @@ module.exports = ({ db, botfile, projectLocation, logger }) => {
       .then()
 
     return items.map(transformCategoryItem)
-  }
-
-  const transformCategoryItem = item => {
-    if (!item) {
-      return item
-    }
-
-    const metadata = _.filter((item.metadata || '').split('|'), i => i.length > 0)
-
-    return {
-      id: item.id,
-      data: JSON.parse(item.data),
-      formData: JSON.parse(item.formData),
-      categoryId: item.categoryId,
-      previewText: item.previewText,
-      metadata: metadata,
-      createdBy: item.created_by,
-      createdOn: item.created_on
-    }
   }
 
   const deleteCategoryItems = async ids => {
