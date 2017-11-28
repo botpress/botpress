@@ -1,15 +1,7 @@
 import React, { Component } from 'react'
+import ReactDOM from 'react-dom'
 
-import {
-  ListGroup,
-  ListGroupItem,
-  Popover,
-  OverlayTrigger,
-  Button,
-  MenuItem,
-  Clearfix,
-  DropdownButton
-} from 'react-bootstrap'
+import { ListGroup, ListGroupItem, Popover, Button, MenuItem, Overlay } from 'react-bootstrap'
 
 import _ from 'lodash'
 
@@ -31,21 +23,58 @@ export default class FlowsList extends Component {
 
     const dirtyMarker = isDirty ? '*' : ''
 
+    const handleDelete = () => {
+      hideOverlay()
+      setTimeout(() => {
+        if (confirm('Are you sure you want to delete this flow?') === true) {
+          alert('DONE')
+        }
+      }, 250)
+    }
+
     const dropdown = (
       <Popover id={`flow-${index}-dropdown`}>
         <ul className={style.menu}>
-          <MenuItem>Delete</MenuItem>
+          <MenuItem onClick={handleDelete}>Delete</MenuItem>
           <MenuItem>Duplicate</MenuItem>
         </ul>
       </Popover>
     )
 
+    const hideOverlay = () => {
+      this.setState({
+        showDropdown: -1
+      })
+    }
+
+    const overlayShown = this.state.showDropdown === index
+
+    const showOverlay = () => {
+      this.setState({
+        showDropdown: index
+      })
+    }
+
+    const ref = 'menu-btn-' + index
+
     const caret = (
-      <OverlayTrigger animation={false} trigger="click" rootClose placement="bottom" overlay={dropdown}>
-        <Button bsSize="xsmall">
-          <span className="caret" />
-        </Button>
-      </OverlayTrigger>
+      <Button bsSize="xsmall" ref={ref} onClick={showOverlay}>
+        <span className="caret" />
+      </Button>
+    )
+
+    const overlay = (
+      <Overlay
+        onHide={hideOverlay}
+        show={overlayShown}
+        animation={false}
+        trigger="click"
+        rootClose
+        placement="bottom"
+        target={() => ReactDOM.findDOMNode(this.refs[ref])}
+      >
+        {dropdown}
+      </Overlay>
     )
 
     const lgProps = isCurrentFlow ? {} : { href: '#' }
@@ -57,6 +86,7 @@ export default class FlowsList extends Component {
           {dirtyMarker} {isCurrentFlow ? ' (current)' : ''}
         </div>
         <div className={style.menuButton}>{caret}</div>
+        {overlay}
       </ListGroupItem>
     )
   }
