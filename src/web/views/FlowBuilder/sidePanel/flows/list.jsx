@@ -1,6 +1,15 @@
 import React, { Component } from 'react'
 
-import { ListGroup, ListGroupItem } from 'react-bootstrap'
+import {
+  ListGroup,
+  ListGroupItem,
+  Popover,
+  OverlayTrigger,
+  Button,
+  MenuItem,
+  Clearfix,
+  DropdownButton
+} from 'react-bootstrap'
 
 import _ from 'lodash'
 
@@ -16,21 +25,38 @@ export default class FlowsList extends Component {
     this.props.switchFlow(flow.name)
   }
 
-  renderFlow(flow) {
+  renderFlow(flow, index) {
     const isCurrentFlow = flow.name === _.get(this.props, 'currentFlow.name')
     const isDirty = _.includes(this.props.dirtyFlows, flow.name)
 
     const dirtyMarker = isDirty ? '*' : ''
 
-    return isCurrentFlow ? (
-      <ListGroupItem>
-        {flow.name}
-        {dirtyMarker} (current)
-      </ListGroupItem>
-    ) : (
-      <ListGroupItem href="#" onClick={() => this.switchToFlow(flow)}>
-        {flow.name}
-        {dirtyMarker}
+    const dropdown = (
+      <Popover id={`flow-${index}-dropdown`}>
+        <ul className={style.menu}>
+          <MenuItem>Delete</MenuItem>
+          <MenuItem>Duplicate</MenuItem>
+        </ul>
+      </Popover>
+    )
+
+    const caret = (
+      <OverlayTrigger animation={false} trigger="click" rootClose placement="bottom" overlay={dropdown}>
+        <Button bsSize="xsmall">
+          <span className="caret" />
+        </Button>
+      </OverlayTrigger>
+    )
+
+    const lgProps = isCurrentFlow ? {} : { href: '#' }
+
+    return (
+      <ListGroupItem {...lgProps}>
+        <div onClick={() => this.switchToFlow(flow)}>
+          {flow.name}
+          {dirtyMarker} {isCurrentFlow ? ' (current)' : ''}
+        </div>
+        <div className={style.menuButton}>{caret}</div>
       </ListGroupItem>
     )
   }
