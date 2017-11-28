@@ -57,7 +57,7 @@ export default class TransitionSection extends Component {
       <div>
         <Panel collapsible defaultExpanded={true} header={header}>
           {items.map((item, i) => (
-            <ConditionItem className={style.item} text={item.condition}>
+            <ConditionItem className={style.item} text={item.condition} position={i}>
               <div className={style.actions}>
                 <a onClick={() => this.onRemove(i)}>Remove</a>
                 {renderMoveUp(i)}
