@@ -17,6 +17,12 @@ export default class ParametersTable extends Component {
     return this.state.arguments
   }
 
+  onChanged() {
+    setImmediate(() => {
+      this.props.onChange && this.props.onChange(this.state.arguments)
+    })
+  }
+
   render() {
     const renderRow = id => {
       const args = this.state.arguments
@@ -57,7 +63,7 @@ export default class ParametersTable extends Component {
           arguments: { ...args, [id]: { key: evt.target.value, value: args[id].value } }
         })
 
-        this.props.onChange && this.props.onChange(this.state.arguments)
+        this.onChanged()
       }
 
       const editValue = evt => {
@@ -73,7 +79,7 @@ export default class ParametersTable extends Component {
           arguments: { ...args, [id]: { value: evt.target.value, key: args[id].key } }
         })
 
-        this.props.onChange && this.props.onChange(this.state.arguments)
+        this.onChanged()
       }
 
       const isKeyValid = args[id].key.length > 0 || !args[id].value.length
