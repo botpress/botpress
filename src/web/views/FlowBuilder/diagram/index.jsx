@@ -71,6 +71,15 @@ export default class FlowBuilder extends Component {
     this.diagramWidget && this.diagramWidget.forceUpdate()
   }
 
+  clearModel() {
+    this.activeModel = new DiagramModel()
+    this.activeModel.setGridSize(5)
+    this.activeModel.linksHash = null
+
+    this.diagramEngine.setDiagramModel(this.activeModel)
+    this.diagramWidget && this.diagramWidget.forceUpdate()
+  }
+
   createNodeLinks(node, allNodes, existingLinks = []) {
     if (!_.isArray(node.next)) {
       return
@@ -217,8 +226,14 @@ export default class FlowBuilder extends Component {
     document.getElementById('diagramContainer').removeEventListener('keyup', ::this.onKeyUp)
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    if (!prevProps.currentFlow || _.get(prevProps, 'currentFlow.name') !== _.get(this, 'props.currentFlow.name')) {
+  componentDidUpdate(prevProps) {
+    if (!this.props.currentFlow) {
+      // Clear the active model
+      this.clearModel()
+    } else if (
+      !prevProps.currentFlow ||
+      _.get(prevProps, 'currentFlow.name') !== _.get(this, 'props.currentFlow.name')
+    ) {
       // Update the diagram model only if we changed the current flow
       this.setModel()
     } else {
