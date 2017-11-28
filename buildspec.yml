@@ -2,17 +2,14 @@ version: 0.2
 phases:
   install:
     commands:
+      - echo "****** Install Bundle for Jekyll ******"
       - gem install jekyll bundler
-      - echo "****** Install Yarn And NodeJS ******"
-      - curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add - echo "deb https://dl.yarnpkg.com/debian/ stable main"
-      - echo "****** Update nodeJs and Yarn ******"
-      - sudo apt-get update && sudo apt-get install yarn
-
   pre_build:
     commands:
-      - echo ~/
       - cd docs2/
+      - echo "***** Install Dependancy Ruby *****"
       - bundle install
+      - echo "***** Yarn Install *****"
       - yarn install
   build:
     commands:
