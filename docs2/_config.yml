@@ -16,7 +16,7 @@
 encoding: utf-8
 title: Botpress
 description: An open-source, on-premises bot framework that saves thousands of developers thousands of hours.
-baseurl: "" # the subpath of your site, e.g. /blog
+baseurl: "/docs2" # the subpath of your site, e.g. /blog
 url: "https://botpress.github.io" # the base hostname & protocol for your site
 repository: /botpress/botpress.github.io/
 
