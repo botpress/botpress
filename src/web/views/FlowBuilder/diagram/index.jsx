@@ -217,6 +217,7 @@ export default class FlowBuilder extends Component {
   }
 
   componentDidMount() {
+    this.props.fetchFlows()
     ReactDOM.findDOMNode(this.diagramWidget).addEventListener('click', ::this.onDiagramClick)
     document.getElementById('diagramContainer').addEventListener('keyup', ::this.onKeyUp)
   }
