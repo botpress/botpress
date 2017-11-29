@@ -149,24 +149,24 @@ reducer = reduceReducers(
 
       [updateFlow]: (state, { payload }) => {
         const currentFlow = state.flowsByName[state.currentFlow]
+        const nodes = !payload.links
+          ? currentFlow.nodes
+          : currentFlow.nodes.map(node => {
+              const nodeLinks = payload.links.filter(link => link.source === node.id)
+              let next = node.next.map((value, index) => {
+                const link = nodeLinks.find(link => Number(link.sourcePort.replace('out', '')) === index)
+                const targetNode = _.find(currentFlow.nodes, { id: (link || {}).target })
+                return { ...value, node: (targetNode && targetNode.name) || '' }
+              })
+
+              return { ...node, next, lastModified: new Date() }
+            })
+
         return {
           ...state,
           flowsByName: {
             ...state.flowsByName,
-            [state.currentFlow]: {
-              ...currentFlow,
-              nodes: currentFlow.nodes.map(node => {
-                const nodeLinks = (payload.links || []).filter(link => link.source === node.id)
-                let next = node.next.map((value, index) => {
-                  const link = nodeLinks.find(link => Number(link.sourcePort.replace('out', '')) === index)
-                  const targetNode = _.find(currentFlow.nodes, { id: (link || {}).target })
-                  return { ...value, node: (targetNode && targetNode.name) || value.node }
-                })
-
-                return { ...node, next, lastModified: new Date() }
-              }),
-              ...payload
-            }
+            [state.currentFlow]: { ...currentFlow, nodes, ...payload }
           }
         }
       },
