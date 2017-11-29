@@ -81,18 +81,6 @@ class Toolbar extends React.Component {
             </OverlayTrigger>
           </Button>
 
-          <Button
-            className={style.btn}
-            bsStyle="default"
-            onClick={() => {
-              this.props.fetchFlows()
-            }}
-          >
-            <OverlayTrigger placement="bottom" overlay={createTooltip('search', 'Search flows')}>
-              <i className="material-icons">search</i>
-            </OverlayTrigger>
-          </Button>
-
           <div className={style.separator} />
 
           <Button
