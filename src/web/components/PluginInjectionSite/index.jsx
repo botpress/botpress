@@ -5,24 +5,14 @@ import _ from 'lodash'
 
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
 
-const collectModules = (modules, injectionSite) => {
-  if (!modules) {
-    return []
-  }
+const collectModules = (modules, injectionSite) =>
+  _.flatten(
+    (modules || []).filter(Boolean).map(module => {
+      const plugins = _.filter(module.plugins || [], { position: injectionSite })
 
-  const pluginsToRender = []
-
-  modules.filter(Boolean).forEach(module => {
-    const plugins = module.plugins || []
-    const toAdd = _.filter(plugins, { position: injectionSite })
-
-    toAdd.forEach(p => {
-      pluginsToRender.push({ moduleName: module.name, viewName: p.entry })
+      return plugins.map(plugin => ({ moduleName: module.name, viewName: plugin.entry }))
     })
-  })
-
-  return pluginsToRender
-}
+  )
 
 class ModuleView extends React.Component {
   static contextTypes = {
