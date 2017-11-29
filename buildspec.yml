@@ -6,7 +6,7 @@ phases:
       - gem install jekyll bundler
   pre_build:
     commands:
-      - cd docs2/
+      - cd docs/
       - echo "***** Install Dependancy Ruby *****"
       - bundle install
       - echo "***** Npm Install *****"
@@ -16,7 +16,7 @@ phases:
       - echo "******* Building Jekyll site *******"
       - bundle exec jekyll build
       - echo "******* Uploading to S3 *******"
-      - aws s3 sync _site/ s3://botpress-docs/docs2
+      - aws s3 sync _site/ s3://botpress-docs/docs
   # post_build:
     #commands:
       # - command

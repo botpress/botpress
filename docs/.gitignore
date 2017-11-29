@@ -10,4 +10,3 @@ _site/
 
 # Flow build artifacts are copied here:
 /static/master
-/_data/flow_dot_js_versions.csv
