@@ -431,9 +431,11 @@ export default class FlowBuilder extends Component {
           return alert("You can't delete the start node.")
         } else if (element.nodeType === 'standard') {
           this.props.removeFlowNode(element.id)
-        } else {
-          // it's a link, a point or something else
+        } else if (element.linkType === 'default') {
           element.remove()
+          this.checkForLinksUpdate()
+        } else {
+          element.remove() // it's a point or something else
         }
       }
     }
