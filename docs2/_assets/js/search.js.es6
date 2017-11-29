@@ -1,9 +1,8 @@
 import * as docsearch from 'docsearch';
 // TODO Change the token for the one for botpress
 docsearch({
-  apiKey: '5735bfc8e574388155a4d85de48e6893',
-  appId: 'W4TGY1LV0J',
-  indexName: 'dev_BOTPRESS-X-DOC',
+  apiKey: '570227d66d130d069630e7226c740158',
+  indexName: 'botpress',
   inputSelector: '#algolia-doc-search',
   debug: true,
 });
