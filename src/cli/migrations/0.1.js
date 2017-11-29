@@ -5,13 +5,12 @@ import fs from 'fs'
 import kvs from '../../database/kvs'
 import util from '../../util'
 
-module.exports = bot_path => {
-  const botfilePath = path.join(bot_path, 'botfile.js')
-  // eslint-disable-next-line no-eval
-  const botfile = eval('require')(botfilePath)
-  const dbLocation = path.resolve(path.join(bot_path, botfile.dataDir, 'db.sqlite'))
-
-  return migrate_database_schema(dbLocation).then(() => migrate_botfile(botfilePath))
+function dropTableIfExists(knex, tableName) {
+  return knex.schema.hasTable(tableName).then(has => {
+    if (has) {
+      return knex.schema.dropTable(tableName)
+    }
+  })
 }
 
 function migrate_database_schema(dbLocation) {
@@ -78,14 +77,6 @@ function migrate_database_schema(dbLocation) {
     })
 }
 
-function dropTableIfExists(knex, tableName) {
-  return knex.schema.hasTable(tableName).then(has => {
-    if (has) {
-      return knex.schema.dropTable(tableName)
-    }
-  })
-}
-
 function migrate_botfile(botfilePath) {
   const before = fs.readFileSync(botfilePath).toString()
 
@@ -118,4 +109,13 @@ function migrate_botfile(botfilePath) {
   fs.writeFileSync(botfilePath, after)
 
   util.print('info', 'Updated botfile')
+}
+
+module.exports = bot_path => {
+  const botfilePath = path.join(bot_path, 'botfile.js')
+  // eslint-disable-next-line no-eval
+  const botfile = eval('require')(botfilePath)
+  const dbLocation = path.resolve(path.join(bot_path, botfile.dataDir, 'db.sqlite'))
+
+  return migrate_database_schema(dbLocation).then(() => migrate_botfile(botfilePath))
 }

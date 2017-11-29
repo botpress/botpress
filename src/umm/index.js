@@ -12,7 +12,6 @@ const fs = Promise.promisifyAll(require('fs'))
 module.exports = ({ logger, middlewares, botfile, projectLocation, db, contentManager }) => {
   const processors = {} // A map of all the platforms that can process outgoing messages
   const templates = {} // A map of all the platforms templates
-  const storagePath = getStoragePath()
 
   const registerConnector = ({ platform, processOutgoing, templates }) => {
     // TODO throw if templates not array
@@ -65,6 +64,8 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db, contentMa
       return path.resolve(projectLocation, ummPath)
     }
   }
+
+  const storagePath = getStoragePath()
 
   const saveDocument = content => {
     if (_.isObject(content)) {

@@ -3,6 +3,19 @@ import ReactDOM from 'react-dom'
 
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
 
+const parseQueryString = () => {
+  const queryString = (window.location.search || '').substring(1) || ''
+
+  const params = {}
+  const queries = queryString.split('&')
+
+  for (let i = 0, l = queries.length; i < l; i++) {
+    const temp = queries[i].split('=')
+    params[temp[0]] = temp[1]
+  }
+  return params
+}
+
 const { m, v } = parseQueryString()
 
 const LiteView = props => {
@@ -21,16 +34,3 @@ const LiteView = props => {
 }
 
 ReactDOM.render(<LiteView />, document.getElementById('app'))
-
-const parseQueryString = () => {
-  const queryString = (window.location.search || '').substring(1) || ''
-
-  const params = {}
-  const queries = queryString.split('&')
-
-  for (let i = 0, l = queries.length; i < l; i++) {
-    const temp = queries[i].split('=')
-    params[temp[0]] = temp[1]
-  }
-  return params
-}

@@ -7,6 +7,19 @@ import classnames from 'classnames'
 
 import EventBus from '~/util/EventBus'
 
+const getNotificationStyle = (styles, notification) =>
+  classnames({
+    animated: true,
+    fadeIn: true,
+    notif: true,
+    [styles.item]: true,
+    [styles['level-' + notification.level]]: true,
+    [styles['item-unread']]: !notification.read,
+    'bp-item': true,
+    ['bp-level-' + notification.level]: true,
+    'bp-item-unread': !notification.read
+  })
+
 export default class NotificationComponent extends Component {
   static contextTypes = {
     router: PropTypes.object.isRequired
@@ -112,16 +125,3 @@ export default class NotificationComponent extends Component {
     return displayedNotifications.map((notif, i) => [this.renderMenuItem(notif, i), renderDivider(i)])
   }
 }
-
-const getNotificationStyle = (styles, notification) =>
-  classnames({
-    animated: true,
-    fadeIn: true,
-    notif: true,
-    [styles.item]: true,
-    [styles['level-' + notification.level]]: true,
-    [styles['item-unread']]: !notification.read,
-    'bp-item': true,
-    ['bp-level-' + notification.level]: true,
-    'bp-item-unread': !notification.read
-  })

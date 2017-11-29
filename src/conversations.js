@@ -476,14 +476,6 @@ module.exports = ({ logger, middleware, clockSpeed = 500 }) => {
     }
   }
 
-  const start = (event, callback) => {
-    const convo = create(event)
-    callback && callback(convo)
-
-    convo.activate()
-    return convo
-  }
-
   const create = event => {
     validateEvent(event)
     const convo = new Conversation({
@@ -493,6 +485,14 @@ module.exports = ({ logger, middleware, clockSpeed = 500 }) => {
       initialEvent: event
     })
     convos.push(convo)
+    return convo
+  }
+
+  const start = (event, callback) => {
+    const convo = create(event)
+    callback && callback(convo)
+
+    convo.activate()
     return convo
   }
 

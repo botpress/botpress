@@ -22,7 +22,7 @@ class ContentWrapper extends React.Component {
   }
 
   render() {
-    const { unwrapm, viewMode, stretch: _stretch, children } = this.props
+    const { unwrap, viewMode, stretch: _stretch, children } = this.props
 
     const childElement = unwrap ? <div className="unwrap">{children}</div> : children
 
