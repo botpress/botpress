@@ -4,8 +4,8 @@
   "description": "<%= description %>",
   "main": "index.js",
   "dependencies": {
-    "botpress": "1.x",
-    "botpress-platform-webchat": "^0.3"
+    "botpress": "^1.0.0",
+    "botpress-platform-webchat": "^0.4.0"
   },
   "scripts": {
     "start": "botpress start",
