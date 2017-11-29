@@ -59,5 +59,9 @@ lib/
 *.sly
 
 .idea/**
-
+docs/.asset-cache
+docs/.asset-cache/*
+docs/.asset-cache/**
 _book/
+
+*.cache

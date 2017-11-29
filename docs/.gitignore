@@ -1,0 +1,12 @@
+/node_modules
+_site
+_site/
+.sass-cache
+.sass-cache/**
+.jekyll-metadata
+.DS_Store
+.asset-cache
+.asset-cache/**
+
+# Flow build artifacts are copied here:
+/static/master

@@ -1,0 +1,40 @@
+- id: getting_started
+  pages:
+    - path: "/docs/getting_started/"
+    - path: "/docs/getting_started/install/"
+
+- id: foundamentals
+  pages:
+    - path: "/docs/foundamentals/"
+    - path: "/docs/foundamentals/events/"
+    - path: "/docs/foundamentals/conversations/"
+    - path: "/docs/foundamentals/flow/"
+    - path: "/docs/foundamentals/umm/"
+    - path: "/docs/foundamentals/content/"
+    - path: "/docs/foundamentals/database/"
+    - path: "/docs/foundamentals/tags/"
+    - path: "/docs/foundamentals/botfile/"
+
+- id: deploy
+  pages:
+    - path: "/docs/deploy/heroku/"
+    - path: "/docs/deploy/aws/"
+
+- id: advanced
+  pages:
+    - path: "/docs/advanced/middleware/"
+    - path: "/docs/advanced/database_helpers/"
+    - path: "/docs/advanced/debug/"
+
+- id: reference
+  pages:
+    - path: "/docs/reference/"
+
+- id: modules
+  pages:
+    - path: "/docs/modules/"
+    - path: "/docs/modules/events/"
+    - path: "/docs/modules/api/"
+    - path: "/docs/modules/config/"
+    - path: "/docs/modules/icon/"
+    - path: "/docs/modules/light_views/"
