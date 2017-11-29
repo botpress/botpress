@@ -5,10 +5,11 @@ const style = require('./style.scss')
 
 export default class ConditionItem extends Component {
   render() {
+    const { position } = this.props
     let action = this.props.text
 
     if (action.length <= 0 || /^yes|true$/i.test(action.toLowerCase())) {
-      action = 'always / otherwise'
+      action = position === 0 ? 'always' : 'otherwise'
     }
 
     return (
