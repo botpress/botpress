@@ -11,7 +11,7 @@
   "scripts": {
     "test": "npm run lint && npm run mocha",
     "lint": "eslint ./*.js src/",
-    "mocha": "NODE_ENV=test mocha --compilers js:babel-register --recursive",
+    "mocha": "NODE_ENV=test mocha --require babel-register --recursive",
     "watch": "webpack --watch --color",
     "compile": "webpack --color",
     "prepare": "rimraf bin && npm run compile"
@@ -64,10 +64,7 @@
             }
           ]
         ],
-        "plugins": [
-          "transform-object-rest-spread",
-          "add-module-exports"
-        ]
+        "plugins": ["transform-object-rest-spread", "add-module-exports"]
       }
     }
   }
