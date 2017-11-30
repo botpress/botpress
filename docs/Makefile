@@ -24,7 +24,6 @@ clear:
 	rm -rf .node_modules
 	rm -rf "_site/"
 
-
 serve: test-jekyll
 	@bundle exec jekyll serve --host="::" --port=7000 --trace  --verbose
 
@@ -43,13 +42,6 @@ serve-production: test-jekyll
 build-production: test-jekyll
 	@JEKYLL_ENV=production bundle exec jekyll build $(BUILD_FLAGS)
 
-# crowdin-sync: test-crowdin
-# 	@crowdin-cli upload sources --auto-update -b master
-# 	@crowdin-cli download -b master
-
-###
-# Misc stuff:
-###
 
 BUNDLE_EXISTS := $(shell command -v bundle 2> /dev/null)
 YARN_EXISTS := $(shell command -v yarn 2> /dev/null)
@@ -70,11 +62,3 @@ test-jekyll:
 ifndef JEKYLL_EXISTS
 	$(error Jekyll is not installed. Run `make install`)
 endif
-
-# test-crowdin:
-# ifndef CROWDIN_EXISTS
-# 	$(error Crowdin is not installed. Run `make install`)
-# endif
-# ifndef CROWDIN_API_KEY
-# 	$(error CROWDIN_API_KEY is undefined)
-# endif

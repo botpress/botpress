@@ -82,13 +82,9 @@ docs_additional_reading: "Additional Reading"
   title: "Documentation"
   description: "Guides and references for all you need to know about Botpress"
 
-"/blog/":
-  title: "Botpress Blog"
-  description: "Botpress articles and announcements"
 "/docs/":
   title: "Documentation"
   description: "Guides and references for all you need to know about Botpress"
-
 
 # Gettings Started
 
@@ -202,7 +198,6 @@ docs_additional_reading: "Additional Reading"
   description: "How to use a lightweight version of botpress"
 
 guides:
-
   getting_started:
     title: "Getting Started"
     description: >
@@ -233,4 +228,3 @@ guides:
     title: "Module Development"
     description: >
       How to Create your own module 
-
