@@ -1,5 +1,5 @@
-import React from 'react'
-import ReactDOM from 'react-dom'
+import React from 'expose-loader?React!react'
+import ReactDOM from 'expose-loader?ReactDOM!react-dom'
 
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
 
