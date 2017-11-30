@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { Table } from 'react-bootstrap'
 import classnames from 'classnames'
+import _ from 'lodash'
 
 const style = require('./parameters.scss')
 
@@ -8,8 +9,10 @@ export default class ParametersTable extends Component {
   constructor(props) {
     super(props)
 
+    const valuesArray = [..._.map(props.value, (value, key) => ({ key, value })), { key: '', value: '' }]
+
     this.state = {
-      arguments: { 1: { key: '', value: '' } }
+      arguments: _.fromPairs(valuesArray.map((el, i) => [i, el]))
     }
   }
 

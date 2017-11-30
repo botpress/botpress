@@ -5,15 +5,38 @@ import _ from 'lodash'
 
 const style = require('./style.scss')
 
-export default class NewConditionModal extends Component {
+export default class ConditionModalForm extends Component {
   constructor(props) {
     super(props)
+
     this.state = {
       typeOfTransition: 'end',
       flowToSubflow: null,
       transitionError: null,
       conditionError: null
     }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const { item } = nextProps
+
+    if (this.props.show || !nextProps.show) {
+      return
+    }
+
+    if (item) {
+      let typeOfTransition = item.node.indexOf('.') !== -1 ? 'subflow' : 'node'
+      typeOfTransition = item.node === 'END' ? 'end' : typeOfTransition
+
+      this.setState({
+        typeOfTransition,
+        condition: item.condition,
+        flowToSubflow: typeOfTransition === 'subflow' ? item.node : null
+      })
+    } else {
+      this.resetForm()
+    }
+    this.setState({ isEdit: Boolean(item) })
   }
 
   changeTransitionType(type) {
@@ -59,7 +82,7 @@ export default class NewConditionModal extends Component {
     })
   }
 
-  onAddClick() {
+  onSubmitClick() {
     if (this.validation()) {
       const payload = { condition: this.state.condition }
 
@@ -71,7 +94,7 @@ export default class NewConditionModal extends Component {
         payload.node = ''
       }
 
-      this.props.onAdd(payload)
+      this.props.onSubmit(payload)
       this.resetForm()
     }
   }
@@ -104,7 +127,7 @@ export default class NewConditionModal extends Component {
     return (
       <Modal animation={false} show={this.props.show} onHide={this.props.onClose}>
         <Modal.Header closeButton>
-          <Modal.Title>New condition to transition</Modal.Title>
+          <Modal.Title>{this.state.isEdit ? 'Edit' : 'New'} condition to transition</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <h5>Condition:</h5>
@@ -138,8 +161,8 @@ export default class NewConditionModal extends Component {
         </Modal.Body>
         <Modal.Footer>
           <Button onClick={this.props.onClose}>Cancel</Button>
-          <Button onClick={::this.onAddClick} bsStyle="primary">
-            Add Condition
+          <Button onClick={::this.onSubmitClick} bsStyle="primary">
+            {this.state.isEdit ? 'Update' : 'Create'}
           </Button>
         </Modal.Footer>
       </Modal>

@@ -5,7 +5,7 @@ import { Panel, Button } from 'react-bootstrap'
 
 import ConditionItem from '../../common/condition'
 
-import NewConditionModal from './NewConditionModal'
+import ConditionModalForm from './ConditionModalForm'
 
 const style = require('../style.scss')
 
@@ -13,7 +13,7 @@ export default class TransitionSection extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      showNewConditionModal: false
+      showConditionalModalForm: false
     }
   }
 
@@ -28,16 +28,22 @@ export default class TransitionSection extends Component {
     this.props.onItemsUpdated(clone)
   }
 
-  onAdd(item) {
-    const clone = [...this.props.items, item]
-    this.setState({ showNewConditionModal: false })
-    this.props.onItemsUpdated(clone)
+  onSubmit(item) {
+    const editIndex = this.state.itemToEditIndex
+    const { items } = this.props
+    const updateByIndex = (originalItem, i) => (i === editIndex ? item : originalItem)
+    this.setState({ showConditionalModalForm: false, itemToEditIndex: null })
+    this.props.onItemsUpdated(Number.isInteger(editIndex) ? items.map(updateByIndex) : [...items, item])
   }
 
   onRemove(index) {
     const clone = [...this.props.items]
     _.pullAt(clone, [index])
     this.props.onItemsUpdated(clone)
+  }
+
+  onEdit(itemToEditIndex) {
+    this.setState({ itemToEditIndex, showConditionalModalForm: true })
   }
 
   render() {
@@ -51,7 +57,7 @@ export default class TransitionSection extends Component {
 
     const renderMoveDown = i => (i < items.length - 1 ? <a onClick={() => this.onMove(i, 1)}>Down</a> : null)
 
-    const handleAddAction = () => this.setState({ showNewConditionModal: true })
+    const handleAddAction = () => this.setState({ showConditionalModalForm: true })
 
     return (
       <div>
@@ -59,6 +65,7 @@ export default class TransitionSection extends Component {
           {items.map((item, i) => (
             <ConditionItem className={style.item} text={item.condition} position={i}>
               <div className={style.actions}>
+                <a onClick={() => this.onEdit(i)}>Edit</a>
                 <a onClick={() => this.onRemove(i)}>Remove</a>
                 {renderMoveUp(i)}
                 {renderMoveDown(i)}
@@ -71,11 +78,12 @@ export default class TransitionSection extends Component {
             </Button>
           </div>
         </Panel>
-        <NewConditionModal
+        <ConditionModalForm
           subflows={this.props.subflows}
-          show={this.state.showNewConditionModal}
-          onClose={() => this.setState({ showNewConditionModal: false })}
-          onAdd={::this.onAdd}
+          show={this.state.showConditionalModalForm}
+          onClose={() => this.setState({ showConditionalModalForm: false, itemToEditIndex: null })}
+          onSubmit={::this.onSubmit}
+          item={this.props.items[this.state.itemToEditIndex]}
         />
       </div>
     )

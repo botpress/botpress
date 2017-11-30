@@ -7,7 +7,7 @@ import ParametersTable from './ParametersTable'
 
 const style = require('./style.scss')
 
-export default class NewActionModal extends Component {
+export default class ActionModalForm extends Component {
   constructor(props) {
     super(props)
 
@@ -18,6 +18,26 @@ export default class NewActionModal extends Component {
       messageInputValue: '',
       functionParams: {}
     }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const { item } = nextProps
+
+    if (this.props.show || !nextProps.show) {
+      return
+    }
+
+    if (item) {
+      this.setState({
+        actionType: nextProps.item.type,
+        functionInputValue: nextProps.item.functionName,
+        messageInputValue: nextProps.item.message,
+        functionParams: nextProps.item.parameters
+      })
+    } else {
+      this.resetForm()
+    }
+    this.setState({ isEdit: Boolean(item) })
   }
 
   componentDidMount() {
@@ -34,7 +54,7 @@ export default class NewActionModal extends Component {
     this.setState({ actionType: type })
   }
 
-  resetState() {
+  resetForm() {
     this.setState({
       actionType: 'message',
       functionInputValue: '',
@@ -101,7 +121,11 @@ export default class NewActionModal extends Component {
         </div>
         <h5>Function parameters {paramsHelp}</h5>
         <div className={style.section}>
-          <ParametersTable ref={el => (this.parametersTable = el)} onChange={onParamsChange} />
+          <ParametersTable
+            ref={el => (this.parametersTable = el)}
+            onChange={onParamsChange}
+            value={this.state.functionParams}
+          />
         </div>
 
         <h5>Preview</h5>
@@ -150,9 +174,9 @@ export default class NewActionModal extends Component {
     const noop = () => {}
 
     const onClose = props.onClose || noop
-    const onAdd = () => {
-      const handler = props.onAdd || noop
-      this.resetState()
+    const onSubmit = () => {
+      const handler = props.onSubmit || noop
+      this.resetForm()
       handler({
         type: this.state.actionType,
         functionName: this.state.functionInputValue,
@@ -164,7 +188,7 @@ export default class NewActionModal extends Component {
     return (
       <Modal animation={false} show={props.show} onHide={onClose}>
         <Modal.Header closeButton>
-          <Modal.Title>Add new action</Modal.Title>
+          <Modal.Title>{this.state.isEdit ? 'Edit' : 'Add new'} action</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <h5>The bot will:</h5>
@@ -181,8 +205,8 @@ export default class NewActionModal extends Component {
         </Modal.Body>
         <Modal.Footer>
           <Button onClick={onClose}>Cancel</Button>
-          <Button onClick={onAdd} bsStyle="primary">
-            Add Action (Alt+Enter)
+          <Button onClick={onSubmit} bsStyle="primary">
+            {this.state.isEdit ? 'Update' : 'Add'} Action (Alt+Enter)
           </Button>
         </Modal.Footer>
       </Modal>
