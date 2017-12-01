@@ -94,6 +94,13 @@ export default class FlowProvider extends EventEmitter2 {
       fs.writeFileSync(uiPath, JSON.stringify(uiContent, null, 2))
     }
 
+    const flowsDir = path.resolve(this.projectLocation, this.botfile.flowsDir || './flows')
+    fs
+      .readdirSync(flowsDir)
+      .map(fileName => path.resolve(flowsDir, './' + fileName))
+      .filter(filePath => !flowsToSave.find(flow => flow.flowPath === filePath || flow.uiPath === filePath))
+      .map(filePath => fs.unlinkSync(filePath))
+
     this.emit('flowsChanged')
   }
 
