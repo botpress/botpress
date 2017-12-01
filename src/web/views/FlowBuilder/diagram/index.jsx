@@ -444,6 +444,15 @@ export default class FlowBuilder extends Component {
     this.diagramWidget.forceUpdate()
   }
 
+  copySelectedElementToBuffer() {
+    this.props.copyFlowNode()
+  }
+
+  pasteElementFromBuffer() {
+    this.props.pasteFlowNode()
+    this.getSelectedNode().setSelected(false)
+  }
+
   onKeyUp(event) {
     if (event.code === 'Backspace') {
       this.deleteSelectedElements()

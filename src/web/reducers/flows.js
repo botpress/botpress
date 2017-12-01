@@ -19,6 +19,8 @@ import {
   switchFlowNode,
   setDiagramAction,
   createFlowNode,
+  copyFlowNode,
+  pasteFlowNode,
   createFlow,
   deleteFlow,
   removeFlowNode,
@@ -256,6 +258,40 @@ reducer = reduceReducers(
         }
       }),
 
+      [copyFlowNode]: state => ({
+        ...state,
+        nodeInBuffer: { ..._.find(state.flowsByName[state.currentFlow].nodes, { id: state.currentFlowNode }) }
+      }),
+
+      [pasteFlowNode]: state => {
+        const currentFlow = state.flowsByName[state.currentFlow]
+        const newNodeId = Math.random()
+          .toString()
+          .substr(2, 10)
+        return {
+          ...state,
+          currentFlowNode: newNodeId,
+          nodeInBuffer: null,
+          flowsByName: {
+            ...state.flowsByName,
+            [state.currentFlow]: {
+              ...currentFlow,
+              nodes: [
+                ...currentFlow.nodes,
+                {
+                  ...state.nodeInBuffer,
+                  id: newNodeId,
+                  name: copyName(currentFlow.nodes.map(({ name }) => name), state.nodeInBuffer.name),
+                  lastModified: new Date(),
+                  x: 0,
+                  y: 0
+                }
+              ]
+            }
+          }
+        }
+      },
+
       [createFlowNode]: (state, { payload }) => ({
         ...state,
         flowsByName: {
@@ -370,6 +406,23 @@ function createSnapshot(state) {
     ...state,
     snapshots: [snapshot, ...snapshots],
     currentSnapshotIndex: 0
+  }
+}
+
+function copyName(siblingNames, nameToCopy) {
+  let copies = siblingNames.filter(name => name.startsWith(`${nameToCopy}-copy`))
+
+  if (!copies.length) {
+    return `${nameToCopy}-copy`
+  }
+
+  let i = 1
+  while (true) {
+    if (!copies.find(name => name === `${nameToCopy}-copy-${i}`)) {
+      return `${nameToCopy}-copy-${i}`
+    } else {
+      i += 1
+    }
   }
 }
 

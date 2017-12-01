@@ -48,6 +48,8 @@ export const updateFlowNode = createAction('FLOWS/FLOW/UPDATE_NODE')
 export const switchFlowNode = createAction('FLOWS/FLOW/SWITCH_NODE')
 export const createFlowNode = createAction('FLOWS/FLOW/CREATE')
 export const removeFlowNode = createAction('FLOWS/FLOW/REMOVE')
+export const copyFlowNode = createAction('FLOWS/NODE/COPY')
+export const pasteFlowNode = createAction('FLOWS/NODE/PASTE')
 
 export const flowEditorUndo = createAction('FLOWS/EDITOR/UNDO')
 export const flowEditorRedo = createAction('FLOWS/EDITOR/REDO')
