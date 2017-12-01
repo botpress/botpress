@@ -12,6 +12,7 @@ export default class ConditionModalForm extends Component {
     this.state = {
       typeOfTransition: 'end',
       flowToSubflow: null,
+      flowToNode: null,
       transitionError: null,
       conditionError: null
     }
@@ -31,7 +32,8 @@ export default class ConditionModalForm extends Component {
       this.setState({
         typeOfTransition,
         condition: item.condition,
-        flowToSubflow: typeOfTransition === 'subflow' ? item.node : null
+        flowToSubflow: typeOfTransition === 'subflow' ? item.node : null,
+        flowToNode: typeOfTransition === 'node' ? { label: item.node, value: item.node } : null
       })
     } else {
       this.resetForm()
@@ -41,14 +43,24 @@ export default class ConditionModalForm extends Component {
 
   changeTransitionType(type) {
     const subflowOptions = this.getSubflowOptions()
+    const nodeOptions = this.getNodeOptions()
     this.setState({
       typeOfTransition: type,
-      flowToSubflow: this.state.flowToSubflow || (subflowOptions && subflowOptions[0])
+      flowToSubflow: this.state.flowToSubflow || (subflowOptions && subflowOptions[0]),
+      flowToNode: this.state.flowToNode || (nodeOptions && nodeOptions[0])
     })
   }
 
   validation() {
     if (this.state.typeOfTransition === 'subflow' && !this.state.flowToSubflow) {
+      this.setState({
+        transitionError: 'You must select a subflow to transition to'
+      })
+
+      return false
+    }
+
+    if (this.state.typeOfTransition === 'node' && !this.state.flowToNode && this.getNodeOptions().length > 0) {
       this.setState({
         transitionError: 'You must select a subflow to transition to'
       })
@@ -76,6 +88,7 @@ export default class ConditionModalForm extends Component {
     this.setState({
       typeOfTransition: 'end',
       flowToSubflow: null,
+      flowToNode: null,
       conditionError: null,
       transitionError: null,
       condition: ''
@@ -90,6 +103,8 @@ export default class ConditionModalForm extends Component {
         payload.node = this.state.flowToSubflow.value
       } else if (this.state.typeOfTransition === 'end') {
         payload.node = 'END'
+      } else if (this.state.typeOfTransition === 'node') {
+        payload.node = this.state.flowToNode.value || ''
       } else {
         payload.node = ''
       }
@@ -115,6 +130,27 @@ export default class ConditionModalForm extends Component {
         onChange={val => {
           this.setState({ flowToSubflow: val && val.value })
         }}
+      />
+    )
+  }
+
+  getNodeOptions() {
+    const flow = this.props.currentFlow
+    return (flow && flow.nodes.map(({ name }) => ({ label: name, value: name }))) || []
+  }
+
+  renderNodesChoice() {
+    if (!this.props.currentFlow) {
+      return null
+    }
+
+    const nodeOptions = this.getNodeOptions()
+    return (
+      <Select
+        name="flowToNode"
+        value={this.state.flowToNode}
+        options={nodeOptions}
+        onChange={flowToNode => this.setState({ flowToNode })}
       />
     )
   }
@@ -149,6 +185,7 @@ export default class ConditionModalForm extends Component {
             <Radio checked={this.state.typeOfTransition === 'node'} onChange={() => this.changeTransitionType('node')}>
               Transition to node <span className={style.nodeBloc} />
             </Radio>
+            {this.state.typeOfTransition === 'node' && this.renderNodesChoice()}
             <Radio
               checked={this.state.typeOfTransition === 'subflow'}
               onChange={() => this.changeTransitionType('subflow')}

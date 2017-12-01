@@ -79,6 +79,7 @@ export default class TransitionSection extends Component {
           </div>
         </Panel>
         <ConditionModalForm
+          currentFlow={this.props.currentFlow}
           subflows={this.props.subflows}
           show={this.state.showConditionalModalForm}
           onClose={() => this.setState({ showConditionalModalForm: false, itemToEditIndex: null })}
