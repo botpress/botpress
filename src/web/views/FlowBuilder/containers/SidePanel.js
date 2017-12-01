@@ -1,7 +1,7 @@
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
-import { updateFlowNode, updateFlow, removeFlowNode, switchFlow, deleteFlow } from '~/actions'
+import { updateFlowNode, updateFlow, removeFlowNode, switchFlow, deleteFlow, duplicateFlow } from '~/actions'
 import { getCurrentFlow, getCurrentFlowNode, getDirtyFlows } from '~/reducers'
 
 import _ from 'lodash'
@@ -16,15 +16,7 @@ const mapStateToProps = (state, ownProps) => ({
 })
 
 const mapDispatchToProps = (dispatch, ownProps) =>
-  bindActionCreators(
-    {
-      updateFlowNode: updateFlowNode,
-      updateFlow: updateFlow,
-      switchFlow: switchFlow,
-      deleteFlow: deleteFlow
-    },
-    dispatch
-  )
+  bindActionCreators({ updateFlowNode, updateFlow, switchFlow, deleteFlow, duplicateFlow }, dispatch)
 
 const ConnectedSidePanel = connect(mapStateToProps, mapDispatchToProps)(SidePanel)
 

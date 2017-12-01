@@ -33,11 +33,35 @@ export default class FlowsList extends Component {
       }, 250)
     }
 
+    const handleDuplicate = () => {
+      hideOverlay()
+
+      setTimeout(() => {
+        let name = prompt('Enter the name of the new flow')
+
+        if (!name) {
+          return
+        }
+
+        name = name.replace(/\.flow\.json$/i, '')
+
+        if (/[^A-Z0-9-_\/]/i.test(name)) {
+          return alert('ERROR: The flow name can only contain letters, numbers, underscores and hyphens.')
+        }
+
+        if (_.includes(this.props.flows.map(f => f.name), name + '.flow.json')) {
+          return alert('ERROR: This flow already exists')
+        }
+
+        this.props.duplicateFlow({ flowNameToDuplicate: flow.name, name: `${name}.flow.json` })
+      }, 250)
+    }
+
     const dropdown = (
       <Popover id={`flow-${index}-dropdown`} bsClass={classnames(style.popover, 'popover')}>
         <ul className={style.menu}>
           <li onClick={handleDelete}>Delete</li>
-          <li>Duplicate</li>
+          <li onClick={handleDuplicate}>Duplicate</li>
         </ul>
       </Popover>
     )

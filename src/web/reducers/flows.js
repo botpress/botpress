@@ -21,6 +21,7 @@ import {
   createFlowNode,
   createFlow,
   deleteFlow,
+  duplicateFlow,
   removeFlowNode,
   flowEditorUndo,
   flowEditorRedo,
@@ -103,6 +104,7 @@ reducer = reduceReducers(
       [linkFlowNodes]: createSnapshot,
       [createFlow]: createSnapshot,
       [deleteFlow]: createSnapshot,
+      [duplicateFlow]: createSnapshot,
       [removeFlowNode]: createSnapshot,
 
       [flowEditorUndo]: state => {
@@ -187,6 +189,26 @@ reducer = reduceReducers(
         currentFlowNode: state.currentFlow === name ? null : state.currentFlowNode,
         flowsByName: _.omit(state.flowsByName, name)
       }),
+
+      [duplicateFlow]: (state, { payload: { flowNameToDuplicate, name } }) => {
+        return {
+          ...state,
+          flowsByName: {
+            ...state.flowsByName,
+            [name]: {
+              ...state.flowsByName[flowNameToDuplicate],
+              name,
+              location: name,
+              nodes: state.flowsByName[flowNameToDuplicate].nodes.map(node => ({
+                ...node,
+                id: `${node.id}-copy`
+              }))
+            }
+          },
+          currentFlow: name,
+          currentFlowNode: null
+        }
+      },
 
       [updateFlowNode]: (state, { payload }) => {
         const currentFlow = state.flowsByName[state.currentFlow]
@@ -400,6 +422,7 @@ reducer = reduceReducers(
       [createFlowNode]: updateCurrentHash,
       [createFlow]: updateCurrentHash,
       [deleteFlow]: updateCurrentHash,
+      [duplicateFlow]: updateCurrentHash,
       [removeFlowNode]: updateCurrentHash
     },
     defaultState
