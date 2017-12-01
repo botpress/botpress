@@ -52,16 +52,16 @@ Essentially, you can imagine a key-value store as a big table that can store JSO
 
 ### `get(key, [path])` -> Promise(value)
 
-Returns the value of a key from the store. 
+Returns the value of a key from the store.
 
-Optionally, you can provide a `path` argument that will only return the value inside the object. 
+Optionally, you can provide a `path` argument that will only return the value inside the object.
 
 #### Example
 
 ```js
 bp.db.kvs.get(`users/id/${event.user.id}/books`)
 .then(books => {
-  // do something  
+  // do something
 })
 ```
 
@@ -80,16 +80,16 @@ bp.db.kvs.get('users/id/002485', 'role')
 
 ### `set(key, value, [path])` -> Promise()
 
-This sets the **value** at **key**. 
+This sets the **value** at **key**.
 
-Optionally, you can provide a path (works like the `get`).
+Optionally, you can provide a path (works like `get`).
 
 #### Example (simple)
 
 ```js
 bp.db.kvs.set('bot_updated_on', new Date())
 .then(() => {
-  // do something else  
+  // do something else
 })
 ```
 
@@ -98,7 +98,7 @@ bp.db.kvs.set('bot_updated_on', new Date())
 ```js
 bp.db.kvs.set('users/id/002485', { name: 'Sylvain', first_name: 'Perron' })
 .then(() => {
-  // do something else  
+  // do something else
 })
 ```
 
@@ -108,6 +108,14 @@ bp.db.kvs.set('users/id/002485', { name: 'Sylvain', first_name: 'Perron' })
 For example, if you have the value `{ a: 1, b: { _b: 2 } }` and you set: `set('key', 5, 'b._b')`, then the value will become `{ a: 1, b: { _b: 5 } }`.
 
 However, if you don't specify any path, the entire object (value) will be replaced.
+{% endhint %}
+
+{% hint style='working' %}
+Also notice that this method treats all-digit parts of the `path` as array indexes.
+
+For example, if your value is `{ a: 1 }` and you set `set('key', 5, 'b.5')`, then the value will become `{ a: 1, b: [ null, null, null, null, 5 ] }`.
+
+If this is not what you meant you can provide the `path` as an array of parts: `set('key', 5, [ 'b', '5' ])` will result in `{ a: 1, b: { '5': 5 } }`.
 {% endhint %}
 
 ## Connecting to a Postgres 9.5+ database {#postgres}
