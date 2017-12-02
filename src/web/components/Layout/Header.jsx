@@ -14,12 +14,8 @@ import style from './Header.scss'
 import { viewModeChanged } from '~/actions'
 
 class Header extends React.Component {
-  constructor(props, context) {
-    super(props, context)
-
-    this.state = {
-      loading: true
-    }
+  state = {
+    loading: true
   }
 
   getProfileImgUrl() {

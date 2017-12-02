@@ -13,12 +13,9 @@ import NewActionModal from './NewActionModal'
 const style = require('./style.scss')
 
 export default class SidePanel extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      currentSection: null,
-      showNewActionModal: false
-    }
+  state = {
+    currentSection: null,
+    showNewActionModal: false
   }
 
   onAddActionClicked = options => {

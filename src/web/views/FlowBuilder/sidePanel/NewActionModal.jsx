@@ -36,15 +36,11 @@ const availableFunctions = [
 ]
 
 export default class NewActionModal extends Component {
-  constructor(props) {
-    super(props)
-
-    this.state = {
-      actionType: 'message',
-      functionSuggestions: availableFunctions.map(fn => ({ label: fn.name, value: fn.name })),
-      functionInputValue: '',
-      messageInputValue: ''
-    }
+  state = {
+    actionType: 'message',
+    functionSuggestions: availableFunctions.map(fn => ({ label: fn.name, value: fn.name })),
+    functionInputValue: '',
+    messageInputValue: ''
   }
 
   onChangeType(type) {

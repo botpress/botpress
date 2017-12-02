@@ -6,10 +6,6 @@ import { Button } from 'react-bootstrap'
 const style = require('./style.scss')
 
 export default class ListView extends Component {
-  constructor(props) {
-    super(props)
-  }
-
   renderAddButton() {
     const classNames = classnames({
       'bp-button': true,

@@ -14,14 +14,11 @@ export default class LoginPage extends Component {
     router: PropTypes.object
   }
 
-  constructor(props, context) {
-    super(props, context)
-    this.state = {
-      user: 'admin',
-      password: '',
-      error: null,
-      loading: false
-    }
+  state = {
+    user: 'admin',
+    password: '',
+    error: null,
+    loading: false
   }
 
   componentDidMount() {

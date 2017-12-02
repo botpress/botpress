@@ -67,18 +67,15 @@ export default class MiddlewaresComponent extends Component {
     type: PropTypes.string.isRequired
   }
 
-  constructor(props, context) {
-    super(props, context)
-    this.state = {
-      loading: true,
-      incoming: [],
-      outgoing: [],
-      incomingDragIndex: null,
-      incomingItems: [],
-      outgoingDragIndex: null,
-      outgoingItems: [],
-      initialStateHash: null
-    }
+  state = {
+    loading: true,
+    incoming: [],
+    outgoing: [],
+    incomingDragIndex: null,
+    incomingItems: [],
+    outgoingDragIndex: null,
+    outgoingItems: [],
+    initialStateHash: null
   }
 
   getStateHash() {

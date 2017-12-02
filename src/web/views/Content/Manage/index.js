@@ -8,14 +8,10 @@ import { Checkbox, Table, Button, FormControl, FormGroup, Tooltip, OverlayTrigge
 const style = require('./style.scss')
 
 export default class ManageView extends Component {
-  constructor(props) {
-    super(props)
-
-    this.state = {
-      checkedIds: [],
-      allChecked: false,
-      search: ''
-    }
+  state = {
+    checkedIds: [],
+    allChecked: false,
+    search: ''
   }
 
   componentDidMount() {

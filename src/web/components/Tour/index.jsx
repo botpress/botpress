@@ -12,10 +12,9 @@ import style from './style.scss'
 const STEPS_COUNT = 3
 
 export default class GuidedTour extends React.Component {
-  constructor(props) {
-    super(props)
-
-    this.state = { finished: false, step: 0 }
+  state = {
+    finished: false,
+    step: 0
   }
 
   handleClose = () => {

@@ -33,12 +33,8 @@ const documentation = `
   `
 
 export default class ManageView extends React.Component {
-  constructor(props) {
-    super(props)
-
-    this.state = {
-      collapse: true
-    }
+  state = {
+    collapse: true
   }
 
   getDocumentation() {

@@ -20,15 +20,11 @@ import { toggleLicenseModal, viewModeChanged } from '~/actions'
 import style from './style.scss'
 
 class Layout extends React.Component {
-  constructor(props, context) {
-    super(props, context)
-  }
-
   componentDidMount() {
     const viewMode = this.props.location.query && this.props.location.query.viewMode
 
     setImmediate(() => {
-      this.props.viewModeChanged(viewMode ? viewMode : 0)
+      this.props.viewModeChanged(viewMode || 0)
     })
   }
 

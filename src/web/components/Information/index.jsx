@@ -13,10 +13,8 @@ class InformationComponent extends React.Component {
     router: PropTypes.object.isRequired
   }
 
-  constructor(props, context) {
-    super(props, context)
-
-    this.state = { loading: true }
+  state = {
+    loading: true
   }
 
   componentDidMount() {

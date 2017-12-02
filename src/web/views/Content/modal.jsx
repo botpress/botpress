@@ -10,12 +10,8 @@ import Form from 'react-jsonschema-form'
 import style from './style.scss'
 
 export default class AddMessageModal extends React.Component {
-  constructor(props) {
-    super(props)
-
-    this.state = {
-      loading: true
-    }
+  state = {
+    loading: true
   }
 
   componentDidMount() {

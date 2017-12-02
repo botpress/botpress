@@ -13,10 +13,7 @@ import FlowsList from './flows/list'
 const style = require('./style.scss')
 
 export default class SidePanel extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {}
-  }
+  state = {}
 
   render() {
     const objectPropertiesTitle = !!this.props.currentFlowNode ? 'Node Properties' : 'Flow Properties'

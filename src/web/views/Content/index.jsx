@@ -16,16 +16,12 @@ const style = require('./style.scss')
 const MESSAGES_PER_PAGE = 20
 
 export default class ContentView extends Component {
-  constructor(props) {
-    super(props)
-
-    this.state = {
-      loading: true,
-      showModal: false,
-      modifyId: null,
-      selectedId: 'all',
-      page: 1
-    }
+  state = {
+    loading: true,
+    showModal: false,
+    modifyId: null,
+    selectedId: 'all',
+    page: 1
   }
 
   componentDidMount() {

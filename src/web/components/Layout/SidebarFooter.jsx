@@ -16,10 +16,6 @@ class SidebarFooter extends React.Component {
     router: PropTypes.object.isRequired
   }
 
-  constructor(props, context) {
-    super(props, context)
-  }
-
   openLicenseComponent = () => {
     this.props.toggleLicenseModal()
   }

@@ -10,10 +10,6 @@ class PageHeader extends React.Component {
     router: PropTypes.object.isRequired
   }
 
-  constructor(props, context) {
-    super(props, context)
-  }
-
   render() {
     const hasHeader = this.props.viewMode <= 2
     const hasSidebar = this.props.viewMode < 1

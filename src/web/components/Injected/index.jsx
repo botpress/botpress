@@ -2,16 +2,14 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import ReactDOM from 'react-dom'
 
+const getUuid = () => `${Math.random()}`.substr(2)
+
 export default class InjectedComponent extends Component {
-  static propTypes: {
+  static propTypes = {
     component: PropTypes.func.isRequired
   }
 
-  constructor(props) {
-    super(props)
-    const uuid = `${Math.random()}`.substr(2)
-    this.componentId = 'component_' + uuid
-  }
+  componentId = `component_${getUuid()}`
 
   componentDidUpdate() {
     this.internalRender()
@@ -33,6 +31,8 @@ export default class InjectedComponent extends Component {
     return <div className="component-mount" />
   }
 
+  // TODO: can't we do it in normal render and let the component be trashed normally too?
+  // Maybe React 16 error boundaries are what we actually want
   internalRender() {
     const node = ReactDOM.findDOMNode(this)
 

@@ -3,17 +3,10 @@ import classnames from 'classnames'
 
 const style = require('./style.scss')
 
-export default class PreviewList extends Component {
-  constructor(props) {
-    super(props)
-  }
+const PreviewList = () => {
+  const classNames = classnames(style.preview, 'bp-umm-preview')
 
-  render() {
-    const classNames = classnames({
-      [style.preview]: true,
-      'bp-umm-preview': true
-    })
-
-    return <div className={classNames} />
-  }
+  return <div className={classNames} />
 }
+
+export default PreviewList

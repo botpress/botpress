@@ -11,12 +11,8 @@ require('codemirror/theme/zenburn.css')
 require('codemirror/mode/yaml/yaml')
 
 export default class CodeView extends Component {
-  constructor(props) {
-    super(props)
-
-    this.state = {
-      code: ''
-    }
+  state = {
+    code: ''
   }
 
   handleUpdateChange = newCode => {

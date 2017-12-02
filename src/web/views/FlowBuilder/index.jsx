@@ -13,11 +13,8 @@ import Topbar from './containers/Topbar'
 const style = require('./style.scss')
 
 export default class FlowBuilder extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      flowName: ''
-    }
+  state = {
+    flowName: ''
   }
 
   render() {

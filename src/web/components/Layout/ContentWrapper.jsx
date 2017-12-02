@@ -5,12 +5,8 @@ import classnames from 'classnames'
 import style from './ContentWrapper.scss'
 
 class ContentWrapper extends React.Component {
-  constructor(props) {
-    super(props)
-
-    this.state = {
-      show: false
-    }
+  state = {
+    show: false
   }
 
   componentDidMount() {

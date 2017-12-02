@@ -7,10 +7,8 @@ import classnames from 'classnames'
 import style from './HelpButton.scss'
 
 export default class HelpButton extends React.Component {
-  constructor(props, context) {
-    super(props, context)
-
-    this.state = { shown: false }
+  state = {
+    shown: false
   }
 
   toggleShown = () => {
