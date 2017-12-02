@@ -27,7 +27,10 @@
   background: #000;
   color: #fff;
 
-  &-waiting { background: #f6bd4f; }
+  &.waiting {
+    background: #f6bd4f;
+    color: #000;
+  }
 }
 
 .section-onEnter .item,

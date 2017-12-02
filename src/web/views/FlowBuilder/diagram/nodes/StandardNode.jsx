@@ -127,7 +127,7 @@ export class StandardNodeWidget extends React.Component {
                 return <ActionItem key={i} className={style.item} text={item} />
               })}
           </div>
-          <div className={classnames(style[isWaiting ? 'section-title-waiting' : 'section-title'], style.section)}>
+          <div className={classnames(style['section-title'], style.section, { [style.waiting]: isWaiting })}>
             {node.name}
           </div>
           <div className={classnames(style['section-onReceive'], style.section)}>
