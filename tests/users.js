@@ -32,6 +32,8 @@ run('users', () => {
         gender: 'unknown',
         created_on: moment(new Date()).toISOString()
       }
+
+      await Promise.delay(1)
       await knex('users')
         .insert(userRow)
         .then()
