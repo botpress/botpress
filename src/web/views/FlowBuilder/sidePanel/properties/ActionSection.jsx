@@ -65,10 +65,29 @@ export default class ActionSection extends Component {
     this.setState({ itemToEditIndex, showActionModalForm: true })
   }
 
+  renderWait() {
+    const { items } = this.props
+
+    if (!this.props.waitable || (items && items.length > 0)) {
+      return null
+    }
+
+    const checked = _.isArray(items)
+
+    const changeChecked = () => this.props.onItemsUpdated && this.props.onItemsUpdated(checked ? null : [])
+
+    return (
+      <label>
+        <input name="isGoing" type="checkbox" checked={checked} onChange={changeChecked} />
+        {'  Wait for user message'}
+      </label>
+    )
+  }
+
   render() {
     let { items, header } = this.props
 
-    if (!items) {
+    if (_.isNil(items)) {
       items = []
     }
 
@@ -81,6 +100,7 @@ export default class ActionSection extends Component {
     return (
       <div>
         <Panel collapsible defaultExpanded={true} header={header}>
+          {this.renderWait()}
           {items.map((item, i) => (
             <ActionItem className={style.item} text={item}>
               <div className={style.actions}>
@@ -101,7 +121,7 @@ export default class ActionSection extends Component {
           show={this.state.showActionModalForm}
           onClose={() => this.setState({ showActionModalForm: false, itemToEditIndex: null })}
           onSubmit={::this.onSubmitAction}
-          item={this.itemToOptions(this.props.items[this.state.itemToEditIndex])}
+          item={this.itemToOptions(items && items[this.state.itemToEditIndex])}
         />
       </div>
     )

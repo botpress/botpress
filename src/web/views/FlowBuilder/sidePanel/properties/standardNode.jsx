@@ -1,8 +1,6 @@
 import React, { Component } from 'react'
 import classnames from 'classnames'
 
-import { Button } from 'react-bootstrap'
-
 import EditableInput from '../../common/EditableInput'
 
 import ActionSection from './ActionSection'
@@ -48,6 +46,7 @@ export default class StandardNodePropertiesPanel extends Component {
         <ActionSection
           items={node['onReceive']}
           header="On Receive"
+          waitable={true}
           onItemsUpdated={items => this.props.updateNode({ onReceive: items })}
         />
         <TransitionSection

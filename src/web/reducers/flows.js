@@ -487,7 +487,10 @@ function computeFlowsHash(state) {
           hash += c.condition
         }
       })
+    } else {
+      hash += 'null'
     }
+
     return hash
   }
 

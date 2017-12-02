@@ -112,7 +112,7 @@ export class StandardNodeWidget extends React.Component {
 
   render() {
     const node = this.props.node
-    const isWaiting = node.onReceive.length > 0
+    const isWaiting = node.waitOnReceive
 
     return (
       <div className={style['standard-node']}>
@@ -193,6 +193,7 @@ export class StandardNodeModel extends NodeModel {
   setData({ name, onEnter = [], onReceive = [], next = [], isStartNode }) {
     this.isStartNode = isStartNode
     let inNodeType = isStartNode ? 'start' : 'normal'
+    const waitOnReceive = !_.isNil(onReceive)
 
     if (!this.ports['in']) {
       this.addPort(new StandardIncomingPortModel('in', inNodeType))
@@ -211,6 +212,8 @@ export class StandardNodeModel extends NodeModel {
 
     if (_.isString(onReceive)) {
       onReceive = [onReceive]
+    } else if (_.isNil(onReceive)) {
+      onReceive = []
     }
 
     onReceive = onReceive.map(x => x.function || x)
@@ -221,6 +224,7 @@ export class StandardNodeModel extends NodeModel {
 
     this.onEnter = onEnter
     this.onReceive = onReceive
+    this.waitOnReceive = waitOnReceive
     this.next = next
     this.name = name
   }
