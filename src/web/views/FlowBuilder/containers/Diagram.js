@@ -9,6 +9,8 @@ import {
   saveAllFlows,
   updateFlowNode,
   removeFlowNode,
+  copyFlowNode,
+  pasteFlowNode,
   createFlow,
   updateFlow,
   linkFlowNodes
@@ -28,16 +30,18 @@ const mapStateToProps = (state, ownProps) => ({
 const mapDispatchToProps = (dispatch, ownProps) =>
   bindActionCreators(
     {
-      fetchFlows: fetchFlows,
-      switchFlowNode: switchFlowNode,
-      setDiagramAction: setDiagramAction,
-      createFlowNode: createFlowNode,
-      saveAllFlows: saveAllFlows,
-      removeFlowNode: removeFlowNode,
-      createFlow: createFlow,
-      updateFlowNode: updateFlowNode,
-      updateFlow: updateFlow,
-      linkFlowNodes: linkFlowNodes
+      fetchFlows,
+      switchFlowNode,
+      setDiagramAction,
+      createFlowNode,
+      saveAllFlows,
+      removeFlowNode,
+      createFlow,
+      updateFlowNode,
+      updateFlow,
+      linkFlowNodes,
+      copyFlowNode,
+      pasteFlowNode
     },
     dispatch
   )

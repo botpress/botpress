@@ -36,6 +36,12 @@ export default class FlowBuilder extends Component {
           onDelete={() => {
             this.diagram.deleteSelectedElements()
           }}
+          onCopy={() => {
+            this.diagram.copySelectedElementToBuffer()
+          }}
+          onPaste={() => {
+            this.diagram.pasteElementFromBuffer()
+          }}
         />
         <div className={style.workspace}>
           <SplitPane split="vertical" minSize={200} defaultSize={250}>
