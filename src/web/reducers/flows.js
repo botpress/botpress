@@ -325,12 +325,12 @@ reducer = reduceReducers(
               _.merge(
                 {
                   id: nanoid(),
-                  name: 'node-' + nanoid(),
+                  name: 'node-' + nanoid(4),
                   x: 0,
                   y: 0,
                   next: [],
                   onEnter: [],
-                  onReceive: []
+                  onReceive: null
                 },
                 payload
               )
@@ -376,10 +376,10 @@ function doCreateNewFlow(name) {
     links: [],
     nodes: [
       {
-        id: 'NODE-' + new Date().getTime(),
+        id: nanoid(),
         name: 'entry',
         onEnter: [],
-        onReceive: [],
+        onReceive: null,
         next: [],
         x: 100,
         y: 100
