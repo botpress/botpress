@@ -104,7 +104,7 @@ export default class ConditionModalForm extends Component {
       } else if (this.state.typeOfTransition === 'end') {
         payload.node = 'END'
       } else if (this.state.typeOfTransition === 'node') {
-        payload.node = this.state.flowToNode.value || ''
+        payload.node = _.get(this.state, 'flowToNode.value') || ''
       } else {
         payload.node = ''
       }
