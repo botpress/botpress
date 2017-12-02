@@ -52,6 +52,7 @@ export class StandardPortWidget extends React.Component {
     const node = this.props.node
     const index = Number(this.props.name.replace('out', ''))
     const subflow = node.next[index].node
+
     return <div className={style.label}>{subflow}</div>
   }
 
@@ -65,6 +66,7 @@ export class StandardPortWidget extends React.Component {
 
   render() {
     let type = 'normal'
+    let missingConnection = false
 
     if (this.props.name === 'in') {
       if (this.props.node.isStartNode) {
@@ -78,6 +80,8 @@ export class StandardPortWidget extends React.Component {
         type = 'end'
       } else if (/\.flow\.json/i.test(nextNode.node)) {
         type = 'subflow'
+      } else if (nextNode.node === '') {
+        missingConnection = true
       }
     }
 
@@ -85,7 +89,8 @@ export class StandardPortWidget extends React.Component {
       [style.startPort]: type === 'start',
       [style.subflowPort]: type === 'subflow',
       [style.endPort]: type === 'end',
-      [style.portLabel]: /end|subflow|start/i.test(type)
+      [style.portLabel]: /end|subflow|start/i.test(type),
+      [style.missingConnection]: missingConnection
     })
 
     return (

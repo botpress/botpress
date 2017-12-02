@@ -87,9 +87,13 @@
 }
 
 .endPort :global(.port) {
-  background-color: red !important;
+  background-color: #e62eea !important;
   border-top-right-radius: 20px;
   border-bottom-right-radius: 20px;
+}
+
+.missingConnection :global(.port) {
+  background-color: red !important;
 }
 
 .subflowPort :global(.port) {
@@ -129,7 +133,7 @@
 }
 
 .endPort .label {
-  color: red;
+  color: #e62eea;
 }
 
 .startPort .label {
