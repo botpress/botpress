@@ -36,10 +36,11 @@ export default class ActionSection extends Component {
     if (item && item[0] === '@') {
       return { type: 'message', message: item.substring(1) }
     } else if (item) {
+      const params = item.includes(' ') ? JSON.parse(item.substring(item.indexOf(' ') + 1)) : {}
       return {
         type: 'code',
         functionName: item.split(' ')[0],
-        parameters: JSON.parse(item.substring(item.indexOf(' ') + 1))
+        parameters: params
       }
     }
   }
