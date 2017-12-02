@@ -1,64 +1,102 @@
 import React, { Component } from 'react'
 import classnames from 'classnames'
-import axios from 'axios'
 import _ from 'lodash'
 
 const { PortWidget, NodeModel, PortModel, NodeWidgetFactory } = require('storm-react-diagrams')
 
 import ActionItem from '../../common/action'
+import ConditionItem from '../../common/condition'
 
 const style = require('./style.scss')
 
 export class StandardIncomingPortModel extends PortModel {
-  constructor(name, type = 'normal') {
+  constructor(name) {
     super(name)
-    this.type = type
   }
 
   serialize() {
-    return _.merge(super.serialize(), {
-      type: this.type
-    })
+    return _.merge(super.serialize(), {})
   }
 
   deSerialize(data) {
     super.deSerialize(data)
-    this.type = data.type
   }
 }
 
 export class StandardOutgoingPortModel extends PortModel {
-  constructor(name, type = 'normal') {
+  constructor(name) {
     super(name)
-    this.type = type
   }
 
   serialize() {
-    return _.merge(super.serialize(), {
-      type: this.type
-    })
+    return _.merge(super.serialize(), {})
   }
 
   deSerialize(data) {
     super.deSerialize(data)
-    this.type = data.type
   }
 }
 
 export class StandardPortWidget extends React.Component {
+  renderSubflowNode() {
+    const node = this.props.node
+    const index = Number(this.props.name.replace('out', ''))
+    const subflow = node.next[index].node
+
+    return <div className={style.label}>{subflow}</div>
+  }
+
+  renderEndNode() {
+    return <div className={style.label}>End of flow</div>
+  }
+
+  renderStartNode() {
+    return <div className={style.label}>Start</div>
+  }
+
   render() {
-    const className = classnames(this.props.className, {
-      [style.inputPort]: this.props.node.ports[this.props.name].type === 'entry',
-      [style.exitPort]: this.props.node.ports[this.props.name].type === 'exit'
+    let type = 'normal'
+    let missingConnection = false
+
+    if (this.props.name === 'in') {
+      if (this.props.node.isStartNode) {
+        type = 'start'
+      }
+    } else {
+      const index = Number(this.props.name.replace(/out/i, ''))
+      const nextNode = _.get(this.props.node, 'next.' + index)
+
+      if (nextNode.node && nextNode.node.toLowerCase() === 'end') {
+        type = 'end'
+      } else if (/\.flow\.json/i.test(nextNode.node)) {
+        type = 'subflow'
+      } else if (nextNode.node === '') {
+        missingConnection = true
+      }
+    }
+
+    const className = classnames(this.props.className, style.portContainer, {
+      [style.startPort]: type === 'start',
+      [style.subflowPort]: type === 'subflow',
+      [style.endPort]: type === 'end',
+      [style.portLabel]: /end|subflow|start/i.test(type),
+      [style.missingConnection]: missingConnection
     })
 
-    return <PortWidget {...this.props} className={className} />
+    return (
+      <div className={className}>
+        <PortWidget {...this.props} />
+        {type === 'subflow' && this.renderSubflowNode()}
+        {type === 'end' && this.renderEndNode()}
+        {type === 'start' && this.renderStartNode()}
+      </div>
+    )
   }
 }
 
 export class StandardNodeWidget extends React.Component {
   static defaultProps = {
-    size: 150,
+    size: 200,
     node: null
   }
 
@@ -69,8 +107,7 @@ export class StandardNodeWidget extends React.Component {
 
   render() {
     const node = this.props.node
-
-    const getElementCls = element => (element.startsWith('@') ? style.msg : style.fn)
+    const isWaiting = node.waitOnReceive
 
     return (
       <div className={style['standard-node']}>
@@ -85,7 +122,9 @@ export class StandardNodeWidget extends React.Component {
                 return <ActionItem key={i} className={style.item} text={item} />
               })}
           </div>
-          <div className={classnames(style['section-title'], style.section)}>{node.name}</div>
+          <div className={classnames(style['section-title'], style.section, { [style.waiting]: isWaiting })}>
+            {node.name}
+          </div>
           <div className={classnames(style['section-onReceive'], style.section)}>
             {node.onReceive &&
               node.onReceive.map((item, i) => {
@@ -98,7 +137,7 @@ export class StandardNodeWidget extends React.Component {
                 const outputPortName = `out${i}`
                 return (
                   <div key={i} className={classnames(style.item)}>
-                    <ActionItem text={item.condition} />
+                    <ConditionItem text={item.condition} position={i} />
                     <StandardPortWidget name={outputPortName} node={node} />
                   </div>
                 )
@@ -114,32 +153,10 @@ export class StandardNodeWidget extends React.Component {
 }
 
 export class StandardNodeModel extends NodeModel {
-  constructor({ onEnter = [], onReceive = [], next = [], name, id, x, y }) {
+  constructor({ id, x, y, name, onEnter = [], onReceive = [], next = [], isStartNode = false }) {
     super('standard', id)
-    this.addPort(new StandardIncomingPortModel('in'))
 
-    // We create as many output port as needed
-    for (let i = 0; i < next.length; i++) {
-      const nodeType = next[i].node.startsWith('#') ? 'exit' : 'normal'
-      this.addPort(new StandardOutgoingPortModel('out' + i, nodeType))
-    }
-
-    if (_.isString(onEnter)) {
-      onEnter = [onEnter]
-    }
-
-    if (_.isString(onReceive)) {
-      onReceive = [onReceive]
-    }
-
-    if (!_.isArray(next) && _.isObjectLike(next)) {
-      next = [next]
-    }
-
-    this.onEnter = onEnter
-    this.onReceive = onReceive
-    this.next = next
-    this.name = name
+    this.setData({ name, onEnter, onReceive, next, isStartNode })
 
     if (x) {
       this.x = x
@@ -161,16 +178,50 @@ export class StandardNodeModel extends NodeModel {
   deSerialize(data) {
     super.deSerialize(data)
 
-    this.name = data.name
-    this.onEnter = data.onEnter
-    this.onReceive = data.onReceive
-    this.next = data.next
+    this.setData({ name: data.name, onEnter: data.onEnter, onReceive: data.onReceive, next: data.next })
+  }
 
-    // TODO
-    console.log('deSerialize: TODO -> Remove / Add output ports', this.getPorts())
-    // TODO this.addPort(port)
-    // this.removePort(port)
-    // this.getPort(name)
+  getOutPorts() {
+    return _.filter(_.values(this.ports), p => p.name.startsWith('out'))
+  }
+
+  setData({ name, onEnter = [], onReceive = [], next = [], isStartNode }) {
+    this.isStartNode = isStartNode
+    let inNodeType = isStartNode ? 'start' : 'normal'
+    const waitOnReceive = !_.isNil(onReceive)
+
+    if (!this.ports['in']) {
+      this.addPort(new StandardIncomingPortModel('in', inNodeType))
+    }
+
+    // We create as many output port as needed
+    for (var i = 0; i < next.length; i++) {
+      if (!this.ports['out' + i]) {
+        this.addPort(new StandardOutgoingPortModel('out' + i))
+      }
+    }
+
+    if (_.isString(onEnter)) {
+      onEnter = [onEnter]
+    }
+
+    if (_.isString(onReceive)) {
+      onReceive = [onReceive]
+    } else if (_.isNil(onReceive)) {
+      onReceive = []
+    }
+
+    onReceive = onReceive.map(x => x.function || x)
+
+    if (!_.isArray(next) && _.isObjectLike(next)) {
+      next = [next]
+    }
+
+    this.onEnter = onEnter
+    this.onReceive = onReceive
+    this.waitOnReceive = waitOnReceive
+    this.next = next
+    this.name = name
   }
 }
 

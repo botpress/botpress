@@ -58,7 +58,7 @@ lib/
 *.swp
 *.sly
 
-**/.DS_Store
 
-_book/
+**/.DS_Store
 .idea/**
+_book/

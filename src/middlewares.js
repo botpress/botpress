@@ -4,8 +4,6 @@ import path from 'path'
 import fs from 'fs'
 import Promise from 'bluebird'
 
-import licensing from './licensing'
-
 const createMiddleware = (bp, middlewareName) => {
   const _use = mware()
   const _error = mware()
@@ -164,9 +162,6 @@ module.exports = (bp, dataLocation, projectLocation, logger) => {
     return mw.dispatch ? mw.dispatch(event) : mw(event)
   }
 
-  const sendIncoming = sendToMiddleware('incoming')
-  const sendOutgoing = sendToMiddleware('outgoing')
-
   incoming = outgoing = noopChain
   middlewares = []
   customizations = readCustomizations()
@@ -175,8 +170,10 @@ module.exports = (bp, dataLocation, projectLocation, logger) => {
     load,
     list,
     register,
-    sendIncoming,
-    sendOutgoing,
+    sendIncoming: event => bp.messages.in.enqueue(event),
+    sendOutgoing: event => bp.messages.out.enqueue(event),
+    sendIncomingImmediately: sendToMiddleware('incoming'),
+    sendOutgoingImmediately: sendToMiddleware('outgoing'),
     getCustomizations: () => customizations,
     setCustomizations,
     resetCustomizations

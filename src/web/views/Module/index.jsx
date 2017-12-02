@@ -14,8 +14,12 @@ class ModuleView extends React.Component {
     router: PropTypes.object.isRequired
   }
 
+  shouldComponentUpdate(nextProps) {
+    return JSON.stringify(nextProps) !== JSON.stringify(this.props)
+  }
+
   renderLink(module) {
-    if (!module.homepage) {
+    if (!module || !module.homepage) {
       return null
     }
     return (
@@ -40,7 +44,7 @@ class ModuleView extends React.Component {
       <ContentWrapper>
         <PageHeader>
           <span>
-            {module.menuText} {this.renderLink(module)}
+            {module && module.menuText} {this.renderLink(module)}
           </span>
         </PageHeader>
         {children}

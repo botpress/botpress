@@ -28,13 +28,18 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
       .catch(() => logger.error('Could not fetch modules'))
   }
 
-  const loadModules = (moduleDefinitions, botpress) => {
+  const loadModules = async (moduleDefinitions, botpress) => {
     let loadedCount = 0
     const loadedModules = {}
 
-    moduleDefinitions.forEach(mod => {
-      // eslint-disable-next-line no-eval
-      const loader = eval('require')(mod.entry)
+    await Promise.mapSeries(moduleDefinitions, async mod => {
+      let loader = null
+      try {
+        // eslint-disable-next-line no-eval
+        loader = eval('require')(mod.entry)
+      } catch (err) {
+        return logger.error(`Error loading module "${mod.name}": ` + err.message)
+      }
 
       if (typeof loader !== 'object') {
         return logger.warn(`Ignoring module ${mod.name}. Invalid entry point signature.`)
@@ -55,7 +60,7 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
       }
 
       try {
-        loader.init && loader.init(botpress, mod.configuration)
+        loader.init && (await loader.init(botpress, mod.configuration))
       } catch (err) {
         logger.warn('Error during module initialization: ', err)
       }

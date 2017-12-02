@@ -15,14 +15,46 @@ export const fetchFlows = () => dispatch => {
   })
 }
 
+export const requestSaveFlows = createAction('FLOWS/SAVE')
+export const receiveSaveFlows = createAction('FLOWS/SAVE/RECEIVE', flows => flows, () => ({ receiveAt: new Date() }))
+
+export const saveAllFlows = flows => (dispatch, getState) => {
+  dispatch(requestSaveFlows())
+
+  const flows = _.values(getState().flows.flowsByName).map(flow => ({
+    flow: flow.name,
+    location: flow.location,
+    startNode: flow.startNode,
+    catchAll: flow.catchAll,
+    links: flow.links,
+    nodes: flow.nodes
+  }))
+
+  axios.post('/flows/save', flows).then(() => {
+    dispatch(receiveSaveFlows())
+  })
+}
+
 // export const fetchFlowsDefinitions = createAction('FLOWS_DEFINITIONS_FETCH')
-export const saveFlow = createAction('FLOWS/FLOW/SAVE')
+
 export const updateFlow = createAction('FLOWS/FLOW/UPDATE')
-export const switchFlow = createAction('FLOWS/FLOW/SWITCH')
+export const renameFlow = createAction('FLOWS/FLOW/RENAME')
+export const createFlow = createAction('FLOWS/CREATE')
+export const switchFlow = createAction('FLOWS/SWITCH')
+export const deleteFlow = createAction('FLOWS/DELETE')
+export const duplicateFlow = createAction('FLOWS/DUPLICATE')
+
+export const linkFlowNodes = createAction('FLOWS/FLOW/LINK')
 export const updateFlowNode = createAction('FLOWS/FLOW/UPDATE_NODE')
 export const switchFlowNode = createAction('FLOWS/FLOW/SWITCH_NODE')
 export const createFlowNode = createAction('FLOWS/FLOW/CREATE')
 export const removeFlowNode = createAction('FLOWS/FLOW/REMOVE')
+export const copyFlowNode = createAction('FLOWS/NODE/COPY')
+export const pasteFlowNode = createAction('FLOWS/NODE/PASTE')
+
+export const flowEditorUndo = createAction('FLOWS/EDITOR/UNDO')
+export const flowEditorRedo = createAction('FLOWS/EDITOR/REDO')
+
 export const setDiagramAction = createAction('FLOWS/FLOW/SET_ACTION')
 
 // License

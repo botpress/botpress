@@ -3,7 +3,7 @@
 }
 
 .standard-node {
-  width: 175px;
+  width: 200px;
   background: white;
   border: 1px solid black;
 }
@@ -13,7 +13,7 @@
   text-overflow: ellipsis;
   max-height: 50px;
   border-bottom: 1px solid black;
-  font-size: 10px;
+  font-size: 11px;
 }
 
 .item:last-child {
@@ -26,6 +26,11 @@
   padding: 3px 8px;
   background: #000;
   color: #fff;
+
+  &.waiting {
+    background: #f6bd4f;
+    color: #000;
+  }
 }
 
 .section-onEnter .item,
@@ -53,9 +58,6 @@
 }
 
 .section-next .item :global(.port) {
-  position: absolute;
-  right: -15px;
-  top: 0px;
   background: rgba(0, 0, 0, 0.2);
 
   &:global(.selected) {
@@ -78,6 +80,65 @@
   }
 }
 
-.exitPort {
-  background-color: red;
+.startPort :global(.port) {
+  background-color: lime !important;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+}
+
+.endPort :global(.port) {
+  background-color: #e62eea !important;
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
+}
+
+.missingConnection :global(.port) {
+  background-color: red !important;
+}
+
+.subflowPort :global(.port) {
+  background-color: blue !important;
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
+}
+
+.section-next .portContainer {
+  position: absolute;
+  right: -20px;
+  top: 3px;
+  width: 20px;
+}
+
+.section-next .portContainer.portLabel {
+  width: 200px;
+  right: -200px;
+}
+
+.portContainer.startPort {
+  height: 15px;
+}
+
+.portLabel .label {
+  position: relative;
+  padding: 5px;
+  right: -20px;
+  display: inline;
+  border-radius: 3px;
+  top: -16px;
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.subflowPort .label {
+  color: blue;
+}
+
+.endPort .label {
+  color: #e62eea;
+}
+
+.startPort .label {
+  color: green;
+  font-size: 11px;
+  right: -83px;
+  top: -40px;
 }
