@@ -205,7 +205,7 @@ reducer = reduceReducers(
               location: name,
               nodes: state.flowsByName[flowNameToDuplicate].nodes.map(node => ({
                 ...node,
-                id: `${node.id}-copy`
+                id: nanoid()
               }))
             }
           },
