@@ -9,12 +9,8 @@ class License extends React.Component {
     router: PropTypes.object.isRequired
   }
 
-  constructor(props, context) {
-    super(props, context)
-
-    this.state = { loading: true }
-
-    this.handleClose = this.handleClose.bind(this)
+  state = {
+    loading: true
   }
 
   componentDidMount() {
@@ -23,7 +19,7 @@ class License extends React.Component {
     })
   }
 
-  handleClose() {
+  handleClose = () => {
     this.props.toggleLicenseModal()
   }
 

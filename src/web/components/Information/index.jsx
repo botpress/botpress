@@ -17,7 +17,6 @@ class InformationComponent extends React.Component {
     super(props, context)
 
     this.state = { loading: true }
-    this.openLicenseComponent = this.openLicenseComponent.bind(this)
   }
 
   componentDidMount() {
@@ -26,7 +25,7 @@ class InformationComponent extends React.Component {
     })
   }
 
-  openLicenseComponent() {
+  openLicenseComponent = () => {
     this.props.toggleLicenseModal()
   }
 

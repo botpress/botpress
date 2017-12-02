@@ -12,29 +12,26 @@ class EventBus extends EventEmitter2 {
       maxListeners: 100
     })
 
-    this.dispatchSocketEvent = this.dispatchSocketEvent.bind(this)
-    this.setup = this.setup.bind(this)
-
     this.onAny(this.dispatchClientEvent)
 
     authEvents.on('new_token', this.setup)
   }
 
-  dispatchSocketEvent(event) {
+  dispatchSocketEvent = event => {
     this.emit(event.name, event.data, 'server')
   }
 
-  dispatchClientEvent(name, data, from) {
+  dispatchClientEvent = (name, data, from) => {
     if (from === 'server') {
       // we sent this event ourselves
       return
     }
 
-    const c = name.startsWith('guest.') ? this.guestSocket : this.adminSocket
-    c && c.emit('event', { name, data: data })
+    const socket = name.startsWith('guest.') ? this.guestSocket : this.adminSocket
+    socket && socket.emit('event', { name, data })
   }
 
-  setup() {
+  setup = () => {
     const query = {
       visitorId: getUniqueVisitorId()
     }

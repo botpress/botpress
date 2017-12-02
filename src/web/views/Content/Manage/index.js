@@ -25,7 +25,7 @@ export default class ManageView extends Component {
       }
     }
 
-    this.debouncedHandleSearch = _.debounce(fn.bind(this), 1000)
+    this.debouncedHandleSearch = _.debounce(fn, 1000)
   }
 
   handleCheckboxChanged(id) {

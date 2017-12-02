@@ -17,18 +17,12 @@ const style = require('./style.scss')
 const DEFAULT_TAG = 'All'
 
 class ManageView extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      modules: [],
-      tags: [DEFAULT_TAG, 'Connector', 'Analytics', 'Marketing', 'NLP', 'Others'],
-      tag: DEFAULT_TAG,
-      search: '',
-      loading: true
-    }
-
-    this.queryModules = this.queryModules.bind(this)
-    this.renderTag = this.renderTag.bind(this)
+  state = {
+    modules: [],
+    tags: [DEFAULT_TAG, 'Connector', 'Analytics', 'Marketing', 'NLP', 'Others'],
+    tag: DEFAULT_TAG,
+    search: '',
+    loading: true
   }
 
   componentDidMount() {
@@ -46,7 +40,7 @@ class ManageView extends React.Component {
     })
   }
 
-  refresh() {
+  refresh = () => {
     this.queryModules().then(() => {
       setTimeout(this.props.fetchModules, 5000)
     })
@@ -107,7 +101,7 @@ class ManageView extends React.Component {
     )
   }
 
-  renderTag(label) {
+  renderTag = label => {
     const handleChange = event => {
       this.handleChangeCategory(event, label)
     }
@@ -151,10 +145,10 @@ class ManageView extends React.Component {
     return (
       <Row>
         <Col sm={6}>
-          <ModulesComponent modules={first} refresh={this.refresh.bind(this)} />
+          <ModulesComponent modules={first} refresh={this.refresh} />
         </Col>
         <Col sm={6}>
-          <ModulesComponent modules={second} refresh={this.refresh.bind(this)} />
+          <ModulesComponent modules={second} refresh={this.refresh} />
         </Col>
       </Row>
     )
