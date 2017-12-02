@@ -1,6 +1,7 @@
 import { handleActions } from 'redux-actions'
 import reduceReducers from 'reduce-reducers'
 import _ from 'lodash'
+import nanoid from 'nanoid'
 
 import { hashCode } from '~/util'
 
@@ -38,7 +39,8 @@ const defaultState = {
   currentFlowNode: null,
   currentDiagramAction: null,
   currentSnapshotIndex: 0,
-  snapshots: []
+  snapshots: [],
+  nodeInBuffer: null
 }
 
 // *****
@@ -265,9 +267,7 @@ reducer = reduceReducers(
 
       [pasteFlowNode]: state => {
         const currentFlow = state.flowsByName[state.currentFlow]
-        const newNodeId = Math.random()
-          .toString()
-          .substr(2, 10)
+        const newNodeId = nanoid()
         return {
           ...state,
           currentFlowNode: newNodeId,
@@ -302,14 +302,8 @@ reducer = reduceReducers(
               ...state.flowsByName[state.currentFlow].nodes,
               _.merge(
                 {
-                  id: Math.random()
-                    .toString()
-                    .substr(2, 10),
-                  name:
-                    'node-' +
-                    Math.random()
-                      .toString()
-                      .substr(2, 4),
+                  id: nanoid(),
+                  name: 'node-' + nanoid(),
                   x: 0,
                   y: 0,
                   next: [],
