@@ -26,11 +26,15 @@ export const getCurrentFlowNode = state => {
 }
 
 export const getDirtyFlows = state => {
-  if (!state.flows || !state.flows.currentHashes || !state.flows.initialHashes) {
+  if (!state.flows) {
     return []
   }
 
-  const dirtyFlows = []
+  const currentKeys = _.keys(state.flows.currentHashes)
+  const initialKeys = _.keys(state.flows.initialHashes)
+  const keys = _.union(currentKeys, initialKeys)
+
+  const dirtyFlows = _.union(_.xor(keys, currentKeys), _.xor(keys, initialKeys))
 
   _.keys(state.flows.flowsByName).forEach(flow => {
     if (state.flows.initialHashes[flow] !== state.flows.currentHashes[flow]) {
