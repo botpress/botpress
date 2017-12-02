@@ -33,7 +33,9 @@ const matches = (conditions, event) => {
 const hear = (conditions, callback) => {
   return (event, next) => {
     let result = false
-    if (_.isArray(conditions)) {
+    if (_.isFunction(conditions)) {
+      result = conditions(event)
+    } else if (_.isArray(conditions)) {
       for (const conditionsItem of conditions) {
         if (matches(conditionsItem, event)) {
           result = true

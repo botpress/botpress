@@ -43,7 +43,11 @@ describe('hear', () => {
     Promise.all([hearYes(/world/)(event), hearNo(/World/)(event), hearYes(/World/i)(event)]))
 
   it('condition is function', () =>
-    Promise.all([hearYes(t => t === 'Hello world')(event), hearNo(t => t === 'hello, world')(event)]))
+    Promise.all([
+      hearYes(event => event.text === 'Hello world')(event),
+      hearYes(event => event.text.indexOf('world') >= 0)(event),
+      hearNo(event => event.text === 'hello, world')(event)
+    ]))
 
   it('condition is array', () =>
     Promise.all([
