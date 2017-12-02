@@ -30,11 +30,11 @@ export default class LoginPage extends Component {
     app.className = classnames(app.className, 'bp-body-login')
   }
 
-  handlePasswordChange(event) {
+  handlePasswordChange = event => {
     this.setState({ password: event.target.value })
   }
 
-  handleUserChange(event) {
+  handleUserChange = event => {
     this.setState({ user: event.target.value })
   }
 
@@ -109,7 +109,7 @@ export default class LoginPage extends Component {
                 <form onSubmit={this.handleSubmit.bind(this)}>
                   <FormGroup>
                     <ControlLabel>User</ControlLabel>
-                    <Decorators.User value={this.state.user} onChange={::this.handleUserChange} />
+                    <Decorators.User value={this.state.user} onChange={this.handleUserChange} />
                   </FormGroup>
                   <FormGroup>
                     <ControlLabel>Password</ControlLabel>
@@ -117,7 +117,7 @@ export default class LoginPage extends Component {
                       type="password"
                       placeholder=""
                       value={this.state.password}
-                      onChange={::this.handlePasswordChange}
+                      onChange={this.handlePasswordChange}
                     />
                   </FormGroup>
                   <Button className="pull-right" type="submit">

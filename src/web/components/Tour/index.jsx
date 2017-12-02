@@ -18,13 +18,13 @@ export default class GuidedTour extends React.Component {
     this.state = { finished: false, step: 0 }
   }
 
-  handleClose() {
+  handleClose = () => {
     axios.delete('/api/guided-tour').then(() => {
       this.setState({ finished: true })
     })
   }
 
-  handleNext() {
+  handleNext = () => {
     if (this.state.step < STEPS_COUNT - 1) {
       this.setState({ step: this.state.step + 1 })
     } else {
@@ -32,7 +32,7 @@ export default class GuidedTour extends React.Component {
     }
   }
 
-  handlePrevious() {
+  handlePrevious = () => {
     if (this.state.step > 0) {
       this.setState({ step: this.state.step - 1 })
     }
@@ -40,7 +40,7 @@ export default class GuidedTour extends React.Component {
 
   renderSkipButton() {
     return (
-      <Button className="pull-left" onClick={::this.handleClose}>
+      <Button className="pull-left" onClick={this.handleClose}>
         Skip
       </Button>
     )
@@ -49,7 +49,7 @@ export default class GuidedTour extends React.Component {
   renderPrevButton() {
     const disabled = this.state.step <= 0
     return (
-      <Button disabled={disabled} onClick={::this.handlePrevious}>
+      <Button disabled={disabled} onClick={this.handlePrevious}>
         Back
       </Button>
     )
@@ -58,7 +58,7 @@ export default class GuidedTour extends React.Component {
   renderNextButton() {
     const buttonText = this.state.step < STEPS_COUNT - 1 ? 'Next' : "Let's start !"
     return (
-      <Button onClick={::this.handleNext} bsStyle="success">
+      <Button onClick={this.handleNext} bsStyle="success">
         {buttonText}
       </Button>
     )
@@ -148,7 +148,7 @@ export default class GuidedTour extends React.Component {
     const bodyStyle = classnames('text-center', style.body)
 
     return (
-      <Modal show={!this.state.finished && this.props.opened} onHide={::this.handleClose} backdrop="static">
+      <Modal show={!this.state.finished && this.props.opened} onHide={this.handleClose} backdrop="static">
         <Modal.Header>
           <Modal.Title>Welcome on Botpress !</Modal.Title>
         </Modal.Header>

@@ -13,7 +13,7 @@ export default class HelpButton extends React.Component {
     this.state = { shown: false }
   }
 
-  toggleShown() {
+  toggleShown = () => {
     this.setState({ shown: !this.state.shown })
   }
 
@@ -48,7 +48,7 @@ export default class HelpButton extends React.Component {
 
     return (
       <div className={style.container}>
-        <div className={style.button} onClick={::this.toggleShown}>
+        <div className={style.button} onClick={this.toggleShown}>
           <i className={showIcon(false)}>forum</i>
           <i className={showIcon(true)}>close</i>
         </div>

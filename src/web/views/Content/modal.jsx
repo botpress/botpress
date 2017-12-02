@@ -24,7 +24,7 @@ export default class AddMessageModal extends React.Component {
     })
   }
 
-  handleSubmit(event) {
+  handleSubmit = event => {
     this.props.handleCreateOrUpdate(event.formData)
   }
 
@@ -41,7 +41,7 @@ export default class AddMessageModal extends React.Component {
             schema={this.props.schema}
             uiSchema={this.props.uiSchema}
             formData={this.props.formData}
-            onSubmit={::this.handleSubmit}
+            onSubmit={this.handleSubmit}
           />
           <button
             className={classnames('bp-button', 'bp-button-danger', style.cancel)}

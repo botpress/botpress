@@ -218,7 +218,7 @@ class Conversation extends EventEmmiter {
     this._timeoutHandle = null
     this._timeoutInterval = ms('5 minutes')
     this._useTimeout = false
-    this._clock = setInterval(::this.tick, clockSpeed)
+    this._clock = setInterval(this.tick, clockSpeed)
     this._clockSpeed = clockSpeed
     this._processing = false
     this._sendLock = false
@@ -233,7 +233,7 @@ class Conversation extends EventEmmiter {
     return Object.assign({}, this._threads)
   }
 
-  async sendNext() {
+  sendNext = async () => {
     if (this._sendLock) {
       return
     } else {
@@ -266,7 +266,7 @@ class Conversation extends EventEmmiter {
       await Promise.delay(this._clockSpeed)
 
       if (this.status === 'active' || this._outgoing.length > 0) {
-        setImmediate(::this.sendNext)
+        setImmediate(this.sendNext)
       }
     } finally {
       this._sendLock = false
@@ -284,7 +284,7 @@ class Conversation extends EventEmmiter {
     return this._threads[this.currentThread]
   }
 
-  tick() {
+  tick = () => {
     const thread = this.getCurrentThread()
     if (this.status === 'active' && !thread.waiting) {
       this.next()

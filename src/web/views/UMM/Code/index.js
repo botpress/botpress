@@ -19,7 +19,7 @@ export default class CodeView extends Component {
     }
   }
 
-  handleUpdateChange(newCode) {
+  handleUpdateChange = newCode => {
     this.setState({
       code: newCode
     })
@@ -41,12 +41,7 @@ export default class CodeView extends Component {
     }
 
     return (
-      <CodeMirror
-        className={classNames}
-        value={this.state.code}
-        onChange={::this.handleUpdateChange}
-        options={options}
-      />
+      <CodeMirror className={classNames} value={this.state.code} onChange={this.handleUpdateChange} options={options} />
     )
   }
 

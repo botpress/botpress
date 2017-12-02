@@ -20,7 +20,7 @@ export default class EditableInput extends Component {
     this.setState({ value: nextProps.value || nextProps.defaultValue })
   }
 
-  onChanged(event) {
+  onChanged = event => {
     let txt = event.target.value
     if (this.props.transform) {
       txt = this.props.transform(txt)
@@ -29,14 +29,14 @@ export default class EditableInput extends Component {
     this.setState({ value: txt })
   }
 
-  onKeyDown(event) {
+  onKeyDown = event => {
     if (event.keyCode === 13) {
       // Enter
       event.target.blur()
     }
   }
 
-  onBlur() {
+  onBlur = () => {
     if (!this.props.value.length) {
       this.props.onChanged && this.props.onChanged(this.state.defaultValue)
     } else {
@@ -46,6 +46,7 @@ export default class EditableInput extends Component {
 
   render() {
     const inputWidth = Math.max(120, 20 + 8 * this.props.value.length) + 'px'
+    // TODO: should the class check take into account `state.value` intead?
     const inputClass = classnames(style.editableInput, {
       [this.props.className]: true,
       [style.defaultValue]: this.props.value === this.props.defaultValue
@@ -59,9 +60,9 @@ export default class EditableInput extends Component {
         style={{ width: inputWidth }}
         autocomplete="off"
         value={this.state.value || this.props.defaultValue}
-        onBlur={::this.onBlur}
-        onChange={::this.onChanged}
-        onKeyDown={::this.onKeyDown}
+        onBlur={this.onBlur}
+        onChange={this.onChanged}
+        onKeyDown={this.onKeyDown}
       />
     )
   }

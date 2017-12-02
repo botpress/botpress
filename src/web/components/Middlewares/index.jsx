@@ -117,15 +117,13 @@ export default class MiddlewaresComponent extends Component {
     axios.get('/api/middlewares').then(({ data }) => this.setMiddlewares(data))
   }
 
-  handleSort(type) {
-    return data => {
-      if (data.items) {
-        this.setState({ [type + 'Items']: data.items })
-      }
+  handleSort = type => data => {
+    if (data.items) {
+      this.setState({ [type + 'Items']: data.items })
+    }
 
-      if (typeof data.draggingIndex !== 'undefined') {
-        this.setState({ [type + 'DragIndex']: data.draggingIndex })
-      }
+    if (typeof data.draggingIndex !== 'undefined') {
+      this.setState({ [type + 'DragIndex']: data.draggingIndex })
     }
   }
 
@@ -149,7 +147,7 @@ export default class MiddlewaresComponent extends Component {
       return (
         <SortableListItem
           key={i}
-          updateState={::this.handleSort(type)}
+          updateState={this.handleSort(type)}
           items={items}
           draggingIndex={this.state[dragIndexKey]}
           sortId={i}
@@ -169,13 +167,13 @@ export default class MiddlewaresComponent extends Component {
     const classNames = classnames('bp-button', style.saveButton, this.isDirty() ? style.dirty : null)
 
     return (
-      <button className={classNames} onClick={::this.saveChanges}>
+      <button className={classNames} onClick={this.saveChanges}>
         Save
       </button>
     )
   }
 
-  saveChanges() {
+  saveChanges = () => {
     this.setState({ loading: true })
 
     const middlewares = []

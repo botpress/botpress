@@ -74,7 +74,7 @@ class ManageView extends React.Component {
     return _.filter(modules, m => m.category === _.lowerCase(this.state.tag))
   }
 
-  handleSearchChange(event) {
+  handleSearchChange = event => {
     this.setState({
       tag: DEFAULT_TAG,
       search: _.lowerCase(event.target.value)
@@ -99,7 +99,7 @@ class ManageView extends React.Component {
               type="text"
               placeholder="Search"
               className={classNames}
-              onChange={::this.handleSearchChange}
+              onChange={this.handleSearchChange}
             />
           </FormGroup>
         </Col>

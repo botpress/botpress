@@ -218,13 +218,13 @@ export default class FlowBuilder extends Component {
 
   componentDidMount() {
     this.props.fetchFlows()
-    ReactDOM.findDOMNode(this.diagramWidget).addEventListener('click', ::this.onDiagramClick)
-    document.getElementById('diagramContainer').addEventListener('keyup', ::this.onKeyUp)
+    ReactDOM.findDOMNode(this.diagramWidget).addEventListener('click', this.onDiagramClick)
+    document.getElementById('diagramContainer').addEventListener('keyup', this.onKeyUp)
   }
 
   componentWillUnmount() {
-    ReactDOM.findDOMNode(this.diagramWidget).removeEventListener('click', ::this.onDiagramClick)
-    document.getElementById('diagramContainer').removeEventListener('keyup', ::this.onKeyUp)
+    ReactDOM.findDOMNode(this.diagramWidget).removeEventListener('click', this.onDiagramClick)
+    document.getElementById('diagramContainer').removeEventListener('keyup', this.onKeyUp)
   }
 
   componentDidUpdate(prevProps) {
@@ -243,7 +243,7 @@ export default class FlowBuilder extends Component {
     }
   }
 
-  onDiagramClick(event) {
+  onDiagramClick = event => {
     const selectedNode = this.getSelectedNode()
     const currentNode = this.props.currentFlowNode
 
@@ -453,7 +453,7 @@ export default class FlowBuilder extends Component {
     this.getSelectedNode().setSelected(false)
   }
 
-  onKeyUp(event) {
+  onKeyUp = event => {
     if (event.code === 'Backspace') {
       this.deleteSelectedElements()
     }
