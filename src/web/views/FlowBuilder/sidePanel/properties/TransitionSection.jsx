@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import _ from 'lodash'
 
-import { Panel, Button } from 'react-bootstrap'
+import { Panel, Button, Label } from 'react-bootstrap'
 
 import ConditionItem from '../../common/condition'
 
@@ -59,11 +59,28 @@ export default class TransitionSection extends Component {
 
     const handleAddAction = () => this.setState({ showConditionalModalForm: true })
 
+    const renderType = i => {
+      if (!i.node || i.node === '') {
+        return <Label bsStyle="danger">Missing Link</Label>
+      }
+
+      if (i.node === 'END') {
+        return <Label bsStyle="warning">End</Label>
+      }
+
+      if (i.node.includes('.flow.json')) {
+        return <Label bsStyle="primary">{i.node}</Label>
+      }
+
+      return <Label bsStyle="default">{i.node}</Label>
+    }
+
     return (
       <div>
         <Panel collapsible defaultExpanded={true} header={header}>
           {items.map((item, i) => (
             <ConditionItem className={style.item} text={item.condition} position={i}>
+              {renderType(item)}
               <div className={style.actions}>
                 <a onClick={() => this.onEdit(i)}>Edit</a>
                 <a onClick={() => this.onRemove(i)}>Remove</a>
