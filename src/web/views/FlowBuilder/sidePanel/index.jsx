@@ -39,6 +39,7 @@ export default class SidePanel extends Component {
                 dirtyFlows={this.props.dirtyFlows}
                 switchFlow={this.props.switchFlow}
                 deleteFlow={this.props.deleteFlow}
+                duplicateFlow={this.props.duplicateFlow}
                 currentFlow={this.props.currentFlow}
               />
             </Tab>

@@ -4,6 +4,7 @@ import glob from 'glob'
 import _ from 'lodash'
 import Promise from 'bluebird'
 import EventEmitter2 from 'eventemitter2'
+import mkdirp from 'mkdirp'
 
 export default class FlowProvider extends EventEmitter2 {
   constructor({ logger, botfile, projectLocation }) {
@@ -90,9 +91,23 @@ export default class FlowProvider extends EventEmitter2 {
     const flowsToSave = await Promise.mapSeries(flows, flow => this._prepareSaveFlow(flow))
 
     for (let { flowPath, uiPath, flowContent, uiContent } of flowsToSave) {
+      if (flowPath.includes('/')) {
+        mkdirp.sync(path.dirname(flowPath))
+      }
+
       fs.writeFileSync(flowPath, JSON.stringify(flowContent, null, 2))
       fs.writeFileSync(uiPath, JSON.stringify(uiContent, null, 2))
     }
+
+    const flowsDir = path.resolve(this.projectLocation, this.botfile.flowsDir || './flows')
+
+    const searchOptions = { cwd: flowsDir }
+    const flowFiles = await Promise.fromCallback(callback => glob('**/*.flow.json', searchOptions, callback))
+
+    flowFiles
+      .map(fileName => path.resolve(flowsDir, './' + fileName))
+      .filter(filePath => !flowsToSave.find(flow => flow.flowPath === filePath || flow.uiPath === filePath))
+      .map(filePath => fs.unlinkSync(filePath))
 
     this.emit('flowsChanged')
   }

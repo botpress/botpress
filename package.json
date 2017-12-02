@@ -30,6 +30,7 @@
     "jsonwebtoken": "^7.1.9",
     "knex": "^0.12.6",
     "lodash": "^4.16.4",
+    "mkdirp": "^0.5.1",
     "moment": "^2.15.1",
     "monitorctrlc": "^2.0.1",
     "ms": "^0.7.1",
