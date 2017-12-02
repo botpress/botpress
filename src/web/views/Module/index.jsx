@@ -33,25 +33,6 @@ class ModuleView extends React.Component {
     )
   }
 
-  renderWrapper(children) {
-    if (this.props.modules.size <= 0) {
-      return null
-    }
-
-    const module = this.props.modules.find(value => value.get('name') === this.props.params.moduleName)
-
-    return (
-      <ContentWrapper>
-        <PageHeader>
-          <span>
-            {module && module.menuText} {this.renderLink(module)}
-          </span>
-        </PageHeader>
-        {children}
-      </ContentWrapper>
-    )
-  }
-
   renderNotFound(err) {
     return (
       <div className="panel panel-warning">
@@ -75,31 +56,39 @@ class ModuleView extends React.Component {
   }
 
   render() {
-    const { moduleName, subView } = this.props.params
-
     const modules = this.props.modules
-    const module = _.find(modules, { name: moduleName })
-
-    if (!module) {
-      return this.renderWrapper(this.renderNotFound())
-    }
-
-    const moduleView = (
-      <InjectedModuleView moduleName={moduleName} viewName={subView} onNotFound={this.renderNotFound} />
-    )
-
-    if (!moduleView) {
+    if (!modules) {
       return null
     }
 
-    return this.renderWrapper(moduleView, module.menuText)
+    const { moduleName, subView } = this.props.params
+    const module = _.find(modules, { name: moduleName })
+
+    const contents = module ? (
+      <InjectedModuleView moduleName={moduleName} viewName={subView} onNotFound={this.renderNotFound} />
+    ) : (
+      this.renderNotFound()
+    )
+
+    const header = module ? (
+      <span>
+        {module.menuText} {this.renderLink(module)}
+      </span>
+    ) : (
+      `Module ${moduleName} Not Found`
+    )
+
+    return (
+      <ContentWrapper>
+        <PageHeader>{header}</PageHeader>
+        {contents}
+      </ContentWrapper>
+    )
   }
 }
 
-const mapStateToProps = (state, ownProps) => ({
+const mapStateToProps = state => ({
   modules: state.modules
 })
 
-const mapDispatchToProps = (dispatch, ownProps) => {}
-
-export default connect(mapStateToProps, mapDispatchToProps)(ModuleView)
+export default connect(mapStateToProps)(ModuleView)

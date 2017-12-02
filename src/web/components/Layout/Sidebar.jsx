@@ -111,10 +111,7 @@ class Sidebar extends React.Component {
     const modules = this.props.modules
     const items = modules.filter(x => !x.noInterface).map(this.renderModuleItem)
 
-    const emptyClassName = classnames({
-      [style.empty]: true,
-      'bp-empty': true
-    })
+    const emptyClassName = classnames(style.empty, 'bp-empty')
 
     const dashboardRules = { res: 'dashboard', op: 'read' }
     const modulesRules = { res: 'modules/list', op: 'read' }
