@@ -14,6 +14,6 @@ export default class PreviewList extends Component {
       'bp-umm-preview': true
     })
 
-    return <div className={classNames}></div>
+    return <div className={classNames} />
   }
 }

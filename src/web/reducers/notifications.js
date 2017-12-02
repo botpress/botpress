@@ -11,7 +11,6 @@ const reducer = handleActions(
   {
     [allNotificationsReceived]: (state, { payload }) => [...payload],
     [newNotificationsReceived]: (state, { payload }) => {
-
       if (_.some(payload, { sound: true })) {
         sound.play()
       }

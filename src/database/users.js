@@ -5,7 +5,7 @@
 import helpers from './helpers'
 
 module.exports = knex => {
-  return helpers(knex).createTableIfNotExists('users', function (table) {
+  return helpers(knex).createTableIfNotExists('users', table => {
     table.string('id').primary()
     table.string('userId')
     table.string('platform')

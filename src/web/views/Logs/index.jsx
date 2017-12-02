@@ -1,12 +1,5 @@
 import React, { Component } from 'react'
-import {
-  Row,
-  Col,
-  Button,
-  Checkbox,
-  Panel,
-  Glyphicon
-} from 'react-bootstrap'
+import { Row, Col, Button, Checkbox, Panel, Glyphicon } from 'react-bootstrap'
 import axios from 'axios'
 import _ from 'lodash'
 import classnames from 'classnames'
@@ -18,7 +11,6 @@ import ContentWrapper from '~/components/Layout/ContentWrapper'
 import styles from './style.scss'
 
 class LoggerView extends Component {
-
   constructor(props) {
     super(props)
     this.state = { autoRefresh: true, logs: null, limit: 25, hasMore: false }
@@ -56,32 +48,36 @@ class LoggerView extends Component {
 
   renderLine(line, index) {
     const time = moment(new Date(line.timestamp)).format('MMM DD HH:mm:ss')
-    const message = line.message.replace(/\[\d\d?m/ig, '')
+    const message = line.message.replace(/\[\d\d?m/gi, '')
 
-    return <li key={`log_event_${index}`} className={styles.line}>
-      <span className={styles.time}>{time}</span>
-      <span className={styles['level-' + line.level]}>{line.level + ': '}</span>
-      <span className={styles.message}>{message}</span>
-    </li>
+    return (
+      <li key={`log_event_${index}`} className={styles.line}>
+        <span className={styles.time}>{time}</span>
+        <span className={styles['level-' + line.level]}>{line.level + ': '}</span>
+        <span className={styles.message}>{message}</span>
+      </li>
+    )
   }
 
   renderLoading() {
-    return <div style={{ marginTop: '20px' }} className="whirl traditional"></div>
+    return <div style={{ marginTop: '20px' }} className="whirl traditional" />
   }
 
   getArchiveKey() {
-    axios.get('/api/logs/key')
-      .then(({ data }) => this.setState({ archiveUrl: '/logs/archive/' + data.secret }))
+    axios.get('/api/logs/key').then(({ data }) => this.setState({ archiveUrl: '/logs/archive/' + data.secret }))
   }
 
   queryLogs() {
-    axios.get('/api/logs', {
-      params: {
-        limit: this.state.limit
-      }
-    })
-      .then((result) => {
-        if(this.state.cancelLoading) { return }
+    axios
+      .get('/api/logs', {
+        params: {
+          limit: this.state.limit
+        }
+      })
+      .then(result => {
+        if (this.state.cancelLoading) {
+          return
+        }
         this.setState({
           logs: result.data,
           hasMore: result.data && result.data.length >= this.state.limit
@@ -94,34 +90,38 @@ class LoggerView extends Component {
     const logsPanelClassName = classnames('panel', 'panel-default', styles['logs-panel'])
     const canLoadMore = this.state.limit < 500 && this.state.hasMore
 
-    return <ContentWrapper>
-      <PageHeader><span> Logs</span></PageHeader>
-      <Panel className={styles.panel}>
-        <form className="pull-left">
-          <Checkbox className={styles['panel-checkbox']}
-            checked={this.state.autoRefresh}
-            inline onChange={this.toggleAutoRefresh}>
-            Auto refresh
-          </Checkbox>
-        </form>
-        <div className="pull-right">
-          <Button href={this.state.archiveUrl}>Export logs archive</Button>
-        </div>
-      </Panel>
-      <div className={logsPanelClassName}>
-        <div className="panel-body">
-          <ul className={styles.events}>
-            {logs}
-          </ul>
-        </div>
-        {
-          canLoadMore &&
-          <div href="#" className={styles['logs-panel-footer']} onClick={this.loadMore}>
-            Load more
+    return (
+      <ContentWrapper>
+        <PageHeader>
+          <span> Logs</span>
+        </PageHeader>
+        <Panel className={styles.panel}>
+          <form className="pull-left">
+            <Checkbox
+              className={styles['panel-checkbox']}
+              checked={this.state.autoRefresh}
+              inline
+              onChange={this.toggleAutoRefresh}
+            >
+              Auto refresh
+            </Checkbox>
+          </form>
+          <div className="pull-right">
+            <Button href={this.state.archiveUrl}>Export logs archive</Button>
           </div>
-        }
-      </div>
-    </ContentWrapper>
+        </Panel>
+        <div className={logsPanelClassName}>
+          <div className="panel-body">
+            <ul className={styles.events}>{logs}</ul>
+          </div>
+          {canLoadMore && (
+            <div href="#" className={styles['logs-panel-footer']} onClick={this.loadMore}>
+              Load more
+            </div>
+          )}
+        </div>
+      </ContentWrapper>
+    )
   }
 }
 

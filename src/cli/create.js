@@ -10,14 +10,15 @@ import stats from '../stats'
 const MODULE_NAME_CONVENTION_BEGINS = 'botpress-'
 const MODULE_NAME_REGEX = new RegExp(/^botpress-.*/g)
 
-const introductionText = "This program will bootstrap a new Botpress module"
+const introductionText = 'This program will bootstrap a new Botpress module'
 const doneText = "You're all set! The module is boostrapped and ready to be developed."
-const documentation = "Tip: when coding your bot, use the command `npm run watch` to recompile" +
-  " your module automatically. Also, we strongly recommend that you install your module using " +
-  "`npm link ../path/to/botpress-module` so that your bot always points to the most recent version."
+const documentation =
+  'Tip: when coding your bot, use the command `npm run watch` to recompile' +
+  ' your module automatically. Also, we strongly recommend that you install your module using ' +
+  '`npm link ../path/to/botpress-module` so that your bot always points to the most recent version.'
 
-const getTemplate = (template) => {
-  const templatePath = path.join(__dirname, 'cli/templates/create' , template)
+const getTemplate = template => {
+  const templatePath = path.join(__dirname, 'cli/templates/create', template)
   const templateContent = fs.readFileSync(templatePath)
   return _.template(templateContent)
 }
@@ -30,18 +31,16 @@ const generateTemplate = (directory, filename, variables = {}) => {
 }
 
 const prefixModuleNameWithBotpress = name => {
-
   if (!MODULE_NAME_REGEX.test(name)) {
-    util.print('warn','the name of your module needs to begin by "botpress-"')
-    util.print('warn','we renamed your module to '+ chalk.bold(MODULE_NAME_CONVENTION_BEGINS + name))
+    util.print('warn', 'the name of your module needs to begin by "botpress-"')
+    util.print('warn', 'we renamed your module to ' + chalk.bold(MODULE_NAME_CONVENTION_BEGINS + name))
     name = MODULE_NAME_CONVENTION_BEGINS + name
   }
 
   return name
 }
 
-
-module.exports = function() {
+module.exports = () => {
   const moduleDirectory = path.resolve('.')
   const dirname = path.basename(moduleDirectory)
 
@@ -49,13 +48,12 @@ module.exports = function() {
 
   util.print(introductionText)
 
-  var schema = {
+  const schema = {
     properties: {
       name: {
         description: chalk.white('module name:'),
         pattern: /^[a-z0-9][a-z0-9-_\.]+$/,
-        message: 'name must be only lowercase letters, ' +
-          'digits, dashes, underscores and dots.',
+        message: 'name must be only lowercase letters, ' + 'digits, dashes, underscores and dots.',
         required: true,
         default: dirname
       },
@@ -77,20 +75,21 @@ module.exports = function() {
 
   prompt.message = ''
   prompt.delimiter = ''
-
   prompt.start()
 
-  prompt.get(schema, function (err, result) {
+  prompt.get(schema, (err, result) => {
     result.name = prefixModuleNameWithBotpress(result.name)
-    
-    
+
     if (dirname !== result.name) {
-      util.print('warn', 'We usually recommend that the name of the module directory'
-        + ` (${dirname}) be the same as the module name (${result.name})`)
+      util.print(
+        'warn',
+        'We usually recommend that the name of the module directory' +
+          ` (${dirname}) be the same as the module name (${result.name})`
+      )
     }
 
     if (fs.existsSync(path.join(moduleDirectory, 'package.json'))) {
-      util.print('error', "Expected module directory to be empty / uninitialized")
+      util.print('error', 'Expected module directory to be empty / uninitialized')
       process.exit(1)
     } else {
       generateTemplate(moduleDirectory, 'package.json', result)
@@ -110,15 +109,15 @@ module.exports = function() {
 
       const install = spawn(util.npmCmd, ['install'])
 
-      install.stdout.on('data', (data) => {
+      install.stdout.on('data', data => {
         process.stdout.write(data.toString())
       })
 
-      install.stderr.on('data', (data) => {
+      install.stderr.on('data', data => {
         process.stdout.write(data.toString())
       })
 
-      install.on('close', (code) => {
+      install.on('close', code => {
         if (code > 0) {
           util.print('error', 'An error occurred during the dependencies installation of your module')
         } else {

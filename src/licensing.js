@@ -5,7 +5,7 @@ import Promise from 'bluebird'
 import _ from 'lodash'
 
 import listeners from './listeners'
-import { resolveProjectFile, isDeveloping } from './util'
+import { resolveProjectFile } from './util'
 import LicenseGuard from '+/license'
 
 module.exports = ({ logger, version, projectLocation, db, botfile, bp }) => {
@@ -79,8 +79,7 @@ Botpress: ${bp.version}`
   return {
     getLicensing: async () => {
       const licenses = getLicenses()
-      let currentLicense = _.find(licenses, { licensedUnder: true })
-      currentLicense = currentLicense || licenses.botpress
+      const currentLicense = _.find(licenses, { licensedUnder: true }) || licenses.botpress
 
       return Object.assign(await guard.getStatus(), {
         text: currentLicense.text

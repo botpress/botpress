@@ -38,7 +38,7 @@ class ModuleView extends React.Component {
       return null
     }
 
-    const module = this.props.modules.find(value => value.name === this.props.params.moduleName)
+    const module = this.props.modules.find(value => value.get('name') === this.props.params.moduleName)
 
     return (
       <ContentWrapper>

@@ -59,7 +59,7 @@
     "autoprefixer": "^6.5.3",
     "babel-cli": "^6.16.0",
     "babel-core": "^6.18.0",
-    "babel-eslint": "^8.0.1",
+    "babel-eslint": "^8.0.2",
     "babel-loader": "^7.1.2",
     "babel-plugin-root-import": "^5.1.0",
     "babel-plugin-transform-decorators-legacy": "^1.3.4",
@@ -73,7 +73,9 @@
     "classnames": "^2.2.5",
     "copy-webpack-plugin": "^4.0.0",
     "css-loader": "^0.25.0",
-    "eslint": "^4.8.0",
+    "eslint": "^4.12.0",
+    "eslint-config-prettier": "^2.9.0",
+    "eslint-plugin-prettier": "^2.3.1",
     "exports-loader": "^0.6.3",
     "expose-loader": "^0.7.1",
     "extract-text-webpack-plugin": "^3.0.1",
@@ -150,7 +152,8 @@
     "test":
       "BABEL_ENV=tests mocha --compilers js:babel-core/register --require tests/index.js tests/** extensions/**/tests/**",
     "watch": "npm-watch",
-    "precommit": "lint-staged"
+    "precommit": "lint-staged",
+    "lint": "eslint {src,lib,tests,extensions}/**/*.{js,jsx}"
   },
   "watch": {
     "compile": {
@@ -159,7 +162,8 @@
     }
   },
   "lint-staged": {
-    "*.{js,jsx,json,css}": ["prettier --write", "git add"]
+    "*.{js,jsx}": ["prettier --write", "eslint", "git add"],
+    "*.{json,css,scss}": ["prettier --write", "git add"]
   },
   "pre-commit": {
     "run": "precommit",

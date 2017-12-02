@@ -10,15 +10,14 @@ const isLite = knex => {
 }
 
 module.exports = knex => {
-
   const dateParse = exp => {
-    return isLite(knex)
-      ? knex.raw(`strftime('%Y-%m-%dT%H:%M:%fZ', ${exp})`)
-      : knex.raw(exp)
+    return isLite(knex) ? knex.raw(`strftime('%Y-%m-%dT%H:%M:%fZ', ${exp})`) : knex.raw(exp)
   }
 
   const dateFormat = date => {
-    const iso = moment(date).toDate().toISOString()
+    const iso = moment(date)
+      .toDate()
+      .toISOString()
     return dateParse(`'${iso}'`)
   }
 
@@ -42,17 +41,18 @@ module.exports = knex => {
     // knex's createTableIfNotExists doesn't work with postgres
     // https://github.com/tgriesser/knex/issues/1303
     createTableIfNotExists: (tableName, cb) => {
-      return knex.schema.hasTable(tableName)
-        .then(exists => {
-          if (exists) { return }
-          return knex.schema.createTableIfNotExists(tableName, cb)
-        })
+      return knex.schema.hasTable(tableName).then(exists => {
+        if (exists) {
+          return
+        }
+        return knex.schema.createTableIfNotExists(tableName, cb)
+      })
     },
 
     date: {
       format: dateFormat,
 
-      now: () => isLite(knex) ? knex.raw("strftime('%Y-%m-%dT%H:%M:%fZ', 'now')") : knex.raw('now()'),
+      now: () => (isLite(knex) ? knex.raw("strftime('%Y-%m-%dT%H:%M:%fZ', 'now')") : knex.raw('now()')),
 
       isBefore: (d1, d2) => {
         d1 = columnOrDateFormat(d1)
@@ -85,18 +85,14 @@ module.exports = knex => {
 
       hourOfDay: date => {
         date = columnOrDateFormat(date)
-        return isLite(knex)
-          ? knex.raw(`strftime('%H', ${date})`)
-          : knex.raw(`to_char(${date}, 'HH24')`)
+        return isLite(knex) ? knex.raw(`strftime('%H', ${date})`) : knex.raw(`to_char(${date}, 'HH24')`)
       }
     },
 
     bool: {
-
-      true: () => isLite(knex) ? 1 : true,
-      false: () => isLite(knex) ? 0 : false,
-      parse: value => isLite(knex) ? !!value : value
-
+      true: () => (isLite(knex) ? 1 : true),
+      false: () => (isLite(knex) ? 0 : false),
+      parse: value => (isLite(knex) ? !!value : value)
     },
 
     json: {
@@ -107,6 +103,5 @@ module.exports = knex => {
         return isLite(knex) ? obj && JSON.parse(obj) : obj
       }
     }
-
   }
 }

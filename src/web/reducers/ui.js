@@ -1,11 +1,6 @@
 import { handleActions } from 'redux-actions'
 
-import {
-  toggleLicenseModal,
-  toggleAboutModal,
-  viewModeChanged,
-  updateGlobalStyle
-} from '~/actions'
+import { toggleLicenseModal, toggleAboutModal, viewModeChanged, updateGlobalStyle } from '~/actions'
 
 const defaultState = {
   licenseModalOpened: false,

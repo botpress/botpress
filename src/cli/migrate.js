@@ -5,14 +5,14 @@ import path from 'path'
 import _ from 'lodash'
 import Promise from 'bluebird'
 
-module.exports = function(fromVersion) {
+module.exports = fromVersion => {
   stats({}).track('cli', 'migration', fromVersion)
 
   if (!fs.existsSync('./botfile.js')) {
     throw new Error('You must be inside a bot directory to run a migration')
   }
 
-  let files = _.sortBy(require.context('./migrations/').keys(), x => x)
+  const files = _.sortBy(require.context('./migrations/').keys(), x => x)
 
   const toApply = _.filter(files, f => {
     if (!/.js$/i.test(f)) {
@@ -24,13 +24,11 @@ module.exports = function(fromVersion) {
 
   return Promise.mapSeries(toApply, file => {
     const migration = require('./migrations/' + file)
-    return migration(path.resolve('.'))
-      .then(() => {
-        util.print('success', `Migration ${file.replace('.js', '')} applied successfully`)
-      })
-  })
-    .finally(() => {
-      util.print('success', 'Migration completed.')
-      process.exit(0)
+    return migration(path.resolve('.')).then(() => {
+      util.print('success', `Migration ${file.replace('.js', '')} applied successfully`)
     })
+  }).finally(() => {
+    util.print('success', 'Migration completed.')
+    process.exit(0)
+  })
 }

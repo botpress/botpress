@@ -9,7 +9,6 @@ import PageHeader from '~/components/Layout/PageHeader'
 import styles from './style.scss'
 
 class NotificationHub extends NotificationComponent {
-
   constructor(props, context) {
     super(props, context, {
       itemComponent: ListGroupItem,
@@ -30,31 +29,34 @@ class NotificationHub extends NotificationComponent {
     const trashTip = <Tooltip id="ttip">Delete all</Tooltip>
     const readTip = <Tooltip id="ttip">Mark all as read</Tooltip>
 
-    return <ContentWrapper>
-      <PageHeader><span> Notifications</span></PageHeader>
-      <Panel>
-        <div className="pull-right">
-          <OverlayTrigger placement="left" overlay={readTip}>
-            <Button disabled={unreadCount === 0}
-              onClick={this.markAllAsRead.bind(this)}>
-              <em className="glyphicon glyphicon-eye-open"></em>
-            </Button>
-          </OverlayTrigger>
-          <OverlayTrigger placement="left" overlay={trashTip}>
-            <Button className={styles['bar-btn']}
-              disabled={!canTrash}
-              onClick={this.trashAll.bind(this)}>
-              <em className="glyphicon glyphicon-trash"></em>
-            </Button>
-          </OverlayTrigger>
-        </div>
-      </Panel>
-      <ListGroup style={{
-        padding: 0
-      }}>
-        {this.renderMenuItems(notifications)}
-      </ListGroup>
-    </ContentWrapper>
+    return (
+      <ContentWrapper>
+        <PageHeader>
+          <span> Notifications</span>
+        </PageHeader>
+        <Panel>
+          <div className="pull-right">
+            <OverlayTrigger placement="left" overlay={readTip}>
+              <Button disabled={unreadCount === 0} onClick={this.markAllAsRead.bind(this)}>
+                <em className="glyphicon glyphicon-eye-open" />
+              </Button>
+            </OverlayTrigger>
+            <OverlayTrigger placement="left" overlay={trashTip}>
+              <Button className={styles['bar-btn']} disabled={!canTrash} onClick={this.trashAll.bind(this)}>
+                <em className="glyphicon glyphicon-trash" />
+              </Button>
+            </OverlayTrigger>
+          </div>
+        </Panel>
+        <ListGroup
+          style={{
+            padding: 0
+          }}
+        >
+          {this.renderMenuItems(notifications)}
+        </ListGroup>
+      </ContentWrapper>
+    )
   }
 }
 

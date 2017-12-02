@@ -12,7 +12,6 @@ import { toggleLicenseModal, toggleAboutModal } from '~/actions'
 const style = require('./SidebarFooter.scss')
 
 class SidebarFooter extends React.Component {
-
   static contextTypes = {
     router: PropTypes.object.isRequired
   }
@@ -40,14 +39,14 @@ class SidebarFooter extends React.Component {
       ['bp-used']: true,
       [style.warning]: progress >= 0.75,
       ['bp-warning']: progress >= 0.75,
-      [style.urgent]: progress >= 0.90,
-      ['bp-urgent']: progress >= 0.90,
+      [style.urgent]: progress >= 0.9,
+      ['bp-urgent']: progress >= 0.9,
       [style.reached]: progress >= 1,
       ['bp-reached']: progress >= 1
     })
 
     let width = limit && limit.get('progress') * 100 + '%'
-    
+
     if (limit && limit.get('reached')) {
       width = '100%'
     }
@@ -57,9 +56,11 @@ class SidebarFooter extends React.Component {
     }
 
     if (limit && limit.get('progress')) {
-      return <div className={progressClassNames}>
-        <div style={usedStyle} className={usedClassNames}></div>
-      </div>
+      return (
+        <div className={progressClassNames}>
+          <div style={usedStyle} className={usedClassNames} />
+        </div>
+      )
     }
 
     return null
@@ -77,10 +78,12 @@ class SidebarFooter extends React.Component {
       ['bp-reached']: limit && limit.get('reached')
     })
 
-    return <div className={statusClassNames}>
-      <div className={dotClassNames}></div>
-      {message}
-    </div>
+    return (
+      <div className={statusClassNames}>
+        <div className={dotClassNames} />
+        {message}
+      </div>
+    )
   }
 
   renderLicenseStatus() {
@@ -93,7 +96,7 @@ class SidebarFooter extends React.Component {
     const date = this.props.license.date
 
     if (date) {
-      const expiration = moment(date).format("MMM Do YYYY")
+      const expiration = moment(date).format('MMM Do YYYY')
       const text = 'Valid until ' + expiration
 
       return this.renderStatusDiv(text)
@@ -109,28 +112,29 @@ class SidebarFooter extends React.Component {
     if ((limit && limit.get('reached')) || !licensed) {
       const classNames = classnames(style.buy, 'bp-buy')
 
-      return <a className={classNames} href='https://botpress.io'>
-        Buy a license
-      </a>
+      return (
+        <a className={classNames} href="https://botpress.io">
+          Buy a license
+        </a>
+      )
     }
 
     return null
   }
 
   renderLicense() {
-    let license = 'Unlicensed'
-    
-    if (this.props.license.licensed) {
-      license = this.props.license.name
-    }
+    const { licensed } = this.props.license
+    const license = licensed ? this.props.license.name : 'Unlicensed'
 
     const classNames = classnames(style.license, 'bp-edition-license', {
-      [style.unlicensed]: !this.props.license.licensed
+      [style.unlicensed]: !licensed
     })
 
-    return <Link className={classNames} to='#' title='License' onClick={::this.openLicenseComponent}>
-      {license}
-    </Link>
+    return (
+      <Link className={classNames} to="#" title="License" onClick={::this.openLicenseComponent}>
+        {license}
+      </Link>
+    )
   }
 
   renderAllLicenseElements() {
@@ -138,12 +142,14 @@ class SidebarFooter extends React.Component {
       return null
     }
 
-    return <div>
-      {this.renderLicense()}
-      {this.renderProgressBar()}
-      {this.renderLicenseStatus()}
-      {this.renderBuyLink()}
-    </div>
+    return (
+      <div>
+        {this.renderLicense()}
+        {this.renderProgressBar()}
+        {this.renderLicenseStatus()}
+        {this.renderBuyLink()}
+      </div>
+    )
   }
 
   render() {
@@ -153,26 +159,28 @@ class SidebarFooter extends React.Component {
 
     const isProduction = this.props.botInformation && this.props.botInformation.production
 
-    const production = isProduction ? "in production" : "in development"
+    const production = isProduction ? 'in production' : 'in development'
 
     const name = this.props.botInformation && this.props.botInformation.name
-    
+
     const sidebarFooterClassNames = classnames(style.bottomInformation, 'bp-sidebar-footer')
     const sidebarInnerClassNames = classnames(style.innerFooter, 'bp-inner-footer')
     const nameClassNames = classnames(style.name, 'bp-name')
     const productionClassNames = classnames(style.production, 'bp-production')
     const aboutClassNames = classnames(style.about, 'bp-about')
 
-    return <div className={sidebarFooterClassNames}>
-      <div className={sidebarInnerClassNames}>
-        <div className={nameClassNames}>{name}</div>
-        <div className={productionClassNames}>{production}</div>
-        {this.renderAllLicenseElements()}
-        <Link className={aboutClassNames} to="#" title="About" onClick={::this.openAbout}>
-          About Botpress
-        </Link>
+    return (
+      <div className={sidebarFooterClassNames}>
+        <div className={sidebarInnerClassNames}>
+          <div className={nameClassNames}>{name}</div>
+          <div className={productionClassNames}>{production}</div>
+          {this.renderAllLicenseElements()}
+          <Link className={aboutClassNames} to="#" title="About" onClick={::this.openAbout}>
+            About Botpress
+          </Link>
+        </div>
       </div>
-    </div>
+    )
   }
 }
 
@@ -182,9 +190,6 @@ const mapStateToProps = state => ({
   viewMode: state.ui.viewMode
 })
 
-const mapDispatchToProps = dispatch => bindActionCreators(
-  { toggleLicenseModal, toggleAboutModal },
-  dispatch
-)
+const mapDispatchToProps = dispatch => bindActionCreators({ toggleLicenseModal, toggleAboutModal }, dispatch)
 
 export default connect(mapStateToProps, mapDispatchToProps)(SidebarFooter)

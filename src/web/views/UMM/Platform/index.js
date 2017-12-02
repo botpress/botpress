@@ -1,11 +1,7 @@
 import React, { Component } from 'react'
 import classnames from 'classnames'
 
-import {
-  Button,
-  FormGroup,
-  FormControl
-} from 'react-bootstrap'
+import { Button, FormGroup, FormControl } from 'react-bootstrap'
 
 const style = require('./style.scss')
 
@@ -25,12 +21,14 @@ export default class PlatformView extends Component {
   }
 
   renderPlatformSelectors() {
-    return <FormGroup>
-      <FormControl componentClass="select" placeholder="select">
-        <option value="select">select</option>
-        <option value="other">...</option>
-      </FormControl>
-    </FormGroup>
+    return (
+      <FormGroup>
+        <FormControl componentClass="select" placeholder="select">
+          <option value="select">select</option>
+          <option value="other">...</option>
+        </FormControl>
+      </FormGroup>
+    )
   }
 
   render() {
@@ -39,9 +37,11 @@ export default class PlatformView extends Component {
       'bp-umm-platform': true
     })
 
-    return <div className={classNames}>
-      {this.renderPlatformSelectors()}
-      {this.renderSaveButton()}
-    </div>
+    return (
+      <div className={classNames}>
+        {this.renderPlatformSelectors()}
+        {this.renderSaveButton()}
+      </div>
+    )
   }
 }

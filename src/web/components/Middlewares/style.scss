@@ -25,7 +25,7 @@
 
     &:hover {
       cursor: default;
-      color: $primary-color;  
+      color: $primary-color;
     }
   }
 }
@@ -41,7 +41,7 @@
 
   &:hover {
     color: #666;
-    background-color: #F6F6F6;
+    background-color: #f6f6f6;
   }
 
   h4 {
@@ -49,12 +49,12 @@
     transition: color 0.5s ease-in-out;
   }
 
-  transition: background-color .15s ease-in-out, border-color .5s ease-in-out;
+  transition: background-color 0.15s ease-in-out, border-color 0.5s ease-in-out;
   border-left: 5px solid $primary-color;
 
   .circle {
     background-color: $primary-color;
-    transition: background-color .5s ease-in-out;
+    transition: background-color 0.5s ease-in-out;
     width: 10px;
     height: 10px;
     border-radius: 50%;
@@ -75,7 +75,7 @@
 }
 
 .disabled {
-  transition: border-color .5s ease-in-out;
+  transition: border-color 0.5s ease-in-out;
   border-left: 5px solid $content-color-lighter;
 
   .circle {
@@ -84,7 +84,6 @@
 }
 
 .saveButton {
-
   border: none;
   background-color: $primary-color;
   color: white;
@@ -97,7 +96,7 @@
   width: 70px;
   height: 30px;
   opacity: 0;
-  transition: opacity .5s ease-in-out, background-color .15s ease-in-out;
+  transition: opacity 0.5s ease-in-out, background-color 0.15s ease-in-out;
 
   &.dirty {
     opacity: 0.5;

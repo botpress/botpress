@@ -10,7 +10,6 @@ import styles from './hubStyle.scss'
 const NB_OF_NOTIFICATIONS_TO_DISPLAY = 6
 
 class NotificationHub extends NotificationComponent {
-
   constructor(props, context) {
     super(props, context, {
       itemComponent: MenuItem,
@@ -24,9 +23,11 @@ class NotificationHub extends NotificationComponent {
   }
 
   renderEmptyPanel() {
-    return <MenuItem header className={styles.empty}>
-      <div>You have no notifications !</div>
-    </MenuItem>
+    return (
+      <MenuItem header className={styles.empty}>
+        <div>You have no notifications !</div>
+      </MenuItem>
+    )
   }
 
   render() {
@@ -36,7 +37,7 @@ class NotificationHub extends NotificationComponent {
     const unread = _.filter(notifications, { read: false })
     const unreadCount = unread.length
 
-    const hasAnyError = _.some(unread, (notif) => {
+    const hasAnyError = _.some(unread, notif => {
       return notif.level === 'error'
     })
 
@@ -46,28 +47,37 @@ class NotificationHub extends NotificationComponent {
       invisible: unreadCount === 0
     })
 
-    const label = <span>
-      <em className="glyphicon glyphicon-bell"></em>
-      <span className={className}>{unreadCount}</span>
-    </span>
+    const label = (
+      <span>
+        <em className="glyphicon glyphicon-bell" />
+        <span className={className}>{unreadCount}</span>
+      </span>
+    )
 
-    return <NavDropdown id="notificationsDropdown" noCaret={!unreadCount}
-      title={label} className={classnames(styles.dropdown, 'bp-notifications-dropdown')}>
-      <MenuItem header className={classnames(styles.topMenu, 'bp-top-menu')}>
-        <span>
-          <strong>Notifications</strong>
-          &nbsp; &middot; &nbsp;
-          total of {notifications.length}
-        </span>
-        <div className="pull-right">
-          <a href="#" onClick={this.markAllAsRead}>Mark all as read</a>
-          &nbsp; &middot; &nbsp;
-          <a href="/notifications">Show all</a>
-        </div>
-      </MenuItem>
-      {isEmpty && this.renderEmptyPanel()}
-      {this.renderMenuItems(displayedNotifications)}
-    </NavDropdown>
+    return (
+      <NavDropdown
+        id="notificationsDropdown"
+        noCaret={!unreadCount}
+        title={label}
+        className={classnames(styles.dropdown, 'bp-notifications-dropdown')}
+      >
+        <MenuItem header className={classnames(styles.topMenu, 'bp-top-menu')}>
+          <span>
+            <strong>Notifications</strong>
+            &nbsp; &middot; &nbsp; total of {notifications.length}
+          </span>
+          <div className="pull-right">
+            <a href="#" onClick={this.markAllAsRead}>
+              Mark all as read
+            </a>
+            &nbsp; &middot; &nbsp;
+            <a href="/notifications">Show all</a>
+          </div>
+        </MenuItem>
+        {isEmpty && this.renderEmptyPanel()}
+        {this.renderMenuItems(displayedNotifications)}
+      </NavDropdown>
+    )
   }
 }
 

@@ -1,7 +1,10 @@
 const fs = require('fs')
 const path = require('path')
 
-function requireEdition(file, edition) {
+const KNOWN_EDITIONS = ['ultimate', 'pro', 'lite']
+const DEFAULT_EDITION = 'lite'
+
+const requireEdition = (file, edition) => {
   const enterprisePath = edition === 'lite' ? '' : 'enterprise/'
   const extensionPath = path.resolve(__dirname, '../extensions', enterprisePath, edition, file)
   const exists = fs.existsSync(extensionPath)
@@ -15,21 +18,20 @@ function requireEdition(file, edition) {
   }
 }
 
-function requireExtension(file, edition) {
-  const editions = ['ultimate', 'pro', 'lite']
-  edition = edition ? edition : process.env.BOTPRESS_EDITION || 'lite'
+const requireExtension = (file, edition) => {
+  edition = edition || process.env.BOTPRESS_EDITION || DEFAULT_EDITION
 
   const length = '/extensions/lite/'.length
   const start = file.indexOf('/extensions/lite/')
-  
+
   file = file.substr(start + length)
   const upTo = file.indexOf('?') > 0 ? file.indexOf('?') : file.length
   file = file.substr(0, upTo)
 
-  let index = editions.indexOf(edition)
+  let index = KNOWN_EDITIONS.indexOf(edition)
   let extension = null
-  while(extension == null) {
-    extension = requireEdition(file, editions[index++])
+  while (extension == null) {
+    extension = requireEdition(file, KNOWN_EDITIONS[index++])
   }
 
   return extension

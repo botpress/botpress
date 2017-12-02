@@ -37,16 +37,6 @@ export class StandardOutgoingPortModel extends PortModel {
   }
 }
 
-export class StandardWidgetFactory extends NodeWidgetFactory {
-  constructor() {
-    super('standard')
-  }
-
-  generateReactWidget(diagramEngine, node) {
-    return StandardNodeWidgetFactory({ node: node })
-  }
-}
-
 export class StandardPortWidget extends React.Component {
   renderSubflowNode() {
     const node = this.props.node
@@ -236,3 +226,13 @@ export class StandardNodeModel extends NodeModel {
 }
 
 export const StandardNodeWidgetFactory = React.createFactory(StandardNodeWidget)
+
+export class StandardWidgetFactory extends NodeWidgetFactory {
+  constructor() {
+    super('standard')
+  }
+
+  generateReactWidget(diagramEngine, node) {
+    return StandardNodeWidgetFactory({ node: node })
+  }
+}

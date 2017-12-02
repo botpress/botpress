@@ -2,7 +2,6 @@ import mware from 'mware'
 import listeners from './listeners'
 
 module.exports = () => {
-
   const chain = mware()
   const handler = (event, next) => {
     chain.run(event, function() {

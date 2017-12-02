@@ -75,9 +75,9 @@ const generate = result => {
   })
 }
 
-module.exports = function(program) {
-  var dirName = process.argv[3]
-  if (dirName != undefined) {
+module.exports = program => {
+  const dirName = process.argv[3]
+  if (dirName) {
     if (!fs.existsSync(dirName)) {
       fs.mkdirSync(dirName)
       process.chdir(dirName)
@@ -94,7 +94,7 @@ module.exports = function(program) {
 
   const currentDirectoryName = path.basename(path.resolve('./'))
 
-  var schema = {
+  const schema = {
     properties: {
       name: {
         description: chalk.white('name:'),
@@ -130,7 +130,9 @@ module.exports = function(program) {
     prompt.message = ''
     prompt.delimiter = ''
     prompt.start()
-    prompt.get(schema, function(err, result) {
+
+    prompt.get(schema, (err, result) => {
+      // TODO: ignore err altogether?
       generate(result)
     })
   }

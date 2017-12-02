@@ -34,7 +34,7 @@ class Sidebar extends React.Component {
   }
 
   componentWillMount() {
-    var mql = window.matchMedia(`(min-width: 800px)`)
+    const mql = window.matchMedia(`(min-width: 800px)`)
     mql.addListener(this.mediaQueryChanged)
     this.setState({ mql: mql, sidebarDocked: mql.matches })
   }
@@ -49,7 +49,7 @@ class Sidebar extends React.Component {
 
   routeActive(paths) {
     paths = Array.isArray(paths) ? paths : [paths]
-    for (let p in paths) {
+    for (const p in paths) {
       if (this.context.router.isActive(paths[p])) {
         return true
       }
@@ -109,9 +109,7 @@ class Sidebar extends React.Component {
 
   render() {
     const modules = this.props.modules
-    const items = modules
-      .filter(x => !x.noInterface)
-      .map(this.renderModuleItem)
+    const items = modules.filter(x => !x.noInterface).map(this.renderModuleItem)
 
     const emptyClassName = classnames({
       [style.empty]: true,

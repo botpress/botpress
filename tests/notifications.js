@@ -7,33 +7,33 @@ const notificationsTable = require('../src/database/notifications')
 const expect = require('chai').expect
 const _ = require('lodash')
 
-run('notifications', function() {
+run('notifications', () => {
   let knexInstance = null
-  const getNotif = () => {
-    return notifications({
+
+  const getNotif = () =>
+    notifications({
       knex: knexInstance,
       modules: []
     })
-  }
 
   const createData = async knex => {
     knexInstance = knex
     await notificationsTable(knex)
   }
 
-  afterEach(async function() {
+  afterEach(async () => {
     await knexInstance('notifications').del()
   })
 
-  describe('getInbox', function() {
-    itBoth('Returns empty array if none', async function(knex) {
+  describe('getInbox', () => {
+    itBoth('Returns empty array if none', async knex => {
       await createData(knex)
       const notif = getNotif()
 
       expect(await notif.getInbox()).to.be.empty
     })
 
-    itBoth('Returns fresh notifications', async function(knex) {
+    itBoth('Returns fresh notifications', async knex => {
       await createData(knex)
       const notif = getNotif()
 
@@ -43,7 +43,7 @@ run('notifications', function() {
       expect(await notif.getInbox()).to.length(2)
     })
 
-    itBoth('Object values', async function(knex) {
+    itBoth('Object values', async knex => {
       await createData(knex)
       const notif = getNotif()
 
@@ -58,7 +58,7 @@ run('notifications', function() {
       expect(notifs[0].read).to.equal(false)
     })
 
-    itBoth("Doesn't show archived", async function(knex) {
+    itBoth("Doesn't show archived", async knex => {
       await createData(knex)
       const notif = getNotif()
 
@@ -73,8 +73,8 @@ run('notifications', function() {
     })
   })
 
-  describe('markAsRead', function() {
-    itBoth('works', async function(knex) {
+  describe('markAsRead', () => {
+    itBoth('works', async knex => {
       await createData(knex)
       const notif = getNotif()
 
@@ -90,8 +90,8 @@ run('notifications', function() {
     })
   })
 
-  describe('markAllAsRead', function() {
-    itBoth('works', async function(knex) {
+  describe('markAllAsRead', () => {
+    itBoth('works', async knex => {
       await createData(knex)
       const notif = getNotif()
 

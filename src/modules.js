@@ -130,35 +130,13 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
     )
   }
 
-  const getRandomCommunityHero = Promise.method(() => {
-    const modulesCachePath = path.join(dataLocation, './modules-cache.json')
+  const listInstalledModules = () => {
+    const packagePath = resolveProjectFile('package.json', projectLocation, true)
+    const { dependencies } = JSON.parse(fs.readFileSync(packagePath))
+    const prodDeps = _.keys(dependencies)
 
-    return listAllCommunityModules().then(() => {
-      const { modules } = JSON.parse(fs.readFileSync(modulesCachePath))
-
-      const module = _.sample(modules)
-
-      if (!module) {
-        return {
-          username: 'danyfs',
-          github: 'https://github.com/danyfs',
-          avatar: 'https://avatars1.githubusercontent.com/u/5629987?v=3',
-          contributions: 'many',
-          module: 'botpress'
-        }
-      }
-
-      const hero = _.sample(module.contributors)
-
-      return {
-        username: hero.login,
-        github: hero.html_url,
-        avatar: hero.avatar_url,
-        contributions: hero.contributions,
-        module: module.name
-      }
-    })
-  })
+    return _.filter(prodDeps, dep => /botpress-.+/i.test(dep))
+  }
 
   const mapModuleList = modules => {
     const installed = listInstalledModules()
@@ -231,6 +209,36 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
     })
   })
 
+  const getRandomCommunityHero = Promise.method(() => {
+    const modulesCachePath = path.join(dataLocation, './modules-cache.json')
+
+    return listAllCommunityModules().then(() => {
+      const { modules } = JSON.parse(fs.readFileSync(modulesCachePath))
+
+      const module = _.sample(modules)
+
+      if (!module) {
+        return {
+          username: 'danyfs',
+          github: 'https://github.com/danyfs',
+          avatar: 'https://avatars1.githubusercontent.com/u/5629987?v=3',
+          contributions: 'many',
+          module: 'botpress'
+        }
+      }
+
+      const hero = _.sample(module.contributors)
+
+      return {
+        username: hero.login,
+        github: hero.html_url,
+        avatar: hero.avatar_url,
+        contributions: hero.contributions,
+        module: module.name
+      }
+    })
+  })
+
   const resolveModuleNames = names => {
     return names.map(name => {
       if (!name || typeof name !== 'string') {
@@ -277,7 +285,7 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
   }
 
   const installModules = Promise.method((...names) => {
-    let modules = resolveModuleNames(names)
+    const modules = resolveModuleNames(names)
 
     const install = spawn(npmCmd, ['install', '--save', ...modules], {
       cwd: projectLocation
@@ -294,7 +302,7 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
   })
 
   const uninstallModules = Promise.method((...names) => {
-    let modules = resolveModuleNames(names)
+    const modules = resolveModuleNames(names)
     const uninstall = spawn(npmCmd, ['uninstall', '--save', ...modules], {
       cwd: projectLocation
     })
@@ -308,14 +316,6 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
         throw err
       })
   })
-
-  const listInstalledModules = () => {
-    const packagePath = resolveProjectFile('package.json', projectLocation, true)
-    const { dependencies } = JSON.parse(fs.readFileSync(packagePath))
-    const prodDeps = _.keys(dependencies)
-
-    return _.filter(prodDeps, dep => /botpress-.+/i.test(dep))
-  }
 
   return {
     listAllCommunityModules,

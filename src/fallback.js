@@ -2,7 +2,6 @@ import _ from 'lodash'
 import listeners from './listeners'
 
 module.exports = bp => {
-
   const middleware = {
     name: 'fallback',
     type: 'incoming',

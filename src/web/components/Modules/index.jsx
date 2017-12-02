@@ -10,12 +10,11 @@ import axios from 'axios'
 
 const style = require('./style.scss')
 
-const numberWithCommas = (x) => {
-  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+const numberWithCommas = x => {
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
 }
 
 class ModuleComponent extends React.Component {
-
   constructor(props) {
     super(props)
 
@@ -31,7 +30,8 @@ class ModuleComponent extends React.Component {
       this.props.refresh && this.props.refresh()
     }
     this.setState({ loading: true })
-    axios.post('/api/module/install/' + this.props.module.name)
+    axios
+      .post('/api/module/install/' + this.props.module.name)
       .then(fin)
       .catch(fin)
   }
@@ -42,7 +42,8 @@ class ModuleComponent extends React.Component {
       this.props.refresh && this.props.refresh()
     }
     this.setState({ loading: true })
-    axios.delete('/api/module/uninstall/' + this.props.module.name)
+    axios
+      .delete('/api/module/uninstall/' + this.props.module.name)
       .then()
       .then(fin)
       .catch(fin)
@@ -54,9 +55,11 @@ class ModuleComponent extends React.Component {
     const iconPath = `/img/modules/${name}.png`
 
     const hasCustomIcon = icon === 'custom' && isLoaded
-    const moduleIcon = hasCustomIcon
-      ? <img className={classnames(style.customIcon, 'bp-custom-icon')} src={iconPath} />
-      : <i className="icon material-icons">{icon === "custom" ? "extension" : icon}</i>
+    const moduleIcon = hasCustomIcon ? (
+      <img className={classnames(style.customIcon, 'bp-custom-icon')} src={iconPath} />
+    ) : (
+      <i className="icon material-icons">{icon === 'custom' ? 'extension' : icon}</i>
+    )
 
     return (
       <div>
@@ -98,16 +101,14 @@ class ModuleComponent extends React.Component {
     return (
       <div>
         <div className={style.moduleIcons}>
-          <i className='icon material-icons'>star</i>
+          <i className="icon material-icons">star</i>
           {numberWithCommas(stars)}
         </div>
         <div className={style.moduleIcons}>
-          <i className='icon material-icons'>merge_type</i>
+          <i className="icon material-icons">merge_type</i>
           {numberWithCommas(forks)}
         </div>
-        <div className={style.moduleButton}>
-          {this.renderManageButton()}
-        </div>
+        <div className={style.moduleButton}>{this.renderManageButton()}</div>
       </div>
     )
   }
@@ -119,9 +120,7 @@ class ModuleComponent extends React.Component {
       <Panel key={module.name} className={classnames(style.modulePanel, 'bp-module-panel')}>
         <Grid fluid>
           <Row>
-            <Col sm={8}>
-              {this.renderLeftSideModule()}
-            </Col>
+            <Col sm={8}>{this.renderLeftSideModule()}</Col>
             <Col sm={4} className={style.moduleRightSide}>
               {this.renderRightSideModule()}
             </Col>
@@ -134,17 +133,25 @@ class ModuleComponent extends React.Component {
 
 class ModulesComponent extends React.Component {
   render() {
-    var installedModules = {}
+    const installedModules = {}
     this.props.installedModules.map(module => {
       const name = module.name
       installedModules[name] = true
     })
     return (
       <div>
-        {_.values(_.map(this.props.modules, module => {
-          return <ModuleComponent key={module.name} module={module}
-            refresh={this.props.refresh} isLoaded={installedModules[module.name]}/>
-        }))}
+        {_.values(
+          _.map(this.props.modules, module => {
+            return (
+              <ModuleComponent
+                key={module.name}
+                module={module}
+                refresh={this.props.refresh}
+                isLoaded={installedModules[module.name]}
+              />
+            )
+          })
+        )}
       </div>
     )
   }

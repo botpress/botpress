@@ -29,7 +29,7 @@ class Header extends React.Component {
     return '/api/enterprise/accounts/avatars/' + this.props.user.avatarURL
   }
 
-  handleFullscreen() {
+  handleFullscreen = () => {
     const newViewMode = this.props.viewMode < 1 ? 1 : 0
     this.props.viewModeChanged(newViewMode)
   }
@@ -40,11 +40,7 @@ class Header extends React.Component {
     }
 
     const url = this.getProfileImgUrl()
-    let label = <img src={url} />
-
-    if (!url) {
-      label = <i className="material-icons">account_circle</i>
-    }
+    const label = url ? <img src={url} /> : <i className="material-icons">account_circle</i>
 
     return (
       <NavDropdown className={style.account} noCaret title={label} id="account-button">
@@ -73,7 +69,7 @@ class Header extends React.Component {
       <Navbar className={classNames} style={customStyle}>
         <Navbar.Collapse>
           <Nav pullRight>
-            <NavItem onClick={::this.handleFullscreen}>{this.renderFullScreenButton()}</NavItem>
+            <NavItem onClick={this.handleFullscreen}>{this.renderFullScreenButton()}</NavItem>
             <RulesChecker res="bot/logs" op="read">
               <NavItem href="/logs">
                 <Glyphicon glyph="list-alt" />
@@ -84,13 +80,14 @@ class Header extends React.Component {
             </RulesChecker>
             {this.renderLogoutButton()}
           </Nav>
+          <Nav pullRight className="bp-navbar-module-buttons" />
         </Navbar.Collapse>
       </Navbar>
     )
   }
 }
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = state => ({
   user: state.user,
   viewMode: state.ui.viewMode,
   customStyle: state.ui.customStyle

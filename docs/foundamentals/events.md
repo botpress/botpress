@@ -6,7 +6,7 @@
 
 ## Receiving Messages (Incoming) {#receive}
 
-Your bot will receive events as soon as it is connected to a chat platform (you need to setup a Connector Module for the platform you want) and a user speaks to it. Incoming messages all go through what we call the **Incoming Middleware Chain**. 
+Your bot will receive events as soon as it is connected to a chat platform (you need to setup a Connector Module for the platform you want) and a user speaks to it. Incoming messages all go through what we call the **Incoming Middleware Chain**.
 
 > **Info**: [Middleware Chains](../advanced/middleware.md) are an advanced concept that you likely don't need to know about right now; all you need to know is that modules execute some kind of processing on the incoming message that they can do all sort of things like translating the messages to different languages, tagging the message with NLP entities or even stop the message from being processed by your bot.
 
@@ -16,7 +16,7 @@ There exists a special built-in middleware that allows your bot to listen for me
 
 #### `bp.hear(condition, handler) -> void`
 
-Utility function to easily register incoming middlewares. 
+Utility function to easily register incoming middlewares.
 
 The condition can be a string, a regex, an object or an array of these. In case of an object, all conditions must match for the handler to be called. In case of an array, it acts as an OR meaning the first condition to match will cause the handler to be called.
 
@@ -61,6 +61,14 @@ bp.hear([
     {'type': 'postback', 'text': 'getting_started'} // second condition
   ], event => {
     // one of the conditions matched
+})
+```
+
+#### Examples (function)
+
+```js
+bp.hear(event => event.text === 'hello' && !!event.raw.phone.number, event => {
+    // predicate condition matched
 })
 ```
 
