@@ -26,6 +26,7 @@ export default class FlowPropertiesPanel extends Component {
         <TransitionSection
           items={catchAll['next']}
           header="Transitions"
+          currentFlow={this.props.currentFlow}
           subflows={this.props.subflows}
           onItemsUpdated={items => this.props.updateFlow({ catchAll: { ...catchAll, next: items } })}
         />

@@ -3,7 +3,7 @@ import _ from 'lodash'
 
 import { Panel, Button } from 'react-bootstrap'
 
-import NewActionModal from './NewActionModal'
+import ActionModalForm from './ActionModalForm'
 import ActionItem from '../../common/action'
 
 const style = require('../style.scss')
@@ -11,9 +11,7 @@ const style = require('../style.scss')
 export default class ActionSection extends Component {
   constructor(props) {
     super(props)
-    this.state = {
-      showNewActionModal: false
-    }
+    this.state = { showActionModalForm: false }
   }
 
   onMoveAction(prevIndex, direction) {
@@ -27,25 +25,43 @@ export default class ActionSection extends Component {
     this.props.onItemsUpdated(clone)
   }
 
-  onAddAction(options) {
-    let action = null
-
+  optionsToItem(options) {
     if (options.type === 'message') {
-      action = '@' + options.message // TODO Update this to "say #bloc [message]" structure
-    } else {
-      action = options.functionName + ' ' + JSON.stringify(options.parameters || {})
+      return '@' + options.message // TODO Update this to "say #bloc [message]" structure
     }
+    return options.functionName + ' ' + JSON.stringify(options.parameters || {})
+  }
 
-    const copy = [...(this.props.items || []), action]
+  itemToOptions(item) {
+    if (item && item[0] === '@') {
+      return { type: 'message', message: item.substring(1) }
+    } else if (item) {
+      return {
+        type: 'code',
+        functionName: item.split(' ')[0],
+        parameters: JSON.parse(item.substring(item.indexOf(' ') + 1))
+      }
+    }
+  }
 
-    this.props.onItemsUpdated(copy)
-    this.setState({ showNewActionModal: false })
+  onSubmitAction(options) {
+    const item = this.optionsToItem(options)
+    const editIndex = this.state.itemToEditIndex
+    const { items } = this.props
+    const updateByIndex = (originalItem, i) => (i === editIndex ? item : originalItem)
+
+    this.setState({ showActionModalForm: false, itemToEditIndex: null })
+    this.props.onItemsUpdated(Number.isInteger(editIndex) ? items.map(updateByIndex) : [...(items || []), item])
   }
 
   onRemoveAction(index) {
     const clone = [...this.props.items]
     _.pullAt(clone, [index])
     this.props.onItemsUpdated(clone)
+  }
+
+  onEdit(itemToEditIndex) {
+    this.setState({ itemToEditIndex, showActionModalForm: true })
   }
 
   render() {
@@ -59,7 +75,7 @@ export default class ActionSection extends Component {
 
     const renderMoveDown = i => (i < items.length - 1 ? <a onClick={() => this.onMoveAction(i, 1)}>Down</a> : null)
 
-    const handleAddAction = () => this.setState({ showNewActionModal: true })
+    const handleAddAction = () => this.setState({ showActionModalForm: true })
 
     return (
       <div>
@@ -67,6 +83,7 @@ export default class ActionSection extends Component {
           {items.map((item, i) => (
             <ActionItem className={style.item} text={item}>
               <div className={style.actions}>
+                <a onClick={() => this.onEdit(i)}>Edit</a>
                 <a onClick={() => this.onRemoveAction(i)}>Remove</a>
                 {renderMoveUp(i)}
                 {renderMoveDown(i)}
@@ -79,10 +96,11 @@ export default class ActionSection extends Component {
             </Button>
           </div>
         </Panel>
-        <NewActionModal
-          show={this.state.showNewActionModal}
-          onClose={() => this.setState({ showNewActionModal: false })}
-          onAdd={::this.onAddAction}
+        <ActionModalForm
+          show={this.state.showActionModalForm}
+          onClose={() => this.setState({ showActionModalForm: false, itemToEditIndex: null })}
+          onSubmit={::this.onSubmitAction}
+          item={this.itemToOptions(this.props.items[this.state.itemToEditIndex])}
         />
       </div>
     )

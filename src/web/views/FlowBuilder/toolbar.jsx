@@ -108,13 +108,13 @@ class Toolbar extends React.Component {
             </OverlayTrigger>
           </Button>
 
-          <Button className={style.btn} bsStyle="default">
+          <Button className={style.btn} bsStyle="default" onClick={this.props.onCopy}>
             <OverlayTrigger placement="bottom" overlay={createTooltip('copy', 'Copy')}>
               <i className="material-icons">content_copy</i>
             </OverlayTrigger>
           </Button>
 
-          <Button className={style.btn} bsStyle="default">
+          <Button className={style.btn} bsStyle="default" onClick={this.props.onPaste}>
             <OverlayTrigger placement="bottom" overlay={createTooltip('paste', 'Paste')}>
               <i className="material-icons">content_paste</i>
             </OverlayTrigger>
