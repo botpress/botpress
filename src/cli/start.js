@@ -14,10 +14,10 @@ import { monitorCtrlC } from 'monitorctrlc'
  * 2. Find the `botfile.js` which will be injected into the creator to create the instance.
  * 3. Start the botpress instance.
  */
-module.exports = function(projectPath, options) {
+module.exports = (projectPath, options) => {
   let Botpress = null
 
-  if (!projectPath || typeof(projectPath) !== 'string') {
+  if (!projectPath || typeof projectPath !== 'string') {
     projectPath = '.'
   }
 
@@ -33,8 +33,10 @@ module.exports = function(projectPath, options) {
     util.print('Hint: 1) have you used `botpress init` to create a new bot the proper way?')
     util.print('Hint: 2) Do you have read and write permissions on the current directory?')
     util.print('-------------')
-    util.print('If none of the above works, this might be a bug in botpress. ' +
-      'Please contact the Botpress Team on gitter and provide the printed error above.')
+    util.print(
+      'If none of the above works, this might be a bug in botpress. ' +
+        'Please contact the Botpress Team on gitter and provide the printed error above.'
+    )
     process.exit(1)
   }
 
@@ -49,11 +51,7 @@ module.exports = function(projectPath, options) {
     const bf = eval('require')(botfile)
     const dataDir = util.getDataLocation(bf.dataDir, projectPath)
     const modulesConfigDir = util.getDataLocation(bf.modulesConfigDir, projectPath)
-    return [
-      dataDir,
-      modulesConfigDir,
-      'node_modules'
-    ]
+    return [dataDir, modulesConfigDir, 'node_modules']
   }
 
   const opts = options.opts()
@@ -65,27 +63,23 @@ module.exports = function(projectPath, options) {
       cwd: process.cwd(),
       exec: argvWithoutWatch.join(' '),
       ext: opts.watchExt,
-      watch: (opts.watchDir && opts.watchDir.length) ? opts.watchDir : undefined,
-      ignore: (opts.watchIgnore && opts.watchIgnore.length) ? opts.watchIgnore : getDefaultWatchIgnore(),
+      watch: opts.watchDir && opts.watchDir.length ? opts.watchDir : undefined,
+      ignore: opts.watchIgnore && opts.watchIgnore.length ? opts.watchIgnore : getDefaultWatchIgnore(),
       stdin: false,
       restartable: false
     }
 
     const mon = nodemon(nodemonOptions)
-    mon.on(
-      'restart',
-      (changedFile, two) =>
-        util.print('info', '*** restarting botpress because of file change: ', changedFile)
+    mon.on('restart', (changedFile, two) =>
+      util.print('info', '*** restarting botpress because of file change: ', changedFile)
     )
 
     monitorCtrlC(() => {
       mon.emit('quit')
       setTimeout(() => process.exit(), 100)
     })
-
   } else {
     const bot = new Botpress({ botfile })
     bot.start()
   }
-
 }

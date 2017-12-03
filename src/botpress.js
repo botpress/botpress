@@ -23,6 +23,11 @@ import createModules from './modules'
 import createUMM from './umm'
 import createUsers from './users'
 import createContentManager from './content/service'
+
+import FlowProvider from './dialog/provider'
+import StateManager from './dialog/state'
+import DialogEngine from './dialog/engine'
+
 import createConversations from './conversations'
 import stats from './stats'
 import packageJson from '../package.json'
@@ -30,6 +35,7 @@ import createEmails from '+/emails'
 import createMediator from '+/mediator'
 
 import createServer from './server'
+import Queue from '+/queue'
 
 import { getDataLocation, getBotpressVersion } from './util'
 
@@ -136,9 +142,21 @@ class botpress {
 
     const events = new EventBus()
 
-    const notifications = createNotifications({ knex: await db.get(), modules: moduleDefinitions, logger, events })
+    const notifications = createNotifications({
+      knex: await db.get(),
+      modules: moduleDefinitions,
+      logger,
+      events
+    })
     const about = createAbout(projectLocation)
-    const licensing = createLicensing({ logger, projectLocation, version, db, botfile })
+    const licensing = createLicensing({
+      logger,
+      projectLocation,
+      version,
+      db,
+      botfile,
+      bp: this
+    })
     const middlewares = createMiddlewares(this, dataLocation, projectLocation, logger)
     const { hear, middleware: hearMiddleware } = createHearMiddleware()
     const { middleware: fallbackMiddleware } = createFallbackMiddleware(this)
@@ -146,8 +164,39 @@ class botpress {
     const mediator = createMediator(this)
     const convo = createConversations({ logger, middleware: middlewares })
     const users = createUsers({ db })
-    const contentManager = createContentManager({ db, logger, projectLocation, botfile })
-    const umm = createUMM({ logger, middlewares, projectLocation, botfile, db, contentManager })
+    const contentManager = createContentManager({
+      db,
+      logger,
+      projectLocation,
+      botfile
+    })
+    const umm = createUMM({
+      logger,
+      middlewares,
+      projectLocation,
+      botfile,
+      db,
+      contentManager
+    })
+
+    const dialogStateManager = StateManager()
+    const flowProvider = new FlowProvider({ logger, projectLocation, botfile })
+    const dialogEngine = new DialogEngine(flowProvider, dialogStateManager, null, logger)
+
+    const incomingQueue = new Queue('Incoming', logger, {
+      redis: botfile.redis
+    })
+    incomingQueue.subscribe(job => middlewares.sendIncomingImmediately(job.event))
+
+    const outgoingQueue = new Queue('Outgoing', logger, {
+      redis: botfile.redis
+    })
+    outgoingQueue.subscribe(job => middlewares.sendOutgoingImmediately(job.event))
+
+    const messages = {
+      in: { enqueue: event => incomingQueue.enqueue({ event }) },
+      out: { enqueue: event => outgoingQueue.enqueue({ event }) }
+    }
 
     middlewares.register(umm.incomingMiddleware)
     middlewares.register(hearMiddleware)
@@ -172,12 +221,14 @@ class botpress {
       convo,
       umm,
       users,
-      contentManager
+      contentManager,
+      dialogEngine,
+      messages
     })
 
     ServiceLocator.init({ bp: this })
 
-    const loadedModules = modules._load(moduleDefinitions, this)
+    const loadedModules = await modules._load(moduleDefinitions, this)
 
     this.stats.track('bot', 'modules', 'loaded', loadedModules.length)
 
@@ -193,7 +244,7 @@ class botpress {
     const server = createServer(this)
     server.start().then(() => {
       events.emit('ready')
-      for (let mod of _.values(loadedModules)) {
+      for (const mod of _.values(loadedModules)) {
         mod.handlers.ready && mod.handlers.ready(this, mod.configuration)
       }
 
@@ -239,7 +290,6 @@ class botpress {
 
   start() {
     if (cluster.isMaster) {
-
       let firstWorkerHasStartedAlready = false
       const receiveMessageFromWorker = message => {
         if (message && message.workerStatus === 'starting') {
@@ -265,7 +315,9 @@ class botpress {
 
     if (cluster.isWorker) {
       process.send({ workerStatus: 'starting' })
-      this._start()
+      this._start().catch(err => {
+        print('error', 'Error starting botpress: ', err.message)
+      })
     }
   }
 
@@ -279,7 +331,7 @@ class botpress {
     const envPath = path.resolve(this.projectLocation, '.env')
     if (fs.existsSync(envPath)) {
       const envConfig = dotenv.parse(fs.readFileSync(envPath))
-      for (var k in envConfig) {
+      for (const k in envConfig) {
         if (_.isNil(process.env[k]) || process.env.ENV_OVERLOAD) {
           process.env[k] = envConfig[k]
         }

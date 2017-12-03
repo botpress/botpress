@@ -1,16 +1,10 @@
-import React, { Component } from 'react'
-import PropTypes from 'prop-types'
+import React from 'react'
+import { connect } from 'react-redux'
 
 import classnames from 'classnames'
-import { connect } from 'nuclear-js-react-addons'
-import getters from '~/stores/getters'
-
 import style from './ContentWrapper.scss'
 
-@connect(props => ({
-  UI: getters.UI
-}))
-class ContentWrapper extends Component {
+class ContentWrapper extends React.Component {
   constructor(props) {
     super(props)
 
@@ -28,33 +22,27 @@ class ContentWrapper extends Component {
   }
 
   render() {
-    var childElement = this.props.children
+    const { unwrap, viewMode, stretch: _stretch, children } = this.props
 
-    if (this.props.unwrap) {
-      childElement = <div className="unwrap">{this.props.children}</div>
-    }
+    const childElement = unwrap ? <div className="unwrap">{children}</div> : children
 
-    const hasPadding = this.props.UI.get('viewMode') < 2
+    const hasPadding = viewMode < 2
+    const stretch = _stretch === true
 
     const classNames = classnames({
       [style.contentWrapper]: true,
       'bp-content-wrapper': true,
-      [style.contentWrapperPadding]: hasPadding,
-      'bp-content-wrapper-padding': hasPadding, 
+      [style.contentWrapperPadding]: !stretch && hasPadding,
+      'bp-content-wrapper-padding': !stretch && hasPadding,
       [style.show]: this.state.show,
-      'bp-content-wrapper-show': this.state.show
+      'bp-content-wrapper-show': this.state.show,
+      [this.props.className]: true
     })
 
-    return (
-      <div className={classNames}>
-        {childElement}
-      </div>
-    )
+    return <div className={classNames}>{childElement}</div>
   }
 }
 
-ContentWrapper.contextTypes = {
-  reactor: PropTypes.object.isRequired
-}
+const mapStateToProps = state => ({ viewMode: state.ui.viewMode })
 
-export default ContentWrapper
+export default connect(mapStateToProps)(ContentWrapper)

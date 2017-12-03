@@ -24,7 +24,7 @@
   :global(.btn-danger) {
     background-color: #af4f4b;
 
-    :hover {
+    &:hover {
       background-color: #b13434;
     }
   }
@@ -32,7 +32,7 @@
   :global(.btn-default) {
     background-color: #b1b1b1;
 
-    :hover {
+    &:hover {
       background-color: #a5a5a5;
     }
   }

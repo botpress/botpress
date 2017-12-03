@@ -17,13 +17,12 @@ import Authentication from '+/authentication'
  */
 
 module.exports = ({ dataLocation, securityConfig, db }) => {
-
   const authentication = Authentication({ dataLocation, securityConfig, db })
   const { tokenExpiry } = securityConfig
 
   // login function that returns a {success, reason, token} object
   // accounts for number of bad attempts
-  const login = async function(user, password, ip = 'all') {
+  const login = async (user, password, ip = 'all') => {
     const canAttempt = await authentication.attempt(ip)
     if (!canAttempt) {
       return { success: false, reason: 'Too many login attempts. Try again later.' }
@@ -50,13 +49,11 @@ module.exports = ({ dataLocation, securityConfig, db }) => {
    * @param {string} token
    * @return {boolean} whether the token is valid
    */
-  const authenticate = async function(token) {
+  const authenticate = async token => {
     try {
       const secret = await authentication.getSecret()
       const decoded = jwt.verify(token, secret)
-      const verified = authentication.verifyUser
-        ? await authentication.verifyUser(decoded)
-        : true
+      const verified = authentication.verifyUser ? await authentication.verifyUser(decoded) : true
       return verified && decoded.user
     } catch (err) {
       return false

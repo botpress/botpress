@@ -133,15 +133,15 @@ export default class ManageView extends Component {
   }
 
   renderPaging() {
-    const of = this.props.count
+    const count = this.props.count
 
     let from = (this.props.page - 1) * this.props.messagesPerPage + 1
     let to = this.props.page * this.props.messagesPerPage
 
-    from = of !== 0 ? from : 0
-    to = to <= of ? to : of
+    from = count !== 0 ? from : 0
+    to = to <= count ? to : count
 
-    const text = from + ' - ' + to + ' of ' + of
+    const text = `${from} - ${to} of ${count}`
 
     return <span className={style.paging}>{text}</span>
   }

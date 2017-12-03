@@ -270,6 +270,21 @@ module.exports = (bp, app) => {
     res.sendStatus(200)
   })
 
+  app.secure('read', 'bot/flows').get('/flows/all', async (req, res) => {
+    const flows = await bp.dialogEngine.getFlows()
+    return res.send(flows)
+  })
+
+  app.secure('read', 'bot/flows').get('/flows/available_functions', async (req, res) => {
+    const functions = bp.dialogEngine.getAvailableFunctions()
+    return res.send(functions)
+  })
+
+  app.secure('write', 'bot/flows').post('/flows/save', async (req, res) => {
+    await bp.dialogEngine.provider.saveFlows(req.body)
+    return res.sendStatus(200)
+  })
+
   const apis = ExtraApiProviders(bp, app)
   apis.secured.map(x => x && x()) // Install all secured APIs
 }

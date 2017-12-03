@@ -9,21 +9,21 @@ const Promise = require('bluebird')
 const _ = require('lodash')
 const moment = require('moment')
 
-run('users', function() {
+run('users', () => {
   let knexInstance = null
-  const getUsers = () => {
-    return users({
+
+  const getUsers = () =>
+    users({
       db: {
         get: () => knexInstance
       }
     })
-  }
 
   const createUsers = async knex => {
     knexInstance = knex
     await usersTable(knex)
     await tagsTable(knex)
-    for (var i = 0; i <= 10; i++) {
+    for (let i = 0; i <= 10; i++) {
       const id = 'dummy-' + i
       const userRow = {
         id: 'tests:' + id,
@@ -32,13 +32,15 @@ run('users', function() {
         gender: 'unknown',
         created_on: moment(new Date()).toISOString()
       }
+
+      await Promise.delay(1)
       await knex('users')
         .insert(userRow)
         .then()
     }
   }
 
-  afterEach(async function() {
+  afterEach(async () => {
     await knexInstance('users')
       .where('id', 'like', 'tests:%')
       .del()
@@ -47,8 +49,8 @@ run('users', function() {
       .del()
   })
 
-  describe('tags', function() {
-    itBoth('Tagging works', async function(knex) {
+  describe('tags', () => {
+    itBoth('Tagging works', async knex => {
       await createUsers(knex)
       await getUsers().tag('tests:dummy-1', 'hello')
       await getUsers().tag('tests:dummy-2', 'hello', 'world')
@@ -60,7 +62,7 @@ run('users', function() {
       expect(await getUsers().getTag('tests:dummy-2', 'HELLO')).to.equal('world')
     })
 
-    itBoth('Updating tag works', async function(knex) {
+    itBoth('Updating tag works', async knex => {
       await createUsers(knex)
       await getUsers().tag('tests:dummy-1', 'hello', 'world1')
       expect(await getUsers().getTag('tests:dummy-1', 'HELLO')).to.equal('world1')
@@ -68,7 +70,7 @@ run('users', function() {
       expect(await getUsers().getTag('tests:dummy-1', 'HELLO')).to.equal('world2')
     })
 
-    itBoth('Untagging works', async function(knex) {
+    itBoth('Untagging works', async knex => {
       await createUsers(knex)
 
       await getUsers().tag('tests:dummy-1', 'hello')
@@ -78,7 +80,7 @@ run('users', function() {
       expect(await getUsers().hasTag('tests:dummy-1', 'HELLO')).to.equal(false)
     })
 
-    itBoth('Getting a user`s list of tags works', async function(knex) {
+    itBoth('Getting a user`s list of tags works', async knex => {
       await createUsers(knex)
 
       await getUsers().tag('tests:dummy-1', 'hello1')
@@ -91,21 +93,21 @@ run('users', function() {
       const tags = await getUsers().getTags('tests:dummy-1')
 
       expect(tags).to.length(3)
-      expect(tags).to.satisfy(function(arr) {
-        return _.find(arr, { tag: 'HELLO1' }) && _.find(arr, { tag: 'HELLO2' }) && _.find(arr, { tag: 'HELLO3' })
-      })
+      expect(tags).to.satisfy(
+        arr => _.find(arr, { tag: 'HELLO1' }) && _.find(arr, { tag: 'HELLO2' }) && _.find(arr, { tag: 'HELLO3' })
+      )
     })
   })
 
-  describe('count', function() {
-    itBoth('Works', async function(knex) {
+  describe('count', () => {
+    itBoth('Works', async knex => {
       await createUsers(knex)
       expect(await getUsers().count()).to.equal(11)
     })
   })
 
-  describe('list', function() {
-    itBoth('Returns users', async function(knex) {
+  describe('list', () => {
+    itBoth('Returns users', async knex => {
       await createUsers(knex)
       await getUsers().tag('tests:dummy-1', 'hello1')
       await getUsers().tag('tests:dummy-1', 'hello2')
@@ -113,7 +115,7 @@ run('users', function() {
 
       const list = await getUsers().list()
 
-      expect(list).to.satisfy(function(arr) {
+      expect(list).to.satisfy(arr => {
         const dummy1 = _.find(arr, { userId: 'dummy-1' })
         return dummy1 && _.includes(dummy1.tags, 'HELLO1') && _.includes(dummy1.tags, 'HELLO3')
       })
@@ -123,7 +125,7 @@ run('users', function() {
       expect(list[1].tags).to.length(3)
     })
 
-    itBoth('Paging works', async function(knex) {
+    itBoth('Paging works', async knex => {
       await createUsers(knex)
 
       const list = await getUsers().list(2, 1)
@@ -133,8 +135,8 @@ run('users', function() {
     })
   })
 
-  describe('list with tags', function() {
-    itBoth('Returns users', async function(knex) {
+  describe('list with tags', () => {
+    itBoth('Returns users', async knex => {
       await createUsers(knex)
       await getUsers().tag('tests:dummy-1', 'hello')
       await getUsers().tag('tests:dummy-1', 'world')

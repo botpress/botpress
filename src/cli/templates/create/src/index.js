@@ -5,8 +5,7 @@
 */
 
 module.exports = {
-
-  config: { },
+  config: {},
 
   init: async function(bp, configurator) {
     // This is called before ready.
@@ -19,6 +18,5 @@ module.exports = {
 
     const config = await configurator.loadAll()
     // Do fancy stuff here :)
-
   }
 }

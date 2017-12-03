@@ -62,6 +62,6 @@ lib/
 docs/.asset-cache
 docs/.asset-cache/*
 docs/.asset-cache/**
-_book/
+**/.DS_Store
 
 *.cache

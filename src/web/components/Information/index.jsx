@@ -1,23 +1,14 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-
-import {
-  Panel
-} from 'react-bootstrap'
-
+import { bindActionCreators } from 'redux'
+import { connect } from 'react-redux'
+import { Panel } from 'react-bootstrap'
 import classnames from 'classnames'
-
-import { connect } from 'nuclear-js-react-addons'
-import getters from '~/stores/getters'
-import actions from '~/actions'
-
-import axios from 'axios'
+import { toggleLicenseModal } from '~/actions'
 
 const style = require('./style.scss')
 
-@connect(props => ({ botInformation: getters.botInformation }))
 class InformationComponent extends React.Component {
-
   static contextTypes = {
     router: PropTypes.object.isRequired
   }
@@ -26,6 +17,7 @@ class InformationComponent extends React.Component {
     super(props, context)
 
     this.state = { loading: true }
+    this.openLicenseComponent = this.openLicenseComponent.bind(this)
   }
 
   componentDidMount() {
@@ -35,34 +27,39 @@ class InformationComponent extends React.Component {
   }
 
   openLicenseComponent() {
-    actions.toggleLicenseModal()
+    this.props.toggleLicenseModal()
   }
 
   render() {
     if (this.state.loading) {
       return null
     }
-      
-    return <Panel className={classnames(style.information, 'bp-info')}>
-      <h3 className={classnames(style.informationName, 'bp-name')}>
-        {this.props.botInformation.get('name')}
-      </h3>
-      <p className={classnames(style.informationDescription, 'bp-description')}>
-        {this.props.botInformation.get('description')}
-      </p>
-      <p className={classnames(style.informationAuthor, 'bp-author')}>
-        Created by <strong>{this.props.botInformation.get('author')}</strong>
-      </p>
-      <p className={classnames(style.informationVersion, 'bp-version')}>
-        Version {this.props.botInformation.get('version')}
-      </p>
-      <p className={classnames(style.informationLicense, 'bp-license')}>
-        Licensed under {this.props.botInformation.get('license')} (
-        <a href='#' onClick={this.openLicenseComponent}>Change</a>)
-      </p>
-      <div className={classnames(style.whereFrom, 'bp-where-from')}>Info extracted from package.json</div>
-    </Panel>
+
+    return (
+      <Panel className={classnames(style.information, 'bp-info')}>
+        <h3 className={classnames(style.informationName, 'bp-name')}>{this.props.botInformation.name}</h3>
+        <p className={classnames(style.informationDescription, 'bp-description')}>
+          {this.props.botInformation.description}
+        </p>
+        <p className={classnames(style.informationAuthor, 'bp-author')}>
+          Created by <strong>{this.props.botInformation.author}</strong>
+        </p>
+        <p className={classnames(style.informationVersion, 'bp-version')}>
+          Version {this.props.botInformation.version}
+        </p>
+        <p className={classnames(style.informationLicense, 'bp-license')}>
+          Licensed under {this.props.botInformation.license} (
+          <a href="#" onClick={this.openLicenseComponent}>
+            Change
+          </a>)
+        </p>
+        <div className={classnames(style.whereFrom, 'bp-where-from')}>Info extracted from package.json</div>
+      </Panel>
+    )
   }
 }
 
-export default InformationComponent
+const mapStateToProps = state => ({ botInformation: state.bot })
+const mapDispatchToProps = dispatch => bindActionCreators({ toggleLicenseModal }, dispatch)
+
+export default connect(mapStateToProps, mapDispatchToProps)(InformationComponent)

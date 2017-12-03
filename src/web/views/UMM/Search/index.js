@@ -1,10 +1,7 @@
 import React, { Component } from 'react'
 import classnames from 'classnames'
 
-import {
-  FormGroup,
-  FormControl
-} from 'react-bootstrap'
+import { FormGroup, FormControl } from 'react-bootstrap'
 
 const style = require('./style.scss')
 
@@ -19,13 +16,12 @@ export default class SearchView extends Component {
       [style.search]: true
     })
 
-    return <div className={classNames}> 
-      <FormGroup>
-        <FormControl  
-          id='searchTextInput'
-          type='text'
-          placeholder='Search' />
-      </FormGroup>
-    </div>
+    return (
+      <div className={classNames}>
+        <FormGroup>
+          <FormControl id="searchTextInput" type="text" placeholder="Search" />
+        </FormGroup>
+      </div>
+    )
   }
 }

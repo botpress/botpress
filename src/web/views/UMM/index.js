@@ -1,4 +1,3 @@
-
 import React, { Component } from 'react'
 import classnames from 'classnames'
 import axios from 'axios'
@@ -13,7 +12,6 @@ import Actions from './Actions'
 import Code from './Code'
 import Platform from './Platform'
 import Preview from './Preview'
-
 
 import { Grid, Row, Col, Panel } from 'react-bootstrap'
 
@@ -31,7 +29,6 @@ export default class UMMView extends Component {
   }
 
   componentDidMount() {
-    
     this.setState({
       loading: false
     })
@@ -41,35 +38,32 @@ export default class UMMView extends Component {
     // .then(() => {
     //   this.setState({
     //     loading: false
-    //   })  
+    //   })
     // })
   }
 
   fetchListOfTools() {
-    return axios.get('/api/umm/tools')
-      .then((res) => {
-        this.setState({
-          tools: res.data
-        })
+    return axios.get('/api/umm/tools').then(res => {
+      this.setState({
+        tools: res.data
       })
+    })
   }
 
   fetchBlocks() {
     const document = ''
     const platform = 'messenger'
 
-    return axios.post('/api/umm/preview', { document, platform })
-      .then((res) => {
-        this.setState({
-          ...res.data
-        })
+    return axios.post('/api/umm/preview', { document, platform }).then(res => {
+      this.setState({
+        ...res.data
       })
+    })
   }
 
   refreshPreview() {
     _.throttle(this.fetchBlocks, REFRESH_TIME_PREVIEW)
   }
-
 
   render() {
     if (this.state.loading) {
@@ -83,17 +77,19 @@ export default class UMMView extends Component {
 
     return (
       <ContentWrapper>
-        <PageHeader><span>Universal Message Markdown</span></PageHeader>
+        <PageHeader>
+          <span>Universal Message Markdown</span>
+        </PageHeader>
         <table className={classNames}>
           <tbody>
             <tr>
-              <td style={{ 'width': '20%' }}>
+              <td style={{ width: '20%' }}>
                 <Search />
               </td>
-              <td style={{ 'width': '40%' }}>
+              <td style={{ width: '40%' }}>
                 <Actions />
               </td>
-              <td style={{ 'width': '40%' }}>
+              <td style={{ width: '40%' }}>
                 <Platform />
               </td>
             </tr>

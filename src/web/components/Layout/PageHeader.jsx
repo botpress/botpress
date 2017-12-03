@@ -1,17 +1,11 @@
-import React, { Component } from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
+import { connect } from 'react-redux'
 
 import style from './PageHeader.scss'
 import classnames from 'classnames'
 
-import { connect } from 'nuclear-js-react-addons'
-import getters from '~/stores/getters'
-
-@connect(props => ({ 
-  UI: getters.UI
-}))
-
-class PageHeader extends Component {
+class PageHeader extends React.Component {
   static contextTypes = {
     router: PropTypes.object.isRequired
   }
@@ -21,8 +15,8 @@ class PageHeader extends Component {
   }
 
   render() {
-    const hasHeader = this.props.UI.get('viewMode') <= 2
-    const hasSidebar = this.props.UI.get('viewMode') < 1
+    const hasHeader = this.props.viewMode <= 2
+    const hasSidebar = this.props.viewMode < 1
 
     if (!hasHeader) {
       return null
@@ -35,14 +29,10 @@ class PageHeader extends Component {
       'bp-page-header-no-sidebar': !hasSidebar
     })
 
-    return <div className={classNames}>
-      {this.props.children}
-    </div>
+    return <div className={classNames}>{this.props.children}</div>
   }
 }
 
-PageHeader.contextTypes = {
-  reactor: PropTypes.object.isRequired
-}
+const mapStateToProps = state => ({ viewMode: state.ui.viewMode })
 
-export default PageHeader
+export default connect(mapStateToProps)(PageHeader)

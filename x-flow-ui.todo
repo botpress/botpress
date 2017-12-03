@@ -1,0 +1,80 @@
+Server:
+  ✔ Serve flows endpoint @done (17-10-14 14:00)
+    ✔ flows location (botfile -> defaults to /flows/**.flow.json and /flows/**.meta.json ) @done (17-10-13 21:38)
+    ✔ getFlowMetadata() -> Generate initial metadata if absent @done (17-10-14 13:59)
+    - (later) If production, load flow from database if most recent
+
+  - Save flow (id -> meta + data)
+    - (later) Validate actionsk & conditions are valid
+    - Save to files + timestamp + version
+    - (later) If in production, save modifications to database
+
+Architecture:
+  - Split the Workspace
+  ✔ Use a Flux library to dispatch actions / Display store content @done (17-10-13 16:25)
+    ✔ Redux @done (17-10-13 16:25)
+    ✔ Store { flowsById: { '3877455-322234': {} }, currentFlow: '488834-23334' } @done (17-10-13 16:25)
+    ✔ Fetch Flows @done (17-10-14 15:28)
+    ✔ Current Flow @done (17-10-14 15:28)
+    - Switch Flow
+    ✔ Switch Node @done (17-10-14 15:28)
+
+Side Panel:
+  ✔ Add Action @done (17-10-18 20:53)
+    ✔ Invoke Action @done (17-10-18 20:53)
+    ✔ Message Action @done (17-10-18 20:53)
+      - (later) Support for mustaches {{var}}
+        - (later) Provide auto-complete, based on preview flow runs
+      - (later) Support for UMM Templating
+        - (later) UMM Definitions in comments
+    ✔ Lightweight Modal @done (17-10-18 20:54)
+    - (Later) Validation of the name of the function to remote server
+  ✔ Delete Action @done (17-10-14 17:31)
+  ✔ Re-order Actions @done (17-10-18 21:28)
+  - Add Condition
+    - Box with pure Javascript condition
+    - (Later) Past state data suggestion
+  ✔ Rename Node (Instant rename + update everywhere) @done (17-10-14 17:31)
+    - (Later) Alert that other flows make reference to this node, do you want to rename them as well?
+  ✔ Delete Node Button @done (17-10-19 15:58)
+
+Toolbar:
+  ✔ Add new node @done (17-10-19 20:29)
+    ✔ Give it a default name @done (17-10-19 20:29)
+    ✔ Mode = Insert | Change cursor @done (17-10-19 19:59)
+    ✔ Click = insert on the actual workspace @done (17-10-19 20:24)
+    - ESC = Cancel, Red button (CANCEL) at the top left corner too [react-shortcuts]
+  - Add call to external flow
+    - Save as above
+    - Side Panel, select the external node
+      - Optionally, specify the entry point (defaults to "default")
+  - Copy & Paste of a node to the flow
+    - Paste = Mode = Insert | Change
+
+Flow:
+  - Keep track of pending changes
+    - Undo to previous version
+    - Redo to restore
+  - flowStatesById { FLOW-1: { lastVersion: Time-based-id, lastSyncOn: Date, initialState: {}, initialHash: '', isDirty: true, changes: [{}, {}, {}, {} (up to 15)] } }
+  - Save changes (submit changes to the server)
+    - WARN: We need to keep track of nodes by Id and not by name since name can change
+    - Submit the nodes + values + metadata [x,y]
+    - Submit the links + values + metadata [points]
+  - Create a new flow (unsaved)
+    - Prompt if unsaved changes before change flow
+    - Default name (unnamed flow)
+  - (later) Keep unsaved changes in local storage
+  - Error when two outgoing links from same Condition node
+
+File Explorator:
+  - On Main panel when Selected = None
+  - (See all flows, last modified date, # of nodes, who modified it)
+    - Search/Filter of the flows
+    - Load flow on Enter
+      - Prompt if unsaved changes before change flow
+
+Workspace:
+  - Save workspace disposition to local storage
+  - Reset workspace disposition
+  - Collapse Side Panel
+  - Add shortcuts to All major actions

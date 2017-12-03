@@ -9,8 +9,30 @@ import securedApis from './secured'
 const routersConditions = {}
 const routers = {}
 
+const maybeApply = (name, fn) => {
+  return (req, res, next) => {
+    const router = req.originalUrl.match(/\/api\/(botpress-[^\/]+).*$/i)
+    if (!router) {
+      return fn(req, res, next)
+    }
+
+    if (!routersConditions[router[1]]) {
+      return fn(req, res, next)
+    }
+
+    const condition = routersConditions[router[1]][name]
+    if (condition === false) {
+      next()
+    } else if (typeof condition === 'function' && condition(req) === false) {
+      next()
+    } else {
+      return fn(req, res, next)
+    }
+  }
+}
+
 module.exports = bp => {
-  async function _authenticationMiddleware(req, res, next) {
+  const _authenticationMiddleware = async (req, res, next) => {
     res.maybeSendRequireLogin = () => {
       if (!bp.botfile.login.enabled) {
         res.status(400).send({
@@ -39,8 +61,47 @@ module.exports = bp => {
     }
   }
 
-  function installRouter(app) {
-    bp.getRouter = function(name, conditions) {
+  const installProtector = app => {
+    app.secure = (operation, ressource) => {
+      const wrap = method => (name, ...handlers) => {
+        const secure = async (req, res, next) => {
+          try {
+            if (!req.user) {
+              return next()
+            }
+
+            const authorizeApi = await ServiceLocator.getService('authorizeApi', false)
+
+            if (!authorizeApi) {
+              return next()
+            }
+
+            const authorized = await authorizeApi({ userId: req.user.id, operation, ressource })
+
+            if (authorized) {
+              return next()
+            }
+
+            return res.sendStatus(403) // HTTP Forbidden
+          } catch (err) {
+            return res.status(500).send({ message: err.message })
+          }
+        }
+
+        return app[method].call(app, name, secure, ...handlers)
+      }
+
+      return {
+        get: wrap('get'),
+        post: wrap('post'),
+        put: wrap('put'),
+        delete: wrap('delete')
+      }
+    }
+  }
+
+  const installRouter = app => {
+    bp.getRouter = (name, conditions) => {
       if (!/^botpress-/.test(name)) {
         throw new Error(`The name of a router must start with 'botpress-'. Received: ${name}`)
       }
@@ -60,47 +121,7 @@ module.exports = bp => {
     }
   }
 
-  function installProtector(app) {
-    app.secure = function(operation, ressource) {
-      const wrap = method =>
-        function(name, ...handlers) {
-          const secure = async function(req, res, next) {
-            try {
-              if (!req.user) {
-                return next()
-              }
-
-              const authorizeApi = await ServiceLocator.getService('authorizeApi', false)
-
-              if (!authorizeApi) {
-                return next()
-              }
-
-              const authorized = await authorizeApi({ userId: req.user.id, operation, ressource })
-
-              if (authorized) {
-                return next()
-              }
-
-              return res.sendStatus(403) // HTTP Forbidden
-            } catch (err) {
-              return res.status(500).send({ message: err.message })
-            }
-          }
-
-          return app[method].call(app, name, secure, ...handlers)
-        }
-
-      return {
-        get: wrap('get'),
-        post: wrap('post'),
-        put: wrap('put'),
-        delete: wrap('delete')
-      }
-    }
-  }
-
-  function installMaybeUse(app) {
+  const installMaybeUse = app => {
     app.maybeUse = function() {
       if (arguments.length === 3) {
         app.use(arguments[0], maybeApply(arguments[1], arguments[2]))
@@ -110,7 +131,7 @@ module.exports = bp => {
     }
   }
 
-  async function install(app) {
+  const install = async app => {
     installRouter(app)
     installProtector(app)
     installMaybeUse(app)
@@ -126,26 +147,4 @@ module.exports = bp => {
   }
 
   return { install }
-}
-
-function maybeApply(name, fn) {
-  return (req, res, next) => {
-    const router = req.originalUrl.match(/\/api\/(botpress-[^\/]+).*$/i)
-    if (!router) {
-      return fn(req, res, next)
-    }
-
-    if (!routersConditions[router[1]]) {
-      return fn(req, res, next)
-    }
-
-    const condition = routersConditions[router[1]][name]
-    if (condition === false) {
-      next()
-    } else if (typeof condition === 'function' && condition(req) === false) {
-      next()
-    } else {
-      return fn(req, res, next)
-    }
-  }
 }

@@ -1,12 +1,7 @@
 import React from 'react'
-import {
-  Grid,
-  Row,
-  Col,
-  FormGroup,
-  FormControl,
-  Button
-} from 'react-bootstrap'
+import { connect } from 'react-redux'
+import { bindActionCreators } from 'redux'
+import { Grid, Row, Col, FormGroup, FormControl, Button } from 'react-bootstrap'
 
 import _ from 'lodash'
 import axios from 'axios'
@@ -15,19 +10,18 @@ import classnames from 'classnames'
 import ContentWrapper from '~/components/Layout/ContentWrapper'
 import PageHeader from '~/components/Layout/PageHeader'
 import ModulesComponent from '~/components/Modules'
-
-import actions from '~/actions'
+import { fetchModules } from '~/actions'
 
 const style = require('./style.scss')
 
-const DEFAULT_TAG = "All"
+const DEFAULT_TAG = 'All'
 
-export default class ManageView extends React.Component {
+class ManageView extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { 
+    this.state = {
       modules: [],
-      tags: [DEFAULT_TAG, 'Connector', 'Analytics', 'Marketing', 'NLP', 'Others'], 
+      tags: [DEFAULT_TAG, 'Connector', 'Analytics', 'Marketing', 'NLP', 'Others'],
       tag: DEFAULT_TAG,
       search: '',
       loading: true
@@ -44,28 +38,25 @@ export default class ManageView extends React.Component {
   queryModules() {
     this.setState({ loading: true })
 
-    return axios.get('/api/module/all')
-      .then((result) => {
-        this.setState({
-          modules: result.data,
-          loading: false
-        })
+    return axios.get('/api/module/all').then(result => {
+      this.setState({
+        modules: result.data,
+        loading: false
       })
+    })
   }
 
   refresh() {
-    this.queryModules()
-      .then(() => {
-        setTimeout(actions.fetchModules, 5000)
-      })
+    this.queryModules().then(() => {
+      setTimeout(this.props.fetchModules, 5000)
+    })
   }
 
   getResultFromSearch(modules) {
     const result = []
 
-    modules.forEach((m) => {
-      let search = _.join([m.name, m.description, m.author], ' ')
-      search = _.lowerCase(search)
+    modules.forEach(m => {
+      const search = [m.name, m.description, m.author].join(' ').toLowerCase()
 
       if (_.includes(search, this.state.search)) {
         result.push(m)
@@ -99,21 +90,27 @@ export default class ManageView extends React.Component {
   renderSearch() {
     const classNames = classnames(style.search, 'bp-search')
 
-    return <Row>
-      <Col sm={12}>
-        <FormGroup>
-          <FormControl id="search"
-            type="text"
-            placeholder="Search"
-            className={classNames}
-            onChange={::this.handleSearchChange}/>
-        </FormGroup>
-      </Col>
-    </Row>
+    return (
+      <Row>
+        <Col sm={12}>
+          <FormGroup>
+            <FormControl
+              id="search"
+              type="text"
+              placeholder="Search"
+              className={classNames}
+              onChange={::this.handleSearchChange}
+            />
+          </FormGroup>
+        </Col>
+      </Row>
+    )
   }
 
   renderTag(label) {
-    const handleChange = (event) => { ::this.handleChangeCategory(event, label) }
+    const handleChange = event => {
+      this.handleChangeCategory(event, label)
+    }
 
     const classNames = classnames({
       ['bp-button']: true,
@@ -122,23 +119,27 @@ export default class ManageView extends React.Component {
       ['bp-button-default']: label !== this.state.tag
     })
 
-    return <Button key={label} className={classNames} onClick={handleChange}>
-      {label}
-    </Button>
+    return (
+      <Button key={label} className={classNames} onClick={handleChange}>
+        {label}
+      </Button>
+    )
   }
 
   renderTags() {
-    return <Row>
-      <Col sm={12} className={style.tags}>
-        {this.state.tags.map(this.renderTag)}
-      </Col>
-    </Row>
+    return (
+      <Row>
+        <Col sm={12} className={style.tags}>
+          {this.state.tags.map(this.renderTag)}
+        </Col>
+      </Row>
+    )
   }
 
   renderModules() {
     let modules = this.state.modules
 
-    if (this.state.search && this.state.search !== '') {
+    if (this.state.search) {
       modules = this.getResultFromSearch(modules)
     }
 
@@ -147,14 +148,16 @@ export default class ManageView extends React.Component {
     const splitOn = _.floor((_.size(modules) + 1) / 2)
     const [first, second] = _.chunk(modules, splitOn)
 
-    return <Row>
-      <Col sm={6}>
-        <ModulesComponent modules={first} refresh={this.refresh.bind(this)}/>
-      </Col>
-      <Col sm={6}>
-        <ModulesComponent modules={second} refresh={this.refresh.bind(this)}/>
-      </Col>
-    </Row>
+    return (
+      <Row>
+        <Col sm={6}>
+          <ModulesComponent modules={first} refresh={this.refresh.bind(this)} />
+        </Col>
+        <Col sm={6}>
+          <ModulesComponent modules={second} refresh={this.refresh.bind(this)} />
+        </Col>
+      </Row>
+    )
   }
 
   render() {
@@ -164,7 +167,9 @@ export default class ManageView extends React.Component {
 
     return (
       <ContentWrapper>
-        <PageHeader><span> Modules</span></PageHeader>
+        <PageHeader>
+          <span> Modules</span>
+        </PageHeader>
         <Grid fluid>
           <Row>
             <Col sm={12} md={10} mdOffset={1}>
@@ -178,3 +183,7 @@ export default class ManageView extends React.Component {
     )
   }
 }
+
+const mapDispatchToProps = dispatch => bindActionCreators({ fetchModules }, dispatch)
+
+export default connect(null, mapDispatchToProps)(ManageView)

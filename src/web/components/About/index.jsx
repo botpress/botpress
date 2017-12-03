@@ -1,12 +1,12 @@
 import React from 'react'
-import { Modal, Button, Alert } from 'react-bootstrap'
 
-import axios from 'axios'
-import _ from 'lodash'
+import { bindActionCreators } from 'redux'
+import { connect } from 'react-redux'
+import { Modal } from 'react-bootstrap'
 
-import actions from '~/actions'
+import { toggleAboutModal } from '~/actions'
 
-export default class AboutComponent extends React.Component {
+class AboutComponent extends React.Component {
   constructor(props) {
     super(props)
 
@@ -14,7 +14,7 @@ export default class AboutComponent extends React.Component {
   }
 
   handleClose() {
-    actions.toggleAboutModal()
+    this.props.toggleAboutModal()
   }
 
   render() {
@@ -35,3 +35,7 @@ export default class AboutComponent extends React.Component {
     )
   }
 }
+
+const mapDispatchToProps = dispatch => bindActionCreators({ toggleAboutModal }, dispatch)
+
+export default connect(null, mapDispatchToProps)(AboutComponent)

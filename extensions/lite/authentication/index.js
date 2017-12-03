@@ -4,7 +4,6 @@ import crypto from 'crypto'
 import Promise from 'bluebird'
 
 module.exports = ({ dataLocation, securityConfig }) => {
-
   // reading secret from data or creating new secret
   let secret = ''
   const secretPath = path.join(dataLocation, 'secret.key')
@@ -30,7 +29,7 @@ module.exports = ({ dataLocation, securityConfig }) => {
   let lastCleanTimestamp = new Date()
   const { maxAttempts, resetAfter } = securityConfig
 
-  function attempt(ip) {
+  const attempt = ip => {
     // reset the cache if time elapsed
     if (new Date() - lastCleanTimestamp >= resetAfter) {
       attempts = {}
@@ -40,9 +39,13 @@ module.exports = ({ dataLocation, securityConfig }) => {
     return (attempts[ip] || 0) < maxAttempts
   }
 
-  function authenticate(user, password, ip) {
-    if (typeof(user) === 'string' && user.toLowerCase() === 'admin' &&
-      typeof(password) === 'string' && password === adminPassword) {
+  const authenticate = (user, password, ip) => {
+    if (
+      typeof user === 'string' &&
+      user.toLowerCase() === 'admin' &&
+      typeof password === 'string' &&
+      password === adminPassword
+    ) {
       attempts[ip] = 0
       return {
         id: 0,
@@ -58,19 +61,13 @@ module.exports = ({ dataLocation, securityConfig }) => {
     }
   }
 
-  function getSecret() {
-    return secret
-  }
-
-  function resetSecret() {
-    return createNewSecret()
-  }
+  const getSecret = () => secret
 
   // Public API
   return {
     attempt: Promise.method(attempt),
     authenticate: Promise.method(authenticate),
     getSecret: Promise.method(getSecret),
-    resetSecret: Promise.method(resetSecret)
+    resetSecret: Promise.method(createNewSecret)
   }
 }

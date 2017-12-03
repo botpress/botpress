@@ -1,36 +1,19 @@
-import React, { Component } from 'react'
-import PropTypes from 'prop-types'
+import React from 'react'
+import { bindActionCreators } from 'redux'
+import { connect } from 'react-redux'
 
-import {
-  Navbar, 
-  Nav, 
-  NavItem, 
-  Glyphicon,
-  NavDropdown
-} from 'react-bootstrap'
-
+import { Navbar, Nav, NavItem, Glyphicon, NavDropdown } from 'react-bootstrap'
 import classnames from 'classnames'
-import axios from 'axios'
 
 import NotificationHub from '~/components/Notifications/Hub'
 import ProfileMenu from '+/views/ProfileMenu'
 import RulesChecker from '+/views/RulesChecker'
 
-import { getCurrentUser, logout } from '~/util/Auth'
-
+import { logout } from '~/util/Auth'
 import style from './Header.scss'
+import { viewModeChanged } from '~/actions'
 
-import { connect } from 'nuclear-js-react-addons'
-import getters from '~/stores/getters'
-import actions from '~/actions'
-
-@connect(props => ({ 
-  user: getters.user,
-  UI: getters.UI
-}))
-
-class Header extends Component {
-
+class Header extends React.Component {
   constructor(props, context) {
     super(props, context)
 
@@ -40,67 +23,76 @@ class Header extends Component {
   }
 
   getProfileImgUrl() {
-    if (!this.props.user.get('avatarURL')) {
+    if (!this.props.user.avatarURL) {
       return null
     }
-    return '/api/enterprise/accounts/avatars/' + this.props.user.get('avatarURL')
+    return '/api/enterprise/accounts/avatars/' + this.props.user.avatarURL
   }
 
-  handleFullscreen() {
-    const newViewMode = this.props.UI.get('viewMode') < 1 ? 1 : 0
-    actions.viewModeChanged(newViewMode)
+  handleFullscreen = () => {
+    const newViewMode = this.props.viewMode < 1 ? 1 : 0
+    this.props.viewModeChanged(newViewMode)
   }
 
   renderLogoutButton() {
-    
     if (!window.AUTH_ENABLED) {
       return null
     }
 
     const url = this.getProfileImgUrl()
-    let label = <img src={url}></img>
-    
-    if (!url) {
-      label = <i className="material-icons">account_circle</i>
-    }
-    
-    return <NavDropdown className={style.account} noCaret title={label} id="account-button">
-      <ProfileMenu logout={logout}/>  
-    </NavDropdown>
+    const label = url ? <img src={url} /> : <i className="material-icons">account_circle</i>
+
+    return (
+      <NavDropdown className={style.account} noCaret title={label} id="account-button">
+        <ProfileMenu logout={logout} />
+      </NavDropdown>
+    )
   }
 
   renderFullScreenButton() {
-    return <span className={classnames(style.fullScreen, 'bp-full-screen')} >
-      <Glyphicon glyph="fullscreen"/>
-    </span>
+    return (
+      <span className={classnames(style.fullScreen, 'bp-full-screen')}>
+        <Glyphicon glyph="fullscreen" />
+      </span>
+    )
   }
 
   render() {
-    if (this.props.UI.get('viewMode') >= 3) {
+    if (this.props.viewMode >= 3) {
       return null
     }
 
     const classNames = classnames(style.navbar, style['app-navbar'], 'bp-navbar')
+    const customStyle = this.props.customStyle['bp-navbar']
 
-    return <Navbar className={classNames}>
-      <Navbar.Collapse>
-        <Nav pullRight>
-          <NavItem onClick={::this.handleFullscreen}>{this.renderFullScreenButton()}</NavItem>
-          <RulesChecker res='bot/logs' op='read'>
-            <NavItem href="/logs"><Glyphicon glyph="list-alt"/></NavItem>
-          </RulesChecker>
-          <RulesChecker res='notifications' op='read'>
-            <NotificationHub />
-          </RulesChecker>
-          {this.renderLogoutButton()}
-        </Nav>
-      </Navbar.Collapse>
-    </Navbar>
+    return (
+      <Navbar className={classNames} style={customStyle}>
+        <Navbar.Collapse>
+          <Nav pullRight>
+            <NavItem onClick={this.handleFullscreen}>{this.renderFullScreenButton()}</NavItem>
+            <RulesChecker res="bot/logs" op="read">
+              <NavItem href="/logs">
+                <Glyphicon glyph="list-alt" />
+              </NavItem>
+            </RulesChecker>
+            <RulesChecker res="notifications" op="read">
+              <NotificationHub />
+            </RulesChecker>
+            {this.renderLogoutButton()}
+          </Nav>
+          <Nav pullRight className="bp-navbar-module-buttons" />
+        </Navbar.Collapse>
+      </Navbar>
+    )
   }
 }
 
-Header.contextTypes = {
-  reactor: PropTypes.object.isRequired
-}
+const mapStateToProps = state => ({
+  user: state.user,
+  viewMode: state.ui.viewMode,
+  customStyle: state.ui.customStyle
+})
 
-export default Header
+const mapDispatchToProps = dispatch => bindActionCreators({ viewModeChanged }, dispatch)
+
+export default connect(mapStateToProps, mapDispatchToProps)(Header)

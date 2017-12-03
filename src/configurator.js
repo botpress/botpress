@@ -5,20 +5,19 @@ import yaml from 'js-yaml'
 import Promise from 'bluebird'
 
 const validations = {
-  'any': (value, validation) => validation(value),
-  'string': (value, validation) => typeof(value) === 'string' && validation(value),
-  'choice': (value, validation) => _.includes(validation, value),
-  'bool': (value, validation) => (value === true || value === false) && validation(value)
+  any: (value, validation) => validation(value),
+  string: (value, validation) => typeof value === 'string' && validation(value),
+  choice: (value, validation) => _.includes(validation, value),
+  bool: (value, validation) => (value === true || value === false) && validation(value)
 }
 
 const defaultValues = {
-  'any': null,
-  'string': '',
-  'bool': false
+  any: null,
+  string: '',
+  bool: false
 }
 
 const amendOption = (option, name) => {
-
   const validTypes = _.keys(validations)
   if (!option.type || !_.includes(validTypes, option.type)) {
     throw new Error(`Invalid type (${option.type || ''}) for config key (${name})`)
@@ -26,7 +25,7 @@ const amendOption = (option, name) => {
 
   const validation = option.validation || (() => true)
 
-  if (typeof(option.default) !== 'undefined' && !validations[option.type](option.default, validation)) {
+  if (typeof option.default !== 'undefined' && !validations[option.type](option.default, validation)) {
     throw new Error(`Invalid default value (${option.default}) for (${name})`)
   }
 
@@ -48,7 +47,6 @@ const amendOptions = options => {
 }
 
 const validateSet = (options, name, value) => {
-
   // if name is not in options, throw
   if (!_.includes(_.keys(options), name)) {
     throw new Error(`Unrecognized configuration key: ${name}`)
@@ -102,10 +100,12 @@ const overwriteFromEnvValues = (options, object) => {
 
 const overwriteFromBotfileValues = (config_name, options, botfile, object) => {
   return _.mapValues(object, (_v, name) => {
-    if (botfile 
-      && botfile.config 
-      && botfile.config[config_name] 
-      && typeof botfile.config[config_name][name] !== 'undefined') {
+    if (
+      botfile &&
+      botfile.config &&
+      botfile.config[config_name] &&
+      typeof botfile.config[config_name][name] !== 'undefined'
+    ) {
       return botfile.config[config_name][name]
     }
 
@@ -149,9 +149,8 @@ const removeUnusedKeys = (options, object) => {
 }
 
 const createConfig = ({ kvs, name, botfile = {}, options = {}, projectLocation = null }) => {
-
   if (!kvs || !kvs.get || !kvs.set) {
-    throw new Error('A valid \'kvs\' is mandatory to createConfig')
+    throw new Error("A valid 'kvs' is mandatory to createConfig")
   }
 
   validateName(name)
@@ -163,7 +162,8 @@ const createConfig = ({ kvs, name, botfile = {}, options = {}, projectLocation =
   }
 
   const loadAll = () => {
-    return kvs.get('__config', name)
+    return kvs
+      .get('__config', name)
       .then(all => overwriteFromDefaultValues(options, all || {}))
       .then(all => overwriteFromBotfileValues(name, options, botfile, all))
       .then(all => overwriteFromConfigFileValues(name, options, projectLocation, all))
@@ -172,7 +172,8 @@ const createConfig = ({ kvs, name, botfile = {}, options = {}, projectLocation =
   }
 
   const get = name => {
-    return kvs.get('__config', name + '.' + name)
+    return kvs
+      .get('__config', name + '.' + name)
       .then(value => overwriteFromDefaultValues(options, { [name]: value }))
       .then(all => overwriteFromBotfileValues(name, options, botfile, all))
       .then(all => overwriteFromConfigFileValues(name, options, projectLocation, all))
@@ -184,7 +185,7 @@ const createConfig = ({ kvs, name, botfile = {}, options = {}, projectLocation =
     validateSet(options, name, value)
     return kvs.set('__config', value, name + '.' + name)
   }
-  
+
   return { saveAll, loadAll, get, set, options }
 }
 

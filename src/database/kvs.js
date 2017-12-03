@@ -44,18 +44,23 @@ module.exports = (knex, options = {}) => {
   }
 
   const get = (key, path) => {
-    return knex(tableName).where({ key }).limit(1).then().get(0).then(row => {
-      if (!row) {
-        return null
-      }
+    return knex(tableName)
+      .where({ key })
+      .limit(1)
+      .then()
+      .get(0)
+      .then(row => {
+        if (!row) {
+          return null
+        }
 
-      const obj = JSON.parse(row.value)
-      if (!path) {
-        return obj
-      }
+        const obj = JSON.parse(row.value)
+        if (!path) {
+          return obj
+        }
 
-      return _.at(obj, [path])[0]
-    })
+        return _.at(obj, [path])[0]
+      })
   }
 
   const set = (key, value, path) => {
@@ -72,21 +77,19 @@ module.exports = (knex, options = {}) => {
       }
     }
 
-    return get(key)
-      .then(original => {
-        return getSetCallback()
-          .then(() => {
-            if (!_.isNil(original)) {
-              return upsert(key, setValue(Object.assign({}, original)))
-            } else {
-              return upsert(key, setValue({}))
-            }
-          })
+    return get(key).then(original => {
+      return getSetCallback().then(() => {
+        if (!_.isNil(original)) {
+          return upsert(key, setValue(Object.assign({}, original)))
+        } else {
+          return upsert(key, setValue({}))
+        }
       })
+    })
   }
 
   const bootstrap = () => {
-    return helpers(knex).createTableIfNotExists(tableName, function(table) {
+    return helpers(knex).createTableIfNotExists(tableName, table => {
       table.string('key').primary()
       table.text('value')
       table.timestamp('modified_on')

@@ -1,93 +1,120 @@
+import { createAction } from 'redux-actions'
 import axios from 'axios'
-import reactor from '~/reactor'
+import _ from 'lodash'
 
-import actions from '+/actions'
+// Flows
+export const requestFlows = createAction('FLOWS/REQUEST')
+export const receiveFlows = createAction('FLOWS/RECEIVE', flows => flows, () => ({ receiveAt: new Date() }))
 
-import actionTypes from '~/actions/actionTypes'
+export const fetchFlows = () => dispatch => {
+  dispatch(requestFlows())
 
-const {
-  MODULES_RECEIVED,
-  ALL_NOTIFICATIONS_RECEIVED,
-  NEW_NOTIFICATIONS_RECEIVED,
-  TOGGLE_LICENSE_MODAL,
-  BOT_INFORMATION_RECEIVED,
-  LICENSE_RECEIVED,
-  LICENSE_CHANGED,
-  TOGGLE_ABOUT_MODAL,
-  USER_RECEIVED,
-  VIEW_MODE_CHANGED
-} = actionTypes
-
-const fetchModules = () => {
-  axios.get('/api/modules').then(res => {
-    reactor.dispatch(MODULES_RECEIVED, { modules: res.data })
+  axios.get('/flows/all').then(({ data }) => {
+    const flows = _.keyBy(data, 'name')
+    dispatch(receiveFlows(flows))
   })
 }
 
-const fetchNotifications = () => {
-  axios.get('/api/notifications/inbox').then(res => {
-    reactor.dispatch(ALL_NOTIFICATIONS_RECEIVED, { notifications: res.data })
+export const requestSaveFlows = createAction('FLOWS/SAVE')
+export const receiveSaveFlows = createAction('FLOWS/SAVE/RECEIVE', flows => flows, () => ({ receiveAt: new Date() }))
+
+export const saveAllFlows = flows => (dispatch, getState) => {
+  dispatch(requestSaveFlows())
+
+  const flows = _.values(getState().flows.flowsByName).map(flow => ({
+    flow: flow.name,
+    location: flow.location,
+    startNode: flow.startNode,
+    catchAll: flow.catchAll,
+    links: flow.links,
+    nodes: flow.nodes
+  }))
+
+  axios.post('/flows/save', flows).then(() => {
+    dispatch(receiveSaveFlows())
   })
 }
 
-const replaceNotifications = allNotifications => {
-  reactor.dispatch(ALL_NOTIFICATIONS_RECEIVED, { notifications: allNotifications })
-}
+// export const fetchFlowsDefinitions = createAction('FLOWS_DEFINITIONS_FETCH')
 
-const addNotifications = notifications => {
-  reactor.dispatch(NEW_NOTIFICATIONS_RECEIVED, { notifications })
-}
+export const updateFlow = createAction('FLOWS/FLOW/UPDATE')
+export const renameFlow = createAction('FLOWS/FLOW/RENAME')
+export const createFlow = createAction('FLOWS/CREATE')
+export const switchFlow = createAction('FLOWS/SWITCH')
+export const deleteFlow = createAction('FLOWS/DELETE')
+export const duplicateFlow = createAction('FLOWS/DUPLICATE')
 
-const toggleLicenseModal = () => {
-  reactor.dispatch(TOGGLE_LICENSE_MODAL)
-}
+export const linkFlowNodes = createAction('FLOWS/FLOW/LINK')
+export const updateFlowNode = createAction('FLOWS/FLOW/UPDATE_NODE')
+export const switchFlowNode = createAction('FLOWS/FLOW/SWITCH_NODE')
+export const createFlowNode = createAction('FLOWS/FLOW/CREATE')
+export const removeFlowNode = createAction('FLOWS/FLOW/REMOVE')
+export const copyFlowNode = createAction('FLOWS/NODE/COPY')
+export const pasteFlowNode = createAction('FLOWS/NODE/PASTE')
 
-const toggleAboutModal = () => {
-  reactor.dispatch(TOGGLE_ABOUT_MODAL)
-}
+export const flowEditorUndo = createAction('FLOWS/EDITOR/UNDO')
+export const flowEditorRedo = createAction('FLOWS/EDITOR/REDO')
 
-const fetchBotInformation = () => {
-  axios.get('/api/bot/information').then(information => {
-    axios.get('/api/bot/production').then(production => {
-      const botInformationWithProduction = information.data
-      botInformationWithProduction.production = production.data
+export const setDiagramAction = createAction('FLOWS/FLOW/SET_ACTION')
 
-      reactor.dispatch(BOT_INFORMATION_RECEIVED, { botInformation: botInformationWithProduction })
-    })
-  })
-}
-
-const fetchLicense = () => {
+// License
+export const licenseChanged = createAction('LICENSE/CHANGED')
+export const fetchLicense = () => dispatch => {
   axios.get('/api/license').then(({ data }) => {
-    reactor.dispatch(LICENSE_RECEIVED, { license: data })
+    dispatch(licenseChanged(data))
   })
 }
 
-const licenseChanged = license => {
-  reactor.dispatch(LICENSE_CHANGED, { license })
-}
+// UI
+export const toggleLicenseModal = createAction('UI/TOGGLE_LICENSE_MODAL')
+export const toggleAboutModal = createAction('UI/TOGGLE_ABOUT_MODAL')
+export const viewModeChanged = createAction('UI/VIEW_MODE_CHANGED')
+export const updateGlobalStyle = createAction('UI/UPDATE_GLOBAL_STYLE')
 
-const fetchUser = () => {
+// User
+export const userReceived = createAction('USER/RECEIVED')
+export const fetchUser = () => dispatch => {
   axios.get('/api/my-account').then(res => {
-    reactor.dispatch(USER_RECEIVED, { user: res.data })
+    dispatch(userReceived(res.data))
   })
 }
 
-const viewModeChanged = mode => {
-  reactor.dispatch(VIEW_MODE_CHANGED, { mode: mode })
+// Bot
+export const botInfoReceived = createAction('BOT/INFO_RECEIVED')
+export const fetchBotInformation = () => dispatch => {
+  axios.all([axios.get('/api/bot/information'), axios.get('/api/bot/production')]).then(
+    axios.spread((information, production) => {
+      const info = Object.assign({}, information.data, { production: production.data })
+      dispatch(botInfoReceived(info))
+    })
+  )
 }
 
-module.exports = {
-  fetchModules,
-  fetchNotifications,
-  replaceNotifications,
-  addNotifications,
-  toggleLicenseModal,
-  toggleAboutModal,
-  fetchBotInformation,
-  fetchLicense,
-  licenseChanged,
-  fetchUser,
-  viewModeChanged,
-  ...actions
+// Modules
+export const modulesReceived = createAction('MODULES/RECEIVED')
+export const fetchModules = () => dispatch => {
+  axios.get('/api/modules').then(res => {
+    dispatch(modulesReceived(res.data))
+  })
+}
+
+// Rules
+export const rulesReceived = createAction('RULES/RECEIVED')
+export { fetchRules } from '+/actions'
+
+// Notifications
+export const allNotificationsReceived = createAction('NOTIFICATIONS/ALL_RECEIVED')
+export const newNotificationsReceived = createAction('NOTIFICATIONS/NEW_RECEIVED')
+export const fetchNotifications = () => dispatch => {
+  axios.get('/api/notifications/inbox').then(res => {
+    dispatch(allNotificationsReceived(res.data))
+  })
+}
+
+export const replaceNotifications = allNotifications => dispatch => {
+  dispatch(allNotificationsReceived(allNotifications))
+}
+
+export const addNotifications = notifications => dispatch => {
+  dispatch(newNotificationsReceived(notifications))
 }

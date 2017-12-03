@@ -1,0 +1,144 @@
+:global(.storm-diagrams-canvas .node.selected) > .standard-node {
+  border-color: #028aee !important;
+}
+
+.standard-node {
+  width: 200px;
+  background: white;
+  border: 1px solid black;
+}
+
+.item {
+  word-wrap: break-word;
+  text-overflow: ellipsis;
+  max-height: 50px;
+  border-bottom: 1px solid black;
+  font-size: 11px;
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+.section-title {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 8px;
+  background: #000;
+  color: #fff;
+
+  &.waiting {
+    background: #f6bd4f;
+    color: #000;
+  }
+}
+
+.section-onEnter .item,
+.section-onReceive .item,
+.section-next .item {
+  padding: 3px 8px;
+
+  &.fn {
+    color: blue;
+    font-style: italic;
+  }
+
+  &.msg {
+    color: #00a653;
+  }
+}
+
+.section-next {
+  border-top: 1px solid black;
+}
+
+.section-next .item {
+  position: relative;
+  background: #ececec;
+}
+
+.section-next .item :global(.port) {
+  background: rgba(0, 0, 0, 0.2);
+
+  &:global(.selected) {
+    background: rgba(0, 0, 0, 0.5);
+  }
+}
+
+.topPort {
+  width: 100%;
+  margin-top: -15px;
+
+  :global(.port) {
+    margin: 0 auto;
+    border: none;
+    background: rgba(0, 0, 0, 0.2);
+
+    &:global(.selected) {
+      background: rgba(0, 0, 0, 0.5);
+    }
+  }
+}
+
+.startPort :global(.port) {
+  background-color: lime !important;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+}
+
+.endPort :global(.port) {
+  background-color: #e62eea !important;
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
+}
+
+.missingConnection :global(.port) {
+  background-color: red !important;
+}
+
+.subflowPort :global(.port) {
+  background-color: blue !important;
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
+}
+
+.section-next .portContainer {
+  position: absolute;
+  right: -20px;
+  top: 3px;
+  width: 20px;
+}
+
+.section-next .portContainer.portLabel {
+  width: 200px;
+  right: -200px;
+}
+
+.portContainer.startPort {
+  height: 15px;
+}
+
+.portLabel .label {
+  position: relative;
+  padding: 5px;
+  right: -20px;
+  display: inline;
+  border-radius: 3px;
+  top: -16px;
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.subflowPort .label {
+  color: blue;
+}
+
+.endPort .label {
+  color: #e62eea;
+}
+
+.startPort .label {
+  color: green;
+  font-size: 11px;
+  right: -83px;
+  top: -40px;
+}
