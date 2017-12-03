@@ -139,7 +139,7 @@ class ManageView extends React.Component {
   renderModules() {
     let modules = this.state.modules
 
-    if (this.state.search && this.state.search !== '') {
+    if (this.state.search) {
       modules = this.getResultFromSearch(modules)
     }
 
