@@ -28,11 +28,11 @@ Botpress is on a mission to make useful bots ubiquitous by powering developers w
 Botpress is a free & open-source bot-building platform that ships with:
 * [**Connectors**](https://www.npmjs.com/search?q=botpress-connector) to the major chat platforms
 * [**Modular ecosystem**](https://www.npmjs.com/search?q=botpress) with over 29 modules
-* [**Flow-management**](https://botpress.io/docs/foundamentals/flow.html) system
+* [**Flow-management**](https://botpress.io/docs/en/docs/foundamentals/flow/) system
 * **Graphical interface** to edit and manage your bot in production
 * **Notification centre** to see what's hapenning with your bot
-* [**Data persistence**](https://botpress.io/docs/foundamentals/database.html) to database
-* [**Built-in API**](https://botpress.io/docs/modules/api.html) to integrate with external systems
+* [**Data persistence**](https://botpress.io/docs/en/docs/foundamentals/database/) to database
+* [**Built-in API**](https://botpress.io/docs/en/docs/modules/api/) to integrate with external systems
 
 ## <a name="what-it-looks-like">What it looks like </a>
 

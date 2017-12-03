@@ -1,7 +1,7 @@
 {
   "name": "botpress",
   "description": "The world's first CMS for bots. Easily create, manage and extend chatbots.",
-  "version": "1.1.10",
+  "version": "1.1.11",
   "author": "Botpress",
   "bin": {
     "bp": "./bin/botpress",
@@ -125,7 +125,7 @@
     "webpack-node-externals": "^1.6.0"
   },
   "engines": {
-    "node": ">=4.6.0"
+    "node": ">=4.6.0 <9.0.0"
   },
   "homepage": "https://github.com/botpress/botpress#readme",
   "keywords": [

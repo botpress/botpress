@@ -58,7 +58,10 @@ lib/
 *.swp
 *.sly
 
-
-**/.DS_Store
 .idea/**
-_book/
+docs/.asset-cache
+docs/.asset-cache/*
+docs/.asset-cache/**
+**/.DS_Store
+
+*.cache

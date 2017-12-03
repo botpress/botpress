@@ -13,7 +13,8 @@ const afterResolve = new webpack.NormalModuleReplacementPlugin(/extensions/i, re
   if (
     !res.userRequest ||
     res.userRequest.indexOf('extensions/empty.jsx') >= 0 ||
-    res.userRequest.indexOf('extensions/enterprise') >= 0
+    res.userRequest.indexOf('extensions/enterprise') >= 0 ||
+    res.userRequest.indexOf('/node_modules/') >= 0
   ) {
     return
   }
