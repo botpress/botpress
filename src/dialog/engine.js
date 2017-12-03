@@ -62,14 +62,16 @@ class DialogEngine {
       this._trace('..', 'KALL', '', context, state)
       for (let i = 0; i < catchAllNext.length; i++) {
         if (await this._evaluateCondition(catchAllNext[i].condition, state)) {
-          return await this._processNode(stateId, context, catchAllNext[i].node, event)
+          return await this._processNode(stateId, state, context, catchAllNext[i].node, event)
         }
       }
 
       this._trace('?X', 'KALL', '', context, state)
     }
 
-    return await this._processNode(stateId, context, context.node, event)
+    state = await this._processNode(stateId, state, context, context.node, event)
+    await this.stateManager.setState(stateId, state)
+    return state
   }
 
   async reloadFlows() {
@@ -166,7 +168,7 @@ class DialogEngine {
     return _.values(this.functions).map(x => Object.assign({}, x, { fn: null }))
   }
 
-  async _processNode(stateId, context, nodeName, event) {
+  async _processNode(stateId, userState, context, nodeName, event) {
     let switchedFlow = false
     let switchedNode = false
 
@@ -185,7 +187,6 @@ class DialogEngine {
       context.node = nodeName
     }
 
-    let userState = await this.stateManager.getState(stateId)
     let node = DialogEngine._findNode(context.currentFlow, context.node)
 
     if (!node || !node.name) {
@@ -202,7 +203,7 @@ class DialogEngine {
 
       if (!node.onReceive) {
         this._trace('..', 'NOWT', '', context, userState)
-        await this._transitionToNextNodes(node, context, userState, stateId, event)
+        userState = await this._transitionToNextNodes(node, context, userState, stateId, event)
       }
     } else {
       // i.e. we were already on that node before we received the message
@@ -212,7 +213,7 @@ class DialogEngine {
       }
 
       this._trace('..', 'RECV', '', context, userState)
-      await this._transitionToNextNodes(node, context, userState, stateId, event)
+      userState = await this._transitionToNextNodes(node, context, userState, stateId, event)
     }
 
     return userState
@@ -225,23 +226,22 @@ class DialogEngine {
         this._trace('??', 'MTCH', `cond = "${nextNodes[i].condition}"`, context)
         if (/end/i.test(nextNodes[i].node)) {
           // Node "END" or "end" ends the flow (reserved keyword)
-          await this._endFlow(stateId)
-          return {}
+          return this._endFlow(stateId)
         } else {
-          return await this._processNode(stateId, context, nextNodes[i].node, event)
+          return this._processNode(stateId, userState, context, nextNodes[i].node, event)
         }
       }
     }
 
     // You reach this if there were no next nodes, in which case we end the flow
-    await this._endFlow(stateId)
-    return {}
+    return this._endFlow(stateId)
   }
 
   async _endFlow(stateId) {
     this._trace('--', 'ENDF', '', null, null)
-    await this.stateManager.clearState(stateId) // TODO Implement
+    await this.stateManager.clearState(stateId, null)
     await this._setContext(stateId, null)
+    return null
   }
 
   async _getOrCreateContext(stateId) {
