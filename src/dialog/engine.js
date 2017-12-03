@@ -34,14 +34,15 @@ class DialogEngine {
    *                                  when the flow is done processing
    */
   async processMessage(stateId, event) {
-    this._trace('Processing incoming message')
-
     if (!this.flowsLoaded) {
       await this.reloadFlows()
     }
 
     let context = await this._getOrCreateContext(stateId)
     let state = await this.stateManager.getState(stateId)
+
+    const msg = (event.text || '').substr(0, 20)
+    this._trace('<~', 'RECV', `"${msg}"`, context, state)
 
     if (!context.currentFlow) {
       throw new Error('Expected currentFlow to be defined for stateId=' + stateId)
@@ -50,7 +51,7 @@ class DialogEngine {
     const catchAllOnReceive = _.get(context, 'currentFlow.catchAll.onReceive')
 
     if (catchAllOnReceive) {
-      this._trace('Executing catchAll : onReceive', context, null)
+      this._trace('!!', 'KALL', '', context, state)
       state = await this._processInstructions(catchAllOnReceive, state, event, context)
     }
 
@@ -58,22 +59,21 @@ class DialogEngine {
     // will run the node defined in the next instead of the current context node
     const catchAllNext = _.get(context, 'currentFlow.catchAll.next')
     if (catchAllNext) {
+      this._trace('..', 'KALL', '', context, state)
       for (let i = 0; i < catchAllNext.length; i++) {
-        this._trace(`catchAll #${i}, evaluation only of "${catchAllNext[i].condition}"`, context, state)
         if (await this._evaluateCondition(catchAllNext[i].condition, state)) {
-          this._trace(`catchAll #${i} matched, processing node ${catchAllNext[i].node}`, context, state)
           return await this._processNode(stateId, context, catchAllNext[i].node, event)
         }
       }
-      this._trace('No catchAll next matched', context, state)
+
+      this._trace('?X', 'KALL', '', context, state)
     }
 
-    this._trace('Processing node ' + context.node, context, state)
     return await this._processNode(stateId, context, context.node, event)
   }
 
   async reloadFlows() {
-    this._trace('Loading flows')
+    this._trace('**', 'LOAD', '')
     this.flows = await this.provider.loadAll()
     this.flowsLoaded = true
   }
@@ -171,16 +171,16 @@ class DialogEngine {
     let switchedNode = false
 
     if (callSubflowRegex.test(nodeName)) {
-      this._trace('--> Going to subflow: ' + nodeName, context, null)
+      this._trace('>>', 'FLOW', `"${nodeName}"`, context, null)
       context = this._gotoSubflow(nodeName, context)
       switchedFlow = true
     } else if (nodeName.startsWith('#')) {
       // e.g. '#success'
-      this._trace('<-- Returning to flow: ' + nodeName, context, null)
+      this._trace('<<', 'FLOW', `"${nodeName}"`, context, null)
       context = this._gotoPreviousFlow(context)
       switchedFlow = true
     } else if (context.node !== nodeName) {
-      this._trace('Going to node: ' + nodeName)
+      this._trace('>>', 'FLOW', `"${nodeName}"`)
       switchedNode = true
       context.node = nodeName
     }
@@ -193,28 +193,25 @@ class DialogEngine {
     }
 
     if (switchedFlow || switchedNode) {
-      this._trace(`Entering node "${node.name}" (${node.id})`, context, userState)
       await this._setContext(stateId, context)
 
       if (node.onEnter) {
-        this._trace(`Executing onEnter instructions`, context, userState)
+        this._trace('!!', 'ENTR', '', context, userState)
         userState = await this._processInstructions(node.onEnter, userState, event, context)
       }
 
       if (!node.onReceive) {
-        this._trace(
-          `Node has no 'onReceive', not waiting for user input and skipping to next nodes`,
-          context,
-          userState
-        )
+        this._trace('..', 'NOWT', '', context, userState)
         await this._transitionToNextNodes(node, context, userState, stateId, event)
       }
     } else {
       // i.e. we were already on that node before we received the message
       if (node.onReceive) {
+        this._trace('!!', 'RECV', '', context, userState)
         userState = await this._processInstructions(node.onReceive, userState, event, context)
       }
 
+      this._trace('..', 'RECV', '', context, userState)
       await this._transitionToNextNodes(node, context, userState, stateId, event)
     }
 
@@ -224,8 +221,8 @@ class DialogEngine {
   async _transitionToNextNodes(node, context, userState, stateId, event) {
     const nextNodes = node.next || []
     for (let i = 0; i < nextNodes.length; i++) {
-      this._trace(`Evaluating next node #${i} (${nextNodes[i].condition})`)
       if (await this._evaluateCondition(nextNodes[i].condition, userState)) {
+        this._trace('??', 'MTCH', `cond = "${nextNodes[i].condition}"`, context)
         if (/end/i.test(nextNodes[i].node)) {
           // Node "END" or "end" ends the flow (reserved keyword)
           await this._endFlow(stateId)
@@ -242,7 +239,7 @@ class DialogEngine {
   }
 
   async _endFlow(stateId) {
-    this._trace('Ending flow for: ' + stateId, null, null)
+    this._trace('--', 'ENDF', '', null, null)
     await this.stateManager.clearState(stateId) // TODO Implement
     await this._setContext(stateId, null)
   }
@@ -355,6 +352,9 @@ class DialogEngine {
   }
 
   async _dispatchOutput(output, userState, event, context) {
+    const msg = String(output.value || '').substr(0, 20)
+    this._trace('~>', 'SEND', `"${msg}"`)
+
     this.outputProcessors.forEach(processor => {
       processor.send({
         message: output,
@@ -384,12 +384,11 @@ class DialogEngine {
       this._trace(`ERROR function "${name}" not found`, context, userState)
     } else {
       try {
-        this._trace(`executing function "${name}"`, context, userState)
+        this._trace('!!', 'EXEC', `func "${name}"`, context, userState)
         const ret = await this.functions[name].fn(userState, event, args)
-        this._trace(`done executing function "${name}"`, context, userState)
 
         if (ret && _.isObject(ret)) {
-          this._trace(`function "${name}" has replaced the state`, context, userState)
+          this._trace('!!', 'SSET', '', context)
           return ret
         }
       } catch (err) {
@@ -448,8 +447,32 @@ class DialogEngine {
     return flow
   }
 
-  _trace(message, context, state) {
-    this.logger.debug(message)
+  log(message, context, state) {
+    const flow = (_.get(context, 'currentFlow.name') || 'NONE').replace(/\.flow\.json/i, '')
+    const node = (context && context.node) || 'NONE'
+    const msg = `Dialog: [${flow} – ${node}]\t${message}`
+    this.logger.debug(msg)
+  }
+
+  /**
+   * Dialog: [flow] (node) \t OP  RESN  "Description"
+   * @param message
+   * @param context
+   * @param state
+   * @private
+   */
+  _trace(operation, reason, message, context) {
+    let flow = (_.get(context, 'currentFlow.name') || ' N/A ').replace(/\.flow\.json/i, '')
+    let node = (context && context.node) || ' N/A '
+
+    flow = flow.length > 13 ? flow.substr(0, 13) + '&' : flow
+    node = node.length > 13 ? node.substr(0, 13) + '&' : node
+
+    const spc = _.repeat(' ', 30 - flow.length - node.length)
+
+    const msg = `Dialog: [${flow}] (${node}) ${spc} ${operation}  ${reason} \t ${message}`
+
+    this.logger.debug(msg)
   }
 }
 
