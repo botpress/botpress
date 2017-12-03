@@ -179,7 +179,7 @@ class botpress {
       contentManager
     })
 
-    const dialogStateManager = StateManager()
+    const dialogStateManager = StateManager({ db })
     const flowProvider = new FlowProvider({ logger, projectLocation, botfile })
     const dialogEngine = new DialogEngine(flowProvider, dialogStateManager, null, logger)
 

@@ -1,26 +1,112 @@
-module.exports = () => {
+import helpers from '../database/helpers'
+import _ from 'lodash'
 
-  const __state = {}
+module.exports = ({ db, internals = {} }) => {
+  const _internals = Object.assign(
+    {
+      _isExpired: session => {
+        return false // TODO Implement
+      }
+    },
+    internals
+  )
 
-  async function getState(stateId) {
-    let state = __state[stateId]
-    if (!state) {
-      state = __state[stateId] = {}
+  const _upsertState = async (stateId, state) => {
+    let sql
+
+    const knex = await db.get()
+
+    const params = {
+      tableName: 'dialog_sessions',
+      stateId,
+      state: JSON.stringify(state),
+      now: helpers(knex).date.now()
     }
 
-    return state
+    if (helpers(knex).isLite()) {
+      sql = `
+        INSERT OR REPLACE INTO :tableName: (id, state, active_on)
+        VALUES (:stateId, :state, :now)
+      `
+    } else {
+      sql = `
+        INSERT INTO :tableName: (id, state, active_on, created_in)
+        VALUES (:stateId, :state, :now, :now)
+        ON CONFLICT (id) DO UPDATE
+          SET active_on = :now, state = :state
+      `
+    }
+
+    return knex.raw(sql, params)
   }
 
-  async function setState(stateId, state) {
-    return __state[stateId] = state
+  const _createEmptyState = stateId => {
+    return { _stateId: stateId }
+  }
+
+  const _createSession = async stateId => {
+    const knex = await db.get()
+    const now = helpers(knex).date.now()
+
+    const sessionData = {
+      id: stateId,
+      created_on: now,
+      active_on: now,
+      state: JSON.stringify(_createEmptyState(stateId))
+    }
+
+    await knex('dialog_sessions').insert(sessionData)
+  }
+
+  async function getState(stateId) {
+    const knex = await db.get()
+
+    const session = await knex('dialog_sessions')
+      .where({ id: stateId })
+      .limit(1)
+      .then()
+      .get(0)
+      .then()
+
+    if (session) {
+      if (_internals._isExpired(session)) {
+        // TODO trigger time out
+        await _createSession(stateId)
+        return getState(stateId)
+      } else {
+        return JSON.parse(session.state)
+      }
+    } else {
+      await _createSession(stateId)
+      return getState(stateId)
+    }
+  }
+
+  function setState(stateId, state) {
+    if (_.isNil(state)) {
+      state = _createEmptyState(stateId)
+    }
+
+    if (!_.isPlainObject(state)) {
+      throw new Error('State must be a plain object')
+    }
+
+    return _upsertState(stateId, state)
   }
 
   async function clearState(stateId) {
-    delete __state[stateId]
+    const knex = await db.get()
+    const now = helpers(knex).date.now()
+
+    await knex('dialog_sessions')
+      .update({ state: JSON.stringify(_createEmptyState(stateId)), active_on: now })
+      .where({ id: stateId })
+      .then()
   }
 
   return {
-    getState, setState, clearState
+    getState,
+    setState,
+    clearState
   }
-
 }
