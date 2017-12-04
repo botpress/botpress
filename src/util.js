@@ -2,6 +2,7 @@ import chalk from 'chalk'
 import path from 'path'
 import Module from 'module'
 import fs from 'fs'
+import knex from 'knex'
 
 const IS_DEV = process.env.NODE_ENV !== 'production'
 
@@ -86,6 +87,20 @@ const collectArgs = (val, memo) => {
   return memo
 }
 
+// https://github.com/tgriesser/knex/issues/1871#issuecomment-273721116
+const getInMemoryDb = () =>
+  knex({
+    client: 'sqlite3',
+    connection: ':memory:',
+    pool: {
+      min: 1,
+      max: 1,
+      disposeTiemout: 360000 * 1000,
+      idleTimeoutMillis: 360000 * 1000
+    },
+    useNullAsDefault: true
+  })
+
 module.exports = {
   print,
   resolveFromDir,
@@ -95,5 +110,6 @@ module.exports = {
   getDataLocation,
   npmCmd: NPM_CMD,
   getBotpressVersion,
-  collectArgs
+  collectArgs,
+  getInMemoryDb
 }

@@ -21,6 +21,11 @@ module.exports = {
   formsDir: './forms',
 
   /*
+    Path to Content Forms Data
+   */
+  formsDataDir: './forms_data',
+
+  /*
     By default logs are enabled and available in `dataDir`
    */
   disableFileLogs: false,
