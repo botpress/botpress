@@ -67,7 +67,7 @@ The title of the category as it will show in the UI (left side panel).
 The content manager uses the [JSON Schema](https://mozilla-services.github.io/react-jsonschema-form/) standard to power the forms. The `jsonSchema` property is just using `react-jsonschema-form` and passing it as the `schema` property.
 
 > **Note**
-> 
+>
 > You should read the documentation of **[react-jsonschema-form](https://github.com/mozilla-services/react-jsonschema-form)** to see all supported types of input.
 
 #### Field [`uiSchema`](https://github.com/mozilla-services/react-jsonschema-form) (_Optional_)
@@ -80,7 +80,7 @@ The content manager uses the [JSON Schema](https://mozilla-services.github.io/re
 #### Field `ummBloc` (_Optional_) <a class="toc" id="toc-field-uischema-https-github-com-mozilla-services-react-jsonschema-form-optional" href="#toc-field-uischema-https-github-com-mozilla-services-react-jsonschema-form-optional"></a>
 
 
-Optionally, you can assign a UMM bloc to a content category. When doing so, Botpress will generate a virtual bloc (starting by `#!`) which you can use to send a message directly. 
+Optionally, you can assign a UMM bloc to a content category. When doing so, Botpress will generate a virtual bloc (starting by `#!`) which you can use to send a message directly.
 
 For example, if you have a category called `trivia`, generating trivia questions (content) would generate blocs that look like `#!trivia-h73k41`, which you can use anywhere as a regular UMM bloc (e.g. `event.reply('#!trivia-h73k41')`).
 
@@ -128,7 +128,7 @@ Optionally, you can modify the Preview text in the UI view.
 
 ```js
 computePreviewText: formData => 'Question: ' + formData.question
-``` 
+```
 
 #### Field `computeMetadata(data) -> Array<string>|Promise<Array<string>>` (_Optional_)
 
@@ -260,8 +260,8 @@ trivia-bad:
 ```js
 const _ = require('lodash')
 
-module.exports = function(bp) {  
-  
+module.exports = function(bp) {
+
   bp.hear(/GET_STARTED|hello|hi|test|hey|holla/i, (event, next) => {
     event.reply('#welcome')
   })
@@ -269,7 +269,7 @@ module.exports = function(bp) {
   bp.hear(/^question$/i, (event, next) => {
     bp.contentManager.listCategoryItems('trivia')
     .then(items => {
-      const random = _.first(_.shuffle(items))  
+      const random = _.first(_.shuffle(items))
       event.reply('#!' + random.id)
     })
   })

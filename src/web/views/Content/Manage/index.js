@@ -174,26 +174,6 @@ export default class ManageView extends Component {
     )
   }
 
-  renderUploadButtons() {
-    const importTooltips = <Tooltip id="tooltip">Import JSON content</Tooltip>
-    const exportTooltips = <Tooltip id="tooltip">Export all as JSON</Tooltip>
-
-    return (
-      <span className={style.uploadButtons}>
-        <OverlayTrigger placement="top" overlay={importTooltips}>
-          <Button onClick={this.props.handleUpload}>
-            <i className="material-icons">backup</i>
-          </Button>
-        </OverlayTrigger>
-        <OverlayTrigger placement="top" overlay={exportTooltips}>
-          <Button onClick={this.props.handleDownload}>
-            <i className="material-icons">get_app</i>
-          </Button>
-        </OverlayTrigger>
-      </span>
-    )
-  }
-
   renderSearchBar() {
     return (
       <FormGroup className={style.search}>
@@ -211,7 +191,6 @@ export default class ManageView extends Component {
         <div className={leftCls}>
           {this.renderActionButtons()}
           {this.renderSearchBar()}
-          {this.renderUploadButtons()}
         </div>
         <div className={rightCls}>
           {this.renderPaging()}
@@ -222,10 +201,7 @@ export default class ManageView extends Component {
   }
 
   render() {
-    const classNames = classnames({
-      'bp-manage': true,
-      [style.manage]: true
-    })
+    const classNames = classnames('bp-manage', style.manage)
 
     return (
       <div className={classNames}>
