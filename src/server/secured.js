@@ -218,11 +218,6 @@ module.exports = (bp, app) => {
     res.send(await bp.contentManager.listCategoryItems(req.params.id, from, count, searchTerm))
   })
 
-  app.secure('read', 'bot/content').get('/content/export', async (req, res) => {
-    res.setHeader('Content-disposition', 'attachment; filename=content-export.json')
-    res.send(await bp.contentManager.exportContent())
-  })
-
   app.secure('write', 'bot/content').post('/content/categories/:id/items', async (req, res) => {
     res.send(
       await bp.contentManager.createOrUpdateCategoryItem({
@@ -243,16 +238,6 @@ module.exports = (bp, app) => {
       } else {
         cb(null, true)
       }
-    }
-  })
-
-  app.secure('write', 'bot/content').post('/content/upload', contentUploadMulter.array('files[]'), async (req, res) => {
-    try {
-      const documents = req.files.map(file => JSON.parse(file.buffer.toString()))
-      await Promise.mapSeries(documents, doc => bp.contentManager.importContent(doc))
-      res.send({ success: true })
-    } catch (err) {
-      res.status(500).send(err.message)
     }
   })
 
