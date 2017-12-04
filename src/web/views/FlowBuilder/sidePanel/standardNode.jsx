@@ -8,14 +8,11 @@ import { Row, Col, Panel, Button } from 'react-bootstrap'
 import EditableInput from '../common/EditableInput'
 import ActionItem from '../common/action'
 
-import NewActionModal from './NewActionModal'
-
 const style = require('./style.scss')
 
 export default class SidePanel extends Component {
   state = {
-    currentSection: null,
-    showNewActionModal: false
+    currentSection: null
   }
 
   onAddActionClicked = options => {
@@ -31,7 +28,6 @@ export default class SidePanel extends Component {
     })
 
     this.setState({
-      showNewActionModal: false,
       currentSection: null
     })
   }
@@ -77,8 +73,7 @@ export default class SidePanel extends Component {
 
     const handleAddAction = () =>
       this.setState({
-        currentSection: section,
-        showNewActionModal: true
+        currentSection: section
       })
 
     return (
@@ -150,14 +145,6 @@ export default class SidePanel extends Component {
         {this.renderActionSection('onReceive', 'On Receive')}
         {this.renderConditionSection('next', 'Next nodes')}
         {this.renderBottomSection()}
-
-        <NewActionModal
-          show={this.state.showNewActionModal}
-          onClose={() => {
-            this.setState({ showNewActionModal: false })
-          }}
-          onAdd={this.onAddActionClicked}
-        />
       </div>
     )
   }
