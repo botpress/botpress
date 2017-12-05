@@ -333,11 +333,19 @@ class DialogEngine {
     }
 
     await Promise.mapSeries(instructions, async instruction => {
-      if (_.isString(instruction) && instruction.startsWith('@')) {
+      if (_.isString(instruction) && instruction.startsWith('say ')) {
+        const chunks = instruction.split(' ')
+        const params = _.slice(chunks, 2).join(' ')
+
+        if (chunks.length < 2) {
+          this.trace('ERROR Invalid text instruction. Expected an instruction along "say #text Something"')
+          return userState
+        }
+
         await this._dispatchOutput(
           {
-            type: 'text',
-            value: instruction.substr(1)
+            type: chunks[1], // e.g. "#text" or "#!trivia-12342"
+            value: params // e.g. Any additional parameter provided to the template
           },
           userState,
           event,

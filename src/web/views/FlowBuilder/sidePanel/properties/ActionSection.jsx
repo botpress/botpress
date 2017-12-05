@@ -27,14 +27,20 @@ export default class ActionSection extends Component {
 
   optionsToItem(options) {
     if (options.type === 'message') {
-      return '@' + options.message // TODO Update this to "say #bloc [message]" structure
+      return 'say #text ' + options.message // TODO Update this to "say #bloc [message]" structure
     }
     return options.functionName + ' ' + JSON.stringify(options.parameters || {})
   }
 
   itemToOptions(item) {
-    if (item && item[0] === '@') {
-      return { type: 'message', message: item.substring(1) }
+    if (item && item.startsWith('say ')) {
+      const chunks = item.split(' ')
+      let text = item
+      if (chunks.length > 2) {
+        text = _.slice(chunks, 2).join(' ')
+      }
+
+      return { type: 'message', message: text }
     } else if (item) {
       const params = item.includes(' ') ? JSON.parse(item.substring(item.indexOf(' ') + 1)) : {}
       return {
