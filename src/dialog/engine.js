@@ -100,9 +100,9 @@ class DialogEngine {
       throw new Error('Invalid processor. Processor must have a function `send` defined and a valid `id`')
     }
 
-    _.remove(this.outputProcessors, p => p.id === processor.id)
-
-    this.outputProcessors.push(processor)
+    // For now we only ever support a single output processor
+    // We might want many output processors in the future, for example to hook up a debugger or a test suite
+    this.outputProcessors = [processor]
   }
 
   /**
@@ -190,6 +190,9 @@ class DialogEngine {
     let node = DialogEngine._findNode(context.currentFlow, context.node)
 
     if (!node || !node.name) {
+      userState = await this._endFlow(stateId)
+      return userState
+      // TODO Trace error
       throw new Error(`Could not find node "${context.node}" in flow "${context.currentFlow.name}"`)
     }
 

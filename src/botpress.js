@@ -27,6 +27,7 @@ import createContentManager from './content/service'
 import FlowProvider from './dialog/provider'
 import StateManager from './dialog/state'
 import DialogEngine from './dialog/engine'
+import DialogProcessors from './dialog/processors'
 
 import createConversations from './conversations'
 import stats from './stats'
@@ -182,6 +183,9 @@ class botpress {
     const dialogStateManager = StateManager({ db })
     const flowProvider = new FlowProvider({ logger, projectLocation, botfile })
     const dialogEngine = new DialogEngine(flowProvider, dialogStateManager, null, logger)
+
+    // Registers the default output processor, which sends messages to the user
+    dialogEngine.registerOutputProcessor(DialogProcessors['default'])
 
     const incomingQueue = new Queue('Incoming', logger, {
       redis: botfile.redis
