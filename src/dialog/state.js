@@ -94,19 +94,26 @@ module.exports = ({ db, internals = {} }) => {
     return _upsertState(stateId, state)
   }
 
-  async function clearState(stateId) {
+  /**
+   * Deletes the state(s) and the associated substates (for e.g. __context state)
+   * @param stateId The state to delete
+   * @param substates Detaults to ['context']. If this is empty it will delete no substate
+   * @returns {Promise.<void>}
+   */
+  async function deleteState(stateId, substates = ['context']) {
     const knex = await db.get()
-    const now = helpers(knex).date.now()
+
+    const states = [stateId, ...substates.map(x => `${stateId}__${x}`)]
 
     await knex('dialog_sessions')
-      .update({ state: JSON.stringify(_createEmptyState(stateId)), active_on: now })
-      .where({ id: stateId })
+      .whereIn('id', states)
+      .del()
       .then()
   }
 
   return {
     getState,
     setState,
-    clearState
+    deleteState
   }
 }

@@ -70,7 +70,11 @@ class DialogEngine {
     }
 
     state = await this._processNode(stateId, state, context, context.node, event)
-    await this.stateManager.setState(stateId, state)
+
+    if (!_.isNil(state)) {
+      await this.stateManager.setState(stateId, state)
+    }
+
     return state
   }
 
@@ -242,8 +246,7 @@ class DialogEngine {
 
   async _endFlow(stateId) {
     this._trace('--', 'ENDF', '', null, null)
-    await this.stateManager.clearState(stateId, null)
-    await this._setContext(stateId, null)
+    await this.stateManager.deleteState(stateId, ['context'])
     return null
   }
 
