@@ -88,7 +88,7 @@ docs_additional_reading: "Additional Reading"
 
 # Gettings Started
 
-"/docs/getting_started/install/":
+"/docs/getting_started/install":
   title: "Installation and bootstrap"
   description: "Installing the Botpress CLI"
 
@@ -100,35 +100,35 @@ docs_additional_reading: "Additional Reading"
   description: >
    TLDR: This file contains all your bot's logic
 
-"/docs/foundamentals/events/":
+"/docs/foundamentals/events":
   title: "Events"
   description: "How the information is send to botpress"
 
-"/docs/foundamentals/conversations/":
+"/docs/foundamentals/conversations":
   title: "Conversations"
   description: "Conversation is the core of any chatbots"
 
-"/docs/foundamentals/flow/":
+"/docs/foundamentals/flow":
   title: " Managing the conversation Flow"
   description: "Present the build-in Flow manager (Convo)"
 
-"/docs/foundamentals/umm/":
+"/docs/foundamentals/umm":
   title: "Universal Message Markdown (UMM)"
   description: "UMM is the best way to send messages. It is meant to be used by programmers and non-programmers. You define blocs of content in the content.yml."
 
-"/docs/foundamentals/content/":
+"/docs/foundamentals/content":
   title: "Content Manager"
   description: "Panel for the no administrator"
 
-"/docs/foundamentals/database/":
+"/docs/foundamentals/database":
   title: "How to use the built-in Database"
   description: "Main function of build-in database"
 
-"/docs/foundamentals/tags/":
+"/docs/foundamentals/tags":
   title: "User Tags"
   description: "New!** in Botpress **1.1"
 
-"/docs/foundamentals/botfile/":
+"/docs/foundamentals/botfile":
   title: "Configuration"
   description: "What's inside the configuration in botpress. The botfile.js store all you important configuration"
 
@@ -140,26 +140,26 @@ docs_additional_reading: "Additional Reading"
 
 ## Deploying your bots
 
-"/docs/deploy/heroku/":
+"/docs/deploy/heroku":
   title: "Deploying on heroku"
   description: "It's easy to deploy a bot with heroku"
 
-"/docs/deploy/aws/":
+"/docs/deploy/aws":
   title: "Deploying on aws"
   description: "It's easy to deploy a bot with aws"
 
 ## Advanced
 
 
-"/docs/advanced/middleware/":
+"/docs/advanced/middleware":
   title: "Understanding the Middlewares"
   description: "Big overview on a middleware works"
 
-"/docs/advanced/database_helpers/":
+"/docs/advanced/database_helpers":
   title: "Database Helpers"
   description: "Helpers for being the most awesome database expert"
 
-"/docs/advanced/debug/":
+"/docs/advanced/debug":
   title: "Debugging your bot"
   description: "Here you find how to configure your favorite IDE to debug your code"
 
@@ -177,23 +177,23 @@ docs_additional_reading: "Additional Reading"
   title: "Create a module"
   description: "This guide will help you to build your first Module with botpress"
 
-"/docs/modules/events/":
+"/docs/modules/events":
   title: "How to use Events"
   description: "Events is a middleware"
   
-"/docs/modules/config/":
+"/docs/modules/config":
   title: "Module Configuration"
   description: "How the configuration should be"
 
-"/docs/modules/api/":
+"/docs/modules/api":
   title: "Making your module expose an API"
   description: "Expose your application with a API"
 
-"/docs/modules/icon/":
+"/docs/modules/icon":
   title: "Changing your module's icon"
   description: "Put your branding in your chatbots"
 
-"/docs/modules/light_views/":
+"/docs/modules/light_views":
   title: "Serving lightweight views"
   description: "How to use a lightweight version of botpress"
 
