@@ -16,15 +16,11 @@ class SidebarFooter extends React.Component {
     router: PropTypes.object.isRequired
   }
 
-  constructor(props, context) {
-    super(props, context)
-  }
-
-  openLicenseComponent() {
+  openLicenseComponent = () => {
     this.props.toggleLicenseModal()
   }
 
-  openAbout() {
+  openAbout = () => {
     this.props.toggleAboutModal()
   }
 
@@ -131,7 +127,7 @@ class SidebarFooter extends React.Component {
     })
 
     return (
-      <Link className={classNames} to="#" title="License" onClick={::this.openLicenseComponent}>
+      <Link className={classNames} to="#" title="License" onClick={this.openLicenseComponent}>
         {license}
       </Link>
     )
@@ -175,7 +171,7 @@ class SidebarFooter extends React.Component {
           <div className={nameClassNames}>{name}</div>
           <div className={productionClassNames}>{production}</div>
           {this.renderAllLicenseElements()}
-          <Link className={aboutClassNames} to="#" title="About" onClick={::this.openAbout}>
+          <Link className={aboutClassNames} to="#" title="About" onClick={this.openAbout}>
             About Botpress
           </Link>
         </div>

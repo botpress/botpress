@@ -100,10 +100,7 @@ export class StandardNodeWidget extends React.Component {
     node: null
   }
 
-  constructor(props) {
-    super(props)
-    this.state = {}
-  }
+  state = {}
 
   render() {
     const node = this.props.node

@@ -13,17 +13,14 @@ import NewActionModal from './NewActionModal'
 const style = require('./style.scss')
 
 export default class SidePanel extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      currentSection: null,
-      showNewActionModal: false
-    }
+  state = {
+    currentSection: null,
+    showNewActionModal: false
   }
 
-  onAddActionClicked(options) {
+  onAddActionClicked = options => {
     const { node } = this.props
-    console.log(options)
+    // console.log(options)
     const action = options.type === 'message' ? '@' + options.message : options.functionName
 
     const section = this.state.currentSection
@@ -39,7 +36,7 @@ export default class SidePanel extends Component {
     })
   }
 
-  removeAction(name, index) {
+  removeAction = (name, index) => {
     const clone = [...this.props.node[name]]
     _.pullAt(clone, [index])
     this.props.updateNode({
@@ -60,7 +57,7 @@ export default class SidePanel extends Component {
     })
   }
 
-  renameNode(text) {
+  renameNode = text => {
     const newText = text.replace(/[^a-z0-9-_\.]/i, '').toLowerCase()
 
     if (newText.length > 0 && newText !== this.props.node.name) {
@@ -113,7 +110,7 @@ export default class SidePanel extends Component {
         {items.map((item, i) => (
           <ActionItem className={style.item} text={item.condition}>
             <div className={style.remove}>
-              <a onClick={() => ::this.removeAction(section, i)}>Remove</a>
+              <a onClick={() => this.removeAction(section, i)}>Remove</a>
             </div>
           </ActionItem>
         ))}
@@ -124,14 +121,14 @@ export default class SidePanel extends Component {
     )
   }
 
-  handleRemoveNode() {
+  handleRemoveNode = () => {
     this.props.removeFlowNode(this.props.node.id)
   }
 
   renderBottomSection() {
     return (
       <div className={style.bottomSection}>
-        <Button className={style.deleteNode} bsStyle="danger" onClick={::this.handleRemoveNode}>
+        <Button className={style.deleteNode} bsStyle="danger" onClick={this.handleRemoveNode}>
           Delete node
         </Button>
       </div>
@@ -147,19 +144,19 @@ export default class SidePanel extends Component {
 
     return (
       <div className={classnames(style.node, style['standard-node'])}>
-        <EditableInput value={node.name} className={style.name} onChanged={::this.renameNode} />
+        <EditableInput value={node.name} className={style.name} onChanged={this.renameNode} />
 
         {this.renderActionSection('onEnter', 'On Enter')}
         {this.renderActionSection('onReceive', 'On Receive')}
         {this.renderConditionSection('next', 'Next nodes')}
-        {::this.renderBottomSection()}
+        {this.renderBottomSection()}
 
         <NewActionModal
           show={this.state.showNewActionModal}
           onClose={() => {
             this.setState({ showNewActionModal: false })
           }}
-          onAdd={::this.onAddActionClicked}
+          onAdd={this.onAddActionClicked}
         />
       </div>
     )

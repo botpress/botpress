@@ -13,12 +13,8 @@ import InformationRowComponent from '+/views/Information'
 import actions from '~/actions'
 
 export default class DashboardView extends React.Component {
-  constructor(props, context) {
-    super(props, context)
-
-    this.state = { loading: true }
-
-    this.queryAllModules = this.queryAllModules.bind(this)
+  state = {
+    loading: true
   }
 
   componentDidMount() {
@@ -38,7 +34,7 @@ export default class DashboardView extends React.Component {
     })
   }
 
-  refresh() {
+  refresh = () => {
     this.queryAllModules().then(() => {
       setTimeout(actions.fetchModules, 5000)
     })
@@ -47,7 +43,7 @@ export default class DashboardView extends React.Component {
   renderPopularModules() {
     return (
       <Panel header="Popular modules">
-        <ModulesComponent modules={this.state.popularModules} refresh={this.refresh.bind(this)} />
+        <ModulesComponent modules={this.state.popularModules} refresh={this.refresh} />
       </Panel>
     )
   }
@@ -55,7 +51,7 @@ export default class DashboardView extends React.Component {
   renderFeaturedModules() {
     return (
       <Panel header="Featured modules">
-        <ModulesComponent modules={this.state.featuredModules} refresh={this.refresh.bind(this)} />
+        <ModulesComponent modules={this.state.featuredModules} refresh={this.refresh} />
       </Panel>
     )
   }

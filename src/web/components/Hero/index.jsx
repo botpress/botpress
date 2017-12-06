@@ -9,11 +9,8 @@ import axios from 'axios'
 import style from './style.scss'
 
 export default class HeroComponent extends React.Component {
-  constructor(props, context) {
-    super(props, context)
-    this.state = { loading: true }
-
-    this.queryHero = this.queryHero.bind(this)
+  state = {
+    loading: true
   }
 
   componentDidMount() {

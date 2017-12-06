@@ -33,11 +33,6 @@ export default class NotificationComponent extends Component {
     this.styles = styles
 
     this.state = { selectedIndex: null }
-
-    this.markAllAsRead = this.markAllAsRead.bind(this)
-    this.onNotifClicked = this.onNotifClicked.bind(this)
-    this.markAsRead = this.markAsRead.bind(this)
-    this.trashAll = this.trashAll.bind(this)
   }
 
   onNotifClicked(notif) {
@@ -49,11 +44,11 @@ export default class NotificationComponent extends Component {
     EventBus.default.emit('notifications.read', notif.id)
   }
 
-  markAllAsRead() {
+  markAllAsRead = () => {
     EventBus.default.emit('notifications.allRead')
   }
 
-  trashAll() {
+  trashAll = () => {
     EventBus.default.emit('notifications.trashAll')
   }
 

@@ -10,21 +10,14 @@ import axios from 'axios'
 
 const style = require('./style.scss')
 
-const numberWithCommas = x => {
-  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-}
+const numberWithCommas = x => x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
 
 class ModuleComponent extends React.Component {
-  constructor(props) {
-    super(props)
-
-    this.state = { loading: false }
-
-    this.handleInstall = this.handleInstall.bind(this)
-    this.handleUninstall = this.handleUninstall.bind(this)
+  state = {
+    loading: false
   }
 
-  handleInstall() {
+  handleInstall = () => {
     const fin = () => {
       this.setState({ loading: false })
       this.props.refresh && this.props.refresh()
@@ -36,7 +29,7 @@ class ModuleComponent extends React.Component {
       .catch(fin)
   }
 
-  handleUninstall() {
+  handleUninstall = () => {
     const fin = () => {
       this.setState({ loading: false })
       this.props.refresh && this.props.refresh()

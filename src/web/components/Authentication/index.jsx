@@ -24,14 +24,8 @@ const ensureAuthenticated = WrappedComponent => {
       router: PropTypes.object
     }
 
-    constructor(props, context) {
-      super(props, context)
-
-      this.state = { authorized: false }
-
-      this.setupAuth = this.setupAuth.bind(this)
-      this.checkAuth = this.checkAuth.bind(this)
-      this.promptLogin = this.promptLogin.bind(this)
+    state = {
+      authorized: false
     }
 
     componentDidMount() {
@@ -44,7 +38,7 @@ const ensureAuthenticated = WrappedComponent => {
       clearInterval(this.checkInterval)
     }
 
-    promptLogin() {
+    promptLogin = () => {
       const urlToken = _.get(this.props, 'location.query.token')
 
       if (location.pathname !== '/login' && !urlToken) {
@@ -55,30 +49,31 @@ const ensureAuthenticated = WrappedComponent => {
     setupAuth() {
       if (!window.AUTH_ENABLED && !this.state.authorized) {
         this.setState({ authorized: true })
+        return
+      }
+
+      const tokenStillValid = validateToken()
+      this.setState({ authorized: tokenStillValid })
+      if (tokenStillValid) {
+        this.checkAuth()
+        this.checkInterval = setInterval(this.checkAuth, CHECK_AUTH_INTERVAL)
       } else {
-        const tokenStillValid = validateToken()
-        this.setState({ authorized: tokenStillValid })
-        if (tokenStillValid) {
-          this.checkAuth()
-          this.checkInterval = setInterval(this.checkAuth, CHECK_AUTH_INTERVAL)
+        const urlToken = _.get(this.props, 'location.query.token')
+        if (urlToken) {
+          setToken(urlToken)
+          this.context.router.replace(
+            Object.assign(this.props.location, {
+              query: _.omit(this.props.location.query, 'token')
+            })
+          )
+          this.setupAuth()
         } else {
-          const urlToken = _.get(this.props, 'location.query.token')
-          if (urlToken) {
-            setToken(urlToken)
-            this.context.router.replace(
-              Object.assign(this.props.location, {
-                query: _.omit(this.props.location.query, 'token')
-              })
-            )
-            this.setupAuth()
-          } else {
-            this.promptLogin()
-          }
+          this.promptLogin()
         }
       }
     }
 
-    checkAuth() {
+    checkAuth = () => {
       axios.get('/api/ping').catch(err => {
         if (err.response.status === 401) {
           this.promptLogin()

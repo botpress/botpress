@@ -6,10 +6,6 @@ import { Button } from 'react-bootstrap'
 const style = require('./style.scss')
 
 export default class ListView extends Component {
-  constructor(props) {
-    super(props)
-  }
-
   renderAddButton() {
     const classNames = classnames({
       'bp-button': true,
@@ -23,7 +19,7 @@ export default class ListView extends Component {
     )
   }
 
-  renderCategory(c) {
+  renderCategory = c => {
     const classNames = classnames({
       [style.selected]: c.id === this.props.selectedId
     })
@@ -47,7 +43,7 @@ export default class ListView extends Component {
 
     const categories = _.concat([all], this.props.categories || [])
 
-    return <ul>{categories.map(::this.renderCategory)}</ul>
+    return <ul>{categories.map(this.renderCategory)}</ul>
   }
 
   render() {

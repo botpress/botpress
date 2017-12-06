@@ -1,11 +1,5 @@
 import React from 'react'
 
-export default class RulesChecker extends React.Component {
-  constructor(props) {
-    super(props)
-  }
+const RulesChecker = props => props.children
 
-  render() {
-    return this.props.children
-  }
-}
+export default RulesChecker

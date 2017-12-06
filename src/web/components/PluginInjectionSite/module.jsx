@@ -5,12 +5,8 @@ import InjectedComponent from '~/components/Injected'
 import EventBus from '~/util/EventBus'
 
 export default class InjectedModuleView extends React.Component {
-  constructor(props, context) {
-    super(props, context)
-
-    this.state = {
-      moduleComponent: null
-    }
+  state = {
+    moduleComponent: null
   }
 
   loadModule(modName, viewName, lite) {

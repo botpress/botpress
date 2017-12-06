@@ -10,10 +10,7 @@ import { updateGlobalStyle } from '~/actions'
 const style = require('./toolbar.scss')
 
 class Toolbar extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = {}
-  }
+  state = {}
 
   componentDidMount() {
     this.props.updateGlobalStyle({

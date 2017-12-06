@@ -20,12 +20,8 @@ const style = require('./style.scss')
 const REFRESH_TIME_PREVIEW = 2 * 1000 // 2 seconds
 
 export default class UMMView extends Component {
-  constructor(props) {
-    super(props)
-
-    this.state = {
-      loading: true
-    }
+  state = {
+    loading: true
   }
 
   componentDidMount() {

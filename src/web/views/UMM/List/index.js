@@ -5,17 +5,10 @@ import { FormGroup, FormControl } from 'react-bootstrap'
 
 const style = require('./style.scss')
 
-export default class ListView extends Component {
-  constructor(props) {
-    super(props)
-  }
+const ListView = () => {
+  const classNames = classnames('bp-list', style.list)
 
-  render() {
-    const classNames = classnames({
-      'bp-list': true,
-      [style.list]: true
-    })
-
-    return <div className={classNames} />
-  }
+  return <div className={classNames} />
 }
+
+export default ListView

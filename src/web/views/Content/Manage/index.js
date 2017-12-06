@@ -8,14 +8,10 @@ import { Checkbox, Table, Button, FormControl, FormGroup, Tooltip, OverlayTrigge
 const style = require('./style.scss')
 
 export default class ManageView extends Component {
-  constructor(props) {
-    super(props)
-
-    this.state = {
-      checkedIds: [],
-      allChecked: false,
-      search: ''
-    }
+  state = {
+    checkedIds: [],
+    allChecked: false,
+    search: ''
   }
 
   componentDidMount() {
@@ -25,7 +21,7 @@ export default class ManageView extends Component {
       }
     }
 
-    this.debouncedHandleSearch = _.debounce(fn.bind(this), 1000)
+    this.debouncedHandleSearch = _.debounce(fn, 1000)
   }
 
   handleCheckboxChanged(id) {
@@ -42,7 +38,7 @@ export default class ManageView extends Component {
     })
   }
 
-  handleAllCheckedChanged() {
+  handleAllCheckedChanged = () => {
     this.setState({
       allChecked: !this.state.allChecked
     })
@@ -62,7 +58,7 @@ export default class ManageView extends Component {
     })
   }
 
-  handleDeleteSelected() {
+  handleDeleteSelected = () => {
     this.props.handleDeleteSelected(this.state.checkedIds)
 
     this.setState({
@@ -71,7 +67,7 @@ export default class ManageView extends Component {
     })
   }
 
-  handleSearchChanged(event) {
+  handleSearchChanged = event => {
     this.setState({
       search: event.target.value
     })
@@ -91,7 +87,7 @@ export default class ManageView extends Component {
     )
   }
 
-  renderMessage(m) {
+  renderMessage = m => {
     const checked = _.includes(this.state.checkedIds, m.id)
     const className = classnames(style.item, {
       [style.selected]: checked
@@ -100,7 +96,7 @@ export default class ManageView extends Component {
     return (
       <tr className={className}>
         <td style={{ width: '2%', minWidth: '34px' }}>
-          <Checkbox checked={checked} onClick={() => ::this.handleCheckboxChanged(m.id, m.categoryId)} />
+          <Checkbox checked={checked} onClick={() => this.handleCheckboxChanged(m.id, m.categoryId)} />
         </td>
         <td style={{ width: '16%' }} onClick={() => this.props.handleModalShow(m.id, m.categoryId)}>
           {'#!' + m.id}
@@ -126,7 +122,7 @@ export default class ManageView extends Component {
     return (
       <div className={style.container}>
         <Table striped bordered condensed hover>
-          <tbody>{this.props.messages.map(::this.renderMessage)}</tbody>
+          <tbody>{this.props.messages.map(this.renderMessage)}</tbody>
         </Table>
       </div>
     )
@@ -149,13 +145,13 @@ export default class ManageView extends Component {
   renderActionButtons() {
     return (
       <span>
-        <Button onClick={::this.handleAllCheckedChanged}>
-          <Checkbox checked={this.state.allChecked} onClick={::this.handleAllCheckedChanged} />
+        <Button onClick={this.handleAllCheckedChanged}>
+          <Checkbox checked={this.state.allChecked} onClick={this.handleAllCheckedChanged} />
         </Button>
         <Button onClick={this.props.handleRefresh}>
           <i className="material-icons">refresh</i>
         </Button>
-        <Button onClick={::this.handleDeleteSelected} disabled={_.isEmpty(this.state.checkedIds)}>
+        <Button onClick={this.handleDeleteSelected} disabled={_.isEmpty(this.state.checkedIds)}>
           <i className="material-icons">delete</i>
         </Button>
       </span>
@@ -201,7 +197,7 @@ export default class ManageView extends Component {
   renderSearchBar() {
     return (
       <FormGroup className={style.search}>
-        <FormControl type="text" placeholder="Search" value={this.state.search} onChange={::this.handleSearchChanged} />
+        <FormControl type="text" placeholder="Search" value={this.state.search} onChange={this.handleSearchChanged} />
       </FormGroup>
     )
   }
