@@ -1,0 +1,44 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.7.1
+# ignores vulnerabilities until expiry date; change duration by modifying expiry date
+ignore:
+  'npm:ms:20170412':
+    - axios > follow-redirects > debug > ms:
+        reason: None given
+        expires: '2017-12-15T16:08:37.539Z'
+  'npm:debug:20170905':
+    - axios > follow-redirects > debug:
+        reason: None given
+        expires: '2017-12-15T16:08:37.540Z'
+  'npm:tunnel-agent:20170305':
+    - node-pre-gyp > request > tunnel-agent:
+        reason: None given
+        expires: '2017-12-15T16:08:37.540Z'
+  'npm:brace-expansion:20170302':
+    - fstream-ignore > fstream > rimraf > glob > minimatch > brace-expansion:
+        reason: No patch for this vulnerability
+        expires: '2017-12-15T16:21:04.004Z'
+# patches apply the minimum changes required to fix a vulnerability
+patch:
+  'npm:debug:20170905':
+    - node-pre-gyp > tar-pack > debug:
+        patched: '2017-11-15T16:19:23.993Z'
+    - socket.io > socket.io-adapter > socket.io-parser > debug:
+        patched: '2017-11-15T15:52:54.917Z'
+  'npm:ms:20170412':
+    - socket.io > socket.io-adapter > socket.io-parser > debug > ms:
+        patched: '2017-11-15T15:52:54.917Z'
+      socketio-jwt > jsonwebtoken > ms:
+        patched: '2017-11-15T16:19:23.993Z'
+    - node-pre-gyp > tar-pack > debug > ms:
+        patched: '2017-11-15T16:19:23.993Z'
+    - socketio-jwt > jsonwebtoken > ms:
+        patched: '2017-11-15T15:52:54.917Z'
+      ms:
+        patched: '2017-11-15T16:19:23.993Z'
+  'npm:qs:20170213':
+    - node-pre-gyp > request > qs:
+        patched: '2017-11-15T15:52:54.917Z'
+  'npm:tough-cookie:20170905':
+    - node-pre-gyp > request > tough-cookie:
+        patched: '2017-11-15T16:19:23.993Z'

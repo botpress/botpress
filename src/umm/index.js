@@ -10,13 +10,11 @@ import Proactive from './proactive'
 const fs = Promise.promisifyAll(require('fs'))
 
 module.exports = ({ logger, middlewares, botfile, projectLocation, db, contentManager }) => {
-
   const processors = {} // A map of all the platforms that can process outgoing messages
   const templates = {} // A map of all the platforms templates
   const storagePath = getStoragePath()
 
   function registerConnector({ platform, processOutgoing, templates }) {
-
     // TODO throw if templates not array
     // TODO throw if platform not string
     // TODO throw if processOutgoing not a function
@@ -53,7 +51,6 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db, contentMa
     if (!ummPath) {
       const single = resolve('content.yml')
       const folder = resolve('content')
-
       if (fs.existsSync(single)) {
         ummPath = single
       } else if (fs.existsSync(folder)) {
@@ -62,7 +59,6 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db, contentMa
         throw new Error('UMM content location not found')
       }
     }
-
     if (path.isAbsolute(ummPath)) {
       return ummPath
     } else {
@@ -95,6 +91,7 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db, contentMa
 
         const filename = path.basename(file, path.extname(file))
         contents[filename] = fs.readFileAsync(path.join(storagePath, file), 'utf8')
+        return contents
       })
 
       return Promise.props(contents)
@@ -133,8 +130,9 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db, contentMa
       const itemCategory = await contentManager.getCategorySchema(itemCategoryId)
 
       if (!itemCategory) {
-        throw new Error(`Could not find category "${itemCategoryId}" in the Content Manager` 
-          + ` for item with ID "${itemName}"`)
+        throw new Error(
+          `Could not find category "${itemCategoryId}" in the Content Manager` + ` for item with ID "${itemName}"`
+        )
       }
 
       const itemBloc = itemCategory.ummBloc
@@ -157,10 +155,15 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db, contentMa
     let markdown = await getDocument()
 
     // TODO Add more context
-    const fullContext = Object.assign({}, initialData, {
-      user: incomingEvent.user,
-      originalEvent: incomingEvent
-    }, additionalData)
+    const fullContext = Object.assign(
+      {},
+      initialData,
+      {
+        user: incomingEvent.user,
+        originalEvent: incomingEvent
+      },
+      additionalData
+    )
 
     if (_.isObject(markdown)) {
       if (!fileName) {
@@ -214,5 +217,13 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db, contentMa
 
   const proactiveMethods = Proactive({ sendBloc, db })
 
-  return { registerConnector, parse, getTemplates, incomingMiddleware, getDocument, saveDocument, ...proactiveMethods }
+  return {
+    registerConnector,
+    parse,
+    getTemplates,
+    incomingMiddleware,
+    getDocument,
+    saveDocument,
+    ...proactiveMethods
+  }
 }
