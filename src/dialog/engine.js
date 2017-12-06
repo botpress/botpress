@@ -42,10 +42,13 @@ class DialogEngine {
     let state = await this.stateManager.getState(stateId)
 
     if (event.type === 'bp_dialog_timeout') {
-      // Handle timeout
-      console.log('TIMEOUT HANDLING FOR', stateId)
-      await this._endFlow(stateId)
-      return null
+      state = await this._processTimeout(stateId, state, context, event)
+
+      if (!_.isNil(state)) {
+        await this.stateManager.setState(stateId, state)
+      }
+
+      return state
     }
 
     const msg = (event.text || '').substr(0, 20)
@@ -177,6 +180,32 @@ class DialogEngine {
    */
   getAvailableFunctions() {
     return _.values(this.functions).map(x => Object.assign({}, x, { fn: null }))
+  }
+
+  async _processTimeout(stateId, userState, context, event) {
+    const currentNodeTimeout = _.get(DialogEngine._findNode(context.currentFlow, context.node), 'timeoutNode')
+    const currentFlowTimeout = _.get(context, 'currentFlow.timeoutNode')
+    const fallbackTimeoutNode = DialogEngine._findNode(context.currentFlow, 'timeout')
+    const fallbackTimeoutFlow = this._findFlow('timeout.flow.json')
+
+    if (currentNodeTimeout) {
+      this._trace('<>', 'SNDE', '', context)
+      userState = await this._processNode(stateId, userState, context, currentNodeTimeout, event)
+    } else if (currentFlowTimeout) {
+      this._trace('<>', 'SFLW', '', context)
+      userState = await this._processNode(stateId, userState, context, currentFlowTimeout, event)
+    } else if (fallbackTimeoutNode) {
+      this._trace('<>', 'DNDE', '', context)
+      userState = await this._processNode(stateId, userState, context, fallbackTimeoutNode.name, event)
+    } else if (fallbackTimeoutFlow) {
+      this._trace('<>', 'DFLW', '', context)
+      userState = await this._processNode(stateId, userState, context, fallbackTimeoutFlow.name, event)
+    } else {
+      this._trace('<>', 'NTHG', '', context)
+      userState = await this._endFlow(stateId)
+    }
+
+    return userState
   }
 
   async _processNode(stateId, userState, context, nodeName, event) {
