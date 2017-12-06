@@ -7,12 +7,10 @@ import Promise from 'bluebird'
 module.exports = ({ db, botfile, middlewares }) => {
   let intervalRef = null
 
-  let defaultJanitorInterval = ms(process.env.BOTPRESS_DIALOG_JANITOR || '10s') // TODO
-
+  const defaultJanitorInterval = ms(_.get(botfile, 'dialogs.janitorInterval') || '10s') // TODO
   const defaultTimeout = ms(_.get(botfile, 'dialogs.timeoutInterval') || '30s') // TODO
 
   const checkStaleSessions = async () => {
-    console.log('Running') // TODO
     const knex = await db.get()
 
     const timedOutCondition = helpers(knex).date.isBefore(
@@ -27,8 +25,6 @@ module.exports = ({ db, botfile, middlewares }) => {
       .then()
 
     return Promise.map(sessions, session => {
-      console.log(session, middlewares.sendOutgoing)
-
       let platform = 'botpress'
       let props = {}
 
@@ -77,14 +73,3 @@ module.exports = ({ db, botfile, middlewares }) => {
 
   return { install, uninstall, runOnce: run }
 }
-
-// Check every 1m if there's timed out tasks (1m + random [1-3000] milliseconds)
-// Get the list of timed out sessions
-// send a timeout middleware event
-
-// engine handles the timeout event --> call the appropriate timeout node
-// Goto current node timeout node
-// Goto current flow timeout node
-// Else, goto timeout node if any
-// Else, goto timeout flow if any
-// Else do nothing

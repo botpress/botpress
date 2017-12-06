@@ -30,7 +30,8 @@ module.exports = {
   },
 
   dialogs: {
-    timeoutInterval: '15m'
+    timeoutInterval: '15m',
+    janitorInterval: '10s'
   },
 
   /*
