@@ -7,8 +7,8 @@ import Promise from 'bluebird'
 module.exports = ({ db, botfile, middlewares }) => {
   let intervalRef = null
 
-  const defaultJanitorInterval = ms(_.get(botfile, 'dialogs.janitorInterval') || '10s') // TODO
-  const defaultTimeout = ms(_.get(botfile, 'dialogs.timeoutInterval') || '30s') // TODO
+  const defaultJanitorInterval = ms(_.get(botfile, 'dialogs.janitorInterval') || '30s')
+  const defaultTimeout = ms(_.get(botfile, 'dialogs.timeoutInterval') || '15m')
 
   const checkStaleSessions = async () => {
     const knex = await db.get()
