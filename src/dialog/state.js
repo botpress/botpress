@@ -30,7 +30,7 @@ module.exports = ({ db, internals = {} }) => {
       `
     } else {
       sql = `
-        INSERT INTO :tableName: (id, state, active_on, created_in)
+        INSERT INTO :tableName: (id, state, active_on, created_on)
         VALUES (:stateId, :state, :now, :now)
         ON CONFLICT (id) DO UPDATE
           SET active_on = :now, state = :state
@@ -95,7 +95,7 @@ module.exports = ({ db, internals = {} }) => {
   }
 
   /**
-   * Deletes the state(s) and the associated substates (for e.g. __context state)
+   * Deletes the state(s) and the associated substates (for e.g. ___context state)
    * @param stateId The state to delete
    * @param substates Detaults to ['context']. If this is empty it will delete no substate
    * @returns {Promise.<void>}
@@ -103,7 +103,7 @@ module.exports = ({ db, internals = {} }) => {
   async function deleteState(stateId, substates = ['context']) {
     const knex = await db.get()
 
-    const states = [stateId, ...substates.map(x => `${stateId}__${x}`)]
+    const states = [stateId, ...substates.map(x => `${stateId}___${x}`)]
 
     await knex('dialog_sessions')
       .whereIn('id', states)

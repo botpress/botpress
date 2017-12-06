@@ -41,6 +41,13 @@ class DialogEngine {
     let context = await this._getOrCreateContext(stateId)
     let state = await this.stateManager.getState(stateId)
 
+    if (event.type === 'bp_dialog_timeout') {
+      // Handle timeout
+      console.log('TIMEOUT HANDLING FOR', stateId)
+      await this._endFlow(stateId)
+      return null
+    }
+
     const msg = (event.text || '').substr(0, 20)
     this._trace('<~', 'RECV', `"${msg}"`, context, state)
 
@@ -273,11 +280,11 @@ class DialogEngine {
   }
 
   _getContext(stateId) {
-    return this.stateManager.getState(stateId + '__context')
+    return this.stateManager.getState(stateId + '___context')
   }
 
   _setContext(stateId, state) {
-    return this.stateManager.setState(stateId + '__context', state)
+    return this.stateManager.setState(stateId + '___context', state)
   }
 
   _gotoSubflow(nodeName, context) {
