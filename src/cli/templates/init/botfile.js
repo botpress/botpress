@@ -29,6 +29,10 @@ module.exports = {
     maxSize: 1e6 // 1mb
   },
 
+  dialogs: {
+    timeoutInterval: '15m'
+  },
+
   /*
     Botpress collects some anonymous usage statistics to help us put our efforts at the right place
    */
