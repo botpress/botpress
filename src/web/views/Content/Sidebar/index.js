@@ -5,10 +5,15 @@ import { Button } from 'react-bootstrap'
 
 const style = require('./style.scss')
 
+const CATEGORY_ALL = {
+  id: 'all',
+  title: 'All',
+  count: null
+}
+
 export default class SidebarView extends Component {
   renderAddButton() {
-    const classNames = classnames({
-      'bp-button': true,
+    const classNames = classnames('bp-button', {
       [style.disabled]: this.props.selectedId === 'all'
     })
 
@@ -35,21 +40,17 @@ export default class SidebarView extends Component {
   }
 
   renderCategories() {
-    const all = {
-      id: 'all',
-      title: 'All',
-      count: null
+    const { categories } = this.props
+
+    if (!categories || !categories.length) {
+      return null
     }
 
-    const categories = _.concat([all], this.props.categories || [])
-
-    return <ul>{categories.map(this.renderCategory)}</ul>
+    return <ul>{[CATEGORY_ALL].concat(categories).map(this.renderCategory)}</ul>
   }
 
   render() {
-    const classNames = classnames('bp-sidebar', {
-      [style.sidebar]: true
-    })
+    const classNames = classnames('bp-sidebar', style.sidebar)
 
     return (
       <div className={classNames}>

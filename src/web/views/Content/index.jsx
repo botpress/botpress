@@ -3,6 +3,8 @@ import classnames from 'classnames'
 import axios from 'axios'
 import _ from 'lodash'
 
+import { Grid, Row, Col, Alert } from 'react-bootstrap'
+
 import Sidebar from './Sidebar'
 import List from './List'
 import CreateModal from './modal'
@@ -169,47 +171,54 @@ export default class ContentView extends Component {
     })
   }
 
-  render() {
-    const { loading, selectedId = 'all', schema, modifyId } = this.state
-
-    if (loading) {
-      return null
-    }
+  renderBody() {
+    const { loading, selectedId = 'all', schema, modifyId, categories = [] } = this.state
 
     const classNames = classnames(style.content, 'bp-content')
 
+    if (!categories.length) {
+      return (
+        <div className={classNames}>
+          <Alert bsStyle="warning">
+            <strong>We think you don't have any content types defined.</strong> Please&nbsp;
+            <a href="https://botpress.io/docs/foundamentals/content/" target="_blank">
+              <strong>read the docs</strong>
+            </a>
+            &nbsp;to see how you can make use of this feature.
+          </Alert>
+        </div>
+      )
+    }
+
     return (
-      <ContentWrapper>
-        <PageHeader>Content Manager</PageHeader>
-        <table className={classNames}>
-          <tbody>
-            <tr>
-              <td style={{ width: '20%' }}>
-                <Sidebar
-                  categories={this.state.categories || []}
-                  selectedId={selectedId}
-                  handleAdd={this.handleToggleModal}
-                  handleCategorySelected={this.handleCategorySelected}
-                />
-              </td>
-              <td style={{ width: '80%' }}>
-                <List
-                  page={this.state.page}
-                  count={this.state.count}
-                  messagesPerPage={MESSAGES_PER_PAGE}
-                  messages={this.state.messages || []}
-                  searchTerm={this.state.searchTerm}
-                  handlePrevious={this.handlePrevious}
-                  handleNext={this.handleNext}
-                  handleRefresh={this.handleRefresh}
-                  handleModalShow={this.handleModalShow}
-                  handleDeleteSelected={this.handleDeleteSelected}
-                  handleSearch={this.handleSearch}
-                />
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <div>
+        <Grid className={classNames}>
+          <Row>
+            <Col xs={3}>
+              <Sidebar
+                categories={categories}
+                selectedId={selectedId}
+                handleAdd={this.handleToggleModal}
+                handleCategorySelected={this.handleCategorySelected}
+              />
+            </Col>
+            <Col xs={9}>
+              <List
+                page={this.state.page}
+                count={this.state.count}
+                messagesPerPage={MESSAGES_PER_PAGE}
+                messages={this.state.messages || []}
+                searchTerm={this.state.searchTerm}
+                handlePrevious={this.handlePrevious}
+                handleNext={this.handleNext}
+                handleRefresh={this.handleRefresh}
+                handleModalShow={this.handleModalShow}
+                handleDeleteSelected={this.handleDeleteSelected}
+                handleSearch={this.handleSearch}
+              />
+            </Col>
+          </Row>
+        </Grid>
         <CreateModal
           show={this.state.showModal}
           schema={(schema && schema.json) || {}}
@@ -218,6 +227,21 @@ export default class ContentView extends Component {
           handleCreateOrUpdate={this.handleCreateOrUpdate}
           handleClose={this.handleToggleModal}
         />
+      </div>
+    )
+  }
+
+  render() {
+    const { loading } = this.state
+
+    if (loading) {
+      return null
+    }
+
+    return (
+      <ContentWrapper>
+        <PageHeader>Content Manager</PageHeader>
+        {this.renderBody()}
       </ContentWrapper>
     )
   }
