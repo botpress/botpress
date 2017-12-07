@@ -59,7 +59,6 @@ exclude:
   - vendor
   - Makefile
   - blog
-  - docs
 
 assets:
   sources:
