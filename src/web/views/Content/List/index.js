@@ -88,6 +88,9 @@ export default class ListView extends Component {
   }
 
   renderMessage = m => {
+    const { handleEdit } = this.props
+    const _handleEdit = () => handleEdit(m.id, m.categoryId)
+
     const checked = _.includes(this.state.checkedIds, m.id)
     const className = classnames(style.item, {
       [style.selected]: checked
@@ -98,16 +101,16 @@ export default class ListView extends Component {
         <td style={{ width: '2%', minWidth: '34px' }}>
           <Checkbox checked={checked} onClick={() => this.handleCheckboxChanged(m.id, m.categoryId)} />
         </td>
-        <td style={{ width: '16%' }} onClick={() => this.props.handleModalShow(m.id, m.categoryId)}>
+        <td style={{ width: '16%' }} onClick={_handleEdit}>
           {'#!' + m.id}
         </td>
-        <td style={{ width: '8%' }} onClick={() => this.props.handleModalShow(m.id, m.categoryId)}>
+        <td style={{ width: '8%' }} onClick={_handleEdit}>
           {m.categoryId}
         </td>
-        <td style={{ width: '58%' }} onClick={() => this.props.handleModalShow(m.id, m.categoryId)}>
+        <td style={{ width: '58%' }} onClick={_handleEdit}>
           {m.previewText}
         </td>
-        <td style={{ width: '18%' }} onClick={() => this.props.handleModalShow(m.id, m.categoryId)}>
+        <td style={{ width: '18%' }} onClick={_handleEdit}>
           {moment(m.createdOn).format('MMMM Do YYYY, h:mm')}
         </td>
       </tr>
