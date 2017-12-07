@@ -3,8 +3,8 @@ import classnames from 'classnames'
 import axios from 'axios'
 import _ from 'lodash'
 
+import Sidebar from './Sidebar'
 import List from './List'
-import Manage from './Manage'
 import CreateModal from './modal'
 
 import ContentWrapper from '~/components/Layout/ContentWrapper'
@@ -180,14 +180,12 @@ export default class ContentView extends Component {
 
     return (
       <ContentWrapper>
-        <PageHeader>
-          <span>Content Manager</span>
-        </PageHeader>
+        <PageHeader>Content Manager</PageHeader>
         <table className={classNames}>
           <tbody>
             <tr>
               <td style={{ width: '20%' }}>
-                <List
+                <Sidebar
                   categories={this.state.categories || []}
                   selectedId={selectedId}
                   handleAdd={this.handleToggleModal}
@@ -195,7 +193,7 @@ export default class ContentView extends Component {
                 />
               </td>
               <td style={{ width: '80%' }}>
-                <Manage
+                <List
                   page={this.state.page}
                   count={this.state.count}
                   messagesPerPage={MESSAGES_PER_PAGE}
