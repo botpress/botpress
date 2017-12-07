@@ -27,7 +27,7 @@ We believe that it is the responsibility of the **Botmaster (you)** to implement
 
 **PRO TIP**: The Flow plays a critical part of the User Experience and should be well thought out upfront. **Flows should never be edited on-the-fly by amateurs** because you risk compromising the UX (which most online bot-building tools allow you to do).
 
-As you will see in the next sections, Botpress tries to provide you with the best tools to create the best possible Flows (using [bp.convo](../flow/)).
+As you will see in the next sections, Botpress tries to provide you with the best tools to create the best possible Flows (using [bp.convo](/docs/foundamentals/flow)).
 
 #### Content <a class="toc" id="toc-content" href="#toc-content"></a>
 
@@ -35,4 +35,4 @@ The **Content** is what (and how) your bot actually **says** to the users on the
 
 Botpress has a unique view on this. We believe that Content must be separated from the Flow for many reasons. To our knowledge, Botpress is the first framework to do things this way and we believe that most platforms will transition to this way of doing things.
 
-In order to split the content from the flow (code), we created [UMM (Universal Message Markdown)](../flow/). All your bot's content is located in `content.yml`.
+In order to split the content from the flow (code), we created [UMM (Universal Message Markdown)](/docs/foundamentals/flow). All your bot's content is located in `content.yml`.
