@@ -21,9 +21,9 @@
 {% assign page_i18n = site.data.i18n[page_lang.tag] %}
 
 {% if jekyll.environment == "development" %}
-  {% assign page_url_base = site.baseurl | append: page_url_lang %}
+  {% assign page_url_base = site.baseurl %}
 {% else %}
-  {% assign page_url_base = site.baseurl | append: page_url_lang %}
+  {% assign page_url_base = site.baseurl %}
 {% endif %}
 
 {% assign page_title = page_i18n[page_url_relative].title %}
