@@ -7,7 +7,7 @@ import { Grid, Row, Col, Alert } from 'react-bootstrap'
 
 import Sidebar from './Sidebar'
 import List from './List'
-import CreateModal from './modal'
+import CreateOrEditModal from './modal'
 
 import ContentWrapper from '~/components/Layout/ContentWrapper'
 import PageHeader from '~/components/Layout/PageHeader'
@@ -22,7 +22,8 @@ export default class ContentView extends Component {
     showModal: false,
     modifyId: null,
     selectedId: 'all',
-    page: 1
+    page: 1,
+    contentToEdit: null
   }
 
   componentDidMount() {
@@ -87,22 +88,38 @@ export default class ContentView extends Component {
     return axios.post('/content/categories/all/bulk_delete', data).then()
   }
 
-  handleToggleModal = () => {
+  handleCloseModal = () => {
     this.setState({
-      showModal: !this.state.showModal,
-      modifyId: null
+      showModal: false,
+      modifyId: null,
+      contentToEdit: null
     })
   }
 
-  handleCreateOrUpdate = data => {
-    this.createOrUpdateItem(data)
+  handleCreateNew = () => {
+    this.setState({
+      showModal: true,
+      modifyId: null,
+      contentToEdit: {}
+    })
+  }
+
+  handleCreateOrUpdate = () => {
+    this.createOrUpdateItem(this.state.contentToEdit)
       .then(this.fetchCategories)
       .then(() => {
         return this.fetchCategoryMessages(this.state.selectedId)
       })
       .then(() => {
-        this.setState({ showModal: false })
+        this.setState({
+          showModal: false,
+          contentToEdit: null
+        })
       })
+  }
+
+  handleFormEdited = data => {
+    this.setState({ contentToEdit: data })
   }
 
   handleCategorySelected = id => {
@@ -123,17 +140,18 @@ export default class ContentView extends Component {
       })
   }
 
-  handleModalShow = (id, categoryId) => {
-    const showmodal = () =>
+  handleModalShowForEdit = (id, categoryId) => {
+    const showModal = () =>
       this.setState({
         modifyId: id,
-        showModal: true
+        showModal: true,
+        contentToEdit: _.find(this.state.messages, { id }).formData
       })
 
     if (!this.state.schema || this.state.selectedId !== categoryId) {
-      this.fetchSchema(categoryId).then(showmodal)
+      this.fetchSchema(categoryId).then(showModal)
     } else {
-      showmodal()
+      showModal()
     }
   }
 
@@ -172,7 +190,7 @@ export default class ContentView extends Component {
   }
 
   renderBody() {
-    const { loading, selectedId = 'all', schema, modifyId, categories = [] } = this.state
+    const { loading, selectedId = 'all', schema, modifyId, categories = [], contentToEdit } = this.state
 
     const classNames = classnames(style.content, 'bp-content')
 
@@ -198,7 +216,7 @@ export default class ContentView extends Component {
               <Sidebar
                 categories={categories}
                 selectedId={selectedId}
-                handleAdd={this.handleToggleModal}
+                handleAdd={this.handleCreateNew}
                 handleCategorySelected={this.handleCategorySelected}
               />
             </Col>
@@ -212,20 +230,21 @@ export default class ContentView extends Component {
                 handlePrevious={this.handlePrevious}
                 handleNext={this.handleNext}
                 handleRefresh={this.handleRefresh}
-                handleModalShow={this.handleModalShow}
+                handleEdit={this.handleModalShowForEdit}
                 handleDeleteSelected={this.handleDeleteSelected}
                 handleSearch={this.handleSearch}
               />
             </Col>
           </Row>
         </Grid>
-        <CreateModal
+        <CreateOrEditModal
           show={this.state.showModal}
           schema={(schema && schema.json) || {}}
           uiSchema={(schema && schema.ui) || {}}
-          formData={modifyId ? _.find(this.state.messages, { id: modifyId }).formData : null}
+          formData={contentToEdit}
           handleCreateOrUpdate={this.handleCreateOrUpdate}
-          handleClose={this.handleToggleModal}
+          handleEdit={this.handleFormEdited}
+          handleClose={this.handleCloseModal}
         />
       </div>
     )
