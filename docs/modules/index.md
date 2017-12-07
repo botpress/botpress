@@ -66,7 +66,7 @@ The front-end of a module is a [React Component](https://facebook.github.io/reac
 
 Botpress will pass an instance of the front-end `bp` instance and a pre-configured `axios` to your module component:
 
-- `bp` exposes `bp.events`, which is an instance of the [EventBus](events.md)
+- `bp` exposes `bp.events`, which is an instance of the [EventBus](/docs/modules/events)
 - [`axios`](https://github.com/mzabriskie/axios) is pre-configured to provide the required authentication token by the API routes
 
 #### Example

@@ -30,7 +30,7 @@ A middleware chain is simply a collection of middleware functions that are calle
 - interrupt the chain by never calling the next middleware (what we call swallowing the event)
 - interrupt the chain by throwing an error
 
-<img alt="Middleware Chain" width="600" src="{{ book.assets }}/middleware-chain.png">
+<img alt="Middleware Chain" width="600" src="https://raw.githubusercontent.com/botpress/botpress/master/assets/middleware-chain.png">
 
 ## A simple middleware function <a class="toc" id="toc-a-simple-middleware-function" href="#toc-a-simple-middleware-function"></a>
 
@@ -60,9 +60,9 @@ var middleware = function(event, next) {
 
 The return value of the middleware function isn't used by Botpress.
 
-## Registering middlewares <a class="toc" id="toc-registering-middlewares" href="#toc-registering-middlewares"></a>
+## Registering middlewares <a class="toc" id="toc-registering-middlewares" href="#toc-registering-middlewares"></a> {#registermiddlewaredefinition-void}
 
-You need to register a middleware function for botpress to know about it and use it. You may do so with the [`bp.middlewares.register`](understading-the-middlewares.md#registermiddlewaredefinition-void) method:
+You need to register a middleware function for botpress to know about it and use it. You may do so with the [`bp.middlewares.register`](#registermiddlewaredefinition-void) method:
 
 ```js
 // ** code taken from botpress-messenger **
@@ -77,7 +77,7 @@ bp.middlewares.register({
 })
 ```
 
-Once all middleware functions have been registered (usually modules should register middleware functions immediately in their initialization), **you must load them** using [`bp.middlewares.load()`](understading-the-middlewares.md#load-void), which will create the incoming and outgoing chains automatically.
+Once all middleware functions have been registered (usually modules should register middleware functions immediately in their initialization), **you must load them** using [`bp.middlewares.load()`](#load-void), which will create the incoming and outgoing chains automatically.
 
 Once middleware functions are loaded, you'll see them displayed in your bot's interface:
 
@@ -121,7 +121,7 @@ All of this happens behind the scenes and is handled by the modules middleware. 
 
 ## API reference <a class="toc" id="toc-api-reference" href="#toc-api-reference"></a>
 
-#### `load()> void`
+#### `load()> void` {#load-void}
 
 Loads (or reloads) all the middleware in the correct order (ordered by their `order` property. Customizations (custom order and enabled/disabled) set in the UI are also taken into account.
 
