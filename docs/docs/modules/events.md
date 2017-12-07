@@ -46,4 +46,4 @@ export default class TemplateModule extends React.Component {
 
 ## When not to use Events
 
-You should not use Events for exposing features or for information retrieval. For this, you should usually [setup an API](./../api) instead as it has several obvious advantages over events.
+You should not use Events for exposing features or for information retrieval. For this, you should usually [setup an API](/docs/modules/api) instead as it has several obvious advantages over events.

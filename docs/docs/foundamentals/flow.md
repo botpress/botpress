@@ -114,7 +114,7 @@ Queues a message for sending.
 
 #### Conversation | `convo.say(bloc, [data])`
 
-Queues a [UMM bloc](./../umm) for sending. Optionally, you can pass data to the UMM engine.
+Queues a [UMM bloc](/docs/foundamentals/umm) for sending. Optionally, you can pass data to the UMM engine.
 
 #### Conversation | `convo.repeat()`
 
