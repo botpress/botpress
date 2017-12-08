@@ -42,6 +42,7 @@
     "prompt": "^1.0.0",
     "react-codemirror": "^1.0.0",
     "react-jsonschema-form": "^0.49.0",
+    "run-script-os": "^1.0.2",
     "socket.io": "^1.5.0",
     "socket.io-client": "^2.0.3",
     "socketio-jwt": "^4.5.0",
@@ -135,8 +136,11 @@
     "prepare": "npm run compile-prod",
     "compile": "./build.sh",
     "compile-prod": "NODE_ENV=production ./build.sh && ls -lh ./lib/web/js && echo \"DONE\"",
-    "test":
+    "test": "run-script-os",
+    "test:linux:darwin":
       "BABEL_ENV=tests mocha --compilers js:babel-core/register --require tests/index.js tests/** extensions/**/tests/**",
+    "test:win32":
+      "SET BABEL_ENV=tests && mocha --compilers js:babel-core/register --require tests/index.js tests/** extensions/**/tests/** && SET BABEL_ENV=",
     "watch": "npm-watch",
     "precommit": "lint-staged"
   },
