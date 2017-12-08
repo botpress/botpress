@@ -1,8 +1,8 @@
-:global(.storm-diagrams-canvas .node.selected) > .standard-node {
+:global(.storm-diagrams-canvas .node.selected) > .node-container {
   border-color: #028aee !important;
 }
 
-.standard-node {
+.node-container {
   width: 200px;
   background: white;
   border: 1px solid black;
@@ -24,12 +24,22 @@
   font-size: 12px;
   font-weight: 600;
   padding: 3px 8px;
-  background: #000;
   color: #fff;
+  background: #000;
 
   &.waiting {
     background: #f6bd4f;
     color: #000;
+  }
+
+  .subtitle {
+    font-size: 80%;
+  }
+}
+
+.skill-call-node {
+  .section-title {
+    background: #5353fb;
   }
 }
 
