@@ -62,14 +62,14 @@ class DialogEngine {
         this._trace(`catchAll #${i}, evaluation only of "${catchAllNext[i].condition}"`, context, state)
         if (await this._evaluateCondition(catchAllNext[i].condition, state)) {
           this._trace(`catchAll #${i} matched, processing node ${catchAllNext[i].node}`, context, state)
-          return await this._processNode(stateId, context, catchAllNext[i].node, event)
+          return this._processNode(stateId, context, catchAllNext[i].node, event)
         }
       }
       this._trace('No catchAll next matched', context, state)
     }
 
     this._trace('Processing node ' + context.node, context, state)
-    return await this._processNode(stateId, context, context.node, event)
+    return this._processNode(stateId, context, context.node, event)
   }
 
   async reloadFlows() {
@@ -230,9 +230,8 @@ class DialogEngine {
           // Node "END" or "end" ends the flow (reserved keyword)
           await this._endFlow(stateId)
           return {}
-        } else {
-          return await this._processNode(stateId, context, nextNodes[i].node, event)
         }
+        return this._processNode(stateId, context, nextNodes[i].node, event)
       }
     }
 
@@ -298,7 +297,7 @@ class DialogEngine {
 
     if (context.flowStack.length >= MAX_STACK_SIZE) {
       throw new Error(
-        `Exceeded maximum flow stack size (${MAX_STACK_SIZE}). 
+        `Exceeded maximum flow stack size (${MAX_STACK_SIZE}).
          This might be due to an unexpected infinite loop in your flows.
          Current flow: ${subflow}
          Current node: ${subflowNode}`
