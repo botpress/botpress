@@ -10,6 +10,9 @@ charset = utf-8
 trim_trailing_whitespace = true
 insert_final_newline = true
 
+[*.md,*.markdown]
+trim_trailing_whitespace = false
+
 [{package.json,package-lock.json,*.yml}]
 indent_style = space
 indent_size = 2
