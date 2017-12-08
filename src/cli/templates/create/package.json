@@ -36,6 +36,7 @@
     "extract-text-webpack-plugin": "^3.0.0",
     "file-loader": "^1.1.5",
     "json-loader": "^0.5.7",
+    "minimum-node-version": "^1.0.1",
     "mocha": "^4.0.1",
     "node-sass": "^4.5.3",
     "react": "^16.2.0",
