@@ -5,8 +5,10 @@ import _ from 'lodash'
 import Promise from 'bluebird'
 import glob from 'glob'
 import uuid from 'uuid'
+import mkdirp from 'mkdirp'
 
 import helpers from '../database/helpers'
+import { getInMemoryDb } from '../util'
 
 const getShortUid = () =>
   uuid
@@ -15,58 +17,101 @@ const getShortUid = () =>
     .join('')
     .substr(0, 6)
 
-module.exports = ({ db, botfile, projectLocation, logger }) => {
-  let categories = []
+const getNewItemId = category => {
+  const prefix = (category.ummBloc || category.id).replace(/^#/, '')
+  return `${prefix}-${getShortUid()}`
+}
 
-  const scanAndRegisterCategories = async () => {
-    categories = []
+const prepareDb = async () => {
+  const knex = getInMemoryDb()
 
-    const formDir = path.resolve(projectLocation, botfile.formsDir || './content/forms')
+  // NB! This is in-memory temprorary database
+  // It is freshly created so we know there are no tables
+  // We also use camelCased columns for convenience
+  await knex.schema.createTable('content_items', table => {
+    table.string('id').primary()
+    table.text('data')
+    table.text('formData')
+    table.text('metadata')
+    table.string('categoryId')
+    table.text('previewText')
+    table.string('createdBy')
+    table.timestamp('createdOn')
+  })
 
-    if (!fs.existsSync(formDir)) {
-      return categories
+  return knex
+}
+
+module.exports = async ({ botfile, projectLocation, logger }) => {
+  const categories = []
+  const categoryById = {}
+  const fileById = {}
+
+  const formDir = path.resolve(projectLocation, botfile.formsDir || './forms')
+  const formDataDir = path.resolve(projectLocation, botfile.formsDataDir || './forms_data')
+
+  const knex = await prepareDb()
+
+  const transformItemDbToApi = item => {
+    if (!item) {
+      return item
     }
 
-    const searchOptions = { cwd: formDir }
-
-    const files = await Promise.fromCallback(callback => glob('**/*.form.js', searchOptions, callback))
-
-    files.forEach(file => {
-      try {
-        const filePath = path.resolve(formDir, './' + file)
-        // eslint-disable-next-line no-eval
-        const category = eval('require')(filePath) // Dynamic loading require eval for Webpack
-        const requiredFields = ['id', 'title', 'jsonSchema']
-
-        requiredFields.forEach(field => {
-          if (_.isNil(category[field])) {
-            throw new Error(field + ' is required but missing in Content Form file: ' + file)
-          }
-        })
-
-        category.id = category.id.toLowerCase()
-
-        if (_.find(categories, { id: category.id })) {
-          throw new Error('There is already a form with id=' + category.id)
-        }
-
-        categories.push(category)
-      } catch (err) {
-        logger.warn('[Content Manager] Could not load Form: ' + file, err)
-      }
-    })
-
-    return categories
+    return {
+      ...item,
+      data: JSON.parse(item.data),
+      formData: JSON.parse(item.formData),
+      metadata: (item.metadata || '').split('|').filter(i => i.length > 0)
+    }
   }
 
-  const listAvailableCategories = async () => {
-    const knex = await db.get()
+  const transformItemApiToDb = item => {
+    if (!item) {
+      return item
+    }
 
-    return await Promise.map(categories, async category => {
+    return {
+      ...item,
+      data: JSON.stringify(item.data),
+      formData: JSON.stringify(item.formData),
+      metadata: '|' + (item.metadata || []).filter(i => !!i).join('|') + '|'
+    }
+  }
+
+  const listCategoryItems = async (categoryId, from = 0, count = 50, searchTerm) => {
+    let query = knex('content_items')
+
+    if (categoryId) {
+      query = query.where({ categoryId })
+    }
+
+    if (searchTerm) {
+      query = query.andWhere('metadata', 'like', `%${searchTerm}%`).orWhere('formData', 'like', `%${searchTerm}%`)
+    }
+
+    const items = await query
+      .orderBy('createdOn')
+      .offset(from)
+      .limit(count)
+      .then()
+
+    return items.map(transformItemDbToApi)
+  }
+
+  const dumpDataToFile = async categoryId => {
+    const items = (await listCategoryItems(categoryId)).map(item =>
+      _.pick(item, 'id', 'formData', 'createdBy', 'createdOn')
+    )
+    fs.writeFileSync(fileById[categoryId], JSON.stringify(items, null, 2))
+  }
+
+  const dumpAllDataToFiles = () => Promise.map(categories, ({ id }) => dumpDataToFile(id))
+
+  const listAvailableCategories = () =>
+    Promise.map(categories, async category => {
       const count = await knex('content_items')
         .where({ categoryId: category.id })
-        .select(knex.raw('count(*) as count'))
-        .then()
+        .count('* as count')
         .get(0)
         .then(row => (row && row.count) || 0)
 
@@ -74,12 +119,11 @@ module.exports = ({ db, botfile, projectLocation, logger }) => {
         id: category.id,
         title: category.title,
         description: category.description,
-        count: count
+        count
       }
     })
-  }
 
-  const getCategorySchema = async categoryId => {
+  const getCategorySchema = categoryId => {
     const category = _.find(categories, { id: categoryId })
     if (_.isNil(category)) {
       return null
@@ -94,14 +138,7 @@ module.exports = ({ db, botfile, projectLocation, logger }) => {
     }
   }
 
-  const createOrUpdateCategoryItem = async ({ itemId, categoryId, formData }) => {
-    categoryId = categoryId && categoryId.toLowerCase()
-    const category = _.find(categories, { id: categoryId })
-
-    if (_.isNil(category)) {
-      throw new Error(`Category "${categoryId}" is not a valid registered categoryId`)
-    }
-
+  const fillComputedProps = async (category, formData) => {
     if (_.isNil(formData) || !_.isObject(formData)) {
       throw new Error('"formData" must be a valid object')
     }
@@ -111,7 +148,7 @@ module.exports = ({ db, botfile, projectLocation, logger }) => {
     const previewText = (category.computePreviewText && (await category.computePreviewText(formData))) || 'No preview'
 
     if (!_.isArray(metadata)) {
-      throw new Error('computeMetadata must return an array of string')
+      throw new Error('computeMetadata must return an array of strings')
     }
 
     if (!_.isString(previewText)) {
@@ -122,78 +159,44 @@ module.exports = ({ db, botfile, projectLocation, logger }) => {
       throw new Error('computeFormData must return a valid object')
     }
 
-    const prefix = (category.ummBloc || categoryId).replace(/^#/, '')
-    const randomId = `${prefix}-${getShortUid()}`
-
-    const knex = await db.get()
-
-    const body = {
-      data: JSON.stringify(data),
-      formData: JSON.stringify(formData),
-      metadata: '|' + metadata.join('|') + '|',
-      previewText: previewText,
-      created_by: 'admin',
-      created_on: helpers(knex).date.now()
+    return {
+      formData,
+      data,
+      metadata,
+      previewText
     }
+  }
+
+  const createOrUpdateCategoryItem = async ({ itemId, categoryId, formData }) => {
+    categoryId = categoryId && categoryId.toLowerCase()
+    const category = _.find(categories, { id: categoryId })
+
+    if (_.isNil(category)) {
+      throw new Error(`Category "${categoryId}" is not a valid registered categoryId`)
+    }
+
+    const item = await fillComputedProps(category, formData)
+    const body = transformItemApiToDb(item)
 
     if (itemId) {
-      return await knex('content_items')
+      await knex('content_items')
         .update(body)
         .where({ id: itemId })
-    }
-
-    return await knex('content_items').insert(
-      Object.assign(
-        {
+        .then()
+    } else {
+      const randomId = getNewItemId(category)
+      await knex('content_items')
+        .insert({
+          ...body,
+          createdBy: 'admin',
+          createdOn: helpers(knex).date.now(),
           id: randomId,
-          categoryId: categoryId
-        },
-        body
-      )
-    )
-  }
-
-  const transformCategoryItem = item => {
-    if (!item) {
-      return item
+          categoryId
+        })
+        .then()
     }
 
-    const metadata = _.filter((item.metadata || '').split('|'), i => i.length > 0)
-
-    return {
-      id: item.id,
-      data: JSON.parse(item.data),
-      formData: JSON.parse(item.formData),
-      categoryId: item.categoryId,
-      previewText: item.previewText,
-      metadata: metadata,
-      createdBy: item.created_by,
-      createdOn: item.created_on
-    }
-  }
-
-  const listCategoryItems = async (categoryId, from = 0, count = 50, searchTerm) => {
-    const knex = await db.get()
-
-    let query = knex('content_items')
-
-    if (categoryId) {
-      query = query.where({
-        categoryId: categoryId
-      })
-    }
-
-    if (searchTerm) {
-      query = query.andWhere('metadata', 'like', `%${searchTerm}%`).orWhere('formData', 'like', `%${searchTerm}%`)
-    }
-
-    const items = await query
-      .orderBy('created_on')
-      .offset(from)
-      .limit(count)
-      .then()
-
-    return items.map(transformCategoryItem)
+    return dumpDataToFile(categoryId)
   }
 
   const deleteCategoryItems = async ids => {
@@ -201,82 +204,120 @@ module.exports = ({ db, botfile, projectLocation, logger }) => {
       throw new Error('Expected an array of Ids to delete')
     }
 
-    const knex = await db.get()
-
-    return knex('content_items')
+    await knex('content_items')
       .whereIn('id', ids)
       .del()
+      .then()
+
+    return dumpAllDataToFiles()
   }
 
   const getItem = async itemId => {
-    const knex = await db.get()
-
     const item = await knex('content_items')
       .where({ id: itemId })
-      .then()
       .get(0)
       .then()
 
-    return transformCategoryItem(item)
+    return transformItemDbToApi(item)
   }
 
   const getItemsByMetadata = async metadata => {
-    const knex = await db.get()
-
     const items = await knex('content_items')
       .where('metadata', 'like', '%|' + metadata + '|%')
       .then()
 
-    return transformCategoryItem(items)
+    return transformItemDbToApi(items)
   }
 
-  const exportContent = async (ids = null) => {
-    const knex = await db.get()
+  const loadCategory = file => {
+    const filePath = path.resolve(formDir, './' + file)
+    // eslint-disable-next-line no-eval
+    const category = eval('require')(filePath) // Dynamic loading require eval for Webpack
+    const requiredFields = ['id', 'title', 'jsonSchema']
 
-    let query = knex('content_items').select('*')
+    requiredFields.forEach(field => {
+      if (_.isNil(category[field])) {
+        throw new Error(field + ' is required but missing in Content Form file: ' + file)
+      }
+    })
 
-    if (ids) {
-      query = query.whereIn('id', ids)
+    category.id = category.id.toLowerCase()
+
+    if (categoryById[category.id]) {
+      throw new Error('There is already a form with id=' + category.id)
     }
 
-    const items = query.then()
+    categoryById[category.id] = category
+    categories.push(category)
 
-    return items.map(item => transformCategoryItem(item))
+    return category
   }
 
-  const importContent = async documents => {
-    const knex = await db.get()
-
-    return Promise.mapSeries(documents, doc => {
-      if (!doc.id || !doc.formData || !doc.categoryId) {
-        throw new Error('Invalid data')
+  const readDataFromFile = (filePath, fileName) => {
+    if (!fs.existsSync(filePath)) {
+      logger.warn(`Form content file ${filePath} not found`)
+      return []
+    }
+    try {
+      const json = fs.readFileSync(filePath, 'utf-8')
+      const data = JSON.parse(json)
+      if (!Array.isArray(data)) {
+        throw new Error(`${fileName} expected to contain array, contents ignored`)
       }
+      logger.info(`Read ${data.length} item(s) from ${fileName}`)
+      return data
+    } catch (err) {
+      logger.warn(`Error reading data from ${fileName}`, err)
+      return []
+    }
+  }
 
-      const row = {
-        data: JSON.stringify(doc.data),
-        formData: JSON.stringify(doc.formData),
-        metadata: '|' + doc.metadata.join('|') + '|',
-        previewText: doc.previewText,
-        created_by: 'admin',
-        created_on: helpers(knex).date.now(),
-        id: doc.id,
-        categoryId: doc.categoryId
-      }
+  const loadData = async (category, fileName) => {
+    const filePath = path.resolve(formDataDir, './' + fileName)
+    fileById[category.id] = filePath
 
-      return knex('content_items')
-        .insert(row)
+    logger.debug(`Loading data for ${category.id} from ${fileName}`)
+    let data = []
+    try {
+      data = readDataFromFile(filePath, fileName)
+    } catch (e) {}
+
+    data = await Promise.map(data, async item => ({
+      ...item,
+      ...(await fillComputedProps(category, item.formData)),
+      categoryId: category.id,
+      id: item.id || getNewItemId(category)
+    }))
+
+    // TODO: use transaction
+    return Promise.map(data, async item =>
+      knex('content_items')
+        .insert(transformItemApiToDb(item))
         .then()
-        .catch(err => {
-          return knex('content_items')
-            .where({ id: doc.id })
-            .update(row)
-            .then()
-        })
+    )
+  }
+
+  const init = async () => {
+    if (!fs.existsSync(formDir)) {
+      return
+    }
+
+    mkdirp.sync(formDataDir)
+
+    const files = await Promise.fromCallback(callback => glob('**/*.form.js', { cwd: formDir }, callback))
+
+    return Promise.map(files, async file => {
+      try {
+        const category = loadCategory(file)
+        await loadData(category, file.replace(/\.form\.js$/, '.json'))
+      } catch (err) {
+        logger.warn('[Content Manager] Could not load Form: ' + file, err)
+      }
     })
   }
 
   return {
-    scanAndRegisterCategories,
+    init,
     listAvailableCategories,
     getCategorySchema,
 
@@ -285,9 +326,6 @@ module.exports = ({ db, botfile, projectLocation, logger }) => {
     deleteCategoryItems,
 
     getItem,
-    getItemsByMetadata,
-
-    exportContent,
-    importContent
+    getItemsByMetadata
   }
 }

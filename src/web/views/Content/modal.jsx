@@ -9,18 +9,12 @@ import Form from 'react-jsonschema-form'
 
 import style from './style.scss'
 
-export default class AddMessageModal extends React.Component {
-  state = {
-    loading: true
+export default class CreateOrEditModal extends React.Component {
+  handleEdit = event => {
+    this.props.handleEdit(event.formData)
   }
 
-  componentDidMount() {
-    this.setState({
-      loading: false
-    })
-  }
-
-  handleSubmit = event => {
+  handleSave = event => {
     this.props.handleCreateOrUpdate(event.formData)
   }
 
@@ -37,7 +31,8 @@ export default class AddMessageModal extends React.Component {
             schema={this.props.schema}
             uiSchema={this.props.uiSchema}
             formData={this.props.formData}
-            onSubmit={this.handleSubmit}
+            onChange={this.handleEdit}
+            onSubmit={this.handleSave}
           />
           <button
             className={classnames('bp-button', 'bp-button-danger', style.cancel)}
