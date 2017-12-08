@@ -19,23 +19,19 @@ import {
 } from '~/actions'
 
 class App extends Component {
-  constructor(props) {
-    super(props)
+  state = {
+    events: EventBus.default
+  }
 
-    this.state = {
-      events: EventBus.default
-    }
-
+  componentWillMount() {
     if (window.APP_NAME) {
       window.document.title = window.APP_NAME
     }
 
-    this.fetchData = this.fetchData.bind(this)
-
     EventBus.default.setup()
   }
 
-  fetchData() {
+  fetchData = () => {
     this.props.fetchModules()
     this.props.fetchNotifications()
     this.props.fetchBotInformation()
@@ -75,19 +71,15 @@ class App extends Component {
   }
 }
 
-const mapDispatchToProps = (dispatch, ownProps) =>
-  bindActionCreators(
-    {
-      fetchLicense,
-      fetchUser,
-      fetchBotInformation,
-      fetchModules,
-      fetchRules,
-      fetchNotifications,
-      replaceNotifications,
-      addNotifications
-    },
-    dispatch
-  )
+const mapDispatchToProps = {
+  fetchLicense,
+  fetchUser,
+  fetchBotInformation,
+  fetchModules,
+  fetchRules,
+  fetchNotifications,
+  replaceNotifications,
+  addNotifications
+}
 
 export default connect(null, mapDispatchToProps)(App)

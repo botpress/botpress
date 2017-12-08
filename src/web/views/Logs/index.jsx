@@ -11,12 +11,11 @@ import ContentWrapper from '~/components/Layout/ContentWrapper'
 import styles from './style.scss'
 
 class LoggerView extends Component {
-  constructor(props) {
-    super(props)
-    this.state = { autoRefresh: true, logs: null, limit: 25, hasMore: false }
-    this.toggleAutoRefresh = this.toggleAutoRefresh.bind(this)
-    this.queryLogs = this.queryLogs.bind(this)
-    this.loadMore = this.loadMore.bind(this)
+  state = {
+    autoRefresh: true,
+    logs: null,
+    limit: 25,
+    hasMore: false
   }
 
   componentDidMount() {
@@ -32,11 +31,11 @@ class LoggerView extends Component {
     this.setState({ cancelLoading: true })
   }
 
-  loadMore() {
+  loadMore = () => {
     this.setState({ limit: this.state.limit + 50, logs: null })
   }
 
-  toggleAutoRefresh() {
+  toggleAutoRefresh = () => {
     if (this.state.autoRefresh) {
       clearInterval(this.refreshInterval)
     } else {
@@ -67,7 +66,7 @@ class LoggerView extends Component {
     axios.get('/api/logs/key').then(({ data }) => this.setState({ archiveUrl: '/logs/archive/' + data.secret }))
   }
 
-  queryLogs() {
+  queryLogs = () => {
     axios
       .get('/api/logs', {
         params: {

@@ -16,20 +16,12 @@ class Sidebar extends React.Component {
     router: PropTypes.object.isRequired
   }
 
-  constructor(props, context) {
-    super(props, context)
-
-    this.state = {
-      sidebarOpen: false,
-      sidebarDocked: false
-    }
-
-    this.onSetSidebarOpen = this.onSetSidebarOpen.bind(this)
-    this.mediaQueryChanged = this.mediaQueryChanged.bind(this)
-    this.renderModuleItem = this.renderModuleItem.bind(this)
+  state = {
+    sidebarOpen: false,
+    sidebarDocked: false
   }
 
-  onSetSidebarOpen(open) {
+  onSetSidebarOpen = open => {
     this.setState({ sidebarOpen: open })
   }
 
@@ -43,7 +35,7 @@ class Sidebar extends React.Component {
     this.state.mql.removeListener(this.mediaQueryChanged)
   }
 
-  mediaQueryChanged() {
+  mediaQueryChanged = () => {
     this.setState({ sidebarDocked: this.state.mql.matches })
   }
 
@@ -58,7 +50,7 @@ class Sidebar extends React.Component {
     return false
   }
 
-  renderModuleItem(module) {
+  renderModuleItem = module => {
     const path = `/modules/${module.name}`
     const iconPath = `/img/modules/${module.name}.png`
 

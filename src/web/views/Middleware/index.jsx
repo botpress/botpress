@@ -33,12 +33,8 @@ const documentation = `
   `
 
 export default class ManageView extends React.Component {
-  constructor(props) {
-    super(props)
-
-    this.state = {
-      collapse: true
-    }
+  state = {
+    collapse: true
   }
 
   getDocumentation() {
@@ -52,13 +48,13 @@ export default class ManageView extends React.Component {
     return this.state.collapse ? 'Read more' : 'Hide'
   }
 
-  handleReadMore(event) {
+  handleReadMore = event => {
+    event.preventDefault()
+    event.stopPropagation()
+
     this.setState({
       collapse: !this.state.collapse
     })
-
-    event.preventDefault()
-    event.stopPropagation()
   }
 
   render() {
@@ -74,7 +70,7 @@ export default class ManageView extends React.Component {
                 <Col sm={12}>
                   <Markdown source={this.getDocumentation()} />
                   <div>
-                    <a href="#" onClick={::this.handleReadMore}>
+                    <a href="#" onClick={this.handleReadMore}>
                       {this.getReadMore()}
                     </a>
                   </div>

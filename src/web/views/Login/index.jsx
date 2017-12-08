@@ -14,14 +14,11 @@ export default class LoginPage extends Component {
     router: PropTypes.object
   }
 
-  constructor(props, context) {
-    super(props, context)
-    this.state = {
-      user: 'admin',
-      password: '',
-      error: null,
-      loading: false
-    }
+  state = {
+    user: 'admin',
+    password: '',
+    error: null,
+    loading: false
   }
 
   componentDidMount() {
@@ -30,15 +27,15 @@ export default class LoginPage extends Component {
     app.className = classnames(app.className, 'bp-body-login')
   }
 
-  handlePasswordChange(event) {
+  handlePasswordChange = event => {
     this.setState({ password: event.target.value })
   }
 
-  handleUserChange(event) {
+  handleUserChange = event => {
     this.setState({ user: event.target.value })
   }
 
-  handleSubmit(event) {
+  handleSubmit = event => {
     event.preventDefault()
     this.setState({ loading: true })
 
@@ -106,10 +103,10 @@ export default class LoginPage extends Component {
                 {this.renderLoading()}
                 {this.state.error && <p className={errorStyle}>{this.state.error}</p>}
                 {hasChangedPassword && <p className={successStyle}>Password changed successfully</p>}
-                <form onSubmit={this.handleSubmit.bind(this)}>
+                <form onSubmit={this.handleSubmit}>
                   <FormGroup>
                     <ControlLabel>User</ControlLabel>
-                    <Decorators.User value={this.state.user} onChange={::this.handleUserChange} />
+                    <Decorators.User value={this.state.user} onChange={this.handleUserChange} />
                   </FormGroup>
                   <FormGroup>
                     <ControlLabel>Password</ControlLabel>
@@ -117,7 +114,7 @@ export default class LoginPage extends Component {
                       type="password"
                       placeholder=""
                       value={this.state.password}
-                      onChange={::this.handlePasswordChange}
+                      onChange={this.handlePasswordChange}
                     />
                   </FormGroup>
                   <Button className="pull-right" type="submit">

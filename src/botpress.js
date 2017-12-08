@@ -166,8 +166,7 @@ class botpress {
     const mediator = createMediator(this)
     const convo = createConversations({ logger, middleware: middlewares })
     const users = createUsers({ db })
-    const contentManager = createContentManager({
-      db,
+    const contentManager = await createContentManager({
       logger,
       projectLocation,
       botfile
@@ -244,7 +243,7 @@ class botpress {
       _loadedModules: loadedModules
     })
 
-    contentManager.scanAndRegisterCategories()
+    await contentManager.init()
 
     mediator.install()
     notifications._bindEvents()
