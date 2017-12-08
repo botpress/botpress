@@ -7,7 +7,6 @@ module.exports = {
     send: ({ message, originalEvent, state, flowContext }) => {
       // TODO Replace variables in the {{text}} if they exist
 
-      console.log(state, flowContext, message.value)
       let rendered = message.value
 
       if (/{{/i.test(rendered)) {
