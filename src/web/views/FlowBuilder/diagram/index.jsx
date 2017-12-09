@@ -101,7 +101,7 @@ export default class FlowBuilder extends Component {
       const target = next.node
       if (/END/i.test(target)) {
         // Handle end connection
-      } else if (target.indexOf('.') !== -1) {
+      } else if (/\.flow/i.test(target)) {
         // Handle subflow connection
       } else {
         const sourcePort = node.ports['out' + index]
