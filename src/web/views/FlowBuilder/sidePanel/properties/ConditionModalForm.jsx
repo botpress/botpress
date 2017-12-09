@@ -25,7 +25,7 @@ export default class ConditionModalForm extends Component {
       return
     }
 
-    if (item) {
+    if (item && item.node) {
       let typeOfTransition = item.node.indexOf('.') !== -1 ? 'subflow' : 'node'
       typeOfTransition = item.node === 'END' ? 'end' : typeOfTransition
 
@@ -38,6 +38,7 @@ export default class ConditionModalForm extends Component {
     } else {
       this.resetForm()
     }
+
     this.setState({ isEdit: Boolean(item) })
   }
 
@@ -100,7 +101,7 @@ export default class ConditionModalForm extends Component {
       const payload = { condition: this.state.condition }
 
       if (this.state.typeOfTransition === 'subflow') {
-        payload.node = this.state.flowToSubflow.value
+        payload.node = this.state.flowToSubflow
       } else if (this.state.typeOfTransition === 'end') {
         payload.node = 'END'
       } else if (this.state.typeOfTransition === 'node') {
