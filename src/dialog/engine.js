@@ -72,7 +72,7 @@ class DialogEngine {
       this._trace('..', 'KALL', '', context, state)
       for (let i = 0; i < catchAllNext.length; i++) {
         if (await this._evaluateCondition(catchAllNext[i].condition, state)) {
-          return await this._processNode(stateId, state, context, catchAllNext[i].node, event)
+          return this._processNode(stateId, state, context, catchAllNext[i].node, event)
         }
       }
 
@@ -216,7 +216,7 @@ class DialogEngine {
       this._trace('>>', 'FLOW', `"${nodeName}"`, context, null)
       context = this._gotoSubflow(nodeName, context)
       switchedFlow = true
-    } else if (nodeName.startsWith('#')) {
+    } else if (/^#/.test(nodeName)) {
       // e.g. '#success'
       this._trace('<<', 'FLOW', `"${nodeName}"`, context, null)
       context = this._gotoPreviousFlow(context)
@@ -225,6 +225,10 @@ class DialogEngine {
       this._trace('>>', 'FLOW', `"${nodeName}"`)
       switchedNode = true
       context.node = nodeName
+    } else if (_.isNil(context.node)) {
+      // We just created the context
+      switchedNode = true
+      context.node = context.currentFlow.startNode
     }
 
     let node = DialogEngine._findNode(context.currentFlow, context.node)
@@ -298,7 +302,6 @@ class DialogEngine {
 
       state = {
         currentFlow: flow,
-        node: flow.startNode,
         flowStack: [{ flow: flow.name, node: flow.startNode }]
       }
 
@@ -337,7 +340,7 @@ class DialogEngine {
 
     if (context.flowStack.length >= MAX_STACK_SIZE) {
       throw new Error(
-        `Exceeded maximum flow stack size (${MAX_STACK_SIZE}). 
+        `Exceeded maximum flow stack size (${MAX_STACK_SIZE}).
          This might be due to an unexpected infinite loop in your flows.
          Current flow: ${subflow}
          Current node: ${subflowNode}`
