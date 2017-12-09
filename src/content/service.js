@@ -42,7 +42,7 @@ const prepareDb = async () => {
   return knex
 }
 
-module.exports = async ({ botfile, projectLocation, logger }) => {
+module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
   const categories = []
   const categoryById = {}
   const fileById = {}
