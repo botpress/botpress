@@ -149,8 +149,7 @@
   "scripts": {
     "compile": "./build.sh",
     "compile-prod": "NODE_ENV=production ./build.sh && ls -lh ./lib/web/js && echo \"DONE\"",
-    "test":
-      "BABEL_ENV=tests mocha --compilers js:babel-core/register --require tests/index.js tests/** extensions/**/tests/**",
+    "test": "BABEL_ENV=tests mocha --compilers js:babel-core/register --require tests/index.js tests/** extensions/**/tests/**",
     "watch": "npm-watch",
     "precommit": "lint-staged",
     "lint": "eslint {src,lib,tests,extensions}/**/*.{js,jsx}"
