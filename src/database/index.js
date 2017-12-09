@@ -1,6 +1,7 @@
 import Promise from 'bluebird'
 import moment from 'moment'
 import knex from 'knex'
+import pick from 'lodash/pick'
 
 import tables from './tables'
 import kvs from './kvs'
@@ -17,42 +18,22 @@ const createKnex = async ({ sqlite, postgres }) => {
   const commonConfig = {
     useNullAsDefault: true
   }
-  let config
-
-  if (postgres.enabled) {
-    // If we're passing in a postgres connection string,
-    // use that instead of the other params
-    if (postgres.connection) {
-      config = {
+  const dbConfig = postgres.enabled
+    ? {
         client: 'pg',
-        connection: postgres.connection
+        connection: postgres.connection || pick(postgres, ['host', 'port', 'user', 'password', 'database', 'ssl'])
       }
-    } else {
-      config = {
-        client: 'pg',
-        connection: {
-          host: postgres.host,
-          port: postgres.port,
-          user: postgres.user,
-          password: postgres.password,
-          database: postgres.database,
-          ssl: postgres.ssl
+    : {
+        client: 'sqlite3',
+        connection: { filename: sqlite.location },
+        pool: {
+          afterCreate: (conn, cb) => {
+            conn.run('PRAGMA foreign_keys = ON', cb)
+          }
         }
       }
-    }
-  } else {
-    config = {
-      client: 'sqlite3',
-      connection: { filename: sqlite.location },
-      pool: {
-        afterCreate: (conn, cb) => {
-          conn.run('PRAGMA foreign_keys = ON', cb)
-        }
-      }
-    }
-  }
 
-  const _knex = knex(Object.assign(commonConfig, config))
+  const _knex = knex(Object.assign(commonConfig, dbConfig))
 
   await initializeCoreDatabase(_knex)
   return _knex
