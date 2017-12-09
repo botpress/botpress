@@ -219,7 +219,7 @@ class DialogEngine {
     } else if (/^#/.test(nodeName)) {
       // e.g. '#success'
       this._trace('<<', 'FLOW', `"${nodeName}"`, context, null)
-      context = this._gotoPreviousFlow(context)
+      context = this._gotoPreviousFlow(nodeName, context)
       switchedFlow = true
     } else if (context.node !== nodeName) {
       this._trace('>>', 'FLOW', `"${nodeName}"`)
@@ -241,6 +241,27 @@ class DialogEngine {
     }
 
     if (switchedFlow || switchedNode) {
+      context.flowStack.push({
+        flow: context.currentFlow.name,
+        node: context.node
+      })
+
+      // Flattens the stack to only include flow jumps, not node jumps
+      context.flowStack = context.flowStack.filter((el, i) => {
+        return i === context.flowStack.length - 1 || context.flowStack[i + 1].flow !== el.flow
+      })
+
+      if (context.flowStack.length >= MAX_STACK_SIZE) {
+        throw new Error(
+          `Exceeded maximum flow stack size (${MAX_STACK_SIZE}).
+         This might be due to an unexpected infinite loop in your flows.
+         Current flow: ${context.currentFlow.name}
+         Current node: ${context.node}`
+        )
+
+        return this._endFlow(stateId)
+      }
+
       await this._setContext(stateId, context)
 
       if (node.onEnter) {
@@ -280,8 +301,12 @@ class DialogEngine {
       }
     }
 
-    // You reach this if there were no next nodes, in which case we end the flow
-    return this._endFlow(stateId)
+    if (!nextNodes.length) {
+      // You reach this if there were no next nodes, in which case we end the flow
+      return this._endFlow(stateId)
+    }
+
+    return userState
   }
 
   async _endFlow(stateId) {
@@ -333,33 +358,27 @@ class DialogEngine {
       node: subflowNode
     })
 
-    context.flowStack.push({
-      flow: subflow,
-      node: subflowNode
-    })
-
-    if (context.flowStack.length >= MAX_STACK_SIZE) {
-      throw new Error(
-        `Exceeded maximum flow stack size (${MAX_STACK_SIZE}).
-         This might be due to an unexpected infinite loop in your flows.
-         Current flow: ${subflow}
-         Current node: ${subflowNode}`
-      )
-      // TODO END FLOW ?
-    }
-
     return context
   }
 
   _gotoPreviousFlow(nodeName, context) {
-    if (context.flowStack.length <= 1) {
+    console.log('PREVIEW FLOW', nodeName, context)
+
+    if (!context.flowStack) {
+      context.flowStack = []
+    }
+
+    while (context.currentFlow.name === _.get(_.last(context.flowStack), 'flow')) {
+      context.flowStack.pop()
+    }
+
+    if (context.flowStack.length < 1) {
       this._trace('Flow tried to go back to previous flow but there was none. Exiting flow.', context, null)
       // TODO END FLOW
     } else {
-      context.flowStack.pop()
-      let { flow, node } = _.last()
+      let { flow, node } = _.last(context.flowStack)
 
-      if (nodeName !== '##') {
+      if (nodeName !== '#' && nodeName !== '##') {
         node = nodeName.substr(1)
       }
 
@@ -423,14 +442,20 @@ class DialogEngine {
     let args = null
 
     if (_.isString(instruction)) {
-      name = instruction
-    } else if (_.isObject(instruction)) {
-      if (!instruction.function) {
-        this._trace(`ERROR instruction object has no 'function' property set with instruction name`, context, userState)
-        return userState
+      if (instruction.includes(' ')) {
+        const chunks = instruction.split(' ')
+        const argsStr = _.tail(chunks).join(' ')
+        name = _.first(chunks)
+        try {
+          args = JSON.parse(argsStr)
+        } catch (err) {
+          this._trace('ERROR function has invalid arguments (not a valid JSON string): ' + argsStr)
+        }
+      } else {
+        name = instruction
       }
-      name = instruction.function
-      args = instruction.args
+    } else {
+      this._trace(`ERROR function is not a valid string`)
     }
 
     if (!this.functions[name]) {
