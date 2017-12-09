@@ -51,7 +51,7 @@
     "source-map-support": "^0.4.6",
     "sqlite3": "3.1.8",
     "universal-analytics": "^0.4.8",
-    "uuid": "^3.0.0",
+    "uuid": "^3.1.0",
     "vm2": "^3.5.2",
     "winston": "^2.2.0"
   },
