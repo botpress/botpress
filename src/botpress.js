@@ -17,6 +17,7 @@ import createNotifications from './notifications'
 import createHearMiddleware from './hear'
 import createFallbackMiddleware from './fallback'
 import createDatabase from './database'
+import createGhostManager from './ghost-content'
 import createLicensing from './licensing'
 import createAbout from './about'
 import createModules from './modules'
@@ -164,10 +165,16 @@ class botpress {
     const mediator = createMediator(this)
     const convo = createConversations({ logger, middleware: middlewares })
     const users = createUsers({ db })
+    const ghostManager = createGhostManager({
+      projectLocation,
+      logger,
+      db
+    })
     const contentManager = await createContentManager({
       logger,
       projectLocation,
-      botfile
+      botfile,
+      ghostManager
     })
     const umm = createUMM({
       logger,
