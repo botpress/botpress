@@ -25,7 +25,7 @@ Ghost Content feature is designed to answer both questions.
 With the introduction of the feature the botpress server behaves like that:
 * all changes are not saved to the files anymore, instead they go to the database. This DB is referred to as the ghost version of the content from the files
 * each change gets its unique random UUID recorded in the DB
-* the repository also contains the list of UUIDs (in a file) indicates which of these changes were already incorporated back into the codebase (see below how)
+* the repository also contains the list of UUIDs (in a file) indicating which of these changes were already incorporated back into the codebase (see below how)
 * all parts that need to read from the content files now _always_ read the ghost version from the DB
 * upon server start the following actions are taken:
   * the server finds all the revisions IDs still in the DB
