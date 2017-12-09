@@ -1,5 +1,6 @@
 import Promise from 'bluebird'
 import moment from 'moment'
+import knex from 'knex'
 
 import tables from './tables'
 import kvs from './kvs'
@@ -13,19 +14,21 @@ const initializeCoreDatabase = knex => {
 }
 
 const createKnex = async ({ sqlite, postgres }) => {
-  let _knex = null
+  const commonConfig = {
+    useNullAsDefault: true
+  }
+  let config
 
   if (postgres.enabled) {
     // If we're passing in a postgres connection string,
     // use that instead of the other params
     if (postgres.connection) {
-      _knex = require('knex')({
+      config = {
         client: 'pg',
-        connection: postgres.connection,
-        useNullAsDefault: true
-      })
+        connection: postgres.connection
+      }
     } else {
-      _knex = require('knex')({
+      config = {
         client: 'pg',
         connection: {
           host: postgres.host,
@@ -34,22 +37,22 @@ const createKnex = async ({ sqlite, postgres }) => {
           password: postgres.password,
           database: postgres.database,
           ssl: postgres.ssl
-        },
-        useNullAsDefault: true
-      })
+        }
+      }
     }
   } else {
-    _knex = require('knex')({
+    config = {
       client: 'sqlite3',
       connection: { filename: sqlite.location },
-      useNullAsDefault: true,
       pool: {
         afterCreate: (conn, cb) => {
           conn.run('PRAGMA foreign_keys = ON', cb)
         }
       }
-    })
+    }
   }
+
+  const _knex = knex(Object.assign(commonConfig, config))
 
   await initializeCoreDatabase(_knex)
   return _knex
@@ -60,21 +63,30 @@ module.exports = ({ sqlite, postgres }) => {
 
   const getDb = async () => {
     if (!knex) {
-      knex = createKnex({ sqlite, postgres })
+      knex = await createKnex({ sqlite, postgres })
     }
 
     return knex
   }
 
-  const saveUser = ({ id, platform, gender, timezone, locale, picture_url, first_name, last_name }) => {
+  const saveUser = ({
+    id,
+    platform,
+    gender = 'unknown',
+    timezone = null,
+    locale = null,
+    picture_url,
+    first_name,
+    last_name
+  }) => {
     const userId = platform + ':' + id
     const userRow = {
       id: userId,
       userId: id,
-      platform: platform,
-      gender: gender || 'unknown',
-      timezone: timezone || null,
-      locale: locale || null,
+      platform,
+      gender,
+      timezone,
+      locale,
       created_on: moment(new Date()).toISOString(),
       picture_url: picture_url,
       last_name: last_name,
@@ -118,9 +130,9 @@ module.exports = ({ sqlite, postgres }) => {
     return kvsInstance
   }
 
-  const kvsGet = (...args) => getKvs().then(instance => instance.get.apply(null, args))
+  const kvsGet = (...args) => getKvs().then(instance => instance.get(...args))
 
-  const kvsSet = (...args) => getKvs().then(instance => instance.set.apply(null, args))
+  const kvsSet = (...args) => getKvs().then(instance => instance.set(...args))
 
   return {
     get: getDb,
