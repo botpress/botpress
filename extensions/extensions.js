@@ -11,16 +11,18 @@ function requireEdition(file, edition) {
   } else if (!exists) {
     return null
   } else {
-    return '/extensions/' + enterprisePath + edition
+    return path.join('/extensions/', enterprisePath, edition)
   }
 }
 
 function requireExtension(file, edition) {
   const editions = ['ultimate', 'pro', 'lite']
   edition = edition ? edition : process.env.BOTPRESS_EDITION || 'lite'
+  file = path.normalize(file)
 
-  const length = '/extensions/lite/'.length
-  const start = file.indexOf('/extensions/lite/')
+  const extLitePath = path.normalize('/extensions/lite/')
+  const length = extLitePath.length
+  const start = file.indexOf(extLitePath)
 
   file = file.substr(start + length)
   const upTo = file.indexOf('?') > 0 ? file.indexOf('?') : file.length

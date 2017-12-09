@@ -23,12 +23,13 @@ As contributors you should be respectful and considerate of others - both contri
 
   To run local PostgreSQL server at the command prompt.
   ```
+  # MacOS
   docker run -p 5432:5432 -e POSTGRES_USER=$USER postgres
+  # Windows PowerShell
+  docker run -p 5432:5432 -e POSTGRES_USER="$env:UserName postgres
   ```
-  notes:
+  note:
   * Press `CTRL-c` to stop it.
-  * Windows Command Prompt: replace `$USER` with `%USERNAME%`
-  * Windows PowerShell: replace `$USER` with `$env:UserName`
 
   To run the tests run at the command prompt.
   ```
@@ -39,7 +40,7 @@ As contributors you should be respectful and considerate of others - both contri
 
   To lint the code run at the command prompt.
   ```
-  npm run lint
+  npm run precommit
   ```
 
 * If you do find any issues or think of a feature please [create a Github issue](https://help.github.com/articles/creating-an-issue/) for this first. Discuss things transparently and get community feedback.
