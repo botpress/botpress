@@ -1,5 +1,10 @@
+:global(.storm-diagrams-canvas .node) {
+  opacity: 0.9;
+}
+
 :global(.storm-diagrams-canvas .node.selected) > .node-container {
   border-color: #028aee !important;
+  opacity: 0.95;
 }
 
 .node-container {
