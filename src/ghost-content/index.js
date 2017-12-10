@@ -44,30 +44,31 @@ module.exports = ({ logger, db, projectLocation }) => {
     const folderPath = path.resolve(projectLocation, folder)
     return {
       folderPath,
-      folder: path.relative(projectLocation, folderPath)
+      normalizedFolderName: path.relative(projectLocation, folderPath)
     }
   }
 
   const addFolder = async (folder, filesGlob) => {
-    const f = normalizeFolder(folder)
-    const files = await globAsync(filesGlob, { cwd: f.folderPath })
-    await Promise.map(files, file => recordFile(f.folderPath, f.folder, file))
+    const { folderPath, normalizedFolderName } = normalizeFolder(folder)
+    const files = await globAsync(filesGlob, { cwd: folderPath })
+    await Promise.map(files, file => recordFile(folderPath, normalizedFolderName, file))
   }
 
   const recordRevision = async (folder, file, content) => {
     const knex = await db.get()
 
-    const f = normalizeFolder(folder)
-    folder = f.folder
+    const { normalizedFolderName } = normalizeFolder(folder)
 
     const id = await knex('ghost_content')
-      .where({ folder, file })
+      .where({ folder: normalizedFolderName, file })
       .select('id')
       .get(0)
       .get('id')
 
     if (!id) {
-      throw new Error(`No Ghost content for file: ${file} in folder: ${folder}. Cannot record the new revision.`)
+      throw new Error(
+        `No Ghost content for file: ${file} in folder: ${normalizedFolderName}. Cannot record the new revision.`
+      )
     }
 
     const revision = uuid.v4()
@@ -97,10 +98,10 @@ module.exports = ({ logger, db, projectLocation }) => {
 
   const readFile = async (folder, file) => {
     const knex = await db.get()
-    const f = normalizeFolder(folder)
+    const { normalizedFolderName } = normalizeFolder(folder)
     return knex('ghost_content')
       .select('content')
-      .where({ folder: f.folder, file })
+      .where({ folder: normalizedFolderName, file })
       .get(0)
       .get('content')
   }
