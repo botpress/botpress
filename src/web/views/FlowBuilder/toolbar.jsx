@@ -1,7 +1,7 @@
 import React from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { Button, OverlayTrigger, Tooltip } from 'react-bootstrap'
+import { Button, OverlayTrigger, Tooltip, DropdownButton, MenuItem } from 'react-bootstrap'
 
 import _ from 'lodash'
 
@@ -129,6 +129,11 @@ class Toolbar extends React.Component {
               <i className="material-icons">add_box</i>
             </OverlayTrigger>
           </Button>
+
+          <DropdownButton title="Insert skill" id="toolbar-insert-skill">
+            <MenuItem eventKey="1">Dropdown link</MenuItem>
+            <MenuItem eventKey="2">Dropdown link</MenuItem>
+          </DropdownButton>
 
           <div className={style.separator} />
 
