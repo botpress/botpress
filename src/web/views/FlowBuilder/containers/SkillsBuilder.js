@@ -3,7 +3,7 @@
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
-// import { updateFlowNode, updateFlow, removeFlowNode, switchFlow, deleteFlow, duplicateFlow } from '~/actions'
+import { cancelNewSkill } from '~/actions'
 import { getCurrentSkill } from '~/reducers'
 
 import _ from 'lodash'
@@ -18,7 +18,7 @@ const mapStateToProps = (state, ownProps) => ({
 const mapDispatchToProps = (dispatch, ownProps) =>
   bindActionCreators(
     {
-      hello: () => {} // TODO
+      cancelNewSkill
     },
     dispatch
   )
