@@ -90,6 +90,8 @@ export default class InjectedModuleView extends React.Component {
       axios: axios
     }
 
-    return <InjectedComponent component={moduleComponent} name={this.props.moduleName} bp={bp} />
+    const extraProps = this.props.extraProps || {}
+
+    return <InjectedComponent component={moduleComponent} name={this.props.moduleName} bp={bp} {...extraProps} />
   }
 }
