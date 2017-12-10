@@ -69,6 +69,22 @@ class Toolbar extends React.Component {
       this.props.onCreateFlow(name)
     }
 
+    const noSkills = (
+      <MenuItem eventKey="1" disabled={true}>
+        No skills installed
+      </MenuItem>
+    )
+
+    const insertSkillsDropdown = (
+      <DropdownButton title="Insert skill" id="toolbar-insert-skill">
+        <MenuItem header>Installed skills</MenuItem>
+        {!this.props.skills.length && noSkills}
+        {this.props.skills.map((skill, i) => {
+          return <MenuItem eventKey={i}>{skill.name}</MenuItem>
+        })}
+      </DropdownButton>
+    )
+
     return (
       <div className={style.wrapper}>
         <div className={style.toolbar}>
@@ -130,10 +146,7 @@ class Toolbar extends React.Component {
             </OverlayTrigger>
           </Button>
 
-          <DropdownButton title="Insert skill" id="toolbar-insert-skill">
-            <MenuItem eventKey="1">Dropdown link</MenuItem>
-            <MenuItem eventKey="2">Dropdown link</MenuItem>
-          </DropdownButton>
+          {insertSkillsDropdown}
 
           <div className={style.separator} />
 

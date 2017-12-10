@@ -14,7 +14,8 @@ const mapStateToProps = (state, ownProps) => ({
   currentFlowNode: getCurrentFlowNode(state),
   dirtyFlows: getDirtyFlows(state),
   canUndo: canFlowUndo(state),
-  canRedo: canFlowRedo(state)
+  canRedo: canFlowRedo(state),
+  skills: state.skills
 })
 
 const mapDispatchToProps = (dispatch, ownProps) =>
