@@ -4,13 +4,18 @@ import classnames from 'classnames'
 
 export default class SkillsBuilder extends React.Component {
   render() {
-    const show = true
+    const show = this.props.opened
     const onHide = () => false
+
+    // Size of modal
+    // __
 
     const onClose = () => false
     const onSubmit = () => false
 
     const canSubmit = true
+
+    console.log('---->', this.props)
 
     return (
       <Modal animation={false} show={show} onHide={onHide}>

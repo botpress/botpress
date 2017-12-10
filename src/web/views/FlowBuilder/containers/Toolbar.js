@@ -2,7 +2,7 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import _ from 'lodash'
 
-import { setDiagramAction, updateFlow, flowEditorRedo, flowEditorUndo } from '~/actions'
+import { setDiagramAction, updateFlow, flowEditorRedo, flowEditorUndo, insertNewSkill } from '~/actions'
 import { getCurrentFlow, getCurrentFlowNode, getDirtyFlows, canFlowUndo, canFlowRedo } from '~/reducers'
 
 import Toolbar from '../toolbar.jsx'
@@ -24,7 +24,8 @@ const mapDispatchToProps = (dispatch, ownProps) =>
       setDiagramAction: setDiagramAction,
       updateFlow: updateFlow,
       undo: flowEditorUndo,
-      redo: flowEditorRedo
+      redo: flowEditorRedo,
+      insertSkill: insertNewSkill
     },
     dispatch
   )
