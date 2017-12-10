@@ -79,6 +79,7 @@
     "expose-loader": "^0.7.1",
     "extract-text-webpack-plugin": "^3.0.1",
     "file-loader": "^0.9.0",
+    "halogen": "^0.2.0",
     "hard-source-webpack-plugin": "^0.4.9",
     "history": "^2.1.2",
     "husky": "0.14.3",

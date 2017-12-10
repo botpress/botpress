@@ -2,6 +2,9 @@ import React from 'react'
 import { Modal, Button, Alert } from 'react-bootstrap'
 import classnames from 'classnames'
 import find from 'lodash/find'
+import Loader from 'halogen/BounceLoader'
+
+const style = require('./style.scss')
 
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
 
@@ -26,7 +29,8 @@ class WrappedInjectedModule extends React.Component {
 export default class SkillsBuilder extends React.Component {
   state = {
     moduleProps: {},
-    canSubmit: false
+    canSubmit: false,
+    loading: false
   }
 
   componentDidMount() {
@@ -37,7 +41,8 @@ export default class SkillsBuilder extends React.Component {
     if (nextProps.skillId !== this.props.skillId) {
       this.setState({
         moduleProps: this.buildModuleProps(nextProps.data),
-        canSubmit: false
+        canSubmit: false,
+        loading: false
       })
     }
   }
@@ -52,6 +57,19 @@ export default class SkillsBuilder extends React.Component {
 
   onValidChanged = valid => {
     this.setState({ canSubmit: valid })
+  }
+
+  renderLoading = () => {
+    if (!this.state.loading) {
+      return null
+    }
+
+    return (
+      <div className={style.loadingContainer}>
+        <h2>Generating your skill flow...</h2>
+        <Loader color="#26A65B" size="36px" margin="4px" />
+      </div>
+    )
   }
 
   buildModuleProps = data => ({
@@ -70,10 +88,11 @@ export default class SkillsBuilder extends React.Component {
 
     const skill = find(this.props.installedSkills, { id: this.props.skillId })
 
-    const onSubmit = () => false
-    let canSubmit = false
-
-    console.log('---->', this.props)
+    const onSubmit = () =>
+      this.setState({
+        loading: true,
+        canSubmit: false
+      })
 
     return (
       <Modal animation={false} show={show} onHide={onHide} backdrop="static">
@@ -81,11 +100,14 @@ export default class SkillsBuilder extends React.Component {
           <Modal.Title>Insert a new skill | {skill && skill.name}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <WrappedInjectedModule
-            moduleName={skill && skill.id}
-            onNotFound={this.renderModuleNotFound}
-            extraProps={this.state.moduleProps}
-          />
+          {this.renderLoading()}
+          {!this.state.loading && (
+            <WrappedInjectedModule
+              moduleName={skill && skill.id}
+              onNotFound={this.renderModuleNotFound}
+              extraProps={this.state.moduleProps}
+            />
+          )}
         </Modal.Body>
         <Modal.Footer>
           <Button onClick={onCancel}>Cancel</Button>
