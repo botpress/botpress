@@ -28,12 +28,13 @@ export default class ConditionModalForm extends Component {
     if (item && item.node) {
       let typeOfTransition = item.node.indexOf('.') !== -1 ? 'subflow' : 'node'
       typeOfTransition = item.node === 'END' ? 'end' : typeOfTransition
+      typeOfTransition = item.node === '#' ? 'return' : typeOfTransition
 
       this.setState({
         typeOfTransition,
         condition: item.condition,
         flowToSubflow: typeOfTransition === 'subflow' ? item.node : null,
-        flowToNode: typeOfTransition === 'node' ? { label: item.node, value: item.node } : null
+        flowToNode: typeOfTransition === 'node' ? item.node : null
       })
     } else {
       this.resetForm()
@@ -47,8 +48,8 @@ export default class ConditionModalForm extends Component {
     const nodeOptions = this.getNodeOptions()
     this.setState({
       typeOfTransition: type,
-      flowToSubflow: this.state.flowToSubflow || (subflowOptions && subflowOptions[0]),
-      flowToNode: this.state.flowToNode || (nodeOptions && nodeOptions[0])
+      flowToSubflow: this.state.flowToSubflow || _.get(subflowOptions, '[0].value'),
+      flowToNode: this.state.flowToNode || _.get(nodeOptions, '[0].value')
     })
   }
 
@@ -101,11 +102,13 @@ export default class ConditionModalForm extends Component {
       const payload = { condition: this.state.condition }
 
       if (this.state.typeOfTransition === 'subflow') {
-        payload.node = this.state.flowToSubflow
+        payload.node = _.get(this.state, 'flowToSubflow.value') || _.get(this.state, 'flowToSubflow')
       } else if (this.state.typeOfTransition === 'end') {
         payload.node = 'END'
       } else if (this.state.typeOfTransition === 'node') {
         payload.node = _.get(this.state, 'flowToNode.value') || ''
+      } else if (this.state.typeOfTransition === 'return') {
+        payload.node = '#'
       } else {
         payload.node = ''
       }
@@ -182,6 +185,12 @@ export default class ConditionModalForm extends Component {
           <div className={style.section}>
             <Radio checked={this.state.typeOfTransition === 'end'} onChange={() => this.changeTransitionType('end')}>
               End flow <span className={style.endBloc} />
+            </Radio>
+            <Radio
+              checked={this.state.typeOfTransition === 'return'}
+              onChange={() => this.changeTransitionType('return')}
+            >
+              Return to previous flow <span className={style.returnBloc} />
             </Radio>
             <Radio checked={this.state.typeOfTransition === 'node'} onChange={() => this.changeTransitionType('node')}>
               Transition to node <span className={style.nodeBloc} />

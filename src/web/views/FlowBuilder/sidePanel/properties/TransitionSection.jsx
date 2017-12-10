@@ -68,6 +68,10 @@ export default class TransitionSection extends Component {
         return <Label bsStyle="warning">End</Label>
       }
 
+      if (i.node === '#') {
+        return <Label bsStyle="warning">Return</Label>
+      }
+
       if (i.node.includes('.flow.json')) {
         return <Label bsStyle="primary">{i.node}</Label>
       }

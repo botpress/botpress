@@ -7,16 +7,28 @@ h5 {
   border-left: 3px solid #ddd;
 }
 
-.endBloc, .nodeBloc, .subflowBloc {
+.endBloc,
+.nodeBloc,
+.subflowBloc,
+.returnBloc {
   display: inline-block;
   width: 20px;
   height: 15px;
   margin-top: 5px;
 }
 
-.endBloc { background-color: #e62eea; }
-.nodeBloc{ background-color: black; }
-.subflowBloc { background-color: blue; }
+.returnBloc {
+  background-color: darkcyan;
+}
+.endBloc {
+  background-color: #e62eea;
+}
+.nodeBloc {
+  background-color: black;
+}
+.subflowBloc {
+  background-color: blue;
+}
 
 .tip {
   font-size: 90%;
