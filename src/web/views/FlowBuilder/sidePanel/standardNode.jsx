@@ -1,9 +1,8 @@
 import React, { Component } from 'react'
 import classnames from 'classnames'
-import axios from 'axios'
 import _ from 'lodash'
 
-import { Row, Col, Panel, Button } from 'react-bootstrap'
+import { Panel, Button } from 'react-bootstrap'
 
 import EditableInput from '../common/EditableInput'
 import ActionItem from '../common/action'
@@ -13,23 +12,6 @@ const style = require('./style.scss')
 export default class SidePanel extends Component {
   state = {
     currentSection: null
-  }
-
-  onAddActionClicked = options => {
-    const { node } = this.props
-    // console.log(options)
-    const action = options.type === 'message' ? '@' + options.message : options.functionName
-
-    const section = this.state.currentSection
-    const copy = [...(node[section] || []), action]
-
-    this.props.updateNode({
-      [section]: copy
-    })
-
-    this.setState({
-      currentSection: null
-    })
   }
 
   removeAction = (name, index) => {
@@ -132,10 +114,6 @@ export default class SidePanel extends Component {
 
   render() {
     const { node } = this.props
-
-    const onEnter = node.onEnter || []
-    const onReceive = node.onReceive || []
-    const next = node.next || []
 
     return (
       <div className={classnames(style.node, style['standard-node'])}>

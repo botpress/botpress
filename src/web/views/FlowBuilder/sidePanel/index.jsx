@@ -6,6 +6,7 @@ import _ from 'lodash'
 import classnames from 'classnames'
 
 import StandardNode from './properties/standardNode'
+import SkillCallNode from './properties/skillCallNode'
 import FlowInformation from './properties/flowInformation'
 
 import FlowsList from './flows/list'
@@ -45,7 +46,7 @@ export default class SidePanel extends Component {
         <div className={classnames(style.panelDown)}>
           <Tabs animation={false}>
             <Tab eventKey={3} title={objectPropertiesTitle}>
-              {this.renderBefore()}
+              {this.renderNodeProperties()}
             </Tab>
           </Tabs>
         </div>
@@ -53,10 +54,23 @@ export default class SidePanel extends Component {
     )
   }
 
-  renderBefore() {
+  renderNodeProperties() {
     const subflows = _.filter(_.map(this.props.flows, f => f.name), f => f !== _.get(this.props, 'currentFlow.name'))
+    const flowType = _.get(this.props, 'currentFlowNode.type') || (this.props.currentFlowNode ? 'standard' : null)
 
-    if (this.props.currentFlowNode) {
+    if (flowType === 'skill-call') {
+      return (
+        <SkillCallNode
+          flow={this.props.currentFlow}
+          subflows={subflows}
+          node={this.props.currentFlowNode}
+          updateNode={this.props.updateFlowNode}
+          updateFlow={this.props.updateFlow}
+        />
+      )
+    }
+
+    if (flowType === 'standard') {
       return (
         <StandardNode
           flow={this.props.currentFlow}

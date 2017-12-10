@@ -18,8 +18,19 @@ const {
 } = require('storm-react-diagrams')
 
 import { StandardNodeModel, StandardWidgetFactory } from './nodes/StandardNode'
+import { SkillCallNodeModel, SkillCallWidgetFactory } from './nodes/SkillCallNode'
 
 const style = require('./style.scss')
+
+const passThroughNodeProps = ['name', 'onEnter', 'onReceive', 'next', 'skill']
+
+const createNodeModel = (node, props) => {
+  if (node.type && node.type === 'skill-call') {
+    return new SkillCallNodeModel({ ...props })
+  } else {
+    return new StandardNodeModel({ ...props })
+  }
+}
 
 export default class FlowBuilder extends Component {
   constructor(props) {
@@ -30,6 +41,7 @@ export default class FlowBuilder extends Component {
 
     this.diagramEngine.registerNodeFactory(new DefaultNodeFactory())
     this.diagramEngine.registerNodeFactory(new StandardWidgetFactory())
+    this.diagramEngine.registerNodeFactory(new SkillCallWidgetFactory())
 
     this.diagramEngine.registerLinkFactory(new DefaultLinkFactory())
 
@@ -57,7 +69,7 @@ export default class FlowBuilder extends Component {
     }
 
     const nodes = currentFlow.nodes.map(node => {
-      const model = new StandardNodeModel({ ...node, isStartNode: currentFlow.startNode === node.name })
+      const model = createNodeModel(node, { ...node, isStartNode: currentFlow.startNode === node.name })
       model.x = model.oldX = node.x
       model.y = model.oldY = node.y
 
@@ -89,7 +101,7 @@ export default class FlowBuilder extends Component {
       const target = next.node
       if (/END/i.test(target)) {
         // Handle end connection
-      } else if (target.indexOf('.') !== -1) {
+      } else if (/\.flow/i.test(target)) {
         // Handle subflow connection
       } else {
         const sourcePort = node.ports['out' + index]
@@ -151,10 +163,7 @@ export default class FlowBuilder extends Component {
           this.syncNode(node, model, snapshot())
         } else {
           model.setData({
-            name: node.name,
-            onEnter: node.onEnter,
-            onReceive: node.onReceive,
-            next: node.next,
+            ..._.pick(node, passThroughNodeProps),
             isStartNode: this.props.currentFlow.startNode === node.name
           })
         }
@@ -164,7 +173,7 @@ export default class FlowBuilder extends Component {
   }
 
   addNode(node) {
-    const model = new StandardNodeModel({ ...node, isStartNode: this.props.currentFlow.startNode === node.name })
+    const model = createNodeModel(node, { ...node, isStartNode: this.props.currentFlow.startNode === node.name })
     model.x = model.oldX = node.x
     model.y = model.oldY = node.y
     this.activeModel.addNode(model)
@@ -176,10 +185,7 @@ export default class FlowBuilder extends Component {
     }, 150)
 
     model.setData({
-      name: node.name,
-      onEnter: node.onEnter,
-      onReceive: node.onReceive,
-      next: node.next,
+      ..._.pick(node, passThroughNodeProps),
       isStartNode: this.props.currentFlow.startNode === node.name
     })
 
@@ -188,10 +194,7 @@ export default class FlowBuilder extends Component {
 
   syncNode(node, model, snapshot) {
     model.setData({
-      name: node.name,
-      onEnter: node.onEnter,
-      onReceive: node.onReceive,
-      next: node.next,
+      ..._.pick(node, passThroughNodeProps),
       isStartNode: this.props.currentFlow.startNode === node.name
     })
 

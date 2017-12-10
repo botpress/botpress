@@ -122,14 +122,16 @@ export default class FlowProvider extends EventEmitter2 {
       throw new Error(schemaError)
     }
 
+    // What goes in the ui.json file
     const uiContent = {
       nodes: flow.nodes.map(node => ({
         id: node.id,
-        position: node.position
+        position: { x: node.x, y: node.y }
       })),
       links: flow.links
     }
 
+    // What goes in the .flow.json file
     const flowContent = {
       version: flow.version,
       startNode: flow.startNode,
@@ -137,7 +139,12 @@ export default class FlowProvider extends EventEmitter2 {
       nodes: flow.nodes
     }
 
-    flowContent.nodes.forEach(node => delete node['position'])
+    flowContent.nodes.forEach(node => {
+      // We remove properties that don't belong in the .flow.json file
+      delete node['x']
+      delete node['y']
+      delete node['lastModified']
+    })
 
     const relDir = this.botfile.flowsDir || './flows'
     const flowPath = path.resolve(this.projectLocation, relDir, './' + flow.location)
