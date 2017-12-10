@@ -24,7 +24,7 @@ export class StandardPortWidget extends React.Component {
   renderSubflowNode() {
     const node = this.props.node
     const index = Number(this.props.name.replace('out', ''))
-    const subflow = node.next[index].node
+    const subflow = node.next[index].node.replace(/\.flow\.json/, '')
 
     return <div className={style.label}>{subflow}</div>
   }
@@ -46,11 +46,7 @@ export class StandardPortWidget extends React.Component {
       returnTo = '@calling'
     }
 
-    return (
-      <div className={style.label}>
-        Return + <strong>{returnTo}</strong>
-      </div>
-    )
+    return <div className={style.label}>Return ({returnTo})</div>
   }
 
   render() {
