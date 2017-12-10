@@ -2,6 +2,8 @@ import React from 'react'
 import { Modal, Button, Alert } from 'react-bootstrap'
 import classnames from 'classnames'
 
+import find from 'lodash/find'
+
 export default class SkillsBuilder extends React.Component {
   render() {
     const show = this.props.opened
@@ -11,6 +13,8 @@ export default class SkillsBuilder extends React.Component {
     // Size of modal
     // __
 
+    const skill = find(this.props.installedSkills, { id: this.props.skillId })
+
     const onSubmit = () => false
     const canSubmit = true
 
@@ -19,7 +23,7 @@ export default class SkillsBuilder extends React.Component {
     return (
       <Modal animation={false} show={show} onHide={onHide} backdrop="static">
         <Modal.Header closeButton>
-          <Modal.Title>Insert a new skill | ...todo...</Modal.Title>
+          <Modal.Title>Insert a new skill | {skill && skill.name}</Modal.Title>
         </Modal.Header>
         <Modal.Body>Hello, there we should inject the component's view</Modal.Body>
         <Modal.Footer>
