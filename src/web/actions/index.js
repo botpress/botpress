@@ -118,3 +118,6 @@ export const replaceNotifications = allNotifications => dispatch => {
 export const addNotifications = notifications => dispatch => {
   dispatch(newNotificationsReceived(notifications))
 }
+
+// Skills
+export const insertNewSkill = createAction('SKILLS/INSERT')

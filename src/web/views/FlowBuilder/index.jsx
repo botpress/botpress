@@ -9,6 +9,7 @@ import Toolbar from './containers/Toolbar'
 import Diagram from './containers/Diagram'
 import SidePanel from './containers/SidePanel'
 import Topbar from './containers/Topbar'
+import SkillsBuilder from './containers/SkillsBuilder'
 
 const style = require('./style.scss')
 
@@ -56,6 +57,7 @@ export default class FlowBuilder extends Component {
               />
             </div>
           </SplitPane>
+          <SkillsBuilder />
         </div>
       </ContentWrapper>
     )
