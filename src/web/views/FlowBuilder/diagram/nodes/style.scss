@@ -116,6 +116,12 @@
   border-bottom-right-radius: 20px;
 }
 
+.returnPort :global(.port) {
+  background-color: darkcyan !important;
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
+}
+
 .section-next .portContainer {
   position: absolute;
   right: -20px;
@@ -144,6 +150,10 @@
 
 .subflowPort .label {
   color: blue;
+}
+
+.returnPort .label {
+  color: darkcyan;
 }
 
 .endPort .label {

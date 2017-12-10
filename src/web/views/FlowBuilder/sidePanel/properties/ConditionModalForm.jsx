@@ -28,13 +28,14 @@ export default class ConditionModalForm extends Component {
     if (item && item.node) {
       let typeOfTransition = item.node.indexOf('.') !== -1 ? 'subflow' : 'node'
       typeOfTransition = item.node === 'END' ? 'end' : typeOfTransition
-      typeOfTransition = item.node === '#' ? 'return' : typeOfTransition
+      typeOfTransition = /^#/.test(item.node) ? 'return' : typeOfTransition
 
       this.setState({
         typeOfTransition,
         condition: item.condition,
         flowToSubflow: typeOfTransition === 'subflow' ? item.node : null,
-        flowToNode: typeOfTransition === 'node' ? item.node : null
+        flowToNode: typeOfTransition === 'node' ? item.node : null,
+        returnToNode: typeOfTransition === 'return' ? item.node.substr(1) : ''
       })
     } else {
       this.resetForm()
@@ -91,6 +92,7 @@ export default class ConditionModalForm extends Component {
       typeOfTransition: 'end',
       flowToSubflow: null,
       flowToNode: null,
+      returnToNode: '',
       conditionError: null,
       transitionError: null,
       condition: ''
@@ -108,7 +110,7 @@ export default class ConditionModalForm extends Component {
       } else if (this.state.typeOfTransition === 'node') {
         payload.node = _.get(this.state, 'flowToNode.value') || ''
       } else if (this.state.typeOfTransition === 'return') {
-        payload.node = '#'
+        payload.node = '#' + this.state.returnToNode
       } else {
         payload.node = ''
       }
@@ -135,6 +137,29 @@ export default class ConditionModalForm extends Component {
           this.setState({ flowToSubflow: val && val.value })
         }}
       />
+    )
+  }
+
+  renderReturnToNode() {
+    const updateNode = value =>
+      this.setState({
+        returnToNode: value
+      })
+
+    return (
+      <div className={style.returnToNodeSection}>
+        <div>Return to node called:</div>
+        <input type="text" value={this.state.returnToNode} onChange={e => updateNode(e.target.value)} />
+        <div>
+          <input
+            type="checkbox"
+            id="rPreviousNode"
+            checked={_.isEmpty(this.state.returnToNode)}
+            onChange={() => updateNode('')}
+          />
+          <label htmlFor="rPreviousNode">Return to calling node</label>
+        </div>
+      </div>
     )
   }
 
@@ -192,6 +217,7 @@ export default class ConditionModalForm extends Component {
             >
               Return to previous flow <span className={style.returnBloc} />
             </Radio>
+            {this.state.typeOfTransition === 'return' && this.renderReturnToNode()}
             <Radio checked={this.state.typeOfTransition === 'node'} onChange={() => this.changeTransitionType('node')}>
               Transition to node <span className={style.nodeBloc} />
             </Radio>

@@ -362,8 +362,6 @@ class DialogEngine {
   }
 
   _gotoPreviousFlow(nodeName, context) {
-    console.log('PREVIEW FLOW', nodeName, context)
-
     if (!context.flowStack) {
       context.flowStack = []
     }
@@ -378,7 +376,7 @@ class DialogEngine {
     } else {
       let { flow, node } = _.last(context.flowStack)
 
-      if (nodeName !== '#' && nodeName !== '##') {
+      if (nodeName !== '#') {
         node = nodeName.substr(1)
       }
 

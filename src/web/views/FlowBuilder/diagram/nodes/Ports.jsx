@@ -37,6 +37,22 @@ export class StandardPortWidget extends React.Component {
     return <div className={style.label}>Start</div>
   }
 
+  renderReturnNode() {
+    const node = this.props.node
+    const index = Number(this.props.name.replace('out', ''))
+    let returnTo = node.next[index].node.substr(1)
+
+    if (!returnTo.length) {
+      returnTo = '@calling'
+    }
+
+    return (
+      <div className={style.label}>
+        Return + <strong>{returnTo}</strong>
+      </div>
+    )
+  }
+
   render() {
     let type = 'normal'
     let missingConnection = false
@@ -53,6 +69,8 @@ export class StandardPortWidget extends React.Component {
         type = 'end'
       } else if (/\.flow\.json/i.test(nextNode.node)) {
         type = 'subflow'
+      } else if (/^#/i.test(nextNode.node)) {
+        type = 'return'
       } else if (nextNode.node === '') {
         missingConnection = true
       }
@@ -62,7 +80,8 @@ export class StandardPortWidget extends React.Component {
       [style.startPort]: type === 'start',
       [style.subflowPort]: type === 'subflow',
       [style.endPort]: type === 'end',
-      [style.portLabel]: /end|subflow|start/i.test(type),
+      [style.returnPort]: type === 'return',
+      [style.portLabel]: /end|subflow|start|return/i.test(type),
       [style.missingConnection]: missingConnection
     })
 
@@ -72,6 +91,7 @@ export class StandardPortWidget extends React.Component {
         {type === 'subflow' && this.renderSubflowNode()}
         {type === 'end' && this.renderEndNode()}
         {type === 'start' && this.renderStartNode()}
+        {type === 'return' && this.renderReturnNode()}
       </div>
     )
   }
