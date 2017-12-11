@@ -26,7 +26,7 @@ As contributors you should be respectful and considerate of others - both contri
   # MacOS
   docker run -p 5432:5432 -e POSTGRES_USER=$USER postgres
   # Windows PowerShell
-  docker run -p 5432:5432 -e POSTGRES_USER="$env:UserName postgres
+  docker run -p 5432:5432 -e POSTGRES_USER=$env:UserName postgres
   ```
   note:
   * Press `CTRL-c` to stop it.
@@ -40,7 +40,7 @@ As contributors you should be respectful and considerate of others - both contri
 
   To lint the code run at the command prompt.
   ```
-  npm run precommit
+  npm run lint
   ```
 
 * If you do find any issues or think of a feature please [create a Github issue](https://help.github.com/articles/creating-an-issue/) for this first. Discuss things transparently and get community feedback.
