@@ -234,6 +234,7 @@ class botpress {
       convo,
       umm,
       users,
+      ghostManager,
       contentManager,
       dialogEngine,
       dialogJanitor,

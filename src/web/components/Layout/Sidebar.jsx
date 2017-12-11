@@ -109,6 +109,7 @@ class Sidebar extends React.Component {
     const modulesRules = { res: 'modules/list', op: 'read' }
     const ummRules = { res: 'umm', op: 'read' }
     const contentRules = { res: 'content', op: 'read' }
+    const ghostRules = { res: 'ghost_content', op: 'read' }
     const flowsRules = { res: 'flows', op: 'read' }
     const middlewareRules = { res: 'middleware', op: 'read' }
 
@@ -116,6 +117,7 @@ class Sidebar extends React.Component {
     const modulesPaths = ['/manage']
     const ummPaths = ['/umm']
     const contentPaths = ['/content']
+    const ghostPaths = ['/ghost-content']
     const flowsPaths = ['/flows']
     const middlewarePaths = ['/middleware']
 
@@ -125,6 +127,7 @@ class Sidebar extends React.Component {
         <ul className="nav">
           {this.renderBasicItem('Dashboard', 'dashboard', dashboardRules, dashboardPaths, 'dashboard')}
           {this.renderBasicItem('Modules', 'manage', modulesRules, modulesPaths, 'build')}
+          {this.renderBasicItem('Ghost Content', 'ghost-content', ghostRules, ghostPaths, 'content_copy')}
           {this.renderBasicItem('Content', 'content', contentRules, contentPaths, 'description')}
           {this.renderBasicItem('Flows', 'flows', flowsRules, flowsPaths, 'device_hub')}
           {this.renderBasicItem('Middleware', 'middleware', middlewareRules, middlewarePaths, 'settings')}
