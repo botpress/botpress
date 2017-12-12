@@ -4,12 +4,18 @@ import Promise from 'bluebird'
 import glob from 'glob'
 import uuid from 'uuid'
 import get from 'lodash/get'
+import partition from 'lodash/partition'
 
 Promise.promisifyAll(fs)
 const globAsync = Promise.promisify(glob)
 
+export const REVISIONS_FILE_NAME = '.ghost-revisions'
+
 module.exports = ({ logger, db, projectLocation }) => {
-  logger.info('Ghost Content Manager initialized')
+  logger.info('[Ghost Content Manager] Initialized')
+
+  const pendingRevisionsByFolder = {}
+  const trackedFolders = []
 
   const upsert = ({ knex, tableName, where, data, idField = 'id' }) =>
     knex(tableName)
@@ -48,11 +54,89 @@ module.exports = ({ logger, db, projectLocation }) => {
     }
   }
 
+  const getPendingRevisions = async normalizedFolderName => {
+    const knex = await db.get()
+
+    return knex('ghost_revisions')
+      .join('ghost_content', 'ghost_content.id', '=', 'ghost_revisions.content_id')
+      .where('ghost_content.folder', normalizedFolderName)
+      .select(
+        'ghost_content.file',
+        'ghost_revisions.id',
+        'ghost_revisions.revision',
+        'ghost_revisions.created_on',
+        'ghost_revisions.created_by'
+      )
+      .then()
+  }
+
   const addFolder = async (folder, filesGlob) => {
     const { folderPath, normalizedFolderName } = normalizeFolder(folder)
-    const files = await globAsync(filesGlob, { cwd: folderPath })
-    await Promise.map(files, file => recordFile(folderPath, normalizedFolderName, file))
+
+    logger.debug(`[Ghost Content Manager] adding folder ${normalizedFolderName}`)
+    trackedFolders.push(normalizedFolderName)
+
+    // read known revisions
+    const revisionsFile = path.join(folderPath, REVISIONS_FILE_NAME)
+    const fileRevisionsPromise = fs
+      .readFileAsync(revisionsFile, 'utf-8')
+      .catch({ code: 'ENOENT' }, () => '')
+      .then(content =>
+        content
+          .trim()
+          .split('\n')
+          .map(s => s.trim())
+          .filter(s => !!s && !s.startsWith('#'))
+          .reduce((acc, r) => {
+            acc[r] = true
+            return acc
+          }, {})
+      )
+
+    const [knownRevisions, dbRevisions] = await Promise.all([
+      fileRevisionsPromise,
+      getPendingRevisions(normalizedFolderName)
+    ])
+
+    const [revisionsToDelete, remainingRevisions] = partition(dbRevisions, ({ revision }) => knownRevisions[revision])
+
+    const knex = await db.get()
+
+    // cleanup known revisions
+    if (revisionsToDelete.length) {
+      logger.debug(
+        `[Ghost Content Manager] ${normalizedFolderName}: deleting ${revisionsToDelete.length} known revision(s).`
+      )
+      await knex('ghost_revisions')
+        .whereIn('id', revisionsToDelete.map(({ id }) => id))
+        .del()
+    }
+
+    if (remainingRevisions.length) {
+      logger.debug(`[Ghost Content Manager] ${normalizedFolderName}: ${remainingRevisions.length} pending revision(s).`)
+      // record remaining revisions if any
+      pendingRevisionsByFolder[normalizedFolderName] = remainingRevisions
+    } else {
+      logger.debug(
+        `[Ghost Content Manager] ${normalizedFolderName} has no pending revisions, updating DB from the file system.`
+      )
+      // otherwise update the content in the DB
+      const files = await globAsync(filesGlob, { cwd: folderPath })
+      await Promise.map(files, file => recordFile(folderPath, normalizedFolderName, file))
+      // and also delete the fils no longer in the FS
+      await knex('ghost_content')
+        .whereNotIn('file', files)
+        .andWhere('folder', normalizedFolderName)
+        .del()
+        .then()
+    }
   }
+
+  const updatePendingForFolder = async normalizedFolderName => {
+    pendingRevisionsByFolder[normalizedFolderName] = await getPendingRevisions(normalizedFolderName)
+  }
+
+  const updatePendingForAllFolders = () => Promise.each(trackedFolders, updatePendingForFolder)
 
   const recordRevision = async (folder, file, content) => {
     const knex = await db.get()
@@ -86,11 +170,11 @@ module.exports = ({ logger, db, projectLocation }) => {
               revision,
               created_by: 'admin'
             })
-            .then()
         )
         .then(trx.commit)
+        .then(() => updatePendingForFolder(normalizedFolderName))
         .catch(err => {
-          logger.error(err)
+          logger.error('[Ghost Content Manager]', err)
           trx.rollback()
         })
     })
@@ -106,13 +190,7 @@ module.exports = ({ logger, db, projectLocation }) => {
       .get('content')
   }
 
-  const getPending = async () => {
-    const knex = await db.get()
-    return knex('ghost_revisions')
-      .join('ghost_content', 'ghost_content.id', '=', 'ghost_revisions.content_id')
-      .select('ghost_content.folder', 'ghost_content.file', 'ghost_revisions.revision', 'ghost_revisions.created_on')
-      .then()
-  }
+  const getPending = () => pendingRevisionsByFolder
 
   return {
     addFolder,
