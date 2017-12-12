@@ -260,7 +260,7 @@ module.exports = (bp, app) => {
   })
 
   app.secure('read', 'bot/ghost_content').get('/ghost_content/status', async (req, res) => {
-    res.send(await bp.ghostManager.getPending())
+    res.send(bp.ghostManager.getPending())
   })
 
   app.secure('read', 'bot/flows').get('/flows/all', async (req, res) => {
