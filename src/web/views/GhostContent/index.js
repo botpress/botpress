@@ -11,7 +11,7 @@ import ContentWrapper from '~/components/Layout/ContentWrapper'
 import PageHeader from '~/components/Layout/PageHeader'
 import Loading from '~/components/Util/Loading'
 
-const transformData = data => mapValues(groupBy(data, 'folder'), entries => groupBy(entries, 'file'))
+const transformData = data => mapValues(data, entries => groupBy(entries, 'file'))
 
 export default class GhostView extends Component {
   state = {
@@ -69,7 +69,34 @@ export default class GhostView extends Component {
     const { data } = this.state
     const folders = Object.keys(data).sort()
 
-    return <ul>{folders.map(folder => this.renderFolder(folder, data[folder]))}</ul>
+    if (!folders.length) {
+      return (
+        <Alert bsStyle="success">
+          <p>You don't have any ghost content in your DB, DB is in sync with the bot source code.</p>
+          <p>
+            Don't know what is ghost content? <a href="#">Read here</a> about this feature.
+          </p>
+        </Alert>
+      )
+    }
+
+    return (
+      <div>
+        <Alert bsStyle="warning">
+          <p>
+            Below is the list of ghost content present in the DB. You need to eventually sync it up with the bot source
+            code.&nbsp;
+            <strong>
+              <a href="#">Show me</a> how to do it
+            </strong>.
+          </p>
+          <p>
+            Don't know what is ghost content? <a href="#">Read here</a> about this feature.
+          </p>
+        </Alert>
+        <ul>{folders.map(folder => this.renderFolder(folder, data[folder]))}</ul>
+      </div>
+    )
   }
 
   renderBody() {
