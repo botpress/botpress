@@ -106,9 +106,18 @@ module.exports = ({ logger, db, projectLocation }) => {
       .get('content')
   }
 
+  const getPending = async () => {
+    const knex = await db.get()
+    return knex('ghost_revisions')
+      .join('ghost_content', 'ghost_content.id', '=', 'ghost_revisions.content_id')
+      .select('ghost_content.folder', 'ghost_content.file', 'ghost_revisions.revision', 'ghost_revisions.created_on')
+      .then()
+  }
+
   return {
     addFolder,
     recordRevision,
-    readFile
+    readFile,
+    getPending
   }
 }
