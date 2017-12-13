@@ -8,9 +8,9 @@ export const authEvents = new EventEmitter2()
 export const getToken = () => {
   const tokenStr = localStorage.getItem(storageKey)
 
-  if (!!tokenStr) {
+  if (tokenStr) {
     const token = JSON.parse(tokenStr)
-    axios.defaults.headers.common['authorization'] = token.token
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token.token}`
     return token
   }
 
@@ -39,7 +39,7 @@ export const setToken = token => {
     })
   )
 
-  axios.defaults.headers.common['authorization'] = token
+  axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
   authEvents.emit('new_token')
 }
 

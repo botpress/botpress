@@ -7,6 +7,7 @@ import install from './install'
 import uninstall from './uninstall'
 import migrate from './migrate'
 import list from './list'
+import { login, logout } from './auth'
 
 import { getBotpressVersion, collectArgs } from '../util'
 
@@ -69,6 +70,20 @@ program
   .command('migrate <fromVersion>')
   .description('Migrates the current bot from version X')
   .action(migrate)
+
+program
+  .command('login <bot-server-url>')
+  .description(
+    'Login to the given bot instance. Provide the full base URL for the bot, like https://mybot.herokuapp.com.'
+  )
+  .action(login)
+
+program
+  .command('logout [bot-server-url]')
+  .description(
+    'Forget saved auth for the given bot instance, or all recorded auth tokens (if bot URL is not specified)'
+  )
+  .action(logout)
 
 program
   .version(getBotpressVersion())

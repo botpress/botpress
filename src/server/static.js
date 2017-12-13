@@ -1,7 +1,7 @@
 /* global BP_EDITION */
 
 import Promise from 'bluebird'
-import express from 'express'
+import { static as staticMiddleware } from 'express'
 import path from 'path'
 import fs from 'fs'
 import ms from 'ms'
@@ -98,9 +98,9 @@ module.exports = bp => {
 
     serveCustomTheme(app)
 
-    app.use(express.static(path.join(bp.projectLocation, 'static')))
+    app.use(staticMiddleware(path.join(bp.projectLocation, 'static')))
 
-    app.use(express.static(path.join(__dirname, '../lib/web')))
+    app.use(staticMiddleware(path.join(__dirname, '../lib/web')))
 
     app.get('*', (req, res, next) => {
       // If browser requests HTML and request isn't an API request
