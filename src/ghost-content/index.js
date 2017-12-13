@@ -12,7 +12,7 @@ import uniq from 'lodash/uniq'
 Promise.promisifyAll(fs)
 const globAsync = Promise.promisify(glob)
 
-export const REVISIONS_FILE_NAME = '.ghost-revisions'
+const REVISIONS_FILE_NAME = '.ghost-revisions'
 
 module.exports = ({ logger, db, projectLocation }) => {
   logger.info('[Ghost Content Manager] Initialized')
@@ -222,3 +222,6 @@ module.exports = ({ logger, db, projectLocation }) => {
     getPendingWithContent
   }
 }
+
+// TODO: switch to ES6 modules
+module.exports.REVISIONS_FILE_NAME = REVISIONS_FILE_NAME
