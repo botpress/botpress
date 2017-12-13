@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import bodyParser from 'body-parser'
-import express from 'express'
+import { Router } from 'express'
 
 import ServiceLocator from '+/ServiceLocator'
 import anonymousApis from './anonymous'
@@ -88,7 +88,7 @@ module.exports = bp => {
           }
         }
 
-        return app[method].call(app, name, secure, ...handlers)
+        return app[method](name, secure, ...handlers)
       }
 
       return {
@@ -107,7 +107,7 @@ module.exports = bp => {
       }
 
       if (!routers[name]) {
-        const router = express.Router()
+        const router = Router()
         routers[name] = router
         app.use(`/api/${name}/`, router)
       }
