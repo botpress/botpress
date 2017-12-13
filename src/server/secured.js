@@ -270,6 +270,10 @@ module.exports = (bp, app) => {
     return res.sendStatus(200)
   })
 
+  app.secure('read', 'bot/skills').post('/skills/:skillId/generate', async (req, res) => {
+    return res.send(await bp.skills.generateFlow(req.params.skillId, req.body))
+  })
+
   const apis = ExtraApiProviders(bp, app)
   apis.secured.map(x => x && x()) // Install all secured APIs
 }

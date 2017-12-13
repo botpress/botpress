@@ -1,11 +1,11 @@
 import _ from 'lodash'
 
 exports.validateFlowSchema = flow => {
-  const errorPrefix = `[Flow] Error loading "${flow.location}"`
-
   if (!flow || !_.isObjectLike(flow)) {
-    return errorPrefix + ', invalid JSON flow schema'
+    return 'Invalid JSON flow schema'
   }
+
+  const errorPrefix = `[Flow] Invalid flow "${flow.location}"`
 
   if (!flow.version || !_.isString(flow.version)) {
     return errorPrefix + ', expected valid version but found none'

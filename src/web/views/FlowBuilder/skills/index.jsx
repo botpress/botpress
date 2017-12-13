@@ -1,10 +1,13 @@
 import React from 'react'
-import { Modal, Button, Alert } from 'react-bootstrap'
-import classnames from 'classnames'
+import { Modal, Button } from 'react-bootstrap'
+import axios from 'axios'
 import find from 'lodash/find'
 import Loader from 'halogen/BounceLoader'
+import _ from 'lodash'
 
 const style = require('./style.scss')
+
+const VALID_WINDOW_SIZES = ['normal', 'large', 'small']
 
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
 
@@ -30,7 +33,8 @@ export default class SkillsBuilder extends React.Component {
   state = {
     moduleProps: {},
     canSubmit: false,
-    loading: false
+    loading: false,
+    windowSize: 'normal'
   }
 
   componentDidMount() {
@@ -52,7 +56,22 @@ export default class SkillsBuilder extends React.Component {
   }
 
   onDataChanged = data => {
-    console.log('Skill data changed', data) // TODO Remove this
+    this.data = data
+  }
+
+  onSubmit = () => {
+    this.setState({
+      loading: true,
+      canSubmit: false
+    })
+
+    return this.generateFlow().then(() => {
+      // this.props.
+    })
+  }
+
+  onCancel = () => {
+    this.props.cancelNewSkill()
   }
 
   onValidChanged = valid => {
@@ -72,30 +91,38 @@ export default class SkillsBuilder extends React.Component {
     )
   }
 
+  onWindowResized = size => {
+    if (!_.includes(VALID_WINDOW_SIZES, size)) {
+      const sizes = VALID_WINDOW_SIZES.join(', ')
+      console.log(`ERROR – Skill "${size}" is an invalid size for Skill window. Valid sizes are ${sizes}.`)
+    }
+
+    this.setState({
+      windowSize: size
+    })
+  }
+
   buildModuleProps = data => ({
     initialData: data,
     onDataChanged: this.onDataChanged,
-    onValidChanged: this.onValidChanged
+    onValidChanged: this.onValidChanged,
+    resizeBuilderWindow: this.onWindowResized
   })
+
+  generateFlow = () => {
+    return axios.post(`/skills/${this.props.skillId}/generate`, this.data)
+  }
 
   render() {
     const show = this.props.opened
-    const onCancel = () => this.props.cancelNewSkill()
-    const onHide = onCancel
-
-    // Size of modal
-    // __
-
     const skill = find(this.props.installedSkills, { id: this.props.skillId })
 
-    const onSubmit = () =>
-      this.setState({
-        loading: true,
-        canSubmit: false
-      })
+    const modalClassName = style['modal-size-' + this.state.windowSize]
+
+    console.log(modalClassName)
 
     return (
-      <Modal animation={false} show={show} onHide={onHide} backdrop="static">
+      <Modal dialogClassName={modalClassName} animation={false} show={show} onHide={this.onCancel} backdrop="static">
         <Modal.Header closeButton>
           <Modal.Title>Insert a new skill | {skill && skill.name}</Modal.Title>
         </Modal.Header>
@@ -110,8 +137,8 @@ export default class SkillsBuilder extends React.Component {
           )}
         </Modal.Body>
         <Modal.Footer>
-          <Button onClick={onCancel}>Cancel</Button>
-          <Button onClick={onSubmit} disabled={!this.state.canSubmit} bsStyle="primary">
+          <Button onClick={this.onCancel}>Cancel</Button>
+          <Button onClick={this.onSubmit} disabled={!this.state.canSubmit} bsStyle="primary">
             Insert
           </Button>
         </Modal.Footer>
