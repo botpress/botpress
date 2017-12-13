@@ -3,8 +3,11 @@ import fs from 'fs'
 import Promise from 'bluebird'
 import glob from 'glob'
 import uuid from 'uuid'
+
 import get from 'lodash/get'
 import partition from 'lodash/partition'
+import mapValues from 'lodash/mapValues'
+import uniq from 'lodash/uniq'
 
 Promise.promisifyAll(fs)
 const globAsync = Promise.promisify(glob)
@@ -67,6 +70,7 @@ module.exports = ({ logger, db, projectLocation }) => {
         'ghost_revisions.created_on',
         'ghost_revisions.created_by'
       )
+      .orderBy('ghost_revisions.created_on', 'desc')
       .then()
   }
 
@@ -192,10 +196,29 @@ module.exports = ({ logger, db, projectLocation }) => {
 
   const getPending = () => pendingRevisionsByFolder
 
+  const getPendingWithContentForFolder = async (folderInfo, normalizedFolderName) => {
+    const revisions = folderInfo.map(({ revision }) => revision)
+    const fileNames = uniq(folderInfo.map(({ file }) => file))
+
+    const knex = await db.get()
+    const files = await knex('ghost_content')
+      .select('file', 'content')
+      .whereIn('file', fileNames)
+      .andWhere({ folder: normalizedFolderName })
+
+    return {
+      files,
+      revisions
+    }
+  }
+
+  const getPendingWithContent = () => Promise.props(mapValues(pendingRevisionsByFolder, getPendingWithContentForFolder))
+
   return {
     addFolder,
     recordRevision,
     readFile,
-    getPending
+    getPending,
+    getPendingWithContent
   }
 }
