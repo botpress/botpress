@@ -63,7 +63,7 @@ module.exports = ({ sqlite, postgres }) => {
       knex = createKnex({ sqlite, postgres })
     }
 
-    return await knex
+    return knex
   }
 
   const saveUser = ({ id, platform, gender, timezone, locale, picture_url, first_name, last_name }) => {
@@ -115,7 +115,7 @@ module.exports = ({ sqlite, postgres }) => {
       kvsInstance = createKvs()
     }
 
-    return await kvsInstance
+    return kvsInstance
   }
 
   const kvsGet = (...args) => getKvs().then(instance => instance.get.apply(null, args))
