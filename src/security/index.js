@@ -49,7 +49,12 @@ module.exports = ({ dataLocation, securityConfig, db }) => {
    * @param {string} token
    * @return {boolean} whether the token is valid
    */
-  const authenticate = async token => {
+  const authenticate = async authHeader => {
+    const [scheme, token] = authHeader.split(' ')
+    if (scheme !== 'Bearer') {
+      // only support Bearer scheme
+      return false
+    }
     try {
       const secret = await authentication.getSecret()
       const decoded = jwt.verify(token, secret)
