@@ -259,6 +259,10 @@ module.exports = (bp, app) => {
     res.send(bp.ghostManager.getPending())
   })
 
+  app.secure('read', 'bot/ghost_content').get('/ghost_content/export', async (req, res) => {
+    res.send(await bp.ghostManager.getPendingWithContent())
+  })
+
   app.secure('read', 'bot/flows').get('/flows/all', async (req, res) => {
     const flows = await bp.dialogEngine.getFlows()
     return res.send(flows)
