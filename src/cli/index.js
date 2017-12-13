@@ -8,6 +8,7 @@ import uninstall from './uninstall'
 import migrate from './migrate'
 import list from './list'
 import { login, logout } from './auth'
+import ghostSync from './ghost-sync'
 
 import { getBotpressVersion, collectArgs } from '../util'
 
@@ -84,6 +85,11 @@ program
     'Forget saved auth for the given bot instance, or all recorded auth tokens (if bot URL is not specified)'
   )
   .action(logout)
+
+program
+  .command('ghost-sync <bot-server-url>')
+  .description('Pull the ghost content from the remote bot instance and apply it locally.')
+  .action(ghostSync)
 
 program
   .version(getBotpressVersion())
