@@ -48,10 +48,41 @@ const writeAuth = auth => {
 
 const AUTH_DISABLED = '[AUTH DISABLED]'
 
+const refreshToken = async botUrl => {
+  const auth = readAuth()
+  const token = auth[botUrl]
+
+  // this method is only called if the auth is enabled
+  // in which case it doesn't make sense even to try refreshing the fake token
+  // we might have saved before when the auth was disabled on this server
+  if (!token || token === AUTH_DISABLED) {
+    return
+  }
+
+  try {
+    const response = await axios.request({
+      url: `${botUrl}/api/auth/refresh_token`,
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+    return response.data
+  } catch (err) {
+    return null
+  }
+}
+
 const doLogin = async botUrl => {
   const res = await axios.get(`${botUrl}/api/auth/enabled`)
   if (res.data === false) {
     return AUTH_DISABLED
+  }
+
+  // try refreshing token before attempting the new login
+  const token = await refreshToken(botUrl)
+  if (token) {
+    return token
   }
 
   const schema = {
