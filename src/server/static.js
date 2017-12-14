@@ -78,7 +78,8 @@ module.exports = bp => {
     }
 
     app.use('/js/env.js', (req, res) => {
-      const { tokenExpiry, enabled } = bp.botfile.login
+      const { tokenExpiry, enabled: authEnabled } = bp.botfile.login
+      const { enabled: ghostEnabled } = bp.botfile.ghostContent
       const optOutStats = !!bp.botfile.optOutStats
       const appName = bp.botfile.appName || 'Botpress'
 
@@ -87,13 +88,14 @@ module.exports = bp => {
       res.send(`(function(window) {
         window.NODE_ENV = "${process.env.NODE_ENV || 'development'}";
         window.DEV_MODE = ${util.isDeveloping};
-        window.AUTH_ENABLED = ${enabled};
+        window.AUTH_ENABLED = ${!!authEnabled};
         window.AUTH_TOKEN_DURATION = ${ms(tokenExpiry)};
         window.OPT_OUT_STATS = ${optOutStats};
         window.SHOW_GUIDED_TOUR = ${isFirstRun};
         window.BOTPRESS_VERSION = "${version}";
         window.APP_NAME = "${appName}";
-      })(window || {})`)
+        window.GHOST_ENABLED = ${!!ghostEnabled}
+      })(typeof window != 'undefined' ? window : {})`)
     })
 
     serveCustomTheme(app)
