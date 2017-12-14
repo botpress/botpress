@@ -30,23 +30,24 @@ class WrappedInjectedModule extends React.Component {
 }
 
 export default class SkillsBuilder extends React.Component {
-  state = {
+  resetState = () => ({
     moduleProps: {},
     canSubmit: false,
     loading: false,
     windowSize: 'normal'
-  }
+  })
+
+  state = this.resetState()
 
   componentDidMount() {
     this.setState({ initialData: this.props.data })
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.skillId !== this.props.skillId) {
+    if (nextProps.skillId !== this.props.skillId || nextProps.opened !== this.props.opened) {
       this.setState({
-        moduleProps: this.buildModuleProps(nextProps.data),
-        canSubmit: false,
-        loading: false
+        ...this.resetState(),
+        moduleProps: this.buildModuleProps(nextProps.data)
       })
     }
   }
@@ -65,8 +66,12 @@ export default class SkillsBuilder extends React.Component {
       canSubmit: false
     })
 
-    return this.generateFlow().then(() => {
-      // this.props.
+    return this.generateFlow().then(flow => {
+      this.props.insertNewSkill({
+        skillId: this.props.skillId,
+        data: this.data,
+        generatedFlow: flow
+      })
     })
   }
 
@@ -94,7 +99,7 @@ export default class SkillsBuilder extends React.Component {
   onWindowResized = size => {
     if (!_.includes(VALID_WINDOW_SIZES, size)) {
       const sizes = VALID_WINDOW_SIZES.join(', ')
-      console.log(`ERROR – Skill "${size}" is an invalid size for Skill window. Valid sizes are ${sizes}.`)
+      return console.log(`ERROR – Skill "${size}" is an invalid size for Skill window. Valid sizes are ${sizes}.`)
     }
 
     this.setState({
@@ -110,7 +115,7 @@ export default class SkillsBuilder extends React.Component {
   })
 
   generateFlow = () => {
-    return axios.post(`/skills/${this.props.skillId}/generate`, this.data)
+    return axios.post(`/skills/${this.props.skillId}/generate`, this.data).then(({ data }) => data)
   }
 
   render() {
@@ -118,8 +123,6 @@ export default class SkillsBuilder extends React.Component {
     const skill = find(this.props.installedSkills, { id: this.props.skillId })
 
     const modalClassName = style['modal-size-' + this.state.windowSize]
-
-    console.log(modalClassName)
 
     return (
       <Modal dialogClassName={modalClassName} animation={false} show={show} onHide={this.onCancel} backdrop="static">

@@ -28,7 +28,8 @@ import {
   removeFlowNode,
   flowEditorUndo,
   flowEditorRedo,
-  linkFlowNodes
+  linkFlowNodes,
+  insertNewSkill
 } from '~/actions'
 
 const SNAPSHOT_SIZE = 25
@@ -271,6 +272,7 @@ reducer = reduceReducers(
       [deleteFlow]: createSnapshot,
       [duplicateFlow]: createSnapshot,
       [removeFlowNode]: createSnapshot,
+      [insertNewSkill]: createSnapshot,
 
       [flowEditorUndo]: state => {
         if (_.isEmpty(state.snapshots) || state.snapshots.length <= state.currentSnapshotIndex) {
@@ -360,6 +362,27 @@ reducer = reduceReducers(
         currentFlowNode: state.currentFlow === name ? null : state.currentFlowNode,
         flowsByName: _.omit(state.flowsByName, name)
       }),
+
+      // Inserting a new skill essentially:
+      // 1. creates a new flow
+      // 2. creates a new "skill" node in the current flow (linking to that new flow)
+      [insertNewSkill]: (state, { payload }) => {
+        const newFlow = payload.generatedFlow
+        const newNode = {
+          name: 'Hello'
+        }
+
+        console.log('Create new flow', newFlow)
+
+        return {
+          ...state,
+          flowsByName: {
+            ...state.flowsByName
+            // Add new flow
+            // Modify existing flow to add the node
+          }
+        }
+      },
 
       [duplicateFlow]: (state, { payload: { flowNameToDuplicate, name } }) => {
         return {

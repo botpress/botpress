@@ -1,6 +1,6 @@
 import { handleActions } from 'redux-actions'
 
-import { modulesReceived, insertNewSkill, cancelNewSkill } from '~/actions'
+import { modulesReceived, buildNewSkill, cancelNewSkill, insertNewSkill } from '~/actions'
 
 const defaultState = {
   installed: [],
@@ -29,9 +29,10 @@ const reducer = handleActions(
         })
     }),
 
-    [insertNewSkill]: (state, { payload }) => ({
+    [buildNewSkill]: (state, { payload }) => ({
       ...state,
       builder: {
+        ...state.builder,
         opened: true,
         data: {},
         skillId: payload
@@ -41,7 +42,18 @@ const reducer = handleActions(
     [cancelNewSkill]: (state, { payload }) => ({
       ...state,
       builder: {
+        ...state.builder,
         opened: false
+      }
+    }),
+
+    [insertNewSkill]: (state, { payload }) => ({
+      ...state,
+      builder: {
+        ...state.builder,
+        opened: false,
+        data: payload.data,
+        skillId: payload.skillId
       }
     })
   },

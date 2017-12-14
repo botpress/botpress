@@ -1,9 +1,7 @@
-//insertNewSkill
-
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
-import { cancelNewSkill } from '~/actions'
+import { cancelNewSkill, insertNewSkill } from '~/actions'
 import { getCurrentSkill } from '~/reducers'
 
 import _ from 'lodash'
@@ -18,7 +16,8 @@ const mapStateToProps = (state, ownProps) => ({
 const mapDispatchToProps = (dispatch, ownProps) =>
   bindActionCreators(
     {
-      cancelNewSkill
+      cancelNewSkill,
+      insertNewSkill
     },
     dispatch
   )

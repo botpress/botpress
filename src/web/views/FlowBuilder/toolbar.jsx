@@ -81,7 +81,7 @@ class Toolbar extends React.Component {
         {!this.props.skills.length && noSkills}
         {this.props.skills.map((skill, i) => {
           return (
-            <MenuItem eventKey={i} onClick={() => this.props.insertSkill(skill.id)}>
+            <MenuItem eventKey={i} onClick={() => this.props.buildSkill(skill.id)}>
               {skill.name}
             </MenuItem>
           )
