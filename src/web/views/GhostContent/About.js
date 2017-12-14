@@ -15,9 +15,9 @@ const AboutGhostContent = () => (
       which is persisted between deployments. But how do you get these changes back to your bot's codebase?
     </p>
     <p>
-      To do so you run a special command from your bot folder, <code>npm run ghost-sync -- {getHost()}</code>. This will
-      fetch the updated content from the server, apply it to the local file system, and also record the revision IDs in
-      a special file.
+      To do so you run a special command from your bot folder,&nbsp;
+      <code>./node_modules/.bin/botpress ghost-sync {getHost()}</code>. This will fetch the updated content from the
+      server, apply it to the local file system, and also record the revision IDs in a special file.
     </p>
     <p>The synchronisation is finalized after these updated files are redeployed.</p>
   </section>
