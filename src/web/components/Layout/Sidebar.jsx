@@ -127,7 +127,8 @@ class Sidebar extends React.Component {
         <ul className="nav">
           {this.renderBasicItem('Dashboard', 'dashboard', dashboardRules, dashboardPaths, 'dashboard')}
           {this.renderBasicItem('Modules', 'manage', modulesRules, modulesPaths, 'build')}
-          {this.renderBasicItem('Ghost Content', 'ghost-content', ghostRules, ghostPaths, 'content_copy')}
+          {window.GHOST_ENABLED &&
+            this.renderBasicItem('Ghost Content', 'ghost-content', ghostRules, ghostPaths, 'content_copy')}
           {this.renderBasicItem('Content', 'content', contentRules, contentPaths, 'description')}
           {this.renderBasicItem('Flows', 'flows', flowsRules, flowsPaths, 'device_hub')}
           {this.renderBasicItem('Middleware', 'middleware', middlewareRules, middlewarePaths, 'settings')}
