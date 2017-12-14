@@ -47,7 +47,7 @@ export default class ListView extends Component {
       const ids = []
 
       if (this.state.allChecked) {
-        _.forEach(this.props.messages, ({ id }) => {
+        _.forEach(this.props.contentItems, ({ id }) => {
           ids.push(id)
         })
       }
@@ -118,14 +118,14 @@ export default class ListView extends Component {
   }
 
   renderTable() {
-    if (this.props.messages && this.props.messages.length === 0) {
+    if (this.props.contentItems && this.props.contentItems.length === 0) {
       return <div className={style.empty}>There's no content yet. You can create some using the 'Add' button.</div>
     }
 
     return (
       <div className={style.container}>
         <Table striped bordered condensed hover>
-          <tbody>{this.props.messages.map(this.renderMessage)}</tbody>
+          <tbody>{this.props.contentItems.map(this.renderMessage)}</tbody>
         </Table>
       </div>
     )
@@ -134,8 +134,8 @@ export default class ListView extends Component {
   renderPaging() {
     const count = this.props.count
 
-    let from = (this.props.page - 1) * this.props.messagesPerPage + 1
-    let to = this.props.page * this.props.messagesPerPage
+    let from = (this.props.page - 1) * this.props.itemsPerPage + 1
+    let to = this.props.page * this.props.itemsPerPage
 
     from = count !== 0 ? from : 0
     to = to <= count ? to : count
@@ -169,7 +169,7 @@ export default class ListView extends Component {
         </Button>
         <Button
           onClick={this.props.handleNext}
-          disabled={this.props.page * this.props.messagesPerPage >= this.props.count}
+          disabled={this.props.page * this.props.itemsPerPage >= this.props.count}
         >
           <i className="material-icons">keyboard_arrow_right</i>
         </Button>

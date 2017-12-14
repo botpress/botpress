@@ -35,8 +35,6 @@ export const saveAllFlows = flows => (dispatch, getState) => {
   })
 }
 
-// export const fetchFlowsDefinitions = createAction('FLOWS_DEFINITIONS_FETCH')
-
 export const updateFlow = createAction('FLOWS/FLOW/UPDATE')
 export const renameFlow = createAction('FLOWS/FLOW/RENAME')
 export const createFlow = createAction('FLOWS/CREATE')
@@ -56,6 +54,38 @@ export const flowEditorUndo = createAction('FLOWS/EDITOR/UNDO')
 export const flowEditorRedo = createAction('FLOWS/EDITOR/REDO')
 
 export const setDiagramAction = createAction('FLOWS/FLOW/SET_ACTION')
+
+// Content
+export const receiveContentCategories = createAction('CONTENT/CATEGORIES/RECEIVE')
+export const fetchContentCategories = id => dispatch =>
+  axios.get('/content/categories').then(({ data }) => {
+    dispatch(receiveContentCategories(data))
+  })
+
+export const receiveContentItems = createAction('CONTENT/ITEMS/RECEIVE')
+export const fetchContentItems = ({ id, from, count, searchTerm }) => dispatch =>
+  axios
+    .get(`/content/items`, { params: { categoryId: id, from, count, searchTerm } })
+    .then(({ data }) => dispatch(receiveContentItems(data)))
+
+export const receiveContentItemsRecent = createAction('CONTENT/ITEMS/RECEIVE_RECENT')
+export const fetchContentItemsRecent = ({ searchTerm }) => dispatch =>
+  axios
+    .get(`/content/items`, { params: { count: 5, searchTerm, orderBy: ['createdOn', 'desc'] } })
+    .then(({ data }) => dispatch(receiveContentItemsRecent(data)))
+
+export const receiveContentItem = createAction('CONTENT/ITEMS/RECEIVE_ONE')
+export const fetchContentItem = id => dispatch =>
+  axios.get(`/content/items/${id}`).then(({ data }) => dispatch(receiveContentItem(data)))
+
+export const receiveContentItemsCount = createAction('CONTENT/ITEMS/RECEIVE_COUNT')
+export const fetchContentItemsCount = () => dispatch =>
+  axios.get(`/content/items/count`).then(data => dispatch(receiveContentItemsCount(data)))
+
+export const upsertContentItems = ({ categoryId, formData, modifyId }) => () =>
+  axios.post(`/content/categories/${categoryId}/items/${modifyId || ''}`, { formData })
+
+export const deleteContentItems = data => () => axios.post('/content/categories/all/bulk_delete', data)
 
 // License
 export const licenseChanged = createAction('LICENSE/CHANGED')

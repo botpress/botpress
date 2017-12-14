@@ -1,12 +1,38 @@
 import React, { Component } from 'react'
 import classnames from 'classnames'
+import { connect } from 'react-redux'
 import { Popover, OverlayTrigger } from 'react-bootstrap'
 import _ from 'lodash'
 import Mustache from 'mustache'
 
+import { fetchContentItem } from '~/actions'
+
 const style = require('./style.scss')
 
-export default class ActionItem extends Component {
+class ActionItem extends Component {
+  constructor(props) {
+    super(props)
+
+    this.state = { itemId: this.textToItemId(this.props.text) }
+    this.fetchItem(this.props.text)
+  }
+
+  textToItemId = text => _.get(text.match(/^say #!(.*)$/), '[1]')
+
+  fetchItem = text => {
+    const itemId = this.textToItemId(text)
+    this.setState({ itemId })
+    if (itemId) {
+      this.props.fetchContentItem(itemId)
+    }
+  }
+
+  componentWillReceiveProps({ text }) {
+    if (text !== this.props.text) {
+      this.fetchItem(text)
+    }
+  }
+
   renderAction() {
     const action = this.props.text.trim()
 
@@ -47,8 +73,8 @@ export default class ActionItem extends Component {
       return this.renderAction()
     }
 
-    const chunks = action.split(' ')
-    const textContent = _.slice(chunks, 2).join(' ')
+    const item = this.props.items[this.state.itemId]
+    const textContent = (item && `${item.categoryTitle} | ${item.previewText}`) || ''
     const vars = {}
 
     const htmlTpl = textContent.replace(/{{([a-z0-9. _-]*?)}}/gi, x => {
@@ -69,3 +95,8 @@ export default class ActionItem extends Component {
     )
   }
 }
+
+const mapStateToProps = state => ({ items: state.content.itemsById })
+const mapDispatchToProps = { fetchContentItem }
+
+export default connect(mapStateToProps, mapDispatchToProps)(ActionItem)
