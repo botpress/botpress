@@ -33,7 +33,18 @@ export default class SidePanel extends Component {
           <Tabs animation={false}>
             <Tab eventKey={1} title="Flows">
               <FlowsList
-                flows={this.props.flows}
+                flows={this.props.flows.filter(x => !x.name.startsWith('skills/'))}
+                dirtyFlows={this.props.dirtyFlows}
+                switchFlow={this.props.switchFlow}
+                deleteFlow={this.props.deleteFlow}
+                duplicateFlow={this.props.duplicateFlow}
+                currentFlow={this.props.currentFlow}
+              />
+            </Tab>
+            <Tab eventKey={2} title="Skills">
+              <FlowsList
+                stripPrefix="skills/"
+                flows={this.props.flows.filter(x => x.name.startsWith('skills/'))}
                 dirtyFlows={this.props.dirtyFlows}
                 switchFlow={this.props.switchFlow}
                 deleteFlow={this.props.deleteFlow}

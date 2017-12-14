@@ -24,6 +24,12 @@ export default class FlowsList extends Component {
 
     const dirtyMarker = isDirty ? '*' : ''
 
+    const hideOverlay = () => {
+      this.setState({
+        showDropdown: -1
+      })
+    }
+
     const handleDelete = () => {
       hideOverlay()
       setTimeout(() => {
@@ -66,12 +72,6 @@ export default class FlowsList extends Component {
       </Popover>
     )
 
-    const hideOverlay = () => {
-      this.setState({
-        showDropdown: -1
-      })
-    }
-
     const overlayShown = this.state.showDropdown === index
 
     const showOverlay = () => {
@@ -104,10 +104,16 @@ export default class FlowsList extends Component {
 
     const lgProps = isCurrentFlow ? {} : { href: '#' }
 
+    let displayName = flow.name
+    const { stripPrefix } = this.props
+    if (stripPrefix && displayName.startsWith(stripPrefix)) {
+      displayName = displayName.substr(stripPrefix.length)
+    }
+
     return (
       <ListGroupItem {...lgProps}>
         <div onClick={() => this.switchToFlow(flow)}>
-          {flow.name}
+          {displayName}
           {dirtyMarker} {isCurrentFlow ? ' (current)' : ''}
         </div>
         <div className={style.menuButton}>{caret}</div>
