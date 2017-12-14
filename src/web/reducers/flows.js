@@ -383,16 +383,7 @@ reducer = reduceReducers(
           skill: skillId,
           name: skillId + '-' + nanoid(5),
           flow: flowName,
-          next: [
-            {
-              condition: 'true',
-              node: 'main.flow.json'
-            },
-            {
-              condition: 'oh yeah',
-              node: '#hello'
-            }
-          ],
+          next: payload.transitions || [],
           onEnter: null,
           onReceive: null
         }

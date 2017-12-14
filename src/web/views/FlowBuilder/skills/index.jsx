@@ -66,11 +66,12 @@ export default class SkillsBuilder extends React.Component {
       canSubmit: false
     })
 
-    return this.generateFlow().then(flow => {
+    return this.generateFlow().then(generated => {
       this.props.insertNewSkill({
         skillId: this.props.skillId,
         data: this.data,
-        generatedFlow: flow
+        generatedFlow: generated.flow,
+        transitions: generated.transitions
       })
     })
   }

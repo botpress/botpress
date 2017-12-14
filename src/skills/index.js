@@ -50,10 +50,14 @@ export default class SkillsManager {
     }
 
     const generatedFlow = await generator(data)
-    const validationError = validateFlowSchema(generatedFlow)
+    const validationError = validateFlowSchema(generatedFlow.flow)
 
     if (validationError) {
       throw new Error(`Skill "${skillId}" generated an invalid flow: ${validationError}`)
+    }
+
+    if (!generatedFlow.transitions || !_.isArray(generatedFlow.transitions)) {
+      throw new Error(`Skill "${skillId}" didn't generate valid "transitions"`)
     }
 
     return generatedFlow
