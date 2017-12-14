@@ -83,6 +83,18 @@ function createSnapshot(state) {
   }
 }
 
+function findNodesThatReferenceFlow(state, flowName) {
+  let nodes = []
+  for (let flow of _.values(state.flowsByName)) {
+    for (let node of flow.nodes) {
+      if (node.flow === flowName || _.find(node.next, { node: flowName })) {
+        nodes.push(node.id)
+      }
+    }
+  }
+  return nodes
+}
+
 function copyName(siblingNames, nameToCopy) {
   let copies = siblingNames.filter(name => name.startsWith(`${nameToCopy}-copy`))
 
@@ -465,6 +477,32 @@ reducer = reduceReducers(
         }
       },
 
+      [removeFlowNode]: (state, { payload }) => {
+        const node = _.find(state.flowsByName[state.currentFlow].nodes, { id: payload })
+
+        const flowsToRemove = []
+
+        if (node.type === 'skill-call') {
+          if (findNodesThatReferenceFlow(state, node.flow).length <= 1) {
+            // Remove the skill flow if that was the only node referencing it
+            flowsToRemove.push(node.flow)
+          }
+        }
+
+        return {
+          ...state,
+          flowsByName: {
+            ..._.omit(state.flowsByName, flowsToRemove),
+            [state.currentFlow]: {
+              ...state.flowsByName[state.currentFlow],
+              nodes: state.flowsByName[state.currentFlow].nodes.filter(node => {
+                return node.id !== payload
+              })
+            }
+          }
+        }
+      },
+
       [linkFlowNodes]: (state, { payload }) => {
         const flow = state.flowsByName[state.currentFlow]
 
@@ -490,19 +528,6 @@ reducer = reduceReducers(
           }
         }
       },
-
-      [removeFlowNode]: (state, { payload }) => ({
-        ...state,
-        flowsByName: {
-          ...state.flowsByName,
-          [state.currentFlow]: {
-            ...state.flowsByName[state.currentFlow],
-            nodes: state.flowsByName[state.currentFlow].nodes.filter(node => {
-              return node.id !== payload
-            })
-          }
-        }
-      }),
 
       [copyFlowNode]: state => ({
         ...state,
