@@ -9,7 +9,7 @@ import PageHeader from '~/components/Layout/PageHeader'
 import Loading from '~/components/Util/Loading'
 import About from './About'
 
-import { fetchStatus } from './util'
+import { fetchStatus, getHost } from './util'
 
 export default class GhostView extends Component {
   state = {
@@ -81,7 +81,7 @@ export default class GhostView extends Component {
   }
 
   renderContent() {
-    const { data } = this.state
+    const { data, showSyncHelp } = this.state
     const folders = Object.keys(data).sort()
 
     if (!folders.length) {
@@ -115,6 +115,16 @@ export default class GhostView extends Component {
             </Button>
           </p>
         </Alert>
+        {showSyncHelp && (
+          <Alert bsStyle="info" onDismiss={this.hideSyncHelp}>
+            <p>
+              <strong>To pull the pending ghost content run in your bot's project folder:</strong>
+            </p>
+            <p>
+              <code>./node_modules/.bin/botpress ghost-sync {getHost()}</code>
+            </p>
+          </Alert>
+        )}
         <ul>{folders.map(folder => this.renderFolder(folder, data[folder]))}</ul>
       </div>
     )
