@@ -1,9 +1,6 @@
 import React, { Component } from 'react'
 import classnames from 'classnames'
-import axios from 'axios'
-import groupBy from 'lodash/groupBy'
 import sortBy from 'lodash/sortBy'
-import mapValues from 'lodash/mapValues'
 
 import { Alert, Button } from 'react-bootstrap'
 
@@ -11,7 +8,7 @@ import ContentWrapper from '~/components/Layout/ContentWrapper'
 import PageHeader from '~/components/Layout/PageHeader'
 import Loading from '~/components/Util/Loading'
 
-const transformData = data => mapValues(data, entries => groupBy(entries, 'file'))
+import { fetchStatus } from './util'
 
 export default class GhostView extends Component {
   state = {
@@ -23,10 +20,9 @@ export default class GhostView extends Component {
   fetch() {
     this.setState({ loading: true })
 
-    axios
-      .get('/ghost_content/status')
-      .then(({ data }) => {
-        this.setState({ data: transformData(data), loading: false, error: null })
+    fetchStatus()
+      .then(data => {
+        this.setState({ data, loading: false, error: null })
       })
       .catch(error => {
         this.setState({ error: error.message || 'Unknown', loading: false })
