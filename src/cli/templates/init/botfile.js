@@ -54,6 +54,13 @@ module.exports = {
   },
 
   /*
+    By default ghost content management is only activated in production
+   */
+  ghostContent: {
+    enabled: process.env.NODE_ENV === 'production' || process.env.BOTPRESS_GHOST_ENABLED
+  },
+
+  /*
     Access control of admin panel
   */
   login: {
