@@ -13,7 +13,8 @@ import {
   pasteFlowNode,
   createFlow,
   updateFlow,
-  linkFlowNodes
+  linkFlowNodes,
+  insertNewSkillNode
 } from '~/actions'
 
 import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
@@ -41,7 +42,8 @@ const mapDispatchToProps = (dispatch, ownProps) =>
       updateFlow,
       linkFlowNodes,
       copyFlowNode,
-      pasteFlowNode
+      pasteFlowNode,
+      insertNewSkillNode
     },
     dispatch
   )

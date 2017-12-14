@@ -29,7 +29,8 @@ import {
   flowEditorUndo,
   flowEditorRedo,
   linkFlowNodes,
-  insertNewSkill
+  insertNewSkill,
+  insertNewSkillNode
 } from '~/actions'
 
 const SNAPSHOT_SIZE = 25
@@ -327,8 +328,8 @@ reducer = reduceReducers(
                 const targetNode = _.find(currentFlow.nodes, { id: (link || {}).target })
                 let remapNode = ''
 
-                if (value.includes('.flow.json') || value === 'END') {
-                  remapNode = value
+                if (value.node.includes('.flow.json') || value.node === 'END' || value.node.startsWith('#')) {
+                  remapNode = value.node
                 }
 
                 return { ...value, node: (targetNode && targetNode.name) || remapNode }
@@ -365,24 +366,64 @@ reducer = reduceReducers(
 
       // Inserting a new skill essentially:
       // 1. creates a new flow
-      // 2. creates a new "skill" node in the current flow (linking to that new flow)
+      // 2. creates a new "skill" node
+      // 3. put that new node in the "insert buffer", waiting for user to place it in the canvas
       [insertNewSkill]: (state, { payload }) => {
-        const newFlow = payload.generatedFlow
-        const newNode = {
-          name: 'Hello'
-        }
+        const newFlow = Object.assign(payload.generatedFlow, {
+          skillData: payload.data
+        })
 
-        console.log('Create new flow', newFlow)
+        const skillId = payload.skillId.replace(/^botpress-skill-/i, '')
+        const flowName = `skills/${skillId}-${nanoid(5)}.flow.json`
+        newFlow.location = newFlow.name = flowName
+
+        const newNode = {
+          id: 'skill-' + nanoid(6),
+          type: 'skill-call',
+          skill: skillId,
+          name: skillId + '-' + nanoid(5),
+          flow: flowName,
+          next: [
+            {
+              condition: 'true',
+              node: 'main.flow.json'
+            },
+            {
+              condition: 'oh yeah',
+              node: '#hello'
+            }
+          ],
+          onEnter: null,
+          onReceive: null
+        }
 
         return {
           ...state,
+          currentDiagramAction: 'insert_skill',
+          nodeInBuffer: newNode,
           flowsByName: {
-            ...state.flowsByName
-            // Add new flow
-            // Modify existing flow to add the node
+            ...state.flowsByName,
+            [newFlow.name]: newFlow
           }
         }
       },
+
+      [insertNewSkillNode]: (state, { payload }) => ({
+        ...state,
+        flowsByName: {
+          ...state.flowsByName,
+          [state.currentFlow]: {
+            ...state.flowsByName[state.currentFlow],
+            nodes: [
+              ...state.flowsByName[state.currentFlow].nodes,
+              _.merge(state.nodeInBuffer, {
+                x: payload.x,
+                y: payload.y
+              })
+            ]
+          }
+        }
+      }),
 
       [duplicateFlow]: (state, { payload: { flowNameToDuplicate, name } }) => {
         return {

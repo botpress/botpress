@@ -312,7 +312,12 @@ export default class FlowBuilder extends Component {
       x -= this.activeModel.getOffsetX() / zoomFactor
       y -= this.activeModel.getOffsetY() / zoomFactor
 
-      this.props.createFlowNode({ x, y })
+      if (this.props.currentDiagramAction === 'insert_skill') {
+        this.props.insertNewSkillNode({ x, y })
+      } else {
+        this.props.createFlowNode({ x, y })
+      }
+
       this.props.setDiagramAction(null)
     }
 
@@ -433,7 +438,7 @@ export default class FlowBuilder extends Component {
       if (!this.diagramEngine.isModelLocked(element)) {
         if (element.isStartNode) {
           return alert("You can't delete the start node.")
-        } else if (element.nodeType === 'standard') {
+        } else if (_.includes(['standard', 'skill-call'], element.nodeType)) {
           this.props.removeFlowNode(element.id)
         } else if (element.linkType === 'default') {
           element.remove()

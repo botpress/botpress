@@ -123,3 +123,4 @@ export const addNotifications = notifications => dispatch => {
 export const buildNewSkill = createAction('SKILLS/BUILD')
 export const cancelNewSkill = createAction('SKILLS/BUILD/CANCEL')
 export const insertNewSkill = createAction('SKILLS/INSERT')
+export const insertNewSkillNode = createAction('SKILLS/INSERT/NODE')
