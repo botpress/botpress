@@ -9,3 +9,8 @@ export const fetchStatus = () =>
   axios.get('/ghost_content/status').then(({ data }) => {
     return transformData(data)
   })
+
+export const getHost = () => {
+  const { protocol, host } = document.location
+  return `${protocol}//${host}`
+}

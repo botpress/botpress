@@ -9,6 +9,7 @@
   },
   "scripts": {
     "start": "botpress start",
+    "ghost-sync": "botpress ghost-sync",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "<%= author %>",

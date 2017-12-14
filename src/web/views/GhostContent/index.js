@@ -2,11 +2,12 @@ import React, { Component } from 'react'
 import classnames from 'classnames'
 import sortBy from 'lodash/sortBy'
 
-import { Alert, Button } from 'react-bootstrap'
+import { Alert, Button, Modal } from 'react-bootstrap'
 
 import ContentWrapper from '~/components/Layout/ContentWrapper'
 import PageHeader from '~/components/Layout/PageHeader'
 import Loading from '~/components/Util/Loading'
+import About from './About'
 
 import { fetchStatus } from './util'
 
@@ -14,7 +15,25 @@ export default class GhostView extends Component {
   state = {
     loading: true,
     data: null,
-    error: null
+    error: null,
+    showAbout: false,
+    showSyncHelp: false
+  }
+
+  showAbout = () => {
+    this.setState({ showAbout: true })
+  }
+
+  hideAbout = () => {
+    this.setState({ showAbout: false })
+  }
+
+  showSyncHelp = () => {
+    this.setState({ showSyncHelp: true })
+  }
+
+  hideSyncHelp = () => {
+    this.setState({ showSyncHelp: false })
   }
 
   fetch() {
@@ -70,7 +89,10 @@ export default class GhostView extends Component {
         <Alert bsStyle="success">
           <p>You don't have any ghost content in your DB, DB is in sync with the bot source code.</p>
           <p>
-            Don't know what is ghost content? <a href="#">Read here</a> about this feature.
+            Don't know what is ghost content?&nbsp;
+            <Button bsSize="small" bsStyle="link" onClick={this.showAbout}>
+              Read about this feature
+            </Button>.
           </p>
         </Alert>
       )
@@ -82,12 +104,15 @@ export default class GhostView extends Component {
           <p>
             Below is the list of ghost content present in the DB. You need to eventually sync it up with the bot source
             code.&nbsp;
-            <strong>
-              <a href="#">Show me</a> how to do it
-            </strong>.
+            <Button bsSize="small" bsStyle="info" onClick={this.showSyncHelp}>
+              Show me how to do it
+            </Button>
           </p>
           <p>
-            Don't know what is ghost content? <a href="#">Read here</a> about this feature.
+            Don't know what is ghost content?&nbsp;
+            <Button bsSize="small" bsStyle="link" onClick={this.showAbout}>
+              Read about this feature
+            </Button>
           </p>
         </Alert>
         <ul>{folders.map(folder => this.renderFolder(folder, data[folder]))}</ul>
@@ -123,6 +148,18 @@ export default class GhostView extends Component {
       <ContentWrapper>
         <PageHeader>Ghost Content</PageHeader>
         {this.renderBody()}
+
+        <Modal show={this.state.showAbout} onHide={this.hideAbout}>
+          <Modal.Header closeButton>
+            <Modal.Title>Ghost Content</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <About />
+          </Modal.Body>
+          <Modal.Footer>
+            <Button onClick={this.hideAbout}>Close</Button>
+          </Modal.Footer>
+        </Modal>
       </ContentWrapper>
     )
   }
