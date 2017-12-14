@@ -170,7 +170,8 @@ class botpress {
     const ghostManager = createGhostManager({
       projectLocation,
       logger,
-      db
+      db,
+      enabled: !!_.get(botfile, 'ghostContent.enabled')
     })
     const contentManager = await createContentManager({
       logger,

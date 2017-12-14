@@ -9,13 +9,20 @@ import partition from 'lodash/partition'
 import mapValues from 'lodash/mapValues'
 import uniq from 'lodash/uniq'
 
+import createTransparent from './transparent'
+import { normalizeFolder as _normalizeFolder } from './util'
+
 Promise.promisifyAll(fs)
 const globAsync = Promise.promisify(glob)
 
 const REVISIONS_FILE_NAME = '.ghost-revisions'
 
-module.exports = ({ logger, db, projectLocation }) => {
-  logger.info('[Ghost Content Manager] Initialized')
+module.exports = ({ logger, db, projectLocation, enabled }) => {
+  if (!enabled) {
+    return createTransparent({ logger, projectLocation })
+  }
+
+  const normalizeFolder = _normalizeFolder(projectLocation)
 
   const pendingRevisionsByFolder = {}
   const trackedFolders = []
@@ -47,14 +54,6 @@ module.exports = ({ logger, db, projectLocation }) => {
         data: { content }
       })
     )
-  }
-
-  const normalizeFolder = folder => {
-    const folderPath = path.resolve(projectLocation, folder)
-    return {
-      folderPath,
-      normalizedFolderName: path.relative(projectLocation, folderPath)
-    }
   }
 
   const getPendingRevisions = async normalizedFolderName => {
@@ -213,6 +212,8 @@ module.exports = ({ logger, db, projectLocation }) => {
   }
 
   const getPendingWithContent = () => Promise.props(mapValues(pendingRevisionsByFolder, getPendingWithContentForFolder))
+
+  logger.info('[Ghost Content Manager] Initialized')
 
   return {
     addFolder,
