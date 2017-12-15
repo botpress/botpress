@@ -202,20 +202,24 @@ module.exports = (bp, app) => {
     res.send(await bp.contentManager.listAvailableCategories())
   })
 
-  app.secure('read', 'bot/content').get('/content/categories/:id/schema', async (req, res) => {
-    res.send(await bp.contentManager.getCategorySchema(req.params.id))
-  })
-
-  app.secure('read', 'bot/content').get('/content/categories/:id/items', async (req, res) => {
-    if (req.params.id === 'all') {
-      req.params.id = null
-    }
-
+  app.secure('read', 'bot/content').get('/content/items', async (req, res) => {
     const from = req.query.from || 0
     const count = req.query.count || 50
-    const searchTerm = req.query.search
+    let { searchTerm, categoryId, orderBy } = req.query
 
-    res.send(await bp.contentManager.listCategoryItems(req.params.id, from, count, searchTerm))
+    if (categoryId === 'all') {
+      categoryId = null
+    }
+
+    res.send(await bp.contentManager.listCategoryItems(categoryId, { from, count, searchTerm, orderBy }))
+  })
+
+  app.secure('read', 'bot/content').get('/content/items/count', async (req, res) => {
+    res.send({ count: await bp.contentManager.categoryItemsCount() })
+  })
+
+  app.secure('read', 'bot/content').get('/content/items/:id', async (req, res) => {
+    res.send(await bp.contentManager.getItem(req.params.id))
   })
 
   app.secure('write', 'bot/content').post('/content/categories/:id/items', async (req, res) => {

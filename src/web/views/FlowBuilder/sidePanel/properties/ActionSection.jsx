@@ -27,7 +27,7 @@ export default class ActionSection extends Component {
 
   optionsToItem(options) {
     if (options.type === 'message') {
-      return 'say #text ' + options.message // TODO Update this to "say #bloc [message]" structure
+      return options.message
     }
     return options.functionName + ' ' + JSON.stringify(options.parameters || {})
   }

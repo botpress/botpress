@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
 import classnames from 'classnames'
 import axios from 'axios'
 import _ from 'lodash'
@@ -6,6 +7,8 @@ import _ from 'lodash'
 import { Grid, Row, Col, Alert } from 'react-bootstrap'
 
 import Sidebar from './Sidebar'
+import { fetchContentCategories, fetchContentItems, upsertContentItems, deleteContentItems } from '~/actions'
+
 import List from './List'
 import CreateOrEditModal from './modal'
 
@@ -14,11 +17,10 @@ import PageHeader from '~/components/Layout/PageHeader'
 
 const style = require('./style.scss')
 
-const MESSAGES_PER_PAGE = 20
+const ITEMS_PER_PAGE = 20
 
-export default class ContentView extends Component {
+class ContentView extends Component {
   state = {
-    loading: true,
     showModal: false,
     modifyId: null,
     selectedId: 'all',
@@ -27,65 +29,23 @@ export default class ContentView extends Component {
   }
 
   componentDidMount() {
-    this.fetchCategoryMessages(this.state.selectedId)
-      .then(this.fetchCategories)
-      .then(() => this.fetchSchema(this.state.selectedId))
-      .then(() => {
-        this.setState({
-          loading: false
-        })
-      })
+    this.props.fetchContentCategories()
+    this.fetchCategoryItems(this.state.selectedId)
   }
 
-  fetchCategories = () =>
-    axios.get('/content/categories').then(({ data }) => {
-      const count =
-        this.state.selectedId === 'all'
-          ? _.sumBy(data, 'count') || 0
-          : _.find(data, { id: this.state.selectedId }).count
-
-      this.setState({
-        categories: data,
-        count
-      })
-    })
-
-  fetchCategoryMessages(id) {
-    const from = (this.state.page - 1) * MESSAGES_PER_PAGE
-    const count = MESSAGES_PER_PAGE
-
-    return axios
-      .get(`/content/categories/${id}/items`, {
-        params: { from: from, count: count, search: this.state.searchTerm }
-      })
-      .then(({ data }) => {
-        this.setState({
-          messages: data
-        })
-      })
-  }
-
-  fetchSchema(id) {
-    return axios.get(`/content/categories/${id}/schema`).then(({ data }) => {
-      this.setState({
-        schema: data
-      })
+  fetchCategoryItems(id) {
+    return this.props.fetchContentItems({
+      id,
+      count: ITEMS_PER_PAGE,
+      from: (this.state.page - 1) * ITEMS_PER_PAGE,
+      searchTerm: this.state.searchTerm
     })
   }
 
-  createOrUpdateItem(data) {
-    let url = `/content/categories/${this.state.selectedId}/items`
-
-    if (this.state.modifyId) {
-      const categoryId = _.find(this.state.messages, { id: this.state.modifyId }).categoryId
-      url = `/content/categories/${categoryId}/items/${this.state.modifyId}`
-    }
-
-    return axios.post(url, { formData: data }).then()
-  }
-
-  deleteItems(data) {
-    return axios.post('/content/categories/all/bulk_delete', data).then()
+  currentCategoryId() {
+    return this.state.modifyId
+      ? _.find(this.props.contentItems, { id: this.state.modifyId }).categoryId
+      : this.state.selectedId
   }
 
   handleCloseModal = () => {
@@ -104,18 +64,12 @@ export default class ContentView extends Component {
     })
   }
 
-  handleCreateOrUpdate = () => {
-    this.createOrUpdateItem(this.state.contentToEdit)
-      .then(this.fetchCategories)
-      .then(() => {
-        return this.fetchCategoryMessages(this.state.selectedId)
-      })
-      .then(() => {
-        this.setState({
-          showModal: false,
-          contentToEdit: null
-        })
-      })
+  handleUpsert = () => {
+    const categoryId = this.currentCategoryId()
+    this.props
+      .upsertContentItems({ categoryId, formData: this.state.contentToEdit, modifyId: this.state.modifyId })
+      .then(() => this.fetchCategoryItems(this.state.selectedId))
+      .then(() => this.setState({ showModal: false }))
   }
 
   handleFormEdited = data => {
@@ -123,78 +77,45 @@ export default class ContentView extends Component {
   }
 
   handleCategorySelected = id => {
-    this.fetchCategoryMessages(id)
-      .then(() => {
-        this.setState({ selectedId: id })
-      })
-      .then(() => {
-        this.fetchSchema(id)
-      })
+    this.fetchCategoryItems(id)
+    this.setState({ selectedId: id })
   }
 
   handleDeleteSelected = ids => {
-    this.deleteItems(ids)
-      .then(this.fetchCategories)
-      .then(() => {
-        return this.fetchCategoryMessages(this.state.selectedId)
-      })
+    this.props.deleteContentItems(ids).then(() => this.fetchCategoryItems(this.state.selectedId))
   }
 
-  handleModalShowForEdit = (id, categoryId) => {
-    const showModal = () =>
-      this.setState({
-        modifyId: id,
-        showModal: true,
-        contentToEdit: _.find(this.state.messages, { id }).formData
-      })
-
-    if (!this.state.schema || this.state.selectedId !== categoryId) {
-      this.fetchSchema(categoryId).then(showModal)
-    } else {
-      showModal()
-    }
+  handleModalShowForEdit = id => {
+    const contentToEdit = _.find(this.props.contentItems, { id }).formData
+    this.setState({ modifyId: id, showModal: true, contentToEdit })
   }
 
   handleRefresh = () => {
-    this.fetchCategoryMessages(this.state.selectedId || 'all')
+    this.fetchCategoryItems(this.state.selectedId || 'all')
   }
 
   handlePrevious = () => {
-    this.setState({
-      page: this.state.page - 1 || 1
-    })
-
-    setImmediate(() => {
-      this.fetchCategoryMessages(this.state.selectedId)
-    })
+    this.setState({ page: this.state.page - 1 || 1 })
+    setImmediate(() => this.fetchCategoryItems(this.state.selectedId))
   }
 
   handleNext = () => {
-    this.setState({
-      page: this.state.page + 1
-    })
-
-    setImmediate(() => {
-      this.fetchCategoryMessages(this.state.selectedId)
-    })
+    this.setState({ page: this.state.page + 1 })
+    setImmediate(() => this.fetchCategoryItems(this.state.selectedId))
   }
 
   handleSearch = input => {
-    this.setState({
-      searchTerm: input
-    })
-
-    setImmediate(() => {
-      this.fetchCategoryMessages(this.state.selectedId)
-    })
+    this.setState({ searchTerm: input })
+    setImmediate(() => this.fetchCategoryItems(this.state.selectedId))
   }
 
   renderBody() {
-    const { loading, selectedId = 'all', schema, modifyId, categories = [], contentToEdit } = this.state
+    const { selectedId = 'all', modifyId, contentToEdit } = this.state
+    const selectedCategory = _.find(this.props.categories, { id: this.currentCategoryId() })
 
     const classNames = classnames(style.content, 'bp-content')
 
-    if (!categories.length) {
+    if (!this.props.categories.length) {
       return (
         <div className={classNames}>
           <Alert bsStyle="warning">
@@ -214,7 +135,7 @@ export default class ContentView extends Component {
           <Row>
             <Col xs={3}>
               <Sidebar
-                categories={categories}
+                categories={this.props.categories}
                 selectedId={selectedId}
                 handleAdd={this.handleCreateNew}
                 handleCategorySelected={this.handleCategorySelected}
@@ -223,9 +144,13 @@ export default class ContentView extends Component {
             <Col xs={9}>
               <List
                 page={this.state.page}
-                count={this.state.count}
-                messagesPerPage={MESSAGES_PER_PAGE}
-                messages={this.state.messages || []}
+                count={
+                  this.state.selectedId === 'all'
+                    ? _.sumBy(this.props.categories, 'count') || 0
+                    : _.find(this.props.categories, { id: this.state.selectedId }).count
+                }
+                itemsPerPage={ITEMS_PER_PAGE}
+                contentItems={this.props.contentItems || []}
                 searchTerm={this.state.searchTerm}
                 handlePrevious={this.handlePrevious}
                 handleNext={this.handleNext}
@@ -239,10 +164,10 @@ export default class ContentView extends Component {
         </Grid>
         <CreateOrEditModal
           show={this.state.showModal}
-          schema={(schema && schema.json) || {}}
-          uiSchema={(schema && schema.ui) || {}}
+          schema={(selectedCategory && selectedCategory.schema.json) || {}}
+          uiSchema={(selectedCategory && selectedCategory.schema.ui) || {}}
           formData={contentToEdit}
-          handleCreateOrUpdate={this.handleCreateOrUpdate}
+          handleCreateOrUpdate={this.handleUpsert}
           handleEdit={this.handleFormEdited}
           handleClose={this.handleCloseModal}
         />
@@ -251,12 +176,6 @@ export default class ContentView extends Component {
   }
 
   render() {
-    const { loading } = this.state
-
-    if (loading) {
-      return null
-    }
-
     return (
       <ContentWrapper>
         <PageHeader>Content Manager</PageHeader>
@@ -265,3 +184,17 @@ export default class ContentView extends Component {
     )
   }
 }
+
+const mapStateToProps = state => ({
+  categories: state.content.categories,
+  contentItems: state.content.currentItems
+})
+
+const mapDispatchToProps = {
+  fetchContentCategories,
+  fetchContentItems,
+  upsertContentItems,
+  deleteContentItems
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(ContentView)

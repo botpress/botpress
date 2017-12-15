@@ -6,7 +6,6 @@ import nanoid from 'nanoid'
 import { hashCode } from '~/util'
 
 import {
-  fetchFlows,
   requestFlows,
   requestSaveFlows,
   receiveSaveFlows,
@@ -14,9 +13,7 @@ import {
   switchFlow,
   updateFlow,
   renameFlow,
-  saveFlow,
   updateFlowNode,
-  patchFlowNode,
   switchFlowNode,
   setDiagramAction,
   createFlowNode,
@@ -56,34 +53,6 @@ function applySnapshot(state, snapshot) {
   }
 }
 
-function createSnapshot(state) {
-  const snapshot = {
-    activeFlow: state.currentFlow,
-    activeFlowNode: state.currentFlowNode,
-    flowsByName: Object.assign({}, state.flowsByName)
-  }
-
-  const lastSnapshot = _.head(state.snapshots)
-
-  let snapshots = _.take(state.snapshots, SNAPSHOT_SIZE)
-
-  if (
-    state.currentSnapshotIndex === 0 &&
-    state.snapshots.length > 1 &&
-    lastSnapshot &&
-    snapshot.activeFlow === lastSnapshot.activeFlow &&
-    (!!snapshot.activeFlowNode && snapshot.activeFlowNode === lastSnapshot.activeFlowNode)
-  ) {
-    snapshots = _.drop(snapshots, 1) // We merge the current and last snapshots
-  }
-
-  return {
-    ...state,
-    snapshots: [snapshot, ...snapshots],
-    currentSnapshotIndex: 0
-  }
-}
-
 function findNodesThatReferenceFlow(state, flowName) {
   let nodes = []
   for (let flow of _.values(state.flowsByName)) {
@@ -94,23 +63,6 @@ function findNodesThatReferenceFlow(state, flowName) {
     }
   }
   return nodes
-}
-
-function copyName(siblingNames, nameToCopy) {
-  let copies = siblingNames.filter(name => name.startsWith(`${nameToCopy}-copy`))
-
-  if (!copies.length) {
-    return `${nameToCopy}-copy`
-  }
-
-  let i = 1
-  while (true) {
-    if (!copies.find(name => name === `${nameToCopy}-copy-${i}`)) {
-      return `${nameToCopy}-copy-${i}`
-    } else {
-      i += 1
-    }
-  }
 }
 
 function computeFlowsHash(state) {
@@ -173,6 +125,51 @@ function computeFlowsHash(state) {
 
 function updateCurrentHash(state) {
   return { ...state, currentHashes: computeFlowsHash(state) }
+}
+
+function createSnapshot(state) {
+  const snapshot = {
+    activeFlow: state.currentFlow,
+    activeFlowNode: state.currentFlowNode,
+    flowsByName: Object.assign({}, state.flowsByName)
+  }
+
+  const lastSnapshot = _.head(state.snapshots)
+
+  let snapshots = _.take(state.snapshots, SNAPSHOT_SIZE)
+
+  if (
+    state.currentSnapshotIndex === 0 &&
+    state.snapshots.length > 1 &&
+    lastSnapshot &&
+    snapshot.activeFlow === lastSnapshot.activeFlow &&
+    (!!snapshot.activeFlowNode && snapshot.activeFlowNode === lastSnapshot.activeFlowNode)
+  ) {
+    snapshots = _.drop(snapshots, 1) // We merge the current and last snapshots
+  }
+
+  return {
+    ...state,
+    snapshots: [snapshot, ...snapshots],
+    currentSnapshotIndex: 0
+  }
+}
+
+function copyName(siblingNames, nameToCopy) {
+  let copies = siblingNames.filter(name => name.startsWith(`${nameToCopy}-copy`))
+
+  if (!copies.length) {
+    return `${nameToCopy}-copy`
+  }
+
+  let i = 1
+  while (true) {
+    if (!copies.find(name => name === `${nameToCopy}-copy-${i}`)) {
+      return `${nameToCopy}-copy-${i}`
+    } else {
+      i += 1
+    }
+  }
 }
 
 function doRenameFlow({ flow, name, flows }) {
