@@ -18,7 +18,7 @@ export default class SidePanel extends Component {
 
   render() {
     const objectPropertiesTitle = !!this.props.currentFlowNode ? 'Node Properties' : 'Flow Properties'
-    const [nonSkills, skills] = _.partition(this.props.flows, x => x.name.startsWith('skills/'))
+    const [skills, nonSkills] = _.partition(this.props.flows, x => x.name.startsWith('skills/'))
 
     return (
       <SplitPane
