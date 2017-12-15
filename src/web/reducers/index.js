@@ -1,6 +1,7 @@
 import { combineReducers } from 'redux'
 import _ from 'lodash'
 
+import content from './content'
 import flows from './flows'
 import license from './license'
 import ui from './ui'
@@ -10,7 +11,7 @@ import modules from './modules'
 import rules from './rules'
 import notifications from './notifications'
 
-const bpApp = combineReducers({ flows, license, ui, user, bot, modules, rules, notifications })
+const bpApp = combineReducers({ content, flows, license, ui, user, bot, modules, rules, notifications })
 
 export default bpApp
 

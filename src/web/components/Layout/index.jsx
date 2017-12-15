@@ -12,6 +12,7 @@ import HelpButton from './HelpButton'
 import LicenseComponent from '~/components/License'
 import AboutComponent from '~/components/About'
 import GuidedTour from '~/components/Tour'
+import SelectContent from '~/views/Content/Select'
 
 import PluginInjectionSite from '~/components/PluginInjectionSite'
 
@@ -55,6 +56,7 @@ class Layout extends React.Component {
         <AboutComponent opened={this.props.aboutModalOpened} />
         <PluginInjectionSite site={'overlay'} />
         <HelpButton />
+        <SelectContent />
       </div>
     )
   }

@@ -2,12 +2,17 @@ import React, { Component } from 'react'
 import { Modal, Button, Radio, OverlayTrigger, Tooltip, Panel, Well } from 'react-bootstrap'
 import Select from 'react-select'
 import axios from 'axios'
+import _ from 'lodash'
+import { connect } from 'react-redux'
+
+import { fetchContentItem, upsertContentItems } from '~/actions'
 
 import ParametersTable from './ParametersTable'
+import CreateOrEditModal from '../../../Content/modal'
 
 const style = require('./style.scss')
 
-export default class ActionModalForm extends Component {
+class ActionModalForm extends Component {
   constructor(props) {
     super(props)
 
@@ -15,8 +20,22 @@ export default class ActionModalForm extends Component {
       actionType: 'message',
       functionSuggestions: [],
       functionInputValue: '',
-      messageInputValue: '',
-      functionParams: {}
+      messageValue: '',
+      functionParams: {},
+      itemId: (props.item && props.item.message && this.textToItemId(props.item.message)) || null,
+      showItemEdit: false,
+      contentToEdit: null
+    }
+    props.item && this.fetchItem(props.item.message)
+  }
+
+  textToItemId = text => _.get(text.match(/^say #!(.*)$/), '[1]')
+
+  fetchItem = text => {
+    const itemId = (text && this.textToItemId(text)) || null
+    this.setState({ itemId })
+    if (itemId) {
+      this.props.fetchContentItem(itemId)
     }
   }
 
@@ -31,9 +50,11 @@ export default class ActionModalForm extends Component {
       this.setState({
         actionType: nextProps.item.type,
         functionInputValue: nextProps.item.functionName,
-        messageInputValue: nextProps.item.message,
+        messageValue: nextProps.item.message,
         functionParams: nextProps.item.parameters
       })
+
+      this.fetchItem(nextProps.item.message)
     } else {
       this.resetForm()
     }
@@ -58,8 +79,20 @@ export default class ActionModalForm extends Component {
     this.setState({
       actionType: 'message',
       functionInputValue: '',
-      messageInputValue: ''
+      messageValue: ''
     })
+  }
+
+  handleUpdate = () => {
+    const categoryId = this.props.contentItems[this.state.itemId].categoryId
+    this.props
+      .upsertContentItems({ modifyId: this.state.itemId, categoryId, formData: this.state.contentToEdit })
+      .then(() => this.props.fetchContentItem(this.state.itemId))
+      .then(() => this.setState({ showItemEdit: false, contentToEdit: null }))
+  }
+
+  handleFormEdited = data => {
+    this.setState({ contentToEdit: data })
   }
 
   renderSectionCode() {
@@ -136,9 +169,16 @@ export default class ActionModalForm extends Component {
     )
   }
 
+  editItem = () => {
+    const contentItem = this.props.contentItems[this.state.itemId]
+    this.setState({ showItemEdit: true, contentToEdit: (contentItem && contentItem.formData) || {} })
+  }
+
   renderSectionMessage() {
-    const handleChange = event => {
-      this.setState({ messageInputValue: event.target.value })
+    const handleChange = item => {
+      const messageValue = `say #!${item.id}`
+      this.setState({ messageValue })
+      this.fetchItem(messageValue)
     }
 
     const tooltip = (
@@ -153,17 +193,51 @@ export default class ActionModalForm extends Component {
       </OverlayTrigger>
     )
 
+    const contentItem = this.props.contentItems[this.state.itemId]
+    const schema = (contentItem && contentItem.categorySchema) || { json: {}, ui: {} }
+    const textContent = (contentItem && `${contentItem.categoryTitle} | ${contentItem.previewText}`) || ''
+
     return (
       <div>
         <h5>Message {help}:</h5>
-        <div className={style.section}>
+        <div className={`${style.section} input-group`}>
           <input
             type="text"
             name="message"
             placeholder="Message to send"
-            value={this.state.messageInputValue}
-            onChange={handleChange}
+            value={textContent}
+            disabled
+            className="form-control"
           />
+          <span className="input-group-btn">
+            <button
+              className={`btn btn-default ${style.editButton}`}
+              disabled={!contentItem}
+              type="button"
+              onClick={this.editItem}
+            >
+              Edit...
+            </button>
+          </span>
+
+          <CreateOrEditModal
+            show={this.state.showItemEdit}
+            schema={schema.json}
+            uiSchema={schema.ui}
+            handleClose={() => this.setState({ showItemEdit: false, contentToEdit: null })}
+            formData={this.state.contentToEdit}
+            handleEdit={this.handleFormEdited}
+            handleCreateOrUpdate={this.handleUpdate}
+          />
+          <span className="input-group-btn">
+            <button
+              className="btn btn-default"
+              type="button"
+              onClick={() => window.botpress.pickContent({}, handleChange)}
+            >
+              Pick Content...
+            </button>
+          </span>
         </div>
       </div>
     )
@@ -180,13 +254,13 @@ export default class ActionModalForm extends Component {
       handler({
         type: this.state.actionType,
         functionName: this.state.functionInputValue,
-        message: this.state.messageInputValue,
+        message: this.state.messageValue,
         parameters: this.state.functionParams
       })
     }
 
     return (
-      <Modal animation={false} show={props.show} onHide={onClose}>
+      <Modal animation={false} show={props.show} onHide={onClose} container={document.getElementById('app')}>
         <Modal.Header closeButton>
           <Modal.Title>{this.state.isEdit ? 'Edit' : 'Add new'} action</Modal.Title>
         </Modal.Header>
@@ -213,3 +287,8 @@ export default class ActionModalForm extends Component {
     )
   }
 }
+
+const mapStateToProps = state => ({ contentItems: state.content.itemsById })
+const mapDispatchToProps = { fetchContentItem, upsertContentItems }
+
+export default connect(mapStateToProps, mapDispatchToProps)(ActionModalForm)
