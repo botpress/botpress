@@ -1,6 +1,6 @@
 import _ from 'lodash'
 
-exports.validateFlowSchema = flow => {
+export const validateFlowSchema = flow => {
   const errorPrefix = `[Flow] Invalid flow "${flow && flow.location}"`
 
   if (!flow || !_.isObjectLike(flow)) {
@@ -27,15 +27,13 @@ exports.validateFlowSchema = flow => {
     return `${errorPrefix}, expected 'startNode' to point to a valid node name`
   }
 
-  if (flow.catchAll) {
-    if (flow.catchAll.onEnter) {
-      return `${errorPrefix}, "catchAll" does not support "onEnter"`
-    }
+  if (flow.catchAll && flow.catchAll.onEnter) {
+    return `${errorPrefix}, "catchAll" does not support "onEnter"`
   }
 
   for (let node of flow.nodes) {
     if (!_.isString(node.id) || node.id.length <= 3) {
-      return errorPrefix + ', expected all nodes to have a valid id'
+      return `${errorPrefix}, expected node ${node.id} (${node.name}) to have a valid id`
     }
   }
 }

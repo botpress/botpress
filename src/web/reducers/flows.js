@@ -53,17 +53,10 @@ function applySnapshot(state, snapshot) {
   }
 }
 
-function findNodesThatReferenceFlow(state, flowName) {
-  let nodes = []
-  for (let flow of _.values(state.flowsByName)) {
-    for (let node of flow.nodes) {
-      if (node.flow === flowName || _.find(node.next, { node: flowName })) {
-        nodes.push(node.id)
-      }
-    }
-  }
-  return nodes
-}
+const findNodesThatReferenceFlow = (state, flowName) =>
+  _.flatten(_.values(state.flowsByName).map(flow => flow.nodes))
+    .filter(node => node.flow === flowName || _.find(node.next, { node: flowName }))
+    .map(node => node.id)
 
 function computeFlowsHash(state) {
   const hashAction = (hash, action) => {
@@ -383,7 +376,7 @@ reducer = reduceReducers(
         const flowRandomId = nanoid(5)
         const flowName = `skills/${skillId}-${flowRandomId}.flow.json`
 
-        const newFlow = Object.assign(payload.generatedFlow, {
+        const newFlow = Object.assign({}, payload.generatedFlow, {
           skillData: payload.data,
           name: flowName,
           location: flowName
@@ -412,7 +405,7 @@ reducer = reduceReducers(
       },
 
       [updateSkill]: (state, { payload }) => {
-        const modifiedFlow = Object.assign(state.flowsByName[payload.editFlowName], payload.generatedFlow, {
+        const modifiedFlow = Object.assign({}, state.flowsByName[payload.editFlowName], payload.generatedFlow, {
           flowData: payload.data,
           name: payload.editFlowName,
           location: payload.editFlowName
@@ -423,7 +416,7 @@ reducer = reduceReducers(
             return node
           }
 
-          return Object.assign(node, {
+          return Object.assign({}, node, {
             next: payload.transitions
           })
         })

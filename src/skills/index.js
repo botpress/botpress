@@ -8,7 +8,6 @@ const SKILLS_PREFIX_REGEX = new RegExp('^' + SKILLS_PREFIX)
 export default class SkillsManager {
   constructor({ logger }) {
     this.logger = logger
-
     this._log('info', `[Skills] Initiated`)
   }
 
@@ -16,7 +15,7 @@ export default class SkillsManager {
     this.logger && this.logger[level] && this.logger[level](msg)
   }
 
-  registerSkillsFromModules = modules => {
+  registerSkillsFromModules(modules) {
     this._skills = modules.filter(mod => SKILLS_PREFIX_REGEX.test(mod.name)).reduce((acc, curr) => {
       if (!curr.handlers.generate) {
         this._log('warn', `Skill "${curr.name}" has no flow generator ("generate" method exposed)`)
@@ -35,7 +34,7 @@ export default class SkillsManager {
     this._log('info', `[Skills] Loaded ${_.keys(this._skills).length} skills`)
   }
 
-  generateFlow = async (skillId, data) => {
+  async generateFlow(skillId, data) {
     if (!this._skills) {
       throw new Error("Skills haven't been initialized yet")
     }

@@ -35,6 +35,13 @@ export default class SkillsBuilder extends React.Component {
     this.setState({ initialData: this.props.data })
   }
 
+  componentDidMount() {
+    this.setState({
+      ...this.resetState(),
+      moduleProps: this.buildModuleProps(this.props.data)
+    })
+  }
+
   componentWillReceiveProps(nextProps) {
     if (nextProps.skillId !== this.props.skillId || nextProps.opened !== this.props.opened) {
       this.setState({
