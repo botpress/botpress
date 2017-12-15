@@ -1,9 +1,9 @@
 import React, { Component } from 'react'
+import { Button } from 'react-bootstrap'
+
 import classnames from 'classnames'
 
 import EditableInput from '../../common/EditableInput'
-
-import ActionSection from './ActionSection'
 import TransitionSection from './TransitionSection'
 
 const style = require('../style.scss')
@@ -29,6 +29,9 @@ export default class SkillCallNodePropertiesPanel extends Component {
       }
     }
 
+    const editSkill = () => this.props.requestEditSkill(node.id)
+    const seeFlow = () => this.props.switchFlow(node.flow)
+
     return (
       <div className={classnames(style.node, style['node-panel'])}>
         <EditableInput
@@ -38,6 +41,10 @@ export default class SkillCallNodePropertiesPanel extends Component {
           onChanged={::this.renameNode}
           transform={this.transformText}
         />
+        <div style={{ padding: '5px' }}>
+          <Button onClick={editSkill}>Edit skill</Button>
+          <Button onClick={seeFlow}>See flow</Button>
+        </div>
         <TransitionSection
           items={node['next']}
           header="Transitions"

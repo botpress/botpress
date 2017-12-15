@@ -12,6 +12,10 @@
   position: relative;
 }
 
+.node button + button {
+  margin-left: 5px;
+}
+
 .item {
   padding: 5px 0;
 

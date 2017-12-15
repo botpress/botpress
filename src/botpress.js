@@ -29,6 +29,7 @@ import StateManager from './dialog/state'
 import DialogEngine from './dialog/engine'
 import DialogProcessors from './dialog/processors'
 import DialogJanitor from './dialog/janitor'
+import SkillsManager from './skills'
 
 import createConversations from './conversations'
 import stats from './stats'
@@ -185,6 +186,8 @@ class botpress {
     const dialogJanitor = new DialogJanitor({ db, middlewares, botfile })
     const dialogEngine = new DialogEngine(flowProvider, dialogStateManager, null, logger)
 
+    const skillsManager = new SkillsManager({ logger })
+
     // Registers the default output processor, which sends messages to the user
     dialogEngine.registerOutputProcessor(DialogProcessors['default'])
     dialogJanitor.install()
@@ -230,7 +233,8 @@ class botpress {
       contentManager,
       dialogEngine,
       dialogJanitor,
-      messages
+      messages,
+      skills: skillsManager
     })
 
     ServiceLocator.init({ bp: this })
@@ -243,6 +247,7 @@ class botpress {
       _loadedModules: loadedModules
     })
 
+    skillsManager.registerSkillsFromModules(_.values(loadedModules))
     await contentManager.init()
 
     mediator.install()

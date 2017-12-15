@@ -1,0 +1,22 @@
+.loadingContainer {
+  text-align: center;
+  vertical-align: middle;
+  padding: 40px;
+
+  & > div {
+    margin-top: 20px;
+    display: inline-block;
+  }
+}
+
+.size-normal {
+  width: 50%;
+}
+
+.size-large {
+  width: 80%;
+}
+
+.size-small {
+  width: 30%;
+}

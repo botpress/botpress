@@ -1,7 +1,7 @@
 import React from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { Button, OverlayTrigger, Tooltip } from 'react-bootstrap'
+import { Button, OverlayTrigger, Tooltip, DropdownButton, MenuItem } from 'react-bootstrap'
 
 import _ from 'lodash'
 
@@ -69,6 +69,26 @@ class Toolbar extends React.Component {
       this.props.onCreateFlow(name)
     }
 
+    const noSkills = (
+      <MenuItem eventKey="1" disabled={true}>
+        No skills installed
+      </MenuItem>
+    )
+
+    const insertSkillsDropdown = (
+      <DropdownButton title="Insert skill" id="toolbarInsertSkill">
+        <MenuItem header>Installed skills</MenuItem>
+        {!this.props.skills.length && noSkills}
+        {this.props.skills.map((skill, i) => {
+          return (
+            <MenuItem eventKey={i} onClick={() => this.props.buildSkill(skill.id)}>
+              {skill.name}
+            </MenuItem>
+          )
+        })}
+      </DropdownButton>
+    )
+
     return (
       <div className={style.wrapper}>
         <div className={style.toolbar}>
@@ -129,6 +149,8 @@ class Toolbar extends React.Component {
               <i className="material-icons">add_box</i>
             </OverlayTrigger>
           </Button>
+
+          {insertSkillsDropdown}
 
           <div className={style.separator} />
 

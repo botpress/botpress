@@ -18,6 +18,7 @@ export default class SidePanel extends Component {
 
   render() {
     const objectPropertiesTitle = !!this.props.currentFlowNode ? 'Node Properties' : 'Flow Properties'
+    const [nonSkills, skills] = _.partition(this.props.flows, x => x.name.startsWith('skills/'))
 
     return (
       <SplitPane
@@ -33,7 +34,18 @@ export default class SidePanel extends Component {
           <Tabs animation={false}>
             <Tab eventKey={1} title="Flows">
               <FlowsList
-                flows={this.props.flows}
+                flows={nonSkills}
+                dirtyFlows={this.props.dirtyFlows}
+                switchFlow={this.props.switchFlow}
+                deleteFlow={this.props.deleteFlow}
+                duplicateFlow={this.props.duplicateFlow}
+                currentFlow={this.props.currentFlow}
+              />
+            </Tab>
+            <Tab eventKey={2} title="Skills">
+              <FlowsList
+                stripPrefix="skills/"
+                flows={skills}
                 dirtyFlows={this.props.dirtyFlows}
                 switchFlow={this.props.switchFlow}
                 deleteFlow={this.props.deleteFlow}
@@ -66,6 +78,8 @@ export default class SidePanel extends Component {
           node={this.props.currentFlowNode}
           updateNode={this.props.updateFlowNode}
           updateFlow={this.props.updateFlow}
+          requestEditSkill={this.props.requestEditSkill}
+          switchFlow={this.props.switchFlow}
         />
       )
     }

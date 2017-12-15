@@ -148,3 +148,27 @@ export const replaceNotifications = allNotifications => dispatch => {
 export const addNotifications = notifications => dispatch => {
   dispatch(newNotificationsReceived(notifications))
 }
+
+// Skills
+export const buildNewSkill = createAction('SKILLS/BUILD')
+export const cancelNewSkill = createAction('SKILLS/BUILD/CANCEL')
+export const insertNewSkill = createAction('SKILLS/INSERT')
+export const insertNewSkillNode = createAction('SKILLS/INSERT/NODE')
+export const updateSkill = createAction('SKILLS/UPDATE')
+
+export const editSkill = createAction('SKILLS/EDIT')
+export const requestEditSkill = nodeId => (dispatch, getState) => {
+  const state = getState()
+  const node = _.find(state.flows.flowsByName[state.flows.currentFlow].nodes, { id: nodeId })
+  const flow = node && state.flows.flowsByName[node.flow]
+
+  flow &&
+    dispatch(
+      editSkill({
+        skillId: 'botpress-skill-' + node.skill,
+        flowName: node.flow,
+        nodeId: nodeId,
+        data: flow.skillData
+      })
+    )
+}

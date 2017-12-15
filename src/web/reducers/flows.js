@@ -25,7 +25,10 @@ import {
   removeFlowNode,
   flowEditorUndo,
   flowEditorRedo,
-  linkFlowNodes
+  linkFlowNodes,
+  insertNewSkill,
+  insertNewSkillNode,
+  updateSkill
 } from '~/actions'
 
 const SNAPSHOT_SIZE = 25
@@ -40,6 +43,20 @@ const defaultState = {
   snapshots: [],
   nodeInBuffer: null
 }
+
+function applySnapshot(state, snapshot) {
+  return {
+    ...state,
+    currentFlow: snapshot.activeFlow,
+    currentFlowNode: snapshot.activeFlowNode,
+    flowsByName: snapshot.flowsByName
+  }
+}
+
+const findNodesThatReferenceFlow = (state, flowName) =>
+  _.flatten(_.values(state.flowsByName).map(flow => flow.nodes))
+    .filter(node => node.flow === flowName || _.find(node.next, { node: flowName }))
+    .map(node => node.id)
 
 function computeFlowsHash(state) {
   const hashAction = (hash, action) => {
@@ -128,15 +145,6 @@ function createSnapshot(state) {
     ...state,
     snapshots: [snapshot, ...snapshots],
     currentSnapshotIndex: 0
-  }
-}
-
-function applySnapshot(state, snapshot) {
-  return {
-    ...state,
-    currentFlow: snapshot.activeFlow,
-    currentFlowNode: snapshot.activeFlowNode,
-    flowsByName: snapshot.flowsByName
   }
 }
 
@@ -268,6 +276,7 @@ reducer = reduceReducers(
       [deleteFlow]: createSnapshot,
       [duplicateFlow]: createSnapshot,
       [removeFlowNode]: createSnapshot,
+      [insertNewSkill]: createSnapshot,
 
       [flowEditorUndo]: state => {
         if (_.isEmpty(state.snapshots) || state.snapshots.length <= state.currentSnapshotIndex) {
@@ -322,8 +331,8 @@ reducer = reduceReducers(
                 const targetNode = _.find(currentFlow.nodes, { id: (link || {}).target })
                 let remapNode = ''
 
-                if ((_.isString(value) && value.includes('.flow.json')) || value === 'END') {
-                  remapNode = value
+                if (value.node.includes('.flow.json') || value.node === 'END' || value.node.startsWith('#')) {
+                  remapNode = value.node
                 }
 
                 return { ...value, node: (targetNode && targetNode.name) || remapNode }
@@ -356,6 +365,87 @@ reducer = reduceReducers(
         currentFlow: state.currentFlow === name ? null : state.currentFlow,
         currentFlowNode: state.currentFlow === name ? null : state.currentFlowNode,
         flowsByName: _.omit(state.flowsByName, name)
+      }),
+
+      // Inserting a new skill essentially:
+      // 1. creates a new flow
+      // 2. creates a new "skill" node
+      // 3. puts that new node in the "insert buffer", waiting for user to place it on the canvas
+      [insertNewSkill]: (state, { payload }) => {
+        const skillId = payload.skillId.replace(/^botpress-skill-/i, '')
+        const flowRandomId = nanoid(5)
+        const flowName = `skills/${skillId}-${flowRandomId}.flow.json`
+
+        const newFlow = Object.assign({}, payload.generatedFlow, {
+          skillData: payload.data,
+          name: flowName,
+          location: flowName
+        })
+
+        const newNode = {
+          id: 'skill-' + flowRandomId,
+          type: 'skill-call',
+          skill: skillId,
+          name: `${skillId}-${flowRandomId}`,
+          flow: flowName,
+          next: payload.transitions || [],
+          onEnter: null,
+          onReceive: null
+        }
+
+        return {
+          ...state,
+          currentDiagramAction: 'insert_skill',
+          nodeInBuffer: newNode,
+          flowsByName: {
+            ...state.flowsByName,
+            [newFlow.name]: newFlow
+          }
+        }
+      },
+
+      [updateSkill]: (state, { payload }) => {
+        const modifiedFlow = Object.assign({}, state.flowsByName[payload.editFlowName], payload.generatedFlow, {
+          flowData: payload.data,
+          name: payload.editFlowName,
+          location: payload.editFlowName
+        })
+
+        const nodes = state.flowsByName[state.currentFlow].nodes.map(node => {
+          if (node.id !== payload.editNodeId) {
+            return node
+          }
+
+          return Object.assign({}, node, {
+            next: payload.transitions
+          })
+        })
+
+        return {
+          ...state,
+          flowsByName: {
+            ...state.flowsByName,
+            [payload.editFlowName]: modifiedFlow,
+            [state.currentFlow]: {
+              ...state.flowsByName[state.currentFlow],
+              nodes: nodes
+            }
+          }
+        }
+      },
+
+      [insertNewSkillNode]: (state, { payload }) => ({
+        ...state,
+        flowsByName: {
+          ...state.flowsByName,
+          [state.currentFlow]: {
+            ...state.flowsByName[state.currentFlow],
+            nodes: [
+              ...state.flowsByName[state.currentFlow].nodes,
+              _.merge(state.nodeInBuffer, _.pick(payload, ['x', 'y']))
+            ]
+          }
+        }
       }),
 
       [duplicateFlow]: (state, { payload: { flowNameToDuplicate, name } }) => {
@@ -407,6 +497,29 @@ reducer = reduceReducers(
         }
       },
 
+      [removeFlowNode]: (state, { payload }) => {
+        const flowsToRemove = []
+        const nodeToRemove = _.find(state.flowsByName[state.currentFlow].nodes, { id: payload })
+
+        if (nodeToRemove.type === 'skill-call') {
+          if (findNodesThatReferenceFlow(state, nodeToRemove.flow).length <= 1) {
+            // Remove the skill flow if that was the only node referencing it
+            flowsToRemove.push(nodeToRemove.flow)
+          }
+        }
+
+        return {
+          ...state,
+          flowsByName: {
+            ..._.omit(state.flowsByName, flowsToRemove),
+            [state.currentFlow]: {
+              ...state.flowsByName[state.currentFlow],
+              nodes: state.flowsByName[state.currentFlow].nodes.filter(node => node.id !== payload)
+            }
+          }
+        }
+      },
+
       [linkFlowNodes]: (state, { payload }) => {
         const flow = state.flowsByName[state.currentFlow]
 
@@ -432,19 +545,6 @@ reducer = reduceReducers(
           }
         }
       },
-
-      [removeFlowNode]: (state, { payload }) => ({
-        ...state,
-        flowsByName: {
-          ...state.flowsByName,
-          [state.currentFlow]: {
-            ...state.flowsByName[state.currentFlow],
-            nodes: state.flowsByName[state.currentFlow].nodes.filter(node => {
-              return node.id !== payload
-            })
-          }
-        }
-      }),
 
       [copyFlowNode]: state => ({
         ...state,
