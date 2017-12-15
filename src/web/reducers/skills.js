@@ -1,14 +1,16 @@
 import { handleActions } from 'redux-actions'
 
-import { modulesReceived, buildNewSkill, cancelNewSkill, insertNewSkill } from '~/actions'
+import { modulesReceived, buildNewSkill, cancelNewSkill, insertNewSkill, editSkill, updateSkill } from '~/actions'
 
 const defaultState = {
   installed: [],
-  generated: [],
   builder: {
     opened: false,
     data: {},
-    skillId: null
+    skillId: null,
+    action: null,
+    editFlowName: null,
+    editNodeId: null
   }
 }
 
@@ -35,7 +37,10 @@ const reducer = handleActions(
         ...state.builder,
         opened: true,
         data: {},
-        skillId: payload
+        skillId: payload,
+        action: 'new',
+        editFlowName: null,
+        editNodeId: null
       }
     }),
 
@@ -53,7 +58,33 @@ const reducer = handleActions(
         ...state.builder,
         opened: false,
         data: payload.data,
-        skillId: payload.skillId
+        skillId: payload.skillId,
+        editFlowName: null,
+        editNodeId: null
+      }
+    }),
+
+    [editSkill]: (state, { payload }) => ({
+      ...state,
+      builder: {
+        opened: true,
+        action: 'edit',
+        skillId: payload.skillId,
+        data: payload.data,
+        editFlowName: payload.flowName,
+        editNodeId: payload.nodeId
+      }
+    }),
+
+    [updateSkill]: (state, { payload }) => ({
+      ...state,
+      builder: {
+        opened: false,
+        action: null,
+        skillId: null,
+        data: null,
+        editFlowName: null,
+        editNodeId: null
       }
     })
   },

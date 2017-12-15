@@ -1,10 +1,7 @@
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
-import { cancelNewSkill, insertNewSkill } from '~/actions'
-import { getCurrentSkill } from '~/reducers'
-
-import _ from 'lodash'
+import { cancelNewSkill, insertNewSkill, updateSkill } from '~/actions'
 
 import SkillsBuilder from '../skills'
 
@@ -17,7 +14,8 @@ const mapDispatchToProps = (dispatch, ownProps) =>
   bindActionCreators(
     {
       cancelNewSkill,
-      insertNewSkill
+      insertNewSkill,
+      updateSkill
     },
     dispatch
   )

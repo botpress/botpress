@@ -67,12 +67,23 @@ export default class SkillsBuilder extends React.Component {
     })
 
     return this.generateFlow().then(generated => {
-      this.props.insertNewSkill({
-        skillId: this.props.skillId,
-        data: this.data,
-        generatedFlow: generated.flow,
-        transitions: generated.transitions
-      })
+      if (this.props.action === 'edit') {
+        this.props.updateSkill({
+          skillId: this.props.skillId,
+          data: this.data,
+          generatedFlow: generated.flow,
+          transitions: generated.transitions,
+          editFlowName: this.props.editFlowName,
+          editNodeId: this.props.editNodeId
+        })
+      } else {
+        this.props.insertNewSkill({
+          skillId: this.props.skillId,
+          data: this.data,
+          generatedFlow: generated.flow,
+          transitions: generated.transitions
+        })
+      }
     })
   }
 
@@ -125,6 +136,8 @@ export default class SkillsBuilder extends React.Component {
 
     const modalClassName = style['modal-size-' + this.state.windowSize]
 
+    const submitName = this.props.action === 'new' ? 'Insert' : 'Save'
+
     return (
       <Modal dialogClassName={modalClassName} animation={false} show={show} onHide={this.onCancel} backdrop="static">
         <Modal.Header closeButton>
@@ -143,7 +156,7 @@ export default class SkillsBuilder extends React.Component {
         <Modal.Footer>
           <Button onClick={this.onCancel}>Cancel</Button>
           <Button onClick={this.onSubmit} disabled={!this.state.canSubmit} bsStyle="primary">
-            Insert
+            {submitName}
           </Button>
         </Modal.Footer>
       </Modal>

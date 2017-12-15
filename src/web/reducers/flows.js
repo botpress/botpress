@@ -30,7 +30,8 @@ import {
   flowEditorRedo,
   linkFlowNodes,
   insertNewSkill,
-  insertNewSkillNode
+  insertNewSkillNode,
+  updateSkill
 } from '~/actions'
 
 const SNAPSHOT_SIZE = 25
@@ -407,6 +408,36 @@ reducer = reduceReducers(
           flowsByName: {
             ...state.flowsByName,
             [newFlow.name]: newFlow
+          }
+        }
+      },
+
+      [updateSkill]: (state, { payload }) => {
+        const modifiedFlow = Object.assign(state.flowsByName[payload.editFlowName], payload.generatedFlow, {
+          flowData: payload.data,
+          name: payload.editFlowName,
+          location: payload.editFlowName
+        })
+
+        const nodes = state.flowsByName[state.currentFlow].nodes.map(node => {
+          if (node.id !== payload.editNodeId) {
+            return node
+          }
+
+          return Object.assign(node, {
+            next: payload.transitions
+          })
+        })
+
+        return {
+          ...state,
+          flowsByName: {
+            ...state.flowsByName,
+            [payload.editFlowName]: modifiedFlow,
+            [state.currentFlow]: {
+              ...state.flowsByName[state.currentFlow],
+              nodes: nodes
+            }
           }
         }
       },
