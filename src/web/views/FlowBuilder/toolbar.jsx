@@ -76,7 +76,7 @@ class Toolbar extends React.Component {
     )
 
     const insertSkillsDropdown = (
-      <DropdownButton title="Insert skill" id="toolbar-insert-skill">
+      <DropdownButton title="Insert skill" id="toolbarInsertSkill">
         <MenuItem header>Installed skills</MenuItem>
         {!this.props.skills.length && noSkills}
         {this.props.skills.map((skill, i) => {

@@ -26,7 +26,7 @@ export default class FlowsList extends Component {
 
     const hideOverlay = () => {
       this.setState({
-        showDropdown: -1
+        showDropdownIndex: -1
       })
     }
 
@@ -72,11 +72,11 @@ export default class FlowsList extends Component {
       </Popover>
     )
 
-    const overlayShown = this.state.showDropdown === index
+    const overlayShown = this.state.showDropdownIndex === index
 
     const showOverlay = () => {
       this.setState({
-        showDropdown: index
+        showDropdownIndex: index
       })
     }
 

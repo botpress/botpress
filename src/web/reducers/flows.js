@@ -380,21 +380,23 @@ reducer = reduceReducers(
       // Inserting a new skill essentially:
       // 1. creates a new flow
       // 2. creates a new "skill" node
-      // 3. put that new node in the "insert buffer", waiting for user to place it in the canvas
+      // 3. puts that new node in the "insert buffer", waiting for user to place it on the canvas
       [insertNewSkill]: (state, { payload }) => {
+        const skillId = payload.skillId.replace(/^botpress-skill-/i, '')
+        const flowRandomId = nanoid(5)
+        const flowName = `skills/${skillId}-${flowRandomId}.flow.json`
+
         const newFlow = Object.assign(payload.generatedFlow, {
-          skillData: payload.data
+          skillData: payload.data,
+          name: flowName,
+          location: flowName
         })
 
-        const skillId = payload.skillId.replace(/^botpress-skill-/i, '')
-        const flowName = `skills/${skillId}-${nanoid(5)}.flow.json`
-        newFlow.location = newFlow.name = flowName
-
         const newNode = {
-          id: 'skill-' + nanoid(6),
+          id: 'skill-' + flowRandomId,
           type: 'skill-call',
           skill: skillId,
-          name: skillId + '-' + nanoid(5),
+          name: `${skillId}-${flowRandomId}`,
           flow: flowName,
           next: payload.transitions || [],
           onEnter: null,
@@ -450,10 +452,7 @@ reducer = reduceReducers(
             ...state.flowsByName[state.currentFlow],
             nodes: [
               ...state.flowsByName[state.currentFlow].nodes,
-              _.merge(state.nodeInBuffer, {
-                x: payload.x,
-                y: payload.y
-              })
+              _.merge(state.nodeInBuffer, _.pick(payload, ['x', 'y']))
             ]
           }
         }
@@ -509,14 +508,13 @@ reducer = reduceReducers(
       },
 
       [removeFlowNode]: (state, { payload }) => {
-        const node = _.find(state.flowsByName[state.currentFlow].nodes, { id: payload })
-
         const flowsToRemove = []
+        const nodeToRemove = _.find(state.flowsByName[state.currentFlow].nodes, { id: payload })
 
-        if (node.type === 'skill-call') {
-          if (findNodesThatReferenceFlow(state, node.flow).length <= 1) {
+        if (nodeToRemove.type === 'skill-call') {
+          if (findNodesThatReferenceFlow(state, nodeToRemove.flow).length <= 1) {
             // Remove the skill flow if that was the only node referencing it
-            flowsToRemove.push(node.flow)
+            flowsToRemove.push(nodeToRemove.flow)
           }
         }
 
@@ -526,9 +524,7 @@ reducer = reduceReducers(
             ..._.omit(state.flowsByName, flowsToRemove),
             [state.currentFlow]: {
               ...state.flowsByName[state.currentFlow],
-              nodes: state.flowsByName[state.currentFlow].nodes.filter(node => {
-                return node.id !== payload
-              })
+              nodes: state.flowsByName[state.currentFlow].nodes.filter(node => node.id !== payload)
             }
           }
         }

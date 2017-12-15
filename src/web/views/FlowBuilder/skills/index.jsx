@@ -2,8 +2,8 @@ import React from 'react'
 import { Modal, Button } from 'react-bootstrap'
 import axios from 'axios'
 import find from 'lodash/find'
+import includes from 'lodash/includes'
 import Loader from 'halogen/BounceLoader'
-import _ from 'lodash'
 
 const style = require('./style.scss')
 
@@ -13,15 +13,7 @@ import InjectedModuleView from '~/components/PluginInjectionSite/module'
 
 class WrappedInjectedModule extends React.Component {
   shouldComponentUpdate(nextProps) {
-    if (nextProps.moduleProps !== this.props.moduleProps) {
-      return true
-    }
-
-    if (nextProps.moduleName !== this.props.moduleName) {
-      return true
-    }
-
-    return false
+    return nextProps.moduleProps !== this.props.moduleProps || nextProps.moduleName !== this.props.moduleName
   }
 
   render() {
@@ -53,7 +45,7 @@ export default class SkillsBuilder extends React.Component {
   }
 
   renderModuleNotFound = () => {
-    return 'Error'
+    return <div>Could not load skill's view</div>
   }
 
   onDataChanged = data => {
@@ -109,7 +101,7 @@ export default class SkillsBuilder extends React.Component {
   }
 
   onWindowResized = size => {
-    if (!_.includes(VALID_WINDOW_SIZES, size)) {
+    if (!includes(VALID_WINDOW_SIZES, size)) {
       const sizes = VALID_WINDOW_SIZES.join(', ')
       return console.log(`ERROR – Skill "${size}" is an invalid size for Skill window. Valid sizes are ${sizes}.`)
     }
@@ -131,15 +123,18 @@ export default class SkillsBuilder extends React.Component {
   }
 
   render() {
-    const show = this.props.opened
     const skill = find(this.props.installedSkills, { id: this.props.skillId })
-
-    const modalClassName = style['modal-size-' + this.state.windowSize]
-
+    const modalClassName = style['size-' + this.state.windowSize]
     const submitName = this.props.action === 'new' ? 'Insert' : 'Save'
 
     return (
-      <Modal dialogClassName={modalClassName} animation={false} show={show} onHide={this.onCancel} backdrop="static">
+      <Modal
+        dialogClassName={modalClassName}
+        animation={false}
+        show={this.props.opened}
+        onHide={this.onCancel}
+        backdrop="static"
+      >
         <Modal.Header closeButton>
           <Modal.Title>Insert a new skill | {skill && skill.name}</Modal.Title>
         </Modal.Header>

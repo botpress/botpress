@@ -1,6 +1,5 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
 import { Grid, Row, Col, FormGroup, FormControl, Button } from 'react-bootstrap'
 
 import _ from 'lodash'
@@ -178,6 +177,6 @@ class ManageView extends React.Component {
   }
 }
 
-const mapDispatchToProps = dispatch => bindActionCreators({ fetchModules }, dispatch)
+const mapDispatchToProps = { fetchModules }
 
 export default connect(null, mapDispatchToProps)(ManageView)

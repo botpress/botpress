@@ -18,17 +18,11 @@ const reducer = handleActions(
   {
     [modulesReceived]: (state, { payload }) => ({
       ...state,
-      installed: payload
-        .filter(module => {
-          return module.name.startsWith('botpress-skill-')
-        })
-        .map(module => {
-          return {
-            id: module.name,
-            name: module.menuText,
-            icon: module.menuIcon
-          }
-        })
+      installed: payload.filter(module => module.name.startsWith('botpress-skill-')).map(module => ({
+        id: module.name,
+        name: module.menuText,
+        icon: module.menuIcon
+      }))
     }),
 
     [buildNewSkill]: (state, { payload }) => ({
@@ -36,11 +30,9 @@ const reducer = handleActions(
       builder: {
         ...state.builder,
         opened: true,
-        data: {},
-        skillId: payload,
         action: 'new',
-        editFlowName: null,
-        editNodeId: null
+        data: {},
+        skillId: payload
       }
     }),
 
@@ -58,15 +50,14 @@ const reducer = handleActions(
         ...state.builder,
         opened: false,
         data: payload.data,
-        skillId: payload.skillId,
-        editFlowName: null,
-        editNodeId: null
+        skillId: payload.skillId
       }
     }),
 
     [editSkill]: (state, { payload }) => ({
       ...state,
       builder: {
+        ...state.builder,
         opened: true,
         action: 'edit',
         skillId: payload.skillId,
@@ -79,12 +70,8 @@ const reducer = handleActions(
     [updateSkill]: (state, { payload }) => ({
       ...state,
       builder: {
-        opened: false,
-        action: null,
-        skillId: null,
-        data: null,
-        editFlowName: null,
-        editNodeId: null
+        ...state.builder,
+        opened: false
       }
     })
   },

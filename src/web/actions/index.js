@@ -124,15 +124,15 @@ export const buildNewSkill = createAction('SKILLS/BUILD')
 export const cancelNewSkill = createAction('SKILLS/BUILD/CANCEL')
 export const insertNewSkill = createAction('SKILLS/INSERT')
 export const insertNewSkillNode = createAction('SKILLS/INSERT/NODE')
+export const updateSkill = createAction('SKILLS/UPDATE')
 
 export const editSkill = createAction('SKILLS/EDIT')
-export const updateSkill = createAction('SKILLS/UPDATE')
 export const requestEditSkill = nodeId => (dispatch, getState) => {
   const state = getState()
   const node = _.find(state.flows.flowsByName[state.flows.currentFlow].nodes, { id: nodeId })
   const flow = node && state.flows.flowsByName[node.flow]
 
-  if (flow) {
+  flow &&
     dispatch(
       editSkill({
         skillId: 'botpress-skill-' + node.skill,
@@ -141,5 +141,4 @@ export const requestEditSkill = nodeId => (dispatch, getState) => {
         data: flow.skillData
       })
     )
-  }
 }
