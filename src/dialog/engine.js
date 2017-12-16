@@ -212,6 +212,9 @@ class DialogEngine {
     let switchedFlow = false
     let switchedNode = false
 
+    const originalFlow = context.currentFlow.name
+    const originalNode = context.node
+
     if (callSubflowRegex.test(nodeName)) {
       this._trace('>>', 'FLOW', `"${nodeName}"`, context, null)
       context = this._gotoSubflow(nodeName, context)
@@ -271,7 +274,12 @@ class DialogEngine {
 
       if (!node.onReceive) {
         this._trace('..', 'NOWT', '', context, userState)
-        userState = await this._transitionToNextNodes(node, context, userState, stateId, event)
+
+        if (node.type === 'skill-call' && originalFlow !== node.flow) {
+          userState = await this._processNode(stateId, userState, context, node.flow, event)
+        } else {
+          userState = await this._transitionToNextNodes(node, context, userState, stateId, event)
+        }
       }
     } else {
       // i.e. we were already on that node before we received the message
@@ -281,7 +289,12 @@ class DialogEngine {
       }
 
       this._trace('..', 'RECV', '', context, userState)
-      userState = await this._transitionToNextNodes(node, context, userState, stateId, event)
+
+      if (node.type === 'skill-call' && originalFlow !== node.flow) {
+        userState = await this._processNode(stateId, userState, context, node.flow, event)
+      } else {
+        userState = await this._transitionToNextNodes(node, context, userState, stateId, event)
+      }
     }
 
     return userState
