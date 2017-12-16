@@ -14,7 +14,7 @@ require('react-select/dist/react-select.css')
 require('./theme.scss')
 
 // Do not use "import App from ..." as hoisting will screw up styling
-var App = require('./components/App').default
+const App = require('./components/App').default
 
 const composeEnhancers =
   typeof window === 'object' && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
