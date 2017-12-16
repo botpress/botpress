@@ -27,7 +27,8 @@ export const saveAllFlows = flows => (dispatch, getState) => {
     startNode: flow.startNode,
     catchAll: flow.catchAll,
     links: flow.links,
-    nodes: flow.nodes
+    nodes: flow.nodes,
+    skillData: flow.skillData
   }))
 
   axios.post('/flows/save', flows).then(() => {
