@@ -1,12 +1,13 @@
-var webpack = require('webpack')
-var path = require('path')
-var CopyWebpackPlugin = require('copy-webpack-plugin')
-var nodeExternals = require('webpack-node-externals')
+const webpack = require('webpack')
+const path = require('path')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
+// var HardSourceWebpackPlugin = require('hard-source-webpack-plugin')
+const nodeExternals = require('webpack-node-externals')
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
 
-var ExtensionsPlugin = require('./extensions/extensions-plugin')
+const ExtensionsPlugin = require('./extensions/extensions-plugin')
 
-var nodeConfig = {
+const nodeConfig = {
   devtool: process.env.NODE_ENV === 'production' ? 'source-map' : 'eval-cheap-module-source-map',
   entry: [path.resolve(__dirname, './index.js')],
   output: {
@@ -53,7 +54,7 @@ var nodeConfig = {
   ]
 }
 
-var webConfig = {
+const webConfig = {
   bail: true,
   devtool: process.env.NODE_ENV === 'production' ? 'source-map' : 'eval-cheap-module-source-map',
   entry: {
@@ -163,8 +164,8 @@ var webConfig = {
   }
 }
 
-var compiler = webpack([webConfig, nodeConfig])
-var postProcess = function(err, stats) {
+const compiler = webpack([webConfig, nodeConfig])
+const postProcess = (err, stats) => {
   if (err) {
     throw err
   }

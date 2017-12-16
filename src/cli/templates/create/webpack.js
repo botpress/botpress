@@ -105,7 +105,7 @@ const liteConfig = Object.assign({}, webConfig, {
 })
 
 const compiler = webpack([nodeConfig, webConfig, liteConfig])
-const postProcess = function(err, stats) {
+const postProcess = (err, stats) => {
   if (err) {
     throw err
   }

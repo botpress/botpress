@@ -58,7 +58,7 @@ module.exports = ({ db, internals = {} }) => {
     await knex('dialog_sessions').insert(sessionData)
   }
 
-  async function getState(stateId) {
+  const getState = async stateId => {
     const knex = await db.get()
 
     const session = await knex('dialog_sessions')
@@ -82,7 +82,7 @@ module.exports = ({ db, internals = {} }) => {
     }
   }
 
-  function setState(stateId, state) {
+  const setState = (stateId, state) => {
     if (_.isNil(state)) {
       state = _createEmptyState(stateId)
     }
@@ -100,7 +100,7 @@ module.exports = ({ db, internals = {} }) => {
    * @param substates Detaults to ['context']. If this is empty it will delete no substate
    * @returns {Promise.<void>}
    */
-  async function deleteState(stateId, substates = ['context']) {
+  const deleteState = async (stateId, substates = ['context']) => {
     const knex = await db.get()
 
     const states = [stateId, ...substates.map(x => `${stateId}___${x}`)]

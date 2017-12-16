@@ -1,4 +1,4 @@
-export const hashCode = function(str) {
+export const hashCode = str => {
   let hash = 0
   if (str.length === 0) {
     return hash
