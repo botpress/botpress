@@ -275,7 +275,8 @@ export default class FlowBuilder extends Component {
       }
 
       // If ports have more than one outbout link
-      ;[link.sourcePort, link.targetPort].forEach(port => {
+      const ports = [link.sourcePort, link.targetPort]
+      ports.forEach(port => {
         if (!port) {
           return
         }
