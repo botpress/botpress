@@ -11,13 +11,13 @@ import util from '../util'
 
 const AUTH_FILE = '.auth.json'
 
-// TODO: this part replicates `start.js`, refactor
+// TODO: this part replicates `start.js`, refactor later
 const getDataDir = () => {
   const projectPath = path.resolve('.')
 
   const botfile = path.join(projectPath, 'botfile.js')
   if (!fs.existsSync(botfile)) {
-    util.print('error', `(fatal) No ${chalk.bold('botfile.js')} file found at: ` + botfile)
+    util.print.error(`(fatal) No ${chalk.bold('botfile.js')} file found at: ` + botfile)
     process.exit(1)
   }
 
@@ -35,7 +35,7 @@ const readAuth = () => {
     return JSON.parse(json)
   } catch (err) {
     if (err.code !== 'ENOENT') {
-      console.warn(`Error reading ${authFile}:`, err.message)
+      util.print.warn(err.message || 'Unknown error', `while reading ${authFile}.`)
     }
   }
   return {}
@@ -76,13 +76,13 @@ const refreshToken = async botUrl => {
 const doLogin = async botUrl => {
   const res = await axios.get(`${botUrl}/api/auth/enabled`)
   if (res.data === false) {
-    return AUTH_DISABLED
+    return { token: AUTH_DISABLED, kind: 'no-auth' }
   }
 
   // try refreshing token before attempting the new login
   const token = await refreshToken(botUrl)
   if (token) {
-    return token
+    return { token, kind: 'refresh' }
   }
 
   const schema = {
@@ -107,7 +107,7 @@ const doLogin = async botUrl => {
   const result = await axios.post(`${botUrl}/api/login`, { user, password })
 
   if (result.data.success) {
-    return result.data.token
+    return { token: result.data.token, kind: 'login' }
   }
   throw new Error(result.data.reason)
 }
@@ -116,18 +116,26 @@ exports.login = async botUrl => {
   botUrl = botUrl.replace(/\/+$/, '')
 
   if (!validUrl.isUri(botUrl)) {
-    console.error(`Doesn't look like valid URL: ${botUrl}`)
+    util.print.error(`Doesn't look like valid URL: ${botUrl}`)
     return
   }
 
   try {
-    const token = await doLogin(botUrl)
+    const { token, kind } = await doLogin(botUrl)
     const auth = readAuth()
     auth[botUrl] = token
     writeAuth(auth)
-    console.log(`Logged in successfully. Auth token saved in ${AUTH_FILE}`)
+    if (kind === 'login') {
+      util.print.success(`Logged in successfully. Auth token saved in ${getAuthFile()}.`)
+    } else if (kind === 'refresh') {
+      util.print.success(`Auth token refreshed and saved in ${getAuthFile()}.`)
+    } else if (kind === 'no-auth') {
+      util.print.info(`Auth is disabled at ${botUrl}, no need to login.`)
+    }
+    return token
   } catch (err) {
-    console.error('Error:', err.message || 'Unknown')
+    util.print.error(err.message || 'Unknown')
+    return
   }
 }
 
@@ -148,11 +156,11 @@ exports.logout = botUrl => {
   botUrl = botUrl.replace(/\/+$/, '')
   const auth = readAuth()
   if (!auth[botUrl]) {
-    console.warn(`No saved token for ${botUrl}, nothing to do.`)
+    util.print.warn(`No saved token for ${botUrl}, nothing to do.`)
     return
   }
 
   delete auth[botUrl]
   writeAuth(auth)
-  console.log('Logged out successfully.')
+  util.print.success('Logged out successfully.')
 }

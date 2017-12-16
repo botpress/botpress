@@ -42,7 +42,7 @@ const prepareDb = async () => {
   return knex
 }
 
-module.exports = async ({ botfile, projectLocation, logger }) => {
+module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
   const categories = []
   const categoryById = {}
   const fileById = {}
@@ -102,7 +102,7 @@ module.exports = async ({ botfile, projectLocation, logger }) => {
     const items = (await listCategoryItems(categoryId)).map(item =>
       _.pick(item, 'id', 'formData', 'createdBy', 'createdOn')
     )
-    fs.writeFileSync(fileById[categoryId], JSON.stringify(items, null, 2))
+    await ghostManager.recordRevision(formDataDir, fileById[categoryId], JSON.stringify(items, null, 2))
   }
 
   const dumpAllDataToFiles = () => Promise.map(categories, ({ id }) => dumpDataToFile(id))
@@ -263,13 +263,14 @@ module.exports = async ({ botfile, projectLocation, logger }) => {
     return category
   }
 
-  const readDataFromFile = (filePath, fileName) => {
-    if (!fs.existsSync(filePath)) {
-      logger.warn(`Form content file ${filePath} not found`)
+  const readDataForFile = async fileName => {
+    const json = await ghostManager.readFile(formDataDir, fileName)
+    if (!json) {
+      logger.warn(`Form content file ${fileName} not found`)
       return []
     }
+
     try {
-      const json = fs.readFileSync(filePath, 'utf-8')
       const data = JSON.parse(json)
       if (!Array.isArray(data)) {
         throw new Error(`${fileName} expected to contain array, contents ignored`)
@@ -283,14 +284,15 @@ module.exports = async ({ botfile, projectLocation, logger }) => {
   }
 
   const loadData = async (category, fileName) => {
-    const filePath = path.resolve(formDataDir, './' + fileName)
-    fileById[category.id] = filePath
+    fileById[category.id] = fileName
 
     logger.debug(`Loading data for ${category.id} from ${fileName}`)
     let data = []
     try {
-      data = readDataFromFile(filePath, fileName)
-    } catch (e) {}
+      data = await readDataForFile(fileName)
+    } catch (err) {
+      logger.warn(`Error reading data from ${fileName}`, err)
+    }
 
     data = await Promise.map(data, async item => ({
       ...item,
@@ -313,6 +315,7 @@ module.exports = async ({ botfile, projectLocation, logger }) => {
     }
 
     mkdirp.sync(formDataDir)
+    await ghostManager.addFolder(formDataDir, '**/*.json')
 
     const files = await Promise.fromCallback(callback => glob('**/*.form.js', { cwd: formDir }, callback))
 

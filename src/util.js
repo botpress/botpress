@@ -8,31 +8,27 @@ const IS_DEV = process.env.NODE_ENV !== 'production'
 
 const NPM_CMD = /^win/.test(process.platform) ? 'npm.cmd' : 'npm'
 
-const print = function(...args) {
-  const mapping = {
-    info: chalk.white,
-    warn: function() {
-      return chalk.yellow('WARN', ...arguments)
-    },
-    error: function() {
-      return chalk.red('ERR', ...arguments)
-    },
-    success: function() {
-      return chalk.green('OK', ...arguments)
-    }
-  }
-
-  let level = mapping[args[0]]
-  const matched = !!level
-
-  if (!matched) {
-    level = mapping.info
-  } else {
-    args.splice(0, 1)
-  }
-
-  console.log(chalk.black.bgWhite('[botpress]'), '\t', level(...args))
+const PRINT_LEVELS = {
+  info: chalk.white,
+  warn: chalk.yellow.bind(chalk, 'WARN'),
+  error: chalk.red.bind(chalk, 'ERR'),
+  success: chalk.green.bind(chalk, 'OK')
 }
+
+const print = (level, ...args) => {
+  let method = PRINT_LEVELS[level]
+
+  if (!method) {
+    args = [level].concat(args)
+    method = PRINT_LEVELS.info
+  }
+
+  console.log(chalk.black.bgWhite('[botpress]'), '\t', method(...args))
+}
+
+Object.keys(PRINT_LEVELS).forEach(level => {
+  print[level] = (...args) => print(level, ...args)
+})
 
 const resolveFromDir = (fromDir, moduleId) => {
   fromDir = path.resolve(fromDir)

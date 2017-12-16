@@ -1,4 +1,5 @@
 import express from 'express'
+import compression from 'compression'
 import http from 'http'
 
 import Socket from './socket'
@@ -23,6 +24,7 @@ module.exports = bp => {
 
   const start = async () => {
     const app = express()
+    app.use(compression())
     const server = http.createServer(app)
     const port = bp.botfile.port
 
@@ -31,7 +33,7 @@ module.exports = bp => {
     await serveStatic(app)
 
     return new Promise(resolve => {
-      server.listen(port, () => resolve())
+      server.listen(port, resolve)
     })
   }
 

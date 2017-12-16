@@ -9,7 +9,55 @@ import ReactSidebar from 'react-sidebar'
 import SidebarHeader from './SidebarHeader'
 import RulesChecker from '+/views/RulesChecker'
 
+import GhostChecker from '~/views/GhostContent/Checker'
+
 const style = require('./Sidebar.scss')
+
+const BASIC_MENU_ITEMS = [
+  {
+    name: 'Dashboard',
+    path: 'dashboard',
+    activePaths: ['', '/', '/dashboard'],
+    rule: { res: 'dashboard', op: 'read' },
+    icon: 'dashboard'
+  },
+  {
+    name: 'Modules',
+    path: 'manage',
+    activePaths: ['/manage'],
+    rule: { res: 'modules/list', op: 'read' },
+    icon: 'dashboard'
+  },
+  window.GHOST_ENABLED && {
+    name: 'Ghost Content',
+    path: 'ghost-content',
+    activePaths: ['/ghost-content'],
+    rule: { res: 'ghost_content', op: 'read' },
+    icon: 'content_copy',
+    renderSuffix: () => <GhostChecker />
+  },
+  {
+    name: 'Content',
+    path: 'content',
+    activePaths: ['/content'],
+    rule: { res: 'content', op: 'read' },
+    icon: 'description'
+  },
+  {
+    name: 'Flows',
+    path: 'flows',
+    activePaths: ['/flows'],
+    rule: { res: 'flows', op: 'read' },
+    icon: 'device_hub'
+  },
+  {
+    name: 'Middleware',
+    path: 'middleware',
+    activePaths: ['/middleware'],
+    rule: { res: 'middleware', op: 'read' },
+    icon: 'settings'
+  }
+].filter(Boolean)
 
 class Sidebar extends React.Component {
   static contextTypes = {
@@ -73,26 +121,24 @@ class Sidebar extends React.Component {
     )
   }
 
-  getActiveClassNames = condition => {
-    return classnames({
+  getActiveClassNames = condition =>
+    classnames({
       'bp-sidebar-active': condition,
       [style.active]: condition
     })
-  }
 
-  renderBasicItem(name, path, rule, activePaths, icon) {
-    const isAt = paths => {
-      return paths.includes(location.pathname)
-    }
+  renderBasicItem = ({ name, path, activePaths, rule, icon, renderSuffix }) => {
+    const isAt = paths => paths.includes(location.pathname)
 
     const className = this.getActiveClassNames(isAt(activePaths))
 
     return (
-      <RulesChecker res={rule.res} op={rule.op}>
+      <RulesChecker res={rule.res} op={rule.op} key={name}>
         <li className={className} key={path}>
           <Link to={path} title={name}>
             <i className="icon material-icons">{icon}</i>
             {name}
+            {renderSuffix && renderSuffix()}
           </Link>
         </li>
       </RulesChecker>
@@ -101,35 +147,17 @@ class Sidebar extends React.Component {
 
   render() {
     const modules = this.props.modules
-    const items = modules.filter(x => !x.noInterface).map(this.renderModuleItem)
+    const moduleItems = modules.filter(x => !x.noInterface).map(this.renderModuleItem)
 
     const emptyClassName = classnames(style.empty, 'bp-empty')
-
-    const dashboardRules = { res: 'dashboard', op: 'read' }
-    const modulesRules = { res: 'modules/list', op: 'read' }
-    const ummRules = { res: 'umm', op: 'read' }
-    const contentRules = { res: 'content', op: 'read' }
-    const flowsRules = { res: 'flows', op: 'read' }
-    const middlewareRules = { res: 'middleware', op: 'read' }
-
-    const dashboardPaths = ['', '/', '/dashboard']
-    const modulesPaths = ['/manage']
-    const ummPaths = ['/umm']
-    const contentPaths = ['/content']
-    const flowsPaths = ['/flows']
-    const middlewarePaths = ['/middleware']
 
     const sidebarContent = (
       <div className={classnames(style.sidebar, 'bp-sidebar')}>
         <SidebarHeader />
         <ul className="nav">
-          {this.renderBasicItem('Dashboard', 'dashboard', dashboardRules, dashboardPaths, 'dashboard')}
-          {this.renderBasicItem('Modules', 'manage', modulesRules, modulesPaths, 'build')}
-          {this.renderBasicItem('Content', 'content', contentRules, contentPaths, 'description')}
-          {this.renderBasicItem('Flows', 'flows', flowsRules, flowsPaths, 'device_hub')}
-          {this.renderBasicItem('Middleware', 'middleware', middlewareRules, middlewarePaths, 'settings')}
-          {items}
-          <li className={emptyClassName} key="empty" />
+          {BASIC_MENU_ITEMS.map(this.renderBasicItem)}
+          {moduleItems}
+          <li className={emptyClassName} />
         </ul>
       </div>
     )

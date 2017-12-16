@@ -88,13 +88,12 @@ module.exports = (knex, options = {}) => {
     })
   }
 
-  const bootstrap = () => {
-    return helpers(knex).createTableIfNotExists(tableName, table => {
+  const bootstrap = () =>
+    helpers(knex).createTableIfNotExists(tableName, table => {
       table.string('key').primary()
       table.text('value')
       table.timestamp('modified_on')
     })
-  }
 
   return { get, set, bootstrap }
 }
