@@ -59,9 +59,6 @@ const BASIC_MENU_ITEMS = [
   }
 ].filter(Boolean)
 
-// const ummPaths = ['/umm']
-// const ummRules = { res: 'umm', op: 'read' }
-
 class Sidebar extends React.Component {
   static contextTypes = {
     router: PropTypes.object.isRequired
