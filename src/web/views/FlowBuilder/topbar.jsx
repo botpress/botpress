@@ -4,7 +4,7 @@ import _ from 'lodash'
 const style = require('./topbar.scss')
 
 export default class Topbar extends React.Component {
-  promptRenameFlow() {
+  promptRenameFlow = () => {
     const name = window.prompt('Please enter the new name for that flow', this.getCurrentFlowName())
 
     if (!name) {
@@ -40,10 +40,12 @@ export default class Topbar extends React.Component {
         <span>Flow Editor –</span>
         <span className={style.name}> {name}</span>
         {name && (
-          <a onClick={::this.promptRenameFlow} href="#" className={style.rename}>
-            {' '}
-            (rename)
-          </a>
+          <span>
+            &nbsp;
+            <a onClick={this.promptRenameFlow} href="#" className={style.rename}>
+              (rename)
+            </a>
+          </span>
         )}
       </div>
     )

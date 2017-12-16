@@ -142,7 +142,8 @@ export default class FlowBuilder extends Component {
   }
 
   syncModel() {
-    let snapshot = _.memoize(::this.serialize) // Don't serialize more than once
+    // Don't serialize more than once
+    const snapshot = _.once(this.serialize)
 
     // Remove nodes that have been deleted
     _.keys(this.activeModel.getNodes()).forEach(nodeId => {
@@ -362,15 +363,12 @@ export default class FlowBuilder extends Component {
     }
   }
 
-  serialize() {
+  serialize = () => {
     const model = this.activeModel.serializeDiagram()
 
     const nodes = model.nodes.map(node => {
       return {
-        id: node.id,
-        name: node.name,
-        onEnter: node.onEnter,
-        onReceive: node.onReceive,
+        ..._.pick(node, 'id', 'name', 'onEnter', 'onReceive'),
         next: node.next.map((next, index) => {
           const port = _.find(node.ports, { name: 'out' + index })
 
@@ -388,10 +386,7 @@ export default class FlowBuilder extends Component {
 
           return { condition: next.condition, node: otherNode.name }
         }),
-        position: {
-          x: node.x,
-          y: node.y
-        }
+        position: _.pick(node, 'x', 'y')
       }
     })
 
@@ -425,7 +420,6 @@ export default class FlowBuilder extends Component {
   }
 
   saveAllFlows() {
-    // const { nodes, links } = this.serialize()
     this.props.saveAllFlows()
   }
 

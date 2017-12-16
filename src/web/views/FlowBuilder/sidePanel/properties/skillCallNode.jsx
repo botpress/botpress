@@ -9,8 +9,8 @@ import TransitionSection from './TransitionSection'
 const style = require('../style.scss')
 
 export default class SkillCallNodePropertiesPanel extends Component {
-  renameNode(text) {
-    if (text.length > 0 && text !== this.props.node.name) {
+  renameNode = text => {
+    if (text && text !== this.props.node.name) {
       this.props.updateNode({ name: text })
     }
   }
@@ -38,7 +38,7 @@ export default class SkillCallNodePropertiesPanel extends Component {
           onMount={onNameMounted}
           value={node.name}
           className={style.name}
-          onChanged={::this.renameNode}
+          onChanged={this.renameNode}
           transform={this.transformText}
         />
         <div style={{ padding: '5px' }}>

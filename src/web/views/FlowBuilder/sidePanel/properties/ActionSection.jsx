@@ -51,7 +51,7 @@ export default class ActionSection extends Component {
     }
   }
 
-  onSubmitAction(options) {
+  onSubmitAction = options => {
     const item = this.optionsToItem(options)
     const editIndex = this.state.itemToEditIndex
     const { items } = this.props
@@ -126,7 +126,7 @@ export default class ActionSection extends Component {
         <ActionModalForm
           show={this.state.showActionModalForm}
           onClose={() => this.setState({ showActionModalForm: false, itemToEditIndex: null })}
-          onSubmit={::this.onSubmitAction}
+          onSubmit={this.onSubmitAction}
           item={this.itemToOptions(items && items[this.state.itemToEditIndex])}
         />
       </div>
