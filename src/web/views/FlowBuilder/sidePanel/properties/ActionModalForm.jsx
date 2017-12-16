@@ -71,7 +71,7 @@ class ActionModalForm extends Component {
     })
   }
 
-  onChangeType(type) {
+  onChangeType = type => () => {
     this.setState({ actionType: type })
   }
 
@@ -267,10 +267,10 @@ class ActionModalForm extends Component {
         <Modal.Body>
           <h5>The bot will:</h5>
           <div className={style.section}>
-            <Radio checked={this.state.actionType === 'message'} onChange={this.onChangeType.bind(this, 'message')}>
+            <Radio checked={this.state.actionType === 'message'} onChange={this.onChangeType('message')}>
               💬 Say something
             </Radio>
-            <Radio checked={this.state.actionType === 'code'} onChange={this.onChangeType.bind(this, 'code')}>
+            <Radio checked={this.state.actionType === 'code'} onChange={this.onChangeType('code')}>
               ⚡ Execute code
             </Radio>
           </div>
