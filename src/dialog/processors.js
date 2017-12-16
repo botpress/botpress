@@ -5,8 +5,6 @@ module.exports = {
   default: {
     id: 'send-message',
     send: ({ message, originalEvent, state, flowContext }) => {
-      // TODO Replace variables in the {{text}} if they exist
-
       let rendered = message.value
 
       if (/{{/i.test(rendered)) {
@@ -20,7 +18,13 @@ module.exports = {
         })
       }
 
-      return originalEvent.reply(message.type, Object.assign({}, state, { text: rendered }))
+      const additionalData = { ...state }
+
+      if (!_.isEmpty(rendered)) {
+        Object.assign(additionalData, { text: rendered })
+      }
+
+      return originalEvent.reply(message.type, additionalData)
     }
   }
 }
