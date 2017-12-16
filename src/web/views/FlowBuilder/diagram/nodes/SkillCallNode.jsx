@@ -96,7 +96,7 @@ export class SkillCallNodeModel extends NodeModel {
 
   setData({ name, next = [], isStartNode, skill }) {
     this.isStartNode = isStartNode
-    let inNodeType = isStartNode ? 'start' : 'normal'
+    const inNodeType = isStartNode ? 'start' : 'normal'
 
     if (!this.ports['in']) {
       this.addPort(new StandardIncomingPortModel('in', inNodeType))

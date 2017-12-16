@@ -151,7 +151,7 @@ function createSnapshot(state) {
 }
 
 function copyName(siblingNames, nameToCopy) {
-  let copies = siblingNames.filter(name => name.startsWith(`${nameToCopy}-copy`))
+  const copies = siblingNames.filter(name => name.startsWith(`${nameToCopy}-copy`))
 
   if (!copies.length) {
     return `${nameToCopy}-copy`
@@ -330,7 +330,7 @@ reducer = reduceReducers(
           ? currentFlow.nodes
           : currentFlow.nodes.map(node => {
               const nodeLinks = payload.links.filter(link => link.source === node.id)
-              let next = node.next.map((value, index) => {
+              const next = node.next.map((value, index) => {
                 const link = nodeLinks.find(link => Number(link.sourcePort.replace('out', '')) === index)
                 const targetNode = _.find(currentFlow.nodes, { id: (link || {}).target })
                 let remapNode = ''

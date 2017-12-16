@@ -102,7 +102,7 @@ export class StandardNodeModel extends NodeModel {
 
   setData({ name, onEnter = [], onReceive = [], next = [], isStartNode }) {
     this.isStartNode = isStartNode
-    let inNodeType = isStartNode ? 'start' : 'normal'
+    const inNodeType = isStartNode ? 'start' : 'normal'
     const waitOnReceive = !_.isNil(onReceive)
 
     if (!this.ports['in']) {

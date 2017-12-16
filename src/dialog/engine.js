@@ -38,7 +38,7 @@ class DialogEngine {
       await this.reloadFlows()
     }
 
-    let context = await this._getOrCreateContext(stateId)
+    const context = await this._getOrCreateContext(stateId)
     let state = await this.stateManager.getState(stateId)
 
     if (event.type === 'bp_dialog_timeout') {
@@ -234,7 +234,7 @@ class DialogEngine {
       context.node = context.currentFlow.startNode
     }
 
-    let node = DialogEngine._findNode(context.currentFlow, context.node)
+    const node = DialogEngine._findNode(context.currentFlow, context.node)
 
     if (!node || !node.name) {
       userState = await this._endFlow(stateId)
@@ -358,7 +358,7 @@ class DialogEngine {
   }
 
   _gotoSubflow(nodeName, context) {
-    let [, subflow, subflowNode] = nodeName.match(callSubflowRegex)
+    let [_, subflow, subflowNode] = nodeName.match(callSubflowRegex)
 
     const flow = this._findFlow(subflow, true)
 

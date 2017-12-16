@@ -154,7 +154,7 @@ export default class FlowBuilder extends Component {
 
     this.props.currentFlow &&
       this.props.currentFlow.nodes.forEach(node => {
-        let model = this.activeModel.getNode(node.id)
+        const model = this.activeModel.getNode(node.id)
 
         if (!model) {
           // Node doesn't exist
@@ -425,11 +425,10 @@ export default class FlowBuilder extends Component {
   }
 
   deleteSelectedElements() {
-    let elements = this.diagramEngine.getDiagramModel().getSelectedItems()
-    elements = _.sortBy(elements, 'nodeType')
+    const elements = _.sortBy(this.diagramEngine.getDiagramModel().getSelectedItems(), 'nodeType')
 
     // Use sorting to make the nodes first in the array, deleting the node before the links
-    for (let element of elements) {
+    for (const element of elements) {
       if (!this.diagramEngine.isModelLocked(element)) {
         if (element.isStartNode) {
           return alert("You can't delete the start node.")
