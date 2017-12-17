@@ -40,7 +40,7 @@ export default class ConditionItem extends Component {
       const stripDots = str => str.replace(/\./g, '--dot--')
       const restoreDots = str => str.replace(/--dot--/g, '.')
 
-      const htmlTpl = caption.replace(/\[([a-z0-9. _-]*?)]/gi, x => {
+      const htmlTpl = caption.replace(/\[(.+)]/gi, x => {
         const name = stripDots(x.replace(/\[|]/g, ''))
         vars[name] = '<span class="val">' + _.escape(name) + '</span>'
         return '{{{' + name + '}}}'
