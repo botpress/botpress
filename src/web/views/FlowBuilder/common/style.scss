@@ -8,7 +8,7 @@
   }
 
   &.condition {
-    color: #e62eea;
+    color: black;
   }
 
   .icon {
@@ -18,11 +18,19 @@
   .name {
     line-height: 1.7;
 
-    :global(.var) {
+    span {
       padding: 2px 4px;
+      border-radius: 2px;
+    }
+
+    :global(.var) {
       background-color: #e7f0ff;
       color: blue;
-      border-radius: 2px;
+    }
+
+    :global(.val) {
+      background-color: #fff5ea;
+      color: #ff7c40;
     }
   }
 }
