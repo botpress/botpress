@@ -96,6 +96,8 @@ function computeFlowsHash(state) {
       buff = hashAction(buff, node.onEnter)
       buff = hashAction(buff, node.next)
       buff += node.id
+      buff += node.flow
+      buff += node.type
       buff += node.name
       buff += node.x
       buff += node.y
@@ -277,6 +279,8 @@ reducer = reduceReducers(
       [duplicateFlow]: createSnapshot,
       [removeFlowNode]: createSnapshot,
       [insertNewSkill]: createSnapshot,
+      [insertNewSkillNode]: createSnapshot,
+      [updateSkill]: createSnapshot,
 
       [flowEditorUndo]: state => {
         if (_.isEmpty(state.snapshots) || state.snapshots.length <= state.currentSnapshotIndex) {
@@ -635,7 +639,9 @@ reducer = reduceReducers(
       [createFlow]: updateCurrentHash,
       [deleteFlow]: updateCurrentHash,
       [duplicateFlow]: updateCurrentHash,
-      [removeFlowNode]: updateCurrentHash
+      [removeFlowNode]: updateCurrentHash,
+      [insertNewSkillNode]: updateCurrentHash,
+      [updateSkill]: updateCurrentHash
     },
     defaultState
   )
