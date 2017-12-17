@@ -450,7 +450,7 @@ class DialogEngine {
 
   async _invokeAction(instruction, userState, event, context) {
     let name = null
-    let args = null
+    let args = {}
 
     if (_.isString(instruction)) {
       if (instruction.includes(' ')) {
@@ -474,7 +474,7 @@ class DialogEngine {
     } else {
       try {
         this._trace('!!', 'EXEC', `func "${name}"`, context, userState)
-        const ret = await this.functions[name].fn(userState, event, args)
+        const ret = await this.functions[name].fn(userState, event, args || {})
 
         if (ret && _.isObject(ret)) {
           this._trace('!!', 'SSET', '', context)
