@@ -406,7 +406,7 @@ reducer = reduceReducers(
 
       [updateSkill]: (state, { payload }) => {
         const modifiedFlow = Object.assign({}, state.flowsByName[payload.editFlowName], payload.generatedFlow, {
-          flowData: payload.data,
+          skillData: payload.data,
           name: payload.editFlowName,
           location: payload.editFlowName
         })
