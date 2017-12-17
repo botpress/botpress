@@ -32,8 +32,8 @@ export class SkillCallNodeWidget extends React.Component {
         <div className={style.header} />
         <div className={style.content}>
           <div className={classnames(style['section-title'], style.section, { [style.waiting]: isWaiting })}>
-            <div>{node.name}</div>
-            <div className={style['subtitle']}>Skill | {node.skill}</div>
+            <div>{node.skill}</div>
+            <div className={style['subtitle']}>Skill | {node.name}</div>
           </div>
           <div className={classnames(style['section-onReceive'], style.section)}>
             {node.onReceive &&
