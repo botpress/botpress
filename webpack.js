@@ -1,7 +1,6 @@
 const webpack = require('webpack')
 const path = require('path')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
-// var HardSourceWebpackPlugin = require('hard-source-webpack-plugin')
 const nodeExternals = require('webpack-node-externals')
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
 
@@ -36,8 +35,8 @@ const nodeConfig = {
           {
             loader: 'babel-loader',
             options: {
-              presets: ['latest', 'stage-0'],
-              plugins: ['transform-object-rest-spread']
+              presets: ['stage-3', ['env', { targets: { node: '6.10' } }], 'react'],
+              plugins: ['transform-class-properties']
             }
           }
         ],
@@ -128,8 +127,8 @@ const webConfig = {
         use: {
           loader: 'babel-loader',
           options: {
-            presets: ['latest', 'stage-0', 'react'],
-            plugins: ['transform-object-rest-spread', 'transform-decorators-legacy'],
+            presets: ['stage-3', ['env', { targets: { browsers: ['last 2 versions'] } }], 'react'],
+            plugins: ['transform-class-properties'],
             compact: true,
             babelrc: false,
             cacheDirectory: true

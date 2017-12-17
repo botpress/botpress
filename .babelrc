@@ -1,20 +1,23 @@
 {
   "presets": [
-    "latest",
-    "stage-0",
+    "stage-3",
+    [
+      "env",
+      {
+        "targets": {
+          "node": "6.10",
+          "browsers": ["last 2 versions"]
+        }
+      }
+    ],
     "react"
   ],
-  "plugins": [
-    "transform-object-rest-spread"
-  ],
-  "ignore": [
-    "cli/templates/**",
-    "src/web/**"
-  ],
+  "plugins": ["transform-class-properties"],
+  "ignore": ["cli/templates/**", "src/web/**"],
   "env": {
     "tests": {
       "plugins": [
-        "transform-object-rest-spread",
+        "transform-class-properties",
         [
           "babel-plugin-root-import",
           [
