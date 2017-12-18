@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "bee-queue": "^1.1.0",
+    "email-templates": "^2.5.4",
+    "formidable": "^1.1.1",
+    "nodemailer": "^2.7.2"
+  },
+  "devDependencies": {
+    "react-addons-update": "^15.4.2"
+  }
+}
