@@ -192,7 +192,6 @@ class botpress {
 
     const server = createServer(this)
     server.start().then(() => {
-      events.emit('ready')
       for (let mod of _.values(loadedModules)) {
         mod.handlers.ready && mod.handlers.ready(this, mod.configuration)
       }
@@ -239,7 +238,6 @@ class botpress {
 
   start() {
     if (cluster.isMaster) {
-
       let firstWorkerHasStartedAlready = false
       const receiveMessageFromWorker = message => {
         if (message && message.workerStatus === 'starting') {

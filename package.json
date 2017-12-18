@@ -42,7 +42,6 @@
     "prompt": "^1.0.0",
     "react-codemirror": "^1.0.0",
     "react-jsonschema-form": "^0.49.0",
-    "run-script-os": "^1.0.2",
     "socket.io": "^1.5.0",
     "socket.io-client": "^2.0.3",
     "socketio-jwt": "^4.5.0",
@@ -68,6 +67,7 @@
     "chai": "^3.5.0",
     "classnames": "^2.2.5",
     "copy-webpack-plugin": "^4.2.0",
+    "cross-os": "^1.2.2",
     "css-loader": "^0.25.0",
     "exports-loader": "^0.6.3",
     "expose-loader": "^0.7.1",
@@ -143,14 +143,19 @@
     "//": "win32: there can be no spaces between production and &&, or a trailing space is added",
     "compile-prod:win32":
       "SET NODE_ENV=production&& node ./build.js && ls -lh ./lib/web/js && echo \"DONE\" && SET NODE_ENV=",
-    "test": "run-script-os",
-    "test:linux:darwin":
-      "BABEL_ENV=tests mocha --compilers js:babel-core/register --require tests/index.js tests/** extensions/**/tests/**",
-    "//": "win32: there can be no spaces between tests and &&, or a trailing space is added",
-    "test:win32":
-      "SET BABEL_ENV=tests&& mocha --compilers js:babel-core/register --require tests/index.js tests/** extensions/**/tests/** && SET BABEL_ENV=",
+    "test": "cross-os test",
     "watch": "npm-watch",
     "precommit": "lint-staged"
+  },
+  "cross-os": {
+    "test": {
+      "darwin":
+        "BABEL_ENV=tests mocha --compilers js:babel-core/register --require tests/index.js tests/** extensions/**/tests/**",
+      "linux":
+        "BABEL_ENV=tests mocha --compilers js:babel-core/register --require tests/index.js tests/** extensions/**/tests/**",
+      "win32":
+        "SET BABEL_ENV=tests&& mocha --compilers js:babel-core/register --require tests/index.js tests/** extensions/**/tests/** && SET BABEL_ENV="
+    }
   },
   "watch": {
     "compile": {
