@@ -10,9 +10,8 @@ var BOTPRESS_EDITION = process.env.BOTPRESS_EDITION
 const cleanOldBuild = () => {
   return new Promise((resolve, reject) => {
     console.log('Cleaning old build')
-    let dataPath = path.normalize(__dirname + '/lib/')
     // call: rm -rf lib/
-    rimraf(dataPath, err => {
+    rimraf('./lib', err => {
       if (err) {
         reject(err)
         return
