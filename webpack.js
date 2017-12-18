@@ -1,7 +1,6 @@
 var webpack = require('webpack')
 var path = require('path')
 var CopyWebpackPlugin = require('copy-webpack-plugin')
-// var HardSourceWebpackPlugin = require('hard-source-webpack-plugin')
 var nodeExternals = require('webpack-node-externals')
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
 
@@ -119,16 +118,6 @@ var webConfig = {
         to: path.resolve(__dirname, './lib/web/audio')
       }
     ])
-    // TODO: Fix caching to take into account changes to extensions and environement variables
-    // new HardSourceWebpackPlugin({
-    //   cacheDirectory: __dirname + '/.cache/',
-    //   recordsPath: __dirname + '/.cache/records.json',
-    //   environmentPaths: {
-    //     root: process.cwd(),
-    //     directories: ['node_modules'],
-    //     files: ['package.json', 'webpack.js'],
-    //   }
-    // })
   ],
   module: {
     rules: [

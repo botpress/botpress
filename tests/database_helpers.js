@@ -184,7 +184,7 @@ run('helpers', () => {
           .toDate()
       )
 
-      knex(sampleTable)
+      return knex(sampleTable)
         .insert({ tTimestamp: now })
         .then(() => knex(sampleTable).insert({ tTimestamp: laterToday }))
         .then(() => knex(sampleTable).insert({ tTimestamp: tomorrow }))
@@ -194,7 +194,7 @@ run('helpers', () => {
             .select('*')
         )
         .then(rows => {
-          expect(rows.length).to.equal(2)
+          return expect(rows.length).to.equal(2)
         })
     })
   })

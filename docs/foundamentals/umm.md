@@ -27,7 +27,7 @@ UMM is currently in its initial phase and you can use it to reply to any incomin
 
 UMM is currently located in a single file: `content.yml`. Simply open this file and you'll see some default content there.
 
-You can send [reactive](./../events#toc-reactive-outgoing) or [proactive](./../events#toc-sending-messages-outgoing) UMM messages.
+You can send [reactive](/docs/foundamentals/events#toc-reactive-outgoing) or [proactive](/docs/foundamentals/events#toc-sending-messages-outgoing) UMM messages.
 
 ### Short usage guide <a class="toc" id="toc-short-usage-guide" href="#toc-short-usage-guide"></a>
 

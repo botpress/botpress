@@ -14,15 +14,17 @@ const requireEdition = (file, edition) => {
   } else if (!exists) {
     return null
   } else {
-    return '/extensions/' + enterprisePath + edition
+    return path.join('/extensions/', enterprisePath, edition)
   }
 }
 
 const requireExtension = (file, edition) => {
   edition = edition || process.env.BOTPRESS_EDITION || DEFAULT_EDITION
+  file = path.normalize(file)
 
-  const length = '/extensions/lite/'.length
-  const start = file.indexOf('/extensions/lite/')
+  const extLitePath = path.normalize('/extensions/lite/')
+  const length = extLitePath.length
+  const start = file.indexOf(extLitePath)
 
   file = file.substr(start + length)
   const upTo = file.indexOf('?') > 0 ? file.indexOf('?') : file.length
