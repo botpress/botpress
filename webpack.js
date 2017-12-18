@@ -181,9 +181,7 @@ var postProcess = function(err, stats) {
 }
 
 if (process.argv.indexOf('--compile') !== -1) {
-  if (process.env.NODE_ENV !== 'production') {
-    showNodeEnvWarning()
-  }
+  showNodeEnvWarning()
   compiler.run(postProcess)
 } else if (process.argv.indexOf('--watch') !== -1) {
   compiler.watch(null, postProcess)

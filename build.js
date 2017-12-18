@@ -1,4 +1,3 @@
-const path = require('path')
 const mkdirp = require('mkdirp')
 const ncp = require('ncp').ncp
 const rimraf = require('rimraf')
