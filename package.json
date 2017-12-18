@@ -102,12 +102,11 @@
     "react-router": "^2.8.1",
     "react-sidebar": "^2.2.1",
     "react-sortable": "^1.2.0",
-    "remove": "^0.1.5",
+    "rimraf": "^2.6.2",
     "sass-loader": "^6.0.6",
     "script-loader": "^0.7.0",
     "sinon": "^1.17.7",
     "style-loader": "^0.13.1",
-    "sync": "^0.2.5",
     "tmp": "0.0.31",
     "uglifyjs-webpack-plugin": "^1.0.1",
     "webpack": "^3.8.1",
@@ -138,16 +137,17 @@
   "scripts": {
     "prepare": "npm run compile-prod",
     "compile": "node ./build.js",
-    "compile-prod": "run-script-os",
-    "compile-prod:linux:darwin": "NODE_ENV=production ./build.js && ls -lh ./lib/web/js && echo \"DONE\"",
-    "//": "win32: there can be no spaces between production and &&, or a trailing space is added",
-    "compile-prod:win32":
-      "SET NODE_ENV=production&& node ./build.js && ls -lh ./lib/web/js && echo \"DONE\" && SET NODE_ENV=",
+    "compile-prod": "cross-os compile-prod",
     "test": "cross-os test",
     "watch": "npm-watch",
     "precommit": "lint-staged"
   },
   "cross-os": {
+    "compile-prod": {
+      "darwin": "NODE_ENV=production ./build.js && ls -lh ./lib/web/js && echo \"DONE\"",
+      "linux": "NODE_ENV=production ./build.js && ls -lh ./lib/web/js && echo \"DONE\"",
+      "win32": "SET NODE_ENV=production&& node ./build.js && ls -lh ./lib/web/js && echo \"DONE\" && SET NODE_ENV="
+    },
     "test": {
       "darwin":
         "BABEL_ENV=tests mocha --compilers js:babel-core/register --require tests/index.js tests/** extensions/**/tests/**",
