@@ -67,6 +67,8 @@
     "chai": "^3.5.0",
     "classnames": "^2.2.5",
     "copy-webpack-plugin": "^4.0.0",
+    "copy-webpack-plugin": "^4.2.0",
+    "cross-os": "^1.2.2",
     "css-loader": "^0.25.0",
     "eslint": "^4.12.0",
     "eslint-config-prettier": "^2.9.0",
@@ -139,15 +141,25 @@
   "repository": "git+https://github.com/botpress/botpress.git",
   "os": ["darwin", "linux", "win32"],
   "scripts": {
-    "compile": "./build.sh",
     "edition:lite": "git reset && git checkout package.json yarn.lock && rm -f .pro-mode",
     "edition:pro": "node package-pro.js",
+    "prepare": "npm run compile-prod",
+    "compile": "./build.sh",
     "compile-prod": "NODE_ENV=production ./build.sh && ls -lh ./lib/web/js && echo \"DONE\"",
-    "test":
-      "BABEL_ENV=tests mocha --compilers js:babel-core/register --require tests/index.js tests/** extensions/**/tests/**",
+    "test": "cross-os test",
     "watch": "npm-watch",
     "precommit": "lint-staged && node check-pro-mode.js",
     "lint": "eslint {src,lib,tests,extensions}/**/*.{js,jsx}"
+  },
+  "cross-os": {
+    "test": {
+      "darwin":
+        "BABEL_ENV=tests mocha --compilers js:babel-core/register --require tests/index.js tests/** extensions/**/tests/**",
+      "linux":
+        "BABEL_ENV=tests mocha --compilers js:babel-core/register --require tests/index.js tests/** extensions/**/tests/**",
+      "win32":
+        "SET BABEL_ENV=tests&& mocha --compilers js:babel-core/register --require tests/index.js tests/** extensions/**/tests/** && SET BABEL_ENV="
+    }
   },
   "watch": { "compile": { "patterns": ["src", "extensions"], "extensions": "js,jsx,scss,json,html" } },
   "lint-staged": {

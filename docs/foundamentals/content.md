@@ -30,7 +30,7 @@ In order to do that, you must first programmatically create a **Category**.
 ### Creating Forms <a class="toc" id="toc-creating-forms" href="#toc-creating-forms"></a>
 
 
-All forms must be located inside a single directory (see the [`botfile.js`](./botfile.md) -> [`formsDir`](https://github.com/botpress/botpress/blob/master/src/cli/templates/init/botfile.js#L21) variable) and be suffixed with `.form.js`. For example, if your `formsDir` is `./forms`, then you might create a trivia category by creating the `./forms/trivia.form.js`.
+All forms must be located inside a single directory (see the [`botfile.js`](/docs/foundamentals/botfile) -> [`formsDir`](https://github.com/botpress/botpress/blob/master/src/cli/templates/init/botfile.js#L21) variable) and be suffixed with `.form.js`. For example, if your `formsDir` is `./forms`, then you might create a trivia category by creating the `./forms/trivia.form.js`.
 
 ### `*.form.js` Files Structure <a class="toc" id="toc-form-js-files-structure" href="#toc-form-js-files-structure"></a>
 

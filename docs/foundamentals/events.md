@@ -2,13 +2,13 @@
 layout: guide
 ---
 
-**TLDR:** You can listen for incoming messages using the `bp.hear` helper. You can reply to messages using the `event.reply` [UMM](../umm) feature.
+**TLDR:** You can listen for incoming messages using the `bp.hear` helper. You can reply to messages using the `event.reply` [UMM](/docs/foundamentals/umm) feature.
 
 ## Receiving Messages (Incoming) <a class="toc" id="toc-receiving-messages-incoming" href="#toc-receiving-messages-incoming"></a>
 
 Your bot will receive events as soon as it is connected to a chat platform (you need to setup a Connector Module for the platform you want) and a user speaks to it. Incoming messages all go through what we call the **Incoming Middleware Chain**.
 
-> **Info**: [Middleware Chains](../../advanced/middleware) are an advanced concept that you likely don't need to know about right now; all you need to know is that modules execute some kind of processing on the incoming message that they can do all sort of things like translating the messages to different languages, tagging the message with NLP entities or even stop the message from being processed by your bot.
+> **Info**: [Middleware Chains](/docs/advanced/middleware) are an advanced concept that you likely don't need to know about right now; all you need to know is that modules execute some kind of processing on the incoming message that they can do all sort of things like translating the messages to different languages, tagging the message with NLP entities or even stop the message from being processed by your bot.
 
 There exists a special built-in middleware that allows your bot to listen for messages based on certain conditions. It is the `hear` middleware.
 
@@ -23,7 +23,7 @@ The condition can be a string, a regex, an object or an array of these. In case 
 
 The handler takes the MiddlewareEvent as the first argument and takes the `next` middleware caller as the second argument. If the `next` argument is not specified in your handler, botpress assumes you wanted to call it and calls it at the end of the synchronous execution of the handler.
 
-> **Note:** While in theory a bot could be built entirely with the `hear` middleware alone, **it is not very convenient for handling complex conversations**. `hear` should in general be used for catching high-level actions like menu button clicks. You should use [`bp.convo`](../flow) for handling complex conversations.
+> **Note:** While in theory a bot could be built entirely with the `hear` middleware alone, **it is not very convenient for handling complex conversations**. `hear` should in general be used for catching high-level actions like menu button clicks. You should use [`bp.convo`](/docs/foundamentals/flow) for handling complex conversations.
 
 #### Examples (string) <a class="toc" id="toc-examples-string" href="#toc-examples-string"></a>
 
@@ -87,7 +87,7 @@ The act of sending a message is called **Outgoing**. There are two ways to send 
 ### Reactive Outgoing <a class="toc" id="toc-reactive-outgoing" href="#toc-reactive-outgoing"></a>
 
 
-The easiest way to reply to an incoming message is by calling the `reply` method on the incoming `event` itself. The first argument of the `reply` function is the name of a [UMM bloc](./../umm), which we will cover a bit later in this guide.
+The easiest way to reply to an incoming message is by calling the `reply` method on the incoming `event` itself. The first argument of the `reply` function is the name of a [UMM bloc](/docs/foundamentals/umm), which we will cover a bit later in this guide.
 
 ##### Example
 

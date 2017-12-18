@@ -147,7 +147,7 @@ postgres: {
 }
 ```
 
-Also make sure to enable SSL by setting the `PG_SSL` env variable to `true`.
+Also make sure to enable SSL by setting the `PG_SSL` env variable to `true`. You will also need to append the connection URI given by Heroku with `?ssl=true`.
 
 ### Tables <a class="toc" id="toc-tables" href="#toc-tables"></a>
 

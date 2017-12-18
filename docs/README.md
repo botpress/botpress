@@ -76,16 +76,16 @@ $ echo "\n  New_module:
 For adding a page you should define path in `_data/i18n/en.yml`.
 
 A Path look like this :
-`"/docs/getting_started/install/":
+`"/getting_started/install/":
   title: "Installation and bootstrap"
   description: "Installing the Botpress CLI"` 
 
-Under `en/docs/getting_started/` add a file name install.md to map your path defined in `_date/i18n/en.yml`.
+Under `/getting_started/` add a file name install.md to map your path defined in `_date/i18n/en.yml`.
 
 You can also map a Path like this: 
 `"/docs/getting_started/":
-  title: "I'M the index.md in en/docs/getting_started"
+  title: "I'M the index.md in /getting_started"
   description: "Simple description of mapping a index.md"`
 
 
-Under `en/docs/getting_started/` add a file name index.md to map your path.
+Under `/getting_started/` add a file name index.md to map your path.
