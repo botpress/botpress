@@ -78,10 +78,10 @@ At this point, your bot does nothing, you need to add features. There are two wa
 
 For example, there's a `botpress-messenger` module that will make your bot connect to Facebook Messenger and easily send/receive messages.
 
-You can install modules directly in the web interface, or by using the [`botpress install`](https://botpress.io/docs/reference/cli.html#install) command:
+You can install modules by using the command:
 
 ```
-botpress install messenger
+npm install --save botpress-messenger
 ```
 
 Once installed, modules expose two things:

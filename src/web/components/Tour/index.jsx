@@ -100,7 +100,7 @@ export default class GuidedTour extends React.Component {
           contribution is needed, even if it's tiny {emojify(':blush:')}!
         </p>
         <p>
-          Installing a module from the CLI is as simple as typing <code>botpress install messenger</code>
+          Installing a module from the CLI is as simple as typing <code>npm install --save botpress-messenger</code>
         </p>
       </div>
     )
