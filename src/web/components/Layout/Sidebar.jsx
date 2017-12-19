@@ -26,7 +26,7 @@ const BASIC_MENU_ITEMS = [
     path: 'manage',
     activePaths: ['/manage'],
     rule: { res: 'modules/list', op: 'read' },
-    icon: 'dashboard'
+    icon: 'build'
   },
   window.GHOST_ENABLED && {
     name: 'Ghost Content',
