@@ -3,8 +3,13 @@
   "description": "The world's first CMS for bots. Easily create, manage and extend chatbots.",
   "version": "1.1.11",
   "author": "Botpress",
-  "bin": { "bp": "./bin/botpress", "botpress": "./bin/botpress" },
-  "bugs": { "url": "https://github.com/botpress/botpress/issues" },
+  "bin": {
+    "bp": "./bin/botpress",
+    "botpress": "./bin/botpress"
+  },
+  "bugs": {
+    "url": "https://github.com/botpress/botpress/issues"
+  },
   "dependencies": {
     "axios": "^0.15.2",
     "babel-polyfill": "^6.23.0",
@@ -108,6 +113,7 @@
     "redux": "^3.7.2",
     "redux-actions": "^2.2.1",
     "redux-thunk": "^2.2.0",
+    "require-npm-version": "^1.0.2",
     "sass-loader": "^6.0.6",
     "script-loader": "^0.7.0",
     "simple-line-icons": "^2.4.1",
@@ -119,7 +125,9 @@
     "webpack": "^3.8.1",
     "webpack-node-externals": "^1.6.0"
   },
-  "engines": { "node": ">=4.6.0 <9.0.0" },
+  "engines": {
+    "node": ">=4.6.0 <9.0.0"
+  },
   "homepage": "https://github.com/botpress/botpress#readme",
   "keywords": [
     "bots",
@@ -160,10 +168,18 @@
         "SET BABEL_ENV=tests&& mocha --compilers js:babel-core/register --require tests/index.js tests/** extensions/**/tests/** && SET BABEL_ENV="
     }
   },
-  "watch": { "compile": { "patterns": ["src", "extensions"], "extensions": "js,jsx,scss,json,html" } },
+  "watch": {
+    "compile": {
+      "patterns": ["src", "extensions"],
+      "extensions": "js,jsx,scss,json,html"
+    }
+  },
   "lint-staged": {
     "*.{js,jsx}": ["prettier --write", "eslint", "git add"],
     "*.{json,css,scss}": ["prettier --write", "git add"]
   },
-  "pre-commit": { "run": "precommit", "silent": true }
+  "pre-commit": {
+    "run": "precommit",
+    "silent": true
+  }
 }
