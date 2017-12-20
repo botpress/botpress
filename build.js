@@ -1,86 +1,66 @@
 const mkdirp = require('mkdirp')
 const ncp = require('ncp').ncp
 const rimraf = require('rimraf')
+const Promise = require('bluebird')
 const webpackJs = require('./webpack.js')
 
 var EMAIL_TPL = './extensions/enterprise/pro/emails/templates'
 var BOTPRESS_EDITION = process.env.BOTPRESS_EDITION
 
-const cleanOldBuild = () => {
-  return new Promise((resolve, reject) => {
-    console.log('Cleaning old build')
-    // call: rm -rf lib/
-    rimraf('./lib', err => {
+const cleanOldBuild = cb => {
+  console.log('Cleaning old build')
+  // call: rm -rf lib/
+  rimraf('./lib', err => {
+    cb(err)
+  })
+}
+
+const copyEmailTemplates = cb => {
+  if (BOTPRESS_EDITION === 'pro' || BOTPRESS_EDITION === 'ultimate') {
+    console.log('Copying email templates')
+    // call: mkdir -p lib/emails/templates
+    mkdirp('./lib/emails/templates', err => {
       if (err) {
-        reject(err)
-        return
+        return cb(err)
       }
-      resolve()
+
+      // call: cp -a
+      ncp(EMAIL_TPL, './lib/emails/templates', err => {
+        cb(err)
+      })
     })
-  })
+  } else {
+    cb()
+  }
 }
 
-const copyEmailTemplates = () => {
-  return new Promise((resolve, reject) => {
-    if (BOTPRESS_EDITION === 'pro' || BOTPRESS_EDITION === 'ultimate') {
-      console.log('Copying email templates')
-      // call: mkdir -p lib/emails/templates
-      mkdirp('./lib/emails/templates', err => {
-        if (err) {
-          reject(err)
-          return
-        }
-
-        // call: cp -a
-        ncp(EMAIL_TPL, './lib/emails/templates', err => {
-          if (err) {
-            reject(err)
-            return
-          }
-          resolve()
-        })
-      })
-    } else {
-      resolve()
+const bundleApp = cb => {
+  console.log('Bundling app...')
+  //node webpack.js --compile
+  webpackJs.run(err => {
+    if (err) {
+      return cb(err)
     }
-  })
-}
 
-const bundleApp = () => {
-  return new Promise((resolve, reject) => {
-    console.log('Bundling app...')
-    //node webpack.js --compile
-    webpackJs.run(err => {
+    console.log('Copying templates')
+    // call: mkdir -p lib/cli/templates
+    mkdirp('./lib/cli/templates', err => {
       if (err) {
-        reject(err)
-        return
+        return cb(err)
+      } else {
+        // call: cp -a
+        ncp('./src/cli/templates', './lib/cli/templates', err => {
+          cb(err)
+        })
       }
-
-      console.log('Copying templates')
-      // call: mkdir -p lib/cli/templates
-      mkdirp('./lib/cli/templates', err => {
-        if (err) {
-          reject(err)
-          return
-        } else {
-          // call: cp -a
-          ncp('./src/cli/templates', './lib/cli/templates', err => {
-            if (err) {
-              reject(err)
-              return
-            }
-            resolve()
-          })
-        }
-      })
     })
   })
 }
 
 const execute = async () => {
-  await cleanOldBuild()
-  await copyEmailTemplates()
-  await bundleApp()
+  await Promise.fromCallback(callback => cleanOldBuild(callback))
+  await Promise.fromCallback(callback => copyEmailTemplates(callback))
+  await Promise.fromCallback(callback => bundleApp(callback))
   process.exit(0)
 }
 
