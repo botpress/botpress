@@ -135,7 +135,6 @@
   "repository": "git+https://github.com/botpress/botpress.git",
   "os": ["darwin", "linux", "win32"],
   "scripts": {
-    "prepare": "npm run compile-prod",
     "compile": "node ./build.js",
     "compile-prod": "cross-os compile-prod",
     "test": "cross-os test",
@@ -144,8 +143,8 @@
   },
   "cross-os": {
     "compile-prod": {
-      "darwin": "NODE_ENV=production ./build.js && ls -lh ./lib/web/js && echo \"DONE\"",
-      "linux": "NODE_ENV=production ./build.js && ls -lh ./lib/web/js && echo \"DONE\"",
+      "darwin": "NODE_ENV=production node ./build.js && ls -lh ./lib/web/js && echo \"DONE\"",
+      "linux": "NODE_ENV=production node ./build.js && ls -lh ./lib/web/js && echo \"DONE\"",
       "win32": "SET NODE_ENV=production&& node ./build.js && ls -lh ./lib/web/js && echo \"DONE\" && SET NODE_ENV="
     },
     "test": {
