@@ -163,6 +163,15 @@ var webConfig = {
   }
 }
 
+var showNodeEnvWarning = function() {
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('*****')
+    console.log('WARNING: You are currently building Botpress in development; NOT generating a production build')
+    console.log('Run with NODE_ENV=production to create a production build instead')
+    console.log('*****')
+  }
+}
+
 var compiler = webpack([webConfig, nodeConfig])
 var postProcess = function(err, stats) {
   if (err) {
@@ -172,15 +181,18 @@ var postProcess = function(err, stats) {
 }
 
 if (process.argv.indexOf('--compile') !== -1) {
-  if (process.env.NODE_ENV !== 'production') {
-    console.log('*****')
-    console.log('WARNING: You are currently building Botpress in development; NOT generating a production build')
-    console.log('Run with NODE_ENV=production to create a production build instead')
-    console.log('*****')
-  }
+  showNodeEnvWarning()
   compiler.run(postProcess)
 } else if (process.argv.indexOf('--watch') !== -1) {
   compiler.watch(null, postProcess)
 }
 
-module.exports = { web: webConfig, node: nodeConfig }
+var runCompiler = function(cb) {
+  showNodeEnvWarning()
+  compiler.run(function(err, stats) {
+    postProcess(err, stats)
+    cb()
+  })
+}
+
+module.exports = { web: webConfig, node: nodeConfig, run: runCompiler }

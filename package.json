@@ -78,7 +78,9 @@
     "json-loader": "^0.5.4",
     "keymirror": "^0.1.1",
     "lint-staged": "4.3.0",
+    "mkdirp": "^0.5.1",
     "mocha": "^3.1.2",
+    "ncp": "^2.0.0",
     "node-sass": "^4.5.3",
     "npm-watch": "^0.1.6",
     "nuclear-js": "^1.4.0",
@@ -100,6 +102,7 @@
     "react-router": "^2.8.1",
     "react-sidebar": "^2.2.1",
     "react-sortable": "^1.2.0",
+    "rimraf": "^2.6.2",
     "sass-loader": "^6.0.6",
     "script-loader": "^0.7.0",
     "sinon": "^1.17.7",
@@ -132,14 +135,18 @@
   "repository": "git+https://github.com/botpress/botpress.git",
   "os": ["darwin", "linux", "win32"],
   "scripts": {
-    "prepare": "npm run compile-prod",
     "compile": "node ./build.js",
-    "compile-prod": "NODE_ENV=production ./build.sh && ls -lh ./lib/web/js && echo \"DONE\"",
+    "compile-prod": "cross-os compile-prod",
     "test": "cross-os test",
     "watch": "npm-watch",
     "precommit": "lint-staged"
   },
   "cross-os": {
+    "compile-prod": {
+      "darwin": "NODE_ENV=production node ./build.js && ls -lh ./lib/web/js && echo \"DONE\"",
+      "linux": "NODE_ENV=production node ./build.js && ls -lh ./lib/web/js && echo \"DONE\"",
+      "win32": "SET NODE_ENV=production&& node ./build.js && ls -lh ./lib/web/js && echo \"DONE\" && SET NODE_ENV="
+    },
     "test": {
       "darwin":
         "BABEL_ENV=tests mocha --compilers js:babel-core/register --require tests/index.js tests/** extensions/**/tests/**",
