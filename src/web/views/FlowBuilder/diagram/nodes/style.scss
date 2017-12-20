@@ -15,9 +15,14 @@
 .item {
   word-wrap: break-word;
   text-overflow: ellipsis;
-  max-height: 50px;
+  max-height: 78px;
+  overflow-y: scroll;
   border-bottom: 1px solid black;
   font-size: 11px;
+}
+
+.section-next .item {
+  overflow: unset;
 }
 
 .item:last-child {

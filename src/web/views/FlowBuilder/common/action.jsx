@@ -77,13 +77,17 @@ class ActionItem extends Component {
     const textContent = (item && `${item.categoryTitle} | ${item.previewText}`) || ''
     const vars = {}
 
+    const stripDots = str => str.replace(/\./g, '--dot--')
+    const restoreDots = str => str.replace(/--dot--/g, '.')
+
     const htmlTpl = textContent.replace(/{{([a-z0-9. _-]*?)}}/gi, x => {
-      const name = x.replace(/{|}/g, '')
+      const name = stripDots(x.replace(/{|}/g, ''))
       vars[name] = '<span class="var">' + x + '</span>'
-      return '{' + x + '}'
+      return '{' + stripDots(x) + '}'
     })
 
-    const mustached = Mustache.render(htmlTpl, vars)
+    const mustached = restoreDots(Mustache.render(htmlTpl, vars))
+
     const html = { __html: mustached }
 
     return (

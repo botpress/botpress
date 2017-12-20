@@ -82,7 +82,8 @@ export default class FlowProvider extends EventEmitter2 {
         nodes: _.filter(flow.nodes, node => !!node),
         catchAll: flow.catchAll,
         startNode: flow.startNode,
-        links: flow.links
+        links: flow.links,
+        skillData: flow.skillData
       })
     })
 
@@ -138,7 +139,8 @@ export default class FlowProvider extends EventEmitter2 {
       version: flow.version,
       startNode: flow.startNode,
       catchAll: flow.catchAll,
-      nodes: flow.nodes
+      nodes: flow.nodes,
+      skillData: flow.skillData
     }
 
     flowContent.nodes.forEach(node => {

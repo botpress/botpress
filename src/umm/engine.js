@@ -170,7 +170,12 @@ const mapBlocs = (rawBlocs, options, processors, incomingEvent) => {
 
 module.exports = ({ markdown, context, options, processors, incomingEvent }) => {
   Mustache.parse(markdown)
-  const mustached = Mustache.render(markdown, context)
+
+  let mustached = Mustache.render(markdown, context)
+
+  // We're running it a second time to do second-level variable replacement
+  // This happens often when there are variables used in the Content Manager
+  mustached = Mustache.render(mustached, context)
 
   // The reason we support multi-doc is that people might want to separate documents
   // Both visually and practically when the file gets large

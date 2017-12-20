@@ -52,7 +52,7 @@ export class StandardNodeWidget extends Component {
                 const outputPortName = `out${i}`
                 return (
                   <div key={i} className={classnames(style.item)}>
-                    <ConditionItem text={item.condition} position={i} />
+                    <ConditionItem condition={item} position={i} />
                     <StandardPortWidget name={outputPortName} node={node} />
                   </div>
                 )
