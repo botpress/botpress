@@ -8,7 +8,7 @@ const style = require('../style.scss')
 
 export default class FlowPropertiesPanel extends Component {
   render() {
-    let catchAll = Object.assign(
+    const catchAll = Object.assign(
       {
         onReceive: [],
         next: []

@@ -31,7 +31,7 @@ export const validateFlowSchema = flow => {
     return `${errorPrefix}, "catchAll" does not support "onEnter"`
   }
 
-  for (let node of flow.nodes) {
+  for (const node of flow.nodes) {
     if (!_.isString(node.id) || node.id.length <= 3) {
       return `${errorPrefix}, expected node ${node.id} (${node.name}) to have a valid id`
     }

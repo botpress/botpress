@@ -28,27 +28,27 @@
   "plugins": ["prettier"],
 
   "rules": {
-    // Possible Errors
     "no-extra-semi": 1, // disallow unnecessary semicolons
     "no-inner-declarations": 2, // disallow function or variable declarations in nested blocks
     "no-use-before-define": ["error", { "functions": true, "classes": true }],
 
-    // Best Practices
     "curly": 2, // specify curly brace conventions for all control statements
-    "no-eval": 2, // disallow use of eval()
+    "no-eval": 2,
     "no-extend-native": 2, // disallow adding to native types
     "no-new-wrappers": 2, // disallows creating new instances of String, Number, and Boolean
-    "no-with": 2, // disallow use of the with statement,
+    "no-with": 2,
     "no-return-await": 2,
 
-    // Variables
     "no-undef": 2, // disallow use of undeclared variables unless mentioned in a /*global */ block
+    "no-var": 2,
+    "prefer-const": ["error", {
+      "destructuring": "all",
+      "ignoreReadBeforeAssign": false
+    }],
 
-    // Stylistic Issues
-    "no-array-constructor": 2, // disallow use of the Array constructor
-    "no-new-object": 2, // disallow use of the Object constructor
+    "no-array-constructor": 2,
+    "no-new-object": 2,
 
-    // Prettier styles
     "prettier/prettier": "error"
   }
 }

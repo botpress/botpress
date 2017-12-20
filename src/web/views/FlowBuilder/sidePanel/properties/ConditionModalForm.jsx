@@ -99,25 +99,26 @@ export default class ConditionModalForm extends Component {
     })
   }
 
-  onSubmitClick() {
-    if (this.validation()) {
-      const payload = { condition: this.state.condition }
-
-      if (this.state.typeOfTransition === 'subflow') {
-        payload.node = _.get(this.state, 'flowToSubflow.value') || _.get(this.state, 'flowToSubflow')
-      } else if (this.state.typeOfTransition === 'end') {
-        payload.node = 'END'
-      } else if (this.state.typeOfTransition === 'node') {
-        payload.node = _.get(this.state, 'flowToNode.value') || ''
-      } else if (this.state.typeOfTransition === 'return') {
-        payload.node = '#' + this.state.returnToNode
-      } else {
-        payload.node = ''
-      }
-
-      this.props.onSubmit(payload)
-      this.resetForm()
+  onSubmitClick = () => {
+    if (!this.validation()) {
+      return
     }
+    const payload = { condition: this.state.condition }
+
+    if (this.state.typeOfTransition === 'subflow') {
+      payload.node = _.get(this.state, 'flowToSubflow.value') || _.get(this.state, 'flowToSubflow')
+    } else if (this.state.typeOfTransition === 'end') {
+      payload.node = 'END'
+    } else if (this.state.typeOfTransition === 'node') {
+      payload.node = _.get(this.state, 'flowToNode.value') || ''
+    } else if (this.state.typeOfTransition === 'return') {
+      payload.node = '#' + this.state.returnToNode
+    } else {
+      payload.node = ''
+    }
+
+    this.props.onSubmit(payload)
+    this.resetForm()
   }
 
   getSubflowOptions() {
@@ -184,7 +185,7 @@ export default class ConditionModalForm extends Component {
     )
   }
 
-  onConditionChanged(event) {
+  onConditionChanged = event => {
     this.setState({ condition: event.target.value })
   }
 
@@ -203,7 +204,7 @@ export default class ConditionModalForm extends Component {
               type="text"
               placeholder="Javascript expression"
               value={this.state.condition}
-              onChange={::this.onConditionChanged}
+              onChange={this.onConditionChanged}
             />
           </div>
           <h5>When condition is met, do:</h5>
@@ -234,7 +235,7 @@ export default class ConditionModalForm extends Component {
         </Modal.Body>
         <Modal.Footer>
           <Button onClick={this.props.onClose}>Cancel</Button>
-          <Button onClick={::this.onSubmitClick} bsStyle="primary">
+          <Button onClick={this.onSubmitClick} bsStyle="primary">
             {this.state.isEdit ? 'Update' : 'Create'}
           </Button>
         </Modal.Footer>

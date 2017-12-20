@@ -142,7 +142,8 @@ export default class FlowBuilder extends Component {
   }
 
   syncModel() {
-    let snapshot = _.memoize(::this.serialize) // Don't serialize more than once
+    // Don't serialize more than once
+    const snapshot = _.once(this.serialize)
 
     // Remove nodes that have been deleted
     _.keys(this.activeModel.getNodes()).forEach(nodeId => {
@@ -153,7 +154,7 @@ export default class FlowBuilder extends Component {
 
     this.props.currentFlow &&
       this.props.currentFlow.nodes.forEach(node => {
-        let model = this.activeModel.getNode(node.id)
+        const model = this.activeModel.getNode(node.id)
 
         if (!model) {
           // Node doesn't exist
@@ -274,7 +275,8 @@ export default class FlowBuilder extends Component {
       }
 
       // If ports have more than one outbout link
-      ;[link.sourcePort, link.targetPort].forEach(port => {
+      const ports = [link.sourcePort, link.targetPort]
+      ports.forEach(port => {
         if (!port) {
           return
         }
@@ -362,15 +364,12 @@ export default class FlowBuilder extends Component {
     }
   }
 
-  serialize() {
+  serialize = () => {
     const model = this.activeModel.serializeDiagram()
 
     const nodes = model.nodes.map(node => {
       return {
-        id: node.id,
-        name: node.name,
-        onEnter: node.onEnter,
-        onReceive: node.onReceive,
+        ..._.pick(node, 'id', 'name', 'onEnter', 'onReceive'),
         next: node.next.map((next, index) => {
           const port = _.find(node.ports, { name: 'out' + index })
 
@@ -388,10 +387,7 @@ export default class FlowBuilder extends Component {
 
           return { condition: next.condition, node: otherNode.name }
         }),
-        position: {
-          x: node.x,
-          y: node.y
-        }
+        position: _.pick(node, 'x', 'y')
       }
     })
 
@@ -425,16 +421,14 @@ export default class FlowBuilder extends Component {
   }
 
   saveAllFlows() {
-    // const { nodes, links } = this.serialize()
     this.props.saveAllFlows()
   }
 
   deleteSelectedElements() {
-    let elements = this.diagramEngine.getDiagramModel().getSelectedItems()
-    elements = _.sortBy(elements, 'nodeType')
+    const elements = _.sortBy(this.diagramEngine.getDiagramModel().getSelectedItems(), 'nodeType')
 
     // Use sorting to make the nodes first in the array, deleting the node before the links
-    for (let element of elements) {
+    for (const element of elements) {
       if (!this.diagramEngine.isModelLocked(element)) {
         if (element.isStartNode) {
           return alert("You can't delete the start node.")

@@ -38,7 +38,7 @@ export default class ParametersTable extends Component {
 
       const deleteDuplicatedEmptyRows = () => {
         let count = 0
-        for (var id in this.state.arguments) {
+        for (const id in this.state.arguments) {
           const v = this.state.arguments[id]
           if (v.key === '' && v.value === '') {
             count++

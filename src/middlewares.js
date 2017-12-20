@@ -57,7 +57,6 @@ const createMiddleware = (bp, middlewareName) => {
 
 module.exports = (bp, dataLocation, projectLocation, logger) => {
   const middlewaresFilePath = path.join(dataLocation, 'middlewares.json')
-  let incoming, outgoing, middlewares, customizations
 
   const noopChain = arg => {
     let message =
@@ -77,6 +76,11 @@ module.exports = (bp, dataLocation, projectLocation, logger) => {
     }
     return JSON.parse(fs.readFileSync(middlewaresFilePath))
   }
+
+  let incoming = noopChain,
+    outgoing = noopChain,
+    customizations = readCustomizations()
+  const middlewares = []
 
   const writeCustomizations = () => {
     fs.writeFileSync(middlewaresFilePath, JSON.stringify(customizations))
@@ -161,10 +165,6 @@ module.exports = (bp, dataLocation, projectLocation, logger) => {
     const mw = type === 'incoming' ? incoming : outgoing
     return mw.dispatch ? mw.dispatch(event) : mw(event)
   }
-
-  incoming = outgoing = noopChain
-  middlewares = []
-  customizations = readCustomizations()
 
   return {
     load,

@@ -93,7 +93,7 @@ export default class FlowProvider extends EventEmitter2 {
   async saveFlows(flows) {
     const flowsToSave = await Promise.mapSeries(flows, flow => this._prepareSaveFlow(flow))
 
-    for (let { flowPath, uiPath, flowContent, uiContent } of flowsToSave) {
+    for (const { flowPath, uiPath, flowContent, uiContent } of flowsToSave) {
       if (flowPath.includes('/')) {
         mkdirp.sync(path.dirname(flowPath))
       }

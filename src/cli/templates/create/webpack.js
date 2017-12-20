@@ -1,8 +1,8 @@
-var webpack = require('webpack')
-var nodeExternals = require('webpack-node-externals')
-var pkg = require('./package.json')
+const webpack = require('webpack')
+const nodeExternals = require('webpack-node-externals')
+const pkg = require('./package.json')
 
-var nodeConfig = {
+const nodeConfig = {
   devtool: 'source-map',
   entry: ['./src/index.js'],
   output: {
@@ -38,7 +38,7 @@ var nodeConfig = {
   }
 }
 
-var webConfig = {
+const webConfig = {
   devtool: 'source-map',
   entry: ['./src/views/index.jsx'],
   output: {
@@ -104,8 +104,8 @@ const liteConfig = Object.assign({}, webConfig, {
   }
 })
 
-var compiler = webpack([nodeConfig, webConfig, liteConfig])
-var postProcess = function(err, stats) {
+const compiler = webpack([nodeConfig, webConfig, liteConfig])
+const postProcess = (err, stats) => {
   if (err) {
     throw err
   }

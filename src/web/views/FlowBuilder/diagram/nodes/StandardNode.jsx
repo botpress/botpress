@@ -102,7 +102,7 @@ export class StandardNodeModel extends NodeModel {
 
   setData({ name, onEnter = [], onReceive = [], next = [], isStartNode }) {
     this.isStartNode = isStartNode
-    let inNodeType = isStartNode ? 'start' : 'normal'
+    const inNodeType = isStartNode ? 'start' : 'normal'
     const waitOnReceive = !_.isNil(onReceive)
 
     if (!this.ports['in']) {
@@ -110,7 +110,7 @@ export class StandardNodeModel extends NodeModel {
     }
 
     // We create as many output port as needed
-    for (var i = 0; i < next.length; i++) {
+    for (let i = 0; i < next.length; i++) {
       if (!this.ports['out' + i]) {
         this.addPort(new StandardOutgoingPortModel('out' + i))
       }

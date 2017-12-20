@@ -28,7 +28,7 @@ export default class TransitionSection extends Component {
     this.props.onItemsUpdated(clone)
   }
 
-  onSubmit(item) {
+  onSubmit = item => {
     const editIndex = this.state.itemToEditIndex
     const { items } = this.props
     const updateByIndex = (originalItem, i) => (i === editIndex ? item : originalItem)
@@ -104,7 +104,7 @@ export default class TransitionSection extends Component {
           subflows={this.props.subflows}
           show={this.state.showConditionalModalForm}
           onClose={() => this.setState({ showConditionalModalForm: false, itemToEditIndex: null })}
-          onSubmit={::this.onSubmit}
+          onSubmit={this.onSubmit}
           item={this.props.items[this.state.itemToEditIndex]}
         />
       </div>

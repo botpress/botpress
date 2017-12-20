@@ -44,21 +44,19 @@ const defaultState = {
   nodeInBuffer: null
 }
 
-function applySnapshot(state, snapshot) {
-  return {
-    ...state,
-    currentFlow: snapshot.activeFlow,
-    currentFlowNode: snapshot.activeFlowNode,
-    flowsByName: snapshot.flowsByName
-  }
-}
+const applySnapshot = (state, snapshot) => ({
+  ...state,
+  currentFlow: snapshot.activeFlow,
+  currentFlowNode: snapshot.activeFlowNode,
+  flowsByName: snapshot.flowsByName
+})
 
 const findNodesThatReferenceFlow = (state, flowName) =>
   _.flatten(_.values(state.flowsByName).map(flow => flow.nodes))
     .filter(node => node.flow === flowName || _.find(node.next, { node: flowName }))
     .map(node => node.id)
 
-function computeFlowsHash(state) {
+const computeFlowsHash = state => {
   const hashAction = (hash, action) => {
     if (_.isArray(action)) {
       action.forEach(c => {
@@ -118,11 +116,9 @@ function computeFlowsHash(state) {
   }, {})
 }
 
-function updateCurrentHash(state) {
-  return { ...state, currentHashes: computeFlowsHash(state) }
-}
+const updateCurrentHash = state => ({ ...state, currentHashes: computeFlowsHash(state) })
 
-function createSnapshot(state) {
+const createSnapshot = state => {
   const snapshot = {
     activeFlow: state.currentFlow,
     activeFlowNode: state.currentFlowNode,
@@ -150,8 +146,8 @@ function createSnapshot(state) {
   }
 }
 
-function copyName(siblingNames, nameToCopy) {
-  let copies = siblingNames.filter(name => name.startsWith(`${nameToCopy}-copy`))
+const copyName = (siblingNames, nameToCopy) => {
+  const copies = siblingNames.filter(name => name.startsWith(`${nameToCopy}-copy`))
 
   if (!copies.length) {
     return `${nameToCopy}-copy`
@@ -167,50 +163,43 @@ function copyName(siblingNames, nameToCopy) {
   }
 }
 
-function doRenameFlow({ flow, name, flows }) {
-  return _.reduce(
-    flows,
-    function(obj, f) {
-      if (f.name === flow) {
-        f.name = name
-        f.location = name
-      }
+const doRenameFlow = ({ flow, name, flows }) =>
+  flows.reduce((obj, f) => {
+    if (f.name === flow) {
+      f.name = name
+      f.location = name
+    }
 
-      if (f.nodes) {
-        let json = JSON.stringify(f.nodes)
-        json = json.replace(flow, name)
-        f.nodes = JSON.parse(json)
-      }
+    if (f.nodes) {
+      let json = JSON.stringify(f.nodes)
+      json = json.replace(flow, name)
+      f.nodes = JSON.parse(json)
+    }
 
-      obj[f.name] = f
+    obj[f.name] = f
 
-      return obj
-    },
-    {}
-  )
-}
+    return obj
+  }, {})
 
-function doCreateNewFlow(name) {
-  return {
-    version: '0.1',
-    name: name,
-    location: name,
-    startNode: 'entry',
-    catchAll: {},
-    links: [],
-    nodes: [
-      {
-        id: nanoid(),
-        name: 'entry',
-        onEnter: [],
-        onReceive: null,
-        next: [],
-        x: 100,
-        y: 100
-      }
-    ]
-  }
-}
+const doCreateNewFlow = name => ({
+  version: '0.1',
+  name: name,
+  location: name,
+  startNode: 'entry',
+  catchAll: {},
+  links: [],
+  nodes: [
+    {
+      id: nanoid(),
+      name: 'entry',
+      onEnter: [],
+      onReceive: null,
+      next: [],
+      x: 100,
+      y: 100
+    }
+  ]
+})
 
 // *****
 // Reducer that deals with non-recordable (no snapshot taking)
@@ -330,7 +319,7 @@ reducer = reduceReducers(
           ? currentFlow.nodes
           : currentFlow.nodes.map(node => {
               const nodeLinks = payload.links.filter(link => link.source === node.id)
-              let next = node.next.map((value, index) => {
+              const next = node.next.map((value, index) => {
                 const link = nodeLinks.find(link => Number(link.sourcePort.replace('out', '')) === index)
                 const targetNode = _.find(currentFlow.nodes, { id: (link || {}).target })
                 let remapNode = ''

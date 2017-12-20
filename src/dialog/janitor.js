@@ -26,7 +26,7 @@ module.exports = ({ db, botfile, middlewares }) => {
 
     return Promise.map(sessions, session => {
       let platform = 'botpress'
-      let props = {}
+      const props = {}
 
       if (session.id.includes(':')) {
         const chunks = session.id.split(':')
