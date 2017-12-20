@@ -93,21 +93,46 @@ If you are interested in contributing to Botpress, you will need to create a loc
 These instructions assume a parent directory `bar` and we will be adding two child directories: `botpress` and `foobot`.
 
 1. Fork the [botpress repo](https://github.com/botpress/botpress) & copy the link. (If you are new to open source, GitHub, or Git, check out the excellent egghead.io link in 'New to contributing to open-source?' for additional important Git commands, such as checking out a branch, setting your upstream repo, keeping your local copy in sync, and making your pull request).
-3. In your CLI, create and navigate to the `bar` directory: `$ mkdir bar && cd bar`
-4. Clone the forked repo locally. `bar $ git clone https://github.com/YOURNAME/botpress.git`
-5. Navigate into your local `botpress` folder `bar $ cd botpress`
+2. Open a new terminal/CLI tab, and run commands
+    ```shell
+    # botpress terminal window
+
+    # create and navigate to the `bar` directory
+    $ mkdir bar && cd bar
+    # Clone the forked repo locally
+    bar $ git clone https://github.com/YOURNAME/botpress.git
+    # Navigate into your local botpress folder
+    bar $ cd botpress
+    ```
+3. Determine if you are going to use `yarn` (recommended) or `npm` for package management
 
 *Yarn (recommended)*
 
-6. Install the dependencies `bar/botpress $ yarn install`
-7. Compile and run the botpress server `bar/botpress $ yarn run watch`
-8. Open a new terminal/CLI tab
-9. From the botpress directory, run `bar/botpress $ yarn link`
-10. Now navigate back to the `bar` parent directory and create `foobot` our test bot `bar $ ./botpress/bin/botpress init foobot`, then entering the project information at the prompts.
-11. Navigate into the `foobot` directory `bar $ cd foobot`
-12. We have to link `foobot` to our local copy of botpress `bar/foobot $ yarn link botpress`
-13. You can fire up the bot normally with `bar/foobot $ bp start`
-
+4. Continue running commands in the **botpress terminal window**
+    ```shell
+    # Install the dependencies
+    bar/botpress $ yarn install
+    # Compile and run the botpress server
+    bar/botpress $ yarn run watch
+    ```
+5. Open a new terminal/CLI tab (**foobot**), and run commands
+    ```shell
+    # navigate to the botpress  botpress directory
+    $ cd bar/botpress
+    # link botpress
+    bar/botpress $ yarn link
+    # navigate to bar
+    bar/botpress $ cd ./..
+    # create the foobot our test bot
+    bar $ node ./botpress/bin/botpress init foobot
+    # enter the project information at the prompts
+    # navigate into the foobot directory
+    bar $ cd foobot
+    # link foobot to our local copy of botpress
+    bar/foobot $ yarn link botpress
+    # start the bot normally
+    bar/foobot $ bp start
+    ```
 You will note that if you want to access the CLI while `botpress` and `foobot` are running, you will need to open a third tab.
 
 *NPM*
