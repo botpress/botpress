@@ -7,7 +7,7 @@ module.exports = {
     send: ({ message, originalEvent, state, flowContext }) => {
       let rendered = message.value
 
-      const additionalData = { ...state }
+      const additionalData = { state: state }
 
       if (/{{/i.test(rendered)) {
         rendered = Mustache.render(rendered, {
