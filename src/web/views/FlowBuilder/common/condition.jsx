@@ -29,10 +29,10 @@ export default class ConditionItem extends Component {
   render() {
     const { position } = this.props
 
-    let { condition, caption } = this.props.condition
+    const { condition, caption } = this.props.condition
 
     let raw = null
-    let renderer = caption ? this.renderOverlay : this.renderNormal
+    const renderer = caption ? this.renderOverlay : this.renderNormal
 
     if (caption) {
       const vars = {}
