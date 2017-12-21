@@ -166,14 +166,14 @@ These instructions assume a parent directory `bar` and we will be adding two chi
 
 6. You will note that if you want to access the CLI while `botpress` and `foobot` are running, you will need to open a third tab.
 7. If you want to confirm that your local copy is working, a straightforward method is to make a change to botpress's React code on your local copy, restart both botpress and foobot
- - edit code in botpress
- - in: **botpress terminal window**
+  - edit code in botpress
+  - in: **botpress terminal window**
     ```shell
     # Ctl-C to end watch
     # start botpress using yarn or npm
     bar/botpress $ yarn run watch
     ```
- - in: **foobot terminal window**
+  - in: **foobot terminal window**
     ```shell
     # Ctl-C to stop bot
     bar/foobot $ bp start
