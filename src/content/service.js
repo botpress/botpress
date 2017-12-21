@@ -315,7 +315,7 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
     }
 
     mkdirp.sync(formDataDir)
-    await ghostManager.addFolder(formDataDir, '**/*.json')
+    await ghostManager.addRootFolder(formDataDir, '**/*.json')
 
     const files = await Promise.fromCallback(callback => glob('**/*.form.js', { cwd: formDir }, callback))
 

@@ -73,8 +73,8 @@ module.exports = ({ logger, db, projectLocation, enabled }) => {
       .then()
   }
 
-  const addFolder = async (folder, filesGlob) => {
-    const { folderPath, normalizedFolderName } = normalizeFolder(folder)
+  const addRootFolder = async (rootFolder, filesGlob) => {
+    const { folderPath, normalizedFolderName } = normalizeFolder(rootFolder)
 
     logger.debug(`[Ghost Content Manager] adding folder ${normalizedFolderName}`)
     trackedFolders.push(normalizedFolderName)
@@ -141,10 +141,10 @@ module.exports = ({ logger, db, projectLocation, enabled }) => {
 
   const updatePendingForAllFolders = () => Promise.each(trackedFolders, updatePendingForFolder)
 
-  const recordRevision = async (folder, file, content) => {
+  const recordRevision = async (rootFolder, file, content) => {
     const knex = await db.get()
 
-    const { normalizedFolderName } = normalizeFolder(folder)
+    const { normalizedFolderName } = normalizeFolder(rootFolder)
 
     const id = await knex('ghost_content')
       .where({ folder: normalizedFolderName, file })
@@ -183,9 +183,9 @@ module.exports = ({ logger, db, projectLocation, enabled }) => {
     })
   }
 
-  const readFile = async (folder, file) => {
+  const readFile = async (rootFolder, file) => {
     const knex = await db.get()
-    const { normalizedFolderName } = normalizeFolder(folder)
+    const { normalizedFolderName } = normalizeFolder(rootFolder)
     return knex('ghost_content')
       .select('content')
       .where({ folder: normalizedFolderName, file })
@@ -216,7 +216,7 @@ module.exports = ({ logger, db, projectLocation, enabled }) => {
   logger.info('[Ghost Content Manager] Initialized')
 
   return {
-    addFolder,
+    addRootFolder,
     recordRevision,
     readFile,
     getPending,

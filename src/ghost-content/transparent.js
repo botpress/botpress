@@ -18,9 +18,9 @@ module.exports = ({ logger, projectLocation }) => {
   logger.info('[Ghost Content Manager] (transparent) Initialized')
 
   return {
-    addFolder: (folder, filesGlob) => {
-      const { normalizedFolderName } = normalizeFolder(folder)
-      logger.debug(`[Ghost Content Manager] (transparent) Added folder ${normalizedFolderName}, doing nothing.`)
+    addRootFolder: (rootFolder, filesGlob) => {
+      const { normalizedFolderName } = normalizeFolder(rootFolder)
+      logger.debug(`[Ghost Content Manager] (transparent) Added root folder ${normalizedFolderName}, doing nothing.`)
     },
     recordRevision: (folder, file, content) => {
       const { folderPath } = normalizeFolder(folder)
