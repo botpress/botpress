@@ -133,17 +133,49 @@ These instructions assume a parent directory `bar` and we will be adding two chi
     # start the bot normally
     bar/foobot $ bp start
     ```
-You will note that if you want to access the CLI while `botpress` and `foobot` are running, you will need to open a third tab.
 
 *NPM*
 
-6. Install the dependencies `bar/botpress $ npm install`
-7. Compile and run the botpress server `bar/botpress $ npm run watch`
-8. Open a new terminal/CLI tab
-9. From the botpress directory, run `bar/botpress $ npm link`
-10. Now navigate back to the `bar` parent directory and create `foobot` our test bot `bar $ ./botpress/bin/botpress init foobot`, then entering the project information at the prompts.
-11. Navigate into the `foobot` directory `bar $ cd foobot`
-12. We have to link `foobot` to our local copy of botpress `bar/foobot $ npm link botpress`
-13. You can fire up the bot normally with `bar/foobot $ bp start`
+4. Continue running commands in the **botpress terminal window**
+    ```shell
+    # Install the dependencies
+    bar/botpress $ npm install
+    # Compile and run the botpress server
+    bar/botpress $ npm run watch
+    ```
+5. Open a new terminal/CLI tab (**foobot**), and run commands
+    ```shell
+    # navigate to the botpress  botpress directory
+    $ cd bar/botpress
+    # link botpress
+    bar/botpress $ yarn link
+    # navigate to bar
+    bar/botpress $ cd ./..
+    # create the foobot our test bot
+    bar $ node ./botpress/bin/botpress init foobot
+    # enter the project information at the prompts
+    # navigate into the foobot directory
+    bar $ cd foobot
+    # link foobot to our local copy of botpress
+    bar/foobot $ npm link botpress
+    # start the bot normally
+    bar/foobot $ bp start
+    ```
 
-If you want to confirm that your local copy is working, a straightforward method is to make a change to botpress's React code on your local copy, restart both botpress and foobot (`$ yarn run watch` / `$ npm run watch` and `$ bp start` from their directories), and then visit `localhost:3000` in a browser to confirm your change was implemented.
+*Next Steps*
+
+6. You will note that if you want to access the CLI while `botpress` and `foobot` are running, you will need to open a third tab.
+7. If you want to confirm that your local copy is working, a straightforward method is to make a change to botpress's React code on your local copy, restart both botpress and foobot
+ - edit code in botpress
+ - in: **botpress terminal window**
+    ```shell
+    # Ctl-C to end watch
+    # start botpress using yarn or npm
+    bar/botpress $ yarn run watch
+    ```
+ - in: **foobot terminal window**
+    ```shell
+    # Ctl-C to stop bot
+    bar/foobot $ bp start
+    ```
+ - visit `localhost:3000` in a browser to confirm your change was implemented
