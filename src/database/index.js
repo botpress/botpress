@@ -11,7 +11,7 @@ const initializeCoreDatabase = knex => {
     throw new Error('You must initialize the database before')
   }
 
-  return Promise.mapSeries(tables, fn => fn(knex))
+  return Promise.mapSeries(tables, fn => fn(knex)).then(() => knex.migrate.latest())
 }
 
 const createKnex = async ({ sqlite, postgres }) => {
