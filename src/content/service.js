@@ -102,7 +102,7 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
     const items = (await listCategoryItems(categoryId)).map(item =>
       _.pick(item, 'id', 'formData', 'createdBy', 'createdOn')
     )
-    await ghostManager.recordRevision(formDataDir, fileById[categoryId], JSON.stringify(items, null, 2))
+    await ghostManager.upsertFile(formDataDir, fileById[categoryId], JSON.stringify(items, null, 2))
   }
 
   const dumpAllDataToFiles = () => Promise.map(categories, ({ id }) => dumpDataToFile(id))
@@ -128,7 +128,7 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
         .where({ categoryId: category.id })
         .count('* as count')
         .get(0)
-        .then(row => (row && row.count) || 0)
+        .then(row => (row && Number(row.count)) || 0)
 
       return {
         id: category.id,
@@ -201,8 +201,7 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
   const categoryItemsCount = () => {
     return knex('content_items')
       .count('id as count')
-      .get(0)
-      .get('count')
+      .then(([res]) => Number(res.count))
   }
 
   const deleteCategoryItems = async ids => {
