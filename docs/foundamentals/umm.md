@@ -62,6 +62,21 @@ bp.hear(/bye/i, (event, next) => {
 })
 ```
 
+Or you can pass in a UMM bloc in your code (`index.js`):
+
+```js
+bp.hear(/hello/i, (event, next) => {
+  // include blocName in the UMM
+  event.reply(`helloBloc:
+  - Hello {{user.first_name}} !`)
+})
+
+bp.hear(/bye/i, (event, next) => {
+  // exclude the blocName from the UMM
+  event.reply('  - Goodbye, {{user.first_name}} :)')
+})
+```
+
 ## Examples {#examples}
 
 A single bloc sending two messages:
