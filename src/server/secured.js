@@ -23,6 +23,7 @@ module.exports = (bp, app) => {
         menuText: module.settings.menuText || module.name,
         menuIcon: module.settings.menuIcon || 'view_module',
         noInterface: !!module.settings.noInterface,
+        moduleView: module.settings.moduleView || { stretched: false },
         plugins: module.settings.plugins || []
       }
     })

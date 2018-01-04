@@ -6,7 +6,11 @@
   "botpress": {
     "menuText": "<%= name %>",
     "menuIcon": "view_module",
-    "webBundle": "bin/web.bundle.js"
+    "webBundle": "bin/web.bundle.js",
+    "noInterface": false,
+    "moduleView": {
+      "stretched": false
+    }
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

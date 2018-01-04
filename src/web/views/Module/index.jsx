@@ -72,14 +72,16 @@ class ModuleView extends React.Component {
 
     const header = module ? (
       <span>
-        {module.menuText} {this.renderLink(module)}
+        {module && module.menuText} {this.renderLink(module)}
       </span>
     ) : (
       `Module ${moduleName} Not Found`
     )
 
+    const stretch = _.get(module, 'moduleView.stretched')
+
     return (
-      <ContentWrapper>
+      <ContentWrapper stretch={stretch}>
         <PageHeader>{header}</PageHeader>
         {contents}
       </ContentWrapper>
