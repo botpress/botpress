@@ -4,18 +4,13 @@ import _ from 'lodash'
 import Promise from 'bluebird'
 
 module.exports = ({ sendBloc, db }) => {
-
   async function getUser(id) {
     const knex = await db.get()
     const users = await knex('users')
-      .where(function() {
-        if (id.indexOf(':') > 0) {
-          this.where({ id: id })
-        } else {
-          this.where('userId', id)
-        }
-      })
-      .limit(1).select('*')
+      .where({ id: id })
+      .orWhere('userId', id)
+      .limit(1)
+      .select('*')
 
     if (!users || users.length <= 0) {
       throw new Error(`User "${id}" not found in the database`)
@@ -33,7 +28,7 @@ module.exports = ({ sendBloc, db }) => {
    */
   async function sendToUser(user, bloc, data) {
     if (!_.isString(bloc)) {
-      throw new Error('Invalid bloc id: ' + bloc)  
+      throw new Error('Invalid bloc id: ' + bloc)
     }
 
     if (_.isString(user)) {
