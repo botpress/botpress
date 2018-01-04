@@ -1,4 +1,5 @@
 import React from 'react'
+import { withRouter } from 'react-router'
 import axios from 'axios'
 
 import InjectedComponent from '~/components/Injected'
@@ -76,7 +77,7 @@ export default class InjectedModuleView extends React.Component {
   render() {
     const { moduleComponent } = this.state
 
-    if (!!this.state.error) {
+    if (this.state.error) {
       console.log('Error rendering plugin', this.state.error)
       return (this.props.onNotFound && this.props.onNotFound(this.state.error)) || null
     }
@@ -92,6 +93,8 @@ export default class InjectedModuleView extends React.Component {
 
     const extraProps = this.props.extraProps || {}
 
-    return <InjectedComponent component={moduleComponent} name={this.props.moduleName} bp={bp} {...extraProps} />
+    const WrappedComponent = withRouter(InjectedComponent)
+
+    return <WrappedComponent component={moduleComponent} name={this.props.moduleName} bp={bp} {...extraProps} />
   }
 }

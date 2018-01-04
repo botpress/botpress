@@ -14,7 +14,7 @@ const collectModules = (modules, injectionSite) =>
     })
   )
 
-class ModuleView extends React.Component {
+class InjectionSite extends React.Component {
   static contextTypes = {
     router: PropTypes.object.isRequired
   }
@@ -43,4 +43,4 @@ class ModuleView extends React.Component {
 
 const mapStateToProps = state => ({ modules: state.modules })
 
-export default connect(mapStateToProps)(ModuleView)
+export default connect(mapStateToProps)(InjectionSite)

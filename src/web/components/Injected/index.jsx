@@ -37,10 +37,9 @@ export default class InjectedComponent extends Component {
     const node = ReactDOM.findDOMNode(this)
 
     try {
-      const Component = this.props.component
-      const passthroughProps = Object.assign({}, this.props, { component: null })
-      const element = <Component key={this.componentId} {...passthroughProps} />
-      ReactDOM.render(element, node)
+      const props = Object.assign({}, this.props)
+      delete props['component']
+      ReactDOM.render(React.createElement(this.props.component, props), node)
     } catch (err) {
       const element = (
         <div className="panel panel-danger">
