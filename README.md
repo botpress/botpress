@@ -46,7 +46,7 @@ The best way to get quickly get started using Botpress is to watch our [video tu
 
 ## Installation
 
-Botpress requires [node](https://nodejs.org) (version >= 4.6) and uses [npm](https://www.npmjs.com) as package manager.
+Botpress requires [node](https://nodejs.org) (version >= 6.10) and uses [npm](https://www.npmjs.com) as package manager.
 
 ```
 npm install -g botpress
@@ -136,13 +136,13 @@ This is a non-exclusive list of modules Botpress has. See [the full list of modu
 Thanks you for your interest in Botpress. Here are some of the many ways to contribute.
 
   - Check out our [contributing guide](/.github/CONTRIBUTING.md)
-  - Look at our [code of conduct](/.github/CODE_OF_CONDUCT.md) 
-  - Engage with us on Social Media 
+  - Look at our [code of conduct](/.github/CODE_OF_CONDUCT.md)
+  - Engage with us on Social Media
     - Follow us on [Twitter](https://twitter.com/getbotpress)
     - Like us on [Facebook](https://www.facebook.com/botpress)
     - Join our channel on [Slack](https://slack.botpress.io)
-  - Answer and ask questions on the Slack community 
-  - [Donate](/.github/DONATE.md) to the project 
+  - Answer and ask questions on the Slack community
+  - [Donate](/.github/DONATE.md) to the project
   - [Write and edit the documentation](/.github/CONTRIBUTING.md)
   - Check misspelling in our docs.
 

@@ -1,0 +1,19 @@
+{
+  "name": "botpress-dev-bot",
+  "version": "0.0.1",
+  "description": "Botpress development bot",
+  "main": "index.js",
+  "dependencies": {
+    "botpress": "file:..",
+    "botpress-platform-webchat": "botpress/botpress-platform-webchat#master"
+  },
+  "scripts": {
+    "start": "botpress start",
+    "ghost-sync": "botpress ghost-sync",
+    "test": "cd .. && npm test",
+    "preinstall":
+      "../node_modules/.bin/require-npm-version \"5.6.0\" || (echo \"npm >= 5.6.0 is required to work on this module\" && exit 1)"
+  },
+  "author": "Eugene Mirotin <eugene@botpress.io>",
+  "license": "Botpress Proprietary License"
+}
