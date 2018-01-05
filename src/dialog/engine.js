@@ -358,7 +358,7 @@ class DialogEngine {
   }
 
   _gotoSubflow(nodeName, context) {
-    let [_, subflow, subflowNode] = nodeName.match(callSubflowRegex)
+    let [, subflow, subflowNode] = nodeName.match(callSubflowRegex)
 
     const flow = this._findFlow(subflow, true)
 
