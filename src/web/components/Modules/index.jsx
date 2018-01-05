@@ -17,31 +17,6 @@ class ModuleComponent extends React.Component {
     loading: false
   }
 
-  handleInstall = () => {
-    const fin = () => {
-      this.setState({ loading: false })
-      this.props.refresh && this.props.refresh()
-    }
-    this.setState({ loading: true })
-    axios
-      .post('/api/module/install/' + this.props.module.name)
-      .then(fin)
-      .catch(fin)
-  }
-
-  handleUninstall = () => {
-    const fin = () => {
-      this.setState({ loading: false })
-      this.props.refresh && this.props.refresh()
-    }
-    this.setState({ loading: true })
-    axios
-      .delete('/api/module/uninstall/' + this.props.module.name)
-      .then()
-      .then(fin)
-      .catch(fin)
-  }
-
   renderLeftSideModule() {
     const { docLink, icon, description, author, license, title, name } = this.props.module
     const isLoaded = this.props.isLoaded
@@ -69,27 +44,8 @@ class ModuleComponent extends React.Component {
     )
   }
 
-  renderManageButton() {
-    const { installed } = this.props.module
-
-    const text = installed ? 'Uninstall' : 'Install'
-    const action = installed ? this.handleUninstall : this.handleInstall
-
-    const className = classnames({
-      ['bp-button']: true,
-      [style.uninstall]: installed,
-      ['bp-button-default']: installed
-    })
-
-    return (
-      <Button className={className} onClick={action} loading={this.state.loading}>
-        {text}
-      </Button>
-    )
-  }
-
   renderRightSideModule() {
-    const { stars, forks } = this.props.module
+    const { stars, forks, installed } = this.props.module
 
     return (
       <div>
@@ -101,7 +57,7 @@ class ModuleComponent extends React.Component {
           <i className="icon material-icons">merge_type</i>
           {numberWithCommas(forks)}
         </div>
-        <div className={style.moduleButton}>{this.renderManageButton()}</div>
+        <div className={style.moduleButton}>{installed && 'Installed'}</div>
       </div>
     )
   }

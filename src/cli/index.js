@@ -3,8 +3,6 @@ import program from 'commander'
 import init from './init'
 import start from './start'
 import create from './create'
-import install from './install'
-import uninstall from './uninstall'
 import migrate from './migrate'
 import list from './list'
 import { login, logout } from './auth'
@@ -42,18 +40,6 @@ program
     []
   )
   .action(start)
-
-program
-  .command('install <module> [modules...]')
-  .alias('i')
-  .description('Add modules to the current bot')
-  .action(install)
-
-program
-  .command('uninstall <module> [modules...]')
-  .alias('u')
-  .description('Remove modules from the current bot')
-  .action(uninstall)
 
 program
   .command('list')

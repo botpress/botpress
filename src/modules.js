@@ -239,89 +239,9 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
     })
   })
 
-  const resolveModuleNames = names => {
-    return names.map(name => {
-      if (!name || typeof name !== 'string') {
-        throw new TypeError('Expected module name to be a string')
-      }
-
-      let basename = path.basename(name)
-      let prefix = ''
-
-      if (basename !== name) {
-        prefix = name.substr(0, name.length - basename.length - 1)
-      }
-
-      if (basename.replace(/botpress-?/i, '').length === 0) {
-        throw new Error(`Invalid module name: ${basename}`)
-      }
-
-      if (!/^botpress-/i.test(basename)) {
-        basename = `botpress-${basename}`
-      }
-
-      return prefix + basename
-    })
-  }
-
-  const runSpawn = command => {
-    return new Promise((resolve, reject) => {
-      command.stdout.on('data', data => {
-        log('info', data.toString())
-      })
-
-      command.stderr.on('data', data => {
-        log('error', data.toString())
-      })
-
-      command.on('close', code => {
-        if (code > 0) {
-          reject()
-        } else {
-          resolve()
-        }
-      })
-    })
-  }
-
-  const installModules = Promise.method((...names) => {
-    const modules = resolveModuleNames(names)
-
-    const install = spawn(npmCmd, ['install', '--save', ...modules], {
-      cwd: projectLocation
-    })
-
-    log('info', 'Installing modules: ' + modules.join(', '))
-
-    return runSpawn(install)
-      .then(() => log('success', 'Modules successfully installed'))
-      .catch(err => {
-        log('error', 'An error occurred during modules installation.')
-        throw err
-      })
-  })
-
-  const uninstallModules = Promise.method((...names) => {
-    const modules = resolveModuleNames(names)
-    const uninstall = spawn(npmCmd, ['uninstall', '--save', ...modules], {
-      cwd: projectLocation
-    })
-
-    log('info', `Uninstalling modules: ${modules.join(', ')}`)
-
-    return runSpawn(uninstall)
-      .then(() => log('success', 'Modules successfully removed'))
-      .catch(err => {
-        log('error', 'An error occurred during modules removal.')
-        throw err
-      })
-  })
-
   return {
     listAllCommunityModules,
     getRandomCommunityHero,
-    install: installModules,
-    uninstall: uninstallModules,
     listInstalled: listInstalledModules,
     _scan: scanModules,
     _load: loadModules

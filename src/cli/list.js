@@ -9,7 +9,7 @@ module.exports = () => {
   if (!modules || modules.length === 0) {
     print('info', 'There are no module installed.')
     print('------------------')
-    print('info', 'To install modules, use `botpress install <module-name>`')
+    print('info', 'To install modules, use `npm install --save <module-name>`')
     print(
       'info',
       'You can discover modules in the Modules section of your bot UI' +
