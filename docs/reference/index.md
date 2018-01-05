@@ -40,31 +40,6 @@ botpress start --watch --help   # To configure exactly what to watch
 cd path/to/bot && npm start
 ```
 
-### `install` or `i` <a class="toc" id="toc-install-or-i" href="#toc-install-or-i"></a>
-
-Install a local or community module. This is the equivalent of running `npm install -S botpress-<name>`, but we strongly suggest to use `botpress install` instead as we might introduce additional logic (like version checking) at a later stage.
-
-```
-botpress install botpress-messenger
-
-# botpress- is optional:
-botpress install messenger
-
-# even shorter:
-bp i messenger
-
-# local paths are valid:
-bp i ~/Desktop/my-module
-```
-
-### `uninstall` or `u` <a class="toc" id="toc-uninstall-or-u" href="#toc-uninstall-or-u"></a>
-
-Uninstalls a local or community module. This is the equivalent of running `npm uninstall -S botpress-<name>`
-
-```
-botpress uninstall messenger
-```
-
 ### `list` or `ls` <a class="toc" id="toc-list-or-ls-list" href="#toc-list-or-ls-list"></a>
 
 Lists the botpress modules installed.

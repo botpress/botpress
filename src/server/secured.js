@@ -96,38 +96,6 @@ module.exports = (bp, app) => {
       )
   })
 
-  app.secure('write', 'modules/list/install').post('/api/module/install/:name', (req, res) => {
-    bp.stats.track('api', 'modules', 'install')
-    const { name } = req.params
-    bp.modules
-      .install(name)
-      .then(() => {
-        res.sendStatus(200)
-        bp.restart(1000)
-      })
-      .catch(err =>
-        res.status(500).send({
-          message: err && err.message
-        })
-      )
-  })
-
-  app.secure('write', 'modules/list/uninstall').delete('/api/module/uninstall/:name', (req, res) => {
-    bp.stats.track('api', 'modules', 'uninstall')
-    const { name } = req.params
-    bp.modules
-      .uninstall(name)
-      .then(() => {
-        res.sendStatus(200)
-        bp.restart(1000)
-      })
-      .catch(err =>
-        res.status(500).send({
-          message: err && err.message
-        })
-      )
-  })
-
   app.delete('/api/guided-tour', (req, res) => {
     fs.unlink(path.join(bp.projectLocation, '.welcome'), () => {
       bp.isFirstRun = false

@@ -29,9 +29,9 @@ const writeRevisions = async (revisionsFile, revisions) => {
   })
 }
 
-const writeFile = folderPath => async ({ file, content }) => {
+const writeFile = folderPath => async ({ file, content, deleted }) => {
   const filePath = path.join(folderPath, file)
-  return fs.writeFileAsync(filePath, content)
+  return deleted ? fs.unlinkAsync(filePath) : fs.writeFileAsync(filePath, content)
 }
 
 const updateFolder = projectLocation => async ({ files, revisions }, folder) => {

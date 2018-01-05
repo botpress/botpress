@@ -58,12 +58,6 @@ class App extends Component {
     EventBus.default.on('notifications.new', notification => {
       this.props.addNotifications([notification])
     })
-
-    this.fetchModulesInterval = setInterval(this.props.fetchModules, 10000)
-  }
-
-  componentWillUnmount() {
-    clearInterval(this.fetchModulesInterval)
   }
 
   render() {

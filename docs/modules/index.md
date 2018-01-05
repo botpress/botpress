@@ -107,7 +107,7 @@ In order to do that, your module's `package.json` includes two commands:
 You can install a module you are currently developing as follows:
 
 ```
-botpress install ../path/to/my/module
+npm install ../path/to/my/botpress-module
 ```
 
 Then you can use the [`npm link`](https://docs.npmjs.com/cli/link) command to link the module with a symbolic link (instead of having to re-install it at every change):
@@ -124,7 +124,7 @@ To publish your module:
 npm publish
 ```
 
-Botpress crawls and indexes modules periodically. It may take up to 45 minutes before your module shows up in the list of available modules. Even before it shows up, it is available to install via the `botpress install` command.
+Botpress crawls and indexes modules periodically. It may take up to 45 minutes before your module shows up in the list of available modules. Even before it shows up, it is available to install via the `npm install` command.
 
 Note that the **all of the following criteria must be met** before a module can appear as a community module:
 
