@@ -66,7 +66,7 @@ await ghostManager.addRootFolder(formDataDir, '**/*.json')
 
 This method call reconciles the ghost content DB table in accordance with the `$rootFolder/.ghost-revisions` file, and if the folder is in the _clean state_ (no revisions in the DB that are not listed in the `.ghost-revisions` files) it updates the DB with the fresh files content from the file system.
 
-### recordRevision(rootFolder: string, file: string, content: string) => Promise<void>
+### upsertFile(rootFolder: string, file: string, content: string) => Promise<void>
 
 Use this method whenever you want to store the content for the given file.
 
@@ -81,20 +81,34 @@ The method automatically records the revision ID for this operation which you no
 Example:
 ```js
 // record the new content for the `trivia_questions.json` file inside of the `formDataDir` folder
-await ghostManager.recordRevision(formDataDir, 'trivia_questions.json', JSON.stringify(triviaQuestions, null, 2))
+await ghostManager.upsertFile(formDataDir, 'trivia_questions.json', JSON.stringify(triviaQuestions, null, 2))
 ```
 
 > Note that you should record the JSON files in indented form (the `null, 2`) params ensure that to simplify the git diffs.
 
-> Note that the `file` param is not normalized, it's your responsibility to refer to the same file consistently across all calls to `recordRevision` and `readFile`.
+> Note that the `file` param is not normalized, it's your responsibility to refer to the same file consistently across all calls to `upsertFile` and `readFile`.
 
 ### readFile(rootFolder: string, file: string) => Promise<string>
 
 `rootFolder` and `file` have the same meaning as above.
 
-Resolves with the content recorded for `file` in the most recent call to `recordRevision` (or the original file content from the disk, recorded on `addRootFolder` call). By design there's no way to read older revisions content (this may change in the future).
+Resolves with the content recorded for `file` in the most recent call to `upsertFile` (or the original file content from the disk, recorded on `addRootFolder` call). By design there's no way to read older revisions content (this may change in the future).
 
 The promise will be rejected if the file's content cannot be found (which in the clean state is effectively equivalent to the fact the file `file` does not exist in `folder`)
+
+### deleteFile(rootFolder: string, file: string) => Promise
+
+`rootFolder` and `file` have the same meaning as above.
+
+Marks file as deleted and updates it's content to `null`. File gets actually deleted on next ghost-sync.
+
+The promise will be rejected if the file's content cannot be found (which in the clean state is effectively equivalent to the fact the file `file` does not exist in `folder`)
+
+### directoryListing(rootFolder: string, fileEndingPattern: string) => Promise<array>
+
+`rootFolder` has the same meaning as above while `fileEndingPattern` is an ending we expect files to have.
+
+Returns files with paths relative to rootFolder found in the directry specified.
 
 ### getPending => object
 

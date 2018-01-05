@@ -27,21 +27,23 @@ module.exports = ({ logger, db, projectLocation, enabled }) => {
   const pendingRevisionsByFolder = {}
   const trackedFolders = []
 
-  const upsert = ({ knex, tableName, where, data, idField = 'id' }) =>
-    knex(tableName)
+  const upsert = ({ knex, tableName, where, data, idField = 'id', trx = null }) => {
+    const prepareQuery = () => (trx ? knex(tableName).transacting(trx) : knex(tableName))
+    return prepareQuery()
       .where(where)
       .select(idField)
       .then(res => {
         const id = get(res, '0.id')
         return id
-          ? knex(tableName)
+          ? prepareQuery()
               .where(idField, id)
               .update(data)
-              .then()
-          : knex(tableName)
-              .insert(Object.assign({}, where, data))
-              .then()
+              .thenReturn(id)
+          : prepareQuery()
+              .insert({ ...where, ...data }, 'id')
+              .then(([insertedId]) => insertedId)
       })
+  }
 
   const recordFile = async (folderPath, folder, file) => {
     const knex = await db.get()
@@ -126,7 +128,7 @@ module.exports = ({ logger, db, projectLocation, enabled }) => {
       // otherwise update the content in the DB
       const files = await globAsync(filesGlob, { cwd: folderPath })
       await Promise.map(files, file => recordFile(folderPath, normalizedFolderName, file))
-      // and also delete the fils no longer in the FS
+      // and also delete the files no longer in the FS
       await knex('ghost_content')
         .whereNotIn('file', files)
         .andWhere('folder', normalizedFolderName)
@@ -141,41 +143,30 @@ module.exports = ({ logger, db, projectLocation, enabled }) => {
 
   const updatePendingForAllFolders = () => Promise.each(trackedFolders, updatePendingForFolder)
 
-  const recordRevision = async (rootFolder, file, content) => {
+  const recordRevision = (knex, content_id, trx) =>
+    knex('ghost_revisions')
+      .transacting(trx)
+      .insert({ content_id, revision: uuid.v4(), created_by: 'admin' })
+
+  const upsertFile = async (rootFolder, file, content) => {
     const knex = await db.get()
 
-    const { normalizedFolderName } = normalizeFolder(rootFolder)
+    const folder = normalizeFolder(rootFolder).normalizedFolderName
 
-    const id = await knex('ghost_content')
-      .where({ folder: normalizedFolderName, file })
-      .select('id')
-      .get(0)
-      .get('id')
-
-    if (!id) {
-      throw new Error(
-        `No Ghost content for file: ${file} in folder: ${normalizedFolderName}. Cannot record the new revision.`
-      )
+    if (
+      await knex('ghost_content')
+        .where({ folder, file, content })
+        .count('id')
+        .then(([res]) => Number(res.count) > 0)
+    ) {
+      return Promise.resolve()
     }
 
-    const revision = uuid.v4()
-
     return knex.transaction(trx => {
-      knex('ghost_content')
-        .transacting(trx)
-        .where({ id })
-        .update({ content })
-        .then(() =>
-          knex('ghost_revisions')
-            .transacting(trx)
-            .insert({
-              content_id: id,
-              revision,
-              created_by: 'admin'
-            })
-        )
+      upsert({ knex, tableName: 'ghost_content', where: { folder, file }, data: { content }, trx })
+        .then(content_id => recordRevision(knex, content_id, trx))
         .then(trx.commit)
-        .then(() => updatePendingForFolder(normalizedFolderName))
+        .then(() => updatePendingForFolder(folder))
         .catch(err => {
           logger.error('[Ghost Content Manager]', err)
           trx.rollback()
@@ -193,6 +184,47 @@ module.exports = ({ logger, db, projectLocation, enabled }) => {
       .get('content')
   }
 
+  const deleteFile = async (rootFolder, file) => {
+    const knex = await db.get()
+    const { normalizedFolderName } = normalizeFolder(rootFolder)
+
+    const id = get(
+      await knex('ghost_content')
+        .where({ folder: normalizedFolderName, file, deleted: 0 })
+        .select('id'),
+      '0.id'
+    )
+
+    if (!id) {
+      throw new Error(`Can't delete file: ${file}: couldn't find it in folder: ${normalizedFolderName}`)
+    }
+
+    return knex.transaction(trx => {
+      knex('ghost_content')
+        .transacting(trx)
+        .where({ id })
+        .update({ deleted: 1, content: null })
+        .then(() => recordRevision(knex, id, trx))
+        .then(trx.commit)
+        .then(() => updatePendingForFolder(normalizedFolderName))
+        .catch(err => {
+          logger.error('[Ghost Content Manager]', err)
+          trx.rollback()
+        })
+    })
+  }
+
+  const directoryListing = async (rootFolder, fileEndingPattern = '', pathsToOmit = []) => {
+    const knex = await db.get()
+    const { normalizedFolderName } = normalizeFolder(rootFolder)
+    return knex('ghost_content')
+      .select('file')
+      .whereNotIn('file', pathsToOmit)
+      .andWhere({ folder: normalizedFolderName, deleted: 0 })
+      .andWhere('file', 'like', `%${fileEndingPattern}`)
+      .then(res => res.map(row => row.file))
+  }
+
   const getPending = () => pendingRevisionsByFolder
 
   const getPendingWithContentForFolder = async (folderInfo, normalizedFolderName) => {
@@ -201,7 +233,7 @@ module.exports = ({ logger, db, projectLocation, enabled }) => {
 
     const knex = await db.get()
     const files = await knex('ghost_content')
-      .select('file', 'content')
+      .select('file', 'content', 'deleted')
       .whereIn('file', fileNames)
       .andWhere({ folder: normalizedFolderName })
 
@@ -217,8 +249,10 @@ module.exports = ({ logger, db, projectLocation, enabled }) => {
 
   return {
     addRootFolder,
-    recordRevision,
+    upsertFile,
     readFile,
+    deleteFile,
+    directoryListing,
     getPending,
     getPendingWithContent
   }
