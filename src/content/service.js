@@ -4,22 +4,15 @@ import fs from 'fs'
 import _ from 'lodash'
 import Promise from 'bluebird'
 import glob from 'glob'
-import uuid from 'uuid'
 import mkdirp from 'mkdirp'
+import nanoid from 'nanoid'
 
 import helpers from '../database/helpers'
 import { getInMemoryDb } from '../util'
 
-const getShortUid = () =>
-  uuid
-    .v4()
-    .split('-')
-    .join('')
-    .substr(0, 6)
-
 const getNewItemId = category => {
   const prefix = (category.ummBloc || category.id).replace(/^#/, '')
-  return `${prefix}-${getShortUid()}`
+  return `${prefix}-${nanoid(6)}`
 }
 
 const prepareDb = async () => {
@@ -185,12 +178,12 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
         .where({ id: itemId })
         .then()
     } else {
-      const randomId = getNewItemId(category)
+      const newItemId = getNewItemId(category)
       await knex('content_items').insert({
         ...body,
         createdBy: 'admin',
         createdOn: helpers(knex).date.now(),
-        id: randomId,
+        id: newItemId,
         categoryId
       })
     }

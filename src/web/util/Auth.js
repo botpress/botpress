@@ -1,6 +1,6 @@
 import EventEmitter2 from 'eventemitter2'
 import axios from 'axios'
-import uuid from 'uuid'
+import nanoid from 'nanoid'
 
 const storageKey = 'bp/token'
 export const authEvents = new EventEmitter2()
@@ -63,7 +63,7 @@ export const getUniqueVisitorId = () => {
   let userId = localStorage.getItem('bp/socket/user')
 
   if (!userId) {
-    userId = uuid.v4()
+    userId = nanoid()
     localStorage.setItem('bp/socket/user', userId)
   }
 

@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import uuid from 'uuid'
+import nanoid from 'nanoid'
 
 import helpers from './database/helpers'
 
@@ -181,7 +181,7 @@ const notifications = ({ knex, modules, logger, events }) => {
     }
 
     const notification = {
-      id: uuid.v4(),
+      id: nanoid(),
       message: message,
       level: level,
       moduleId: options.moduleId,
