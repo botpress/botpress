@@ -1,14 +1,14 @@
 import _ from 'lodash'
 import fs from 'fs'
 import path from 'path'
-import uuid from 'uuid'
+import nanoid from 'nanoid'
 import multer from 'multer'
 import Promise from 'bluebird'
 
 import util from '../util'
 import ExtraApiProviders from '+/api'
 
-let logsSecret = uuid.v4()
+let logsSecret = nanoid()
 
 module.exports = (bp, app) => {
   app.get('/api/ping', (req, res) => {
@@ -132,7 +132,7 @@ module.exports = (bp, app) => {
     }
 
     bp.logger.archiveToFile().then(archivePath => {
-      logsSecret = uuid.v4()
+      logsSecret = nanoid()
       res.download(archivePath)
     })
   })

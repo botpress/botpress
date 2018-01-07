@@ -582,7 +582,7 @@ reducer = reduceReducers(
               _.merge(
                 {
                   id: nanoid(),
-                  name: 'node-' + nanoid(4),
+                  name: `node-${nanoid(4)}`,
                   x: 0,
                   y: 0,
                   next: [],

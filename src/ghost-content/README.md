@@ -24,16 +24,16 @@ Ghost Content feature is designed to answer both questions.
 
 With the introduction of the feature the botpress server behaves like that:
 * all changes are not saved to the files anymore, instead they go to the database. This DB is referred to as the ghost version of the content from the files
-* each change gets its unique random UUID recorded in the DB
-* the repository also contains the list of UUIDs (in a file) indicating which of these changes were already incorporated back into the codebase (see below how)
+* each change gets its unique random ID recorded in the DB
+* the repository also contains the list of IDs (in a file) indicating which of these changes were already incorporated back into the codebase (see below how)
 * all parts that need to read from the content files now _always_ read the ghost version from the DB
 * upon server start the following actions are taken:
   * the server finds all the revisions IDs still in the DB
-  * it parses the UUIDs list from the bot code and deletes from the DB the IDs that are already in that file
+  * it parses the IDs list from the bot code and deletes from the DB the IDs that are already in that file
   * if there are any IDs remaining in the DB the server generates persisted alert shown in the Botpress admin panel instructing the user to fetch the ghost content and merge it into the source code of their bot (see below how)
   * otherwise (if all the revisions are said to be reflected in the sources already) the server reads the corresponding files and saves their content to the ghost content DB (which makes it effectively available to the running application)
 * how the ghost content can be incorporated back into the bot's source code:
-  * the main secenario is using the botpress CLI, it will get the package from the server API, and add all the IDs to the UUIDs list, dump the new content into its place in the bot source code directory
+  * the main secenario is using the botpress CLI, it will get the package from the server API, and add all the IDs to the IDs list, dump the new content into its place in the bot source code directory
   * alternatively the UI may eventually be present with download links, but it's not likely to happen in the first order
 
 ## Programmatic API

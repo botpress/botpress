@@ -2,7 +2,7 @@ import path from 'path'
 import fs from 'fs'
 import Promise from 'bluebird'
 import glob from 'glob'
-import uuid from 'uuid'
+import nanoid from 'nanoid'
 
 import get from 'lodash/get'
 import partition from 'lodash/partition'
@@ -146,7 +146,7 @@ module.exports = ({ logger, db, projectLocation, enabled }) => {
   const recordRevision = (knex, content_id, trx) =>
     knex('ghost_revisions')
       .transacting(trx)
-      .insert({ content_id, revision: uuid.v4(), created_by: 'admin' })
+      .insert({ content_id, revision: nanoid(), created_by: 'admin' })
 
   const upsertFile = async (rootFolder, file, content) => {
     const knex = await db.get()

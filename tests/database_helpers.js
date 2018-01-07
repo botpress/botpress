@@ -4,15 +4,12 @@ const { itBoth, run } = require('./database_base')
 const helpers = require('../src/database/helpers')
 const expect = require('chai').expect
 const moment = require('moment')
+const { randomTableName } = require('./_util')
 
 run('helpers', () => {
   describe('createTableIfNotExists', () => {
     itBoth('Creates if not exists', knex => {
-      const randomName =
-        'tmp_rnd_' +
-        Math.random()
-          .toString()
-          .substr(2)
+      const randomName = randomTableName('tmp_rnd_')
 
       return helpers(knex)
         .createTableIfNotExists(randomName, table => {
@@ -23,11 +20,7 @@ run('helpers', () => {
     })
 
     itBoth("Doesn't throw if already exists", knex => {
-      const randomName =
-        'tmp_rnd_' +
-        Math.random()
-          .toString()
-          .substr(2)
+      const randomName = randomTableName('tmp_rnd_')
 
       return helpers(knex)
         .createTableIfNotExists(randomName, table => {

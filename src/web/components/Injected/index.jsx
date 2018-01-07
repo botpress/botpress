@@ -1,15 +1,14 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import ReactDOM from 'react-dom'
-
-const getUuid = () => `${Math.random()}`.substr(2)
+import nanoid from 'nanoid'
 
 export default class InjectedComponent extends Component {
   static propTypes = {
     component: PropTypes.func.isRequired
   }
 
-  componentId = `component_${getUuid()}`
+  componentId = `component-${nanoid()}`
 
   componentDidUpdate() {
     this.internalRender()

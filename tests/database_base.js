@@ -4,6 +4,7 @@ const knex = require('knex')
 const tmp = require('tmp')
 const dotenv = require('dotenv')
 const expect = require('chai').expect
+const { randomTableName } = require('./_util')
 
 // Loads .env file and sets environement variable
 dotenv.config()
@@ -40,11 +41,7 @@ const sqlite = knex({
 })
 
 const createSampleTable = () => {
-  const name =
-    'tmp_' +
-    Math.random()
-      .toString()
-      .substr(2)
+  const name = randomTableName()
 
   const tableCb = table => {
     table.increments('tId').primary()
