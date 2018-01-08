@@ -94,7 +94,7 @@ module.exports = bp => {
         window.SHOW_GUIDED_TOUR = ${isFirstRun};
         window.BOTPRESS_VERSION = "${version}";
         window.APP_NAME = "${appName}";
-        window.GHOST_ENABLED = ${!!ghostEnabled}
+        window.GHOST_ENABLED = ${!!ghostEnabled};
       })(typeof window != 'undefined' ? window : {})`)
     })
 
