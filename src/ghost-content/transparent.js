@@ -6,12 +6,14 @@
 
 import path from 'path'
 import fs from 'fs'
+import mkdirp from 'mkdirp'
 import Promise from 'bluebird'
 import glob from 'glob'
 
 import { normalizeFolder as _normalizeFolder } from './util'
 
 Promise.promisifyAll(fs)
+const mkdirpAsync = Promise.promisify(mkdirp)
 
 module.exports = ({ logger, projectLocation }) => {
   const normalizeFolder = _normalizeFolder(projectLocation)
@@ -23,34 +25,56 @@ module.exports = ({ logger, projectLocation }) => {
       const { normalizedFolderName } = normalizeFolder(rootFolder)
       logger.debug(`[Ghost Content Manager] (transparent) Added root folder ${normalizedFolderName}, doing nothing.`)
     },
+
     upsertFile: (folder, file, content) => {
       const { folderPath } = normalizeFolder(folder)
       const filePath = path.join(folderPath, file)
-      return fs.writeFileAsync(filePath, content)
+      const fullFileFolder = path.dirname(filePath)
+      return mkdirpAsync(fullFileFolder)
+        .then(() => fs.writeFileAsync(filePath, content))
+        .catch(e => {
+          logger.error('[Ghost Content Manager] (transparent) upsertFile error', e)
+          throw e
+        })
     },
+
     readFile: (folder, file) => {
       const { folderPath } = normalizeFolder(folder)
       const filePath = path.join(folderPath, file)
-      return fs.readFileAsync(filePath, 'utf-8')
+      return fs.readFileAsync(filePath, 'utf-8').catch(e => {
+        logger.error('[Ghost Content Manager] (transparent) readFile error', e)
+        throw e
+      })
     },
 
     deleteFile: (folder, file) => {
       const { folderPath } = normalizeFolder(folder)
       const filePath = path.join(folderPath, file)
-      return fs.unlinkAsync(filePath)
+      return fs.unlinkAsync(filePath).catch(e => {
+        logger.error('[Ghost Content Manager] (transparent) deleteFile error', e)
+        throw e
+      })
     },
 
     directoryListing: (rootFolder, fileEndingPattern = '', pathsToOmit = []) => {
       const { folderPath } = normalizeFolder(rootFolder)
-      if (!fs.existsSync(folderPath)) {
-        return Promise.resolve([])
-      }
-
-      return Promise.fromCallback(cb => glob(`**/*${fileEndingPattern}`, { cwd: folderPath }, cb)).then(paths =>
-        paths.filter(path => !pathsToOmit.includes(path))
-      )
+      return fs
+        .accessAsync(folderPath)
+        .then(
+          () =>
+            Promise.fromCallback(cb => glob(`**/*${fileEndingPattern}`, { cwd: folderPath }, cb)).then(paths =>
+              paths.filter(path => !pathsToOmit.includes(path))
+            ),
+          () => []
+        )
+        .catch(e => {
+          logger.error('[Ghost Content Manager] (transparent) directoryListing error', e)
+          throw e
+        })
     },
+
     getPending: () => ({}),
+
     getPendingWithContent: () => ({})
   }
 }

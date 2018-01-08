@@ -67,15 +67,19 @@ export default class FlowProvider extends EventEmitter2 {
 
   async saveFlows(flows) {
     const flowsToSave = await Promise.mapSeries(flows, flow => this._prepareSaveFlow(flow))
-
-    for (const { flowPath, uiPath, flowContent, uiContent } of flowsToSave) {
-      this.ghostManager.upsertFile(this.flowsDir, flowPath, JSON.stringify(flowContent, null, 2))
-      this.ghostManager.upsertFile(this.flowsDir, uiPath, JSON.stringify(uiContent, null, 2))
-    }
+    const flowsSavePromises = _.flatten(
+      flowsToSave.map(({ flowPath, uiPath, flowContent, uiContent }) => [
+        this.ghostManager.upsertFile(this.flowsDir, flowPath, JSON.stringify(flowContent, null, 2)),
+        this.ghostManager.upsertFile(this.flowsDir, uiPath, JSON.stringify(uiContent, null, 2))
+      ])
+    )
 
     const pathsToOmit = _.flatten(flowsToSave.map(flow => [flow.flowPath, flow.uiPath]))
+
     const flowFiles = await this.ghostManager.directoryListing(this.flowsDir, '.json', pathsToOmit)
-    await Promise.all(flowFiles.map(filePath => this.ghostManager.deleteFile(this.flowsDir, filePath)))
+    const flowsDeletePromises = flowFiles.map(filePath => this.ghostManager.deleteFile(this.flowsDir, filePath))
+
+    await Promise.all(flowsSavePromises.concat(flowsDeletePromises))
 
     this.emit('flowsChanged')
   }
