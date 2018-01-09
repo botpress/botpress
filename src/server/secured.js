@@ -137,36 +137,6 @@ module.exports = (bp, app) => {
     })
   })
 
-  app.secure('read', 'bot/umm/blocs').get('/umm/blocs', (req, res) => {
-    const content = bp.umm.getDocument()
-    res.send({ content: content })
-  })
-
-  app.secure('read', 'bot/umm/templates').get('/umm/templates', (req, res) => {
-    res.send({ templates: bp.umm.getTemplates() })
-  })
-
-  app.secure('write', 'bot/umm/blocs').post('/umm/blocs', (req, res) => {
-    const { content } = req.body || {}
-    if (_.isNil(content)) {
-      return res.status(400).send({ message: 'You need to specify the content' })
-    }
-
-    bp.umm.saveDocument(content)
-
-    return res.sendStatus(200)
-  })
-
-  app.secure('write', 'bot/umm/simulation').post('/umm/simulate', (req, res) => {
-    try {
-      const { context, content, outputPlatform, incomingEvent } = req.body
-      const blocs = bp.umm.parse({ context, outputPlatform, markdown: content, incomingEvent })
-      res.send(blocs)
-    } catch (err) {
-      res.status(400).send({ message: err.message })
-    }
-  })
-
   app.secure('read', 'bot/content').get('/content/categories', async (req, res) => {
     res.send(await bp.contentManager.listAvailableCategories())
   })
