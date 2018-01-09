@@ -44,7 +44,6 @@ When you used the CLI to create your first bot, some files were added to your bo
 
 ```markdown
 * index.js
-* content.yml
 * botfile.js
 * package.json
 * theme.scss
@@ -53,7 +52,7 @@ When you used the CLI to create your first bot, some files were added to your bo
 * /data
 ```
 
-The only important files you'll ever risk to deal with are: `index.js`, `content.yml` and `botfile.js`
+The only important files you'll ever risk to deal with are: `index.js`, and `botfile.js`
 
 #### index.js <a class="toc" id="toc-index-js" href="#toc-index-js"></a>
 
@@ -64,9 +63,30 @@ The only important files you'll ever risk to deal with are: `index.js`, `content
 
 ```js
 module.exports = function(bp) {
+  bp.umm.registerBloc('#welcome', () => [
+    {
+      typing: true,
+      text: _.sample(['Hey there!', 'Hello {{user.first_name}}', 'Good day :)'])
+    },
+    {
+      text: "This is just a regular Hello World, I don't do anything ;)",
+      typing: '2s'
+    },
+    {
+      text: "Make sure to check out the 'index.js' file to see how I work",
+      typing: true
+    },
+    {
+      wait: '5s'
+    },
+    {
+      text: 'You can say goodbye now',
+      typing: '1s'
+    }
+  ])
   // GET_STARTED is the first message you get on Facebook Messenger
   bp.hear(/GET_STARTED|hello|hi|hey/i, (event, next) => {
-    event.reply('#welcome') // #welcome is the name of a message bloc defined in `content.yml`
+    event.reply('#welcome') // #welcome is the name of a message bloc defined above
   })
 }
 ```

@@ -39,6 +39,29 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db, contentMa
     blocs[blocName] = blocFn
   }
 
+  const unregisterBloc = blocName => {
+    if (!_.isString(blocName)) {
+      throw new Error(`Bloc name must be a string, received ${blocName}`)
+    }
+    if (blocName.startsWith('#')) {
+      blocName = blocName.substr(1)
+    }
+    if (!blocs[blocName]) {
+      throw new Error(`Unknown bloc name ${blocName}`)
+    }
+    delete blocs[blocName]
+  }
+
+  const isBlocRegistered = blocName => {
+    if (!_.isString(blocName)) {
+      throw new Error(`Bloc name must be a string, received ${blocName}`)
+    }
+    if (blocName.startsWith('#')) {
+      blocName = blocName.substr(1)
+    }
+    return !!blocs[blocName]
+  }
+
   const invoke = ({ blocFn, context, outputPlatform, incomingEvent = null }) => {
     // TODO throw if incomingEvents null <<<==== MOCK IT
 
@@ -144,5 +167,13 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db, contentMa
 
   const proactiveMethods = Proactive({ sendBloc, db })
 
-  return { registerConnector, registerBloc, getTemplates, incomingMiddleware, ...proactiveMethods }
+  return {
+    registerConnector,
+    registerBloc,
+    unregisterBloc,
+    isBlocRegistered,
+    getTemplates,
+    incomingMiddleware,
+    ...proactiveMethods
+  }
 }
