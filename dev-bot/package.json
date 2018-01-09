@@ -5,7 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "botpress": "file:..",
-    "botpress-platform-webchat": "botpress/botpress-platform-webchat#master"
+    "botpress-platform-webchat": "^0.4.5"
   },
   "scripts": {
     "start": "botpress start",
