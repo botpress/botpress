@@ -1,5 +1,4 @@
 import Mustache from 'mustache'
-import yaml from 'js-yaml'
 import ms from 'ms'
 import _ from 'lodash'
 
@@ -14,7 +13,13 @@ class ParsingError extends Error {
   }
 }
 
-const premapInstruction = ({ currentPlatform }) => ({ instruction, index, instructions, detectedPlatforms, bloc }) => {
+const premapInstruction = ({ currentPlatform }) => ({
+  instruction,
+  index,
+  instructions,
+  detectedPlatforms,
+  blocName
+}) => {
   if (typeof instruction === 'string' || _.isArray(instruction)) {
     return [
       {
@@ -36,7 +41,7 @@ const premapInstruction = ({ currentPlatform }) => ({ instruction, index, instru
   }
 
   if (!_.isNil(instruction.if) && !_.isNil(instruction.unless)) {
-    throw new ParsingError(bloc, index, "Message can't be both 'if' and 'else'.")
+    throw new ParsingError(blocName, index, "Message can't be both 'if' and 'else'.")
   }
 
   if (!_.isNil(instruction.unless) && !evaluate(false, instruction.unless)) {
@@ -76,14 +81,18 @@ const premapInstruction = ({ currentPlatform }) => ({ instruction, index, instru
 
       i = Object.assign(i, on[currentPlatform.toLowerCase()], { on: currentPlatform })
     } else {
-      throw new ParsingError(bloc, index, '"on" must be a string or a plain object but was a ' + typeof instruction.on)
+      throw new ParsingError(
+        blocName,
+        index,
+        '"on" must be a string or a plain object but was a ' + typeof instruction.on
+      )
     }
   }
 
   return [i]
 }
 
-const mapInstruction = ({ currentPlatform, processors, incomingEvent }) => ({ instruction, messages, bloc }) => {
+const mapInstruction = ({ currentPlatform, processors, incomingEvent }) => ({ instruction, messages, blocName }) => {
   const ret = []
 
   if (!_.isNil(instruction.wait)) {
@@ -112,7 +121,7 @@ const mapInstruction = ({ currentPlatform, processors, incomingEvent }) => ({ in
 
   const processor = currentPlatform && processors[currentPlatform]
   if (processor) {
-    const msg = processor({ instruction, messages, blocName: bloc, event: incomingEvent })
+    const msg = processor({ instruction, messages, blocName, event: incomingEvent })
     if (msg) {
       ret.push(msg)
     }
@@ -123,7 +132,7 @@ const mapInstruction = ({ currentPlatform, processors, incomingEvent }) => ({ in
   throw new Error('Unsupported platform: ' + currentPlatform)
 }
 
-const mapBlocs = (rawBlocs, options, processors, incomingEvent) => {
+const mapBloc = (bloc, blocName, options, processors, incomingEvent) => {
   const { currentPlatform, throwIfNoPlatform = false } = options
 
   if (!currentPlatform && throwIfNoPlatform) {
@@ -133,54 +142,61 @@ const mapBlocs = (rawBlocs, options, processors, incomingEvent) => {
   const _premapInstruction = premapInstruction({ currentPlatform })
   const _mapInstruction = mapInstruction({ currentPlatform, processors, incomingEvent })
 
-  const mapBloc = (bloc, name) => {
-    // if the bloc isn't an array, error
-
-    const messages = []
-    const detectedPlatforms = []
-    const instructions = []
-
-    // Premapping allows for modifications, drop and addition of instructions
-    _.forEach(bloc, (instruction, index) => {
-      const add = _premapInstruction({
-        instruction,
-        index,
-        instructions: bloc,
-        detectedPlatforms,
-        bloc: name
-      })
-
-      add && _.forEach(add, i => instructions.push(i))
-    })
-
-    _.forEach(instructions, instruction => {
-      const m = _mapInstruction({ instruction, messages, bloc: name })
-
-      if (!_.isNil(m)) {
-        // Messages can be null when the instruction only modified existing messages
-        m.forEach(message => messages.push(message))
-      }
-    })
-
-    return messages
+  if (!Array.isArray(bloc)) {
+    bloc = [bloc]
   }
 
-  return _.mapValues(rawBlocs, mapBloc)
-} // mapBlocs
+  const messages = []
+  const detectedPlatforms = []
+  const instructions = []
 
-module.exports = ({ markdown, context, options, processors, incomingEvent }) => {
-  Mustache.parse(markdown)
+  // Premapping allows for modifications, drop and addition of instructions
+  _.forEach(bloc, (instruction, index) => {
+    const add = _premapInstruction({
+      instruction,
+      index,
+      instructions: bloc,
+      detectedPlatforms,
+      blocName
+    })
 
-  let mustached = Mustache.render(markdown, context)
+    add && _.forEach(add, i => instructions.push(i))
+  })
 
+  _.forEach(instructions, instruction => {
+    const m = _mapInstruction({ instruction, messages, blocName })
+
+    if (m != null) {
+      // Messages can be null when the instruction only modified existing messages
+      m.forEach(message => messages.push(message))
+    }
+  })
+
+  return messages
+}
+
+const renderMustache = (template, context) => {
+  Mustache.parse(template)
+  return Mustache.render(template, context)
+}
+
+const hydrateMustache = (obj, context) => {
+  if (_.isString(obj)) {
+    return renderMustache(obj, context)
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(v => hydrateMustache(v, context))
+  }
+  if (_.isObject(obj)) {
+    return _.mapValues(obj, v => hydrateMustache(v, context))
+  }
+  return obj
+}
+
+module.exports = ({ blocName, blocFn, context, options, processors, incomingEvent }) => {
   // We're running it a second time to do second-level variable replacement
   // This happens often when there are variables used in the Content Manager
-  mustached = Mustache.render(mustached, context)
+  const rawBloc = hydrateMustache(hydrateMustache(blocFn(context), context), context)
 
-  // The reason we support multi-doc is that people might want to separate documents
-  // Both visually and practically when the file gets large
-  const rawBlocs = {}
-  yaml.safeLoadAll(mustached, rawBloc => Object.assign(rawBlocs, rawBloc))
-
-  return mapBlocs(rawBlocs, options, processors, incomingEvent)
+  return mapBloc(rawBloc, blocName, options, processors, incomingEvent)
 }
