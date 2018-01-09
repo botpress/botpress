@@ -224,43 +224,42 @@ module.exports = {
 }
 ```
 
-
-#### `content.yml`
-```yaml
-
-welcome:
-  - Welcome! Please use the menu to try out the different features.
-
-fallback:
-  - Sorry I don't understand
-
-trivia-question:
-  - text: "{{{question}}}"
-    quick_replies:
-      {{#choices}}
-      - "<{{payload}}> {{{text}}}"
-      {{/choices}}
-
-trivia-good:
-  - text:
-    - Yay! Good answer :)
-    - You rock!
-    - Good answer!
-
-trivia-bad:
-  - text:
-    - Nope
-    - You're not good
-    - That's not the right answer..
-    - Not exactly what I expected of you
-```
-
-
 #### `index.js`
 ```js
 const _ = require('lodash')
 
 module.exports = function(bp) {
+
+  // register UMM blocs
+
+  bp.umm.registerBloc('#welcome', () =>
+    'Welcome! Please use the menu to try out the different features.'
+  )
+
+  bp.umm.registerBloc('#fallback', () =>
+    "Sorry I don't understand"
+  )
+
+  bp.umm.registerBloc('#trivia-question', ({ question, choices }) => ({
+    text: question,
+    quick_replies: choices.map(({ payload, text }) =>
+      `<${payload}> ${text}`)
+  }))
+
+  bp.umm.registerBloc('#trivia-good', () => _.sample([
+    'Yay! Good answer',
+    'You rock!',
+    'Good answer!'
+  ]))
+
+  bp.umm.registerBloc('#trivia-bad', () => _.sample([
+    'Nope',
+    "You're not good",
+    "That's not the right answer..",
+    'Not exactly what I expected of you'
+  ])
+
+  // your bot logic
 
   bp.hear(/GET_STARTED|hello|hi|test|hey|holla/i, (event, next) => {
     event.reply('#welcome')

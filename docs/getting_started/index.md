@@ -25,21 +25,19 @@ A video is worth a thousand pictures.
 module.exports = function(bp) {
   // All your bot logic goes here...
 
+  // Define the first UMM bloc
+  bp.umm.registerBloc('#welcome', () => [
+    'Hello, world!',
+    'I am a simple bot created on Botpress',
+    "I don't do anything else, so goodbye for now!"
+  ])
+
   // Listens for a message (this is a Regex)
   // GET_STARTED is the first message you get on Facebook Messenger
   bp.hear(/GET_STARTED|hello|hi|hey/i, (event, next) => {
-    event.reply('#welcome') // #welcome is the name of a message bloc defined in `content.yml`
+    event.reply('#welcome') // #welcome is the name of a message bloc defined above
   })
 }
-```
-
-```yaml
-# content.yml
-
-welcome:
-  - Hello, world!
-  - I am a simple bot created on Botpress
-  - I don't do anything else, so goodbye for now!
 ```
 
 ## The mission <a class="toc" id="toc-the-mission" href="#toc-the-mission"></a>
