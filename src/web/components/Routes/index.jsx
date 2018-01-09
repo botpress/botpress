@@ -8,7 +8,6 @@ import Layout from '~/components/Layout'
 import Dashboard from '~/views/Dashboard'
 import Manage from '~/views/Manage'
 import Middleware from '~/views/Middleware'
-import UMM from '~/views/UMM'
 import Content from '~/views/Content'
 import GhostContent from '~/views/GhostContent'
 import FlowBuilder from '~/views/FlowBuilder'
@@ -42,7 +41,6 @@ export default () => {
         <Route path="content" component={Content} />
         <Route path="ghost-content" component={GhostContent} />
         <Route path="flows" component={FlowBuilder} />
-        <Route path="umm" component={UMM} />
         <Route path="modules/:moduleName(/:subView)" component={Module} />
         <Route path="notifications" component={Notifications} />
         <Route path="logs" component={Logs} />

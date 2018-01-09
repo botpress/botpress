@@ -86,14 +86,6 @@ module.exports = {
     ssl: process.env.PG_SSL || false
   },
 
-  umm: {
-    /*
-      The file containing the UMM Content (Universal Message Markdown)
-      Can be an absolute or relative path (to your bot location)
-    */
-    contentPath: 'content.yml'
-  },
-
   middleware: {
     /*
       By default Botpress will automatically load all the middlewares before starting your bot
