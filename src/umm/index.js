@@ -1,34 +1,45 @@
-import path from 'path'
-import util from 'util'
-
 import _ from 'lodash'
 import Promise from 'bluebird'
 
 import Engine from './engine'
 import Proactive from './proactive'
 
-const fs = Promise.promisifyAll(require('fs'))
-
 module.exports = ({ logger, middlewares, botfile, projectLocation, db, contentManager }) => {
   const processors = {} // A map of all the platforms that can process outgoing messages
   const templates = {} // A map of all the platforms templates
+  const blocs = {} // A map of all the registered UMM blocs
 
   const registerConnector = ({ platform, processOutgoing, templates }) => {
-    // TODO throw if templates not array
-    // TODO throw if platform not string
-    // TODO throw if processOutgoing not a function
-    // TODO throw if platform already registered
+    if (!Array.isArray(templates)) {
+      throw new Error(`[UMM] Templates must be an array, platform: ${platform}.`)
+    }
+    if (!_.isString(platform)) {
+      throw new Error(`[UMM] Platform must be a string, got: ${platform}.`)
+    }
+    if (processors[platform]) {
+      throw new Error(`[UMM] Platform should only be registered once, platform: ${platform}.`)
+    }
+    if (!_.isFunction(processOutgoing)) {
+      throw new Error(`[UMM] processOutgoing must be a function, platform: ${platform}.`)
+    }
 
-    logger.verbose(`[UMM] Enabled for ${platform}`) // TODO remove that
+    logger.verbose(`[UMM] Enabled for ${platform}.`)
 
     processors[platform] = processOutgoing
     templates[platform] = templates
   }
 
-  const parse = ({ context, outputPlatform, markdown = null, incomingEvent = null }) => {
-    // TODO throw if context empty
+  const registerBloc = (blocName, blocFn) => {
+    if (!_.isString(blocName)) {
+      throw new Error(`Bloc name must be a string, received ${blocName}`)
+    }
+    if (blocName.startsWith('#')) {
+      blocName = blocName.substr(1)
+    }
+    blocs[blocName] = blocFn
+  }
 
-    // TODO throw if markdown nil <<<==== Pick default markdown
+  const invoke = ({ blocFn, context, outputPlatform, incomingEvent = null }) => {
     // TODO throw if incomingEvents null <<<==== MOCK IT
 
     const options = {
@@ -36,72 +47,15 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db, contentMa
       currentPlatform: outputPlatform
     }
 
-    return Engine({ markdown, context, options, processors, incomingEvent })
+    return Engine({ blocFn, context, options, processors, incomingEvent })
   }
 
   const getTemplates = () => _.merge({}, templates) // Return a deep copy
 
-  const getStoragePath = () => {
-    const resolve = file => path.resolve(projectLocation, file)
-    let ummPath = _.get(botfile, 'umm.contentPath')
+  const doSendBloc = (blocFn, { blocName, context, outputPlatform, incomingEvent }) => {
+    const messages = invoke({ blocFn, blocName, context, outputPlatform, incomingEvent })
 
-    if (!ummPath) {
-      const single = resolve('content.yml')
-      const folder = resolve('content')
-
-      if (fs.existsSync(single)) {
-        ummPath = single
-      } else if (fs.existsSync(folder)) {
-        ummPath = folder
-      } else {
-        throw new Error('UMM content location not found')
-      }
-    }
-
-    if (path.isAbsolute(ummPath)) {
-      return ummPath
-    } else {
-      return path.resolve(projectLocation, ummPath)
-    }
-  }
-
-  const storagePath = getStoragePath()
-
-  const saveDocument = content => {
-    if (_.isObject(content)) {
-      return Promise.map(Object.keys(content), fileName => {
-        const filePath = path.join(storagePath, fileName + '.yml')
-        return fs.writeFileAsync(filePath, content[fileName], 'utf8')
-      })
-    }
-
-    return fs.writeFileAsync(storagePath, content, 'utf8')
-  }
-
-  const getDocument = async () => {
-    const stats = await fs.statAsync(storagePath)
-
-    if (stats.isDirectory()) {
-      const files = await fs.readdirAsync(storagePath)
-      const contents = {}
-
-      files.forEach(file => {
-        if (!file.endsWith('.yml')) {
-          return
-        }
-
-        const filename = path.basename(file, path.extname(file))
-        contents[filename] = fs.readFileAsync(path.join(storagePath, file), 'utf8')
-      })
-
-      return Promise.props(contents)
-    }
-
-    return fs.readFileAsync(storagePath, 'utf8')
-  }
-
-  const doSendBloc = bloc =>
-    Promise.mapSeries(bloc, message => {
+    return Promise.mapSeries(messages, message => {
       if (message.__internal) {
         if (message.type === 'wait') {
           return Promise.delay(message.wait)
@@ -110,11 +64,12 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db, contentMa
         return middlewares.sendOutgoing(message)
       }
     })
+  }
 
   const sendBloc = async (incomingEvent, blocName, additionalData = {}) => {
-    blocName = blocName[0] === '#' ? blocName.substr(1) : blocName
+    blocName = blocName.startsWith('#') ? blocName.substr(1) : blocName
 
-    let initialData = {}
+    const initialData = {}
 
     if (blocName.startsWith('!')) {
       const itemName = blocName.substr(1)
@@ -140,18 +95,8 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db, contentMa
       }
 
       blocName = itemBloc.substr(1)
-      initialData = Object.assign(initialData, contentItem.data)
+      Object.assign(initialData, contentItem.data)
     }
-
-    const split = blocName.split('.')
-    let fileName = null
-
-    if (split.length === 2) {
-      fileName = split[0]
-      blocName = split[1]
-    }
-
-    let markdown = await getDocument()
 
     // TODO Add more context
     const fullContext = Object.assign(
@@ -164,37 +109,20 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db, contentMa
       additionalData
     )
 
-    if (_.isObject(markdown)) {
-      if (!fileName) {
-        throw new Error(`Unknown UMM bloc filename: ${blocName}`)
-      }
-
-      if (!markdown[fileName]) {
-        throw new Error(`UMM content ${fileName}.yml not found`)
-      }
-
-      markdown = markdown[fileName]
-    }
-
-    const blocs = parse({
-      context: fullContext,
-      outputPlatform: incomingEvent.platform,
-      markdown: markdown,
-      incomingEvent: incomingEvent
-    })
-
-    // TODO check if message OK and catch errors
-    // TODO throw if bloc does not exist
-
     const bloc = blocs[blocName]
 
-    if (_.isNil(bloc)) {
+    if (!bloc) {
       const error = `[UMM] Bloc not defined (#${blocName})`
       logger.error(error)
       throw new Error(error)
     }
 
-    return doSendBloc(bloc)
+    return doSendBloc(bloc, {
+      blocName,
+      context: fullContext,
+      outputPlatform: incomingEvent.platform,
+      incomingEvent
+    })
   }
 
   const processIncoming = (event, next) => {
@@ -216,5 +144,5 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db, contentMa
 
   const proactiveMethods = Proactive({ sendBloc, db })
 
-  return { registerConnector, parse, getTemplates, incomingMiddleware, getDocument, saveDocument, ...proactiveMethods }
+  return { registerConnector, registerBloc, getTemplates, incomingMiddleware, ...proactiveMethods }
 }
