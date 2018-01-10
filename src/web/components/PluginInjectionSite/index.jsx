@@ -1,26 +1,13 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
-import _ from 'lodash'
 
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
-
-const collectModules = (modules, injectionSite) =>
-  _.flatten(
-    (modules || []).filter(Boolean).map(module => {
-      const plugins = _.filter(module.plugins || [], { position: injectionSite })
-
-      return plugins.map(plugin => ({ moduleName: module.name, viewName: plugin.entry }))
-    })
-  )
+import { moduleViewNames } from '~/util/Modules'
 
 class ModuleView extends React.Component {
   static contextTypes = {
     router: PropTypes.object.isRequired
-  }
-
-  state = {
-    plugins: []
   }
 
   renderNotFound = () => {
@@ -29,7 +16,7 @@ class ModuleView extends React.Component {
 
   render() {
     const { site: injectionSite, modules } = this.props
-    const plugins = collectModules(modules, injectionSite)
+    const plugins = moduleViewNames(modules, injectionSite)
 
     return (
       <div className="bp-plugins bp-injection-site">

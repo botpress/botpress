@@ -41,6 +41,7 @@
     "prepend-file": "^1.3.1",
     "prompt": "^1.0.0",
     "prompt-confirm": "^1.2.0",
+    "query-string": "^5.0.1",
     "randomstring": "^1.1.5",
     "react-codemirror": "^1.0.0",
     "react-jsonschema-form": "^0.49.0",
@@ -125,7 +126,9 @@
     "webpack": "^3.8.1",
     "webpack-node-externals": "^1.6.0"
   },
-  "engines": { "node": ">=6.10.0 <9.0.0" },
+  "engines": {
+    "node": ">=6.10.0 <9.0.0"
+  },
   "homepage": "https://github.com/botpress/botpress#readme",
   "keywords": [
     "bots",
