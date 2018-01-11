@@ -1,7 +1,7 @@
 {
   "name": "botpress",
   "description": "The world's first CMS for bots. Easily create, manage and extend chatbots.",
-  "version": "1.1.11",
+  "version": "1.1.12",
   "author": "Botpress",
   "bin": {
     "bp": "./bin/botpress",
@@ -48,7 +48,7 @@
     "socket.io-client": "^2.0.3",
     "socketio-jwt": "^4.5.0",
     "source-map-support": "^0.4.6",
-    "sqlite3": "3.1.8",
+    "sqlite3": "^3.1.13",
     "universal-analytics": "^0.4.8",
     "username": "^3.0.0",
     "valid-url": "^1.0.9",
@@ -87,7 +87,9 @@
     "json-loader": "^0.5.4",
     "keymirror": "^0.1.1",
     "lint-staged": "4.3.0",
+    "mkdirp": "^0.5.1",
     "mocha": "^3.1.2",
+    "ncp": "^2.0.0",
     "node-sass": "^4.5.3",
     "npm-watch": "^0.1.6",
     "postcss-loader": "^2.0.8",
@@ -113,6 +115,7 @@
     "redux-actions": "^2.2.1",
     "redux-thunk": "^2.2.0",
     "require-npm-version": "^1.0.2",
+    "rimraf": "^2.6.2",
     "sass-loader": "^6.0.6",
     "script-loader": "^0.7.0",
     "simple-line-icons": "^2.4.1",
@@ -148,14 +151,19 @@
     "edition:lite": "git reset && git checkout package.json yarn.lock && rm -f .pro-mode",
     "edition:pro": "node package-pro.js",
     "prepare": "npm run compile-prod",
-    "compile": "./build.sh",
-    "compile-prod": "NODE_ENV=production ./build.sh && ls -lh ./lib/web/js && echo \"DONE\"",
+    "compile": "node ./build.js",
+    "compile-prod": "cross-os compile-prod",
     "test": "cross-os test",
     "watch": "npm-watch",
     "precommit": "lint-staged && node check-pro-mode.js",
     "lint": "eslint {src,lib,tests,extensions}/**/*.{js,jsx}"
   },
   "cross-os": {
+    "compile-prod": {
+      "darwin": "NODE_ENV=production node ./build.js && ls -lh ./lib/web/js && echo \"DONE\"",
+      "linux": "NODE_ENV=production node ./build.js && ls -lh ./lib/web/js && echo \"DONE\"",
+      "win32": "SET NODE_ENV=production&& node ./build.js && ls -lh ./lib/web/js && echo \"DONE\" && SET NODE_ENV="
+    },
     "test": {
       "darwin":
         "BABEL_ENV=tests mocha --compilers js:babel-core/register --require tests/index.js tests/** extensions/**/tests/**",

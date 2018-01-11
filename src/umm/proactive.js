@@ -7,13 +7,8 @@ module.exports = ({ sendBloc, db }) => {
   const getUser = async id => {
     const knex = await db.get()
     const users = await knex('users')
-      .where(function() {
-        if (id.indexOf(':') > 0) {
-          this.where({ id })
-        } else {
-          this.where('userId', id)
-        }
-      })
+      .where({ id: id })
+      .orWhere('userId', id)
       .limit(1)
       .select('*')
 
