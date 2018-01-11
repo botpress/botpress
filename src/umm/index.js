@@ -10,13 +10,11 @@ import Proactive from './proactive'
 const fs = Promise.promisifyAll(require('fs'))
 
 module.exports = ({ logger, middlewares, botfile, projectLocation, db, contentManager }) => {
-
   const processors = {} // A map of all the platforms that can process outgoing messages
   const templates = {} // A map of all the platforms templates
   const storagePath = getStoragePath()
 
   function registerConnector({ platform, processOutgoing, templates }) {
-
     // TODO throw if templates not array
     // TODO throw if platform not string
     // TODO throw if processOutgoing not a function
@@ -133,8 +131,9 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db, contentMa
       const itemCategory = await contentManager.getCategorySchema(itemCategoryId)
 
       if (!itemCategory) {
-        throw new Error(`Could not find category "${itemCategoryId}" in the Content Manager` 
-          + ` for item with ID "${itemName}"`)
+        throw new Error(
+          `Could not find category "${itemCategoryId}" in the Content Manager` + ` for item with ID "${itemName}"`
+        )
       }
 
       const itemBloc = itemCategory.ummBloc
@@ -146,33 +145,53 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db, contentMa
       initialData = Object.assign(initialData, contentItem.data)
     }
 
-    const split = blocName.split('.')
-    let fileName = null
+    let markdown = null
 
-    if (split.length === 2) {
-      fileName = split[0]
-      blocName = split[1]
+    if (blocName.includes(':')) {
+      // yaml passed in
+      if (blocName.startsWith(' ')) {
+        // blocName is not passed in; add blocName
+        markdown = `blocName:\n${blocName}`
+        blocName = 'blocName'
+      } else {
+        markdown = blocName
+        blocName = blocName.split(':')[0]
+      }
+    } else {
+      // blocName passed in
+      const split = blocName.split('.')
+      let fileName = null
+
+      if (split.length === 2) {
+        fileName = split[0]
+        blocName = split[1]
+      }
+
+      markdown = await getDocument()
+
+      if (_.isObject(markdown)) {
+        if (!fileName) {
+          throw new Error(`Unknown UMM bloc filename: ${blocName}`)
+        }
+
+        if (!markdown[fileName]) {
+          throw new Error(`UMM content ${fileName}.yml not found`)
+        }
+
+        markdown = markdown[fileName]
+      }
     }
-
-    let markdown = await getDocument()
 
     // TODO Add more context
-    const fullContext = Object.assign({}, initialData, {
-      user: incomingEvent.user,
-      originalEvent: incomingEvent
-    }, additionalData)
-
-    if (_.isObject(markdown)) {
-      if (!fileName) {
-        throw new Error(`Unknown UMM bloc filename: ${blocName}`)
-      }
-
-      if (!markdown[fileName]) {
-        throw new Error(`UMM content ${fileName}.yml not found`)
-      }
-
-      markdown = markdown[fileName]
-    }
+    const fullContext = Object.assign(
+      {},
+      initialData,
+      {
+        user: incomingEvent.user,
+        originalEvent: incomingEvent
+      },
+      additionalData
+    )
 
     let blocs = parse({
       context: fullContext,
