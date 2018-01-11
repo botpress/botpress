@@ -20,3 +20,16 @@ Press f1 and look for launch.json. Inside the "configurations" array, insert the
     "stopOnEntry": false
 }
 ```
+
+### Jetbrains IDEs <a class="toc" id="toc-jetbrains" href="#toc-jetbrains"></a>
+Open Run > Edit Configurations
+
+Then add a new NodeJS configuration
+
+- Node interpreter: Choose the node interpreter for this project
+- Node parameters: Leave empty
+- Working directory: /path/to/your/bot
+- JavaScript file: `node_modules/botpress/bin/botpress`
+- Application parameters: `start`
+
+Save the configuration, you can now use "Run" and "Debug" from your IDE
