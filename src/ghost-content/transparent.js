@@ -41,10 +41,13 @@ module.exports = ({ logger, projectLocation }) => {
     readFile: (folder, file) => {
       const { folderPath } = normalizeFolder(folder)
       const filePath = path.join(folderPath, file)
-      return fs.readFileAsync(filePath, 'utf-8').catch(e => {
-        logger.error('[Ghost Content Manager] (transparent) readFile error', e)
-        throw e
-      })
+      return fs
+        .readFileAsync(filePath, 'utf-8')
+        .catch({ code: 'ENOENT' }, () => null)
+        .catch(e => {
+          logger.error('[Ghost Content Manager] (transparent) readFile error', e)
+          throw e
+        })
     },
 
     deleteFile: (folder, file) => {

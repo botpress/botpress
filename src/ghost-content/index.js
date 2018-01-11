@@ -180,8 +180,13 @@ module.exports = ({ logger, db, projectLocation, enabled }) => {
     return knex('ghost_content')
       .select('content')
       .where({ folder: normalizedFolderName, file })
-      .get(0)
-      .get('content')
+      .then(results => {
+        if (!results || !results.length) {
+          return null
+        }
+        const result = results[0]
+        return (result && result.content) || null
+      })
   }
 
   const deleteFile = async (rootFolder, file) => {
