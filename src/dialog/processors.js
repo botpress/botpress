@@ -27,8 +27,6 @@ module.exports = {
         Object.assign(additionalData, { text: rendered })
       }
 
-      console.log(message.type, additionalData)
-
       return originalEvent.reply(message.type, additionalData)
     }
   }
