@@ -21,6 +21,11 @@ module.exports = {
   formsDir: './forms',
 
   /*
+    Path to Flows
+   */
+  flowsDir: './flows',
+
+  /*
     Path to Content Forms Data
    */
   formsDataDir: './forms_data',

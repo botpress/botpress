@@ -48,6 +48,7 @@ const generate = result => {
   generateTemplate('_._welcome')
 
   fs.mkdirSync('data')
+  fs.mkdirSync('flows')
   fs.writeFileSync('data/bot.log', '')
   fs.writeFileSync('data/notification.json', '[]')
 
