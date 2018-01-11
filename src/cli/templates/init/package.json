@@ -3,6 +3,9 @@
   "version": "<%= version %>",
   "description": "<%= description %>",
   "main": "index.js",
+  "engines": {
+    "node": ">= 6.1 <= 8.9"
+  },
   "dependencies": {
     "botpress": "^1.0.0",
     "botpress-platform-webchat": "^0.4.5",

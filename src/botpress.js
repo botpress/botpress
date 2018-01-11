@@ -263,7 +263,8 @@ class botpress {
     notifications._bindEvents()
 
     const server = createServer(this)
-    server.start().then(() => {
+    server.start().then(srv => {
+      this.stopServer = srv && srv.stop
       events.emit('ready')
       for (const mod of _.values(loadedModules)) {
         mod.handlers.ready && mod.handlers.ready(this, mod.configuration)
@@ -309,9 +310,18 @@ class botpress {
     })
   }
 
-  start() {
+  start = () => {
     if (cluster.isMaster) {
       let firstWorkerHasStartedAlready = false
+
+      const quit = (code = 0) => {
+        if (this.stopServer) {
+          this.stopServer()
+        }
+
+        process.exit(code)
+      }
+
       const receiveMessageFromWorker = message => {
         if (message && message.workerStatus === 'starting') {
           if (!firstWorkerHasStartedAlready) {
@@ -320,6 +330,8 @@ class botpress {
             print('info', '*** restarted worker process ***')
             this.stats.track('bot', 'restarted')
           }
+        } else if (message.type === 'exit') {
+          quit()
         }
       }
 
@@ -327,7 +339,7 @@ class botpress {
         if (code === RESTART_EXIT_CODE) {
           cluster.fork().on('message', receiveMessageFromWorker)
         } else {
-          process.exit(code)
+          quit(code)
         }
       })
 

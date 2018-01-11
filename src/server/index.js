@@ -33,7 +33,7 @@ module.exports = bp => {
     await serveStatic(app)
 
     return new Promise(resolve => {
-      server.listen(port, resolve)
+      server.listen(port, () => resolve(server))
     })
   }
 

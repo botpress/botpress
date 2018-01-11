@@ -127,7 +127,9 @@
     "webpack": "^3.8.1",
     "webpack-node-externals": "^1.6.0"
   },
-  "engines": { "node": ">=6.10.0 <9.0.0" },
+  "engines": {
+    "node": ">=6.10.0 <9.0.0"
+  },
   "homepage": "https://github.com/botpress/botpress#readme",
   "keywords": [
     "bots",
