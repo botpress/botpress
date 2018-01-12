@@ -71,7 +71,7 @@ class DialogEngine {
     if (catchAllNext) {
       this._trace('..', 'KALL', '', context, state)
       for (let i = 0; i < catchAllNext.length; i++) {
-        if (await this._evaluateCondition(catchAllNext[i].condition, state)) {
+        if (await this._evaluateCondition(catchAllNext[i].condition, state, event)) {
           return this._processNode(stateId, state, context, catchAllNext[i].node, event)
         }
       }
@@ -303,7 +303,7 @@ class DialogEngine {
   async _transitionToNextNodes(node, context, userState, stateId, event) {
     const nextNodes = node.next || []
     for (let i = 0; i < nextNodes.length; i++) {
-      if (await this._evaluateCondition(nextNodes[i].condition, userState)) {
+      if (await this._evaluateCondition(nextNodes[i].condition, userState, event)) {
         this._trace('??', 'MTCH', `cond = "${nextNodes[i].condition}"`, context)
         if (/end/i.test(nextNodes[i].node)) {
           // Node "END" or "end" ends the flow (reserved keyword)
@@ -488,7 +488,7 @@ class DialogEngine {
     return userState
   }
 
-  async _evaluateCondition(condition, userState) {
+  async _evaluateCondition(condition, userState, event) {
     if (/^true|always|yes$/i.test(condition) || condition === '') {
       return true
     }
@@ -503,6 +503,8 @@ class DialogEngine {
 
     vm.freeze(userState, 's')
     vm.freeze(userState, 'state')
+    vm.freeze(event, 'event')
+    vm.freeze(event, 'e')
 
     try {
       return (await vm.run(condition)) == true
