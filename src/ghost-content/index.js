@@ -156,7 +156,7 @@ module.exports = ({ logger, db, projectLocation, enabled }) => {
     if (
       await knex('ghost_content')
         .where({ folder, file, content })
-        .count('id')
+        .count('id as count')
         .then(([res]) => Number(res.count) > 0)
     ) {
       return Promise.resolve()
