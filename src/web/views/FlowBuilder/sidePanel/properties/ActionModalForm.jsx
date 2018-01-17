@@ -5,7 +5,7 @@ import axios from 'axios'
 import _ from 'lodash'
 import { connect } from 'react-redux'
 
-import { fetchContentItem, upsertContentItems } from '~/actions'
+import { fetchContentItem, upsertContentItem } from '~/actions'
 
 import ParametersTable from './ParametersTable'
 import CreateOrEditModal from '../../../Content/modal'
@@ -86,7 +86,7 @@ class ActionModalForm extends Component {
   handleUpdate = () => {
     const categoryId = this.props.contentItems[this.state.itemId].categoryId
     this.props
-      .upsertContentItems({ modifyId: this.state.itemId, categoryId, formData: this.state.contentToEdit })
+      .upsertContentItem({ modifyId: this.state.itemId, categoryId, formData: this.state.contentToEdit })
       .then(() => this.props.fetchContentItem(this.state.itemId))
       .then(() => this.setState({ showItemEdit: false, contentToEdit: null }))
   }
@@ -289,6 +289,6 @@ class ActionModalForm extends Component {
 }
 
 const mapStateToProps = state => ({ contentItems: state.content.itemsById })
-const mapDispatchToProps = { fetchContentItem, upsertContentItems }
+const mapDispatchToProps = { fetchContentItem, upsertContentItem }
 
 export default connect(mapStateToProps, mapDispatchToProps)(ActionModalForm)

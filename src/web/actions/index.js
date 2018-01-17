@@ -70,9 +70,9 @@ export const fetchContentItems = ({ id, from, count, searchTerm }) => dispatch =
     .then(({ data }) => dispatch(receiveContentItems(data)))
 
 export const receiveContentItemsRecent = createAction('CONTENT/ITEMS/RECEIVE_RECENT')
-export const fetchContentItemsRecent = ({ searchTerm }) => dispatch =>
+export const fetchContentItemsRecent = ({ searchTerm, count = 5, categoryId = 'all' }) => dispatch =>
   axios
-    .get(`/content/items`, { params: { count: 5, searchTerm, orderBy: ['createdOn', 'desc'] } })
+    .get(`/content/items`, { params: { categoryId, count, searchTerm, orderBy: ['createdOn', 'desc'] } })
     .then(({ data }) => dispatch(receiveContentItemsRecent(data)))
 
 export const receiveContentItem = createAction('CONTENT/ITEMS/RECEIVE_ONE')
@@ -83,7 +83,7 @@ export const receiveContentItemsCount = createAction('CONTENT/ITEMS/RECEIVE_COUN
 export const fetchContentItemsCount = () => dispatch =>
   axios.get(`/content/items/count`).then(data => dispatch(receiveContentItemsCount(data)))
 
-export const upsertContentItems = ({ categoryId, formData, modifyId }) => () =>
+export const upsertContentItem = ({ categoryId, formData, modifyId }) => () =>
   axios.post(`/content/categories/${categoryId}/items/${modifyId || ''}`, { formData })
 
 export const deleteContentItems = data => () => axios.post('/content/categories/all/bulk_delete', data)

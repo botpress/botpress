@@ -7,7 +7,7 @@ import _ from 'lodash'
 import { Grid, Row, Col, Alert } from 'react-bootstrap'
 
 import Sidebar from './Sidebar'
-import { fetchContentCategories, fetchContentItems, upsertContentItems, deleteContentItems } from '~/actions'
+import { fetchContentCategories, fetchContentItems, upsertContentItem, deleteContentItems } from '~/actions'
 
 import List from './List'
 import CreateOrEditModal from './modal'
@@ -67,7 +67,7 @@ class ContentView extends Component {
   handleUpsert = () => {
     const categoryId = this.currentCategoryId()
     this.props
-      .upsertContentItems({ categoryId, formData: this.state.contentToEdit, modifyId: this.state.modifyId })
+      .upsertContentItem({ categoryId, formData: this.state.contentToEdit, modifyId: this.state.modifyId })
       .then(() => this.fetchCategoryItems(this.state.selectedId))
       .then(() => this.setState({ showModal: false }))
   }
@@ -111,11 +111,12 @@ class ContentView extends Component {
 
   renderBody() {
     const { selectedId = 'all', modifyId, contentToEdit } = this.state
-    const selectedCategory = _.find(this.props.categories, { id: this.currentCategoryId() })
+    const categories = this.props.categories || []
+    const selectedCategory = _.find(categories, { id: this.currentCategoryId() })
 
     const classNames = classnames(style.content, 'bp-content')
 
-    if (!this.props.categories.length) {
+    if (!categories.length) {
       return (
         <div className={classNames}>
           <Alert bsStyle="warning">
@@ -135,7 +136,7 @@ class ContentView extends Component {
           <Row>
             <Col xs={3}>
               <Sidebar
-                categories={this.props.categories}
+                categories={categories}
                 selectedId={selectedId}
                 handleAdd={this.handleCreateNew}
                 handleCategorySelected={this.handleCategorySelected}
@@ -146,8 +147,8 @@ class ContentView extends Component {
                 page={this.state.page}
                 count={
                   this.state.selectedId === 'all'
-                    ? _.sumBy(this.props.categories, 'count') || 0
-                    : _.find(this.props.categories, { id: this.state.selectedId }).count
+                    ? _.sumBy(categories, 'count') || 0
+                    : _.find(categories, { id: this.state.selectedId }).count
                 }
                 itemsPerPage={ITEMS_PER_PAGE}
                 contentItems={this.props.contentItems || []}
@@ -193,7 +194,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = {
   fetchContentCategories,
   fetchContentItems,
-  upsertContentItems,
+  upsertContentItem,
   deleteContentItems
 }
 
