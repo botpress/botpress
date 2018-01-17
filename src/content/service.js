@@ -79,7 +79,9 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
     }
 
     if (searchTerm) {
-      query = query.andWhere('metadata', 'like', `%${searchTerm}%`).orWhere('formData', 'like', `%${searchTerm}%`)
+      query = query.where(function() {
+        this.where('metadata', 'like', `%${searchTerm}%`).orWhere('formData', 'like', `%${searchTerm}%`)
+      })
     }
 
     const items = await query
@@ -214,6 +216,10 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
     const item = await knex('content_items')
       .where({ id })
       .get(0)
+
+    if (!item) {
+      return null
+    }
 
     const category = _.find(categories, { id: item.categoryId })
     return {

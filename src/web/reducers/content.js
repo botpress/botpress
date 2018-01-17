@@ -12,7 +12,7 @@ import {
 } from '~/actions'
 
 const defaultState = {
-  categories: [],
+  categories: null,
   currentItems: [],
   recentItems: [],
   itemsById: {},
