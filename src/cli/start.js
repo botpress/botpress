@@ -1,9 +1,20 @@
+import os from 'os'
 import path from 'path'
 import fs from 'fs'
 import util from '../util'
 import chalk from 'chalk'
 import nodemon from 'nodemon'
 import { monitorCtrlC } from 'monitorctrlc'
+import { execSync } from 'child_process'
+
+const getPath = path => {
+  if (os.platform() === 'win32') {
+    const shortPath = execSync(`@echo off && for %I in ("${path}") do echo %~sI`)
+    return shortPath.toString('utf8').replace(/(\n|\r)+$/, '')
+  } else {
+    return path
+  }
+}
 
 /**
  * Entry point of botpress
@@ -59,6 +70,8 @@ module.exports = (projectPath, options) => {
     util.print('info', '*** watching files for changes ***')
 
     const argvWithoutWatch = process.argv.filter(arg => !/^(--watch|-w)$/.test(arg))
+    argvWithoutWatch[0] = getPath(argvWithoutWatch[0])
+
     const nodemonOptions = {
       cwd: process.cwd(),
       exec: argvWithoutWatch.join(' '),
