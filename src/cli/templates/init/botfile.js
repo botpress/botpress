@@ -39,6 +39,16 @@ module.exports = {
     maxSize: 1e6 // 1mb
   },
 
+  /*
+    The web server API config
+   */
+  api: {
+    bodyMaxSize: '1mb'
+  },
+
+  /*
+    Dialog Manager (DM)
+  */
   dialogs: {
     timeoutInterval: '15m',
     janitorInterval: '10s'

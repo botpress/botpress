@@ -136,7 +136,7 @@ module.exports = bp => {
     installProtector(app)
     installMaybeUse(app)
 
-    app.maybeUse('bodyParser.json', bodyParser.json())
+    app.maybeUse('bodyParser.json', bodyParser.json({ limit: _.get(bp.botfile, 'api.bodyMaxSize') || '1mb' }))
     app.maybeUse('bodyParser.urlencoded', bodyParser.urlencoded({ extended: true }))
 
     anonymousApis(bp, app)
