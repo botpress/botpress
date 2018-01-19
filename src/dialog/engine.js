@@ -459,6 +459,13 @@ class DialogEngine {
         name = _.first(chunks)
         try {
           args = JSON.parse(argsStr)
+          args = _.mapValues(args, value => {
+            if (_.isString(value) && value.startsWith('{{') && value.endsWith('}}')) {
+              const key = value.substr(2, value.length - 4)
+              return _.get({ state: userState, s: userState, event: event, e: event }, key)
+            }
+            return value
+          })
         } catch (err) {
           this._trace('ERROR function has invalid arguments (not a valid JSON string): ' + argsStr)
         }
