@@ -11,3 +11,20 @@ export const hashCode = str => {
   }
   return hash
 }
+
+// https://davidwalsh.name/caret-end
+export const moveCursorToEnd = el => {
+  if (!el) {
+    return
+  }
+
+  if (typeof el.selectionStart == 'number') {
+    el.selectionStart = el.selectionEnd = el.value.length
+  } else if (typeof el.createTextRange != 'undefined') {
+    el.focus()
+    const range = el.createTextRange()
+    range.collapse(false)
+    range.select()
+  }
+  el.focus()
+}
