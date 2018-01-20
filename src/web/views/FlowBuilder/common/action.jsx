@@ -5,7 +5,8 @@ import { Popover, OverlayTrigger } from 'react-bootstrap'
 import _ from 'lodash'
 import Mustache from 'mustache'
 
-import { fetchContentItem } from '~/actions'
+import { fetchContentItem, updateFlow } from '~/actions'
+import { getCurrentFlow } from '~/reducers'
 
 const style = require('./style.scss')
 
@@ -23,7 +24,8 @@ class ActionItem extends Component {
     const itemId = this.textToItemId(text)
     this.setState({ itemId })
     if (itemId) {
-      this.props.fetchContentItem(itemId)
+      const refreshLinks = () => this.props.updateFlow({ links: this.props.currentFlow.links })
+      this.props.fetchContentItem(itemId).then(refreshLinks)
     }
   }
 
@@ -100,7 +102,10 @@ class ActionItem extends Component {
   }
 }
 
-const mapStateToProps = state => ({ items: state.content.itemsById })
-const mapDispatchToProps = { fetchContentItem }
+const mapStateToProps = state => ({
+  items: state.content.itemsById,
+  currentFlow: getCurrentFlow(state)
+})
+const mapDispatchToProps = { fetchContentItem, updateFlow }
 
 export default connect(mapStateToProps, mapDispatchToProps)(ActionItem)
