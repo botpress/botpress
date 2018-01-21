@@ -1,4 +1,6 @@
-# Module Configuration
+---
+layout: guide
+---
 
 The configuration of your module must be set in your module's entry point:
 
@@ -24,7 +26,8 @@ Each key of the object represents a configuration variable. The value of the con
 }
 ```
 
-### Example of configuration object
+### Example of configuration object <a class="toc" id="toc-example-of-configuration-object" href="#toc-example-of-configuration-object"></a>
+
 
 ```js
 config: {
@@ -43,7 +46,8 @@ config: {
 }
 ```
 
-## Using the configuration
+## Using the configuration <a class="toc" id="toc-using-the-configuration" href="#toc-using-the-configuration"></a>
+
 
 The configuration object for your module has four methods:
 
@@ -53,7 +57,8 @@ The configuration object for your module has four methods:
 - `loadAll() -> Promise(object)`
 - `get(name) -> Promise(value)`
 
-### Accessing the configuration
+### Accessing the configuration <a class="toc" id="toc-accessing-the-configuration" href="#toc-accessing-the-configuration"></a>
+
 
 The configuration object passed to your module in it's `init` and `ready` methods:
 
@@ -76,15 +81,16 @@ module.exports = {
 }
 ```
 
-## Where is the configuration saved? / Is the configuration persisted in database?
+## Where is the configuration saved? / Is the configuration persisted in database? <a class="toc" id="toc-where-is-the-configuration-saved-is-the-configuration-persisted-in-database" href="#toc-where-is-the-configuration-saved-is-the-configuration-persisted-in-database"></a>
 
 The configuration is persisted in the database. In fact, it is persisted using the built-in Key-Value store.
 
-## Can I overwrite the configuration at run time? / Can I use environement variables to set configuration?
+## Can I overwrite the configuration at run time? / Can I use environement variables to set configuration? <a class="toc" id="toc-can-i-overwrite-the-configuration-at-run-time-can-i-use-environement-variables-to-set-configuration" href="#toc-can-i-overwrite-the-configuration-at-run-time-can-i-use-environement-variables-to-set-configuration"></a>
+
 
 You may overwrite the configuration or provide default values from environement variables. To do so, simply assign a value to the `env` property of the configuration key. In the example above, `accessToken` can be overwritten by the `WIT_TOKEN` environement variable.
 
-## Can I commit to source-control some values?
+## Can I commit to source-control some values? <a class="toc" id="toc-can-i-commit-to-source-control-some-values" href="#toc-can-i-commit-to-source-control-some-values"></a>
 
 You may overwrite the configuration from inside your botfile using the `config` key followed by the name of the module:
 

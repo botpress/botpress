@@ -1,6 +1,6 @@
-# Configuration
-
-## The Botfile
+---
+layout: guide
+---
 
 The **botfile.js** is located at the root of a bot project and contains all the configuration required by Botpress to operate.
 
@@ -39,9 +39,7 @@ The order of precedence is:
 - Database Configuration
 - Default Values (Least important)
 
-{% hint style='info' %}
-**TIP:** The best way of figuring out the variable names and environement variables is currently to read the `index.js` file of the modules and look for the configuration setup.
-{% endhint %}
+> **TIP:** The best way of figuring out the variable names and environement variables is currently to read > the `index.js` file of the modules and look for the configuration setup.
 
 ### Example
 

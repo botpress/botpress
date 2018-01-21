@@ -1,6 +1,9 @@
-# Managing the conversation Flow
+---
+layout: guide
+---
 
-## The Different Techniques
+## The Different Techniques <a class="toc" id="toc-the-different-techniques" href="#toc-the-different-techniques"></a>
+
 
 **This document is about the build-in Flow Manager (Convo)**, but there are many other ways of creating a conversational flow. Most of the time, these techniques can even be combined:
 
@@ -11,17 +14,18 @@
 
 > **DO NOT CONFUSE:** Both API.AI and Wit.ai are listed there not because of their NLP capabilities but because of their respective Flow Management systems (which are complementary to the NLP).
 
-## Built-in Flow Manager (`bp.convo`)
+## Built-in Flow Manager (`bp.convo`) <a class="toc" id="toc-built-in-flow-manager-bp-convo" href="#toc-built-in-flow-manager-bp-convo"></a>
+
 
 **`convo`** ships with Botpress and does not need to be installed. It is available through the global `bp` instance.
 
-### API Reference
+### API Reference <a class="toc" id="toc-api-reference" href="#toc-api-reference"></a>
 
-#### `bp.convo.create(event)` -> convo
+#### `bp.convo.create(event)` -> convo <a class="toc" id="toc-bp-convo-create-event-convo" href="#toc-bp-convo-create-event-convo"></a>
 
 Creates a conversation but the conversation is not activated. You need to call `activate()` to start the conversation. To create a conversation, an initial `event` is required. The event is most often taken from a `bp.hear` (see example below).
 
-##### Usage
+##### Usage <a class="toc" id="toc-usage" href="#toc-usage"></a>
 
 ```js
 bp.hear('hello', (event, next) => {
@@ -35,7 +39,7 @@ Same as `create` except that it also `activate()` the convo automatically.
 
 An optionnal (although recommended) `callback` can be provided to configure the conversation before it actually starts.
 
-##### Usage
+##### Usage <a class="toc" id="toc-bp-convo-start-event-callback-convo" href="#toc-bp-convo-start-event-callback-convo"></a>
 
 ```js
 bp.hear('hello', (event, next) => {
@@ -106,13 +110,11 @@ bp.convo.start(event, convo => {
 
 Queues a message for sending.
 
-{% hint style='info' %}
-**Note: messages are sent in the order they have been queued**
-{% endhint %}
+> **Note: messages are sent in the order they have been queued**
 
 #### Conversation | `convo.say(bloc, [data])`
 
-Queues a [UMM bloc](./umm.md) for sending. Optionally, you can pass data to the UMM engine.
+Queues a [UMM bloc](/docs/foundamentals/umm) for sending. Optionally, you can pass data to the UMM engine.
 
 #### Conversation | `convo.repeat()`
 
@@ -142,9 +144,7 @@ For example, `convo.messageTypes = ['postback']` will make the conversation list
 
 Defaults to: `['text', 'message']`
 
-{% hint style='info' %}
-**TIP**: If you want to capture button clicks (postback) or quick replies, you should set `convo.messageTypes = ['postback', 'quick_reply', 'message', 'text']`
-{% endhint %}
+> **TIP**: If you want to capture button clicks (postback) or quick replies, you should set `convo.messageTypes = ['postback', 'quick_reply', 'message', 'text']`
 
 #### Thread | `thread.addMessage(MessageObject)`
 

@@ -54,8 +54,14 @@ lib/
 !/src/web/views/logs
 .cache/
 
-# for vim 
+# for vim
 *.swp
 *.sly
 
+.idea/**
+docs/.asset-cache
+docs/.asset-cache/*
+docs/.asset-cache/**
 _book/
+
+*.cache

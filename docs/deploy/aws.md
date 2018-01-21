@@ -1,4 +1,6 @@
-# How to deploy to Amazon AWS (EC2)
+---
+layout: guide
+---
 
 1. First you need to have a custom domain name bought (can be bought in AWS)
 

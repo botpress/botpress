@@ -1,5 +1,6 @@
-# Database Helpers
-
+---
+layout: guide
+---
 There are a couple of database helpers available to bots and modules. The goal of the helpers is to help abstract the dual-database queries and operations. Before writing SQL for your bot or for your module, it is very important to understand what SQL will work on both environement and what won't.
 
 ### isLite() -> boolean

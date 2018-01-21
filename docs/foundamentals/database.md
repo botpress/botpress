@@ -1,20 +1,19 @@
-# How to use the built-in Database
-
+---
+layout: guide
+---
 All bots built with Botpress ships with a **SQLite 3** database by default. The reason is that it is easy and quick for people to test botpress in any environement and does not depend on 3rd-party database.
 
 Botpress also officially supports (and recommends) using [**Postgres**](#postgres) (version >= 9.5), **which needs to be turned on manually**.
 
-> **HEADS UP TO MODULE MAKERS:** Even though Botpress supports two databases, it should not affect the bot makers. Modules have the responsability of being compatible with **both SQLite AND Postgres**. No module will be accepted in the Botpress Modules Store if it has not been properly designed (and tested) to work with both databases. If you are building a module, we have [some utilities](../advanced/database_helpers.md) to abstract the underlying databases for you.
+> **HEADS UP TO MODULE MAKERS:** Even though Botpress supports two databases, it should not affect the bot makers. Modules have the responsability of being compatible with **both SQLite AND Postgres**. No module will be accepted in the Botpress Modules Store if it has not been properly designed (and tested) to work with both databases. If you are building a module, we have [some utilities](../../advanced/database_helpers/) to abstract the underlying databases for you.
 
-{% hint style='working' %}
-**WARNING**: If you're deploying your bot to Heroku, you need to [Setup Postgres](#heroku) otherwise you will lose your data and configuration every day (because the file system is reset daily).
-{% endhint %}
+> **WARNING**: If you're deploying your bot to Heroku, you need to [Setup Postgres](#heroku) otherwise you will lose your data and configuration every day (because the file system is reset daily).
 
-## Built-in SQLite database
+## Built-in SQLite database <a class="toc" id="toc-built-in-sqlite-database" href="#toc-built-in-sqlite-database"></a>
 
 The database is located at `${dataDir}/db.sqlite`. It is used, enabled and created automatically by default for all bots.
 
-### Usage
+### Usage <a class="toc" id="toc-usage" href="#toc-usage"></a>
 
 ```js
 bp.db.get()
@@ -22,19 +21,18 @@ bp.db.get()
 .then(users => /* do stuff */)
 ```
 
-{% hint style='info' %}
-**Note:** Botpress is using [Knex](http://knexjs.org). When you do a `bp.db.get()`, you're simply getting a ready-to-use instance of Knex.
 
-Examples: [select](http://knexjs.org/#Builder-select), [insert](http://knexjs.org/#Builder-insert), [update](http://knexjs.org/#Builder-update), [delete](http://knexjs.org/#Builder-del / delete)
-{% endhint %}
+ > **Note:** Botpress is using [Knex](http://knexjs.org). When you do a `bp.db.get()`, you're simply getting a ready-to-use instance of Knex.
 
-## Key-Value-Store (KVS) {#kvs}
+> Examples: [select](http://knexjs.org/#Builder-select), [insert](http://knexjs.org/#Builder-insert), [update](http://knexjs.org/#Builder-update), [delete](http://knexjs.org/#Builder-del / delete)
+
+## Key-Value-Store (KVS) <a class="toc" id="toc-key-value-store-kvs-kvs" href="#toc-key-value-store-kvs-kvs"></a> {#kvs}
 
 For convinience, a simple Key-Value-Store is built-in Botpress. It's simply a layer on top of `bp.db`. You can rely on the KVS to store information about your users, contexts, state, etc.
 
 The KVS is available as `bp.db.kvs`. There only two methods: `get` and `set`.
 
-### How does it work?
+### How does it work? <a class="toc" id="toc-how-does-it-work" href="#toc-how-does-it-work"></a>
 
 The KVS stores values as JSON, meaning that you can store anything in it and it will be serialized/undeserialized.
 
@@ -50,18 +48,18 @@ Essentially, you can imagine a key-value store as a big table that can store JSO
 
 **Limitation: you can't store circular referenced structures**
 
-### `get(key, [path])` -> Promise(value)
+### `get(key, [path])` -> Promise(value) <a class="toc" id="toc-get-key-path-promise-value" href="#toc-get-key-path-promise-value"></a>
 
-Returns the value of a key from the store. 
+Returns the value of a key from the store.
 
-Optionally, you can provide a `path` argument that will only return the value inside the object. 
+Optionally, you can provide a `path` argument that will only return the value inside the object.
 
 #### Example
 
 ```js
 bp.db.kvs.get(`users/id/${event.user.id}/books`)
 .then(books => {
-  // do something  
+  // do something
 })
 ```
 
@@ -80,7 +78,7 @@ bp.db.kvs.get('users/id/002485', 'role')
 
 ### `set(key, value, [path])` -> Promise()
 
-This sets the **value** at **key**. 
+This sets the **value** at **key**.
 
 Optionally, you can provide a path (works like the `get`).
 
@@ -89,7 +87,7 @@ Optionally, you can provide a path (works like the `get`).
 ```js
 bp.db.kvs.set('bot_updated_on', new Date())
 .then(() => {
-  // do something else  
+  // do something else
 })
 ```
 
@@ -98,19 +96,24 @@ bp.db.kvs.set('bot_updated_on', new Date())
 ```js
 bp.db.kvs.set('users/id/002485', { name: 'Sylvain', first_name: 'Perron' })
 .then(() => {
-  // do something else  
+  // do something else
 })
 ```
 
-{% hint style='working' %}
-**Warning**: If you provide a path, **the object will be merged**, i.e. it will not be entirely overwritten.
 
-For example, if you have the value `{ a: 1, b: { _b: 2 } }` and you set: `set('key', 5, 'b._b')`, then the value will become `{ a: 1, b: { _b: 5 } }`.
+> **Warning**: If you provide a path, **the object will be merged**, i.e. it will not be entirely overwritten.
 
-However, if you don't specify any path, the entire object (value) will be replaced.
-{% endhint %}
+> For example, if you have the value `{ a: 1, b: { _b: 2 } }` and you set: `set('key', 5, 'b._b')`, then the value will become `{ a: 1, b: { _b: 5 } }`.
 
-## Connecting to a Postgres 9.5+ database {#postgres}
+> However, if you don't specify any path, the entire object (value) will be replaced.
+
+> Also notice that this method treats all-digit parts of the `path` as array indexes.
+
+> For example, if your value is `{ a: 1 }` and you set `set('key', 5, 'b.5')`, then the value will become `{ a: 1, b: [ null, null, null, null, 5 ] }`.
+
+> If this is not what you meant you can provide the `path` as an array of parts: `set('key', 5, [ 'b', '5' ])` will result in `{ a: 1, b: { '5': 5 } }`.
+
+## Connecting to a Postgres 9.5+ database <a class="toc" id="toc-connecting-to-a-postgres-9-5-database-postgres" href="#toc-connecting-to-a-postgres-9-5-database-postgres"></a> {#postgres}
 
 **Note: this is optional but highly recommended for production environement. It is also mandatory is your bot runs on Heroku due to the ephemeral nature of the disks.**
 
@@ -132,7 +135,7 @@ To enable using postgres, you should set the environement variable `DATABASE=pos
 
 The connection parameters are self-explanatory.
 
-### Using Postgres on Heroku {#heroku}
+### Using Postgres on Heroku <a class="toc" id="toc-using-postgres-on-heroku-heroku" href="#toc-using-postgres-on-heroku-heroku"></a> {#heroku}
 
 Heroku provides Postgres databases, however these dbs do not have static authentication details.  Thankfully, Heroku puts a connection string in the environment variables for you that stays up to date with your postgres instance.  To add your Heroku Postgres db connection, use the `connection` property in the `postgres` configuration object.
 
@@ -144,9 +147,9 @@ postgres: {
 }
 ```
 
-Also make sure to enable SSL by setting the `PG_SSL` env variable to `true`.
+Also make sure to enable SSL by setting the `PG_SSL` env variable to `true`. You will also need to append the connection URI given by Heroku with `?ssl=true`.
 
-### Tables
+### Tables <a class="toc" id="toc-tables" href="#toc-tables"></a>
 
 There is a single built-in table called `users`. There's also a method `db.saveUser` that connectors' modules should use to save users to the database.
 

@@ -1,0 +1,19 @@
+version: 0.2
+phases:
+  install:
+    commands:
+      - echo "****** Install Bundle for Jekyll ******"
+      - gem install jekyll bundler
+  pre_build:
+    commands:
+      - cd docs/
+      - echo "***** Install Dependancy Ruby *****"
+      - bundle install
+      - echo "***** Npm Install *****"
+      - npm install
+  build:
+    commands:
+      - echo "******* Building Jekyll site *******"
+      - bundle exec jekyll build
+      - echo "******* Uploading to S3 *******"
+      - aws s3 sync _site/ s3://botpress-docs/docs

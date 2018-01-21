@@ -1,4 +1,6 @@
-# Serving lightweight views
+---
+layout: guide
+---
 
 **Lightweight Views** are views that are, as their name say, lightweight. They do not inherit all the default Botpress interface (which is heavy). They contain no styling and no built-in libraries. The only thing they have is direct access to `bp` which contains a reference to the EventBus (WebSocket) and Axios.
 
@@ -12,4 +14,4 @@ Here's how to create one:
 
 3. Re-bundle your module (`npm run compile`)
 
-See the [botpress-web](https://github.com/botpress/botpress-web) module for an example
+See the [botpress-web](https://github.com/botpress/botpress-platform-webchat) module for an example

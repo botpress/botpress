@@ -1,5 +1,6 @@
-# Deploying to Heroku
-
+---
+layout: guide
+---
 1. Make sure your bot runs locally and that all dependent modules are properly installed and configured.
 
 2. You need a [free Heroku account](https://signup.heroku.com/dc) and [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli) installed
@@ -18,7 +19,7 @@
   - Add a Postgres Database ([Heroku has a free one](https://elements.heroku.com/addons/heroku-postgresql)) to the Heroku App.
   - [Set the env variable](https://devcenter.heroku.com/articles/config-vars) on Heroku `DATABASE=postgres`
 
-6. Setup a password by [setting the env variable](https://devcenter.heroku.com/articles/config-vars) `BOTPRESS_PASSWORD`, e.g. `BOTPRESS_PASSWORD=YoUr_ST0NG-PassWoRD`
+6. Setup a password by [setting the env variable](https://devcenter.heroku.com/articles/config-vars) `BOTPRESS_PASSWORD`, e.g. `BOTPRESS_PASSWORD=YoUr_ST0NG-PassWoRD`. The default password is `password`
 
 You're done! The bot should be running. Please review the following sections for module-specific particularities.
 

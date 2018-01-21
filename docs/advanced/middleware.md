@@ -1,10 +1,15 @@
-## Understanding the Middlewares
-
+---
+layout: guide
+---
 Middleware is a critical component of botpress. Simply put, it is a collection of functions that process messages. Think of it this way: everything that enters or leaves your bot is coming in to (or out of) the middleware.
 
 If you have used [Express](http://expressjs.com/) before, botpress middleware is very similar to express's middleware.
 
-Botpress has two middleware chains: [incoming](understading-the-middlewares.md#sendincomingmiddlewareevent---void) and [outgoing](understading-the-middlewares.md#sendoutgoingmiddlewareevent---void)
+
+<!-- Todo: understading-the-middlewares.md#sendincomingmiddlewareevent---void
+     understading-the-middlewares.md#sendoutgoingmiddlewareevent---void  
+   -->
+Botpress has two middleware chains: incoming and outgoing
 
 **To receive messages**: An installed module must send messages into the incoming middleware chain
 
@@ -16,7 +21,7 @@ Botpress has two middleware chains: [incoming](understading-the-middlewares.md#s
 
 **Outgoing**: [botpress-messenger](https://github.com/botpress/botpress-messenger) listens (through a middleware function) for messages it can process on the outgoing middleware and sends them to Facebook through the Messenger Send API.
 
-## Middleware Chain
+## Middleware Chain <a class="toc" id="toc-middleware-chain" href="#toc-middleware-chain"></a>
 
 A middleware chain is simply a collection of middleware functions that are called in a predertermined order. Each middleware function in the chain has the freedom to:
 - execute arbitrary code
@@ -25,9 +30,9 @@ A middleware chain is simply a collection of middleware functions that are calle
 - interrupt the chain by never calling the next middleware (what we call swallowing the event)
 - interrupt the chain by throwing an error
 
-<img alt="Middleware Chain" width="600" src="{{ book.assets }}/middleware-chain.png">
+<img alt="Middleware Chain" width="600" src="https://raw.githubusercontent.com/botpress/botpress/master/assets/middleware-chain.png">
 
-## A simple middleware function
+## A simple middleware function <a class="toc" id="toc-a-simple-middleware-function" href="#toc-a-simple-middleware-function"></a>
 
 A middleware function is simply a function that takes an event as the first parameter and a `next` function as the second parameter.
 
@@ -55,9 +60,9 @@ var middleware = function(event, next) {
 
 The return value of the middleware function isn't used by Botpress.
 
-## Registering middlewares
+## Registering middlewares <a class="toc" id="toc-registering-middlewares" href="#toc-registering-middlewares"></a> {#registermiddlewaredefinition-void}
 
-You need to register a middleware function for botpress to know about it and use it. You may do so with the [`bp.middlewares.register`](understading-the-middlewares.md#registermiddlewaredefinition-void) method:
+You need to register a middleware function for botpress to know about it and use it. You may do so with the [`bp.middlewares.register`](#registermiddlewaredefinition-void) method:
 
 ```js
 // ** code taken from botpress-messenger **
@@ -72,13 +77,13 @@ bp.middlewares.register({
 })
 ```
 
-Once all middleware functions have been registered (usually modules should register middleware functions immediately in their initialization), **you must load them** using [`bp.middlewares.load()`](understading-the-middlewares.md#load-void), which will create the incoming and outgoing chains automatically.
+Once all middleware functions have been registered (usually modules should register middleware functions immediately in their initialization), **you must load them** using [`bp.middlewares.load()`](#load-void), which will create the incoming and outgoing chains automatically.
 
 Once middleware functions are loaded, you'll see them displayed in your bot's interface:
 
 ![](https://raw.githubusercontent.com/botpress/botpress/master/assets/screenshot-middlewares.png)
 
-## Ordering middleware functions
+## Ordering middleware functions <a class="toc" id="toc-ordering-middleware-functions" href="#toc-ordering-middleware-functions"></a>
 
 By default, middleware functions are ordered by **ascending order** according to their `order` property set on registration. The order can then be manually overwritten:
 
@@ -86,7 +91,7 @@ By default, middleware functions are ordered by **ascending order** according to
 
 You can also re-order them programmatically using middleware function customizations.
 
-## Full Messages Lifecycle Example
+## Full Messages Lifecycle Example <a class="toc" id="toc-full-messages-lifecycle-example" href="#toc-full-messages-lifecycle-example"></a>
 
 Imagine you have a travel bot that is available on Facebook Messenger and Slack and that can handle many languages.
 
@@ -114,9 +119,9 @@ Now lets look at how a complete interaction might be handled by your bot.
 
 All of this happens behind the scenes and is handled by the modules middleware. As a bot developer, all you have to worry about is writing the bot's logic.
 
-## API reference
+## API reference <a class="toc" id="toc-api-reference" href="#toc-api-reference"></a>
 
-#### `load()> void`
+#### `load()> void` {#load-void}
 
 Loads (or reloads) all the middleware in the correct order (ordered by their `order` property. Customizations (custom order and enabled/disabled) set in the UI are also taken into account.
 

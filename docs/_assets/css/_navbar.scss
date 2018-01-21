@@ -1,0 +1,55 @@
+.navbar {
+  background: $flow-gray-darkest;
+  -webkit-font-smoothing: antialiased;
+  box-shadow: 0 0px 1px rgba(black, 0.5);
+}
+
+#logoMenu {
+  filter: brightness(10) invert(0);
+  -webkit-filter: brightness(0) invert(1);
+  height: 120 px;
+}
+.navbar-brand {
+  height: 54px;
+  padding-top: 10px;
+  margin: -$navbar-padding-y 0;
+  margin-right: 2.5rem;
+
+  @include media-breakpoint-down('md') {
+    height: 56px;
+  }
+
+  .flow-logo {
+    height: 100%;
+  }
+}
+
+.navbar-icon {
+  height: 20px;
+  vertical-align: top;
+
+  path,
+  polygon {
+    fill: $navbar-dark-color;
+
+    .navbar-dark .nav-item .nav-link:hover &,
+    .navbar-dark .nav-item .nav-link:focus & {
+      fill: $navbar-dark-hover-color;
+    }
+
+    .navbar-dark .nav-item.active .nav-link &,
+    .navbar-dark .nav-item.open > .nav-link & {
+      fill: $navbar-dark-active-color;
+    }
+  }
+}
+
+.navbar-language-label {
+  @include media-breakpoint-up('lg') {
+    display: none;
+  }
+
+  @include media-breakpoint-up('xl') {
+    display: inline;
+  }
+}

@@ -1,6 +1,6 @@
-# Content Manager
-
-## Overview
+---
+layout: guide
+---
 
 The built-in Content Manager allows your bot administrators to **add and edit content** on the fly, without any programming knowledge, after the bot has been deployed. Here are some use cases:
 
@@ -25,13 +25,14 @@ Using the interface, you can:
 
 In order to do that, you must first programmatically create a **Category**.
 
-## Creating a Category
+## Creating a Category <a class="toc" id="toc-creating-a-category" href="#toc-creating-a-category"></a>
 
-### Creating Forms
+### Creating Forms <a class="toc" id="toc-creating-forms" href="#toc-creating-forms"></a>
 
-All forms must be located inside a single directory (see the [`botfile.js`](./botfile.md) -> [`formsDir`](https://github.com/botpress/botpress/blob/master/src/cli/templates/init/botfile.js#L21) variable) and be suffixed with `.form.js`. For example, if your `formsDir` is `./forms`, then you might create a trivia category by creating the `./forms/trivia.form.js`.
 
-### `*.form.js` Files Structure
+All forms must be located inside a single directory (see the [`botfile.js`](/docs/foundamentals/botfile) -> [`formsDir`](https://github.com/botpress/botpress/blob/master/src/cli/templates/init/botfile.js#L21) variable) and be suffixed with `.form.js`. For example, if your `formsDir` is `./forms`, then you might create a trivia category by creating the `./forms/trivia.form.js`.
+
+### `*.form.js` Files Structure <a class="toc" id="toc-form-js-files-structure" href="#toc-form-js-files-structure"></a>
 
 Your file must export an object with the following properties:
 
@@ -49,17 +50,19 @@ Your file must export an object with the following properties:
 }
 ```
 
-#### Field `id` (**Required**)
+#### Field `id` (**Required**) <a class="toc" id="toc-field-id-required" href="#toc-field-id-required"></a>
 
 This is the formal programmatic name you give the category. The id should contain only alphanumeric characters and contain no spaces and no special characters. The id may contain hypens (`-`) and underscored (`_`).
 
 
-#### Field `title` (**Required**)
+#### Field `title` (**Required**) <a class="toc" id="toc-field-title-required" href="#toc-field-title-required"></a>
+
 
 The title of the category as it will show in the UI (left side panel).
 
 
-#### Field [`jsonSchema`](https://github.com/mozilla-services/react-jsonschema-form) (**Required**)
+#### Field [`jsonSchema`](https://github.com/mozilla-services/react-jsonschema-form) (**Required**) <a class="toc" id="toc-field-jsonschema-https-github-com-mozilla-services-react-jsonschema-form-required" href="#toc-field-jsonschema-https-github-com-mozilla-services-react-jsonschema-form-required"></a>
+
 
 The content manager uses the [JSON Schema](https://mozilla-services.github.io/react-jsonschema-form/) standard to power the forms. The `jsonSchema` property is just using `react-jsonschema-form` and passing it as the `schema` property.
 
@@ -74,19 +77,22 @@ The content manager uses the [JSON Schema](https://mozilla-services.github.io/re
 [Link to `react-jsonschema-form`](https://github.com/mozilla-services/react-jsonschema-form)
 
 
-#### Field `ummBloc` (_Optional_)
+#### Field `ummBloc` (_Optional_) <a class="toc" id="toc-field-uischema-https-github-com-mozilla-services-react-jsonschema-form-optional" href="#toc-field-uischema-https-github-com-mozilla-services-react-jsonschema-form-optional"></a>
+
 
 Optionally, you can assign a UMM bloc to a content category. When doing so, Botpress will generate a virtual bloc (starting by `#!`) which you can use to send a message directly. 
 
 For example, if you have a category called `trivia`, generating trivia questions (content) would generate blocs that look like `#!trivia-h73k41`, which you can use anywhere as a regular UMM bloc (e.g. `event.reply('#!trivia-h73k41')`).
 
-#### Field `computeFormData(data) -> Object|Promise<Object>` (_Optional_)
+#### Field `computeFormData(data) -> Object|Promise<Object>` (_Optional_) <a class="toc" id="toc-field-ummbloc-optional" href="#toc-field-ummbloc-optional"></a>
+
 
 Optionally, you can manipulate the raw data coming from the form, so that you can persist that manipulated version of it.
 
 If you provide `computeFormData`, Botpress will use it to manipulate the data, and that modified data will be used by the UMM engine (if using `ummBloc`).
 
-##### Example A (Trivia)
+##### Example A (Trivia) <a class="toc" id="toc-field-computeformdata-data-object-promise-optional" href="#toc-field-computeformdata-data-object-promise-optional"></a>
+
 
 ```js
 const _ = require('lodash')
@@ -154,7 +160,7 @@ computeMetadata: formData => ['TRIVIA', new Date().getYear()]
 
 #### `bp.contentManager.getItemsByMetadata(filterString)` -> Array<CategoryItem>
 
-### Full Example (Trivia)
+### Full Example (Trivia) <a class="toc" id="toc-full-example-trivia" href="#toc-full-example-trivia"></a>
 
 #### `/forms/trivia.form.js`
 ```js
