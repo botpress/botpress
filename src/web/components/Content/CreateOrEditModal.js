@@ -26,7 +26,7 @@ export default class CreateOrEditModal extends React.Component {
         show={this.props.show}
         onHide={this.props.handleClose}
       >
-        <Modal.Body className={style.modalBody}>
+        <Modal.Body>
           <ContentForm
             schema={this.props.schema}
             uiSchema={this.props.uiSchema}

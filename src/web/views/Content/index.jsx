@@ -10,7 +10,7 @@ import Sidebar from './Sidebar'
 import { fetchContentCategories, fetchContentItems, upsertContentItem, deleteContentItems } from '~/actions'
 
 import List from './List'
-import CreateOrEditModal from './modal'
+import CreateOrEditModal from '~/components/Content/CreateOrEditModal'
 
 import ContentWrapper from '~/components/Layout/ContentWrapper'
 import PageHeader from '~/components/Layout/PageHeader'

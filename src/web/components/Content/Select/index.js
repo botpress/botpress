@@ -7,7 +7,7 @@ import axios from 'axios'
 import classnames from 'classnames'
 
 import Loading from '~/components/Util/Loading'
-import CreateOrEditModal from '../modal'
+import CreateOrEditModal from '../CreateOrEditModal'
 import { fetchContentItemsRecent, fetchContentItemsCount, fetchContentCategories, upsertContentItem } from '~/actions'
 import { moveCursorToEnd } from '~/util'
 

@@ -1,6 +1,9 @@
 {
   "version": "0.1",
-  "catchAll": {},
+  "catchAll": {
+    "onReceive": ["say #!trivia-question-XBKVfW"],
+    "next": []
+  },
   "startNode": "entry",
   "nodes": [
     {

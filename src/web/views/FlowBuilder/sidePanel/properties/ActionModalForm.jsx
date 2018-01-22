@@ -8,7 +8,7 @@ import { connect } from 'react-redux'
 import { fetchContentItem } from '~/actions'
 
 import ParametersTable from './ParametersTable'
-import ContentPickerWidget from '~/views/Content/Select/Widget'
+import ContentPickerWidget from '~/components/Content/Select/Widget'
 
 const style = require('./style.scss')
 

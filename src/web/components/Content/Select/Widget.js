@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 
 import { upsertContentItem } from '~/actions'
 
-import CreateOrEditModal from '../modal'
+import CreateOrEditModal from '../CreateOrEditModal'
 const style = require('./style.scss')
 
 class ContentPickerWidget extends Component {
