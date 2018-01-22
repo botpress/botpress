@@ -5,10 +5,10 @@ import axios from 'axios'
 import _ from 'lodash'
 import { connect } from 'react-redux'
 
-import { fetchContentItem, upsertContentItem } from '~/actions'
+import { fetchContentItem } from '~/actions'
 
 import ParametersTable from './ParametersTable'
-import CreateOrEditModal from '../../../Content/modal'
+import ContentPickerWidget from '~/views/Content/Select/Widget'
 
 const style = require('./style.scss')
 
@@ -22,9 +22,7 @@ class ActionModalForm extends Component {
       functionInputValue: '',
       messageValue: '',
       functionParams: {},
-      itemId: (props.item && props.item.message && this.textToItemId(props.item.message)) || null,
-      showItemEdit: false,
-      contentToEdit: null
+      itemId: (props.item && props.item.message && this.textToItemId(props.item.message)) || null
     }
     props.item && this.fetchItem(props.item.message)
   }
@@ -81,18 +79,6 @@ class ActionModalForm extends Component {
       functionInputValue: '',
       messageValue: ''
     })
-  }
-
-  handleUpdate = () => {
-    const categoryId = this.props.contentItems[this.state.itemId].categoryId
-    this.props
-      .upsertContentItem({ modifyId: this.state.itemId, categoryId, formData: this.state.contentToEdit })
-      .then(() => this.props.fetchContentItem(this.state.itemId))
-      .then(() => this.setState({ showItemEdit: false, contentToEdit: null }))
-  }
-
-  handleFormEdited = data => {
-    this.setState({ contentToEdit: data })
   }
 
   renderSectionCode() {
@@ -169,17 +155,14 @@ class ActionModalForm extends Component {
     )
   }
 
-  editItem = () => {
-    const contentItem = this.props.contentItems[this.state.itemId]
-    this.setState({ showItemEdit: true, contentToEdit: (contentItem && contentItem.formData) || {} })
-  }
-
   renderSectionMessage() {
     const handleChange = item => {
       const messageValue = `say #!${item.id}`
       this.setState({ messageValue })
       this.fetchItem(messageValue)
     }
+
+    const handleUpdate = itemId => this.props.fetchContentItem(itemId)
 
     const tooltip = (
       <Tooltip id="howMessageWorks">
@@ -194,50 +177,18 @@ class ActionModalForm extends Component {
     )
 
     const contentItem = this.props.contentItems[this.state.itemId]
-    const schema = (contentItem && contentItem.categorySchema) || { json: {}, ui: {} }
-    const textContent = (contentItem && `${contentItem.categoryTitle} | ${contentItem.previewText}`) || ''
 
     return (
       <div>
         <h5>Message {help}:</h5>
-        <div className={`${style.section} input-group`}>
-          <input
-            type="text"
-            name="message"
+        <div className={style.section}>
+          <ContentPickerWidget
+            contentItem={contentItem}
+            itemId={this.state.itemId}
+            onChange={handleChange}
+            onUpate={handleUpdate}
             placeholder="Message to send"
-            value={textContent}
-            disabled
-            className="form-control"
           />
-          <span className="input-group-btn">
-            <button
-              className={`btn btn-default ${style.editButton}`}
-              disabled={!contentItem}
-              type="button"
-              onClick={this.editItem}
-            >
-              Edit...
-            </button>
-          </span>
-
-          <CreateOrEditModal
-            show={this.state.showItemEdit}
-            schema={schema.json}
-            uiSchema={schema.ui}
-            handleClose={() => this.setState({ showItemEdit: false, contentToEdit: null })}
-            formData={this.state.contentToEdit}
-            handleEdit={this.handleFormEdited}
-            handleCreateOrUpdate={this.handleUpdate}
-          />
-          <span className="input-group-btn">
-            <button
-              className="btn btn-default"
-              type="button"
-              onClick={() => window.botpress.pickContent({}, handleChange)}
-            >
-              Pick Content...
-            </button>
-          </span>
         </div>
       </div>
     )
@@ -289,6 +240,6 @@ class ActionModalForm extends Component {
 }
 
 const mapStateToProps = state => ({ contentItems: state.content.itemsById })
-const mapDispatchToProps = { fetchContentItem, upsertContentItem }
+const mapDispatchToProps = { fetchContentItem }
 
 export default connect(mapStateToProps, mapDispatchToProps)(ActionModalForm)

@@ -60,7 +60,7 @@ class ContentView extends Component {
     this.setState({
       showModal: true,
       modifyId: null,
-      contentToEdit: {}
+      contentToEdit: null
     })
   }
 

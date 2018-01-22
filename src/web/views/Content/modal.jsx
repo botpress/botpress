@@ -5,7 +5,7 @@ import axios from 'axios'
 import _ from 'lodash'
 import classnames from 'classnames'
 
-import Form from 'react-jsonschema-form'
+import ContentForm from '~/components/ContentForm'
 
 import style from './style.scss'
 
@@ -27,7 +27,7 @@ export default class CreateOrEditModal extends React.Component {
         onHide={this.props.handleClose}
       >
         <Modal.Body className={style.modalBody}>
-          <Form
+          <ContentForm
             schema={this.props.schema}
             uiSchema={this.props.uiSchema}
             formData={this.props.formData}

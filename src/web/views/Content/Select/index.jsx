@@ -6,6 +6,7 @@ import Promise from 'bluebird'
 import axios from 'axios'
 import classnames from 'classnames'
 
+import Loading from '~/components/Util/Loading'
 import CreateOrEditModal from '../modal'
 import { fetchContentItemsRecent, fetchContentItemsCount, fetchContentCategories, upsertContentItem } from '~/actions'
 import { moveCursorToEnd } from '~/util'
@@ -247,7 +248,7 @@ class SelectContent extends Component {
 
   renderBody() {
     if (this.state.step === formSteps.INITIAL) {
-      return <div>Loading...</div>
+      return <Loading />
     } else if (this.state.step === formSteps.PICK_CATEGORY) {
       return this.renderCategoryPicker()
     }
