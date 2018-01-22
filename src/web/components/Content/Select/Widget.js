@@ -31,14 +31,21 @@ class ContentPickerWidget extends Component {
   }
 
   render() {
-    const { contentItem, onChange, placeholder } = this.props
+    const { inputId, contentItem, categoryId, onChange, placeholder } = this.props
 
     const schema = (contentItem && contentItem.categorySchema) || { json: {}, ui: {} }
     const textContent = (contentItem && `${contentItem.categoryTitle} | ${contentItem.previewText}`) || ''
 
     return (
       <div className="input-group">
-        <input type="text" placeholder={placeholder} value={textContent} disabled className="form-control" />
+        <input
+          type="text"
+          placeholder={placeholder}
+          value={textContent}
+          disabled
+          className="form-control"
+          id={inputId || ''}
+        />
         <span className="input-group-btn">
           <button
             className={`btn btn-default ${style.editButton}`}
@@ -60,7 +67,11 @@ class ContentPickerWidget extends Component {
           handleCreateOrUpdate={this.handleUpdate}
         />
         <span className="input-group-btn">
-          <button className="btn btn-default" type="button" onClick={() => window.botpress.pickContent({}, onChange)}>
+          <button
+            className="btn btn-default"
+            type="button"
+            onClick={() => window.botpress.pickContent({ categoryId }, onChange)}
+          >
             Pick Content...
           </button>
         </span>

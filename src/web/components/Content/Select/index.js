@@ -21,9 +21,10 @@ const formSteps = {
   MAIN: 2
 }
 
-const initialData = {
+const initialState = {
   show: false,
   newItemCategory: null,
+  hideCategoryInfo: false,
   searchTerm: '',
   newItemData: null,
   activeItemIndex: 0,
@@ -32,19 +33,23 @@ const initialData = {
 }
 
 class SelectContent extends Component {
-  state = initialData
+  state = initialState
 
   constructor(props) {
     super(props)
 
     window.botpress = window.botpress || {}
-    window.botpress.pickContent = (options = {}, callback) => {
+    window.botpress.pickContent = ({ categoryId = null } = {}, callback) => {
       this.setState({ step: formSteps.INITIAL }, () => {
         this.searchContentItems()
         this.props.fetchContentItemsCount()
         this.props.fetchContentCategories()
         this.callback = callback
-        this.setState({ show: true, activeItemIndex: 0 })
+        this.setState({ show: true, activeItemIndex: 0, categoryId })
+        if (categoryId) {
+          // when the category is passed explicitly lock to it and don't show the options to switch to another one.
+          this.setState({ step: formSteps.MAIN, hideCategoryInfo: true })
+        }
         setImmediate(() => moveCursorToEnd(this.searchInput))
       })
 
@@ -54,10 +59,7 @@ class SelectContent extends Component {
 
   componentWillReceiveProps(newProps) {
     const { categories } = newProps
-    if (!categories) {
-      return
-    }
-    if (this.state.step !== formSteps.INITIAL) {
+    if (!categories || this.state.step !== formSteps.INITIAL || this.state.categoryId) {
       return
     }
     this.setState({
@@ -110,7 +112,7 @@ class SelectContent extends Component {
   }
 
   handlePick(item) {
-    this.callback(item)
+    this.callback && this.callback(item)
     this.onClose()
   }
 
@@ -127,7 +129,7 @@ class SelectContent extends Component {
   }
 
   onClose = () => {
-    this.setState(initialData)
+    this.setState(initialState)
     this.callback = null
     window.removeEventListener('keyup', this.handleChangeActiveItem)
   }
@@ -176,8 +178,8 @@ class SelectContent extends Component {
   }
 
   renderCurrentCategoryInfo() {
-    const { categories } = this.props
-    if (!categories || categories.length < 2) {
+    const { categories, hideCategoryInfo } = this.props
+    if (hideCategoryInfo || !categories || categories.length < 2) {
       return null
     }
 
