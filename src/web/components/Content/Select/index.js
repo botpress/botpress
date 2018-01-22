@@ -45,7 +45,7 @@ class SelectContent extends Component {
         { categoryId, hideCategoryInfo: !!categoryId, step: categoryId ? formSteps.MAIN : formSteps.INITIAL },
         () => {
           this.searchContentItems()
-          this.props.fetchContentItemsCount()
+          this.fetchContentItemsCount()
           this.props.fetchContentCategories()
           this.callback = callback
           this.setState({ show: true, activeItemIndex: 0 })
@@ -79,6 +79,10 @@ class SelectContent extends Component {
     })
   }
 
+  fetchContentItemsCount() {
+    return this.props.fetchContentItemsCount(this.state.categoryId)
+  }
+
   handleChangeActiveItem = e => {
     const index = this.state.activeItemIndex
     if (e.key === 'ArrowUp') {
@@ -108,7 +112,7 @@ class SelectContent extends Component {
         formData: this.state.newItemData
       })
       .then(this.resetCreateContent(true))
-      .then(() => Promise.all([this.searchContentItems(), this.props.fetchContentItemsCount()]))
+      .then(() => Promise.all([this.searchContentItems(), this.fetchContentItemsCount()]))
   }
 
   handlePick(item) {
@@ -146,7 +150,9 @@ class SelectContent extends Component {
 
   setCurrentCategory(categoryId) {
     this.setState({ categoryId }, () => {
-      this.searchContentItems().then(() => this.setState({ step: formSteps.MAIN }))
+      Promise.all([this.searchContentItems(), this.fetchContentItemsCount()]).then(() =>
+        this.setState({ step: formSteps.MAIN })
+      )
     })
   }
 
@@ -197,6 +203,13 @@ class SelectContent extends Component {
     )
   }
 
+  getSearchDescription() {
+    const { categories } = this.props
+    const { categoryId } = this.state
+    const title = categoryId ? categories.find(({ id }) => id === categoryId).title : 'all content elements'
+    return `Search ${title} (${this.props.itemsCount})`
+  }
+
   renderMainBody() {
     const categories = this.getVisibleCategories()
 
@@ -218,7 +231,7 @@ class SelectContent extends Component {
         <input
           type="text"
           className="form-control"
-          placeholder={`Search all content elements (${this.props.itemsCount})`}
+          placeholder={this.getSearchDescription()}
           aria-label="Search content elements"
           onChange={this.onSearchChange}
           ref={input => (this.searchInput = input)}

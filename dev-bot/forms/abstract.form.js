@@ -9,5 +9,7 @@ module.exports = {
     title: 'Bag of Strings',
     description: 'Some random strings',
     type: 'string'
-  }
+  },
+
+  computePreviewText: formData => formData
 }

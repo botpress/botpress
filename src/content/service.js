@@ -193,10 +193,12 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
     return dumpDataToFile(categoryId)
   }
 
-  const categoryItemsCount = () => {
-    return knex('content_items')
-      .count('id as count')
-      .then(([res]) => Number(res.count))
+  const categoryItemsCount = categoryId => {
+    let q = knex('content_items')
+    if (categoryId && categoryId !== 'all') {
+      q = q.where({ categoryId })
+    }
+    return q.count('id as count').then(([res]) => Number(res.count))
   }
 
   const deleteCategoryItems = async ids => {

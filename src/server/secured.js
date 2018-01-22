@@ -154,7 +154,11 @@ module.exports = (bp, app) => {
   })
 
   app.secure('read', 'bot/content').get('/content/items/count', async (req, res) => {
-    res.send({ count: await bp.contentManager.categoryItemsCount() })
+    let { categoryId } = req.query
+    if (categoryId === 'all') {
+      categoryId = null
+    }
+    res.send({ count: await bp.contentManager.categoryItemsCount(categoryId) })
   })
 
   app.secure('read', 'bot/content').get('/content/items/:id', async (req, res) => {
