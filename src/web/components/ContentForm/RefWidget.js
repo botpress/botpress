@@ -6,14 +6,12 @@ import { fetchContentItem } from '~/actions'
 import ContentPickerWidget from '~/components/Content/Select/Widget'
 
 class RefWidget extends Component {
-  state = {}
-
   handleChange = item => {
     this.props.onChange(item.id)
   }
 
   componentWillReceiveProps(newProps) {
-    if (newProps.value) {
+    if (newProps.value && newProps.value !== this.props.value) {
       this.props.fetchContentItem(newProps.value)
     }
   }
