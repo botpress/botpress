@@ -226,7 +226,7 @@ class SelectContent extends Component {
           {categories.map(category => (
             <a
               href="#"
-              onClick={() => this.setState({ newItemCategory: category, newItemData: {} })}
+              onClick={() => this.setState({ newItemCategory: category, newItemData: null })}
               className={`list-group-item list-group-item-action ${style.createItem}`}
             >
               Create new {category.title}
@@ -256,7 +256,8 @@ class SelectContent extends Component {
   }
 
   render() {
-    const schema = (this.state.newItemCategory || {}).schema || { json: {}, ui: {} }
+    const { newItemCategory } = this.state
+    const schema = (newItemCategory || {}).schema || { json: {}, ui: {} }
 
     return (
       <Modal animation={false} show={this.state.show} onHide={this.onClose} container={document.getElementById('app')}>
@@ -266,7 +267,7 @@ class SelectContent extends Component {
         <Modal.Body>{this.renderBody()}</Modal.Body>
 
         <CreateOrEditModal
-          show={this.state.newItemData}
+          show={!!newItemCategory}
           schema={schema.json}
           uiSchema={schema.ui}
           handleClose={this.resetCreateContent(false)}
