@@ -38,5 +38,15 @@
     },
     "createdBy": "admin",
     "createdOn": "2018-01-21T20:41:48.821Z"
+  },
+  {
+    "id": "trivia-question-8CXNiN",
+    "formData": {
+      "question": "a+b",
+      "good": "ab",
+      "bad": ["abcd"]
+    },
+    "createdBy": "admin",
+    "createdOn": "2018-01-22T20:35:56.706Z"
   }
 ]

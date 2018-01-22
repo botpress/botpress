@@ -40,18 +40,18 @@ class SelectContent extends Component {
 
     window.botpress = window.botpress || {}
     window.botpress.pickContent = ({ categoryId = null } = {}, callback) => {
-      this.setState({ step: formSteps.INITIAL }, () => {
-        this.searchContentItems()
-        this.props.fetchContentItemsCount()
-        this.props.fetchContentCategories()
-        this.callback = callback
-        this.setState({ show: true, activeItemIndex: 0, categoryId })
-        if (categoryId) {
-          // when the category is passed explicitly lock to it and don't show the options to switch to another one.
-          this.setState({ step: formSteps.MAIN, hideCategoryInfo: true })
+      // when the category is passed explicitly lock to it and don't show the options to switch to another one.
+      this.setState(
+        { categoryId, hideCategoryInfo: !!categoryId, step: categoryId ? formSteps.MAIN : formSteps.INITIAL },
+        () => {
+          this.searchContentItems()
+          this.props.fetchContentItemsCount()
+          this.props.fetchContentCategories()
+          this.callback = callback
+          this.setState({ show: true, activeItemIndex: 0 })
+          setImmediate(() => moveCursorToEnd(this.searchInput))
         }
-        setImmediate(() => moveCursorToEnd(this.searchInput))
-      })
+      )
 
       window.addEventListener('keyup', this.handleChangeActiveItem)
     }
@@ -178,7 +178,8 @@ class SelectContent extends Component {
   }
 
   renderCurrentCategoryInfo() {
-    const { categories, hideCategoryInfo } = this.props
+    const { categories } = this.props
+    const { hideCategoryInfo } = this.state
     if (hideCategoryInfo || !categories || categories.length < 2) {
       return null
     }

@@ -135,7 +135,7 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
     })
 
   const fillComputedProps = async (category, formData) => {
-    if (_.isNil(formData) || !_.isObject(formData)) {
+    if (!formData) {
       throw new Error('"formData" must be a valid object')
     }
 
@@ -151,7 +151,7 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
       throw new Error('computePreviewText must return a string')
     }
 
-    if (_.isNil(data) || !_.isObject(data)) {
+    if (!data) {
       throw new Error('computeFormData must return a valid object')
     }
 

@@ -19,8 +19,8 @@ class RefWidget extends Component {
   }
 
   render() {
-    const { $category: categoryId, $subtype, type } = this.props.schema
-    if (type !== 'string' || $subtype !== 'ref') {
+    const { $category: categoryId, $subtype: subtype, type } = this.props.schema
+    if (type !== 'string' || subtype !== 'ref') {
       return null
     }
 
