@@ -13,8 +13,8 @@ class RefWidget extends Component {
   }
 
   componentWillReceiveProps(newProps) {
-    if (newProps.itemId) {
-      this.props.fetchContentItem(newProps.itemId)
+    if (newProps.value) {
+      this.props.fetchContentItem(newProps.value)
     }
   }
 
@@ -25,7 +25,7 @@ class RefWidget extends Component {
     }
 
     const itemId = this.props.value
-    const contentItem = itemId && this.state.contentItems ? this.state.contentItems[itemId] : null
+    const contentItem = itemId && this.props.contentItems ? this.props.contentItems[itemId] : null
     if (itemId && !contentItem) {
       // item is not fetched yet, will rerender when it's done
       return null
