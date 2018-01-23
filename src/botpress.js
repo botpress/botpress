@@ -349,7 +349,7 @@ class botpress {
     if (cluster.isWorker) {
       process.send({ workerStatus: 'starting' })
       this._start().catch(err => {
-        print('error', 'Error starting botpress: ', err.message)
+        print('error', 'Error starting botpress: ', err.message, err.stack)
       })
     }
   }

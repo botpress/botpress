@@ -1,4 +1,5 @@
 const _ = require('lodash')
+const Promise = require('bluebird')
 
 module.exports = {
   id: 'trivia-collection',
@@ -16,13 +17,12 @@ module.exports = {
     }
   },
 
-  computeFormData: formData => {
-    console.log(formData)
-    return formData.map(datum => datum.computeFormData())
+  computeFormData: (formData, computeFormData) => {
+    return Promise.map(formData, computeFormData.bind(null, 'trivia'))
   },
-  computePreviewText: formData => {
-    console.log(formData)
-    return `Trivia Collection [${formData.map(datum => datum.computePreviewText()).join(', ')}]`
+  computePreviewText: async (formData, computePreviewText) => {
+    const triviaPreviews = await Promise.map(formData, computePreviewText.bind(null, 'trivia'))
+    return `Trivia Collection [${triviaPreviews.join(', ')}]`
   },
   computeMetadata: null
 }

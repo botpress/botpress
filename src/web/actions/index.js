@@ -83,8 +83,8 @@ export const receiveContentItemsCount = createAction('CONTENT/ITEMS/RECEIVE_COUN
 export const fetchContentItemsCount = (categoryId = 'all') => dispatch =>
   axios.get(`/content/items/count`, { params: { categoryId } }).then(data => dispatch(receiveContentItemsCount(data)))
 
-export const upsertContentItem = ({ categoryId, formData, modifyId }) => () =>
-  axios.post(`/content/categories/${categoryId}/items/${modifyId || ''}`, { formData })
+export const upsertContentItem = ({ categoryId, formData, modifyId = '' }) => () =>
+  axios.post(`/content/categories/${categoryId}/items/${modifyId}`, { formData })
 
 export const deleteContentItems = data => () => axios.post('/content/categories/all/bulk_delete', data)
 

@@ -7,7 +7,7 @@ const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
 const ExtensionsPlugin = require('./extensions/extensions-plugin')
 
 const nodeConfig = {
-  devtool: process.env.NODE_ENV === 'production' ? 'source-map' : 'eval-source-map',
+  devtool: 'source-map',
   entry: [path.resolve(__dirname, './index.js')],
   output: {
     path: path.resolve(__dirname, './lib'),

@@ -5,14 +5,27 @@ import { fetchContentItem } from '~/actions'
 
 import ContentPickerWidget from '~/components/Content/Select/Widget'
 
+const decorateRef = id => `##ref(${id})`
+
+const undecorateRef = decoratedId => {
+  if (decoratedId == null) {
+    return decoratedId
+  }
+  const m = decoratedId && decoratedId.match(/^##ref\((.*)\)$/)
+  if (!m) {
+    throw new Error(`Expected decorated ref "##ref(ID)", got ${decoratedId}`)
+  }
+  return m[1]
+}
+
 class RefWidget extends Component {
   handleChange = item => {
-    this.props.onChange(item.id)
+    this.props.onChange(decorateRef(item.id))
   }
 
   componentWillReceiveProps(newProps) {
     if (newProps.value && newProps.value !== this.props.value) {
-      this.props.fetchContentItem(newProps.value)
+      this.props.fetchContentItem(undecorateRef(newProps.value))
     }
   }
 
@@ -22,7 +35,7 @@ class RefWidget extends Component {
       return null
     }
 
-    const itemId = this.props.value
+    const itemId = undecorateRef(this.props.value)
     const contentItem = itemId && this.props.contentItems ? this.props.contentItems[itemId] : null
     if (itemId && !contentItem) {
       // item is not fetched yet, will rerender when it's done
