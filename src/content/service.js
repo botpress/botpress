@@ -224,7 +224,7 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
     categoryId = categoryId && categoryId.toLowerCase()
     const category = _.find(categories, { id: categoryId })
 
-    if (_.isNil(category)) {
+    if (category == null) {
       throw new Error(`Category "${categoryId}" is not a valid registered categoryId`)
     }
 

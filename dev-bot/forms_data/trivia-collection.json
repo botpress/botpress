@@ -1,1 +1,8 @@
-[]
+[
+  {
+    "id": "trivia-collection-G2WkeH",
+    "formData": ["##ref(trivia-question-9l9hH~)", "##ref(trivia-question-aFCAIs)"],
+    "createdBy": "admin",
+    "createdOn": "2018-01-23T21:28:41.676Z"
+  }
+]
