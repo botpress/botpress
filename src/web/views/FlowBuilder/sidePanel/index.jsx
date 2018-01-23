@@ -69,6 +69,10 @@ export default class SidePanel extends Component {
   renderNodeProperties() {
     const subflows = _.filter(_.map(this.props.flows, f => f.name), f => f !== _.get(this.props, 'currentFlow.name'))
     const flowType = _.get(this.props, 'currentFlowNode.type') || (this.props.currentFlowNode ? 'standard' : null)
+    const updateNodeAndRefresh = (...args) => {
+      this.props.updateFlowNode(...args)
+      this.props.refreshFlowsLinks()
+    }
 
     if (flowType === 'skill-call') {
       return (
@@ -76,7 +80,7 @@ export default class SidePanel extends Component {
           flow={this.props.currentFlow}
           subflows={subflows}
           node={this.props.currentFlowNode}
-          updateNode={this.props.updateFlowNode}
+          updateNode={updateNodeAndRefresh}
           updateFlow={this.props.updateFlow}
           requestEditSkill={this.props.requestEditSkill}
           switchFlow={this.props.switchFlow}
@@ -90,7 +94,7 @@ export default class SidePanel extends Component {
           flow={this.props.currentFlow}
           subflows={subflows}
           node={this.props.currentFlowNode}
-          updateNode={this.props.updateFlowNode}
+          updateNode={updateNodeAndRefresh}
           updateFlow={this.props.updateFlow}
         />
       )
