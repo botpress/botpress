@@ -49,7 +49,7 @@ export default class ConditionItem extends Component {
       const mustached = restoreDots(Mustache.render(htmlTpl, vars))
       raw = mustached
     } else {
-      if ((condition && condition.length <= 0) || /^yes|true$/i.test(condition.toLowerCase())) {
+      if ((condition && condition.length <= 0) || /^(yes|true)$/i.test(condition.toLowerCase())) {
         raw = position === 0 ? 'always' : 'otherwise'
       } else {
         raw = condition
