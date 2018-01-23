@@ -4,6 +4,7 @@ import values from 'lodash/values'
 import { getCurrentFlow, getCurrentFlowNode, getDirtyFlows } from '~/reducers'
 import {
   updateFlowNode,
+  refreshFlowsLinks,
   updateFlow,
   removeFlowNode,
   switchFlow,
@@ -21,7 +22,15 @@ const mapStateToProps = (state, ownProps) => ({
   dirtyFlows: getDirtyFlows(state)
 })
 
-const mapDispatchToProps = { updateFlowNode, updateFlow, switchFlow, deleteFlow, duplicateFlow, requestEditSkill }
+const mapDispatchToProps = {
+  updateFlowNode,
+  refreshFlowsLinks,
+  updateFlow,
+  switchFlow,
+  deleteFlow,
+  duplicateFlow,
+  requestEditSkill
+}
 
 const ConnectedSidePanel = connect(mapStateToProps, mapDispatchToProps)(SidePanel)
 export default ConnectedSidePanel

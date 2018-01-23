@@ -1,6 +1,7 @@
 import { createAction } from 'redux-actions'
 import axios from 'axios'
 import _ from 'lodash'
+import { getCurrentFlow } from '~/reducers'
 
 // Flows
 export const requestFlows = createAction('FLOWS/REQUEST')
@@ -42,6 +43,8 @@ export const createFlow = createAction('FLOWS/CREATE')
 export const switchFlow = createAction('FLOWS/SWITCH')
 export const deleteFlow = createAction('FLOWS/DELETE')
 export const duplicateFlow = createAction('FLOWS/DUPLICATE')
+export const refreshFlowsLinks = () => (dispatch, getState) =>
+  setTimeout(() => dispatch(updateFlow({ links: getCurrentFlow(getState()).links })), 50)
 
 export const linkFlowNodes = createAction('FLOWS/FLOW/LINK')
 export const updateFlowNode = createAction('FLOWS/FLOW/UPDATE_NODE')
