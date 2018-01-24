@@ -1,0 +1,17 @@
+{
+  "version": "0.1",
+  "catchAll": {
+    "onReceive": ["say #!trivia-question-XBKVfW"],
+    "next": []
+  },
+  "startNode": "entry",
+  "nodes": [
+    {
+      "id": "EFo7x8qgk8H1DOlvaqB4q",
+      "name": "entry",
+      "onEnter": [],
+      "onReceive": null,
+      "next": []
+    }
+  ]
+}

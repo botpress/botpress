@@ -104,7 +104,7 @@ module.exports = ({ logger, middlewares, botfile, projectLocation, db, contentMa
 
       const { categoryId: itemCategoryId } = contentItem
 
-      const itemCategory = await contentManager.getCategorySchema(itemCategoryId)
+      const itemCategory = contentManager.getCategorySchema(itemCategoryId)
 
       if (!itemCategory) {
         throw new Error(

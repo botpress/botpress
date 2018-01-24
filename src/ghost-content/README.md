@@ -48,7 +48,7 @@ Below is the full Ghost Manager API, please keep it up to date.
 
 > Also note, depending on the configuration the Ghost Manager can act in _real_ or mocked, _transparent_ mode. The downstream code should never care about the specifics and should treat the Ghost Manager as the black box conforming to the above explanation and the API listed below.
 
-### addRootFolder(rootFolder: string, filesGlob: string) => Promise<void>
+### addRootFolder(rootFolder: string, filesGlob: string) => Promise&lt;void&gt;
 
 You need to call this method **once** for each use-case (like it's called once in the Content Manager).
 
@@ -66,7 +66,7 @@ await ghostManager.addRootFolder(formDataDir, '**/*.json')
 
 This method call reconciles the ghost content DB table in accordance with the `$rootFolder/.ghost-revisions` file, and if the folder is in the _clean state_ (no revisions in the DB that are not listed in the `.ghost-revisions` files) it updates the DB with the fresh files content from the file system.
 
-### upsertFile(rootFolder: string, file: string, content: string) => Promise<void>
+### upsertFile(rootFolder: string, file: string, content: string) => Promise&lt;void&gt;
 
 Use this method whenever you want to store the content for the given file.
 
@@ -88,7 +88,7 @@ await ghostManager.upsertFile(formDataDir, 'trivia_questions.json', JSON.stringi
 
 > Note that the `file` param is not normalized, it's your responsibility to refer to the same file consistently across all calls to `upsertFile` and `readFile`.
 
-### readFile(rootFolder: string, file: string) => Promise<string>
+### readFile(rootFolder: string, file: string) => Promise&lt;string&gt;
 
 `rootFolder` and `file` have the same meaning as above.
 
@@ -104,7 +104,7 @@ Marks file as deleted and updates it's content to `null`. File gets actually del
 
 The promise will be rejected if the file's content cannot be found (which in the clean state is effectively equivalent to the fact the file `file` does not exist in `folder`)
 
-### directoryListing(rootFolder: string, fileEndingPattern: string) => Promise<array>
+### directoryListing(rootFolder: string, fileEndingPattern: string) => Promise&lt;array&gt;
 
 `rootFolder` has the same meaning as above while `fileEndingPattern` is an ending we expect files to have.
 
@@ -128,7 +128,7 @@ The returned object has the following structure:
 }
 ```
 
-### getPendingWithContent => Promise<object>
+### getPendingWithContent => Promise&lt;object&gt;
 
 Returns the data similar to the previous method, but with files contents. The format is different though:
 

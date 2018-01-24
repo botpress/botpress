@@ -63,12 +63,18 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
       return item
     }
 
-    return {
-      ...item,
-      data: JSON.stringify(item.data),
-      formData: JSON.stringify(item.formData),
-      metadata: '|' + (item.metadata || []).filter(i => !!i).join('|') + '|'
+    const result = { ...item }
+    if ('formData' in item) {
+      result.formData = JSON.stringify(item.formData)
     }
+    if ('data' in item) {
+      result.data = JSON.stringify(item.data)
+    }
+    if ('metadata' in item) {
+      result.metadata = '|' + (item.metadata || []).filter(i => !!i).join('|') + '|'
+    }
+
+    return result
   }
 
   const listCategoryItems = async (categoryId, { from = 0, count = 50, searchTerm, orderBy = ['createdOn'] } = {}) => {
@@ -104,7 +110,7 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
 
   const getCategorySchema = categoryId => {
     const category = _.find(categories, { id: categoryId })
-    if (_.isNil(category)) {
+    if (category == null) {
       return null
     }
 
@@ -130,18 +136,73 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
         title: category.title,
         description: category.description,
         count,
-        schema: await getCategorySchema(category.id)
+        schema: getCategorySchema(category.id)
       }
     })
 
+  const resolveRefs = async data => {
+    if (!data) {
+      return data
+    }
+    if (Array.isArray(data)) {
+      return Promise.map(data, resolveRefs)
+    }
+    if (_.isObject(data)) {
+      return Promise.props(_.mapValues(data, resolveRefs))
+    }
+    if (_.isString(data)) {
+      const m = data.match(/^##ref\((.*)\)$/)
+      if (!m) {
+        return data
+      }
+      return knex('content_items')
+        .select('formData')
+        .where('id', m[1])
+        .then(result => {
+          if (!result || !result.length) {
+            throw new Error(`Error resolving reference: ID ${m[1]} not found.`)
+          }
+          return JSON.parse(result[0].formData)
+        })
+        .then(resolveRefs)
+    }
+    return data
+  }
+
+  const computeFormData = async (categoryId, formData) => {
+    const category = categoryById[categoryId]
+    if (!category) {
+      throw new Error(`Unknown category ${categoryId}`)
+    }
+    return !category.computeFormData ? formData : category.computeFormData(formData, computeFormData)
+  }
+
+  const computeMetadata = async (categoryId, formData) => {
+    const category = categoryById[categoryId]
+    if (!category) {
+      throw new Error(`Unknown category ${categoryId}`)
+    }
+    return !category.computeMetadata ? [] : category.computeMetadata(formData, computeMetadata)
+  }
+
+  const computePreviewText = async (categoryId, formData) => {
+    const category = categoryById[categoryId]
+    if (!category) {
+      throw new Error(`Unknown category ${categoryId}`)
+    }
+    return !category.computePreviewText ? 'No preview' : category.computePreviewText(formData, computePreviewText)
+  }
+
   const fillComputedProps = async (category, formData) => {
-    if (_.isNil(formData) || !_.isObject(formData)) {
+    if (formData == null) {
       throw new Error('"formData" must be a valid object')
     }
 
-    const data = (category.computeFormData && (await category.computeFormData(formData))) || formData
-    const metadata = (category.computeMetadata && (await category.computeMetadata(formData))) || []
-    const previewText = (category.computePreviewText && (await category.computePreviewText(formData))) || 'No preview'
+    const expandedFormData = await resolveRefs(formData)
+
+    const data = await computeFormData(category.id, expandedFormData)
+    const metadata = await computeMetadata(category.id, expandedFormData)
+    const previewText = await computePreviewText(category.id, expandedFormData)
 
     if (!_.isArray(metadata)) {
       throw new Error('computeMetadata must return an array of strings')
@@ -151,12 +212,11 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
       throw new Error('computePreviewText must return a string')
     }
 
-    if (_.isNil(data) || !_.isObject(data)) {
+    if (data == null) {
       throw new Error('computeFormData must return a valid object')
     }
 
     return {
-      formData,
       data,
       metadata,
       previewText
@@ -167,11 +227,11 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
     categoryId = categoryId && categoryId.toLowerCase()
     const category = _.find(categories, { id: categoryId })
 
-    if (_.isNil(category)) {
+    if (category == null) {
       throw new Error(`Category "${categoryId}" is not a valid registered categoryId`)
     }
 
-    const item = await fillComputedProps(category, formData)
+    const item = { formData, ...(await fillComputedProps(category, formData)) }
     const body = transformItemApiToDb(item)
 
     if (itemId) {
@@ -193,10 +253,12 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
     return dumpDataToFile(categoryId)
   }
 
-  const categoryItemsCount = () => {
-    return knex('content_items')
-      .count('id as count')
-      .then(([res]) => Number(res.count))
+  const categoryItemsCount = categoryId => {
+    let q = knex('content_items')
+    if (categoryId && categoryId !== 'all') {
+      q = q.where({ categoryId })
+    }
+    return q.count('id as count').then(([res]) => Number(res.count))
   }
 
   const deleteCategoryItems = async ids => {
@@ -225,7 +287,7 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
     return {
       ...transformItemDbToApi(item),
       categoryTitle: category.title,
-      categorySchema: await getCategorySchema(item.categoryId)
+      categorySchema: getCategorySchema(item.categoryId)
     }
   }
 
@@ -294,7 +356,6 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
 
     data = await Promise.map(data, async item => ({
       ...item,
-      ...(await fillComputedProps(category, item.formData)),
       categoryId: category.id,
       id: item.id || getNewItemId(category)
     }))
@@ -317,7 +378,8 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
 
     const files = await Promise.fromCallback(callback => glob('**/*.form.js', { cwd: formDir }, callback))
 
-    return Promise.map(files, async file => {
+    // initial path, save raw props and IDs
+    await Promise.map(files, async file => {
       try {
         const category = loadCategory(file)
         await loadData(category, file.replace(/\.form\.js$/, '.json'))
@@ -325,6 +387,20 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
         logger.warn('[Content Manager] Could not load Form: ' + file, err)
       }
     })
+
+    // second path, resolve refs
+    await Promise.map(categories, ({ id: categoryId }) =>
+      knex('content_items')
+        .select('id', 'formData')
+        .where('categoryId', categoryId)
+        .then()
+        .each(async ({ id, formData }) => {
+          const computedProps = await fillComputedProps(categoryById[categoryId], JSON.parse(formData))
+          return knex('content_items')
+            .where('id', id)
+            .update(transformItemApiToDb(computedProps))
+        })
+    )
   }
 
   return {

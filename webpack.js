@@ -7,7 +7,7 @@ const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
 const ExtensionsPlugin = require('./extensions/extensions-plugin')
 
 const nodeConfig = {
-  devtool: process.env.NODE_ENV === 'production' ? 'source-map' : 'eval-cheap-module-source-map',
+  devtool: 'source-map',
   entry: [path.resolve(__dirname, './index.js')],
   output: {
     path: path.resolve(__dirname, './lib'),
@@ -55,7 +55,7 @@ const nodeConfig = {
 
 const webConfig = {
   bail: true,
-  devtool: process.env.NODE_ENV === 'production' ? 'source-map' : 'eval-cheap-module-source-map',
+  devtool: process.env.NODE_ENV === 'production' ? 'source-map' : 'eval-source-map',
   entry: {
     // vendor: [ // This doesn't work with lite.bundle.js
     //   'axios',

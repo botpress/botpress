@@ -6,7 +6,8 @@ import Promise from 'bluebird'
 import axios from 'axios'
 import classnames from 'classnames'
 
-import CreateOrEditModal from '../modal'
+import Loading from '~/components/Util/Loading'
+import CreateOrEditModal from '../CreateOrEditModal'
 import { fetchContentItemsRecent, fetchContentItemsCount, fetchContentCategories, upsertContentItem } from '~/actions'
 import { moveCursorToEnd } from '~/util'
 
@@ -20,52 +21,46 @@ const formSteps = {
   MAIN: 2
 }
 
-const initialData = {
-  show: false,
-  newItemCategory: null,
-  searchTerm: '',
-  newItemData: null,
-  activeItemIndex: 0,
-  categoryId: null,
-  step: formSteps.INITIAL
-}
-
 class SelectContent extends Component {
-  state = initialData
-
   constructor(props) {
     super(props)
 
-    window.botpress = window.botpress || {}
-    window.botpress.pickContent = (options = {}, callback) => {
-      this.setState({ step: formSteps.INITIAL }, () => {
-        this.searchContentItems()
-        this.props.fetchContentItemsCount()
-        this.props.fetchContentCategories()
-        this.callback = callback
-        this.setState({ show: true, activeItemIndex: 0 })
-        setImmediate(() => moveCursorToEnd(this.searchInput))
-      })
+    const { categoryId = null } = props
 
-      window.addEventListener('keyup', this.handleChangeActiveItem)
+    this.state = {
+      show: true,
+      categoryId,
+      hideCategoryInfo: !!categoryId,
+      activeItemIndex: 0,
+      step: categoryId ? formSteps.MAIN : formSteps.INITIAL,
+      newItemCategory: null,
+      searchTerm: '',
+      newItemData: null
     }
+  }
+
+  componentDidMount() {
+    this.searchContentItems()
+    this.fetchContentItemsCount()
+    this.props.fetchContentCategories()
+    moveCursorToEnd(this.searchInput)
+
+    window.addEventListener('keyup', this.handleChangeActiveItem)
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('keyup', this.handleChangeActiveItem)
   }
 
   componentWillReceiveProps(newProps) {
     const { categories } = newProps
-    if (!categories) {
+    if (!categories || this.state.step !== formSteps.INITIAL || this.state.categoryId) {
       return
     }
-    if (this.state.step !== formSteps.INITIAL) {
-      return
-    }
+
     this.setState({
       step: categories.length > 1 ? formSteps.PICK_CATEGORY : formSteps.MAIN
     })
-  }
-
-  componentWillUnmount() {
-    delete window.botpress.pickContent
   }
 
   searchContentItems() {
@@ -74,6 +69,10 @@ class SelectContent extends Component {
       searchTerm: this.state.searchTerm,
       categoryId: this.state.categoryId || 'all'
     })
+  }
+
+  fetchContentItemsCount() {
+    return this.props.fetchContentItemsCount(this.state.categoryId)
   }
 
   handleChangeActiveItem = e => {
@@ -105,12 +104,12 @@ class SelectContent extends Component {
         formData: this.state.newItemData
       })
       .then(this.resetCreateContent(true))
-      .then(() => Promise.all([this.searchContentItems(), this.props.fetchContentItemsCount()]))
+      .then(() => Promise.all([this.searchContentItems(), this.fetchContentItemsCount()]))
   }
 
   handlePick(item) {
-    this.callback(item)
-    this.onClose()
+    this.props.onSelect && this.props.onSelect(item)
+    this.setState({ show: false })
   }
 
   handleFormEdited = data => {
@@ -126,9 +125,8 @@ class SelectContent extends Component {
   }
 
   onClose = () => {
-    this.setState(initialData)
-    this.callback = null
-    window.removeEventListener('keyup', this.handleChangeActiveItem)
+    this.setState({ show: false })
+    this.props.onClose && this.props.onClose()
   }
 
   getVisibleCategories() {
@@ -143,7 +141,9 @@ class SelectContent extends Component {
 
   setCurrentCategory(categoryId) {
     this.setState({ categoryId }, () => {
-      this.searchContentItems().then(() => this.setState({ step: formSteps.MAIN }))
+      Promise.all([this.searchContentItems(), this.fetchContentItemsCount()]).then(() =>
+        this.setState({ step: formSteps.MAIN })
+      )
     })
   }
 
@@ -176,7 +176,8 @@ class SelectContent extends Component {
 
   renderCurrentCategoryInfo() {
     const { categories } = this.props
-    if (!categories || categories.length < 2) {
+    const { hideCategoryInfo } = this.state
+    if (hideCategoryInfo || !categories || categories.length < 2) {
       return null
     }
 
@@ -191,6 +192,13 @@ class SelectContent extends Component {
         </button>
       </p>
     )
+  }
+
+  getSearchDescription() {
+    const { categories } = this.props
+    const { categoryId } = this.state
+    const title = categoryId ? categories.find(({ id }) => id === categoryId).title : 'all content elements'
+    return `Search ${title} (${this.props.itemsCount})`
   }
 
   renderMainBody() {
@@ -214,7 +222,7 @@ class SelectContent extends Component {
         <input
           type="text"
           className="form-control"
-          placeholder={`Search all content elements (${this.props.itemsCount})`}
+          placeholder={this.getSearchDescription()}
           aria-label="Search content elements"
           onChange={this.onSearchChange}
           ref={input => (this.searchInput = input)}
@@ -225,7 +233,7 @@ class SelectContent extends Component {
           {categories.map(category => (
             <a
               href="#"
-              onClick={() => this.setState({ newItemCategory: category, newItemData: {} })}
+              onClick={() => this.setState({ newItemCategory: category, newItemData: null })}
               className={`list-group-item list-group-item-action ${style.createItem}`}
             >
               Create new {category.title}
@@ -247,7 +255,7 @@ class SelectContent extends Component {
 
   renderBody() {
     if (this.state.step === formSteps.INITIAL) {
-      return <div>Loading...</div>
+      return <Loading />
     } else if (this.state.step === formSteps.PICK_CATEGORY) {
       return this.renderCategoryPicker()
     }
@@ -255,17 +263,18 @@ class SelectContent extends Component {
   }
 
   render() {
-    const schema = (this.state.newItemCategory || {}).schema || { json: {}, ui: {} }
+    const { newItemCategory, show } = this.state
+    const schema = (newItemCategory || {}).schema || { json: {}, ui: {} }
 
     return (
-      <Modal animation={false} show={this.state.show} onHide={this.onClose} container={document.getElementById('app')}>
+      <Modal animation={false} show={show} onHide={this.onClose} container={document.getElementById('app')}>
         <Modal.Header closeButton>
           <Modal.Title>Pick Content</Modal.Title>
         </Modal.Header>
         <Modal.Body>{this.renderBody()}</Modal.Body>
 
         <CreateOrEditModal
-          show={this.state.newItemData}
+          show={!!newItemCategory}
           schema={schema.json}
           uiSchema={schema.ui}
           handleClose={this.resetCreateContent(false)}
