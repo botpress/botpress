@@ -1,6 +1,9 @@
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
 import classnames from 'classnames'
 import _ from 'lodash'
+
+import { switchFlow } from '~/actions'
 
 const { PortWidget, PortModel } = require('storm-react-diagrams')
 
@@ -20,13 +23,19 @@ export class StandardOutgoingPortModel extends PortModel {
   }
 }
 
-export class StandardPortWidget extends React.Component {
+export class StandardPortWidgetDisconnected extends React.Component {
   renderSubflowNode() {
     const node = this.props.node
     const index = Number(this.props.name.replace('out', ''))
-    const subflow = node.next[index].node.replace(/\.flow\.json/, '')
+    const subflow = node.next[index].node
 
-    return <div className={style.label}>{subflow}</div>
+    return (
+      <div className={style.label}>
+        <a href="#" onClick={() => this.props.switchFlow(subflow)}>
+          {subflow.replace(/\.flow\.json/, '')}
+        </a>
+      </div>
+    )
   }
 
   renderEndNode() {
@@ -92,6 +101,7 @@ export class StandardPortWidget extends React.Component {
     )
   }
 }
+export const StandardPortWidget = connect(null, { switchFlow })(StandardPortWidgetDisconnected)
 
 export class StandardIncomingPortModel extends PortModel {
   constructor(name) {
