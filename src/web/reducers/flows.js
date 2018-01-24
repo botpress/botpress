@@ -212,12 +212,16 @@ let reducer = handleActions(
       fetchingFlows: true
     }),
 
-    [receiveFlows]: (state, { payload }) => ({
-      ...state,
-      fetchingFlows: false,
-      flowsByName: payload,
-      currentFlow: state.currentFlow || _.first(_.keys(payload))
-    }),
+    [receiveFlows]: (state, { payload }) => {
+      const flows = _.keys(payload).filter(key => !payload[key].skillData)
+      const defaultFlow = _.keys(payload).includes('main.flow.json') ? 'main.flow.json' : _.first(flows)
+      return {
+        ...state,
+        fetchingFlows: false,
+        flowsByName: payload,
+        currentFlow: state.currentFlow || defaultFlow
+      }
+    },
 
     [requestSaveFlows]: state => ({
       ...state,
