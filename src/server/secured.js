@@ -20,6 +20,7 @@ module.exports = (bp, app) => {
       return {
         name: module.name,
         homepage: module.homepage,
+        isPlugin: module.settings.isPlugin,
         menuText: module.settings.menuText || module.name,
         menuIcon: module.settings.menuIcon || 'view_module',
         noInterface: !!module.settings.noInterface,
