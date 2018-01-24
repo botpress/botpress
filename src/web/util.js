@@ -1,5 +1,3 @@
-import _ from 'lodash'
-
 export const hashCode = str => {
   let hash = 0
   if (str.length === 0) {

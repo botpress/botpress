@@ -1,48 +1,37 @@
 import 'babel-polyfill'
 import React from 'expose-loader?React!react'
 import ReactDOM from 'expose-loader?ReactDOM!react-dom'
-import { connect } from 'react-redux'
-import { Provider } from 'react-redux'
-import queryString from 'query-string'
 
-import store from './store'
-import { fetchModules } from './actions'
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
-import { moduleViewNames } from './util/Modules'
 
-const { m, v } = queryString.parse(location.search)
+const parseQueryString = () => {
+  const queryString = (window.location.search || '').substring(1) || ''
 
-class LiteView extends React.Component {
-  componentDidMount() {
-    this.props.fetchModules()
+  const params = {}
+  const queries = queryString.split('&')
+
+  for (let i = 0, l = queries.length; i < l; i++) {
+    const temp = queries[i].split('=')
+    params[temp[0]] = temp[1]
   }
-
-  render() {
-    const modules = moduleViewNames(this.props.modules.filter(module => module.isPlugin))
-    const onNotFound = () => (
-      <h1>
-        Module ${m} with view ${v} not found
-      </h1>
-    )
-
-    return (
-      <div>
-        <InjectedModuleView moduleName={m} viewName={v} lite={true} onNotFound={onNotFound} />
-        {modules.map(({ moduleName, viewName }, i) => (
-          <InjectedModuleView key={i} moduleName={moduleName} viewName={viewName} onNotFound={onNotFound} />
-        ))}
-      </div>
-    )
-  }
+  return params
 }
 
-const mapDispatchToProps = { fetchModules }
-const mapStateToProps = state => ({ modules: state.modules })
-const LiteViewConnected = connect(mapStateToProps, mapDispatchToProps)(LiteView)
+const { m, v } = parseQueryString()
 
-ReactDOM.render(
-  <Provider store={store}>
-    <LiteViewConnected />
-  </Provider>,
-  document.getElementById('app')
-)
+const LiteView = props => {
+  return (
+    <InjectedModuleView
+      moduleName={m}
+      viewName={v}
+      lite={true}
+      onNotFound={() => (
+        <h1>
+          Module ${m} with view ${v} not found
+        </h1>
+      )}
+    />
+  )
+}
+
+ReactDOM.render(<LiteView />, document.getElementById('app'))
