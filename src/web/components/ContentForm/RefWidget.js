@@ -23,6 +23,12 @@ class RefWidget extends Component {
     this.props.onChange(decorateRef(item.id))
   }
 
+  componentDidMount() {
+    if (this.props.value) {
+      this.props.fetchContentItem(undecorateRef(this.props.value))
+    }
+  }
+
   componentWillReceiveProps(newProps) {
     if (newProps.value && newProps.value !== this.props.value) {
       this.props.fetchContentItem(undecorateRef(newProps.value))
