@@ -21,40 +21,35 @@ const formSteps = {
   MAIN: 2
 }
 
-const initialState = {
-  show: false,
-  newItemCategory: null,
-  hideCategoryInfo: false,
-  searchTerm: '',
-  newItemData: null,
-  activeItemIndex: 0,
-  categoryId: null,
-  step: formSteps.INITIAL
-}
-
 class SelectContent extends Component {
-  state = initialState
-
   constructor(props) {
     super(props)
 
-    window.botpress = window.botpress || {}
-    window.botpress.pickContent = ({ categoryId = null } = {}, callback) => {
-      // when the category is passed explicitly lock to it and don't show the options to switch to another one.
-      this.setState(
-        { categoryId, hideCategoryInfo: !!categoryId, step: categoryId ? formSteps.MAIN : formSteps.INITIAL },
-        () => {
-          this.searchContentItems()
-          this.fetchContentItemsCount()
-          this.props.fetchContentCategories()
-          this.callback = callback
-          this.setState({ show: true, activeItemIndex: 0 })
-          setImmediate(() => moveCursorToEnd(this.searchInput))
-        }
-      )
+    const { categoryId = null } = props
 
-      window.addEventListener('keyup', this.handleChangeActiveItem)
+    this.state = {
+      show: true,
+      categoryId,
+      hideCategoryInfo: !!categoryId,
+      activeItemIndex: 0,
+      step: categoryId ? formSteps.MAIN : formSteps.INITIAL,
+      newItemCategory: null,
+      searchTerm: '',
+      newItemData: null
     }
+  }
+
+  componentDidMount() {
+    this.searchContentItems()
+    this.fetchContentItemsCount()
+    this.props.fetchContentCategories()
+    moveCursorToEnd(this.searchInput)
+
+    window.addEventListener('keyup', this.handleChangeActiveItem)
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('keyup', this.handleChangeActiveItem)
   }
 
   componentWillReceiveProps(newProps) {
@@ -62,13 +57,10 @@ class SelectContent extends Component {
     if (!categories || this.state.step !== formSteps.INITIAL || this.state.categoryId) {
       return
     }
+
     this.setState({
       step: categories.length > 1 ? formSteps.PICK_CATEGORY : formSteps.MAIN
     })
-  }
-
-  componentWillUnmount() {
-    delete window.botpress.pickContent
   }
 
   searchContentItems() {
@@ -116,8 +108,8 @@ class SelectContent extends Component {
   }
 
   handlePick(item) {
-    this.callback && this.callback(item)
-    this.onClose()
+    this.props.onSelect && this.props.onSelect(item)
+    this.setState({ show: false })
   }
 
   handleFormEdited = data => {
@@ -133,9 +125,8 @@ class SelectContent extends Component {
   }
 
   onClose = () => {
-    this.setState(initialState)
-    this.callback = null
-    window.removeEventListener('keyup', this.handleChangeActiveItem)
+    this.setState({ show: false })
+    this.props.onClose && this.props.onClose()
   }
 
   getVisibleCategories() {
@@ -272,11 +263,11 @@ class SelectContent extends Component {
   }
 
   render() {
-    const { newItemCategory } = this.state
+    const { newItemCategory, show } = this.state
     const schema = (newItemCategory || {}).schema || { json: {}, ui: {} }
 
     return (
-      <Modal animation={false} show={this.state.show} onHide={this.onClose} container={document.getElementById('app')}>
+      <Modal animation={false} show={show} onHide={this.onClose} container={document.getElementById('app')}>
         <Modal.Header closeButton>
           <Modal.Title>Pick Content</Modal.Title>
         </Modal.Header>
