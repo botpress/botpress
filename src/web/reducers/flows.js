@@ -338,11 +338,16 @@ reducer = reduceReducers(
               return { ...node, next, lastModified: new Date() }
             })
 
+        const links = (payload.links || currentFlow.links).map(link => ({
+          ...link,
+          points: link.points.map(point => ({ x: Math.round(point.x), y: Math.round(point.y) }))
+        }))
+
         return {
           ...state,
           flowsByName: {
             ...state.flowsByName,
-            [state.currentFlow]: { ...currentFlow, nodes, ...payload }
+            [state.currentFlow]: { ...currentFlow, nodes, ...payload, links }
           }
         }
       },
