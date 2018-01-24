@@ -340,7 +340,7 @@ reducer = reduceReducers(
 
         const links = (payload.links || currentFlow.links).map(link => ({
           ...link,
-          points: link.points.map(point => ({ x: Math.round(point.x), y: Math.round(point.y) }))
+          points: link.points.map(({ x, y }) => ({ x: Math.round(x), y: Math.round(y) }))
         }))
 
         return {
