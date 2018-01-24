@@ -140,7 +140,7 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
       }
     })
 
-  const resolveRefs = Promise.method(data => {
+  const resolveRefs = async data => {
     if (!data) {
       return data
     }
@@ -158,13 +158,16 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
       return knex('content_items')
         .select('formData')
         .where('id', m[1])
-        .get(0)
-        .get('formData')
-        .then(JSON.parse)
+        .then(result => {
+          if (!result || !result.length) {
+            throw new Error(`Error resolving reference: ID ${m[1]} not found.`)
+          }
+          return JSON.parse(result[0].formData)
+        })
         .then(resolveRefs)
     }
     return data
-  })
+  }
 
   const computeFormData = async (categoryId, formData) => {
     const category = categoryById[categoryId]
