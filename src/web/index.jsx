@@ -3,7 +3,6 @@ import React from 'expose-loader?React!react'
 import ReactDOM from 'expose-loader?ReactDOM!react-dom'
 import { Provider } from 'react-redux'
 
-import reducers from './reducers' // App won't load without importing it here
 import store from './store'
 
 require('bootstrap/dist/css/bootstrap.css')
