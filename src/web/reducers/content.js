@@ -1,5 +1,4 @@
 import { handleActions } from 'redux-actions'
-import reduceReducers from 'reduce-reducers'
 import _ from 'lodash'
 
 import {
