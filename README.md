@@ -21,6 +21,12 @@ Botpress is an open-source bot creation tool written in Javascript. It is powere
 
 ⚠️  Make sure you join our [Slack Community](https://slack.botpress.io) for help, announcements, gigs and fun!
 
+## Support the project ⭐
+
+If you feel awesome and want to support us in a small way, please consider starring and/or sharing the repo! This helps us getting known and grow the community. 🙏
+
+<img alt="Botpress" width="250" src="assets/star_us.gif">
+
 ## What is Botpress
 
 Botpress is on a mission to make useful bots ubiquitous by powering developers with the best possible tools to build & manage chatbots. We believe that in order to create great bots, major time should be spent on UX, **not** on the surrounding (and generic) features.
