@@ -30,7 +30,7 @@ export default class SkillCallNodePropertiesPanel extends Component {
     }
 
     const editSkill = () => this.props.requestEditSkill(node.id)
-    const seeFlow = () => this.props.switchFlow(node.flow)
+    const seeFlow = () => this.props.goToFlow(node.flow)
 
     return (
       <div className={classnames(style.node, style['node-panel'])}>

@@ -14,10 +14,6 @@ export default class FlowsList extends Component {
     this.state = {}
   }
 
-  switchToFlow(flow) {
-    this.props.switchFlow(flow.name)
-  }
-
   renderFlow(flow, index) {
     const isCurrentFlow = flow.name === _.get(this.props, 'currentFlow.name')
     const isDirty = _.includes(this.props.dirtyFlows, flow.name)
@@ -112,7 +108,7 @@ export default class FlowsList extends Component {
 
     return (
       <ListGroupItem {...lgProps}>
-        <div onClick={() => this.switchToFlow(flow)}>
+        <div onClick={() => this.props.goToFlow(flow.name)}>
           {displayName}
           {dirtyMarker} {isCurrentFlow ? ' (current)' : ''}
         </div>

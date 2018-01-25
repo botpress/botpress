@@ -40,7 +40,7 @@ export default () => {
         <Route path="middleware" component={Middleware} />
         <Route path="content" component={Content} />
         <Route path="ghost-content" component={GhostContent} />
-        <Route path="flows" component={FlowBuilder} />
+        <Route path="flows(/:flow)" component={FlowBuilder} />
         <Route path="modules/:moduleName(/:subView)" component={Module} />
         <Route path="notifications" component={Notifications} />
         <Route path="logs" component={Logs} />

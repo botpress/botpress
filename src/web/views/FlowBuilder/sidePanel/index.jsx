@@ -16,6 +16,8 @@ const style = require('./style.scss')
 export default class SidePanel extends Component {
   state = {}
 
+  goToFlow = flow => this.props.router.push(`/flows/${flow.replace(/\.flow\.json/, '')}`)
+
   render() {
     const objectPropertiesTitle = !!this.props.currentFlowNode ? 'Node Properties' : 'Flow Properties'
     const [skills, nonSkills] = _.partition(this.props.flows, x => x.name.startsWith('skills/'))
@@ -36,7 +38,7 @@ export default class SidePanel extends Component {
               <FlowsList
                 flows={nonSkills}
                 dirtyFlows={this.props.dirtyFlows}
-                switchFlow={this.props.switchFlow}
+                goToFlow={this.goToFlow}
                 deleteFlow={this.props.deleteFlow}
                 duplicateFlow={this.props.duplicateFlow}
                 currentFlow={this.props.currentFlow}
@@ -47,7 +49,7 @@ export default class SidePanel extends Component {
                 stripPrefix="skills/"
                 flows={skills}
                 dirtyFlows={this.props.dirtyFlows}
-                switchFlow={this.props.switchFlow}
+                goToFlow={this.goToFlow}
                 deleteFlow={this.props.deleteFlow}
                 duplicateFlow={this.props.duplicateFlow}
                 currentFlow={this.props.currentFlow}
@@ -83,7 +85,7 @@ export default class SidePanel extends Component {
           updateNode={updateNodeAndRefresh}
           updateFlow={this.props.updateFlow}
           requestEditSkill={this.props.requestEditSkill}
-          switchFlow={this.props.switchFlow}
+          goToFlow={this.goToFlow}
         />
       )
     }
