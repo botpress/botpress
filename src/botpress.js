@@ -24,6 +24,7 @@ import createUMM from './umm'
 import createUsers from './users'
 import createContentManager from './content/service'
 import createConversations from './conversations'
+import createDatabaseHelpers from './database/helpers'
 import stats from './stats'
 import packageJson from '../package.json'
 import createEmails from '+/emails'
@@ -78,6 +79,8 @@ class botpress {
     this.botfile = eval('require')(botfile)
 
     this.stats = stats(this.botfile)
+
+    this.databaseHelpers = createDatabaseHelpers
 
     this.interval = null
   }
