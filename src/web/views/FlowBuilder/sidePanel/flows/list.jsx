@@ -98,7 +98,7 @@ export default class FlowsList extends Component {
       </Overlay>
     )
 
-    const lgProps = isCurrentFlow ? {} : { href: '#' }
+    const lgProps = isCurrentFlow ? {} : { href: 'javascript:void(0);' }
 
     let displayName = flow.name
     const { stripPrefix } = this.props

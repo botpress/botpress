@@ -42,7 +42,7 @@ export default class Topbar extends React.Component {
         {name && (
           <span>
             &nbsp;
-            <a onClick={this.promptRenameFlow} href="#" className={style.rename}>
+            <a onClick={this.promptRenameFlow} href="javascript:void(0);" className={style.rename}>
               (rename)
             </a>
           </span>
