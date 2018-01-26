@@ -75,7 +75,7 @@ module.exports = {
     console.log(config) // prints { accessToken: 'user_token', selectedMode: 'understanding' }
   },
 
-  ready: function(bp, configuration) {
+  ready: function(bp, configuration, helpers) {
     // more code ...
   }
 }
@@ -85,7 +85,7 @@ module.exports = {
 
 The configuration is persisted in the database. In fact, it is persisted using the built-in Key-Value store.
 
-## Can I overwrite the configuration at run time? / Can I use environement variables to set configuration? <a class="toc" id="toc-can-i-overwrite-the-configuration-at-run-time-can-i-use-environement-variables-to-set-configuration" href="#toc-can-i-overwrite-the-configuration-at-run-time-can-i-use-environement-variables-to-set-configuration"></a>
+## Can I overwrite the configuration at run time? / Can I use environment variables to set configuration? <a class="toc" id="toc-can-i-overwrite-the-configuration-at-run-time-can-i-use-environement-variables-to-set-configuration" href="#toc-can-i-overwrite-the-configuration-at-run-time-can-i-use-environement-variables-to-set-configuration"></a>
 
 
 You may overwrite the configuration or provide default values from environement variables. To do so, simply assign a value to the `env` property of the configuration key. In the example above, `accessToken` can be overwritten by the `WIT_TOKEN` environement variable.

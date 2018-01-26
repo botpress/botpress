@@ -5,20 +5,18 @@
 */
 
 module.exports = {
-
-  config: { },
+  config: {},
 
   init: async function(bp, configurator) {
     // This is called before ready.
     // At this point your module is just being initialized, it is not loaded yet.
   },
 
-  ready: async function(bp, configurator) {
+  ready: async function(bp, configurator, helpers) {
     // Your module's been loaded by Botpress.
     // Serve your APIs here, execute logic, etc.
 
     const config = await configurator.loadAll()
     // Do fancy stuff here :)
-
   }
 }
