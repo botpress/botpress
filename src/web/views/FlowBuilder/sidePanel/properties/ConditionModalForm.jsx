@@ -89,7 +89,7 @@ export default class ConditionModalForm extends Component {
 
   resetForm() {
     this.setState({
-      typeOfTransition: 'end',
+      typeOfTransition: 'node',
       flowToSubflow: null,
       flowToNode: null,
       returnToNode: '',
