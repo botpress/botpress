@@ -1,7 +1,7 @@
 import { createAction } from 'redux-actions'
 import axios from 'axios'
 import _ from 'lodash'
-import { getCurrentFlow } from '~/reducers/selectors'
+import { getCurrentFlow } from '~/reducers'
 
 // Flows
 export const requestFlows = createAction('FLOWS/REQUEST')
