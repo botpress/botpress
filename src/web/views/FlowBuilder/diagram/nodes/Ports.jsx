@@ -29,7 +29,7 @@ export class StandardPortWidgetDisconnected extends React.Component {
 
     return (
       <div className={style.label}>
-        <a href="#" onClick={() => this.props.router.push(`/flows/${subflow}`)}>
+        <a href="javascript:void(0);" onClick={() => this.props.router.push(`/flows/${subflow}`)}>
           {subflow}
         </a>
       </div>
