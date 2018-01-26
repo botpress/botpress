@@ -7,7 +7,7 @@
 module.exports = {
   config: {},
 
-  init: async function(bp, configurator) {
+  init: async function(bp, configurator, helpers) {
     // This is called before ready.
     // At this point your module is just being initialized, it is not loaded yet.
   },

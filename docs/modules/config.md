@@ -70,7 +70,7 @@ module.exports = {
     selectedMode: { type: 'choice', validation: ['understanding', 'stories'], default: 'understanding' }
   },
 
-  init: async function(bp, configuration) {
+  init: async function(bp, configuration, helpers) {
     const config = await config.loadAll()
     console.log(config) // prints { accessToken: 'user_token', selectedMode: 'understanding' }
   },
