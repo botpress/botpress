@@ -1,5 +1,6 @@
 import { connect } from 'react-redux'
 import values from 'lodash/values'
+import { withRouter } from 'react-router'
 
 import { getCurrentFlow, getCurrentFlowNode, getDirtyFlows } from '~/reducers'
 import {
@@ -7,7 +8,6 @@ import {
   refreshFlowsLinks,
   updateFlow,
   removeFlowNode,
-  switchFlow,
   deleteFlow,
   duplicateFlow,
   requestEditSkill
@@ -26,11 +26,10 @@ const mapDispatchToProps = {
   updateFlowNode,
   refreshFlowsLinks,
   updateFlow,
-  switchFlow,
   deleteFlow,
   duplicateFlow,
   requestEditSkill
 }
 
-const ConnectedSidePanel = connect(mapStateToProps, mapDispatchToProps)(SidePanel)
+const ConnectedSidePanel = connect(mapStateToProps, mapDispatchToProps)(withRouter(SidePanel))
 export default ConnectedSidePanel
