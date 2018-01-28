@@ -84,12 +84,14 @@ Optionally, you can assign a UMM bloc to a content category. When doing so, Botp
 
 For example, if you have a category called `trivia`, generating trivia questions (content) would generate blocs that look like `#!trivia-h73k41`, which you can use anywhere as a regular UMM bloc (e.g. `event.reply('#!trivia-h73k41')`).
 
-#### Field `computeFormData(data) -> Object|Promise<Object>` (_Optional_) <a class="toc" id="toc-field-ummbloc-optional" href="#toc-field-ummbloc-optional"></a>
+#### Field `computeFormData(data, computeFormDataHelper) -> Object|Promise<Object>` (_Optional_) <a class="toc" id="toc-field-ummbloc-optional" href="#toc-field-ummbloc-optional"></a>
 
 
-Optionally, you can manipulate the raw data coming from the form, so that you can persist that manipulated version of it.
+Optionally, you can transform the raw data coming from the form, so that you can persist that manipulated version of it.
 
 If you provide `computeFormData`, Botpress will use it to manipulate the data, and that modified data will be used by the UMM engine (if using `ummBloc`).
+
+The second argument to the function, `computeFormDataHelper`, is an async function `async computeFormDataHelper(categoryId, contentItem)` that you can use if you want to call the `computeFormData` on the content from another category. It's mostly useful when used with the **Content Refs** (see below).
 
 ##### Example A (Trivia) <a class="toc" id="toc-field-computeformdata-data-object-promise-optional" href="#toc-field-computeformdata-data-object-promise-optional"></a>
 
@@ -120,9 +122,11 @@ computeFormData: data => {
 }
 ```
 
-#### Field `computePreviewText(data) -> string|Promise<string>` (_Optional_)
+#### Field `computePreviewText(data, computePreviewTextHelper) -> string|Promise<string>` (_Optional_)
 
-Optionally, you can modify the Preview text in the UI view.
+Optionally, you can modify the Preview text used in the Content Manager GUI view.
+
+The second argument to the function, `computePreviewTextHelper`, is an async function `async computePreviewTextHelper(categoryId, contentItem)` that you can use if you want to call the `computePreviewTextHelper` on the content from another category. It's mostly useful when used with the **Content Refs** (see below).
 
 ##### Example (Trivia)
 
@@ -130,9 +134,11 @@ Optionally, you can modify the Preview text in the UI view.
 computePreviewText: formData => 'Question: ' + formData.question
 ```
 
-#### Field `computeMetadata(data) -> Array<string>|Promise<Array<string>>` (_Optional_)
+#### Field `computeMetadata(data, computeMetadataHelper) -> Array<string>|Promise<Array<string>>` (_Optional_)
 
 Optionally, you can generate Metadata for content, which can be used to search content in the UI
+
+The second argument to the function, `computeMetadataHelper`, is an async function `async computeMetadataHelper(categoryId, contentItem)` that you can use if you want to call the `computeMetadataHelper` on the content from another category. It's mostly useful when used with the **Content Refs** (see below).
 
 ##### Example (Trivia)
 
@@ -288,3 +294,124 @@ module.exports = function(bp) {
   }
 }
 ```
+
+## Advanced Topics
+
+### Content Refs
+
+Botpress Content Manager supports a custom (spec-compatible) extension that allows one content type (and the instances of this type) to reference other content type instances.
+
+This feature is supported both internally and in the Content Manager GUI tool described above.
+
+Let's see how you can leverage it to keep your content DRY and reusable.
+
+### JSON Schema Extension
+
+To define that a given field should be treated as a reference to an instance of another content type, you define the field as `string` with two mandatory extra atributes: `"$subtype": "ref"`, and `$category` which should be the ID of the referenced category.
+
+It's best seen in the example. Continuing the *Trivia* example from the previous sections, let's define the new *Trivia Collection* type:
+
+#### `trivia-collection.form.js`
+```js
+module.exports = {
+  id: 'trivia-collection',
+  title: 'Trivia Questions Collection',
+  ummBloc: '#trivia-collection',
+
+  jsonSchema: {
+    title: 'Trivia Collection',
+    description: 'Create a new Trivia Collection by combining existing questions',
+    type: 'array',
+    items: {
+      type: 'string',
+      $subtype: 'ref',
+      $category: 'trivia'
+    }
+  },
+
+  //...
+}
+```
+
+It should now become clear that the instance of this type contains an array of *references* to some elements from the *trivia* category.
+
+### JSON Data Extension
+
+As we see the base type for the references is *string*. How are these references stored physically when serialized to the JSON file?
+
+Here's an example:
+
+#### `trivia-collection.json`
+```json
+[
+  {
+    "id": "trivia-collection-G2WkeH",
+    "formData": ["##ref(trivia-question-aFCAIs)", "##ref(trivia-question-9l9hH~)"],
+    "createdBy": "admin",
+    "createdOn": "2018-01-23T21:28:41.676Z"
+  },
+  {
+    "id": "trivia-collection-AxRaw~",
+    "formData": ["##ref(trivia-question-8CXNiN)"],
+    "createdBy": "admin",
+    "createdOn": "2018-01-23T21:30:47.388Z"
+  }
+]
+```
+
+So, as you can see, these strings have the special form, `##ref(REFERENCED_CONTENT_ID)`. If you like editing your content JSON files by hand it can be handy to remember this format.
+
+### Content Refs Resolution
+
+Internally when the content item is requested by the bot engine (from the botpress API) the Content Manager engine finds the refs (following the format escribed above) and replaces the ref-strings with the actual content corresponding to the `REFERENCED_CONTENT_ID`.
+
+> Essentially this means that your bot-related code (like your UMM blocs) gets the full content with references resolved.
+
+**If the referenced content is not found it will cause the runtime error (just like when you try to fetch the data from the DB engine using the non-existent ID).**
+
+### `compute*` helper methods
+
+When dealing with content refs you may want to keep your custom `computeData`, `computePreviewText`, and `computeMetadata` methods DRY. How can one reuse these methods defined in another content type form definition?
+
+To aid this task Botpress provides you with the helper methods passed as the 2nd arguments to your function. It's best illustrated with the example:
+
+#### `trivia.form.js`
+```js
+const _ = require('lodash')
+
+module.exports = {
+  id: 'trivia',
+  // ...
+
+  computeFormData: formData => {
+    const good = { payload: 'TRIVIA_GOOD', text: formData.good }
+    const bad = formData.bad.map(i => ({ payload: 'TRIVIA_BAD', text: i }))
+    const choices = [good, ...bad]
+
+    return {
+      question: formData.question,
+      choices: _.shuffle(choices)
+    }
+  },
+
+  computePreviewText: formData => 'Q: ' + formData.question
+}
+```
+
+#### `trivia-collection.form.js`
+```js
+const Promise = require('bluebird')
+
+module.exports = {
+  id: 'trivia-collection',
+  // ...
+
+  computeFormData: (formData, computeFormDataHelper) => Promise.map(formData, computeFormDataHelper.bind(null, 'trivia')),
+  computePreviewText: async (formData, computePreviewTextHelper) => {
+    const triviaPreviews = await Promise.map(formData, computePreviewTextHelper.bind(null, 'trivia'))
+    return `Trivia Collection [${triviaPreviews.join(', ')}]`
+  }
+}
+```
+
+As you can see from this example, our *Trivia Collection*'s methods are delegating to the corresponding methods defined in the *Trivia* form definition file, using the helper methods bound to the first argument being `trivia` (the ID of the *Trivia* content type).
