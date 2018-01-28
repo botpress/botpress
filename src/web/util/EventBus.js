@@ -58,7 +58,7 @@ class EventBus extends EventEmitter2 {
     this.adminSocket = io(socketUrl + '/admin', { query })
     this.adminSocket.on('event', this.dispatchSocketEvent)
 
-    this.guestSocket = io(socketUrl + '/guest')
+    this.guestSocket = io(socketUrl + '/guest', { query })
     this.guestSocket.on('event', this.dispatchSocketEvent)
   }
 }
