@@ -371,7 +371,7 @@ Internally when the content item is requested by the bot engine (from the botpre
 
 ### `compute*` helper methods
 
-When dealing with content refs you may want to keep your custom `computeFormData`, `computePreviewText`, and `computeMetadata` methods DRY. How can one reuse these methods defined in another content type form definition?
+When dealing with content refs you may want to keep your custom `computeData`, `computePreviewText`, and `computeMetadata` methods DRY. How can one reuse these methods defined in another content type form definition?
 
 To aid this task Botpress provides you with the helper methods passed as the 2nd arguments to your function. It's best illustrated with the example:
 
