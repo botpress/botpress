@@ -12,7 +12,7 @@ import HelpButton from './HelpButton'
 import LicenseComponent from '~/components/License'
 import AboutComponent from '~/components/About'
 import GuidedTour from '~/components/Tour'
-import GobalSelectContent from '~/components/Content/Select/Global'
+import SelectContentManager from '~/components/Content/Select/Manager'
 
 import PluginInjectionSite from '~/components/PluginInjectionSite'
 
@@ -41,7 +41,7 @@ class Layout extends React.Component {
     })
 
     return (
-      <div className={classnames('wrapper', 'bp-wrapper')}>
+      <div className="wrapper bp-wrapper">
         <Sidebar>
           <Header />
           <section className={classNames}>{this.props.children}</section>
@@ -54,9 +54,9 @@ class Layout extends React.Component {
           toggleLicenseModal={this.props.toggleLicenseModal}
         />
         <AboutComponent opened={this.props.aboutModalOpened} />
-        <PluginInjectionSite site={'overlay'} />
+        <PluginInjectionSite site="overlay" />
         <HelpButton />
-        <GobalSelectContent />
+        <SelectContentManager />
       </div>
     )
   }

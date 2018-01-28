@@ -37,19 +37,24 @@ class SelectContent extends Component {
       searchTerm: '',
       newItemData: null
     }
+
+    this.inputFocused = false
+  }
+
+  focusInput = searchInput => {
+    if (this.inputFocused && searchInput) {
+      return
+    }
+    this.inputFocused = !!searchInput
+    moveCursorToEnd(searchInput)
   }
 
   componentDidMount() {
     this.searchContentItems()
     this.fetchContentItemsCount()
     this.props.fetchContentCategories()
-    moveCursorToEnd(this.searchInput)
 
-    window.addEventListener('keyup', this.handleChangeActiveItem)
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('keyup', this.handleChangeActiveItem)
+    this.props.container.querySelector('.modal').addEventListener('keyup', this.handleChangeActiveItem)
   }
 
   componentWillReceiveProps(newProps) {
@@ -228,7 +233,7 @@ class SelectContent extends Component {
           placeholder={this.getSearchDescription()}
           aria-label="Search content elements"
           onChange={this.onSearchChange}
-          ref={input => (this.searchInput = input)}
+          ref={input => this.focusInput(input)}
           value={this.state.searchTerm}
         />
         <hr />
@@ -270,7 +275,7 @@ class SelectContent extends Component {
     const schema = (newItemCategory || {}).schema || { json: {}, ui: {} }
 
     return (
-      <Modal animation={false} show={show} onHide={this.onClose} container={document.getElementById('app')}>
+      <Modal animation={false} show={show} onHide={this.onClose} container={this.props.container}>
         <Modal.Header closeButton>
           <Modal.Title>Pick Content</Modal.Title>
         </Modal.Header>
