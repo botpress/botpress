@@ -14,6 +14,7 @@ class SelectContentManager extends Component {
     window.botpress.pickContent = ({ categoryId = null } = {}, callback) => {
       const id = nanoId()
       const rootEl = document.createElement('DIV')
+      rootEl.setAttribute('data-select-content-container', id)
       document.getElementById('app').appendChild(rootEl)
       this.setState(({ selects }) => ({
         selects: [...selects, { categoryId, callback, id, rootEl }]
