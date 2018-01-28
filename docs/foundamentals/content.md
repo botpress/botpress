@@ -44,7 +44,7 @@ Your file must export an object with the following properties:
 
   ummBloc: '#trivia-question', // string, optional
   uiSchema: {}, // object, optional
-  computeFormData: function() {}, // function, optional
+  computeData: function() {}, // function, optional
   computePreviewText: function() {}, // function, optional
   computeMetadata: function() {} // function, optional
 }
@@ -84,23 +84,23 @@ Optionally, you can assign a UMM bloc to a content category. When doing so, Botp
 
 For example, if you have a category called `trivia`, generating trivia questions (content) would generate blocs that look like `#!trivia-h73k41`, which you can use anywhere as a regular UMM bloc (e.g. `event.reply('#!trivia-h73k41')`).
 
-#### Field `computeFormData(data, computeFormDataHelper) -> Object|Promise<Object>` (_Optional_) <a class="toc" id="toc-field-ummbloc-optional" href="#toc-field-ummbloc-optional"></a>
+#### Field `computeData(data, computeDataHelper) -> Object|Promise<Object>` (_Optional_) <a class="toc" id="toc-field-ummbloc-optional" href="#toc-field-ummbloc-optional"></a>
 
 
 Optionally, you can transform the raw data coming from the form, so that you can persist that manipulated version of it.
 
-If you provide `computeFormData`, Botpress will use it to manipulate the data, and that modified data will be used by the UMM engine (if using `ummBloc`).
+If you provide `computeData`, Botpress will use it to manipulate the data, and that modified data will be used by the UMM engine (if using `ummBloc`).
 
-The second argument to the function, `computeFormDataHelper`, is an async function `async computeFormDataHelper(categoryId, contentItem)` that you can use if you want to call the `computeFormData` on the content from another category. It's mostly useful when used with the **Content Refs** (see below).
+The second argument to the function, `computeDataHelper`, is an async function `async computeDataHelper(categoryId, contentItem)` that you can use if you want to call the `computeData` on the content from another category. It's mostly useful when used with the **Content Refs** (see below).
 
-##### Example A (Trivia) <a class="toc" id="toc-field-computeformdata-data-object-promise-optional" href="#toc-field-computeformdata-data-object-promise-optional"></a>
+##### Example A (Trivia) <a class="toc" id="toc-field-computedata-data-object-promise-optional" href="#toc-field-computedata-data-object-promise-optional"></a>
 
 
 ```js
 const _ = require('lodash')
 // ...
 
-computeFormData: formData => {
+computeData: formData => {
   const good = { payload: 'TRIVIA_GOOD', text: formData.good }
   const bad = formData.bad.map(i => ({ payload: 'TRIVIA_BAD', text: i }))
   const choices = [good, ...bad]
@@ -115,7 +115,7 @@ computeFormData: formData => {
 ##### Example B
 
 ```js
-computeFormData: data => {
+computeData: data => {
   return {
     full_name: data.first_name + ' ' + data.last_name
   }
@@ -214,7 +214,7 @@ module.exports = {
     }
   },
 
-  computeFormData: formData => {
+  computeData: formData => {
     const good = { payload: 'TRIVIA_GOOD', text: formData.good }
     const bad = formData.bad.map(i => ({ payload: 'TRIVIA_BAD', text: i }))
     const choices = [good, ...bad]
@@ -383,7 +383,7 @@ module.exports = {
   id: 'trivia',
   // ...
 
-  computeFormData: formData => {
+  computeData: formData => {
     const good = { payload: 'TRIVIA_GOOD', text: formData.good }
     const bad = formData.bad.map(i => ({ payload: 'TRIVIA_BAD', text: i }))
     const choices = [good, ...bad]
@@ -406,7 +406,7 @@ module.exports = {
   id: 'trivia-collection',
   // ...
 
-  computeFormData: (formData, computeFormDataHelper) => Promise.map(formData, computeFormDataHelper.bind(null, 'trivia')),
+  computeData: (formData, computeDataHelper) => Promise.map(formData, computeDataHelper.bind(null, 'trivia')),
   computePreviewText: async (formData, computePreviewTextHelper) => {
     const triviaPreviews = await Promise.map(formData, computePreviewTextHelper.bind(null, 'trivia'))
     return `Trivia Collection [${triviaPreviews.join(', ')}]`
