@@ -117,11 +117,14 @@ class SelectContent extends Component {
   }
 
   resetCreateContent = (resetSearch = false) => () => {
-    const state = { newItemCategory: null, newItemData: null }
+    const stateUpdate = { newItemCategory: null, newItemData: null }
     if (resetSearch) {
-      state.searchTerm = ''
+      Object.assign(stateUpdate, {
+        searchTerm: '',
+        activeItemIndex: 0
+      })
     }
-    return new Promise(resolve => this.setState(state, resolve))
+    return new Promise(resolve => this.setState(stateUpdate, resolve))
   }
 
   onClose = () => {
