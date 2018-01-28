@@ -169,12 +169,12 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
     return data
   }
 
-  const computeFormData = async (categoryId, formData) => {
+  const computeData = async (categoryId, formData) => {
     const category = categoryById[categoryId]
     if (!category) {
       throw new Error(`Unknown category ${categoryId}`)
     }
-    return !category.computeFormData ? formData : category.computeFormData(formData, computeFormData)
+    return !category.computeData ? formData : category.computeData(formData, computeData)
   }
 
   const computeMetadata = async (categoryId, formData) => {
@@ -200,7 +200,7 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
 
     const expandedFormData = await resolveRefs(formData)
 
-    const data = await computeFormData(category.id, expandedFormData)
+    const data = await computeData(category.id, expandedFormData)
     const metadata = await computeMetadata(category.id, expandedFormData)
     const previewText = await computePreviewText(category.id, expandedFormData)
 
@@ -213,7 +213,7 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
     }
 
     if (data == null) {
-      throw new Error('computeFormData must return a valid object')
+      throw new Error('computeData must return a valid object')
     }
 
     return {

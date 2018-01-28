@@ -16,7 +16,7 @@ module.exports = {
     }
   },
 
-  computeFormData: (formData, computeFormData) => Promise.map(formData, computeFormData.bind(null, 'trivia')),
+  computeData: (formData, computeData) => Promise.map(formData, computeData.bind(null, 'trivia')),
   computePreviewText: async (formData, computePreviewText) => {
     const triviaPreviews = await Promise.map(formData, computePreviewText.bind(null, 'trivia'))
     return `Trivia Collection [${triviaPreviews.join(', ')}]`
