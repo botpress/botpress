@@ -114,7 +114,7 @@ class SelectContent extends Component {
 
   handlePick(item) {
     this.props.onSelect && this.props.onSelect(item)
-    this.setState({ show: false })
+    this.onClose()
   }
 
   handleFormEdited = data => {
@@ -133,8 +133,9 @@ class SelectContent extends Component {
   }
 
   onClose = () => {
-    this.setState({ show: false })
-    this.props.onClose && this.props.onClose()
+    this.setState({ show: false }, () => {
+      this.props.onClose && this.props.onClose()
+    })
   }
 
   getVisibleCategories() {
