@@ -38,7 +38,7 @@ export default class ConditionModalForm extends Component {
         returnToNode: typeOfTransition === 'return' ? item.node.substr(1) : ''
       })
     } else {
-      this.resetForm()
+      this.resetForm({ condition: (item && item.condition) || '' })
     }
 
     this.setState({ isEdit: Boolean(item) })
@@ -87,7 +87,7 @@ export default class ConditionModalForm extends Component {
     return true
   }
 
-  resetForm() {
+  resetForm(props) {
     this.setState({
       typeOfTransition: 'node',
       flowToSubflow: null,
@@ -95,7 +95,8 @@ export default class ConditionModalForm extends Component {
       returnToNode: '',
       conditionError: null,
       transitionError: null,
-      condition: ''
+      condition: '',
+      ...props
     })
   }
 
