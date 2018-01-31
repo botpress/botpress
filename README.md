@@ -2,6 +2,7 @@
 # [Botpress](https://botpress.io) — The only sane way of building great bots
 
 [![CircleCI](https://circleci.com/gh/botpress/botpress.svg?style=svg)](https://circleci.com/gh/botpress/botpress)
+[![npm](https://img.shields.io/npm/v/botpress.svg)](https://www.npmjs.com/package/botpress)
 
 Botpress is an open-source bot creation tool written in Javascript. It is powered by a rich set of open-source modules built by the community. We like to say that **Botpress is like the Wordpress of Chatbots**; anyone can create and reuse other people's modules.
 
@@ -142,13 +143,13 @@ This is a non-exclusive list of modules Botpress has. See [the full list of modu
 Thanks you for your interest in Botpress. Here are some of the many ways to contribute.
 
   - Check out our [contributing guide](/.github/CONTRIBUTING.md)
-  - Look at our [code of conduct](/.github/CODE_OF_CONDUCT.md) 
-  - Engage with us on Social Media 
+  - Look at our [code of conduct](/.github/CODE_OF_CONDUCT.md)
+  - Engage with us on Social Media
     - Follow us on [Twitter](https://twitter.com/getbotpress)
     - Like us on [Facebook](https://www.facebook.com/botpress)
     - Join our channel on [Slack](https://slack.botpress.io)
-  - Answer and ask questions on the Slack community 
-  - [Donate](/.github/DONATE.md) to the project 
+  - Answer and ask questions on the Slack community
+  - [Donate](/.github/DONATE.md) to the project
   - [Write and edit the documentation](/.github/CONTRIBUTING.md)
   - Check misspelling in our docs.
 
