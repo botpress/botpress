@@ -1,7 +1,6 @@
 import { createAction } from 'redux-actions'
 import axios from 'axios'
 import _ from 'lodash'
-import { getCurrentFlow } from '~/reducers/selectors'
 
 // Flows
 export const requestFlows = createAction('FLOWS/REQUEST')
@@ -43,8 +42,8 @@ export const createFlow = createAction('FLOWS/CREATE')
 export const switchFlow = createAction('FLOWS/SWITCH')
 export const deleteFlow = createAction('FLOWS/DELETE')
 export const duplicateFlow = createAction('FLOWS/DUPLICATE')
-export const refreshFlowsLinks = () => (dispatch, getState) =>
-  setTimeout(() => dispatch(updateFlow({ links: getCurrentFlow(getState()).links })), 50)
+export const handleRefreshFlowLinks = createAction('FLOWS/FLOW/UPDATE_LINKS')
+export const refreshFlowsLinks = () => dispatch => setTimeout(() => dispatch(handleRefreshFlowLinks()), 10)
 
 export const linkFlowNodes = createAction('FLOWS/FLOW/LINK')
 export const updateFlowNode = createAction('FLOWS/FLOW/UPDATE_NODE')
@@ -54,8 +53,18 @@ export const removeFlowNode = createAction('FLOWS/FLOW/REMOVE')
 export const copyFlowNode = createAction('FLOWS/NODE/COPY')
 export const pasteFlowNode = createAction('FLOWS/NODE/PASTE')
 
-export const flowEditorUndo = createAction('FLOWS/EDITOR/UNDO')
-export const flowEditorRedo = createAction('FLOWS/EDITOR/REDO')
+export const handleFlowEditorUndo = createAction('FLOWS/EDITOR/UNDO')
+export const handleFlowEditorRedo = createAction('FLOWS/EDITOR/REDO')
+
+export const flowEditorUndo = () => dispatch => {
+  dispatch(handleFlowEditorUndo())
+  dispatch(refreshFlowsLinks())
+}
+
+export const flowEditorRedo = () => dispatch => {
+  dispatch(handleFlowEditorRedo())
+  dispatch(refreshFlowsLinks())
+}
 
 export const setDiagramAction = createAction('FLOWS/FLOW/SET_ACTION')
 

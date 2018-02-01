@@ -207,6 +207,8 @@ export default class FlowBuilder extends Component {
       isStartNode: this.props.currentFlow.startNode === node.name
     })
 
+    model.setPosition(node.x, node.y)
+
     const ports = model.getOutPorts()
     ports.forEach(port => {
       _.values(port.links).forEach(link => {
