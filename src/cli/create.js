@@ -11,7 +11,10 @@ const MODULE_NAME_CONVENTION_BEGINS = 'botpress-'
 const MODULE_NAME_REGEX = new RegExp(/^botpress-.*/g)
 
 const introductionText = 'This program will bootstrap a new Botpress module'
-const doneText = "You're all set! The module is boostrapped and ready to be developed."
+const doneText = 'The module is boostrapped successfully.'
+const modulesText =
+  `You now need to install dependencies by running ${chalk.bold('`npm install`')}` +
+  ` or ${chalk.bold('`yarn install`')}`
 const documentation =
   'Tip: when coding your bot, use the command `npm run watch` to recompile' +
   ' your module automatically. Also, we strongly recommend that you install your module using ' +
@@ -105,27 +108,9 @@ module.exports = () => {
       generateTemplate(moduleDirectory, 'src/views/index.jsx')
       generateTemplate(moduleDirectory, 'src/views/style.scss')
 
-      util.print('Installing dependencies, please wait...')
-
-      const install = spawn(util.npmCmd, ['install'])
-
-      install.stdout.on('data', data => {
-        process.stdout.write(data.toString())
-      })
-
-      install.stderr.on('data', data => {
-        process.stdout.write(data.toString())
-      })
-
-      install.on('close', code => {
-        if (code > 0) {
-          util.print('error', 'An error occurred during the dependencies installation of your module')
-        } else {
-          util.print('success', 'Module dependencies installed')
-          util.print(doneText)
-          util.print(documentation)
-        }
-      })
+      util.print(doneText)
+      util.print(modulesText)
+      util.print(documentation)
     }
   })
 }

@@ -13,8 +13,11 @@ const introductionText =
   '\nFor more information or help, please visit http://github.com/botpress/botpress' +
   '\n---------------'
 
-const waitingText = 'please wait, we are installing everything for you...'
-const nextStepText = 'now run ' + chalk.bold('`bp start`') + ' in your terminal'
+const nextStepText =
+  '\nYour bot was initialized succesfully!' +
+  `\nYou now need to install dependencies by running ${chalk.bold('`npm install`')}` +
+  ` or ${chalk.bold('`yarn install`')}` +
+  `\nYou'll then be able to run your bot by executing ${chalk.bold('`bp start`')} in your terminal`
 
 const assertDoesntExist = file => {
   if (fs.existsSync(file)) {
@@ -54,25 +57,7 @@ const generate = result => {
 
   fs.mkdirSync('modules_config')
 
-  util.print(waitingText)
-  const install = spawn(util.npmCmd, ['install'])
-
-  install.stdout.on('data', data => {
-    process.stdout.write(data.toString())
-  })
-
-  install.stderr.on('data', data => {
-    process.stdout.write(data.toString())
-  })
-
-  install.on('close', code => {
-    if (code > 0) {
-      util.print('error', 'an error occurred during installation')
-    } else {
-      util.print('success', 'installation has completed successfully')
-      util.print(nextStepText)
-    }
-  })
+  util.print(nextStepText)
 }
 
 module.exports = program => {
