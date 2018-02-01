@@ -235,6 +235,7 @@ class botpress {
       mediator,
       convo,
       renderers,
+      umm: renderers, // DEPRECATED
       users,
       ghostManager,
       contentManager,

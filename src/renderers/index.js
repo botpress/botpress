@@ -28,10 +28,11 @@ module.exports = ({ logger, middlewares, db, contentManager }) => {
     if (!_.isString(name)) {
       throw new Error(`Renderer name must be a string, received ${name}`)
     }
-    if (rendererFn.startsWith('#')) {
+    if (name.startsWith('#')) {
       name = name.substr(1)
     }
-    renderers[name] = name
+
+    renderers[name] = rendererFn
   }
 
   const unregister = name => {
