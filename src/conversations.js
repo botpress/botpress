@@ -107,7 +107,7 @@ class Thread extends EventEmmiter {
   }
 
   /* {
-    content: 'string or #umm'
+    content: 'string or #renderer'
     handler?: function(response) // If no handler = message + next()
     condition?: function() // return bool|Promise<bool> to execute it or not
     data?: object|func<object>|func<Promise<object>> to feed data to the UMM

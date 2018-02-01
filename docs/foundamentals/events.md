@@ -2,7 +2,7 @@
 layout: guide
 ---
 
-**TLDR:** You can listen for incoming messages using the `bp.hear` helper. You can reply to messages using the `event.reply` [UMM](/docs/foundamentals/umm) feature.
+**TLDR:** You can listen for incoming messages using the `bp.hear` helper. You can reply to messages using the `event.reply` [Renderers](/docs/foundamentals/renderers) feature.
 
 ## Receiving Messages (Incoming) <a class="toc" id="toc-receiving-messages-incoming" href="#toc-receiving-messages-incoming"></a>
 

@@ -35,4 +35,4 @@ The **Content** is what (and how) your bot actually **says** to the users on the
 
 Botpress has a unique view on this. We believe that Content must be separated from the Flow for many reasons. To our knowledge, Botpress is the first framework to do things this way and we believe that most platforms will transition to this way of doing things.
 
-In order to split the content from the flow (code), we created [UMM (Universal Message Markdown)](../flow/).
+In order to split the content from the flow (code), we introduced the [Content Renderers](../flow/).

@@ -21,7 +21,7 @@ import createGhostManager from './ghost-content'
 import createLicensing from './licensing'
 import createAbout from './about'
 import createModules from './modules'
-import createUMM from './umm'
+import createRenderers from './renderers'
 import createUsers from './users'
 import createContentManager from './content/service'
 
@@ -180,11 +180,9 @@ class botpress {
       botfile,
       ghostManager
     })
-    const umm = createUMM({
+    const renderers = createRenderers({
       logger,
       middlewares,
-      projectLocation,
-      botfile,
       db,
       contentManager
     })
@@ -215,7 +213,7 @@ class botpress {
       out: { enqueue: event => outgoingQueue.enqueue({ event }) }
     }
 
-    middlewares.register(umm.incomingMiddleware)
+    middlewares.register(renderers.incomingMiddleware)
     middlewares.register(hearMiddleware)
     middlewares.register(fallbackMiddleware)
 
@@ -236,7 +234,7 @@ class botpress {
       emails,
       mediator,
       convo,
-      umm,
+      renderers,
       users,
       ghostManager,
       contentManager,

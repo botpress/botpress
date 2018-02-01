@@ -3,7 +3,7 @@ import util from 'util'
 import _ from 'lodash'
 import Promise from 'bluebird'
 
-module.exports = ({ sendBloc, db }) => {
+module.exports = ({ sendContent, db }) => {
   const getUser = async id => {
     const knex = await db.get()
     const users = await knex('users')
@@ -20,15 +20,15 @@ module.exports = ({ sendBloc, db }) => {
   }
 
   /**
-   * Sends a proactive UMM message to a user
+   * Sends a proactive message to a user
    * @param  {string|object} user UserId or a full user object
    * @param  {string} bloc The bloc name to send
    * @param  {object} data Additional data to provide to the bloc
    * @return {Promise}      A promise that the bloc is sent
    */
-  const sendToUser = async (user, bloc, data) => {
-    if (!_.isString(bloc)) {
-      throw new Error('Invalid bloc id: ' + bloc)
+  const sendToUser = async (user, rendererName, data) => {
+    if (!_.isString(rendererName)) {
+      throw new Error('Invalid renderer: ' + rendererName)
     }
 
     if (_.isString(user)) {
@@ -39,7 +39,7 @@ module.exports = ({ sendBloc, db }) => {
       throw new Error('Invalid user object: ' + util.inspect(user))
     }
 
-    const text = 'This is not a real event, it has been forged by UMM.'
+    const text = 'This is not a real event, it has been forged by proactive.'
     const forgedEvent = {
       platform: user.platform,
       user: user,
@@ -48,7 +48,7 @@ module.exports = ({ sendBloc, db }) => {
       raw: { forged: true, message: text, to: user && user.id }
     }
 
-    return sendBloc(forgedEvent, bloc, data)
+    return sendContent(forgedEvent, rendererName, data)
   }
 
   return { sendToUser }

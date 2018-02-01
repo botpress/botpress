@@ -77,7 +77,7 @@ The content manager uses the [JSON Schema](https://mozilla-services.github.io/re
 [Link to `react-jsonschema-form`](https://github.com/mozilla-services/react-jsonschema-form)
 
 
-#### Field `ummBloc` (_Optional_) <a class="toc" id="toc-field-uischema-https-github-com-mozilla-services-react-jsonschema-form-optional" href="#toc-field-uischema-https-github-com-mozilla-services-react-jsonschema-form-optional"></a>
+#### Field `renderer` (_Optional_) <a class="toc" id="toc-field-uischema-https-github-com-mozilla-services-react-jsonschema-form-optional" href="#toc-field-uischema-https-github-com-mozilla-services-react-jsonschema-form-optional"></a>
 
 
 Optionally, you can assign a UMM bloc to a content category. When doing so, Botpress will generate a virtual bloc (starting by `#!`) which you can use to send a message directly.

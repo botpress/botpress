@@ -25,8 +25,8 @@ A video is worth a thousand pictures.
 module.exports = function(bp) {
   // All your bot logic goes here...
 
-  // Define the first UMM bloc
-  bp.umm.registerBloc('#welcome', () => [
+  // Define the first renderer
+  bp.renderers.register('#welcome', () => [
     'Hello, world!',
     'I am a simple bot created on Botpress',
     "I don't do anything else, so goodbye for now!"

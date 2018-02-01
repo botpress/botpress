@@ -3,7 +3,7 @@ const _ = require('lodash')
 module.exports = {
   id: 'abstract',
   title: 'Some Content',
-  ummBloc: '#some-content',
+  renderer: '#some-content',
 
   jsonSchema: {
     title: 'Bag of Strings',

@@ -11,7 +11,7 @@ import helpers from '../database/helpers'
 import { getInMemoryDb } from '../util'
 
 const getNewItemId = category => {
-  const prefix = (category.ummBloc || category.id).replace(/^#/, '')
+  const prefix = (category.renderer || category.id).replace(/^#/, '')
   return `${prefix}-${nanoid(6)}`
 }
 
@@ -119,7 +119,7 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
       ui: category.uiSchema,
       title: category.title,
       description: category.description,
-      ummBloc: category.ummBloc
+      renderer: category.renderer
     }
   }
 

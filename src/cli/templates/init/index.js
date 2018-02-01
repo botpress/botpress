@@ -21,8 +21,8 @@
 const _ = require('lodash')
 
 module.exports = bp => {
-  // register UMM blocs
-  bp.umm.registerBloc('#welcome', () => [
+  // register renderers
+  bp.renderers.register('#welcome', () => [
     {
       typing: true,
       text: _.sample(['Hey there!', 'Hello {{user.first_name}}', 'Good day :)'])
@@ -44,7 +44,7 @@ module.exports = bp => {
     }
   ])
 
-  bp.umm.registerBloc('#goodbye', () => [
+  bp.renderers.register('#goodbye', () => [
     {
       text: 'You are leaving because of reason {{reason}}',
       typing: true
@@ -66,7 +66,6 @@ module.exports = bp => {
     },
     (event, next) => {
       event.reply('#goodbye', {
-        // You can pass data to the UMM bloc!
         reason: 'unknown'
       })
     }
