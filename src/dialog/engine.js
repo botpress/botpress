@@ -179,7 +179,9 @@ class DialogEngine {
    * Returns all the available functions along with their metadata
    */
   getAvailableFunctions() {
-    return _.values(this.functions).map(x => Object.assign({}, x, { fn: null }))
+    return _.values(this.functions)
+      .filter(x => !String(x.name).startsWith('__'))
+      .map(x => Object.assign({}, x, { fn: null }))
   }
 
   async _processTimeout(stateId, userState, context, event) {
