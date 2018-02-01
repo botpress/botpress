@@ -106,7 +106,7 @@ docs_additional_reading: "Additional Reading"
   description: "Conversation is the core of any chatbots"
 
 "/foundamentals/flow/":
-  title: " Managing the conversation Flow"
+  title: "Managing the conversation Flow"
   description: "Present the build-in Flow manager (Convo)"
 
 "/foundamentals/renderer/":

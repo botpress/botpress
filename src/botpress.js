@@ -32,7 +32,6 @@ import DialogProcessors from './dialog/processors'
 import DialogJanitor from './dialog/janitor'
 import SkillsManager from './skills'
 
-import createConversations from './conversations'
 import stats from './stats'
 import packageJson from '../package.json'
 import createEmails from '+/emails'
@@ -166,7 +165,7 @@ class botpress {
     const { middleware: fallbackMiddleware } = createFallbackMiddleware(this)
     const emails = createEmails({ emailConfig: botfile.emails })
     const mediator = createMediator(this)
-    const convo = createConversations({ logger, middleware: middlewares })
+
     const users = createUsers({ db })
     const ghostManager = createGhostManager({
       projectLocation,
@@ -233,7 +232,6 @@ class botpress {
       db,
       emails,
       mediator,
-      convo,
       renderers,
       umm: renderers, // DEPRECATED
       users,
