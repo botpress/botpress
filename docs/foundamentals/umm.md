@@ -200,7 +200,7 @@ At Send Time, the UMM engine will instantiate the bloc (call your function provi
 
 ### `bp.umm.registerBloc(blocName: String, blocFn: Function)`
 
-Registers the bloc by name. This name can later be used in `event.reply()`, or in the Content Manager forms definition. The second argument is the function that receives the context (see below) and should return one or more messages (explained in the previous sections).
+Registers the bloc by name. This name can later be used in `event.reply()`, or in the Content Manager types definition. The second argument is the function that receives the context (see below) and should return one or more messages (explained in the previous sections).
 
 The `blocName` can start from the optional `#` character.
 

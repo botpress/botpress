@@ -168,7 +168,7 @@ computeMetadata: formData => ['TRIVIA', new Date().getYear()]
 
 ### Full Example (Trivia) <a class="toc" id="toc-full-example-trivia" href="#toc-full-example-trivia"></a>
 
-#### `/forms/trivia.form.js`
+#### `/content/trivia.form.js`
 ```js
 const _ = require('lodash')
 

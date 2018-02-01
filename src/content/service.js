@@ -40,8 +40,8 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
   const categoryById = {}
   const fileById = {}
 
-  const formDir = path.resolve(projectLocation, botfile.formsDir || './forms')
-  const formDataDir = path.resolve(projectLocation, botfile.formsDataDir || './forms_data')
+  const contentDir = path.resolve(projectLocation, botfile.contentDir || './content')
+  const contentDataDir = path.resolve(projectLocation, botfile.contentDataDir || './content_data')
 
   const knex = await prepareDb()
 
@@ -103,7 +103,7 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
     const items = (await listCategoryItems(categoryId)).map(item =>
       _.pick(item, 'id', 'formData', 'createdBy', 'createdOn')
     )
-    await ghostManager.upsertFile(formDataDir, fileById[categoryId], JSON.stringify(items, null, 2))
+    await ghostManager.upsertFile(contentDataDir, fileById[categoryId], JSON.stringify(items, null, 2))
   }
 
   const dumpAllDataToFiles = () => Promise.map(categories, ({ id }) => dumpDataToFile(id))
@@ -300,7 +300,7 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
   }
 
   const loadCategory = file => {
-    const filePath = path.resolve(formDir, './' + file)
+    const filePath = path.resolve(contentDir, './' + file)
     // eslint-disable-next-line no-eval
     const category = eval('require')(filePath) // Dynamic loading require eval for Webpack
     const requiredFields = ['id', 'title', 'jsonSchema']
@@ -324,7 +324,7 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
   }
 
   const readDataForFile = async fileName => {
-    const json = await ghostManager.readFile(formDataDir, fileName)
+    const json = await ghostManager.readFile(contentDataDir, fileName)
     if (!json) {
       logger.warn(`Form content file ${fileName} not found`)
       return []
@@ -369,14 +369,14 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
   }
 
   const init = async () => {
-    if (!fs.existsSync(formDir)) {
+    if (!fs.existsSync(contentDir)) {
       return
     }
 
-    mkdirp.sync(formDataDir)
-    await ghostManager.addRootFolder(formDataDir, '**/*.json')
+    mkdirp.sync(contentDataDir)
+    await ghostManager.addRootFolder(contentDataDir, '**/*.json')
 
-    const files = await Promise.fromCallback(callback => glob('**/*.form.js', { cwd: formDir }, callback))
+    const files = await Promise.fromCallback(callback => glob('**/*.form.js', { cwd: contentDir }, callback))
 
     // initial path, save raw props and IDs
     await Promise.map(files, async file => {
