@@ -62,14 +62,13 @@ export default class Queue {
     try {
       await Promise.mapSeries(this.subscribers, fn => fn(job))
     } catch (err) {
-      this.logger.error(`${this.name} queue failed to process job: ${err.message}`)
+      this.logger.warn(`${this.name} queue failed to process job: ${err.message}`)
 
       if (retries + 1 <= this.options.retries) {
         this.enqueue(job, retries + 1, true)
       } else {
-        this.logger.warn(
-          `[WARNING] Retrying job within ${this.name} queue failed
-            ${this.options.retries} times! Dropping it!`
+        this.logger.error(
+          `Retrying job within ${this.name} queue failed ${this.options.retries} times. Abandoning the job.`
         )
       }
     } finally {
