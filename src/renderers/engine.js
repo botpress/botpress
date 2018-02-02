@@ -193,10 +193,10 @@ const hydrateMustache = (obj, context) => {
   return obj
 }
 
-module.exports = ({ blocName, blocFn, context, options, processors, incomingEvent }) => {
+module.exports = ({ rendererName, rendererFn, context, options, processors, incomingEvent }) => {
   // We're running it a second time to do second-level variable replacement
   // This happens often when there are variables used in the Content Manager
-  const rawBloc = hydrateMustache(hydrateMustache(blocFn(context), context), context)
+  const rawBloc = hydrateMustache(hydrateMustache(rendererFn(context), context), context)
 
-  return mapBloc(rawBloc, blocName, options, processors, incomingEvent)
+  return mapBloc(rawBloc, rendererName, options, processors, incomingEvent)
 }

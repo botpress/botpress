@@ -21,7 +21,7 @@ import createGhostManager from './ghost-content'
 import createLicensing from './licensing'
 import createAbout from './about'
 import createModules from './modules'
-import createUMM from './umm'
+import createRenderers from './renderers'
 import createUsers from './users'
 import createContentManager from './content/service'
 
@@ -32,7 +32,6 @@ import DialogProcessors from './dialog/processors'
 import DialogJanitor from './dialog/janitor'
 import SkillsManager from './skills'
 
-import createConversations from './conversations'
 import stats from './stats'
 import packageJson from '../package.json'
 import createEmails from '+/emails'
@@ -166,7 +165,7 @@ class botpress {
     const { middleware: fallbackMiddleware } = createFallbackMiddleware(this)
     const emails = createEmails({ emailConfig: botfile.emails })
     const mediator = createMediator(this)
-    const convo = createConversations({ logger, middleware: middlewares })
+
     const users = createUsers({ db })
     const ghostManager = createGhostManager({
       projectLocation,
@@ -180,11 +179,9 @@ class botpress {
       botfile,
       ghostManager
     })
-    const umm = createUMM({
+    const renderers = createRenderers({
       logger,
       middlewares,
-      projectLocation,
-      botfile,
       db,
       contentManager
     })
@@ -215,7 +212,7 @@ class botpress {
       out: { enqueue: event => outgoingQueue.enqueue({ event }) }
     }
 
-    middlewares.register(umm.incomingMiddleware)
+    middlewares.register(renderers.incomingMiddleware)
     middlewares.register(hearMiddleware)
     middlewares.register(fallbackMiddleware)
 
@@ -235,8 +232,13 @@ class botpress {
       db,
       emails,
       mediator,
-      convo,
-      umm,
+      renderers,
+      get umm() {
+        logger.warn(
+          'DEPRECATION NOTICE – bp.umm is deprecated and will be removed in `botpress@3.0` – Please see bp.renderers instead.'
+        )
+        return renderers
+      },
       users,
       ghostManager,
       contentManager,

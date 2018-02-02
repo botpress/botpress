@@ -79,7 +79,7 @@ export default class ListView extends Component {
     return (
       <tr>
         <th />
-        <th>UMM Id</th>
+        <th>Content Id</th>
         <th>Category</th>
         <th>Preview</th>
         <th>Created on</th>

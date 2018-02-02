@@ -16,9 +16,9 @@ module.exports = {
   modulesConfigDir: process.env.BOTPRESS_CONFIG_DIR || './modules_config',
 
   /*
-    Path to Content Forms
+    Path to Content Types
    */
-  formsDir: './forms',
+  contentDir: './content',
 
   /*
     Path to Flows
@@ -26,9 +26,9 @@ module.exports = {
   flowsDir: './flows',
 
   /*
-    Path to Content Forms Data
+    Path to Content Types Data
    */
-  formsDataDir: './forms_data',
+  contentDataDir: './content_data',
 
   /*
     By default logs are enabled and available in `dataDir`

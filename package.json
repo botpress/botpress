@@ -1,7 +1,7 @@
 {
   "name": "botpress",
   "description": "The world's first CMS for bots. Easily create, manage and extend chatbots.",
-  "version": "2.0.0-beta.14",
+  "version": "2.0.0-beta.15",
   "author": "Botpress",
   "bin": {
     "bp": "./bin/botpress",
@@ -120,7 +120,7 @@
     "sass-loader": "^6.0.6",
     "script-loader": "^0.7.0",
     "simple-line-icons": "^2.4.1",
-    "sinon": "^1.17.7",
+    "sinon": "^4.2.2",
     "storm-react-diagrams": "^3.1.2",
     "style-loader": "^0.13.1",
     "tmp": "0.0.31",

@@ -9,7 +9,7 @@
     - path: "/foundamentals/events/"
     - path: "/foundamentals/conversations/"
     - path: "/foundamentals/flow/"
-    - path: "/foundamentals/umm/"
+    - path: "/foundamentals/renderers/"
     - path: "/foundamentals/content/"
     - path: "/foundamentals/database/"
     - path: "/foundamentals/tags/"

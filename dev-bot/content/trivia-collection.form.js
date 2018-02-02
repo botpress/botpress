@@ -3,7 +3,7 @@ const Promise = require('bluebird')
 module.exports = {
   id: 'trivia-collection',
   title: 'Trivia Questions Collection',
-  ummBloc: '#trivia-collection',
+  renderer: '#trivia-collection',
 
   jsonSchema: {
     title: 'Trivia Collection',

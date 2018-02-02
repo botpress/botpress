@@ -90,7 +90,7 @@ docs_additional_reading: "Additional Reading"
   description: "Installing the Botpress CLI"
 
 
-## Foundamentals 
+## Foundamentals
 
 "/foundamentals/":
   title: "Structure"
@@ -106,12 +106,12 @@ docs_additional_reading: "Additional Reading"
   description: "Conversation is the core of any chatbots"
 
 "/foundamentals/flow/":
-  title: " Managing the conversation Flow"
+  title: "Managing the conversation Flow"
   description: "Present the build-in Flow manager (Convo)"
 
-"/foundamentals/umm/":
-  title: "Universal Message Markdown (UMM)"
-  description: "UMM is the best way to send messages."
+"/foundamentals/renderer/":
+  title: "Content Renderers"
+  description: "Renderers define how content is rendered on the different channels"
 
 "/foundamentals/content/":
   title: "Content Manager"
@@ -129,7 +129,7 @@ docs_additional_reading: "Additional Reading"
   title: "Configuration"
   description: "What's inside the configuration in botpress. The botfile.js store all you important configuration"
 
-## Getting Started 
+## Getting Started
 "/getting_started/":
   title: "Getting Started"
   description: "An introduction for Botpress"
@@ -161,9 +161,9 @@ docs_additional_reading: "Additional Reading"
   description: "Here you find how to configure your favorite IDE to debug your code"
 
 
-## Reference 
+## Reference
 
-"/reference/": 
+"/reference/":
   title: "Cli Reference"
   description: "You can use the Cli (command line interface) to make some action with botpress. This guide describe all the Cli command in botpress"
 
@@ -177,7 +177,7 @@ docs_additional_reading: "Additional Reading"
 "/modules/events/":
   title: "How to use Events"
   description: "Events is a middleware"
-  
+
 "/modules/config/":
   title: "Module Configuration"
   description: "How the configuration should be"
@@ -219,9 +219,9 @@ guides:
   reference:
     title: "Reference"
     description: >
-      Looking for more info 
+      Looking for more info
 
   modules:
     title: "Module Development"
     description: >
-      How to Create your own module 
+      How to Create your own module
