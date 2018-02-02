@@ -82,13 +82,17 @@ export default class FlowBuilder extends Component {
     this.diagramEngine.setDiagramModel(this.activeModel)
 
     const PADDING = 100
-    const diagramWidth = document.querySelector('#diagramContainer').offsetWidth
-    const totalFlowWidth = _.max(nodes.map(({ x }) => x)) - _.min(nodes.map(({ x }) => x))
-    this.activeModel.setZoomLevel(Math.min(1, diagramWidth / (totalFlowWidth + 2 * PADDING)) * 100)
-    this.activeModel.setOffsetX(-_.min(nodes.map(({ x }) => x)) + PADDING)
-    this.activeModel.setOffsetY(-_.min(nodes.map(({ y }) => y)) + PADDING)
+    const diagramContainer = document.getElementById('diagramContainer')
 
-    this.diagramWidget && this.diagramWidget.forceUpdate()
+    if (diagramContainer) {
+      const diagramWidth = diagramContainer.offsetWidth
+      const totalFlowWidth = _.max(nodes.map(({ x }) => x)) - _.min(nodes.map(({ x }) => x))
+      this.activeModel.setZoomLevel(Math.min(1, diagramWidth / (totalFlowWidth + 2 * PADDING)) * 100)
+      this.activeModel.setOffsetX(-_.min(nodes.map(({ x }) => x)) + PADDING)
+      this.activeModel.setOffsetY(-_.min(nodes.map(({ y }) => y)) + PADDING)
+
+      this.diagramWidget && this.diagramWidget.forceUpdate()
+    }
   }
 
   clearModel() {
