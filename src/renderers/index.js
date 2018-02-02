@@ -13,13 +13,13 @@ module.exports = ({ logger, middlewares, db, contentManager }) => {
       throw new Error(`[Renderers] Platform must be a string, got: ${platform}.`)
     }
     if (processors[platform]) {
-      throw new Error(`[UMM] Platform should only be registered once, platform: ${platform}.`)
+      throw new Error(`[Renderers] Platform should only be registered once, platform: ${platform}.`)
     }
     if (!_.isFunction(processOutgoing)) {
-      throw new Error(`[UMM] processOutgoing must be a function, platform: ${platform}.`)
+      throw new Error(`[Renderers] processOutgoing must be a function, platform: ${platform}.`)
     }
 
-    logger.verbose(`[UMM] Enabled for ${platform}.`)
+    logger.verbose(`[Renderers] Enabled for ${platform}.`)
 
     processors[platform] = processOutgoing
   }
@@ -144,8 +144,8 @@ module.exports = ({ logger, middlewares, db, contentManager }) => {
   }
 
   const processIncoming = (event, next) => {
-    event.reply = (blocName, additionalData = {}) => {
-      return sendContent(event, blocName, additionalData)
+    event.reply = (rendererName, additionalData = {}) => {
+      return sendContent(event, rendererName, additionalData)
     }
 
     next()

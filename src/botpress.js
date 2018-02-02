@@ -233,7 +233,12 @@ class botpress {
       emails,
       mediator,
       renderers,
-      umm: renderers, // DEPRECATED
+      get umm() {
+        logger.warn(
+          'DEPRECATION NOTICE – bp.umm is deprecated and will be removed in `botpress@3.0` – Please see bp.renderers instead.'
+        )
+        return renderers
+      },
       users,
       ghostManager,
       contentManager,

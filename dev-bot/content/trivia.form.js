@@ -3,7 +3,7 @@ const _ = require('lodash')
 module.exports = {
   id: 'trivia',
   title: 'Trivia Questions',
-  ummBloc: '#trivia-question',
+  renderer: '#trivia-question',
 
   jsonSchema: {
     title: 'Trivia Questions',
