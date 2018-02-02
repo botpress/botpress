@@ -48,7 +48,7 @@ export default class Queue {
   async tick() {
     const toDequeueIdx = _.findIndex(this.queue, el => {
       const queueId = this.getQueueId(el.job)
-      return this._lock[queueId] !== true
+      return !this._lock[queueId]
     })
 
     if (toDequeueIdx === -1) {

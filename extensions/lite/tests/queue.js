@@ -7,7 +7,7 @@ import _ from 'lodash'
 
 import Queue from '../queue'
 
-describe.only('Lite Queues', () => {
+describe('Lite Queues', () => {
   const options = { retries: 1 }
   let logger, queue
 
