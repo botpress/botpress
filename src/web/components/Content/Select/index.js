@@ -37,16 +37,6 @@ class SelectContent extends Component {
       searchTerm: '',
       newItemData: null
     }
-
-    this.inputFocused = false
-  }
-
-  focusInput = searchInput => {
-    if (this.inputFocused && searchInput) {
-      return
-    }
-    this.inputFocused = !!searchInput
-    moveCursorToEnd(searchInput)
   }
 
   componentDidMount() {
@@ -234,7 +224,7 @@ class SelectContent extends Component {
           placeholder={this.getSearchDescription()}
           aria-label="Search content elements"
           onChange={this.onSearchChange}
-          ref={input => this.focusInput(input)}
+          autoFocus
           value={this.state.searchTerm}
         />
         <hr />
