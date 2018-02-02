@@ -5,7 +5,6 @@ import glob from 'glob'
 import nanoid from 'nanoid'
 
 import get from 'lodash/get'
-import union from 'lodash/union'
 import partition from 'lodash/partition'
 import mapValues from 'lodash/mapValues'
 import uniq from 'lodash/uniq'
@@ -22,8 +21,6 @@ module.exports = ({ logger, db, projectLocation, enabled }) => {
   if (!enabled) {
     return createTransparent({ logger, projectLocation })
   }
-
-  const transparentDriver = createTransparent({ logger, projectLocation })
 
   const normalizeFolder = _normalizeFolder(projectLocation)
 
@@ -224,16 +221,13 @@ module.exports = ({ logger, db, projectLocation, enabled }) => {
 
   const directoryListing = async (rootFolder, fileEndingPattern = '', pathsToOmit = []) => {
     const knex = await db.get()
-    const { normalizedFolderName, folderPath } = normalizeFolder(rootFolder)
-
-    const transparentFiles = await transparentDriver.directoryListing(rootFolder, fileEndingPattern, pathsToOmit)
-
+    const { normalizedFolderName } = normalizeFolder(rootFolder)
     return knex('ghost_content')
       .select('file')
       .whereNotIn('file', pathsToOmit)
       .andWhere({ folder: normalizedFolderName, deleted: 0 })
       .andWhere('file', 'like', `%${fileEndingPattern}`)
-      .then(res => union(transparentFiles, res.map(row => row.file)))
+      .then(res => res.map(row => row.file))
   }
 
   const getPending = () => pendingRevisionsByFolder
