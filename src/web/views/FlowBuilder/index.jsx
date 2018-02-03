@@ -21,7 +21,10 @@ class FlowBuilder extends Component {
   render() {
     const { flow } = this.props.params
     if (flow) {
-      this.props.switchFlow(`${flow}.flow.json`)
+      const nextFlow = `${flow}.flow.json`
+      if (this.props.currentFlow !== nextFlow) {
+        this.props.switchFlow(nextFlow)
+      }
     } else if (this.props.currentFlow) {
       this.props.router.push(`/flows/${this.props.currentFlow.replace(/\.flow\.json/, '')}`)
     }
