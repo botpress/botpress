@@ -1,7 +1,7 @@
 {
   "name": "botpress",
   "description": "The world's first CMS for bots. Easily create, manage and extend chatbots.",
-  "version": "2.0.0-beta.19",
+  "version": "2.0.0-beta.20",
   "author": "Botpress",
   "bin": {
     "bp": "./bin/botpress",
