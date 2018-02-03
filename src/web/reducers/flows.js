@@ -12,6 +12,7 @@ import {
   receiveFlows,
   switchFlow,
   updateFlow,
+  handleRefreshFlowLinks,
   renameFlow,
   updateFlowNode,
   switchFlowNode,
@@ -23,15 +24,16 @@ import {
   deleteFlow,
   duplicateFlow,
   removeFlowNode,
-  flowEditorUndo,
-  flowEditorRedo,
+  handleFlowEditorUndo,
+  handleFlowEditorRedo,
   linkFlowNodes,
   insertNewSkill,
   insertNewSkillNode,
   updateSkill
 } from '~/actions'
 
-const SNAPSHOT_SIZE = 25
+const MAX_UNDO_STACK_SIZE = 25
+const MIN_HISTORY_RECORD_INTERVAL = 500
 
 const defaultState = {
   flowsByName: {},
@@ -39,17 +41,11 @@ const defaultState = {
   currentFlow: null,
   currentFlowNode: null,
   currentDiagramAction: null,
-  currentSnapshotIndex: 0,
-  snapshots: [],
+  currentSnapshot: null,
+  undoStack: [],
+  redoStack: [],
   nodeInBuffer: null
 }
-
-const applySnapshot = (state, snapshot) => ({
-  ...state,
-  currentFlow: snapshot.activeFlow,
-  currentFlowNode: snapshot.activeFlowNode,
-  flowsByName: snapshot.flowsByName
-})
 
 const findNodesThatReferenceFlow = (state, flowName) =>
   _.flatten(_.values(state.flowsByName).map(flow => flow.nodes))
@@ -118,31 +114,37 @@ const computeFlowsHash = state => {
 
 const updateCurrentHash = state => ({ ...state, currentHashes: computeFlowsHash(state) })
 
-const createSnapshot = state => {
-  const snapshot = {
-    activeFlow: state.currentFlow,
-    activeFlowNode: state.currentFlowNode,
-    flowsByName: Object.assign({}, state.flowsByName)
+const createSnapshot = state => ({
+  ..._.pick(state, ['currentFlow', 'currentFlowNode', 'flowsByName']),
+  createdAt: new Date()
+})
+
+const recordHistory = state => {
+  if (!state.currentSnapshot || new Date() - state.currentSnapshot.createdAt < MIN_HISTORY_RECORD_INTERVAL) {
+    return { ...state, currentSnapshot: createSnapshot(state) }
   }
-
-  const lastSnapshot = _.head(state.snapshots)
-
-  let snapshots = _.take(state.snapshots, SNAPSHOT_SIZE)
-
-  if (
-    state.currentSnapshotIndex === 0 &&
-    state.snapshots.length > 1 &&
-    lastSnapshot &&
-    snapshot.activeFlow === lastSnapshot.activeFlow &&
-    (!!snapshot.activeFlowNode && snapshot.activeFlowNode === lastSnapshot.activeFlowNode)
-  ) {
-    snapshots = _.drop(snapshots, 1) // We merge the current and last snapshots
-  }
-
   return {
     ...state,
-    snapshots: [snapshot, ...snapshots],
-    currentSnapshotIndex: 0
+    undoStack: [state.currentSnapshot, ...state.undoStack.slice(0, MAX_UNDO_STACK_SIZE)],
+    redoStack: [],
+    currentSnapshot: createSnapshot(state)
+  }
+}
+
+const popHistory = stackName => state => {
+  const oppositeStack = stackName === 'undoStack' ? 'redoStack' : 'undoStack'
+  if (state[stackName].length === 0) {
+    return state
+  }
+  const currentSnapshot = state[stackName][0]
+  return {
+    ...state,
+    currentSnapshot,
+    currentFlow: currentSnapshot.currentFlow,
+    currentFlowNode: currentSnapshot.currentFlowNode,
+    flowsByName: currentSnapshot.flowsByName,
+    [stackName]: state[stackName].slice(1),
+    [oppositeStack]: [state.currentSnapshot, ...state[oppositeStack]]
   }
 }
 
@@ -215,11 +217,15 @@ let reducer = handleActions(
     [receiveFlows]: (state, { payload }) => {
       const flows = _.keys(payload).filter(key => !payload[key].skillData)
       const defaultFlow = _.keys(payload).includes('main.flow.json') ? 'main.flow.json' : _.first(flows)
-      return {
+      const newState = {
         ...state,
         fetchingFlows: false,
         flowsByName: payload,
         currentFlow: state.currentFlow || defaultFlow
+      }
+      return {
+        ...newState,
+        currentSnapshot: createSnapshot(newState)
       }
     },
 
@@ -249,58 +255,20 @@ let reducer = handleActions(
     [setDiagramAction]: (state, { payload }) => ({
       ...state,
       currentDiagramAction: payload
+    }),
+
+    [handleRefreshFlowLinks]: state => ({
+      ...state,
+      flowsByName: {
+        ...state.flowsByName,
+        [state.currentFlow]: {
+          ...state.flowsByName[state.currentFlow],
+          nodes: state.flowsByName[state.currentFlow].nodes.map(node => ({ ...node, lastModified: new Date() }))
+        }
+      }
     })
   },
   defaultState
-)
-
-// *****
-// Reducer that creates snapshots of the flows (for undo / redo)
-// *****
-
-reducer = reduceReducers(
-  reducer,
-  handleActions(
-    {
-      [updateFlow]: createSnapshot,
-      [renameFlow]: createSnapshot,
-      [updateFlowNode]: createSnapshot,
-      [createFlowNode]: createSnapshot,
-      [linkFlowNodes]: createSnapshot,
-      [createFlow]: createSnapshot,
-      [deleteFlow]: createSnapshot,
-      [duplicateFlow]: createSnapshot,
-      [removeFlowNode]: createSnapshot,
-      [insertNewSkill]: createSnapshot,
-      [insertNewSkillNode]: createSnapshot,
-      [updateSkill]: createSnapshot,
-
-      [flowEditorUndo]: state => {
-        if (_.isEmpty(state.snapshots) || state.snapshots.length <= state.currentSnapshotIndex) {
-          return state
-        }
-
-        const snapshot = state.snapshots[state.currentSnapshotIndex]
-
-        return {
-          ...applySnapshot(state, snapshot),
-          currentSnapshotIndex: state.currentSnapshotIndex + 1
-        }
-      },
-
-      [flowEditorRedo]: state => {
-        if (state.currentSnapshotIndex <= 0) {
-          return state
-        }
-        const snapshot = state.snapshots[state.currentSnapshotIndex - 1]
-        return {
-          ...applySnapshot(state, snapshot),
-          currentSnapshotIndex: state.currentSnapshotIndex - 1
-        }
-      }
-    },
-    defaultState
-  )
 )
 
 reducer = reduceReducers(
@@ -640,6 +608,33 @@ reducer = reduceReducers(
       [removeFlowNode]: updateCurrentHash,
       [insertNewSkillNode]: updateCurrentHash,
       [updateSkill]: updateCurrentHash
+    },
+    defaultState
+  )
+)
+
+// *****
+// Reducer that records state of the flows for undo/redo
+// *****
+
+reducer = reduceReducers(
+  reducer,
+  handleActions(
+    {
+      [updateFlow]: recordHistory,
+      [renameFlow]: recordHistory,
+      [updateFlowNode]: recordHistory,
+      [createFlowNode]: recordHistory,
+      [linkFlowNodes]: recordHistory,
+      [createFlow]: recordHistory,
+      [deleteFlow]: recordHistory,
+      [duplicateFlow]: recordHistory,
+      [removeFlowNode]: recordHistory,
+      [insertNewSkill]: recordHistory,
+      [insertNewSkillNode]: recordHistory,
+      [updateSkill]: recordHistory,
+      [handleFlowEditorUndo]: popHistory('undoStack'),
+      [handleFlowEditorRedo]: popHistory('redoStack')
     },
     defaultState
   )

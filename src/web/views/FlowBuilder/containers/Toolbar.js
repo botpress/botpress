@@ -18,17 +18,13 @@ const mapStateToProps = (state, ownProps) => ({
   skills: state.skills.installed
 })
 
-const mapDispatchToProps = (dispatch, ownProps) =>
-  bindActionCreators(
-    {
-      setDiagramAction: setDiagramAction,
-      updateFlow: updateFlow,
-      undo: flowEditorUndo,
-      redo: flowEditorRedo,
-      buildSkill: buildNewSkill
-    },
-    dispatch
-  )
+const mapDispatchToProps = {
+  setDiagramAction: setDiagramAction,
+  updateFlow: updateFlow,
+  undo: flowEditorUndo,
+  redo: flowEditorRedo,
+  buildSkill: buildNewSkill
+}
 
 const ConnectedToolbar = connect(mapStateToProps, mapDispatchToProps)(Toolbar)
 
