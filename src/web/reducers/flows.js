@@ -245,6 +245,10 @@ let reducer = handleActions(
     }),
 
     [switchFlow]: (state, { payload }) => {
+      if (state.currentFlow === payload) {
+        return state
+      }
+
       return {
         ...state,
         currentFlowNode: null,
