@@ -43,13 +43,8 @@ class SelectContent extends Component {
     this.searchContentItems()
     this.fetchContentItemsCount()
     this.props.fetchContentCategories()
-    moveCursorToEnd(this.searchInput)
 
-    window.addEventListener('keyup', this.handleChangeActiveItem)
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('keyup', this.handleChangeActiveItem)
+    this.props.container.querySelector('.modal').addEventListener('keyup', this.handleChangeActiveItem)
   }
 
   componentWillReceiveProps(newProps) {
@@ -109,7 +104,7 @@ class SelectContent extends Component {
 
   handlePick(item) {
     this.props.onSelect && this.props.onSelect(item)
-    this.setState({ show: false })
+    this.onClose()
   }
 
   handleFormEdited = data => {
@@ -117,16 +112,20 @@ class SelectContent extends Component {
   }
 
   resetCreateContent = (resetSearch = false) => () => {
-    const state = { newItemCategory: null, newItemData: null }
+    const stateUpdate = { newItemCategory: null, newItemData: null }
     if (resetSearch) {
-      state.searchTerm = ''
+      Object.assign(stateUpdate, {
+        searchTerm: '',
+        activeItemIndex: 0
+      })
     }
-    return new Promise(resolve => this.setState(state, resolve))
+    return new Promise(resolve => this.setState(stateUpdate, resolve))
   }
 
   onClose = () => {
-    this.setState({ show: false })
-    this.props.onClose && this.props.onClose()
+    this.setState({ show: false }, () => {
+      this.props.onClose && this.props.onClose()
+    })
   }
 
   getVisibleCategories() {
@@ -225,7 +224,7 @@ class SelectContent extends Component {
           placeholder={this.getSearchDescription()}
           aria-label="Search content elements"
           onChange={this.onSearchChange}
-          ref={input => (this.searchInput = input)}
+          autoFocus
           value={this.state.searchTerm}
         />
         <hr />
@@ -267,7 +266,7 @@ class SelectContent extends Component {
     const schema = (newItemCategory || {}).schema || { json: {}, ui: {} }
 
     return (
-      <Modal animation={false} show={show} onHide={this.onClose} container={document.getElementById('app')}>
+      <Modal animation={false} show={show} onHide={this.onClose} container={this.props.container}>
         <Modal.Header closeButton>
           <Modal.Title>Pick Content</Modal.Title>
         </Modal.Header>
