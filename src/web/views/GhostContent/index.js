@@ -63,9 +63,13 @@ export default class GhostView extends Component {
   renderFile(folder, file, data) {
     data = sortBy(data, 'created_on')
     return (
-      <li key={`${folder}/${file}`}>
-        <strong>{file}</strong>
-        <ul>{data.map(datum => this.renderRevision(datum))}</ul>
+      <li>
+        <details>
+          <summary>{file}</summary>
+          <li key={`${folder}/${file}`}>
+            <ul>{data.map(datum => this.renderRevision(datum))}</ul>
+          </li>
+        </details>
       </li>
     )
   }
@@ -75,7 +79,9 @@ export default class GhostView extends Component {
     return (
       <li key={folder}>
         <strong>{folder}</strong>
-        <ul>{files.map(file => this.renderFile(folder, file, data[file]))}</ul>
+        <ul style={{ listStyle: 'none', padding: '0' }}>
+          {files.map(file => this.renderFile(folder, file, data[file]))}
+        </ul>
       </li>
     )
   }
