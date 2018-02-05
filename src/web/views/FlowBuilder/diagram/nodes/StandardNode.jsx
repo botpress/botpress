@@ -1,8 +1,7 @@
 import React, { Component } from 'react'
 import classnames from 'classnames'
 import _ from 'lodash'
-
-const { NodeModel, NodeWidgetFactory } = require('storm-react-diagrams')
+import { NodeModel, NodeFactory } from 'storm-react-diagrams'
 
 import { StandardOutgoingPortModel, StandardPortWidget, StandardIncomingPortModel } from './Ports'
 import ActionItem from '../../common/action'
@@ -142,7 +141,7 @@ export class StandardNodeModel extends NodeModel {
 
 export const StandardNodeWidgetFactory = React.createFactory(StandardNodeWidget)
 
-export class StandardWidgetFactory extends NodeWidgetFactory {
+export class StandardWidgetFactory extends NodeFactory {
   constructor() {
     super('standard')
   }

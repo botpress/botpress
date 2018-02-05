@@ -1,8 +1,7 @@
 import React, { Component } from 'react'
 import classnames from 'classnames'
 import _ from 'lodash'
-
-const { NodeModel, NodeWidgetFactory } = require('storm-react-diagrams')
+import { NodeModel, NodeFactory } from 'storm-react-diagrams'
 
 import ActionItem from '../../common/action'
 import ConditionItem from '../../common/condition'
@@ -121,12 +120,12 @@ export class SkillCallNodeModel extends NodeModel {
 
 export const SkillCallNodeWidgetFactory = React.createFactory(SkillCallNodeWidget)
 
-export class SkillCallWidgetFactory extends NodeWidgetFactory {
+export class SkillCallWidgetFactory extends NodeFactory {
   constructor() {
     super('skill-call')
   }
 
   generateReactWidget(diagramEngine, node) {
-    return SkillCallNodeWidgetFactory({ node: node })
+    return SkillCallNodeWidgetFactory({ node })
   }
 }

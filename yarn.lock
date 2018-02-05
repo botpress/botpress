@@ -6675,7 +6675,7 @@ react-transition-group@^1.2.0:
     prop-types "^15.5.6"
     warning "^3.0.0"
 
-react@16.x.x, "react@^15.6.2 || ^16.0", react@^16.1.1:
+react@16.x.x, "react@^15.6.2 || ^16.0", react@^16.2.0:
   version "16.2.0"
   resolved "https://registry.yarnpkg.com/react/-/react-16.2.0.tgz#a31bd2dab89bff65d42134fa187f24d054c273ba"
   dependencies:
@@ -7616,13 +7616,13 @@ stdout-stream@^1.4.0:
   dependencies:
     readable-stream "^2.0.1"
 
-storm-react-diagrams@^3.1.2:
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/storm-react-diagrams/-/storm-react-diagrams-3.2.0.tgz#25075329b4242b7b4cdc0e1318c3377bcddacffb"
+storm-react-diagrams@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/storm-react-diagrams/-/storm-react-diagrams-4.0.0.tgz#d33f040516ac3770daca050fc6702f10272e4a73"
   dependencies:
     closest "^0.0.1"
     lodash "^4.17.4"
-    react "^16.1.1"
+    react "^16.2.0"
 
 stream-browserify@^2.0.1:
   version "2.0.1"
