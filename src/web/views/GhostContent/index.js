@@ -11,6 +11,8 @@ import About from './About'
 
 import { fetchStatus, getHost } from './util'
 
+import style from './style.scss'
+
 export default class GhostView extends Component {
   state = {
     loading: true,
@@ -63,9 +65,13 @@ export default class GhostView extends Component {
   renderFile(folder, file, data) {
     data = sortBy(data, 'created_on')
     return (
-      <li key={`${folder}/${file}`}>
-        <strong>{file}</strong>
-        <ul>{data.map(datum => this.renderRevision(datum))}</ul>
+      <li>
+        <details>
+          <summary>{file}</summary>
+          <li key={`${folder}/${file}`}>
+            <ul>{data.map(datum => this.renderRevision(datum))}</ul>
+          </li>
+        </details>
       </li>
     )
   }
@@ -75,7 +81,7 @@ export default class GhostView extends Component {
     return (
       <li key={folder}>
         <strong>{folder}</strong>
-        <ul>{files.map(file => this.renderFile(folder, file, data[file]))}</ul>
+        <ul className={style.folders}>{files.map(file => this.renderFile(folder, file, data[file]))}</ul>
       </li>
     )
   }
