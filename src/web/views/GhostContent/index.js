@@ -11,6 +11,8 @@ import About from './About'
 
 import { fetchStatus, getHost } from './util'
 
+import style from './style.scss'
+
 export default class GhostView extends Component {
   state = {
     loading: true,
@@ -79,9 +81,7 @@ export default class GhostView extends Component {
     return (
       <li key={folder}>
         <strong>{folder}</strong>
-        <ul style={{ listStyle: 'none', padding: '0' }}>
-          {files.map(file => this.renderFile(folder, file, data[file]))}
-        </ul>
+        <ul className={style.folders}>{files.map(file => this.renderFile(folder, file, data[file]))}</ul>
       </li>
     )
   }
