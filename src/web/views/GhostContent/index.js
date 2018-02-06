@@ -1,15 +1,16 @@
 import React, { Component } from 'react'
 import classnames from 'classnames'
-import sortBy from 'lodash/sortBy'
+import orderBy from 'lodash/orderBy'
+import moment from 'moment'
 
-import { Alert, Button, Modal } from 'react-bootstrap'
+import { Alert, Button, Modal, Panel } from 'react-bootstrap'
 
 import ContentWrapper from '~/components/Layout/ContentWrapper'
 import PageHeader from '~/components/Layout/PageHeader'
 import Loading from '~/components/Util/Loading'
 import About from './About'
 
-import { fetchStatus, getHost } from './util'
+import { fetchStatus, getHost, revertPendingFileChanges } from './util'
 
 import style from './style.scss'
 
@@ -54,23 +55,43 @@ export default class GhostView extends Component {
     this.fetch()
   }
 
-  renderRevision({ folder, file, revision, created_on: createdOn }) {
+  renderRevision({ folder, file, revision, created_on: createdOn }, index) {
+    const mostRecent = index === 0 ? '(most recent)' : ''
+    const timeAgo = moment(createdOn).fromNow()
+
     return (
       <li key={`${folder}/${file}/${revision}`}>
-        {revision}, created {createdOn}
+        Revision <code>{revision}</code> – Edited {timeAgo} {mostRecent}
       </li>
     )
   }
 
+  revertFile(folder, file) {
+    return revertPendingFileChanges(folder, file).then(() => this.fetch())
+  }
+
   renderFile(folder, file, data) {
-    data = sortBy(data, 'created_on')
+    data = orderBy(data, ['created_on'], ['desc'])
+
+    const undo = () => {
+      if (confirm('Are you sure you want to revert these changes? Changes will be lost and this is not reversible.')) {
+        this.revertFile(folder, file)
+      }
+    }
+
+    const undoLink = (
+      <a href="javascript: void(0);" onClick={undo}>
+        Revert changes
+      </a>
+    )
+
     return (
-      <li>
+      <li key={`${folder}/${file}`}>
         <details>
-          <summary>{file}</summary>
-          <li key={`${folder}/${file}`}>
-            <ul>{data.map(datum => this.renderRevision(datum))}</ul>
-          </li>
+          <summary>
+            {file} {undoLink}
+          </summary>
+          <ul>{data.map((datum, i) => this.renderRevision(Object.assign({ folder }, datum), i))}</ul>
         </details>
       </li>
     )
@@ -78,11 +99,11 @@ export default class GhostView extends Component {
 
   renderFolder(folder, data) {
     const files = Object.keys(data).sort()
+
     return (
-      <li key={folder}>
-        <strong>{folder}</strong>
-        <ul className={style.folders}>{files.map(file => this.renderFile(folder, file, data[file]))}</ul>
-      </li>
+      <Panel collapsible defaultExpanded header={folder}>
+        <ul className={style.files}>{files.map(file => this.renderFile(folder, file, data[file]))}</ul>
+      </Panel>
     )
   }
 
@@ -131,7 +152,7 @@ export default class GhostView extends Component {
             </p>
           </Alert>
         )}
-        <ul>{folders.map(folder => this.renderFolder(folder, data[folder]))}</ul>
+        <ul className={style.folders}>{folders.map(folder => this.renderFolder(folder, data[folder]))}</ul>
       </div>
     )
   }

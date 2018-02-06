@@ -1,9 +1,8 @@
 import { handleActions } from 'redux-actions'
 import reduceReducers from 'reduce-reducers'
 import _ from 'lodash'
-import nanoid from 'nanoid'
 
-import { hashCode } from '~/util'
+import { hashCode, prettyId } from '~/util'
 
 import {
   requestFlows,
@@ -192,7 +191,7 @@ const doCreateNewFlow = name => ({
   links: [],
   nodes: [
     {
-      id: nanoid(),
+      id: prettyId(),
       name: 'entry',
       onEnter: [],
       onReceive: null,
@@ -347,7 +346,7 @@ reducer = reduceReducers(
       // 3. puts that new node in the "insert buffer", waiting for user to place it on the canvas
       [insertNewSkill]: (state, { payload }) => {
         const skillId = payload.skillId.replace(/^botpress-skill-/i, '')
-        const flowRandomId = nanoid(5)
+        const flowRandomId = prettyId(6)
         const flowName = `skills/${skillId}-${flowRandomId}.flow.json`
 
         const newFlow = Object.assign({}, payload.generatedFlow, {
@@ -433,7 +432,7 @@ reducer = reduceReducers(
               location: name,
               nodes: state.flowsByName[flowNameToDuplicate].nodes.map(node => ({
                 ...node,
-                id: nanoid()
+                id: prettyId()
               }))
             }
           },
@@ -527,7 +526,7 @@ reducer = reduceReducers(
 
       [pasteFlowNode]: state => {
         const currentFlow = state.flowsByName[state.currentFlow]
-        const newNodeId = nanoid()
+        const newNodeId = prettyId()
         return {
           ...state,
           currentFlowNode: newNodeId,
@@ -562,8 +561,8 @@ reducer = reduceReducers(
               ...state.flowsByName[state.currentFlow].nodes,
               _.merge(
                 {
-                  id: nanoid(),
-                  name: `node-${nanoid(4)}`,
+                  id: prettyId(),
+                  name: `node-${prettyId(4)}`,
                   x: 0,
                   y: 0,
                   next: [],

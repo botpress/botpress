@@ -14,3 +14,6 @@ export const getHost = () => {
   const { protocol, host } = document.location
   return `${protocol}//${host}`
 }
+
+export const revertPendingFileChanges = (folder, file) =>
+  axios.delete(`/ghost_content/${folder}`, { params: { file } }).then()

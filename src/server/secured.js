@@ -204,11 +204,15 @@ module.exports = (bp, app) => {
   })
 
   app.secure('read', 'bot/ghost_content').get('/ghost_content/status', async (req, res) => {
-    res.send(bp.ghostManager.getPending())
+    res.send(await bp.ghostManager.getPending())
   })
 
   app.secure('read', 'bot/ghost_content').get('/ghost_content/export', async (req, res) => {
     res.send(await bp.ghostManager.getPendingWithContent())
+  })
+
+  app.secure('write', 'bot/ghost_content').delete('/ghost_content/:folder', async (req, res) => {
+    res.send(await bp.ghostManager.revertAllPendingChangesForFile(req.params.folder, req.query.file))
   })
 
   app.secure('read', 'bot/flows').get('/flows/all', async (req, res) => {

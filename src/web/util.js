@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import generate from 'nanoid/generate'
 
 export const hashCode = str => {
   let hash = 0
@@ -30,3 +31,5 @@ export const moveCursorToEnd = el => {
     range.select()
   }
 }
+
+export const prettyId = (length = 10) => generate('1234567890abcdef', length)
