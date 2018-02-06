@@ -147,6 +147,6 @@ export class StandardWidgetFactory extends NodeFactory {
   }
 
   generateReactWidget(diagramEngine, node) {
-    return StandardNodeWidgetFactory({ node: node })
+    return StandardNodeWidgetFactory({ node })
   }
 }

@@ -4,12 +4,20 @@ import { Button, Label } from 'react-bootstrap'
 import ReactDOM from 'react-dom'
 import classnames from 'classnames'
 import _ from 'lodash'
-import { DiagramWidget, DiagramEngine, DiagramModel, LinkModel, PointModel } from 'storm-react-diagrams'
+import {
+  DiagramWidget,
+  DiagramEngine,
+  DefaultNodeFactory,
+  DiagramModel,
+  LinkModel,
+  PointModel
+} from 'storm-react-diagrams'
 
 import { hashCode } from '~/util'
 
 import { StandardNodeModel, StandardWidgetFactory } from './nodes/StandardNode'
 import { SkillCallNodeModel, SkillCallWidgetFactory } from './nodes/SkillCallNode'
+import { DeletableLinkFactory } from './nodes/LinkWidget'
 
 const style = require('./style.scss')
 
@@ -30,9 +38,10 @@ export default class FlowBuilder extends Component {
 
     this.diagramEngine = new DiagramEngine()
 
-    this.diagramEngine.installDefaultFactories()
+    this.diagramEngine.registerNodeFactory(new DefaultNodeFactory())
     this.diagramEngine.registerNodeFactory(new StandardWidgetFactory())
     this.diagramEngine.registerNodeFactory(new SkillCallWidgetFactory())
+    this.diagramEngine.registerLinkFactory(new DeletableLinkFactory())
 
     this.setModel()
   }
