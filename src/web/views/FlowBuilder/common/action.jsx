@@ -82,7 +82,7 @@ class ActionItem extends Component {
 
     const htmlTpl = textContent.replace(/{{([a-z0-9. _-]*?)}}/gi, x => {
       const name = stripDots(x.replace(/{|}/g, ''))
-      vars[name] = '<span class="var">' + x + '</span>'
+      vars[name] = '<span class="var">{' + x + '}</span>'
       return '{' + stripDots(x) + '}'
     })
 
