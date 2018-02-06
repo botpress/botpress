@@ -6,6 +6,7 @@ import _ from 'lodash'
 import moment from 'moment'
 import axios from 'axios'
 import { createConfig } from './configurator'
+import helpers from './helpers'
 
 import { print, isDeveloping, npmCmd, resolveModuleRootPath, resolveFromDir, resolveProjectFile } from './util'
 
@@ -60,7 +61,7 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
       }
 
       try {
-        loader.init && (await loader.init(botpress, mod.configuration))
+        loader.init && (await loader.init(botpress, mod.configuration, helpers))
       } catch (err) {
         logger.warn('Error during module initialization: ', err)
       }

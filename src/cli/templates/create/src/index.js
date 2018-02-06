@@ -7,12 +7,12 @@
 module.exports = {
   config: {},
 
-  init: async (bp, configurator) => {
+  init: async (bp, configurator, helpers) => {
     // This is called before ready.
     // At this point your module is just being initialized, it is not loaded yet.
   },
 
-  ready: async (bp, configurator) => {
+  ready: async (bp, configurator, helpers) => {
     // Your module's been loaded by Botpress.
     // Serve your APIs here, execute logic, etc.
 
