@@ -3,6 +3,7 @@
     - path: "/getting_started/"
     - path: "/getting_started/about/"
     - path: "/getting_started/install/"
+    - path: "/getting_started/components/"
 
 # - id: foundamentals
 #   pages:
