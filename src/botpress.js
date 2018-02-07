@@ -24,14 +24,13 @@ import createModules from './modules'
 import createRenderers from './renderers'
 import createUsers from './users'
 import createContentManager from './content/service'
-
 import FlowProvider from './dialog/provider'
 import StateManager from './dialog/state'
 import DialogEngine from './dialog/engine'
 import DialogProcessors from './dialog/processors'
 import DialogJanitor from './dialog/janitor'
 import SkillsManager from './skills'
-
+import createHelpers from './helpers'
 import stats from './stats'
 import packageJson from '../package.json'
 import createEmails from '+/emails'
@@ -269,7 +268,7 @@ class botpress {
       this.stopServer = srv && srv.stop
       events.emit('ready')
       for (const mod of _.values(loadedModules)) {
-        mod.handlers.ready && mod.handlers.ready(this, mod.configuration)
+        mod.handlers.ready && mod.handlers.ready(this, mod.configuration, createHelpers)
       }
 
       const { port } = botfile
