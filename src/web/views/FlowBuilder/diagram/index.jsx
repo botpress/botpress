@@ -4,14 +4,7 @@ import { Button, Label } from 'react-bootstrap'
 import ReactDOM from 'react-dom'
 import classnames from 'classnames'
 import _ from 'lodash'
-import {
-  DiagramWidget,
-  DiagramEngine,
-  DefaultNodeFactory,
-  DiagramModel,
-  LinkModel,
-  PointModel
-} from 'storm-react-diagrams'
+import { DiagramWidget, DiagramEngine, DiagramModel, LinkModel, PointModel } from 'storm-react-diagrams'
 
 import { hashCode } from '~/util'
 
@@ -38,7 +31,6 @@ export default class FlowBuilder extends Component {
 
     this.diagramEngine = new DiagramEngine()
 
-    this.diagramEngine.registerNodeFactory(new DefaultNodeFactory())
     this.diagramEngine.registerNodeFactory(new StandardWidgetFactory())
     this.diagramEngine.registerNodeFactory(new SkillCallWidgetFactory())
     this.diagramEngine.registerLinkFactory(new DeletableLinkFactory())
@@ -122,7 +114,11 @@ export default class FlowBuilder extends Component {
           return
         }
 
-        const existingLink = _.find(existingLinks, { source: node.id, target: targetNode.id })
+        const existingLink = _.find(existingLinks, {
+          source: node.id,
+          target: targetNode.id,
+          sourcePort: sourcePort.name
+        })
         const targetPort = targetNode.ports['in']
         const link = new LinkModel()
         link.setSourcePort(sourcePort)
