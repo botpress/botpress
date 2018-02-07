@@ -2,9 +2,6 @@
 layout: guide
 ---
 
-Botpress is the leading open-source platform for building and managing voice and chat bots. 
-The easiest way to explain what Botpress does is to say that “Botpress is to bots what Wordpress is to websites”.
-
 ## The Botpress Philosophy <a class="toc" id="botpress_philosophy" href="#botpress_philosophy"></a>
 
 Building bots is something new and sounds like a fun challenge for most developers. 
