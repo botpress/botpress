@@ -63,6 +63,18 @@
     color: lighten($flow-gray, 20%);
   }
 
+  a {
+    background-color: lighten($brand-primary, 48%);
+    border-bottom: 1px solid lighten($brand-primary, 38%);
+    color: darken($brand-primary, 20%);
+
+    &:hover {
+      background-color: lighten($brand-primary, 40%);
+      border-bottom: 1px solid lighten($brand-primary, 30%);
+      text-decoration: none;
+    }
+  }
+
   $fix-margin-collapse: (1px / 16px) * 1rem;
 
   blockquote {
