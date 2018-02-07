@@ -1,10 +1,7 @@
-- id: about
-  pages:
-    - path: "/about/"
-    
 - id: getting_started
   pages:
     - path: "/getting_started/"
+    - path: "/getting_started/about/"
     - path: "/getting_started/install/"
 
 - id: foundamentals

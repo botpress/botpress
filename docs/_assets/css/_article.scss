@@ -1,3 +1,7 @@
+.guide-container {
+  padding: 0 55px 0 15px;
+}
+
 .article {
   line-height: 1.7;
 
@@ -17,8 +21,8 @@
   .h4,
   .h5,
   .h6 {
-    margin-top: 2rem;
-    margin-bottom: 1.2rem;
+    margin-top: 1.8rem;
+    margin-bottom: 0.8rem;
 
     &:first-child {
       margin-top: 0;
@@ -39,13 +43,33 @@
     }
   }
 
+  h1 {
+    font-size: 1.8rem;
+  }
+  h2 {
+    font-size: 1.4rem;
+  }
+  h3 {
+    font-size: 1.2rem;
+  }
+
+  h1,
+  h2 {
+    padding-bottom: 5px;
+    border-bottom: 2px solid #f1f1f1;
+  }
+
+  h3 {
+    color: lighten($flow-gray, 20%);
+  }
+
   $fix-margin-collapse: (1px / 16px) * 1rem;
 
   blockquote {
     margin-bottom: 1.2rem;
     padding: (1.2rem + $fix-margin-collapse) 1.2rem $fix-margin-collapse;
-    background: $gray-lightest;
-    border-left: $border-radius solid $gray-light;
+    background: lighten($yellow, 25%);
+    border-left: $border-radius solid $yellow;
 
     p code {
       background-color: $gray-lighter;
