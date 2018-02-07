@@ -32,7 +32,7 @@ botpress --version
 bp --version
 ```
 
-# Creating your first bot <a class="toc" id="toc-creating-a-new-bot" href="#toc-creating-a-new-bot"></a>
+## Creating your first bot <a class="toc" id="toc-creating-a-new-bot" href="#toc-creating-a-new-bot"></a>
 
 Create a new directory for your new bot called `my-first-bot` then run the following command in this folder:
 
@@ -52,7 +52,7 @@ yarn install
 
 The dependencies might take a while to install the first time. If for some reason you get an error installing Botpress, please visit our [Slack channel](https://slack.botpress.io) or [open an issue](https://github.com/botpress/botpress/issues/new).
 
-## Starting the bot <a class="toc" id="toc-starting-bot" href="#toc-starting-bot"></a>
+### Starting the bot <a class="toc" id="toc-starting-bot" href="#toc-starting-bot"></a>
 
 Once the dependencies installed, you may start the bot:
 
