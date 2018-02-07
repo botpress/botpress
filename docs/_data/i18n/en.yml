@@ -75,7 +75,7 @@ navbar_github: "GitHub"
 navbar_stackoverflow: "StackOverflow"
 navbar_slack: "Slack"
 
-docs_read_more: "Read more"
+docs_read_more: "Read now"
 docs_additional_reading: "Additional Reading"
 
 "/":
@@ -201,8 +201,7 @@ guides:
   getting_started:
     title: "Getting Started"
     description: >
-      Never used a chatbot Framework or just new to Botpress? Let's get you up and
-      running in a few minutes.
+      New to Botpress? Let's get you up and running in a few minutes.
 
   foundamentals:
     title: "Foundamentals"
