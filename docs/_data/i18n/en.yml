@@ -26,6 +26,10 @@ docs_additional_reading: "Additional Reading"
 
 # Gettings Started
 
+"/getting_started/":
+  title: "Getting started"
+  description: "New to Botpress? Let's get you up and running in a few minutes."
+
 "/getting_started/install/":
   title: "Installation and bootstrap"
   description: "Installing Botpress on your computer and creating your first bot"
@@ -42,5 +46,4 @@ guides:
   
   getting_started:
     title: "Getting Started"
-    description: >
-      New to Botpress? Let's get you up and running in a few minutes.
+    description: New to Botpress? Let's get you up and running in a few minutes.
