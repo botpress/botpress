@@ -1,3 +1,7 @@
+- id: about
+  pages:
+    - path: "/about/"
+    
 - id: getting_started
   pages:
     - path: "/getting_started/"

@@ -22,3 +22,10 @@ h5 {
     visibility: visible;
   }
 }
+
+.toc-menu {
+  position: sticky !important;
+  top: 100px;
+  background: #f9f9f9;
+  padding: 20px;
+}

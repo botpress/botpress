@@ -82,13 +82,15 @@ docs_additional_reading: "Additional Reading"
   title: "Documentation"
   description: "Guides and references for all you need to know about Botpress"
 
+"/about/":
+  title: "About Botpress"
+  description: "Read this if you are new to Botpress or if you want to know more about Botpress"
 
 # Gettings Started
 
 "/getting_started/install/":
   title: "Installation and bootstrap"
   description: "Installing the Botpress CLI"
-
 
 ## Foundamentals
 
@@ -195,6 +197,12 @@ docs_additional_reading: "Additional Reading"
   description: "How to use a lightweight version of botpress"
 
 guides:
+  
+  about:
+    title: "About Botpress"
+    description: >
+      Read this if you are new to Botpress or if you want to know more about Botpress
+  
   getting_started:
     title: "Getting Started"
     description: >
