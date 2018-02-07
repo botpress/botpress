@@ -18,9 +18,9 @@ npm install -g botpress
 yarn global add botpress
 ```
 
-> **Note**: Make sure you install the CLI as a global dependency, with the `-g` npm flag or the `global` command using yarn.
+> **Note:**️ Make sure you install the CLI as a global dependency, with the `-g` npm flag or the `global` command using yarn.
 
-> **Note**: If you have a permission error at this stage, consider running the following command as an administrator.
+> If you have a permission error at this stage, consider running the command as an administrator.
 
 Once installed, make sure that Botpress is well installed. Running the following command should return the version of the CLI tool:
 

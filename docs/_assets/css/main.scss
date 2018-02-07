@@ -36,7 +36,7 @@ $editor-error-bg: lighten(desaturate($flow-red, 13%), 3%);
 
 $syntax-07: mix(#fafafa, $editor-accent, 5%);
 $syntax-05: mix(#d0d0d0, $editor-accent, 5%);
-$syntax-04: lighten(mix(#b0b0b0, $editor-accent, 5%), 10%);
+$syntax-04: darken(mix(#b0b0b0, $editor-accent, 5%), 10%);
 $syntax-03: lighten(mix(#505050, $editor-accent, 1%), 25%);
 $syntax-01: mix(#202020, $editor-accent, 5%);
 $syntax-00: mix(#000000, $editor-accent, 5%);
