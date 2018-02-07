@@ -3,6 +3,7 @@ import path from 'path'
 import Module from 'module'
 import fs from 'fs'
 import knex from 'knex'
+import generate from 'nanoid/generate'
 
 const IS_DEV = process.env.NODE_ENV !== 'production'
 
@@ -97,6 +98,8 @@ const getInMemoryDb = () =>
     useNullAsDefault: true
   })
 
+const safeId = (length = 10) => generate('1234567890abcdefghijklmnopqrsuvwxyz', length)
+
 module.exports = {
   print,
   resolveFromDir,
@@ -107,5 +110,6 @@ module.exports = {
   npmCmd: NPM_CMD,
   getBotpressVersion,
   collectArgs,
-  getInMemoryDb
+  getInMemoryDb,
+  safeId
 }

@@ -2,7 +2,6 @@ import path from 'path'
 import fs from 'fs'
 import Promise from 'bluebird'
 import glob from 'glob'
-import nanoid from 'nanoid'
 
 import get from 'lodash/get'
 import partition from 'lodash/partition'
@@ -11,6 +10,7 @@ import uniq from 'lodash/uniq'
 
 import createTransparent from './transparent'
 import { normalizeFolder as _normalizeFolder } from './util'
+import { safeId } from '../util'
 
 Promise.promisifyAll(fs)
 const globAsync = Promise.promisify(glob)
@@ -139,6 +139,10 @@ module.exports = ({ logger, db, projectLocation, enabled }) => {
 
   const updatePendingForFolder = async normalizedFolderName => {
     pendingRevisionsByFolder[normalizedFolderName] = await getPendingRevisions(normalizedFolderName)
+
+    if (!pendingRevisionsByFolder[normalizedFolderName].length) {
+      delete pendingRevisionsByFolder[normalizedFolderName]
+    }
   }
 
   const updatePendingForAllFolders = () => Promise.each(trackedFolders, updatePendingForFolder)
@@ -146,7 +150,7 @@ module.exports = ({ logger, db, projectLocation, enabled }) => {
   const recordRevision = (knex, content_id, trx) =>
     knex('ghost_revisions')
       .transacting(trx)
-      .insert({ content_id, revision: nanoid(), created_by: 'admin' })
+      .insert({ content_id, revision: safeId(), created_by: 'admin' })
 
   const upsertFile = async (rootFolder, file, content) => {
     const knex = await db.get()
@@ -172,6 +176,36 @@ module.exports = ({ logger, db, projectLocation, enabled }) => {
           trx.rollback()
         })
     })
+  }
+
+  const revertAllPendingChangesForFile = async (folder, file) => {
+    const knex = await db.get()
+
+    const { folderPath } = normalizeFolder(folder)
+    const filePath = path.join(folderPath, file)
+
+    await knex('ghost_revisions')
+      .whereIn('id', function() {
+        // Subquery because SQLite doesn't support delete with joins
+        this.select('ghost_revisions.id')
+          .from('ghost_revisions')
+          .join('ghost_content', 'ghost_content.id', '=', 'ghost_revisions.content_id')
+          .where('folder', folder)
+          .andWhere('file', file)
+      })
+      .del()
+
+    await updatePendingForFolder(folder)
+
+    if (fs.existsSync(filePath)) {
+      // If the file exists on disk, this means it was initially source controlled
+      recordFile(folderPath, folder, file)
+    } else {
+      await knex('ghost_content')
+        .where('folder', folder)
+        .andWhere('file', file)
+        .del()
+    }
   }
 
   const readFile = async (rootFolder, file) => {
@@ -259,7 +293,8 @@ module.exports = ({ logger, db, projectLocation, enabled }) => {
     deleteFile,
     directoryListing,
     getPending,
-    getPendingWithContent
+    getPendingWithContent,
+    revertAllPendingChangesForFile
   }
 }
 
