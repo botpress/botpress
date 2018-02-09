@@ -92,7 +92,11 @@ If everything goes well, you should see some reassuring messages in the console.
 
 ## Speaking with your bot
 
-The bot comes with built-in integration with the Webchat channel. To open the webchat, navigate to this url: `[http://localhost:3000/lite/?m=platform-webchat&v=fullscreen](http://localhost:3000/lite/?m=platform-webchat&v=fullscreen)`
+The bot comes with built-in integration with the Webchat channel. To open the webchat, navigate to this url: [http://localhost:3000/lite/?m=platform-webchat&v=fullscreen](http://localhost:3000/lite/?m=platform-webchat&v=fullscreen)
+
+Now you can say "`play`" to your bot, you'll be playing a Trivia game 🎲! 
+
+We challenge you to score 100%!
 
 ### Viewing on your mobile
 
