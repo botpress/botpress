@@ -42,6 +42,10 @@ docs_additional_reading: "Additional Reading"
   title: "High-level components"
   description: "Quick overview of the different components of a Botpress bot"
 
+"/getting_started/trivia_template/":
+  title: "Trivia: Cloning the Template"
+  description: "Learning about the Templates and an overview of the things we'll learn next"
+
 guides:
   
   getting_started:
