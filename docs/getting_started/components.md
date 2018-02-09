@@ -2,7 +2,9 @@
 layout: guide
 ---
 
-Botpress can seem intimidating at first, but it is in fact very simple once you understand how it works and why. Let’s dissect all the major components of a Botpress bot.
+Botpress can seem intimidating at first, but it is in fact very simple once you understand how it works and why. Let’s dissect all the major components of a Botpress bot. 
+
+🌟 **Tip:** You may skip this section if you are already familiar with bot building.
 
 ## Modules <a class="toc" id="modules" href="#modules"></a>
 

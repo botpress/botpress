@@ -37,9 +37,10 @@ Developers build bots, then non-technical people can manage them.
 
 Botpress is 100% Javascript.
 
-The backend runs on NodeJS, SQLite and – in production – Postgres.
-The frontend runs on React/Redux/Bootstrap.
-We’re also using all sort of cool libs such as Socket.IO, Lodash, Axios, JWT, Knex and Bluebird.
+The backend runs on [NodeJS](https://nodejs.org), [SQLite](https://www.sqlite.org) and – in production – [PostgreSQL](https://www.postgresql.org).
+
+The frontend runs on [React](https://reactjs.org)/[Redux](https://redux.js.org)/[Bootstrap](https://getbootstrap.com/).
+We’re also using all sort of cool libs such as [Socket.IO](https://socket.io/), [Lodash](https://lodash.com/), [Axios](https://github.com/axios/axios), [JWT](https://jwt.io/), [Knex](http://knexjs.org/) and [Bluebird](http://bluebirdjs.com/).
 
 Botpress is lightweight (~10mb), blazing fast and has zero system dependencies (appart from NodeJS).
 
