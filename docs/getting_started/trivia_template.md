@@ -23,6 +23,8 @@ The version of the bot that you will be starting off from will already do the fo
 
 ### What we will be implementing
 
+> **Note:** We recommend you follow this guide sequentially for the first time, but the template contains a snapshot for every step, so you can skip some sections if you feel like it.
+
 That's a very basic bot, but we will be adding the following things:
 
 - New trivia questions
@@ -34,6 +36,8 @@ That's a very basic bot, but we will be adding the following things:
 - Perfecting the leaderboard on Facebook
 
 ### What you will learn
+
+> 🌟 **Tip:** Already familiar with Botpress but need a quick refresher about something? Click one of the links to jump directly to that concept.
 
 At the end of this guide, you'll have learned the following concepts:
 
