@@ -54,12 +54,52 @@ At the end of this guide, you'll have learned the following concepts:
 
 ## Getting the template
 
-- Git clone
-- Yarn
-- Yarn start
-- Logs
+### Cloning from GitHub
+
+Let's clone the template which is hosted [on GitHub](https://github.com/botpress/tutorial). You can clone this anywhere on your local computer. Once cloned, navigate in that directory.
+
+```bash
+# clone the repo
+git clone https://github.com/botpress/tutorial.git
+
+# navigate to the directory
+cd tutorial
+```
+
+You'll notice that you have several folders named `step-*`. We will start at **Step 1** and build up the bot from there. So you should `cd` into the `step-1` folder and install the dependencies.
+
+```bash
+cd step-1
+
+# using npm
+npm install
+
+# using yarn
+yarn install
+```
+
+Once all the dependencies installed, you can start the bot to see if everything is working properly:
+
+```bash
+#using npm
+npm start
+
+# using yarn
+yarn start
+```
+
+If everything goes well, you should see some reassuring messages in the console.
 
 ## Speaking with your bot
 
-- Webchat
-- Testing on mobile / Ngrok / Localtunnel / Pagekite
+The bot comes with built-in integration with the Webchat channel. To open the webchat, navigate to this url: `[http://localhost:3000/lite/?m=platform-webchat&v=fullscreen](http://localhost:3000/lite/?m=platform-webchat&v=fullscreen)`
+
+### Viewing on your mobile
+
+To speak with your bot using your phone, the easiest way is to open a tunnel to expose your local bot publicly to the internet. We recommend using one of the following tools:
+
+- [PageKite](https://pagekite.net)
+- [Ngrok](https://ngrok.io)
+- [Localtunnel](https://localtunnel.github.io/www/)
+
+Using any of these tools, make sure you **make it point to port `3000`**. Once done you should be able to access the webchat from your phone at a url similar to `https://487f83.ngrok.io/lite/?m=platform-webchat&v=fullscreen`.
