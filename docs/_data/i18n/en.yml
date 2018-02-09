@@ -46,6 +46,10 @@ docs_additional_reading: "Additional Reading"
   title: "Trivia: Cloning the Template"
   description: "Learning about the Templates and an overview of the things we'll learn next"
 
+"/getting_started/trivia_dashboard/":
+  title: "Trivia: Exploring the Dashboard"
+  description: "Overview of the Botpress Dashboard and how to protect it"
+
 guides:
   
   getting_started:

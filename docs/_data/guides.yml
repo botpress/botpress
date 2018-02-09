@@ -5,7 +5,8 @@
     - path: "/getting_started/install/"
     - path: "/getting_started/components/"
     - path: "/getting_started/trivia_template/"
-
+    - path: "/getting_started/trivia_dashboard/"
+    
 # - id: foundamentals
 #   pages:
 #     - path: "/foundamentals/"
