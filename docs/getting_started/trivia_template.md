@@ -8,7 +8,7 @@ For starters, we recommend that you start by cloning a bot template and customiz
 
 > **Note:** Starting a bot from scratch is possible, but it requires that you learn the internal workings of Botpress. The only people that need to start from scratch are usually people creating templates.
 
-## Starting from the **Trivia Template**
+## The **Trivia Template**
 
 For the rest of this entire guide, we will be customizing a simple template that we created specially for you, learner of Botpress! We intentionally left out many details and elements that we will be adding together during this guide.
 
@@ -21,6 +21,8 @@ The version of the bot that you will be starting off from will already do the fo
   - The bot asks you **3 questions**
   - At the end of the game, it tells you your score
 
+### What we will be implementing
+
 That's a very basic bot, but we will be adding the following things:
 
 - New trivia questions
@@ -31,7 +33,10 @@ That's a very basic bot, but we will be adding the following things:
 - Connecting it to Facebook Messenger
 - Perfecting the leaderboard on Facebook
 
+### What you will learn
+
 At the end of this guide, you'll have learned the following concepts:
+
 - Using Botpress dashboard
 - Using the Dialogue Tracer to debug your bot
 - The basics of the Content Manager
@@ -43,11 +48,14 @@ At the end of this guide, you'll have learned the following concepts:
 - Creating custom Content Types
 - Creating custom Content Renderers
 
-### Cloning the template
+## Getting the template
 
 - Git clone
 - Yarn
 - Yarn start
 - Logs
+
+## Speaking with your bot
+
 - Webchat
 - Testing on mobile / Ngrok / Localtunnel / Pagekite
