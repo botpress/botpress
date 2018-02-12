@@ -277,7 +277,7 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
   }
 
   const getItemDefault = async id => {
-    const item = await knex('content_items')
+    return knex('content_items')
       .where({ id })
       .get(0)
   }
@@ -307,8 +307,6 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
     } else {
       item = await getItemDefault(query)
     }
-
-    console.log(item)
 
     if (!item) {
       return null
