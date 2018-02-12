@@ -37,18 +37,20 @@ class NotificationHub extends NotificationComponent {
           <span> Notifications</span>
         </PageHeader>
         <Panel>
-          <div className="pull-right">
-            <OverlayTrigger placement="left" overlay={readTip}>
-              <Button disabled={unreadCount === 0} onClick={this.markAllAsRead}>
-                <em className="glyphicon glyphicon-eye-open" />
-              </Button>
-            </OverlayTrigger>
-            <OverlayTrigger placement="left" overlay={trashTip}>
-              <Button className={styles['bar-btn']} disabled={!canTrash} onClick={this.trashAll}>
-                <em className="glyphicon glyphicon-trash" />
-              </Button>
-            </OverlayTrigger>
-          </div>
+          <Panel.Body>
+            <div className="pull-right">
+              <OverlayTrigger placement="left" overlay={readTip}>
+                <Button disabled={unreadCount === 0} onClick={this.markAllAsRead}>
+                  <em className="glyphicon glyphicon-eye-open" />
+                </Button>
+              </OverlayTrigger>
+              <OverlayTrigger placement="left" overlay={trashTip}>
+                <Button className={styles['bar-btn']} disabled={!canTrash} onClick={this.trashAll}>
+                  <em className="glyphicon glyphicon-trash" />
+                </Button>
+              </OverlayTrigger>
+            </div>
+          </Panel.Body>
         </Panel>
         <ListGroup
           style={{

@@ -1,5 +1,4 @@
 import React from 'react'
-import { withRouter } from 'react-router'
 import axios from 'axios'
 
 /*****
@@ -108,8 +107,6 @@ export default class InjectedModuleView extends React.Component {
 
     const extraProps = this.props.extraProps || {}
 
-    const WrappedComponent = withRouter(InjectedComponent)
-
-    return <WrappedComponent component={moduleComponent} name={this.props.moduleName} bp={bp} {...extraProps} />
+    return <InjectedComponent component={moduleComponent} name={this.props.moduleName} bp={bp} {...extraProps} />
   }
 }

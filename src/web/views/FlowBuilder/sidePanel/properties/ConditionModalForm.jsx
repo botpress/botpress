@@ -209,7 +209,7 @@ export default class ConditionModalForm extends Component {
           <h5>Condition:</h5>
           <div className={style.section}>
             {this.state.conditionError && <Alert bsStyle="danger">{this.state.conditionError}</Alert>}
-            <Radio checked={true}>Raw Expression</Radio>
+            <Radio defaultChecked={true}>Raw Expression</Radio>
             <FormControl
               type="text"
               placeholder="Javascript expression"

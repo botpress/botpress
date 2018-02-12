@@ -16,7 +16,7 @@ const style = require('./style.scss')
 export default class SidePanel extends Component {
   state = {}
 
-  goToFlow = flow => this.props.router.push(`/flows/${flow.replace(/\.flow\.json/, '')}`)
+  goToFlow = flow => this.props.history.push(`/flows/${flow.replace(/\.flow\.json/, '')}`)
 
   render() {
     const objectPropertiesTitle = !!this.props.currentFlowNode ? 'Node Properties' : 'Flow Properties'
@@ -33,7 +33,7 @@ export default class SidePanel extends Component {
         }}
       >
         <div className={classnames(style.panelTop)}>
-          <Tabs animation={false}>
+          <Tabs animation={false} id="flow-panel-tabs-top">
             <Tab eventKey={1} title="Flows">
               <FlowsList
                 flows={nonSkills}
@@ -58,7 +58,7 @@ export default class SidePanel extends Component {
           </Tabs>
         </div>
         <div className={classnames(style.panelDown)}>
-          <Tabs animation={false}>
+          <Tabs animation={false} id="flow-panel-tabs-bottom">
             <Tab eventKey={3} title={objectPropertiesTitle}>
               {this.renderNodeProperties()}
             </Tab>

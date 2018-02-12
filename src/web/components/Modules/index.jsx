@@ -67,14 +67,16 @@ class ModuleComponent extends React.Component {
 
     return (
       <Panel key={module.name} className={classnames(style.modulePanel, 'bp-module-panel')}>
-        <Grid fluid>
-          <Row>
-            <Col sm={8}>{this.renderLeftSideModule()}</Col>
-            <Col sm={4} className={style.moduleRightSide}>
-              {this.renderRightSideModule()}
-            </Col>
-          </Row>
-        </Grid>
+        <Panel.Body>
+          <Grid fluid>
+            <Row>
+              <Col sm={8}>{this.renderLeftSideModule()}</Col>
+              <Col sm={4} className={style.moduleRightSide}>
+                {this.renderRightSideModule()}
+              </Col>
+            </Row>
+          </Grid>
+        </Panel.Body>
       </Panel>
     )
   }

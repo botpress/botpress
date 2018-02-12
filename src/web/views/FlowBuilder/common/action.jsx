@@ -12,16 +12,16 @@ const style = require('./style.scss')
 class ActionItem extends Component {
   constructor(props) {
     super(props)
-
     this.state = { itemId: this.textToItemId(this.props.text) }
-    this.fetchItem(this.props.text)
+  }
+
+  componentDidMount() {
+    this.fetchItem(this.textToItemId(this.props.text))
   }
 
   textToItemId = text => _.get(text.match(/^say #!(.*)$/), '[1]')
 
-  fetchItem = text => {
-    const itemId = this.textToItemId(text)
-    this.setState({ itemId })
+  fetchItem = itemId => {
     if (itemId) {
       this.props.fetchContentItem(itemId).then(this.props.refreshFlowsLinks)
     }
@@ -29,7 +29,7 @@ class ActionItem extends Component {
 
   componentWillReceiveProps({ text }) {
     if (text !== this.props.text) {
-      this.fetchItem(text)
+      this.fetchItem(this.textToItemId(text))
     }
   }
 

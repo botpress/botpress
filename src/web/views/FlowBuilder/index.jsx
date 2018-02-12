@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import classnames from 'classnames'
 import SplitPane from 'react-split-pane'
 import { connect } from 'react-redux'
-import { withRouter } from 'react-router'
+import { withRouter } from 'react-router-dom'
 
 import ContentWrapper from '~/components/Layout/ContentWrapper'
 import PageHeader from '~/components/Layout/PageHeader'
@@ -18,17 +18,19 @@ import { switchFlow } from '~/actions'
 const style = require('./style.scss')
 
 class FlowBuilder extends Component {
-  render() {
-    const { flow } = this.props.params
+  componentWillReceiveProps(nextProps) {
+    const { flow } = nextProps.match.params
     if (flow) {
       const nextFlow = `${flow}.flow.json`
       if (this.props.currentFlow !== nextFlow) {
         this.props.switchFlow(nextFlow)
       }
     } else if (this.props.currentFlow) {
-      this.props.router.push(`/flows/${this.props.currentFlow.replace(/\.flow\.json/, '')}`)
+      this.props.history.push(`/flows/${this.props.currentFlow.replace(/\.flow\.json/, '')}`)
     }
+  }
 
+  render() {
     return (
       <ContentWrapper stretch={true} className={style.wrapper}>
         <PageHeader className={style.header} width="100%">

@@ -42,7 +42,7 @@ const ensureAuthenticated = WrappedComponent => {
       const urlToken = _.get(this.props, 'location.query.token')
 
       if (location.pathname !== '/login' && !urlToken) {
-        this.context.router.push('/login?returnTo=' + location.pathname)
+        this.context.router.history.push('/login?returnTo=' + location.pathname)
       }
     }
 

@@ -86,27 +86,30 @@ export default class TransitionSection extends Component {
 
     return (
       <div>
-        <Panel collapsible defaultExpanded={true} header={header}>
-          {items.map((item, i) => (
-            <ConditionItem className={style.item} condition={item} position={i}>
-              {renderType(item)}
-              <div className={style.actions}>
-                <a onClick={() => this.onEdit(i)}>Edit</a>
-                <a onClick={() => this.onRemove(i)}>Remove</a>
-                <a onClick={() => this.onCopyAction(i)}>Copy</a>
-                {renderMoveUp(i)}
-                {renderMoveDown(i)}
-              </div>
-            </ConditionItem>
-          ))}
-          <div className={style.actions}>
-            <Button onClick={handleAddAction} bsSize="xsmall">
-              <i className={classnames(['material-icons', style.actionIcons])}>add</i>
-            </Button>
-            <Button onClick={this.props.pasteItem} bsSize="xsmall" disabled={!this.props.canPaste}>
-              <i className={classnames(['material-icons', style.actionIcons])}>content_paste</i>
-            </Button>
-          </div>
+        <Panel collapsible="true" defaultExpanded={true}>
+          <Panel.Heading>{header}</Panel.Heading>
+          <Panel.Body>
+            {items.map((item, i) => (
+              <ConditionItem className={style.item} condition={item} position={i} key={i}>
+                {renderType(item)}
+                <div className={style.actions}>
+                  <a onClick={() => this.onEdit(i)}>Edit</a>
+                  <a onClick={() => this.onRemove(i)}>Remove</a>
+                  <a onClick={() => this.onCopyAction(i)}>Copy</a>
+                  {renderMoveUp(i)}
+                  {renderMoveDown(i)}
+                </div>
+              </ConditionItem>
+            ))}
+            <div className={style.actions}>
+              <Button onClick={handleAddAction} bsSize="xsmall">
+                <i className={classnames(['material-icons', style.actionIcons])}>add</i>
+              </Button>
+              <Button onClick={this.props.pasteItem} bsSize="xsmall" disabled={!this.props.canPaste}>
+                <i className={classnames(['material-icons', style.actionIcons])}>content_paste</i>
+              </Button>
+            </div>
+          </Panel.Body>
         </Panel>
         <ConditionModalForm
           currentFlow={this.props.currentFlow}

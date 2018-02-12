@@ -42,7 +42,7 @@ export default class LoginPage extends Component {
     login(this.state.user, this.state.password)
       .then(result => {
         this.setState({ error: null })
-        this.context.router.push(this.props.location.query.returnTo || '/')
+        this.context.router.history.push(this.props.location.query.returnTo || '/')
       })
       .catch(err => {
         this.setState({ error: err.message, loading: false })

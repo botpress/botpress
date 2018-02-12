@@ -59,21 +59,24 @@ export default class SidePanel extends Component {
       })
 
     return (
-      <Panel style={style['section-' + section]} collapsible defaultExpanded={true} header={title}>
-        {items.map((item, i) => (
-          <ActionItem className={style.item} text={item}>
-            <div className={style.actions}>
-              <a onClick={() => this.removeAction(section, i)}>Remove</a>
-              {renderMoveUp(i)}
-              {renderMoveDown(i)}
-            </div>
-          </ActionItem>
-        ))}
-        <div className={style.actions}>
-          <Button className={style.addAction} onClick={handleAddAction}>
-            Add action
-          </Button>
-        </div>
+      <Panel style={style['section-' + section]} collapsible="true" defaultExpanded={true}>
+        <Panel.Heading>{title}</Panel.Heading>
+        <Panel.Body>
+          {items.map((item, i) => (
+            <ActionItem className={style.item} text={item}>
+              <div className={style.actions}>
+                <a onClick={() => this.removeAction(section, i)}>Remove</a>
+                {renderMoveUp(i)}
+                {renderMoveDown(i)}
+              </div>
+            </ActionItem>
+          ))}
+          <div className={style.actions}>
+            <Button className={style.addAction} onClick={handleAddAction}>
+              Add action
+            </Button>
+          </div>
+        </Panel.Body>
       </Panel>
     )
   }
@@ -83,17 +86,20 @@ export default class SidePanel extends Component {
     const items = node[section] || []
 
     return (
-      <Panel style={style['section-' + section]} collapsible defaultExpanded={true} header={title}>
-        {items.map((item, i) => (
-          <ActionItem className={style.item} text={item.condition}>
-            <div className={style.remove}>
-              <a onClick={() => this.removeAction(section, i)}>Remove</a>
-            </div>
-          </ActionItem>
-        ))}
-        <div className={style.actions}>
-          <Button className={style.addAction}>Add condition</Button>
-        </div>
+      <Panel style={style['section-' + section]} collapsible="true" defaultExpanded={true}>
+        <Panel.Heading>{title}</Panel.Heading>
+        <Panel.Body>
+          {items.map((item, i) => (
+            <ActionItem className={style.item} text={item.condition}>
+              <div className={style.remove}>
+                <a onClick={() => this.removeAction(section, i)}>Remove</a>
+              </div>
+            </ActionItem>
+          ))}
+          <div className={style.actions}>
+            <Button className={style.addAction}>Add condition</Button>
+          </div>
+        </Panel.Body>
       </Panel>
     )
   }

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
-import { Link } from 'react-router'
+import { Link } from 'react-router-dom'
 import classnames from 'classnames'
 import moment from 'moment'
 

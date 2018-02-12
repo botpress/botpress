@@ -85,7 +85,7 @@ class LoggerView extends Component {
   }
 
   render() {
-    const logs = (this.state.logs && this.state.logs.map(this.renderLine)) || this.renderLoading()
+    const logs = (_.isArray(this.state.logs) && this.state.logs.map(this.renderLine)) || this.renderLoading()
     const logsPanelClassName = classnames('panel', 'panel-default', styles['logs-panel'])
     const canLoadMore = this.state.limit < 500 && this.state.hasMore
 
@@ -95,19 +95,21 @@ class LoggerView extends Component {
           <span> Logs</span>
         </PageHeader>
         <Panel className={styles.panel}>
-          <form className="pull-left">
-            <Checkbox
-              className={styles['panel-checkbox']}
-              checked={this.state.autoRefresh}
-              inline
-              onChange={this.toggleAutoRefresh}
-            >
-              Auto refresh
-            </Checkbox>
-          </form>
-          <div className="pull-right">
-            <Button href={this.state.archiveUrl}>Export logs archive</Button>
-          </div>
+          <Panel.Body>
+            <form className="pull-left">
+              <Checkbox
+                className={styles['panel-checkbox']}
+                checked={this.state.autoRefresh}
+                inline
+                onChange={this.toggleAutoRefresh}
+              >
+                Auto refresh
+              </Checkbox>
+            </form>
+            <div className="pull-right">
+              <Button href={this.state.archiveUrl}>Export logs archive</Button>
+            </div>
+          </Panel.Body>
         </Panel>
         <div className={logsPanelClassName}>
           <div className="panel-body">

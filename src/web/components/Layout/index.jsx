@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 
 import classnames from 'classnames'
 import { ToastContainer } from 'react-toastify'
+import { Route, Switch, Redirect } from 'react-router-dom'
 
 import Header from './Header'
 import Sidebar from './Sidebar'
@@ -14,6 +15,16 @@ import LicenseComponent from '~/components/License'
 import AboutComponent from '~/components/About'
 import GuidedTour from '~/components/Tour'
 import SelectContentManager from '~/components/Content/Select/Manager'
+import Dashboard from '~/views/Dashboard'
+import Manage from '~/views/Manage'
+import Middleware from '~/views/Middleware'
+import Content from '~/views/Content'
+import GhostContent from '~/views/GhostContent'
+import FlowBuilder from '~/views/FlowBuilder'
+import Module from '~/views/Module'
+import Notifications from '~/views/Notifications'
+import Logs from '~/views/Logs'
+import AdditionnalRoutes from '+/views/Routes/index.jsx'
 
 import PluginInjectionSite from '~/components/PluginInjectionSite'
 
@@ -46,7 +57,21 @@ class Layout extends React.Component {
         <ToastContainer />
         <Sidebar>
           <Header />
-          <section className={classNames}>{this.props.children}</section>
+          <section className={classNames}>
+            <Switch>
+              <Route exact path="/" render={() => <Redirect to="/dashboard" />} />
+              <Route exact path="/dashboard" component={Dashboard} />
+              <Route exact path="/manage" component={Manage} />
+              <Route exact path="/middleware" component={Middleware} />
+              <Route exact path="/content" component={Content} />
+              <Route exact path="/version-control" component={GhostContent} />
+              <Route exact path="/flows/:flow?" component={FlowBuilder} />
+              <Route exact path="/modules/:moduleName/:subView?" component={Module} />
+              <Route exact path="/notifications" component={Notifications} />
+              <Route exact path="/logs" component={Logs} />
+              {AdditionnalRoutes.securedRoutes()}
+            </Switch>
+          </section>
         </Sidebar>
         <SidebarFooter />
         <GuidedTour opened={window.SHOW_GUIDED_TOUR} />

@@ -24,13 +24,13 @@ export default class SidebarView extends Component {
     )
   }
 
-  renderCategory = c => {
+  renderCategory = (c, i) => {
     const classNames = classnames({
       [style.selected]: c.id === this.props.selectedId
     })
 
     return (
-      <li className={classNames}>
+      <li className={classNames} key={i}>
         <a onClick={() => this.props.handleCategorySelected(c.id)}>
           <span className={style.title}>{c.title}</span>
           {c.count ? <span className={style.count}>{'(' + c.count + ')  '}</span> : null}

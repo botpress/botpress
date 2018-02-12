@@ -1,24 +1,13 @@
 import React from 'react'
-import { Router, Route, Link, hashHistory, useRouterHistory, IndexRoute } from 'react-router'
+import { Router, Route, Link, Switch } from 'react-router-dom'
+import createBrowserHistory from 'history/createBrowserHistory'
 import ReactGA from 'react-ga'
-import { createHistory } from 'history'
 
 import EnsureAuthenticated from '~/components/Authentication'
 import Layout from '~/components/Layout'
-import Dashboard from '~/views/Dashboard'
-import Manage from '~/views/Manage'
-import Middleware from '~/views/Middleware'
-import Content from '~/views/Content'
-import GhostContent from '~/views/GhostContent'
-import FlowBuilder from '~/views/FlowBuilder'
-import Module from '~/views/Module'
-import Notifications from '~/views/Notifications'
-import Logs from '~/views/Logs'
-
 import AdditionnalRoutes from '+/views/Routes/index.jsx'
 
-const appHistory = useRouterHistory(createHistory)({ basename: '/' })
-
+const history = createBrowserHistory()
 const logPageView = () => {
   ReactGA.set({ page: window.location.pathname })
   ReactGA.pageview(window.location.pathname)
@@ -28,24 +17,15 @@ export default () => {
   if (!window.OPT_OUT_STATS) {
     ReactGA.initialize('UA-90044826-1')
   }
+  const AuthenticatedLayout = EnsureAuthenticated(Layout)
 
   return (
-    <Router history={appHistory} onUpdate={logPageView}>
-      {AdditionnalRoutes.addLoginRoutes()}
-      {AdditionnalRoutes.addUnsecuredRoutes()}
-      <Route path="/" component={EnsureAuthenticated(Layout)}>
-        <Route path="dashboard" component={Dashboard} />
-        <IndexRoute component={Dashboard} />
-        <Route path="manage" component={Manage} />
-        <Route path="middleware" component={Middleware} />
-        <Route path="content" component={Content} />
-        <Route path="version-control" component={GhostContent} />
-        <Route path="flows(/:flow)" component={FlowBuilder} />
-        <Route path="modules/:moduleName(/:subView)" component={Module} />
-        <Route path="notifications" component={Notifications} />
-        <Route path="logs" component={Logs} />
-        {AdditionnalRoutes.addSecuredRoutes()}
-      </Route>
+    <Router history={history} onUpdate={logPageView}>
+      <Switch>
+        {AdditionnalRoutes.loginRoutes()}
+        {AdditionnalRoutes.unsecuredRoutes()}
+        <AuthenticatedLayout />
+      </Switch>
     </Router>
   )
 }

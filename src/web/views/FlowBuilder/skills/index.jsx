@@ -3,7 +3,7 @@ import { Modal, Button } from 'react-bootstrap'
 import axios from 'axios'
 import find from 'lodash/find'
 import includes from 'lodash/includes'
-import Loader from 'halogen/BounceLoader'
+import Loader from 'react-loaders'
 
 const style = require('./style.scss')
 
@@ -102,7 +102,7 @@ export default class SkillsBuilder extends React.Component {
     return (
       <div className={style.loadingContainer}>
         <h2>Generating your skill flow...</h2>
-        <Loader color="#26A65B" size="36px" margin="4px" />
+        <Loader type="ball-pulse" color="#26A65B" style={{ margin: '4px' }} />
       </div>
     )
   }

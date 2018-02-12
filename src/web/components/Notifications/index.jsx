@@ -37,7 +37,7 @@ export default class NotificationComponent extends Component {
 
   onNotifClicked(notif) {
     this.markAsRead(notif)
-    this.context.router.push(notif.url)
+    this.context.router.history.push(notif.url)
   }
 
   markAsRead(notif) {

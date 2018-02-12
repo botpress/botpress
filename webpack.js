@@ -95,7 +95,7 @@ const webConfig = {
     new webpack.DefinePlugin({
       BP_EDITION: JSON.stringify(process.env.BOTPRESS_EDITION || 'lite'),
       'process.env': {
-        NODE_ENV: JSON.stringify('production')
+        NODE_ENV: process.env.NODE_ENV === 'production' ? JSON.stringify('production') : JSON.stringify('development')
       }
     }),
     new UglifyJSPlugin({ sourceMap: true, cache: true }),
