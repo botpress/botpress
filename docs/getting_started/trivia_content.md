@@ -14,6 +14,13 @@ In the context of this tutorial, the template shipped with two Content Types: `T
 
 > **🌟 Tip**: As a general rule, the more domain-specific the Content Types are, the easiest it is to manage the bot for non-technical people.
 
+Content Types are very specific to each bots, but here are some typical examples:
+- A restaurant "Menu" and "MenuPage" types
+- A "QuestionWithChoices" type
+- An "ImportantBroadcast" type
+
+As you can see, Content Types on Botpress are on a much higher level than "message types" on traditional bot-building platforms.
+
 Content Types are defined by developers in Javascript. Each Content Type has its own `.form.js` file and Botpress automatically finds and registers new Content Types based on the directory and naming convention of the file.
 
 In the context of this tutorial, the two Content Types are defined in the `src/content` folder.

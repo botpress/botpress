@@ -66,7 +66,7 @@ Flows are stored as JSON files in the bot's source. In the context of this tutor
 
 ### onNext
 
-### Listening to user input
+### Listening for user input
 
 ---
 
