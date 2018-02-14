@@ -9,7 +9,7 @@
     - path: "/getting_started/trivia_content/"
     - path: "/getting_started/trivia_flows/"
     - path: "/getting_started/trivia_actions/"
-    - path: "/getting_started/trivia_kvs/"
+    - path: "/getting_started/trivia_storage/"
     - path: "/getting_started/trivia_skills/"
     - path: "/getting_started/trivia_nlu/"
     - path: "/getting_started/trivia_deploying/"
