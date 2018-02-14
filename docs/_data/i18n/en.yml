@@ -50,6 +50,38 @@ docs_additional_reading: "Additional Reading"
   title: "Trivia: Exploring the Dashboard"
   description: "Overview of the Botpress Dashboard and how to protect it"
 
+"/getting_started/trivia_content/":
+  title: "Trivia: Content Manager"
+  description: "Learn how to add, edit and create Content Elements and Content Types"
+
+"/getting_started/trivia_flows/":
+  title: "Trivia: Flows"
+  description: "Learn how the Flow Engine works and how to use the visual flow editor"
+
+"/getting_started/trivia_actions/":
+  title: "Trivia: Actions"
+  description: "Learn how to create new actions and invoke them inside the flows"
+
+"/getting_started/trivia_storage/":
+  title: "Trivia: Data Storage"
+  description: "Learn how to use the built-in data storage mechanisms"
+
+"/getting_started/trivia_skills/":
+  title: "Trivia: Skills"
+  description: "Learn how to install and use Flow skills"
+
+"/getting_started/trivia_nlu/":
+  title: "Trivia: NLU"
+  description: "Learn how to add Natural Language Understanding (NLU) to your bot"
+
+"/getting_started/trivia_deploying/":
+  title: "Trivia: Deploying"
+  description: "Leanr how to deploy your bot to the cloud using Heroku"
+
+"/getting_started/trivia_changes/":
+  title: "Trivia: Version Control"
+  description: "Learn about the built-in Versional Control for deployed bots"
+
 guides:
   
   getting_started:
