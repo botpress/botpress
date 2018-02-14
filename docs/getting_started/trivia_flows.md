@@ -91,7 +91,45 @@ Nodes can flow to:
 
 ---
 
+# Hands-on
+
+Now that you understand how flows and nodes work, let's jump into some use cases for our Trivia bot.
+
 ## Asking 5 questions instead of 3
+
+Let's start with something trivial. You should identify the black node called "*next*". 
+
+You'll notice the following Transition:
+
+```js
+state.count >= 3
+```
+
+You can simply change it from the UI and it should work.
+
+![Updating a transition from the UI][node_transition]
+
+Now, since we're technical folks and love code (right?) let's see how to do that in code instead. Open up the `src/flows/main.flow.json` and locate the "*next*" node. Let's update the code as follow:
+
+```diff
+{
+  "id": "11219c5913",
+  "name": "next",
+  "next": [
+    {
+-    "condition": "state.count >= 3",
++    "condition": "state.count >= 5",
+      "node": "over"
+    },
+    {
+      "condition": "true",
+      "node": "next-question"
+    }
+  ],
+  "onEnter": [],
+  "onReceive": null
+}
+```
 
 ## Asking user's name at the end
 
@@ -99,3 +137,4 @@ Nodes can flow to:
 
 [flow_node]: {{site.basedir}}/images/flow_node.png
 [node_blocking]: {{site.basedir}}/images/node_blocking.png
+[node_transition]: {{site.basedir}}/images/node_transition.png
