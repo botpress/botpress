@@ -34,7 +34,7 @@ Content Renderers are defined by developers in Javascript. They can be defined a
 
 In the context of this tutorial, Content Renderers are defined in the `src/renderers.js` file.
 
-# Adding new Trivia Questions
+## Adding new Trivia Questions
 
 The easiest and recommended way to add new content is by using the GUI. Simple navigate to the bot dashboard and click the "Content" menu item.
 
@@ -44,11 +44,11 @@ Immediatly after the content is created, you can chat with the bot and you shoul
 
 > **Note:** You probably noticed that the questions are randomized. We'll explain how this is done in the [Actions](./trivia_actions) chapter of this tutorial.
 
-# Making the bot less boring
+## Making the bot less boring
 
 The bot currently always says the same phrases over and over again. In order for the bot to be entertaining for the users, it should have multiple ways of saying things.
 
-## Defining variations (Content Types)
+### Defining variations (Content Types)
 
 Let's open the `src/content/text.form.js` file. Notice how the form that you used in the GUI is defined in this file. 
 
@@ -78,7 +78,7 @@ properties: {
 }
 ```
 
-## Picking a random variation (Content Renderer)
+### Picking a random variation (Content Renderer)
 
 Now that our "Text Message" allows you to define multiple variations, we need to make our bot actually pick one of the phrases. This is done by the Content Renderer.
 
@@ -104,7 +104,7 @@ text: data => {
 
 > **Note:** The use of the Spread Operator (`...`) requires NodeJS 8.1+. We recommend you use the most recent LTS version of NodeJS (8.9 at the time of writing this).
 
-# Summary
+## Summary
 
 And we're done! You can edit the existing Content Elements to provide some alternate phrases, then open up the Chat Emulator and chat with your new bot!
 
