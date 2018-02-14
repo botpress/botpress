@@ -105,11 +105,13 @@ You'll notice the following Transition:
 state.count >= 3
 ```
 
-You can simply change it from the UI and it should work.
+You can simply change `3` by `5` from the UI, then hit the "Save" icon at the top to persist the changes.
 
 ![Updating a transition from the UI][node_transition]
 
-Now, since we're technical folks and love code (right?) let's see how to do that in code instead. Open up the `src/flows/main.flow.json` and locate the "*next*" node. Let's update the code as follow:
+The recommended way to create and edit the flows is via the graphical interface. It is usually much quicker, faster and less error-prone.
+
+But for the sake of completeness of this tutorial and since we're technical folks and love code (right?) let's see how to do that in code instead. Open up the `src/flows/main.flow.json` and locate the "*next*" node. Let's update the code as follow:
 
 ```diff
 {
@@ -120,20 +122,11 @@ Now, since we're technical folks and love code (right?) let's see how to do that
 -    "condition": "state.count >= 3",
 +    "condition": "state.count >= 5",
       "node": "over"
-    },
-    {
-      "condition": "true",
-      "node": "next-question"
-    }
-  ],
-  "onEnter": [],
-  "onReceive": null
-}
 ```
 
-## Asking user's name at the end
+This is the first and only time that we'll edit the flows by code in this tutorial.
 
-## Where are flows stored?
+## Asking the user's name at the end
 
 [flow_node]: {{site.basedir}}/images/flow_node.png
 [node_blocking]: {{site.basedir}}/images/node_blocking.png
