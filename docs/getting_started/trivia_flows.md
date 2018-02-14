@@ -59,19 +59,35 @@ Flows are stored as JSON files in the bot's source. In the context of this tutor
 
 Nodes are the main units of the conversational logic of your bot. **An active conversation** (what we call a "**session**") **always have one and only one active node**. A node generally transitions to another node or flow. When it doesn't, the conversation is ended. The next message from the user will then be part of an entirely new session.
 
-A *node* is separated into three different stages: `onEnter`, `onReceive` and `onNext`.
+A *node* is separated into three different stages: **onEnter** (A), **onReceive** (B) and **onNext** (C).
 
 ![Typical Flow Node][flow_node]
 
 ### onEnter
 
-*onEnter* is a list of actions that 
+*onEnter* is a list of actions that will be executed when the node is **entered**. If multiple actions are defined, all of them will be executed sequentially.
 
 ### onReceive
 
-### onNext
+*onReceive* is a list of actions that will be executed when the node receives a message while being the active node. As soon as there is an action defined, the node will automatically be waiting for user input (orange node).
 
-### Listening for user input
+When this property is left unused, the node is non-blocking (black), which means it will flow straight from the `onEnter` to the `onNext`.
+
+![Blocking vs Non-Blocking Nodes][node_blocking]
+
+### onNext / Transitions
+
+*onNext* (which can also be called Transitions) is exactly the same thing as *Flow-wide Transitions* except that the conditions are evaluated only after `onReceive` or `onEnter` have been executed.
+
+> **Special cases**: If no condition is defined, the default behavior is that the conversation ends.
+If there are conditions defined but none match, nothing happens, i.e. the current node stays active and it will flow when a condition is matched. By default the `onNext` will only be retried after `onReceive` is re-invoked.
+
+Nodes can flow to:
+
+- Another node within the same flow
+- Another flow
+- To the previous flow (see Flow Stacks)
+- The end of the conversation
 
 ---
 
@@ -82,3 +98,4 @@ A *node* is separated into three different stages: `onEnter`, `onReceive` and `o
 ## Where are flows stored?
 
 [flow_node]: {{site.basedir}}/images/flow_node.png
+[node_blocking]: {{site.basedir}}/images/node_blocking.png
