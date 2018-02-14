@@ -2,11 +2,11 @@
 layout: guide
 ---
 
-## Types, Elements, Renderers
+# Types, Elements, Renderers
 
 Before we start discussing how you can create and edit the content of your bot, we should understand the different concepts of the Content Management in Botpress.
 
-### Content Type
+## Content Type
 
 A **Content Type** describes a grouping of Content Elements sharing the same properties. They can describe anything and everything – they most often are domain-specific to your bot.
 
@@ -18,13 +18,13 @@ Content Types are defined by developers in Javascript. Each Content Type has its
 
 In the context of this tutorial, the two Content Types are defined in the `src/content` folder.
 
-### Content Element
+## Content Element
 
 A **Content Element** is simply a single item of a particular Content Type. Content Types contains many Elements. An Element belongs to a single Type.
 
 All Content Elements of the same Content Type are stored within a single `.json` file under the `src/content_data` directory.
 
-### Content Renderer
+## Content Renderer
 
 A **Content Renderer** defines how a **Content Type** gets rendered on the different channels.
 
@@ -34,7 +34,7 @@ Content Renderers are defined by developers in Javascript. They can be defined a
 
 In the context of this tutorial, Content Renderers are defined in the `src/renderers.js` file.
 
-## Adding new Trivia Questions
+# Adding new Trivia Questions
 
 The easiest and recommended way to add new content is by using the GUI. Simple navigate to the bot dashboard and click the "Content" menu item.
 
@@ -44,15 +44,15 @@ Immediatly after the content is created, you can chat with the bot and you shoul
 
 > **Note:** You probably noticed that the questions are randomized. We'll explain how this is done in the [Actions](./trivia_actions) chapter of this tutorial.
 
-## Making the bot less boring
+# Making the bot less boring
 
 The bot currently always says the same phrases over and over again. In order for the bot to be entertaining for the users, it should have multiple ways of saying things.
 
-### Defining variations (Content Types)
+## Defining variations (Content Types)
 
 Let's open the `src/content/text.form.js` file. Notice how the form that you used in the GUI is defined in this file. 
 
-> **📌 Memo:** Content Types are defined by the [Standard JSON Schema Specification](http://json-schema.org/). More specifically, **we are using the excellent [`react-jsonschema-form`](https://github.com/mozilla-services/react-jsonschema-form) library** created and maintained by Mozilla.
+> **📌 Memo:** Content Types are defined by the [Standard JSON Schema Specification](http://json-schema.org/). More specifically, **we are using the excellent [react-jsonschema-form](https://github.com/mozilla-services/react-jsonschema-form) library** created and maintained by Mozilla.
 
 We will be adding a new `properties` entry called `"variations"`, which will be an array of strings:
 
@@ -78,7 +78,7 @@ properties: {
 }
 ```
 
-### Picking a random variation (Content Renderer)
+## Picking a random variation (Content Renderer)
 
 Now that our "Text Message" allows you to define multiple variations, we need to make our bot actually pick one of the phrases. This is done by the Content Renderer.
 
@@ -104,7 +104,7 @@ text: data => {
 
 > **Note:** The use of the Spread Operator (`...`) requires NodeJS 8.1+. We recommend you use the most recent LTS version of NodeJS (8.9 at the time of writing this).
 
-## Summary
+# Summary
 
 And we're done! You can edit the existing Content Elements to provide some alternate phrases, then open up the Chat Emulator and chat with your new bot!
 
