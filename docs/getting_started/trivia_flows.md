@@ -14,11 +14,11 @@ Let's explore and understand the different concepts around Flow Management befor
 
 ## Nodes
 
-### `onEnter`
+### onEnter
 
-### `onReceive`
+### onReceive
 
-### `onNext`
+### onNext
 
 ### Listening to user input
 
