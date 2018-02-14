@@ -16,10 +16,11 @@ Your bot's conversation logic is specified in the flows. More complex bots are g
 
 ### Lifecycle
 
-Our flow engine is event-based and is non-blocking by default, which means that a flow will execute all it can execute until it needs to wait. There are currently two reasons for a flow to "wait":
+Our flow engine is event-based and is non-blocking by default, which means that a flow will execute all it can execute until it needs to wait.
 
-- A node is marked as waiting for user input
-- A node couldn't match a condition to transition to another node
+> **Note:** There are currently two reasons for a flow to "wait":
+> - A node is marked as waiting for user input
+> - A node couldn't match a condition to transition to another node
 
 Almost all the logic is hapenning and defined in the **Nodes** (the boxes inside the flow). We say "almost" because there are two small exceptions to that rule: **"On Receive"** and **"Transitions"** events.
 
@@ -29,11 +30,10 @@ The *On Receive* actions are **executed for every new message received by the bo
 
 To define new *Flow-wide On Receive Actions*, simply navigate to the relevant flow, then make sure you aren't selecting any node. The left panel should have a tab called *Flow Properties*. Under the *On Receive* section, click the *Add Action* button to add a new action.
 
-Example of use cases for the Flow-wide On Receive:
-
-- Audit Trail: Record specific logs of messages received in the scope of this specific flow
-- Authentication Gate: Run some authentication
-- Sentiment Analysis: Making sure the sentiment of the conversation is staying healthy
+> **👓 Examples:** Flow-wide On Receive
+> - Audit Trail: Record specific logs of messages received in the scope of this specific flow
+> - Authentication Gate: Run some authentication
+> - Sentiment Analysis: Making sure the sentiment of the conversation is staying healthy
 
 ### Flow-wide "Transitions"
 
@@ -43,11 +43,10 @@ The *Transitions* are very closely related to *On Receive Actions*. The actions 
 
 The *Flow-wide Transitions* are evaluated sequentially and the first to match is the one that will be triggered (the others won't be tried). If no condition is matched, then nothing happens and the regular flow is continued.
 
-Example of use cases for the Flow-wide Transitions:
-
-- Authentication Gate: Re-route the user to the login flow if they are not authenticated
-- Sentiment Analysis: Re-route the user to the human fallback node if the conversation is degrading
-- Matching flow-wide intents such as "`cancel`" etc..
+> **👓 Examples:** Flow-wide Transitions
+> - Authentication Gate: Re-route the user to the login flow if they are not authenticated
+> - Sentiment Analysis: Re-route the user to the human fallback node if the conversation is degrading
+> - Matching flow-wide intents such as "`cancel`" etc..
 
 ### Storage
 
