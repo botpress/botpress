@@ -116,7 +116,6 @@ module.exports = ({ logger, middlewares, db, contentManager }) => {
       Object.assign(initialData, contentItem.data)
     }
 
-    // TODO Add more context
     const fullContext = Object.assign(
       {},
       initialData,
@@ -135,12 +134,18 @@ module.exports = ({ logger, middlewares, db, contentManager }) => {
       throw new Error(error)
     }
 
-    return doSendContent(renderer, {
+    await doSendContent(renderer, {
       rendererName,
       context: fullContext,
       outputPlatform: incomingEvent.platform,
       incomingEvent
     })
+
+    return {
+      renderer: rendererName,
+      context: fullContext,
+      outputPlatform: incomingEvent.platform
+    }
   }
 
   const processIncoming = (event, next) => {
