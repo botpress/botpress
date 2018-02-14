@@ -24,6 +24,7 @@ import createModules from './modules'
 import createRenderers from './renderers'
 import createUsers from './users'
 import createContentManager from './content/service'
+import defaultGetItemProviders from './content/getItemProviders'
 import FlowProvider from './dialog/provider'
 import StateManager from './dialog/state'
 import DialogEngine from './dialog/engine'
@@ -178,6 +179,12 @@ class botpress {
       botfile,
       ghostManager
     })
+
+    // Register the built-in item providers such as "-random()"
+    Object.keys(defaultGetItemProviders).forEach(provider => {
+      contentManager.registerGetItemProvider(provider, defaultGetItemProviders[provider])
+    })
+
     const renderers = createRenderers({
       logger,
       middlewares,

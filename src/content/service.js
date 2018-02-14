@@ -40,6 +40,8 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
   const categoryById = {}
   const fileById = {}
 
+  const getItemProviders = {}
+
   const contentDir = path.resolve(projectLocation, botfile.contentDir || './content')
   const contentDataDir = path.resolve(projectLocation, botfile.contentDataDir || './content_data')
 
@@ -274,10 +276,37 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
     return dumpAllDataToFiles()
   }
 
-  const getItem = async id => {
-    const item = await knex('content_items')
+  const getItemDefault = async id => {
+    return knex('content_items')
       .where({ id })
       .get(0)
+  }
+
+  const getItem = async query => {
+    const providerRegex = /-(.+)\((.*)\)$/i
+
+    const pMatch = query.match(providerRegex)
+    let item
+
+    if (pMatch) {
+      const provider = pMatch[1].toLowerCase()
+      const args = pMatch[2]
+      const categoryName = query.substr(0, query.length - pMatch[0].length)
+
+      const fn = getItemProviders[provider]
+
+      if (!fn) {
+        throw new Error(`Invalid content expression "${query}", did you forget to register the "${provider}" provider?`)
+      }
+
+      item = await fn(knex, categoryName, args)
+
+      if (_.isArray(item)) {
+        throw new Error(`Provider "${provider}" returned an array instead of an object`)
+      }
+    } else {
+      item = await getItemDefault(query)
+    }
 
     if (!item) {
       return null
@@ -289,6 +318,8 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
       categoryTitle: category.title,
       categorySchema: getCategorySchema(item.categoryId)
     }
+
+    return item
   }
 
   const getItemsByMetadata = async metadata => {
@@ -403,6 +434,11 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
     )
   }
 
+  const registerGetItemProvider = (name, fn) => {
+    name = name.toLowerCase()
+    getItemProviders[name] = fn
+  }
+
   return {
     init,
     listAvailableCategories,
@@ -414,6 +450,8 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
     deleteCategoryItems,
 
     getItem,
-    getItemsByMetadata
+    getItemsByMetadata,
+
+    registerGetItemProvider
   }
 }

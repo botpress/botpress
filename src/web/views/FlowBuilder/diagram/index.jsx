@@ -444,7 +444,10 @@ export default class FlowBuilder extends Component {
       if (!this.diagramEngine.isModelLocked(element)) {
         if (element.isStartNode) {
           return alert("You can't delete the start node.")
-        } else if (_.includes(['standard', 'skill-call'], element.nodeType)) {
+        } else if (
+          _.includes(['standard', 'skill-call'], element.nodeType) ||
+          element.constructor.name.includes('Node')
+        ) {
           this.props.removeFlowNode(element.id)
         } else if (element.linkType === 'default') {
           element.remove()
