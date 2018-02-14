@@ -68,5 +68,8 @@ assets:
     - _assets/third-party
     - node_modules
 
+include:
+  - images
+
 plugins:
   - algoliasearch-jekyll
