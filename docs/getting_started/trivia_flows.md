@@ -14,27 +14,13 @@ Let's explore and understand the different concepts around Flow Management befor
 
 ## Nodes
 
-### Lifecycle
+### `onEnter`
 
-#### `onEnter`
+### `onReceive`
 
-#### `onReceive`
+### `onNext`
 
-#### `onNext`
-
-#### Listening to user input
-
-### Actions
-
-### Transitions
-
-#### To an other node
-
-#### To an other flow
-
-#### Ending the conversation
-
-#### Return to a previous flow
+### Listening to user input
 
 ---
 
