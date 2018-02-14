@@ -57,9 +57,15 @@ Flows are stored as JSON files in the bot's source. In the context of this tutor
 
 ## Nodes
 
+Nodes are the main units of the conversational logic of your bot. **An active conversation** (what we call a "**session**") **always have one and only one active node**. A node generally transitions to another node or flow. When it doesn't, the conversation is ended. The next message from the user will then be part of an entirely new session.
 
+A *node* is separated into three different stages: `onEnter`, `onReceive` and `onNext`.
+
+![Typical Flow Node][flow_node]
 
 ### onEnter
+
+*onEnter* is a list of actions that 
 
 ### onReceive
 
@@ -74,3 +80,5 @@ Flows are stored as JSON files in the bot's source. In the context of this tutor
 ## Asking user's name at the end
 
 ## Where are flows stored?
+
+[flow_node]: {{site.basedir}}/images/flow_node.png
