@@ -35,10 +35,10 @@ $syntax-color-removed: #cc6666; // dull red
 
 // %generic                         {}
 %line-deleted {
-  background-color: $syntax-color-removed;
+  color: $syntax-color-removed;
 }
 %line-added {
-  background-color: $syntax-color-added;
+  color: $syntax-color-added;
 }
 %comment {
   color: $syntax-comment;
