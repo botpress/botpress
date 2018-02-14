@@ -36,6 +36,10 @@ In the context of this tutorial, Content Renderers are defined in the `src/rende
 
 ---
 
+# Hands-on
+
+Now that you understand the concepts of Content Management, let's make a small change to our bot that covers all of the above concepts.
+
 ## Adding new Trivia Questions
 
 The easiest and recommended way to add new content is by using the GUI. Simple navigate to the bot dashboard and click the "Content" menu item.
