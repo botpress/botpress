@@ -34,6 +34,8 @@ Content Renderers are defined by developers in Javascript. They can be defined a
 
 In the context of this tutorial, Content Renderers are defined in the `src/renderers.js` file.
 
+---
+
 ## Adding new Trivia Questions
 
 The easiest and recommended way to add new content is by using the GUI. Simple navigate to the bot dashboard and click the "Content" menu item.
