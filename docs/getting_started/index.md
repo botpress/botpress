@@ -12,7 +12,7 @@ At the end of this guide, you will know:
 - How to setup Botpress on your local machine
 - How to create and customize a bot
 
-If you are already familiar with Botpress, you might want to check the [Advanced Guide](/docs/advanced) or the [API Reference](/docs/reference) instead.
+If you are already familiar with Botpress, you might want to check the [Advanced Guide]({{site.baseurl}}/advanced) or the [API Reference]({{site.baseurl}}/reference) instead.
 
 > **Botpress is to bots what Wordpress is to websites**
 
