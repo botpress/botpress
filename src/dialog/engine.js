@@ -437,7 +437,7 @@ class DialogEngine {
   }
 
   async _dispatchOutput(output, userState, event, context) {
-    const msg = String(output.value || '').substr(0, 20)
+    const msg = String(output.type + (output.value || '')).substr(0, 20)
     this._trace('~>', 'SEND', `"${msg}"`)
 
     this.outputProcessors.forEach(processor => {
