@@ -121,7 +121,8 @@ module.exports = ({ logger, middlewares, db, contentManager }) => {
       initialData,
       {
         user: incomingEvent.user,
-        originalEvent: incomingEvent
+        originalEvent: incomingEvent,
+        event: _.pick(incomingEvent, ['raw', 'text', 'type', 'platform', 'user'])
       },
       additionalData
     )
