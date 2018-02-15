@@ -111,7 +111,13 @@ export default class ConditionModalForm extends Component {
     } else if (this.state.typeOfTransition === 'end') {
       payload.node = 'END'
     } else if (this.state.typeOfTransition === 'node') {
-      payload.node = _.get(this.state, 'flowToNode.value') || ''
+      let earlierNode = this.state.isEdit && _.get(this.props, 'item.node')
+
+      if (/^END$/i.test(earlierNode) || earlierNode.startsWith('#') || /\.flow\.json/i.test(earlierNode)) {
+        earlierNode = null
+      }
+
+      payload.node = _.get(this.state, 'flowToNode.value') || earlierNode || ''
     } else if (this.state.typeOfTransition === 'return') {
       payload.node = '#' + this.state.returnToNode
     } else {
