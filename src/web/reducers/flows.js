@@ -519,32 +519,31 @@ reducer = reduceReducers(
         }
       },
 
-      [copyFlowNode]: state => ({
-        ...state,
-        nodeInBuffer: { ..._.find(state.flowsByName[state.currentFlow].nodes, { id: state.currentFlowNode }) }
-      }),
+      [copyFlowNode]: state => {
+        const node = _.find(state.flowsByName[state.currentFlow].nodes, { id: state.currentFlowNode })
+        if (!node) {
+          return state
+        }
+        return {
+          ...state,
+          nodeInBuffer: { ...node, next: node.next.map(item => ({ ...item, node: '' })) }
+        }
+      },
 
-      [pasteFlowNode]: state => {
+      [pasteFlowNode]: (state, { payload: { x, y } }) => {
         const currentFlow = state.flowsByName[state.currentFlow]
         const newNodeId = prettyId()
+        const name = copyName(currentFlow.nodes.map(({ name }) => name), state.nodeInBuffer.name)
         return {
           ...state,
           currentFlowNode: newNodeId,
-          nodeInBuffer: null,
           flowsByName: {
             ...state.flowsByName,
             [state.currentFlow]: {
               ...currentFlow,
               nodes: [
                 ...currentFlow.nodes,
-                {
-                  ...state.nodeInBuffer,
-                  id: newNodeId,
-                  name: copyName(currentFlow.nodes.map(({ name }) => name), state.nodeInBuffer.name),
-                  lastModified: new Date(),
-                  x: 0,
-                  y: 0
-                }
+                { ...state.nodeInBuffer, id: newNodeId, name, lastModified: new Date(), x, y }
               ]
             }
           }
@@ -609,6 +608,7 @@ reducer = reduceReducers(
       [deleteFlow]: updateCurrentHash,
       [duplicateFlow]: updateCurrentHash,
       [removeFlowNode]: updateCurrentHash,
+      [pasteFlowNode]: updateCurrentHash,
       [insertNewSkillNode]: updateCurrentHash,
       [updateSkill]: updateCurrentHash
     },
@@ -633,6 +633,7 @@ reducer = reduceReducers(
       [deleteFlow]: recordHistory,
       [duplicateFlow]: recordHistory,
       [removeFlowNode]: recordHistory,
+      [pasteFlowNode]: recordHistory,
       [insertNewSkill]: recordHistory,
       [insertNewSkillNode]: recordHistory,
       [updateSkill]: recordHistory,

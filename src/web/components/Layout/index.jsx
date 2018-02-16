@@ -3,6 +3,7 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
 import classnames from 'classnames'
+import { ToastContainer } from 'react-toastify'
 
 import Header from './Header'
 import Sidebar from './Sidebar'
@@ -42,6 +43,7 @@ class Layout extends React.Component {
 
     return (
       <div className="wrapper bp-wrapper">
+        <ToastContainer />
         <Sidebar>
           <Header />
           <section className={classNames}>{this.props.children}</section>
