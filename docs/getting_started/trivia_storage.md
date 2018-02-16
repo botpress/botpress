@@ -8,7 +8,7 @@ Even though Botpress has a built-in database, it aims at abstracting most of the
 
 ## Per-conversation storage
 
-In the context of a conversation, data should in most cases be stored in the **state** itself (see [actions](./actions)).
+In the context of a conversation, data should in most cases be stored in the **state** itself (see [actions](../trivia_actions)).
 
 ### Alternatives
 
@@ -24,14 +24,15 @@ storeLargePayload: state => {
 
 ## Per-user storage
 
-If you want to store things about your users and you want that information to be persisted across multiple conversations, we suggest you use [User Tags](../advanced/tags).
+If you want to store things about your users and you want that information to be persisted across multiple conversations, we suggest you use [User Tags](../../advanced/tags).
 
 ```js
 storeAge: async (state, event) => {
   const userId = event.user.id
   
   // Set the age
-  await event.bp.users.tag(userId, 'age', 12) // Value can be anything, it will get serialized
+  // Value can be anything, it will get serialized
+  await event.bp.users.tag(userId, 'age', 12)
 
   // Get the age back
   const age = await event.bp.users.getTag(userId, 'age')
@@ -57,7 +58,7 @@ storeLargePayload: (state, event) => {
 
 ## Global storage
 
-If you want to store things globally, you can use the built-in [Key-Value-Store (KVS)](../advanced/kvs).
+If you want to store things globally, you can use the built-in [Key-Value-Store (KVS)](../../advanced/kvs).
 
 ```js
 storeGlobal: async (state, event) => {
