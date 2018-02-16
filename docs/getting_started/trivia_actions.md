@@ -54,8 +54,9 @@ The `sendRandomQuestion` action does the following:
 
 ```js
 sendRandomQuestion: async (state, event) => {
-  // The `-random()` extension picks a random element in all the `trivia` Content Type
-  // We also retrieve the message we just sent, notice that `event.reply` is asynchronous, so we need to `await` it
+  // The `-random()` extension picks a random element in all trivia Q's
+  // We also retrieve the message we just sent
+  // Notice that `event.reply` is asynchronous, so we need to `await` it
   const messageSent = await event.reply('#!trivia-random()')
 
   // We find the good answer
@@ -65,7 +66,7 @@ sendRandomQuestion: async (state, event) => {
     ...state, // We clone the state
     isCorrect: null, // We reset `isCorrect` (optional)
     count: state.count + 1, // We increase the number of questions we asked so far
-    goodAnswer // We store the goodAnswer in the state, so that we can match the user's response against it
+    goodAnswer // We store the goodAnswer in the state
   }
 },
 ```
