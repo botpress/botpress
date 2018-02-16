@@ -187,7 +187,9 @@ Finally you want to end the flow if we already know the nickname:
 ![End flow otherwise][otherwiseCondition]
 ![End flow otherwise (result)][otherwiseConditionResult]
 
-That's it!
+That's it! Your bot is now asking the user for his nickname once then will remember it forever.
+
+> **🌟 Tip:** Say `/forget` to the bot to make it forget your *nickname*.
 
 [stateLifetime]: {{site.basedir}}/images/stateLifetime.jpg
 
