@@ -10,10 +10,6 @@ Don't panic! Even though this view might seem confusing at first, it's actually 
 
 Let's explore and understand the different concepts around Flow Management before we actually start playing with it.
 
-## State
-
-Each conversation has a **State** associated to this conversation. The state is created when the conversation session is started and is destroyed when the session is ended.
-
 ## Flows
 
 Your bot's conversation logic is specified in the flows. More complex bots are generally broken down into multiple smaller flows instead of just one, big flow. The reason for breaking down the bot into multiple flows is simply to ease maintailability and reusability.
@@ -92,6 +88,16 @@ Nodes can flow to:
 - Another flow
 - To the previous flow (see Flow Stacks)
 - The end of the conversation
+
+## State
+
+Each conversation has a **State** associated to this conversation. The state is created when the conversation session is started and is destroyed when the session is ended.
+
+In the context of this tutorial, this means that a state is created just before the "*entry*" node is entered and just after the "*over*" node is executed.
+
+![Lifetime of a conversation state][stateLifetime]
+
+> **Note:** The state is global to the conversation, so if the conversation spans multiple flows, **the state is shared for all the flows**.
 
 ---
 
@@ -182,6 +188,8 @@ Finally you want to end the flow if we already know the nickname:
 ![End flow otherwise (result)][otherwiseConditionResult]
 
 That's it!
+
+[stateLifetime]: {{site.basedir}}/images/stateLifetime.png
 
 [flow_node]: {{site.basedir}}/images/flow_node.png
 [node_blocking]: {{site.basedir}}/images/node_blocking.png
