@@ -4,11 +4,15 @@ layout: guide
 
 For this section, you'll need to head to the dashboard and click on the "Flows" section. You should see a flow diagram with a bunch of boxes and links.
 
-# Flows, Nodes, Actions, Transitions
+# State, Flows, Nodes, Actions, Transitions
 
 Don't panic! Even though this view might seem confusing at first, it's actually very simple once you understand how it works. The Flow Editor is built in a way that makes the experience consistent.
 
 Let's explore and understand the different concepts around Flow Management before we actually start playing with it.
+
+## State
+
+Each conversation has a **State** associated to this conversation. The state is created when the conversation session is started and is destroyed when the session is ended.
 
 ## Flows
 
@@ -126,8 +130,71 @@ But for the sake of completeness of this tutorial and since we're technical folk
 
 This is the first and only time that we'll edit the flows by code in this tutorial.
 
-## Asking the user's name at the end
+## Leaderboard: Nicknames
+
+OK, now that the bot asks a reasonable amount of questions, we want to build a leaderboard to push the gamification to to another level!
+
+The first step to building a leaderboard is to ask the user for his nickname at the end of the game:
+
+![Asking the user for his nickname][ask_nickname]
+
+Now the bot will be asking the user for his nickname at the end of every game. But that's not what we want! We actually want to ask the user only if we don't already know what his nickname is.
+
+In order to do that, we will need to tell the bot to memorise the nickname of the user. That's should be pretty easy as our Trivia template came with a function that does that for us: `setUserTag({ name, value })`
+
+### Calling an action from the Visual Flow Builder
+
+What we want is the following:
+- WHEN the user tells the bot his nickname
+- THEN we want to say "*Thanks, `{{event.text}}` is an original nickname!*"
+- THEN we want to persist his answer into a user-wide variable
+
+To do that, click on the "*ask-name*" node, then in the "*On Receive*" section, click **Add action**.
+
+![Set the nickname into user tag][setUserTag]
+![Set the nickname into user tag (node)][setUserTagNode]
+
+What the `setUserTag({ name, value })` action does is that is saves anything (`value`) into a user storage variable (tag named `name`).
+
+> **Note:** Do not worry about how the `setUserTag` action is implemented, we will get to that in the very next section.
+
+### Recalling the user's nickname
+
+OK, now that we persist the user's nickname somewhere, we also need to pull that nickname back when the user starts a new game.
+
+To do that, click on the "*entry*" node, then in the "*On Enter*" section, click **Add action**.
+
+![Get the nickname from user tag][getUserTag]
+![Get the nickname from user tag (node)][getUserTagNode]
+
+What the `getUserTag({ name, into })` action does is that is loads a tag (named `name`) *into* the state under a variable called `into`.
+
+### Conditional asking
+
+The last step now is to only ask for the nickname when we don't know the nickname already. When this is the case, `getUserTag` should put `null` *into* the *"nickname"* state variable.
+
+![Asking only when nickname is unknown][nicknameCondition1]
+![Nickname is unknown condition][nicknameCondition2]
+
+Finally you want to end the flow if we already know the nickname:
+
+![End flow otherwise][otherwiseCondition]
+![End flow otherwise (result)][otherwiseConditionResult]
+
+That's it!
 
 [flow_node]: {{site.basedir}}/images/flow_node.png
 [node_blocking]: {{site.basedir}}/images/node_blocking.png
 [node_transition]: {{site.basedir}}/images/node_transition.png
+[ask_nickname]: {{site.basedir}}/images/ask_nickname.jpg
+
+[getUserTag]: {{site.basedir}}/images/getUserTag.jpg
+[getUserTagNode]: {{site.basedir}}/images/getUserTagNode.jpg
+[setUserTag]: {{site.basedir}}/images/setUserTag.jpg
+[setUserTagNode]: {{site.basedir}}/images/setUserTagNode.jpg
+
+[nicknameCondition1]: {{site.basedir}}/images/nicknameCondition1.jpg
+[nicknameCondition2]: {{site.basedir}}/images/nicknameCondition2.jpg
+
+[otherwiseCondition]: {{site.basedir}}/images/otherwiseCondition.jpg
+[otherwiseConditionResult]: {{site.basedir}}/images/otherwiseConditionResult.jpg
