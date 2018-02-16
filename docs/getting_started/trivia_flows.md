@@ -189,7 +189,7 @@ Finally you want to end the flow if we already know the nickname:
 
 That's it!
 
-[stateLifetime]: {{site.basedir}}/images/stateLifetime.png
+[stateLifetime]: {{site.basedir}}/images/stateLifetime.jpg
 
 [flow_node]: {{site.basedir}}/images/flow_node.png
 [node_blocking]: {{site.basedir}}/images/node_blocking.png
