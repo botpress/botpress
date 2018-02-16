@@ -131,7 +131,12 @@ class Toolbar extends React.Component {
             </OverlayTrigger>
           </Button>
 
-          <Button className={style.btn} bsStyle="default" onClick={this.props.onPaste}>
+          <Button
+            className={style.btn}
+            bsStyle="default"
+            onClick={this.props.onPaste}
+            disabled={!this.props.canPasteNode}
+          >
             <OverlayTrigger placement="bottom" overlay={createTooltip('paste', 'Paste')}>
               <i className="material-icons">content_paste</i>
             </OverlayTrigger>

@@ -15,6 +15,7 @@ const mapStateToProps = (state, ownProps) => ({
   dirtyFlows: getDirtyFlows(state),
   canUndo: canFlowUndo(state),
   canRedo: canFlowRedo(state),
+  canPasteNode: Boolean(state.flows.nodeInBuffer),
   skills: state.skills.installed
 })
 
