@@ -199,7 +199,7 @@ That's it!
 [getUserTag]: {{site.basedir}}/images/getUserTag.jpg
 [getUserTagNode]: {{site.basedir}}/images/getUserTagNode.jpg
 [setUserTag]: {{site.basedir}}/images/setUserTag.jpg
-[setUserTagNode]: {{site.basedir}}/images/setUserTagNode.jpg
+[setUserTagNode]: {{site.basedir}}/images/setUserTagNode.png
 
 [nicknameCondition1]: {{site.basedir}}/images/nicknameCondition1.jpg
 [nicknameCondition2]: {{site.basedir}}/images/nicknameCondition2.jpg
