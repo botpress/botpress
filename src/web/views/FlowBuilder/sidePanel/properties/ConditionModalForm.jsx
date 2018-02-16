@@ -113,7 +113,10 @@ export default class ConditionModalForm extends Component {
     } else if (this.state.typeOfTransition === 'node') {
       let earlierNode = this.state.isEdit && _.get(this.props, 'item.node')
 
-      if (/^END$/i.test(earlierNode) || earlierNode.startsWith('#') || /\.flow\.json/i.test(earlierNode)) {
+      if (
+        earlierNode &&
+        (/^END$/i.test(earlierNode) || earlierNode.startsWith('#') || /\.flow\.json/i.test(earlierNode))
+      ) {
         earlierNode = null
       }
 
