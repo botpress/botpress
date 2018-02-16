@@ -80,7 +80,7 @@ setUserTag: async (state, event, { name, value }) => {
 },
 ```
 
-`name` and `value` come from the flow builder:
+> **Note:** `name` and `value` come from the Flow Builder. `name` is a static value whereas `value` is an expression that will be evaluated at execution time. In this case `event.text` is what the user said (i.e. his nickname).
 
 ![Passing arguments from the flow editor][setUserTagArgs]
 
