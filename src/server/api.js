@@ -1,6 +1,7 @@
 import _ from 'lodash'
 import bodyParser from 'body-parser'
 import { Router } from 'express'
+import qs from 'query-string'
 
 import ServiceLocator from '+/ServiceLocator'
 import anonymousApis from './anonymous'
@@ -119,6 +120,29 @@ module.exports = bp => {
       installProtector(routers[name])
       return routers[name]
     }
+
+    const links = {}
+
+    bp.createShortlink = (name, destination, params) => {
+      name = name.toLowerCase()
+
+      if (links[name]) {
+        throw new Error(`There's already a shortlink named "${name}"`)
+      }
+
+      const q = params ? '?' + qs.stringify(params) : ''
+      links[name] = `${destination}${q}`
+    }
+
+    app.use(`/s/:name`, (req, res) => {
+      const name = req.params.name.toLowerCase()
+
+      if (!links[name]) {
+        return res.status(404).send({ error: `Shortlink "${name}" not registered` })
+      }
+
+      res.redirect(links[name])
+    })
   }
 
   const installMaybeUse = app => {
