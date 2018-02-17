@@ -31,6 +31,11 @@ module.exports = {
   contentDataDir: './content_data',
 
   /*
+    Path to media / file uploads
+   */
+  mediaDir: './media',
+
+  /*
     By default logs are enabled and available in `dataDir`
    */
   disableFileLogs: false,

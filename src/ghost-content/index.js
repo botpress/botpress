@@ -26,6 +26,7 @@ module.exports = ({ logger, db, projectLocation, enabled }) => {
 
   const pendingRevisionsByFolder = {}
   const trackedFolders = []
+  const folderOptions = {}
 
   const upsert = ({ knex, tableName, where, data, idField = 'id', trx = null }) => {
     const prepareQuery = () => (trx ? knex(tableName).transacting(trx) : knex(tableName))
@@ -45,15 +46,16 @@ module.exports = ({ logger, db, projectLocation, enabled }) => {
       })
   }
 
-  const recordFile = async (folderPath, folder, file) => {
+  const recordFile = async (folderPath, folder, file, { isBinary = false } = {}) => {
     const knex = await db.get()
     const filePath = path.join(folderPath, file)
-    await fs.readFileAsync(filePath, 'utf-8').then(content =>
+    const column = isBinary ? 'binary_content' : 'content'
+    await fs.readFileAsync(filePath, isBinary ? null : 'utf8').then(content =>
       upsert({
         knex,
         tableName: 'ghost_content',
         where: { folder, file },
-        data: { content }
+        data: { [column]: content }
       })
     )
   }
@@ -75,16 +77,18 @@ module.exports = ({ logger, db, projectLocation, enabled }) => {
       .then()
   }
 
-  const addRootFolder = async (rootFolder, filesGlob) => {
+  const addRootFolder = async (rootFolder, options = {}) => {
     const { folderPath, normalizedFolderName } = normalizeFolder(rootFolder)
+    const { isBinary = false, filesGlob } = options
 
     logger.debug(`[Ghost Content Manager] adding folder ${normalizedFolderName}`)
     trackedFolders.push(normalizedFolderName)
+    folderOptions[normalizedFolderName] = options
 
     // read known revisions
     const revisionsFile = path.join(folderPath, REVISIONS_FILE_NAME)
     const fileRevisionsPromise = fs
-      .readFileAsync(revisionsFile, 'utf-8')
+      .readFileAsync(revisionsFile, 'utf8')
       .catch({ code: 'ENOENT' }, () => '')
       .then(content =>
         content
@@ -121,20 +125,21 @@ module.exports = ({ logger, db, projectLocation, enabled }) => {
       logger.debug(`[Ghost Content Manager] ${normalizedFolderName}: ${remainingRevisions.length} pending revision(s).`)
       // record remaining revisions if any
       pendingRevisionsByFolder[normalizedFolderName] = remainingRevisions
-    } else {
-      logger.debug(
-        `[Ghost Content Manager] ${normalizedFolderName} has no pending revisions, updating DB from the file system.`
-      )
-      // otherwise update the content in the DB
-      const files = await globAsync(filesGlob, { cwd: folderPath })
-      await Promise.map(files, file => recordFile(folderPath, normalizedFolderName, file))
-      // and also delete the files no longer in the FS
-      await knex('ghost_content')
-        .whereNotIn('file', files)
-        .andWhere('folder', normalizedFolderName)
-        .del()
-        .then()
+      return
     }
+
+    logger.debug(
+      `[Ghost Content Manager] ${normalizedFolderName} has no pending revisions, updating DB from the file system.`
+    )
+    // otherwise update the content in the DB
+    const files = await globAsync(filesGlob, { cwd: folderPath })
+    await Promise.map(files, file => recordFile(folderPath, normalizedFolderName, file, { isBinary }))
+    // and also delete the files no longer in the FS
+    await knex('ghost_content')
+      .whereNotIn('file', files)
+      .andWhere('folder', normalizedFolderName)
+      .del()
+      .then()
   }
 
   const updatePendingForFolder = async normalizedFolderName => {
@@ -156,10 +161,12 @@ module.exports = ({ logger, db, projectLocation, enabled }) => {
     const knex = await db.get()
 
     const folder = normalizeFolder(rootFolder).normalizedFolderName
+    const { isBinary } = folderOptions[folder]
+    const column = isBinary ? 'binary_content' : 'content'
 
     if (
       await knex('ghost_content')
-        .where({ folder, file, content })
+        .where({ folder, file, [column]: content })
         .count('id as count')
         .then(([res]) => Number(res.count) > 0)
     ) {
@@ -167,7 +174,13 @@ module.exports = ({ logger, db, projectLocation, enabled }) => {
     }
 
     return knex.transaction(trx => {
-      upsert({ knex, tableName: 'ghost_content', where: { folder, file }, data: { content }, trx })
+      upsert({
+        knex,
+        tableName: 'ghost_content',
+        where: { folder, file },
+        data: { [column]: content },
+        trx
+      })
         .then(content_id => recordRevision(knex, content_id, trx))
         .then(trx.commit)
         .then(() => updatePendingForFolder(folder))
@@ -181,8 +194,9 @@ module.exports = ({ logger, db, projectLocation, enabled }) => {
   const revertAllPendingChangesForFile = async (folder, file) => {
     const knex = await db.get()
 
-    const { folderPath } = normalizeFolder(folder)
+    const { folderPath, normalizedFolderName } = normalizeFolder(folder)
     const filePath = path.join(folderPath, file)
+    const { isBinary = false } = folderOptions[normalizedFolderName]
 
     await knex('ghost_revisions')
       .whereIn('id', function() {
@@ -199,7 +213,7 @@ module.exports = ({ logger, db, projectLocation, enabled }) => {
 
     if (fs.existsSync(filePath)) {
       // If the file exists on disk, this means it was initially source controlled
-      recordFile(folderPath, folder, file)
+      recordFile(folderPath, folder, file, { isBinary })
     } else {
       await knex('ghost_content')
         .where('folder', folder)
@@ -211,15 +225,18 @@ module.exports = ({ logger, db, projectLocation, enabled }) => {
   const readFile = async (rootFolder, file) => {
     const knex = await db.get()
     const { normalizedFolderName } = normalizeFolder(rootFolder)
+    const { isBinary } = folderOptions[normalizedFolderName]
+    const column = isBinary ? 'binary_content' : 'content'
+
     return knex('ghost_content')
-      .select('content')
+      .select(column)
       .where({ folder: normalizedFolderName, file })
       .then(results => {
         if (!results || !results.length) {
           return null
         }
         const result = results[0]
-        return (result && result.content) || null
+        return (result && result[column]) || null
       })
   }
 
@@ -242,7 +259,7 @@ module.exports = ({ logger, db, projectLocation, enabled }) => {
       knex('ghost_content')
         .transacting(trx)
         .where({ id })
-        .update({ deleted: 1, content: null })
+        .update({ deleted: 1, content: null, binary_content: null })
         .then(() => recordRevision(knex, id, trx))
         .then(trx.commit)
         .then(() => updatePendingForFolder(normalizedFolderName))
@@ -269,16 +286,19 @@ module.exports = ({ logger, db, projectLocation, enabled }) => {
   const getPendingWithContentForFolder = async (folderInfo, normalizedFolderName) => {
     const revisions = folderInfo.map(({ revision }) => revision)
     const fileNames = uniq(folderInfo.map(({ file }) => file))
+    const { isBinary } = folderOptions[normalizedFolderName]
+    const column = isBinary ? 'binary_content' : 'content'
 
     const knex = await db.get()
     const files = await knex('ghost_content')
-      .select('file', 'content', 'deleted')
+      .select('file', column, 'deleted')
       .whereIn('file', fileNames)
       .andWhere({ folder: normalizedFolderName })
 
     return {
       files,
-      revisions
+      revisions,
+      binary: isBinary
     }
   }
 

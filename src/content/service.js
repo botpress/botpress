@@ -35,6 +35,11 @@ const prepareDb = async () => {
   return knex
 }
 
+const defaults = {
+  contentDir: './content',
+  contentDataDir: './content_data'
+}
+
 module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
   const categories = []
   const categoryById = {}
@@ -42,8 +47,8 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
 
   const getItemProviders = {}
 
-  const contentDir = path.resolve(projectLocation, botfile.contentDir || './content')
-  const contentDataDir = path.resolve(projectLocation, botfile.contentDataDir || './content_data')
+  const contentDir = path.resolve(projectLocation, botfile.contentDir || defaults.contentDir)
+  const contentDataDir = path.resolve(projectLocation, botfile.contentDataDir || defaults.contentDataDir)
 
   const knex = await prepareDb()
 
@@ -406,7 +411,7 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
     }
 
     mkdirp.sync(contentDataDir)
-    await ghostManager.addRootFolder(contentDataDir, '**/*.json')
+    await ghostManager.addRootFolder(contentDataDir, { filesGlob: '**/*.json' })
 
     const files = await Promise.fromCallback(callback => glob('**/*.form.js', { cwd: contentDir }, callback))
 

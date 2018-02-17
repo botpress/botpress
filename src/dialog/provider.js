@@ -22,7 +22,7 @@ export default class FlowProvider extends EventEmitter2 {
     this.flowsDir = this.botfile.flowsDir || './flows'
 
     mkdirp.sync(path.dirname(this.flowsDir))
-    this.ghostManager.addRootFolder(this.flowsDir, '**/*.json')
+    this.ghostManager.addRootFolder(this.flowsDir, { filesGlob: '**/*.json' })
   }
 
   async loadAll() {
