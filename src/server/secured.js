@@ -209,7 +209,7 @@ module.exports = (bp, app) => {
   })
 
   app.secure('read', 'bot/ghost_content').get('/ghost_content/export', async (req, res) => {
-    res.send(await bp.ghostManager.getPendingWithContent())
+    res.send(await bp.ghostManager.getPendingWithContent({ stringifyBinary: true }))
   })
 
   app.secure('write', 'bot/ghost_content').delete('/ghost_content/:folder', async (req, res) => {

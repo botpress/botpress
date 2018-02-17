@@ -283,7 +283,7 @@ module.exports = ({ logger, db, projectLocation, enabled }) => {
 
   const getPending = () => pendingRevisionsByFolder
 
-  const getPendingWithContentForFolder = async (folderInfo, normalizedFolderName) => {
+  const getPendingWithContentForFolder = ({ stringifyBinary = false }) => async (folderInfo, normalizedFolderName) => {
     const revisions = folderInfo.map(({ revision }) => revision)
     const fileNames = uniq(folderInfo.map(({ file }) => file))
     const { isBinary } = folderOptions[normalizedFolderName]
@@ -295,6 +295,13 @@ module.exports = ({ logger, db, projectLocation, enabled }) => {
       .whereIn('file', fileNames)
       .andWhere({ folder: normalizedFolderName })
 
+    if (isBinary) {
+      files.forEach(data => {
+        data.content = stringifyBinary ? data.binary_content.toString('base64') : data.binary_content
+        delete data.binary_content
+      })
+    }
+
     return {
       files,
       revisions,
@@ -302,7 +309,8 @@ module.exports = ({ logger, db, projectLocation, enabled }) => {
     }
   }
 
-  const getPendingWithContent = () => Promise.props(mapValues(pendingRevisionsByFolder, getPendingWithContentForFolder))
+  const getPendingWithContent = ({ stringifyBinary = false } = {}) =>
+    Promise.props(mapValues(pendingRevisionsByFolder, getPendingWithContentForFolder({ stringifyBinary })))
 
   logger.info('[Ghost Content Manager] Initialized')
 
