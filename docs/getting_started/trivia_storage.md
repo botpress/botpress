@@ -90,8 +90,55 @@ const knex = await event.bp.db.get()
 
 ---
 
-## Leaderboard
+# Leaderboard
 
-### Storing user-specific data (Tags)
+Now that we understand how to store data, how to write custom actions and how flows work, we have all the tools we need to finish implementing our leaderboard.
 
-### Storing general data (KVS)
+## Scoring system
+
+To determine the score of the user, we will take into account two variables: 
+- The total time it took to respond to all the questions
+- The total score
+
+The score will be determined as follow: `SCORE / TIME_IN_MILLISECONDS * 1000 * 5000`
+
+### Computing total time
+
+To calculate the total time to answer, we will modify the `startGame` action to store the start time:
+
+```diff
+startGame: state => {
+  return {
+    ...state, // we clone the existing state
++    startTime: new Date(),
+    count: 0, // we then reset the number of questions asked to `0`
+    score: 0 // and we reset the score to `0`
+  }
+},
+```
+
+Then we will create a new action called `endGame` as follow.
+
+> **Note:** Don't forget to import `moment` at the top of your file: `const moment = require('moment')`
+
+```js
+endGame: state => {
+  // assuming you declared moment at the top of this file
+  // const moment = require('moment')
+  const totalTimeInMs = moment().diff(moment(state.startTime))
+  const totalScore = parseInt(state.score / totalTimeInMs * 1000 * 5000)
+
+  return {
+    ...state,
+    totalScore: totalScore
+  }
+},
+```
+
+![Calling the endGame][totalScore]
+
+## Storing top scores in KVS
+
+## Wrapping up
+
+[totalScore]: {{site.basedir}}/images/totalScore.jpg
