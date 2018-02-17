@@ -52,6 +52,8 @@ export const createFlowNode = createAction('FLOWS/FLOW/CREATE')
 export const removeFlowNode = createAction('FLOWS/FLOW/REMOVE')
 export const copyFlowNode = createAction('FLOWS/NODE/COPY')
 export const pasteFlowNode = createAction('FLOWS/NODE/PASTE')
+export const copyFlowNodeElement = createAction('FLOWS/NODE_ELEMENT/COPY')
+export const pasteFlowNodeElement = createAction('FLOWS/NODE_ELEMENT/PASTE')
 
 export const handleFlowEditorUndo = createAction('FLOWS/EDITOR/UNDO')
 export const handleFlowEditorRedo = createAction('FLOWS/EDITOR/REDO')

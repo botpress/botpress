@@ -62,10 +62,6 @@
   }
 }
 
-.addAction {
-  width: 100%;
-}
-
 .actions {
   margin-top: 10px;
   width: 100%;
@@ -73,6 +69,10 @@
   button {
     border-radius: 3px;
   }
+}
+
+.actionIcons {
+  margin-top: 5px;
 }
 
 .bottomSection {

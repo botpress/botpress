@@ -19,6 +19,8 @@ import {
   createFlowNode,
   copyFlowNode,
   pasteFlowNode,
+  copyFlowNodeElement,
+  pasteFlowNodeElement,
   createFlow,
   deleteFlow,
   duplicateFlow,
@@ -43,7 +45,8 @@ const defaultState = {
   currentSnapshot: null,
   undoStack: [],
   redoStack: [],
-  nodeInBuffer: null
+  nodeInBuffer: null, // TODO: move it to buffer.node
+  buffer: { action: null, transition: null }
 }
 
 const findNodesThatReferenceFlow = (state, flowName) =>
@@ -551,6 +554,47 @@ reducer = reduceReducers(
         }
       },
 
+      [copyFlowNodeElement]: (state, { payload }) => ({
+        ...state,
+        buffer: {
+          ...state.buffer,
+          ...payload
+        }
+      }),
+
+      [pasteFlowNodeElement]: (state, { payload }) => {
+        const SECTION_TYPES = { onEnter: 'action', onReceive: 'action', next: 'transition' }
+        const element = state.buffer[SECTION_TYPES[payload]]
+        if (!element) {
+          return state
+        }
+
+        const currentFlow = state.flowsByName[state.currentFlow]
+        const currentNode = _.find(currentFlow.nodes, { id: state.currentFlowNode })
+
+        // TODO: use this as a helper function in other reducers
+        const updateCurrentFlow = modifier => ({
+          ...state,
+          flowsByName: { ...state.flowsByName, [state.currentFlow]: { ...currentFlow, ...modifier } }
+        })
+
+        if (currentNode) {
+          return updateCurrentFlow({
+            nodes: [
+              ...currentFlow.nodes.filter(({ id }) => id !== state.currentFlowNode),
+              { ...currentNode, [payload]: [...(currentNode[payload] || []), element] }
+            ]
+          })
+        }
+
+        return updateCurrentFlow({
+          catchAll: {
+            ...currentFlow.catchAll,
+            [payload]: [...currentFlow.catchAll[payload], element]
+          }
+        })
+      },
+
       [createFlowNode]: (state, { payload }) => ({
         ...state,
         flowsByName: {
@@ -610,7 +654,8 @@ reducer = reduceReducers(
       [duplicateFlow]: updateCurrentHash,
       [removeFlowNode]: updateCurrentHash,
       [insertNewSkillNode]: updateCurrentHash,
-      [updateSkill]: updateCurrentHash
+      [updateSkill]: updateCurrentHash,
+      [pasteFlowNodeElement]: updateCurrentHash
     },
     defaultState
   )
@@ -636,6 +681,7 @@ reducer = reduceReducers(
       [insertNewSkill]: recordHistory,
       [insertNewSkillNode]: recordHistory,
       [updateSkill]: recordHistory,
+      [pasteFlowNodeElement]: recordHistory,
       [handleFlowEditorUndo]: popHistory('undoStack'),
       [handleFlowEditorRedo]: popHistory('redoStack')
     },

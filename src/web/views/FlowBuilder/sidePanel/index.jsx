@@ -86,6 +86,9 @@ export default class SidePanel extends Component {
           updateFlow={this.props.updateFlow}
           requestEditSkill={this.props.requestEditSkill}
           goToFlow={this.goToFlow}
+          copyFlowNodeElement={this.props.copyFlowNodeElement}
+          pasteFlowNodeElement={this.props.pasteFlowNodeElement}
+          buffer={this.props.buffer}
         />
       )
     }
@@ -98,6 +101,9 @@ export default class SidePanel extends Component {
           node={this.props.currentFlowNode}
           updateNode={updateNodeAndRefresh}
           updateFlow={this.props.updateFlow}
+          copyFlowNodeElement={this.props.copyFlowNodeElement}
+          pasteFlowNodeElement={this.props.pasteFlowNodeElement}
+          buffer={this.props.buffer}
         />
       )
     }

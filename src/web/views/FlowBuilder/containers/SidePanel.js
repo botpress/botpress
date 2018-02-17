@@ -10,7 +10,9 @@ import {
   removeFlowNode,
   deleteFlow,
   duplicateFlow,
-  requestEditSkill
+  requestEditSkill,
+  copyFlowNodeElement,
+  pasteFlowNodeElement
 } from '~/actions'
 
 import SidePanel from '../sidePanel'
@@ -19,6 +21,7 @@ const mapStateToProps = (state, ownProps) => ({
   currentFlow: getCurrentFlow(state),
   currentFlowNode: getCurrentFlowNode(state),
   flows: values(state.flows.flowsByName),
+  buffer: state.flows.buffer,
   dirtyFlows: getDirtyFlows(state)
 })
 
@@ -28,7 +31,9 @@ const mapDispatchToProps = {
   updateFlow,
   deleteFlow,
   duplicateFlow,
-  requestEditSkill
+  requestEditSkill,
+  copyFlowNodeElement,
+  pasteFlowNodeElement
 }
 
 const ConnectedSidePanel = connect(mapStateToProps, mapDispatchToProps)(withRouter(SidePanel))
