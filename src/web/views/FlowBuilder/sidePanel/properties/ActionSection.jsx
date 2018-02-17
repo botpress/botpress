@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import _ from 'lodash'
+import classnames from 'classnames'
 
 import { Panel, Button } from 'react-bootstrap'
 
@@ -67,6 +68,10 @@ export default class ActionSection extends Component {
     this.props.onItemsUpdated(clone)
   }
 
+  onCopyAction(index) {
+    this.props.copyItem(this.props.items[index])
+  }
+
   onEdit(itemToEditIndex) {
     this.setState({ itemToEditIndex, showActionModalForm: true })
   }
@@ -112,14 +117,18 @@ export default class ActionSection extends Component {
               <div className={style.actions}>
                 <a onClick={() => this.onEdit(i)}>Edit</a>
                 <a onClick={() => this.onRemoveAction(i)}>Remove</a>
+                <a onClick={() => this.onCopyAction(i)}>Copy</a>
                 {renderMoveUp(i)}
                 {renderMoveDown(i)}
               </div>
             </ActionItem>
           ))}
           <div className={style.actions}>
-            <Button className={style.addAction} onClick={handleAddAction}>
-              Add action
+            <Button onClick={handleAddAction} bsSize="xsmall">
+              <i className={classnames(['material-icons', style.actionIcons])}>add</i>
+            </Button>
+            <Button onClick={this.props.pasteItem} bsSize="xsmall" disabled={!this.props.canPaste}>
+              <i className={classnames(['material-icons', style.actionIcons])}>content_paste</i>
             </Button>
           </div>
         </Panel>

@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import _ from 'lodash'
+import classnames from 'classnames'
 
 import { Panel, Button, Label } from 'react-bootstrap'
 
@@ -40,6 +41,10 @@ export default class TransitionSection extends Component {
     const clone = [...this.props.items]
     _.pullAt(clone, [index])
     this.props.onItemsUpdated(clone)
+  }
+
+  onCopyAction(index) {
+    this.props.copyItem(this.props.items[index])
   }
 
   onEdit(itemToEditIndex) {
@@ -88,14 +93,18 @@ export default class TransitionSection extends Component {
               <div className={style.actions}>
                 <a onClick={() => this.onEdit(i)}>Edit</a>
                 <a onClick={() => this.onRemove(i)}>Remove</a>
+                <a onClick={() => this.onCopyAction(i)}>Copy</a>
                 {renderMoveUp(i)}
                 {renderMoveDown(i)}
               </div>
             </ConditionItem>
           ))}
           <div className={style.actions}>
-            <Button className={style.addAction} onClick={handleAddAction}>
-              Add condition
+            <Button onClick={handleAddAction} bsSize="xsmall">
+              <i className={classnames(['material-icons', style.actionIcons])}>add</i>
+            </Button>
+            <Button onClick={this.props.pasteItem} bsSize="xsmall" disabled={!this.props.canPaste}>
+              <i className={classnames(['material-icons', style.actionIcons])}>content_paste</i>
             </Button>
           </div>
         </Panel>

@@ -22,6 +22,9 @@ export default class FlowPropertiesPanel extends Component {
           items={catchAll['onReceive']}
           header="On Receive"
           onItemsUpdated={items => this.props.updateFlow({ catchAll: { ...catchAll, onReceive: items } })}
+          copyItem={item => this.props.copyFlowNodeElement({ action: item })}
+          pasteItem={() => this.props.pasteFlowNodeElement('onReceive')}
+          canPaste={Boolean(this.props.buffer.action)}
         />
         <TransitionSection
           items={catchAll['next']}
@@ -29,6 +32,9 @@ export default class FlowPropertiesPanel extends Component {
           currentFlow={this.props.currentFlow}
           subflows={this.props.subflows}
           onItemsUpdated={items => this.props.updateFlow({ catchAll: { ...catchAll, next: items } })}
+          copyItem={item => this.props.copyFlowNodeElement({ transition: item })}
+          pasteItem={() => this.props.pasteFlowNodeElement('next')}
+          canPaste={Boolean(this.props.buffer.transition)}
         />
       </div>
     )

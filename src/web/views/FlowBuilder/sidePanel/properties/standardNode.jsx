@@ -42,18 +42,27 @@ export default class StandardNodePropertiesPanel extends Component {
           items={node['onEnter']}
           header="On Enter"
           onItemsUpdated={items => this.props.updateNode({ onEnter: items })}
+          copyItem={item => this.props.copyFlowNodeElement({ action: item })}
+          pasteItem={() => this.props.pasteFlowNodeElement('onEnter')}
+          canPaste={Boolean(this.props.buffer.action)}
         />
         <ActionSection
           items={node['onReceive']}
           header="On Receive"
           waitable={true}
           onItemsUpdated={items => this.props.updateNode({ onReceive: items })}
+          copyItem={item => this.props.copyFlowNodeElement({ action: item })}
+          pasteItem={() => this.props.pasteFlowNodeElement('onReceive')}
+          canPaste={Boolean(this.props.buffer.action)}
         />
         <TransitionSection
           items={node['next']}
           header="Transitions"
           subflows={this.props.subflows}
           onItemsUpdated={items => this.props.updateNode({ next: items })}
+          copyItem={item => this.props.copyFlowNodeElement({ transition: item })}
+          pasteItem={() => this.props.pasteFlowNodeElement('next')}
+          canPaste={Boolean(this.props.buffer.transition)}
         />
       </div>
     )
