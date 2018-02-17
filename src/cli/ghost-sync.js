@@ -34,10 +34,16 @@ const writeFile = folderPath => async ({ file, content, deleted }) => {
   return deleted ? fs.unlinkAsync(filePath) : fs.writeFileAsync(filePath, content)
 }
 
-const updateFolder = projectLocation => async ({ files, revisions }, folder) => {
+const updateFolder = projectLocation => async ({ files, revisions, binary }, folder) => {
   const folderPath = path.join(projectLocation, folder)
   const revisionsFile = path.join(folderPath, REVISIONS_FILE_NAME)
   await writeRevisions(revisionsFile, revisions)
+
+  if (binary) {
+    files.forEach(data => {
+      data.content = Buffer.from(data.content, 'base64')
+    })
+  }
 
   return Promise.each(files, writeFile(folderPath))
 }

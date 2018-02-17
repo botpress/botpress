@@ -130,7 +130,7 @@ The returned object has the following structure:
 }
 ```
 
-### getPendingWithContent => Promise&lt;object&gt;
+### getPendingWithContent({ stringifyBinary = false } = {}) => Promise&lt;object&gt;
 
 Returns the data similar to the previous method, but with files contents. The format is different though:
 
@@ -154,9 +154,11 @@ Returns the data similar to the previous method, but with files contents. The fo
       '123-def'
     ],
     files: [
-      { file: 'image.png', content: '<FILE CONTENT AS BUFFER>' }
+      { file: 'image.png', content: <FILE CONTENT AS BUFFER> }
     ]
   },
   "another_folder": { /* ... */ }
 }
 ```
+
+If the `stringifyBinary` parameter is set to `true` binary files `content` fill be the base64-encoded content of the buffers.
