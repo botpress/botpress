@@ -124,7 +124,7 @@ class DialogEngine {
    * The provider is simply an async function that returns metadata information from the function name alone.
    * The metadata lookup is done upon new functions registration
    * @param {Function} A function taking the name of a function, returning metadata of that function
-   * Valid metadata could include: "description" and "args[]"
+   * Valid metadata could include: "description" and "params[...{ name, description }]"
    * @returns {void}
    */
   setFunctionMetadataProvider(provider) {
