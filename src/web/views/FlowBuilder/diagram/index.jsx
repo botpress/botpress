@@ -102,7 +102,7 @@ export default class FlowBuilder extends Component {
 
     node.next.forEach((next, index) => {
       const target = next.node
-      if (/END/i.test(target)) {
+      if (/^END$/i.test(target)) {
         // Handle end connection
       } else if (/\.flow/i.test(target)) {
         // Handle subflow connection
