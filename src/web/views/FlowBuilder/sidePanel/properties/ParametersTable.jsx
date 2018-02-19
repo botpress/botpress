@@ -8,12 +8,16 @@ const style = require('./parameters.scss')
 export default class ParametersTable extends Component {
   constructor(props) {
     super(props)
+    this.state = { arguments: this.transformArguments(props.value) }
+  }
 
-    const valuesArray = [..._.map(props.value, (value, key) => ({ key, value })), { key: '', value: '' }]
+  componentWillReceiveProps(nextProps) {
+    this.setState({ arguments: this.transformArguments(nextProps.value) })
+  }
 
-    this.state = {
-      arguments: _.fromPairs(valuesArray.map((el, i) => [i, el]))
-    }
+  transformArguments(args) {
+    const valuesArray = [..._.map(args, (value, key) => ({ key, value })), { key: '', value: '' }]
+    return _.fromPairs(valuesArray.map((el, i) => [i, el]))
   }
 
   getValues() {
