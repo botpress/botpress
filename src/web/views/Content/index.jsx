@@ -16,7 +16,6 @@ import ContentWrapper from '~/components/Layout/ContentWrapper'
 import PageHeader from '~/components/Layout/PageHeader'
 
 const style = require('./style.scss')
-
 const ITEMS_PER_PAGE = 20
 
 class ContentView extends Component {
@@ -70,6 +69,15 @@ class ContentView extends Component {
       .upsertContentItem({ categoryId, formData: this.state.contentToEdit, modifyId: this.state.modifyId })
       .then(() => this.fetchCategoryItems(this.state.selectedId))
       .then(() => this.setState({ showModal: false }))
+  }
+
+  handleClone = ids => {
+    const categoryId = this.currentCategoryId()
+    return Promise.all(
+      this.props.contentItems
+        .filter(({ id }) => ids.includes(id))
+        .map(({ categoryId, formData }) => this.props.upsertContentItem({ formData, categoryId }))
+    ).then(() => this.fetchCategoryItems(this.state.selectedId))
   }
 
   handleFormEdited = data => {
@@ -158,6 +166,7 @@ class ContentView extends Component {
                 handleRefresh={this.handleRefresh}
                 handleEdit={this.handleModalShowForEdit}
                 handleDeleteSelected={this.handleDeleteSelected}
+                handleClone={this.handleClone}
                 handleSearch={this.handleSearch}
               />
             </Col>
