@@ -67,6 +67,15 @@ export default class ListView extends Component {
     })
   }
 
+  handleCloneSelected = () => {
+    this.props.handleClone(this.state.checkedIds)
+
+    this.setState({
+      checkedIds: [],
+      allChecked: false
+    })
+  }
+
   handleSearchChanged = event => {
     this.setState({
       search: event.target.value
@@ -149,6 +158,9 @@ export default class ListView extends Component {
         </Button>
         <Button onClick={this.handleDeleteSelected} disabled={_.isEmpty(this.state.checkedIds)}>
           <i className="material-icons">delete</i>
+        </Button>
+        <Button onClick={this.handleCloneSelected} disabled={_.isEmpty(this.state.checkedIds)}>
+          <i className="material-icons">filter_none</i>
         </Button>
       </span>
     )
