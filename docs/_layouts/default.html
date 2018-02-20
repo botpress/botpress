@@ -83,7 +83,9 @@
         {% if page.search or layout.search %}'{% asset_name "search" %}',{% endif %}
       ], function() {
         Mousetrap.bind(['command+k', 'ctrl+k'], function(e) {
-          console.log('Search');
+          var sb = document.getElementById('algolia-doc-search');
+          sb.focus;
+          sb.scrollIntoView(false);
           return false;
         });
       });
