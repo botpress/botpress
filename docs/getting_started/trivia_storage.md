@@ -2,7 +2,7 @@
 layout: guide
 ---
 
-# Storage Mechanisms
+# 📚 Storage Mechanisms
 
 Even though Botpress has a built-in database, it aims at abstracting most of the storage for you to simplify data management. Botpress does that by providing high-level APIs.
 
@@ -90,7 +90,7 @@ const knex = await event.bp.db.get()
 
 ---
 
-# Leaderboard
+# 🔨 Leaderboard
 
 Now that we understand how to store data, how to write custom actions and how flows work, we have all the tools we need to finish implementing our leaderboard.
 

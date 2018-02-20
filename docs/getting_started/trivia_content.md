@@ -2,7 +2,7 @@
 layout: guide
 ---
 
-# Types, Elements, Renderers
+# 📚 Types, Elements, Renderers
 
 Before we start discussing how you can create and edit the content of your bot, we should understand the different concepts of the Content Management in Botpress.
 
@@ -43,7 +43,7 @@ In the context of this tutorial, Content Renderers are defined in the `src/rende
 
 ---
 
-# Hands-on
+#  🔨 Hands-on
 
 Now that you understand the concepts of Content Management, let's make a small change to our bot that covers all of the above concepts.
 

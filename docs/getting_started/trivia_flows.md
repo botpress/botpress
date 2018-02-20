@@ -4,7 +4,7 @@ layout: guide
 
 For this section, you'll need to head to the dashboard and click on the "Flows" section. You should see a flow diagram with a bunch of boxes and links.
 
-# State, Flows, Nodes, Actions, Transitions
+# 📚 State, Flows, Nodes, Actions, Transitions
 
 Don't panic! Even though this view might seem confusing at first, it's actually very simple once you understand how it works. The Flow Editor is built in a way that makes the experience consistent.
 
@@ -101,7 +101,7 @@ In the context of this tutorial, this means that a state is created just before 
 
 ---
 
-# Hands-on
+#  🔨 Hands-on
 
 Now that you understand how flows and nodes work, let's jump into some use cases for our Trivia bot.
 
