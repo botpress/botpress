@@ -152,9 +152,11 @@ amendLeaderboard: async (state, event) => {
     nickname: state.nickname
   })
 
-  // Now let's take the top 5 only and save it
+  // Now let's take the top 5 only and re-save it
   board = _.take(_.orderBy(board, ['score'], ['desc']), 5)
   await event.bp.db.kvs.set('leaderboard', board)
+
+  // Are we in top 5? (i.e. are we in the array)
   const doesRanking = !!_.find(board, {
     score: state.totalScore,
     nickname: state.nickname
