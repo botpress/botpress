@@ -139,6 +139,67 @@ endGame: state => {
 
 ## Storing top scores in KVS
 
+Now that the performance of the player is quantified, we can start recording a list of the best scores. Let's create an action that amends the leaderboard:
+
+```js
+amendLeaderboard: async (state, event) => {
+  // Let's pull our existing leaderboard or create an empty board if it doesn't exist
+  let board = (await event.bp.db.kvs.get('leaderboard')) || []
+
+  board.push({
+    score: state.totalScore,
+    date: moment().format('dd MMM YYYY, hA'),
+    nickname: state.nickname
+  })
+
+  // Now let's take the top 5 only and save it
+  board = _.take(_.orderBy(board, ['score'], ['desc']), 5)
+  await event.bp.db.kvs.set('leaderboard', board)
+  const doesRanking = !!_.find(board, { score: state.totalScore, nickname: state.nickname })
+
+  return {
+    ...state,
+    leaderboard: board,
+    doesRanking: doesRanking
+  }
+},
+```
+
+Notice how we make use of the global storage (`event.bp.db.kvs`) to store the leadrboard, which is simply an ordered array of the best scores.
+
 ## Wrapping up
 
+Now that we have the single action that is in charge of storing the scores and determining if we're making the ranking or not, we need to consume that action in the flow.
+
+This is very much straightforward, so we'll skip the details:
+
+![Leaderboard flow nodes][leaderboard]
+
+## Note A
+
+We need to pull the nickname in the state right after setting it to make sure that the state contains the user's nickname at all time.
+
+
+## Note B
+
+This is a simple action that calls the specified renderer and passthrough all the arguments. In this case we're using the `#leaderboard` renderer (which we will define in a minute). 
+
+> This is a new concept that you probably didn't know existed: we can call renderers directly in actions.
+> 
+> You can simply call **`event.reply(rendererName, data)`**, which is just slightly different than sending Content Elements (they start with `#!` instead of `#`).
+
+### The `#leaderboard` renderer
+
+Simply add the following renderer in your `renderer.js` file:
+
+```js
+leaderboard: data => ({
+  text: data.leaderboard
+    .map((entry, i) => `${i + 1}. ${entry.nickname} with ${entry.score}`) //
+    .join('\r\n'),
+  typing: '2s'
+})
+```
+
 [totalScore]: {{site.basedir}}/images/totalScore.jpg
+[leaderboard]: {{site.basedir}}/images/leaderboardFlow.jpg
