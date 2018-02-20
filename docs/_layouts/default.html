@@ -79,7 +79,7 @@
       });
 
       requirejs([
-        'bootstrap', 'stickyfill', 'mousetrap'
+        'bootstrap', 'stickyfill', 'mousetrap',
         {% if page.search or layout.search %}'{% asset_name "search" %}',{% endif %}
       ]);
       {% if page.editor or layout.editor %}
