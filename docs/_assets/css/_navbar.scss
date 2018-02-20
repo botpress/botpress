@@ -1,6 +1,15 @@
 .navbar {
   background: $flow-gray-darkest;
   -webkit-font-smoothing: antialiased;
+  padding: 0.5rem 1rem 0 1rem;
+}
+
+li.nav-item {
+  padding-bottom: 0.5rem;
+
+  &:hover {
+    box-shadow: inset 0 -5px 0 red;
+  }
 }
 
 #logoMenu {

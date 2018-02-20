@@ -50,9 +50,9 @@ Once a skill node has been generated, you may click on that node and click "Edit
 
 ---
 
+# 🔨 Presenting a menu
 
 
-### Presenting a menu
 
 [skillsMenu]: {{site.basedir}}/images/skillsMenu.jpg
 [skillsPanel]: {{site.basedir}}/images/skillsPanel.jpg
