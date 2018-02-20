@@ -81,7 +81,12 @@
       requirejs([
         'bootstrap', 'stickyfill', 'mousetrap',
         {% if page.search or layout.search %}'{% asset_name "search" %}',{% endif %}
-      ]);
+      ], function() {
+        Mousetrap.bind(['command+k', 'ctrl+k'], function(e) {
+          console.log('Search');
+          return false;
+        });
+      });
       {% if page.editor or layout.editor %}
       requirejs(['{% asset_name "editor" %}'], function(Editor) {
         Editor.init();
