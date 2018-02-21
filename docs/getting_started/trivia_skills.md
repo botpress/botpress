@@ -14,7 +14,7 @@ They can be seen as reusable components between multiple flows or even multiple 
 
 Skills are implemented under a special kind of Botpress module whose name starts with `botpress-skills-`. Many skills are open-source and available for you to install.
 
-### Installing the `choice` skill
+### Installing the `choice` skill <a class="toc" id="installing-the-choice-skill" href="#installing-the-choice-skill"></a>
 
 Installing a skill is as simple as installing a regular npm package. Once installed, retsrat your bot and the skill will be automatically detected and loaded by your bot.
 
@@ -52,8 +52,64 @@ Once a skill node has been generated, you may click on that node and click "Edit
 
 # 🔨 Presenting a menu
 
+What we will now do is add a menu to the bot so that users can decide whether they want to play or see the leaderboard. To do that, we will use the **choice** skill that we saw above. So if you haven't already done it, go ahead and [install the `choice` skill](#installing-the-choice-skill).
 
+Once that's done, we will consume this skill to create a new choice menu. On your main flow, click the "Insert Skill" dropdown menu and click on "Choice."
+
+In the "Question" field, type in something like "*Welcome to my Trivia bot, what would you like to do?*". In the "Choices" field, type the two choices your users will have: "Play" and "See leaderboard".
+
+The next step is to provide some additionnal keywords for detecting the two options. Click the "Edit keywords" button and type some alternatives for both choices.
+
+> **🔬 Notice:** In the "Advanced" panel of the Choice skill, you have the choice to change the **Content Renderer** that will be used by the skill to display the options. Leave it to "#choice" for now.
+
+Click "Insert" when that's done and click somewhere on the diagram to insert the skill.
+
+![Creating the Menu choice][choice]
+
+## The `#choice` renderer
+
+We need to actually tell our bot how a "choice" looks like. Let's make it display some fancy buttons, which is very similar to a Trivia Question message.
+
+```js
+// inside renderers.js
+choice: data => ({
+  text: data.text,
+  quick_replies: data.choices.map(choice => `<${choice.payload}> ${choice.text}`),
+  typing: data.typing || '2s'
+})
+```
+
+## Start node
+
+OK, now you can link the "*User picked 'Play'*" option to the starting node of the flow. This should give you something like this:
+
+![Wiring the 'play' choice][choicePlay]
+
+What we actually want now is to change the starting node to be that "choice" node we just created. To do that, click on that choice node and then click the Star button in the top toolbar. This will make it the **Start Node**, which means a new flow will start from this node from now on.
+
+![Making the Menu the start node][choiceStar]
+
+## Refactoring: Sub-flows
+
+We need to make that "See leaderboard" choice to show the leaderboard. Although we know *how* to show the leaderboard (by calling the `render` action), we don't like to duplicate the same logic again and again.
+
+A quick solution would be to create an intermediary node that shows the leaderboard, then re-wire the last two nodes of the flow to this node:
+
+![Refactoring into a node][refactoringNode]
+
+A better, longer-term solution would be to extract the leaderboard feature as a separate subflow, then instead of pointing to the leaderboard node, you point to the leaderboard subflow.
+
+![Refactoring into a separate flow][refactoringFlow]
+![Refactoring the transitions][refactoringTransition]
+![Final result of the refactoring][refactoringResult]
 
 [skillsMenu]: {{site.basedir}}/images/skillsMenu.jpg
 [skillsPanel]: {{site.basedir}}/images/skillsPanel.jpg
 [skillsEdit]: {{site.basedir}}/images/skillsEdit.jpg
+[choice]: {{site.basedir}}/images/choice.jpg
+[choicePlay]: {{site.basedir}}/images/choicePlay.jpg
+[choiceStar]: {{site.basedir}}/images/choiceStar.jpg
+[refactoringNode]: {{site.basedir}}/images/refactoringNode.jpg
+[refactoringFlow]: {{site.basedir}}/images/refactoringFlow.jpg
+[refactoringTransition]: {{site.basedir}}/images/refactoringTransition.jpg
+[refactoringResult]: {{site.basedir}}/images/refactoringResult.jpg
