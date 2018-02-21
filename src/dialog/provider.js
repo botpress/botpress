@@ -66,6 +66,9 @@ export default class FlowProvider extends EventEmitter2 {
   }
 
   async saveFlows(flows) {
+    if (!flows.find(({ flow }) => flow === 'main.flow.json')) {
+      throw new Error(`[Flow] Expected flows list to contain 'main.flow.json'`)
+    }
     const flowsToSave = await Promise.mapSeries(flows, flow => this._prepareSaveFlow(flow))
     const flowsSavePromises = _.flatten(
       flowsToSave.map(({ flowPath, uiPath, flowContent, uiContent }) => [

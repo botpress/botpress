@@ -51,9 +51,23 @@ const generate = result => {
   generateTemplate('_._welcome')
 
   fs.mkdirSync('data')
-  fs.mkdirSync('flows')
   fs.writeFileSync('data/bot.log', '')
   fs.writeFileSync('data/notification.json', '[]')
+
+  fs.mkdirSync('flows')
+  fs.writeFileSync(
+    'flows/main.flow.json',
+    JSON.stringify({
+      version: '0.1',
+      catchAll: {},
+      startNode: 'entry',
+      nodes: [{ id: '0f6f7b5889', name: 'entry', onEnter: [], next: [] }]
+    })
+  )
+  fs.writeFileSync(
+    'flows/main.ui.json',
+    JSON.stringify({ nodes: [{ id: '0f6f7b5889', position: { x: 100, y: 100 } }], links: [] })
+  )
 
   fs.mkdirSync('modules_config')
 
