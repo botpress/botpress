@@ -99,8 +99,33 @@ A quick solution would be to create an intermediary node that shows the leaderbo
 
 A better, longer-term solution would be to extract the leaderboard feature as a separate subflow, then instead of pointing to the leaderboard node, you point to the leaderboard subflow.
 
+### Creating a new flow
+
+To create a new flow, click the folder icon in the top bar. Name it `leaderboard`.
+
 ![Refactoring into a separate flow][refactoringFlow]
+
+The flow is extremely simple, it contains a single instruction: the call to `render`. Make sure you have the following arguments mapped correctly.
+
+```js
+render(state, event, {
+    "renderer": "#leaderboard",
+    "leaderboard": "{{state.leaderboard}}"
+})
+```
+
+Don't forget to "Save" the flows by clicking the save icon at the top.
+
+### Refactoring the transitions
+
+You can now update the three transitions where you show the leaderboard to the following transition:
+
 ![Refactoring the transitions][refactoringTransition]
+
+### Final Result
+
+Here's what your final flow should look like. No more lengthy wires!
+
 ![Final result of the refactoring][refactoringResult]
 
 [skillsMenu]: {{site.basedir}}/images/skillsMenu.jpg
