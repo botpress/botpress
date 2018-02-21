@@ -296,20 +296,22 @@ export default class FlowBuilder extends Component {
         }
       })
 
-      // We make sure that the link was added to the node
+      // We don't want to link node to itself
       const outPort = link.sourcePort.name.startsWith('out') ? link.sourcePort : link.targetPort
       const targetPort = link.sourcePort.name.startsWith('out') ? link.targetPort : link.sourcePort
-      const outIndex = Number(outPort.name.substr(3))
-      const next = outPort.parentNode.next[outIndex]
-      if (next.node !== targetPort.parentNode.name) {
-        console.log('LINK ', outPort.parentNode.name, '-->', targetPort.parentNode.name)
-        this.props.linkFlowNodes({
-          node: outPort.parentNode.id,
-          index: outIndex,
-          condition: next.condition,
-          target: targetPort.parentNode.name
-        }) // Update node that isn't selected
+      if (outPort.parentNode.id === targetPort.parentNode.id) {
+        link.remove()
+        return this.diagramWidget.forceUpdate()
       }
+
+      // We make sure that the link was added to the node
+      const outIndex = Number(outPort.name.substr(3))
+      this.props.linkFlowNodes({
+        node: outPort.parentNode.id,
+        index: outIndex,
+        condition: outPort.parentNode.next[outIndex].condition,
+        target: targetPort.parentNode.name
+      }) // Update node that isn't selected
     })
 
     if (this.props.currentDiagramAction && this.props.currentDiagramAction.startsWith('insert_')) {
