@@ -34,7 +34,7 @@ class GhostContentStatusChecker extends Component {
     return (
       hasPending && (
         <span>
-          &nbsp;<i className="icon material-icons" title="You have Ghost Content, see how to sync it.">
+          &nbsp;<i className="icon material-icons" title="You have unsynced changes, see how to sync it.">
             warning
           </i>
         </span>

@@ -5,6 +5,7 @@ import ReactDOM from 'react-dom'
 import classnames from 'classnames'
 import _ from 'lodash'
 import { DiagramWidget, DiagramEngine, DiagramModel, LinkModel, PointModel } from 'storm-react-diagrams'
+import { toast } from 'react-toastify'
 
 import { hashCode } from '~/util'
 
@@ -15,6 +16,7 @@ import { DeletableLinkFactory } from './nodes/LinkWidget'
 const style = require('./style.scss')
 
 const passThroughNodeProps = ['name', 'onEnter', 'onReceive', 'next', 'skill']
+const PADDING = 100
 
 const createNodeModel = (node, props) => {
   if (node.type && node.type === 'skill-call') {
@@ -71,7 +73,6 @@ export default class FlowBuilder extends Component {
 
     this.diagramEngine.setDiagramModel(this.activeModel)
 
-    const PADDING = 100
     const diagramContainer = document.getElementById('diagramContainer')
 
     if (diagramContainer) {
@@ -101,7 +102,7 @@ export default class FlowBuilder extends Component {
 
     node.next.forEach((next, index) => {
       const target = next.node
-      if (/END/i.test(target)) {
+      if (/^END$/i.test(target)) {
         // Handle end connection
       } else if (/\.flow/i.test(target)) {
         // Handle subflow connection
@@ -231,12 +232,12 @@ export default class FlowBuilder extends Component {
   componentDidMount() {
     this.props.fetchFlows()
     ReactDOM.findDOMNode(this.diagramWidget).addEventListener('click', this.onDiagramClick)
-    document.getElementById('diagramContainer').addEventListener('keyup', this.onKeyUp)
+    document.getElementById('diagramContainer').addEventListener('keydown', this.onKeyDown)
   }
 
   componentWillUnmount() {
     ReactDOM.findDOMNode(this.diagramWidget).removeEventListener('click', this.onDiagramClick)
-    document.getElementById('diagramContainer').removeEventListener('keyup', this.onKeyUp)
+    document.getElementById('diagramContainer').removeEventListener('keydown', this.onKeyDown)
   }
 
   componentDidUpdate(prevProps) {
@@ -459,15 +460,25 @@ export default class FlowBuilder extends Component {
 
   copySelectedElementToBuffer() {
     this.props.copyFlowNode()
+    toast('Copied to buffer!', {
+      autoClose: 1000,
+      position: toast.POSITION.TOP_CENTER,
+      hideProgressBar: true,
+      closeButton: false
+    })
   }
 
   pasteElementFromBuffer() {
-    this.props.pasteFlowNode()
+    this.props.pasteFlowNode({ x: -this.activeModel.offsetX + PADDING, y: -this.activeModel.offsetY + PADDING })
     this.getSelectedNode().setSelected(false)
   }
 
-  onKeyUp = event => {
-    if (event.code === 'Backspace') {
+  onKeyDown = event => {
+    if ((event.ctrlKey || event.metaKey) && event.key === 'c') {
+      this.copySelectedElementToBuffer()
+    } else if ((event.ctrlKey || event.metaKey) && event.key === 'v') {
+      this.pasteElementFromBuffer()
+    } else if (event.code === 'Backspace') {
       this.deleteSelectedElements()
     }
   }

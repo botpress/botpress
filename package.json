@@ -1,7 +1,7 @@
 {
   "name": "botpress",
   "description": "The world's first CMS for bots. Easily create, manage and extend chatbots.",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "author": "Botpress",
   "bin": {
     "bp": "./bin/botpress",
@@ -45,6 +45,7 @@
     "randomstring": "^1.1.5",
     "react-codemirror": "^1.0.0",
     "react-jsonschema-form": "^1.0.0",
+    "react-toastify": "^3.3.3",
     "socket.io": "^1.5.0",
     "socket.io-client": "^2.0.3",
     "socketio-jwt": "^4.5.0",

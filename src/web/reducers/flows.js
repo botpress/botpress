@@ -19,6 +19,8 @@ import {
   createFlowNode,
   copyFlowNode,
   pasteFlowNode,
+  copyFlowNodeElement,
+  pasteFlowNodeElement,
   createFlow,
   deleteFlow,
   duplicateFlow,
@@ -43,7 +45,8 @@ const defaultState = {
   currentSnapshot: null,
   undoStack: [],
   redoStack: [],
-  nodeInBuffer: null
+  nodeInBuffer: null, // TODO: move it to buffer.node
+  buffer: { action: null, transition: null }
 }
 
 const findNodesThatReferenceFlow = (state, flowName) =>
@@ -519,36 +522,76 @@ reducer = reduceReducers(
         }
       },
 
-      [copyFlowNode]: state => ({
-        ...state,
-        nodeInBuffer: { ..._.find(state.flowsByName[state.currentFlow].nodes, { id: state.currentFlowNode }) }
-      }),
+      [copyFlowNode]: state => {
+        const node = _.find(state.flowsByName[state.currentFlow].nodes, { id: state.currentFlowNode })
+        if (!node) {
+          return state
+        }
+        return {
+          ...state,
+          nodeInBuffer: { ...node, next: node.next.map(item => ({ ...item, node: '' })) }
+        }
+      },
 
-      [pasteFlowNode]: state => {
+      [pasteFlowNode]: (state, { payload: { x, y } }) => {
         const currentFlow = state.flowsByName[state.currentFlow]
         const newNodeId = prettyId()
+        const name = copyName(currentFlow.nodes.map(({ name }) => name), state.nodeInBuffer.name)
         return {
           ...state,
           currentFlowNode: newNodeId,
-          nodeInBuffer: null,
           flowsByName: {
             ...state.flowsByName,
             [state.currentFlow]: {
               ...currentFlow,
               nodes: [
                 ...currentFlow.nodes,
-                {
-                  ...state.nodeInBuffer,
-                  id: newNodeId,
-                  name: copyName(currentFlow.nodes.map(({ name }) => name), state.nodeInBuffer.name),
-                  lastModified: new Date(),
-                  x: 0,
-                  y: 0
-                }
+                { ...state.nodeInBuffer, id: newNodeId, name, lastModified: new Date(), x, y }
               ]
             }
           }
         }
+      },
+
+      [copyFlowNodeElement]: (state, { payload }) => ({
+        ...state,
+        buffer: {
+          ...state.buffer,
+          ...payload
+        }
+      }),
+
+      [pasteFlowNodeElement]: (state, { payload }) => {
+        const SECTION_TYPES = { onEnter: 'action', onReceive: 'action', next: 'transition' }
+        const element = state.buffer[SECTION_TYPES[payload]]
+        if (!element) {
+          return state
+        }
+
+        const currentFlow = state.flowsByName[state.currentFlow]
+        const currentNode = _.find(currentFlow.nodes, { id: state.currentFlowNode })
+
+        // TODO: use this as a helper function in other reducers
+        const updateCurrentFlow = modifier => ({
+          ...state,
+          flowsByName: { ...state.flowsByName, [state.currentFlow]: { ...currentFlow, ...modifier } }
+        })
+
+        if (currentNode) {
+          return updateCurrentFlow({
+            nodes: [
+              ...currentFlow.nodes.filter(({ id }) => id !== state.currentFlowNode),
+              { ...currentNode, [payload]: [...(currentNode[payload] || []), element] }
+            ]
+          })
+        }
+
+        return updateCurrentFlow({
+          catchAll: {
+            ...currentFlow.catchAll,
+            [payload]: [...currentFlow.catchAll[payload], element]
+          }
+        })
       },
 
       [createFlowNode]: (state, { payload }) => ({
@@ -609,8 +652,10 @@ reducer = reduceReducers(
       [deleteFlow]: updateCurrentHash,
       [duplicateFlow]: updateCurrentHash,
       [removeFlowNode]: updateCurrentHash,
+      [pasteFlowNode]: updateCurrentHash,
       [insertNewSkillNode]: updateCurrentHash,
-      [updateSkill]: updateCurrentHash
+      [updateSkill]: updateCurrentHash,
+      [pasteFlowNodeElement]: updateCurrentHash
     },
     defaultState
   )
@@ -633,9 +678,11 @@ reducer = reduceReducers(
       [deleteFlow]: recordHistory,
       [duplicateFlow]: recordHistory,
       [removeFlowNode]: recordHistory,
+      [pasteFlowNode]: recordHistory,
       [insertNewSkill]: recordHistory,
       [insertNewSkillNode]: recordHistory,
       [updateSkill]: recordHistory,
+      [pasteFlowNodeElement]: recordHistory,
       [handleFlowEditorUndo]: popHistory('undoStack'),
       [handleFlowEditorRedo]: popHistory('redoStack')
     },

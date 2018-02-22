@@ -75,7 +75,9 @@ class SelectContent extends Component {
     if (e.key === 'ArrowUp') {
       this.setState({ activeItemIndex: index > 0 ? index - 1 : index })
     } else if (e.key === 'ArrowDown') {
-      this.setState({ activeItemIndex: index < SEARCH_RESULTS_LIMIT - 1 ? index + 1 : index })
+      const { contentItems } = this.props
+      const itemsCount = contentItems ? contentItems.length : 0
+      this.setState({ activeItemIndex: index < itemsCount - 1 ? index + 1 : index })
     } else if (e.key === 'Enter') {
       this.handlePick(this.props.contentItems[this.state.activeItemIndex])
     }

@@ -39,7 +39,7 @@ export default () => {
         <Route path="manage" component={Manage} />
         <Route path="middleware" component={Middleware} />
         <Route path="content" component={Content} />
-        <Route path="ghost-content" component={GhostContent} />
+        <Route path="version-control" component={GhostContent} />
         <Route path="flows(/:flow)" component={FlowBuilder} />
         <Route path="modules/:moduleName(/:subView)" component={Module} />
         <Route path="notifications" component={Notifications} />
