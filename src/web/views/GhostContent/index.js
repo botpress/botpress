@@ -183,12 +183,12 @@ export default class GhostView extends Component {
   render() {
     return (
       <ContentWrapper>
-        <PageHeader>Ghost Content</PageHeader>
+        <PageHeader>Version Control</PageHeader>
         {this.renderBody()}
 
         <Modal show={this.state.showAbout} onHide={this.hideAbout}>
           <Modal.Header closeButton>
-            <Modal.Title>Ghost Content</Modal.Title>
+            <Modal.Title>Version Control</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <About />

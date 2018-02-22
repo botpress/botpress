@@ -29,9 +29,9 @@ const BASIC_MENU_ITEMS = [
     icon: 'build'
   },
   window.GHOST_ENABLED && {
-    name: 'Ghost Content',
-    path: 'ghost-content',
-    activePaths: ['/ghost-content'],
+    name: 'Version Control',
+    path: 'version-control',
+    activePaths: ['/version-control'],
     rule: { res: 'ghost_content', op: 'read' },
     icon: 'content_copy',
     renderSuffix: () => <GhostChecker />
