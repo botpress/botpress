@@ -14,24 +14,22 @@ import actions from '~/actions'
 
 export default class DashboardView extends React.Component {
   state = {
-    loading: true
+    loading: true,
+    popularModules: [],
+    featuredModules: []
   }
 
   componentDidMount() {
-    this.queryAllModules().then(() => {
-      this.setState({
-        loading: false
-      })
-    })
+    this.queryAllModules().finally(() => this.setState({ loading: false }))
   }
 
   queryAllModules() {
-    return axios.get('/api/module/all').then(result => {
+    return axios.get('/api/module/all').then(result =>
       this.setState({
         popularModules: _.filter(result.data, m => m.popular),
         featuredModules: _.filter(result.data, m => m.featured)
       })
-    })
+    )
   }
 
   refresh = () => {

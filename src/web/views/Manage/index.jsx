@@ -31,12 +31,10 @@ class ManageView extends React.Component {
   queryModules() {
     this.setState({ loading: true })
 
-    return axios.get('/api/module/all').then(result => {
-      this.setState({
-        modules: result.data,
-        loading: false
-      })
-    })
+    return axios
+      .get('/api/module/all')
+      .then(result => this.setState({ modules: result.data }))
+      .finally(() => this.setState({ loading: false }))
   }
 
   refresh = () => {
