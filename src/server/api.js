@@ -134,7 +134,7 @@ module.exports = bp => {
       links[name] = `${destination}${q}`
     }
 
-    app.use(`/s/:name`, (req, res) => {
+    app.get(`/s/:name`, (req, res) => {
       const name = req.params.name.toLowerCase()
 
       if (!links[name]) {
