@@ -131,4 +131,4 @@ return clone
 
 If you action does not modify the state, simply return nothing (`return`). You can also return a clone of the original state: `return {...state}`.
 
-[setUserTagArgs]: {{site.basedir}}/images/setUserTagArgs.jpg
+[setUserTagArgs]: {{site.baseurl}}/images/setUserTagArgs.jpg

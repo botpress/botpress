@@ -128,13 +128,13 @@ Here's what your final flow should look like. No more lengthy wires!
 
 ![Final result of the refactoring][refactoringResult]
 
-[skillsMenu]: {{site.basedir}}/images/skillsMenu.jpg
-[skillsPanel]: {{site.basedir}}/images/skillsPanel.jpg
-[skillsEdit]: {{site.basedir}}/images/skillsEdit.jpg
-[choice]: {{site.basedir}}/images/choice.jpg
-[choicePlay]: {{site.basedir}}/images/choicePlay.jpg
-[choiceStar]: {{site.basedir}}/images/choiceStar.jpg
-[refactoringNode]: {{site.basedir}}/images/refactoringNode.jpg
-[refactoringFlow]: {{site.basedir}}/images/refactoringFlow.jpg
-[refactoringTransition]: {{site.basedir}}/images/refactoringTransition.jpg
-[refactoringResult]: {{site.basedir}}/images/refactoringResult.jpg
+[skillsMenu]: {{site.baseurl}}/images/skillsMenu.jpg
+[skillsPanel]: {{site.baseurl}}/images/skillsPanel.jpg
+[skillsEdit]: {{site.baseurl}}/images/skillsEdit.jpg
+[choice]: {{site.baseurl}}/images/choice.jpg
+[choicePlay]: {{site.baseurl}}/images/choicePlay.jpg
+[choiceStar]: {{site.baseurl}}/images/choiceStar.jpg
+[refactoringNode]: {{site.baseurl}}/images/refactoringNode.jpg
+[refactoringFlow]: {{site.baseurl}}/images/refactoringFlow.jpg
+[refactoringTransition]: {{site.baseurl}}/images/refactoringTransition.jpg
+[refactoringResult]: {{site.baseurl}}/images/refactoringResult.jpg

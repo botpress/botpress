@@ -206,5 +206,5 @@ leaderboard: data => ({
 })
 ```
 
-[totalScore]: {{site.basedir}}/images/totalScore.jpg
-[leaderboard]: {{site.basedir}}/images/leaderboardFlow.jpg
+[totalScore]: {{site.baseurl}}/images/totalScore.jpg
+[leaderboard]: {{site.baseurl}}/images/leaderboardFlow.jpg

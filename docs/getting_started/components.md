@@ -50,4 +50,4 @@ Channels, which are a special kind of module, receive messages from the differen
 
 ![Components Overview][components]
 
-[components]: {{site.basedir}}/images/components.png
+[components]: {{site.baseurl}}/images/components.png

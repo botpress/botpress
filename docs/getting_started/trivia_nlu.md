@@ -95,6 +95,6 @@ The latter example has the advantage of being case insensitive and is guaranteed
 
 ![Flowing to the leaderboard flow][nluLeaderboard]
 
-[nluLeaderboard]: {{site.basedir}}/images/nluLeaderboard.jpg
-[nluConsole]: {{site.basedir}}/images/nluConsole.jpg
-[nluFlow]: {{site.basedir}}/images/nluFlow.jpg
+[nluLeaderboard]: {{site.baseurl}}/images/nluLeaderboard.jpg
+[nluConsole]: {{site.baseurl}}/images/nluConsole.jpg
+[nluFlow]: {{site.baseurl}}/images/nluFlow.jpg

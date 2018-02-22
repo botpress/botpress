@@ -191,20 +191,20 @@ That's it! Your bot is now asking the user for his nickname once then will remem
 
 > **🌟 Tip:** Say `/forget` to the bot to make it forget your *nickname*.
 
-[stateLifetime]: {{site.basedir}}/images/stateLifetime.jpg
+[stateLifetime]: {{site.baseurl}}/images/stateLifetime.jpg
 
-[flow_node]: {{site.basedir}}/images/flow_node.png
-[node_blocking]: {{site.basedir}}/images/node_blocking.png
-[node_transition]: {{site.basedir}}/images/node_transition.png
-[ask_nickname]: {{site.basedir}}/images/ask_nickname.jpg
+[flow_node]: {{site.baseurl}}/images/flow_node.png
+[node_blocking]: {{site.baseurl}}/images/node_blocking.png
+[node_transition]: {{site.baseurl}}/images/node_transition.png
+[ask_nickname]: {{site.baseurl}}/images/ask_nickname.jpg
 
-[getUserTag]: {{site.basedir}}/images/getUserTag.jpg
-[getUserTagNode]: {{site.basedir}}/images/getUserTagNode.jpg
-[setUserTag]: {{site.basedir}}/images/setUserTag.jpg
-[setUserTagNode]: {{site.basedir}}/images/setUserTagNode.png
+[getUserTag]: {{site.baseurl}}/images/getUserTag.jpg
+[getUserTagNode]: {{site.baseurl}}/images/getUserTagNode.jpg
+[setUserTag]: {{site.baseurl}}/images/setUserTag.jpg
+[setUserTagNode]: {{site.baseurl}}/images/setUserTagNode.png
 
-[nicknameCondition1]: {{site.basedir}}/images/nicknameCondition1.jpg
-[nicknameCondition2]: {{site.basedir}}/images/nicknameCondition2.jpg
+[nicknameCondition1]: {{site.baseurl}}/images/nicknameCondition1.jpg
+[nicknameCondition2]: {{site.baseurl}}/images/nicknameCondition2.jpg
 
-[otherwiseCondition]: {{site.basedir}}/images/otherwiseCondition.jpg
-[otherwiseConditionResult]: {{site.basedir}}/images/otherwiseConditionResult.jpg
+[otherwiseCondition]: {{site.baseurl}}/images/otherwiseCondition.jpg
+[otherwiseConditionResult]: {{site.baseurl}}/images/otherwiseConditionResult.jpg
