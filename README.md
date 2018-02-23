@@ -8,6 +8,10 @@ Botpress is an open-source bot creation tool written in Javascript. It is powere
 
 ---
 
+### 📍 Botpress X (v10) is in beta
+
+---
+
 ##### Learn Botpress
 
 | 📖 [v10 **Documentation**](https://botpress.io/docs/10.0) | [📦Official Modules](https://github.com/botpress/modules) |
@@ -43,7 +47,7 @@ The best way to get started quickly is to read our [Getting Started Tutorial](ht
 Botpress requires [node](https://nodejs.org) (version >= 6.10) and uses [npm](https://www.npmjs.com) as package manager.
 
 ```
-npm install -g botpress
+npm install -g botpress@beta
 ```
 
 ## Creating a bot
