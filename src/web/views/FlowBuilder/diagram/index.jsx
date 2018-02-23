@@ -389,7 +389,7 @@ export default class FlowBuilder extends Component {
           }
 
           const link = _.find(model.links, { id: port.links[0] })
-          const otherNodeId = link.source === node.id ? link.target : link.source
+          const otherNodeId = link && (link.source === node.id ? link.target : link.source)
           const otherNode = _.find(model.nodes, { id: otherNodeId })
 
           if (!otherNode) {
@@ -445,7 +445,7 @@ export default class FlowBuilder extends Component {
           return alert("You can't delete the start node.")
         } else if (
           _.includes(['standard', 'skill-call'], element.nodeType) ||
-          element.constructor.name.includes('Node')
+          _.includes(['standard', 'skill-call'], element.type)
         ) {
           this.props.removeFlowNode(element.id)
         } else if (element.linkType === 'default') {
