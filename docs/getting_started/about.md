@@ -5,7 +5,7 @@ layout: guide
 ## The Botpress Philosophy <a class="toc" id="botpress_philosophy" href="#botpress_philosophy"></a>
 
 Building bots is something new and sounds like a fun challenge for most developers. 
-To be able to create software that converse in a natural way with humans is an exciting new reality.
+To be able to create software that converses in a natural way with humans is an exciting new reality.
 
 But you don’t want to spend hundreds of hours learning and putting together all 
 the infrastructure and boilerplate code required to get a basic conversational backend up and running.
@@ -13,19 +13,18 @@ the infrastructure and boilerplate code required to get a basic conversational b
 That’s where Botpress jumps in. We believe in making it super-fun and productive for developers 
 to build high-quality bots. Botpress allows you to focus on the fun stuff and over-deliver in record time. 
 Most importantly, you want a platform that you can trust is flexible enough to scale with 
-any requirements that might come down your way.
+any requirements that might come down the line.
 
-Botpress’ goal is to empower developers to create the highest-quality bots as fun and as quickly as possible.
+Botpress’ goal is to empower developers to create the highest quality bots as fun and as quickly as possible.
 
 ## Why Botpress is different <a class="toc" id="why_different" href="#why_different"></a>
 
 We allow technical people to easily create bots, but also allow non-technical people 
-to manage and maintain it post-deployment.
+to manage and maintain them post-deployment.
 
-In this way, we’re different than Bot Framework and Botkit, because these frameworks only 
+In this way, we’re different from Bot Framework and Botkit, because these frameworks only 
 focus on the basic messaging infrastructure. We’re in reality much closer to a platform like 
-Chatfuel or ManyChat, except that you can fully customize it and Botpress is much closer 
-to what a developer would expect.
+Chatfuel or ManyChat, except that you can fully customize the bot in ways that are natural to developers.
 
 Although all of the above sounds too good to be true, Botpress is not for everyone. 
 Botpress was built for developers and does not currently aim to allow non-developers 
@@ -42,9 +41,9 @@ The backend runs on [NodeJS](https://nodejs.org), [SQLite](https://www.sqlite.or
 The frontend runs on [React](https://reactjs.org)/[Redux](https://redux.js.org)/[Bootstrap](https://getbootstrap.com/).
 We’re also using all sort of cool libs such as [Socket.IO](https://socket.io/), [Lodash](https://lodash.com/), [Axios](https://github.com/axios/axios), [JWT](https://jwt.io/), [Knex](http://knexjs.org/) and [Bluebird](http://bluebirdjs.com/).
 
-Botpress is lightweight (~10mb), blazing fast and has zero system dependencies (appart from NodeJS).
+Botpress is lightweight (~10mb), blazing fast and has zero system dependencies (apart from NodeJS).
 
-Botpress works on Windows, MacOS and Linux. It can run anywhere: on your laptop, any cloud provider 
+Botpress works on Windows, MacOS and Linux. It can run anywhere: on your laptop, on any cloud provider 
 and even on your private corporate infrastructure.
 
 ## What’s new in Botpress X <a class="toc" id="whats_new" href="#whats_new"></a>
@@ -58,7 +57,7 @@ Botpress X bot and manually migrate the logic to Botpress X.
 
 ### Botpress X <a class="toc" id="botpress_x" href="#botpress_x"></a>
 
-Botpress X really emphasizes more on non-technical users being able to create and edit the bot content through the Content Manager.
+Botpress X now allows non-technical users to create and edit the bot content through the Content Manager.
 
-The new Flow Builder and Dialog Manager makes it much easier for developers to build and debug complex conversation flows. 
-Since the new system is also totally stateless, Botpress now fully scales out to multiple instances.
+The new Flow Builder and Dialog Manager make it much easier for developers to build and debug complex conversation flows. 
+Since the new system is also totally stateless, Botpress now fully and seamlessly scales to multiple instances.
