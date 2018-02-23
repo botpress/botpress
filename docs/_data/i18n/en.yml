@@ -1,227 +1,89 @@
 site_title: "Botpress"
-site_description: "An open-source, on-premises bot framework that saves thousands of developers thousands of hours.
-GET."
-blog_title: "Botpress Blog"
+site_description: "An open-source, on-premises bot framework that saves thousands of developers thousands of hours."
 site_license: "GNU Affero General Public License"
 site_code_of_conduct: "Code of Conduct"
 site_edit_this_page: "Edit this page"
-site_flow_version_stable: "Current Version:"
+site_flow_version_stable: "Current Version: 2.0"
 
 homepage_hero_title: "Botpress"
 homepage_get_started: "Get Started"
-homepage_install_flow: "Install Flow"
-homepage_github_stars: "GitHub Stars"
-
-homepage_code_faster_title: "Code Faster."
-homepage_code_faster_img_alt: "An open-source, on-premises bot framework that saves thousands of developers thousands of hours.
-GET"
-homepage_code_faster_description: >
-  Tired of having to run your code to find bugs? Flow identifies problems as you
-  code. Stop wasting your time guessing and checking.
-
-homepage_code_smarter_title: "Code Smarter."
-homepage_code_smarter_img_alt: ""
-homepage_code_smarter_description: >
-  It's hard to build smart tools for dynamic languages like JavaScript. Flow
-  understands your code and makes its knowledge available, enabling other smart
-  tools to be built on top of Flow.
-
-homepage_code_confidently_title: "Code Confidently."
-homepage_code_confidently_img_alt: ""
-homepage_code_confidently_description: >
-  Making major changes to large codebases can be scary. Flow helps you refactor
-  safely, so you can focus on the changes you want to make, and stop worrying
-  about what you might break.
-
-homepage_code_bigger_title: "Code Bigger."
-homepage_code_bigger_img_alt: ""
-homepage_code_bigger_description: >
-  Working in a codebase with lots of developers can make it difficult to keep
-  your master branch working. Flow can help prevent bad rebases. Flow can help
-  protect your carefully designed library from your coworkers. And Flow can help
-  you understand the code you wrote six months ago.
-
-homepage_featurettes:
-  - title: "Type Inference"
-    description: >
-      Using data flow analysis, Flow infers types and tracks data as it moves
-      through your code. You don't need to fully annotate your code before Flow
-      can start to find bugs.
-  - title: "JavaScript, Your Way"
-    description: >
-      Flow is designed to understand idiomatic JavaScript. It understands common
-      JavaScript patterns and many of the weird things we JavaScript developers
-      love to do.
-  - title: "Realtime Feedback"
-    description: >
-      Flow gives you fast feedback while you code by incrementally rechecking
-      your code as you make changes.
-  - title: "Easy Integration"
-    description: >
-      Flow integrates well with many tools, making it easy to insert into your
-      existing workflow and toolchain.
-
-homepage_ready_to_get_going: "Ready to get going?"
 
 navbar_getting_started: "Getting Started"
 navbar_documentation: "Docs"
-navbar_definitions: "Definitions"
-navbar_blog: "Blog"
 
-navbar_discord: "Discord"
 navbar_twitter: "Twitter"
 navbar_facebook: "Facebook"
 navbar_github: "GitHub"
 navbar_stackoverflow: "StackOverflow"
 navbar_slack: "Slack"
 
-docs_read_more: "Read more"
+docs_read_more: "Read now"
 docs_additional_reading: "Additional Reading"
 
 "/":
   title: "Documentation"
   description: "Guides and references for all you need to know about Botpress"
 
-
 # Gettings Started
+
+"/getting_started/":
+  title: "Getting started"
+  description: "New to Botpress? This step-by-step tutorial will get you up and running quickly."
 
 "/getting_started/install/":
   title: "Installation and bootstrap"
-  description: "Installing the Botpress CLI"
+  description: "Installing Botpress on your computer and creating your first bot"
 
+"/getting_started/about/":
+  title: "About Botpress"
+  description: "Get to know what is Botpress and why you should use it"
 
-## Foundamentals
+"/getting_started/components/":
+  title: "High-level components"
+  description: "Quick overview of the different components of a Botpress bot"
 
-"/foundamentals/":
-  title: "Structure"
-  description: >
-   TLDR: This file contains all your bot's logic
+"/getting_started/trivia_template/":
+  title: "Trivia: Cloning the Template"
+  description: "Learning about the Templates and an overview of the things we'll learn next"
 
-"/foundamentals/events/":
-  title: "Events"
-  description: "How the information is send to botpress"
+"/getting_started/trivia_dashboard/":
+  title: "Trivia: Exploring the Dashboard"
+  description: "Overview of the Botpress Dashboard and how to protect it"
 
-"/foundamentals/conversations/":
-  title: "Conversations"
-  description: "Conversation is the core of any chatbots"
+"/getting_started/trivia_content/":
+  title: "Trivia: Content Manager"
+  description: "Learn how to add, edit and create Content Elements and Content Types"
 
-"/foundamentals/flow/":
-  title: "Managing the conversation Flow"
-  description: "Present the build-in Flow manager (Convo)"
+"/getting_started/trivia_flows/":
+  title: "Trivia: Flows"
+  description: "Learn how the Flow Engine works and how to use the visual flow editor"
 
-"/foundamentals/renderer/":
-  title: "Content Renderers"
-  description: "Renderers define how content is rendered on the different channels"
+"/getting_started/trivia_actions/":
+  title: "Trivia: Actions"
+  description: "Learn how to create new actions and invoke them inside the flows"
 
-"/foundamentals/content/":
-  title: "Content Manager"
-  description: "Panel for the no administrator"
+"/getting_started/trivia_storage/":
+  title: "Trivia: Data Storage"
+  description: "Learn how to use the built-in data storage mechanisms"
 
-"/foundamentals/database/":
-  title: "How to use the built-in Database"
-  description: "Main function of build-in database"
+"/getting_started/trivia_skills/":
+  title: "Trivia: Skills"
+  description: "Learn how to install and use Flow skills"
 
-"/foundamentals/tags/":
-  title: "User Tags"
-  description: "New!** in Botpress **1.1"
+"/getting_started/trivia_nlu/":
+  title: "Trivia: NLU"
+  description: "Learn how to add Natural Language Understanding (NLU) to your bot"
 
-"/foundamentals/botfile/":
-  title: "Configuration"
-  description: "What's inside the configuration in botpress. The botfile.js store all you important configuration"
+"/getting_started/trivia_deploying/":
+  title: "Trivia: Deploying"
+  description: "Leanr how to deploy your bot to the cloud using Heroku"
 
-## Getting Started
-"/getting_started/":
-  title: "Getting Started"
-  description: "An introduction for Botpress"
-
-
-## Deploying your bots
-
-"/deploy/heroku/":
-  title: "Deploying on heroku"
-  description: "It's easy to deploy a bot with heroku"
-
-"/deploy/aws/":
-  title: "Deploying on aws"
-  description: "It's easy to deploy a bot with aws"
-
-## Advanced
-
-
-"/advanced/middleware/":
-  title: "Understanding the Middlewares"
-  description: "Big overview on a middleware works"
-
-"/advanced/database_helpers/":
-  title: "Database Helpers"
-  description: "Helpers for being the most awesome database expert"
-
-"/advanced/debug/":
-  title: "Debugging your bot"
-  description: "Here you find how to configure your favorite IDE to debug your code"
-
-
-## Reference
-
-"/reference/":
-  title: "Cli Reference"
-  description: "You can use the Cli (command line interface) to make some action with botpress. This guide describe all the Cli command in botpress"
-
-
-## Modules
-
-"/modules/":
-  title: "Create a module"
-  description: "This guide will help you to build your first Module with botpress"
-
-"/modules/events/":
-  title: "How to use Events"
-  description: "Events is a middleware"
-
-"/modules/config/":
-  title: "Module Configuration"
-  description: "How the configuration should be"
-
-"/modules/api/":
-  title: "Making your module expose an API"
-  description: "Expose your application with a API"
-
-"/modules/icon/":
-  title: "Changing your module's icon"
-  description: "Put your branding in your chatbots"
-
-"/modules/light_views/":
-  title: "Serving lightweight views"
-  description: "How to use a lightweight version of botpress"
+"/getting_started/trivia_changes/":
+  title: "Trivia: Version Control"
+  description: "Learn about the built-in Versional Control for deployed bots"
 
 guides:
+  
   getting_started:
     title: "Getting Started"
-    description: >
-      Never used a chatbot Framework or just new to Botpress? Let's get you up and
-      running in a few minutes.
-
-  foundamentals:
-    title: "Foundamentals"
-    description: >
-      Understand how botpress works.
-
-  deploy:
-    title: "Deploying your Bots"
-    description: >
-      Ready to deploy your bots. Follow this guide.
-
-  advanced:
-    title: "Advanced Concepts"
-    description: >
-      You want to know more about the internal concept of botpress
-
-  reference:
-    title: "Reference"
-    description: >
-      Looking for more info
-
-  modules:
-    title: "Module Development"
-    description: >
-      How to Create your own module
+    description: New to Botpress? This step-by-step tutorial will get you up and running quickly.

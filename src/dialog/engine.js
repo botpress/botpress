@@ -483,11 +483,19 @@ class DialogEngine {
     } else {
       try {
         this._trace('!!', 'EXEC', `func "${name}"`, context, userState)
-        const ret = await this.functions[name].fn(userState, event, args || {})
+        const ret = await this.functions[name].fn(Object.freeze(userState), event, args || {})
 
         if (ret && _.isObject(ret)) {
-          this._trace('!!', 'SSET', '', context)
-          return ret
+          if (Object.isFrozen(ret)) {
+            this._trace(
+              `ERROR function "${name}" returned the original (frozen) state. You should clone the state (see 'Object.assign()') instead of returning the original state.`,
+              context,
+              userState
+            )
+          } else {
+            this._trace('!!', 'SSET', '', context)
+            return ret
+          }
         }
       } catch (err) {
         this._trace(`ERROR function "${name}" thrown an error: ${err && err.message}`, context, userState)
