@@ -1,4 +1,4 @@
-<a href='http://botpress.io'><img src='https://raw.githubusercontent.com/botpress/botpress/develop/x/assets/botpress_x.gif'></a>
+<a href='http://botpress.io'><img src='https://raw.githubusercontent.com/botpress/botpress/develop/x/assets/botpress_xl.gif'></a>
 # [Botpress](https://botpress.io) — The open-source bot platform
 
 [![CircleCI](https://circleci.com/gh/botpress/botpress.svg?style=svg)](https://circleci.com/gh/botpress/botpress)
