@@ -76,9 +76,6 @@ And lastly, let's look at the `setUserTag` function which makes use of custom ar
 ```js
 /**
  * Sets user Tag.
- * @param {Object} state - The current state of the conversation.
- * @param {Object} event - The original (latest) event received from the user in the conversation.
- * @param {Object} args - The arguments that was passed to this action from the Visual Flow Builder.
  * @param {string} args.name - Name of the tag.
  * @param {string} args.value - Value of the tag.
  */
@@ -90,6 +87,7 @@ setUserTag: async (state, event, { name, value }) => {
 
 > **Note:** `name` and `value` come from the Flow Builder. `name` is a static value whereas `value` is an expression that will be evaluated at execution time. In this case `event.text` is what the user said (i.e. his nickname).
 
+<!-- 
 [JSDoc](http://usejsdoc.org) comments can be passed via metadata-provider function to the engine so that params will be prepopulated when you select function. Here's an example of registering metadata-provider:
 
 ```js
@@ -107,7 +105,7 @@ jsdoc.explain({ files: [__dirname + '/actions.js'] }).then(docs => {
 })
 ```
 
-![Function params](../images/function_params.png)
+![Function params]({{site.baseurl}}/images/function_params.png) -->
 
 ![Passing arguments from the flow editor][setUserTagArgs]
 
