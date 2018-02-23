@@ -1,10 +1,14 @@
-<a href='http://botpress.io'><img src='https://raw.githubusercontent.com/botpress/botpress/develop/x/assets/botpress_x.gif'></a>
+<a href='http://botpress.io'><img src='https://raw.githubusercontent.com/botpress/botpress/develop/x/assets/botpress_xl.gif'></a>
 # [Botpress](https://botpress.io) — The open-source bot platform
 
 [![CircleCI](https://circleci.com/gh/botpress/botpress.svg?style=svg)](https://circleci.com/gh/botpress/botpress)
 [![npm](https://img.shields.io/npm/v/botpress.svg)](https://www.npmjs.com/package/botpress)
 
 Botpress is an open-source bot creation tool written in Javascript. It is powered by a rich set of open-source modules built by the community. We like to say that **Botpress is like the Wordpress of Chatbots**; anyone can create and reuse other people's modules.
+
+---
+
+### 📍 Botpress X (v10) is in beta
 
 ---
 
@@ -43,7 +47,7 @@ The best way to get started quickly is to read our [Getting Started Tutorial](ht
 Botpress requires [node](https://nodejs.org) (version >= 6.10) and uses [npm](https://www.npmjs.com) as package manager.
 
 ```
-npm install -g botpress
+npm install -g botpress@beta
 ```
 
 ## Creating a bot
