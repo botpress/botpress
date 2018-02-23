@@ -16,7 +16,7 @@ When an action is invoked by the Dialogue Manager (DM), it gets passed the follo
 
 - **`state`**: The current state of the conversation. **This object is [`frozen`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze) and can't be mutated.**
 - **`event`**: The original (latest) event received from the user in the conversation. **This object is [`frozen`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze) and can't be mutated.**
-- **`args`**: The arguments that was passed to this action from the Visual Flow Builder.
+- **`args`**: The arguments that were passed to this action from the Visual Flow Builder.
 
 The action itself **must return a new state object**.
 
@@ -28,7 +28,7 @@ In the context of our tutorial, all actions are defined in our `src/actions.js` 
 bp.dialogEngine.registerFunctions(actions)
 ```
 
-`registerFunctions(map)` takes a map as parameter, the keys being the name of the action and the value the action function. You can call `registerFunctions` as many times as you want, which allows you to split your actions into multiple files if you wish to.
+`registerFunctions(map)` takes a map as a parameter, the keys being the name of the action and the value the action function. You can call `registerFunctions` as many times as you want, which allows you to split your actions into multiple files if you wish to.
 
 ## Examples of actions
 
@@ -46,9 +46,9 @@ startGame: state => {
 
 Now let's look at a slightly more complicated action.
 
-The `sendRandomQuestion` action does the following:
+The `sendRandomQuestion` action does the following: [[This section needs more explanation and it doesn't make sense.  I will revisit when it's elaborated on]]
 - It sends a random *Content Element* from the `trivia` *Content Types* using the built-in `event.reply` method
-- It captures that message sent to the user
+- It captures the message sent to the user
 - It extracts the good answer from the multiple choices
 - It stores the good answer in the state
 
