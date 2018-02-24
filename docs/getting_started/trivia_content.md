@@ -12,14 +12,14 @@ A **Content Type** describes a grouping of Content Elements sharing the same pro
 
 In the context of this tutorial, the template shipped with two Content Types: `Text Message` and `Trivia Question`.
 
-> **🌟 Tip**: As a general rule, the more domain-specific the Content Types are, the easiest it is to manage the bot for non-technical people.
+> **🌟 Tip**: As a general rule, the more domain-specific the Content Types are, the easier it is to manage the bot for non-technical people.
 
-Content Types are very specific to each bots, but here are some typical examples:
+Content Types are very specific to the bots they are associated with. Here are some typical examples:
 - A restaurant "Menu" and "MenuPage" types
 - A "QuestionWithChoices" type
 - An "ImportantBroadcast" type
 
-As you can see, Content Types on Botpress are on a much higher level than "message types" on traditional bot-building platforms.
+As you can see, Content Types on Botpress are much more specific than generalized "message types" on traditional bot building platforms.
 
 Content Types are defined by developers in Javascript. Each Content Type has its own `.form.js` file and Botpress automatically finds and registers new Content Types based on the directory and naming convention of the file.
 
@@ -27,9 +27,11 @@ In the context of this tutorial, the two Content Types are defined in the `src/c
 
 ## Content Element
 
-A **Content Element** is simply a single item of a particular Content Type. Content Types contains many Elements. An Element belongs to a single Type.
+A **Content Element** is simply a single item of a particular Content Type. Content Types contain many Elements. An Element belongs to a single Content Type.
 
 All Content Elements of the same Content Type are stored within a single `.json` file under the `src/content_data` directory.
+
+[[Maybe provide examples]]
 
 ## Content Renderer
 
@@ -40,6 +42,8 @@ A **Content Renderer** defines how a **Content Type** gets rendered on the diffe
 Content Renderers are defined by developers in Javascript. They can be defined anywhere (usually at the bot stratup) via the `bp.renderers.register` method.
 
 In the context of this tutorial, Content Renderers are defined in the `src/renderers.js` file.
+
+[[Maybe provide examples]]
 
 ---
 
@@ -119,6 +123,6 @@ text: data => {
 
 ## Summary
 
-And we're done! You can edit the existing Content Elements to provide some alternate phrases, then open up the Chat Emulator and chat with your new bot!
+And we're done! You can edit the existing Content Elements to provide some alternate phrases, then open up the Chat Emulator and chat to your new bot!
 
 Hopefully you'll find that our bot is now a bit less boring 😅
