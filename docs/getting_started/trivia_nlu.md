@@ -60,7 +60,7 @@ Click the "Create new intent" at the bottom and type `play`.
 
 Now let's add a couple a new utterances (variations) of what a user would usually type if he wanted to say to the bot that he wants to play a new game. About 10 phrases should suffice to start. Don't forget to save the file once you're done.
 
-Do the same for the `see_leaderboard` intent.
+Do the same for the `leaderboard` intent.
 
 ### Training the model
 
