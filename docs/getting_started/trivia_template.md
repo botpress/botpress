@@ -10,28 +10,28 @@ For starters, we recommend that you start by cloning a bot template and customiz
 
 ## The **Trivia Template**
 
-For the rest of this entire guide, we will be customizing a simple template that we created specially for you, learner of Botpress! We intentionally left out many details and elements that we will be adding together during this guide.
+In this guide, we will be customizing a simple template of the Trivia bot that we created specially for you, the learner of Botpress! We intentionally left out many details and elements from the Trivia bot that you will be able to add by following this guide.
 
 The version of the bot that you will be starting off from will already do the following things:
 
 - Be available on the **Webchat channel**
 - Have a couple of Trivia Questions in its question bank
-- The logic to play a Trivia Quizz game
+- Be able to understand the logic of to play a Trivia Quizz game
   - When you say `"play"`, the bot **starts a new game**
-  - The bot asks you **3 questions**
-  - At the end of the game, it tells you your score
+  - The bot will ask you **3 questions**
+  - At the end of the game, it will tell you your score
 
 ### What we will be implementing
 
 That's a very basic bot, but we will be adding the following things:
 
 - New trivia questions
-- Responding to other keywords than `"play"`
-- Adding NLU (Natural Language Understanding) to make it smarter
-- Make it ask and remember your name
-- Keeping a basic leaderboard
-- Connecting it to Facebook Messenger
-- Perfecting the leaderboard on Facebook
+- Be able to respond to other keywords other than `"play"`
+- Use NLU (Natural Language Understanding) to make it smarter
+- Be able to ask and remember your name
+- Be able to keep track of a basic leaderboard
+- Be able to connect to Facebook Messenger
+- An improved version of the leaderboard on Facebook
 
 > **Note:** We recommend you follow this guide sequentially for the first time, but the template contains a snapshot for every step, so you can skip some sections if you feel like it.
 
@@ -50,7 +50,7 @@ At the end of this guide, you'll have learned the following concepts:
 - Creating custom Content Types
 - Creating custom Content Renderers
 
-> 🌟 **Tip:** Already familiar with Botpress but need a quick refresher about something? Click one of the links to jump directly to that concept.
+> 🌟 **Tip:** If you are already familiar with Botpress but need a quick refresher about something, click one of the links to jump directly to that concept.
 
 ## Getting the template
 
@@ -78,7 +78,7 @@ npm install
 yarn install
 ```
 
-Once all the dependencies installed, you can start the bot to see if everything is working properly:
+Once all the dependencies are installed, you can start the bot to see if everything is working properly:
 
 ```bash
 #using npm
@@ -94,16 +94,16 @@ If everything goes well, you should see some reassuring messages in the console.
 
 The bot comes with built-in integration with the Webchat channel. To open the webchat, navigate to this url: [http://localhost:3000/lite/?m=platform-webchat&v=fullscreen](http://localhost:3000/lite/?m=platform-webchat&v=fullscreen)
 
-Now you can say "`play`" to your bot, you'll be playing a Trivia game 🎲! 
+Now say "`play`" to your bot bot begin playing a Trivia game 🎲! 
 
 We challenge you to score 100%!
 
 ### Viewing on your mobile
 
-To speak with your bot using your phone, the easiest way is to open a tunnel to expose your local bot publicly to the internet. We recommend using one of the following tools:
+To easiest way to speak with your bot using your phone is to open a tunnel to expose your local bot publicly to the internet. We recommend using one of the following tools:
 
 - [PageKite](https://pagekite.net)
 - [Ngrok](https://ngrok.io)
 - [Localtunnel](https://localtunnel.github.io/www/)
 
-Using any of these tools, make sure you **make it point to port `3000`**. Once done you should be able to access the webchat from your phone at a url similar to `https://487f83.ngrok.io/lite/?m=platform-webchat&v=fullscreen`.
+When using any of these tools, make sure you **make them point to port `3000`**. Once done you should be able to access the webchat from your phone at a url similar to `https://487f83.ngrok.io/lite/?m=platform-webchat&v=fullscreen`.
