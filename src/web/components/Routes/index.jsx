@@ -41,7 +41,6 @@ export default () => {
         <Route path="content" component={Content} />
         <Route path="version-control" component={GhostContent} />
         <Route path="flows(/:flow)" component={FlowBuilder} />
-        <Route path="modules/@botpress/:moduleName(/:subView)" component={Module} />
         <Route path="modules/:moduleName(/:subView)" component={Module} />
         <Route path="notifications" component={Notifications} />
         <Route path="logs" component={Logs} />
