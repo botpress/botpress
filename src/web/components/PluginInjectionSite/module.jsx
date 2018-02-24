@@ -66,15 +66,7 @@ export default class InjectedModuleView extends React.Component {
       return window.botpress && window.botpress[name] && window.botpress[name][prop]
     }
 
-    let module = null
-
-    for (const name of lookupNames) {
-      const m = viewResolve(name)
-      if (m) {
-        module = m
-        break
-      }
-    }
+    const module = viewResolve(lookupNames.find(viewResolve))
 
     if (!module) {
       this.setState({
