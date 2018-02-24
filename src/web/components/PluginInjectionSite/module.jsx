@@ -2,6 +2,13 @@ import React from 'react'
 import { withRouter } from 'react-router'
 import axios from 'axios'
 
+/*****
+  DO NOT REQUIRE HEAVY DEPENDENCIES HERE
+  Avoid requiring lodash here
+  We're trying to keep these files as js-vanilla as possible
+  To keep `lite.bundle.js` as small as possible
+*****/
+
 import InjectedComponent from '~/components/Injected'
 import EventBus from '~/util/EventBus'
 
