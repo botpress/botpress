@@ -74,7 +74,7 @@ const validateSave = (options, object) => {
 }
 
 const validateName = name => {
-  const shortName = util.getModuleShortname(name)
+  const shortName = name && util.getModuleShortname(name)
   if (!name || !/^[A-Z0-9._-]+$/i.test(shortName)) {
     throw new Error(`Invalid configuration name: ${name}. The name must only contain letters, _ and -`)
   }
