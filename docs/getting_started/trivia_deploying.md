@@ -65,7 +65,7 @@ Your bot is now live at the URL that Heroku just gave you in the last command ru
 heroku config:set BOTPRESS_PASSWORD=hello123
 ```
 
-### Using Postgres as the database
+### Using Postgres as the database  [[Why make SQL the database by default if it creates and extra step and doesn't work with Heroku which is likely the default host?]]
 
 By default Botpress uses SQLite as a database for persistence. This doesn't work well on Heroku because it has ephemeral storage, which means data will get lost every day or so. The best is to switch the database to Postgres:
 
