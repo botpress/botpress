@@ -3,6 +3,7 @@ import fs from 'fs'
 import path from 'path'
 import yaml from 'js-yaml'
 import Promise from 'bluebird'
+import util from './util'
 
 const validations = {
   any: (value, validation) => validation(value),
@@ -73,7 +74,8 @@ const validateSave = (options, object) => {
 }
 
 const validateName = name => {
-  if (!name || !/^[A-Z0-9._-]+$/i.test(name)) {
+  const shortName = util.getModuleShortname(name)
+  if (!name || !/^[A-Z0-9._-]+$/i.test(shortName)) {
     throw new Error(`Invalid configuration name: ${name}. The name must only contain letters, _ and -`)
   }
 }

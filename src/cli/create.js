@@ -8,7 +8,6 @@ import util from '../util'
 import stats from '../stats'
 
 const MODULE_NAME_CONVENTION_BEGINS = 'botpress-'
-const MODULE_NAME_REGEX = new RegExp(/^botpress-.*/g)
 
 const introductionText = 'This program will bootstrap a new Botpress module'
 const doneText = 'The module is boostrapped successfully.'
@@ -34,8 +33,8 @@ const generateTemplate = (directory, filename, variables = {}) => {
 }
 
 const prefixModuleNameWithBotpress = name => {
-  if (!MODULE_NAME_REGEX.test(name)) {
-    util.print('warn', 'the name of your module needs to begin by "botpress-"')
+  if (!util.isBotpressPackage(name)) {
+    util.print('warn', 'the name of your module needs to begin by "botpress-" or "@botpress/"')
     util.print('warn', 'we renamed your module to ' + chalk.bold(MODULE_NAME_CONVENTION_BEGINS + name))
     name = MODULE_NAME_CONVENTION_BEGINS + name
   }
