@@ -54,7 +54,7 @@ The dependencies might take a while to install the first time. If for some reaso
 
 ### Starting the bot <a class="toc" id="toc-starting-bot" href="#toc-starting-bot"></a>
 
-Once the dependencies installed, you may start the bot:
+Once the dependencies are installed, you may start the bot:
 
 ```bash
 # using npm
@@ -64,7 +64,7 @@ npm start
 yarn start
 ```
 
-And that's it! This will start the bot on your computer and provide you with a graphical interface at [https://localhost:3000/](https://localhost:3000/), so that you can customize and speak with your bot.
+And that's it! This will start the bot on your computer and provide you with a graphical interface at [https://localhost:3000/](https://localhost:3000/), so that you can customize and speak to your bot.
 
 ## Next steps <a class="toc" id="toc-next-steps" href="#toc-next-steps"></a>
 
