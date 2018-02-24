@@ -18,7 +18,7 @@ const reducer = handleActions(
   {
     [modulesReceived]: (state, { payload }) => ({
       ...state,
-      installed: payload.filter(module => module.name.startsWith('botpress-skill-')).map(module => ({
+      installed: payload.filter(module => module.name.startsWith('skill-')).map(module => ({
         id: module.name,
         name: module.menuText,
         icon: module.menuIcon
