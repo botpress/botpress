@@ -16,7 +16,7 @@ Skills are implemented under a special kind of Botpress module whose name starts
 
 ### Installing the `choice` skill <a class="toc" id="installing-the-choice-skill" href="#installing-the-choice-skill"></a>
 
-Installing a skill is as simple as installing a regular npm package. Once installed, retsrat your bot and the skill will be automatically detected and loaded by your bot.
+Installing a skill is as simple as installing a regular npm package. Once installed, restart your bot and the skill will be automatically detected and loaded by your bot.
 
 ```bash
 # using npm
@@ -32,7 +32,7 @@ Skills are meant to be used by the Botpress Flows GUI. After installing a skill 
 
 ![Using the skills from the GUI][skillsMenu]
 
-After filling the form, you'll be able to click anywhere in the flow to insert the skill to be consumed by the other nodes.
+After filling in the form, you'll be able to click anywhere in the flow to insert the skill to be consumed by the other nodes.
 
 ## Persistence
 
@@ -44,7 +44,7 @@ You can also visualize the generated skills from the GUI:
 
 ## Editing skills
 
-Once a skill node has been generated, you may click on that node and click "Edit" on the left panel to edit that node, which will behind the scene update the generated flow automatically.
+Once a skill node has been generated, you may click on that node and click "Edit" on the left panel to edit that node, which will  update the generated flow automatically behind the scenes.
 
 ![Editing a skill from GUI][skillsEdit]
 
@@ -58,7 +58,7 @@ Once that's done, we will consume this skill to create a new choice menu. On you
 
 In the "Question" field, type in something like "*Welcome to my Trivia bot, what would you like to do?*". In the "Choices" field, type the two choices your users will have: "Play" and "See leaderboard".
 
-The next step is to provide some additionnal keywords for detecting the two options. Click the "Edit keywords" button and type some alternatives for both choices.
+The next step is to provide some additional keywords for detecting the two options. Click the "Edit keywords" button and type some alternatives for both choices.
 
 > **🔬 Notice:** In the "Advanced" panel of the Choice skill, you have the choice to change the **Content Renderer** that will be used by the skill to display the options. Leave it to "#choice" for now.
 
@@ -68,7 +68,7 @@ Click "Insert" when that's done and click somewhere on the diagram to insert the
 
 ## The `#choice` renderer
 
-We need to actually tell our bot how a "choice" looks like. Let's make it display some fancy buttons, which is very similar to a Trivia Question message.
+We need to actually tell our bot what a "choice" looks like. Let's make it display some fancy buttons, which is very similar to a Trivia Question message.
 
 ```js
 // inside renderers.js
@@ -91,7 +91,7 @@ What we actually want now is to change the starting node to be that "choice" nod
 
 ## Refactoring: Sub-flows
 
-We need to make that "See leaderboard" choice to show the leaderboard. Although we know *how* to show the leaderboard (by calling the `render` action), we don't like to duplicate the same logic again and again.
+We need to make the "See leaderboard" choice show the leaderboard. Although we know *how* to show the leaderboard (by calling the `render` action), we don't like to duplicate the same logic again and again.
 
 A quick solution would be to create an intermediary node that shows the leaderboard, then re-wire the last two nodes of the flow to this node:
 
@@ -105,7 +105,7 @@ To create a new flow, click the folder icon in the top bar. Name it `leaderboard
 
 ![Refactoring into a separate flow][refactoringFlow]
 
-The flow is extremely simple, it contains a single instruction: the call to `renderLeaderboard`. This action doesn't exist so let's create it in `actions.js`. You may also get rid of the `render` action, we won't need it anymore:
+The flow is extremely simple, it contains a single instruction: the call to `renderLeaderboard`. This action doesn't exist so let's create it in `actions.js`. You may also get rid of the `render` action as we won't need it anymore:
 
 ```diff
 + renderLeaderboard: async (state, event) => {
