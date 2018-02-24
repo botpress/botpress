@@ -348,7 +348,10 @@ reducer = reduceReducers(
       // 2. creates a new "skill" node
       // 3. puts that new node in the "insert buffer", waiting for user to place it on the canvas
       [insertNewSkill]: (state, { payload }) => {
-        const skillId = payload.skillId.replace(/^botpress-skill-/i, '')
+        const skillId = payload.skillId
+          .replace(/^botpress-skill-/i, '')
+          .replace(/^@botpress\/skill-/i, '')
+          .replace(/^skill-/i, '')
         const flowRandomId = prettyId(6)
         const flowName = `skills/${skillId}-${flowRandomId}.flow.json`
 

@@ -100,6 +100,10 @@ const getInMemoryDb = () =>
 
 const safeId = (length = 10) => generate('1234567890abcdefghijklmnopqrsuvwxyz', length)
 
+const botpressPackageRegex = /^(botpress-.+)|(@botpress\/.+)/i
+const isBotpressPackage = pkg => botpressPackageRegex.test(pkg)
+const getModuleShortname = pkg => pkg.replace(/^@botpress\//i, '').replace(/^botpress-/i, '')
+
 module.exports = {
   print,
   resolveFromDir,
@@ -111,5 +115,8 @@ module.exports = {
   getBotpressVersion,
   collectArgs,
   getInMemoryDb,
-  safeId
+  safeId,
+  isBotpressPackage,
+  getModuleShortname,
+  botpressPackageRegex
 }

@@ -18,7 +18,8 @@ module.exports = (bp, app) => {
   app.secure('read', 'modules/list').get('/api/modules', (req, res) => {
     const modules = _.map(bp._loadedModules, module => {
       return {
-        name: module.name,
+        name: util.getModuleShortname(module.name),
+        fullName: module.name,
         homepage: module.homepage,
         isPlugin: module.settings.isPlugin,
         menuText: module.settings.menuText || module.name,

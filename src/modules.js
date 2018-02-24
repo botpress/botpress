@@ -7,6 +7,7 @@ import moment from 'moment'
 import axios from 'axios'
 import { createConfig } from './configurator'
 import helpers from './helpers'
+import util from './util'
 
 import { print, isDeveloping, npmCmd, resolveModuleRootPath, resolveFromDir, resolveProjectFile } from './util'
 
@@ -98,7 +99,7 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
     return _.reduce(
       deps,
       (result, value, key) => {
-        if (!/^botpress-/i.test(key)) {
+        if (!util.isBotpressPackage(key)) {
           return result
         }
         const entry = resolveFromDir(projectLocation, key)
@@ -136,7 +137,7 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
     const { dependencies } = JSON.parse(fs.readFileSync(packagePath))
     const prodDeps = _.keys(dependencies)
 
-    return _.filter(prodDeps, dep => /botpress-.+/i.test(dep))
+    return _.filter(prodDeps, util.isBotpressPackage)
   }
 
   const mapModuleList = modules => {

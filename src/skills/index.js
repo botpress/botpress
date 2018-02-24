@@ -1,8 +1,9 @@
 import _ from 'lodash'
 
+import util from '../util'
 import { validateFlowSchema } from '../dialog/validator'
 
-const SKILLS_PREFIX = 'botpress-skill-'
+const SKILLS_PREFIX = 'skill-'
 const SKILLS_PREFIX_REGEX = new RegExp('^' + SKILLS_PREFIX)
 
 export default class SkillsManager {
@@ -16,20 +17,26 @@ export default class SkillsManager {
   }
 
   registerSkillsFromModules(modules) {
-    this._skills = modules.filter(mod => SKILLS_PREFIX_REGEX.test(mod.name)).reduce((acc, curr) => {
-      if (!curr.handlers.generate) {
-        this._log('warn', `Skill "${curr.name}" has no flow generator ("generate" method exposed)`)
-        return acc
-      }
+    this._skills = modules
+      .filter(mod => {
+        const shortName = util.getModuleShortname(mod.name)
+        return SKILLS_PREFIX_REGEX.test(shortName)
+      })
+      .reduce((acc, curr) => {
+        const shortName = util.getModuleShortname(curr.name)
+        if (!curr.handlers.generate) {
+          this._log('warn', `Skill "${shortName}" has no flow generator ("generate" method exposed)`)
+          return acc
+        }
 
-      if (!_.isFunction(curr.handlers.generate)) {
-        this._log('warn', `Skill "${curr.name}" generator is not a valid function`)
-        return acc
-      }
+        if (!_.isFunction(curr.handlers.generate)) {
+          this._log('warn', `Skill "${shortName}" generator is not a valid function`)
+          return acc
+        }
 
-      acc[curr.name] = curr.handlers.generate
-      return acc
-    }, {})
+        acc[shortName] = curr.handlers.generate
+        return acc
+      }, {})
 
     this._log('info', `[Skills] Loaded ${_.keys(this._skills).length} skills`)
   }
@@ -38,6 +45,9 @@ export default class SkillsManager {
     if (!this._skills) {
       throw new Error("Skills haven't been initialized yet")
     }
+
+    //vv Backward compatible with old skills, just making sure there's no @botpress or botpress-
+    skillId = util.getModuleShortname(skillId)
 
     if (!SKILLS_PREFIX_REGEX.test(skillId)) {
       skillId = SKILLS_PREFIX + skillId

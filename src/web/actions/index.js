@@ -180,7 +180,7 @@ export const requestEditSkill = nodeId => (dispatch, getState) => {
   flow &&
     dispatch(
       editSkill({
-        skillId: 'botpress-skill-' + node.skill,
+        skillId: 'skill-' + node.skill,
         flowName: node.flow,
         nodeId: nodeId,
         data: flow.skillData

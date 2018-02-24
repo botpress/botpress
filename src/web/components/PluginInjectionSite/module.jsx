@@ -2,6 +2,13 @@ import React from 'react'
 import { withRouter } from 'react-router'
 import axios from 'axios'
 
+/*****
+  DO NOT REQUIRE HEAVY DEPENDENCIES HERE
+  Avoid requiring lodash here
+  We're trying to keep these files as js-vanilla as possible
+  To keep `lite.bundle.js` as small as possible
+*****/
+
 import InjectedComponent from '~/components/Injected'
 import EventBus from '~/util/EventBus'
 
@@ -31,10 +38,12 @@ export default class InjectedModuleView extends React.Component {
         })
       }
 
+      const shortName = moduleName.replace(/^botpress-/i, '').replace(/^@botpress\//i, '')
+
       if (isLite) {
-        script.src = `/js/modules/${moduleName}/${subView}`
+        script.src = `/js/modules/${shortName}/${subView}`
       } else {
-        script.src = `/js/modules/${moduleName}.js`
+        script.src = `/js/modules/${shortName}`
       }
 
       document.getElementsByTagName('head')[0].appendChild(script)
@@ -47,15 +56,21 @@ export default class InjectedModuleView extends React.Component {
   }
 
   setViewInState(moduleName, viewName, isLite) {
-    const fullModuleName = moduleName.startsWith('botpress-') ? moduleName : 'botpress-' + moduleName
+    const lookupNames =
+      moduleName.startsWith('@botpress/') || moduleName.startsWith('botpress-')
+        ? [moduleName]
+        : ['@botpress/' + moduleName, 'botpress-' + moduleName]
 
-    const module = isLite
-      ? window.botpress && window.botpress[fullModuleName].default
-      : window.botpress && window.botpress[fullModuleName] && window.botpress[fullModuleName][viewName]
+    const viewResolve = name => {
+      const prop = isLite ? 'default' : viewName
+      return window.botpress && window.botpress[name] && window.botpress[name][prop]
+    }
+
+    const module = viewResolve(lookupNames.find(viewResolve))
 
     if (!module) {
       this.setState({
-        error: new Error(`Subview "${viewName}" doesn't exist for module "${fullModuleName}"`),
+        error: new Error(`Subview "${viewName}" doesn't exist for module "${moduleName}"`),
         moduleComponent: null
       })
     } else {

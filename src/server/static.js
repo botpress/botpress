@@ -10,7 +10,7 @@ import util from '../util'
 module.exports = bp => {
   const serveModule = (app, module) => {
     const name = module.name
-    const shortName = module.name.replace(/botpress-/i, '')
+    const shortName = util.getModuleShortname(module.name)
 
     if (module.settings.menuIcon === 'custom') {
       const iconRequestPath = `/img/modules/${name}.png`
