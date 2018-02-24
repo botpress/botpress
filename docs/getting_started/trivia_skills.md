@@ -105,13 +105,21 @@ To create a new flow, click the folder icon in the top bar. Name it `leaderboard
 
 ![Refactoring into a separate flow][refactoringFlow]
 
-The flow is extremely simple, it contains a single instruction: the call to `render`. Make sure you have the following arguments mapped correctly.
+The flow is extremely simple, it contains a single instruction: the call to `renderLeaderboard`. This action doesn't exist so let's create it in `actions.js`. You may also get rid of the `render` action, we won't need it anymore:
 
-```js
-render(state, event, {
-    "renderer": "#leaderboard",
-    "leaderboard": "{{state.leaderboard}}"
-})
+```diff
++ renderLeaderboard: async (state, event) => {
++   let board = (await event.bp.db.kvs.get('leaderboard')) || []
++   await event.reply('#leaderboard', { leaderboard: board })
++ },
+
+- render: async (state, event, args) => {
+-   if (!args.renderer) {
+-     throw new Error('Missing "renderer"')
+-   }
+-
+-   await event.reply(args.renderer, args)
+- },
 ```
 
 Don't forget to "Save" the flows by clicking the save icon at the top.
