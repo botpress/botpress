@@ -10,7 +10,7 @@ For starters, we recommend that you start by cloning a bot template and customiz
 
 ## The **Trivia Template**
 
-In this guide, we will be customizing a simple template of the Trivia bot that we created specially for you, the learner of Botpress! We intentionally left out many details and elements from the Trivia bot that you will be able to add by following this guide.
+In this guide, we will be customizing the template that we created specially for you, the learner of Botpress! We intentionally left out many details and elements from the template that you will be able to add by following this guide.
 
 The version of the bot that you will be starting off from will already do the following things:
 
@@ -18,7 +18,7 @@ The version of the bot that you will be starting off from will already do the fo
 - Have a couple of Trivia Questions in its question bank
 - Be able to understand the logic of to play a Trivia Quizz game
   - When you say `"play"`, the bot **starts a new game**
-  - The bot will ask you **3 questions**
+  - The bot asks you **3 questions**
   - At the end of the game, it will tell you your score
 
 ### What we will be implementing
@@ -94,16 +94,16 @@ If everything goes well, you should see some reassuring messages in the console.
 
 The bot comes with built-in integration with the Webchat channel. To open the webchat, navigate to this url: [http://localhost:3000/lite/?m=platform-webchat&v=fullscreen](http://localhost:3000/lite/?m=platform-webchat&v=fullscreen)
 
-Now say "`play`" to your bot bot begin playing a Trivia game 🎲! 
+Now say "`play`" to your bot to begin playing a Trivia game 🎲! 
 
 We challenge you to score 100%!
 
 ### Viewing on your mobile
 
-To easiest way to speak with your bot using your phone is to open a tunnel to expose your local bot publicly to the internet. We recommend using one of the following tools:
+The easiest way to speak to your bot using your phone is to open a tunnel to expose your local bot publicly to the internet. We recommend using one of the following tools:
 
 - [PageKite](https://pagekite.net)
 - [Ngrok](https://ngrok.io)
 - [Localtunnel](https://localtunnel.github.io/www/)
 
-When using any of these tools, make sure you **make them point to port `3000`**. Once done you should be able to access the webchat from your phone at a url similar to `https://487f83.ngrok.io/lite/?m=platform-webchat&v=fullscreen`.
+When using any of these tools, make sure you **point the tool in question to port `3000`**. Once done you should be able to access the webchat from your phone at a url similar to `https://487f83.ngrok.io/lite/?m=platform-webchat&v=fullscreen`.
