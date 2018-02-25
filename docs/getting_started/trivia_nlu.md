@@ -58,7 +58,7 @@ Once that's done, restart your bot. You should see a new "NLU" item in the left 
 
 Click the "Create new intent" at the bottom and type `play`.
 
-Now let's add a couple a new utterances (variations) of what a user would usually type if he wanted to say to the bot that he wants to play a new game. [[How do you do this?]] About 10 phrases should suffice to start. Don't forget to save the file once you're done.
+Now let's add a couple a new utterances (variations) of what a user would usually type if he wanted to say to the bot that he wants to play a new game.  About 10 phrases should suffice to start. Don't forget to save the file once you're done.
 
 Do the same for the `leaderboard` intent.
 
