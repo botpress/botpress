@@ -44,7 +44,7 @@ You can also visualize the generated skills from the GUI:
 
 ## Editing skills
 
-Once a skill node has been generated, you may click on that node and click "Edit" on the left panel to edit that node, which will  update the generated flow automatically behind the scenes.
+Once a skill node has been generated, you may click on that node and click "Edit" on the left panel to edit that node, which will update the generated flow automatically behind the scenes.
 
 ![Editing a skill from GUI][skillsEdit]
 
