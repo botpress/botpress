@@ -303,15 +303,6 @@ export default class FlowBuilder extends Component {
         link.remove()
         return this.diagramWidget.forceUpdate()
       }
-
-      // We make sure that the link was added to the node
-      const outIndex = Number(outPort.name.substr(3))
-      this.props.linkFlowNodes({
-        node: outPort.parentNode.id,
-        index: outIndex,
-        condition: outPort.parentNode.next[outIndex].condition,
-        target: targetPort.parentNode.name
-      }) // Update node that isn't selected
     })
 
     if (this.props.currentDiagramAction && this.props.currentDiagramAction.startsWith('insert_')) {
@@ -334,26 +325,15 @@ export default class FlowBuilder extends Component {
       this.props.setDiagramAction(null)
     }
 
-    // No node selected
     if (!selectedNode && currentNode) {
-      return this.props.switchFlowNode(null)
+      this.props.switchFlowNode(null) // No node selected
+    } else if (selectedNode && (!currentNode || selectedNode.id !== currentNode.id)) {
+      this.props.switchFlowNode(selectedNode.id) // Selected a new node
     }
 
-    // Selected a new node
-    if (selectedNode && (!currentNode || selectedNode.id !== currentNode.id)) {
-      this.props.switchFlowNode(selectedNode.id)
-    }
-
-    if (selectedNode) {
-      if (selectedNode.oldX !== selectedNode.x || selectedNode.oldY !== selectedNode.y) {
-        this.props.updateFlowNode({
-          x: selectedNode.x,
-          y: selectedNode.y
-        })
-      }
-
-      selectedNode.oldX = selectedNode.x
-      selectedNode.oldY = selectedNode.y
+    if (selectedNode && (selectedNode.oldX !== selectedNode.x || selectedNode.oldY !== selectedNode.y)) {
+      this.props.updateFlowNode({ x: selectedNode.x, y: selectedNode.y })
+      Object.assign(selectedNode, { oldX: selectedNode.x, oldY: selectedNode.y })
     }
 
     this.checkForLinksUpdate()
@@ -369,9 +349,7 @@ export default class FlowBuilder extends Component {
 
     if (this.activeModel.linksHash !== newLinksHash) {
       this.activeModel.linksHash = newLinksHash
-      this.props.updateFlow({
-        links: newLinks
-      })
+      this.props.updateFlow({ links: newLinks })
     }
   }
 

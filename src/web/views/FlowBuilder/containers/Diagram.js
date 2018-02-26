@@ -13,7 +13,6 @@ import {
   pasteFlowNode,
   createFlow,
   updateFlow,
-  linkFlowNodes,
   insertNewSkillNode
 } from '~/actions'
 
@@ -36,7 +35,6 @@ const mapDispatchToProps = {
   createFlow,
   updateFlowNode,
   updateFlow,
-  linkFlowNodes,
   copyFlowNode,
   pasteFlowNode,
   insertNewSkillNode
