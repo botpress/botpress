@@ -18,6 +18,7 @@ import createHearMiddleware from './hear'
 import createFallbackMiddleware from './fallback'
 import createDatabase from './database'
 import createGhostManager from './ghost-content'
+import createMediaManager from './media-manager'
 import createLicensing from './licensing'
 import createAbout from './about'
 import createModules from './modules'
@@ -179,6 +180,12 @@ class botpress {
       botfile,
       ghostManager
     })
+    const mediaManager = await createMediaManager({
+      botfile,
+      logger,
+      ghostManager,
+      projectLocation
+    })
 
     // Register the built-in item providers such as "-random()"
     Object.keys(defaultGetItemProviders).forEach(provider => {
@@ -260,6 +267,7 @@ class botpress {
       users,
       ghostManager,
       contentManager,
+      mediaManager,
       dialogEngine,
       dialogJanitor,
       messages,

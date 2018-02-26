@@ -79,7 +79,7 @@ module.exports = ({ logger, db, projectLocation, enabled }) => {
 
   const addRootFolder = async (rootFolder, options = {}) => {
     const { folderPath, normalizedFolderName } = normalizeFolder(rootFolder)
-    const { isBinary = false, filesGlob } = options
+    const { isBinary = false, filesGlob = '**/*' } = options
 
     logger.debug(`[Ghost Content Manager] adding folder ${normalizedFolderName}`)
     trackedFolders.push(normalizedFolderName)
