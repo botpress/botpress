@@ -11,6 +11,12 @@ module.exports = {
     type: 'object',
     required: ['question', 'good', 'bad'],
     properties: {
+      picture: {
+        type: 'string',
+        $subtype: 'media',
+        $filter: '.jpg, .png, .jpeg, .gif, .bmp, .tif, .tiff|image/*',
+        title: 'Picture'
+      },
       question: {
         type: 'string',
         title: 'Question'
