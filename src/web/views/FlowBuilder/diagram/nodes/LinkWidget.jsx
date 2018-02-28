@@ -40,7 +40,7 @@ class DeletableLinkWidget extends DefaultLinkWidget {
         stroke={color}
         strokeOpacity={this.state.selected ? 0.1 : 0}
         strokeWidth={20}
-        onContextMenu={() => this.addPointToLink(event, index + 1)}
+        onContextMenu={event => this.addPointToLink(event, index + 1)}
         {...extraProps}
       />
     )
