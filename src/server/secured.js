@@ -222,7 +222,12 @@ module.exports = (bp, app) => {
       return res.sendStatus(404)
     }
     const type = path.extname(req.params.filename)
-    return res.type(type).send(contents)
+    // files are never overwritten because of the unique ID
+    // so we can set the header to cache the asset for 1 year
+    return res
+      .set({ 'Cache-Control': 'max-age=31556926' })
+      .type(type)
+      .send(contents)
   })
 
   app.secure('read', 'bot/flows').get('/flows/all', async (req, res) => {
