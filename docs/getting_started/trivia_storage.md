@@ -76,7 +76,7 @@ storeGlobal: async (state, event) => {
 
 ## Full database
 
-If nothing of the above works for you, you might want to consider using the built-in database (SQLite or Postgres). This is the most flexible option but obviously comes with more work on your end, as you'll have to manually create and maintain tables, rows and write SQL queries.
+If none of the above works for you, you might want to consider using a built-in database (SQLite or Postgres). This is the most flexible option but obviously comes with more work on your end, as you'll have to manually create and maintain tables, rows and write SQL queries.
 
 Botpress uses the great [**knex**](http://knexjs.org) library to abstract the database layer. You may get an instance of `knex` with the following code:
 
@@ -176,18 +176,18 @@ Notice how we make use of the global storage (`event.bp.db.kvs`) to store the le
 
 Now that we have the single action that is in charge of storing the scores and determining if we're making the ranking or not, we need to consume that action in the flow.
 
-This is very much straightforward, so we'll skip the details:
+This is very straightforward, so we'll skip the details:
 
 ![Leaderboard flow nodes][leaderboard]
 
 ## Note A
 
-We need to pull the nickname in the state right after setting it to make sure that the state contains the user's nickname at all time.
+We need to pull the nickname in the state right after setting it to make sure that the state contains the user's nickname at all times.
 
 
 ## Note B
 
-This is a simple action that calls the specified renderer and passthrough all the arguments. In this case we're using the `#leaderboard` renderer (which we will define in a minute). 
+This is a simple action that calls the specified renderer and passthroughs all the arguments. In this case we're using the `#leaderboard` renderer (which we will define in a minute). 
 
 > This is a new concept that you probably didn't know existed: we can call renderers directly in actions.
 > 
