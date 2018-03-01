@@ -12,7 +12,7 @@ Let's explore and understand the different concepts around Flow Management befor
 
 ## Flows
 
-Your bot's conversation logic is specified in the flows. More complex bots are generally broken down into multiple smaller flows instead of just one, big flow. The reason for breaking down the bot into multiple flows is simply to ease maintailability and reusability.
+Your bots conversation logic is specified in the flows. More complex bots are generally broken down into multiple smaller flows instead of just one, big flow. The reason for breaking down the bot into multiple flows is simply to ease maintailability and reusability.
 
 ### Lifecycle
 
@@ -22,7 +22,7 @@ Our flow engine is event-based and is non-blocking by default, which means that 
 > - A node is marked as waiting for user input
 > - A node couldn't match a condition to transition to another node
 
-Almost all the logic is hapenning and defined in the **Nodes** (the boxes inside the flow). We say "almost" because there are two small exceptions to that rule: **"On Receive"** and **"Transitions"** events.
+Almost all the logic is defined and happens in the **Nodes** (the boxes inside the flow). We say "almost" because there are two small exceptions to that rule: **"On Receive"** and **"Transitions"** events.  
 
 ### Flow-wide "On Receive"
 
@@ -39,7 +39,7 @@ To define new *Flow-wide On Receive Actions*, simply navigate to the relevant fl
 
 The *Transitions* are very closely related to *On Receive Actions*. The actions themselves can only run actions (and modify the state), but they can't make the flow switch to an other node. This is the role of *Transitions*.
 
-**A transition is defined by a condition and a destination.** They can be seen as global conversation hooks in some way because they have the power to reroute the conversation to their will.
+**A transition is defined by a condition and a destination.** They can be seen as global conversation hooks in some way because they have the power to reroute the conversation to a totally new node or flow.
 
 The *Flow-wide Transitions* are evaluated sequentially and the first to match is the one that will be triggered (the others won't be tried). If no condition is matched, then nothing happens and the regular flow is continued.
 
@@ -50,14 +50,14 @@ The *Flow-wide Transitions* are evaluated sequentially and the first to match is
 
 ### Storage
 
-Flows are stored as JSON files in the bot's source. In the context of this tutorial, the flows are stored in the `src/flows/` folder. Each flow is split into two files: the logic (`*.flow.json`) and the visual-specific properties (`*.ui.json`). The reason to split these is to make easier to maintain and review changes. 
+Flows are stored as JSON files in the bot's source files. In the context of this tutorial, the flows are stored in the `src/flows/` folder. Each flow is split into two files: the logic (`*.flow.json`) and the visual-specific properties (`*.ui.json`). The reason to split these is to make easier to maintain and review changes. 
 
-- `*.ui.json` files can almost always be ignored from code reviews as they don't affect the functionalities of the bot.
+- `*.ui.json` files can almost always be ignored from code reviews as they don't affect the functionality of the bot.
 - `*.flow.json` files could also in theory be created manually by developers instead of using the GUI. This is the case for [Skills](./skills), which we will cover later.
 
 ## Nodes
 
-Nodes are the main units of the conversational logic of your bot. **An active conversation** (what we call a "**session**") **always have one and only one active node**. A node generally transitions to another node or flow. When it doesn't, the conversation is ended. The next message from the user will then be part of an entirely new session.
+Nodes are the main units of the conversational logic of your bot. **An active conversation** (which we call a "**session**") **always has one and only one active node**. A node generally transitions to another node or flow. When it doesn't, the conversation is ended. The next message from the user will then be part of an entirely new session.
 
 A *node* is separated into three different stages: **onEnter** (A), **onReceive** (B) and **onNext** (C).
 
@@ -85,13 +85,14 @@ If there are conditions defined but none match, nothing happens, i.e. the curren
 Nodes can flow to:
 
 - Another node within the same flow
+- Itself (i.e. loop back to itself)
 - Another flow
 - To the previous flow (see Flow Stacks)
 - The end of the conversation
 
 ## State
 
-Each conversation has a **State** associated to this conversation. The state is created when the conversation session is started and is destroyed when the session is ended.
+Each conversation has a **State** associated with it. The state is created when the conversation session is started and is destroyed when the session is ended.
 
 In the context of this tutorial, this means that a state is created just before the "*entry*" node is entered and just after the "*over*" node is executed.
 
@@ -142,18 +143,18 @@ OK, now that the bot asks a reasonable amount of questions, we want to build a l
 
 The first step to building a leaderboard is to ask the user for his nickname at the end of the game:
 
-![Asking the user for his nickname][ask_nickname]
+![Asking the user for his or her nickname][ask_nickname]
 
-Now the bot will be asking the user for his nickname at the end of every game. But that's not what we want! We actually want to ask the user only if we don't already know what his nickname is.
+Now the bot will be asking the user for his or her nickname at the end of every game. But that's not what we want! We actually want to ask the user only if we don't already know what their nickname is.
 
 In order to do that, we will need to tell the bot to memorise the nickname of the user. That's should be pretty easy as our Trivia template came with a function that does that for us: `setUserTag({ name, value })`
 
 ### Calling an action from the Visual Flow Builder
 
 What we want is the following:
-- WHEN the user tells the bot his nickname
+- WHEN the user tells the bot their nickname
 - THEN we want to say "*Thanks, `{{event.text}}` is an original nickname!*"
-- THEN we want to persist his answer into a user-wide variable
+- THEN we want to persist their nickname into a user-wide variable
 
 To do that, click on the "*ask-name*" node, then in the "*On Receive*" section, click **Add action**.
 
@@ -173,7 +174,7 @@ To do that, click on the "*entry*" node, then in the "*On Enter*" section, click
 ![Get the nickname from user tag][getUserTag]
 ![Get the nickname from user tag (node)][getUserTagNode]
 
-What the `getUserTag({ name, into })` action does is that is loads a tag (named `name`) *into* the state under a variable called `into`.
+What the `getUserTag({ name, into })` action does is load a tag (named `name`) *into* the state under a variable called `into`.
 
 ### Conditional asking
 
@@ -187,7 +188,7 @@ Finally you want to end the flow if we already know the nickname:
 ![End flow otherwise][otherwiseCondition]
 ![End flow otherwise (result)][otherwiseConditionResult]
 
-That's it! Your bot is now asking the user for his nickname once then will remember it forever.
+That's it! Your bot is now asking the user for their nickname once and then remembering it forever.
 
 > **🌟 Tip:** Say `/forget` to the bot to make it forget your *nickname*.
 
