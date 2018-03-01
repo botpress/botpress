@@ -208,15 +208,15 @@ module.exports = (bp, app) => {
     }
   })
 
-  app.secure('write', 'bot/media').post('/media/', mediaUploadMulter.single('file'), async (req, res) => {
+  const MEDIA_PREFIX = '/media/'
+
+  app.secure('write', 'bot/media').post(MEDIA_PREFIX, mediaUploadMulter.single('file'), async (req, res) => {
     const filename = await bp.mediaManager.saveFile(req.file.originalname, req.file.buffer)
-    const proto = req.protocol
-    const host = req.get('host')
-    const url = `${proto}://${host}/media/${filename}`
+    const url = `${MEDIA_PREFIX}${filename}`
     return res.json({ url })
   })
 
-  app.secure('read', 'bot/media').get('/media/:filename', async (req, res) => {
+  app.secure('read', 'bot/media').get(`${MEDIA_PREFIX}:filename`, async (req, res) => {
     const contents = await bp.mediaManager.readFile(req.params.filename)
     if (!contents) {
       return res.sendStatus(404)

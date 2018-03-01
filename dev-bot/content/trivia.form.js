@@ -46,11 +46,12 @@ module.exports = {
 
   computeData: formData => {
     const good = { payload: 'TRIVIA_GOOD', text: formData.good }
-    const bad = formData.bad.map(i => ({ payload: 'TRIVIA_BAD', text: i }))
+    const bad = formData.bad.map(text => ({ payload: 'TRIVIA_BAD', text }))
     const choices = [good, ...bad]
 
     return {
       question: formData.question,
+      picture: formData.picture,
       choices: _.shuffle(choices)
     }
   },

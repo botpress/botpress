@@ -42,6 +42,7 @@
   {
     "id": "trivia-question-8CXNiN",
     "formData": {
+      "picture": "/media/i0kjcxbovo3byjor1co0-flag_inst.png",
       "question": "a+b",
       "good": "ab",
       "bad": ["abcd"]

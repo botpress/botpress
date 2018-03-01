@@ -52,6 +52,15 @@ module.exports = bp => {
     'Hope to see you back again soon! :)' // if no other properties, you can just send a string
   ])
 
+  bp.renderers.register('#trivia-question', ({ BOT_URL, picture, question, choices }) =>
+    [
+      picture && `[${BOT_URL}${picture}]`,
+      question,
+      'Pick one:',
+      choices.map(({ text, payload }) => `<${payload}>${text}`)
+    ].filter(Boolean)
+  )
+
   // Listens for a first message (this is a Regex)
   // GET_STARTED is the first message you get on Facebook Messenger
   bp.hear(/GET_STARTED|hello|hi|test|hey|holla/i, (event, next) => {
