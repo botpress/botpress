@@ -216,20 +216,6 @@ module.exports = (bp, app) => {
     return res.json({ url })
   })
 
-  app.secure('read', 'bot/media').get(`${MEDIA_PREFIX}:filename`, async (req, res) => {
-    const contents = await bp.mediaManager.readFile(req.params.filename)
-    if (!contents) {
-      return res.sendStatus(404)
-    }
-    const type = path.extname(req.params.filename)
-    // files are never overwritten because of the unique ID
-    // so we can set the header to cache the asset for 1 year
-    return res
-      .set({ 'Cache-Control': 'max-age=31556926' })
-      .type(type)
-      .send(contents)
-  })
-
   app.secure('read', 'bot/flows').get('/flows/all', async (req, res) => {
     const flows = await bp.dialogEngine.getFlows()
     res.send(flows)
