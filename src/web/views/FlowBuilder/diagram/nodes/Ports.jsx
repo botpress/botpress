@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import classnames from 'classnames'
 import _ from 'lodash'
-import { withRouter } from 'react-router'
+import { withRouter } from 'react-router-dom'
 
 const { PortWidget, PortModel } = require('storm-react-diagrams')
 
@@ -29,7 +29,7 @@ export class StandardPortWidgetDisconnected extends React.Component {
 
     return (
       <div className={style.label}>
-        <a href="javascript:void(0);" onClick={() => this.props.router.push(`/flows/${subflow}`)}>
+        <a href="javascript:void(0);" onClick={() => this.props.history.push(`/flows/${subflow}`)}>
           {subflow}
         </a>
       </div>

@@ -61,7 +61,7 @@ class ModuleView extends React.Component {
       return null
     }
 
-    const { moduleName, subView } = this.props.params
+    const { moduleName, subView } = this.props.match.params
     const module = _.find(modules, { name: moduleName })
 
     const contents = module ? (

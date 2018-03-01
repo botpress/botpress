@@ -66,16 +66,18 @@ export default class ManageView extends React.Component {
         <Grid fluid>
           <Row>
             <Panel className={style.documentation}>
-              <Row className={style.explication}>
-                <Col sm={12}>
-                  <Markdown source={this.getDocumentation()} />
-                  <div>
-                    <a href="#" onClick={this.handleReadMore}>
-                      {this.getReadMore()}
-                    </a>
-                  </div>
-                </Col>
-              </Row>
+              <Panel.Body>
+                <Row className={style.explication}>
+                  <Col sm={12}>
+                    <Markdown source={this.getDocumentation()} />
+                    <div>
+                      <a href="#" onClick={this.handleReadMore}>
+                        {this.getReadMore()}
+                      </a>
+                    </div>
+                  </Col>
+                </Row>
+              </Panel.Body>
             </Panel>
           </Row>
           <Row>

@@ -93,7 +93,7 @@ export default class ParametersTable extends Component {
       const keyClass = classnames({ [style.invalid]: !isKeyValid })
 
       return (
-        <tr>
+        <tr key={id}>
           <td className={keyClass}>
             <input type="text" value={args[id].key} onChange={editKey} />
           </td>

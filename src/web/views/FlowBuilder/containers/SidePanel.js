@@ -1,6 +1,6 @@
 import { connect } from 'react-redux'
 import values from 'lodash/values'
-import { withRouter } from 'react-router'
+import { withRouter } from 'react-router-dom'
 
 import { getCurrentFlow, getCurrentFlowNode, getDirtyFlows } from '~/reducers'
 import {

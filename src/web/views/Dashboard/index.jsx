@@ -40,16 +40,22 @@ export default class DashboardView extends React.Component {
 
   renderPopularModules() {
     return (
-      <Panel header="Popular modules">
-        <ModulesComponent modules={this.state.popularModules} refresh={this.refresh} />
+      <Panel>
+        <Panel.Heading>Popular modules</Panel.Heading>
+        <Panel.Body>
+          <ModulesComponent modules={this.state.popularModules} refresh={this.refresh} />
+        </Panel.Body>
       </Panel>
     )
   }
 
   renderFeaturedModules() {
     return (
-      <Panel header="Featured modules">
-        <ModulesComponent modules={this.state.featuredModules} refresh={this.refresh} />
+      <Panel>
+        <Panel.Heading>Featured modules</Panel.Heading>
+        <Panel.Body>
+          <ModulesComponent modules={this.state.featuredModules} refresh={this.refresh} />
+        </Panel.Body>
       </Panel>
     )
   }

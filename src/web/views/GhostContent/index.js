@@ -101,8 +101,11 @@ export default class GhostView extends Component {
     const files = Object.keys(data).sort()
 
     return (
-      <Panel collapsible defaultExpanded header={folder}>
-        <ul className={style.files}>{files.map(file => this.renderFile(folder, file, data[file]))}</ul>
+      <Panel collapsible="true" defaultExpanded>
+        <Panel.Heading>{folder}</Panel.Heading>
+        <Panel.Body>
+          <ul className={style.files}>{files.map(file => this.renderFile(folder, file, data[file]))}</ul>
+        </Panel.Body>
       </Panel>
     )
   }

@@ -74,15 +74,17 @@ export default class HeroComponent extends React.Component {
           </OverlayTrigger>
         </div>
         <Panel className={classnames(style.contribution, 'bp-contribution')}>
-          <div className={classnames(style.raysAnim, 'bp-rays-anim')}>
-            <div className={classnames(style.rays, 'bp-rays')} />
-          </div>
-          <div className={classnames(style.root, 'bp-root')}>
-            <div className={classnames(style.contributionContent, 'bp-content')}>
-              <img src={this.state.avatar} />
-              {this.renderPhrase()}
+          <Panel.Body>
+            <div className={classnames(style.raysAnim, 'bp-rays-anim')}>
+              <div className={classnames(style.rays, 'bp-rays')} />
             </div>
-          </div>
+            <div className={classnames(style.root, 'bp-root')}>
+              <div className={classnames(style.contributionContent, 'bp-content')}>
+                <img src={this.state.avatar} />
+                {this.renderPhrase()}
+              </div>
+            </div>
+          </Panel.Body>
         </Panel>
       </div>
     )

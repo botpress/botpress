@@ -7,13 +7,12 @@ export default class EditableInput extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      value: null
+      value: props.value || props.defaultValue
     }
   }
 
   componentDidMount() {
     this.props.onMount && this.props.onMount(this.input)
-    this.setState({ value: this.props.value || this.props.defaultValue })
   }
 
   componentWillReceiveProps(nextProps) {
@@ -58,8 +57,8 @@ export default class EditableInput extends Component {
         type="text"
         ref={el => (this.input = el)}
         style={{ width: inputWidth }}
-        autocomplete="off"
-        value={this.state.value || this.props.defaultValue}
+        autoComplete="off"
+        value={this.state.value}
         onBlur={this.onBlur}
         onChange={this.onChanged}
         onKeyDown={this.onKeyDown}

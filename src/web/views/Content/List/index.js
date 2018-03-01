@@ -96,13 +96,13 @@ export default class ListView extends Component {
     )
   }
 
-  renderMessage = m => {
+  renderMessage = (m, i) => {
     const handleEdit = () => this.props.handleEdit(m.id, m.categoryId)
     const checked = _.includes(this.state.checkedIds, m.id)
     const className = classnames(style.item, { [style.selected]: checked })
 
     return (
-      <tr className={className}>
+      <tr className={className} key={i}>
         <td style={{ width: '2%', minWidth: '34px' }}>
           <Checkbox checked={checked} onClick={() => this.handleCheckboxChanged(m.id, m.categoryId)} />
         </td>
