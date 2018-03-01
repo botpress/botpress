@@ -76,7 +76,7 @@ storeGlobal: async (state, event) => {
 
 ## Full database
 
-If none of the above works for you, you might want to consider using one of the built-in databases (SQLite or Postgres). This is the most flexible option but obviously comes with more work on your end, as you'll have to manually create and maintain tables, rows and write SQL queries.
+If none of the above works for you, you might want to consider using a built-in database (SQLite or Postgres). This is the most flexible option but obviously comes with more work on your end, as you'll have to manually create and maintain tables, rows and write SQL queries.
 
 Botpress uses the great [**knex**](http://knexjs.org) library to abstract the database layer. You may get an instance of `knex` with the following code:
 
