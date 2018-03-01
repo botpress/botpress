@@ -39,7 +39,7 @@ To define new *Flow-wide On Receive Actions*, simply navigate to the relevant fl
 
 The *Transitions* are very closely related to *On Receive Actions*. The actions themselves can only run actions (and modify the state), but they can't make the flow switch to an other node. This is the role of *Transitions*.
 
-**A transition is defined by a condition and a destination.** They can be seen as global conversation hooks in some way because they have the power to reroute the conversation to a totally new node or flow.  [[Please check this]]
+**A transition is defined by a condition and a destination.** They can be seen as global conversation hooks in some way because they have the power to reroute the conversation to a totally new node or flow.
 
 The *Flow-wide Transitions* are evaluated sequentially and the first to match is the one that will be triggered (the others won't be tried). If no condition is matched, then nothing happens and the regular flow is continued.
 
