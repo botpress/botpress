@@ -71,6 +71,22 @@ module.exports = bp => {
     })
   }
 
+  const serveMedia = app => {
+    app.get('/media/:filename', async (req, res) => {
+      const contents = await bp.mediaManager.readFile(req.params.filename)
+      if (!contents) {
+        return res.sendStatus(404)
+      }
+      const type = path.extname(req.params.filename)
+      // files are never overwritten because of the unique ID
+      // so we can set the header to cache the asset for 1 year
+      return res
+        .set({ 'Cache-Control': 'max-age=31556926' })
+        .type(type)
+        .send(contents)
+    })
+  }
+
   const install = async app => {
     for (const name in bp._loadedModules) {
       const module = bp._loadedModules[name]
@@ -99,6 +115,8 @@ module.exports = bp => {
     })
 
     serveCustomTheme(app)
+
+    serveMedia(app)
 
     app.use(staticMiddleware(path.join(bp.projectLocation, 'static')))
 
