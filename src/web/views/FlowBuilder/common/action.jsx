@@ -55,7 +55,7 @@ class ActionItem extends Component {
     )
 
     return (
-      <OverlayTrigger trigger="hover" placement="top" delayShow={500} overlay={popoverHoverFocus}>
+      <OverlayTrigger trigger={['hover', 'focus']} placement="top" delayShow={500} overlay={popoverHoverFocus}>
         <div className={classnames(this.props.className, style['fn'], style['action-item'])}>
           <span className={style.icon}>⚡</span>
           <span className={style.name}>{actionName}</span>

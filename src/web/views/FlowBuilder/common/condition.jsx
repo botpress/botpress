@@ -20,7 +20,7 @@ export default class ConditionItem extends Component {
     )
 
     return (
-      <OverlayTrigger trigger="hover" placement="top" delayShow={500} overlay={popoverHoverFocus}>
+      <OverlayTrigger trigger={['hover', 'focus']} placement="top" delayShow={500} overlay={popoverHoverFocus}>
         {child}
       </OverlayTrigger>
     )

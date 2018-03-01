@@ -110,7 +110,7 @@ export default class ActionSection extends Component {
 
     return (
       <div>
-        <Panel collapsible defaultExpanded={true}>
+        <Panel collapsible="true" defaultExpanded={true}>
           <Panel.Heading>{header}</Panel.Heading>
           <Panel.Body>
             {this.renderWait()}
