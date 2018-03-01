@@ -1,14 +1,23 @@
+const isProd = process.env.NODE_ENV === 'production'
+const port = process.env.BOTPRESS_PORT || process.env.PORT || 3000
+const botUrl = isProd ? `https://my-host.com` : `http://localhost:${port}`
+
 module.exports = {
+  /*
+    The bot's base URL where the bot is reachable from the internet
+   */
+  botUrl: botUrl,
+
+  /*
+    The port on which the API and UI will be available
+   */
+  port: port,
+
   /*
     Where the content is stored
     You can access this property from `bp.dataLocation`
   */
   dataDir: process.env.BOTPRESS_DATA_DIR || './data',
-
-  /*
-    The port on which the API and UI will be available
-   */
-  port: process.env.BOTPRESS_PORT || process.env.PORT || 3000,
 
   /*
     Some modules might generate static configuration files
@@ -67,14 +76,14 @@ module.exports = {
     By default ghost content management is only activated in production
    */
   ghostContent: {
-    enabled: process.env.NODE_ENV === 'production' || process.env.BOTPRESS_GHOST_ENABLED
+    enabled: isProd || process.env.BOTPRESS_GHOST_ENABLED
   },
 
   /*
     Access control of admin panel
   */
   login: {
-    enabled: process.env.NODE_ENV === 'production',
+    enabled: isProd,
     tokenExpiry: '6 hours',
     password: process.env.BOTPRESS_PASSWORD || 'password',
     maxAttempts: 3,

@@ -60,6 +60,8 @@ const mkdirIfNeeded = (path, logger) => {
   }
 }
 
+const REQUIRED_PROPS = ['botUrl']
+
 /**
  * Global context botpress
 */
@@ -86,6 +88,12 @@ class botpress {
      */
     // eslint-disable-next-line no-eval
     this.botfile = eval('require')(botfile)
+
+    for (const prop of REQUIRED_PROPS) {
+      if (!(prop in this.botfile)) {
+        throw new Error(`Missing required botpress setting: ${prop}`)
+      }
+    }
 
     this.stats = stats(this.botfile)
 
@@ -196,7 +204,8 @@ class botpress {
       logger,
       middlewares,
       db,
-      contentManager
+      contentManager,
+      botfile
     })
 
     const stateManager = StateManager({ db })
@@ -298,8 +307,8 @@ class botpress {
         mod.handlers.ready && mod.handlers.ready(this, mod.configuration, createHelpers)
       }
 
-      const { port } = botfile
-      logger.info(chalk.green.bold('Bot launched. Visit: http://localhost:' + port))
+      const { botUrl } = botfile
+      logger.info(chalk.green.bold(`Bot launched. Visit: ${botUrl}`))
     })
 
     const middlewareAutoLoading = _.get(botfile, 'middleware.autoLoading')
