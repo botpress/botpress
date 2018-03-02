@@ -49,7 +49,7 @@
     "webpack-node-externals": "^1.6.0"
   },
   "engines": {
-    "node": ">=4.6.0"
+    "node": ">=6.10.0"
   },
   "babel": {
     "env": {

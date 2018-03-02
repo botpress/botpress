@@ -90,7 +90,7 @@ To see more examples of how modules are implemented, you may look at the source 
 
 ### Bundling <a class="toc" id="toc-bundling" href="#toc-bundling"></a>
 
-**Note: modules code are transpiled by default with the [Babel](http://babeljs.io) presets `react` and `env` for compatibility with Node.js 4.6 and the 2 latest versions of web browsers. For more details, please have a look at the `webpack.config.js` file in your module's root.**
+**Note: modules code are transpiled by default with the [Babel](http://babeljs.io) presets `react` and `env` for compatibility with Node.js 6.10.0 and the 2 latest versions of web browsers. For more details, please have a look at the `webpack.config.js` file in your module's root.**
 
 In order for the module to be loaded by botpress, it needs to be bundled into two files:
 
