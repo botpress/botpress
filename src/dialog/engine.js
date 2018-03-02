@@ -263,7 +263,6 @@ class DialogEngine {
          Current flow: ${context.currentFlow.name}
          Current node: ${context.node}`
         )
-
         return this._endFlow(stateId)
       }
 
@@ -307,7 +306,7 @@ class DialogEngine {
     for (let i = 0; i < nextNodes.length; i++) {
       if (await this._evaluateCondition(nextNodes[i].condition, userState, event)) {
         this._trace('??', 'MTCH', `cond = "${nextNodes[i].condition}"`, context)
-        if (/end/i.test(nextNodes[i].node)) {
+        if (/^end$/i.test(nextNodes[i].node)) {
           // Node "END" or "end" ends the flow (reserved keyword)
           return this._endFlow(stateId)
         } else {
