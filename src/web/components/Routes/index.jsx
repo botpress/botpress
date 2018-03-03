@@ -1,13 +1,25 @@
 import React from 'react'
 import { Router, Route, Link, Switch } from 'react-router-dom'
 import createBrowserHistory from 'history/createBrowserHistory'
+import queryString from 'query-string'
 import ReactGA from 'react-ga'
 
 import EnsureAuthenticated from '~/components/Authentication'
 import Layout from '~/components/Layout'
 import AdditionnalRoutes from '+/views/Routes/index.jsx'
 
+// react-router doesn't do query parsing anymore since V4
+// https://github.com/ReactTraining/react-router/issues/4410
+const addLocationQuery = history => {
+  history.location = Object.assign(history.location, {
+    query: queryString.parse(history.location.search)
+  })
+}
+
 const history = createBrowserHistory()
+addLocationQuery(history)
+history.listen(() => addLocationQuery(history))
+
 const logPageView = () => {
   ReactGA.set({ page: window.location.pathname })
   ReactGA.pageview(window.location.pathname)
