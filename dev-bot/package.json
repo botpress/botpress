@@ -4,8 +4,8 @@
   "description": "Botpress development bot",
   "main": "index.js",
   "dependencies": {
+    "@botpress/channel-web": "^10.0.8",
     "botpress": "file:..",
-    "botpress-platform-webchat": "^0.4.5",
     "lodash": "^4.17.4"
   },
   "scripts": {
