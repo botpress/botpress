@@ -112,7 +112,7 @@ For learn all about Botpress, please read our full [Documentation](https://botpr
 ## Documentation
 
 - [Getting Started](https://botpress.io/docs)
-- [Deploying your bot to **Heroku**](https://botpress.io/docs/deploy/heroku.html)
+- [Deploying your bot to **Heroku**](https://botpress.io/docs/deploy/heroku/)
 - [How to create your own Module](https://botpress.io/docs/modules/how.html)
 
 ## [🎓 Examples](https://botpress.io/examples)
