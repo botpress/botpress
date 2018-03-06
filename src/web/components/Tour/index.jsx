@@ -99,7 +99,7 @@ export default class GuidedTour extends React.Component {
         <li>Switch to the <b>Botpress License</b> (the default license is AGPL), which is 100%
         free for all bots and more permissive than AGPL.</li>
       </ul>
-      <p>Deployment tutorials are <a href="https://botpress.io/docs/deploy/heroku.html" target="_blank">available
+      <p>Deployment tutorials are <a href="https://botpress.io/docs/deploy/heroku/" target="_blank">available
       here.</a></p>
     </div>
   }
