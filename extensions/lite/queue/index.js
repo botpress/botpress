@@ -45,6 +45,16 @@ export default class Queue {
     return this.queue.shift()
   }
 
+  cancelAll(job) {
+    const jobQueueId = this.getQueueId(job)
+    this.queue = this.queue.filter(item => this.getQueueId(item.job) !== jobQueueId)
+  }
+
+  peek(job) {
+    const jobQueueId = this.getQueueId(job)
+    return this.queue.find(item => this.getQueueId(item.job) === jobQueueId)
+  }
+
   async tick() {
     const toDequeueIdx = _.findIndex(this.queue, el => {
       const queueId = this.getQueueId(el.job)

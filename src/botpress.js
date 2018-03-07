@@ -218,8 +218,16 @@ class botpress {
     outgoingQueue.subscribe(job => middlewares.sendOutgoingImmediately(job.event))
 
     const messages = {
-      in: { enqueue: event => incomingQueue.enqueue({ event }) },
-      out: { enqueue: event => outgoingQueue.enqueue({ event }) }
+      in: {
+        enqueue: event => incomingQueue.enqueue({ event }),
+        cancelAll: event => incomingQueue.cancelAll({ event }),
+        peek: event => incomingQueue.peek({ event })
+      },
+      out: {
+        enqueue: event => outgoingQueue.enqueue({ event }),
+        cancelAll: event => outgoingQueue.cancelAll({ event }),
+        peek: event => outgoingQueue.peek({ event })
+      }
     }
 
     middlewares.register(renderers.incomingMiddleware)
