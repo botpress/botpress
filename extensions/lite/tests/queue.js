@@ -129,4 +129,32 @@ describe('Lite Queues', () => {
     expect(order).to.length(3)
     expect(order).to.deep.equal([1, 2, 3])
   })
+
+  it('Cancels all only for requested user', async () => {
+    const userListA = []
+    const userListB = []
+    queue.subscribe(async event => {
+      await Promise.delay(1)
+      if (event.userId === 'a') {
+        userListA.push(event.id)
+      }
+      if (event.userId === 'b') {
+        userListB.push(event.id)
+      }
+    })
+
+    for (let i = 0; i < 10; i++) {
+      queue.enqueue({ userId: 'a', id: i })
+    }
+    queue.cancelAll({ userId: 'a' })
+    for (let i = 10; i < 20; i++) {
+      queue.enqueue({ userId: 'b', id: i })
+    }
+
+    await Promise.delay(25)
+
+    expect(userListA).to.length.below(10)
+    expect(userListB).to.length(10)
+    expect(userListB).to.deep.equal([10, 11, 12, 13, 14, 15, 16, 17, 18, 19])
+  })
 })
