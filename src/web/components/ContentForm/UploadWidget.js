@@ -32,18 +32,13 @@ class UploadWidget extends Component {
     this.setState({ expanded: false })
   }
 
-  onPickerChange = e => {
+  startUpload = event => {
     const data = new FormData()
     data.append('file', event.target.files[0])
-    this.setState({ uploadData: data })
-  }
-
-  startUpload = e => {
-    const { uploadData } = this.state
 
     this.setState({ error: null, uploading: true }, () => {
       axios
-        .post('/media', uploadData, { headers: { 'Content-Type': 'multipart/form-data' } })
+        .post('/media', data, { headers: { 'Content-Type': 'multipart/form-data' } })
         .then(response => {
           this.setState({ expanded: false })
           const { url } = response.data
@@ -53,7 +48,7 @@ class UploadWidget extends Component {
           this.setState({ error: e.message })
         })
         .then(() => {
-          this.setState({ uploading: false, uploadData: null })
+          this.setState({ uploading: false })
         })
     })
   }
@@ -64,7 +59,7 @@ class UploadWidget extends Component {
       return null
     }
 
-    const { expanded, uploading, error, uploadData } = this.state
+    const { expanded, uploading, error } = this.state
 
     return (
       <div>
@@ -74,7 +69,7 @@ class UploadWidget extends Component {
               <FormControl
                 type="text"
                 placeholder="No file picked yet"
-                value={this.props.value}
+                value={this.props.value || ''}
                 disabled
                 className="form-control"
                 id={this.props.id}
@@ -96,12 +91,9 @@ class UploadWidget extends Component {
                   type="file"
                   accept={filter || '*'}
                   placeholder={this.props.placeholder || 'Pick file to upload'}
-                  onChange={this.onPickerChange}
+                  onChange={this.startUpload}
                 />
                 <InputGroup.Button>
-                  <Button bsStyle="success" onClick={this.startUpload} disabled={!uploadData}>
-                    Upload...
-                  </Button>
                   <Button bsStyle="link" onClick={this.collapse}>
                     Cancel
                   </Button>
