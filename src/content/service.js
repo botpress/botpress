@@ -102,7 +102,8 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
   }
 
   const dumpDataToFile = async categoryId => {
-    const items = (await listCategoryItems(categoryId)).map(item =>
+    // TODO Do paging here and dump *everything*
+    const items = (await listCategoryItems(categoryId, { count: 10000 })).map(item =>
       _.pick(item, 'id', 'formData', 'createdBy', 'createdOn')
     )
     await ghostManager.upsertFile(contentDataDir, fileById[categoryId], JSON.stringify(items, null, 2))
