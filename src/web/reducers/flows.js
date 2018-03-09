@@ -27,7 +27,6 @@ import {
   removeFlowNode,
   handleFlowEditorUndo,
   handleFlowEditorRedo,
-  linkFlowNodes,
   insertNewSkill,
   insertNewSkillNode,
   updateSkill
@@ -499,32 +498,6 @@ reducer = reduceReducers(
         }
       },
 
-      [linkFlowNodes]: (state, { payload }) => {
-        const flow = state.flowsByName[state.currentFlow]
-
-        const nodes = flow.nodes.map(node => {
-          if (node.id !== payload.node) {
-            return node
-          }
-
-          const clone = Object.assign({}, node)
-          clone.next[payload.index].node = payload.target
-
-          return clone
-        })
-
-        return {
-          ...state,
-          flowsByName: {
-            ...state.flowsByName,
-            [state.currentFlow]: {
-              ...flow,
-              nodes: nodes
-            }
-          }
-        }
-      },
-
       [copyFlowNode]: state => {
         const node = _.find(state.flowsByName[state.currentFlow].nodes, { id: state.currentFlowNode })
         if (!node) {
@@ -647,7 +620,6 @@ reducer = reduceReducers(
 
       [updateFlow]: updateCurrentHash,
       [renameFlow]: updateCurrentHash,
-      [linkFlowNodes]: updateCurrentHash,
       [updateFlowNode]: updateCurrentHash,
 
       [createFlowNode]: updateCurrentHash,
@@ -676,7 +648,6 @@ reducer = reduceReducers(
       [renameFlow]: recordHistory,
       [updateFlowNode]: recordHistory,
       [createFlowNode]: recordHistory,
-      [linkFlowNodes]: recordHistory,
       [createFlow]: recordHistory,
       [deleteFlow]: recordHistory,
       [duplicateFlow]: recordHistory,
