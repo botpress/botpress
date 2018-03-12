@@ -4,7 +4,7 @@ import Promise from 'bluebird'
 import Engine from './engine'
 import Proactive from './proactive'
 
-module.exports = ({ logger, middlewares, db, contentManager }) => {
+module.exports = ({ logger, middlewares, db, contentManager, botfile }) => {
   const processors = {} // A map of all the platforms that can process outgoing messages
   const renderers = {} // A map of all the registered renderers
 
@@ -86,7 +86,10 @@ module.exports = ({ logger, middlewares, db, contentManager }) => {
   const sendContent = async (incomingEvent, rendererName, additionalData = {}) => {
     rendererName = rendererName.startsWith('#') ? rendererName.substr(1) : rendererName
 
-    const initialData = {}
+    // "magic" constants that can be used in the renderers
+    const initialData = {
+      BOT_URL: botfile.botUrl
+    }
 
     if (rendererName.startsWith('!')) {
       const itemName = rendererName.substr(1)
@@ -117,7 +120,6 @@ module.exports = ({ logger, middlewares, db, contentManager }) => {
     }
 
     const fullContext = Object.assign(
-      {},
       initialData,
       {
         user: incomingEvent.user,

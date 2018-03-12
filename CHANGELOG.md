@@ -1,3 +1,14 @@
+<!---
+NEW ENTRY CHEATSHEET
+
+Version / Date
+==============
+  * **Fix:** Something
+  * **Breaking change:** Something
+  * **Feature:** Something
+
+-->
+
 1.0.11 / 2017-07-05
 ==================
 

@@ -18,12 +18,15 @@ const mkdirpAsync = Promise.promisify(mkdirp)
 module.exports = ({ logger, projectLocation }) => {
   const normalizeFolder = _normalizeFolder(projectLocation)
 
+  const folderOptions = {}
+
   logger.info('[Ghost Content Manager] (transparent) Initialized')
 
   return {
-    addRootFolder: (rootFolder, filesGlob) => {
+    addRootFolder: (rootFolder, options = {}) => {
       const { normalizedFolderName } = normalizeFolder(rootFolder)
       logger.debug(`[Ghost Content Manager] (transparent) Added root folder ${normalizedFolderName}, doing nothing.`)
+      folderOptions[normalizedFolderName] = options
     },
 
     upsertFile: (folder, file, content) => {
@@ -39,10 +42,11 @@ module.exports = ({ logger, projectLocation }) => {
     },
 
     readFile: (folder, file) => {
-      const { folderPath } = normalizeFolder(folder)
+      const { folderPath, normalizedFolderName } = normalizeFolder(folder)
       const filePath = path.join(folderPath, file)
+      const { isBinary = false } = folderOptions[normalizedFolderName]
       return fs
-        .readFileAsync(filePath, 'utf-8')
+        .readFileAsync(filePath, isBinary ? null : 'utf8')
         .catch({ code: 'ENOENT' }, () => null)
         .catch(e => {
           logger.error('[Ghost Content Manager] (transparent) readFile error', e)

@@ -40,7 +40,7 @@ With the introduction of the feature the botpress server behaves like that:
 
 The Ghost Manager single instance is created in the `src/botpress.js` and should be passed to other parts of the app from there.
 
-The menager operates on the level of **root folders**. For each _type_ of the files we want it to track it we should need to call `addFolder` for the main entry point of this content type. For example, the standard root folder of the content is `forms_data`, and the standard entry point of flows is `flows`.
+The menager operates on the level of **root folders**. For each _type_ of the files we want it to track it we should need to call `addFolder` for the main entry point of this content type. For example, the standard root folder of the content is `content_data`, and the standard entry point of flows is `flows`.
 
 > Please note that we're speaking about the topmost folder for the given content type. For example, the flows can be stored in nested folders under this folder, it's OK and you _don't need to_ configure Ghost Manager for each of the nested folders.
 
@@ -48,7 +48,7 @@ Below is the full Ghost Manager API, please keep it up to date.
 
 > Also note, depending on the configuration the Ghost Manager can act in _real_ or mocked, _transparent_ mode. The downstream code should never care about the specifics and should treat the Ghost Manager as the black box conforming to the above explanation and the API listed below.
 
-### addRootFolder(rootFolder: string, filesGlob: string) => Promise&lt;void&gt;
+### addRootFolder(rootFolder: string, { filesGlob: string, isBinary: boolean = false }) => Promise&lt;void&gt;
 
 You need to call this method **once** for each use-case (like it's called once in the Content Manager).
 
@@ -56,17 +56,19 @@ The `rootFolder` is the entry point under which all the files we care about (in 
 
 The `filesGlob` is a [glob](https://www.npmjs.com/package/glob) to indicate which files we want to be tracked by the Ghost Manager. Only files matching this glob will be affected.
 
+The `isBinary` option tells the engine if the files are text (like JSON) or binary (media uploads, for example). All files found under the `rootFolder` according to the given `filesGlob` will be treated identically (as text / binary) according to this setting.
+
 Example:
 ```js
 // ensure the folder exists
 mkdirp.sync(formDataDir)
 // track any *.json files in it (maybe nested)
-await ghostManager.addRootFolder(formDataDir, '**/*.json')
+await ghostManager.addRootFolder(formDataDir, { filesGlob: '**/*.json' })
 ```
 
 This method call reconciles the ghost content DB table in accordance with the `$rootFolder/.ghost-revisions` file, and if the folder is in the _clean state_ (no revisions in the DB that are not listed in the `.ghost-revisions` files) it updates the DB with the fresh files content from the file system.
 
-### upsertFile(rootFolder: string, file: string, content: string) => Promise&lt;void&gt;
+### upsertFile(rootFolder: string, file: string, content: string|Buffer) => Promise&lt;void&gt;
 
 Use this method whenever you want to store the content for the given file.
 
@@ -74,7 +76,7 @@ Use this method whenever you want to store the content for the given file.
 
 `file` is the path to the file _relative to the_ `rootFolder`.
 
-`content` is the updated content to b stored.
+`content` is the updated content to be stored (expected string for non-binary content, or `Buffer` otherwise).
 
 The method automatically records the revision ID for this operation which you normally don't have to know about.
 
@@ -84,15 +86,15 @@ Example:
 await ghostManager.upsertFile(formDataDir, 'trivia_questions.json', JSON.stringify(triviaQuestions, null, 2))
 ```
 
-> Note that you should record the JSON files in indented form (the `null, 2`) params ensure that to simplify the git diffs.
+> Note that you should record the JSON files in indented form (the `null, 2` params ensure that) to simplify the git diffs.
 
 > Note that the `file` param is not normalized, it's your responsibility to refer to the same file consistently across all calls to `upsertFile` and `readFile`.
 
-### readFile(rootFolder: string, file: string) => Promise&lt;string&gt;
+### readFile(rootFolder: string, file: string) => Promise&lt;string|Buffer&gt;
 
 `rootFolder` and `file` have the same meaning as above.
 
-Resolves with the content recorded for `file` in the most recent call to `upsertFile` (or the original file content from the disk, recorded on `addRootFolder` call). By design there's no way to read older revisions content (this may change in the future).
+Resolves with the content recorded for `file` in the most recent call to `upsertFile` (or the original file content from the disk, recorded on `addRootFolder` call). By design there's no way to read older revisions of the content (this may change in the future).
 
 The promise will be rejected if the file's content cannot be found (which in the clean state is effectively equivalent to the fact the file `file` does not exist in `folder`)
 
@@ -118,7 +120,7 @@ The returned object has the following structure:
 
 ```js
 {
-  "forms_data": [
+  "content_data": [
     { file: 'trivia_questions.json', id: 111, revision: '123-def', created_on: '2017-12-12T23:10:55Z', created_by: 'admin'},
     { file: 'trivia_questions.json', id: 112, revision: '456-def', created_on: '2017-12-12T23:10:45Z', created_by: 'admin'},
     { file: 'trivia_questions.json', id: 113, revision: '789-def', created_on: '2017-12-12T23:10:35Z', created_by: 'admin'},
@@ -128,13 +130,13 @@ The returned object has the following structure:
 }
 ```
 
-### getPendingWithContent => Promise&lt;object&gt;
+### getPendingWithContent({ stringifyBinary = false } = {}) => Promise&lt;object&gt;
 
 Returns the data similar to the previous method, but with files contents. The format is different though:
 
 ```js
 {
-  "forms_data": {
+  "content_data": {
     revisions: [
       '123-def',
       '456-def',
@@ -146,6 +148,17 @@ Returns the data similar to the previous method, but with files contents. The fo
       { file: 'greetings.json', content: '<FILE CONTENT>' }
     ]
   },
+  "media": {
+    binary: true,
+    revisions: [
+      '123-def'
+    ],
+    files: [
+      { file: 'image.png', content: <FILE CONTENT AS BUFFER> }
+    ]
+  },
   "another_folder": { /* ... */ }
 }
 ```
+
+If the `stringifyBinary` parameter is set to `true` binary files `content` fill be the base64-encoded content of the buffers.

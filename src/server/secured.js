@@ -176,20 +176,6 @@ module.exports = (bp, app) => {
     )
   })
 
-  const contentUploadMulter = multer({
-    limits: {
-      fileSize: 1024 * 1000 * 10, // 10mb
-      files: 5 // Max 5 files
-    },
-    fileFilter: (req, file, cb) => {
-      if (file.mimetype !== 'application/json') {
-        cb(null, false)
-      } else {
-        cb(null, true)
-      }
-    }
-  })
-
   app.secure('write', 'bot/content').post('/content/categories/:id/items/:itemId', async (req, res) => {
     await bp.contentManager.createOrUpdateCategoryItem({
       itemId: req.params.itemId,
@@ -209,11 +195,25 @@ module.exports = (bp, app) => {
   })
 
   app.secure('read', 'bot/ghost_content').get('/ghost_content/export', async (req, res) => {
-    res.send(await bp.ghostManager.getPendingWithContent())
+    res.send(await bp.ghostManager.getPendingWithContent({ stringifyBinary: true }))
   })
 
   app.secure('write', 'bot/ghost_content').delete('/ghost_content/:folder', async (req, res) => {
     res.send(await bp.ghostManager.revertAllPendingChangesForFile(req.params.folder, req.query.file))
+  })
+
+  const mediaUploadMulter = multer({
+    limits: {
+      fileSize: 1024 * 1000 * 10 // 100mb
+    }
+  })
+
+  const MEDIA_PREFIX = '/media/'
+
+  app.secure('write', 'bot/media').post(MEDIA_PREFIX, mediaUploadMulter.single('file'), async (req, res) => {
+    const filename = await bp.mediaManager.saveFile(req.file.originalname, req.file.buffer)
+    const url = `${MEDIA_PREFIX}${filename}`
+    return res.json({ url })
   })
 
   app.secure('read', 'bot/flows').get('/flows/all', async (req, res) => {

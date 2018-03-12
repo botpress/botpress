@@ -21,53 +21,30 @@
 const _ = require('lodash')
 
 module.exports = bp => {
-  // Register renderers
-  bp.renderers.register('#welcome', () => [
-    {
-      typing: true,
-      text: _.sample(['Hey there!', 'Hello {{user.first_name}}', 'Good day :)'])
-    },
-    {
-      text: "This is just a regular Hello World, I don't do anything ;)",
-      typing: '2s'
-    },
-    {
-      text: "Make sure to check out the 'index.js' file to see how I work",
-      typing: true
-    },
-    {
-      wait: '5s'
-    },
-    {
-      text: 'You can say goodbye now',
-      typing: '1s'
-    }
-  ])
+  bp.renderers.register('#trivia-question', ({ BOT_URL, picture, question, choices }) => {
+    const msgs = [
+      {
+        text: question,
+        typing: true
+      }
+    ]
 
-  bp.renderers.register('#goodbye', () => [
-    {
-      text: 'You are leaving because of reason {{reason}}',
-      typing: true
-    },
-    'Hope to see you back again soon! :)' // if no other properties, you can just send a string
-  ])
+    picture &&
+      msgs.push({
+        type: 'file',
+        url: BOT_URL + picture,
+        text: 'N/A'
+      })
 
-  // Listens for a first message (this is a Regex)
-  // GET_STARTED is the first message you get on Facebook Messenger
-  bp.hear(/GET_STARTED|hello|hi|test|hey|holla/i, (event, next) => {
-    event.reply('#welcome')
+    msgs.push({
+      text: 'Make a choice',
+      quick_replies: choices.map(({ text, payload }) => `<${payload}> ${text}`)
+    })
+
+    return msgs
   })
 
-  // You can also pass a matcher object to better filter events
-  bp.hear(
-    {
-      type: /message|text/i,
-      text: /exit|bye|goodbye|quit|done|leave|stop/i
-    },
-    (event, next) => {
-      event.reply('#goodbye', {
-        reason: 'unknown'
-      })
-    }
-  )
+  bp.hear(/.+/i, (event, next) => {
+    bp.dialogEngine.processMessage(event.sessionId || event.user.id, event).then()
+  })
 }

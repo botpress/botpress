@@ -60,13 +60,11 @@ export class StandardPortWidgetDisconnected extends React.Component {
     let type = 'normal'
     let missingConnection = false
 
-    if (this.props.name === 'in') {
-      if (this.props.node.isStartNode) {
-        type = 'start'
-      }
-    } else {
+    if (this.props.name === 'in' && this.props.node.isStartNode) {
+      type = 'start'
+    } else if (this.props.name !== 'in') {
       const index = Number(this.props.name.replace(/out/i, ''))
-      const nextNode = _.get(this.props.node, 'next.' + index)
+      const nextNode = _.get(this.props.node, `next.${index}`)
 
       if (nextNode.node && nextNode.node.toLowerCase() === 'end') {
         type = 'end'

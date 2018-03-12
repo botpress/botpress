@@ -11,6 +11,12 @@ module.exports = {
     type: 'object',
     required: ['question', 'good', 'bad'],
     properties: {
+      picture: {
+        type: 'string',
+        $subtype: 'media',
+        $filter: '.jpg, .png, .jpeg, .gif, .bmp, .tif, .tiff|image/*',
+        title: 'Picture'
+      },
       question: {
         type: 'string',
         title: 'Question'
@@ -40,11 +46,12 @@ module.exports = {
 
   computeData: formData => {
     const good = { payload: 'TRIVIA_GOOD', text: formData.good }
-    const bad = formData.bad.map(i => ({ payload: 'TRIVIA_BAD', text: i }))
+    const bad = formData.bad.map(text => ({ payload: 'TRIVIA_BAD', text }))
     const choices = [good, ...bad]
 
     return {
       question: formData.question,
+      picture: formData.picture,
       choices: _.shuffle(choices)
     }
   },
