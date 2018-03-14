@@ -1,5 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import { withRouter } from 'react-router-dom'
 
 import axios from 'axios'
 import _ from 'lodash'
@@ -52,24 +53,25 @@ const ensureAuthenticated = WrappedComponent => {
         return
       }
 
+      const urlToken = _.get(this.props, 'location.query.token')
+      if (urlToken) {
+        setToken(urlToken)
+        this.context.router.history.replace(
+          Object.assign(this.props.location, {
+            query: _.omit(this.props.location.query, 'token')
+          })
+        )
+        this.setupAuth()
+      }
+
       const tokenStillValid = validateToken()
       this.setState({ authorized: tokenStillValid })
+
       if (tokenStillValid) {
         this.checkAuth()
         this.checkInterval = setInterval(this.checkAuth, CHECK_AUTH_INTERVAL)
       } else {
-        const urlToken = _.get(this.props, 'location.query.token')
-        if (urlToken) {
-          setToken(urlToken)
-          this.context.router.replace(
-            Object.assign(this.props.location, {
-              query: _.omit(this.props.location.query, 'token')
-            })
-          )
-          this.setupAuth()
-        } else {
-          this.promptLogin()
-        }
+        this.promptLogin()
       }
     }
 
@@ -86,7 +88,7 @@ const ensureAuthenticated = WrappedComponent => {
     }
   }
 
-  return AuthenticationWrapper
+  return withRouter(AuthenticationWrapper)
 }
 
 export default ensureAuthenticated

@@ -94,6 +94,7 @@ module.exports = {
   */
   login: {
     enabled: process.env.NODE_ENV === 'production',
+    useCloud: process.env.BOTPRESS_CLOUD_ENABLED || false,
     tokenExpiry: '6 hours',
     password: process.env.BOTPRESS_PASSWORD || 'password',
     maxAttempts: 3,

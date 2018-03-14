@@ -64,7 +64,7 @@ const REQUIRED_PROPS = ['botUrl']
 
 /**
  * Global context botpress
-*/
+ */
 class botpress {
   /**
    * Create botpress
@@ -145,6 +145,7 @@ class botpress {
     const security = createSecurity({
       dataLocation,
       securityConfig: botfile.login,
+      projectLocation,
       db
     })
 
