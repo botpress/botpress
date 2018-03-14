@@ -1,104 +1,67 @@
 {
+  // http://eslint.org/docs/rules/
   "parser": "babel-eslint",
-  "extends": "eslint:recommended",
-  "plugins": [
-    "react"
-  ],
+
+  "extends": ["prettier"],
+
   "env": {
-    "browser": true,
-    "node": true,
-    "es6": true
+    "browser": true, // browser global variables.
+    "node": true, // Node.js global variables and Node.js-specific rules.
+    "worker": false, // web workers global variables.
+    "amd": false, // defines require() and define() as global variables as per the amd spec.
+    "mocha": false, // adds all of the Mocha testing global variables.
+    "jasmine": false, // adds all of the Jasmine testing global variables for version 1.3 and 2.0.
+    "phantomjs": false, // phantomjs global variables.
+    "jquery": false, // jquery global variables.
+    "prototypejs": false, // prototypejs global variables.
+    "shelljs": false, // shelljs global variables.
+    "meteor": false, // meteor global variables.
+    "mongo": false, // mongo global variables.
+    "applescript": false, // applescript global variables.
+    "es6": true // enable all ECMAScript 6 features except for modules.
   },
-  "parserOptions": {
-    "ecmaVersion": 6,
-    "sourceType": "module",
-    "ecmaFeatures": {
-      "modules": true,
-      "jsx": true,
-      "impliedStrict": true
-    }
-  },
+
   "globals": {
-    "sleep": 1
+    "goog": true
   },
+
+  "plugins": ["prettier"],
+
   "rules": {
+    "no-extra-semi": 1, // disallow unnecessary semicolons
+    "no-inner-declarations": 2, // disallow function or variable declarations in nested blocks
+    "no-use-before-define": ["error", { "functions": true, "classes": true }],
+
+    "curly": 2, // specify curly brace conventions for all control statements
+    "no-eval": 2,
+    "no-extend-native": 2, // disallow adding to native types
+    "no-new-wrappers": 2, // disallows creating new instances of String, Number, and Boolean
+    "no-with": 2,
+    "no-return-await": 2,
+
+    "no-undef": 2, // disallow use of undeclared variables unless mentioned in a /*global */ block
+    "no-var": 2,
+    "prefer-const": ["error", {
+      "destructuring": "all",
+      "ignoreReadBeforeAssign": false
+    }],
+
+    "no-array-constructor": 2,
+    "no-new-object": 2,
+
+    "prettier/prettier": "error",
+
     "react/jsx-no-bind": 0,
     "react/jsx-no-duplicate-props": 2,
     "react/self-closing-comp": 2,
     "react/prefer-es6-class": 2,
     "react/no-string-refs": 2,
     "react/require-render-return": 2,
-    "react/no-find-dom-node": 2,
+    "react/no-find-dom-node": 1,
     "react/no-is-mounted": 2,
     "react/jsx-no-comment-textnodes": 2,
     "react/jsx-curly-spacing": 2,
     "react/jsx-no-undef": 2,
-    "react/jsx-uses-react": 2,
-    "react/jsx-uses-vars": 2,
-    "no-empty": 0,
-    "no-console": 0,
-    "no-empty-pattern": 0,
-    "no-cond-assign": 1,
-    "quotes": [
-      2,
-      "single",
-      "avoid-escape"
-    ],
-    "semi": [
-      2,
-      "never"
-    ],
-    "camelcase": 0,
-    "comma-style": 2,
-    "comma-dangle": [
-      2,
-      "never"
-    ],
-    "indent": [
-      2,
-      2,
-      {
-        "SwitchCase": 1
-      }
-    ],
-    "no-trailing-spaces": [
-      2,
-      {
-        "skipBlankLines": true
-      }
-    ],
-    "max-nested-callbacks": [
-      2,
-      3
-    ],
-    "no-eval": 2,
-    "no-implied-eval": 2,
-    "no-new-func": 2,
-    "guard-for-in": 2,
-    "eqeqeq": 2,
-    "no-else-return": 0,
-    "no-redeclare": 2,
-    "no-dupe-keys": 2,
-    "radix": 2,
-    "strict": [
-      2,
-      "never"
-    ],
-    "no-shadow": 2,
-    "no-delete-var": 2,
-    "no-undef-init": 2,
-    "no-shadow-restricted-names": 2,
-    "handle-callback-err": 0,
-    "no-lonely-if": 2,
-    "keyword-spacing": 2,
-    "constructor-super": 2,
-    "no-this-before-super": 2,
-    "no-dupe-class-members": 2,
-    "no-const-assign": 2,
-    "prefer-spread": 2,
-    "no-useless-concat": 2,
-    "no-var": 2,
-    "object-shorthand": 0,
-    "prefer-arrow-callback": 2
+    "react/jsx-uses-react": 2
   }
 }

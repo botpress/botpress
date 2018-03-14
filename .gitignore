@@ -1,3 +1,5 @@
+.DS_Store
+
 # Logs
 /logs
 *.log
@@ -29,7 +31,6 @@ build/Release
 
 # Dependency directories
 node_modules
-jspm_packages
 
 # Optional npm cache directory
 .npm
@@ -43,15 +44,7 @@ jspm_packages
 # Output of 'npm pack'
 *.tgz
 
-web/bower_components
-web/dist
-web/modules
-web/landing
-data/
 lib/
-/src/web/__modules.jsx
-/src/web/__landing.jsx
-!/src/web/views/logs
 .cache/
 
 # for vim
