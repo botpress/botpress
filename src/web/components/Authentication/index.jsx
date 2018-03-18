@@ -1,6 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { withRouter } from 'react-router-dom'
+import qs from 'query-string'
 
 import axios from 'axios'
 import _ from 'lodash'
@@ -58,9 +59,11 @@ const ensureAuthenticated = WrappedComponent => {
 
       if (urlToken) {
         setToken(urlToken)
+        const newQuery = _.omit(this.props.location.query, ['token', 'botId', 'env', 'params'])
         this.context.router.history.replace(
           Object.assign(this.props.location, {
-            query: _.omit(this.props.location.query, ['token', 'botId', 'env', 'params']),
+            search: qs.stringify(newQuery),
+            query: newQuery,
             pathname: params.returnTo || this.props.location.pathname
           })
         )
