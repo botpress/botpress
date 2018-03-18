@@ -22,6 +22,7 @@ import createMediaManager from './media-manager'
 import createLicensing from './licensing'
 import createAbout from './about'
 import createModules from './modules'
+import createCloud from './cloud'
 import createRenderers from './renderers'
 import createUsers from './users'
 import createContentManager from './content/service'
@@ -195,6 +196,7 @@ class botpress {
       ghostManager,
       projectLocation
     })
+    const cloud = await createCloud({ projectLocation })
 
     // Register the built-in item providers such as "-random()"
     Object.keys(defaultGetItemProviders).forEach(provider => {
@@ -267,6 +269,7 @@ class botpress {
       db,
       emails,
       mediator,
+      cloud,
       renderers,
       get umm() {
         logger.warn(

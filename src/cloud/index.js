@@ -2,6 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import axios from 'axios'
 import ms from 'ms'
+import _ from 'lodash'
 
 module.exports = ({ projectLocation }) => {
   let certificate = null
@@ -22,6 +23,15 @@ module.exports = ({ projectLocation }) => {
     return _readCloudfile().endpoint
   }
 
+  function getPairingInfo() {
+    return _.pick(_readCloudfile(), ['botId', 'endpoint', 'token', 'teamId'])
+  }
+
+  function isPaired() {
+    const filePath = path.resolve(projectLocation, 'bp-cloud.json')
+    return fs.existsSync(filePath)
+  }
+
   async function _getWellKnownRSACert() {
     if (certificate) {
       return certificate
@@ -40,5 +50,5 @@ module.exports = ({ projectLocation }) => {
   function _getRemoteRoles() {}
   function getUserRoles() {}
 
-  return { getCloudEndpoint, getCertificate: _getWellKnownRSACert }
+  return { getCloudEndpoint, getCertificate: _getWellKnownRSACert, isPaired, getPairingInfo }
 }

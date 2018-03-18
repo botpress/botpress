@@ -9,6 +9,13 @@ module.exports = {
   botUrl: botUrl,
 
   /*
+    The botpress environment, useful to disambiguate multiple 
+    instances of the same bot running in different environments.
+    e.g. "dev", "staging", "production"
+   */
+  env: process.env.BOTPRESS_ENV || 'dev',
+
+  /*
     The port on which the API and UI will be available
    */
   port: port,
@@ -94,7 +101,7 @@ module.exports = {
   */
   login: {
     enabled: process.env.NODE_ENV === 'production',
-    useCloud: process.env.BOTPRESS_CLOUD_ENABLED || false,
+    useCloud: process.env.BOTPRESS_CLOUD_ENABLED || true,
     tokenExpiry: '6 hours',
     password: process.env.BOTPRESS_PASSWORD || 'password',
     maxAttempts: 3,

@@ -93,16 +93,26 @@ module.exports = bp => {
       serveModule(app, module)
     }
 
-    app.use('/js/env.js', (req, res) => {
-      const { tokenExpiry, enabled: authEnabled } = bp.botfile.login
+    app.use('/js/env.js', async (req, res) => {
+      const { tokenExpiry, enabled: authEnabled, useCloud } = bp.botfile.login
       const { enabled: ghostEnabled } = bp.botfile.ghostContent
       const optOutStats = !!bp.botfile.optOutStats
       const appName = bp.botfile.appName || 'Botpress'
+
+      const isUsingCloud = !!useCloud && (await bp.cloud.isPaired())
+      let pairingInfo = { botId: '', endpoint: '', teamId: '' }
+      if (isUsingCloud) {
+        pairingInfo = await bp.cloud.getPairingInfo()
+        delete pairingInfo.token
+      }
 
       const { isFirstRun, version } = bp
       res.contentType('text/javascript')
       res.send(`(function(window) {
         window.NODE_ENV = "${process.env.NODE_ENV || 'development'}";
+        window.BOTPRESS_ENV = "${bp.botfile.env}";
+        window.BOTPRESS_CLOUD_ENABLED = ${isUsingCloud};
+        window.BOTPRESS_CLOUD_SETTINGS = ${JSON.stringify(pairingInfo)};
         window.DEV_MODE = ${util.isDeveloping};
         window.AUTH_ENABLED = ${!!authEnabled};
         window.AUTH_TOKEN_DURATION = ${ms(tokenExpiry)};

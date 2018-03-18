@@ -29,20 +29,21 @@ module.exports = async (token, options) => {
     )
   }
 
-  const pairUrl = `${endpoint}/api/pair`
+  const packagePath = path.resolve(projectPath, 'package.json')
+
+  if (!fs.existsSync(packagePath)) {
+    return print.error(`This does not look like a valid project root. Please run this command at the root of your bot.`)
+  }
+
+  const { name, description } = eval('require')(packagePath) // eslint-disable-line
+
+  const pairUrl = `${endpoint}/api/pairing`
 
   try {
-    const { data } = await axios.post(
-      pairUrl,
-      {},
-      {
-        params: {
-          token: token
-        }
-      }
-    )
+    const { data } = await axios.post(pairUrl, { token: token, name, description })
 
     const { botId, teamId } = data.payload
+
     const content = {
       botId,
       teamId,
@@ -52,7 +53,7 @@ module.exports = async (token, options) => {
 
     fs.writeFileSync(filePath, JSON.stringify(content, null, 2), 'utf8')
   } catch (err) {
-    const message = _.get(err, 'response.data.message') || 'Unknown error'
+    const message = _.get(err, 'response.data.message') || err.message || 'Unknown error'
     return print.error(`Failed to pair the bot: "${message}"`)
   }
 

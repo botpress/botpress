@@ -20,17 +20,19 @@ import Authentication from '+/authentication'
 module.exports = ({ dataLocation, projectLocation, securityConfig, db }) => {
   const authentication = Authentication({ dataLocation, securityConfig, db })
   const cloud = Cloud({ projectLocation })
+
   const { tokenExpiry, enabled: loginEnabled, useCloud } = securityConfig
+  const isCloudPaired = useCloud && cloud.isPaired()
 
   const buildToken = async loginUser => {
     const secret = await authentication.getSecret()
-    return jwt.sign({ user: loginUser }, secret, { expiresIn: tokenExpiry, algorithm: 'HS256' })
+    return jwt.sign({ user: loginUser }, secret, { issuer: 'bot.root', expiresIn: tokenExpiry, algorithm: 'HS256' })
   }
 
   // login function that returns a {success, reason, token} object
   // accounts for number of bad attempts
   const login = async (user, password, ip = 'all') => {
-    if (useCloud) {
+    if (isCloudPaired) {
       return { success: false, reason: 'Root authentication is disabled when using Botpress Cloud' }
     }
 
@@ -65,7 +67,7 @@ module.exports = ({ dataLocation, projectLocation, securityConfig, db }) => {
       let secret = null
       let algorithm = null
 
-      if (useCloud) {
+      if (isCloudPaired) {
         secret = await cloud.getCertificate()
         algorithm = 'RS256'
       } else {
@@ -75,7 +77,6 @@ module.exports = ({ dataLocation, projectLocation, securityConfig, db }) => {
 
       const decoded = jwt.verify(token, secret, { algorithms: [algorithm] })
       const verified = authentication.verifyUser ? await authentication.verifyUser(decoded) : true
-      console.log(decoded, verified)
       return verified && decoded.user
     } catch (err) {
       throw new Error(`The token is invalid or expired`)

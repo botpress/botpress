@@ -49,6 +49,7 @@ module.exports = ({ dataLocation, securityConfig }) => {
       attempts[ip] = 0
       return {
         id: 0,
+        username: 'admin',
         email: 'admin@botpress.io',
         first_name: 'Admin',
         last_name: 'Admin',
