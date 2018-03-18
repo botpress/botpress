@@ -84,8 +84,10 @@ export default class LoginPage extends Component {
 
     const url = `${endpoint}/login?${query}`
     return (
-      <div>
-        <Button href={url}>Sign in using Botpress Cloud</Button>
+      <div className={styles.cloudContainer}>
+        <Button href={url}>
+          <b>Sign in</b> using Botpress Cloud
+        </Button>
       </div>
     )
   }

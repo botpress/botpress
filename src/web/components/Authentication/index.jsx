@@ -54,11 +54,14 @@ const ensureAuthenticated = WrappedComponent => {
       }
 
       const urlToken = _.get(this.props, 'location.query.token')
+      const params = JSON.parse(_.get(this.props, 'location.query.params') || '{}')
+
       if (urlToken) {
         setToken(urlToken)
         this.context.router.history.replace(
           Object.assign(this.props.location, {
-            query: _.omit(this.props.location.query, 'token')
+            query: _.omit(this.props.location.query, ['token', 'botId', 'env', 'params']),
+            pathname: params.returnTo || this.props.location.pathname
           })
         )
         this.setupAuth()
