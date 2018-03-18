@@ -1,6 +1,5 @@
 import jwt from 'jsonwebtoken'
 import _ from 'lodash'
-import Cloud from '../cloud'
 
 import Authentication from '+/authentication'
 
@@ -17,12 +16,11 @@ import Authentication from '+/authentication'
  *
  */
 
-module.exports = ({ dataLocation, projectLocation, securityConfig, db }) => {
+module.exports = async ({ dataLocation, projectLocation, securityConfig, db, cloud }) => {
   const authentication = Authentication({ dataLocation, securityConfig, db })
-  const cloud = Cloud({ projectLocation })
 
   const { tokenExpiry, enabled: loginEnabled, useCloud } = securityConfig
-  const isCloudPaired = useCloud && cloud.isPaired()
+  const isCloudPaired = useCloud && (await cloud.isPaired())
 
   const buildToken = async loginUser => {
     const secret = await authentication.getSecret()

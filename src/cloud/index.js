@@ -4,7 +4,7 @@ import axios from 'axios'
 import ms from 'ms'
 import _ from 'lodash'
 
-module.exports = ({ projectLocation }) => {
+module.exports = ({ projectLocation, botfile, logger }) => {
   let certificate = null
   setInterval(() => (certificate = null), ms('5 minutes'))
 
@@ -44,11 +44,37 @@ module.exports = ({ projectLocation }) => {
       certificate = data
     }
 
+    logger.debug('[Cloud] Updated certificates')
+
     return data
+  }
+
+  async function updateRemoteEnv() {
+    if (!isPaired()) {
+      return
+    }
+
+    const { token, endpoint } = getPairingInfo()
+    const env = botfile.env
+    const botUrl = botfile.botUrl
+
+    await axios
+      .put(endpoint + '/api/pairing/env', {
+        botUrl,
+        token,
+        env
+      })
+      .then(() => {
+        logger.debug('[Cloud] Updated environment: ' + env)
+      })
+      .catch(err => {
+        const message = _.get(err, 'response.data.message') || err.message || 'Unknown error'
+        logger.error('[Cloud] Could not update environment: ' + message)
+      })
   }
 
   function _getRemoteRoles() {}
   function getUserRoles() {}
 
-  return { getCloudEndpoint, getCertificate: _getWellKnownRSACert, isPaired, getPairingInfo }
+  return { getCloudEndpoint, getCertificate: _getWellKnownRSACert, isPaired, getPairingInfo, updateRemoteEnv }
 }

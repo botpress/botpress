@@ -100,9 +100,9 @@ module.exports = bp => {
       const appName = bp.botfile.appName || 'Botpress'
 
       const isUsingCloud = !!useCloud && (await bp.cloud.isPaired())
-      let pairingInfo = { botId: '', endpoint: '', teamId: '' }
+      const pairingInfo = { botId: '', endpoint: '', teamId: '', env: bp.botfile.env }
       if (isUsingCloud) {
-        pairingInfo = await bp.cloud.getPairingInfo()
+        Object.assign(pairingInfo, await bp.cloud.getPairingInfo())
         delete pairingInfo.token
       }
 

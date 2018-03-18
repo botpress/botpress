@@ -6,6 +6,7 @@ import fs from 'fs'
 import _ from 'lodash'
 import cluster from 'cluster'
 import dotenv from 'dotenv'
+import ms from 'ms'
 
 import ServiceLocator from '+/ServiceLocator'
 import EventBus from './bus'
@@ -143,11 +144,19 @@ class botpress {
       postgres: botfile.postgres
     })
 
-    const security = createSecurity({
+    const cloud = await createCloud({ projectLocation, botfile, logger })
+
+    if (!!botfile.login.useCloud && (await cloud.isPaired())) {
+      setInterval(() => cloud.updateRemoteEnv(), ms('10m'))
+      cloud.updateRemoteEnv() // async on purpose
+    }
+
+    const security = await createSecurity({
       dataLocation,
       securityConfig: botfile.login,
       projectLocation,
-      db
+      db,
+      cloud
     })
 
     const modules = createModules(logger, projectLocation, dataLocation, db.kvs)
@@ -196,7 +205,6 @@ class botpress {
       ghostManager,
       projectLocation
     })
-    const cloud = await createCloud({ projectLocation })
 
     // Register the built-in item providers such as "-random()"
     Object.keys(defaultGetItemProviders).forEach(provider => {
