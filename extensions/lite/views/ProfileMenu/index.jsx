@@ -3,13 +3,15 @@ import { MenuItem } from 'react-bootstrap'
 
 class Menu extends Component {
   render() {
-    return (
-      <div>
-        <a href="#" onClick={this.props.logout}>
-          Logout
-        </a>
-      </div>
-    )
+    return [
+      <MenuItem header>Signed in as</MenuItem>,
+      <MenuItem disabled>✉️&nbsp;{this.props.user.email}</MenuItem>,
+      <MenuItem disabled>👤&nbsp;{this.props.user.username}</MenuItem>,
+      <MenuItem divider />,
+      <MenuItem eventKey={1} onClick={this.props.logout}>
+        <b>Logout</b>
+      </MenuItem>
+    ]
   }
 }
 
