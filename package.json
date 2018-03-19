@@ -85,7 +85,7 @@
     "exports-loader": "^0.6.3",
     "expose-loader": "^0.7.1",
     "extract-text-webpack-plugin": "^3.0.1",
-    "file-loader": "^0.9.0",
+    "file-loader": "^1.1.11",
     "hard-source-webpack-plugin": "^0.4.9",
     "husky": "0.14.3",
     "json-loader": "^0.5.4",
@@ -127,7 +127,7 @@
     "style-loader": "^0.13.1",
     "tmp": "0.0.31",
     "uglifyjs-webpack-plugin": "^1.0.1",
-    "webpack": "^3.8.1",
+    "webpack": "^4.1.1",
     "webpack-node-externals": "^1.6.0"
   },
   "engines": {

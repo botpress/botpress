@@ -7,6 +7,7 @@ const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
 const ExtensionsPlugin = require('./extensions/extensions-plugin')
 
 const nodeConfig = {
+  mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
   devtool: 'source-map',
   entry: [path.resolve(__dirname, './index.js')],
   output: {
@@ -54,6 +55,7 @@ const nodeConfig = {
 }
 
 const webConfig = {
+  mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
   bail: true,
   devtool: process.env.NODE_ENV === 'production' ? 'source-map' : 'eval-source-map',
   entry: {
