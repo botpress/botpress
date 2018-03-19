@@ -53,7 +53,7 @@ The best way to get quickly get started using Botpress is to watch our [video tu
 
 ## Installation
 
-Botpress requires [node](https://nodejs.org) (version >= 4.6) and uses [npm](https://www.npmjs.com) as package manager.
+Botpress requires [node](https://nodejs.org) (version >= 6.10.0) and uses [npm](https://www.npmjs.com) as package manager.
 
 ```
 npm install -g botpress

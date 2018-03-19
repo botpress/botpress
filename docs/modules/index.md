@@ -31,7 +31,7 @@ A botpress module looks like so:
          index.jsx
          style.scss
 package.json
-webpack.js
+webpack.config.js
 LICENSE
 .gitignore
 .npmignore
@@ -39,7 +39,7 @@ LICENSE
 
 As you can see, all the module's logic is inside the `/src` directory. A module has a backend module and a frontend component (/views/index.jsx).
 
-- `webpack.js` bundles your module. Botpress can't load your module if it's not bundled. In most cases, you won't have to deal with webpack or this file directly; everything should work out of the box.
+- `webpack.config.js` bundles your module. Botpress can't load your module if it's not bundled. In most cases, you won't have to deal with webpack or this file directly; everything should work out of the box.
 
 - `package.json` is a regular package.json file, except that is has a mandatory `botpress` configuration entry. You may change the module display name and logo there. Some necessary dependencies have also been installed by default.
 
@@ -90,7 +90,7 @@ To see more examples of how modules are implemented, you may look at the source 
 
 ### Bundling <a class="toc" id="toc-bundling" href="#toc-bundling"></a>
 
-**Note: modules code are transpiled by default with the `react`, `stage-0` and `latest` [Babel](http://babeljs.io) presets. For more details, please have a look at the `webpack.js` file in your module's root.**
+**Note: modules code are transpiled by default with the [Babel](http://babeljs.io) presets `react` and `env` for compatibility with Node.js 6.10.0 and the 2 latest versions of web browsers. For more details, please have a look at the `webpack.config.js` file in your module's root.**
 
 In order for the module to be loaded by botpress, it needs to be bundled into two files:
 

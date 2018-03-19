@@ -2,7 +2,7 @@
 layout: guide
 ---
 
-Botpress requires [node](https://nodejs.org) (version >= 4.6) and uses [npm](https://www.npmjs.com) as package manager.
+Botpress requires [node](https://nodejs.org) (version >= 6.10.0) and uses [npm](https://www.npmjs.com) as package manager.
 
 The easiest way to create bots is by using the Botpress CLI. You may install the CLI by running this command in your terminal:
 
