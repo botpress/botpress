@@ -13,6 +13,10 @@ import InjectedModuleView from '~/components/PluginInjectionSite/module'
 import { moduleViewNames } from './util/Modules'
 
 const { m, v } = queryString.parse(location.search)
+const alternateModuleNames = {
+  'platform-webchat': 'channel-web'
+}
+const moduleName = alternateModuleNames[m] || m
 
 class LiteView extends React.Component {
   componentDidMount() {
@@ -23,13 +27,13 @@ class LiteView extends React.Component {
     const modules = moduleViewNames(this.props.modules.filter(module => module.isPlugin))
     const onNotFound = () => (
       <h1>
-        Module ${m} with view ${v} not found
+        Module ${moduleName} with view ${v} not found
       </h1>
     )
 
     return (
       <div>
-        <InjectedModuleView moduleName={m} viewName={v} lite={true} onNotFound={onNotFound} />
+        <InjectedModuleView moduleName={moduleName} viewName={v} lite={true} onNotFound={onNotFound} />
         {modules.map(({ moduleName, viewName }, i) => (
           <InjectedModuleView key={i} moduleName={moduleName} viewName={viewName} onNotFound={onNotFound} />
         ))}
