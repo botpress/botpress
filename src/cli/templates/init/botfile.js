@@ -1,6 +1,6 @@
 const isProd = process.env.NODE_ENV === 'production'
 const port = process.env.BOTPRESS_PORT || process.env.PORT || 3000
-const botUrl = isProd ? `https://my-host.com` : `http://localhost:${port}`
+const botUrl = isProd ? 'https://my-host.com' : 'http://localhost:' + port
 
 module.exports = {
   /*
