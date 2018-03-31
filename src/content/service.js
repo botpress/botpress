@@ -93,7 +93,9 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
 
     if (searchTerm) {
       query = query.where(function() {
-        this.where('metadata', 'like', `%${searchTerm}%`).orWhere('formData', 'like', `%${searchTerm}%`)
+        this.where('metadata', 'like', `%${searchTerm}%`)
+          .orWhere('formData', 'like', `%${searchTerm}%`)
+          .orWhere('id', 'like', `%${searchTerm}%`)
       })
     }
 
