@@ -59,7 +59,8 @@
     "username": "^3.0.0",
     "valid-url": "^1.0.9",
     "vm2": "^3.5.2",
-    "winston": "^2.2.0"
+    "winston": "^2.2.0",
+    "yn": "^2.0.0"
   },
   "devDependencies": {
     "autoprefixer": "^6.5.3",
