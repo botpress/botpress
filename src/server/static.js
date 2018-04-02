@@ -6,6 +6,7 @@ import path from 'path'
 import fs from 'fs'
 import ms from 'ms'
 import util from '../util'
+import yn from 'yn'
 
 module.exports = bp => {
   const serveModule = (app, module) => {
@@ -111,6 +112,7 @@ module.exports = bp => {
         window.BOTPRESS_VERSION = "${version}";
         window.APP_NAME = "${appName}";
         window.GHOST_ENABLED = ${!!ghostEnabled};
+        window.BOTPRESS_FLOW_EDITOR_DISABLED = ${yn(process.env.BOTPRESS_FLOW_EDITOR_DISABLED)};
       })(typeof window != 'undefined' ? window : {})`)
     })
 

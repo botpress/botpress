@@ -39,7 +39,7 @@ const BASIC_MENU_ITEMS = [
     rule: { res: 'content', op: 'read' },
     icon: 'description'
   },
-  {
+  !window.BOTPRESS_FLOW_EDITOR_DISABLED && {
     name: 'Flows',
     path: '/flows',
     rule: { res: 'flows', op: 'read' },
