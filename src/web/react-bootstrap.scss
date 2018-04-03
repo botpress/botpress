@@ -75,6 +75,10 @@
     }
   }
 
+  :global(.input-group-addon) {
+    border-color: #efefef;
+  }
+
   :global(.react-toggle--checked) {
     :global(.react-toggle-thumb) {
       border-color: #56c0b2;
