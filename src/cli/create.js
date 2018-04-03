@@ -96,12 +96,17 @@ module.exports = () => {
     } else {
       generateTemplate(moduleDirectory, 'package.json', result)
       generateTemplate(moduleDirectory, 'LICENSE')
-      generateTemplate(moduleDirectory, 'webpack.js')
+      generateTemplate(moduleDirectory, 'webpack.config.js')
+      generateTemplate(moduleDirectory, '_._editorconfig')
+      generateTemplate(moduleDirectory, '_._eslintrc')
       generateTemplate(moduleDirectory, '_._gitignore')
       generateTemplate(moduleDirectory, '_._npmignore')
 
       fs.mkdirSync(moduleDirectory + '/src')
       generateTemplate(moduleDirectory, 'src/index.js')
+
+      fs.mkdirSync(moduleDirectory + '/test')
+      generateTemplate(moduleDirectory, 'test/placeholder-test.js')
 
       fs.mkdirSync(moduleDirectory + '/src/views')
       generateTemplate(moduleDirectory, 'src/views/index.jsx')
