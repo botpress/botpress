@@ -1,2 +1,3 @@
 src/
-webpack.js
+webpack.config.js
+*.log
