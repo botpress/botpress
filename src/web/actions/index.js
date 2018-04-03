@@ -89,8 +89,12 @@ export const fetchContentItemsRecent = ({ searchTerm, count = 5, categoryId = 'a
     .then(({ data }) => dispatch(receiveContentItemsRecent(data)))
 
 export const receiveContentItem = createAction('CONTENT/ITEMS/RECEIVE_ONE')
-export const fetchContentItem = id => dispatch =>
-  axios.get(`/content/items/${id}`).then(({ data }) => dispatch(receiveContentItem(data)))
+export const fetchContentItem = (id, force = false) => (dispatch, getState) => {
+  if (!id || (!force && getState().content.itemsById[id])) {
+    return Promise.resolve()
+  }
+  return axios.get(`/content/items/${id}`).then(({ data }) => dispatch(receiveContentItem(data)))
+}
 
 export const receiveContentItemsCount = createAction('CONTENT/ITEMS/RECEIVE_COUNT')
 export const fetchContentItemsCount = (categoryId = 'all') => dispatch =>

@@ -271,11 +271,11 @@ class SelectContent extends Component {
   }
 
   render() {
-    const { newItemCategory, show } = this.state
+    const { state: { newItemCategory, show }, props: { container } } = this
     const schema = (newItemCategory || {}).schema || { json: {}, ui: {} }
 
     return (
-      <Modal animation={false} show={show} onHide={this.onClose} container={this.props.container}>
+      <Modal animation={false} show={show} onHide={this.onClose} container={container} style={{ zIndex: 1051 }}>
         <Modal.Header closeButton>
           <Modal.Title>Pick Content</Modal.Title>
         </Modal.Header>

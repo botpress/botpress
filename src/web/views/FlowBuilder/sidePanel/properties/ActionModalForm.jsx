@@ -3,16 +3,13 @@ import { Modal, Button, Radio, OverlayTrigger, Tooltip, Panel, Well } from 'reac
 import Select from 'react-select'
 import axios from 'axios'
 import _ from 'lodash'
-import { connect } from 'react-redux'
-
-import { fetchContentItem } from '~/actions'
 
 import ParametersTable from './ParametersTable'
 import ContentPickerWidget from '~/components/Content/Select/Widget'
 
 const style = require('./style.scss')
 
-class ActionModalForm extends Component {
+export default class ActionModalForm extends Component {
   constructor(props) {
     super(props)
 
@@ -21,21 +18,11 @@ class ActionModalForm extends Component {
       availableFunctions: [],
       functionInputValue: '',
       messageValue: '',
-      functionParams: {},
-      itemId: (props.item && props.item.message && this.textToItemId(props.item.message)) || null
+      functionParams: {}
     }
-    props.item && this.fetchItem(props.item.message)
   }
 
   textToItemId = text => _.get(text.match(/^say #!(.*)$/), '[1]')
-
-  fetchItem = text => {
-    const itemId = (text && this.textToItemId(text)) || null
-    this.setState({ itemId })
-    if (itemId) {
-      this.props.fetchContentItem(itemId)
-    }
-  }
 
   componentWillReceiveProps(nextProps) {
     const { item } = nextProps
@@ -51,8 +38,6 @@ class ActionModalForm extends Component {
         messageValue: nextProps.item.message,
         functionParams: nextProps.item.parameters
       })
-
-      this.fetchItem(nextProps.item.message)
     } else {
       this.resetForm()
     }
@@ -163,12 +148,8 @@ class ActionModalForm extends Component {
 
   renderSectionMessage() {
     const handleChange = item => {
-      const messageValue = `say #!${item.id}`
-      this.setState({ messageValue })
-      this.fetchItem(messageValue)
+      this.setState({ messageValue: `say #!${item.id}` })
     }
-
-    const handleUpdate = itemId => this.props.fetchContentItem(itemId)
 
     const tooltip = (
       <Tooltip id="howMessageWorks">
@@ -182,19 +163,14 @@ class ActionModalForm extends Component {
       </OverlayTrigger>
     )
 
-    const contentItem = this.props.contentItems[this.state.itemId]
+    const { item } = this.props
+    const itemId = (item && item.message && this.textToItemId(item.message)) || null
 
     return (
       <div>
         <h5>Message {help}:</h5>
         <div className={style.section}>
-          <ContentPickerWidget
-            contentItem={contentItem}
-            itemId={this.state.itemId}
-            onChange={handleChange}
-            onUpate={handleUpdate}
-            placeholder="Message to send"
-          />
+          <ContentPickerWidget itemId={itemId} onChange={handleChange} placeholder="Message to send" />
         </div>
       </div>
     )
@@ -244,8 +220,3 @@ class ActionModalForm extends Component {
     )
   }
 }
-
-const mapStateToProps = state => ({ contentItems: state.content.itemsById })
-const mapDispatchToProps = { fetchContentItem }
-
-export default connect(mapStateToProps, mapDispatchToProps)(ActionModalForm)
