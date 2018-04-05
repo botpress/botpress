@@ -86,7 +86,7 @@ export default class LoginPage extends Component {
     return (
       <div className={styles.cloudContainer}>
         <Button href={url}>
-          <b>Sign in</b> using Botpress Cloud
+          Sign in with <b style={{ fontWeight: 600 }}>Botpress Cloud</b>
         </Button>
       </div>
     )
@@ -136,6 +136,8 @@ export default class LoginPage extends Component {
 
     const loginBody = window.BOTPRESS_CLOUD_ENABLED ? this.renderLoginCloud() : this.renderLoginRoot()
 
+    const error = this.state.error || this.props.location.query.error
+
     return (
       <div>
         <div className="block-center mt-xl wd-xl">
@@ -145,11 +147,11 @@ export default class LoginPage extends Component {
             </div>
             <div className={panelStyle}>
               <div className={headerStyle}>
-                <h4>Login</h4>
+                <h4 style={{ textTransform: 'none', fontWeight: 600 }}>Login</h4>
               </div>
               <div className="panel-body">
                 {this.renderLoading()}
-                {this.state.error && <p className={errorStyle}>{this.state.error}</p>}
+                {error && <p className={errorStyle}>{error}</p>}
                 {hasChangedPassword && <p className={successStyle}>Password changed successfully</p>}
                 {loginBody}
               </div>{' '}

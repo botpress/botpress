@@ -24,7 +24,9 @@
 }
 
 .error {
+  text-align: center;
   color: #e84a4a;
+  font-weight: 600;
 }
 
 .success {
@@ -56,6 +58,13 @@
 
 .cloudContainer {
   text-align: center;
+
+  :global(.btn) {
+    background: black;
+    color: white;
+    border: none;
+    border-radius: 0;
+  }
 }
 
 .cloudButton {
