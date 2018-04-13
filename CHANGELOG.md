@@ -1,3 +1,17 @@
+# Change Log
+
+All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+<a name="10.0.12"></a>
+## [10.0.12](https://github.com/botpress/botpress/compare/v10.0.8...v10.0.12) (2018-04-13)
+
+
+### Bug Fixes
+
+* **changelog:** reformatted changelog ([7af81be](https://github.com/botpress/botpress/commit/7af81be))
+
+
+
 # Before Botpress X
 
 # 1.0.11 / 2017-07-05
