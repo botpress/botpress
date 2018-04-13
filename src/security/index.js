@@ -21,6 +21,7 @@ module.exports = async ({ dataLocation, projectLocation, securityConfig, db, clo
 
   const { tokenExpiry, enabled: loginEnabled, useCloud } = securityConfig
   const isCloudPaired = useCloud && (await cloud.isPaired())
+  const { botId } = cloud.getPairingInfo()
 
   const buildToken = async loginUser => {
     const secret = await authentication.getSecret()
@@ -75,6 +76,15 @@ module.exports = async ({ dataLocation, projectLocation, securityConfig, db, clo
 
       const decoded = jwt.verify(token, secret, { algorithms: [algorithm] })
       const verified = authentication.verifyUser ? await authentication.verifyUser(decoded) : true
+
+      if (decoded.identity_proof_only) {
+        return false
+      }
+
+      if (decoded.aud !== `urn:bot/${botId}`) {
+        return false
+      }
+
       return verified && decoded.user
     } catch (err) {
       throw new Error(`The token is invalid or expired`)
