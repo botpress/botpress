@@ -24,7 +24,9 @@
 }
 
 .error {
+  text-align: center;
   color: #e84a4a;
+  font-weight: 600;
 }
 
 .success {
@@ -52,4 +54,22 @@
 
 .body {
   background-color: #e4eaec;
+}
+
+.cloudContainer {
+  text-align: center;
+
+  :global(.btn) {
+    background: black;
+    color: white;
+    border: none;
+    border-radius: 0;
+  }
+}
+
+.cloudButton {
+  background: black;
+  border: none;
+  color: white;
+  border-radius: 0;
 }

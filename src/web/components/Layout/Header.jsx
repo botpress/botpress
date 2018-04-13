@@ -18,13 +18,6 @@ class Header extends React.Component {
     loading: true
   }
 
-  getProfileImgUrl() {
-    if (!this.props.user.avatarURL) {
-      return null
-    }
-    return '/api/enterprise/accounts/avatars/' + this.props.user.avatarURL
-  }
-
   handleFullscreen = () => {
     const newViewMode = this.props.viewMode < 1 ? 1 : 0
     this.props.viewModeChanged(newViewMode)
@@ -35,12 +28,12 @@ class Header extends React.Component {
       return null
     }
 
-    const url = this.getProfileImgUrl()
+    const url = this.props.user.avatar_url
     const label = url ? <img src={url} /> : <i className="material-icons">account_circle</i>
 
     return (
       <NavDropdown className={style.account} noCaret title={label} id="account-button">
-        <ProfileMenu logout={logout} />
+        <ProfileMenu user={this.props.user} logout={logout} />
       </NavDropdown>
     )
   }

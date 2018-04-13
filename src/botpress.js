@@ -6,6 +6,7 @@ import fs from 'fs'
 import _ from 'lodash'
 import cluster from 'cluster'
 import dotenv from 'dotenv'
+import ms from 'ms'
 
 import ServiceLocator from '+/ServiceLocator'
 import EventBus from './bus'
@@ -22,6 +23,7 @@ import createMediaManager from './media-manager'
 import createLicensing from './licensing'
 import createAbout from './about'
 import createModules from './modules'
+import createCloud from './cloud'
 import createRenderers from './renderers'
 import createUsers from './users'
 import createContentManager from './content/service'
@@ -64,7 +66,7 @@ const REQUIRED_PROPS = ['botUrl']
 
 /**
  * Global context botpress
-*/
+ */
 class botpress {
   /**
    * Create botpress
@@ -142,10 +144,19 @@ class botpress {
       postgres: botfile.postgres
     })
 
-    const security = createSecurity({
+    const cloud = await createCloud({ projectLocation, botfile, logger })
+
+    if (!!botfile.login.useCloud && (await cloud.isPaired())) {
+      setInterval(() => cloud.updateRemoteEnv(), ms('10m'))
+      cloud.updateRemoteEnv() // async on purpose
+    }
+
+    const security = await createSecurity({
       dataLocation,
       securityConfig: botfile.login,
-      db
+      projectLocation,
+      db,
+      cloud
     })
 
     const modules = createModules(logger, projectLocation, dataLocation, db.kvs)
@@ -266,6 +277,7 @@ class botpress {
       db,
       emails,
       mediator,
+      cloud,
       renderers,
       get umm() {
         logger.warn(

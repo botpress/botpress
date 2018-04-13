@@ -1,12 +1,19 @@
 const isProd = process.env.NODE_ENV === 'production'
 const port = process.env.BOTPRESS_PORT || process.env.PORT || 3000
-const botUrl = isProd ? `https://my-host.com` : `http://localhost:${port}`
+const botUrl = process.env.BOTPRESS_URL || 'http://localhost:' + port
 
 module.exports = {
   /*
     The bot's base URL where the bot is reachable from the internet
    */
   botUrl: botUrl,
+
+  /*
+    The botpress environment, useful to disambiguate multiple 
+    instances of the same bot running in different environments.
+    e.g. "dev", "staging", "production"
+   */
+  env: process.env.BOTPRESS_ENV || 'dev',
 
   /*
     The port on which the API and UI will be available
@@ -53,6 +60,16 @@ module.exports = {
     maxSize: 1e6 // 1mb
   },
 
+  /*
+    The web server API config
+   */
+  api: {
+    bodyMaxSize: '1mb'
+  },
+
+  /*
+    Dialog Manager (DM)
+  */
   dialogs: {
     timeoutInterval: '15m',
     janitorInterval: '10s'
@@ -76,14 +93,15 @@ module.exports = {
     By default ghost content management is only activated in production
    */
   ghostContent: {
-    enabled: isProd || process.env.BOTPRESS_GHOST_ENABLED
+    enabled: process.env.NODE_ENV === 'production' || process.env.BOTPRESS_GHOST_ENABLED
   },
 
   /*
     Access control of admin panel
   */
   login: {
-    enabled: isProd,
+    enabled: process.env.NODE_ENV === 'production',
+    useCloud: process.env.BOTPRESS_CLOUD_ENABLED || true,
     tokenExpiry: '6 hours',
     password: process.env.BOTPRESS_PASSWORD || 'password',
     maxAttempts: 3,

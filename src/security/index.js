@@ -16,18 +16,25 @@ import Authentication from '+/authentication'
  *
  */
 
-module.exports = ({ dataLocation, securityConfig, db }) => {
+module.exports = async ({ dataLocation, projectLocation, securityConfig, db, cloud }) => {
   const authentication = Authentication({ dataLocation, securityConfig, db })
-  const { tokenExpiry, enabled: loginEnabled } = securityConfig
+
+  const { tokenExpiry, enabled: loginEnabled, useCloud } = securityConfig
+  const isCloudPaired = useCloud && (await cloud.isPaired())
+  const { botId } = cloud.getPairingInfo()
 
   const buildToken = async loginUser => {
     const secret = await authentication.getSecret()
-    return jwt.sign({ user: loginUser }, secret, { expiresIn: tokenExpiry })
+    return jwt.sign({ user: loginUser }, secret, { issuer: 'bot.root', expiresIn: tokenExpiry, algorithm: 'HS256' })
   }
 
   // login function that returns a {success, reason, token} object
   // accounts for number of bad attempts
   const login = async (user, password, ip = 'all') => {
+    if (isCloudPaired) {
+      return { success: false, reason: 'Root authentication is disabled when using Botpress Cloud' }
+    }
+
     const canAttempt = await authentication.attempt(ip)
     if (!canAttempt) {
       return { success: false, reason: 'Too many login attempts. Try again later.' }
@@ -50,14 +57,34 @@ module.exports = ({ dataLocation, securityConfig, db }) => {
 
   const authenticateWithError = async authHeader => {
     const [scheme, token] = authHeader.split(' ')
+
     if (scheme !== 'Bearer') {
       // only support Bearer scheme
       throw new Error(`Wrong scheme ${scheme}, expected Bearer`)
     }
     try {
-      const secret = await authentication.getSecret()
-      const decoded = jwt.verify(token, secret)
+      let secret = null
+      let algorithm = null
+
+      if (isCloudPaired) {
+        secret = await cloud.getCertificate()
+        algorithm = 'RS256'
+      } else {
+        secret = await authentication.getSecret()
+        algorithm = 'HS256'
+      }
+
+      const decoded = jwt.verify(token, secret, { algorithms: [algorithm] })
       const verified = authentication.verifyUser ? await authentication.verifyUser(decoded) : true
+
+      if (decoded.identity_proof_only) {
+        return false
+      }
+
+      if (decoded.aud !== `urn:bot/${botId}`) {
+        return false
+      }
+
       return verified && decoded.user
     } catch (err) {
       throw new Error(`The token is invalid or expired`)
@@ -75,6 +102,28 @@ module.exports = ({ dataLocation, securityConfig, db }) => {
     } catch (err) {
       return false
     }
+  }
+
+  const getUserIdentity = async token => {
+    let secret = null
+    let algorithm = null
+
+    if (isCloudPaired) {
+      secret = await cloud.getCertificate()
+      algorithm = 'RS256'
+    } else {
+      secret = await authentication.getSecret()
+      algorithm = 'HS256'
+    }
+
+    const decoded = jwt.verify(token, secret, { algorithms: [algorithm] })
+    const verified = authentication.verifyUser ? await authentication.verifyUser(decoded) : true
+
+    if (decoded.aud !== `urn:bot/${botId}`) {
+      return false
+    }
+
+    return verified && decoded.user
   }
 
   const refreshToken = async authHeader => {
@@ -112,6 +161,7 @@ module.exports = ({ dataLocation, securityConfig, db }) => {
     login,
     refreshToken,
     authenticate,
+    getUserIdentity,
     getSecret: authentication.getSecret,
     _authentication: authentication
   }

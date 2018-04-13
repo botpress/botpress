@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
+import qs from 'query-string'
 
 import { Button, FormGroup, FormControl, ControlLabel, HelpBlock } from 'react-bootstrap'
 import classnames from 'classnames'
@@ -70,6 +71,51 @@ export default class LoginPage extends Component {
     app.className = classnames(app.className.replace('bp-body-login', ''))
   }
 
+  renderLoginCloud() {
+    const { endpoint, botId, env } = window.BOTPRESS_CLOUD_SETTINGS
+
+    const query = qs.stringify({
+      action: 'redirect',
+      direct: 1,
+      botId: botId,
+      env: env,
+      params: JSON.stringify({ returnTo: this.props.location.query.returnTo || '/' })
+    })
+
+    const url = `${endpoint}/login?${query}`
+    return (
+      <div className={styles.cloudContainer}>
+        <Button href={url}>
+          Sign in with <b style={{ fontWeight: 600 }}>Botpress Cloud</b>
+        </Button>
+      </div>
+    )
+  }
+
+  renderLoginRoot() {
+    return (
+      <form onSubmit={this.handleSubmit}>
+        <FormGroup>
+          <ControlLabel>User</ControlLabel>
+          <Decorators.User value={this.state.user} onChange={this.handleUserChange} />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>Password</ControlLabel>
+          <FormControl
+            type="password"
+            placeholder=""
+            value={this.state.password}
+            onChange={this.handlePasswordChange}
+          />
+        </FormGroup>
+        <Button className="pull-right" type="submit">
+          Login
+        </Button>
+        <Decorators.ForgotPassword />
+      </form>
+    )
+  }
+
   render() {
     const hasChangedPassword = !!this.props.location.query.reset
     const hasAnError = !!this.state.error
@@ -88,6 +134,10 @@ export default class LoginPage extends Component {
     const errorStyle = classnames(styles.error)
     const successStyle = classnames(styles.success)
 
+    const loginBody = window.BOTPRESS_CLOUD_ENABLED ? this.renderLoginCloud() : this.renderLoginRoot()
+
+    const error = this.state.error || this.props.location.query.error
+
     return (
       <div>
         <div className="block-center mt-xl wd-xl">
@@ -97,31 +147,13 @@ export default class LoginPage extends Component {
             </div>
             <div className={panelStyle}>
               <div className={headerStyle}>
-                <h4>Login</h4>
+                <h4 style={{ textTransform: 'none', fontWeight: 600 }}>Login</h4>
               </div>
               <div className="panel-body">
                 {this.renderLoading()}
-                {this.state.error && <p className={errorStyle}>{this.state.error}</p>}
+                {error && <p className={errorStyle}>{error}</p>}
                 {hasChangedPassword && <p className={successStyle}>Password changed successfully</p>}
-                <form onSubmit={this.handleSubmit}>
-                  <FormGroup>
-                    <ControlLabel>User</ControlLabel>
-                    <Decorators.User value={this.state.user} onChange={this.handleUserChange} />
-                  </FormGroup>
-                  <FormGroup>
-                    <ControlLabel>Password</ControlLabel>
-                    <FormControl
-                      type="password"
-                      placeholder=""
-                      value={this.state.password}
-                      onChange={this.handlePasswordChange}
-                    />
-                  </FormGroup>
-                  <Button className="pull-right" type="submit">
-                    Login
-                  </Button>
-                  <Decorators.ForgotPassword />
-                </form>
+                {loginBody}
               </div>{' '}
               {/* End Panel Body */}
             </div>{' '}

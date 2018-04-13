@@ -7,6 +7,7 @@ import migrate from './migrate'
 import list from './list'
 import { login, logout } from './auth'
 import ghostSync from './ghost-sync'
+import cloudPair from './cloudPair'
 
 import { getBotpressVersion, collectArgs } from '../util'
 
@@ -17,6 +18,8 @@ program
   .action(init)
 
 const defaultWatchExt = '.js,.jsx,.json,.yml'
+const defaultBotpressCloudEndpoint = 'https://botpress.cloud'
+
 program
   .command('start [path]')
   .alias('s')
@@ -76,6 +79,16 @@ program
   .command('ghost-sync <bot-server-url>')
   .description('Pull the ghost content from the remote bot instance and apply it locally.')
   .action(ghostSync)
+
+program
+  .command('cloud-pair <api-token>')
+  .description('')
+  .option(
+    '--endpoint <endpoint-url>',
+    `Change the Botpress Cloud server endpoint. Default: "${defaultBotpressCloudEndpoint}"`,
+    defaultBotpressCloudEndpoint
+  )
+  .action(cloudPair)
 
 program
   .version(getBotpressVersion())
