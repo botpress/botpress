@@ -104,6 +104,28 @@ module.exports = async ({ dataLocation, projectLocation, securityConfig, db, clo
     }
   }
 
+  const getUserIdentity = async token => {
+    let secret = null
+    let algorithm = null
+
+    if (isCloudPaired) {
+      secret = await cloud.getCertificate()
+      algorithm = 'RS256'
+    } else {
+      secret = await authentication.getSecret()
+      algorithm = 'HS256'
+    }
+
+    const decoded = jwt.verify(token, secret, { algorithms: [algorithm] })
+    const verified = authentication.verifyUser ? await authentication.verifyUser(decoded) : true
+
+    if (decoded.aud !== `urn:bot/${botId}`) {
+      return false
+    }
+
+    return verified && decoded.user
+  }
+
   const refreshToken = async authHeader => {
     if (!loginEnabled) {
       const [scheme, token] = authHeader.split(' ')
@@ -139,6 +161,7 @@ module.exports = async ({ dataLocation, projectLocation, securityConfig, db, clo
     login,
     refreshToken,
     authenticate,
+    getUserIdentity,
     getSecret: authentication.getSecret,
     _authentication: authentication
   }
