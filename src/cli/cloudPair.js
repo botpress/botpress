@@ -40,7 +40,7 @@ module.exports = async (token, options) => {
   const pairUrl = `${endpoint}/api/pairing`
 
   try {
-    const { data } = await axios.post(pairUrl, { token: token, name, description })
+    const { data } = await axios.post(pairUrl, { token, name, description })
 
     const { botId, teamId } = data.payload
 

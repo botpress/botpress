@@ -55,8 +55,7 @@ module.exports = ({ projectLocation, botfile, logger }) => {
     }
 
     const { token, endpoint } = getPairingInfo()
-    const env = botfile.env
-    const botUrl = botfile.botUrl
+    const { env, botUrl } = botfile
 
     await axios
       .put(endpoint + '/api/pairing/env', {

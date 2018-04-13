@@ -61,7 +61,7 @@ const ensureAuthenticated = WrappedComponent => {
         setToken(urlToken)
         const newQuery = _.omit(this.props.location.query, ['token', 'botId', 'env', 'params'])
         this.context.router.history.replace(
-          Object.assign(this.props.location, {
+          Object.assign({}, this.props.location, {
             search: qs.stringify(newQuery),
             query: newQuery,
             pathname: params.returnTo || this.props.location.pathname
