@@ -67,7 +67,6 @@ const ensureAuthenticated = WrappedComponent => {
             pathname: params.returnTo || this.props.location.pathname
           })
         )
-        this.setupAuth()
       }
 
       const tokenStillValid = validateToken()
