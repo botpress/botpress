@@ -9,7 +9,8 @@
   "dependencies": {
     "botpress": "^10.0.6",
     "@botpress/channel-web": "^10.0.10",
-    "lodash": "^4.17.4"
+    "lodash": "^4.17.4",
+    "yn": "^2.0.0"
   },
   "scripts": {
     "start": "botpress start",
