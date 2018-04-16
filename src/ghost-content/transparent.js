@@ -44,7 +44,7 @@ module.exports = ({ logger, projectLocation }) => {
     readFile: (folder, file) => {
       const { folderPath, normalizedFolderName } = normalizeFolder(folder)
       const filePath = path.join(folderPath, file)
-      const { isBinary = false } = folderOptions[normalizedFolderName]
+      const isBinary = (folderOptions[normalizedFolderName] || {}).isBinary || false
       return fs
         .readFileAsync(filePath, isBinary ? null : 'utf8')
         .catch({ code: 'ENOENT' }, () => null)
