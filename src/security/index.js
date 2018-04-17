@@ -21,7 +21,7 @@ module.exports = async ({ dataLocation, projectLocation, securityConfig, db, clo
 
   const { tokenExpiry, enabled: loginEnabled, useCloud } = securityConfig
   const isCloudPaired = useCloud && (await cloud.isPaired())
-  const { botId } = isCloudPaired && cloud.getPairingInfo()
+  const { botId } = (isCloudPaired && cloud.getPairingInfo()) || {}
 
   const buildToken = async loginUser => {
     const secret = await authentication.getSecret()
