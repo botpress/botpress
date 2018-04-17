@@ -225,7 +225,7 @@ module.exports = ({ logger, db, projectLocation, enabled }) => {
   const readFile = async (rootFolder, file) => {
     const knex = await db.get()
     const { normalizedFolderName } = normalizeFolder(rootFolder)
-    const { isBinary } = folderOptions[normalizedFolderName]
+    const { isBinary } = folderOptions[normalizedFolderName] || {}
     const column = isBinary ? 'binary_content' : 'content'
 
     return knex('ghost_content')

@@ -90,7 +90,7 @@ module.exports = async ({ dataLocation, projectLocation, securityConfig, db, clo
         return false
       }
 
-      if (decoded.aud !== `urn:bot/${botId}`) {
+      if (isCloudPaired && decoded.aud !== `urn:bot/${botId}`) {
         return false
       }
 
