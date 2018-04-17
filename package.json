@@ -91,9 +91,11 @@
     "file-loader": "^0.9.0",
     "hard-source-webpack-plugin": "^0.4.9",
     "husky": "0.14.3",
+    "jsdoc": "^3.5.5",
     "json-loader": "^0.5.4",
     "keymirror": "^0.1.1",
     "lint-staged": "4.3.0",
+    "minami": "^1.2.3",
     "mkdirp": "^0.5.1",
     "mocha": "^3.1.2",
     "ncp": "^2.0.0",
@@ -167,7 +169,8 @@
     "watch": "npm-watch",
     "commitmsg": "commitlint -e $GIT_PARAMS",
     "precommit": "lint-staged && node check-pro-mode.js",
-    "lint": "eslint {src,lib,tests,extensions}/**/*.{js,jsx}"
+    "lint": "eslint {src,lib,tests,extensions}/**/*.{js,jsx}",
+    "gen-reference": "jsdoc src -r --template node_modules/minami -d docs/reference"
   },
   "cross-os": {
     "compile-prod": {
