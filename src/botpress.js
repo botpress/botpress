@@ -70,7 +70,7 @@ const REQUIRED_PROPS = ['botUrl']
 class botpress {
   /**
    * Create botpress
-   *
+   * @hideconstructor
    * @param {string} obj.botfile - the config path
    */
   constructor({ botfile }) {
@@ -111,6 +111,7 @@ class botpress {
    * 2. resolve paths (dataLocation)
    * 3. inject security functions
    * 4. load modules
+   * @private
    */
   async _start() {
     this.stats.track('bot', 'started')
@@ -289,6 +290,11 @@ class botpress {
       ghostManager,
       contentManager,
       mediaManager,
+      /**
+       * @public
+       * @type {DialogEngine}
+       * @memberOf! botpress#
+       */
       dialogEngine,
       dialogJanitor,
       messages,
