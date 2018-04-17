@@ -6,6 +6,9 @@ import chalk from 'chalk'
 import validUrl from 'valid-url'
 import axios from 'axios'
 import Confirm from 'prompt-confirm'
+import mkdirp from 'mkdirp'
+import os from 'os'
+import get from 'lodash/get'
 
 import util from '../util'
 
@@ -26,30 +29,35 @@ const getDataDir = () => {
   return util.getDataLocation(bf.dataDir, projectPath)
 }
 
+const getCloudAuthFile = () => path.join(os.homedir(), '.botpress', AUTH_FILE)
 const getAuthFile = () => path.join(getDataDir(), AUTH_FILE)
 
-const readAuth = () => {
-  const authFile = getAuthFile()
+const readJsonFile = file => {
   try {
-    const json = fs.readFileSync(authFile, 'utf-8')
+    const json = fs.readFileSync(file, 'utf-8')
     return JSON.parse(json)
   } catch (err) {
     if (err.code !== 'ENOENT') {
-      util.print.warn(err.message || 'Unknown error', `while reading ${authFile}.`)
+      util.print.warn(err.message || 'Unknown error', `while reading ${file}.`)
     }
   }
   return {}
 }
 
-const writeAuth = auth => {
-  const authFile = getAuthFile()
-  fs.writeFileSync(authFile, JSON.stringify(auth, null, 2))
+const writeJsonFile = (file, content) => {
+  mkdirp.sync(path.dirname(file))
+  fs.writeFileSync(file, JSON.stringify(content, null, 2))
 }
+
+const readBotAuth = () => readJsonFile(getAuthFile())
+const readCloudAuth = () => readJsonFile(getCloudAuthFile())
+const writeBotAuth = auth => writeJsonFile(getAuthFile(), auth)
+const writeCloudAuth = auth => writeJsonFile(getCloudAuthFile(), auth)
 
 const AUTH_DISABLED = '[AUTH DISABLED]'
 
 const refreshToken = async botUrl => {
-  const auth = readAuth()
+  const auth = readBotAuth()
   const token = auth[botUrl]
 
   // this method is only called if the auth is enabled
@@ -73,12 +81,7 @@ const refreshToken = async botUrl => {
   }
 }
 
-const doLogin = async botUrl => {
-  const res = await axios.get(`${botUrl}/api/auth/enabled`)
-  if (res.data === false) {
-    return { token: AUTH_DISABLED, kind: 'no-auth' }
-  }
-
+const doRootLogin = async botUrl => {
   // try refreshing token before attempting the new login
   const token = await refreshToken(botUrl)
   if (token) {
@@ -112,6 +115,61 @@ const doLogin = async botUrl => {
   throw new Error(result.data.reason)
 }
 
+const doCloudLogin = async (botUrl, botInfo) => {
+  const userAuthUrl = `${botInfo.cloudEndpoint}/me/cli`
+  const loginUrl = `${botInfo.cloudEndpoint}/api/login/bot/${botInfo.botId}/${botInfo.botEnv}`
+
+  const cloudAuth = readCloudAuth()
+
+  if (!cloudAuth[botInfo.cloudEndpoint]) {
+    const schema = {
+      properties: {
+        token: {
+          description: chalk.white('API Token:'),
+          required: true
+        }
+      }
+    }
+
+    prompt.message = `You need to authenticate using Botpress Cloud for this bot.\r\nPlease visit ${userAuthUrl} and copy/paste your API token here.\r\n`
+    prompt.delimiter = ''
+    prompt.start()
+    const { token: apiToken } = await Promise.fromCallback(cb => prompt.get(schema, cb))
+
+    if (!apiToken.startsWith('cli__')) {
+      throw new Error('Invalid API Token, expected token starting with "cli__"')
+    }
+
+    cloudAuth[botInfo.cloudEndpoint] = apiToken
+    writeCloudAuth(cloudAuth)
+  }
+
+  try {
+    const authorization = `Bearer ${cloudAuth[botInfo.cloudEndpoint]}`
+    const { data } = await axios.get(loginUrl, { headers: { authorization } })
+    return { token: get(data, 'payload.token'), kind: 'refresh' }
+  } catch (err) {
+    delete cloudAuth[botInfo.cloudEndpoint]
+    writeCloudAuth(cloudAuth)
+    const msg = get(err, 'response.data.message') || err.message
+    throw new Error('Could not authenticate to bot using Botpress Cloud, please try again. (' + msg + ')')
+  }
+}
+
+const doLogin = async botUrl => {
+  const res = await axios.get(`${botUrl}/api/auth/enabled`)
+
+  const data = res.data || {}
+
+  if (!data.loginEnabled) {
+    return { token: AUTH_DISABLED, kind: 'no-auth' }
+  } else if (!data.useCloud) {
+    return doRootLogin(botUrl)
+  } else {
+    return doCloudLogin(botUrl, data)
+  }
+}
+
 exports.login = async botUrl => {
   botUrl = botUrl.replace(/\/+$/, '')
 
@@ -122,9 +180,9 @@ exports.login = async botUrl => {
 
   try {
     const { token, kind } = await doLogin(botUrl)
-    const auth = readAuth()
+    const auth = readBotAuth()
     auth[botUrl] = token
-    writeAuth(auth)
+    writeBotAuth(auth)
     if (kind === 'login') {
       util.print.success(`Logged in successfully. Auth token saved in ${getAuthFile()}.`)
     } else if (kind === 'refresh') {
@@ -147,20 +205,21 @@ exports.logout = botUrl => {
         if (!answer) {
           return
         }
-        writeAuth({})
+        writeBotAuth({})
+        writeCloudAuth({})
       })
 
     return
   }
 
   botUrl = botUrl.replace(/\/+$/, '')
-  const auth = readAuth()
+  const auth = readBotAuth()
   if (!auth[botUrl]) {
     util.print.warn(`No saved token for ${botUrl}, nothing to do.`)
     return
   }
 
   delete auth[botUrl]
-  writeAuth(auth)
+  writeBotAuth(auth)
   util.print.success('Logged out successfully.')
 }

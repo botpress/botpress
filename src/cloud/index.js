@@ -32,6 +32,10 @@ module.exports = ({ projectLocation, botfile, logger }) => {
     return fs.existsSync(filePath)
   }
 
+  function getBotEnv() {
+    return botfile.env
+  }
+
   async function _getWellKnownRSACert() {
     if (certificate) {
       return certificate
@@ -75,5 +79,12 @@ module.exports = ({ projectLocation, botfile, logger }) => {
   function _getRemoteRoles() {}
   function getUserRoles() {}
 
-  return { getCloudEndpoint, getCertificate: _getWellKnownRSACert, isPaired, getPairingInfo, updateRemoteEnv }
+  return {
+    getCloudEndpoint,
+    getBotEnv,
+    getCertificate: _getWellKnownRSACert,
+    isPaired,
+    getPairingInfo,
+    updateRemoteEnv
+  }
 }

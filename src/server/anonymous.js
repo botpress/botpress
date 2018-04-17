@@ -3,7 +3,7 @@ import ExtraApiProviders from '+/api'
 module.exports = (bp, app) => {
   app.get('/api/auth/enabled', async (req, res) => {
     bp.stats.track('api', 'auth', 'enabled')
-    res.json(!!bp.botfile.login.enabled)
+    res.json(bp.security.getAuthenticationInfo())
   })
 
   app.post('/api/auth/refresh_token', async (req, res) => {

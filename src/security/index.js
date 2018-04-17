@@ -32,7 +32,7 @@ module.exports = async ({ dataLocation, projectLocation, securityConfig, db, clo
   // accounts for number of bad attempts
   const login = async (user, password, ip = 'all') => {
     if (isCloudPaired) {
-      return { success: false, reason: 'Root authentication is disabled when using Botpress Cloud' }
+      return { success: false, reason: 'Root authentication is disabled when using Botpress Cloud [BPCLOUDERR]' }
     }
 
     const canAttempt = await authentication.attempt(ip)
@@ -54,6 +54,15 @@ module.exports = async ({ dataLocation, projectLocation, securityConfig, db, clo
       }
     }
   }
+
+  const getAuthenticationInfo = () => ({
+    isCloudPaired,
+    botId,
+    loginEnabled,
+    useCloud,
+    botEnv: cloud.getBotEnv(),
+    cloudEndpoint: isCloudPaired && cloud.getCloudEndpoint()
+  })
 
   const authenticateWithError = async authHeader => {
     const [scheme, token] = authHeader.split(' ')
@@ -162,6 +171,7 @@ module.exports = async ({ dataLocation, projectLocation, securityConfig, db, clo
     refreshToken,
     authenticate,
     getUserIdentity,
+    getAuthenticationInfo,
     getSecret: authentication.getSecret,
     _authentication: authentication
   }
