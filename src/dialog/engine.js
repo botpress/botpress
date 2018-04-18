@@ -96,6 +96,83 @@ class DialogEngine {
     }
   }
 
+  /**
+   * Make the stateId jump to the specified flow and node
+   * regardless of if there was already an active flow or not
+   * in execution. If there was already an active flow executing,
+   * this will override it. Note that by default, the current state
+   * will be preserved; if you wish to reset the state as well,
+   * set `resetState` to `true`.
+   * Note that this will not continue processing, i.e. the user must send a message or
+   * you should call {@link BotEngine#processMessage} manually to continue execution.
+   * @example
+   * // inside a bp.hear (...)
+   * bp.dialogEngine.jumpTo(stateId, 'main.flow.json')
+   * bp.dialogEngine.processMessage(stateId, event) // Continue processing
+   * @param  {string} stateId  The stateId of the user/channel/group to make jump.
+   * @param  {string} flowName The name of the flow, e.g. `main.flow.json`
+   * @param  {string} [nodeName=null] The name of the node to jump to. Defaults to the flow's entry point.
+   * @param  {boolean} [options.resetState=false] Whether or not the state should be reset
+   */
+  async jumpTo(stateId, flowName, nodeName = null, options) {
+    options = Object.assign(
+      {
+        resetState: false
+      },
+      options
+    )
+
+    if (!this.flowsLoaded) {
+      await this.reloadFlows()
+    }
+
+    const flow = this._findFlow(flowName, true)
+
+    if (nodeName) {
+      // We're just calling for throwing if doesn't exist
+      DialogEngine._findNode(flow, nodeName, true)
+    }
+
+    await this._setContext(stateId, {
+      currentFlow: flow,
+      flowStack: [{ flow: flow.name, node: nodeName || flow.startNode }]
+    })
+
+    if (options.resetState) {
+      await this.stateManager.setState(stateId, {})
+    }
+  }
+
+  /**
+   * Get the current flow and node for a specific stateId
+   * @param  {string} stateId
+   * @return {{ flow: string, node: string }} Returns the current flow and node
+   */
+  async getCurrentPosition(stateId) {
+    const context = await this._getContext(stateId)
+
+    if (context) {
+      return {
+        flow: context.currentFlow && context.currentFlow.name,
+        node: context.node
+      }
+    }
+
+    return {
+      flow: null,
+      node: null
+    }
+  }
+
+  /**
+   * Ends the flow for a specific stateId if there's an active flow,
+   * otherwise does nothing.
+   * @param  {string} stateId [description]
+   */
+  async endFlow(stateId) {
+    return this._endFlow(stateId)
+  }
+
   async reloadFlows() {
     this._trace('**', 'LOAD', '')
     this.flows = await this.flowProvider.loadAll()
@@ -198,7 +275,7 @@ class DialogEngine {
     const currentNodeTimeout = _.get(DialogEngine._findNode(context.currentFlow, context.node), 'timeoutNode')
     const currentFlowTimeout = _.get(context, 'currentFlow.timeoutNode')
     const fallbackTimeoutNode = DialogEngine._findNode(context.currentFlow, 'timeout')
-    const fallbackTimeoutFlow = this._findFlow('timeout.flow.json')
+    const fallbackTimeoutFlow = this._findFlow('timeout')
 
     if (currentNodeTimeout) {
       this._trace('<>', 'SNDE', '', context)
@@ -556,6 +633,7 @@ class DialogEngine {
   _findFlow(flowName, throwIfNotFound = false) {
     const flow = _.find(this.flows, { name: flowName })
 
+    console.log(this.flows.map(x => x.name), flow, flowName)
     if (throwIfNotFound && _.isNil(flow)) {
       throw new Error(`Could not find flow "${flowName}"`)
     }
