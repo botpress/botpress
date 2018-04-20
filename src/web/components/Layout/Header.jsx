@@ -6,7 +6,6 @@ import { Navbar, Nav, NavItem, Glyphicon, NavDropdown } from 'react-bootstrap'
 import classnames from 'classnames'
 
 import NotificationHub from '~/components/Notifications/Hub'
-import ProfileMenu from '+/views/ProfileMenu'
 
 import { logout } from '~/util/Auth'
 import style from './Header.scss'

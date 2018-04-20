@@ -4,8 +4,6 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 const nodeExternals = require('webpack-node-externals')
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
 
-const ExtensionsPlugin = require('./extensions/extensions-plugin')
-
 const nodeConfig = {
   devtool: 'source-map',
   entry: [path.resolve(__dirname, './index.js')],
@@ -23,8 +21,7 @@ const nodeConfig = {
   resolve: {
     extensions: ['.js'],
     alias: {
-      '~': path.resolve(__dirname, './src'),
-      '+': path.resolve(__dirname, './extensions/lite')
+      '~': path.resolve(__dirname, './src')
     }
   },
   module: {
@@ -45,8 +42,6 @@ const nodeConfig = {
     ]
   },
   plugins: [
-    ExtensionsPlugin.beforeResolve,
-    ExtensionsPlugin.afterResolve,
     new webpack.DefinePlugin({
       BP_EDITION: JSON.stringify(process.env.BOTPRESS_EDITION || 'lite')
     })
@@ -81,17 +76,10 @@ const webConfig = {
   resolve: {
     extensions: ['.js', '.jsx', '.css'],
     alias: {
-      '~': path.resolve(__dirname, './src/web'),
-      '+': path.resolve(__dirname, './extensions/lite')
+      '~': path.resolve(__dirname, './src/web')
     }
   },
   plugins: [
-    // new webpack.optimize.CommonsChunkPlugin({
-    //   name: 'vendor',
-    //   minChunks: Infinity
-    // }),
-    ExtensionsPlugin.beforeResolve,
-    ExtensionsPlugin.afterResolve,
     new webpack.DefinePlugin({
       BP_EDITION: JSON.stringify(process.env.BOTPRESS_EDITION || 'lite'),
       'process.env': {
