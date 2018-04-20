@@ -160,8 +160,6 @@
   "repository": "git+https://github.com/botpress/botpress.git",
   "os": ["darwin", "linux", "win32"],
   "scripts": {
-    "edition:lite": "git reset && git checkout package.json yarn.lock && rm -f .pro-mode",
-    "edition:pro": "node package-pro.js",
     "prepare": "npm run compile-prod",
     "compile": "node ./build.js",
     "release": "standard-version",
@@ -169,7 +167,7 @@
     "test": "cross-os test",
     "watch": "npm-watch",
     "commitmsg": "commitlint -e $GIT_PARAMS",
-    "precommit": "lint-staged && node check-pro-mode.js",
+    "precommit": "lint-staged",
     "lint": "eslint {src,lib,tests}/**/*.{js,jsx}",
     "gen-reference": "jsdoc src -r --template node_modules/minami -d docs/reference"
   },

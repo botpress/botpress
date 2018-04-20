@@ -1,5 +1,3 @@
-/* global BP_EDITION */
-
 import Promise from 'bluebird'
 import { static as staticMiddleware } from 'express'
 import path from 'path'

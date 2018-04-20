@@ -40,31 +40,13 @@ const nodeConfig = {
         exclude: /node_modules/
       }
     ]
-  },
-  plugins: [
-    new webpack.DefinePlugin({
-      BP_EDITION: JSON.stringify(process.env.BOTPRESS_EDITION || 'lite')
-    })
-  ]
+  }
 }
 
 const webConfig = {
   bail: true,
   devtool: process.env.NODE_ENV === 'production' ? 'source-map' : 'eval-source-map',
   entry: {
-    // vendor: [ // This doesn't work with lite.bundle.js
-    //   'axios',
-    //   'bluebird',
-    //   'howler',
-    //   'knex',
-    //   'lodash',
-    //   'moment',
-    //   'react',
-    //   'react-bootstrap',
-    //   'react-codemirror',
-    //   'react-dom',
-    //   'react-jsonschema-form'
-    // ],
     web: './src/web/index.jsx',
     lite: './src/web/lite.jsx'
   },
@@ -81,7 +63,6 @@ const webConfig = {
   },
   plugins: [
     new webpack.DefinePlugin({
-      BP_EDITION: JSON.stringify(process.env.BOTPRESS_EDITION || 'lite'),
       'process.env': {
         NODE_ENV: process.env.NODE_ENV === 'production' ? JSON.stringify('production') : JSON.stringify('development')
       }
