@@ -3,7 +3,6 @@ import bodyParser from 'body-parser'
 import { Router } from 'express'
 import qs from 'query-string'
 
-import ServiceLocator from '+/ServiceLocator'
 import anonymousApis from './anonymous'
 import securedApis from './secured'
 
@@ -63,27 +62,13 @@ module.exports = bp => {
   }
 
   const installProtector = app => {
+    // TODO: X/Cloud | Add Permissions
     app.secure = (operation, ressource) => {
       const wrap = method => (name, ...handlers) => {
         const secure = async (req, res, next) => {
           try {
-            if (!req.user) {
-              return next()
-            }
-
-            const authorizeApi = await ServiceLocator.getService('authorizeApi', false)
-
-            if (!authorizeApi) {
-              return next()
-            }
-
-            const authorized = await authorizeApi({ userId: req.user.id, operation, ressource })
-
-            if (authorized) {
-              return next()
-            }
-
-            return res.sendStatus(403) // HTTP Forbidden
+            return next()
+            // return res.sendStatus(403) // HTTP Forbidden
           } catch (err) {
             return res.status(500).send({ message: err.message })
           }

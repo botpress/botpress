@@ -38,7 +38,7 @@ class UploadWidget extends Component {
 
     this.setState({ error: null, uploading: true }, () => {
       axios
-        .post('/media', data, { headers: { 'Content-Type': 'multipart/form-data' } })
+        .post('/api/media', data, { headers: { 'Content-Type': 'multipart/form-data' } })
         .then(response => {
           this.setState({ expanded: false })
           const { url } = response.data

@@ -2,7 +2,7 @@ import nanoid from 'nanoid'
 import Promise from 'bluebird'
 import _ from 'lodash'
 
-export default class Queue {
+export default class MemoryQueue {
   constructor(name, logger, options = {}) {
     this.name = name
     this.logger = logger

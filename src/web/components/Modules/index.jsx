@@ -6,7 +6,6 @@ import Button from 'react-bootstrap-button-loader'
 import classnames from 'classnames'
 
 import _ from 'lodash'
-import axios from 'axios'
 
 const style = require('./style.scss')
 

@@ -6,7 +6,6 @@ import _ from 'lodash'
 
 import listeners from './listeners'
 import { resolveProjectFile } from './util'
-import LicenseGuard from '+/license'
 
 module.exports = ({ logger, version, projectLocation, db, botfile, bp }) => {
   const licensesPath = path.join(__dirname, '../licenses')
@@ -55,7 +54,7 @@ Created by: ${author}
 License: ${license}
 Botpress: ${bp.version}`
 
-    const userId = event.user && event.user.id
+    const userId = event.user && event.user.id // TODO Use botpress standard user getter
 
     if (bp[event.platform] && bp[event.platform].sendText) {
       bp[event.platform].sendText(userId, response)
@@ -73,20 +72,21 @@ Botpress: ${bp.version}`
     }
   })
 
-  const guard = LicenseGuard(logger, db, botfile)
-  guard.start()
-
   return {
     getLicensing: async () => {
       const licenses = getLicenses()
       const currentLicense = _.find(licenses, { licensedUnder: true }) || licenses.botpress
 
-      return Object.assign(await guard.getStatus(), {
+      return {
+        licensed: true,
+        name: 'Botpress',
+        text: null,
+        status: 'Active',
         text: currentLicense.text
-      })
+      }
     },
     changeLicense,
     middleware,
-    getFeatures: guard.getFeatures
+    getFeatures: () => ({})
   }
 }

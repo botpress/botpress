@@ -8,7 +8,6 @@ import cluster from 'cluster'
 import dotenv from 'dotenv'
 import ms from 'ms'
 
-import ServiceLocator from '+/ServiceLocator'
 import EventBus from './bus'
 
 import createMiddlewares from './middlewares'
@@ -36,12 +35,11 @@ import DialogJanitor from './dialog/janitor'
 import SkillsManager from './skills'
 import createHelpers from './helpers'
 import stats from './stats'
+import Queue from './queues/memory'
+
 import packageJson from '../package.json'
-import createEmails from '+/emails'
-import createMediator from '+/mediator'
 
 import createServer from './server'
-import Queue from '+/queue'
 
 import { getDataLocation, getBotpressVersion } from './util'
 
@@ -157,7 +155,8 @@ class botpress {
       securityConfig: botfile.login,
       projectLocation,
       db,
-      cloud
+      cloud,
+      logger
     })
 
     const modules = createModules(logger, projectLocation, dataLocation, db.kvs)
@@ -184,8 +183,6 @@ class botpress {
     const middlewares = createMiddlewares(this, dataLocation, projectLocation, logger)
     const { hear, middleware: hearMiddleware } = createHearMiddleware()
     const { middleware: fallbackMiddleware } = createFallbackMiddleware(this)
-    const emails = createEmails({ emailConfig: botfile.emails })
-    const mediator = createMediator(this)
 
     const users = createUsers({ db })
     const ghostManager = createGhostManager({
@@ -276,8 +273,6 @@ class botpress {
       licensing,
       modules,
       db,
-      emails,
-      mediator,
       cloud,
       renderers,
       get umm() {
@@ -301,8 +296,6 @@ class botpress {
       skills: skillsManager
     })
 
-    ServiceLocator.init({ bp: this })
-
     const loadedModules = await modules._load(moduleDefinitions, this)
 
     this.stats.track('bot', 'modules', 'loaded', loadedModules.length)
@@ -314,7 +307,6 @@ class botpress {
     skillsManager.registerSkillsFromModules(_.values(loadedModules))
     await contentManager.init()
 
-    mediator.install()
     notifications._bindEvents()
 
     const server = createServer(this)

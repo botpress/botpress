@@ -24,7 +24,6 @@ import FlowBuilder from '~/views/FlowBuilder'
 import Module from '~/views/Module'
 import Notifications from '~/views/Notifications'
 import Logs from '~/views/Logs'
-import AdditionnalRoutes from '+/views/Routes/index.jsx'
 
 import PluginInjectionSite from '~/components/PluginInjectionSite'
 
@@ -69,7 +68,6 @@ class Layout extends React.Component {
               <Route exact path="/modules/:moduleName/:subView?" component={Module} />
               <Route exact path="/notifications" component={Notifications} />
               <Route exact path="/logs" component={Logs} />
-              {AdditionnalRoutes.securedRoutes()}
             </Switch>
           </section>
         </Sidebar>

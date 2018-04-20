@@ -12,7 +12,7 @@ module.exports = bp => {
     if (bp.botfile.login.enabled) {
       admin.use(
         socketioJwt.authorize({
-          secret: await bp.security.getSecret(),
+          secret: await bp.security.getJWTSecretOrCertificate(),
           handshake: true
         })
       )

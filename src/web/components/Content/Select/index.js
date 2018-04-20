@@ -3,7 +3,6 @@ import { connect } from 'react-redux'
 import { Modal, Button, Radio, OverlayTrigger, Tooltip, Panel, Well, Alert } from 'react-bootstrap'
 import Select from 'react-select'
 import Promise from 'bluebird'
-import axios from 'axios'
 import classnames from 'classnames'
 
 import Loading from '~/components/Util/Loading'

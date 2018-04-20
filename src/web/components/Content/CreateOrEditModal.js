@@ -1,7 +1,6 @@
 import React from 'react'
 import { Modal } from 'react-bootstrap'
 
-import axios from 'axios'
 import _ from 'lodash'
 import classnames from 'classnames'
 

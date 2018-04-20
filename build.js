@@ -5,9 +5,6 @@ const Promise = require('bluebird')
 
 const webpackJs = require('./webpack.js')
 
-const EMAIL_TPL = './extensions/enterprise/pro/emails/templates'
-const BOTPRESS_EDITION = process.env.BOTPRESS_EDITION
-
 const rimrafAsync = Promise.promisify(rimraf)
 const mkdirpAsync = Promise.promisify(mkdirp)
 const ncpAsync = Promise.promisify(ncp)
@@ -17,17 +14,6 @@ const cleanOldBuild = () => {
   console.log('Cleaning old build')
   // call: rm -rf lib/
   return rimrafAsync('./lib')
-}
-
-const copyEmailTemplates = async () => {
-  if (BOTPRESS_EDITION === 'pro' || BOTPRESS_EDITION === 'ultimate') {
-    console.log('Copying email templates')
-    // call: mkdir -p lib/emails/templates
-    await mkdirpAsync('./lib/emails/templates')
-
-    // call: cp -a
-    await ncpAsync(EMAIL_TPL, './lib/emails/templates')
-  }
 }
 
 const bundleApp = async () => {
@@ -44,7 +30,6 @@ const bundleApp = async () => {
 
 const build = async () => {
   await cleanOldBuild()
-  await copyEmailTemplates()
   await bundleApp()
 }
 

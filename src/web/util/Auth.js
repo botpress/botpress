@@ -9,9 +9,7 @@ export const getToken = () => {
   const tokenStr = localStorage.getItem(storageKey)
 
   if (tokenStr) {
-    const token = JSON.parse(tokenStr)
-    axios.defaults.headers.common['Authorization'] = `Bearer ${token.token}`
-    return token
+    return JSON.parse(tokenStr)
   }
 
   return false

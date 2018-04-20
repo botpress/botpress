@@ -24,6 +24,7 @@
     "glob": "^7.1.2",
     "history": "^4.7.2",
     "howler": "^2.0.3",
+    "joi": "^13.2.0",
     "js-yaml": "^3.8.4",
     "jsonwebtoken": "^7.1.9",
     "knex": "^0.12.6",
@@ -81,14 +82,14 @@
     "classnames": "^2.2.5",
     "copy-webpack-plugin": "^4.2.0",
     "cross-os": "^1.2.2",
-    "css-loader": "^0.25.0",
+    "css-loader": "^0.28.11",
     "eslint": "^4.17.0",
     "eslint-config-prettier": "^2.9.0",
     "eslint-plugin-prettier": "^2.3.1",
     "exports-loader": "^0.6.3",
     "expose-loader": "^0.7.1",
     "extract-text-webpack-plugin": "^3.0.1",
-    "file-loader": "^0.9.0",
+    "file-loader": "^1.1.11",
     "hard-source-webpack-plugin": "^0.4.9",
     "husky": "0.14.3",
     "jsdoc": "^3.5.5",
@@ -99,7 +100,7 @@
     "mkdirp": "^0.5.1",
     "mocha": "^3.1.2",
     "ncp": "^2.0.0",
-    "node-sass": "^4.5.3",
+    "node-sass": "^4.8.3",
     "npm-watch": "^0.1.6",
     "postcss-loader": "^2.0.8",
     "prettier": "1.7.4",
@@ -159,8 +160,6 @@
   "repository": "git+https://github.com/botpress/botpress.git",
   "os": ["darwin", "linux", "win32"],
   "scripts": {
-    "edition:lite": "git reset && git checkout package.json yarn.lock && rm -f .pro-mode",
-    "edition:pro": "node package-pro.js",
     "prepare": "npm run compile-prod",
     "compile": "node ./build.js",
     "release": "standard-version",
@@ -168,8 +167,8 @@
     "test": "cross-os test",
     "watch": "npm-watch",
     "commitmsg": "commitlint -e $GIT_PARAMS",
-    "precommit": "lint-staged && node check-pro-mode.js",
-    "lint": "eslint {src,lib,tests,extensions}/**/*.{js,jsx}",
+    "precommit": "lint-staged",
+    "lint": "eslint {src,lib,tests}/**/*.{js,jsx}",
     "gen-reference": "jsdoc src -r --template node_modules/minami -d docs/reference"
   },
   "cross-os": {
@@ -179,17 +178,15 @@
       "win32": "SET NODE_ENV=production&& node ./build.js && ls -lh ./lib/web/js && echo \"DONE\" && SET NODE_ENV="
     },
     "test": {
-      "darwin":
-        "BABEL_ENV=tests mocha --compilers js:babel-core/register --require tests/index.js tests/** extensions/**/tests/**",
-      "linux":
-        "BABEL_ENV=tests mocha --compilers js:babel-core/register --require tests/index.js tests/** extensions/**/tests/**",
+      "darwin": "BABEL_ENV=tests mocha --compilers js:babel-core/register --require tests/index.js tests/**",
+      "linux": "BABEL_ENV=tests mocha --compilers js:babel-core/register --require tests/index.js tests/**",
       "win32":
-        "SET BABEL_ENV=tests&& mocha --compilers js:babel-core/register --require tests/index.js tests/** extensions/**/tests/** && SET BABEL_ENV="
+        "SET BABEL_ENV=tests&& mocha --compilers js:babel-core/register --require tests/index.js tests/** && SET BABEL_ENV="
     }
   },
   "watch": {
     "compile": {
-      "patterns": ["src", "extensions"],
+      "patterns": ["src"],
       "extensions": "js,jsx,scss,json,html"
     }
   },

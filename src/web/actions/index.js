@@ -9,7 +9,7 @@ export const receiveFlows = createAction('FLOWS/RECEIVE', flows => flows, () => 
 export const fetchFlows = () => dispatch => {
   dispatch(requestFlows())
 
-  axios.get('/flows/all').then(({ data }) => {
+  axios.get('/api/flows/all').then(({ data }) => {
     const flows = _.keyBy(data, 'name')
     dispatch(receiveFlows(flows))
   })
@@ -31,7 +31,7 @@ export const saveAllFlows = flows => (dispatch, getState) => {
     skillData: flow.skillData
   }))
 
-  axios.post('/flows/save', flows).then(() => {
+  axios.post('/api/flows/save', flows).then(() => {
     dispatch(receiveSaveFlows())
   })
 }
@@ -72,20 +72,20 @@ export const setDiagramAction = createAction('FLOWS/FLOW/SET_ACTION')
 // Content
 export const receiveContentCategories = createAction('CONTENT/CATEGORIES/RECEIVE')
 export const fetchContentCategories = id => dispatch =>
-  axios.get('/content/categories').then(({ data }) => {
+  axios.get('/api/content/categories').then(({ data }) => {
     dispatch(receiveContentCategories(data))
   })
 
 export const receiveContentItems = createAction('CONTENT/ITEMS/RECEIVE')
 export const fetchContentItems = ({ id, from, count, searchTerm }) => dispatch =>
   axios
-    .get(`/content/items`, { params: { categoryId: id, from, count, searchTerm } })
+    .get(`/api/content/items`, { params: { categoryId: id, from, count, searchTerm } })
     .then(({ data }) => dispatch(receiveContentItems(data)))
 
 export const receiveContentItemsRecent = createAction('CONTENT/ITEMS/RECEIVE_RECENT')
 export const fetchContentItemsRecent = ({ searchTerm, count = 5, categoryId = 'all' }) => dispatch =>
   axios
-    .get(`/content/items`, { params: { categoryId, count, searchTerm, orderBy: ['createdOn', 'desc'] } })
+    .get(`/api/content/items`, { params: { categoryId, count, searchTerm, orderBy: ['createdOn', 'desc'] } })
     .then(({ data }) => dispatch(receiveContentItemsRecent(data)))
 
 export const receiveContentItem = createAction('CONTENT/ITEMS/RECEIVE_ONE')
@@ -93,17 +93,19 @@ export const fetchContentItem = (id, force = false) => (dispatch, getState) => {
   if (!id || (!force && getState().content.itemsById[id])) {
     return Promise.resolve()
   }
-  return axios.get(`/content/items/${id}`).then(({ data }) => dispatch(receiveContentItem(data)))
+  return axios.get(`/api/content/items/${id}`).then(({ data }) => dispatch(receiveContentItem(data)))
 }
 
 export const receiveContentItemsCount = createAction('CONTENT/ITEMS/RECEIVE_COUNT')
 export const fetchContentItemsCount = (categoryId = 'all') => dispatch =>
-  axios.get(`/content/items/count`, { params: { categoryId } }).then(data => dispatch(receiveContentItemsCount(data)))
+  axios
+    .get(`/api/content/items/count`, { params: { categoryId } })
+    .then(data => dispatch(receiveContentItemsCount(data)))
 
 export const upsertContentItem = ({ categoryId, formData, modifyId }) => () =>
-  axios.post(`/content/categories/${categoryId}/items/${modifyId || ''}`, { formData })
+  axios.post(`/api/content/categories/${categoryId}/items/${modifyId || ''}`, { formData })
 
-export const deleteContentItems = data => () => axios.post('/content/categories/all/bulk_delete', data)
+export const deleteContentItems = data => () => axios.post('/api/content/categories/all/bulk_delete', data)
 
 // License
 export const licenseChanged = createAction('LICENSE/CHANGED')
@@ -148,7 +150,9 @@ export const fetchModules = () => dispatch => {
 
 // Rules
 export const rulesReceived = createAction('RULES/RECEIVED')
-export { fetchRules } from '+/actions'
+export const fetchRules = () => dispatch => {
+  dispatch(rulesReceived([]))
+}
 
 // Notifications
 export const allNotificationsReceived = createAction('NOTIFICATIONS/ALL_RECEIVED')

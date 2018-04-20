@@ -1,5 +1,3 @@
-/* global BP_EDITION */
-
 import Promise from 'bluebird'
 import { static as staticMiddleware } from 'express'
 import path from 'path'
@@ -59,7 +57,7 @@ module.exports = bp => {
   const serveCustomTheme = app => {
     let customTheme = ''
 
-    if (BP_EDITION !== 'lite' && bp.licensing.getFeatures().whitelabel === true) {
+    if (bp.licensing.getFeatures().whitelabel === true) {
       const themeLocation = path.join(bp.projectLocation, 'theme.css')
       if (fs.existsSync(themeLocation)) {
         customTheme = fs.readFileSync(themeLocation)

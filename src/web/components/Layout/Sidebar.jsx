@@ -7,9 +7,10 @@ import classnames from 'classnames'
 
 import ReactSidebar from 'react-sidebar'
 import SidebarHeader from './SidebarHeader'
-import RulesChecker from '+/views/RulesChecker'
 
 import GhostChecker from '~/views/GhostContent/Checker'
+
+const RulesChecker = props => props.children
 
 const style = require('./Sidebar.scss')
 

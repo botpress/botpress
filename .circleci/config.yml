@@ -7,7 +7,7 @@ jobs:
   build:
     docker:
       # specify the version you desire here
-      - image: circleci/node:7.10
+      - image: circleci/node:carbon
       - image: postgres:9.5
         environment:
           - POSTGRES_USER=botpress
@@ -39,7 +39,7 @@ jobs:
         
       - run:
           name: Run tests
-          command: yarn test
+          command: yarn --force --build-from-source && yarn test
           environment:
             PG_USER: botpress
             PG_DB: test

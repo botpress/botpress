@@ -168,7 +168,7 @@ run('helpers', () => {
       const now = helpers(knex).date.now()
       const laterToday = helpers(knex).date.format(
         moment()
-          .add(1, 'hours')
+          .add(1, 'minutes')
           .toDate()
       )
       const tomorrow = helpers(knex).date.format(
