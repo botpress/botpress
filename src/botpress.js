@@ -36,7 +36,6 @@ import SkillsManager from './skills'
 import createHelpers from './helpers'
 import stats from './stats'
 import packageJson from '../package.json'
-import createMediator from '+/mediator'
 
 import createServer from './server'
 import Queue from '+/queue'
@@ -183,7 +182,6 @@ class botpress {
     const middlewares = createMiddlewares(this, dataLocation, projectLocation, logger)
     const { hear, middleware: hearMiddleware } = createHearMiddleware()
     const { middleware: fallbackMiddleware } = createFallbackMiddleware(this)
-    const mediator = createMediator(this)
 
     const users = createUsers({ db })
     const ghostManager = createGhostManager({
@@ -274,7 +272,6 @@ class botpress {
       licensing,
       modules,
       db,
-      mediator,
       cloud,
       renderers,
       get umm() {
@@ -309,7 +306,6 @@ class botpress {
     skillsManager.registerSkillsFromModules(_.values(loadedModules))
     await contentManager.init()
 
-    mediator.install()
     notifications._bindEvents()
 
     const server = createServer(this)
