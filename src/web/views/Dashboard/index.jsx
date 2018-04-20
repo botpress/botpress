@@ -8,7 +8,8 @@ import _ from 'lodash'
 import ContentWrapper from '~/components/Layout/ContentWrapper'
 import PageHeader from '~/components/Layout/PageHeader'
 import ModulesComponent from '~/components/Modules'
-import InformationRowComponent from '+/views/Information'
+import InformationComponent from '~/components/Information'
+import HeroComponent from '~/components/Hero'
 
 import { fetchModules } from '~/actions'
 
@@ -66,7 +67,14 @@ export default class DashboardView extends React.Component {
           <span> Dashboard</span>
         </PageHeader>
         <Grid fluid className={'bp-dashboard'}>
-          <InformationRowComponent />
+          <Row>
+            <Col sm={12} md={8}>
+              <InformationComponent />
+            </Col>
+            <Col xs={12} sm={8} md={4} smOffset={2} mdOffset={0}>
+              <HeroComponent />
+            </Col>
+          </Row>
           <Row>
             <Col sm={12} md={6}>
               {this.renderPopularModules()}
