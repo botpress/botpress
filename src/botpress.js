@@ -35,10 +35,11 @@ import DialogJanitor from './dialog/janitor'
 import SkillsManager from './skills'
 import createHelpers from './helpers'
 import stats from './stats'
+import Queue from './queues/memory'
+
 import packageJson from '../package.json'
 
 import createServer from './server'
-import Queue from '+/queue'
 
 import { getDataLocation, getBotpressVersion } from './util'
 
