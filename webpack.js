@@ -1,3 +1,5 @@
+process.traceDeprecation = true
+
 const webpack = require('webpack')
 const path = require('path')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
