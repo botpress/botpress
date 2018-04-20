@@ -8,7 +8,6 @@ import cluster from 'cluster'
 import dotenv from 'dotenv'
 import ms from 'ms'
 
-import ServiceLocator from '+/ServiceLocator'
 import EventBus from './bus'
 
 import createMiddlewares from './middlewares'
@@ -300,8 +299,6 @@ class botpress {
       messages,
       skills: skillsManager
     })
-
-    ServiceLocator.init({ bp: this })
 
     const loadedModules = await modules._load(moduleDefinitions, this)
 
