@@ -6,7 +6,6 @@ import multer from 'multer'
 import Promise from 'bluebird'
 
 import util from '../util'
-import ExtraApiProviders from '+/api'
 
 let logsSecret = nanoid()
 
@@ -58,6 +57,10 @@ module.exports = (bp, app) => {
 
   app.secure('read', 'notifications').get('/api/notifications/inbox', async (req, res) => {
     res.send(await bp.notifications.getInbox())
+  })
+
+  app.get('/api/my-account', async (req, res) => {
+    res.send(req.user)
   })
 
   app.secure('read', 'bot/information').get('/api/bot/information', (req, res) => {
@@ -234,7 +237,4 @@ module.exports = (bp, app) => {
   app.secure('read', 'bot/skills').post('/api/skills/:skillId/generate', async (req, res) => {
     res.send(await bp.skills.generateFlow(req.params.skillId, req.body))
   })
-
-  const apis = ExtraApiProviders(bp, app)
-  apis.secured.map(x => x && x()) // Install all secured APIs
 }
