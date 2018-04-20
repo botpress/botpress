@@ -1,6 +1,6 @@
 module.exports = (bp, app) => {
-  app.get('/api/auth/enabled', async (req, res) => {
-    bp.stats.track('api', 'auth', 'enabled')
+  app.get('/api/auth/info', async (req, res) => {
+    bp.stats.track('api', 'auth', 'info')
     res.json(bp.security.getAuthenticationInfo())
   })
 

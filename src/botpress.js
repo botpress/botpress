@@ -156,7 +156,8 @@ class botpress {
       securityConfig: botfile.login,
       projectLocation,
       db,
-      cloud
+      cloud,
+      logger
     })
 
     const modules = createModules(logger, projectLocation, dataLocation, db.kvs)

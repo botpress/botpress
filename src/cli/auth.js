@@ -116,12 +116,12 @@ const doRootLogin = async botUrl => {
 }
 
 const doCloudLogin = async (botUrl, botInfo) => {
-  const userAuthUrl = `${botInfo.cloudEndpoint}/me/cli`
-  const loginUrl = `${botInfo.cloudEndpoint}/api/login/bot/${botInfo.botId}/${botInfo.botEnv}`
+  const userAuthUrl = `${botInfo.endpoint}/me/cli`
+  const loginUrl = `${botInfo.endpoint}/api/login/bot/${botInfo.botId}/${botInfo.botEnv}`
 
   const cloudAuth = readCloudAuth()
 
-  if (!cloudAuth[botInfo.cloudEndpoint]) {
+  if (!cloudAuth[botInfo.endpoint]) {
     const schema = {
       properties: {
         token: {
@@ -140,16 +140,16 @@ const doCloudLogin = async (botUrl, botInfo) => {
       throw new Error('Invalid API Token, expected token starting with "cli__"')
     }
 
-    cloudAuth[botInfo.cloudEndpoint] = apiToken
+    cloudAuth[botInfo.endpoint] = apiToken
     writeCloudAuth(cloudAuth)
   }
 
   try {
-    const authorization = `Bearer ${cloudAuth[botInfo.cloudEndpoint]}`
+    const authorization = `Bearer ${cloudAuth[botInfo.endpoint]}`
     const { data } = await axios.get(loginUrl, { headers: { authorization } })
     return { token: get(data, 'payload.token'), kind: 'refresh' }
   } catch (err) {
-    delete cloudAuth[botInfo.cloudEndpoint]
+    delete cloudAuth[botInfo.endpoint]
     writeCloudAuth(cloudAuth)
     const msg = get(err, 'response.data.message') || err.message
     throw new Error('Could not authenticate to bot using Botpress Cloud, please try again. (' + msg + ')')
@@ -157,16 +157,18 @@ const doCloudLogin = async (botUrl, botInfo) => {
 }
 
 const doLogin = async botUrl => {
-  const res = await axios.get(`${botUrl}/api/auth/enabled`)
+  const res = await axios.get(`${botUrl}/api/auth/info`)
 
   const data = res.data || {}
 
-  if (!data.loginEnabled) {
+  if (!data.type === 'none') {
     return { token: AUTH_DISABLED, kind: 'no-auth' }
-  } else if (!data.useCloud) {
+  } else if (!data.type === 'cloud') {
+    return doCloudLogin(botUrl, data)
+  } else if (data.type === 'root') {
     return doRootLogin(botUrl)
   } else {
-    return doCloudLogin(botUrl, data)
+    throw new Error('Unknown login type: ' + data.type)
   }
 }
 
