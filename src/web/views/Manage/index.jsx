@@ -38,9 +38,8 @@ class ManageView extends React.Component {
   }
 
   refresh = () => {
-    this.queryModules().then(() => {
-      setTimeout(this.props.fetchModules, 5000)
-    })
+    this.queryModules()
+    this.props.fetchModules()
   }
 
   getResultFromSearch(modules) {

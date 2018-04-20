@@ -6,11 +6,18 @@ import ReactBootstrap from 'expose-loader?ReactBootstrap!react-bootstrap'
 import { connect } from 'react-redux'
 import { Provider } from 'react-redux'
 import queryString from 'query-string'
+import axios from 'axios'
 
 import store from './store'
 import { fetchModules } from './actions'
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
-import { moduleViewNames } from './util/Modules'
+import { moduleViewNames } from '~/util/Modules'
+import { getToken } from '~/util/Auth'
+
+const token = getToken()
+if (token) {
+  axios.defaults.headers.common['Authorization'] = `Bearer ${token.token}`
+}
 
 const { m, v } = queryString.parse(location.search)
 const alternateModuleNames = {

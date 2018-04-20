@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import classnames from 'classnames'
-import axios from 'axios'
 import _ from 'lodash'
 
 import { Grid, Row, Col, Alert } from 'react-bootstrap'

@@ -49,7 +49,7 @@ export default class ActionModalForm extends Component {
   }
 
   fetchAvailableFunctions() {
-    return axios.get('/flows/available_functions').then(({ data }) => {
+    return axios.get('/api/flows/available_functions').then(({ data }) => {
       this.setState({ availableFunctions: data })
     })
   }

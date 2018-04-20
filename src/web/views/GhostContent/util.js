@@ -6,7 +6,7 @@ import mapValues from 'lodash/mapValues'
 const transformData = data => mapValues(data, entries => groupBy(entries, 'file'))
 
 export const fetchStatus = () =>
-  axios.get('/ghost_content/status').then(({ data }) => {
+  axios.get('/api/ghost_content/status').then(({ data }) => {
     return transformData(data)
   })
 
@@ -16,4 +16,4 @@ export const getHost = () => {
 }
 
 export const revertPendingFileChanges = (folder, file) =>
-  axios.delete(`/ghost_content/${folder}`, { params: { file } }).then()
+  axios.delete(`/api/ghost_content/${folder}`, { params: { file } }).then()

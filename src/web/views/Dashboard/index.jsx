@@ -10,7 +10,7 @@ import PageHeader from '~/components/Layout/PageHeader'
 import ModulesComponent from '~/components/Modules'
 import InformationRowComponent from '+/views/Information'
 
-import actions from '~/actions'
+import { fetchModules } from '~/actions'
 
 export default class DashboardView extends React.Component {
   state = {
@@ -32,11 +32,7 @@ export default class DashboardView extends React.Component {
     )
   }
 
-  refresh = () => {
-    this.queryAllModules().then(() => {
-      setTimeout(actions.fetchModules, 5000)
-    })
-  }
+  refresh = () => this.queryAllModules()
 
   renderPopularModules() {
     return (

@@ -67,10 +67,8 @@ module.exports = bp => {
       const wrap = method => (name, ...handlers) => {
         const secure = async (req, res, next) => {
           try {
-            if (!req.user) {
-              return next()
-            }
-            return res.sendStatus(403) // HTTP Forbidden
+            return next()
+            // return res.sendStatus(403) // HTTP Forbidden
           } catch (err) {
             return res.status(500).send({ message: err.message })
           }
