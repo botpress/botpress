@@ -150,7 +150,9 @@ export const fetchModules = () => dispatch => {
 
 // Rules
 export const rulesReceived = createAction('RULES/RECEIVED')
-export { fetchRules } from '+/actions'
+export const fetchRules = () => dispatch => {
+  dispatch(rulesReceived([]))
+}
 
 // Notifications
 export const allNotificationsReceived = createAction('NOTIFICATIONS/ALL_RECEIVED')
