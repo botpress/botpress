@@ -87,6 +87,6 @@ Botpress: ${bp.version}`
     },
     changeLicense,
     middleware,
-    getFeatures: () => {}
+    getFeatures: () => ({})
   }
 }
