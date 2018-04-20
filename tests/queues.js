@@ -5,7 +5,7 @@ import { expect } from 'chai'
 import Promise from 'bluebird'
 import _ from 'lodash'
 
-import Queue from '../queue'
+import Queue from '../src/queues/memory'
 
 describe('Lite Queues', () => {
   const options = { retries: 1 }
