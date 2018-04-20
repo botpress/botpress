@@ -7,11 +7,12 @@ import classnames from 'classnames'
 
 import NotificationHub from '~/components/Notifications/Hub'
 import ProfileMenu from '+/views/ProfileMenu'
-import RulesChecker from '+/views/RulesChecker'
 
 import { logout } from '~/util/Auth'
 import style from './Header.scss'
 import { viewModeChanged } from '~/actions'
+
+const RulesChecker = props => props.children
 
 class Header extends React.Component {
   state = {
@@ -33,7 +34,13 @@ class Header extends React.Component {
 
     return (
       <NavDropdown className={style.account} noCaret title={label} id="account-button">
-        <ProfileMenu user={this.props.user} logout={logout} />
+        <MenuItem header>Signed in as</MenuItem>,
+        <MenuItem disabled>✉️&nbsp;{this.props.user.email}</MenuItem>,
+        <MenuItem disabled>👤&nbsp;{this.props.user.username}</MenuItem>,
+        <MenuItem divider />,
+        <MenuItem eventKey={1} onClick={logout}>
+          <b>Logout</b>
+        </MenuItem>
       </NavDropdown>
     )
   }

@@ -6,7 +6,7 @@ import ReactGA from 'react-ga'
 
 import EnsureAuthenticated from '~/components/Authentication'
 import Layout from '~/components/Layout'
-import AdditionnalRoutes from '+/views/Routes/index.jsx'
+import Login from '~/views/Login'
 
 // react-router doesn't do query parsing anymore since V4
 // https://github.com/ReactTraining/react-router/issues/4410
@@ -34,8 +34,7 @@ export default () => {
   return (
     <Router history={history} onUpdate={logPageView}>
       <Switch>
-        {AdditionnalRoutes.loginRoutes()}
-        {AdditionnalRoutes.unsecuredRoutes()}
+        <Route exact path="/login" key="login-route" component={Login} />
         <AuthenticatedLayout />
       </Switch>
     </Router>

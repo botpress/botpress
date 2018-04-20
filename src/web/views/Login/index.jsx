@@ -8,8 +8,6 @@ import classnames from 'classnames'
 import styles from './style.scss'
 import { login } from '~/util/Auth'
 
-import Decorators from '+/views/Login/Decorators.jsx'
-
 export default class LoginPage extends Component {
   static contextTypes = {
     router: PropTypes.object
@@ -23,7 +21,6 @@ export default class LoginPage extends Component {
   }
 
   componentDidMount() {
-    Decorators.LoginInitialization && Decorators.LoginInitialization(this)
     const app = document.getElementById('app')
     app.className = classnames(app.className, 'bp-body-login')
   }
@@ -97,7 +94,7 @@ export default class LoginPage extends Component {
       <form onSubmit={this.handleSubmit}>
         <FormGroup>
           <ControlLabel>User</ControlLabel>
-          <Decorators.User value={this.state.user} onChange={this.handleUserChange} />
+          <FormControl type="text" placeholder="" value={this.state.user} onChange={this.handleUserChange} readOnly />
         </FormGroup>
         <FormGroup>
           <ControlLabel>Password</ControlLabel>
@@ -111,7 +108,6 @@ export default class LoginPage extends Component {
         <Button className="pull-right" type="submit">
           Login
         </Button>
-        <Decorators.ForgotPassword />
       </form>
     )
   }
