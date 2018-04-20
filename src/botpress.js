@@ -36,7 +36,6 @@ import SkillsManager from './skills'
 import createHelpers from './helpers'
 import stats from './stats'
 import packageJson from '../package.json'
-import createEmails from '+/emails'
 import createMediator from '+/mediator'
 
 import createServer from './server'
@@ -184,7 +183,6 @@ class botpress {
     const middlewares = createMiddlewares(this, dataLocation, projectLocation, logger)
     const { hear, middleware: hearMiddleware } = createHearMiddleware()
     const { middleware: fallbackMiddleware } = createFallbackMiddleware(this)
-    const emails = createEmails({ emailConfig: botfile.emails })
     const mediator = createMediator(this)
 
     const users = createUsers({ db })
@@ -276,7 +274,6 @@ class botpress {
       licensing,
       modules,
       db,
-      emails,
       mediator,
       cloud,
       renderers,
