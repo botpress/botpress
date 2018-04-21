@@ -2,7 +2,7 @@ import React from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
-import { Navbar, Nav, NavItem, Glyphicon, NavDropdown } from 'react-bootstrap'
+import { Navbar, Nav, NavItem, Glyphicon, NavDropdown, MenuItem } from 'react-bootstrap'
 import classnames from 'classnames'
 
 import NotificationHub from '~/components/Notifications/Hub'
@@ -33,10 +33,10 @@ class Header extends React.Component {
 
     return (
       <NavDropdown className={style.account} noCaret title={label} id="account-button">
-        <MenuItem header>Signed in as</MenuItem>,
-        <MenuItem disabled>✉️&nbsp;{this.props.user.email}</MenuItem>,
-        <MenuItem disabled>👤&nbsp;{this.props.user.username}</MenuItem>,
-        <MenuItem divider />,
+        <MenuItem header>Signed in as</MenuItem>
+        <MenuItem disabled>✉️&nbsp;{this.props.user.email}</MenuItem>
+        <MenuItem disabled>👤&nbsp;{this.props.user.username}</MenuItem>
+        <MenuItem divider />
         <MenuItem eventKey={1} onClick={logout}>
           <b>Logout</b>
         </MenuItem>
