@@ -24,11 +24,13 @@ clear:
 	rm -rf .node_modules
 	rm -rf "_site/"
 
-
 local:
 	@make clear
 	@make install
 	@make serve-developpement
+
+extract-version:
+	./source_version.sh
 
 serve: test-jekyll
 	@bundle exec jekyll serve --host="127.0.0.1" --port=8080 --trace  --verbose
@@ -46,8 +48,8 @@ serve-production: test-jekyll
 	@JEKYLL_ENV=production bundle exec jekyll serve --host="::" --port=8080
 
 build-production: test-jekyll
+	@make extract-version
 	@JEKYLL_ENV=production bundle exec jekyll build $(BUILD_FLAGS) --config "_config.yml,_config.prod.yml"
-
 
 BUNDLE_EXISTS := $(shell command -v bundle 2> /dev/null)
 YARN_EXISTS := $(shell command -v yarn 2> /dev/null)
