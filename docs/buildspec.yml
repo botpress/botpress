@@ -16,7 +16,7 @@ phases:
       - echo "******* Building Jekyll site *******"
       - chmod +x ./source_version.sh
       - export PACKAGE_VERSION=$(./source_version.sh)
-      - 'echo "baseurl: /docs/$(PACKAGE_VERSION)" > _config.prod.yml'
+      - 'echo "baseurl: /docs/$(PACKAGE_VERSION)/" > _config.prod.yml'
       - make build-production
       - echo "******* Uploading to S3 *******"
       - aws s3 sync _site/ s3://botpress-docs/$PACKAGE_VERSION
