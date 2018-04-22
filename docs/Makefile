@@ -46,7 +46,7 @@ serve-production: test-jekyll
 	@JEKYLL_ENV=production bundle exec jekyll serve --host="::" --port=8080
 
 build-production: test-jekyll
-	@JEKYLL_ENV=production bundle exec jekyll build $(BUILD_FLAGS)
+	@JEKYLL_ENV=production bundle exec jekyll build $(BUILD_FLAGS) --config "_config.yml,_config.prod.yml"
 
 
 BUNDLE_EXISTS := $(shell command -v bundle 2> /dev/null)
