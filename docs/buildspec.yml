@@ -20,3 +20,9 @@ phases:
       - make build-production
       - echo "******* Uploading to S3 *******"
       - aws s3 sync _site/ s3://botpress-docs/$PACKAGE_VERSION
+      - > # Get all versions from S3 directory and put them into a "versions.txt" file
+        aws s3 ls s3://botpress-docs/ --recursive \ 
+        | grep -Eio '\s([0-9.A-Za-z]+)\/index\.html' \ 
+        | sed 's!/index.html!!g' > versions.txt
+      - node make_versions.js > versions.json
+      - aws s3 cp versions.json s3://botpress-docs/
