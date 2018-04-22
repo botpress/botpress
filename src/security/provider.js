@@ -1,3 +1,8 @@
+/**
+ * Security Provider
+ * @module security
+ */
+
 export default class AbstractAuthenticationProvider {
   constructor(options) {
     Object.assign(this, options)
@@ -5,7 +10,7 @@ export default class AbstractAuthenticationProvider {
 
   /**
    * @abstract
-   * Login a user to the configured provider
+   * @description Login a user to the configured provider
    * @return {object} An authenticated User object or false if invalid login
    */
   login() {
@@ -14,7 +19,7 @@ export default class AbstractAuthenticationProvider {
 
   /**
    * @abstract
-   * Returns a fresh token from an old (but still active) token
+   * @description Returns a fresh token from an old (but still active) token
    * @return {{ success: bool, token: string, reason: string }} A token object
    */
   refreshToken() {
@@ -23,7 +28,7 @@ export default class AbstractAuthenticationProvider {
 
   /**
    * Authenticates a user from an authentication header
-   * Example of header is: "bearer your_token_here"
+   * @description Example of header is: "bearer your_token_here"
    * @return {object} An authenticated User object or false if invalid login
    */
   async authenticate(authHeader) {
@@ -37,7 +42,6 @@ export default class AbstractAuthenticationProvider {
 
   /**
    * @abstract
-   * @return {[type]} [description]
    */
   async authenticateWithError() {
     throw new Error('Abstract Class: Needs to be implemented')
@@ -45,7 +49,7 @@ export default class AbstractAuthenticationProvider {
 
   /**
    * @abstract
-   * Retrieve the user's identity from an authentication token
+   * @description Retrieve the user's identity from an authentication token
    * @return {object} An authenticated User object or false if invalid token
    */
   getUserIdentity() {
@@ -54,7 +58,7 @@ export default class AbstractAuthenticationProvider {
 
   /**
    * @abstract
-   * Returns information about the authentication provider and authentication status
+   * @description Returns information about the authentication provider and authentication status
    * @return {Object} Varies from provider to the other
    */
   getAuthenticationInfo() {
@@ -63,7 +67,7 @@ export default class AbstractAuthenticationProvider {
 
   /**
    * @abstract
-   * Returns a public JWT certificate or a private JWT key used to sign tokens and validate its origin
+   * @description Returns a public JWT certificate or a private JWT key used to sign tokens and validate its origin
    * @return {String} The public certificate or private secret
    */
   getJWTSecretOrCertificate() {
