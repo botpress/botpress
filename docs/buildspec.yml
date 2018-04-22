@@ -23,7 +23,7 @@ phases:
       - aws s3 sync _site/ s3://botpress-docs/$PACKAGE_VERSION
 
       # Build for $GITHUB_BRANCH
-      - export PACKAGE_VERSION=$(if [ -z ${$GITHUB_BRANCH+x} ]; then echo "beta"; else echo $GITHUB_BRANCH; fi)
+      - export PACKAGE_VERSION=$(if [ -z ${GITHUB_BRANCH+x} ]; then echo "beta"; else echo "$GITHUB_BRANCH"; fi)
       - echo "******* Building Jekyll site (version $PACKAGE_VERSION) *******"
       - 'echo "baseurl: /docs/$PACKAGE_VERSION" > _config.prod.yml'
       - make build-production
