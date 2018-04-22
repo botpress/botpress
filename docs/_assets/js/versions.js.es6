@@ -1,25 +1,15 @@
-import * as $ from 'jquery';
+import * as $ from 'jquery'
 
-// var guides = $('.install-guide');
+function update() {
+  jQuery.getJSON('https://s3.amazonaws.com/botpress-docs/versions.json', function(data) {
+    $('#dropdownVersion + .dropdown-menu').empty()
+    const current = $('.navbar-versions-label').text()
+    data.sort().reverse().forEach(version => {
+      const activeCls = current === version ? ' active' : ''
+      $('#dropdownVersion + .dropdown-menu').append(`<a href="/docs/${version}" class="dropdown-item ${activeCls}">${version}</a>`)
+    })
+  })
+}
 
-// function update() {
-  
-
-//   // $('.bs-select').selectpicker('refresh');
-
-//   guides.each(function(index, guide) {
-//     let matched = Object.keys(match).every(function(key) {
-//       return guide.dataset[key] === match[key];
-//     });
-
-//     var $guide = $(guide);
-
-//     $guide.toggleClass('active', matched);
-//     $guide.attr('aria-hidden', !matched);
-//   });
-// }
-
-// update();
-// setTimeout(() => update(), 1000);
-
-console.log('TESTING VERSIONS SCRIPT', $)
+update()
+setTimeout(() => update(), 1000)
