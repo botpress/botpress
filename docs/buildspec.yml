@@ -6,6 +6,8 @@ phases:
       - gem install jekyll bundler
   pre_build:
     commands:
+      - yarn install
+      - yarn run gen-reference
       - cd docs/
       - echo "***** Install Dependancy Ruby *****"
       - bundle install
@@ -21,7 +23,8 @@ phases:
       - make build-production
       - echo "******* Uploading to S3 *******"
       - aws s3 sync _site/ s3://botpress-docs/$PACKAGE_VERSION
-
+      - aws s3 sync reference/ s3://botpress-docs/$PACKAGE_VERSION/reference
+      
       # Build for $GITHUB_BRANCH
       - export PACKAGE_VERSION=$(if [ -z ${GITHUB_BRANCH+x} ]; then echo "beta"; else echo "$GITHUB_BRANCH"; fi)
       - echo "******* Building Jekyll site (version $PACKAGE_VERSION) *******"
@@ -29,6 +32,7 @@ phases:
       - make build-production
       - echo "******* Uploading to S3 *******"
       - aws s3 sync _site/ s3://botpress-docs/$PACKAGE_VERSION
+      - aws s3 sync reference/ s3://botpress-docs/$PACKAGE_VERSION/reference
 
       - > # Get all versions from S3 directory and put them into a "versions.txt" file
         aws s3 ls s3://botpress-docs/ --recursive 
