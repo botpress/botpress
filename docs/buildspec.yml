@@ -13,13 +13,23 @@ phases:
       - npm install
   build:
     commands:
-      - echo "******* Building Jekyll site *******"
+      # Build for specific version
       - chmod +x ./source_version.sh
       - export PACKAGE_VERSION=$(./source_version.sh)
+      - echo "******* Building Jekyll site (version $PACKAGE_VERSION) *******"
       - 'echo "baseurl: /docs/$PACKAGE_VERSION" > _config.prod.yml'
       - make build-production
       - echo "******* Uploading to S3 *******"
       - aws s3 sync _site/ s3://botpress-docs/$PACKAGE_VERSION
+
+      # Build for $GITHUB_BRANCH
+      - export PACKAGE_VERSION=$(if [ -z ${$GITHUB_BRANCH+x} ]; then echo "beta"; else echo $GITHUB_BRANCH; fi)
+      - echo "******* Building Jekyll site (version $PACKAGE_VERSION) *******"
+      - 'echo "baseurl: /docs/$PACKAGE_VERSION" > _config.prod.yml'
+      - make build-production
+      - echo "******* Uploading to S3 *******"
+      - aws s3 sync _site/ s3://botpress-docs/$PACKAGE_VERSION
+
       - > # Get all versions from S3 directory and put them into a "versions.txt" file
         aws s3 ls s3://botpress-docs/ --recursive 
         | grep -Eio '\s([0-9.A-Za-z]+)\/index\.html' 
