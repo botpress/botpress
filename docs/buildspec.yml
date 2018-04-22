@@ -14,6 +14,9 @@ phases:
   build:
     commands:
       - echo "******* Building Jekyll site *******"
-      - bundle exec jekyll build
+      - echo "baseUrl: \"/docs/10.1\"" > _config.prod.yml
+      - echo "ENV VARIABLES"
+      - echo "THERE ===>>>> $CODEBUILD_SOURCE_VERSION"
+      - make build-production
       - echo "******* Uploading to S3 *******"
-      - aws s3 sync _site/ s3://botpress-docs/docs
+#      - aws s3 sync _site/ s3://botpress-docs/docs
