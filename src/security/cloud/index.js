@@ -26,7 +26,7 @@ export default class CloudAuthentication extends AbstractAuthenticationProvider 
     }
   }
 
-  async authenticateWithError(authHeader) {
+  async authenticateWithError(authHeader, allowProof = false) {
     const [scheme, token] = (authHeader || 'invalid header').split(' ')
 
     if (scheme.toLowerCase() !== 'bearer') {
@@ -38,7 +38,7 @@ export default class CloudAuthentication extends AbstractAuthenticationProvider 
 
     const decoded = jwt.verify(token, secret, { algorithms: [algorithm] })
 
-    if (decoded.identity_proof_only) {
+    if (!allowProof && decoded.identity_proof_only) {
       return false
     }
 
@@ -67,7 +67,7 @@ export default class CloudAuthentication extends AbstractAuthenticationProvider 
   }
 
   async getUserIdentity(token) {
-    return this.authenticateWithError('bearer ' + token)
+    return this.authenticateWithError('bearer ' + token, true)
   }
 
   async getJWTSecretOrCertificate() {
