@@ -1,3 +1,10 @@
+/**
+ * @namespace Botpress
+ * @property {DialogEngine}  dialogEngine
+ * @property {KVS}  kvs
+ * @property {Database}  db
+ */
+
 import 'source-map-support/register'
 
 import chalk from 'chalk'
@@ -62,15 +69,7 @@ const mkdirIfNeeded = (path, logger) => {
 
 const REQUIRED_PROPS = ['botUrl']
 
-/**
- * Global context botpress
- */
 class botpress {
-  /**
-   * Create botpress
-   * @hideconstructor
-   * @param {string} obj.botfile - the config path
-   */
   constructor({ botfile }) {
     this.version = getBotpressVersion()
     /**
@@ -289,11 +288,6 @@ class botpress {
       ghostManager,
       contentManager,
       mediaManager,
-      /**
-       * @public
-       * @type {DialogEngine}
-       * @memberOf! botpress#
-       */
       dialogEngine,
       dialogJanitor,
       messages,

@@ -59,7 +59,7 @@ module.exports = knex => {
      * knex's createTableIfNotExists doesn't work with postgres
      * https://github.com/tgriesser/knex/issues/1303
      * @param  {String}   tableName Name of the table to create
-     * @param  {Function<table>} cb        Callback function. Identical to Knex's callback.
+     * @param  {Function} Callback function. Identical to Knex's callback.
      */
     createTableIfNotExists: (tableName, cb) => {
       return knex.schema.hasTable(tableName).then(exists => {

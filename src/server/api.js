@@ -93,7 +93,7 @@ module.exports = bp => {
      * Where `name` is a string starting with `botpress-`
      * @func
      * @alias getRouter
-     * @memberOf! botpress#
+     * @memberOf! Botpress
      * @param  {String} name       The name of the router. Must start with `botpress-`
      * @param  {object=} [conditions] See examples. Conditionally disables built-in Botpress middlewares.
      * @example
@@ -125,6 +125,28 @@ module.exports = bp => {
 
     const links = {}
 
+    /**
+     * Creates a short link for a specific API route, making it easier to share, more verbose and elegant.
+     * Short links are available as `http://bot_url/s/{name}`
+     * @alias  createShortlink
+     * @param  {String} name        Unique, url-friendly name of the short link
+     * @param  {String} destination The original route to redirect to
+     * @param  {Object} params      Query parameters to pass the route. Will be serialized.
+     * @memberof! Botpress
+     * @example
+     *   const config = {
+  botName: 'Superbot',
+  botConvoDescription: "Tell me something!",
+  backgroundColor: '#ffffff'
+}
+
+// Visiting "http://bot_url/s/chat" will display the webchat in fullscreen mode
+bp.createShortlink('chat', '/lite', {
+  m: 'channel-web',
+  v: 'fullscreen',
+  options: JSON.stringify({ config: config })
+})
+     */
     bp.createShortlink = (name, destination, params) => {
       name = name.toLowerCase()
 

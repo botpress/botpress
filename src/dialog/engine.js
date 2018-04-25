@@ -9,11 +9,11 @@ const MAX_STACK_SIZE = 100
 /** The Dialog Engine (or Dialog Manager) is the component that
  handles the flow logic. It it responsible for executing flows, including
  executing the actions and flowing to the nodes, redirections etc. 
+ @namespace DialogEngine
  @example
  bp.dialogEngine.processMessage(...)
  */
 class DialogEngine {
-  /** @hideconstructor */
   constructor({ flowProvider, stateManager, options, logger = loggerShim }) {
     Object.assign(this, { logger, flowProvider, stateManager })
 
