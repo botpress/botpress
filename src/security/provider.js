@@ -1,5 +1,6 @@
 /**
  * Security Provider
+ * @private
  * @module security
  */
 

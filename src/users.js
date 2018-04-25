@@ -1,7 +1,25 @@
+/**
+ * The Users namespace contains operations available for the known users of your bot.
+ * @public
+ * @namespace Users
+ * @example
+ * bp.users
+ */
+
 import _ from 'lodash'
 import helpers from './database/helpers'
 
 module.exports = ({ db }) => {
+  /**
+   * Returns whether or not a user has a specific tag or not.
+   * @param  {String} userId
+   * @param  {String} tag    The name of the tag. Case insensitive.
+   * @return {Boolean}
+   * @async
+   * @memberof! Users
+   * @example
+   * if (await bp.users.hasTag(event.user.id, 'IS_SUBSCRIBED')) {...}
+   */
   const hasTag = async (userId, tag) => {
     const knex = await db.get()
 
@@ -12,6 +30,21 @@ module.exports = ({ db }) => {
       .then(ret => ret.length > 0)
   }
 
+  /**
+   * Tags a user with a specific tag (or overwrites an existing one) and a given value for that tag (optional).
+   * Tags can be used to classify users (no value needed) or to store information about them (with a tag value).
+   * Values are useful to store user information like emails, etc.
+   * Value is always assumed to be a string.
+   * @param  {String}  userId
+   * @param  {String}  tag    The name of the tag.
+   * Case insensitive. Note that this property will always be upper-cased.
+   * @param  {String} [value]  Any string value to store info about this tag
+   * @async
+   * @memberof! Users
+   * @example
+   * await bp.users.tag(event.user.id, 'EMAIL', 'sylvain@botpress.io')
+   * await bp.users.tag(event.user.id, 'PAYING_USER')
+   */
   const tag = async (userId, tag, value = true) => {
     const knex = await db.get()
 
@@ -37,19 +70,30 @@ module.exports = ({ db }) => {
         })
         .then()
     }
-
-    return true
   }
 
+  /**
+   * Removes a tag from a user if it exists.
+   * @param  {String} userId
+   * @param  {String} tag    Name of the tag. Case-insensitive.
+   * @memberof! Users
+   */
   const untag = async (userId, tag) => {
     const knex = await db.get()
 
-    return knex('users_tags')
+    await knex('users_tags')
       .where({ userId, tag: _.toUpper(tag) })
       .del()
       .then()
   }
 
+  /**
+   * Returns the value of a user tag, if it exists
+   * @param  {String} userId [description]
+   * @param  {String} tag    [description]
+   * @return {?String}        Value of the tag
+   * @memberof! Users
+   */
   const getTag = async (userId, tag) => {
     const knex = await db.get()
 
@@ -62,6 +106,12 @@ module.exports = ({ db }) => {
       .then(ret => ret && ret.value)
   }
 
+  /**
+   * Returns all the tags for a given user
+   * @param  {String} userId [description]
+   * @return {Array.<{ tag: String, value: String}>}        An array of all the tags for this user
+   * @memberof! Users
+   */
   const getTags = async userId => {
     const knex = await db.get()
 
