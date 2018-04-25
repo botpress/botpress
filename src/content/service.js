@@ -1,3 +1,13 @@
+/**
+ * The Content Manager is mainly in charge of storing and retrieving
+ * all the content that is stored and known by the bot. The content includes (but is not limited to)
+ * the messages that the bot sends to users.
+ * @see {@link https://botpress.io/docs/10.0/getting_started/trivia_content/}
+ * @namespace  ContentManager
+ * @example
+ * bp.contentManager
+ */
+
 import path from 'path'
 import fs from 'fs'
 
@@ -84,6 +94,41 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
     return result
   }
 
+  /**
+   * @typedef {Object} ContentManager~Element
+   * @memberOf ContentManager
+   */
+
+  /**
+   * @typedef {Object} ContentManager~CategorySchema
+   * @memberOf ContentManager
+   * @prop {Object} json The JSONSchema
+   * @prop {String} ui The UI JSONSchema
+   * @property {String} description
+   * @property {String} renderer The name of the Content Renderer
+   */
+
+  /**
+   * @typedef {Object} ContentManager~Category
+   * @memberOf ContentManager
+   * @prop {String} id
+   * @prop {String} title
+   * @property {String} description
+   * @property {Number} count The number of elements in that category
+   * @property {ContentManager~CategorySchema} schema
+   */
+
+  /**
+   * Returns the elements of a given category
+   * @param  {String} categoryId The category, for example `text` or `trivia`.
+   * @param  {Number} [options.from=0] Pagination parameter (where to start)
+   * @param  {Number} [options.count=50] Pagination parameter (how many elements to return)
+   * @param  {String} [options.searchTerm=] Only return the elements containing this term
+   * @param  {Array.<String>}  [options.orderBy=['createdOn']]    A list of properties to order the elements by.
+   * @return {ContentManager~Element[]}
+   * @public
+   * @memberOf! ContentManager
+   */
   const listCategoryItems = async (categoryId, { from = 0, count = 50, searchTerm, orderBy = ['createdOn'] } = {}) => {
     let query = knex('content_items')
 
@@ -118,6 +163,11 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
 
   const dumpAllDataToFiles = () => Promise.map(categories, ({ id }) => dumpDataToFile(id))
 
+  /**
+   * Get the schema for a given category
+   * @param  {String} categoryId [description]
+   * @return {ContentManager~CategorySchema}
+   */
   const getCategorySchema = categoryId => {
     const category = _.find(categories, { id: categoryId })
     if (category == null) {
@@ -133,6 +183,12 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
     }
   }
 
+  /**
+   * Returns all the categories
+   * @public
+   * @return {ContentManager~Category[]}
+   * @memberOf! ContentManager
+   */
   const listAvailableCategories = () =>
     Promise.map(categories, async category => {
       const count = await knex('content_items')
@@ -233,6 +289,15 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
     }
   }
 
+  /**
+   * Creates or updates an [Element]{@link ContentManager~Element}
+   * @param  {String} [options.itemId=] The id of the element to add
+   * @param  {String} options.categoryId The category of the element
+   * @param  {Object} options.formData The content of the element
+   * @async
+   * @public
+   * @memberOf! ContentManager
+   */
   const createOrUpdateCategoryItem = async ({ itemId, categoryId, formData }) => {
     categoryId = categoryId && categoryId.toLowerCase()
     const category = _.find(categories, { id: categoryId })
@@ -290,6 +355,16 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
       .get(0)
   }
 
+  /**
+   * Retrieves one item
+   * @param  {String} query Usually the id of the {@link ContentManager.Element},
+   * but can also be a call to a {@link ContentManager.ElementProvider}.
+   * @return {ContentManager.ElementProvider}
+   * @memberof! ContentManager
+   * @example
+   * await bp.contentManager.getItem('#!trivia-12345')
+   * await bp.contentManager.getItem('#trivia-random()')
+   */
   const getItem = async query => {
     const providerRegex = /-(.+)\((.*)\)$/i
 
@@ -442,6 +517,40 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
     )
   }
 
+  /**
+   * @callback ElementProvider
+   * @memberOf!  ContentManager
+   * @param {KnexInstance} knex An instance of Knex
+   * @param {String} category The name of the category
+   * @param {String} args A string with whatever was passed in the parans e.g. "random(25)"
+   * @example
+const randomProvider = (knex, category, args) => {
+return knex('content_items')
+  .where({ categoryId: category })
+  .orderBy(knex.raw('random()'))
+  .limit(1)
+  .get(0)
+}
+   */
+
+  /**
+   * Register a new item provider, which is used when parsing query for {@link ContentManager~getItem}
+   * @param  {String} name The name of the provider, e.g. `random`
+   * @param  {ContentManager.ElementProvider} fn A content provider function
+   * @memberOf ContentManager
+   * @public
+   * @example
+// returns a random element from a given category
+const randomProvider = (knex, category, args) => {
+  return knex('content_items')
+    .where({ categoryId: category })
+    .orderBy(knex.raw('random()'))
+    .limit(1)
+    .get(0)
+}
+
+bp.contentManager.registerGetItemProvider('random', randomProvider)
+   */
   const registerGetItemProvider = (name, fn) => {
     name = name.toLowerCase()
     getItemProviders[name] = fn
