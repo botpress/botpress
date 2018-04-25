@@ -87,6 +87,23 @@ module.exports = bp => {
   }
 
   const installRouter = app => {
+    /**
+     * Creates an HTTP [Express Router]{@link https://expressjs.com/} that is protected by authentication
+     * The router routes are available at "http://bot_url/api/:name"
+     * Where `name` is a string starting with `botpress-`
+     * @func
+     * @alias getRouter
+     * @memberOf! botpress#
+     * @param  {String} name       The name of the router. Must start with `botpress-`
+     * @param  {object=} [conditions] See examples. Conditionally disables built-in Botpress middlewares.
+     * @example
+     * const securedRouter = bp.getRouter('botpress-custom')
+     * const publicRouter = bp.getRouter('botpress-custom', { auth: false })
+     *
+     * // Conditions can also be used like below
+     * const conditions = { 'auth': req => !/\/webhook/i.test(req.originalUrl) }
+     * const conditionalAuthentication = bp.getRouter('botpress-custom', conditions)
+     */
     bp.getRouter = (name, conditions) => {
       if (!/^botpress-/.test(name)) {
         throw new Error(`The name of a router must start with 'botpress-'. Received: ${name}`)
