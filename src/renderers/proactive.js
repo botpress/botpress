@@ -26,6 +26,8 @@ module.exports = ({ sendContent, db }) => {
    * @param  {object} data Additionnal data that will be passed to the renderer
    * @async
    * @memberof! ContentRenderer
+   * @example
+   * bp.renderers.sendToUser(event.user.id, '#!text-77734', { typingIndicators: false })
    */
   const sendToUser = async (user, elementOrRenderer, data) => {
     if (!_.isString(elementOrRenderer)) {
