@@ -1,3 +1,15 @@
+/**
+ * Helpers for the [Botpress Database]{@link Database} running on [Knex]{@link http://knexjs.org/}
+ * @public
+ * @module DatabaseHelpers
+ * @example
+ * import { DatabaseHelpers } from 'botpress'
+ * // or
+ * const { DatabaseHelpers } from 'botpress'
+ *
+ * const helpers = DatabaseHelpers(await bp.db.get())
+ */
+
 /*
   The goal of these helpers is to generate SQL queries
   that are valid for both SQLite and Postgres
@@ -36,10 +48,19 @@ module.exports = knex => {
   }
 
   return {
+    /**
+     * Returns whether or not the current database is SQLite
+     * @return {Boolean} Returns true if the database is SQLite, false if Postgres
+     */
     isLite: () => isLite(knex),
 
-    // knex's createTableIfNotExists doesn't work with postgres
-    // https://github.com/tgriesser/knex/issues/1303
+    /**
+     * **This is a workaround utility function**
+     * knex's createTableIfNotExists doesn't work with postgres
+     * https://github.com/tgriesser/knex/issues/1303
+     * @param  {String}   tableName Name of the table to create
+     * @param  {Function<table>} cb        Callback function. Identical to Knex's callback.
+     */
     createTableIfNotExists: (tableName, cb) => {
       return knex.schema.hasTable(tableName).then(exists => {
         if (exists) {
@@ -51,7 +72,6 @@ module.exports = knex => {
 
     date: {
       format: dateFormat,
-
       now: () => (isLite(knex) ? knex.raw("strftime('%Y-%m-%dT%H:%M:%fZ', 'now')") : knex.raw('now()')),
 
       isBefore: (d1, d2) => {
