@@ -140,8 +140,11 @@ class botpress {
 
     const db = createDatabase({
       sqlite: { location: dbLocation },
-      postgres: botfile.postgres
+      postgres: botfile.postgres,
+      logger
     })
+
+    const kvs = db._kvs
 
     const cloud = await createCloud({ projectLocation, botfile, logger })
 
@@ -159,7 +162,7 @@ class botpress {
       logger
     })
 
-    const modules = createModules(logger, projectLocation, dataLocation, db.kvs)
+    const modules = createModules(logger, projectLocation, dataLocation, kvs)
 
     const moduleDefinitions = modules._scan()
 
@@ -273,6 +276,7 @@ class botpress {
       licensing,
       modules,
       db,
+      kvs,
       cloud,
       renderers,
       get umm() {

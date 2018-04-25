@@ -1,3 +1,11 @@
+/**
+ * The db (database) namespace lets you control the database directly via [Knex]{@link http://knexjs.org/}
+ * @public
+ * @namespace Database
+ * @example
+ * await knex = bp.db.get()
+ */
+
 import Promise from 'bluebird'
 import moment from 'moment'
 import knex from 'knex'
@@ -39,7 +47,7 @@ const createKnex = async ({ sqlite, postgres }) => {
   return _knex
 }
 
-module.exports = ({ sqlite, postgres }) => {
+module.exports = ({ sqlite, postgres, logger }) => {
   let knex = null
 
   const getDb = async () => {
@@ -112,13 +120,30 @@ module.exports = ({ sqlite, postgres }) => {
   }
 
   const kvsGet = (...args) => getKvs().then(instance => instance.get(...args))
-
   const kvsSet = (...args) => getKvs().then(instance => instance.set(...args))
 
+  const kvsWrapper = { get: kvsGet, set: kvsSet }
+
   return {
+    /**
+     * Returns an initialized and connected instance of [Knex]{@link http://knexjs.org/}.
+     * Knex is a SQL Query Builder and database abstractor that Botpress (and every Botpress modules) use internally.
+     * [Knex Documentation]{@link http://knexjs.org/#Builder}
+     * @func
+     * @async
+     * @memberOf! Database
+     * @return {KnexQueryBuilder}
+     */
     get: getDb,
     saveUser,
     location: postgres.enabled ? 'postgres' : sqlite.location,
-    kvs: { get: kvsGet, set: kvsSet }
+    get kvs() {
+      logger &&
+        logger.warn(
+          '[Deprecation Notice] `bp.db.kvs` is deprecated and will be removed in Botpress 11. Please use `bp.kvs` directly instead.'
+        )
+      return kvsWrapper
+    },
+    _kvs: kvsWrapper
   }
 }

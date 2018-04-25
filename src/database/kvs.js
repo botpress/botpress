@@ -4,7 +4,8 @@
  * @public
  * @namespace KVS
  * @example
- * bp.db.kvs
+ * bp.kvs
+ * bp.db.kvs // ⚠️ Deprecated, will be removed in Botpress 11
  */
 
 import Promise from 'bluebird'
@@ -59,11 +60,11 @@ module.exports = (knex, options = {}) => {
    * @return {?*} Returns the unserialized object of any type stored at that key or null if it doesn't exist
    * @example
    * // Assuming 'user001' is an Object like `{ profile: { first_name: "Sylvain" } }`
-   * const first_name = await bp.db.kvs.get('user001', 'profile.first_name')
-   * const fullUser = await bp.db.kvs.get('user001')
+   * const first_name = await bp.kvs.get('user001', 'profile.first_name')
+   * const fullUser = await bp.kvs.get('user001')
    *
    * // You can also retrieve array elements
-   * const first_subscriber = await bp.db.kvs.get('subscribers', '[0].name')
+   * const first_subscriber = await bp.kvs.get('subscribers', '[0].name')
    * @memberOf! KVS
    * @async
    */
@@ -93,13 +94,12 @@ module.exports = (knex, options = {}) => {
    * @param  {*} value The value to store. Note that if you provide an object or array, it will be serialized to JSON automatically.
    * Therefore, you have to make sure that your object is serializable (i.e. it has no circular references)
    * @param  {String=} [path]  The path inside the object to set the value (see example)
-   * @return {[type]}       [description]
    * @example
    * const user = { profile: { name: 'Sylvain' } }
-   * await bp.db.kvs.set('user001', user)
+   * await bp.kvs.set('user001', user)
    *
    * // You can later overwrite the `name` property directly
-   * await bp.db.kvs.set('user001', 'Sylvain Perron', 'name')
+   * await bp.kvs.set('user001', 'Sylvain Perron', 'name')
    * @async
    * @memberof! KVS
    */
