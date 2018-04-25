@@ -1,3 +1,19 @@
+/**
+ * The complete Triforce, or one or more components of the Triforce.
+ * @typedef {Function} Logger~MessageLogger
+ * @param {String} message Message to log
+ * @param {...Object} objects Additional objects to log
+ */
+
+/**
+ * @class Logger
+ * @prop {Logger~MessageLogger} debug Logs message for debugging purposes
+ * (hidden in production by default, see {@link Botfile} to change this)
+ * @prop {Logger~MessageLogger} info Logs informative messages (shown in production)
+ * @prop {Logger~MessageLogger} warn Logs warning messages (shown in production)
+ * @prop {Logger~MessageLogger} error Logs error messages (shown in production)
+ */
+
 import winston from 'winston'
 import path from 'path'
 import Promise from 'bluebird'

@@ -1,9 +1,22 @@
 /**
+ * The global instance of Botpress, which is the main object
+ * your bot will use to interact with Botpress.
+ * @var {Botpress} bp
+ * @example
+ * // File: index.js
+ * // All bots are passed an instance of `bp` upon start
+ * // This is an example of an empty bot
+ * module.exports = (bp) => { ... }
+ */
+
+/**
  * @namespace Botpress
  * @property {DialogEngine}  dialogEngine APIs to create and manipulate conversation flows
  * @property {KVS}  kvs Convenient, high-level storage mechanism
  * @property {Database}  db (Advanced) Access to the internal Botpress Database
  * @property {Users}  users Store and manipulate data about users
+ * @property {DialogStateManager}  dialogEngine.stateManager APIs to manipulate conversation states
+ * @property {Logger}  logger Logging utility
  */
 
 import 'source-map-support/register'

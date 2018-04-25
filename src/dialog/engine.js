@@ -263,8 +263,8 @@ class DialogEngine {
   }
 
   /**
-   * @private
    * Returns all the available functions along with their metadata
+   * @private
    */
   getAvailableFunctions() {
     return _.values(this.functions)

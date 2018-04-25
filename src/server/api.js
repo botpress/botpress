@@ -140,7 +140,7 @@ module.exports = bp => {
   backgroundColor: '#ffffff'
 }
 
-// Visiting "http://bot_url/s/chat" will display the webchat in fullscreen mode
+// Visiting "http://bot_url/s/chat" will display the webchat in fullscreen
 bp.createShortlink('chat', '/lite', {
   m: 'channel-web',
   v: 'fullscreen',
