@@ -14,10 +14,13 @@
  * @property {DialogEngine}  dialogEngine APIs to create and manipulate conversation flows
  * @property {KVS}  kvs Convenient, high-level storage mechanism
  * @property {ContentManager}  contentManager APIs to manage the content programmatically
+ * @property {ContentRenderer}  renderers Change the look and feel of the
+ * Content Elements (messages) on the different channels
  * @property {Database}  db (Advanced) Access to the internal Botpress Database
  * @property {Users}  users Store and manipulate data about users
  * @property {DialogStateManager}  dialogEngine.stateManager APIs to manipulate conversation states
  * @property {Logger}  logger Logging utility
+ * @property {Botfile}  botfile The current botfile of the running bot
  */
 
 import 'source-map-support/register'

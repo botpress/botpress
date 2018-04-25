@@ -20,15 +20,16 @@ module.exports = ({ sendContent, db }) => {
   }
 
   /**
-   * Sends a proactive message to a user
-   * @param  {string|object} user UserId or a full user object
-   * @param  {string} bloc The bloc name to send
-   * @param  {object} data Additional data to provide to the bloc
-   * @return {Promise}      A promise that the bloc is sent
+   * Proactively sends a user a message
+   * @param  {string|object} user id or a full user object
+   * @param  {string} elementOrRenderer The name of the renderer to use OR an element id
+   * @param  {object} data Additionnal data that will be passed to the renderer
+   * @async
+   * @memberof! ContentRenderer
    */
-  const sendToUser = async (user, rendererName, data) => {
-    if (!_.isString(rendererName)) {
-      throw new Error('Invalid renderer: ' + rendererName)
+  const sendToUser = async (user, elementOrRenderer, data) => {
+    if (!_.isString(elementOrRenderer)) {
+      throw new Error('Invalid renderer: ' + elementOrRenderer)
     }
 
     if (_.isString(user)) {
@@ -48,7 +49,7 @@ module.exports = ({ sendContent, db }) => {
       raw: { forged: true, message: text, to: user && user.id }
     }
 
-    return sendContent(forgedEvent, rendererName, data)
+    return sendContent(forgedEvent, elementOrRenderer, data)
   }
 
   return { sendToUser }

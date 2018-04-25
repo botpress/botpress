@@ -1,3 +1,11 @@
+/**
+ * The Content Renderer is in charge of transforming an {@link ContentManager~Element}
+ * into a channel-specific object.
+ * @namespace ContentRenderer
+ * @example
+ * bp.renderers
+ */
+
 import _ from 'lodash'
 import Promise from 'bluebird'
 
@@ -24,6 +32,19 @@ module.exports = ({ logger, middlewares, db, contentManager, botfile }) => {
     processors[platform] = processOutgoing
   }
 
+  /**
+   * @callback Renderer
+   * @memberof! ContentRenderer
+   * @example
+   * bp.renderers.register('#text', data => ({ text: data.englishText }))
+   */
+
+  /**
+   * Registers a new renderer
+   * @param  {String} name Unique name of the renderer (e.g. `#text`).
+   * @param  {ContentRenderer.Renderer} rendererFn The rendering function
+   * @memberOf! ContentRenderer
+   */
   const register = (name, rendererFn) => {
     if (!_.isString(name)) {
       throw new Error(`Renderer name must be a string, received ${name}`)
@@ -35,6 +56,11 @@ module.exports = ({ logger, middlewares, db, contentManager, botfile }) => {
     renderers[name] = rendererFn
   }
 
+  /**
+   * Removes a specific renderer if it exists
+   * @param  {String} name Unique name of the renderer (e.g. `#text`)
+   * @memberOf! ContentRenderer
+   */
   const unregister = name => {
     if (!_.isString(name)) {
       throw new Error(`Renderer name must be a string, received ${name}`)
@@ -42,12 +68,15 @@ module.exports = ({ logger, middlewares, db, contentManager, botfile }) => {
     if (name.startsWith('#')) {
       name = name.substr(1)
     }
-    if (!renderers[name]) {
-      throw new Error(`Unknown renderer "${name}"`)
-    }
     delete renderers[name]
   }
 
+  /**
+   * Returns whether or not a renderer is already registered
+   * @param  {String} name Unique name of the renderer (e.g. `#text`)
+   * @return {Boolean}
+   * @memberOf! ContentRenderer
+   */
   const isRegistered = name => {
     if (!_.isString(name)) {
       throw new Error(`Renderer name must be a string, received ${name}`)
