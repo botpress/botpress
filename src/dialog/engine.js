@@ -193,6 +193,7 @@ class DialogEngine {
    * @param {string} processor.id - The unique id of the processor
    * @param {Function} processor.send - The `send` function of the processor
    * @returns {void}
+   * @private
    */
   registerOutputProcessor(processor) {
     if (_.isNil(processor) || !_.isFunction(processor.send) || !_.isString(processor.id)) {
@@ -211,6 +212,7 @@ class DialogEngine {
    * @param {Function} A function taking the name of a function, returning metadata of that function
    * Valid metadata could include: "description" and "params[...{ name, description }]"
    * @returns {void}
+   * @private
    */
   setFunctionMetadataProvider(provider) {
     if (!_.isFunction(provider)) {
@@ -261,6 +263,7 @@ class DialogEngine {
   }
 
   /**
+   * @private
    * Returns all the available functions along with their metadata
    */
   getAvailableFunctions() {
