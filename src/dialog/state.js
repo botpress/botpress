@@ -1,3 +1,12 @@
+/**
+ * The Dialog State Manager is in charge of keeping track of the state
+ * for all conversations. This is being used internally by the [Dialog Engine]{@link DialogEngine}
+ * but is also exposed publicly if you need to programmatically alter the state of some conversations.
+ * @namespace DialogStateManager
+ * @example
+ * bp.dialogEngine.stateManager
+ */
+
 import helpers from '../database/helpers'
 import _ from 'lodash'
 
@@ -58,6 +67,15 @@ module.exports = ({ db, internals = {} }) => {
     await knex('dialog_sessions').insert(sessionData)
   }
 
+  /**
+   * Returns the current state of the conversation
+   * @param  {String} stateId
+   * @return {Object} The conversation state
+   * @async
+   * @memberof! DialogStateManager
+   * @example
+   * const state = await bp.dialogEngine.stateManager.getState(event.user.id)
+   */
   const getState = async stateId => {
     const knex = await db.get()
 
@@ -82,6 +100,14 @@ module.exports = ({ db, internals = {} }) => {
     }
   }
 
+  /**
+   * Overwrites the state of a current conversation
+   * @param  {String} stateId
+   * @param {Object} state The conversation state
+   * @return {Object} The new state
+   * @async
+   * @memberof! DialogStateManager
+   */
   const setState = (stateId, state) => {
     if (_.isNil(state)) {
       state = _createEmptyState(stateId)
@@ -95,10 +121,11 @@ module.exports = ({ db, internals = {} }) => {
   }
 
   /**
-   * Deletes the state(s) and the associated substates (for e.g. ___context state)
+   * Deletes the state(s) and (optionally) the associated sub-states (for e.g. ___context sub-state)
    * @param stateId The state to delete
-   * @param substates Detaults to ['context']. If this is empty it will delete no substate
-   * @returns {Promise.<void>}
+   * @param {Array<String>} [substates] Detaults to ['context']. If this is empty it will delete no substate
+   * @async
+   * @memberof! DialogStateManager
    */
   const deleteState = async (stateId, substates = ['context']) => {
     const knex = await db.get()

@@ -1,8 +1,9 @@
 /**
  * @namespace Botpress
- * @property {DialogEngine}  dialogEngine
- * @property {KVS}  kvs
- * @property {Database}  db
+ * @property {DialogEngine}  dialogEngine APIs to create and manipulate conversation flows
+ * @property {KVS}  kvs Convenient, high-level storage mechanism
+ * @property {Database}  db (Advanced) Access to the internal Botpress Database
+ * @property {Users}  users Store and manipulate data about users
  */
 
 import 'source-map-support/register'
