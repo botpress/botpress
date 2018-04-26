@@ -1,3 +1,11 @@
+/**
+ * The middleware chain is in charge of pre-processing incoming and outgoing messages.
+ * A middleware can for example translate a message on receiving and before sending.
+ * Most middleware are registered by the modules. For example, the Analytics module
+ * keeps track of the messages with the help of an incoming and an outgoing middleware.
+ * @namespace Middleware
+ */
+
 import _ from 'lodash'
 import mware from 'mware'
 import path from 'path'
@@ -99,6 +107,37 @@ module.exports = (bp, dataLocation, projectLocation, logger) => {
     writeCustomizations()
   }
 
+  /**
+   * @typedef {Object} Event
+   * @prop {String} platform
+   * @prop {String} text
+   * @prop {object} raw
+   * @prop {String} type
+   * @memberOf! Middleware
+   */
+
+  /**
+   * @callback Handler
+   * @memberOf! Middleware
+   * @param {Object} event The incoming or outgoing event
+   * @param {Function} next Call this function to make the event flow to the next middleware (see example)
+   */
+
+  /**
+   * @typedef {Object} Middleware
+   * @memberOf! Middleware
+   * @property {String} name Unique name of the middleware
+   * @property {Middleware.Handler} handler The handler function
+   * @property {String} type Can be 'incoming' or 'outgoing'
+   * @property {Number} order A positive number from 0 (before everything else) to 1000 (last middleware)
+   * @property {Boolean} [enabled=true] Whether this middleware is enabled or not
+   */
+
+  /**
+   * Registers a new middleware into the chain
+   * @param  {Middleware.Middleware} middleware The middleware to register
+   * @memberOf! Middleware
+   */
   const register = middleware => {
     if (!middleware || !middleware.name) {
       logger.error('A unique middleware name is mandatory')
@@ -170,7 +209,18 @@ module.exports = (bp, dataLocation, projectLocation, logger) => {
     load,
     list,
     register,
+    /**
+     * Sends an incoming event (from the user to the bot)
+     * @param  {Middleware.Event} event An event object
+     * @memberOf! Middleware
+     */
     sendIncoming: event => bp.messages.in.enqueue(event),
+
+    /**
+     * Sends an outgoing event (from the bot to the user)
+     * @param  {Middleware.Event} event An event object
+     * @memberOf! Middleware
+     */
     sendOutgoing: event => bp.messages.out.enqueue(event),
     sendIncomingImmediately: sendToMiddleware('incoming'),
     sendOutgoingImmediately: sendToMiddleware('outgoing'),
