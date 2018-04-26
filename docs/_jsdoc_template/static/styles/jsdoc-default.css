@@ -355,7 +355,7 @@ section {
 
 .details dt {
   width: 120px;
-  float: right;
+  float: left;
   padding-left: 10px;
 }
 
