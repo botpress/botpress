@@ -1,5 +1,4 @@
 /**
- * The complete Triforce, or one or more components of the Triforce.
  * @typedef {Function} Logger~MessageLogger
  * @param {String} message Message to log
  * @param {...Object} objects Additional objects to log

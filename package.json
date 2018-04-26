@@ -169,7 +169,7 @@
     "commitmsg": "commitlint -e $GIT_PARAMS",
     "precommit": "lint-staged",
     "lint": "eslint {src,lib,tests}/**/*.{js,jsx}",
-    "gen-reference": "jsdoc src -r --template node_modules/minami -d docs/reference"
+    "gen-reference": "jsdoc src -c docs/jsdoc.conf.json"
   },
   "cross-os": {
     "compile-prod": {
