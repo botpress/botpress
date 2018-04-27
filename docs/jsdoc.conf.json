@@ -18,6 +18,7 @@
     "template": "docs/_jsdoc_template",
     "encoding": "utf8",
     "destination": "./docs/reference",
-    "recurse": true
+    "recurse": true,
+    "readme": "./CHANGELOG.md"
   }
 }

@@ -4,17 +4,20 @@ A clean, responsive documentation template theme for JSDoc 3.
 
 ![Minami Screenshot](http://i.imgur.com/rPCIFqT.png)
 
+
 ## Uses
 
-*   [the Taffy Database library](http://taffydb.com/)
-*   [Underscore Template library](http://underscorejs.org/#template)
-*   [Montserrat](https://fonts.google.com/specimen/Montserrat) & Helvetica Neue
+- [the Taffy Database library](http://taffydb.com/)
+- [Underscore Template library](http://underscorejs.org/#template)
+- [Montserrat](https://fonts.google.com/specimen/Montserrat) & Helvetica Neue
+
 
 ## Install
 
 ```bash
 $ npm install --save-dev minami
 ```
+
 
 ## Usage
 
@@ -23,6 +26,7 @@ Clone repository to your designated `jsdoc` template directory, then:
 ```bash
 $ jsdoc entry-file.js -t path/to/minami
 ```
+
 
 ### Node.js Dependency
 
@@ -42,6 +46,7 @@ In your `.jsdoc.json` file, add a template option.
 }
 ```
 
+
 ### Example JSDoc Config
 
 ```json
@@ -55,7 +60,9 @@ In your `.jsdoc.json` file, add a template option.
         "includePattern": ".js$",
         "excludePattern": "(node_modules/|docs)"
     },
-    "plugins": ["plugins/markdown"],
+    "plugins": [
+        "plugins/markdown"
+    ],
     "templates": {
         "cleverLinks": false,
         "monospaceLinks": true,
@@ -73,6 +80,7 @@ In your `.jsdoc.json` file, add a template option.
 ```
 
 Specifying a number for useLongnameInNav it will be the max number of path elements to show in nav (starting from Class).
+
 
 ## License
 

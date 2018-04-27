@@ -1,25 +1,25 @@
 /*global env: true */
 'use strict'
 
-const doop = require('jsdoc/util/doop')
-const fs = require('jsdoc/fs')
-const helper = require('jsdoc/util/templateHelper')
-const logger = require('jsdoc/util/logger')
-const path = require('jsdoc/path')
-const taffy = require('taffydb').taffy
-const template = require('jsdoc/template')
-const util = require('util')
+var doop = require('jsdoc/util/doop')
+var fs = require('jsdoc/fs')
+var helper = require('jsdoc/util/templateHelper')
+var logger = require('jsdoc/util/logger')
+var path = require('jsdoc/path')
+var taffy = require('taffydb').taffy
+var template = require('jsdoc/template')
+var util = require('util')
 
-const htmlsafe = helper.htmlsafe
-const linkto = helper.linkto
-const resolveAuthorLinks = helper.resolveAuthorLinks
-const scopeToPunc = helper.scopeToPunc
-const hasOwnProp = Object.prototype.hasOwnProperty
+var htmlsafe = helper.htmlsafe
+var linkto = helper.linkto
+var resolveAuthorLinks = helper.resolveAuthorLinks
+var scopeToPunc = helper.scopeToPunc
+var hasOwnProp = Object.prototype.hasOwnProperty
 
-let data
-let view
+var data
+var view
 
-let outdir = path.normalize(env.opts.destination)
+var outdir = path.normalize(env.opts.destination)
 
 function find(spec) {
   return helper.find(data, spec)
@@ -42,21 +42,21 @@ function hashToLink(doclet, hash) {
     return hash
   }
 
-  let url = helper.createLink(doclet)
+  var url = helper.createLink(doclet)
 
   url = url.replace(/(#.+|$)/, hash)
   return '<a href="' + url + '">' + hash + '</a>'
 }
 
 function needsSignature(doclet) {
-  let needsSig = false
+  var needsSig = false
 
   // function and class definitions always get a signature
   if (doclet.kind === 'function' || doclet.kind === 'class') {
     needsSig = true
   } else if (doclet.kind === 'typedef' && doclet.type && doclet.type.names && doclet.type.names.length) {
     // typedefs that contain functions get a signature, too
-    for (let i = 0, l = doclet.type.names.length; i < l; i++) {
+    for (var i = 0, l = doclet.type.names.length; i < l; i++) {
       if (doclet.type.names[i].toLowerCase() === 'function') {
         needsSig = true
         break
@@ -68,7 +68,7 @@ function needsSignature(doclet) {
 }
 
 function getSignatureAttributes(item) {
-  const attributes = []
+  var attributes = []
 
   if (item.optional) {
     attributes.push('opt')
@@ -84,8 +84,8 @@ function getSignatureAttributes(item) {
 }
 
 function updateItemName(item) {
-  const attributes = getSignatureAttributes(item)
-  let itemName = item.name || ''
+  var attributes = getSignatureAttributes(item)
+  var itemName = item.name || ''
 
   if (item.variable) {
     itemName = '&hellip;' + itemName
@@ -107,7 +107,7 @@ function addParamAttributes(params) {
 }
 
 function buildItemTypeStrings(item) {
-  const types = []
+  var types = []
 
   if (item && item.type && item.type.names) {
     item.type.names.forEach(function(name) {
@@ -119,7 +119,7 @@ function buildItemTypeStrings(item) {
 }
 
 function buildAttribsString(attribs) {
-  let attribsString = ''
+  var attribsString = ''
 
   if (attribs && attribs.length) {
     attribsString = htmlsafe(util.format('(%s) ', attribs.join(', ')))
@@ -129,7 +129,7 @@ function buildAttribsString(attribs) {
 }
 
 function addNonParamAttributes(items) {
-  let types = []
+  var types = []
 
   items.forEach(function(item) {
     types = types.concat(buildItemTypeStrings(item))
@@ -139,15 +139,15 @@ function addNonParamAttributes(items) {
 }
 
 function addSignatureParams(f) {
-  const params = f.params ? addParamAttributes(f.params) : []
+  var params = f.params ? addParamAttributes(f.params) : []
   f.signature = util.format('%s(%s)', f.signature || '', params.join(', '))
 }
 
 function addSignatureReturns(f) {
-  const attribs = []
-  let attribsString = ''
-  let returnTypes = []
-  let returnTypesString = ''
+  var attribs = []
+  var attribsString = ''
+  var returnTypes = []
+  var returnTypesString = ''
 
   // jam all the return-type attributes into an array. this could create odd results (for example,
   // if there are both nullable and non-nullable return types), but let's assume that most people
@@ -181,15 +181,15 @@ function addSignatureReturns(f) {
 }
 
 function addSignatureTypes(f) {
-  const types = f.type ? buildItemTypeStrings(f) : []
+  var types = f.type ? buildItemTypeStrings(f) : []
 
   f.signature =
     (f.signature || '') + '<span class="type-signature">' + (types.length ? ' :' + types.join('|') : '') + '</span>'
 }
 
 function addAttribs(f) {
-  const attribs = helper.getAttribs(f)
-  const attribsString = buildAttribsString(attribs)
+  var attribs = helper.getAttribs(f)
+  var attribsString = buildAttribsString(attribs)
 
   f.attribs = util.format('<span class="type-signature">%s</span>', attribsString)
 }
@@ -218,13 +218,13 @@ function getPathFromDoclet(doclet) {
 function generate(type, title, docs, filename, resolveLinks) {
   resolveLinks = resolveLinks === false ? false : true
 
-  const docData = {
+  var docData = {
     type: type,
     title: title,
     docs: docs
   }
 
-  let outpath = path.join(outdir, filename),
+  var outpath = path.join(outdir, filename),
     html = view.render('container.tmpl', docData)
 
   if (resolveLinks) {
@@ -237,9 +237,9 @@ function generate(type, title, docs, filename, resolveLinks) {
 function generateSourceFiles(sourceFiles, encoding) {
   encoding = encoding || 'utf8'
   Object.keys(sourceFiles).forEach(function(file) {
-    let source
+    var source
     // links are keyed to the shortened path in each doclet's `meta.shortpath` property
-    const sourceOutfile = helper.getUniqueFilename(sourceFiles[file].shortened)
+    var sourceOutfile = helper.getUniqueFilename(sourceFiles[file].shortened)
     helper.registerLink(sourceFiles[file].shortened, sourceOutfile)
 
     try {
@@ -267,7 +267,7 @@ function generateSourceFiles(sourceFiles, encoding) {
  * @param {Array.<module:jsdoc/doclet.Doclet>} modules - The array of module doclets to search.
  */
 function attachModuleSymbols(doclets, modules) {
-  const symbols = {}
+  var symbols = {}
 
   // build a lookup table
   doclets.forEach(function(symbol) {
@@ -311,11 +311,11 @@ function attachModuleSymbols(doclets, modules) {
  * @return {array} The HTML for the navigation sidebar.
  */
 function buildNav(members) {
-  let nav = []
-  const seen = {}
-  const seenTutorials = {}
+  var nav = []
+  var seen = {}
+  var seenTutorials = {}
 
-  nav.push(buildNavLink('home', '<a href="index.html">Home</a>'))
+  nav.push(buildNavLink('home', `<a href="index.html">What's new</a>`))
 
   if (members.globals.length) {
     nav.push(buildNavHeading(linkto('global', 'Globals')))
@@ -330,10 +330,9 @@ function buildNav(members) {
   }
 
   nav = nav.concat(buildMemberNav(members.namespaces, 'Namespaces', seen, linkto))
-  nav = nav.concat(buildMemberNav(members.modules, 'Modules', {}, linkto))
   nav = nav.concat(buildMemberNav(members.tutorials, 'Tutorials', seenTutorials, linktoTutorial))
   nav = nav.concat(buildMemberNav(members.classes, 'Classes', seen, linkto))
-
+  nav = nav.concat(buildMemberNav(members.modules, 'Modules', {}, linkto))
   nav = nav.concat(buildMemberNav(members.externals, 'Externals', seen, linktoExternal))
   nav = nav.concat(buildMemberNav(members.events, 'Events', seen, linkto))
   nav = nav.concat(buildMemberNav(members.mixins, 'Mixins', seen, linkto))
@@ -343,20 +342,20 @@ function buildNav(members) {
 }
 
 function buildMemberNav(items, itemHeading, itemsSeen, linktoFn) {
-  const nav = []
-  const conf = env.conf.templates || {}
+  var nav = []
+  var conf = env.conf.templates || {}
 
   conf.default = conf.default || {}
 
   if (items && items.length) {
-    const itemsNav = ''
+    var itemsNav = ''
 
     nav.push(buildNavHeading(itemHeading))
 
     items.forEach(function(item) {
-      const methods = find({ kind: 'function', memberof: item.longname })
-      const members = find({ kind: 'member', memberof: item.longname })
-      let displayName
+      var methods = find({ kind: 'function', memberof: item.longname })
+      var members = find({ kind: 'member', memberof: item.longname })
+      var displayName
 
       if (!hasOwnProp.call(item, 'longname')) {
         nav.push(buildNavItem(linkfoFn('', item.name)))
@@ -368,8 +367,8 @@ function buildMemberNav(items, itemHeading, itemsSeen, linktoFn) {
           displayName = item.longname
 
           if (conf.default.useLongnameInNav > 0 && conf.default.useLongnameInNav !== true) {
-            const num = conf.default.useLongnameInNav
-            const cropped = item.longname
+            var num = conf.default.useLongnameInNav
+            var cropped = item.longname
               .split('.')
               .slice(-num)
               .join('.')
@@ -469,18 +468,18 @@ function buildNavType(type, typeLink) {
 exports.publish = function(taffyData, opts, tutorials) {
   data = taffyData
 
-  const conf = env.conf.templates || {}
+  var conf = env.conf.templates || {}
   conf.default = conf.default || {}
 
-  const templatePath = path.normalize(opts.template)
+  var templatePath = path.normalize(opts.template)
   view = new template.Template(path.join(templatePath, 'tmpl'))
 
   // claim some special filenames in advance, so the All-Powerful Overseer of Filename Uniqueness
   // doesn't try to hand them out later
-  const indexUrl = helper.getUniqueFilename('index')
+  var indexUrl = helper.getUniqueFilename('index')
 
   // don't call registerLink() on this one! 'index' is also a valid longname
-  const globalUrl = helper.getUniqueFilename('global')
+  var globalUrl = helper.getUniqueFilename('global')
   helper.registerLink('global', globalUrl)
 
   // set up templating
@@ -494,15 +493,15 @@ exports.publish = function(taffyData, opts, tutorials) {
   data.sort('longname, version, since')
   helper.addEventListeners(data)
 
-  let sourceFiles = {}
-  const sourceFilePaths = []
+  var sourceFiles = {}
+  var sourceFilePaths = []
 
   data().each(function(doclet) {
     doclet.attribs = ''
 
     if (doclet.examples) {
       doclet.examples = doclet.examples.map(function(example) {
-        let caption, code
+        var caption, code
 
         if (example.match(/^\s*<caption>([\s\S]+?)<\/caption>(\s*[\n\r])([\s\S]+)$/i)) {
           caption = RegExp.$1
@@ -523,7 +522,7 @@ exports.publish = function(taffyData, opts, tutorials) {
     }
 
     // build a list of source files
-    let sourcePath
+    var sourcePath
     if (doclet.meta) {
       sourcePath = getPathFromDoclet(doclet)
 
@@ -539,26 +538,26 @@ exports.publish = function(taffyData, opts, tutorials) {
   })
 
   // update outdir if necessary, then create outdir
-  const packageInfo = (find({ kind: 'package' }) || [])[0]
+  var packageInfo = (find({ kind: 'package' }) || [])[0]
   if (packageInfo && packageInfo.name) {
     outdir = path.join(outdir, packageInfo.name, packageInfo.version || '')
   }
   fs.mkPath(outdir)
 
   // copy the template's static files to outdir
-  const fromDir = path.join(templatePath, 'static')
-  const staticFiles = fs.ls(fromDir, 3)
+  var fromDir = path.join(templatePath, 'static')
+  var staticFiles = fs.ls(fromDir, 3)
 
   staticFiles.forEach(function(fileName) {
-    const toDir = fs.toDir(fileName.replace(fromDir, outdir))
+    var toDir = fs.toDir(fileName.replace(fromDir, outdir))
     fs.mkPath(toDir)
     fs.copyFileSync(fileName, toDir)
   })
 
   // copy user-specified static files to outdir
-  let staticFilePaths
-  let staticFileFilter
-  let staticFileScanner
+  var staticFilePaths
+  var staticFileFilter
+  var staticFileScanner
   if (conf.default.staticFiles) {
     // The canonical property name is `include`. We accept `paths` for backwards compatibility
     // with a bug in JSDoc 3.2.x.
@@ -567,11 +566,11 @@ exports.publish = function(taffyData, opts, tutorials) {
     staticFileScanner = new (require('jsdoc/src/scanner')).Scanner()
 
     staticFilePaths.forEach(function(filePath) {
-      const extraStaticFiles = staticFileScanner.scan([filePath], 10, staticFileFilter)
+      var extraStaticFiles = staticFileScanner.scan([filePath], 10, staticFileFilter)
 
       extraStaticFiles.forEach(function(fileName) {
-        const sourcePath = fs.toDir(filePath)
-        const toDir = fs.toDir(fileName.replace(sourcePath, outdir))
+        var sourcePath = fs.toDir(filePath)
+        var toDir = fs.toDir(fileName.replace(sourcePath, outdir))
         fs.mkPath(toDir)
         fs.copyFileSync(fileName, toDir)
       })
@@ -583,11 +582,11 @@ exports.publish = function(taffyData, opts, tutorials) {
   }
 
   data().each(function(doclet) {
-    const url = helper.createLink(doclet)
+    var url = helper.createLink(doclet)
     helper.registerLink(doclet.longname, url)
 
     // add a shortened version of the full path
-    let docletPath
+    var docletPath
     if (doclet.meta) {
       docletPath = getPathFromDoclet(doclet)
       docletPath = sourceFiles[docletPath].shortened
@@ -598,7 +597,7 @@ exports.publish = function(taffyData, opts, tutorials) {
   })
 
   data().each(function(doclet) {
-    const url = helper.longnameToUrl[doclet.longname]
+    var url = helper.longnameToUrl[doclet.longname]
 
     if (url.indexOf('#') > -1) {
       doclet.id = helper.longnameToUrl[doclet.longname].split(/#/).pop()
@@ -629,11 +628,11 @@ exports.publish = function(taffyData, opts, tutorials) {
     }
   })
 
-  const members = helper.getMembers(data)
+  var members = helper.getMembers(data)
   members.tutorials = tutorials.children
 
   // output pretty-printed source files by default
-  const outputSourceFiles = conf.default && conf.default.outputSourceFiles !== false ? true : false
+  var outputSourceFiles = conf.default && conf.default.outputSourceFiles !== false ? true : false
 
   // add template helpers
   view.find = find
@@ -644,9 +643,6 @@ exports.publish = function(taffyData, opts, tutorials) {
   view.outputSourceFiles = outputSourceFiles
 
   // once for all
-  view.assets =
-    '<link type="text/css" rel="stylesheet" href="https://botpress.io/docs/beta/assets/main-690d564cfd3bc214200522fa573252f175b220fe0fc355880eb755c8531dbf07.css">'
-
   view.nav = buildNav(members)
   attachModuleSymbols(find({ longname: { left: 'module:' } }), members.modules)
 
@@ -660,12 +656,12 @@ exports.publish = function(taffyData, opts, tutorials) {
   }
 
   // index page displays information from package.json and lists files
-  const files = find({ kind: 'file' })
-  const packages = find({ kind: 'package' })
+  var files = find({ kind: 'file' })
+  var packages = find({ kind: 'package' })
 
   generate(
     '',
-    'Home',
+    "What's new in Botpress",
     packages
       .concat([
         {
@@ -679,40 +675,40 @@ exports.publish = function(taffyData, opts, tutorials) {
   )
 
   // set up the lists that we'll use to generate pages
-  const classes = taffy(members.classes)
-  const modules = taffy(members.modules)
-  const namespaces = taffy(members.namespaces)
-  const mixins = taffy(members.mixins)
-  const externals = taffy(members.externals)
-  const interfaces = taffy(members.interfaces)
+  var classes = taffy(members.classes)
+  var modules = taffy(members.modules)
+  var namespaces = taffy(members.namespaces)
+  var mixins = taffy(members.mixins)
+  var externals = taffy(members.externals)
+  var interfaces = taffy(members.interfaces)
 
   Object.keys(helper.longnameToUrl).forEach(function(longname) {
-    const myModules = helper.find(modules, { longname: longname })
+    var myModules = helper.find(modules, { longname: longname })
     if (myModules.length) {
       generate('Module', myModules[0].name, myModules, helper.longnameToUrl[longname])
     }
 
-    const myClasses = helper.find(classes, { longname: longname })
+    var myClasses = helper.find(classes, { longname: longname })
     if (myClasses.length) {
       generate('Class', myClasses[0].name, myClasses, helper.longnameToUrl[longname])
     }
 
-    const myNamespaces = helper.find(namespaces, { longname: longname })
+    var myNamespaces = helper.find(namespaces, { longname: longname })
     if (myNamespaces.length) {
       generate('Namespace', myNamespaces[0].name, myNamespaces, helper.longnameToUrl[longname])
     }
 
-    const myMixins = helper.find(mixins, { longname: longname })
+    var myMixins = helper.find(mixins, { longname: longname })
     if (myMixins.length) {
       generate('Mixin', myMixins[0].name, myMixins, helper.longnameToUrl[longname])
     }
 
-    const myExternals = helper.find(externals, { longname: longname })
+    var myExternals = helper.find(externals, { longname: longname })
     if (myExternals.length) {
       generate('External', myExternals[0].name, myExternals, helper.longnameToUrl[longname])
     }
 
-    const myInterfaces = helper.find(interfaces, { longname: longname })
+    var myInterfaces = helper.find(interfaces, { longname: longname })
     if (myInterfaces.length) {
       generate('Interface', myInterfaces[0].name, myInterfaces, helper.longnameToUrl[longname])
     }
@@ -720,15 +716,15 @@ exports.publish = function(taffyData, opts, tutorials) {
 
   // TODO: move the tutorial functions to templateHelper.js
   function generateTutorial(title, tutorial, filename) {
-    const tutorialData = {
+    var tutorialData = {
       title: title,
       header: tutorial.title,
       content: tutorial.parse(),
       children: tutorial.children
     }
 
-    const tutorialPath = path.join(outdir, filename)
-    let html = view.render('tutorial.tmpl', tutorialData)
+    var tutorialPath = path.join(outdir, filename)
+    var html = view.render('tutorial.tmpl', tutorialData)
 
     // yes, you can use {@link} in tutorials too!
     html = helper.resolveLinks(html) // turn {@link foo} into <a href="foodoc.html">foo</a>

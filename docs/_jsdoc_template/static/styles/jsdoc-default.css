@@ -1,6 +1,6 @@
 @import url(https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,500i,500,600,600i|Roboto);
 
-/** {
+* {
   box-sizing: border-box;
 }
 
@@ -9,8 +9,8 @@ body {
   height: 100%;
   width: 100%;
 }
-*/
-/*body {
+
+body {
   color: #4d4e53;
   background-color: white;
   margin: 0 auto;
@@ -19,8 +19,8 @@ body {
   font-size: 16px;
   line-height: 160%;
 }
-*/
-/*a,
+
+a,
 a:active {
   color: #0095dd;
   text-decoration: none;
@@ -28,7 +28,7 @@ a:active {
 
 a:hover {
   text-decoration: underline;
-}*/
+}
 
 p,
 ul,
@@ -142,12 +142,12 @@ blockquote {
 }
 
 /** Container **/
-/*#main {
-  float: left;
+#main {
+  float: right;
   min-width: 360px;
-  width: calc(100% - 250px);
+  width: calc(100% - 275px);
   padding: 0 30px 20px 30px;
-}*/
+}
 
 header {
   display: block;
@@ -245,23 +245,30 @@ section {
 }
 
 /** Nav **/
-/*div.nav {
-  float: right;
-  position: fixed;
-  right: 10px;
-  top: 20px;
+nav.toc {
+  float: left;
+  display: block;
   width: 275px;
   background: #fff;
+  overflow: auto;
+  position: fixed;
+  height: 100%;
   padding: 10px;
-}*/
+  border-right: 1px solid #eee;
+  /* box-shadow: 0 0 3px rgba(0,0,0,0.1); */
+}
 
-.toc-menu li {
+nav li {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-/*.nav-heading {
+.nav-link {
+  padding: 0;
+}
+
+.nav-heading {
   margin-top: 10px;
   font-weight: bold;
 }
@@ -270,7 +277,7 @@ section {
   color: #888;
   font-size: 14px;
   display: inline-block;
-}*/
+}
 
 .nav-item-type {
   /* margin-left: 5px; */
@@ -306,7 +313,7 @@ section {
 }
 
 /** Footer **/
-/*footer {
+footer {
   color: hsl(0, 0%, 28%);
   margin-left: 250px;
   display: block;
@@ -314,7 +321,7 @@ section {
   font-style: italic;
   font-size: 90%;
   border-top: 1px solid #eee;
-}*/
+}
 
 .ancestors {
   color: #999;
@@ -640,7 +647,7 @@ dl.param-type {
   transform: scale(0.75) rotate(45deg);
 }
 
-.nav-trigger:checked ~ nav {
+.nav-trigger:checked ~ nav.toc {
   left: 0 !important;
 }
 
@@ -672,13 +679,13 @@ dl.param-type {
   padding-bottom: 30px;
   border-bottom: 1px solid #eee;
 }
-/*
+
 @media only screen and (min-width: 320px) and (max-width: 680px) {
   body {
     overflow-x: hidden;
   }
 
-  nav {
+  nav.toc {
     background: #fff;
     width: 250px;
     height: 100%;
@@ -719,7 +726,7 @@ dl.param-type {
 }
 
 @media only print {
-  nav {
+  nav.toc {
     display: none;
   }
 
@@ -728,4 +735,3 @@ dl.param-type {
     width: 100%;
   }
 }
-*/

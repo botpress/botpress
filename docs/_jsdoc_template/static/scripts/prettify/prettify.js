@@ -1,13 +1,11 @@
-const q = null
+var q = null
 window.PR_SHOULD_USE_CONTINUATION = !0
 ;(function() {
   function L(a) {
     function m(a) {
-      let f = a.charCodeAt(0)
-      if (f !== 92) {
-        return f
-      }
-      const b = a.charAt(1)
+      var f = a.charCodeAt(0)
+      if (f !== 92) return f
+      var b = a.charAt(1)
       return (f = r[b])
         ? f
         : '0' <= b && b <= '7'
@@ -15,13 +13,9 @@ window.PR_SHOULD_USE_CONTINUATION = !0
           : b === 'u' || b === 'x' ? parseInt(a.substring(2), 16) : a.charCodeAt(1)
     }
     function e(a) {
-      if (a < 32) {
-        return (a < 16 ? '\\x0' : '\\x') + a.toString(16)
-      }
+      if (a < 32) return (a < 16 ? '\\x0' : '\\x') + a.toString(16)
       a = String.fromCharCode(a)
-      if (a === '\\' || a === '-' || a === '[' || a === ']') {
-        a = '\\' + a
-      }
+      if (a === '\\' || a === '-' || a === '[' || a === ']') a = '\\' + a
       return a
     }
     function h(a) {
@@ -38,9 +32,8 @@ window.PR_SHOULD_USE_CONTINUATION = !0
         ++c
       ) {
         var j = f[c]
-        if (/\\[bdsw]/i.test(j)) {
-          a.push(j)
-        } else {
+        if (/\\[bdsw]/i.test(j)) a.push(j)
+        else {
           var j = m(j),
             d
           c + 2 < i && '-' === f[c + 1] ? ((d = m(f[c + 2])), (c += 2)) : (d = j)
@@ -56,15 +49,12 @@ window.PR_SHOULD_USE_CONTINUATION = !0
       })
       f = []
       j = [NaN, NaN]
-      for (c = 0; c < b.length; ++c) {
-        ;(i = b[c]), i[0] <= j[1] + 1 ? (j[1] = Math.max(j[1], i[1])) : f.push((j = i))
-      }
+      for (c = 0; c < b.length; ++c) (i = b[c]), i[0] <= j[1] + 1 ? (j[1] = Math.max(j[1], i[1])) : f.push((j = i))
       b = ['[']
       o && b.push('^')
       b.push.apply(b, a)
-      for (c = 0; c < f.length; ++c) {
-        ;(i = f[c]), b.push(e(i[0])), i[1] > i[0] && (i[1] + 1 > i[0] && b.push('-'), b.push(e(i[1])))
-      }
+      for (c = 0; c < f.length; ++c)
+        (i = f[c]), b.push(e(i[0])), i[1] > i[0] && (i[1] + 1 > i[0] && b.push('-'), b.push(e(i[1])))
       b.push(']')
       return b.join('')
     }
@@ -83,21 +73,16 @@ window.PR_SHOULD_USE_CONTINUATION = !0
         var j = f[c]
         j === '(' ? ++i : '\\' === j.charAt(0) && (j = +j.substring(1)) && j <= i && (d[j] = -1)
       }
-      for (c = 1; c < d.length; ++c) {
-        ;-1 === d[c] && (d[c] = ++t)
-      }
-      for (i = c = 0; c < b; ++c) {
-        ;(j = f[c]),
+      for (c = 1; c < d.length; ++c) -1 === d[c] && (d[c] = ++t)
+      for (i = c = 0; c < b; ++c)
+        (j = f[c]),
           j === '('
             ? (++i, d[i] === void 0 && (f[c] = '(?:'))
             : '\\' === j.charAt(0) && (j = +j.substring(1)) && j <= i && (f[c] = '\\' + d[i])
-      }
-      for (i = c = 0; c < b; ++c) {
-        '^' === f[c] && '^' !== f[c + 1] && (f[c] = '')
-      }
-      if (a.ignoreCase && s) {
-        for (c = 0; c < b; ++c) {
-          ;(j = f[c]),
+      for (i = c = 0; c < b; ++c) '^' === f[c] && '^' !== f[c + 1] && (f[c] = '')
+      if (a.ignoreCase && s)
+        for (c = 0; c < b; ++c)
+          (j = f[c]),
             (a = j.charAt(0)),
             j.length >= 2 && a === '['
               ? (f[c] = h(j))
@@ -106,15 +91,12 @@ window.PR_SHOULD_USE_CONTINUATION = !0
                   a = a.charCodeAt(0)
                   return '[' + String.fromCharCode(a & -33, a | 32) + ']'
                 }))
-        }
-      }
       return f.join('')
     }
     for (var t = 0, s = !1, l = !1, p = 0, d = a.length; p < d; ++p) {
       var g = a[p]
-      if (g.ignoreCase) {
-        l = !0
-      } else if (/[a-z]/i.test(g.source.replace(/\\u[\da-f]{4}|\\x[\da-f]{2}|\\[^UXux]/gi, ''))) {
+      if (g.ignoreCase) l = !0
+      else if (/[a-z]/i.test(g.source.replace(/\\u[\da-f]{4}|\\x[\da-f]{2}|\\[^UXux]/gi, ''))) {
         s = !0
         l = !1
         break
@@ -122,9 +104,7 @@ window.PR_SHOULD_USE_CONTINUATION = !0
     }
     for (var r = { b: 8, t: 9, n: 10, v: 11, f: 12, r: 13 }, n = [], p = 0, d = a.length; p < d; ++p) {
       g = a[p]
-      if (g.global || g.multiline) {
-        throw Error('' + g)
-      }
+      if (g.global || g.multiline) throw Error('' + g)
       n.push('(?:' + y(g) + ')')
     }
     return RegExp(n.join('|'), l ? 'gi' : 'g')
@@ -133,16 +113,10 @@ window.PR_SHOULD_USE_CONTINUATION = !0
     function m(a) {
       switch (a.nodeType) {
         case 1:
-          if (e.test(a.className)) {
-            break
-          }
-          for (var g = a.firstChild; g; g = g.nextSibling) {
-            m(g)
-          }
+          if (e.test(a.className)) break
+          for (var g = a.firstChild; g; g = g.nextSibling) m(g)
           g = a.nodeName
-          if ('BR' === g || 'LI' === g) {
-            ;(h[s] = '\n'), (t[s << 1] = y++), (t[(s++ << 1) | 1] = a)
-          }
+          if ('BR' === g || 'LI' === g) (h[s] = '\n'), (t[s << 1] = y++), (t[(s++ << 1) | 1] = a)
           break
         case 3:
         case 4:
@@ -178,40 +152,34 @@ window.PR_SHOULD_USE_CONTINUATION = !0
           b = r[f],
           o = void 0,
           c
-        if (typeof b === 'string') {
-          c = !1
-        } else {
+        if (typeof b === 'string') c = !1
+        else {
           var i = h[f.charAt(0)]
-          if (i) {
-            ;(o = f.match(i[1])), (b = i[0])
-          } else {
-            for (c = 0; c < t; ++c) {
+          if (i) (o = f.match(i[1])), (b = i[0])
+          else {
+            for (c = 0; c < t; ++c)
               if (((i = m[c]), (o = f.match(i[1])))) {
                 b = i[0]
                 break
               }
-            }
             o || (b = 'pln')
           }
-          if ((c = b.length >= 5 && 'lang-' === b.substring(0, 5)) && !(o && typeof o[1] === 'string')) {
-            ;(c = !1), (b = 'src')
-          }
+          if ((c = b.length >= 5 && 'lang-' === b.substring(0, 5)) && !(o && typeof o[1] === 'string'))
+            (c = !1), (b = 'src')
           c || (r[f] = b)
         }
         i = d
         d += f.length
         if (c) {
           c = o[1]
-          let j = f.indexOf(c),
+          var j = f.indexOf(c),
             k = j + c.length
           o[2] && ((k = f.length - o[2].length), (j = k - c.length))
           b = b.substring(5)
           B(l + i, f.substring(0, j), e, p)
           B(l + i + j, c, C(b, c), p)
           B(l + i + k, f.substring(k), e, p)
-        } else {
-          p.push(l + i, b)
-        }
+        } else p.push(l + i, b)
       }
       a.e = p
     }
@@ -219,13 +187,9 @@ window.PR_SHOULD_USE_CONTINUATION = !0
       y
     ;(function() {
       for (var e = a.concat(m), l = [], p = {}, d = 0, g = e.length; d < g; ++d) {
-        let r = e[d],
+        var r = e[d],
           n = r[3]
-        if (n) {
-          for (let k = n.length; --k >= 0; ) {
-            h[n.charAt(k)] = r
-          }
-        }
+        if (n) for (var k = n.length; --k >= 0; ) h[n.charAt(k)] = r
         r = r[1]
         n = '' + r
         p.hasOwnProperty(n) || (l.push(r), (p[n] = q))
@@ -237,7 +201,7 @@ window.PR_SHOULD_USE_CONTINUATION = !0
     return e
   }
   function u(a) {
-    let m = [],
+    var m = [],
       e = []
     a.tripleQuotedStrings
       ? m.push([
@@ -255,7 +219,7 @@ window.PR_SHOULD_USE_CONTINUATION = !0
           ])
         : m.push(['str', /^(?:'(?:[^\n\r'\\]|\\.)*(?:'|$)|"(?:[^\n\r"\\]|\\.)*(?:"|$))/, q, '"\''])
     a.verbatimStrings && e.push(['str', /^@"(?:[^"]|"")*(?:"|$)/, q])
-    let h = a.hashComments
+    var h = a.hashComments
     h &&
       (a.cStyleComments
         ? (h > 1
@@ -292,24 +256,17 @@ window.PR_SHOULD_USE_CONTINUATION = !0
     function e(a) {
       switch (a.nodeType) {
         case 1:
-          if (k.test(a.className)) {
-            break
-          }
-          if ('BR' === a.nodeName) {
-            h(a), a.parentNode && a.parentNode.removeChild(a)
-          } else {
-            for (a = a.firstChild; a; a = a.nextSibling) {
-              e(a)
-            }
-          }
+          if (k.test(a.className)) break
+          if ('BR' === a.nodeName) h(a), a.parentNode && a.parentNode.removeChild(a)
+          else for (a = a.firstChild; a; a = a.nextSibling) e(a)
           break
         case 3:
         case 4:
           if (p) {
-            let b = a.nodeValue,
+            var b = a.nodeValue,
               d = b.match(t)
             if (d) {
-              const c = b.substring(0, d.index)
+              var c = b.substring(0, d.index)
               a.nodeValue = c
               ;(b = b.substring(d.index + d[0].length)) && a.parentNode.insertBefore(s.createTextNode(b), a.nextSibling)
               h(a)
@@ -326,20 +283,12 @@ window.PR_SHOULD_USE_CONTINUATION = !0
           var f = b(f, 1),
             g = a.nextSibling
           f.appendChild(e)
-          for (let h = g; h; h = g) {
-            ;(g = h.nextSibling), f.appendChild(h)
-          }
+          for (var h = g; h; h = g) (g = h.nextSibling), f.appendChild(h)
         }
         return e
       }
-      for (; !a.nextSibling; ) {
-        if (((a = a.parentNode), !a)) {
-          return
-        }
-      }
-      for (var a = b(a.nextSibling, 0), e; (e = a.parentNode) && e.nodeType === 1; ) {
-        a = e
-      }
+      for (; !a.nextSibling; ) if (((a = a.parentNode), !a)) return
+      for (var a = b(a.nextSibling, 0), e; (e = a.parentNode) && e.nodeType === 1; ) a = e
       d.push(a)
     }
     var k = /(?:^|\s)nocode(?:\s|$)/,
@@ -350,33 +299,26 @@ window.PR_SHOULD_USE_CONTINUATION = !0
       ? (l = a.currentStyle.whiteSpace)
       : window.getComputedStyle && (l = s.defaultView.getComputedStyle(a, q).getPropertyValue('white-space'))
     var p = l && 'pre' === l.substring(0, 3)
-    for (l = s.createElement('LI'); a.firstChild; ) {
-      l.appendChild(a.firstChild)
-    }
-    for (var d = [l], g = 0; g < d.length; ++g) {
-      e(d[g])
-    }
+    for (l = s.createElement('LI'); a.firstChild; ) l.appendChild(a.firstChild)
+    for (var d = [l], g = 0; g < d.length; ++g) e(d[g])
     m === (m | 0) && d[0].setAttribute('value', m)
-    const r = s.createElement('OL')
+    var r = s.createElement('OL')
     r.className = 'linenums'
-    for (var n = Math.max(0, (m - 1) | 0) || 0, g = 0, z = d.length; g < z; ++g) {
-      ;(l = d[g]),
+    for (var n = Math.max(0, (m - 1) | 0) || 0, g = 0, z = d.length; g < z; ++g)
+      (l = d[g]),
         (l.className = 'L' + (g + n) % 10),
         l.firstChild || l.appendChild(s.createTextNode('\xa0')),
         r.appendChild(l)
-    }
     a.appendChild(r)
   }
   function k(a, m) {
-    for (let e = m.length; --e >= 0; ) {
-      const h = m[e]
+    for (var e = m.length; --e >= 0; ) {
+      var h = m[e]
       A.hasOwnProperty(h) ? window.console && console.warn('cannot override language handler %s', h) : (A[h] = a)
     }
   }
   function C(a, m) {
-    if (!a || !A.hasOwnProperty(a)) {
-      a = /^\s*</.test(m) ? 'default-markup' : 'default-code'
-    }
+    if (!a || !A.hasOwnProperty(a)) a = /^\s*</.test(m) ? 'default-markup' : 'default-code'
     return A[a]
   }
   function E(a) {
@@ -400,15 +342,11 @@ window.PR_SHOULD_USE_CONTINUATION = !0
         g = d.length,
         a = 0
       d[g] = s
-      let r, n
-      for (n = r = 0; n < g; ) {
-        d[n] !== d[n + 2] ? ((d[r++] = d[n++]), (d[r++] = d[n++])) : (n += 2)
-      }
+      var r, n
+      for (n = r = 0; n < g; ) d[n] !== d[n + 2] ? ((d[r++] = d[n++]), (d[r++] = d[n++])) : (n += 2)
       g = r
       for (n = r = 0; n < g; ) {
-        for (var z = d[n], f = d[n + 1], b = n + 2; b + 2 <= g && d[b + 1] === f; ) {
-          b += 2
-        }
+        for (var z = d[n], f = d[n + 1], b = n + 2; b + 2 <= g && d[b + 1] === f; ) b += 2
         d[r++] = z
         d[r++] = f
         n = b
@@ -422,10 +360,10 @@ window.PR_SHOULD_USE_CONTINUATION = !0
         if (i.nodeType !== 1 && (j = t.substring(e, b))) {
           k && (j = j.replace(m, '\r'))
           i.nodeValue = j
-          let u = i.ownerDocument,
+          var u = i.ownerDocument,
             v = u.createElement('SPAN')
           v.className = d[a + 1]
-          const x = i.parentNode
+          var x = i.parentNode
           x.replaceChild(v, i)
           v.appendChild(i)
           e < o && ((l[h + 1] = i = u.createTextNode(t.substring(b, o))), x.insertBefore(i, v.nextSibling))
@@ -556,7 +494,7 @@ window.PR_SHOULD_USE_CONTINUATION = !0
   )
   k(x([], [['str', /^[\S\s]+/]]), ['regex'])
   window.prettyPrintOne = function(a, m, e) {
-    const h = document.createElement('PRE')
+    var h = document.createElement('PRE')
     h.innerHTML = a
     e && D(h, e)
     E({ g: m, i: e, h: h })
@@ -564,7 +502,7 @@ window.PR_SHOULD_USE_CONTINUATION = !0
   }
   window.prettyPrint = function(a) {
     function m() {
-      for (let e = window.PR_SHOULD_USE_CONTINUATION ? l.now() + 250 : Infinity; p < h.length && l.now() < e; p++) {
+      for (var e = window.PR_SHOULD_USE_CONTINUATION ? l.now() + 250 : Infinity; p < h.length && l.now() < e; p++) {
         var n = h[p],
           k = n.className
         if (k.indexOf('prettyprint') >= 0) {
@@ -573,16 +511,14 @@ window.PR_SHOULD_USE_CONTINUATION = !0
             b
           if ((b = !k)) {
             b = n
-            for (var o = void 0, c = b.firstChild; c; c = c.nextSibling) {
-              var i = c.nodeType,
-                o = i === 1 ? (o ? b : c) : i === 3 ? (N.test(c.nodeValue) ? b : o) : o
-            }
+            for (var o = void 0, c = b.firstChild; c; c = c.nextSibling)
+              var i = c.nodeType, o = i === 1 ? (o ? b : c) : i === 3 ? (N.test(c.nodeValue) ? b : o) : o
             b = (f = o === b ? void 0 : o) && 'CODE' === f.tagName
           }
           b && (k = f.className.match(g))
           k && (k = k[1])
           b = !1
-          for (o = n.parentNode; o; o = o.parentNode) {
+          for (o = n.parentNode; o; o = o.parentNode)
             if (
               (o.tagName === 'pre' || o.tagName === 'code' || o.tagName === 'xmp') &&
               o.className &&
@@ -591,7 +527,6 @@ window.PR_SHOULD_USE_CONTINUATION = !0
               b = !0
               break
             }
-          }
           b ||
             ((b = (b = n.className.match(/\blinenums\b(?::(\d+))?/)) ? (b[1] && b[1].length ? +b[1] : !0) : !1) &&
               D(n, b),
@@ -611,11 +546,8 @@ window.PR_SHOULD_USE_CONTINUATION = !0
         k = 0;
       k < e.length;
       ++k
-    ) {
-      for (let t = 0, s = e[k].length; t < s; ++t) {
-        h.push(e[k][t])
-      }
-    }
+    )
+      for (var t = 0, s = e[k].length; t < s; ++t) h.push(e[k][t])
     var e = q,
       l = Date
     l.now ||
