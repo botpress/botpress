@@ -1,6 +1,6 @@
 {
   "name": "@botpress/channel-messenger",
-  "version": "10.3.0",
+  "version": "10.3.1",
   "description": "Official Facebook Messenger connector for botpress",
   "main": "bin/node.bundle.js",
   "homepage": "https://github.com/botpress/modules",
@@ -9,7 +9,12 @@
     "menuIcon": "custom",
     "webBundle": "bin/web.bundle.js"
   },
-  "keywords": ["messenger", "facebook", "botpress", "botpress-connector"],
+  "keywords": [
+    "messenger",
+    "facebook",
+    "botpress",
+    "botpress-connector"
+  ],
   "publishConfig": {
     "access": "public"
   },
