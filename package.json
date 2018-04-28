@@ -2,14 +2,15 @@
   "devDependencies": {
     "@commitlint/cli": "^6.1.3",
     "@commitlint/config-conventional": "^6.1.3",
-    "husky": "^0.14.3",
-    "lerna": "^2.9.0",
-    "prettier": "1.7.4",
-    "eslint": "^4.17.0",
+    "eslint": "^4.19.1",
     "eslint-config-prettier": "^2.9.0",
+    "eslint-plugin-jest": "^21.15.1",
     "eslint-plugin-prettier": "^2.3.1",
     "eslint-plugin-react": "^7.1.0",
-    "lint-staged": "4.3.0"
+    "husky": "^0.14.3",
+    "lerna": "^2.9.0",
+    "lint-staged": "4.3.0",
+    "prettier": "1.7.4"
   },
   "scripts": {
     "commitmsg": "commitlint -e $GIT_PARAMS",
