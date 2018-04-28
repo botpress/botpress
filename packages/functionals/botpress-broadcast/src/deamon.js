@@ -120,7 +120,7 @@ function scheduleToOutbox() {
 }
 
 const _sendBroadcast = Promise.method(row => {
-  var dropPromise = Promise.resolve(false)
+  let dropPromise = Promise.resolve(false)
 
   if (row.filters) {
     dropPromise = Promise.mapSeries(JSON.parse(row.filters), filter => {

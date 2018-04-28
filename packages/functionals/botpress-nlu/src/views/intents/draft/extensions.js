@@ -3,7 +3,7 @@ import { EditorState, Modifier, SelectionState } from 'draft-js'
 import { getSelectionEntity, getSelectedBlock } from 'draftjs-utils'
 
 export function mergeEntities(editorState) {
-  let contentState = editorState.getCurrentContent()
+  const contentState = editorState.getCurrentContent()
   const block = contentState.getFirstBlock()
   const charList = block.getCharacterList()
   const anchor = editorState.getSelection().getAnchorKey()
@@ -66,7 +66,7 @@ export function mergeEntities(editorState) {
 }
 
 export function removeEntity(editorState, entityKey) {
-  let contentState = editorState.getCurrentContent()
+  const contentState = editorState.getCurrentContent()
   const block = contentState.getFirstBlock()
   const charList = block.getCharacterList()
   const anchor = editorState.getSelection().getAnchorKey()

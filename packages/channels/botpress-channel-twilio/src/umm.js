@@ -26,7 +26,7 @@ function processOutgoing({ event, blocName, instruction }) {
 
   const options = _.pick(instruction, optionsList)
 
-  for (let prop of optionsList) {
+  for (const prop of optionsList) {
     delete ins[prop]
   }
 

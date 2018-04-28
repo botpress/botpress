@@ -193,7 +193,7 @@ export default class BroadcastModule extends React.Component {
   }
 
   handleContentChange(element) {
-    var newBroadcast = this.state.broadcast
+    const newBroadcast = this.state.broadcast
     newBroadcast.content = element.id
     this.setState({
       broadcast: newBroadcast
@@ -201,7 +201,7 @@ export default class BroadcastModule extends React.Component {
   }
 
   handleDateChange(value) {
-    var newBroadcast = this.state.broadcast
+    const newBroadcast = this.state.broadcast
     newBroadcast.date = value
     this.setState({
       broadcast: newBroadcast
@@ -209,7 +209,7 @@ export default class BroadcastModule extends React.Component {
   }
 
   handleTimeChange(value) {
-    var newBroadcast = this.state.broadcast
+    const newBroadcast = this.state.broadcast
     newBroadcast.time = value
 
     this.setState({
@@ -218,7 +218,7 @@ export default class BroadcastModule extends React.Component {
   }
 
   handleUserTimezoneChange() {
-    var newBroadcast = this.state.broadcast
+    const newBroadcast = this.state.broadcast
     newBroadcast.userTimezone = !newBroadcast.userTimezone
     this.setState({
       broadcast: newBroadcast
@@ -228,7 +228,7 @@ export default class BroadcastModule extends React.Component {
   handleAddToFilteringConditions() {
     const input = ReactDOM.findDOMNode(this.filterInput)
     if (input && input.value !== '') {
-      var newBroadcast = this.state.broadcast
+      const newBroadcast = this.state.broadcast
       newBroadcast.filteringConditions = _.concat(newBroadcast.filteringConditions, input.value)
 
       this.setState({
@@ -239,7 +239,7 @@ export default class BroadcastModule extends React.Component {
   }
 
   handleRemoveFromFilteringConditions(filter) {
-    var newBroadcast = this.state.broadcast
+    const newBroadcast = this.state.broadcast
     newBroadcast.filteringConditions = _.without(newBroadcast.filteringConditions, filter)
 
     this.setState({
@@ -366,16 +366,6 @@ export default class BroadcastModule extends React.Component {
         <Panel.Body>{_.isEmpty(broadcasts) ? this.renderEmptyMessage() : this.renderTable(broadcasts)}</Panel.Body>
       </Panel>
     )
-  }
-
-  renderTypeList() {
-    return _.mapValues(broadcastTypes, (value, key) => {
-      return (
-        <option key={key} value={key}>
-          {key}
-        </option>
-      )
-    })
   }
 
   renderFormContent() {
@@ -561,7 +551,7 @@ export default class BroadcastModule extends React.Component {
     }
 
     const allBroadcasts = _.assign([], this.state.broadcasts)
-    let hasSomeError = _.some(allBroadcasts, ['errored', true])
+    const hasSomeError = _.some(allBroadcasts, ['errored', true])
 
     const upcomingBroadcasts = _.remove(allBroadcasts, function(value) {
       const datetime = moment(value.date + ' ' + value.time, 'YYYY-MM-DD HH:mm')

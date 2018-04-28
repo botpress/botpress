@@ -38,7 +38,7 @@ module.exports = async (bp, config) => {
       You can override AWS's default settings here. Example:
       { region: 'us-east-1', apiVersion: '2014-10-01', credentials: {...} }
      */
-    let awsConfig = {
+    const awsConfig = {
       region: config.uploadsS3Region,
       credentials: {
         accessKeyId: config.uploadsS3AWSAccessKey,

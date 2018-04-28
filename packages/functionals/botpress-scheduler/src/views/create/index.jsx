@@ -56,7 +56,7 @@ export default class CreateModal extends React.Component {
   }
 
   renderNextOccurences() {
-    let occurences = []
+    const occurences = []
 
     if (this.state.expressionType === '1') {
       // CRON

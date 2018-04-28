@@ -7,14 +7,6 @@ let timerInterval = null
 let lock = false
 let deamon = null
 
-module.exports = bp => {
-  if (!deamon) {
-    deamon = createDeamon(bp)
-  }
-
-  return deamon
-}
-
 const createDeamon = bp => {
   const reschedule = task => {
     if (task.schedule_type.toLowerCase() === 'once') {
@@ -24,6 +16,30 @@ const createDeamon = bp => {
     const nextOccurence = util.getNextOccurence(task.schedule_type, task.schedule).toDate()
 
     return db(bp).scheduleNext(task.id, nextOccurence)
+  }
+
+  const _run = async () => {
+    const rescheduled = {}
+    const list = await db(bp).listExpired()
+
+    return Promise.mapSeries(list, expired => {
+      return runSingleTask(expired)
+        .catch(err => {
+          bp.logger.error('[scheduler]', err.message, err.stack)
+          bp.notifications.send({
+            message:
+              'An error occured while running task: ' + expired.taskId + '. Please check the logs for more info.',
+            level: 'error'
+          })
+          return db(bp).updateTask(expired.taskId, 'error', null, null)
+        })
+        .finally(async () => {
+          if (!rescheduled[expired.taskId]) {
+            await reschedule(expired)
+            rescheduled[expired.taskId] = true
+          }
+        })
+    })
   }
 
   const run = () => {
@@ -48,7 +64,7 @@ const createDeamon = bp => {
       return
     }
 
-    var fn = new Function('bp', 'task', expired.action)
+    const fn = new Function('bp', 'task', expired.action)
 
     bp.events.emit('scheduler.update')
     bp.events.emit('scheduler.started', expired)
@@ -78,30 +94,6 @@ const createDeamon = bp => {
     bp.events.emit('scheduler.finished', expired)
   }
 
-  const _run = async () => {
-    const rescheduled = {}
-    const list = await db(bp).listExpired()
-
-    return Promise.mapSeries(list, expired => {
-      return runSingleTask(expired)
-        .catch(err => {
-          bp.logger.error('[scheduler]', err.message, err.stack)
-          bp.notifications.send({
-            message:
-              'An error occured while running task: ' + expired.taskId + '. Please check the logs for more info.',
-            level: 'error'
-          })
-          return db(bp).updateTask(expired.taskId, 'error', null, null)
-        })
-        .finally(async () => {
-          if (!rescheduled[expired.taskId]) {
-            await reschedule(expired)
-            rescheduled[expired.taskId] = true
-          }
-        })
-    })
-  }
-
   const revive = () => db(bp).reviveAllExecuting()
 
   const start = () => {
@@ -112,4 +104,12 @@ const createDeamon = bp => {
   const stop = () => clearInterval(timerInterval)
 
   return { start, stop, revive }
+}
+
+module.exports = bp => {
+  if (!deamon) {
+    deamon = createDeamon(bp)
+  }
+
+  return deamon
 }

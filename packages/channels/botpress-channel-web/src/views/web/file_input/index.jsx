@@ -22,7 +22,9 @@ export default class FileInput extends Component {
     this.setState({
       value: e.target.value.split(/(\\|\/)/g).pop()
     })
-    if (this.props.onChange) this.props.onChange(e)
+    if (this.props.onChange) {
+      this.props.onChange(e)
+    }
   }
 
   render() {

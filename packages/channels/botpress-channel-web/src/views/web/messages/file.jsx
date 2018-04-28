@@ -20,10 +20,15 @@ class FileMessage extends Component {
 
   renderRemoteFile() {
     if (this.props.file && this.props.file.mime) {
-      if (this.props.file.mime.includes('image/')) return this.renderRemoteImage()
-      else if (this.props.file.mime.includes('audio/')) return this.renderAudio()
-      else if (this.props.file.mime.includes('video/')) return this.renderVideo()
-      else if (this.props.file.mime.includes('audio/')) return this.renderAudio()
+      if (this.props.file.mime.includes('image/')) {
+        return this.renderRemoteImage()
+      } else if (this.props.file.mime.includes('audio/')) {
+        return this.renderAudio()
+      } else if (this.props.file.mime.includes('video/')) {
+        return this.renderVideo()
+      } else if (this.props.file.mime.includes('audio/')) {
+        return this.renderAudio()
+      }
     } else {
       return (
         <div className={style.otherFile}>

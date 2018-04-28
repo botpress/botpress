@@ -17,9 +17,9 @@ function rangeDates() {
         return null
       }
 
-      var range = moment(result.max).diff(moment(result.min), 'days')
-      var ranges = []
-      for (var i = 1; i <= 10; i++) {
+      const range = moment(result.max).diff(moment(result.min), 'days')
+      const ranges = []
+      for (let i = 1; i <= 10; i++) {
         ranges.push(parseInt(result.min + range / 10 * i))
       }
       const ret = {
@@ -41,7 +41,9 @@ function rangeDates() {
 
 function getTotalUsers() {
   return rangeDates().then(dates => {
-    if (!dates) return
+    if (!dates) {
+      return
+    }
     return knex('users')
       .select(knex.raw('distinct platform'))
       .then(platforms => {
@@ -59,7 +61,7 @@ function getTotalUsers() {
           .orderBy(knex.raw('date(created_on)'))
           .then(rows => {
             let total = 0
-            let totalPlatform = {}
+            const totalPlatform = {}
             const result = {}
             const min = dates.format(moment(new Date(dates.min)).subtract(1, 'day'))
             result[min] = Object.assign({}, statsBase)
@@ -90,9 +92,9 @@ function getTotalUsers() {
 function getLastDaysRange(nb) {
   const nbOfDays = nb || 14
 
-  let ranges = _.times(nbOfDays, Number)
+  const ranges = _.times(nbOfDays, Number)
   return ranges.map(n => {
-    var date = moment(new Date()).subtract(n, 'days')
+    const date = moment(new Date()).subtract(n, 'days')
     return {
       date: date.format('MMM Do'),
       start: date.startOf('day').toDate(),

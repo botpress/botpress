@@ -91,8 +91,8 @@ export default class RasaProvider extends Provider {
   }
 
   async sync() {
-    let intents = await this.storage.getIntents()
-    let remoteVersions = await this._getRemoteVersions()
+    const intents = await this.storage.getIntents()
+    const remoteVersions = await this._getRemoteVersions()
 
     if (await this._isInSync(intents, remoteVersions)) {
       this.logger.debug('[NLU::Rasa] Model is up to date')

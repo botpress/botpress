@@ -55,7 +55,7 @@ const dropUsers = count => {
 const addUsers = (count, knex, date) => {
   count = parseInt(count)
   const rows = []
-  for (var i = 0; i < count; i++) {
+  for (let i = 0; i < count; i++) {
     const platform = _.sample(platforms)
     const gender = Math.random() < vary(0.65, 0.35) ? 'male' : 'female'
     const id = _.uniqueId()

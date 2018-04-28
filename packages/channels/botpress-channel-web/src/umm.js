@@ -6,6 +6,22 @@ import mime from 'mime'
 
 const QUICK_REPLY_PAYLOAD = /\<(.+)\>\s(.+)/i
 
+function getUserId(event) {
+  const userId =
+    _.get(event, 'user.id') ||
+    _.get(event, 'user.userId') ||
+    _.get(event, 'userId') ||
+    _.get(event, 'raw.from') ||
+    _.get(event, 'raw.userId') ||
+    _.get(event, 'raw.user.id')
+
+  if (!userId) {
+    throw new Error('Could not find userId in the incoming event.')
+  }
+
+  return userId
+}
+
 // TODO Extract this logic directly to botpress's UMM
 function processQuickReplies(qrs, blocName) {
   if (!_.isArray(qrs)) {
@@ -49,16 +65,16 @@ function loginPrompt(event, instruction, options) {
 
 function uploadFile(event, instruction, options) {
   const user = getUserId(event)
-  let url = instruction.url
+  const url = instruction.url
 
   // if you are working on the same url
   // you can let absolute path for your image
 
-  let extension = path.extname(url)
+  const extension = path.extname(url)
 
-  let mimeType = mime.getType(extension)
+  const mimeType = mime.getType(extension)
 
-  let basename = path.basename(url, extension)
+  const basename = path.basename(url, extension)
 
   const raw = buildObjectRaw(event, instruction, options, user)
 
@@ -186,21 +202,6 @@ function processForm(formElement) {
     })
   }
 }
-function getUserId(event) {
-  const userId =
-    _.get(event, 'user.id') ||
-    _.get(event, 'user.userId') ||
-    _.get(event, 'userId') ||
-    _.get(event, 'raw.from') ||
-    _.get(event, 'raw.userId') ||
-    _.get(event, 'raw.user.id')
-
-  if (!userId) {
-    throw new Error('Could not find userId in the incoming event.')
-  }
-
-  return userId
-}
 
 function PromisifyEvent(event) {
   if (!event._promise) {
@@ -224,7 +225,7 @@ function processOutgoing({ event, blocName, instruction }) {
 
   const options = _.pick(instruction, optionsList)
 
-  for (let prop of optionsList) {
+  for (const prop of optionsList) {
     delete ins[prop]
   }
 

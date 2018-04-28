@@ -36,7 +36,7 @@ module.exports = {
         )
       }
 
-      var fn = new Function('bp', 'knex', code)
+      const fn = new Function('bp', 'knex', code)
       bp.db.get().then(knex => {
         Promise.method(fn)
           .call(null, bp, knex)

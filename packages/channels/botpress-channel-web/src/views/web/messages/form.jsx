@@ -85,7 +85,9 @@ export default class Form extends Component {
     event.preventDefault()
     if (this.props.onFormSend) {
       let representation = ''
-      for (let key in this.state) representation += `${key}: ${this.state[key]}\n`
+      for (const key in this.state) {
+        representation += `${key}: ${this.state[key]}\n`
+      }
       this.props.onFormSend(this.state, this.props.formId, representation)
     }
   }
@@ -95,8 +97,12 @@ export default class Form extends Component {
   }
 
   render() {
-    if (this.state.hide) return null
-    if (!this.props.elements) return null
+    if (this.state.hide) {
+      return null
+    }
+    if (!this.props.elements) {
+      return null
+    }
     const elements = this.props.elements.map(fe => <FormElement parent={this} {...this.props} {...fe} />)
     return (
       <div className={style.formOverlay}>

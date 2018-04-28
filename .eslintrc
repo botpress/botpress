@@ -30,7 +30,7 @@
   "rules": {
     "no-extra-semi": 1, // disallow unnecessary semicolons
     "no-inner-declarations": 2, // disallow function or variable declarations in nested blocks
-    "no-use-before-define": ["error", { "functions": true, "classes": true }],
+    "no-use-before-define": ["warn", { "functions": false, "classes": true }],
 
     "curly": 2, // specify curly brace conventions for all control statements
     "no-eval": 2,

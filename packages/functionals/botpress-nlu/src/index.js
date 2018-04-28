@@ -80,7 +80,9 @@ module.exports = {
     }
 
     async function incomingMiddleware(event, next) {
-      if (['session_reset', 'bp_dialog_timeout'].includes(event.type)) return next()
+      if (['session_reset', 'bp_dialog_timeout'].includes(event.type)) {
+        return next()
+      }
 
       try {
         if (config.debugModeEnabled) {

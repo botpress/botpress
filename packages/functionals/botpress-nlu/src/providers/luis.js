@@ -164,7 +164,7 @@ export default class LuisProvider extends Provider {
   async sync() {
     this.validateCredentials()
 
-    let intents = await this.storage.getIntents()
+    const intents = await this.storage.getIntents()
     let currentVersion = await this.getRemoteVersion()
 
     if (await this.isInSync(intents, currentVersion)) {

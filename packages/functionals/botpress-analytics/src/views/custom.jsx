@@ -120,7 +120,7 @@ const renderEmptyLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent,
   const x = cx + radius * Math.cos(-midAngle * RADIAN)
   const y = cy + radius * Math.sin(-midAngle * RADIAN)
 
-  let str = 'No data'
+  const str = 'No data'
   return (
     <text x={x - str.length} y={y - 20} fill="rgba(226, 226, 226, 0.72)">
       {str}

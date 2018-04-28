@@ -64,7 +64,7 @@ export default class NativeProvider extends Provider {
   }
 
   async sync() {
-    let intents = await this.storage.getIntents()
+    const intents = await this.storage.getIntents()
 
     if (await this._isInSync(intents)) {
       this.logger.debug('[NLU::Native] Model is up to date')

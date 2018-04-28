@@ -2,7 +2,7 @@ import { DatabaseHelpers as helpers } from 'botpress'
 
 import moment from 'moment'
 
-var knex = null
+let knex = null
 
 function initialize() {
   if (!knex) {
@@ -37,7 +37,7 @@ function initialize() {
 }
 
 function addSchedule({ date, time, timezone, content, type, filters }) {
-  let dateTime = date + ' ' + time
+  const dateTime = date + ' ' + time
   let ts = null
 
   if (timezone) {
@@ -64,7 +64,7 @@ function addSchedule({ date, time, timezone, content, type, filters }) {
 }
 
 function updateSchedule({ id, date, time, timezone, content, type, filters }) {
-  let dateTime = date + ' ' + time
+  const dateTime = date + ' ' + time
   let ts = null
   if (timezone) {
     ts = moment(new Date(dateTime + ' ' + timezone)).toDate()

@@ -69,7 +69,9 @@ export default class Web extends React.Component {
       .then(::this.fetchData)
       .then(() => {
         this.handleSwitchView('widget')
-        if (!this.state.isButtonHidden) this.showConvoPopUp()
+        if (!this.state.isButtonHidden) {
+          this.showConvoPopUp()
+        }
 
         this.setState({ loading: false })
       })
@@ -247,7 +249,7 @@ export default class Web extends React.Component {
       // Possible race condition if the current conversation changed while fetching
       if (this.state.currentConversationId !== conversationIdToFetch) {
         // In which case we simply restart fetching
-        return fetchCurrentConversation()
+        return this.fetchCurrentConversation()
       }
 
       this.setState({ currentConversation: data })
@@ -394,7 +396,7 @@ export default class Web extends React.Component {
     const url = `${BOT_HOSTNAME}/api/botpress-platform-webchat/messages/${userId}/files`
     const config = { params: { conversationId: this.state.currentConversationId } }
 
-    let data = new FormData()
+    const data = new FormData()
     data.append('file', file)
 
     return this.props.bp.axios.post(url, data, config).then()
@@ -456,7 +458,9 @@ export default class Web extends React.Component {
   }
 
   renderButton() {
-    if (this.state.isButtonHidden) return null
+    if (this.state.isButtonHidden) {
+      return null
+    }
     return (
       <button
         className={style[this.state.widgetTransition]}

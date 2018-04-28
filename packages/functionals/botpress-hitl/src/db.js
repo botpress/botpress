@@ -3,7 +3,7 @@ import moment from 'moment'
 import _ from 'lodash'
 import { DatabaseHelpers as helpers } from 'botpress'
 
-var knex = null
+let knex = null
 
 function initialize() {
   if (!knex) {
@@ -114,7 +114,7 @@ function toPlainObject(object) {
 }
 
 function appendMessageToSession(event, sessionId, direction) {
-  let message = {
+  const message = {
     session_id: sessionId,
     type: event.type,
     text: event.text,

@@ -7,7 +7,7 @@ export function ressourceMatches(pattern, res) {
   }
 
   const parts = pattern.split(separator)
-  let testParts = res.split(separator)
+  const testParts = res.split(separator)
 
   let matches = true
   for (let ii = 0; matches && ii < parts.length; ii++) {
@@ -33,7 +33,7 @@ export function checkRule(rules, operation, ressource) {
 
   let permission = false // Everything is restricted by default
 
-  for (let rule of rules) {
+  for (const rule of rules) {
     if (ressourceMatches(rule.res, ressource)) {
       if (rule.op.length === 4) {
         if (rule.op[1] === operation) {

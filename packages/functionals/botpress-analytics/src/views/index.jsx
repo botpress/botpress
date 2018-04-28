@@ -78,7 +78,9 @@ class StatsHeader extends React.Component {
   }
 
   render() {
-    if (!this.state.size) return null
+    if (!this.state.size) {
+      return null
+    }
     const size = this.state.size.toFixed(2)
     const className = classnames('pull-right', style.metadata)
 
@@ -117,12 +119,16 @@ export default class AnalyticsModule extends React.Component {
     this.unmounting = false
 
     this.props.bp.axios.get('/api/botpress-analytics/graphs').then(({ data }) => {
-      if (this.unmounting) return
+      if (this.unmounting) {
+        return
+      }
       this.setState({ ...data })
     })
 
     this.props.bp.events.on('data.send', data => {
-      if (this.unmounting) return
+      if (this.unmounting) {
+        return
+      }
       this.setState({
         ...data
       })
@@ -299,7 +305,7 @@ export default class AnalyticsModule extends React.Component {
 
   renderHours() {
     const hours = []
-    for (var i = 0; i < 24; i++) {
+    for (let i = 0; i < 24; i++) {
       hours.push(i)
     }
 

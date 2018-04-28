@@ -43,7 +43,7 @@ function getEntityStrategy(type) {
 }
 
 function getCanonicalText(editorState, getEntity) {
-  let contentState = editorState.getCurrentContent()
+  const contentState = editorState.getCurrentContent()
   const block = contentState.getFirstBlock()
   const charList = block.getCharacterList()
   const plainText = editorState.getCurrentContent().getPlainText('')
@@ -295,7 +295,7 @@ export default class IntentEditor extends React.Component {
   }
 
   tagSelected = entityId => {
-    let selection = this.state.editorState.getSelection()
+    const selection = this.state.editorState.getSelection()
     const contentState = this.state.editorState.getCurrentContent()
     const contentStateWithEntity = contentState.createEntity('LABEL', 'MUTABLE', { entityId: entityId })
 
@@ -322,7 +322,7 @@ export default class IntentEditor extends React.Component {
 
   onArrow = action => keyboardEvent => {
     const editor = this.props.getEntitiesEditor()
-    let selection = this.state.editorState.getSelection()
+    const selection = this.state.editorState.getSelection()
 
     console.log(selection, selection.isCollapsed())
 
@@ -342,7 +342,7 @@ export default class IntentEditor extends React.Component {
 
   render() {
     const selectedText = getSelectionText(this.state.editorState)
-    let selectedEntity = getSelectionFirstEntity(this.state.editorState)
+    const selectedEntity = getSelectionFirstEntity(this.state.editorState)
     let selectedEntityId = null
 
     if (selectedEntity) {
@@ -361,7 +361,7 @@ export default class IntentEditor extends React.Component {
     }
 
     const onBlur = e => {
-      var currentTarget = e.currentTarget
+      const currentTarget = e.currentTarget
 
       setImmediate(() => {
         if (!currentTarget.contains(document.activeElement)) {

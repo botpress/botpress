@@ -1,12 +1,14 @@
 const injectDOMElement = (tagName, targetSelector, options = {}) => {
-  let element = document.createElement(tagName)
+  const element = document.createElement(tagName)
   Object.keys(options).forEach(key => (element[key] = options[key]))
   document.querySelector(targetSelector).appendChild(element)
   return element
 }
 
 window.addEventListener('message', ({ data }) => {
-  if (!data || !data.type || data.type !== 'setClass') return
+  if (!data || !data.type || data.type !== 'setClass') {
+    return
+  }
   document.querySelector('#bp-widget').setAttribute('class', data.value)
 })
 

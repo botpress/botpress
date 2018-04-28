@@ -32,7 +32,7 @@ class Analytics {
 
     createEmptyFileIfDoesntExist(this.chartsDatafile)
 
-    let running = false
+    const running = false
     setInterval(() => {
       this.stats.getLastRun().then(ts => {
         const elasped = moment.duration(moment().diff(ts)).asMinutes()
@@ -65,7 +65,9 @@ class Analytics {
   }
 
   updateData() {
-    if (this.running) return
+    if (this.running) {
+      return
+    }
     this.running = true
     this.bp.logger.debug('botpress-analytics: recompiling analytics')
     this.stats
