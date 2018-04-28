@@ -1,0 +1,22 @@
+#
+# This file defines coding styles for the project to ensure consistency and quality
+# To learn more about EditorConfig, visit: http://editorconfig.org
+#
+
+root = true
+
+# Main rules for all files in the project.
+[*]
+charset = utf-8
+end_of_line = lf
+indent_size = 2
+indent_style = space
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Specific rule for markdown files to accoomodate for GitHub's specific styleguides.
+[*.md]
+indent_size = 4
+
+[Makefile]
+indent_style = tab

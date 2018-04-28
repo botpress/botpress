@@ -1,0 +1,171 @@
+$color-light-gray: #f1f0f0;
+$color-gray: #b8b6b9;
+$color-black: #000;
+$color-blue: #0084ff;
+$color-white: #fff;
+
+$color-blue-hover: #036ed3;
+
+@mixin messenger-bubble() {
+  background-color: $color-light-gray;
+  color: $color-black;
+
+  border-radius: 1.3em;
+  display: inline-block;
+  padding: 6px 12px;
+
+  min-height: 32px;
+  min-width: 50px;
+}
+
+.component {
+  padding-bottom: 5px;
+  position: relative;
+
+  .text {
+    @include messenger-bubble();
+    white-space: pre-line;
+  }
+
+  .typing {
+    color: $color-gray;
+    position: absolute;
+    top: 7px;
+    right: 10px;
+  }
+
+  .quickReplies {
+    padding-top: 5px;
+
+    button {
+      @include messenger-bubble();
+      margin-right: 5px;
+      opacity: 1;
+      min-width: 100px;
+      background-color: $color-blue;
+      color: $color-white;
+
+      &:hover {
+        background-color: $color-blue;
+        opacity: 0.8;
+      }
+    }
+  }
+
+  .template {
+    position: relative;
+    width: 266px;
+    border: solid 1px $color-light-gray;
+    border-radius: 20px;
+
+    .header {
+      padding: 5px 10px;
+      display: block;
+      background-color: $color-light-gray;
+      border-top-right-radius: 20px;
+      border-top-left-radius: 20px;
+    }
+
+    button {
+      padding: 10px 10px;
+      text-align: center;
+      float: none;
+      display: block;
+      width: 100%;
+      background-color: white;
+      color: $color-blue;
+
+      border-radius: 0;
+      border-bottom-right-radius: 20px;
+      border-bottom-left-radius: 20px;
+
+      border-top: solid 1px $color-light-gray;
+
+      &:hover {
+        color: $color-blue-hover;
+        background-color: $color-white;
+      }
+    }
+
+    .element {
+      overflow: hidden;
+
+      .image {
+        height: 142px;
+        line-height: 142px;
+
+        img {
+          border-top-left-radius: 20px;
+          border-top-right-radius: 20px;
+          width: 100%;
+          max-height: 100%;
+          vertical-align: middle;
+        }
+      }
+
+      h3 {
+        font-size: 14px;
+        font-weight: bold;
+        padding: 15px 10px 0px;
+        margin: 0;
+      }
+
+      p {
+        font-size: 14px;
+        padding: 5px 10px;
+      }
+    }
+
+    @mixin my-slider() {
+      position: absolute;
+      top: 45%;
+      background-color: white;
+      padding: 5px;
+      border: solid 1px $color-light-gray;
+      opacity: 0;
+      transition: all 0.5s ease;
+    }
+
+    .leftSlider {
+      left: 0px;
+      @include my-slider();
+    }
+
+    .rightSlider {
+      right: 0px;
+      @include my-slider();
+    }
+
+    &:hover {
+      .leftSlider,
+      .rightSlider {
+        &.visible {
+          opacity: 1;
+        }
+      }
+    }
+  }
+
+  .attachment {
+    border: 1px solid $color-light-gray;
+    border-radius: 20px;
+    overflow: hidden;
+    display: inline-block;
+
+    img {
+      max-width: 260px;
+    }
+
+    #player {
+      border-radius: 20px;
+      overflow: inherit;
+    }
+
+    audio {
+      height: 50px;
+      padding: 10px;
+      border-radius: 10px;
+      background-color: $color-light-gray;
+    }
+  }
+}

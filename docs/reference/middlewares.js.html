@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>middlewares.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+
+    <link type="text/css" rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+<body style="padding-top: 50px;">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+  <span class="navbar-brand mb-0 h1">Botpress | Reference</span>
+
+  <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+    <li class="nav-item">
+      <a class="nav-link" href="../">Back to Guides</a>
+    </li>
+  </ul>
+
+</nav>
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav class="toc">
+    <li class="nav-link nav-home-link"><a href="index.html">What's new</a></li><li class="nav-heading"><a href="global.html">Globals</a></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#bp">bp</a></span></li><li class="nav-heading">Namespaces</li><li class="nav-heading"><span class="nav-item-type type-namespace">N</span><span class="nav-item-name"><a href="Botpress.html">Botpress</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Botpress.html">createShortlink</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Botpress.html">getRouter</a></span></li><li class="nav-heading"><span class="nav-item-type type-namespace">N</span><span class="nav-item-name"><a href="ContentManager.html">ContentManager</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ContentManager.html#.createOrUpdateCategoryItem">createOrUpdateCategoryItem</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ContentManager.html#.getItem">getItem</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ContentManager.html#.listAvailableCategories">listAvailableCategories</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ContentManager.html#.listCategoryItems">listCategoryItems</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ContentManager.html#.registerGetItemProvider">registerGetItemProvider</a></span></li><li class="nav-heading"><span class="nav-item-type type-namespace">N</span><span class="nav-item-name"><a href="ContentRenderer.html">ContentRenderer</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ContentRenderer.html#.isRegistered">isRegistered</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ContentRenderer.html#.register">register</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ContentRenderer.html#.sendToUser">sendToUser</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ContentRenderer.html#.unregister">unregister</a></span></li><li class="nav-heading"><span class="nav-item-type type-namespace">N</span><span class="nav-item-name"><a href="Database.html">Database</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Database.html#.get">get</a></span></li><li class="nav-heading"><span class="nav-item-type type-namespace">N</span><span class="nav-item-name"><a href="DialogEngine.html">DialogEngine</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="DialogEngine.html#endFlow">endFlow</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="DialogEngine.html#getCurrentPosition">getCurrentPosition</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="DialogEngine.html#jumpTo">jumpTo</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="DialogEngine.html#processMessage">processMessage</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="DialogEngine.html#registerFunctions">registerFunctions</a></span></li><li class="nav-heading"><span class="nav-item-type type-namespace">N</span><span class="nav-item-name"><a href="DialogStateManager.html">DialogStateManager</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="DialogStateManager.html#.deleteState">deleteState</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="DialogStateManager.html#.getState">getState</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="DialogStateManager.html#.setState">setState</a></span></li><li class="nav-heading"><span class="nav-item-type type-namespace">N</span><span class="nav-item-name"><a href="KVS.html">KVS</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KVS.html#.get">get</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KVS.html#.set">set</a></span></li><li class="nav-heading"><span class="nav-item-type type-namespace">N</span><span class="nav-item-name"><a href="Middleware.html">Middleware</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Middleware.html#.register">register</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Middleware.html#.sendIncoming">sendIncoming</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Middleware.html#.sendOutgoing">sendOutgoing</a></span></li><li class="nav-heading"><span class="nav-item-type type-namespace">N</span><span class="nav-item-name"><a href="Users.html">Users</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Users.html#.getTag">getTag</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Users.html#.getTags">getTags</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Users.html#.hasTag">hasTag</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Users.html#.tag">tag</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Users.html#.untag">untag</a></span></li><li class="nav-heading">Classes</li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Botfile.html">Botfile</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Logger.html">Logger</a></span></li><li class="nav-heading">Modules</li><li class="nav-heading"><span class="nav-item-type type-module">M</span><span class="nav-item-name"><a href="module-DatabaseHelpers.html">DatabaseHelpers</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-DatabaseHelpers.html#~createTableIfNotExists">createTableIfNotExists</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-DatabaseHelpers.html#~isLite">isLite</a></span></li>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">middlewares.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * The middleware chain is in charge of pre-processing incoming and outgoing messages.
+ * A middleware can for example translate a message on receiving and before sending.
+ * Most middleware are registered by the modules. For example, the Analytics module
+ * keeps track of the messages with the help of an incoming and an outgoing middleware.
+ * @namespace Middleware
+ */
+
+import _ from 'lodash'
+import mware from 'mware'
+import path from 'path'
+import fs from 'fs'
+import Promise from 'bluebird'
+
+const createMiddleware = (bp, middlewareName) => {
+  const _use = mware()
+  const _error = mware()
+
+  const use = middleware => {
+    if (typeof middleware !== 'function') {
+      throw new TypeError('Expected all middleware arguments to be functions')
+    }
+
+    if (middleware.length === 2) {
+      _use(middleware)
+    } else if (middleware.length === 3) {
+      _error(middleware)
+    }
+  }
+
+  const dispatch = event => {
+    if (!_.isPlainObject(event)) {
+      throw new TypeError('Expected all dispatch arguments to be plain event objects')
+    }
+
+    const conformity = {
+      type: value => typeof value === 'string',
+      platform: value => typeof value === 'string',
+      text: value => typeof value === 'string',
+      raw: () => true
+    }
+
+    if (!_.conformsTo(event, conformity)) {
+      throw new TypeError(
+        'Expected event to contain (type: string), ' + '(platform: string), (text: string), (raw: any)'
+      )
+    }
+
+    // Provide botpress to the event handlers
+    event.bp = bp
+
+    _use.run(event, err => {
+      if (err) {
+        _error.run(err, event, () => {
+          bp.logger.error(`[BOTPRESS] Unhandled error in middleware (${middlewareName}). Error: ${err.message}`)
+        })
+      }
+    })
+
+    return event._promise || Promise.resolve()
+  }
+
+  return { use, dispatch }
+}
+
+module.exports = (bp, dataLocation, projectLocation, logger) => {
+  const middlewaresFilePath = path.join(dataLocation, 'middlewares.json')
+
+  const noopChain = arg => {
+    let message =
+      'Middleware called before middlewares have been loaded. This is a no-op.' +
+      ' Have you forgotten to call `bp.loadMiddlewares()` in your bot?'
+
+    if (arg &amp;&amp; typeof arg === 'object') {
+      message += '\nCalled with: ' + JSON.stringify(arg, null, 2)
+    }
+
+    logger.warn(message)
+  }
+
+  const readCustomizations = () => {
+    if (!fs.existsSync(middlewaresFilePath)) {
+      fs.writeFileSync(middlewaresFilePath, '{}')
+    }
+    return JSON.parse(fs.readFileSync(middlewaresFilePath))
+  }
+
+  let incoming = noopChain,
+    outgoing = noopChain,
+    customizations = readCustomizations()
+  const middlewares = []
+
+  const writeCustomizations = () => {
+    fs.writeFileSync(middlewaresFilePath, JSON.stringify(customizations))
+  }
+
+  const setCustomizations = middlewares => {
+    _.each(middlewares, middleware => {
+      const { name, order, enabled } = middleware
+      customizations[name] = { order, enabled }
+    })
+    writeCustomizations()
+  }
+
+  const resetCustomizations = () => {
+    customizations = {}
+    writeCustomizations()
+  }
+
+  /**
+   * @typedef {Object} Event
+   * @prop {String} platform
+   * @prop {String} text
+   * @prop {object} raw
+   * @prop {String} type
+   * @memberOf! Middleware
+   */
+
+  /**
+   * @callback Handler
+   * @memberOf! Middleware
+   * @param {Object} event The incoming or outgoing event
+   * @param {Function} next Call this function to make the event flow to the next middleware (see example)
+   */
+
+  /**
+   * @typedef {Object} Middleware
+   * @memberOf! Middleware
+   * @property {String} name Unique name of the middleware
+   * @property {Middleware.Handler} handler The handler function
+   * @property {String} type Can be 'incoming' or 'outgoing'
+   * @property {Number} order A positive number from 0 (before everything else) to 1000 (last middleware)
+   * @property {Boolean} [enabled=true] Whether this middleware is enabled or not
+   */
+
+  /**
+   * Registers a new middleware into the chain
+   * @param  {Middleware.Middleware} middleware The middleware to register
+   * @memberOf! Middleware
+   */
+  const register = middleware => {
+    if (!middleware || !middleware.name) {
+      logger.error('A unique middleware name is mandatory')
+      return false
+    }
+
+    if (!middleware.handler) {
+      logger.error('A middleware handler is mandatory')
+      return false
+    }
+
+    if (!middleware.type || (middleware.type !== 'incoming' &amp;&amp; middleware.type !== 'outgoing')) {
+      logger.error('A middleware type (incoming or outgoing) is required')
+      return false
+    }
+
+    middleware.order = middleware.order || 0
+    middleware.enabled = typeof middleware.enabled === 'undefined' ? true : !!middleware.enabled
+
+    if (_.some(middlewares, m => m.name === middleware.name)) {
+      logger.error('Another middleware with the same name has already been registered')
+      return false
+    }
+
+    middlewares.push(middleware)
+  }
+
+  const list = () => {
+    return _.orderBy(
+      middlewares.map(middleware => {
+        const customization = customizations[middleware.name]
+        if (customization) {
+          return Object.assign({}, middleware, customization)
+        }
+        return middleware
+      }),
+      'order'
+    )
+  }
+
+  const load = () => {
+    incoming = createMiddleware(bp, 'incoming')
+    outgoing = createMiddleware(bp, 'outgoing')
+
+    const { middleware: licenseMiddleware } = bp.licensing
+    incoming.use(licenseMiddleware)
+
+    _.each(list(), m => {
+      if (!m.enabled) {
+        return logger.debug('SKIPPING middleware:', m.name, ' [Reason=disabled]')
+      }
+
+      logger.debug('Loading middleware:', m.name)
+
+      if (m.type === 'incoming') {
+        incoming.use(m.handler)
+      } else {
+        outgoing.use(m.handler)
+      }
+    })
+  }
+
+  const sendToMiddleware = type => event => {
+    const mw = type === 'incoming' ? incoming : outgoing
+    return mw.dispatch ? mw.dispatch(event) : mw(event)
+  }
+
+  return {
+    load,
+    list,
+    register,
+    /**
+     * Sends an incoming event (from the user to the bot)
+     * @param  {Middleware.Event} event An event object
+     * @memberOf! Middleware
+     */
+    sendIncoming: event => bp.messages.in.enqueue(event),
+
+    /**
+     * Sends an outgoing event (from the bot to the user)
+     * @param  {Middleware.Event} event An event object
+     * @memberOf! Middleware
+     */
+    sendOutgoing: event => bp.messages.out.enqueue(event),
+    sendIncomingImmediately: sendToMiddleware('incoming'),
+    sendOutgoingImmediately: sendToMiddleware('outgoing'),
+    getCustomizations: () => customizations,
+    setCustomizations,
+    resetCustomizations
+  }
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Apr 27 2018 14:21:54 GMT-0400 (EDT) using the Minami theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

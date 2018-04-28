@@ -1,0 +1,12 @@
+{
+  "lerna": "2.9.0",
+  "packages": [
+    "packages/functionals/*",
+    "packages/channels/*",
+    "packages/skills/*",
+    "packages/utils/*",
+    "packages/core/*"
+  ],
+  "version": "10.3.0",
+  "npmClient": "yarn"
+}

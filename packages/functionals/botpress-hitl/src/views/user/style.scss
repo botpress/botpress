@@ -1,0 +1,76 @@
+.user {
+  background-color: white;
+  height: 80px;
+  position: relative;
+  min-width: 310px;
+
+  i {
+    position: absolute;
+    top: 8px;
+    color: #56c0b2;
+  }
+
+  .imgContainer {
+    margin: 15px 10px 15px 10px;
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    background-color: #e2e2e2;
+    float: left;
+  }
+
+  img {
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+  }
+
+  .content {
+    float: left;
+    min-width: 160px;
+    width: 60%;
+
+    h3 {
+      margin-top: 0px;
+      margin-bottom: 0px;
+      padding-top: 20px;
+      font-size: 16px;
+      font-weight: 500;
+      max-width: 160px;
+    }
+
+    h4 {
+      margin-top: 6px;
+      font-size: 14px;
+      color: #a3a3a3;
+      width: 180px;
+      display: inline-block;
+      white-space: nowrap;
+      overflow: hidden !important;
+      text-overflow: ellipsis;
+    }
+  }
+
+  .date {
+    width: 100px;
+    position: absolute;
+    right: 10px;
+    text-align: right;
+
+    h5 {
+      color: #a3a3a3;
+      margin-top: 0px;
+      padding-top: 22px;
+      font-size: 12px;
+    }
+  }
+
+  .textPrefix {
+    font-weight: 400;
+  }
+}
+
+.user:hover {
+  background-color: #f2f2f2;
+  cursor: pointer;
+}

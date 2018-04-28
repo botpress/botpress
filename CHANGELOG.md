@@ -2,71 +2,85 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-<a name="10.2.0"></a>
-# [10.2.0](https://github.com/botpress/botpress/compare/v10.1.2...v10.2.0) (2018-04-18)
+<a name="10.3.0"></a>
 
+# [10.3.0](https://github.com/botpress/modules/compare/v10.2.3...v10.3.0) (2018-04-27)
+
+### Features
+
+* **web:** added support for markdown render of text ([f5403bb](https://github.com/botpress/modules/commit/f5403bb))
+
+<a name="10.2.3"></a>
+
+## [10.2.3](https://github.com/botpress/modules/compare/v10.2.1...v10.2.3) (2018-04-24)
+
+### Bug Fixes
+
+* **nlu:** debugMode ([541909c](https://github.com/botpress/modules/commit/541909c))
+
+<a name="10.2.3"></a>
+
+## [10.2.3](https://github.com/botpress/modules/compare/v10.2.1...v10.2.3) (2018-04-24)
+
+### Bug Fixes
+
+* **nlu:** debugMode ([541909c](https://github.com/botpress/modules/commit/541909c))
+
+<a name="10.2.0"></a>
+
+# [10.2.0](https://github.com/botpress/botpress/compare/v10.1.2...v10.2.0) (2018-04-18)
 
 ### Features
 
 * **core:** high-level API to manipulate the dialog manager ([6ea72db](https://github.com/botpress/botpress/commit/6ea72db))
-
-
+* **util-roles:** added utils-roles package to the monorepo ([25b733c](https://github.com/botpress/modules/commit/25b733c))
+* **utils:** implemented roles engine ([e0d1a79](https://github.com/botpress/modules/commit/e0d1a79))
 
 <a name="10.1.2"></a>
-## [10.1.2](https://github.com/botpress/botpress/compare/v10.1.1...v10.1.2) (2018-04-17)
 
+## [10.1.2](https://github.com/botpress/botpress/compare/v10.1.1...v10.1.2) (2018-04-17)
 
 ### Bug Fixes
 
 * **auth:** check decoded.aud only for cloud-paired bots ([faad07e](https://github.com/botpress/botpress/commit/faad07e))
-
-
+* **changelog:** Fixed changelog to use Conventional Commits ([9f32879](https://github.com/botpress/modules/commit/9f32879))
 
 <a name="10.1.1"></a>
-## [10.1.1](https://github.com/botpress/botpress/compare/v10.1.0...v10.1.1) (2018-04-17)
 
+## [10.1.1](https://github.com/botpress/botpress/compare/v10.1.0...v10.1.1) (2018-04-17)
 
 ### Bug Fixes
 
 * **style:** default font weight is a bit bolder ([4c97d74](https://github.com/botpress/botpress/commit/4c97d74))
 * botId of undefined ([4332ba8](https://github.com/botpress/botpress/commit/4332ba8))
 
-
-
 <a name="10.1.0"></a>
-# [10.1.0](https://github.com/botpress/botpress/compare/v10.0.16...v10.1.0) (2018-04-17)
 
+# [10.1.0](https://github.com/botpress/botpress/compare/v10.0.16...v10.1.0) (2018-04-17)
 
 ### Features
 
 * **login:** cli authentication to cloud bots ([84e6ca5](https://github.com/botpress/botpress/commit/84e6ca5))
 
-
-
 <a name="10.0.16"></a>
-## [10.0.16](https://github.com/botpress/botpress/compare/v10.0.15...v10.0.16) (2018-04-17)
 
+## [10.0.16](https://github.com/botpress/botpress/compare/v10.0.15...v10.0.16) (2018-04-17)
 
 ### Bug Fixes
 
 * **login:** fixes the "bp-cloup" not found error ([696a133](https://github.com/botpress/botpress/commit/696a133))
 
-
-
 <a name="10.0.15"></a>
+
 ## [10.0.15](https://github.com/botpress/botpress/compare/v10.0.14...v10.0.15) (2018-04-17)
 
-
-
 <a name="10.0.12"></a>
-## [10.0.12](https://github.com/botpress/botpress/compare/v10.0.8...v10.0.12) (2018-04-13)
 
+## [10.0.12](https://github.com/botpress/botpress/compare/v10.0.8...v10.0.12) (2018-04-13)
 
 ### Bug Fixes
 
 * **changelog:** reformatted changelog ([7af81be](https://github.com/botpress/botpress/commit/7af81be))
-
-
 
 # Before Botpress X
 
