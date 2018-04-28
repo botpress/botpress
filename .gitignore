@@ -57,6 +57,10 @@ docs/.asset-cache/*
 docs/.asset-cache/**
 docs/reference
 
+packages/**/bin
+packages/**/dist
+packages/channels/botpress-channel-web/fonts/**
+
 **/.DS_Store
 
 *.cache
