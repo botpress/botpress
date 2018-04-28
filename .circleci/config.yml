@@ -29,9 +29,8 @@ jobs:
           - v1-dependencies-{{ checksum "package.json" }}
           # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
-
+      - run: cd packages/core/botpress
       - run: yarn install
-      - run: node_modules/.bin/lerna bootstrap
 
       - save_cache:
           paths:
@@ -40,7 +39,7 @@ jobs:
         
       - run:
           name: Run tests
-          command: yarn --force --build-from-source && lerna run test
+          command: yarn --force --build-from-source && yarn run test
           environment:
             PG_USER: botpress
             PG_DB: test
