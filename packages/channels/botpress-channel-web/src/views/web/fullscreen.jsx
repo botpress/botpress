@@ -1,3 +1,4 @@
+import React from 'react'
 import Chat from './index.jsx'
 
 export default class FullscreenChat extends React.Component {

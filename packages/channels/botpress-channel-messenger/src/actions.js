@@ -43,14 +43,6 @@ const validateText = text => {
   }
 }
 
-const validateQuickReplies = quick_replies => {
-  if (!_.isArray(quick_replies)) {
-    throw new Error('quick_replies must be an array')
-  }
-
-  _.forEach(quick_replies, validateQuickReply)
-}
-
 const validateQuickReply = quick_reply => {
   if (typeof quick_reply !== 'string') {
     if (
@@ -64,6 +56,14 @@ const validateQuickReply = quick_reply => {
       )
     }
   }
+}
+
+const validateQuickReplies = quick_replies => {
+  if (!_.isArray(quick_replies)) {
+    throw new Error('quick_replies must be an array')
+  }
+
+  _.forEach(quick_replies, validateQuickReply)
 }
 
 const validateTyping = typing => {

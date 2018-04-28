@@ -27,7 +27,7 @@ const handleEditMessageText = (event, next, telegram) => {
     return next()
   }
 
-  let options = {
+  const options = {
     message_id: event.message_id,
     chat_id: event.chat_id,
     reply_markup: event.reply_markup

@@ -62,9 +62,9 @@ module.exports = {
     bp.telegram = {}
     _.forIn(actions, (action, name) => {
       bp.telegram[name] = actions[name]
-      let sendName = name.replace(/^create/, 'send')
+      const sendName = name.replace(/^create/, 'send')
       bp.telegram[sendName] = Promise.method(function() {
-        var msg = action.apply(this, arguments)
+        const msg = action.apply(this, arguments)
         msg.__id = new Date().toISOString() + Math.random()
         const resolver = { event: msg }
 

@@ -1,4 +1,5 @@
 import React from 'react'
+import _ from 'lodash'
 
 import { ListGroup, ListGroupItem, Alert, Tabs, Tab } from 'react-bootstrap'
 import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc'

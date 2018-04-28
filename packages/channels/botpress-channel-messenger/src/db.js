@@ -1,6 +1,6 @@
 import { DatabaseHelpers } from 'botpress'
 
-var knex = null
+let knex = null
 
 function initialize() {
   if (!knex) {

@@ -18,41 +18,6 @@ const createDeamon = bp => {
     return db(bp).scheduleNext(task.id, nextOccurence)
   }
 
-  const _run = async () => {
-    const rescheduled = {}
-    const list = await db(bp).listExpired()
-
-    return Promise.mapSeries(list, expired => {
-      return runSingleTask(expired)
-        .catch(err => {
-          bp.logger.error('[scheduler]', err.message, err.stack)
-          bp.notifications.send({
-            message:
-              'An error occured while running task: ' + expired.taskId + '. Please check the logs for more info.',
-            level: 'error'
-          })
-          return db(bp).updateTask(expired.taskId, 'error', null, null)
-        })
-        .finally(async () => {
-          if (!rescheduled[expired.taskId]) {
-            await reschedule(expired)
-            rescheduled[expired.taskId] = true
-          }
-        })
-    })
-  }
-
-  const run = () => {
-    if (lock === true) {
-      return
-    }
-
-    lock = true
-    return _run().finally(() => {
-      lock = false
-    })
-  }
-
   const runSingleTask = async expired => {
     await db(bp).updateTask(expired.taskId, 'executing', null, null)
 
@@ -92,6 +57,41 @@ const createDeamon = bp => {
 
     bp.events.emit('scheduler.update')
     bp.events.emit('scheduler.finished', expired)
+  }
+
+  const _run = async () => {
+    const rescheduled = {}
+    const list = await db(bp).listExpired()
+
+    return Promise.mapSeries(list, expired => {
+      return runSingleTask(expired)
+        .catch(err => {
+          bp.logger.error('[scheduler]', err.message, err.stack)
+          bp.notifications.send({
+            message:
+              'An error occured while running task: ' + expired.taskId + '. Please check the logs for more info.',
+            level: 'error'
+          })
+          return db(bp).updateTask(expired.taskId, 'error', null, null)
+        })
+        .finally(async () => {
+          if (!rescheduled[expired.taskId]) {
+            await reschedule(expired)
+            rescheduled[expired.taskId] = true
+          }
+        })
+    })
+  }
+
+  const run = () => {
+    if (lock === true) {
+      return
+    }
+
+    lock = true
+    return _run().finally(() => {
+      lock = false
+    })
   }
 
   const revive = () => db(bp).reviveAllExecuting()

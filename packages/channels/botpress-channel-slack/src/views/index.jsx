@@ -98,20 +98,28 @@ export default class SlackModule extends React.Component {
   getParameterByName = name => {
     const url = window.location.href
     name = name.replace(/[\[\]]/g, '\\$&')
-    let regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+    const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
       results = regex.exec(url)
-    if (!results) return null
-    if (!results[2]) return ''
+    if (!results) {
+      return null
+    }
+    if (!results[2]) {
+      return ''
+    }
     return decodeURIComponent(results[2].replace(/\+/g, ' '))
   }
 
   isAuthenticate = () => {
-    if (this.state.apiToken === '') return false
+    if (this.state.apiToken === '') {
+      return false
+    }
 
     return axios
       .get(this.getOAuthTestLink())
       .then(({ data }) => {
-        if (data.ok) return true
+        if (data.ok) {
+          return true
+        }
 
         throw new Error('An error occured while testing of your API Token...')
       })
@@ -128,7 +136,9 @@ export default class SlackModule extends React.Component {
   authenticate = () => {
     const code = this.getParameterByName('code')
 
-    if (!code || this.state.apiToken !== '') return
+    if (!code || this.state.apiToken !== '') {
+      return
+    }
 
     axios
       .get(this.getOAuthAccessLink(code))
@@ -319,7 +329,9 @@ export default class SlackModule extends React.Component {
   }
 
   render() {
-    if (this.state.loading) return null
+    if (this.state.loading) {
+      return null
+    }
 
     return (
       <Col md={10} mdOffset={1}>

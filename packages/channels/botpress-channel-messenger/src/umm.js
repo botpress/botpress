@@ -59,7 +59,7 @@ function amendButtons(obj, blocName) {
 }
 
 function getUserId(event) {
-  let userId =
+  const userId =
     _.get(event, 'user.userId') ||
     _.get(event, 'raw.userId') ||
     _.get(event, 'userId') ||
@@ -89,7 +89,7 @@ function processOutgoing({ event, blocName, instruction }) {
 
   const options = _.pick(instruction, optionsList)
 
-  for (let prop of optionsList) {
+  for (const prop of optionsList) {
     delete ins[prop]
   }
 
@@ -106,7 +106,7 @@ function processOutgoing({ event, blocName, instruction }) {
     return actions.createTemplate(getUserId(event), data, options)
   }
 
-  for (let attr of ['image', 'audio', 'video', 'file']) {
+  for (const attr of ['image', 'audio', 'video', 'file']) {
     if (!_.isNil(instruction[attr])) {
       return actions.createAttachment(getUserId(event), attr, ins[attr], options)
     }

@@ -8,7 +8,6 @@ import {
   Col,
   Button,
   ControlLabel,
-  Panel,
   Checkbox,
   Radio,
   Glyphicon,
@@ -19,9 +18,6 @@ import {
 } from 'react-bootstrap'
 import _ from 'lodash'
 import Promise from 'bluebird'
-import classnames from 'classnames'
-
-import UMMComponent from './UMM'
 
 import style from './style.scss'
 
@@ -152,9 +148,9 @@ export default class MessengerModule extends React.Component {
   }
 
   handleChange(event) {
-    var { name, value } = event.target
+    const { name, value } = event.target
 
-    var connectionInputList = ['applicationID', 'accessToken', 'hostname', 'appSecret']
+    const connectionInputList = ['applicationID', 'accessToken', 'hostname', 'appSecret']
     if (_.includes(connectionInputList, name)) {
       this.setState({ validated: false })
     }
@@ -189,7 +185,7 @@ export default class MessengerModule extends React.Component {
       })
   }
 
-  handleConnection(event) {
+  handleConnection() {
     let preConnection = Promise.resolve()
 
     if (this.state.initialStateHash && this.state.initialStateHash !== this.getStateHash()) {
@@ -215,7 +211,7 @@ export default class MessengerModule extends React.Component {
   }
 
   handleChangeCheckBox(event) {
-    var { name } = event.target
+    const { name } = event.target
     this.setState({ [name]: !this.state[name] })
   }
 
@@ -279,15 +275,15 @@ export default class MessengerModule extends React.Component {
   /*Get a list of users that match what the user is typing in*/
   handlePaymentTesterChange() {
     const input = ReactDOM.findDOMNode(this.paymentTesterInput)
-    var matching = []
+    const matching = []
 
     // if there is text in the field, update the matching contents
     // we push the indexes only.  It's less space, and we already have the
     // users in a list, so no reason to duplicate
     if (input && input.value !== '') {
-      for (var k in this.state.users) {
-        var user = this.state.users[k]
-        var name = (user.first_name + ' ' + user.last_name).toLowerCase()
+      for (const k in this.state.users) {
+        const user = this.state.users[k]
+        const name = (user.first_name + ' ' + user.last_name).toLowerCase()
         if (name.indexOf(input.value.toLowerCase()) !== -1) {
           matching.push(k)
         }
@@ -401,10 +397,10 @@ export default class MessengerModule extends React.Component {
 
     const getValidationState = () => {
       if (this.state.hostname) {
-        var expression = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi
-        var regex = new RegExp(expression)
+        const expression = /[-a-zA-Z0-9@:%_+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_+.~#?&//=]*)?/gi
+        const regex = new RegExp(expression)
 
-        var completeURL = prefix + this.state.hostname + suffix
+        const completeURL = prefix + this.state.hostname + suffix
         return regex.test(completeURL) ? 'success' : 'error'
       }
     }
@@ -808,7 +804,7 @@ export default class MessengerModule extends React.Component {
   // Access Token is connected to
   // these values are useful when submitting bugs to Facebook
   renderFacebookPageDetails() {
-    var content = this.state.pageDetails ? (
+    const content = this.state.pageDetails ? (
       <Col sm={7} smOffset={3}>
         <ControlLabel>Page Name</ControlLabel>
         <FormControl name="fbPageName" type="text" value={this.state.pageDetails.name} disabled="disabled" />
@@ -932,15 +928,5 @@ export default class MessengerModule extends React.Component {
 
   render() {
     return this.state.loading ? null : this.renderAllContent()
-  }
-}
-
-export class UMMOutgoing extends React.Component {
-  constructor(props) {
-    super()
-  }
-
-  render() {
-    return <UMMComponent {...this.props} />
   }
 }

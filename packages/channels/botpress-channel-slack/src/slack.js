@@ -232,7 +232,9 @@ class Slack {
     const { data } = this
     const user = _.find(data.users, _.matchesProperty('id', userId))
 
-    if (user !== 'undefined') return user
+    if (user !== 'undefined') {
+      return user
+    }
 
     return _.find(await this.getUsers(), _.matchesProperty('id', userId))
   }
@@ -240,7 +242,9 @@ class Slack {
   connect(bp) {
     const rtmToken = this.getRTMToken()
 
-    if (!rtmToken) return
+    if (!rtmToken) {
+      return
+    }
 
     this.connectRTM(bp, rtmToken)
     this.connectWebclient(rtmToken)

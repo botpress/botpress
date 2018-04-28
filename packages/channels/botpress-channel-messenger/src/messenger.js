@@ -248,8 +248,8 @@ class Messenger extends EventEmitter {
   }
 
   getUserProfile(userId) {
-    const url = `https://graph.facebook.com/v2.7/${userId}?fields=first_name,last_name,profile_pic,locale,timezone,gender&access_token=${this
-      .config.accessToken}`
+    const token = this.config.accessToken
+    const url = `https://graph.facebook.com/v2.7/${userId}?fields=first_name,last_name,profile_pic,locale,timezone,gender&access_token=${token}`
     return fetch(url)
       .then(this._handleFacebookResponse)
       .then(res => res.json())
@@ -257,26 +257,29 @@ class Messenger extends EventEmitter {
   }
 
   createTargetAudienceSetting() {
-    var setting = { target_audience: {} }
+    const setting = { target_audience: {} }
 
     switch (this.config.targetAudience) {
       case 'openToAll':
         setting.target_audience.audience_type = 'all'
         break
+
       case 'openToSome':
-        var countriesWhitelist = this.config.targetAudienceOpenToSome.split(/\, ?/g)
+        const countriesWhitelist = this.config.targetAudienceOpenToSome.split(/, ?/g)
         setting.target_audience.audience_type = 'custom'
         setting.target_audience.countries = {
           whitelist: countriesWhitelist
         }
         break
+
       case 'closeToSome':
         setting.target_audience.audience_type = 'custom'
-        var countriesBlacklist = this.config.targetAudienceCloseToSome.split(/\, ?/g)
+        const countriesBlacklist = this.config.targetAudienceCloseToSome.split(/, ?/g)
         setting.target_audience.countries = {
           blacklist: countriesBlacklist
         }
         break
+
       case 'closeToAll':
         setting.target_audience.audience_type = 'none'
         break
@@ -286,9 +289,7 @@ class Messenger extends EventEmitter {
   }
 
   setTargetAudience() {
-    const url = `https://graph.facebook.com/v2.7/me/messenger_profile?access_token=${this.config.accessToken}`
-    var setting = this.createTargetAudienceSetting()
-
+    const setting = this.createTargetAudienceSetting()
     return this.sendRequest(setting, 'messenger_profile', 'POST')
   }
 
@@ -375,7 +376,7 @@ class Messenger extends EventEmitter {
             // TODO Allow setting multiple menues for different locales
             locale: 'default',
             composer_input_disabled: composerInputDisabled,
-            call_to_actions: buttons
+            call_to_actions: formattedButtons
           }
         ]
       },
@@ -400,7 +401,7 @@ class Messenger extends EventEmitter {
    * but Facebook either wants a
    */
   createChatExtensionHomeUrlSetting(home_url, in_test, show_share) {
-    var show_string = 'hide'
+    let show_string = 'hide'
     if (show_share == true) {
       show_string = 'show'
     }
@@ -422,17 +423,12 @@ class Messenger extends EventEmitter {
   }
 
   deleteChatExtensionHomeUrl() {
-    const url = `https://graph.facebook.com/v2.7/me/messenger_profile?access_token=${this.config.accessToken}`
-    var setting = this.deleteChatExtensionHomeUrlSetting()
-
+    const setting = this.deleteChatExtensionHomeUrlSetting()
     return this.sendRequest(setting, 'messenger_profile', 'DELETE')
   }
 
   setChatExtensionHomeUrl(home_url, in_test, show_share) {
-    const url = `https://graph.facebook.com/v2.7/me/messenger_profile?access_token=${this.config.accessToken}`
-
-    var setting = this.createChatExtensionHomeUrlSetting(home_url, in_test, show_share)
-
+    const setting = this.createChatExtensionHomeUrlSetting(home_url, in_test, show_share)
     return this.sendRequest(setting, 'messenger_profile', 'POST')
   }
 
@@ -502,7 +498,9 @@ class Messenger extends EventEmitter {
 
     let thrown = false
     const contextifyError = context => err => {
-      if (thrown) throw err
+      if (thrown) {
+        throw err
+      }
       const message = `Error setting ${context}\n${err.message}`
       thrown = true
       throw new Error(message)
@@ -538,10 +536,8 @@ class Messenger extends EventEmitter {
             title: button,
             payload: 'BUTTON_' + normalizeString(button)
           }
-        } else if (button && button.title) {
-          return button
         }
-        return {}
+        return button
       })
     )
   }
@@ -615,7 +611,9 @@ class Messenger extends EventEmitter {
   }
 
   _handleFacebookResponse(res) {
-    if (!res) return
+    if (!res) {
+      return
+    }
 
     if (res.status < 400) {
       return res
@@ -645,7 +643,7 @@ class Messenger extends EventEmitter {
     })
 
     this.app.post('/webhook', (req, res) => {
-      var data = req.body
+      const data = req.body
       if (data.object !== 'page') {
         return
       }
@@ -700,12 +698,12 @@ class Messenger extends EventEmitter {
       return
     }
 
-    var signature = req.headers['x-hub-signature']
+    const signature = req.headers['x-hub-signature']
     if (!signature) {
       throw new Error("Couldn't validate the request signature.")
     } else {
-      let [, hash] = signature.split('=')
-      var expectedHash = crypto
+      const [, hash] = signature.split('=')
+      const expectedHash = crypto
         .createHmac('sha1', this.config.appSecret)
         .update(buf)
         .digest('hex')

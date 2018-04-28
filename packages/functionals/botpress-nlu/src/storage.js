@@ -66,7 +66,7 @@ export default class Storage {
 
   async getIntents() {
     const intents = await this.ghost.directoryListing(this.intentsDir, '.json')
-    return await Promise.mapSeries(intents, intent => this.getIntent(intent))
+    return Promise.mapSeries(intents, intent => this.getIntent(intent))
   }
 
   async getIntent(intent) {
@@ -95,7 +95,7 @@ export default class Storage {
   async getCustomEntities() {
     const entities = await this.ghost.directoryListing(this.entitiesDir, '.json')
 
-    return await Promise.mapSeries(entities, entity => this.getCustomEntity(entity))
+    return Promise.mapSeries(entities, entity => this.getCustomEntity(entity))
   }
 
   async getCustomEntity(entity) {

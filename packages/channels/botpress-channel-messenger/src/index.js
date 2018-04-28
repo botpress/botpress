@@ -65,7 +65,7 @@ const initializeMessenger = (bp, configurator) => {
     }
 
     if (configErrors.length) {
-      for (var err of configErrors) {
+      for (const err of configErrors) {
         bp.logger.warn('[botpress-messenger] ' + err.message)
       }
 
@@ -170,7 +170,7 @@ module.exports = {
     _.forIn(actions, (action, name) => {
       const applyFn = fn =>
         function() {
-          var msg = action.apply(this, arguments)
+          const msg = action.apply(this, arguments)
           const promise = msg._promise
           return fn && fn(msg, promise)
         }
@@ -192,7 +192,7 @@ module.exports = {
           )
         }
 
-      var sendName = name.replace(/^create/, 'send')
+      const sendName = name.replace(/^create/, 'send')
       bp.messenger[sendName] = deprecate(
         Promise.method(applyFn((msg, promise) => bp.middlewares.sendOutgoing(msg) && promise))
       )

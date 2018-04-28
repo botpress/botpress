@@ -39,7 +39,7 @@ module.exports = (bp, telegram) => {
 
   const preprocessEvent = payload => {
     console.log('preprocessEvent')
-    let mid = `${payload.chat.id}_${payload.from.id}_${payload.date}`
+    const mid = `${payload.chat.id}_${payload.from.id}_${payload.date}`
     console.log(mid)
 
     if (mid && !messagesCache.has(mid)) {

@@ -116,6 +116,10 @@ module.exports = (bp, slack) => {
     return users.getOrFetchUserProfile(userId)
   }
 
+  const isDirect = channelId => {
+    return /^D/.test(channelId)
+  }
+
   const extractBasics = event => {
     return {
       platform: 'slack',
@@ -124,10 +128,6 @@ module.exports = (bp, slack) => {
       direct: isDirect(event.channel),
       raw: event
     }
-  }
-
-  const isDirect = channelId => {
-    return /^D/.test(channelId)
   }
 
   const isBotMentioned = text => {
@@ -198,7 +198,9 @@ module.exports = (bp, slack) => {
   })
 
   slack.rtm.on(RTM_EVENTS['MESSAGE'], function handleRtmMessage(message) {
-    if (isFromBot(message)) return
+    if (isFromBot(message)) {
+      return
+    }
 
     preprocessEvent(message).then(user => {
       bp.middlewares.sendIncoming({
@@ -236,7 +238,9 @@ module.exports = (bp, slack) => {
   })
 
   slack.rtm.on(RTM_EVENTS['REACTION_ADDED'], function handleRtmReactionAdded(reaction) {
-    if (isFromBot(reaction)) return
+    if (isFromBot(reaction)) {
+      return
+    }
 
     preprocessEvent(reaction).then(user => {
       bp.middlewares.sendIncoming({
@@ -251,7 +255,9 @@ module.exports = (bp, slack) => {
   })
 
   slack.rtm.on(RTM_EVENTS['USER_TYPING'], function handleRtmTypingAdded(typing) {
-    if (isFromBot(typing)) return
+    if (isFromBot(typing)) {
+      return
+    }
 
     preprocessEvent(typing).then(user => {
       bp.middlewares.sendIncoming({
@@ -264,7 +270,9 @@ module.exports = (bp, slack) => {
   })
 
   slack.rtm.on(RTM_EVENTS['FILE_SHARED'], function handleRtmTypingAdded(file) {
-    if (isFromBot(file)) return
+    if (isFromBot(file)) {
+      return
+    }
 
     users.getOrFetchUserProfile(file.user_id).then(user => {
       bp.middlewares.sendIncoming({
