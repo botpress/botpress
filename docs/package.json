@@ -8,9 +8,11 @@
   },
   "dependencies": {
     "bootstrap": "4.0.0-alpha.5",
-    "jquery": "3.2.0"
+    "jquery": "3.2.0",
+    "jsdoc": "^3.5.5"
   },
   "scripts": {
-    "start": "yarn install"
+    "start": "yarn install",
+    "gen-reference": "jsdoc ../packages/core/botpress/src -c ./jsdoc.conf.json"
   }
 }
