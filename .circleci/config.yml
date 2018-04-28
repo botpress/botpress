@@ -31,6 +31,7 @@ jobs:
           - v1-dependencies-
 
       - run: yarn install
+      - run: lerna bootstrap
 
       - save_cache:
           paths:
@@ -39,7 +40,7 @@ jobs:
         
       - run:
           name: Run tests
-          command: yarn --force --build-from-source && yarn test
+          command: yarn --force --build-from-source && lerna run test
           environment:
             PG_USER: botpress
             PG_DB: test
