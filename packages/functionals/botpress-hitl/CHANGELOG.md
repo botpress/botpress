@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.4.0"></a>
+# [10.4.0](https://github.com/botpress/modules/compare/v10.3.1...v10.4.0) (2018-04-29)
+
+
+
+
+**Note:** Version bump only for package @botpress/hitl
+
 <a name="10.3.1"></a>
 ## [10.3.1](https://github.com/botpress/modules/compare/v10.2.5...v10.3.1) (2018-04-28)
 

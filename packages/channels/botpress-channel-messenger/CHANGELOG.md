@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.4.0"></a>
+# [10.4.0](https://github.com/botpress/modules/compare/v10.3.1...v10.4.0) (2018-04-29)
+
+
+### Bug Fixes
+
+* **messenger:** updated to new config, removed GUI ([b8db37e](https://github.com/botpress/modules/commit/b8db37e))
+
+
+
+
 <a name="10.3.1"></a>
 ## [10.3.1](https://github.com/botpress/modules/compare/v10.2.5...v10.3.1) (2018-04-28)
 
