@@ -26,7 +26,7 @@ jobs:
 
       - run:
           name: Install dependencies
-          command: cd ~/repo/packages/core/botpress && yarn --force --build-from-source && yarn run test
+          command: cd ~/repo/packages/core/botpress && yarn --force --build-from-source
 
       - save_cache:
           paths:
