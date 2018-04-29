@@ -5,7 +5,6 @@ import Promise from 'bluebird'
 import _ from 'lodash'
 import moment from 'moment'
 import axios from 'axios'
-import { createConfig } from './configurator'
 import helpers from './helpers'
 import util from './util'
 
