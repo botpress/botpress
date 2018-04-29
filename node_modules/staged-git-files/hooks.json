@@ -1,6 +1,0 @@
-{
-  "pre-commit": {
-    "beautify.hks": "0.0.1",
-    "esprima.hks": "0.0.0"
-  }
-}
