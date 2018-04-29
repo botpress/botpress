@@ -60,22 +60,6 @@ class Messenger extends EventEmitter {
     return this.config
   }
 
-  getConfigErrors() {
-    const errors = []
-    const required = ['applicationID', 'accessToken', 'appSecret', 'hostname', 'verifyToken']
-
-    _.forEach(this.config, (value, key) => {
-      if (_.includes(required, key) && (_.isNil(value) || _.isEmpty(value))) {
-        errors.push({
-          key: key,
-          message: `Configuration is incomplete, ${key} needs to be defined. See "./botpress-messenger.config.yml".`
-        })
-      }
-    })
-
-    return errors
-  }
-
   connect() {
     return this._setupNewWebhook().then(() => this._subscribePage())
   }
