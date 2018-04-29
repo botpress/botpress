@@ -1,0 +1,6 @@
+{
+  "intentsDir": "./intents",
+  "entitiesDir": "./entities",
+  "provider": "native",
+  "debugModeEnabled": false
+}
