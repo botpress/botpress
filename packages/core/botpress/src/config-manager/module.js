@@ -1,5 +1,6 @@
 import path from 'path'
 import fs from 'fs'
+import _ from 'lodash'
 
 export default class ModuleConfiguration {
   constructor(options) {
@@ -33,7 +34,21 @@ export default class ModuleConfiguration {
   }
 
   async loadAll(caching = true) {
-    return this.manager.loadAll(this._getFileName(), this._getOptions(), caching)
+    const config = await this.manager.loadAll(this._getFileName(), this._getOptions(), caching)
+
+    const file = this._getFileName()
+    const filePath = path.resolve(this.configLocation, file)
+
+    _.mapValues(config, (value, key) => {
+      if (value === '<<UPDATE_ME>>') {
+        const message = `[${this.module.name}] Missing mandatory configuration for "${key}". 
+You can provide this value in "${filePath}"`
+        this.logger.error(message)
+        throw new Error(message)
+      }
+    })
+
+    return config
   }
 
   async get(key, caching = true) {
@@ -64,8 +79,6 @@ export default class ModuleConfiguration {
   async isConfigMissing() {
     const file = this._getFileName()
     const filePath = path.resolve(this.configLocation, file)
-
-    console.log(this._hasDefaultConfig(), filePath)
     return this._hasDefaultConfig() && !fs.existsSync(filePath)
   }
 }
