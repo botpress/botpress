@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>dialog/state.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+
+    <link type="text/css" rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+<body style="padding-top: 50px;">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+  <span class="navbar-brand mb-0 h1">Botpress | Reference</span>
+
+  <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+    <li class="nav-item">
+      <a class="nav-link" href="../">Back to Guides</a>
+    </li>
+  </ul>
+
+</nav>
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav class="toc">
+    <li class="nav-link nav-home-link"><a href="index.html">What's new</a></li><li class="nav-heading"><a href="global.html">Globals</a></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#bp">bp</a></span></li><li class="nav-heading">Namespaces</li><li class="nav-heading"><span class="nav-item-type type-namespace">N</span><span class="nav-item-name"><a href="Botpress.html">Botpress</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Botpress.html">createShortlink</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Botpress.html">getRouter</a></span></li><li class="nav-heading"><span class="nav-item-type type-namespace">N</span><span class="nav-item-name"><a href="ContentManager.html">ContentManager</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ContentManager.html#.createOrUpdateCategoryItem">createOrUpdateCategoryItem</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ContentManager.html#.getItem">getItem</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ContentManager.html#.listAvailableCategories">listAvailableCategories</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ContentManager.html#.listCategoryItems">listCategoryItems</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ContentManager.html#.registerGetItemProvider">registerGetItemProvider</a></span></li><li class="nav-heading"><span class="nav-item-type type-namespace">N</span><span class="nav-item-name"><a href="ContentRenderer.html">ContentRenderer</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ContentRenderer.html#.isRegistered">isRegistered</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ContentRenderer.html#.register">register</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ContentRenderer.html#.sendToUser">sendToUser</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ContentRenderer.html#.unregister">unregister</a></span></li><li class="nav-heading"><span class="nav-item-type type-namespace">N</span><span class="nav-item-name"><a href="Database.html">Database</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Database.html#.get">get</a></span></li><li class="nav-heading"><span class="nav-item-type type-namespace">N</span><span class="nav-item-name"><a href="DialogEngine.html">DialogEngine</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="DialogEngine.html#endFlow">endFlow</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="DialogEngine.html#getCurrentPosition">getCurrentPosition</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="DialogEngine.html#jumpTo">jumpTo</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="DialogEngine.html#processMessage">processMessage</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="DialogEngine.html#registerFunctions">registerFunctions</a></span></li><li class="nav-heading"><span class="nav-item-type type-namespace">N</span><span class="nav-item-name"><a href="DialogStateManager.html">DialogStateManager</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="DialogStateManager.html#.deleteState">deleteState</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="DialogStateManager.html#.getState">getState</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="DialogStateManager.html#.setState">setState</a></span></li><li class="nav-heading"><span class="nav-item-type type-namespace">N</span><span class="nav-item-name"><a href="KVS.html">KVS</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KVS.html#.get">get</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KVS.html#.set">set</a></span></li><li class="nav-heading"><span class="nav-item-type type-namespace">N</span><span class="nav-item-name"><a href="Middleware.html">Middleware</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Middleware.html#.register">register</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Middleware.html#.sendIncoming">sendIncoming</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Middleware.html#.sendOutgoing">sendOutgoing</a></span></li><li class="nav-heading"><span class="nav-item-type type-namespace">N</span><span class="nav-item-name"><a href="Users.html">Users</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Users.html#.getTag">getTag</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Users.html#.getTags">getTags</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Users.html#.hasTag">hasTag</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Users.html#.tag">tag</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Users.html#.untag">untag</a></span></li><li class="nav-heading">Classes</li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Botfile.html">Botfile</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Logger.html">Logger</a></span></li><li class="nav-heading">Modules</li><li class="nav-heading"><span class="nav-item-type type-module">M</span><span class="nav-item-name"><a href="module-DatabaseHelpers.html">DatabaseHelpers</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-DatabaseHelpers.html#~createTableIfNotExists">createTableIfNotExists</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-DatabaseHelpers.html#~isLite">isLite</a></span></li>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">dialog/state.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * The Dialog State Manager is in charge of keeping track of the state
+ * for all conversations. This is being used internally by the [Dialog Engine]{@link DialogEngine}
+ * but is also exposed publicly if you need to programmatically alter the state of some conversations.
+ * @namespace DialogStateManager
+ * @example
+ * bp.dialogEngine.stateManager
+ */
+
+import helpers from '../database/helpers'
+import _ from 'lodash'
+
+module.exports = ({ db, internals = {} }) => {
+  const _internals = Object.assign(
+    {
+      _isExpired: session => {
+        return false // TODO Implement
+      }
+    },
+    internals
+  )
+
+  const _upsertState = async (stateId, state) => {
+    let sql
+
+    const knex = await db.get()
+
+    const params = {
+      tableName: 'dialog_sessions',
+      stateId,
+      state: JSON.stringify(state),
+      now: helpers(knex).date.now()
+    }
+
+    if (helpers(knex).isLite()) {
+      sql = `
+        INSERT OR REPLACE INTO :tableName: (id, state, active_on)
+        VALUES (:stateId, :state, :now)
+      `
+    } else {
+      sql = `
+        INSERT INTO :tableName: (id, state, active_on, created_on)
+        VALUES (:stateId, :state, :now, :now)
+        ON CONFLICT (id) DO UPDATE
+          SET active_on = :now, state = :state
+      `
+    }
+
+    return knex.raw(sql, params)
+  }
+
+  const _createEmptyState = stateId => {
+    return { _stateId: stateId }
+  }
+
+  const _createSession = async stateId => {
+    const knex = await db.get()
+    const now = helpers(knex).date.now()
+
+    const sessionData = {
+      id: stateId,
+      created_on: now,
+      active_on: now,
+      state: JSON.stringify(_createEmptyState(stateId))
+    }
+
+    await knex('dialog_sessions').insert(sessionData)
+  }
+
+  /**
+   * Returns the current state of the conversation
+   * @param  {String} stateId
+   * @return {Object} The conversation state
+   * @async
+   * @memberof! DialogStateManager
+   * @example
+   * const state = await bp.dialogEngine.stateManager.getState(event.user.id)
+   */
+  const getState = async stateId => {
+    const knex = await db.get()
+
+    const session = await knex('dialog_sessions')
+      .where({ id: stateId })
+      .limit(1)
+      .then()
+      .get(0)
+      .then()
+
+    if (session) {
+      if (_internals._isExpired(session)) {
+        // TODO trigger time out
+        await _createSession(stateId)
+        return getState(stateId)
+      } else {
+        return JSON.parse(session.state)
+      }
+    } else {
+      await _createSession(stateId)
+      return getState(stateId)
+    }
+  }
+
+  /**
+   * Overwrites the state of a current conversation
+   * @param  {String} stateId
+   * @param {Object} state The conversation state
+   * @return {Object} The new state
+   * @async
+   * @memberof! DialogStateManager
+   */
+  const setState = (stateId, state) => {
+    if (_.isNil(state)) {
+      state = _createEmptyState(stateId)
+    }
+
+    if (!_.isPlainObject(state)) {
+      throw new Error('State must be a plain object')
+    }
+
+    return _upsertState(stateId, state)
+  }
+
+  /**
+   * Deletes the state(s) and (optionally) the associated sub-states (for e.g. ___context sub-state)
+   * @param stateId The state to delete
+   * @param {Array&lt;String>} [substates] Detaults to ['context']. If this is empty it will delete no substate
+   * @async
+   * @memberof! DialogStateManager
+   */
+  const deleteState = async (stateId, substates = ['context']) => {
+    const knex = await db.get()
+
+    const states = [stateId, ...substates.map(x => `${stateId}___${x}`)]
+
+    await knex('dialog_sessions')
+      .whereIn('id', states)
+      .del()
+      .then()
+  }
+
+  return {
+    getState,
+    setState,
+    deleteState
+  }
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Apr 27 2018 14:21:54 GMT-0400 (EDT) using the Minami theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

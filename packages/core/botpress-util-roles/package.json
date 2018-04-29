@@ -1,0 +1,22 @@
+{
+  "name": "@botpress/util-roles",
+  "version": "10.3.1",
+  "description": "Botpress utility package that handles roles checking",
+  "main": "dist/index.js",
+  "author": "Botpress, Inc.",
+  "license": "AGPL-3.0",
+  "private": false,
+  "devDependencies": {
+    "babel-preset-env": "^1.6.1",
+    "jest": "^22.4.3",
+    "parcel-bundler": "^1.7.1"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "watch": "parcel watch src/index.js",
+    "compile": "parcel build src/index.js",
+    "test": "jest --watch"
+  }
+}

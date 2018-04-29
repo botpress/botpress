@@ -1,0 +1,49 @@
+{
+  "name": "temp-write",
+  "version": "3.4.0",
+  "description": "Write string/buffer/stream to a random temp file",
+  "license": "MIT",
+  "repository": "sindresorhus/temp-write",
+  "author": {
+    "name": "Sindre Sorhus",
+    "email": "sindresorhus@gmail.com",
+    "url": "sindresorhus.com"
+  },
+  "engines": {
+    "node": ">=4"
+  },
+  "scripts": {
+    "test": "xo && ava"
+  },
+  "files": [
+    "index.js"
+  ],
+  "keywords": [
+    "tmp",
+    "temp",
+    "temporary",
+    "tempfile",
+    "file",
+    "filename",
+    "path",
+    "random",
+    "rand",
+    "write",
+    "fs",
+    "string",
+    "buffer",
+    "stream"
+  ],
+  "dependencies": {
+    "graceful-fs": "^4.1.2",
+    "is-stream": "^1.1.0",
+    "make-dir": "^1.0.0",
+    "pify": "^3.0.0",
+    "temp-dir": "^1.0.0",
+    "uuid": "^3.0.1"
+  },
+  "devDependencies": {
+    "ava": "*",
+    "xo": "*"
+  }
+}

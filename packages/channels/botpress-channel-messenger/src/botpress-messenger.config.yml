@@ -1,0 +1,32 @@
+# Edit this file to set the Messenger's module settings programmatically instead of using the GUI
+# This is regular YAML syntax. See http://docs.ansible.com/ansible/YAMLSyntax.html
+# You can override these settings with ENV variables. They are commented below.
+
+# hostname: "" # MESSENGER_HOST
+
+# applicationID: "" # MESSENGER_APP_ID
+# accessToken: "" # MESSENGER_ACCESS_TOKEN
+# appSecret: "" # MESSENGER_APP_SECRET
+
+# verifyToken: "" # MESSENGER_VERIFY_TOKEN
+
+# displayGetStarted: true
+# greetingMessage: ""
+
+# https://developers.facebook.com/docs/messenger-platform/messenger-profile/persistent-menu
+# persistentMenuItems: []
+
+# targetAudience: openToAll
+# targetAudienceOpenToSome: ""
+# targetAudienceCloseToSome: ""
+
+# trustedDomains: []
+# autoRespondGetStarted: true
+
+# paymentTesters: []
+
+# chatExtensionHomeUrl: ""
+# chatExtensionInTest: true
+# chatExtensionShowShareButton: false
+
+enabled: true

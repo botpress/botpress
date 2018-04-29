@@ -1,0 +1,51 @@
+.editable {
+  padding: 0 0 2px 0;
+  border-bottom: dashed 2px #a9cac8;
+}
+
+.header {
+  font-size: 22px;
+  color: #222;
+  font-weight: 400;
+}
+
+input.header {
+  border: 1px;
+}
+
+.expressions {
+  font-size: 16px;
+}
+
+.expressionType {
+  font-weight: 400;
+  margin-right: 5px;
+}
+
+.expression {
+  margin-left: 20px;
+  font-weight: 400;
+  margin-right: 5px;
+}
+
+.callout {
+  margin: 10px 0;
+  border-radius: 3px;
+  border-left: 4px solid lightgrey;
+  padding: 10px;
+
+  span {
+    margin-left: 5px;
+    background-color: #f3f3f3;
+    color: #333;
+  }
+}
+
+.action {
+  width: 100%;
+  height: 200px;
+}
+
+textarea.action {
+  border: none;
+}

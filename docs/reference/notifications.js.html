@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>notifications.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+
+    <link type="text/css" rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+<body style="padding-top: 50px;">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+  <span class="navbar-brand mb-0 h1">Botpress | Reference</span>
+
+  <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+    <li class="nav-item">
+      <a class="nav-link" href="../">Back to Guides</a>
+    </li>
+  </ul>
+
+</nav>
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav class="toc">
+    <li class="nav-link nav-home-link"><a href="index.html">What's new</a></li><li class="nav-heading"><a href="global.html">Globals</a></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#bp">bp</a></span></li><li class="nav-heading">Namespaces</li><li class="nav-heading"><span class="nav-item-type type-namespace">N</span><span class="nav-item-name"><a href="Botpress.html">Botpress</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Botpress.html">createShortlink</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Botpress.html">getRouter</a></span></li><li class="nav-heading"><span class="nav-item-type type-namespace">N</span><span class="nav-item-name"><a href="ContentManager.html">ContentManager</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ContentManager.html#.createOrUpdateCategoryItem">createOrUpdateCategoryItem</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ContentManager.html#.getItem">getItem</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ContentManager.html#.listAvailableCategories">listAvailableCategories</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ContentManager.html#.listCategoryItems">listCategoryItems</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ContentManager.html#.registerGetItemProvider">registerGetItemProvider</a></span></li><li class="nav-heading"><span class="nav-item-type type-namespace">N</span><span class="nav-item-name"><a href="ContentRenderer.html">ContentRenderer</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ContentRenderer.html#.isRegistered">isRegistered</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ContentRenderer.html#.register">register</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ContentRenderer.html#.sendToUser">sendToUser</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ContentRenderer.html#.unregister">unregister</a></span></li><li class="nav-heading"><span class="nav-item-type type-namespace">N</span><span class="nav-item-name"><a href="Database.html">Database</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Database.html#.get">get</a></span></li><li class="nav-heading"><span class="nav-item-type type-namespace">N</span><span class="nav-item-name"><a href="DialogEngine.html">DialogEngine</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="DialogEngine.html#endFlow">endFlow</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="DialogEngine.html#getCurrentPosition">getCurrentPosition</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="DialogEngine.html#jumpTo">jumpTo</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="DialogEngine.html#processMessage">processMessage</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="DialogEngine.html#registerFunctions">registerFunctions</a></span></li><li class="nav-heading"><span class="nav-item-type type-namespace">N</span><span class="nav-item-name"><a href="DialogStateManager.html">DialogStateManager</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="DialogStateManager.html#.deleteState">deleteState</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="DialogStateManager.html#.getState">getState</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="DialogStateManager.html#.setState">setState</a></span></li><li class="nav-heading"><span class="nav-item-type type-namespace">N</span><span class="nav-item-name"><a href="KVS.html">KVS</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KVS.html#.get">get</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KVS.html#.set">set</a></span></li><li class="nav-heading"><span class="nav-item-type type-namespace">N</span><span class="nav-item-name"><a href="Middleware.html">Middleware</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Middleware.html#.register">register</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Middleware.html#.sendIncoming">sendIncoming</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Middleware.html#.sendOutgoing">sendOutgoing</a></span></li><li class="nav-heading"><span class="nav-item-type type-namespace">N</span><span class="nav-item-name"><a href="Users.html">Users</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Users.html#.getTag">getTag</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Users.html#.getTags">getTags</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Users.html#.hasTag">hasTag</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Users.html#.tag">tag</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Users.html#.untag">untag</a></span></li><li class="nav-heading">Classes</li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Botfile.html">Botfile</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Logger.html">Logger</a></span></li><li class="nav-heading">Modules</li><li class="nav-heading"><span class="nav-item-type type-module">M</span><span class="nav-item-name"><a href="module-DatabaseHelpers.html">DatabaseHelpers</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-DatabaseHelpers.html#~createTableIfNotExists">createTableIfNotExists</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-DatabaseHelpers.html#~isLite">isLite</a></span></li>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">notifications.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import _ from 'lodash'
+import nanoid from 'nanoid'
+
+import helpers from './database/helpers'
+
+import { resolveModuleRootPath } from './util'
+
+const getOriginatingModule = () => {
+  const origPrepareStackTrace = Error.prepareStackTrace
+  Error.prepareStackTrace = (_, stack) => stack
+
+  const err = new Error()
+  const stack = err.stack
+  Error.prepareStackTrace = origPrepareStackTrace
+  stack.shift()
+
+  return stack[1].getFileName()
+}
+
+const notifications = ({ knex, modules, logger, events }) => {
+  const toDatabase = (knex, notification) => ({
+    id: notification.id,
+    message: notification.message,
+    level: notification.level,
+    module_id: notification.moduleId,
+    module_icon: notification.icon,
+    module_name: notification.name,
+    redirect_url: notification.url,
+    created_on: helpers(knex).date.now(),
+    read: helpers(knex).bool.false(),
+    archived: helpers(knex).bool.false()
+  })
+
+  const fromDatabase = (knex, row) => ({
+    id: row.id,
+    message: row.message,
+    level: row.level,
+    moduleId: row.module_id,
+    icon: row.module_icon,
+    name: row.module_name,
+    url: row.redirect_url,
+    date: new Date(row.created_on),
+    sound: false,
+    read: helpers(knex).bool.parse(row.read)
+  })
+
+  // TODO: a bunch of functions below doesn't use `await`, should they actually be `async`?
+
+  /**
+   * Marks a single notification as read (but doesn't archive it)
+   * @param  {string} notificationId The id of the notification to mark as read
+   * @return {Promise}
+   */
+  const markAsRead = async notificationId =>
+    knex('notifications')
+      .where({ id: notificationId })
+      .update({ read: helpers(knex).bool.true() })
+      .then()
+
+  /**
+   * Marks all notifications as read (but doesn't archive them)
+   * @return {Promise}
+   */
+  const markAllAsRead = async () =>
+    knex('notifications')
+      .update({ read: helpers(knex).bool.true() })
+      .then()
+
+  /**
+   * Get the top 100 (unseen) notifications
+   * @return {Promise&lt;Array&lt;Notification>>} The list of all unseen notifications
+   */
+  const getInbox = async () =>
+    knex('notifications')
+      .where({ archived: helpers(knex).bool.false() })
+      .orderBy('created_on', 'DESC')
+      .limit(100)
+      .then(rows => rows.map(row => fromDatabase(knex, row)))
+
+  /**
+   * Returns all archived notifications
+   * @return {Promise&lt;Array&lt;Notification>>} The list of all archived notifications
+   */
+  const getArchived = async () =>
+    knex('notifications')
+      .where({ archived: helpers(knex).bool.true() })
+      .orderBy('created_on', 'DESC')
+      .limit(100)
+      .then(rows => rows.map(row => fromDatabase(knex, row)))
+
+  /**
+ * Archives a single notification
+ * @param  {string} notificationId The id of the notification to archive
+ * @return {Promise}
+ */
+  const archive = async notificationId =>
+    knex('notifications')
+      .where({ id: notificationId })
+      .update({ archived: helpers(knex).bool.true() })
+      .then()
+
+  /**
+ * Archives all notifications
+ * @return {Promise}
+ */
+  const archiveAll = async () =>
+    knex('notifications')
+      .update({ archived: helpers(knex).bool.true() })
+      .then()
+
+  // Internal use only
+  // Binds events to actions
+  const _bindEvents = () => {
+    events.on('notifications.getAll', async () => {
+      events.emit('notifications.all', await getInbox())
+    })
+
+    events.on('notifications.read', async id => {
+      await markAsRead(id)
+      events.emit('notifications.all', await getInbox())
+    })
+
+    events.on('notifications.allRead', async () => {
+      await markAllAsRead()
+      events.emit('notifications.all', await getInbox())
+    })
+
+    events.on('notifications.trashAll', async () => {
+      await archiveAll()
+      events.emit('notifications.all', await getInbox())
+    })
+  }
+
+  /**
+   * Create and append a new Notification in the Hub. Emits a `notifications.new` event.
+   * @param  {string} options.message     (required) The body message of the notification
+   * @param  {string} options.redirectUrl (optional) The URL the users will be redirected to
+   *                                      when clicking on the notification
+   * @param  {string} options.level       (optional) The level (info, success, error, warning). Defaults to `info`.
+   * @param  {bool} options.enableSound (optional) Whether the notification will trigger a buzzing sound
+   *                                    if a user is currently logged on the dashboard. (defaults to `false`)
+   * @return {Promise}
+   */
+  const create = async ({ message, redirectUrl, level, enableSound }) => {
+    if (!message || typeof message !== 'string') {
+      throw new Error("'message' is mandatory and should be a string")
+    }
+
+    if (!level || typeof level !== 'string' || !_.includes(['info', 'error', 'success'], level.toLowerCase())) {
+      level = 'info'
+    } else {
+      level = level.toLowerCase()
+    }
+
+    const callingFile = getOriginatingModule()
+    const callingModuleRoot = callingFile &amp;&amp; resolveModuleRootPath(callingFile)
+
+    const module = _.find(modules, mod => {
+      return mod.root === callingModuleRoot
+    })
+
+    let options = {
+      moduleId: 'botpress',
+      icon: 'view_module',
+      name: 'botpress',
+      url: _.isString(redirectUrl) ? redirectUrl : '/'
+    }
+
+    if (module) {
+      // because the bot itself can send notifications
+      options = {
+        moduleId: module.name,
+        icon: module.settings.menuIcon,
+        name: module.settings.menuText,
+        url: redirectUrl
+      }
+
+      if (!redirectUrl || typeof url !== 'string') {
+        options.url = `/modules/${module.name}`
+      }
+    }
+
+    const notification = {
+      id: nanoid(),
+      message: message,
+      level: level,
+      moduleId: options.moduleId,
+      icon: options.icon,
+      name: options.name,
+      url: options.url,
+      date: new Date(),
+      sound: enableSound || false,
+      read: false
+    }
+
+    await knex('notifications')
+      .insert(toDatabase(knex, notification))
+      .then()
+
+    if (logger) {
+      const logMessage = `[notification::${notification.moduleId}] ${notification.message}`
+      const loggerLevel = logger[level] || logger.info
+      loggerLevel(logMessage)
+    }
+
+    if (events) {
+      events.emit('notifications.new', notification)
+    }
+  }
+
+  return {
+    // ----> Start of legacy API (DEPRECATED as of Botpress 1.1)
+    load: getInbox,
+    send: ({ message, url, level, sound }) => {
+      return create({ message, redirectUrl: url, level, enableSound: sound })
+    },
+    // End of legacy API &lt;---
+    markAsRead,
+    markAllAsRead,
+    archiveAll,
+    archive,
+    getInbox,
+    getArchived,
+    create,
+    // internal API
+    _bindEvents
+  }
+}
+
+module.exports = notifications
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Apr 27 2018 14:21:54 GMT-0400 (EDT) using the Minami theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

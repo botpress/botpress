@@ -1,2 +1,3 @@
 **/*.bundle.js
 docs/_jsdoc_template
+**/node_modules/**

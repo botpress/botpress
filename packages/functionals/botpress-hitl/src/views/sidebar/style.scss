@@ -1,0 +1,68 @@
+.sidebar {
+  background-color: white;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+
+  .header {
+    height: 60px;
+    border-bottom: solid 1px #eaeaea;
+
+    h3 {
+      display: block;
+      float: left;
+      margin-top: 0;
+      color: #a0a0a0;
+      font-size: 16px;
+      font-weight: 500;
+      padding: 4px 7px 0px 0px;
+    }
+
+    .allPaused {
+      width: 160px;
+      height: 100%;
+      float: left;
+      padding-top: 18px;
+      padding-left: 10px;
+    }
+
+    .filter {
+      position: absolute;
+      top: 18px;
+      left: 24px;
+    }
+
+    .filter:hover {
+      cursor: pointer;
+    }
+  }
+
+  .users {
+    border-bottom-left-radius: 5px;
+    overflow-y: auto;
+    border-right: 1px solid #eaeaea;
+    background-color: white;
+  }
+
+  .current {
+    background-color: #fefefe;
+    border-left: 5px solid #cccccc;
+  }
+
+  .empty {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 15px;
+  }
+
+  .toggle {
+    &:global(.react-toggle--checked) {
+      :global(.react-toggle-thumb) {
+        border-color: #56c0b2;
+      }
+
+      :global(.react-toggle-track) {
+        background-color: #56c0b2 !important;
+      }
+    }
+  }
+}

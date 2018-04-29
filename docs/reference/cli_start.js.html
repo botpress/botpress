@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>cli/start.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+
+    <link type="text/css" rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+<body style="padding-top: 50px;">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+  <span class="navbar-brand mb-0 h1">Botpress | Reference</span>
+
+  <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+    <li class="nav-item">
+      <a class="nav-link" href="../">Back to Guides</a>
+    </li>
+  </ul>
+
+</nav>
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav class="toc">
+    <li class="nav-link nav-home-link"><a href="index.html">What's new</a></li><li class="nav-heading"><a href="global.html">Globals</a></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#bp">bp</a></span></li><li class="nav-heading">Namespaces</li><li class="nav-heading"><span class="nav-item-type type-namespace">N</span><span class="nav-item-name"><a href="Botpress.html">Botpress</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Botpress.html">createShortlink</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Botpress.html">getRouter</a></span></li><li class="nav-heading"><span class="nav-item-type type-namespace">N</span><span class="nav-item-name"><a href="ContentManager.html">ContentManager</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ContentManager.html#.createOrUpdateCategoryItem">createOrUpdateCategoryItem</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ContentManager.html#.getItem">getItem</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ContentManager.html#.listAvailableCategories">listAvailableCategories</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ContentManager.html#.listCategoryItems">listCategoryItems</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ContentManager.html#.registerGetItemProvider">registerGetItemProvider</a></span></li><li class="nav-heading"><span class="nav-item-type type-namespace">N</span><span class="nav-item-name"><a href="ContentRenderer.html">ContentRenderer</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ContentRenderer.html#.isRegistered">isRegistered</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ContentRenderer.html#.register">register</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ContentRenderer.html#.sendToUser">sendToUser</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ContentRenderer.html#.unregister">unregister</a></span></li><li class="nav-heading"><span class="nav-item-type type-namespace">N</span><span class="nav-item-name"><a href="Database.html">Database</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Database.html#.get">get</a></span></li><li class="nav-heading"><span class="nav-item-type type-namespace">N</span><span class="nav-item-name"><a href="DialogEngine.html">DialogEngine</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="DialogEngine.html#endFlow">endFlow</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="DialogEngine.html#getCurrentPosition">getCurrentPosition</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="DialogEngine.html#jumpTo">jumpTo</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="DialogEngine.html#processMessage">processMessage</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="DialogEngine.html#registerFunctions">registerFunctions</a></span></li><li class="nav-heading"><span class="nav-item-type type-namespace">N</span><span class="nav-item-name"><a href="DialogStateManager.html">DialogStateManager</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="DialogStateManager.html#.deleteState">deleteState</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="DialogStateManager.html#.getState">getState</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="DialogStateManager.html#.setState">setState</a></span></li><li class="nav-heading"><span class="nav-item-type type-namespace">N</span><span class="nav-item-name"><a href="KVS.html">KVS</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KVS.html#.get">get</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KVS.html#.set">set</a></span></li><li class="nav-heading"><span class="nav-item-type type-namespace">N</span><span class="nav-item-name"><a href="Middleware.html">Middleware</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Middleware.html#.register">register</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Middleware.html#.sendIncoming">sendIncoming</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Middleware.html#.sendOutgoing">sendOutgoing</a></span></li><li class="nav-heading"><span class="nav-item-type type-namespace">N</span><span class="nav-item-name"><a href="Users.html">Users</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Users.html#.getTag">getTag</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Users.html#.getTags">getTags</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Users.html#.hasTag">hasTag</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Users.html#.tag">tag</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Users.html#.untag">untag</a></span></li><li class="nav-heading">Classes</li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Botfile.html">Botfile</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Logger.html">Logger</a></span></li><li class="nav-heading">Modules</li><li class="nav-heading"><span class="nav-item-type type-module">M</span><span class="nav-item-name"><a href="module-DatabaseHelpers.html">DatabaseHelpers</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-DatabaseHelpers.html#~createTableIfNotExists">createTableIfNotExists</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-DatabaseHelpers.html#~isLite">isLite</a></span></li>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">cli/start.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import os from 'os'
+import path from 'path'
+import fs from 'fs'
+import util from '../util'
+import chalk from 'chalk'
+import nodemon from 'nodemon'
+import { monitorCtrlC } from 'monitorctrlc'
+import { execSync } from 'child_process'
+
+const getPath = path => {
+  if (os.platform() === 'win32') {
+    const shortPath = execSync(`@echo off &amp;&amp; for %I in ("${path}") do echo %~sI`)
+    return shortPath.toString('utf8').replace(/(\n|\r)+$/, '')
+  } else {
+    return path
+  }
+}
+
+/**
+ * Entry point of botpress
+ *
+ * It will do the following things:
+ *
+ * 1. Find botpress instance creator in `node_modules` folder in current project.
+ * 2. Find the `botfile.js` which will be injected into the creator to create the instance.
+ * 3. Start the botpress instance.
+ */
+module.exports = (projectPath, options) => {
+  let Botpress = null
+
+  if (!projectPath || typeof projectPath !== 'string') {
+    projectPath = '.'
+  }
+
+  projectPath = path.resolve(projectPath)
+
+  try {
+    // eslint-disable-next-line no-eval
+    Botpress = eval('require')(path.join(projectPath, 'node_modules', 'botpress')).Botpress()
+  } catch (err) {
+    util.print('error', err.message)
+    util.print('error', err.stack)
+    util.print('error', '(fatal) Could not load the local version of botpress')
+    util.print('Hint: 1) have you used `botpress init` to create a new bot the proper way?')
+    util.print('Hint: 2) Do you have read and write permissions on the current directory?')
+    util.print('-------------')
+    util.print(
+      'If none of the above works, this might be a bug in botpress. ' +
+        'Please contact the Botpress Team on gitter and provide the printed error above.'
+    )
+    process.exit(1)
+  }
+
+  const botfile = path.join(projectPath, 'botfile.js')
+  if (!fs.existsSync(botfile)) {
+    util.print('error', `(fatal) No ${chalk.bold('botfile.js')} file found at: ` + botfile)
+    process.exit(1)
+  }
+
+  const getDefaultWatchIgnore = () => {
+    // eslint-disable-next-line no-eval
+    const bf = eval('require')(botfile)
+    const dataDir = util.getDataLocation(bf.dataDir, projectPath)
+    const modulesConfigDir = util.getDataLocation(bf.modulesConfigDir, projectPath)
+    return [dataDir, modulesConfigDir, 'node_modules']
+  }
+
+  const opts = options.opts()
+  if (opts.watch || opts.w) {
+    util.print('info', '*** watching files for changes ***')
+
+    const argvWithoutWatch = process.argv.filter(arg => !/^(--watch|-w)$/.test(arg))
+    argvWithoutWatch[0] = getPath(argvWithoutWatch[0])
+
+    const nodemonOptions = {
+      cwd: process.cwd(),
+      exec: argvWithoutWatch.join(' '),
+      ext: opts.watchExt,
+      watch: opts.watchDir &amp;&amp; opts.watchDir.length ? opts.watchDir : undefined,
+      ignore: opts.watchIgnore &amp;&amp; opts.watchIgnore.length ? opts.watchIgnore : getDefaultWatchIgnore(),
+      stdin: false,
+      restartable: false
+    }
+
+    const mon = nodemon(nodemonOptions)
+    mon.on('restart', (changedFile, two) =>
+      util.print('info', '*** restarting botpress because of file change: ', changedFile)
+    )
+
+    monitorCtrlC(() => {
+      mon.emit('quit')
+      setTimeout(() => process.exit(), 100)
+    })
+  } else {
+    const bot = new Botpress({ botfile })
+    bot.start()
+  }
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Apr 27 2018 14:21:54 GMT-0400 (EDT) using the Minami theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

@@ -1,7 +1,7 @@
 # Javascript Node CircleCI 2.0 configuration file
 #
 # Check https://circleci.com/docs/2.0/language-javascript/ for more details
-#
+
 version: 2
 jobs:
   build:
@@ -12,34 +12,30 @@ jobs:
         environment:
           - POSTGRES_USER=botpress
           - POSTGRES_DB=test
-      
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/mongo:3.4.4
 
     working_directory: ~/repo
 
     steps:
       - checkout
 
-      # Download and cache dependencies
       - restore_cache:
           keys:
           - v1-dependencies-{{ checksum "package.json" }}
           # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
 
-      - run: yarn install
+      - run:
+          name: Install dependencies
+          command: cd ~/repo/packages/core/botpress && yarn --force --build-from-source
 
       - save_cache:
           paths:
-            - node_modules
+            - ~/repo/packages/core/botpress/node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
-        
+
       - run:
           name: Run tests
-          command: yarn --force --build-from-source && yarn test
+          command: cd ~/repo/packages/core/botpress && yarn run test
           environment:
             PG_USER: botpress
             PG_DB: test

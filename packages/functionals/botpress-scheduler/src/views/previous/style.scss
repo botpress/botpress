@@ -1,0 +1,65 @@
+.task {
+  border-top: none;
+  text-align: left;
+  border-radius: 0 !important;
+}
+
+.header_id {
+  font-size: 20px;
+  font-weight: 300;
+}
+
+.header_when {
+  margin-left: 5px;
+  font-size: 16px;
+  font-weight: 100;
+  color: #888;
+}
+
+.line {
+  display: block;
+  font-weight: 400;
+  margin-bottom: 5px;
+
+  span {
+    font-weight: 200;
+  }
+}
+
+.toggleLogs {
+  cursor: pointer;
+  background-color: #eee;
+  color: #333;
+
+  &:hover {
+    background-color: #ccc;
+  }
+}
+
+.action {
+  display: block;
+  margin-top: 5px;
+  border-left: 4px solid #90e9e1;
+  padding: 10px;
+  height: 100px;
+}
+
+.status-error {
+  color: #b0140d;
+  border-bottom: 2px solid #b0140d;
+}
+
+.status-executing {
+  color: #ddda5c;
+  border-bottom: 2px solid #ddda5c;
+}
+
+.status-skipped {
+  color: #999;
+  border-bottom: 2px solid #999;
+}
+
+.status-done {
+  color: #14a656;
+  border-bottom: 2px solid #14a656;
+}
