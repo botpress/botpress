@@ -6,13 +6,12 @@ phases:
       - gem install jekyll bundler
   pre_build:
     commands:
-      - npm install
-      - npm run gen-reference
       - cd docs/
-      - echo "***** Install Dependancy Ruby *****"
-      - bundle install
       - echo "***** Npm Install *****"
       - npm install
+      - npm run gen-reference
+      - echo "***** Install Dependancy Ruby *****"
+      - bundle install
   build:
     commands:
       # Build for specific version
