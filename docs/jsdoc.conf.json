@@ -15,9 +15,9 @@
     "monospaceLinks": false
   },
   "opts": {
-    "template": "docs/_jsdoc_template",
+    "template": "./_jsdoc_template",
     "encoding": "utf8",
-    "destination": "./docs/reference",
+    "destination": "./reference",
     "recurse": true,
     "readme": "../packages/core/botpress/CHANGELOG.md"
   }
