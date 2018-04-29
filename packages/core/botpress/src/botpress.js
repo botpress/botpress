@@ -33,8 +33,6 @@ import cluster from 'cluster'
 import dotenv from 'dotenv'
 import ms from 'ms'
 
-import EventBus from './bus'
-
 import createMiddlewares from './middlewares'
 import createLogger from './logger'
 import createSecurity from './security'
@@ -52,14 +50,17 @@ import createRenderers from './renderers'
 import createUsers from './users'
 import createContentManager from './content/service'
 import defaultGetItemProviders from './content/getItemProviders'
+import createHelpers from './helpers'
+import stats from './stats'
+
+import EventBus from './bus'
+import ConfigurationManager from './config-manager'
 import FlowProvider from './dialog/provider'
 import StateManager from './dialog/state'
 import DialogEngine from './dialog/engine'
 import DialogProcessors from './dialog/processors'
 import DialogJanitor from './dialog/janitor'
 import SkillsManager from './skills'
-import createHelpers from './helpers'
-import stats from './stats'
 import Queue from './queues/memory'
 
 import packageJson from '../package.json'
@@ -145,13 +146,13 @@ class botpress {
 
     const isFirstRun = fs.existsSync(path.join(projectLocation, '.welcome'))
     const dataLocation = getDataLocation(botfile.dataDir, projectLocation)
-    const modulesConfigDir = getDataLocation(botfile.modulesConfigDir, projectLocation)
+    const configLocation = getDataLocation(botfile.modulesConfigDir, projectLocation)
     const dbLocation = path.join(dataLocation, 'db.sqlite')
     const version = packageJson.version
 
     const logger = createLogger(dataLocation, botfile.log)
     mkdirIfNeeded(dataLocation, logger)
-    mkdirIfNeeded(modulesConfigDir, logger)
+    mkdirIfNeeded(configLocation, logger)
 
     logger.info(`Starting botpress version ${version}`)
 
@@ -170,6 +171,8 @@ class botpress {
       cloud.updateRemoteEnv() // async on purpose
     }
 
+    const configManager = new ConfigurationManager({ configLocation, botfile, logger })
+
     const security = await createSecurity({
       dataLocation,
       securityConfig: botfile.login,
@@ -179,7 +182,7 @@ class botpress {
       logger
     })
 
-    const modules = createModules(logger, projectLocation, dataLocation, kvs)
+    const modules = createModules(logger, projectLocation, dataLocation, configManager)
 
     const moduleDefinitions = modules._scan()
 
@@ -294,6 +297,7 @@ class botpress {
       modules,
       db,
       kvs,
+      configManager,
       cloud,
       renderers,
       get umm() {

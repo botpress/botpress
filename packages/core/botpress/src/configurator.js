@@ -173,14 +173,14 @@ const createConfig = ({ kvs, name, botfile = {}, options = {}, projectLocation =
       .then(all => removeUnusedKeys(options, all))
   }
 
-  const get = name => {
+  const get = key => {
     return kvs
-      .get('__config', name + '.' + name)
-      .then(value => overwriteFromDefaultValues(options, { [name]: value }))
-      .then(all => overwriteFromBotfileValues(name, options, botfile, all))
-      .then(all => overwriteFromConfigFileValues(name, options, projectLocation, all))
+      .get('__config', name + '.' + key)
+      .then(value => overwriteFromDefaultValues(options, { [key]: value }))
+      .then(all => overwriteFromBotfileValues(key, options, botfile, all))
+      .then(all => overwriteFromConfigFileValues(key, options, projectLocation, all))
       .then(all => overwriteFromEnvValues(options, all))
-      .then(obj => obj[name])
+      .then(obj => obj[key])
   }
 
   const set = (name, value) => {

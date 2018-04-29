@@ -14,7 +14,7 @@ import { print, isDeveloping, npmCmd, resolveModuleRootPath, resolveFromDir, res
 const MODULES_URL = 'https://s3.amazonaws.com/botpress-io/all-modules.json'
 const FETCH_TIMEOUT = 5000
 
-module.exports = (logger, projectLocation, dataLocation, kvs) => {
+module.exports = (logger, projectLocation, dataLocation, configManager) => {
   const log = (level, ...args) => {
     if (logger && logger[level]) {
       logger[level].apply(this, args)
@@ -50,13 +50,17 @@ module.exports = (logger, projectLocation, dataLocation, kvs) => {
       mod.handlers = loader
 
       try {
-        mod.configuration = createConfig({
-          kvs: kvs,
+        const configuration = configManager.getModuleConfiguration({
           name: mod.name,
-          botfile: botpress.botfile,
-          projectLocation,
-          options: loader.config || {}
+          options: loader.config,
+          path: mod.root
         })
+
+        if (await configuration.isConfigMissing()) {
+          await configuration.bootstrap()
+        }
+
+        mod.configuration = configuration
       } catch (err) {
         logger.error(`Invalid module configuration in module ${mod.name}:`, err)
       }

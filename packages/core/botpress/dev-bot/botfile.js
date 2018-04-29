@@ -30,7 +30,7 @@ module.exports = {
   /*
     Some modules might generate static configuration files
    */
-  modulesConfigDir: process.env.BOTPRESS_CONFIG_DIR || './modules_config',
+  modulesConfigDir: process.env.BOTPRESS_CONFIG_DIR || './config',
 
   /*
     Path to Content Types
