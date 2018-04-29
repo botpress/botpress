@@ -19,6 +19,6 @@
     "encoding": "utf8",
     "destination": "./docs/reference",
     "recurse": true,
-    "readme": "./CHANGELOG.md"
+    "readme": "../packages/core/botpress/CHANGELOG.md"
   }
 }
