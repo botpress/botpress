@@ -89,7 +89,6 @@
     "minami": "^1.2.3",
     "mkdirp": "^0.5.1",
     "mocha": "^3.1.2",
-    "ncp": "^2.0.0",
     "node-sass": "^4.8.3",
     "npm-watch": "^0.1.6",
     "postcss-loader": "^2.0.8",
@@ -113,7 +112,6 @@
     "redux-actions": "^2.2.1",
     "redux-thunk": "^2.2.0",
     "require-npm-version": "^1.0.2",
-    "rimraf": "^2.6.2",
     "sass-loader": "^6.0.6",
     "script-loader": "^0.7.0",
     "simple-line-icons": "^2.4.1",
@@ -146,23 +144,17 @@
   "license": "AGPL-3.0",
   "main": "lib/node.bundle.js",
   "repository": "git+https://github.com/botpress/botpress.git",
-  "os": [
-    "darwin",
-    "linux",
-    "win32"
-  ],
+  "os": ["darwin", "linux", "win32"],
   "scripts": {
-    "prepare": "npm run compile-prod",
-    "compile": "node ./build.js",
-    "compile-prod": "NODE_ENV=production node ./build.js",
+    "prepublishOnly": "npm run compile-prod",
+    "compile": "./build.sh",
+    "compile-prod": "NODE_ENV=production ./build.sh",
     "test": "BABEL_ENV=tests mocha --compilers js:babel-core/register --require tests/index.js tests/**",
     "watch": "npm-watch"
   },
   "watch": {
     "compile": {
-      "patterns": [
-        "src"
-      ],
+      "patterns": ["src"],
       "extensions": "js,jsx,scss,json,html"
     }
   }

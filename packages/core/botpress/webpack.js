@@ -1,5 +1,6 @@
 process.traceDeprecation = true
 
+const chalk = require('chalk')
 const webpack = require('webpack')
 const path = require('path')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
@@ -136,10 +137,10 @@ const webConfig = {
 
 const showNodeEnvWarning = () => {
   if (process.env.NODE_ENV !== 'production') {
-    console.log('*****')
-    console.log('WARNING: You are currently building Botpress in development; NOT generating a production build')
-    console.log('Run with NODE_ENV=production to create a production build instead')
-    console.log('*****')
+    console.log(
+      chalk.yellow('WARNING: You are currently building Botpress in development; NOT generating a production build')
+    )
+    console.log(chalk.yellow('Run with NODE_ENV=production to create a production build instead'))
   }
 }
 
@@ -148,7 +149,7 @@ const postProcess = (err, stats) => {
   if (err) {
     throw err
   }
-  console.log(stats.toString('minimal'))
+  console.log(chalk.grey(stats.toString('minimal')))
 }
 
 if (process.argv.indexOf('--compile') !== -1) {
@@ -158,12 +159,4 @@ if (process.argv.indexOf('--compile') !== -1) {
   compiler.watch(null, postProcess)
 }
 
-const runCompiler = function(cb) {
-  showNodeEnvWarning()
-  compiler.run(function(err, stats) {
-    postProcess(err, stats)
-    cb()
-  })
-}
-
-module.exports = { web: webConfig, node: nodeConfig, run: runCompiler }
+module.exports = { web: webConfig, node: nodeConfig }
