@@ -38,7 +38,7 @@ jobs:
         
       - run:
           name: Run tests
-          command: yarn --force --build-from-source && yarn run test
+          command: ls -lh && yarn --force --build-from-source && yarn run test
           environment:
             PG_USER: botpress
             PG_DB: test
