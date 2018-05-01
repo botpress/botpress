@@ -140,6 +140,7 @@ module.exports = ({ db }) => {
     return knex('users')
       .leftJoin(knex.raw('(' + subQuery.toString() + ') AS t2'), 'users.id', '=', 't2.userId')
       .select(
+        'users.id',
         'users.userId',
         'users.platform',
         'users.gender',

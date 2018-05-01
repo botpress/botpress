@@ -6,7 +6,7 @@ import moment from 'moment'
 
 import style from './style.scss'
 
-const LIMIT_PER_PAGE = 20
+const LIMIT_PER_PAGE = 50
 const INTERVAL_FETCH_COUNT = 60000 // 1min
 
 export default class AudienceModule extends React.Component {
@@ -15,7 +15,7 @@ export default class AudienceModule extends React.Component {
 
     this.state = {
       loading: true,
-      previousIds: []
+      page: 0
     }
 
     this.fetchCount = this.fetchCount.bind(this)
@@ -27,7 +27,7 @@ export default class AudienceModule extends React.Component {
   }
 
   componentDidMount() {
-    this.fetchUsers(null)
+    this.fetchUsers()
     this.fetchCount()
     this.timer = setInterval(() => {
       this.fetchCount()
@@ -39,26 +39,22 @@ export default class AudienceModule extends React.Component {
   }
 
   fetchUsers(fromId) {
-    this.setState({
-      loading: true,
-      actualId: fromId
-    })
+    this.setState({ loading: true })
 
     this.getAxios()
       .post('/api/botpress-audience/users', {
-        from: fromId,
+        from: this.state.page * LIMIT_PER_PAGE,
         limit: LIMIT_PER_PAGE
       })
       .then(res => {
-        const users = res.data
-
-        const last = _.last(users)
-        const nextId = last && last.id
-
         this.setState({
           loading: false,
-          users: users,
-          nextId: nextId
+          users: res.data
+        })
+      })
+      .catch(err => {
+        this.setState({
+          loading: false
         })
       })
   }
@@ -74,29 +70,21 @@ export default class AudienceModule extends React.Component {
   }
 
   handlePreviousClicked() {
-    const index = _.indexOf(this.state.previousIds, this.state.actualId) - 1
-
-    if (index < 0) {
-      this.setState({
-        previousIds: []
-      })
-      this.fetchUsers(null)
-    } else {
-      this.fetchUsers(this.state.previousIds[index])
-    }
+    this.setState(
+      {
+        page: Math.max(0, this.state.page - 1)
+      },
+      () => this.fetchUsers()
+    )
   }
 
   handleNextClicked() {
-    if (this.state.nextId) {
-      const previousIds = this.state.previousIds
-      previousIds.push(this.state.nextId)
-
-      this.setState({
-        previousIds: previousIds
-      })
-    }
-
-    this.fetchUsers(this.state.nextId)
+    this.setState(
+      {
+        page: this.state.page + 1
+      },
+      () => this.fetchUsers()
+    )
   }
 
   renderTableHeader() {
@@ -204,14 +192,15 @@ export default class AudienceModule extends React.Component {
   }
 
   renderPagination() {
-    const previous = !_.isEmpty(this.state.previousIds) ? (
-      <Pager.Item previous onClick={::this.handlePreviousClicked}>
-        &larr; Previous
-      </Pager.Item>
-    ) : null
+    const previous =
+      this.state.page > 0 ? (
+        <Pager.Item previous onClick={::this.handlePreviousClicked}>
+          &larr; Previous
+        </Pager.Item>
+      ) : null
 
     const next =
-      _.size(this.state.users) === LIMIT_PER_PAGE ? (
+      this.state.count > this.state.page * LIMIT_PER_PAGE ? (
         <Pager.Item next onClick={::this.handleNextClicked}>
           Next &rarr;
         </Pager.Item>
