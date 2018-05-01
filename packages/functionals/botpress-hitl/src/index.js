@@ -20,6 +20,10 @@ const incomingMiddleware = (event, next) => {
   }
 
   return db.getUserSession(event).then(session => {
+    if (!session) {
+      return next()
+    }
+
     if (session.is_new_session) {
       event.bp.events.emit('hitl.session', session)
     }
@@ -43,6 +47,10 @@ const outgoingMiddleware = (event, next) => {
   }
 
   return db.getUserSession(event).then(session => {
+    if (!session) {
+      return next()
+    }
+
     if (session.is_new_session) {
       event.bp.events.emit('hitl.session', session)
     }
@@ -121,15 +129,16 @@ module.exports = {
     router.post('/sessions/:sessionId/message', (req, res) => {
       const { message } = req.body
 
-      db.getSession(req.params.sessionId).then(session => {
+      db.getSession(req.params.sessionId).then(async session => {
         const event = {
           type: 'text',
           platform: session.platform,
           raw: { to: session.userId, message: message },
+          user: { id: session.userId },
           text: message
         }
 
-        bp.middlewares.sendOutgoing(event)
+        await bp.middlewares.sendOutgoing(event)
 
         res.sendStatus(200)
       })
