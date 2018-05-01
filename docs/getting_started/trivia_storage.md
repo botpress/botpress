@@ -29,7 +29,7 @@ If you want to store things about your users and you want that information to be
 ```js
 storeAge: async (state, event) => {
   const userId = event.user.id
-  
+
   // Set the age
   // Value can be anything, it will get serialized
   await event.bp.users.tag(userId, 'age', 12)
@@ -62,7 +62,7 @@ If you want to store things globally, you can use the built-in [Key-Value-Store 
 
 ```js
 storeGlobal: async (state, event) => {
-  const kvs = event.bp.db.kvs
+  const kvs = event.bp.kvs
 
   // Set global variable
   await kvs.set('winner', { name: 'Joe' })
@@ -96,9 +96,10 @@ Now that we understand how to store data, how to write custom actions and how fl
 
 ## Scoring system
 
-To determine the score of the user, we will take into account two variables: 
-- The total time it took to respond to all the questions
-- The total score
+To determine the score of the user, we will take into account two variables:
+
+* The total time it took to respond to all the questions
+* The total score
 
 The score will be determined as follow: `SCORE / TIME_IN_MILLISECONDS * 1000 * 5000`
 
@@ -135,7 +136,7 @@ endGame: state => {
 },
 ```
 
-![Calling the endGame][totalScore]
+![Calling the endGame][totalscore]
 
 ## Storing top scores in KVS
 
@@ -144,7 +145,7 @@ Now that the performance of the player is quantified, we can start recording a l
 ```js
 amendLeaderboard: async (state, event) => {
   // Let's pull our existing leaderboard or create an empty board if it doesn't exist
-  let board = (await event.bp.db.kvs.get('leaderboard')) || []
+  let board = (await event.bp.kvs.get('leaderboard')) || []
 
   board.push({
     score: state.totalScore,
@@ -154,7 +155,7 @@ amendLeaderboard: async (state, event) => {
 
   // Now let's take the top 5 only and re-save it
   board = _.take(_.orderBy(board, ['score'], ['desc']), 5)
-  await event.bp.db.kvs.set('leaderboard', board)
+  await event.bp.kvs.set('leaderboard', board)
 
   // Are we in top 5? (i.e. are we in the array)
   const doesRanking = !!_.find(board, {
@@ -170,7 +171,7 @@ amendLeaderboard: async (state, event) => {
 },
 ```
 
-Notice how we make use of the global storage (`event.bp.db.kvs`) to store the leadrboard, which is simply an ordered array of the best scores.
+Notice how we make use of the global storage (`event.bp.kvs`) to store the leadrboard, which is simply an ordered array of the best scores.
 
 ## Wrapping up
 
@@ -184,13 +185,12 @@ This is very straightforward, so we'll skip the details:
 
 We need to pull the nickname in the state right after setting it to make sure that the state contains the user's nickname at all times.
 
-
 ## Note B
 
-This is a simple action that calls the specified renderer and passthroughs all the arguments. In this case we're using the `#leaderboard` renderer (which we will define in a minute). 
+This is a simple action that calls the specified renderer and passthroughs all the arguments. In this case we're using the `#leaderboard` renderer (which we will define in a minute).
 
 > This is a new concept that you probably didn't know existed: we can call renderers directly in actions.
-> 
+>
 > You can simply call **`event.reply(rendererName, data)`**, which is just slightly different than sending Content Elements (they start with `#!` instead of `#`).
 
 ### The `#leaderboard` renderer
@@ -206,5 +206,5 @@ leaderboard: data => ({
 })
 ```
 
-[totalScore]: {{site.baseurl}}/images/totalScore.jpg
+[totalscore]: {{site.baseurl}}/images/totalScore.jpg
 [leaderboard]: {{site.baseurl}}/images/leaderboardFlow.jpg

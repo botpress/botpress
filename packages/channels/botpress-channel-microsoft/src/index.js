@@ -23,7 +23,7 @@ const outgoingMiddleware = async (event, next) => {
     await session.send(event.raw.message)
   } else {
     const userId = getUserId(event).replace('microsoft:', '')
-    const address = await event.bp.db.kvs.get(userAddressKey(userId))
+    const address = await event.bp.kvs.get(userAddressKey(userId))
 
     if (!address) {
       return next(
@@ -98,7 +98,7 @@ module.exports = {
       }
 
       await bp.db.saveUser(user)
-      await bp.db.kvs.set(userAddressKey(user.id), _.get(session, 'message.address'))
+      await bp.db.set(userAddressKey(user.id), _.get(session, 'message.address'))
 
       bp.middlewares.sendIncoming({
         type: session.message.type,

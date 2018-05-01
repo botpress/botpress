@@ -67,7 +67,7 @@ module.exports = {
       logger: bp.logger,
       storage: storage,
       parser: new Parser(),
-      kvs: bp.db.kvs,
+      kvs: bp.kvs,
       config: config
     })
     await provider.init()

@@ -30,7 +30,7 @@ yarn add botpress-skill-choice
 
 Skills are meant to be used by the Botpress Flows GUI. After installing a skill module, navigate to a flow in the Graphical Flows Editor, then locate the "Insert Skill" dropdown in the top toolbar:
 
-![Using the skills from the GUI][skillsMenu]
+![Using the skills from the GUI][skillsmenu]
 
 After filling in the form, you'll be able to click anywhere in the flow to insert the skill to be consumed by the other nodes.
 
@@ -40,13 +40,13 @@ Skills are stored as flows under the `src/flows/skills` folder.
 
 You can also visualize the generated skills from the GUI:
 
-![Generated skills from GUI][skillsPanel]
+![Generated skills from GUI][skillspanel]
 
 ## Editing skills
 
 Once a skill node has been generated, you may click on that node and click "Edit" on the left panel to edit that node, which will update the generated flow automatically behind the scenes.
 
-![Editing a skill from GUI][skillsEdit]
+![Editing a skill from GUI][skillsedit]
 
 ---
 
@@ -56,7 +56,7 @@ What we will now do is add a menu to the bot so that users can decide whether th
 
 Once that's done, we will consume this skill to create a new choice menu. On your main flow, click the "Insert Skill" dropdown menu and click on "Choice."
 
-In the "Question" field, type in something like "*Welcome to my Trivia bot, what would you like to do?*". In the "Choices" field, type the two choices your users will have: "Play" and "See leaderboard".
+In the "Question" field, type in something like "_Welcome to my Trivia bot, what would you like to do?_". In the "Choices" field, type the two choices your users will have: "Play" and "See leaderboard".
 
 The next step is to provide some additional keywords for detecting the two options. Click the "Edit keywords" button and type some alternatives for both choices.
 
@@ -81,21 +81,21 @@ choice: data => ({
 
 ## Start node
 
-OK, now you can link the "*User picked 'Play'*" option to the starting node of the flow. This should give you something like this:
+OK, now you can link the "_User picked 'Play'_" option to the starting node of the flow. This should give you something like this:
 
-![Wiring the 'play' choice][choicePlay]
+![Wiring the 'play' choice][choiceplay]
 
 What we actually want now is to change the starting node to be that "choice" node we just created. To do that, click on that choice node and then click the Star button in the top toolbar. This will make it the **Start Node**, which means a new flow will start from this node from now on.
 
-![Making the Menu the start node][choiceStar]
+![Making the Menu the start node][choicestar]
 
 ## Refactoring: Sub-flows
 
-We need to make the "See leaderboard" choice show the leaderboard. Although we know *how* to show the leaderboard (by calling the `render` action), we don't like to duplicate the same logic again and again.
+We need to make the "See leaderboard" choice show the leaderboard. Although we know _how_ to show the leaderboard (by calling the `render` action), we don't like to duplicate the same logic again and again.
 
 A quick solution would be to create an intermediary node that shows the leaderboard, then re-wire the last two nodes of the flow to this node:
 
-![Refactoring into a node][refactoringNode]
+![Refactoring into a node][refactoringnode]
 
 A better, longer-term solution would be to extract the leaderboard feature as a separate subflow, then instead of pointing to the leaderboard node, you point to the leaderboard subflow.
 
@@ -103,13 +103,13 @@ A better, longer-term solution would be to extract the leaderboard feature as a 
 
 To create a new flow, click the folder icon in the top bar. Name it `leaderboard`.
 
-![Refactoring into a separate flow][refactoringFlow]
+![Refactoring into a separate flow][refactoringflow]
 
 The flow is extremely simple, it contains a single instruction: the call to `renderLeaderboard`. This action doesn't exist so let's create it in `actions.js`. You may also get rid of the `render` action as we won't need it anymore:
 
 ```diff
 + renderLeaderboard: async (state, event) => {
-+   let board = (await event.bp.db.kvs.get('leaderboard')) || []
++   let board = (await event.bp.kvs.get('leaderboard')) || []
 +   await event.reply('#leaderboard', { leaderboard: board })
 + },
 
@@ -128,21 +128,21 @@ Don't forget to "Save" the flows by clicking the save icon at the top.
 
 You can now update the three transitions where you show the leaderboard to the following transition:
 
-![Refactoring the transitions][refactoringTransition]
+![Refactoring the transitions][refactoringtransition]
 
 ### Final Result
 
 Here's what your final flow should look like. No more lengthy wires!
 
-![Final result of the refactoring][refactoringResult]
+![Final result of the refactoring][refactoringresult]
 
-[skillsMenu]: {{site.baseurl}}/images/skillsMenu.jpg
-[skillsPanel]: {{site.baseurl}}/images/skillsPanel.jpg
-[skillsEdit]: {{site.baseurl}}/images/skillsEdit.jpg
+[skillsmenu]: {{site.baseurl}}/images/skillsMenu.jpg
+[skillspanel]: {{site.baseurl}}/images/skillsPanel.jpg
+[skillsedit]: {{site.baseurl}}/images/skillsEdit.jpg
 [choice]: {{site.baseurl}}/images/choice.jpg
-[choicePlay]: {{site.baseurl}}/images/choicePlay.jpg
-[choiceStar]: {{site.baseurl}}/images/choiceStar.jpg
-[refactoringNode]: {{site.baseurl}}/images/refactoringNode.jpg
-[refactoringFlow]: {{site.baseurl}}/images/refactoringFlow.jpg
-[refactoringTransition]: {{site.baseurl}}/images/refactoringTransition.jpg
-[refactoringResult]: {{site.baseurl}}/images/refactoringResult.jpg
+[choiceplay]: {{site.baseurl}}/images/choicePlay.jpg
+[choicestar]: {{site.baseurl}}/images/choiceStar.jpg
+[refactoringnode]: {{site.baseurl}}/images/refactoringNode.jpg
+[refactoringflow]: {{site.baseurl}}/images/refactoringFlow.jpg
+[refactoringtransition]: {{site.baseurl}}/images/refactoringTransition.jpg
+[refactoringresult]: {{site.baseurl}}/images/refactoringResult.jpg
