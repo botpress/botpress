@@ -77,7 +77,7 @@ function createUserSession(event) {
     .then(db_session => Object.assign({}, session, db_session))
 }
 
-function getUserSession(event) {
+async function getUserSession(event) {
   const userId = (event.user && event.user.id) || event.raw.to
 
   if (!userId) {
