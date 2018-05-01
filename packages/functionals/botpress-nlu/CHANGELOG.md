@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.5.0"></a>
+# [10.5.0](https://github.com/botpress/modules/compare/v10.4.0...v10.5.0) (2018-05-01)
+
+
+### Bug Fixes
+
+* removed usage of deprecated `bp.db.kvs` ([d5cef13](https://github.com/botpress/modules/commit/d5cef13))
+
+
+
+
 <a name="10.4.0"></a>
 # [10.4.0](https://github.com/botpress/modules/compare/v10.3.1...v10.4.0) (2018-04-29)
 

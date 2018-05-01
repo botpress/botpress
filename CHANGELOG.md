@@ -3,7 +3,26 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-  <a name="10.4.0"></a>
+      <a name="10.5.0"></a>
+# [10.5.0](https://github.com/botpress/botpress/compare/v10.4.0...v10.5.0) (2018-05-01)
+
+
+### Bug Fixes
+
+* removed usage of deprecated `bp.db.kvs` ([d5cef13](https://github.com/botpress/botpress/commit/d5cef13))
+* **audience:** audiance module working properly ([d96c62a](https://github.com/botpress/botpress/commit/d96c62a))
+* **hitl:** getUserSession returns a promise ([58dc349](https://github.com/botpress/botpress/commit/58dc349))
+* **hitl:** hitl now works with webchat ([a3415d4](https://github.com/botpress/botpress/commit/a3415d4))
+
+
+### Features
+
+* added "update" CLI command ([f9c3143](https://github.com/botpress/botpress/commit/f9c3143))
+
+
+
+
+      <a name="10.4.0"></a>
 # [10.4.0](https://github.com/botpress/botpress/compare/v10.3.1...v10.4.0) (2018-04-29)
 
 
@@ -20,7 +39,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-  <a name="10.3.1"></a>
+<a name="10.3.1"></a>
 ## [10.3.1](https://github.com/botpress/botpress/compare/v10.2.5...v10.3.1) (2018-04-28)
 
 
