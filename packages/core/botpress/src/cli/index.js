@@ -3,6 +3,7 @@ import program from 'commander'
 import init from './init'
 import start from './start'
 import create from './create'
+import update from './update'
 import migrate from './migrate'
 import list from './list'
 import { login, logout } from './auth'
@@ -57,6 +58,12 @@ program
   .action(create)
 
 program
+  .command('update [version]')
+  .alias('up')
+  .description('Updates your bot and all the modules to a specific version')
+  .action(update)
+
+program
   .command('migrate <fromVersion>')
   .description('Migrates the current bot from version X')
   .action(migrate)
@@ -82,7 +89,7 @@ program
 
 program
   .command('cloud-pair <api-token>')
-  .description('')
+  .description('Pairs your local bot with the Botpress Cloud (supercharges your bot)')
   .option(
     '--endpoint <endpoint-url>',
     `Change the Botpress Cloud server endpoint. Default: "${defaultBotpressCloudEndpoint}"`,

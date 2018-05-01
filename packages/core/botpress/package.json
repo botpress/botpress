@@ -15,7 +15,7 @@
     "babel-polyfill": "^6.23.0",
     "bluebird": "^3.4.6",
     "body-parser": "^1.15.2",
-    "chalk": "^1.1.3",
+    "chalk": "^2.4.1",
     "commander": "^2.9.0",
     "compression": "^1.7.1",
     "dotenv": "^4.0.0",
@@ -145,11 +145,7 @@
   "license": "AGPL-3.0",
   "main": "lib/node.bundle.js",
   "repository": "git+https://github.com/botpress/botpress.git",
-  "os": [
-    "darwin",
-    "linux",
-    "win32"
-  ],
+  "os": ["darwin", "linux", "win32"],
   "scripts": {
     "prepublishOnly": "npm run compile-prod",
     "compile": "./build.sh",
@@ -159,9 +155,7 @@
   },
   "watch": {
     "compile": {
-      "patterns": [
-        "src"
-      ],
+      "patterns": ["src"],
       "extensions": "js,jsx,scss,json,html"
     }
   }
