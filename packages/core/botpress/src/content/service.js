@@ -11,11 +11,14 @@
 import path from 'path'
 import fs from 'fs'
 
+import { VError } from 'verror'
+
 import _ from 'lodash'
 import Promise from 'bluebird'
 import glob from 'glob'
 import mkdirp from 'mkdirp'
 import nanoid from 'nanoid'
+import json5 from 'json5'
 
 import helpers from '../database/helpers'
 import { getInMemoryDb } from '../util'
@@ -413,51 +416,23 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
     return transformItemDbToApi(items)
   }
 
-  const loadCategory = file => {
-    const filePath = path.resolve(contentDir, './' + file)
-    // eslint-disable-next-line no-eval
-    const category = eval('require')(filePath) // Dynamic loading require eval for Webpack
-    const requiredFields = ['id', 'title', 'jsonSchema']
-
-    requiredFields.forEach(field => {
-      if (_.isNil(category[field])) {
-        throw new Error(field + ' is required but missing in Content Form file: ' + file)
-      }
-    })
-
-    category.id = category.id.toLowerCase()
-
-    if (categoryById[category.id]) {
-      throw new Error('There is already a form with id=' + category.id)
-    }
-
-    categoryById[category.id] = category
-    categories.push(category)
-
-    return category
-  }
-
-  const readDataForFile = async fileName => {
-    const json = await ghostManager.readFile(contentDataDir, fileName)
-    if (!json) {
-      logger.warn(`Form content file ${fileName} not found`)
-      return []
-    }
-
-    try {
-      const data = JSON.parse(json)
-      if (!Array.isArray(data)) {
-        throw new Error(`${fileName} expected to contain array, contents ignored`)
-      }
-      logger.info(`Read ${data.length} item(s) from ${fileName}`)
-      return data
-    } catch (err) {
-      logger.warn(`Error reading data from ${fileName}`, err)
-      return []
+  const recomputeCategoriesMetadata = async () => {
+    for (const { id: categoryId } of categories) {
+      await knex('content_items')
+        .select('id', 'formData')
+        .where('categoryId', categoryId)
+        .then()
+        .each(async ({ id, formData }) => {
+          const computedProps = await fillComputedProps(categoryById[categoryId], JSON.parse(formData))
+          return knex('content_items')
+            .where('id', id)
+            .update(transformItemApiToDb(computedProps))
+        })
     }
   }
 
-  const loadData = async (category, fileName) => {
+  const loadData = async category => {
+    const fileName = category.id + '.json'
     fileById[category.id] = fileName
 
     logger.debug(`Loading data for ${category.id} from ${fileName}`)
@@ -482,6 +457,87 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
     )
   }
 
+  /**
+   * Loads a new category from a raw schema definition
+   * @param  {ContentManager~Category} schema A schema definition
+   * @memberOf!  ContentManager
+   * @return {Object} Returns the loaded category schema
+   * @public
+   */
+  const loadCategoryFromSchema = async schema => {
+    const requiredFields = ['id', 'title', 'jsonSchema']
+
+    requiredFields.forEach(field => {
+      if (_.isNil(schema[field])) {
+        throw new Error(`"${field}" is required but missing in schema`)
+      }
+    })
+
+    schema.id = schema.id.toLowerCase()
+
+    if (categoryById[schema.id]) {
+      throw new Error(`There is already a form with id "${schema.id}"`)
+    }
+
+    if (!schema.jsonSchema.title) {
+      schema.jsonSchema.title = schema.title
+    }
+
+    categoryById[schema.id] = schema
+    categories.push(schema)
+
+    await loadData(schema)
+
+    return schema
+  }
+
+  const loadCategoriesFromPath = async file => {
+    const filePath = path.resolve(contentDir, './' + file)
+
+    let schemas = null
+
+    if (/\.json$/i.test(filePath)) {
+      // Using JSON5 instead of regular JSON
+      schemas = json5.parse(fs.readFileSync(filePath, 'utf8'))
+    } else {
+      // Allows for registering .form.js files
+      // eslint-disable-next-line no-eval
+      schemas = eval('require')(filePath) // Dynamic loading require eval for Webpack
+    }
+
+    try {
+      if (_.isArray(schemas)) {
+        for (const schema of schemas) {
+          await loadCategoryFromSchema(schema)
+        }
+      } else {
+        await loadCategoryFromSchema(schemas)
+      }
+    } catch (err) {
+      throw new VError(err, `Error registering Content Element "${file}"`)
+    }
+  }
+
+  const readDataForFile = async fileName => {
+    const json = await ghostManager.readFile(contentDataDir, fileName)
+    if (!json) {
+      logger.warn(`Form content file ${fileName} not found`)
+      return []
+    }
+
+    try {
+      const data = JSON.parse(json)
+      if (!Array.isArray(data)) {
+        throw new Error(`${fileName} expected to contain array, contents ignored`)
+      }
+      logger.info(`Read ${data.length} item(s) from ${fileName}`)
+      return data
+    } catch (err) {
+      logger.warn(`Error reading data from ${fileName}`, err)
+      return []
+    }
+  }
+
   const init = async () => {
     if (!fs.existsSync(contentDir)) {
       return
@@ -490,31 +546,18 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
     mkdirp.sync(contentDataDir)
     await ghostManager.addRootFolder(contentDataDir, { filesGlob: '**/*.json' })
 
-    const files = await Promise.fromCallback(callback => glob('**/*.form.js', { cwd: contentDir }, callback))
+    // DEPRECATED: Files don't have to contain .form anymore
+    const files = await Promise.fromCallback(cb => glob('**/*.@(form.json|form.js|json|js)', { cwd: contentDir }, cb))
 
-    // initial path, save raw props and IDs
-    await Promise.map(files, async file => {
+    for (const file of files) {
       try {
-        const category = loadCategory(file)
-        await loadData(category, file.replace(/\.form\.js$/, '.json'))
+        await loadCategoriesFromPath(file)
       } catch (err) {
-        logger.warn('[Content Manager] Could not load Form: ' + file, err)
+        throw new VError(err, `[Content Manager] Could not register Content Element "${file}"`)
       }
-    })
+    }
 
-    // second path, resolve refs
-    await Promise.map(categories, ({ id: categoryId }) =>
-      knex('content_items')
-        .select('id', 'formData')
-        .where('categoryId', categoryId)
-        .then()
-        .each(async ({ id, formData }) => {
-          const computedProps = await fillComputedProps(categoryById[categoryId], JSON.parse(formData))
-          return knex('content_items')
-            .where('id', id)
-            .update(transformItemApiToDb(computedProps))
-        })
-    )
+    recomputeCategoriesMetadata()
   }
 
   /**
@@ -560,6 +603,8 @@ bp.contentManager.registerGetItemProvider('random', randomProvider)
     init,
     listAvailableCategories,
     getCategorySchema,
+
+    loadCategoryFromSchema,
 
     createOrUpdateCategoryItem,
     listCategoryItems,

@@ -59,6 +59,7 @@
     "universal-analytics": "^0.4.8",
     "username": "^3.0.0",
     "valid-url": "^1.0.9",
+    "verror": "^1.10.0",
     "vm2": "^3.5.2",
     "winston": "^2.2.0",
     "yn": "^2.0.0"
@@ -145,11 +146,7 @@
   "license": "AGPL-3.0",
   "main": "lib/node.bundle.js",
   "repository": "git+https://github.com/botpress/botpress.git",
-  "os": [
-    "darwin",
-    "linux",
-    "win32"
-  ],
+  "os": ["darwin", "linux", "win32"],
   "scripts": {
     "prepublishOnly": "npm run compile-prod",
     "compile": "./build.sh",
@@ -159,9 +156,7 @@
   },
   "watch": {
     "compile": {
-      "patterns": [
-        "src"
-      ],
+      "patterns": ["src"],
       "extensions": "js,jsx,scss,json,html"
     }
   }
