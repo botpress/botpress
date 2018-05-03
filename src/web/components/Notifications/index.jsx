@@ -1,4 +1,6 @@
-import React, {Component} from 'react'
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
+
 import { Row, Col, Tooltip, OverlayTrigger } from 'react-bootstrap'
 import moment from 'moment'
 import classnames from 'classnames'
@@ -8,7 +10,7 @@ import EventBus from '~/util/EventBus'
 export default class NotificationComponent extends Component {
 
   static contextTypes = {
-    router: React.PropTypes.object.isRequired
+    router: PropTypes.object.isRequired
   }
 
   constructor(props, context, { itemComponent, renderDivider, styles }) {
@@ -72,10 +74,10 @@ export default class NotificationComponent extends Component {
     const iconClass = classnames('icon', 'material-icons', this.styles.icon)
 
     return <ItemComponent
-        key={notification.id}
-        className={className}
-        onMouseOver={() => this.setState({ selectedIndex: index})}
-        onMouseLeave={() => this.setState({ selectedIndex: -1})}>
+      key={notification.id}
+      className={className}
+      onMouseOver={() => this.setState({ selectedIndex: index })}
+      onMouseLeave={() => this.setState({ selectedIndex: -1 })}>
       <Row>
         <Col xs={11} onClick={() => this.onNotifClicked(notification)}>
           <strong className={styles.header}>
@@ -99,11 +101,11 @@ export default class NotificationComponent extends Component {
       if (index + 1 === displayedNotifications.length) {
         return null
       } else {
-        return this.renderDivider && <ItemComponent divider style={{margin: 0}} />
+        return this.renderDivider && <ItemComponent divider style={{ margin: 0 }} />
       }
     }
 
-    return displayedNotifications.map((notif, i) => [this.renderMenuItem(notif, i) , renderDivider(i) ])
+    return displayedNotifications.map((notif, i) => [this.renderMenuItem(notif, i) , renderDivider(i)])
   }
 }
 
@@ -114,6 +116,9 @@ function getNotificationStyle(styles, notification) {
     notif: true,
     [styles.item]: true,
     [styles['level-' + notification.level]]: true,
-    [styles['item-unread']]: !notification.read
+    [styles['item-unread']]: !notification.read,
+    'bp-item': true,
+    ['bp-level-' + notification.level]: true,
+    'bp-item-unread': !notification.read
   })
 }

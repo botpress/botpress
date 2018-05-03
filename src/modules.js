@@ -5,22 +5,15 @@ import Promise from 'bluebird'
 import _ from 'lodash'
 import moment from 'moment'
 import axios from 'axios'
+import { createConfig } from './configurator'
+import helpers from './helpers'
 
-import {
-  print,
-  isDeveloping,
-  npmCmd,
-  resolveModuleRootPath,
-  resolveFromDir,
-  resolveProjectFile
-} from './util'
+import { print, isDeveloping, npmCmd, resolveModuleRootPath, resolveFromDir, resolveProjectFile } from './util'
 
 const MODULES_URL = 'https://s3.amazonaws.com/botpress-io/all-modules.json'
-const POPULAR_URL = 'https://s3.amazonaws.com/botpress-io/popular-modules.json'
-const FEATURED_URL = 'https://s3.amazonaws.com/botpress-io/featured-modules.json'
+const FETCH_TIMEOUT = 5000
 
-module.exports = (logger, projectLocation, dataLocation) => {
-
+module.exports = (logger, projectLocation, dataLocation, kvs) => {
   const log = (level, ...args) => {
     if (logger && logger[level]) {
       logger[level].apply(this, args)
@@ -30,18 +23,10 @@ module.exports = (logger, projectLocation, dataLocation) => {
   }
 
   const fetchAllModules = () => {
-    return axios.get(MODULES_URL)
-    .then(({ data }) => data)
-  }
-
-  const fetchPopular = () => {
-    return axios.get(POPULAR_URL)
-    .then(({ data }) => data)
-  }
-
-  const fetchFeatured = () => {
-    return axios.get(FEATURED_URL)
-    .then(({ data }) => data)
+    return axios
+      .get(MODULES_URL, { timeout: FETCH_TIMEOUT })
+      .then(({ data }) => data)
+      .catch(() => logger.error('Could not fetch modules'))
   }
 
   const loadModules = (moduleDefinitions, botpress) => {
@@ -49,27 +34,40 @@ module.exports = (logger, projectLocation, dataLocation) => {
     const loadedModules = {}
 
     moduleDefinitions.forEach(mod => {
-      const loader = require(mod.entry)
+      // eslint-disable-next-line no-eval
+      const loader = eval('require')(mod.entry)
 
       if (typeof loader !== 'object') {
-        return logger.warn('Ignoring module ' + mod.name +
-          ', invalid entry point signature.')
+        return logger.warn(`Ignoring module ${mod.name}. Invalid entry point signature.`)
       }
 
       mod.handlers = loader
 
       try {
-        loader.init && loader.init(botpress)
+        mod.configuration = createConfig({
+          kvs: kvs,
+          name: mod.name,
+          botfile: botpress.botfile,
+          projectLocation,
+          options: loader.config || {}
+        })
+      } catch (err) {
+        logger.error(`Invalid module configuration in module ${mod.name}:`, err)
+      }
+
+      try {
+        loader.init && loader.init(botpress, mod.configuration, helpers)
       } catch (err) {
         logger.warn('Error during module initialization: ', err)
       }
 
       loadedModules[mod.name] = mod
+      logger.info(`Loaded ${mod.name}, version ${mod.version}`)
       loadedCount++
     })
 
     if (loadedCount > 0) {
-      logger.info(`loaded ${loadedCount} modules`)
+      logger.info(`Loaded ${loadedCount} modules`)
     }
 
     return loadedModules
@@ -79,53 +77,73 @@ module.exports = (logger, projectLocation, dataLocation) => {
     const packagePath = path.join(projectLocation, 'package.json')
 
     if (!fs.existsSync(packagePath)) {
-      return logger.warn("No package.json found at project root, " +
-        "which means botpress can't load any module for the bot.")
+      return logger.warn(
+        'No package.json found at project root, ' + "which means botpress can't load any module for the bot."
+      )
     }
 
-    const botPackage = require(packagePath)
+    // eslint-disable-next-line no-eval
+    const botPackage = eval('require')(packagePath)
 
     let deps = botPackage.dependencies || {}
     if (isDeveloping) {
       deps = _.merge(deps, botPackage.devDependencies || {})
     }
 
-    return _.reduce(deps, (result, value, key) => {
-      if (!/^botpress-/i.test(key)) {
-        return result
-      }
-      const entry = resolveFromDir(projectLocation, key)
-      if (!entry) {
-        return result
-      }
-      const root = resolveModuleRootPath(entry)
-      if (!root) {
-        return result
-      }
+    return _.reduce(
+      deps,
+      (result, value, key) => {
+        if (!/^botpress-/i.test(key)) {
+          return result
+        }
+        const entry = resolveFromDir(projectLocation, key)
+        if (!entry) {
+          return result
+        }
+        const root = resolveModuleRootPath(entry)
+        if (!root) {
+          return result
+        }
 
-      const modulePackage = require(path.join(root, 'package.json'))
-      if (!modulePackage.botpress) {
-        return result
-      }
+        // eslint-disable-next-line no-eval
+        const modulePackage = eval('require')(path.join(root, 'package.json'))
+        if (!modulePackage.botpress) {
+          return result
+        }
 
-      return result.push({
-        name: key,
-        root: root,
-        homepage: modulePackage.homepage,
-        settings: modulePackage.botpress,
-        entry: entry
-      }) && result
-    }, [])
+        return (
+          result.push({
+            name: key,
+            root: root,
+            homepage: modulePackage.homepage,
+            settings: modulePackage.botpress,
+            version: modulePackage.version,
+            entry: entry
+          }) && result
+        )
+      },
+      []
+    )
   }
 
   const getRandomCommunityHero = Promise.method(() => {
     const modulesCachePath = path.join(dataLocation, './modules-cache.json')
 
-    return listAllCommunityModules()
-    .then(() => {
+    return listAllCommunityModules().then(() => {
       const { modules } = JSON.parse(fs.readFileSync(modulesCachePath))
 
       const module = _.sample(modules)
+
+      if (!module) {
+        return {
+          username: 'danyfs',
+          github: 'https://github.com/danyfs',
+          avatar: 'https://avatars1.githubusercontent.com/u/5629987?v=3',
+          contributions: 'many',
+          module: 'botpress'
+        }
+      }
+
       const hero = _.sample(module.contributors)
 
       return {
@@ -138,7 +156,7 @@ module.exports = (logger, projectLocation, dataLocation) => {
     })
   })
 
-  const mapModuleList = (modules) => {
+  const mapModuleList = modules => {
     const installed = listInstalledModules()
     return modules.map(mod => ({
       name: mod.name,
@@ -154,22 +172,29 @@ module.exports = (logger, projectLocation, dataLocation) => {
       description: mod.description,
       installed: _.includes(installed, mod.name),
       license: mod.license,
-      author: mod.author.name
+      author: !mod.author.name ? mod.author : mod.author.name,
+      title: mod.title,
+      category: mod.category,
+      featured: mod.featured,
+      popular: mod.popular,
+      official: mod.official
     }))
   }
 
   const listAllCommunityModules = Promise.method(() => {
-
     if (!fs) {
       return [] // TODO Fetch & return
     }
 
     const modulesCachePath = path.join(dataLocation, './modules-cache.json')
     if (!fs.existsSync(modulesCachePath)) {
-      fs.writeFileSync(modulesCachePath, JSON.stringify({
-        modules: [],
-        updated: null
-      }))
+      fs.writeFileSync(
+        modulesCachePath,
+        JSON.stringify({
+          modules: [],
+          updated: null
+        })
+      )
     }
 
     const { modules, updated } = JSON.parse(fs.readFileSync(modulesCachePath))
@@ -179,78 +204,65 @@ module.exports = (logger, projectLocation, dataLocation) => {
     }
 
     return Promise.props({
-      modules: fetchAllModules(),
-      popular: fetchPopular(),
-      featured: fetchFeatured()
-    })
-    .then(({ modules, featured, popular }) => {
-      fs.writeFileSync(modulesCachePath, JSON.stringify({
-        modules: modules,
-        popular: popular,
-        featured: featured,
-        updated: new Date()
-      }))
+      newModules: fetchAllModules()
+    }).then(({ newModules }) => {
+      if (!newModules || !newModules.length) {
+        if (modules.length > 0) {
+          logger.debug('Fetched invalid modules. Report this to the Botpress Team.')
+          return mapModuleList(modules)
+        } else {
+          newModules = newModules || []
+        }
+      }
 
-      return mapModuleList(modules)
-    })
-  })
+      fs.writeFileSync(
+        modulesCachePath,
+        JSON.stringify({
+          modules: newModules,
+          updated: new Date()
+        })
+      )
 
-  const listPopularCommunityModules = Promise.method(() => {
-    const modulesCachePath = path.join(dataLocation, './modules-cache.json')
-
-    return listAllCommunityModules()
-    .then(modules => {
-      const { popular } = JSON.parse(fs.readFileSync(modulesCachePath))
-      return _.filter(modules, m => _.includes(popular, m.name))
+      return mapModuleList(newModules)
     })
   })
 
-  const listFeaturedCommunityModules = Promise.method(() => {
-    const modulesCachePath = path.join(dataLocation, './modules-cache.json')
-
-    return listAllCommunityModules()
-    .then(modules => {
-      const { featured } = JSON.parse(fs.readFileSync(modulesCachePath))
-      return _.filter(modules, m => _.includes(featured, m.name))
-    })
-  })
-
-  const resolveModuleNames = (names) => {
+  const resolveModuleNames = names => {
     return names.map(name => {
-      if (!name || typeof(name) !== 'string') {
+      if (!name || typeof name !== 'string') {
         throw new TypeError('Expected module name to be a string')
       }
 
       let basename = path.basename(name)
-      let prefix = ''
+      let modulePath = ''
 
       if (basename !== name) {
-        prefix = name.substr(0, name.length - basename.length - 1)
+        modulePath = name.substr(0, name.length - basename.length)
       }
 
       if (basename.replace(/botpress-?/i, '').length === 0) {
-        throw new Error('Invalid module name: ' + basename)
+        throw new Error(`Invalid module name: ${basename}`)
       }
 
       if (!/^botpress-/i.test(basename)) {
-        basename = 'botpress-' + basename
+        basename = `botpress-${basename}`
       }
 
-      return prefix + basename
+      return path.join(modulePath, basename)
     })
   }
 
-  const runSpawn = (command) => {
+  const runSpawn = command => {
     return new Promise((resolve, reject) => {
-      command.stdout.on('data', (data) => {
+      command.stdout.on('data', data => {
         log('info', data.toString())
       })
 
-      command.stderr.on('data', (data) => {
+      command.stderr.on('data', data => {
         log('error', data.toString())
       })
 
-      command.on('close', (code) => {
+      command.on('close', code => {
         if (code > 0) {
           reject()
         } else {
@@ -270,11 +282,11 @@ module.exports = (logger, projectLocation, dataLocation) => {
     log('info', 'Installing modules: ' + modules.join(', '))
 
     return runSpawn(install)
-    .then(() => log('success', 'Modules successfully installed'))
-    .catch(err => {
-      log('error', 'An error occured during modules installation.')
-      throw err
-    })
+      .then(() => log('success', 'Modules successfully installed'))
+      .catch(err => {
+        log('error', 'An error occurred during modules installation.')
+        throw err
+      })
   })
 
   const uninstallModules = Promise.method((...names) => {
@@ -283,16 +295,15 @@ module.exports = (logger, projectLocation, dataLocation) => {
       cwd: projectLocation
     })
 
-    log('info', 'Uninstalling modules: ' + modules.join(', '))
+    log('info', `Uninstalling modules: ${modules.join(', ')}`)
 
     return runSpawn(uninstall)
-    .then(() => log('success', 'Modules successfully removed'))
-    .catch(err => {
-      log('error', 'An error occured during modules removal.')
-      throw err
-    })
+      .then(() => log('success', 'Modules successfully removed'))
+      .catch(err => {
+        log('error', 'An error occurred during modules removal.')
+        throw err
+      })
   })
-
 
   const listInstalledModules = () => {
     const packagePath = resolveProjectFile('package.json', projectLocation, true)
@@ -304,8 +315,6 @@ module.exports = (logger, projectLocation, dataLocation) => {
 
   return {
     listAllCommunityModules,
-    listPopularCommunityModules,
-    listFeaturedCommunityModules,
     getRandomCommunityHero,
     install: installModules,
     uninstall: uninstallModules,

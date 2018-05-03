@@ -1,4 +1,4 @@
- :global(.modal-dialog) {
+:global(.modal-dialog) {
   width: 750px;
 }
 
@@ -11,24 +11,4 @@
   padding: 10px 20px 10px 20px;
   border-color: lightgrey;
   margin: 10px 0px 10px 0px;
-}
-
-.alert {
-  text-align: center;
-}
-
-.radioButton {
-  float: left;
-  label {
-    margin-right: 10px;
-  }
-  input {
-    margin: 5px;
-  }
-}
-
-.acceptCheckBox {
-  input {
-    margin: 5px;
-  }
 }

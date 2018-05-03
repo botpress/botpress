@@ -1,10 +1,11 @@
 import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 import ReactDOM from 'react-dom'
 import { sortable } from 'react-sortable'
+
 import { Row, Col, Checkbox, ListGroup, ListGroupItem, Tooltip, OverlayTrigger } from 'react-bootstrap'
 import _ from 'lodash'
 import classnames from 'classnames'
-import Button from 'react-bootstrap-button-loader'
 
 import axios from 'axios'
 
@@ -13,26 +14,32 @@ import style from './style.scss'
 class MiddlewareComponent extends Component {
 
   static propTypes = {
-    middleware: React.PropTypes.object.isRequired,
-    toggleEnabled: React.PropTypes.func.isRequired
+    middleware: PropTypes.object.isRequired,
+    toggleEnabled: PropTypes.func.isRequired
   }
 
   render() {
 
     const { name, enabled, module, description } = this.props.middleware
-    const className = classnames(this.props.className, style.middleware, enabled ? style.enabled : style.disabled)
+    const className = classnames({ 
+      [this.props.className]: true, 
+      [style.middleware]: true,
+      ['bp-middleware']: true,
+      [style.disabled]: !enabled,
+      ['bp-disabled']: !enabled
+    })
     const tooltip = description ? <Tooltip id={`module-${name}-description`}>{description}</Tooltip> : null
 
     return (
       <div>
         <div className={className} onClick={this.props.toggleEnabled}>
-          <div className={style.helpIcon}>
+          <div className={classnames(style.helpIcon, 'bp-help-icon')}>
             <OverlayTrigger placement="left" overlay={tooltip}>
               <i className="material-icons">help</i>
             </OverlayTrigger>
           </div>
           <div>
-            <span className={style.circle}></span>
+            <span className={classnames(style.circle, 'bp-circle')}></span>
             <h4>{module}</h4>
           </div>
           <div>Handler: <b>{name || 'N/A'}</b></div>
@@ -42,22 +49,22 @@ class MiddlewareComponent extends Component {
   }
 }
 
-var ListItem = React.createClass({
-  displayName: 'SortableListItem',
-  render: function() {
+class ListItem extends Component {
+
+  render() {
     const className = classnames('list-item')
     return (
       <ListGroupItem {...this.props} className={className}>{this.props.children}</ListGroupItem>
     )
   }
-})
+}
 
 var SortableListItem = sortable(ListItem)
 
 export default class MiddlewaresComponent extends Component {
 
   static propTypes = {
-    type: React.PropTypes.string.isRequired
+    type: PropTypes.string.isRequired
   }
 
   constructor(props, context) {
@@ -108,7 +115,7 @@ export default class MiddlewaresComponent extends Component {
 
   componentDidMount() {
     axios.get('/api/middlewares')
-    .then(({ data }) => this.setMiddlewares(data))
+      .then(({ data }) => this.setMiddlewares(data))
   }
 
   handleSort(type) {
@@ -160,11 +167,11 @@ export default class MiddlewaresComponent extends Component {
   }
 
   renderIsDirty() {
-    const className = classnames(style.saveButton, this.isDirty() ? style.dirty : null)
+    const classNames = classnames('bp-button', style.saveButton, this.isDirty() ? style.dirty : null)
 
-    return <Button className={className} onClick={::this.saveChanges} loading={this.state.loading}>
+    return <button className={classNames} onClick={::this.saveChanges}>
       Save
-    </Button>
+    </button>
   }
 
   saveChanges() {
@@ -185,7 +192,7 @@ export default class MiddlewaresComponent extends Component {
     }
 
     axios.post('/api/middlewares/customizations', { middlewares })
-    .then(({ data }) => this.setMiddlewares(data))
+      .then(({ data }) => this.setMiddlewares(data))
   }
 
   toggleEnabled(middleware, type) {
@@ -217,7 +224,7 @@ export default class MiddlewaresComponent extends Component {
     const tooltip = <Tooltip id='header-outgoing-tooltip'>An outgoing middleware is a message processor&nbsp;
     that has the potential to track, alter or swallow messages to be sent.&nbsp;
     Usually, messages are put (sent) into the outgoing middleware queue by user code or incoming modules.&nbsp;
-    <strong>Connector modules</strong> are in charge of sending the messages to the users, thus they should&nbsp;
+      <strong>Connector modules</strong> are in charge of sending the messages to the users, thus they should&nbsp;
     usually be placed at the end of the chain.</Tooltip>
 
     const title = 'Outgoing middleware'
@@ -226,13 +233,13 @@ export default class MiddlewaresComponent extends Component {
   }
 
   renderList(type, title, tooltip) {
-    return <ListGroup className={style.middlewareList}>
+    return <ListGroup className={classnames(style.middlewareList, 'bp-middleware-list')}>
       <ListGroupItem>
-        <div className={style.header}>
+        <div className={classnames(style.header, 'bp-header')}>
           {this.renderIsDirty()}
           <h4>{title}</h4>
           <OverlayTrigger placement="right" overlay={tooltip}>
-            <a className={style.help}>what's this?</a>
+            <a className={classnames(style.help, 'bp-help')}>what's this?</a>
           </OverlayTrigger>
         </div>
       </ListGroupItem>
@@ -245,7 +252,7 @@ export default class MiddlewaresComponent extends Component {
 
   render() {
     if (this.state.loading) {
-      return <div>Loading...</div>
+      return null
     }
 
     return this.props.type === 'incoming' 

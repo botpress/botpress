@@ -1,10 +1,11 @@
 import React from 'react'
 import { NavDropdown, MenuItem } from 'react-bootstrap'
 import _ from 'lodash'
-import NotificationComponent from './index.jsx'
 import classnames from 'classnames'
 
-import {connect} from 'nuclear-js-react-addons'
+import NotificationComponent from './index.jsx'
+
+import { connect } from 'nuclear-js-react-addons'
 import getters from '~/stores/getters'
 
 import styles from './hubStyle.scss'
@@ -23,7 +24,7 @@ export default class NotificationHub extends NotificationComponent {
   }
 
   renderMessage(message) {
-    return <div className={styles.message}>{message}</div>
+    return <div className={classnames(styles.message, 'bp-hub-message')}>{message}</div>
   }
 
   renderEmptyPanel() {
@@ -54,8 +55,9 @@ export default class NotificationHub extends NotificationComponent {
       <span className={className}>{unreadCount}</span>
     </span>
 
-    return <NavDropdown id="notificationsDropdown" noCaret={!unreadCount} title={label} className={styles.dropdown}>
-      <MenuItem header className={styles.topMenu}>
+    return <NavDropdown id="notificationsDropdown" noCaret={!unreadCount}
+      title={label} className={classnames(styles.dropdown, 'bp-notifications-dropdown')}>
+      <MenuItem header className={classnames(styles.topMenu, 'bp-top-menu')}>
         <span>
           <strong>Notifications</strong>
           &nbsp; &middot; &nbsp;

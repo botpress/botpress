@@ -1,6 +1,9 @@
-import EventEmitter2 from 'eventemitter2'
+/* global io */
 
-import { getToken, authEvents } from '~/util/Auth'
+import EventEmitter2 from 'eventemitter2'
+import io from 'socket.io-client'
+
+import { getToken, authEvents, getUniqueVisitorId } from '~/util/Auth'
 
 class EventBus extends EventEmitter2 {
 
@@ -28,28 +31,39 @@ class EventBus extends EventEmitter2 {
       return
     }
 
-    if (this.socket) {
-      this.socket.emit('event', { name, data: data })
-    }
+    let c = name.startsWith('guest.') ? this.guestSocket : this.adminSocket
+    c && c.emit('event', { name, data: data })
   }
 
   setup() {
-    let query = ''
+    let query = {
+      visitorId: getUniqueVisitorId()
+    }
+
     if (window.AUTH_ENABLED) {
       const token = getToken()
       if (!!token) {
-        query = 'token=' + token.token
+        Object.assign(query, { token: token.token })
       }
     }
 
-    if (this.socket) {
-      this.socket.off('event', this.dispatchEvent)
-      this.socket.disconnect()
+    if (this.adminSocket) {
+      this.adminSocket.off('event', this.dispatchEvent)
+      this.adminSocket.disconnect()
+    }
+
+    if (this.guestSocket) {
+      this.guestSocket.off('event', this.dispatchEvent)
+      this.guestSocket.disconnect()
     }
 
     let socketUrl = window.location.origin
-    const socket = this.socket = io.connect(socketUrl, { query })
-    socket.on('event', this.dispatchSocketEvent)
+    
+    this.adminSocket = io(socketUrl + '/admin', { query })
+    this.adminSocket.on('event', this.dispatchSocketEvent)
+
+    this.guestSocket = io(socketUrl + '/guest')
+    this.guestSocket.on('event', this.dispatchSocketEvent)
   }
 }
 

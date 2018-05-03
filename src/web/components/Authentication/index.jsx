@@ -1,7 +1,10 @@
 import React from 'react'
-import axios from 'axios'
+import PropTypes from 'prop-types'
 
-import { getToken, logout, authEvents } from '~/util/Auth'
+import axios from 'axios'
+import _ from 'lodash'
+
+import { getToken, logout, authEvents, setToken } from '~/util/Auth'
 
 const CHECK_AUTH_INTERVAL = 60 * 1000
 
@@ -20,7 +23,7 @@ export default function ensureAuthenticated(WrappedComponent) {
   class AuthenticationWrapper extends React.Component {
 
     static contextTypes = {
-      router: React.PropTypes.object
+      router: PropTypes.object
     }
 
     constructor(props, context) {
@@ -44,7 +47,9 @@ export default function ensureAuthenticated(WrappedComponent) {
     }
 
     promptLogin() {
-      if(location.pathname !== '/login') {
+      const urlToken = _.get(this.props, 'location.query.token')
+
+      if(location.pathname !== '/login' && !urlToken) {
         this.context.router.push('/login?returnTo=' + location.pathname)
       }
     }
@@ -59,18 +64,27 @@ export default function ensureAuthenticated(WrappedComponent) {
           this.checkAuth()
           this.checkInterval = setInterval(this.checkAuth, CHECK_AUTH_INTERVAL)
         } else {
-          this.promptLogin()
+          const urlToken = _.get(this.props, 'location.query.token')
+          if (urlToken) {
+            setToken(urlToken)
+            this.context.router.replace(Object.assign(this.props.location, {
+              query: _.omit(this.props.location.query, 'token')
+            }))
+            this.setupAuth()
+          } else {
+            this.promptLogin()
+          }
         }
       }
     }
 
     checkAuth() {
       axios.get('/api/ping')
-      .catch((err) => {
-        if(err.response.status === 401) {
-          this.promptLogin()
-        }
-      })
+        .catch((err) => {
+          if(err.response.status === 401) {
+            this.promptLogin()
+          }
+        })
     }
 
     render() {

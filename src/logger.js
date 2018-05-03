@@ -3,7 +3,7 @@ import path from 'path'
 import Promise from 'bluebird'
 import moment from 'moment'
 
-import  { isDeveloping } from './util'
+import { isDeveloping } from './util'
 
 module.exports = (dataLocation, logConfig) => {
   const logger = new winston.Logger({
@@ -19,7 +19,6 @@ module.exports = (dataLocation, logConfig) => {
 
   logger.enableFileTransport = () => {
     const logFile = path.join(dataLocation, logConfig.file)
-
     logger.add(winston.transports.File, {
       filename: logFile,
       maxsize: logConfig.maxSize

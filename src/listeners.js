@@ -1,23 +1,48 @@
 import _ from 'lodash'
 
-const hear = function(conditions, callback) {
+const matches = function(conditions, event) {
   if (!_.isPlainObject(conditions)) {
     conditions = { text: conditions }
   }
 
-  return (event, next) => {
-    const pairs = _.toPairs(conditions)
-    const result = _.every(pairs, ([key, comparrer]) => {
-      const eventValue = _.get(event, key, null)
+  const pairs = _.toPairs(conditions)
+  return _.every(pairs, ([key, comparrer]) => {
+    const eventValue = _.get(event, key, null)
 
-      if (_.isFunction(comparrer)) {
-        return comparrer(eventValue, event) === true
-      } else if (_.isRegExp(comparrer)) {
-        return comparrer.test(eventValue)
-      } else {
-        return _.isEqual(comparrer, eventValue)
-      }      
-    })
+    if (_.isFunction(comparrer)) {
+      return comparrer(eventValue, event) === true
+    } else if (_.isRegExp(comparrer)) {
+      const matches = comparrer.test(eventValue)
+      
+      if (matches && _.isString(eventValue)) {
+        if (_.isNil(event.captured)) {
+          event.captured = []
+        }
+        
+        const a = _.tail(comparrer.exec(eventValue))
+        a.forEach(m => event.captured.push(m))
+      }
+
+      return matches
+    } else {
+      return _.isEqual(comparrer, eventValue)
+    }
+  })
+}
+
+const hear = function(conditions, callback) {
+  return (event, next) => {
+    let result = false
+    if (_.isArray(conditions)) {
+      for (let conditionsItem of conditions) {
+        if (matches(conditionsItem, event)) {
+          result = true
+          break
+        }
+      }
+    } else {
+      result = matches(conditions, event)
+    }
 
     if (result && _.isFunction(callback)) {
       if (callback.length <= 1) {
@@ -36,4 +61,4 @@ const hear = function(conditions, callback) {
   }
 }
 
-module.exports = { hear }
+module.exports = { hear, matches }

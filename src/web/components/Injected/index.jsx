@@ -1,11 +1,11 @@
-import React, {Component} from 'react'
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 import ReactDOM from 'react-dom'
-import _ from 'lodash'
 
 export default class InjectedComponent extends Component {
 
   static propTypes: {
-    component: React.PropTypes.func.isRequired
+    component: PropTypes.func.isRequired
   }
 
   constructor(props) {
@@ -39,18 +39,21 @@ export default class InjectedComponent extends Component {
 
     try {
       const Component = this.props.component
-      const passthroughProps = _.omit(this.props, 'component')
+      const passthroughProps = Object.assign({}, this.props, { component: null })
       const element = <Component key={this.componentId} {...passthroughProps} />
       ReactDOM.render(element, node)
     } catch (err) {
       const element = <div className="panel panel-danger">
         <div className="panel-heading">Could not display component</div>
         <div className="panel-body">
-            <h4>An error occured while loading the component</h4>
-            <p>{err.message}</p>
+          <h4>An error occurred while loading the component</h4>
+          <p>{err.message}</p>
         </div>
         {/* TODO Put documentation / help here */}
-        <div className="panel-footer">Developer? <a>click here</a> to see why this might happen</div>
+        <div className="panel-footer">
+          Developer? <a href="https://github.com/botpress/botpress/tree/master/docs">click here</a>
+          to see why this might happen
+        </div>
       </div>
 
       ReactDOM.render(element, node)

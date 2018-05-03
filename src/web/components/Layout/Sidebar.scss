@@ -1,10 +1,18 @@
 @import '../../palette.scss';
 
+.sidebarReact {
+  bottom: 0px !important;
+}
+
 .sidebar {
   background-color: $sidebar-color;
   color: $sidebar-text-color;
   height: 100%;
   max-width: 200px;
+}
+
+.sidebar ul {
+  background-color: $sidebar-color;
 }
 
 .sidebar ul li {
@@ -39,33 +47,12 @@
   }
 }
 
-.bottomInformation {
-  font-size: 12px;
-  position: absolute;
-  bottom: 10px;
-  width: 100%;
-  text-align: left;
-  padding-left: 20px;
+.customIcon {
+  width: 28px;
+  height: 18px;
+  padding-right: 10px;
+}
 
-  a:hover {
-    color: $sidebar-primary-color;
-  }
-
-  .name {
-    font-size: 16px;
-    color: #c7c7c7;
-  }
-
-  .production {
-    margin-bottom: 10px;
-  }
-
-  .logo {
-    margin: 20px 0 10px 15px !important;
-    padding: 3px;
-
-    img {
-      width: 110px;
-    }
-  }
+.empty {
+  height: 120px;
 }

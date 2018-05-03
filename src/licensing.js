@@ -2,10 +2,13 @@ import path from 'path'
 import fs from 'fs'
 import Promise from 'bluebird'
 
-import listeners from './listeners'
-import {resolveProjectFile} from './util'
+import _ from 'lodash'
 
-module.exports = (projectLocation) => {
+import listeners from './listeners'
+import { resolveProjectFile, isDeveloping } from './util'
+import LicenseGuard from '+/license'
+
+module.exports = ({ logger, version, projectLocation, db, botfile }) => {
 
   const licensesPath = path.join(__dirname, '../licenses')
 
@@ -24,7 +27,7 @@ module.exports = (projectLocation) => {
       },
       botpress: {
         name: 'Botpress',
-        licensedUnder: license === 'Botpress',
+        licensedUnder: license.toLowerCase().indexOf('botpress') >= 0,
         text: botpressContent
       }
     }
@@ -49,10 +52,10 @@ module.exports = (projectLocation) => {
     const { license, name, author } = JSON.parse(fs.readFileSync(packageJsonPath))
     const bp = event.bp
 
-    const response = "Bot: " + name + "\n"
-      + "Created by: " + author + "\n"
-      + "License: " + license + "\n"
-      + "Botpress: " + bp.version
+    const response = `Bot:  ${name}
+Created by: ${author}
+License: ${license}
+Botpress: ${bp.version}`
 
     const userId = event.user && event.user.id
 
@@ -72,9 +75,21 @@ module.exports = (projectLocation) => {
     }
   })
 
+  const guard = LicenseGuard(logger, db, botfile)
+  guard.start()
+
   return {
-    getLicenses,
+    getLicensing: async () => {
+      const licenses = getLicenses()
+      let currentLicense = _.find(licenses, { licensedUnder: true })
+      currentLicense = currentLicense || licenses.botpress
+
+      return Object.assign(await guard.getStatus(), {
+        text: currentLicense.text
+      })
+    },
     changeLicense,
-    middleware
+    middleware,
+    getFeatures: guard.getFeatures
   }
 }

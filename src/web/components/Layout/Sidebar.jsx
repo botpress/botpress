@@ -1,25 +1,30 @@
-import React, {Component} from 'react'
-import {Link} from 'react-router'
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
+
+import { Link } from 'react-router'
 import classnames from 'classnames'
 
 import ReactSidebar from 'react-sidebar'
-import {connect} from 'nuclear-js-react-addons'
+import { connect } from 'nuclear-js-react-addons'
 
 import SidebarHeader from './SidebarHeader'
+import SidebarFooter from './SidebarFooter'
 import getters from '~/stores/getters'
 import actions from '~/actions'
+
+import RulesChecker from '+/views/RulesChecker'
 
 const style = require('./Sidebar.scss')
 
 @connect(props => ({
   modules: getters.modules,
-  botInformation: getters.botInformation
+  UI: getters.UI
 }))
 
 class Sidebar extends Component {
 
   static contextTypes = {
-    router: React.PropTypes.object.isRequired
+    router: PropTypes.object.isRequired
   }
 
   constructor(props, context) {
@@ -33,17 +38,16 @@ class Sidebar extends Component {
     this.onSetSidebarOpen = this.onSetSidebarOpen.bind(this)
     this.mediaQueryChanged = this.mediaQueryChanged.bind(this)
     this.renderModuleItem = this.renderModuleItem.bind(this)
-    this.openLicenseComponent = this.openLicenseComponent.bind(this)
   }
 
   onSetSidebarOpen(open) {
-    this.setState({sidebarOpen: open})
+    this.setState({ sidebarOpen: open })
   }
 
   componentWillMount() {
     var mql = window.matchMedia(`(min-width: 800px)`)
     mql.addListener(this.mediaQueryChanged)
-    this.setState({mql: mql, sidebarDocked: mql.matches})
+    this.setState({ mql: mql, sidebarDocked: mql.matches })
   }
 
   componentWillUnmount() {
@@ -51,7 +55,7 @@ class Sidebar extends Component {
   }
 
   mediaQueryChanged() {
-    this.setState({sidebarDocked: this.state.mql.matches})
+    this.setState({ sidebarDocked: this.state.mql.matches })
   }
 
   routeActive(paths) {
@@ -65,75 +69,94 @@ class Sidebar extends Component {
     return false
   }
 
-  isAtDashboard() {
-    return ['', '/', '/dashboard'].includes(location.pathname)
-  }
-
-  isAtManage() {
-    return ['/manage'].includes(location.pathname)
-  }
-
   renderModuleItem(module) {
     const path = `/modules/${module.name}`
-    const className = classnames({
-      [style.active]: this.routeActive(path)
-    })
+    const iconPath = `/img/modules/${module.name}.png`
 
-    return <li key={`menu_module_${module.name}`} className={className}>
+    const classNames = this.getActiveClassNames(this.routeActive(path))
+
+    const hasCustomIcon = module.menuIcon === 'custom'
+    const moduleIcon = hasCustomIcon
+      ? <img className={classnames(style.customIcon, 'bp-custom-icon')} src={iconPath} />
+      : <i className="icon material-icons">{module.menuIcon}</i>
+
+    return <li key={`menu_module_${module.name}`} className={classNames}>
       <Link to={path} title={module.menuText}>
-        <i className="icon material-icons">{module.menuIcon}</i>
+        {moduleIcon}
         <span>{module.menuText}</span>
       </Link>
     </li>
   }
 
-  openLicenseComponent() {
-    actions.toggleLicenseModal()
+  getActiveClassNames = (condition) => {
+    return classnames({
+      'bp-sidebar-active': condition,
+      [style.active]: condition
+    })
+  }
+  
+  renderBasicItem(name, path, rule, activePaths, icon) {
+    const isAt = (paths) => {
+      return paths.includes(location.pathname)
+    }
+
+    const className = this.getActiveClassNames(isAt(activePaths))
+
+    return <RulesChecker res={rule.res} op={rule.op}>
+      <li className={className} key={path}>
+        <Link to={path} title={name}>
+          <i className="icon material-icons">{icon}</i>
+          {name}
+        </Link>
+      </li>
+    </RulesChecker>
   }
 
   render() {
+
     const modules = this.props.modules
-    const items = modules.toJS().map(this.renderModuleItem)
-    const dashboardClassName = classnames({ [style.active] : this.isAtDashboard() })
-    const manageClassName = classnames({ [style.active] : this.isAtManage() })
+    const items = modules.toJS().filter(x => !x.noInterface).map(this.renderModuleItem)
 
-    const productionText = this.props.botInformation.get('production') ? "in production" : "in development"
+    const emptyClassName = classnames({
+      [style.empty]: true,
+      'bp-empty': true
+    })
 
-    const sidebarContent = <div className={style.sidebar}>
+    const dashboardRules = { res:'dashboard', op:'read' }
+    const modulesRules = { res:'modules/list', op:'read' }
+    const ummRules = { res:'umm', op:'read' }
+    const contentRules = { res: 'content', op:'read' }
+    const middlewareRules = { res:'middleware', op:'read' }
+
+    const dashboardPaths = ['', '/', '/dashboard']
+    const modulesPaths = ['/manage']
+    const ummPaths = ['/umm']
+    const contentPaths = ['/content']
+    const middlewarePaths = ['/middleware']
+
+    const sidebarContent = <div className={classnames(style.sidebar, 'bp-sidebar')}>
       <SidebarHeader/>
       <ul className="nav">
-        <li className={dashboardClassName} key="dashboard">
-          <Link to='dashboard' title='Dashboard'>
-            <i className="icon material-icons">dashboard</i>
-            Dashboard
-          </Link>
-        </li>
-        <li className={manageClassName} key="manage">
-          <Link to='manage' title='Modules'>
-            <i className="icon material-icons">build</i>
-            Modules
-          </Link>
-        </li>
+        {this.renderBasicItem('Dashboard', 'dashboard', dashboardRules, dashboardPaths, 'dashboard')}
+        {this.renderBasicItem('Modules', 'manage', modulesRules, modulesPaths, 'build')}
+        {/*this.renderBasicItem('UMM', 'umm', ummRules, ummPaths, 'code')*/}
+        {this.renderBasicItem('Content', 'content', contentRules, contentPaths, 'create')}
+        {this.renderBasicItem('Middleware', 'middleware', middlewareRules, middlewarePaths, 'settings')}
         {items}
+        <li className={emptyClassName} key="empty"></li>
       </ul>
-      <div className={style.bottomInformation}>
-        <div className={style.name}>{this.props.botInformation.get('name')}</div>
-        <div className={style.production}>{productionText}</div>
-        <Link to='#' title='License' onClick={this.openLicenseComponent}>
-          License under {this.props.botInformation.get('license')}
-        </Link>
-      </div>
     </div>
 
-
-    const { sidebarOpen: open, sidebarDocked: docked } = this.state
+    const isOpen = this.props.UI.get('viewMode') < 1
 
     return (
       <ReactSidebar
+        sidebarClassName={classnames(style.sidebarReact, 'bp-sidebar-react')}
         sidebar={sidebarContent}
-        open={open}
-        docked={docked}
+        open={isOpen}
+        docked={isOpen}
         shadow={false}
+        transitions={false}
         styles={{ sidebar: { zIndex: 20 } }}
         onSetOpen={this.onSetSidebarOpen}>
         {this.props.children}
@@ -143,7 +166,7 @@ class Sidebar extends Component {
 }
 
 Sidebar.contextTypes = {
-  reactor: React.PropTypes.object.isRequired
+  reactor: PropTypes.object.isRequired
 }
 
 export default Sidebar

@@ -7,23 +7,27 @@ import fs from 'fs'
 import util from '../util'
 import stats from '../stats'
 
-const introductionText = "\nHey there, thanks for using botpress!" +
+const introductionText =
+  '\nHey there, thanks for using botpress!' +
   "\nWe'll walk you through the creation of your new bot." +
-  "\nFor more information or help, please visit http://github.com/botpress/botpress"
-  + "\n---------------"
+  '\nFor more information or help, please visit http://github.com/botpress/botpress' +
+  '\n---------------'
 
 const waitingText = 'please wait, we are installing everything for you...'
 const nextStepText = 'now run ' + chalk.bold('`bp start`') + ' in your terminal'
 
-const assertDoesntExist = (file) => {
+const assertDoesntExist = file => {
   if (fs.existsSync(file)) {
-    util.print('error', 'package.json or botfile.js are already in repository, remove them before running this command again.')
+    util.print(
+      'error',
+      'package.json or botfile.js are already in repository, ' + 'remove them before running this command again.'
+    )
     process.exit(1)
   }
 }
 
-const getTemplate = (template) => {
-  const templatePath = path.join(__dirname, 'templates/init', template)
+const getTemplate = template => {
+  const templatePath = path.join(__dirname, 'cli/templates/init', template)
   const templateContent = fs.readFileSync(templatePath)
   return _.template(templateContent)
 }
@@ -35,12 +39,14 @@ const generateTemplate = (filename, variables = {}) => {
   fs.writeFileSync(destination, compiled)
 }
 
-const generate = (result) => {
+const generate = result => {
   generateTemplate('package.json', result)
   generateTemplate('LICENSE')
   generateTemplate('botfile.js')
   generateTemplate('index.js')
+  generateTemplate('content.yml')
   generateTemplate('_._gitignore')
+  generateTemplate('_._welcome')
 
   fs.mkdirSync('data')
   fs.writeFileSync('data/bot.log', '')
@@ -51,17 +57,17 @@ const generate = (result) => {
   util.print(waitingText)
   const install = spawn(util.npmCmd, ['install'])
 
-  install.stdout.on('data', (data) => {
+  install.stdout.on('data', data => {
     process.stdout.write(data.toString())
   })
 
-  install.stderr.on('data', (data) => {
+  install.stderr.on('data', data => {
     process.stdout.write(data.toString())
   })
 
-  install.on('close', (code) => {
+  install.on('close', code => {
     if (code > 0) {
-      util.print('error', 'an error occured during installation')
+      util.print('error', 'an error occurred during installation')
     } else {
       util.print('success', 'installation has completed successfully')
       util.print(nextStepText)
@@ -70,6 +76,16 @@ const generate = (result) => {
 }
 
 module.exports = function(program) {
+  var dirName = process.argv[3]
+  if (dirName != undefined) {
+    if (!fs.existsSync(dirName)) {
+      fs.mkdirSync(dirName)
+      process.chdir(dirName)
+    } else {
+      util.print('error', dirName + ' directory already exists')
+      return
+    }
+  }
   stats({}).track('cli', 'bot', 'init')
 
   util.print(introductionText)
@@ -83,8 +99,7 @@ module.exports = function(program) {
       name: {
         description: chalk.white('name:'),
         pattern: /^[a-z0-9][a-z0-9-_\.]+$/,
-        message: 'name must be only lowercase letters, ' +
-          'digits, dashes, underscores and dots.',
+        message: 'name must be only lowercase letters, ' + 'digits, dashes, underscores and dots.',
         required: true,
         default: currentDirectoryName
       },
@@ -100,7 +115,7 @@ module.exports = function(program) {
         required: false,
         description: chalk.white('version:'),
         default: '0.0.1'
-      },
+      }
     }
   }
 
@@ -115,7 +130,7 @@ module.exports = function(program) {
     prompt.message = ''
     prompt.delimiter = ''
     prompt.start()
-    prompt.get(schema, function (err, result) {
+    prompt.get(schema, function(err, result) {
       generate(result)
     })
   }
