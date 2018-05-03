@@ -211,11 +211,9 @@ module.exports = (bp, app) => {
     }
   })
 
-  const MEDIA_PREFIX = '/api/media/'
-
-  app.secure('write', 'bot/media').post(MEDIA_PREFIX, mediaUploadMulter.single('file'), async (req, res) => {
+  app.secure('write', 'bot/media').post('/api/media', mediaUploadMulter.single('file'), async (req, res) => {
     const filename = await bp.mediaManager.saveFile(req.file.originalname, req.file.buffer)
-    const url = `${MEDIA_PREFIX}${filename}`
+    const url = `/media/${filename}`
     return res.json({ url })
   })
 
