@@ -2,7 +2,7 @@ import * as base from './builtin_base_properties'
 
 export default {
   id: 'builtin_text',
-  renderer: 'builtin_text',
+  renderer: '#builtin_text',
 
   group: 'Built-in Messages',
   title: 'Text',

@@ -2,7 +2,7 @@ import * as base from './builtin_base_properties'
 
 export default {
   id: 'builtin_single-choice',
-  renderer: 'builtin_single-choice',
+  renderer: '#builtin_single-choice',
 
   group: 'Built-in Messages',
   title: 'Single Choice',

@@ -1,3 +1,2 @@
 export * as contentElements from './elements'
-
-export const contentRenderers = []
+export contentRenderers from './renderers'

@@ -5,7 +5,7 @@ import * as base from './builtin_base_properties'
 
 export default {
   id: 'builtin_image',
-  renderer: 'builtin_image',
+  renderer: '#builtin_image',
 
   group: 'Built-in Messages',
   title: 'Image',
@@ -23,6 +23,7 @@ export default {
       },
       title: {
         type: 'string',
+        description: 'Some platforms require to name the images.',
         title: 'Title (optional)'
       },
       ...base.typingIndicators

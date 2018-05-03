@@ -3,7 +3,7 @@ import ActionButton from './builtin_action-button'
 
 export default {
   id: 'builtin_raw',
-  renderer: 'builtin_raw',
+  renderer: '#builtin_raw',
 
   group: 'Built-in Messages',
   title: 'Raw Platform Payload',

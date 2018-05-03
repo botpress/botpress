@@ -1,6 +1,6 @@
 export default {
   id: 'builtin_action-button',
-  renderer: 'builtin_action-button',
+  renderer: '#builtin_action-button',
 
   group: 'Built-in Messages',
   title: 'Action Button',
@@ -8,8 +8,12 @@ export default {
   jsonSchema: {
     description: 'A button that triggers an action, often used in cards',
     type: 'object',
-    required: ['action'],
+    required: ['action', 'title'],
     properties: {
+      title: {
+        type: 'string',
+        description: 'Title of the button'
+      },
       action: {
         type: 'string',
         enum: ['Say something', 'Open URL', 'Pick location'],
@@ -23,12 +27,6 @@ export default {
             properties: {
               action: {
                 enum: ['Say something']
-              },
-              text: {
-                type: 'string',
-                description:
-                  'This will simulate the user typing something to the bot. It is often used to reduce typing effort for the user.',
-                title: 'Text'
               }
             }
           },

@@ -3,7 +3,7 @@ import ActionButton from './builtin_action-button'
 
 export default {
   id: 'builtin_card',
-  renderer: 'builtin_card',
+  renderer: '#builtin_card',
 
   group: 'Built-in Messages',
   title: 'Card',

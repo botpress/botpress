@@ -3,7 +3,7 @@ import Card from './builtin_card'
 
 export default {
   id: 'builtin_carousel',
-  renderer: 'builtin_carousel',
+  renderer: '#builtin_carousel',
 
   group: 'Built-in Messages',
   title: 'Carousel',
