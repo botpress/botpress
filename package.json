@@ -24,5 +24,8 @@
   "pre-commit": {
     "run": "precommit",
     "silent": true
+  },
+  "dependencies": {
+    "babel-eslint": "^8.2.3"
   }
 }

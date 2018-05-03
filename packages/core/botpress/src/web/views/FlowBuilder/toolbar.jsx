@@ -103,7 +103,7 @@ class Toolbar extends React.Component {
           <Button
             className={style.btn}
             bsStyle="default"
-            disabled={!hasUnsavedChanges}
+            disabled={window.BOTPRESS_FLOW_EDITOR_DISABLED || !hasUnsavedChanges}
             onClick={() => this.props.onSaveAllFlows && this.props.onSaveAllFlows()}
           >
             <OverlayTrigger placement="bottom" overlay={createTooltip('saveAll', 'Save all')}>
