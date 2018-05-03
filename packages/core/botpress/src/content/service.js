@@ -84,6 +84,7 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
     }
 
     const result = { ...item }
+
     if ('formData' in item) {
       result.formData = JSON.stringify(item.formData)
     }
@@ -161,6 +162,7 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
     const items = (await listCategoryItems(categoryId, { count: 10000 })).map(item =>
       _.pick(item, 'id', 'formData', 'createdBy', 'createdOn')
     )
+
     await ghostManager.upsertFile(contentDataDir, fileById[categoryId], JSON.stringify(items, null, 2))
   }
 
@@ -399,13 +401,12 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
     }
 
     const category = _.find(categories, { id: item.categoryId })
+
     return {
       ...transformItemDbToApi(item),
       categoryTitle: category.title,
       categorySchema: getCategorySchema(item.categoryId)
     }
-
-    return item
   }
 
   const getItemsByMetadata = async metadata => {
@@ -416,6 +417,12 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
     return transformItemDbToApi(items)
   }
 
+  /**
+   * Refreshes the content categories metadata internally.
+   * This must be called after using `loadCategoryFromSchema`
+   * @memberOf!  ContentManager
+   * @public
+   */
   const recomputeCategoriesMetadata = async () => {
     for (const { id: categoryId } of categories) {
       await knex('content_items')
@@ -450,7 +457,7 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
     }))
 
     // TODO: use transaction
-    return Promise.map(data, async item =>
+    return Promise.mapSeries(data, item =>
       knex('content_items')
         .insert(transformItemApiToDb(item))
         .then()
@@ -458,7 +465,8 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
   }
 
   /**
-   * Loads a new category from a raw schema definition
+   * Loads a new category from a raw schema definition.
+   * *Important:* do not forget to call `ContentManager~recomputeCategoriesMetadata` after calling this
    * @param  {ContentManager~Category} schema A schema definition
    * @memberOf!  ContentManager
    * @return {Object} Returns the loaded category schema
@@ -556,8 +564,6 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
         throw new VError(err, `[Content Manager] Could not register Content Element "${file}"`)
       }
     }
-
-    recomputeCategoriesMetadata()
   }
 
   /**
@@ -605,6 +611,7 @@ bp.contentManager.registerGetItemProvider('random', randomProvider)
     getCategorySchema,
 
     loadCategoryFromSchema,
+    recomputeCategoriesMetadata,
 
     createOrUpdateCategoryItem,
     listCategoryItems,
