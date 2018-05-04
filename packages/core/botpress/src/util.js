@@ -101,8 +101,29 @@ const getInMemoryDb = () =>
 const safeId = (length = 10) => generate('1234567890abcdefghijklmnopqrsuvwxyz', length)
 
 const botpressPackageRegex = /^(botpress-.+)|(@botpress\/.+)/i
-const isBotpressPackage = pkg => botpressPackageRegex.test(pkg)
-const getModuleShortname = pkg => pkg.replace(/^@botpress\//i, '').replace(/^botpress-/i, '')
+
+const isBotpressPackage = pkg => {
+  const [ scope, name ] = getPackageName(pkg)
+  const isBotpress = (scope === 'botpress' || name.startsWith('botpress-'))
+  return isBotpress
+}
+
+const getModuleShortname = pkg => {
+  const [ , name ] = getPackageName(pkg)
+  const withoutPrefix = name.replace(/^botpress-/i, '')
+  return withoutPrefix
+}
+
+const getPackageName = pkg => {
+  const isScoped = pkg.startsWith('@')
+
+  if (isScoped) {
+    const [ scope, name ] = pkg.match(/^@(.*)\/(.*)/).slice(1)
+    return [ scope, name ]
+  } else {
+    return [ null, pkg ];
+  }
+}
 
 module.exports = {
   print,
