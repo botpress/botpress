@@ -100,8 +100,6 @@ const getInMemoryDb = () =>
 
 const safeId = (length = 10) => generate('1234567890abcdefghijklmnopqrsuvwxyz', length)
 
-const botpressPackageRegex = /^(botpress-.+)|(@botpress\/.+)/i
-
 const isBotpressPackage = pkg => {
   const [ scope, name ] = getPackageName(pkg)
   const isBotpress = (scope === 'botpress' || name.startsWith('botpress-'))
@@ -138,6 +136,5 @@ module.exports = {
   getInMemoryDb,
   safeId,
   isBotpressPackage,
-  getModuleShortname,
-  botpressPackageRegex
+  getModuleShortname
 }
