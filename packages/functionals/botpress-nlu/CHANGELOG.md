@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.6.1"></a>
+## [10.6.1](https://github.com/botpress/modules/compare/v10.6.0...v10.6.1) (2018-05-04)
+
+
+### Bug Fixes
+
+* **nlu:** zscore dependency ([cd44ea1](https://github.com/botpress/modules/commit/cd44ea1))
+
+
+
+
 <a name="10.6.0"></a>
 # [10.6.0](https://github.com/botpress/modules/compare/v10.5.0...v10.6.0) (2018-05-04)
 
