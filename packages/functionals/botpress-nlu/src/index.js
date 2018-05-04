@@ -43,7 +43,15 @@ module.exports = {
     recastBotSlug: { type: 'string', required: false, default: '', env: 'NLU_RECAST_BOT_SLUG' },
 
     // Debug mode will print NLU information to the console for debugging purposes
-    debugModeEnabled: { type: 'bool', required: true, default: false, env: 'NLU_DEBUG_ENABLED' }
+    debugModeEnabled: { type: 'bool', required: true, default: false, env: 'NLU_DEBUG_ENABLED' },
+
+    // The minimum confidence required (in %) for an intent to match
+    // Set to '0' to always match
+    minimumConfidence: { type: 'string', required: false, default: '0.3', env: 'NLU_MIN_CONFIDENCE' },
+
+    // The maximum confidence after which it is considered a statistical error
+    // Mostly irrelevant except for NLU=native
+    maximumConfidence: { type: 'string', required: false, default: '1000', env: 'NLU_MAX_CONFIDENCE' }
   },
 
   init: async function(bp, configurator) {
@@ -63,6 +71,18 @@ module.exports = {
       throw new Error(`Unknown NLU provider "${config.provider}"`)
     }
 
+    let MIN_CONFIDENCE = parseFloat(config.minimumConfidence)
+
+    if (isNaN(MIN_CONFIDENCE) || MIN_CONFIDENCE < 0 || MIN_CONFIDENCE > 1) {
+      MIN_CONFIDENCE = 0
+    }
+
+    let MAX_CONFIDENCE = parseFloat(config.maximumConfidence)
+
+    if (isNaN(MAX_CONFIDENCE) || MAX_CONFIDENCE < 0) {
+      MAX_CONFIDENCE = 10000
+    }
+
     provider = new Provider({
       logger: bp.logger,
       storage: storage,
@@ -79,9 +99,9 @@ module.exports = {
       max_tries: 3
     }
 
-    async function incomingMiddleware(event, next) {
+    async function processEvent(event) {
       if (['session_reset', 'bp_dialog_timeout'].includes(event.type)) {
-        return next()
+        return
       }
 
       try {
@@ -90,6 +110,7 @@ module.exports = {
         }
 
         const metadata = await retry(() => provider.extract(event), retryPolicy)
+
         if (metadata) {
           Object.assign(event, { nlu: metadata })
         }
@@ -97,25 +118,53 @@ module.exports = {
         bp.logger.warn('[NLU] Error extracting metadata for incoming text: ' + err.message)
       }
 
+      const intentConfidentEnough = () =>
+        (_.get(event, 'nlu.intent.confidence') || 1) >= MIN_CONFIDENCE &&
+        (_.get(event, 'nlu.intent.confidence') || 1) <= MAX_CONFIDENCE
+
+      const intentStartsWith = prefix => {
+        return (
+          intentConfidentEnough() &&
+          (_.get(event, 'nlu.intent.name') || '').toLowerCase().startsWith(prefix && prefix.toLowerCase())
+        )
+      }
+
+      const intentIs = intentName => {
+        return (
+          intentConfidentEnough() &&
+          (_.get(event, 'nlu.intent.name') || '').toLowerCase() === (intentName && intentName.toLowerCase())
+        )
+      }
+
+      const bestMatchProps = {
+        is: intentIs,
+        startsWith: intentStartsWith,
+        intentConfidentEnough
+      }
+
       _.merge(event, {
         nlu: {
-          intent: {
-            is: intentName =>
-              (_.get(event, 'nlu.intent.name') || '').toLowerCase() === (intentName && intentName.toLowerCase())
-          },
+          intent: bestMatchProps,
           intents: {
             has: intentName => !!(_.get(event, 'nlu.intents') || []).find(i => i.name === intentName)
           }
         }
       })
-      next()
+    }
+
+    bp.nlu = {
+      processEvent,
+      provider
     }
 
     bp.middlewares.register({
       name: 'nlu.incoming',
       module: 'botpress-nlu',
       type: 'incoming',
-      handler: incomingMiddleware,
+      handler: async (event, next) => {
+        await processEvent(event)
+        next()
+      },
       order: 10,
       description:
         'Process natural language in the form of text. Structured data with an action and parameters for that action is injected in the incoming message event.'

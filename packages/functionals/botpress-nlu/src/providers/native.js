@@ -1,6 +1,7 @@
 import _ from 'lodash'
 import crypto from 'crypto'
 
+import zscore from 'zscore'
 import natural from 'natural'
 
 import Provider from './base'
@@ -109,11 +110,24 @@ export default class NativeProvider extends Provider {
       }
     }
 
-    const classifications = this.classifier.getClassifications(incomingEvent.text)
-    const intents = _.map(_.orderBy(classifications, ['value'], ['desc']), c => ({
-      intent: c.label,
-      score: c.value
-    }))
+    const classifications = _.orderBy(this.classifier.getClassifications(incomingEvent.text), ['value'], ['desc'])
+
+    let allScores = zscore(_.map(classifications, c => parseFloat(c.value)))
+    allScores = allScores.map((s, i) => {
+      return (
+        s -
+        (_.get(allScores, i + 1) || 0) * 0.5 -
+        (_.get(allScores, i + 2) || 0) * 0.75 -
+        (_.get(allScores, i + 3) || 0)
+      )
+    })
+
+    const intents = _.map(classifications, (c, i) => {
+      return {
+        intent: c.label,
+        score: allScores[i]
+      }
+    })
 
     const bestIntent = _.first(intents)
 

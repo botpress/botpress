@@ -54,7 +54,8 @@
     "sass-loader": "^6.0.6",
     "style-loader": "^0.20.1",
     "webpack": "^3.11.0",
-    "webpack-node-externals": "^1.6.0"
+    "webpack-node-externals": "^1.6.0",
+    "zscore": "^0.1.0"
   },
   "dependencies": {
     "axios": "^0.17.1",
