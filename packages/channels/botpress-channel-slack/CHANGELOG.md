@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.6.2"></a>
+## [10.6.2](https://github.com/botpress/modules/compare/v10.6.1...v10.6.2) (2018-05-04)
+
+
+
+
+**Note:** Version bump only for package @botpress/channel-slack
+
 <a name="10.6.1"></a>
 ## [10.6.1](https://github.com/botpress/modules/compare/v10.6.0...v10.6.1) (2018-05-04)
 

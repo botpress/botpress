@@ -7,6 +7,6 @@
     "packages/utils/*",
     "packages/core/*"
   ],
-  "version": "10.6.1",
+  "version": "10.6.2",
   "npmClient": "yarn"
 }
