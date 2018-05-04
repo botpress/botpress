@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.6.0"></a>
+# [10.6.0](https://github.com/botpress/modules/compare/v10.5.0...v10.6.0) (2018-05-04)
+
+
+
+
+**Note:** Version bump only for package @botpress/hitl
+
 <a name="10.5.0"></a>
 # [10.5.0](https://github.com/botpress/modules/compare/v10.4.0...v10.5.0) (2018-05-01)
 

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.6.0"></a>
+# [10.6.0](https://github.com/botpress/modules/compare/v10.5.0...v10.6.0) (2018-05-04)
+
+
+### Features
+
+* **nlu:** native NLU has better ranking and false-positive detection ([6c8e8c8](https://github.com/botpress/modules/commit/6c8e8c8))
+
+
+
+
 <a name="10.5.0"></a>
 # [10.5.0](https://github.com/botpress/modules/compare/v10.4.0...v10.5.0) (2018-05-01)
 
