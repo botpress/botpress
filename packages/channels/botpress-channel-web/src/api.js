@@ -98,7 +98,8 @@ module.exports = async (bp, config) => {
     res.send(injectStyle)
   })
 
-  const modulePath = bp._loadedModules['@botpress/channel-web'].root
+  const pkg = require('../package.json');
+  const modulePath = bp._loadedModules[pkg.name].root
   const staticFolder = path.join(modulePath, './static')
   router.use('/static', serveStatic(staticFolder))
 
