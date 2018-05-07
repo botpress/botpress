@@ -64,6 +64,7 @@ function createUserSession(event) {
 
   return knex('hitl_sessions')
     .insert(session)
+    .returning('id')
     .then(results => {
       session.id = results[0]
       session.is_new_session = true
