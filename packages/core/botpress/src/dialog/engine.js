@@ -1,6 +1,7 @@
 import _ from 'lodash'
 import Promise from 'bluebird'
 import { VM } from 'vm2'
+import mware from 'mware'
 
 const loggerShim = { debug: () => {} }
 const callSubflowRegex = /(.+\.flow\.json)\s?@?\s?(.+)?/i // e.g. './login.flow.json' or './login.flow.json @ username'
@@ -24,6 +25,79 @@ class DialogEngine {
     this.errorHandlers = []
     this.functions = {}
     this.functionMetadataProvider = null
+
+    /**
+     * @typedef {Function} DialogEngine~DialogMiddleware
+     * @param {object} ctx A mutable context object
+     * @param {function} next Call this to continue processing
+     */
+
+    /**
+     * Middleware triggered before a new session is started.
+     * > **Note:** This middleware allows you to alter `ctx.flowName` to change
+     * > which flow will be selected to start the conversation.
+     * @function DialogEngine#onBeforeCreated
+     * @param {DialogEngine~DialogMiddleware} middleware
+     * @example
+bp.dialogEngine.onBeforeCreated((ctx, next) => {
+  ctx.flowName = 'example.flow.json'
+  next()
+})
+     */
+    this.onBeforeCreated = mware()
+
+    /**
+     * Middleware triggered **after** a new session is started.
+     * `ctx` is not mutable.
+     * @function DialogEngine#onAfterCreated
+     * @param {DialogEngine~DialogMiddleware} middleware
+     * @example
+bp.dialogEngine.onAfterCreated((ctx, next) => {
+  // Do something here
+  next()
+})
+     */
+    this.onAfterCreated = mware()
+
+    /**
+     * Middleware triggered **before** a conversation is ended for any reason.
+     * `ctx` is not mutable.
+     * @function DialogEngine#onBeforeEnd
+     * @param {DialogEngine~DialogMiddleware} middleware
+     * @example
+bp.dialogEngine.onBeforeEnd((ctx, next) => {
+  // Do something here
+  next()
+})
+     */
+    this.onBeforeEnd = mware()
+
+    /**
+     * Middleware triggered **before** a node is entered (before the `onEnter` execution).
+     * > **⚠️ Warn:** It is **not** recommended to mutate `ctx.node` for now, it might break in a future version of Botpress.
+     * @function DialogEngine#onBeforeNodeEnter
+     * @param {DialogEngine~DialogMiddleware} middleware
+     * @example
+bp.dialogEngine.onBeforeNodeEnter((ctx, next) => {
+  // Do something here
+  next()
+})
+     */
+    this.onBeforeNodeEnter = mware()
+
+    /**
+     * Middleware triggered **before** a conversation/session times out. 
+     * > **Note:** You can't prevent it from timing out at this point. 
+     * > You also can't change the timeout behavior/location at this time.
+     * @function DialogEngine#onBeforeSessionTimeout
+     * @param {DialogEngine~DialogMiddleware} middleware
+     * @example
+bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
+  // Do something here
+  next()
+})
+     */
+    this.onBeforeSessionTimeout = mware()
 
     flowProvider.on('flowsChanged', () => Object.assign(this, { flows: [], flowsLoaded: false }))
   }
@@ -275,6 +349,9 @@ class DialogEngine {
   onError = fn => this.errorHandlers.push(fn)
 
   async _processTimeout(stateId, userState, context, event) {
+    const beforeCtx = { stateId }
+    await Promise.fromCallback(callback => this.onBeforeSessionTimeout.run(beforeCtx, callback))
+
     const currentNodeTimeout = _.get(DialogEngine._findNode(context.currentFlow, context.node), 'timeoutNode')
     const currentFlowTimeout = _.get(context, 'currentFlow.timeoutNode')
     const fallbackTimeoutNode = DialogEngine._findNode(context.currentFlow, 'timeout')
@@ -358,6 +435,9 @@ class DialogEngine {
 
       await this._setContext(stateId, context)
 
+      const beforeCtx = { stateId, node }
+      await Promise.fromCallback(callback => this.onBeforeNodeEnter.run(beforeCtx, callback))
+
       if (node.onEnter) {
         this._trace('!!', 'ENTR', '', context, userState)
         userState = await this._processInstructions(node.onEnter, userState, event, context)
@@ -414,8 +494,12 @@ class DialogEngine {
   }
 
   async _endFlow(stateId) {
+    const beforeCtx = { stateId }
+    await Promise.fromCallback(callback => this.onBeforeEnd.run(beforeCtx, callback))
+
     this._trace('--', 'ENDF', '', null, null)
     await this.stateManager.deleteState(stateId, ['context'])
+
     return null
   }
 
@@ -423,7 +507,10 @@ class DialogEngine {
     let state = await this._getContext(stateId)
 
     if (!state || !state.currentFlow) {
-      const flow = this._findFlow(this.defaultFlow, true)
+      const beforeCtx = { stateId, flowName: this.defaultFlow }
+      await Promise.fromCallback(callback => this.onBeforeCreated.run(beforeCtx, callback))
+
+      const flow = this._findFlow(beforeCtx.flowName, true)
 
       if (!flow) {
         throw new Error(`Could not find the default flow "${this.defaultFlow}"`)
@@ -435,6 +522,9 @@ class DialogEngine {
       }
 
       await this._setContext(stateId, state)
+
+      const afterCtx = { ...beforeCtx }
+      await Promise.fromCallback(callback => this.onAfterCreated.run(afterCtx, callback))
     }
 
     return state
