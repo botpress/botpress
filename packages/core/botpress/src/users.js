@@ -94,16 +94,25 @@ module.exports = ({ db }) => {
    * @return {?String}        Value of the tag
    * @memberof! Users
    */
-  const getTag = async (userId, tag) => {
+  const getTag = async (userId, tag, details = false) => {
     const knex = await db.get()
 
     return knex('users_tags')
-      .select('value')
+      .select('value', 'tagged_on', 'tag')
       .where({ userId, tag: _.toUpper(tag) })
       .limit(1)
       .then()
       .get(0)
-      .then(ret => ret && ret.value)
+      .then(ret => {
+        if (details) {
+          return {
+            ...ret,
+            tagged_on: new Date(ret.tagged_on)
+          }
+        }
+
+        return ret && ret.value
+      })
   }
 
   /**

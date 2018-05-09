@@ -62,6 +62,28 @@ run('users', () => {
       expect(await getUsers().getTag('tests:dummy-2', 'HELLO')).to.equal('world')
     })
 
+    itBoth('Detailed tagging works', async knex => {
+      await createUsers(knex)
+      await getUsers().tag('tests:dummy-2', 'hello', 'world')
+
+      const tag = await getUsers().getTag('tests:dummy-2', 'HELLO', true)
+      expect(tag).to.have.property('tag', 'HELLO')
+      expect(tag).to.have.property('value', 'world')
+      expect(tag)
+        .to.have.property('tagged_on')
+        .to.be.an.instanceof(Date)
+        .to.be.below(
+          moment()
+            .add(1, 'second')
+            .toDate()
+        )
+        .to.be.above(
+          moment()
+            .subtract(5, 'second')
+            .toDate()
+        )
+    })
+
     itBoth('Updating tag works', async knex => {
       await createUsers(knex)
       await getUsers().tag('tests:dummy-1', 'hello', 'world1')
