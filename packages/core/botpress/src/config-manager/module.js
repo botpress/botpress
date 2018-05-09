@@ -57,6 +57,7 @@ You can provide this value in "${filePath}"`
 
   /**
    * Copy the module's default configuration file to the bot's config directory
+   * @private
    */
   async bootstrap() {
     if (!this._hasDefaultConfig()) {
@@ -74,6 +75,7 @@ You can provide this value in "${filePath}"`
   /**
    * Checks whether the module has a configuration file
    * and if the bot doesn't have the configuration file for it.
+   * @private
    * @return {Boolean}
    */
   async isConfigMissing() {
