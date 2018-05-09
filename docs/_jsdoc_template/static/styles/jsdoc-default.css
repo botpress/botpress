@@ -252,7 +252,7 @@ nav.toc {
   background: #fff;
   overflow: auto;
   position: fixed;
-  height: 100%;
+  height: calc(100vh - 50px);
   padding: 10px;
   border-right: 1px solid #eee;
   /* box-shadow: 0 0 3px rgba(0,0,0,0.1); */
