@@ -1,8 +1,6 @@
 export * from './users'
 
 // ** Users **
-// Get time since last conversation
-// Get total number of conversations
 // Get profile
 
 // ** Storage **
