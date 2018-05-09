@@ -39,3 +39,8 @@ jobs:
           environment:
             PG_USER: botpress
             PG_DB: test
+
+      - run:
+          name: Generate documentation
+          command: cd ~/repo/docs && yarn && yarn run gen-reference
+          
