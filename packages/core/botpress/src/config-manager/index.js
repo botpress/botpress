@@ -134,7 +134,7 @@ export default class ConfigurationManager {
 
   /**
    * Returns a Configuration for a specific module
-   * @param  {[type]} module [description]
+   * @param  {Object} module A module object
    * @private
    * @return {ModuleConfiguration} A module-specific configuration
    */
