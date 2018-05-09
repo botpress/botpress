@@ -145,7 +145,7 @@ module.exports = ({ logger, middlewares, db, contentManager, botfile }) => {
       }
 
       rendererName = itemRenderer.substr(1)
-      Object.assign(initialData, contentItem.data)
+      Object.assign(initialData, _.isArray(contentItem.data) ? { items: contentItem.data } : contentItem.data)
     }
 
     const fullContext = Object.assign(
