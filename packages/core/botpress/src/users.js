@@ -104,7 +104,7 @@ module.exports = ({ db }) => {
       .then()
       .get(0)
       .then(ret => {
-        if (details) {
+        if (ret && details) {
           return {
             ...ret,
             tagged_on: new Date(ret.tagged_on)
