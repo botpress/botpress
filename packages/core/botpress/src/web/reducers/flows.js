@@ -15,6 +15,8 @@ import {
   renameFlow,
   updateFlowNode,
   switchFlowNode,
+  openFlowNodeProps,
+  closeFlowNodeProps,
   setDiagramAction,
   createFlowNode,
   copyFlowNode,
@@ -40,6 +42,7 @@ const defaultState = {
   fetchingFlows: false,
   currentFlow: null,
   currentFlowNode: null,
+  showFlowNodeProps: false,
   currentDiagramAction: null,
   currentSnapshot: null,
   undoStack: [],
@@ -243,6 +246,16 @@ let reducer = handleActions(
     [switchFlowNode]: (state, { payload }) => ({
       ...state,
       currentFlowNode: payload
+    }),
+
+    [openFlowNodeProps]: state => ({
+      ...state,
+      showFlowNodeProps: true
+    }),
+
+    [closeFlowNodeProps]: state => ({
+      ...state,
+      showFlowNodeProps: false
     }),
 
     [switchFlow]: (state, { payload }) => {

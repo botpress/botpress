@@ -5,9 +5,9 @@ import classnames from 'classnames'
 import { Panel, Button } from 'react-bootstrap'
 
 import ActionModalForm from './ActionModalForm'
-import ActionItem from '../../common/action'
+import ActionItem from '../common/action'
 
-const style = require('../style.scss')
+const style = require('../sidePanel/style.scss')
 
 export default class ActionSection extends Component {
   constructor(props) {

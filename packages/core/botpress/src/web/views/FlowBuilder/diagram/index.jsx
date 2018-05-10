@@ -232,11 +232,13 @@ export default class FlowBuilder extends Component {
   componentDidMount() {
     this.props.fetchFlows()
     ReactDOM.findDOMNode(this.diagramWidget).addEventListener('click', this.onDiagramClick)
+    ReactDOM.findDOMNode(this.diagramWidget).addEventListener('dblclick', this.onDiagramDoubleClick)
     document.getElementById('diagramContainer').addEventListener('keydown', this.onKeyDown)
   }
 
   componentWillUnmount() {
     ReactDOM.findDOMNode(this.diagramWidget).removeEventListener('click', this.onDiagramClick)
+    ReactDOM.findDOMNode(this.diagramWidget).removeEventListener('dblclick', this.onDiagramDoubleClick)
     document.getElementById('diagramContainer').removeEventListener('keydown', this.onKeyDown)
   }
 
@@ -254,6 +256,10 @@ export default class FlowBuilder extends Component {
       // Update the current model with the new properties
       this.syncModel()
     }
+  }
+
+  onDiagramDoubleClick = () => {
+    this.props.openFlowNodeProps()
   }
 
   onDiagramClick = event => {

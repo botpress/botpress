@@ -10,16 +10,12 @@ import ContentPickerWidget from '~/components/Content/Select/Widget'
 const style = require('./style.scss')
 
 export default class ActionModalForm extends Component {
-  constructor(props) {
-    super(props)
-
-    this.state = {
-      actionType: 'message',
-      availableFunctions: [],
-      functionInputValue: '',
-      messageValue: '',
-      functionParams: {}
-    }
+  state = {
+    actionType: 'message',
+    availableFunctions: [],
+    functionInputValue: '',
+    messageValue: '',
+    functionParams: {}
   }
 
   textToItemId = text => _.get(text.match(/^say #!(.*)$/), '[1]')

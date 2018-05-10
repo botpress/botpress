@@ -4,7 +4,7 @@ import classnames from 'classnames'
 import ActionSection from './ActionSection'
 import TransitionSection from './TransitionSection'
 
-const style = require('../style.scss')
+const style = require('./style.scss')
 
 export default class FlowPropertiesPanel extends Component {
   render() {

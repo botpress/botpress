@@ -4,11 +4,11 @@ import classnames from 'classnames'
 
 import { Panel, Button, Label } from 'react-bootstrap'
 
-import ConditionItem from '../../common/condition'
+import ConditionItem from '../common/condition'
 
 import ConditionModalForm from './ConditionModalForm'
 
-const style = require('../style.scss')
+const style = require('./style.scss')
 
 export default class TransitionSection extends Component {
   constructor(props) {

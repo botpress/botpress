@@ -3,10 +3,10 @@ import { Button } from 'react-bootstrap'
 
 import classnames from 'classnames'
 
-import EditableInput from '../../common/EditableInput'
+import EditableInput from '../common/EditableInput'
 import TransitionSection from './TransitionSection'
 
-const style = require('../style.scss')
+const style = require('./style.scss')
 
 export default class SkillCallNodePropertiesPanel extends Component {
   renameNode = text => {
