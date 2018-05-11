@@ -4,19 +4,19 @@ layout: guide
 
 ## How actions work
 
-Actions are essentially *server-side functions* that get executed by the bot as part of a conversational flow. Actions have the power to do many things:
+Actions are essentially _server-side functions_ that get executed by the bot as part of a conversational flow. Actions have the power to do many things:
 
-- Alter the state of the conversation
-- Send customized messages to the conversation
-- Execute arbitrary code like calling an API or storing data in the database
+* Alter the state of the conversation
+* Send customized messages to the conversation
+* Execute arbitrary code like calling an API or storing data in the database
 
 Since they are just regular javascript functions, they can in fact do pretty much anything.
 
 When an action is invoked by the Dialogue Manager (DM), it gets passed the following arguments:
 
-- **`state`**: The current state of the conversation. **This object is [`frozen`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze) and can't be mutated.**
-- **`event`**: The original (latest) event received from the user in the conversation. **This object is [`frozen`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze) and can't be mutated.**
-- **`args`**: The arguments that were passed to this action from the Visual Flow Builder.
+* **`state`**: The current state of the conversation. **This object is [`frozen`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze) and can't be mutated.**
+* **`event`**: The original (latest) event received from the user in the conversation. **This object is [`frozen`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze) and can't be mutated.**
+* **`args`**: The arguments that were passed to this action from the Visual Flow Builder.
 
 The action itself **must return a new state object**.
 
@@ -25,10 +25,10 @@ The action itself **must return a new state object**.
 In the context of our tutorial, all actions are defined in our `src/actions.js` file and are registered in `src/index.js` as follows:
 
 ```js
-bp.dialogEngine.registerFunctions(actions)
+bp.dialogEngine.registerActions(actions)
 ```
 
-`registerFunctions(map)` takes a map as a parameter, the keys being the name of the action and the value the action function. You can call `registerFunctions` as many times as you want, which allows you to split your actions into multiple files if you wish to.
+`registerActions(map)` takes a map as a parameter, the keys being the name of the action and the value the action function. You can call `registerActions` as many times as you want, which allows you to split your actions into multiple files if you wish to.
 
 ## Examples of actions
 
@@ -46,11 +46,12 @@ startGame: state => {
 
 Now let's look at a slightly more complicated action.
 
-The `sendRandomQuestion` action does the following: [[This section needs more explanation and it doesn't make sense.  I will revisit when it's elaborated on]]
-- It sends a random *Content Element* from the `trivia` *Content Types* using the built-in `event.reply` method
-- It captures the message sent to the user
-- It extracts the good answer from the multiple choices
-- It stores the good answer in the state
+The `sendRandomQuestion` action does the following: [[This section needs more explanation and it doesn't make sense. I will revisit when it's elaborated on]]
+
+* It sends a random _Content Element_ from the `trivia` _Content Types_ using the built-in `event.reply` method
+* It captures the message sent to the user
+* It extracts the good answer from the multiple choices
+* It stores the good answer in the state
 
 ```js
 sendRandomQuestion: async (state, event) => {
@@ -71,7 +72,7 @@ sendRandomQuestion: async (state, event) => {
 },
 ```
 
-And lastly, let's look at the `setUserTag` function which makes use of custom arguments passed to the function from the flow.
+And lastly, let's look at the `setUserTag` action which makes use of custom arguments passed to the function from the flow.
 
 ```js
 /**
@@ -87,27 +88,7 @@ setUserTag: async (state, event, { name, value }) => {
 
 > **Note:** `name` and `value` come from the Flow Builder. `name` is a static value whereas `value` is an expression that will be evaluated at execution time. In this case `event.text` is what the user said (i.e. his nickname).
 
-<!-- 
-[JSDoc](http://usejsdoc.org) comments can be passed via metadata-provider function to the engine so that params will be prepopulated when you select function. Here's an example of registering metadata-provider:
-
-```js
-jsdoc.explain({ files: [__dirname + '/actions.js'] }).then(docs => {
-  bp.dialogEngine.setFunctionMetadataProvider(fnName => {
-    const meta = docs.find(({ name }) => name === fnName)
-    return {
-      desciption: meta.description,
-      params: (meta.params || [])
-        .filter(({ name }) => name.startsWith('args.'))
-        .map(arg => ({ ...arg, name: arg.name.replace('args.', '') }))
-    }
-  })
-  bp.dialogEngine.registerFunctions(actions)
-})
-```
-
-![Function params]({{site.baseurl}}/images/function_params.png) -->
-
-![Passing arguments from the flow editor][setUserTagArgs]
+![Passing arguments from the flow editor][setusertagargs]
 
 ## Altering the state
 
@@ -120,7 +101,7 @@ You **must** return a new state object, you can't modify the original state obje
 return { ...state, nickname: 'Jackob' }
 
 // Removing properties using the spread operator
-const clone = {...state}
+const clone = { ...state }
 delete clone.nickname
 return clone
 ```
@@ -129,4 +110,4 @@ return clone
 
 If you action does not modify the state, simply return nothing (`return`). You can also return a clone of the original state: `return {...state}`.
 
-[setUserTagArgs]: {{site.baseurl}}/images/setUserTagArgs.jpg
+[setusertagargs]: {{site.baseurl}}/images/setUserTagArgs.jpg

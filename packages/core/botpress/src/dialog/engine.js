@@ -23,8 +23,8 @@ class DialogEngine {
     this.defaultFlow = _.get(options, 'defaultFlow') || 'main.flow.json'
     this.outputProcessors = []
     this.errorHandlers = []
-    this.functions = {}
-    this.functionMetadataProvider = null
+    this.actions = {}
+    this.actionMetadataProviders = []
 
     /**
      * @typedef {Function} DialogEngine~DialogMiddleware
@@ -280,33 +280,49 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
   }
 
   /**
-   * Sets the provider of function metadata.
-   * The provider is simply an async function that returns metadata information from the function name alone.
-   * The metadata lookup is done upon new functions registration
-   * @param {Function} A function taking the name of a function, returning metadata of that function
-   * Valid metadata could include: "description" and "params[...{ name, description }]"
+   * @typedef {object} DialogEngine~ActionMetadata
+   * @var {string} title
+   * @var {string} description
+   * @var {boolean} required
+   * @var {string} default
+   * @var {string} type
+   */
+
+  /**
+   * A metadata provider returns metadata for an action or
+   * returns null, in which case other providers will be called
+   * @typedef {Function} DialogEngine~MetadataProvider
+   * @param {string} action The name of the action
+   * @returns {DialogEngine~ActionMetadata}
+   */
+
+  /**
+   * Adds a new provider of function metadata
+   * @param {DialogEngine~MetadataProvider} provider
    * @returns {void}
    * @private
    */
-  setFunctionMetadataProvider(provider) {
+  registerActionMetadataProvider(provider) {
     if (!_.isFunction(provider)) {
       throw new Error('Expected the function metadata provider to be a function')
     }
 
-    this.functionMetadataProvider = provider
+    if (!_.includes(this.actionMetadataProviders, provider)) {
+      this.actionMetadataProviders.push(provider)
+    }
   }
 
   /**
-   * Introduce new functions to the Flows that they can call.
+   * Introduce new actions to the Flows that they can call.
    * @param {Object} fnMap
-   * @param {bool} [overwrite=false] - Whether or not it should overwrite existing functions with the same name.
+   * @param {bool} [overwrite=false] - Whether or not it should overwrite existing actions with the same name.
    * Note that if overwrite is false, an error will be thrown on conflict.
    * @returns {Promise.<void>}
    */
-  async registerFunctions(fnMap, overwrite = false) {
+  async registerActions(fnMap, overwrite = false) {
     const toRegister = {}
     _.keys(fnMap).forEach(name => {
-      if (this.functions[name] && !overwrite) {
+      if (this.actions[name] && !overwrite) {
         throw new Error(`There is already a function named "${name}" registered`)
       }
 
@@ -322,8 +338,13 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
         metadata = Object.assign({}, fnMap[name], { name: name, handler: null })
       }
 
-      if (this.functionMetadataProvider) {
-        metadata = Object.assign({}, this.functionMetadataProvider(name) || {}, metadata || {})
+      for (const provider of this.actionMetadataProviders) {
+        const extra = provider(name)
+
+        if (extra) {
+          metadata = Object.assign({}, extra, metadata || {})
+          break
+        }
       }
 
       toRegister[name] = {
@@ -333,15 +354,22 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
       }
     })
 
-    Object.assign(this.functions, toRegister)
+    Object.assign(this.actions, toRegister)
   }
 
   /**
-   * Returns all the available functions along with their metadata
+   * @deprecated Use registerActions() instead
+   */
+  async registerFunctions(fnMap, overwrite = false) {
+    return this.registerActions(fnMap, overwrite)
+  }
+
+  /**
+   * Returns all the available actions along with their metadata
    * @private
    */
-  getAvailableFunctions() {
-    return _.values(this.functions)
+  getAvailableActions() {
+    return _.values(this.actions)
       .filter(x => !String(x.name).startsWith('__'))
       .map(x => Object.assign({}, x, { fn: null }))
   }
@@ -657,12 +685,12 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
       this._trace(`ERROR function is not a valid string`)
     }
 
-    if (!this.functions[name]) {
+    if (!this.actions[name]) {
       this._trace(`ERROR function "${name}" not found`, context, userState)
     } else {
       try {
         this._trace('!!', 'EXEC', `func "${name}"`, context, userState)
-        const ret = await this.functions[name].fn(Object.freeze(userState), event, args || {})
+        const ret = await this.actions[name].fn(Object.freeze(userState), event, args || {})
 
         if (ret && _.isObject(ret)) {
           if (Object.isFrozen(ret)) {
@@ -693,8 +721,8 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
       timeout: 5000
     })
 
-    _.keys(this.functions).forEach(name => {
-      vm.freeze(this.functions[name].fn, name)
+    _.keys(this.actions).forEach(name => {
+      vm.freeze(this.actions[name].fn, name)
     })
 
     vm.freeze(userState, 's')

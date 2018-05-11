@@ -222,9 +222,9 @@ module.exports = (bp, app) => {
     res.send(flows)
   })
 
-  app.secure('read', 'bot/flows').get('/api/flows/available_functions', async (req, res) => {
-    const functions = bp.dialogEngine.getAvailableFunctions()
-    res.send(functions)
+  app.secure('read', 'bot/flows').get('/api/flows/available_actions', async (req, res) => {
+    const actions = bp.dialogEngine.getAvailableActions()
+    res.send(actions)
   })
 
   app.secure('write', 'bot/flows').post('/api/flows/save', async (req, res) => {

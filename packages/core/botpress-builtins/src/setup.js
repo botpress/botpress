@@ -1,6 +1,8 @@
 import { getConversationStorageKey, USER_TAG_CONVO_COUNT, USER_TAG_CONVO_LAST } from './common'
 import { removeStorageKeysStartingWith } from './actions/storage/driver'
 
+import actions_metadata from './actions/metadata'
+
 /**
  * This method should be called on bot boot in order
  * for the different actions and renderers to work properly.
@@ -49,5 +51,15 @@ export default function(bp) {
     await removeStorageKeysStartingWith(bp, conversationKey)
 
     next()
+  })
+
+  // For built-in actions
+  bp.dialogEngine.registerActionMetadataProvider(name => {
+    if (actions_metadata[name]) {
+      try {
+        return actions_metadata[name]
+      } catch (err) {}
+    }
+    return null
   })
 }

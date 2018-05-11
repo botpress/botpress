@@ -92,7 +92,7 @@ module.exports = {
     const config = await configurator.loadAll()
     // Do fancy stuff here :)
 
-    bp.dialogEngine.registerFunctions({
+    bp.dialogEngine.registerActions({
       'skill-choice-parse': function(state, event, { choices }) {
         const choice = _.find(choices, c =>
           _.some(c.keywords || [], k => _.includes(event.text.toLowerCase(), k.toLowerCase()))

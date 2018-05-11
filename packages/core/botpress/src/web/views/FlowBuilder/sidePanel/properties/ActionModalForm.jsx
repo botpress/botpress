@@ -49,7 +49,7 @@ export default class ActionModalForm extends Component {
   }
 
   fetchAvailableFunctions() {
-    return axios.get('/api/flows/available_functions').then(({ data }) => {
+    return axios.get('/api/flows/available_actions').then(({ data }) => {
       this.setState({ availableFunctions: data })
     })
   }
@@ -72,8 +72,8 @@ export default class ActionModalForm extends Component {
     const tooltip = (
       <Tooltip id="notSeeingFunction">
         Functions are registered in the code on the server-side. Please make sure that the file containing the functions
-        has been properly registered using `bp.registerFunctions('./path/to/file.js')`. This file should return an
-        object containing functions.
+        has been properly registered using `bp.registerActions()`. This file should return an object containing
+        functions.
       </Tooltip>
     )
 
