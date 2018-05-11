@@ -1,23 +1,15 @@
 export * from './users'
+export * from './storage'
+export * from './flow'
 
 // ** Users **
 // Get profile
 
 // ** Storage **
-// Store data about user (expiry)
-// Store global data (expiry)
-// Store conversation data (expiry)
-// Retrieve conversation data (expiry)
-// Retrieve global data (expiry)
-// Retrieve user data (expiry)
-// Reset data about user
-// Reset conversation data
-// Reset global data
 
 // ** Flow **
-// Wait (time)
-// Set timeout
-// Clear timeout
+// Set timeout ==> timeout table | clear
+// Clear timeout ==> remove entry
 // Jump to Node
 // Jump to Flow
 // Render Specific Content Element

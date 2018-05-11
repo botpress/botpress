@@ -1,4 +1,5 @@
-import { USER_TAG_CONVO_COUNT, USER_TAG_CONVO_LAST } from './common'
+import { getConversationStorageKey, USER_TAG_CONVO_COUNT, USER_TAG_CONVO_LAST } from './common'
+import { removeStorageKeysStartingWith } from './actions/storage/driver'
 
 /**
  * This method should be called on bot boot in order
@@ -26,9 +27,10 @@ export default function(bp) {
     next()
   })
 
-  // Tracks conversation endings
+  // Tracks conversation endings and cleans up
   // Used by the following actions:
   // - Get time since last conversation
+  // - Conversation data
   bp.dialogEngine.onBeforeEnd(async (ctx, next) => {
     const { stateId } = ctx
 
@@ -39,6 +41,12 @@ export default function(bp) {
 
     const position = await bp.dialogEngine.getCurrentPosition(stateId)
     await bp.users.tag(stateId, USER_TAG_CONVO_LAST, position && position.flow)
+
+    //
+    // Cleans up Conversation Storage variables
+    //
+    const conversationKey = getConversationStorageKey(stateId, '') // Empty to delete all variables
+    await removeStorageKeysStartingWith(bp, conversationKey)
 
     next()
   })
