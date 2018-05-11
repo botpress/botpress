@@ -1,7 +1,6 @@
-import React, { Component } from 'react'
-import { Button } from 'react-bootstrap'
+import React, { Component, Fragment } from 'react'
 
-import classnames from 'classnames'
+import { Panel, Tabs, Tab, Badge, Button } from 'react-bootstrap'
 
 import EditableInput from '../common/EditableInput'
 import TransitionSection from './TransitionSection'
@@ -33,24 +32,37 @@ export default class SkillCallNodePropertiesPanel extends Component {
     const seeFlow = () => this.props.goToFlow(node.flow)
 
     return (
-      <div className={classnames(style.node, style['node-panel'])}>
-        <EditableInput
-          onMount={onNameMounted}
-          value={node.name}
-          className={style.name}
-          onChanged={this.renameNode}
-          transform={this.transformText}
-        />
-        <div style={{ padding: '5px' }}>
-          <Button onClick={editSkill}>Edit skill</Button>
-          <Button onClick={seeFlow}>See flow</Button>
-        </div>
-        <TransitionSection
-          items={node['next']}
-          header="Transitions"
-          subflows={this.props.subflows}
-          onItemsUpdated={items => this.props.updateNode({ next: items })}
-        />
+      <div className={style.node}>
+        <Panel>
+          <EditableInput
+            onMount={onNameMounted}
+            value={node.name}
+            className={style.name}
+            onChanged={this.renameNode}
+            transform={this.transformText}
+          />
+          <div style={{ padding: '5px' }}>
+            <Button onClick={editSkill}>Edit skill</Button>
+            <Button onClick={seeFlow}>See flow</Button>
+          </div>
+        </Panel>
+        <Tabs animation={false} id="node-props-modal-skill-node-tabs">
+          <Tab
+            eventKey="transitions"
+            title={
+              <Fragment>
+                <Badge>{(node.next && node.next.length) || 0}</Badge> Transitions
+              </Fragment>
+            }
+          >
+            <TransitionSection
+              items={node.next}
+              header="Transitions"
+              subflows={this.props.subflows}
+              onItemsUpdated={items => this.props.updateNode({ next: items })}
+            />
+          </Tab>
+        </Tabs>
       </div>
     )
   }

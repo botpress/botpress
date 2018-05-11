@@ -41,18 +41,22 @@ h5 {
   }
 }
 
-.node :global(.panel-heading) {
-  text-transform: none;
-  padding: 8px 5px 5px 5px;
-
-  :global(.panel-title) {
-    font-weight: 600;
-    font-size: 12px;
-  }
-}
-
 .node {
   position: relative;
+
+  :global(.panel-heading) {
+    text-transform: none;
+    padding: 8px 5px 5px 5px;
+
+    :global(.panel-title) {
+      font-weight: 600;
+      font-size: 12px;
+    }
+  }
+
+  :global(.tab-content) {
+    padding: 10px 0;
+  }
 }
 
 .node button + button {
@@ -120,13 +124,4 @@ h5 {
 
 .bottomSection {
   text-align: center;
-}
-
-.node-panel {
-  :global(.panel) {
-    margin-bottom: 0px;
-  }
-  :global(.panel-heading) {
-    background-color: #fbfbfb;
-  }
 }

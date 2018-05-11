@@ -21,7 +21,7 @@ export class StandardNodeWidget extends Component {
     const node = this.props.node
     const isWaiting = node.waitOnReceive
 
-    const className = classnames(style['standard-node'], style['node-container'])
+    const className = classnames(style['node-container'])
 
     return (
       <div className={className}>

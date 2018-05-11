@@ -1,5 +1,7 @@
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
 import classnames from 'classnames'
+
+import { Tabs, Tab, Badge } from 'react-bootstrap'
 
 import ActionSection from './ActionSection'
 import TransitionSection from './TransitionSection'
@@ -17,25 +19,45 @@ export default class FlowPropertiesPanel extends Component {
     )
 
     return (
-      <div className={classnames(style.node, style['standard-node'])}>
-        <ActionSection
-          items={catchAll['onReceive']}
-          header="On Receive"
-          onItemsUpdated={items => this.props.updateFlow({ catchAll: { ...catchAll, onReceive: items } })}
-          copyItem={item => this.props.copyFlowNodeElement({ action: item })}
-          pasteItem={() => this.props.pasteFlowNodeElement('onReceive')}
-          canPaste={Boolean(this.props.buffer.action)}
-        />
-        <TransitionSection
-          items={catchAll['next']}
-          header="Transitions"
-          currentFlow={this.props.currentFlow}
-          subflows={this.props.subflows}
-          onItemsUpdated={items => this.props.updateFlow({ catchAll: { ...catchAll, next: items } })}
-          copyItem={item => this.props.copyFlowNodeElement({ transition: item })}
-          pasteItem={() => this.props.pasteFlowNodeElement('next')}
-          canPaste={Boolean(this.props.buffer.transition)}
-        />
+      <div className={classnames(style.node)}>
+        <Tabs animation={false} id="node-props-modal-flow-tabs">
+          <Tab
+            eventKey="on_receive"
+            title={
+              <Fragment>
+                <Badge>{(catchAll.onReceive && catchAll.onReceive.length) || 0}</Badge> On Receive
+              </Fragment>
+            }
+          >
+            <ActionSection
+              items={catchAll.onReceive}
+              header="On Receive"
+              onItemsUpdated={items => this.props.updateFlow({ catchAll: { ...catchAll, onReceive: items } })}
+              copyItem={item => this.props.copyFlowNodeElement({ action: item })}
+              pasteItem={() => this.props.pasteFlowNodeElement('onReceive')}
+              canPaste={Boolean(this.props.buffer.action)}
+            />
+          </Tab>
+          <Tab
+            eventKey="transitions"
+            title={
+              <Fragment>
+                <Badge>{(catchAll.next && catchAll.next.length) || 0}</Badge> Transitions
+              </Fragment>
+            }
+          >
+            <TransitionSection
+              items={catchAll.next}
+              header="Transitions"
+              currentFlow={this.props.currentFlow}
+              subflows={this.props.subflows}
+              onItemsUpdated={items => this.props.updateFlow({ catchAll: { ...catchAll, next: items } })}
+              copyItem={item => this.props.copyFlowNodeElement({ transition: item })}
+              pasteItem={() => this.props.pasteFlowNodeElement('next')}
+              canPaste={Boolean(this.props.buffer.transition)}
+            />
+          </Tab>
+        </Tabs>
       </div>
     )
   }

@@ -1,5 +1,6 @@
-import React, { Component } from 'react'
-import classnames from 'classnames'
+import React, { Component, Fragment } from 'react'
+
+import { Tabs, Tab, Badge, Panel } from 'react-bootstrap'
 
 import EditableInput from '../common/EditableInput'
 
@@ -30,40 +31,71 @@ export default class StandardNodePropertiesPanel extends Component {
     }
 
     return (
-      <div className={classnames(style.node, style['node-panel'])}>
-        <EditableInput
-          onMount={onNameMounted}
-          value={node.name}
-          className={style.name}
-          onChanged={this.renameNode}
-          transform={this.transformText}
-        />
-        <ActionSection
-          items={node.onEnter}
-          header="On Enter"
-          onItemsUpdated={items => this.props.updateNode({ onEnter: items })}
-          copyItem={item => this.props.copyFlowNodeElement({ action: item })}
-          pasteItem={() => this.props.pasteFlowNodeElement('onEnter')}
-          canPaste={Boolean(this.props.buffer.action)}
-        />
-        <ActionSection
-          items={node.onReceive}
-          header="On Receive"
-          waitable={true}
-          onItemsUpdated={items => this.props.updateNode({ onReceive: items })}
-          copyItem={item => this.props.copyFlowNodeElement({ action: item })}
-          pasteItem={() => this.props.pasteFlowNodeElement('onReceive')}
-          canPaste={Boolean(this.props.buffer.action)}
-        />
-        <TransitionSection
-          items={node.next}
-          header="Transitions"
-          subflows={this.props.subflows}
-          onItemsUpdated={items => this.props.updateNode({ next: items })}
-          copyItem={item => this.props.copyFlowNodeElement({ transition: item })}
-          pasteItem={() => this.props.pasteFlowNodeElement('next')}
-          canPaste={Boolean(this.props.buffer.transition)}
-        />
+      <div className={style.node}>
+        <Panel>
+          <EditableInput
+            onMount={onNameMounted}
+            value={node.name}
+            className={style.name}
+            onChanged={this.renameNode}
+            transform={this.transformText}
+          />
+        </Panel>
+        <Tabs animation={false} id="node-props-modal-standard-node-tabs">
+          <Tab
+            eventKey="on_enter"
+            title={
+              <Fragment>
+                <Badge>{(node.onEnter && node.onEnter.length) || 0}</Badge> On Enter
+              </Fragment>
+            }
+          >
+            <ActionSection
+              items={node.onEnter}
+              header="On Enter"
+              onItemsUpdated={items => this.props.updateNode({ onEnter: items })}
+              copyItem={item => this.props.copyFlowNodeElement({ action: item })}
+              pasteItem={() => this.props.pasteFlowNodeElement('onEnter')}
+              canPaste={Boolean(this.props.buffer.action)}
+            />
+          </Tab>
+          <Tab
+            eventKey="on_receive"
+            title={
+              <Fragment>
+                <Badge>{(node.onReceive && node.onReceive.length) || 0}</Badge> On Receive
+              </Fragment>
+            }
+          >
+            <ActionSection
+              items={node.onReceive}
+              header="On Receive"
+              waitable={true}
+              onItemsUpdated={items => this.props.updateNode({ onReceive: items })}
+              copyItem={item => this.props.copyFlowNodeElement({ action: item })}
+              pasteItem={() => this.props.pasteFlowNodeElement('onReceive')}
+              canPaste={Boolean(this.props.buffer.action)}
+            />
+          </Tab>
+          <Tab
+            eventKey="transitions"
+            title={
+              <Fragment>
+                <Badge>{(node.next && node.next.length) || 0}</Badge> Transitions
+              </Fragment>
+            }
+          >
+            <TransitionSection
+              items={node.next}
+              header="Transitions"
+              subflows={this.props.subflows}
+              onItemsUpdated={items => this.props.updateNode({ next: items })}
+              copyItem={item => this.props.copyFlowNodeElement({ transition: item })}
+              pasteItem={() => this.props.pasteFlowNodeElement('next')}
+              canPaste={Boolean(this.props.buffer.transition)}
+            />
+          </Tab>
+        </Tabs>
       </div>
     )
   }
