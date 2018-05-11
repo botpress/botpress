@@ -1,6 +1,6 @@
 {
   "name": "@botpress/channel-microsoft",
-  "version": "10.6.2",
+  "version": "10.7.0",
   "description": "Botpress connector for the Microsoft Bot Framework",
   "main": "bin/node.bundle.js",
   "botpress": {
