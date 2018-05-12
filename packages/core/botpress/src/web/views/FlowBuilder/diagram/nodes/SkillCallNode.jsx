@@ -37,7 +37,7 @@ export class SkillCallNodeWidget extends React.Component {
           <div className={classnames(style['section-onReceive'], style.section)}>
             {node.onReceive &&
               node.onReceive.map((item, i) => {
-                return <ActionItem key={i} className={style.item} text={item} />
+                return <ActionItem key={`${i}.${item}`} className={style.item} text={item} />
               })}
           </div>
           <div className={classnames(style['section-next'], style.section)}>
@@ -45,7 +45,7 @@ export class SkillCallNodeWidget extends React.Component {
               node.next.map((item, i) => {
                 const outputPortName = `out${i}`
                 return (
-                  <div key={i} className={classnames(style.item)}>
+                  <div key={`${i}.${item}`} className={classnames(style.item)}>
                     <ConditionItem condition={item} position={i} />
                     <StandardPortWidget name={outputPortName} node={node} />
                   </div>

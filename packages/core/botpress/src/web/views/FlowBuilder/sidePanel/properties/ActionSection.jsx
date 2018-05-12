@@ -115,7 +115,7 @@ export default class ActionSection extends Component {
           <Panel.Body>
             {this.renderWait()}
             {items.map((item, i) => (
-              <ActionItem className={style.item} text={item} key={i}>
+              <ActionItem className={style.item} text={item} key={`${i}.${item}`}>
                 <div className={style.actions}>
                   <a onClick={() => this.onEdit(i)}>Edit</a>
                   <a onClick={() => this.onRemoveAction(i)}>Remove</a>
