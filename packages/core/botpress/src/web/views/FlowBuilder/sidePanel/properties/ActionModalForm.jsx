@@ -1,9 +1,10 @@
 import React, { Component } from 'react'
 import { Modal, Button, Radio, OverlayTrigger, Tooltip, Panel, Well } from 'react-bootstrap'
-import SelectActionDropdown from './SelectActionDropdown'
+import Markdown from 'react-markdown'
 import axios from 'axios'
 import _ from 'lodash'
 
+import SelectActionDropdown from './SelectActionDropdown'
 import ParametersTable from './ParametersTable'
 import ContentPickerWidget from '~/components/Content/Select/Widget'
 
@@ -16,6 +17,7 @@ export default class ActionModalForm extends Component {
     this.state = {
       actionType: 'message',
       avActions: [],
+      actionMetadata: {},
       functionInputValue: '',
       messageValue: '',
       functionParams: {}
@@ -107,38 +109,46 @@ export default class ActionModalForm extends Component {
 
     const args = JSON.stringify(this.state.functionParams, null, 4)
 
-    const callPreview = `${this.state.functionInputValue}(state, event, ${args})`
-
     return (
       <div>
-        <h5>Function to invoke {help}</h5>
+        <h5>Action to run {help}</h5>
         <div className={style.section}>
           <SelectActionDropdown
             value={this.state.functionInputValue}
             options={avActions}
             onChange={val => {
-              this.setState({ functionInputValue: val && val.value })
               const fn = avActions.find(fn => fn.name === (val && val.value))
-              const defaultParams = _.get(fn, 'metadata.params')
-              const confirmationText = 'Should your params be overwritten via default ones?'
-              if (Object.keys(this.state.functionParams).length > 0 && defaultParams && confirm(confirmationText)) {
-                this.setState({ functionParams: _.fromPairs(defaultParams.map(param => [param.name, ''])) })
+              const paramsDefinition = _.get(fn, 'metadata.params') || []
+              this.setState({
+                functionInputValue: val && val.value,
+                paramsDef: paramsDefinition,
+                actionMetadata: fn.metadata || {}
+              })
+
+              // TODO Detect if default or custom arguments
+              if (
+                Object.keys(this.state.functionParams).length > 0 &&
+                !confirm('Do you want to overwrite existing parameters?')
+              ) {
+                return
               }
+
+              this.setState({
+                functionParams: _.fromPairs(paramsDefinition.map(param => [param.name, param.default || '']))
+              })
             }}
           />
+          {this.state.actionMetadata.title && <h4>{this.state.actionMetadata.title}</h4>}
+          {this.state.actionMetadata.description && <Markdown source={this.state.actionMetadata.description} />}
         </div>
-        <h5>Function parameters {paramsHelp}</h5>
+        <h5>Action parameters {paramsHelp}</h5>
         <div className={style.section}>
           <ParametersTable
             ref={el => (this.parametersTable = el)}
             onChange={onParamsChange}
             value={this.state.functionParams}
+            definitions={this.state.paramsDef}
           />
-        </div>
-
-        <h5>Preview</h5>
-        <div className={style.section}>
-          <pre>{callPreview}</pre>
         </div>
       </div>
     )

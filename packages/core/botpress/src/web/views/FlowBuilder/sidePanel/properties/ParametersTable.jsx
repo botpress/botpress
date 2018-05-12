@@ -1,4 +1,6 @@
 import React, { Component } from 'react'
+import { OverlayTrigger, Tooltip } from 'react-bootstrap'
+
 import { Table } from 'react-bootstrap'
 import classnames from 'classnames'
 import _ from 'lodash'
@@ -90,15 +92,40 @@ export default class ParametersTable extends Component {
       }
 
       const isKeyValid = args[id].key.length > 0 || !args[id].value.length
-      const keyClass = classnames({ [style.invalid]: !isKeyValid })
+
+      const paramName = args[id].key
+      const paramValue = args[id].value
+
+      const definition = _.find(this.props.definitions || [], { name: paramName }) || {
+        required: false,
+        description: 'No description',
+        default: '',
+        type: 'Unknown',
+        fake: true
+      }
+
+      const tooltip = (
+        <Tooltip id={`param-${paramName}`}>
+          <strong>({definition.type}) </strong> {definition.description}
+        </Tooltip>
+      )
+
+      const help = definition.fake ? null : (
+        <OverlayTrigger placement="bottom" overlay={tooltip}>
+          <i className={'material-icons ' + style.keyTip}>help_outline</i>
+        </OverlayTrigger>
+      )
+
+      const keyClass = classnames({ [style.invalid]: !isKeyValid, [style.mandatory]: definition.required })
 
       return (
         <tr key={id}>
           <td className={keyClass}>
-            <input type="text" value={args[id].key} onChange={editKey} />
+            {help}
+            <input type="text" disabled={!!definition.required} value={paramName} onChange={editKey} />
           </td>
           <td>
-            <input type="text" value={args[id].value} onChange={editValue} />
+            <input type="text" placeholder={definition.default} value={paramValue} onChange={editValue} />
           </td>
         </tr>
       )

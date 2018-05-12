@@ -5,6 +5,7 @@
 .table {
   td {
     padding: 0;
+    position: relative;
   }
 
   input {
@@ -12,4 +13,18 @@
   }
 
   margin-bottom: 0;
+}
+
+.keyTip {
+  position: absolute;
+  right: 15px;
+  font-size: 20px;
+  top: 11px;
+  color: green;
+}
+
+.mandatory {
+  input {
+    font-weight: bold;
+  }
 }
