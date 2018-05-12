@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Modal, Button, Radio, OverlayTrigger, Tooltip, Panel, Well } from 'react-bootstrap'
-import Select from 'react-select'
+import SelectActionDropdown from './SelectActionDropdown'
 import axios from 'axios'
 import _ from 'lodash'
 
@@ -15,7 +15,7 @@ export default class ActionModalForm extends Component {
 
     this.state = {
       actionType: 'message',
-      availableFunctions: [],
+      avActions: [],
       functionInputValue: '',
       messageValue: '',
       functionParams: {}
@@ -50,7 +50,7 @@ export default class ActionModalForm extends Component {
 
   fetchAvailableFunctions() {
     return axios.get('/api/flows/available_actions').then(({ data }) => {
-      this.setState({ availableFunctions: data })
+      this.setState({ avActions: data })
     })
   }
 
@@ -66,27 +66,26 @@ export default class ActionModalForm extends Component {
     })
   }
 
-  renderSectionCode() {
-    const { availableFunctions } = this.state
+  renderSectionAction() {
+    const { avActions } = this.state
 
     const tooltip = (
-      <Tooltip id="notSeeingFunction">
-        Functions are registered in the code on the server-side. Please make sure that the file containing the functions
-        has been properly registered using `bp.registerActions()`. This file should return an object containing
-        functions.
+      <Tooltip id="notSeeingAction">
+        Actions are registered on the server-side. Read about how to register new actions by searching for
+        `bp.registerActions()`.
       </Tooltip>
     )
 
     const tooltip2 = (
       <Tooltip id="whatIsThis">
-        You can provide function calls extra parameters if they have been coded to support them. You can generally
-        ignore this for most functions. Please see the documentation to know more.
+        You can change how the Action is executed by providing it parameters. Some parameters are required, some are
+        optional.
       </Tooltip>
     )
 
     const help = (
       <OverlayTrigger placement="bottom" overlay={tooltip}>
-        <span className={style.tip}>Missing your function?</span>
+        <span className={style.tip}>Can't see your action?</span>
       </OverlayTrigger>
     )
 
@@ -114,13 +113,12 @@ export default class ActionModalForm extends Component {
       <div>
         <h5>Function to invoke {help}</h5>
         <div className={style.section}>
-          <Select
-            name="functionToInvoke"
+          <SelectActionDropdown
             value={this.state.functionInputValue}
-            options={availableFunctions.map(x => ({ label: x.name, value: x.name }))}
+            options={avActions}
             onChange={val => {
               this.setState({ functionInputValue: val && val.value })
-              const fn = availableFunctions.find(fn => fn.name === (val && val.value))
+              const fn = avActions.find(fn => fn.name === (val && val.value))
               const defaultParams = _.get(fn, 'metadata.params')
               const confirmationText = 'Should your params be overwritten via default ones?'
               if (Object.keys(this.state.functionParams).length > 0 && defaultParams && confirm(confirmationText)) {
@@ -208,7 +206,7 @@ export default class ActionModalForm extends Component {
             </Radio>
           </div>
 
-          {this.state.actionType === 'message' ? this.renderSectionMessage() : this.renderSectionCode()}
+          {this.state.actionType === 'message' ? this.renderSectionMessage() : this.renderSectionAction()}
         </Modal.Body>
         <Modal.Footer>
           <Button onClick={onClose}>Cancel</Button>
