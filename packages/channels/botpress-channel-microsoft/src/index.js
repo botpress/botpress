@@ -98,7 +98,7 @@ module.exports = {
       }
 
       await bp.db.saveUser(user)
-      await bp.db.set(userAddressKey(user.id), _.get(session, 'message.address'))
+      await bp.kvs.set(userAddressKey(user.id), _.get(session, 'message.address'))
 
       bp.middlewares.sendIncoming({
         type: session.message.type,
