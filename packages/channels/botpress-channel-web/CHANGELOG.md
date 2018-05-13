@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.7.0"></a>
+# [10.7.0](https://github.com/botpress/modules/compare/v10.6.2...v10.7.0) (2018-05-11)
+
+
+### Bug Fixes
+
+* **web:** set max height to carousel image on web ([36f9e98](https://github.com/botpress/modules/commit/36f9e98))
+
+
+
+
 <a name="10.6.2"></a>
 ## [10.6.2](https://github.com/botpress/modules/compare/v10.6.1...v10.6.2) (2018-05-04)
 

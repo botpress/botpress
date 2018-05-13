@@ -1,0 +1,15 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+<a name="10.7.0"></a>
+# [10.7.0](https://github.com/botpress/botpress/compare/v10.6.2...v10.7.0) (2018-05-11)
+
+
+### Features
+
+* **builtin:** new users actions ([b068be3](https://github.com/botpress/botpress/commit/b068be3))
+* **core:** built-in content renderers for the built-in content elements ([d1bf4f7](https://github.com/botpress/botpress/commit/d1bf4f7))
+* **core:** built-in content types ([613ac02](https://github.com/botpress/botpress/commit/613ac02))
+* **core:** partial progress toward built-in actions ([2eddbec](https://github.com/botpress/botpress/commit/2eddbec))

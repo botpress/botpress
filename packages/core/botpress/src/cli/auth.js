@@ -163,7 +163,7 @@ const doLogin = async botUrl => {
 
   if (!data.type === 'none') {
     return { token: AUTH_DISABLED, kind: 'no-auth' }
-  } else if (!data.type === 'cloud') {
+  } else if (data.type === 'cloud') {
     return doCloudLogin(botUrl, data)
   } else if (data.type === 'root') {
     return doRootLogin(botUrl)

@@ -1,6 +1,6 @@
 {
   "name": "@botpress/channel-slack",
-  "version": "10.6.2",
+  "version": "10.7.0",
   "description": "Official Slack connector for botpress",
   "main": "bin/node.bundle.js",
   "homepage": "https://github.com/botpress/modules",
@@ -15,10 +15,7 @@
     "botpress-update": "^1.x",
     "module-downgrade": "~0.0.x"
   },
-  "keywords": [
-    "slack",
-    "botpress"
-  ],
+  "keywords": ["slack", "botpress"],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "node webpack.js --watch",

@@ -1,13 +1,13 @@
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
 import _ from 'lodash'
 import classnames from 'classnames'
 
-import { Panel, Button } from 'react-bootstrap'
+import { Button } from 'react-bootstrap'
 
 import ActionModalForm from './ActionModalForm'
-import ActionItem from '../../common/action'
+import ActionItem from '../common/action'
 
-const style = require('../style.scss')
+const style = require('./style.scss')
 
 export default class ActionSection extends Component {
   constructor(props) {
@@ -109,39 +109,36 @@ export default class ActionSection extends Component {
     const handleAddAction = () => this.setState({ showActionModalForm: true })
 
     return (
-      <div>
-        <Panel collapsible="true" defaultExpanded={true}>
-          <Panel.Heading>{header}</Panel.Heading>
-          <Panel.Body>
-            {this.renderWait()}
-            {items.map((item, i) => (
-              <ActionItem className={style.item} text={item} key={i}>
-                <div className={style.actions}>
-                  <a onClick={() => this.onEdit(i)}>Edit</a>
-                  <a onClick={() => this.onRemoveAction(i)}>Remove</a>
-                  <a onClick={() => this.onCopyAction(i)}>Copy</a>
-                  {renderMoveUp(i)}
-                  {renderMoveDown(i)}
-                </div>
-              </ActionItem>
-            ))}
-            <div className={style.actions}>
-              <Button onClick={handleAddAction} bsSize="xsmall">
-                <i className={classnames(['material-icons', style.actionIcons])}>add</i>
-              </Button>
-              <Button onClick={this.props.pasteItem} bsSize="xsmall" disabled={!this.props.canPaste}>
-                <i className={classnames(['material-icons', style.actionIcons])}>content_paste</i>
-              </Button>
-            </div>
-          </Panel.Body>
-        </Panel>
+      <Fragment>
+        <div>
+          {this.renderWait()}
+          {items.map((item, i) => (
+            <ActionItem className={style.item} text={item} key={`${i}.${item}`}>
+              <div className={style.actions}>
+                <a onClick={() => this.onEdit(i)}>Edit</a>
+                <a onClick={() => this.onRemoveAction(i)}>Remove</a>
+                <a onClick={() => this.onCopyAction(i)}>Copy</a>
+                {renderMoveUp(i)}
+                {renderMoveDown(i)}
+              </div>
+            </ActionItem>
+          ))}
+          <div className={style.actions}>
+            <Button onClick={handleAddAction} bsSize="xsmall">
+              <i className={classnames('material-icons', style.actionIcons)}>add</i>
+            </Button>
+            <Button onClick={this.props.pasteItem} bsSize="xsmall" disabled={!this.props.canPaste}>
+              <i className={classnames('material-icons', style.actionIcons)}>content_paste</i>
+            </Button>
+          </div>
+        </div>
         <ActionModalForm
           show={this.state.showActionModalForm}
           onClose={() => this.setState({ showActionModalForm: false, itemToEditIndex: null })}
           onSubmit={this.onSubmitAction}
           item={this.itemToOptions(items && items[this.state.itemToEditIndex])}
         />
-      </div>
+      </Fragment>
     )
   }
 }

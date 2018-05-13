@@ -3,7 +3,39 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-  <a name="10.6.2"></a>
+      <a name="10.7.0"></a>
+# [10.7.0](https://github.com/botpress/botpress/compare/v10.6.2...v10.7.0) (2018-05-11)
+
+
+### Bug Fixes
+
+* version extraction ([74525c1](https://github.com/botpress/botpress/commit/74525c1))
+* **cli:** fixes botpress cloud ghost-sync ([0387467](https://github.com/botpress/botpress/commit/0387467))
+* **core:** content rendering of arrays ([259c027](https://github.com/botpress/botpress/commit/259c027))
+* added reference building to CI ([c480316](https://github.com/botpress/botpress/commit/c480316))
+* invalid jsdoc ([06f613b](https://github.com/botpress/botpress/commit/06f613b))
+* **core:** getTag with details when there is no prior value ([d29fda9](https://github.com/botpress/botpress/commit/d29fda9))
+* **docs:** fixed TOC nav height ([5301eb0](https://github.com/botpress/botpress/commit/5301eb0))
+* **docs:** removed private APIs ([a91afbf](https://github.com/botpress/botpress/commit/a91afbf))
+* **media:** fixed static media link ([5c65596](https://github.com/botpress/botpress/commit/5c65596))
+* **web:** set max height to carousel image on web ([36f9e98](https://github.com/botpress/botpress/commit/36f9e98))
+* **web:** variable names containing special chars (like $, @) ([e9c7ff2](https://github.com/botpress/botpress/commit/e9c7ff2))
+
+
+### Features
+
+* **builtin:** new users actions ([b068be3](https://github.com/botpress/botpress/commit/b068be3))
+* **core:** added dialog engine hooks APIs ([5e214ff](https://github.com/botpress/botpress/commit/5e214ff))
+* **core:** built-in content renderers for the built-in content elements ([d1bf4f7](https://github.com/botpress/botpress/commit/d1bf4f7))
+* **core:** built-in content types ([613ac02](https://github.com/botpress/botpress/commit/613ac02))
+* **core:** exposed recomputeCategoriesMetadata in contentManager ([30d7fae](https://github.com/botpress/botpress/commit/30d7fae))
+* **core:** getTag() can now return more details like the tagging time ([43d725c](https://github.com/botpress/botpress/commit/43d725c))
+* **core:** partial progress toward built-in actions ([2eddbec](https://github.com/botpress/botpress/commit/2eddbec))
+
+
+
+
+      <a name="10.6.2"></a>
 ## [10.6.2](https://github.com/botpress/botpress/compare/v10.6.1...v10.6.2) (2018-05-04)
 
 
@@ -14,7 +46,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-  <a name="10.6.1"></a>
+<a name="10.6.1"></a>
 ## [10.6.1](https://github.com/botpress/botpress/compare/v10.6.0...v10.6.1) (2018-05-04)
 
 

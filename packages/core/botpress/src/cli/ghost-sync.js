@@ -61,7 +61,11 @@ module.exports = async botUrl => {
 
   let config
   try {
-    const { data } = await axios.get(`${botUrl}/api/ghost_content/export`)
+    const { data } = await axios.get(`${botUrl}/api/ghost_content/export`, {
+      headers: {
+        authorization: `Bearer ${token}`
+      }
+    })
     config = data
   } catch (err) {
     print.error(err.message || 'Unknown error', 'while fetching ghost content.')
