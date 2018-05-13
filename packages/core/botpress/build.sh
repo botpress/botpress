@@ -6,4 +6,4 @@ echo "--> Bundling app"
 node webpack.js --compile
 
 echo "--> Copying templates"
-cp -a src/cli/templates lib/cli/templates
+cp -a ../../../templates lib/cli/

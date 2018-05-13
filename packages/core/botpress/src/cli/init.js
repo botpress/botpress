@@ -2,96 +2,142 @@ import { spawn } from 'child_process'
 import prompt from 'prompt'
 import chalk from 'chalk'
 import path from 'path'
+import mkdirp from 'mkdirp'
 import _ from 'lodash'
 import fs from 'fs'
-import util from '../util'
+import glob from 'glob'
+import Promise from 'bluebird'
+
 import stats from '../stats'
 
-const introductionText =
-  '\nHey there, thanks for using botpress!' +
-  "\nWe'll walk you through the creation of your new bot." +
-  '\nFor more information or help, please visit http://github.com/botpress/botpress' +
-  '\n---------------'
+const introductionText = chalk`
+{dim ---------------}
+Hey there 👋, thanks for using {bold Botpress}!
+We'll walk you through the creation of your new bot.
+For more information or help, please visit {underline https://botpress.io/docs}
+{dim ---------------}`
 
-const nextStepText =
-  '\nYour bot was initialized succesfully!' +
-  `\nYou now need to install dependencies by running ${chalk.bold('`npm install`')}` +
-  ` or ${chalk.bold('`yarn install`')}` +
-  `\nYou'll then be able to run your bot by executing ${chalk.bold('`bp start`')} in your terminal`
+const nextStepText = chalk`
+{green 🎉  Your bot was initialized succesfully!}
+
+{yellow Next steps:}
+  {yellow 1)} Install bot dependencies by running {bold npm install} (or {bold yarn install})
+  {yellow 2)} Start the bot by running {bold npm start} (or {bold yarn start})
+
+{bold Enjoy Botpress!}
+`
+
+const invalidDirectoryError = chalk`
+{red Fatal Error} You need to run this command in an empty directory.
+`
+
+const dirExistsError = dir => chalk`
+{red Fatal Error} Directory {bold ${dir}} already exists.
+`
+
+const templateNotFoundError = template => chalk`
+{red Fatal Error} Template {bold ${template}} not found.
+`
+
+const showTemplateInfo = info => chalk`
+{dim =============================}
+Template: {bold ${info.name}}
+Author: {dim ${info.author}}
+Description: {dim ${info.description}}
+Channels: {yellow ${info.channels.join(', ')}}
+{dim =============================}
+`
+
+const copyingFile = name => chalk`{dim -> Copying ${name}}`
 
 const assertDoesntExist = file => {
   if (fs.existsSync(file)) {
-    util.print(
-      'error',
-      'package.json or botfile.js are already in repository, ' + 'remove them before running this command again.'
-    )
+    console.log(invalidDirectoryError)
     process.exit(1)
   }
 }
 
-const getTemplate = template => {
-  const templatePath = path.join(__dirname, 'cli/templates/init', template)
-  const templateContent = fs.readFileSync(templatePath)
-  return _.template(templateContent)
-}
+// Show template description
+// Say more templates coming up
+// Ask questions
+// Copy files, replacing variables
+// Show "success, now run `yarn install`"
 
-const generateTemplate = (filename, variables = {}) => {
-  const template = getTemplate(filename)
-  const compiled = template(variables)
-  const destination = path.join(filename.replace(/_\._/, '.'))
-  fs.writeFileSync(destination, compiled)
-}
+/**
+ * Loads a template a returns a map of files and content
+ * @param  {[type]} path The name of the template to load
+ * @return {object} A map of files `{ path: content }``
+ * @private
+ */
+const loadTemplate = async name => {
+  const templatePath = path.join(__dirname, 'cli/templates/' + name)
+  const infoFile = path.join(templatePath, 'info.json')
 
-const generate = result => {
-  generateTemplate('package.json', result)
-  generateTemplate('LICENSE')
-  generateTemplate('botfile.js')
-  generateTemplate('index.js')
-  generateTemplate('_._gitignore')
-  generateTemplate('_._welcome')
+  if (!fs.existsSync) {
+    console.log(templateNotFoundError(name))
+    process.exit(1)
+  }
 
-  fs.mkdirSync('data')
-  fs.writeFileSync('data/bot.log', '')
-  fs.writeFileSync('data/notification.json', '[]')
+  const files = await Promise.fromCallback(cb => glob('**/*.*', { cwd: templatePath, dot: true }, cb))
 
-  fs.mkdirSync('flows')
-  fs.writeFileSync(
-    'flows/main.flow.json',
-    JSON.stringify({
-      version: '0.1',
-      catchAll: {},
-      startNode: 'entry',
-      nodes: [{ id: '0f6f7b5889', name: 'entry', onEnter: [], next: [] }]
-    })
+  return _.reduce(
+    files,
+    (obj, file) => {
+      const filePath = path.join(templatePath, file)
+      obj[file] = fs.readFileSync(filePath).toString()
+      return obj
+    },
+    {}
   )
-  fs.writeFileSync(
-    'flows/main.ui.json',
-    JSON.stringify({ nodes: [{ id: '0f6f7b5889', position: { x: 100, y: 100 } }], links: [] })
-  )
-
-  fs.mkdirSync('modules_config')
-
-  util.print(nextStepText)
 }
 
-module.exports = program => {
+const generate = async result => {
+  const files = await loadTemplate('init-default')
+
+  const info = JSON.parse(files['info.json'])
+  delete files['info.json']
+
+  console.log(showTemplateInfo(info))
+
+  for (const [name, content] of Object.entries(files)) {
+    console.log(copyingFile(name))
+    const compiled = _.template(content, { interpolate: /<%=([\s\S]+?)%>/g })
+    const directory = path.dirname(name)
+    if (directory.length) {
+      mkdirp.sync(directory)
+    }
+
+    fs.writeFileSync(name, compiled(result))
+  }
+
+  console.log(nextStepText)
+}
+
+module.exports = async program => {
+  console.log(introductionText)
+
+  // People can optionally provide the directory of the bot
+  // Like "bp init my-bot"
   const dirName = process.argv[3]
   if (dirName) {
     if (!fs.existsSync(dirName)) {
       fs.mkdirSync(dirName)
       process.chdir(dirName)
     } else {
-      util.print('error', dirName + ' directory already exists')
-      return
+      console.log(dirExistsError(dirName))
+      return process.exit(1)
     }
   }
-  stats({}).track('cli', 'bot', 'init')
 
-  util.print(introductionText)
+  // Loaded by Webpack at bundle time
+  const botpressVersion = require('../../package.json').version
+
+  stats({}).track('cli', 'bot', 'init')
 
   _.each(['package.json', 'botfile.js', 'index.js'], assertDoesntExist)
 
-  const currentDirectoryName = path.basename(path.resolve('./'))
+  // The name of the current directory
+  const defaultBotName = path.basename(path.resolve('./'))
 
   const schema = {
     properties: {
@@ -100,7 +146,12 @@ module.exports = program => {
         pattern: /^[a-z0-9][a-z0-9-_\.]+$/,
         message: 'name must be only lowercase letters, ' + 'digits, dashes, underscores and dots.',
         required: true,
-        default: currentDirectoryName
+        default: defaultBotName
+      },
+      version: {
+        required: true,
+        description: chalk.white('botpress version:'),
+        default: botpressVersion
       },
       description: {
         required: false,
@@ -109,21 +160,16 @@ module.exports = program => {
       author: {
         required: false,
         description: chalk.white('author:')
-      },
-      version: {
-        required: false,
-        description: chalk.white('version:'),
-        default: '0.0.1'
       }
     }
   }
 
   if (program.yes) {
     generate({
-      name: currentDirectoryName,
+      name: defaultBotName,
+      version: botpressVersion,
       description: '',
-      author: '',
-      version: '0.0.1'
+      author: ''
     })
   } else {
     prompt.message = ''

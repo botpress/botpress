@@ -1,0 +1,6 @@
+{
+  "name": "Basic (default)",
+  "description": "A basic bot for your website",
+  "channels": ["web"],
+  "author": "Botpress, Inc."
+}

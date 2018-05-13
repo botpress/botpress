@@ -1,73 +1,58 @@
-const yn = require('yn')
 const isProd = process.env.NODE_ENV === 'production'
 const port = process.env.BOTPRESS_PORT || process.env.PORT || 3000
-const botUrl = process.env.BOTPRESS_URL || 'http://localhost:' + port
+const botUrl = process.env.BOTPRESS_URL || `http://localhost:${port}`
 
-/**
- * @class Botfile
- */
-const botfile = {
-  /**
-   * The bot's base URL where the bot is reachable from the internet
-   * @memberof Botfile#
+module.exports = {
+  /*
+    The bot's base URL where the bot is reachable from the internet
    */
   botUrl: botUrl,
 
-  /**
+  /*
     The botpress environment, useful to disambiguate multiple 
     instances of the same bot running in different environments.
     e.g. "dev", "staging", "production"
-    @memberof Botfile#
    */
   env: process.env.BOTPRESS_ENV || 'dev',
 
-  /**
+  /*
     The port on which the API and UI will be available
-    @memberof Botfile#
    */
   port: port,
 
-  /**
+  /*
     Where the content is stored
     You can access this property from `bp.dataLocation`
-    @memberof Botfile#
   */
-  dataDir: process.env.BOTPRESS_DATA_DIR || './data',
+  dataDir: process.env.BOTPRESS_DATA_DIR || './_data',
 
-  /**
+  /*
     Some modules might generate static configuration files
-    @memberof Botfile#
    */
   modulesConfigDir: process.env.BOTPRESS_CONFIG_DIR || './config',
 
-  /**
+  /*
     Path to Content Types
-    @memberof Botfile#
    */
-  contentDir: './content',
+  contentDir: './src/content',
 
-  /**
+  /*
     Path to Flows
-    @memberof Botfile#
    */
-  flowsDir: './flows',
+  flowsDir: './src/flows',
 
-  /**
+  /*
     Path to Content Types Data
-    @memberof Botfile#
    */
-  contentDataDir: './content_data',
+  contentDataDir: './src/content_data',
 
-  /**
+  /*
     Path to media / file uploads
-    @memberof Botfile#
    */
   mediaDir: './media',
 
-  /**
+  /*
     By default logs are enabled and available in `dataDir`
-    @memberof Botfile#
-    @type {Object}
    */
   disableFileLogs: false,
   log: {
@@ -75,68 +60,57 @@ const botfile = {
     maxSize: 1e6 // 1mb
   },
 
-  /**
+  /*
     The web server API config
-    @memberof Botfile#
    */
   api: {
     bodyMaxSize: '1mb'
   },
 
-  /**
-    Dialog Manager (DM) options
-    @memberof Botfile#
-    @type {Object}
+  /*
+    Dialog Manager (DM)
   */
   dialogs: {
-    timeoutInterval: '15m',
+    timeoutInterval: '2m',
     janitorInterval: '10s'
   },
 
-  /**
+  /*
     Botpress collects some anonymous usage statistics to help us put our efforts at the right place
-    @memberof Botfile#
    */
   optOutStats: false,
 
-  /**
+  /*
     Where the notifications are stored.
-    @memberof Botfile#
-    @type {Object}
+    TODO: These should be stored in the database
    */
   notification: {
     file: 'notifications.json',
     maxLength: 50
   },
 
-  /**
+  /*
     By default ghost content management is only activated in production
-    @memberof Botfile#
-    @type {Object}
    */
   ghostContent: {
     enabled: process.env.NODE_ENV === 'production' || process.env.BOTPRESS_GHOST_ENABLED
   },
 
-  /**
+  /*
     Access control of admin panel
-    @memberof Botfile#
-    @type {Object}
   */
   login: {
     enabled: process.env.NODE_ENV === 'production',
-    useCloud: yn(process.env.BOTPRESS_CLOUD_ENABLED || 'true'),
+    useCloud: process.env.BOTPRESS_CLOUD_ENABLED,
     tokenExpiry: '6 hours',
     password: process.env.BOTPRESS_PASSWORD || 'password',
     maxAttempts: 3,
     resetAfter: 10 * 60 * 1000 // 10 minutes
   },
 
-  /**
+  /*
     Postgres configuration
     If Postgres is not enabled, Botpress uses SQLite 3 (file-based database)
-    @memberof Botfile#
-    @type {Object}
   */
   postgres: {
     enabled: process.env.DATABASE === 'postgres',
@@ -163,5 +137,3 @@ const botfile = {
     // licenseKey: process.env.BOTPRESS_LICENSE_KEY || 'your_key_here'
   }
 }
-
-module.exports = botfile

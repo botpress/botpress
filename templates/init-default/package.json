@@ -1,14 +1,19 @@
 {
   "name": "<%= name %>",
-  "version": "<%= version %>",
+  "version": "1.0.0",
   "description": "<%= description %>",
-  "main": "index.js",
+  "main": "src/index.js",
   "engines": {
     "node": ">= 6.1 <= 8.9"
   },
   "dependencies": {
-    "botpress": "^10.0.6",
-    "@botpress/channel-web": "^10.0.10",
+    "botpress": "<%= version %>",
+    "@botpress/audience": "<%= version %>",
+    "@botpress/builtins": "<%= version %>",
+    "@botpress/nlu": "<%= version %>",
+    "@botpress/skill-choice": "<%= version %>",
+    "@botpress/hitl": "<%= version %>",
+    "@botpress/channel-web": "<%= version %>",
     "lodash": "^4.17.4",
     "yn": "^2.0.0"
   },
