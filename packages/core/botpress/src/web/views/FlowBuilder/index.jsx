@@ -12,6 +12,7 @@ import Diagram from './containers/Diagram'
 import SidePanel from './containers/SidePanel'
 import Topbar from './containers/Topbar'
 import SkillsBuilder from './containers/SkillsBuilder'
+import NodeProps from './containers/NodeProps'
 
 import { switchFlow } from '~/actions'
 
@@ -70,11 +71,15 @@ class FlowBuilder extends Component {
             </div>
           </SplitPane>
           <SkillsBuilder />
+          <NodeProps show={this.props.showFlowNodeProps} />
         </div>
       </ContentWrapper>
     )
   }
 }
 
-const mapStateToProps = state => ({ currentFlow: state.flows.currentFlow })
+const mapStateToProps = state => ({
+  currentFlow: state.flows.currentFlow,
+  showFlowNodeProps: state.flows.showFlowNodeProps
+})
 export default connect(mapStateToProps, { switchFlow })(withRouter(FlowBuilder))

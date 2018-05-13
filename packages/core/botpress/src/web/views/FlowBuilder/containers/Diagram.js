@@ -4,6 +4,7 @@ import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
 import {
   fetchFlows,
   switchFlowNode,
+  openFlowNodeProps,
   setDiagramAction,
   createFlowNode,
   saveAllFlows,
@@ -28,6 +29,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = {
   fetchFlows,
   switchFlowNode,
+  openFlowNodeProps,
   setDiagramAction,
   createFlowNode,
   saveAllFlows,
