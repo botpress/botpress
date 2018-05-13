@@ -1,9 +1,10 @@
 import React, { Component } from 'react'
 import { Modal, Button, Radio, OverlayTrigger, Tooltip, Panel, Well } from 'react-bootstrap'
-import Select from 'react-select'
+import Markdown from 'react-markdown'
 import axios from 'axios'
 import _ from 'lodash'
 
+import SelectActionDropdown from './SelectActionDropdown'
 import ParametersTable from './ParametersTable'
 import ContentPickerWidget from '~/components/Content/Select/Widget'
 
@@ -12,7 +13,8 @@ const style = require('./style.scss')
 export default class ActionModalForm extends Component {
   state = {
     actionType: 'message',
-    availableFunctions: [],
+    avActions: [],
+    actionMetadata: {},
     functionInputValue: '',
     messageValue: '',
     functionParams: {}
@@ -45,8 +47,8 @@ export default class ActionModalForm extends Component {
   }
 
   fetchAvailableFunctions() {
-    return axios.get('/api/flows/available_functions').then(({ data }) => {
-      this.setState({ availableFunctions: data })
+    return axios.get('/api/flows/available_actions').then(({ data }) => {
+      this.setState({ avActions: data })
     })
   }
 
@@ -62,27 +64,26 @@ export default class ActionModalForm extends Component {
     })
   }
 
-  renderSectionCode() {
-    const { availableFunctions } = this.state
+  renderSectionAction() {
+    const { avActions } = this.state
 
     const tooltip = (
-      <Tooltip id="notSeeingFunction">
-        Functions are registered in the code on the server-side. Please make sure that the file containing the functions
-        has been properly registered using `bp.registerFunctions('./path/to/file.js')`. This file should return an
-        object containing functions.
+      <Tooltip id="notSeeingAction">
+        Actions are registered on the server-side. Read about how to register new actions by searching for
+        `bp.registerActions()`.
       </Tooltip>
     )
 
     const tooltip2 = (
       <Tooltip id="whatIsThis">
-        You can provide function calls extra parameters if they have been coded to support them. You can generally
-        ignore this for most functions. Please see the documentation to know more.
+        You can change how the Action is executed by providing it parameters. Some parameters are required, some are
+        optional.
       </Tooltip>
     )
 
     const help = (
       <OverlayTrigger placement="bottom" overlay={tooltip}>
-        <span className={style.tip}>Missing your function?</span>
+        <span className={style.tip}>Can't see your action?</span>
       </OverlayTrigger>
     )
 
@@ -104,39 +105,46 @@ export default class ActionModalForm extends Component {
 
     const args = JSON.stringify(this.state.functionParams, null, 4)
 
-    const callPreview = `${this.state.functionInputValue}(state, event, ${args})`
-
     return (
       <div>
-        <h5>Function to invoke {help}</h5>
+        <h5>Action to run {help}</h5>
         <div className={style.section}>
-          <Select
-            name="functionToInvoke"
+          <SelectActionDropdown
             value={this.state.functionInputValue}
-            options={availableFunctions.map(x => ({ label: x.name, value: x.name }))}
+            options={avActions}
             onChange={val => {
-              this.setState({ functionInputValue: val && val.value })
-              const fn = availableFunctions.find(fn => fn.name === (val && val.value))
-              const defaultParams = _.get(fn, 'metadata.params')
-              const confirmationText = 'Should your params be overwritten via default ones?'
-              if (Object.keys(this.state.functionParams).length > 0 && defaultParams && confirm(confirmationText)) {
-                this.setState({ functionParams: _.fromPairs(defaultParams.map(param => [param.name, ''])) })
+              const fn = avActions.find(fn => fn.name === (val && val.value))
+              const paramsDefinition = _.get(fn, 'metadata.params') || []
+              this.setState({
+                functionInputValue: val && val.value,
+                paramsDef: paramsDefinition,
+                actionMetadata: fn.metadata || {}
+              })
+
+              // TODO Detect if default or custom arguments
+              if (
+                Object.keys(this.state.functionParams).length > 0 &&
+                !confirm('Do you want to overwrite existing parameters?')
+              ) {
+                return
               }
+
+              this.setState({
+                functionParams: _.fromPairs(paramsDefinition.map(param => [param.name, param.default || '']))
+              })
             }}
           />
+          {this.state.actionMetadata.title && <h4>{this.state.actionMetadata.title}</h4>}
+          {this.state.actionMetadata.description && <Markdown source={this.state.actionMetadata.description} />}
         </div>
-        <h5>Function parameters {paramsHelp}</h5>
+        <h5>Action parameters {paramsHelp}</h5>
         <div className={style.section}>
           <ParametersTable
             ref={el => (this.parametersTable = el)}
             onChange={onParamsChange}
             value={this.state.functionParams}
+            definitions={this.state.paramsDef}
           />
-        </div>
-
-        <h5>Preview</h5>
-        <div className={style.section}>
-          <pre>{callPreview}</pre>
         </div>
       </div>
     )
@@ -204,7 +212,7 @@ export default class ActionModalForm extends Component {
             </Radio>
           </div>
 
-          {this.state.actionType === 'message' ? this.renderSectionMessage() : this.renderSectionCode()}
+          {this.state.actionType === 'message' ? this.renderSectionMessage() : this.renderSectionAction()}
         </Modal.Body>
         <Modal.Footer>
           <Button onClick={onClose}>Cancel</Button>

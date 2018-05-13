@@ -8,11 +8,7 @@
     "menuIcon": "feedback",
     "webBundle": "bin/web.bundle.js"
   },
-  "keywords": [
-    "hitl",
-    "human in the loop",
-    "botpress"
-  ],
+  "keywords": ["hitl", "human in the loop", "botpress"],
   "publishConfig": {
     "access": "public"
   },

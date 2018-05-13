@@ -3437,6 +3437,10 @@ he@1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/he/-/he-1.1.1.tgz#93410fd21b009735151f8868c2f271f3427e23fd"
 
+highlight-words-core@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/highlight-words-core/-/highlight-words-core-1.2.0.tgz#232bec301cbf2a4943d335dc748ce70e9024f3b1"
+
 history@^4.7.2:
   version "4.7.2"
   resolved "https://registry.yarnpkg.com/history/-/history-4.7.2.tgz#22b5c7f31633c5b8021c7f4a8a954ac139ee8d5b"
@@ -6047,6 +6051,13 @@ react-ga@^2.1.2:
   optionalDependencies:
     prop-types "^15.6.0"
     react "^15.6.2 || ^16.0"
+
+react-highlight-words@^0.11.0:
+  version "0.11.0"
+  resolved "https://registry.yarnpkg.com/react-highlight-words/-/react-highlight-words-0.11.0.tgz#4f3c2039a8fd275f3ab795e59946b0324d8e6bee"
+  dependencies:
+    highlight-words-core "^1.2.0"
+    prop-types "^15.5.8"
 
 react-input-autosize@^2.1.2:
   version "2.2.1"

@@ -23,6 +23,7 @@
     "access": "public"
   },
   "dependencies": {
+    "bluebird": "^3.5.1",
     "joi": "^13.3.0",
     "lodash": "^4.17.10",
     "mime": "^2.3.1",
