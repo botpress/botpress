@@ -94,9 +94,9 @@ function getTemplates() {
 }
 
 module.exports = bp => {
-  const [umm, registerConnector] = _.at(bp, ['umm', 'umm.registerConnector'])
+  const [renderers, registerConnector] = _.at(bp, ['renderers', 'renderers.registerConnector'])
 
-  umm &&
+  renderers &&
     registerConnector &&
     registerConnector({
       platform: 'telegram',
