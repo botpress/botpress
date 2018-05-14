@@ -32,4 +32,4 @@ jspm_packages
 .node_repl_history
 
 # *** Botpress specifics ***
-/_data
+/.data

@@ -24,7 +24,7 @@ module.exports = {
     Where the content is stored
     You can access this property from `bp.dataLocation`
   */
-  dataDir: process.env.BOTPRESS_DATA_DIR || './_data',
+  dataDir: process.env.BOTPRESS_DATA_DIR || './.data',
 
   /*
     Some modules might generate static configuration files
@@ -39,17 +39,17 @@ module.exports = {
   /*
     Path to Flows
    */
-  flowsDir: './src/flows',
+  flowsDir: './generated/flows',
 
   /*
     Path to Content Types Data
    */
-  contentDataDir: './src/content_data',
+  contentDataDir: './generated/content',
 
   /*
     Path to media / file uploads
    */
-  mediaDir: './media',
+  mediaDir: './generated/media',
 
   /*
     By default logs are enabled and available in `dataDir`
@@ -129,11 +129,5 @@ module.exports = {
       If this is set to false, you should call `bp.middlewares.load` manually
      */
     autoLoading: true
-  },
-
-  // **** Update this if you bought a Botpress license ****
-  license: {
-    // customerId: process.env.BOTPRESS_CUSTOMER_ID || 'your_customer_id_here',
-    // licenseKey: process.env.BOTPRESS_LICENSE_KEY || 'your_key_here'
   }
 }
