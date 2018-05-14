@@ -529,7 +529,6 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
   const readDataForFile = async fileName => {
     const json = await ghostManager.readFile(contentDataDir, fileName)
     if (!json) {
-      logger.warn(`Form content file ${fileName} not found`)
       return []
     }
 
