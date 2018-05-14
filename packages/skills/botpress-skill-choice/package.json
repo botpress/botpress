@@ -1,6 +1,6 @@
 {
   "name": "@botpress/skill-choice",
-  "version": "10.7.0",
+  "version": "10.8.0",
   "description": "Botpress Skill that allows users to pick an option",
   "main": "bin/node.bundle.js",
   "homepage": "https://github.com/botpress/modules",

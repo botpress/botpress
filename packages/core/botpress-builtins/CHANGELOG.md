@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.8.0"></a>
+# [10.8.0](https://github.com/botpress/botpress/compare/v10.7.0...v10.8.0) (2018-05-14)
+
+
+### Features
+
+* **builtin:** storage actions ([e09af56](https://github.com/botpress/botpress/commit/e09af56))
+* **core:** actions registration and metadata provider ([1b5f643](https://github.com/botpress/botpress/commit/1b5f643))
+
+
+
+
 <a name="10.7.0"></a>
 # [10.7.0](https://github.com/botpress/botpress/compare/v10.6.2...v10.7.0) (2018-05-11)
 

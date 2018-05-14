@@ -3,7 +3,34 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-      <a name="10.7.0"></a>
+  <a name="10.8.0"></a>
+# [10.8.0](https://github.com/botpress/botpress/compare/v10.7.0...v10.8.0) (2018-05-14)
+
+
+### Bug Fixes
+
+* fixed UMM deprecation notice ([ce4c229](https://github.com/botpress/botpress/commit/ce4c229))
+* make flow iter keys content-dependent ([2f17c26](https://github.com/botpress/botpress/commit/2f17c26))
+* **core:** content manager doesn't yell when missing elements file ([35ab5de](https://github.com/botpress/botpress/commit/35ab5de))
+* **nlu:** removed beta annotation ([cd920aa](https://github.com/botpress/botpress/commit/cd920aa))
+* **web:** using builtin config file ([888beb3](https://github.com/botpress/botpress/commit/888beb3))
+
+
+### Features
+
+* **actions:** actions dropdown shows action metadata ([21af29d](https://github.com/botpress/botpress/commit/21af29d))
+* **builtin:** storage actions ([e09af56](https://github.com/botpress/botpress/commit/e09af56))
+* **core:** actions GUI to show available metadata ([a328ea6](https://github.com/botpress/botpress/commit/a328ea6))
+* **core:** actions registration and metadata provider ([1b5f643](https://github.com/botpress/botpress/commit/1b5f643))
+* **core:** moved CLI template to separate folder at root ([6e6e205](https://github.com/botpress/botpress/commit/6e6e205))
+* **flows:** move node / flow props to a separate modal ([0dc327e](https://github.com/botpress/botpress/commit/0dc327e))
+* **flows:** tabbed interface ([1c1108f](https://github.com/botpress/botpress/commit/1c1108f))
+* **templates:** provided a "basic" bot template ([f872b77](https://github.com/botpress/botpress/commit/f872b77))
+
+
+
+
+  <a name="10.7.0"></a>
 # [10.7.0](https://github.com/botpress/botpress/compare/v10.6.2...v10.7.0) (2018-05-11)
 
 
@@ -35,7 +62,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-      <a name="10.6.2"></a>
+<a name="10.6.2"></a>
 ## [10.6.2](https://github.com/botpress/botpress/compare/v10.6.1...v10.6.2) (2018-05-04)
 
 
