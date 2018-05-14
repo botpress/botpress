@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 
 import reject from 'lodash/reject'
 
-import FlowsList from './flows/list'
+import FlowsList from './flows'
 
 const style = require('./style.scss')
 
