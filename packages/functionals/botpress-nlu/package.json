@@ -9,7 +9,7 @@
     "url": "https://github.com/botpress/modules"
   },
   "botpress": {
-    "menuText": "NLU (Beta)",
+    "menuText": "NLU",
     "menuIcon": "fiber_smart_record",
     "webBundle": "bin/web.bundle.js",
     "moduleView": {
