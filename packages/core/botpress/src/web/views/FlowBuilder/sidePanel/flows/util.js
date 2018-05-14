@@ -8,6 +8,9 @@ const addNode = (tree, path, name, data) => {
       folder = { name: folderName, type: 'folder', children: [] }
       tree.children.push(folder)
     }
+    if (data.active) {
+      folder.toggled = true
+    }
     tree = folder
   }
   tree.children.push({ name, type: 'file', ...data })

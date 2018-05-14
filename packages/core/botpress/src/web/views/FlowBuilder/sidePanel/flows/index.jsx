@@ -13,11 +13,6 @@ const style = require('./style.scss')
 
 export default class FlowsList extends Component {
   // renderFlow(flow, index) {
-  //   const isCurrentFlow = flow.name === _.get(this.props, 'currentFlow.name')
-  //   const isDirty = _.includes(this.props.dirtyFlows, flow.name)
-
-  //   const dirtyMarker = isDirty ? '*' : ''
-
   //   const hideOverlay = () => {
   //     this.setState({
   //       showDropdownIndex: -1
@@ -98,18 +93,8 @@ export default class FlowsList extends Component {
 
   //   const lgProps = isCurrentFlow ? { key: index } : { href: 'javascript:void(0);', key: index }
 
-  //   let displayName = flow.name
-  //   const { stripPrefix } = this.props
-  //   if (stripPrefix && displayName.startsWith(stripPrefix)) {
-  //     displayName = displayName.substr(stripPrefix.length)
-  //   }
-
   //   return (
   //     <ListGroupItem {...lgProps}>
-  //       <div onClick={() => this.props.goToFlow(flow.name)}>
-  //         {displayName}
-  //         {dirtyMarker} {isCurrentFlow ? ' (current)' : ''}
-  //       </div>
   //       <div className={style.menuButton}>{caret}</div>
   //       {overlay}
   //     </ListGroupItem>
@@ -158,6 +143,5 @@ export default class FlowsList extends Component {
     const { dirtyFlows } = this.props
     const { treeData } = this.state
     return <Tree data={treeData} dirtyFlows={dirtyFlows} onToggle={this.toggleTreeNode} />
-    // return <ListGroup className={style.list}>{this.props.flows.map((f, i) => this.renderFlow(f, i))}</ListGroup>
   }
 }
