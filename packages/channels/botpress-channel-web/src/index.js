@@ -6,22 +6,6 @@ import api from './api'
 import socket from './socket'
 import db from './db'
 
-import configTemplate from 'raw-loader!./botpress-platform-webchat.config.yml'
-
-const createConfigFile = bp => {
-  const name = 'botpress-platform-webchat.config.yml'
-  const file = path.join(bp.projectLocation, name)
-
-  if (!fs.existsSync(file)) {
-    fs.writeFileSync(file, configTemplate)
-
-    bp.notifications.send({
-      level: 'info',
-      message: name + ' has been created, fill it'
-    })
-  }
-}
-
 module.exports = {
   config: {
     uploadsUseS3: { type: 'bool', required: false, default: false, env: 'WEBCHAT_USE_S3' },
@@ -36,10 +20,6 @@ module.exports = {
 
     // Setup the socket events
     await socket(bp, config)
-
-    bp.middlewares.load() // TODO Fix that
-
-    createConfigFile(bp)
 
     // Initialize UMM
     return umm(bp)

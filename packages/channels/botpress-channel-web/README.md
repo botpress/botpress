@@ -259,12 +259,4 @@ You can open/close sidebar programmatically by calling `window.botpressWebChat.s
 
 ## Configuring file uploads
 
-A configuration file (`botpress-platform-webchat.config.yml`) has been created at the `root` of your bot when you installed the module. You can change these values to set up S3 integration.
-
-```yaml
-uploadsUseS3: true
-#uploadsS3Bucket: bucket-name
-#uploadsS3Region: eu-west-1
-#uploadsS3AWSAccessKey: your-aws-key-name
-#uploadsS3AWSAccessSecret: secret-key
-```
+A configuration file has been created in the `config` directory of your bot when you installed the module. You can change these values to set up S3 integration.
