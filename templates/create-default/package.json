@@ -1,6 +1,6 @@
 {
   "name": "<%= name %>",
-  "version": "<%= version %>",
+  "version": "1.0.0",
   "description": "<%= description %>",
   "main": "bin/node.bundle.js",
   "botpress": {
@@ -14,11 +14,10 @@
   },
   "scripts": {
     "test": "npm run lint && npm run mocha",
-    "lint": "eslint ./*.js src/**/*.{js,jsx,scss}",
     "mocha": "NODE_ENV=test mocha --require babel-register --recursive",
-    "watch": "webpack --watch --color",
-    "compile": "webpack --color",
-    "prepare": "rimraf bin && npm run compile"
+    "lint": "eslint ./*.js src/**/*.{js,jsx,scss}",
+    "watch": "node webpack.js --watch",
+    "compile": "node webpack.js --compile"
   },
   "author": "<%= author %>",
   "license": "Botpress Proprietary License",
@@ -27,9 +26,12 @@
     "babel-eslint": "^8.0.2",
     "babel-loader": "^7.1.1",
     "babel-plugin-add-module-exports": "^0.2.1",
+    "babel-plugin-transform-decorators-legacy": "^1.3.4",
     "babel-plugin-transform-object-rest-spread": "^6.23.0",
     "babel-preset-env": "^1.6.0",
+    "babel-preset-latest": "^6.24.1",
     "babel-preset-react": "^6.24.1",
+    "babel-preset-stage-0": "^6.24.1",
     "babel-register": "^6.24.1",
     "chai": "^4.1.0",
     "classnames": "^2.2.5",

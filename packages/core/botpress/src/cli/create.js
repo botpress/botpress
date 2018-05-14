@@ -2,60 +2,112 @@ import { spawn } from 'child_process'
 import prompt from 'prompt'
 import chalk from 'chalk'
 import path from 'path'
-import fs from 'fs'
+import mkdirp from 'mkdirp'
 import _ from 'lodash'
-import util from '../util'
+import fs from 'fs'
+import glob from 'glob'
+import Promise from 'bluebird'
+
 import stats from '../stats'
 
-const MODULE_NAME_CONVENTION_BEGINS = 'botpress-'
+const introductionText = chalk`
+{dim ---------------}
+This tool will bootstrap a new {bold Botpress} module for you.
+For more information or help, please visit {underline https://botpress.io/docs}
+{dim ---------------}`
 
-const introductionText = 'This program will bootstrap a new Botpress module'
-const doneText = 'The module is boostrapped successfully.'
-const modulesText =
-  `You now need to install dependencies by running ${chalk.bold('`npm install`')}` +
-  ` or ${chalk.bold('`yarn install`')}`
-const documentation =
-  'Tip: when coding your bot, use the command `npm run watch` to recompile' +
-  ' your module automatically. Also, we strongly recommend that you install your module using ' +
-  '`npm link ../path/to/botpress-module` so that your bot always points to the most recent version.'
+const nextStepText = chalk`
+{green 🎉  Your module was successfully bootstraped!}
 
-const getTemplate = template => {
-  const templatePath = path.join(__dirname, 'cli/templates/create', template)
-  const templateContent = fs.readFileSync(templatePath)
-  return _.template(templateContent)
+{yellow Next steps:}
+  {yellow 1)} Install the dependencies by running {bold npm install} (or {bold yarn install})
+  {yellow 2)} Compile the module using {bold npm run compile} (or {bold yarn run compile})
+  {yellow 3)} Link the module to ease development and testing using {bold npm link}
+  {yellow 4)} Install the module in your testing bot using {bold npm install --save path/to/the/module}
+  {yellow 5)} Link the module using {bold npm link MODULE-NAME}
+
+{bold Enjoy Botpress!}
+`
+
+const invalidDirectoryError = chalk`
+{red Fatal Error} You need to run this command in an empty directory.
+`
+
+const templateNotFoundError = template => chalk`
+{red Fatal Error} Template {bold ${template}} not found.
+`
+
+const copyingFile = name => chalk`{dim -> Copying ${name}}`
+
+const assertDoesntExist = file => {
+  if (fs.existsSync(file)) {
+    console.log(invalidDirectoryError)
+    process.exit(1)
+  }
 }
 
-const generateTemplate = (directory, filename, variables = {}) => {
-  const template = getTemplate(filename)
-  const compiled = template(variables)
-  const destination = path.join(directory, filename.replace(/_\._/, '.'))
-  fs.writeFileSync(destination, compiled)
-}
+/**
+ * Loads a template a returns a map of files and content
+ * @param  {[type]} path The name of the template to load
+ * @return {object} A map of files `{ path: content }``
+ * @private
+ */
+const loadTemplate = async name => {
+  const templatePath = path.join(__dirname, 'cli/templates/' + name)
+  const infoFile = path.join(templatePath, 'info.json')
 
-const prefixModuleNameWithBotpress = name => {
-  if (!util.isBotpressPackage(name)) {
-    util.print('warn', 'the name of your module needs to begin by "botpress-" or "@botpress/"')
-    util.print('warn', 'we renamed your module to ' + chalk.bold(MODULE_NAME_CONVENTION_BEGINS + name))
-    name = MODULE_NAME_CONVENTION_BEGINS + name
+  if (!fs.existsSync) {
+    console.log(templateNotFoundError(name))
+    process.exit(1)
   }
 
-  return name
+  const files = await Promise.fromCallback(cb => glob('**/*.*', { cwd: templatePath, dot: true }, cb))
+
+  return _.reduce(
+    files,
+    (obj, file) => {
+      const filePath = path.join(templatePath, file)
+      obj[file] = fs.readFileSync(filePath).toString()
+      return obj
+    },
+    {}
+  )
+}
+
+const generate = async result => {
+  const files = await loadTemplate('create-default')
+
+  for (const [name, content] of Object.entries(files)) {
+    console.log(copyingFile(name))
+    const compiled = _.template(content, { interpolate: /<%=([\s\S]+?)%>/g })
+    const directory = path.dirname(name)
+    if (directory.length) {
+      mkdirp.sync(directory)
+    }
+
+    fs.writeFileSync(name, compiled(result))
+  }
+
+  console.log(nextStepText)
 }
 
 module.exports = () => {
+  console.log(introductionText)
+
   const moduleDirectory = path.resolve('.')
   const dirname = path.basename(moduleDirectory)
 
   stats({}).track('cli', 'modules', 'create')
 
-  util.print(introductionText)
+  _.each(['package.json', 'botfile.js', 'index.js'], assertDoesntExist)
 
   const schema = {
     properties: {
       name: {
         description: chalk.white('module name:'),
-        pattern: /^[a-z0-9][a-z0-9-_\.]+$/,
-        message: 'name must be only lowercase letters, ' + 'digits, dashes, underscores and dots.',
+        pattern: /^[@botpress/|botpress-][a-z0-9][a-z0-9-_\.]+$/,
+        message: `Name must be only lowercase letters, digits, dashes, underscores and dots. 
+It must also start with "@botpress/" or "botpress-"`,
         required: true,
         default: dirname
       },
@@ -66,11 +118,6 @@ module.exports = () => {
       author: {
         required: false,
         description: chalk.white('author:')
-      },
-      version: {
-        required: false,
-        description: chalk.white('version:'),
-        default: '1.0.0'
       }
     }
   }
@@ -80,41 +127,6 @@ module.exports = () => {
   prompt.start()
 
   prompt.get(schema, (err, result) => {
-    result.name = prefixModuleNameWithBotpress(result.name)
-
-    if (dirname !== result.name) {
-      util.print(
-        'warn',
-        'We usually recommend that the name of the module directory' +
-          ` (${dirname}) be the same as the module name (${result.name})`
-      )
-    }
-
-    if (fs.existsSync(path.join(moduleDirectory, 'package.json'))) {
-      util.print('error', 'Expected module directory to be empty / uninitialized')
-      process.exit(1)
-    } else {
-      generateTemplate(moduleDirectory, 'package.json', result)
-      generateTemplate(moduleDirectory, 'LICENSE')
-      generateTemplate(moduleDirectory, 'webpack.config.js')
-      generateTemplate(moduleDirectory, '_._editorconfig')
-      generateTemplate(moduleDirectory, '_._eslintrc')
-      generateTemplate(moduleDirectory, '_._gitignore')
-      generateTemplate(moduleDirectory, '_._npmignore')
-
-      fs.mkdirSync(moduleDirectory + '/src')
-      generateTemplate(moduleDirectory, 'src/index.js')
-
-      fs.mkdirSync(moduleDirectory + '/test')
-      generateTemplate(moduleDirectory, 'test/placeholder-test.js')
-
-      fs.mkdirSync(moduleDirectory + '/src/views')
-      generateTemplate(moduleDirectory, 'src/views/index.jsx')
-      generateTemplate(moduleDirectory, 'src/views/style.scss')
-
-      util.print(doneText)
-      util.print(modulesText)
-      util.print(documentation)
-    }
+    generate(result)
   })
 }
