@@ -15,7 +15,7 @@ export default class SidePanel extends Component {
     return (
       <div className={style.panel}>
         <FlowsList
-          flows={normalFlows}
+          flows={this.props.flows}
           dirtyFlows={this.props.dirtyFlows}
           goToFlow={this.goToFlow}
           deleteFlow={this.props.deleteFlow}

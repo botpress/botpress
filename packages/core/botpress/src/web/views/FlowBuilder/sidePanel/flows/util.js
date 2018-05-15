@@ -1,19 +1,19 @@
 import find from 'lodash/find'
 
 const addNode = (tree, path, name, data) => {
+  const fullPath = []
   while (path.length) {
     const folderName = path.shift()
+    fullPath.push(folderName)
     let folder = find(tree.children, { name: folderName, type: 'folder' })
     if (!folder) {
-      folder = { name: folderName, type: 'folder', children: [] }
+      folder = { parent: tree, name: folderName, fullPath: fullPath.join('/'), type: 'folder', children: [] }
       tree.children.push(folder)
-    }
-    if (data.active) {
-      folder.toggled = true
     }
     tree = folder
   }
-  tree.children.push({ name, type: 'file', ...data })
+  fullPath.push(name)
+  tree.children.push({ parent: tree, name, type: 'file', fullPath: fullPath.join('/'), ...data })
 }
 
 const compareNodes = (a, b) => {
@@ -35,14 +35,15 @@ const sortChildren = tree => {
   tree.children.forEach(sortChildren)
 }
 
-export const buildFlowsTree = (flows, { currentFlow }) => {
-  const tree = { name: null, children: [] }
+export const getUniqueId = node => `${node.type}:${node.fullPath}`
+
+export const buildFlowsTree = flows => {
+  const tree = { type: 'root', fullPath: '', name: '<root>', children: [] }
   flows.forEach(flow => {
     const flowPath = flow.name.replace(/\.flow\.json$/, '').split('/')
     const flowName = flowPath[flowPath.length - 1]
     addNode(tree, flowPath.slice(0, flowPath.length - 1), flowName, {
-      data: flow,
-      active: currentFlow && flow.name === currentFlow.name
+      data: flow
     })
   })
 

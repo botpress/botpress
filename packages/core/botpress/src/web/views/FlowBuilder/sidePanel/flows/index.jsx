@@ -7,9 +7,48 @@ import classnames from 'classnames'
 import get from 'lodash/get'
 
 import Tree from './tree'
-import { buildFlowsTree } from './util'
+import { buildFlowsTree, getUniqueId } from './util'
 
 const style = require('./style.scss')
+
+const setNodeStates = (nodes, toggledNodes, activeNode) => {
+  if (!nodes) {
+    return
+  }
+  nodes.forEach(node => {
+    const id = getUniqueId(node)
+    if (toggledNodes[id]) {
+      node.toggled = true
+    } else if (id === activeNode) {
+      node.active = true
+    }
+    setNodeStates(node.children, toggledNodes, activeNode)
+  })
+}
+
+const getInitialState = currentFlow => {
+  if (!currentFlow) {
+    return {
+      toggledNodes: {},
+      activeNode: null
+    }
+  }
+
+  const flowPath = currentFlow.name.replace(/\.flow\.json$/, '').split('/')
+  const flowName = flowPath[flowPath.length - 1]
+  const folders = flowPath.slice(0, flowPath.length - 1)
+  const toggledNodes = {}
+  const currentPath = []
+  while (folders.length) {
+    currentPath.push(folders.shift())
+    toggledNodes[`folder:${currentPath.join('/')}`] = true
+  }
+  currentPath.push(flowName)
+  return {
+    toggledNodes,
+    activeNode: `file:${currentPath.join('/')}`
+  }
+}
 
 export default class FlowsList extends Component {
   // renderFlow(flow, index) {
@@ -101,47 +140,44 @@ export default class FlowsList extends Component {
   //   )
   // }
 
-  constructor(props) {
-    super(props)
-    this.state = {
-      currentTreeNode: null,
-      treeData: this.buildTreeData(props)
+  buildTreeData() {
+    const { flows, currentFlow, dirtyFlows } = this.props
+    const nodes = buildFlowsTree(flows)
+    if (this.state) {
+      setNodeStates(nodes, this.state.toggledNodes, this.state.activeNode)
     }
-  }
-
-  componentWillReceiveProps(newProps) {
-    if (newProps.flows !== this.props.flows || newProps.currentFlow !== this.props.currentFlow) {
-      this.setState({
-        treeData: this.buildTreeData(newProps)
-      })
-    }
-  }
-
-  buildTreeData(props) {
-    const { flows, currentFlow, dirtyFlows } = props
-    return buildFlowsTree(flows, { currentFlow })
+    return nodes
   }
 
   toggleTreeNode = (node, toggled) => {
-    // NB: we're mutating data here but it seems to be fine according
-    // to the official example
-    // https://github.com/alexcurtis/react-treebeard#quick-start
-    if (node.children) {
-      node.toggled = toggled
-    }
-    if (node.type === 'file') {
-      if (this.state.currentTreeNode) {
-        this.state.currentTreeNode.active = false
+    const toggledNodes = { ...this.state.toggledNodes }
+    let activeNode = this.state.activeNode
+
+    if (node.type === 'folder') {
+      const id = getUniqueId(node)
+      toggledNodes[id] = !toggledNodes[id]
+    } else if (node.type === 'file') {
+      // set the node itself as active
+      activeNode = getUniqueId(node)
+      // make all of its parents expanded
+      let parent = node.parent
+      while (parent) {
+        toggledNodes[getUniqueId(parent)] = true
+        parent = parent.parent
       }
-      node.active = true
+      // change the route and render the corresponding diagram
       this.props.goToFlow(node.data.name)
     }
-    this.setState({ currentTreeNode: node })
+
+    this.setState({ toggledNodes, activeNode })
   }
 
   render() {
-    const { dirtyFlows } = this.props
-    const { treeData } = this.state
+    const { dirtyFlows, currentFlow } = this.props
+    if (!this.state && currentFlow) {
+      this.state = getInitialState(currentFlow)
+    }
+    const treeData = this.buildTreeData()
     return <Tree data={treeData} dirtyFlows={dirtyFlows} onToggle={this.toggleTreeNode} />
   }
 }
