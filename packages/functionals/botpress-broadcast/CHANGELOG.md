@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.9.2"></a>
+## [10.9.2](https://github.com/botpress/modules/compare/v10.9.1...v10.9.2) (2018-05-15)
+
+
+
+
+**Note:** Version bump only for package @botpress/broadcast
+
 <a name="10.9.1"></a>
 ## [10.9.1](https://github.com/botpress/modules/compare/v10.9.0...v10.9.1) (2018-05-15)
 
