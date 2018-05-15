@@ -7,7 +7,7 @@ import classnames from 'classnames'
 import get from 'lodash/get'
 
 import Tree from './tree'
-import { buildFlowsTree, getUniqueId } from './util'
+import { buildFlowsTree, getUniqueId, splitFlowPath } from './util'
 
 const style = require('./style.scss')
 
@@ -34,19 +34,13 @@ const getInitialState = currentFlow => {
     }
   }
 
-  const flowPath = currentFlow.name.replace(/\.flow\.json$/, '').split('/')
-  const flowName = flowPath[flowPath.length - 1]
-  const folders = flowPath.slice(0, flowPath.length - 1)
-  const toggledNodes = {}
-  const currentPath = []
-  while (folders.length) {
-    currentPath.push(folders.shift())
-    toggledNodes[`folder:${currentPath.join('/')}`] = true
-  }
-  currentPath.push(flowName)
+  const { folders, flow } = splitFlowPath(currentFlow.name)
   return {
-    toggledNodes,
-    activeNode: `file:${currentPath.join('/')}`
+    toggledNodes: folders.reduce((acc, folder) => {
+      acc[getUniqueId(folder)] = true
+      return acc
+    }, {}),
+    activeNode: getUniqueId(flow)
   }
 }
 

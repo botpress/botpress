@@ -1,19 +1,15 @@
 import find from 'lodash/find'
 
-const addNode = (tree, path, name, data) => {
-  const fullPath = []
-  while (path.length) {
-    const folderName = path.shift()
-    fullPath.push(folderName)
-    let folder = find(tree.children, { name: folderName, type: 'folder' })
+const addNode = (tree, folders, flowDesc, data) => {
+  for (const folderDesc of folders) {
+    let folder = find(tree.children, folderDesc)
     if (!folder) {
-      folder = { parent: tree, name: folderName, fullPath: fullPath.join('/'), type: 'folder', children: [] }
+      folder = { ...folderDesc, parent: tree, children: [] }
       tree.children.push(folder)
     }
     tree = folder
   }
-  fullPath.push(name)
-  tree.children.push({ parent: tree, name, type: 'file', fullPath: fullPath.join('/'), ...data })
+  tree.children.push({ ...flowDesc, parent: tree, ...data })
 }
 
 const compareNodes = (a, b) => {
@@ -37,13 +33,29 @@ const sortChildren = tree => {
 
 export const getUniqueId = node => `${node.type}:${node.fullPath}`
 
+export const splitFlowPath = flow => {
+  const flowPath = flow.replace(/\.flow\.json$/, '').split('/')
+  const flowName = flowPath[flowPath.length - 1]
+  const flowFolders = flowPath.slice(0, flowPath.length - 1)
+  const folders = []
+  const currentPath = []
+  for (const folder of flowFolders) {
+    currentPath.push(folder)
+    folders.push({ type: 'folder', name: folder, fullPath: currentPath.join('/') })
+  }
+  currentPath.push(flowName)
+  return {
+    folders,
+    flow: { type: 'file', name: flowName, fullPath: currentPath.join('/') }
+  }
+}
+
 export const buildFlowsTree = flows => {
   const tree = { type: 'root', fullPath: '', name: '<root>', children: [] }
-  flows.forEach(flow => {
-    const flowPath = flow.name.replace(/\.flow\.json$/, '').split('/')
-    const flowName = flowPath[flowPath.length - 1]
-    addNode(tree, flowPath.slice(0, flowPath.length - 1), flowName, {
-      data: flow
+  flows.forEach(flowData => {
+    const { folders, flow } = splitFlowPath(flowData.name)
+    addNode(tree, folders, flow, {
+      data: flowData
     })
   })
 
