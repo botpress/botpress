@@ -2,8 +2,9 @@
 # yarn lockfile v1
 
 
-"@botpress/util-sdk@file:../../core/botpress-util-sdk":
-  version "10.8.0"
+"@botpress/util-sdk@^10.9.0":
+  version "10.9.0"
+  resolved "https://registry.yarnpkg.com/@botpress/util-sdk/-/util-sdk-10.9.0.tgz#03d274bba9c41aa30cfe8e2930f0b33c3b9929b6"
   dependencies:
     bluebird "^3.5.1"
     joi "^13.3.0"

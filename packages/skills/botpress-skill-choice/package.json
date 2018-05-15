@@ -52,6 +52,6 @@
     "webpack-node-externals": "^1.6.0"
   },
   "dependencies": {
-    "@botpress/util-sdk": "/Users/slvn/bots/botpress/packages/core/botpress-util-sdk"
+    "@botpress/util-sdk": "^10.9.0"
   }
 }
