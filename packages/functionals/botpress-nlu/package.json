@@ -25,7 +25,7 @@
     "compile": "node webpack.js --compile"
   },
   "author": "Botpress, Inc.",
-  "license": "Botpress Proprietary License",
+  "license": "AGPL-3.0",
   "peerDependencies": {
     "botpress": ">= 10.0.0"
   },

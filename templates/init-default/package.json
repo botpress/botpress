@@ -24,5 +24,5 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "<%= author %>",
-  "license": "Botpress Proprietary License"
+  "license": "AGPL-3.0"
 }
