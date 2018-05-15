@@ -177,7 +177,14 @@ module.exports = async program => {
     prompt.start()
 
     prompt.get(schema, (err, result) => {
-      // TODO: ignore err altogether?
+      if (err) {
+        if (err.message !== 'canceled') {
+          console.error(err)
+        }
+
+        process.exit(1)
+      }
+
       generate(result)
     })
   }
