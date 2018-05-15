@@ -36,7 +36,7 @@ class MyContainer extends defaultDecorators.Container {
   }
 }
 
-const getDecorators = ({ dirtyFlows }) => ({
+const getDecorators = ({ dirtyFlows, renderMenu }) => ({
   ...defaultDecorators,
   Container: MyContainer,
   Toggle: () => null,
@@ -74,14 +74,15 @@ const getDecorators = ({ dirtyFlows }) => ({
         <i className="material-icons">description</i>
         &nbsp;
         <defaultDecorators.Header {...props} />
+        {renderMenu && renderMenu(props.node)}
       </Fragment>
     )
   }
 })
 
 const Tree = props => {
-  const { dirtyFlows, ...treeProps } = props
-  const decorators = getDecorators({ dirtyFlows })
+  const { dirtyFlows, renderMenu, ...treeProps } = props
+  const decorators = getDecorators({ dirtyFlows, renderMenu })
   return <Treebeard style={theme} decorators={decorators} {...treeProps} />
 }
 

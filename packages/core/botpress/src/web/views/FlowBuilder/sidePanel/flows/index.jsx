@@ -1,10 +1,10 @@
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
 import ReactDOM from 'react-dom'
 import classnames from 'classnames'
 
-// import { ListGroup, ListGroupItem, Popover, Button, MenuItem, Overlay } from 'react-bootstrap'
+import { Popover, Button, Overlay } from 'react-bootstrap'
 
-import get from 'lodash/get'
+import { get, includes } from 'lodash'
 
 import Tree from './tree'
 import { buildFlowsTree, getUniqueId, splitFlowPath } from './util'
@@ -45,94 +45,95 @@ const getInitialState = currentFlow => {
 }
 
 export default class FlowsList extends Component {
-  // renderFlow(flow, index) {
-  //   const hideOverlay = () => {
-  //     this.setState({
-  //       showDropdownIndex: -1
-  //     })
-  //   }
+  menuButtons = {}
 
-  //   const handleDelete = () => {
-  //     hideOverlay()
-  //     setTimeout(() => {
-  //       if (confirm('Are you sure you want to delete this flow?') === true) {
-  //         this.props.deleteFlow(flow.name)
-  //       }
-  //     }, 250)
-  //   }
+  renderMenu = node => {
+    const flow = node.data
+    const index = node.fullPath.replace(/\//g, '__')
 
-  //   const handleDuplicate = () => {
-  //     hideOverlay()
+    const hideOverlay = () => {
+      this.setState({
+        showDropdownIndex: -1
+      })
+    }
 
-  //     setTimeout(() => {
-  //       let name = prompt('Enter the name of the new flow')
+    const handleAction = fn => () => {
+      hideOverlay()
+      setTimeout(fn, 250)
+    }
 
-  //       if (!name) {
-  //         return
-  //       }
+    const handleDelete = handleAction(() => {
+      if (confirm(`Are you sure you want to delete the flow ${flow.name}?`) === true) {
+        this.props.deleteFlow(flow.name)
+      }
+    })
 
-  //       name = name.replace(/\.flow\.json$/i, '')
+    const handleDuplicate = handleAction(() => {
+      let name = prompt('Enter the name of the new flow')
 
-  //       if (/[^A-Z0-9-_\/]/i.test(name)) {
-  //         return alert('ERROR: The flow name can only contain letters, numbers, underscores and hyphens.')
-  //       }
+      if (!name) {
+        return
+      }
 
-  //       if (_.includes(this.props.flows.map(f => f.name), name + '.flow.json')) {
-  //         return alert('ERROR: This flow already exists')
-  //       }
+      name = name.replace(/\.flow\.json$/i, '')
 
-  //       this.props.duplicateFlow({ flowNameToDuplicate: flow.name, name: `${name}.flow.json` })
-  //     }, 250)
-  //   }
+      if (/[^A-Z0-9-_\/]/i.test(name)) {
+        return alert('ERROR: The flow name can only contain letters, numbers, underscores and hyphens.')
+      }
 
-  //   const dropdown = (
-  //     <Popover id={`flow-${index}-dropdown`} bsClass={classnames(style.popover, 'popover')}>
-  //       <ul className={style.menu}>
-  //         {flow.name !== 'main.flow.json' && <li onClick={handleDelete}>Delete</li>}
-  //         <li onClick={handleDuplicate}>Duplicate</li>
-  //       </ul>
-  //     </Popover>
-  //   )
+      if (includes(this.props.flows.map(f => f.name), name + '.flow.json')) {
+        return alert(`ERROR: The flow ${name} already exists`)
+      }
 
-  //   const overlayShown = this.state.showDropdownIndex === index
+      this.props.duplicateFlow({ flowNameToDuplicate: flow.name, name: `${name}.flow.json` })
+    })
 
-  //   const showOverlay = () => {
-  //     this.setState({
-  //       showDropdownIndex: index
-  //     })
-  //   }
+    const dropdown = (
+      <Popover id={`flow-${index}-dropdown`} bsClass={classnames(style.popover, 'popover')}>
+        <ul className={style.menu}>
+          {flow.name !== 'main.flow.json' && <li onClick={handleDelete}>Delete</li>}
+          <li onClick={handleDuplicate}>Duplicate</li>
+        </ul>
+      </Popover>
+    )
 
-  //   const ref = 'menu-btn-' + index
+    const overlayShown = this.state.showDropdownIndex === index
 
-  //   const caret = (
-  //     <Button bsSize="xsmall" ref={ref} onClick={showOverlay}>
-  //       <span className="caret" />
-  //     </Button>
-  //   )
+    const showOverlay = () => {
+      this.setState({
+        showDropdownIndex: index
+      })
+    }
 
-  //   const overlay = (
-  //     <Overlay
-  //       onHide={hideOverlay}
-  //       show={overlayShown}
-  //       animation={false}
-  //       trigger="click"
-  //       rootClose
-  //       placement="bottom"
-  //       target={() => ReactDOM.findDOMNode(this.refs[ref])}
-  //     >
-  //       {dropdown}
-  //     </Overlay>
-  //   )
+    const refId = 'menu-btn-' + index
 
-  //   const lgProps = isCurrentFlow ? { key: index } : { href: 'javascript:void(0);', key: index }
+    const caret = (
+      <Button bsSize="xsmall" ref={node => (this.menuButtons[refId] = node)} onClick={showOverlay}>
+        <span className="caret" />
+      </Button>
+    )
 
-  //   return (
-  //     <ListGroupItem {...lgProps}>
-  //       <div className={style.menuButton}>{caret}</div>
-  //       {overlay}
-  //     </ListGroupItem>
-  //   )
-  // }
+    const overlay = (
+      <Overlay
+        onHide={hideOverlay}
+        show={overlayShown}
+        animation={false}
+        trigger="click"
+        rootClose
+        placement="bottom"
+        target={() => ReactDOM.findDOMNode(this.menuButtons[refId])}
+      >
+        {dropdown}
+      </Overlay>
+    )
+
+    return (
+      <Fragment>
+        <div className={style.menuButton}>{caret}</div>
+        {overlay}
+      </Fragment>
+    )
+  }
 
   buildTreeData() {
     const { flows, currentFlow, dirtyFlows } = this.props
@@ -172,6 +173,6 @@ export default class FlowsList extends Component {
       this.state = getInitialState(currentFlow)
     }
     const treeData = this.buildTreeData()
-    return <Tree data={treeData} dirtyFlows={dirtyFlows} onToggle={this.toggleTreeNode} />
+    return <Tree data={treeData} dirtyFlows={dirtyFlows} renderMenu={this.renderMenu} onToggle={this.toggleTreeNode} />
   }
 }

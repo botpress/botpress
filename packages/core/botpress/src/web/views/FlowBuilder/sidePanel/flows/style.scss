@@ -1,3 +1,47 @@
+// context menu
+
+.menuButton {
+  position: absolute;
+  right: 10px;
+  top: 4px;
+
+  :global(.arrow) {
+    display: none;
+  }
+
+  button {
+    border: none;
+  }
+}
+
+.menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  li {
+    padding: 5px 10px;
+    cursor: pointer;
+
+    &:hover {
+      color: #262626;
+      background-color: #f5f5f5;
+    }
+  }
+}
+
+:global(.popover).popover {
+  :global(.arrow) {
+    display: none;
+  }
+}
+
+:global(.popover-content).popover {
+  padding: 10px 0;
+}
+
+// tree
+
 .toggle {
   display: inline-block;
   font-size: 20px;
@@ -9,43 +53,3 @@
 .toggleActive {
   transform: rotateZ(90deg);
 }
-
-// .menuButton {
-//   position: absolute;
-//   right: 10px;
-//   top: 4px;
-
-//   :global(.arrow) {
-//     display: none;
-//   }
-
-//   button {
-//     border: none;
-//   }
-// }
-
-// .menu {
-//   list-style: none;
-//   padding: 0;
-//   margin: 0;
-
-//   li {
-//     padding: 5px 10px;
-//     cursor: pointer;
-
-//     &:hover {
-//       color: #262626;
-//       background-color: #f5f5f5;
-//     }
-//   }
-// }
-
-// :global(.popover).popover {
-//   :global(.arrow) {
-//     display: none;
-//   }
-// }
-
-// :global(.popover-content).popover {
-//   padding: 10px 0;
-// }
