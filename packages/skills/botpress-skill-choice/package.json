@@ -45,9 +45,13 @@
     "file-loader": "^1.1.6",
     "node-sass": "^3.11.2",
     "react-sortable-hoc": "^0.6.8",
+    "react-tag-input": "^5.0.2",
     "sass-loader": "^6.0.6",
     "style-loader": "^0.20.1",
     "webpack": "^3.11.0",
     "webpack-node-externals": "^1.6.0"
+  },
+  "dependencies": {
+    "@botpress/util-sdk": "/Users/slvn/bots/botpress/packages/core/botpress-util-sdk"
   }
 }

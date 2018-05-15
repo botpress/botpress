@@ -1,38 +1,19 @@
 import React from 'react'
 import _ from 'lodash'
 
-import { ListGroup, ListGroupItem, Alert, Tabs, Tab } from 'react-bootstrap'
-import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc'
+import { Alert, Tabs, Tab } from 'react-bootstrap'
+
+import { WithContext as ReactTags } from 'react-tag-input'
 
 import ContentPickerWidget from 'botpress/content-picker'
 
 import style from './style.scss'
 
-const SortableItem = SortableElement(({ value, onRemove, onChangeKeywords }) => (
-  <ListGroupItem>
-    <div>
-      {value.value}{' '}
-      <span className={style.action} onClick={onRemove}>
-        Remove
-      </span>
-    </div>
-    <div className={style.keywords}>
-      {value.keywords.join(' ')}{' '}
-      <span className={style.action} onClick={onChangeKeywords}>
-        Edit keywords
-      </span>
-    </div>
-  </ListGroupItem>
-))
-
 export default class TemplateModule extends React.Component {
   state = {
-    choices: [],
-    nbMaxRetries: 1,
-    questionValue: 'Please pick one of the following: ',
-    invalidOptionValue: 'Invalid choice, please pick one of the following:',
-    nameOfQuestionBloc: '#choice',
-    nameOfInvalidBloc: '#choice'
+    keywords: {},
+    contentId: '',
+    config: {}
   }
 
   componentDidMount() {
@@ -40,15 +21,23 @@ export default class TemplateModule extends React.Component {
     const getOrDefault = (propsKey, stateKey) => this.props.initialData[propsKey] || this.state[stateKey]
 
     if (this.props.initialData) {
-      this.setState({
-        choices: getOrDefault('choices', 'choices'),
-        questionValue: getOrDefault('question', 'questionValue'),
-        nbMaxRetries: getOrDefault('maxRetries', 'nbMaxRetries'),
-        invalidOptionValue: getOrDefault('invalid', 'invalidOptionValue'),
-        nameOfQuestionBloc: getOrDefault('questionBloc', 'nameOfQuestionBloc'),
-        nameOfInvalidBloc: getOrDefault('invalidBloc', 'nameOfInvalidBloc')
-      })
+      this.setState(
+        {
+          contentId: getOrDefault('contentId', 'contentId'),
+          keywords: getOrDefault('keywords', 'keywords'),
+          config: getOrDefault('config', 'config')
+        },
+        () => this.refreshContent()
+      )
     }
+
+    this.fetchDefaultConfig()
+  }
+
+  async refreshContent() {
+    const id = this.state.contentId
+    const res = await this.props.bp.axios.get(`/api/content/items/${id}`)
+    return this.onContentChanged(res.data, true)
   }
 
   componentDidUpdate() {
@@ -58,21 +47,23 @@ export default class TemplateModule extends React.Component {
   updateParent = () => {
     this.props.onDataChanged &&
       this.props.onDataChanged({
-        choices: this.state.choices,
-        question: this.state.questionValue,
-        maxRetries: this.state.nbMaxRetries,
-        invalid: this.state.invalidOptionValue,
-        questionBloc: this.state.nameOfQuestionBloc,
-        invalidBloc: this.state.nameOfInvalidBloc
+        contentId: this.state.contentId,
+        keywords: this.state.keywords,
+        config: this.state.config
       })
-
-    if (this.state.choices.length > 1) {
+    if (this.choices && this.choices.length > 1) {
       this.props.onValidChanged && this.props.onValidChanged(true)
     }
   }
 
+  fetchDefaultConfig = async () => {
+    const res = await this.props.bp.axios.get('/api/botpress-skill-choice/config')
+    this.setState({ defaultConfig: res.data })
+  }
+
   onMaxRetriesChanged = event => {
-    this.setState({ nbMaxRetries: isNaN(event.target.value) ? 1 : event.target.value })
+    const config = { ...this.state.config, nbMaxRetries: isNaN(event.target.value) ? 1 : event.target.value }
+    this.setState({ config })
   }
 
   onBlocNameChanged = key => event => {
@@ -88,113 +79,111 @@ export default class TemplateModule extends React.Component {
   onNameOfQuestionBlocChanged = this.onBlocNameChanged('nameOfQuestionBloc')
   onNameOfInvalidBlocChanged = this.onBlocNameChanged('nameOfInvalidBloc')
 
-  addChoice = ({ data, previewText: value }) => {
-    const newChoice = { value, keywords: [Object.values(data).map(value => value.toLowerCase())] }
-    this.setState({ choices: [...this.state.choices, newChoice] })
-  }
-
-  onSortEnd = ({ oldIndex, newIndex }) => {
-    this.setState({
-      choices: arrayMove(this.state.choices, oldIndex, newIndex)
-    })
-  }
-
-  renderValidationErrors() {
-    let error = null
-
-    if (this.state.choices.length < 2) {
-      error = 'You need at least two choices'
-    }
-
-    return error ? <Alert bsStyle="warning">{error}</Alert> : null
-  }
-
-  removeChoice(index) {
-    const choices = [...this.state.choices]
-    _.pullAt(choices, index)
-    this.setState({
-      choices: choices
-    })
-  }
-
-  changeKeywords(index) {
-    const keywords = prompt(
-      'Enter the keywords to be understood by as this choice, separated by commas',
-      this.state.choices[index].keywords.join(', ')
-    )
-
-    this.setState({
-      choices: this.state.choices.map((c, i) => {
-        if (i !== index) {
-          return c
+  onContentChanged = (element, force = false) => {
+    if (element && (force || element.id !== this.state.contentId)) {
+      this.choices = _.get(element, 'data.choices') || []
+      const initialKeywords = element.id === this.state.contentId ? this.state.keywords : {}
+      const keywords = this.choices.reduce((acc, v) => {
+        if (!acc[v.value]) {
+          acc[v.value] = _.uniq([v.value, v.title])
         }
-
-        return Object.assign({}, c, { keywords: keywords.split(',').map(k => k.trim().toLowerCase()) })
-      })
-    })
+        return acc
+      }, initialKeywords)
+      this.setState({ contentId: element.id, keywords: keywords })
+    }
   }
 
-  textToItemId = text => _.get(text.match(/^say #!(.*)$/), '[1]')
+  handleMatchAddition = choiceValue => tag => {
+    const newTags = [...(this.state.keywords[choiceValue] || []), tag.text]
+    const keywords = { ...this.state.keywords, [choiceValue]: newTags }
+    this.setState({ keywords: keywords })
+  }
 
-  renderBasic() {
-    const SortableList = SortableContainer(({ items }) => {
+  handleMatchDeletion = choiceValue => index => {
+    const newTags = this.state.keywords[choiceValue] || []
+    _.pullAt(newTags, index)
+    const keywords = { ...this.state.keywords, [choiceValue]: newTags }
+    this.setState({ keywords: keywords })
+  }
+
+  renderMatchingSection() {
+    return this.choices.map(choice => {
+      const keywordsEntry = this.state.keywords[choice.value] || []
+      const tags = keywordsEntry.map(x => ({ id: x, text: x }))
       return (
-        <ListGroup>
-          {items.map((value, index) => (
-            <SortableItem
-              key={`item-${index}`}
-              index={index}
-              value={value}
-              onChangeKeywords={() => this.changeKeywords(index)}
-              onRemove={() => this.removeChoice(index)}
-            />
-          ))}
-        </ListGroup>
+        <div className={style.keywords}>
+          <h4>
+            {choice.title} <small>({choice.value})</small>
+          </h4>
+          <ReactTags
+            inline
+            tags={tags}
+            suggestions={[]}
+            handleDelete={this.handleMatchDeletion(choice.value)}
+            handleAddition={this.handleMatchAddition(choice.value)}
+          />
+        </div>
       )
     })
+  }
 
-    const itemId = this.textToItemId(this.state.questionValue)
+  renderBasic() {
+    const matchingSection =
+      this.choices && this.choices.length ? (
+        this.renderMatchingSection()
+      ) : (
+        <Alert bsStyle="warning">No choices available. Pick a content element that contains choices.</Alert>
+      )
+
+    const contentPickerProps = {}
+    const contentElement = this.getContentElement()
+    if (contentElement && contentElement.length) {
+      contentPickerProps.categoryId = contentElement
+    }
 
     return (
       <div className={style.content}>
-        <p>This skill allows you to make the user pick a choice.</p>
         <p>
-          <b>Question / text</b>
+          <strong>Change the question and choices</strong>
         </p>
-        {this.state.questionValue &&
-          !itemId && (
-            <div>
-              <textarea
-                title="Storing plain text is depreacted! Please create text content-item for it and use it instead!"
-                style={{ backgroundColor: 'lightcoral' }}
-                disabled
-                value={this.state.questionValue}
-              />
-            </div>
-          )}
-        <ContentPickerWidget
-          itemId={itemId}
-          onChange={item => this.setState({ questionValue: `say #!${item.id}` })}
-          placeholder="Question to ask"
-        />
-
+        <div>
+          <ContentPickerWidget
+            {...contentPickerProps}
+            itemId={this.state.contentId}
+            onChange={this.onContentChanged}
+            placeholder="Pick content (question and choices)"
+          />
+        </div>
         <p>
-          <b>Choices</b>
+          <strong>Define how choices are matched</strong>
         </p>
-        <ContentPickerWidget onChange={this.addChoice} placeholder="Select new choice here" />
-        <SortableList
-          pressDelay={200}
-          helperClass={style.sortableHelper}
-          items={this.state.choices}
-          onSortEnd={this.onSortEnd}
-        />
-        {this.renderValidationErrors()}
+        <div>{matchingSection}</div>
       </div>
     )
   }
 
+  getContentElement() {
+    return typeof this.state.config.contentElement === 'string'
+      ? this.state.config.contentElement
+      : this.state.defaultConfig && this.state.defaultConfig.defaultContentElement
+  }
+
+  getNbRetries() {
+    return (
+      this.state.config.nbMaxRetries || (this.state.defaultConfig && this.state.defaultConfig.defaultMaxAttempts) || 0
+    )
+  }
+
+  getInvalidText() {
+    return this.state.config.invalidText || ''
+  }
+
+  handleConfigTextChanged = name => event => {
+    const config = { ...this.state.config, [name]: event.target.value }
+    this.setState({ config })
+  }
+
   renderAdvanced() {
-    const itemId = this.textToItemId(this.state.invalidOptionValue)
     return (
       <div className={style.content}>
         <div>
@@ -205,50 +194,27 @@ export default class TemplateModule extends React.Component {
             name="quantity"
             min="0"
             max="1000"
-            value={this.state.nbMaxRetries}
+            value={this.getNbRetries()}
             onChange={this.onMaxRetriesChanged}
           />
         </div>
-
         <div>
-          <label htmlFor="invalidOptionText">On invalid option, say:</label>
-
-          {this.state.invalidOptionValue &&
-            !itemId && (
-              <div>
-                <textarea
-                  title="Storing plain text is depreacted! Please create text content-item for it and use it instead!"
-                  style={{ backgroundColor: 'lightcoral' }}
-                  disabled
-                  id="invalidOptionText"
-                  value={this.state.invalidOptionValue}
-                />
-              </div>
-            )}
-          <ContentPickerWidget
-            itemId={itemId}
-            onChange={({ id }) => this.setState({ invalidOptionValue: `say #!${id}` })}
-            placeholder="Question to ask"
-          />
+          <label htmlFor="invalidText">On invalid choice, say this instead of repeating question:</label>
+          <div>
+            <textarea
+              id="invalidText"
+              value={this.getInvalidText()}
+              onChange={this.handleConfigTextChanged('invalidText')}
+            />
+          </div>
         </div>
-
         <div>
-          <label htmlFor="nameQuestionBloc">Name of the question bloc:</label>
+          <label htmlFor="contentElementName">Content Element to use:</label>
           <input
-            id="nameQuestionBloc"
+            id="contentElementName"
             type="text"
-            value={this.state.nameOfQuestionBloc}
-            onChange={this.onNameOfQuestionBlocChanged}
-          />
-        </div>
-
-        <div>
-          <label htmlFor="nameOfInvalidBloc">Name of the invalid bloc:</label>
-          <input
-            id="nameOfInvalidBloc"
-            type="text"
-            value={this.state.nameOfInvalidBloc}
-            onChange={this.onNameOfInvalidBlocChanged}
+            value={this.getContentElement()}
+            onChange={this.handleConfigTextChanged('contentElement')}
           />
         </div>
       </div>

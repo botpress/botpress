@@ -1,167 +1,143 @@
 import _ from 'lodash'
+import { Skill } from '@botpress/util-sdk'
 
-// TODO: Put these in a package call `botpress-sdk`
+let botpress = null
+let config = null
 
-const genId = () =>
-  Math.random()
-    .toString()
-    .substr(2, 6)
+const checkCategoryAvailable = async () => {
+  const categories = await botpress.contentManager.listAvailableCategories().map(c => c.id)
 
-const Flow = data => {
-  const obj = Object.assign({}, data)
+  if (!categories.includes(config.defaultContentElement)) {
+    botpress.logger.warn(
+      `[Skill/Choice] Configured to use Content Element "${config.defaultContentElement}", but it was not found.`
+    )
 
-  if (!obj.version) {
-    obj.version = '0.0'
-  }
-
-  if (!obj.name || !obj.location) {
-    obj.name = obj.location = genId()
-  }
-
-  if (!obj.startNode) {
-    if (!obj.nodes || obj.nodes.length <= 0) {
-      throw new Error('Expected at least one node in `nodes`')
+    if (config.defaultContentElement === 'builtin_single-choice') {
+      botpress.logger.warn(`[Skill/Choice] You should probably install (and use) the @botpress/builtins 
+module OR change the "defaultContentElement" in this module's configuration to use your own content element.`)
     }
 
-    if (!obj.nodes.filter(n => n.name === 'entry').length) {
-      obj.startNode = obj.nodes[0].name
-    }
-
-    obj.startNode = 'entry'
-  }
-
-  return obj
-}
-
-const Node = data => {
-  const obj = Object.assign({}, data)
-
-  if (!obj.id) {
-    obj.id = genId()
-  }
-
-  if (!obj.onEnter) {
-    obj.onEnter = []
-  }
-
-  if (!obj.onReceive) {
-    obj.onReceive = null
-  }
-
-  if (!obj.next) {
-    obj.next = []
-  }
-
-  return obj
-}
-
-const _say = (type, args) => {
-  if (_.isString(args)) {
-    return `say ${type} ${args}`
-  } else {
-    return `say ${type} ${JSON.stringify(args)}`
+    return
   }
 }
-
-const say = (...args) => {
-  if (args.length === 1) {
-    return _say('#text', args[0])
-  } else if (args.length === 2) {
-    return _say(args[0], args[1])
-  } else {
-    throw new Error('Can only call say with one or two args')
-  }
-}
-
-const action = (name, args) => (args ? `${name} ${JSON.stringify(args)}` : name)
-
-// ****
 
 module.exports = {
-  config: {},
+  config: {
+    defaultContentElement: {
+      type: 'string',
+      required: true,
+      default: 'builtin_single-choice',
+      env: 'SKILL_CHOICE_CONTENT_ELEMENT'
+    },
+    defaultContentRenderer: {
+      type: 'string',
+      required: true,
+      default: '#builtin_single-choice',
+      env: 'SKILL_CHOICE_CONTENT_RENDERER'
+    },
+    defaultMaxAttempts: { type: 'string', required: false, default: '3', env: 'SKILL_CHOICE_MAX_ATTEMPTS' },
+    matchNumbers: { type: 'bool', required: false, default: true, env: 'SKILL_CHOICE_MATCH_NUMBERS' },
+    disableIntegrityCheck: { type: 'bool', required: false, default: false, env: 'SKILL_DISABLE_INTEGRITY_CHECK' }
+  },
 
   init: async function(bp, configurator) {
-    // This is called before ready.
-    // At this point your module is just being initialized, it is not loaded yet.
+    botpress = bp
+    config = await configurator.loadAll()
   },
 
   ready: async function(bp, configurator) {
-    // Your module's been loaded by Botpress.
-    // Serve your APIs here, execute logic, etc.
+    if (!config.disableIntegrityCheck) {
+      setTimeout(checkCategoryAvailable, 3000)
+    }
 
-    const config = await configurator.loadAll()
-    // Do fancy stuff here :)
+    const router = bp.getRouter('botpress-skill-choice')
+
+    router.get('/config', (req, res) => {
+      res.send(
+        _.pick(config, ['defaultContentElement', 'defaultContentRenderer', 'defaultMaxAttempts', 'matchNumbers'])
+      )
+    })
 
     bp.dialogEngine.registerActions({
-      'skill-choice-parse': function(state, event, { choices }) {
-        const choice = _.find(choices, c =>
-          _.some(c.keywords || [], k => _.includes(event.text.toLowerCase(), k.toLowerCase()))
-        )
+      '__skill-choice-parse': async function(state, event, data) {
+        let choice = null
+
+        const nb = _.get(event.text.match(/^[#).!]?([\d]{1,2})[#).!]?$/), '[1]')
+        if (config.matchNumbers && nb) {
+          const index = parseInt(nb) - 1
+          const element = await botpress.contentManager.getItem(data.contentId)
+          choice = _.get(element, `data.choices.${index}.value`)
+        }
+
+        if (!choice) {
+          choice = _.findKey(data.keywords, keywords =>
+            _.some(keywords || [], k => _.includes(event.text.toLowerCase(), k.toLowerCase()))
+          )
+        }
 
         if (choice) {
           return {
             ...state,
             'skill-choice-valid': true,
-            'skill-choice-ret': choice.value
+            'skill-choice-ret': choice
           }
         } else {
           return { ...state, 'skill-choice-valid': false }
         }
       },
 
-      'skill-choice-invalid-inc': function(state) {
+      '__skill-choice-invalid-inc': function(state) {
         const key = 'skill-choice-invalid-count'
         return { ...state, [key]: (state[key] || 0) + 1 }
       }
     })
   },
 
-  generate: function(data) {
-    const ummData = {
-      ...data,
-      choices: data.choices.map((el, i) => ({
-        text: el.value,
-        payload: 'CHOICE_PICK_' + el.value
-      }))
+  generate: async function(data) {
+    const invalidTextData = {}
+    if (data.config.invalidText && data.config.invalidText.length) {
+      invalidTextData.text = data.config.invalidText
     }
 
-    const flow = Flow({
+    const maxAttempts = data.config.nbMaxRetries || config.defaultMaxAttempts
+
+    const flow = Skill.Flow({
       nodes: [
-        Node({
+        Skill.Node({
           name: 'entry',
-          onEnter: [say(data.questionBloc, Object.assign(ummData, { text: data.question }))],
+          onEnter: [Skill.renderElement('#!' + data.contentId, { skill: 'choice' })],
           next: [{ condition: 'true', node: 'parse' }]
         }),
-        Node({
+        Skill.Node({
           name: 'parse',
-          onReceive: [action('skill-choice-parse', data)],
+          onReceive: [Skill.runAction('__skill-choice-parse', data)],
           next: [
             { condition: "state['skill-choice-valid'] === true", node: '#' },
             { condition: 'true', node: 'invalid' }
           ]
         }),
-        Node({
+        Skill.Node({
           name: 'invalid',
-          onEnter: [action('skill-choice-invalid-inc')],
+          onEnter: [Skill.runAction('__skill-choice-invalid-inc')],
           next: [
-            { condition: `state['skill-choice-invalid-count'] <= ${data.maxRetries}`, node: 'sorry' },
+            { condition: `state['skill-choice-invalid-count'] <= ${maxAttempts}`, node: 'sorry' },
             { condition: 'true', node: '#' }
           ]
         }),
-        Node({
+        Skill.Node({
           name: 'sorry',
-          onEnter: [say(data.invalidBloc, Object.assign(ummData, { text: data.invalid }))],
+          onEnter: [Skill.renderElement('#!' + data.contentId, { ...invalidTextData, skill: 'choice' })], // TODO Make property configurable
           next: [{ condition: 'true', node: 'parse' }]
         })
       ]
     })
 
-    const transitions = data.choices.map(choice => {
-      const choiceShort = choice.value.length > 8 ? choice.value.substr(0, 7) + '...' : choice.value
+    const transitions = Object.keys(data.keywords).map(choice => {
+      const choiceShort = choice.length > 8 ? choice.substr(0, 7) + '...' : choice
 
       return {
         caption: `User picked [${choiceShort}]`,
-        condition: `state['skill-choice-ret'] == "${choice.value}"`,
+        condition: `state['skill-choice-ret'] == "${choice}"`,
         node: ''
       }
     })
