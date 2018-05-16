@@ -27,11 +27,11 @@ export const setUserVariable = baseAction(
 )
 
 export const getUserVariable = baseAction(
-  async (bp, state, event, { name }) => {
+  async (bp, state, event, { name, output }) => {
     const userId = event.user.id
     const key = getUserStorageKey(userId, name)
     const result = await getStorageWithExpiry(bp, key)
-    return { ...state, $r: result }
+    return { ...state, [output]: result }
   },
   Joi.object().keys({
     ...Annotate(
@@ -42,7 +42,12 @@ export const getUserVariable = baseAction(
     name: Joi.string()
       .required()
       .token()
-      .description('The name of the variable.')
+      .description('The name of the variable.'),
+    output: Joi.string()
+      .required()
+      .default('$r')
+      .token()
+      .description('The state variable to output to')
   })
 )
 
@@ -88,11 +93,11 @@ export const setConversationVariable = baseAction(
 )
 
 export const getConversationVariable = baseAction(
-  async (bp, state, event, { name }) => {
+  async (bp, state, event, { name, output }) => {
     const stateId = (state && state._stateId) || event.stateId || event.user.id
     const key = getConversationStorageKey(stateId, name)
     const result = await getStorageWithExpiry(bp, key)
-    return { ...state, $r: result }
+    return { ...state, [output]: result }
   },
   Joi.object().keys({
     ...Annotate(
@@ -103,7 +108,12 @@ export const getConversationVariable = baseAction(
     name: Joi.string()
       .required()
       .token()
-      .description('The name of the variable.')
+      .description('The name of the variable.'),
+    output: Joi.string()
+      .required()
+      .default('$r')
+      .token()
+      .description('The state variable to output to')
   })
 )
 
@@ -144,10 +154,10 @@ export const setGlobalVariable = baseAction(
 )
 
 export const getGlobalVariable = baseAction(
-  async (bp, state, event, { name }) => {
+  async (bp, state, event, { name, output }) => {
     const key = getGlobalStorageKey(name)
     const result = await getStorageWithExpiry(bp, key)
-    return { ...state, $r: result }
+    return { ...state, [output]: result }
   },
   Joi.object().keys({
     ...Annotate(
@@ -158,7 +168,12 @@ export const getGlobalVariable = baseAction(
     name: Joi.string()
       .required()
       .token()
-      .description('The name of the variable.')
+      .description('The name of the variable.'),
+    output: Joi.string()
+      .required()
+      .default('$r')
+      .token()
+      .description('The state variable to output to')
   })
 )
 
