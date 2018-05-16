@@ -1,6 +1,6 @@
 {
   "name": "@botpress/analytics",
-  "version": "10.9.3",
+  "version": "10.9.4",
   "description": "Provides high level analytics about your bot usage.",
   "main": "bin/node.bundle.js",
   "homepage": "https://github.com/botpress/modules",

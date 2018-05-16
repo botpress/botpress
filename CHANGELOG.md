@@ -3,7 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-  <a name="10.9.3"></a>
+      <a name="10.9.4"></a>
+## [10.9.4](https://github.com/botpress/botpress/compare/v10.9.3...v10.9.4) (2018-05-16)
+
+
+### Bug Fixes
+
+* **builtins:** allow to change output var ([c711edb](https://github.com/botpress/botpress/commit/c711edb))
+
+
+
+
+      <a name="10.9.3"></a>
 ## [10.9.3](https://github.com/botpress/botpress/compare/v10.9.2...v10.9.3) (2018-05-15)
 
 
@@ -14,7 +25,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-  <a name="10.9.2"></a>
+<a name="10.9.2"></a>
 ## [10.9.2](https://github.com/botpress/botpress/compare/v10.9.1...v10.9.2) (2018-05-15)
 
 

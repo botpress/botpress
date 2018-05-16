@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.9.4"></a>
+## [10.9.4](https://github.com/botpress/modules/compare/v10.9.3...v10.9.4) (2018-05-16)
+
+
+
+
+**Note:** Version bump only for package @botpress/nlu
+
 <a name="10.9.3"></a>
 ## [10.9.3](https://github.com/botpress/modules/compare/v10.9.2...v10.9.3) (2018-05-15)
 
