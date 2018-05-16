@@ -409,6 +409,17 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
     }
   }
 
+  /**
+   * Retrieves multiple items
+   * @param  {String} query Comma-separted string where each part is
+   * the same as an argument to {@link ContentManager.getItem}.
+   * @return {Array<ContentManager.ElementProvider>}
+   * @memberof! ContentManager
+   * @example
+   * await bp.contentManager.getItems('#!trivia-12345,#!trivia-12346')
+   */
+  const getItems = queries => Promise.map(queries.split(','), getItem)
+
   const getItemsByMetadata = async metadata => {
     const items = await knex('content_items')
       .where('metadata', 'like', '%|' + metadata + '|%')
@@ -618,6 +629,7 @@ bp.contentManager.registerGetItemProvider('random', randomProvider)
     deleteCategoryItems,
 
     getItem,
+    getItems,
     getItemsByMetadata,
 
     registerGetItemProvider
