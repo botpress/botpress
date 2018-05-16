@@ -48,7 +48,7 @@ const assertDoesntExist = file => {
 
 /**
  * Loads a template a returns a map of files and content
- * @param  {[type]} path The name of the template to load
+ * @param  {string} name The name of the template to load
  * @return {object} A map of files `{ path: content }``
  * @private
  */
@@ -106,7 +106,7 @@ module.exports = () => {
       name: {
         description: chalk.white('module name:'),
         pattern: /^[@botpress/|botpress-][a-z0-9][a-z0-9-_\.]+$/,
-        message: `Name must be only lowercase letters, digits, dashes, underscores and dots. 
+        message: `Name must be only lowercase letters, digits, dashes, underscores and dots.
 It must also start with "@botpress/" or "botpress-"`,
         required: true,
         default: dirname
