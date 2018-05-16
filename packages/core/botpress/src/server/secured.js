@@ -170,6 +170,10 @@ module.exports = (bp, app) => {
     res.send(await bp.contentManager.getItem(req.params.id))
   })
 
+  app.secure('read', 'bot/content').get('/api/content/items-batched/:ids', async (req, res) => {
+    res.send(await bp.contentManager.getItems(req.params.ids))
+  })
+
   app.secure('write', 'bot/content').post('/api/content/categories/:id/items', async (req, res) => {
     res.send(
       await bp.contentManager.createOrUpdateCategoryItem({
