@@ -65,7 +65,7 @@ const assertDoesntExist = file => {
 
 /**
  * Loads a template a returns a map of files and content
- * @param  {[type]} path The name of the template to load
+ * @param  {string} name The name of the template to load
  * @return {object} A map of files `{ path: content }``
  * @private
  */
