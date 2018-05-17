@@ -1,0 +1,7 @@
+{
+  "defaultContentElement": "builtin_single-choice",
+  "defaultContentRenderer": "#builtin_single-choice",
+  "defaultMaxAttempts": "3",
+  "disableIntegrityCheck": false,
+  "matchNumbers": true // This allows people to type a number to match choices (like 1, 2, 3)
+}

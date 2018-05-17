@@ -115,7 +115,6 @@
     "redux": "^3.7.2",
     "redux-actions": "^2.2.1",
     "redux-thunk": "^2.2.0",
-    "require-npm-version": "^1.0.2",
     "sass-loader": "^6.0.6",
     "script-loader": "^0.7.0",
     "simple-line-icons": "^2.4.1",
