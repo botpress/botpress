@@ -1,0 +1,29 @@
+{
+  "name": "botpress-dev-bot",
+  "version": "10.9.4",
+  "main": "src/index.js",
+  "description": "Botpress development bot",
+  "private": true,
+  "engines": {
+    "node": ">= 6.1 <= 8.9"
+  },
+  "dependencies": {
+    "botpress": "*",
+    "@botpress/audience": "*",
+    "@botpress/builtins": "*",
+    "@botpress/nlu": "*",
+    "@botpress/skill-choice": "*",
+    "@botpress/hitl": "*",
+    "@botpress/channel-web": "*",
+    "jsdoc-api": "^4.0.3",
+    "lodash": "^4.17.10",
+    "yn": "^2.0.0"
+  },
+  "scripts": {
+    "start": "botpress start",
+    "ghost-sync": "botpress ghost-sync",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Eugene Mirotin <eugene@botpress.io>",
+  "license": "AGPL-3.0"
+}

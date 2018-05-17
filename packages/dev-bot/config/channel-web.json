@@ -1,0 +1,11 @@
+{
+  /************
+    Optional settings
+  *************/
+
+  "uploadsUseS3": false,
+  "uploadsS3Bucket": "bucket-name",
+  "uploadsS3Region": "eu-west-1",
+  "uploadsS3AWSAccessKey": "your-aws-key-name",
+  "uploadsS3AWSAccessSecret": "secret-key"
+}
