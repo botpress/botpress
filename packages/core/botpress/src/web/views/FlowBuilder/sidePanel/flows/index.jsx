@@ -57,7 +57,8 @@ export default class FlowsList extends Component {
       })
     }
 
-    const handleAction = fn => () => {
+    const handleAction = fn => event => {
+      event.stopPropagation()
       hideOverlay()
       setTimeout(fn, 250)
     }
@@ -99,7 +100,8 @@ export default class FlowsList extends Component {
 
     const overlayShown = this.state.showDropdownIndex === index
 
-    const showOverlay = () => {
+    const showOverlay = event => {
+      event.stopPropagation()
       this.setState({
         showDropdownIndex: index
       })
