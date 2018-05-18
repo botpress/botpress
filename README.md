@@ -9,14 +9,14 @@ Botpress is an open-source bot creation tool written in Javascript. It is powere
 
 ---
 
-### 📍 Botpress X (v10) is in beta
+### 📍 This version (Botpress X) is still in beta. See [this branch](https://github.com/botpress/botpress/tree/archive/1.1) for the latest stable archive.
 
 ---
 
 ##### Learn Botpress
 
-| 📖 [v10 **Documentation**](https://botpress.io/docs/10.0/) | [📦Official Modules](https://github.com/botpress/modules) |
-| ---------------------------------------------------------- | --------------------------------------------------------- |
+| 📖 [v10 **Documentation**](https://botpress.io/docs/beta/) |
+| ---------------------------------------------------------- |
 
 
 ##### Follow us
@@ -40,10 +40,6 @@ If you feel awesome and want to support us in a small way, please consider starr
 Botpress is on a mission to make useful bots ubiquitous by powering developers with the best possible tools to build & manage chatbots. We believe that in order to create great bots, major time should be spent on UX, **not** on the surrounding (and generic) features.
 
 <img alt="Botpress" height="150" src=".github/assets/shot_01.png"><img alt="Botpress" height="150" src=".github/assets/shot_02.png"><img alt="Botpress" height="150" src=".github/assets/shot_03.png">
-
-## Getting Started Quickly
-
-The best way to get started quickly is to read our [Getting Started Tutorial](https://botpress.io/docs/10.0/getting_started/).
 
 ## Installation
 
@@ -69,8 +65,6 @@ botpress start
 
 This will provide you locally a web interface available at **`http://localhost:3000`**
 
-## [📦Official Modules](https://github.com/botpress/modules)
-
 ## Contributing
 
 Thanks you for your interest in Botpress. Here are some of the many ways to contribute.
@@ -82,7 +76,6 @@ Thanks you for your interest in Botpress. Here are some of the many ways to cont
   * Like us on [Facebook](https://www.facebook.com/botpress)
   * Join our channel on [Slack](https://slack.botpress.io)
 * Answer and ask questions on the Slack community
-* [Donate](/.github/DONATE.md) to the project
 * [Write and edit the documentation](/.github/CONTRIBUTING.md)
 * Check misspelling in our docs.
 
@@ -90,15 +83,13 @@ For starters, there are some open issues with the [first good issue][starter-lab
 
 Contributions to Botpress will be dual-licensed under AGPLv3 and the Botpress Proprietary License. This means that all contributors need to agree to the dual-license before their contributions can be accepted.
 
+Please follow the [Conventional Commits](https://conventionalcommits.org/) specs when doing commits. **PRs not respecting this commit style will be rejected.**
+
 ## Community
 
 There's a [Slack community](https://slack.botpress.io) where you are welcome to join us, ask any question and even help others.
 
 Get an invite and join us now! 👉 [https://slack.botpress.io](https://slack.botpress.io)
-
-## Contributing
-
-Please follow the [Conventional Commits](https://conventionalcommits.org/) specs when doing commits. **PRs not respecting this commit style will be rejected.**
 
 ## Development steps
 
