@@ -286,6 +286,7 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
    * @var {boolean} required
    * @var {string} default
    * @var {string} type
+   * @private
    */
 
   /**
@@ -294,6 +295,7 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
    * @typedef {Function} DialogEngine~MetadataProvider
    * @param {string} action The name of the action
    * @returns {DialogEngine~ActionMetadata}
+   * @private
    */
 
   /**
