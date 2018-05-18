@@ -9,7 +9,7 @@ else
 BUILD_FLAGS=-d $(DEST)
 endif
 
-.DEFsAULT_GOAL := start
+.DEFAULT_GOAL := start
 start:
 	@make clear
 	@make install
@@ -24,8 +24,13 @@ clear:
 	rm -rf .node_modules
 	rm -rf "_site/"
 
+local:
+	@make clear
+	@make install
+	@make serve-developpement
+
 serve: test-jekyll
-	@bundle exec jekyll serve --host="::" --port=7000 --trace  --verbose
+	@bundle exec jekyll serve --host="127.0.0.1" --port=8080 --trace  --verbose
 
 build: test-jekyll symlinks
 	bundle exec jekyll build $(BUILD_FLAGS)
@@ -33,15 +38,14 @@ build: test-jekyll symlinks
 algolie:
 	bundle exec jekyll algolia push
 
-serve-developpement : 
-	bundle exec jekyll serve  --host="::" --port=7000 --watch
+serve-developpement: 
+	bundle exec jekyll serve --host="0.0.0.0" --port=8080 --watch --config "_config.yml,_config.local.yml"
 
 serve-production: test-jekyll
 	@JEKYLL_ENV=production bundle exec jekyll serve --host="::" --port=8080
 
 build-production: test-jekyll
-	@JEKYLL_ENV=production bundle exec jekyll build $(BUILD_FLAGS)
-
+	@JEKYLL_ENV=production bundle exec jekyll build $(BUILD_FLAGS) --config "_config.yml,_config.prod.yml"
 
 BUNDLE_EXISTS := $(shell command -v bundle 2> /dev/null)
 YARN_EXISTS := $(shell command -v yarn 2> /dev/null)

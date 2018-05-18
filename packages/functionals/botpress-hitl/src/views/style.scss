@@ -1,0 +1,12 @@
+.mainContainer {
+  :global(.container) {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+  }
+}
+
+.column {
+  padding: 0;
+  min-width: 320px;
+}

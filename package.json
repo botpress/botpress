@@ -1,172 +1,31 @@
 {
-  "name": "botpress",
-  "description": "The world's first CMS for bots. Easily create, manage and extend chatbots.",
-  "version": "1.1.13",
-  "author": "Botpress",
-  "bin": {
-    "bp": "./bin/botpress",
-    "botpress": "./bin/botpress"
-  },
-  "bugs": {
-    "url": "https://github.com/botpress/botpress/issues"
-  },
-  "dependencies": {
-    "axios": "^0.15.2",
-    "babel-polyfill": "^6.23.0",
-    "bluebird": "^3.4.6",
-    "body-parser": "^1.15.2",
-    "chalk": "^1.1.3",
-    "commander": "^2.9.0",
-    "dotenv": "^4.0.0",
-    "email-templates": "^2.5.4",
-    "eventemitter2": "^2.1.3",
-    "express": "^4.14.0",
-    "formidable": "^1.1.1",
-    "glob": "^7.1.2",
-    "handlebars": "^4.0.6",
-    "howler": "^2.0.3",
-    "js-yaml": "^3.8.4",
-    "jsonwebtoken": "^7.1.9",
-    "knex": "^0.12.6",
-    "lodash": "^4.16.4",
-    "moment": "^2.15.1",
-    "monitorctrlc": "^2.0.1",
-    "ms": "^0.7.1",
-    "multer": "^1.3.0",
-    "mustache": "^2.3.0",
-    "mware": "0.0.3",
-    "node-machine-id": "^1.1.3",
-    "nodemailer": "^2.7.2",
-    "nodemon": "^1.12.1",
-    "pg": "^6.1.2",
-    "prompt": "^1.0.0",
-    "react-codemirror": "^1.0.0",
-    "react-jsonschema-form": "^0.49.0",
-    "socket.io": "^1.5.0",
-    "socket.io-client": "^2.0.3",
-    "socketio-jwt": "^4.5.0",
-    "source-map-support": "^0.4.6",
-    "sqlite3": "^3.1.13",
-    "universal-analytics": "^0.4.8",
-    "uuid": "^3.0.0",
-    "winston": "^2.2.0"
-  },
   "devDependencies": {
-    "autoprefixer": "^6.5.3",
-    "babel-cli": "^6.16.0",
-    "babel-core": "^6.18.0",
-    "babel-loader": "^7.1.2",
-    "babel-plugin-root-import": "^5.1.0",
-    "babel-plugin-transform-decorators-legacy": "^1.3.4",
-    "babel-plugin-transform-object-rest-spread": "^6.16.0",
-    "babel-preset-latest": "^6.16.0",
-    "babel-preset-react": "^6.11.1",
-    "babel-preset-stage-0": "^6.16.0",
-    "babel-register": "^6.16.3",
-    "bootstrap": "^3.3.7",
-    "chai": "^3.5.0",
-    "classnames": "^2.2.5",
-    "copy-webpack-plugin": "^4.2.0",
-    "cross-os": "^1.2.2",
-    "css-loader": "^0.25.0",
-    "exports-loader": "^0.6.3",
-    "expose-loader": "^0.7.1",
-    "extract-text-webpack-plugin": "^3.0.1",
-    "file-loader": "^0.9.0",
-    "history": "^2.1.2",
-    "husky": "0.14.3",
-    "json-loader": "^0.5.4",
-    "keymirror": "^0.1.1",
+    "@commitlint/cli": "^6.1.3",
+    "@commitlint/config-conventional": "^6.1.3",
+    "eslint": "^4.19.1",
+    "eslint-config-prettier": "^2.9.0",
+    "eslint-plugin-jest": "^21.15.1",
+    "eslint-plugin-prettier": "^2.3.1",
+    "eslint-plugin-react": "^7.1.0",
+    "husky": "^0.14.3",
+    "lerna": "^2.9.0",
     "lint-staged": "4.3.0",
-    "mkdirp": "^0.5.1",
-    "mocha": "^3.1.2",
-    "ncp": "^2.0.0",
-    "node-sass": "^4.5.3",
-    "npm-watch": "^0.1.6",
-    "nuclear-js": "^1.4.0",
-    "nuclear-js-react-addons": "^0.4.1",
-    "postcss-loader": "^2.0.8",
-    "prettier": "1.7.4",
-    "prop-types": "^15.5.8",
-    "react": "^15.3.1",
-    "react-addons-css-transition-group": "^15.3.1",
-    "react-addons-update": "^15.4.2",
-    "react-bootstrap": "^0.30.3",
-    "react-bootstrap-button-loader": "^1.0.7",
-    "react-dom": "^15.3.1",
-    "react-dropzone": "^4.1.3",
-    "react-emoji": "^0.4.4",
-    "react-fontawesome": "^1.2.0",
-    "react-ga": "^2.1.2",
-    "react-markdown": "^2.4.5",
-    "react-router": "^2.8.1",
-    "react-sidebar": "^2.2.1",
-    "react-sortable": "^1.2.0",
-    "rimraf": "^2.6.2",
-    "sass-loader": "^6.0.6",
-    "script-loader": "^0.7.0",
-    "sinon": "^1.17.7",
-    "style-loader": "^0.13.1",
-    "tmp": "0.0.31",
-    "uglifyjs-webpack-plugin": "^1.0.1",
-    "webpack": "^3.8.1",
-    "webpack-node-externals": "^1.6.0"
+    "prettier": "1.7.4"
   },
-  "engines": {
-    "node": ">=6.10.0 <9.0.0"
-  },
-  "homepage": "https://github.com/botpress/botpress#readme",
-  "keywords": [
-    "bots",
-    "chatbots",
-    "bot framework",
-    "messenger",
-    "facebook",
-    "slack",
-    "botkit",
-    "microsoft bot framework",
-    "bot builder",
-    "bot",
-    "chatbot",
-    "api"
-  ],
-  "license": "AGPL-3.0",
-  "main": "lib/node.bundle.js",
-  "repository": "git+https://github.com/botpress/botpress.git",
-  "os": ["darwin", "linux", "win32"],
   "scripts": {
-    "compile": "node ./build.js",
-    "compile-prod": "cross-os compile-prod",
-    "test": "cross-os test",
-    "watch": "npm-watch",
-    "precommit": "lint-staged"
-  },
-  "cross-os": {
-    "compile-prod": {
-      "darwin": "NODE_ENV=production node ./build.js && ls -lh ./lib/web/js && echo \"DONE\"",
-      "linux": "NODE_ENV=production node ./build.js && ls -lh ./lib/web/js && echo \"DONE\"",
-      "win32": "SET NODE_ENV=production&& node ./build.js && ls -lh ./lib/web/js && echo \"DONE\" && SET NODE_ENV="
-    },
-    "test": {
-      "darwin":
-        "BABEL_ENV=tests mocha --compilers js:babel-core/register --require tests/index.js tests/** extensions/**/tests/**",
-      "linux":
-        "BABEL_ENV=tests mocha --compilers js:babel-core/register --require tests/index.js tests/** extensions/**/tests/**",
-      "win32":
-        "SET BABEL_ENV=tests&& mocha --compilers js:babel-core/register --require tests/index.js tests/** extensions/**/tests/** && SET BABEL_ENV="
-    }
-  },
-  "watch": {
-    "compile": {
-      "patterns": ["src", "extensions"],
-      "extensions": "js,jsx,scss,json,html"
-    }
+    "commitmsg": "commitlint -e $GIT_PARAMS",
+    "precommit": "lint-staged",
+    "lint": "eslint packages/**/{src,lib,tests}/**/*.{js,jsx}"
   },
   "lint-staged": {
-    "*.{js,jsx,json,css}": ["prettier --write", "git add"]
+    "*.{js,jsx}": ["prettier --write", "eslint", "git add"],
+    "*.{json,css,scss}": ["prettier --write", "git add"]
   },
   "pre-commit": {
     "run": "precommit",
     "silent": true
+  },
+  "dependencies": {
+    "babel-eslint": "^8.2.3"
   }
 }

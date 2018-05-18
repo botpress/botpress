@@ -22,29 +22,20 @@
         <li class="nav-item">
           <a class="nav-link" href="{{url_base}}/">{{i18n.navbar_documentation}}</a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{url_base}}/reference/">{{i18n.navbar_reference}}</a>
+        </li>
       </ul>
 
       <ul class="nav navbar-nav float-lg-right">
-        {% assign path = page.url | split: '/' %}
-        {% unless true || path[1] == 'blog' %}
-          <li class="nav-item dropdown">
-            <a id="dropdownNavLanguage" class="nav-link dropdown-toggle" role="button" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              {% include svg/icon-language.svg class="navbar-icon" %}
-              <span class="navbar-language-label">{{lang.name}}</span>
-            </a>
-            <div class="dropdown-menu" aria-labelledby="dropdownNavLanguage">
-              {% for language in site.data.languages %}
-                {% if language.enabled %}
-                  <a href="{{site.baseurl}}/{{language.tag}}/{{url_relative}}"
-                    class="dropdown-item{% if lang.tag == language.tag %} active{% endif %}"
-                    data-lang="{{language.accept_languages[0]}}">
-                    {{language.name}}
-                  </a>
-                {% endif %}
-              {% endfor %}
-            </div>
-          </li>
-        {% endunless %}
+          
+        <li class="nav-item dropdown">
+          <a id="dropdownVersion" class="nav-link dropdown-toggle" role="button" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="navbar-versions-label">{{site.botpress_version}}</span>
+          </a>
+          <div class="dropdown-menu" aria-labelledby="dropdownNavVersion">
+          </div>
+        </li>
 
         <li class="nav-item">
           <a class="nav-link" href="https://twitter.com/getbotpress" target="_blank">

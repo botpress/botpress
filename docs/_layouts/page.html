@@ -54,16 +54,15 @@ editor: true
     </div>
   {% elsif layout.guide %}
     <div class="row">
-      <div class="col-md-9">
+      <div class="col-md-9 guide-container">
         <div class="article">
           {{content}}
         </div>
 
         {% include guide-controls.html %}
-        {% include guide-upsell.html %}
       </div>
 
-      <div class="col-md-3">
+      <div class="col-md-3 toc-menu">
         <hr class="hidden-md-up"/>
         {% include nav-guide.html %}
       </div>

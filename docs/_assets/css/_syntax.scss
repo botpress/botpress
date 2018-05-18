@@ -1,4 +1,4 @@
-$syntax-comment: darken($syntax-04, 10%);
+$syntax-comment: darken($syntax-04, 40%);
 
 // General colors
 $syntax-text-color: $syntax-03;
@@ -23,10 +23,10 @@ $syntax-gutter-background-color-selected: rgba(80, 80, 80, 0.33);
 
 // For git diff info. i.e. in the gutter
 // These are static and were not extracted from your textmate theme
-// $syntax-color-renamed  : #96cbfe; // light blue
-// $syntax-color-added    : #a8ff60; // bright green
-// $syntax-color-modified : #e9c062; // yellow-orange
-// $syntax-color-removed  : #cc6666; // dull red
+$syntax-color-renamed: #96cbfe; // light blue
+$syntax-color-added: #a8ff60; // bright green
+$syntax-color-modified: #e9c062; // yellow-orange
+$syntax-color-removed: #cc6666; // dull red
 
 %editor {
   background-color: $syntax-background-color;
@@ -34,8 +34,12 @@ $syntax-gutter-background-color-selected: rgba(80, 80, 80, 0.33);
 }
 
 // %generic                         {}
-// %line-deleted                    { background-color: $syntax-background-removed; }
-// %line-added                      { background-color: $syntax-background-added; }
+%line-deleted {
+  color: $syntax-color-removed;
+}
+%line-added {
+  color: $syntax-color-added;
+}
 %comment {
   color: $syntax-comment;
   font-style: italic;
@@ -254,7 +258,9 @@ $syntax-gutter-background-color-selected: rgba(80, 80, 80, 0.33);
   @extend %comment-special;
 } /* Comment.Special: Special data in comments. For example code tags, author and license information, etc. */
 
-// .highlight .gd  { @extend %line-deleted;                     } /* Generic.Deleted: Marks the token value as deleted. */
+.highlight .gd {
+  @extend %line-deleted;
+} /* Generic.Deleted: Marks the token value as deleted. */
 .highlight .ge {
   @extend %punctuation-italic;
 } /* Generic.Emph: Marks the token value as emphasized. */
@@ -264,7 +270,9 @@ $syntax-gutter-background-color-selected: rgba(80, 80, 80, 0.33);
 .highlight .gh {
   @extend %punctuation-heading;
 } /* Generic.Heading: Marks the token value as headline. */
-// .highlight .gi  { @extend %line-added;                       } /* Generic.Inserted: Marks the token value as inserted. */
+.highlight .gi {
+  @extend %line-added;
+} /* Generic.Inserted: Marks the token value as inserted. */
 .highlight .go {
   @extend %idk-wtf-this-is;
 } /* Generic.Output: Marks the token value as program output (e.g. for python cli lexer). */
@@ -562,8 +570,12 @@ $syntax-gutter-background-color-selected: rgba(80, 80, 80, 0.33);
 }
 .highlight span.cm-quote {
 }
-// .highlight span.cm-negative    { @extend %line-deleted; }
-// .highlight span.cm-positive    { @extend %line-added; }
+.highlight span.cm-negative {
+  @extend %line-deleted;
+}
+.highlight span.cm-positive {
+  @extend %line-added;
+}
 .highlight span.cm-keyword {
   @extend %keyword;
 }

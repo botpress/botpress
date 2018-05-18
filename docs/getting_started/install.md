@@ -2,46 +2,70 @@
 layout: guide
 ---
 
-Botpress requires [node](https://nodejs.org) (version >= 6.10.0) and uses [npm](https://www.npmjs.com) as package manager.
+## Prerequisites <a class="toc" id="prerequisites" href="#prerequisites"></a>
 
-The easiest way to create bots is by using the Botpress CLI. You may install the CLI by running this command in your terminal:
+Botpress runs on [node](https://nodejs.org) (version >= 6.1). You must also have either [npm](https://www.npmjs.com) or [yarn](https://yarnpkg.com) installed.
+
+## Installing the CLI <a class="toc" id="install" href="#install"></a>
+
+Using the Botpress CLI is the easiest and recommended way of creating bots on Botpress.
 
 ```bash
+# using npm
 npm install -g botpress
+
+# using yarn
+yarn global add botpress
 ```
 
-> **Note**: We recommend using the CLI to create bots and modules, but the CLI is not required for running and deploying bots.
+> **Note:**️ Make sure you install the CLI as a global dependency, with the `-g` npm flag or the `global` command using yarn.
+
+> If you have a permission error at this stage, consider running the command as an administrator.
 
 Once installed, make sure that Botpress is well installed. Running the following command should return the version of the CLI tool:
 
 ```bash
+# long version
 botpress --version
+
+# shortcut
+bp --version
 ```
 
-# Creating a new bot <a class="toc" id="toc-creating-a-new-bot" href="#toc-creating-a-new-bot"></a>
+## Creating your first bot <a class="toc" id="toc-creating-a-new-bot" href="#toc-creating-a-new-bot"></a>
 
-Once the CLI is installed, you may create a new bot by running the following command:
+Create a new directory for your new bot called `my-first-bot` then run the following command in this folder:
 
 ```bash
-botpress init name-of-your-bot
+botpress init
 ```
 
-You'll be prompted by a few questions to assist in the bot creation, then Botpress will proceed to the installation of the required dependencies.
-
-> **Note**: Some people might get errors when running init for the first time. If its the case, go into the directory of the bot that has been created and run `sudo npm install`.
-
-Once done, your bot will be created in the `name-of-your-bot` directory.
-
-# Starting the bot <a class="toc" id="toc-starting-the-bot" href="#toc-starting-the-bot"></a>
-
-At this point, you have a fully working "Hello World" bot sitting in this directory. You may start the bot by running the following command in yout bot's directory:
+This will ask you a couple of questions and bootstrap a new bot from the default bot template. Once that is done, you need to install the dependencies:
 
 ```bash
-botpress start
+# using npm
+npm install
+
+# using yarn
+yarn install
 ```
 
-Then navigate to [localhost](http://localhost:3000) to speak with your bot!
+The dependencies might take a while to install the first time. If for some reason you get an error installing Botpress, please visit our [Slack channel](https://slack.botpress.io) or [open an issue](https://github.com/botpress/botpress/issues/new).
 
-# Next steps <a class="toc" id="toc-next-steps" href="#toc-next-steps"></a>
+### Starting the bot <a class="toc" id="toc-starting-bot" href="#toc-starting-bot"></a>
 
-Your bot currently doesn't do much right now! You must instruct him what to do by writing code. We suggest that you read the [Foundamentals](../../foundamentals/) section to learn how Botpress works and how you can write a cool bot!
+Once the dependencies are installed, you may start the bot:
+
+```bash
+# using npm
+npm start
+
+# using yarn
+yarn start
+```
+
+And that's it! This will start the bot on your computer and provide you with a graphical interface at [https://localhost:3000/](https://localhost:3000/), so that you can customize and speak to your bot.
+
+## Next steps <a class="toc" id="toc-next-steps" href="#toc-next-steps"></a>
+
+Your bot currently doesn't do much. In the next section, we will learn the basic components of a Botpress bot, to better prepare you to create your first customized bot!

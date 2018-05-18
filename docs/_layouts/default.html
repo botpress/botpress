@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{meta_title}}</title>
     <meta name="description" content="{{meta_description}}">
-    <meta property="og:url" content="https://flow.org{{ page.url }}">
+    <meta property="og:url" content="https://botpress.io/docs{{ page.url }}">
     <meta property="og:title" content="{{meta_title}}">
     <meta property="og:site_name" content="Botpress">
     <meta property="og:description" content="{{meta_description}}">
@@ -38,6 +38,8 @@
           'jquery': 'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.0/jquery.min',
           'tether-min': 'https://cdnjs.cloudflare.com/ajax/libs/tether/1.3.7/js/tether.min',
           'bootstrap': 'https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha.5/js/bootstrap.min',
+          'stickyfill': 'https://cdnjs.cloudflare.com/ajax/libs/stickyfill/2.0.3/stickyfill.min',
+          'mousetrap': 'https://cdnjs.cloudflare.com/ajax/libs/mousetrap/1.6.1/mousetrap.min',
           'docsearch': 'https://cdnjs.cloudflare.com/ajax/libs/docsearch.js/2.1.8/docsearch.min',
           'codemirror/lib/codemirror': 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.20.2/codemirror.min',
           'codemirror/addon/lint/lint': 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.20.2/addon/lint/lint.min',
@@ -48,19 +50,8 @@
         }
       });
     </script>
-    <!-- Google Tag Manager -->
-      <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-      'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-      })(window,document,'script','dataLayer','GTM-NPXN74S');</script>
-    <!-- End Google Tag Manager -->
   </head>
   <body>
-    <!-- Google Tag Manager (noscript) -->
-    <noscript><iframe src=https://www.googletagmanager.com/ns.html?id=GTM-NPXN74S
-    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-    <!-- End Google Tag Manager (noscript) -->
     {% include navbar.html %}
     <div class="content">
       {{content}}
@@ -77,9 +68,18 @@
       });
 
       requirejs([
-        'bootstrap',
+        'bootstrap', 'stickyfill', 'mousetrap', 'versions',
         {% if page.search or layout.search %}'{% asset_name "search" %}',{% endif %}
-      ]);
+      ], function() {
+        Mousetrap.bind(['command+k', 'ctrl+k'], function(e) {
+          setTimeout(function() {
+            var sb = document.getElementById('algolia-doc-search');
+            sb.focus();
+            sb.scrollIntoView(false);
+          }, 5);
+          return false;
+        });
+      });
       {% if page.editor or layout.editor %}
       requirejs(['{% asset_name "editor" %}'], function(Editor) {
         Editor.init();

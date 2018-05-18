@@ -1,0 +1,24 @@
+{
+  "name": "minami",
+  "version": "1.2.3",
+  "description": "Clean and minimal JSDoc 3 Template / Theme",
+  "main": "publish.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Nijikokun/minami.git"
+  },
+  "author": "Nijiko Yonskai <nijikokun@gmail.com>",
+  "licenses": [
+    {
+      "type": "Apache-2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0"
+    }
+  ],
+  "bugs": {
+    "url": "https://github.com/Nijikokun/minami/issues"
+  },
+  "homepage": "https://github.com/Nijikokun/minami"
+}
