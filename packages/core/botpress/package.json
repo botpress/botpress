@@ -110,6 +110,7 @@
     "react-sidebar": "^2.2.1",
     "react-sortable": "^1.2.0",
     "react-split-pane": "^0.1.66",
+    "react-treebeard": "^2.1.0",
     "reduce-reducers": "^0.1.2",
     "redux": "^3.7.2",
     "redux-actions": "^2.2.1",
@@ -147,11 +148,7 @@
   "license": "AGPL-3.0",
   "main": "lib/node.bundle.js",
   "repository": "git+https://github.com/botpress/botpress.git",
-  "os": [
-    "darwin",
-    "linux",
-    "win32"
-  ],
+  "os": ["darwin", "linux", "win32"],
   "scripts": {
     "prepublishOnly": "npm run compile-prod",
     "compile": "./build.sh",
@@ -161,9 +158,7 @@
   },
   "watch": {
     "compile": {
-      "patterns": [
-        "src"
-      ],
+      "patterns": ["src"],
       "extensions": "js,jsx,scss,json,html"
     }
   }

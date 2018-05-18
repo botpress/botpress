@@ -1,11 +1,4 @@
-.list {
-  :global(.list-group-item) {
-    border-top-left-radius: 0px;
-    border-top-right-radius: 0px;
-    border: 0px solid #ddd;
-    padding: 5px 5px;
-  }
-}
+// context menu
 
 .menuButton {
   position: absolute;
@@ -45,4 +38,18 @@
 
 :global(.popover-content).popover {
   padding: 10px 0;
+}
+
+// tree
+
+.toggle {
+  display: inline-block;
+  font-size: 20px;
+  height: 24px;
+  line-height: 24px;
+  transition: transform 300ms;
+}
+
+.toggleActive {
+  transform: rotateZ(90deg);
 }

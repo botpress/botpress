@@ -1,17 +1,22 @@
 {
   "version": "0.1",
   "catchAll": {
-    "onReceive": [],
+    "onReceive": ["say #!trivia-collection-n6dpQJ", "say #!trivia-question-r32mEo", "say #!some-content-b1KXDT"],
     "next": []
   },
-  "startNode": "entry",
+  "startNode": "entry1",
   "nodes": [
     {
       "id": "EFo7x8qgk8H1DOlvaqB4q",
-      "name": "entry",
-      "onEnter": ["say #!trivia-question-r32mEo"],
+      "name": "entry1",
+      "onEnter": ["say #!trivia-question-r32mEo", "say #!some-content-b1KXDT"],
       "onReceive": null,
-      "next": []
+      "next": [
+        {
+          "condition": "x > 1",
+          "node": "END"
+        }
+      ]
     }
   ]
 }
