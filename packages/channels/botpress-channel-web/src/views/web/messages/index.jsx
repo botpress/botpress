@@ -264,7 +264,7 @@ class Message extends Component {
   }
 
   render_carousel() {
-    return <CarouselMessage carousel={this.props.data.message_raw} />
+    return <CarouselMessage onSendData={this.props.onSendData} carousel={this.props.data.message_raw} />
   }
 
   render_typing() {
