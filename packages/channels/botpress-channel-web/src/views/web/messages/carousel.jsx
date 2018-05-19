@@ -13,6 +13,8 @@ export default class CarouselMessage extends Component {
     this.state = { hover: false }
   }
 
+  handleSendPostBack = (text, payload) => this.props.onSendData({ type: 'quick_reply', text, data: { payload } })
+
   render() {
     const CarouselElement = el => {
       return (
@@ -29,6 +31,16 @@ export default class CarouselMessage extends Component {
                   return (
                     <a href={btn.url} target="_blank" className={style.action}>
                       <i className={style.external} />
+                      {btn.title || btn}
+                    </a>
+                  )
+                } else if (btn.payload) {
+                  return (
+                    <a
+                      href
+                      onClick={() => this.handleSendPostBack(btn.text || btn.title, btn.payload)}
+                      className={style.action}
+                    >
                       {btn.title || btn}
                     </a>
                   )
