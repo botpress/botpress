@@ -157,7 +157,8 @@ module.exports = {
 
     bp.nlu = {
       processEvent,
-      provider
+      provider,
+      storage
     }
 
     bp.middlewares.register({
@@ -183,7 +184,7 @@ module.exports = {
     })
 
     router.post('/intents/:intent', async (req, res) => {
-      await storage.saveIntent(req.params.intent, req.body && req.body)
+      await storage.saveIntent(req.params.intent, req.body)
       res.sendStatus(200)
     })
 
