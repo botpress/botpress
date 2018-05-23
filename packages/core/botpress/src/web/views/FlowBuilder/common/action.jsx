@@ -23,7 +23,7 @@ class ActionItem extends Component {
 
   fetchItem = itemId => {
     if (itemId) {
-      this.props.fetchContentItem(itemId, true).then(this.props.refreshFlowsLinks)
+      this.props.fetchContentItem(itemId, { force: true, batched: true }).then(this.props.refreshFlowsLinks)
     }
   }
 

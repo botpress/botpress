@@ -2,6 +2,8 @@ import { createAction } from 'redux-actions'
 import axios from 'axios'
 import _ from 'lodash'
 
+import BatchRunner from './BatchRunner'
+
 // Flows
 export const requestFlows = createAction('FLOWS/REQUEST')
 export const receiveFlows = createAction('FLOWS/RECEIVE', flows => flows, () => ({ receiveAt: new Date() }))
@@ -90,12 +92,28 @@ export const fetchContentItemsRecent = ({ searchTerm, count = 5, categoryId = 'a
     .get(`/api/content/items`, { params: { categoryId, count, searchTerm, orderBy: ['createdOn', 'desc'] } })
     .then(({ data }) => dispatch(receiveContentItemsRecent(data)))
 
+const getBetachedContentItems = ids =>
+  axios.get(`/api/content/items-batched/${ids.join(',')}`).then(({ data }) =>
+    data.reduce((acc, item, i) => {
+      acc[ids[i]] = item
+      return acc
+    }, {})
+  )
+
+const getBetachedContentRunner = BatchRunner(getBetachedContentItems)
+
+const getBetachedContentItem = id => getBetachedContentRunner.add(id)
+
+const getSingleContentItem = id => axios.get(`/api/content/items/${id}`).then(({ data }) => data)
+
 export const receiveContentItem = createAction('CONTENT/ITEMS/RECEIVE_ONE')
-export const fetchContentItem = (id, force = false) => (dispatch, getState) => {
+export const fetchContentItem = (id, { force = false, batched = false } = {}) => (dispatch, getState) => {
   if (!id || (!force && getState().content.itemsById[id])) {
     return Promise.resolve()
   }
-  return axios.get(`/api/content/items/${id}`).then(({ data }) => dispatch(receiveContentItem(data)))
+  return (batched ? getBetachedContentItem(id) : getSingleContentItem(id)).then(data =>
+    dispatch(receiveContentItem(data))
+  )
 }
 
 export const receiveContentItemsCount = createAction('CONTENT/ITEMS/RECEIVE_COUNT')
