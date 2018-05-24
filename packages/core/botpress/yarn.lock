@@ -6097,9 +6097,9 @@ react-input-autosize@^2.1.2:
   dependencies:
     prop-types "^15.5.8"
 
-react-jsonschema-form@^1.0.0:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/react-jsonschema-form/-/react-jsonschema-form-1.0.1.tgz#1b83ad5a71458100367c29bef68b5c38d65fbeab"
+react-jsonschema-form@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/react-jsonschema-form/-/react-jsonschema-form-1.0.3.tgz#83bf8c5330651a949d8b0ac644fb92c6665348b5"
   dependencies:
     ajv "^5.2.3"
     lodash.topath "^4.5.2"
@@ -6573,12 +6573,6 @@ require-from-string@^1.1.0:
 require-main-filename@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/require-main-filename/-/require-main-filename-1.0.1.tgz#97f717b69d48784f5f526a6c5aa8ffdda055a4d1"
-
-require-npm-version@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/require-npm-version/-/require-npm-version-1.0.2.tgz#85b66c9c50ee7079ad1f39ff971f58ea9a6a7b4f"
-  dependencies:
-    semver "^5.3.0"
 
 resolve-dir@^0.1.0:
   version "0.1.1"
