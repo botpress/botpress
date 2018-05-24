@@ -242,7 +242,7 @@ export default class CustomMetrics extends React.Component {
     return (
       <div>
         <div className={style.customCount} style={{ height: '50px' }}>
-          {avgPerDay}%
+          {metric.percent === null ? avgPerDay : metric.percent.toFixed(1)}%
         </div>
         <div className={style.customCountSmall} style={{ height: '25px' }}>
           Abs Average: {absAvg}%
