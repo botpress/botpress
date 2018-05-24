@@ -20,7 +20,7 @@ module.exports = {
       module: 'botpress-qna',
       type: 'incoming',
       handler: async (event, next) => {
-        if (!await processEvent(event, { storage, logger })) {
+        if (!await processEvent(event, { bp, storage, logger })) {
           next()
         }
       },

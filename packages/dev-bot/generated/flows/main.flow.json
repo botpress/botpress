@@ -82,6 +82,13 @@
         "setUserVariable {\"name\":\"nickname\",\"value\":\"{{event.text}}\",\"expiry\":\"never\"}",
         "getUserVariable {\"name\":\"nickname\",\"output\":\"$r\"}"
       ]
+    },
+    {
+      "id": "562598f0e2",
+      "name": "random-fact",
+      "next": [],
+      "onEnter": ["say #!builtin_text-KRrMLo"],
+      "onReceive": null
     }
   ]
 }
