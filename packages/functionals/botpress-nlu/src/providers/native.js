@@ -28,6 +28,25 @@ export default class NativeProvider extends Provider {
     return `${this.env}__${this.project}__${scope}`
   }
 
+  setStemmer(stemmer) {
+    if (!stemmer) {
+      this.customStemmer = null
+    } else if (!_.isFunction(stemmer)) {
+      this.logger.error('[NLU::Native] Stemmer must be a function')
+      this.customStemmer = null
+    } else {
+      this.customStemmer = stemmer
+    }
+  }
+
+  _stemText(text) {
+    if (this.customStemmer) {
+      return this.customStemmer(text)
+    } else {
+      return natural.PorterStemmer.tokenizeAndStem(text)
+    }
+  }
+
   async _isInSync(localIntents) {
     const intentsHash = crypto
       .createHash('md5')
@@ -75,6 +94,7 @@ export default class NativeProvider extends Provider {
     }
 
     const classifier = new natural.BayesClassifier()
+    classifier.stemmer = { tokenizeAndStem: this._stemText }
 
     let samples_count = 0
 
@@ -82,7 +102,7 @@ export default class NativeProvider extends Provider {
       intent.utterances.forEach(utterance => {
         const extracted = this.parser.extractLabelsFromCanonical(utterance, intent.entities)
         samples_count += 1
-        classifier.addDocument(extracted.text, intent.name)
+        classifier.addDocument(this._stemText(extracted.text), intent.name)
       })
     })
 
@@ -129,7 +149,7 @@ export default class NativeProvider extends Provider {
       }
     })
 
-    const bestIntent = _.first(intents)
+    const bestIntent = _.first(_.orderBy(intents, ['score'], ['desc']))
 
     const intentName = _.get(bestIntent, 'intent') || 'None'
     const confidence = _.get(bestIntent, 'score') || 0
