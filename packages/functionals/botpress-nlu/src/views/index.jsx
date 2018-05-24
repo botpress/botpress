@@ -1,6 +1,6 @@
 import React from 'react'
 import classnames from 'classnames'
-import { Collapse, Button } from 'react-bootstrap'
+import { Collapse, Button, Checkbox } from 'react-bootstrap'
 import _ from 'lodash'
 
 import IntentEditor from './intents'
@@ -8,9 +8,12 @@ import SyncConfirmModal from './sync'
 
 import style from './style.scss'
 
+const isHiddenIntent = ({ name }) => name.startsWith('__')
+
 export default class Module extends React.Component {
   state = {
     showNavIntents: true,
+    showHiddenIntents: false,
     intents: [],
     currentIntent: null,
     filterValue: '',
@@ -46,7 +49,7 @@ export default class Module extends React.Component {
       const dataToSet = { intents: res.data }
 
       if (!this.state.currentIntent) {
-        dataToSet.currentIntent = _.get(_.first(res.data), 'name')
+        dataToSet.currentIntent = _.get(_.first(_.reject(res.data, isHiddenIntent)), 'name')
       }
 
       this.setState(dataToSet)
@@ -62,6 +65,8 @@ export default class Module extends React.Component {
   getCurrentIntent = () => _.find(this.getIntents(), { name: this.state.currentIntent })
 
   onFilterChanged = event => this.setState({ filterValue: event.target.value })
+
+  toggleShowHiddenIntents = event => this.setState({ showHiddenIntents: event.target.checked })
 
   setCurrentIntent = name => {
     if (this.state.currentIntent !== name) {
@@ -96,14 +101,20 @@ export default class Module extends React.Component {
       .then(() => this.setCurrentIntent(name))
   }
 
-  renderCategory() {
-    const intents = this.getIntents().filter(i => {
-      if (this.state.filterValue.length) {
-        return i.name.toLowerCase().includes(this.state.filterValue.toLowerCase())
+  getFilteredIntents() {
+    return this.getIntents().filter(i => {
+      if (!this.state.showHiddenIntents && isHiddenIntent(i)) {
+        return false
       }
-
+      if (this.state.filterValue.length && !i.name.toLowerCase().includes(this.state.filterValue.toLowerCase())) {
+        return false
+      }
       return true
     })
+  }
+
+  renderCategory() {
+    const intents = this.getFilteredIntents()
 
     const caret = classnames(style.caret, {
       [style.inverted]: !this.state.showNavIntents
@@ -171,12 +182,17 @@ export default class Module extends React.Component {
               </div>
 
               <div className={style.filter}>
-                <input
-                  type="text"
-                  value={this.state.filterValue}
-                  placeholder="filter..."
-                  onChange={this.onFilterChanged}
-                />
+                <p>
+                  <input
+                    type="text"
+                    value={this.state.filterValue}
+                    placeholder="filter..."
+                    onChange={this.onFilterChanged}
+                  />
+                </p>
+                <Checkbox checked={this.state.showHiddenIntents} onChange={this.toggleShowHiddenIntents}>
+                  Show hidden intents
+                </Checkbox>
               </div>
               <div className={style.list}>{this.renderCategory()}</div>
             </nav>
