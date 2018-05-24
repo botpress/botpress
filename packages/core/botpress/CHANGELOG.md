@@ -3,6 +3,33 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.10.0"></a>
+# [10.10.0](https://github.com/botpress/botpress/compare/v10.9.4...v10.10.0) (2018-05-24)
+
+
+### Bug Fixes
+
+* expand folders ([6c0387e](https://github.com/botpress/botpress/commit/6c0387e))
+* fix filtering skills from the flows list ([9dcf01d](https://github.com/botpress/botpress/commit/9dcf01d))
+* invalid jsdoc for CLI ([51424c9](https://github.com/botpress/botpress/commit/51424c9))
+* prevent tree menu from activating the node ([f914da0](https://github.com/botpress/botpress/commit/f914da0))
+* properly maintain toggled state when switching between flows ([b80ee96](https://github.com/botpress/botpress/commit/b80ee96))
+* refactor ([94ddd87](https://github.com/botpress/botpress/commit/94ddd87))
+* **docs:** removed global "type" in docs ([b32430d](https://github.com/botpress/botpress/commit/b32430d))
+* **flows:** support slashes in URL ([2fe290f](https://github.com/botpress/botpress/commit/2fe290f))
+
+
+### Features
+
+* **content:** allow transparently batching content items requests ([bb31197](https://github.com/botpress/botpress/commit/bb31197))
+* **flows:** hide the Skills list from the sidebar ([e299cf5](https://github.com/botpress/botpress/commit/e299cf5))
+* **flows:** menu items ([12605b0](https://github.com/botpress/botpress/commit/12605b0))
+* **flows:** sample flows in directories ([ab818ac](https://github.com/botpress/botpress/commit/ab818ac))
+* **flows:** tree view ([06358de](https://github.com/botpress/botpress/commit/06358de))
+
+
+
+
 <a name="10.9.4"></a>
 ## [10.9.4](https://github.com/botpress/botpress/compare/v10.9.3...v10.9.4) (2018-05-16)
 
