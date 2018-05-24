@@ -8,6 +8,7 @@ const nodeExternals = require('webpack-node-externals')
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
 
 const nodeConfig = {
+  mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
   devtool: 'source-map',
   entry: [path.resolve(__dirname, './index.js')],
   output: {
@@ -47,6 +48,7 @@ const nodeConfig = {
 }
 
 const webConfig = {
+  mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
   bail: true,
   devtool: process.env.NODE_ENV === 'production' ? 'source-map' : 'eval-source-map',
   entry: {
@@ -71,7 +73,6 @@ const webConfig = {
       }
     }),
     new UglifyJSPlugin({ sourceMap: true, cache: true }),
-    new webpack.NoEmitOnErrorsPlugin(),
     new CopyWebpackPlugin([
       {
         from: path.resolve(__dirname, './src/web/index.html'),
@@ -132,6 +133,9 @@ const webConfig = {
         use: [{ loader: 'file-loader', options: { name: '../fonts/[name].[ext]' } }]
       }
     ]
+  },
+  optimization: {
+    noEmitOnErrors: true
   }
 }
 
