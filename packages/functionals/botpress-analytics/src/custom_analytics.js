@@ -67,6 +67,25 @@ module.exports = ({ bp }) => {
     graphs.push(graph)
   }
 
+  const uniqRecords = async (from, to, variable) => {
+    const knex = await bp.db.get()
+    const uniqRecordsQuery = function() {
+      this.select(knex.raw('distinct name'))
+        .from('analytics_custom')
+        .where('date', '>=', from)
+        .andWhere('date', '<=', to)
+        .andWhere('name', 'LIKE', variable + '~%')
+        .as('t1')
+    }
+
+    const { count } = await knex
+      .count('*')
+      .from(uniqRecordsQuery)
+      .first()
+
+    return count
+  }
+
   const getters = {
     count: async function(graph, from, to) {
       const knex = await bp.db.get()
@@ -91,20 +110,7 @@ module.exports = ({ bp }) => {
     async countUniq(graph, from, to) {
       const knex = await bp.db.get()
       const variable = _.first(graph.variables)
-
-      const uniqRecordsQuery = function() {
-        this.select(knex.raw('distinct name'))
-          .from('analytics_custom')
-          .where('date', '>=', from)
-          .andWhere('date', '<=', to)
-          .andWhere('name', 'LIKE', variable + '~%')
-          .as('t1')
-      }
-
-      const { count: countUniq } = await knex
-        .count('*')
-        .from(uniqRecordsQuery)
-        .first()
+      const countUniq = await uniqRecords(from, to, variable)
       const results = await this.count(graph, from, to)
       return { ...graph, ...results, countUniq }
     },
@@ -117,25 +123,24 @@ module.exports = ({ bp }) => {
       const count2 = await getters.count({ variables: [variable2] }, from, to)
 
       const allDates = _.uniq([..._.map(count1.results, 'date'), ..._.map(count2.results, 'date')])
+      const records = allDates.map(date => [
+        _.find(count1.results, { date }) || { count: 0, date },
+        _.find(count2.results, { date }) || { count: 1, date }
+      ])
 
-      const rows = allDates.map(date => {
-        const n1 = _.find(count1.results, { date: date }) || { count: 0 }
-        const n2 = _.find(count2.results, { date: date }) || { count: 1 }
-
-        let percent = n1.count / n2.count
-
-        if (_.isFunction(graph.fn)) {
-          percent = graph.fn(n1.count, n2.count)
-        }
-
-        if (percent > 1) {
-          percent = 1
-        }
-
-        return { date: date, percent: percent }
+      const results = records.map(([n1, n2]) => {
+        const percent = _.isFunction(graph.fn) ? graph.fn(n1.count, n2.count) : n1.count / n2.count
+        return { date: n1.date, percent: percent > 1 ? 1 : percent }
       })
 
-      return Object.assign({}, graph, { results: rows })
+      let percent = null
+      if (graph.fnAvg) {
+        const n1Uniq = await uniqRecords(from, to, variable1)
+        const n2Uniq = await uniqRecords(from, to, variable2)
+        percent = graph.fnAvg(n1Uniq, n2Uniq) * 100
+      }
+
+      return Object.assign({}, graph, { results, percent })
     },
 
     piechart: async function(graph, from, to) {
