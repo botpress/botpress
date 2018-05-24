@@ -1,8 +1,11 @@
-import React, { Component, Fragment } from 'react'
+import React, { Component } from 'react'
 
-import { FormGroup, FormControl, Panel, ButtonToolbar, Button } from 'react-bootstrap'
+import { FormGroup, FormControl, ButtonToolbar, Button, InputGroup, Glyphicon } from 'react-bootstrap'
+
+import classnames from 'classnames'
 
 import ArrayEditor from './ArrayEditor'
+import style from './style.scss'
 
 export default class QuestionsEditor extends Component {
   onQuestionChange = (index, onChange) => event => {
@@ -10,9 +13,6 @@ export default class QuestionsEditor extends Component {
   }
 
   updateState = newState => {
-    if (newState.newItem != null) {
-      this.setState({ newItem: newState.newItem })
-    }
     if (newState.items != null) {
       this.props.onChange(newState.items)
     }
@@ -25,46 +25,39 @@ export default class QuestionsEditor extends Component {
   renderForm = (data, index, { onDelete, onChange }) => {
     if (index == null) {
       return (
-        <ButtonToolbar>
-          <Button type="button" bsStyle="success" onClick={this.addEmptyQuestion}>
-            Add another question
-          </Button>
-        </ButtonToolbar>
+        <div className={classnames(style.paddedRow, style.questionToolbar)}>
+          <ButtonToolbar>
+            <Button type="button" bsStyle="success" onClick={this.addEmptyQuestion}>
+              <Glyphicon glyph="plus-sign" />&nbsp; Add another question
+            </Button>
+          </ButtonToolbar>
+        </div>
       )
     }
 
     return (
-      <Fragment>
-        <FormGroup>
-          <FormControl
-            componentClass="textarea"
-            placeholder="Question"
-            value={data}
-            onChange={this.onQuestionChange(index, onChange)}
-          />
-        </FormGroup>
+      <FormGroup>
+        <InputGroup>
+          <FormControl placeholder="Question" value={data} onChange={this.onQuestionChange(index, onChange)} />
 
-        <ButtonToolbar>
-          <Button type="button" bsSize="sm" bsStyle="danger" onClick={() => onDelete(index)}>
-            Delete
-          </Button>
-        </ButtonToolbar>
-      </Fragment>
+          <InputGroup.Button>
+            <Button type="button" bsStyle="danger" onClick={() => onDelete(index)}>
+              <Glyphicon glyph="remove-circle" />
+            </Button>
+          </InputGroup.Button>
+        </InputGroup>
+      </FormGroup>
     )
   }
 
   render() {
     return (
-      <Panel>
-        <Panel.Body>
-          <ArrayEditor
-            items={this.props.items}
-            renderItem={this.renderForm}
-            updateState={this.updateState}
-            createNewItem={() => ''}
-          />
-        </Panel.Body>
-      </Panel>
+      <ArrayEditor
+        items={this.props.items}
+        renderItem={this.renderForm}
+        updateState={this.updateState}
+        createNewItem={() => ''}
+      />
     )
   }
 }
