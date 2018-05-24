@@ -1,1 +1,36 @@
+.qna {
+  h4 {
+    margin-top: 0;
+    font-weight: bold;
+  }
 
+  :global(.panel-heading) {
+    padding: 5px 10px;
+  }
+
+  :global(.panel-body) {
+    padding: 10px;
+  }
+}
+
+.paddedRow {
+  padding-bottom: 10px;
+}
+
+.questionToolbar {
+  :global(.btn) {
+    float: right;
+  }
+}
+
+.pale {
+  opacity: 0.8;
+}
+
+.strong {
+  &,
+  & *,
+  label {
+    font-weight: bold;
+  }
+}

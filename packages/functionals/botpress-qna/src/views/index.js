@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react'
+import React, { Component } from 'react'
 
 import {
   Row,
@@ -10,16 +10,17 @@ import {
   Radio,
   Panel,
   ButtonToolbar,
-  Button
+  Button,
+  Well
 } from 'react-bootstrap'
 import Select from 'react-select'
 
-// import classnames from 'classnames'
+import classnames from 'classnames'
 import find from 'lodash/find'
 
 import ArrayEditor from './ArrayEditor'
 import QuestionsEditor from './QuestionsEditor'
-// import style from './style.scss'
+import style from './style.scss'
 
 const getInputValue = input => {
   switch (input.type) {
@@ -161,37 +162,43 @@ export default class QnaAdmin extends Component {
       : find(flows, { name: redirectFlow }).nodes.map(({ name }) => ({ label: name, value: name }))
 
     return (
-      <Row>
-        <Col sm={6} md={2}>
-          Flow:
-        </Col>
-        <Col sm={6} md={4}>
-          <Select
-            value={redirectFlow}
-            options={flowOptions}
-            onChange={this.onSelectChange(index, 'redirectFlow', onChange)}
-          />
-        </Col>
+      <div className={style.paddedRow}>
+        <Row>
+          <Col sm={6} md={2}>
+            Flow:
+          </Col>
+          <Col sm={6} md={4}>
+            <Select
+              value={redirectFlow}
+              options={flowOptions}
+              onChange={this.onSelectChange(index, 'redirectFlow', onChange)}
+            />
+          </Col>
 
-        <Col sm={6} md={2}>
-          Node:
-        </Col>
-        <Col sm={6} md={4}>
-          <Select
-            value={data.redirectNode}
-            options={nodeOptions}
-            onChange={this.onSelectChange(index, 'redirectNode', onChange)}
-          />
-        </Col>
-      </Row>
+          <Col sm={6} md={2}>
+            Node:
+          </Col>
+          <Col sm={6} md={4}>
+            <Select
+              value={data.redirectNode}
+              options={nodeOptions}
+              onChange={this.onSelectChange(index, 'redirectNode', onChange)}
+            />
+          </Col>
+        </Row>
+      </div>
     )
   }
 
   renderForm = ({ data }, index, { isDirty, onCreate, onEdit, onReset, onDelete, onChange }) => (
-    <Fragment>
-      {index == null && <h3>New Q&amp;A</h3>}
+    <Well bsSize="small" bsClass={classnames('well', style.qna, { [style.pale]: !data.enabled })}>
+      {index == null && <h4>New Q&amp;A</h4>}
 
-      <Checkbox checked={data.enabled} onChange={this.onInputChange(index, 'enabled', onChange)}>
+      <Checkbox
+        checked={data.enabled}
+        onChange={this.onInputChange(index, 'enabled', onChange)}
+        bsClass={classnames('checkbox', { [style.strong]: data.enabled })}
+      >
         Enabled
       </Checkbox>
 
@@ -256,7 +263,7 @@ export default class QnaAdmin extends Component {
           {index != null ? `${isDirty ? '* ' : ''}Save` : 'Create'}
         </Button>
       </ButtonToolbar>
-    </Fragment>
+    </Well>
   )
 
   render() {
