@@ -30,7 +30,11 @@ export const processEvent = async (event, { bp, storage, logger }) => {
     const stateId = event.sessionId || event.user.id
     logger.debug('QnA: jumping', stateId, data.redirectFlow, data.redirectNode)
     await bp.dialogEngine.jumpTo(stateId, data.redirectFlow, data.redirectNode)
-    await bp.dialogEngine.processMessage(stateId, event)
+    // await bp.dialogEngine.processMessage(stateId, event)
+    const context = await bp.dialogEngine._getOrCreateContext(stateId)
+    const userState = await bp.dialogEngine.stateManager.getState(stateId)
+    console.log(userState, context)
+    await bp.dialogEngine._processNode(stateId, userState, context, data.redirectNode, event)
     return true
   }
 }
