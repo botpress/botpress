@@ -86,7 +86,12 @@
     {
       "id": "562598f0e2",
       "name": "random-fact",
-      "next": [],
+      "next": [
+        {
+          "condition": "true",
+          "node": "welcome"
+        }
+      ],
       "onEnter": ["say #!builtin_text-KRrMLo"],
       "onReceive": null
     }
