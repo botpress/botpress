@@ -7,6 +7,19 @@ const botbuilder = require('botbuilder')
 let bot = null
 
 const userAddressKey = userId => `microsoft::${userId}::address`
+const formatMessage = message => {
+  if (!message.quick_replies) {
+    return message
+  }
+  return new botbuilder.Message(null)
+    .text(message.text)
+    .suggestedActions(
+      botbuilder.SuggestedActions.create(
+        null,
+        message.quick_replies.map(({ payload, text }) => botbuilder.CardAction.imBack(null, payload, text))
+      )
+    )
+}
 
 const outgoingMiddleware = async (event, next) => {
   if (event.platform !== 'microsoft') {
@@ -18,9 +31,10 @@ const outgoingMiddleware = async (event, next) => {
   }
 
   const session = event.session || event.raw.session
+  const msg = formatMessage(event.raw.message)
 
   if (session) {
-    await session.send(event.raw.message)
+    await session.send(msg)
   } else {
     const userId = getUserId(event).replace('microsoft:', '')
     const address = await event.bp.kvs.get(userAddressKey(userId))
@@ -31,8 +45,7 @@ const outgoingMiddleware = async (event, next) => {
       )
     }
 
-    const msg = Object.assign({}, event.raw.message, { address: address })
-    await bot.send(msg)
+    await bot.send({ ...msg, address })
   }
 
   return event._resolve && event._resolve()
