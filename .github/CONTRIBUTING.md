@@ -101,8 +101,6 @@ These instructions assume a parent directory `bar` and we will be adding two chi
     $ mkdir bar && cd bar
     # Clone the forked repo locally
     bar $ git clone https://github.com/YOURNAME/botpress.git
-    # Navigate into your local botpress folder
-    bar $ cd botpress
     ```
 3. Determine if you are going to use `yarn` (recommended) or `npm` for package management
 
@@ -110,21 +108,27 @@ These instructions assume a parent directory `bar` and we will be adding two chi
 
 4. Continue running commands in the **botpress terminal window**
     ```shell
+    # Install lerna
+    bar $ cd botpress && yarn install && cd ..
     # Install the dependencies
-    bar/botpress $ yarn install
+    bar $ ./node_modules/.bin/lerna bootstrap
+    # Build all the packages
+    bar $ ./node_modules/.bin/lerna run compile
+    # Navigate into your local botpress folder
+    bar $ cd botpress/packages/core/botpress
     # Compile and run the botpress server
-    bar/botpress $ yarn run watch
+    bar/botpress/packages/core/botpress $ yarn run watch
     ```
 5. Open a new terminal/CLI tab (**foobot**), and run commands
     ```shell
     # navigate to the botpress  botpress directory
-    $ cd bar/botpress
+    $ cd bar/botpress/packages/core/botpress
     # link botpress
-    bar/botpress $ yarn link
+    bar/botpress/packages/core/botpress $ yarn link
     # navigate to bar
-    bar/botpress $ cd ./..
+    bar/botpress/packages/core/botpress $ cd ../../../..
     # create the foobot our test bot
-    bar $ node ./botpress/bin/botpress init foobot
+    bar $ node ./botpress/packages/core/botpress/bin/botpress init foobot
     # enter the project information at the prompts
     # navigate into the foobot directory
     bar $ cd foobot
@@ -138,21 +142,27 @@ These instructions assume a parent directory `bar` and we will be adding two chi
 
 4. Continue running commands in the **botpress terminal window**
     ```shell
+    # Install lerna
+    bar $ cd botpress && npm install && cd ..
     # Install the dependencies
-    bar/botpress $ npm install
+    bar $ ./node_modules/.bin/lerna bootstrap
+    # Build all the packages
+    bar $ ./node_modules/.bin/lerna run compile
+    # Navigate into your local botpress folder
+    bar $ cd botpress/packages/core/botpress
     # Compile and run the botpress server
-    bar/botpress $ npm run watch
+    bar/botpress/packages/core/botpress $ npm run watch
     ```
 5. Open a new terminal/CLI tab (**foobot**), and run commands
     ```shell
     # navigate to the botpress  botpress directory
-    $ cd bar/botpress
+    $ cd bar/botpress/packages/core/botpress
     # link botpress
-    bar/botpress $ yarn link
+    bar/botpress/packages/core/botpress $ yarn link
     # navigate to bar
-    bar/botpress $ cd ./..
+    bar/botpress/packages/core/botpress $ cd ../../../..
     # create the foobot our test bot
-    bar $ node ./botpress/bin/botpress init foobot
+    bar $ node ./botpress/packages/core/botpress/bin/botpress init foobot
     # enter the project information at the prompts
     # navigate into the foobot directory
     bar $ cd foobot
