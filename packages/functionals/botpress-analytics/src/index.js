@@ -48,7 +48,7 @@ const outgoingMiddleware = (event, next) => {
 
 module.exports = {
   init: function(bp) {
-    checkVersion(bp, __dirname)
+    checkVersion(bp, bp.botpressPath)
 
     bp.middlewares.register({
       name: 'analytics.incoming',

@@ -8,7 +8,7 @@ import listeners from './listeners'
 import { resolveProjectFile } from './util'
 
 module.exports = ({ logger, version, projectLocation, db, botfile, bp }) => {
-  const licensesPath = path.join(__dirname, '../licenses')
+  const licensesPath = path.join(bp.botpressPath, './licenses')
 
   const getLicenses = () => {
     const packageJsonPath = resolveProjectFile('package.json', projectLocation, true)

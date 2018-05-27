@@ -39,7 +39,7 @@ module.exports = {
   },
 
   init(bp) {
-    checkVersion(bp, __dirname)
+    checkVersion(bp, bp.botpressPath)
 
     bp.middlewares.register({
       name: 'slack.sendMessages',

@@ -10,7 +10,7 @@ let knex = null
 
 module.exports = {
   init: function(bp) {
-    checkVersion(bp, __dirname)
+    checkVersion(bp, bp.botpressPath)
     deamon(bp)
     bp.db.get().then(_knex => {
       knex = _knex
