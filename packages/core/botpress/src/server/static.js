@@ -130,16 +130,16 @@ module.exports = bp => {
 
     app.use(staticMiddleware(path.join(bp.projectLocation, 'static')))
 
-    app.use(staticMiddleware(path.join(__dirname, '../lib/web')))
+    app.use(staticMiddleware(path.join(bp.botpressPath, './lib/web')))
 
     app.get('*', (req, res, next) => {
       // If browser requests HTML and request isn't an API request
       if (/html/i.test(req.headers.accept) && !/^\/api\//i.test(req.url)) {
         if (req.url && /^\/lite\//i.test(req.url)) {
-          return res.sendFile(path.join(__dirname, '../lib/web/lite.html'))
+          return res.sendFile(path.join(bp.botpressPath, './lib/web/lite.html'))
         }
 
-        return res.sendFile(path.join(__dirname, '../lib/web/index.html'))
+        return res.sendFile(path.join(bp.botpressPath, './lib/web/index.html'))
       }
       next()
     })

@@ -1,10 +1,8 @@
-/* global __dirname */
-
 import checkVersion from 'botpress-version-manager'
 
 module.exports = {
   init: function(bp) {
-    checkVersion(bp, __dirname)
+    checkVersion(bp, bp.botpressPath)
   },
 
   ready: function(bp) {

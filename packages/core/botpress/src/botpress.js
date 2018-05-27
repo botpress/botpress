@@ -138,9 +138,7 @@ class botpress {
       }, 30 * 1000)
     }
 
-    // change the current working directory to botpress's installation path
-    // the bot's location is kept in this.projectLocation
-    process.chdir(path.join(__dirname, '../'))
+    this.botpressPath = path.join(__dirname, '../')
 
     const { projectLocation, botfile } = this
 
@@ -159,7 +157,8 @@ class botpress {
     const db = createDatabase({
       sqlite: { location: dbLocation },
       postgres: botfile.postgres,
-      logger
+      logger,
+      botpressPath: this.botpressPath
     })
 
     const kvs = db._kvs

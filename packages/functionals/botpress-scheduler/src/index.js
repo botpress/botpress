@@ -11,7 +11,7 @@ module.exports = {
   config: {},
 
   init: async function(bp) {
-    checkVersion(bp, __dirname)
+    checkVersion(bp, bp.botpressPath)
 
     await db(bp).bootstrap()
     const d = deamon(bp)

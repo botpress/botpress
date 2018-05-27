@@ -13,16 +13,18 @@ import pick from 'lodash/pick'
 
 import tables from './tables'
 import kvs from './kvs'
+import path from 'path'
 
-const initializeCoreDatabase = knex => {
+const initializeCoreDatabase = (knex, botpressPath) => {
   if (!knex) {
     throw new Error('You must initialize the database before')
   }
 
-  return Promise.mapSeries(tables, fn => fn(knex)).then(() => knex.migrate.latest())
+  const directory = path.join(botpressPath, './migrations/')
+  return Promise.mapSeries(tables, fn => fn(knex)).then(() => knex.migrate.latest({ directory }))
 }
 
-const createKnex = async ({ sqlite, postgres }) => {
+const createKnex = async ({ sqlite, postgres, botpressPath }) => {
   const commonConfig = {
     useNullAsDefault: true
   }
@@ -43,16 +45,16 @@ const createKnex = async ({ sqlite, postgres }) => {
 
   const _knex = knex(Object.assign(commonConfig, dbConfig))
 
-  await initializeCoreDatabase(_knex)
+  await initializeCoreDatabase(_knex, botpressPath)
   return _knex
 }
 
-module.exports = ({ sqlite, postgres, logger }) => {
+module.exports = ({ sqlite, postgres, logger, botpressPath }) => {
   let knex = null
 
   const getDb = async () => {
     if (!knex) {
-      knex = await createKnex({ sqlite, postgres })
+      knex = await createKnex({ sqlite, postgres, botpressPath })
     }
 
     return knex
