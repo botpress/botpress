@@ -46,6 +46,7 @@ const ensureAuthenticated = WrappedComponent => {
       if (location.pathname !== '/login' && !urlToken) {
         this.context.router.history.push('/login?returnTo=' + location.pathname)
       }
+      window.botpressWebChat && window.botpressWebChat.sendEvent({ type: 'hide' })
     }
 
     setupAuth() {
