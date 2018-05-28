@@ -33,7 +33,6 @@ export const processEvent = async (event, { bp, storage, logger }) => {
     // await bp.dialogEngine.processMessage(stateId, event)
     const context = await bp.dialogEngine._getOrCreateContext(stateId)
     const userState = await bp.dialogEngine.stateManager.getState(stateId)
-    console.log(userState, context)
     await bp.dialogEngine._processNode(stateId, userState, context, data.redirectNode, event)
     return true
   }
