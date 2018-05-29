@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.11.0"></a>
+# [10.11.0](https://github.com/botpress/modules/compare/v10.10.0...v10.11.0) (2018-05-29)
+
+
+### Features
+
+* **channel-web:** carousel acts as quick-replies ([6377576](https://github.com/botpress/modules/commit/6377576))
+
+
+
+
 <a name="10.10.0"></a>
 # [10.10.0](https://github.com/botpress/modules/compare/v10.9.4...v10.10.0) (2018-05-24)
 
