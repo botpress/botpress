@@ -67,7 +67,7 @@ module.exports = ({ bp }) => {
     graphs.push(graph)
   }
 
-  const uniqRecords = async (from, to, variable) => {
+  const countUniqRecords = async (from, to, variable) => {
     const knex = await bp.db.get()
     const uniqRecordsQuery = function() {
       this.select(knex.raw('distinct name'))
@@ -110,7 +110,7 @@ module.exports = ({ bp }) => {
     async countUniq(graph, from, to) {
       const knex = await bp.db.get()
       const variable = _.first(graph.variables)
-      const countUniq = await uniqRecords(from, to, variable)
+      const countUniq = await countUniqRecords(from, to, variable)
       const results = await this.count(graph, from, to)
       return { ...graph, ...results, countUniq }
     },
@@ -135,8 +135,8 @@ module.exports = ({ bp }) => {
 
       let percent = null
       if (graph.fnAvg) {
-        const n1Uniq = await uniqRecords(from, to, variable1)
-        const n2Uniq = await uniqRecords(from, to, variable2)
+        const n1Uniq = await countUniqRecords(from, to, variable1)
+        const n2Uniq = await countUniqRecords(from, to, variable2)
         percent = graph.fnAvg(n1Uniq, n2Uniq) * 100
       }
 
