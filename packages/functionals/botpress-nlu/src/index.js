@@ -51,7 +51,10 @@ module.exports = {
 
     // The maximum confidence after which it is considered a statistical error
     // Mostly irrelevant except for NLU=native
-    maximumConfidence: { type: 'string', required: false, default: '1000', env: 'NLU_MAX_CONFIDENCE' }
+    maximumConfidence: { type: 'string', required: false, default: '1000', env: 'NLU_MAX_CONFIDENCE' },
+
+    // The minimum difference between scores required before we apply a distribution fixes
+    nativeAdjustementThreshold: { type: 'string', required: false, default: '0.25', env: 'NLU_NATIVE_ADJ_THRESHOLD' }
   },
 
   init: async function(bp, configurator) {

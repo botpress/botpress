@@ -39,6 +39,10 @@ export default class NativeProvider extends Provider {
     }
   }
 
+  getStemmer() {
+    return { tokenizeAndStem: this._stemText.bind(this) }
+  }
+
   _stemText(text) {
     if (this.customStemmer) {
       return this.customStemmer(text)
@@ -75,7 +79,7 @@ export default class NativeProvider extends Provider {
       this.classifier = new natural.BayesClassifier()
     }
 
-    this.classifier = natural.BayesClassifier.restore(JSON.parse(model))
+    this.classifier = natural.BayesClassifier.restore(JSON.parse(model), this.getStemmer())
   }
 
   async getCustomEntities() {
@@ -93,8 +97,7 @@ export default class NativeProvider extends Provider {
       this.logger.debug('[NLU::Native] The model needs to be updated')
     }
 
-    const classifier = new natural.BayesClassifier()
-    classifier.stemmer = { tokenizeAndStem: this._stemText }
+    const classifier = new natural.BayesClassifier(this.getStemmer())
 
     let samples_count = 0
 
@@ -133,24 +136,33 @@ export default class NativeProvider extends Provider {
     const classifications = _.orderBy(this.classifier.getClassifications(incomingEvent.text), ['value'], ['desc'])
 
     let allScores = zscore(_.map(classifications, c => parseFloat(c.value)))
+
     allScores = allScores.map((s, i) => {
+      const delta = Math.abs(s - _.get(allScores, i + 1) / s)
+      if (delta >= parseFloat(this.nativeAdjustementThreshold || '0.25')) {
+        return s
+      }
+
       return (
         s -
-        (_.get(allScores, i + 1) || 0) * 0.5 -
-        (_.get(allScores, i + 2) || 0) * 0.75 -
-        (_.get(allScores, i + 3) || 0)
+        Math.max(0, _.get(allScores, i + 1) || 0) * 0.5 -
+        Math.max(0, _.get(allScores, i + 2) || 0) * 0.75 -
+        Math.max(0, _.get(allScores, i + 3) || 0)
       )
     })
 
-    const intents = _.map(classifications, (c, i) => {
-      return {
-        intent: c.label,
-        score: allScores[i]
-      }
-    })
+    const intents = _.orderBy(
+      _.map(classifications, (c, i) => {
+        return {
+          intent: c.label,
+          score: allScores[i]
+        }
+      }),
+      ['score'],
+      'desc'
+    )
 
-    const bestIntent = _.first(_.orderBy(intents, ['score'], ['desc']))
-
+    const bestIntent = _.first(intents)
     const intentName = _.get(bestIntent, 'intent') || 'None'
     const confidence = _.get(bestIntent, 'score') || 0
 
