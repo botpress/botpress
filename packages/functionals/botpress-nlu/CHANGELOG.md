@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.11.1"></a>
+## [10.11.1](https://github.com/botpress/modules/compare/v10.11.0...v10.11.1) (2018-05-29)
+
+
+### Bug Fixes
+
+* **nlu:** using custom stemmer when provided ([f7f6ab5](https://github.com/botpress/modules/commit/f7f6ab5))
+
+
+
+
 <a name="10.11.0"></a>
 # [10.11.0](https://github.com/botpress/modules/compare/v10.10.0...v10.11.0) (2018-05-29)
 
