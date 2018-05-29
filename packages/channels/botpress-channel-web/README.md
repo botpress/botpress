@@ -187,7 +187,8 @@ String
 
 #### `element.buttons` (optional)
 
-Object | `{ url: 'string', title: 'string' }`
+Object | `{ url: 'string', title: 'string', text: 'string', payload: 'string' }`
+When provided with `payload` instead of `url`, acts similarly to quick replies.
 
 #### `settings` (optional)
 
