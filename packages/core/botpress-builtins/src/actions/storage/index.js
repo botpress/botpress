@@ -14,7 +14,7 @@ export const setUserVariable = baseAction(
     ...Annotate('Storage', 'Set user variable', "Stores a variable under this user's storage, with optional expiry"),
     name: Joi.string()
       .required()
-      .token()
+      .regex(/^[a-z0-9_$]+$/i, 'token with allowed $')
       .description('The name of the variable.'),
     value: Joi.any()
       .optional()
@@ -41,12 +41,12 @@ export const getUserVariable = baseAction(
     ),
     name: Joi.string()
       .required()
-      .token()
+      .regex(/^[a-z0-9_$]+$/i, 'token with allowed $')
       .description('The name of the variable.'),
     output: Joi.string()
       .required()
       .default('$r')
-      .token()
+      .regex(/^[a-z0-9_$]+$/i, 'token with allowed $')
       .description('The state variable to output to')
   })
 )
@@ -61,7 +61,7 @@ export const resetUserVariable = baseAction(
     ...Annotate('Storage', 'Reset user variable', 'Deletes a user variable'),
     name: Joi.string()
       .required()
-      .token()
+      .regex(/^[a-z0-9_$]+$/i, 'token with allowed $')
       .description('The name of the variable.')
   })
 )
@@ -80,7 +80,7 @@ export const setConversationVariable = baseAction(
     ),
     name: Joi.string()
       .required()
-      .token()
+      .regex(/^[a-z0-9_$]+$/i, 'token with allowed $')
       .description('The name of the variable.'),
     value: Joi.any()
       .optional()
@@ -107,12 +107,12 @@ export const getConversationVariable = baseAction(
     ),
     name: Joi.string()
       .required()
-      .token()
+      .regex(/^[a-z0-9_$]+$/i, 'token with allowed $')
       .description('The name of the variable.'),
     output: Joi.string()
       .required()
       .default('$r')
-      .token()
+      .regex(/^[a-z0-9_$]+$/i, 'token with allowed $')
       .description('The state variable to output to')
   })
 )
@@ -127,7 +127,7 @@ export const resetConversationVariable = baseAction(
     ...Annotate('Storage', 'Reset conversation variable', 'Deletes a conversation variable'),
     name: Joi.string()
       .required()
-      .token()
+      .regex(/^[a-z0-9_$]+$/i, 'token with allowed $')
       .description('The name of the variable.')
   })
 )
@@ -141,7 +141,7 @@ export const setGlobalVariable = baseAction(
     ...Annotate('Storage', 'Set global variable', 'Stores a variable globally, with optional expiry'),
     name: Joi.string()
       .required()
-      .token()
+      .regex(/^[a-z0-9_$]+$/i, 'token with allowed $')
       .description('The name of the variable.'),
     value: Joi.any()
       .optional()
@@ -167,12 +167,12 @@ export const getGlobalVariable = baseAction(
     ),
     name: Joi.string()
       .required()
-      .token()
+      .regex(/^[a-z0-9_$]+$/i, 'token with allowed $')
       .description('The name of the variable.'),
     output: Joi.string()
       .required()
       .default('$r')
-      .token()
+      .regex(/^[a-z0-9_$]+$/i, 'token with allowed $')
       .description('The state variable to output to')
   })
 )
@@ -186,7 +186,7 @@ export const resetGlobalVariable = baseAction(
     ...Annotate('Storage', 'Reset global variable', 'Deletes a global variable'),
     name: Joi.string()
       .required()
-      .token()
+      .regex(/^[a-z0-9_$]+$/i, 'token with allowed $')
       .description('The name of the variable.')
   })
 )
