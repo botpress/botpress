@@ -130,7 +130,7 @@ export default class GuidedTour extends React.Component {
         </ul>
         <p>
           Deployment tutorials are{' '}
-          <a href="https://botpress.io/docs/deploy/heroku.html" target="_blank">
+          <a href="https://botpress.io/docs/deploy/heroku/" target="_blank">
             available here.
           </a>
         </p>

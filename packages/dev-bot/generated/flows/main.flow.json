@@ -55,7 +55,7 @@
     {
       "id": "a54a82eb7c",
       "name": "entry",
-      "onEnter": ["getUserVariable {\"name\":\"nickname\"}"],
+      "onEnter": ["getUserVariable {\"name\":\"nickname\",\"output\":\"$r\"}"],
       "onReceive": null,
       "next": [
         {
@@ -80,7 +80,7 @@
       "onEnter": ["say #!builtin_text-z0J9qh"],
       "onReceive": [
         "setUserVariable {\"name\":\"nickname\",\"value\":\"{{event.text}}\",\"expiry\":\"never\"}",
-        "getUserVariable {\"name\":\"nickname\"}"
+        "getUserVariable {\"name\":\"nickname\",\"output\":\"$r\"}"
       ]
     }
   ]
