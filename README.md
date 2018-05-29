@@ -5,7 +5,7 @@
 [![CircleCI](https://circleci.com/gh/botpress/botpress.svg?style=svg)](https://circleci.com/gh/botpress/botpress)
 [![npm](https://img.shields.io/npm/v/botpress.svg)](https://www.npmjs.com/package/botpress)
 
-Botpress is an open-source bot creation tool written in Javascript. It is powered by a rich set of open-source modules built by the community. We like to say that **Botpress is like the Wordpress of Chatbots**; anyone can create and reuse other people's modules.
+Botpress is an open-source bot creation tool written in Javascript. It is powered by a rich set of open-source modules built by the community. We like to say that **Botpress is like the WordPress of Chatbots**; anyone can create and reuse other people's modules.
 
 ---
 
