@@ -73,7 +73,9 @@ module.exports = {
           choice = _.findKey(data.keywords, keywords =>
             _.some(
               keywords || [],
-              k => _.includes(text.toLowerCase(), k.toLowerCase()) || _.includes(payload.toLowerCase(), k.toLowerCase())
+              k =>
+                _.includes(text.toLowerCase(), k.toLowerCase()) ||
+                (payload && _.includes(payload.toLowerCase(), k.toLowerCase()))
             )
           )
         }
