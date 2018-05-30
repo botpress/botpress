@@ -22,7 +22,7 @@ export default class QuestionsEditor extends Component {
     this.props.onChange([''].concat(this.props.items))
   }
 
-  renderForm = (data, index, { onDelete, onChange }) => {
+  renderForm = (data, index, { values, onDelete, onChange }) => {
     if (index == null) {
       return (
         <div className={classnames(style.paddedRow, style.questionToolbar)}>
@@ -39,9 +39,13 @@ export default class QuestionsEditor extends Component {
       <FormGroup>
         <InputGroup>
           <FormControl placeholder="Question" value={data} onChange={this.onQuestionChange(index, onChange)} />
-
           <InputGroup.Button>
-            <Button type="button" bsStyle="danger" onClick={() => onDelete(index)}>
+            <Button
+              type="button"
+              bsStyle="danger"
+              onClick={() => onDelete(index)}
+              disabled={!values || values.length <= 1}
+            >
               <Glyphicon glyph="remove-circle" />
             </Button>
           </InputGroup.Button>
