@@ -8,6 +8,9 @@ import ArrayEditor from './ArrayEditor'
 import style from './style.scss'
 
 export default class QuestionsEditor extends Component {
+  shouldAutofocus = false
+  firstInput = null
+
   onQuestionChange = (index, onChange) => event => {
     onChange(event.target.value, index)
   }
@@ -19,7 +22,35 @@ export default class QuestionsEditor extends Component {
   }
 
   addEmptyQuestion = () => {
+    this.firstInput = null
+    this.shouldAutofocus = true
     this.props.onChange([''].concat(this.props.items))
+  }
+
+  addInputOnEnter = event => {
+    if (event.keyCode === 13 && this.firstInput.value) {
+      // Enter pressed
+      this.firstInput.removeEventListener('keyup', this.addInputOnEnter)
+      this.addEmptyQuestion()
+    }
+  }
+
+  onInputRendered = index => input => {
+    if (!input || index !== 0) {
+      return
+    }
+
+    if (!this.firstInput) {
+      this.firstInput = input
+      input.addEventListener('keyup', this.addInputOnEnter)
+    }
+
+    let shouldAutofocus = this.props.autofocus
+    if (!shouldAutofocus && this.shouldAutofocus) {
+      shouldAutofocus = true
+      this.shouldAutofocus = false
+    }
+    shouldAutofocus && input.focus()
   }
 
   renderForm = (data, index, { values, onDelete, onChange }) => {
@@ -39,9 +70,7 @@ export default class QuestionsEditor extends Component {
       <FormGroup>
         <InputGroup>
           <FormControl
-            inputRef={input => {
-              input && this.props.autofocus && index === 0 && input.focus()
-            }}
+            inputRef={this.onInputRendered(index)}
             placeholder="Question"
             value={data}
             onChange={this.onQuestionChange(index, onChange)}
