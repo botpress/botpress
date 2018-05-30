@@ -38,7 +38,14 @@ export default class QuestionsEditor extends Component {
     return (
       <FormGroup>
         <InputGroup>
-          <FormControl placeholder="Question" value={data} onChange={this.onQuestionChange(index, onChange)} />
+          <FormControl
+            inputRef={input => {
+              input && this.props.autofocus && index === 0 && input.focus()
+            }}
+            placeholder="Question"
+            value={data}
+            onChange={this.onQuestionChange(index, onChange)}
+          />
           <InputGroup.Button>
             <Button
               type="button"
