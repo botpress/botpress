@@ -92,12 +92,13 @@ export default class ArrayEditor extends Component {
 
   isDirty = index => this.state.originals[index == null ? NEW_INDEX : index] !== undefined
 
-  renderItemForm = (value, index) => {
+  renderItemForm = (value, index, values) => {
     const { renderItem } = this.props
 
     return (
       <Fragment key={index != null ? index : 'new'}>
         {renderItem(value, index, {
+          values,
           isDirty: this.isDirty(index),
           onCreate: this.onCreate,
           onEdit: this.onEdit,
@@ -114,7 +115,7 @@ export default class ArrayEditor extends Component {
 
     return (
       <Fragment>
-        {this.renderItemForm(newItem, null)}
+        {this.renderItemForm(newItem, null, null)}
         {items && items.map(this.renderItemForm)}
       </Fragment>
     )
