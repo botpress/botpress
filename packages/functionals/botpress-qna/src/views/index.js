@@ -67,6 +67,8 @@ export default class QnaAdmin extends Component {
     flows: null
   }
 
+  shouldAutofocus = true
+
   fetchFlows() {
     this.props.bp.axios.get('/api/flows/all').then(({ data }) => {
       this.setState({ flows: data })
@@ -190,81 +192,90 @@ export default class QnaAdmin extends Component {
     )
   }
 
-  renderForm = ({ data }, index, { isDirty, onCreate, onEdit, onReset, onDelete, onChange }) => (
-    <Well bsSize="small" bsClass={classnames('well', style.qna, { [style.pale]: !data.enabled })}>
-      {index == null && <h4>New Q&amp;A</h4>}
+  renderForm = ({ data }, index, { isDirty, onCreate, onEdit, onReset, onDelete, onChange }) => {
+    const { shouldAutofocus } = this
+    this.shouldAutofocus = false
 
-      <Checkbox
-        checked={data.enabled}
-        onChange={this.onInputChange(index, 'enabled', onChange)}
-        bsClass={classnames('checkbox', { [style.strong]: data.enabled })}
-      >
-        Enabled
-      </Checkbox>
+    return (
+      <Well bsSize="small" bsClass={classnames('well', style.qna, { [style.pale]: !data.enabled })}>
+        {index == null && <h4>New Q&amp;A</h4>}
 
-      <Panel>
-        <Panel.Heading>Questions</Panel.Heading>
-        <Panel.Body>
-          <QuestionsEditor items={data.questions} onChange={this.onQuestionsChanged(index, onChange)} />
-        </Panel.Body>
-      </Panel>
-
-      <FormGroup>
-        <strong>Reply with:</strong>&nbsp;&nbsp;&nbsp;
-        <Radio
-          name={this.getFormControlId(index, 'action')}
-          value={ACTIONS.TEXT}
-          checked={data.action === ACTIONS.TEXT}
-          onChange={this.onInputChange(index, 'action', onChange)}
-          inline
+        <Checkbox
+          checked={data.enabled}
+          onChange={this.onInputChange(index, 'enabled', onChange)}
+          bsClass={classnames('checkbox', { [style.strong]: data.enabled })}
         >
-          text answer
-        </Radio>
-        <Radio
-          name={this.getFormControlId(index, 'action')}
-          value={ACTIONS.REDIRECT}
-          checked={data.action === ACTIONS.REDIRECT}
-          onChange={this.onInputChange(index, 'action', onChange)}
-          inline
-        >
-          redirect to flow node
-        </Radio>
-      </FormGroup>
+          Enabled
+        </Checkbox>
 
-      {data.action === ACTIONS.TEXT && (
-        <FormGroup controlId={this.getFormControlId(index, 'answer')}>
-          <ControlLabel>Answer:</ControlLabel>
-          <FormControl
-            componentClass="textarea"
-            placeholder="Answer"
-            value={data.answer}
-            onChange={this.onInputChange(index, 'answer', onChange)}
-          />
+        <Panel>
+          <Panel.Heading>Questions</Panel.Heading>
+          <Panel.Body>
+            <QuestionsEditor
+              autofocus={shouldAutofocus && index == null}
+              items={data.questions}
+              onChange={this.onQuestionsChanged(index, onChange)}
+            />
+          </Panel.Body>
+        </Panel>
+
+        <FormGroup>
+          <strong>Reply with:</strong>&nbsp;&nbsp;&nbsp;
+          <Radio
+            name={this.getFormControlId(index, 'action')}
+            value={ACTIONS.TEXT}
+            checked={data.action === ACTIONS.TEXT}
+            onChange={this.onInputChange(index, 'action', onChange)}
+            inline
+          >
+            text answer
+          </Radio>
+          <Radio
+            name={this.getFormControlId(index, 'action')}
+            value={ACTIONS.REDIRECT}
+            checked={data.action === ACTIONS.REDIRECT}
+            onChange={this.onInputChange(index, 'action', onChange)}
+            inline
+          >
+            redirect to flow node
+          </Radio>
         </FormGroup>
-      )}
 
-      {data.action === ACTIONS.REDIRECT && this.renderRedirectSelect(index, onChange)}
-
-      <ButtonToolbar>
-        <Button type="button" onClick={() => onReset(index)} disabled={!isDirty}>
-          Reset
-        </Button>
-        {index != null && (
-          <Button type="button" bsStyle="danger" onClick={() => onDelete(index)}>
-            Delete
-          </Button>
+        {data.action === ACTIONS.TEXT && (
+          <FormGroup controlId={this.getFormControlId(index, 'answer')}>
+            <ControlLabel>Answer:</ControlLabel>
+            <FormControl
+              componentClass="textarea"
+              placeholder="Answer"
+              value={data.answer}
+              onChange={this.onInputChange(index, 'answer', onChange)}
+            />
+          </FormGroup>
         )}
-        <Button
-          type="button"
-          bsStyle="success"
-          onClick={() => (index != null ? onEdit(index) : onCreate())}
-          disabled={!isDirty || !this.canSave(data)}
-        >
-          {index != null ? `${isDirty ? '* ' : ''}Save` : 'Create'}
-        </Button>
-      </ButtonToolbar>
-    </Well>
-  )
+
+        {data.action === ACTIONS.REDIRECT && this.renderRedirectSelect(index, onChange)}
+
+        <ButtonToolbar>
+          <Button type="button" onClick={() => onReset(index)} disabled={!isDirty}>
+            Reset
+          </Button>
+          {index != null && (
+            <Button type="button" bsStyle="danger" onClick={() => onDelete(index)}>
+              Delete
+            </Button>
+          )}
+          <Button
+            type="button"
+            bsStyle="success"
+            onClick={() => (index != null ? onEdit(index) : onCreate())}
+            disabled={!isDirty || !this.canSave(data)}
+          >
+            {index != null ? `${isDirty ? '* ' : ''}Save` : 'Create'}
+          </Button>
+        </ButtonToolbar>
+      </Well>
+    )
+  }
 
   render() {
     return (
