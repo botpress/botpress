@@ -59,10 +59,10 @@ module.exports = {
     })
 
     bp.dialogEngine.registerActions({
-      '__skill-choice-parse': async function(state, event, data) {
+      '__skill-choice-parse': async function(state, { text, payload }, data) {
         let choice = null
 
-        const nb = _.get(event.text.match(/^[#).!]?([\d]{1,2})[#).!]?$/), '[1]')
+        const nb = _.get(text.match(/^[#).!]?([\d]{1,2})[#).!]?$/), '[1]')
         if (config.matchNumbers && nb) {
           const index = parseInt(nb) - 1
           const element = await botpress.contentManager.getItem(data.contentId)
@@ -71,7 +71,10 @@ module.exports = {
 
         if (!choice) {
           choice = _.findKey(data.keywords, keywords =>
-            _.some(keywords || [], k => _.includes(event.text.toLowerCase(), k.toLowerCase()))
+            _.some(
+              keywords || [],
+              k => _.includes(text.toLowerCase(), k.toLowerCase()) || _.includes(payload.toLowerCase(), k.toLowerCase())
+            )
           )
         }
 
