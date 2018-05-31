@@ -1,4 +1,4 @@
-<a href='http://botpress.io'><img src='https://raw.githubusercontent.com/botpress/botpress/develop/x/.github/assets/botpress_xl.gif'></a>
+<a href='http://botpress.io'><img src='https://raw.githubusercontent.com/botpress/botpress/master/.github/assets/botpress_xl.gif'></a>
 
 # [Botpress](https://botpress.io) — The open-source bot platform
 
