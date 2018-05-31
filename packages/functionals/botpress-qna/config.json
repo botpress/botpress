@@ -1,3 +1,4 @@
 {
-  "qnaDir": "./qna"
+  "qnaDir": "./qna",
+  "textRenderer": "#builtin_text"
 }
