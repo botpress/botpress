@@ -93,7 +93,11 @@ export default class ArrayEditor extends Component {
   isDirty = index => this.state.originals[index == null ? NEW_INDEX : index] !== undefined
 
   renderItemForm = (value, index, values) => {
-    const { renderItem } = this.props
+    const { renderItem, shouldShowItem } = this.props
+
+    if (shouldShowItem && !shouldShowItem(value, index)) {
+      return null
+    }
 
     return (
       <Fragment key={index != null ? index : 'new'}>
