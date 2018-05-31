@@ -1,6 +1,6 @@
 import { NLU_PREFIX } from './storage'
 
-export const processEvent = async (event, { bp, storage, logger }) => {
+export const processEvent = async (event, { bp, storage, logger, config }) => {
   // NB: we rely on NLU being loaded before we receive any event.
   // I'm not sure yet if we can guarantee it
   if (!event.nlu || !event.nlu.intent || !event.nlu.intent.startsWith(NLU_PREFIX)) {
@@ -19,7 +19,7 @@ export const processEvent = async (event, { bp, storage, logger }) => {
 
   if (data.action === 'text') {
     logger.debug('QnA: replying to recognized question with plain text answer', id)
-    event.reply('#builtin_text', { text: data.answer })
+    event.reply(config.textRenderer, { text: data.answer })
     // return `true` to prevent further middlewares from capturing the message
     return true
   } else if (data.action === 'redirect') {

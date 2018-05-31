@@ -6,7 +6,8 @@ let logger
 
 module.exports = {
   config: {
-    qnaDir: { type: 'string', required: true, default: './qna', env: 'QNA_DIR' }
+    qnaDir: { type: 'string', required: true, default: './qna', env: 'QNA_DIR' },
+    textRenderer: { type: 'string', required: true, default: '#builtin_text', env: 'QNA_TEXT_RENDERER' }
   },
   async init(bp, configurator) {
     const config = await configurator.loadAll()
@@ -20,7 +21,7 @@ module.exports = {
       module: 'botpress-qna',
       type: 'incoming',
       handler: async (event, next) => {
-        if (!await processEvent(event, { bp, storage, logger })) {
+        if (!await processEvent(event, { bp, storage, logger, config })) {
           next()
         }
       },
