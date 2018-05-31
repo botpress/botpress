@@ -6,6 +6,8 @@ import {
   FormGroup,
   ControlLabel,
   FormControl,
+  InputGroup,
+  Glyphicon,
   Checkbox,
   Radio,
   Panel,
@@ -17,6 +19,7 @@ import Select from 'react-select'
 
 import classnames from 'classnames'
 import find from 'lodash/find'
+import some from 'lodash/some'
 
 import ArrayEditor from './ArrayEditor'
 import QuestionsEditor from './QuestionsEditor'
@@ -64,7 +67,8 @@ export default class QnaAdmin extends Component {
   state = {
     newItem: this.createEmptyQuestion(),
     items: [],
-    flows: null
+    flows: null,
+    filter: ''
   }
 
   shouldAutofocus = true
@@ -277,12 +281,38 @@ export default class QnaAdmin extends Component {
     )
   }
 
+  onFilterChange = event => {
+    this.setState({ filter: event.target.value })
+  }
+
+  questionMatches = filter => ({ data: { questions, answer, action } }, index) => {
+    if (index == null || !filter) {
+      return true
+    }
+
+    if (action === ACTIONS.TEXT && answer.indexOf(filter) >= 0) {
+      return true
+    }
+
+    return some(questions, q => q.indexOf(filter) >= 0)
+  }
+
   render() {
     return (
       <Panel>
         <Panel.Body>
+          <p>
+            <InputGroup>
+              <FormControl placeholder="Filter questions" value={this.state.filter} onChange={this.onFilterChange} />
+              <InputGroup.Addon>
+                <Glyphicon glyph="search" />
+              </InputGroup.Addon>
+            </InputGroup>
+          </p>
+
           <ArrayEditor
             items={this.state.items}
+            shouldShowItem={this.questionMatches(this.state.filter)}
             newItem={this.state.newItem}
             renderItem={this.renderForm}
             onCreate={this.onCreate}
