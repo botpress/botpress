@@ -209,6 +209,8 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
 
     await this._setContext(stateId, {
       currentFlow: flow,
+      node: nodeName || flow.startNode,
+      hasJumped: true,
       flowStack: [{ flow: flow.name, node: nodeName || flow.startNode }]
     })
 
@@ -410,6 +412,11 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
   async _processNode(stateId, userState, context, nodeName, event) {
     let switchedFlow = false
     let switchedNode = false
+
+    if (context.hasJumped) {
+      context.hasJumped = false
+      switchedNode = true
+    }
 
     const originalFlow = context.currentFlow.name
     const originalNode = context.node
