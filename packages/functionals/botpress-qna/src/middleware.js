@@ -30,10 +30,8 @@ export const processEvent = async (event, { bp, storage, logger, config }) => {
     const stateId = event.sessionId || event.user.id
     logger.debug('QnA: jumping', stateId, data.redirectFlow, data.redirectNode)
     await bp.dialogEngine.jumpTo(stateId, data.redirectFlow, data.redirectNode)
-    // await bp.dialogEngine.processMessage(stateId, event)
-    const context = await bp.dialogEngine._getOrCreateContext(stateId)
-    const userState = await bp.dialogEngine.stateManager.getState(stateId)
-    await bp.dialogEngine._processNode(stateId, userState, context, data.redirectNode, event)
-    return true
+    // We return false here because the we only jump to the right flow/node and let
+    // the bot's natural middleware chain take care of processing the message the normal way
+    return false
   }
 }
