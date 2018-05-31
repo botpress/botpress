@@ -23,6 +23,7 @@ import some from 'lodash/some'
 
 import ArrayEditor from './ArrayEditor'
 import QuestionsEditor from './QuestionsEditor'
+import QuestionsBulkImport from './QuestionsBulkImport'
 import style from './style.scss'
 
 const getInputValue = input => {
@@ -68,7 +69,8 @@ export default class QnaAdmin extends Component {
     newItem: this.createEmptyQuestion(),
     items: [],
     flows: null,
-    filter: ''
+    filter: '',
+    showBulkImport: undefined
   }
 
   shouldAutofocus = true
@@ -196,9 +198,48 @@ export default class QnaAdmin extends Component {
     )
   }
 
+  doQuestionsBulkImport = (index, onChange) => newQuestions => {
+    if (index === undefined) {
+      return
+    }
+    this.setState({ showBulkImport: undefined })
+
+    const value = index == null ? this.state.newItem : this.state.items[index]
+
+    const oldQuestions = value.data.questions.map(s => s.trim()).filter(Boolean)
+
+    onChange(
+      {
+        ...value,
+        data: {
+          ...value.data,
+          questions: newQuestions.concat(oldQuestions)
+        }
+      },
+      index
+    )
+  }
+
+  showQuestionsBulkImportModal = index => () => {
+    this.setState({ showBulkImport: index })
+  }
+
+  renderBulkImportModal(index, onChange) {
+    return (
+      <QuestionsBulkImport
+        onSubmit={this.doQuestionsBulkImport(index, onChange)}
+        onCancel={() => {
+          this.setState({ showBulkImport: undefined })
+        }}
+      />
+    )
+  }
+
   renderForm = ({ data }, index, { isDirty, onCreate, onEdit, onReset, onDelete, onChange }) => {
     const { shouldAutofocus } = this
     this.shouldAutofocus = false
+
+    const { showBulkImport } = this.state
 
     return (
       <Well bsSize="small" bsClass={classnames('well', style.qna, { [style.pale]: !data.enabled })}>
@@ -213,7 +254,13 @@ export default class QnaAdmin extends Component {
         </Checkbox>
 
         <Panel>
-          <Panel.Heading>Questions</Panel.Heading>
+          <Panel.Heading>
+            Questions
+            <Button bsSize="xs" bsStyle="link" onClick={this.showQuestionsBulkImportModal(index)}>
+              bulk import
+            </Button>
+            {showBulkImport === index && this.renderBulkImportModal(index, onChange)}
+          </Panel.Heading>
           <Panel.Body>
             <QuestionsEditor
               autofocus={shouldAutofocus && index == null}

@@ -4,9 +4,6 @@
 :global(.component-mount) {
   :global(.btn) {
     font-size: 14px;
-    color: $btn-text-color;
-    background-color: $btn-bg-color;
-    border-color: $btn-bg-color;
     opacity: 0.75;
     text-align: center;
     padding-left: 20px;
@@ -15,9 +12,17 @@
     transition: opacity 0.15s ease-in-out, background-color 0.15s ease-in-out;
 
     &:hover {
+      opacity: 1;
+    }
+  }
+
+  :global(.btn-success) {
+    color: $btn-text-color;
+    background-color: $btn-bg-color;
+    border-color: $btn-bg-color;
+    &:hover {
       background-color: $btn-bg-color-hover;
       border-color: $btn-bg-color-hover;
-      opacity: 1;
       color: $btn-text-color;
     }
   }

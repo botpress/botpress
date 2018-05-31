@@ -6,6 +6,14 @@
 
   :global(.panel-heading) {
     padding: 5px 10px;
+
+    :global(.btn) {
+      padding: 0;
+      font-size: 12px;
+      margin-left: 10px;
+      margin-top: -6px;
+      margin-bottom: -3px;
+    }
   }
 
   :global(.panel-body) {
