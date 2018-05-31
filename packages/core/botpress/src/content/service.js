@@ -574,6 +574,8 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
         throw new VError(err, `[Content Manager] Could not register Content Element "${file}"`)
       }
     }
+
+    await recomputeCategoriesMetadata()
   }
 
   /**
