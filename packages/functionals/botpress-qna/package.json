@@ -1,6 +1,6 @@
 {
   "name": "@botpress/qna",
-  "version": "10.11.3",
+  "version": "10.13.0",
   "description": "Botpress Q&A module",
   "main": "bin/node.bundle.js",
   "homepage": "https://github.com/botpress/modules",
@@ -27,8 +27,8 @@
   "author": "Botpress, Inc.",
   "license": "AGPL-3.0",
   "peerDependencies": {
-    "botpress": ">= 10.0.0",
-    "@botpress/nlu": ">= 10.0.0"
+    "@botpress/nlu": ">= 10.0.0",
+    "botpress": ">= 10.0.0"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",

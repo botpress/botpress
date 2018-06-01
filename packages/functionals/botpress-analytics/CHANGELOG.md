@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.13.0"></a>
+# [10.13.0](https://github.com/botpress/modules/compare/v10.11.3...v10.13.0) (2018-06-01)
+
+
+### Bug Fixes
+
+* **docs:** docs on botpress-analytics usage ([469b317](https://github.com/botpress/modules/commit/469b317))
+
+
+
+
+<a name="10.12.0"></a>
+# [10.12.0](https://github.com/botpress/modules/compare/v10.11.3...v10.12.0) (2018-06-01)
+
+
+### Bug Fixes
+
+* **docs:** docs on botpress-analytics usage ([469b317](https://github.com/botpress/modules/commit/469b317))
+
+
+
+
 <a name="10.11.1"></a>
 ## [10.11.1](https://github.com/botpress/modules/compare/v10.11.0...v10.11.1) (2018-05-29)
 
