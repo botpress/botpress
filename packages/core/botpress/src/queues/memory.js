@@ -27,6 +27,7 @@ export default class MemoryQueue {
       _.get(event, 'userId') ||
       _.get(event, 'raw.user.id') ||
       _.get(event, 'raw.userId') ||
+      _.get(event, 'raw.to') ||
       'default'
     )
   }

@@ -607,9 +607,13 @@ class Messenger extends EventEmitter {
     errorMessage += '\nStatus: ' + res.status + ' (' + res.statusText + ')'
 
     return Promise.resolve(true)
-      .then(() => res.json())
+      .then(() => res.json && res.json())
       .then(json => {
         errorMessage += '\n' + json.error.message
+        if (json.error.error_user_title) {
+          errorMessage += '\n' + json.error.error_user_title
+          errorMessage += '\n' + json.error.error_user_msg
+        }
       })
       .finally(() => {
         throw new Error(errorMessage)
