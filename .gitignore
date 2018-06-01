@@ -60,7 +60,6 @@ docs/reference
 packages/**/bin
 packages/**/dist
 packages/channels/botpress-channel-web/fonts/**
-packages/package.json
 packages/yarn.lock
 
 **/.DS_Store
