@@ -24,8 +24,8 @@ export default class Storage {
     mkdirp.sync(path.resolve(this.projectDir, this.intentsDir))
     mkdirp.sync(path.resolve(this.projectDir, this.entitiesDir))
 
-    await this.ghost.addRootFolder(this.intentsDir, '**/*.*')
-    await this.ghost.addRootFolder(this.entitiesDir, '**/*.entity.json')
+    await this.ghost.addRootFolder(this.intentsDir, { filesGlob: '**/*.*' })
+    await this.ghost.addRootFolder(this.entitiesDir, { filesGlob: '**/*.entity.json' })
   }
 
   async saveIntent(intent, content) {

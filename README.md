@@ -43,7 +43,7 @@ Botpress is on a mission to make useful bots ubiquitous by powering developers w
 
 ## Installation
 
-Botpress requires [node](https://nodejs.org) (version >= 6.10) and uses [npm](https://www.npmjs.com) as package manager.
+Botpress requires [node](https://nodejs.org) (version >= 8.2) and uses [npm](https://www.npmjs.com) as package manager.
 
 ```
 npm install -g botpress@beta

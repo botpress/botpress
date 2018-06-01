@@ -2,7 +2,7 @@
   // http://eslint.org/docs/rules/
   "parser": "babel-eslint",
 
-  "extends": ["prettier"],
+  "extends": ["prettier", "plugin:react/recommended"],
 
   "env": {
     "browser": true, // browser global variables.
@@ -26,7 +26,7 @@
     "goog": true
   },
 
-  "plugins": ["prettier", "jest"],
+  "plugins": ["prettier", "jest", "react"],
 
   "rules": {
     "no-extra-semi": 1, // disallow unnecessary semicolons
@@ -42,6 +42,7 @@
 
     "no-undef": 2, // disallow use of undeclared variables unless mentioned in a /*global */ block
     "no-var": 2,
+    "no-unused-vars": 1,
     "prefer-const": ["error", {
       "destructuring": "all",
       "ignoreReadBeforeAssign": false
@@ -50,6 +51,8 @@
     "no-array-constructor": 2,
     "no-new-object": 2,
 
-    "prettier/prettier": "error"
+    "prettier/prettier": "error",
+
+    "react/prop-types": 0
   }
 }

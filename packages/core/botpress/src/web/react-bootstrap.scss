@@ -4,10 +4,7 @@
 :global(.component-mount) {
   :global(.btn) {
     font-size: 14px;
-    color: $btn-text-color;
-    background-color: $btn-bg-color;
     opacity: 0.75;
-    border: none;
     text-align: center;
     padding-left: 20px;
     padding-right: 20px;
@@ -15,25 +12,38 @@
     transition: opacity 0.15s ease-in-out, background-color 0.15s ease-in-out;
 
     &:hover {
-      background-color: $btn-bg-color-hover;
       opacity: 1;
+    }
+  }
+
+  :global(.btn-success) {
+    color: $btn-text-color;
+    background-color: $btn-bg-color;
+    border-color: $btn-bg-color;
+    &:hover {
+      background-color: $btn-bg-color-hover;
+      border-color: $btn-bg-color-hover;
       color: $btn-text-color;
     }
   }
 
   :global(.btn-danger) {
     background-color: #af4f4b;
+    border-color: #af4f4b;
 
     &:hover {
       background-color: #b13434;
+      border-color: #b13434;
     }
   }
 
   :global(.btn-default) {
     background-color: #b1b1b1;
+    border-color: #b1b1b1;
 
     &:hover {
       background-color: #a5a5a5;
+      border-color: #a5a5a5;
     }
   }
 

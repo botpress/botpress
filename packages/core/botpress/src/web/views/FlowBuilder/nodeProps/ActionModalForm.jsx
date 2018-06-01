@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Modal, Button, Radio, OverlayTrigger, Tooltip, Panel, Well } from 'react-bootstrap'
+import { Modal, Button, Radio, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import Markdown from 'react-markdown'
 import axios from 'axios'
 import _ from 'lodash'
@@ -83,7 +83,7 @@ export default class ActionModalForm extends Component {
 
     const help = (
       <OverlayTrigger placement="bottom" overlay={tooltip}>
-        <span className={style.tip}>Can't see your action?</span>
+        <span className={style.tip}>Can&apos;t see your action?</span>
       </OverlayTrigger>
     )
 
@@ -103,7 +103,7 @@ export default class ActionModalForm extends Component {
       this.setState({ functionParams: params })
     }
 
-    const args = JSON.stringify(this.state.functionParams, null, 4)
+    // const args = JSON.stringify(this.state.functionParams, null, 4)
 
     return (
       <div>
@@ -157,7 +157,7 @@ export default class ActionModalForm extends Component {
 
     const tooltip = (
       <Tooltip id="howMessageWorks">
-        You can type a regular message here or you can also provide a valid UMM bloc, for example "#help".
+        You can type a regular message here or you can also provide a valid UMM bloc, for example &quot;#help&quot;.
       </Tooltip>
     )
 

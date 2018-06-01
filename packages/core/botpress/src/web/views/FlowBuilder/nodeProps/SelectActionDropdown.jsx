@@ -1,7 +1,5 @@
 import React, { Component } from 'react'
 import Select from 'react-select'
-import _ from 'lodash'
-import classnames from 'classnames'
 import Highlighter from 'react-highlight-words'
 
 const style = require('./actionDropdown.scss')
@@ -23,7 +21,7 @@ export default class SelectActionDropdown extends Component {
           <span>
             {category}
             {title}
-            <span className={style.name}>–> {highlight(option.label)}</span>
+            <span className={style.name}>–&gt; {highlight(option.label)}</span>
           </span>
         </div>
       )

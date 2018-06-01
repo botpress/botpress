@@ -9,7 +9,7 @@ const MAX_STACK_SIZE = 100
 
 /** The Dialog Engine (or Dialog Manager) is the component that
  handles the flow logic. It it responsible for executing flows, including
- executing the actions and flowing to the nodes, redirections etc. 
+ executing the actions and flowing to the nodes, redirections etc.
  @namespace DialogEngine
  @example
  bp.dialogEngine.processMessage(...)
@@ -86,8 +86,8 @@ bp.dialogEngine.onBeforeNodeEnter((ctx, next) => {
     this.onBeforeNodeEnter = mware()
 
     /**
-     * Middleware triggered **before** a conversation/session times out. 
-     * > **Note:** You can't prevent it from timing out at this point. 
+     * Middleware triggered **before** a conversation/session times out.
+     * > **Note:** You can't prevent it from timing out at this point.
      * > You also can't change the timeout behavior/location at this time.
      * @function DialogEngine#onBeforeSessionTimeout
      * @param {DialogEngine~DialogMiddleware} middleware
@@ -209,6 +209,8 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
 
     await this._setContext(stateId, {
       currentFlow: flow,
+      node: nodeName || flow.startNode,
+      hasJumped: true,
       flowStack: [{ flow: flow.name, node: nodeName || flow.startNode }]
     })
 
@@ -410,6 +412,11 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
   async _processNode(stateId, userState, context, nodeName, event) {
     let switchedFlow = false
     let switchedNode = false
+
+    if (context.hasJumped) {
+      context.hasJumped = false
+      switchedNode = true
+    }
 
     const originalFlow = context.currentFlow.name
     const originalNode = context.node
