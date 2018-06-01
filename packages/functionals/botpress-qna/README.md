@@ -2,14 +2,23 @@
 
 Botpress Q&A is a Botpress module that adds the unified Q&A management interface to your bot admin panel.
 
-It relies on the NLU module for recognizing the questions. It also requires the `builtins` module to be present.
+It relies on the NLU module for recognizing the questions. By default it also uses the `builtins` module to end the text response, but it's configurable (see below).
 
 # Installation
 
 ⚠️ **This module only works with the new [Botpress X](https://github.com/botpress/botpress).**
 
-- Install the peer dependencies and the module iteslf `yarn add @botpress/builtins @botpress/nlu @botpress/qna`
+- Install the peer dependencies and the module iteslf `yarn add @botpress/builtins @botpress/nlu @botpress/qna` (note: you can skip the `builtins` module if you use the custom text renderer.)
 - Configure [NLU](https://github.com/botpress/botpress/tree/master/packages/functionals/botpress-nlu#botpress-nlu-)
+
+# Configuration
+
+The following properties can be configured either in the `qna.json` file or using the environment variables:
+
+| Key | Environment Variable | Required | Default | |
+| ------------- | -------- | ----- | ---- | ---- |
+| `qnaDir` | `QNA_DIR` | No | `./qna` | The directory where the Q&A data is stored.
+| `textRenderer` | `QNA_TEXT_RENDERER` | No | `#builtin_text` (requires `@botpress/builtins` to be installed) | The _renderer_ used to format the text responses.
 
 # Usage
 
