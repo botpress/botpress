@@ -7,6 +7,8 @@ import util from '../util'
 let logsSecret = nanoid()
 
 module.exports = (bp, app) => {
+  // modules
+
   app.secure('read', 'modules.list').get('/api/modules', (req, res) => {
     const modules = _.map(bp._loadedModules, module => {
       return {
@@ -23,6 +25,20 @@ module.exports = (bp, app) => {
     })
     res.send(modules)
   })
+
+  app.secure('read', 'modules.list.community').get('/api/module/all', (req, res) => {
+    bp.modules.listAllCommunityModules().then(modules => res.send(modules))
+  })
+
+  app.secure('read', 'modules.list.community').get('/api/module/hero', (req, res) => {
+    bp.modules.getRandomCommunityHero().then(hero => res.send(hero))
+  })
+
+  app.secure('read', 'modules.list.community').get('/api/bot/contributor', (req, res) => {
+    res.send(bp.bot.getContributor())
+  })
+
+  // middleware
 
   app.secure('read', 'middleware.list').get('/api/middlewares', (req, res) => {
     res.send(bp.middlewares.list())
@@ -43,6 +59,8 @@ module.exports = (bp, app) => {
     res.send(bp.middlewares.list())
   })
 
+  // notifications
+
   // DEPRECATED in Botpress 1.1
   app.secure('read', 'notifications').get('/api/notifications', async (req, res) => {
     res.send(await bp.notifications.getInbox())
@@ -52,20 +70,10 @@ module.exports = (bp, app) => {
     res.send(await bp.notifications.getInbox())
   })
 
+  // bot
+
   app.secure('read', 'bot.information').get('/api/bot/information', (req, res) => {
     res.send(bp.about.getBotInformation())
-  })
-
-  app.secure('read', 'modules.list.community').get('/api/module/all', (req, res) => {
-    bp.modules.listAllCommunityModules().then(modules => res.send(modules))
-  })
-
-  app.secure('read', 'modules.list.community').get('/api/module/hero', (req, res) => {
-    bp.modules.getRandomCommunityHero().then(hero => res.send(hero))
-  })
-
-  app.secure('read', 'modules.list.community').get('/api/bot/contributor', (req, res) => {
-    res.send(bp.bot.getContributor())
   })
 
   app.secure('write', 'bot.information.license').post('/api/license', (req, res) => {
@@ -210,7 +218,7 @@ module.exports = (bp, app) => {
     res.sendStatus(200)
   })
 
-  app.secure('read', 'bot.skills').post('/api/skills/:skillId/generate', async (req, res) => {
+  app.secure('write', 'bot.skills').post('/api/skills/:skillId/generate', async (req, res) => {
     res.send(await bp.skills.generateFlow(req.params.skillId, req.body))
   })
 }
