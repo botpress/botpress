@@ -1,19 +1,12 @@
 import _ from 'lodash'
-import fs from 'fs'
-import path from 'path'
 import nanoid from 'nanoid'
 import multer from 'multer'
-import Promise from 'bluebird'
 
 import util from '../util'
 
 let logsSecret = nanoid()
 
 module.exports = (bp, app) => {
-  app.get('/api/ping', (req, res) => {
-    res.send('pong')
-  })
-
   app.secure('read', 'modules.list').get('/api/modules', (req, res) => {
     const modules = _.map(bp._loadedModules, module => {
       return {
@@ -59,10 +52,6 @@ module.exports = (bp, app) => {
     res.send(await bp.notifications.getInbox())
   })
 
-  app.get('/api/my-account', async (req, res) => {
-    res.send(req.user)
-  })
-
   app.secure('read', 'bot.information').get('/api/bot/information', (req, res) => {
     res.send(bp.about.getBotInformation())
   })
@@ -77,21 +66,6 @@ module.exports = (bp, app) => {
 
   app.secure('read', 'modules.list.community').get('/api/bot/contributor', (req, res) => {
     res.send(bp.bot.getContributor())
-  })
-
-  app.get('/api/bot/production', (req, res) => {
-    res.send(!util.isDeveloping)
-  })
-
-  app.get('/api/license', async (req, res) => {
-    res.send(await bp.licensing.getLicensing())
-  })
-
-  app.delete('/api/guided-tour', (req, res) => {
-    fs.unlink(path.join(bp.projectLocation, '.welcome'), () => {
-      bp.isFirstRun = false
-      res.sendStatus(200)
-    })
   })
 
   app.secure('write', 'bot.information.license').post('/api/license', (req, res) => {
