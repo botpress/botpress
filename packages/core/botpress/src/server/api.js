@@ -4,6 +4,7 @@ import { Router } from 'express'
 import qs from 'query-string'
 
 import anonymousApis from './anonymous'
+import nonSecuredApis from './non-secured'
 import securedApis from './secured'
 
 const routersConditions = {}
@@ -191,6 +192,7 @@ bp.createShortlink('chat', '/lite', {
 
     app.use('/api/*', maybeApply('auth', _authenticationMiddleware))
 
+    nonSecuredApis(bp, app)
     securedApis(bp, app)
   }
 
