@@ -1,3 +1,5 @@
+export { RESOURCES } from './resources'
+
 export const ressourceMatches = (pattern, res) => {
   const separator = /[\/\.]/
   pattern = pattern || ''
