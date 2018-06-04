@@ -174,7 +174,7 @@ class Messenger extends EventEmitter {
     const applicationID = this.config.applicationID
     const accessToken = this.config.accessToken
 
-    return fetch(`https://graph.facebook.com/v2.7/${applicationID}/subscriptions_sample`, {
+    return fetch(`https://graph.facebook.com/v${this.config.graphVersion}/${applicationID}/subscriptions_sample`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -193,7 +193,7 @@ class Messenger extends EventEmitter {
     endpoint = endpoint || 'messages'
     method = method || 'POST'
 
-    const url = `https://graph.facebook.com/v2.7/me/${endpoint}`
+    const url = `https://graph.facebook.com/v${this.config.graphVersion}/me/${endpoint}`
     return fetch(`${url}?access_token=${this.config.accessToken}`, {
       method,
       headers: { 'Content-Type': 'application/json' },
@@ -233,7 +233,8 @@ class Messenger extends EventEmitter {
 
   getUserProfile(userId) {
     const token = this.config.accessToken
-    const url = `https://graph.facebook.com/v2.7/${userId}?fields=first_name,last_name,profile_pic,locale,timezone,gender&access_token=${token}`
+    const url = `https://graph.facebook.com/v${this.config
+      .graphVersion}/${userId}?fields=first_name,last_name,profile_pic,locale,timezone,gender&access_token=${token}`
     return fetch(url)
       .then(this._handleFacebookResponse)
       .then(res => res.json())
@@ -290,7 +291,8 @@ class Messenger extends EventEmitter {
       }
     }
 
-    const url = `https://graph.facebook.com/v2.6/me/messenger_profile?access_token=${this.config.accessToken}`
+    const url = `https://graph.facebook.com/v${this.config.graphVersion}/me/messenger_profile?access_token=${this.config
+      .accessToken}`
 
     await fetch(url, {
       method: 'DELETE',
@@ -720,14 +722,15 @@ class Messenger extends EventEmitter {
 
   _setupNewWebhook() {
     const oAuthUrl =
-      'https://graph.facebook.com/v2.7/oauth/access_token' +
+      `https://graph.facebook.com/v${this.config.graphVersion}/oauth/access_token` +
       '?client_id=' +
       this.config.applicationID +
       '&client_secret=' +
       this.config.appSecret +
       '&grant_type=client_credentials'
 
-    const url = `https://graph.facebook.com/v2.7/${this.config.applicationID}/subscriptions?access_token=`
+    const url = `https://graph.facebook.com/v${this.config.graphVersion}/${this.config
+      .applicationID}/subscriptions?access_token=`
 
     return fetch(oAuthUrl)
       .then(this._handleFacebookResponse)
@@ -750,7 +753,9 @@ class Messenger extends EventEmitter {
   }
 
   _subscribePage() {
-    const url = 'https://graph.facebook.com/v2.6/me/subscribed_apps?access_token=' + this.config.accessToken
+    const url =
+      `https://graph.facebook.com/v${this.config.graphVersion}/me/subscribed_apps?access_token=` +
+      this.config.accessToken
 
     return fetch(url, { method: 'POST' })
       .then(this._handleFacebookResponse)
@@ -759,7 +764,9 @@ class Messenger extends EventEmitter {
   }
 
   _unsubscribePage() {
-    const url = 'https://graph.facebook.com/v2.6/me/subscribed_apps?access_token=' + this.config.accessToken
+    const url =
+      `https://graph.facebook.com/v${this.config.graphVersion}/me/subscribed_apps?access_token=` +
+      this.config.accessToken
 
     return fetch(url, { method: 'DELETE' })
       .then(this._handleFacebookResponse)
@@ -768,7 +775,7 @@ class Messenger extends EventEmitter {
   }
 
   _getPage() {
-    const url = 'https://graph.facebook.com/v2.6/me/?access_token=' + this.config.accessToken
+    const url = `https://graph.facebook.com/v${this.config.graphVersion}/me/?access_token=` + this.config.accessToken
 
     return fetch(url, { method: 'GET' })
       .then(this._handleFacebookResponse)

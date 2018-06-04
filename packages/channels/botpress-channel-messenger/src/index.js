@@ -71,6 +71,7 @@ module.exports = {
     enabled: { type: 'bool', required: true, default: true },
     hostname: { type: 'string', required: false, default: '', env: 'MESSENGER_HOST' },
 
+    graphVersion: { type: 'string', required: true, default: '2.12' },
     displayGetStarted: { type: 'bool', required: false, default: true },
     greetingMessage: { type: 'string', required: false, default: 'Default greeting message' },
     persistentMenu: { type: 'bool', required: false, default: false },
