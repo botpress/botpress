@@ -206,7 +206,7 @@ You can listen to incoming event easily with Botpress by using `bp` built-in `he
 
 ```js
 bp.hear({ platform: 'facebook', type: 'postback', text: 'GET_STARTED' }, (event, next) => {
-      bp.messenger.sendText(event.user.id, 'Welcome on Botpress!!!')
+      bp.messenger.api.sendTextMessage(event.user.id, 'Welcome on Botpress!!!')
    }
 })
 ```
@@ -427,7 +427,7 @@ const options = {
   waitRead: true
 }
 
-bp.messenger.sendText(userId, text, options)
+bp.messenger.api.sendTextMessage(userId, text, options)
 .then(() => {
   // the message was read because of `waitRead` option
 })
