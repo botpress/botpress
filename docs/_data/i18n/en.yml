@@ -87,6 +87,10 @@ docs_additional_reading: "Additional Reading"
   title: "Creating Multilingual Bot"
   description: "Learn how to create bot that supports multiple languages"
 
+"/getting_started/embedding/":
+  title: "Embedding the webchat on a website"
+  description: "Learn how to embet bot to your website"
+
 guides:
   
   getting_started:

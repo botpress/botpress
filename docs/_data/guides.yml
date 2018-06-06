@@ -15,7 +15,7 @@
     - path: "/getting_started/trivia_deploying/"
     - path: "/getting_started/trivia_changes/"
     - path: "/getting_started/i18n/"
-    - path: "/getting_started/summary/"
+    - path: "/getting_started/embedding/"
     
 # - id: foundamentals
 #   pages:
