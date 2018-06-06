@@ -83,6 +83,10 @@ docs_additional_reading: "Additional Reading"
   title: "Trivia: Version Control"
   description: "Learn about the built-in Versional Control for deployed bots"
 
+"/getting_started/i18n/":
+  title: "Creating Multilingual Bot"
+  description: "Learn how to create bot that supports multiple languages"
+
 guides:
   
   getting_started:
