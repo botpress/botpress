@@ -3,6 +3,7 @@ import classnames from 'classnames'
 import SplitPane from 'react-split-pane'
 import { connect } from 'react-redux'
 import { withRouter } from 'react-router-dom'
+import _ from 'lodash'
 
 import ContentWrapper from '~/components/Layout/ContentWrapper'
 import PageHeader from '~/components/Layout/PageHeader'
@@ -15,10 +16,26 @@ import SkillsBuilder from './containers/SkillsBuilder'
 import NodeProps from './containers/NodeProps'
 
 import { switchFlow } from '~/actions'
+import { getDirtyFlows } from '~/reducers'
 
 const style = require('./style.scss')
 
 class FlowBuilder extends Component {
+  componentWillUnmount() {
+    const { pathname } = this.props.history.location
+    const hasDirtyFlows = !_.isEmpty(this.props.dirtyFlows)
+
+    const hasUnsavedChanges = !/^\/flows\//g.exec(pathname) && !window.BOTPRESS_FLOW_EDITOR_DISABLED && hasDirtyFlows
+
+    if (hasUnsavedChanges) {
+      const isSave = confirm('Save changes?')
+
+      if (isSave) {
+        this.diagram.saveAllFlows()
+      }
+    }
+  }
+
   componentWillReceiveProps(nextProps) {
     const { flow } = nextProps.match.params
     if (flow) {
@@ -80,6 +97,8 @@ class FlowBuilder extends Component {
 
 const mapStateToProps = state => ({
   currentFlow: state.flows.currentFlow,
-  showFlowNodeProps: state.flows.showFlowNodeProps
+  showFlowNodeProps: state.flows.showFlowNodeProps,
+  dirtyFlows: getDirtyFlows(state)
 })
+
 export default connect(mapStateToProps, { switchFlow })(withRouter(FlowBuilder))
