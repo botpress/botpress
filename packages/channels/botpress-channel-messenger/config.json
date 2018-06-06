@@ -14,7 +14,7 @@
     Optional settings
   *************/
 
-  "graphVersion": "2.11",
+  "graphVersion": "2.12",
   "enabled": true,
 
   "displayGetStarted": true,
