@@ -299,12 +299,6 @@ class botpress {
       configManager,
       cloud,
       renderers,
-      get umm() {
-        logger.warn(
-          'DEPRECATION NOTICE – bp.umm is deprecated and will be removed in `botpress@3.0` – Please see bp.renderers instead.'
-        )
-        return renderers
-      },
       users,
       ghostManager,
       contentManager,
@@ -313,6 +307,13 @@ class botpress {
       dialogJanitor,
       messages,
       skills: skillsManager
+    })
+
+    Object.defineProperty(this, 'umm', {
+      get() {
+        logger.warn('DEPRECATION NOTICE – bp.umm is deprecated and will be removed – Please see bp.renderers instead.')
+        return renderers
+      }
     })
 
     const loadedModules = await modules._load(moduleDefinitions, this)

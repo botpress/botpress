@@ -1,7 +1,11 @@
-src/**
-extensions/**
-test/**
-docs/**
-assets/**
-dev-bot/**
+# Ignore everything:
+*
 
+#Except for the themes directories and files:
+!/lib/*
+!/licenses/*
+!/bin/*
+!/migrations/*
+!/package.json
+!/CHANGELOG.md
+!/LICENSE
