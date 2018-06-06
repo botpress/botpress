@@ -33,6 +33,10 @@ const OPERATION_ALIASES = {
 const KNOWN_OPERATIONS = ['r', 'w']
 
 export const checkRule = (rules, operation, ressource) => {
+  if (!rules) {
+    return false
+  }
+
   operation = operation.toLowerCase()
   operation = OPERATION_ALIASES[operation] || operation
 
