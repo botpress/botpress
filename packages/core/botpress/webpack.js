@@ -36,7 +36,7 @@ const nodeConfig = {
           {
             loader: 'babel-loader',
             options: {
-              presets: ['stage-3', ['env', { targets: { node: '6.10' } }], 'react'],
+              presets: ['stage-3', ['env', { targets: { node: '8.9' } }]],
               plugins: ['transform-class-properties']
             }
           }

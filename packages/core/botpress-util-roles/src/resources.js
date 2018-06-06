@@ -4,7 +4,7 @@ const w = 'w'
 export const RESOURCES = [
   {
     name: '*',
-    description: 'All resources, at once',
+    description: 'All resources, at once. Use with caution',
     operations: [r, w]
   },
   {
@@ -96,4 +96,4 @@ export const RESOURCES = [
       }
     ]
   }
-]
+].sort((a, b) => a.name.localeCompare(b.name))
