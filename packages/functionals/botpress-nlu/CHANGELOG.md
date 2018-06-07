@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.15.0"></a>
+# [10.15.0](https://github.com/botpress/modules/compare/v10.11.3...v10.15.0) (2018-06-07)
+
+
+### Features
+
+* **nlu:** hide hidden intents by default ([077da1f](https://github.com/botpress/modules/commit/077da1f))
+* **qna:** Q&A module ([f79e2e8](https://github.com/botpress/modules/commit/f79e2e8))
+
+
+
+
 <a name="10.14.2"></a>
 ## [10.14.2](https://github.com/botpress/modules/compare/v10.14.1...v10.14.2) (2018-06-07)
 
