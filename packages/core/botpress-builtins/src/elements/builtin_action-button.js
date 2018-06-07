@@ -26,7 +26,7 @@ export default {
           {
             properties: {
               action: {
-                enum: ['Say something']
+                enum: ['Say something', 'Pick location']
               }
             }
           },

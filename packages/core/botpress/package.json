@@ -47,7 +47,7 @@
     "prompt-confirm": "^1.2.0",
     "query-string": "^5.0.1",
     "randomstring": "^1.1.5",
-    "react-jsonschema-form": "^1.0.0",
+    "react-jsonschema-form": "^1.0.3",
     "react-loaders": "^3.0.1",
     "react-router-dom": "^4.2.2",
     "react-toastify": "^3.3.3",
@@ -146,11 +146,7 @@
   "license": "AGPL-3.0",
   "main": "lib/node.bundle.js",
   "repository": "git+https://github.com/botpress/botpress.git",
-  "os": [
-    "darwin",
-    "linux",
-    "win32"
-  ],
+  "os": ["darwin", "linux", "win32"],
   "scripts": {
     "prepublishOnly": "npm run compile-prod",
     "compile": "./build.sh",
@@ -160,9 +156,7 @@
   },
   "watch": {
     "compile": {
-      "patterns": [
-        "src"
-      ],
+      "patterns": ["src"],
       "extensions": "js,jsx,scss,json,html"
     }
   }
