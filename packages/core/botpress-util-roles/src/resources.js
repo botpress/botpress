@@ -3,15 +3,16 @@ const w = 'w'
 
 const _enrichResources = (resources, parent) => {
   if (!resources) {
-    return
+    return resources
   }
-  return resources.map(r => {
-    const fullName = parent != null ? `${parent}.${r.name}` : r.name
+
+  return resources.map(res => {
+    const fullName = parent != null ? `${parent}.${res.name}` : res.name
     return {
-      ...r,
-      displayName: r.name,
+      ...res,
+      displayName: res.name,
       name: fullName,
-      children: _enrichResources(r.children, fullName)
+      children: _enrichResources(res.children, fullName)
     }
   })
 }
