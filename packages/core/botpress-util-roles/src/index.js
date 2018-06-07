@@ -1,4 +1,6 @@
-export function ressourceMatches(pattern, res) {
+export { RESOURCES, enrichResources } from './resources'
+
+export const ressourceMatches = (pattern, res) => {
   const separator = /[\/\.]/
   pattern = pattern || ''
 
@@ -23,35 +25,55 @@ export function ressourceMatches(pattern, res) {
   return matches
 }
 
-export function checkRule(rules, operation, ressource) {
-  operation = /^r|read$/i.test(operation) ? 'r' : operation
-  operation = /^w|write$/i.test(operation) ? 'w' : operation
+const OPERATION_ALIASES = {
+  read: 'r',
+  write: 'w'
+}
 
-  if (operation !== 'r' && operation !== 'w') {
-    throw new Error('Invalid rule operation: ' + operation)
+const KNOWN_OPERATIONS = ['r', 'w']
+
+export const checkRule = (rules, operation, ressource) => {
+  if (!rules) {
+    return false
+  }
+
+  operation = operation.toLowerCase()
+  operation = OPERATION_ALIASES[operation] || operation
+
+  if (!KNOWN_OPERATIONS.includes(operation)) {
+    throw new Error(`Invalid rule operation: ${operation}`)
   }
 
   let permission = false // Everything is restricted by default
 
   for (const rule of rules) {
-    if (ressourceMatches(rule.res, ressource)) {
-      if (rule.op.length === 4) {
-        if (rule.op[1] === operation) {
-          permission = rule.op[0] === '+'
-        } else if (rule.op[3] === operation) {
-          permission = rule.op[2] === '+'
-        } else {
-          permission = false
-        }
-      }
-      if (rule.op.length === 3) {
-        permission = rule.op[0] === '+'
-      } else if (rule.op[1] === operation) {
-        permission = rule.op[0] === '+'
-      } else {
-        // leave the permission untouched
-      }
+    const { op } = rule
+    if (!op || op.length < 2 || op.length > 4) {
+      throw new Error(`Invalid rule operation: ${op}`)
     }
+
+    if (!ressourceMatches(rule.res, ressource)) {
+      continue
+    }
+
+    if (op.length === 4) {
+      // `+r-w` form
+      if (op[1] === operation) {
+        permission = op[0] === '+'
+      } else if (op[3] === operation) {
+        permission = op[2] === '+'
+      } else {
+        permission = false
+      }
+    } else if (op.length === 3) {
+      // `+rw` form
+      permission = op[0] === '+'
+    } else if (op.length === 2) {
+      // `+r` form
+      if (op[1] === operation) {
+        permission = op[0] === '+'
+      }
+    } // else leave the permission untouched
   }
 
   return permission

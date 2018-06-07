@@ -1,6 +1,6 @@
 {
   "name": "@botpress/qna",
-  "version": "10.13.4",
+  "version": "10.15.0",
   "description": "Botpress Q&A module",
   "main": "bin/node.bundle.js",
   "homepage": "https://github.com/botpress/modules",

@@ -4,6 +4,7 @@ import { Router } from 'express'
 import qs from 'query-string'
 
 import anonymousApis from './anonymous'
+import nonSecuredApis from './non-secured'
 import securedApis from './secured'
 
 const routersConditions = {}
@@ -63,9 +64,9 @@ module.exports = bp => {
 
   const installProtector = app => {
     // TODO: X/Cloud | Add Permissions
-    app.secure = (operation, ressource) => {
-      const wrap = method => (name, ...handlers) => {
-        const secure = async (req, res, next) => {
+    app.secure = (operation, resource) => {
+      const wrap = method => (route, ...handlers) => {
+        const secureMiddleware = async (req, res, next) => {
           try {
             return next()
             // return res.sendStatus(403) // HTTP Forbidden
@@ -74,7 +75,7 @@ module.exports = bp => {
           }
         }
 
-        return app[method](name, secure, ...handlers)
+        return app[method](route, secureMiddleware, ...handlers)
       }
 
       return {
@@ -191,6 +192,7 @@ bp.createShortlink('chat', '/lite', {
 
     app.use('/api/*', maybeApply('auth', _authenticationMiddleware))
 
+    nonSecuredApis(bp, app)
     securedApis(bp, app)
   }
 
