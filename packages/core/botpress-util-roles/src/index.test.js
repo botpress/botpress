@@ -137,7 +137,6 @@ test('enrichResources', () => {
     }
   ]
 
-  enrichResources(resources)
-
-  expect(resources).toEqual(enrichedResources)
+  expect(enrichResources(resources)).not.toBe(resources)
+  expect(enrichResources(resources)).toEqual(enrichedResources)
 })

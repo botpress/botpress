@@ -5,12 +5,14 @@ const _enrichResources = (resources, parent) => {
   if (!resources) {
     return
   }
-  resources.forEach(r => {
-    Object.assign(r, {
+  return resources.map(r => {
+    const fullName = parent != null ? `${parent}.${r.name}` : r.name
+    return {
+      ...r,
       displayName: r.name,
-      name: parent != null ? `${parent}.${r.name}` : r.name
-    })
-    _enrichResources(r.children, r.name)
+      name: fullName,
+      children: _enrichResources(r.children, fullName)
+    }
   })
 }
 
