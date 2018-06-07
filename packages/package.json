@@ -1,8 +1,8 @@
 {
   "name": "botpress-fake-root",
-  "version": "10.14.0",
+  "version": "10.14.1",
   "private": true,
   "devDependencies": {
-    "botpress": "^10.14.0"
+    "botpress": "^10.14.1"
   }
 }
