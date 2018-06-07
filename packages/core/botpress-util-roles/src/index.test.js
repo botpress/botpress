@@ -1,4 +1,4 @@
-import { ressourceMatches, checkRule } from './index'
+import { ressourceMatches, checkRule, enrichResources } from './index'
 
 test('ressourceMatches', () => {
   expect(ressourceMatches('', '')).toBe(true)
@@ -56,4 +56,88 @@ test('checkRule', () => {
   expect(checkRule(rules, 'write', '3')).toBe(false)
   expect(checkRule(rules, 'write', '3.a')).toBe(true)
   expect(checkRule(rules, 'read', '3.a')).toBe(false)
+})
+
+test('enrichResources', () => {
+  const resources = [
+    {
+      name: 'x',
+      children: [
+        {
+          name: 'y',
+          children: [
+            {
+              name: 'z'
+            }
+          ]
+        },
+        {
+          name: 't'
+        }
+      ]
+    },
+    {
+      name: '1',
+      children: [
+        {
+          name: '2'
+        },
+        {
+          name: '3',
+          children: [
+            {
+              name: 'a'
+            }
+          ]
+        }
+      ]
+    }
+  ]
+
+  const enrichedResources = [
+    {
+      displayName: 'x',
+      name: 'x',
+      children: [
+        {
+          displayName: 'y',
+          name: 'x.y',
+          children: [
+            {
+              displayName: 'z',
+              name: 'x.y.z'
+            }
+          ]
+        },
+        {
+          displayName: 't',
+          name: 'x.t'
+        }
+      ]
+    },
+    {
+      displayName: '1',
+      name: '1',
+      children: [
+        {
+          displayName: '2',
+          name: '1.2'
+        },
+        {
+          displayName: '3',
+          name: '1.3',
+          children: [
+            {
+              displayName: 'a',
+              name: '1.3.a'
+            }
+          ]
+        }
+      ]
+    }
+  ]
+
+  enrichResources(resources)
+
+  expect(resources).toEqual(enrichedResources)
 })

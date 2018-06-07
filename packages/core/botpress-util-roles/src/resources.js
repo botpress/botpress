@@ -1,7 +1,22 @@
 const r = 'r'
 const w = 'w'
 
-export const RESOURCES = [
+const _enrichResources = (resources, parent) => {
+  if (!resources) {
+    return
+  }
+  resources.forEach(r => {
+    Object.assign(r, {
+      displayName: r.name,
+      name: parent != null ? `${parent}.${r.name}` : r.name
+    })
+    _enrichResources(r.children, r.name)
+  })
+}
+
+export const enrichResources = resources => _enrichResources(resources)
+
+const _RESOURCES = [
   {
     name: '*',
     description: 'All resources, at once. Use with caution',
@@ -97,3 +112,5 @@ export const RESOURCES = [
     ]
   }
 ].sort((a, b) => a.name.localeCompare(b.name))
+
+export const RESOURCES = enrichResources(_RESOURCES)

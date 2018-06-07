@@ -1,4 +1,4 @@
-export { RESOURCES } from './resources'
+export { RESOURCES, enrichResources } from './resources'
 
 export const ressourceMatches = (pattern, res) => {
   const separator = /[\/\.]/
@@ -40,7 +40,7 @@ export const checkRule = (rules, operation, ressource) => {
   operation = operation.toLowerCase()
   operation = OPERATION_ALIASES[operation] || operation
 
-  if (KNOWN_OPERATIONS.indexOf(operation) < 0) {
+  if (!KNOWN_OPERATIONS.includes(operation)) {
     throw new Error(`Invalid rule operation: ${operation}`)
   }
 
