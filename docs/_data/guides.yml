@@ -16,6 +16,14 @@
     - path: "/getting_started/trivia_changes/"
     - path: "/getting_started/i18n/"
     - path: "/getting_started/embedding/"
+    - path: "/getting_started/proactive/"
+
+- id: "recipes"
+  pages:
+    - path: "/recipes/"
+    - path: "/recipes/i18n/"
+    - path: "/recipes/embedding/"
+    - path: "/recipes/proactive/"
     
 # - id: foundamentals
 #   pages:
