@@ -26,53 +26,6 @@ const _RESOURCES = [
     operations: [r, w]
   },
   {
-    name: 'modules',
-    description: 'Bot extensions, such as NLU or HITL',
-    children: [
-      {
-        name: '*',
-        description: 'All modules',
-        operations: [r]
-      },
-      {
-        name: 'list',
-        description: 'The list of the installed modules',
-        operations: [r]
-      },
-      {
-        name: 'list.community',
-        description: 'The list of the publicly available modules',
-        operations: [r]
-      }
-    ]
-  },
-  {
-    name: 'middleware',
-    description: 'Installed bot middlewares',
-    children: [
-      {
-        name: '*',
-        description: 'All middleware operations',
-        operations: [r, w]
-      },
-      {
-        name: 'list',
-        description: 'Get the list of the installed middlewares',
-        operations: [r]
-      },
-      {
-        name: 'customizations',
-        description: 'Change the order of the middlewares and their enabled/disabled state',
-        operations: [w]
-      }
-    ]
-  },
-  {
-    name: 'notifications',
-    description: 'Bot notifications, such as runtime errors',
-    operations: [r]
-  },
-  {
     name: 'bot',
     description: 'Bot properties, such as content, flows etc.',
     children: [
@@ -80,6 +33,41 @@ const _RESOURCES = [
         name: '*',
         description: 'All bot properties',
         operations: [r, w]
+      },
+      {
+        name: 'notifications',
+        description: 'Bot notifications, such as runtime errors',
+        operations: [r]
+      },
+      {
+        name: 'modules.*',
+        description: 'Bot extensions, such as NLU or HITL',
+        operations: [r]
+      },
+      {
+        name: 'middleware.*',
+        description: 'All middleware operations',
+        operations: [r, w]
+      },
+      {
+        name: 'middleware.list',
+        description: 'Get the list of the installed middlewares',
+        operations: [r]
+      },
+      {
+        name: 'middleware.customizations',
+        description: 'Change the order of the middlewares and their enabled/disabled state',
+        operations: [w]
+      },
+      {
+        name: 'modules.list',
+        description: 'The list of the installed modules',
+        operations: [r]
+      },
+      {
+        name: 'modules.list.community',
+        description: 'The list of the publicly available modules',
+        operations: [r]
       },
       {
         name: 'information',

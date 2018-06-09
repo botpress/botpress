@@ -113,8 +113,8 @@ class Middlewares extends Component {
       return
     }
     this.initialized = true
-    this.canRead = operationAllowed({ user: this.props.user, op: 'read', res: 'middleware.list' })
-    this.canEdit = operationAllowed({ user: this.props.user, op: 'write', res: 'middleware.customizations' })
+    this.canRead = operationAllowed({ user: this.props.user, op: 'read', res: 'bot.middleware.list' })
+    this.canEdit = operationAllowed({ user: this.props.user, op: 'write', res: 'bot.middleware.customizations' })
 
     if (this.canRead) {
       axios.get('/api/middlewares').then(({ data }) => this.setMiddlewares(data))

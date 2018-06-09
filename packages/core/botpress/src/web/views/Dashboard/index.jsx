@@ -32,7 +32,7 @@ class Dashboard extends React.Component {
   }
 
   queryAllModules() {
-    if (!operationAllowed({ user: this.props.user, op: 'read', res: 'modules.list.community' })) {
+    if (!operationAllowed({ user: this.props.user, op: 'read', res: 'bot.modules.list.community' })) {
       return Promise.resolve()
     }
     return axios.get('/api/module/all').then(result =>

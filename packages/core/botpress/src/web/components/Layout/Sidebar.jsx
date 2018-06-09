@@ -23,7 +23,7 @@ const BASIC_MENU_ITEMS = [
   {
     name: 'Modules',
     path: '/manage',
-    rule: { res: 'modules.list', op: 'read' },
+    rule: { res: 'bot.modules.list', op: 'read' },
     icon: 'build'
   },
   window.GHOST_ENABLED && {
@@ -50,7 +50,7 @@ const BASIC_MENU_ITEMS = [
   {
     name: 'Middleware',
     path: '/middleware',
-    rule: { res: 'middleware.list', op: 'read' },
+    rule: { res: 'bot.middleware.list', op: 'read' },
     icon: 'settings'
   }
 ].filter(Boolean)
