@@ -1,2 +1,4 @@
-.npmignore
-src
+*
+
+!dist
+!CHANGELOG.md

@@ -9,7 +9,7 @@ let logsSecret = nanoid()
 module.exports = (bp, app) => {
   // modules
 
-  app.secure('read', 'modules.list').get('/api/modules', (req, res) => {
+  app.secure('read', 'bot.modules.list').get('/api/modules', (req, res) => {
     const modules = _.map(bp._loadedModules, module => {
       return {
         name: util.getModuleShortname(module.name),
@@ -26,25 +26,25 @@ module.exports = (bp, app) => {
     res.send(modules)
   })
 
-  app.secure('read', 'modules.list.community').get('/api/module/all', (req, res) => {
+  app.secure('read', 'bot.modules.list.community').get('/api/module/all', (req, res) => {
     bp.modules.listAllCommunityModules().then(modules => res.send(modules))
   })
 
-  app.secure('read', 'modules.list.community').get('/api/module/hero', (req, res) => {
+  app.secure('read', 'bot.modules.list.community').get('/api/module/hero', (req, res) => {
     bp.modules.getRandomCommunityHero().then(hero => res.send(hero))
   })
 
-  app.secure('read', 'modules.list.community').get('/api/bot/contributor', (req, res) => {
+  app.secure('read', 'bot.modules.list.community').get('/api/bot/contributor', (req, res) => {
     res.send(bp.bot.getContributor())
   })
 
   // middleware
 
-  app.secure('read', 'middleware.list').get('/api/middlewares', (req, res) => {
+  app.secure('read', 'bot.middleware.list').get('/api/middlewares', (req, res) => {
     res.send(bp.middlewares.list())
   })
 
-  app.secure('write', 'middleware.customizations').post('/api/middlewares/customizations', (req, res) => {
+  app.secure('write', 'bot.middleware.customizations').post('/api/middlewares/customizations', (req, res) => {
     bp.stats.track('api', 'middlewares', 'customizations')
     const { middlewares } = req.body
     bp.middlewares.setCustomizations(middlewares)
@@ -52,7 +52,7 @@ module.exports = (bp, app) => {
     res.send(bp.middlewares.list())
   })
 
-  app.secure('write', 'middleware.customizations').delete('/api/middlewares/customizations', (req, res) => {
+  app.secure('write', 'bot.middleware.customizations').delete('/api/middlewares/customizations', (req, res) => {
     bp.stats.track('api', 'middlewares', 'customizations')
     bp.middlewares.resetCustomizations()
     bp.middlewares.load()
@@ -62,11 +62,11 @@ module.exports = (bp, app) => {
   // notifications
 
   // DEPRECATED in Botpress 1.1
-  app.secure('read', 'notifications').get('/api/notifications', async (req, res) => {
+  app.secure('read', 'bot.notifications').get('/api/notifications', async (req, res) => {
     res.send(await bp.notifications.getInbox())
   })
 
-  app.secure('read', 'notifications').get('/api/notifications/inbox', async (req, res) => {
+  app.secure('read', 'bot.notifications').get('/api/notifications/inbox', async (req, res) => {
     res.send(await bp.notifications.getInbox())
   })
 

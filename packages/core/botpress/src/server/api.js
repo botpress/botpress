@@ -2,6 +2,7 @@ import _ from 'lodash'
 import bodyParser from 'body-parser'
 import { Router } from 'express'
 import qs from 'query-string'
+import { checkMultipleRoles } from '@botpress/util-roles'
 
 import anonymousApis from './anonymous'
 import nonSecuredApis from './non-secured'
@@ -62,14 +63,36 @@ module.exports = bp => {
     }
   }
 
+  const getCloudRoles = async req => {
+    const { useCloud, enabled } = bp.botfile.login
+    const isUsingCloud = !!useCloud && (await bp.cloud.isPaired())
+    if (!isUsingCloud || !enabled) {
+      // No cloud, skip check
+      return false
+    }
+    const { roles } = req.user || {}
+    if (!roles) {
+      return null
+    }
+    return bp.cloud.getUserRoles(roles)
+  }
+
   const installProtector = app => {
-    // TODO: X/Cloud | Add Permissions
     app.secure = (operation, resource) => {
       const wrap = method => (route, ...handlers) => {
         const secureMiddleware = async (req, res, next) => {
           try {
+            const roles = await getCloudRoles(req)
+
+            if (roles === false) {
+              return next()
+            }
+
+            if (!checkMultipleRoles(roles, operation, resource)) {
+              return res.sendStatus(403) // Forbidden
+            }
+
             return next()
-            // return res.sendStatus(403) // HTTP Forbidden
           } catch (err) {
             return res.status(500).send({ message: err.message })
           }
@@ -82,6 +105,7 @@ module.exports = bp => {
         get: wrap('get'),
         post: wrap('post'),
         put: wrap('put'),
+        patch: wrap('patch'),
         delete: wrap('delete')
       }
     }

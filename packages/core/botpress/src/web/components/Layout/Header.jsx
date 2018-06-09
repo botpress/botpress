@@ -10,8 +10,7 @@ import NotificationHub from '~/components/Notifications/Hub'
 import { logout } from '~/util/Auth'
 import style from './Header.scss'
 import { viewModeChanged } from '~/actions'
-
-const RulesChecker = props => props.children
+import PermissionsChecker from './PermissionsChecker'
 
 class Header extends React.Component {
   state = {
@@ -65,14 +64,14 @@ class Header extends React.Component {
         <Navbar.Collapse>
           <Nav pullRight>
             <NavItem onClick={this.handleFullscreen}>{this.renderFullScreenButton()}</NavItem>
-            <RulesChecker res="bot/logs" op="read">
+            <PermissionsChecker user={this.props.user} res="bot.logs" op="read">
               <NavItem href="/logs">
                 <Glyphicon glyph="list-alt" />
               </NavItem>
-            </RulesChecker>
-            <RulesChecker res="notifications" op="read">
+            </PermissionsChecker>
+            <PermissionsChecker user={this.props.user} res="notifications" op="read">
               <NotificationHub />
-            </RulesChecker>
+            </PermissionsChecker>
             {this.renderLogoutButton()}
           </Nav>
           <Nav pullRight className="bp-navbar-module-buttons" />

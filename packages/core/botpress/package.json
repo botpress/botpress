@@ -11,6 +11,7 @@
     "url": "https://github.com/botpress/botpress/issues"
   },
   "dependencies": {
+    "@botpress/util-roles": "^10.15.0",
     "axios": "^0.15.2",
     "babel-polyfill": "^6.23.0",
     "bluebird": "^3.4.6",
@@ -146,11 +147,7 @@
   "license": "AGPL-3.0",
   "main": "lib/node.bundle.js",
   "repository": "git+https://github.com/botpress/botpress.git",
-  "os": [
-    "darwin",
-    "linux",
-    "win32"
-  ],
+  "os": ["darwin", "linux", "win32"],
   "scripts": {
     "prepublishOnly": "npm run compile-prod",
     "compile": "./build.sh",
@@ -160,9 +157,7 @@
   },
   "watch": {
     "compile": {
-      "patterns": [
-        "src"
-      ],
+      "patterns": ["src"],
       "extensions": "js,jsx,scss,json,html"
     }
   }

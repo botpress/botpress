@@ -87,7 +87,7 @@
   border: none;
   background-color: $primary-color;
   color: white;
-  text-weight: bolder;
+  font-weight: bolder;
   position: absolute;
   right: 15px;
   top: 16px;
@@ -104,7 +104,7 @@
 
   &.dirty:hover {
     background-color: $primary-color;
-    opacity: 0.7;
+    opacity: 1;
     color: white;
   }
 }

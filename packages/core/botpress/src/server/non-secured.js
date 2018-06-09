@@ -24,6 +24,7 @@ module.exports = (bp, app) => {
   })
 
   app.get('/api/my-account', async (req, res) => {
-    res.send(req.user)
+    const roles = await bp.cloud.getUserRoles(req.user.roles)
+    res.send({ ...req.user, roles })
   })
 }

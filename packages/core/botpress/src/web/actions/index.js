@@ -20,7 +20,7 @@ export const fetchFlows = () => dispatch => {
 export const requestSaveFlows = createAction('FLOWS/SAVE')
 export const receiveSaveFlows = createAction('FLOWS/SAVE/RECEIVE', flows => flows, () => ({ receiveAt: new Date() }))
 
-export const saveAllFlows = flows => (dispatch, getState) => {
+export const saveAllFlows = () => (dispatch, getState) => {
   dispatch(requestSaveFlows())
 
   const flows = _.values(getState().flows.flowsByName).map(flow => ({
@@ -75,7 +75,7 @@ export const setDiagramAction = createAction('FLOWS/FLOW/SET_ACTION')
 
 // Content
 export const receiveContentCategories = createAction('CONTENT/CATEGORIES/RECEIVE')
-export const fetchContentCategories = id => dispatch =>
+export const fetchContentCategories = () => dispatch =>
   axios.get('/api/content/categories').then(({ data }) => {
     dispatch(receiveContentCategories(data))
   })
@@ -166,12 +166,6 @@ export const fetchModules = () => dispatch => {
   axios.get('/api/modules').then(res => {
     dispatch(modulesReceived(res.data))
   })
-}
-
-// Rules
-export const rulesReceived = createAction('RULES/RECEIVED')
-export const fetchRules = () => dispatch => {
-  dispatch(rulesReceived([]))
 }
 
 // Notifications

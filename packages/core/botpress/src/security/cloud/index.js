@@ -27,10 +27,14 @@ export default class CloudAuthentication extends AbstractAuthenticationProvider 
   }
 
   async authenticateWithError(authHeader, allowProof = false) {
-    const [scheme, token] = (authHeader || 'invalid header').split(' ')
+    if (!authHeader) {
+      throw new Error('Missing auth header')
+    }
+
+    const [scheme, token] = authHeader.split(' ')
 
     if (scheme.toLowerCase() !== 'bearer') {
-      throw new Error(`Wrong scheme ${scheme}, expected Bearer`)
+      throw new Error(`Wrong scheme '${scheme}', expected Bearer`)
     }
 
     const secret = await this.cloud.getCertificate()
@@ -55,7 +59,7 @@ export default class CloudAuthentication extends AbstractAuthenticationProvider 
       // only support Bearer scheme
       return {
         success: false,
-        reason: `Wrong scheme ${scheme}, expected Bearer`
+        reason: `Wrong scheme '${scheme}', expected Bearer`
       }
     }
 

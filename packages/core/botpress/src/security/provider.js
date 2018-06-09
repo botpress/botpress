@@ -36,7 +36,7 @@ export default class AbstractAuthenticationProvider {
     try {
       return await this.authenticateWithError(authHeader)
     } catch (err) {
-      this.logger.error('[Login]', err.message, err)
+      this.logger.debug('[Login]', err.message)
       return false
     }
   }

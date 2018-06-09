@@ -63,7 +63,7 @@ class LoggerView extends Component {
   }
 
   getArchiveKey() {
-    axios.get('/api/logs/key').then(({ data }) => this.setState({ archiveUrl: '/logs/archive/' + data.secret }))
+    axios.get('/api/logs/key').then(({ data }) => this.setState({ archiveUrl: 'api/logs/archive/' + data.secret }))
   }
 
   queryLogs = () => {
@@ -84,8 +84,31 @@ class LoggerView extends Component {
       })
   }
 
+  renderLines() {
+    if (!_.isArray(this.state.logs)) {
+      return this.renderLoading()
+    }
+
+    return this.state.logs.filter(x => _.isString(x.message)).map(this.renderLine)
+  }
+
+  downloadArchive = () => {
+    axios({
+      url: this.state.archiveUrl,
+      method: 'GET',
+      responseType: 'blob'
+    }).then(response => {
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', 'logs.txt')
+      document.body.appendChild(link)
+      link.click()
+    })
+  }
+
   render() {
-    const logs = (_.isArray(this.state.logs) && this.state.logs.map(this.renderLine)) || this.renderLoading()
+    const logs = this.renderLines()
     const logsPanelClassName = classnames('panel', 'panel-default', styles['logs-panel'])
     const canLoadMore = this.state.limit < 500 && this.state.hasMore
 
@@ -107,7 +130,7 @@ class LoggerView extends Component {
               </Checkbox>
             </form>
             <div className="pull-right">
-              <Button href={this.state.archiveUrl}>Export logs archive</Button>
+              <Button onClick={this.downloadArchive}>Export logs archive</Button>
             </div>
           </Panel.Body>
         </Panel>
