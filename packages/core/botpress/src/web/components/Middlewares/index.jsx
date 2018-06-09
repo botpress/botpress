@@ -1,28 +1,29 @@
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
-import ReactDOM from 'react-dom'
 import { sortable } from 'react-sortable'
 
-import { Row, Col, Checkbox, ListGroup, ListGroupItem, Tooltip, OverlayTrigger } from 'react-bootstrap'
+import { ListGroup, ListGroupItem, Tooltip, OverlayTrigger } from 'react-bootstrap'
 import _ from 'lodash'
 import classnames from 'classnames'
 
 import axios from 'axios'
+
+import { operationAllowed } from '~/components/Layout/PermissionsChecker'
 
 import style from './style.scss'
 
 class MiddlewareComponent extends Component {
   static propTypes = {
     middleware: PropTypes.object.isRequired,
-    toggleEnabled: PropTypes.func.isRequired
+    toggleEnabled: PropTypes.func,
+    readOnly: PropTypes.bool
   }
 
   render() {
     const { name, enabled, module, description } = this.props.middleware
-    const className = classnames({
-      [this.props.className]: true,
-      [style.middleware]: true,
-      ['bp-middleware']: true,
+    const { readOnly } = this.props
+    const className = classnames(this.props.className, style.middleware, 'bp-middleware', {
       [style.disabled]: !enabled,
       ['bp-disabled']: !enabled
     })
@@ -30,7 +31,7 @@ class MiddlewareComponent extends Component {
 
     return (
       <div>
-        <div className={className} onClick={this.props.toggleEnabled}>
+        <div className={className} onClick={readOnly ? null : this.props.toggleEnabled}>
           <div className={classnames(style.helpIcon, 'bp-help-icon')}>
             <OverlayTrigger placement="left" overlay={tooltip}>
               <i className="material-icons">help</i>
@@ -49,20 +50,15 @@ class MiddlewareComponent extends Component {
   }
 }
 
-class ListItem extends Component {
-  render() {
-    const className = classnames('list-item')
-    return (
-      <ListGroupItem {...this.props} className={className}>
-        {this.props.children}
-      </ListGroupItem>
-    )
-  }
-}
+const ListItem = ({ children, ...props }) => (
+  <ListGroupItem {...props} className="list-item">
+    {children}
+  </ListGroupItem>
+)
 
 const SortableListItem = sortable(ListItem)
 
-export default class MiddlewaresComponent extends Component {
+class Middlewares extends Component {
   static propTypes = {
     type: PropTypes.string.isRequired
   }
@@ -77,6 +73,8 @@ export default class MiddlewaresComponent extends Component {
     outgoingItems: [],
     initialStateHash: null
   }
+
+  initialized = false
 
   getStateHash() {
     let hash = ''
@@ -110,8 +108,17 @@ export default class MiddlewaresComponent extends Component {
     setImmediate(() => this.setState({ initialStateHash: this.getStateHash() }))
   }
 
-  componentDidMount() {
-    axios.get('/api/middlewares').then(({ data }) => this.setMiddlewares(data))
+  componentDidUpdate() {
+    if (this.initialized || !this.props.user || !this.props.user.id) {
+      return
+    }
+    this.initialized = true
+    this.canRead = operationAllowed({ user: this.props.user, op: 'read', res: 'middleware.list' })
+    this.canEdit = operationAllowed({ user: this.props.user, op: 'write', res: 'middleware.customizations' })
+
+    if (this.canRead) {
+      axios.get('/api/middlewares').then(({ data }) => this.setMiddlewares(data))
+    }
   }
 
   handleSort = type => data => {
@@ -139,20 +146,37 @@ export default class MiddlewaresComponent extends Component {
       const className = classnames({
         [style.dragging]: currentlyDragging
       })
-      const toggleFn = this.toggleEnabled(item, type)
+      const readOnly = !this.canEdit
 
-      return (
-        <SortableListItem
-          key={i}
-          updateState={this.handleSort(type)}
-          items={items}
-          draggingIndex={this.state[dragIndexKey]}
-          sortId={i}
-          outline="list"
-        >
-          <MiddlewareComponent toggleEnabled={toggleFn} middleware={middleware} className={className} />
-        </SortableListItem>
+      const innerComponent = (
+        <MiddlewareComponent
+          readOnly={readOnly}
+          toggleEnabled={readOnly ? null : this.toggleEnabled(item, type)}
+          middleware={middleware}
+          className={className}
+        />
       )
+
+      if (readOnly) {
+        return (
+          <ListItem key={i} outline="list">
+            {innerComponent}
+          </ListItem>
+        )
+      } else {
+        return (
+          <SortableListItem
+            key={i}
+            updateState={this.handleSort(type)}
+            items={items}
+            draggingIndex={this.state[dragIndexKey]}
+            sortId={i}
+            outline="list"
+          >
+            {innerComponent}
+          </SortableListItem>
+        )
+      }
     })
   }
 
@@ -191,7 +215,7 @@ export default class MiddlewaresComponent extends Component {
   }
 
   toggleEnabled(middleware, type) {
-    return event => {
+    return () => {
       const newProp = _.map(this.state[type], m => {
         if (m.name === middleware) {
           return Object.assign({}, m, { enabled: !m.enabled })
@@ -242,7 +266,7 @@ export default class MiddlewaresComponent extends Component {
             {this.renderIsDirty()}
             <h4>{title}</h4>
             <OverlayTrigger placement="right" overlay={tooltip}>
-              <a className={classnames(style.help, 'bp-help')}>what's this?</a>
+              <a className={classnames(style.help, 'bp-help')}>what&apos;s this?</a>
             </OverlayTrigger>
           </div>
         </ListGroupItem>
@@ -255,10 +279,16 @@ export default class MiddlewaresComponent extends Component {
   }
 
   render() {
-    if (this.state.loading) {
+    if (this.state.loading || !this.initialized) {
       return null
     }
 
     return this.props.type === 'incoming' ? this.renderIncoming() : this.renderOutgoing()
   }
 }
+
+const mapStateToProps = state => ({
+  user: state.user
+})
+
+export default connect(mapStateToProps)(Middlewares)

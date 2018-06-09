@@ -5,6 +5,7 @@ import { Panel, Grid, Row, Col } from 'react-bootstrap'
 
 import axios from 'axios'
 import _ from 'lodash'
+import Promise from 'bluebird'
 
 import ContentWrapper from '~/components/Layout/ContentWrapper'
 import PermissionsChecker, { operationAllowed } from '~/components/Layout/PermissionsChecker'
@@ -20,13 +21,18 @@ class Dashboard extends React.Component {
     featuredModules: []
   }
 
-  componentDidMount() {
+  initialized = false
+
+  componentDidUpdate() {
+    if (this.initialized || !this.props.user || !this.props.user.id) {
+      return
+    }
     this.queryAllModules().finally(() => this.setState({ loading: false }))
   }
 
   queryAllModules() {
     if (!operationAllowed({ user: this.props.user, op: 'read', res: 'modules.list.community' })) {
-      return
+      return Promise.resolve()
     }
     return axios.get('/api/module/all').then(result =>
       this.setState({
@@ -65,7 +71,7 @@ class Dashboard extends React.Component {
   }
 
   render() {
-    if (this.state.loading) {
+    if (this.state.loading || !this.initialized) {
       return null
     }
     return (
