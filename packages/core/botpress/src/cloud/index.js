@@ -6,7 +6,10 @@ import _ from 'lodash'
 
 module.exports = ({ projectLocation, botfile, logger }) => {
   let certificate = null
+  let roles = null
+
   setInterval(() => (certificate = null), ms('5 minutes'))
+  setInterval(() => (roles = null), ms('5 minutes'))
 
   function _readCloudfile() {
     const filePath = path.resolve(projectLocation, 'bp-cloud.json')
@@ -76,12 +79,49 @@ module.exports = ({ projectLocation, botfile, logger }) => {
       })
   }
 
-  function _getRemoteRoles() {}
-  function getUserRoles() {}
+  async function _getRemoteRoles() {
+    if (!isPaired()) {
+      return
+    }
+
+    if (roles) {
+      return roles
+    }
+
+    const { endpoint, token, botId } = getPairingInfo()
+
+    roles = await axios
+      .get(`${endpoint}/api/bots/${botId}/roles`, {
+        headers: {
+          Authorization: `Bearer bot__${token}`
+        }
+      })
+      .then(({ data: { payload: data } }) => {
+        logger.debug('[Cloud] Received roles: ', data)
+        return data
+      })
+      .catch(err => {
+        const message = _.get(err, 'response.data.message') || err.message || 'Unknown error'
+        logger.error('[Cloud] Error receiving roles: ' + message)
+        return null
+      })
+
+    return roles
+  }
+
+  async function getUserRoles(roleNames) {
+    await _getRemoteRoles()
+    return roleNames.reduce((acc, roleName) => {
+      const role = _.find(roles, { name: roleName })
+      acc[roleName] = role && role.rules
+      return acc
+    }, {})
+  }
 
   return {
     getCloudEndpoint,
     getBotEnv,
+    getUserRoles,
     getCertificate: _getWellKnownRSACert,
     isPaired,
     getPairingInfo,

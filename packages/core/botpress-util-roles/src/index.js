@@ -78,3 +78,17 @@ export const checkRule = (rules, operation, ressource) => {
 
   return permission
 }
+
+export const checkMultipleRoles = (roles, operation, ressource) => {
+  if (!roles) {
+    return false
+  }
+
+  for (const roleName in roles) {
+    if (checkRule(roles[roleName], operation, ressource)) {
+      return true
+    }
+  }
+
+  return false
+}
