@@ -24,10 +24,11 @@ class Dashboard extends React.Component {
   initialized = false
 
   componentDidUpdate() {
-    if (this.initialized || !this.props.user || !this.props.user.id) {
-      return
-    }
-    this.queryAllModules().finally(() => this.setState({ loading: false }))
+    this.refresh()
+  }
+
+  componentDidMount() {
+    this.refresh()
   }
 
   queryAllModules() {
@@ -42,7 +43,14 @@ class Dashboard extends React.Component {
     )
   }
 
-  refresh = () => this.queryAllModules()
+  refresh = () => {
+    if (this.initialized || !this.props.user || !this.props.user.id) {
+      return
+    }
+
+    this.initialized = true
+    this.queryAllModules().finally(() => this.setState({ loading: false }))
+  }
 
   renderPopularModules() {
     return (
