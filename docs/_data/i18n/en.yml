@@ -86,7 +86,7 @@ docs_additional_reading: "Additional Reading"
 # Recipes
 
 "/recipes/":
-  title: "Guides"
+  title: "Recipes"
   description: "How-tos and examples solving typical issues you may run into"
 
 "/recipes/i18n/":
@@ -100,6 +100,14 @@ docs_additional_reading: "Additional Reading"
 "/recipes/proactive/":
   title: "Proactive actions"
   description: "Learn how to make bot start conversation"
+
+"/recipes/version_control/":
+  title: "Version control"
+  description: "Learn how to sync content between deployed bot and local environment"
+
+"/recipes/apis/":
+  title: "External APIs"
+  description: "Learn how to integrate external APIs"
 
 guides:
   

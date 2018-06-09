@@ -24,6 +24,8 @@
     - path: "/recipes/i18n/"
     - path: "/recipes/embedding/"
     - path: "/recipes/proactive/"
+    - path: "/recipes/version_control/"
+    - path: "/recipes/apis/"
     
 # - id: foundamentals
 #   pages:
