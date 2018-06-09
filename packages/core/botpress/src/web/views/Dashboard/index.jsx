@@ -1,19 +1,19 @@
 import React from 'react'
-import { Panel, Grid, Row, Col, ControlLabel, Tooltip, OverlayTrigger, Link } from 'react-bootstrap'
+import { connect } from 'react-redux'
 
-import classnames from 'classnames'
+import { Panel, Grid, Row, Col } from 'react-bootstrap'
+
 import axios from 'axios'
 import _ from 'lodash'
 
 import ContentWrapper from '~/components/Layout/ContentWrapper'
+import PermissionsChecker from '~/components/Layout/PermissionsChecker'
 import PageHeader from '~/components/Layout/PageHeader'
 import ModulesComponent from '~/components/Modules'
 import InformationComponent from '~/components/Information'
 import HeroComponent from '~/components/Hero'
 
-import { fetchModules } from '~/actions'
-
-export default class DashboardView extends React.Component {
+class Dashboard extends React.Component {
   state = {
     loading: true,
     popularModules: [],
@@ -72,7 +72,9 @@ export default class DashboardView extends React.Component {
               <InformationComponent />
             </Col>
             <Col xs={12} sm={8} md={4} smOffset={2} mdOffset={0}>
-              <HeroComponent />
+              <PermissionsChecker user={this.props.user} res="modules.list.community" op="red">
+                <HeroComponent />
+              </PermissionsChecker>
             </Col>
           </Row>
           <Row>
@@ -88,3 +90,9 @@ export default class DashboardView extends React.Component {
     )
   }
 }
+
+const mapStateToProps = state => ({
+  user: state.user
+})
+
+export default connect(mapStateToProps)(Dashboard)

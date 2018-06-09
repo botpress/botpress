@@ -15,19 +15,6 @@ export const getToken = () => {
   return false
 }
 
-export const getCurrentUser = () => {
-  const token = getToken()
-
-  if (!token) {
-    return null
-  }
-
-  const encoded = token.token.replace(/\w+\./, '').replace(/\.[\w|\-|_]+/, '')
-  const decoded = JSON.parse(Buffer(encoded, 'base64').toString())
-
-  return decoded.user
-}
-
 export const setToken = token => {
   localStorage.setItem(
     storageKey,

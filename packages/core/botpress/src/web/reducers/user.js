@@ -6,7 +6,7 @@ const defaultState = {}
 
 const reducer = handleActions(
   {
-    [userReceived]: (state, { payload }) => ({ ...payload })
+    [userReceived]: (state, { payload }) => ({ ...state, ...payload })
   },
   defaultState
 )

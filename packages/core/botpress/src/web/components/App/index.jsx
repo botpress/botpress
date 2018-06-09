@@ -1,6 +1,5 @@
-import React, { Component } from 'react'
+import { Component } from 'react'
 
-import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
 import { authEvents } from '~/util/Auth'
@@ -12,17 +11,12 @@ import {
   fetchUser,
   fetchBotInformation,
   fetchModules,
-  fetchRules,
   fetchNotifications,
   replaceNotifications,
   addNotifications
 } from '~/actions'
 
 class App extends Component {
-  state = {
-    events: EventBus.default
-  }
-
   componentWillMount() {
     if (window.APP_NAME) {
       window.document.title = window.APP_NAME
@@ -39,7 +33,6 @@ class App extends Component {
 
     if (window.AUTH_ENABLED) {
       this.props.fetchUser()
-      this.props.fetchRules()
     }
   }
 
@@ -70,7 +63,6 @@ const mapDispatchToProps = {
   fetchUser,
   fetchBotInformation,
   fetchModules,
-  fetchRules,
   fetchNotifications,
   replaceNotifications,
   addNotifications

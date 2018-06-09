@@ -9,8 +9,7 @@ import ReactSidebar from 'react-sidebar'
 import SidebarHeader from './SidebarHeader'
 
 import GhostChecker from '~/views/GhostContent/Checker'
-
-const RulesChecker = props => props.children
+import PermissionsChecker from './PermissionsChecker'
 
 const style = require('./Sidebar.scss')
 
@@ -18,38 +17,40 @@ const BASIC_MENU_ITEMS = [
   {
     name: 'Dashboard',
     path: '/dashboard',
-    rule: { res: 'dashboard', op: 'read' },
+    rule: { res: 'bot.information', op: 'read' },
     icon: 'dashboard'
   },
   {
     name: 'Modules',
     path: '/manage',
-    rule: { res: 'modules/list', op: 'read' },
+    rule: { res: 'modules.list', op: 'read' },
     icon: 'build'
   },
   window.GHOST_ENABLED && {
     name: 'Version Control',
     path: 'version-control',
-    rule: { res: 'ghost_content', op: 'read' },
+    rule: { res: 'bot.ghost_content', op: 'read' },
     icon: 'content_copy',
-    renderSuffix: () => <GhostChecker />
+    renderSuffix() {
+      return <GhostChecker />
+    }
   },
   {
     name: 'Content',
     path: '/content',
-    rule: { res: 'content', op: 'read' },
+    rule: { res: 'bot.content', op: 'read' },
     icon: 'description'
   },
   {
     name: 'Flows',
     path: '/flows',
-    rule: { res: 'flows', op: 'read' },
+    rule: { res: 'bot.flows', op: 'read' },
     icon: 'device_hub'
   },
   {
     name: 'Middleware',
     path: '/middleware',
-    rule: { res: 'middleware', op: 'read' },
+    rule: { res: 'middleware.list', op: 'read' },
     icon: 'settings'
   }
 ].filter(Boolean)
@@ -104,7 +105,7 @@ class Sidebar extends React.Component {
 
   renderBasicItem = ({ name, path, rule, icon, renderSuffix }) => {
     return (
-      <RulesChecker res={rule.res} op={rule.op} key={name}>
+      <PermissionsChecker user={this.props.user} res={rule.res} op={rule.op} key={name}>
         <li key={path}>
           <NavLink to={path} title={name} activeClassName={style.active}>
             <i className="icon material-icons">{icon}</i>
@@ -112,7 +113,7 @@ class Sidebar extends React.Component {
             {renderSuffix && renderSuffix()}
           </NavLink>
         </li>
-      </RulesChecker>
+      </PermissionsChecker>
     )
   }
 
@@ -151,6 +152,10 @@ class Sidebar extends React.Component {
   }
 }
 
-const mapStateToProps = state => ({ viewMode: state.ui.viewMode, modules: state.modules })
+const mapStateToProps = state => ({
+  user: state.user,
+  viewMode: state.ui.viewMode,
+  modules: state.modules
+})
 
 export default connect(mapStateToProps)(Sidebar)
