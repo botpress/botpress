@@ -6,10 +6,10 @@ import _ from 'lodash'
 
 module.exports = ({ projectLocation, botfile, logger }) => {
   let certificate = null
-  let roles = null
+  let rolesPromise = null
 
   setInterval(() => (certificate = null), ms('5 minutes'))
-  setInterval(() => (roles = null), ms('5 minutes'))
+  setInterval(() => (rolesPromise = null), ms('5 minutes'))
 
   function _readCloudfile() {
     const filePath = path.resolve(projectLocation, 'bp-cloud.json')
@@ -84,13 +84,13 @@ module.exports = ({ projectLocation, botfile, logger }) => {
       return
     }
 
-    if (roles) {
-      return roles
+    if (rolesPromise) {
+      return rolesPromise
     }
 
     const { endpoint, token, botId } = getPairingInfo()
 
-    roles = await axios
+    rolesPromise = axios
       .get(`${endpoint}/api/bots/${botId}/roles`, {
         headers: {
           Authorization: `Bearer bot__${token}`
@@ -106,11 +106,15 @@ module.exports = ({ projectLocation, botfile, logger }) => {
         return null
       })
 
-    return roles
+    return rolesPromise
   }
 
   async function getUserRoles(roleNames) {
-    await _getRemoteRoles()
+    if (!isPaired()) {
+      return null
+    }
+
+    const roles = await _getRemoteRoles()
     return roleNames.reduce((acc, roleName) => {
       const role = _.find(roles, { name: roleName })
       acc[roleName] = role && role.rules
