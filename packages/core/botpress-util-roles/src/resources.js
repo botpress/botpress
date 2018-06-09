@@ -30,6 +30,11 @@ const _RESOURCES = [
     description: 'Bot extensions, such as NLU or HITL',
     children: [
       {
+        name: '*',
+        description: 'All modules',
+        operations: [r]
+      },
+      {
         name: 'list',
         description: 'The list of the installed modules',
         operations: [r]
@@ -45,6 +50,11 @@ const _RESOURCES = [
     name: 'middleware',
     description: 'Installed bot middlewares',
     children: [
+      {
+        name: '*',
+        description: 'All middleware operations',
+        operations: [r, w]
+      },
       {
         name: 'list',
         description: 'Get the list of the installed middlewares',
@@ -66,6 +76,11 @@ const _RESOURCES = [
     name: 'bot',
     description: 'Bot properties, such as content, flows etc.',
     children: [
+      {
+        name: '*',
+        description: 'All bot properties',
+        operations: [r, w]
+      },
       {
         name: 'information',
         description: 'General bot details',
