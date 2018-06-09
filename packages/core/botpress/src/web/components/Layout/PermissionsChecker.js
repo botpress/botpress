@@ -1,13 +1,17 @@
 import { checkMultipleRoles } from '@botpress/util-roles'
 
-const PermissionsChecker = ({ user, res, op, children }) => {
+export const operationAllowed = ({ user, res, op }) => {
   if (!user) {
-    return null
+    return false
   }
   if (user.roles && !checkMultipleRoles(user.roles, op, res)) {
-    return null
+    return false
   }
-  return children
+  return true
+}
+
+const PermissionsChecker = ({ user, res, op, children }) => {
+  return operationAllowed({ user, res, op }) ? children : null
 }
 
 export default PermissionsChecker

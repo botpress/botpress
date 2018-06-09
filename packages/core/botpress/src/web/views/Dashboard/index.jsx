@@ -7,7 +7,7 @@ import axios from 'axios'
 import _ from 'lodash'
 
 import ContentWrapper from '~/components/Layout/ContentWrapper'
-import PermissionsChecker from '~/components/Layout/PermissionsChecker'
+import PermissionsChecker, { operationAllowed } from '~/components/Layout/PermissionsChecker'
 import PageHeader from '~/components/Layout/PageHeader'
 import ModulesComponent from '~/components/Modules'
 import InformationComponent from '~/components/Information'
@@ -25,6 +25,9 @@ class Dashboard extends React.Component {
   }
 
   queryAllModules() {
+    if (!operationAllowed({ user: this.props.user, op: 'read', res: 'modules.list.community' })) {
+      return
+    }
     return axios.get('/api/module/all').then(result =>
       this.setState({
         popularModules: _.filter(result.data, m => m.popular),
@@ -37,23 +40,27 @@ class Dashboard extends React.Component {
 
   renderPopularModules() {
     return (
-      <Panel>
-        <Panel.Heading>Popular modules</Panel.Heading>
-        <Panel.Body>
-          <ModulesComponent modules={this.state.popularModules} refresh={this.refresh} />
-        </Panel.Body>
-      </Panel>
+      <PermissionsChecker user={this.props.user} op="read" res="modules.list.community">
+        <Panel>
+          <Panel.Heading>Popular modules</Panel.Heading>
+          <Panel.Body>
+            <ModulesComponent modules={this.state.popularModules} refresh={this.refresh} />
+          </Panel.Body>
+        </Panel>
+      </PermissionsChecker>
     )
   }
 
   renderFeaturedModules() {
     return (
-      <Panel>
-        <Panel.Heading>Featured modules</Panel.Heading>
-        <Panel.Body>
-          <ModulesComponent modules={this.state.featuredModules} refresh={this.refresh} />
-        </Panel.Body>
-      </Panel>
+      <PermissionsChecker user={this.props.user} op="read" res="modules.list.community">
+        <Panel>
+          <Panel.Heading>Featured modules</Panel.Heading>
+          <Panel.Body>
+            <ModulesComponent modules={this.state.featuredModules} refresh={this.refresh} />
+          </Panel.Body>
+        </Panel>
+      </PermissionsChecker>
     )
   }
 
@@ -72,7 +79,7 @@ class Dashboard extends React.Component {
               <InformationComponent />
             </Col>
             <Col xs={12} sm={8} md={4} smOffset={2} mdOffset={0}>
-              <PermissionsChecker user={this.props.user} res="modules.list.community" op="red">
+              <PermissionsChecker user={this.props.user} res="modules.list.community" op="read">
                 <HeroComponent />
               </PermissionsChecker>
             </Col>
