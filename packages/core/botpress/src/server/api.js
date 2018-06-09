@@ -64,13 +64,13 @@ module.exports = bp => {
   }
 
   const getCloudRoles = async req => {
-    const { useCloud } = bp.botfile.login
+    const { useCloud, enabled } = bp.botfile.login
     const isUsingCloud = !!useCloud && (await bp.cloud.isPaired())
-    if (!isUsingCloud) {
+    if (!isUsingCloud || !enabled) {
       // No cloud, skip check
       return false
     }
-    const { roles } = req.user
+    const { roles } = req.user || {}
     if (!roles) {
       return null
     }
