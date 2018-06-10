@@ -83,8 +83,42 @@ docs_additional_reading: "Additional Reading"
   title: "Trivia: Version Control"
   description: "Learn about the built-in Versional Control for deployed bots"
 
+# Recipes
+
+"/recipes/":
+  title: "Recipes"
+  description: "How-tos and examples solving typical issues you may run into"
+
+"/recipes/i18n/":
+  title: "Creating Multilingual Bot"
+  description: "Learn how to create bot that supports multiple languages"
+
+"/recipes/embedding/":
+  title: "Embedding the webchat on a website"
+  description: "Learn how to embet bot to your website"
+
+"/recipes/proactive/":
+  title: "Proactive actions"
+  description: "Learn how to make bot start conversation"
+
+"/recipes/version_control/":
+  title: "Version control"
+  description: "Learn how to sync content between deployed bot and local environment"
+
+"/recipes/apis/":
+  title: "External APIs"
+  description: "Learn how to integrate external APIs"
+
+"/recipes/analytics/":
+  title: "Analytics"
+  description: "Learn how to set up analytics for your bot"
+
 guides:
   
   getting_started:
     title: "🚀 Getting Started"
     description: New to Botpress? This step-by-step tutorial will get you up and running quickly.
+
+  recipes:
+    title: "Recipes"
+    description: Guides and examples solving typical issues you may run into
