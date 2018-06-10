@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.16.0"></a>
+# [10.16.0](https://github.com/botpress/modules/compare/v10.15.0...v10.16.0) (2018-06-10)
+
+
+### Features
+
+* **messenger:** support custom graph version ([#599](https://github.com/botpress/modules/issues/599)) ([e5054c6](https://github.com/botpress/modules/commit/e5054c6))
+
+
+
+
 <a name="10.15.0"></a>
 # [10.15.0](https://github.com/botpress/modules/compare/v10.11.3...v10.15.0) (2018-06-07)
 
