@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.17.0"></a>
+# [10.17.0](https://github.com/botpress/modules/compare/v10.15.0...v10.17.0) (2018-06-10)
+
+
+### Bug Fixes
+
+* **botpress-terminal:** add missing dependencies (resolve [#618](https://github.com/botpress/modules/issues/618)) ([f71e4bf](https://github.com/botpress/modules/commit/f71e4bf))
+
+
+
+
 <a name="10.16.0"></a>
 # [10.16.0](https://github.com/botpress/modules/compare/v10.15.0...v10.16.0) (2018-06-10)
 
