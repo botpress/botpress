@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.16.1"></a>
+## [10.16.1](https://github.com/botpress/botpress/compare/v10.16.0...v10.16.1) (2018-06-10)
+
+
+### Bug Fixes
+
+* **util-roles:** npmignore ([29ba7c2](https://github.com/botpress/botpress/commit/29ba7c2))
+
+
+
+
 <a name="10.16.0"></a>
 # [10.16.0](https://github.com/botpress/botpress/compare/v10.15.0...v10.16.0) (2018-06-10)
 
