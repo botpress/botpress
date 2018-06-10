@@ -26,6 +26,7 @@
     - path: "/recipes/proactive/"
     - path: "/recipes/version_control/"
     - path: "/recipes/apis/"
+    - path: "/recipes/analytics/"
     
 # - id: foundamentals
 #   pages:

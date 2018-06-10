@@ -109,6 +109,10 @@ docs_additional_reading: "Additional Reading"
   title: "External APIs"
   description: "Learn how to integrate external APIs"
 
+"/recipes/analytics/":
+  title: "Analytics"
+  description: "Learn how to set up analytics for your bot"
+
 guides:
   
   getting_started:
