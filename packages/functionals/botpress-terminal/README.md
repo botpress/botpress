@@ -8,7 +8,7 @@ A command-line interface to run custom code on your bot while it's running.
 ## Get started
 
 ```
-botpress install terminal
+npm install --save @botpress/terminal
 ```
 
 The terminal module should now be available in your bot UI
