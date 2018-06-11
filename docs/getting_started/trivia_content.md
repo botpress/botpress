@@ -145,6 +145,8 @@ text: data => {
 
 > **Note:** The use of the Spread Operator (`...`) requires Node.js 8.1+. We recommend you use the most recent LTS version of Node.js (8.9 at the time of writing this).
 
+It is possible to access state-variable within renderers through `data.state` reference. This may be useful e. g. for displaying translations based on user's language etc. But note that renderer function isn't `async` so if you need to perform some async-operations, you need to keep that logic in actions and save results into state-variables.
+
 ## Summary
 
 And we're done! You can edit the existing Content Elements to provide some alternate phrases, then open up the Chat Emulator and chat to your new bot!
