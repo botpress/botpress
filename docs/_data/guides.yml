@@ -27,6 +27,7 @@
     - path: "/recipes/version_control/"
     - path: "/recipes/apis/"
     - path: "/recipes/analytics/"
+    - path: "/recipes/shortlinks/"
     
 # - id: foundamentals
 #   pages:

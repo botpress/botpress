@@ -113,6 +113,10 @@ docs_additional_reading: "Additional Reading"
   title: "Analytics"
   description: "Learn how to set up analytics for your bot"
 
+"/recipes/shortlinks/":
+  title: "Shortlinks"
+  description: "Learn how to use shortlinks"
+
 guides:
   
   getting_started:
