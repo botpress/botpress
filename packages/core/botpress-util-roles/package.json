@@ -1,6 +1,6 @@
 {
   "name": "@botpress/util-roles",
-  "version": "10.17.0",
+  "version": "10.17.1",
   "description": "Botpress utility package that handles roles checking",
   "main": "dist/index.js",
   "author": "Botpress, Inc.",
