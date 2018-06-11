@@ -124,6 +124,6 @@ module.exports = {
   ready: async function(bp, config) {
     await initializeMessenger(bp, config)
     incoming(bp, messenger)
-    bp.messenger._internal = messenger
+    bp.messenger.api = messenger
   }
 }

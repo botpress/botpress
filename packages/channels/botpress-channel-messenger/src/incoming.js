@@ -75,7 +75,7 @@ module.exports = (bp, messenger) => {
         const mConfig = messenger.getConfig()
 
         if (mConfig.displayGetStarted && mConfig.autoResponseOption == 'autoResponseText') {
-          bp.messenger.sendText(profile.id, mConfig.autoResponseText)
+          bp.messenger.api.sendTextMessage(profile.id, mConfig.autoResponseText)
         }
 
         if (mConfig.displayGetStarted && mConfig.autoResponseOption == 'autoResponsePostback') {

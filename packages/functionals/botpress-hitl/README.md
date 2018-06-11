@@ -70,12 +70,12 @@ A basic implementation example that shows how easy it is to implement a help req
     })
 
     bp.hear(/HITL_STOP/, (event, next) => {
-      bp.messenger.sendText(event.user.id, 'Human in the loop disabled. Bot resumed.')
+      bp.messenger.api.sendTextMessage(event.user.id, 'Human in the loop disabled. Bot resumed.')
       bp.hitl.unpause(event.platform, event.user.id)
     })
 
     bp.hear({ type: 'message', text: /.+/i }, (event, next) => {
-      bp.messenger.sendText(event.user.id, 'You said: ' + event.text)
+      bp.messenger.api.sendTextMessage(event.user.id, 'You said: ' + event.text)
     })
   }
 ```
