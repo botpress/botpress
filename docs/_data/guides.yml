@@ -28,6 +28,7 @@
     - path: "/recipes/apis/"
     - path: "/recipes/analytics/"
     - path: "/recipes/shortlinks/"
+    - path: "/recipes/carousel/"
     
 # - id: foundamentals
 #   pages:
