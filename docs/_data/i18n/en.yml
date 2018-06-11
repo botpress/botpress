@@ -117,6 +117,10 @@ docs_additional_reading: "Additional Reading"
   title: "Shortlinks"
   description: "Learn how to use shortlinks"
 
+"/recipes/carousel/":
+  title: "Carousel"
+  description: "Learn how to use webchat carousel"
+
 guides:
   
   getting_started:
