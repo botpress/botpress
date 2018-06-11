@@ -51,6 +51,30 @@ In the context of this tutorial, Content Renderers are defined in the `src/rende
 
 Now that you understand the concepts of Content Management, let's make a small change to our bot that covers all of the above concepts.
 
+## Using Builtin Content Types
+
+`@botpress/builtins` package provides you with several builtin content types that we found to be most commonly used. To make use of them you need to install that package and register builtins like this:
+
+```js
+const { contentElements, contentRenderers, actions, setup } = require('@botpress/builtins')
+
+await setup(bp)
+
+// Register built-in content elements
+await Promise.all(
+  Object.values(contentElements)
+    .map(schema => bp.contentManager.loadCategoryFromSchema(schema))
+)
+
+// Register renderers for the built-in elements
+_.toPairs(contentRenderers).forEach(params => bp.renderers.register(...params))
+
+// Register built-in actions
+await bp.dialogEngine.registerActions(actions)
+```
+
+It may appear that builtins will suit your needs and you won't require creating custom schemas for them.
+
 ## Adding new Trivia Questions
 
 The easiest and recommended way to add new content is by using the GUI. Simple navigate to the bot dashboard and click the "Content" menu item.
