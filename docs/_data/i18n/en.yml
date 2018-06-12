@@ -121,6 +121,10 @@ docs_additional_reading: "Additional Reading"
   title: "Carousel"
   description: "Learn how to use webchat carousel"
 
+"/recipes/login/":
+  title: "Login"
+  description: "Learn how to implement login in your bot"
+
 guides:
   
   getting_started:
