@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import classnames from 'classnames'
+import Promise from 'bluebird'
 import _ from 'lodash'
 
 import { Grid, Row, Col, Alert } from 'react-bootstrap'
@@ -13,6 +14,7 @@ import CreateOrEditModal from '~/components/Content/CreateOrEditModal'
 
 import ContentWrapper from '~/components/Layout/ContentWrapper'
 import PageHeader from '~/components/Layout/PageHeader'
+import { operationAllowed } from '~/components/Layout/PermissionsChecker'
 
 const style = require('./style.scss')
 const ITEMS_PER_PAGE = 20
@@ -26,12 +28,34 @@ class ContentView extends Component {
     contentToEdit: null
   }
 
+  initialized = false
+
+  componentDidUpdate() {
+    this.refresh()
+  }
+
   componentDidMount() {
-    this.props.fetchContentCategories()
-    this.fetchCategoryItems(this.state.selectedId)
+    this.refresh()
+  }
+
+  refresh = () => {
+    if (this.initialized || !this.props.user || !this.props.user.id) {
+      return
+    }
+    this.initialized = true
+    this.canRead = operationAllowed({ user: this.props.user, op: 'read', res: 'bot.content' })
+    this.canEdit = operationAllowed({ user: this.props.user, op: 'write', res: 'bot.content' })
+
+    if (this.canRead) {
+      this.props.fetchContentCategories()
+      this.fetchCategoryItems(this.state.selectedId)
+    }
   }
 
   fetchCategoryItems(id) {
+    if (!this.canRead) {
+      return Promise.resolve()
+    }
     return this.props.fetchContentItems({
       id,
       count: ITEMS_PER_PAGE,
@@ -71,7 +95,6 @@ class ContentView extends Component {
   }
 
   handleClone = ids => {
-    const categoryId = this.currentCategoryId()
     return Promise.all(
       this.props.contentItems
         .filter(({ id }) => ids.includes(id))
@@ -117,7 +140,7 @@ class ContentView extends Component {
   }
 
   renderBody() {
-    const { selectedId = 'all', modifyId, contentToEdit } = this.state
+    const { selectedId = 'all', contentToEdit } = this.state
     const categories = this.props.categories || []
     const selectedCategory = _.find(categories, { id: this.currentCategoryId() })
 
@@ -127,8 +150,8 @@ class ContentView extends Component {
       return (
         <div className={classNames}>
           <Alert bsStyle="warning">
-            <strong>We think you don't have any content types defined.</strong> Please&nbsp;
-            <a href="https://botpress.io/docs/foundamentals/content/" target="_blank">
+            <strong>We think you don&apos;t have any content types defined.</strong> Please&nbsp;
+            <a href="https://botpress.io/docs/foundamentals/content/" target="_blank" rel="noopener noreferrer">
               <strong>read the docs</strong>
             </a>
             &nbsp;to see how you can make use of this feature.
@@ -143,6 +166,7 @@ class ContentView extends Component {
           <Row>
             <Col xs={3}>
               <Sidebar
+                readOnly={!this.canEdit}
                 categories={categories}
                 selectedId={selectedId}
                 handleAdd={this.handleCreateNew}
@@ -151,6 +175,7 @@ class ContentView extends Component {
             </Col>
             <Col xs={9}>
               <List
+                readOnly={!this.canEdit}
                 page={this.state.page}
                 count={
                   this.state.selectedId === 'all'
@@ -171,15 +196,17 @@ class ContentView extends Component {
             </Col>
           </Row>
         </Grid>
-        <CreateOrEditModal
-          show={this.state.showModal}
-          schema={(selectedCategory && selectedCategory.schema.json) || {}}
-          uiSchema={(selectedCategory && selectedCategory.schema.ui) || {}}
-          formData={contentToEdit}
-          handleCreateOrUpdate={this.handleUpsert}
-          handleEdit={this.handleFormEdited}
-          handleClose={this.handleCloseModal}
-        />
+        {this.canEdit && (
+          <CreateOrEditModal
+            show={this.state.showModal}
+            schema={(selectedCategory && selectedCategory.schema.json) || {}}
+            uiSchema={(selectedCategory && selectedCategory.schema.ui) || {}}
+            formData={contentToEdit}
+            handleCreateOrUpdate={this.handleUpsert}
+            handleEdit={this.handleFormEdited}
+            handleClose={this.handleCloseModal}
+          />
+        )}
       </div>
     )
   }
@@ -196,7 +223,8 @@ class ContentView extends Component {
 
 const mapStateToProps = state => ({
   categories: state.content.categories,
-  contentItems: state.content.currentItems
+  contentItems: state.content.currentItems,
+  user: state.user
 })
 
 const mapDispatchToProps = {

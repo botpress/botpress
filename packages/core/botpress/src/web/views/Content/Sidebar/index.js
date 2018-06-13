@@ -13,6 +13,10 @@ const CATEGORY_ALL = {
 
 export default class SidebarView extends Component {
   renderAddButton() {
+    if (this.props.readOnly) {
+      return null
+    }
+
     const classNames = classnames('bp-button', {
       [style.disabled]: this.props.selectedId === 'all'
     })
