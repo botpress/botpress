@@ -562,10 +562,6 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
   }
 
   const init = async () => {
-    if (!fs.existsSync(contentDir)) {
-      return
-    }
-
     mkdirp.sync(contentDataDir)
     await ghostManager.addRootFolder(contentDataDir, { filesGlob: '**/*.json' })
 
