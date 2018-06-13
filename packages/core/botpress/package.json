@@ -96,10 +96,10 @@
     "node-sass": "^4.8.3",
     "postcss-loader": "^2.0.8",
     "prop-types": "^15.6.0",
-    "react": "^16.2.0",
+    "react": "^16.4.0",
     "react-bootstrap": "^0.32.1",
     "react-bootstrap-button-loader": "^1.0.11",
-    "react-dom": "^16.2.0",
+    "react-dom": "^16.4.0",
     "react-emoji": "^0.4.4",
     "react-fontawesome": "^1.2.0",
     "react-ga": "^2.1.2",
@@ -149,11 +149,7 @@
   "license": "AGPL-3.0",
   "main": "lib/node.bundle.js",
   "repository": "git+https://github.com/botpress/botpress.git",
-  "os": [
-    "darwin",
-    "linux",
-    "win32"
-  ],
+  "os": ["darwin", "linux", "win32"],
   "scripts": {
     "prepublishOnly": "npm run compile-prod",
     "compile": "./build.sh",
@@ -163,9 +159,7 @@
   },
   "watch": {
     "compile": {
-      "patterns": [
-        "src"
-      ],
+      "patterns": ["src"],
       "extensions": "js,jsx,scss,json,html"
     }
   }
