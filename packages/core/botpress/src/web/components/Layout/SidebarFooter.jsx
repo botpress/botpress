@@ -8,6 +8,7 @@ import classnames from 'classnames'
 import moment from 'moment'
 
 import { toggleLicenseModal, toggleAboutModal } from '~/actions'
+import { operationAllowed } from './PermissionsChecker'
 
 const style = require('./SidebarFooter.scss')
 
@@ -30,9 +31,7 @@ class SidebarFooter extends React.Component {
     const progressClassNames = classnames(style.progressBar, 'bp-progress')
 
     const progress = limit && limit.get('progress')
-    const usedClassNames = classnames({
-      [style.used]: true,
-      ['bp-used']: true,
+    const usedClassNames = classnames(style.used, 'bp-used', {
       [style.warning]: progress >= 0.75,
       ['bp-warning']: progress >= 0.75,
       [style.urgent]: progress >= 0.9,
@@ -48,7 +47,7 @@ class SidebarFooter extends React.Component {
     }
 
     const usedStyle = {
-      width: width
+      width
     }
 
     if (limit && limit.get('progress')) {
@@ -67,9 +66,7 @@ class SidebarFooter extends React.Component {
 
     const statusClassNames = classnames(style.status, 'bp-status')
 
-    const dotClassNames = classnames({
-      [style.dot]: true,
-      ['bp-dot']: true,
+    const dotClassNames = classnames(style.dot, 'bp-dot', {
       [style.reached]: limit && limit.get('reached'),
       ['bp-reached']: limit && limit.get('reached')
     })

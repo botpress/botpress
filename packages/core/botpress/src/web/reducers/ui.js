@@ -11,11 +11,11 @@ const defaultState = {
 
 const reducer = handleActions(
   {
-    [toggleLicenseModal]: (state, { payload }) => ({
+    [toggleLicenseModal]: state => ({
       ...state,
       licenseModalOpened: !state.licenseModalOpened
     }),
-    [toggleAboutModal]: (state, { payload }) => ({
+    [toggleAboutModal]: state => ({
       ...state,
       aboutModalOpened: !state.aboutModalOpened
     }),

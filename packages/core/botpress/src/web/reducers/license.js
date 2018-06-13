@@ -2,12 +2,17 @@ import { handleActions } from 'redux-actions'
 
 import { licenseChanged } from '~/actions'
 
-const defaultState = { name: null, text: null, licensed: null, status: null }
+const defaultState = {
+  name: null,
+  text: null,
+  licensed: null,
+  status: null
+}
 
 const reducer = handleActions(
   {
     [licenseChanged]: (state, { payload }) => {
-      return { ...payload }
+      return { ...state, ...payload }
     }
   },
   defaultState

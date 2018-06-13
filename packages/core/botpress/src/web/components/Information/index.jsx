@@ -46,10 +46,10 @@ class InformationComponent extends React.Component {
             Version {this.props.botInformation.version}
           </p>
           <p className={classnames(style.informationLicense, 'bp-license')}>
-            Licensed under {this.props.botInformation.license} (
+            Licensed under{' '}
             <a href="#" onClick={this.openLicenseComponent}>
-              Change
-            </a>)
+              {this.props.botInformation.license}
+            </a>
           </p>
           <div className={classnames(style.whereFrom, 'bp-where-from')}>Info extracted from package.json</div>
         </Panel.Body>

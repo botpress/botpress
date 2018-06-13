@@ -7,7 +7,7 @@ import _ from 'lodash'
 import listeners from './listeners'
 import { resolveProjectFile } from './util'
 
-module.exports = ({ logger, version, projectLocation, db, botfile, bp }) => {
+module.exports = ({ projectLocation, bp }) => {
   const licensesPath = path.join(bp.botpressPath, './licenses')
 
   const getLicenses = () => {
@@ -79,8 +79,7 @@ Botpress: ${bp.version}`
 
       return {
         licensed: true,
-        name: 'Botpress',
-        text: null,
+        name: currentLicense.name,
         status: 'Active',
         text: currentLicense.text
       }
