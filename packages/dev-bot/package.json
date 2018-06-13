@@ -22,6 +22,7 @@
   },
   "scripts": {
     "start": "botpress start",
+    "start-auth": "BOTPRESS_AUTH_ENABLED=1 BOTPRESS_CLOUD_ENABLED=1 botpress start",
     "ghost-sync": "botpress ghost-sync",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
