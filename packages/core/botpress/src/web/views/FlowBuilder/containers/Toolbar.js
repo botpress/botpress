@@ -1,4 +1,3 @@
-import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import _ from 'lodash'
 
@@ -7,7 +6,7 @@ import { getCurrentFlow, getCurrentFlowNode, getDirtyFlows, canFlowUndo, canFlow
 
 import Toolbar from '../toolbar.jsx'
 
-const mapStateToProps = (state, ownProps) => ({
+const mapStateToProps = state => ({
   flowsNames: _.keys(state.flows.flowsByName),
   currentFlow: getCurrentFlow(state),
   currentDiagramAction: state.flows.currentDiagramAction,

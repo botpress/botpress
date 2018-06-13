@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import { cancelNewSkill, insertNewSkill, updateSkill } from '~/actions'
 import SkillsBuilder from '../skills'
 
-const mapStateToProps = (state, ownProps) => ({
+const mapStateToProps = state => ({
   installedSkills: state.skills.installed,
   ...state.skills.builder
 })
