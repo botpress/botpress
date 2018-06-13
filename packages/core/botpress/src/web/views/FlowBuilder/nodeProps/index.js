@@ -40,6 +40,7 @@ export default class NodePropsModal extends Component {
     if (flowType === 'skill-call') {
       return (
         <SkillCallNode
+          user={this.props.user}
           flow={this.props.currentFlow}
           subflows={subflows}
           node={this.props.currentFlowNode}

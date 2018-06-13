@@ -91,8 +91,6 @@ class Toolbar extends React.Component {
       </PermissionsChecker>
     )
 
-    console.log(this.props.user)
-
     return (
       <div className={style.wrapper}>
         <div className={style.toolbar}>

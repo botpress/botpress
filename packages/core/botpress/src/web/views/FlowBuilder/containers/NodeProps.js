@@ -20,7 +20,8 @@ const mapStateToProps = state => ({
   flows: values(state.flows.flowsByName),
   currentFlow: getCurrentFlow(state),
   currentFlowNode: getCurrentFlowNode(state),
-  buffer: state.flows.buffer
+  buffer: state.flows.buffer,
+  user: state.user
 })
 
 const mapDispatchToProps = {
