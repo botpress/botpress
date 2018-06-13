@@ -94,6 +94,32 @@
       ],
       "onEnter": ["say #!builtin_text-KRrMLo"],
       "onReceive": null
+    },
+    {
+      "id": "skill-00b31c",
+      "type": "skill-call",
+      "skill": "choice",
+      "name": "choice-00b31c",
+      "flow": "skills/choice-00b31c.flow.json",
+      "next": [
+        {
+          "caption": "User picked [3]",
+          "condition": "state['skill-choice-ret'] == \"3\"",
+          "node": ""
+        },
+        {
+          "caption": "User picked [4]",
+          "condition": "state['skill-choice-ret'] == \"4\"",
+          "node": ""
+        },
+        {
+          "caption": "On failure",
+          "condition": "true",
+          "node": ""
+        }
+      ],
+      "onEnter": null,
+      "onReceive": null
     }
   ]
 }
