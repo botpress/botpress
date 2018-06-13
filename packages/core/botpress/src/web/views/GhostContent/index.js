@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import classnames from 'classnames'
+import { connect } from 'react-redux'
 import orderBy from 'lodash/orderBy'
 import moment from 'moment'
 
@@ -7,6 +7,7 @@ import { Alert, Button, Modal, Panel } from 'react-bootstrap'
 
 import ContentWrapper from '~/components/Layout/ContentWrapper'
 import PageHeader from '~/components/Layout/PageHeader'
+import PermissionsChecker from '~/components/Layout/PermissionsChecker'
 import Loading from '~/components/Util/Loading'
 import About from './About'
 
@@ -14,7 +15,7 @@ import { fetchStatus, getHost, revertPendingFileChanges } from './util'
 
 import style from './style.scss'
 
-export default class GhostView extends Component {
+class GhostView extends Component {
   state = {
     loading: true,
     data: null,
@@ -79,17 +80,17 @@ export default class GhostView extends Component {
       }
     }
 
-    const undoLink = (
-      <a href="javascript: void(0);" onClick={undo}>
-        Revert changes
-      </a>
-    )
-
     return (
       <li key={`${folder}/${file}`}>
         <details>
           <summary>
-            {file} {undoLink}
+            {file}
+            <PermissionsChecker user={this.props.user} op="write" res="bot.ghost_content">
+              {' '}
+              <a href="javascript:void(0);" onClick={undo}>
+                Revert changes
+              </a>
+            </PermissionsChecker>
           </summary>
           <ul>{data.map((datum, i) => this.renderRevision(Object.assign({ folder }, datum), i))}</ul>
         </details>
@@ -101,7 +102,7 @@ export default class GhostView extends Component {
     const files = Object.keys(data).sort()
 
     return (
-      <Panel collapsible="true" defaultExpanded>
+      <Panel collapsible="true" defaultExpanded key={folder}>
         <Panel.Heading>{folder}</Panel.Heading>
         <Panel.Body>
           <ul className={style.files}>{files.map(file => this.renderFile(folder, file, data[file]))}</ul>
@@ -204,3 +205,9 @@ export default class GhostView extends Component {
     )
   }
 }
+
+const mapStateToProps = state => ({
+  user: state.user
+})
+
+export default connect(mapStateToProps)(GhostView)
