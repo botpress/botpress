@@ -3,9 +3,10 @@ import Joi from 'joi'
 import RootAuthentication from './root'
 import CloudAuthentication from './cloud'
 import NoneAuthentication from './none'
+import { isDeveloping } from '../util'
 
 module.exports = async options => {
-  if (process.env.NODE_ENV !== 'production') {
+  if (isDeveloping) {
     const schema = Joi.object().keys({
       dataLocation: Joi.string()
         .min(1)

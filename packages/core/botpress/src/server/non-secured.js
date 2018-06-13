@@ -8,10 +8,6 @@ module.exports = (bp, app) => {
     res.send('pong')
   })
 
-  app.get('/api/bot/production', (req, res) => {
-    res.send(!util.isDeveloping)
-  })
-
   app.get('/api/license', async (req, res) => {
     res.send(await bp.licensing.getLicensing())
   })
