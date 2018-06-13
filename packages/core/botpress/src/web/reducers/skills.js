@@ -36,7 +36,7 @@ const reducer = handleActions(
       }
     }),
 
-    [cancelNewSkill]: (state, { payload }) => ({
+    [cancelNewSkill]: state => ({
       ...state,
       builder: {
         ...state.builder,
@@ -67,7 +67,7 @@ const reducer = handleActions(
       }
     }),
 
-    [updateSkill]: (state, { payload }) => ({
+    [updateSkill]: state => ({
       ...state,
       builder: {
         ...state.builder,

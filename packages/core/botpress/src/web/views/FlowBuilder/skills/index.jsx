@@ -52,7 +52,7 @@ export default class SkillsBuilder extends React.Component {
   }
 
   renderModuleNotFound = () => {
-    return <div>Could not load skill's view</div>
+    return <div>Could not load skill&apos;s view</div>
   }
 
   onDataChanged = data => {
