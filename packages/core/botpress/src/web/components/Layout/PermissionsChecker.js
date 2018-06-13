@@ -10,8 +10,7 @@ export const operationAllowed = ({ user, res, op }) => {
   return true
 }
 
-const PermissionsChecker = ({ user, res, op, children }) => {
-  return operationAllowed({ user, res, op }) ? children : null
-}
+const PermissionsChecker = ({ user, res, op, children, fallback = null }) =>
+  operationAllowed({ user, res, op }) ? children : fallback
 
 export default PermissionsChecker
