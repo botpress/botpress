@@ -96,38 +96,45 @@ export default class ListView extends Component {
     )
   }
 
-  renderMessage = (m, i) => {
-    const handleEdit = () => this.props.handleEdit(m.id, m.categoryId)
+  renderContentItem = (m, i) => {
+    const handleEdit = () => !this.props.readOnly && this.props.handleEdit(m.id, m.categoryId)
     const checked = _.includes(this.state.checkedIds, m.id)
     const className = classnames(style.item, { [style.selected]: checked })
 
     return (
       <tr className={className} key={i}>
-        <td style={{ width: '2%', minWidth: '34px' }}>
-          <Checkbox checked={checked} onClick={() => this.handleCheckboxChanged(m.id, m.categoryId)} />
-        </td>
+        {!this.props.readOnly && (
+          <td style={{ width: '2%', minWidth: '34px' }}>
+            <Checkbox checked={checked} onClick={() => this.handleCheckboxChanged(m.id, m.categoryId)} />
+          </td>
+        )}
         <td style={{ width: '16%' }}>{'#!' + m.id}</td>
         <td style={{ width: '8%' }}>{m.categoryId}</td>
         <td style={{ width: '58%' }}>{m.previewText}</td>
         <td style={{ width: '18%' }}>{moment(m.createdOn).format('MMMM Do YYYY, h:mm')}</td>
-        <td>
-          <Button bsSize="small" onClick={handleEdit}>
-            <Glyphicon glyph="pencil" />
-          </Button>
-        </td>
+        {!this.props.readOnly && (
+          <td>
+            <Button bsSize="small" onClick={handleEdit}>
+              <Glyphicon glyph="pencil" />
+            </Button>
+          </td>
+        )}
       </tr>
     )
   }
 
   renderTable() {
     if (this.props.contentItems && this.props.contentItems.length === 0) {
-      return <div className={style.empty}>There's no content yet. You can create some using the 'Add' button.</div>
+      const message = this.props.readOnly
+        ? "There's no content here."
+        : "There's no content yet. You can create some using the 'Add' button."
+      return <div className={style.empty}>{message}</div>
     }
 
     return (
       <div className={style.container}>
         <Table striped bordered condensed hover>
-          <tbody>{this.props.contentItems.map(this.renderMessage)}</tbody>
+          <tbody>{this.props.contentItems.map(this.renderContentItem)}</tbody>
         </Table>
       </div>
     )
@@ -150,18 +157,28 @@ export default class ListView extends Component {
   renderActionButtons() {
     return (
       <span>
-        <Button onClick={this.handleAllCheckedChanged}>
-          <Checkbox checked={this.state.allChecked} onClick={this.handleAllCheckedChanged} />
-        </Button>
-        <Button onClick={this.props.handleRefresh}>
+        {!this.props.readOnly && (
+          <Button onClick={this.handleAllCheckedChanged}>
+            <Checkbox checked={this.state.allChecked} onClick={this.handleAllCheckedChanged} />
+          </Button>
+        )}
+        <Button onClick={this.props.handleRefresh} title="Refresh">
           <i className="material-icons">refresh</i>
         </Button>
-        <Button onClick={this.handleDeleteSelected} disabled={_.isEmpty(this.state.checkedIds)}>
-          <i className="material-icons">delete</i>
-        </Button>
-        <Button onClick={this.handleCloneSelected} disabled={_.isEmpty(this.state.checkedIds)}>
-          <i className="material-icons">filter_none</i>
-        </Button>
+        {!this.props.readOnly && (
+          <Button
+            onClick={this.handleDeleteSelected}
+            disabled={_.isEmpty(this.state.checkedIds)}
+            title="Delete selected"
+          >
+            <i className="material-icons">delete</i>
+          </Button>
+        )}
+        {!this.props.readOnly && (
+          <Button onClick={this.handleCloneSelected} disabled={_.isEmpty(this.state.checkedIds)} title="Clone selected">
+            <i className="material-icons">filter_none</i>
+          </Button>
+        )}
       </span>
     )
   }
