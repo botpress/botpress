@@ -14,6 +14,7 @@ import fs from 'fs'
 import json5 from 'json5'
 
 import ModuleConfiguration from './module'
+import { isDeveloping } from '../util'
 
 const validations = {
   any: (value, validation) => validation(value),
@@ -63,7 +64,7 @@ const amendOptions = options => {
 
 export default class ConfigurationManager {
   constructor(options) {
-    if (process.env.NODE_ENV !== 'production') {
+    if (isDeveloping) {
       const schema = Joi.object().keys({
         configLocation: Joi.string()
           .min(1)

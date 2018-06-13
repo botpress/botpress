@@ -153,9 +153,7 @@ class SidebarFooter extends React.Component {
       return null
     }
 
-    const isProduction = this.props.botInformation && this.props.botInformation.production
-
-    const production = isProduction ? 'in production' : 'in development'
+    const production = window.DEV_MODE ? 'in development' : 'in production'
 
     const name = this.props.botInformation && this.props.botInformation.name
 
