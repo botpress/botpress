@@ -1,5 +1,8 @@
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
+
 import { Button, FormGroup, InputGroup, FormControl, HelpBlock } from 'react-bootstrap'
+import PermissionsChecker from '~/components/Layout/PermissionsChecker'
 import Loading from '~/components/Util/Loading'
 import axios from 'axios'
 
@@ -62,7 +65,12 @@ class UploadWidget extends Component {
     const { expanded, uploading, error } = this.state
 
     return (
-      <div>
+      <PermissionsChecker
+        user={this.props.user}
+        op="write"
+        res="bot.media"
+        fallback={<em>Youd don&apos;t have permission to upload files for this bot. Talk to your team owner.</em>}
+      >
         <FormGroup>
           {!expanded ? (
             <InputGroup>
@@ -108,9 +116,13 @@ class UploadWidget extends Component {
             </FormGroup>
           )}
         {expanded && uploading && <Loading />}
-      </div>
+      </PermissionsChecker>
     )
   }
 }
 
-export default UploadWidget
+const mapStateToProps = state => ({
+  user: state.user
+})
+
+export default connect(mapStateToProps)(UploadWidget)
