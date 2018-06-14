@@ -26,7 +26,7 @@ class FlowBuilder extends Component {
   }
 
   init() {
-    if (this.state.initialized || !this.props.user || !this.props.user.id) {
+    if (this.state.initialized || !this.props.user || this.props.user.id == null) {
       return
     }
     this.setState({
