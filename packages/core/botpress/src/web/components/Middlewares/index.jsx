@@ -117,7 +117,7 @@ class Middlewares extends Component {
   }
 
   refresh = () => {
-    if (this.initialized || !this.props.user || !this.props.user.id) {
+    if (this.initialized || !this.props.user || this.props.user.id == null) {
       return
     }
     this.initialized = true
