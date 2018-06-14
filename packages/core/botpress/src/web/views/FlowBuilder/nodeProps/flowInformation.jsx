@@ -10,6 +10,8 @@ const style = require('./style.scss')
 
 export default class FlowPropertiesPanel extends Component {
   render() {
+    const { readOnly } = this.props
+
     const catchAll = Object.assign(
       {
         onReceive: [],
@@ -30,6 +32,7 @@ export default class FlowPropertiesPanel extends Component {
             }
           >
             <ActionSection
+              readOnly={readOnly}
               items={catchAll.onReceive}
               header="On Receive"
               onItemsUpdated={items => this.props.updateFlow({ catchAll: { ...catchAll, onReceive: items } })}
@@ -47,6 +50,7 @@ export default class FlowPropertiesPanel extends Component {
             }
           >
             <TransitionSection
+              readOnly={readOnly}
               items={catchAll.next}
               header="Transitions"
               currentFlow={this.props.currentFlow}

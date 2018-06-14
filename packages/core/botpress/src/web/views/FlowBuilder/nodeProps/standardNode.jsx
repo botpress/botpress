@@ -21,7 +21,7 @@ export default class StandardNodePropertiesPanel extends Component {
   }
 
   render() {
-    const { node } = this.props
+    const { node, readOnly } = this.props
 
     const onNameMounted = input => {
       if (input.value.startsWith('node-')) {
@@ -34,6 +34,7 @@ export default class StandardNodePropertiesPanel extends Component {
       <div className={style.node}>
         <Panel>
           <EditableInput
+            readOnly={readOnly}
             onMount={onNameMounted}
             value={node.name}
             className={style.name}
@@ -51,6 +52,7 @@ export default class StandardNodePropertiesPanel extends Component {
             }
           >
             <ActionSection
+              readOnly={readOnly}
               items={node.onEnter}
               header="On Enter"
               onItemsUpdated={items => this.props.updateNode({ onEnter: items })}
@@ -68,6 +70,7 @@ export default class StandardNodePropertiesPanel extends Component {
             }
           >
             <ActionSection
+              readOnly={readOnly}
               items={node.onReceive}
               header="On Receive"
               waitable={true}
@@ -86,6 +89,7 @@ export default class StandardNodePropertiesPanel extends Component {
             }
           >
             <TransitionSection
+              readOnly={readOnly}
               items={node.next}
               header="Transitions"
               subflows={this.props.subflows}

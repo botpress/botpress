@@ -20,7 +20,7 @@ export default class SkillCallNodePropertiesPanel extends Component {
   }
 
   render() {
-    const { node } = this.props
+    const { node, readOnly } = this.props
 
     const onNameMounted = input => {
       if (input.value.startsWith('node-')) {
@@ -36,6 +36,7 @@ export default class SkillCallNodePropertiesPanel extends Component {
       <div className={style.node}>
         <Panel>
           <EditableInput
+            readOnly={readOnly}
             onMount={onNameMounted}
             value={node.name}
             className={style.name}
@@ -59,6 +60,7 @@ export default class SkillCallNodePropertiesPanel extends Component {
             }
           >
             <TransitionSection
+              readOnly={readOnly}
               items={node.next}
               header="Transitions"
               subflows={this.props.subflows}

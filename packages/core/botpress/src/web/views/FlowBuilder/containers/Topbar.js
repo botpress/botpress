@@ -7,18 +7,12 @@ import { getCurrentFlow } from '~/reducers'
 
 import Topbar from '../topbar.jsx'
 
-const mapStateToProps = (state, ownProps) => ({
+const mapStateToProps = state => ({
   flows: _.values(state.flows.flowsByName),
   currentFlow: getCurrentFlow(state)
 })
 
-const mapDispatchToProps = (dispatch, ownProps) =>
-  bindActionCreators(
-    {
-      renameFlow: renameFlow
-    },
-    dispatch
-  )
+const mapDispatchToProps = dispatch => bindActionCreators({ renameFlow }, dispatch)
 
 const ConnectedTopbar = connect(mapStateToProps, mapDispatchToProps)(Topbar)
 

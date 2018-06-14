@@ -11,11 +11,8 @@ import ConditionModalForm from './ConditionModalForm'
 const style = require('./style.scss')
 
 export default class TransitionSection extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      showConditionalModalForm: false
-    }
+  state = {
+    showConditionalModalForm: false
   }
 
   onMove(prevIndex, direction) {
@@ -52,7 +49,7 @@ export default class TransitionSection extends Component {
   }
 
   render() {
-    let { items, header } = this.props
+    let { items, readOnly } = this.props
 
     if (!items) {
       items = []
@@ -90,32 +87,38 @@ export default class TransitionSection extends Component {
           {items.map((item, i) => (
             <ConditionItem className={style.item} condition={item} position={i} key={`${i}.${item.node || '-'}`}>
               {renderType(item)}
-              <div className={style.actions}>
-                <a onClick={() => this.onEdit(i)}>Edit</a>
-                <a onClick={() => this.onRemove(i)}>Remove</a>
-                <a onClick={() => this.onCopyAction(i)}>Copy</a>
-                {renderMoveUp(i)}
-                {renderMoveDown(i)}
-              </div>
+              {!readOnly && (
+                <div className={style.actions}>
+                  <a onClick={() => this.onEdit(i)}>Edit</a>
+                  <a onClick={() => this.onRemove(i)}>Remove</a>
+                  <a onClick={() => this.onCopyAction(i)}>Copy</a>
+                  {renderMoveUp(i)}
+                  {renderMoveDown(i)}
+                </div>
+              )}
             </ConditionItem>
           ))}
-          <div className={style.actions}>
-            <Button onClick={handleAddAction} bsSize="xsmall">
-              <i className={classnames('material-icons', style.actionIcons)}>add</i>
-            </Button>
-            <Button onClick={this.props.pasteItem} bsSize="xsmall" disabled={!this.props.canPaste}>
-              <i className={classnames('material-icons', style.actionIcons)}>content_paste</i>
-            </Button>
-          </div>
+          {!readOnly && (
+            <div className={style.actions}>
+              <Button onClick={handleAddAction} bsSize="xsmall">
+                <i className={classnames('material-icons', style.actionIcons)}>add</i>
+              </Button>
+              <Button onClick={this.props.pasteItem} bsSize="xsmall" disabled={!this.props.canPaste}>
+                <i className={classnames('material-icons', style.actionIcons)}>content_paste</i>
+              </Button>
+            </div>
+          )}
         </div>
-        <ConditionModalForm
-          currentFlow={this.props.currentFlow}
-          subflows={this.props.subflows}
-          show={this.state.showConditionalModalForm}
-          onClose={() => this.setState({ showConditionalModalForm: false, itemToEditIndex: null })}
-          onSubmit={this.onSubmit}
-          item={this.props.items[this.state.itemToEditIndex]}
-        />
+        {!readOnly && (
+          <ConditionModalForm
+            currentFlow={this.props.currentFlow}
+            subflows={this.props.subflows}
+            show={this.state.showConditionalModalForm}
+            onClose={() => this.setState({ showConditionalModalForm: false, itemToEditIndex: null })}
+            onSubmit={this.onSubmit}
+            item={this.props.items[this.state.itemToEditIndex]}
+          />
+        )}
       </Fragment>
     )
   }

@@ -6,16 +6,12 @@ import _ from 'lodash'
 const style = require('./style.scss')
 
 export default class ConditionModalForm extends Component {
-  constructor(props) {
-    super(props)
-
-    this.state = {
-      typeOfTransition: 'end',
-      flowToSubflow: null,
-      flowToNode: null,
-      transitionError: null,
-      conditionError: null
-    }
+  state = {
+    typeOfTransition: 'end',
+    flowToSubflow: null,
+    flowToNode: null,
+    transitionError: null,
+    conditionError: null
   }
 
   componentWillReceiveProps(nextProps) {

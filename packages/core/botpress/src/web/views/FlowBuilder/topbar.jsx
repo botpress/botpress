@@ -35,18 +35,20 @@ export default class Topbar extends React.Component {
 
   render() {
     const name = this.getCurrentFlowName()
+    const { readOnly } = this.props
     return (
       <div className={style.title}>
         <span>Flow Editor –</span>
-        <span className={style.name}> {name}</span>
-        {name && (
-          <span>
-            &nbsp;
-            <a onClick={this.promptRenameFlow} href="javascript:void(0);" className={style.rename}>
-              (rename)
-            </a>
-          </span>
-        )}
+        <span className={style.name}>&nbsp;{name}</span>
+        {name &&
+          !readOnly && (
+            <span>
+              &nbsp;
+              <a onClick={this.promptRenameFlow} href="javascript:void(0);" className={style.rename}>
+                (rename)
+              </a>
+            </span>
+          )}
       </div>
     )
   }

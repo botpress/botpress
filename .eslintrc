@@ -53,6 +53,7 @@
 
     "prettier/prettier": "error",
 
-    "react/prop-types": 0
+    "react/prop-types": 0,
+    "react/no-find-dom-node": 0
   }
 }
