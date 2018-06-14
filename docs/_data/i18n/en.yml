@@ -125,6 +125,10 @@ docs_additional_reading: "Additional Reading"
   title: "Login"
   description: "Learn how to implement login in your bot"
 
+"/recipes/timeout/":
+  title: "Timeout"
+  description: "Learn how to perform actions on timeout in conversation with user"
+
 guides:
   
   getting_started:
