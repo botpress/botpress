@@ -76,12 +76,25 @@ class Middlewares extends Component {
 
   initialized = false
 
-  componentDidUpdate() {
-    this.refresh()
+  init() {
+    if (this.initialized || !this.props.user || this.props.user.id == null) {
+      return
+    }
+    this.initialized = true
+    this.canRead = operationAllowed({ user: this.props.user, op: 'read', res: 'bot.middleware.list' })
+    this.canEdit = operationAllowed({ user: this.props.user, op: 'write', res: 'bot.middleware.customizations' })
+
+    if (this.canRead) {
+      axios.get('/api/middlewares').then(({ data }) => this.setMiddlewares(data))
+    }
   }
 
   componentDidMount() {
-    this.refresh()
+    this.init()
+  }
+
+  componentDidUpdate() {
+    this.init()
   }
 
   getStateHash() {
@@ -114,19 +127,6 @@ class Middlewares extends Component {
     })
 
     setImmediate(() => this.setState({ initialStateHash: this.getStateHash() }))
-  }
-
-  refresh = () => {
-    if (this.initialized || !this.props.user || this.props.user.id == null) {
-      return
-    }
-    this.initialized = true
-    this.canRead = operationAllowed({ user: this.props.user, op: 'read', res: 'bot.middleware.list' })
-    this.canEdit = operationAllowed({ user: this.props.user, op: 'write', res: 'bot.middleware.customizations' })
-
-    if (this.canRead) {
-      axios.get('/api/middlewares').then(({ data }) => this.setMiddlewares(data))
-    }
   }
 
   handleSort = type => data => {

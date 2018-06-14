@@ -24,14 +24,22 @@ class Dashboard extends React.Component {
 
   initialized = false
 
-  componentDidUpdate() {
-    this.refresh()
+  init() {
+    if (this.initialized || !this.props.user || this.props.user.id == null) {
+      return
+    }
+
+    this.initialized = true
+    this.queryAllModules().finally(() => this.setState({ loading: false }))
   }
 
   componentDidMount() {
+    this.init()
     this.fetchHeroConfig()
+  }
 
-    this.refresh()
+  componentDidUpdate() {
+    this.init()
   }
 
   queryAllModules() {
@@ -44,15 +52,6 @@ class Dashboard extends React.Component {
         featuredModules: _.filter(result.data, m => m.featured)
       })
     )
-  }
-
-  refresh = () => {
-    if (this.initialized || !this.props.user || this.props.user.id == null) {
-      return
-    }
-
-    this.initialized = true
-    this.queryAllModules().finally(() => this.setState({ loading: false }))
   }
 
   fetchHeroConfig() {
