@@ -30,6 +30,7 @@
     - path: "/recipes/shortlinks/"
     - path: "/recipes/carousel/"
     - path: "/recipes/login/"
+    - path: "/recipes/timeout/"
     
 # - id: foundamentals
 #   pages:
