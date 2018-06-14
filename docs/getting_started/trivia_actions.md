@@ -88,7 +88,45 @@ setUserTag: async (state, event, { name, value }) => {
 
 > **Note:** `name` and `value` come from the Flow Builder. `name` is a static value whereas `value` is an expression that will be evaluated at execution time. In this case, `event.text` is what the user said (i.e., his nickname).
 
+If the some variable is available under `state` or `event` in the action normally it doesn't make sense to pass it as custom arguments.
+
 ![Passing arguments from the flow editor][setusertagargs]
+
+JSDoc-comments before function can be used to prepopulate params for the function when it gets selected in flow-editor.
+To enable this you'd need to call `bp.dialogEngine.registerActionMetadataProvider` like in the snippet below (included in default bot installation):
+
+```js
+const metadata = {}
+bp.dialogEngine.registerActionMetadataProvider(action => metadata[action])
+
+for (const actionFile of actionFiles) {
+  const docs = await jsdoc.explain({ files: path.join(__dirname, actionFile) })
+  const actions = require(actionFile)
+
+  for (const action of Object.keys(actions)) {
+    const meta = docs.find(doc => {
+      return doc.name === action && doc.comment.length > 0
+    })
+
+    if (meta) {
+      metadata[action] = {
+        title: meta.name,
+        description: meta.description,
+        category: 'Custom',
+        params: meta.params.map(param => ({
+          type: _.get(param, 'type.names.0') || 'string',
+          name: param.name.replace('params.', ''),
+          description: param.description,
+          default: param.defaultvalue || '',
+          required: !param.optional
+        }))
+      }
+    }
+  }
+
+  bp.dialogEngine.registerActions(actions)
+}
+```
 
 ## Altering the state
 
