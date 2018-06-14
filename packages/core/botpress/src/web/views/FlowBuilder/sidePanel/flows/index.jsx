@@ -48,6 +48,10 @@ export default class FlowsList extends Component {
   menuButtons = {}
 
   renderMenu = node => {
+    if (this.props.readOnly) {
+      return null
+    }
+
     const flow = node.data
     const index = node.fullPath.replace(/\//g, '__')
 
@@ -138,7 +142,7 @@ export default class FlowsList extends Component {
   }
 
   buildTreeData() {
-    const { flows, currentFlow, dirtyFlows } = this.props
+    const { flows } = this.props
     const nodes = buildFlowsTree(flows)
     if (this.state) {
       setNodeStates(nodes, this.state.toggledNodes, this.state.activeNode)
@@ -146,7 +150,7 @@ export default class FlowsList extends Component {
     return nodes
   }
 
-  toggleTreeNode = (node, toggled) => {
+  toggleTreeNode = node => {
     const toggledNodes = { ...this.state.toggledNodes }
     let activeNode = this.state.activeNode
 
@@ -172,9 +176,19 @@ export default class FlowsList extends Component {
   render() {
     const { dirtyFlows, currentFlow } = this.props
     if (!this.state && currentFlow) {
+      // TODO: find a better place for this initialization
+      // maybe componentDidMount / componentDidUpdate
+      // eslint-disable-next-line react/no-direct-mutation-state
       this.state = getInitialState(currentFlow)
     }
     const treeData = this.buildTreeData()
-    return <Tree data={treeData} dirtyFlows={dirtyFlows} renderMenu={this.renderMenu} onToggle={this.toggleTreeNode} />
+    return (
+      <Tree
+        data={treeData}
+        dirtyFlows={dirtyFlows}
+        renderMenu={this.props.readOnly ? null : this.renderMenu}
+        onToggle={this.toggleTreeNode}
+      />
+    )
   }
 }

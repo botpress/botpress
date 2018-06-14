@@ -3,9 +3,9 @@ import _ from 'lodash'
 
 import { Modal } from 'react-bootstrap'
 
-import StandardNode from './standardNode'
-import SkillCallNode from './skillCallNode'
-import FlowInformation from './flowInformation'
+import StandardNode from './StandardNode'
+import SkillCallNode from './SkillCallNode'
+import FlowInformation from './FlowInformation'
 
 export default class NodePropsModal extends Component {
   render() {
@@ -29,6 +29,7 @@ export default class NodePropsModal extends Component {
   goToFlow = flow => this.props.history.push(`/flows/${flow.replace(/\.flow\.json/, '')}`)
 
   renderNodeProperties() {
+    const { readOnly } = this.props
     const subflows = _.filter(_.map(this.props.flows, f => f.name), f => f !== _.get(this.props, 'currentFlow.name'))
     const flowType = _.get(this.props, 'currentFlowNode.type') || (this.props.currentFlowNode ? 'standard' : null)
 
@@ -40,6 +41,7 @@ export default class NodePropsModal extends Component {
     if (flowType === 'skill-call') {
       return (
         <SkillCallNode
+          readOnly={readOnly}
           user={this.props.user}
           flow={this.props.currentFlow}
           subflows={subflows}
@@ -58,6 +60,7 @@ export default class NodePropsModal extends Component {
     if (flowType === 'standard') {
       return (
         <StandardNode
+          readOnly={readOnly}
           flow={this.props.currentFlow}
           subflows={subflows}
           node={this.props.currentFlowNode}

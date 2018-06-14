@@ -12,8 +12,6 @@ import PermissionsChecker from '~/components/Layout/PermissionsChecker'
 const style = require('./toolbar.scss')
 
 class Toolbar extends React.Component {
-  state = {}
-
   componentDidMount() {
     this.props.updateGlobalStyle({
       'bp-navbar': {
@@ -178,10 +176,6 @@ class Toolbar extends React.Component {
   }
 }
 
-const mapStateToProps = state => ({
-  user: state.user
-})
-
 const mapDispatchToProps = dispatch => bindActionCreators({ updateGlobalStyle }, dispatch)
 
-export default connect(mapStateToProps, mapDispatchToProps)(Toolbar)
+export default connect(null, mapDispatchToProps)(Toolbar)

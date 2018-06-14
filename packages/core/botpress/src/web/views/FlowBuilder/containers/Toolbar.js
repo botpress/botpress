@@ -15,7 +15,8 @@ const mapStateToProps = state => ({
   canUndo: canFlowUndo(state),
   canRedo: canFlowRedo(state),
   canPasteNode: Boolean(state.flows.nodeInBuffer),
-  skills: state.skills.installed
+  skills: state.skills.installed,
+  user: state.user
 })
 
 const mapDispatchToProps = {

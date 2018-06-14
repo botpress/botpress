@@ -36,6 +36,10 @@ export default class EditableInput extends Component {
   }
 
   onBlur = () => {
+    if (this.props.readOnly) {
+      return
+    }
+
     if (!this.props.value.length) {
       this.props.onChanged && this.props.onChanged(this.state.defaultValue)
     } else {
@@ -46,8 +50,7 @@ export default class EditableInput extends Component {
   render() {
     const inputWidth = Math.max(120, 20 + 8 * this.props.value.length) + 'px'
     // TODO: should the class check take into account `state.value` intead?
-    const inputClass = classnames(style.editableInput, {
-      [this.props.className]: true,
+    const inputClass = classnames(style.editableInput, this.props.className, {
       [style.defaultValue]: this.props.value === this.props.defaultValue
     })
 
@@ -59,6 +62,7 @@ export default class EditableInput extends Component {
         style={{ width: inputWidth }}
         autoComplete="off"
         value={this.state.value}
+        disabled={!!this.props.readOnly}
         onBlur={this.onBlur}
         onChange={this.onChanged}
         onKeyDown={this.onKeyDown}

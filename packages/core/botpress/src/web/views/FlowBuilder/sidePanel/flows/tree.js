@@ -40,7 +40,7 @@ const getDecorators = ({ dirtyFlows, renderMenu }) => ({
   ...defaultDecorators,
   Container: MyContainer,
   Toggle: () => null,
-  Header: props => {
+  Header(props) {
     if (props.node.type === 'folder') {
       return (
         <Fragment>

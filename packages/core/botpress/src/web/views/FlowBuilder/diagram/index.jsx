@@ -54,6 +54,7 @@ export default class FlowBuilder extends Component {
     this.activeModel = new DiagramModel()
     this.activeModel.setGridSize(5)
     this.activeModel.linksHash = null
+    this.activeModel.setLocked(this.props.readOnly)
 
     const currentFlow = this.props.currentFlow
     if (!currentFlow) {
@@ -90,6 +91,7 @@ export default class FlowBuilder extends Component {
     this.activeModel = new DiagramModel()
     this.activeModel.setGridSize(5)
     this.activeModel.linksHash = null
+    this.activeModel.setLocked(this.props.readOnly)
 
     this.diagramEngine.setDiagramModel(this.activeModel)
     this.diagramWidget && this.diagramWidget.forceUpdate()
@@ -177,6 +179,7 @@ export default class FlowBuilder extends Component {
         }
       })
 
+    this.activeModel.setLocked(this.props.readOnly)
     this.diagramWidget.forceUpdate()
   }
 
@@ -491,7 +494,12 @@ export default class FlowBuilder extends Component {
             </Button>
           </div>
         )}
-        <DiagramWidget ref={w => (this.diagramWidget = w)} deleteKeys={[]} diagramEngine={this.diagramEngine} />
+        <DiagramWidget
+          readOnly={this.props.readOnly}
+          ref={w => (this.diagramWidget = w)}
+          deleteKeys={[]}
+          diagramEngine={this.diagramEngine}
+        />
       </div>
     )
   }

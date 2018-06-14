@@ -10,9 +10,8 @@ import ActionItem from '../common/action'
 const style = require('./style.scss')
 
 export default class ActionSection extends Component {
-  constructor(props) {
-    super(props)
-    this.state = { showActionModalForm: false }
+  state = {
+    showActionModalForm: false
   }
 
   onMoveAction(prevIndex, direction) {
@@ -77,7 +76,7 @@ export default class ActionSection extends Component {
   }
 
   renderWait() {
-    const { items } = this.props
+    const { items, readOnly } = this.props
 
     if (!this.props.waitable || (items && items.length > 0)) {
       return null
@@ -89,16 +88,16 @@ export default class ActionSection extends Component {
 
     return (
       <label>
-        <input name="isGoing" type="checkbox" checked={checked} onChange={changeChecked} />
+        <input name="isGoing" type="checkbox" checked={checked} disabled={readOnly} onChange={changeChecked} />
         {'  Wait for user message'}
       </label>
     )
   }
 
   render() {
-    let { items, header } = this.props
+    let { items, readOnly } = this.props
 
-    if (_.isNil(items)) {
+    if (!items) {
       items = []
     }
 
@@ -114,30 +113,36 @@ export default class ActionSection extends Component {
           {this.renderWait()}
           {items.map((item, i) => (
             <ActionItem className={style.item} text={item} key={`${i}.${item}`}>
-              <div className={style.actions}>
-                <a onClick={() => this.onEdit(i)}>Edit</a>
-                <a onClick={() => this.onRemoveAction(i)}>Remove</a>
-                <a onClick={() => this.onCopyAction(i)}>Copy</a>
-                {renderMoveUp(i)}
-                {renderMoveDown(i)}
-              </div>
+              {!readOnly && (
+                <div className={style.actions}>
+                  <a onClick={() => this.onEdit(i)}>Edit</a>
+                  <a onClick={() => this.onRemoveAction(i)}>Remove</a>
+                  <a onClick={() => this.onCopyAction(i)}>Copy</a>
+                  {renderMoveUp(i)}
+                  {renderMoveDown(i)}
+                </div>
+              )}
             </ActionItem>
           ))}
-          <div className={style.actions}>
-            <Button onClick={handleAddAction} bsSize="xsmall">
-              <i className={classnames('material-icons', style.actionIcons)}>add</i>
-            </Button>
-            <Button onClick={this.props.pasteItem} bsSize="xsmall" disabled={!this.props.canPaste}>
-              <i className={classnames('material-icons', style.actionIcons)}>content_paste</i>
-            </Button>
-          </div>
+          {!readOnly && (
+            <div className={style.actions}>
+              <Button onClick={handleAddAction} bsSize="xsmall">
+                <i className={classnames('material-icons', style.actionIcons)}>add</i>
+              </Button>
+              <Button onClick={this.props.pasteItem} bsSize="xsmall" disabled={!this.props.canPaste}>
+                <i className={classnames('material-icons', style.actionIcons)}>content_paste</i>
+              </Button>
+            </div>
+          )}
         </div>
-        <ActionModalForm
-          show={this.state.showActionModalForm}
-          onClose={() => this.setState({ showActionModalForm: false, itemToEditIndex: null })}
-          onSubmit={this.onSubmitAction}
-          item={this.itemToOptions(items && items[this.state.itemToEditIndex])}
-        />
+        {!readOnly && (
+          <ActionModalForm
+            show={this.state.showActionModalForm}
+            onClose={() => this.setState({ showActionModalForm: false, itemToEditIndex: null })}
+            onSubmit={this.onSubmitAction}
+            item={this.itemToOptions(items && items[this.state.itemToEditIndex])}
+          />
+        )}
       </Fragment>
     )
   }
