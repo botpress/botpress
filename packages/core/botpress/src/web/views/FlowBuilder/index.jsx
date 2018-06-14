@@ -21,6 +21,18 @@ import { getDirtyFlows } from '~/reducers'
 const style = require('./style.scss')
 
 class FlowBuilder extends Component {
+  componentWillReceiveProps(nextProps) {
+    const { flow } = nextProps.match.params
+    if (flow) {
+      const nextFlow = `${flow}.flow.json`
+      if (this.props.currentFlow !== nextFlow) {
+        this.props.switchFlow(nextFlow)
+      }
+    } else if (this.props.currentFlow) {
+      this.props.history.push(`/flows/${this.props.currentFlow.replace(/\.flow\.json/, '')}`)
+    }
+  }
+
   componentWillUnmount() {
     const { pathname } = this.props.history.location
     const hasDirtyFlows = !_.isEmpty(this.props.dirtyFlows)
@@ -33,18 +45,6 @@ class FlowBuilder extends Component {
       if (isSave) {
         this.diagram.saveAllFlows()
       }
-    }
-  }
-
-  componentWillReceiveProps(nextProps) {
-    const { flow } = nextProps.match.params
-    if (flow) {
-      const nextFlow = `${flow}.flow.json`
-      if (this.props.currentFlow !== nextFlow) {
-        this.props.switchFlow(nextFlow)
-      }
-    } else if (this.props.currentFlow) {
-      this.props.history.push(`/flows/${this.props.currentFlow.replace(/\.flow\.json/, '')}`)
     }
   }
 

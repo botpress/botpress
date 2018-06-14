@@ -30,15 +30,7 @@ class ContentView extends Component {
 
   initialized = false
 
-  componentDidUpdate() {
-    this.refresh()
-  }
-
-  componentDidMount() {
-    this.refresh()
-  }
-
-  refresh = () => {
+  init() {
     if (this.initialized || !this.props.user || !this.props.user.id) {
       return
     }
@@ -50,6 +42,14 @@ class ContentView extends Component {
       this.props.fetchContentCategories()
       this.fetchCategoryItems(this.state.selectedId)
     }
+  }
+
+  componentDidMount() {
+    this.init()
+  }
+
+  componentDidUpdate() {
+    this.init()
   }
 
   fetchCategoryItems(id) {
