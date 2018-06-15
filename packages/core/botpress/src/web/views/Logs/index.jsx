@@ -32,7 +32,7 @@ class LoggerView extends Component {
   }
 
   loadMore = () => {
-    this.setState({ limit: this.state.limit + 50, logs: null })
+    this.setState(({ limit }) => ({ limit: limit + 50 }))
   }
 
   toggleAutoRefresh = () => {
