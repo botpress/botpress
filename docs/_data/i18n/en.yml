@@ -129,6 +129,10 @@ docs_additional_reading: "Additional Reading"
   title: "Timeout"
   description: "Learn how to perform actions on timeout in conversation with user"
 
+"/recipes/hitl/":
+  title: "Human-In-The-Loop"
+  description: "Learn how to switch conversation to operator and back"
+
 guides:
   
   getting_started:

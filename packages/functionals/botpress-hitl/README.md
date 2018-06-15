@@ -2,14 +2,14 @@
 
 Official HITL (Human In The Loop) module for Botpress. This module has been built to easily track and write in your conversation when it's needed. By using this module, you can stop automatic responses of your bot and take control on any conversations.
 
-**Support connectors: ** [botpress-messenger](https://github.com/botpress/botpress-messenger)
+**Supported connectors:** [botpress-messenger](https://github.com/botpress/botpress-messenger)
 
 ## Installation
 
 Installing modules on Botpress is simple. By using CLI, users only need to type this command in their terminal to add messenger module to their bot.
 
 ```js
-botpress install hitl
+npm install --save @botpress/hitl
 ```
 
 The HITL module should now be available in your bot UI, and the APIs exposed.
@@ -20,7 +20,7 @@ The HITL module should now be available in your bot UI, and the APIs exposed.
 
 By using this module, you can look to all your conversations at the same place. You don't have to use external connectors interface to follow your conversations.
 
-<img src='/assets/hitl-screenshot.png' height='300px'>
+<img src='/packages/functionals/botpress-hitl/assets/hitl-screenshot.png' height='300px'>
 
 ### Filtering by status
 
