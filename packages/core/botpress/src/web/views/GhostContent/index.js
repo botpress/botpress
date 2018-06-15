@@ -57,7 +57,7 @@ export default class GhostView extends Component {
 
   renderRevision({ folder, file, revision, created_on: createdOn }, index) {
     const mostRecent = index === 0 ? '(most recent)' : ''
-    const timeAgo = moment(createdOn).fromNow()
+    const timeAgo = moment.utc(createdOn).fromNow()
 
     return (
       <li key={`${folder}/${file}/${revision}`}>
@@ -117,9 +117,9 @@ export default class GhostView extends Component {
     if (!folders.length) {
       return (
         <Alert bsStyle="success">
-          <p>You don't have any ghost content in your DB, DB is in sync with the bot source code.</p>
+          <p>You don&apos;t have any ghost content in your DB, DB is in sync with the bot source code.</p>
           <p>
-            Don't know what is ghost content?&nbsp;
+            Don&apos;t know what is ghost content?&nbsp;
             <Button bsSize="small" bsStyle="link" onClick={this.showAbout}>
               Read about this feature
             </Button>.
@@ -139,7 +139,7 @@ export default class GhostView extends Component {
             </Button>
           </p>
           <p>
-            Don't know what is ghost content?&nbsp;
+            Don&apos;t know what is ghost content?&nbsp;
             <Button bsSize="small" bsStyle="link" onClick={this.showAbout}>
               Read about this feature
             </Button>
@@ -148,7 +148,7 @@ export default class GhostView extends Component {
         {showSyncHelp && (
           <Alert bsStyle="info" onDismiss={this.hideSyncHelp}>
             <p>
-              <strong>To pull the pending ghost content run in your bot's project folder:</strong>
+              <strong>To pull the pending ghost content run in your bot&apos;s project folder:</strong>
             </p>
             <p>
               <code>./node_modules/.bin/botpress ghost-sync {getHost()}</code>
