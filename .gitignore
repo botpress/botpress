@@ -65,3 +65,6 @@ packages/yarn.lock
 **/.DS_Store
 
 *.cache
+
+# Ansible:
+entrypoint.retry

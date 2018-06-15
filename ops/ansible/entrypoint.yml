@@ -1,0 +1,48 @@
+---
+# If you want one host to access info about another host,
+# 1. fact caching should be turned on in ansible.cfg
+# http://stackoverflow.com/a/32717107/682912
+# 2. have the below line as your first task, that runs the "setup" task to gather
+# facts.
+# http://stackoverflow.com/a/31059230/682912
+
+- name: "Checking Ansible"
+  hosts: 127.0.0.1
+  connection: local
+  vars:
+    minimal_ansible_version: '2.5'
+  pre_tasks:
+    - name: Verify Ansible meets version requirements
+      assert:
+        that: "ansible_version.full is version_compare({{ minimal_ansible_version }}, '>=')"
+        fail: "You must update Ansible to at least {{ minimal_ansible_version }} to use this playbook."
+
+
+- name: "Entrypoint to recipies"
+  hosts: all
+  any_errors_fatal: yes
+  vars:
+    ansible_become_user: root
+    ansible_become_method: sudo
+    ansible_become: true
+    env_type: "{{ env_type }}"
+    #  vars_prompt:
+    #name: "res_allocation"
+    #prompt: "Install new GCE cluster? y or"
+    #default: "n"
+    #private: no
+
+
+  tasks:
+   - setup:
+
+# Create resources in GCE
+#- import_playbook: k8s.res.allocation.yml
+#  when: res_allocation == "y" or res_allocation == "yes"
+
+# Deploy application to k8s
+- import_playbook: k8s.app.deployment.yml
+
+
+  #post_tasks:
+  #  - name: Run load test

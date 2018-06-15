@@ -1,0 +1,47 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: botpress
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        component: botpress
+    spec:
+      containers:
+      - env:
+        #TODO: has to be feeded from ansible command line --> k8s_raw --> yml
+        # - name: NODE_ENV
+        #   value: ""
+        - name: PG_HOST
+          value: "postgres"
+        - name: PG_PORT
+          value: "5432"
+        - name: PG_USER
+          value: "postgres"
+        - name: PG_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: credentials
+              key: PG_PASSWORD
+
+        name: "botpress"
+        # https://hub.docker.com/r/botpress/server/
+        image: botpress/server:latest
+        ports:
+        - containerPort: 3000
+        # volumeMounts:
+        # - name: config-volume
+        #   mountPath: /usr/share/botpress
+      volumes:
+      - name: config-volume
+        configMap:
+          name: botpress-config
+          items:
+          - key: botfile.js
+            path: botfile.js
+      restartPolicy: Always
+status: {}

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pg-config
+data:
+  postgresql.conf: |
+    #
+    
+
+
+  # https://www.postgresql.org/docs/10/static/auth-pg-hba-conf.html
+  pg_hba.conf: |
+    # TYPE  DATABASE        USER            ADDRESS                 METHOD
+    host    all             all             0.0.0.0/0               md5
