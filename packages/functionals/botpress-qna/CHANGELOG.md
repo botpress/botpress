@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.17.3"></a>
+## [10.17.3](https://github.com/botpress/modules/compare/v10.17.2...v10.17.3) (2018-06-15)
+
+
+
+
+**Note:** Version bump only for package @botpress/qna
+
+<a name="10.17.2"></a>
+## [10.17.2](https://github.com/botpress/modules/compare/v10.17.1...v10.17.2) (2018-06-13)
+
+
+
+
+**Note:** Version bump only for package @botpress/qna
+
 <a name="10.17.1"></a>
 ## [10.17.1](https://github.com/botpress/modules/compare/v10.17.0...v10.17.1) (2018-06-11)
 

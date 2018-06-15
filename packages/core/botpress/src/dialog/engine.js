@@ -387,7 +387,7 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
     const currentNodeTimeout = _.get(DialogEngine._findNode(context.currentFlow, context.node), 'timeoutNode')
     const currentFlowTimeout = _.get(context, 'currentFlow.timeoutNode')
     const fallbackTimeoutNode = DialogEngine._findNode(context.currentFlow, 'timeout')
-    const fallbackTimeoutFlow = this._findFlow('timeout')
+    const fallbackTimeoutFlow = this._findFlow('timeout.flow.json')
 
     if (currentNodeTimeout) {
       this._trace('<>', 'SNDE', '', context)

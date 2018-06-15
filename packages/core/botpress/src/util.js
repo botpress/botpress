@@ -5,7 +5,7 @@ import fs from 'fs'
 import knex from 'knex'
 import generate from 'nanoid/generate'
 
-const IS_DEV = process.env.NODE_ENV !== 'production'
+const IS_DEV = eval("process.env.NODE_ENV !== 'production'") /* eslint-disable-line no-eval */
 
 const NPM_CMD = /^win/.test(process.platform) ? 'npm.cmd' : 'npm'
 
@@ -101,13 +101,13 @@ const getInMemoryDb = () =>
 const safeId = (length = 10) => generate('1234567890abcdefghijklmnopqrsuvwxyz', length)
 
 const isBotpressPackage = pkg => {
-  const [ scope, name ] = getPackageName(pkg)
-  const isBotpress = (scope === 'botpress' || name.startsWith('botpress-'))
+  const [scope, name] = getPackageName(pkg)
+  const isBotpress = scope === 'botpress' || name.startsWith('botpress-')
   return isBotpress
 }
 
 const getModuleShortname = pkg => {
-  const [ , name ] = getPackageName(pkg)
+  const [, name] = getPackageName(pkg)
   const withoutPrefix = name.replace(/^botpress-/i, '')
   return withoutPrefix
 }
@@ -116,10 +116,10 @@ const getPackageName = pkg => {
   const isScoped = pkg.startsWith('@')
 
   if (isScoped) {
-    const [ scope, name ] = pkg.match(/^@(.*)\/(.*)/).slice(1)
-    return [ scope, name ]
+    const [scope, name] = pkg.match(/^@(.*)\/(.*)/).slice(1)
+    return [scope, name]
   } else {
-    return [ null, pkg ];
+    return [null, pkg]
   }
 }
 

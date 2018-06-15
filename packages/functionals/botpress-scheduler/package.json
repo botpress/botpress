@@ -1,6 +1,6 @@
 {
   "name": "@botpress/scheduler",
-  "version": "10.17.1",
+  "version": "10.17.3",
   "description": "Schedule one-off and recurring tasks",
   "main": "bin/node.bundle.js",
   "botpress": {

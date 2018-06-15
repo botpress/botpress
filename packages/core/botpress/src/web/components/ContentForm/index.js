@@ -19,8 +19,10 @@ const widgets = {
   BaseInput: CustomBaseInput
 }
 
-const ContentForm = props => (
-  <Form {...props} formData={props.formData || {}} safeRenderCompletion={true} widgets={widgets} />
-)
+const ContentForm = props => {
+  const defaultFormData = props.schema.type === 'array' ? [] : {}
+
+  return <Form {...props} formData={props.formData || defaultFormData} safeRenderCompletion={true} widgets={widgets} />
+}
 
 export default ContentForm

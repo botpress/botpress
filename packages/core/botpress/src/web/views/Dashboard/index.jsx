@@ -44,7 +44,7 @@ class Dashboard extends React.Component {
   }
 
   refresh = () => {
-    if (this.initialized || !this.props.user || !this.props.user.id) {
+    if (this.initialized || !this.props.user || this.props.user.id == null) {
       return
     }
 
@@ -54,7 +54,7 @@ class Dashboard extends React.Component {
 
   renderPopularModules() {
     return (
-      <PermissionsChecker user={this.props.user} op="read" res="modules.list.community">
+      <PermissionsChecker user={this.props.user} op="read" res="bot.modules.list.community">
         <Panel>
           <Panel.Heading>Popular modules</Panel.Heading>
           <Panel.Body>
@@ -67,7 +67,7 @@ class Dashboard extends React.Component {
 
   renderFeaturedModules() {
     return (
-      <PermissionsChecker user={this.props.user} op="read" res="modules.list.community">
+      <PermissionsChecker user={this.props.user} op="read" res="bot.modules.list.community">
         <Panel>
           <Panel.Heading>Featured modules</Panel.Heading>
           <Panel.Body>
