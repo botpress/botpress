@@ -32,6 +32,8 @@
     - path: "/recipes/login/"
     - path: "/recipes/timeout/"
     - path: "/recipes/hitl/"
+    - path: "/recipes/jumps/"
+    - path: "/recipes/dbs/"
     
 # - id: foundamentals
 #   pages:
