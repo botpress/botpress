@@ -3,7 +3,7 @@ rm -rf lib
 mkdir -p lib/cli/templates
 
 echo "--> Bundling app"
-node webpack.js --compile
+NODE_ENV=production yarn concurrently "node ./webpack.server.js --compile" "node ./webpack.web.js --compile"
 
 echo "--> Copying templates"
 cp -a ../../../templates lib/cli/
