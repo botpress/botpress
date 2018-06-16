@@ -44,23 +44,23 @@ Check an example implementing HITL_START and HITL_STOP events: HITL_START pauses
 
 ```js
 bp.hear(/HITL_START/, (event, next) => {
-   bp.messenger.sendTemplate(event.user.id, {
-     template_type: 'button',
-     text: 'Bot paused, a human will get in touch very soon.',
-     buttons: [{ type: 'postback', title: 'Cancel request', payload: 'HITL_STOP' }]
-   })
+  bp.messenger.sendTemplate(event.user.id, {
+    template_type: 'button',
+    text: 'Bot paused, a human will get in touch very soon.',
+    buttons: [{ type: 'postback', title: 'Cancel request', payload: 'HITL_STOP' }]
+  })
 
-   bp.notifications.send({
-     message: event.user.first_name + ' wants to talk to a human',
-     level: 'info',
-     url: '/modules/botpress-hitl'
-   })
-   bp.hitl.pause(event.platform, event.user.id)
- })
+  bp.notifications.send({
+    message: event.user.first_name + ' wants to talk to a human',
+    level: 'info',
+    url: '/modules/botpress-hitl'
+  })
+  bp.hitl.pause(event.platform, event.user.id)
+})
 
- bp.hear(/HITL_STOP/, (event, next) => {
-   bp.messenger.sendText(event.user.id, 'Human in the loop disabled. Bot resumed.')
-   bp.hitl.unpause(event.platform, event.user.id)
- })
+bp.hear(/HITL_STOP/, (event, next) => {
+  bp.messenger.sendText(event.user.id, 'Human in the loop disabled. Bot resumed.')
+  bp.hitl.unpause(event.platform, event.user.id)
+})
 ```
 

@@ -20,7 +20,9 @@ This way bot will start conversation with you from the beginning.
 # Performing actions on timeout
 
 You may want to perform some actions for conversations that got stuck in the middle.
-This is possible in 2 ways:
+You may specify the node that'll be called given user stopped responding (the precedence is as in this list):
 
-1. You can create a flow `timeout.flow.json` and it'll be called on timeout
-2. You can create `timeout` node and it'll be called given user stopped responding in the same flow
+1. Add `timeoutNode` key with node-name to json-file of the given flow for the node on which you want to catch timeout
+2. Add `timeoutNode` key with node-name to json-file of the given flow on which you want to catch timeout
+3. Add `timeout` node on the flow you want to catch timeout
+4. Add `timeout.flow.json` and it'll be called on timeout
