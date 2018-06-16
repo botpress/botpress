@@ -16,21 +16,21 @@ The broadcast module should now be available in your bot UI, and the APIs expose
 
 You can decide wether the scheduled time is abolute to the bot's time or to individual users. If no timezone information available for the user, GMT is chosen.
 
-### Send as Javascript snippet
+### Send as JavaScript snippet
 
 Instead of sending text, you can decide the behavior of the sending function and do basically anything. The function will be called for every message (so for every user).
 
-Variables exposed: 
+Variables exposed:
 
 - `bp` botpress instance
 - `userId` the userId to send the message to
 - `platform` the platform on which the user is on
 
-The built-in Facebook Messenger snippets are example of Javascript execution (see UI).
+The built-in Facebook Messenger snippets are example of JavaScript execution (see UI).
 
 ### Filtering
 
-You can apply filters to the broadcasts. Filters are small javascript functions that will be evaluated before sending the broadcast to a user. The condition is called for every users the broadcast is scheduled to.
+You can apply filters to the broadcasts. Filters are small JavaScript functions that will be evaluated before sending the broadcast to a user. The condition is called for every users the broadcast is scheduled to.
 
 Variables exposed to the filter function:
 - `bp` botpress instance
@@ -49,7 +49,7 @@ The function needs to return a **boolean** or a **Promise of a boolean**.
 ["platform === 'facebook'"]
 ```
 
-##### Send a message only to subscribed users 
+##### Send a message only to subscribed users
 
 **Note**: Assuming your bot has a `subscriptions` table that holds userId and platform
 
@@ -58,7 +58,7 @@ The function needs to return a **boolean** or a **Promise of a boolean**.
 
 bp.isUserSubscribed = (userId, platform) => {
   return bp.db.get()
-  .then(knex => 
+  .then(knex =>
     knex('subscriptions')
     .where({ userId, platform })
     .select('count(*) as count')
@@ -93,8 +93,8 @@ Schedules a new broadcast.
   time: string, // *required*, 'HH:mm'
   timezone: null|int, // null (users timezone), or integer (absolute timezone)
   type: string, // *required*, 'text' or 'javascript'
-  content: string // *required*, the text to be sent or the javascript code to execute,
-  filters: [string] // filtering conditions, Javascript code
+  content: string // *required*, the text to be sent or the JavaScript code to execute,
+  filters: [string] // filtering conditions, JavaScript code
 }
 ```
 

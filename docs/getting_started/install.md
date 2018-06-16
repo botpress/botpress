@@ -4,7 +4,7 @@ layout: guide
 
 ## Prerequisites <a class="toc" id="prerequisites" href="#prerequisites"></a>
 
-Botpress runs on [node](https://nodejs.org) (version >= 6.1). You must also have either [npm](https://www.npmjs.com) or [yarn](https://yarnpkg.com) installed.
+Botpress runs on [Node.js](https://nodejs.org) (version >= 8.2). You must also have either [npm](https://www.npmjs.com) or [yarn](https://yarnpkg.com) installed.
 
 ## Installing the CLI <a class="toc" id="install" href="#install"></a>
 

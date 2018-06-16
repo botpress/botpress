@@ -16,7 +16,7 @@ We're using Heroku because it's fast, easy and free to deploy and manage your bo
 
 - Install the Heroku CLI by following [these instructions](https://devcenter.heroku.com/articles/heroku-cli).
 
-- Type `heroku login` in your terminal to login to heroku
+- Type `heroku login` in your terminal to log in to Heroku.
 
 ### Git
 
@@ -39,7 +39,7 @@ heroku create
 # https://glacial-inlet-29943.herokuapp.com/ | https://git.heroku.com/glacial-inlet-29943.git
 ```
 
-Alright, now let's actually deploy our app:
+Alright, now let's deploy our app:
 
 ```bash
 git push heroku master
@@ -59,7 +59,7 @@ For more information about how to setup Heroku, [read this](https://devcenter.he
 
 ## Configuring our app
 
-Your bot is now live at the URL that Heroku just gave you in the last command run. If you open that URL you'll notice that you are facing a login page. The default password is `password`. You can change this password by setting the `BOTPRESS_PASSWORD` env variable:
+Your bot is now live at the URL that Heroku just gave you in the last command run. If you open that URL, you'll notice that you are facing a login page. The default password is `password`. You can change this password by setting the `BOTPRESS_PASSWORD` env variable:
 
 ```bash
 heroku config:set BOTPRESS_PASSWORD=hello123
@@ -67,7 +67,7 @@ heroku config:set BOTPRESS_PASSWORD=hello123
 
 ### Using Postgres as the database
 
-By default Botpress uses SQLite as a database for persistence. This doesn't work well on Heroku because it has ephemeral storage, which means data will get lost every day or so. The best is to switch the database to Postgres:
+By default, Botpress uses SQLite as a database for persistence. This doesn't work well on Heroku because it has ephemeral storage, which means data will get lost every day or so. The best is to switch the database to Postgres:
 
 ```bash
 # Get a free Postgres database

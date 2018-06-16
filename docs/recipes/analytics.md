@@ -2,26 +2,26 @@
 layout: guide
 ---
 
-When using chatbot you may be interested in analytics on it's usage. This can be done via [@botpress/analytics](https://github.com/botpress/botpress/tree/master/packages/functionals/botpress-analytics) package.
+When using a chatbot, you may be interested in analytics on its usage. This can be done via [@botpress/analytics](https://github.com/botpress/botpress/tree/master/packages/functionals/botpress-analytics) package.
 
-To perform basic setup you need to install that package and initialize it by running something like this:
+To perform the basic setup, you need to install that package and initialize it by running something like this:
 
 ```js
 const analytics = require('./analytics')
 await analytics({ bp })
 ```
 
-Once this is done you should be able to see "Analytics" tab in your admin-dashboard. Note analyticks-tracking only starts from this moment and it won't show analytics on past activity that wasn't recorded.
+Once this is done, you should be able to see "Analytics" tab in your admin dashboard. Note analytics-tracking only starts from this moment, and it won't show analytics on past activity that wasn't recorded.
 
 # Custom analytics
 
 It may appear general analytics isn't enough for your needs and you need to track different activities.
 This is also possible with this package.
 
-Say we want to track number of conversations users had and number of misunderstood messages they had.
+Say we want to track the number of conversations users had and number of misunderstood messages they had.
 Assuming you already have flows ready and working the task is quite simple.
 
-First we register diagrams that will be displayed as custom analytics. This can be done like this:
+First, we register diagrams that will be displayed as custom analytics. This can be done like this:
 
 ```js
 bp.analytics.custom.addGraph({
@@ -40,9 +40,9 @@ bp.analytics.custom.addGraph({
 })
 ```
 
-Parameters that `addGraph` accepts are described in [package README](https://github.com/botpress/botpress/tree/master/packages/functionals/botpress-analytics) but they should be pretty self-explaining.
+Parameters that `addGraph` accepts are described in [package README](https://github.com/botpress/botpress/tree/master/packages/functionals/botpress-analytics), but they should be pretty self-explaining.
 
-Second we need to trigger recording analytics within defined parts of your flow through actions. Here are example actions that you could use in this case:
+Second, we need to trigger recording analytics within defined parts of your flow through actions. Here are example actions that you could use in this case:
 
 ```js
 trackNewConversation: async (state, { bp, user }) => {

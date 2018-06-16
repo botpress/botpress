@@ -2,7 +2,7 @@
 layout: guide
 ---
 
-You may need to make your bot act proactively on your website in response to some actions. E.g. suggest them to buy product they are viewing for too long or ask them for feedback on services they were using.
+You may need to make your bot act proactively on your website in response to some actions. E.g., suggest them to buy the product they are viewing for too long or ask them for feedback on services they were using.
 
 This appears to be quite simple with Botpress:
 
@@ -20,4 +20,4 @@ bp.hear({ type: /proactive-trigger/i }, async ({ user, text }, next) => {
 })
 ```
 
-That's it! Given you have your builtin renderers registered, code above should work!
+That's it! Given you have your builtin renderers registered, the code above should work!

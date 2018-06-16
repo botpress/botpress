@@ -6,7 +6,7 @@ layout: guide
 
 After building a couple of flows/bots, you'll quickly notice that there are some **common patterns** that you find yourself implementing over and over. Skills come to the rescue.
 
-Skills are a higher-level abstractions on top of flows. In fact, skills are dynamic flow generators.
+Skills are higher-level abstractions on top of flows. In fact, skills are dynamic flow generators.
 
 They can be seen as reusable components between multiple flows or even multiple bots.
 
@@ -97,7 +97,7 @@ A quick solution would be to create an intermediary node that shows the leaderbo
 
 ![Refactoring into a node][refactoringnode]
 
-A better, longer-term solution would be to extract the leaderboard feature as a separate subflow, then instead of pointing to the leaderboard node, you point to the leaderboard subflow.
+A better, longer-term solution would be to extract the leaderboard feature as a separate subflow, and then instead of pointing to the leaderboard node, you point to the leaderboard subflow.
 
 ### Creating a new flow
 
