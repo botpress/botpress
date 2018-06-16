@@ -141,6 +141,10 @@ docs_additional_reading: "Additional Reading"
   title: "Connecting to databases"
   description: "Learn how to integrate 3rd-party databases into your bot"
 
+"/recipes/webchat-ext/":
+  title: "Creating webchat-extensions"
+  description: "Learn how to create and use webchat-extensions"
+
 guides:
   
   getting_started:

@@ -34,6 +34,7 @@
     - path: "/recipes/hitl/"
     - path: "/recipes/jumps/"
     - path: "/recipes/dbs/"
+    - path: "/recipes/webchat-ext/"
     
 # - id: foundamentals
 #   pages:
