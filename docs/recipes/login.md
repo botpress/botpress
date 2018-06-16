@@ -60,6 +60,8 @@ renderLogin: async (state, event) => {
 },
 ```
 
+If you are an Enterprise client, you may use your custom login screen by providing the `connection=<YOUR ENTERPRISE ID HERE>` setting in the url params.
+
 Our action refers renderer that can look like this:
 
 ```js
