@@ -133,6 +133,14 @@ docs_additional_reading: "Additional Reading"
   title: "Human-In-The-Loop"
   description: "Learn how to switch conversation to operator and back"
 
+"/recipes/jumps/":
+  title: "Control the Flow programmatically"
+  description: "Learn how to jump to specific flow and node programmatically"
+
+"/recipes/dbs/":
+  title: "Connecting to databases"
+  description: "Learn how to integrate 3rd-party databases into your bot"
+
 guides:
   
   getting_started:
