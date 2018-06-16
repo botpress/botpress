@@ -1,4 +1,4 @@
-<img src='https://raw.githubusercontent.com/botpress/botpress-nlu/master/assets/banner_demo.gif'>
+<img src='https://raw.githubusercontent.com/botpress/botpress/master/packages/functionals/botpress-nlu/assets/banner_demo.gif'>
 
 # Botpress NLU ⚡
 
@@ -36,7 +36,7 @@ With Botpress NLU,
 2. Set the `provider` config
 3. Configure the provider
 
-# Global Configuration [(source)](https://github.com/botpress/botpress-nlu/blob/master/src/index.js#L19-L23)
+# Global Configuration [(source)](https://github.com/botpress/botpress/blob/master/packages/functionals/botpress-nlu/src/index.js#L19-L58)
 
 | Key | Environment Variable | Required | Default |
 | ------------- | -------- | ----- | ---- |
@@ -82,7 +82,7 @@ Botpress NLU also provides two convenient methods to the NLU Object : `nlu.inten
 
 Botpress NLU use the V2 API of Dialogflow, checkout this [link](https://dialogflow.com/docs/reference/v2-agent-setup) for more information.
 
-### Dialogflow Specific Configuration [(source)](https://github.com/botpress/botpress-nlu/blob/master/src/index.js#L26-27)
+### Dialogflow Specific Configuration [(source)](https://github.com/botpress/botpress/blob/master/packages/functionals/botpress-nlu/src/index.js#L26-27)
 
 | Key | Environment Variable | Required |
 | ------------- | -------- | ----- |
@@ -91,7 +91,7 @@ Botpress NLU use the V2 API of Dialogflow, checkout this [link](https://dialogfl
 
 ## LUIS
 
-### LUIS Specific Configuration [(source)](https://github.com/botpress/botpress-nlu/blob/master/src/index.js#L29-L33)
+### LUIS Specific Configuration [(source)](https://github.com/botpress/botpress/blob/master/packages/functionals/botpress-nlu/src/index.js#L29-L33)
 
 | Key | Environment Variable | Required |
 | ------------- | -------- | ----- |
@@ -120,7 +120,7 @@ Botpress NLU will create and train and maintain your projects and models automat
 
 > **Note:** By default, Botpress creates separate projects for development and production environment, e.g. `dev__botpress__all` and `prod__botpress__all`.
 
-### Rasa Specific Configuration [(source)](https://github.com/botpress/botpress-nlu/blob/master/src/index.js#L35-L38)
+### Rasa Specific Configuration [(source)](https://github.com/botpress/botpress/blob/master/packages/functionals/botpress-nlu/src/index.js#L35-L38)
 
 | Key | Environment Variable | Required |
 | ------------- | -------- | ----- |
@@ -130,7 +130,7 @@ Botpress NLU will create and train and maintain your projects and models automat
 
 ## RECAST
 
-### Recast Specific Configuration [(source)](https://github.com/botpress/botpress-nlu/blob/master/src/index.js#L40-L43)
+### Recast Specific Configuration [(source)](https://github.com/botpress/botpress/blob/master/packages/functionals/botpress-nlu/src/index.js#L40-L43)
 
 | Key | Environment Variable | Required |
 | ------------- | -------- | ----- |
