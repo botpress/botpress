@@ -105,7 +105,7 @@ module.exports = () => {
     properties: {
       name: {
         description: chalk.white('module name:'),
-        pattern: /^[@botpress/|botpress-][a-z0-9][a-z0-9-_\.]+$/,
+        pattern: /^(\@botpress\/|botpress-)[a-z0-9][a-z0-9-_\.]+$/,
         message: `Name must be only lowercase letters, digits, dashes, underscores and dots.
 It must also start with "@botpress/" or "botpress-"`,
         required: true,

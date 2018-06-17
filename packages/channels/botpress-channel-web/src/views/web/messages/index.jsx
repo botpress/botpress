@@ -289,7 +289,7 @@ class Message extends Component {
   }
 
   render_custom() {
-    const type = (this.props.data.message_raw.custom_type || '').substring(1)
+    const type = this.props.data.message_raw.custom_type || ''
     const Plugin = ((window.botpress || {})[type] || {})['Plugin']
     const data = this.props.data.message_raw.custom_data
     return (
