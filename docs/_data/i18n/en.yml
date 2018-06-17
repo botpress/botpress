@@ -101,10 +101,6 @@ docs_additional_reading: "Additional Reading"
   title: "Proactive actions"
   description: "Learn how to make bot start conversation"
 
-"/recipes/version_control/":
-  title: "Version control"
-  description: "Learn how to sync content between deployed bot and local environment"
-
 "/recipes/apis/":
   title: "External APIs"
   description: "Learn how to integrate external APIs"
@@ -140,6 +136,10 @@ docs_additional_reading: "Additional Reading"
 "/recipes/dbs/":
   title: "Connecting to databases"
   description: "Learn how to integrate 3rd-party databases into your bot"
+
+"/recipes/modules/":
+  title: "Creating modules"
+  description: "Learn how to create and use botpress-modules"
 
 "/recipes/webchat-ext/":
   title: "Creating webchat-extensions"
