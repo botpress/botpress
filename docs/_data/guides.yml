@@ -35,6 +35,7 @@
     - path: "/recipes/dbs/"
     - path: "/recipes/modules/"
     - path: "/recipes/webchat-ext/"
+    - path: "/recipes/webpack/"
     
 # - id: foundamentals
 #   pages:

@@ -145,6 +145,10 @@ docs_additional_reading: "Additional Reading"
   title: "Creating webchat-extensions"
   description: "Learn how to create and use webchat-extensions"
 
+"/recipes/webpack/":
+  title: "Transpiling bot's sources"
+  description: "Learn how to use webpack to transpile bot's sources"
+
 guides:
   
   getting_started:
