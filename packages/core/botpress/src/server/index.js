@@ -26,14 +26,14 @@ module.exports = bp => {
     const app = express()
     app.use(compression())
     const server = http.createServer(app)
-    const port = bp.botfile.port
+    const { port, hostname } = bp.botfile
 
     await serveApi(app)
     await serveSocket(server)
     await serveStatic(app)
 
     return new Promise(resolve => {
-      server.listen(port, () => resolve(server))
+      server.listen(port, hostname, () => resolve(server))
     })
   }
 
