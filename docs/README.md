@@ -7,7 +7,7 @@ We use [Jekyll](http://jekyllrb.com/) to build the site.
 If you are working on the site, you will want to install and run a local copy
 of it.
 
-Start by cloning the website
+Start by cloning the website.
 
 ```sh
 git clone git@github.com:botpress/botpress.git
@@ -15,7 +15,7 @@ git clone git@github.com:botpress/botpress.git
 
 ### Dependencies
 
-In order to use Jekyll, you will need to have Ruby installed. macOS comes
+To use Jekyll, you will need to have Ruby installed. macOS comes
 pre-installed with Ruby, but you may need to update RubyGems (via
 `gem update --system`). Otherwise, [RVM](https://rvm.io/) and
 [rbenv](https://github.com/sstephenson/rbenv) are popular ways to install Ruby.
@@ -52,7 +52,7 @@ $ open http://127.0.0.1:8080/
 
 #### Adding Guides
 
-You should Add a Title and a Description to your Guide 
+You should Add a Title and a Description to your Guide.
 
 ```sh
 $ cd docs/
@@ -73,16 +73,16 @@ $ echo "\n  New_module:
 
 #### Adding Pages
 
-For adding a page you should define path in `_data/i18n/en.yml`.
+For adding a page, you should define a path in `_data/i18n/en.yml`.
 
 A Path look like this :
 `"/getting_started/install/":
   title: "Installation and bootstrap"
-  description: "Installing the Botpress CLI"` 
+  description: "Installing the Botpress CLI"`
 
 Under `/getting_started/` add a file name install.md to map your path defined in `_date/i18n/en.yml`.
 
-You can also map a Path like this: 
+You can also map a Path like this:
 `"/docs/getting_started/":
   title: "I'M the index.md in /getting_started"
   description: "Simple description of mapping a index.md"`

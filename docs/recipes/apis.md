@@ -2,10 +2,10 @@
 layout: guide
 ---
 
-For your bot you may need to use external APIs to fetch/post some data.
-General approach for it is that you should use async actions to perform API-calls and save data to the state-variables.
+For your bot, you may need to use external APIs to fetch/post some data.
+The general approach for it is that you should use async actions to perform API-calls and save data to the state variables.
 
-Let's check it on a simple example. Let's say we want to build a simpple bot that accepts repo url and returns number of stars it has. An action could look something like this:
+Let's check it on a simple example. Let's say we want to build a simple bot that accepts repo URL and returns the number of stars it has. An action could look something like this:
 
 ```js
 repoStarsByInput: async (state, event) => {
@@ -19,4 +19,4 @@ repoStarsByInput: async (state, event) => {
 }
 ```
 
-Note that in this example we are using `builtin_text` renderer which has to beregistere properly.
+Note that in this example we are using `builtin_text` renderer which has to be registered properly.
