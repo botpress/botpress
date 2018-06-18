@@ -5,9 +5,12 @@ metadata:
   labels:
     component: postgres
 spec:
-  ports:
-  - port: 5432
-    name: transport
-  clusterIP: None
+  type: LoadBalancer
   selector:
     component: postgres
+  ports:
+  - name: "postgres"
+    port: 5432
+    protocol: TCP
+status:
+  loadBalancer: {}

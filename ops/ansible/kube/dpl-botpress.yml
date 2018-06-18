@@ -2,6 +2,8 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: botpress
+  labels:
+    component: botpress
 spec:
   replicas: 1
   strategy:
@@ -16,12 +18,20 @@ spec:
         #TODO: has to be feeded from ansible command line --> k8s_raw --> yml
         # - name: NODE_ENV
         #   value: ""
+        - name: BOTPRESS_HOST
+          value: "0.0.0.0"
+        - name: BOTPRESS_PORT
+          value: "3000"
         - name: PG_HOST
           value: "postgres"
         - name: PG_PORT
           value: "5432"
         - name: PG_USER
           value: "postgres"
+        - name: DATABASE
+          value: "postgres"
+          #- name: DATABASE_URL
+          #value: "https://user:@postgres/postgres"
         - name: PG_PASSWORD
           valueFrom:
             secretKeyRef:

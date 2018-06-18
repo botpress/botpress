@@ -47,7 +47,7 @@
     src: kube/dpl-botpress.yml
 
 - name: Create PostgreSQL nodes
-  shell: kubectl apply --namespace="{{ env_type }}" -f kube/dpl-postgres.yml
+  shell: kubectl apply --namespace="{{ env_type }}" -f kube/dpl-postgres-non-persistent.yml
   args:
     executable: /bin/bash
   # BUG: StatefulSet is not yet supported by k8s_raw so far (Ansible 2.5). Thus using command line instead of native API
