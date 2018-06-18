@@ -113,7 +113,7 @@ authRouter.get('/pair/:userId', async (req, res) => {
 To have this event type handled by dialog engine you have to make sure we are listening to this type of event:
 
 ```js
-  bp.hear({ type: /message|text||login_callback/i }, async (event, next) =>
+  bp.hear({ type: /message|text|login_callback/i }, async (event, next) =>
     bp.dialogEngine
       .processMessage(event.sessionId || event.user.id, event)
       .then()
