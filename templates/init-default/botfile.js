@@ -21,6 +21,11 @@ module.exports = {
   port: port,
 
   /*
+    The IP address which API will listen to (optional)
+   */
+  hostname: process.env.BOTPRESS_HOSTNAME,
+
+  /*
     Where the content is stored
     You can access this property from `bp.dataLocation`
   */
