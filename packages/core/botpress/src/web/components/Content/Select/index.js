@@ -114,7 +114,8 @@ class SelectContent extends Component {
     this.setState({ newItemData: data })
   }
 
-  resetCreateContent = (resetSearch = false) => () => {
+  resetCreateContent = (resetSearch = false) => response => {
+    const item = Object.assign(this.state.newItemData, { id: response.data })
     const stateUpdate = { newItemCategory: null, newItemData: null }
     if (resetSearch) {
       Object.assign(stateUpdate, {
@@ -122,7 +123,12 @@ class SelectContent extends Component {
         activeItemIndex: 0
       })
     }
-    return new Promise(resolve => this.setState(stateUpdate, resolve))
+    return new Promise(resolve =>
+      this.setState(stateUpdate, () => {
+        this.handlePick(item)
+        resolve()
+      })
+    )
   }
 
   onClose = () => {
@@ -212,8 +218,8 @@ class SelectContent extends Component {
     if (!categories.length) {
       return (
         <Alert bsStyle="warning">
-          <strong>We think you don't have any content types defined.</strong> Please&nbsp;
-          <a href="https://botpress.io/docs/foundamentals/content/" target="_blank">
+          <strong>We think you don&apos;t have any content types defined.</strong> Please&nbsp;
+          <a href="https://botpress.io/docs/foundamentals/content/" target="_blank" rel="noopener noreferrer">
             <strong>read the docs</strong>
           </a>
           &nbsp;to see how you can make use of this feature.

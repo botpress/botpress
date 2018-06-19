@@ -314,23 +314,28 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
     const item = { formData, ...(await fillComputedProps(category, formData)) }
     const body = transformItemApiToDb(item)
 
-    if (itemId) {
+    const isNewItemCreation = !itemId
+    if (isNewItemCreation) {
+      itemId = getNewItemId(category)
+    }
+
+    if (!isNewItemCreation) {
       await knex('content_items')
         .update(body)
         .where({ id: itemId })
         .then()
     } else {
-      const newItemId = getNewItemId(category)
       await knex('content_items').insert({
         ...body,
         createdBy: 'admin',
         createdOn: helpers(knex).date.now(),
-        id: newItemId,
+        id: itemId,
         categoryId
       })
     }
 
-    return dumpDataToFile(categoryId)
+    await dumpDataToFile(categoryId)
+    return itemId
   }
 
   const categoryItemsCount = categoryId => {
