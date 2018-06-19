@@ -1,7 +1,7 @@
 {
   "name": "botpress",
   "description": "The world's first CMS for bots. Easily create, manage and extend chatbots.",
-  "version": "10.17.3",
+  "version": "10.18.0",
   "author": "Botpress",
   "bin": {
     "bp": "./bin/botpress",
@@ -11,7 +11,7 @@
     "url": "https://github.com/botpress/botpress/issues"
   },
   "dependencies": {
-    "@botpress/util-roles": "^10.17.3",
+    "@botpress/util-roles": "^10.18.0",
     "axios": "^0.15.2",
     "babel-polyfill": "^6.23.0",
     "bluebird": "^3.4.6",
@@ -149,18 +149,23 @@
   "license": "AGPL-3.0",
   "main": "lib/node.bundle.js",
   "repository": "git+https://github.com/botpress/botpress.git",
-  "os": ["darwin", "linux", "win32"],
+  "os": [
+    "darwin",
+    "linux",
+    "win32"
+  ],
   "scripts": {
     "prepublishOnly": "npm run compile-prod",
     "compile": "./build.sh",
     "compile-prod": "NODE_ENV=production ./build.sh",
     "test": "BABEL_ENV=tests mocha --compilers js:babel-core/register --require tests/index.js tests/**",
-    "watch":
-      "rm -rf ./lib/web && concurrently -k \"node ./webpack.server.js --watch\" \"node ./webpack.web.js --watch\""
+    "watch": "rm -rf ./lib/web && concurrently -k \"node ./webpack.server.js --watch\" \"node ./webpack.web.js --watch\""
   },
   "watch": {
     "compile": {
-      "patterns": ["src"],
+      "patterns": [
+        "src"
+      ],
       "extensions": "js,jsx,scss,json,html"
     }
   }

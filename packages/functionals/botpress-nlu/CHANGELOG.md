@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.18.0"></a>
+# [10.18.0](https://github.com/botpress/modules/compare/v10.17.3...v10.18.0) (2018-06-19)
+
+
+### Bug Fixes
+
+* **nlu:** fixed LUIS intent resolution ([168aa9b](https://github.com/botpress/modules/commit/168aa9b))
+
+
+
+
 <a name="10.17.3"></a>
 ## [10.17.3](https://github.com/botpress/modules/compare/v10.17.2...v10.17.3) (2018-06-15)
 
