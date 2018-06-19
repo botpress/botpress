@@ -3,5 +3,6 @@ module.exports = [
   require('./tags.js'),
   require('./notifications.js'),
   require('./sessions.js'),
-  require('./ghost.js')
+  require('./ghost.js'),
+  require('./logs.js')
 ]

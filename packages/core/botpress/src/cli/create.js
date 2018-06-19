@@ -54,7 +54,6 @@ const assertDoesntExist = file => {
  */
 const loadTemplate = async name => {
   const templatePath = path.join(__dirname, 'cli/templates/' + name)
-  const infoFile = path.join(templatePath, 'info.json')
 
   if (!fs.existsSync) {
     console.log(templateNotFoundError(name))

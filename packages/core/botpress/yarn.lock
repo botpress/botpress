@@ -78,6 +78,10 @@
     lodash "^4.2.0"
     to-fast-properties "^2.0.0"
 
+"@botpress/util-roles@^10.19.0":
+  version "10.19.0"
+  resolved "https://registry.yarnpkg.com/@botpress/util-roles/-/util-roles-10.19.0.tgz#189f42db7e8e814d47022fb072fbe66cca3549b6"
+
 "@sinonjs/formatio@^2.0.0":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@sinonjs/formatio/-/formatio-2.0.0.tgz#84db7e9eb5531df18a8c5e0bfb6e449e55e654b2"
