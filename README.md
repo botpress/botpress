@@ -7,16 +7,10 @@
 
 Botpress is an open-source bot creation tool written in JavaScript. It is powered by a rich set of open-source modules built by the community. We like to say that **Botpress is like the WordPress of Chatbots**; anyone can create and reuse other people's modules.
 
----
-
-### 📍 This version (Botpress X) is still in beta. See [this branch](https://github.com/botpress/botpress/tree/archive/1.1) for the latest stable archive.
-
----
-
 ##### Learn Botpress
 
-| 📖 [v10 **Documentation**](https://botpress.io/docs/beta/) |
-| ---------------------------------------------------------- |
+| 📖 [v10 **Documentation**](https://botpress.io/docs) |
+| ---------------------------------------------------- |
 
 
 ##### Follow us
@@ -46,7 +40,7 @@ Botpress is on a mission to make useful bots ubiquitous by powering developers w
 Botpress requires [Node.js](https://nodejs.org) (version >= 8.2) and uses [npm](https://www.npmjs.com) as package manager.
 
 ```
-npm install -g botpress@beta
+npm install -g botpress
 ```
 
 ## Creating a bot
@@ -63,21 +57,19 @@ Once your bot is created, you need to run [`botpress start`](https://botpress.io
 botpress start
 ```
 
-This will provide you locally a web interface available at **`http://localhost:3000`**
+This will provide you with a web interface available at **`http://localhost:3000`** and a chat window at **`http://localhost:3000/s/chat`**
 
 ## Contributing
 
 Thank you for your interest in Botpress. Here are some of the many ways to contribute.
 
 * Check out our [contributing guide](/.github/CONTRIBUTING.md)
+* Check misspelling in our docs.
 * Look at our [code of conduct](/.github/CODE_OF_CONDUCT.md)
 * Engage with us on Social Media
   * Follow us on [Twitter](https://twitter.com/getbotpress)
-  * Like us on [Facebook](https://www.facebook.com/botpress)
   * Join our channel on [Slack](https://slack.botpress.io)
 * Answer and ask questions on the Slack community
-* [Write and edit the documentation](/.github/CONTRIBUTING.md)
-* Check misspelling in our docs.
 
 For starters, there are some open issues with the [first good issue][starter-label] tag which are ideal for starting to contribute. They are all relatively easy to get started with.
 
@@ -85,21 +77,11 @@ Contributions to Botpress will be dual-licensed under AGPLv3 and the Botpress Pr
 
 Please follow the [Conventional Commits](https://conventionalcommits.org/) specs when doing commits. **Pull requests not respecting this commit style will be rejected.**
 
-## Community
-
-There's a [Slack community](https://slack.botpress.io) where you are welcome to join us, ask any question and even help others.
-
-Get an invite and join us now! 👉 [https://slack.botpress.io](https://slack.botpress.io)
-
 ## Development steps
 
 To modify, test or create modules, please install [lerna](https://github.com/lerna/lerna).
 
 Then run `lerna bootstrap`. This will initialize all modules and link them (using `yarn link`). Then in your bot, use `yarn link @botpress/module-name` to use the local version of that module.
-
-## Publishing changes (Botpress team only)
-
-Run `./push-changes.sh`
 
 ## License
 
