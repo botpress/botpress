@@ -40,7 +40,6 @@
   "chatExtensionShowShareButton": false,
   "webhookSubscriptionFields": [
     "message_deliveries",
-    "message_ads",
     "messages",
     "messaging_optins",
     "messaging_postbacks",
