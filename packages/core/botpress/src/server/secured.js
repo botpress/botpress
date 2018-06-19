@@ -221,4 +221,8 @@ module.exports = (bp, app) => {
   app.secure('write', 'bot.skills').post('/api/skills/:skillId/generate', async (req, res) => {
     res.send(await bp.skills.generateFlow(req.params.skillId, req.body))
   })
+
+  app.get('/api/community/hero', (req, res) => {
+    res.send({ hidden: bp.botfile.heroSection.hidden })
+  })
 }

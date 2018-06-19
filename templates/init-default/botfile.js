@@ -101,6 +101,10 @@ module.exports = {
     enabled: process.env.NODE_ENV === 'production' || process.env.BOTPRESS_GHOST_ENABLED
   },
 
+  heroSection: {
+    hidden: false
+  },
+
   /*
     Access control of admin panel
   */
