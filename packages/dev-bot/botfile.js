@@ -1,4 +1,3 @@
-const isProd = process.env.NODE_ENV === 'production'
 const port = process.env.BOTPRESS_PORT || process.env.PORT || 3000
 const botUrl = process.env.BOTPRESS_URL || `http://localhost:${port}`
 
@@ -52,12 +51,11 @@ module.exports = {
   mediaDir: './generated/media',
 
   /*
-    By default logs are enabled and available in `dataDir`
+    By default logs are enabled and stored in the DB for 30 days
    */
-  disableFileLogs: false,
-  log: {
-    file: 'bot.log',
-    maxSize: 1e6 // 1mb
+  logs: {
+    enabled: true,
+    keepDays: 30
   },
 
   /*
