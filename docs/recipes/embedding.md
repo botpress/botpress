@@ -4,9 +4,9 @@ layout: guide
 
 # Embedding the webchat on a website
 
-Embedding bot to you existing site is quite streightforward:
+Embedding a bot to your existing site is quite straightforward:
 
-1. You need to have your bot deployed somewhere and available via some url
+1. You need to have your bot deployed somewhere and available via some URL
 2. You have to inject script from your bot to your website (e.g. by adding it to the end of it's `index.html` file like this:
 
 ```html
@@ -21,11 +21,11 @@ Embedding bot to you existing site is quite streightforward:
 </script>
 ```
 
-That's it. Once you deploy changes to your website, the bot should become available and it's button should appear.
+That's it. Once you deploy changes to your website, the bot should become available, and its button should appear.
 
 # Displaying and hiding the webchat programmatically from the website
 
-I you find the default button botpress suggests doesn't suit you, you are free to exchange it with basically anything on your website and trigger webchat programmatically. For this you need to pass `hideWidget` key to `init` function like this:
+If you find the default button Botpress suggests doesn't suit you, you are free to exchange it with basically anything on your website and trigger webchat programmatically. For this you need to pass `hideWidget` key to `init` function like this:
 
 ```html
 <script>
@@ -48,13 +48,13 @@ Then you can work with webchat programmatically like this:
 
 # Changing the look and feel of the Webchat
 
-Webchat view is customizable and you can change it by passing additional params to `init` function:
+Webchat view is customizable, and you can change it by passing additional params to `init` function:
 
 ```js
 window.botpressWebChat.init({
   host: '<host>',
   botName: 'Bot', // Name of your bot
-  botAvatarUrl: null, // Default avatar url of the image (e.g. 'https://avatars3.githubusercontent.com/u/1315508?v=4&s=400' )
+  botAvatarUrl: null, // Default avatar URL of the image (e.g., 'https://avatars3.githubusercontent.com/u/1315508?v=4&s=400' )
   botConvoTitle: 'Technical Support', // Title of the first conversation with the bot
   botConvoDescription: '',
   backgroundColor: '#ffffff', // Color of the background

@@ -10,7 +10,7 @@ Actions are essentially _server-side functions_ that get executed by the bot as 
 * Send customized messages to the conversation
 * Execute arbitrary code like calling an API or storing data in the database
 
-Since they are just regular javascript functions, they can in fact do pretty much anything.
+Since they are just regular JavaScript functions, they can, in fact, do pretty much anything.
 
 When an action is invoked by the Dialogue Manager (DM), it gets passed the following arguments:
 
@@ -32,7 +32,7 @@ bp.dialogEngine.registerActions(actions)
 
 ## Examples of actions
 
-Let's have a look at the `startGame` action. This action is very simple: it takes the `state` as parameter and returns a new state that marks the beginning of a new game.
+Let's have a look at the `startGame` action. This action is very simple: it takes the `state` as a parameter and returns a new state that marks the beginning of a new game.
 
 ```js
 startGame: state => {
@@ -86,13 +86,51 @@ setUserTag: async (state, event, { name, value }) => {
 },
 ```
 
-> **Note:** `name` and `value` come from the Flow Builder. `name` is a static value whereas `value` is an expression that will be evaluated at execution time. In this case `event.text` is what the user said (i.e. his nickname).
+> **Note:** `name` and `value` come from the Flow Builder. `name` is a static value whereas `value` is an expression that will be evaluated at execution time. In this case, `event.text` is what the user said (i.e., his nickname).
+
+If the some variable is available under `state` or `event` in the action normally it doesn't make sense to pass it as custom arguments.
 
 ![Passing arguments from the flow editor][setusertagargs]
 
+JSDoc-comments before function can be used to prepopulate params for the function when it gets selected in flow-editor.
+To enable this you'd need to call `bp.dialogEngine.registerActionMetadataProvider` like in the snippet below (included in default bot installation):
+
+```js
+const metadata = {}
+bp.dialogEngine.registerActionMetadataProvider(action => metadata[action])
+
+for (const actionFile of actionFiles) {
+  const docs = await jsdoc.explain({ files: path.join(__dirname, actionFile) })
+  const actions = require(actionFile)
+
+  for (const action of Object.keys(actions)) {
+    const meta = docs.find(doc => {
+      return doc.name === action && doc.comment.length > 0
+    })
+
+    if (meta) {
+      metadata[action] = {
+        title: meta.name,
+        description: meta.description,
+        category: 'Custom',
+        params: meta.params.map(param => ({
+          type: _.get(param, 'type.names.0') || 'string',
+          name: param.name.replace('params.', ''),
+          description: param.description,
+          default: param.defaultvalue || '',
+          required: !param.optional
+        }))
+      }
+    }
+  }
+
+  bp.dialogEngine.registerActions(actions)
+}
+```
+
 ## Altering the state
 
-You **must** return a new state object, you can't modify the original state object as it is frozen. To return a new state object, simply clone the original state by using [`Object.assign()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign) or the [ES6 spread operator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax).
+You **must** return a new state object. You can't modify the original state object as it is frozen. To return a new state object, clone the original state by using [`Object.assign()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign) or the [ES6 spread operator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax).
 
 ### Examples
 
@@ -108,6 +146,6 @@ return clone
 
 ### Non-altering actions
 
-If you action does not modify the state, simply return nothing (`return`). You can also return a clone of the original state: `return {...state}`.
+If your action does not modify the state, just return nothing (`return`). You can also return a clone of the original state: `return {...state}`.
 
 [setusertagargs]: {{site.baseurl}}/images/setUserTagArgs.jpg

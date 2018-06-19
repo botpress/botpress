@@ -21,6 +21,11 @@ module.exports = {
   port: port,
 
   /*
+    The IP address which API will listen to (optional)
+   */
+  hostname: process.env.BOTPRESS_HOSTNAME,
+
+  /*
     Where the content is stored
     You can access this property from `bp.dataLocation`
   */
@@ -94,6 +99,10 @@ module.exports = {
    */
   ghostContent: {
     enabled: process.env.NODE_ENV === 'production' || process.env.BOTPRESS_GHOST_ENABLED
+  },
+
+  heroSection: {
+    hidden: false
   },
 
   /*

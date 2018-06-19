@@ -5,7 +5,7 @@
 [![CircleCI](https://circleci.com/gh/botpress/botpress.svg?style=svg)](https://circleci.com/gh/botpress/botpress)
 [![npm](https://img.shields.io/npm/v/botpress.svg)](https://www.npmjs.com/package/botpress)
 
-Botpress is an open-source bot creation tool written in Javascript. It is powered by a rich set of open-source modules built by the community. We like to say that **Botpress is like the WordPress of Chatbots**; anyone can create and reuse other people's modules.
+Botpress is an open-source bot creation tool written in JavaScript. It is powered by a rich set of open-source modules built by the community. We like to say that **Botpress is like the WordPress of Chatbots**; anyone can create and reuse other people's modules.
 
 ---
 
@@ -31,19 +31,19 @@ Botpress is an open-source bot creation tool written in Javascript. It is powere
 
 ## Support the project ⭐
 
-If you feel awesome and want to support us in a small way, please consider starring and/or sharing the repo! This helps us getting known and grow the community. 🙏
+If you feel awesome and want to support us in a small way, please consider starring and sharing the repo! This helps us getting known and grow the community. 🙏
 
 <img alt="Botpress" width="250" src=".github/assets/star_us.gif">
 
 ## What is Botpress
 
-Botpress is on a mission to make useful bots ubiquitous by powering developers with the best possible tools to build & manage chatbots. We believe that in order to create great bots, major time should be spent on UX, **not** on the surrounding (and generic) features.
+Botpress is on a mission to make useful bots ubiquitous by powering developers with the best possible tools to build & manage chatbots. We believe that in order to create great bots, significant time should be spent on user experience, **not** on the surrounding (and generic) features.
 
 <img alt="Botpress" height="150" src=".github/assets/shot_01.png"><img alt="Botpress" height="150" src=".github/assets/shot_02.png"><img alt="Botpress" height="150" src=".github/assets/shot_03.png">
 
 ## Installation
 
-Botpress requires [node](https://nodejs.org) (version >= 8.2) and uses [npm](https://www.npmjs.com) as package manager.
+Botpress requires [Node.js](https://nodejs.org) (version >= 8.2) and uses [npm](https://www.npmjs.com) as package manager.
 
 ```
 npm install -g botpress@beta
@@ -67,7 +67,7 @@ This will provide you locally a web interface available at **`http://localhost:3
 
 ## Contributing
 
-Thanks you for your interest in Botpress. Here are some of the many ways to contribute.
+Thank you for your interest in Botpress. Here are some of the many ways to contribute.
 
 * Check out our [contributing guide](/.github/CONTRIBUTING.md)
 * Look at our [code of conduct](/.github/CODE_OF_CONDUCT.md)
@@ -83,7 +83,7 @@ For starters, there are some open issues with the [first good issue][starter-lab
 
 Contributions to Botpress will be dual-licensed under AGPLv3 and the Botpress Proprietary License. This means that all contributors need to agree to the dual-license before their contributions can be accepted.
 
-Please follow the [Conventional Commits](https://conventionalcommits.org/) specs when doing commits. **PRs not respecting this commit style will be rejected.**
+Please follow the [Conventional Commits](https://conventionalcommits.org/) specs when doing commits. **Pull requests not respecting this commit style will be rejected.**
 
 ## Community
 
@@ -107,7 +107,7 @@ Botpress is dual-licensed under [AGPLv3](/licenses/LICENSE_AGPL3) and the [Botpr
 
 By default, any bot created with Botpress is licensed under AGPLv3, but you may change to the Botpress License from within your bot's web interface in a few clicks.
 
-For more information about how the dual-license works and why it works that way please see the <a href="https://botpress.io/faq">FAQS</a>.
+For more information about how the dual-license works and why it works that way, please see the <a href="https://botpress.io/faq">FAQS</a>.
 
 ## Credits
 

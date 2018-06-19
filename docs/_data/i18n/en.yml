@@ -101,10 +101,6 @@ docs_additional_reading: "Additional Reading"
   title: "Proactive actions"
   description: "Learn how to make bot start conversation"
 
-"/recipes/version_control/":
-  title: "Version control"
-  description: "Learn how to sync content between deployed bot and local environment"
-
 "/recipes/apis/":
   title: "External APIs"
   description: "Learn how to integrate external APIs"
@@ -112,6 +108,46 @@ docs_additional_reading: "Additional Reading"
 "/recipes/analytics/":
   title: "Analytics"
   description: "Learn how to set up analytics for your bot"
+
+"/recipes/shortlinks/":
+  title: "Shortlinks"
+  description: "Learn how to use shortlinks"
+
+"/recipes/carousel/":
+  title: "Carousel"
+  description: "Learn how to use webchat carousel"
+
+"/recipes/login/":
+  title: "Login"
+  description: "Learn how to implement login in your bot"
+
+"/recipes/timeout/":
+  title: "Timeout"
+  description: "Learn how to perform actions on timeout in conversation with user"
+
+"/recipes/hitl/":
+  title: "Human-In-The-Loop"
+  description: "Learn how to switch conversation to operator and back"
+
+"/recipes/jumps/":
+  title: "Control the Flow programmatically"
+  description: "Learn how to jump to specific flow and node programmatically"
+
+"/recipes/dbs/":
+  title: "Connecting to databases"
+  description: "Learn how to integrate 3rd-party databases into your bot"
+
+"/recipes/modules/":
+  title: "Creating modules"
+  description: "Learn how to create and use botpress-modules"
+
+"/recipes/webchat-ext/":
+  title: "Creating webchat-extensions"
+  description: "Learn how to create and use webchat-extensions"
+
+"/recipes/webpack/":
+  title: "Transpiling bot's sources"
+  description: "Learn how to use webpack to transpile bot's sources"
 
 guides:
   

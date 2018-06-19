@@ -4,7 +4,7 @@ layout: guide
 
 # 📚 Storage Mechanisms
 
-Even though Botpress has a built-in database, it aims at abstracting most of the storage for you to simplify data management. Botpress does that by providing high-level APIs.
+Even though Botpress has a built-in database, it aims to abtract most of the storage for you to simplify data management. Botpress does that by providing high-level APIs.
 
 ## Per-conversation storage
 
@@ -46,7 +46,7 @@ storeAge: async (state, event) => {
 
 ### Alternatives
 
-If you prefer to store these information somewhere else, you can use the `userId` as the key for external storage.
+If you prefer to store this information somewhere else, you can use the `userId` as the key for external storage.
 
 ```js
 storeLargePayload: (state, event) => {
@@ -171,7 +171,7 @@ amendLeaderboard: async (state, event) => {
 },
 ```
 
-Notice how we make use of the global storage (`event.bp.kvs`) to store the leadrboard, which is simply an ordered array of the best scores.
+Notice how we make use of the global storage (`event.bp.kvs`) to store the leaderboard, which is merely an ordered array of the best scores.
 
 ## Wrapping up
 
@@ -187,15 +187,15 @@ We need to pull the nickname in the state right after setting it to make sure th
 
 ## Note B
 
-This is a simple action that calls the specified renderer and passthroughs all the arguments. In this case we're using the `#leaderboard` renderer (which we will define in a minute).
+This is a simple action that calls the specified renderer and pass-throughs all the arguments. In this case, we're using the `#leaderboard` renderer (which we will define in a minute).
 
 > This is a new concept that you probably didn't know existed: we can call renderers directly in actions.
 >
-> You can simply call **`event.reply(rendererName, data)`**, which is just slightly different than sending Content Elements (they start with `#!` instead of `#`).
+> You can call **`event.reply(rendererName, data)`**, which is just slightly different than sending Content Elements (they start with `#!` instead of `#`).
 
 ### The `#leaderboard` renderer
 
-Simply add the following renderer in your `renderer.js` file:
+Add the following renderer in your `renderer.js` file:
 
 ```js
 leaderboard: data => ({

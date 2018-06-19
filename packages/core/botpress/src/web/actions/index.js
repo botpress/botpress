@@ -143,7 +143,16 @@ export const updateGlobalStyle = createAction('UI/UPDATE_GLOBAL_STYLE')
 
 // User
 export const userReceived = createAction('USER/RECEIVED')
-export const fetchUser = () => dispatch => {
+export const fetchUser = authEnabled => dispatch => {
+  if (!authEnabled) {
+    dispatch(
+      userReceived({
+        id: 'anonymous',
+        roles: null
+      })
+    )
+    return
+  }
   axios.get('/api/my-account').then(res => {
     dispatch(userReceived(res.data))
   })
@@ -152,12 +161,9 @@ export const fetchUser = () => dispatch => {
 // Bot
 export const botInfoReceived = createAction('BOT/INFO_RECEIVED')
 export const fetchBotInformation = () => dispatch => {
-  axios.all([axios.get('/api/bot/information'), axios.get('/api/bot/production')]).then(
-    axios.spread((information, production) => {
-      const info = Object.assign({}, information.data, { production: production.data })
-      dispatch(botInfoReceived(info))
-    })
-  )
+  axios.get('/api/bot/information').then(information => {
+    dispatch(botInfoReceived(information.data))
+  })
 }
 
 // Modules

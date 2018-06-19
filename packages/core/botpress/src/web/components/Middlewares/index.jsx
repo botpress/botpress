@@ -76,6 +76,14 @@ class Middlewares extends Component {
 
   initialized = false
 
+  componentDidUpdate() {
+    this.refresh()
+  }
+
+  componentDidMount() {
+    this.refresh()
+  }
+
   getStateHash() {
     let hash = ''
     this.state.incomingItems.forEach(m => {
@@ -108,8 +116,8 @@ class Middlewares extends Component {
     setImmediate(() => this.setState({ initialStateHash: this.getStateHash() }))
   }
 
-  componentDidUpdate() {
-    if (this.initialized || !this.props.user || !this.props.user.id) {
+  refresh = () => {
+    if (this.initialized || !this.props.user || this.props.user.id == null) {
       return
     }
     this.initialized = true

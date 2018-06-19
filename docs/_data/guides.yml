@@ -24,9 +24,18 @@
     - path: "/recipes/i18n/"
     - path: "/recipes/embedding/"
     - path: "/recipes/proactive/"
-    - path: "/recipes/version_control/"
     - path: "/recipes/apis/"
     - path: "/recipes/analytics/"
+    - path: "/recipes/shortlinks/"
+    - path: "/recipes/carousel/"
+    - path: "/recipes/login/"
+    - path: "/recipes/timeout/"
+    - path: "/recipes/hitl/"
+    - path: "/recipes/jumps/"
+    - path: "/recipes/dbs/"
+    - path: "/recipes/modules/"
+    - path: "/recipes/webchat-ext/"
+    - path: "/recipes/webpack/"
     
 # - id: foundamentals
 #   pages:

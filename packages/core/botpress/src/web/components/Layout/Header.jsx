@@ -69,7 +69,7 @@ class Header extends React.Component {
                 <Glyphicon glyph="list-alt" />
               </NavItem>
             </PermissionsChecker>
-            <PermissionsChecker user={this.props.user} res="notifications" op="read">
+            <PermissionsChecker user={this.props.user} res="bot.notifications" op="read">
               <NotificationHub />
             </PermissionsChecker>
             {this.renderLogoutButton()}

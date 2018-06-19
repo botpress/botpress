@@ -64,30 +64,43 @@ quick_replies: data.choices.map(choice => `<${choice.payload}> ${choice.text}`)
 </details>
 
 <details>
-    <summary><b>Form</b> (documentation for Botpress X coming soon)</summary>
+    <summary><b>Form</b></summary>
 
 ##### `content.yml`
 
-```yaml
-welcome:
-  - text: Hello, world!
-    typing: 250ms
-    form:
-      title: Survey
-      id: survey
-      elements:
-        - input:
-            label: Email
-            placeholder: Your email
-            name: email
-            subtype: email
+```js
+'#form': data => [
+  {
+    on: 'webchat',
+    typing: true,
+    markdown: true,
+    text: data.text,
+    form: {
+      title: 'Survey',
+      id: 'survey',
+      elements: [
+        {
+          input: {
+            label: 'Email',
+            placeholder: 'Your email',
+            name: 'email',
+            subtype: 'email',
             required: true
-        - textarea:
-            label: Text
-            placeholder: Your text
-            name: text
-            maxlength: 100
+          }
+        },
+        {
+          textarea: {
+            label: 'Text',
+            placeholder: 'Your text',
+            name: 'text',
+            maxlength: 100,
             minlength: 2
+          }
+        }
+      ]
+    }
+  }
+]
 ```
 
 It's look's like a usually web form. After submitted, you can handle this event with botpress.hear method. For example:
@@ -100,25 +113,31 @@ bp.hear({ type: 'form', formId: 'survey' }, (event, next) => {
 
 You can always catch formId in the hear function, because Id is not an option in the form element. You choose a value to go with your id keys.
 
-```yaml
-welcome:
-  - text: "Welcome"
-    typing: 250ms
-    form:
-      title: welcome
-      id: welcome
-      ...
-      ...
+```js
+'#welcome': data => [
+  {
+    on: 'webchat',
+    text: 'Welcome',
+    typing: '250ms',
+    form: {
+      title: 'welcome',
+      id: 'welcome',
+      /* ... */
+    }
+  }
+] 
 
-
-form-email:
-  - text: Provide me your email
-    form:
-      title: Email
-      id: email
-      ...
-      ...
-#
+'#form-email': data => [
+  {
+    on: 'webchat',
+    text: 'Provide me your email',
+    form: {
+      title: 'Email',
+      id: 'email',
+      /* ... */
+    }
+  }
+]
 ```
 
 in your `bp.hear` function
@@ -144,24 +163,40 @@ Has a same attributes like `textarea`, but has no `maxlength` and `minlength` at
 
 Example:
 
-```yaml
-- select:
-    label: Select one item
-    name: select
-    placeholder: Select one option
-    options:
-      - option:
-          label: "Hindu (Indian) vegetarian"
-          value: "hindu"
-      - option:
-          label: "Strict vegan"
-          value: "vegan"
-      - option:
-          label: "Kosher"
-          value: "kosher"
-      - option:
-          label: "Just put it in a burrito"
-          value: "burrito"
+```js
+{
+  select: {
+    label: 'Select one item',
+    name: 'select',
+    placeholder: 'Select one option',
+    options: [
+      {
+        option: {
+          label: 'Hindu (Indian) vegetarian',
+          value: 'hindu'
+        }
+      },
+      {
+        option: {
+          label: 'Strict vegan',
+          value: 'vegan'
+        }
+      },
+      {
+        option: {
+          label: 'Kosher',
+          value: 'kosher'
+        }
+      },
+      {
+        option: {
+          label: 'Just put it in a burrito',
+          value: 'burrito'
+        }
+      }
+    ]
+  }
+}
 ```
 
 </details>

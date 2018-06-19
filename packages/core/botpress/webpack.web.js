@@ -4,53 +4,24 @@ const chalk = require('chalk')
 const webpack = require('webpack')
 const path = require('path')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
-const nodeExternals = require('webpack-node-externals')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
+const isProduction = process.env.NODE_ENV === 'production'
 
-const nodeConfig = {
-  mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
-  devtool: 'source-map',
-  entry: [path.resolve(__dirname, './index.js')],
-  output: {
-    path: path.resolve(__dirname, './lib'),
-    filename: 'node.bundle.js',
-    libraryTarget: 'commonjs2',
-    publicPath: __dirname
-  },
-  externals: [nodeExternals()],
-  target: 'node',
-  node: {
-    __dirname: false
-  },
-  resolve: {
-    extensions: ['.js'],
-    alias: {
-      '~': path.resolve(__dirname, './src')
-    }
-  },
-  module: {
-    rules: [
-      {
-        test: /\.js$/,
-        use: [
-          {
-            loader: 'babel-loader',
-            options: {
-              presets: ['stage-3', ['env', { targets: { node: '8.9' } }]],
-              plugins: ['transform-class-properties']
-            }
-          }
-        ],
-        exclude: /node_modules/
-      }
-    ]
-  }
-}
+const productionPlugins = () =>
+  isProduction
+    ? [
+        new UglifyJSPlugin({
+          sourceMap: true,
+          cache: true
+        })
+      ]
+    : []
 
 const webConfig = {
-  mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
+  mode: isProduction ? 'production' : 'development',
   bail: true,
-  devtool: process.env.NODE_ENV === 'production' ? 'source-map' : 'eval-source-map',
+  devtool: isProduction ? 'source-map' : 'eval-source-map',
   entry: {
     web: './src/web/index.jsx',
     lite: './src/web/lite.jsx'
@@ -58,7 +29,7 @@ const webConfig = {
   output: {
     path: path.resolve(__dirname, './lib/web/js'),
     publicPath: '/js/',
-    filename: '[name].bundle.js'
+    filename: '[name].[chunkhash].js'
   },
   resolve: {
     extensions: ['.js', '.jsx', '.css'],
@@ -66,22 +37,49 @@ const webConfig = {
       '~': path.resolve(__dirname, './src/web')
     }
   },
+  optimization: {
+    splitChunks: {
+      chunks: 'async',
+      minSize: 30000,
+      minChunks: 1,
+      automaticNameDelimiter: '~',
+      name: 'commons',
+      filename: 'commons.js',
+      cacheGroups: {
+        vendor: {
+          chunks: 'initial',
+          test: path.resolve(__dirname, 'node_modules'),
+          name: 'commons',
+          enforce: true
+        },
+        default: {
+          minChunks: 2,
+          priority: -20,
+          reuseExistingChunk: true
+        }
+      }
+    }
+  },
   plugins: [
+    new HtmlWebpackPlugin({
+      inject: false,
+      hash: true,
+      template: './src/web/index.html',
+      filename: '../index.html'
+    }),
+    new HtmlWebpackPlugin({
+      inject: false,
+      hash: true,
+      template: './src/web/lite.html',
+      filename: '../lite/index.html'
+    }),
     new webpack.DefinePlugin({
       'process.env': {
-        NODE_ENV: process.env.NODE_ENV === 'production' ? JSON.stringify('production') : JSON.stringify('development')
+        NODE_ENV: isProduction ? JSON.stringify('production') : JSON.stringify('development')
       }
     }),
-    new UglifyJSPlugin({ sourceMap: true, cache: true }),
+    ...productionPlugins(),
     new CopyWebpackPlugin([
-      {
-        from: path.resolve(__dirname, './src/web/index.html'),
-        to: path.resolve(__dirname, './lib/web/index.html')
-      },
-      {
-        from: path.resolve(__dirname, './src/web/lite.html'),
-        to: path.resolve(__dirname, './lib/web/lite/index.html')
-      },
       {
         from: path.resolve(__dirname, './src/web/img'),
         to: path.resolve(__dirname, './lib/web/img')
@@ -96,17 +94,20 @@ const webConfig = {
     rules: [
       {
         test: /\.jsx?$/i,
-        exclude: /node_modules/i,
-        use: {
-          loader: 'babel-loader',
-          options: {
-            presets: ['stage-3', ['env', { targets: { browsers: ['last 2 versions'] } }], 'react'],
-            plugins: ['transform-class-properties'],
-            compact: true,
-            babelrc: false,
-            cacheDirectory: true
+        include: path.resolve(__dirname, 'src/web'),
+        use: [
+          { loader: 'thread-loader' },
+          {
+            loader: 'babel-loader',
+            options: {
+              presets: ['stage-3', ['env', { targets: { browsers: ['last 2 versions'] } }], 'react'],
+              plugins: ['transform-class-properties'],
+              compact: true,
+              babelrc: false,
+              cacheDirectory: true
+            }
           }
-        }
+        ]
       },
       {
         test: /\.scss$/,
@@ -133,14 +134,11 @@ const webConfig = {
         use: [{ loader: 'file-loader', options: { name: '../fonts/[name].[ext]' } }]
       }
     ]
-  },
-  optimization: {
-    noEmitOnErrors: true
   }
 }
 
 const showNodeEnvWarning = () => {
-  if (process.env.NODE_ENV !== 'production') {
+  if (!isProduction) {
     console.log(
       chalk.yellow('WARNING: You are currently building Botpress in development; NOT generating a production build')
     )
@@ -148,7 +146,7 @@ const showNodeEnvWarning = () => {
   }
 }
 
-const compiler = webpack([webConfig, nodeConfig])
+const compiler = webpack(webConfig)
 const postProcess = (err, stats) => {
   if (err) {
     throw err
@@ -160,7 +158,12 @@ if (process.argv.indexOf('--compile') !== -1) {
   showNodeEnvWarning()
   compiler.run(postProcess)
 } else if (process.argv.indexOf('--watch') !== -1) {
-  compiler.watch(null, postProcess)
+  compiler.watch(
+    {
+      ignored: ['*', /!.\/src\/web/]
+    },
+    postProcess
+  )
 }
 
-module.exports = { web: webConfig, node: nodeConfig }
+module.exports = { web: webConfig }

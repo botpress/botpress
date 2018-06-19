@@ -33,3 +33,4 @@ jspm_packages
 
 # *** Botpress specifics ***
 /.data
+bp-cloud.json
