@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.19.0"></a>
+# [10.19.0](https://github.com/botpress/modules/compare/v10.18.0...v10.19.0) (2018-06-19)
+
+
+### Bug Fixes
+
+* **messenger:** fixes error 400 upon bot start ([48117f9](https://github.com/botpress/modules/commit/48117f9))
+
+
+
+
 <a name="10.18.0"></a>
 # [10.18.0](https://github.com/botpress/modules/compare/v10.17.3...v10.18.0) (2018-06-19)
 
