@@ -223,6 +223,6 @@ module.exports = (bp, app) => {
   })
 
   app.get('/api/community/hero', (req, res) => {
-    res.send({ hidden: bp.botfile.heroSection.hidden })
+    res.send({ hidden: _.get(bp, 'botfile.heroSection.hidden', false) })
   })
 }
