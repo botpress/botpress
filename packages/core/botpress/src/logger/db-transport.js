@@ -8,7 +8,11 @@ export default class DbTransport extends winston.Transport {
   constructor(opts) {
     super(opts)
     this.name = 'DBLogger'
-    this.opts = opts
+    this.db = opts.db
+    opts.janitor.add({
+      table: 'logs',
+      ttl: opts.ttl
+    })
   }
 
   log(level, message, meta, callback) {
@@ -16,7 +20,7 @@ export default class DbTransport extends winston.Transport {
       message += ' ' + JSON.stringify(meta)
     }
 
-    this.opts.db
+    this.db
       .get()
       .then(knex =>
         knex('logs').insert({

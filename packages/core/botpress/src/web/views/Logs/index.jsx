@@ -50,7 +50,7 @@ class LoggerView extends Component {
     const message = line.message.replace(/\[\d\d?m/gi, '')
 
     return (
-      <li key={`log_event_${index}`} className={styles.line}>
+      <li key={`${index}.${message}`} className={styles.line}>
         <span className={styles.time}>{time}</span>
         <span className={styles['level-' + line.level]}>{line.level + ': '}</span>
         <span className={styles.message}>{message}</span>
