@@ -56,7 +56,6 @@
     "socket.io-client": "^2.0.3",
     "socketio-jwt": "^4.5.0",
     "source-map-support": "^0.4.6",
-    "sqlite3": "^3.1.13",
     "universal-analytics": "^0.4.8",
     "username": "^3.0.0",
     "valid-url": "^1.0.9",
@@ -64,6 +63,9 @@
     "vm2": "^3.5.2",
     "winston": "^2.2.0",
     "yn": "^2.0.0"
+  },
+  "optionalDependencies": {
+    "sqlite3": "^3.1.13"
   },
   "devDependencies": {
     "autoprefixer": "^6.5.3",
@@ -159,7 +161,8 @@
     "compile": "./build.sh",
     "compile-prod": "NODE_ENV=production ./build.sh",
     "test": "BABEL_ENV=tests mocha --compilers js:babel-core/register --require tests/index.js tests/**",
-    "watch": "rm -rf ./lib/web && concurrently -k \"node ./webpack.server.js --watch\" \"node ./webpack.web.js --watch\""
+    "watch":
+      "rm -rf ./lib/web && concurrently -k \"node ./webpack.server.js --watch\" \"node ./webpack.web.js --watch\""
   },
   "watch": {
     "compile": {

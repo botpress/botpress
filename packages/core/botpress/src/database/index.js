@@ -24,9 +24,16 @@ const initializeCoreDatabase = (knex, botpressPath) => {
   return Promise.mapSeries(tables, fn => fn(knex)).then(() => knex.migrate.latest({ directory }))
 }
 
-const createKnex = async ({ sqlite, postgres, botpressPath }) => {
+const createKnex = async ({ sqlite, postgres, botpressPath, logger }) => {
   const commonConfig = {
     useNullAsDefault: true
+  }
+  if (!postgres.enabled && process.version.startsWith('v10.')) {
+    logger &&
+      logger.warn(
+        '[Compatibility Notice] You are trying to use node@10.x but it has compatibility issues with sqlite3 package.' +
+          ' Please try either downgrading node to 8.x version or enabling postgres (read more at https://botpress.io/docs/latest/recipes/dbs/).'
+      )
   }
   const dbConfig = postgres.enabled
     ? {
@@ -54,7 +61,7 @@ module.exports = ({ sqlite, postgres, logger, botpressPath }) => {
 
   const getDb = async () => {
     if (!knex) {
-      knex = await createKnex({ sqlite, postgres, botpressPath })
+      knex = await createKnex({ sqlite, postgres, botpressPath, logger })
     }
 
     return knex
