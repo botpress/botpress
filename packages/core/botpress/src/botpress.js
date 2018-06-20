@@ -51,6 +51,7 @@ import createUsers from './users'
 import createContentManager from './content/service'
 import defaultGetItemProviders from './content/getItemProviders'
 import createHelpers from './helpers'
+import createJanitor from './janitor'
 import stats from './stats'
 
 import EventBus from './bus'
@@ -194,7 +195,9 @@ class botpress {
       botpressPath: this.botpressPath
     })
 
-    logger.enableDbStorageIfNeeded(db)
+    const janitor = createJanitor({ db, logger })
+
+    logger.enableDbStorageIfNeeded({ db, janitor })
     logger.info(`Starting botpress version ${version}`)
 
     const kvs = db._kvs
@@ -331,6 +334,7 @@ class botpress {
       licensing,
       modules,
       db,
+      janitor,
       kvs,
       configManager,
       cloud,

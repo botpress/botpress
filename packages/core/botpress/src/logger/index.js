@@ -34,13 +34,11 @@ module.exports = logConfig => {
     ]
   })
 
-  logger.enableDbStorageIfNeeded = db => {
+  logger.enableDbStorageIfNeeded = ({ db, janitor }) => {
     if (logConfig.enabled) {
       _db = db
-      logger.add(DbTransport, {
-        ttl: logConfig.keepDays * 24 * 3600,
-        db
-      })
+      const ttl = (logConfig.keepDays || 30) * 24 * 3600
+      logger.add(DbTransport, { ttl, db, janitor })
     }
   }
 
