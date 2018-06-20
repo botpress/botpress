@@ -4,7 +4,7 @@ import { Button, Label } from 'react-bootstrap'
 import ReactDOM from 'react-dom'
 import classnames from 'classnames'
 import _ from 'lodash'
-import { DiagramWidget, DiagramEngine, DiagramModel, LinkModel, PointModel } from 'storm-react-diagrams'
+import { DiagramWidget, DiagramProps, DiagramEngine, DiagramModel, LinkModel, PointModel } from 'storm-react-diagrams'
 import { toast } from 'react-toastify'
 
 import { hashCode } from '~/util'
@@ -33,6 +33,7 @@ export default class FlowBuilder extends Component {
 
     this.diagramEngine = new DiagramEngine()
 
+    this.diagramEngine.installDefaultFactories()
     this.diagramEngine.registerNodeFactory(new StandardWidgetFactory())
     this.diagramEngine.registerNodeFactory(new SkillCallWidgetFactory())
     this.diagramEngine.registerLinkFactory(new DeletableLinkFactory())
@@ -69,7 +70,7 @@ export default class FlowBuilder extends Component {
       return model
     })
 
-    nodes.forEach(node => this.activeModel.addNode(node))
+    this.activeModel.addAll(...nodes)
     nodes.forEach(node => this.createNodeLinks(node, nodes, this.props.currentFlow.links))
 
     this.diagramEngine.setDiagramModel(this.activeModel)
@@ -308,7 +309,7 @@ export default class FlowBuilder extends Component {
       // We don't want to link node to itself
       const outPort = link.sourcePort.name.startsWith('out') ? link.sourcePort : link.targetPort
       const targetPort = link.sourcePort.name.startsWith('out') ? link.targetPort : link.sourcePort
-      if (outPort.parentNode.id === targetPort.parentNode.id) {
+      if (outPort.getParent().getID() === targetPort.getParent().getID()) {
         link.remove()
         return this.diagramWidget.forceUpdate()
       }
@@ -499,6 +500,10 @@ export default class FlowBuilder extends Component {
           ref={w => (this.diagramWidget = w)}
           deleteKeys={[]}
           diagramEngine={this.diagramEngine}
+          allowLooseLinks={false}
+          allowCanvasTranslation={false}
+          allowCanvasZoom={false}
+          {...DiagramProps}
         />
       </div>
     )

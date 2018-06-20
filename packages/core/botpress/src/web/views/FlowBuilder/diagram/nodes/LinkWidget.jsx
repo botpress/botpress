@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { DefaultLinkWidget, LinkFactory, PointModel } from 'storm-react-diagrams'
+import { DefaultLinkWidget, DefaultLinkFactory, PointModel } from 'storm-react-diagrams'
 
 class DeletableLinkWidget extends DefaultLinkWidget {
   addPointToLink = (event, index) => {
@@ -17,8 +17,8 @@ class DeletableLinkWidget extends DefaultLinkWidget {
     }
   }
 
-  generateLink(extraProps, id) {
-    const { link, width, color, diagramEngine } = this.props
+  generateLink(path, extraProps, id) {
+    const { link, width, color } = this.props
     const index = extraProps['data-point'] || 0
 
     const Bottom = (
@@ -54,7 +54,7 @@ class DeletableLinkWidget extends DefaultLinkWidget {
   }
 }
 
-export class DeletableLinkFactory extends LinkFactory {
+export class DeletableLinkFactory extends DefaultLinkFactory {
   constructor() {
     super('default')
   }

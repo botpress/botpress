@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import classnames from 'classnames'
 import _ from 'lodash'
-import { NodeModel, NodeFactory } from 'storm-react-diagrams'
+import { DefaultNodeModel, DefaultNodeFactory } from 'storm-react-diagrams'
 
 import ActionItem from '../../common/action'
 import ConditionItem from '../../common/condition'
@@ -61,7 +61,7 @@ export class SkillCallNodeWidget extends React.Component {
   }
 }
 
-export class SkillCallNodeModel extends NodeModel {
+export class SkillCallNodeModel extends DefaultNodeModel {
   constructor({ id, x, y, name, skill, next = [], isStartNode = false }) {
     super('skill-call', id)
 
@@ -120,7 +120,7 @@ export class SkillCallNodeModel extends NodeModel {
 
 export const SkillCallNodeWidgetFactory = React.createFactory(SkillCallNodeWidget)
 
-export class SkillCallWidgetFactory extends NodeFactory {
+export class SkillCallWidgetFactory extends DefaultNodeFactory {
   constructor() {
     super('skill-call')
   }

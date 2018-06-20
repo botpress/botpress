@@ -120,7 +120,7 @@
     "script-loader": "^0.7.0",
     "simple-line-icons": "^2.4.1",
     "sinon": "^4.2.2",
-    "storm-react-diagrams": "^4.0.0",
+    "storm-react-diagrams": "^5.2.1",
     "style-loader": "^0.13.1",
     "thread-loader": "^1.1.5",
     "tmp": "0.0.31",
@@ -155,7 +155,8 @@
     "compile": "./build.sh",
     "compile-prod": "NODE_ENV=production ./build.sh",
     "test": "BABEL_ENV=tests mocha --compilers js:babel-core/register --require tests/index.js tests/**",
-    "watch": "rm -rf ./lib/web && concurrently -k \"node ./webpack.server.js --watch\" \"node ./webpack.web.js --watch\""
+    "watch":
+      "rm -rf ./lib/web && concurrently -k \"node ./webpack.server.js --watch\" \"node ./webpack.web.js --watch\""
   },
   "watch": {
     "compile": {

@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import classnames from 'classnames'
 import _ from 'lodash'
-import { NodeModel, NodeFactory } from 'storm-react-diagrams'
+import { DefaultNodeModel, DefaultNodeFactory } from 'storm-react-diagrams'
 
 import { StandardOutgoingPortModel, StandardPortWidget, StandardIncomingPortModel } from './Ports'
 import ActionItem from '../../common/action'
@@ -66,7 +66,7 @@ export class StandardNodeWidget extends Component {
   }
 }
 
-export class StandardNodeModel extends NodeModel {
+export class StandardNodeModel extends DefaultNodeModel {
   constructor({ id, x, y, name, onEnter = [], onReceive = [], next = [], isStartNode = false }) {
     super('standard', id)
 
@@ -141,12 +141,16 @@ export class StandardNodeModel extends NodeModel {
 
 export const StandardNodeWidgetFactory = React.createFactory(StandardNodeWidget)
 
-export class StandardWidgetFactory extends NodeFactory {
+export class StandardWidgetFactory extends DefaultNodeFactory {
   constructor() {
     super('standard')
   }
 
   generateReactWidget(diagramEngine, node) {
     return StandardNodeWidgetFactory({ node })
+  }
+
+  getNewInstance() {
+    return new StandardNodeModel()
   }
 }
