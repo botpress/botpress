@@ -1,0 +1,19 @@
+config:
+  target: "http://localhost:3000"
+  phases:
+    - duration: 100 # lasts for 10 seconds
+      arrivalRate: 3 # 10 new users per second
+  payload:
+    path: "users.csv"
+    fields: ["prefix", "uuid"]
+    order: "sequence"
+scenarios:
+  - name: Each user sends 50 messages
+    flow:
+      - loop:
+        - post:
+            url: "/api/botpress-platform-webchat/messages/{{ prefix }}{{ uuid }}"
+            json:
+              type: "text"
+              text: "U{{ uuid }}|M{{ $loopCount }}"
+        count: 50
