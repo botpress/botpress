@@ -1,5 +1,5 @@
 /*
-  Tables storing ghost content and its revisions
+  Table storing bot logs
 */
 
 import helpers from './helpers'

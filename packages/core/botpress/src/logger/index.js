@@ -14,6 +14,7 @@
  */
 
 import moment from 'moment'
+import ms from 'ms'
 import winston from 'winston'
 import Promise from 'bluebird'
 
@@ -37,7 +38,7 @@ module.exports = logConfig => {
   logger.enableDbStorageIfNeeded = ({ db, janitor }) => {
     if (logConfig.enabled) {
       _db = db
-      const ttl = (logConfig.keepDays || 30) * 24 * 3600
+      const ttl = ms(`${logConfig.keepDays || 30}days`)
       logger.add(DbTransport, { ttl, db, janitor })
     }
   }
