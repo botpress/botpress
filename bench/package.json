@@ -13,5 +13,6 @@
   "devDependencies": {},
   "dependencies": {
     "artillery": "^1.6.0-20"
-  }
+  },
+  "private": true
 }
