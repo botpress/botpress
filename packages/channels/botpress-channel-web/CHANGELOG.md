@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.20.1"></a>
+## [10.20.1](https://github.com/botpress/modules/compare/v10.20.0...v10.20.1) (2018-06-21)
+
+
+### Bug Fixes
+
+* **webchat:** keyframes anymation fallback for ie (resolve [#657](https://github.com/botpress/modules/issues/657)) ([5dce355](https://github.com/botpress/modules/commit/5dce355))
+
+
+
+
 <a name="10.20.0"></a>
 # [10.20.0](https://github.com/botpress/modules/compare/v10.19.0...v10.20.0) (2018-06-20)
 
