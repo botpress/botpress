@@ -128,7 +128,8 @@ module.exports = (bp, app) => {
         )
       })
       .catch(err => {
-        console.log(err)
+        console.error(err)
+        res.sendStatus(500)
       })
   })
 

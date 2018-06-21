@@ -17,7 +17,7 @@ export default class DbTransport extends winston.Transport {
 
   log(level, message, meta, callback) {
     if (!isEmpty(meta)) {
-      message += ' ' + JSON.stringify(meta)
+      message += ` (meta=${JSON.stringify(meta)})`
     }
 
     this.db

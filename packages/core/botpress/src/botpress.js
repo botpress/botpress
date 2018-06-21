@@ -200,6 +200,8 @@ class botpress {
     logger.enableDbStorageIfNeeded({ db, janitor })
     logger.info(`Starting botpress version ${version}`)
 
+    janitor.start()
+
     const kvs = db._kvs
 
     const cloud = await createCloud({ projectLocation, botfile, logger })
