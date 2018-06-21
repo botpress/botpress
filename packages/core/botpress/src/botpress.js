@@ -195,6 +195,8 @@ class botpress {
       botpressPath: this.botpressPath
     })
 
+    await db.get() // Running migrations
+
     const janitor = createJanitor({ db, logger })
 
     logger.enableDbStorageIfNeeded({ db, janitor })
