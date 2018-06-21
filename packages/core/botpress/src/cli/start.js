@@ -61,8 +61,7 @@ module.exports = (projectPath, options) => {
     // eslint-disable-next-line no-eval
     const bf = eval('require')(botfile)
     const dataDir = util.getDataLocation(bf.dataDir, projectPath)
-    const modulesConfigDir = util.getDataLocation(bf.modulesConfigDir, projectPath)
-    return [dataDir, modulesConfigDir, 'node_modules']
+    return [dataDir, 'node_modules']
   }
 
   const opts = options.opts()
