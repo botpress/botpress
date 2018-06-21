@@ -27,7 +27,7 @@ const createJanitor = ({ db, logger, intervalMs = ms('1m') }) => {
   // for some tasks like dialog sessions
   // but don't run other tasks like logs more often than every 1/5/10min
   const runTask = async ({ table, ttl, timestampColumn }) => {
-    logger.info(`[DB Janitor] Running for table "${table}"`)
+    logger.debug(`[DB Janitor] Running for table "${table}"`)
     const knex = await db.get()
     const outdatedCondition = helpers(knex).date.isBefore(timestampColumn, moment().subtract(ttl, 'ms'))
     return knex(table)
@@ -80,7 +80,7 @@ const createJanitor = ({ db, logger, intervalMs = ms('1m') }) => {
    * @returns {string} The id of the added task.
    */
   const add = options => {
-    logger.info(`[DB Janitor] Added table "${options.table}"`)
+    logger.debug(`[DB Janitor] Added table "${options.table}"`)
     const id = nanoid()
     tasks.push(Object.assign({ id }, DEFAULTS, options))
     return id
@@ -99,7 +99,7 @@ const createJanitor = ({ db, logger, intervalMs = ms('1m') }) => {
       return
     }
     const [{ table }] = tasks.splice(i, 1)
-    logger.info(`[DB Janitor] Removed table "${table}"`)
+    logger.debug(`[DB Janitor] Removed table "${table}"`)
   }
 
   /**
