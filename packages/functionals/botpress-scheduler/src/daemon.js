@@ -2,12 +2,11 @@ import Promise from 'bluebird'
 
 import db from './db'
 import util from './util'
-import moment from 'moment'
 let timerInterval = null
 let lock = false
-let deamon = null
+let daemon = null
 
-const createDeamon = bp => {
+const createDaemon = bp => {
   const reschedule = task => {
     if (task.schedule_type.toLowerCase() === 'once') {
       return Promise.resolve(null)
@@ -107,9 +106,9 @@ const createDeamon = bp => {
 }
 
 module.exports = bp => {
-  if (!deamon) {
-    deamon = createDeamon(bp)
+  if (!daemon) {
+    daemon = createDaemon(bp)
   }
 
-  return deamon
+  return daemon
 }

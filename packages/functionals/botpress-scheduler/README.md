@@ -4,12 +4,12 @@ Provides an interface and APIs to schedule one-off and recurring tasks.
 
 **Support connectors:** This module is not dependent on any connector module
 
-<img src='/assets/screenshot.jpg' height='300px'>
+<img src='/packages/functionals/botpress-scheduler/assets/screenshot.jpg' height='300px'>
 
 ## Get started
 
 ```
-botpress install scheduler
+npm install --save scheduler
 ```
 
 The scheduler module should now be available in your bot UI, and the APIs exposed.

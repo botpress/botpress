@@ -1,7 +1,7 @@
 import { DatabaseHelpers as helpers } from 'botpress'
 import checkVersion from 'botpress-version-manager'
 
-import deamon from './deamon'
+import daemon from './daemon'
 import DB from './db'
 import moment from 'moment'
 
@@ -11,7 +11,7 @@ let knex = null
 module.exports = {
   init: function(bp) {
     checkVersion(bp, bp.botpressPath)
-    deamon(bp)
+    daemon(bp)
     bp.db.get().then(_knex => {
       knex = _knex
       db = DB(knex)
