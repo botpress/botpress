@@ -91,7 +91,7 @@ module.exports = (projectPath, options) => {
       setTimeout(() => process.exit(), 100)
     })
   } else {
-    const bot = new Botpress({ botfile })
+    const bot = new Botpress({ botfile, options })
     bot.start()
   }
 }
