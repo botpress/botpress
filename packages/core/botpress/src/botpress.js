@@ -89,7 +89,7 @@ const mkdirIfNeeded = (path, logger) => {
 const REQUIRED_PROPS = ['botUrl']
 
 class botpress {
-  constructor({ botfile }) {
+  constructor({ botfile, options = {} }) {
     this.version = getBotpressVersion()
     /**
      * The project location, which is the folder where botfile.js located
@@ -116,6 +116,14 @@ class botpress {
     this.stats = stats(this.botfile)
 
     this.interval = null
+
+    /*
+      Check --inspect flag
+    */
+
+    const opts = options.opts()
+
+    this.hasInspectMode = opts.inspect || opts.i
   }
 
   /**
@@ -332,6 +340,18 @@ class botpress {
     const server = createServer(this)
     server.start().then(srv => {
       this.stopServer = srv && srv.stop
+
+      if (this.hasInspectMode) {
+        const serverPID = process.pid
+        const inspectSignal = 'SIGUSR1'
+
+        if (process.platform === 'win32') {
+          process._debugProcess(serverPID)
+        } else {
+          process.kill(serverPID, inspectSignal)
+        }
+      }
+
       events.emit('ready')
       for (const mod of _.values(loadedModules)) {
         mod.handlers.ready && mod.handlers.ready(this, mod.configuration, createHelpers)

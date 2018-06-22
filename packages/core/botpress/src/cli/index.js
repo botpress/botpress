@@ -43,6 +43,7 @@ program
     collectArgs,
     []
   )
+  .option('-i, --inspect', 'Inspect bot with "debugger"')
   .action(start)
 
 program
