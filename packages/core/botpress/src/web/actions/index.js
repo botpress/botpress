@@ -92,7 +92,7 @@ export const fetchContentItemsRecent = ({ searchTerm, count = 5, categoryId = 'a
     .get(`/api/content/items`, { params: { categoryId, count, searchTerm, orderBy: ['createdOn', 'desc'] } })
     .then(({ data }) => dispatch(receiveContentItemsRecent(data)))
 
-const getBetachedContentItems = ids =>
+const getBatchedContentItems = ids =>
   axios.get(`/api/content/items-batched/${ids.join(',')}`).then(({ data }) =>
     data.reduce((acc, item, i) => {
       acc[ids[i]] = item
@@ -100,9 +100,9 @@ const getBetachedContentItems = ids =>
     }, {})
   )
 
-const getBetachedContentRunner = BatchRunner(getBetachedContentItems)
+const getBatchedContentRunner = BatchRunner(getBatchedContentItems)
 
-const getBetachedContentItem = id => getBetachedContentRunner.add(id)
+const getBatchedContentItem = id => getBatchedContentRunner.add(id)
 
 const getSingleContentItem = id => axios.get(`/api/content/items/${id}`).then(({ data }) => data)
 
@@ -111,7 +111,7 @@ export const fetchContentItem = (id, { force = false, batched = false } = {}) =>
   if (!id || (!force && getState().content.itemsById[id])) {
     return Promise.resolve()
   }
-  return (batched ? getBetachedContentItem(id) : getSingleContentItem(id)).then(data =>
+  return (batched ? getBatchedContentItem(id) : getSingleContentItem(id)).then(data =>
     dispatch(receiveContentItem(data))
   )
 }
