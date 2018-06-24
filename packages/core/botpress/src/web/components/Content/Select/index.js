@@ -115,7 +115,8 @@ class SelectContent extends Component {
   }
 
   resetCreateContent = (resetSearch = false) => response => {
-    const item = Object.assign(this.state.newItemData, { id: response.data })
+    const { data: id } = response
+    const item = Object.assign(this.state.newItemData || {}, { id })
     const stateUpdate = { newItemCategory: null, newItemData: null }
     if (resetSearch) {
       Object.assign(stateUpdate, {
@@ -125,7 +126,10 @@ class SelectContent extends Component {
     }
     return new Promise(resolve =>
       this.setState(stateUpdate, () => {
-        this.handlePick(item)
+        if (id) {
+          this.handlePick(item)
+        }
+
         resolve()
       })
     )
