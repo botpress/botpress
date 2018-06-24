@@ -65,7 +65,7 @@
     "yn": "^2.0.0"
   },
   "optionalDependencies": {
-    "sqlite3": "^3.1.13"
+    "sqlite3": "^4.0.1"
   },
   "devDependencies": {
     "autoprefixer": "^6.5.3",

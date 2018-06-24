@@ -28,13 +28,6 @@ const createKnex = async ({ sqlite, postgres, botpressPath, logger }) => {
   const commonConfig = {
     useNullAsDefault: true
   }
-  if (!postgres.enabled && process.version.startsWith('v10.')) {
-    logger &&
-      logger.warn(
-        '[Compatibility Notice] You are trying to use node@10.x but it has compatibility issues with sqlite3 package.' +
-          ' Please try either downgrading node to 8.x version or enabling postgres (read more at https://botpress.io/docs/latest/recipes/dbs/).'
-      )
-  }
   const dbConfig = postgres.enabled
     ? {
         client: 'pg',
