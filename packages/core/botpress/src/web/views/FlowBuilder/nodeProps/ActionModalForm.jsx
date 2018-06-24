@@ -167,8 +167,7 @@ export default class ActionModalForm extends Component {
       </OverlayTrigger>
     )
 
-    const { item } = this.props
-    const itemId = (item && item.message && this.textToItemId(item.message)) || null
+    const itemId = this.textToItemId(this.state.messageValue)
 
     return (
       <div>
