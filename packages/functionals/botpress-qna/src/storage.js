@@ -47,7 +47,7 @@ export default class Storage {
     }
   }
 
-  async saveQuestion(id, data) {
+  async saveQuestion(data, id = null) {
     id = id || getQuestionId(data)
     if (data.enabled) {
       await this.bp.nlu.storage.saveIntent(getIntentId(id), {
