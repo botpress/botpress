@@ -162,35 +162,31 @@ module.exports = knex => {
   async function getOrCreateRecentConversation(userId) {
     userId = sanitizeUserId(userId)
 
-    const conversations = await listConversations(userId)
+    // TODO make the conversation lifetime configurable
+    const recentCondition = helpers(knex).date.isAfter('last_heard_on', moment().subtract(6, 'hours'))
+    const conversation = await knex('web_conversations')
+      .select('id')
+      .where({ userId })
+      .andWhere(recentCondition)
+      .orderBy('last_heard_on', 'desc')
+      .limit(1)
+      .then()
+      .get(0)
 
-    // TODO make this configurable
-    const isRecent = d => {
-      const then = moment(d)
-      const recent = moment().subtract(6, 'hours')
-      return then.isSameOrAfter(recent)
-    }
-
-    let recents = _.filter(conversations, c => isRecent(c.last_heard_on))
-    recents = _.orderBy(recents, ['last_heard_on'], ['desc'])
-
-    if (recents.length) {
-      return recents[0].id
-    }
-
-    return createConversation(userId)
+    return conversation ? conversation.id : createConversation(userId)
   }
 
   async function listConversations(userId) {
     userId = sanitizeUserId(userId)
 
     const conversations = await knex('web_conversations')
+      .select('id')
       .where({ userId })
-      .orderBy(['last_heard_on'], 'desc')
+      .orderBy('last_heard_on', 'desc')
       .limit(100)
       .then()
 
-    const conversationIds = _.map(conversations, c => c.id)
+    const conversationIds = conversations.map(c => c.id)
 
     return knex
       .from(function() {
