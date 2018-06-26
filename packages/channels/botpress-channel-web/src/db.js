@@ -1,10 +1,14 @@
 import moment from 'moment'
 import _ from 'lodash'
 import uuid from 'uuid'
+import ms from 'ms'
 
 import { DatabaseHelpers as helpers } from 'botpress'
 
 import { sanitizeUserId } from './util'
+
+// TODO make these vars configurable
+const RECENT_CONVERSATION_LIFETIME = ms('6 hours')
 
 module.exports = knex => {
   async function getUserInfo(userId) {
@@ -132,6 +136,7 @@ module.exports = knex => {
       .insert({
         userId,
         created_on: helpers(knex).date.now(),
+        last_heard_on: helpers(knex).date.now(),
         title
       })
       .then()
@@ -141,7 +146,6 @@ module.exports = knex => {
       .select('id')
       .then()
       .get(0)
-      .then()
 
     return conversation && conversation.id
   }
@@ -162,8 +166,10 @@ module.exports = knex => {
   async function getOrCreateRecentConversation(userId) {
     userId = sanitizeUserId(userId)
 
-    // TODO make the conversation lifetime configurable
-    const recentCondition = helpers(knex).date.isAfter('last_heard_on', moment().subtract(6, 'hours'))
+    const recentCondition = helpers(knex).date.isAfter(
+      'last_heard_on',
+      moment().subtract(RECENT_CONVERSATION_LIFETIME, 'ms')
+    )
     const conversation = await knex('web_conversations')
       .select('id')
       .where({ userId })
