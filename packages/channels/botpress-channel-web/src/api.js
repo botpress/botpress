@@ -98,7 +98,7 @@ module.exports = async (bp, config) => {
     res.send(injectStyle)
   })
 
-  const pkg = require('../package.json');
+  const pkg = require('../package.json')
   const modulePath = bp._loadedModules[pkg.name].root
   const staticFolder = path.join(modulePath, './static')
   router.use('/static', serveStatic(staticFolder))
