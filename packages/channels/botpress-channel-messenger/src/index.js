@@ -83,8 +83,9 @@ module.exports = {
     targetAudienceCloseToSome: { type: 'string', required: false },
     trustedDomains: { type: 'any', required: false, default: [], validation: v => _.isArray(v) },
 
-    autoResponseOption: { type: 'string', required: false, default: 'autoResponseText' },
-    autoResponseText: { type: 'string', required: false, default: 'Hello, human!' },
+    autoResponseOption: { type: 'string', required: false, default: 'autoResponseTextRenderer' },
+    autoResponseText: { type: 'string', required: false, default: 'Hello, human!' }, // TODO: unused, remove in v11
+    autoResponseTextRenderer: { type: 'string', required: false, default: '#builtin_text' },
     autoResponsePostback: { type: 'string', required: false, default: 'YOUR_POSTBACK' },
     paymentTesters: { type: 'any', required: false, default: [], validation: v => _.isArray(v) },
     chatExtensionHomeUrl: { type: 'string', required: false, default: '' },
