@@ -32,6 +32,7 @@
 
   "autoResponseOption": "noResponse",
   "autoResponseText": "Hello, human!",
+  "autoResponseTextRenderer": "#builtin_text",
   "autoResponsePostback": "YOUR_POSTBACK",
 
   "paymentTesters": [],
