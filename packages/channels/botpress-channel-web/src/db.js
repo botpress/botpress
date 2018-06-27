@@ -94,7 +94,7 @@ module.exports = knex => {
         .insert(message)
         .then(),
       knex('web_conversations')
-        .where({ id: conversationId, userId: userId })
+        .where({ id: conversationId, userId })
         .update({ last_heard_on: helpers(knex).date.now() })
         .then(),
       () =>

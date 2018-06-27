@@ -201,6 +201,7 @@ module.exports = (bp, dataLocation, projectLocation, logger) => {
   }
 
   const sendToMiddleware = type => event => {
+    return
     const mw = type === 'incoming' ? incoming : outgoing
     return mw.dispatch ? mw.dispatch(event) : mw(event)
   }
@@ -214,13 +215,7 @@ module.exports = (bp, dataLocation, projectLocation, logger) => {
      * @param  {Middleware.Event} event An event object
      * @memberOf! Middleware
      */
-    sendIncoming: event => {
-      // TODO: perf!!!
-      return
-
-      return bp.messages.in.enqueue(event)
-    },
-
+    sendIncoming: event => bp.messages.in.enqueue(event),
     /**
      * Sends an outgoing event (from the bot to the user)
      * @param  {Middleware.Event} event An event object
