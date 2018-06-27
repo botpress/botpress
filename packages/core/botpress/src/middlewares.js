@@ -214,7 +214,12 @@ module.exports = (bp, dataLocation, projectLocation, logger) => {
      * @param  {Middleware.Event} event An event object
      * @memberOf! Middleware
      */
-    sendIncoming: event => bp.messages.in.enqueue(event),
+    sendIncoming: event => {
+      // TODO: perf!!!
+      return
+
+      return bp.messages.in.enqueue(event)
+    },
 
     /**
      * Sends an outgoing event (from the bot to the user)

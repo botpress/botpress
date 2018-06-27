@@ -84,6 +84,7 @@ module.exports = async (bp, config) => {
     try {
       await fn(req, res, next)
     } catch (err) {
+      console.log(err.message, err.stack)
       res.status(500).send(err && err.message)
     }
   }
@@ -236,7 +237,7 @@ module.exports = async (bp, config) => {
         {
           platform: 'webchat',
           type: payload.type,
-          user: user,
+          user,
           text: payload.text,
           raw: Object.assign({}, sanitizedPayload, {
             conversationId

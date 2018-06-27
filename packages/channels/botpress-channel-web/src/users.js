@@ -4,6 +4,9 @@ module.exports = async (bp, config) => {
   const knex = await bp.db.get()
 
   async function getOrCreateUser(userId, throwIfNotFound = false) {
+    // TODO: perf!!!
+    return
+
     const realUserId = userId.startsWith('webchat:') ? userId.substr(8) : userId
 
     const user = await knex('users')
@@ -13,7 +16,6 @@ module.exports = async (bp, config) => {
       })
       .then()
       .get(0)
-      .then()
 
     if (!user) {
       if (throwIfNotFound) {

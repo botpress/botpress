@@ -60,6 +60,9 @@ module.exports = knex => {
   }
 
   async function appendUserMessage(userId, conversationId, { type, text, raw, data }) {
+    // TODO: perf!!!
+    return { id: uuid.v4() }
+
     userId = sanitizeUserId(userId)
 
     const { fullName, avatar_url } = await getUserInfo(userId)
@@ -233,7 +236,6 @@ module.exports = knex => {
       .where(condition)
       .then()
       .get(0)
-      .then()
 
     if (!conversation) {
       return null
