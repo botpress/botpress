@@ -39,7 +39,7 @@ run('helpers', () => {
   describe('date', () => {
     itBoth('now works', (knex, sampleTable) => {
       knex(sampleTable)
-        .insert({ tTimestamp: helpers(knex).date.now() })
+        .insert({ tTimestamp: helpers(knex).date.now })
         .then(() => knex(sampleTable).select('*'))
         .then(rows => {
           const delta = moment().diff(moment(rows[0].tTimestamp), 'milliseconds')
@@ -48,7 +48,7 @@ run('helpers', () => {
     })
 
     itBoth('format works', (knex, sampleTable) => {
-      const now = helpers(knex).date.now()
+      const now = helpers(knex).date.now
       const later = helpers(knex).date.format(
         moment()
           .add(1, 'days')
@@ -66,7 +66,7 @@ run('helpers', () => {
     })
 
     itBoth('isBefore works (col < exp)', (knex, sampleTable) => {
-      const now = helpers(knex).date.now()
+      const now = helpers(knex).date.now
       const later = helpers(knex).date.format(
         moment()
           .add(1, 'days')
@@ -93,7 +93,7 @@ run('helpers', () => {
     })
 
     itBoth('isBefore works (col < date)', (knex, sampleTable) => {
-      const now = helpers(knex).date.now()
+      const now = helpers(knex).date.now
       const later = helpers(knex).date.format(
         moment()
           .add(1, 'days')
@@ -118,7 +118,7 @@ run('helpers', () => {
     })
 
     itBoth('isAfter works (col < date)', (knex, sampleTable) => {
-      const now = helpers(knex).date.now()
+      const now = helpers(knex).date.now
       const later = helpers(knex).date.format(
         moment()
           .add(1, 'days')
@@ -143,7 +143,7 @@ run('helpers', () => {
     })
 
     itBoth('isBetween works', (knex, sampleTable) => {
-      const now = helpers(knex).date.now()
+      const now = helpers(knex).date.now
       const later = helpers(knex).date.format(
         moment()
           .add(1, 'days')
@@ -165,7 +165,7 @@ run('helpers', () => {
     })
 
     itBoth('isSameDay works', (knex, sampleTable) => {
-      const now = helpers(knex).date.now()
+      const now = helpers(knex).date.now
       const laterToday = helpers(knex).date.format(
         moment()
           .add(1, 'minutes')

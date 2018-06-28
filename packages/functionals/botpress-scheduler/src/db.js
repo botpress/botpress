@@ -81,7 +81,7 @@ function create(knex, id, options) {
   return knex('scheduler_schedules')
     .insert({
       id: id,
-      created_on: helpers(knex).date.now(),
+      created_on: helpers(knex).date.now,
       ...options
     })
     .then(() => {
@@ -104,7 +104,7 @@ function updateTask(knex, taskId, status, logs, returned) {
   const options = { status, logs, returned }
 
   if (_.includes(['done', 'error', 'skipped'], status)) {
-    options.finishedOn = helpers(knex).date.now()
+    options.finishedOn = helpers(knex).date.now
   }
 
   return knex('scheduler_tasks')

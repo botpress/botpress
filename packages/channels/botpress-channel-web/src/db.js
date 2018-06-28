@@ -86,7 +86,7 @@ module.exports = knex => {
       message_text: text,
       message_raw: helpers(knex).json.set(raw),
       message_data: helpers(knex).json.set(data),
-      sent_on: helpers(knex).date.now()
+      sent_on: helpers(knex).date.now
     }
 
     return Promise.join(
@@ -95,7 +95,7 @@ module.exports = knex => {
         .then(),
       knex('web_conversations')
         .where({ id: conversationId, userId })
-        .update({ last_heard_on: helpers(knex).date.now() })
+        .update({ last_heard_on: helpers(knex).date.now })
         .then(),
       () =>
         Object.assign(message, {
@@ -117,7 +117,7 @@ module.exports = knex => {
       message_text: text,
       message_raw: helpers(knex).json.set(raw),
       message_data: helpers(knex).json.set(data),
-      sent_on: helpers(knex).date.now()
+      sent_on: helpers(knex).date.now
     }
 
     await knex('web_messages')
@@ -142,8 +142,8 @@ module.exports = knex => {
     await knex('web_conversations')
       .insert({
         userId,
-        created_on: helpers(knex).date.now(),
-        last_heard_on: helpers(knex).date.now(),
+        created_on: helpers(knex).date.now,
+        last_heard_on: helpers(knex).date.now,
         title
       })
       .then()

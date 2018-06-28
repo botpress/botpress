@@ -33,10 +33,10 @@ module.exports = (knex, options = {}) => {
       modifiedOnCol: 'modified_on',
       key,
       value: JSON.stringify(value),
-      now: helpers(knex).date.now()
+      now: helpers(knex).date.now
     }
 
-    if (helpers(knex).isLite()) {
+    if (helpers(knex).isLite) {
       sql = `
         INSERT OR REPLACE INTO :tableName: (:keyCol:, :valueCol:, :modifiedOnCol:)
         VALUES (:key, :value, :now)

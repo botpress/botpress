@@ -1,6 +1,5 @@
 import checkVersion from 'botpress-version-manager'
 import DB from './db'
-import _ from 'lodash'
 
 // TODO: Cleanup old sessions
 // TODO: If messages count > X, delete some
@@ -9,14 +8,11 @@ let db = null
 let config = null
 
 const incomingMiddleware = async (event, next) => {
-  // TODO: Perf
-  return
-
   if (!db) {
     return next()
   }
 
-  if (_.includes(['delivery', 'read'], event.type)) {
+  if (['delivery', 'read'].includes(event.type)) {
     return next()
   }
 
@@ -31,11 +27,12 @@ const incomingMiddleware = async (event, next) => {
 
   const message = db.appendMessageToSession(event, session.id, 'in')
   event.bp.events.emit('hitl.message', message)
-  if ((!!session.paused || config.paused) && _.includes(['text', 'message'], event.type)) {
+  if ((!!session.paused || config.paused) && ['text', 'message'].includes(event.type)) {
     event.bp.logger.debug('[hitl] Session paused, message swallowed:', event.text)
     // the session or bot is paused, swallow the message
     return
   }
+
   next()
 }
 

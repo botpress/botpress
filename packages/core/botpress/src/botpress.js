@@ -23,6 +23,8 @@
  * @property {Botfile}  botfile The current botfile of the running bot
  */
 
+import Promise from 'bluebird'
+global.Promise = Promise
 import 'source-map-support/register'
 
 import chalk from 'chalk'

@@ -171,7 +171,7 @@ function getInteractionRanges() {
       sum(r6) as s6,
       sum(r7) as s7,
       sum(r8) as s8
-    from (select 
+    from (select
       (select count(*) as count where c between 0 and 1) as r1,
       (select count(*) where c between 2 and 3) as r2,
       (select count(*) where c between 4 and 5) as r3,
@@ -221,7 +221,7 @@ function getAverageInteractions() {
   const lastWeek = moment(new Date())
     .subtract(7, 'days')
     .toDate()
-  const now = helpers(knex).date.now()
+  const now = helpers(knex).date.now
 
   return knex
     .select(knex.raw('avg(c) as count'))
@@ -412,7 +412,7 @@ function getLastRun() {
 
 function setLastRun() {
   return knex('analytics_runs')
-    .insert({ ts: helpers(knex).date.now() })
+    .insert({ ts: helpers(knex).date.now })
     .then(true)
 }
 

@@ -44,7 +44,7 @@ function scheduleToOutbox() {
 
   return knex('broadcast_schedules')
     .where({
-      outboxed: helpers(knex).bool.false()
+      outboxed: helpers(knex).bool.false
     })
     .andWhere(function() {
       this.where(function() {
@@ -95,7 +95,7 @@ function scheduleToOutbox() {
                 return knex('broadcast_schedules')
                   .where({ id: schedule.id })
                   .update({
-                    outboxed: helpers(knex).bool.true(),
+                    outboxed: helpers(knex).bool.true,
                     total_count: count
                   })
                   .then(() => {
@@ -158,7 +158,7 @@ function sendBroadcasts() {
 
   sendingLock = true
 
-  const isPast = helpers(knex).date.isBefore(knex.raw('"broadcast_outbox"."ts"'), helpers(knex).date.now())
+  const isPast = helpers(knex).date.isBefore(knex.raw('"broadcast_outbox"."ts"'), helpers(knex).date.now)
 
   knex('broadcast_outbox')
     .where(isPast)
@@ -213,7 +213,7 @@ function sendBroadcasts() {
             return knex('broadcast_schedules')
               .where({ id: row.scheduleId })
               .update({
-                errored: helpers(knex).bool.true()
+                errored: helpers(knex).bool.true
               })
               .then(() => {
                 return knex('broadcast_outbox')

@@ -27,10 +27,10 @@ module.exports = ({ db, internals = {} }) => {
       tableName: 'dialog_sessions',
       stateId,
       state: JSON.stringify(state),
-      now: helpers(knex).date.now()
+      now: helpers(knex).date.now
     }
 
-    const sql = helpers(knex).isLite()
+    const sql = helpers(knex).isLite
       ? `
         INSERT OR REPLACE INTO :tableName: (id, state, active_on)
         VALUES (:stateId, :state, :now)
@@ -58,10 +58,10 @@ module.exports = ({ db, internals = {} }) => {
       tableName: 'dialog_sessions',
       stateId,
       state: JSON.stringify(state),
-      now: helpers(knex).date.now()
+      now: helpers(knex).date.now
     }
 
-    const sql = helpers(knex).isLite()
+    const sql = helpers(knex).isLite
       ? `
         INSERT OR REPLACE INTO :tableName: (id, state, active_on, created_on)
         VALUES (:stateId, :state, :now, :now)
