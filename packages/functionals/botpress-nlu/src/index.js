@@ -103,6 +103,9 @@ module.exports = {
     }
 
     async function processEvent(event) {
+      // TODO: Perf
+      return
+
       if (['session_reset', 'bp_dialog_timeout'].includes(event.type)) {
         return
       }

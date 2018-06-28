@@ -28,22 +28,20 @@ const createMiddleware = (bp, middlewareName) => {
     }
   }
 
+  const eventConformity = {
+    type: value => typeof value === 'string',
+    platform: value => typeof value === 'string',
+    text: value => typeof value === 'string',
+    raw: () => true
+  }
+
   const dispatch = event => {
     if (!_.isPlainObject(event)) {
       throw new TypeError('Expected all dispatch arguments to be plain event objects')
     }
 
-    const conformity = {
-      type: value => typeof value === 'string',
-      platform: value => typeof value === 'string',
-      text: value => typeof value === 'string',
-      raw: () => true
-    }
-
-    if (!_.conformsTo(event, conformity)) {
-      throw new TypeError(
-        'Expected event to contain (type: string), ' + '(platform: string), (text: string), (raw: any)'
-      )
+    if (!_.conformsTo(event, eventConformity)) {
+      throw new TypeError('Expected event to contain (type: string), (platform: string), (text: string), (raw: any)')
     }
 
     // Provide botpress to the event handlers
@@ -81,6 +79,7 @@ module.exports = (bp, dataLocation, projectLocation, logger) => {
   const readCustomizations = () => {
     if (!fs.existsSync(middlewaresFilePath)) {
       fs.writeFileSync(middlewaresFilePath, '{}')
+      return {}
     }
     return JSON.parse(fs.readFileSync(middlewaresFilePath))
   }
@@ -201,7 +200,6 @@ module.exports = (bp, dataLocation, projectLocation, logger) => {
   }
 
   const sendToMiddleware = type => event => {
-    return
     const mw = type === 'incoming' ? incoming : outgoing
     return mw.dispatch ? mw.dispatch(event) : mw(event)
   }

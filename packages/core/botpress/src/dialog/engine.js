@@ -112,6 +112,9 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
    *                                  when the flow is done processing
    */
   async processMessage(stateId, event) {
+    // TODO: Perf
+    return
+
     try {
       if (!this.flowsLoaded) {
         await this.reloadFlows()

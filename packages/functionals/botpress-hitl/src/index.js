@@ -11,6 +11,9 @@ let db = null
 let config = null
 
 const incomingMiddleware = (event, next) => {
+  // TODO: Perf
+  return
+
   if (!db) {
     return next()
   }
