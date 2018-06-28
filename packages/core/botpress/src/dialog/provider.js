@@ -1,6 +1,4 @@
 import path from 'path'
-import fs from 'fs'
-import glob from 'glob'
 import _ from 'lodash'
 import Promise from 'bluebird'
 import EventEmitter2 from 'eventemitter2'
