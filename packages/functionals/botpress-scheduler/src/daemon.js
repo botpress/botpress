@@ -28,7 +28,8 @@ const createDaemon = bp => {
       return
     }
 
-    const fn = new Function('bp', 'task', expired.action)
+    const AsyncFunction = eval('Object.getPrototypeOf(async function() {}).constructor') // eslint-disable-line no-eval
+    const fn = new AsyncFunction('bp', 'task', expired.action)
 
     bp.events.emit('scheduler.update')
     bp.events.emit('scheduler.started', expired)
