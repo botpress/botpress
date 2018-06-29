@@ -20,12 +20,6 @@ const BASIC_MENU_ITEMS = [
     rule: { res: 'bot.information', op: 'read' },
     icon: 'dashboard'
   },
-  {
-    name: 'Modules',
-    path: '/manage',
-    rule: { res: 'bot.modules.list', op: 'read' },
-    icon: 'build'
-  },
   window.GHOST_ENABLED && {
     name: 'Version Control',
     path: 'version-control',
