@@ -98,8 +98,8 @@ module.exports = ({ logger, middlewares, db, contentManager, botfile }) => {
     return Engine({ rendererFn, rendererName, context, options, processors, incomingEvent })
   }
 
-  const doSendContent = (rendererFn, { rendererName, context, outputPlatform, incomingEvent }) => {
-    const messages = invoke({ rendererFn, rendererName, context, outputPlatform, incomingEvent })
+  const doSendContent = async (rendererFn, { rendererName, context, outputPlatform, incomingEvent }) => {
+    const messages = await invoke({ rendererFn, rendererName, context, outputPlatform, incomingEvent })
 
     return Promise.mapSeries(messages, message => {
       if (message.__internal) {
