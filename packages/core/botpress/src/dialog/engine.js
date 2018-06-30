@@ -409,7 +409,6 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
   }
 
   async _processNode(stateId, userState, context, nodeName, event) {
-    // return
     let switchedFlow = false
     let switchedNode = false
 
@@ -424,7 +423,7 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
       this._trace('>>', 'FLOW', `"${nodeName}"`, context, null)
       context = this._gotoSubflow(nodeName, context)
       switchedFlow = true
-    } else if (/^#/.test(nodeName)) {
+    } else if (nodeName && nodeName[0] === '#') {
       // e.g. '#success'
       this._trace('<<', 'FLOW', `"${nodeName}"`, context, null)
       context = this._gotoPreviousFlow(nodeName, context)
@@ -466,7 +465,6 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
          Current flow: ${context.currentFlow.name}
          Current node: ${context.node}`
         )
-        return this._endFlow(stateId)
       }
 
       await this._setContext(stateId, context)
@@ -676,10 +674,11 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
         name = _.first(chunks)
         try {
           args = JSON.parse(argsStr)
+          const actionCtx = { state: userState, s: userState, event: event, e: event }
           args = _.mapValues(args, value => {
             if (_.isString(value) && value.startsWith('{{') && value.endsWith('}}')) {
               const key = value.substr(2, value.length - 4)
-              return _.get({ state: userState, s: userState, event: event, e: event }, key)
+              return _.get(actionCtx, key)
             }
             return value
           })
@@ -750,7 +749,7 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
 
     const node = _.find(flow.nodes, { name: nodeName })
 
-    if (throwIfNotFound && !nodeName) {
+    if (throwIfNotFound && !node) {
       throw new Error(`Could not find node "${nodeName}" in flow "${flow.name}"`)
     }
 
