@@ -9,7 +9,7 @@ module.exports = {
 
       const additionalData = { state: state }
 
-      if (/{{/i.test(rendered)) {
+      if (rendered.includes('{{')) {
         rendered = Mustache.render(rendered, {
           ...state,
           event: _.pick(originalEvent, ['raw', 'text', 'type', 'platform', 'user']),
@@ -20,10 +20,10 @@ module.exports = {
         })
       }
 
-      if (/^{.+}$/.test(rendered)) {
+      if (/^{.*}$/.test(rendered)) {
         // Check if it's JSON
         Object.assign(additionalData, JSON.parse(rendered))
-      } else if (!_.isEmpty(rendered)) {
+      } else if (rendered) {
         Object.assign(additionalData, { text: rendered })
       }
 
