@@ -7,8 +7,8 @@ import Promise from 'bluebird'
 module.exports = ({ db, botfile, middlewares }) => {
   let intervalRef = null
 
-  const defaultJanitorInterval = ms(_.get(botfile, 'dialogs.janitorInterval') || '30s')
-  const defaultTimeout = ms(_.get(botfile, 'dialogs.timeoutInterval') || '15m')
+  const defaultJanitorInterval = ms(_.get(botfile, 'dialogs.janitorInterval', '30s'))
+  const defaultTimeout = ms(_.get(botfile, 'dialogs.timeoutInterval', '15m'))
 
   const checkStaleSessions = async () => {
     const knex = await db.get()
@@ -27,22 +27,23 @@ module.exports = ({ db, botfile, middlewares }) => {
     return Promise.map(sessions, session => {
       let platform = 'botpress'
       const props = {}
+      const sessionId = session.id
 
-      if (session.id.includes(':')) {
-        const chunks = session.id.split(':')
+      if (sessionId.includes(':')) {
+        const chunks = sessionId.split(':')
         platform = _.head(chunks)
         const userId = _.tail(chunks).join(':')
         props.user = { id: userId }
       }
 
       return middlewares.sendIncoming(
-        _.merge(
+        Object.assign(
           {
-            platform: platform,
+            platform,
             type: 'bp_dialog_timeout',
-            raw: { sessionId: session.id },
-            text: session.id,
-            sessionId: session.id
+            raw: { sessionId },
+            text: sessionId,
+            sessionId
           },
           props
         )
@@ -50,9 +51,7 @@ module.exports = ({ db, botfile, middlewares }) => {
     })
   }
 
-  const run = async () => {
-    await checkStaleSessions()
-  }
+  const run = () => checkStaleSessions()
 
   const uninstall = () => {
     if (intervalRef) {
