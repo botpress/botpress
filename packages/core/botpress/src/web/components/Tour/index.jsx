@@ -55,7 +55,7 @@ export default class GuidedTour extends React.Component {
   }
 
   renderNextButton() {
-    const buttonText = this.state.step < STEPS_COUNT - 1 ? 'Next' : "Let's start !"
+    const buttonText = this.state.step < STEPS_COUNT - 1 ? 'Next' : "Let's start!"
     return (
       <Button onClick={this.handleNext} bsStyle="success">
         {buttonText}
@@ -69,18 +69,18 @@ export default class GuidedTour extends React.Component {
         <p>{emojify(':tada:', 100)}</p>
         <p className={style.big}>Congratulations on choosing Botpress for your next bot!</p>
         <p>
-          Botpress is the most effective way for developers to create a bot. This very short tour will help you get
+          Botpress is the most effective way for developers to create bots. This tour will help you get
           started quickly.
         </p>
         <hr />
         <p>
-          First, you should know that a Botpress bot is just a regular Node.js application. There is no black magic, and
-          everything your bot does is done either through code you write or done for you by pre-made modules (thanks to
+          First, you should know that a Botpress bot is just a regular Node.js app. There is no black magic, and
+          everything your bot does is done either through the code you write or done for you by pre-made modules (thanks to
           our awesome community).
         </p>
         <p>
           By default, your bot's entry point is the <code>index.js</code> file, but you can arrange your code base as
-          you wish. Again, <span className={style.emp}>your bot is just a regular node program.</span>
+          you wish. Again, <span className={style.emp}>your bot is just a regular Node.js program.</span>
         </p>
       </div>
     )
@@ -93,14 +93,14 @@ export default class GuidedTour extends React.Component {
         <p className={style.big}>There's a module for that.</p>
         <p>Whenever there's a piece of functionality that you need for your bot, think modules.</p>
         <hr />
-        <p>You can install modules via this graphical interface or from the command line interface.</p>
+        <p>You can install modules via this graphical interface or from the command-line interface.</p>
         <p>
           If there's no module for the generic feature you are looking for, please consider creating one or contributing
           to an existing module to add that feature. Botpress relies heavily on the community to thrive. Every single
           contribution is needed, even if it's tiny {emojify(':blush:')}!
         </p>
         <p>
-          Installing a module from the CLI is as simple as typing <code>npm install --save botpress-messenger</code>
+          Installing a module from the command-line is as simple as typing <code>npm install botpress-messenger</code>
         </p>
       </div>
     )
@@ -114,10 +114,10 @@ export default class GuidedTour extends React.Component {
         <ul className={style.left}>
           <li>
             We recommend you{' '}
-            <a target="_blank" href="https://botpress.io/docs/foundamentals/database.html#postgres">
+            <a target="_blank" href="https://botpress.io/docs/getting_started/trivia_deploying/#using-postgres-as-the-database">
               enable the Postgres database
             </a>{' '}
-            for production environments
+            for production environments.
           </li>
           <li>
             Do <strong>not</strong> store keys, passwords or any sensitive information in your botfile. Use environment
@@ -130,7 +130,7 @@ export default class GuidedTour extends React.Component {
         </ul>
         <p>
           Deployment tutorials are{' '}
-          <a href="https://botpress.io/docs/deploy/heroku/" target="_blank">
+          <a href="https://botpress.io/docs/getting_started/trivia_deploying/#deploying-to-self-hosted-server" target="_blank">
             available here.
           </a>
         </p>
@@ -149,7 +149,7 @@ export default class GuidedTour extends React.Component {
     return (
       <Modal show={!this.state.finished && this.props.opened} onHide={this.handleClose} backdrop="static">
         <Modal.Header>
-          <Modal.Title>Welcome on Botpress !</Modal.Title>
+          <Modal.Title>Welcome to Botpress!</Modal.Title>
         </Modal.Header>
         <Modal.Body className={bodyStyle}>{this.renderCurrentStep()}</Modal.Body>
         <Modal.Footer>
