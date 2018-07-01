@@ -102,86 +102,46 @@ These instructions assume a parent directory `bar` and we will be adding two chi
     # Clone the forked repo locally
     bar $ git clone https://github.com/YOURNAME/botpress.git
     ```
-3. Determine if you are going to use `yarn` (recommended) or `npm` for package management
 
-*Yarn (recommended)*
+3. Continue running commands in the **botpress terminal window**
 
-4. Continue running commands in the **botpress terminal window**
     ```shell
-    # Install lerna
-    bar $ cd botpress && yarn install && cd ..
-    # Install the dependencies
-    bar $ ./node_modules/.bin/lerna bootstrap
-    # Build all the packages
-    bar $ ./node_modules/.bin/lerna run compile
-    # Navigate into your local botpress folder
-    bar $ cd botpress/packages/core/botpress
-    # Compile and run the botpress server
-    bar/botpress/packages/core/botpress $ yarn run watch
+    # Install Yarn globally
+    bar $ npm install --global yarn
+
+    # Navigate to the botpress directory
+    bar $ cd botpress
+
+    # Setup the dev environment
+    bar/botpress $ yarn run bootstrap
+
+    # Start the botpress server
+    bar/botpress $ yarn start
     ```
-5. Open a new terminal/CLI tab (**foobot**), and run commands
+
+4. Open a new terminal/CLI tab (**foobot**), and run commands
+
     ```shell
-    # navigate to the botpress  botpress directory
-    $ cd bar/botpress/packages/core/botpress
-    # link botpress
-    bar/botpress/packages/core/botpress $ yarn link
-    # navigate to bar
-    bar/botpress/packages/core/botpress $ cd ../../../..
-    # create the foobot our test bot
-    bar $ node ./botpress/packages/core/botpress/bin/botpress init foobot
-    # enter the project information at the prompts
-    # navigate into the foobot directory
+    # Create our test bot called `foobot`
+    bar $ yarn --cwd=botpress run init-foobot
+
+    # Navigate to the foobot directory
     bar $ cd foobot
-    # link foobot to our local copy of botpress
-    bar/foobot $ yarn link botpress
-    # start the bot normally
-    bar/foobot $ bp start
-    ```
 
-*NPM*
-
-4. Continue running commands in the **botpress terminal window**
-    ```shell
-    # Install lerna
-    bar $ cd botpress && npm install && cd ..
-    # Install the dependencies
-    bar $ ./node_modules/.bin/lerna bootstrap
-    # Build all the packages
-    bar $ ./node_modules/.bin/lerna run compile
-    # Navigate into your local botpress folder
-    bar $ cd botpress/packages/core/botpress
-    # Compile and run the botpress server
-    bar/botpress/packages/core/botpress $ npm run watch
-    ```
-5. Open a new terminal/CLI tab (**foobot**), and run commands
-    ```shell
-    # navigate to the botpress  botpress directory
-    $ cd bar/botpress/packages/core/botpress
-    # link botpress
-    bar/botpress/packages/core/botpress $ yarn link
-    # navigate to bar
-    bar/botpress/packages/core/botpress $ cd ../../../..
-    # create the foobot our test bot
-    bar $ node ./botpress/packages/core/botpress/bin/botpress init foobot
-    # enter the project information at the prompts
-    # navigate into the foobot directory
-    bar $ cd foobot
-    # link foobot to our local copy of botpress
-    bar/foobot $ npm link botpress
-    # start the bot normally
+    # Start the bot normally
     bar/foobot $ bp start
     ```
 
 *Next Steps*
 
-6. You will note that if you want to access the CLI while `botpress` and `foobot` are running, you will need to open a third tab.
-7. If you want to confirm that your local copy is working, a straightforward method is to make a change to botpress's React code on your local copy, restart both botpress and foobot
+5. You will note that if you want to access the CLI while `botpress` and `foobot` are running, you will need to open a third tab.
+6. If you want to confirm that your local copy is working, a straightforward method is to make a change to botpress's React code on your local copy, restart both botpress and foobot
   - edit code in botpress
   - in: **botpress terminal window**
     ```shell
     # Ctl-C to end watch
-    # start botpress using yarn or npm
-    bar/botpress $ yarn run watch
+    # Start botpress
+    bar/botpress $ yarn start
     ```
   - in: **foobot terminal window**
     ```shell
