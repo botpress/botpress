@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import Promise from 'bluebird'
-import { VM } from 'vm2'
+import { VM, VMScript } from 'vm2'
 import mware from 'mware'
 
 const loggerShim = { debug: () => {} }
@@ -13,6 +13,8 @@ const TRUEISH_WORDS = {
   yes: true
 }
 
+const compileExp = _.memoize(expr => new VMScript(expr))
+
 /** The Dialog Engine (or Dialog Manager) is the component that
  handles the flow logic. It it responsible for executing flows, including
  executing the actions and flowing to the nodes, redirections etc.
@@ -24,7 +26,7 @@ class DialogEngine {
   constructor({ flowProvider, stateManager, options, logger = loggerShim }) {
     Object.assign(this, { logger, flowProvider, stateManager })
 
-    this.flowsLoaded = false
+    this._flowsLoadingPromise = null
     this.flows = []
     this.defaultFlow = _.get(options, 'defaultFlow') || 'main.flow.json'
     this.outputProcessors = []
@@ -108,7 +110,10 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
      */
     this.onBeforeSessionTimeout = mware()
 
-    flowProvider.on('flowsChanged', () => Object.assign(this, { flows: [], flowsLoaded: false }))
+    flowProvider.on('flowsChanged', () => {
+      this._flowsLoadingPromise = null
+      this.flows = []
+    })
   }
 
   async _processMessage(stateId, event) {
@@ -208,7 +213,7 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
 
     await this.loadFlows()
 
-    const flow = this._findFlow(flowName, true)
+    const flow = await this._findFlow(flowName, true)
 
     if (nodeName) {
       // We're just calling for throwing if doesn't exist
@@ -257,13 +262,15 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
     return this._endFlow(stateId)
   }
 
-  async loadFlows() {
-    if (this.flowsLoaded) {
-      return
+  loadFlows() {
+    if (!this._flowsLoadingPromise) {
+      this._trace('**', 'LOAD', '')
+      this._flowsLoadingPromise = this.flowProvider.loadAll().then(flows => {
+        this.flows = flows
+      })
     }
-    this._trace('**', 'LOAD', '')
-    this.flows = await this.flowProvider.loadAll()
-    this.flowsLoaded = true
+
+    return this._flowsLoadingPromise
   }
 
   async getFlows() {
@@ -395,7 +402,7 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
     const currentNodeTimeout = _.get(DialogEngine._findNode(context.currentFlow, context.node), 'timeoutNode')
     const currentFlowTimeout = _.get(context, 'currentFlow.timeoutNode')
     const fallbackTimeoutNode = DialogEngine._findNode(context.currentFlow, 'timeout')
-    const fallbackTimeoutFlow = this._findFlow('timeout.flow.json')
+    const fallbackTimeoutFlow = await this._findFlow('timeout.flow.json')
 
     if (currentNodeTimeout) {
       this._trace('<>', 'SNDE', '', context)
@@ -419,32 +426,28 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
 
   async _processNode(stateId, userState, context, nodeName, event) {
     let switchedFlow = false
-    let switchedNode = false
-
-    if (context.hasJumped) {
-      context.hasJumped = false
-      switchedNode = true
-    }
+    let switchedNode = context.hasJumped
+    context = { ...context, hasJumped: false }
 
     const originalFlow = context.currentFlow.name
 
     if (callSubflowRegex.test(nodeName)) {
       this._trace('>>', 'FLOW', `"${nodeName}"`, context, null)
-      context = this._gotoSubflow(nodeName, context)
+      context = await this._gotoSubflow(nodeName, context)
       switchedFlow = true
     } else if (nodeName && nodeName[0] === '#') {
       // e.g. '#success'
       this._trace('<<', 'FLOW', `"${nodeName}"`, context, null)
-      context = this._gotoPreviousFlow(nodeName, context)
+      context = await this._gotoPreviousFlow(nodeName, context)
       switchedFlow = true
     } else if (context.node !== nodeName) {
       this._trace('>>', 'FLOW', `"${nodeName}"`)
       switchedNode = true
-      context.node = nodeName
+      context = { ...context, node: nodeName }
     } else if (context.node == null) {
       // We just created the context
       switchedNode = true
-      context.node = context.currentFlow.startNode
+      context = { ...context, node: context.currentFlow.startNode }
     }
 
     const node = DialogEngine._findNode(context.currentFlow, context.node)
@@ -457,15 +460,19 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
     }
 
     if (switchedFlow || switchedNode) {
-      context.flowStack.push({
+      const flowStack = context.flowStack.concat({
         flow: context.currentFlow.name,
         node: context.node
       })
 
       // Flattens the stack to only include flow jumps, not node jumps
-      context.flowStack = context.flowStack.filter((el, i) => {
-        return i === context.flowStack.length - 1 || context.flowStack[i + 1].flow !== el.flow
-      })
+      context = {
+        ...context,
+        // Flattens the stack to only include flow jumps, not node jumps
+        flowStack: flowStack.filter((el, i) => {
+          return i === flowStack.length - 1 || flowStack[i + 1].flow !== el.flow
+        })
+      }
 
       if (context.flowStack.length >= MAX_STACK_SIZE) {
         throw new Error(
@@ -526,6 +533,8 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
           return this._processNode(stateId, userState, context, nextNodes[i].node, event)
         }
       }
+
+      return userState
     }
 
     if (!nextNodes.length) {
@@ -556,7 +565,7 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
     const beforeCtx = { stateId, flowName: this.defaultFlow }
     await Promise.fromCallback(callback => this.onBeforeCreated.run(beforeCtx, callback))
 
-    const flow = this._findFlow(beforeCtx.flowName, true)
+    const flow = await this._findFlow(beforeCtx.flowName, true)
 
     if (!flow) {
       throw new Error(`Could not find the default flow "${this.defaultFlow}"`)
@@ -582,10 +591,10 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
     return this.stateManager.setState(stateId + '___context', state)
   }
 
-  _gotoSubflow(nodeName, context) {
+  async _gotoSubflow(nodeName, context) {
     const [, subflow, subflowNode] = nodeName.match(callSubflowRegex)
 
-    const flow = this._findFlow(subflow, true)
+    const flow = await this._findFlow(subflow, true)
 
     return {
       ...context,
@@ -594,32 +603,35 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
     }
   }
 
-  _gotoPreviousFlow(nodeName, context) {
+  async _gotoPreviousFlow(nodeName, context) {
     if (!context.flowStack) {
-      context.flowStack = []
-    }
-
-    while (context.currentFlow.name === _.get(_.last(context.flowStack), 'flow')) {
-      context.flowStack.pop()
+      context = { ...context, flowStack: [] }
+    } else {
+      const flowStack = [...context.flowStack]
+      const currentFlow = context.currentFlow.name
+      while (_.get(_.last(flowStack), 'flow') === currentFlow) {
+        flowStack.pop()
+      }
+      context = { ...context, flowStack }
     }
 
     if (context.flowStack.length < 1) {
       this._trace('Flow tried to go back to previous flow but there was none. Exiting flow.', context, null)
       // TODO END FLOW
-    } else {
-      let { flow, node } = _.last(context.flowStack)
-
-      if (nodeName !== '#') {
-        node = nodeName.substr(1)
-      }
-
-      Object.assign(context, {
-        currentFlow: this._findFlow(flow, true),
-        node: node
-      })
+      return context
     }
 
-    return context
+    let { flow, node } = _.last(context.flowStack)
+
+    if (nodeName !== '#') {
+      node = nodeName.substr(1)
+    }
+
+    return {
+      ...context,
+      currentFlow: await this._findFlow(flow, true),
+      node
+    }
   }
 
   async _processInstructions(instructions, userState, event, context) {
@@ -731,7 +743,7 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
     vm.freeze(event, 'e')
 
     try {
-      return !!vm.run(condition)
+      return !!vm.run(compileExp(condition))
     } catch (err) {
       throw new Error(`ERROR evaluating condition "${condition}": ${err.message}`)
     }
@@ -751,8 +763,9 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
     return node
   }
 
-  _findFlow(flowName, throwIfNotFound = false) {
-    const flow = _.find(this.flows, { name: flowName })
+  async _findFlow(flowName, throwIfNotFound = false) {
+    const flows = await this.getFlows()
+    const flow = _.find(flows, { name: flowName })
 
     if (throwIfNotFound && !flow) {
       throw new Error(`Could not find flow "${flowName}"`)
