@@ -11,7 +11,7 @@ export default data => [
       title: card.title,
       image_url: card.image ? url.resolve(data.BOT_URL, card.image) : null,
       subtitle: card.subtitle,
-      buttons: card.actions.map(a => {
+      buttons: (card.actions || []).map(a => {
         if (a.action === 'Say something') {
           return {
             type: 'postback',
@@ -25,7 +25,7 @@ export default data => [
             url: a.url
           }
         } else if (a.action === 'Pick location') {
-          throw new Error('Messenger does not support picking location via carousels')
+          throw new Error('Messenger does not support "Pick location" action-buttons for carousels')
         }
       })
     })),
@@ -40,16 +40,16 @@ export default data => [
       title: card.title,
       picture: card.image ? url.resolve(data.BOT_URL, card.image) : null,
       subtitle: card.subtitle,
-      buttons: card.actions.map(a => {
+      buttons: (card.actions || []).map(a => {
         if (a.action === 'Say something') {
-          throw new Error('Webchat carousel does not support that feature at the moment')
+          throw new Error('Webchat carousel does not support "Say something" action-buttons at the moment')
         } else if (a.action === 'Open URL') {
           return {
             title: a.title,
             url: a.url
           }
         } else if (a.action === 'Pick location') {
-          throw new Error('Webchat carousel does not support that feature at the moment')
+          throw new Error('Webchat carousel does not support "Pick location" action-buttons at the moment')
         }
       })
     })),
@@ -63,7 +63,7 @@ export default data => [
         title: card.title,
         subtitle: card.subtitle,
         images: card.image ? [{ url: url.resolve(data.BOT_URL, card.image) }] : [],
-        buttons: card.actions.map(a => {
+        buttons: (card.actions || []).map(a => {
           if (a.action === 'Say something') {
             return {
               type: 'imBack',
@@ -77,7 +77,7 @@ export default data => [
               value: a.url
             }
           } else if (a.action === 'Pick location') {
-            throw new Error('Microsoft carousel does not support that feature at the moment')
+            throw new Error('Microsoft carousel does not support "Pick location" action-buttons at the moment')
           }
         })
       }
@@ -89,7 +89,7 @@ export default data => [
       title: card.title,
       image_url: card.image ? url.resolve(data.BOT_URL, card.image) : null,
       text: card.subtitle,
-      actions: card.actions.map(a => {
+      actions: (card.actions || []).map(a => {
         if (a.action === 'Say something') {
           return {
             name: 'press',
@@ -104,7 +104,7 @@ export default data => [
             url: a.url
           }
         } else if (a.action === 'Pick location') {
-          throw new Error('Slack carousel does not support that feature at the moment')
+          throw new Error('Slack carousel does not support "Pick location" action-buttons at the moment')
         }
       })
     }))
