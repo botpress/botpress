@@ -24,7 +24,9 @@ const compileExp = _.memoize(expr => new VMScript(expr))
  */
 class DialogEngine {
   constructor({ flowProvider, stateManager, options, logger }) {
-    Object.assign(this, { logger, flowProvider, stateManager })
+    this.logger = logger
+    this.flowProvider = flowProvider
+    this.stateManager = stateManager
 
     this._flowsLoadingPromise = null
     this.flows = []
@@ -204,12 +206,10 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
    * @param  {boolean} [options.resetState=false] Whether or not the state should be reset
    */
   async jumpTo(stateId, flowName, nodeName = null, options) {
-    options = Object.assign(
-      {
-        resetState: false
-      },
-      options
-    )
+    options = {
+      resetState: false,
+      ...options
+    }
 
     await this.loadFlows()
 
@@ -353,14 +353,14 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
         }
 
         handler = handler.handler
-        metadata = Object.assign({}, fnMap[name], { name, handler: null })
+        metadata = { ...fnMap[name], name, handler: null }
       }
 
       for (const provider of this.actionMetadataProviders) {
         const extra = provider(name)
 
         if (extra) {
-          metadata = Object.assign({}, extra, metadata || {})
+          metadata = { ...extra, ...metadata }
           break
         }
       }
@@ -390,7 +390,7 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
   getAvailableActions() {
     return _.values(this.actions)
       .filter(x => !String(x.name).startsWith('__'))
-      .map(x => Object.assign({}, x, { fn: null }))
+      .map(x => ({ ...x, fn: null }))
   }
 
   onError = fn => this.errorHandlers.push(fn)
@@ -600,7 +600,7 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
     } else {
       const flowStack = [...context.flowStack]
       const currentFlow = context.currentFlow.name
-      while (_.get(_.last(flowStack), 'flow') === currentFlow) {
+      while (flowStack[flowStack.length - 1].flow === currentFlow) {
         flowStack.pop()
       }
       context = { ...context, flowStack }
@@ -631,25 +631,26 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
     }
 
     await Promise.mapSeries(instructions, async instruction => {
-      if (_.isString(instruction) && instruction.startsWith('say ')) {
-        const chunks = instruction.split(' ')
-        if (chunks.length < 2) {
-          this.trace('ERROR Invalid text instruction. Expected an instruction along "say #text Something"')
-          return userState
-        }
-
-        await this._dispatchOutput(
-          {
-            type: chunks[1], // e.g. "#text" or "#!trivia-12342"
-            value: chunks.slice(2).join(' ') // e.g. Any additional parameter provided to the template
-          },
-          userState,
-          event,
-          context
-        )
-      } else {
+      if (!_.isString(instruction) || !instruction.startsWith('say ')) {
         userState = await this._invokeAction(instruction, userState, event, context)
+        return
       }
+
+      const chunks = instruction.split(' ')
+      if (chunks.length < 2) {
+        this.trace('ERROR Invalid text instruction. Expected an instruction along "say #text Something"')
+        return
+      }
+
+      await this._dispatchOutput(
+        {
+          type: chunks[1], // e.g. "#text" or "#!trivia-12342"
+          value: chunks.slice(2).join(' ') // e.g. Any additional parameter provided to the template
+        },
+        userState,
+        event,
+        context
+      )
     })
 
     return userState
