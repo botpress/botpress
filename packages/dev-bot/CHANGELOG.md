@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.21.0"></a>
+# [10.21.0](https://github.com/botpress/botpress/compare/v10.17.2...v10.21.0) (2018-07-03)
+
+
+### Features
+
+* **cloud-roles:** hide skill edit button based on perm ([492377e](https://github.com/botpress/botpress/commit/492377e))
+* **logs:** store logs in the database ([2a8031a](https://github.com/botpress/botpress/commit/2a8031a))
+
+
+### BREAKING CHANGES
+
+* **logs:** it fails on the old botfile
+and requires manual migration.
+It also ignores the old log files.
+
+
+
+
 <a name="10.20.1"></a>
 ## [10.20.1](https://github.com/botpress/botpress/compare/v10.20.0...v10.20.1) (2018-06-21)
 
