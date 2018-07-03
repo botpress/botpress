@@ -1,11 +1,9 @@
 # @botpress/broadcast
 
-## X: Migrated. Requires documentation update.
-
 ## Get started
 
 ```
-botpress install broadcast
+npm install @botpress/broadcast
 ```
 
 The broadcast module should now be available in your bot UI, and the APIs exposed.
@@ -14,23 +12,11 @@ The broadcast module should now be available in your bot UI, and the APIs expose
 
 ### Send according to Users timezone
 
-You can decide wether the scheduled time is abolute to the bot's time or to individual users. If no timezone information available for the user, GMT is chosen.
-
-### Send as JavaScript snippet
-
-Instead of sending text, you can decide the behavior of the sending function and do basically anything. The function will be called for every message (so for every user).
-
-Variables exposed:
-
-- `bp` botpress instance
-- `userId` the userId to send the message to
-- `platform` the platform on which the user is on
-
-The built-in Facebook Messenger snippets are example of JavaScript execution (see UI).
+You can decide whether the scheduled time is absolute to the bot's time or to individual users. If no timezone information available for the user, GMT is chosen.
 
 ### Filtering
 
-You can apply filters to the broadcasts. Filters are small JavaScript functions that will be evaluated before sending the broadcast to a user. The condition is called for every users the broadcast is scheduled to.
+You can apply filters to the broadcasts. Filters are small JavaScript functions that will be evaluated before sending the broadcast to a user. The condition is called for every user the broadcast is scheduled to. You can add multiple filter functions and user will be filtered out if at least one of them returns `false`.
 
 Variables exposed to the filter function:
 - `bp` botpress instance
@@ -46,7 +32,7 @@ The function needs to return a **boolean** or a **Promise of a boolean**.
 ##### Send a message only to users on Facebook
 
 ```js
-["platform === 'facebook'"]
+"platform === 'facebook'"
 ```
 
 ##### Send a message only to subscribed users
@@ -56,7 +42,7 @@ The function needs to return a **boolean** or a **Promise of a boolean**.
 ```js
 // in your bot's index.js
 
-bp.isUserSubscribed = (userId, platform) => {
+bp.isUserSubscribed = userId => {
   return bp.db.get()
   .then(knex =>
     knex('subscriptions')
@@ -68,7 +54,7 @@ bp.isUserSubscribed = (userId, platform) => {
 ```
 
 ```js
-["bp.isUserSubscribed(userId)"]
+bp.isUserSubscribed(userId)
 ```
 
 ## Roadmap
