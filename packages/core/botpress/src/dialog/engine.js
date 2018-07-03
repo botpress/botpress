@@ -397,7 +397,7 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
 
   async _processTimeout(stateId, userState, context, event) {
     const beforeCtx = { stateId }
-    // await Promise.fromCallback(callback => this.onBeforeSessionTimeout.run(beforeCtx, callback))
+    await Promise.fromCallback(callback => this.onBeforeSessionTimeout.run(beforeCtx, callback))
 
     const currentNodeTimeout = _.get(DialogEngine._findNode(context.currentFlow, context.node), 'timeoutNode')
     const currentFlowTimeout = _.get(context, 'currentFlow.timeoutNode')
@@ -486,7 +486,7 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
         await this._setContext(stateId, context)
 
         const beforeCtx = { stateId, node }
-        // await Promise.fromCallback(callback => this.onBeforeNodeEnter.run(beforeCtx, callback))
+        await Promise.fromCallback(callback => this.onBeforeNodeEnter.run(beforeCtx, callback))
 
         if (node.onEnter) {
           this._trace('!!', 'ENTR', '', context, userState)
@@ -538,7 +538,7 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
 
   async _endFlow(stateId) {
     const beforeCtx = { stateId }
-    // await Promise.fromCallback(callback => this.onBeforeEnd.run(beforeCtx, callback))
+    await Promise.fromCallback(callback => this.onBeforeEnd.run(beforeCtx, callback))
 
     this._trace('--', 'ENDF', '', null, null)
     await this.stateManager.deleteState(stateId, ['context'])
@@ -554,7 +554,7 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
     }
 
     const beforeCtx = { stateId, flowName: this.defaultFlow }
-    // await Promise.fromCallback(callback => this.onBeforeCreated.run(beforeCtx, callback))
+    await Promise.fromCallback(callback => this.onBeforeCreated.run(beforeCtx, callback))
 
     const flow = await this._findFlow(beforeCtx.flowName, true)
 
@@ -569,7 +569,7 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
 
     await this._setContext(stateId, state)
 
-    // await Promise.fromCallback(callback => this.onAfterCreated.run({ ...beforeCtx }, callback))
+    await Promise.fromCallback(callback => this.onAfterCreated.run({ ...beforeCtx }, callback))
 
     return state
   }
