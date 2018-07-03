@@ -1,6 +1,6 @@
 {
   "name": "botpress-dev-bot",
-  "version": "10.21.0",
+  "version": "10.22.0",
   "main": "src/index.js",
   "description": "Botpress development bot",
   "private": true,
@@ -8,14 +8,14 @@
     "node": ">= 6.1 <= 8.9"
   },
   "dependencies": {
-    "@botpress/audience": "^10.21.0",
-    "@botpress/builtins": "^10.21.0",
-    "@botpress/channel-web": "^10.21.0",
-    "@botpress/hitl": "^10.21.0",
-    "@botpress/nlu": "^10.21.0",
-    "@botpress/qna": "^10.21.0",
-    "@botpress/skill-choice": "^10.21.0",
-    "botpress": "^10.21.0",
+    "@botpress/audience": "^10.22.0",
+    "@botpress/builtins": "^10.22.0",
+    "@botpress/channel-web": "^10.22.0",
+    "@botpress/hitl": "^10.22.0",
+    "@botpress/nlu": "^10.22.0",
+    "@botpress/qna": "^10.22.0",
+    "@botpress/skill-choice": "^10.22.0",
+    "botpress": "^10.22.0",
     "jsdoc-api": "^4.0.3",
     "lodash": "^4.17.10",
     "yn": "^2.0.0"
