@@ -1,16 +1,16 @@
 import Promise from 'bluebird'
-import moment from 'moment'
 import _ from 'lodash'
 import { DatabaseHelpers as helpers } from 'botpress'
 
 let knex = null
+let dbHelpers = null
 
 function initialize() {
   if (!knex) {
     throw new Error('you must initialize the database before')
   }
 
-  return helpers(knex)
+  return dbHelpers
     .createTableIfNotExists('hitl_sessions', function(table) {
       table.increments('id').primary()
       table.string('platform')
@@ -23,7 +23,7 @@ function initialize() {
       table.string('paused_trigger')
     })
     .then(function() {
-      return helpers(knex).createTableIfNotExists('hitl_messages', function(table) {
+      return dbHelpers.createTableIfNotExists('hitl_messages', function(table) {
         table.increments('id').primary()
         table
           .integer('session_id')
@@ -55,8 +55,8 @@ function createUserSession(event) {
     platform: event.platform,
     userId: event.user.id,
     user_image_url: profileUrl,
-    last_event_on: helpers(knex).date.now(),
-    last_heard_on: helpers(knex).date.now(),
+    last_event_on: dbHelpers.date.now,
+    last_heard_on: dbHelpers.date.now,
     paused: 0,
     full_name: full_name,
     paused_trigger: null
@@ -65,24 +65,20 @@ function createUserSession(event) {
   return knex('hitl_sessions')
     .insert(session)
     .returning('id')
-    .then(results => {
-      session.id = results[0]
-      session.is_new_session = true
-    })
-    .then(() =>
+    .then(([id]) =>
       knex('hitl_sessions')
-        .where({ id: session.id })
+        .where({ id })
         .then()
         .get(0)
     )
-    .then(db_session => Object.assign({}, session, db_session))
+    .then(dbSession => Object.assign({ is_new_session: true }, dbSession))
 }
 
-async function getUserSession(event) {
+const getUserSession = event => {
   const userId = (event.user && event.user.id) || event.raw.to
 
   if (!userId) {
-    return null
+    return Promise.resolve(null)
   }
 
   return knex('hitl_sessions')
@@ -98,8 +94,8 @@ async function getUserSession(event) {
     })
 }
 
-function getSession(sessionId) {
-  return knex('hitl_sessions')
+const getSession = sessionId =>
+  knex('hitl_sessions')
     .where({ id: sessionId })
     .select('*')
     .limit(1)
@@ -110,62 +106,63 @@ function getSession(sessionId) {
         return users[0]
       }
     })
-}
 
-function toPlainObject(object) {
-  // trims SQL queries from objects
-  return _.mapValues(object, v => {
+// trims SQL queries from objects
+const toPlainObject = object =>
+  _.mapValues(object, v => {
     return v.sql ? v.sql : v
   })
+
+const buildUpdate = direction => {
+  const now = dbHelpers.date.now
+  return direction === 'in'
+    ? { last_event_on: now }
+    : {
+        last_event_on: now,
+        last_heard_on: now
+      }
 }
 
-function appendMessageToSession(event, sessionId, direction) {
+const appendMessageToSession = (event, sessionId, direction) => {
   const message = {
     session_id: sessionId,
     type: event.type,
     text: event.text,
     raw_message: event.raw,
     direction: direction,
-    ts: helpers(knex).date.now()
+    ts: dbHelpers.date.now
   }
 
-  const update = { last_event_on: helpers(knex).date.now() }
+  return Promise.join(
+    knex('hitl_messages').insert(message),
+    knex('hitl_sessions')
+      .where({ id: sessionId })
+      .update(buildUpdate(direction)),
+    () => toPlainObject(message)
+  )
+}
 
-  if (direction === 'in') {
-    update.last_heard_on = helpers(knex).date.now()
+const setSessionPaused = (paused, platform, userId, trigger, sessionId = null) => {
+  if (sessionId) {
+    return knex('hitl_sessions')
+      .where({ id: sessionId })
+      .update({ paused: dbHelpers.bool.build(paused), paused_trigger: trigger })
+      .then(() => parseInt(sessionId))
   }
 
-  return knex('hitl_messages')
-    .insert(message)
+  return knex('hitl_sessions')
+    .where({ userId, platform })
+    .update({ paused: paused ? 1 : 0, paused_trigger: trigger })
     .then(() => {
       return knex('hitl_sessions')
-        .where({ id: sessionId })
-        .update(update)
-        .then(() => toPlainObject(message))
+        .where({ userId, platform })
+        .select('id')
     })
+    .then(sessions => parseInt(sessions[0].id))
 }
 
-function setSessionPaused(paused, platform, userId, trigger, sessionId = null) {
-  if (sessionId) {
-    return knex('hitl_sessions')
-      .where({ id: sessionId })
-      .update({ paused: paused ? 1 : 0, paused_trigger: trigger })
-      .then(() => parseInt(sessionId))
-  } else {
-    return knex('hitl_sessions')
-      .where({ userId, platform })
-      .update({ paused: paused ? 1 : 0, paused_trigger: trigger })
-      .then(() => {
-        return knex('hitl_sessions')
-          .where({ userId, platform })
-          .select('id')
-      })
-      .then(sessions => parseInt(sessions[0].id))
-  }
-}
-
-function isSessionPaused(platform, userId, sessionId = null) {
-  const toBool = s => helpers(knex).bool.parse(s)
+const isSessionPaused = (platform, userId, sessionId = null) => {
+  const toBool = s => dbHelpers.bool.parse(s)
 
   if (sessionId) {
     return knex('hitl_sessions')
@@ -184,11 +181,11 @@ function isSessionPaused(platform, userId, sessionId = null) {
   }
 }
 
-function getAllSessions(onlyPaused) {
+const getAllSessions = onlyPaused => {
   let condition = ''
 
   if (onlyPaused === true) {
-    condition = 'hitl_sessions.paused = ' + helpers(knex).bool.true()
+    condition = 'hitl_sessions.paused = ' + dbHelpers.bool.true
   }
 
   return knex
@@ -210,18 +207,18 @@ function getAllSessions(onlyPaused) {
     }))
 }
 
-function getSessionData(sessionId) {
-  return knex('hitl_sessions')
+const getSessionData = sessionId =>
+  knex('hitl_sessions')
     .where({ session_id: sessionId })
     .join('hitl_messages', 'hitl_messages.session_id', 'hitl_sessions.id')
     .orderBy('hitl_messages.id', 'desc')
     .limit(100)
     .select('*')
     .then(messages => _.orderBy(messages, ['id'], ['asc']))
-}
 
 module.exports = k => {
   knex = k
+  dbHelpers = helpers(knex)
 
   return {
     initialize,

@@ -148,14 +148,12 @@ module.exports = ({ logger, middlewares, db, contentManager, botfile }) => {
       Object.assign(initialData, _.isArray(contentItem.data) ? { items: contentItem.data } : contentItem.data)
     }
 
-    const fullContext = Object.assign(
-      initialData,
-      {
-        user: incomingEvent.user,
-        event: _.pick(incomingEvent, ['raw', 'text', 'type', 'platform', 'user'])
-      },
-      additionalData
-    )
+    const fullContext = {
+      ...initialData,
+      user: incomingEvent.user,
+      event: _.pick(incomingEvent, ['raw', 'text', 'type', 'platform', 'user']),
+      ...additionalData
+    }
 
     const renderer = renderers[rendererName]
 

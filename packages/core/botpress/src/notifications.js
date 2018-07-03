@@ -26,9 +26,9 @@ const notifications = ({ knex, modules, logger, events }) => {
     module_icon: notification.icon,
     module_name: notification.name,
     redirect_url: notification.url,
-    created_on: helpers(knex).date.now(),
-    read: helpers(knex).bool.false(),
-    archived: helpers(knex).bool.false()
+    created_on: helpers(knex).date.now,
+    read: helpers(knex).bool.false,
+    archived: helpers(knex).bool.false
   })
 
   const fromDatabase = (knex, row) => ({
@@ -54,7 +54,7 @@ const notifications = ({ knex, modules, logger, events }) => {
   const markAsRead = async notificationId =>
     knex('notifications')
       .where({ id: notificationId })
-      .update({ read: helpers(knex).bool.true() })
+      .update({ read: helpers(knex).bool.true })
       .then()
 
   /**
@@ -63,7 +63,7 @@ const notifications = ({ knex, modules, logger, events }) => {
    */
   const markAllAsRead = async () =>
     knex('notifications')
-      .update({ read: helpers(knex).bool.true() })
+      .update({ read: helpers(knex).bool.true })
       .then()
 
   /**
@@ -72,7 +72,7 @@ const notifications = ({ knex, modules, logger, events }) => {
    */
   const getInbox = async () =>
     knex('notifications')
-      .where({ archived: helpers(knex).bool.false() })
+      .where({ archived: helpers(knex).bool.false })
       .orderBy('created_on', 'DESC')
       .limit(100)
       .then(rows => rows.map(row => fromDatabase(knex, row)))
@@ -83,7 +83,7 @@ const notifications = ({ knex, modules, logger, events }) => {
    */
   const getArchived = async () =>
     knex('notifications')
-      .where({ archived: helpers(knex).bool.true() })
+      .where({ archived: helpers(knex).bool.true })
       .orderBy('created_on', 'DESC')
       .limit(100)
       .then(rows => rows.map(row => fromDatabase(knex, row)))
@@ -96,7 +96,7 @@ const notifications = ({ knex, modules, logger, events }) => {
   const archive = async notificationId =>
     knex('notifications')
       .where({ id: notificationId })
-      .update({ archived: helpers(knex).bool.true() })
+      .update({ archived: helpers(knex).bool.true })
       .then()
 
   /**
@@ -105,7 +105,7 @@ const notifications = ({ knex, modules, logger, events }) => {
  */
   const archiveAll = async () =>
     knex('notifications')
-      .update({ archived: helpers(knex).bool.true() })
+      .update({ archived: helpers(knex).bool.true })
       .then()
 
   // Internal use only

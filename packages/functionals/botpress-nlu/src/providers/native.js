@@ -5,10 +5,15 @@ import zscore from 'zscore'
 import natural from 'natural'
 
 import Provider from './base'
-import Entities from './entities'
 
 const NATIVE_HASH_KVS_KEY = 'nlu/native/updateMetadata'
 const NATIVE_MODEL = 'nlu/native/model'
+const DEFAULT_THRESHOLD = 0.25
+const EMPTY_INTENT = {
+  name: 'None',
+  confidence: 0,
+  provider: 'native'
+}
 
 export default class NativeProvider extends Provider {
   constructor(config) {
@@ -133,50 +138,39 @@ export default class NativeProvider extends Provider {
       }
     }
 
+    const threshold = parseFloat(this.nativeAdjustementThreshold || DEFAULT_THRESHOLD)
+
     const classifications = _.orderBy(this.classifier.getClassifications(incomingEvent.text), ['value'], ['desc'])
 
-    let allScores = zscore(_.map(classifications, c => parseFloat(c.value)))
+    let allScores = zscore(classifications.map(c => parseFloat(c.value)))
 
     allScores = allScores.map((s, i) => {
-      const delta = Math.abs(s - _.get(allScores, i + 1) / s)
-      if (delta >= parseFloat(this.nativeAdjustementThreshold || '0.25')) {
+      const delta = Math.abs(s - allScores[i + 1] / s)
+      if (delta >= threshold) {
         return s
       }
 
       return (
         s -
-        Math.max(0, _.get(allScores, i + 1) || 0) * 0.5 -
-        Math.max(0, _.get(allScores, i + 2) || 0) * 0.75 -
-        Math.max(0, _.get(allScores, i + 3) || 0)
+        Math.max(0, allScores[i + 1] || 0) * 0.5 -
+        Math.max(0, allScores[i + 2] || 0) * 0.75 -
+        Math.max(0, allScores[i + 3] || 0)
       )
     })
 
     const intents = _.orderBy(
-      _.map(classifications, (c, i) => {
-        return {
-          intent: c.label,
-          score: allScores[i]
-        }
-      }),
-      ['score'],
+      classifications.map((c, i) => ({
+        name: c.label,
+        confidence: allScores[i],
+        provider: 'native'
+      })),
+      ['confidence'],
       'desc'
     )
 
-    const bestIntent = _.first(intents)
-    const intentName = _.get(bestIntent, 'intent') || 'None'
-    const confidence = _.get(bestIntent, 'score') || 0
-
     return {
-      intent: {
-        name: intentName,
-        confidence: parseFloat(confidence),
-        provider: 'native'
-      },
-      intents: intents.map(intent => ({
-        name: intent.intent,
-        confidence: parseFloat(intent.score),
-        provider: 'native'
-      })),
+      intent: intents.length ? intents[0] : { ...EMPTY_INTENT },
+      intents,
       entities: [] // Unsupported for now
     }
   }

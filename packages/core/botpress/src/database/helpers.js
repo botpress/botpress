@@ -17,14 +17,10 @@
 
 import moment from 'moment'
 
-const isLite = knex => {
-  return knex.client.config.client === 'sqlite3'
-}
-
 module.exports = knex => {
-  const dateParse = exp => {
-    return isLite(knex) ? knex.raw(`strftime('%Y-%m-%dT%H:%M:%fZ', ${exp})`) : knex.raw(exp)
-  }
+  const isLite = knex.client.config.client === 'sqlite3'
+
+  const dateParse = isLite ? exp => knex.raw(`strftime('%Y-%m-%dT%H:%M:%fZ', ${exp})`) : exp => knex.raw(exp)
 
   const dateFormat = date => {
     const iso = moment(date)
@@ -34,25 +30,31 @@ module.exports = knex => {
   }
 
   const columnOrDateFormat = colOrDate => {
-    const lite = isLite(knex)
-
     if (colOrDate.sql) {
       return colOrDate.sql
     }
 
     if (typeof colOrDate === 'string') {
-      return lite ? dateParse(colOrDate) : `"${colOrDate}"`
+      return isLite ? dateParse(colOrDate) : `"${colOrDate}"`
     }
 
     return dateFormat(colOrDate)
   }
 
+  const bool = {
+    true: isLite ? 1 : true,
+    false: isLite ? 0 : false,
+    build: value => (value ? bool.true : bool.false),
+    parse: value => (isLite ? !!value : value)
+  }
+
   return {
     /**
-     * Returns whether or not the current database is SQLite
-     * @return {Boolean} Returns true if the database is SQLite, false if Postgres
+     * Whether or not the current database is SQLite:
+     * true if the database is SQLite, false if Postgres.
+     * @constant {Boolean} isLite
      */
-    isLite: () => isLite(knex),
+    isLite,
 
     /**
      * **This is a workaround utility function**
@@ -72,7 +74,7 @@ module.exports = knex => {
 
     date: {
       format: dateFormat,
-      now: () => (isLite(knex) ? knex.raw("strftime('%Y-%m-%dT%H:%M:%fZ', 'now')") : knex.raw('now()')),
+      now: isLite ? knex.raw("strftime('%Y-%m-%dT%H:%M:%fZ', 'now')") : knex.raw('now()'),
 
       isBefore: (d1, d2) => {
         d1 = columnOrDateFormat(d1)
@@ -105,23 +107,15 @@ module.exports = knex => {
 
       hourOfDay: date => {
         date = columnOrDateFormat(date)
-        return isLite(knex) ? knex.raw(`strftime('%H', ${date})`) : knex.raw(`to_char(${date}, 'HH24')`)
+        return isLite ? knex.raw(`strftime('%H', ${date})`) : knex.raw(`to_char(${date}, 'HH24')`)
       }
     },
 
-    bool: {
-      true: () => (isLite(knex) ? 1 : true),
-      false: () => (isLite(knex) ? 0 : false),
-      parse: value => (isLite(knex) ? !!value : value)
-    },
+    bool,
 
     json: {
-      set: obj => {
-        return isLite(knex) ? obj && JSON.stringify(obj) : obj
-      },
-      get: obj => {
-        return isLite(knex) ? obj && JSON.parse(obj) : obj
-      }
+      set: isLite ? obj => obj && JSON.stringify(obj) : obj => obj,
+      get: isLite ? obj => obj && JSON.parse(obj) : obj => obj
     }
   }
 }

@@ -100,6 +100,17 @@ const getInMemoryDb = () =>
 
 const safeId = (length = 10) => generate('1234567890abcdefghijklmnopqrsuvwxyz', length)
 
+const getPackageName = pkg => {
+  const isScoped = pkg.startsWith('@')
+
+  if (isScoped) {
+    const [scope, name] = pkg.match(/^@(.*)\/(.*)/).slice(1)
+    return [scope, name]
+  } else {
+    return [null, pkg]
+  }
+}
+
 const isBotpressPackage = pkg => {
   const [scope, name] = getPackageName(pkg)
   const isBotpress = scope === 'botpress' || name.startsWith('botpress-')
@@ -110,17 +121,6 @@ const getModuleShortname = pkg => {
   const [, name] = getPackageName(pkg)
   const withoutPrefix = name.replace(/^botpress-/i, '')
   return withoutPrefix
-}
-
-const getPackageName = pkg => {
-  const isScoped = pkg.startsWith('@')
-
-  if (isScoped) {
-    const [scope, name] = pkg.match(/^@(.*)\/(.*)/).slice(1)
-    return [scope, name]
-  } else {
-    return [null, pkg]
-  }
 }
 
 module.exports = {

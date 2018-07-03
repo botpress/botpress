@@ -25,7 +25,7 @@ module.exports = logConfig => {
   let _db = null
 
   const logger = new winston.Logger({
-    level: isDeveloping ? 'debug' : 'info',
+    level: process.env.LOG_LEVEL || (isDeveloping ? 'debug' : 'info'),
     transports: [
       new winston.transports.Console({
         prettyPrint: true,

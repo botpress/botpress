@@ -328,7 +328,7 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
       await knex('content_items').insert({
         ...body,
         createdBy: 'admin',
-        createdOn: helpers(knex).date.now(),
+        createdOn: helpers(knex).date.now,
         id: itemId,
         categoryId
       })

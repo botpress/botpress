@@ -45,7 +45,7 @@ function saveInteractionIn(event) {
   }
 
   const interactionRow = {
-    ts: helpers(knex).date.now(),
+    ts: helpers(knex).date.now,
     type: event.type,
     text: event.text,
     user: user,
@@ -63,7 +63,7 @@ function saveInteractionOut(event) {
   }
 
   const interactionRow = {
-    ts: helpers(knex).date.now(),
+    ts: helpers(knex).date.now,
     type: event.type,
     text: event.text,
     user: userId,

@@ -7,9 +7,9 @@ module.exports = {
     send: ({ message, originalEvent, state, flowContext }) => {
       let rendered = message.value
 
-      const additionalData = { state: state }
+      let additionalData = { state }
 
-      if (/{{/i.test(rendered)) {
+      if (rendered.includes('{{')) {
         rendered = Mustache.render(rendered, {
           ...state,
           event: _.pick(originalEvent, ['raw', 'text', 'type', 'platform', 'user']),
@@ -20,11 +20,11 @@ module.exports = {
         })
       }
 
-      if (/^{.+}$/.test(rendered)) {
+      if (rendered && rendered[0] === '{' && rendered[rendered.length - 1] === '}') {
         // Check if it's JSON
-        Object.assign(additionalData, JSON.parse(rendered))
-      } else if (!_.isEmpty(rendered)) {
-        Object.assign(additionalData, { text: rendered })
+        additionalData = { ...additionalData, ...JSON.parse(rendered) }
+      } else if (rendered) {
+        additionalData = { ...additionalData, text: rendered }
       }
 
       return originalEvent.reply(message.type, additionalData)

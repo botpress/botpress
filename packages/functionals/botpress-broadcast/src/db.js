@@ -53,7 +53,7 @@ function addSchedule({ date, time, timezone, content, type, filters }) {
     errored: false,
     total_count: 0,
     sent_count: 0,
-    created_on: helpers(knex).date.now(),
+    created_on: helpers(knex).date.now,
     filters: JSON.stringify(filters)
   }
 
@@ -81,7 +81,7 @@ function updateSchedule({ id, date, time, timezone, content, type, filters }) {
   return knex('broadcast_schedules')
     .where({
       id: id,
-      outboxed: helpers(knex).bool.false()
+      outboxed: helpers(knex).bool.false
     })
     .update(row)
     .then()

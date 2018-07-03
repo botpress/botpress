@@ -57,7 +57,7 @@ module.exports = ({ db }) => {
           userId,
           tag,
           value,
-          tagged_on: helpers(knex).date.now()
+          tagged_on: helpers(knex).date.now
         })
         .then()
     } else {
@@ -66,7 +66,7 @@ module.exports = ({ db }) => {
           userId,
           tag,
           value,
-          tagged_on: helpers(knex).date.now()
+          tagged_on: helpers(knex).date.now
         })
         .then()
     }
@@ -138,7 +138,7 @@ module.exports = ({ db }) => {
   const list = async (limit = 50, from = 0) => {
     const knex = await db.get()
 
-    const isLite = helpers(knex).isLite()
+    const isLite = helpers(knex).isLite
 
     const selectTags = isLite ? 'group_concat(tag) as tags' : "string_agg(tag, ',') as tags"
 
@@ -183,7 +183,7 @@ module.exports = ({ db }) => {
         .select('userId')
         .where('tag', tag)
 
-    const isLite = helpers(knex).isLite()
+    const isLite = helpers(knex).isLite
     const selectTags = isLite ? 'group_concat(tag) as tags' : "string_agg(tag, ',') as tags"
 
     let query = knex('users')
