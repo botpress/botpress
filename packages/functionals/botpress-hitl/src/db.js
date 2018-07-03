@@ -65,12 +65,12 @@ function createUserSession(event) {
   return knex('hitl_sessions')
     .insert(session)
     .returning('id')
-    .then(([id]) => {
+    .then(([id]) =>
       knex('hitl_sessions')
         .where({ id })
         .then()
         .get(0)
-    })
+    )
     .then(dbSession => Object.assign({ is_new_session: true }, dbSession))
 }
 
@@ -138,7 +138,6 @@ const appendMessageToSession = (event, sessionId, direction) => {
     knex('hitl_sessions')
       .where({ id: sessionId })
       .update(buildUpdate(direction)),
-    Promise.resolve(),
     () => toPlainObject(message)
   )
 }
