@@ -426,114 +426,109 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
   }
 
   async _processNode(stateId, userState, context, nodeName, event) {
-    // The infinite loop here is an optimization over recursive implementation
-    _processNode_start: while (true) {
-      let switchedFlow = false
-      let switchedNode = context.hasJumped
-      context = { ...context, hasJumped: false }
-      const originalFlow = context.currentFlow.name
+    let switchedFlow = false
+    let switchedNode = context.hasJumped
+    context = { ...context, hasJumped: false }
+    const originalFlow = context.currentFlow.name
 
-      if (callSubflowRegex.test(nodeName)) {
-        this._trace('>>', 'FLOW', `"${nodeName}"`, context, null)
-        context = await this._gotoSubflow(nodeName, context)
-        switchedFlow = true
-      } else if (nodeName && nodeName[0] === '#') {
-        // e.g. '#success'
-        this._trace('<<', 'FLOW', `"${nodeName}"`, context, null)
-        context = await this._gotoPreviousFlow(nodeName, context)
-        switchedFlow = true
-      } else if (context.node !== nodeName) {
-        this._trace('>>', 'FLOW', `"${nodeName}"`)
-        switchedNode = true
-        context = { ...context, node: nodeName }
-      } else if (context.node == null) {
-        // We just created the context
-        switchedNode = true
-        context = { ...context, node: context.currentFlow.startNode }
-      }
+    if (callSubflowRegex.test(nodeName)) {
+      this._trace('>>', 'FLOW', `"${nodeName}"`, context, null)
+      context = await this._gotoSubflow(nodeName, context)
+      switchedFlow = true
+    } else if (nodeName && nodeName[0] === '#') {
+      // e.g. '#success'
+      this._trace('<<', 'FLOW', `"${nodeName}"`, context, null)
+      context = await this._gotoPreviousFlow(nodeName, context)
+      switchedFlow = true
+    } else if (context.node !== nodeName) {
+      this._trace('>>', 'FLOW', `"${nodeName}"`)
+      switchedNode = true
+      context = { ...context, node: nodeName }
+    } else if (context.node == null) {
+      // We just created the context
+      switchedNode = true
+      context = { ...context, node: context.currentFlow.startNode }
+    }
 
-      const node = DialogEngine._findNode(context.currentFlow, context.node)
+    const node = DialogEngine._findNode(context.currentFlow, context.node)
 
-      if (!node || !node.name) {
-        return this._endFlow(stateId)
-        // TODO Trace error
-        // throw new Error(`Could not find node "${context.node}" in flow "${context.currentFlow.name}"`)
-      }
+    if (!node || !node.name) {
+      return this._endFlow(stateId)
+      // TODO Trace error
+      // throw new Error(`Could not find node "${context.node}" in flow "${context.currentFlow.name}"`)
+    }
 
-      if (switchedFlow || switchedNode) {
-        const flowStack = context.flowStack.concat({
-          flow: context.currentFlow.name,
-          node: context.node
+    if (switchedFlow || switchedNode) {
+      const flowStack = context.flowStack.concat({
+        flow: context.currentFlow.name,
+        node: context.node
+      })
+
+      context = {
+        ...context,
+        // Flattens the stack to only include flow jumps, not node jumps
+        flowStack: flowStack.filter((el, i) => {
+          return i === flowStack.length - 1 || flowStack[i + 1].flow !== el.flow
         })
+      }
 
-        context = {
-          ...context,
-          // Flattens the stack to only include flow jumps, not node jumps
-          flowStack: flowStack.filter((el, i) => {
-            return i === flowStack.length - 1 || flowStack[i + 1].flow !== el.flow
-          })
-        }
-
-        if (context.flowStack.length >= MAX_STACK_SIZE) {
-          throw new Error(
-            `Exceeded maximum flow stack size (${MAX_STACK_SIZE}).
+      if (context.flowStack.length >= MAX_STACK_SIZE) {
+        throw new Error(
+          `Exceeded maximum flow stack size (${MAX_STACK_SIZE}).
          This might be due to an unexpected infinite loop in your flows.
          Current flow: ${context.currentFlow.name}
          Current node: ${context.node}`
-          )
-        }
-
-        await this._setContext(stateId, context)
-
-        const beforeCtx = { stateId, node }
-        await Promise.fromCallback(callback => this.onBeforeNodeEnter.run(beforeCtx, callback))
-
-        if (node.onEnter) {
-          this._trace('!!', 'ENTR', '', context, userState)
-          userState = await this._processInstructions(node.onEnter, userState, event, context)
-        }
-
-        if (node.onReceive) {
-          // why?
-          return userState
-        }
-
-        this._trace('..', 'NOWT', '', context, userState)
-      } else {
-        // i.e. we were already on that node before we received the message
-        if (node.onReceive) {
-          this._trace('!!', 'RECV', '', context, userState)
-          userState = await this._processInstructions(node.onReceive, userState, event, context)
-        }
-
-        this._trace('..', 'RECV', '', context, userState)
+        )
       }
 
-      if (node.type === 'skill-call' && originalFlow !== node.flow) {
-        nodeName = node.flow
-        continue _processNode_start
+      await this._setContext(stateId, context)
+
+      const beforeCtx = { stateId, node }
+      await Promise.fromCallback(callback => this.onBeforeNodeEnter.run(beforeCtx, callback))
+
+      if (node.onEnter) {
+        this._trace('!!', 'ENTR', '', context, userState)
+        userState = await this._processInstructions(node.onEnter, userState, event, context)
       }
 
-      const nextNodes = node.next
-      if (!nextNodes || !nextNodes.length) {
-        // You reach this if there were no next nodes, in which case we end the flow
-        return this._endFlow(stateId)
+      if (node.onReceive) {
+        // why?
+        return userState
       }
 
-      for (const nextNode of nextNodes) {
-        if (this._evaluateCondition(nextNode.condition, userState, event)) {
-          this._trace('??', 'MTCH', `cond = "${nextNode.condition}"`, context)
-          if (nextNode.node.toLowerCase() === 'end') {
-            // Node "END" or "end" ends the flow (reserved keyword)
-            return this._endFlow(stateId)
-          }
-          nodeName = nextNode.node
-          continue _processNode_start
-        }
+      this._trace('..', 'NOWT', '', context, userState)
+    } else {
+      // i.e. we were already on that node before we received the message
+      if (node.onReceive) {
+        this._trace('!!', 'RECV', '', context, userState)
+        userState = await this._processInstructions(node.onReceive, userState, event, context)
       }
 
-      return userState
+      this._trace('..', 'RECV', '', context, userState)
     }
+
+    if (node.type === 'skill-call' && originalFlow !== node.flow) {
+      return this._processNode(stateId, userState, context, node.flow, event)
+    }
+
+    const nextNodes = node.next
+    if (!nextNodes || !nextNodes.length) {
+      // You reach this if there were no next nodes, in which case we end the flow
+      return this._endFlow(stateId)
+    }
+
+    for (const nextNode of nextNodes) {
+      if (this._evaluateCondition(nextNode.condition, userState, event)) {
+        this._trace('??', 'MTCH', `cond = "${nextNode.condition}"`, context)
+        if (nextNode.node.toLowerCase() === 'end') {
+          // Node "END" or "end" ends the flow (reserved keyword)
+          return this._endFlow(stateId)
+        }
+        return this._processNode(stateId, userState, context, nextNode.node, event)
+      }
+    }
+
+    return userState
   }
 
   async _endFlow(stateId) {
