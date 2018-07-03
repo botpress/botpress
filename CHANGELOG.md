@@ -3,7 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-  <a name="10.22.1"></a>
+      <a name="10.22.2"></a>
+## [10.22.2](https://github.com/botpress/botpress/compare/v10.22.1...v10.22.2) (2018-07-03)
+
+
+### Bug Fixes
+
+* opts might not be a function ([22cf41f](https://github.com/botpress/botpress/commit/22cf41f))
+
+
+
+
+      <a name="10.22.1"></a>
 ## [10.22.1](https://github.com/botpress/botpress/compare/v10.22.0...v10.22.1) (2018-07-03)
 
 
@@ -14,7 +25,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-  <a name="10.22.0"></a>
+<a name="10.22.0"></a>
 # [10.22.0](https://github.com/botpress/botpress/compare/v10.21.0...v10.22.0) (2018-07-03)
 
 
