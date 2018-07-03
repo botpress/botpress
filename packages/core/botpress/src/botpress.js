@@ -157,7 +157,7 @@ class botpress {
       Check --inspect flag
     */
 
-    const opts = options.opts()
+    const opts = options && options.opts()
 
     this.hasInspectMode = opts.inspect || opts.i
   }
