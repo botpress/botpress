@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.22.1"></a>
+## [10.22.1](https://github.com/botpress/modules/compare/v10.22.0...v10.22.1) (2018-07-03)
+
+
+
+
+**Note:** Version bump only for package @botpress/analytics
+
 <a name="10.22.0"></a>
 # [10.22.0](https://github.com/botpress/modules/compare/v10.21.0...v10.22.0) (2018-07-03)
 
