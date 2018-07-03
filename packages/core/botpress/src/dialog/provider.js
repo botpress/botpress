@@ -41,7 +41,7 @@ export default class FlowProvider extends EventEmitter2 {
         return null
       }
 
-      Object.assign(flow, { links: uiEq.links })
+      flow.links = uiEq.links
 
       // Take position from UI files or create default position
       let unplacedIndex = -1
@@ -90,7 +90,7 @@ export default class FlowProvider extends EventEmitter2 {
   }
 
   async _prepareSaveFlow(flow) {
-    flow = Object.assign({}, flow, { version: '0.1' })
+    flow = { ...flow, version: '0.1' }
 
     const schemaError = validateFlowSchema(flow)
     if (schemaError) {
