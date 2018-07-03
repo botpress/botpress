@@ -72,6 +72,7 @@ function initialize(knex) {
 }
 
 function create(knex, id, options) {
+  id = id || String(Math.random() * 100000000000000000000) // TODO: avoid possible duplicates
   options = validateCreateOptions(options)
 
   options.schedule_human = util.getHumanExpression(options.schedule_type, options.schedule)
@@ -80,7 +81,7 @@ function create(knex, id, options) {
 
   return knex('scheduler_schedules')
     .insert({
-      id: id,
+      id,
       created_on: helpers(knex).date.now(),
       ...options
     })
@@ -89,6 +90,7 @@ function create(knex, id, options) {
         return scheduleNext(knex, id, firstOccurence)
       }
     })
+    .then(() => Promise.resolve(id))
 }
 
 function update(knex, id, options) {

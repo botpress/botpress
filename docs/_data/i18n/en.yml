@@ -149,6 +149,10 @@ docs_additional_reading: "Additional Reading"
   title: "Transpiling bot's sources"
   description: "Learn how to use webpack to transpile bot's sources"
 
+"/recipes/scheduling/":
+  title: "Scheduling actions"
+  description: "Learn how to schedule bot's actions"
+
 guides:
   
   getting_started:
