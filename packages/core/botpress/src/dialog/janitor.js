@@ -36,18 +36,14 @@ module.exports = ({ db, botfile, middlewares }) => {
         props.user = { id: userId }
       }
 
-      return middlewares.sendIncoming(
-        Object.assign(
-          {
-            platform,
-            type: 'bp_dialog_timeout',
-            raw: { sessionId },
-            text: sessionId,
-            sessionId
-          },
-          props
-        )
-      )
+      return middlewares.sendIncoming({
+        platform,
+        type: 'bp_dialog_timeout',
+        raw: { sessionId },
+        text: sessionId,
+        sessionId,
+        ...props
+      })
     })
   }
 
