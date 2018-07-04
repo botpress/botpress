@@ -27,10 +27,6 @@ module.exports = (bp, app) => {
     res.send(modules)
   })
 
-  app.secure('read', 'bot.modules.list.community').get('/api/module/all', (req, res) => {
-    bp.modules.listAllCommunityModules().then(modules => res.send(modules))
-  })
-
   app.secure('read', 'bot.modules.list.community').get('/api/module/hero', (req, res) => {
     bp.modules.getRandomCommunityHero().then(hero => res.send(hero))
   })

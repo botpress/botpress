@@ -104,10 +104,7 @@ export default class CreateModal extends React.Component {
         action: this.state.action,
         id: this.state.id
       })
-      .then(({ data }) => {
-        console.log(data)
-        this.close()
-      })
+      .then(() => this.close())
       .catch(err => {
         this.setState({ error: err.response.data.message })
       })
