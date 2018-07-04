@@ -1,0 +1,71 @@
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: postgres
+  labels:
+    component: postgres
+spec:
+  serviceName: postgres
+  updateStrategy:
+    type: RollingUpdate
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        component: postgres
+    spec:
+      # initContainers:
+      # - name: init-sysctl
+      #   image: busybox:1.27.2
+      #   command:
+      #   - sysctl
+      #   - -w
+      #   - vm.max_map_count=262144
+      #   securityContext:
+      #     privileged: true
+      containers:
+      - name: postgres
+        # https://hub.docker.com/_/postgres/
+        image: postgres:10.4
+        env:
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: credentials
+              key: PG_PASSWORD
+
+        resources:
+          limits:
+            # cpu: 1
+            # memory: 512Mi
+        ports:
+        - containerPort: 5432
+          name: transport
+        livenessProbe:
+          tcpSocket:
+            port: transport
+          initialDelaySeconds: 20
+          periodSeconds: 10
+        # volumeMounts:
+        # - name: config-volume
+        #   mountPath: /etc/postgresql
+        # - name: storage
+        #   mountPath: /var/lib/postgresql
+      volumes:
+      - name: config-volume
+        configMap:
+          name: pg-config
+          items:
+          - key: postgresql.conf
+            path: postgresql.conf
+          - key: pg_hba.conf
+            path: pg_hba.conf
+  volumeClaimTemplates:
+  - metadata:
+      name: storage
+    spec:
+      storageClassName: standard
+      accessModes: [ ReadWriteOnce ]
+      resources:
+        requests:
+          storage: 8Gi

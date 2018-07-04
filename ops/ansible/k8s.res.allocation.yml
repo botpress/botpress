@@ -1,0 +1,10 @@
+---
+- name: Create GCE cluster and allocate resources
+  hosts: 127.0.0.1
+  connection: local
+  vars:
+    ansible_become: false
+
+  roles:
+    # This role is not implemented yet
+    - jylitalo.GceInstance

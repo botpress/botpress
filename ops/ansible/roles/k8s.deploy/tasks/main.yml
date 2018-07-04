@@ -1,0 +1,57 @@
+---
+# ======== Namespace ========
+- name: Create a k8s namespace
+  k8s_raw:
+    name: "{{ env_type }}"
+    api_version: v1
+    kind: Namespace
+    state: present
+
+# ========= Configs =========
+- name: Create credentials
+  k8s_raw:
+    state: present
+    namespace: "{{ env_type }}"
+    src: kube/cfg-credentials.yml
+
+- name: Create PostgreSQL config
+  k8s_raw:
+    state: present
+    namespace: "{{ env_type }}"
+    src: kube/cfg-postgres.yml
+
+- name: Create Botpress config
+  k8s_raw:
+    state: present
+    namespace: "{{ env_type }}"
+    src: kube/cfg-botpress.yml
+
+# ======== Services =========
+- name: Create PostgreSQL service
+  k8s_raw:
+    state: present
+    namespace: "{{ env_type }}"
+    src: kube/svc-postgres.yml
+
+- name: Create Botpress service
+  k8s_raw:
+    state: present
+    namespace: "{{ env_type }}"
+    src: kube/svc-botpress.yml
+
+# ======= Real Pods =========
+- name: Create Botpress
+  k8s_raw:
+    state: present
+    namespace: "{{ env_type }}"
+    src: kube/dpl-botpress.yml
+
+- name: Create PostgreSQL nodes
+  shell: kubectl apply --namespace="{{ env_type }}" -f kube/dpl-postgres-non-persistent.yml
+  args:
+    executable: /bin/bash
+  # BUG: StatefulSet is not yet supported by k8s_raw so far (Ansible 2.5). Thus using command line instead of native API
+  #  k8s_raw:
+  #  state: present
+  #  namespace: "{{ env_type }}"
+  #  src: kube/dpl-postgress.yml

@@ -1,0 +1,9 @@
+---
+- name: Deploy dpl,svc,pv to Kubernetes cluster
+  hosts: 127.0.0.1
+  connection: local
+  vars:
+    ansible_become: false
+
+  roles:
+    - k8s.deploy

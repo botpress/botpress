@@ -1,0 +1,66 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: postgres
+  labels:
+    component: postgres
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        component: postgres
+    spec:
+#      initContainers:
+#      - name: init-sysctl
+#        image: busybox:1.27.2
+#        command:
+#        - cp
+#        - /conf/*.conf
+#        - /var/lib/postgresql/data/.
+#        securityContext:
+#          privileged: true
+      containers:
+      - name: postgres
+        # https://hub.docker.com/_/postgres/
+        image: postgres:10.4
+#        command: ["postgres"]
+#        args: [" -c config_file=/conf/postgresql.conf -c hba_file=/conf/pg_hba.conf"]
+        env:
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: credentials
+              key: PG_PASSWORD
+
+        resources:
+          limits:
+           # cpu: 4
+           # memory: 8Gi
+        ports:
+        - containerPort: 5432
+          name: transport
+        livenessProbe:
+          tcpSocket:
+            port: transport
+          initialDelaySeconds: 20
+          periodSeconds: 10
+        volumeMounts:
+        #- name: config-volume
+        #  mountPath: /conf/postgresql.conf
+        #  subPath: postgresql.conf
+        #- name: config-volume
+        #  mountPath: /conf/pg_hba.conf
+        #  subPath: pg_hba.conf
+        - name: storage
+          mountPath: /var/lib/postgresql/data
+
+      volumes:
+      - name: storage
+        emptyDir:
+          medium: "Memory"
+      - name: config-volume
+        configMap:
+          name: pg-config
