@@ -23,6 +23,7 @@ The following properties can be configured either in the `qna.json` file or usin
 # Usage
 
 Go to the bot admin panel and choose Q&A from the left hand side menu.
+Qna-package adds middleware that listens to user's messages and if the match an intent of the question either responds with answer, or redirects to some flow-node.
 
 ## Programmatic usage
 
