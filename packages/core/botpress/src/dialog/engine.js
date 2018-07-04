@@ -181,8 +181,8 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
    * you should call {@link BotEngine#processMessage} manually to continue execution.
    * @example
    * // inside a bp.hear (...)
-   * bp.dialogEngine.jumpTo(stateId, 'main.flow.json')
-   * bp.dialogEngine.processMessage(stateId, event) // Continue processing
+   * await bp.dialogEngine.jumpTo(stateId, 'main.flow.json')
+   * await bp.dialogEngine.processMessage(stateId, event) // Continue processing
    * @param  {string} stateId  The stateId of the user/channel/group to make jump.
    * @param  {string} flowName The name of the flow, e.g. `main.flow.json`
    * @param  {string} [nodeName=null] The name of the node to jump to. Defaults to the flow's entry point.
