@@ -145,8 +145,7 @@ class botpress {
     /**
      * The botfile config object
      */
-    // eslint-disable-next-line no-eval
-    this.botfile = eval('require')(botfile)
+    this.botfile = require(botfile)
     validateBotfile(this.botfile)
 
     this.stats = stats(this.botfile)
@@ -412,8 +411,7 @@ class botpress {
       middlewares.load()
     }
 
-    // eslint-disable-next-line no-eval
-    const projectEntry = eval('require')(projectLocation)
+    const projectEntry = require(projectLocation)
     if (typeof projectEntry === 'function') {
       projectEntry.call(projectEntry, this)
     } else {
