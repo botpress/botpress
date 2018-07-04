@@ -131,7 +131,7 @@
     "webpack-node-externals": "^1.7.2"
   },
   "engines": {
-    "node": ">=6.10.0 <9.0.0"
+    "node": ">=8.9"
   },
   "homepage": "https://botpress.io",
   "keywords": [
@@ -149,25 +149,21 @@
     "conversational"
   ],
   "license": "AGPL-3.0",
-  "main": "lib/node.bundle.js",
+  "main": "lib/index.js",
   "repository": "git+https://github.com/botpress/botpress.git",
-  "os": [
-    "darwin",
-    "linux",
-    "win32"
-  ],
+  "os": ["darwin", "linux", "win32"],
   "scripts": {
     "prepublishOnly": "npm run compile-prod",
     "compile": "./build.sh",
     "compile-prod": "NODE_ENV=production ./build.sh",
     "test": "BABEL_ENV=tests mocha --compilers js:babel-core/register --require tests/index.js tests/**",
-    "watch": "rm -rf ./lib/web && concurrently -k \"node ./webpack.server.js --watch\" \"node ./webpack.web.js --watch\""
+    "watch": "rm -rf ./lib/web && concurrently -k \"npm run watch-server\" \"node ./webpack.web.js --watch\"",
+    "watch-server": "babel src --source-maps --out-dir lib --watch --ignore src/cli/templates",
+    "compile-server": "babel src --source-maps --out-dir lib --ignore src/cli/templates"
   },
   "watch": {
     "compile": {
-      "patterns": [
-        "src"
-      ],
+      "patterns": ["src"],
       "extensions": "js,jsx,scss,json,html"
     }
   }
