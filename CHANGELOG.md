@@ -3,7 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-      <a name="10.22.2"></a>
+  <a name="10.22.3"></a>
+## [10.22.3](https://github.com/botpress/botpress/compare/v10.22.0...v10.22.3) (2018-07-05)
+
+
+### Bug Fixes
+
+* options not always defined across multiple botpress envs ([108d371](https://github.com/botpress/botpress/commit/108d371))
+* opts might not be a function ([22cf41f](https://github.com/botpress/botpress/commit/22cf41f))
+* **dialog:** handle race conditions ([9113f60](https://github.com/botpress/botpress/commit/9113f60))
+* **docs:** jumps recipe should 'await' jumping to node ([3ad8619](https://github.com/botpress/botpress/commit/3ad8619))
+
+
+
+
+  <a name="10.22.2"></a>
 ## [10.22.2](https://github.com/botpress/botpress/compare/v10.22.1...v10.22.2) (2018-07-03)
 
 
@@ -14,7 +28,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-      <a name="10.22.1"></a>
+<a name="10.22.1"></a>
 ## [10.22.1](https://github.com/botpress/botpress/compare/v10.22.0...v10.22.1) (2018-07-03)
 
 
