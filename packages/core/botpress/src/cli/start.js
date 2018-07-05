@@ -35,7 +35,7 @@ module.exports = (projectPath, options) => {
   projectPath = path.resolve(projectPath)
 
   try {
-    const botpress = require('..')
+    const botpress = require(path.resolve(__dirname, '..'))
     Botpress = botpress.Botpress()
   } catch (err) {
     util.print('error', err.message)
