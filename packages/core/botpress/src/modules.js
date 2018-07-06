@@ -114,7 +114,7 @@ module.exports = (logger, projectLocation, dataLocation, configManager) => {
 
   const listInstalledModules = () => {
     const packagePath = resolveProjectFile('package.json', projectLocation, true)
-    const { dependencies } = JSON.parse(fs.readFileSync(packagePath))
+    const { dependencies } = require(packagePath)
     const prodDeps = _.keys(dependencies)
 
     return _.filter(prodDeps, util.isBotpressPackage)

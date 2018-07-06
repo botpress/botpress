@@ -27,7 +27,6 @@ module.exports = bp => {
     }
 
     const liteDir = path.join(module.root, module.settings.liteDir || 'bin/lite')
-    const liteViews = fs.existsSync(liteDir) ? fs.readdirSync(liteDir).filter(b => b.endsWith('.js')) : []
 
     app.get(
       [

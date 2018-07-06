@@ -11,9 +11,11 @@ import securedApis from './secured'
 const routersConditions = {}
 const routers = {}
 
+const API_RE = /\/api\/(botpress-[^\/]+).*$/i
+
 const maybeApply = (name, fn) => {
   return (req, res, next) => {
-    const router = req.originalUrl.match(/\/api\/(botpress-[^\/]+).*$/i)
+    const router = req.originalUrl.match(API_RE)
     if (!router) {
       return fn(req, res, next)
     }
