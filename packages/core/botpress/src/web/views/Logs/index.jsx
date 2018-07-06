@@ -92,6 +92,21 @@ class LoggerView extends Component {
     return this.state.logs.filter(x => _.isString(x.message)).map(this.renderLine)
   }
 
+  downloadArchive = () => {
+    axios({
+      url: this.state.archiveUrl,
+      method: 'GET',
+      responseType: 'blob'
+    }).then(response => {
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', 'logs.txt')
+      document.body.appendChild(link)
+      link.click()
+    })
+  }
+
   render() {
     const logs = this.renderLines()
     const logsPanelClassName = classnames('panel', 'panel-default', styles['logs-panel'])
@@ -115,7 +130,7 @@ class LoggerView extends Component {
               </Checkbox>
             </form>
             <div className="pull-right">
-              <Button href={this.state.archiveUrl}>Export logs archive</Button>
+              <Button onClick={this.downloadArchive}>Export logs archive</Button>
             </div>
           </Panel.Body>
         </Panel>
