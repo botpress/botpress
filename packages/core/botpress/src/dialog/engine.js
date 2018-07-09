@@ -409,7 +409,6 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
   }
 
   async _processNode(stateId, userState, context, nodeName, event) {
-    // return
     let switchedFlow = false
     let switchedNode = false
 
