@@ -12,6 +12,13 @@ import path from 'path'
 import fs from 'fs'
 import Promise from 'bluebird'
 
+const eventConformity = {
+  type: value => typeof value === 'string',
+  platform: value => typeof value === 'string',
+  text: value => typeof value === 'string',
+  raw: () => true
+}
+
 const createMiddleware = (bp, middlewareName) => {
   const _use = mware()
   const _error = mware()
@@ -33,17 +40,8 @@ const createMiddleware = (bp, middlewareName) => {
       throw new TypeError('Expected all dispatch arguments to be plain event objects')
     }
 
-    const conformity = {
-      type: value => typeof value === 'string',
-      platform: value => typeof value === 'string',
-      text: value => typeof value === 'string',
-      raw: () => true
-    }
-
-    if (!_.conformsTo(event, conformity)) {
-      throw new TypeError(
-        'Expected event to contain (type: string), ' + '(platform: string), (text: string), (raw: any)'
-      )
+    if (!_.conformsTo(event, eventConformity)) {
+      throw new TypeError('Expected event to contain (type: string), (platform: string), (text: string), (raw: any)')
     }
 
     // Provide botpress to the event handlers
