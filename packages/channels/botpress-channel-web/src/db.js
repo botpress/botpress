@@ -16,7 +16,6 @@ module.exports = knex => {
       .where({ platform: 'webchat', userId: sanitizeUserId(userId) })
       .then()
       .get(0)
-      .then()
     const name = user && `${user.first_name} ${user.last_name}`
     const avatar = (user && user.picture_url) || null
 
@@ -233,7 +232,6 @@ module.exports = knex => {
       .where(condition)
       .then()
       .get(0)
-      .then()
 
     if (!conversation) {
       return null

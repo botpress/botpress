@@ -13,7 +13,6 @@ module.exports = async (bp, config) => {
       })
       .then()
       .get(0)
-      .then()
 
     if (!user) {
       if (throwIfNotFound) {
@@ -39,8 +38,6 @@ module.exports = async (bp, config) => {
 
     return bp.db.saveUser(user)
   }
-
-  async function patchUserInfo(userId, fields) {}
 
   return { getOrCreateUser }
 }
