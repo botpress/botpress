@@ -63,7 +63,12 @@ module.exports = knex => {
 
     const { fullName, avatar_url } = await getUserInfo(userId)
 
-    const convo = await getConversation(userId, conversationId)
+    const convo = await knex('web_conversations')
+      .where({ userId, id: conversationId })
+      .select('id')
+      .limit(1)
+      .then()
+      .get(0)
 
     if (!convo) {
       throw new Error(`Conversation "${conversationId}" not found`)
@@ -71,8 +76,8 @@ module.exports = knex => {
 
     const message = {
       id: uuid.v4(),
-      conversationId: conversationId,
-      userId: userId,
+      conversationId,
+      userId,
       full_name: fullName,
       avatar_url,
       message_type: type,
@@ -82,20 +87,23 @@ module.exports = knex => {
       sent_on: helpers(knex).date.now()
     }
 
-    await knex('web_messages')
-      .insert(message)
-      .then()
+    return Promise.join(
+      knex('web_messages')
+        .insert(message)
+        .then(),
 
-    await knex('web_conversations')
-      .where({ id: conversationId, userId: userId })
-      .update({ last_heard_on: helpers(knex).date.now() })
-      .then()
+      knex('web_conversations')
+        .where({ id: conversationId, userId: userId })
+        .update({ last_heard_on: helpers(knex).date.now() })
+        .then(),
 
-    return Object.assign(message, {
-      sent_on: new Date(),
-      message_raw: helpers(knex).json.get(message.message_raw),
-      message_data: helpers(knex).json.get(message.message_data)
-    })
+      () => ({
+        ...message,
+        sent_on: new Date(),
+        message_raw: raw,
+        message_data: data
+      })
+    )
   }
 
   async function appendBotMessage(botName, botAvatar, conversationId, { type, text, raw, data }) {
