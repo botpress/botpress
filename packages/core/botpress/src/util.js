@@ -5,7 +5,7 @@ import fs from 'fs'
 import knex from 'knex'
 import generate from 'nanoid/generate'
 
-const IS_DEV = eval("process.env.NODE_ENV !== 'production'") /* eslint-disable-line no-eval */
+const IS_DEV = process.env.NODE_ENV !== 'production'
 
 const NPM_CMD = /^win/.test(process.platform) ? 'npm.cmd' : 'npm'
 

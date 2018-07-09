@@ -35,7 +35,7 @@ module.exports = async (token, options) => {
     return print.error(`This does not look like a valid project root. Please run this command at the root of your bot.`)
   }
 
-  const { name, description } = eval('require')(packagePath) // eslint-disable-line
+  const { name, description } = require(packagePath) // eslint-disable-line
 
   const pairUrl = `${endpoint}/api/pairing`
 

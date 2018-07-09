@@ -16,8 +16,7 @@ module.exports = (logger, projectLocation, dataLocation, configManager) => {
     await Promise.mapSeries(moduleDefinitions, async mod => {
       let loader = null
       try {
-        // eslint-disable-next-line no-eval
-        loader = eval('require')(mod.entry)
+        loader = require(mod.entry)
       } catch (err) {
         return logger.error(`Error loading module "${mod.name}": ` + err.message)
       }
@@ -71,8 +70,7 @@ module.exports = (logger, projectLocation, dataLocation, configManager) => {
       )
     }
 
-    // eslint-disable-next-line no-eval
-    const botPackage = eval('require')(packagePath)
+    const botPackage = require(packagePath)
 
     let deps = botPackage.dependencies || {}
     if (isDeveloping) {
@@ -94,8 +92,7 @@ module.exports = (logger, projectLocation, dataLocation, configManager) => {
           return result
         }
 
-        // eslint-disable-next-line no-eval
-        const modulePackage = eval('require')(path.join(root, 'package.json'))
+        const modulePackage = require(path.join(root, 'package.json'))
         if (!modulePackage.botpress) {
           return result
         }
@@ -117,7 +114,7 @@ module.exports = (logger, projectLocation, dataLocation, configManager) => {
 
   const listInstalledModules = () => {
     const packagePath = resolveProjectFile('package.json', projectLocation, true)
-    const { dependencies } = JSON.parse(fs.readFileSync(packagePath))
+    const { dependencies } = require(packagePath)
     const prodDeps = _.keys(dependencies)
 
     return _.filter(prodDeps, util.isBotpressPackage)
