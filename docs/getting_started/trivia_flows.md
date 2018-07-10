@@ -29,7 +29,7 @@ Almost all the logic is defined and happens in the **Nodes** (the boxes inside t
 The *On Receive* actions are **executed for every new message received by the bot inside this flow**.
 
 To define new *Flow-wide On Receive Actions*, navigate to the relevant flow, then double click anywhere on the checkered background to show the *Flow Properties Pop up*. Under the *On Receive* section, click the *Add Action* button to add a new action.
-![GIF showing how to show the Flow Properties pop up](https://cl.ly/1P0I0H0G2y0O)
+![GIF showing how to show the Flow Properties pop up](https://dzwonsemrish7.cloudfront.net/items/0a1A0v2W323V0Q2Q0Q0F/Screen%20Recording%202018-07-09%20at%2008.54%20am.gif)
 > **👓 Examples:** Flow-wide On Receive
 > - Audit Trail: Record specific logs of messages received in the scope of this particular flow
 > - Authentication Gate: Run some authentication
