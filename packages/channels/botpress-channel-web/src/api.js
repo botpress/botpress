@@ -186,9 +186,7 @@ module.exports = async (bp, config) => {
       return res.status(400).send(ERR_USER_ID_REQ)
     }
 
-    const conversation = await getConversation(userId, conversationId)
-
-    return res.send(conversation)
+    return res.send(await getConversation(userId, conversationId))
   })
 
   router.get('/conversations/:userId', async (req, res) => {
