@@ -403,30 +403,27 @@ export default class Web extends React.Component {
     })
   }
 
-  handleSendQuickReply = (title, payload) => {
-    return this.handleSendData({
+  handleSendQuickReply = (title, payload) =>
+    this.handleSendData({
       type: 'quick_reply',
       text: title,
       data: { payload }
     })
-  }
 
-  handleSendForm = (fields, formId, repr) => {
-    return this.handleSendData({
+  handleSendForm = (fields, formId, repr) =>
+    this.handleSendData({
       type: 'form',
       formId: formId,
       text: repr,
       data: fields
     })
-  }
 
-  handleLoginPrompt = (username, password) => {
-    return this.handleSendData({
+  handleLoginPrompt = (username, password) =>
+    this.handleSendData({
       type: 'login_prompt',
       text: 'Provided login information',
       data: { username, password }
     })
-  }
 
   handleFileUploadSend = (title, payload, file) => {
     const userId = window.__BP_VISITOR_ID

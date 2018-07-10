@@ -203,7 +203,7 @@ module.exports = async (bp, config) => {
     const conversations = await listConversations(userId)
 
     return res.send({
-      conversations: [...conversations],
+      conversations,
       startNewConvoOnTimeout: config.startNewConvoOnTimeout,
       recentConversationLifetime: config.recentConversationLifetime
     })

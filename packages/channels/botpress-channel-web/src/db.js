@@ -12,10 +12,10 @@ const userInitiatedMessageTypes = ['message', 'text', 'image', 'login_prompt', '
 
 module.exports = (knex, config) => {
   const RECENT_CONVERSATION_LIFETIME = ms(config.recentConversationLifetime)
+  // TODO make this var configurable?
+  const RECENT_CONVERSATIONS_LIMIT = 100
 
-  const isLite = knex => {
-    return knex.client.config.client === 'sqlite3'
-  }
+  const isLite = knex => helpers(knex).isLite()
 
   async function getUserInfo(userId) {
     const user = await knex('users')
@@ -70,7 +70,7 @@ module.exports = (knex, config) => {
     const { fullName, avatar_url } = await getUserInfo(userId)
 
     const convo = await knex('web_conversations')
-      .where({ userId, id: conversationId })
+      .where({ id: conversationId, userId })
       .select('id')
       .limit(1)
       .then()
@@ -102,7 +102,7 @@ module.exports = (knex, config) => {
 
       shouldUpdateLastHeard &&
         knex('web_conversations')
-          .where({ id: conversationId, userId: userId })
+          .where({ id: conversationId, userId })
           .update({ last_heard_on: helpers(knex).date.now() })
           .then(),
 
@@ -170,7 +170,7 @@ module.exports = (knex, config) => {
     userId = sanitizeUserId(userId)
 
     await knex('web_conversations')
-      .where({ userId, id: conversationId })
+      .where({ id: conversationId, userId })
       .update({
         title,
         description,
@@ -206,7 +206,7 @@ module.exports = (knex, config) => {
       .select('id')
       .where({ userId })
       .orderBy('last_heard_on', 'desc')
-      .limit(100)
+      .limit(RECENT_CONVERSATIONS_LIMIT)
       .then()
 
     const conversationIds = conversations.map(c => c.id)
