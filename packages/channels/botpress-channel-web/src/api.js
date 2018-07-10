@@ -193,9 +193,7 @@ module.exports = async (bp, config) => {
 
     await getOrCreateUser(userId) // Just to create the user if it doesn't exist
 
-    const conversations = await listConversations(userId)
-
-    return res.send([...conversations])
+    return res.send(await listConversations(userId))
   })
 
   function validateUserId(userId) {

@@ -10,6 +10,7 @@ import { sanitizeUserId } from './util'
 
 // TODO make these vars configurable
 const RECENT_CONVERSATION_LIFETIME = ms('6 hours')
+const RECENT_CONVERSATIONS_LIMIT = 100
 
 module.exports = knex => {
   async function getUserInfo(userId) {
@@ -65,7 +66,7 @@ module.exports = knex => {
     const { fullName, avatar_url } = await getUserInfo(userId)
 
     const convo = await knex('web_conversations')
-      .where({ userId, id: conversationId })
+      .where({ id: conversationId, userId })
       .select('id')
       .limit(1)
       .then()
@@ -94,7 +95,7 @@ module.exports = knex => {
         .then(),
 
       knex('web_conversations')
-        .where({ id: conversationId, userId: userId })
+        .where({ id: conversationId, userId })
         .update({ last_heard_on: helpers(knex).date.now() })
         .then(),
 
@@ -162,7 +163,7 @@ module.exports = knex => {
     userId = sanitizeUserId(userId)
 
     await knex('web_conversations')
-      .where({ userId, id: conversationId })
+      .where({ id: conversationId, userId })
       .update({
         title,
         description,
@@ -198,7 +199,7 @@ module.exports = knex => {
       .select('id')
       .where({ userId })
       .orderBy('last_heard_on', 'desc')
-      .limit(100)
+      .limit(RECENT_CONVERSATIONS_LIMIT)
       .then()
 
     const conversationIds = conversations.map(c => c.id)
