@@ -10,7 +10,7 @@ function initialize() {
   }
 
   return helpers(knex)
-    .createTableIfNotExists('hitl_sessions', function(table) {
+    .createTableIfNotExists('hitl_sessions', table => {
       table.increments('id').primary()
       table.string('platform')
       table.string('userId')
@@ -21,8 +21,18 @@ function initialize() {
       table.boolean('paused')
       table.string('paused_trigger')
     })
-    .then(function() {
-      return helpers(knex).createTableIfNotExists('hitl_messages', function(table) {
+    .then(() =>
+      knex.schema
+        .alterTable('hitl_sessions', table => {
+          table.index(['platform', 'userId'])
+        })
+        // most likely it will fail when the index already exists
+        // and creating it is not critical so this looks like
+        // a safe Q&D approach
+        .catch(() => {})
+    )
+    .then(() =>
+      helpers(knex).createTableIfNotExists('hitl_messages', table => {
         table.increments('id').primary()
         table
           .integer('session_id')
@@ -34,7 +44,7 @@ function initialize() {
         table.enu('direction', ['in', 'out'])
         table.timestamp('ts')
       })
-    })
+    )
 }
 
 function createUserSession(event) {
