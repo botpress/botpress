@@ -196,15 +196,16 @@ module.exports = knex => {
     userId = sanitizeUserId(userId)
 
     const conversations = await knex('web_conversations')
-      .select('id')
+      .select('id', 'title', 'description', 'logo_url', 'created_on')
       .where({ userId })
       .orderBy('last_heard_on', 'desc')
       .limit(RECENT_CONVERSATIONS_LIMIT)
       .then()
 
     const conversationIds = conversations.map(c => c.id)
+    const conversationById = _.keyBy(conversations, 'id')
 
-    return knex
+    const messages = await knex
       .from(function() {
         this.from('web_messages')
           .whereIn('conversationId', conversationIds)
@@ -212,15 +213,10 @@ module.exports = knex => {
           .select('conversationId', knex.raw('max(id) as msgid'))
           .as('q1')
       })
-      .innerJoin('web_conversations', 'web_conversations.id', 'q1.conversationId')
       .innerJoin('web_messages', 'web_messages.id', 'q1.msgid')
       .orderBy('web_messages.sent_on', 'desc')
       .select(
-        'web_conversations.id',
-        'web_conversations.title',
-        'web_conversations.description',
-        'web_conversations.logo_url',
-        'web_conversations.created_on',
+        knex.raw('q1.conversationId as id'),
         'web_messages.message_type',
         'web_messages.message_text',
         knex.raw('web_messages.full_name as message_author'),
@@ -228,6 +224,12 @@ module.exports = knex => {
         knex.raw('web_messages.sent_on as message_sent_on')
       )
       .then()
+
+    messages.forEach(message => {
+      Object.assign(message, conversationById[message.id])
+    })
+
+    return messages
   }
 
   async function getConversation(userId, conversationId, fromId = null) {
