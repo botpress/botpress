@@ -20,7 +20,6 @@ class LoggerView extends Component {
 
   componentDidMount() {
     if (!this.state.logs) {
-      this.getArchiveKey()
       this.queryLogs()
       this.refreshInterval = setInterval(this.queryLogs, 1000)
     }
@@ -62,10 +61,6 @@ class LoggerView extends Component {
     return <div style={{ marginTop: '20px' }} className="whirl traditional" />
   }
 
-  getArchiveKey() {
-    axios.get('/api/logs/key').then(({ data }) => this.setState({ archiveUrl: '/api/logs/archive/' + data.secret }))
-  }
-
   queryLogs = () => {
     axios
       .get('/api/logs', {
@@ -94,7 +89,7 @@ class LoggerView extends Component {
 
   downloadArchive = () => {
     axios({
-      url: this.state.archiveUrl,
+      url: '/api/logs/archive/',
       method: 'GET',
       responseType: 'blob'
     }).then(response => {
