@@ -211,11 +211,7 @@ module.exports = (knex, config) => {
 
     const conversationIds = conversations.map(c => c.id)
 
-    let lastMessages = knex
-      .from('web_messages')
-      .distinct(knex.raw('ON ("conversationId") *'))
-      .orderBy('conversationId')
-      .orderBy('sent_on', 'desc')
+    let lastMessages
 
     if (isLite(knex)) {
       const lastMessagesDate = knex('web_messages')
@@ -227,8 +223,22 @@ module.exports = (knex, config) => {
         .from('web_messages')
         .select('*')
         .whereIn('sent_on', lastMessagesDate)
+    } else {
+      lastMessages = knex
+        .from('web_messages')
+        .distinct(knex.raw('ON ("conversationId") *'))
+        .orderBy('conversationId')
+        .orderBy('sent_on', 'desc')
     }
 
+    // TODO: before this code was changed the join here
+    // used to be a bottleneck
+    // if true could be fixed by collecting all conv data in the first query
+    // see https://github.com/botpress/botpress/commit/16b075b1b40807833a85ef241c0110e3bc1529e5#diff-68e20bc9f0dcb53c1e8aeb45b6ec9ab8
+    // The idea is:
+    // - in the first query collect all convo data once
+    // - select the needed messages without JOIN
+    // - manually extend messages with their convo data matched by convo ID
     return knex
       .from(function() {
         this.from('web_conversations')
