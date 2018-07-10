@@ -9,7 +9,7 @@ module.exports = {
 
       let additionalData = { state }
 
-      if (rendered.includes('{{')) {
+      if (rendered && rendered.includes('{{')) {
         rendered = Mustache.render(rendered, {
           ...state,
           event: _.pick(originalEvent, ['raw', 'text', 'type', 'platform', 'user']),

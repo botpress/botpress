@@ -151,9 +151,9 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
     const catchAllNext = _.get(context, 'currentFlow.catchAll.next')
     if (catchAllNext) {
       this._trace('..', 'KALL', '', context, state)
-      for (let i = 0; i < catchAllNext.length; i++) {
-        if (this._evaluateCondition(catchAllNext[i].condition, state, event)) {
-          return this._processNode(stateId, state, context, catchAllNext[i].node, event)
+      for (const transition of catchAllNext) {
+        if (this._evaluateCondition(transition.condition, state, event)) {
+          return this._processNode(stateId, state, context, transition.node, event)
         }
       }
 
@@ -522,18 +522,16 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
 
   async _transitionToNextNodes(node, context, userState, stateId, event) {
     const nextNodes = node.next || []
-    for (let i = 0; i < nextNodes.length; i++) {
-      if (this._evaluateCondition(nextNodes[i].condition, userState, event)) {
-        this._trace('??', 'MTCH', `cond = "${nextNodes[i].condition}"`, context)
-        if (/^end$/i.test(nextNodes[i].node)) {
+    for (const nextNode of nextNodes) {
+      if (this._evaluateCondition(nextNode.condition, userState, event)) {
+        this._trace('??', 'MTCH', `cond = "${nextNode.condition}"`, context)
+        if (/^end$/i.test(nextNode.node)) {
           // Node "END" or "end" ends the flow (reserved keyword)
           return this._endFlow(stateId)
         } else {
-          return this._processNode(stateId, userState, context, nextNodes[i].node, event)
+          return this._processNode(stateId, userState, context, nextNode.node, event)
         }
       }
-
-      return userState
     }
 
     if (!nextNodes.length) {
@@ -787,6 +785,11 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
    * @private
    */
   _trace(operation, reason, message, context) {
+    if (this.logger.level !== 'debug') {
+      // don't do string formatting if we're not going to log it anyway
+      return
+    }
+
     let flow = _.get(context, 'currentFlow.name', ' N/A ').replace(/\.flow\.json/i, '')
     let node = (context && context.node) || ' N/A '
 
