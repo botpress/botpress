@@ -37,7 +37,7 @@ module.exports = (knex, config) => {
     }
 
     return helpers(knex)
-      .createTableIfNotExists('web_conversations', function(table) {
+      .createTableIfNotExists('web_conversations', table => {
         table.increments('id').primary()
         table.string('userId')
         table.string('title')
@@ -48,8 +48,19 @@ module.exports = (knex, config) => {
         table.timestamp('user_last_seen_on')
         table.timestamp('bot_last_seen_on')
       })
-      .then(function() {
-        return helpers(knex).createTableIfNotExists('web_messages', function(table) {
+      .then(() =>
+        knex.schema
+          .alterTable('web_conversations', table => {
+            table.index('userId')
+            table.index('last_heard_on')
+          })
+          // most likely it will fail when the indices already exist
+          // and creating indices is not critical so this looks like
+          // a safe Q&D approach
+          .catch(() => {})
+      )
+      .then(() =>
+        helpers(knex).createTableIfNotExists('web_messages', table => {
           table.string('id').primary()
           table.integer('conversationId')
           table.string('userId')
@@ -61,7 +72,7 @@ module.exports = (knex, config) => {
           table.string('avatar_url')
           table.timestamp('sent_on')
         })
-      })
+      )
   }
 
   async function appendUserMessage(userId, conversationId, { type, text, raw, data }) {
