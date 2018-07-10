@@ -1,4 +1,5 @@
 import moment from 'moment'
+import Promise from 'bluebird'
 import _ from 'lodash'
 import uuid from 'uuid'
 import ms from 'ms'
