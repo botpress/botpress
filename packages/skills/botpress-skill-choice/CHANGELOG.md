@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.22.4"></a>
+## [10.22.4](https://github.com/botpress/modules/compare/v10.22.3...v10.22.4) (2018-07-11)
+
+
+### Bug Fixes
+
+* **skill:** pull choices (resolve [#711](https://github.com/botpress/modules/issues/711)) ([d439f0a](https://github.com/botpress/modules/commit/d439f0a))
+
+
+
+
 <a name="10.22.3"></a>
 ## [10.22.3](https://github.com/botpress/modules/compare/v10.22.0...v10.22.3) (2018-07-05)
 
