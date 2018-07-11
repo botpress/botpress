@@ -115,7 +115,7 @@ module.exports = ({ sqlite, postgres, logger, botpressPath }) => {
 
   const createKvs = async () => {
     const knex = await getDb()
-    const _kvs = new kvs(knex)
+    const _kvs = kvs(knex)
     await _kvs.bootstrap()
     return _kvs
   }

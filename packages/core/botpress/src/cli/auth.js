@@ -24,8 +24,7 @@ const getDataDir = () => {
     process.exit(1)
   }
 
-  // eslint-disable-next-line no-eval
-  const bf = eval('require')(botfile)
+  const bf = require(botfile)
   return util.getDataLocation(bf.dataDir, projectPath)
 }
 

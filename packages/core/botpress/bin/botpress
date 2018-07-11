@@ -1,3 +1,3 @@
 #!/usr/bin/env node
 
-require('../lib/node.bundle.js').CLI()
+require('../lib/index.js').CLI()

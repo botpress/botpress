@@ -81,6 +81,7 @@ module.exports = (bp, dataLocation, projectLocation, logger) => {
   const readCustomizations = () => {
     if (!fs.existsSync(middlewaresFilePath)) {
       fs.writeFileSync(middlewaresFilePath, '{}')
+      return {}
     }
     return JSON.parse(fs.readFileSync(middlewaresFilePath))
   }

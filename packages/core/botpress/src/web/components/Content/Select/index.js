@@ -9,6 +9,7 @@ import Loading from '~/components/Util/Loading'
 import CreateOrEditModal from '../CreateOrEditModal'
 import { fetchContentItemsRecent, fetchContentItemsCount, fetchContentCategories, upsertContentItem } from '~/actions'
 import { moveCursorToEnd } from '~/util'
+import axios from 'axios'
 
 const style = require('./style.scss')
 
@@ -116,7 +117,6 @@ class SelectContent extends Component {
 
   resetCreateContent = (resetSearch = false) => response => {
     const { data: id } = response
-    const item = Object.assign(this.state.newItemData || {}, { id })
     const stateUpdate = { newItemCategory: null, newItemData: null }
     if (resetSearch) {
       Object.assign(stateUpdate, {
@@ -125,8 +125,9 @@ class SelectContent extends Component {
       })
     }
     return new Promise(resolve =>
-      this.setState(stateUpdate, () => {
+      this.setState(stateUpdate, async () => {
         if (id) {
+          const { data: item } = await axios.get(`/api/content/items/${id}`)
           this.handlePick(item)
         }
 

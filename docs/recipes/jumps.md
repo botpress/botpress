@@ -9,8 +9,8 @@ This can be done like this:
 ```js
 // inside a bp.hear (...)
 const stateId = event.sessionId || event.user.id;
-bp.dialogEngine.jumpTo(stateId, 'main.flow.json', 'target-node', { resetState: true })
-bp.dialogEngine.processMessage(stateId, event) // Continue processing
+await bp.dialogEngine.jumpTo(stateId, 'main.flow.json', 'target-node', { resetState: true })
+await bp.dialogEngine.processMessage(stateId, event) // Continue processing
 ```
 
 In the example above we pass to `bp.dialogEngine.jumpTo` stateId, flow name, optional node name (by default it's flow.startNode) and options-object with `resetState` key set to true (by default state doesn't get reset).

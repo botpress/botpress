@@ -1,101 +1,22 @@
 # @botpress/channel-slack
 
-<img src="https://cdn.rawgit.com/botpress/botpress/7e007114/assets/supports_UMM.png" height="60px" />
-
 Official Slack connector module for [Botpress](http://github.com/botpress/botpress).
 
 This module has been built to accelerate and facilitate development of Slack bots.
 
-## Usage with UMM
-
-There's 3 supported UMM messages: text, attachments and reactions. For doing anything else, please use code (see the other methods supported in `bp.slack` below).
-
-> **Note on Slack UMM**
-> 
-> All of the Slack messages below support an optional **`option`** field which accepts any extra arguments as per the ([slack doc](https://api.slack.com/methods/chat.postMessage)) about **chat.postMessage**.
-
-#### Sending Text
-##### `content.yml`
-
-```yaml
-welcome:
-  - Hello, world!
-  - This is a message on Slack!
-  - text: this works too!
-  - |
-    This is a multi-line
-    message :).
-```
-
-#### Sending a single [Attachment](https://api.slack.com/docs/message-attachments)
-##### `content.yml`
-
-```yaml
-welcome:
-  - on: slack
-    attachment:
-      title: The Further Adventures of Slackbot
-      fields:
-        - title: Volume
-          value: 1
-          short: true
-        - title: Issue
-          value: 3
-          short: true
-      author_name: Stanford S. Strickland
-      author_icon: https://a.slack-edge.com/bfaba/img/api/homepage_custom_integrations-2x.png
-      image_url: http://i.imgur.com/OJkaVOI.jpg?1
-```
-
-#### Sending a multiple [Attachments](https://api.slack.com/docs/message-attachments)
-##### `content.yml`
-
-```yaml
-welcome:
-  - on: slack
-    attachments:
-
-      - title: The Further Adventures of Slackbot
-        fields:
-          - title: Volume
-            value: 1
-            short: true
-          - title: Issue
-            value: 3
-            short: true
-        author_name: Stanford S. Strickland
-        author_icon: https://a.slack-edge.com/bfaba/img/api/homepage_custom_integrations-2x.png
-        image_url: http://i.imgur.com/OJkaVOI.jpg?1
-
-      - title: Second Attachment
-        fields: [{ title: Price, value: 265$ }]
-```
-
-#### Sending Reaction
-##### `content.yml`
-
-```yaml
-welcome:
-  - text: Hello, world!
-  - on: slack
-    reaction: smile
-```
-
 ## Installation
 
-Installing modules on Botpress is simple. By using CLI, users only need to type this command in their terminal to add slack module to their bot.
+Installing modules on Botpress is simple.
 
 ```js
-botpress install slack
+npm i --save @botpress/channel-slack
 ```
-
-It's also possible to install it through the Botpress UI in the modules section.
 
 ## Get started
 
 To setup connexion of your chatbot to Slack, you need to fill the connexion settings directly in the module interface. In fact, you only need to follow these steps and your bot will be ready to use.
 
-Settings can also be set programmatically by providing the settings in the `${modules_config_dir}/botpress-slack.json`
+Settings can also be set programmatically by providing the settings in the `config/channel-slack.json`
 
 <img alt='Connexion settings' src='assets/connexion-settings.png' width='700px'/>
 
@@ -107,41 +28,35 @@ You need to manually enter your hostname. If you are developping locally, we sug
   
 <img alt='Create app' src='assets/create-app-slack.png' width='450px' />
 
-#### 3. Get Client ID and Client Secret
+#### 3. Get Client ID, Client Secret and Verification Token
 
 These information are available on **Basic Information** of you app. You only need to copy them in module interface.
 
-<img alt='Client id and client secret' src='assets/client-id-client-secret.png' width='500px' />
+<img alt='Client id and client secret' src='assets/keys.png' width='500px' />
 
 #### 4. Setup OAuth & Permissions
 
-On the **OAuth & Permissions** page of your slack app, you need to enter your redirect url for the authentification. The redirect url need to be `${hostname}/modules/botpress-slack` as you can see in the example screenshot below.
+On the **OAuth & Permissions** page of your slack app, you need to enter your redirect url for the authentification. The redirect url need to be `${hostname}/modules/channel-slack` as you can see in the example screenshot below.
 
-<img alt='OAuth settings' src='assets/oauth.png' width='500px;' />
+<img alt='OAuth settings' src='assets/redirect.png' width='500px;' />
 
 #### 5. Create a Bot User
 
 On the **Bot Users** page of your slack app, you need to add a Bot User by clicking on **Add a Bot User**. We suggest you to turn on **Always Show My Bot as Online** for be able to use RTM API correctly.
 
-<img alt='Bot users' src='assets/bot-user.png' width='500px;' />
+<img alt='Bot users' src='assets/bot_user.png' width='500px;' />
 
-#### 6. Setup Interactive Messages
+#### 6. Setup Interactive Components
 
-On the **Interactive messages** page of your slack app, you need to **Enable Interactive Messages** and add a **Request URL**. The URL entered needs to be format as `${hostname}/api/botpress-slack/action-endpoint`.
+On the **Interactive Components** page of your slack app, you need to **Enable Interactive Components** and add a **Request URL**. The URL entered needs to be format as `${hostname}/api/botpress-slack/action-endpoint`.
 
-<img alt='Interactive messages' src='assets/interactive-messages.png' width='500px;' />
+<img alt='Interactive messages' src='assets/interactive.png' width='500px;' />
 
-#### 7. Get Verification Token
+#### 7. Set scope
 
-The verification token should appear below App Id and App  information are available on **Basic Information** of you app. You only need to copy them in module interface.
+On your configuration page of your module, you need to set scope of your bot. We suggest you to keep the default configuration (**admin,bot,chat:write:bot,commands,identify,incoming-webhook,channels:read**), but if you want to want to modify it, we suggest you to look to the [documentation](https://api.slack.com/docs/oauth-scopes).
 
-<img alt='App id and app secret' src='assets/verification-token.png' width='500px' />
-
-#### 8. Set scope
-
-On your configuration page of your module, you need to set scope of your bot. We suggest you to keep the default configuration (**admin,bot,chat:write:bot,commands,identify,incoming-webhook**), but if you want to want to modify it, we suggest you to look to the [documentation](https://api.slack.com/docs/oauth-scopes).
-
-#### 9. Authenticate & Connect
+#### 8. Authenticate & Connect
 
 Next step is to authenticate and connect your bot. To do it, you only need to click on **Authenticate & Connect** on your module and follow the steps. Once it will be done, you should received an **API Token** and a **Bot Token**. They will appear on your settings page of your module.
 

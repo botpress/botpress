@@ -24,6 +24,17 @@ The following properties can be configured either in the `qna.json` file or usin
 
 Go to the bot admin panel and choose Q&A from the left hand side menu.
 
+This opens Q&A module's page that allows you to manage questions. You can:
+
+- create new questions by filling in the form at the top
+- edit existing questions by changing appropriate fields of their forms
+- remove or disable questions by either clicking "Remove" button or changing "Enabled" checkbox
+- filter questions via search-input
+
+Each questions can be associated either with text-answer (by default it'll use `#builtin_text` renderer to send it) or with redirect to another flow node. You can specify behavior via "Reply with" radio-button.
+
+Qna-package adds middleware that listens to user's messages and if they match an intent of the question it either responds with an answer, or redirects to some flow-node.
+
 ## Programmatic usage
 
 `botpress-qna` exposes public API for importing/exporting questions: `bp.qna.import` and `bp.qna.export`.
