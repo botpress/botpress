@@ -8,16 +8,6 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
 const isProduction = process.env.NODE_ENV === 'production'
 
-const productionPlugins = () =>
-  isProduction
-    ? [
-        new UglifyJSPlugin({
-          sourceMap: true,
-          cache: true
-        })
-      ]
-    : []
-
 const webConfig = {
   mode: isProduction ? 'production' : 'development',
   bail: true,
@@ -38,19 +28,21 @@ const webConfig = {
     }
   },
   optimization: {
+    minimizer: [
+      new UglifyJSPlugin({
+        sourceMap: true,
+        cache: true
+      })
+    ],
     splitChunks: {
       chunks: 'async',
-      minSize: 30000,
-      minChunks: 1,
+      minChunks: 2,
       automaticNameDelimiter: '~',
-      name: 'commons',
-      filename: 'commons.js',
       cacheGroups: {
-        vendor: {
-          chunks: 'initial',
-          test: path.resolve(__dirname, 'node_modules'),
+        commons: {
           name: 'commons',
-          enforce: true
+          chunks: 'initial',
+          minSize: 0
         },
         default: {
           minChunks: 2,
@@ -58,27 +50,29 @@ const webConfig = {
           reuseExistingChunk: true
         }
       }
-    }
+    },
+    occurrenceOrder: true
   },
   plugins: [
     new HtmlWebpackPlugin({
-      inject: false,
+      inject: true,
       hash: true,
       template: './src/web/index.html',
-      filename: '../index.html'
+      filename: '../index.html',
+      chunks: ['commons', 'web']
     }),
     new HtmlWebpackPlugin({
-      inject: false,
+      inject: true,
       hash: true,
       template: './src/web/lite.html',
-      filename: '../lite/index.html'
+      filename: '../lite/index.html',
+      chunks: ['commons', 'lite']
     }),
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: isProduction ? JSON.stringify('production') : JSON.stringify('development')
       }
     }),
-    ...productionPlugins(),
     new CopyWebpackPlugin([
       {
         from: path.resolve(__dirname, './src/web/img'),
