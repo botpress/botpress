@@ -3,6 +3,7 @@ import Promise from 'bluebird'
 
 import users from './users'
 import db from './db'
+import { sanitizeUserId } from './util'
 
 const outgoingTypes = ['text', 'login_prompt', 'file', 'carousel', 'custom']
 
@@ -45,7 +46,7 @@ module.exports = async (bp, config) => {
         originatesFromUserMessage: false
       }))
 
-    const socketId = user.userId.replace(/webchat:/gi, '')
+    const socketId = sanitizeUserId(user.userId)
 
     if (typing) {
       bp.events.emit('guest.webchat.typing', {
