@@ -23,6 +23,7 @@ import Select from 'react-select'
 import classnames from 'classnames'
 import find from 'lodash/find'
 import some from 'lodash/some'
+import get from 'lodash/get'
 
 import ArrayEditor from './ArrayEditor'
 import QuestionsEditor from './QuestionsEditor'
@@ -50,7 +51,8 @@ const cleanupQuestions = questions => questions.map(q => q.trim()).filter(Boolea
 
 const ACTIONS = {
   TEXT: 'text',
-  REDIRECT: 'redirect'
+  REDIRECT: 'redirect',
+  TEXT_REDIRECT: 'text_redirect'
 }
 
 export default class QnaAdmin extends Component {
@@ -162,6 +164,32 @@ export default class QnaAdmin extends Component {
   canSave = data =>
     !!cleanupQuestions(data.questions).length &&
     (data.action === ACTIONS.TEXT ? !!data.answer : !!data.redirectFlow && !!data.redirectNode)
+
+  renderTextAndRedirectSelect(index, onChange) {
+    return (
+      <div>
+        {this.renderTextInput(index, onChange)}
+        {this.renderRedirectSelect(index, onChange)}
+      </div>
+    )
+  }
+
+  renderTextInput = (index, onChange) => {
+    const item = index === null ? 'newItem' : `items.${index}`
+    const answer = get(this.state, `${item}.data.answer`, '')
+
+    return (
+      <FormGroup controlId={this.getFormControlId(index, 'answer')}>
+        <ControlLabel>Answer:</ControlLabel>
+        <FormControl
+          componentClass="textarea"
+          placeholder="Answer"
+          value={answer}
+          onChange={this.onInputChange(index, 'answer', onChange)}
+        />
+      </FormGroup>
+    )
+  }
 
   renderRedirectSelect(index, onChange) {
     const { flows } = this.state
@@ -299,21 +327,20 @@ export default class QnaAdmin extends Component {
           >
             redirect to flow node
           </Radio>
+          <Radio
+            name={this.getFormControlId(index, 'action')}
+            value={ACTIONS.TEXT_REDIRECT}
+            checked={data.action === ACTIONS.TEXT_REDIRECT}
+            onChange={this.onInputChange(index, 'action', onChange)}
+            inline
+          >
+            text answer and redirect to flow node
+          </Radio>
         </FormGroup>
 
-        {data.action === ACTIONS.TEXT && (
-          <FormGroup controlId={this.getFormControlId(index, 'answer')}>
-            <ControlLabel>Answer:</ControlLabel>
-            <FormControl
-              componentClass="textarea"
-              placeholder="Answer"
-              value={data.answer}
-              onChange={this.onInputChange(index, 'answer', onChange)}
-            />
-          </FormGroup>
-        )}
-
+        {data.action === ACTIONS.TEXT && this.renderTextInput(index, onChange)}
         {data.action === ACTIONS.REDIRECT && this.renderRedirectSelect(index, onChange)}
+        {data.action === ACTIONS.TEXT_REDIRECT && this.renderTextAndRedirectSelect(index, onChange)}
 
         <ButtonToolbar>
           <Button type="button" onClick={() => onReset(index)} disabled={!isDirty}>
