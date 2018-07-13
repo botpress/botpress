@@ -203,7 +203,7 @@ export default class QnaAdmin extends Component {
 
     const nodeOptions = !redirectFlow
       ? []
-      : find(flows, { name: redirectFlow }).nodes.map(({ name }) => ({ label: name, value: name }))
+      : get(find(flows, { name: redirectFlow }), 'nodes', []).map(({ name }) => ({ label: name, value: name }))
 
     return (
       <div className={style.paddedRow}>
