@@ -31,7 +31,7 @@ module.exports = async (bp, config) => {
     }
   })
 
-  let upload = multer({ storage: diskStorage })
+  let upload = null
 
   if (config.uploadsUseS3) {
     /*
@@ -70,6 +70,8 @@ module.exports = async (bp, config) => {
     })
 
     upload = multer({ storage: s3Storage })
+  } else {
+    upload = multer({ storage: diskStorage })
   }
 
   const knex = await bp.db.get()
@@ -82,7 +84,7 @@ module.exports = async (bp, config) => {
     createConversation
   } = db(knex, config)
 
-  const { getOrCreateUser, getUserProfile } = await users(bp, config)
+  const { getOrCreateUser, getUserProfile, ensureUserExists } = await users(bp, config)
 
   const router = bp.getRouter('botpress-platform-webchat', { auth: false })
 
@@ -120,7 +122,7 @@ module.exports = async (bp, config) => {
         return res.status(400).send(ERR_USER_ID_REQ)
       }
 
-      await getOrCreateUser(userId) // Just to create the user if it doesn't exist
+      await ensureUserExists(userId)
 
       const payload = req.body || {}
       let { conversationId } = req.query || {}
@@ -152,7 +154,7 @@ module.exports = async (bp, config) => {
         return res.status(400).send(ERR_USER_ID_REQ)
       }
 
-      await getOrCreateUser(userId) // Just to create the user if it doesn't exist
+      await ensureUserExists(userId)
 
       let { conversationId } = req.query || {}
       conversationId = conversationId && parseInt(conversationId)
@@ -196,7 +198,7 @@ module.exports = async (bp, config) => {
       return res.status(400).send(ERR_USER_ID_REQ)
     }
 
-    await getOrCreateUser(userId) // Just to create the user if it doesn't exist
+    await ensureUserExists(userId)
 
     const conversations = await listConversations(userId)
 
@@ -212,6 +214,9 @@ module.exports = async (bp, config) => {
   }
 
   async function sendNewMessage(userId, conversationId, payload) {
+    // perf
+    // return
+
     if (!payload.text || !_.isString(payload.text) || payload.text.length > 360) {
       throw new Error('Text must be a valid string of less than 360 chars')
     }
@@ -275,19 +280,17 @@ module.exports = async (bp, config) => {
     }
 
     return bp.middlewares.sendIncoming(
-      Object.assign(
-        {
-          platform: 'webchat',
-          type: payload.type,
-          user: user,
-          text: sanitizedPayload.text,
-          raw: {
-            ...sanitizedPayload,
-            conversationId
-          }
-        },
-        payload.data
-      )
+      {
+        platform: 'webchat',
+        type: payload.type,
+        user: user,
+        text: sanitizedPayload.text,
+        raw: {
+          ...sanitizedPayload,
+          conversationId
+        }
+      },
+      ...payload.data
     )
   }
 

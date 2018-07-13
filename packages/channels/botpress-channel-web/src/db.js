@@ -60,6 +60,16 @@ module.exports = (knex, config) => {
           .catch(() => {})
       )
       .then(() =>
+        knex.schema
+          .alterTable('web_conversations', table => {
+            table.index('title')
+          })
+          // most likely it will fail when the indices already exist
+          // and creating indices is not critical so this looks like
+          // a safe Q&D approach
+          .catch(() => {})
+      )
+      .then(() =>
         helpers(knex).createTableIfNotExists('web_messages', table => {
           table.string('id').primary()
           table.integer('conversationId')
@@ -144,11 +154,12 @@ module.exports = (knex, config) => {
       .insert(message)
       .then()
 
-    return Object.assign(message, {
+    return {
+      ...message,
       sent_on: new Date(),
       message_raw: helpers(knex).json.get(message.message_raw),
       message_data: helpers(knex).json.get(message.message_data)
-    })
+    }
   }
 
   async function createConversation(userId, { originatesFromUserMessage } = {}) {
