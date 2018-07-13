@@ -1,6 +1,8 @@
 import sillyname from 'sillyname'
 import LRU from 'lru-cache'
 
+import { sanitizeUserId } from './util'
+
 const USERS_CACHE_SIZE = 1000
 
 module.exports = async bp => {
@@ -20,10 +22,8 @@ module.exports = async bp => {
     })
   }
 
-  const normalizeId = userId => (userId.startsWith('webchat:') ? userId.substr(8) : userId)
-
   const getOrCreateUser = async userId => {
-    const realUserId = normalizeId(userId)
+    const realUserId = sanitizeUserId(userId)
 
     let user = await knex('users')
       .where({
@@ -61,7 +61,7 @@ module.exports = async bp => {
   }
 
   const ensureUserExists = async userId => {
-    const realUserId = normalizeId(userId)
+    const realUserId = sanitizeUserId(userId)
     if (knownUsersCache.has(realUserId)) {
       return
     }

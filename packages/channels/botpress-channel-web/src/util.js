@@ -1,1 +1,1 @@
-export const sanitizeUserId = userId => userId.replace(/webchat:/gi, '')
+export const sanitizeUserId = userId => userId.replace(/^webchat:/i, '')
