@@ -34,6 +34,6 @@ module.exports = {
     db(knex, bp.botfile).initialize()
 
     // Setup the APIs
-    const router = await api(bp, config)
+    await api(bp, config)
   }
 }

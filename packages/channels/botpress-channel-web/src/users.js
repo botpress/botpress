@@ -1,12 +1,31 @@
 import sillyname from 'sillyname'
+import LRU from 'lru-cache'
+
+const USERS_CACHE_SIZE = 1000
 
 module.exports = async bp => {
   const knex = await bp.db.get()
 
-  async function getOrCreateUser(userId, throwIfNotFound = false) {
-    const realUserId = userId.startsWith('webchat:') ? userId.substr(8) : userId
+  const knownUsersCache = LRU(USERS_CACHE_SIZE)
 
-    const user = await knex('users')
+  const createNewUser = userId => {
+    const [first_name, last_name] = sillyname().split(' ')
+
+    return bp.db.saveUser({
+      id: userId,
+      first_name,
+      last_name,
+      profile_pic: null,
+      platform: 'webchat'
+    })
+  }
+
+  const normalizeId = userId => (userId.startsWith('webchat:') ? userId.substr(8) : userId)
+
+  const getOrCreateUser = async userId => {
+    const realUserId = normalizeId(userId)
+
+    let user = await knex('users')
       .where({
         platform: 'webchat',
         userId: realUserId
@@ -14,29 +33,27 @@ module.exports = async bp => {
       .then()
       .get(0)
 
-    if (user) {
-      return user
+    if (!user) {
+      try {
+        user = createNewUser(realUserId)
+      } catch (err) {
+        bp.logger.error(err.message, err.stack)
+        throw new Error(`User ${realUserId} not found`)
+      }
     }
 
-    if (throwIfNotFound) {
-      throw new Error(`User ${realUserId} not found`)
+    knownUsersCache.set(realUserId, true)
+    return user
+  }
+
+  const ensureUserExists = async userId => {
+    const realUserId = normalizeId(userId)
+    if (knownUsersCache.has(realUserId)) {
+      return
     }
-
-    await createNewUser(realUserId)
-    return getOrCreateUser(realUserId, true)
+    await getOrCreateUser(userId)
+    knownUsersCache.set(realUserId, true)
   }
 
-  function createNewUser(userId) {
-    const [first_name, last_name] = sillyname().split(' ')
-
-    return bp.db.saveUser({
-      first_name,
-      last_name,
-      profile_pic: null,
-      id: userId,
-      platform: 'webchat'
-    })
-  }
-
-  return { getOrCreateUser }
+  return { getOrCreateUser, ensureUserExists }
 }
