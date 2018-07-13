@@ -656,14 +656,9 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
     const msg = String(output.type + (output.value || '')).substr(0, 20)
     this._trace('~>', 'SEND', `"${msg}"`)
 
-    this.outputProcessors.forEach(processor => {
-      processor.send({
-        message: output,
-        state: userState,
-        originalEvent: event,
-        flowContext: context
-      })
-    })
+    return Promise.map(this.outputProcessors, processor =>
+      processor.send({ message: output, state: userState, originalEvent: event, flowContext: context })
+    )
   }
 
   async _invokeAction(instruction, userState, event, context) {
