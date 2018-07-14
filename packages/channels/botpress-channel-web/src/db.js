@@ -150,15 +150,12 @@ module.exports = knex => {
     return {
       ...message,
       sent_on: new Date(),
-      message_raw: helpers(knex).json.get(message.message_raw),
-      message_data: helpers(knex).json.get(message.message_data)
+      message_raw: raw,
+      message_data: data
     }
   }
 
   async function createConversation(userId) {
-    // perf
-    // return '1'
-
     userId = sanitizeUserId(userId)
 
     const uid = Math.random()
@@ -198,8 +195,6 @@ module.exports = knex => {
   }
 
   async function getOrCreateRecentConversation(userId) {
-    // perf
-    // return '1'
     userId = sanitizeUserId(userId)
 
     const recentCondition = helpers(knex).date.isAfter(
