@@ -128,7 +128,7 @@ module.exports = async (bp, config) => {
       let { conversationId } = req.query || {}
       conversationId = conversationId && parseInt(conversationId)
 
-      if (!_.includes(['text', 'quick_reply', 'form', 'login_prompt', 'visit'], payload.type)) {
+      if (!['text', 'quick_reply', 'form', 'login_prompt', 'visit'].includes(payload.type)) {
         // TODO: Support files
         return res.status(400).send(ERR_MSG_TYPE)
       }
@@ -215,7 +215,7 @@ module.exports = async (bp, config) => {
 
   async function sendNewMessage(userId, conversationId, payload) {
     // perf
-    // return
+    return
 
     if (!payload.text || !_.isString(payload.text) || payload.text.length > 360) {
       throw new Error('Text must be a valid string of less than 360 chars')
