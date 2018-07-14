@@ -4,6 +4,8 @@ const { itBoth, run } = require('./database_base')
 const helpers = require('../src/database/helpers')
 const expect = require('chai').expect
 const moment = require('moment')
+const _ = require('lodash')
+const Promise = require('bluebird')
 const { randomTableName } = require('./_util')
 
 run('helpers', () => {
@@ -33,6 +35,26 @@ run('helpers', () => {
             table.increments('id')
           })
         )
+    })
+  })
+
+  describe('insertAndRetrieve', function() {
+    this.timeout(5000)
+    itBoth('returns inserted data', (knex, sampleTable) => {
+      return Promise.map(_.range(500), index => {
+        const tString =
+          index +
+          ':' +
+          Math.random()
+            .toString()
+            .substr(2)
+        return helpers(knex)
+          .insertAndRetrieve(sampleTable, { tString }, ['tId', 'tString'], 'tId')
+          .then(inserted => {
+            expect(inserted).to.not.equal(null)
+            expect(inserted.tString).to.equal(tString)
+          })
+      })
     })
   })
 
