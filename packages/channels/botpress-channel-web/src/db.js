@@ -56,16 +56,6 @@ module.exports = knex => {
           .catch(() => {})
       )
       .then(() =>
-        knex.schema
-          .alterTable('web_conversations', table => {
-            table.index('title')
-          })
-          // most likely it will fail when the indices already exist
-          // and creating indices is not critical so this looks like
-          // a safe Q&D approach
-          .catch(() => {})
-      )
-      .then(() =>
         helpers(knex).createTableIfNotExists('web_messages', table => {
           table.string('id').primary()
           table.integer('conversationId')
@@ -150,12 +140,12 @@ module.exports = knex => {
     return {
       ...message,
       sent_on: new Date(),
-      message_raw: helpers(knex).json.get(message.message_raw),
-      message_data: helpers(knex).json.get(message.message_data)
+      message_raw: raw,
+      message_data: data
     }
   }
 
-  async function createConversation(userId, { originatesFromUserMessage } = {}) {
+  const createConversation = (userId, { originatesFromUserMessage } = {}) => {
     userId = sanitizeUserId(userId)
 
     const uid = Math.random()
@@ -163,22 +153,12 @@ module.exports = knex => {
       .substr(2, 6)
     const title = `Conversation ${uid}`
 
-    await knex('web_conversations')
-      .insert({
-        userId,
-        created_on: helpers(knex).date.now(),
-        last_heard_on: originatesFromUserMessage ? helpers(knex).date.now() : null,
-        title
-      })
-      .then()
-
-    const conversation = await knex('web_conversations')
-      .where({ title, userId })
-      .select('id')
-      .then()
-      .get(0)
-
-    return conversation && conversation.id
+    return helpers(knex).insertAndRetrieve('web_conversations', {
+      userId,
+      created_on: helpers(knex).date.now(),
+      last_heard_on: originatesFromUserMessage ? helpers(knex).date.now() : null,
+      title
+    })
   }
 
   async function patchConversation(userId, conversationId, title, description, logoUrl) {
@@ -197,21 +177,25 @@ module.exports = knex => {
   async function getOrCreateRecentConversation(userId, { originatesFromUserMessage } = {}) {
     userId = sanitizeUserId(userId)
 
-    const recentCondition = helpers(knex).date.isAfter(
-      'last_heard_on',
-      moment().subtract(RECENT_CONVERSATION_LIFETIME, 'ms')
-    )
     const conversation = await knex('web_conversations')
-      .select('id')
+      .select('id', 'last_heard_on')
       .whereNotNull('last_heard_on')
       .andWhere({ userId })
-      .andWhere(recentCondition)
       .orderBy('last_heard_on', 'desc')
       .limit(1)
       .then()
       .get(0)
 
-    return conversation ? conversation.id : createConversation(userId, { originatesFromUserMessage })
+    if (
+      conversation &&
+      moment(conversation.last_heard_on)
+        .add(RECENT_CONVERSATION_LIFETIME, 'ms')
+        .isAfter(/* no arg = now */)
+    ) {
+      return conversation.id
+    }
+
+    return createConversation(userId, { originatesFromUserMessage })
   }
 
   async function listConversations(userId) {
@@ -273,11 +257,12 @@ module.exports = knex => {
     }
 
     const messages = await getConversationMessages(conversationId, fromId)
+    const h = helpers(knex)
 
     messages.forEach(m => {
-      return Object.assign(m, {
-        message_raw: helpers(knex).json.get(m.message_raw),
-        message_data: helpers(knex).json.get(m.message_data)
+      Object.assign(m, {
+        message_raw: h.json.get(m.message_raw),
+        message_data: h.json.get(m.message_data)
       })
     })
 

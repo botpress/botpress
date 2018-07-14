@@ -57,8 +57,8 @@ const createSampleTable = () => {
 }
 
 const itBoth = sampleTableGetter => (name, fn) => {
-  it(name, () => fn(postgres, sampleTableGetter()))
-  it(name, () => fn(sqlite, sampleTableGetter()))
+  it(name + ' (postgres)', () => fn(postgres, sampleTableGetter()))
+  it(name + ' (sqlite)', () => fn(sqlite, sampleTableGetter()))
 }
 
 let emptyTable = null
