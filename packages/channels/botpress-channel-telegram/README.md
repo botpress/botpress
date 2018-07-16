@@ -8,10 +8,8 @@ Botpress Team would really appreciate to have some help from the community to wo
 
 ## Installation
 
-Installing modules on Botpress is simple. By using CLI, users only need to type this command in their terminal to add messenger module to their bot.
-
 ```js
-botpress install telegram // Not publish yet on NPM
+npm install @botpress/channel-telegram
 ```
 
 ## Get started
@@ -29,6 +27,9 @@ config: {
 
 You can also set the `TELEGRAM_TOKEN` environement variable
 
+### How to create an Telegram Bot Token
+
+[Video tutorial](https://www.youtube.com/watch?v=2jdsvSKVXNs)
 
 ## Community
 
