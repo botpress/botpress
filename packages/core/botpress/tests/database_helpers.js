@@ -53,6 +53,7 @@ run('helpers', () => {
           .then(inserted => {
             expect(inserted).to.not.equal(null)
             expect(inserted.tString).to.equal(tString)
+            expect(typeof inserted.tId).to.equal('number')
           })
       })
     })
