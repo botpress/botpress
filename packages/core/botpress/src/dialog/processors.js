@@ -20,8 +20,9 @@ module.exports = {
         })
       }
 
+      // Check if it's JSON
+      // This form is supposed to be more performant compared to regex
       if (rendered && rendered[0] === '{' && rendered[rendered.length - 1] === '}') {
-        // Check if it's JSON
         additionalData = { ...additionalData, ...JSON.parse(rendered) }
       } else if (rendered) {
         additionalData = { ...additionalData, text: rendered }
