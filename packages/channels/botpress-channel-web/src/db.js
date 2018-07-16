@@ -36,6 +36,18 @@ module.exports = (knex, config) => {
       throw new Error('you must initialize the database before')
     }
 
+    const createIndex = (tableName, ...index) =>
+      knex.schema
+        .alterTable(tableName, table => {
+          table.index(...index)
+        })
+        .catch(err => {
+          if (err.message.includes('already exists')) {
+            return
+          }
+          throw err
+        })
+
     return helpers(knex)
       .createTableIfNotExists('web_conversations', table => {
         table.increments('id').primary()
@@ -48,17 +60,9 @@ module.exports = (knex, config) => {
         table.timestamp('user_last_seen_on')
         table.timestamp('bot_last_seen_on')
       })
-      .then(() =>
-        knex.schema
-          .alterTable('web_conversations', table => {
-            table.index('userId')
-            table.index('last_heard_on')
-          })
-          // most likely it will fail when the indices already exist
-          // and creating indices is not critical so this looks like
-          // a safe Q&D approach
-          .catch(() => {})
-      )
+      .then(() => createIndex('web_conversations', 'userId'))
+      .then(() => createIndex('web_conversations', ['id', 'userId']))
+      .then(() => createIndex('web_conversations', ['userId', knex.raw('last_heard_on DESC')]))
       .then(() =>
         helpers(knex).createTableIfNotExists('web_messages', table => {
           table.string('id').primary()
@@ -276,7 +280,7 @@ module.exports = (knex, config) => {
   async function getConversation(userId, conversationId, fromId = null) {
     userId = sanitizeUserId(userId)
 
-    const condition = { userId: userId }
+    const condition = { userId }
 
     if (conversationId && conversationId !== 'null') {
       condition.id = conversationId
