@@ -180,10 +180,7 @@ module.exports = ({ logger, middlewares, db, contentManager, botfile }) => {
   }
 
   const processIncoming = (event, next) => {
-    event.reply = (rendererName, additionalData = {}) => {
-      return sendContent(event, rendererName, additionalData)
-    }
-
+    event.reply = (rendererName, additionalData = {}) => sendContent(event, rendererName, additionalData)
     next()
   }
 
