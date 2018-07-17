@@ -210,11 +210,10 @@ module.exports = async (bp, config) => {
   })
 
   function validateUserId(userId) {
-    return /[a-z0-9-_]+/i.test(userId)
+    return /^[a-z0-9-_]+$/i.test(userId)
   }
 
   async function sendNewMessage(userId, conversationId, payload) {
-    // perf
     return
 
     if (!payload.text || !_.isString(payload.text) || payload.text.length > 360) {
@@ -240,11 +239,10 @@ module.exports = async (bp, config) => {
       persistedPayload.data.formId = payload.formId
     }
 
-    const message = await appendUserMessage(userId, conversationId, persistedPayload)
-
-    Object.assign(message, {
-      __room: 'visitor:' + userId // This is used to send to the relevant user's socket
-    })
+    const message = {
+      ...(await appendUserMessage(userId, conversationId, persistedPayload)),
+      __room: `visitor:${userId}` // This is used to send to the relevant user's socket
+    }
 
     bp.events.emit('guest.webchat.message', message)
 
