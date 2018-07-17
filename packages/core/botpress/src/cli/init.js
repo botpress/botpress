@@ -91,9 +91,17 @@ const loadTemplate = async name => {
 
 const generate = async result => {
   const files = await loadTemplate('init-default')
+  const hasNpmignore = files['.npmignore']
 
   const info = JSON.parse(files['info.json'])
   delete files['info.json']
+
+  if (hasNpmignore) {
+    // Npm renames .gitignore into .npmignore while publishing package which we need to revert
+    // See https://github.com/npm/npm/wiki/Files-and-Ignores#details-1 for more details
+    files['.gitignore'] = hasNpmignore
+    delete files['.npmignore']
+  }
 
   console.log(showTemplateInfo(info))
 

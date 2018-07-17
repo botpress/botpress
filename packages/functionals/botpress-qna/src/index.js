@@ -9,6 +9,7 @@ import Promise from 'bluebird'
 
 let storage
 let logger
+let shouldProcessMessage
 
 module.exports = {
   config: {
@@ -27,6 +28,13 @@ module.exports = {
       module: 'botpress-qna',
       type: 'incoming',
       handler: async (event, next) => {
+        if (typeof shouldProcessMessage === 'function') {
+          const state = await bp.dialogEngine.stateManager.getState(event.sessionId || event.user.id)
+          const shouldSkip = (await shouldProcessMessage(event, state)) === false
+          if (shouldSkip) {
+            return next()
+          }
+        }
         if (!await processEvent(event, { bp, storage, logger, config })) {
           next()
         }
@@ -48,6 +56,7 @@ module.exports = {
         const questionsToSave = typeof questions === 'string' ? parsers[`${format}Parse`](questions) : questions
         return Promise.each(questionsToSave, question => storage.saveQuestion({ ...question, enabled: true }))
       },
+
       /**
        * @async
        * Fetches questions and represents them as json
@@ -56,15 +65,40 @@ module.exports = {
        * @returns {Array.<{questions: Array, question: String, action: String, answer: String}>}
        */
       async export({ flat = false } = {}) {
-        return (await storage.getQuestions()).flatMap(
-          ({ data: { questions, answer: textAnswer, action, redirectFlow, redirectNode } }) => {
-            const answer = action === 'text' ? textAnswer : [redirectFlow, redirectNode].filter(Boolean).join('#')
-            if (!flat) {
-              return { questions, action, answer }
+        const qnas = await storage.getQuestions()
+
+        return qnas.flatMap(question => {
+          const { data } = question
+          const { questions, answer: textAnswer, action, redirectNode, redirectFlow } = data
+
+          let answer = textAnswer
+          let answer2 = null
+
+          if (action === 'redirect') {
+            answer = redirectFlow
+            if (redirectNode) {
+              answer += '#' + redirectNode
             }
-            return questions.map(question => ({ question, action, answer }))
+          } else if (action === 'text_redirect') {
+            answer2 = redirectFlow
+            if (redirectNode) {
+              answer2 += '#' + redirectNode
+            }
           }
-        )
+
+          if (!flat) {
+            return { questions, action, answer, answer2 }
+          }
+          return questions.map(question => ({ question, action, answer, answer2 }))
+        })
+      },
+
+      /**
+       * Accepts async function that is later used to check if Q&A module should intercept
+       * @param {function} fn
+       */
+      shouldProcessMessage(fn) {
+        shouldProcessMessage = fn
       }
     }
 
@@ -112,7 +146,7 @@ module.exports = {
     router.get('/csv', async (req, res) => {
       res.setHeader('Content-Type', 'text/csv')
       res.setHeader('Content-disposition', `attachment; filename=qna_${moment().format('DD-MM-YYYY')}.csv`)
-      const json2csvParser = new Json2csvParser({ fields: ['question', 'action', 'answer'], header: false })
+      const json2csvParser = new Json2csvParser({ fields: ['question', 'action', 'answer', 'answer2'], header: true })
       res.end(json2csvParser.parse(await bp.qna.export({ flat: true })))
     })
 

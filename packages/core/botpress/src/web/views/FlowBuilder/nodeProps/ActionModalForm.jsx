@@ -123,7 +123,7 @@ export default class ActionModalForm extends Component {
 
               // TODO Detect if default or custom arguments
               if (
-                Object.keys(this.state.functionParams).length > 0 &&
+                Object.keys(this.state.functionParams || {}).length > 0 &&
                 !confirm('Do you want to overwrite existing parameters?')
               ) {
                 return

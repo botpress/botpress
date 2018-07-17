@@ -3,6 +3,42 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.23.0"></a>
+# [10.23.0](https://github.com/botpress/botpress/compare/v10.22.4...v10.23.0) (2018-07-13)
+
+
+### Bug Fixes
+
+* **qna:** on flow deletion or rename, QNA still works ([efd75d6](https://github.com/botpress/botpress/commit/efd75d6))
+* **webpack:** change chunk spliting and improve config (resolve [#725](https://github.com/botpress/botpress/issues/725)) ([541d5fd](https://github.com/botpress/botpress/commit/541d5fd))
+
+
+### Features
+
+* **qna:** added "text_redirect" action type ([d8e6825](https://github.com/botpress/botpress/commit/d8e6825))
+
+
+
+
+<a name="10.22.4"></a>
+## [10.22.4](https://github.com/botpress/botpress/compare/v10.22.3...v10.22.4) (2018-07-11)
+
+
+### Bug Fixes
+
+* improper new calls ([3e7ed8f](https://github.com/botpress/botpress/commit/3e7ed8f))
+* restore log archive loading using axios ([d088fc8](https://github.com/botpress/botpress/commit/d088fc8))
+* **core:** ghost-sync ignores deleting missing files ([f8f7f27](https://github.com/botpress/botpress/commit/f8f7f27))
+* **core:** remove now unneeded evals ([f718d92](https://github.com/botpress/botpress/commit/f718d92))
+* **flow:** change a text el to an action ([474c362](https://github.com/botpress/botpress/commit/474c362))
+* **logs:** remove now unneeded logs secret key ([3c57c06](https://github.com/botpress/botpress/commit/3c57c06))
+* **skill:** pull choices (resolve [#711](https://github.com/botpress/botpress/issues/711)) ([d439f0a](https://github.com/botpress/botpress/commit/d439f0a))
+* **slack:** made readme up to date ([3278e04](https://github.com/botpress/botpress/commit/3278e04))
+* **template:** change .gitignore (resolve [#601](https://github.com/botpress/botpress/issues/601)) ([5018009](https://github.com/botpress/botpress/commit/5018009))
+
+
+
+
 <a name="10.22.3"></a>
 ## [10.22.3](https://github.com/botpress/botpress/compare/v10.22.0...v10.22.3) (2018-07-05)
 

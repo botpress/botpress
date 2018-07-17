@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.23.0"></a>
+# [10.23.0](https://github.com/botpress/modules/compare/v10.22.4...v10.23.0) (2018-07-13)
+
+
+
+
+**Note:** Version bump only for package @botpress/channel-slack
+
+<a name="10.22.4"></a>
+## [10.22.4](https://github.com/botpress/modules/compare/v10.22.3...v10.22.4) (2018-07-11)
+
+
+### Bug Fixes
+
+* **slack:** made readme up to date ([3278e04](https://github.com/botpress/modules/commit/3278e04))
+
+
+
+
 <a name="10.22.3"></a>
 ## [10.22.3](https://github.com/botpress/modules/compare/v10.22.0...v10.22.3) (2018-07-05)
 

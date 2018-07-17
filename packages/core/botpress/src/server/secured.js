@@ -1,11 +1,8 @@
 import _ from 'lodash'
-import nanoid from 'nanoid'
 import multer from 'multer'
 import moment from 'moment'
 
 import util from '../util'
-
-let logsSecret = nanoid()
 
 module.exports = (bp, app) => {
   // modules
@@ -98,20 +95,12 @@ module.exports = (bp, app) => {
       })
   })
 
-  app.secure('read', 'bot.logs').get('/api/logs/key', (req, res) => {
-    res.send({ secret: logsSecret })
-  })
-
-  app.secure('read', 'bot.logs.archive').get('/api/logs/archive/:key', (req, res) => {
+  app.secure('read', 'bot.logs.archive').get('/api/logs/archive', (req, res) => {
     bp.stats.track('api', 'logs', 'archive')
-    if (req.params.key !== logsSecret) {
-      return res.sendStatus(403)
-    }
 
     bp.logger
       .queryDb(null, 'asc')
       .then(results => {
-        logsSecret = nanoid()
         res.setHeader('Content-type', 'text/plain')
         res.setHeader('Content-disposition', 'attachment; filename=logs.txt')
         res.send(

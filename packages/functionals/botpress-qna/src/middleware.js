@@ -17,12 +17,17 @@ export const processEvent = async (event, { bp, storage, logger, config }) => {
     return false
   }
 
-  if (data.action === 'text') {
+  if (data.action.includes('text')) {
     logger.debug('QnA: replying to recognized question with plain text answer', id)
     event.reply(config.textRenderer, { text: data.answer })
     // return `true` to prevent further middlewares from capturing the message
-    return true
-  } else if (data.action === 'redirect') {
+
+    if (data.action === 'text') {
+      return true
+    }
+  }
+
+  if (data.action.includes('redirect')) {
     logger.debug('QnA: replying to recognized question with redirect', id)
     // TODO: This is used as the `stateId` by the bot template
     // Not sure if it's universal enough for every use-case but
