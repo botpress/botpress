@@ -1,5 +1,3 @@
-/* global io */
-
 import EventEmitter2 from 'eventemitter2'
 import io from 'socket.io-client'
 
@@ -38,7 +36,7 @@ class EventBus extends EventEmitter2 {
 
     if (window.AUTH_ENABLED) {
       const token = getToken()
-      if (!!token) {
+      if (token) {
         Object.assign(query, { token: token.token })
       }
     }

@@ -78,8 +78,6 @@ module.exports = knex => {
   async function appendUserMessage(userId, conversationId, { type, text, raw, data }) {
     userId = sanitizeUserId(userId)
 
-    const { fullName, avatar_url } = await getUserInfo(userId)
-
     const convo = await knex('web_conversations')
       .where({ id: conversationId, userId })
       .select('id')
@@ -90,6 +88,8 @@ module.exports = knex => {
     if (!convo) {
       throw new Error(`Conversation "${conversationId}" not found`)
     }
+
+    const { fullName, avatar_url } = await getUserInfo(userId)
 
     const message = {
       id: uuid.v4(),
