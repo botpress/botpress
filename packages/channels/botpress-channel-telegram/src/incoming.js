@@ -41,6 +41,13 @@ module.exports = (bp, telegram) => {
     console.log('preprocessEvent')
     const mid = `${payload.chat.id}_${payload.from.id}_${payload.date}`
     console.log(mid)
+    const idExist = payload.from && payload.from.id
+    const hasTelegram = typeof payload.from.id === 'string' && payload.from.id.startsWith('telegram:')
+
+    if (idExist && (typeof payload.from.id === 'number' || !hasTelegram)) {
+      payload.from.userId = payload.from.id
+      payload.from.id = `telegram:${payload.from.id}`
+    }
 
     if (mid && !messagesCache.has(mid)) {
       payload.alreadyProcessed = true
@@ -67,6 +74,9 @@ module.exports = (bp, telegram) => {
   }
 
   telegram.bot.on('text', event => {
+    event.from.userId = event.from.id
+    event.from.id = `telegram:${event.from.id}`
+
     bp.middlewares.sendIncoming({
       type: 'text',
       chat: event.chat,

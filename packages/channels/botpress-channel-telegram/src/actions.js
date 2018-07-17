@@ -10,7 +10,7 @@ const validateText = text => {
   }
 }
 
-const createText = (chatId, text, options = {}) => {
+const createText = ({ chatId, userId }, text, options = {}) => {
   validateChatId(chatId)
   validateText(text)
 
@@ -20,6 +20,7 @@ const createText = (chatId, text, options = {}) => {
     text: text,
     raw: {
       chatId: chatId,
+      to: userId,
       options: options
     }
   }
