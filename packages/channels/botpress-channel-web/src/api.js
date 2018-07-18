@@ -214,8 +214,6 @@ module.exports = async (bp, config) => {
   }
 
   async function sendNewMessage(userId, conversationId, payload) {
-    return
-
     if (!payload.text || !_.isString(payload.text) || payload.text.length > 360) {
       throw new Error('Text must be a valid string of less than 360 chars')
     }
@@ -233,9 +231,7 @@ module.exports = async (bp, config) => {
     // We remove the password from the persisted messages for security reasons
     if (payload.type === 'login_prompt') {
       persistedPayload.data = _.omit(persistedPayload.data, ['password'])
-    }
-
-    if (payload.type === 'form') {
+    } else if (payload.type === 'form') {
       persistedPayload.data.formId = payload.formId
     }
 

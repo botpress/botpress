@@ -3,6 +3,7 @@ import Promise from 'bluebird'
 import _ from 'lodash'
 import uuid from 'uuid'
 import ms from 'ms'
+import LRU from 'lru-cache'
 
 import { DatabaseHelpers as helpers } from 'botpress'
 
@@ -12,24 +13,20 @@ const userInitiatedMessageTypes = ['message', 'text', 'image', 'login_prompt', '
 
 module.exports = (knex, config) => {
   const RECENT_CONVERSATION_LIFETIME = ms(config.recentConversationLifetime)
-  // TODO make this var configurable?
+  // TODO make these vars configurable?
   const RECENT_CONVERSATIONS_LIMIT = 100
+  const USER_INFO_CACHE_TTL = ms('1 minute')
+  const USER_INFO_CACHE_SIZE = 1000
+  const KNOWN_CONVOS_CACHE_SIZE = 1000
 
   const isLite = knex => helpers(knex).isLite()
 
-  async function getUserInfo(userId) {
-    const user = await knex('users')
-      .where({ platform: 'webchat', userId: sanitizeUserId(userId) })
-      .then()
-      .get(0)
-    const name = user && `${user.first_name} ${user.last_name}`
-    const avatar = (user && user.picture_url) || null
+  const userInfoCache = LRU({
+    maxAge: USER_INFO_CACHE_TTL,
+    max: USER_INFO_CACHE_SIZE
+  })
 
-    return {
-      fullName: name,
-      avatar_url: avatar
-    }
-  }
+  const knownConvosCache = LRU(KNOWN_CONVOS_CACHE_SIZE)
 
   function initialize() {
     if (!knex) {
@@ -79,8 +76,13 @@ module.exports = (knex, config) => {
       )
   }
 
-  async function appendUserMessage(userId, conversationId, { type, text, raw, data }) {
-    userId = sanitizeUserId(userId)
+  async function checkConversation(conversationId, userId) {
+    const knownUserId = knownConvosCache.get(conversationId)
+    if (knownUserId === userId) {
+      return
+    } else if (knownUserId && knownUserId !== userId) {
+      throw new Error(`Conversation "${conversationId}" not found`)
+    }
 
     const convo = await knex('web_conversations')
       .where({ id: conversationId, userId })
@@ -93,14 +95,42 @@ module.exports = (knex, config) => {
       throw new Error(`Conversation "${conversationId}" not found`)
     }
 
-    const { fullName, avatar_url } = await getUserInfo(userId)
+    knownConvosCache.set(conversationId, userId)
+  }
+
+  async function getUserInfo(userId) {
+    userId = sanitizeUserId(userId)
+
+    let res = userInfoCache.get(userId)
+    if (res) {
+      return res
+    }
+
+    const user = await knex('users')
+      .where({ platform: 'webchat', userId })
+      .then()
+      .get(0)
+
+    res = {
+      full_name: user && `${user.first_name} ${user.last_name}`,
+      avatar_url: (user && user.picture_url) || null
+    }
+
+    userInfoCache.set(userId, res)
+
+    return res
+  }
+
+  async function appendUserMessage(userId, conversationId, { type, text, raw, data }) {
+    userId = sanitizeUserId(userId)
+
+    await checkConversation(conversationId, userId)
 
     const message = {
       id: uuid.v4(),
       conversationId,
       userId,
-      full_name: fullName,
-      avatar_url,
+      ...(await getUserInfo(userId)),
       message_type: type,
       message_text: text,
       message_raw: helpers(knex).json.set(raw),
