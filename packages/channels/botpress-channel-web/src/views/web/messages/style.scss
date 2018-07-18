@@ -465,13 +465,12 @@
   .picture {
     background-position: 50% 50%;
     background-size: cover;
-    max-height: 150px;
+    height: 150px;
     width: 100%;
   }
 
   .info {
     padding: 6px 12px 12px 12px;
-    min-height: 150px;
 
     .title {
       text-overflow: ellipsis;
