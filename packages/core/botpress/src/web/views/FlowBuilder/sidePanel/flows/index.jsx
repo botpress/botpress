@@ -27,14 +27,8 @@ const setNodeStates = (nodes, toggledNodes, activeNode) => {
 }
 
 const getInitialState = currentFlow => {
-  if (!currentFlow) {
-    return {
-      toggledNodes: {},
-      activeNode: null
-    }
-  }
-
   const { folders, flow } = splitFlowPath(currentFlow.name)
+
   return {
     toggledNodes: folders.reduce((acc, folder) => {
       acc[getUniqueId(folder)] = true
@@ -46,6 +40,29 @@ const getInitialState = currentFlow => {
 
 export default class FlowsList extends Component {
   menuButtons = {}
+
+  componentDidMount() {
+    this.initializeState(this.props)
+  }
+
+  componentDidUpdate(props) {
+    this.initializeState(props)
+  }
+
+  initializeState(props) {
+    const { currentFlow } = props
+
+    if (this.state.activeNode === null && currentFlow) {
+      const state = getInitialState(currentFlow)
+      this.setState(state)
+    }
+  }
+
+  state = {
+    showDropdownIndex: -1,
+    toggledNodes: {},
+    activeNode: null
+  }
 
   renderMenu = node => {
     if (this.props.readOnly) {
@@ -174,13 +191,8 @@ export default class FlowsList extends Component {
   }
 
   render() {
-    const { dirtyFlows, currentFlow } = this.props
-    if (!this.state && currentFlow) {
-      // TODO: find a better place for this initialization
-      // maybe componentDidMount / componentDidUpdate
-      // eslint-disable-next-line react/no-direct-mutation-state
-      this.state = getInitialState(currentFlow)
-    }
+    const { dirtyFlows } = this.props
+
     const treeData = this.buildTreeData()
     return (
       <Tree
