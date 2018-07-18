@@ -23,36 +23,36 @@ module.exports = async bp => {
   }
 
   const getOrCreateUser = async userId => {
-    const realUserId = sanitizeUserId(userId)
+    userId = sanitizeUserId(userId)
 
     let user = await knex('users')
       .where({
         platform: 'webchat',
-        userId: realUserId
+        userId
       })
       .then()
       .get(0)
 
     if (!user) {
       try {
-        user = createNewUser(realUserId)
+        user = createNewUser(userId)
       } catch (err) {
         bp.logger.error(err.message, err.stack)
-        throw new Error(`User ${realUserId} not found`)
+        throw new Error(`User ${userId} not found`)
       }
     }
 
-    knownUsersCache.set(realUserId, true)
+    knownUsersCache.set(userId, true)
     return user
   }
 
   const ensureUserExists = async userId => {
-    const realUserId = sanitizeUserId(userId)
-    if (knownUsersCache.has(realUserId)) {
+    userId = sanitizeUserId(userId)
+    if (knownUsersCache.has(userId)) {
       return
     }
     await getOrCreateUser(userId)
-    knownUsersCache.set(realUserId, true)
+    knownUsersCache.set(userId, true)
   }
 
   return { getOrCreateUser, ensureUserExists }
