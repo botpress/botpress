@@ -22,7 +22,7 @@ const BASIC_MENU_ITEMS = [
   },
   window.GHOST_ENABLED && {
     name: 'Version Control',
-    path: 'version-control',
+    path: '/version-control',
     rule: { res: 'bot.ghost_content', op: 'read' },
     icon: 'content_copy',
     renderSuffix() {
