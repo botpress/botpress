@@ -27,5 +27,5 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Eugene Mirotin <eugene@botpress.io>",
-  "license": "AGPL-3.0"
+  "license": "AGPL-3.0-only"
 }

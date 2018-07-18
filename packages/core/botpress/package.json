@@ -148,7 +148,7 @@
     "chatbot",
     "conversational"
   ],
-  "license": "AGPL-3.0",
+  "license": "AGPL-3.0-only",
   "main": "lib/index.js",
   "repository": "git+https://github.com/botpress/botpress.git",
   "os": [
