@@ -1,0 +1,26 @@
+{
+  "name": "ui",
+  "version": "1.0.0",
+  "main": "app.js",
+  "license": "MIT",
+  "dependencies": {
+    "@botpress/audience": "^10.23.0",
+    "@botpress/builtins": "^10.23.0",
+    "@botpress/channel-web": "^10.23.0",
+    "@botpress/hitl": "^10.23.0",
+    "@botpress/nlu": "^10.23.0",
+    "@botpress/skill-choice": "^10.23.0",
+    "dotenv": "^6.0.0",
+    "express": "^4.16.3",
+    "express-http-proxy": "^1.2.0",
+    "webpack": "^4.12.0"
+  },
+  "scripts": {
+    "start": "npm run serve",
+    "serve": "nodemon app.js"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.3",
+    "webpack-cli": "^3.1.0"
+  }
+}

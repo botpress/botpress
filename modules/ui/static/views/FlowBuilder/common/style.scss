@@ -1,0 +1,67 @@
+.action-item {
+  &.fn {
+    color: blue;
+  }
+
+  &.msg {
+    color: #1cbd57;
+  }
+
+  &.condition {
+    color: black;
+  }
+
+  .icon {
+    margin-right: 8px;
+  }
+
+  .name {
+    line-height: 1.7;
+
+    span {
+      padding: 2px 4px;
+      border-radius: 2px;
+    }
+
+    :global(.var) {
+      background-color: #e7f0ff;
+      color: blue;
+    }
+
+    :global(.val) {
+      background-color: #fff5ea;
+      color: #ff7c40;
+    }
+  }
+}
+
+.editableInput {
+  line-height: 22px;
+  font-size: 18px;
+  font-weight: 300;
+  color: #000;
+
+  &.defaultValue {
+    font-style: italic;
+    font-weight: 400;
+    color: #999;
+  }
+
+  width: 200px;
+
+  border: 1px solid #fff;
+  padding: 2px 5px;
+  border-radius: 3px;
+
+  &:hover {
+    border: 1px solid #eee;
+  }
+
+  &:focus {
+    outline-color: transparent;
+    outline-style: none;
+    font-weight: 300;
+    font-style: normal;
+    border: 1px solid #2d74f3;
+  }
+}
