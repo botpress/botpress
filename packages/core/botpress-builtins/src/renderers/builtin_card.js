@@ -1,3 +1,7 @@
 import Carousel from './builtin_carousel'
 
-export default data => Carousel([data])
+export default ({ BOT_URL, ...item }) =>
+  Carousel({
+    items: [item],
+    BOT_URL
+  })
