@@ -10,7 +10,7 @@ module.exports = projectLocation => {
       name: packageJson.name,
       version: packageJson.version,
       description: packageJson.description || '<no description>',
-      author: packageJson.author || '<no author>',
+      author: (typeof packageJson.author === 'object' ? packageJson.author.name : packageJson.author) || '<no author>',
       license: packageJson.license || 'AGPL-v3.0'
     }
   }
