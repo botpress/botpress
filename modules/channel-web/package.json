@@ -1,5 +1,5 @@
 {
-  "name": "botpress",
+  "name": "botpress-channel-web",
   "version": "0.0.0",
   "main": "bin/server",
   "author": "Botpress",
@@ -8,7 +8,7 @@
   "scripts": {
     "start": "npm run serve",
     "serve": "node dist/server.js",
-    "build": "npm run build-ts && npm run tslint",
+    "build": "npm run build-ts && npm run tslint && ./copyStaticFiles.sh",
     "build-ts": "tsc",
     "build-pkg": "npm run build && npm run pkg",
     "pkg": "pkg dist/server.js --target macos-x86,macos-x64,linux-x86,linux-x64,win-x86,win-x64 --output bin/botpress",
@@ -22,7 +22,7 @@
   "dependencies": {
     "dotenv": "^6.0.0",
     "express": "^4.16.3",
-    "express-http-proxy": "^1.2.0"
+    "lodash": "^4.17.10"
   },
   "devDependencies": {
     "@types/dotenv": "^4.0.3",

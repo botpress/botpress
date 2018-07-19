@@ -1,0 +1,20 @@
+{
+    "services": [
+        {
+            "name": "core",
+            "host": "http://localhost:3001"
+        },
+        {
+            "name": "channel-web",
+            "host": "http://localhost:3002"
+        },
+        {
+            "name": "nlu",
+            "host": "http://localhost:3003"
+        },
+        {
+            "name": "hitl",
+            "host": "http://localhost:3004"
+        }
+    ]
+}
