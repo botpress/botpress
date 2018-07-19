@@ -19,7 +19,8 @@ module.exports = (knex, config) => {
   const USER_INFO_CACHE_SIZE = 1000
   const KNOWN_CONVOS_CACHE_SIZE = 1000
 
-  const isLite = knex => helpers(knex).isLite()
+  const h = helpers(knex)
+  const isLite = () => h.isLite()
 
   const userInfoCache = LRU({
     maxAge: USER_INFO_CACHE_TTL,
@@ -45,7 +46,7 @@ module.exports = (knex, config) => {
           throw err
         })
 
-    return helpers(knex)
+    return h
       .createTableIfNotExists('web_conversations', table => {
         table.increments('id').primary()
         table.string('userId')
@@ -61,7 +62,7 @@ module.exports = (knex, config) => {
       .then(() => createIndex('web_conversations', ['id', 'userId']))
       .then(() => createIndex('web_conversations', ['userId', knex.raw('last_heard_on DESC')]))
       .then(() =>
-        helpers(knex).createTableIfNotExists('web_messages', table => {
+        h.createTableIfNotExists('web_messages', table => {
           table.string('id').primary()
           table.integer('conversationId')
           table.string('userId')
@@ -133,13 +134,14 @@ module.exports = (knex, config) => {
       ...(await getUserInfo(userId)),
       message_type: type,
       message_text: text,
-      message_raw: helpers(knex).json.set(raw),
-      message_data: helpers(knex).json.set(data),
-      sent_on: helpers(knex).date.now()
+      message_raw: h.json.set(raw),
+      message_data: h.json.set(data),
+      sent_on: h.date.now()
     }
 
     const shouldUpdateLastHeard = _.includes(userInitiatedMessageTypes, type.toLowerCase())
 
+    // PERF: these two queries are serious bottlenecks
     return Promise.join(
       knex('web_messages')
         .insert(message)
@@ -169,9 +171,9 @@ module.exports = (knex, config) => {
       avatar_url: botAvatar,
       message_type: type,
       message_text: text,
-      message_raw: helpers(knex).json.set(raw),
-      message_data: helpers(knex).json.set(data),
-      sent_on: helpers(knex).date.now()
+      message_raw: h.json.set(raw),
+      message_data: h.json.set(data),
+      sent_on: h.date.now()
     }
 
     await knex('web_messages')
@@ -194,10 +196,10 @@ module.exports = (knex, config) => {
       .substr(2, 6)
     const title = `Conversation ${uid}`
 
-    return helpers(knex).insertAndRetrieve('web_conversations', {
+    return h.insertAndRetrieve('web_conversations', {
       userId,
-      created_on: helpers(knex).date.now(),
-      last_heard_on: originatesFromUserMessage ? helpers(knex).date.now() : null,
+      created_on: h.date.now(),
+      last_heard_on: originatesFromUserMessage ? h.date.now() : null,
       title
     })
   }
@@ -258,7 +260,7 @@ module.exports = (knex, config) => {
 
     let lastMessages
 
-    if (isLite(knex)) {
+    if (h.isLite()) {
       const lastMessagesDate = knex('web_messages')
         .whereIn('conversationId', conversationIds)
         .groupBy('conversationId')
@@ -326,7 +328,6 @@ module.exports = (knex, config) => {
     }
 
     const messages = await getConversationMessages(conversationId, fromId)
-    const h = helpers(knex)
 
     messages.forEach(m => {
       Object.assign(m, {
