@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import Mustache from 'mustache'
 import Promise from 'bluebird'
 import { VM, VMScript } from 'vm2'
 import mware from 'mware'
@@ -684,10 +685,15 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
           args = JSON.parse(argsStr)
           const actionCtx = { state: userState, s: userState, event: event, e: event }
           args = _.mapValues(args, value => {
-            if (_.isString(value) && value.startsWith('{{') && value.endsWith('}}')) {
-              const key = value.substr(2, value.length - 4)
-              return _.get(actionCtx, key)
+            if (_.isString(value) && value.includes('{{')) {
+              try {
+                return Mustache.render(value, actionCtx)
+              } catch (err) {
+                this.logger.error(`Error rendering Mustache string ${value}: ${err.message}`)
+                return value
+              }
             }
+
             return value
           })
         } catch (err) {
