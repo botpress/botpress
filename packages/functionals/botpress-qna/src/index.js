@@ -99,7 +99,15 @@ module.exports = {
        */
       shouldProcessMessage(fn) {
         shouldProcessMessage = fn
-      }
+      },
+
+      /**
+       * @async
+       * Returns question by id
+       * @param {String} id - id of the question to look for
+       * @returns {Object}
+       */
+      getQuestion: storage.getQuestion.bind(storage)
     }
 
     const router = bp.getRouter('botpress-qna')
