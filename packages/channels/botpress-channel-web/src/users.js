@@ -1,14 +1,19 @@
 import sillyname from 'sillyname'
 import LRU from 'lru-cache'
+import ms from 'ms'
 
 import { sanitizeUserId } from './util'
 
 const USERS_CACHE_SIZE = 1000
+const USERS_CACHE_TTL = ms('10 minutes')
 
 module.exports = async bp => {
   const knex = await bp.db.get()
 
-  const knownUsersCache = LRU(USERS_CACHE_SIZE)
+  const knownUsersCache = LRU({
+    maxAge: USERS_CACHE_TTL,
+    max: USERS_CACHE_SIZE
+  })
 
   const createNewUser = userId => {
     const [first_name, last_name] = sillyname().split(' ')
@@ -25,7 +30,12 @@ module.exports = async bp => {
   const getOrCreateUser = async userId => {
     userId = sanitizeUserId(userId)
 
-    let user = await knex('users')
+    let user = knownUsersCache.get(userId)
+    if (user) {
+      return user
+    }
+
+    user = await knex('users')
       .where({
         platform: 'webchat',
         userId
@@ -42,7 +52,7 @@ module.exports = async bp => {
       }
     }
 
-    knownUsersCache.set(userId, true)
+    knownUsersCache.set(userId, user)
     return user
   }
 
