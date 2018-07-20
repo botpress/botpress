@@ -3,7 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-      <a name="10.24.2"></a>
+  <a name="10.24.3"></a>
+## [10.24.3](https://github.com/botpress/botpress/compare/v10.24.1...v10.24.3) (2018-07-20)
+
+
+### Bug Fixes
+
+* **core:** copy README on compiling botpress ([c6ccddb](https://github.com/botpress/botpress/commit/c6ccddb))
+* **core:** just use new README for now ([90362e5](https://github.com/botpress/botpress/commit/90362e5))
+
+
+
+
+  <a name="10.24.2"></a>
 ## [10.24.2](https://github.com/botpress/botpress/compare/v10.24.1...v10.24.2) (2018-07-20)
 
 
@@ -15,7 +27,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-      <a name="10.24.1"></a>
+<a name="10.24.1"></a>
 ## [10.24.1](https://github.com/botpress/botpress/compare/v10.24.0...v10.24.1) (2018-07-20)
 
 
