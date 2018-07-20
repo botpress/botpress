@@ -9,3 +9,6 @@ node ./webpack.web.js --compile
 
 echo "--> Copying templates"
 cp -a ./src/cli/templates lib/cli/
+
+echo "--> Copying README"
+[ -f "../../../README.md" ] && rm README.md && cp "../../../README.md" README.md
