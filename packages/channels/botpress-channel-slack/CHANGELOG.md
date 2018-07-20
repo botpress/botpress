@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.24.0"></a>
+# [10.24.0](https://github.com/botpress/modules/compare/v10.23.0...v10.24.0) (2018-07-20)
+
+
+### Bug Fixes
+
+* **slack:** added method for update config (resolve [#705](https://github.com/botpress/modules/issues/705)) ([fb96afd](https://github.com/botpress/modules/commit/fb96afd))
+
+
+
+
 <a name="10.23.0"></a>
 # [10.23.0](https://github.com/botpress/modules/compare/v10.22.4...v10.23.0) (2018-07-13)
 

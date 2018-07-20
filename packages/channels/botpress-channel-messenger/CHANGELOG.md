@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.24.0"></a>
+# [10.24.0](https://github.com/botpress/modules/compare/v10.23.0...v10.24.0) (2018-07-20)
+
+
+### Bug Fixes
+
+* **docs:** added tutorial for messenger configuration ([732d2e5](https://github.com/botpress/modules/commit/732d2e5))
+
+
+
+
 <a name="10.23.0"></a>
 # [10.23.0](https://github.com/botpress/modules/compare/v10.22.4...v10.23.0) (2018-07-13)
 

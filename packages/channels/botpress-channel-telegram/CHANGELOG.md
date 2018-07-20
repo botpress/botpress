@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.24.0"></a>
+# [10.24.0](https://github.com/botpress/modules/compare/v10.23.0...v10.24.0) (2018-07-20)
+
+
+### Bug Fixes
+
+* **telegram:** fix telegram load (resolve [#733](https://github.com/botpress/modules/issues/733)) ([a726c9c](https://github.com/botpress/modules/commit/a726c9c))
+* **telegram:** improve stateId from telegram (resolve [#715](https://github.com/botpress/modules/issues/715)) ([50580af](https://github.com/botpress/modules/commit/50580af))
+
+
+
+
 <a name="10.23.0"></a>
 # [10.23.0](https://github.com/botpress/modules/compare/v10.22.4...v10.23.0) (2018-07-13)
 
