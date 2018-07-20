@@ -1,7 +1,7 @@
 {
   "name": "botpress-fake-root",
   "description": "This package describes the dependencies needed to run things locally due to Babel, Lerna and Node nto always playing well together",
-  "version": "10.24.3",
+  "version": "10.24.4",
   "private": true,
   "devDependencies": {
     "babel-plugin-transform-class-properties": "^6.24.1",
