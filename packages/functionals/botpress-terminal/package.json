@@ -22,7 +22,7 @@
     "access": "public"
   },
   "author": "Botpress Team",
-  "license": "AGPL-3.0",
+  "license": "AGPL-3.0-only",
   "peerDependencies": {
     "botpress": ">= 10.0.0"
   },
