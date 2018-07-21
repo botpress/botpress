@@ -1,4 +1,5 @@
 import retry from 'bluebird-retry'
+import moment from 'moment'
 
 import Storage from './storage'
 import Parser from './parser'
@@ -51,7 +52,10 @@ module.exports = {
     maximumConfidence: { type: 'string', required: false, default: '1000', env: 'NLU_MAX_CONFIDENCE' },
 
     // The minimum difference between scores required before we apply a distribution fixes
-    nativeAdjustementThreshold: { type: 'string', required: false, default: '0.25', env: 'NLU_NATIVE_ADJ_THRESHOLD' }
+    nativeAdjustementThreshold: { type: 'string', required: false, default: '0.25', env: 'NLU_NATIVE_ADJ_THRESHOLD' },
+    // The maximum number of requests per hour
+    // Useful to make sure you don't overuse your budget on paid NLU-services (like LUIS)
+    maximumRequestsPerHour: { type: 'string', required: false, default: '1000', env: 'NLU_MAX_REQUESTS_PER_HOUR' }
   },
 
   init: async function(bp, configurator) {
@@ -102,6 +106,20 @@ module.exports = {
     async function processEvent(event) {
       if (['session_reset', 'bp_dialog_timeout'].includes(event.type)) {
         return
+      }
+
+      const previous = JSON.parse((await bp.kvs.get('nlu/requestsLimit')) || '{}')
+      const hour = moment().startOf('hour')
+      const requestsCount = hour.isSame(previous.hour) ? previous.requestsCount : 0
+
+      await bp.kvs.set('nlu/requestsLimit', JSON.stringify({ hour, requestsCount: requestsCount + 1 }))
+
+      const maximumRequestsPerHour = parseFloat(config.maximumRequestsPerHour)
+      if (requestsCount > maximumRequestsPerHour) {
+        throw new Error(
+          `[NLU] Requests limit per hour exceeded: ${maximumRequestsPerHour} allowed ` +
+            `while getting ${requestsCount}. You can set higher value to NLU_MAX_REQUESTS_PER_HOUR.`
+        )
       }
 
       let eventIntent = {}
