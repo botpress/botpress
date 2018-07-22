@@ -12,7 +12,7 @@ A module is an extra component outside of the Botpress Core itself that you can 
 
 ## Channels <a class="toc" id="channels" href="#channels"></a>
 
-A **channel** is a kind of module that allows your bot to receive and send messages from and to a specific chat platform (Slack, Facebook Messenger, Telegram, etc.).
+A **channel** is a module that allows your bot to send and receive messages from a specific chat platform (Slack, Facebook Messenger, Telegram, etc.).
 
 > **Note**: Unlike most other bot platforms, channels are installed and configured individually and locally, which means you have full control over the data that is transmitted between your bot and the chat platforms. Botpress does not proxy the messages to a 3rd party service as Microsoft Bot Framework does.
 
@@ -24,9 +24,9 @@ Behind the scenes, Botpress implements a queuing mechanism that processes ingoin
 
 Although NLU is optional, a bot without NLU would have to rely on obsolete techniques such as keywords detection to process the incoming messages and reply correctly.
 
-NLU is a subset of NLP (_Natural Language Processing_). NLU is, in general, a very complex subject involving linguistics and machine learning. Fortunately, there are many providers that allow us to abstract all these complexities, such as [LUIS](https://luis.ai) (Microsoft), [DialogFlow](https://dialogflow.com/) (Google), [IBM Watson](https://www.ibm.com/watson/services/natural-language-understanding/) and [RASA](https://github.com/RasaHQ/rasa_nlu).
+NLU is a subset of NLP (_Natural Language Processing_). NLU is, in general, a very complex subject involving linguistics and machine learning. Fortunately, there are many providers that allow us to abstract all these complexities, such as [LUIS](https://www.luis.ai) (Microsoft), [DialogFlow](https://dialogflow.com/) (Google), [IBM Watson](https://www.ibm.com/watson/services/natural-language-understanding/) and [RASA](https://github.com/RasaHQ/rasa_nlu).
 
-NLU is available in Botpress by installing a module called [`botpress-nlu`](https://github.com/botpress/botpress-nlu), which provides this functionality by connecting to any of these providers.
+NLU is available in Botpress by installing the [`botpress-nlu`](https://github.com/botpress/modules/tree/master/functionals/botpress-nlu) module and can be connected to any of these providers.
 
 ## Dialogue Manager <a class="toc" id="dialogue" href="#dialogue"></a>
 
