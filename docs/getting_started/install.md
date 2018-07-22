@@ -22,7 +22,7 @@ yarn global add botpress
 
 > If you have a permission error at this stage, consider running the command as an administrator.
 
-Once installed, make sure that Botpress is well installed. Running the following command should return the version of the CLI tool:
+Running the following command should return the version of the CLI tool letting you know that everything installed correctly:
 
 ```bash
 # long version
@@ -54,7 +54,7 @@ The dependencies might take a while to install the first time. If for some reaso
 
 ### Starting the bot <a class="toc" id="toc-starting-bot" href="#toc-starting-bot"></a>
 
-Once the dependencies are installed, you may start the bot:
+Once the dependencies are installed, you can start the bot using:
 
 ```bash
 # using npm
