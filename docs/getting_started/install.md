@@ -54,7 +54,7 @@ The dependencies might take a while to install the first time. If for some reaso
 
 ### Starting the bot <a class="toc" id="toc-starting-bot" href="#toc-starting-bot"></a>
 
-Once the dependencies are installed, you can start the bot using:
+Once the dependencies are installed, start the bot using:
 
 ```bash
 # using npm
