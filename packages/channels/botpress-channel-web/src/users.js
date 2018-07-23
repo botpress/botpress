@@ -45,11 +45,15 @@ module.exports = async bp => {
 
     if (!user) {
       try {
-        user = createNewUser(userId)
+        user = await createNewUser(userId)
       } catch (err) {
         bp.logger.error(err.message, err.stack)
         throw new Error(`User ${userId} not found`)
       }
+    }
+
+    if (!user) {
+      throw new Error(`User ${userId} not found`)
     }
 
     knownUsersCache.set(userId, user)
@@ -57,12 +61,7 @@ module.exports = async bp => {
   }
 
   const ensureUserExists = async userId => {
-    userId = sanitizeUserId(userId)
-    if (knownUsersCache.has(userId)) {
-      return
-    }
     await getOrCreateUser(userId)
-    knownUsersCache.set(userId, true)
   }
 
   return { getOrCreateUser, ensureUserExists }
