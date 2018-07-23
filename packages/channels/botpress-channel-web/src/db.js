@@ -1,6 +1,6 @@
 import moment from 'moment'
 import Promise from 'bluebird'
-import _ from 'lodash'
+import { orderBy, keyBy, throttle, memoize } from 'lodash'
 import uuid from 'uuid'
 import ms from 'ms'
 import LRU from 'lru-cache'
@@ -119,6 +119,17 @@ module.exports = knex => {
     return res
   }
 
+  const bumpLastHeardOn = memoize(conversationId =>
+    throttle(
+      () =>
+        knex('web_conversations')
+          .where('id', conversationId)
+          .update({ last_heard_on: h.date.now() })
+          .then(),
+      50
+    )
+  )
+
   async function appendUserMessage(userId, conversationId, { type, text, raw, data }) {
     userId = sanitizeUserId(userId)
 
@@ -136,16 +147,13 @@ module.exports = knex => {
       sent_on: h.date.now()
     }
 
-    // PERF: these two queries are serious bottlenecks
+    // PERF: message insertion is a serious bottlenecks
     return Promise.join(
       knex('web_messages')
         .insert(message)
         .then(),
 
-      knex('web_conversations')
-        .where('id', conversationId)
-        .update({ last_heard_on: h.date.now() })
-        .then(),
+      bumpLastHeardOn(conversationId)(),
 
       () => ({
         ...message,
@@ -246,7 +254,7 @@ module.exports = knex => {
       .then()
 
     const conversationIds = conversations.map(c => c.id)
-    const conversationById = _.keyBy(conversations, 'id')
+    const conversationById = keyBy(conversations, 'id')
 
     const messages = await knex
       .from(function() {
@@ -303,7 +311,7 @@ module.exports = knex => {
     })
 
     return Object.assign({}, conversation, {
-      messages: _.orderBy(messages, ['sent_on'], ['asc'])
+      messages: orderBy(messages, ['sent_on'], ['asc'])
     })
   }
 
