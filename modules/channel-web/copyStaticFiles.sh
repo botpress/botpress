@@ -1,2 +1,2 @@
 echo "Copying static files to tsc generated files"
-cd ./static && rm -r ../dist/static && mkdir ../dist/static/ && cp * ../dist/static/
+cd ./static && rm -rf ../dist/static && mkdir ../dist/static/ && cp * ../dist/static/

@@ -64,13 +64,20 @@ app.get('/api/notifications/inbox', (req, res) => {
 })
 
 app.get('/api/community/hero', (req, res) => {
-  res.send({ hidden: _.get(bp, 'botfile.heroSection.hidden', false) })
+  res.send({ hidden: true })
 })
 
 app.get('/api/botpress-plateforme-webchat/inject.js', (req, res) => {
   const absolutePath = path.join(__dirname, 'static/inject.js')
 
   res.contentType('text/javascript')
+  res.sendFile(absolutePath)
+})
+
+app.get('/*', (req, res) => {
+  const absolutePath = path.join(__dirname, 'static/index.html')
+
+  res.contentType('text/html')
   res.sendFile(absolutePath)
 })
 
