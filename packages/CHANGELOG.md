@@ -3,6 +3,30 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.25.0"></a>
+# [10.25.0](https://github.com/botpress/botpress/compare/v10.24.4...v10.25.0) (2018-07-23)
+
+
+### Bug Fixes
+
+* cleanup ([bdd769b](https://github.com/botpress/botpress/commit/bdd769b))
+* **channel-web:** don't set last_heard_on for new convos ([3448fc3](https://github.com/botpress/botpress/commit/3448fc3))
+* **channel-web:** import bluebird ([dc5359d](https://github.com/botpress/botpress/commit/dc5359d))
+* **channel-web:** init new convo with last_heard_on ([16e0816](https://github.com/botpress/botpress/commit/16e0816))
+* **channel-web:** set last_heard_on for new convos ([6c05b92](https://github.com/botpress/botpress/commit/6c05b92))
+* **core:** fix _findNode check ([85795a4](https://github.com/botpress/botpress/commit/85795a4))
+* **core:** fix dialog engine ([b8cd753](https://github.com/botpress/botpress/commit/b8cd753))
+* **core:** keep choice-skills' links on skill edit (resolve [#693](https://github.com/botpress/botpress/issues/693)) ([b2a91ce](https://github.com/botpress/botpress/commit/b2a91ce))
+
+
+### Features
+
+* **logs:** implement minimum log level ([5f160d8](https://github.com/botpress/botpress/commit/5f160d8))
+* **nlu:** limit requests per hour ([f81873f](https://github.com/botpress/botpress/commit/f81873f))
+
+
+
+
 <a name="10.24.4"></a>
 ## [10.24.4](https://github.com/botpress/botpress/compare/v10.24.3...v10.24.4) (2018-07-20)
 

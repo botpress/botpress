@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.25.0"></a>
+# [10.25.0](https://github.com/botpress/botpress/compare/v10.24.4...v10.25.0) (2018-07-23)
+
+
+### Bug Fixes
+
+* cleanup ([bdd769b](https://github.com/botpress/botpress/commit/bdd769b))
+* **core:** fix _findNode check ([85795a4](https://github.com/botpress/botpress/commit/85795a4))
+* **core:** fix dialog engine ([b8cd753](https://github.com/botpress/botpress/commit/b8cd753))
+* **core:** keep choice-skills' links on skill edit (resolve [#693](https://github.com/botpress/botpress/issues/693)) ([b2a91ce](https://github.com/botpress/botpress/commit/b2a91ce))
+
+
+### Features
+
+* **logs:** implement minimum log level ([5f160d8](https://github.com/botpress/botpress/commit/5f160d8))
+
+
+
+
 <a name="10.24.4"></a>
 ## [10.24.4](https://github.com/botpress/botpress/compare/v10.24.3...v10.24.4) (2018-07-20)
 

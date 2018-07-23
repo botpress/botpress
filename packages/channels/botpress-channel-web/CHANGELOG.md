@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.25.0"></a>
+# [10.25.0](https://github.com/botpress/modules/compare/v10.24.4...v10.25.0) (2018-07-23)
+
+
+### Bug Fixes
+
+* **channel-web:** don't set last_heard_on for new convos ([3448fc3](https://github.com/botpress/modules/commit/3448fc3))
+* **channel-web:** import bluebird ([dc5359d](https://github.com/botpress/modules/commit/dc5359d))
+* **channel-web:** init new convo with last_heard_on ([16e0816](https://github.com/botpress/modules/commit/16e0816))
+* **channel-web:** set last_heard_on for new convos ([6c05b92](https://github.com/botpress/modules/commit/6c05b92))
+
+
+
+
 <a name="10.24.4"></a>
 ## [10.24.4](https://github.com/botpress/modules/compare/v10.24.3...v10.24.4) (2018-07-20)
 
