@@ -2,14 +2,16 @@ const express = require('express')
 const app = express()
 const path = require('path')
 const dotenv = require('dotenv')
-var proxy = require('express-http-proxy')
 const fs = require('fs')
+const proxy = require('express-http-proxy')
+const _ = require('lodash')
 
 dotenv.config()
 
 app.use(express.static('./static'))
 
-const apiProxy = (originPath, targetPath, targetHost) => {
+// TODO: Extract in shared module
+const httpProxy = (originPath, targetPath, targetHost) => {
   app.use(
     originPath,
     proxy(targetHost, {
@@ -18,12 +20,9 @@ const apiProxy = (originPath, targetPath, targetHost) => {
   )
 }
 
-apiProxy('/api/modules', '/api/v1/core/modules', process.env.CORE_API_URL)
-apiProxy('/api/bot/information', '/api/v1/core/modules', process.env.CORE_API_URL)
-
-//api/v1/core/bots/{botId}/...
-//api/v1/nlu/bots/{botId}/...
-//api/v1/hitl/bots/{botId}/...
+httpProxy('/api/modules', '/api/v1/modules', process.env.CORE_API_URL)
+httpProxy('/js/modules/channel-web', '/api/v1/modules/channel-web', process.env.CORE_API_URL)
+httpProxy('/api/bot/information', '/api/v1/bot/information', process.env.CORE_API_URL)
 
 app.get('/js/env.js', (req, res) => {
   res.contentType('text/javascript')
@@ -49,10 +48,6 @@ app.get('/js/env.js', (req, res) => {
 app.get('/js/commons.js', (req, res) => {
   const absolutePath = path.join(__dirname, 'static/commons.js')
 
-  if (!fs.existsSync(absolutePath)) {
-    console.error('commons.js is missing!')
-  }
-
   res.contentType('text/javascript')
   res.sendFile(absolutePath)
 })
@@ -60,16 +55,23 @@ app.get('/js/commons.js', (req, res) => {
 app.get('/js/web.729e9680ac37ff307159.js', (req, res) => {
   const absolutePath = path.join(__dirname, 'static/web.729e9680ac37ff307159.js')
 
-  if (!fs.existsSync(absolutePath)) {
-    console.error('web.729e9680ac37ff307159.js is missing!')
-  }
-
   res.contentType('text/javascript')
   res.sendFile(absolutePath)
 })
 
 app.get('/api/notifications/inbox', (req, res) => {
   res.send('[]')
+})
+
+app.get('/api/community/hero', (req, res) => {
+  res.send({ hidden: _.get(bp, 'botfile.heroSection.hidden', false) })
+})
+
+app.get('/api/botpress-plateforme-webchat/inject.js', (req, res) => {
+  const absolutePath = path.join(__dirname, 'static/inject.js')
+
+  res.contentType('text/javascript')
+  res.sendFile(absolutePath)
 })
 
 app.listen(process.env.HOST_PORT, () =>
