@@ -23,8 +23,15 @@ export default function(bp) {
       return next()
     }
 
-    const convoCount = await bp.users.getTag(stateId, USER_TAG_CONVO_COUNT)
-    await bp.users.tag(stateId, USER_TAG_CONVO_COUNT, parseInt(convoCount || 0) + 1)
+    // TODO: implement proper atomic increment
+    // and eliminate simultaneous INSERTs that violate
+    // unique constraint
+    try {
+      const convoCount = await bp.users.getTag(stateId, USER_TAG_CONVO_COUNT)
+      await bp.users.tag(stateId, USER_TAG_CONVO_COUNT, parseInt(convoCount || 0) + 1)
+    } catch (err) {
+      // console.error(err.message)
+    }
 
     next()
   })
@@ -41,8 +48,14 @@ export default function(bp) {
       return next()
     }
 
-    const position = await bp.dialogEngine.getCurrentPosition(stateId)
-    await bp.users.tag(stateId, USER_TAG_CONVO_LAST, position && position.flow)
+    // TODO: eliminate simultaneous INSERTs that violate
+    // unique constraint
+    try {
+      const position = await bp.dialogEngine.getCurrentPosition(stateId)
+      await bp.users.tag(stateId, USER_TAG_CONVO_LAST, position && position.flow)
+    } catch (err) {
+      // console.error(err.message)
+    }
 
     //
     // Cleans up Conversation Storage variables
