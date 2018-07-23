@@ -9,7 +9,7 @@
   },
   "keywords": ["botpress", "benchmark"],
   "author": "Botpress, Inc.",
-  "license": "AGPL-3.0",
+  "license": "AGPL-3.0-only",
   "devDependencies": {},
   "dependencies": {
     "artillery": "^1.6.0-20"

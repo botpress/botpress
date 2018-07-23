@@ -98,7 +98,7 @@ docs_additional_reading: "Additional Reading"
   description: "Learn how to embet bot to your website"
 
 "/recipes/proactive/":
-  title: "Proactive actions"
+  title: "Proactive Actions"
   description: "Learn how to make bot start conversation"
 
 "/recipes/apis/":
@@ -134,20 +134,28 @@ docs_additional_reading: "Additional Reading"
   description: "Learn how to jump to specific flow and node programmatically"
 
 "/recipes/dbs/":
-  title: "Connecting to databases"
+  title: "Connecting to Databases"
   description: "Learn how to integrate 3rd-party databases into your bot"
 
 "/recipes/modules/":
-  title: "Creating modules"
+  title: "Creating Modules"
   description: "Learn how to create and use botpress-modules"
 
 "/recipes/webchat-ext/":
-  title: "Creating webchat-extensions"
+  title: "Creating Webchat-Extensions"
   description: "Learn how to create and use webchat-extensions"
 
 "/recipes/webpack/":
-  title: "Transpiling bot's sources"
+  title: "Transpiling Bot's Sources"
   description: "Learn how to use webpack to transpile bot's sources"
+
+"/recipes/scheduling/":
+  title: "Scheduling Actions"
+  description: "Learn how to schedule bot's actions"
+
+"/recipes/broadcasting/":
+  title: "Broadcasting Messages"
+  description: "Learn how to broadcast messages to multiple users"
 
 guides:
   

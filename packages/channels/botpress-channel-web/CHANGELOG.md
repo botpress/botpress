@@ -3,6 +3,122 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.25.0"></a>
+# [10.25.0](https://github.com/botpress/modules/compare/v10.24.4...v10.25.0) (2018-07-23)
+
+
+### Bug Fixes
+
+* **channel-web:** don't set last_heard_on for new convos ([3448fc3](https://github.com/botpress/modules/commit/3448fc3))
+* **channel-web:** import bluebird ([dc5359d](https://github.com/botpress/modules/commit/dc5359d))
+* **channel-web:** init new convo with last_heard_on ([16e0816](https://github.com/botpress/modules/commit/16e0816))
+* **channel-web:** set last_heard_on for new convos ([6c05b92](https://github.com/botpress/modules/commit/6c05b92))
+
+
+
+
+<a name="10.24.4"></a>
+## [10.24.4](https://github.com/botpress/modules/compare/v10.24.3...v10.24.4) (2018-07-20)
+
+
+
+
+**Note:** Version bump only for package @botpress/channel-web
+
+<a name="10.24.3"></a>
+## [10.24.3](https://github.com/botpress/modules/compare/v10.24.1...v10.24.3) (2018-07-20)
+
+
+
+
+**Note:** Version bump only for package @botpress/channel-web
+
+<a name="10.24.2"></a>
+## [10.24.2](https://github.com/botpress/modules/compare/v10.24.1...v10.24.2) (2018-07-20)
+
+
+
+
+**Note:** Version bump only for package @botpress/channel-web
+
+<a name="10.24.1"></a>
+## [10.24.1](https://github.com/botpress/modules/compare/v10.24.0...v10.24.1) (2018-07-20)
+
+
+
+
+**Note:** Version bump only for package @botpress/channel-web
+
+<a name="10.24.0"></a>
+# [10.24.0](https://github.com/botpress/modules/compare/v10.23.0...v10.24.0) (2018-07-20)
+
+
+### Features
+
+* **chat:** added 'ref' query into [host]/s/chat (resolve [#721](https://github.com/botpress/modules/issues/721)) ([c5525c7](https://github.com/botpress/modules/commit/c5525c7))
+
+
+
+
+<a name="10.23.0"></a>
+# [10.23.0](https://github.com/botpress/modules/compare/v10.22.4...v10.23.0) (2018-07-13)
+
+
+
+
+**Note:** Version bump only for package @botpress/channel-web
+
+<a name="10.22.4"></a>
+## [10.22.4](https://github.com/botpress/modules/compare/v10.22.3...v10.22.4) (2018-07-11)
+
+
+
+
+**Note:** Version bump only for package @botpress/channel-web
+
+<a name="10.22.3"></a>
+## [10.22.3](https://github.com/botpress/modules/compare/v10.22.0...v10.22.3) (2018-07-05)
+
+
+
+
+**Note:** Version bump only for package @botpress/channel-web
+
+<a name="10.22.2"></a>
+## [10.22.2](https://github.com/botpress/modules/compare/v10.22.1...v10.22.2) (2018-07-03)
+
+
+
+
+**Note:** Version bump only for package @botpress/channel-web
+
+<a name="10.22.1"></a>
+## [10.22.1](https://github.com/botpress/modules/compare/v10.22.0...v10.22.1) (2018-07-03)
+
+
+
+
+**Note:** Version bump only for package @botpress/channel-web
+
+<a name="10.22.0"></a>
+# [10.22.0](https://github.com/botpress/modules/compare/v10.21.0...v10.22.0) (2018-07-03)
+
+
+
+
+**Note:** Version bump only for package @botpress/channel-web
+
+<a name="10.21.0"></a>
+# [10.21.0](https://github.com/botpress/modules/compare/v10.17.2...v10.21.0) (2018-07-03)
+
+
+### Bug Fixes
+
+* **webchat:** keyframes anymation fallback for ie (resolve [#657](https://github.com/botpress/modules/issues/657)) ([5dce355](https://github.com/botpress/modules/commit/5dce355))
+
+
+
+
 <a name="10.20.1"></a>
 ## [10.20.1](https://github.com/botpress/modules/compare/v10.20.0...v10.20.1) (2018-06-21)
 

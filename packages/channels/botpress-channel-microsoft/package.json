@@ -1,6 +1,6 @@
 {
   "name": "@botpress/channel-microsoft",
-  "version": "10.20.1",
+  "version": "10.25.0",
   "description": "Botpress connector for the Microsoft Bot Framework",
   "main": "bin/node.bundle.js",
   "botpress": {
@@ -18,7 +18,7 @@
     "access": "public"
   },
   "author": "Botpress",
-  "license": "AGPL-3.0",
+  "license": "AGPL-3.0-only",
   "devDependencies": {
     "babel-core": "^6.18.2",
     "babel-loader": "^6.2.7",

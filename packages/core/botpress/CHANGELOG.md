@@ -3,6 +3,220 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.25.0"></a>
+# [10.25.0](https://github.com/botpress/botpress/compare/v10.24.4...v10.25.0) (2018-07-23)
+
+
+### Bug Fixes
+
+* cleanup ([bdd769b](https://github.com/botpress/botpress/commit/bdd769b))
+* **core:** fix _findNode check ([85795a4](https://github.com/botpress/botpress/commit/85795a4))
+* **core:** fix dialog engine ([b8cd753](https://github.com/botpress/botpress/commit/b8cd753))
+* **core:** keep choice-skills' links on skill edit (resolve [#693](https://github.com/botpress/botpress/issues/693)) ([b2a91ce](https://github.com/botpress/botpress/commit/b2a91ce))
+
+
+### Features
+
+* **logs:** implement minimum log level ([5f160d8](https://github.com/botpress/botpress/commit/5f160d8))
+
+
+
+
+<a name="10.24.4"></a>
+## [10.24.4](https://github.com/botpress/botpress/compare/v10.24.3...v10.24.4) (2018-07-20)
+
+
+### Bug Fixes
+
+* **core:** fix prepublish script ([45cce40](https://github.com/botpress/botpress/commit/45cce40))
+
+
+
+
+<a name="10.24.3"></a>
+## [10.24.3](https://github.com/botpress/botpress/compare/v10.24.1...v10.24.3) (2018-07-20)
+
+
+### Bug Fixes
+
+* **core:** copy README on compiling botpress ([c6ccddb](https://github.com/botpress/botpress/commit/c6ccddb))
+* **core:** just use new README for now ([90362e5](https://github.com/botpress/botpress/commit/90362e5))
+
+
+
+
+<a name="10.24.2"></a>
+## [10.24.2](https://github.com/botpress/botpress/compare/v10.24.1...v10.24.2) (2018-07-20)
+
+
+### Bug Fixes
+
+* **core:** copy README on compiling botpress ([c6ccddb](https://github.com/botpress/botpress/commit/c6ccddb))
+* **core:** just use new README for now ([90362e5](https://github.com/botpress/botpress/commit/90362e5))
+
+
+
+
+<a name="10.24.1"></a>
+## [10.24.1](https://github.com/botpress/botpress/compare/v10.24.0...v10.24.1) (2018-07-20)
+
+
+### Bug Fixes
+
+* **core:** copy botpress README before publishing (resovle [#729](https://github.com/botpress/botpress/issues/729)) ([4e50546](https://github.com/botpress/botpress/commit/4e50546))
+
+
+
+
+<a name="10.24.0"></a>
+# [10.24.0](https://github.com/botpress/botpress/compare/v10.23.0...v10.24.0) (2018-07-20)
+
+
+### Bug Fixes
+
+* **core:** async renderers should keep messages order (resolve [#736](https://github.com/botpress/botpress/issues/736)) ([8e9449e](https://github.com/botpress/botpress/commit/8e9449e))
+* **core:** correctly get author information from bots ([8f286b7](https://github.com/botpress/botpress/commit/8f286b7)), closes [/github.com/sindresorhus/is/blob/b2bb3e7d3717de9734a3881156b1f8ab00236fe9/package.json#L7-L11](https://github.com//github.com/sindresorhus/is/blob/b2bb3e7d3717de9734a3881156b1f8ab00236fe9/package.json/issues/L7-L11)
+* **slack:** added method for update config (resolve [#705](https://github.com/botpress/botpress/issues/705)) ([fb96afd](https://github.com/botpress/botpress/commit/fb96afd))
+
+
+### Features
+
+* **chat:** added 'ref' query into [host]/s/chat (resolve [#721](https://github.com/botpress/botpress/issues/721)) ([c5525c7](https://github.com/botpress/botpress/commit/c5525c7))
+* **core:** added toast to module view props (resolve [#40](https://github.com/botpress/botpress/issues/40)) ([63c6361](https://github.com/botpress/botpress/commit/63c6361))
+
+
+
+
+<a name="10.23.0"></a>
+# [10.23.0](https://github.com/botpress/botpress/compare/v10.22.4...v10.23.0) (2018-07-13)
+
+
+### Bug Fixes
+
+* **webpack:** change chunk spliting and improve config (resolve [#725](https://github.com/botpress/botpress/issues/725)) ([541d5fd](https://github.com/botpress/botpress/commit/541d5fd))
+
+
+
+
+<a name="10.22.4"></a>
+## [10.22.4](https://github.com/botpress/botpress/compare/v10.22.3...v10.22.4) (2018-07-11)
+
+
+### Bug Fixes
+
+* improper new calls ([3e7ed8f](https://github.com/botpress/botpress/commit/3e7ed8f))
+* restore log archive loading using axios ([d088fc8](https://github.com/botpress/botpress/commit/d088fc8))
+* **core:** ghost-sync ignores deleting missing files ([f8f7f27](https://github.com/botpress/botpress/commit/f8f7f27))
+* **core:** remove now unneeded evals ([f718d92](https://github.com/botpress/botpress/commit/f718d92))
+* **flow:** change a text el to an action ([474c362](https://github.com/botpress/botpress/commit/474c362))
+* **logs:** remove now unneeded logs secret key ([3c57c06](https://github.com/botpress/botpress/commit/3c57c06))
+* **skill:** pull choices (resolve [#711](https://github.com/botpress/botpress/issues/711)) ([d439f0a](https://github.com/botpress/botpress/commit/d439f0a))
+* **template:** change .gitignore (resolve [#601](https://github.com/botpress/botpress/issues/601)) ([5018009](https://github.com/botpress/botpress/commit/5018009))
+
+
+
+
+<a name="10.22.3"></a>
+## [10.22.3](https://github.com/botpress/botpress/compare/v10.22.0...v10.22.3) (2018-07-05)
+
+
+### Bug Fixes
+
+* options not always defined across multiple botpress envs ([108d371](https://github.com/botpress/botpress/commit/108d371))
+* opts might not be a function ([22cf41f](https://github.com/botpress/botpress/commit/22cf41f))
+* **dialog:** handle race conditions ([9113f60](https://github.com/botpress/botpress/commit/9113f60))
+* **docs:** jumps recipe should 'await' jumping to node ([3ad8619](https://github.com/botpress/botpress/commit/3ad8619))
+
+
+
+
+<a name="10.22.2"></a>
+## [10.22.2](https://github.com/botpress/botpress/compare/v10.22.1...v10.22.2) (2018-07-03)
+
+
+### Bug Fixes
+
+* opts might not be a function ([22cf41f](https://github.com/botpress/botpress/commit/22cf41f))
+
+
+
+
+<a name="10.22.1"></a>
+## [10.22.1](https://github.com/botpress/botpress/compare/v10.22.0...v10.22.1) (2018-07-03)
+
+
+### Bug Fixes
+
+* options not always defined across multiple botpress envs ([108d371](https://github.com/botpress/botpress/commit/108d371))
+
+
+
+
+<a name="10.22.0"></a>
+# [10.22.0](https://github.com/botpress/botpress/compare/v10.21.0...v10.22.0) (2018-07-03)
+
+
+
+
+**Note:** Version bump only for package botpress
+
+<a name="10.21.0"></a>
+# [10.21.0](https://github.com/botpress/botpress/compare/v10.17.2...v10.21.0) (2018-07-03)
+
+
+### Bug Fixes
+
+* **botfile:** added default value for hiddenHeroSection (resolve [#647](https://github.com/botpress/botpress/issues/647)) ([9d5cf80](https://github.com/botpress/botpress/commit/9d5cf80))
+* **cli:** botpress init --yes inits bot in current dir (resolve [#623](https://github.com/botpress/botpress/issues/623)) ([50a1d3a](https://github.com/botpress/botpress/commit/50a1d3a))
+* **code:** empty dashboard when user signed in (resolve [#635](https://github.com/botpress/botpress/issues/635)) ([41283de](https://github.com/botpress/botpress/commit/41283de))
+* **content:** blank page (ref [#620](https://github.com/botpress/botpress/issues/620)) ([ecbbeda](https://github.com/botpress/botpress/commit/ecbbeda))
+* **core:** content-widget placeholder shows selected item (resolve [#673](https://github.com/botpress/botpress/issues/673)) ([39c5b2c](https://github.com/botpress/botpress/commit/39c5b2c))
+* **core:** enable modules config watching (resolve [#519](https://github.com/botpress/botpress/issues/519)) ([8e7393f](https://github.com/botpress/botpress/commit/8e7393f))
+* **core:** fix for the user with id === 0 ([05ad1ce](https://github.com/botpress/botpress/commit/05ad1ce))
+* **core:** fix utc (resolve [#494](https://github.com/botpress/botpress/issues/494)) ([780b4f2](https://github.com/botpress/botpress/commit/780b4f2))
+* **core:** flowbuilder imports should match filenames ([cfebba5](https://github.com/botpress/botpress/commit/cfebba5))
+* **core:** make sqlite3 optional and warn if using node v10 (ref [#526](https://github.com/botpress/botpress/issues/526)) ([a5cf727](https://github.com/botpress/botpress/commit/a5cf727))
+* **core:** timeout-flow should be triggered (ref [#628](https://github.com/botpress/botpress/issues/628)) ([be433db](https://github.com/botpress/botpress/commit/be433db))
+* **core:** use bot's NODE_ENV not botpress's(resolve [#591](https://github.com/botpress/botpress/issues/591)) ([6699aa1](https://github.com/botpress/botpress/commit/6699aa1))
+* **flow:** close button in create content form (resolve [#672](https://github.com/botpress/botpress/issues/672)) ([fc0a0b1](https://github.com/botpress/botpress/commit/fc0a0b1))
+* **ghost:** fix content manager ([2234b40](https://github.com/botpress/botpress/commit/2234b40))
+* **janitor:** adjusted log levels ([7cd6753](https://github.com/botpress/botpress/commit/7cd6753))
+* **licensing:** fix the license name in the footer ([beff44c](https://github.com/botpress/botpress/commit/beff44c))
+* **logger:** migrations run fully before using logger ([8f2dd66](https://github.com/botpress/botpress/commit/8f2dd66))
+* **logs:** prevent logs from jumping when loading more lines ([da34cfd](https://github.com/botpress/botpress/commit/da34cfd))
+* **logs:** various fixes ([c63b22c](https://github.com/botpress/botpress/commit/c63b22c))
+* **webpack:** change path to js files (resolve [#648](https://github.com/botpress/botpress/issues/648)) ([8a2564d](https://github.com/botpress/botpress/commit/8a2564d))
+* **webpack:** improve build performance (resolve [#399](https://github.com/botpress/botpress/issues/399)) ([5616277](https://github.com/botpress/botpress/commit/5616277))
+
+
+### Features
+
+* **botfile:** added variable hideHeroSection (resolve [#29](https://github.com/botpress/botpress/issues/29)) ([f9caf5f](https://github.com/botpress/botpress/commit/f9caf5f))
+* **cli:** implement --inspect|-i flags for start (resolve [#91](https://github.com/botpress/botpress/issues/91)) ([e209ea1](https://github.com/botpress/botpress/commit/e209ea1))
+* **cloud-roles:** bot media read-only mode ([ede9d73](https://github.com/botpress/botpress/commit/ede9d73))
+* **cloud-roles:** content read-only mode ([8e49720](https://github.com/botpress/botpress/commit/8e49720))
+* **cloud-roles:** flows read-only mode ([a8d89d3](https://github.com/botpress/botpress/commit/a8d89d3))
+* **cloud-roles:** ghost-content read-only mode ([1799803](https://github.com/botpress/botpress/commit/1799803))
+* **cloud-roles:** hide skill edit button based on perm ([492377e](https://github.com/botpress/botpress/commit/492377e))
+* **cloud-roles:** hide skills dropdown according to perms ([8431799](https://github.com/botpress/botpress/commit/8431799))
+* **core:** added confirm when user want go out from flow(resolve [#516](https://github.com/botpress/botpress/issues/516)) ([b7841c1](https://github.com/botpress/botpress/commit/b7841c1))
+* **core:** async renderers (resolve [#349](https://github.com/botpress/botpress/issues/349)) ([bb512ab](https://github.com/botpress/botpress/commit/bb512ab))
+* **core:** hostname bot listens to can be customized (resolve [#644](https://github.com/botpress/botpress/issues/644)) ([fb9c4de](https://github.com/botpress/botpress/commit/fb9c4de))
+* **core:** implement auto pick content (resolve [#517](https://github.com/botpress/botpress/issues/517)) ([d100d87](https://github.com/botpress/botpress/commit/d100d87))
+* **logger:** batch insert logs ([50f1052](https://github.com/botpress/botpress/commit/50f1052))
+* **logs:** add logs janitor ([89ba1e8](https://github.com/botpress/botpress/commit/89ba1e8))
+* **logs:** store logs in the database ([2a8031a](https://github.com/botpress/botpress/commit/2a8031a))
+
+
+### BREAKING CHANGES
+
+* **logs:** it fails on the old botfile
+and requires manual migration.
+It also ignores the old log files.
+
+
+
+
 <a name="10.20.1"></a>
 ## [10.20.1](https://github.com/botpress/botpress/compare/v10.20.0...v10.20.1) (2018-06-21)
 

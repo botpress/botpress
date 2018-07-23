@@ -81,7 +81,7 @@ export default class TemplateModule extends React.Component {
 
   onContentChanged = (element, force = false) => {
     if (element && (force || element.id !== this.state.contentId)) {
-      this.choices = _.get(element, 'data.choices') || []
+      this.choices = _.get(element, 'data.choices', [])
       const initialKeywords = element.id === this.state.contentId ? this.state.keywords : {}
       const keywords = this.choices.reduce((acc, v) => {
         if (!acc[v.value]) {
@@ -111,7 +111,7 @@ export default class TemplateModule extends React.Component {
       const keywordsEntry = this.state.keywords[choice.value] || []
       const tags = keywordsEntry.map(x => ({ id: x, text: x }))
       return (
-        <div className={style.keywords}>
+        <div className={style.keywords} key={choice.value}>
           <h4>
             {choice.title} <small>({choice.value})</small>
           </h4>

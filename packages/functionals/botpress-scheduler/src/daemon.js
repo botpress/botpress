@@ -2,12 +2,11 @@ import Promise from 'bluebird'
 
 import db from './db'
 import util from './util'
-import moment from 'moment'
 let timerInterval = null
 let lock = false
-let deamon = null
+let daemon = null
 
-const createDeamon = bp => {
+const createDaemon = bp => {
   const reschedule = task => {
     if (task.schedule_type.toLowerCase() === 'once') {
       return Promise.resolve(null)
@@ -29,7 +28,8 @@ const createDeamon = bp => {
       return
     }
 
-    const fn = new Function('bp', 'task', expired.action)
+    const AsyncFunction = eval('Object.getPrototypeOf(async function() {}).constructor') // eslint-disable-line no-eval
+    const fn = new AsyncFunction('bp', 'task', expired.action)
 
     bp.events.emit('scheduler.update')
     bp.events.emit('scheduler.started', expired)
@@ -107,9 +107,9 @@ const createDeamon = bp => {
 }
 
 module.exports = bp => {
-  if (!deamon) {
-    deamon = createDeamon(bp)
+  if (!daemon) {
+    daemon = createDaemon(bp)
   }
 
-  return deamon
+  return daemon
 }

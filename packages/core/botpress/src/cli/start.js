@@ -35,8 +35,8 @@ module.exports = (projectPath, options) => {
   projectPath = path.resolve(projectPath)
 
   try {
-    // eslint-disable-next-line no-eval
-    Botpress = eval('require')(path.join(projectPath, 'node_modules', 'botpress')).Botpress()
+    const botpress = require(path.resolve(__dirname, '..'))
+    Botpress = botpress.Botpress()
   } catch (err) {
     util.print('error', err.message)
     util.print('error', err.stack)
@@ -58,8 +58,7 @@ module.exports = (projectPath, options) => {
   }
 
   const getDefaultWatchIgnore = () => {
-    // eslint-disable-next-line no-eval
-    const bf = eval('require')(botfile)
+    const bf = require(botfile)
     const dataDir = util.getDataLocation(bf.dataDir, projectPath)
     return [dataDir, 'node_modules']
   }

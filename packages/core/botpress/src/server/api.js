@@ -11,9 +11,11 @@ import securedApis from './secured'
 const routersConditions = {}
 const routers = {}
 
+const API_RE = /\/api\/(botpress-[^\/]+).*$/i
+
 const maybeApply = (name, fn) => {
   return (req, res, next) => {
-    const router = req.originalUrl.match(/\/api\/(botpress-[^\/]+).*$/i)
+    const router = req.originalUrl.match(API_RE)
     if (!router) {
       return fn(req, res, next)
     }
@@ -185,9 +187,15 @@ bp.createShortlink('chat', '/lite', {
 
     app.get(`/s/:name`, (req, res) => {
       const name = req.params.name.toLowerCase()
+      const query = qs.stringify(req.query)
 
       if (!links[name]) {
         return res.status(404).send({ error: `Shortlink "${name}" not registered` })
+      }
+
+      if (query) {
+        const hasQuery = /\?/g.test(links[name])
+        links[name] = links[name].concat(`${hasQuery ? '&' : '?'}${query}`)
       }
 
       res.redirect(links[name])

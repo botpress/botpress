@@ -20,7 +20,6 @@ class LoggerView extends Component {
 
   componentDidMount() {
     if (!this.state.logs) {
-      this.getArchiveKey()
       this.queryLogs()
       this.refreshInterval = setInterval(this.queryLogs, 1000)
     }
@@ -62,10 +61,6 @@ class LoggerView extends Component {
     return <div style={{ marginTop: '20px' }} className="whirl traditional" />
   }
 
-  getArchiveKey() {
-    axios.get('/api/logs/key').then(({ data }) => this.setState({ archiveUrl: '/api/logs/archive/' + data.secret }))
-  }
-
   queryLogs = () => {
     axios
       .get('/api/logs', {
@@ -92,6 +87,21 @@ class LoggerView extends Component {
     return this.state.logs.filter(x => _.isString(x.message)).map(this.renderLine)
   }
 
+  downloadArchive = () => {
+    axios({
+      url: '/api/logs/archive/',
+      method: 'GET',
+      responseType: 'blob'
+    }).then(response => {
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', 'logs.txt')
+      document.body.appendChild(link)
+      link.click()
+    })
+  }
+
   render() {
     const logs = this.renderLines()
     const logsPanelClassName = classnames('panel', 'panel-default', styles['logs-panel'])
@@ -115,7 +125,7 @@ class LoggerView extends Component {
               </Checkbox>
             </form>
             <div className="pull-right">
-              <Button href={this.state.archiveUrl}>Export logs archive</Button>
+              <Button onClick={this.downloadArchive}>Export logs archive</Button>
             </div>
           </Panel.Body>
         </Panel>

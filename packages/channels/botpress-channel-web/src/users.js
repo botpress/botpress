@@ -1,6 +1,6 @@
 import sillyname from 'sillyname'
 
-module.exports = async (bp, config) => {
+module.exports = async bp => {
   const knex = await bp.db.get()
 
   async function getOrCreateUser(userId, throwIfNotFound = false) {
@@ -13,34 +13,30 @@ module.exports = async (bp, config) => {
       })
       .then()
       .get(0)
-      .then()
 
-    if (!user) {
-      if (throwIfNotFound) {
-        throw new Error(`User ${realUserId} not found`)
-      }
-
-      await createNewUser(realUserId)
-      return getOrCreateUser(realUserId, true)
+    if (user) {
+      return user
     }
 
-    return user
+    if (throwIfNotFound) {
+      throw new Error(`User ${realUserId} not found`)
+    }
+
+    await createNewUser(realUserId)
+    return getOrCreateUser(realUserId, true)
   }
 
   function createNewUser(userId) {
     const [first_name, last_name] = sillyname().split(' ')
-    const user = {
-      first_name: first_name,
-      last_name: last_name,
+
+    return bp.db.saveUser({
+      first_name,
+      last_name,
       profile_pic: null,
       id: userId,
       platform: 'webchat'
-    }
-
-    return bp.db.saveUser(user)
+    })
   }
-
-  async function patchUserInfo(userId, fields) {}
 
   return { getOrCreateUser }
 }

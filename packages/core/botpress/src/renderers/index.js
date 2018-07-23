@@ -98,8 +98,8 @@ module.exports = ({ logger, middlewares, db, contentManager, botfile }) => {
     return Engine({ rendererFn, rendererName, context, options, processors, incomingEvent })
   }
 
-  const doSendContent = (rendererFn, { rendererName, context, outputPlatform, incomingEvent }) => {
-    const messages = invoke({ rendererFn, rendererName, context, outputPlatform, incomingEvent })
+  const doSendContent = async (rendererFn, { rendererName, context, outputPlatform, incomingEvent }) => {
+    const messages = await invoke({ rendererFn, rendererName, context, outputPlatform, incomingEvent })
 
     return Promise.mapSeries(messages, message => {
       if (message.__internal) {
@@ -148,14 +148,12 @@ module.exports = ({ logger, middlewares, db, contentManager, botfile }) => {
       Object.assign(initialData, _.isArray(contentItem.data) ? { items: contentItem.data } : contentItem.data)
     }
 
-    const fullContext = Object.assign(
-      initialData,
-      {
-        user: incomingEvent.user,
-        event: _.pick(incomingEvent, ['raw', 'text', 'type', 'platform', 'user'])
-      },
-      additionalData
-    )
+    const fullContext = {
+      ...initialData,
+      user: incomingEvent.user,
+      event: _.pick(incomingEvent, ['raw', 'text', 'type', 'platform', 'user']),
+      ...additionalData
+    }
 
     const renderer = renderers[rendererName]
 
@@ -180,10 +178,7 @@ module.exports = ({ logger, middlewares, db, contentManager, botfile }) => {
   }
 
   const processIncoming = (event, next) => {
-    event.reply = (rendererName, additionalData = {}) => {
-      return sendContent(event, rendererName, additionalData)
-    }
-
+    event.reply = (rendererName, additionalData = {}) => sendContent(event, rendererName, additionalData)
     next()
   }
 

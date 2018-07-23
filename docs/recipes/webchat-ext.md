@@ -2,7 +2,7 @@
 layout: guide
 ---
 
-Botpress web channel supports variety of message-types that can be rendered to the user. But it also supports cusomt message types that you can implement on your own via webchat-extensions.
+Botpress web channel supports variety of message-types that can be rendered to the user. But it also supports custom message types that you can implement on your own via webchat-extensions.
 
 Webchat-extension is a special kind of botpress-module that:
 1. Is marked as webchat-plugin in `botpress`-section of `package.json` via `isPlugin` flag

@@ -1,4 +1,5 @@
 **/*.bundle.js
+packages/core/botpress/lib/**
 docs/_jsdoc_template
 **/node_modules/**
-templates/**
+packages/core/botpress/src/cli/templates/**

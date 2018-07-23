@@ -1,9 +1,14 @@
 echo "--> Cleaning up old build"
 rm -rf lib
-mkdir -p lib/cli/templates
 
-echo "--> Bundling app"
-NODE_ENV=production yarn concurrently "node ./webpack.server.js --compile" "node ./webpack.web.js --compile"
+echo "--> Transpiling server code and CLI"
+npm run compile-server
+
+echo "--> bundling web UI"
+node ./webpack.web.js --compile
 
 echo "--> Copying templates"
-cp -a ../../../templates lib/cli/
+cp -a ./src/cli/templates lib/cli/
+
+echo "--> Copying README"
+[ -f "../../../README.md" ] && rm README.md && cp "../../../README.md" README.md

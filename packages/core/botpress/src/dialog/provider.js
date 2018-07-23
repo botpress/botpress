@@ -1,12 +1,12 @@
 import path from 'path'
-import fs from 'fs'
-import glob from 'glob'
 import _ from 'lodash'
 import Promise from 'bluebird'
 import EventEmitter2 from 'eventemitter2'
 import mkdirp from 'mkdirp'
 
 import { validateFlowSchema } from './validator'
+
+const PLACING_STEP = 250
 
 export default class FlowProvider extends EventEmitter2 {
   constructor({ logger, botfile, projectLocation, ghostManager }) {
@@ -26,38 +26,40 @@ export default class FlowProvider extends EventEmitter2 {
   }
 
   async loadAll() {
-    const flowFiles = await this.ghostManager.directoryListing(this.flowsDir, '.flow.json')
+    const flows = await this.ghostManager.directoryListing(this.flowsDir, '.flow.json').map(async flowPath => {
+      const [flow, uiEq] = (await Promise.map([flowPath, this._uiPath(flowPath)], filePath =>
+        this.ghostManager.readFile(this.flowsDir, filePath)
+      )).map(JSON.parse)
 
-    const flows = await Promise.map(flowFiles, async flowPath => {
-      const flow = JSON.parse(await this.ghostManager.readFile(this.flowsDir, flowPath))
-
-      const schemaError = validateFlowSchema(flow)
-      if (!flow || schemaError) {
-        return flow ? this.logger.warn(schemaError) : null
+      if (!flow) {
+        return null
       }
 
-      const uiEq = JSON.parse(await this.ghostManager.readFile(this.flowsDir, this._uiPath(flowPath)))
+      const schemaError = validateFlowSchema(flow)
+      if (schemaError) {
+        this.logger.warn(schemaError)
+        return null
+      }
 
-      Object.assign(flow, { links: uiEq.links })
+      flow.links = uiEq.links
 
       // Take position from UI files or create default position
       let unplacedIndex = -1
       flow.nodes = flow.nodes.map(node => {
         const position = _.get(_.find(uiEq.nodes, { id: node.id }), 'position')
-        const placingStep = 250
         unplacedIndex = position ? unplacedIndex : unplacedIndex + 1
 
         return {
           ...node,
-          x: position ? position.x : 50 + unplacedIndex * placingStep,
-          y: position ? position.y : (_.maxBy(flow.nodes, 'y') || { y: 0 }).y + placingStep
+          x: position ? position.x : 50 + unplacedIndex * PLACING_STEP,
+          y: position ? position.y : (_.maxBy(flow.nodes, 'y') || { y: 0 }).y + PLACING_STEP
         }
       })
 
       return {
         name: flowPath,
         location: flowPath,
-        nodes: _.filter(flow.nodes, node => !!node),
+        nodes: flow.nodes.filter(Boolean),
         ..._.pick(flow, 'version', 'catchAll', 'startNode', 'links', 'skillData')
       }
     })
@@ -88,7 +90,7 @@ export default class FlowProvider extends EventEmitter2 {
   }
 
   async _prepareSaveFlow(flow) {
-    flow = Object.assign({}, flow, { version: '0.1' })
+    flow = { ...flow, version: '0.1' }
 
     const schemaError = validateFlowSchema(flow)
     if (schemaError) {

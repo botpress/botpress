@@ -1,6 +1,6 @@
 {
   "name": "@botpress/channel-telegram",
-  "version": "10.20.1",
+  "version": "10.25.0",
   "description": "Official Telegram connector for Botpress",
   "main": "bin/node.bundle.js",
   "homepage": "https://github.com/botpress/modules",
@@ -19,7 +19,7 @@
     "compile": "node webpack.js --compile"
   },
   "author": "Botpress",
-  "license": "AGPL-3.0",
+  "license": "AGPL-3.0-only",
   "peerDependencies": {
     "botpress": ">= 10.0.0"
   },
@@ -42,7 +42,7 @@
     "css-loader": "^0.28.9",
     "extract-text-webpack-plugin": "^3.0.2",
     "file-loader": "^1.1.6",
-    "node-sass": "^3.11.2",
+    "node-sass": "^4.9.2",
     "sass-loader": "^6.0.6",
     "style-loader": "^0.19.1",
     "webpack": "^3.10.0",
@@ -54,6 +54,6 @@
     "eventemitter2": "^4.0.0",
     "lodash": "latest",
     "lru-cache": "latest",
-    "node-telegram-bot-api": "^0.27.0"
+    "node-telegram-bot-api": "^0.30.0"
   }
 }

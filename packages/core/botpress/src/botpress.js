@@ -145,8 +145,7 @@ class botpress {
     /**
      * The botfile config object
      */
-    // eslint-disable-next-line no-eval
-    this.botfile = eval('require')(botfile)
+    this.botfile = require(botfile)
     validateBotfile(this.botfile)
 
     this.stats = stats(this.botfile)
@@ -157,7 +156,7 @@ class botpress {
       Check --inspect flag
     */
 
-    const opts = options.opts()
+    const opts = _.result(options, 'opts') || {}
 
     this.hasInspectMode = opts.inspect || opts.i
   }
@@ -292,7 +291,7 @@ class botpress {
 
     const stateManager = StateManager({ db })
     const flowProvider = new FlowProvider({ logger, projectLocation, botfile, ghostManager })
-    const dialogJanitor = new DialogJanitor({ db, middlewares, botfile })
+    const dialogJanitor = DialogJanitor({ db, middlewares, botfile })
     const dialogEngine = new DialogEngine({ flowProvider, stateManager, logger })
 
     const skillsManager = new SkillsManager({ logger })
@@ -412,8 +411,7 @@ class botpress {
       middlewares.load()
     }
 
-    // eslint-disable-next-line no-eval
-    const projectEntry = eval('require')(projectLocation)
+    const projectEntry = require(projectLocation)
     if (typeof projectEntry === 'function') {
       projectEntry.call(projectEntry, this)
     } else {

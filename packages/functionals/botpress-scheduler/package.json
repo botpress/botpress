@@ -1,6 +1,6 @@
 {
   "name": "@botpress/scheduler",
-  "version": "10.20.1",
+  "version": "10.25.0",
   "description": "Schedule one-off and recurring tasks",
   "main": "bin/node.bundle.js",
   "botpress": {
@@ -41,7 +41,7 @@
   },
   "homepage": "https://github.com/botpress/modules",
   "author": "Botpress Team",
-  "license": "AGPL-3.0",
+  "license": "AGPL-3.0-only",
   "peerDependencies": {
     "botpress": ">= 10.0.0"
   },

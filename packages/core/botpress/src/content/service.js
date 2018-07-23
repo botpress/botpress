@@ -525,8 +525,7 @@ module.exports = async ({ botfile, projectLocation, logger, ghostManager }) => {
       schemas = json5.parse(fs.readFileSync(filePath, 'utf8'))
     } else {
       // Allows for registering .form.js files
-      // eslint-disable-next-line no-eval
-      schemas = eval('require')(filePath) // Dynamic loading require eval for Webpack
+      schemas = require(filePath)
     }
 
     try {
