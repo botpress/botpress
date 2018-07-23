@@ -4,11 +4,11 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Debug Node in Typescript",
-      "program": "${workspaceFolder}/src/server.ts",
-      "cwd": "${workspaceFolder}",
+      "name": "Debug Core",
+      "program": "${workspaceFolder:botpress-xx}/modules/core/src/server.ts",
+      "cwd": "${workspaceFolder:botpress-xx}/modules/core",
       "protocol": "inspector",
-      "outFiles": ["${workspaceFolder}/dist/**/*.js"]
+      "outFiles": ["${workspaceFolder:botpress-xx}/modules/core/dist/**/*.js"]
     }
   ]
 }

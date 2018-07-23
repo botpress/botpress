@@ -1,4 +1,6 @@
 import express from 'express'
+import { Botpress } from './botpress'
+import path from 'path'
 
 const proxy = require('express-http-proxy')
 const app = express()
@@ -27,5 +29,8 @@ app.get(
   (req, res) =>
     '{"name":"botpress-angular","version":"1.0.0","description":"<no description>","author":"Botpress","license":"AGPL-3.0"}'
 )
+
+const botpress = new Botpress()
+botpress.start()
 
 export default app
