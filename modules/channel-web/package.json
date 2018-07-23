@@ -13,7 +13,7 @@
     "build-pkg": "npm run build && npm run pkg",
     "pkg": "pkg dist/server.js --target macos-x86,macos-x64,linux-x86,linux-x64,win-x86,win-x64 --output bin/botpress",
     "test": "jest --forceExit --coverage --verbose",
-    "watch": "concurrently -c cyan,green,blue npm:watch-ts npm:watch-test npm:watch-node",
+    "watch": "concurrently -c cyan,green,blue npm:watch-ts npm:watch-node",
     "watch-ts": "tsc -w",
     "watch-node": "nodemon dist/server.js -w dist",
     "watch-test": "npm run test -- --watchAll",
