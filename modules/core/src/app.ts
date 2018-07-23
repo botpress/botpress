@@ -1,6 +1,6 @@
 import express from 'express'
+import proxy from 'express-http-proxy'
 
-const proxy = require('express-http-proxy')
 const app = express()
 const basePath = '/api/v1'
 
