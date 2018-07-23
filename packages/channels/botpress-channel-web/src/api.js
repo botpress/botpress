@@ -98,7 +98,7 @@ module.exports = async (bp, config) => {
     res.send(injectStyle)
   })
 
-  const pkg = require('../package.json');
+  const pkg = require('../package.json')
   const modulePath = bp._loadedModules[pkg.name].root
   const staticFolder = path.join(modulePath, './static')
   router.use('/static', serveStatic(staticFolder))
@@ -281,6 +281,20 @@ module.exports = async (bp, config) => {
       res.status(200).send({})
     })
   )
+
+  router.get('/:userId/reference', async (req, res) => {
+    try {
+      const { params: { userId }, query: { ref: webchatUrlQuery } } = req
+      const state = await bp.dialogEngine.stateManager.getState(userId)
+      const newState = { ...state, webchatUrlQuery }
+
+      await bp.dialogEngine.stateManager.setState(userId, newState)
+
+      res.status(200)
+    } catch (error) {
+      res.status(500)
+    }
+  })
 
   return router
 }

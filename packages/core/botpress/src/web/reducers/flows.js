@@ -407,9 +407,13 @@ reducer = reduceReducers(
             return node
           }
 
-          return Object.assign({}, node, {
-            next: payload.transitions
-          })
+          return {
+            ...node,
+            next: payload.transitions.map(transition => {
+              const prevTransition = node.next.find(({ condition }) => condition === transition.condition)
+              return { ...transition, node: (prevTransition || {}).node || '' }
+            })
+          }
         })
 
         return {

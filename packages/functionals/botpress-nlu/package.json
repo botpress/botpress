@@ -1,6 +1,6 @@
 {
   "name": "@botpress/nlu",
-  "version": "10.23.0",
+  "version": "10.24.4",
   "description": "Botpress NLU module",
   "main": "bin/node.bundle.js",
   "homepage": "https://github.com/botpress/modules",
@@ -25,7 +25,7 @@
     "compile": "node webpack.js --compile"
   },
   "author": "Botpress, Inc.",
-  "license": "AGPL-3.0",
+  "license": "AGPL-3.0-only",
   "peerDependencies": {
     "botpress": ">= 10.0.0"
   },
@@ -60,12 +60,12 @@
     "axios": "^0.17.1",
     "bluebird": "^3.5.1",
     "bluebird-retry": "^0.11.0",
-    "dialogflow": "^0.1.0",
+    "dialogflow": "^0.5.0",
     "lodash": "^4.17.4",
     "mkdirp": "^0.5.1",
     "ms": "^2.1.1",
     "nanoid": "^1.0.1",
-    "natural": "^0.5.6",
+    "natural": "^0.6.1",
     "zscore": "^0.1.0"
   }
 }

@@ -51,6 +51,14 @@ You can provide this value in "${filePath}"`
     return config
   }
 
+  saveAll(newConfig) {
+    const configPath = path.join(this.configLocation, this._getFileName())
+    const oldConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'))
+
+    const config = Object.assign(oldConfig, newConfig)
+    fs.writeFileSync(configPath, JSON.stringify(config), 'utf8')
+  }
+
   async get(key, caching = true) {
     return this.manager.get(this._getFileName(), key, this._getOptions(), caching)
   }

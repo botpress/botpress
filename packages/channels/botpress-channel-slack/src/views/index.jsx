@@ -62,7 +62,7 @@ export default class SlackModule extends React.Component {
   }
 
   getRedictURI = () => {
-    return this.state.hostname + '/modules/botpress-slack'
+    return this.state.hostname + '/modules/channel-slack'
   }
 
   getOAuthLink = () => {

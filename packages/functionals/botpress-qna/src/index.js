@@ -9,6 +9,7 @@ import Promise from 'bluebird'
 
 let storage
 let logger
+let shouldProcessMessage
 
 module.exports = {
   config: {
@@ -27,6 +28,13 @@ module.exports = {
       module: 'botpress-qna',
       type: 'incoming',
       handler: async (event, next) => {
+        if (typeof shouldProcessMessage === 'function') {
+          const state = await bp.dialogEngine.stateManager.getState(event.sessionId || event.user.id)
+          const shouldSkip = (await shouldProcessMessage(event, state)) === false
+          if (shouldSkip) {
+            return next()
+          }
+        }
         if (!await processEvent(event, { bp, storage, logger, config })) {
           next()
         }
@@ -83,7 +91,23 @@ module.exports = {
           }
           return questions.map(question => ({ question, action, answer, answer2 }))
         })
-      }
+      },
+
+      /**
+       * Accepts async function that is later used to check if Q&A module should intercept
+       * @param {function} fn
+       */
+      shouldProcessMessage(fn) {
+        shouldProcessMessage = fn
+      },
+
+      /**
+       * @async
+       * Returns question by id
+       * @param {String} id - id of the question to look for
+       * @returns {Object}
+       */
+      getQuestion: storage.getQuestion.bind(storage)
     }
 
     const router = bp.getRouter('botpress-qna')

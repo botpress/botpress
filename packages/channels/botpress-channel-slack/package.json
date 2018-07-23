@@ -1,6 +1,6 @@
 {
   "name": "@botpress/channel-slack",
-  "version": "10.23.0",
+  "version": "10.24.4",
   "description": "Official Slack connector for botpress",
   "main": "bin/node.bundle.js",
   "homepage": "https://github.com/botpress/modules",
@@ -29,7 +29,7 @@
     "url": "https://github.com/botpress/modules"
   },
   "author": "Botpress",
-  "license": "AGPL-3.0",
+  "license": "AGPL-3.0-only",
   "peerDependencies": {
     "botpress": ">= 10.0.0"
   },
@@ -50,7 +50,7 @@
     "css-loader": "^0.28.9",
     "extract-text-webpack-plugin": "^3.0.2",
     "file-loader": "^1.1.6",
-    "node-sass": "^3.11.2",
+    "node-sass": "^4.9.2",
     "sass-loader": "^6.0.6",
     "style-loader": "^0.20.1",
     "webpack": "^3.11.0",

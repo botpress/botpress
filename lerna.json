@@ -9,6 +9,6 @@
     "packages",
     "packages/dev-bot"
   ],
-  "version": "10.23.0",
+  "version": "10.24.4",
   "npmClient": "yarn"
 }

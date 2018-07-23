@@ -1,6 +1,6 @@
 {
   "name": "@botpress/audience",
-  "version": "10.23.0",
+  "version": "10.24.4",
   "description": "Official Audience viewer for botpress",
   "main": "bin/node.bundle.js",
   "homepage": "https://github.com/botpress/modules",
@@ -35,7 +35,7 @@
     "url": "https://github.com/botpress/modules"
   },
   "author": "Botpress",
-  "license": "AGPL-3.0",
+  "license": "AGPL-3.0-only",
   "peerDependencies": {
     "botpress": ">= 10.0.0"
   },

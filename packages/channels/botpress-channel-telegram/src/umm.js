@@ -51,7 +51,7 @@ function processOutgoing({ event, blocName, instruction }) {
   /////////
 
   if (!_.isNil(instruction.text)) {
-    return actions.createText(event.chat.id, instruction.text, options)
+    return actions.createText({ chatId: event.chat.id, userId: getUserId(event) }, instruction.text, options)
   }
 
   ////////////
