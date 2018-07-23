@@ -125,7 +125,7 @@ module.exports = async (bp, config) => {
       }
 
       if (!conversationId) {
-        conversationId = await getOrCreateRecentConversation(userId)
+        conversationId = await getOrCreateRecentConversation(userId, { originatesFromUserMessage: true })
       }
 
       await sendNewMessage(userId, conversationId, payload)

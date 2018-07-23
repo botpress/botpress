@@ -132,7 +132,7 @@ module.exports = knex => {
     })
   }
 
-  async function createConversation(userId) {
+  async function createConversation(userId, { originatesFromUserMessage } = {}) {
     userId = sanitizeUserId(userId)
 
     const uid = Math.random()
@@ -144,7 +144,7 @@ module.exports = knex => {
       .insert({
         userId,
         created_on: helpers(knex).date.now(),
-        last_heard_on: null,
+        last_heard_on: originatesFromUserMessage ? helpers(knex).date.now() : null,
         title
       })
       .then()
@@ -171,7 +171,7 @@ module.exports = knex => {
       .then()
   }
 
-  async function getOrCreateRecentConversation(userId) {
+  async function getOrCreateRecentConversation(userId, { originatesFromUserMessage } = {}) {
     userId = sanitizeUserId(userId)
 
     const recentCondition = helpers(knex).date.isAfter(
@@ -188,7 +188,7 @@ module.exports = knex => {
       .then()
       .get(0)
 
-    return conversation ? conversation.id : createConversation(userId)
+    return conversation ? conversation.id : createConversation(userId, { originatesFromUserMessage })
   }
 
   async function listConversations(userId) {
