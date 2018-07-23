@@ -144,7 +144,7 @@ module.exports = knex => {
       .insert({
         userId,
         created_on: helpers(knex).date.now(),
-        last_heard_on: helpers(knex).date.now(),
+        last_heard_on: null,
         title
       })
       .then()
@@ -180,7 +180,8 @@ module.exports = knex => {
     )
     const conversation = await knex('web_conversations')
       .select('id')
-      .where({ userId })
+      .whereNotNull('last_heard_on')
+      .andWhere({ userId })
       .andWhere(recentCondition)
       .orderBy('last_heard_on', 'desc')
       .limit(1)
