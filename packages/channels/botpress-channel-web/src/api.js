@@ -6,7 +6,6 @@ import aws from 'aws-sdk'
 
 import injectScript from 'raw-loader!./inject.js'
 import injectStyle from 'raw-loader!./inject.css'
-import notificationSound from 'raw-loader!../static/notification.mp3'
 
 import serveStatic from 'serve-static'
 
@@ -84,6 +83,7 @@ module.exports = async (bp, config) => {
     try {
       await fn(req, res, next)
     } catch (err) {
+      bp.logger.error(err.message, err.stack)
       res.status(500).send(err && err.message)
     }
   }
@@ -125,7 +125,7 @@ module.exports = async (bp, config) => {
       }
 
       if (!conversationId) {
-        conversationId = await getOrCreateRecentConversation(userId)
+        conversationId = await getOrCreateRecentConversation(userId, { originatesFromUserMessage: true })
       }
 
       await sendNewMessage(userId, conversationId, payload)
