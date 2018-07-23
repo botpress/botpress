@@ -4,7 +4,7 @@ layout: guide
 
 ## Bot Templates
 
-For starters, we recommend that you start by cloning a bot template and customize this template instead of starting your bot entirely from scratch.
+We recommend that you start by cloning a bot template and customize this instead of starting your bot entirely from scratch.
 
 > **Note:** Starting a bot from scratch is possible, but it requires that you learn the internal workings of Botpress. The only people that need to start from scratch are usually people creating templates.
 
@@ -32,8 +32,6 @@ That's a very basic bot, but we will be adding the following things:
 - Be able to keep track of a basic leaderboard
 - Be able to connect to Facebook Messenger
 - An improved version of the leaderboard on Facebook
-
-> **Note:** We recommend you follow this guide sequentially for the first time, but the template contains a snapshot for every step, so you can skip some sections if you feel like it.
 
 ### What you will learn
 
@@ -88,11 +86,15 @@ npm start
 yarn start
 ```
 
-If everything goes well, you should see some reassuring messages in the console.
+If everything goes well, you should see:
+```bash 
+info: Bot launched. Visit: http://localhost:3000
+``` 
+Should you get an error, please search our [forum](https://help.botpress.io/) to see if anyone has had a similar problem and ask for help from the community. If it is an issue in the codebase, head over to GitHub to [open an issue](https://github.com/botpress/botpress/issues/new).
 
 ## Speaking with your bot
 
-The bot comes with built-in integration with the Webchat channel. To open the webchat, navigate to this URL: [http://localhost:3000/lite/?m=platform-webchat&v=fullscreen](http://localhost:3000/lite/?m=platform-webchat&v=fullscreen)
+The bot comes with a built-in integration for the Webchat channel. To open the webchat, navigate to: [http://localhost:3000/lite/?m=platform-webchat&v=fullscreen](http://localhost:3000/lite/?m=platform-webchat&v=fullscreen)
 
 Now say "`play`" to your bot to begin playing a Trivia game 🎲!
 
