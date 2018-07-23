@@ -1,6 +1,6 @@
 {
   "name": "@botpress/terminal",
-  "version": "10.20.1",
+  "version": "10.25.0",
   "description": "🖥   A command-line interface to run custom code on your bot while running",
   "main": "bin/node.bundle.js",
   "botpress": {
@@ -22,7 +22,7 @@
     "access": "public"
   },
   "author": "Botpress Team",
-  "license": "AGPL-3.0",
+  "license": "AGPL-3.0-only",
   "peerDependencies": {
     "botpress": ">= 10.0.0"
   },

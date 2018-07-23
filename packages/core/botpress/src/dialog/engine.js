@@ -1,11 +1,18 @@
 import _ from 'lodash'
 import Promise from 'bluebird'
-import { VM } from 'vm2'
+import { VM, VMScript } from 'vm2'
 import mware from 'mware'
 
-const loggerShim = { debug: () => {} }
 const callSubflowRegex = /(.+\.flow\.json)\s?@?\s?(.+)?/i // e.g. './login.flow.json' or './login.flow.json @ username'
 const MAX_STACK_SIZE = 100
+
+const TRUEISH_WORDS = {
+  true: true,
+  always: true,
+  yes: true
+}
+
+const compileExp = _.memoize(expr => new VMScript(expr))
 
 /** The Dialog Engine (or Dialog Manager) is the component that
  handles the flow logic. It it responsible for executing flows, including
@@ -15,16 +22,21 @@ const MAX_STACK_SIZE = 100
  bp.dialogEngine.processMessage(...)
  */
 class DialogEngine {
-  constructor({ flowProvider, stateManager, options, logger = loggerShim }) {
-    Object.assign(this, { logger, flowProvider, stateManager })
+  constructor({ flowProvider, stateManager, options, logger }) {
+    this.logger = logger
+    this.flowProvider = flowProvider
+    this.stateManager = stateManager
 
-    this.flowsLoaded = false
+    this._flowsLoadingPromise = null
     this.flows = []
     this.defaultFlow = _.get(options, 'defaultFlow') || 'main.flow.json'
     this.outputProcessors = []
     this.errorHandlers = []
     this.actions = {}
     this.actionMetadataProviders = []
+    this.vm = new VM({
+      timeout: 5000
+    })
 
     /**
      * @typedef {Function} DialogEngine~DialogMiddleware
@@ -99,7 +111,62 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
      */
     this.onBeforeSessionTimeout = mware()
 
-    flowProvider.on('flowsChanged', () => Object.assign(this, { flows: [], flowsLoaded: false }))
+    flowProvider.on('flowsChanged', () => {
+      this._flowsLoadingPromise = null
+      this.flows = []
+    })
+  }
+
+  async _processMessage(stateId, event) {
+    await this.loadFlows()
+
+    const context = await this._getOrCreateContext(stateId)
+    let state = await this.stateManager.getState(stateId)
+
+    if (event.type === 'bp_dialog_timeout') {
+      state = await this._processTimeout(stateId, state, context, event)
+
+      if (state != null) {
+        await this.stateManager.setState(stateId, state)
+      }
+
+      return state
+    }
+
+    this._trace('<~', 'RECV', `"${(event.text || '').substr(0, 20)}"`, context, state)
+
+    if (!context.currentFlow) {
+      throw new Error('Expected currentFlow to be defined for stateId=' + stateId)
+    }
+
+    const catchAllOnReceive = _.get(context, 'currentFlow.catchAll.onReceive')
+
+    if (catchAllOnReceive) {
+      this._trace('!!', 'KALL', '', context, state)
+      state = await this._processInstructions(catchAllOnReceive, state, event, context)
+    }
+
+    // If there's a 'next' defined in catchAll, this will try to match any condition and if it is matched it
+    // will run the node defined in the next instead of the current context node
+    const catchAllNext = _.get(context, 'currentFlow.catchAll.next')
+    if (catchAllNext) {
+      this._trace('..', 'KALL', '', context, state)
+      for (const transition of catchAllNext) {
+        if (this._evaluateCondition(transition.condition, state, event)) {
+          return this._processNode(stateId, state, context, transition.node, event)
+        }
+      }
+
+      this._trace('?X', 'KALL', '', context, state)
+    }
+
+    state = await this._processNode(stateId, state, context, context.node, event)
+
+    if (state != null) {
+      await this.stateManager.setState(stateId, state)
+    }
+
+    return state
   }
 
   /**
@@ -113,58 +180,7 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
    */
   async processMessage(stateId, event) {
     try {
-      if (!this.flowsLoaded) {
-        await this.reloadFlows()
-      }
-
-      const context = await this._getOrCreateContext(stateId)
-      let state = await this.stateManager.getState(stateId)
-
-      if (event.type === 'bp_dialog_timeout') {
-        state = await this._processTimeout(stateId, state, context, event)
-
-        if (!_.isNil(state)) {
-          await this.stateManager.setState(stateId, state)
-        }
-
-        return state
-      }
-
-      const msg = (event.text || '').substr(0, 20)
-      this._trace('<~', 'RECV', `"${msg}"`, context, state)
-
-      if (!context.currentFlow) {
-        throw new Error('Expected currentFlow to be defined for stateId=' + stateId)
-      }
-
-      const catchAllOnReceive = _.get(context, 'currentFlow.catchAll.onReceive')
-
-      if (catchAllOnReceive) {
-        this._trace('!!', 'KALL', '', context, state)
-        state = await this._processInstructions(catchAllOnReceive, state, event, context)
-      }
-
-      // If there's a 'next' defined in catchAll, this will try to match any condition and if it is matched it
-      // will run the node defined in the next instead of the current context node
-      const catchAllNext = _.get(context, 'currentFlow.catchAll.next')
-      if (catchAllNext) {
-        this._trace('..', 'KALL', '', context, state)
-        for (let i = 0; i < catchAllNext.length; i++) {
-          if (await this._evaluateCondition(catchAllNext[i].condition, state, event)) {
-            return this._processNode(stateId, state, context, catchAllNext[i].node, event)
-          }
-        }
-
-        this._trace('?X', 'KALL', '', context, state)
-      }
-
-      state = await this._processNode(stateId, state, context, context.node, event)
-
-      if (!_.isNil(state)) {
-        await this.stateManager.setState(stateId, state)
-      }
-
-      return state
+      await this._processMessage(stateId, event)
     } catch (e) {
       this.errorHandlers.forEach(errorHandler => errorHandler(e))
     }
@@ -181,26 +197,22 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
    * you should call {@link BotEngine#processMessage} manually to continue execution.
    * @example
    * // inside a bp.hear (...)
-   * bp.dialogEngine.jumpTo(stateId, 'main.flow.json')
-   * bp.dialogEngine.processMessage(stateId, event) // Continue processing
+   * await bp.dialogEngine.jumpTo(stateId, 'main.flow.json')
+   * await bp.dialogEngine.processMessage(stateId, event) // Continue processing
    * @param  {string} stateId  The stateId of the user/channel/group to make jump.
    * @param  {string} flowName The name of the flow, e.g. `main.flow.json`
    * @param  {string} [nodeName=null] The name of the node to jump to. Defaults to the flow's entry point.
    * @param  {boolean} [options.resetState=false] Whether or not the state should be reset
    */
   async jumpTo(stateId, flowName, nodeName = null, options) {
-    options = Object.assign(
-      {
-        resetState: false
-      },
-      options
-    )
-
-    if (!this.flowsLoaded) {
-      await this.reloadFlows()
+    options = {
+      resetState: false,
+      ...options
     }
 
-    const flow = this._findFlow(flowName, true)
+    await this.loadFlows()
+
+    const flow = await this._findFlow(flowName, true)
 
     if (nodeName) {
       // We're just calling for throwing if doesn't exist
@@ -249,17 +261,19 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
     return this._endFlow(stateId)
   }
 
-  async reloadFlows() {
-    this._trace('**', 'LOAD', '')
-    this.flows = await this.flowProvider.loadAll()
-    this.flowsLoaded = true
+  loadFlows() {
+    if (!this._flowsLoadingPromise) {
+      this._trace('**', 'LOAD', '')
+      this._flowsLoadingPromise = this.flowProvider.loadAll().then(flows => {
+        this.flows = flows
+      })
+    }
+
+    return this._flowsLoadingPromise
   }
 
   async getFlows() {
-    if (!this.flowsLoaded) {
-      await this.reloadFlows()
-    }
-
+    await this.loadFlows()
     return this.flows
   }
 
@@ -311,7 +325,7 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
       throw new Error('Expected the function metadata provider to be a function')
     }
 
-    if (!_.includes(this.actionMetadataProviders, provider)) {
+    if (!this.actionMetadataProviders.includes(provider)) {
       this.actionMetadataProviders.push(provider)
     }
   }
@@ -324,7 +338,6 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
    * @returns {Promise.<void>}
    */
   async registerActions(fnMap, overwrite = false) {
-    const toRegister = {}
     _.keys(fnMap).forEach(name => {
       if (this.actions[name] && !overwrite) {
         throw new Error(`There is already a function named "${name}" registered`)
@@ -333,38 +346,39 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
       let handler = fnMap[name]
       let metadata = null
 
-      if (!_.isFunction(fnMap[name])) {
-        if (!_.isObject(fnMap[name]) || !_.isFunction(fnMap[name].handler)) {
+      if (!_.isFunction(handler)) {
+        if (!_.isObject(handler) || !_.isFunction(handler.handler)) {
           throw new Error(`Expected function "${name}" to be a function or an object with a 'hander' function`)
         }
 
-        handler = fnMap[name].handler
-        metadata = Object.assign({}, fnMap[name], { name: name, handler: null })
+        handler = handler.handler
+        metadata = { ...fnMap[name], name, handler: null }
       }
 
       for (const provider of this.actionMetadataProviders) {
         const extra = provider(name)
 
         if (extra) {
-          metadata = Object.assign({}, extra, metadata || {})
+          metadata = { ...extra, ...metadata }
           break
         }
       }
 
-      toRegister[name] = {
-        name: name,
-        metadata: metadata,
+      this.actions[name] = {
+        name,
+        metadata,
         fn: handler
       }
-    })
 
-    Object.assign(this.actions, toRegister)
+      // Make the method available in the conditions evaluation context
+      this.vm.freeze(handler, name)
+    })
   }
 
   /**
    * @deprecated Use registerActions() instead
    */
-  async registerFunctions(fnMap, overwrite = false) {
+  registerFunctions(fnMap, overwrite = false) {
     return this.registerActions(fnMap, overwrite)
   }
 
@@ -375,7 +389,7 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
   getAvailableActions() {
     return _.values(this.actions)
       .filter(x => !String(x.name).startsWith('__'))
-      .map(x => Object.assign({}, x, { fn: null }))
+      .map(x => ({ ...x, fn: null }))
   }
 
   onError = fn => this.errorHandlers.push(fn)
@@ -387,7 +401,7 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
     const currentNodeTimeout = _.get(DialogEngine._findNode(context.currentFlow, context.node), 'timeoutNode')
     const currentFlowTimeout = _.get(context, 'currentFlow.timeoutNode')
     const fallbackTimeoutNode = DialogEngine._findNode(context.currentFlow, 'timeout')
-    const fallbackTimeoutFlow = this._findFlow('timeout.flow.json')
+    const fallbackTimeoutFlow = await this._findFlow('timeout.flow.json')
 
     if (currentNodeTimeout) {
       this._trace('<>', 'SNDE', '', context)
@@ -411,33 +425,28 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
 
   async _processNode(stateId, userState, context, nodeName, event) {
     let switchedFlow = false
-    let switchedNode = false
-
-    if (context.hasJumped) {
-      context.hasJumped = false
-      switchedNode = true
-    }
+    let switchedNode = context.hasJumped
+    context = { ...context, hasJumped: false }
 
     const originalFlow = context.currentFlow.name
-    const originalNode = context.node
 
     if (callSubflowRegex.test(nodeName)) {
       this._trace('>>', 'FLOW', `"${nodeName}"`, context, null)
-      context = this._gotoSubflow(nodeName, context)
+      context = await this._gotoSubflow(nodeName, context)
       switchedFlow = true
-    } else if (/^#/.test(nodeName)) {
+    } else if (nodeName && nodeName[0] === '#') {
       // e.g. '#success'
       this._trace('<<', 'FLOW', `"${nodeName}"`, context, null)
-      context = this._gotoPreviousFlow(nodeName, context)
+      context = await this._gotoPreviousFlow(nodeName, context)
       switchedFlow = true
     } else if (context.node !== nodeName) {
       this._trace('>>', 'FLOW', `"${nodeName}"`)
       switchedNode = true
-      context.node = nodeName
-    } else if (_.isNil(context.node)) {
+      context = { ...context, node: nodeName }
+    } else if (context.node == null) {
       // We just created the context
       switchedNode = true
-      context.node = context.currentFlow.startNode
+      context = { ...context, node: context.currentFlow.startNode }
     }
 
     const node = DialogEngine._findNode(context.currentFlow, context.node)
@@ -446,19 +455,23 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
       userState = await this._endFlow(stateId)
       return userState
       // TODO Trace error
-      throw new Error(`Could not find node "${context.node}" in flow "${context.currentFlow.name}"`)
+      // throw new Error(`Could not find node "${context.node}" in flow "${context.currentFlow.name}"`)
     }
 
     if (switchedFlow || switchedNode) {
-      context.flowStack.push({
+      const flowStack = context.flowStack.concat({
         flow: context.currentFlow.name,
         node: context.node
       })
 
       // Flattens the stack to only include flow jumps, not node jumps
-      context.flowStack = context.flowStack.filter((el, i) => {
-        return i === context.flowStack.length - 1 || context.flowStack[i + 1].flow !== el.flow
-      })
+      context = {
+        ...context,
+        // Flattens the stack to only include flow jumps, not node jumps
+        flowStack: flowStack.filter((el, i) => {
+          return i === flowStack.length - 1 || flowStack[i + 1].flow !== el.flow
+        })
+      }
 
       if (context.flowStack.length >= MAX_STACK_SIZE) {
         throw new Error(
@@ -467,7 +480,6 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
          Current flow: ${context.currentFlow.name}
          Current node: ${context.node}`
         )
-        return this._endFlow(stateId)
       }
 
       await this._setContext(stateId, context)
@@ -510,14 +522,14 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
 
   async _transitionToNextNodes(node, context, userState, stateId, event) {
     const nextNodes = node.next || []
-    for (let i = 0; i < nextNodes.length; i++) {
-      if (await this._evaluateCondition(nextNodes[i].condition, userState, event)) {
-        this._trace('??', 'MTCH', `cond = "${nextNodes[i].condition}"`, context)
-        if (/^end$/i.test(nextNodes[i].node)) {
+    for (const nextNode of nextNodes) {
+      if (this._evaluateCondition(nextNode.condition, userState, event)) {
+        this._trace('??', 'MTCH', `cond = "${nextNode.condition}"`, context)
+        if (/^end$/i.test(nextNode.node)) {
           // Node "END" or "end" ends the flow (reserved keyword)
           return this._endFlow(stateId)
         } else {
-          return this._processNode(stateId, userState, context, nextNodes[i].node, event)
+          return this._processNode(stateId, userState, context, nextNode.node, event)
         }
       }
     }
@@ -543,26 +555,27 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
   async _getOrCreateContext(stateId) {
     let state = await this._getContext(stateId)
 
-    if (!state || !state.currentFlow) {
-      const beforeCtx = { stateId, flowName: this.defaultFlow }
-      await Promise.fromCallback(callback => this.onBeforeCreated.run(beforeCtx, callback))
-
-      const flow = this._findFlow(beforeCtx.flowName, true)
-
-      if (!flow) {
-        throw new Error(`Could not find the default flow "${this.defaultFlow}"`)
-      }
-
-      state = {
-        currentFlow: flow,
-        flowStack: [{ flow: flow.name, node: flow.startNode }]
-      }
-
-      await this._setContext(stateId, state)
-
-      const afterCtx = { ...beforeCtx }
-      await Promise.fromCallback(callback => this.onAfterCreated.run(afterCtx, callback))
+    if (state && state.currentFlow) {
+      return state
     }
+
+    const beforeCtx = { stateId, flowName: this.defaultFlow }
+    await Promise.fromCallback(callback => this.onBeforeCreated.run(beforeCtx, callback))
+
+    const flow = await this._findFlow(beforeCtx.flowName, true)
+
+    if (!flow) {
+      throw new Error(`Could not find the default flow "${this.defaultFlow}"`)
+    }
+
+    state = {
+      currentFlow: flow,
+      flowStack: [{ flow: flow.name, node: flow.startNode }]
+    }
+
+    await this._setContext(stateId, state)
+
+    await Promise.fromCallback(callback => this.onAfterCreated.run({ ...beforeCtx }, callback))
 
     return state
   }
@@ -575,49 +588,47 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
     return this.stateManager.setState(stateId + '___context', state)
   }
 
-  _gotoSubflow(nodeName, context) {
-    let [, subflow, subflowNode] = nodeName.match(callSubflowRegex)
+  async _gotoSubflow(nodeName, context) {
+    const [, subflow, subflowNode] = nodeName.match(callSubflowRegex)
 
-    const flow = this._findFlow(subflow, true)
+    const flow = await this._findFlow(subflow, true)
 
-    if (_.isNil(subflowNode)) {
-      subflowNode = flow.startNode
-    }
-
-    Object.assign(context, {
+    return {
+      ...context,
       currentFlow: flow,
-      node: subflowNode
-    })
-
-    return context
+      node: subflowNode || flow.startNode
+    }
   }
 
-  _gotoPreviousFlow(nodeName, context) {
+  async _gotoPreviousFlow(nodeName, context) {
     if (!context.flowStack) {
-      context.flowStack = []
-    }
-
-    while (context.currentFlow.name === _.get(_.last(context.flowStack), 'flow')) {
-      context.flowStack.pop()
+      context = { ...context, flowStack: [] }
+    } else {
+      const flowStack = [...context.flowStack]
+      const currentFlow = context.currentFlow.name
+      while (flowStack[flowStack.length - 1].flow === currentFlow) {
+        flowStack.pop()
+      }
+      context = { ...context, flowStack }
     }
 
     if (context.flowStack.length < 1) {
       this._trace('Flow tried to go back to previous flow but there was none. Exiting flow.', context, null)
       // TODO END FLOW
-    } else {
-      let { flow, node } = _.last(context.flowStack)
-
-      if (nodeName !== '#') {
-        node = nodeName.substr(1)
-      }
-
-      Object.assign(context, {
-        currentFlow: this._findFlow(flow, true),
-        node: node
-      })
+      return context
     }
 
-    return context
+    let { flow, node } = _.last(context.flowStack)
+
+    if (nodeName !== '#') {
+      node = nodeName.substr(1)
+    }
+
+    return {
+      ...context,
+      currentFlow: await this._findFlow(flow, true),
+      node
+    }
   }
 
   async _processInstructions(instructions, userState, event, context) {
@@ -626,27 +637,26 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
     }
 
     await Promise.mapSeries(instructions, async instruction => {
-      if (_.isString(instruction) && instruction.startsWith('say ')) {
-        const chunks = instruction.split(' ')
-        const params = _.slice(chunks, 2).join(' ')
-
-        if (chunks.length < 2) {
-          this.trace('ERROR Invalid text instruction. Expected an instruction along "say #text Something"')
-          return userState
-        }
-
-        await this._dispatchOutput(
-          {
-            type: chunks[1], // e.g. "#text" or "#!trivia-12342"
-            value: params // e.g. Any additional parameter provided to the template
-          },
-          userState,
-          event,
-          context
-        )
-      } else {
+      if (!_.isString(instruction) || !instruction.startsWith('say ')) {
         userState = await this._invokeAction(instruction, userState, event, context)
+        return
       }
+
+      const chunks = instruction.split(' ')
+      if (chunks.length < 2) {
+        this.trace('ERROR Invalid text instruction. Expected an instruction along "say #text Something"')
+        return
+      }
+
+      await this._dispatchOutput(
+        {
+          type: chunks[1], // e.g. "#text" or "#!trivia-12342"
+          value: chunks.slice(2).join(' ') // e.g. Any additional parameter provided to the template
+        },
+        userState,
+        event,
+        context
+      )
     })
 
     return userState
@@ -656,14 +666,9 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
     const msg = String(output.type + (output.value || '')).substr(0, 20)
     this._trace('~>', 'SEND', `"${msg}"`)
 
-    this.outputProcessors.forEach(processor => {
-      processor.send({
-        message: output,
-        state: userState,
-        originalEvent: event,
-        flowContext: context
-      })
-    })
+    return Promise.map(this.outputProcessors, processor =>
+      processor.send({ message: output, state: userState, originalEvent: event, flowContext: context })
+    )
   }
 
   async _invokeAction(instruction, userState, event, context) {
@@ -677,10 +682,11 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
         name = _.first(chunks)
         try {
           args = JSON.parse(argsStr)
+          const actionCtx = { state: userState, s: userState, event: event, e: event }
           args = _.mapValues(args, value => {
             if (_.isString(value) && value.startsWith('{{') && value.endsWith('}}')) {
               const key = value.substr(2, value.length - 4)
-              return _.get({ state: userState, s: userState, event: event, e: event }, key)
+              return _.get(actionCtx, key)
             }
             return value
           })
@@ -721,57 +727,51 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
     return userState
   }
 
-  async _evaluateCondition(condition, userState, event) {
-    if (/^true|always|yes$/i.test(condition) || condition === '') {
+  _evaluateCondition(condition, userState, event) {
+    if (TRUEISH_WORDS[condition] || condition === '') {
       return true
     }
 
-    const vm = new VM({
-      timeout: 5000
-    })
-
-    _.keys(this.actions).forEach(name => {
-      vm.freeze(this.actions[name].fn, name)
-    })
-
+    const vm = this.vm
     vm.freeze(userState, 's')
     vm.freeze(userState, 'state')
     vm.freeze(event, 'event')
     vm.freeze(event, 'e')
 
     try {
-      return (await vm.run(condition)) == true
+      return !!vm.run(compileExp(condition))
     } catch (err) {
       throw new Error(`ERROR evaluating condition "${condition}": ${err.message}`)
     }
   }
 
   static _findNode(flow, nodeName, throwIfNotFound = false) {
-    if (throwIfNotFound && _.isNil(flow)) {
+    if (throwIfNotFound && !flow) {
       throw new Error(`Could not find node ${nodeName} because the flow was not defined (null)`)
     }
 
     const node = _.find(flow.nodes, { name: nodeName })
 
-    if (throwIfNotFound && _.isNil(nodeName)) {
+    if (throwIfNotFound && !node) {
       throw new Error(`Could not find node "${nodeName}" in flow "${flow.name}"`)
     }
 
     return node
   }
 
-  _findFlow(flowName, throwIfNotFound = false) {
-    const flow = _.find(this.flows, { name: flowName })
+  async _findFlow(flowName, throwIfNotFound = false) {
+    const flows = await this.getFlows()
+    const flow = _.find(flows, { name: flowName })
 
-    if (throwIfNotFound && _.isNil(flow)) {
+    if (throwIfNotFound && !flow) {
       throw new Error(`Could not find flow "${flowName}"`)
     }
 
     return flow
   }
 
-  log(message, context, state) {
-    const flow = (_.get(context, 'currentFlow.name') || 'NONE').replace(/\.flow\.json/i, '')
+  log(message, context) {
+    const flow = _.get(context, 'currentFlow.name', 'NONE').replace(/\.flow\.json$/i, '')
     const node = (context && context.node) || 'NONE'
     const msg = `Dialog: [${flow} – ${node}]\t${message}`
     this.logger.debug(msg)
@@ -785,7 +785,12 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
    * @private
    */
   _trace(operation, reason, message, context) {
-    let flow = (_.get(context, 'currentFlow.name') || ' N/A ').replace(/\.flow\.json/i, '')
+    if (this.logger.level !== 'debug') {
+      // don't do string formatting if we're not going to log it anyway
+      return
+    }
+
+    let flow = _.get(context, 'currentFlow.name', ' N/A ').replace(/\.flow\.json/i, '')
     let node = (context && context.node) || ' N/A '
 
     flow = flow.length > 13 ? flow.substr(0, 13) + '&' : flow

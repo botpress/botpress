@@ -1,6 +1,6 @@
 {
   "name": "@botpress/analytics",
-  "version": "10.20.1",
+  "version": "10.25.0",
   "description": "Provides high level analytics about your bot usage.",
   "main": "bin/node.bundle.js",
   "homepage": "https://github.com/botpress/modules",
@@ -33,7 +33,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Botpress",
-  "license": "AGPL-3.0",
+  "license": "AGPL-3.0-only",
   "dependencies": {
     "bluebird": "^3.4.6",
     "botpress-version-manager": "^1.0.2",
@@ -61,7 +61,7 @@
     "css-loader": "^0.28.9",
     "extract-text-webpack-plugin": "^3.0.2",
     "file-loader": "^1.1.6",
-    "node-sass": "^3.11.2",
+    "node-sass": "^4.9.2",
     "react-select": "^1.2.c",
     "recharts": "^1.0.0-beta.10",
     "sass-loader": "^6.0.6",

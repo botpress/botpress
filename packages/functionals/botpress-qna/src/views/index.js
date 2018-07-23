@@ -13,13 +13,17 @@ import {
   Panel,
   ButtonToolbar,
   Button,
-  Well
+  Well,
+  HelpBlock,
+  Modal,
+  Alert
 } from 'react-bootstrap'
 import Select from 'react-select'
 
 import classnames from 'classnames'
 import find from 'lodash/find'
 import some from 'lodash/some'
+import get from 'lodash/get'
 
 import ArrayEditor from './ArrayEditor'
 import QuestionsEditor from './QuestionsEditor'
@@ -47,10 +51,16 @@ const cleanupQuestions = questions => questions.map(q => q.trim()).filter(Boolea
 
 const ACTIONS = {
   TEXT: 'text',
-  REDIRECT: 'redirect'
+  REDIRECT: 'redirect',
+  TEXT_REDIRECT: 'text_redirect'
 }
 
 export default class QnaAdmin extends Component {
+  constructor(props) {
+    super(props)
+    this.csvDownloadableLink = React.createRef()
+  }
+
   createEmptyQuestion() {
     return {
       id: null,
@@ -155,6 +165,32 @@ export default class QnaAdmin extends Component {
     !!cleanupQuestions(data.questions).length &&
     (data.action === ACTIONS.TEXT ? !!data.answer : !!data.redirectFlow && !!data.redirectNode)
 
+  renderTextAndRedirectSelect(index, onChange) {
+    return (
+      <div>
+        {this.renderTextInput(index, onChange)}
+        {this.renderRedirectSelect(index, onChange)}
+      </div>
+    )
+  }
+
+  renderTextInput = (index, onChange) => {
+    const item = index === null ? 'newItem' : `items.${index}`
+    const answer = get(this.state, `${item}.data.answer`, '')
+
+    return (
+      <FormGroup controlId={this.getFormControlId(index, 'answer')}>
+        <ControlLabel>Answer:</ControlLabel>
+        <FormControl
+          componentClass="textarea"
+          placeholder="Answer"
+          value={answer}
+          onChange={this.onInputChange(index, 'answer', onChange)}
+        />
+      </FormGroup>
+    )
+  }
+
   renderRedirectSelect(index, onChange) {
     const { flows } = this.state
     if (!flows) {
@@ -167,7 +203,7 @@ export default class QnaAdmin extends Component {
 
     const nodeOptions = !redirectFlow
       ? []
-      : find(flows, { name: redirectFlow }).nodes.map(({ name }) => ({ label: name, value: name }))
+      : get(find(flows, { name: redirectFlow }), 'nodes', []).map(({ name }) => ({ label: name, value: name }))
 
     return (
       <div className={style.paddedRow}>
@@ -240,6 +276,7 @@ export default class QnaAdmin extends Component {
     this.shouldAutofocus = false
 
     const { showBulkImport } = this.state
+    const saveSign = `${isDirty ? '* ' : ''}Save`
 
     return (
       <Well bsSize="small" bsClass={classnames('well', style.qna, { [style.pale]: !data.enabled })}>
@@ -290,21 +327,20 @@ export default class QnaAdmin extends Component {
           >
             redirect to flow node
           </Radio>
+          <Radio
+            name={this.getFormControlId(index, 'action')}
+            value={ACTIONS.TEXT_REDIRECT}
+            checked={data.action === ACTIONS.TEXT_REDIRECT}
+            onChange={this.onInputChange(index, 'action', onChange)}
+            inline
+          >
+            text answer and redirect to flow node
+          </Radio>
         </FormGroup>
 
-        {data.action === ACTIONS.TEXT && (
-          <FormGroup controlId={this.getFormControlId(index, 'answer')}>
-            <ControlLabel>Answer:</ControlLabel>
-            <FormControl
-              componentClass="textarea"
-              placeholder="Answer"
-              value={data.answer}
-              onChange={this.onInputChange(index, 'answer', onChange)}
-            />
-          </FormGroup>
-        )}
-
+        {data.action === ACTIONS.TEXT && this.renderTextInput(index, onChange)}
         {data.action === ACTIONS.REDIRECT && this.renderRedirectSelect(index, onChange)}
+        {data.action === ACTIONS.TEXT_REDIRECT && this.renderTextAndRedirectSelect(index, onChange)}
 
         <ButtonToolbar>
           <Button type="button" onClick={() => onReset(index)} disabled={!isDirty}>
@@ -321,7 +357,7 @@ export default class QnaAdmin extends Component {
             onClick={() => (index != null ? onEdit(index) : onCreate())}
             disabled={!isDirty || !this.canSave(data)}
           >
-            {index != null ? `${isDirty ? '* ' : ''}Save` : 'Create'}
+            {index != null ? saveSign : 'Create'}
           </Button>
         </ButtonToolbar>
       </Well>
@@ -344,18 +380,107 @@ export default class QnaAdmin extends Component {
     return some(questions, q => q.indexOf(filter) >= 0)
   }
 
+  uploadCsv = () => {
+    const formData = new FormData()
+    formData.set('isReplace', this.state.isCsvUploadReplace)
+    formData.append('csv', this.state.csvToUpload)
+    const headers = { 'Content-Type': 'multipart/form-data' }
+    this.props.bp.axios
+      .post('/api/botpress-qna/csv', formData, { headers })
+      .then(() => {
+        this.setState({ importCsvModalShow: false })
+        this.fetchData()
+      })
+      .catch(({ response: { data: csvUploadError } }) => this.setState({ csvUploadError }))
+  }
+
+  downloadCsv = () =>
+    // We can't just download file directly due to security restrictions
+    this.props.bp.axios({ url: '/api/botpress-qna/csv', responseType: 'blob' }).then(response => {
+      this.setState(
+        {
+          csvDownloadableLinkHref: window.URL.createObjectURL(new Blob([response.data])),
+          csvDownloadableFileName: /filename=(.*\.csv)/.exec(response.headers['content-disposition'])[1]
+        },
+        () => this.csvDownloadableLink.current.click()
+      )
+    })
+
   render() {
     return (
       <Panel>
+        <a
+          ref={this.csvDownloadableLink}
+          href={this.state.csvDownloadableLinkHref}
+          download={this.state.csvDownloadableFileName}
+        />
         <Panel.Body>
-          <p>
+          <FormGroup>
+            <ButtonToolbar>
+              <Button
+                bsStyle="success"
+                onClick={() =>
+                  this.setState({
+                    importCsvModalShow: true,
+                    csvToUpload: null,
+                    csvUploadError: null,
+                    isCsvUploadReplace: false
+                  })}
+                type="button"
+              >
+                <Glyphicon glyph="upload" /> &nbsp; Import from CSV
+              </Button>
+              <Modal show={this.state.importCsvModalShow} onHide={() => this.setState({ importCsvModalShow: false })}>
+                <Modal.Header closeButton>
+                  <Modal.Title>Import CSV</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                  {this.state.csvUploadError && (
+                    <Alert bsStyle="danger" onDismiss={() => this.setState({ csvUploadError: null })}>
+                      <p>{this.state.csvUploadError}</p>
+                    </Alert>
+                  )}
+                  <form>
+                    <FormGroup>
+                      <ControlLabel>CSV file</ControlLabel>
+                      <FormControl
+                        type="file"
+                        accept=".csv"
+                        onChange={e => this.setState({ csvToUpload: e.target.files[0] })}
+                      />
+                      <HelpBlock>CSV should be formatted &quot;question,answer_type,answer&quot;</HelpBlock>
+                    </FormGroup>
+                    <FormGroup>
+                      <Checkbox
+                        checked={this.state.isCsvUploadReplace}
+                        onChange={e => this.setState({ isCsvUploadReplace: e.target.checked })}
+                      >
+                        Replace existing FAQs
+                      </Checkbox>
+                      <HelpBlock>Deletes existing FAQs and then uploads new ones from the file</HelpBlock>
+                    </FormGroup>
+                  </form>
+                </Modal.Body>
+                <Modal.Footer>
+                  <Button bsStyle="primary" onClick={this.uploadCsv} disabled={!Boolean(this.state.csvToUpload)}>
+                    Upload
+                  </Button>
+                </Modal.Footer>
+              </Modal>
+
+              <Button bsStyle="success" onClick={this.downloadCsv} type="button">
+                <Glyphicon glyph="download" />&nbsp; Export to CSV
+              </Button>
+            </ButtonToolbar>
+          </FormGroup>
+          <FormGroup>
             <InputGroup>
               <FormControl placeholder="Filter questions" value={this.state.filter} onChange={this.onFilterChange} />
               <InputGroup.Addon>
                 <Glyphicon glyph="search" />
               </InputGroup.Addon>
             </InputGroup>
-          </p>
+          </FormGroup>
 
           <ArrayEditor
             items={this.state.items}

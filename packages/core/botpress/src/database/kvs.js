@@ -68,8 +68,8 @@ module.exports = (knex, options = {}) => {
    * @memberOf! KVS
    * @async
    */
-  const get = (key, path) => {
-    return knex(tableName)
+  const get = (key, path) =>
+    knex(tableName)
       .where({ key })
       .limit(1)
       .then()
@@ -84,9 +84,8 @@ module.exports = (knex, options = {}) => {
           return obj
         }
 
-        return _.at(obj, [path])[0]
+        return _.get(obj, path)
       })
-  }
 
   /**
    * Serializes and stores any value at the specified key, and optionally set a value inside an existing object at `path`.
@@ -117,15 +116,7 @@ module.exports = (knex, options = {}) => {
       }
     }
 
-    return get(key).then(original => {
-      return getSetCallback().then(() => {
-        if (!_.isNil(original)) {
-          return upsert(key, setValue(Object.assign({}, original)))
-        } else {
-          return upsert(key, setValue({}))
-        }
-      })
-    })
+    return get(key).then(original => getSetCallback().then(() => upsert(key, setValue(original || {}))))
   }
 
   const bootstrap = () =>

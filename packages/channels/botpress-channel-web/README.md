@@ -265,7 +265,7 @@ This **URL is public** (no authentication required) so you can share it we other
 To embedded the web interface to a website, you simply need to add this script at the end of the `<body>` tag. Don't forget to set the `host` correctly to match the public hostname of your bot.
 
 ```html
-<script src="<host>/api/channel-web/inject.js"></script>
+<script src="<host>/api/botpress-platform-webchat/inject.js"></script>
 <script>window.botpressWebChat.init({ host: '<host>' })</script>
 ```
 
@@ -289,9 +289,13 @@ window.botpressWebChat.init({
 
 You can also use `window.botpressWebChat.configure` method to modify web chat options after it's initialized.
 
-### Page –> Bot interractions
+### Page –> Bot interactions
 
 You can open/close sidebar programmatically by calling `window.botpressWebChat.sendEvent` with `{ type: 'show' }` or `{ type: 'hide' }`.
+
+### Modify url
+
+You can add `ref` query parameter to url(example `bot/s/chat?ref=[content]`) and all content will be set to user state as `webchatUrlQuery`. User state could be fetched via [DialogStateManager](https://botpress.io/docs/latest/reference/DialogStateManager.html).
 
 ## Configuring file uploads
 

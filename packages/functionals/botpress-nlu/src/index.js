@@ -1,10 +1,8 @@
-import _ from 'lodash'
 import retry from 'bluebird-retry'
+import moment from 'moment'
 
 import Storage from './storage'
 import Parser from './parser'
-
-import Entities from './providers/entities'
 
 import DialogflowProvider from './providers/dialogflow'
 import LuisProvider from './providers/luis'
@@ -54,7 +52,10 @@ module.exports = {
     maximumConfidence: { type: 'string', required: false, default: '1000', env: 'NLU_MAX_CONFIDENCE' },
 
     // The minimum difference between scores required before we apply a distribution fixes
-    nativeAdjustementThreshold: { type: 'string', required: false, default: '0.25', env: 'NLU_NATIVE_ADJ_THRESHOLD' }
+    nativeAdjustementThreshold: { type: 'string', required: false, default: '0.25', env: 'NLU_NATIVE_ADJ_THRESHOLD' },
+    // The maximum number of requests per hour
+    // Useful to make sure you don't overuse your budget on paid NLU-services (like LUIS)
+    maximumRequestsPerHour: { type: 'string', required: false, default: '1000', env: 'NLU_MAX_REQUESTS_PER_HOUR' }
   },
 
   init: async function(bp, configurator) {
@@ -88,10 +89,10 @@ module.exports = {
 
     provider = new Provider({
       logger: bp.logger,
-      storage: storage,
+      storage,
       parser: new Parser(),
       kvs: bp.kvs,
-      config: config
+      config
     })
     await provider.init()
 
@@ -107,6 +108,23 @@ module.exports = {
         return
       }
 
+      const previous = JSON.parse((await bp.kvs.get('nlu/requestsLimit')) || '{}')
+      const hour = moment().startOf('hour')
+      const requestsCount = hour.isSame(previous.hour) ? previous.requestsCount : 0
+
+      await bp.kvs.set('nlu/requestsLimit', JSON.stringify({ hour, requestsCount: requestsCount + 1 }))
+
+      const maximumRequestsPerHour = parseFloat(config.maximumRequestsPerHour)
+      if (requestsCount > maximumRequestsPerHour) {
+        throw new Error(
+          `[NLU] Requests limit per hour exceeded: ${maximumRequestsPerHour} allowed ` +
+            `while getting ${requestsCount}. You can set higher value to NLU_MAX_REQUESTS_PER_HOUR.`
+        )
+      }
+
+      let eventIntent = {}
+      let eventIntents = []
+
       try {
         if (config.debugModeEnabled) {
           bp.logger.info('[NLU Extraction] ' + event.text, event.raw)
@@ -116,43 +134,37 @@ module.exports = {
 
         if (metadata) {
           Object.assign(event, { nlu: metadata })
+          eventIntent = metadata.intent
+          eventIntents = metadata.intents
         }
       } catch (err) {
         bp.logger.warn('[NLU] Error extracting metadata for incoming text: ' + err.message)
       }
 
-      const intentConfidentEnough = () =>
-        (_.get(event, 'nlu.intent.confidence') || 1) >= MIN_CONFIDENCE &&
-        (_.get(event, 'nlu.intent.confidence') || 1) <= MAX_CONFIDENCE
-
-      const intentStartsWith = prefix => {
-        return (
-          intentConfidentEnough() &&
-          (_.get(event, 'nlu.intent.name') || '').toLowerCase().startsWith(prefix && prefix.toLowerCase())
-        )
+      const intentConfidentEnough = () => {
+        const confidence = eventIntent.confidence != null ? eventIntent.confidence : 1
+        return confidence >= MIN_CONFIDENCE && confidence <= MAX_CONFIDENCE
       }
 
-      const intentIs = intentName => {
-        return (
-          intentConfidentEnough() &&
-          (_.get(event, 'nlu.intent.name') || '').toLowerCase() === (intentName && intentName.toLowerCase())
-        )
-      }
-
-      const bestMatchProps = {
-        is: intentIs,
-        startsWith: intentStartsWith,
-        intentConfidentEnough
-      }
-
-      _.merge(event, {
-        nlu: {
-          intent: bestMatchProps,
-          intents: {
-            has: intentName => !!(_.get(event, 'nlu.intents') || []).find(i => i.name === intentName)
+      if (event.nlu) {
+        Object.assign(event.nlu.intent, {
+          intentConfidentEnough,
+          is: intentName => {
+            intentName = (intentName || '').toLowerCase()
+            return intentConfidentEnough() && (eventIntent.name || '').toLowerCase() === intentName
+          },
+          startsWith: prefix => {
+            prefix = (prefix || '').toLowerCase()
+            return intentConfidentEnough() && (eventIntent.name || '').toLowerCase().startsWith(prefix)
           }
-        }
-      })
+        })
+        Object.assign(event.nlu.intents, {
+          has: intentName => {
+            intentName = (intentName || '').toLowerCase()
+            return !!eventIntents.find(intent => (intent.name || '').toLowerCase() === intentName)
+          }
+        })
+      }
     }
 
     bp.nlu = {

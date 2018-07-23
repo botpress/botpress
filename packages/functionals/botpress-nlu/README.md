@@ -80,6 +80,8 @@ Botpress NLU also provides two convenient methods to the NLU Object : `nlu.inten
 
 ## DIALOGFLOW
 
+NOTE: Dialogflow-provider is not fully implemented yet and isn't recommended to use at this point.
+
 Botpress NLU use the V2 API of Dialogflow, checkout this [link](https://dialogflow.com/docs/reference/v2-agent-setup) for more information.
 
 ### Dialogflow Specific Configuration [(source)](https://github.com/botpress/botpress/blob/master/packages/functionals/botpress-nlu/src/index.js#L26-27)

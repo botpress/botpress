@@ -2,7 +2,7 @@ config:
   target: "http://localhost:3000"
   phases:
     - duration: 100 # lasts for 10 seconds
-      arrivalRate: 3 # 10 new users per second
+      arrivalRate: 30 # 10 new users per second
   payload:
     path: "users.csv"
     fields: ["prefix", "uuid"]

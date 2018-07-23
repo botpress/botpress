@@ -1,5 +1,4 @@
 import Promise from 'bluebird'
-import moment from 'moment'
 import _ from 'lodash'
 import { DatabaseHelpers as helpers } from 'botpress'
 
@@ -65,17 +64,13 @@ function createUserSession(event) {
   return knex('hitl_sessions')
     .insert(session)
     .returning('id')
-    .then(results => {
-      session.id = results[0]
-      session.is_new_session = true
-    })
-    .then(() =>
+    .then(([id]) =>
       knex('hitl_sessions')
-        .where({ id: session.id })
+        .where({ id })
         .then()
         .get(0)
     )
-    .then(db_session => Object.assign({}, session, db_session))
+    .then(dbSession => ({ is_new_session: true, ...dbSession }))
 }
 
 async function getUserSession(event) {
@@ -118,6 +113,15 @@ function toPlainObject(object) {
     return v.sql ? v.sql : v
   })
 }
+const buildUpdate = direction => {
+  const now = helpers(knex).date.now()
+  return direction === 'in'
+    ? { last_event_on: now }
+    : {
+        last_event_on: now,
+        last_heard_on: now
+      }
+}
 
 function appendMessageToSession(event, sessionId, direction) {
   const message = {
@@ -129,20 +133,13 @@ function appendMessageToSession(event, sessionId, direction) {
     ts: helpers(knex).date.now()
   }
 
-  const update = { last_event_on: helpers(knex).date.now() }
-
-  if (direction === 'in') {
-    update.last_heard_on = helpers(knex).date.now()
-  }
-
-  return knex('hitl_messages')
-    .insert(message)
-    .then(() => {
-      return knex('hitl_sessions')
-        .where({ id: sessionId })
-        .update(update)
-        .then(() => toPlainObject(message))
-    })
+  return Promise.join(
+    knex('hitl_messages').insert(message),
+    knex('hitl_sessions')
+      .where({ id: sessionId })
+      .update(buildUpdate(direction)),
+    () => toPlainObject(message)
+  )
 }
 
 function setSessionPaused(paused, platform, userId, trigger, sessionId = null) {

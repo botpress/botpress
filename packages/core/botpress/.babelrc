@@ -5,15 +5,14 @@
       "env",
       {
         "targets": {
-          "node": "6.10",
-          "browsers": ["last 2 versions"]
+          "node": "8.9"
         }
       }
     ],
     "react"
   ],
   "plugins": ["transform-class-properties"],
-  "ignore": ["cli/templates/**", "src/web/**"],
+  "ignore": ["src/cli/templates/", "src/web/"],
   "env": {
     "tests": {
       "plugins": [
@@ -24,14 +23,6 @@
             {
               "rootPathPrefix": "~",
               "rootPathSuffix": "./src"
-            },
-            {
-              "rootPathPrefix": "#",
-              "rootPathSuffix": "."
-            },
-            {
-              "rootPathPrefix": "+",
-              "rootPathSuffix": "./extensions/enterprise/pro"
             }
           ]
         ]

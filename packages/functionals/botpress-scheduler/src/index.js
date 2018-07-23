@@ -5,7 +5,7 @@ import _ from 'lodash'
 import Promise from 'bluebird'
 
 import db from './db'
-import deamon from './deamon'
+import daemon from './daemon'
 
 module.exports = {
   config: {},
@@ -14,7 +14,7 @@ module.exports = {
     checkVersion(bp, bp.botpressPath)
 
     await db(bp).bootstrap()
-    const d = deamon(bp)
+    const d = daemon(bp)
     await d.revive()
     d.start()
   },
@@ -96,5 +96,28 @@ module.exports = {
         })
         .catch(catchError(res))
     })
+
+    bp.scheduler = {
+      /**
+       * Adds schedule record and returns promise with id of the record inserted
+       * @param  {string} params.schedule dateTime action will be executed
+       * @param  {string} params.action string that will be executed
+       * @param  {string} [params.id] the unique id of the schedule (if not provided will be generated automatically)
+       * @param  {boolean} [params.enabled=true] optional flag specifying whether this task is enabled
+       * @param  {string} [scheduleType='once'] type of the scheduler: 'once', 'cron' or 'natural'
+       */
+      add: ({ id, schedule, action, enabled = true, scheduleType = 'once' }) =>
+        db(bp)
+          .create(id, { schedule, action, enabled, schedule_type: scheduleType })
+          .then(() => bp.events.emit('scheduler.update')),
+      /**
+       * Removes schedule record and returns promise with boolean showing whether delete was successful
+       * @param  {string} id the id of the schedule to remove
+       */
+      remove: id =>
+        db(bp)
+          .delete(id)
+          .then(() => bp.events.emit('scheduler.update'))
+    }
   }
 }

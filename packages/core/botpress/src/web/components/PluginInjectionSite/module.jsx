@@ -1,6 +1,6 @@
 import React from 'react'
 import axios from 'axios'
-
+import { toast } from 'react-toastify'
 /*****
   DO NOT REQUIRE HEAVY DEPENDENCIES HERE
   Avoid requiring lodash here
@@ -102,7 +102,8 @@ export default class InjectedModuleView extends React.Component {
 
     const bp = {
       events: EventBus.default,
-      axios: axios
+      axios,
+      toast
     }
 
     const extraProps = this.props.extraProps || {}

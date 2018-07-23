@@ -1,8 +1,6 @@
 import checkVersion from 'botpress-version-manager'
 import DB from './db'
 import _ from 'lodash'
-import path from 'path'
-import fs from 'fs'
 
 // TODO: Cleanup old sessions
 // TODO: If messages count > X, delete some
@@ -10,7 +8,7 @@ import fs from 'fs'
 let db = null
 let config = null
 
-const incomingMiddleware = (event, next) => {
+const incomingMiddleware = async (event, next) => {
   if (!db) {
     return next()
   }
@@ -19,47 +17,42 @@ const incomingMiddleware = (event, next) => {
     return next()
   }
 
-  return db.getUserSession(event).then(session => {
-    if (!session) {
-      return next()
-    }
+  const session = await db.getUserSession(event)
+  if (!session) {
+    return next()
+  }
 
-    if (session.is_new_session) {
-      event.bp.events.emit('hitl.session', session)
-    }
+  if (session.is_new_session) {
+    event.bp.events.emit('hitl.session', session)
+  }
 
-    return db.appendMessageToSession(event, session.id, 'in').then(message => {
-      event.bp.events.emit('hitl.message', message)
-      if ((!!session.paused || config.paused) && _.includes(['text', 'message'], event.type)) {
-        event.bp.logger.debug('[hitl] Session paused, message swallowed:', event.text)
-        // the session or bot is paused, swallow the message
-        return
-      } else {
-        next()
-      }
-    })
-  })
+  const message = db.appendMessageToSession(event, session.id, 'in')
+  event.bp.events.emit('hitl.message', message)
+  if ((!!session.paused || config.paused) && _.includes(['text', 'message'], event.type)) {
+    event.bp.logger.debug('[hitl] Session paused, message swallowed:', event.text)
+    // the session or bot is paused, swallow the message
+    return
+  }
+  next()
 }
 
-const outgoingMiddleware = (event, next) => {
+const outgoingMiddleware = async (event, next) => {
   if (!db) {
     return next()
   }
 
-  return db.getUserSession(event).then(session => {
-    if (!session) {
-      return next()
-    }
+  const session = await db.getUserSession(event)
+  if (!session) {
+    return next()
+  }
 
-    if (session.is_new_session) {
-      event.bp.events.emit('hitl.session', session)
-    }
+  if (session.is_new_session) {
+    event.bp.events.emit('hitl.session', session)
+  }
 
-    return db.appendMessageToSession(event, session.id, 'out').then(message => {
-      event.bp.events.emit('hitl.message', message)
-      next()
-    })
-  })
+  const message = db.appendMessageToSession(event, session.id, 'out')
+  event.bp.events.emit('hitl.message', message)
+  next()
 }
 
 module.exports = {

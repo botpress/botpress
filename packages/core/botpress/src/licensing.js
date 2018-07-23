@@ -19,8 +19,8 @@ module.exports = ({ projectLocation, bp }) => {
 
     return {
       agpl: {
-        name: 'AGPL-3.0',
-        licensedUnder: license === 'AGPL-3.0',
+        name: 'AGPL-3.0-only',
+        licensedUnder: license === 'AGPL-3.0-only',
         text: agplContent
       },
       botpress: {
@@ -35,7 +35,7 @@ module.exports = ({ projectLocation, bp }) => {
     const packageJsonPath = resolveProjectFile('package.json', projectLocation, true)
 
     const licensePath = resolveProjectFile('LICENSE', projectLocation, true)
-    const licenseFileName = license === 'AGPL-3.0' ? 'LICENSE_AGPL3' : 'LICENSE_BOTPRESS'
+    const licenseFileName = license === 'AGPL-3.0-only' ? 'LICENSE_AGPL3' : 'LICENSE_BOTPRESS'
     const licenseContent = fs.readFileSync(path.join(licensesPath, licenseFileName))
 
     const pkg = JSON.parse(fs.readFileSync(packageJsonPath))

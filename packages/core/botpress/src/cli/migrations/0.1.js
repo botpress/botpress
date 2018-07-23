@@ -113,8 +113,7 @@ function migrate_botfile(botfilePath) {
 
 module.exports = bot_path => {
   const botfilePath = path.join(bot_path, 'botfile.js')
-  // eslint-disable-next-line no-eval
-  const botfile = eval('require')(botfilePath)
+  const botfile = require(botfilePath)
   const dbLocation = path.resolve(path.join(bot_path, botfile.dataDir, 'db.sqlite'))
 
   return migrate_database_schema(dbLocation).then(() => migrate_botfile(botfilePath))

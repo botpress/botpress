@@ -16,7 +16,6 @@ import AboutComponent from '~/components/About'
 import GuidedTour from '~/components/Tour'
 import SelectContentManager from '~/components/Content/Select/Manager'
 import Dashboard from '~/views/Dashboard'
-import Manage from '~/views/Manage'
 import Middleware from '~/views/Middleware'
 import Content from '~/views/Content'
 import GhostContent from '~/views/GhostContent'
@@ -60,7 +59,6 @@ class Layout extends React.Component {
             <Switch>
               <Route exact path="/" render={() => <Redirect to="/dashboard" />} />
               <Route exact path="/dashboard" component={Dashboard} />
-              <Route exact path="/manage" component={Manage} />
               <Route exact path="/middleware" component={Middleware} />
               <Route exact path="/content" component={Content} />
               <Route exact path="/version-control" component={GhostContent} />

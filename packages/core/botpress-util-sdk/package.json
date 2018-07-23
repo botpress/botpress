@@ -1,11 +1,11 @@
 {
   "name": "@botpress/util-sdk",
-  "version": "10.20.1",
+  "version": "10.25.0",
   "description": "The built-in stuff such as Content Elements, Content Renderers and Actions for Botpress X+",
   "main": "./dist/index.js",
   "repository": "https://github.com/botpress/botpress",
   "author": "Botpress, Inc.",
-  "license": "AGPL-3.0",
+  "license": "AGPL-3.0-only",
   "private": false,
   "scripts": {
     "watch": "babel src --out-dir dist --source-maps --watch",

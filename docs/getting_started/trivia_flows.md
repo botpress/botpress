@@ -28,8 +28,8 @@ Almost all the logic is defined and happens in the **Nodes** (the boxes inside t
 
 The *On Receive* actions are **executed for every new message received by the bot inside this flow**.
 
-To define new *Flow-wide On Receive Actions*, navigate to the relevant flow, then make sure you aren't selecting any node. The left panel should have a tab called *Flow Properties*. Under the *On Receive* section, click the *Add Action* button to add a new action.
-
+To define new *Flow-wide On Receive Actions*, navigate to the relevant flow, then double click anywhere on the checkered background to show the *Flow Properties Pop up*. Under the *On Receive* section, click the *Add Action* button to add a new action.
+![GIF showing how to show the Flow Properties pop up](GettingStarted_TriviaFlows_FlowWideOnReceive)
 > **👓 Examples:** Flow-wide On Receive
 > - Audit Trail: Record specific logs of messages received in the scope of this particular flow
 > - Authentication Gate: Run some authentication
@@ -37,7 +37,8 @@ To define new *Flow-wide On Receive Actions*, navigate to the relevant flow, the
 
 ### Flow-wide "Transitions"
 
-The *Transitions* are very closely related to *On Receive Actions*. The actions themselves can only run actions (and modify the state), but they can't make the flow switch to another node. This is the role of *Transitions*.
+The *Transitions* are very closely related to *On Receive Actions*. The actions themselves can only run actions (and modify the 
+), but they can't make the flow switch to another node. This is the role of *Transitions*.
 
 **A transition is defined by a condition and a destination.** They can be seen as global conversation hooks in some way because they have the power to reroute the conversation to an entirely new node or flow.
 
@@ -191,6 +192,8 @@ Finally, you want to end the flow if we already know the nickname:
 That's it! Your bot is now asking the user for their nickname once and then remembering it forever.
 
 > **🌟 Tip:** Say `/forget` to the bot to make it forget your *nickname*.
+
+[GettingStarted_TriviaFlows_FlowWideOnReceive]: {{site.baseurl}}/images/GettingStarted_TriviaFlows_FlowWideOnReceive.gif
 
 [stateLifetime]: {{site.baseurl}}/images/stateLifetime.jpg
 

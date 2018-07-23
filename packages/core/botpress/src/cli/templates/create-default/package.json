@@ -20,7 +20,7 @@
     "compile": "node webpack.js --compile"
   },
   "author": "<%= author %>",
-  "license": "AGPL-3.0",
+  "license": "AGPL-3.0-only",
   "devDependencies": {
     "babel-core": "^6.25.0",
     "babel-eslint": "^8.0.2",

@@ -212,7 +212,7 @@ module.exports = ({ logger, db, projectLocation, enabled }) => {
     await updatePendingForFolder(folder)
 
     if (fs.existsSync(filePath)) {
-      // If the file exists on disk, this means it was initially source controlled
+      // If the file exists on disk it means it was initially source controlled
       recordFile(folderPath, folder, file, { isBinary })
     } else {
       await knex('ghost_content')

@@ -57,16 +57,13 @@ export default class MemoryQueue {
   }
 
   async tick() {
-    const toDequeueIdx = _.findIndex(this.queue, el => {
-      const queueId = this.getQueueId(el.job)
-      return !this._lock[queueId]
-    })
+    const toDequeueIdx = this.queue.findIndex(el => !this._lock[this.getQueueId(el.job)])
 
     if (toDequeueIdx === -1) {
       return
     }
 
-    const [{ job, retries }] = _.pullAt(this.queue, [toDequeueIdx])
+    const [{ job, retries }] = this.queue.splice(toDequeueIdx, 1)
     const queueId = this.getQueueId(job)
     this._lock[queueId] = true
 

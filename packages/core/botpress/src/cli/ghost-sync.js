@@ -31,7 +31,19 @@ const writeRevisions = async (revisionsFile, revisions) => {
 
 const writeFile = folderPath => async ({ file, content, deleted }) => {
   const filePath = path.join(folderPath, file)
-  return deleted ? fs.unlinkAsync(filePath) : fs.writeFileAsync(filePath, content)
+
+  if (!deleted) {
+    return fs.writeFileAsync(filePath, content)
+  }
+
+  try {
+    return await fs.unlinkAsync(filePath)
+  } catch (e) {
+    if (e.code === 'ENOENT') {
+      return Promise.resolve(true)
+    }
+    throw e
+  }
 }
 
 const updateFolder = projectLocation => async ({ files, revisions, binary }, folder) => {

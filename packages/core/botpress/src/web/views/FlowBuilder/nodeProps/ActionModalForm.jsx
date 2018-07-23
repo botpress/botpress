@@ -123,7 +123,7 @@ export default class ActionModalForm extends Component {
 
               // TODO Detect if default or custom arguments
               if (
-                Object.keys(this.state.functionParams).length > 0 &&
+                Object.keys(this.state.functionParams || {}).length > 0 &&
                 !confirm('Do you want to overwrite existing parameters?')
               ) {
                 return
@@ -167,8 +167,7 @@ export default class ActionModalForm extends Component {
       </OverlayTrigger>
     )
 
-    const { item } = this.props
-    const itemId = (item && item.message && this.textToItemId(item.message)) || null
+    const itemId = this.textToItemId(this.state.messageValue)
 
     return (
       <div>

@@ -8,63 +8,69 @@
  */
 
 import helpers from '../database/helpers'
-import _ from 'lodash'
+import { isPlainObject } from 'lodash'
 
-module.exports = ({ db, internals = {} }) => {
-  const _internals = Object.assign(
-    {
-      _isExpired: session => {
-        return false // TODO Implement
-      }
-    },
-    internals
-  )
+module.exports = ({ db }) => {
+  const isExpired = session => {
+    return false // TODO Implement
+  }
 
   const _upsertState = async (stateId, state) => {
-    let sql
-
     const knex = await db.get()
+    const h = helpers(knex)
 
     const params = {
       tableName: 'dialog_sessions',
       stateId,
       state: JSON.stringify(state),
-      now: helpers(knex).date.now()
+      now: h.date.now()
     }
 
-    if (helpers(knex).isLite()) {
-      sql = `
+    const sql = h.isLite()
+      ? `
         INSERT OR REPLACE INTO :tableName: (id, state, active_on)
         VALUES (:stateId, :state, :now)
       `
-    } else {
-      sql = `
+      : `
         INSERT INTO :tableName: (id, state, active_on, created_on)
         VALUES (:stateId, :state, :now, :now)
         ON CONFLICT (id) DO UPDATE
           SET active_on = :now, state = :state
       `
-    }
 
     return knex.raw(sql, params)
   }
 
-  const _createEmptyState = stateId => {
-    return { _stateId: stateId }
-  }
+  const _createEmptyState = stateId => ({ _stateId: stateId })
 
   const _createSession = async stateId => {
     const knex = await db.get()
-    const now = helpers(knex).date.now()
+    const h = helpers(knex)
 
-    const sessionData = {
-      id: stateId,
-      created_on: now,
-      active_on: now,
-      state: JSON.stringify(_createEmptyState(stateId))
+    const state = _createEmptyState(stateId)
+
+    const params = {
+      tableName: 'dialog_sessions',
+      stateId,
+      state: JSON.stringify(state),
+      now: h.date.now()
     }
 
-    await knex('dialog_sessions').insert(sessionData)
+    const sql = h.isLite()
+      ? `
+        INSERT OR REPLACE INTO :tableName: (id, state, active_on, created_on)
+        VALUES (:stateId, :state, :now, :now)
+      `
+      : `
+        INSERT INTO :tableName: (id, state, active_on, created_on)
+        VALUES (:stateId, :state, :now, :now)
+        ON CONFLICT (id) DO UPDATE
+          SET created_on = :now, active_on = :now, state = :state
+      `
+
+    await knex.raw(sql, params)
+
+    return state
   }
 
   /**
@@ -84,19 +90,16 @@ module.exports = ({ db, internals = {} }) => {
       .limit(1)
       .then()
       .get(0)
-      .then()
 
     if (session) {
-      if (_internals._isExpired(session)) {
+      if (isExpired(session)) {
         // TODO trigger time out
-        await _createSession(stateId)
-        return getState(stateId)
+        return _createSession(stateId)
       } else {
         return JSON.parse(session.state)
       }
     } else {
-      await _createSession(stateId)
-      return getState(stateId)
+      return _createSession(stateId)
     }
   }
 
@@ -109,15 +112,11 @@ module.exports = ({ db, internals = {} }) => {
    * @memberof! DialogStateManager
    */
   const setState = (stateId, state) => {
-    if (_.isNil(state)) {
-      state = _createEmptyState(stateId)
-    }
-
-    if (!_.isPlainObject(state)) {
+    if (state != null && !isPlainObject(state)) {
       throw new Error('State must be a plain object')
     }
 
-    return _upsertState(stateId, state)
+    return _upsertState(stateId, state != null ? state : _createEmptyState(stateId))
   }
 
   /**
