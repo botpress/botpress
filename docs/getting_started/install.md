@@ -50,7 +50,7 @@ npm install
 yarn install
 ```
 
-The dependencies might take a while to install the first time. If for some reason you get an error installing Botpress, please visit our [Slack channel](https://slack.botpress.io) or [open an issue](https://github.com/botpress/botpress/issues/new).
+The dependencies might take a while to install the first time. Should you get an error, please search our [forum](https://help.botpress.io/) to see if anyone has had a similar problem and ask for help from the community. If it is an issue in the codebase, head over to GitHub to [open an issue](https://github.com/botpress/botpress/issues/new).
 
 ### Starting the bot <a class="toc" id="toc-starting-bot" href="#toc-starting-bot"></a>
 
