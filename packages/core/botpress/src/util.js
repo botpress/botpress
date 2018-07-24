@@ -4,6 +4,8 @@ import Module from 'module'
 import fs from 'fs'
 import knex from 'knex'
 import generate from 'nanoid/generate'
+import semver from 'semver'
+import _ from 'lodash'
 
 const IS_DEV = process.env.NODE_ENV !== 'production'
 
@@ -76,6 +78,7 @@ const getDataLocation = (dataDir, projectLocation) =>
 const getBotpressVersion = () => {
   const botpressPackagePath = path.join(__dirname, '../package.json')
   const botpressJson = JSON.parse(fs.readFileSync(botpressPackagePath))
+
   return botpressJson.version
 }
 
@@ -138,6 +141,44 @@ const getCircularReplacer = () => {
 
 const safeStringify = o => JSON.stringify(o, getCircularReplacer())
 
+const validateBotVersion = (bpVersion, botfileVersion) => {
+  if (botfileVersion == null) {
+    throw new Error("Version doesn't exist in botfile.js")
+  }
+
+  if (_.isEmpty(botfileVersion) || !_.isString(botfileVersion)) {
+    throw new Error('Version in botfile.js must be non-empty string specifying the valid semver.')
+  }
+
+  try {
+    // TODO: change this method if "semver" module will implement semver.isValid()
+    semver.valid(botfileVersion)
+  } catch (err) {
+    throw new Error('Version in botfile.js must have proper semver format (e.g. 10.25.0)')
+  }
+
+  const msgPreamble = `Your bot may be incompatible with botpress v${bpVersion}
+  because it looks like it was originally created with botpress v${botfileVersion}.
+  To address this `
+
+  if (semver.lt(bpVersion, botfileVersion)) {
+    throw new Error(
+      msgPreamble +
+        `update the versions of botpress and any @botpress/* modules in your package.json to ${botfileVersion}`
+    )
+  }
+
+  const botfileMajorVersion = Number(semver.major(botfileVersion))
+  const bpMajorVersion = Number(semver.major(bpVersion))
+
+  if (bpMajorVersion > botfileMajorVersion) {
+    throw new Error(
+      msgPreamble +
+        `check https://github.com/botpress/botpress/blob/master/CHANGELOG.md and update your bot for any breaking changes listed there, then update the version in your botfile.js to ${bpVersion}`
+    )
+  }
+}
+
 module.exports = {
   print,
   resolveFromDir,
@@ -152,5 +193,6 @@ module.exports = {
   safeId,
   isBotpressPackage,
   getModuleShortname,
-  safeStringify
+  safeStringify,
+  validateBotVersion
 }
