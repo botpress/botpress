@@ -1,21 +1,20 @@
 {
   "name": "botpress-channel-web",
   "version": "0.0.0",
-  "main": "bin/server",
   "author": "Botpress",
   "license": "AGPL-3.0-only",
   "private": true,
   "scripts": {
     "start": "npm run serve",
-    "serve": "node dist/server.js",
+    "serve": "node dist/src/server.js",
     "build": "npm run build-ts && npm run tslint && ./copyStaticFiles.sh",
     "build-ts": "tsc",
     "build-pkg": "npm run build && npm run pkg",
-    "pkg": "pkg dist/server.js --target macos-x86,macos-x64,linux-x86,linux-x64,win-x86,win-x64 --output bin/botpress",
+    "pkg": "pkg dist/src/server.js --target macos-x86,macos-x64,linux-x86,linux-x64,win-x86,win-x64 --output bin/botpress",
     "test": "jest --forceExit --coverage --verbose",
-    "watch": "concurrently -c cyan,green,blue npm:watch-ts npm:watch-node",
-    "watch-ts": "tsc -w",
-    "watch-node": "nodemon dist/server.js -w dist",
+    "watch": "npm run watch-ts",
+    "watch-ts": "tsc-watch -p . --onSuccess \"node ./dist/src/server.js\" --onFailure \"echo Beep! Compilation Failed\"",
+    "watch-node": "nodemon dist/src/server.js -w dist",
     "watch-test": "npm run test -- --watchAll",
     "tslint": "tslint -c tslint.json -p tsconfig.json"
   },
@@ -38,6 +37,7 @@
     "prettier": "1.13.7",
     "ts-jest": "^23.0.0",
     "ts-node": "^7.0.0",
+    "tsc-watch": "^1.0.26",
     "tslint": "^5.11.0",
     "typescript": "^2.9.2"
   }

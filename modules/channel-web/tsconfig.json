@@ -7,6 +7,7 @@
     "moduleResolution": "node",
     "sourceMap": true,
     "outDir": "dist",
+    "rootDir": ".",
     "baseUrl": ".",
     "paths": {
       "*": ["node_modules/*", "src/types/*"]

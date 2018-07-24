@@ -918,7 +918,7 @@ create-error-class@^3.0.0:
   dependencies:
     capture-stack-trace "^1.0.0"
 
-cross-spawn@^5.0.1:
+cross-spawn@^5.0.1, cross-spawn@^5.1.0:
   version "5.1.0"
   resolved "https://registry.yarnpkg.com/cross-spawn/-/cross-spawn-5.1.0.tgz#e8bd0efee58fcff6f8f94510a0a554bbfa235449"
   dependencies:
@@ -4387,6 +4387,15 @@ ts-node@^7.0.0:
     mkdirp "^0.5.1"
     source-map-support "^0.5.6"
     yn "^2.0.0"
+
+tsc-watch@^1.0.26:
+  version "1.0.26"
+  resolved "https://registry.yarnpkg.com/tsc-watch/-/tsc-watch-1.0.26.tgz#a9130775b018b46b03116840debaac6dd40fbc56"
+  dependencies:
+    chalk "^2.3.0"
+    cross-spawn "^5.1.0"
+    ps-tree "^1.1.0"
+    strip-ansi "^4.0.0"
 
 tslib@^1.8.0, tslib@^1.8.1:
   version "1.9.3"
