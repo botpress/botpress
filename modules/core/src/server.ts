@@ -1,34 +1,40 @@
+import 'bluebird-global'
+
+import express from 'express'
 import errorHandler from 'errorhandler'
-import dotenv from 'dotenv'
+import { Server } from 'http'
 
-import app from './app'
-import Database, { DatabaseConfig } from './database'
+import * as indexRouter from './router/index'
+import { injectable } from 'inversify'
 
-import { TYPES } from './misc/types'
-import { container } from './inversify.config'
+const BASE_API_PATH = '/api/v1'
 
-dotenv.config()
+@injectable()
+export default class HTTPServer {
+  server: Server
+  app: express.Express
 
-if (process.env.NODE_ENV === 'development') {
-  app.use(errorHandler())
+  constructor() {
+    this.app = express()
+    this.app.use(BASE_API_PATH, indexRouter.default)
+
+    if (process.env.NODE_ENV === 'development') {
+      this.app.use(errorHandler())
+    }
+  }
+
+  async start() {
+    await Promise.fromCallback(callback => {
+      this.server = this.app.listen(process.env.HOST_PORT, callback)
+    })
+
+    console.log(
+      '** App is running at %s:%d in %s mode',
+      process.env.HOST_URL,
+      process.env.HOST_PORT,
+      process.env.ENVIRONMENT
+    )
+
+    return this.app
+  }
 }
-
-const database = container.get<Database>(TYPES.Database)
-
-// TODO Load database config from `botpress.config.json`
-const dbConfig: DatabaseConfig = { type: 'sqlite3', location: './db.sqlite' }
-
-database.initialize(dbConfig)
-console.log('==>', database)
-
-const server = app.listen(process.env.HOST_PORT, () => {
-  console.log(
-    '** App is running at %s:%d in %s mode',
-    process.env.HOST_URL,
-    process.env.HOST_PORT,
-    process.env.ENVIRONMENT
-  )
-  console.log('** Press CTRL-C to stop\n')
-})
-
-export default server

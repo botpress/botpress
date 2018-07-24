@@ -2,28 +2,43 @@ import * as path from 'path'
 import * as fs from 'fs'
 import { ModuleLoader } from './module-loader'
 import packageJson from '../package.json'
+import { inject, injectable, tagged } from 'inversify'
+import { TYPES } from './misc/types'
+import { Logger } from './misc/interfaces'
+import HTTPServer from './server'
 
 const MODULES_CONFIG_PATH = '/modules.config.json'
 
+@injectable()
 export class Botpress {
   projectLocation: string
   botpressPath: string
   configLocation: string
 
-  moduleLoader = new ModuleLoader()
   modulesConfig: any
   version: string
 
-  constructor() {
+  constructor(
+    @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
+    @inject(TYPES.HTTPServer) private httpServer: HTTPServer,
+    @inject(TYPES.Logger) private logger: Logger
+  ) {
     this.version = packageJson.version
-    this.botpressPath = path.join(__dirname, '../')
+    console.log(process.title)
+    this.botpressPath = path.join(process.cwd(), 'dist') // /dist
     this.configLocation = path.join(this.botpressPath, '/config')
+    console.log(this.botpressPath, this.configLocation)
   }
 
-  private initialize() {
+  private async initialize() {
     this.trackStats()
     this.createDatabase()
     this.loadModules()
+    this.startServer()
+  }
+
+  private async startServer() {
+    await this.httpServer.start()
   }
 
   private trackStats(): any {
@@ -35,15 +50,7 @@ export class Botpress {
   }
 
   private loadModules() {
-    fs.readFile(path.join(this.configLocation, MODULES_CONFIG_PATH), 'utf8', (error, data) => {
-      if (!data || error) {
-        console.error('Could not read from Botpress configuration files')
-        return
-      }
-
-      this.modulesConfig = JSON.parse(data)
-      this.modulesConfig.modules.forEach((module: any) => this.moduleLoader.loadModule(module))
-    })
+    this.moduleLoader.getAvailableModules()
   }
 
   start() {

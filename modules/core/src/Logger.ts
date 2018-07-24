@@ -1,3 +1,4 @@
+import chalk from 'chalk'
 import { injectable, inject } from 'inversify'
 import { Logger } from './misc/interfaces'
 import { TYPES } from './misc/types'
@@ -11,15 +12,15 @@ export default class ConsoleLogger implements Logger {
   }
 
   debug(message: string): void {
-    throw new Error('Method not implemented.')
+    console.log(chalk`{blue.bold DEBUG} ${message}`)
   }
   info(message: string): void {
-    throw new Error('Method not implemented.')
+    console.log(chalk`{green.bold INFO} ${message}`)
   }
   warn(message: string): void {
-    throw new Error('Method not implemented.')
+    console.log(chalk`{yellow.bold WARN} ${message}`)
   }
   error(message: string): void {
-    throw new Error('Method not implemented.')
+    console.log(chalk`{red.bold ERROR} ${message}`)
   }
 }

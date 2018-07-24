@@ -8,21 +8,14 @@
     "moduleResolution": "node",
     "sourceMap": true,
     "outDir": "dist",
-    "baseUrl": "src/",
+    "baseUrl": ".",
+    "rootDir": ".",
     "paths": {
-      "*": [
-        "node_modules/*",
-        "src/types/*"
-      ]
+      "*": ["node_modules/*", "src/types/*"]
     },
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "types": [
-      "bluebird-global",
-      "reflect-metadata"
-    ]
+    "types": ["bluebird-global", "reflect-metadata"]
   },
-  "include": [
-    "src/**/*"
-  ]
+  "include": ["src/**/*"]
 }
