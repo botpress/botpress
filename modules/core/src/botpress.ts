@@ -17,7 +17,7 @@ export class Botpress {
   constructor() {
     this.version = packageJson.version
     this.botpressPath = path.join(__dirname, '../')
-    this.configLocation  = path.join(this.botpressPath, '/config')
+    this.configLocation = path.join(this.botpressPath, '/config')
   }
 
   private initialize() {
