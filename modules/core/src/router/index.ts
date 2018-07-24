@@ -1,6 +1,6 @@
 import express from 'express'
 
-import * as proxy from 'express-http-proxy'
+import proxy from 'express-http-proxy'
 
 const router = express.Router()
 

@@ -10,8 +10,19 @@
     "outDir": "dist",
     "baseUrl": "src/",
     "paths": {
-      "*": ["node_modules/*"]
-    }
+      "*": [
+        "node_modules/*",
+        "src/types/*"
+      ]
+    },
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "types": [
+      "bluebird-global",
+      "reflect-metadata"
+    ]
   },
-  "include": ["src/**/*"]
+  "include": [
+    "src/**/*"
+  ]
 }
