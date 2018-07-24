@@ -2,22 +2,28 @@ import * as path from 'path'
 import * as fs from 'fs'
 import { ModuleLoader } from './module-loader'
 import packageJson from '../package.json'
+import { inject, injectable } from 'inversify'
+import { TYPES } from './misc/types'
 
 const MODULES_CONFIG_PATH = '/modules.config.json'
 
+@injectable()
 export class Botpress {
   projectLocation: string
   botpressPath: string
   configLocation: string
 
-  moduleLoader = new ModuleLoader()
+  moduleLoader: ModuleLoader
   modulesConfig: any
   version: string
 
-  constructor() {
+
+  constructor(@inject(TYPES.ModuleLoader) moduleLoader: ModuleLoader) {
+    this.moduleLoader = moduleLoader
     this.version = packageJson.version
     this.botpressPath = path.join(__dirname, '../')
     this.configLocation = path.join(this.botpressPath, '/config')
+    console.log(this.botpressPath, this.configLocation)
   }
 
   private initialize() {

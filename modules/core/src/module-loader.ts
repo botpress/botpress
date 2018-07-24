@@ -1,5 +1,7 @@
 import axios from 'axios'
+import { injectable } from 'inversify'
 
+@injectable()
 export class ModuleLoader {
   async loadModule(module: any): Promise<any> {
     return axios
