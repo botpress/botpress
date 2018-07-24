@@ -2,8 +2,9 @@ import * as path from 'path'
 import * as fs from 'fs'
 import { ModuleLoader } from './module-loader'
 import packageJson from '../package.json'
-import { inject, injectable } from 'inversify'
+import { inject, injectable, tagged } from 'inversify'
 import { TYPES } from './misc/types'
+import { Logger } from './misc/interfaces'
 
 const MODULES_CONFIG_PATH = '/modules.config.json'
 
@@ -16,10 +17,11 @@ export class Botpress {
   moduleLoader: ModuleLoader
   modulesConfig: any
   version: string
+  logger: Logger
 
-
-  constructor(@inject(TYPES.ModuleLoader) moduleLoader: ModuleLoader) {
+  constructor(@inject(TYPES.ModuleLoader) moduleLoader: ModuleLoader, @inject(TYPES.Logger) @tagged('name', 'Botpress') logger: Logger) {
     this.moduleLoader = moduleLoader
+    this.logger = logger
     this.version = packageJson.version
     this.botpressPath = path.join(__dirname, '../')
     this.configLocation = path.join(this.botpressPath, '/config')
