@@ -5,6 +5,7 @@ import packageJson from '../package.json'
 import { inject, injectable, tagged } from 'inversify'
 import { TYPES } from './misc/types'
 import { Logger } from './misc/interfaces'
+import HTTPServer from './server'
 
 const MODULES_CONFIG_PATH = '/modules.config.json'
 
@@ -18,20 +19,34 @@ export class Botpress {
   modulesConfig: any
   version: string
   logger: Logger
+  httpServer: HTTPServer
 
-  constructor(@inject(TYPES.ModuleLoader) moduleLoader: ModuleLoader, @inject(TYPES.Logger) @tagged('name', 'Botpress') logger: Logger) {
+  constructor(
+    @inject(TYPES.ModuleLoader) moduleLoader: ModuleLoader,
+    @inject(TYPES.HTTPServer) httpServer: HTTPServer,
+    @inject(TYPES.Logger)
+    @tagged('name', 'Botpress')
+    logger: Logger
+  ) {
     this.moduleLoader = moduleLoader
+    this.httpServer = httpServer
     this.logger = logger
+
     this.version = packageJson.version
     this.botpressPath = path.join(__dirname, '../')
     this.configLocation = path.join(this.botpressPath, '/config')
     console.log(this.botpressPath, this.configLocation)
   }
 
-  private initialize() {
+  private async initialize() {
     this.trackStats()
     this.createDatabase()
     this.loadModules()
+    this.startServer()
+  }
+
+  private async startServer() {
+    await this.httpServer.start()
   }
 
   private trackStats(): any {
