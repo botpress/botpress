@@ -17,7 +17,8 @@
   },
   "scripts": {
     "start": "npm run serve",
-    "serve": "nodemon app.js"
+    "serve": "nodemon app.js",
+    "watch": "echo 'Hey'"
   },
   "devDependencies": {
     "nodemon": "^1.18.3",

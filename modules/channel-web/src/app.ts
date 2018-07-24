@@ -1,5 +1,7 @@
 import express from 'express'
 
+import { ModuleMetadata } from 'botpress-module-sdk'
+
 const app = express()
 
 app.use(express.static('../static'))
@@ -10,8 +12,14 @@ app.get('/', (req, res) => {
 })
 
 app.get('/register', (req, res) => {
-  res.contentType('text/plain')
-  res.sendStatus(200)
+  const metadata: ModuleMetadata = {
+    name: 'channel-web',
+    incomingMiddleware: [],
+    outgoingMiddleware: [],
+    version: '0.0.1'
+  }
+
+  res.send(metadata)
 })
 
 export default app

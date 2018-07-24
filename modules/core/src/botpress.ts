@@ -15,25 +15,17 @@ export class Botpress {
   botpressPath: string
   configLocation: string
 
-  moduleLoader: ModuleLoader
   modulesConfig: any
   version: string
-  logger: Logger
-  httpServer: HTTPServer
 
   constructor(
-    @inject(TYPES.ModuleLoader) moduleLoader: ModuleLoader,
-    @inject(TYPES.HTTPServer) httpServer: HTTPServer,
-    @inject(TYPES.Logger)
-    @tagged('name', 'Botpress')
-    logger: Logger
+    @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
+    @inject(TYPES.HTTPServer) private httpServer: HTTPServer,
+    @inject(TYPES.Logger) private logger: Logger
   ) {
-    this.moduleLoader = moduleLoader
-    this.httpServer = httpServer
-    this.logger = logger
-
     this.version = packageJson.version
-    this.botpressPath = path.join(__dirname, '../')
+    console.log(process.title)
+    this.botpressPath = path.join(process.cwd(), 'dist') // /dist
     this.configLocation = path.join(this.botpressPath, '/config')
     console.log(this.botpressPath, this.configLocation)
   }
@@ -58,15 +50,7 @@ export class Botpress {
   }
 
   private loadModules() {
-    fs.readFile(path.join(this.configLocation, MODULES_CONFIG_PATH), 'utf8', (error, data) => {
-      if (!data || error) {
-        console.error('Could not read from Botpress configuration files')
-        return
-      }
-
-      this.modulesConfig = JSON.parse(data)
-      this.modulesConfig.modules.forEach((module: any) => this.moduleLoader.loadModule(module))
-    })
+    this.moduleLoader.getAvailableModules()
   }
 
   start() {

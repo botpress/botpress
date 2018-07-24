@@ -19,5 +19,9 @@
   "dependencies": {
     "@types/axios": "^0.14.0",
     "axios": "^0.18.0"
+  },
+  "scripts": {
+    "dev": "./node_modules/.bin/lerna exec -- npm run watch --parallel",
+    "link": "./node_modules/.bin/lerna link --force-local"
   }
 }

@@ -518,6 +518,11 @@ boom@5.x.x:
   dependencies:
     hoek "4.x.x"
 
+botpress-module-sdk@../../packages/module-sdk:
+  version "0.0.0"
+  dependencies:
+    lodash "^4.17.10"
+
 boxen@^1.2.1:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/boxen/-/boxen-1.3.0.tgz#55c6c39a8ba58d9c61ad22cd877532deb665a20b"

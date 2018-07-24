@@ -1,0 +1,32 @@
+{
+  "name": "botpress-module-sdk",
+  "version": "0.0.0",
+  "author": "Botpress",
+  "license": "AGPL-3.0-only",
+  "main": "dist/src/index.js",
+  "private": true,
+  "scripts": {
+    "build": "npm run build-ts && npm run tslint",
+    "build-ts": "tsc",
+    "test": "jest --forceExit --coverage --verbose",
+    "watch": "npm run watch-ts",
+    "watch-ts": "tsc-watch -p .",
+    "watch-node": "nodemon dist/src/index.js -w dist",
+    "watch-test": "npm run test -- --watchAll",
+    "tslint": "tslint -c tslint.json -p tsconfig.json"
+  },
+  "dependencies": {
+    "lodash": "^4.17.10"
+  },
+  "devDependencies": {
+    "@types/jest": "^23.3.0",
+    "@types/node": "^10.5.2",
+    "jest": "^23.4.1",
+    "prettier": "1.13.7",
+    "ts-jest": "^23.0.0",
+    "ts-node": "^7.0.0",
+    "tsc-watch": "^1.0.26",
+    "tslint": "^5.11.0",
+    "typescript": "^2.9.2"
+  }
+}

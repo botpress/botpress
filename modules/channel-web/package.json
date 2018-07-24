@@ -19,6 +19,7 @@
     "tslint": "tslint -c tslint.json -p tsconfig.json"
   },
   "dependencies": {
+    "botpress-module-sdk": "../../packages/module-sdk",
     "dotenv": "^6.0.0",
     "express": "^4.16.3",
     "lodash": "^4.17.10"
