@@ -19,28 +19,35 @@ export abstract class DatabaseMigration {
   abstract down(knex: ExtendedKnex): Promise<void>
 }
 
-export type ColumnOrDate = string | Date | Knex.Raw
+export type ColumnOrDate = string | Date | Knex.Sql
 
-export interface KnexExtension {
-  isLite: boolean
+export type KnexExtension_Date = {
+  format(exp: any): Knex.Raw,
+  now(): Knex.Raw,
+  isBefore(d1: ColumnOrDate, d2: ColumnOrDate): Knex.Raw
+  isAfter(d1: ColumnOrDate, d2: ColumnOrDate): Knex.Raw
+  isBetween(date: ColumnOrDate, betweenA: ColumnOrDate, betweenB: ColumnOrDate): Knex.Raw
+  isSameDay(d1: ColumnOrDate, d2: ColumnOrDate): Knex.Raw
+  hourOfDay(date: ColumnOrDate): Knex.Raw
+}
 
-  date: {
-    format(exp: any): Knex.Raw,
-    isBefore(d1: ColumnOrDate, d2: ColumnOrDate): Knex.Raw
-    isAfter(d1: ColumnOrDate, d2: ColumnOrDate): Knex.Raw
-    isBetween(date: ColumnOrDate, betweenA: ColumnOrDate, betweenB: ColumnOrDate): Knex.Raw
-    isSameDay(d1: ColumnOrDate, d2: ColumnOrDate): Knex.Raw
-    hourOfDay(date: ColumnOrDate): Knex.Raw
-  },
+export type KnexExtension_Bool = {
+  true(): any
+  false(): any
+  parse(value: any): boolean
+}
 
-  bool: {
-    true(): Knex.Raw
-    false(): Knex.Raw
-    parse(value: any): boolean
-  },
+export type KnexExtension_Json = {
+  set(obj: any): any
+  get(obj: any): any
+}
 
-  json: {
-    set(obj: any): any
-    get(obj: any): any
-  }
+export type KnexCallback = (tableBuilder: Knex.CreateTableBuilder) => any
+
+export type KnexExtension = {
+  isLite: boolean,
+  createTableIfNotExists(tableName: string, cb: KnexCallback): Promise<any>,
+  date: KnexExtension_Date,
+  bool: KnexExtension_Bool,
+  json: KnexExtension_Json
 }

@@ -15,7 +15,7 @@ export default class Database {
 
   private _logger: Logger
   private _knex: ExtendedKnex
-  private tables: Table[]
+  private tables: Table[] = []
 
   public constructor(@inject(TYPES.Logger_Database) logger: Logger) {
     this._logger = logger
@@ -49,7 +49,7 @@ export default class Database {
   }
 
   runMigrations() {
-    // TODO 
+    // TODO
   }
 }
 
