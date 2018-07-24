@@ -135,7 +135,7 @@ class botpress {
     /**
      * The project location, which is the folder where botfile.js located
      */
-    this.projectLocation = path.dirname(botfile)
+    this.projectLocation = _.isString(botfile) ? path.dirname(botfile) : path.resolve('.')
 
     /**
      * Setup env with dotenv *before* requiring the botfile config
@@ -145,7 +145,7 @@ class botpress {
     /**
      * The botfile config object
      */
-    this.botfile = require(botfile)
+    this.botfile = _.isString(botfile) ? require(botfile) : botfile
     validateBotfile(this.botfile)
 
     this.stats = stats(this.botfile)
@@ -476,7 +476,7 @@ class botpress {
     }
 
     if (cluster.isWorker) {
-      process.send({ workerStatus: 'starting' })
+      process.send && process.send({ workerStatus: 'starting' })
       this._start().catch(err => {
         print('error', 'Error starting botpress: ', err.message, err.stack)
       })

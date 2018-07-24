@@ -5,6 +5,6 @@ if (!global._babelPolyfill) {
 const DatabaseHelpers = require('./database/helpers.js')
 
 const CLI = () => require('./cli')
-const Botpress = () => require('./botpress.js')
+const Botpress = require('./botpress.js')
 
 module.exports = { Botpress, DatabaseHelpers, CLI }
