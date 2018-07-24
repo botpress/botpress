@@ -9,4 +9,9 @@ app.get('/', (req, res) => {
   res.sendFile('./static/channel-web.js', { root: __dirname })
 })
 
+app.get('/register', (req, res) => {
+  res.contentType('text/plain')
+  res.sendStatus(200)
+})
+
 export default app
