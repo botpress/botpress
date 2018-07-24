@@ -36,7 +36,7 @@ module.exports = (projectPath, options) => {
 
   try {
     const botpress = require(path.resolve(__dirname, '..'))
-    Botpress = botpress.Botpress()
+    Botpress = botpress.Botpress
   } catch (err) {
     util.print('error', err.message)
     util.print('error', err.stack)
@@ -51,15 +51,16 @@ module.exports = (projectPath, options) => {
     process.exit(1)
   }
 
-  const botfile = path.join(projectPath, 'botfile.js')
-  if (!fs.existsSync(botfile)) {
-    util.print('error', `(fatal) No ${chalk.bold('botfile.js')} file found at: ` + botfile)
+  const botfilePath = path.join(projectPath, 'botfile.js')
+  if (!fs.existsSync(botfilePath)) {
+    util.print('error', `(fatal) No ${chalk.bold('botfile.js')} file found at: ${botfilePath}`)
     process.exit(1)
   }
 
+  const botfile = require(botfilePath)
+
   const getDefaultWatchIgnore = () => {
-    const bf = require(botfile)
-    const dataDir = util.getDataLocation(bf.dataDir, projectPath)
+    const dataDir = util.getDataLocation(botfile.dataDir, projectPath)
     return [dataDir, 'node_modules']
   }
 

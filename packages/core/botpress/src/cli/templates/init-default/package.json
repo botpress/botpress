@@ -2,7 +2,7 @@
   "name": "<%= name %>",
   "version": "1.0.0",
   "description": "<%= description %>",
-  "main": "src/index.js",
+  "main": "index.js",
   "engines": {
     "node": ">= 6.1 < 9"
   },
@@ -19,7 +19,7 @@
     "yn": "^2.0.0"
   },
   "scripts": {
-    "start": "botpress start",
+    "start": "node index.js",
     "ghost-sync": "botpress ghost-sync",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
