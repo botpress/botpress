@@ -9,5 +9,4 @@ export default class ServerMetadataTable extends Table {
       table.timestamp('created_on')
     })
   }
-
 }

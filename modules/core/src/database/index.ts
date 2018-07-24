@@ -1,3 +1,4 @@
+import 'bluebird-global'
 import Knex from 'knex'
 import { inject, injectable, named, tagged } from 'inversify'
 import _ from 'lodash'
@@ -7,8 +8,7 @@ import { Logger } from '../misc/interfaces'
 import { Table, ExtendedKnex } from './interfaces'
 import { TYPES } from '../misc/types'
 
-import ModulesTable from './tables/modules'
-import MetadataTable from './tables/metadata'
+import AllTables from './tables'
 
 @injectable()
 export default class Database {
@@ -42,10 +42,11 @@ export default class Database {
     const knex = await Knex(config)
     this._knex = patchKnex(knex)
 
-    this.tables.push(new MetadataTable(this._knex))
-    this.tables.push(new ModulesTable(this._knex))
-
-    await Promise.mapSeries(this.tables, table => table.bootstrap())
+    await Promise.mapSeries(AllTables, async Tbl => {
+      const table = new Tbl(this._knex)
+      await table.bootstrap()
+      this.tables.push(table)
+    })
   }
 
   runMigrations() {
