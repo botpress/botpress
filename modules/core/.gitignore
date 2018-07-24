@@ -2,3 +2,4 @@ node_modules/
 bin/
 dist/
 .env
+db.sqlite
