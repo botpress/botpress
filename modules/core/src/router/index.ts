@@ -1,9 +1,9 @@
-import { Router } from 'express'
-const proxy = require('express-http-proxy') // Change lib for one that supports ts
+import express from 'express'
 
-export const router = Router()
+import * as proxy from 'express-http-proxy'
 
-// TODO: Extract in shared module
+const router = express.Router()
+
 const httpProxy = (originPath: string, targetPath: string, targetHost: string) => {
   router.use(
     originPath,
@@ -13,7 +13,7 @@ const httpProxy = (originPath: string, targetPath: string, targetHost: string) =
   )
 }
 
-httpProxy('/modules/channel-web', '/', process.env.CHANNEL_WEB_HOST)
+httpProxy('/modules/channel-web', '/', 'http://localhost:3002')
 
 router.get('/modules', (req, res) => {
   res.send(
@@ -26,3 +26,5 @@ router.get(
   (req, res) =>
     '{"name":"botpress-angular","version":"1.0.0","description":"<no description>","author":"Botpress","license":"AGPL-3.0"}'
 )
+
+export default router

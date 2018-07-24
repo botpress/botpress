@@ -17,7 +17,7 @@ export class Botpress {
   constructor() {
     this.version = packageJson.version
     this.botpressPath = path.join(__dirname, '../')
-    this.configLocation  = path.join(this.botpressPath, '/config')
+    this.configLocation = path.join(this.botpressPath, '/config')
   }
 
   private initialize() {
@@ -34,10 +34,15 @@ export class Botpress {
     // TODO
   }
 
-  private loadModules(): any {
+  private loadModules() {
     fs.readFile(path.join(this.configLocation, MODULES_CONFIG_PATH), 'utf8', (error, data) => {
-        this.modulesConfig = JSON.parse(data)
-        this.modulesConfig.modules.forEach((module: any) => this.moduleLoader.loadModule(module))
+      if (!data || error) {
+        console.error('Could not read from Botpress configuration files')
+        return
+      }
+
+      this.modulesConfig = JSON.parse(data)
+      this.modulesConfig.modules.forEach((module: any) => this.moduleLoader.loadModule(module))
     })
   }
 
