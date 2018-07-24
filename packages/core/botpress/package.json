@@ -52,6 +52,7 @@
     "react-loaders": "^3.0.1",
     "react-router-dom": "^4.2.2",
     "react-toastify": "^3.3.3",
+    "semver": "^5.5.0",
     "socket.io": "^1.5.0",
     "socket.io-client": "^2.0.3",
     "socketio-jwt": "^4.5.0",
@@ -151,11 +152,7 @@
   "license": "AGPL-3.0-only",
   "main": "lib/index.js",
   "repository": "git+https://github.com/botpress/botpress.git",
-  "os": [
-    "darwin",
-    "linux",
-    "win32"
-  ],
+  "os": ["darwin", "linux", "win32"],
   "scripts": {
     "prepublishOnly": "npm run compile-prod",
     "compile": "./build.sh",
@@ -167,9 +164,7 @@
   },
   "watch": {
     "compile": {
-      "patterns": [
-        "src"
-      ],
+      "patterns": ["src"],
       "extensions": "js,jsx,scss,json,html"
     }
   }
