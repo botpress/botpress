@@ -32,6 +32,7 @@ import _ from 'lodash'
 import cluster from 'cluster'
 import dotenv from 'dotenv'
 import ms from 'ms'
+import semver from 'semver'
 
 import createMiddlewares from './middlewares'
 import createLogger from './logger'
@@ -68,9 +69,7 @@ import packageJson from '../package.json'
 
 import createServer from './server'
 
-import { getDataLocation, getBotpressVersion } from './util'
-
-import { isDeveloping, print } from './util'
+import { getDataLocation, getBotpressVersion, validateVersion, isDeveloping, print } from './util'
 
 const RESTART_EXIT_CODE = 107
 
@@ -121,6 +120,10 @@ const validateBotfile = botfile => {
     )
     throw new Error('Outdated botfile format')
   }
+
+  const { version } = botfile
+
+  validateVersion(packageJson.version)(version)
 
   for (const prop of REQUIRED_PROPS) {
     if (!(prop in botfile)) {
