@@ -49,9 +49,11 @@ export class Botpress {
     // TODO
   }
 
-  private async loadModules() {
-    const modules = await this.moduleLoader.getAvailableModules()
-    console.log(modules)
+  private loadModules() {
+    setInterval(async () => {
+      const modules = await this.moduleLoader.getAvailableModules()
+      console.log(modules)
+    }, 5000)
   }
 
   start() {
