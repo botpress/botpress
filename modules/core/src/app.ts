@@ -6,7 +6,7 @@ const BASE_API_PATH = '/api/v1'
 
 const app = express()
 
-app.use(BASE_API_PATH, indexRouter.router)
+app.use(BASE_API_PATH, indexRouter.default)
 
 const botpress = new Botpress()
 botpress.start()
