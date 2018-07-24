@@ -31,7 +31,8 @@
     "lodash-decorators": "^6.0.0",
     "moment": "^2.22.2",
     "ms": "^2.1.1",
-    "reflect-metadata": "^0.1.12"
+    "reflect-metadata": "^0.1.12",
+    "verror": "^1.10.0"
   },
   "devDependencies": {
     "@types/bluebird-global": "^3.5.6",
@@ -44,6 +45,7 @@
     "@types/moment": "^2.13.0",
     "@types/ms": "^0.7.30",
     "@types/node": "^10.5.2",
+    "@types/verror": "^1.10.3",
     "concurrently": "^3.6.0",
     "errorhandler": "^1.5.0",
     "jest": "^23.4.1",

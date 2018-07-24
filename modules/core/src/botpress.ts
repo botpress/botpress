@@ -49,8 +49,9 @@ export class Botpress {
     // TODO
   }
 
-  private loadModules() {
-    this.moduleLoader.getAvailableModules()
+  private async loadModules() {
+    const modules = await this.moduleLoader.getAvailableModules()
+    console.log(modules)
   }
 
   start() {

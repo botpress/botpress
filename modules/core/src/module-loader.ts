@@ -2,48 +2,67 @@ import axios from 'axios'
 import { injectable, tagged, inject } from 'inversify'
 import ms from 'ms'
 
-import { Throttle } from 'lodash-decorators'
+import { Throttle, Memoize } from 'lodash-decorators'
 import { ModuleMetadata } from 'botpress-module-sdk'
 import { TYPES } from './misc/types'
 import { Logger } from './misc/interfaces'
+import { ConfigProvider, ModuleConfigEntry } from './config-loader'
+
+export type AvailableModule = {
+  metadata: ModuleMetadata
+  definition: ModuleConfigEntry
+}
 
 @injectable()
 export class ModuleLoader {
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'ModuleLoader')
-    public logger: Logger
+    private logger: Logger,
+    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider
   ) {}
 
-  private async loadConfiguration() {}
-
-  private async refreshAvailableModules() {}
-
-  @Throttle(ms('5m'))
-  async getAvailableModules() {
-    this.logger.debug('Fetching modules')
-
-    // fs.readFile(path.join(this.configLocation, MODULES_CONFIG_PATH), 'utf8', (error, data) => {
-    //   if (!data || error) {
-    //     console.error('Could not read from Botpress configuration files')
-    //     return
-    //   }
-
-    //   this.modulesConfig = JSON.parse(data)
-    //   this.modulesConfig.modules.forEach((module: any) => this.moduleLoader.loadModule(module))
-    // })
+  @Memoize()
+  private async loadConfiguration() {
+    return this.configProvider.getModulesConfig()
   }
 
-  async loadModule(module: any): Promise<any> {
-    try {
-      const { data } = await axios.get(`${module.url}/register`)
-      const metadata = <ModuleMetadata>data
-      console.log(metadata)
-    } catch (err) {}
+  @Memoize()
+  private async alertUnavailableModule(moduleUrl: string) {
+    this.logger.warn(`Module at "${moduleUrl}" is not available`)
+  }
 
-    return axios
-      .get(module.url + '/register')
-      .then(() => console.log(module.name + ' is loaded'))
-      .catch(error => console.error('Could not load module: ' + module.name + ' - ' + error))
+  @Throttle(ms('5m'))
+  async getAvailableModules(): Promise<AvailableModule[]> {
+    const config = await this.loadConfiguration()
+
+    const available: Map<string, AvailableModule> = new Map()
+
+    for (const module of config.modules) {
+      try {
+        const { data } = await axios.get(`${module.url}/register`)
+        const metadata = <ModuleMetadata>data
+
+        // TODO Do more sophisticated check if metadata is valid
+        if (!metadata || !metadata.name) {
+          this.logger.error(`Invalid metadata received from module at "${module.url}". This module will be ignored.`)
+          continue
+        }
+
+        const moduleName = metadata.name.toLowerCase()
+        if (available.has(moduleName)) {
+          this.logger.error(`Duplicated module "${moduleName}". This one will be ignored ("${module.url}".)`)
+        } else {
+          available.set(moduleName, {
+            metadata: metadata,
+            definition: module
+          })
+        }
+      } catch (err) {
+        this.alertUnavailableModule(module.url)
+      }
+    }
+
+    return Array.from(available.values())
   }
 }
