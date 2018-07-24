@@ -13,7 +13,7 @@ if (process.env.NODE_ENV === 'development') {
   app.use(errorHandler())
 }
 
-const database = container.get<Database>(TYPES.Default)
+const database = container.get<Database>(TYPES.Database)
 
 // TODO Load database config from `botpress.config.json`
 const dbConfig: DatabaseConfig = { type: 'sqlite3', location: './db.sqlite' }

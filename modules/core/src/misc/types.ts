@@ -1,7 +1,7 @@
 const TYPES = {
-  Logger_Database: Symbol.for('Logger_Database'),
-
-  Default: Symbol.for('Default')
+  Logger_Name: Symbol.for('Logger_Name'),
+  Logger: Symbol.for('Logger'),
+  Database: Symbol.for('Database')
 }
 
 export { TYPES }

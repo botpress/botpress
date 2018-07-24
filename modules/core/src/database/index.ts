@@ -1,5 +1,5 @@
 import Knex from 'knex'
-import { inject, injectable } from 'inversify'
+import { inject, injectable, named, tagged } from 'inversify'
 import _ from 'lodash'
 
 import { patchKnex } from './helpers'
@@ -17,7 +17,7 @@ export default class Database {
   private _knex: ExtendedKnex
   private tables: Table[] = []
 
-  public constructor(@inject(TYPES.Logger_Database) logger: Logger) {
+  public constructor(@inject(TYPES.Logger) @tagged('name', 'Database') logger: Logger) {
     this._logger = logger
   }
 
