@@ -60,8 +60,21 @@ export default class Storage {
     const utterancesFile = `${intent}.utterances.txt`
     const propertiesFile = `${intent}.json`
 
-    await this.ghost.deleteFile(this.intentsDir, utterancesFile)
-    await this.ghost.deleteFile(this.intentsDir, propertiesFile)
+    try {
+      await this.ghost.deleteFile(this.intentsDir, utterancesFile)
+    } catch (e) {
+      if (e.code !== 'ENOENT') {
+        throw e
+      }
+    }
+
+    try {
+      await this.ghost.deleteFile(this.intentsDir, propertiesFile)
+    } catch (e) {
+      if (e.code !== 'ENOENT') {
+        throw e
+      }
+    }
   }
 
   async getIntents() {
