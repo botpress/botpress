@@ -3,7 +3,7 @@ import _ from 'lodash'
 import crypto from 'crypto'
 import Promise from 'bluebird'
 
-import Provider from './base'
+import Provider, { defaultExtractData } from './base'
 import Entities from './entities'
 
 const LUIS_APP_VERSION = '1.0' // Static, we're not using this as everything is source-controlled in your bot
@@ -351,7 +351,8 @@ export default class LuisProvider extends Provider {
       this.logger.warn(
         '[NLU::Luis] Did not extract NLU metadata for incoming text because Luis is not configured properly.'
       )
-      return {}
+
+      return defaultExtractData('luis')
     }
 
     const res = await axios.get(`https://${this.appRegion}.api.cognitive.microsoft.com/luis/v2.0/apps/${this.appId}`, {
