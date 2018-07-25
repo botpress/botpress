@@ -6,7 +6,7 @@ import { Throttle, Memoize } from 'lodash-decorators'
 import { ModuleMetadata } from 'botpress-module-sdk'
 import { TYPES } from './misc/types'
 import { Logger } from './misc/interfaces'
-import { ConfigProvider, ModuleConfigEntry } from './config-loader'
+import { ConfigProvider, ModuleConfigEntry, ModulesConfig } from './config-loader'
 
 export type AvailableModule = {
   metadata: ModuleMetadata
@@ -23,7 +23,7 @@ export class ModuleLoader {
   ) {}
 
   @Memoize()
-  private async loadConfiguration() {
+  private async loadConfiguration(): Promise<ModulesConfig> {
     return this.configProvider.getModulesConfig()
   }
 

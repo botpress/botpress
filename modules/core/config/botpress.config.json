@@ -1,1 +1,4 @@
-{}
+{
+  "databaseType": "sqlite",
+  "databaseLocation": "sqlite/db.sqlite"
+}

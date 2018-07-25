@@ -1,14 +1,12 @@
 import * as path from 'path'
-import * as fs from 'fs'
 import { ModuleLoader } from './module-loader'
 import packageJson from '../package.json'
-import { inject, injectable, tagged } from 'inversify'
+import { inject, injectable } from 'inversify'
 import { TYPES } from './misc/types'
-import { Logger } from './misc/interfaces'
 import HTTPServer from './server'
 import Database from './database'
-
-const MODULES_CONFIG_PATH = '/modules.config.json'
+import { ConfigProvider, BotpressConfig } from './config-loader'
+import { Memoize } from 'lodash-decorators'
 
 @injectable()
 export class Botpress {
@@ -18,11 +16,12 @@ export class Botpress {
 
   modulesConfig: any
   version: string
+  config: BotpressConfig
 
   constructor(
+    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.Database) private database: Database,
     @inject(TYPES.HTTPServer) private httpServer: HTTPServer,
-    @inject(TYPES.Logger) private logger: Logger,
     @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader
   ) {
     this.version = packageJson.version
@@ -30,15 +29,22 @@ export class Botpress {
     this.configLocation = path.join(this.botpressPath, '/config')
   }
 
+  start() {
+    this.initialize()
+  }
+
   private async initialize() {
+    this.config = await this.loadConfiguration()
+
     this.trackStats()
     this.createDatabase()
     this.loadModules()
     this.startServer()
   }
 
-  private async startServer() {
-    await this.httpServer.start()
+  @Memoize()
+  private async loadConfiguration(): Promise<BotpressConfig> {
+    return this.configProvider.getBotpressConfig()
   }
 
   private trackStats(): any {
@@ -46,7 +52,7 @@ export class Botpress {
   }
 
   private createDatabase(): any {
-    this.database.initialize({ type: 'sqlite', location: './sqlite/db.sqlite' })
+    this.database.initialize({ type: this.config.databaseType, location: this.config.databaseLocation })
   }
 
   private loadModules() {
@@ -56,7 +62,7 @@ export class Botpress {
     }, 5000)
   }
 
-  start() {
-    this.initialize()
+  private async startServer() {
+    await this.httpServer.start()
   }
 }

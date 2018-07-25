@@ -2,8 +2,12 @@ import path from 'path'
 import fs from 'fs'
 import { injectable } from 'inversify'
 import { FatalError } from './Errors'
+import { DatabaseType } from './database' // Not sure about this dependancy
 
-export type BotpressConfig = {}
+export type BotpressConfig = {
+  databaseType: DatabaseType
+  databaseLocation?: string
+}
 
 export type ModuleConfigEntry = {
   url: string
