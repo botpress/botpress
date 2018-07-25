@@ -21,7 +21,8 @@
     "axios": "^0.18.0"
   },
   "scripts": {
-    "dev": "./node_modules/.bin/lerna exec -- npm run watch --parallel",
-    "link": "./node_modules/.bin/lerna link --force-local"
+    "dev": "lerna exec yarn install && npm run link && npm run watch",
+    "link": "./node_modules/.bin/lerna link --force-local",
+    "watch": "./node_modules/.bin/lerna exec -- npm run watch --parallel"
   }
 }

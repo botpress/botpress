@@ -4,11 +4,12 @@ import { TYPES } from './misc/types'
 import { Logger } from './misc/interfaces'
 
 import Database from './database'
-import ConsoleLogger from './Logger'
+import ConsoleLogger from './logger'
 import { ModuleLoader } from './module-loader'
 import { Botpress } from './botpress'
 import { types } from 'util'
 import HTTPServer from './server'
+import { FileConfigProvider, ConfigProvider } from './config-loader'
 
 const container = new Container({ autoBindInjectable: true })
 
@@ -33,5 +34,6 @@ container.bind<Database>(TYPES.Database).to(Database)
 container.bind<ModuleLoader>(TYPES.ModuleLoader).to(ModuleLoader)
 container.bind<Botpress>(TYPES.Botpress).to(Botpress)
 container.bind<HTTPServer>(TYPES.HTTPServer).to(HTTPServer)
+container.bind<ConfigProvider>(TYPES.ConfigProvider).to(FileConfigProvider)
 
 export { container }

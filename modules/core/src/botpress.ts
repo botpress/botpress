@@ -24,10 +24,8 @@ export class Botpress {
     @inject(TYPES.Logger) private logger: Logger
   ) {
     this.version = packageJson.version
-    console.log(process.title)
-    this.botpressPath = path.join(process.cwd(), 'dist') // /dist
+    this.botpressPath = path.join(process.cwd(), 'dist')
     this.configLocation = path.join(this.botpressPath, '/config')
-    console.log(this.botpressPath, this.configLocation)
   }
 
   private async initialize() {
@@ -50,7 +48,10 @@ export class Botpress {
   }
 
   private loadModules() {
-    this.moduleLoader.getAvailableModules()
+    setInterval(async () => {
+      const modules = await this.moduleLoader.getAvailableModules()
+      console.log(modules)
+    }, 5000)
   }
 
   start() {

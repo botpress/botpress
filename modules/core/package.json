@@ -7,10 +7,10 @@
   "scripts": {
     "start": "npm run serve",
     "serve": "node dist/src/app.js",
-    "build": "npm run build-ts && npm run tslint && ./copyStaticFiles.sh",
+    "build": "npm run build-ts && npm run tslint && ./scripts/copy-static-files.sh",
     "build-ts": "tsc",
     "build-pkg": "npm run build && npm run pkg",
-    "pkg": "pkg dist/src/app.js --target macos-x86,macos-x64,linux-x86,linux-x64,win-x86,win-x64 --output bin/botpress",
+    "pkg": "./scripts/package-binaries.sh",
     "test": "jest --forceExit --coverage --verbose",
     "watch": "concurrently -c cyan npm:watch-ts",
     "watch-ts": "tsc-watch -p . --onSuccess \"node ./dist/src/app.js\" --onFailure \"echo Beep! Compilation Failed\"",
@@ -31,7 +31,8 @@
     "lodash-decorators": "^6.0.0",
     "moment": "^2.22.2",
     "ms": "^2.1.1",
-    "reflect-metadata": "^0.1.12"
+    "reflect-metadata": "^0.1.12",
+    "verror": "^1.10.0"
   },
   "devDependencies": {
     "@types/bluebird-global": "^3.5.6",
@@ -44,6 +45,7 @@
     "@types/moment": "^2.13.0",
     "@types/ms": "^0.7.30",
     "@types/node": "^10.5.2",
+    "@types/verror": "^1.10.3",
     "concurrently": "^3.6.0",
     "errorhandler": "^1.5.0",
     "jest": "^23.4.1",
