@@ -7,10 +7,10 @@
   "scripts": {
     "start": "npm run serve",
     "serve": "node dist/src/app.js",
-    "build": "npm run build-ts && npm run tslint && ./copyStaticFiles.sh",
+    "build": "npm run build-ts && npm run tslint && ./scripts/copy-static-files.sh",
     "build-ts": "tsc",
     "build-pkg": "npm run build && npm run pkg",
-    "pkg": "pkg dist/src/app.js --target macos-x86,macos-x64,linux-x86,linux-x64,win-x86,win-x64 --output bin/botpress",
+    "pkg": "./scripts/package-binaries.sh",
     "test": "jest --forceExit --coverage --verbose",
     "watch": "concurrently -c cyan npm:watch-ts",
     "watch-ts": "tsc-watch -p . --onSuccess \"node ./dist/src/app.js\" --onFailure \"echo Beep! Compilation Failed\"",

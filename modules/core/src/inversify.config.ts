@@ -4,7 +4,7 @@ import { TYPES } from './misc/types'
 import { Logger } from './misc/interfaces'
 
 import Database from './database'
-import ConsoleLogger from './Logger'
+import ConsoleLogger from './logger'
 import { ModuleLoader } from './module-loader'
 import { Botpress } from './botpress'
 import { types } from 'util'

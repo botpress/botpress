@@ -20,14 +20,6 @@ export interface ConfigProvider {
 
 @injectable()
 export class FileConfigProvider implements ConfigProvider {
-  private getRootDir(): string {
-    if (process.title === 'node') {
-      return path.join(__dirname, '../config')
-    }
-
-    return path.join(process.execPath, 'config')
-  }
-
   async getBotpressConfig(): Promise<BotpressConfig> {
     return this.getConfig<BotpressConfig>('botpress.config.json')
   }
@@ -49,5 +41,17 @@ export class FileConfigProvider implements ConfigProvider {
     } catch (e) {
       throw new FatalError(e, `Error reading modules configuration "${fileName}" at "${filePath}"`)
     }
+  }
+
+  private getRootDir(): string {
+    return process.title === 'node' ? this.getDevConfigPath() : this.getBinaryConfigPath()
+  }
+
+  private getDevConfigPath() {
+    return path.join(__dirname, '../config')
+  }
+
+  private getBinaryConfigPath() {
+    return path.join(path.dirname(process.execPath), 'config')
   }
 }

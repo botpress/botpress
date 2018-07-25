@@ -24,10 +24,8 @@ export class Botpress {
     @inject(TYPES.Logger) private logger: Logger
   ) {
     this.version = packageJson.version
-    console.log(process.title)
-    this.botpressPath = path.join(process.cwd(), 'dist') // /dist
+    this.botpressPath = path.join(process.cwd(), 'dist')
     this.configLocation = path.join(this.botpressPath, '/config')
-    console.log(this.botpressPath, this.configLocation)
   }
 
   private async initialize() {
