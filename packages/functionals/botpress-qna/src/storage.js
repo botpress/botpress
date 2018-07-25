@@ -47,7 +47,7 @@ export default class Storage {
     }
   }
 
-  async saveQuestion(data, id = null) {
+  async saveQuestion(data, id = null, syncNlu = true) {
     id = id || getQuestionId(data)
     if (data.enabled) {
       await this.bp.nlu.storage.saveIntent(getIntentId(id), {
@@ -57,7 +57,9 @@ export default class Storage {
     } else {
       await this.bp.nlu.storage.deleteIntent(getIntentId(id))
     }
-    await this.syncNlu()
+    if (syncNlu) {
+      this.syncNlu()
+    }
     await this.ghost.upsertFile(this.qnaDir, `${id}.json`, JSON.stringify({ id, data }, null, 2))
     return id
   }
@@ -79,11 +81,13 @@ export default class Storage {
     return Promise.map(questions, question => this.getQuestion({ filename: question }))
   }
 
-  async deleteQuestion(id) {
+  async deleteQuestion(id, syncNlu = true) {
     const data = await this.getQuestion(id)
     if (data.data.enabled) {
       await this.bp.nlu.storage.deleteIntent(getIntentId(id))
-      await this.syncNlu()
+      if (syncNlu) {
+        this.syncNlu()
+      }
     }
     await this.ghost.deleteFile(this.qnaDir, `${id}.json`)
   }
