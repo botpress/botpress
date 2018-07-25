@@ -162,6 +162,13 @@ export default class LuisProvider extends Provider {
   }
 
   async sync() {
+    if (this.syncingSince && new Date() - this.syncingSince <= 10 * 60 * 1000) {
+      this.logger.warn('[NLU::Luis] Tried to sync while syncing in progress')
+      return
+    }
+
+    this.syncingSince = new Date()
+
     this.validateCredentials()
 
     const intents = await this.storage.getIntents()
@@ -268,6 +275,7 @@ export default class LuisProvider extends Provider {
       const detailedError = _.get(err, 'response.data.error.message') || (err && err.message) || err
       this.logger.error('[NLU::Luis] Could not sync the model. Error = ' + detailedError)
     }
+    this.syncingSince = null
   }
 
   async train() {
