@@ -9,6 +9,7 @@ import { Table, ExtendedKnex } from './interfaces'
 import { TYPES } from '../misc/types'
 
 import AllTables from './tables'
+import { DatabaseType } from '../botpress.config'
 
 export interface DatabaseConfig {
   migrations?: string
@@ -22,8 +23,6 @@ export interface DatabaseConfig {
   ssl?: boolean
   database?: string
 }
-
-export type DatabaseType = 'postgres' | 'sqlite'
 
 @injectable()
 export default class Database {

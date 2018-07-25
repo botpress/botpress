@@ -6,7 +6,8 @@ import { Throttle, Memoize } from 'lodash-decorators'
 import { ModuleMetadata } from 'botpress-module-sdk'
 import { TYPES } from './misc/types'
 import { Logger } from './misc/interfaces'
-import { ConfigProvider, ModuleConfigEntry, ModulesConfig } from './config-loader'
+import { ConfigProvider } from './config-loader'
+import { ModuleConfigEntry, ModulesConfig } from './modules.config'
 
 export type AvailableModule = {
   metadata: ModuleMetadata

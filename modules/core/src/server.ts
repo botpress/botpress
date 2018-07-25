@@ -4,7 +4,7 @@ import express from 'express'
 import errorHandler from 'errorhandler'
 import { Server } from 'http'
 
-import * as indexRouter from './router/index'
+import * as indexRouter from './router'
 import { injectable } from 'inversify'
 
 const BASE_API_PATH = '/api/v1'

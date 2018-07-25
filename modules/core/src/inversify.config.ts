@@ -7,7 +7,6 @@ import Database from './database'
 import ConsoleLogger from './logger'
 import { ModuleLoader } from './module-loader'
 import { Botpress } from './botpress'
-import { types } from 'util'
 import HTTPServer from './server'
 import { FileConfigProvider, ConfigProvider } from './config-loader'
 

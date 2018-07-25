@@ -2,20 +2,8 @@ import path from 'path'
 import fs from 'fs'
 import { injectable } from 'inversify'
 import { FatalError } from './Errors'
-import { DatabaseType } from './database' // Not sure about this dependancy
-
-export type BotpressConfig = {
-  databaseType: DatabaseType
-  databaseLocation?: string
-}
-
-export type ModuleConfigEntry = {
-  url: string
-}
-
-export type ModulesConfig = {
-  modules: Array<ModuleConfigEntry>
-}
+import { BotpressConfig } from './botpress.config'
+import { ModulesConfig } from './modules.config'
 
 export interface ConfigProvider {
   getBotpressConfig(): Promise<BotpressConfig>

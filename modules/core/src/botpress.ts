@@ -5,8 +5,9 @@ import { inject, injectable } from 'inversify'
 import { TYPES } from './misc/types'
 import HTTPServer from './server'
 import Database from './database'
-import { ConfigProvider, BotpressConfig } from './config-loader'
+import { ConfigProvider } from './config-loader'
 import { Memoize } from 'lodash-decorators'
+import { BotpressConfig } from './botpress.config'
 
 @injectable()
 export class Botpress {
@@ -51,8 +52,16 @@ export class Botpress {
     // TODO
   }
 
-  private createDatabase(): any {
-    this.database.initialize({ type: this.config.databaseType, location: this.config.databaseLocation })
+  private createDatabase() {
+    this.database.initialize({
+      type: this.config.database.type,
+      location: this.config.database.location,
+      host: this.config.database.host,
+      port: this.config.database.port,
+      user: this.config.database.user,
+      password: this.config.database.password,
+      database: this.config.database.database
+    })
   }
 
   private loadModules() {
