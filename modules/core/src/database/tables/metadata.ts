@@ -6,7 +6,7 @@ export default class ServerMetadataTable extends Table {
   async bootstrap() {
     await this.knex.schema.createTableIfNotExists(this.name, table => {
       table.string('server_version')
-      table.timestamp('created_on')
+      table.timestamps()
     })
   }
 }

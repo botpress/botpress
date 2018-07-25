@@ -26,7 +26,8 @@ export interface DatabaseConfig {
 
 @injectable()
 export default class Database {
-  private knex: ExtendedKnex
+  knex: ExtendedKnex
+
   private tables: Table[] = []
 
   public constructor(

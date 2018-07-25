@@ -5,7 +5,8 @@ const TYPES = {
   ModuleLoader: Symbol.for('ModuleLoader'),
   Botpress: Symbol.for('Botpress'),
   HTTPServer: Symbol.for('HTTPServer'),
-  ConfigProvider: Symbol.for('ConfigProvider')
+  ConfigProvider: Symbol.for('ConfigProvider'),
+  BotRepository: Symbol.for('BotRepository')
 }
 
 export { TYPES }

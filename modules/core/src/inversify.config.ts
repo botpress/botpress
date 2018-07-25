@@ -9,6 +9,7 @@ import { ModuleLoader } from './module-loader'
 import { Botpress } from './botpress'
 import HTTPServer from './server'
 import { FileConfigProvider, ConfigProvider } from './config-loader'
+import { RepositoryModule } from './repositories/repository-module'
 
 const container = new Container({ autoBindInjectable: true })
 
@@ -29,10 +30,15 @@ container.bind<string>(TYPES.Logger_Name).toDynamicValue(ctx => {
 })
 
 container.bind<Logger>(TYPES.Logger).to(ConsoleLogger)
-container.bind<Database>(TYPES.Database).to(Database)
+container
+  .bind<Database>(TYPES.Database)
+  .to(Database)
+  .inSingletonScope()
 container.bind<ModuleLoader>(TYPES.ModuleLoader).to(ModuleLoader)
 container.bind<Botpress>(TYPES.Botpress).to(Botpress)
 container.bind<HTTPServer>(TYPES.HTTPServer).to(HTTPServer)
 container.bind<ConfigProvider>(TYPES.ConfigProvider).to(FileConfigProvider)
+
+container.loadAsync(RepositoryModule)
 
 export { container }
