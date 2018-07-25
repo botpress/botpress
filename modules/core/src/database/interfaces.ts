@@ -3,15 +3,11 @@ import Knex from 'knex'
 export type ExtendedKnex = Knex & KnexExtension
 
 export abstract class Table {
-  _knex: ExtendedKnex
-
-  constructor(knex: ExtendedKnex) {
-    this._knex = knex
-  }
+  constructor(public knex: ExtendedKnex) {}
 
   abstract bootstrap(): Promise<void>
 
-  abstract get Name(): string
+  abstract get name(): string
 }
 
 export abstract class DatabaseMigration {
@@ -22,8 +18,8 @@ export abstract class DatabaseMigration {
 export type ColumnOrDate = string | Date | Knex.Sql
 
 export type KnexExtension_Date = {
-  format(exp: any): Knex.Raw,
-  now(): Knex.Raw,
+  format(exp: any): Knex.Raw
+  now(): Knex.Raw
   isBefore(d1: ColumnOrDate, d2: ColumnOrDate): Knex.Raw
   isAfter(d1: ColumnOrDate, d2: ColumnOrDate): Knex.Raw
   isBetween(date: ColumnOrDate, betweenA: ColumnOrDate, betweenB: ColumnOrDate): Knex.Raw
@@ -45,9 +41,9 @@ export type KnexExtension_Json = {
 export type KnexCallback = (tableBuilder: Knex.CreateTableBuilder) => any
 
 export type KnexExtension = {
-  isLite: boolean,
-  createTableIfNotExists(tableName: string, cb: KnexCallback): Promise<any>,
-  date: KnexExtension_Date,
-  bool: KnexExtension_Bool,
+  isLite: boolean
+  createTableIfNotExists(tableName: string, cb: KnexCallback): Promise<any>
+  date: KnexExtension_Date
+  bool: KnexExtension_Bool
   json: KnexExtension_Json
 }

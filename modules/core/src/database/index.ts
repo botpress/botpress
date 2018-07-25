@@ -10,19 +10,34 @@ import { TYPES } from '../misc/types'
 
 import AllTables from './tables'
 
+export interface DatabaseConfig {
+  migrations?: string
+  type: DatabaseType
+  url?: string
+  location?: string
+  host?: string
+  port?: number
+  user?: string
+  password?: string
+  ssl?: boolean
+  database?: string
+}
+
+export type DatabaseType = 'postgres' | 'sqlite'
+
 @injectable()
 export default class Database {
-
-  private _logger: Logger
-  private _knex: ExtendedKnex
+  private knex: ExtendedKnex
   private tables: Table[] = []
 
-  public constructor(@inject(TYPES.Logger) @tagged('name', 'Database') logger: Logger) {
-    this._logger = logger
-  }
+  public constructor(
+    @inject(TYPES.Logger)
+    @tagged('name', 'Database')
+    private logger: Logger
+  ) {}
 
   async initialize(dbConfig: DatabaseConfig) {
-
+    this.logger.info('Starting database initialization ...')
     const config: Knex.Config = {
       useNullAsDefault: true
     }
@@ -40,29 +55,18 @@ export default class Database {
     }
 
     const knex = await Knex(config)
-    this._knex = patchKnex(knex)
+    this.knex = patchKnex(knex)
 
     await Promise.mapSeries(AllTables, async Tbl => {
-      const table = new Tbl(this._knex)
+      const table = new Tbl(this.knex)
       await table.bootstrap()
       this.tables.push(table)
     })
+
+    this.logger.info('Done.')
   }
 
   runMigrations() {
     // TODO
   }
-}
-
-export interface DatabaseConfig {
-  migrations?: string
-  type: string
-  url?: string
-  location?: string
-  host?: string
-  port?: number
-  user?: string
-  password?: string
-  ssl?: boolean
-  database?: string
 }

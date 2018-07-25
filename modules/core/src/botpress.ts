@@ -6,6 +6,7 @@ import { inject, injectable, tagged } from 'inversify'
 import { TYPES } from './misc/types'
 import { Logger } from './misc/interfaces'
 import HTTPServer from './server'
+import Database from './database'
 
 const MODULES_CONFIG_PATH = '/modules.config.json'
 
@@ -19,9 +20,10 @@ export class Botpress {
   version: string
 
   constructor(
-    @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
+    @inject(TYPES.Database) private database: Database,
     @inject(TYPES.HTTPServer) private httpServer: HTTPServer,
-    @inject(TYPES.Logger) private logger: Logger
+    @inject(TYPES.Logger) private logger: Logger,
+    @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader
   ) {
     this.version = packageJson.version
     this.botpressPath = path.join(process.cwd(), 'dist')
@@ -44,7 +46,7 @@ export class Botpress {
   }
 
   private createDatabase(): any {
-    // TODO
+    this.database.initialize({ type: 'sqlite', location: './sqlite/db.sqlite' })
   }
 
   private loadModules() {
