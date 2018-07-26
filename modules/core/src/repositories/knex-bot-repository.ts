@@ -1,6 +1,8 @@
 import { inject, injectable } from 'inversify'
-import { TYPES } from '../misc/types'
+
 import Database from '../database'
+import { TYPES } from '../misc/types'
+
 import { BotRepository } from './bot-repository'
 
 @injectable()

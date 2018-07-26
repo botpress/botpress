@@ -1,13 +1,15 @@
-import * as path from 'path'
-import { ModuleLoader } from './module-loader'
-import packageJson from '../package.json'
 import { inject, injectable } from 'inversify'
-import { TYPES } from './misc/types'
-import HTTPServer from './server'
-import Database from './database'
 import { Memoize } from 'lodash-decorators'
+import * as path from 'path'
+
+import packageJson from '../package.json'
+
 import { BotpressConfig } from './config/botpress.config'
 import { ConfigProvider } from './config/config-loader'
+import Database from './database'
+import { TYPES } from './misc/types'
+import { ModuleLoader } from './module-loader'
+import HTTPServer from './server'
 
 @injectable()
 export class Botpress {

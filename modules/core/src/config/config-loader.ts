@@ -1,9 +1,11 @@
-import path from 'path'
 import fs from 'fs'
 import { injectable } from 'inversify'
+import path from 'path'
+
+import { FatalError } from '../errors'
+
 import { BotpressConfig } from './botpress.config'
 import { ModulesConfig } from './modules.config'
-import { FatalError } from '../errors'
 
 export interface ConfigProvider {
   getBotpressConfig(): Promise<BotpressConfig>

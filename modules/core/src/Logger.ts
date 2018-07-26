@@ -1,5 +1,6 @@
 import chalk from 'chalk'
-import { injectable, inject } from 'inversify'
+import { inject, injectable } from 'inversify'
+
 import { Logger } from './misc/interfaces'
 import { TYPES } from './misc/types'
 

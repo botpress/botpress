@@ -1,4 +1,5 @@
 import proxy from 'express-http-proxy'
+
 import { BaseRouter } from './base-router'
 
 export class IndexRouter extends BaseRouter {

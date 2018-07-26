@@ -1,6 +1,7 @@
-import errorHandler from 'errorhandler'
-import app from './app'
 import dotenv from 'dotenv'
+import errorHandler from 'errorhandler'
+
+import app from './app'
 
 dotenv.config()
 

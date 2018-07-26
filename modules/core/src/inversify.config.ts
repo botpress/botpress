@@ -1,15 +1,14 @@
 import { Container } from 'inversify'
 
-import { TYPES } from './misc/types'
-import { Logger } from './misc/interfaces'
-
+import { Botpress } from './botpress'
+import { ConfigProvider, FileConfigProvider } from './config/config-loader'
 import Database from './database'
 import ConsoleLogger from './logger'
+import { Logger } from './misc/interfaces'
+import { TYPES } from './misc/types'
 import { ModuleLoader } from './module-loader'
-import { Botpress } from './botpress'
-import HTTPServer from './server'
 import { RepositoryModule } from './repositories/repository-module'
-import { ConfigProvider, FileConfigProvider } from './config/config-loader'
+import HTTPServer from './server'
 
 const container = new Container({ autoBindInjectable: true })
 

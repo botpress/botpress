@@ -1,15 +1,15 @@
 import 'bluebird-global'
-import Knex from 'knex'
 import { inject, injectable, tagged } from 'inversify'
+import Knex from 'knex'
 import _ from 'lodash'
 
-import { patchKnex } from './helpers'
+import { DatabaseConfig } from '../config/database.config'
 import { Logger } from '../misc/interfaces'
-import { Table, ExtendedKnex } from './interfaces'
 import { TYPES } from '../misc/types'
 
+import { patchKnex } from './helpers'
+import { ExtendedKnex, Table } from './interfaces'
 import AllTables from './tables'
-import { DatabaseConfig } from '../config/database.config'
 
 @injectable()
 export default class Database {
