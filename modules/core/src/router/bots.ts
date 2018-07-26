@@ -6,11 +6,10 @@ export class BotRouter extends BaseRouter {
     super()
   }
 
-  setupRoutes(): void {
+  setupRoutes() {
     this._router.get('/bots/:botId', (request, response) => {
       const botId = request.params.botId
-      this.botRepository.getBotById(botId)
-      response.sendStatus(200)
+      this.botRepository.getBotById(botId).then(bot => response.send(bot))
     })
   }
 

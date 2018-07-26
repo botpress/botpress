@@ -1,3 +1,3 @@
 export interface BotRepository {
-  getBotById(id: string)
+  getBotById(id: string): Promise<any>
 }
