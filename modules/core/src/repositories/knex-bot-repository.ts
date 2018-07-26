@@ -13,5 +13,6 @@ export class KnexBotRepository implements BotRepository {
       .from('srv_bots')
       .where('id', id)
       .then(rows => rows)
+      .get(0)
   }
 }
