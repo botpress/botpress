@@ -1,6 +1,6 @@
 {
   "database": {
-    "type": "postgres",
+    "type": "sqlite",
     "location": "sqlite/db.sqlite",
     "host": "localhost",
     "port": "5432",
