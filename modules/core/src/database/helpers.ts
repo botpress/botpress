@@ -1,12 +1,13 @@
-import moment from 'moment'
 import Knex from 'knex'
+import moment from 'moment'
+
 import {
-  KnexExtension,
   ColumnOrDate,
-  KnexExtension_Date,
+  KnexCallback,
+  KnexExtension,
   KnexExtension_Bool,
-  KnexExtension_Json,
-  KnexCallback
+  KnexExtension_Date,
+  KnexExtension_Json
 } from './interfaces'
 
 export const patchKnex = (knex: Knex): Knex & KnexExtension => {
@@ -46,7 +47,7 @@ export const patchKnex = (knex: Knex): Knex & KnexExtension => {
 
   const date: KnexExtension_Date = {
     format: dateFormat,
-    now: () => isLite ? knex.raw(`strftime('%Y-%m-%dT%H:%M:%fZ', 'now')`) : knex.raw('now()'),
+    now: () => (isLite ? knex.raw(`strftime('%Y-%m-%dT%H:%M:%fZ', 'now')`) : knex.raw('now()')),
 
     isBefore: (d1: ColumnOrDate, d2: ColumnOrDate): Knex.Raw => {
       const exp1 = columnOrDateFormat(d1)
@@ -81,14 +82,14 @@ export const patchKnex = (knex: Knex): Knex & KnexExtension => {
   }
 
   const bool: KnexExtension_Bool = {
-    true: () => isLite ? 1 : true,
-    false: () => isLite ? 0 : false,
-    parse: value => isLite ? !!value : value
+    true: () => (isLite ? 1 : true),
+    false: () => (isLite ? 0 : false),
+    parse: value => (isLite ? !!value : value)
   }
 
   const json: KnexExtension_Json = {
-    set: obj => isLite ? obj && JSON.stringify(obj) : obj,
-    get: obj => isLite ? obj && JSON.parse(obj) : obj
+    set: obj => (isLite ? obj && JSON.stringify(obj) : obj),
+    get: obj => (isLite ? obj && JSON.parse(obj) : obj)
   }
 
   const extensions: KnexExtension = { isLite, date, json, bool, createTableIfNotExists }

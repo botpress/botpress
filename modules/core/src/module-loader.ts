@@ -1,13 +1,13 @@
 import axios from 'axios'
-import { injectable, tagged, inject } from 'inversify'
+import { ModuleMetadata } from 'botpress-module-sdk'
+import { inject, injectable, tagged } from 'inversify'
+import { Memoize, Throttle } from 'lodash-decorators'
 import ms from 'ms'
 
-import { Throttle, Memoize } from 'lodash-decorators'
-import { ModuleMetadata } from 'botpress-module-sdk'
-import { TYPES } from './misc/types'
-import { Logger } from './misc/interfaces'
-import { ModuleConfigEntry, ModulesConfig } from './config/modules.config'
 import { ConfigProvider } from './config/config-loader'
+import { ModuleConfigEntry, ModulesConfig } from './config/modules.config'
+import { Logger } from './misc/interfaces'
+import { TYPES } from './misc/types'
 
 export type AvailableModule = {
   metadata: ModuleMetadata

@@ -1,14 +1,13 @@
 import 'bluebird-global'
-
-import express from 'express'
 import errorHandler from 'errorhandler'
+import express from 'express'
 import { Server } from 'http'
+import { inject, injectable } from 'inversify'
 
-import { IndexRouter } from './router'
-import { BotRouter } from './router/bots'
-import { injectable, inject } from 'inversify'
 import { TYPES } from './misc/types'
 import { BotRepository } from './repositories/bot-repository'
+import { IndexRouter } from './router'
+import { BotRouter } from './router/bots'
 
 const BASE_API_PATH = '/api/v1'
 

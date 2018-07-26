@@ -2,6 +2,14 @@
   "rules": {
     "class-name": true,
     "comment-format": [true, "check-space"],
+    "ordered-imports": {
+      "severity": "warning",
+      "options": {
+        "import-sources-order": "lowercase-first",
+        "named-imports-order": "case-insensitive",
+        "grouped-imports": true
+      }
+    },
     "indent": [true, "spaces", 2],
     "one-line": [true, "check-open-brace", "check-whitespace"],
     "no-var-keyword": true,
@@ -40,8 +48,6 @@
     "jsdoc-format": true
   },
   "linterOptions": {
-    "exclude": [
-      "*.json"
-    ]
+    "exclude": ["*.json"]
   }
 }

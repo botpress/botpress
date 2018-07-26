@@ -5,7 +5,7 @@
       "type": "node",
       "request": "launch",
       "name": "Debug Core",
-      "program": "${workspaceFolder:botpress-xx}/modules/core/src/server.ts",
+      "program": "${workspaceFolder:botpress-xx}/modules/core/src/app.ts",
       "cwd": "${workspaceFolder:botpress-xx}/modules/core",
       "protocol": "inspector",
       "outFiles": ["${workspaceFolder:botpress-xx}/modules/core/dist/**/*.js"]

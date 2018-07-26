@@ -1,8 +1,8 @@
-import { Table, ExtendedKnex } from '../interfaces'
+import { ExtendedKnex, Table } from '../interfaces'
 
 import BotsTable from './bots'
-import MigrationsTable from './migrations'
 import MetadataTable from './metadata'
+import MigrationsTable from './migrations'
 import ModulesTable from './modules'
 
 const tables: (typeof Table)[] = [BotsTable, MigrationsTable, MetadataTable, ModulesTable]
