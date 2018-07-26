@@ -1,13 +1,13 @@
 import * as path from 'path'
-import * as fs from 'fs'
 import { ModuleLoader } from './module-loader'
 import packageJson from '../package.json'
-import { inject, injectable, tagged } from 'inversify'
+import { inject, injectable } from 'inversify'
 import { TYPES } from './misc/types'
-import { Logger } from './misc/interfaces'
 import HTTPServer from './server'
-
-const MODULES_CONFIG_PATH = '/modules.config.json'
+import Database from './database'
+import { Memoize } from 'lodash-decorators'
+import { BotpressConfig } from './config/botpress.config'
+import { ConfigProvider } from './config/config-loader'
 
 @injectable()
 export class Botpress {
@@ -17,34 +17,43 @@ export class Botpress {
 
   modulesConfig: any
   version: string
+  config: BotpressConfig
 
   constructor(
-    @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
+    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
+    @inject(TYPES.Database) private database: Database,
     @inject(TYPES.HTTPServer) private httpServer: HTTPServer,
-    @inject(TYPES.Logger) private logger: Logger
+    @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader
   ) {
     this.version = packageJson.version
     this.botpressPath = path.join(process.cwd(), 'dist')
     this.configLocation = path.join(this.botpressPath, '/config')
   }
 
+  start() {
+    this.initialize()
+  }
+
   private async initialize() {
+    this.config = await this.loadConfiguration()
+
     this.trackStats()
     this.createDatabase()
     this.loadModules()
     this.startServer()
   }
 
-  private async startServer() {
-    await this.httpServer.start()
+  @Memoize()
+  private async loadConfiguration(): Promise<BotpressConfig> {
+    return this.configProvider.getBotpressConfig()
   }
 
   private trackStats(): any {
     // TODO
   }
 
-  private createDatabase(): any {
-    // TODO
+  private createDatabase() {
+    this.database.initialize(this.config.database)
   }
 
   private loadModules() {
@@ -54,7 +63,7 @@ export class Botpress {
     }, 5000)
   }
 
-  start() {
-    this.initialize()
+  private async startServer() {
+    await this.httpServer.start()
   }
 }

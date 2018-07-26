@@ -1,1 +1,11 @@
-{}
+{
+  "database": {
+    "type": "postgres",
+    "location": "sqlite/db.sqlite",
+    "host": "localhost",
+    "port": "5432",
+    "user": "postgres",
+    "password": "",
+    "database": "botpress_test"
+  }
+}
