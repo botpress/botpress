@@ -89,7 +89,7 @@ You can embed the bot on your website with the following snippet. Just make sure
 ```
 
 
-For more information about how to use the website widget, be sure to [read through this](https://github.com/botpress/botpress-platform-webchat).
+For more information about how to use the website widget, be sure to [read through this](https://github.com/botpress/botpress/tree/master/packages/channels/botpress-channel-web).
 
 ## Deploying to Self-hosted Server
 

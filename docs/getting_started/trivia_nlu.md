@@ -22,7 +22,7 @@ yarn add @botpress/nlu
 
 In Botpress, NLU is acheived by connecting with 3rd-party providers such as [Rasa NLU](http://nlu.rasa.ai), [Microsoft LUIS](https://www.luis.ai/), [Google DialogFlow](dialogflow.com) or [IBM Watson NLU](https://www.ibm.com/watson/services/natural-language-understanding/).
 
-> **Note:** For this tutorial, we will use the native (built-in) NLU engine, which is useful for testing purposes or simple classification. For more complex classification and entity extraction, consider [Switching to Rasa or Luis](https://github.com/botpress/botpress-nlu).
+> **Note:** For this tutorial, we will use the native (built-in) NLU engine, which is useful for testing purposes or simple classification. For more complex classification and entity extraction, consider [Switching to Rasa or Luis](https://github.com/botpress/botpress/tree/master/packages/functionals/botpress-nlu).
 
 ## Intent Classification
 
