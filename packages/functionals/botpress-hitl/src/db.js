@@ -9,6 +9,16 @@ function initialize() {
     throw new Error('you must initialize the database before')
   }
 
+  const table = 'hitl_messages'
+  const migrateTable = () =>
+    knex.schema.hasTable(table).then(exist => {
+      if (exist) {
+        return knex.schema.alterTable(table, t => {
+          t.string('text', 640).alter()
+        })
+      }
+    })
+
   return helpers(knex)
     .createTableIfNotExists('hitl_sessions', function(table) {
       table.increments('id').primary()
@@ -29,12 +39,13 @@ function initialize() {
           .references('hitl_sessions.id')
           .onDelete('CASCADE')
         table.string('type')
-        table.string('text')
+        table.string('text', 640)
         table.jsonb('raw_message')
         table.enu('direction', ['in', 'out'])
         table.timestamp('ts')
       })
     })
+    .then(migrateTable)
 }
 
 function createUserSession(event) {
