@@ -1,4 +1,4 @@
-import { Table } from '../interfaces'
+import { Table } from '../../interfaces'
 
 export default class ServerMetadataTable extends Table {
   name: string = 'srv_metadata'
