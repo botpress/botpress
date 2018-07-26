@@ -3,7 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-  <a name="10.25.0"></a>
+      <a name="10.25.1"></a>
+## [10.25.1](https://github.com/botpress/botpress/compare/v10.25.0...v10.25.1) (2018-07-26)
+
+
+### Bug Fixes
+
+* **nlu:** don't sync luis if syncing in progress ([961312c](https://github.com/botpress/botpress/commit/961312c))
+* **nlu:** don't throw if intent to delete is absent ([ce88c93](https://github.com/botpress/botpress/commit/ce88c93))
+
+
+
+
+      <a name="10.25.0"></a>
 # [10.25.0](https://github.com/botpress/botpress/compare/v10.24.4...v10.25.0) (2018-07-23)
 
 
@@ -27,7 +39,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-  <a name="10.24.4"></a>
+<a name="10.24.4"></a>
 ## [10.24.4](https://github.com/botpress/botpress/compare/v10.24.3...v10.24.4) (2018-07-20)
 
 
