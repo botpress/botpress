@@ -1,4 +1,5 @@
 import express from 'express'
+import path from 'path'
 
 import { ModuleMetadata } from 'botpress-module-sdk'
 
@@ -8,7 +9,8 @@ app.use(express.static('../static'))
 
 app.get('/', (req, res) => {
   res.contentType('text/javascript')
-  res.sendFile('./static/channel-web.js', { root: __dirname })
+  const root = path.resolve('.')
+  res.sendFile('./static/channel-web.js', { root })
 })
 
 app.get('/register', (req, res) => {
