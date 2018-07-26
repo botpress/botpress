@@ -6,6 +6,7 @@ import { Botpress } from './botpress'
 import { ConfigProvider, FileConfigProvider } from './config/config-loader'
 import Database from './database'
 import ConsoleLogger from './logger'
+import { MiddlewareService } from './middlewares-service'
 import { Logger } from './misc/interfaces'
 import { TYPES } from './misc/types'
 import { ModuleLoader } from './module-loader'
@@ -39,6 +40,7 @@ container.bind<ModuleLoader>(TYPES.ModuleLoader).to(ModuleLoader)
 container.bind<Botpress>(TYPES.Botpress).to(Botpress)
 container.bind<HTTPServer>(TYPES.HTTPServer).to(HTTPServer)
 container.bind<ConfigProvider>(TYPES.ConfigProvider).to(FileConfigProvider)
+container.bind<MiddlewareService>(TYPES.MiddlewareService).to(MiddlewareService)
 
 const projectLocation =
   process.title === 'node'

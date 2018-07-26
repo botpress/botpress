@@ -1,7 +1,8 @@
 export type MiddlewareDefinition = {
-  route: string
   name: string
   description: string
+  order: number
+  handler: string
 }
 
 export type ModuleMetadata = {

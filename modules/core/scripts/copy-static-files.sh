@@ -12,3 +12,8 @@ if [ -d config/ ]; then
   cp -r config/ dist/data
   echo "Copied configuration files"
 fi
+
+if [ -d data/ ]; then
+  rm -rf dist/data/ && cp -r data/ dist/data/
+  echo "Created data dir"
+fi

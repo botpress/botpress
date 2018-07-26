@@ -19,9 +19,11 @@
     "tslint": "tslint -c tslint.json -p tsconfig.json"
   },
   "dependencies": {
+    "bluebird-global": "^1.0.1",
     "botpress-module-sdk": "../../packages/module-sdk",
     "dotenv": "^6.0.0",
     "express": "^4.16.3",
+    "inversify": "^4.13.0",
     "lodash": "^4.17.10"
   },
   "devDependencies": {
