@@ -1,9 +1,9 @@
 import path from 'path'
 import fs from 'fs'
 import { injectable } from 'inversify'
-import { FatalError } from './Errors'
 import { BotpressConfig } from './botpress.config'
 import { ModulesConfig } from './modules.config'
+import { FatalError } from '../errors'
 
 export interface ConfigProvider {
   getBotpressConfig(): Promise<BotpressConfig>
@@ -40,7 +40,7 @@ export class FileConfigProvider implements ConfigProvider {
   }
 
   private getDevConfigPath() {
-    return path.join(__dirname, '../config')
+    return path.join(__dirname, '../../config')
   }
 
   private getBinaryConfigPath() {

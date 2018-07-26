@@ -1,6 +1,6 @@
 import 'bluebird-global'
 import Knex from 'knex'
-import { inject, injectable, named, tagged } from 'inversify'
+import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 
 import { patchKnex } from './helpers'
@@ -9,20 +9,7 @@ import { Table, ExtendedKnex } from './interfaces'
 import { TYPES } from '../misc/types'
 
 import AllTables from './tables'
-import { DatabaseType } from '../botpress.config'
-
-export interface DatabaseConfig {
-  migrations?: string
-  type: DatabaseType
-  url?: string
-  location?: string
-  host?: string
-  port?: number
-  user?: string
-  password?: string
-  ssl?: boolean
-  database?: string
-}
+import { DatabaseConfig } from '../config/database.config'
 
 @injectable()
 export default class Database {

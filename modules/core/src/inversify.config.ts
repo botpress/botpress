@@ -8,8 +8,8 @@ import ConsoleLogger from './logger'
 import { ModuleLoader } from './module-loader'
 import { Botpress } from './botpress'
 import HTTPServer from './server'
-import { FileConfigProvider, ConfigProvider } from './config-loader'
 import { RepositoryModule } from './repositories/repository-module'
+import { ConfigProvider, FileConfigProvider } from './config/config-loader'
 
 const container = new Container({ autoBindInjectable: true })
 
