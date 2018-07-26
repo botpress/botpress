@@ -63,7 +63,7 @@ export default class Storage {
     try {
       await this.ghost.deleteFile(this.intentsDir, utterancesFile)
     } catch (e) {
-      if (e.code !== 'ENOENT') {
+      if (e.code !== 'ENOENT' && !e.message.includes("couldn't find it")) {
         throw e
       }
     }
@@ -71,7 +71,7 @@ export default class Storage {
     try {
       await this.ghost.deleteFile(this.intentsDir, propertiesFile)
     } catch (e) {
-      if (e.code !== 'ENOENT') {
+      if (e.code !== 'ENOENT' && !e.message.includes("couldn't find it")) {
         throw e
       }
     }
