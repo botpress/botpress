@@ -6,8 +6,8 @@ import { inject, injectable } from 'inversify'
 
 import { TYPES } from './misc/types'
 import { BotRepository } from './repositories/bot-repository'
-import { IndexRouter } from './router'
-import { BotRouter } from './router/bots'
+import { BotRouter } from './router/bot-router'
+import { IndexRouter } from './router/index-router'
 
 const BASE_API_PATH = '/api/v1'
 
@@ -17,11 +17,9 @@ export default class HTTPServer {
   app: express.Express
 
   constructor(@inject(TYPES.BotRepository) private botRepository: BotRepository) {
-    const indexRouter = new IndexRouter()
-    const botRouter = new BotRouter(botRepository)
-
+    const routers = [new IndexRouter(), new BotRouter(botRepository)]
     this.app = express()
-    this.app.use(BASE_API_PATH, indexRouter.router, botRouter.router)
+    this.app.use(BASE_API_PATH, [...routers.map(r => r.router)])
 
     if (process.env.NODE_ENV === 'development') {
       this.app.use(errorHandler())
