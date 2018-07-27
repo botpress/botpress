@@ -1,0 +1,45 @@
+{
+  "name": "@botpress/channel-google-assistant",
+  "version": "0.0.1",
+  "description": "Official Google Assistant connector for botpress",
+  "main": "bin/node.bundle.js",
+  "homepage": "https://github.com/botpress/modules",
+  "botpress": {
+    "menuText": "Google",
+    "menuIcon": "custom",
+    "noInterface": true
+  },
+  "keywords": ["assistant", "google assistant", "botpress", "botpress-connector"],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "node webpack.config.js --watch",
+    "compile": "node webpack.config.js --compile"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/botpress/modules"
+  },
+  "author": "Botpress",
+  "license": "AGPL-3.0-only",
+  "peerDependencies": {
+    "botpress": ">= 10.0.0"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-loader": "^7.1.5",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-latest": "^6.24.1",
+    "babel-preset-stage-0": "^6.24.1",
+    "webpack": "^4.16.2",
+    "webpack-node-externals": "^1.7.2"
+  },
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "eventemitter2": "^5.0.1",
+    "node-fetch": "^2.2.0"
+  }
+}

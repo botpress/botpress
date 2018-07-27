@@ -1,0 +1,1 @@
+POST: /botpress-google-assistant/webhook
