@@ -1,4 +1,4 @@
-import Promise from 'bluebird'
+import 'bluebird-global'
 
 export type GhostPendingRevisions = {
   [key: string]: [
@@ -22,12 +22,14 @@ export type GhostPendingRevisionsWithContent = {
   ]
 }
 
+export type GhostWatchFolderOptions = { filesGlob: string; isBinary: boolean }
+
 export interface GhostContentService {
-  addRootFolder(rootFolder: string, options: { filesGlob: string; isBinary: boolean }): Promise<void>
+  addRootFolder(rootFolder: string, options: GhostWatchFolderOptions): Promise<void>
   upsertFile(rootFolder: string, file: string, content: string | Buffer): Promise<void>
-  readFile(rootFolder: string, file: string): Promise<string | Buffer>
+  readFile(rootFolder: string, file: string): Promise<string | Buffer | null>
   deleteFile(rootFolder: string, file: string): Promise<void>
-  directoryListing(rootFolder: string, fileEndingPattern: string): Promise<Array<string>>
+  directoryListing(rootFolder: string, fileEndingPattern: string, pathsToOmit?: string[]): Promise<Array<string>>
   getPending(): Promise<GhostPendingRevisions>
   getPendingWithContent(options: { stringifyBinary: boolean }): Promise<GhostPendingRevisionsWithContent>
 }
