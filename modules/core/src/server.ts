@@ -8,8 +8,8 @@ import { ConfigProvider } from './config/config-loader'
 import { Logger } from './misc/interfaces'
 import { TYPES } from './misc/types'
 import { BotRepository } from './repositories/bot-repository'
-import { IndexRouter } from './router'
-import { BotRouter } from './router/bots'
+import { BotRouter } from './router/bot-router'
+import { IndexRouter } from './router/index-router'
 
 const BASE_API_PATH = '/api/v1'
 
@@ -25,11 +25,10 @@ export default class HTTPServer {
     @inject(TYPES.BotRepository) private botRepository: BotRepository,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider
   ) {
-    const indexRouter = new IndexRouter()
-    const botRouter = new BotRouter(botRepository)
+    const routers = [new IndexRouter(), new BotRouter(this.botRepository)]
 
     this.app = express()
-    this.app.use(BASE_API_PATH, indexRouter.router, botRouter.router)
+    this.app.use(BASE_API_PATH, [...routers.map(r => r.router)])
 
     if (process.env.NODE_ENV === 'development') {
       this.app.use(errorHandler())
