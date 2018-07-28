@@ -1,5 +1,6 @@
-import { inject, injectable } from 'inversify'
-import { Memoize } from 'lodash-decorators'
+import { inject, injectable, tagged } from 'inversify'
+import { before, Memoize } from 'lodash-decorators'
+import moment from 'moment'
 import * as path from 'path'
 
 import packageJson from '../package.json'
@@ -7,6 +8,7 @@ import packageJson from '../package.json'
 import { BotpressConfig } from './config/botpress.config'
 import { ConfigProvider } from './config/config-loader'
 import Database from './database'
+import { Logger } from './misc/interfaces'
 import { TYPES } from './misc/types'
 import { ModuleLoader } from './module-loader'
 import HTTPServer from './server'
@@ -24,6 +26,9 @@ export class Botpress {
   constructor(
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.Database) private database: Database,
+    @inject(TYPES.Logger)
+    @tagged('name', 'Server')
+    private logger: Logger,
     @inject(TYPES.HTTPServer) private httpServer: HTTPServer,
     @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader
   ) {
@@ -33,7 +38,10 @@ export class Botpress {
   }
 
   async start() {
+    const beforeDt = moment()
     await this.initialize()
+    const bootTime = moment().diff(beforeDt, 'milliseconds')
+    this.logger.info(`Started in ${bootTime}ms`)
   }
 
   private async initialize() {
