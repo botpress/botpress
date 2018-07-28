@@ -2,7 +2,7 @@ import 'bluebird-global'
 import errorHandler from 'errorhandler'
 import express from 'express'
 import { Server } from 'http'
-import { inject, injectable } from 'inversify'
+import { inject, injectable, tagged } from 'inversify'
 
 import { ConfigProvider } from './config/config-loader'
 import { Logger } from './misc/interfaces'
@@ -19,7 +19,9 @@ export default class HTTPServer {
   app: express.Express
 
   constructor(
-    @inject(TYPES.Logger) private logger: Logger,
+    @inject(TYPES.Logger)
+    @tagged('name', 'HTTP')
+    private logger: Logger,
     @inject(TYPES.BotRepository) private botRepository: BotRepository,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider
   ) {
@@ -42,7 +44,7 @@ export default class HTTPServer {
       this.server = this.app.listen(config, callback)
     })
 
-    this.logger.info(`App is running at ${config.host || 'localhost'}:${config.port}`)
+    this.logger.info(`API listening on http://${config.host || 'localhost'}:${config.port}`)
 
     return this.app
   }

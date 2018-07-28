@@ -1,5 +1,5 @@
 import { inject, injectable, tagged } from 'inversify'
-import { before, Memoize } from 'lodash-decorators'
+import { Memoize } from 'lodash-decorators'
 import moment from 'moment'
 import * as path from 'path'
 
