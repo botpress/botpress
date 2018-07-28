@@ -32,17 +32,17 @@ export class Botpress {
     this.configLocation = path.join(this.botpressPath, '/config')
   }
 
-  start() {
-    this.initialize()
+  async start() {
+    await this.initialize()
   }
 
   private async initialize() {
     this.config = await this.loadConfiguration()
 
-    this.trackStats()
-    this.createDatabase()
-    this.loadModules()
-    this.startServer()
+    await this.trackStats()
+    await this.createDatabase()
+    await this.loadModules()
+    await this.startServer()
   }
 
   @Memoize()
@@ -50,19 +50,17 @@ export class Botpress {
     return this.configProvider.getBotpressConfig()
   }
 
-  private trackStats(): any {
+  private async trackStats(): Promise<void> {
     // TODO
   }
 
-  private createDatabase() {
-    this.database.initialize(this.config.database)
+  private createDatabase(): Promise<void> {
+    return this.database.initialize(this.config.database)
   }
 
-  private loadModules() {
-    setInterval(async () => {
-      const modules = await this.moduleLoader.getAvailableModules()
-      console.log(modules)
-    }, 5000)
+  private async loadModules(): Promise<void> {
+    const modules = await this.moduleLoader.getAvailableModules()
+    // TODO Do something with modules
   }
 
   private async startServer() {

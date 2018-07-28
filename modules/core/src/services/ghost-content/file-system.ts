@@ -34,7 +34,7 @@ export default class FSGhostContentService implements GhostContentService {
     return mkdirpAsync(fullFileFolder)
       .then(() => fsAsync.writeFileAsync(filePath, content))
       .catch(e => {
-        this.logger.error(e, 'upsertFile error')
+        this.logger.error('upsertFile error', e)
         throw e
       })
   }
