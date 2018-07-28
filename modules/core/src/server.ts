@@ -4,6 +4,8 @@ import express from 'express'
 import { Server } from 'http'
 import { inject, injectable } from 'inversify'
 
+import { ConfigProvider } from './config/config-loader'
+import { Logger } from './misc/interfaces'
 import { TYPES } from './misc/types'
 import { BotRepository } from './repositories/bot-repository'
 import { IndexRouter } from './router'
@@ -16,7 +18,11 @@ export default class HTTPServer {
   server: Server
   app: express.Express
 
-  constructor(@inject(TYPES.BotRepository) private botRepository: BotRepository) {
+  constructor(
+    @inject(TYPES.Logger) private logger: Logger,
+    @inject(TYPES.BotRepository) private botRepository: BotRepository,
+    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider
+  ) {
     const indexRouter = new IndexRouter()
     const botRouter = new BotRouter(botRepository)
 
@@ -29,16 +35,14 @@ export default class HTTPServer {
   }
 
   async start() {
+    const botpressConfig = await this.configProvider.getBotpressConfig()
+    const config = botpressConfig.httpServer
+
     await Promise.fromCallback(callback => {
-      this.server = this.app.listen(process.env.HOST_PORT, callback)
+      this.server = this.app.listen(config, callback)
     })
 
-    console.log(
-      '** App is running at %s:%d in %s mode',
-      process.env.HOST_URL,
-      process.env.HOST_PORT,
-      process.env.ENVIRONMENT
-    )
+    this.logger.info(`App is running at ${config.host || 'localhost'}:${config.port}`)
 
     return this.app
   }

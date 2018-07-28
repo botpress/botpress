@@ -1,5 +1,6 @@
 import chalk from 'chalk'
 import { inject, injectable } from 'inversify'
+import moment from 'moment'
 import util from 'util'
 
 import { Logger } from './misc/interfaces'
@@ -11,7 +12,9 @@ export default class ConsoleLogger implements Logger {
 
   private print(color: 'blue' | 'green' | 'yellow' | 'red', message: string, metadata: any) {
     const serializedMetadata = metadata ? ' | ' + util.inspect(metadata, false, 2, true) : ''
-    console.log(chalk`{${color}.bold DEBUG [${this.name}]} ${message}${serializedMetadata}`)
+    const time = moment().format('HH:mm:ss.SSS')
+
+    console.log(chalk`{grey ${time}} {${color}.bold ${this.name}} ${message}${serializedMetadata}`)
   }
 
   debug(message: string, metadata?: any): void {
