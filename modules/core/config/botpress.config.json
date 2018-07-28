@@ -1,4 +1,8 @@
 {
+  "httpServer": {
+    "host": "localhost",
+    "port": 3000
+  },
   "database": {
     "type": "sqlite",
     "location": "sqlite/db.sqlite",
