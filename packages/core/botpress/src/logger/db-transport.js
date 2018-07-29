@@ -1,10 +1,10 @@
 import winston from 'winston'
 import ms from 'ms'
-import Promise from 'bluebird'
 
 import { isEmpty } from 'lodash'
 
 import helpers from '../database/helpers'
+import { safeStringify } from '../util'
 
 const LOGS_FLUSH_INTERVAL = ms('2s')
 const LOGS_CHUNK_SIZE = 1000
@@ -57,7 +57,7 @@ export default class DbTransport extends winston.Transport {
 
   log(level, message, meta, callback) {
     if (!isEmpty(meta)) {
-      message += ` (meta=${JSON.stringify(meta)})`
+      message += ` (meta=${safeStringify(meta)})`
     }
 
     this.db
