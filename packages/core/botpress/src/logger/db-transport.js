@@ -87,6 +87,7 @@ export default class DbTransport extends winston.Transport {
     let q = knex('logs')
       .select('created_on as timestamp', 'level', 'message')
       .orderBy('created_on', order)
+      .orderBy('id', order)
     if (limit) {
       q = q.limit(limit)
     }
