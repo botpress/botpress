@@ -38,8 +38,6 @@
     "webpack-node-externals": "^1.7.2"
   },
   "dependencies": {
-    "body-parser": "^1.18.3",
-    "eventemitter2": "^5.0.1",
-    "node-fetch": "^2.2.0"
+    "eventemitter2": "^5.0.1"
   }
 }

@@ -11,7 +11,7 @@ const handlePromise = (next, promise) => {
 }
 
 const handleMessage = (event, next, googleAssistant) =>
-  handlePromise(next, googleAssistant.sendText(event.raw.to, event))
+  handlePromise(next, googleAssistant.sendText(event.raw.to, event.text, event.raw))
 
 module.exports = {
   message: handleMessage
