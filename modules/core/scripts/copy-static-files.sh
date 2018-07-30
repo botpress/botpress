@@ -3,6 +3,7 @@ if [ -d static/ ]; then
   echo "Copied static files"
 fi
 
+<<<<<<< HEAD
 if [ -d config/ ]; then
   rm -rf dist/config
   rm -rf dist/storage
@@ -13,7 +14,9 @@ if [ -d config/ ]; then
   echo "Copied configuration files"
 fi
 
+=======
+>>>>>>> Moved config files to data directory
 if [ -d data/ ]; then
   rm -rf dist/data/ && cp -r data/ dist/data/
-  echo "Created data dir"
+  echo "Copied data directory"
 fi
