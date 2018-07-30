@@ -4,36 +4,37 @@ layout: guide
 
 # Embedding the webchat on a website
 
-Embedding a bot to your existing site is quite straightforward:
+Embedding a bot to your existing site is quite straightforward. You will need to deploy your bot to a server or hosting provider and make it accessible via a URL.
 
-1. You need to have your bot deployed somewhere and available via some URL
-2. You have to inject script from your bot to your website (e.g. by adding it to the end of it's `index.html` file like this:
+You will then be able to add the following script tag to the end of your `index.html` page.
+
+NB: Remember to replace <your-url-here> with the URL of your bot!
 
 ```html
-<script src="http://<your-url-here>/api/botpress-platform-webchat/inject.js"></script>
+<script src="<your-url-here>/api/botpress-platform-webchat/inject.js"></script>
 ```
 
-3. You have to init the bot by running something like this:
+After the import script above you need to initialize the bot to the `window` object with the script below.
 
 ```html
 <script>
-  window.botpressWebChat.init({ host: 'http://<your-url-here>' })
+  window.botpressWebChat.init({ host: '<your-url-here>' })
 </script>
 ```
 
-That's it. Once you deploy changes to your website, the bot should become available, and its button should appear.
+And that's it! Once you deploy the changes to your website, the bot will become available, and its button will appear.
 
 # Displaying and hiding the webchat programmatically from the website
 
-If you find the default button Botpress suggests doesn't suit you, you are free to exchange it with basically anything on your website and trigger webchat programmatically. For this you need to pass `hideWidget` key to `init` function like this:
+If the default Botpress button doesn't work for you, it can be changed by adding a `click` event listener to any element on the page. You  will also need to pass the `hideWidget` key to your `init` function like this:
 
 ```html
 <script>
-  window.botpressWebChat.init({ host: 'http://<your-url-here>', hideWidget: true })
+  window.botpressWebChat.init({ host: '<your-url-here>', hideWidget: true })
 </script>
 ```
 
-Then you can work with webchat programmatically like this:
+Here is some sample code for adding the event listeners to your custom elements:
 
 ```html
 <script>
@@ -46,9 +47,9 @@ Then you can work with webchat programmatically like this:
 </script>
 ```
 
-# Changing the look and feel of the Webchat
+# Customizing the look and feel of the Webchat
 
-Webchat view is customizable, and you can change it by passing additional params to `init` function:
+The Webchat view is customizable by passing additional params to the `init` function, below are the options available:
 
 ```js
 window.botpressWebChat.init({
