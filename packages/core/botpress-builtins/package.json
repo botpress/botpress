@@ -1,6 +1,6 @@
 {
   "name": "@botpress/builtins",
-  "version": "10.25.0",
+  "version": "10.25.2",
   "description": "The built-in stuff such as Content Elements, Content Renderers and Actions for Botpress X+",
   "main": "./dist/index.js",
   "repository": "https://github.com/botpress/botpress",

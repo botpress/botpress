@@ -54,7 +54,9 @@ module.exports = {
        */
       import(questions, { format = 'json' } = {}) {
         const questionsToSave = typeof questions === 'string' ? parsers[`${format}Parse`](questions) : questions
-        return Promise.each(questionsToSave, question => storage.saveQuestion({ ...question, enabled: true }))
+        return Promise.each(questionsToSave, question =>
+          storage.saveQuestion({ ...question, enabled: true }, null, false)
+        )
       },
 
       /**
@@ -162,11 +164,12 @@ module.exports = {
     router.post('/csv', upload.single('csv'), async (req, res) => {
       if (yn(req.body.isReplace)) {
         const questions = await storage.getQuestions()
-        await Promise.each(questions, ({ id }) => storage.deleteQuestion(id))
+        await Promise.each(questions, ({ id }) => storage.deleteQuestion(id, false))
       }
 
       try {
         await bp.qna.import(req.file.buffer.toString(), { format: 'csv' })
+        bp.nlu.provider.sync()
         res.end()
       } catch (e) {
         logger.error('QnA Error:', e)

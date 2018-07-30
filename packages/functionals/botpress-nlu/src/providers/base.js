@@ -60,3 +60,13 @@ export default class Provider {
       }))
   }
 }
+
+export const defaultExtractData = provider => ({
+  intent: {
+    name: 'None',
+    confidence: 0,
+    provider
+  },
+  intents: [],
+  entities: []
+})
