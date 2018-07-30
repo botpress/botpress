@@ -5,7 +5,7 @@
   },
   "database": {
     "type": "sqlite",
-    "location": "sqlite/db.sqlite",
+    "location": "storage/core.sqlite",
     "host": "localhost",
     "port": "5432",
     "user": "postgres",

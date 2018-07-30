@@ -47,10 +47,10 @@ export class FileConfigProvider implements ConfigProvider {
   }
 
   private getDevConfigPath() {
-    return path.join(__dirname, '../../config')
+    return path.join(__dirname, '../../data')
   }
 
   private getBinaryConfigPath() {
-    return path.join(path.dirname(process.execPath), 'config')
+    return path.join(path.dirname(process.execPath), 'data')
   }
 }
