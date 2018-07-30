@@ -1,4 +1,6 @@
 import { Container } from 'inversify'
+import path from 'path'
+import { types } from 'util'
 
 import { Botpress } from './botpress'
 import { ConfigProvider, FileConfigProvider } from './config/config-loader'
@@ -37,6 +39,13 @@ container.bind<ModuleLoader>(TYPES.ModuleLoader).to(ModuleLoader)
 container.bind<Botpress>(TYPES.Botpress).to(Botpress)
 container.bind<HTTPServer>(TYPES.HTTPServer).to(HTTPServer)
 container.bind<ConfigProvider>(TYPES.ConfigProvider).to(FileConfigProvider)
+
+const projectLocation =
+  process.title === 'node'
+    ? path.join(__dirname, '..') // If we're running in DEV
+    : path.join(path.dirname(process.execPath)) // If we're running from binary
+
+container.bind<string>(TYPES.ProjectLocation).toConstantValue(projectLocation)
 
 container.loadAsync(RepositoryModule)
 

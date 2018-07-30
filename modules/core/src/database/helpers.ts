@@ -41,7 +41,7 @@ export const patchKnex = (knex: Knex): Knex & KnexExtension => {
       if (exists) {
         return
       }
-      return knex.schema.createTableIfNotExists(tableName, cb)
+      return knex.schema.createTable(tableName, cb)
     })
   }
 
