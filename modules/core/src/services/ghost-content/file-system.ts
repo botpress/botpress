@@ -1,11 +1,11 @@
 import 'bluebird-global'
 import fs from 'fs'
 import glob from 'glob'
+import { inject, tagged } from 'inversify'
+import _ from 'lodash'
 import mkdirp from 'mkdirp'
 import path from 'path'
 
-import _ from '../../../node_modules/@types/lodash'
-import { inject, tagged } from '../../../node_modules/inversify'
 import { TYPES } from '../../misc/types'
 import Logger from '../../Logger'
 
