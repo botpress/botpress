@@ -51,14 +51,14 @@ export default class FSGhostContentService implements GhostContentService {
     }
   }
 
-  readFile(rootFolder: string, file: string): Promise<string | Buffer | null> {
+  readFile(rootFolder: string, file: string): Promise<string | Buffer> {
     const { folderPath, normalizedFolderName } = normalizeFolder('bot123')(rootFolder)
     const filePath = path.join(folderPath, file)
     const isBinary = _.get(this.folderOptions[normalizedFolderName], 'isBinary', false)
 
     return fsAsync
-      .readFileAsync(filePath, isBinary ? null : 'utf8')
-      .catch({ code: 'ENOENT' }, () => null)
+      .readFileAsync(filePath, isBinary ? undefined : 'utf8')
+      .catch({ code: 'ENOENT' }, () => undefined)
       .catch(e => {
         this.logger.error('readFile error', e)
         throw e
