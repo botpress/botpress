@@ -3,6 +3,14 @@ export type MiddlewareDefinition = {
   description: string
   order: number
   handler: string
+  /**
+   * @deprecated since version 12.0
+   */
+  type?: string
+  /**
+   * @deprecated since version 12.0
+   */
+  module?: string
 }
 
 export type ModuleMetadata = {

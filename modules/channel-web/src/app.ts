@@ -22,7 +22,9 @@ app.get('/register', (req, res) => {
         name: 'test.middleware',
         description: 'this is a test',
         order: 10,
-        handler: 'test.middleware'
+        handler: 'test.middleware',
+        module: 'channel-web',
+        type: 'incoming'
       }
     ],
     outgoingMiddleware: []
