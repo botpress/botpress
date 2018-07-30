@@ -24,7 +24,8 @@ app.get('/register', (req, res) => {
         order: 10,
         handler: 'test.middleware',
         module: 'channel-web',
-        type: 'incoming'
+        type: 'incoming',
+        enabled: true
       }
     ],
     outgoingMiddleware: []
@@ -35,7 +36,6 @@ app.get('/register', (req, res) => {
 app.get('/channel-web/bots/:botId/messages', (req, res) => {
   const botId = req.params.botId
   res.send(botId)
-  // res.status(200)
 })
 
 export default app

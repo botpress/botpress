@@ -11,6 +11,10 @@ export type MiddlewareDefinition = {
    * @deprecated since version 12.0
    */
   module?: string
+  /**
+   * @deprecated since version 12.0
+   */
+  enabled?: boolean
 }
 
 export type ModuleMetadata = {

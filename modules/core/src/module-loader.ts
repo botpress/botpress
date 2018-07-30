@@ -16,8 +16,6 @@ export type AvailableModule = {
 
 @injectable()
 export class ModuleLoader {
-  private available: Map<string, AvailableModule> = new Map()
-
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'ModuleLoader')
@@ -38,7 +36,7 @@ export class ModuleLoader {
   @Throttle(ms('5m'))
   async getAvailableModules(): Promise<AvailableModule[]> {
     const config = await this.loadConfiguration()
-    this.available = new Map()
+    const available: Map<string, AvailableModule> = new Map()
 
     for (const module of config.modules) {
       try {
@@ -52,10 +50,10 @@ export class ModuleLoader {
         }
 
         const moduleName = metadata.name.toLowerCase()
-        if (this.available.has(moduleName)) {
+        if (available.has(moduleName)) {
           this.logger.error(`Duplicated module "${moduleName}". This one will be ignored ("${module.url}".)`)
         } else {
-          this.available.set(moduleName, {
+          available.set(moduleName, {
             metadata: metadata,
             definition: module
           })
@@ -65,10 +63,6 @@ export class ModuleLoader {
       }
     }
 
-    return Array.from(this.available.values())
-  }
-
-  get availableModules() {
-    return Array.from(this.available.values())
+    return Array.from(available.values())
   }
 }

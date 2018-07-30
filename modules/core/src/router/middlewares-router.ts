@@ -9,10 +9,7 @@ export class MiddlewaresRouter extends BaseRouter {
 
   protected setupRoutes(): void {
     this._router.get('/middlewares/bots/:botId', (req, res) => {
-      const botId = req.params.botId // TODO: Alias instead of ID?
-
-      console.log('***** Middlesware route')
-
+      const botId = req.params.botId
       this.mwService.getIncomingMiddlewaresForBot(botId).then(mws => {
         res.send(mws)
       })
