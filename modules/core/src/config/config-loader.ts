@@ -15,7 +15,12 @@ export interface ConfigProvider {
 @injectable()
 export class FileConfigProvider implements ConfigProvider {
   async getBotpressConfig(): Promise<BotpressConfig> {
-    return this.getConfig<BotpressConfig>('botpress.config.json')
+    const config = await this.getConfig<BotpressConfig>('botpress.config.json')
+
+    config.httpServer.host = process.env.BP_HOST || config.httpServer.host
+    config.httpServer.host = config.httpServer.host === 'localhost' ? undefined : config.httpServer.host
+
+    return config
   }
 
   async getModulesConfig(): Promise<ModulesConfig> {
