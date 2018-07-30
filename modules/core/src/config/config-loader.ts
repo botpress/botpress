@@ -28,14 +28,18 @@ export class FileConfigProvider implements ConfigProvider {
   }
 
   private async getConfig<T>(fileName: string): Promise<T> {
-    const filePath = path.join(this.getRootDir(), fileName)
+    const filePath = path.join(this.getRootDir(), 'data', fileName)
 
     if (!fs.existsSync(filePath)) {
       throw new FatalError(`Modules configuration file "${fileName}" not found at "${filePath}"`)
     }
 
     try {
-      const content = fs.readFileSync(filePath, 'utf8')
+      let content = fs.readFileSync(filePath, 'utf8')
+
+      // Variables substitution
+      content = content.replace('%BOTPRESS_DIR%', this.getRootDir())
+
       return <T>JSON.parse(content)
     } catch (e) {
       throw new FatalError(e, `Error reading modules configuration "${fileName}" at "${filePath}"`)
@@ -47,10 +51,10 @@ export class FileConfigProvider implements ConfigProvider {
   }
 
   private getDevConfigPath() {
-    return path.join(__dirname, '../../data')
+    return path.join(__dirname, '../..')
   }
 
   private getBinaryConfigPath() {
-    return path.join(path.dirname(process.execPath), 'data')
+    return path.join(path.dirname(process.execPath))
   }
 }
