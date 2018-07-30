@@ -1,9 +1,8 @@
-import fs from 'fs'
 import { inject, injectable } from 'inversify'
-import path from 'path'
 
 import { FatalError } from '../errors'
 import { TYPES } from '../misc/types'
+import { GhostContentService } from '../services/ghost-content'
 
 import { BotpressConfig } from './botpress.config'
 import { ModulesConfig } from './modules.config'
@@ -13,9 +12,17 @@ export interface ConfigProvider {
   getModulesConfig(): Promise<ModulesConfig>
 }
 
+const ROOT_FOLDER = '/'
+const FILES_GLOB = '*.config.json'
+
 @injectable()
-export class FileConfigProvider implements ConfigProvider {
-  constructor(@inject(TYPES.ProjectLocation) private projectLocation: string) {}
+export class GhostConfigProvider implements ConfigProvider {
+  constructor(
+    @inject(TYPES.GhostService) private ghostService: GhostContentService,
+    @inject(TYPES.ProjectLocation) private projectLocation: string
+  ) {
+    this.ghostService.addRootFolder('global', ROOT_FOLDER, { filesGlob: FILES_GLOB, isBinary: false })
+  }
 
   async getBotpressConfig(): Promise<BotpressConfig> {
     const config = await this.getConfig<BotpressConfig>('botpress.config.json')
@@ -31,21 +38,19 @@ export class FileConfigProvider implements ConfigProvider {
   }
 
   private async getConfig<T>(fileName: string): Promise<T> {
-    const filePath = path.join(this.projectLocation, 'data', fileName)
-
-    if (!fs.existsSync(filePath)) {
-      throw new FatalError(`Modules configuration file "${fileName}" not found at "${filePath}"`)
-    }
-
     try {
-      let content = fs.readFileSync(filePath, 'utf8')
+      let content = <string>await this.ghostService.readFile('global', ROOT_FOLDER, fileName)
+
+      if (!content) {
+        throw new FatalError(`Modules configuration file "${fileName}" not found`)
+      }
 
       // Variables substitution
       content = content.replace('%BOTPRESS_DIR%', this.projectLocation)
 
       return <T>JSON.parse(content)
     } catch (e) {
-      throw new FatalError(e, `Error reading modules configuration "${fileName}" at "${filePath}"`)
+      throw new FatalError(e, `Error reading modules configuration "${fileName}"`)
     }
   }
 }

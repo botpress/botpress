@@ -1,9 +1,8 @@
 import { Container } from 'inversify'
 import path from 'path'
-import { types } from 'util'
 
 import { Botpress } from './botpress'
-import { ConfigProvider, FileConfigProvider } from './config/config-loader'
+import { ConfigProvider, GhostConfigProvider } from './config/config-loader'
 import Database from './database'
 import ConsoleLogger from './logger'
 import { Logger } from './misc/interfaces'
@@ -11,6 +10,8 @@ import { TYPES } from './misc/types'
 import { ModuleLoader } from './module-loader'
 import { RepositoryModule } from './repositories/repository-module'
 import HTTPServer from './server'
+import { GhostContentService } from './services/ghost-content'
+import FSGhostContentService from './services/ghost-content/file-system'
 
 const container = new Container({ autoBindInjectable: true })
 
@@ -35,10 +36,19 @@ container
   .bind<Database>(TYPES.Database)
   .to(Database)
   .inSingletonScope()
-container.bind<ModuleLoader>(TYPES.ModuleLoader).to(ModuleLoader)
-container.bind<Botpress>(TYPES.Botpress).to(Botpress)
+container
+  .bind<ModuleLoader>(TYPES.ModuleLoader)
+  .to(ModuleLoader)
+  .inSingletonScope()
+container
+  .bind<Botpress>(TYPES.Botpress)
+  .to(Botpress)
+  .inSingletonScope()
 container.bind<HTTPServer>(TYPES.HTTPServer).to(HTTPServer)
-container.bind<ConfigProvider>(TYPES.ConfigProvider).to(FileConfigProvider)
+container
+  .bind<ConfigProvider>(TYPES.ConfigProvider)
+  .to(GhostConfigProvider)
+  .inSingletonScope()
 
 const projectLocation =
   process.title === 'node'
@@ -46,6 +56,10 @@ const projectLocation =
     : path.join(path.dirname(process.execPath)) // If we're running from binary
 
 container.bind<string>(TYPES.ProjectLocation).toConstantValue(projectLocation)
+container
+  .bind<GhostContentService>(TYPES.GhostService)
+  .to(FSGhostContentService)
+  .inSingletonScope()
 
 container.loadAsync(RepositoryModule)
 
