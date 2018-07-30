@@ -123,6 +123,21 @@ const getPackageName = pkg => {
   }
 }
 
+const getCircularReplacer = () => {
+  const seen = new WeakSet()
+  return (key, value) => {
+    if (typeof value === 'object' && value !== null) {
+      if (seen.has(value)) {
+        return '[cyclic reference]'
+      }
+      seen.add(value)
+    }
+    return value
+  }
+}
+
+const safeStringify = o => JSON.stringify(o, getCircularReplacer())
+
 module.exports = {
   print,
   resolveFromDir,
@@ -136,5 +151,6 @@ module.exports = {
   getInMemoryDb,
   safeId,
   isBotpressPackage,
-  getModuleShortname
+  getModuleShortname,
+  safeStringify
 }
