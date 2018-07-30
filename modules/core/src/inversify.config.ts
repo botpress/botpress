@@ -50,11 +50,14 @@ container
   .to(GhostConfigProvider)
   .inSingletonScope()
 
-const projectLocation =
-  process.title === 'node'
-    ? path.join(__dirname, '..') // If we're running in DEV
-    : path.join(path.dirname(process.execPath)) // If we're running from binary
+const runningNode = process.title === 'node'
+const isProduction = !runningNode || process.env.NODE_ENV == 'production'
 
+const projectLocation = runningNode
+  ? path.join(__dirname, '..') // If we're running in DEV
+  : path.join(path.dirname(process.execPath)) // If we're running from binary
+
+container.bind<boolean>(TYPES.IsProduction).toConstantValue(isProduction)
 container.bind<string>(TYPES.ProjectLocation).toConstantValue(projectLocation)
 container
   .bind<GhostContentService>(TYPES.GhostService)

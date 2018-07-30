@@ -8,7 +8,8 @@ const TYPES = {
   ConfigProvider: Symbol.for('ConfigProvider'),
   BotRepository: Symbol.for('BotRepository'),
   ProjectLocation: Symbol.for('ProjectLocation'),
-  GhostService: Symbol.for('GhostService')
+  GhostService: Symbol.for('GhostService'),
+  IsProduction: Symbol.for('IsProduction')
 }
 
 export { TYPES }

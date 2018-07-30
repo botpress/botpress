@@ -8,7 +8,10 @@ import { TYPES } from './misc/types'
 
 @injectable()
 export default class ConsoleLogger implements Logger {
-  constructor(@inject(TYPES.Logger_Name) private name: string) {}
+  constructor(
+    @inject(TYPES.Logger_Name) private name: string,
+    @inject(TYPES.IsProduction) private isProduction: boolean
+  ) {}
 
   private print(color: 'blue' | 'green' | 'yellow' | 'red', message: string, metadata: any) {
     const serializedMetadata = metadata ? ' | ' + util.inspect(metadata, false, 2, true) : ''
@@ -18,7 +21,9 @@ export default class ConsoleLogger implements Logger {
   }
 
   debug(message: string, metadata?: any): void {
-    this.print('blue', message, metadata)
+    if (!this.isProduction) {
+      this.print('blue', message, metadata)
+    }
   }
 
   info(message: string, metadata?: any): void {
