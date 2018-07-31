@@ -24,8 +24,7 @@ app.get('/register', (req, res) => {
         order: 10,
         handler: 'test.middleware',
         module: 'channel-web',
-        type: 'incoming',
-        enabled: true
+        type: 'incoming'
       }
     ],
     outgoingMiddleware: [
@@ -35,8 +34,7 @@ app.get('/register', (req, res) => {
         order: 12,
         handler: 'test.middleware',
         module: 'channel-web',
-        type: 'outgoing',
-        enabled: true
+        type: 'outgoing'
       }
     ]
   }
