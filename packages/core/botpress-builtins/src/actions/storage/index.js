@@ -102,7 +102,7 @@ export const getConversationVariable = baseAction(
   Joi.object().keys({
     ...Annotate(
       'Storage',
-      'Get user variable',
+      'Get conversation variable',
       "Retrieves a variable for this conversation, if that data hasn't expired. (out to `$r`)"
     ),
     name: Joi.string()
