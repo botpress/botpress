@@ -18,7 +18,6 @@ export class Botpress {
   projectLocation: string
   botpressPath: string
   configLocation: string
-
   modulesConfig: any
   version: string
   config: BotpressConfig
@@ -68,7 +67,6 @@ export class Botpress {
 
   private async loadModules(): Promise<void> {
     const modules = await this.moduleLoader.getAvailableModules()
-    // TODO Do something with modules
   }
 
   private async startServer() {

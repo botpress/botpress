@@ -7,7 +7,8 @@ const TYPES = {
   HTTPServer: Symbol.for('HTTPServer'),
   ConfigProvider: Symbol.for('ConfigProvider'),
   BotRepository: Symbol.for('BotRepository'),
-  ProjectLocation: Symbol.for('ProjectLocation')
+  ProjectLocation: Symbol.for('ProjectLocation'),
+  MiddlewareService: Symbol.for('MiddlewareService')
 }
 
 export { TYPES }

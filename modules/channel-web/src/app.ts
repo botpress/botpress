@@ -16,12 +16,34 @@ app.get('/', (req, res) => {
 app.get('/register', (req, res) => {
   const metadata: ModuleMetadata = {
     name: 'channel-web',
-    incomingMiddleware: [],
-    outgoingMiddleware: [],
-    version: '0.0.1'
+    version: '1.0.0',
+    incomingMiddleware: [
+      {
+        name: 'test.incoming.middleware',
+        description: 'this is a test',
+        order: 10,
+        handler: 'test.middleware',
+        module: 'channel-web',
+        type: 'incoming'
+      }
+    ],
+    outgoingMiddleware: [
+      {
+        name: 'test.outgoing.middleware',
+        description: 'this is a test of an outgoing MW',
+        order: 12,
+        handler: 'test.middleware',
+        module: 'channel-web',
+        type: 'outgoing'
+      }
+    ]
   }
-
   res.send(metadata)
+})
+
+app.get('/channel-web/bots/:botId/messages', (req, res) => {
+  const botId = req.params.botId
+  res.send(botId)
 })
 
 export default app

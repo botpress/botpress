@@ -5,12 +5,14 @@ import path from 'path'
 import { FatalError } from '../errors'
 import { TYPES } from '../misc/types'
 
+import { BotConfig } from './bot.config'
 import { BotpressConfig } from './botpress.config'
 import { ModulesConfig } from './modules.config'
 
 export interface ConfigProvider {
   getBotpressConfig(): Promise<BotpressConfig>
   getModulesConfig(): Promise<ModulesConfig>
+  getBotConfig(botId: string): Promise<BotConfig>
 }
 
 @injectable()
@@ -30,11 +32,21 @@ export class FileConfigProvider implements ConfigProvider {
     return this.getConfig<ModulesConfig>('modules.config.json')
   }
 
-  private async getConfig<T>(fileName: string): Promise<T> {
-    const filePath = path.join(this.projectLocation, 'data', fileName)
+  async getBotConfig(botId: string): Promise<BotConfig> {
+    return this.getConfig<BotConfig>('bot.config.json', 'bots/' + botId)
+  }
 
+  private async getConfig<T>(fileName: string, directory?: string): Promise<T> {
+    const filePath = directory
+      ? path.join(this.getRootDir(), directory, fileName)
+      : path.join(this.getRootDir(), fileName)
+
+    return this.readFile(fileName, filePath)
+  }
+
+  private readFile<T>(fileName, filePath) {
     if (!fs.existsSync(filePath)) {
-      throw new FatalError(`Modules configuration file "${fileName}" not found at "${filePath}"`)
+      throw new FatalError(`Configuration file "${fileName}" not found at "${filePath}"`)
     }
 
     try {
@@ -45,7 +57,19 @@ export class FileConfigProvider implements ConfigProvider {
 
       return <T>JSON.parse(content)
     } catch (e) {
-      throw new FatalError(e, `Error reading modules configuration "${fileName}" at "${filePath}"`)
+      throw new FatalError(e, `Error reading configuration "${fileName}" at "${filePath}"`)
     }
+  }
+
+  private getRootDir(): string {
+    return process.title === 'node' ? this.getDataConfigPath() : this.getBinaryDataConfigPath()
+  }
+
+  private getDataConfigPath() {
+    return path.join(__dirname, '../../data')
+  }
+
+  private getBinaryDataConfigPath() {
+    return path.join(path.dirname(process.execPath), 'data')
   }
 }

@@ -1,15 +1,15 @@
 import { Container } from 'inversify'
 import path from 'path'
-import { types } from 'util'
 
 import { Botpress } from './botpress'
 import { ConfigProvider, FileConfigProvider } from './config/config-loader'
 import Database from './database'
 import ConsoleLogger from './logger'
+import { MiddlewareService } from './middleware-service'
 import { Logger } from './misc/interfaces'
 import { TYPES } from './misc/types'
 import { ModuleLoader } from './module-loader'
-import { RepositoryModule } from './repositories/repository-module'
+import { RepositoriesContainerModule } from './repositories/repositories.inversify'
 import HTTPServer from './server'
 
 const container = new Container({ autoBindInjectable: true })
@@ -39,6 +39,7 @@ container.bind<ModuleLoader>(TYPES.ModuleLoader).to(ModuleLoader)
 container.bind<Botpress>(TYPES.Botpress).to(Botpress)
 container.bind<HTTPServer>(TYPES.HTTPServer).to(HTTPServer)
 container.bind<ConfigProvider>(TYPES.ConfigProvider).to(FileConfigProvider)
+container.bind<MiddlewareService>(TYPES.MiddlewareService).to(MiddlewareService)
 
 const projectLocation =
   process.title === 'node'
@@ -47,6 +48,6 @@ const projectLocation =
 
 container.bind<string>(TYPES.ProjectLocation).toConstantValue(projectLocation)
 
-container.loadAsync(RepositoryModule)
+container.load(RepositoriesContainerModule)
 
 export { container }
