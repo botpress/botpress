@@ -9,7 +9,7 @@ import { MiddlewareService } from './middleware-service'
 import { Logger } from './misc/interfaces'
 import { TYPES } from './misc/types'
 import { ModuleLoader } from './module-loader'
-import { RepositoriesContainerModule } from './repositories/repositories.config'
+import { RepositoriesContainerModule } from './repositories/repositories.inversify'
 import HTTPServer from './server'
 
 const container = new Container({ autoBindInjectable: true })
