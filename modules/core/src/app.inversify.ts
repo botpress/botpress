@@ -5,10 +5,11 @@ import { Botpress } from './botpress'
 import { ConfigProvider, GhostConfigProvider } from './config/config-loader'
 import Database from './database'
 import ConsoleLogger from './logger'
+import { MiddlewareService } from './middleware-service'
 import { Logger } from './misc/interfaces'
 import { TYPES } from './misc/types'
 import { ModuleLoader } from './module-loader'
-import { RepositoryModule } from './repositories/repository-module'
+import { RepositoriesContainerModule } from './repositories/repositories.inversify'
 import HTTPServer from './server'
 import { GhostContentService } from './services/ghost-content'
 import FSGhostContentService from './services/ghost-content/file-system'
@@ -53,6 +54,8 @@ container
 const runningNode = process.title === 'node'
 const isProduction = !runningNode || process.env.NODE_ENV == 'production'
 
+container.bind<MiddlewareService>(TYPES.MiddlewareService).to(MiddlewareService)
+
 const projectLocation = runningNode
   ? path.join(__dirname, '..') // If we're running in DEV
   : path.join(path.dirname(process.execPath)) // If we're running from binary
@@ -64,6 +67,6 @@ container
   .to(FSGhostContentService)
   .inSingletonScope()
 
-container.loadAsync(RepositoryModule)
+container.load(RepositoriesContainerModule)
 
 export { container }

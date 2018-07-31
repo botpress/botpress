@@ -22,7 +22,8 @@ const httpProxy = (originPath, targetPath, targetHost) => {
 
 httpProxy('/api/modules', '/api/v1/modules', process.env.CORE_API_URL)
 httpProxy('/js/modules/channel-web', '/api/v1/modules/channel-web', process.env.CORE_API_URL)
-httpProxy('/api/bot/information', '/api/v1/bots/123/', process.env.CORE_API_URL)
+httpProxy('/api/bot/information', '/api/v1/bots/bot123/', process.env.CORE_API_URL)
+httpProxy('/api/middlewares', '/api/v1/middlewares/bots/bot123', process.env.CORE_API_URL)
 
 app.get('/js/env.js', (req, res) => {
   res.contentType('text/javascript')

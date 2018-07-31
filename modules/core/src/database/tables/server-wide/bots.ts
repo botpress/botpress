@@ -19,7 +19,7 @@ export default class BotsTable extends Table {
           // TODO: Use knex seed api instead
           return this.knex
             .insert({
-              id: 123,
+              id: 'bot123',
               name: 'Test Bot',
               version: '1.0.0',
               description: 'Just a test bot',

@@ -36,7 +36,6 @@ export class ModuleLoader {
   @Throttle(ms('5m'))
   async getAvailableModules(): Promise<AvailableModule[]> {
     const config = await this.loadConfiguration()
-
     const available: Map<string, AvailableModule> = new Map()
 
     for (const module of config.modules) {

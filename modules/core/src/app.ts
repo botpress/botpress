@@ -2,8 +2,8 @@ import dotenv from 'dotenv'
 
 import 'reflect-metadata'
 
+import { container } from './app.inversify'
 import { Botpress } from './botpress'
-import { container } from './inversify.config'
 import { TYPES } from './misc/types'
 
 dotenv.config()

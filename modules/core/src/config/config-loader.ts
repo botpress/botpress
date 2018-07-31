@@ -4,12 +4,14 @@ import { FatalError } from '../errors'
 import { TYPES } from '../misc/types'
 import { GhostContentService } from '../services/ghost-content'
 
+import { BotConfig } from './bot.config'
 import { BotpressConfig } from './botpress.config'
 import { ModulesConfig } from './modules.config'
 
 export interface ConfigProvider {
   getBotpressConfig(): Promise<BotpressConfig>
   getModulesConfig(): Promise<ModulesConfig>
+  getBotConfig(botId: string): Promise<BotConfig>
 }
 
 const ROOT_FOLDER = '/'
@@ -21,7 +23,7 @@ export class GhostConfigProvider implements ConfigProvider {
     @inject(TYPES.GhostService) private ghostService: GhostContentService,
     @inject(TYPES.ProjectLocation) private projectLocation: string
   ) {
-    this.ghostService.addRootFolder('global', ROOT_FOLDER, { filesGlob: FILES_GLOB, isBinary: false })
+    this.ghostService.addRootFolder(true, ROOT_FOLDER, { filesGlob: FILES_GLOB, isBinary: false })
   }
 
   async getBotpressConfig(): Promise<BotpressConfig> {
@@ -37,9 +39,13 @@ export class GhostConfigProvider implements ConfigProvider {
     return this.getConfig<ModulesConfig>('modules.config.json')
   }
 
-  private async getConfig<T>(fileName: string): Promise<T> {
+  async getBotConfig(botId: string): Promise<BotConfig> {
+    return this.getConfig<BotConfig>('bot.config.json', botId)
+  }
+
+  private async getConfig<T>(fileName: string, botId: string = 'global'): Promise<T> {
     try {
-      let content = <string>await this.ghostService.readFile('global', ROOT_FOLDER, fileName)
+      let content = <string>await this.ghostService.readFile(botId, ROOT_FOLDER, fileName)
 
       if (!content) {
         throw new FatalError(`Modules configuration file "${fileName}" not found`)
@@ -50,7 +56,7 @@ export class GhostConfigProvider implements ConfigProvider {
 
       return <T>JSON.parse(content)
     } catch (e) {
-      throw new FatalError(e, `Error reading modules configuration "${fileName}"`)
+      throw new FatalError(e, `Error reading configuration file "${fileName}"`)
     }
   }
 }

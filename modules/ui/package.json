@@ -18,7 +18,7 @@
   "scripts": {
     "start": "npm run serve",
     "serve": "nodemon app.js",
-    "watch": "echo 'TODO: Implement watch in ui module'"
+    "watch": "npm run start"
   },
   "devDependencies": {
     "nodemon": "^1.18.3",

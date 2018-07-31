@@ -8,15 +8,11 @@ export class BotRouter extends BaseRouter {
   }
 
   setupRoutes() {
-    this._router.get('/bots/:botId', async (request, response) => {
+    this.router.get('/bots/:botId', async (request, response) => {
       const botId = request.params.botId
       const bot = await this.botRepository.getBotById(botId)
 
       response.send(bot)
     })
-  }
-
-  get router() {
-    return this._router
   }
 }

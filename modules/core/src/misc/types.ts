@@ -9,7 +9,8 @@ const TYPES = {
   BotRepository: Symbol.for('BotRepository'),
   ProjectLocation: Symbol.for('ProjectLocation'),
   GhostService: Symbol.for('GhostService'),
-  IsProduction: Symbol.for('IsProduction')
+  IsProduction: Symbol.for('IsProduction'),
+  MiddlewareService: Symbol.for('MiddlewareService')
 }
 
 export { TYPES }

@@ -1,7 +1,7 @@
 import express from 'express'
 
 export abstract class BaseRouter {
-  protected _router = express.Router()
+  private _router = express.Router()
 
   constructor() {
     this.setupRoutes()
@@ -9,5 +9,7 @@ export abstract class BaseRouter {
 
   protected abstract setupRoutes(): void
 
-  abstract get router()
+  get router() {
+    return this._router
+  }
 }

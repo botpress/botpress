@@ -7,7 +7,7 @@
   "scripts": {
     "start": "npm run serve",
     "serve": "node dist/src/app.js",
-    "build": "npm run build-ts && npm run tslint && ./scripts/copy-static-files.sh",
+    "build": "npm run build-ts && npm run tslint && ./scripts/copy-config.sh",
     "build-ts": "tsc",
     "build-pkg": "npm run build && npm run pkg",
     "pkg": "./scripts/package-binaries.sh",
