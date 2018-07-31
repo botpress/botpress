@@ -153,6 +153,9 @@ module.exports = (knex, config) => {
     const shouldUpdateLastHeard = userInitiatedMessageTypes.includes(type.toLowerCase())
 
     // PERF: message insertion is a serious bottlenecks
+    // consider implementing in-memory batching queue
+    // similar to logs
+
     return Promise.join(
       knex('web_messages')
         .insert(message)
