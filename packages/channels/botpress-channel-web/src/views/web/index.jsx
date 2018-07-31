@@ -66,7 +66,7 @@ export default class Web extends React.Component {
 
   componentDidMount() {
     this.setUserId()
-      .then(::this.fetchData)
+      .then(this.fetchData)
       .then(() => {
         this.handleSwitchView('widget')
         if (!this.state.isButtonHidden) {
@@ -201,7 +201,7 @@ export default class Web extends React.Component {
     }, ANIM_DURATION * 2.1)
   }
 
-  handleButtonClicked() {
+  handleButtonClicked = () => {
     if (this.state.view === 'convo') {
       this.handleSwitchView('widget')
     } else {
@@ -215,12 +215,12 @@ export default class Web extends React.Component {
       this.props.bp.events.setup()
     }
 
-    this.props.bp.events.on('guest.webchat.message', ::this.handleNewMessage)
-    this.props.bp.events.on('guest.webchat.typing', ::this.handleBotTyping)
+    this.props.bp.events.on('guest.webchat.message', this.handleNewMessage)
+    this.props.bp.events.on('guest.webchat.typing', this.handleBotTyping)
   }
 
-  fetchData() {
-    return this.fetchConversations().then(::this.fetchCurrentConversation)
+  fetchData = () => {
+    return this.fetchConversations().then(this.fetchCurrentConversation)
   }
 
   fetchConversations() {
@@ -233,7 +233,7 @@ export default class Web extends React.Component {
       .then(({ data }) => new Promise(resolve => !this.isUnmounted && this.setState({ conversations: data }, resolve)))
   }
 
-  fetchCurrentConversation(convoId) {
+  fetchCurrentConversation = convoId => {
     const axios = this.props.bp.axios
     const userId = this.userId
 
@@ -256,7 +256,7 @@ export default class Web extends React.Component {
     })
   }
 
-  handleNewMessage(event) {
+  handleNewMessage = event => {
     this.safeUpdateCurrentConvo(event.conversationId, true, convo => {
       return Object.assign({}, convo, {
         messages: [...convo.messages, event],
@@ -265,17 +265,17 @@ export default class Web extends React.Component {
     })
   }
 
-  handleBotTyping(event) {
+  handleBotTyping = event => {
     this.safeUpdateCurrentConvo(event.conversationId, false, convo => {
       return Object.assign({}, convo, {
         typingUntil: addMilliseconds(new Date(), event.timeInMs)
       })
     })
 
-    setTimeout(::this.expireTyping, event.timeInMs + 50)
+    setTimeout(this.expireTyping, event.timeInMs + 50)
   }
 
-  expireTyping() {
+  expireTyping = () => {
     const currentTypingUntil = this.state.currentConversation && this.state.currentConversation.typingUntil
 
     const timerExpired = currentTypingUntil && isBefore(new Date(currentTypingUntil), new Date())
@@ -289,7 +289,7 @@ export default class Web extends React.Component {
   safeUpdateCurrentConvo(convoId, addToUnread, updater) {
     // there's no conversation to update or our convo changed
     if (!this.state.currentConversation || this.state.currentConversationId !== convoId) {
-      this.fetchConversations().then(::this.fetchCurrentConversation)
+      this.fetchConversations().then(this.fetchCurrentConversation)
 
       return
     }
@@ -336,7 +336,7 @@ export default class Web extends React.Component {
     })
   }
 
-  handleResetUnreadCount() {
+  handleResetUnreadCount = () => {
     if (document.hasFocus && document.hasFocus() && this.state.view === 'side') {
       this.setState({
         unreadCount: 0
@@ -344,54 +344,48 @@ export default class Web extends React.Component {
     }
   }
 
-  handleSendMessage() {
-    const userId = window.__BP_VISITOR_ID
-    const config = { params: { conversationId: this.state.currentConversationId } }
-
+  handleSendMessage = () => {
     return this.handleSendData({ type: 'text', text: this.state.textToSend }).then(() => {
       this.handleSwitchView('side')
       this.setState({ textToSend: '' })
     })
   }
 
-  handleTextChanged(event) {
+  handleTextChanged = event => {
     this.setState({
       textToSend: event.target.value
     })
   }
 
-  handleAddEmoji(emoji, event) {
+  handleAddEmoji = emoji => {
     this.setState({
       textToSend: this.state.textToSend + emoji.native + ' '
     })
   }
 
-  handleSendQuickReply(title, payload) {
-    return this.handleSendData({
+  handleSendQuickReply = (title, payload) =>
+    this.handleSendData({
       type: 'quick_reply',
       text: title,
       data: { payload }
     })
-  }
 
-  handleSendForm(fields, formId, repr) {
-    return this.handleSendData({
+  handleSendForm = (fields, formId, repr) =>
+    this.handleSendData({
       type: 'form',
       formId: formId,
       text: repr,
       data: fields
     })
-  }
 
-  handleLoginPrompt(username, password) {
-    return this.handleSendData({
+  handleLoginPrompt = (username, password) =>
+    this.handleSendData({
       type: 'login_prompt',
       text: 'Provided login information',
       data: { username, password }
     })
-  }
 
-  handleFileUploadSend(title, payload, file) {
+  handleFileUploadSend = (title, payload, file) => {
     const userId = window.__BP_VISITOR_ID
     const url = `${BOT_HOSTNAME}/api/botpress-platform-webchat/messages/${userId}/files`
     const config = { params: { conversationId: this.state.currentConversationId } }
@@ -402,14 +396,14 @@ export default class Web extends React.Component {
     return this.props.bp.axios.post(url, data, config).then()
   }
 
-  handleSendData(data) {
+  handleSendData = data => {
     const userId = window.__BP_VISITOR_ID
     const url = `${BOT_HOSTNAME}/api/botpress-platform-webchat/messages/${userId}`
     const config = { params: { conversationId: this.state.currentConversationId } }
     return this.props.bp.axios.post(url, data, config).then()
   }
 
-  handleSwitchConvo(convoId) {
+  handleSwitchConvo = convoId => {
     this.setState({
       currentConversation: null,
       currentConversationId: convoId
@@ -418,11 +412,11 @@ export default class Web extends React.Component {
     this.fetchCurrentConversation(convoId)
   }
 
-  handleClosePanel() {
+  handleClosePanel = () => {
     this.handleSwitchView('widget')
   }
 
-  handleSessionReset() {
+  handleSessionReset = () => {
     const userId = window.__BP_VISITOR_ID
     const url = `${BOT_HOSTNAME}/api/botpress-platform-webchat/conversations/${userId}/${this.state
       .currentConversationId}/reset`
@@ -464,7 +458,7 @@ export default class Web extends React.Component {
     return (
       <button
         className={style[this.state.widgetTransition]}
-        onClick={::this.handleButtonClicked}
+        onClick={this.handleButtonClicked}
         style={{ backgroundColor: this.state.config.foregroundColor }}
       >
         <i>{this.state.view === 'convo' ? this.renderCloseIcon() : this.renderOpenIcon()}</i>
@@ -481,8 +475,8 @@ export default class Web extends React.Component {
             {this.state.view === 'convo' ? (
               <Convo
                 transition={this.state.convoTransition}
-                change={::this.handleTextChanged}
-                send={::this.handleSendMessage}
+                change={this.handleTextChanged}
+                send={this.handleSendMessage}
                 config={this.state.config}
                 text={this.state.textToSend}
               />
@@ -504,17 +498,17 @@ export default class Web extends React.Component {
         unreadCount={this.state.unreadCount}
         currentConversation={this.state.currentConversation}
         conversations={this.state.conversations}
-        addEmojiToText={::this.handleAddEmoji}
-        onClose={!this.props.fullscreen ? ::this.handleClosePanel : null}
-        onResetSession={::this.handleSessionReset}
-        onSwitchConvo={::this.handleSwitchConvo}
-        onTextSend={::this.handleSendMessage}
-        onTextChanged={::this.handleTextChanged}
-        onQuickReplySend={::this.handleSendQuickReply}
-        onFormSend={::this.handleSendForm}
-        onFileUploadSend={::this.handleFileUploadSend}
-        onLoginPromptSend={::this.handleLoginPrompt}
-        onSendData={::this.handleSendData}
+        addEmojiToText={this.handleAddEmoji}
+        onClose={!this.props.fullscreen ? this.handleClosePanel : null}
+        onResetSession={this.handleSessionReset}
+        onSwitchConvo={this.handleSwitchConvo}
+        onTextSend={this.handleSendMessage}
+        onTextChanged={this.handleTextChanged}
+        onQuickReplySend={this.handleSendQuickReply}
+        onFormSend={this.handleSendForm}
+        onFileUploadSend={this.handleFileUploadSend}
+        onLoginPromptSend={this.handleLoginPrompt}
+        onSendData={this.handleSendData}
       />
     )
   }
@@ -530,7 +524,7 @@ export default class Web extends React.Component {
     const view = this.state.view !== 'side' && !this.props.fullscreen ? this.renderWidget() : this.renderSide()
 
     return (
-      <div className={style.web} onFocus={::this.handleResetUnreadCount}>
+      <div className={style.web} onFocus={this.handleResetUnreadCount}>
         {view}
       </div>
     )
