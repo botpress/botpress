@@ -5,7 +5,7 @@
       "incomingMiddleware": [
         {
           "name": "test.incoming.middleware",
-          "enabled": true
+          "enabled": false
         }
       ],
       "outgoingMiddleware": [

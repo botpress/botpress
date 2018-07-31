@@ -13,21 +13,17 @@ export class MiddlewareService {
   ) {}
 
   /**
-   * Get enabled middleware for enabled bot modules
+   * Get middleware for enabled bot modules
    * @param botId
    */
   async getMiddlewareForBot(botId: string) {
     const config = await this.configLoader.getBotConfig(botId)
     const availableModules = await this.moduleLoader.getAvailableModules()
 
-    const enabledBotModulesConfig = config.modules.filter(mc => mc.enabled)
+    const enabledBotModulesConfig = config.modules.filter(m => m.enabled)
 
-    const enabledIncomingMiddlewareConfig = _.flatMap(
-      enabledBotModulesConfig.map(mwc => mwc.incomingMiddleware.filter(mw => mw.enabled))
-    )
-    const enabledOutgoingMiddlewareConfig = _.flatMap(
-      enabledBotModulesConfig.map(mwc => mwc.outgoingMiddleware.filter(mw => mw.enabled))
-    )
+    const incomingMiddlewareConfig = _.flatMap(enabledBotModulesConfig.map(mwc => mwc.incomingMiddleware))
+    const outgoingMiddlewareConfig = _.flatMap(enabledBotModulesConfig.map(mwc => mwc.outgoingMiddleware))
 
     const enabledBotModules = availableModules.filter(m =>
       _.includes(enabledBotModulesConfig.map(mc => mc.name), m.metadata.name)
@@ -37,7 +33,7 @@ export class MiddlewareService {
     const incomingMiddleware = _.flatMap(
       enabledBotModules.map(m =>
         m.metadata.incomingMiddleware.map(mw => {
-          mw.enabled = enabledIncomingMiddlewareConfig.find(c => c.name === mw.name).enabled
+          mw.enabled = incomingMiddlewareConfig.find(c => c.name === mw.name).enabled
           return mw
         })
       )
@@ -45,7 +41,7 @@ export class MiddlewareService {
     const outgoingMiddleware = _.flatMap(
       enabledBotModules.map(m =>
         m.metadata.outgoingMiddleware.map(mw => {
-          mw.enabled = enabledOutgoingMiddlewareConfig.find(c => c.name === mw.name).enabled
+          mw.enabled = outgoingMiddlewareConfig.find(c => c.name === mw.name).enabled
           return mw
         })
       )
