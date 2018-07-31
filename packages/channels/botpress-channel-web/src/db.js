@@ -147,7 +147,9 @@ module.exports = knex => {
       sent_on: h.date.now()
     }
 
-    // PERF: message insertion is a serious bottlenecks
+    // PERF: message insertion is a serious bottleneck
+    // consider implementing in-memory batching queue
+    // similar to logs
     return Promise.join(
       knex('web_messages')
         .insert(message)
