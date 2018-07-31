@@ -4,7 +4,7 @@ import crypto from 'crypto'
 import Promise from 'bluebird'
 import ms from 'ms'
 
-import Provider from './base'
+import Provider, { defaultExtractData } from './base'
 import Entities from './entities'
 
 const RASA_HASH_KVS_KEY = 'nlu/rasa/updateMetadata'
@@ -198,16 +198,19 @@ export default class RasaProvider extends Provider {
 
       if (!versions.length) {
         this.sync() // Async
-        return this.logger.error(
+        this.logger.error(
           '[NLU:Rasa] Your model needs to be trained at least once in this environment before extraction can be done'
         )
+
+        return defaultExtractData('rasa')
       }
 
-      return this.logger.warn(
+      this._modelId = modelId = _.last(_.sortBy(versions))
+      this.logger.warn(
         '[NLU:Rasa] Model not specified, using latest one. Retrain in this environment to fix this warning.'
       )
 
-      this._modelId = modelId = _.last(_.sortBy(versions))
+      return defaultExtractData('rasa')
     }
 
     const res = await this.client.post('/parse', {

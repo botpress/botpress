@@ -3,7 +3,7 @@ import _ from 'lodash'
 import crypto from 'crypto'
 import Promise from 'bluebird'
 
-import Provider from './base'
+import Provider, { defaultExtractData } from './base'
 import Entities from './entities'
 
 const LUIS_APP_VERSION = '1.0' // Static, we're not using this as everything is source-controlled in your bot
@@ -162,6 +162,13 @@ export default class LuisProvider extends Provider {
   }
 
   async sync() {
+    if (this.syncingSince && new Date() - this.syncingSince <= 10 * 60 * 1000) {
+      this.logger.warn('[NLU::Luis] Tried to sync while syncing in progress')
+      return
+    }
+
+    this.syncingSince = new Date()
+
     this.validateCredentials()
 
     const intents = await this.storage.getIntents()
@@ -268,6 +275,7 @@ export default class LuisProvider extends Provider {
       const detailedError = _.get(err, 'response.data.error.message') || (err && err.message) || err
       this.logger.error('[NLU::Luis] Could not sync the model. Error = ' + detailedError)
     }
+    this.syncingSince = null
   }
 
   async train() {
@@ -343,7 +351,8 @@ export default class LuisProvider extends Provider {
       this.logger.warn(
         '[NLU::Luis] Did not extract NLU metadata for incoming text because Luis is not configured properly.'
       )
-      return {}
+
+      return defaultExtractData('luis')
     }
 
     const res = await axios.get(`https://${this.appRegion}.api.cognitive.microsoft.com/luis/v2.0/apps/${this.appId}`, {

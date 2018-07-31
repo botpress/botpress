@@ -173,6 +173,21 @@ const isEqualOrGreater = packageVersion => botfileVersion => {
 const validateVersion = packageVersion =>
   compose(isEqualOrGreater(packageVersion), isValidFormat, isValidString, versionExists)
 
+const getCircularReplacer = () => {
+  const seen = new WeakSet()
+  return (key, value) => {
+    if (typeof value === 'object' && value !== null) {
+      if (seen.has(value)) {
+        return '[cyclic reference]'
+      }
+      seen.add(value)
+    }
+    return value
+  }
+}
+
+const safeStringify = o => JSON.stringify(o, getCircularReplacer())
+
 module.exports = {
   print,
   resolveFromDir,
@@ -187,5 +202,6 @@ module.exports = {
   safeId,
   isBotpressPackage,
   getModuleShortname,
-  validateVersion
+  validateVersion,
+  safeStringify
 }
