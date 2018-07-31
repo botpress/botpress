@@ -23,13 +23,19 @@ export type GhostPendingRevisionsWithContent = {
 }
 
 export type GhostWatchFolderOptions = { filesGlob: string; isBinary: boolean }
+export type BotId = 'global' | string
 
 export interface GhostContentService {
-  addRootFolder(rootFolder: string, options: GhostWatchFolderOptions): Promise<void>
-  upsertFile(rootFolder: string, file: string, content: string | Buffer): Promise<void>
-  readFile(rootFolder: string, file: string): Promise<string | Buffer>
-  deleteFile(rootFolder: string, file: string): Promise<void>
-  directoryListing(rootFolder: string, fileEndingPattern: string, pathsToOmit?: string[]): Promise<Array<string>>
-  getPending(): Promise<GhostPendingRevisions>
-  getPendingWithContent(options: { stringifyBinary: boolean }): Promise<GhostPendingRevisionsWithContent>
+  addRootFolder(isGlobal: boolean, rootFolder: string, options: GhostWatchFolderOptions): Promise<void>
+  upsertFile(botId: BotId, rootFolder: string, file: string, content: string | Buffer): Promise<void>
+  readFile(botId: BotId, rootFolder: string, file: string): Promise<string | Buffer>
+  deleteFile(botId: BotId, rootFolder: string, file: string): Promise<void>
+  directoryListing(
+    botId: BotId,
+    rootFolder: string,
+    fileEndingPattern: string,
+    pathsToOmit?: string[]
+  ): Promise<Array<string>>
+  getPending(botId: BotId): Promise<GhostPendingRevisions>
+  getPendingWithContent(botId: BotId, options: { stringifyBinary: boolean }): Promise<GhostPendingRevisionsWithContent>
 }

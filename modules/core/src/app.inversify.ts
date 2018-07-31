@@ -2,7 +2,7 @@ import { Container } from 'inversify'
 import path from 'path'
 
 import { Botpress } from './botpress'
-import { ConfigProvider, FileConfigProvider } from './config/config-loader'
+import { ConfigProvider, GhostConfigProvider } from './config/config-loader'
 import Database from './database'
 import ConsoleLogger from './logger'
 import { MiddlewareService } from './middleware-service'
@@ -11,6 +11,8 @@ import { TYPES } from './misc/types'
 import { ModuleLoader } from './module-loader'
 import { RepositoriesContainerModule } from './repositories/repositories.inversify'
 import HTTPServer from './server'
+import { GhostContentService } from './services/ghost-content'
+import FSGhostContentService from './services/ghost-content/file-system'
 
 const container = new Container({ autoBindInjectable: true })
 
@@ -35,18 +37,35 @@ container
   .bind<Database>(TYPES.Database)
   .to(Database)
   .inSingletonScope()
-container.bind<ModuleLoader>(TYPES.ModuleLoader).to(ModuleLoader)
-container.bind<Botpress>(TYPES.Botpress).to(Botpress)
+container
+  .bind<ModuleLoader>(TYPES.ModuleLoader)
+  .to(ModuleLoader)
+  .inSingletonScope()
+container
+  .bind<Botpress>(TYPES.Botpress)
+  .to(Botpress)
+  .inSingletonScope()
 container.bind<HTTPServer>(TYPES.HTTPServer).to(HTTPServer)
-container.bind<ConfigProvider>(TYPES.ConfigProvider).to(FileConfigProvider)
+container
+  .bind<ConfigProvider>(TYPES.ConfigProvider)
+  .to(GhostConfigProvider)
+  .inSingletonScope()
+
+const runningNode = process.title === 'node'
+const isProduction = !runningNode || process.env.NODE_ENV == 'production'
+
 container.bind<MiddlewareService>(TYPES.MiddlewareService).to(MiddlewareService)
 
-const projectLocation =
-  process.title === 'node'
-    ? path.join(__dirname, '..') // If we're running in DEV
-    : path.join(path.dirname(process.execPath)) // If we're running from binary
+const projectLocation = runningNode
+  ? path.join(__dirname, '..') // If we're running in DEV
+  : path.join(path.dirname(process.execPath)) // If we're running from binary
 
+container.bind<boolean>(TYPES.IsProduction).toConstantValue(isProduction)
 container.bind<string>(TYPES.ProjectLocation).toConstantValue(projectLocation)
+container
+  .bind<GhostContentService>(TYPES.GhostService)
+  .to(FSGhostContentService)
+  .inSingletonScope()
 
 container.load(RepositoriesContainerModule)
 

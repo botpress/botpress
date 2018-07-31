@@ -1,7 +1,7 @@
 import 'bluebird-global'
 import fs from 'fs'
 import glob from 'glob'
-import { inject, tagged } from 'inversify'
+import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import mkdirp from 'mkdirp'
 import path from 'path'
@@ -10,35 +10,49 @@ import { TYPES } from '../../misc/types'
 import Logger from '../../Logger'
 
 import {
+  BotId,
   GhostContentService,
   GhostPendingRevisions,
   GhostPendingRevisionsWithContent,
   GhostWatchFolderOptions
 } from '.'
-import { normalizeFolder } from './util'
 
 const fsAsync: any = Promise.promisifyAll(fs)
 const mkdirpAsync: any = Promise.promisify(mkdirp)
 
+@injectable()
 export default class FSGhostContentService implements GhostContentService {
   private folderOptions: { [x: string]: GhostWatchFolderOptions } = {}
 
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'Ghost')
-    private logger: Logger
+    private logger: Logger,
+    @inject(TYPES.ProjectLocation) private projectLocation: string
   ) {
-    this.logger.debug('Using File Ghost')
+    this.logger.debug('Using File System storage')
   }
 
-  async addRootFolder(rootFolder: string, options: GhostWatchFolderOptions): Promise<void> {
-    const { normalizedFolderName } = normalizeFolder('bot123')(rootFolder)
-    this.logger.debug(`Tracking ${normalizedFolderName}`)
+  private normalizeFolderName(isGlobal: boolean, folder: string) {
+    return path.join(isGlobal ? 'GLOBAL' : 'BOTS', folder.toLowerCase())
+  }
+
+  private getFolderPath(folder: string, botId?: string) {
+    if (!botId || botId === '' || botId === 'global') {
+      return path.join(path.resolve(this.projectLocation), 'data', folder)
+    } else {
+      return path.join(path.resolve(this.projectLocation), 'data', 'bots', botId, folder)
+    }
+  }
+
+  async addRootFolder(isGlobal: boolean, rootFolder: string, options: GhostWatchFolderOptions): Promise<void> {
+    const normalizedFolderName = this.normalizeFolderName(isGlobal, rootFolder)
+    this.logger.debug(`Tracking ${normalizedFolderName} (${options.filesGlob})`)
     this.folderOptions[normalizedFolderName] = options
   }
 
-  async upsertFile(rootFolder: string, file: string, content: string | Buffer) {
-    const { folderPath } = normalizeFolder('bot123')(rootFolder)
+  async upsertFile(botId: BotId, rootFolder: string, file: string, content: string | Buffer) {
+    const folderPath = this.getFolderPath(rootFolder, botId)
     const filePath = path.join(folderPath, file)
     const fullFileFolder = path.dirname(filePath)
 
@@ -51,8 +65,10 @@ export default class FSGhostContentService implements GhostContentService {
     }
   }
 
-  readFile(rootFolder: string, file: string): Promise<string | Buffer> {
-    const { folderPath, normalizedFolderName } = normalizeFolder('bot123')(rootFolder)
+  readFile(botId: BotId, rootFolder: string, file: string): Promise<string | Buffer> {
+    const normalizedFolderName = this.normalizeFolderName(botId === 'global', rootFolder)
+    const folderPath = this.getFolderPath(rootFolder, botId)
+
     const filePath = path.join(folderPath, file)
     const isBinary = _.get(this.folderOptions[normalizedFolderName], 'isBinary', false)
 
@@ -65,8 +81,8 @@ export default class FSGhostContentService implements GhostContentService {
       })
   }
 
-  deleteFile(rootFolder: string, file: string): Promise<void> {
-    const { folderPath } = normalizeFolder('bot123')(rootFolder)
+  deleteFile(botId: BotId, rootFolder: string, file: string): Promise<void> {
+    const folderPath = this.getFolderPath(rootFolder, botId)
     const filePath = path.join(folderPath, file)
     return fsAsync.unlinkAsync(filePath).catch(e => {
       this.logger.error('deleteFile error', e)
@@ -75,11 +91,12 @@ export default class FSGhostContentService implements GhostContentService {
   }
 
   async directoryListing(
+    botId: BotId,
     rootFolder: string,
     fileEndingPattern: string,
     pathsToOmit: Array<string> = []
   ): Promise<string[]> {
-    const { folderPath } = normalizeFolder('bot123')(rootFolder)
+    const folderPath = this.getFolderPath(rootFolder, botId)
 
     try {
       await fsAsync.accessAsync(folderPath)
@@ -92,11 +109,14 @@ export default class FSGhostContentService implements GhostContentService {
     }
   }
 
-  async getPending(): Promise<GhostPendingRevisions> {
+  async getPending(botId: BotId): Promise<GhostPendingRevisions> {
     return {}
   }
 
-  async getPendingWithContent(options: { stringifyBinary: boolean }): Promise<GhostPendingRevisionsWithContent> {
+  async getPendingWithContent(
+    botId: BotId,
+    options: { stringifyBinary: boolean }
+  ): Promise<GhostPendingRevisionsWithContent> {
     return {}
   }
 }

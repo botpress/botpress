@@ -1,9 +1,8 @@
-import fs from 'fs'
 import { inject, injectable } from 'inversify'
-import path from 'path'
 
 import { FatalError } from '../errors'
 import { TYPES } from '../misc/types'
+import { GhostContentService } from '../services/ghost-content'
 
 import { BotConfig } from './bot.config'
 import { BotpressConfig } from './botpress.config'
@@ -15,9 +14,17 @@ export interface ConfigProvider {
   getBotConfig(botId: string): Promise<BotConfig>
 }
 
+const ROOT_FOLDER = '/'
+const FILES_GLOB = '*.config.json'
+
 @injectable()
-export class FileConfigProvider implements ConfigProvider {
-  constructor(@inject(TYPES.ProjectLocation) private projectLocation: string) {}
+export class GhostConfigProvider implements ConfigProvider {
+  constructor(
+    @inject(TYPES.GhostService) private ghostService: GhostContentService,
+    @inject(TYPES.ProjectLocation) private projectLocation: string
+  ) {
+    this.ghostService.addRootFolder(true, ROOT_FOLDER, { filesGlob: FILES_GLOB, isBinary: false })
+  }
 
   async getBotpressConfig(): Promise<BotpressConfig> {
     const config = await this.getConfig<BotpressConfig>('botpress.config.json')
@@ -33,43 +40,23 @@ export class FileConfigProvider implements ConfigProvider {
   }
 
   async getBotConfig(botId: string): Promise<BotConfig> {
-    return this.getConfig<BotConfig>('bot.config.json', 'bots/' + botId)
+    return this.getConfig<BotConfig>('bot.config.json', botId)
   }
 
-  private async getConfig<T>(fileName: string, directory?: string): Promise<T> {
-    const filePath = directory
-      ? path.join(this.getRootDir(), directory, fileName)
-      : path.join(this.getRootDir(), fileName)
-
-    return this.readFile(fileName, filePath)
-  }
-
-  private readFile<T>(fileName, filePath) {
-    if (!fs.existsSync(filePath)) {
-      throw new FatalError(`Configuration file "${fileName}" not found at "${filePath}"`)
-    }
-
+  private async getConfig<T>(fileName: string, botId: string = 'global'): Promise<T> {
     try {
-      let content = fs.readFileSync(filePath, 'utf8')
+      let content = <string>await this.ghostService.readFile(botId, ROOT_FOLDER, fileName)
+
+      if (!content) {
+        throw new FatalError(`Modules configuration file "${fileName}" not found`)
+      }
 
       // Variables substitution
       content = content.replace('%BOTPRESS_DIR%', this.projectLocation)
 
       return <T>JSON.parse(content)
     } catch (e) {
-      throw new FatalError(e, `Error reading configuration "${fileName}" at "${filePath}"`)
+      throw new FatalError(e, `Error reading configuration file "${fileName}"`)
     }
-  }
-
-  private getRootDir(): string {
-    return process.title === 'node' ? this.getDataConfigPath() : this.getBinaryDataConfigPath()
-  }
-
-  private getDataConfigPath() {
-    return path.join(__dirname, '../../data')
-  }
-
-  private getBinaryDataConfigPath() {
-    return path.join(path.dirname(process.execPath), 'data')
   }
 }

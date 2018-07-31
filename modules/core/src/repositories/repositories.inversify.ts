@@ -3,8 +3,8 @@ import { ContainerModule, interfaces } from 'inversify'
 import { TYPES } from '../misc/types'
 
 import { BotRepository } from './bot-repository'
-import { KnexBotRepository } from './knex-bot-repository'
+import { GhostBotRepository } from './ghost-bot-repository'
 
 export const RepositoriesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
-  bind<BotRepository>(TYPES.BotRepository).to(KnexBotRepository)
+  bind<BotRepository>(TYPES.BotRepository).to(GhostBotRepository)
 })

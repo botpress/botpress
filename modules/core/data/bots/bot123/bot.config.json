@@ -1,4 +1,9 @@
 {
+  "name": "Botpress 123 Test",
+  "description": "Test lol",
+  "version": "1.2.3",
+  "author": "Botpress, Inc.",
+  "license": "AGPL-3.0",
   "modules": [
     {
       "name": "channel-web",
