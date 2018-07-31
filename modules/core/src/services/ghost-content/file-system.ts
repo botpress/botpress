@@ -7,7 +7,6 @@ import mkdirp from 'mkdirp'
 import path from 'path'
 
 import { TYPES } from '../../misc/types'
-import { FatalError } from '../../Errors'
 import Logger from '../../Logger'
 
 import {
@@ -34,35 +33,26 @@ export default class FSGhostContentService implements GhostContentService {
     this.logger.debug('Using File System storage')
   }
 
-  private normalizeFolder(botId: BotId, folder) {
-    let pathPrefix, folderPath
+  private normalizeFolderName(isGlobal: boolean, folder: string) {
+    return path.join(isGlobal ? 'GLOBAL' : 'BOTS', folder.toLowerCase())
+  }
 
-    if (!folder.length) {
-      throw new FatalError('Folder must be an non-empty string')
-    }
-
-    if (botId === 'global') {
-      pathPrefix = 'GLOBAL'
-      folderPath = path.join(path.resolve(this.projectLocation), 'data', folder)
+  private getFolderPath(folder: string, botId?: string) {
+    if (!botId || botId === '' || botId === 'global') {
+      return path.join(path.resolve(this.projectLocation), 'data', folder)
     } else {
-      pathPrefix = 'BOTS'
-      folderPath = path.join(path.resolve(this.projectLocation), 'data', 'bots', folder)
-    }
-
-    return {
-      folderPath,
-      normalizedFolderName: path.join(pathPrefix, folder.toLowerCase())
+      return path.join(path.resolve(this.projectLocation), 'data', 'bots', botId, folder)
     }
   }
 
-  async addRootFolder(botId: BotId, rootFolder: string, options: GhostWatchFolderOptions): Promise<void> {
-    const { normalizedFolderName } = this.normalizeFolder(botId, rootFolder)
+  async addRootFolder(isGlobal: boolean, rootFolder: string, options: GhostWatchFolderOptions): Promise<void> {
+    const normalizedFolderName = this.normalizeFolderName(isGlobal, rootFolder)
     this.logger.debug(`Tracking ${normalizedFolderName} (${options.filesGlob})`)
     this.folderOptions[normalizedFolderName] = options
   }
 
   async upsertFile(botId: BotId, rootFolder: string, file: string, content: string | Buffer) {
-    const { folderPath } = this.normalizeFolder(botId, rootFolder)
+    const folderPath = this.getFolderPath(rootFolder, botId)
     const filePath = path.join(folderPath, file)
     const fullFileFolder = path.dirname(filePath)
 
@@ -76,7 +66,9 @@ export default class FSGhostContentService implements GhostContentService {
   }
 
   readFile(botId: BotId, rootFolder: string, file: string): Promise<string | Buffer> {
-    const { folderPath, normalizedFolderName } = this.normalizeFolder(botId, rootFolder)
+    const normalizedFolderName = this.normalizeFolderName(botId === 'global', rootFolder)
+    const folderPath = this.getFolderPath(rootFolder, botId)
+
     const filePath = path.join(folderPath, file)
     const isBinary = _.get(this.folderOptions[normalizedFolderName], 'isBinary', false)
 
@@ -90,7 +82,7 @@ export default class FSGhostContentService implements GhostContentService {
   }
 
   deleteFile(botId: BotId, rootFolder: string, file: string): Promise<void> {
-    const { folderPath } = this.normalizeFolder(botId, rootFolder)
+    const folderPath = this.getFolderPath(rootFolder, botId)
     const filePath = path.join(folderPath, file)
     return fsAsync.unlinkAsync(filePath).catch(e => {
       this.logger.error('deleteFile error', e)
@@ -104,7 +96,7 @@ export default class FSGhostContentService implements GhostContentService {
     fileEndingPattern: string,
     pathsToOmit: Array<string> = []
   ): Promise<string[]> {
-    const { folderPath } = this.normalizeFolder(botId, rootFolder)
+    const folderPath = this.getFolderPath(rootFolder, botId)
 
     try {
       await fsAsync.accessAsync(folderPath)

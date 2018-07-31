@@ -1,4 +1,9 @@
 export type BotConfig = {
+  name: string
+  description?: string
+  author?: string
+  version: string
+  license?: string
   modules: [
     {
       name: string
