@@ -65,11 +65,11 @@ export class FileConfigProvider implements ConfigProvider {
     return process.title === 'node' ? this.getDataConfigPath() : this.getBinaryDataConfigPath()
   }
 
-  private getDevConfigPath() {
+  private getDataConfigPath() {
     return path.join(__dirname, '../../data')
   }
 
-  private getBinaryConfigPath() {
+  private getBinaryDataConfigPath() {
     return path.join(path.dirname(process.execPath), 'data')
   }
 }
