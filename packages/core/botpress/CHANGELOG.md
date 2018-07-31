@@ -57,7 +57,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 <a name="10.24.4"></a>
-## [10.24.4](https://github.com/botpress/botpress/compare/v10.24.3...v10.24.4) (2018-07-20)
+## [10.24.4](https://github.com/botpress/botpress/compare/v10.24.0...v10.24.4) (2018-07-20)
 
 
 ### Bug Fixes
@@ -68,7 +68,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 <a name="10.24.3"></a>
-## [10.24.3](https://github.com/botpress/botpress/compare/v10.24.1...v10.24.3) (2018-07-20)
+## 10.24.3
 
 
 ### Bug Fixes
@@ -80,7 +80,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 <a name="10.24.2"></a>
-## [10.24.2](https://github.com/botpress/botpress/compare/v10.24.1...v10.24.2) (2018-07-20)
+## 10.24.2
 
 
 ### Bug Fixes
@@ -92,7 +92,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 <a name="10.24.1"></a>
-## [10.24.1](https://github.com/botpress/botpress/compare/v10.24.0...v10.24.1) (2018-07-20)
+## 10.24.1
 
 
 ### Bug Fixes
@@ -477,7 +477,7 @@ It also ignores the old log files.
 
 
 <a name="10.13.3"></a>
-## [10.13.3](https://github.com/botpress/botpress/compare/v10.13.2...v10.13.3) (2018-06-01)
+## 10.13.3
 
 
 
@@ -485,7 +485,7 @@ It also ignores the old log files.
 **Note:** Version bump only for package botpress
 
 <a name="10.13.2"></a>
-## [10.13.2](https://github.com/botpress/botpress/compare/v10.13.1...v10.13.2) (2018-06-01)
+## 10.13.2
 
 
 
@@ -493,7 +493,7 @@ It also ignores the old log files.
 **Note:** Version bump only for package botpress
 
 <a name="10.13.1"></a>
-## [10.13.1](https://github.com/botpress/botpress/compare/v10.13.0...v10.13.1) (2018-06-01)
+## 10.13.1
 
 
 
@@ -501,7 +501,7 @@ It also ignores the old log files.
 **Note:** Version bump only for package botpress
 
 <a name="10.13.0"></a>
-# [10.13.0](https://github.com/botpress/botpress/compare/v10.11.3...v10.13.0) (2018-06-01)
+# 10.13.0
 
 
 ### Bug Fixes
@@ -521,7 +521,7 @@ It also ignores the old log files.
 
 
 <a name="10.12.0"></a>
-# [10.12.0](https://github.com/botpress/botpress/compare/v10.11.3...v10.12.0) (2018-06-01)
+# 10.12.0
 
 
 ### Bug Fixes
@@ -616,7 +616,7 @@ It also ignores the old log files.
 
 
 <a name="10.9.1"></a>
-## [10.9.1](https://github.com/botpress/botpress/compare/v10.9.0...v10.9.1) (2018-05-15)
+## 10.9.1
 
 
 
@@ -624,7 +624,7 @@ It also ignores the old log files.
 **Note:** Version bump only for package botpress
 
 <a name="10.9.0"></a>
-# [10.9.0](https://github.com/botpress/botpress/compare/v10.8.0...v10.9.0) (2018-05-15)
+# 10.9.0
 
 
 
@@ -734,7 +734,7 @@ It also ignores the old log files.
 
 
 <a name="10.3.1"></a>
-## [10.3.1](https://github.com/botpress/botpress/compare/v10.2.5...v10.3.1) (2018-04-28)
+## 10.3.1
 
 
 

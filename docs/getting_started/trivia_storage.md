@@ -24,7 +24,7 @@ storeLargePayload: state => {
 
 ## Per-user storage
 
-If you want to store things about your users and you want that information to be persisted across multiple conversations, we suggest you use [User Tags](../../advanced/tags).
+If you want to store things about your users and you want that information to be persisted across multiple conversations, we suggest you use `User Tags`.
 
 ```js
 storeAge: async (state, event) => {
@@ -58,7 +58,7 @@ storeLargePayload: (state, event) => {
 
 ## Global storage
 
-If you want to store things globally, you can use the built-in [Key-Value-Store (KVS)](../../advanced/kvs).
+If you want to store things globally, you can use the built-in [Key-Value-Store (KVS)](https://botpress.io/docs/latest/recipes/dbs/).
 
 ```js
 storeGlobal: async (state, event) => {
@@ -66,6 +66,7 @@ storeGlobal: async (state, event) => {
 
   // Set global variable
   await kvs.set('winner', { name: 'Joe' })
+
 
   // Get global variable
   const winner = await kvs.get('winner')
