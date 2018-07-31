@@ -12,7 +12,7 @@ import { ModulesConfig } from './modules.config'
 export interface ConfigProvider {
   getBotpressConfig(): Promise<BotpressConfig>
   getModulesConfig(): Promise<ModulesConfig>
-  getBotConfig(botAlias: string): Promise<BotConfig>
+  getBotConfig(botId: string): Promise<BotConfig>
 }
 
 @injectable()
@@ -33,7 +33,7 @@ export class FileConfigProvider implements ConfigProvider {
   }
 
   async getBotConfig(botId: string): Promise<BotConfig> {
-    return this.getConfig<BotConfig>('bot.config.json', botId)
+    return this.getConfig<BotConfig>('bot.config.json', 'bots/' + botId)
   }
 
   private async getConfig<T>(fileName: string, directory?: string): Promise<T> {

@@ -5,7 +5,7 @@ import { Server } from 'http'
 import { inject, injectable, tagged } from 'inversify'
 
 import { ConfigProvider } from './config/config-loader'
-import { MiddlewareService } from './middlewares-service'
+import { MiddlewareService } from './middleware-service'
 import { Logger } from './misc/interfaces'
 import { TYPES } from './misc/types'
 import { BotRepository } from './repositories/bot-repository'
@@ -21,12 +21,12 @@ export default class HTTPServer {
   app: express.Express
 
   constructor(
+    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.Logger)
     @tagged('name', 'HTTP')
     private logger: Logger,
-    @inject(TYPES.BotRepository) private botRepository: BotRepository,
-    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
-    @inject(TYPES.MiddlewareService) private middlewareService: MiddlewareService
+    @inject(TYPES.BotRepository) botRepository: BotRepository,
+    @inject(TYPES.MiddlewareService) middlewareService: MiddlewareService
   ) {
     const routers = [new IndexRouter(), new BotRouter(botRepository), new MiddlewaresRouter(middlewareService)]
 

@@ -1,20 +1,18 @@
-import { MiddlewareService } from '../middlewares-service'
+import { MiddlewareService } from '../middleware-service'
 
 import { BaseRouter } from './base-router'
 
 export class MiddlewaresRouter extends BaseRouter {
-  constructor(private mwService: MiddlewareService) {
+  constructor(private middlewareService: MiddlewareService) {
     super()
   }
 
-  protected setupRoutes(): void {
-    this._router.get('/middlewares/bots/:botId', (req, res) => {
+  setupRoutes() {
+    this.router.get('/middlewares/bots/:botId', async (req, res) => {
       const botId = req.params.botId
-      this.mwService.getIncomingMiddlewaresForBot(botId).then(mws => res.send(mws))
-    })
-  }
+      const middleware = await this.middlewareService.getMiddlewareForBot(botId)
 
-  get router() {
-    return this._router
+      res.send(middleware)
+    })
   }
 }

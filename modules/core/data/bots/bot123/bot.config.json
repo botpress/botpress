@@ -1,0 +1,20 @@
+{
+  "modules": [
+    {
+      "name": "channel-web",
+      "incomingMiddleware": [
+        {
+          "name": "test.incoming.middleware",
+          "enabled": true
+        }
+      ],
+      "outgoingMiddleware": [
+        {
+          "name": "test.outgoing.middleware",
+          "enabled": true
+        }
+      ],
+      "enabled": true
+    }
+  ]
+}

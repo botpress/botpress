@@ -3,6 +3,7 @@ export type MiddlewareDefinition = {
   description: string
   order: number
   handler: string
+  enabled: boolean
   /**
    * @deprecated since version 12.0
    */
@@ -11,10 +12,6 @@ export type MiddlewareDefinition = {
    * @deprecated since version 12.0
    */
   module?: string
-  /**
-   * @deprecated since version 12.0
-   */
-  enabled?: boolean
 }
 
 export type ModuleMetadata = {

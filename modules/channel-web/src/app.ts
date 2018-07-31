@@ -19,7 +19,7 @@ app.get('/register', (req, res) => {
     version: '1.0.0',
     incomingMiddleware: [
       {
-        name: 'test.middleware',
+        name: 'test.incoming.middleware',
         description: 'this is a test',
         order: 10,
         handler: 'test.middleware',
@@ -28,7 +28,17 @@ app.get('/register', (req, res) => {
         enabled: true
       }
     ],
-    outgoingMiddleware: []
+    outgoingMiddleware: [
+      {
+        name: 'test.outgoing.middleware',
+        description: 'this is a test of an outgoing MW',
+        order: 12,
+        handler: 'test.middleware',
+        module: 'channel-web',
+        type: 'outgoing',
+        enabled: true
+      }
+    ]
   }
   res.send(metadata)
 })
