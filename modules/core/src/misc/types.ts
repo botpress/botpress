@@ -10,7 +10,9 @@ const TYPES = {
   ProjectLocation: Symbol.for('ProjectLocation'),
   GhostService: Symbol.for('GhostService'),
   IsProduction: Symbol.for('IsProduction'),
-  MiddlewareService: Symbol.for('MiddlewareService')
+  MiddlewareService: Symbol.for('MiddlewareService'),
+  CMSService: Symbol.for('CMSService'),
+  InMemoryDatabase: Symbol.for('InMemoryDatabase')
 }
 
 export { TYPES }
