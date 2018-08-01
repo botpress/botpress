@@ -1,4 +1,5 @@
 import 'bluebird-global'
+import bodyParser from 'body-parser'
 import errorHandler from 'errorhandler'
 import express from 'express'
 import { Server } from 'http'
@@ -11,7 +12,6 @@ import { TYPES } from './misc/types'
 import { BotRepository } from './repositories/bot-repository'
 import { BotRouter } from './router/bot-router'
 import { IndexRouter } from './router/index-router'
-import { MiddlewaresRouter } from './router/middlewares-router'
 
 const BASE_API_PATH = '/api/v1'
 
@@ -28,9 +28,10 @@ export default class HTTPServer {
     @inject(TYPES.BotRepository) botRepository: BotRepository,
     @inject(TYPES.MiddlewareService) middlewareService: MiddlewareService
   ) {
-    const routers = [new IndexRouter(), new BotRouter(botRepository), new MiddlewaresRouter(middlewareService)]
+    const routers = [new IndexRouter(), new BotRouter(botRepository, middlewareService)]
 
     this.app = express()
+    this.app.use(bodyParser.json())
     this.app.use(BASE_API_PATH, [...routers.map(r => r.router)])
 
     if (process.env.NODE_ENV === 'development') {

@@ -5,9 +5,11 @@ const dotenv = require('dotenv')
 const fs = require('fs')
 const proxy = require('express-http-proxy')
 const _ = require('lodash')
+const bodyParser = require('body-parser')
 
 dotenv.config()
 
+app.use(bodyParser.json())
 app.use(express.static('./static'))
 
 // TODO: Extract in shared module
@@ -15,7 +17,7 @@ const httpProxy = (originPath, targetPath, targetHost) => {
   app.use(
     originPath,
     proxy(targetHost, {
-      proxyReqPathResolver: (req, res) => new Promise((resolve, reject) => resolve(targetPath))
+      proxyReqPathResolver: async (req, res) => targetPath
     })
   )
 }
@@ -23,7 +25,19 @@ const httpProxy = (originPath, targetPath, targetHost) => {
 httpProxy('/api/modules', '/api/v1/modules', process.env.CORE_API_URL)
 httpProxy('/js/modules/channel-web', '/api/v1/modules/channel-web', process.env.CORE_API_URL)
 httpProxy('/api/bot/information', '/api/v1/bots/bot123/', process.env.CORE_API_URL)
-httpProxy('/api/middlewares', '/api/v1/middlewares/bots/bot123', process.env.CORE_API_URL)
+
+app.post(
+  '/api/middlewares/customizations',
+  proxy(process.env.CORE_API_URL, {
+    proxyReqPathResolver: async (req, res) => '/api/v1/bots/bot123/middleware',
+    proxyReqBodyDecorator: async (body, srcReq) => {
+      // Middleware(s) is a typo. Can't be plural.
+      return { middleware: body.middlewares }
+    }
+  })
+)
+
+httpProxy('/api/middlewares', '/api/v1/bots/bot123/middleware', process.env.CORE_API_URL)
 
 app.get('/js/env.js', (req, res) => {
   res.contentType('text/javascript')
