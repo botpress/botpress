@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "author": "Botpress",
   "license": "AGPL-3.0-only",
+  "bin": "dist/src/app.js",
   "private": true,
   "scripts": {
     "start": "npm run serve",
@@ -37,7 +38,9 @@
     "pg": "^7.4.3",
     "reflect-metadata": "^0.1.12",
     "sqlite3": "^4.0.2",
-    "verror": "^1.10.0"
+    "tmp": "^0.0.33",
+    "verror": "^1.10.0",
+    "vm2": "^3.6.2"
   },
   "devDependencies": {
     "@types/bluebird-global": "^3.5.6",
@@ -62,5 +65,8 @@
     "tsc-watch": "^1.0.26",
     "tslint": "^5.11.0",
     "typescript": "^2.9.2"
+  },
+  "pkg": {
+    "assets": "node_modules/vm2/lib/*.js"
   }
 }
