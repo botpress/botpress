@@ -1,13 +1,10 @@
-import nanoid from 'nanoid'
-
 let processInfo = {}
 
 const processIndicator = ({ events }) => {
   const create = ({ title = 'Process' }) => {
-    const id = nanoid()
     const status = 'In Progress'
 
-    processInfo = { title, id, status }
+    processInfo = { title, status }
 
     events.emit('process-indicator.create', processInfo)
   }
