@@ -37,6 +37,7 @@ import createMiddlewares from './middlewares'
 import createLogger from './logger'
 import createSecurity from './security'
 import createNotifications from './notifications'
+import createProcessIndicator from './process-indicator'
 import createHearMiddleware from './hear'
 import createFallbackMiddleware from './fallback'
 import createDatabase from './database'
@@ -243,6 +244,9 @@ class botpress {
       logger,
       events
     })
+
+    const processIndicator = createProcessIndicator({ events })
+
     const about = createAbout(projectLocation)
     const licensing = createLicensing({
       logger,
@@ -339,6 +343,7 @@ class botpress {
       security, // login, authenticate, getSecret
       events,
       notifications, // load, save, send
+      processIndicator,
       about,
       middlewares,
       hear,

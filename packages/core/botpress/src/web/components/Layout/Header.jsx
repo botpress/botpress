@@ -6,6 +6,7 @@ import { Navbar, Nav, NavItem, Glyphicon, NavDropdown, MenuItem } from 'react-bo
 import classnames from 'classnames'
 
 import NotificationHub from '~/components/Notifications/Hub'
+import ProcessIndicator from '../Notifications/ProcessIndicator'
 
 import { logout } from '~/util/Auth'
 import style from './Header.scss'
@@ -75,6 +76,7 @@ class Header extends React.Component {
             {this.renderLogoutButton()}
           </Nav>
           <Nav pullRight className="bp-navbar-module-buttons" />
+          <ProcessIndicator />
         </Navbar.Collapse>
       </Navbar>
     )
