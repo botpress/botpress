@@ -59,6 +59,27 @@ export class MiddlewareService {
    */
   async setMiddlewareForBot(botId: string, middleware: MiddlewareOverride[]) {
     const botConfig = await this.configProvider.getBotConfig(botId)
+    const availableModules = await this.moduleLoader.getAvailableModules()
+
+    const availableMiddleware = _.flatMap(availableModules, x => [
+      ...x.metadata.incomingMiddleware,
+      ...x.metadata.outgoingMiddleware
+    ])
+
+    const configMiddleware = _.flatMap(botConfig.modules, x => [...x.incomingMiddleware, ...x.outgoingMiddleware])
+    const missingMiddleware = availableMiddleware.filter(x => !_.includes(configMiddleware.map(x => x.name), x.name))
+    const modules = botConfig.modules
+
+    const modifiedModules = modules.map(module => {
+      const mw = missingMiddleware.find(y => y.module === module.name)
+      if (!mw) {
+        return module
+      }
+
+      const mwConfig = { name: mw.name, order: 10000, enabled: false }
+      mw.type === 'incoming' ? module.incomingMiddleware.push(mwConfig) : module.outgoingMiddleware.push(mwConfig)
+      return module
+    })
 
     const amend = (mw: MiddlewareConfig) => {
       const override = middleware.find(x => x.name === mw.name)
@@ -70,8 +91,7 @@ export class MiddlewareService {
       }
     }
 
-    // TODO We discard any middleware we don't know in existing config file
-    const newModules = botConfig.modules.map(module => {
+    const newModules = modifiedModules.map(module => {
       return {
         ...module,
         incomingMiddleware: _.orderBy(module.incomingMiddleware.map(amend), ['order']),
