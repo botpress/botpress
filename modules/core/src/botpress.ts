@@ -12,6 +12,7 @@ import { Logger } from './misc/interfaces'
 import { TYPES } from './misc/types'
 import { ModuleLoader } from './module-loader'
 import HTTPServer from './server'
+import { CMSService } from './services/cms'
 
 @injectable()
 export class Botpress {
@@ -29,7 +30,8 @@ export class Botpress {
     @tagged('name', 'Server')
     private logger: Logger,
     @inject(TYPES.HTTPServer) private httpServer: HTTPServer,
-    @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader
+    @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
+    @inject(TYPES.CMSService) private cmsService: CMSService
   ) {
     this.version = packageJson.version
     this.botpressPath = path.join(process.cwd(), 'dist')
@@ -49,7 +51,12 @@ export class Botpress {
     await this.trackStats()
     await this.createDatabase()
     await this.loadModules()
+    await this.initializeServices()
     await this.startServer()
+  }
+
+  private async initializeServices() {
+    await this.cmsService.initialize()
   }
 
   @Memoize()
