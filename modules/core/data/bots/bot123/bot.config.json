@@ -10,7 +10,13 @@
       "incomingMiddleware": [
         {
           "name": "test.incoming.middleware",
-          "enabled": false
+          "enabled": false,
+          "order": 4
+        },
+        {
+          "name": "test.incoming.middleware3",
+          "enabled": true,
+          "order": 1
         }
       ],
       "outgoingMiddleware": [

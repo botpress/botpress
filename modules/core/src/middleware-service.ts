@@ -17,36 +17,32 @@ export class MiddlewareService {
    * @param botId
    */
   async getMiddlewareForBot(botId: string) {
-    const config = await this.configLoader.getBotConfig(botId)
+    const botConfig = await this.configLoader.getBotConfig(botId)
     const availableModules = await this.moduleLoader.getAvailableModules()
 
-    const enabledBotModulesConfig = config.modules.filter(m => m.enabled)
+    const enabledBotModules = availableModules.map(module => {
+      const moduleConfig = botConfig.modules.find(x => x.name === module.metadata.name)
 
-    const incomingMiddlewareConfig = _.flatMap(enabledBotModulesConfig.map(mwc => mwc.incomingMiddleware))
-    const outgoingMiddlewareConfig = _.flatMap(enabledBotModulesConfig.map(mwc => mwc.outgoingMiddleware))
+      if (!moduleConfig || !moduleConfig.enabled) {
+        return { incomingMw: [], outgoingMw: [] }
+      }
 
-    const enabledBotModules = availableModules.filter(m =>
-      _.includes(enabledBotModulesConfig.map(mc => mc.name), m.metadata.name)
-    )
+      const incomingMw = module.metadata.incomingMiddleware.map(mw => {
+        const f = moduleConfig.incomingMiddleware.find(x => x.name === mw.name)
+        return { ...mw, ...f }
+      })
 
-    // Assign enabled config property to actual middleware
-    const incomingMiddleware = _.flatMap(
-      enabledBotModules.map(m =>
-        m.metadata.incomingMiddleware.map(mw => {
-          mw.enabled = incomingMiddlewareConfig.find(c => c.name === mw.name).enabled
-          return mw
-        })
-      )
-    )
-    const outgoingMiddleware = _.flatMap(
-      enabledBotModules.map(m =>
-        m.metadata.outgoingMiddleware.map(mw => {
-          mw.enabled = outgoingMiddlewareConfig.find(c => c.name === mw.name).enabled
-          return mw
-        })
-      )
-    )
+      const outgoingMw = module.metadata.outgoingMiddleware.map(mw => {
+        const f = moduleConfig.outgoingMiddleware.find(x => x.name === mw.name)
+        return { ...mw, ...f }
+      })
 
-    return [...incomingMiddleware, ...outgoingMiddleware]
+      return { incomingMw, outgoingMw }
+    })
+
+    const incomingMw = _.orderBy(_.flatMap(enabledBotModules, m => m.incomingMw), ['order'])
+    const outgoingMw = _.orderBy(_.flatMap(enabledBotModules, m => m.outgoingMw), ['order'])
+
+    return [...incomingMw, ...outgoingMw]
   }
 }
