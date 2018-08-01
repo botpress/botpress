@@ -6,6 +6,7 @@ import { TYPES } from '../../misc/types'
 import { GhostContentService } from '../ghost-content'
 
 import { CMSService, ContentElement, ContentType } from '.'
+import { safeEvalToObject } from './util'
 
 const LOCATION = 'content-types'
 
@@ -52,6 +53,14 @@ export class GhostCMSService implements CMSService {
   }
 
   private async loadContentTypeFromFile(fileName: string): Promise<void> {
+    const content = <string>await this.ghost.readFile('global', LOCATION, fileName)
+    const type = safeEvalToObject<ContentType>(content)
+    console.log(type)
+    console.log(type.computeData('LOL', {}))
+    if (!type || !type.id) {
+      throw new Error('Invalid type')
+    }
+
     this.logger.debug('Loading ' + fileName)
   }
 
