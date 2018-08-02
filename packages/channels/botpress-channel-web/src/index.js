@@ -12,7 +12,13 @@ module.exports = {
     uploadsS3Bucket: { type: 'string', required: false, default: 'bucket-name', env: 'WEBCHAT_S3_BUCKET' },
     uploadsS3Region: { type: 'any', required: false, default: null, env: 'WEBCHAT_S3_REGION' },
     uploadsS3AWSAccessKey: { type: 'any', required: false, default: null, env: 'WEBCHAT_S3_ACCESS_KEY' },
-    uploadsS3AWSAccessSecret: { type: 'any', required: false, default: null, env: 'WEBCHAT_S3_KEY_SECRET' }
+    uploadsS3AWSAccessSecret: { type: 'any', required: false, default: null, env: 'WEBCHAT_S3_KEY_SECRET' },
+    enableTranscriptDownload: {
+      type: 'bool',
+      required: true,
+      default: false,
+      env: 'WEBCHAT_ENABLE_TRANSCRIPT_DOWNLOAD'
+    }
   },
 
   init: async function(bp, configurator) {

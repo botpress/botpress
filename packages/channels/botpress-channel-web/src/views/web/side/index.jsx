@@ -147,6 +147,30 @@ export default class Side extends React.Component {
     )
   }
 
+  renderDownloadButton() {
+    if (!this.props.enableTranscriptDownload) {
+      return null
+    }
+
+    return (
+      <span className={style.downloadIcon}>
+        <i onClick={this.props.downloadConversation}>
+          <svg
+            version="1.1"
+            xmlns="http://www.w3.org/2000/svg"
+            width="17"
+            height="17"
+            className={style.downloadSVG}
+            viewBox="0 0 32 32"
+          >
+            <title>Download</title>
+            <path d="M27.414 19.414l-10 10c-0.781 0.781-2.047 0.781-2.828 0l-10-10c-0.781-0.781-0.781-2.047 0-2.828s2.047-0.781 2.828 0l6.586 6.586v-19.172c0-1.105 0.895-2 2-2s2 0.895 2 2v19.172l6.586-6.586c0.39-0.39 0.902-0.586 1.414-0.586s1.024 0.195 1.414 0.586c0.781 0.781 0.781 2.047 0 2.828z" />
+          </svg>
+        </i>
+      </span>
+    )
+  }
+
   renderHeader() {
     const status = (
       <div className={style.status}>
@@ -166,6 +190,7 @@ export default class Side extends React.Component {
           </div>
         </div>
         {this.renderResetButton()}
+        {this.renderDownloadButton()}
         {this.renderConvoButton()}
         {this.renderCloseButton()}
       </div>
@@ -182,7 +207,7 @@ export default class Side extends React.Component {
             <svg width="18" height="17" viewBox="0 0 18 17" xmlns="http://www.w3.org/2000/svg">
               <path
                 d="M8.455 16.5c-.19 0-.378-.076-.522-.226-.29-.303-.29-.792 0-1.093l7.66-8.013c.57-.597.885-1.392.885-2.236 0-.844-.315-1.638-.886-2.235-1.18-1.233-3.097-1.232-4.275 0L2.433 11.99c-.5.525-.742 1.03-.715 1.502.026.46.303.815.467.985.275.29.573.41.908.364.42-.054.903-.356 1.398-.874l6.973-7.295c.288-.3.755-.3 1.043 0 .29.303.29.793 0 1.093l-6.97 7.296c-.74.773-1.5 1.215-2.26 1.314-.797.104-1.535-.175-2.135-.804-.537-.562-.856-1.267-.896-1.985-.054-.933.332-1.836 1.144-2.686l8.885-9.297c1.754-1.836 4.61-1.836 6.363 0 .85.888 1.318 2.07 1.318 3.328s-.468 2.44-1.318 3.33l-7.66 8.014c-.143.15-.332.226-.52.226z"
-                fill-rule="evenodd"
+                fillRule="evenodd"
               />
             </svg>
           </i>
