@@ -1,6 +1,7 @@
 import { inject, injectable, tagged } from 'inversify'
 
 import { ExtendedKnex } from '../../database/interfaces'
+import BotsTable from '../../database/tables/server-wide/bots'
 import { Logger } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
 import { GhostContentService } from '../ghost-content'
@@ -12,6 +13,8 @@ const LOCATION = 'content-types'
 
 @injectable()
 export class GhostCMSService implements CMSService {
+  loadedContentTypes: ContentType[]
+
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'CMS')
@@ -24,10 +27,11 @@ export class GhostCMSService implements CMSService {
     await this.ghost.addRootFolder(true, LOCATION, { filesGlob: '**.js', isBinary: false })
     await this.prepareDb()
     await this.loadContentTypesFromFiles()
+    await this.listContentElements('bot123', 'buitin_text')
   }
 
   private async prepareDb() {
-    await this.memDb.createTableIfNotExists('content_items', table => {
+    await this.memDb.createTableIfNotExists('content_elements', table => {
       table.string('id')
       table.string('botId')
       table.primary(['id', 'botId'])
@@ -42,20 +46,22 @@ export class GhostCMSService implements CMSService {
 
   private async loadContentTypesFromFiles(): Promise<void> {
     const fileNames = await this.ghost.directoryListing('global', LOCATION, '*.js')
+    let filesLoaded = 0
     for (const fileName of fileNames) {
       try {
         await this.loadContentTypeFromFile(fileName)
+        filesLoaded++
       } catch (e) {
         this.logger.error(e, `Could not load Content Type "${fileName}"`)
       }
     }
-    this.logger.debug(`Loaded 0 content types`)
+    this.logger.debug(`Loaded ${filesLoaded} content types`)
   }
 
   private async loadContentTypeFromFile(fileName: string): Promise<void> {
     const content = <string>await this.ghost.readFile('global', LOCATION, fileName)
     const type = safeEvalToObject<ContentType>(content)
-    // console.log(type.computeData(type.id, {}))
+
     if (!type || !type.id) {
       throw new Error('Invalid type')
     }
@@ -63,8 +69,22 @@ export class GhostCMSService implements CMSService {
     this.logger.debug('Loading ' + fileName)
   }
 
-  listContentElements(botId: string, contentType: string): Promise<ContentElement[]> {
-    throw new Error('Method not implemented.')
+  async listContentElements(botId: string, contentType: string): Promise<ContentElement[]> {
+    const fileNames = await this.ghost.directoryListing(botId, '/content-elements', '.json')
+    const elements: ContentElement[] = []
+
+    // fileNames.map(fileName => {
+    //   this.ghost.readFile(botId, '/content-elements', fileName)
+    // })
+
+    for (const fileName of fileNames) {
+      const file = <string>await this.ghost.readFile(botId, '/content-elements', fileName)
+      const element = safeEvalToObject<ContentElement>(file) // Do we need safe??
+      console.log(element)
+      elements.push(element)
+    }
+
+    return elements
   }
   getContentElement(botId: string, id: string): Promise<ContentElement> {
     throw new Error('Method not implemented.')

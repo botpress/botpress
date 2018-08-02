@@ -15,7 +15,7 @@ import { ModuleLoader } from './module-loader'
 import { RepositoriesContainerModule } from './repositories/repositories.inversify'
 import HTTPServer from './server'
 import { CMSService } from './services/cms'
-import { GhostCMSService } from './services/cms/GhostCMSService'
+import { GhostCMSService } from './services/cms/ghost-cms-service'
 import { GhostContentService } from './services/ghost-content'
 import FSGhostContentService from './services/ghost-content/file-system'
 

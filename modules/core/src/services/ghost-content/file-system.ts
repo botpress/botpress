@@ -98,6 +98,8 @@ export default class FSGhostContentService implements GhostContentService {
   ): Promise<string[]> {
     const folderPath = this.getFolderPath(rootFolder, botId)
 
+    console.log(folderPath)
+
     try {
       await fsAsync.accessAsync(folderPath)
       return Promise.fromCallback(cb => glob(`**/*${fileEndingPattern}`, { cwd: folderPath }, cb)).then(paths =>
