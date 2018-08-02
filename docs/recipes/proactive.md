@@ -13,7 +13,8 @@ window.botpressWebChat.sendEvent({ type: 'show' })
 window.botpressWebChat.sendEvent({ 
   type: 'proactive-trigger', 
   platform: 'web', 
-  text: 'smth' })
+  text: 'smth' 
+})
 ```
 
 2. This trigger will be dispatched to the bot so you need to add a handler for it. Here is a simple example:
