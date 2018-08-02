@@ -337,7 +337,14 @@ export default class Side extends React.Component {
   }
 
   renderListOfConvos() {
-    return <div className={style.list}>{this.props.conversations.map(::this.renderItemConvos)}</div>
+    return (
+      <div className={style.list}>
+        {this.props.conversations.map(::this.renderItemConvos)}
+        <button className={style.addConvoBtn} onClick={this.props.createConversation}>
+          +
+        </button>
+      </div>
+    )
   }
 
   render() {
