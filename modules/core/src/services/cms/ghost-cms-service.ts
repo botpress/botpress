@@ -1,13 +1,13 @@
 import { inject, injectable, tagged } from 'inversify'
+import path from 'path'
 
 import { ExtendedKnex } from '../../database/interfaces'
-import BotsTable from '../../database/tables/server-wide/bots'
 import { Logger } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
 import { GhostContentService } from '../ghost-content'
 
 import { CMSService, ContentElement, ContentType } from '.'
-import { safeEvalToObject } from './util'
+import { CodeFile, SafeCodeSandbox } from './util'
 
 const LOCATION = 'content-types'
 
@@ -46,27 +46,41 @@ export class GhostCMSService implements CMSService {
 
   private async loadContentTypesFromFiles(): Promise<void> {
     const fileNames = await this.ghost.directoryListing('global', LOCATION, '*.js')
+
+    const codeFiles = await Promise.map(fileNames, async filename => {
+      const content = <string>await this.ghost.readFile('global', LOCATION, filename)
+      return <CodeFile>{ code: content, relativePath: filename }
+    })
+
+    const sandbox = new SafeCodeSandbox(codeFiles)
     let filesLoaded = 0
-    for (const fileName of fileNames) {
-      try {
-        await this.loadContentTypeFromFile(fileName)
-        filesLoaded++
-      } catch (e) {
-        this.logger.error(e, `Could not load Content Type "${fileName}"`)
+
+    try {
+      for (const file of sandbox.ls()) {
+        try {
+          const filename = path.basename(file)
+          if (filename.startsWith('_')) {
+            // File to exclude
+            continue
+          }
+          await this.loadContentTypeFromFile(sandbox, file)
+          filesLoaded++
+        } catch (e) {
+          this.logger.error(e, `Could not load Content Type "${file}"`)
+        }
       }
+    } finally {
+      sandbox && sandbox.dispose()
+      this.logger.debug(`Loaded ${filesLoaded} content types`)
     }
-    this.logger.debug(`Loaded ${filesLoaded} content types`)
   }
 
-  private async loadContentTypeFromFile(fileName: string): Promise<void> {
-    const content = <string>await this.ghost.readFile('global', LOCATION, fileName)
-    const type = safeEvalToObject<ContentType>(content)
+  private async loadContentTypeFromFile(sandbox: SafeCodeSandbox, fileName: string): Promise<void> {
+    const type = <ContentType>await sandbox.run(fileName)
 
     if (!type || !type.id) {
-      throw new Error('Invalid type')
+      throw new Error('Invalid type ' + fileName)
     }
-
-    this.logger.debug('Loading ' + fileName)
   }
 
   async listContentElements(botId: string, contentType: string): Promise<ContentElement[]> {
@@ -79,9 +93,9 @@ export class GhostCMSService implements CMSService {
 
     for (const fileName of fileNames) {
       const file = <string>await this.ghost.readFile(botId, '/content-elements', fileName)
-      const element = safeEvalToObject<ContentElement>(file) // Do we need safe??
-      console.log(element)
-      elements.push(element)
+      // const element = safeEvalToObject<ContentElement>(file) // Do we need safe??
+      // console.log(element)
+      // elements.push(element)
     }
 
     return elements

@@ -1,3 +1,5 @@
+const base = require('./_base.js')
+
 module.exports = {
   id: 'builtin_image',
   group: 'Built-in Messages',
