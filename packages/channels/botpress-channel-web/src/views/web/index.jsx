@@ -8,6 +8,8 @@ import classnames from 'classnames'
 import addMilliseconds from 'date-fns/add_milliseconds'
 import isBefore from 'date-fns/is_before'
 import queryString from 'query-string'
+import moment from 'moment'
+import ms from 'ms'
 
 import Convo from './convo'
 import Side from './side'
@@ -228,18 +230,21 @@ export default class Web extends React.Component {
     const userId = this.userId
     const url = `${BOT_HOSTNAME}/api/botpress-platform-webchat/conversations/${userId}`
 
-    return axios
-      .get(url)
-      .then(({ data }) => new Promise(resolve => !this.isUnmounted && this.setState({ conversations: data }, resolve)))
+    return axios.get(url).then(({ data }) => new Promise(resolve => !this.isUnmounted && this.setState(data, resolve)))
   }
 
   fetchCurrentConversation(convoId) {
     const axios = this.props.bp.axios
     const userId = this.userId
+    const { conversations, currentConversationId } = this.state
 
-    let conversationIdToFetch = convoId || this.state.currentConversationId
-    if (this.state.conversations.length > 0 && !conversationIdToFetch) {
-      conversationIdToFetch = this.state.conversations[0].id
+    let conversationIdToFetch = convoId || currentConversationId
+    if (conversations.length > 0 && !conversationIdToFetch) {
+      const lifeTimeMargin = moment().subtract(ms(this.state.recentConversationLifetime), 'ms')
+      if (moment(conversations[0].last_heard_on).isBefore(lifeTimeMargin) && this.state.startNewConvoOnTimeout) {
+        return
+      }
+      conversationIdToFetch = conversations[0].id
       this.setState({ currentConversationId: conversationIdToFetch })
     }
 
