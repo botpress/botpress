@@ -4,7 +4,7 @@ layout: guide
 
 The [Botpress Analytics (@botpress/analytics)](https://github.com/botpress/botpress/tree/master/packages/functionals/botpress-analytics) package allows you to monitor the bots total user count, retention and lots more.
 
-To perform the basic setup, you will need to install the package (`npm install --save @botpress/analytics`) and initialize it by adding the following snippet to your XXXXXX file
+To perform the basic setup, you will need to install the package (`npm install --save @botpress/analytics`) and initialize it by adding the following snippet to your src/index.js file
 
 ```js
 const analytics = require('./analytics')
