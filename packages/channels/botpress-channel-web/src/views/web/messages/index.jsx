@@ -19,6 +19,10 @@ const TIME_BETWEEN_DATES = 10 // 10 minutes
 
 class MessageGroup extends Component {
   renderAvatar() {
+    if (!this.props.isBot && !this.props.avatarUrl) {
+      return
+    }
+
     let content = <BotAvatar foregroundColor={this.props.fgColor} />
 
     if (this.props.avatarUrl) {
@@ -33,21 +37,15 @@ class MessageGroup extends Component {
   }
 
   render() {
-    const sample = this.props.messages[0]
-    const isBot = !sample.userId
-
-    const className = classnames(style.message, {
-      [style.user]: !isBot
-    })
-
+    const className = classnames(style.message, { [style.user]: !this.props.isBot })
     const bubbleColor = this.props.fgColor
     const textColor = this.props.textColor
 
     return (
       <div className={className}>
-        {isBot && this.renderAvatar()}
+        {this.renderAvatar()}
         <div className={style['message-container']}>
-          {isBot && <div className={style['info-line']}>{sample.full_name}</div>}
+          {<div className={style['info-line']}>{this.props.userName}</div>}
           <div className={style.group}>
             {this.props.messages.map((data, i) => {
               return (
@@ -168,11 +166,15 @@ export default class MessageList extends Component {
           const isDateNeeded =
             !groups[i - 1] || differenceInMinutes(new Date(groupDate), new Date(lastDate)) > TIME_BETWEEN_DATES
 
+          const [{ userId, full_name: userName, avatar_url: avatarUrl }] = group
+
           return (
             <div key={i}>
               {isDateNeeded ? this.renderDate(group[0].sent_on) : null}
               <MessageGroup
-                avatarUrl={this.props.avatarUrl}
+                isBot={!userId}
+                avatarUrl={userId ? avatarUrl : this.props.botAvatarUrl}
+                userName={userName}
                 fgColor={this.props.fgColor}
                 textColor={this.props.textColor}
                 key={`msg-group-${i}`}
