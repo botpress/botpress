@@ -55,8 +55,7 @@ export class GhostCMSService implements CMSService {
   private async loadContentTypeFromFile(fileName: string): Promise<void> {
     const content = <string>await this.ghost.readFile('global', LOCATION, fileName)
     const type = safeEvalToObject<ContentType>(content)
-    console.log(type)
-    console.log(type.computeData('LOL', {}))
+    // console.log(type.computeData(type.id, {}))
     if (!type || !type.id) {
       throw new Error('Invalid type')
     }
