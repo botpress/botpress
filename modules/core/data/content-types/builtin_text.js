@@ -1,3 +1,5 @@
+const base = require('./_base.js')
+
 module.exports = {
   id: 'builtin_text',
   group: 'Built-in Messages',

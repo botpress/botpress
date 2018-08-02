@@ -1,3 +1,5 @@
+const Card = require('./builtin_card')
+
 module.exports = {
   id: 'builtin_carousel',
   group: 'Built-in Messages',
@@ -6,8 +8,8 @@ module.exports = {
   jsonSchema: {
     description: 'A carousel is an array of cards',
     type: 'array',
-    items: Card.jsonSchema,
-    ...base.typingIndicators
+    items: Card.jsonSchema
+    // ....typingIndicators
   },
 
   computePreviewText: formData => `Carousel: ${formData.length}`,

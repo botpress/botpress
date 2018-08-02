@@ -1,3 +1,6 @@
+const ActionButton = require('./builtin_action_button.js')
+const base = require('./_base.js')
+
 module.exports = {
   id: 'builtin_card',
   group: 'Built-in Messages',
