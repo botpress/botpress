@@ -2,17 +2,21 @@
 layout: guide
 ---
 
-You may need to make your bot act proactively on your website in response to some actions. E.g., suggest them to buy the product they are viewing for too long or ask them for feedback on services they were using.
+You may wish to make your bot act proactively on your website in response to some action. E.g., suggest they buy the product they are viewing after a set time or ask them for feedback on services they were using.
 
-This appears to be quite simple with Botpress:
+With Botpress this is simple:
 
-1. First you need to open bot-window and trigger custom action-type (I'll call it `proactive-trigger`) on the website on some event. This can be done this way:
+1. First you need to open the bot-window and then trigger a custom action-type (`proactive-trigger` in the example below). These can be triggered by a javascript event such as a timeout.
+
 ```js
 window.botpressWebChat.sendEvent({ type: 'show' })
-window.botpressWebChat.sendEvent({ type: 'proactive-trigger', platform: 'web', text: 'smth' })
+window.botpressWebChat.sendEvent({ 
+  type: 'proactive-trigger', 
+  platform: 'web', 
+  text: 'smth' })
 ```
 
-2. The event will be dispatched so now we need to add a handler for it. Here's a simple one:
+2. This trigger will be dispatched to the bot so you need to add a handler for it. Here is a simple example:
 ```js
 bp.hear({ type: /proactive-trigger/i }, async ({ user, text }, next) => {
   bp.renderers.sendToUser(user, '#builtin_text', { text: 'Hey there!', typing: true })
@@ -20,4 +24,4 @@ bp.hear({ type: /proactive-trigger/i }, async ({ user, text }, next) => {
 })
 ```
 
-That's it! Given you have your builtin renderers registered, the code above should work!
+That's it! If you have your builtin renderers registered, the code above will work!
