@@ -45,7 +45,7 @@ class MessageGroup extends Component {
       <div className={className}>
         {this.renderAvatar()}
         <div className={style['message-container']}>
-          {<div className={style['info-line']}>{this.props.userName}</div>}
+          {this.props.showUserName && <div className={style['info-line']}>{this.props.userName}</div>}
           <div className={style.group}>
             {this.props.messages.map((data, i) => {
               return (
@@ -173,10 +173,12 @@ export default class MessageList extends Component {
               {isDateNeeded ? this.renderDate(group[0].sent_on) : null}
               <MessageGroup
                 isBot={!userId}
-                avatarUrl={userId ? avatarUrl : this.props.botAvatarUrl}
+                avatarUrl={userId ? this.props.showUserAvatar && avatarUrl : this.props.botAvatarUrl}
                 userName={userName}
                 fgColor={this.props.fgColor}
                 textColor={this.props.textColor}
+                showUserAvatar={this.props.showUserAvatar}
+                showUserName={this.props.showUserName}
                 key={`msg-group-${i}`}
                 onLoginPromptSend={this.props.onLoginPromptSend}
                 isLastGroup={i >= groups.length - 1}

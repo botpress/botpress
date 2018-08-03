@@ -265,6 +265,8 @@ export default class Side extends React.Component {
       fgColor: this.props.config && this.props.config.foregroundColor,
       textColor: this.props.config && this.props.config.textColorOnForeground,
       botAvatarUrl: this.props.config && this.props.config.botAvatarUrl,
+      showUserName: this.props.config && this.props.config.showUserName,
+      showUserAvatar: this.props.config && this.props.config.showUserAvatar,
       onQuickReplySend: this.props.onQuickReplySend,
       onFormSend: this.props.onFormSend,
       onFileUploadSend: this.props.onFileUploadSend,
