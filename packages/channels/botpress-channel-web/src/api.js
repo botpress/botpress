@@ -73,7 +73,7 @@ module.exports = async (bp, config) => {
 
   const knex = await bp.db.get()
 
-  const { listConversations, getConversation, appendUserMessage, getOrCreateRecentConversation } = db(knex, bp.botfile)
+  const { listConversations, getConversation, appendUserMessage, getOrCreateRecentConversation } = db(knex, config)
 
   const { getOrCreateUser } = await users(bp, config)
 
@@ -195,7 +195,11 @@ module.exports = async (bp, config) => {
 
     const conversations = await listConversations(userId)
 
-    return res.send([...conversations])
+    return res.send({
+      conversations: [...conversations],
+      startNewConvoOnTimeout: config.startNewConvoOnTimeout,
+      recentConversationLifetime: config.recentConversationLifetime
+    })
   })
 
   function validateUserId(userId) {
