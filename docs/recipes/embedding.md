@@ -63,6 +63,7 @@ window.botpressWebChat.init({
   foregroundColor: '#0176ff', // Element background color (header, composer, button..)
   textColorOnForeground: '#ffffff', // Element text color (header, composer, button..)
   showUserName: false, // Whether or not to show the user's name
-  showUserAvatar: false // Whether or not to show the user's avatar
+  showUserAvatar: false, // Whether or not to show the user's avatar
+  enableTranscriptDownload: false // Whether or not to show the transcript download button
 })
 ```

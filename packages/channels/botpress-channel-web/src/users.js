@@ -26,6 +26,20 @@ module.exports = async bp => {
     return getOrCreateUser(realUserId, true)
   }
 
+  async function getUserProfile(userId) {
+    const realUserId = userId.startsWith('webchat:') ? userId.substr(8) : userId
+
+    const user = await knex('users')
+      .where({
+        platform: 'webchat',
+        userId: realUserId
+      })
+      .then()
+      .get(0)
+
+    return user
+  }
+
   function createNewUser(userId) {
     const [first_name, last_name] = sillyname().split(' ')
 
@@ -38,5 +52,5 @@ module.exports = async bp => {
     })
   }
 
-  return { getOrCreateUser }
+  return { getOrCreateUser, getUserProfile }
 }

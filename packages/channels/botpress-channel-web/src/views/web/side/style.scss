@@ -152,6 +152,20 @@
           fill: currentColor;
         }
       }
+
+      .downloadIcon {
+        margin-left: 22px;
+      }
+
+      .downloadSVG {
+        fill: currentColor;
+        cursor: pointer;
+        color: #bbb;
+
+        &:hover {
+          color: #aaa;
+        }
+      }
     }
 
     .conversation {
