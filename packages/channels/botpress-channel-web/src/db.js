@@ -10,7 +10,6 @@ import { sanitizeUserId } from './util'
 
 module.exports = (knex, config) => {
   const RECENT_CONVERSATION_LIFETIME = ms(config.recentConversationLifetime)
-  const isPostgres = process.env.DATABASE === 'postgres'
 
   async function getUserInfo(userId) {
     const user = await knex('users')
@@ -204,28 +203,23 @@ module.exports = (knex, config) => {
 
     const conversationIds = conversations.map(c => c.id)
 
-    const lastMessagesDate = (await knex('web_messages')
-      .whereIn('conversationId', conversationIds)
-      .groupBy('conversationId')
-      .select(knex.raw('max(sent_on) as date'))).map(mess => mess.date)
-    const msg = await knex('web_messages')
-      .whereIn('conversationId', conversationIds)
-      .groupBy('conversationId')
-      .select(knex.raw('max(sent_on) as date'))
+    let lastMessages = knex
+      .from('web_messages')
+      .distinct(knex.raw('ON ("conversationId") *'))
+      .orderBy('conversationId')
+      .orderBy('sent_on', 'desc')
 
-    console.log('[]: ', msg)
+    if (process.env.DATABASE !== 'postgres') {
+      const lastMessagesDate = knex('web_messages')
+        .whereIn('conversationId', conversationIds)
+        .groupBy('conversationId')
+        .select(knex.raw('max(sent_on) as date'))
 
-    console.log('lastMessagesDate: ', lastMessagesDate)
-
-    const lastMassegeInConversation = knex.from('web_messages').select('*')
-
-    if (isPostgres) {
-      lastMassegeInConversation.whereRaw(`sent_on = ANY(ARRAY${JSON.stringify(lastMessagesDate)}::date[])`) //TODO: doesn't work
-    } else {
-      lastMassegeInConversation.whereIn('sent_on', lastMessagesDate)
+      lastMessages = knex
+        .from('web_messages')
+        .select('*')
+        .whereIn('sent_on', lastMessagesDate)
     }
-
-    console.log('messages: ', await lastMassegeInConversation)
 
     return knex
       .from(function() {
@@ -233,7 +227,7 @@ module.exports = (knex, config) => {
           .where({ userId })
           .as('wc')
       })
-      .leftJoin(lastMassegeInConversation.as('wm'), 'wm.conversationId', 'wc.id')
+      .leftJoin(lastMessages.as('wm'), 'wm.conversationId', 'wc.id')
       .orderBy('wm.sent_on', 'desc')
       .select(
         'wc.id',
