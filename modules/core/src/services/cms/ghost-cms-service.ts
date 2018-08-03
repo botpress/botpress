@@ -1,4 +1,5 @@
 import { inject, injectable, tagged } from 'inversify'
+import _ from 'lodash'
 import path from 'path'
 
 import { ExtendedKnex } from '../../database/interfaces'
@@ -9,7 +10,15 @@ import { GhostContentService } from '../ghost-content'
 import { CMSService, ContentElement, ContentType } from '.'
 import { CodeFile, SafeCodeSandbox } from './util'
 
+const CONTENT_ELEMENTS_TABLE = 'content_elements'
 const LOCATION = 'content-types'
+
+class SearchParameters {
+  searchTerm: string
+  orderBy: string[] = ['createdOn']
+  from = 0
+  count = 50
+}
 
 @injectable()
 export class GhostCMSService implements CMSService {
@@ -24,14 +33,14 @@ export class GhostCMSService implements CMSService {
   ) {}
 
   async initialize() {
-    await this.ghost.addRootFolder(true, LOCATION, { filesGlob: '**.js', isBinary: false })
+    await this.ghost.addRootFolder(true, 'content-types', { filesGlob: '**.js', isBinary: false })
     await this.prepareDb()
+    await this.seed()
     await this.loadContentTypesFromFiles()
-    await this.listContentElements('bot123', 'buitin_text')
   }
 
   private async prepareDb() {
-    await this.memDb.createTableIfNotExists('content_elements', table => {
+    await this.memDb.createTableIfNotExists(CONTENT_ELEMENTS_TABLE, table => {
       table.string('id')
       table.string('botId')
       table.primary(['id', 'botId'])
@@ -40,8 +49,25 @@ export class GhostCMSService implements CMSService {
       table.text('computedData')
       table.text('previewText')
       table.string('createdBy')
-      table.timestamp('created_on')
+      table.timestamp('createdOn')
     })
+  }
+
+  private async seed() {
+    const fileNames = await this.ghost.directoryListing(botId, 'content-elements', '.json')
+    let contentElements: ContentElement[] = []
+
+    for (const fileName of fileNames) {
+      const file = <string>await this.ghost.readFile(botId, 'content-elements', fileName)
+      const fileContentElements = <ContentElement[]>JSON.parse(file)
+      contentElements = _.concat(contentElements, fileContentElements)
+    }
+
+    Promise.mapSeries(contentElements, element =>
+      this.memDb('CONTENT_ELEMENTS_TABLE')
+        .insert(this.transformItemApiToDb(element, botId))
+        .then()
+    )
   }
 
   private async loadContentTypesFromFiles(): Promise<void> {
@@ -75,49 +101,94 @@ export class GhostCMSService implements CMSService {
     }
   }
 
+<<<<<<< Updated upstream
   private async loadContentTypeFromFile(sandbox: SafeCodeSandbox, fileName: string): Promise<void> {
     const type = <ContentType>await sandbox.run(fileName)
+=======
+  private async loadContentTypeFromFile(fileName: string): Promise<void> {
+    const content = <string>await this.ghost.readFile('global', 'content-types', fileName)
+    const type = safeEvalToObject<ContentType>(content)
+>>>>>>> Stashed changes
 
     if (!type || !type.id) {
       throw new Error('Invalid type ' + fileName)
     }
   }
 
-  async listContentElements(botId: string, contentType: string): Promise<ContentElement[]> {
-    const fileNames = await this.ghost.directoryListing(botId, '/content-elements', '.json')
-    const elements: ContentElement[] = []
+  private transformItemApiToDb(element: ContentElement, botId: string) {
+    return {
+      id: element.id,
+      botId: botId,
+      contentType: element.contentType,
+      rawData: element.rawData,
+      computedData: element.computedData,
+      previewText: element.previewText,
+      createdBy: element.createdBy,
+      createdOn: element.createdOn
+    }
+  }
 
-    // fileNames.map(fileName => {
-    //   this.ghost.readFile(botId, '/content-elements', fileName)
-    // })
+  async listContentElements(botId: string, contentType?: string, params?: SearchParameters): Promise<ContentElement[]> {
+    let query = this.memDb(CONTENT_ELEMENTS_TABLE)
+    query = query.where('botId', botId)
 
+<<<<<<< Updated upstream
     for (const fileName of fileNames) {
       const file = <string>await this.ghost.readFile(botId, '/content-elements', fileName)
       // const element = safeEvalToObject<ContentElement>(file) // Do we need safe??
       // console.log(element)
       // elements.push(element)
+=======
+    if (contentType) {
+      query = query.where('contentType', contentType)
     }
 
-    return elements
+    if (params && params.searchTerm) {
+      query = query.where(builder =>
+        builder.where('formData', 'like', `%${params.searchTerm}%`).orWhere('id', 'like', `%${params.searchTerm}%`)
+      )
+    }
+
+    if (params) {
+      params.orderBy.forEach(column => {
+        query = query.orderBy(column)
+      })
+>>>>>>> Stashed changes
+    }
+
+    return <ContentElement[]>await query.offset(params.from).limit(params.count)
   }
-  getContentElement(botId: string, id: string): Promise<ContentElement> {
-    throw new Error('Method not implemented.')
+  async getContentElement(botId: string, id: string): Promise<ContentElement> {
+    return await this.memDb(CONTENT_ELEMENTS_TABLE)
+      .where('botId', botId)
+      .andWhere('id', id)
   }
-  getContentElements(botId: string, ids: string): Promise<ContentElement[]> {
-    throw new Error('Method not implemented.')
+
+  async getContentElements(botId: string, ids: string[]): Promise<ContentElement[]> {
+    return await this.memDb(CONTENT_ELEMENTS_TABLE).where(builder => builder.where('botId', botId).whereIn('id', ids))
   }
-  getAllContentTypes(): Promise<ContentType[]>
-  getAllContentTypes(botId: string): Promise<ContentType[]>
+
+  async countContentElements(botId: string, contentType: string): Promise<number> {
+    return await this.memDb(CONTENT_ELEMENTS_TABLE)
+      .where('botId', botId)
+      .andWhere('contentType', contentType)
+      .count('* as count')
+      .get(0)
+      .then(row => (row && Number(row.count)) || 0)
+  }
+
+  async deleteContentElements(botId: string, ids: string[]): Promise<void> {
+    return await this.memDb(CONTENT_ELEMENTS_TABLE)
+      .where('botId', botId)
+      .whereIn('id', ids)
+      .del()
+  }
+
   async getAllContentTypes(botId?: any) {
     return []
   }
+
   getContentType(contentType: string): Promise<ContentType> {
-    throw new Error('Method not implemented.')
-  }
-  countContentElements(botId: string, contentType: string): Promise<number> {
-    throw new Error('Method not implemented.')
-  }
-  deleteContentElements(botId: string, ids: string[]): Promise<void> {
     throw new Error('Method not implemented.')
   }
 }

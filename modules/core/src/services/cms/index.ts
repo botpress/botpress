@@ -8,7 +8,7 @@ export interface CMSService {
   countContentElements(botId: string, contentType: string): Promise<number>
   deleteContentElements(botId: string, ids: string[]): Promise<void>
   getContentElement(botId: string, id: string): Promise<ContentElement>
-  getContentElements(botId: string, ids: string): Promise<ContentElement[]>
+  getContentElements(botId: string, ids: string[]): Promise<ContentElement[]>
 }
 
 export type ContentType = {
