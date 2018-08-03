@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.28.0"></a>
+# [10.28.0](https://github.com/botpress/botpress/compare/v10.27.1...v10.28.0) (2018-08-03)
+
+
+### Features
+
+* **channel-web:** implement the new  message type ([68cfbc9](https://github.com/botpress/botpress/commit/68cfbc9)), closes [#780](https://github.com/botpress/botpress/issues/780)
+
+
+
+
 <a name="10.27.1"></a>
 ## [10.27.1](https://github.com/botpress/botpress/compare/v10.27.0...v10.27.1) (2018-08-01)
 
