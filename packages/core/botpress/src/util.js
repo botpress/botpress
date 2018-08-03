@@ -4,6 +4,9 @@ import Module from 'module'
 import fs from 'fs'
 import knex from 'knex'
 import generate from 'nanoid/generate'
+import semver from 'semver'
+import _ from 'lodash'
+import { compose } from 'lodash/fp'
 
 const IS_DEV = process.env.NODE_ENV !== 'production'
 
@@ -76,6 +79,7 @@ const getDataLocation = (dataDir, projectLocation) =>
 const getBotpressVersion = () => {
   const botpressPackagePath = path.join(__dirname, '../package.json')
   const botpressJson = JSON.parse(fs.readFileSync(botpressPackagePath))
+
   return botpressJson.version
 }
 
@@ -123,6 +127,52 @@ const getPackageName = pkg => {
   }
 }
 
+const versionExists = version => {
+  if (version == null) {
+    throw new Error("Version doesn't exist in botfile.js")
+  }
+
+  return version
+}
+const isValidString = version => {
+  if (_.isEmpty(version) || !_.isString(version)) {
+    throw new Error('Version must be non-empty string')
+  }
+
+  return version
+}
+const isValidFormat = version => {
+  try {
+    // TODO: change this method if "semver" module will implement semver.isValid()
+    semver.valid(version)
+  } catch (err) {
+    throw new Error('Version must have semver format (e.g. 10.25.0)')
+  }
+
+  return version
+}
+const isEqualOrGreater = packageVersion => botfileVersion => {
+  const botfileMajorVersion = Number(semver.major(botfileVersion))
+  const packageMajorVersion = Number(semver.major(packageVersion))
+
+  const msg = `Your bot may be incompatible with botpress v${packageVersion}
+  because it looks like your bot was originally created with botpress v${botfileVersion}.
+  To address this:
+
+  - if the major versions are identical the fix is to update to botpress v${botfileVersion} by changing the botpress and all @botpress/* modules version in the bot's package.json
+  - if the botpress major version is below the botfile's major version — same
+  - if the botpress major version is above the botfile's major version - link to CHANGELOG in the repo root and suggest looking for and addressing the breaking changes listed there`
+
+  if (botfileMajorVersion !== packageMajorVersion || semver.lt(packageMajorVersion, botfileVersion)) {
+    throw new Error(msg)
+  }
+
+  return botfileVersion
+}
+
+const validateVersion = packageVersion =>
+  compose(isEqualOrGreater(packageVersion), isValidFormat, isValidString, versionExists)
+
 const getCircularReplacer = () => {
   const seen = new WeakSet()
   return (key, value) => {
@@ -152,5 +202,6 @@ module.exports = {
   safeId,
   isBotpressPackage,
   getModuleShortname,
+  validateVersion,
   safeStringify
 }
