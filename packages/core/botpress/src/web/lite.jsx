@@ -39,6 +39,7 @@ class LiteView extends React.Component {
 
     const userId = window.__BP_VISITOR_ID || getUniqueVisitorId()
 
+    // TODO: why don't we have module-specific code inside of that module?
     axios.get(`/api/botpress-platform-webchat/${userId}/reference?ref=${ref}`)
   }
 
