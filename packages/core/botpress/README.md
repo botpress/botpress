@@ -68,8 +68,7 @@ Thank you for your interest in Botpress. Here are some of the many ways to contr
 * Look at our [code of conduct](/.github/CODE_OF_CONDUCT.md)
 * Engage with us on Social Media
   * Follow us on [Twitter](https://twitter.com/getbotpress)
-  * Join our channel on [Slack](https://slack.botpress.io)
-* Answer and ask questions on the Slack community
+* Answer and ask questions on the [Forum](https://help.botpress.io/)
 
 For starters, there are some open issues with the [first good issue][starter-label] tag which are ideal for starting to contribute. They are all relatively easy to get started with.
 
