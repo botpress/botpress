@@ -28,12 +28,18 @@ export class GhostCMSService implements CMSService {
   ) {}
 
   async initialize() {
-    await this.ghost.addRootFolder(true, 'content-types', { filesGlob: '**.js', isBinary: false })
+    await this.ghost.addRootFolder(true, LOCATION, { filesGlob: '**.js', isBinary: false })
     await this.prepareDb()
     await this.loadContentTypesFromFiles()
 
     // REMOVE THIS
     await this.loadContentElementsFromFiles('bot123')
+    // console.log(await this.getAllContentTypes('bot123'))
+    // console.log(await this.getAllContentTypes())
+    // console.log(await this.createOrUpdateContentElement('bot123', 'builtin_text', ''))
+    // console.log(await this.countContentElements('bot123', 'builtin_single-choice'))
+    // console.log(await this.getRandomContentElement('builtin_single-choice'))
+    // console.log(await this.listContentElements('bot123', undefined, { ...DefaultSearchParams, searchTerm: 'choice' }))
   }
 
   private async prepareDb() {
@@ -69,7 +75,7 @@ export class GhostCMSService implements CMSService {
   }
 
   private mapToTable(element: ContentElement, botId: string) {
-    // Do we need to persist computedData and previewText here??
+    // Call computedData, previewText and persist as well?
     return { ...element, botId: botId }
   }
 
@@ -106,9 +112,11 @@ export class GhostCMSService implements CMSService {
 
   private async loadContentTypeFromFile(sandbox: SafeCodeSandbox, fileName: string): Promise<void> {
     const contentType = <ContentType>await sandbox.run(fileName)
+
     if (!contentType || !contentType.id) {
       throw new Error('Invalid content type ' + fileName)
     }
+
     this.filesById[contentType.id] = fileName + '.json'
     this.contentTypes.push(contentType)
   }
@@ -166,7 +174,13 @@ export class GhostCMSService implements CMSService {
 
   async getAllContentTypes(botId?: any): Promise<ContentType[]> {
     if (botId) {
-      return []
+      const fileNames = await this.ghost.directoryListing(botId, 'content-elements', '.json')
+      const contentTypeIds = fileNames.map(fileName => fileName.split('.')[0])
+      const contentTypes = []
+      for (const id of contentTypeIds) {
+        contentTypes.push(await this.getContentType(id))
+      }
+      return contentTypes
     }
     return this.contentTypes
   }
@@ -185,9 +199,9 @@ export class GhostCMSService implements CMSService {
 
   async createOrUpdateContentElement(
     botId: string,
-    contentElementId: string,
     contentTypeId: string,
-    formData: string
+    formData: string,
+    contentElementId?: string
   ): Promise<string> {
     contentTypeId = contentTypeId.toLowerCase()
     const contentType = _.find(this.contentTypes, { id: contentTypeId })
@@ -215,7 +229,7 @@ export class GhostCMSService implements CMSService {
         createdBy: 'admin',
         createdOn: Date.now(), // helpers
         id: contentElementId,
-        contentTypeId
+        contentType: contentTypeId
       })
     }
 
@@ -258,12 +272,11 @@ export class GhostCMSService implements CMSService {
   }
 
   private async dumpDataToFile(botId: string, contentTypeId: string) {
-    // TODO Do paging here and dump *everything* <===== What???
+    // TODO Do paging here and dump *everything*
     const params = { ...DefaultSearchParams, count: 10000 }
     const items = (await this.listContentElements(botId, contentTypeId, params)).map(item =>
       _.pick(item, 'id', 'formData', 'createdBy', 'createdOn')
     )
-
     await this.ghost.upsertFile(botId, '/', this.filesById[contentTypeId], JSON.stringify(items, undefined, 2))
   }
 
@@ -280,7 +293,6 @@ export class GhostCMSService implements CMSService {
     if ('data' in item) {
       result.data = JSON.stringify(item.data)
     }
-
     return result
   }
 
@@ -290,19 +302,19 @@ export class GhostCMSService implements CMSService {
     }
 
     const expandedFormData = await this.resolveRefs(formData)
-    const data = await this.computeData(contentType.id, expandedFormData)
+    const computedData = await this.computeData(contentType.id, expandedFormData)
     const previewText = await this.computePreviewText(contentType.id, expandedFormData)
 
     if (!_.isString(previewText)) {
       throw new Error('computePreviewText must return a string')
     }
 
-    if (data == undefined) {
+    if (computedData == undefined) {
       throw new Error('computeData must return a valid object')
     }
 
     return {
-      data,
+      computedData,
       previewText
     }
   }
@@ -312,9 +324,7 @@ export class GhostCMSService implements CMSService {
     if (!contentType) {
       throw new Error(`Unknown content type ${contentTypeId}`)
     }
-    return !contentType.computePreviewText
-      ? 'No preview'
-      : contentType.computePreviewText(formData, this.computePreviewText)
+    return !contentType.computePreviewText ? 'No preview' : contentType.computePreviewText(contentTypeId, formData)
   }
 
   private computeData(contentTypeId, formData) {
@@ -322,6 +332,6 @@ export class GhostCMSService implements CMSService {
     if (!contentType) {
       throw new Error(`Unknown content type ${contentTypeId}`)
     }
-    return !contentType.computeData ? formData : contentType.computeData(formData, this.computeData)
+    return !contentType.computeData ? formData : contentType.computeData(contentTypeId, formData)
   }
 }

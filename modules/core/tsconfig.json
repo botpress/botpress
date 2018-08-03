@@ -18,5 +18,6 @@
     "emitDecoratorMetadata": true,
     "types": ["bluebird-global", "reflect-metadata"]
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*"],
+  "exclude": ["src/**/*.test.ts"]
 }
