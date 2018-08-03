@@ -1,14 +1,14 @@
 export interface CMSService {
   initialize(): Promise<void>
-  getAllContentTypes(): Promise<ContentType[]>
-  getAllContentTypes(botId: string): Promise<ContentType[]>
-  getContentType(contentType: string): Promise<ContentType>
+  getAllContentTypes(botId?: string): Promise<ContentType[]>
+  getContentType(contentTypeId: string): Promise<ContentType>
 
-  listContentElements(botId: string, contentType?: string, searchParams?: SearchParams): Promise<ContentElement[]>
-  countContentElements(botId: string, contentType: string): Promise<number>
+  listContentElements(botId: string, contentTypeId?: string, searchParams?: SearchParams): Promise<ContentElement[]>
+  countContentElements(botId: string, contentTypeId: string): Promise<number>
   deleteContentElements(botId: string, ids: string[]): Promise<void>
   getContentElement(botId: string, id: string): Promise<ContentElement>
   getContentElements(botId: string, ids: string[]): Promise<ContentElement[]>
+  getRandomContentElement(contentTypeId: string): Promise<ContentElement>
 }
 
 export type ContentType = {
@@ -25,8 +25,8 @@ export type ContentType = {
 export type ContentElement = {
   id: string
   contentType: string
-  rawData: object
-  computedData: object
+  formData: object // rawData
+  computedData: object // data
   createdOn: Date
   createdBy: string
   modifiedOn: Date

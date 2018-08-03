@@ -20,6 +20,7 @@
     "tslint": "tslint -c tslint.json -p tsconfig.json"
   },
   "dependencies": {
+    "@types/nanoid": "^1.0.0",
     "bluebird-global": "^1.0.1",
     "body-parser": "^1.18.3",
     "botpress-module-sdk": "../../packages/module-sdk",
@@ -35,6 +36,7 @@
     "mkdirp": "^0.5.1",
     "moment": "^2.22.2",
     "ms": "^2.1.1",
+    "nanoid": "^1.1.0",
     "pg": "^7.4.3",
     "reflect-metadata": "^0.1.12",
     "sqlite3": "^4.0.2",
