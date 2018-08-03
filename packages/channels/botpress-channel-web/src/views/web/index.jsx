@@ -37,6 +37,8 @@ const defaultOptions = {
   foregroundColor: '#000000',
   textColorOnForeground: '#ffffff',
   enableReset: false,
+  showUserName: false,
+  showUserAvatar: false,
   botConvoTitle: 'Botpress Webchat'
 }
 

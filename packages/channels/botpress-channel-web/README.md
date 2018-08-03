@@ -246,7 +246,9 @@ const config = {
   backgroundColor: '#ffffff',
   textColorOnBackground: '#666666',
   foregroundColor: '#000000',
-  textColorOnForeground: '#ffffff'
+  textColorOnForeground: '#ffffff',
+  showUserName: false,
+  showUserAvatar: false
 }
 
 bp.createShortlink('chat', '/lite', {
@@ -283,7 +285,9 @@ window.botpressWebChat.init({
   backgroundColor: '#ffffff', // Color of the background
   textColorOnBackground: '#666666', // Color of the text on the background
   foregroundColor: '#0176ff', // Element background color (header, composer, button..)
-  textColorOnForeground: '#ffffff' // Element text color (header, composer, button..)
+  textColorOnForeground: '#ffffff', // Element text color (header, composer, button..)
+  showUserName: false, // Whether or not to show the user's name
+  showUserAvatar: false // Whether or not to show the user's avatar
 })
 ```
 
