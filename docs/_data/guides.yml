@@ -14,9 +14,9 @@
     - path: "/getting_started/trivia_nlu/"
     - path: "/getting_started/trivia_deploying/"
     - path: "/getting_started/trivia_changes/"
-    - path: "/getting_started/i18n/"
-    - path: "/getting_started/embedding/"
-    - path: "/getting_started/proactive/"
+    # - path: "/getting_started/i18n/"
+    # - path: "/getting_started/embedding/"
+    # - path: "/getting_started/proactive/"
 
 - id: "recipes"
   pages:

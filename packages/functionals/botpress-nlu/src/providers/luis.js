@@ -358,7 +358,7 @@ export default class LuisProvider extends Provider {
     const res = await axios.get(`https://${this.appRegion}.api.cognitive.microsoft.com/luis/v2.0/apps/${this.appId}`, {
       params: {
         q: incomingEvent.text,
-        verbose: false,
+        verbose: true,
         spellCheck: false,
         staging: !this.isProduction
       },
