@@ -3,6 +3,7 @@ import path from 'path'
 import multer from 'multer'
 import multers3 from 'multer-s3'
 import aws from 'aws-sdk'
+import moment from 'moment'
 
 import injectScript from 'raw-loader!./inject.js'
 import injectStyle from 'raw-loader!./inject.css'
@@ -75,7 +76,7 @@ module.exports = async (bp, config) => {
 
   const { listConversations, getConversation, appendUserMessage, getOrCreateRecentConversation } = db(knex, config)
 
-  const { getOrCreateUser } = await users(bp, config)
+  const { getOrCreateUser, getUserProfile } = await users(bp, config)
 
   const router = bp.getRouter('botpress-platform-webchat', { auth: false })
 
@@ -298,6 +299,50 @@ module.exports = async (bp, config) => {
     } catch (error) {
       res.status(500)
     }
+  })
+
+  const getMessageContent = message => {
+    switch (message.message_type) {
+      case 'file':
+        return message.message_data.url
+      case 'text':
+        return message.message_text
+      default:
+        return `Event (${message.message_type})`
+    }
+  }
+
+  const convertToTxtFile = async conversation => {
+    const { messages } = conversation
+    const user = await getUserProfile(conversation.userId)
+    const timeFormat = 'MM/DD/YY HH:mm'
+
+    const metadata = `Title: ${conversation.title}\r\nCreated on: ${moment(conversation.created_on).format(
+      timeFormat
+    )}\r\nUser: ${user.first_name} ${user.last_name}\r\n-----------------\r\n`
+
+    const messagesAsTxt = messages.map(message => {
+      if (message.message_type === 'session_reset') {
+        return ''
+      }
+
+      return `[${moment(message.sent_on).format(timeFormat)}] ${message.full_name}: ${getMessageContent(message)}\r\n`
+    })
+
+    return [metadata, ...messagesAsTxt].join('')
+  }
+
+  router.get('/conversations/:userId/:conversationId/download/txt', async (req, res) => {
+    const { userId, conversationId } = req.params || {}
+
+    if (!validateUserId(userId)) {
+      return res.status(400).send(ERR_USER_ID_REQ)
+    }
+
+    const conversation = await getConversation(userId, conversationId)
+    const txt = await convertToTxtFile(conversation)
+
+    res.send({ txt, name: `${conversation.title}.txt` })
   })
 
   return router

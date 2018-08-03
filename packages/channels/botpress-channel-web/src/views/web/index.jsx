@@ -39,7 +39,8 @@ const defaultOptions = {
   enableReset: false,
   showUserName: false,
   showUserAvatar: false,
-  botConvoTitle: 'Botpress Webchat'
+  botConvoTitle: 'Botpress Webchat',
+  enableTranscriptDownload: false
 }
 
 export default class Web extends React.Component {
@@ -509,6 +510,30 @@ export default class Web extends React.Component {
     )
   }
 
+  downaloadFile(name, blob) {
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+
+    link.href = url
+    link.setAttribute('download', name)
+
+    document.body.appendChild(link)
+    link.click()
+
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+  }
+
+  downloadConversation = async () => {
+    const userId = window.__BP_VISITOR_ID
+    const url = `${BOT_HOSTNAME}/api/botpress-platform-webchat/conversations/${userId}/${this.state
+      .currentConversationId}/download/txt`
+    const file = (await this.props.bp.axios.get(url)).data
+    const blobFile = new Blob([file.txt])
+
+    this.downaloadFile(file.name, blobFile)
+  }
+
   renderSide() {
     return (
       <Side
@@ -530,6 +555,7 @@ export default class Web extends React.Component {
         onFileUploadSend={this.handleFileUploadSend}
         onLoginPromptSend={this.handleLoginPrompt}
         onSendData={this.handleSendData}
+        downloadConversation={this.downloadConversation}
       />
     )
   }
