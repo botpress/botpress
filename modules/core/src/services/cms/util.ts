@@ -1,5 +1,4 @@
 import fs from 'fs'
-import _ from 'lodash'
 import path from 'path'
 import tmp from 'tmp'
 

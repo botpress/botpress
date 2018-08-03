@@ -4,7 +4,7 @@ export interface CMSService {
   getAllContentTypes(botId: string): Promise<ContentType[]>
   getContentType(contentType: string): Promise<ContentType>
 
-  listContentElements(botId: string, contentType: string): Promise<ContentElement[]>
+  listContentElements(botId: string, contentType?: string, searchParams?: SearchParams): Promise<ContentElement[]>
   countContentElements(botId: string, contentType: string): Promise<number>
   deleteContentElements(botId: string, ids: string[]): Promise<void>
   getContentElement(botId: string, id: string): Promise<ContentElement>
@@ -31,4 +31,18 @@ export type ContentElement = {
   createdBy: string
   modifiedOn: Date
   previewText: string
+}
+
+export type SearchParams = {
+  searchTerm: string
+  orderBy: string[]
+  from: number
+  count: number
+}
+
+export const DefaultSearchParams: SearchParams = {
+  searchTerm: undefined,
+  orderBy: ['createdOn'],
+  from: 0,
+  count: 50
 }

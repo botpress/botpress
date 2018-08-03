@@ -7,18 +7,11 @@ import { Logger } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
 import { GhostContentService } from '../ghost-content'
 
-import { CMSService, ContentElement, ContentType } from '.'
+import { CMSService, ContentElement, ContentType, DefaultSearchParams, SearchParams } from '.'
 import { CodeFile, SafeCodeSandbox } from './util'
 
 const CONTENT_ELEMENTS_TABLE = 'content_elements'
 const LOCATION = 'content-types'
-
-class SearchParameters {
-  searchTerm: string
-  orderBy: string[] = ['createdOn']
-  from = 0
-  count = 50
-}
 
 @injectable()
 export class GhostCMSService implements CMSService {
@@ -35,8 +28,11 @@ export class GhostCMSService implements CMSService {
   async initialize() {
     await this.ghost.addRootFolder(true, 'content-types', { filesGlob: '**.js', isBinary: false })
     await this.prepareDb()
-    await this.seed()
     await this.loadContentTypesFromFiles()
+
+    // TESTS
+    await this.loadContentElementsFromFiles('bot123')
+    console.log(await this.listContentElements('bot123', 'builtin_text'))
   }
 
   private async prepareDb() {
@@ -45,15 +41,17 @@ export class GhostCMSService implements CMSService {
       table.string('botId')
       table.primary(['id', 'botId'])
       table.string('contentType')
+      table.string('formData')
       table.text('rawData')
       table.text('computedData')
       table.text('previewText')
       table.string('createdBy')
       table.timestamp('createdOn')
+      table.timestamp('modifiedOn')
     })
   }
 
-  private async seed() {
+  private async loadContentElementsFromFiles(botId: string) {
     const fileNames = await this.ghost.directoryListing(botId, 'content-elements', '.json')
     let contentElements: ContentElement[] = []
 
@@ -64,10 +62,14 @@ export class GhostCMSService implements CMSService {
     }
 
     Promise.mapSeries(contentElements, element =>
-      this.memDb('CONTENT_ELEMENTS_TABLE')
-        .insert(this.transformItemApiToDb(element, botId))
+      this.memDb(CONTENT_ELEMENTS_TABLE)
+        .insert(this.mapToTable(element, botId))
         .then()
     )
+  }
+
+  private mapToTable(element: ContentElement, botId: string) {
+    return { ...element, botId: botId }
   }
 
   private async loadContentTypesFromFiles(): Promise<void> {
@@ -101,60 +103,35 @@ export class GhostCMSService implements CMSService {
     }
   }
 
-<<<<<<< Updated upstream
   private async loadContentTypeFromFile(sandbox: SafeCodeSandbox, fileName: string): Promise<void> {
     const type = <ContentType>await sandbox.run(fileName)
-=======
-  private async loadContentTypeFromFile(fileName: string): Promise<void> {
-    const content = <string>await this.ghost.readFile('global', 'content-types', fileName)
-    const type = safeEvalToObject<ContentType>(content)
->>>>>>> Stashed changes
 
     if (!type || !type.id) {
       throw new Error('Invalid type ' + fileName)
     }
   }
 
-  private transformItemApiToDb(element: ContentElement, botId: string) {
-    return {
-      id: element.id,
-      botId: botId,
-      contentType: element.contentType,
-      rawData: element.rawData,
-      computedData: element.computedData,
-      previewText: element.previewText,
-      createdBy: element.createdBy,
-      createdOn: element.createdOn
-    }
-  }
-
-  async listContentElements(botId: string, contentType?: string, params?: SearchParameters): Promise<ContentElement[]> {
+  async listContentElements(
+    botId: string,
+    contentType?: string,
+    params: SearchParams = DefaultSearchParams
+  ): Promise<ContentElement[]> {
     let query = this.memDb(CONTENT_ELEMENTS_TABLE)
     query = query.where('botId', botId)
 
-<<<<<<< Updated upstream
-    for (const fileName of fileNames) {
-      const file = <string>await this.ghost.readFile(botId, '/content-elements', fileName)
-      // const element = safeEvalToObject<ContentElement>(file) // Do we need safe??
-      // console.log(element)
-      // elements.push(element)
-=======
     if (contentType) {
       query = query.where('contentType', contentType)
     }
 
-    if (params && params.searchTerm) {
+    if (params.searchTerm) {
       query = query.where(builder =>
         builder.where('formData', 'like', `%${params.searchTerm}%`).orWhere('id', 'like', `%${params.searchTerm}%`)
       )
     }
 
-    if (params) {
-      params.orderBy.forEach(column => {
-        query = query.orderBy(column)
-      })
->>>>>>> Stashed changes
-    }
+    params.orderBy.forEach(column => {
+      query = query.orderBy(column)
+    })
 
     return <ContentElement[]>await query.offset(params.from).limit(params.count)
   }
