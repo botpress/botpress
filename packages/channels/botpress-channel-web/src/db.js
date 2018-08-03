@@ -10,6 +10,7 @@ import { sanitizeUserId } from './util'
 
 module.exports = (knex, config) => {
   const RECENT_CONVERSATION_LIFETIME = ms(config.recentConversationLifetime)
+  const isPostgres = process.env.DATABASE === 'postgres'
 
   async function getUserInfo(userId) {
     const user = await knex('users')
@@ -205,14 +206,26 @@ module.exports = (knex, config) => {
 
     const lastMessagesDate = (await knex('web_messages')
       .whereIn('conversationId', conversationIds)
-      .groupBy('web_messages.conversationId')
-      .orderBy('sent_on', 'desc')
+      .groupBy('conversationId')
       .select(knex.raw('max(sent_on) as date'))).map(mess => mess.date)
+    const msg = await knex('web_messages')
+      .whereIn('conversationId', conversationIds)
+      .groupBy('conversationId')
+      .select(knex.raw('max(sent_on) as date'))
 
-    const lastMassegeInConversation = knex
-      .from('web_messages')
-      .select('*')
-      .whereIn('sent_on', lastMessagesDate)
+    console.log('[]: ', msg)
+
+    console.log('lastMessagesDate: ', lastMessagesDate)
+
+    const lastMassegeInConversation = knex.from('web_messages').select('*')
+
+    if (isPostgres) {
+      lastMassegeInConversation.whereRaw(`sent_on = ANY(ARRAY${JSON.stringify(lastMessagesDate)}::date[])`) //TODO: doesn't work
+    } else {
+      lastMassegeInConversation.whereIn('sent_on', lastMessagesDate)
+    }
+
+    console.log('messages: ', await lastMassegeInConversation)
 
     return knex
       .from(function() {
