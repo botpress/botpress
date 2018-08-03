@@ -310,6 +310,10 @@ class Message extends Component {
     return <div style={this.getAddStyle()}>{this.props.data.message_text}</div>
   }
 
+  render_visit() {
+    return null
+  }
+
   render_unsupported() {
     return (
       <div style={this.getAddStyle()}>
@@ -325,15 +329,14 @@ class Message extends Component {
 
     const renderer = (this['render_' + this.props.data.message_type] || this.render_unsupported).bind(this)
 
-    let className = style.bubble
-
-    if (style[this.props.data.message_type]) {
-      className += ' ' + style[this.props.data.message_type]
+    const rendered = renderer()
+    if (rendered === null) {
+      return null
     }
 
     return (
-      <div className={className} style={bubbleStyle}>
-        {renderer()}
+      <div className={classnames(style.bubble, style[this.props.data.message_type])} style={bubbleStyle}>
+        {rendered}
       </div>
     )
   }

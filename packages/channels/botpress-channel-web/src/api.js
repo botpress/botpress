@@ -73,7 +73,7 @@ module.exports = async (bp, config) => {
 
   const knex = await bp.db.get()
 
-  const { listConversations, getConversation, appendUserMessage, getOrCreateRecentConversation } = db(knex, bp.botfile)
+  const { listConversations, getConversation, appendUserMessage, getOrCreateRecentConversation } = db(knex, config)
 
   const { getOrCreateUser } = await users(bp, config)
 
@@ -119,7 +119,7 @@ module.exports = async (bp, config) => {
       let { conversationId } = req.query || {}
       conversationId = conversationId && parseInt(conversationId)
 
-      if (!_.includes(['text', 'quick_reply', 'form', 'login_prompt'], payload.type)) {
+      if (!_.includes(['text', 'quick_reply', 'form', 'login_prompt', 'visit'], payload.type)) {
         // TODO: Support files
         return res.status(400).send(ERR_MSG_TYPE)
       }
@@ -195,7 +195,11 @@ module.exports = async (bp, config) => {
 
     const conversations = await listConversations(userId)
 
-    return res.send([...conversations])
+    return res.send({
+      conversations: [...conversations],
+      startNewConvoOnTimeout: config.startNewConvoOnTimeout,
+      recentConversationLifetime: config.recentConversationLifetime
+    })
   })
 
   function validateUserId(userId) {
