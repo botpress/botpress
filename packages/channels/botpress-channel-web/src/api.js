@@ -119,7 +119,7 @@ module.exports = async (bp, config) => {
       let { conversationId } = req.query || {}
       conversationId = conversationId && parseInt(conversationId)
 
-      if (!_.includes(['text', 'quick_reply', 'form', 'login_prompt'], payload.type)) {
+      if (!_.includes(['text', 'quick_reply', 'form', 'login_prompt', 'visit'], payload.type)) {
         // TODO: Support files
         return res.status(400).send(ERR_MSG_TYPE)
       }
