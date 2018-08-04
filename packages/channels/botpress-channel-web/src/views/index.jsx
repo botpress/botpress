@@ -26,7 +26,8 @@ export class WebBotpressUIInjection extends React.Component {
         hideWidget: true,
         botConvoTitle: 'Bot Emulator',
         botConvoDescription: 'Test your bot live',
-        enableReset: true
+        enableReset: true,
+        enableTranscriptDownload: true
       })
 
     window.document.body.appendChild(script)

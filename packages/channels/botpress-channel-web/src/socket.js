@@ -8,7 +8,7 @@ const outgoingTypes = ['text', 'login_prompt', 'file', 'carousel', 'custom']
 
 module.exports = async (bp, config) => {
   const knex = await bp.db.get()
-  const { appendBotMessage, getOrCreateRecentConversation } = db(knex, bp.botfile)
+  const { appendBotMessage, getOrCreateRecentConversation } = db(knex, config)
   const { getOrCreateUser } = await users(bp, config)
 
   const { botName = 'Bot', botAvatarUrl = null } = config || {}
