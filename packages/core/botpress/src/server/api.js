@@ -188,17 +188,18 @@ bp.createShortlink('chat', '/lite', {
     app.get(`/s/:name`, (req, res) => {
       const name = req.params.name.toLowerCase()
       const query = qs.stringify(req.query)
+      let link = links[name]
 
-      if (!links[name]) {
+      if (!link) {
         return res.status(404).send({ error: `Shortlink "${name}" not registered` })
       }
 
       if (query) {
-        const hasQuery = /\?/g.test(links[name])
-        links[name] = links[name].concat(`${hasQuery ? '&' : '?'}${query}`)
+        const hasQuery = /\?/g.test(link)
+        link = link.concat(`${hasQuery ? '&' : '?'}${query}`)
       }
 
-      res.redirect(links[name])
+      res.redirect(link)
     })
   }
 
