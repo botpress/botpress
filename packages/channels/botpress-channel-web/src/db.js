@@ -8,10 +8,9 @@ import { DatabaseHelpers as helpers } from 'botpress'
 
 import { sanitizeUserId } from './util'
 
-// TODO make these vars configurable
-const RECENT_CONVERSATION_LIFETIME = ms('6 hours')
+module.exports = (knex, config) => {
+  const RECENT_CONVERSATION_LIFETIME = ms(config.recentConversationLifetime)
 
-module.exports = knex => {
   async function getUserInfo(userId) {
     const user = await knex('users')
       .where({ platform: 'webchat', userId: sanitizeUserId(userId) })
@@ -220,6 +219,7 @@ module.exports = knex => {
         'web_conversations.description',
         'web_conversations.logo_url',
         'web_conversations.created_on',
+        'web_conversations.last_heard_on',
         'web_messages.message_type',
         'web_messages.message_text',
         knex.raw('web_messages.full_name as message_author'),

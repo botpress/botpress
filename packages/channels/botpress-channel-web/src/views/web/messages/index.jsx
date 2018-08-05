@@ -19,6 +19,10 @@ const TIME_BETWEEN_DATES = 10 // 10 minutes
 
 class MessageGroup extends Component {
   renderAvatar() {
+    if (!this.props.isBot && !this.props.avatarUrl) {
+      return
+    }
+
     let content = <BotAvatar foregroundColor={this.props.fgColor} />
 
     if (this.props.avatarUrl) {
@@ -33,21 +37,15 @@ class MessageGroup extends Component {
   }
 
   render() {
-    const sample = this.props.messages[0]
-    const isBot = !sample.userId
-
-    const className = classnames(style.message, {
-      [style.user]: !isBot
-    })
-
+    const className = classnames(style.message, { [style.user]: !this.props.isBot })
     const bubbleColor = this.props.fgColor
     const textColor = this.props.textColor
 
     return (
       <div className={className}>
-        {isBot && this.renderAvatar()}
+        {this.renderAvatar()}
         <div className={style['message-container']}>
-          {isBot && <div className={style['info-line']}>{sample.full_name}</div>}
+          {this.props.showUserName && <div className={style['info-line']}>{this.props.userName}</div>}
           <div className={style.group}>
             {this.props.messages.map((data, i) => {
               return (
@@ -168,13 +166,19 @@ export default class MessageList extends Component {
           const isDateNeeded =
             !groups[i - 1] || differenceInMinutes(new Date(groupDate), new Date(lastDate)) > TIME_BETWEEN_DATES
 
+          const [{ userId, full_name: userName, avatar_url: avatarUrl }] = group
+
           return (
             <div key={i}>
               {isDateNeeded ? this.renderDate(group[0].sent_on) : null}
               <MessageGroup
-                avatarUrl={this.props.avatarUrl}
+                isBot={!userId}
+                avatarUrl={userId ? this.props.showUserAvatar && avatarUrl : this.props.botAvatarUrl}
+                userName={userName}
                 fgColor={this.props.fgColor}
                 textColor={this.props.textColor}
+                showUserAvatar={this.props.showUserAvatar}
+                showUserName={this.props.showUserName}
                 key={`msg-group-${i}`}
                 onLoginPromptSend={this.props.onLoginPromptSend}
                 isLastGroup={i >= groups.length - 1}
@@ -306,6 +310,10 @@ class Message extends Component {
     return <div style={this.getAddStyle()}>{this.props.data.message_text}</div>
   }
 
+  render_visit() {
+    return null
+  }
+
   render_unsupported() {
     return (
       <div style={this.getAddStyle()}>
@@ -321,15 +329,14 @@ class Message extends Component {
 
     const renderer = (this['render_' + this.props.data.message_type] || this.render_unsupported).bind(this)
 
-    let className = style.bubble
-
-    if (style[this.props.data.message_type]) {
-      className += ' ' + style[this.props.data.message_type]
+    const rendered = renderer()
+    if (rendered === null) {
+      return null
     }
 
     return (
-      <div className={className} style={bubbleStyle}>
-        {renderer()}
+      <div className={classnames(style.bubble, style[this.props.data.message_type])} style={bubbleStyle}>
+        {rendered}
       </div>
     )
   }

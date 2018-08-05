@@ -1,4 +1,3 @@
-import Promise from 'bluebird'
 import { static as staticMiddleware } from 'express'
 import path from 'path'
 import fs from 'fs'
@@ -17,9 +16,8 @@ module.exports = bp => {
 
       app.get(iconRequestPath, (req, res) => {
         try {
-          const content = fs.readFileSync(iconPath)
           res.contentType('image/png')
-          res.send(content)
+          res.sendFile(iconPath)
         } catch (err) {
           bp.logger.warn(`Could not serve module icon [${name}] at: ${iconPath}`)
         }
@@ -135,7 +133,7 @@ module.exports = bp => {
       // If browser requests HTML and request isn't an API request
       if (/html/i.test(req.headers.accept) && !/^\/api\//i.test(req.url)) {
         if (req.url && /^\/lite\//i.test(req.url)) {
-          return res.sendFile(path.join(bp.botpressPath, './lib/web/lite.html'))
+          return res.sendFile(path.join(bp.botpressPath, './lib/web/lite/index.html'))
         }
 
         return res.sendFile(path.join(bp.botpressPath, './lib/web/index.html'))
@@ -143,7 +141,7 @@ module.exports = bp => {
       next()
     })
 
-    return Promise.resolve(true)
+    return true
   }
 
   return { install }

@@ -3,6 +3,27 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.28.0"></a>
+# [10.28.0](https://github.com/botpress/modules/compare/v10.27.1...v10.28.0) (2018-08-03)
+
+
+### Bug Fixes
+
+* **web:** added config options for showAvatar and showUserName ([c90ff5a](https://github.com/botpress/modules/commit/c90ff5a))
+* **web:** default config ([6f7fe72](https://github.com/botpress/modules/commit/6f7fe72))
+* **web:** download transcript config ([fe1a1c4](https://github.com/botpress/modules/commit/fe1a1c4))
+* **webchat:** display user's avatar and name if available (resolve [#803](https://github.com/botpress/modules/issues/803)) ([2bc7f34](https://github.com/botpress/modules/commit/2bc7f34))
+
+
+### Features
+
+* **channel-web:** implement the new  message type ([68cfbc9](https://github.com/botpress/modules/commit/68cfbc9)), closes [#780](https://github.com/botpress/modules/issues/780)
+* **web:** implemented downloading conversation (resolve [#802](https://github.com/botpress/modules/issues/802)) ([ee8ec8a](https://github.com/botpress/modules/commit/ee8ec8a))
+* **webchat:** start new feature on timeout (resovle [#805](https://github.com/botpress/modules/issues/805)) ([f64fde1](https://github.com/botpress/modules/commit/f64fde1))
+
+
+
+
 <a name="10.27.1"></a>
 ## [10.27.1](https://github.com/botpress/modules/compare/v10.27.0...v10.27.1) (2018-08-01)
 
