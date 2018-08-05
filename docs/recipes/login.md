@@ -117,7 +117,7 @@ authRouter.get('/pair/:userId', async (req, res) => {
 })
 ```
 
-To have this message handled by the dialog engine, you have to make sure that the bot is listening to for this type of event:
+To have this message handled by the dialog engine, you have to make sure that the bot is listening for this type of event:
 
 ```js
   bp.hear({ type: /message|text|login_callback/i }, async (event, next) =>
