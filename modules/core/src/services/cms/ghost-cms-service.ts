@@ -37,7 +37,6 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
 
   // TODO Test this class
   async initialize() {
-    await Promise.delay(5000)
     await this.ghost.addRootFolder(true, TYPES_LOCATION, { filesGlob: '**.js', isBinary: false })
     await this.ghost.addRootFolder(false, ELEMENTS_LOCATION, { filesGlob: '**.json', isBinary: false })
     await this.prepareDb()
@@ -78,8 +77,6 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
       const fileContentElements = (<ContentElement[]>JSON.parse(file)).map(x => ({ ...x, contentType }))
       contentElements = _.concat(contentElements, fileContentElements)
     }
-
-    console.log(botId)
 
     return Promise.mapSeries(contentElements, element =>
       this.memDb(CONTENT_ELEMENTS_TABLE)
