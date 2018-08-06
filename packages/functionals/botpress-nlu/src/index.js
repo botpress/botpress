@@ -218,9 +218,14 @@ module.exports = {
 
     router.get('/sync', async (req, res) => {
       try {
+        bp.events.emit('toast.nlu-sync', { text: 'NLU In Progress', type: 'info', time: 120000 })
+
         await provider.sync()
+
+        bp.events.emit('toast.nlu-sync', { text: 'NLU Success', type: 'success' })
         res.sendStatus(200)
       } catch (e) {
+        bp.events.emit('toast.nlu-sync', { text: 'NLU Error', type: 'error' })
         res.status(500).send(`${e.name} : ${e.message}`)
       }
     })
