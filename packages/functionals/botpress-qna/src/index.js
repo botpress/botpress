@@ -125,11 +125,18 @@ module.exports = {
 
     router.post('/', async (req, res) => {
       try {
+        bp.processIndicator.create({ title: 'QnA save' })
+
         const id = await storage.saveQuestion(req.body)
         res.send(id)
+
+        bp.processIndicator.complete({ status: 'Success' })
       } catch (e) {
         logger.error('QnA Error', e, e.stack)
+
         res.status(500).send(e.message || 'Error')
+
+        bp.processIndicator.complete({ status: 'Error' })
       }
     })
 

@@ -218,8 +218,10 @@ module.exports = {
 
     router.get('/sync', async (req, res) => {
       try {
+        bp.processIndicator.create({ title: 'NLU sync' })
         await provider.sync()
         res.sendStatus(200)
+        bp.processIndicator.complete({ status: 'Success' })
       } catch (e) {
         res.status(500).send(`${e.name} : ${e.message}`)
       }
