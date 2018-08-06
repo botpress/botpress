@@ -2,7 +2,7 @@ import { inject, injectable, tagged } from 'inversify'
 import path from 'path'
 
 import { ExtendedKnex } from '../../database/interfaces'
-import { Logger } from '../../misc/interfaces'
+import { IDisposeOnExit, Logger } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
 import { GhostContentService } from '../ghost-content'
 
@@ -12,8 +12,9 @@ import { CodeFile, SafeCodeSandbox } from './util'
 const LOCATION = 'content-types'
 
 @injectable()
-export class GhostCMSService implements CMSService {
+export class GhostCMSService implements CMSService, IDisposeOnExit {
   loadedContentTypes: ContentType[]
+  sandbox: SafeCodeSandbox
 
   constructor(
     @inject(TYPES.Logger)
@@ -22,6 +23,10 @@ export class GhostCMSService implements CMSService {
     @inject(TYPES.GhostService) private ghost: GhostContentService,
     @inject(TYPES.InMemoryDatabase) private memDb: ExtendedKnex
   ) {}
+
+  disposeOnExit() {
+    this.sandbox && this.sandbox.dispose()
+  }
 
   async initialize() {
     await this.ghost.addRootFolder(true, LOCATION, { filesGlob: '**.js', isBinary: false })
@@ -52,31 +57,31 @@ export class GhostCMSService implements CMSService {
       return <CodeFile>{ code: content, relativePath: filename }
     })
 
-    const sandbox = new SafeCodeSandbox(codeFiles)
+    this.sandbox = new SafeCodeSandbox(codeFiles)
     let filesLoaded = 0
 
     try {
-      for (const file of sandbox.ls()) {
+      for (const file of this.sandbox.ls()) {
         try {
           const filename = path.basename(file)
           if (filename.startsWith('_')) {
             // File to exclude
             continue
           }
-          await this.loadContentTypeFromFile(sandbox, file)
+          await this.loadContentTypeFromFile(file)
           filesLoaded++
         } catch (e) {
           this.logger.error(e, `Could not load Content Type "${file}"`)
         }
       }
     } finally {
-      sandbox && sandbox.dispose()
+      // sandbox && sandbox.dispose()
       this.logger.debug(`Loaded ${filesLoaded} content types`)
     }
   }
 
-  private async loadContentTypeFromFile(sandbox: SafeCodeSandbox, fileName: string): Promise<void> {
-    const type = <ContentType>await sandbox.run(fileName)
+  private async loadContentTypeFromFile(fileName: string): Promise<void> {
+    const type = <ContentType>await this.sandbox.run(fileName)
 
     if (!type || !type.id) {
       throw new Error('Invalid type ' + fileName)

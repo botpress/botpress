@@ -10,6 +10,7 @@ import { ExtendedKnex } from './database/interfaces'
 import ConsoleLogger from './logger'
 import { MiddlewareService } from './middleware-service'
 import { Logger } from './misc/interfaces'
+import { applyDisposeOnExit } from './misc/inversify'
 import { TYPES } from './misc/types'
 import { ModuleLoader } from './module-loader'
 import { RepositoriesContainerModule } from './repositories/repositories.inversify'
@@ -89,5 +90,7 @@ container.bind<ExtendedKnex>(TYPES.InMemoryDatabase).toDynamicValue(() => {
 })
 
 container.load(RepositoriesContainerModule)
+
+applyDisposeOnExit(container)
 
 export { container }
