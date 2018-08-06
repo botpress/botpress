@@ -15,7 +15,7 @@ const CONTENT_ELEMENTS_TABLE = 'content_elements'
 const LOCATION = 'content-types'
 
 @injectable()
-export class GhostCMSService implements CMSService {
+export class GhostCMSService implements CMSService, IDisposeOnExit {
   private contentTypes: ContentType[] = []
   private filesById = {}
   private sandbox: SafeCodeSandbox
@@ -32,12 +32,12 @@ export class GhostCMSService implements CMSService {
     this.sandbox && this.sandbox.dispose()
   }
 
+  // TODO Test this class
   async initialize() {
     await this.ghost.addRootFolder(true, LOCATION, { filesGlob: '**.js', isBinary: false })
     await this.prepareDb()
     await this.loadContentTypesFromFiles()
 
-    // REMOVE THIS
     await this.loadContentElementsFromFiles('bot123')
     // console.log(await this.getAllContentTypes('bot123'))
     // console.log(await this.getAllContentTypes())
@@ -114,8 +114,8 @@ export class GhostCMSService implements CMSService {
     }
   }
 
-  private async loadContentTypeFromFile(sandbox: SafeCodeSandbox, fileName: string): Promise<void> {
-    const contentType = <ContentType>await sandbox.run(fileName)
+  private async loadContentTypeFromFile(fileName: string): Promise<void> {
+    const contentType = <ContentType>await this.sandbox.run(fileName)
 
     if (!contentType || !contentType.id) {
       throw new Error('Invalid content type ' + fileName)
