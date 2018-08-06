@@ -40,6 +40,15 @@ app.post(
 
 httpProxy('/api/middlewares', '/api/v1/bots/bot123/middleware', process.env.CORE_API_URL)
 
+app.post(
+  '/api/content/categories/:categoryId/items',
+  proxy(process.env.CORE_API_URL, {
+    proxyReqPathResolver: async (req, res) => {
+      return `/api/v1/bots/bot123/content/${req.params.categoryId}/elements`
+    }
+  })
+)
+
 httpProxy('/api/content/categories', '/api/v1/bots/bot123/content/types', process.env.CORE_API_URL)
 
 app.get(
@@ -53,6 +62,11 @@ app.get(
       }
 
       return `/api/v1/bots/bot123/content/${oQuery.categoryId}/elements?${query}`
+    },
+    userResDecorator: function(proxyRes, proxyResData, userReq, userRes) {
+      const body = JSON.parse(proxyResData)
+      body.forEach(x => _.assign(x, { categoryId: x.contentType }))
+      return body
     }
   })
 )

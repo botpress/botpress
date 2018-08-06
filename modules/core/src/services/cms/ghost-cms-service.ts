@@ -79,6 +79,8 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
       contentElements = _.concat(contentElements, fileContentElements)
     }
 
+    console.log(botId)
+
     return Promise.mapSeries(contentElements, element =>
       this.memDb(CONTENT_ELEMENTS_TABLE)
         .insert(this.transformItemApiToDb(botId, element))
@@ -136,7 +138,7 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
       throw new Error('Invalid content type ' + fileName)
     }
 
-    this.filesById[contentType.id] = fileName + '.json'
+    this.filesById[contentType.id] = contentType.id + '.json'
     this.contentTypes.push(contentType)
   }
 
@@ -245,7 +247,7 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
       await this.memDb(CONTENT_ELEMENTS_TABLE).insert({
         ...body,
         createdBy: 'admin',
-        createdOn: Date.now(), // helpers
+        createdOn: this.memDb.date.now(),
         id: contentElementId,
         contentType: contentTypeId
       })
@@ -294,12 +296,17 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
   }
 
   private async dumpDataToFile(botId: string, contentTypeId: string) {
-    // TODO Do paging here and dump *everything*
     const params = { ...DefaultSearchParams, count: 10000 }
     const items = (await this.listContentElements(botId, contentTypeId, params)).map(item =>
       _.pick(item, 'id', 'formData', 'createdBy', 'createdOn')
     )
-    await this.ghost.upsertFile(botId, '/', this.filesById[contentTypeId], JSON.stringify(items, undefined, 2))
+    console.log(params, items, this.filesById)
+    await this.ghost.upsertFile(
+      botId,
+      'content-elements',
+      this.filesById[contentTypeId],
+      JSON.stringify(items, undefined, 2)
+    )
   }
 
   private transformDbItemToApi(item: any) {

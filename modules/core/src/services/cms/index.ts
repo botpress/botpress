@@ -9,6 +9,13 @@ export interface CMSService {
   getContentElement(botId: string, id: string): Promise<ContentElement>
   getContentElements(botId: string, ids: string[]): Promise<ContentElement[]>
   getRandomContentElement(contentTypeId: string): Promise<ContentElement>
+
+  createOrUpdateContentElement(
+    botId: string,
+    contentTypeId: string,
+    formData: string,
+    contentElementId?: string
+  ): Promise<string>
 }
 
 export type ContentType = {
