@@ -3,6 +3,7 @@ import _ from 'lodash'
 import nanoid from 'nanoid'
 import path from 'path'
 
+import { ConfigProvider } from '../../config/config-loader'
 import { ExtendedKnex } from '../../database/interfaces'
 import { IDisposeOnExit, Logger } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
@@ -25,6 +26,7 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
     @tagged('name', 'CMS')
     private logger: Logger,
     @inject(TYPES.GhostService) private ghost: GhostContentService,
+    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.InMemoryDatabase) private memDb: ExtendedKnex
   ) {}
 
@@ -176,16 +178,13 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
       .del()
   }
 
-  async getAllContentTypes(botId?: any): Promise<ContentType[]> {
+  async getAllContentTypes(botId?: string): Promise<ContentType[]> {
     if (botId) {
-      const fileNames = await this.ghost.directoryListing(botId, 'content-elements', '.json')
-      const contentTypeIds = fileNames.map(fileName => fileName.split('.')[0])
-      const contentTypes = []
-      for (const id of contentTypeIds) {
-        contentTypes.push(await this.getContentType(id))
-      }
-      return contentTypes
+      const botConfig = await this.configProvider.getBotConfig(botId)
+      const enabledTypes = botConfig.enabledContentTypes
+      return Promise.map(enabledTypes, x => this.getContentType(x))
     }
+
     return this.contentTypes
   }
 
