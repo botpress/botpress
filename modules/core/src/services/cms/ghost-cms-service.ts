@@ -75,7 +75,6 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
         }
       }
     } finally {
-      // sandbox && sandbox.dispose()
       this.logger.debug(`Loaded ${filesLoaded} content types`)
     }
   }
