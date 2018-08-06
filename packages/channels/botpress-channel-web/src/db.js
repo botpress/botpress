@@ -11,6 +11,10 @@ import { sanitizeUserId } from './util'
 module.exports = (knex, config) => {
   const RECENT_CONVERSATION_LIFETIME = ms(config.recentConversationLifetime)
 
+  const isLite = knex => {
+    return knex.client.config.client === 'sqlite3'
+  }
+
   async function getUserInfo(userId) {
     const user = await knex('users')
       .where({ platform: 'webchat', userId: sanitizeUserId(userId) })
@@ -209,7 +213,7 @@ module.exports = (knex, config) => {
       .orderBy('conversationId')
       .orderBy('sent_on', 'desc')
 
-    if (process.env.DATABASE !== 'postgres') {
+    if (isLite(knex)) {
       const lastMessagesDate = knex('web_messages')
         .whereIn('conversationId', conversationIds)
         .groupBy('conversationId')
@@ -297,6 +301,7 @@ module.exports = (knex, config) => {
     patchConversation,
     getConversation,
     listConversations,
-    getOrCreateRecentConversation
+    getOrCreateRecentConversation,
+    isLite
   }
 }

@@ -14,8 +14,6 @@ const DEFAULT_WELCOME_MESSAGE = `Hello!
   It will be a pleasure to help you getting started.
 `
 
-const BOT_HOSTNAME = window.location.origin
-
 export default class Convo extends React.Component {
   constructor(props) {
     super(props)
