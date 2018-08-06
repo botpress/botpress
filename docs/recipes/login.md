@@ -2,21 +2,23 @@
 layout: guide
 ---
 
-The easiest way to implement login is to have a list of users either in your database or in static json-file along with hashes of their passwords. This way you would need to perform a few steps.
+The easiest way to implement login is to have a list of users either in your database or in a static json-file. You will need to store their username and a **hash** of their password. 
 
-First we need a form to ask user for login-data. A webchat renderer for it can look something like this:
+Within the bot you will need to do the following:
+
+First you need to send the user a form to ask for their login-data. Below is an example of a webchat renderer:
 
 ```js
 '#login-form': data => [{ typing: true, type: 'login_prompt' }],
 ```
 
-Second - make sure that your `bp.hear` listens to `login_prompt` event types like this:
+Second - make sure that your `bp.hear` listens to `login_prompt` event types:
 
 ```js
 bp.hear({ type: /login_prompt|text|message|quick_reply/i }, (event, next) => { /* ... */ })
 ```
 
-And finally you need an action that would compare login-data with records in JSON or in DB and set state variable indicating login status.
+Third and finally you need an action that will compare the provided login-data with the stored records (in JSON or the DB) and set a state variable indicating the login status.
 
 ```js
 // Stub replacing DB or static file
@@ -35,19 +37,25 @@ async function login(state, { raw: { data } }) {
 }
 ```
 
-Note, that in the example above we are relying on `bcrypt` to create password hash so it needs to be installed and imported before using.
+Note that in the example above we are relying on [`bcrypt`](https://www.npmjs.com/package/bcrypt) package to create password hash so it needs to be installed and imported before using.
 
 # Botpress-cloud Authentication
 
-If you don't want your user to be forced to enter password, you can implement authentication through Botpress Cloud (or other services). So given you are using BP-Cloud and have your bot paired with it, you could:
+To save your users from remembering yet another password they can be authenticated through Botpress Cloud (or other OAuth service). 
 
-1. Redirect user to their login page and let them authenticate user
-2. Handle callback request that they'll make to our bot
-3. Save user's data in state to indicate his login status
+To implement this you will need to:
 
-## Redirecting user to third-party login page
+1. Redirect the user to the OAuth login page to authenticate the user
+2. Handle the callback request that the service will make to your bot
+3. Save the user's data in state and indicate their login status
 
-So first we'd need to have some action that trigger login form to be displayed to user:
+The following example is for Botpress Cloud and assumes you have paired your bot with the service 
+
+<!--Link here to the botpress cloud docs for setup-->
+
+## 1. Redirecting user to the third-party login page
+
+To redirect the user to the login page you will need an action that builds and passes your URL to the renderer
 
 ```js
 renderLogin: async (state, event) => {
@@ -62,7 +70,7 @@ renderLogin: async (state, event) => {
 
 If you are an Enterprise client, you may use your custom login screen by providing the `connection=<YOUR ENTERPRISE ID HERE>` setting in the url params.
 
-Our action refers renderer that can look like this:
+The action refers renderer that shows a single carousel card:
 
 ```js
 '#login-gate': data => {
@@ -87,17 +95,16 @@ Our action refers renderer that can look like this:
 },
 ```
 
-## Handling callback from third-party login service
+## 2. Handling callback from third-party login service
 
-Given login was successful we should handle callback third-party service (BP Cloud in our case) performs.
-So we need to define route for it:
+After the user successfully logs in with the service provider (Botpress Cloud in this case) you need to handle the callback request on the URL provided by the actions `path` variable:
 
 ```js
 const authRouter = bp.getRouter('botpress-auth', { auth: false })
 authRouter.get('/pair/:userId', async (req, res) => {
   const user = await bp.security.getUserIdentity(req.query.identity)
 
-  // We are passing this to incoming middleware so that this can be processed as a message
+  // We are passing this to the sendIncoming middleware so that this can be processed as a message
   bp.middlewares.sendIncoming({
     type: 'login_callback',
     text: 'I am ' + user.email,
@@ -110,7 +117,7 @@ authRouter.get('/pair/:userId', async (req, res) => {
 })
 ```
 
-To have this event type handled by dialog engine you have to make sure we are listening to this type of event:
+To have this message handled by the dialog engine, you have to make sure that the bot is listening for this type of event:
 
 ```js
   bp.hear({ type: /message|text|login_callback/i }, async (event, next) =>
@@ -120,9 +127,9 @@ To have this event type handled by dialog engine you have to make sure we are li
   )
 ```
 
-## Storing user login details
+## 3. Storing user login details
 
-And here we are back to implementing action handling user's login. It is pretty much the same as in the first example except for checking password (we assume that it was checked by third-party service).
+Again you will need to store the users details, in this case just the email address as the third-party will have validated the password, in your database or a static JSON file:
 
 ```js
 // Stub replacing DB or static file
