@@ -30,7 +30,7 @@ export const applyDisposeOnExit = (container: Container) => {
     })
   })
 
-  const cleanup = () => {
+  const cleanup = code => {
     disposeMethods.forEach(m => m())
     process.exit(process.exitCode)
   }
@@ -39,7 +39,6 @@ export const applyDisposeOnExit = (container: Container) => {
   process.on('exit', cleanup)
   process.on('SIGINT', cleanup)
   process.on('SIGHUP', cleanup)
-  process.on('SIGUSR1', cleanup)
   process.on('SIGUSR2', cleanup)
   process.on('SIGTERM', cleanup)
 }

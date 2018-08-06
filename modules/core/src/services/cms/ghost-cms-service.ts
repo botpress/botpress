@@ -37,6 +37,7 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
 
   // TODO Test this class
   async initialize() {
+    await Promise.delay(5000)
     await this.ghost.addRootFolder(true, TYPES_LOCATION, { filesGlob: '**.js', isBinary: false })
     await this.ghost.addRootFolder(false, ELEMENTS_LOCATION, { filesGlob: '**.json', isBinary: false })
     await this.prepareDb()
@@ -49,6 +50,7 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
     // console.log(await this.countContentElements('bot123', 'builtin_single-choice'))
     // console.log(await this.getRandomContentElement('builtin_single-choice'))
     // console.log(await this.listContentElements('bot123', undefined, { ...DefaultSearchParams, searchTerm: 'choice' }))
+    await this.recomputeCategoriesMetadata()
   }
 
   private async prepareDb() {
@@ -57,7 +59,7 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
       table.string('botId')
       table.primary(['id', 'botId'])
       table.string('contentType')
-      table.text('formData') // rawData
+      table.text('formData')
       table.text('computedData')
       table.text('previewText')
       table.string('createdBy')
@@ -77,17 +79,25 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
       contentElements = _.concat(contentElements, fileContentElements)
     }
 
-    Promise.mapSeries(contentElements, element =>
+    return Promise.mapSeries(contentElements, element =>
       this.memDb(CONTENT_ELEMENTS_TABLE)
-        .insert(this.mapToTable(element, botId))
+        .insert(this.transformItemApiToDb(botId, element))
         .then()
     )
   }
 
-  private mapToTable(element: ContentElement, botId: string) {
-    // Call computedData, previewText and persist as well?
-    return { ...element, botId: botId }
-  }
+  // private async elementToDb(element: ContentElement, botId: string) {
+  //   // Call computedData, previewText and persist as well?
+  //   const type = await this.getContentType(element.contentType)
+
+  //   const formData = JSON.parse(element.formData)
+  //   return {
+  //     ...element,
+  //     botId,
+  //     formData,
+  //     previewText: type.computePreviewText(type.id, formData)
+  //   }
+  // }
 
   private async loadContentTypesFromFiles(): Promise<void> {
     const fileNames = await this.ghost.directoryListing('global', TYPES_LOCATION, '*.js')
@@ -152,7 +162,9 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
       query = query.orderBy(column)
     })
 
-    return <ContentElement[]>await query.offset(params.from).limit(params.count)
+    const dbElements = await query.offset(params.from).limit(params.count)
+
+    return Promise.map(dbElements, this.transformDbItemToApi)
   }
 
   async getContentElement(botId: string, id: string): Promise<ContentElement> {
@@ -217,7 +229,7 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
     }
 
     const contentElement = { formData, ...(await this.fillComputedProps(contentType, formData)) }
-    const body = this.transformItemApiToDb(contentElement)
+    const body = this.transformItemApiToDb(botId, contentElement)
 
     const isNewItemCreation = !contentElementId
     if (isNewItemCreation) {
@@ -248,16 +260,19 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
     return `${prefix}-${nanoid(6)}`
   }
 
-  private resolveRefs(data) {
+  resolveRefs = data => {
     if (!data) {
       return data
     }
+
     if (Array.isArray(data)) {
       return Promise.map(data, this.resolveRefs)
     }
+
     if (_.isObject(data)) {
       return Promise.props(_.mapValues(data, this.resolveRefs))
     }
+
     if (_.isString(data)) {
       const m = data.match(/^##ref\((.*)\)$/)
       if (!m) {
@@ -274,6 +289,7 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
         })
         .then(this.resolveRefs)
     }
+
     return data
   }
 
@@ -286,20 +302,50 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
     await this.ghost.upsertFile(botId, '/', this.filesById[contentTypeId], JSON.stringify(items, undefined, 2))
   }
 
-  private transformItemApiToDb(item) {
+  private transformDbItemToApi(item: any) {
     if (!item) {
       return item
     }
 
-    const result = { ...item }
+    return {
+      ...item,
+      computedData: JSON.parse(item.computedData),
+      formData: JSON.parse(item.formData)
+    }
+  }
+
+  private transformItemApiToDb(botId: string, item) {
+    if (!item) {
+      return item
+    }
+
+    const result = { ...item, botId }
 
     if ('formData' in item) {
       result.formData = JSON.stringify(item.formData)
     }
-    if ('data' in item) {
-      result.data = JSON.stringify(item.data)
+
+    if ('computedData' in item) {
+      result.computedData = JSON.stringify(item.computedData)
     }
+
     return result
+  }
+
+  private async recomputeCategoriesMetadata(): Promise<void> {
+    for (const contentType of this.contentTypes) {
+      await this.memDb(CONTENT_ELEMENTS_TABLE)
+        .select('id', 'formData', 'botId')
+        .where('contentType', contentType.id)
+        .then()
+        .each(async ({ id, formData, botId }: any) => {
+          const computedProps = await this.fillComputedProps(contentType, JSON.parse(formData))
+          return this.memDb(CONTENT_ELEMENTS_TABLE)
+            .where('id', id)
+            .update(this.transformItemApiToDb(botId, computedProps))
+            .then()
+        })
+    }
   }
 
   private async fillComputedProps(contentType: ContentType, formData: string) {
@@ -327,10 +373,12 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
 
   private computePreviewText(contentTypeId, formData) {
     const contentType = this.contentTypes.find(x => x.id === contentTypeId)
+
     if (!contentType) {
       throw new Error(`Unknown content type ${contentTypeId}`)
     }
-    return !contentType.computePreviewText ? 'No preview' : contentType.computePreviewText(contentTypeId, formData)
+
+    return !contentType.computePreviewText ? 'No preview' : contentType.computePreviewText(formData)
   }
 
   private computeData(contentTypeId, formData) {
@@ -338,6 +386,7 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
     if (!contentType) {
       throw new Error(`Unknown content type ${contentTypeId}`)
     }
+
     return !contentType.computeData ? formData : contentType.computeData(contentTypeId, formData)
   }
 }

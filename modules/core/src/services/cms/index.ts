@@ -17,7 +17,7 @@ export type ContentType = {
   description: string
   jsonSchema: object
   uiSchema?: object
-  computePreviewText?: (typeId: string, formData: object) => string
+  computePreviewText?: (formData: object) => string
   computeData?: (typeId: string, formData: object) => object
   renderElement: (data: object) => object[]
 }

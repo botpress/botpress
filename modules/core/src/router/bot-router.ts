@@ -1,6 +1,6 @@
 import { MiddlewareService } from '../middleware-service'
 import { BotRepository } from '../repositories/bot-repository'
-import { CMSService } from '../services/cms'
+import { CMSService, DefaultSearchParams } from '../services/cms'
 
 import { BaseRouter } from './base-router'
 
@@ -55,6 +55,20 @@ export class BotRouter extends BaseRouter {
       })
 
       res.send(response)
+    })
+
+    this.router.get('/bots/:botId/content/:contentType?/elements', async (req, res) => {
+      const botId = req.params.botId
+      const contentType = req.params.contentType
+      const query = req.query || {}
+
+      const types = await this.cmsService.listContentElements(botId, contentType, {
+        ...DefaultSearchParams,
+        count: Number(query.count) || DefaultSearchParams.count,
+        from: Number(query.from) || DefaultSearchParams.from
+      })
+
+      res.send(types)
     })
   }
 }

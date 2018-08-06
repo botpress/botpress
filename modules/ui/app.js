@@ -6,6 +6,7 @@ const fs = require('fs')
 const proxy = require('express-http-proxy')
 const _ = require('lodash')
 const bodyParser = require('body-parser')
+const qs = require('querystring')
 
 dotenv.config()
 
@@ -40,6 +41,21 @@ app.post(
 httpProxy('/api/middlewares', '/api/v1/bots/bot123/middleware', process.env.CORE_API_URL)
 
 httpProxy('/api/content/categories', '/api/v1/bots/bot123/content/types', process.env.CORE_API_URL)
+
+app.get(
+  '/api/content/items',
+  proxy(process.env.CORE_API_URL, {
+    proxyReqPathResolver: req => {
+      const oQuery = req.query || {}
+      const query = qs.stringify(_.pick(oQuery, ['from', 'count']))
+      if (!oQuery.categoryId || oQuery.categoryId === 'all') {
+        return `/api/v1/bots/bot123/content/elements?${query}`
+      }
+
+      return `/api/v1/bots/bot123/content/${oQuery.categoryId}/elements?${query}`
+    }
+  })
+)
 
 app.get('/js/env.js', (req, res) => {
   res.contentType('text/javascript')
