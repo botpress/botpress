@@ -163,18 +163,30 @@ export default class RasaProvider extends Provider {
       const msg = `"${_.get(err, 'response.data')}" Status: ${err.status} | Message: ${err.message}`
 
       if (err.status == 403) {
-        return this.logger.warn('[NLU::Rasa] A model is already training, aborting sync: ' + msg)
+        const errorMsg = `[NLU::Rasa] A model is already training, aborting sync: ${msg}`
+
+        this.logger.warn(errorMsg)
+        throw new Error(errorMsg)
       }
 
       if (err.status == 404) {
-        return this.logger.warn('[NLU::Rasa] Invalid project error: ' + msg)
+        const errorMsg = `[NLU::Rasa] Invalid project error: ${msg}`
+
+        this.logger.warn(errorMsg)
+        throw new Error(errorMsg)
       }
 
       if (err.status == 500) {
-        return this.logger.warn('[NLU::Rasa] Training error: ' + msg)
+        const errorMsg = `[NLU::Rasa] Training error: ${msg}`
+
+        this.logger.warn(errorMsg)
+        throw new Error(errorMsg)
       }
 
-      return this.logger.error('[NLU::Rasa] Error syncing model: ' + msg)
+      const errorMsg = `[NLU::Rasa] Error syncing model: ${msg}`
+
+      this.logger.error(errorMsg)
+      throw new Error(errorMsg)
     }
 
     this._training = false
