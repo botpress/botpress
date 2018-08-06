@@ -47,7 +47,7 @@ app.get(
   proxy(process.env.CORE_API_URL, {
     proxyReqPathResolver: req => {
       const oQuery = req.query || {}
-      const query = qs.stringify(_.pick(oQuery, ['from', 'count']))
+      const query = qs.stringify(_.pick(oQuery, ['from', 'count', 'searchTerm']))
       if (!oQuery.categoryId || oQuery.categoryId === 'all') {
         return `/api/v1/bots/bot123/content/elements?${query}`
       }

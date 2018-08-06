@@ -65,7 +65,8 @@ export class BotRouter extends BaseRouter {
       const types = await this.cmsService.listContentElements(botId, contentType, {
         ...DefaultSearchParams,
         count: Number(query.count) || DefaultSearchParams.count,
-        from: Number(query.from) || DefaultSearchParams.from
+        from: Number(query.from) || DefaultSearchParams.from,
+        searchTerm: query.searchTerm || DefaultSearchParams.searchTerm
       })
 
       res.send(types)
