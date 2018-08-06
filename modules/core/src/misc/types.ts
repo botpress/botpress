@@ -12,7 +12,8 @@ const TYPES = {
   IsProduction: Symbol.for('IsProduction'),
   MiddlewareService: Symbol.for('MiddlewareService'),
   CMSService: Symbol.for('CMSService'),
-  InMemoryDatabase: Symbol.for('InMemoryDatabase')
+  InMemoryDatabase: Symbol.for('InMemoryDatabase'),
+  FlowProvider: Symbol.for('FlowProvider')
 }
 
 export { TYPES }

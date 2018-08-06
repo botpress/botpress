@@ -1,4 +1,4 @@
-import { inject, injectable, tagged } from 'inversify'
+import { inject, injectable, postConstruct, tagged } from 'inversify'
 import _ from 'lodash'
 import nanoid from 'nanoid'
 import path from 'path'
@@ -36,6 +36,7 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
   }
 
   // TODO Test this class
+  @postConstruct()
   async initialize() {
     this.logger.debug('init started')
     await this.ghost.addRootFolder(true, TYPES_LOCATION, { filesGlob: '**.js', isBinary: false })

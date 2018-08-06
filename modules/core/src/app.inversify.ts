@@ -17,6 +17,8 @@ import { RepositoriesContainerModule } from './repositories/repositories.inversi
 import HTTPServer from './server'
 import { CMSService } from './services/cms'
 import { GhostCMSService } from './services/cms/ghost-cms-service'
+import { FlowProvider } from './services/dialog'
+import GhostFlowProvider from './services/dialog/provider'
 import { GhostContentService } from './services/ghost-content'
 import FSGhostContentService from './services/ghost-content/file-system'
 
@@ -88,6 +90,11 @@ container.bind<ExtendedKnex>(TYPES.InMemoryDatabase).toDynamicValue(() => {
     })
   )
 })
+
+container
+  .bind<FlowProvider>(TYPES.FlowProvider)
+  .to(GhostFlowProvider)
+  .inSingletonScope()
 
 container.load(RepositoriesContainerModule)
 

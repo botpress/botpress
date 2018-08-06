@@ -13,6 +13,7 @@ import { TYPES } from './misc/types'
 import { ModuleLoader } from './module-loader'
 import HTTPServer from './server'
 import { CMSService } from './services/cms'
+import { FlowProvider } from './services/dialog'
 
 @injectable()
 export class Botpress {
@@ -30,7 +31,8 @@ export class Botpress {
     private logger: Logger,
     @inject(TYPES.HTTPServer) private httpServer: HTTPServer,
     @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
-    @inject(TYPES.CMSService) private cmsService: CMSService
+    @inject(TYPES.CMSService) private cmsService: CMSService,
+    @inject(TYPES.FlowProvider) private flowProvider: FlowProvider
   ) {
     this.version = packageJson.version
     this.botpressPath = path.join(process.cwd(), 'dist')
@@ -55,7 +57,7 @@ export class Botpress {
   }
 
   private async initializeServices() {
-    await this.cmsService.initialize()
+    await this.flowProvider.loadAll() // TODO: Remove this, just for testing purposes
   }
 
   @Memoize()
