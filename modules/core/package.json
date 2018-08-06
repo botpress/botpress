@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "bluebird-global": "^1.0.1",
+    "body-parser": "^1.18.3",
     "botpress-module-sdk": "../../packages/module-sdk",
     "chalk": "^2.4.1",
     "dotenv": "^6.0.0",

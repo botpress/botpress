@@ -4,17 +4,18 @@ export type BotConfig = {
   author?: string
   version: string
   license?: string
-  modules: [
-    {
-      name: string
-      enabled: boolean
-      incomingMiddleware: MiddlewareConfig[]
-      outgoingMiddleware: MiddlewareConfig[]
-    }
-  ]
+  modules: BotModuleConfig[]
+}
+
+export type BotModuleConfig = {
+  name: string
+  enabled: boolean
+  incomingMiddleware: MiddlewareConfig[]
+  outgoingMiddleware: MiddlewareConfig[]
 }
 
 export type MiddlewareConfig = {
   name: string
   enabled: boolean
+  order: number
 }

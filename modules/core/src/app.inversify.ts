@@ -51,7 +51,7 @@ container
   .to(GhostConfigProvider)
   .inSingletonScope()
 
-const runningNode = process.title === 'node'
+const runningNode = process.title.endsWith('node')
 const isProduction = !runningNode || process.env.NODE_ENV == 'production'
 
 container.bind<MiddlewareService>(TYPES.MiddlewareService).to(MiddlewareService)
