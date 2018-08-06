@@ -235,7 +235,7 @@ export default class Web extends React.Component {
       })
   }
 
-  fetchConversations() {
+  fetchConversations = () => {
     const axios = this.props.bp.axios
     const userId = this.userId
     const url = `${BOT_HOSTNAME}/api/botpress-platform-webchat/conversations/${userId}`
@@ -422,6 +422,7 @@ export default class Web extends React.Component {
     const userId = window.__BP_VISITOR_ID
     const url = `${BOT_HOSTNAME}/api/botpress-platform-webchat/messages/${userId}`
     const config = { params: { conversationId: this.state.currentConversationId } }
+
     return this.props.bp.axios.post(url, data, config).then()
   }
 
@@ -487,6 +488,14 @@ export default class Web extends React.Component {
         {this.state.unreadCount > 0 ? this.renderUncountMessages() : null}
       </button>
     )
+  }
+
+  createConversation = () => {
+    this.setState({ currentConversation: null })
+    const userId = window.__BP_VISITOR_ID
+    const url = `${BOT_HOSTNAME}/api/botpress-platform-webchat/conversations/${userId}/new`
+
+    return this.props.bp.axios.post(url).then(this.fetchConversations)
   }
 
   renderWidget() {
@@ -556,6 +565,7 @@ export default class Web extends React.Component {
         onLoginPromptSend={this.handleLoginPrompt}
         onSendData={this.handleSendData}
         downloadConversation={this.downloadConversation}
+        createConversation={this.createConversation}
       />
     )
   }
