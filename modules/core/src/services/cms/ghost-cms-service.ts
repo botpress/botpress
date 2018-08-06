@@ -37,6 +37,12 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
 
   // TODO Test this class
   async initialize() {
+<<<<<<< HEAD
+=======
+    this.logger.debug('init started')
+
+    await Promise.delay(5000)
+>>>>>>> Add logs for module loading and cms init
     await this.ghost.addRootFolder(true, TYPES_LOCATION, { filesGlob: '**.js', isBinary: false })
     await this.ghost.addRootFolder(false, ELEMENTS_LOCATION, { filesGlob: '**.json', isBinary: false })
     await this.prepareDb()
@@ -50,6 +56,8 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
     // console.log(await this.getRandomContentElement('builtin_single-choice'))
     // console.log(await this.listContentElements('bot123', undefined, { ...DefaultSearchParams, searchTerm: 'choice' }))
     await this.recomputeCategoriesMetadata()
+
+    this.logger.debug('init done')
   }
 
   private async prepareDb() {
@@ -84,19 +92,6 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
         .then()
     )
   }
-
-  // private async elementToDb(element: ContentElement, botId: string) {
-  //   // Call computedData, previewText and persist as well?
-  //   const type = await this.getContentType(element.contentType)
-
-  //   const formData = JSON.parse(element.formData)
-  //   return {
-  //     ...element,
-  //     botId,
-  //     formData,
-  //     previewText: type.computePreviewText(type.id, formData)
-  //   }
-  // }
 
   private async loadContentTypesFromFiles(): Promise<void> {
     const fileNames = await this.ghost.directoryListing('global', TYPES_LOCATION, '*.js')

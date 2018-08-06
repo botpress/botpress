@@ -35,6 +35,8 @@ export class ModuleLoader {
 
   @Throttle(ms('5m'))
   async getAvailableModules(): Promise<AvailableModule[]> {
+    this.logger.debug('init started')
+
     const config = await this.loadConfiguration()
     const available: Map<string, AvailableModule> = new Map()
 
@@ -62,6 +64,8 @@ export class ModuleLoader {
         this.alertUnavailableModule(module.url)
       }
     }
+
+    this.logger.debug('init done')
 
     return Array.from(available.values())
   }
