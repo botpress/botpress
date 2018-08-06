@@ -12,6 +12,7 @@ export interface ConfigProvider {
   getBotpressConfig(): Promise<BotpressConfig>
   getModulesConfig(): Promise<ModulesConfig>
   getBotConfig(botId: string): Promise<BotConfig>
+  setBotConfig(botId: string, config: BotConfig): Promise<void>
 }
 
 const ROOT_FOLDER = '/'
@@ -41,6 +42,11 @@ export class GhostConfigProvider implements ConfigProvider {
 
   async getBotConfig(botId: string): Promise<BotConfig> {
     return this.getConfig<BotConfig>('bot.config.json', botId)
+  }
+
+  async setBotConfig(botId: string, config: BotConfig) {
+    console.log('LOL!!')
+    await this.ghostService.upsertFile(botId, ROOT_FOLDER, 'bot.config.json', JSON.stringify(config, undefined, 2))
   }
 
   private async getConfig<T>(fileName: string, botId: string = 'global'): Promise<T> {

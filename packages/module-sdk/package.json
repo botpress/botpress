@@ -19,7 +19,7 @@
     "lodash": "^4.17.10"
   },
   "devDependencies": {
-    "@types/jest": "^23.3.0",
+    "@types/jest": "^23.3.1",
     "@types/node": "^10.5.2",
     "jest": "^23.4.1",
     "prettier": "1.13.7",
