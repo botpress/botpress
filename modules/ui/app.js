@@ -2,7 +2,6 @@ const express = require('express')
 const app = express()
 const path = require('path')
 const dotenv = require('dotenv')
-const fs = require('fs')
 const proxy = require('express-http-proxy')
 const _ = require('lodash')
 const bodyParser = require('body-parser')
@@ -39,6 +38,15 @@ app.post(
 )
 
 httpProxy('/api/middlewares', '/api/v1/bots/bot123/middleware', process.env.CORE_API_URL)
+
+app.post(
+  '/api/content/categories/:categoryId/items/:itemId',
+  proxy(process.env.CORE_API_URL, {
+    proxyReqPathResolver: req => {
+      return `/api/v1/bots/bot123/content/${req.params.categoryId}/elements/${req.params.itemId}`
+    }
+  })
+)
 
 app.post(
   '/api/content/categories/:categoryId/items',

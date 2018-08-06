@@ -72,10 +72,18 @@ export class BotRouter extends BaseRouter {
       res.send(types)
     })
 
-    this.router.post('/bots/:botId/content/:contentType/elements', async (req, res) => {
+    this.router.post('/bots/:botId/content/:contentType/elements/:elementId?', async (req, res) => {
       const botId = req.params.botId
       const contentType = req.params.contentType
-      this.cmsService.createOrUpdateContentElement(botId, contentType, req.body.formData)
+      const elementId = req.params.elementId
+
+      const element = await this.cmsService.createOrUpdateContentElement(
+        botId,
+        contentType,
+        req.body.formData,
+        elementId
+      )
+      res.send(element)
     })
   }
 }
