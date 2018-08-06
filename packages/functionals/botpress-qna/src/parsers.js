@@ -7,9 +7,11 @@ const parseFlow = str => {
 }
 
 export const jsonParse = jsonContent =>
-  jsonContent.map(({ questions, answer: instruction, answer2, action }) => {
+  jsonContent.map(({ questions, answer: instruction, answer2, action }, i) => {
     if (!['text', 'redirect', 'text_redirect'].includes(action)) {
-      throw new Error('Failed to process CSV-row: action should be either "text", "redirect" or "text_redirect"')
+      throw new Error(
+        `Failed to process CSV-row ${i + 1}: action should be either "text", "redirect" or "text_redirect"`
+      )
     }
 
     let redirectInstruction = null
