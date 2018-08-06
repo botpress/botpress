@@ -167,31 +167,48 @@ module.exports = {
 
     router.post('/', async (req, res) => {
       try {
+        bp.events.emit('toast.qna-save', { text: 'QnA Save In Progress', type: 'info', time: 120000 })
         const id = await this.storage.insert(req.body)
+
         res.send(id)
+
+        bp.events.emit('toast.qna-save', { text: 'QnA Save Success', type: 'success' })
       } catch (e) {
         logger.error('QnA Error', e, e.stack)
         res.status(500).send(e.message || 'Error')
+
+        bp.events.emit('toast.qna-save', { text: `QnA Save Error: ${e.message}`, type: 'error' })
       }
     })
 
     router.put('/:question', async (req, res) => {
       try {
+        bp.events.emit('toast.qna-save', { text: 'QnA Update In Progress', type: 'info', time: 120000 })
         await this.storage.update(req.body, req.params.question)
+
+        bp.events.emit('toast.qna-save', { text: 'QnA Update Success', type: 'success' })
+
         res.end()
       } catch (e) {
         logger.error('QnA Error', e, e.stack)
         res.status(500).send(e.message || 'Error')
+        bp.events.emit('toast.qna-save', { text: `QnA Update Error: ${e.message}`, type: 'error' })
       }
     })
 
     router.delete('/:question', async (req, res) => {
       try {
+        bp.events.emit('toast.qna-save', { text: 'QnA Delete In Progress', type: 'info', time: 120000 })
         await this.storage.delete(req.params.question)
+
+        bp.events.emit('toast.qna-save', { text: 'QnA Delete Success', type: 'success' })
+
         res.end()
       } catch (e) {
         logger.error('QnA Error', e, e.stack)
         res.status(500).send(e.message || 'Error')
+
+        bp.events.emit('toast.qna-save', { text: `QnA Delete Error: ${e.message}`, type: 'error' })
       }
     })
 
