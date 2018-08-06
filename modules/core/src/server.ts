@@ -12,6 +12,7 @@ import { TYPES } from './misc/types'
 import { BotRepository } from './repositories/bot-repository'
 import { BotRouter } from './router/bot-router'
 import { IndexRouter } from './router/index-router'
+import { CMSService } from './services/cms'
 
 const BASE_API_PATH = '/api/v1'
 
@@ -26,9 +27,10 @@ export default class HTTPServer {
     @tagged('name', 'HTTP')
     private logger: Logger,
     @inject(TYPES.BotRepository) botRepository: BotRepository,
-    @inject(TYPES.MiddlewareService) middlewareService: MiddlewareService
+    @inject(TYPES.MiddlewareService) middlewareService: MiddlewareService,
+    @inject(TYPES.CMSService) cmsService: CMSService
   ) {
-    const routers = [new IndexRouter(), new BotRouter(botRepository, middlewareService)]
+    const routers = [new IndexRouter(), new BotRouter(botRepository, middlewareService, cmsService)]
 
     this.app = express()
     this.app.use(bodyParser.json())

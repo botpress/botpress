@@ -39,6 +39,8 @@ app.post(
 
 httpProxy('/api/middlewares', '/api/v1/bots/bot123/middleware', process.env.CORE_API_URL)
 
+httpProxy('/api/content/categories', '/api/v1/bots/bot123/content/types', process.env.CORE_API_URL)
+
 app.get('/js/env.js', (req, res) => {
   res.contentType('text/javascript')
   res.send(`

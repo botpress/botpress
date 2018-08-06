@@ -13,7 +13,8 @@ import { CMSService, ContentElement, ContentType, DefaultSearchParams, SearchPar
 import { CodeFile, SafeCodeSandbox } from './util'
 
 const CONTENT_ELEMENTS_TABLE = 'content_elements'
-const LOCATION = 'content-types'
+const TYPES_LOCATION = 'content-types'
+const ELEMENTS_LOCATION = 'content-elements'
 
 @injectable()
 export class GhostCMSService implements CMSService, IDisposeOnExit {
@@ -36,7 +37,8 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
 
   // TODO Test this class
   async initialize() {
-    await this.ghost.addRootFolder(true, LOCATION, { filesGlob: '**.js', isBinary: false })
+    await this.ghost.addRootFolder(true, TYPES_LOCATION, { filesGlob: '**.js', isBinary: false })
+    await this.ghost.addRootFolder(false, ELEMENTS_LOCATION, { filesGlob: '**.json', isBinary: false })
     await this.prepareDb()
     await this.loadContentTypesFromFiles()
 
@@ -70,7 +72,8 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
 
     for (const fileName of fileNames) {
       const file = <string>await this.ghost.readFile(botId, 'content-elements', fileName)
-      const fileContentElements = <ContentElement[]>JSON.parse(file)
+      const contentType = path.basename(fileName).replace(/.json$/i, '')
+      const fileContentElements = (<ContentElement[]>JSON.parse(file)).map(x => ({ ...x, contentType }))
       contentElements = _.concat(contentElements, fileContentElements)
     }
 
@@ -87,10 +90,10 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
   }
 
   private async loadContentTypesFromFiles(): Promise<void> {
-    const fileNames = await this.ghost.directoryListing('global', LOCATION, '*.js')
+    const fileNames = await this.ghost.directoryListing('global', TYPES_LOCATION, '*.js')
 
     const codeFiles = await Promise.map(fileNames, async filename => {
-      const content = <string>await this.ghost.readFile('global', LOCATION, filename)
+      const content = <string>await this.ghost.readFile('global', TYPES_LOCATION, filename)
       return <CodeFile>{ code: content, relativePath: filename }
     })
 
@@ -181,7 +184,7 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
   async getAllContentTypes(botId?: string): Promise<ContentType[]> {
     if (botId) {
       const botConfig = await this.configProvider.getBotConfig(botId)
-      const enabledTypes = botConfig.enabledContentTypes
+      const enabledTypes = botConfig.enabledContentTypes || []
       return Promise.map(enabledTypes, x => this.getContentType(x))
     }
 
