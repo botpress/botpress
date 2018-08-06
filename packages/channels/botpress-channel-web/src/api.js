@@ -74,7 +74,13 @@ module.exports = async (bp, config) => {
 
   const knex = await bp.db.get()
 
-  const { listConversations, getConversation, appendUserMessage, getOrCreateRecentConversation } = db(knex, config)
+  const {
+    listConversations,
+    getConversation,
+    appendUserMessage,
+    getOrCreateRecentConversation,
+    createConversation
+  } = db(knex, config)
 
   const { getOrCreateUser, getUserProfile } = await users(bp, config)
 
@@ -286,6 +292,14 @@ module.exports = async (bp, config) => {
       res.status(200).send({})
     })
   )
+
+  router.post('/conversations/:userId/new', async (req, res) => {
+    const { userId } = req.params
+
+    await createConversation(userId)
+
+    res.sendStatus(200)
+  })
 
   router.get('/:userId/reference', async (req, res) => {
     try {

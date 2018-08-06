@@ -1,6 +1,7 @@
 import umm from './umm'
 import api from './api'
 import socket from './socket'
+import db from './db'
 
 module.exports = {
   config: {
@@ -35,6 +36,10 @@ module.exports = {
 
   ready: async function(bp, configurator) {
     const config = await configurator.loadAll()
+
+    // Initialize the database
+    const knex = await bp.db.get()
+    db(knex, config).initialize()
 
     // Setup the APIs
     await api(bp, config)

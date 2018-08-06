@@ -11,6 +11,10 @@ import { sanitizeUserId } from './util'
 module.exports = (knex, config) => {
   const RECENT_CONVERSATION_LIFETIME = ms(config.recentConversationLifetime)
 
+  const isLite = knex => {
+    return knex.client.config.client === 'sqlite3'
+  }
+
   async function getUserInfo(userId) {
     const user = await knex('users')
       .where({ platform: 'webchat', userId: sanitizeUserId(userId) })
@@ -177,6 +181,7 @@ module.exports = (knex, config) => {
       'last_heard_on',
       moment().subtract(RECENT_CONVERSATION_LIFETIME, 'ms')
     )
+
     const conversation = await knex('web_conversations')
       .select('id')
       .whereNotNull('last_heard_on')
@@ -202,31 +207,45 @@ module.exports = (knex, config) => {
 
     const conversationIds = conversations.map(c => c.id)
 
+    let lastMessages = knex
+      .from('web_messages')
+      .distinct(knex.raw('ON ("conversationId") *'))
+      .orderBy('conversationId')
+      .orderBy('sent_on', 'desc')
+
+    if (isLite(knex)) {
+      const lastMessagesDate = knex('web_messages')
+        .whereIn('conversationId', conversationIds)
+        .groupBy('conversationId')
+        .select(knex.raw('max(sent_on) as date'))
+
+      lastMessages = knex
+        .from('web_messages')
+        .select('*')
+        .whereIn('sent_on', lastMessagesDate)
+    }
+
     return knex
       .from(function() {
-        this.from('web_messages')
-          .whereIn('conversationId', conversationIds)
-          .groupBy('conversationId')
-          .select('conversationId', knex.raw('max(id) as msgid'))
-          .as('q1')
+        this.from('web_conversations')
+          .where({ userId })
+          .as('wc')
       })
-      .innerJoin('web_conversations', 'web_conversations.id', 'q1.conversationId')
-      .innerJoin('web_messages', 'web_messages.id', 'q1.msgid')
-      .orderBy('web_messages.sent_on', 'desc')
+      .leftJoin(lastMessages.as('wm'), 'wm.conversationId', 'wc.id')
+      .orderBy('wm.sent_on', 'desc')
       .select(
-        'web_conversations.id',
-        'web_conversations.title',
-        'web_conversations.description',
-        'web_conversations.logo_url',
-        'web_conversations.created_on',
-        'web_conversations.last_heard_on',
-        'web_messages.message_type',
-        'web_messages.message_text',
-        knex.raw('web_messages.full_name as message_author'),
-        knex.raw('web_messages.avatar_url as message_author_avatar'),
-        knex.raw('web_messages.sent_on as message_sent_on')
+        'wc.id',
+        'wc.title',
+        'wc.description',
+        'wc.logo_url',
+        'wc.created_on',
+        'wc.last_heard_on',
+        'wm.message_type',
+        'wm.message_text',
+        knex.raw('wm.full_name as message_author'),
+        knex.raw('wm.avatar_url as message_author_avatar'),
+        knex.raw('wm.sent_on as message_sent_on')
       )
-      .then()
   }
 
   async function getConversation(userId, conversationId, fromId = null) {
@@ -282,6 +301,7 @@ module.exports = (knex, config) => {
     patchConversation,
     getConversation,
     listConversations,
-    getOrCreateRecentConversation
+    getOrCreateRecentConversation,
+    isLite
   }
 }
