@@ -1,23 +1,12 @@
 {
+  "extends": "../../tsconfig.settings.json",
   "compilerOptions": {
-    "module": "commonjs",
-    "esModuleInterop": true,
-    "resolveJsonModule": true,
-    "target": "es6",
-    "lib": ["es7"],
-    "noImplicitAny": false,
-    "moduleResolution": "node",
-    "sourceMap": true,
     "outDir": "dist",
     "baseUrl": ".",
     "rootDir": ".",
-    "paths": {
-      "*": ["node_modules/*", "src/types/*"]
-    },
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
     "types": ["bluebird-global", "reflect-metadata"]
   },
   "include": ["src/**/*"],
-  "exclude": ["src/**/*.test.ts"]
+  "files": ["package.json"],
+  "references": [{ "path": "../../packages/module-sdk" }]
 }

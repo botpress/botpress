@@ -5,7 +5,7 @@ import { Container, interfaces } from 'inversify'
  * And calls their disposal method before the process exits
  */
 export const applyDisposeOnExit = (container: Container) => {
-  const disposeMethods = []
+  const disposeMethods: Function[] = []
 
   const applyToBinding = (binding: interfaces.Binding<any>): void => {
     const bindingOnActivation = binding.onActivation

@@ -41,7 +41,7 @@ export type ContentElement = {
 }
 
 export type SearchParams = {
-  searchTerm: string
+  searchTerm?: string
   orderBy: string[]
   from: number
   count: number

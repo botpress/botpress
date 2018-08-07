@@ -48,6 +48,6 @@
     "jsdoc-format": true
   },
   "linterOptions": {
-    "exclude": ["*.json"]
+    "exclude": ["**/*.json"]
   }
 }

@@ -20,7 +20,7 @@ const ELEMENTS_LOCATION = 'content-elements'
 export class GhostCMSService implements CMSService, IDisposeOnExit {
   private contentTypes: ContentType[] = []
   private filesById = {}
-  private sandbox: SafeCodeSandbox
+  private sandbox!: SafeCodeSandbox
 
   constructor(
     @inject(TYPES.Logger)
@@ -188,7 +188,11 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
   }
 
   async getContentType(contentTypeId: string): Promise<ContentType> {
-    return this.contentTypes.find(x => x.id === contentTypeId)
+    const type = this.contentTypes.find(x => x.id === contentTypeId)
+    if (!type) {
+      throw new Error(`Content type "${contentTypeId}" is not a valid registered content type ID`)
+    }
+    return type
   }
 
   async getRandomContentElement(contentTypeId: string): Promise<ContentElement> {
@@ -208,7 +212,7 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
     contentTypeId = contentTypeId.toLowerCase()
     const contentType = _.find(this.contentTypes, { id: contentTypeId })
 
-    if (contentType === null) {
+    if (!contentType) {
       throw new Error(`Content type "${contentTypeId}" is not a valid registered content type ID`)
     }
 
@@ -216,30 +220,32 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
     const body = this.transformItemApiToDb(botId, contentElement)
 
     const isNewItemCreation = !contentElementId
+    let newContentElementId
+
     if (isNewItemCreation) {
       contentElementId = this.getNewContentElementId(contentType.id)
-    }
-
-    if (!isNewItemCreation) {
+      newContentElementId = await this.memDb(CONTENT_ELEMENTS_TABLE)
+        .insert({
+          ...body,
+          createdBy: 'admin',
+          createdOn: this.memDb.date.now(),
+          id: contentElementId,
+          contentType: contentTypeId
+        })
+        .returning('id')
+        .toString()
+    } else {
       await this.memDb(CONTENT_ELEMENTS_TABLE)
         .update(body)
         .where({ id: contentElementId })
         .then()
-    } else {
-      await this.memDb(CONTENT_ELEMENTS_TABLE).insert({
-        ...body,
-        createdBy: 'admin',
-        createdOn: this.memDb.date.now(),
-        id: contentElementId,
-        contentType: contentTypeId
-      })
     }
 
     await this.dumpDataToFile(botId, contentTypeId)
-    return contentElementId
+    return contentElementId || newContentElementId
   }
 
-  private getNewContentElementId(contentTypeId: string) {
+  private getNewContentElementId(contentTypeId: string): string {
     const prefix = contentTypeId.replace(/^#/, '')
     return `${prefix}-${nanoid(6)}`
   }
