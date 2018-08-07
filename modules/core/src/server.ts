@@ -17,7 +17,7 @@ const BASE_API_PATH = '/api/v1'
 
 @injectable()
 export default class HTTPServer {
-  server: Server
+  server: Server | undefined
   app: express.Express
 
   constructor(

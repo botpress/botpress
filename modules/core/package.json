@@ -1,29 +1,31 @@
 {
-  "name": "botpress",
-  "version": "0.0.0",
+  "name": "botpress-xx",
+  "version": "0.0.1",
   "author": "Botpress",
   "license": "AGPL-3.0-only",
   "private": true,
   "scripts": {
     "start": "npm run serve",
     "serve": "node dist/src/app.js",
-    "build": "npm run build-ts && npm run tslint && ./scripts/copy-config.sh",
-    "build-ts": "tsc",
+    "build": "npm run tslint && npm run build-ts && ./scripts/copy-config.sh",
+    "build-ts": "../../node_modules/.bin/rimraf dist && ../../node_modules/.bin/tsc -b .",
     "build-pkg": "npm run build && npm run pkg",
     "pkg": "./scripts/package-binaries.sh",
-    "test": "jest --forceExit --coverage --verbose",
+    "test": "../../node_modules/.bin/jest --forceExit --coverage --verbose -c ../../jest.config.js",
     "watch": "concurrently -c cyan npm:watch-ts",
-    "watch-ts": "tsc-watch -p . --onSuccess \"node ./dist/src/app.js\" --onFailure \"echo Beep! Compilation Failed\"",
-    "watch-node": "nodemon dist/src/app.js -w dist",
+    "watch-ts": "../../node_modules/.bin/rimraf dist && ../../node_modules/.bin/tsc-watch -p . --onSuccess \"node ./dist/src/app.js\" --onFailure \"echo Beep! Compilation Failed\"",
+    "watch-node": "../../node_modules/.bin/nodemon dist/src/app.js -w dist",
     "watch-test": "npm run test -- --watchAll",
-    "tslint": "tslint -c tslint.json -p tsconfig.json"
+    "tslint": "../../node_modules/.bin/tslint -c ../../tslint.json -p tsconfig.json"
   },
   "dependencies": {
+    "axios": "^0.18.0",
     "bluebird-global": "^1.0.1",
     "body-parser": "^1.18.3",
-    "botpress-module-sdk": "../../packages/module-sdk",
+    "botpress-module-sdk": "^0.0.1",
     "chalk": "^2.4.1",
     "dotenv": "^6.0.0",
+    "errorhandler": "^1.5.0",
     "express": "^4.16.3",
     "express-http-proxy": "^1.2.0",
     "glob": "^7.1.2",
@@ -51,16 +53,6 @@
     "@types/ms": "^0.7.30",
     "@types/node": "^10.5.2",
     "@types/verror": "^1.10.3",
-    "concurrently": "^3.6.0",
-    "errorhandler": "^1.5.0",
-    "jest": "^23.4.1",
-    "nodemon": "^1.18.2",
-    "pkg": "^4.3.3",
-    "prettier": "1.13.7",
-    "ts-jest": "^23.0.0",
-    "ts-node": "^7.0.0",
-    "tsc-watch": "^1.0.26",
-    "tslint": "^5.11.0",
-    "typescript": "^2.9.2"
+    "concurrently": "^3.6.0"
   }
 }
