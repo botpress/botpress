@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.29.0"></a>
+# [10.29.0](https://github.com/botpress/modules/compare/v10.28.0...v10.29.0) (2018-08-07)
+
+
+### Bug Fixes
+
+* **nlu:** custom entity names ([8e04763](https://github.com/botpress/modules/commit/8e04763))
+* **nlu:** DialogFlow moved to optional deps ([a05202a](https://github.com/botpress/modules/commit/a05202a))
+* **nlu:** fixes loading of custom entities ([f63cfab](https://github.com/botpress/modules/commit/f63cfab))
+
+
+
+
 <a name="10.28.0"></a>
 # [10.28.0](https://github.com/botpress/modules/compare/v10.27.1...v10.28.0) (2018-08-03)
 

@@ -168,6 +168,21 @@
       }
     }
 
+    .addConvoBtn {
+      background: transparent;
+      border: 2px solid;
+      font-size: 36px;
+      border-radius: 50%;
+      float: left;
+      margin-left: 15px;
+      margin-top: 15px;
+      margin-bottom: 15px;
+
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.03);
+      }
+    }
+
     .conversation {
       -webkit-box-flex: 1;
       -ms-flex: 1;
