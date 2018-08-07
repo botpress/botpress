@@ -2,10 +2,11 @@
 layout: guide
 ---
 
-When working with the bot a situation may occur when bot doesn't forget you.
-E.g. you asked a question, get back in a month and bot still remembers previous context and tries to answer that question.
+Occasionally a user may leave a conversation with your bot part way through the interaction, leaving it an unwanted state. 
 
-This isn't the best UX and so botpress handles this. In your botfile you can see these options:
+This could lead to the bot trying to answer the wrong question when the user returns to the conversation at a later time, which is a bad user experience.
+
+To prevent this Botpress has the ability to set the time-to-live on a session and how often these should be checked. You will find the following options in `botfile.js`. 
 
 ```js
 dialogs: {
@@ -14,8 +15,8 @@ dialogs: {
 },
 ```
 
-So if you started conversation and then didn't respond for 2 minutes your session will get expired.
-This way bot will start conversation with you from the beginning.
+This means that if you started a conversation and then didn't respond for 2 minutes, the bot would set your session as expired.
+When you then resume the conversation, the bot will start from the beginning.
 
 # Performing actions on timeout
 
