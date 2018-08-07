@@ -1,4 +1,5 @@
 {
+  "license": "AGPL-3.0-only",
   "devDependencies": {
     "@types/errorhandler": "^0.0.32",
     "@types/jest": "^23.3.0",
@@ -11,15 +12,14 @@
     "nodemon": "^1.18.2",
     "pkg": "^4.3.3",
     "prettier": "^1.13.7",
+    "rimraf": "^2.6.2",
     "ts-jest": "^23.0.0",
     "ts-node": "^7.0.0",
+    "tsc-watch": "^1.0.26",
     "tslint": "^5.11.0",
-    "typescript": "^2.9.2"
+    "typescript": "^3.0.1"
   },
-  "dependencies": {
-    "@types/axios": "^0.14.0",
-    "axios": "^0.18.0"
-  },
+  "dependencies": {},
   "scripts": {
     "dev": "lerna exec yarn install && npm run link && npm run watch",
     "link": "lerna link --force-local",

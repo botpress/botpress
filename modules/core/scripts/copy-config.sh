@@ -1,3 +1,5 @@
+cd $(dirname $0)/..
+
 if [ -d data/ ]; then
   rm -rf dist/data/
   mkdir -p dist/data/

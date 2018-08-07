@@ -59,9 +59,9 @@ docs/reference
 
 packages/**/bin
 packages/**/dist
-packages/channels/botpress-channel-web/fonts/**
-packages/yarn.lock
+modules/**/bin
+modules/**/dist
+modules/**/.env
 
-**/.DS_Store
 
 *.cache

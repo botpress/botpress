@@ -1,3 +1,5 @@
+const process = require('process')
+
 module.exports = {
   globals: {
     'ts-jest': {
@@ -6,8 +8,9 @@ module.exports = {
   },
   moduleFileExtensions: ['ts', 'js'],
   transform: {
-    '^.+\\.(ts|tsx)$': './node_modules/ts-jest/preprocessor.js'
+    '^.+\\.(ts|tsx)$': '../../node_modules/ts-jest/preprocessor.js'
   },
   testMatch: ['**/test/**/*.test.(ts|js)'],
-  testEnvironment: 'node'
+  testEnvironment: 'node',
+  rootDir: process.cwd()
 }
