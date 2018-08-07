@@ -20,10 +20,46 @@ When you then resume the conversation, the bot will start from the beginning.
 
 # Performing actions on timeout
 
-You may want to perform some actions for conversations that got stuck in the middle.
-You may specify the node that'll be called given user stopped responding (the precedence is as in this list):
+When a user's conversation session expires, you are able to trigger an action by specifying the node's name or by having a dedicated timeout flow.
 
-1. Add `timeoutNode` key with node-name to json-file of the given flow for the node on which you want to catch timeout
-2. Add `timeoutNode` key with node-name to json-file of the given flow on which you want to catch timeout
-3. Add `timeout` node on the flow you want to catch timeout
-4. Add `timeout.flow.json` and it'll be called on timeout
+There are 4 ways to handle this. The bot will invoke the first handler set, based on the order below:
+
+1. Using the `timeoutNode` key on a node.
+```js
+{
+  "version": "...",
+  "catchAll": {...},
+  "startNode": "...",
+  "nodes": [
+    {...,
+      "timeoutNode": "<target-node-name>",
+      ...
+    }
+}
+```
+2. Using the `timeoutNode` key on the flow
+```js
+{
+  "version": "...",
+  "timeoutNode": "<target-node-name>",
+  "catchAll": {...},
+  "startNode": "...",
+  "nodes": [
+    {...}
+}
+```
+3. By adding a node called `timeout` within a flow
+```js
+{
+  "version": "...",
+  "catchAll": {...},
+  "startNode": "...",
+  "nodes": [
+    {...},
+    {...,
+      "name" : "timeout",
+    },
+    {...}
+}
+```
+4. Having a dedicated timeout flow file called `timeout.flow.json` 
