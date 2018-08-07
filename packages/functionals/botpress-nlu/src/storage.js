@@ -8,6 +8,7 @@ const formatFilename = name =>
     .toLowerCase()
     .replace(/[^a-z0-9-_.]/gi, '_')
     .replace('.entities.json', '')
+    .replace('.entity.json', '')
     .replace('.json', '')
     .replace('.utterances.txt', '')
 
