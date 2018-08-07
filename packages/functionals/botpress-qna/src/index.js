@@ -1,6 +1,7 @@
 import Storage from './storage'
 import { processEvent } from './middleware'
 import * as parsers from './parsers.js'
+import _ from 'lodash'
 import multer from 'multer'
 import { Parser as Json2csvParser } from 'json2csv'
 import yn from 'yn'
@@ -52,8 +53,13 @@ module.exports = {
        * @param {String} [options.format] - format of "questions" string ('csv' or 'json')
        * @returns {Promise} Promise object represents an array of ids of imported questions
        */
-      import(questions, { format = 'json' } = {}) {
-        const questionsToSave = typeof questions === 'string' ? parsers[`${format}Parse`](questions) : questions
+      async import(questions, { format = 'json' } = {}) {
+        const existingQuestions = (await storage.getQuestions()).map(item =>
+          JSON.stringify(_.omit(item.data, 'enabled'))
+        )
+        const parsedQuestions = typeof questions === 'string' ? parsers[`${format}Parse`](questions) : questions
+        const questionsToSave = parsedQuestions.filter(item => !existingQuestions.includes(JSON.stringify(item)))
+
         return Promise.each(questionsToSave, question =>
           storage.saveQuestion({ ...question, enabled: true }, null, false)
         )
