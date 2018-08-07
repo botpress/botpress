@@ -1,6 +1,6 @@
-import { MiddlewareService } from '../middleware-service'
 import { BotRepository } from '../repositories/bot-repository'
 import { CMSService, DefaultSearchParams } from '../services/cms'
+import { MiddlewareService } from '../services/middleware/middleware-service'
 
 import { BaseRouter } from './base-router'
 

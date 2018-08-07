@@ -6,13 +6,13 @@ import { Server } from 'http'
 import { inject, injectable, tagged } from 'inversify'
 
 import { ConfigProvider } from './config/config-loader'
-import { MiddlewareService } from './middleware-service'
 import { Logger } from './misc/interfaces'
 import { TYPES } from './misc/types'
 import { BotRepository } from './repositories/bot-repository'
 import { BotRouter } from './router/bot-router'
 import { IndexRouter } from './router/index-router'
 import { CMSService } from './services/cms'
+import { MiddlewareService } from './services/middleware/middleware-service'
 
 const BASE_API_PATH = '/api/v1'
 

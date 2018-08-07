@@ -6,6 +6,7 @@ export interface FlowProvider {
 export type Flow = {
   version: string
   startNode: string
+  skillData: any
   nodes: [FlowNode]
   catchAll: NodeActions
 }
@@ -39,4 +40,6 @@ export type NodeLinkView = {
   points: [{ x: number; y: number }]
 }
 
-export type NodeView = FlowNode & { position: { x: number; y: number } }
+export type NodeView = FlowNode & { x: number; y: number }
+
+export type BotFlowView = { [index: string]: FlowView[] }

@@ -6,7 +6,7 @@ import { Logger } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
 import { GhostContentService } from '../ghost-content'
 
-import { Flow, FlowProvider, FlowView } from '.'
+import { BotFlowView, Flow, FlowProvider, FlowView, NodeView } from '.'
 import { validateFlowSchema } from './validator'
 
 const PLACING_STEP = 250
@@ -27,7 +27,7 @@ export default class GhostFlowProvider implements FlowProvider {
     await this.ghost.addRootFolder(false, 'flows', { filesGlob: '**/*.json', isBinary: false })
   }
 
-  async loadAll(): Promise<FlowView[]> {
+  async loadAll(): Promise<BotFlowView> {
     this.logger.debug('Loading flows')
     const botpressConfig = await this.configProvider.getBotpressConfig()
     const bots = botpressConfig.bots
@@ -37,10 +37,10 @@ export default class GhostFlowProvider implements FlowProvider {
       flowsPathsByBot[botId] = await this.ghost.directoryListing(botId, 'flows', '.flow.json')
     }
 
-    const flowsByBot = []
+    const flowsByBot: BotFlowView = {}
     for (const botId of bots) {
       const flowsPaths = flowsPathsByBot[botId]
-      const flows = await Promise.map(flowsPaths, async (flowPath: string) => {
+      const flows = <FlowView[]>await Promise.map(flowsPaths, async (flowPath: string) => {
         const flowFile = <string>await this.ghost.readFile(botId, 'flows', flowPath)
         const flow = <Flow>JSON.parse(flowFile)
 
@@ -56,11 +56,11 @@ export default class GhostFlowProvider implements FlowProvider {
 
         let unplacedIndex = -1
 
-        const augmentedNodes = flow.nodes.map(node => {
+        const nodeViews = flow.nodes.map(node => {
           const position = _.get(_.find(uiEq.nodes, { id: node.id }), 'position')
           unplacedIndex = position ? unplacedIndex : unplacedIndex + 1
 
-          return {
+          return <NodeView>{
             ...node,
             x: position ? position.x : RENAME_THIS + unplacedIndex * PLACING_STEP,
             y: position ? position.y : (_.maxBy(flow.nodes, 'y') || { y: 0 })['y'] + PLACING_STEP
@@ -70,13 +70,15 @@ export default class GhostFlowProvider implements FlowProvider {
         return {
           name: flowPath,
           location: flowPath,
-          nodes: _.filter(augmentedNodes, node => !!node),
+          nodes: nodeViews.filter(Boolean),
           ..._.pick(flow, 'version', 'catchAll', 'startNode', 'links', 'skillData')
         }
       })
 
       flowsByBot[botId] = flows
     }
+
+    console.log(flowsByBot)
 
     return flowsByBot
   }

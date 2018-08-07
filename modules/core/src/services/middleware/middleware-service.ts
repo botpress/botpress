@@ -1,10 +1,10 @@
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 
-import { MiddlewareConfig } from './config/bot.config'
-import { ConfigProvider } from './config/config-loader'
-import { TYPES } from './misc/types'
-import { ModuleLoader } from './module-loader'
+import { MiddlewareConfig } from '../../config/bot.config'
+import { ConfigProvider } from '../../config/config-loader'
+import { TYPES } from '../../misc/types'
+import { ModuleLoader } from '../../module-loader'
 
 type MiddlewareOverride = {
   name: string

@@ -1,26 +1,17 @@
 import { Container } from 'inversify'
-import Knex from 'knex'
 import path from 'path'
 
 import { Botpress } from './botpress'
 import { ConfigProvider, GhostConfigProvider } from './config/config-loader'
-import Database from './database'
-import { patchKnex } from './database/helpers'
-import { ExtendedKnex } from './database/interfaces'
+import { DatabaseContainerModule } from './database/database.inversify'
 import ConsoleLogger from './logger'
-import { MiddlewareService } from './middleware-service'
 import { Logger } from './misc/interfaces'
 import { applyDisposeOnExit } from './misc/inversify'
 import { TYPES } from './misc/types'
 import { ModuleLoader } from './module-loader'
 import { RepositoriesContainerModule } from './repositories/repositories.inversify'
 import HTTPServer from './server'
-import { CMSService } from './services/cms'
-import { GhostCMSService } from './services/cms/ghost-cms-service'
-import { FlowProvider } from './services/dialog'
-import GhostFlowProvider from './services/dialog/provider'
-import { GhostContentService } from './services/ghost-content'
-import FSGhostContentService from './services/ghost-content/file-system'
+import { ServicesContainerModule } from './services/services.inversify'
 
 const container = new Container({ autoBindInjectable: true })
 
@@ -41,10 +32,7 @@ container.bind<string>(TYPES.Logger_Name).toDynamicValue(ctx => {
 })
 
 container.bind<Logger>(TYPES.Logger).to(ConsoleLogger)
-container
-  .bind<Database>(TYPES.Database)
-  .to(Database)
-  .inSingletonScope()
+
 container
   .bind<ModuleLoader>(TYPES.ModuleLoader)
   .to(ModuleLoader)
@@ -62,40 +50,15 @@ container
 const runningNode = process.title.endsWith('node')
 const isProduction = !runningNode || process.env.NODE_ENV == 'production'
 
-container.bind<MiddlewareService>(TYPES.MiddlewareService).to(MiddlewareService)
-
 const projectLocation = runningNode
   ? path.join(__dirname, '..') // If we're running in DEV
   : path.join(path.dirname(process.execPath)) // If we're running from binary
 
 container.bind<boolean>(TYPES.IsProduction).toConstantValue(isProduction)
 container.bind<string>(TYPES.ProjectLocation).toConstantValue(projectLocation)
-container
-  .bind<GhostContentService>(TYPES.GhostService)
-  .to(FSGhostContentService)
-  .inSingletonScope()
 
-container
-  .bind<CMSService>(TYPES.CMSService)
-  .to(GhostCMSService)
-  .inSingletonScope()
-
-container.bind<ExtendedKnex>(TYPES.InMemoryDatabase).toDynamicValue(() => {
-  return patchKnex(
-    Knex({
-      client: 'sqlite3',
-      connection: ':memory:',
-      pool: { min: 1, max: 1, idleTimeoutMillis: 360000 * 1000 },
-      useNullAsDefault: true
-    })
-  )
-})
-
-container
-  .bind<FlowProvider>(TYPES.FlowProvider)
-  .to(GhostFlowProvider)
-  .inSingletonScope()
-
+container.load(DatabaseContainerModule)
+container.load(ServicesContainerModule)
 container.load(RepositoriesContainerModule)
 
 applyDisposeOnExit(container)
