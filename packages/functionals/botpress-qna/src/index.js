@@ -114,9 +114,14 @@ module.exports = {
 
     const router = bp.getRouter('botpress-qna')
 
-    router.get('/', async (req, res) => {
+    router.get('/', async ({ query: { limit, offset } }, res) => {
       try {
-        res.send(await storage.getQuestions())
+        const items = await storage.getQuestions({
+          limit: limit ? parseInt(limit) : undefined,
+          offset: offset ? parseInt(offset) : undefined
+        })
+        const overallItemsCount = await storage.questionsCount()
+        res.send({ items, overallItemsCount })
       } catch (e) {
         logger.error('QnA Error', e, e.stack)
         res.status(500).send(e.message || 'Error')
