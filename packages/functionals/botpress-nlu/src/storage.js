@@ -119,7 +119,7 @@ export default class Storage {
       throw new Error('Invalid entity name, expected at least one character')
     }
 
-    const filename = `${entity}.json`
+    const filename = `${entity}.entity.json`
 
     const definitionContent = await this.ghost.readFile(this.entitiesDir, filename)
     const definition = JSON.parse(definitionContent)
