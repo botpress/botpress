@@ -1,6 +1,6 @@
 {
   "name": "botpress-module-sdk",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "author": "Botpress",
   "license": "AGPL-3.0-only",
   "main": "dist/src/index.js",
@@ -15,9 +15,7 @@
     "watch-test": "npm run test -- --watchAll",
     "tslint": "../../node_modules/.bin/tslint -c ../../tslint.json -p tsconfig.json"
   },
-  "dependencies": {
-    "lodash": "^4.17.10"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@types/jest": "^23.3.0",
     "@types/node": "^10.5.2"

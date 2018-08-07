@@ -13,7 +13,7 @@ import AllTables from './tables'
 
 @injectable()
 export default class Database {
-  knex: ExtendedKnex
+  knex: ExtendedKnex | undefined
 
   private tables: Table[] = []
 
@@ -45,7 +45,7 @@ export default class Database {
     this.knex = patchKnex(knex)
 
     await Promise.mapSeries(AllTables, async Tbl => {
-      const table = new Tbl(this.knex)
+      const table = new Tbl(this.knex!)
       await table.bootstrap()
       this.tables.push(table)
     })

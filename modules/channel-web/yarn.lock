@@ -2,6 +2,16 @@
 # yarn lockfile v1
 
 
+"@types/bluebird-global@^3.5.6":
+  version "3.5.6"
+  resolved "https://registry.yarnpkg.com/@types/bluebird-global/-/bluebird-global-3.5.6.tgz#a5a089f2110a0467658bb9f726442df0713ab281"
+  dependencies:
+    "@types/bluebird" "*"
+
+"@types/bluebird@*":
+  version "3.5.23"
+  resolved "https://registry.yarnpkg.com/@types/bluebird/-/bluebird-3.5.23.tgz#e805da976b76892b2b2e50eec29e84914c730670"
+
 "@types/body-parser@*":
   version "1.17.0"
   resolved "https://registry.yarnpkg.com/@types/body-parser/-/body-parser-1.17.0.tgz#9f5c9d9bd04bb54be32d5eb9fc0d8c974e6cf58c"
@@ -105,11 +115,6 @@ body-parser@1.18.2:
     qs "6.5.1"
     raw-body "2.3.2"
     type-is "~1.6.15"
-
-botpress-module-sdk@../../packages/module-sdk:
-  version "0.0.0"
-  dependencies:
-    lodash "^4.17.10"
 
 builtin-modules@^1.0.0:
   version "1.1.1"

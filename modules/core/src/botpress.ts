@@ -15,12 +15,11 @@ import HTTPServer from './server'
 
 @injectable()
 export class Botpress {
-  projectLocation: string
   botpressPath: string
   configLocation: string
   modulesConfig: any
   version: string
-  config: BotpressConfig
+  config: BotpressConfig | undefined
 
   constructor(
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
@@ -62,7 +61,7 @@ export class Botpress {
   }
 
   private createDatabase(): Promise<void> {
-    return this.database.initialize(this.config.database)
+    return this.database.initialize(this.config!.database)
   }
 
   private async loadModules(): Promise<void> {
