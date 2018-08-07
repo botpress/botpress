@@ -23,7 +23,7 @@ export default class GhostFlowProvider implements FlowProvider {
   }
 
   async loadAll(): Promise<FlowView[]> {
-    this.logger.debug('Loading all flows')
+    this.logger.debug('Loading flows')
     return []
   }
 
