@@ -8,6 +8,7 @@ const formatFilename = name =>
     .toLowerCase()
     .replace(/[^a-z0-9-_.]/gi, '_')
     .replace('.entities.json', '')
+    .replace('.entity.json', '')
     .replace('.json', '')
     .replace('.utterances.txt', '')
 
@@ -118,7 +119,7 @@ export default class Storage {
       throw new Error('Invalid entity name, expected at least one character')
     }
 
-    const filename = `${entity}.json`
+    const filename = `${entity}.entity.json`
 
     const definitionContent = await this.ghost.readFile(this.entitiesDir, filename)
     const definition = JSON.parse(definitionContent)

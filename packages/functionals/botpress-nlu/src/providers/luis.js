@@ -386,7 +386,11 @@ export default class LuisProvider extends Provider {
       entities: entities.map(entity => ({
         name: null,
         type: entity.type,
-        value: _.get(entity, 'resolution.values.0.value') || _.get(entity, 'resolution.value') || entity.entity,
+        value:
+          _.get(entity, 'resolution.values.0.value') ||
+          _.get(entity, 'resolution.value') ||
+          _.get(entity, 'resolution.values.0') ||
+          entity.entity,
         original: entity.entity,
         confidence: null,
         position: entity.startIndex,
