@@ -32,8 +32,8 @@ export type ContentType = {
 export type ContentElement = {
   id: string
   contentType: string
-  formData: object // rawData
-  computedData: object // data
+  formData: object
+  computedData: object
   createdOn: Date
   createdBy: string
   modifiedOn: Date

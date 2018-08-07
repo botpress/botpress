@@ -43,13 +43,9 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
     await this.prepareDb()
     await this.loadContentTypesFromFiles()
 
+    // TODO: This will be called when initializing a bot
     await this.loadContentElementsFromFiles('bot123')
-    // console.log(await this.getAllContentTypes('bot123'))
-    // console.log(await this.getAllContentTypes())
-    // console.log(await this.createOrUpdateContentElement('bot123', 'builtin_text', ''))
-    // console.log(await this.countContentElements('bot123', 'builtin_single-choice'))
-    // console.log(await this.getRandomContentElement('builtin_single-choice'))
-    // console.log(await this.listContentElements('bot123', undefined, { ...DefaultSearchParams, searchTerm: 'choice' }))
+
     await this.recomputeCategoriesMetadata()
     this.logger.debug('init done')
   }
