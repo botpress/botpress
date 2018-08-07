@@ -115,12 +115,14 @@ export default class ArrayEditor extends Component {
   }
 
   render() {
-    const { newItem, items } = this.props
+    const { newItem, items, renderPagination } = this.props
 
     return (
       <Fragment>
         {this.renderItemForm(newItem, null, null)}
+        {renderPagination && renderPagination()}
         {items && items.map(this.renderItemForm)}
+        {renderPagination && renderPagination()}
       </Fragment>
     )
   }
