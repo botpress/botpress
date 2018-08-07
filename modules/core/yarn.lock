@@ -57,9 +57,9 @@
     "@types/express-serve-static-core" "*"
     "@types/serve-static" "*"
 
-"@types/jest@^23.3.0":
-  version "23.3.0"
-  resolved "https://registry.yarnpkg.com/@types/jest/-/jest-23.3.0.tgz#5dd70033b616a6228042244ebd992f6426808810"
+"@types/jest@^23.3.1":
+  version "23.3.1"
+  resolved "https://registry.yarnpkg.com/@types/jest/-/jest-23.3.1.tgz#a4319aedb071d478e6f407d1c4578ec8156829cf"
 
 "@types/knex@^0.14.17":
   version "0.14.17"
@@ -86,6 +86,12 @@
 "@types/ms@^0.7.30":
   version "0.7.30"
   resolved "https://registry.yarnpkg.com/@types/ms/-/ms-0.7.30.tgz#f6c38b7ecbbf698b0bbd138315a0f0f18954f85f"
+
+"@types/nanoid@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@types/nanoid/-/nanoid-1.0.0.tgz#d67190bf0a6661b42eb86f6949534606959fd3a1"
+  dependencies:
+    "@types/node" "*"
 
 "@types/node@*", "@types/node@^10.5.2":
   version "10.5.2"
@@ -1329,6 +1335,10 @@ ms@^2.1.1:
 nan@~2.10.0:
   version "2.10.0"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.10.0.tgz#96d0cd610ebd58d4b4de9cc0c6828cda99c7548f"
+
+nanoid@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-1.1.0.tgz#b18e806e1cdbfdbe030374d5cf08a48cbc80b474"
 
 nanomatch@^1.2.9:
   version "1.2.13"

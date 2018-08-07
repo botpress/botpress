@@ -45,7 +45,6 @@ export class GhostConfigProvider implements ConfigProvider {
   }
 
   async setBotConfig(botId: string, config: BotConfig) {
-    console.log('LOL!!')
     await this.ghostService.upsertFile(botId, ROOT_FOLDER, 'bot.config.json', JSON.stringify(config, undefined, 2))
   }
 

@@ -13,4 +13,4 @@ cp -r extensions/macos/** bin/mac
 echo "Copied configuration files"
 echo "Packaging binaries..."
 
-pkg dist/src/app.js --target macos-x64 --output bin/mac/botpress
+pkg package.json --target macos-x64 --output bin/mac/botpress

@@ -5,6 +5,7 @@ export type BotConfig = {
   version: string
   license?: string
   modules: BotModuleConfig[]
+  enabledContentTypes: string[]
 }
 
 export type BotModuleConfig = {

@@ -1,16 +1,22 @@
 import { Container } from 'inversify'
+import Knex from 'knex'
 import path from 'path'
 
 import { Botpress } from './botpress'
 import { ConfigProvider, GhostConfigProvider } from './config/config-loader'
 import Database from './database'
+import { patchKnex } from './database/helpers'
+import { ExtendedKnex } from './database/interfaces'
 import ConsoleLogger from './logger'
 import { MiddlewareService } from './middleware-service'
 import { Logger } from './misc/interfaces'
+import { applyDisposeOnExit } from './misc/inversify'
 import { TYPES } from './misc/types'
 import { ModuleLoader } from './module-loader'
 import { RepositoriesContainerModule } from './repositories/repositories.inversify'
 import HTTPServer from './server'
+import { CMSService } from './services/cms'
+import { GhostCMSService } from './services/cms/ghost-cms-service'
 import { GhostContentService } from './services/ghost-content'
 import FSGhostContentService from './services/ghost-content/file-system'
 
@@ -67,6 +73,24 @@ container
   .to(FSGhostContentService)
   .inSingletonScope()
 
+container
+  .bind<CMSService>(TYPES.CMSService)
+  .to(GhostCMSService)
+  .inSingletonScope()
+
+container.bind<ExtendedKnex>(TYPES.InMemoryDatabase).toDynamicValue(() => {
+  return patchKnex(
+    Knex({
+      client: 'sqlite3',
+      connection: ':memory:',
+      pool: { min: 1, max: 1, idleTimeoutMillis: 360000 * 1000 },
+      useNullAsDefault: true
+    })
+  )
+})
+
 container.load(RepositoriesContainerModule)
+
+applyDisposeOnExit(container)
 
 export { container }

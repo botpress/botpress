@@ -27,5 +27,6 @@
       ],
       "enabled": true
     }
-  ]
+  ],
+  "enabledContentTypes": ["builtin_text", "builtin_single-choice", "builtin_image"]
 }

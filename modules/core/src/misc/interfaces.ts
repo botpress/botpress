@@ -5,3 +5,7 @@ export interface Logger {
   error(message: string, metadata?: any): void
   error(message: string, error: Error, metadata?: any): void
 }
+
+export interface IDisposeOnExit {
+  disposeOnExit(): void
+}
