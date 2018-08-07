@@ -11,5 +11,6 @@
     "user": "postgres",
     "password": "",
     "database": "botpress_test"
-  }
+  },
+  "bots": ["bot123"]
 }

@@ -8,4 +8,5 @@ export type BotpressConfig = {
     backlog: number
   }
   database: DatabaseConfig
+  bots: string[]
 }
