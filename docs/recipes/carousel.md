@@ -2,7 +2,7 @@
 layout: guide
 ---
 
-Webchat carousel is a useful way of showing collection of elements. Let's check advanced carousel-renderer and comments to it:
+Webchat carousel is a useful way of showing a collection of elements. The example below shows two different types of element, shown in a responsive layout, depending on the width of the users device. 
 
 ```js
 {
@@ -17,7 +17,7 @@ Webchat carousel is a useful way of showing collection of elements. Let's check 
       { breakpoint: 750, settings: { slidesToShow: 3 } }
     ]
   },
-  'web-style': { direction: 'rtl' }, // This allows to add custom CSS-styling
+  'web-style': { direction: 'rtl' }, // This allows you to add custom CSS-styling
   elements: [{
     title: 'External document',
     subtitle: 'This is a link to external document',
@@ -30,6 +30,4 @@ Webchat carousel is a useful way of showing collection of elements. Let's check 
 },
 ```
 
-The renderer above is dupposed to render 2-slides carousel that displays differently on 400 and 750 px-wide screens with custom CSS-styling and with one of the buttons acting as a quick-replies.
-
-You can check [package README](https://github.com/botpress/botpress/tree/master/packages/channels/botpress-channel-web) for details on which other keys carousel accepts.
+You can check the [package README](https://github.com/botpress/botpress/tree/master/packages/channels/botpress-channel-web) for all the options you can pass into the carousel object.
