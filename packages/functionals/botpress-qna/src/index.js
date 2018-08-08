@@ -7,6 +7,7 @@ import { Parser as Json2csvParser } from 'json2csv'
 import yn from 'yn'
 import moment from 'moment'
 import Promise from 'bluebird'
+import iconv from 'iconv-lite'
 
 let storage
 let logger
@@ -15,7 +16,8 @@ let shouldProcessMessage
 module.exports = {
   config: {
     qnaDir: { type: 'string', required: true, default: './qna', env: 'QNA_DIR' },
-    textRenderer: { type: 'string', required: true, default: '#builtin_text', env: 'QNA_TEXT_RENDERER' }
+    textRenderer: { type: 'string', required: true, default: '#builtin_text', env: 'QNA_TEXT_RENDERER' },
+    exportCsvEncoding: { type: 'string', required: false, default: 'utf8', env: 'QNA_EXPORT_CSV_ENCODING' }
   },
   async init(bp, configurator) {
     const config = await configurator.loadAll()
@@ -44,7 +46,8 @@ module.exports = {
       description: 'Listen for predefined questions and send canned responses.'
     })
   },
-  ready(bp) {
+  async ready(bp, configurator) {
+    const config = await configurator.loadAll()
     bp.qna = {
       /**
        * Parses and imports questions; consecutive questions with similar answer get merged
@@ -168,7 +171,7 @@ module.exports = {
       res.setHeader('Content-Type', 'text/csv')
       res.setHeader('Content-disposition', `attachment; filename=qna_${moment().format('DD-MM-YYYY')}.csv`)
       const json2csvParser = new Json2csvParser({ fields: ['question', 'action', 'answer', 'answer2'], header: true })
-      res.end(json2csvParser.parse(await bp.qna.export({ flat: true })))
+      res.end(iconv.encode(json2csvParser.parse(await bp.qna.export({ flat: true })), config.exportCsvEncoding))
     })
 
     const upload = multer()
