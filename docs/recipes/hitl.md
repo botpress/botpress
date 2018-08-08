@@ -9,7 +9,7 @@ The [Human-in-the-Loop (@botpress/hitl)](https://github.com/botpress/botpress/tr
 
 Once you have this module installed (`npm install --save @botpress/hitl`) you will be able to:
 
-1. Pause a users conversation with the bot
+1. Pause a user's conversation with the bot
 2. Alert your agents that a conversation requires attention
 3. As an agent you will be able to continue the conversation via the admin-panel
 4. Resume conversation with the bot
