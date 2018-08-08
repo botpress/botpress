@@ -38,7 +38,7 @@ The agent can then navigate to the appropriate conversation and take over the co
 
 Once the agent is done communicating with the user, they can unpause the conversation. 
 
-However it is possible for the user to unpause the conversation programmatically by triggering an an action that calls `bp.hitl.unpause(platform, userId)`
+It is also possible for the user to unpause the conversation programmatically by triggering an action that calls `bp.hitl.unpause(platform, userId)`. This is implemented in the example below.
 
 # Example
 
