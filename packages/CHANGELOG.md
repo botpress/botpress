@@ -3,6 +3,29 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.31.0"></a>
+# [10.31.0](https://github.com/botpress/botpress/compare/v10.30.0...v10.31.0) (2018-08-08)
+
+
+### Bug Fixes
+
+* **core:** remove global variable rewriting ([6fce6de](https://github.com/botpress/botpress/commit/6fce6de))
+* **docs:** tour shouldn't mention botpress-messenger (ref [#827](https://github.com/botpress/botpress/issues/827)) ([0aa1616](https://github.com/botpress/botpress/commit/0aa1616))
+* **messenger:** GET_STARTED response (resolve [#589](https://github.com/botpress/botpress/issues/589)) ([f9c31cb](https://github.com/botpress/botpress/commit/f9c31cb))
+* **qna:** display row number in processing error ([3c692ea](https://github.com/botpress/botpress/commit/3c692ea))
+* **qna:** don't duplicate questions when reuploading same file ([08b5888](https://github.com/botpress/botpress/commit/08b5888))
+* **qna:** paginate questions/answer ([f349899](https://github.com/botpress/botpress/commit/f349899))
+
+
+### Features
+
+* **builtins:** added ability to hide choice elements ([5919705](https://github.com/botpress/botpress/commit/5919705))
+* **qna:** customizable encoding for exported csv ([de1a2d1](https://github.com/botpress/botpress/commit/de1a2d1))
+* **skill-choice:** added support for NLU ([fa15d06](https://github.com/botpress/botpress/commit/fa15d06))
+
+
+
+
 <a name="10.30.0"></a>
 # [10.30.0](https://github.com/botpress/botpress/compare/v10.28.0...v10.30.0) (2018-08-08)
 
