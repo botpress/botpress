@@ -11,7 +11,7 @@ import { TYPES } from './misc/types'
 import { BotRepository } from './repositories/bot-repository'
 import { BotRouter } from './router/bot-router'
 import { IndexRouter } from './router/index-router'
-import { CMSService } from './services/cms'
+import { CMSService } from './services/cms/cms-service'
 import { MiddlewareService } from './services/middleware/middleware-service'
 
 const BASE_API_PATH = '/api/v1'

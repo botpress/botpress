@@ -1,25 +1,3 @@
-export interface CMSService {
-  initialize(): Promise<void>
-  getAllContentTypes(botId?: string): Promise<ContentType[]>
-  getContentType(contentTypeId: string): Promise<ContentType>
-
-  listContentElements(botId: string, contentTypeId?: string, searchParams?: SearchParams): Promise<ContentElement[]>
-  countContentElements(botId: string, contentTypeId: string): Promise<number>
-  deleteContentElements(botId: string, ids: string[]): Promise<void>
-  getContentElement(botId: string, id: string): Promise<ContentElement>
-  getContentElements(botId: string, ids: string[]): Promise<ContentElement[]>
-  getRandomContentElement(contentTypeId: string): Promise<ContentElement>
-
-  createOrUpdateContentElement(
-    botId: string,
-    contentTypeId: string,
-    formData: string,
-    contentElementId?: string
-  ): Promise<string>
-
-  loadContentElementsForBot(botId: string): Promise<any[]>
-}
-
 export type ContentType = {
   id: string
   title: string

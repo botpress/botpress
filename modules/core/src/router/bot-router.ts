@@ -1,5 +1,6 @@
 import { BotRepository } from '../repositories/bot-repository'
-import { CMSService, DefaultSearchParams } from '../services/cms'
+import { DefaultSearchParams } from '../services/cms'
+import { CMSService } from '../services/cms/cms-service'
 import { MiddlewareService } from '../services/middleware/middleware-service'
 
 import { BaseRouter } from './base-router'

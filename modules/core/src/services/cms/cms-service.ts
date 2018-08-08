@@ -9,15 +9,15 @@ import { IDisposeOnExit, Logger } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
 import { GhostContentService } from '../ghost-content'
 
-import { CMSService, ContentElement, ContentType, DefaultSearchParams, SearchParams } from '.'
+import { ContentElement, ContentType, DefaultSearchParams, SearchParams } from '.'
 import { CodeFile, SafeCodeSandbox } from './util'
 
-const CONTENT_ELEMENTS_TABLE = 'content_elements'
-const TYPES_LOCATION = 'content-types'
-const ELEMENTS_LOCATION = 'content-elements'
-
 @injectable()
-export class GhostCMSService implements CMSService, IDisposeOnExit {
+export class CMSService implements IDisposeOnExit {
+  private readonly contentTable = 'content_elements'
+  private readonly typesDir = 'content-types'
+  private readonly elementsDir = 'content-elements'
+
   private contentTypes: ContentType[] = []
   private filesById = {}
   private sandbox!: SafeCodeSandbox
@@ -38,15 +38,15 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
   // TODO Test this class
   @postConstruct()
   async initialize() {
-    await this.ghost.addRootFolder(true, TYPES_LOCATION, { filesGlob: '**.js', isBinary: false })
-    await this.ghost.addRootFolder(false, ELEMENTS_LOCATION, { filesGlob: '**.json', isBinary: false })
+    await this.ghost.addRootFolder(true, this.typesDir, { filesGlob: '**.js', isBinary: false })
+    await this.ghost.addRootFolder(false, this.elementsDir, { filesGlob: '**.json', isBinary: false })
     await this.prepareDb()
     await this.loadContentTypesFromFiles()
     await this.recomputeCategoriesMetadata()
   }
 
   private async prepareDb() {
-    await this.memDb.createTableIfNotExists(CONTENT_ELEMENTS_TABLE, table => {
+    await this.memDb.createTableIfNotExists(this.contentTable, table => {
       table.string('id')
       table.string('botId')
       table.primary(['id', 'botId'])
@@ -72,17 +72,17 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
     }
 
     return Promise.mapSeries(contentElements, element =>
-      this.memDb(CONTENT_ELEMENTS_TABLE)
+      this.memDb(this.contentTable)
         .insert(this.transformItemApiToDb(botId, element))
         .then()
     )
   }
 
   private async loadContentTypesFromFiles(): Promise<void> {
-    const fileNames = await this.ghost.directoryListing('global', TYPES_LOCATION, '*.js')
+    const fileNames = await this.ghost.directoryListing('global', this.typesDir, '*.js')
 
     const codeFiles = await Promise.map(fileNames, async filename => {
-      const content = <string>await this.ghost.readFile('global', TYPES_LOCATION, filename)
+      const content = <string>await this.ghost.readFile('global', this.typesDir, filename)
       return <CodeFile>{ code: content, relativePath: filename }
     })
 
@@ -124,7 +124,7 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
     contentTypeId?: string,
     params: SearchParams = DefaultSearchParams
   ): Promise<ContentElement[]> {
-    let query = this.memDb(CONTENT_ELEMENTS_TABLE)
+    let query = this.memDb(this.contentTable)
     query = query.where('botId', botId)
 
     if (contentTypeId) {
@@ -147,17 +147,17 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
   }
 
   async getContentElement(botId: string, id: string): Promise<ContentElement> {
-    return await this.memDb(CONTENT_ELEMENTS_TABLE)
+    return await this.memDb(this.contentTable)
       .where('botId', botId)
       .andWhere('id', id)
   }
 
   async getContentElements(botId: string, ids: string[]): Promise<ContentElement[]> {
-    return await this.memDb(CONTENT_ELEMENTS_TABLE).where(builder => builder.where('botId', botId).whereIn('id', ids))
+    return await this.memDb(this.contentTable).where(builder => builder.where('botId', botId).whereIn('id', ids))
   }
 
   async countContentElements(botId: string, contentTypeId: string): Promise<number> {
-    return await this.memDb(CONTENT_ELEMENTS_TABLE)
+    return await this.memDb(this.contentTable)
       .where('botId', botId)
       .andWhere('contentType', contentTypeId)
       .count('* as count')
@@ -166,7 +166,7 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
   }
 
   async deleteContentElements(botId: string, ids: string[]): Promise<void> {
-    return await this.memDb(CONTENT_ELEMENTS_TABLE)
+    return await this.memDb(this.contentTable)
       .where('botId', botId)
       .whereIn('id', ids)
       .del()
@@ -191,7 +191,7 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
   }
 
   async getRandomContentElement(contentTypeId: string): Promise<ContentElement> {
-    return await this.memDb(CONTENT_ELEMENTS_TABLE)
+    return await this.memDb(this.contentTable)
       .where('contentType', contentTypeId)
       .orderByRaw('random()')
       .limit(1)
@@ -219,7 +219,7 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
 
     if (isNewItemCreation) {
       contentElementId = this.getNewContentElementId(contentType.id)
-      newContentElementId = await this.memDb(CONTENT_ELEMENTS_TABLE)
+      newContentElementId = await this.memDb(this.contentTable)
         .insert({
           ...body,
           createdBy: 'admin',
@@ -230,7 +230,7 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
         .returning('id')
         .toString()
     } else {
-      await this.memDb(CONTENT_ELEMENTS_TABLE)
+      await this.memDb(this.contentTable)
         .update(body)
         .where({ id: contentElementId })
         .then()
@@ -263,7 +263,7 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
       if (!m) {
         return data
       }
-      return this.memDb(CONTENT_ELEMENTS_TABLE)
+      return this.memDb(this.contentTable)
         .select('formData')
         .where('id', m[1])
         .then(result => {
@@ -324,13 +324,13 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
 
   private async recomputeCategoriesMetadata(): Promise<void> {
     for (const contentType of this.contentTypes) {
-      await this.memDb(CONTENT_ELEMENTS_TABLE)
+      await this.memDb(this.contentTable)
         .select('id', 'formData', 'botId')
         .where('contentType', contentType.id)
         .then()
         .each(async ({ id, formData, botId }: any) => {
           const computedProps = await this.fillComputedProps(contentType, JSON.parse(formData))
-          return this.memDb(CONTENT_ELEMENTS_TABLE)
+          return this.memDb(this.contentTable)
             .where('id', id)
             .update(this.transformItemApiToDb(botId, computedProps))
             .then()

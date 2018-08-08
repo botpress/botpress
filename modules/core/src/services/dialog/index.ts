@@ -1,8 +1,3 @@
-export interface FlowProvider {
-  loadAll(botId: string): Promise<FlowView[]>
-  saveAll(botId: string, flows: any): Promise<void>
-}
-
 export type Flow = {
   version: string
   startNode: string

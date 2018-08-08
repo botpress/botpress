@@ -5,14 +5,14 @@ import { Logger } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
 import { GhostContentService } from '../ghost-content'
 
-import { Flow, FlowProvider, FlowView, NodeView } from '.'
+import { Flow, FlowView, NodeView } from '.'
 import { validateFlowSchema } from './validator'
 
 const PLACING_STEP = 250
 const MIN_POS_X = 50
 
 @injectable()
-export default class GhostFlowProvider implements FlowProvider {
+export default class FlowService {
   private readonly flowDir = 'flows'
 
   constructor(
