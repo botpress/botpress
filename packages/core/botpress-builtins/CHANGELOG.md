@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.31.0"></a>
+# [10.31.0](https://github.com/botpress/botpress/compare/v10.30.0...v10.31.0) (2018-08-08)
+
+
+### Features
+
+* **builtins:** added ability to hide choice elements ([5919705](https://github.com/botpress/botpress/commit/5919705))
+
+
+
+
 <a name="10.30.0"></a>
 # [10.30.0](https://github.com/botpress/botpress/compare/v10.28.0...v10.30.0) (2018-08-08)
 

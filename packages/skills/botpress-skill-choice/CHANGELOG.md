@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.31.0"></a>
+# [10.31.0](https://github.com/botpress/modules/compare/v10.30.0...v10.31.0) (2018-08-08)
+
+
+### Features
+
+* **skill-choice:** added support for NLU ([fa15d06](https://github.com/botpress/modules/commit/fa15d06))
+
+
+
+
 <a name="10.30.0"></a>
 # [10.30.0](https://github.com/botpress/modules/compare/v10.28.0...v10.30.0) (2018-08-08)
 

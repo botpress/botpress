@@ -76,8 +76,16 @@ export default class Storage {
     return JSON.parse(data)
   }
 
-  async getQuestions() {
+  async questionsCount() {
     const questions = await this.ghost.directoryListing(this.qnaDir, '.json')
+    return questions.length
+  }
+
+  async getQuestions({ limit, offset } = {}) {
+    let questions = await this.ghost.directoryListing(this.qnaDir, '.json')
+    if (typeof limit !== 'undefined' && typeof offset !== 'undefined') {
+      questions = questions.slice(offset, offset + limit)
+    }
     return Promise.map(questions, question => this.getQuestion({ filename: question }))
   }
 

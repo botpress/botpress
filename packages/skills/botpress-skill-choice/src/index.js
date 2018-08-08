@@ -3,6 +3,7 @@ import { Skill } from '@botpress/util-sdk'
 
 let botpress = null
 let config = null
+const INTENT_PREFIX = 'intent:'
 
 const checkCategoryAvailable = async () => {
   const categories = await botpress.contentManager.listAvailableCategories().map(c => c.id)
@@ -37,7 +38,8 @@ module.exports = {
     },
     defaultMaxAttempts: { type: 'string', required: false, default: '3', env: 'SKILL_CHOICE_MAX_ATTEMPTS' },
     matchNumbers: { type: 'bool', required: false, default: true, env: 'SKILL_CHOICE_MATCH_NUMBERS' },
-    disableIntegrityCheck: { type: 'bool', required: false, default: false, env: 'SKILL_DISABLE_INTEGRITY_CHECK' }
+    disableIntegrityCheck: { type: 'bool', required: false, default: false, env: 'SKILL_DISABLE_INTEGRITY_CHECK' },
+    matchNLU: { type: 'bool', required: false, default: true, env: 'SKILL_CHOICE_MATCH_NLU' }
   },
 
   init: async function(bp, configurator) {
@@ -59,7 +61,7 @@ module.exports = {
     })
 
     bp.dialogEngine.registerActions({
-      '__skill-choice-parse': async function(state, { text, payload }, data) {
+      '__skill-choice-parse': async function(state, { text, payload, nlu }, data) {
         let choice = null
 
         const nb = _.get(text.match(/^[#).!]?([\d]{1,2})[#).!]?$/), '[1]')
@@ -67,6 +69,15 @@ module.exports = {
           const index = parseInt(nb) - 1
           const element = await botpress.contentManager.getItem(data.contentId)
           choice = _.get(element, `data.choices.${index}.value`)
+        }
+
+        if (!choice && config.matchNLU && typeof _.get(nlu, 'intent.is') === 'function') {
+          choice = _.findKey(data.keywords, keywords => {
+            const intents = keywords
+              .filter(x => x.toLowerCase().startsWith(INTENT_PREFIX))
+              .map(x => x.substr(INTENT_PREFIX.length))
+            return _.some(intents, k => nlu.intent.is(k))
+          })
         }
 
         if (!choice) {

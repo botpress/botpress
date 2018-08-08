@@ -14,9 +14,10 @@ import {
   ButtonToolbar,
   Button,
   Well,
-  HelpBlock,
   Modal,
-  Alert
+  HelpBlock,
+  Alert,
+  Pagination
 } from 'react-bootstrap'
 import Select from 'react-select'
 
@@ -55,6 +56,8 @@ const ACTIONS = {
   TEXT_REDIRECT: 'text_redirect'
 }
 
+const ITEMS_PER_PAGE = 50
+
 export default class QnaAdmin extends Component {
   constructor(props) {
     super(props)
@@ -80,7 +83,9 @@ export default class QnaAdmin extends Component {
     items: [],
     flows: null,
     filter: '',
-    showBulkImport: undefined
+    showBulkImport: undefined,
+    page: 1,
+    overallItemsCount: 0
   }
 
   shouldAutofocus = true
@@ -91,9 +96,10 @@ export default class QnaAdmin extends Component {
     })
   }
 
-  fetchData() {
-    this.props.bp.axios.get('/api/botpress-qna/').then(({ data }) => {
-      this.setState({ items: data })
+  fetchData(page = 1) {
+    const params = { limit: ITEMS_PER_PAGE, offset: (page - 1) * ITEMS_PER_PAGE }
+    this.props.bp.axios.get('/api/botpress-qna', { params }).then(({ data }) => {
+      this.setState({ ...data, page })
     })
   }
 
@@ -107,7 +113,7 @@ export default class QnaAdmin extends Component {
       ...value.data,
       questions: cleanupQuestions(value.data.questions)
     }
-    return this.props.bp.axios.post('/api/botpress-qna/', data).then(({ data: id }) => ({
+    return this.props.bp.axios.post('/api/botpress-qna', data).then(({ data: id }) => ({
       // update the value with the retrieved ID
       id,
       // and the cleaned data
@@ -406,6 +412,42 @@ export default class QnaAdmin extends Component {
       )
     })
 
+  renderPagination = () => {
+    const pagesCount = Math.ceil(this.state.overallItemsCount / ITEMS_PER_PAGE)
+    if (pagesCount <= 1) {
+      return null
+    }
+    const renderPageBtn = page => (
+      <Pagination.Item key={'page' + page} onClick={() => this.fetchData(page)} active={this.state.page === page}>
+        {page}
+      </Pagination.Item>
+    )
+    return (
+      <Pagination>
+        <Pagination.First onClick={() => this.fetchData(1)} />
+        <Pagination.Prev
+          onClick={() => this.state.page > 1 && this.fetchData(this.state.page - 1)}
+          disabled={this.state.page === 1}
+        />
+        {new Array(pagesCount).fill().map((_x, i) => {
+          const page = i + 1
+          if (Math.abs(this.state.page - page) === 5) {
+            return <Pagination.Ellipsis />
+          }
+          if (Math.abs(this.state.page - page) > 5) {
+            return null
+          }
+          return renderPageBtn(page)
+        })}
+        <Pagination.Next
+          onClick={() => this.state.page < pagesCount && this.fetchData(this.state.page + 1)}
+          disabled={this.state.page >= pagesCount}
+        />
+        <Pagination.Last onClick={() => this.fetchData(pagesCount)} />
+      </Pagination>
+    )
+  }
+
   render() {
     return (
       <Panel>
@@ -481,12 +523,12 @@ export default class QnaAdmin extends Component {
               </InputGroup.Addon>
             </InputGroup>
           </FormGroup>
-
           <ArrayEditor
             items={this.state.items}
             shouldShowItem={this.questionMatches(this.state.filter)}
             newItem={this.state.newItem}
             renderItem={this.renderForm}
+            renderPagination={this.renderPagination}
             onCreate={this.onCreate}
             onEdit={this.onEdit}
             onDelete={this.onDelete}

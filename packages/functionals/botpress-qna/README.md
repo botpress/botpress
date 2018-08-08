@@ -19,6 +19,7 @@ The following properties can be configured either in the `qna.json` file or usin
 | ------------- | -------- | ----- | ---- | ---- |
 | `qnaDir` | `QNA_DIR` | No | `./qna` | The directory where the Q&A data is stored.
 | `textRenderer` | `QNA_TEXT_RENDERER` | No | `#builtin_text` (requires `@botpress/builtins` to be installed) | The _renderer_ used to format the text responses.
+| `exportCsvEncoding` | `QNA_EXPORT_CSV_ENCODING` | No | `utf8` | Encoding for CSV that can be exported from Q&A module
 
 # Usage
 
