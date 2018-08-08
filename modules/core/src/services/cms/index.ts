@@ -16,6 +16,8 @@ export interface CMSService {
     formData: string,
     contentElementId?: string
   ): Promise<string>
+
+  loadContentElementsForBot(botId: string): Promise<any[]>
 }
 
 export type ContentType = {

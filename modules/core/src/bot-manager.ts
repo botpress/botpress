@@ -3,8 +3,8 @@ import { inject, injectable, tagged } from 'inversify'
 import { ConfigProvider } from './config/config-loader'
 import { Logger } from './misc/interfaces'
 import { TYPES } from './misc/types'
+import { CMSService } from './services/cms'
 import { FlowProvider } from './services/dialog'
-import { GhostContentService } from './services/ghost-content'
 
 @injectable()
 export class BotManager {
@@ -12,7 +12,7 @@ export class BotManager {
     @inject(TYPES.Logger)
     @tagged('name', 'BotManager')
     private logger: Logger,
-    @inject(TYPES.GhostService) private ghost: GhostContentService,
+    @inject(TYPES.CMSService) private cms: CMSService,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.FlowProvider) private flowProvider: FlowProvider
   ) {}
@@ -20,8 +20,11 @@ export class BotManager {
   async loadAllBots() {
     const botpressConfig = await this.configProvider.getBotpressConfig()
     const bots = botpressConfig.bots
-    const flowViews = await Promise.map(bots, bot => this.flowProvider.loadAll(bot))
 
-    this.logger.debug(`Loaded ${flowViews.length} ${flowViews.length === 1 ? 'bot' : 'bots'}`)
+    const flowViews = await Promise.map(bots, bot => this.flowProvider.loadAll(bot))
+    this.logger.debug(`Loaded ${flowViews.length} ${flowViews.length === 1 ? 'flow' : 'flows'}`) // info?
+
+    const elements = await Promise.map(bots, bot => this.cms.loadContentElementsForBot(bot))
+    this.logger.debug(`Loaded ${elements[0].length} ${elements[0].length === 1 ? 'element' : 'elements'}`) // info?
   }
 }

@@ -42,10 +42,6 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
     await this.ghost.addRootFolder(false, ELEMENTS_LOCATION, { filesGlob: '**.json', isBinary: false })
     await this.prepareDb()
     await this.loadContentTypesFromFiles()
-
-    // TODO: This will be called when initializing a bot
-    await this.loadContentElementsFromFiles('bot123')
-
     await this.recomputeCategoriesMetadata()
   }
 
@@ -64,7 +60,7 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
     })
   }
 
-  private async loadContentElementsFromFiles(botId: string) {
+  async loadContentElementsForBot(botId: string): Promise<any[]> {
     const fileNames = await this.ghost.directoryListing(botId, 'content-elements', '.json')
     let contentElements: ContentElement[] = []
 
