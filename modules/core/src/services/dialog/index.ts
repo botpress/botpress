@@ -1,4 +1,5 @@
 export type Flow = {
+  name: string
   version: string
   startNode: string
   skillData: any

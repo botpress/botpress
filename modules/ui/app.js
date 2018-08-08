@@ -79,6 +79,21 @@ app.get(
   })
 )
 
+httpProxy('/api/flows/all', '/api/v1/bots/bot123/flows', process.env.CORE_API_URL)
+app.post(
+  '/api/flows/save',
+  proxy(process.env.CORE_API_URL, {
+    proxyReqPathResolver: () => {
+      return '/api/v1/bots/bot123/flows'
+    },
+    proxyReqBodyDecorator: async (body, srcReq) => {
+      console.log(body)
+      body.forEach(x => _.assign(x, { name: x.flow }))
+      return body
+    }
+  })
+)
+
 app.get('/js/env.js', (req, res) => {
   res.contentType('text/javascript')
   res.send(`

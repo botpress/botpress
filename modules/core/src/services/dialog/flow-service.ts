@@ -75,18 +75,18 @@ export default class FlowService {
     }
   }
 
-  async saveAll(botId: string, flows: any) {
-    if (!flows.find(f => f === 'main.flow.json')) {
+  async saveAll(botId: string, flowViews: FlowView[]) {
+    if (!flowViews.find(f => f.name === 'main.flow.json')) {
       throw new Error(`Expected flows list to contain 'main.flow.json'`)
     }
-    const flowsToSave = flows.map(flow => this.prepareSaveFlow(flow))
+    const flowsToSave = flowViews.map(flow => this.prepareSaveFlow(flow))
     const flowsSavePromises = _.flatten(
       flowsToSave.map(({ flowPath, uiPath, flowContent, uiContent }) => [
         this.ghost.upsertFile(botId, this.flowDir, flowPath, JSON.stringify(flowContent, undefined, 2)),
         this.ghost.upsertFile(botId, this.flowDir, uiPath, JSON.stringify(uiContent, undefined, 2))
       ])
     )
-    const pathsToOmit = flowsToSave.map(flow => [flow.flowPath, flow.uiPath])
+    const pathsToOmit = _.flatten(flowsToSave.map(flow => [flow.flowPath, flow.uiPath]))
 
     const flowFiles = await this.ghost.directoryListing(botId, this.flowDir, '.json', pathsToOmit)
     const flowsDeletePromises = flowFiles.map(filePath => this.ghost.deleteFile(botId, this.flowDir, filePath))

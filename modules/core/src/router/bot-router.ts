@@ -1,6 +1,8 @@
 import { BotRepository } from '../repositories/bot-repository'
 import { DefaultSearchParams } from '../services/cms'
 import { CMSService } from '../services/cms/cms-service'
+import { FlowView } from '../services/dialog'
+import FlowService from '../services/dialog/flow-service'
 import { MiddlewareService } from '../services/middleware/middleware-service'
 
 import { BaseRouter } from './base-router'
@@ -9,7 +11,8 @@ export class BotRouter extends BaseRouter {
   constructor(
     private botRepository: BotRepository,
     private middlewareService: MiddlewareService,
-    private cmsService: CMSService
+    private cmsService: CMSService,
+    private flowService: FlowService
   ) {
     super()
   }
@@ -85,6 +88,21 @@ export class BotRouter extends BaseRouter {
         elementId
       )
       res.send(element)
+    })
+
+    this.router.get('/bots/:botId/flows', async (req, res) => {
+      const botId = req.params.botId
+      const flows = await this.flowService.loadAll(botId)
+      res.send(flows)
+    })
+
+    this.router.post('/bots/:botId/flows', async (req, res) => {
+      const botId = req.params.botId
+      console.log(req.body)
+      const flowViews = <FlowView[]>JSON.parse(req.body)
+
+      await this.flowService.saveAll(botId, flowViews)
+      res.sendStatus(201)
     })
   }
 }
