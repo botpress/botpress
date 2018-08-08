@@ -7,10 +7,10 @@ import { CMSService } from './services/cms'
 import { FlowProvider } from './services/dialog'
 
 @injectable()
-export class BotManager {
+export class BotLoader {
   constructor(
     @inject(TYPES.Logger)
-    @tagged('name', 'BotManager')
+    @tagged('name', 'BotLoader')
     private logger: Logger,
     @inject(TYPES.CMSService) private cms: CMSService,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,

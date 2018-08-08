@@ -56,6 +56,7 @@ export class ModuleLoader {
             metadata: metadata,
             definition: module
           })
+          this.logger.info(`Loaded ${moduleName}, version ${metadata.version}`)
         }
       } catch (err) {
         this.alertUnavailableModule(module.url)
@@ -63,7 +64,6 @@ export class ModuleLoader {
     }
 
     const modules = Array.from(available.values())
-    this.logger.debug(`Loaded ${modules.length} ${modules.length === 1 ? 'module' : 'modules'}`)
 
     return modules
   }

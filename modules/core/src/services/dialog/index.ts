@@ -1,6 +1,6 @@
 export interface FlowProvider {
   loadAll(botId: string): Promise<FlowView[]>
-  saveAll(flows: FlowView[]): Promise<void>
+  saveAll(botId: string, flows: any): Promise<void>
 }
 
 export type Flow = {

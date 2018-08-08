@@ -13,6 +13,8 @@ const MIN_POS_X = 50
 
 @injectable()
 export default class GhostFlowProvider implements FlowProvider {
+  private readonly flowDir = 'flows'
+
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'FlowProvider')
@@ -22,11 +24,11 @@ export default class GhostFlowProvider implements FlowProvider {
 
   @postConstruct()
   async initialize(): Promise<void> {
-    await this.ghost.addRootFolder(false, 'flows', { filesGlob: '**/*.json', isBinary: false })
+    await this.ghost.addRootFolder(false, this.flowDir, { filesGlob: '**/*.json', isBinary: false })
   }
 
   async loadAll(botId: string): Promise<FlowView[]> {
-    const flowPath = await this.ghost.directoryListing(botId, 'flows', '.flow.json')
+    const flowPath = await this.ghost.directoryListing(botId, this.flowDir, '.flow.json')
     try {
       return await Promise.map(flowPath, async (flowPath: string) => {
         return await this.parseFlow(botId, flowPath)
@@ -39,15 +41,15 @@ export default class GhostFlowProvider implements FlowProvider {
   }
 
   private async parseFlow(botId: string, flowPath: string) {
-    const flowFile = <string>await this.ghost.readFile(botId, 'flows', flowPath)
+    const flowFile = <string>await this.ghost.readFile(botId, this.flowDir, flowPath)
     const flow = <Flow>JSON.parse(flowFile)
     const schemaError = validateFlowSchema(flow)
 
     if (!flow || schemaError) {
-      throw new Error(`Invalid schema for for "${flowPath}". ` + schemaError)
+      throw new Error(`Invalid schema for "${flowPath}". ` + schemaError)
     }
 
-    const uiEqFile = <string>await this.ghost.readFile(botId, 'flows', this.uiPath(flowPath))
+    const uiEqFile = <string>await this.ghost.readFile(botId, this.flowDir, this.uiPath(flowPath))
     const uiEq = <FlowView>JSON.parse(uiEqFile)
 
     let unplacedIndex = -1
@@ -62,6 +64,8 @@ export default class GhostFlowProvider implements FlowProvider {
       }
     })
 
+    this.logger.debug(`Bot '${botId}' loaded flow '${flowPath}'`)
+
     return <FlowView>{
       name: flowPath,
       location: flowPath,
@@ -71,8 +75,44 @@ export default class GhostFlowProvider implements FlowProvider {
     }
   }
 
-  async saveAll(flowViews: FlowView[]) {
-    //
+  async saveAll(botId: string, flows: any) {
+    if (!flows.find(f => f === 'main.flow.json')) {
+      throw new Error(`Expected flows list to contain 'main.flow.json'`)
+    }
+    const flowsToSave = flows.map(flow => this.prepareSaveFlow(flow))
+    const flowsSavePromises = _.flatten(
+      flowsToSave.map(({ flowPath, uiPath, flowContent, uiContent }) => [
+        this.ghost.upsertFile(botId, this.flowDir, flowPath, JSON.stringify(flowContent, undefined, 2)),
+        this.ghost.upsertFile(botId, this.flowDir, uiPath, JSON.stringify(uiContent, undefined, 2))
+      ])
+    )
+    const pathsToOmit = flowsToSave.map(flow => [flow.flowPath, flow.uiPath])
+
+    const flowFiles = await this.ghost.directoryListing(botId, this.flowDir, '.json', pathsToOmit)
+    const flowsDeletePromises = flowFiles.map(filePath => this.ghost.deleteFile(botId, this.flowDir, filePath))
+
+    await Promise.all(flowsSavePromises.concat(flowsDeletePromises))
+    // this.emit('flowsChanged')
+  }
+
+  private prepareSaveFlow(flow) {
+    const schemaError = validateFlowSchema(flow)
+    if (schemaError) {
+      throw new Error(schemaError)
+    }
+
+    const uiContent = {
+      nodes: flow.nodes.map(node => ({ id: node.id, position: _.pick(node, 'x', 'y') })),
+      links: flow.links
+    }
+
+    const flowContent = {
+      ..._.pick(flow, 'version', 'catchAll', 'startNode', 'skillData'),
+      nodes: flow.nodes.map(node => _.omit(node, 'x', 'y', 'lastModified'))
+    }
+
+    const flowPath = flow.location
+    return { flowPath, uiPath: this.uiPath(flowPath), flowContent, uiContent }
   }
 
   private uiPath(flowPath) {
