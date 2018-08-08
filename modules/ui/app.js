@@ -86,9 +86,10 @@ app.post(
     proxyReqPathResolver: () => {
       return '/api/v1/bots/bot123/flows'
     },
-    proxyReqBodyDecorator: async (body, srcReq) => {
-      console.log(body)
-      body.forEach(x => _.assign(x, { name: x.flow }))
+    proxyReqBodyDecorator: async body => {
+      // name prop is new
+      // version prop is missing from the original ui payload
+      body.forEach(x => _.assign(x, { name: x.flow, version: '0.0.1' }))
       return body
     }
   })

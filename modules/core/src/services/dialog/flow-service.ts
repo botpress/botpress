@@ -79,6 +79,8 @@ export default class FlowService {
     if (!flowViews.find(f => f.name === 'main.flow.json')) {
       throw new Error(`Expected flows list to contain 'main.flow.json'`)
     }
+    console.log(flowViews)
+
     const flowsToSave = flowViews.map(flow => this.prepareSaveFlow(flow))
     const flowsSavePromises = _.flatten(
       flowsToSave.map(({ flowPath, uiPath, flowContent, uiContent }) => [

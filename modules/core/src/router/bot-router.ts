@@ -98,8 +98,7 @@ export class BotRouter extends BaseRouter {
 
     this.router.post('/bots/:botId/flows', async (req, res) => {
       const botId = req.params.botId
-      console.log(req.body)
-      const flowViews = <FlowView[]>JSON.parse(req.body)
+      const flowViews = <FlowView[]>req.body
 
       await this.flowService.saveAll(botId, flowViews)
       res.sendStatus(201)

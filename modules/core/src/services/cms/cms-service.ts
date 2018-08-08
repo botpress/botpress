@@ -227,8 +227,7 @@ export class CMSService implements IDisposeOnExit {
           id: contentElementId,
           contentType: contentTypeId
         })
-        .returning('id')
-        .toString()
+        .then()
     } else {
       await this.memDb(this.contentTable)
         .update(body)
