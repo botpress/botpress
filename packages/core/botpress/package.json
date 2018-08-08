@@ -1,7 +1,7 @@
 {
   "name": "botpress",
   "description": "The world's first CMS for bots. Easily create, manage and extend chatbots.",
-  "version": "10.29.0",
+  "version": "10.30.0",
   "author": "Botpress",
   "bin": {
     "bp": "./bin/botpress",
@@ -11,7 +11,7 @@
     "url": "https://github.com/botpress/botpress/issues"
   },
   "dependencies": {
-    "@botpress/util-roles": "^10.29.0",
+    "@botpress/util-roles": "^10.30.0",
     "axios": "^0.15.2",
     "babel-polyfill": "^6.23.0",
     "bluebird": "^3.4.6",

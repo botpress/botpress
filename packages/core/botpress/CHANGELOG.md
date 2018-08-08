@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.30.0"></a>
+# [10.30.0](https://github.com/botpress/botpress/compare/v10.28.0...v10.30.0) (2018-08-08)
+
+
+### Bug Fixes
+
+* **core:** improve long strings readability ([904f784](https://github.com/botpress/botpress/commit/904f784))
+
+
+### Features
+
+* **core:** implemented validation fot bp module version (resolve [#663](https://github.com/botpress/botpress/issues/663)) ([596528d](https://github.com/botpress/botpress/commit/596528d))
+
+
+
+
 <a name="10.29.0"></a>
 # [10.29.0](https://github.com/botpress/botpress/compare/v10.28.0...v10.29.0) (2018-08-07)
 
