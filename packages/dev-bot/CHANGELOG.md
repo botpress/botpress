@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.30.0"></a>
+# [10.30.0](https://github.com/botpress/botpress/compare/v10.28.0...v10.30.0) (2018-08-08)
+
+
+
+
+**Note:** Version bump only for package botpress-dev-bot
+
+<a name="10.29.0"></a>
+# [10.29.0](https://github.com/botpress/botpress/compare/v10.28.0...v10.29.0) (2018-08-07)
+
+
+
+
+**Note:** Version bump only for package botpress-dev-bot
+
 <a name="10.28.0"></a>
 # [10.28.0](https://github.com/botpress/botpress/compare/v10.27.1...v10.28.0) (2018-08-03)
 

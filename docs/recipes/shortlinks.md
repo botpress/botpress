@@ -2,19 +2,19 @@
 layout: guide
 ---
 
-It may appear that you need to shorten a link that is too long. E.g. when distributing link to customized webchat that has multiple parameters in URL you may want to:
+In Botpress you can natively create shortlinks to your bot.
 
-1. Shorten url
-2. Not to redistribute new link to users after changing some of the params.
+This has a number of advantages:
+1. Short URLs - no one likes a long URL
+2. Flexibility - it allows you to change any of the parameters without affecting the URL
 
-This case can be handled by creating shortlinks like this:
+Below is an example where our new shortlink `/s/fullscreen-webchat` will redirect a user to `/lite/?m=platform-webchat&v=fullscreen` (the standard webchat interface) with any additional parameters you specify in the options object.
 
 ```js
 bp.createShortlink('fullscreen-webchat', '/lite', {
   m: 'channel-web',
   v: 'fullscreen',
-  options: JSON.stringify({ config: { /* Cusom config here... */ } })
+  options: JSON.stringify({ config: { /* Custom config here... */ } })
 })
 ```
 
-The snippet above generates a route `/s/fullscreen-webchat` that redirects user to `/lite` with parameters defined in the object passed as a 3-rd param.

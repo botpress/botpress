@@ -337,7 +337,19 @@ export default class Side extends React.Component {
   }
 
   renderListOfConvos() {
-    return <div className={style.list}>{this.props.conversations.map(::this.renderItemConvos)}</div>
+    const btnColor = this.props.config && this.props.config.textColorOnBackground
+    return (
+      <div className={style.list}>
+        {this.props.conversations.map(::this.renderItemConvos)}
+        <button
+          className={style.addConvoBtn}
+          style={{ color: btnColor, borderColor: btnColor }}
+          onClick={this.props.createConversation}
+        >
+          +
+        </button>
+      </div>
+    )
   }
 
   render() {

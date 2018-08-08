@@ -3,9 +3,10 @@ layout: guide
 ---
 
 For your bot, you may need to use external APIs to fetch/post some data.
-The general approach for it is that you should use async actions to perform API-calls and save data to the state variables.
+The general approach to this is that you use an async action to perform the API call and save the response data to a state variable.
 
-Let's check it on a simple example. Let's say we want to build a simple bot that accepts repo URL and returns the number of stars it has. An action could look something like this:
+Below is an example action that returns the number of stars for the provided GitHub repository. 
+[Axios](https://www.npmjs.com/package/axios) is used to get the requested endpoint and as it is promise based we can `await` the response. 
 
 ```js
 repoStarsByInput: async (state, event) => {
