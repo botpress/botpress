@@ -19,6 +19,8 @@ export default {
       choices: {
         type: 'array',
         title: 'Choices',
+        description:
+          'Protip: To prevent an element from being rendered on the channel, prefix either the Title or the Value with `!hide `',
         minItems: 1,
         maxItems: 10,
         items: {
