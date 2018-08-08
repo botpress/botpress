@@ -24,7 +24,6 @@ export default class Database {
   ) {}
 
   async initialize(dbConfig: DatabaseConfig) {
-    this.logger.debug('Init database')
     const config: Knex.Config = {
       useNullAsDefault: true
     }
@@ -50,7 +49,7 @@ export default class Database {
       this.tables.push(table)
     })
 
-    this.logger.debug('Done.')
+    this.logger.debug(`Created ${AllTables.length} tables`)
   }
 
   runMigrations() {

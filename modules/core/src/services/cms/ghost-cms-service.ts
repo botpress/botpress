@@ -38,7 +38,6 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
   // TODO Test this class
   @postConstruct()
   async initialize() {
-    this.logger.debug('Loading content')
     await this.ghost.addRootFolder(true, TYPES_LOCATION, { filesGlob: '**.js', isBinary: false })
     await this.ghost.addRootFolder(false, ELEMENTS_LOCATION, { filesGlob: '**.json', isBinary: false })
     await this.prepareDb()
@@ -48,7 +47,6 @@ export class GhostCMSService implements CMSService, IDisposeOnExit {
     await this.loadContentElementsFromFiles('bot123')
 
     await this.recomputeCategoriesMetadata()
-    this.logger.debug('Done.')
   }
 
   private async prepareDb() {

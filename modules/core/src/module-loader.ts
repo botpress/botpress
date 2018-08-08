@@ -35,8 +35,6 @@ export class ModuleLoader {
 
   @Throttle(ms('5m'))
   async getAvailableModules(): Promise<AvailableModule[]> {
-    this.logger.debug('Loading modules')
-
     const config = await this.loadConfiguration()
     const available: Map<string, AvailableModule> = new Map()
 
@@ -50,7 +48,6 @@ export class ModuleLoader {
           this.logger.error(`Invalid metadata received from module at "${module.url}". This module will be ignored.`)
           continue
         }
-
         const moduleName = metadata.name.toLowerCase()
         if (available.has(moduleName)) {
           this.logger.error(`Duplicated module "${moduleName}". This one will be ignored ("${module.url}".)`)
@@ -65,8 +62,9 @@ export class ModuleLoader {
       }
     }
 
-    this.logger.debug('Done.')
+    const modules = Array.from(available.values())
+    this.logger.debug(`Loaded ${modules.length} ${modules.length === 1 ? 'module' : 'modules'}`)
 
-    return Array.from(available.values())
+    return modules
   }
 }

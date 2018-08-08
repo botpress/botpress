@@ -20,8 +20,6 @@ export class BotManager {
   async loadAllBots() {
     const botpressConfig = await this.configProvider.getBotpressConfig()
     const bots = botpressConfig.bots
-    this.logger.debug('Loading bots')
-
     const flowViews = await Promise.map(bots, bot => this.flowProvider.loadAll(bot))
 
     this.logger.debug(`Loaded ${flowViews.length} ${flowViews.length === 1 ? 'bot' : 'bots'}`)

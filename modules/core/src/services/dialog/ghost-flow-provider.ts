@@ -26,7 +26,6 @@ export default class GhostFlowProvider implements FlowProvider {
   }
 
   async loadAll(botId: string): Promise<FlowView[]> {
-    this.logger.debug(`Loading ${botId} flows`)
     const flowPath = await this.ghost.directoryListing(botId, 'flows', '.flow.json')
     try {
       return await Promise.map(flowPath, async (flowPath: string) => {
