@@ -38,7 +38,11 @@
     - path: "/recipes/webpack/"
     - path: "/recipes/scheduling/"
     - path: "/recipes/broadcasting/"
-    
+
+- id: "skills"    
+  pages:
+  - path: "/skills/"
+  
 # - id: foundamentals
 #   pages:
 #     - path: "/foundamentals/"
