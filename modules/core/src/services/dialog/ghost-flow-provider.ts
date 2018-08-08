@@ -6,11 +6,11 @@ import { Logger } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
 import { GhostContentService } from '../ghost-content'
 
-import { BotFlowView, Flow, FlowProvider, FlowView, NodeView } from '.'
+import { Flow, FlowProvider, FlowView, FlowViewsByBot, NodeView } from '.'
 import { validateFlowSchema } from './validator'
 
 const PLACING_STEP = 250
-const RENAME_THIS = 50
+const MIN_POS_X = 50
 
 @injectable()
 export default class GhostFlowProvider implements FlowProvider {
@@ -27,7 +27,7 @@ export default class GhostFlowProvider implements FlowProvider {
     await this.ghost.addRootFolder(false, 'flows', { filesGlob: '**/*.json', isBinary: false })
   }
 
-  async loadAll(): Promise<BotFlowView> {
+  async loadAll(): Promise<FlowViewsByBot> {
     this.logger.debug('Loading flows')
     const botpressConfig = await this.configProvider.getBotpressConfig()
     const bots = botpressConfig.bots
@@ -37,45 +37,19 @@ export default class GhostFlowProvider implements FlowProvider {
       flowsPathsByBot[botId] = await this.ghost.directoryListing(botId, 'flows', '.flow.json')
     }
 
-    const flowsByBot: BotFlowView = {}
+    const flowsByBot: FlowViewsByBot = {}
+
     for (const botId of bots) {
-      const flowsPaths = flowsPathsByBot[botId]
-      const flows = <FlowView[]>await Promise.map(flowsPaths, async (flowPath: string) => {
-        const flowFile = <string>await this.ghost.readFile(botId, 'flows', flowPath)
-        const flow = <Flow>JSON.parse(flowFile)
-
-        const schemaError = validateFlowSchema(flow)!
-        if (!flow || schemaError) {
-          return flow ? this.logger.warn(schemaError) : undefined
-        }
-
-        const uiEqFile = <string>await this.ghost.readFile(botId, 'flows', this.uiPath(flowPath))
-        const uiEq = <FlowView>JSON.parse(uiEqFile)
-
-        Object.assign(flow, { links: uiEq['links'] })
-
-        let unplacedIndex = -1
-
-        const nodeViews = flow.nodes.map(node => {
-          const position = _.get(_.find(uiEq.nodes, { id: node.id }), 'position')
-          unplacedIndex = position ? unplacedIndex : unplacedIndex + 1
-
-          return <NodeView>{
-            ...node,
-            x: position ? position.x : RENAME_THIS + unplacedIndex * PLACING_STEP,
-            y: position ? position.y : (_.maxBy(flow.nodes, 'y') || { y: 0 })['y'] + PLACING_STEP
-          }
+      try {
+        const flowsPaths = flowsPathsByBot[botId]
+        const flows = await Promise.map(flowsPaths, async (flowPath: string) => {
+          return await this.parseFlowTODO(botId, flowPath)
         })
 
-        return {
-          name: flowPath,
-          location: flowPath,
-          nodes: nodeViews.filter(Boolean),
-          ..._.pick(flow, 'version', 'catchAll', 'startNode', 'links', 'skillData')
-        }
-      })
-
-      flowsByBot[botId] = flows
+        flowsByBot[botId] = flows
+      } catch (err) {
+        console.log('lol', err)
+      }
     }
 
     console.log(flowsByBot)
@@ -83,7 +57,40 @@ export default class GhostFlowProvider implements FlowProvider {
     return flowsByBot
   }
 
-  async saveAll(flows: FlowView[]) {
+  private async parseFlowTODO(botId: string, flowPath: string) {
+    const flowFile = <string>await this.ghost.readFile(botId, 'flows', flowPath)
+    const flow = <Flow>JSON.parse(flowFile)
+    const schemaError = validateFlowSchema(flow)
+
+    if (!flow || schemaError) {
+      throw new Error(`Invalid schema for for "${flowPath}". ` + schemaError)
+    }
+
+    const uiEqFile = <string>await this.ghost.readFile(botId, 'flows', this.uiPath(flowPath))
+    const uiEq = <FlowView>JSON.parse(uiEqFile)
+
+    let unplacedIndex = -1
+
+    const nodeViews = flow.nodes.map(node => {
+      const position = _.get(_.find(uiEq.nodes, { id: node.id }), 'position')
+      unplacedIndex = position ? unplacedIndex : unplacedIndex + 1
+      return <NodeView>{
+        ...node,
+        x: position ? position.x : MIN_POS_X + unplacedIndex * PLACING_STEP,
+        y: position ? position.y : (_.maxBy(flow.nodes, 'y') || { y: 0 })['y'] + PLACING_STEP
+      }
+    })
+
+    return <FlowView>{
+      name: flowPath,
+      location: flowPath,
+      nodes: nodeViews.filter(Boolean),
+      links: uiEq.links,
+      ..._.pick(flow, 'version', 'catchAll', 'startNode', 'skillData')
+    }
+  }
+
+  async saveAll(flowsByBot: FlowViewsByBot) {
     //
   }
 

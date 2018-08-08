@@ -1,13 +1,13 @@
 export interface FlowProvider {
-  loadAll(): Promise<FlowView[]>
-  saveAll(flows: FlowView[]): Promise<void>
+  loadAll(): Promise<FlowViewsByBot>
+  saveAll(flows: FlowViewsByBot): Promise<void>
 }
 
 export type Flow = {
   version: string
   startNode: string
   skillData: any
-  nodes: [FlowNode]
+  nodes: FlowNode[]
   catchAll: NodeActions
 }
 
@@ -22,24 +22,24 @@ export type NodeTransition = {
 }
 
 export type NodeActions = {
-  onEnter?: [string]
-  onReceive?: [string]
-  next?: [NodeTransition]
+  onEnter?: string[]
+  onReceive?: string[]
+  next?: NodeTransition[]
 }
 
 // View-related interfaces
 
 export type FlowView = Flow & {
-  nodes: [NodeView]
-  links: [NodeLinkView]
+  nodes: NodeView[]
+  links: NodeLinkView[]
 }
 
 export type NodeLinkView = {
   source: string
   target: string
-  points: [{ x: number; y: number }]
+  points: { x: number; y: number }[]
 }
 
 export type NodeView = FlowNode & { x: number; y: number }
 
-export type BotFlowView = { [index: string]: FlowView[] }
+export type FlowViewsByBot = { [index: string]: FlowView[] }
