@@ -2,26 +2,25 @@
 layout: guide
 ---
 
-When using a chatbot, you may be interested in analytics on its usage. This can be done via [@botpress/analytics](https://github.com/botpress/botpress/tree/master/packages/functionals/botpress-analytics) package.
+The [Botpress Analytics (@botpress/analytics)](https://github.com/botpress/botpress/tree/master/packages/functionals/botpress-analytics) package allows you to monitor the bots total user count, retention and lots more.
 
-To perform the basic setup, you need to install that package and initialize it by running something like this:
+To perform the basic setup, you will need to install the package (`npm install --save @botpress/analytics`) and initialize it by adding the following snippet to your `src/index.js` file
 
 ```js
 const analytics = require('./analytics')
 await analytics({ bp })
 ```
 
-Once this is done, you should be able to see "Analytics" tab in your admin dashboard. Note analytics-tracking only starts from this moment, and it won't show analytics on past activity that wasn't recorded.
+Once this is done, you will be able to see the "Analytics" tab in your admin dashboard. Note analytics-tracking only starts from this moment, and it won't show analytics on past activity that wasn't recorded.
 
 # Custom analytics
 
-It may appear general analytics isn't enough for your needs and you need to track different activities.
-This is also possible with this package.
+Should the default analytics not give you enough insight or you need to track a custom metric, you can add these within this package.
 
-Say we want to track the number of conversations users had and number of misunderstood messages they had.
-Assuming you already have flows ready and working the task is quite simple.
+In the example below we are tracking the number of conversations users had and the number of times the bot misunderstood a message.
+Assuming you already have your flows in place it is a simple task.
 
-First, we register diagrams that will be displayed as custom analytics. This can be done like this:
+First, you register the diagrams that will be displayed as custom analytics:
 
 ```js
 bp.analytics.custom.addGraph({
@@ -40,9 +39,9 @@ bp.analytics.custom.addGraph({
 })
 ```
 
-Parameters that `addGraph` accepts are described in [package README](https://github.com/botpress/botpress/tree/master/packages/functionals/botpress-analytics), but they should be pretty self-explaining.
+Parameters that `addGraph` accepts are described in the [package README](https://github.com/botpress/botpress/tree/master/packages/functionals/botpress-analytics).
 
-Second, we need to trigger recording analytics within defined parts of your flow through actions. Here are example actions that you could use in this case:
+Secondly, you need to set up a trigger to record your custom analytics as a user interacts with your bot. Below we set up the two triggers needed for our new metrics set up above.
 
 ```js
 trackNewConversation: async (state, { bp, user }) => {
@@ -50,11 +49,11 @@ trackNewConversation: async (state, { bp, user }) => {
 },
 
 trackMisunderstood: async (state, { bp, user }) => {
-  await bp.analytics.custom.increment(`${misunderstood}~${user.id}`)
+  await bp.analytics.custom.increment(`${'misunderstood'}~${user.id}`)
 }
 ```
 
-You could also set up a more universal `track` action that you could use for multiple purposes. This could be like this:
+You could also set up a more universal `track` action that could used for multiple purposes:
 
 ```js
 track: async (state, { bp }, { metric, value, unique }) => {

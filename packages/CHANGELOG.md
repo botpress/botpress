@@ -3,6 +3,31 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.30.0"></a>
+# [10.30.0](https://github.com/botpress/botpress/compare/v10.28.0...v10.30.0) (2018-08-08)
+
+
+### Bug Fixes
+
+* wip ([c36ab78](https://github.com/botpress/botpress/commit/c36ab78))
+* **core:** improve long strings readability ([904f784](https://github.com/botpress/botpress/commit/904f784))
+* **nlu:** custom entity names ([8e04763](https://github.com/botpress/botpress/commit/8e04763))
+* **nlu:** DialogFlow moved to optional deps ([a05202a](https://github.com/botpress/botpress/commit/a05202a))
+* **nlu:** fixes loading of custom entities ([f63cfab](https://github.com/botpress/botpress/commit/f63cfab))
+* **nlu:** LUIS custom entity resolution ([d813233](https://github.com/botpress/botpress/commit/d813233))
+* **web:** unused code ([832a3db](https://github.com/botpress/botpress/commit/832a3db))
+* **webchat:** conversations list last message postgres query ([4657efa](https://github.com/botpress/botpress/commit/4657efa))
+* **webchat:** createConvo btn color is configurable ([b7eba94](https://github.com/botpress/botpress/commit/b7eba94))
+
+
+### Features
+
+* **core:** implemented validation fot bp module version (resolve [#663](https://github.com/botpress/botpress/issues/663)) ([596528d](https://github.com/botpress/botpress/commit/596528d))
+* **web:** implemented btn for create convo (ref [#804](https://github.com/botpress/botpress/issues/804)) ([ae42664](https://github.com/botpress/botpress/commit/ae42664))
+
+
+
+
 <a name="10.29.0"></a>
 # [10.29.0](https://github.com/botpress/botpress/compare/v10.28.0...v10.29.0) (2018-08-07)
 

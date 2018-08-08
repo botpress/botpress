@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.30.0"></a>
+# [10.30.0](https://github.com/botpress/modules/compare/v10.28.0...v10.30.0) (2018-08-08)
+
+
+### Bug Fixes
+
+* wip ([c36ab78](https://github.com/botpress/modules/commit/c36ab78))
+* **web:** unused code ([832a3db](https://github.com/botpress/modules/commit/832a3db))
+* **webchat:** conversations list last message postgres query ([4657efa](https://github.com/botpress/modules/commit/4657efa))
+* **webchat:** createConvo btn color is configurable ([b7eba94](https://github.com/botpress/modules/commit/b7eba94))
+
+
+### Features
+
+* **web:** implemented btn for create convo (ref [#804](https://github.com/botpress/modules/issues/804)) ([ae42664](https://github.com/botpress/modules/commit/ae42664))
+
+
+
+
 <a name="10.29.0"></a>
 # [10.29.0](https://github.com/botpress/modules/compare/v10.28.0...v10.29.0) (2018-08-07)
 
