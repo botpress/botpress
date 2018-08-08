@@ -13,7 +13,8 @@ const TYPES = {
   MiddlewareService: Symbol.for('MiddlewareService'),
   CMSService: Symbol.for('CMSService'),
   InMemoryDatabase: Symbol.for('InMemoryDatabase'),
-  FlowProvider: Symbol.for('FlowProvider')
+  FlowProvider: Symbol.for('FlowProvider'),
+  BotManager: Symbol.for('BotManager')
 }
 
 export { TYPES }

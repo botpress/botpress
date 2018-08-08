@@ -1,6 +1,6 @@
 export interface FlowProvider {
-  loadAll(): Promise<FlowViewsByBot>
-  saveAll(flows: FlowViewsByBot): Promise<void>
+  loadAll(botId: string): Promise<FlowView[]>
+  saveAll(flows: FlowView[]): Promise<void>
 }
 
 export type Flow = {
@@ -41,5 +41,3 @@ export type NodeLinkView = {
 }
 
 export type NodeView = FlowNode & { x: number; y: number }
-
-export type FlowViewsByBot = { [index: string]: FlowView[] }

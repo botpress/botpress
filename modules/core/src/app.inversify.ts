@@ -1,6 +1,7 @@
 import { Container } from 'inversify'
 import path from 'path'
 
+import { BotManager } from './bot-manager'
 import { Botpress } from './botpress'
 import { ConfigProvider, GhostConfigProvider } from './config/config-loader'
 import { DatabaseContainerModule } from './database/database.inversify'
@@ -45,6 +46,10 @@ container.bind<HTTPServer>(TYPES.HTTPServer).to(HTTPServer)
 container
   .bind<ConfigProvider>(TYPES.ConfigProvider)
   .to(GhostConfigProvider)
+  .inSingletonScope()
+container
+  .bind<BotManager>(TYPES.BotManager)
+  .to(BotManager)
   .inSingletonScope()
 
 const runningNode = process.title.endsWith('node')

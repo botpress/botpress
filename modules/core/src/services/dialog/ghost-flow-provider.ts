@@ -1,12 +1,11 @@
 import { inject, injectable, postConstruct, tagged } from 'inversify'
 import _ from 'lodash'
 
-import { ConfigProvider } from '../../config/config-loader'
 import { Logger } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
 import { GhostContentService } from '../ghost-content'
 
-import { Flow, FlowProvider, FlowView, FlowViewsByBot, NodeView } from '.'
+import { Flow, FlowProvider, FlowView, NodeView } from '.'
 import { validateFlowSchema } from './validator'
 
 const PLACING_STEP = 250
@@ -18,8 +17,7 @@ export default class GhostFlowProvider implements FlowProvider {
     @inject(TYPES.Logger)
     @tagged('name', 'FlowProvider')
     private logger: Logger,
-    @inject(TYPES.GhostService) private ghost: GhostContentService,
-    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider
+    @inject(TYPES.GhostService) private ghost: GhostContentService
   ) {}
 
   @postConstruct()
@@ -27,37 +25,21 @@ export default class GhostFlowProvider implements FlowProvider {
     await this.ghost.addRootFolder(false, 'flows', { filesGlob: '**/*.json', isBinary: false })
   }
 
-  async loadAll(): Promise<FlowViewsByBot> {
-    this.logger.debug('Loading flows')
-    const botpressConfig = await this.configProvider.getBotpressConfig()
-    const bots = botpressConfig.bots
-
-    const flowsPathsByBot = []
-    for (const botId of bots) {
-      flowsPathsByBot[botId] = await this.ghost.directoryListing(botId, 'flows', '.flow.json')
+  async loadAll(botId: string): Promise<FlowView[]> {
+    this.logger.debug(`Loading ${botId} flows`)
+    const flowPath = await this.ghost.directoryListing(botId, 'flows', '.flow.json')
+    try {
+      return await Promise.map(flowPath, async (flowPath: string) => {
+        return await this.parseFlow(botId, flowPath)
+      })
+    } catch (err) {
+      this.logger.error(`Could not load flows for bot ID "${botId}"`)
     }
 
-    const flowsByBot: FlowViewsByBot = {}
-
-    for (const botId of bots) {
-      try {
-        const flowsPaths = flowsPathsByBot[botId]
-        const flows = await Promise.map(flowsPaths, async (flowPath: string) => {
-          return await this.parseFlowTODO(botId, flowPath)
-        })
-
-        flowsByBot[botId] = flows
-      } catch (err) {
-        console.log('lol', err)
-      }
-    }
-
-    console.log(flowsByBot)
-
-    return flowsByBot
+    return []
   }
 
-  private async parseFlowTODO(botId: string, flowPath: string) {
+  private async parseFlow(botId: string, flowPath: string) {
     const flowFile = <string>await this.ghost.readFile(botId, 'flows', flowPath)
     const flow = <Flow>JSON.parse(flowFile)
     const schemaError = validateFlowSchema(flow)
@@ -90,7 +72,7 @@ export default class GhostFlowProvider implements FlowProvider {
     }
   }
 
-  async saveAll(flowsByBot: FlowViewsByBot) {
+  async saveAll(flowViews: FlowView[]) {
     //
   }
 

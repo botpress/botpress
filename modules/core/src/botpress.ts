@@ -5,6 +5,7 @@ import * as path from 'path'
 
 import packageJson from '../package.json'
 
+import { BotManager } from './bot-manager'
 import { BotpressConfig } from './config/botpress.config'
 import { ConfigProvider } from './config/config-loader'
 import Database from './database'
@@ -32,7 +33,7 @@ export class Botpress {
     @inject(TYPES.HTTPServer) private httpServer: HTTPServer,
     @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
     @inject(TYPES.CMSService) private cmsService: CMSService,
-    @inject(TYPES.FlowProvider) private flowProvider: FlowProvider
+    @inject(TYPES.BotManager) private botManager: BotManager
   ) {
     this.version = packageJson.version
     this.botpressPath = path.join(process.cwd(), 'dist')
@@ -57,7 +58,7 @@ export class Botpress {
   }
 
   private async initializeServices() {
-    await this.flowProvider.loadAll() // TODO: Remove this, just for testing purposes
+    await this.botManager.loadAllBots()
   }
 
   @Memoize()
