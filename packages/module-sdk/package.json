@@ -17,8 +17,5 @@
     "tslint": "../../node_modules/.bin/tslint -c ../../tslint.json -p tsconfig.json"
   },
   "dependencies": {},
-  "devDependencies": {
-    "@types/jest": "^23.3.0",
-    "@types/node": "^10.5.2"
-  }
+  "devDependencies": {}
 }

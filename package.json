@@ -22,7 +22,9 @@
   },
   "dependencies": {},
   "scripts": {
-    "dev": "lerna bootstrap && npm run watch",
-    "watch": "lerna exec -- npm run watch --parallel"
+    "dev": "lerna bootstrap && npm run build-sdk && npm run watch",
+    "build-sdk": "lerna run build --scope botpress-module-sdk",
+    "watch": "lerna exec --parallel -- npm run watch",
+    "test": "lerna run test"
   }
 }

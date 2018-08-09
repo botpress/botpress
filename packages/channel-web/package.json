@@ -32,8 +32,6 @@
     "@types/dotenv": "^4.0.3",
     "@types/errorhandler": "^0.0.32",
     "@types/express": "^4.16.0",
-    "@types/jest": "^23.3.0",
-    "@types/node": "^10.5.2",
     "concurrently": "^3.6.0"
   }
 }
