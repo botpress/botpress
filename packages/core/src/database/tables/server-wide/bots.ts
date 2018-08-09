@@ -4,19 +4,19 @@ export default class BotsTable extends Table {
   name: string = 'srv_bots'
 
   async bootstrap() {
-    await this.knex.schema.dropTableIfExists(this.name).then(() => {
-      this.knex.schema
-        .createTable(this.name, table => {
-          table.increments('id')
-          table.string('name')
-          table.string('version')
-          table.string('description')
-          table.string('author')
-          table.string('license')
-          table.timestamps(true, true)
-        })
-        .then(() => {
-          // TODO: Use knex seed api instead
+    await this.knex
+      .createTableIfNotExists(this.name, table => {
+        table.increments('id')
+        table.string('name')
+        table.string('version')
+        table.string('description')
+        table.string('author')
+        table.string('license')
+        table.timestamps(true, true)
+      })
+      .then(created => {
+        // TODO: Use knex seed api instead
+        if (created) {
           return this.knex
             .insert({
               id: 123,
@@ -27,7 +27,7 @@ export default class BotsTable extends Table {
               license: 'AGPL-3.0'
             })
             .into(this.name)
-        })
-    })
+        }
+      })
   }
 }

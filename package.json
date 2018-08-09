@@ -2,6 +2,7 @@
   "license": "AGPL-3.0-only",
   "devDependencies": {
     "@types/jest": "^23.3.0",
+    "@types/mustache": "^0.8.31",
     "@types/node": "^10.5.2",
     "@types/tmp": "^0.0.33",
     "babel-core": "^6.26.0",
@@ -21,7 +22,10 @@
     "tslint": "^5.11.0",
     "typescript": "^3.0.1"
   },
-  "dependencies": {},
+  "dependencies": {
+    "mustache": "^2.3.1",
+    "mware-ts": "^1.0.1"
+  },
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "build-sdk": "lerna run build --scope botpress-module-sdk",

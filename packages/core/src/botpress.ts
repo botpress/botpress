@@ -13,6 +13,8 @@ import { Logger } from './misc/interfaces'
 import { TYPES } from './misc/types'
 import { ModuleLoader } from './module-loader'
 import HTTPServer from './server'
+import { DialogEngine } from './services/dialog/engine'
+import { DialogProcessor } from './services/dialog/processor'
 import { HookService } from './services/hook/hook-service'
 
 @injectable()
@@ -23,9 +25,13 @@ export class Botpress {
   version: string
   config: BotpressConfig | undefined
 
+  // TODO: Persist me
+  private notifications: any[] = []
+
   constructor(
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.Database) private database: Database,
+    @inject(TYPES.DialogEngine) private dialogEngine: DialogEngine,
     @inject(TYPES.Logger)
     @tagged('name', 'Server')
     private logger: Logger,
@@ -77,6 +83,7 @@ export class Botpress {
 
   private async loadModules(): Promise<void> {
     const modules = await this.moduleLoader.getAvailableModules()
+    this.logger.info(`Loaded ${modules.length} modules`)
   }
 
   private async startServer() {

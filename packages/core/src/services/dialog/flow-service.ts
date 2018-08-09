@@ -17,7 +17,7 @@ export default class FlowService {
 
   constructor(
     @inject(TYPES.Logger)
-    @tagged('name', 'FlowProvider')
+    @tagged('name', 'FlowService')
     private logger: Logger,
     @inject(TYPES.GhostService) private ghost: GhostService
   ) {}
@@ -62,14 +62,17 @@ export default class FlowService {
       }
     })
 
-    this.logger.debug(`Bot '${botId}' loaded flow '${flowPath}'`)
+    this.logger.debug(`Loaded flow '${flowPath}' for bot '${botId}'`)
 
-    return <FlowView>{
+    return {
       name: flowPath,
       location: flowPath,
-      nodes: nodeViews.filter(Boolean),
+      nodes: nodeViews,
       links: uiEq.links,
-      ..._.pick(flow, 'version', 'catchAll', 'startNode', 'skillData')
+      version: flow.version,
+      catchAll: flow.catchAll,
+      startNode: flow.startNode,
+      skillData: flow.skillData
     }
   }
 

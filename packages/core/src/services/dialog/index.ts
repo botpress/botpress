@@ -1,15 +1,28 @@
+/**
+ * @property {string} timeoutNode - Name of the node to forward to when this flow times out
+ */
 export type Flow = {
   name: string
+  location: string
   version: string
   startNode: string
   skillData: any
   nodes: FlowNode[]
   catchAll: NodeActions
+  timeoutNode?: string
+  type?: string
+  timeout?: { name: string; flow: string; node: string }[]
 }
 
+/**
+ * @property {string} timeoutNode - Name of the node to forward to when this node times out
+ */
 export type FlowNode = {
   id: string
   name: string
+  type: any
+  timeoutNode: string
+  flow: string
 } & NodeActions
 
 export type NodeTransition = {

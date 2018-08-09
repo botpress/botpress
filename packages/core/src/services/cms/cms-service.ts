@@ -74,11 +74,11 @@ export class CMSService implements IDisposeOnExit {
       contentElements = _.concat(contentElements, fileContentElements)
     }
 
-    return Promise.mapSeries(contentElements, element =>
+    return Promise.mapSeries(contentElements, element => {
       this.memDb(this.contentTable)
         .insert(this.transformItemApiToDb(botId, element))
-        .then()
-    )
+        .then(() => this.logger.debug(`Loaded content '${element.id}' for '${botId}'`))
+    })
   }
 
   private async loadContentTypesFromFiles(): Promise<void> {
@@ -107,7 +107,7 @@ export class CMSService implements IDisposeOnExit {
         }
       }
     } finally {
-      this.logger.debug(`Loaded ${filesLoaded} content types`)
+      this.logger.info(`Loaded content types`)
     }
   }
 
