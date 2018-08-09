@@ -1,16 +1,32 @@
+import LRU from 'lru-cache'
+
 import { ObjectCache } from '.'
 
 export default class MemoryObjectCache implements ObjectCache {
-  get<T>(key: string): Promise<T> {
-    throw new Error('Method not implemented.')
+  cache: LRU.Cache<string, any>
+
+  constructor() {
+    this.cache = LRU({
+      // For now we cache up to 5000 elements, whatever the size
+      // We will probably want to assign different length to various element types in the future
+      max: 5000,
+      length: () => 1 // So we only count the number of objects
+    })
   }
-  set<T>(key: string, obj: T): Promise<void> {
-    throw new Error('Method not implemented.')
+
+  async get<T>(key: string): Promise<T> {
+    return <T>this.cache.get(key)
   }
-  has(key: string): Promise<boolean> {
-    throw new Error('Method not implemented.')
+
+  async set<T>(key: string, obj: T): Promise<void> {
+    this.cache.set(key, obj)
   }
-  invalidate(key: string): Promise<void> {
-    throw new Error('Method not implemented.')
+
+  async has(key: string): Promise<boolean> {
+    return this.cache.has(key)
+  }
+
+  async invalidate(key: string): Promise<void> {
+    this.cache.del(key)
   }
 }
