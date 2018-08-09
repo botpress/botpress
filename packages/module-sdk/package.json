@@ -4,6 +4,7 @@
   "author": "Botpress",
   "license": "AGPL-3.0-only",
   "main": "dist/src/index.js",
+  "typings": "dist/src/index.d.ts",
   "private": true,
   "scripts": {
     "build": "npm run tslint && npm run build-ts",

@@ -6,6 +6,5 @@
     "rootDir": ".",
     "types": ["bluebird-global"]
   },
-  "include": ["src/**/*"],
-  "references": [{ "path": "../../packages/module-sdk" }]
+  "include": ["src/**/*"]
 }
