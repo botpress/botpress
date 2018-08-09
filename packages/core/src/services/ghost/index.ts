@@ -1,7 +1,7 @@
 export interface StorageDriver {
-  upsertFile(path: string, content: Buffer | string): Promise<void>
-  readFile(path: string): Promise<Buffer>
-  deleteFile(path: string): Promise<void>
+  upsertFile(filePath: string, content: Buffer | string): Promise<void>
+  readFile(filePath: string): Promise<Buffer>
+  deleteFile(filePath: string): Promise<void>
   directoryListing(folder: string, fileEndingPattern: string): Promise<string[]>
 }
 

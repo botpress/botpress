@@ -18,26 +18,37 @@ export default class GhostService {
   }
 
   global(): ScoppedGhostService {
-    return new ScoppedGhostService(`./data`, true, this.driver, this.trackedFolders, this.cache)
+    return new ScoppedGhostService(`./data/global`, this.driver, this.trackedFolders, this.cache)
   }
 
   forBot(botId: string): ScoppedGhostService {
-    return new ScoppedGhostService(`./data/bots/${botId}`, false, this.driver, this.trackedFolders, this.cache)
+    if (botId.includes('*') || botId.includes('.')) {
+      throw new Error(`botId can't contain special chars like '*' and '.'`)
+    }
+
+    return new ScoppedGhostService(`./data/bots/${botId}`, this.driver, this.trackedFolders, this.cache)
   }
 
   forAllBots(): ScoppedGhostService {
-    return new ScoppedGhostService(`./data/bots/**`, true, this.driver, this.trackedFolders, this.cache)
+    return new ScoppedGhostService(`./data/bots/*`, this.driver, this.trackedFolders, this.cache)
   }
 }
 
 export class ScoppedGhostService {
+  isDirectoryGlob: boolean
+
   constructor(
     private baseDir: string,
-    private disableReadWrite: boolean,
     private driver: StorageDriver,
     private trackedFolders: TrackedFolders,
     private cache: ObjectCache
-  ) {}
+  ) {
+    if (this.baseDir.indexOf('*') !== this.baseDir.length - 1) {
+      throw new Error(`Base directory can only contain '*' at the end of the path`)
+    }
+
+    this.isDirectoryGlob = this.baseDir.endsWith('*')
+  }
 
   private normalizeFolderName(rootFolder: string) {
     return path.join(this.baseDir, rootFolder)
@@ -52,7 +63,7 @@ export class ScoppedGhostService {
   }
 
   async upsertFile(rootFolder: string, file: string, content: string | Buffer): Promise<void> {
-    if (this.disableReadWrite) {
+    if (this.isDirectoryGlob) {
       throw new Error(`Ghost can't read or write under this scope`)
     }
 
@@ -63,7 +74,7 @@ export class ScoppedGhostService {
   }
 
   async readFile<T>(rootFolder: string, file: string): Promise<Buffer | T> {
-    if (this.disableReadWrite) {
+    if (this.isDirectoryGlob) {
       throw new Error(`Ghost can't read or write under this scope`)
     }
 
@@ -84,7 +95,7 @@ export class ScoppedGhostService {
   }
 
   async deleteFile(rootFolder: string, file: string): Promise<void> {
-    if (this.disableReadWrite) {
+    if (this.isDirectoryGlob) {
       throw new Error(`Ghost can't read or write under this scope`)
     }
 
@@ -94,7 +105,13 @@ export class ScoppedGhostService {
   }
 
   async directoryListing(rootFolder: string, fileEndingPattern: string, pathsToOmit?: string[]): Promise<string[]> {
-    return await this.driver.directoryListing(this.normalizeFolderName(rootFolder), fileEndingPattern)
+    const files = await this.driver.directoryListing(this.normalizeFolderName(rootFolder), fileEndingPattern)
+
+    if (pathsToOmit) {
+      return files.filter(path => !pathsToOmit.includes(path))
+    } else {
+      return files
+    }
   }
 
   getPending(): Promise<GhostPendingRevisions> {
