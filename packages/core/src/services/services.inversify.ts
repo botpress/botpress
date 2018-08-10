@@ -4,15 +4,20 @@ import { TYPES } from '../misc/types'
 
 import { CMSService } from './cms/cms-service'
 import FlowService from './dialog/flow-service'
-import { GhostContentService } from './ghost-content'
-import FSGhostContentService from './ghost-content/file-system'
+import { ObjectCache, StorageDriver } from './ghost'
+import DiskStorageDriver from './ghost/disk-driver'
+import MemoryObjectCache from './ghost/memory-cache'
+import GhostService from './ghost/service'
 import { MiddlewareService } from './middleware/middleware-service'
 
 export const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
   bind<MiddlewareService>(TYPES.MiddlewareService).to(MiddlewareService)
 
-  bind<GhostContentService>(TYPES.GhostService)
-    .to(FSGhostContentService)
+  bind<ObjectCache>(TYPES.ObjectCache).to(MemoryObjectCache)
+  bind<StorageDriver>(TYPES.StorageDriver).to(DiskStorageDriver)
+
+  bind<GhostService>(TYPES.GhostService)
+    .to(GhostService)
     .inSingletonScope()
 
   bind<FlowService>(TYPES.FlowService)

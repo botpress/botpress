@@ -14,5 +14,10 @@ console.log(chalk`=       Version 0.1       =`)
 console.log(chalk`=       {yellow Pre-release}       =`)
 console.log(chalk`===========================`)
 
-const botpress = container.get<Botpress>(TYPES.Botpress)
-botpress.start()
+try {
+  const botpress = container.get<Botpress>(TYPES.Botpress)
+  botpress.start()
+} catch (e) {
+  console.log(chalk.red('Error starting botpress'))
+  console.log(e)
+}

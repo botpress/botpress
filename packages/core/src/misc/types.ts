@@ -14,7 +14,9 @@ const TYPES = {
   CMSService: Symbol.for('CMSService'),
   InMemoryDatabase: Symbol.for('InMemoryDatabase'),
   FlowService: Symbol.for('FlowService'),
-  BotLoader: Symbol.for('BotLoader')
+  BotLoader: Symbol.for('BotLoader'),
+  StorageDriver: Symbol.for('StorageDriver'),
+  ObjectCache: Symbol.for('ObjectCache')
 }
 
 export { TYPES }

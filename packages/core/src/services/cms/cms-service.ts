@@ -7,7 +7,7 @@ import { ConfigProvider } from '../../config/config-loader'
 import { ExtendedKnex } from '../../database/interfaces'
 import { IDisposeOnExit, Logger } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
-import { GhostContentService } from '../ghost-content'
+import GhostService from '../ghost/service'
 
 import { ContentElement, ContentType, DefaultSearchParams, SearchParams } from '.'
 import { CodeFile, SafeCodeSandbox } from './util'
@@ -26,7 +26,7 @@ export class CMSService implements IDisposeOnExit {
     @inject(TYPES.Logger)
     @tagged('name', 'CMS')
     private logger: Logger,
-    @inject(TYPES.GhostService) private ghost: GhostContentService,
+    @inject(TYPES.GhostService) private ghost: GhostService,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.InMemoryDatabase) private memDb: ExtendedKnex
   ) {}
@@ -38,8 +38,8 @@ export class CMSService implements IDisposeOnExit {
   // TODO Test this class
   @postConstruct()
   async initialize() {
-    await this.ghost.addRootFolder(true, this.typesDir, { filesGlob: '**.js', isBinary: false })
-    await this.ghost.addRootFolder(false, this.elementsDir, { filesGlob: '**.json', isBinary: false })
+    this.ghost.global().addRootFolder(this.typesDir, { filesGlob: '**.js' })
+    this.ghost.forAllBots().addRootFolder(this.elementsDir, { filesGlob: '**.json' })
     await this.prepareDb()
     await this.loadContentTypesFromFiles()
     await this.recomputeCategoriesMetadata()
@@ -61,13 +61,16 @@ export class CMSService implements IDisposeOnExit {
   }
 
   async loadContentElementsForBot(botId: string): Promise<any[]> {
-    const fileNames = await this.ghost.directoryListing(botId, 'content-elements', '.json')
+    const fileNames = await this.ghost.forBot(botId).directoryListing(this.elementsDir, '.json')
     let contentElements: ContentElement[] = []
 
     for (const fileName of fileNames) {
-      const file = <string>await this.ghost.readFile(botId, 'content-elements', fileName)
       const contentType = path.basename(fileName).replace(/.json$/i, '')
-      const fileContentElements = (<ContentElement[]>JSON.parse(file)).map(x => ({ ...x, contentType }))
+      const fileContentElements = await this.ghost
+        .forBot(botId)
+        .readFileAsObject<ContentElement[]>(this.elementsDir, fileName)
+
+      fileContentElements.forEach(el => Object.assign(el, { contentType }))
       contentElements = _.concat(contentElements, fileContentElements)
     }
 
@@ -79,10 +82,10 @@ export class CMSService implements IDisposeOnExit {
   }
 
   private async loadContentTypesFromFiles(): Promise<void> {
-    const fileNames = await this.ghost.directoryListing('global', this.typesDir, '*.js')
+    const fileNames = await this.ghost.global().directoryListing(this.typesDir, '.js')
 
     const codeFiles = await Promise.map(fileNames, async filename => {
-      const content = <string>await this.ghost.readFile('global', this.typesDir, filename)
+      const content = <string>await this.ghost.global().readFileAsString(this.typesDir, filename)
       return <CodeFile>{ code: content, relativePath: filename }
     })
 
@@ -282,13 +285,9 @@ export class CMSService implements IDisposeOnExit {
     const items = (await this.listContentElements(botId, contentTypeId, params)).map(item =>
       _.pick(item, 'id', 'formData', 'createdBy', 'createdOn')
     )
-    console.log(params, items, this.filesById)
-    await this.ghost.upsertFile(
-      botId,
-      'content-elements',
-      this.filesById[contentTypeId],
-      JSON.stringify(items, undefined, 2)
-    )
+    const fileName = this.filesById[contentTypeId]
+    const content = JSON.stringify(items, undefined, 2)
+    await this.ghost.forBot(botId).upsertFile(this.elementsDir, fileName, content)
   }
 
   private transformDbItemToApi(item: any) {
