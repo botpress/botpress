@@ -133,10 +133,10 @@ Add this at the top of the file:
 const _ = require('lodash')
 ```
 
-Then let's change the `text` renderer to reflect this:
+Then let's change the `builtin_text` renderer to reflect this:
 
 ```diff
-text: data => {
+builtin_text: data => {
 +  const text = _.sample([data.text, ...(data.variations || [])])
 -  return { text: data.text, typing: !!data.typing }
 +  return { text: text, typing: !!data.typing }
