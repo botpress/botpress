@@ -1622,6 +1622,16 @@ ms@^2.1.1:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.1.tgz#30a5864eb3ebb0a66f2ebe6d727af06a09d86e0a"
 
+mustache@^2.3.1:
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/mustache/-/mustache-2.3.1.tgz#ef5db3c0d11f1640e9baa47f4e65ba0c3fcd82b9"
+
+mware-ts@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/mware-ts/-/mware-ts-1.0.1.tgz#93935a34e44f3bea9be71a90f2ac4262e153b120"
+  dependencies:
+    bluebird "^3.5.1"
+
 nan@~2.10.0:
   version "2.10.0"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.10.0.tgz#96d0cd610ebd58d4b4de9cc0c6828cda99c7548f"

@@ -329,6 +329,7 @@ export class ScoppedDialogEngine {
   }
 
   private _gotoSubflow(nodeName: string, context: Context) {
+    // tslint:disable-next-line:prefer-const
     let [subflow, subflowNode] = nodeName.match(callSubflowRegex)!
 
     const flow = this._findFlow(subflow)
@@ -356,6 +357,7 @@ export class ScoppedDialogEngine {
       this._trace('Flow tried to go back to previous flow but there was none. Exiting flow.', '', '', context)
       // TODO END FLOW
     } else {
+      // tslint:disable-next-line:prefer-const
       let { flow, node } = _.last(context.flowStack)!
 
       if (nodeName !== '#') {

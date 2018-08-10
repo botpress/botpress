@@ -22,10 +22,7 @@
     "tslint": "^5.11.0",
     "typescript": "^3.0.1"
   },
-  "dependencies": {
-    "mustache": "^2.3.1",
-    "mware-ts": "^1.0.1"
-  },
+  "dependencies": {},
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "build-sdk": "lerna run build --scope botpress-module-sdk",
