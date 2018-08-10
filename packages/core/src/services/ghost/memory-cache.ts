@@ -11,8 +11,7 @@ export default class MemoryObjectCache implements ObjectCache {
     this.cache = LRU({
       // For now we cache up to 5000 elements, whatever the size
       // We will probably want to assign different length to various element types in the future
-      max: 5000,
-      length: () => 1 // So we only count the number of objects
+      max: 5000
     })
   }
 

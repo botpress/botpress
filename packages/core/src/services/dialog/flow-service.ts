@@ -3,7 +3,7 @@ import _ from 'lodash'
 
 import { Logger } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
-import GhostService from '../ghost/impl'
+import GhostService from '../ghost/service'
 
 import { Flow, FlowView, NodeView } from '.'
 import { validateFlowSchema } from './validator'

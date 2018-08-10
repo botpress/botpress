@@ -3,6 +3,7 @@ import _ from 'lodash'
 import path from 'path'
 
 import { TYPES } from '../../misc/types'
+import { isValidBotId } from '../../misc/validation'
 
 import {
   GhostPendingRevisions,
@@ -56,8 +57,8 @@ export default class GhostService {
   }
 
   forBot(botId: string): ScoppedGhostService {
-    if (botId.includes('*') || botId.includes('.')) {
-      throw new Error(`botId can't contain special chars like '*' and '.'`)
+    if (!isValidBotId(botId)) {
+      throw new Error(`Invalid botId "${botId}"`)
     }
 
     return new ScoppedGhostService(`./data/bots/${botId}`, this.driver, this.trackedFolders, this.cache)

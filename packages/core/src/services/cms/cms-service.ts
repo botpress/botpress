@@ -7,7 +7,7 @@ import { ConfigProvider } from '../../config/config-loader'
 import { ExtendedKnex } from '../../database/interfaces'
 import { IDisposeOnExit, Logger } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
-import GhostService from '../ghost/impl'
+import GhostService from '../ghost/service'
 
 import { ContentElement, ContentType, DefaultSearchParams, SearchParams } from '.'
 import { CodeFile, SafeCodeSandbox } from './util'

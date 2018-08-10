@@ -2,7 +2,7 @@ import { inject, injectable } from 'inversify'
 
 import { FatalError } from '../errors'
 import { TYPES } from '../misc/types'
-import GhostService from '../services/ghost/impl'
+import GhostService from '../services/ghost/service'
 
 import { BotConfig } from './bot.config'
 import { BotpressConfig } from './botpress.config'
