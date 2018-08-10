@@ -12,7 +12,7 @@ export interface ObjectCache {
   invalidate(key: string): Promise<void>
 }
 
-export type GhostWatchFolderOptions = { filesGlob: string; isBinary: boolean }
+export type GhostWatchFolderOptions = { filesGlob?: string; isBinary?: boolean }
 
 export type GhostPendingRevisions = {
   [rootFolder: string]: Array<{

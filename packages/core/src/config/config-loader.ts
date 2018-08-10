@@ -2,7 +2,7 @@ import { inject, injectable } from 'inversify'
 
 import { FatalError } from '../errors'
 import { TYPES } from '../misc/types'
-import { GhostContentService } from '../services/ghost-content'
+import GhostService from '../services/ghost/impl'
 
 import { BotConfig } from './bot.config'
 import { BotpressConfig } from './botpress.config'
@@ -15,16 +15,14 @@ export interface ConfigProvider {
   setBotConfig(botId: string, config: BotConfig): Promise<void>
 }
 
-const ROOT_FOLDER = '/'
-const FILES_GLOB = '*.config.json'
-
 @injectable()
 export class GhostConfigProvider implements ConfigProvider {
   constructor(
-    @inject(TYPES.GhostService) private ghostService: GhostContentService,
+    @inject(TYPES.GhostService) private ghostService: GhostService,
     @inject(TYPES.ProjectLocation) private projectLocation: string
   ) {
-    this.ghostService.addRootFolder(true, ROOT_FOLDER, { filesGlob: FILES_GLOB, isBinary: false })
+    this.ghostService.global().addRootFolder('/', { filesGlob: '*.config.json' })
+    this.ghostService.forAllBots().addRootFolder('/', { filesGlob: '*.config.json' })
   }
 
   async getBotpressConfig(): Promise<BotpressConfig> {
@@ -45,12 +43,18 @@ export class GhostConfigProvider implements ConfigProvider {
   }
 
   async setBotConfig(botId: string, config: BotConfig) {
-    await this.ghostService.upsertFile(botId, ROOT_FOLDER, 'bot.config.json', JSON.stringify(config, undefined, 2))
+    await this.ghostService.forBot(botId).upsertFile('/', 'bot.config.json', JSON.stringify(config, undefined, 2))
   }
 
-  private async getConfig<T>(fileName: string, botId: string = 'global'): Promise<T> {
+  private async getConfig<T>(fileName: string, botId?: string): Promise<T> {
     try {
-      let content = <string>await this.ghostService.readFile(botId, ROOT_FOLDER, fileName)
+      let content
+
+      if (botId) {
+        content = <string>await this.ghostService.forBot(botId).readFileAsString('/', fileName)
+      } else {
+        content = <string>await this.ghostService.global().readFileAsString('/', fileName)
+      }
 
       if (!content) {
         throw new FatalError(`Modules configuration file "${fileName}" not found`)

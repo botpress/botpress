@@ -1,4 +1,7 @@
+import _ from 'lodash'
 import path from 'path'
+
+import { inject, injectable } from 'inversify'
 
 import {
   GhostPendingRevisions,
@@ -8,14 +11,44 @@ import {
   StorageDriver
 } from '.'
 
-type TrackedFolders = { [x: string]: GhostWatchFolderOptions }
+class TrackedFolders {
+  private folders = {}
 
-export default class GhostService {
-  trackedFolders: TrackedFolders = {}
+  addRootFolder(rootFolder: string, options: GhostWatchFolderOptions) {
+    if (this.folders[rootFolder]) {
+      throw new Error(`The folder "${rootFolder}" is already tracked`)
+    }
 
-  constructor(private driver: StorageDriver, private cache: ObjectCache) {
-    this.trackedFolders = {}
+    this.folders[rootFolder] = options
   }
+
+  getOptionsForFolder(rootFolder: string): GhostWatchFolderOptions {
+    return this.folders[rootFolder]
+  }
+
+  getOptionsForFile(filePath: string): GhostWatchFolderOptions {
+    const candidates = Object.keys(this.folders).filter(x => {
+      // TODO This will not work with rootFolders with an '*' in their path
+      return filePath.startsWith(x)
+    })
+
+    if (!candidates.length) {
+      throw new Error(`File "${filePath}" does not seem to be tracked by the Ghost Service`)
+    }
+
+    const mostPrecise = _.orderBy(candidates, x => x.length, 'desc')
+    return this.folders[mostPrecise[0]]
+  }
+}
+
+@injectable()
+export default class GhostService {
+  trackedFolders: TrackedFolders = new TrackedFolders()
+
+  constructor(
+    @inject('StorageDriver') private driver: StorageDriver,
+    @inject('ObjectCache') private cache: ObjectCache
+  ) {}
 
   global(): ScoppedGhostService {
     return new ScoppedGhostService(`./data/global`, this.driver, this.trackedFolders, this.cache)
@@ -43,7 +76,7 @@ export class ScoppedGhostService {
     private trackedFolders: TrackedFolders,
     private cache: ObjectCache
   ) {
-    if (this.baseDir.indexOf('*') !== this.baseDir.length - 1) {
+    if (![-1, this.baseDir.length - 1].includes(this.baseDir.indexOf('*'))) {
       throw new Error(`Base directory can only contain '*' at the end of the path`)
     }
 
@@ -58,8 +91,20 @@ export class ScoppedGhostService {
     return path.join(this.normalizeFolderName(rootFolder), file)
   }
 
-  async addRootFolder(rootFolder: string, options: GhostWatchFolderOptions): Promise<void> {
-    this.trackedFolders[this.normalizeFolderName(rootFolder)] = options
+  async addRootFolder(rootFolder: string, options?: GhostWatchFolderOptions): Promise<void> {
+    this.trackedFolders.addRootFolder(this.normalizeFolderName(rootFolder), {
+      filesGlob: '*.*',
+      isBinary: false,
+      ...options
+    })
+  }
+
+  objectCacheKey = str => `string::${str}`
+  bufferCacheKey = str => `string::${str}`
+
+  private async invalidateFile(fileName: string) {
+    await this.cache.invalidate(this.objectCacheKey(fileName))
+    await this.cache.invalidate(this.bufferCacheKey(fileName))
   }
 
   async upsertFile(rootFolder: string, file: string, content: string | Buffer): Promise<void> {
@@ -70,28 +115,42 @@ export class ScoppedGhostService {
     const fileName = this.normalizeFileName(rootFolder, file)
 
     await this.driver.upsertFile(fileName, content)
-    await this.cache.invalidate(fileName)
+    this.invalidateFile(fileName)
   }
 
-  async readFile<T>(rootFolder: string, file: string): Promise<Buffer | T> {
+  async readFileAsBuffer(rootFolder: string, file: string): Promise<Buffer> {
     if (this.isDirectoryGlob) {
       throw new Error(`Ghost can't read or write under this scope`)
     }
 
-    const folderName = this.normalizeFolderName(rootFolder)
     const fileName = this.normalizeFileName(rootFolder, file)
-    const options = this.trackedFolders[folderName]
+    const cacheKey = this.bufferCacheKey(fileName)
 
-    const content = await this.driver.readFile(fileName)
-
-    if (options && options.isBinary) {
-      await this.cache.set<Buffer>(fileName, content)
-      return content
+    if (!(await this.cache.has(cacheKey))) {
+      const value = await this.driver.readFile(fileName)
+      await this.cache.set(cacheKey, value)
+      return value
     }
 
-    const obj = <T>JSON.parse(content.toString())
-    await this.cache.set<T>(fileName, obj)
-    return obj
+    return this.cache.get<Buffer>(cacheKey)
+  }
+
+  async readFileAsString(rootFolder: string, file: string): Promise<string> {
+    return (await this.readFileAsBuffer(rootFolder, file)).toString()
+  }
+
+  async readFileAsObject<T>(rootFolder: string, file: string): Promise<T> {
+    const fileName = this.normalizeFileName(rootFolder, file)
+    const cacheKey = this.objectCacheKey(fileName)
+
+    if (!(await this.cache.has(cacheKey))) {
+      const value = await this.readFileAsString(rootFolder, file)
+      const obj = <T>JSON.parse(value)
+      await this.cache.set(cacheKey, obj)
+      return obj
+    }
+
+    return this.cache.get<T>(cacheKey)
   }
 
   async deleteFile(rootFolder: string, file: string): Promise<void> {
@@ -101,7 +160,7 @@ export class ScoppedGhostService {
 
     const fileName = this.normalizeFileName(rootFolder, file)
     await this.driver.deleteFile(fileName)
-    await this.cache.invalidate(fileName)
+    await this.invalidateFile(fileName)
   }
 
   async directoryListing(rootFolder: string, fileEndingPattern: string, pathsToOmit?: string[]): Promise<string[]> {

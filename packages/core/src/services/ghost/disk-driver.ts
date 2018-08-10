@@ -1,12 +1,13 @@
 import 'bluebird-global'
-
 import fse from 'fs-extra'
 import glob from 'glob'
+import { injectable } from 'inversify'
 import path from 'path'
 import { VError } from 'verror'
 
 import { StorageDriver } from '.'
 
+@injectable()
 export default class DiskStorageDriver implements StorageDriver {
   async upsertFile(filePath: string, content: string | Buffer): Promise<void> {
     try {

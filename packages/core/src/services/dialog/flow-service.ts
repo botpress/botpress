@@ -3,7 +3,7 @@ import _ from 'lodash'
 
 import { Logger } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
-import { GhostContentService } from '../ghost-content'
+import GhostService from '../ghost/impl'
 
 import { Flow, FlowView, NodeView } from '.'
 import { validateFlowSchema } from './validator'
@@ -19,18 +19,19 @@ export default class FlowService {
     @inject(TYPES.Logger)
     @tagged('name', 'FlowProvider')
     private logger: Logger,
-    @inject(TYPES.GhostService) private ghost: GhostContentService
+    @inject(TYPES.GhostService) private ghost: GhostService
   ) {}
 
   @postConstruct()
   async initialize(): Promise<void> {
-    await this.ghost.addRootFolder(false, this.flowDir, { filesGlob: '**/*.json', isBinary: false })
+    await this.ghost.forAllBots().addRootFolder(this.flowDir, { filesGlob: '**/*.json' })
   }
 
   async loadAll(botId: string): Promise<FlowView[]> {
-    const flowPath = await this.ghost.directoryListing(botId, this.flowDir, '.flow.json')
+    const flowsPath = this.ghost.forBot(botId).directoryListing(this.flowDir, '.flow.json')
+
     try {
-      return await Promise.map(flowPath, async (flowPath: string) => {
+      return await Promise.map(flowsPath, async (flowPath: string) => {
         return await this.parseFlow(botId, flowPath)
       })
     } catch (err) {
@@ -41,17 +42,14 @@ export default class FlowService {
   }
 
   private async parseFlow(botId: string, flowPath: string) {
-    const flowFile = <string>await this.ghost.readFile(botId, this.flowDir, flowPath)
-    const flow = <Flow>JSON.parse(flowFile)
+    const flow = await this.ghost.forBot(botId).readFileAsObject<Flow>(this.flowDir, flowPath)
     const schemaError = validateFlowSchema(flow)
 
     if (!flow || schemaError) {
       throw new Error(`Invalid schema for "${flowPath}". ` + schemaError)
     }
 
-    const uiEqFile = <string>await this.ghost.readFile(botId, this.flowDir, this.uiPath(flowPath))
-    const uiEq = <FlowView>JSON.parse(uiEqFile)
-
+    const uiEq = await this.ghost.forBot(botId).readFileAsObject<FlowView>(this.flowDir, this.uiPath(flowPath))
     let unplacedIndex = -1
 
     const nodeViews = flow.nodes.map(node => {
@@ -79,22 +77,20 @@ export default class FlowService {
     if (!flowViews.find(f => f.name === 'main.flow.json')) {
       throw new Error(`Expected flows list to contain 'main.flow.json'`)
     }
-    console.log(flowViews)
 
     const flowsToSave = flowViews.map(flow => this.prepareSaveFlow(flow))
     const flowsSavePromises = _.flatten(
       flowsToSave.map(({ flowPath, uiPath, flowContent, uiContent }) => [
-        this.ghost.upsertFile(botId, this.flowDir, flowPath, JSON.stringify(flowContent, undefined, 2)),
-        this.ghost.upsertFile(botId, this.flowDir, uiPath, JSON.stringify(uiContent, undefined, 2))
+        this.ghost.forBot(botId).upsertFile(this.flowDir, flowPath, JSON.stringify(flowContent, undefined, 2)),
+        this.ghost.forBot(botId).upsertFile(this.flowDir, uiPath, JSON.stringify(uiContent, undefined, 2))
       ])
     )
     const pathsToOmit = _.flatten(flowsToSave.map(flow => [flow.flowPath, flow.uiPath]))
 
-    const flowFiles = await this.ghost.directoryListing(botId, this.flowDir, '.json', pathsToOmit)
-    const flowsDeletePromises = flowFiles.map(filePath => this.ghost.deleteFile(botId, this.flowDir, filePath))
+    const flowFiles = await this.ghost.forBot(botId).directoryListing(this.flowDir, '.json', pathsToOmit)
+    const flowsDeletePromises = flowFiles.map(filePath => this.ghost.forBot(botId).deleteFile(this.flowDir, filePath))
 
     await Promise.all(flowsSavePromises.concat(flowsDeletePromises))
-    // this.emit('flowsChanged')
   }
 
   private prepareSaveFlow(flow) {

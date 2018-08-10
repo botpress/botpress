@@ -1,7 +1,9 @@
+import { injectable } from 'inversify'
 import LRU from 'lru-cache'
 
 import { ObjectCache } from '.'
 
+@injectable()
 export default class MemoryObjectCache implements ObjectCache {
   cache: LRU.Cache<string, any>
 
