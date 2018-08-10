@@ -1,7 +1,9 @@
+const _ = require('lodash')
+
 export default data => [
   {
     // on: '*',
-    text: data.text,
+    text: _.sample([data.text, ...(data.variations || [])]),
     typing: data.typing,
     markdown: true // Webchat only
   }
