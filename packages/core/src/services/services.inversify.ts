@@ -13,8 +13,8 @@ import { MiddlewareService } from './middleware/middleware-service'
 export const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
   bind<MiddlewareService>(TYPES.MiddlewareService).to(MiddlewareService)
 
-  bind<ObjectCache>('ObjectCache').to(MemoryObjectCache)
-  bind<StorageDriver>('StorageDriver').to(DiskStorageDriver)
+  bind<ObjectCache>(TYPES.ObjectCache).to(MemoryObjectCache)
+  bind<StorageDriver>(TYPES.StorageDriver).to(DiskStorageDriver)
 
   bind<GhostService>(TYPES.GhostService)
     .to(GhostService)

@@ -1,7 +1,8 @@
+import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 import path from 'path'
 
-import { inject, injectable } from 'inversify'
+import { TYPES } from '../../misc/types'
 
 import {
   GhostPendingRevisions,
@@ -46,8 +47,8 @@ export default class GhostService {
   trackedFolders: TrackedFolders = new TrackedFolders()
 
   constructor(
-    @inject('StorageDriver') private driver: StorageDriver,
-    @inject('ObjectCache') private cache: ObjectCache
+    @inject(TYPES.StorageDriver) private driver: StorageDriver,
+    @inject(TYPES.ObjectCache) private cache: ObjectCache
   ) {}
 
   global(): ScoppedGhostService {
