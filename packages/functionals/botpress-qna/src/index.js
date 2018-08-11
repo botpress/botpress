@@ -8,10 +8,19 @@ import yn from 'yn'
 import moment from 'moment'
 import Promise from 'bluebird'
 import iconv from 'iconv-lite'
+import nanoid from 'nanoid'
 
 let storage
 let logger
 let shouldProcessMessage
+const csvUploadStatuses = {}
+
+const recordCsvUploadStatus = (csvUploadStatusId, status) => {
+  if (!csvUploadStatusId) {
+    return
+  }
+  csvUploadStatuses[csvUploadStatusId] = status
+}
 
 module.exports = {
   config: {
@@ -56,15 +65,21 @@ module.exports = {
        * @param {String} [options.format] - format of "questions" string ('csv' or 'json')
        * @returns {Promise} Promise object represents an array of ids of imported questions
        */
-      async import(questions, { format = 'json' } = {}) {
+      async import(questions, { format = 'json', csvUploadStatusId } = {}) {
+        recordCsvUploadStatus(csvUploadStatusId, 'Calculating diff with existing questions')
         const existingQuestions = (await storage.getQuestions()).map(item =>
           JSON.stringify(_.omit(item.data, 'enabled'))
         )
         const parsedQuestions = typeof questions === 'string' ? parsers[`${format}Parse`](questions) : questions
         const questionsToSave = parsedQuestions.filter(item => !existingQuestions.includes(JSON.stringify(item)))
 
+        let questionsSavedCount = 0
+
         return Promise.each(questionsToSave, question =>
-          storage.saveQuestion({ ...question, enabled: true }, null, false)
+          storage.saveQuestion({ ...question, enabled: true }, null, false).then(() => {
+            questionsSavedCount += 1
+            recordCsvUploadStatus(csvUploadStatusId, `Saved ${questionsSavedCount}/${questionsToSave.length} questions`)
+          })
         )
       },
 
@@ -176,19 +191,27 @@ module.exports = {
 
     const upload = multer()
     router.post('/csv', upload.single('csv'), async (req, res) => {
+      const csvUploadStatusId = nanoid()
+      res.end(csvUploadStatusId)
+      recordCsvUploadStatus(csvUploadStatusId, 'Deleting existing questions')
       if (yn(req.body.isReplace)) {
         const questions = await storage.getQuestions()
         await Promise.each(questions, ({ id }) => storage.deleteQuestion(id, false))
       }
 
       try {
-        await bp.qna.import(req.file.buffer.toString(), { format: 'csv' })
+        await bp.qna.import(req.file.buffer.toString(), { format: 'csv', csvUploadStatusId })
+        recordCsvUploadStatus(csvUploadStatusId, 'Syncing NLU-provider')
         bp.nlu.provider.sync()
-        res.end()
+        recordCsvUploadStatus(csvUploadStatusId, 'Completed')
       } catch (e) {
         logger.error('QnA Error:', e)
-        res.status(400).send(e.message || 'Error')
+        recordCsvUploadStatus(csvUploadStatusId, `Error: ${e.message}`)
       }
+    })
+
+    router.get('/csv-upload-status/:csvUploadStatusId', async (req, res) => {
+      res.end(csvUploadStatuses[req.params.csvUploadStatusId])
     })
   }
 }

@@ -25,6 +25,7 @@ import classnames from 'classnames'
 import find from 'lodash/find'
 import some from 'lodash/some'
 import get from 'lodash/get'
+import Promise from 'bluebird'
 
 import ArrayEditor from './ArrayEditor'
 import QuestionsEditor from './QuestionsEditor'
@@ -57,6 +58,7 @@ const ACTIONS = {
 }
 
 const ITEMS_PER_PAGE = 50
+const CSV_STATUS_POLL_INTERVAL = 1000
 
 export default class QnaAdmin extends Component {
   constructor(props) {
@@ -386,18 +388,28 @@ export default class QnaAdmin extends Component {
     return some(questions, q => q.indexOf(filter) >= 0)
   }
 
-  uploadCsv = () => {
+  uploadCsv = async () => {
     const formData = new FormData()
     formData.set('isReplace', this.state.isCsvUploadReplace)
     formData.append('csv', this.state.csvToUpload)
     const headers = { 'Content-Type': 'multipart/form-data' }
-    this.props.bp.axios
-      .post('/api/botpress-qna/csv', formData, { headers })
-      .then(() => {
-        this.setState({ importCsvModalShow: false })
-        this.fetchData()
-      })
-      .catch(({ response: { data: csvUploadError } }) => this.setState({ csvUploadError }))
+    const { data: csvStatusId } = await this.props.bp.axios.post('/api/botpress-qna/csv', formData, { headers })
+    this.setState({ csvStatusId })
+    while (this.state.csvStatusId) {
+      try {
+        const { data: status } = await this.props.bp.axios.get(`/api/botpress-qna/csv-upload-status/${csvStatusId}`)
+        this.setState({ csvUploadStatus: status })
+        if (status === 'Completed') {
+          this.setState({ csvStatusId: null, importCsvModalShow: false })
+          this.fetchData()
+        } else if (status.startsWith('Error')) {
+          this.setState({ csvStatusId: null })
+        }
+        await Promise.delay(CSV_STATUS_POLL_INTERVAL)
+      } catch (e) {
+        return this.setState({ csvUploadStatus: 'Server Error', csvStatusId: null })
+      }
+    }
   }
 
   downloadCsv = () =>
@@ -449,6 +461,7 @@ export default class QnaAdmin extends Component {
   }
 
   render() {
+    const { csvUploadStatus } = this.state
     return (
       <Panel>
         <a
@@ -465,7 +478,7 @@ export default class QnaAdmin extends Component {
                   this.setState({
                     importCsvModalShow: true,
                     csvToUpload: null,
-                    csvUploadError: null,
+                    csvUploadStatus: null,
                     isCsvUploadReplace: false
                   })}
                 type="button"
@@ -477,9 +490,12 @@ export default class QnaAdmin extends Component {
                   <Modal.Title>Import CSV</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                  {this.state.csvUploadError && (
-                    <Alert bsStyle="danger" onDismiss={() => this.setState({ csvUploadError: null })}>
-                      <p>{this.state.csvUploadError}</p>
+                  {csvUploadStatus && (
+                    <Alert
+                      bsStyle={csvUploadStatus.startsWith('Error') ? 'danger' : 'info'}
+                      onDismiss={() => this.setState({ csvUploadStatus: null })}
+                    >
+                      <p>{this.state.csvUploadStatus}</p>
                     </Alert>
                   )}
                   <form>
