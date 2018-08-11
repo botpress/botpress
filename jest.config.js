@@ -3,14 +3,14 @@ const process = require('process')
 module.exports = {
   globals: {
     'ts-jest': {
-      tsConfigFile: 'tsconfig.json'
+      tsConfigFile: '<rootDir>/tsconfig.json'
     }
   },
-  moduleFileExtensions: ['ts', 'js'],
+  moduleFileExtensions: ['ts', 'js', 'tsx', 'jsx', 'json'],
   transform: {
-    '^.+\\.(ts|tsx)$': '../../node_modules/ts-jest/preprocessor.js'
+    '^.+\\.(ts|tsx)$': 'ts-jest'
   },
-  testMatch: ['**/test/**/*.test.(ts|js)'],
+  testMatch: ['<rootDir>/test/**/*.test.(ts|js)'],
   testEnvironment: 'node',
   rootDir: process.cwd()
 }

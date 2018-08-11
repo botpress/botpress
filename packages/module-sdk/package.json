@@ -4,6 +4,7 @@
   "author": "Botpress",
   "license": "AGPL-3.0-only",
   "main": "dist/src/index.js",
+  "typings": "dist/src/index.d.ts",
   "private": true,
   "scripts": {
     "build": "npm run tslint && npm run build-ts",
@@ -16,8 +17,5 @@
     "tslint": "../../node_modules/.bin/tslint -c ../../tslint.json -p tsconfig.json"
   },
   "dependencies": {},
-  "devDependencies": {
-    "@types/jest": "^23.3.0",
-    "@types/node": "^10.5.2"
-  }
+  "devDependencies": {}
 }

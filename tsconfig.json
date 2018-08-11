@@ -1,4 +1,3 @@
 {
-  "files": [],
-  "references": [{ "path": "botpress-module-sdk" }, { "path": "botpress-xx" }, { "path": "@botpress/xx-channel-web" }]
+  "files": []
 }
