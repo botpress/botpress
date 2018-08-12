@@ -157,10 +157,16 @@ docs_additional_reading: "Additional Reading"
   title: "Broadcasting Messages"
   description: "Learn how to broadcast messages to multiple users"
 
-"/skills/":
-    title: "Botpress Skills"
-    description: Information about the skills avaliable within Botpress
+# Skills
 
+"/skills/":
+    title: "Skills"
+    description: "Information about the skills avaliable within Botpress"
+    
+"/skills/choice/":
+  title: "Choice"
+  description: "How to add a choice skill to your flow"
+    
 guides:
   
   getting_started:
@@ -172,5 +178,5 @@ guides:
     description: Guides and examples solving typical issues you may run into
   
   skills:
-    title: "Botpress Skills"
+    title: "Skills"
     description: Information about the skills avaliable within Botpress

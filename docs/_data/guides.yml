@@ -42,6 +42,7 @@
 - id: "skills"    
   pages:
   - path: "/skills/"
+  - path: '/skills/choice/'
   
 # - id: foundamentals
 #   pages:
