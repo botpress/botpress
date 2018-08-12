@@ -2,45 +2,51 @@
 layout: guide
 ---
 
-Botpress allows you to build a quite powerful tool for communication with user.
-But even with it there may be cases that are either impossible of very resource-consuming to implement and you may consider having an operator communicating certain users under some  conditions.
+Botpress allows you to build a powerful tool for autonomous communication with your users.
+However there may be cases where it is difficult or very resource-consuming to implement a conversation flow within the bot. At this point you may consider having a human take over the conversation and continue to communicate with your user.
 
-[@botpress/hitl](https://github.com/botpress/botpress/tree/master/packages/functionals/botpress-hitl) is designed to solve this issue (only supports messenger-channel for now).
+The [Human-in-the-Loop (@botpress/hitl)](https://github.com/botpress/botpress/tree/master/packages/functionals/botpress-hitl) module allows you to do just that! 
 
-Once you have this package installed (`npm install --save @botpress/hitl`) you'll be able to:
+Human-in-the-Loop is currently supported on `channel-web` and `channel-messenger`.
 
-1. Pause conversation with bot
-2. Allert agents that conversation requires attention
-3. As an agent you'll be able to communicate with users through admin-panel
-4. Resume conversation programmatically
+Once you have this module installed (`npm install --save @botpress/hitl`) you will be able to:
+
+1. Pause a user's conversation with the bot
+2. Alert your agents that a conversation requires attention
+3. As an agent you will be able to continue the conversation via the admin-panel
+4. Resume conversation with the bot
 
 # Pausing conversation
 
-There are several ways you can pause conversation:
-- from admin UI toggling appropriate button
-- by performing API-requests:
+There are several ways you can pause the conversation:
+- from the admin-panel, toggling the appropriate button
+- by performing an API-request:
   - POST /api/botpress-hitl/sessions/{$id}/pause
   - POST /api/botpress-hitl/sessions/{$id}/unpause
 - programmatically by calling `bp.hitl.pause(platform, userId)` and `bp.hitl.unpause(platform, userId)`
 
-# Allering agents
+# Alerting agents
 
-You may have different ways of notifying agents with emails or external API's and this is all possible. But we'll cover a simple case of notifying agent via notification in admin-panel:
+There are a number of ways to alert your agents of a paused conversation, an email, a call to an external API or, as in the example below, via a notification in the admin-panel:
 
 ```js
   const message = event.user.first_name + ' wants to talk to a human'
   bp.notifications.send({ message, level: 'info', url: '/modules/botpress-hitl' })
 ```
 
-Agents can then navigate to appropriate conversation and start communication.
+The agent can then navigate to the appropriate conversation and take over the conversation from the bot.
 
 # Resuming conversation
 
-Once they agents are done communicating with the user they can unpause conversation. But this can be implemented programmatically either to allow user unpause conversation himself like this: `bp.hitl.unpause(platform, userId)`
+Once the agent is done communicating with the user, they can unpause the conversation. 
+
+It is also possible for the user to unpause the conversation programmatically by triggering an action that calls `bp.hitl.unpause(platform, userId)`. This is implemented in the example below.
 
 # Example
 
-Check an example implementing HITL_START and HITL_STOP events: HITL_START pauses conversation, alerts agents and sends user a button allowing him to resume conversation with bot. HITL_STOP resumes conversation.
+Below is an example implementing HITL_START and HITL_STOP events.
+
+HITL_START pauses conversation the conversation with the bot, alerts the agents via the admin-panel and sends the user a button, allowing them to resume conversation with bot. HITL_STOP resumes conversation.
 
 ```js
 bp.hear(/HITL_START/, (event, next) => {
