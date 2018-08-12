@@ -16,7 +16,9 @@ const TYPES = {
   FlowService: Symbol.for('FlowService'),
   BotLoader: Symbol.for('BotLoader'),
   StorageDriver: Symbol.for('StorageDriver'),
-  ObjectCache: Symbol.for('ObjectCache')
+  ObjectCache: Symbol.for('ObjectCache'),
+  ActionService: Symbol.for('ActionService'),
+  IsPackaged: Symbol.for('IsPackaged')
 }
 
 export { TYPES }
