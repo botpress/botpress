@@ -27,7 +27,7 @@ export default class DiskStorageDriver implements StorageDriver {
 
   async readFile(filePath: string): Promise<Buffer> {
     try {
-      return await fse.readFile(this.resolvePath(filePath))
+      return fse.readFile(this.resolvePath(filePath))
     } catch (e) {
       if (e.code === 'ENOENT') {
         throw new Error(`[Disk Storage] File "${filePath}" not found`)
@@ -39,7 +39,7 @@ export default class DiskStorageDriver implements StorageDriver {
 
   async deleteFile(filePath: string): Promise<void> {
     try {
-      return await fse.unlink(this.resolvePath(filePath))
+      return fse.unlink(this.resolvePath(filePath))
     } catch (e) {
       throw new VError(e, `[Disk Storage] Error deleting file "${filePath}"`)
     }
@@ -63,7 +63,7 @@ export default class DiskStorageDriver implements StorageDriver {
     }
 
     try {
-      return <string[]>await Promise.fromCallback(cb => glob(pattern, { cwd: this.resolvePath(directory) }, cb))
+      return Promise.fromCallback<string[]>(cb => glob(pattern, { cwd: this.resolvePath(directory) }, cb))
     } catch (e) {
       throw new VError(e, `[Disk Storage] Error listing directory content for folder "${directory}"`)
     }

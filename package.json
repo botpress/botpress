@@ -4,6 +4,8 @@
     "@types/jest": "^23.3.0",
     "@types/node": "^10.5.2",
     "@types/tmp": "^0.0.33",
+    "babel-core": "^6.26.0",
+    "babel-jest": "^23.4.2",
     "concurrently": "^3.6.0",
     "husky": "^0.14.3",
     "jest": "^23.4.1",
@@ -16,15 +18,14 @@
     "ts-node": "^7.0.0",
     "tsc-watch": "^1.0.26",
     "tslint": "^5.11.0",
-    "typescript": "^3.0.1",
-    "babel-core": "^6.26.0",
-    "babel-jest": "^23.4.2"
+    "typescript": "^3.0.1"
   },
   "dependencies": {},
   "scripts": {
-    "dev": "lerna bootstrap && npm run build-sdk && npm run watch",
+    "bootstrap": "lerna bootstrap",
     "build-sdk": "lerna run build --scope botpress-module-sdk",
-    "watch": "lerna exec --parallel -- npm run watch",
+    "dev": "lerna bootstrap && npm run watch",
+    "watch": "npm run build-sdk && lerna run --parallel watch",
     "test": "lerna run test"
   }
 }
