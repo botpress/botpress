@@ -20,7 +20,8 @@ const TYPES = {
   ActionService: Symbol.for('ActionService'),
   IsPackaged: Symbol.for('IsPackaged'),
   Queue: Symbol.for('Queue'),
-  HookService: Symbol.for('HookService')
+  HookService: Symbol.for('HookService'),
+  EventEngine: Symbol.for('EventEngine')
 }
 
 export { TYPES }

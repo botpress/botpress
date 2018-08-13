@@ -20,7 +20,7 @@ export class MiddlewareService {
   ) {}
 
   /**
-   * Get middleware for enabled bot modules
+   * Get the ordered middleware for the activated module of a specific bot
    * @param botId
    */
   async getMiddlewareForBot(botId: string) {

@@ -10,6 +10,7 @@ import DiskStorageDriver from './ghost/disk-driver'
 import MemoryObjectCache from './ghost/memory-cache'
 import GhostService from './ghost/service'
 import { HookService } from './hook/hook-service'
+import { EventEngine } from './middleware/event-engine'
 import { MiddlewareService } from './middleware/middleware-service'
 import { Queue } from './queue'
 import MemoryQueue from './queue/memory-queue'
@@ -42,5 +43,9 @@ export const ServicesContainerModule = new ContainerModule((bind: interfaces.Bin
 
   bind<HookService>(TYPES.HookService)
     .to(HookService)
+    .inSingletonScope()
+
+  bind<EventEngine>(TYPES.EventEngine)
+    .to(EventEngine)
     .inSingletonScope()
 })
