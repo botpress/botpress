@@ -23,8 +23,9 @@
     "axios": "^0.18.0",
     "bluebird-global": "^1.0.1",
     "body-parser": "^1.18.3",
-    "botpress-module-sdk": "^0.0.1",
+    "botpress-module-sdk": "../module-sdk",
     "chalk": "^2.4.1",
+    "doctrine": "^2.1.0",
     "dotenv": "^6.0.0",
     "errorhandler": "^1.5.0",
     "express": "^4.16.3",
@@ -40,6 +41,7 @@
     "ms": "^2.1.1",
     "nanoid": "^1.1.0",
     "pg": "^7.4.3",
+    "plur": "^3.0.1",
     "reflect-metadata": "^0.1.12",
     "sqlite3": "^4.0.2",
     "tmp": "^0.0.33",
@@ -48,6 +50,7 @@
   },
   "devDependencies": {
     "@types/bluebird-global": "^3.5.6",
+    "@types/doctrine": "^0.0.3",
     "@types/dotenv": "^4.0.3",
     "@types/errorhandler": "^0.0.32",
     "@types/express": "^4.16.0",
@@ -61,5 +64,11 @@
     "@types/nanoid": "^1.0.0",
     "@types/verror": "^1.10.3",
     "concurrently": "^3.6.0"
+  },
+  "pkg": {
+    "assets": [
+      "node_modules/vm2/lib/*.js",
+      "dist/src/services/action/sandbox-runtime.js"
+    ]
   }
 }

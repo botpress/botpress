@@ -52,14 +52,15 @@ container
   .to(BotLoader)
   .inSingletonScope()
 
-const runningNode = process.title.endsWith('node')
-const isProduction = !runningNode || process.env.NODE_ENV == 'production'
+const isPackaged = !!eval('process.pkg')
+const isProduction = isPackaged || process.env.NODE_ENV == 'production'
 
-const projectLocation = runningNode
-  ? path.join(__dirname, '..') // If we're running in DEV
-  : path.join(path.dirname(process.execPath)) // If we're running from binary
+const projectLocation = isPackaged
+  ? path.join(path.dirname(process.execPath)) // We point at the binary path
+  : path.join(__dirname, '..') // e.g. /dist/..
 
 container.bind<boolean>(TYPES.IsProduction).toConstantValue(isProduction)
+container.bind<boolean>(TYPES.IsPackaged).toConstantValue(isPackaged)
 container.bind<string>(TYPES.ProjectLocation).toConstantValue(projectLocation)
 
 container.load(DatabaseContainerModule)

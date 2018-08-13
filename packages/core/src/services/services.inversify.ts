@@ -2,6 +2,7 @@ import { ContainerModule, interfaces } from 'inversify'
 
 import { TYPES } from '../misc/types'
 
+import ActionService from './action'
 import { CMSService } from './cms/cms-service'
 import FlowService from './dialog/flow-service'
 import { ObjectCache, StorageDriver } from './ghost'
@@ -26,5 +27,9 @@ export const ServicesContainerModule = new ContainerModule((bind: interfaces.Bin
 
   bind<CMSService>(TYPES.CMSService)
     .to(CMSService)
+    .inSingletonScope()
+
+  bind<ActionService>(TYPES.ActionService)
+    .to(ActionService)
     .inSingletonScope()
 })
