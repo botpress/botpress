@@ -31,8 +31,8 @@ export default class FlowService {
     const flowsPath = this.ghost.forBot(botId).directoryListing(this.flowDir, '.flow.json')
 
     try {
-      return await Promise.map(flowsPath, async (flowPath: string) => {
-        return await this.parseFlow(botId, flowPath)
+      return Promise.map(flowsPath, async (flowPath: string) => {
+        return this.parseFlow(botId, flowPath)
       })
     } catch (err) {
       this.logger.error(`Could not load flows for bot ID "${botId}"`)

@@ -150,17 +150,17 @@ export class CMSService implements IDisposeOnExit {
   }
 
   async getContentElement(botId: string, id: string): Promise<ContentElement> {
-    return await this.memDb(this.contentTable)
+    return this.memDb(this.contentTable)
       .where('botId', botId)
       .andWhere('id', id)
   }
 
   async getContentElements(botId: string, ids: string[]): Promise<ContentElement[]> {
-    return await this.memDb(this.contentTable).where(builder => builder.where('botId', botId).whereIn('id', ids))
+    return this.memDb(this.contentTable).where(builder => builder.where('botId', botId).whereIn('id', ids))
   }
 
   async countContentElements(botId: string, contentTypeId: string): Promise<number> {
-    return await this.memDb(this.contentTable)
+    return this.memDb(this.contentTable)
       .where('botId', botId)
       .andWhere('contentType', contentTypeId)
       .count('* as count')
@@ -169,7 +169,7 @@ export class CMSService implements IDisposeOnExit {
   }
 
   async deleteContentElements(botId: string, ids: string[]): Promise<void> {
-    return await this.memDb(this.contentTable)
+    return this.memDb(this.contentTable)
       .where('botId', botId)
       .whereIn('id', ids)
       .del()
@@ -194,7 +194,7 @@ export class CMSService implements IDisposeOnExit {
   }
 
   async getRandomContentElement(contentTypeId: string): Promise<ContentElement> {
-    return await this.memDb(this.contentTable)
+    return this.memDb(this.contentTable)
       .where('contentType', contentTypeId)
       .orderByRaw('random()')
       .limit(1)
