@@ -6,7 +6,8 @@ import mware, { Event } from 'mware-ts'
 import { Logger } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
 
-const { use, run } = mware()
+const incoming = mware()
+const outgoing = mware()
 
 type DirectionType = 'incoming' | 'outgoing'
 
@@ -55,13 +56,13 @@ class ScoppedEventEngine {
 
   async registerMiddleware(middleware: MiddlewareDefinition[]) {
     this.middleware = middleware
-    middleware.filter(mw => mw.type === 'incoming').forEach(mw => this.useMiddleware(mw))
-    middleware.filter(mw => mw.type === 'outgoing').forEach(mw => this.useMiddleware(mw))
+    middleware.filter(mw => mw.type === 'incoming').forEach(mw => this.useMiddleware(mw, incoming))
+    middleware.filter(mw => mw.type === 'outgoing').forEach(mw => this.useMiddleware(mw, outgoing))
   }
 
-  private useMiddleware(mw: MiddlewareDefinition) {
+  private useMiddleware(mw: MiddlewareDefinition, mware: any) {
     this.valideMw(mw)
-    use(async (event, value) => {
+    mware.use(async (event, value) => {
       const mw = this.middleware.find(mw => mw.name === event.name)
       if (!mw) {
         throw new Error(`Could not find any registered middleware for "${event.name}"`)
@@ -80,12 +81,12 @@ class ScoppedEventEngine {
 
   async sendIncoming(event: BotpressEvent) {
     this.validateEvent(event)
-    return run(new Event(event.name), event)
+    return incoming.run(new Event(event.name), event)
   }
 
   async sendOutgoing(event: BotpressEvent): Promise<any> {
     this.validateEvent(event)
-    return run(new Event(event.name), event)
+    return outgoing.run(new Event(event.name), event)
   }
 
   private validateEvent(event: BotpressEvent) {
