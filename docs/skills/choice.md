@@ -24,7 +24,7 @@ You will find a dropdown list in the toolbar to `Insert Skill`
 
 After selecting the choice skill you will need to click on the folder icon to ether create or select an existing choice configuration.
 
-When you chick on the `Create new Single Choice` you will be presented with a form where you will be able to configure this instance.
+When you click on the `Create new Single Choice` you will be presented with a form where you will be able to configure this instance.
 
 - Message - This is the Question that is asked to the user
 - Choices - This is a collection of the buttons that will be presented to the user
