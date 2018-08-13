@@ -48,21 +48,26 @@ const mwSchema = {
 }
 
 class ScoppedEventEngine {
+  private middleware!: MiddlewareDefinition[]
+
   // TODO: Enqueue by bot
   constructor(private botId: string, private logger: Logger) {}
 
   async registerMiddleware(middleware: MiddlewareDefinition[]) {
+    this.middleware = middleware
     middleware.filter(mw => mw.type === 'incoming').forEach(mw => this.useMiddleware(mw))
     middleware.filter(mw => mw.type === 'outgoing').forEach(mw => this.useMiddleware(mw))
   }
 
   private useMiddleware(mw: MiddlewareDefinition) {
-    try {
-      this.valideMw(mw)
-    } catch (err) {
-      this.logger.error(err)
-    }
-    use(async () => mw.handler)
+    this.valideMw(mw)
+    use(async (event, value) => {
+      const mw = this.middleware.find(mw => mw.name === event.name)
+      if (!mw) {
+        throw new Error(`Could not find any registered middleware for "${event.name}"`)
+      }
+      return value
+    })
   }
 
   private valideMw(middleware: MiddlewareDefinition) {
@@ -74,21 +79,13 @@ class ScoppedEventEngine {
   }
 
   async sendIncoming(event: BotpressEvent) {
-    try {
-      this.validateEvent(event)
-    } catch (err) {
-      this.logger.error(err)
-    }
-    return run(new Event(event.name))
+    this.validateEvent(event)
+    return run(new Event(event.name), event)
   }
 
   async sendOutgoing(event: BotpressEvent): Promise<any> {
-    try {
-      this.validateEvent(event)
-    } catch (err) {
-      this.logger.error(err)
-    }
-    return run(new Event(event.name))
+    this.validateEvent(event)
+    return run(new Event(event.name), event)
   }
 
   private validateEvent(event: BotpressEvent) {
