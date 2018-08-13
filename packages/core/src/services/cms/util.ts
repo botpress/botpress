@@ -50,7 +50,7 @@ export class SafeCodeSandbox {
   async run(fileName: string): Promise<any> {
     const code = fs.readFileSync(this.filesMap[fileName], 'utf8')
     try {
-      return await this.vm.run(
+      return this.vm.run(
         code,
         path.join(
           this.tmpPath,
