@@ -9,3 +9,17 @@ export interface Logger {
 export interface IDisposeOnExit {
   disposeOnExit(): void
 }
+
+export interface BotpressEvent {
+  bot?: {
+    id?: string
+    botId?: string
+  }
+  botId?: string
+  user?: {
+    id?: string
+    userId?: string
+  }
+  userId?: string
+  raw?: BotpressEvent
+}

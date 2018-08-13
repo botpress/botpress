@@ -18,7 +18,8 @@ const TYPES = {
   StorageDriver: Symbol.for('StorageDriver'),
   ObjectCache: Symbol.for('ObjectCache'),
   ActionService: Symbol.for('ActionService'),
-  IsPackaged: Symbol.for('IsPackaged')
+  IsPackaged: Symbol.for('IsPackaged'),
+  Queue: Symbol.for('Queue')
 }
 
 export { TYPES }
