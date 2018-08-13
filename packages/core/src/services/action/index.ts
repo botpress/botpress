@@ -61,7 +61,7 @@ export class ScopedActionService {
     return actions
   }
 
-  private async getActionCode(actionName: string): Promise<string> {
+  private async getActionScript(actionName: string): Promise<string> {
     const actions = await this.listActions()
     const action = actions.find(x => x.name === actionName)
 
@@ -80,7 +80,7 @@ export class ScopedActionService {
   }
 
   async getActionMetadata(actionName: string): Promise<ActionMetadata> {
-    const code = await this.getActionCode(actionName)
+    const code = await this.getActionScript(actionName)
     return extractMetadata(code)
   }
 
@@ -91,7 +91,7 @@ export class ScopedActionService {
 
   async runAction(actionName: string, dialogState: any, incomingEvent: any, actionArgs: any): Promise<any> {
     this.logger.debug(`Running action "${actionName}"`)
-    const code = await this.getActionCode(actionName)
+    const code = await this.getActionScript(actionName)
 
     return runCode(
       code,
