@@ -18,8 +18,8 @@ export class SessionService {
     await this.sessionRepository.update(id, session)
   }
 
-  async deleteSession(id: string, substates?: any) {
-    return await this.sessionRepository.delete(id, substates)
+  async deleteSession(id: string) {
+    return await this.sessionRepository.delete(id)
   }
 
   async getSession(id: string) {

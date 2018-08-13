@@ -7,10 +7,11 @@ export default class DialogSessionTable extends Table {
     await this.knex
       .createTableIfNotExists(this.name, table => {
         table.increments('id')
-        table.string('namespace')
         table.text('state')
+        table.text('context')
         table.timestamp('active_on')
-        table.timestamps(true, true)
+        table.text('created_on')
+        table.text('modified_on')
       })
       .then()
   }

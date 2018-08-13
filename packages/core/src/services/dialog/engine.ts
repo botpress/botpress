@@ -90,7 +90,7 @@ export class ScoppedDialogEngine {
   async endFlow(sessionId: string) {
     this._trace('--', 'ENDF', '', undefined)
     await this.onBeforeEnd.run(new Event('onBeforeEnd'), { sessionId })
-    await this.sessionService.deleteSession(sessionId, ['context'])
+    await this.sessionService.deleteSession(sessionId)
     return undefined
   }
 
