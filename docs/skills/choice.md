@@ -37,7 +37,7 @@ When you chick on the `Create new Single Choice` you will be presented with a fo
 
 ## Hiding Choices
 
-As of version 10.30, you are able to configure the choice skill to handle a choice but stop it from being displayed to the user in the conversation. This allows you top handle edge cases or unpopular conversation paths without cluttering up the user interface for most users.
+As of version [10.31](https://github.com/botpress/botpress/blob/master/CHANGELOG.md#10310-2018-08-08), you are able to configure the choice skill to handle a choice but stop it from being displayed to the user in the conversation. This allows you top handle edge cases or unpopular conversation paths without cluttering up the user interface for most users.
 
 Options can be hidden by prefixing ether the title or the message with `!hide`. 
 
