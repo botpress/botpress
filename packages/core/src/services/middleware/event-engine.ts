@@ -1,30 +1,13 @@
-import { MiddlewareDefinition } from 'botpress-module-sdk'
 import { inject, injectable, tagged } from 'inversify'
 import joi from 'joi'
-import mware, { Event } from 'mware-ts'
 
 import { Logger } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
 
-const incoming = mware()
-const outgoing = mware()
+import middleware, { BotpressEvent } from './middleware'
 
-type DirectionType = 'incoming' | 'outgoing'
-
-/**
- * @property {string} type - The type of the event, i.e. image, text, timeout, etc
- * @property {string} channel - The channel of communication, i.e web, messenger, twillio
- * @property {string} target - The target of the event for a specific plateform, i.e
- */
-type BotpressEvent = {
-  name: string
-  type: string
-  channel: string
-  target: string
-  direction: DirectionType
-  text: string
-  raw: string
-}
+const incoming = middleware()
+const outgoing = middleware()
 
 const eventSchema = {
   name: joi.string().required(),
@@ -48,27 +31,20 @@ const mwSchema = {
   enabled: joi.boolean().default(true)
 }
 
-class ScoppedEventEngine {
+export class ScoppedEventEngine {
   private middleware!: MiddlewareDefinition[]
 
-  // TODO: Enqueue by bot
   constructor(private botId: string, private logger: Logger) {}
 
-  async registerMiddleware(middleware: MiddlewareDefinition[]) {
+  async load(middleware: MiddlewareDefinition[]) {
     this.middleware = middleware
-    middleware.filter(mw => mw.type === 'incoming').forEach(mw => this.useMiddleware(mw, incoming))
-    middleware.filter(mw => mw.type === 'outgoing').forEach(mw => this.useMiddleware(mw, outgoing))
+    this.middleware.filter(mw => mw.type === 'incoming').map(mw => this.useMiddleware(mw, incoming))
+    this.middleware.filter(mw => mw.type === 'outgoing').map(mw => this.useMiddleware(mw, outgoing))
   }
 
   private useMiddleware(mw: MiddlewareDefinition, mware: any) {
     this.valideMw(mw)
-    mware.use(async (event, value) => {
-      const mw = this.middleware.find(mw => mw.name === event.name)
-      if (!mw) {
-        throw new Error(`Could not find any registered middleware for "${event.name}"`)
-      }
-      return value
-    })
+    mware.use(mw.handler)
   }
 
   private valideMw(middleware: MiddlewareDefinition) {
@@ -79,14 +55,14 @@ class ScoppedEventEngine {
     })
   }
 
-  async sendIncoming(event: BotpressEvent) {
+  async sendIncoming(event: BotpressEvent): Promise<any> {
     this.validateEvent(event)
-    return incoming.run(new Event(event.name), event)
+    return Promise.fromCallback(callback => incoming.run(event, callback))
   }
 
   async sendOutgoing(event: BotpressEvent): Promise<any> {
     this.validateEvent(event)
-    return outgoing.run(new Event(event.name), event)
+    return Promise.fromCallback(callback => outgoing.run(event, callback))
   }
 
   private validateEvent(event: BotpressEvent) {

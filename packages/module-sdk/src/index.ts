@@ -2,7 +2,7 @@ export type MiddlewareDefinition = {
   name: string
   description: string
   order: number
-  handler: string
+  handler: Function
   enabled?: boolean
   /**
    * @deprecated since version 12.0
