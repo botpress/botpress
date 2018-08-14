@@ -11,6 +11,7 @@ export interface IDisposeOnExit {
 }
 
 export interface BotpressEvent {
+  id?: string
   bot?: {
     id?: string
     botId?: string
