@@ -13,6 +13,7 @@ import { Logger } from './misc/interfaces'
 import { TYPES } from './misc/types'
 import { ModuleLoader } from './module-loader'
 import HTTPServer from './server'
+import { HookService } from './services/hook/hook-service'
 
 @injectable()
 export class Botpress {
@@ -30,7 +31,8 @@ export class Botpress {
     private logger: Logger,
     @inject(TYPES.HTTPServer) private httpServer: HTTPServer,
     @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
-    @inject(TYPES.BotLoader) private botLoader: BotLoader
+    @inject(TYPES.BotLoader) private botLoader: BotLoader,
+    @inject(TYPES.HookService) private hookService: HookService
   ) {
     this.version = packageJson.version
     this.botpressPath = path.join(process.cwd(), 'dist')
@@ -52,6 +54,8 @@ export class Botpress {
     await this.loadModules()
     await this.initializeServices()
     await this.startServer()
+
+    await this.hookService.executeHook('after_bot_start')
   }
 
   private async initializeServices() {
