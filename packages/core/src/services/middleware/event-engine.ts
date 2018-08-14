@@ -1,3 +1,4 @@
+import { MiddlewareDefinition } from 'botpress-module-sdk'
 import { inject, injectable, tagged } from 'inversify'
 import joi from 'joi'
 
@@ -22,7 +23,7 @@ const eventSchema = {
 
 const mwSchema = {
   name: joi.string().required(),
-  handler: joi.string().required(),
+  handler: joi.func().required(),
   type: joi
     .string()
     .required()
