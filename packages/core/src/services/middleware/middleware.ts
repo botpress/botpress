@@ -4,13 +4,12 @@
  * @property {string} target - The target of the event for a specific plateform, i.e
  */
 export type BotpressEvent = {
-  name: string
   type: string
   channel: string
   target: string
   direction: string
-  text: string
-  raw: string
+  text?: string
+  raw?: string
 }
 
 export default () => {
@@ -25,7 +24,7 @@ export default () => {
     }
   }
 
-  const run = (args: any, done: Function) => {
+  const run = (args: any[], done: Function) => {
     let index = stack.length
 
     const next = (error?, fin?) => {

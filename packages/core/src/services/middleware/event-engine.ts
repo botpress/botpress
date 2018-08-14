@@ -2,6 +2,8 @@ import { MiddlewareDefinition } from 'botpress-module-sdk'
 import { inject, injectable, tagged } from 'inversify'
 import joi from 'joi'
 
+import BluebirdPromise from 'bluebird'
+
 import { Logger } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
 
@@ -11,23 +13,23 @@ const incoming = middleware()
 const outgoing = middleware()
 
 const eventSchema = {
-  name: joi.string().required(),
   type: joi.string().required(),
   channel: joi.string().required(),
   target: joi.string().required(),
   direction: joi
     .string()
-    .required()
     .regex(/(incoming|outgoing)/g)
+    .required()
 }
 
 const mwSchema = {
   name: joi.string().required(),
   handler: joi.func().required(),
+  description: joi.string().required(),
   type: joi
     .string()
-    .required()
-    .regex(/(incoming|outgoing)/g),
+    .regex(/(incoming|outgoing)/g)
+    .required(),
   order: joi.number().default(0),
   enabled: joi.boolean().default(true)
 }
@@ -58,12 +60,12 @@ export class ScoppedEventEngine {
 
   async sendIncoming(event: BotpressEvent): Promise<any> {
     this.validateEvent(event)
-    return Promise.fromCallback(callback => incoming.run(event, callback))
+    return BluebirdPromise.fromCallback(callback => incoming.run([event], callback))
   }
 
   async sendOutgoing(event: BotpressEvent): Promise<any> {
     this.validateEvent(event)
-    return Promise.fromCallback(callback => outgoing.run(event, callback))
+    return BluebirdPromise.fromCallback(callback => outgoing.run([event], callback))
   }
 
   private validateEvent(event: BotpressEvent) {
