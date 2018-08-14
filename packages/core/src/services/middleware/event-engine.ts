@@ -7,7 +7,21 @@ import BluebirdPromise from 'bluebird'
 import { Logger } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
 
-import middleware, { BotpressEvent } from './middleware'
+import middleware from './middleware'
+
+/**
+ * @property {string} type - The type of the event, i.e. image, text, timeout, etc
+ * @property {string} channel - The channel of communication, i.e web, messenger, twillio
+ * @property {string} target - The target of the event for a specific plateform, i.e
+ */
+export type BotpressEvent = {
+  type: string
+  channel: string
+  target: string
+  direction: string
+  text?: string
+  raw?: string
+}
 
 const incoming = middleware()
 const outgoing = middleware()
