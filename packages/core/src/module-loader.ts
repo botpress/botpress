@@ -1,13 +1,15 @@
-import axios from 'axios'
 import { ModuleMetadata } from 'botpress-module-sdk'
+import fs from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
-import { Memoize, Throttle } from 'lodash-decorators'
-import ms from 'ms'
+import { Memoize } from 'lodash-decorators'
+import path from 'path'
 
 import { ConfigProvider } from './config/config-loader'
+import { ModuleConfig } from './config/module.config'
 import { ModuleConfigEntry, ModulesConfig } from './config/modules.config'
 import { Logger } from './misc/interfaces'
 import { TYPES } from './misc/types'
+import FlowService from './services/dialog/flow-service'
 
 export type AvailableModule = {
   metadata: ModuleMetadata
@@ -16,55 +18,68 @@ export type AvailableModule = {
 
 @injectable()
 export class ModuleLoader {
+  private loadedModules = []
+
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'ModuleLoader')
     private logger: Logger,
-    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider
+    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
+    @inject(TYPES.ProjectLocation) private projectLocation: string
   ) {}
 
-  @Memoize()
   private async loadConfiguration(): Promise<ModulesConfig> {
     return this.configProvider.getModulesConfig()
   }
 
-  @Memoize()
   private async alertUnavailableModule(moduleUrl: string) {
     this.logger.warn(`Module at "${moduleUrl}" is not available`)
   }
 
-  @Throttle(ms('5m'))
-  async getAvailableModules(): Promise<AvailableModule[]> {
+  @Memoize()
+  public async loadEnabledModules() {
     const config = await this.loadConfiguration()
-    const available: Map<string, AvailableModule> = new Map()
 
-    for (const module of config.modules) {
-      try {
-        const { data } = await axios.get(`${module.url}/register`)
-        const metadata = <ModuleMetadata>data
+    const modules = new Map<string, ModuleMetadata>()
 
-        // TODO Do more sophisticated check if metadata is valid
-        if (!metadata || !metadata.name) {
-          this.logger.error(`Invalid metadata received from module at "${module.url}". This module will be ignored.`)
-          continue
-        }
-        const moduleName = metadata.name.toLowerCase()
-        if (available.has(moduleName)) {
-          this.logger.error(`Duplicated module "${moduleName}". This one will be ignored ("${module.url}".)`)
-        } else {
-          available.set(moduleName, {
-            metadata: metadata,
-            definition: module
-          })
-          this.logger.info(`Loaded ${moduleName}, version ${metadata.version}`)
-        }
-      } catch (err) {
-        this.alertUnavailableModule(module.url)
+    for (const module of config.modules.filter(m => m.enabled)) {
+      if (modules.has(module.name)) {
+        throw new Error(`There's already a module "${module.name}" registered`)
       }
+
+      const moduleFolder = path.resolve(this.projectLocation, 'modules', module.name)
+      const moduleConfig = await this.getModuleConfig(moduleFolder)
+
+      const initFile = path.resolve(moduleFolder, moduleConfig.initFile)
+      if (!fs.existsSync(initFile)) {
+        throw new Error(`Module init file not found at "${initFile}"`)
+      }
+
+      const moduleInit = eval('require(initFile)')
+
+      // moduleInit({ bp: {} }) // TODO Implement BotpressAPI
+
+      this.logger.info(`Loaded "${module.name}" (v${moduleConfig.version})`)
+
+      this.alertUnavailableModule(module.name)
     }
+  }
 
-    const modules = Array.from(available.values())
+  private async getModuleConfig(moduleFolder: string) {
+    const moduleConfigFile = path.join(moduleFolder, 'module.config.json')
+    if (!fs.existsSync(moduleConfigFile)) {
+      throw new Error(`Invalid module, necessary file "${moduleConfigFile}" not found`)
+    }
+    const content = await fs.readJSON(moduleConfigFile, { throws: false, encoding: 'utf8' })
+    if (!content || !content.version) {
+      throw new Error(`Invalid module definition "${moduleConfigFile}"`)
+    }
+    return <ModuleConfig>content
+  }
 
-    return modules
+  @Memoize()
+  public async getAvailableModules(): Promise<AvailableModule[]> {
+    await this.loadEnabledModules()
+    return this.loadedModules
   }
 }

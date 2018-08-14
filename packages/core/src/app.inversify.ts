@@ -1,11 +1,12 @@
 import { Container } from 'inversify'
 import path from 'path'
+import { types } from 'util'
 
 import { BotLoader } from './bot-loader'
 import { Botpress } from './botpress'
 import { ConfigProvider, GhostConfigProvider } from './config/config-loader'
 import { DatabaseContainerModule } from './database/database.inversify'
-import ConsoleLogger from './logger'
+import ConsoleLogger, { LoggerProvider } from './logger'
 import { Logger } from './misc/interfaces'
 import { applyDisposeOnExit } from './misc/inversify'
 import { TYPES } from './misc/types'
@@ -33,6 +34,11 @@ container.bind<string>(TYPES.Logger_Name).toDynamicValue(ctx => {
 })
 
 container.bind<Logger>(TYPES.Logger).to(ConsoleLogger)
+container.bind<LoggerProvider>(TYPES.LoggerProvider).toProvider<Logger>(context => {
+  return async name => {
+    return context.container.getTagged<Logger>(TYPES.Logger, 'name', name)
+  }
+})
 
 container
   .bind<ModuleLoader>(TYPES.ModuleLoader)

@@ -47,13 +47,17 @@ export default class DiskStorageDriver implements StorageDriver {
 
   async directoryListing(folder: string, fileEndingPattern: string): Promise<string[]> {
     const isDirectoryRange = folder.includes('*')
-    let pattern = `**/*${fileEndingPattern}`
+    let pattern = fileEndingPattern.startsWith('.') ? `**/*${fileEndingPattern}` : `**/${fileEndingPattern}`
     let directory = folder
 
     if (isDirectoryRange) {
       directory = folder.substr(0, folder.indexOf('*'))
       const rootDir = folder.substr(folder.indexOf('*') + 1)
       pattern = path.join(rootDir, '/' + pattern)
+    }
+
+    while (pattern.startsWith('/')) {
+      pattern = pattern.substr(1)
     }
 
     try {

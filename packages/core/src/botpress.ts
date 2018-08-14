@@ -49,8 +49,8 @@ export class Botpress {
 
     await this.trackStats()
     await this.createDatabase()
-    await this.loadModules()
     await this.initializeServices()
+    await this.loadModules()
     await this.startServer()
   }
 

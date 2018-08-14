@@ -1,32 +1,14 @@
 {
   "name": "Botpress 123 Test",
   "description": "Test lol",
+  "active": true,
   "version": "1.2.3",
   "author": "Botpress, Inc.",
   "license": "AGPL-3.0",
-  "modules": [
-    {
-      "name": "channel-web",
-      "incomingMiddleware": [
-        {
-          "name": "test.incoming.middleware",
-          "enabled": false,
-          "order": 4
-        },
-        {
-          "name": "test.incoming.middleware3",
-          "enabled": true,
-          "order": 1
-        }
-      ],
-      "outgoingMiddleware": [
-        {
-          "name": "test.outgoing.middleware",
-          "enabled": true
-        }
-      ],
-      "enabled": true
-    }
-  ],
-  "enabledContentTypes": ["builtin_text", "builtin_single-choice", "builtin_image"]
+  "imports": {
+    "modules": ["channel-web"],
+    "incomingMiddleware": ["test.incoming.middleware"],
+    "outgoingMiddleware": ["test.outgoing.middleware"],
+    "contentTypes": ["builtin_text", "builtin_single-choice", "builtin_image"]
+  }
 }

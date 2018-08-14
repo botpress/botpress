@@ -1,12 +1,23 @@
-import { DatabaseConfig } from './database.config'
+export type DatabaseType = 'postgres' | 'sqlite'
+
+export interface DatabaseConfig {
+  migrations?: string
+  type: DatabaseType
+  url?: string
+  location?: string
+  host?: string
+  port?: number
+  user?: string
+  password?: string
+  ssl?: boolean
+  database?: string
+}
 
 export type BotpressConfig = {
   httpServer: {
-    /** BP_HTTP_HOST */
     host?: string
     port: number
     backlog: number
   }
   database: DatabaseConfig
-  bots: string[]
 }
