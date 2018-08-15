@@ -5,7 +5,7 @@
   "description": "Botpress development bot",
   "private": true,
   "engines": {
-    "node": ">= 6.1 <= 8.9"
+    "node": ">= 8 < 11"
   },
   "dependencies": {
     "@botpress/audience": "^10.32.0",

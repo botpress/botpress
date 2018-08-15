@@ -4,7 +4,7 @@
   "description": "<%= description %>",
   "main": "index.js",
   "engines": {
-    "node": ">= 6.1 < 9"
+    "node": ">= 8 < 11"
   },
   "dependencies": {
     "botpress": "<%= version %>",
