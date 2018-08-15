@@ -6,7 +6,7 @@ import nanoid from 'nanoid'
 import { Logger } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
 
-import { defaultOptions, Job, JobWrapper, Queue, QueueOptions } from '.'
+import { defaultOptions, Job, JobWithEvent, JobWrapper, Queue, QueueOptions } from '.'
 
 @injectable()
 export default class MemoryQueue implements Queue {
@@ -33,8 +33,12 @@ export default class MemoryQueue implements Queue {
     }
   }
 
+  async isEmpty() {
+    return !this.queue.length
+  }
+
   getQueueId(job: Job): string {
-    const event = job.event || job
+    const event = (job as JobWithEvent).event || job
 
     return (
       (_.get(event, 'bot.id') ||

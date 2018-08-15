@@ -11,16 +11,16 @@ export interface IDisposeOnExit {
 }
 
 export interface BotpressEvent {
-  id?: string
+  id?: string | number
   bot?: {
-    id?: string
-    botId?: string
+    id?: string | number
+    botId?: string | number
   }
-  botId?: string
+  botId?: string | number
   user?: {
-    id?: string
-    userId?: string
+    id?: string | number
+    userId?: string | number
   }
-  userId?: string
+  userId?: string | number
   raw?: BotpressEvent
 }

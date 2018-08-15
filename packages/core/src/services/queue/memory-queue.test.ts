@@ -7,7 +7,7 @@ import Queue from './memory-queue'
 
 describe('Memory Queue', () => {
   const options = { retries: 1 }
-  let logger, queue
+  let logger, queue: Queue
 
   beforeEach(() => {
     logger = { warn: jest.fn(), error: jest.fn() }
@@ -15,17 +15,17 @@ describe('Memory Queue', () => {
   })
 
   it('Respects order (sync)', async () => {
-    const order: string[] = []
+    const order: number[] = []
 
     queue.subscribe((event: BotpressEvent) => {
-      order.push(event.id!) // Sync processing
+      order.push(event.id! as number) // Sync processing
     })
 
     for (let i = 0; i < 10; i++) {
-      queue.enqueue({ userId: 'a', id: i })
+      await queue.enqueue({ userId: 'a', id: i })
     }
 
-    while (queue.queue.length) {
+    while (!(await queue.isEmpty())) {
       await Promise.delay(1)
     }
 
@@ -34,18 +34,18 @@ describe('Memory Queue', () => {
   })
 
   it('Respects order (async)', async () => {
-    const order: string[] = []
+    const order: number[] = []
 
     queue.subscribe(async (event: BotpressEvent) => {
       await Promise.delay(1) // Async processing
-      order.push(event.id!)
+      order.push(event.id! as number)
     })
 
     for (let i = 0; i < 10; i++) {
-      queue.enqueue({ userId: 'a', id: i })
+      await queue.enqueue({ userId: 'a', id: i })
     }
 
-    while (queue.queue.length) {
+    while (!(await queue.isEmpty())) {
       await Promise.delay(5)
     }
 
@@ -56,7 +56,7 @@ describe('Memory Queue', () => {
   })
 
   it('Retries failed jobs once', async () => {
-    const order: string[] = []
+    const order: number[] = []
 
     let i = 0
 
@@ -66,12 +66,12 @@ describe('Memory Queue', () => {
         throw new Error('Failed job')
       }
 
-      order.push(event.id!)
+      order.push(event.id! as number)
     })
 
-    queue.enqueue({ userId: 'a', id: 1 })
+    await queue.enqueue({ userId: 'a', id: 1 })
 
-    while (queue.queue.length) {
+    while (!(await queue.isEmpty())) {
       await Promise.delay(5)
     }
     await Promise.delay(5)
@@ -83,19 +83,19 @@ describe('Memory Queue', () => {
   })
 
   it('Abandon retrying after two errors', async () => {
-    const order: string[] = []
+    const order: number[] = []
     let i = 0
     queue.subscribe(async (event: BotpressEvent) => {
       if (i <= 1) {
         i++
         throw new Error('Failed job')
       }
-      order.push(event.id!)
+      order.push(event.id! as number)
     })
 
-    queue.enqueue({ userId: 'a', id: 1 })
+    await queue.enqueue({ userId: 'a', id: 1 })
 
-    while (queue.queue.length) {
+    while (!(await queue.isEmpty())) {
       await Promise.delay(5)
     }
     await Promise.delay(5)
@@ -107,19 +107,19 @@ describe('Memory Queue', () => {
   })
 
   it('Runs in parallel for different users', async () => {
-    const order: string[] = []
+    const order: number[] = []
     queue.subscribe(async (event: BotpressEvent) => {
-      order.push(event.id!)
+      order.push(event.id! as number)
       if (event.userId === 'a') {
         await Promise.delay(5)
       }
     })
 
-    queue.enqueue({ userId: 'a', id: 1 })
-    queue.enqueue({ userId: 'a', id: 3 }) // This message will be locked
-    queue.enqueue({ userId: 'b', id: 2 }) // But this message will process even if user 'a' is locked
+    await queue.enqueue({ userId: 'a', id: 1 })
+    await queue.enqueue({ userId: 'a', id: 3 }) // This message will be locked
+    await queue.enqueue({ userId: 'b', id: 2 }) // But this message will process even if user 'a' is locked
 
-    while (queue.queue.length) {
+    while (!(await queue.isEmpty())) {
       await Promise.delay(5)
     }
     await Promise.delay(5)
@@ -129,24 +129,24 @@ describe('Memory Queue', () => {
   })
 
   it('Cancels all only for requested user', async () => {
-    const userListA: string[] = []
-    const userListB: string[] = []
+    const userListA: number[] = []
+    const userListB: number[] = []
     queue.subscribe(async (event: BotpressEvent) => {
       await Promise.delay(1)
       if (event.userId === 'a') {
-        userListA.push(event.id!)
+        userListA.push(event.id! as number)
       }
       if (event.userId === 'b') {
-        userListB.push(event.id!)
+        userListB.push(event.id! as number)
       }
     })
 
     for (let i = 0; i < 10; i++) {
-      queue.enqueue({ userId: 'a', id: i })
+      await queue.enqueue({ userId: 'a', id: i })
     }
-    queue.cancelAll({ userId: 'a' })
+    await queue.cancelAll({ userId: 'a' })
     for (let i = 10; i < 20; i++) {
-      queue.enqueue({ userId: 'b', id: i })
+      await queue.enqueue({ userId: 'b', id: i })
     }
 
     await Promise.delay(25)
