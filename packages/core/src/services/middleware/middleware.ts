@@ -1,26 +1,27 @@
-export default () => {
+import _ from 'lodash'
+
+export const MiddlewareManager = () => {
   const stack: Function[] = []
 
-  const use = (...fns: Function[]) => {
-    let index = fns.length
-    while (index--) {
-      const fn = fns[index]
-      if (Array.isArray(fn)) return use(...fn)
-      stack.unshift(fn)
-    }
+  const use = (fn: Function) => {
+    stack.unshift(fn)
   }
 
   const run = (args: any[], done: Function) => {
     let index = stack.length
 
-    const next = (error?, fin?) => {
-      if (error || fin || !index) {
-        if ('function' === typeof done) done(error)
+    const next = (error?) => {
+      if (!index) {
+        done(error)
         return
       }
-      stack[--index].apply(undefined, [...args, next])
+
+      const fn = stack[--index]
+      fn(args)
+      next()
     }
     next()
   }
+
   return { use, run }
 }

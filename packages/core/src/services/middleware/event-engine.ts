@@ -1,13 +1,12 @@
+import 'bluebird-global'
 import { MiddlewareDefinition } from 'botpress-module-sdk'
 import { inject, injectable, tagged } from 'inversify'
 import joi from 'joi'
 
-import BluebirdPromise from 'bluebird'
-
 import { Logger } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
 
-import middleware from './middleware'
+import { MiddlewareManager } from './middleware'
 
 /**
  * @property {string} type - The type of the event, i.e. image, text, timeout, etc
@@ -23,8 +22,8 @@ export type BotpressEvent = {
   raw?: string
 }
 
-const incoming = middleware()
-const outgoing = middleware()
+const incoming = MiddlewareManager()
+const outgoing = MiddlewareManager()
 
 const eventSchema = {
   type: joi.string().required(),
@@ -59,9 +58,9 @@ export class ScoppedEventEngine {
     this.middleware.filter(mw => mw.type === 'outgoing').map(mw => this.useMiddleware(mw, outgoing))
   }
 
-  private useMiddleware(mw: MiddlewareDefinition, mware: any) {
+  private useMiddleware(mw: MiddlewareDefinition, manager) {
     this.valideMw(mw)
-    mware.use(mw.handler)
+    manager.use(mw.handler)
   }
 
   private valideMw(middleware: MiddlewareDefinition) {
@@ -74,12 +73,12 @@ export class ScoppedEventEngine {
 
   async sendIncoming(event: BotpressEvent): Promise<any> {
     this.validateEvent(event)
-    return BluebirdPromise.fromCallback(callback => incoming.run([event], callback))
+    return await Promise.fromCallback(callback => incoming.run([event], callback))
   }
 
   async sendOutgoing(event: BotpressEvent): Promise<any> {
     this.validateEvent(event)
-    return BluebirdPromise.fromCallback(callback => outgoing.run([event], callback))
+    return await Promise.fromCallback(callback => outgoing.run([event], callback))
   }
 
   private validateEvent(event: BotpressEvent) {
