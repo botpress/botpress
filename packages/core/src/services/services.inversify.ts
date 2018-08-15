@@ -10,6 +10,8 @@ import DiskStorageDriver from './ghost/disk-driver'
 import MemoryObjectCache from './ghost/memory-cache'
 import GhostService from './ghost/service'
 import { MiddlewareService } from './middleware/middleware-service'
+import { Queue } from './queue'
+import MemoryQueue from './queue/memory-queue'
 
 export const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
   bind<MiddlewareService>(TYPES.MiddlewareService).to(MiddlewareService)
@@ -32,4 +34,6 @@ export const ServicesContainerModule = new ContainerModule((bind: interfaces.Bin
   bind<ActionService>(TYPES.ActionService)
     .to(ActionService)
     .inSingletonScope()
+
+  bind<Queue>(TYPES.Queue).to(MemoryQueue)
 })
