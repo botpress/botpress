@@ -3,6 +3,7 @@ export type MiddlewareDefinition = {
   description: string
   order: number
   handler: Function
+  direction: string
   enabled?: boolean
   /**
    * @deprecated since version 12.0

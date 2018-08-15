@@ -2,6 +2,7 @@ import 'bluebird-global'
 import { MiddlewareDefinition } from 'botpress-module-sdk'
 import { inject, injectable, tagged } from 'inversify'
 import joi from 'joi'
+import { VError } from 'verror'
 
 import { Logger } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
@@ -32,14 +33,16 @@ const eventSchema = {
   direction: joi
     .string()
     .regex(/(incoming|outgoing)/g)
-    .required()
+    .required(),
+  text: joi.string().optional(),
+  raw: joi.object().optional()
 }
 
 const mwSchema = {
   name: joi.string().required(),
   handler: joi.func().required(),
   description: joi.string().required(),
-  type: joi
+  direction: joi
     .string()
     .regex(/(incoming|outgoing)/g)
     .required(),
@@ -47,15 +50,15 @@ const mwSchema = {
   enabled: joi.boolean().default(true)
 }
 
-export class ScoppedEventEngine {
+export class ScopedEventEngine {
   private middleware!: MiddlewareDefinition[]
 
   constructor(private botId: string, private logger: Logger) {}
 
   async load(middleware: MiddlewareDefinition[]) {
     this.middleware = middleware
-    this.middleware.filter(mw => mw.type === 'incoming').map(mw => this.useMiddleware(mw, incoming))
-    this.middleware.filter(mw => mw.type === 'outgoing').map(mw => this.useMiddleware(mw, outgoing))
+    this.middleware.filter(mw => mw.direction === 'incoming').map(mw => this.useMiddleware(mw, incoming))
+    this.middleware.filter(mw => mw.direction === 'outgoing').map(mw => this.useMiddleware(mw, outgoing))
   }
 
   private useMiddleware(mw: MiddlewareDefinition, manager) {
@@ -66,7 +69,7 @@ export class ScoppedEventEngine {
   private valideMw(middleware: MiddlewareDefinition) {
     joi.validate(middleware, mwSchema, err => {
       if (err) {
-        throw new Error('Could not process middleware. ' + err)
+        throw new VError(err, `Invalid middleware function`)
       }
     })
   }
@@ -84,7 +87,7 @@ export class ScoppedEventEngine {
   private validateEvent(event: BotpressEvent) {
     joi.validate(event, eventSchema, err => {
       if (err) {
-        throw new Error('Could not process botpress event. ' + err)
+        throw new VError(err, `Invalid Botpress Event`)
       }
     })
   }
@@ -98,7 +101,7 @@ export class EventEngine {
     private logger: Logger
   ) {}
 
-  async forBot(botId: string): Promise<ScoppedEventEngine> {
-    return new ScoppedEventEngine(botId, this.logger)
+  forBot(botId: string): ScopedEventEngine {
+    return new ScopedEventEngine(botId, this.logger)
   }
 }

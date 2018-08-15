@@ -1,20 +1,20 @@
 import 'jest-extended'
 import 'reflect-metadata'
 
-import { ScoppedEventEngine } from './event-engine'
+import { ScopedEventEngine } from './event-engine'
 
 const mockLogger = { debug: () => {}, info: () => {}, warn: () => {}, error: () => {} }
 
 describe('EventEngine', () => {
-  const engine = new ScoppedEventEngine('bot123', mockLogger)
+  const engine = new ScopedEventEngine('bot123', mockLogger)
   const incomingMw = {
-    name: 'Some name',
-    type: 'incoming',
-    description: 'Some description',
+    name: 'Name',
+    direction: 'incoming',
+    description: 'Description',
     order: 0,
     handler: jest.fn()
   }
-  const outgoingMw = { ...incomingMw, type: 'outgoing', handler: jest.fn() }
+  const outgoingMw = { ...incomingMw, direction: 'outgoing', handler: jest.fn() }
 
   beforeEach(() => {
     engine.load([incomingMw, outgoingMw])
