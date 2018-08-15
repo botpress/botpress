@@ -7,7 +7,7 @@ import { VError } from 'verror'
 import { Logger } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
 
-import { MiddlewareManager } from './middleware'
+import { MiddlewareChain } from './middleware'
 
 /**
  * @property {string} type - The type of the event, i.e. image, text, timeout, etc
@@ -23,8 +23,8 @@ export type BotpressEvent = {
   raw?: string
 }
 
-const incoming = MiddlewareManager()
-const outgoing = MiddlewareManager()
+const incoming = MiddlewareChain()
+const outgoing = MiddlewareChain()
 
 const eventSchema = {
   type: joi.string().required(),
@@ -76,12 +76,12 @@ export class ScopedEventEngine {
 
   async sendIncoming(event: BotpressEvent): Promise<any> {
     this.validateEvent(event)
-    return await Promise.fromCallback(callback => incoming.run([event], callback))
+    return await incoming.run(event)
   }
 
   async sendOutgoing(event: BotpressEvent): Promise<any> {
     this.validateEvent(event)
-    return await Promise.fromCallback(callback => outgoing.run([event], callback))
+    return await outgoing.run(event)
   }
 
   private validateEvent(event: BotpressEvent) {
