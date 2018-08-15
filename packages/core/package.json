@@ -65,7 +65,8 @@
     "@types/ms": "^0.7.30",
     "@types/nanoid": "^1.0.0",
     "@types/verror": "^1.10.3",
-    "concurrently": "^3.6.0"
+    "concurrently": "^3.6.0",
+    "jest-extended": "^0.8.1"
   },
   "pkg": {
     "assets": [
