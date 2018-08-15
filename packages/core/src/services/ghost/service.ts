@@ -1,7 +1,8 @@
-import { inject, injectable } from 'inversify'
+import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import path from 'path'
 
+import { Logger } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
 import { isValidBotId } from '../../misc/validation'
 
@@ -49,11 +50,14 @@ export default class GhostService {
 
   constructor(
     @inject(TYPES.StorageDriver) private driver: StorageDriver,
-    @inject(TYPES.ObjectCache) private cache: ObjectCache
+    @inject(TYPES.ObjectCache) private cache: ObjectCache,
+    @inject(TYPES.Logger)
+    @tagged('name', 'GhostService')
+    private logger: Logger
   ) {}
 
   global(): ScoppedGhostService {
-    return new ScoppedGhostService(`./data/global`, this.driver, this.trackedFolders, this.cache)
+    return new ScoppedGhostService(`./data/global`, this.driver, this.trackedFolders, this.cache, this.logger)
   }
 
   forBot(botId: string): ScoppedGhostService {
@@ -61,11 +65,11 @@ export default class GhostService {
       throw new Error(`Invalid botId "${botId}"`)
     }
 
-    return new ScoppedGhostService(`./data/bots/${botId}`, this.driver, this.trackedFolders, this.cache)
+    return new ScoppedGhostService(`./data/bots/${botId}`, this.driver, this.trackedFolders, this.cache, this.logger)
   }
 
   forAllBots(): ScoppedGhostService {
-    return new ScoppedGhostService(`./data/bots/*`, this.driver, this.trackedFolders, this.cache)
+    return new ScoppedGhostService(`./data/bots/*`, this.driver, this.trackedFolders, this.cache, this.logger)
   }
 }
 
@@ -76,7 +80,8 @@ export class ScoppedGhostService {
     private baseDir: string,
     private driver: StorageDriver,
     private trackedFolders: TrackedFolders,
-    private cache: ObjectCache
+    private cache: ObjectCache,
+    private logger: Logger
   ) {
     if (![-1, this.baseDir.length - 1].includes(this.baseDir.indexOf('*'))) {
       throw new Error(`Base directory can only contain '*' at the end of the path`)
@@ -166,13 +171,13 @@ export class ScoppedGhostService {
   }
 
   async directoryListing(rootFolder: string, fileEndingPattern: string, pathsToOmit?: string[]): Promise<string[]> {
-    const files = await this.driver.directoryListing(this.normalizeFolderName(rootFolder), fileEndingPattern)
-
-    if (pathsToOmit) {
-      return files.filter(path => !pathsToOmit.includes(path))
-    } else {
-      return files
+    try {
+      const files = await this.driver.directoryListing(this.normalizeFolderName(rootFolder), fileEndingPattern)
+      return pathsToOmit ? files.filter(path => !pathsToOmit.includes(path)) : files
+    } catch (err) {
+      this.logger.error(`Could not list directory under ${rootFolder}. ${err}`)
     }
+    return []
   }
 
   getPending(): Promise<GhostPendingRevisions> {

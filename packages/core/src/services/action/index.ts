@@ -3,9 +3,9 @@ import { inject, injectable, postConstruct, tagged } from 'inversify'
 import { Logger } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
 import GhostContentService from '../ghost/service'
+import { runCode } from '../sandbox/sandbox-launcher'
 
 import { ActionMetadata, extractMetadata } from './metadata'
-import { runCode } from './sandbox-launcher'
 
 @injectable()
 export default class ActionService {

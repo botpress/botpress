@@ -1,11 +1,10 @@
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
-import { NodeVM, VMScript } from 'vm2'
 
-import Database from '../../database'
 import { Logger } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
 import GhostService from '../ghost/service'
+import { runCode } from '../sandbox/sandbox-launcher'
 
 type Hook =
   | 'after_bot_start'
@@ -16,7 +15,7 @@ type Hook =
   | 'after_timeout'
 
 class HookScript {
-  constructor(public path: string, public file: string) {}
+  constructor(public hook: Hook, public path: string, public file: string) {}
 }
 
 @injectable()
@@ -25,53 +24,28 @@ export class HookService {
     @inject(TYPES.Logger)
     @tagged('name', 'HookService')
     private logger: Logger,
-    @inject(TYPES.GhostService) private ghost: GhostService,
-    @inject(TYPES.Database) private database: Database
+    @inject(TYPES.GhostService) private ghost: GhostService
   ) {
-    ghost.global().addRootFolder('hooks')
+    ghost.global().addRootFolder('hooks', { filesGlob: '**/*.js' })
   }
 
   async executeHook(hook: Hook): Promise<void> {
     const scripts = await this.extractScripts(hook)
-    await Promise.map(scripts, script => this.runScript(script))
+    scripts.forEach(script => this.runScript(script))
   }
 
   private async extractScripts(hook: Hook): Promise<HookScript[]> {
-    const scripts: HookScript[] = []
-    try {
-      const filesPaths = await this.ghost.global().directoryListing('hooks/' + hook, '*.js')
+    const filesPaths = await this.ghost.global().directoryListing('hooks/' + hook, '*.js')
 
-      for (const path of filesPaths) {
-        const file = await this.ghost.global().readFileAsString('hooks/' + hook, path)
-        const hookScript = new HookScript(path, file)
-        scripts.push(hookScript)
-      }
-    } catch (err) {
-      if (err.cause().code === 'ENOENT') {
-        this.logger.error(`Could not find any hooks for '${hook}'. ${err.cause().message}`)
-      }
-    }
-
-    return scripts
+    return Promise.map(filesPaths, async path => {
+      const file = await this.ghost.global().readFileAsString('hooks/' + hook, path)
+      return new HookScript(hook, path, file)
+    })
   }
 
-  private async runScript(hookScript: HookScript) {
-    const vm = new NodeVM({
-      timeout: 5000,
-      console: 'inherit',
-      sandbox: {
-        database: this.database
-      },
-      require: {
-        external: true
-      }
-    })
-    const script = new VMScript(hookScript.file)
-
-    try {
-      vm.run(script)
-    } catch (err) {
-      this.logger.error(`Could not run script : ${hookScript.path}. ${err}`)
-    }
+  private runScript(hookScript: HookScript) {
+    runCode(hookScript.file, {})
+      .then(() => this.logger.debug(`Executed '${hookScript.path}' on '${hookScript.hook}'`))
+      .catch(() => this.logger.error(`Could not execute '${hookScript.path}' on '${hookScript.hook}'`))
   }
 }
