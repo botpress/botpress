@@ -3,7 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-      <a name="10.31.0"></a>
+  <a name="10.32.0"></a>
+# [10.32.0](https://github.com/botpress/botpress/compare/v10.31.0...v10.32.0) (2018-08-15)
+
+
+### Bug Fixes
+
+* **url:** fixed the image url for my GIF ([c8b6cd9](https://github.com/botpress/botpress/commit/c8b6cd9))
+
+
+### Features
+
+* **qna:** display upload CSV status ([efa96ed](https://github.com/botpress/botpress/commit/efa96ed))
+
+
+
+
+  <a name="10.31.0"></a>
 # [10.31.0](https://github.com/botpress/botpress/compare/v10.30.0...v10.31.0) (2018-08-08)
 
 
@@ -26,7 +42,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-      <a name="10.30.0"></a>
+<a name="10.30.0"></a>
 # [10.30.0](https://github.com/botpress/botpress/compare/v10.28.0...v10.30.0) (2018-08-08)
 
 
