@@ -126,7 +126,7 @@ export default class Module extends React.Component {
       })
 
     return (
-      <div>
+      <div className={style.intentsContainer}>
         <div>
           <span>Intents ({intents.length})</span>
           <span className={caret} onClick={this.toggleProp('showNavIntents')}>
@@ -134,7 +134,7 @@ export default class Module extends React.Component {
           </span>
         </div>
         <Collapse in={this.state.showNavIntents}>
-          <ul>
+          <ul className={style.intentsList}>
             {intents.map((el, i) => (
               <li key={i} className={getClassName(el)} onClick={() => this.setCurrentIntent(el.name)}>
                 {el.name}&nbsp;({_.get(el, 'utterances.length') || 0})

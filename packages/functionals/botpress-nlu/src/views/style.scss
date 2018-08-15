@@ -20,6 +20,7 @@ footer {
 .main {
   flex: 1 1 auto;
   display: flex;
+  height: 100%;
 }
 
 .navigationBar {
@@ -28,6 +29,7 @@ footer {
   display: flex;
   flex-direction: column;
   width: 240px;
+  height: 100%;
   background-color: #fcfcfc;
   border-right: 1px solid #e5e5e5;
 
@@ -41,7 +43,7 @@ footer {
       font-size: 14px;
     }
     .checkbox input {
-        width: auto;
+      width: auto;
     }
   }
 
@@ -50,6 +52,7 @@ footer {
     position: relative;
     overflow: hidden;
     padding: 7px;
+    height: 100%;
 
     ul {
       list-style: none;
@@ -89,6 +92,31 @@ footer {
         color: #00d129;
       }
     }
+  }
+}
+
+.intentsContainer {
+  height: 100%;
+}
+
+.intentsList {
+  max-height: calc(100% - 20px);
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #888;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: #555;
   }
 }
 
