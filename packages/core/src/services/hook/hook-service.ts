@@ -1,10 +1,10 @@
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
+import { NodeVM } from 'vm2'
 
 import { Logger } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
 import GhostService from '../ghost/service'
-import { runCode } from '../sandbox/sandbox-launcher'
 
 type Hook =
   | 'after_bot_start'
@@ -44,8 +44,17 @@ export class HookService {
   }
 
   private runScript(hookScript: HookScript) {
-    runCode(hookScript.file, {})
-      .then(() => this.logger.debug(`Executed '${hookScript.path}' on '${hookScript.hook}'`))
-      .catch(() => this.logger.error(`Could not execute '${hookScript.path}' on '${hookScript.hook}'`))
+    const vm = new NodeVM({
+      console: 'inherit',
+      sandbox: {},
+      timeout: 1000
+    })
+
+    try {
+      vm.run(hookScript.file, hookScript.path)
+      this.logger.debug(`Executed '${hookScript.path}' on '${hookScript.hook}'`)
+    } catch (err) {
+      this.logger.error(`Could not execute '${hookScript.path}' on '${hookScript.hook}'`)
+    }
   }
 }
