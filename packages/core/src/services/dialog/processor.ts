@@ -27,6 +27,7 @@ export const DialogProcessor = {
         Object.assign(additionalData, { text: rendered })
       }
 
+      // TODO: Use the EventEngine to send the message instead
       return originalEvent.reply(message.type, additionalData)
     }
   }

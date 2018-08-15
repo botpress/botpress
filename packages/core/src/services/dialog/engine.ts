@@ -1,4 +1,3 @@
-import { SecureServerOptions } from 'http2'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import mware, { Event } from 'mware-ts'
@@ -6,13 +5,11 @@ import { NodeVM } from 'vm2'
 
 import { TYPES } from '../../misc/types'
 import Logger from '../../Logger'
-import { MiddlewareService } from '../middleware/middleware-service'
 
 import { Flow, FlowNode, FlowView } from '.'
 import FlowService from './flow-service'
 import { SessionService } from './session-service'
 
-type Action = {}
 type Context = {
   currentFlow: any
   node: any
@@ -148,16 +145,16 @@ export class ScoppedDialogEngine {
       }
 
       const context = await this.getOrCreateContext(sessionId)
-      let state = await this.sessionService.getSession(sessionId)
+      let session = await this.sessionService.getSession(sessionId)
 
       if (event.type === 'bp_dialog_timeout') {
-        state = await this._processTimeout(sessionId, state, context, event)
+        session = await this._processTimeout(sessionId, session.state, context, event)
 
-        if (!state) {
-          await this.sessionService.createSession(sessionId, state)
+        if (!session) {
+          await this.sessionService.createSession(session)
         }
 
-        return state
+        return session
       }
 
       const msg = (event.text || '').substr(0, 20)
@@ -171,7 +168,7 @@ export class ScoppedDialogEngine {
 
       if (catchAllOnReceive) {
         this._trace('!!', 'KALL', '', context)
-        state = await this._processInstructions(catchAllOnReceive, state, event, context)
+        session = await this._processInstructions(catchAllOnReceive, session, event, context)
       }
 
       // If there's a 'next' defined in catchAll, this will try to match any condition and if it is matched it
@@ -180,21 +177,21 @@ export class ScoppedDialogEngine {
       if (catchAllNext) {
         this._trace('..', 'KALL', '', context)
         for (let i = 0; i < catchAllNext.length; i++) {
-          if (await this._evaluateCondition(catchAllNext[i].condition, state, event)) {
-            return this._processNode(sessionId, state, context, catchAllNext[i].node, event)
+          if (await this._evaluateCondition(catchAllNext[i].condition, session, event)) {
+            return this._processNode(sessionId, session, context, catchAllNext[i].node, event)
           }
         }
 
         this._trace('?X', 'KALL', '', context)
       }
 
-      state = await this._processNode(sessionId, state, context, context.node, event)
+      session = await this._processNode(sessionId, session.state, context, context.node, event)
 
-      if (!_.isNil(state)) {
-        await this.sessionService.createSession(sessionId, state)
+      if (!_.isNil(session)) {
+        await this.sessionService.createSession(session)
       }
 
-      return state
+      return session
     } catch (e) {
       this.errorHandlers.forEach(errorHandler => errorHandler(e))
     }
@@ -287,7 +284,6 @@ export class ScoppedDialogEngine {
          Current flow: ${context.currentFlow.name}
          Current node: ${context.node.name}`
         )
-        return this.endFlow(sessionId)
       }
 
       await this._setContextForSession(sessionId, context)

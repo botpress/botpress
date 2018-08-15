@@ -15,7 +15,7 @@ export class SessionService {
   async setContextForSession(id: string, context: any) {
     const session = await this.sessionRepository.get(id)
     session.context = context
-    await this.sessionRepository.update(id, session)
+    await this.sessionRepository.update(session)
   }
 
   async deleteSession(id: string) {
@@ -26,7 +26,7 @@ export class SessionService {
     return await this.sessionRepository.get(id)
   }
 
-  async createSession(id: string, state: any) {
-    return await this.sessionRepository.upsert(id, state)
+  async createSession(session) {
+    return await this.sessionRepository.upsert(session)
   }
 }
