@@ -20,15 +20,26 @@ jobs:
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
 
+      - restore_cache:
+          keys:
+            - v1-dependencies-core-{{ checksum "/packages/core/package.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-core-
+
       - run:
           name: Install dependencies
           command: cd ~/repo/ && yarn install && yarn bootstrap
 
       - save_cache:
+          key: v1-dependencies-{{ checksum "package.json" }}
           paths:
             - ~/repo/packages/node_modules
-          key: v1-dependencies-{{ checksum "package.json" }}
+
+      - save_cache:
+          key: v1-dependencies-core-{{ checksum "/packages/core/package.json" }}
+          paths:
+            - ~/repo/packages/core/node_modules
 
       - run:
-          name: Run tests
+          name: Run core tests
           command: cd ~/repo/packages/core && yarn run test
