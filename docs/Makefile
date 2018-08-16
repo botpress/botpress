@@ -59,7 +59,7 @@ endif
 
 test-yarn:
 ifndef YARN_EXISTS
-	$(error yarn is not installed. Run `npm install yarn`)
+	$(error yarn is not installed. Run `npm install -g yarn`)
 endif
 
 test-jekyll:

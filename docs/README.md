@@ -47,45 +47,46 @@ Use Jekyll to serve the website locally (by default, at
 ```sh
 $ cd docs
 $ make
-$ open http://127.0.0.1:8080/
+$ open http://127.0.0.1:8080/docs/
 ```
+## Contributing
 
-#### Adding Guides
+### Adding a guide
 
-You should Add a Title and a Description to your Guide.
+There are 3 changes you need to make to be able to add a new guide to the documentation:
 
-```sh
-$ cd docs/
-# First append A new guide to guides.yml
-$ echo "\n- id: New_module
+1. Add the id and root path in `_data/guides.yml`
+```
+- id: "<new-guide>"    
   pages:
-    - path : '/Declared/in/i18n/en.yml'" >> _data/i18n/guides.yml
+  - path: "/<path-to-new-guide/"
+  ```
+2. Define the title and description to be shown on the `/docs/` page in `_data/i18n/en.yml`
 
-# Add a title and a description to your Guides under guides: in your yml
-
-$ echo "\n  New_module:
-    title: 'New_module'
-    description: >
-      How to be cool" >> _data/i18n/en.yml
-
-# Now you have new guides
+Under the `guides:` key you need to add
+```
+<new-guide>:
+    title: "New guide"
+    description: I am a new awesome guide for botpress
+```
+3. Repeat the same information to define the directory
+```
+"/<new-guide>/":
+    title: "New guide"
+    description: I am a new awesome guide for botpress
 ```
 
-#### Adding Pages
+You can now create the directory under `/docs/` (i.e. `/docs/<new-skill>/)` and add the `index.md` file and begin writing your new guide
 
-For adding a page, you should define a path in `_data/i18n/en.yml`.
+### Adding Pages
 
-A Path look like this :
-`"/getting_started/install/":
-  title: "Installation and bootstrap"
-  description: "Installing the Botpress CLI"`
+To add a page, you should repeat step 3 above, defining the path in `_data/i18n/en.yml`.
 
-Under `/getting_started/` add a file name install.md to map your path defined in `_date/i18n/en.yml`.
+```
+"/<new-guide>/<my-page>/":
+    title: "New guide"
+    description: I am a new awesome guide for botpress
+```
+##### Note: you do not need the file extension here (`.md`)
 
-You can also map a Path like this:
-`"/docs/getting_started/":
-  title: "I'M the index.md in /getting_started"
-  description: "Simple description of mapping a index.md"`
-
-
-Under `/getting_started/` add a file name index.md to map your path.
+You can now create the `.md` file under the `/docs/<new-guide>/` directory called `<new-page>.md` and begin writing your page.
