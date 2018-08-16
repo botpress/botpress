@@ -9,6 +9,7 @@
     "concurrently": "^3.6.0",
     "husky": "^0.14.3",
     "jest": "^23.4.1",
+    "jest-extended": "^0.8.1",
     "lerna": "^2.11.0",
     "nodemon": "^1.18.2",
     "pkg": "^4.3.3",

@@ -1,4 +1,3 @@
-import 'bluebird-global'
 import { inject, injectable, tagged } from 'inversify'
 import Knex from 'knex'
 import _ from 'lodash'

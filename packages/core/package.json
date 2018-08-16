@@ -23,7 +23,7 @@
     "axios": "^0.18.0",
     "bluebird-global": "^1.0.1",
     "body-parser": "^1.18.3",
-    "botpress-module-sdk": "^0.0.1",
+    "botpress-module-sdk": "../module-sdk",
     "chalk": "^2.4.1",
     "doctrine": "^2.1.0",
     "dotenv": "^6.0.0",
@@ -33,6 +33,7 @@
     "fs-extra": "^7.0.0",
     "glob": "^7.1.2",
     "inversify": "^4.13.0",
+    "joi": "^13.6.0",
     "knex": "^0.15.2",
     "lodash": "^4.17.10",
     "lodash-decorators": "^6.0.0",
@@ -56,6 +57,7 @@
     "@types/express": "^4.16.0",
     "@types/fs-extra": "^5.0.4",
     "@types/glob": "^5.0.35",
+    "@types/joi": "^13.4.2",
     "@types/knex": "^0.14.17",
     "@types/lodash": "^4.14.112",
     "@types/lru-cache": "^4.1.1",
@@ -63,7 +65,8 @@
     "@types/ms": "^0.7.30",
     "@types/nanoid": "^1.0.0",
     "@types/verror": "^1.10.3",
-    "concurrently": "^3.6.0"
+    "concurrently": "^3.6.0",
+    "jest-extended": "^0.8.1"
   },
   "pkg": {
     "assets": [
