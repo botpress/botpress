@@ -43,11 +43,20 @@ export class KnexSessionRepository implements SessionRepository {
       now: this.knex.date.now()
     }
 
-    const sql = `
-        INSERT INTO :tableName: (id, state, active_on, created_on)
-        VALUES (:id, :state, :now, :now)
-        ON CONFLICT (id) DO UPDATE
-          SET active_on = :now, modified_on = :now, state = :state, context = :context`
+    let sql: string
+    if (this.knex.isLite) {
+      sql = `
+      INSERT OR REPLACE INTO :tableName (id, state, context, active_on, created_on, modified_on)
+      VALUES (:id, :state, :context, :now, :now, :now)
+      `
+    } else {
+      sql = `
+      INSERT INTO :tableName (id, state, context, active_on, created_on, modified_on)
+      VALUES (:id, :state, :context, :now, :now, :now)
+      ON CONFLICT (id) DO UPDATE
+      SET state = :state, context = :context, active_on = :now, modified_on = :now
+      `
+    }
 
     return this.knex.raw(sql, params)
   }
