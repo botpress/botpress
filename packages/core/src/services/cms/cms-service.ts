@@ -41,7 +41,6 @@ export class CMSService implements IDisposeOnExit {
     this.ghost.forAllBots().addRootFolder(this.elementsDir, { filesGlob: '**.json' })
     await this.prepareDb()
     await this.loadContentTypesFromFiles()
-    await this.recomputeCategoriesMetadata()
   }
 
   private async prepareDb() {
@@ -73,11 +72,15 @@ export class CMSService implements IDisposeOnExit {
       contentElements = _.concat(contentElements, fileContentElements)
     }
 
-    return Promise.map(contentElements, async element => {
+    const elements = Promise.map(contentElements, async element => {
       await this.memDb(this.contentTable)
         .insert(this.transformItemApiToDb(botId, element))
         .then(() => this.logger.debug(`Loaded content '${element.id}' for '${botId}'`))
     })
+
+    await this.recomputeElements()
+
+    return elements
   }
 
   private async loadContentTypesFromFiles(): Promise<void> {
@@ -317,7 +320,8 @@ export class CMSService implements IDisposeOnExit {
     return result
   }
 
-  private async recomputeCategoriesMetadata(): Promise<void> {
+  // TODO: Find a way to recompute elements of a single bot
+  private async recomputeElements(): Promise<void> {
     for (const contentType of this.contentTypes) {
       await this.memDb(this.contentTable)
         .select('id', 'formData', 'botId')

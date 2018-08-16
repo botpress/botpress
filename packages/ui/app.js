@@ -79,6 +79,16 @@ app.get(
   })
 )
 
+app.get(
+  '/api/content/items/:itemId',
+  proxy(process.env.CORE_API_URL, {
+    proxyReqPathResolver: (req, res) => {
+      const elementId = req.params.itemId
+      return `/api/v1/bots/bot123/content/elements/${elementId}`
+    }
+  })
+)
+
 httpProxy('/api/flows/all', '/api/v1/bots/bot123/flows', process.env.CORE_API_URL)
 app.post(
   '/api/flows/save',
