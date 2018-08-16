@@ -23,8 +23,8 @@ export type BotpressEvent = {
 }
 
 const directionRegex = /^(incoming|outgoing)$/
-const incomingChain = new MiddlewareChain()
-const outgoingChain = new MiddlewareChain()
+const incomingChain = new MiddlewareChain<BotpressEvent>()
+const outgoingChain = new MiddlewareChain<BotpressEvent>()
 
 const eventSchema = {
   type: joi.string().required(),

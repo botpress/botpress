@@ -10,13 +10,13 @@ const defaultOptions = {
 }
 
 export class MiddlewareChain<T> {
-  private stack: Function[] = []
+  private stack: Array<(event: T, callback: (err?: Error) => void) => void> = new Array()
 
   constructor(private options: MiddlewareChainOptions = defaultOptions) {
     options = { ...defaultOptions, ...options }
   }
 
-  use(fn: Function) {
+  use(fn: any) {
     this.stack.push(fn)
   }
 
