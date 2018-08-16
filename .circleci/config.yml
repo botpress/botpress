@@ -22,7 +22,7 @@ jobs:
 
       - restore_cache:
           keys:
-            - v1-dependencies-core-{{ checksum "/packages/core/package.json" }}
+            - v1-dependencies-core-{{ checksum "packages/core/package.json" }}
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-core-
 
@@ -36,7 +36,7 @@ jobs:
             - ~/repo/packages/node_modules
 
       - save_cache:
-          key: v1-dependencies-core-{{ checksum "/packages/core/package.json" }}
+          key: v1-dependencies-core-{{ checksum "packages/core/package.json" }}
           paths:
             - ~/repo/packages/core/node_modules
 
