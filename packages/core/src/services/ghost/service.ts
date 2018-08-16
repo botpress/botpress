@@ -56,24 +56,24 @@ export default class GhostService {
     private logger: Logger
   ) {}
 
-  global(): ScoppedGhostService {
-    return new ScoppedGhostService(`./data/global`, this.driver, this.trackedFolders, this.cache, this.logger)
+  global(): ScopedGhostService {
+    return new ScopedGhostService(`./data/global`, this.driver, this.trackedFolders, this.cache, this.logger)
   }
 
-  forBot(botId: string): ScoppedGhostService {
+  forBot(botId: string): ScopedGhostService {
     if (!isValidBotId(botId)) {
       throw new Error(`Invalid botId "${botId}"`)
     }
 
-    return new ScoppedGhostService(`./data/bots/${botId}`, this.driver, this.trackedFolders, this.cache, this.logger)
+    return new ScopedGhostService(`./data/bots/${botId}`, this.driver, this.trackedFolders, this.cache, this.logger)
   }
 
-  forAllBots(): ScoppedGhostService {
-    return new ScoppedGhostService(`./data/bots/*`, this.driver, this.trackedFolders, this.cache, this.logger)
+  forAllBots(): ScopedGhostService {
+    return new ScopedGhostService(`./data/bots/*`, this.driver, this.trackedFolders, this.cache, this.logger)
   }
 }
 
-export class ScoppedGhostService {
+export class ScopedGhostService {
   isDirectoryGlob: boolean
 
   constructor(
