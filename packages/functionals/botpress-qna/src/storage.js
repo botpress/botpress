@@ -58,9 +58,10 @@ export default class Storage {
       await this.bp.nlu.storage.deleteIntent(getIntentId(id))
     }
     if (syncNlu) {
-      this.syncNlu()
+      await this.syncNlu()
     }
     await this.ghost.upsertFile(this.qnaDir, `${id}.json`, JSON.stringify({ id, data }, null, 2))
+
     return id
   }
 
@@ -94,7 +95,7 @@ export default class Storage {
     if (data.data.enabled) {
       await this.bp.nlu.storage.deleteIntent(getIntentId(id))
       if (syncNlu) {
-        this.syncNlu()
+        await this.syncNlu()
       }
     }
     await this.ghost.deleteFile(this.qnaDir, `${id}.json`)

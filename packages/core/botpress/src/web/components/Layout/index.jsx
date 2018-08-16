@@ -23,6 +23,7 @@ import FlowBuilder from '~/views/FlowBuilder'
 import Module from '~/views/Module'
 import Notifications from '~/views/Notifications'
 import Logs from '~/views/Logs'
+import BackendToast from '~/components/Util/BackendToast'
 
 import PluginInjectionSite from '~/components/PluginInjectionSite'
 
@@ -50,9 +51,11 @@ class Layout extends React.Component {
       'bp-container': hasHeader
     })
 
+    const toastCodes = ['nlu-sync', 'qna-save']
+
     return (
       <div className="wrapper bp-wrapper">
-        <ToastContainer />
+        <ToastContainer position="bottom-right" />
         <Sidebar>
           <Header />
           <section className={classNames}>
@@ -80,6 +83,7 @@ class Layout extends React.Component {
         <PluginInjectionSite site="overlay" />
         <HelpButton />
         <SelectContentManager />
+        <BackendToast codes={toastCodes} />
       </div>
     )
   }
