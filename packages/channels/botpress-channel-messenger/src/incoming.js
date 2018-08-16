@@ -78,7 +78,9 @@ module.exports = (bp, messenger) => {
 
         if (mConfig.displayGetStarted && mConfig.autoResponseOption == 'autoResponseTextRenderer') {
           try {
-            await bp.renderers.sendToUser(profile.id, mConfig.autoResponseTextRenderer)
+            const options = mConfig.autoResponseText ? { text: mConfig.autoResponseText } : {}
+
+            await bp.renderers.sendToUser(profile.id, mConfig.autoResponseTextRenderer, options)
           } catch (err) {
             logger.warn('unavailable "autoResponseTextRenderer"')
           }
