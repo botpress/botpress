@@ -19,7 +19,8 @@ const TYPES = {
   ObjectCache: Symbol.for('ObjectCache'),
   ActionService: Symbol.for('ActionService'),
   IsPackaged: Symbol.for('IsPackaged'),
-  Queue: Symbol.for('Queue')
+  Queue: Symbol.for('Queue'),
+  HookService: Symbol.for('HookService')
 }
 
 export { TYPES }
