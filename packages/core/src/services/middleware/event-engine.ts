@@ -1,5 +1,4 @@
-import 'bluebird-global'
-import { MiddlewareDefinition } from 'botpress-module-sdk'
+import { Direction, MiddlewareDefinition } from 'botpress-module-sdk'
 import { inject, injectable, tagged } from 'inversify'
 import joi from 'joi'
 import { VError } from 'verror'
@@ -18,13 +17,14 @@ export type BotpressEvent = {
   type: string
   channel: string
   target: string
-  direction: string
+  direction: Direction
   text?: string
   raw?: string
 }
 
-const incoming = MiddlewareChain()
-const outgoing = MiddlewareChain()
+const directionRegex = /^(incoming|outgoing)$/
+const incomingChain = new MiddlewareChain()
+const outgoingChain = new MiddlewareChain()
 
 const eventSchema = {
   type: joi.string().required(),
@@ -32,7 +32,7 @@ const eventSchema = {
   target: joi.string().required(),
   direction: joi
     .string()
-    .regex(/(incoming|outgoing)/g)
+    .regex(directionRegex)
     .required(),
   text: joi.string().optional(),
   raw: joi.object().optional()
@@ -44,7 +44,7 @@ const mwSchema = {
   description: joi.string().required(),
   direction: joi
     .string()
-    .regex(/(incoming|outgoing)/g)
+    .regex(directionRegex)
     .required(),
   order: joi.number().default(0),
   enabled: joi.boolean().default(true)
@@ -57,37 +57,41 @@ export class ScopedEventEngine {
 
   async load(middleware: MiddlewareDefinition[]) {
     this.middleware = middleware
-    this.middleware.filter(mw => mw.direction === 'incoming').map(mw => this.useMiddleware(mw, incoming))
-    this.middleware.filter(mw => mw.direction === 'outgoing').map(mw => this.useMiddleware(mw, outgoing))
+    this.middleware
+      .filter(mw => mw.direction === 'incoming')
+      .map(async mw => await this.useMiddleware(mw, incomingChain))
+    this.middleware
+      .filter(mw => mw.direction === 'outgoing')
+      .map(async mw => await this.useMiddleware(mw, outgoingChain))
   }
 
-  private useMiddleware(mw: MiddlewareDefinition, manager) {
-    this.valideMw(mw)
-    manager.use(mw.handler)
+  private async useMiddleware(mw: MiddlewareDefinition, middlewareChain: MiddlewareChain<BotpressEvent>) {
+    await this.validateMiddleware(mw)
+    middlewareChain.use(mw.handler)
   }
 
-  private valideMw(middleware: MiddlewareDefinition) {
+  private async validateMiddleware(middleware: MiddlewareDefinition) {
     joi.validate(middleware, mwSchema, err => {
       if (err) {
-        throw new VError(err, `Invalid middleware function`)
+        throw new VError(err, 'Invalid middleware function')
       }
     })
   }
 
   async sendIncoming(event: BotpressEvent): Promise<any> {
-    this.validateEvent(event)
-    return await incoming.run(event)
+    await this.validateEvent(event)
+    return incomingChain.run(event)
   }
 
   async sendOutgoing(event: BotpressEvent): Promise<any> {
-    this.validateEvent(event)
-    return await outgoing.run(event)
+    await this.validateEvent(event)
+    return outgoingChain.run(event)
   }
 
-  private validateEvent(event: BotpressEvent) {
+  private async validateEvent(event: BotpressEvent) {
     joi.validate(event, eventSchema, err => {
       if (err) {
-        throw new VError(err, `Invalid Botpress Event`)
+        throw new VError(err, 'Invalid Botpress Event')
       }
     })
   }

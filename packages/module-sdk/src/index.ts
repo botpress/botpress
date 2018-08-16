@@ -1,9 +1,11 @@
+export type Direction = 'incoming' | 'outgoing'
+
 export type MiddlewareDefinition = {
   name: string
   description: string
   order: number
   handler: Function
-  direction: string
+  direction: Direction
   enabled?: boolean
   /**
    * @deprecated since version 12.0

@@ -1,15 +1,14 @@
+import 'bluebird-global'
 import 'jest-extended'
 import 'reflect-metadata'
-
-import 'bluebird-global'
 
 import { MiddlewareChain } from './middleware'
 
 describe('Middleware', () => {
-  let middleware
+  let middleware: MiddlewareChain<any>
 
   beforeEach(() => {
-    middleware = MiddlewareChain<any>({ timeoutInMs: 5 })
+    middleware = new MiddlewareChain<any>({ timeoutInMs: 5 })
   })
 
   it('should call middleware in order', async () => {

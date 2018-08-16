@@ -1,4 +1,3 @@
-import 'bluebird-global'
 import _ from 'lodash'
 import ms from 'ms'
 
@@ -10,23 +9,21 @@ const defaultOptions = {
   timeoutInMs: ms('1s')
 }
 
-export const MiddlewareChain = <T>(options: MiddlewareChainOptions = defaultOptions) => {
-  const stack: Function[] = []
-  options = { ...defaultOptions, ...options }
+export class MiddlewareChain<T> {
+  private stack: Function[] = []
 
-  const use = (fn: Function) => {
-    stack.push(fn)
+  constructor(private options: MiddlewareChainOptions = defaultOptions) {
+    options = { ...defaultOptions, ...options }
   }
 
-  // for ( stack ... 0 --> m )
-  // Call fn(event, next)
-  // If next called ? continue loop
-  // If not after "x" ms, stop the loop
+  use(fn: Function) {
+    this.stack.push(fn)
+  }
 
-  const run = async (event: T) => {
-    for (const mw of stack) {
+  async run(event: T) {
+    for (const mw of this.stack) {
       let timedOut = false
-      const timePromise = new Promise(() => {}).timeout(options.timeoutInMs).catch(() => {
+      const timePromise = new Promise(() => {}).timeout(this.options.timeoutInMs).catch(() => {
         timedOut = true
       })
       const mwPromise = Promise.fromCallback(cb => mw(event, cb))
@@ -36,6 +33,4 @@ export const MiddlewareChain = <T>(options: MiddlewareChainOptions = defaultOpti
       }
     }
   }
-
-  return { use, run }
 }
