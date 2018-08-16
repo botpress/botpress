@@ -31,7 +31,7 @@ export class KnexSessionRepository implements SessionRepository {
       .limit(1)
       .get(0)
       .then()
-    return session ? session : this.createSession(id)
+    return session ? this.jsonParse(session) : this.createSession(id)
   }
 
   async upsert(session: DialogSession) {
@@ -93,9 +93,17 @@ export class KnexSessionRepository implements SessionRepository {
       SET created_on = :now, active_on = :now, modified_on = :now, state = :state, context = :context`
 
     await this.knex.raw(sql, params)
-    return <DialogSession>await this.knex(this.tableName)
+    const session = <DialogSession>await this.knex(this.tableName)
       .select('*')
       .where({ id })
       .then()
+
+    return this.jsonParse(session)
+  }
+
+  private jsonParse(session: DialogSession) {
+    session.context = JSON.parse(session.context)
+    session.state = JSON.parse(session.state)
+    return session
   }
 }
