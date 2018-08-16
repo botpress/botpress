@@ -45,10 +45,11 @@ export default class Database {
     await Promise.mapSeries(AllTables, async Tbl => {
       const table = new Tbl(this.knex!)
       await table.bootstrap()
+      this.logger.debug(`Created table '${table.name}'`)
       this.tables.push(table)
     })
 
-    this.logger.debug(`Created ${AllTables.length} tables`)
+    this.logger.info('Created database')
   }
 
   runMigrations() {

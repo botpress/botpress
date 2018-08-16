@@ -4,7 +4,9 @@ import { TYPES } from '../misc/types'
 
 import ActionService from './action'
 import { CMSService } from './cms/cms-service'
+import { DialogEngine } from './dialog/engine'
 import FlowService from './dialog/flow-service'
+import { SessionService } from './dialog/session-service'
 import { ObjectCache, StorageDriver } from './ghost'
 import DiskStorageDriver from './ghost/disk-driver'
 import MemoryObjectCache from './ghost/memory-cache'
@@ -47,5 +49,13 @@ export const ServicesContainerModule = new ContainerModule((bind: interfaces.Bin
 
   bind<EventEngine>(TYPES.EventEngine)
     .to(EventEngine)
+    .inSingletonScope()
+
+  bind<DialogEngine>(TYPES.DialogEngine)
+    .to(DialogEngine)
+    .inSingletonScope()
+
+  bind<SessionService>(TYPES.SessionService)
+    .to(SessionService)
     .inSingletonScope()
 })

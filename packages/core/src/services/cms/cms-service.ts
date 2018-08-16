@@ -1,4 +1,4 @@
-import { inject, injectable, postConstruct, tagged } from 'inversify'
+import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import nanoid from 'nanoid'
 import path from 'path'
@@ -36,7 +36,6 @@ export class CMSService implements IDisposeOnExit {
   }
 
   // TODO Test this class
-  @postConstruct()
   async initialize() {
     this.ghost.global().addRootFolder(this.typesDir, { filesGlob: '**.js' })
     this.ghost.forAllBots().addRootFolder(this.elementsDir, { filesGlob: '**.json' })
@@ -74,11 +73,11 @@ export class CMSService implements IDisposeOnExit {
       contentElements = _.concat(contentElements, fileContentElements)
     }
 
-    return Promise.mapSeries(contentElements, element =>
-      this.memDb(this.contentTable)
+    return Promise.map(contentElements, async element => {
+      await this.memDb(this.contentTable)
         .insert(this.transformItemApiToDb(botId, element))
-        .then()
-    )
+        .then(() => this.logger.debug(`Loaded content '${element.id}' for '${botId}'`))
+    })
   }
 
   private async loadContentTypesFromFiles(): Promise<void> {
@@ -92,23 +91,21 @@ export class CMSService implements IDisposeOnExit {
     this.sandbox = new SafeCodeSandbox(codeFiles)
     let filesLoaded = 0
 
-    try {
-      for (const file of this.sandbox.ls()) {
-        try {
-          const filename = path.basename(file)
-          if (filename.startsWith('_')) {
-            // File to exclude
-            continue
-          }
-          await this.loadContentTypeFromFile(file)
-          filesLoaded++
-        } catch (e) {
-          this.logger.error(e, `Could not load Content Type "${file}"`)
+    for (const file of this.sandbox.ls()) {
+      try {
+        const filename = path.basename(file)
+        if (filename.startsWith('_')) {
+          // File to exclude
+          continue
         }
+        await this.loadContentTypeFromFile(file)
+        filesLoaded++
+      } catch (e) {
+        this.logger.error(e, `Could not load Content Type "${file}"`)
       }
-    } finally {
-      this.logger.debug(`Loaded ${filesLoaded} content types`)
     }
+
+    this.logger.info(`Loaded ${filesLoaded} content types`)
   }
 
   private async loadContentTypeFromFile(fileName: string): Promise<void> {

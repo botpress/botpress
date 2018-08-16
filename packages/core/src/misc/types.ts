@@ -21,7 +21,10 @@ const TYPES = {
   IsPackaged: Symbol.for('IsPackaged'),
   Queue: Symbol.for('Queue'),
   HookService: Symbol.for('HookService'),
-  EventEngine: Symbol.for('EventEngine')
+  EventEngine: Symbol.for('EventEngine'),
+  DialogEngine: Symbol.for('DialogEngine'),
+  SessionRepository: Symbol.for('StateManager'),
+  SessionService: Symbol.for('SessionService')
 }
 
 export { TYPES }

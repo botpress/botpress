@@ -339,9 +339,6 @@ body-parser@^1.18.3:
     raw-body "2.3.3"
     type-is "~1.6.16"
 
-botpress-module-sdk@../module-sdk:
-  version "0.0.1"
-
 brace-expansion@^1.1.7:
   version "1.1.11"
   resolved "https://registry.yarnpkg.com/brace-expansion/-/brace-expansion-1.1.11.tgz#3c7fcbf529d87226f3d2f52b966ff5271eb441dd"
@@ -1621,6 +1618,16 @@ ms@2.0.0:
 ms@^2.1.1:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.1.tgz#30a5864eb3ebb0a66f2ebe6d727af06a09d86e0a"
+
+mustache@^2.3.1:
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/mustache/-/mustache-2.3.1.tgz#ef5db3c0d11f1640e9baa47f4e65ba0c3fcd82b9"
+
+mware-ts@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/mware-ts/-/mware-ts-1.0.1.tgz#93935a34e44f3bea9be71a90f2ac4262e153b120"
+  dependencies:
+    bluebird "^3.5.1"
 
 nan@~2.10.0:
   version "2.10.0"
