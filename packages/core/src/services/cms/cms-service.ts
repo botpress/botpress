@@ -159,10 +159,18 @@ export class CMSService implements IDisposeOnExit {
     return this.memDb(this.contentTable).where(builder => builder.where('botId', botId).whereIn('id', ids))
   }
 
-  async countContentElements(botId: string, contentTypeId: string): Promise<number> {
+  async countContentElements(botId: string): Promise<number> {
     return this.memDb(this.contentTable)
       .where('botId', botId)
-      .andWhere('contentType', contentTypeId)
+      .count('* as count')
+      .get(0)
+      .then(row => (row && Number(row.count)) || 0)
+  }
+
+  async countContentElementsForContentType(botId: string, contentType: string): Promise<number> {
+    return this.memDb(this.contentTable)
+      .where('botId', botId)
+      .andWhere({ contentType })
       .count('* as count')
       .get(0)
       .then(row => (row && Number(row.count)) || 0)

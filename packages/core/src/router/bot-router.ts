@@ -44,7 +44,7 @@ export class BotRouter extends BaseRouter {
       const types = await this.cmsService.getAllContentTypes(botId)
 
       const response = await Promise.map(types, async type => {
-        const count = await this.cmsService.countContentElements(botId, type.id)
+        const count = await this.cmsService.countContentElementsForContentType(botId, type.id)
         return {
           id: type.id,
           count,
@@ -59,6 +59,12 @@ export class BotRouter extends BaseRouter {
       })
 
       res.send(response)
+    })
+
+    this.router.get('/bots/:botId/content/elements/count', async (req, res) => {
+      const botId = req.params.botId
+      const count = await this.cmsService.countContentElements(botId)
+      res.send({ count })
     })
 
     this.router.get('/bots/:botId/content/:contentType?/elements', async (req, res) => {

@@ -22,25 +22,25 @@ app.get('/register', (req, res) => {
         name: 'test.incoming.middleware',
         description: 'this is a test',
         order: 10,
-        handler: 'test.middleware',
+        handler: () => {},
         module: 'channel-web',
-        type: 'incoming'
+        direction: 'incoming'
       },
       {
         name: 'test.incoming.middleware2',
         description: 'this is a test2',
         order: 10,
-        handler: 'test.middleware',
+        handler: () => {},
         module: 'channel-web',
-        type: 'incoming'
+        direction: 'incoming'
       },
       {
         name: 'test.incoming.middleware3',
         description: 'this is a test3',
         order: 10,
-        handler: 'test.middleware',
+        handler: () => {},
         module: 'channel-web',
-        type: 'incoming'
+        direction: 'incoming'
       }
     ],
     outgoingMiddleware: [
@@ -48,9 +48,9 @@ app.get('/register', (req, res) => {
         name: 'test.outgoing.middleware',
         description: 'this is a test of an outgoing MW',
         order: 12,
-        handler: 'test.middleware',
+        handler: () => {},
         module: 'channel-web',
-        type: 'outgoing'
+        direction: 'outgoing'
       }
     ]
   }

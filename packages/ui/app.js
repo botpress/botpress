@@ -80,6 +80,15 @@ app.get(
 )
 
 app.get(
+  '/api/content/items/count',
+  proxy(process.env.CORE_API_URL, {
+    proxyReqPathResolver: req => {
+      return `/api/v1/bots/bot123/content/elements/count`
+    }
+  })
+)
+
+app.get(
   '/api/content/items/:itemId',
   proxy(process.env.CORE_API_URL, {
     proxyReqPathResolver: (req, res) => {
