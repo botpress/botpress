@@ -13,6 +13,7 @@ import { Logger } from './misc/interfaces'
 import { TYPES } from './misc/types'
 import { ModuleLoader } from './module-loader'
 import HTTPServer from './server'
+import { CMSService } from './services/cms/cms-service'
 import { DialogEngine } from './services/dialog/engine'
 import { DialogProcessor } from './services/dialog/processor'
 import { HookService } from './services/hook/hook-service'
@@ -25,11 +26,9 @@ export class Botpress {
   version: string
   config: BotpressConfig | undefined
 
-  // TODO: Persist me
-  private notifications: any[] = []
-
   constructor(
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
+    @inject(TYPES.CMSService) private cmsService: CMSService,
     @inject(TYPES.Database) private database: Database,
     @inject(TYPES.DialogEngine) private dialogEngine: DialogEngine,
     @inject(TYPES.Logger)
@@ -65,6 +64,7 @@ export class Botpress {
   }
 
   private async initializeServices() {
+    await this.cmsService.initialize()
     await this.botLoader.loadAllBots()
   }
 
