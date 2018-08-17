@@ -81,7 +81,6 @@ app.get(
       if (!oQuery.categoryId || oQuery.categoryId === 'all') {
         return `${BOT_PATH}/content/elements?${query}`
       }
-
       return `${BOT_PATH}/content/${oQuery.categoryId}/elements?${query}`
     },
     userResDecorator: function(proxyRes, proxyResData, userReq, userRes) {

@@ -80,8 +80,8 @@ export class BotRouter extends BaseRouter {
         ...DefaultSearchParams,
         count: Number(query.count) || DefaultSearchParams.count,
         from: Number(query.from) || DefaultSearchParams.from,
-        searchTerm: query.searchTerm,
-        ids: query.ids.split(',')
+        searchTerm: query.searchTerm || DefaultSearchParams.searchTerm,
+        ids: (query.ids && query.ids.split(',')) || DefaultSearchParams.ids
       })
 
       res.send(types)
