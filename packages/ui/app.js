@@ -7,6 +7,9 @@ const _ = require('lodash')
 const bodyParser = require('body-parser')
 const qs = require('querystring')
 
+const BASE_PATH = '/api/v1'
+const BOT_PATH = BASE_PATH + '/bots/bot123'
+
 dotenv.config()
 
 app.use(bodyParser.json())
@@ -22,14 +25,14 @@ const httpProxy = (originPath, targetPath, targetHost) => {
   )
 }
 
-httpProxy('/api/modules', '/api/v1/modules', process.env.CORE_API_URL)
-httpProxy('/js/modules/channel-web', '/api/v1/modules/channel-web', process.env.CORE_API_URL)
-httpProxy('/api/bot/information', '/api/v1/bots/bot123/', process.env.CORE_API_URL)
+httpProxy('/api/modules', BASE_PATH + '/modules', process.env.CORE_API_URL)
+httpProxy('/js/modules/channel-web', BASE_PATH + '/modules/channel-web', process.env.CORE_API_URL)
+httpProxy('/api/bot/information', BOT_PATH, process.env.CORE_API_URL)
 
 app.post(
   '/api/middlewares/customizations',
   proxy(process.env.CORE_API_URL, {
-    proxyReqPathResolver: async (req, res) => '/api/v1/bots/bot123/middleware',
+    proxyReqPathResolver: async (req, res) => BOT_PATH + '/middleware',
     proxyReqBodyDecorator: async (body, srcReq) => {
       // Middleware(s) is a typo. Can't be plural.
       return { middleware: body.middlewares }
@@ -37,13 +40,13 @@ app.post(
   })
 )
 
-httpProxy('/api/middlewares', '/api/v1/bots/bot123/middleware', process.env.CORE_API_URL)
+httpProxy('/api/middlewares', BOT_PATH + '/middleware', process.env.CORE_API_URL)
 
 app.post(
   '/api/content/categories/:categoryId/items/:itemId',
   proxy(process.env.CORE_API_URL, {
     proxyReqPathResolver: req => {
-      return `/api/v1/bots/bot123/content/${req.params.categoryId}/elements/${req.params.itemId}`
+      return `${BOT_PATH}/content/${req.params.categoryId}/elements/${req.params.itemId}`
     }
   })
 )
@@ -52,12 +55,12 @@ app.post(
   '/api/content/categories/:categoryId/items',
   proxy(process.env.CORE_API_URL, {
     proxyReqPathResolver: async (req, res) => {
-      return `/api/v1/bots/bot123/content/${req.params.categoryId}/elements`
+      return `${BOT_PATH}/content/${req.params.categoryId}/elements`
     }
   })
 )
 
-httpProxy('/api/content/categories', '/api/v1/bots/bot123/content/types', process.env.CORE_API_URL)
+httpProxy('/api/content/categories', BOT_PATH + '/content/types', process.env.CORE_API_URL)
 
 app.get(
   '/api/content/items',
@@ -66,10 +69,10 @@ app.get(
       const oQuery = req.query || {}
       const query = qs.stringify(_.pick(oQuery, ['from', 'count', 'searchTerm']))
       if (!oQuery.categoryId || oQuery.categoryId === 'all') {
-        return `/api/v1/bots/bot123/content/elements?${query}`
+        return `${BOT_PATH}/content/elements?${query}`
       }
 
-      return `/api/v1/bots/bot123/content/${oQuery.categoryId}/elements?${query}`
+      return `${BOT_PATH}/content/${oQuery.categoryId}/elements?${query}`
     },
     userResDecorator: function(proxyRes, proxyResData, userReq, userRes) {
       const body = JSON.parse(proxyResData)
@@ -83,7 +86,7 @@ app.get(
   '/api/content/items/count',
   proxy(process.env.CORE_API_URL, {
     proxyReqPathResolver: req => {
-      return `/api/v1/bots/bot123/content/elements/count`
+      return `${BOT_PATH}/content/elements/count`
     }
   })
 )
@@ -93,19 +96,19 @@ app.get(
   proxy(process.env.CORE_API_URL, {
     proxyReqPathResolver: (req, res) => {
       const elementId = req.params.itemId
-      return `/api/v1/bots/bot123/content/elements/${elementId}`
+      return `${BOT_PATH}/content/elements/${elementId}`
     }
   })
 )
 
-httpProxy('/api/flows/available_actions', '/api/v1/bots/bot123/actions', process.env.CORE_API_URL)
+httpProxy('/api/flows/available_actions', BOT_PATH + '/actions', process.env.CORE_API_URL)
 
-httpProxy('/api/flows/all', '/api/v1/bots/bot123/flows', process.env.CORE_API_URL)
+httpProxy('/api/flows/all', BOT_PATH + '/flows', process.env.CORE_API_URL)
 app.post(
   '/api/flows/save',
   proxy(process.env.CORE_API_URL, {
     proxyReqPathResolver: () => {
-      return '/api/v1/bots/bot123/flows'
+      return BOT_PATH + '/flows'
     },
     proxyReqBodyDecorator: async body => {
       // name prop is new
