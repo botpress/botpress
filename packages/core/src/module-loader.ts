@@ -9,7 +9,6 @@ import { ModuleConfig } from './config/module.config'
 import { ModuleConfigEntry, ModulesConfig } from './config/modules.config'
 import { Logger } from './misc/interfaces'
 import { TYPES } from './misc/types'
-import FlowService from './services/dialog/flow-service'
 
 export type AvailableModule = {
   metadata: ModuleMetadata
@@ -50,14 +49,13 @@ export class ModuleLoader {
       const moduleFolder = path.resolve(this.projectLocation, 'modules', module.name)
       const moduleConfig = await this.getModuleConfig(moduleFolder)
 
-      const initFile = path.resolve(moduleFolder, moduleConfig.initFile)
+      const initFile = path.resolve(moduleFolder, 'main.js')
       if (!fs.existsSync(initFile)) {
         throw new Error(`Module init file not found at "${initFile}"`)
       }
 
-      const moduleInit = eval('require(initFile)')
-
-      // moduleInit({ bp: {} }) // TODO Implement BotpressAPI
+      const moduleInit = eval('require(initFile)') // Eval so that "pkg" doesn't bundle it
+      console.log('===> Module ' + module.name + ' loaded', moduleInit)
 
       this.logger.info(`Loaded "${module.name}" (v${moduleConfig.version})`)
 

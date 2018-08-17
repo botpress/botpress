@@ -1,7 +1,7 @@
 {
   "modules": [
     {
-      "name": "",
+      "name": "channel-web",
       "enabled": true
     }
   ]
