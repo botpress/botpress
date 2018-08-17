@@ -96,6 +96,10 @@ app.get(
   '/api/content/items/count',
   proxy(process.env.CORE_API_URL, {
     proxyReqPathResolver: req => {
+      const contentType = req.query.categoryId
+      if (contentType) {
+        return `${BOT_PATH}/content/${contentType}/elements/count`
+      }
       return `${BOT_PATH}/content/elements/count`
     }
   })

@@ -87,6 +87,13 @@ export class BotRouter extends BaseRouter {
       res.send(types)
     })
 
+    this.router.get('/bots/:botId/content/:contentType?/elements/count', async (req, res) => {
+      const botId = req.params.botId
+      const contentType = req.params.contentType
+      const count = await this.cmsService.countContentElementsForContentType(botId, contentType)
+      res.send({ count })
+    })
+
     this.router.get('/bots/:botId/content/elements/:elementId', async (req, res) => {
       const botId = req.params.botId
       const elementId = req.params.elementId
