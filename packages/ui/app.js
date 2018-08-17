@@ -98,6 +98,8 @@ app.get(
   })
 )
 
+httpProxy('/api/flows/available_actions', '/api/v1/bots/bot123/actions', process.env.CORE_API_URL)
+
 httpProxy('/api/flows/all', '/api/v1/bots/bot123/flows', process.env.CORE_API_URL)
 app.post(
   '/api/flows/save',

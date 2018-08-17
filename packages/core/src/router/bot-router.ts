@@ -1,4 +1,7 @@
+import { Serialize } from 'cerialize'
+
 import { BotRepository } from '../repositories/bot-repository'
+import ActionService from '../services/action/action-service'
 import { DefaultSearchParams } from '../services/cms'
 import { CMSService } from '../services/cms/cms-service'
 import { FlowView } from '../services/dialog'
@@ -12,7 +15,8 @@ export class BotRouter extends BaseRouter {
     private botRepository: BotRepository,
     private middlewareService: MiddlewareService,
     private cmsService: CMSService,
-    private flowService: FlowService
+    private flowService: FlowService,
+    private actionService: ActionService
   ) {
     super()
   }
@@ -117,6 +121,13 @@ export class BotRouter extends BaseRouter {
 
       await this.flowService.saveAll(botId, flowViews)
       res.sendStatus(201)
+    })
+
+    this.router.get('/bots/:botId/actions', async (req, res) => {
+      const botId = req.params.botId
+      const actions = await this.actionService.forBot(botId).listActions(true)
+      console.log(actions)
+      res.send(Serialize(actions))
     })
   }
 }

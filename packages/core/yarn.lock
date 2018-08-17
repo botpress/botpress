@@ -402,6 +402,12 @@ caseless@~0.12.0:
   version "0.12.0"
   resolved "https://registry.yarnpkg.com/caseless/-/caseless-0.12.0.tgz#1b681c21ff84033c826543090689420d187151dc"
 
+cerialize@^0.1.18:
+  version "0.1.18"
+  resolved "https://registry.yarnpkg.com/cerialize/-/cerialize-0.1.18.tgz#d0f4f1b61cec7e4ed16a3eda0cac2bc99787414d"
+  dependencies:
+    typescript "^2.5.0"
+
 chalk@2.3.2:
   version "2.3.2"
   resolved "https://registry.yarnpkg.com/chalk/-/chalk-2.3.2.tgz#250dc96b07491bfd601e648d66ddf5f60c7a5c65"
@@ -2514,6 +2520,10 @@ type-is@~1.6.15, type-is@~1.6.16:
   dependencies:
     media-typer "0.3.0"
     mime-types "~2.1.18"
+
+typescript@^2.5.0:
+  version "2.9.2"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.9.2.tgz#1cbf61d05d6b96269244eb6a3bce4bd914e0f00c"
 
 unc-path-regex@^0.1.2:
   version "0.1.2"

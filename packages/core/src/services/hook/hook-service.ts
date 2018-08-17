@@ -1,4 +1,4 @@
-import { inject, injectable, tagged } from 'inversify'
+import { inject, injectable, postConstruct, tagged } from 'inversify'
 import _ from 'lodash'
 import { NodeVM } from 'vm2'
 
@@ -25,8 +25,11 @@ export class HookService {
     @tagged('name', 'HookService')
     private logger: Logger,
     @inject(TYPES.GhostService) private ghost: GhostService
-  ) {
-    ghost.global().addRootFolder('hooks', { filesGlob: '**/*.js' })
+  ) {}
+
+  @postConstruct()
+  async initialize() {
+    await this.ghost.global().addRootFolder('hooks', { filesGlob: '**/*.js' })
   }
 
   async executeHook(hook: Hook): Promise<void> {
