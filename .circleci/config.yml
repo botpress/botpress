@@ -1,0 +1,45 @@
+# Javascript Node CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-javascript/ for more details
+
+version: 2
+jobs:
+  build:
+    docker:
+      # specify the version you desire here
+      - image: circleci/node:carbon
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+
+      - restore_cache:
+          keys:
+            - v1-dependencies-core-{{ checksum "packages/core/package.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-core-
+
+      - run:
+          name: Install dependencies
+          command: cd ~/repo/ && yarn install && yarn bootstrap
+
+      - save_cache:
+          key: v1-dependencies-{{ checksum "package.json" }}
+          paths:
+            - ~/repo/packages/node_modules
+
+      - save_cache:
+          key: v1-dependencies-core-{{ checksum "packages/core/package.json" }}
+          paths:
+            - ~/repo/packages/core/node_modules
+
+      - run:
+          name: Run core tests
+          command: cd ~/repo/packages/core && yarn run test

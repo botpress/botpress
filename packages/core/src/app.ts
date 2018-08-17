@@ -1,3 +1,4 @@
+import 'bluebird-global'
 import chalk from 'chalk'
 import dotenv from 'dotenv'
 import 'reflect-metadata'

@@ -1,4 +1,3 @@
 {
-  "files": [],
-  "exclude": ["**/*.test.ts"]
+  "files": []
 }

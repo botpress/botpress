@@ -13,6 +13,10 @@ import { Logger } from './misc/interfaces'
 import { TYPES } from './misc/types'
 import { ModuleLoader } from './module-loader'
 import HTTPServer from './server'
+import { CMSService } from './services/cms/cms-service'
+import { DialogEngine } from './services/dialog/engine'
+import { DialogProcessor } from './services/dialog/processor'
+import { HookService } from './services/hook/hook-service'
 
 @injectable()
 export class Botpress {
@@ -24,13 +28,16 @@ export class Botpress {
 
   constructor(
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
+    @inject(TYPES.CMSService) private cmsService: CMSService,
     @inject(TYPES.Database) private database: Database,
+    @inject(TYPES.DialogEngine) private dialogEngine: DialogEngine,
     @inject(TYPES.Logger)
     @tagged('name', 'Server')
     private logger: Logger,
     @inject(TYPES.HTTPServer) private httpServer: HTTPServer,
     @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
-    @inject(TYPES.BotLoader) private botLoader: BotLoader
+    @inject(TYPES.BotLoader) private botLoader: BotLoader,
+    @inject(TYPES.HookService) private hookService: HookService
   ) {
     this.version = packageJson.version
     this.botpressPath = path.join(process.cwd(), 'dist')
@@ -52,9 +59,12 @@ export class Botpress {
     await this.initializeServices()
     await this.loadModules()
     await this.startServer()
+
+    await this.hookService.executeHook('after_bot_start')
   }
 
   private async initializeServices() {
+    await this.cmsService.initialize()
     await this.botLoader.loadAllBots()
   }
 
@@ -73,6 +83,7 @@ export class Botpress {
 
   private async loadModules(): Promise<void> {
     const modules = await this.moduleLoader.getAvailableModules()
+    this.logger.info(`Loaded ${modules.length} modules`)
   }
 
   private async startServer() {

@@ -1,4 +1,3 @@
-import 'bluebird-global'
 import bodyParser from 'body-parser'
 import errorHandler from 'errorhandler'
 import express from 'express'
