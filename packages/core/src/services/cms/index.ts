@@ -25,10 +25,10 @@ export type SearchParams = {
   orderBy: string[]
   from: number
   count: number
+  ids?: string[]
 }
 
 export const DefaultSearchParams: SearchParams = {
-  searchTerm: undefined,
   orderBy: ['createdOn'],
   from: 0,
   count: 50

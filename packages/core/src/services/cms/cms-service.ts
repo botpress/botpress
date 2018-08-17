@@ -141,6 +141,10 @@ export class CMSService implements IDisposeOnExit {
       )
     }
 
+    if (params.ids) {
+      query = query.where(builder => builder.whereIn('id', params.ids!))
+    }
+
     params.orderBy.forEach(column => {
       query = query.orderBy(column)
     })

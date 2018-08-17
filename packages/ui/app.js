@@ -63,6 +63,16 @@ app.post(
 httpProxy('/api/content/categories', BOT_PATH + '/content/types', process.env.CORE_API_URL)
 
 app.get(
+  '/api/content/items-batched/:itemIds',
+  proxy(process.env.CORE_API_URL, {
+    proxyReqPathResolver: req => {
+      const elementIds = req.params.itemIds.split(',')
+      return `${BOT_PATH}/content/elements?ids=${elementIds.join(',')}`
+    }
+  })
+)
+
+app.get(
   '/api/content/items',
   proxy(process.env.CORE_API_URL, {
     proxyReqPathResolver: req => {
