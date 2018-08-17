@@ -1,7 +1,9 @@
 const port = process.env.BOTPRESS_PORT || process.env.PORT || 3000
 const botUrl = process.env.BOTPRESS_URL || `http://localhost:${port}`
+const version = require('./package.json').version
 
 module.exports = {
+  version,
   /*
     The bot's base URL where the bot is reachable from the internet
    */
