@@ -20,6 +20,13 @@ module.exports = async bp => {
     await bp.nlu.provider.sync()
   }
 
+  if (bp.webchat) {
+    bp.webchat.sanitizeIncomingMessage = payload => ({
+      ...payload,
+      text: payload.type === 'text' && payload.text ? payload.text.replace(/\d/g, '__DIGIT__') : undefined
+    })
+  }
+
   const webchat = {
     botName: 'Basic',
     botAvatarUrl: null, // You can provide a URL here
