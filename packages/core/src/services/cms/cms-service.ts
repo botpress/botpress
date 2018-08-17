@@ -74,12 +74,12 @@ export class CMSService implements IDisposeOnExit {
     }
 
     const elements = Promise.map(contentElements, async element => {
-      await this.memDb(this.contentTable)
+      return this.memDb(this.contentTable)
         .insert(this.transformItemApiToDb(botId, element))
         .then(() => this.logger.debug(`Loaded content '${element.id}' for '${botId}'`))
     })
 
-    await this.recomputeElements()
+    await this.recomputeElementsForBot(botId)
 
     return elements
   }
@@ -158,6 +158,7 @@ export class CMSService implements IDisposeOnExit {
     return this.memDb(this.contentTable)
       .where('botId', botId)
       .andWhere('id', id)
+      .get(0)
   }
 
   async getContentElements(botId: string, ids: string[]): Promise<ContentElement[]> {
@@ -333,12 +334,12 @@ export class CMSService implements IDisposeOnExit {
     return result
   }
 
-  // TODO: Find a way to recompute elements of a single bot
-  private async recomputeElements(): Promise<void> {
+  private async recomputeElementsForBot(botId: string): Promise<void> {
     for (const contentType of this.contentTypes) {
       await this.memDb(this.contentTable)
         .select('id', 'formData', 'botId')
         .where('contentType', contentType.id)
+        .andWhere('botId', botId)
         .then()
         .each(async ({ id, formData, botId }: any) => {
           const computedProps = await this.fillComputedProps(contentType, JSON.parse(formData))

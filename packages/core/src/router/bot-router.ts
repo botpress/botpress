@@ -97,10 +97,8 @@ export class BotRouter extends BaseRouter {
     this.router.get('/bots/:botId/content/elements/:elementId', async (req, res) => {
       const botId = req.params.botId
       const elementId = req.params.elementId
-
-      const types = await this.cmsService.getContentElement(botId, elementId)
-
-      res.send(types)
+      const element = await this.cmsService.getContentElement(botId, elementId)
+      res.send(element)
     })
 
     this.router.post('/bots/:botId/content/:contentType/elements/:elementId?', async (req, res) => {
@@ -134,7 +132,6 @@ export class BotRouter extends BaseRouter {
     this.router.get('/bots/:botId/actions', async (req, res) => {
       const botId = req.params.botId
       const actions = await this.actionService.forBot(botId).listActions(true)
-      console.log(actions)
       res.send(Serialize(actions))
     })
   }
