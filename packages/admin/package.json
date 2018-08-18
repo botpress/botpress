@@ -1,0 +1,85 @@
+{
+  "name": "@botpress/cloud-backend",
+  "version": "1.0.0",
+  "description": "The backend of the Botpress Cloud",
+  "main": "dist",
+  "engines": {
+    "node": "^8.9.4"
+  },
+  "scripts": {
+    "dev": "exit 0; concurrently --kill-others --names \"back,front\" \"npm run dev-back\" \"cd front && npm start\"",
+    "dev-back": "exit 0; cd back && nodemon -w src --exec \"babel-node src\"",
+    "build-back": "exit 0;  cd back && babel src -s -D -d dist",
+    "build-front": "exit 0;  cd front && npm install && npm run build && cp -r build ../back/static",
+    "build": "exit 0;  npm run build-front && npm run build-back",
+    "start": "exit 0; cd back && node dist",
+    "heroku-postbuild": "exit 0; npm run -s build && cd back && ./create-keys.sh",
+    "test": "exit 0; cd back && eslint src",
+    "watch": "exit 0"
+  },
+  "eslintConfig": {
+    "extends": "eslint:recommended",
+    "parserOptions": {
+      "ecmaVersion": 7,
+      "sourceType": "module"
+    },
+    "env": {
+      "node": true
+    },
+    "rules": {
+      "no-console": 0,
+      "no-unused-vars": 1
+    }
+  },
+  "author": "Botpress, Inc.",
+  "license": "ISC",
+  "dependencies": {
+    "@botpress/util-roles": "^10.17.1",
+    "apicache": "^1.2.1",
+    "auth0": "^2.9.1",
+    "axios": "^0.18.0",
+    "babel-polyfill": "^6.26.0",
+    "bluebird": "^3.5.1",
+    "body-parser": "^1.13.3",
+    "compression": "^1.5.2",
+    "cors": "^2.7.1",
+    "debug": "^3.1.0",
+    "dotenv": "^5.0.1",
+    "express": "^4.13.3",
+    "express-force-https": "^1.0.0",
+    "express-jwt": "^5.3.1",
+    "joi": "^13.1.2",
+    "jwks-rsa": "^1.2.1",
+    "ldapauth-fork": "^4.0.2",
+    "moment": "^2.21.0",
+    "morgan": "^1.8.0",
+    "ms": "^2.1.1",
+    "nanoid": "^1.0.2",
+    "pem-jwk": "^1.5.1",
+    "pg": "^7.4.1",
+    "pg-hstore": "^2.3.2",
+    "resource-router-middleware": "^0.6.0",
+    "sequelize": "^4.36.1",
+    "umzug": "^2.1.0",
+    "yn": "^2.0.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.9.0",
+    "babel-core": "^6.9.0",
+    "babel-eslint": "^8.2.3",
+    "babel-plugin-root-import": "^6.0.0",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-plugin-transform-export-extensions": "^6.22.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-react": "^6.24.1",
+    "babel-preset-stage-3": "^6.24.1",
+    "concurrently": "^3.5.1",
+    "eslint": "^4.19.1",
+    "eslint-config-prettier": "^2.9.0",
+    "eslint-plugin-jest": "^21.17.0",
+    "eslint-plugin-prettier": "^2.6.0",
+    "eslint-plugin-react": "^7.9.1",
+    "nodemon": "^1.9.2",
+    "prettier": "^1.13.4"
+  }
+}
