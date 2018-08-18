@@ -1,0 +1,24 @@
+{
+  "url": "ldap://ldap.forumsys.com:389",
+  "bindDN": "cn=read-only-admin,dc=example,dc=com",
+  "bindCredentials": "password",
+  "searchBase": "dc=example,dc=com",
+  "searchFilter": "(uid={{username}})",
+  "reconnect": true,
+  "idleTimeout": "30000",
+  "tlsEnabled": false,
+  "tlsOptions": {
+    "ca": ["/path/to/ca/certificate.pem"]
+  },
+  "mapping": {
+    "remoteId": "uid",
+    "email": "mail",
+    "picture": "",
+    "company": "!Botpress, Inc.",
+    "provider": "",
+    "location": "",
+    "fullname": "cn",
+    "firstname": "",
+    "lastname": ""
+  }
+}

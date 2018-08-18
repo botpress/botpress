@@ -1,0 +1,24 @@
+{
+  "presets": [
+    "stage-3",
+    [
+      "env",
+      {
+        "targets": {
+          "node": "8.9",
+          "browsers": ["last 2 versions"]
+        }
+      }
+    ],
+    "react"
+  ],
+  "plugins": [
+    "transform-class-properties",
+    "transform-export-extensions",
+    [
+      "babel-plugin-root-import", {
+      "rootPathPrefix": "~",
+      "rootPathSuffix": "src"
+    }]
+  ]
+}
