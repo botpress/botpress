@@ -28,6 +28,7 @@
     "build-sdk": "lerna run build --scope botpress-module-sdk",
     "dev": "lerna bootstrap && npm run watch",
     "watch": "npm run build-sdk && lerna run --parallel watch",
-    "test": "lerna run test"
+    "test": "lerna run test",
+    "build": "lerna run build"
   }
 }
