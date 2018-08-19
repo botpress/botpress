@@ -17,8 +17,8 @@
     js-tokens "^3.0.0"
 
 "@types/bluebird-global@^3.5.6":
-  version "3.5.6"
-  resolved "https://registry.yarnpkg.com/@types/bluebird-global/-/bluebird-global-3.5.6.tgz#a5a089f2110a0467658bb9f726442df0713ab281"
+  version "3.5.7"
+  resolved "https://registry.yarnpkg.com/@types/bluebird-global/-/bluebird-global-3.5.7.tgz#cd21b88910a48b25ece90c8cb8397927f38cb707"
   dependencies:
     "@types/bluebird" "*"
 
@@ -94,8 +94,8 @@
   resolved "https://registry.yarnpkg.com/@types/joi/-/joi-13.4.2.tgz#d91b07bb52393bfdc38901f313f6bc96ce40f623"
 
 "@types/knex@^0.14.17":
-  version "0.14.20"
-  resolved "https://registry.yarnpkg.com/@types/knex/-/knex-0.14.20.tgz#55c86ba91bd9635c5e77dc78ff5a460c06288d50"
+  version "0.14.21"
+  resolved "https://registry.yarnpkg.com/@types/knex/-/knex-0.14.21.tgz#d95f90b33a65140057c450ea8094ec213e78d551"
   dependencies:
     "@types/bluebird" "*"
     "@types/events" "*"
@@ -134,8 +134,8 @@
     "@types/node" "*"
 
 "@types/node@*":
-  version "10.7.0"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-10.7.0.tgz#d384b2c8625414ab2aa18fdf989c288d6a7a8202"
+  version "10.7.1"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-10.7.1.tgz#b704d7c259aa40ee052eec678758a68d07132a2e"
 
 "@types/range-parser@*":
   version "1.2.2"
@@ -338,9 +338,6 @@ body-parser@^1.18.3:
     qs "6.5.2"
     raw-body "2.3.3"
     type-is "~1.6.16"
-
-botpress-module-sdk@../module-sdk:
-  version "0.0.1"
 
 brace-expansion@^1.1.7:
   version "1.1.11"
@@ -1623,8 +1620,8 @@ ms@^2.1.1:
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.1.tgz#30a5864eb3ebb0a66f2ebe6d727af06a09d86e0a"
 
 mustache@^2.3.1:
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/mustache/-/mustache-2.3.1.tgz#ef5db3c0d11f1640e9baa47f4e65ba0c3fcd82b9"
+  version "2.3.2"
+  resolved "https://registry.yarnpkg.com/mustache/-/mustache-2.3.2.tgz#a6d4d9c3f91d13359ab889a812954f9230a3d0c5"
 
 mware-ts@^1.0.1:
   version "1.0.1"
@@ -1637,8 +1634,8 @@ nan@~2.10.0:
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.10.0.tgz#96d0cd610ebd58d4b4de9cc0c6828cda99c7548f"
 
 nanoid@^1.1.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-1.2.0.tgz#e2c4dfa45c2bed995d0214aae157ce5052cfcb1d"
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-1.2.1.tgz#922bf6c10e35f7b208993768dad643577c907adf"
 
 nanomatch@^1.2.9:
   version "1.2.13"

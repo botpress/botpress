@@ -1,0 +1,33 @@
+{
+  "name": "botpress-launcher-ce",
+  "version": "1.0.0",
+  "description": "Botpress Community Edition (CE) Launcher",
+  "main": "index.js",
+  "repository": "https://botpress.io",
+  "author": "Botpress, Inc.",
+  "license": "AGPL-3.0",
+  "private": true,
+  "scripts": {
+    "clean-dist": "rimraf ./dist",
+    "build": "npm run clean-dist && cross-os cbuild"
+  },
+  "cross-os": {
+    "cbuild": {
+      "darwin": "./package-osx.sh"
+    }
+  },
+  "pkg": {
+    "assets": [
+      "node_modules/vm2/lib/*.js",
+      "dist/src/services/action/sandbox-runtime.js"
+    ]
+  },
+  "devDependencies": {
+    "cross-os": "^1.3.0",
+    "pkg": "^4.3.4",
+    "rimraf": "^2.6.2"
+  },
+  "dependencies": {
+    "botpress-xx": "^1.0.0"
+  }
+}

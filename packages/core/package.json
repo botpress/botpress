@@ -1,17 +1,15 @@
 {
   "name": "botpress-xx",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "author": "Botpress",
   "license": "AGPL-3.0-only",
-  "bin": "dist/src/app.js",
+  "main": "dist/src/app.js",
   "private": true,
   "scripts": {
     "start": "npm run serve",
     "serve": "node dist/src/app.js",
     "build": "npm run tslint && npm run build-ts && ./scripts/copy-config.sh",
     "build-ts": "../../node_modules/.bin/rimraf dist && ../../node_modules/.bin/tsc",
-    "build-pkg": "npm run build && npm run pkg",
-    "pkg": "./scripts/package-binaries.sh",
     "test": "../../node_modules/.bin/jest --forceExit --coverage --verbose -c ../../jest.config.js",
     "watch": "concurrently -c cyan npm:watch-ts",
     "watch-ts": "../../node_modules/.bin/rimraf dist && mkdir dist && ./scripts/copy-config.sh && ../../node_modules/.bin/tsc-watch -p . --onSuccess \"node ./dist/src/app.js\" --onFailure \"echo Beep! Compilation Failed\"",
@@ -23,7 +21,7 @@
     "axios": "^0.18.0",
     "bluebird-global": "^1.0.1",
     "body-parser": "^1.18.3",
-    "botpress-module-sdk": "../module-sdk",
+    "botpress-module-sdk": "^1.0.0",
     "chalk": "^2.4.1",
     "doctrine": "^2.1.0",
     "dotenv": "^6.0.0",
@@ -69,11 +67,5 @@
     "@types/verror": "^1.10.3",
     "concurrently": "^3.6.0",
     "jest-extended": "^0.8.1"
-  },
-  "pkg": {
-    "assets": [
-      "node_modules/vm2/lib/*.js",
-      "dist/src/services/action/sandbox-runtime.js"
-    ]
   }
 }
