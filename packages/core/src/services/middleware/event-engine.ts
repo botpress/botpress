@@ -23,8 +23,6 @@ export type BotpressEvent = {
 }
 
 const directionRegex = /^(incoming|outgoing)$/
-const incomingChain = new MiddlewareChain<BotpressEvent>()
-const outgoingChain = new MiddlewareChain<BotpressEvent>()
 
 const eventSchema = {
   type: joi.string().required(),
@@ -53,39 +51,37 @@ const mwSchema = {
 export class ScopedEventEngine {
   private middleware!: MiddlewareDefinition[]
 
+  private incomingChain = new MiddlewareChain<BotpressEvent>()
+  private outgoingChain = new MiddlewareChain<BotpressEvent>()
+
   constructor(private botId: string, private logger: Logger) {}
 
-  async load(middleware: MiddlewareDefinition[]) {
+  load(middleware: MiddlewareDefinition[]) {
     this.middleware = middleware
-    this.middleware
-      .filter(mw => mw.direction === 'incoming')
-      .map(async mw => await this.useMiddleware(mw, incomingChain))
-    this.middleware
-      .filter(mw => mw.direction === 'outgoing')
-      .map(async mw => await this.useMiddleware(mw, outgoingChain))
+    this.middleware.filter(mw => mw.direction === 'incoming').map(mw => this.useMiddleware(mw, this.incomingChain))
+    this.middleware.filter(mw => mw.direction === 'outgoing').map(mw => this.useMiddleware(mw, this.outgoingChain))
   }
 
-  private async useMiddleware(mw: MiddlewareDefinition, middlewareChain: MiddlewareChain<BotpressEvent>) {
-    await this.validateMiddleware(mw)
+  private useMiddleware(mw: MiddlewareDefinition, middlewareChain: MiddlewareChain<BotpressEvent>) {
+    this.validateMiddleware(mw)
     middlewareChain.use(mw.handler)
   }
 
-  private async validateMiddleware(middleware: MiddlewareDefinition) {
-    joi.validate(middleware, mwSchema, err => {
-      if (err) {
-        throw new VError(err, 'Invalid middleware function')
-      }
-    })
+  private validateMiddleware(middleware: MiddlewareDefinition) {
+    const result = joi.validate(middleware, mwSchema)
+    if (result.error) {
+      throw new VError(result.error, 'Invalid middleware definition')
+    }
   }
 
   async sendIncoming(event: BotpressEvent): Promise<any> {
     await this.validateEvent(event)
-    return incomingChain.run(event)
+    return this.incomingChain.run(event)
   }
 
   async sendOutgoing(event: BotpressEvent): Promise<any> {
     await this.validateEvent(event)
-    return outgoingChain.run(event)
+    return this.outgoingChain.run(event)
   }
 
   private async validateEvent(event: BotpressEvent) {
