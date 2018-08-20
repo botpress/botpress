@@ -35,7 +35,7 @@ export default class HTTPServer {
   ) {
     const routers = [
       new IndexRouter(),
-      new BotRouter(botRepository, middlewareService, cmsService, flowService, actionService)
+      new BotRouter({ actionService, botRepository, cmsService, flowService, middlewareService })
     ]
 
     this.app = express()

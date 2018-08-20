@@ -11,14 +11,26 @@ import { MiddlewareService } from '../services/middleware/middleware-service'
 import { BaseRouter } from './base-router'
 
 export class BotRouter extends BaseRouter {
-  constructor(
-    private botRepository: BotRepository,
-    private middlewareService: MiddlewareService,
-    private cmsService: CMSService,
-    private flowService: FlowService,
-    private actionService: ActionService
-  ) {
+  private actionService: ActionService
+  private botRepository: BotRepository
+  private cmsService: CMSService
+  private flowService: FlowService
+  private middlewareService: MiddlewareService
+
+  constructor(args: {
+    actionService: ActionService
+    botRepository: BotRepository
+    cmsService: CMSService
+    flowService: FlowService
+    middlewareService: MiddlewareService
+  }) {
     super()
+
+    this.actionService = args.actionService
+    this.botRepository = args.botRepository
+    this.cmsService = args.cmsService
+    this.flowService = args.flowService
+    this.middlewareService = args.middlewareService
   }
 
   setupRoutes() {
@@ -72,8 +84,7 @@ export class BotRouter extends BaseRouter {
     })
 
     this.router.get('/bots/:botId/content/:contentType?/elements', async (req, res) => {
-      const botId = req.params.botId
-      const contentType = req.params.contentType
+      const { botId, contentType } = req.params
       const query = req.query || {}
 
       const types = await this.cmsService.listContentElements(botId, contentType, {
@@ -88,24 +99,19 @@ export class BotRouter extends BaseRouter {
     })
 
     this.router.get('/bots/:botId/content/:contentType?/elements/count', async (req, res) => {
-      const botId = req.params.botId
-      const contentType = req.params.contentType
+      const { botId, contentType } = req.params
       const count = await this.cmsService.countContentElementsForContentType(botId, contentType)
       res.send({ count })
     })
 
     this.router.get('/bots/:botId/content/elements/:elementId', async (req, res) => {
-      const botId = req.params.botId
-      const elementId = req.params.elementId
+      const { botId, elementId } = req.params
       const element = await this.cmsService.getContentElement(botId, elementId)
       res.send(element)
     })
 
     this.router.post('/bots/:botId/content/:contentType/elements/:elementId?', async (req, res) => {
-      const botId = req.params.botId
-      const contentType = req.params.contentType
-      const elementId = req.params.elementId
-
+      const { botId, contentType, elementId } = req.params
       const element = await this.cmsService.createOrUpdateContentElement(
         botId,
         contentType,
@@ -131,7 +137,7 @@ export class BotRouter extends BaseRouter {
 
     this.router.get('/bots/:botId/actions', async (req, res) => {
       const botId = req.params.botId
-      const actions = await this.actionService.forBot(botId).listActions(true)
+      const actions = await this.actionService.forBot(botId).listActions({ includeMetadata: true })
       res.send(Serialize(actions))
     })
   }

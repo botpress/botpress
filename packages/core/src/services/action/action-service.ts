@@ -39,21 +39,15 @@ export type ActionDefinition = {
 export class ScopedActionService {
   constructor(private ghost: GhostContentService, private logger, private botId: string) {}
 
-  async listActions(includeMetadata = false): Promise<ActionDefinition[]> {
+  async listActions({ includeMetadata = false } = {}): Promise<ActionDefinition[]> {
     const globalActionsFiles = await this.ghost.global().directoryListing('actions', '*.js')
     const localActionsFiles = await this.ghost.forBot(this.botId).directoryListing('actions', '*.js')
 
-    const actions: ActionDefinition[] = []
-
-    await Promise.map(globalActionsFiles, async file => {
-      const action = await this.getActionDefinition(file, 'global', includeMetadata)
-      actions.push(action)
-    })
-
-    await Promise.map(localActionsFiles, async file => {
-      const action = await this.getActionDefinition(file, 'local', includeMetadata)
-      actions.push(action)
-    })
+    const actions: ActionDefinition[] = (await Promise.map(globalActionsFiles, async file =>
+      this.getActionDefinition(file, 'global', includeMetadata)
+    )).concat(
+      await Promise.map(localActionsFiles, async file => this.getActionDefinition(file, 'local', includeMetadata))
+    )
 
     return actions
   }
