@@ -33,6 +33,10 @@ httpProxy.proxy('/api/', {
 
 app.use(express.static(path.join(__dirname, '../static')))
 
+app.get(/^(?!\/api.*$).*/i, (req, res) => {
+  res.sendFile(path.join(__dirname, '../static/index.html'))
+})
+
 app.listen(process.env.PORT || config.port, () => {
   console.log(`Started on port ${app.server.address().port}`)
 })
