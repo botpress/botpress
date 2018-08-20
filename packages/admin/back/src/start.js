@@ -1,17 +1,17 @@
-import http from 'http'
-import express from 'express'
 import cors from 'cors'
+import express from 'express'
 import morgan from 'morgan'
-import bodyParser from 'body-parser'
-import initializeDb from './db'
-import middleware from './middleware'
-import api from './api'
-import config from './config.json'
-import path from 'path'
 import secure from 'express-force-https'
+import path from 'path'
 
-let app = express()
-app.server = http.createServer(app)
+import config from './config.json'
+
+const app = express()
+
+const { HttpProxy } = require('@botpress/xx-util')
+
+const { CORE_API_URL } = process.env
+const httpProxy = new HttpProxy(app, CORE_API_URL)
 
 if (process.env.FORCE_HTTPS) {
   app.use(secure)
@@ -27,62 +27,12 @@ app.use(
   })
 )
 
-app.use(
-  bodyParser.json({
-    limit: config.bodyLimit
-  })
-)
-
-app.use(
-  bodyParser.urlencoded({
-    extended: true
-  })
-)
-
-// connect to db
-initializeDb((err, db) => {
-  if (err) {
-    console.error(err)
-    process.exit(1)
-  }
-
-  // internal middleware
-  app.use('/api', middleware({ config, db }))
-
-  // api router
-  app.use('/api', api({ config, db }))
-
-  app.use(express.static(path.join(__dirname, '../static')))
-
-  app.get(/^(?!\/api.*$).*/i, (req, res, next) => {
-    res.sendFile(path.join(__dirname, '../static/index.html'))
-  })
-
-  app.use((err, req, res, next) => {
-    const statusCode = err.status || 500
-    const code = err.code || 'BPC_000'
-    const message = (err.code && err.message) || 'Unexpected error'
-    const devOnly =
-      process.env.NODE_ENV === 'production'
-        ? {}
-        : {
-            stack: err.stack,
-            full: err.message
-          }
-
-    res.status(statusCode).json({
-      status: 'error',
-      code: code,
-      type: err.type || Object.getPrototypeOf(err).name || 'Exception',
-      message: message,
-      docs: err.docs || 'https://botpress.io/docs/cloud',
-      ...devOnly
-    })
-  })
-
-  app.server.listen(process.env.PORT || config.port, () => {
-    console.log(`Started on port ${app.server.address().port}`)
-  })
+httpProxy.proxy('/api/', {
+  proxyReqPathResolver: req => req.url.replace('/api/', '/api/auth/')
 })
 
-export default app
+app.use(express.static(path.join(__dirname, '../static')))
+
+app.listen(process.env.PORT || config.port, () => {
+  console.log(`Started on port ${app.server.address().port}`)
+})

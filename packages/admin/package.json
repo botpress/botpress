@@ -7,15 +7,13 @@
     "node": "^8.9.4"
   },
   "scripts": {
-    "dev": "exit 0; concurrently --kill-others --names \"back,front\" \"npm run dev-back\" \"cd front && npm start\"",
-    "dev-back": "exit 0; cd back && nodemon -w src --exec \"babel-node src\"",
-    "build-back": "exit 0;  cd back && babel src -s -D -d dist",
-    "build-front": "exit 0;  cd front && npm install && npm run build && cp -r build ../back/static",
-    "build": "exit 0;  npm run build-front && npm run build-back",
-    "start": "exit 0; cd back && node dist",
-    "heroku-postbuild": "exit 0; npm run -s build && cd back && ./create-keys.sh",
-    "test": "exit 0; cd back && eslint src",
-    "watch": "exit 0"
+    "watch": "concurrently --kill-others --names \"back,front\" \"npm run dev-back\" \"cd front && npm start\"",
+    "dev-back": "cd back && nodemon -w src --exec \"babel-node src\"",
+    "build-back": "cd back && babel src -s -D -d dist",
+    "build-front": "cd front && npm install && npm run build && cp -r build ../back/static",
+    "build": "npm run build-front && npm run build-back",
+    "start": "cd back && node dist",
+    "test": "cd back && eslint src"
   },
   "eslintConfig": {
     "extends": "eslint:recommended",
@@ -35,6 +33,7 @@
   "license": "ISC",
   "dependencies": {
     "@botpress/util-roles": "^10.17.1",
+    "@botpress/xx-util": "^0.0.1",
     "apicache": "^1.2.1",
     "auth0": "^2.9.1",
     "axios": "^0.18.0",
