@@ -198,6 +198,10 @@ export default class LuisProvider extends Provider {
     intents.forEach(intent => {
       intent.utterances.forEach(utterance => {
         const extracted = this.parser.extractLabelsFromCanonical(utterance, intent.entities)
+        if (!extracted.text || !extracted.text.trim()) {
+          return
+        }
+
         const entities = []
 
         extracted.labels.forEach(label => {
