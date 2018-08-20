@@ -1,0 +1,25 @@
+{
+  "name": "@botpress/xx-util",
+  "version": "0.0.1",
+  "author": "Botpress",
+  "license": "AGPL-3.0-only",
+  "main": "dist/src/index.js",
+  "typings": "dist/src/index.d.ts",
+  "private": true,
+  "scripts": {
+    "build": "npm run tslint && npm run build-ts",
+    "build-ts": "../../node_modules/.bin/rimraf dist && ../../node_modules/.bin/tsc",
+    "test": "../../node_modules/.bin/jest --forceExit --coverage --verbose -c ../../jest.config.js",
+    "watch": "npm run watch-ts",
+    "watch-ts": "../../node_modules/.bin/tsc-watch -p .",
+    "watch-node": "../../node_modules/.bin/nodemon dist/src/index.js -w dist",
+    "watch-test": "npm run test -- --watchAll",
+    "tslint": "../../node_modules/.bin/tslint -c ../../tslint.json -p tsconfig.json"
+  },
+  "dependencies": {
+    "express-http-proxy": "^1.2.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.16.0"
+  }
+}
