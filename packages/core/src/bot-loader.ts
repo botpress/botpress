@@ -4,7 +4,7 @@ import plur from 'plur'
 import { ConfigProvider } from './config/config-loader'
 import { Logger } from './misc/interfaces'
 import { TYPES } from './misc/types'
-import ActionService from './services/action'
+import ActionService from './services/action/action-service'
 import { CMSService } from './services/cms/cms-service'
 import FlowService from './services/dialog/flow-service'
 

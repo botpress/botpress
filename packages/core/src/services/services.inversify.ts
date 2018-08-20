@@ -2,7 +2,7 @@ import { ContainerModule, interfaces } from 'inversify'
 
 import { TYPES } from '../misc/types'
 
-import ActionService from './action'
+import ActionService from './action/action-service'
 import { CMSService } from './cms/cms-service'
 import { DialogEngine } from './dialog/engine'
 import FlowService from './dialog/flow-service'
