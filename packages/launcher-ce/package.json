@@ -38,8 +38,9 @@
     "rimraf": "^2.6.2"
   },
   "dependencies": {
-    "dotenv": "^6.0.0",
+    "botpress-channel-web": "file:../channels",
+    "botpress-xx": "file:../core",
     "chalk": "^2.4.1",
-    "botpress-xx": "file:../core"
+    "dotenv": "^6.0.0"
   }
 }
