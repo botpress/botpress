@@ -1,0 +1,17 @@
+.input {
+  outline: none;
+
+  textarea {
+    font: inherit;
+    background-color: transparent;
+    min-height: 32px;
+    max-height: 96px;
+    margin-bottom: 0;
+    font-size: 14px;
+    padding: 8px;
+    width: 100%;
+    border: none;
+    resize: none;
+    line-height: 1.2;
+  }
+}

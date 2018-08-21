@@ -15,8 +15,8 @@
     "clean-dist": "../../node_modules/.bin/rimraf ./dist",
     "test": "../../node_modules/.bin/jest --forceExit --coverage --verbose -c ../../jest.config.js",
     "watch": "npm run watch-ts",
-    "watch-ts": "../../node_modules/.bin/tsc-watch -p . --onSuccess \"node ./build/src/index.js\" --onFailure \"echo Beep! Compilation Failed\"",
-    "watch-ts-die": "../../node_modules/.bin/tsc-watch -p . --onSuccess \"node ./build/src/index.js\" --onFailure \"exit 1\"",
+    "watch-ts": "../../node_modules/.bin/tsc-watch --extendedDiagnostics -p . --onSuccess \"node ./build/src/index.js\" --onFailure \"echo Beep! Compilation Failed\"",
+    "watch-ts-die": "../../node_modules/.bin/tsc-watch --extraFileExtensions=js -p . --onSuccess \"node ./build/src/index.js\" --onFailure \"exit 1\"",
     "watch-test": "npm run test -- --watchAll",
     "tslint": "../../node_modules/.bin/tslint -c ../../tslint.json -p tsconfig.json"
   },
