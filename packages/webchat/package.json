@@ -20,9 +20,12 @@
     "access": "public"
   },
   "scripts": {
+    "postinstall": "npm run compile",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "concurrently \"node webpack.js --watch\" \"babel -w --plugins=transform-object-rest-spread,transform-decorators-legacy src/backend --out-dir dist/backend\"",
-    "compile": "node webpack.js --compile"
+    "watch": "concurrently \"node webpack.js --watch\" \"npm run watch-backend\"",
+    "watch-backend": "babel -w --plugins=transform-object-rest-spread,transform-decorators-legacy src/backend --out-dir dist/backend",
+    "compile-backend": "babel --plugins=transform-object-rest-spread,transform-decorators-legacy src/backend --out-dir dist/backend",
+    "compile": "node webpack.js --compile && npm run compile-backend"
   },
   "repository": {
     "type": "git",
