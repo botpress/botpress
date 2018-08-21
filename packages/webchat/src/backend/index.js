@@ -5,6 +5,7 @@
 
 exports.onInit = async bp => {
   console.log('Init!!!', bp)
+
   return
   const config = await configurator.loadAll()
 
