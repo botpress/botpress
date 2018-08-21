@@ -161,7 +161,7 @@ docs_additional_reading: "Additional Reading"
 
 "/skills/":
     title: "Skills"
-    description: "Information about the skills avaliable within Botpress"
+    description: "Information about the skills available within Botpress"
     
 "/skills/choice/":
   title: "Choice"
