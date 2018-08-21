@@ -2,7 +2,9 @@ import 'bluebird-global'
 import 'reflect-metadata'
 
 import { container } from './app.inversify'
-import { Botpress } from './botpress'
+import { Botpress as Core } from './botpress'
 import { TYPES } from './misc/types'
 
-module.exports = { Botpress: botpress }
+const botpress = container.get<Core>(TYPES.Botpress)
+
+export const Botpress = botpress

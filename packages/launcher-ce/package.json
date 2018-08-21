@@ -2,14 +2,21 @@
   "name": "botpress-launcher-ce",
   "version": "1.0.0",
   "description": "Botpress Community Edition (CE) Launcher",
-  "main": "index.js",
-  "repository": "https://botpress.io",
+  "main": "build/src/app.js",
   "author": "Botpress, Inc.",
   "license": "AGPL-3.0",
   "private": true,
   "scripts": {
-    "clean-dist": "rimraf ./dist",
-    "build": "npm run clean-dist && cross-os cbuild"
+    "start": "npm run serve",
+    "serve": "node build/src/index.js",
+    "build": "npm run tslint && npm run build-ts && npm run clean-dist && cross-os cbuild",
+    "build-ts": "../../node_modules/.bin/tsc",
+    "clean-dist": "../../node_modules/.bin/rimraf ./dist",
+    "test": "../../node_modules/.bin/jest --forceExit --coverage --verbose -c ../../jest.config.js",
+    "watch": "npm run watch-ts",
+    "watch-ts": "../../node_modules/.bin/tsc-watch -p .",
+    "watch-test": "npm run test -- --watchAll",
+    "tslint": "../../node_modules/.bin/tslint -c ../../tslint.json -p tsconfig.json"
   },
   "cross-os": {
     "cbuild": {

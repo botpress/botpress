@@ -4,16 +4,14 @@
   "author": "Botpress",
   "license": "AGPL-3.0-only",
   "main": "dist/src/app.js",
+  "typings": "dist/src/app.d.ts",
   "private": true,
   "scripts": {
-    "start": "npm run serve",
-    "serve": "node dist/src/app.js",
     "build": "npm run tslint && npm run build-ts && ./scripts/copy-config.sh",
     "build-ts": "../../node_modules/.bin/rimraf dist && ../../node_modules/.bin/tsc",
     "test": "../../node_modules/.bin/jest --forceExit --coverage --verbose -c ../../jest.config.js",
     "watch": "concurrently -c cyan npm:watch-ts",
     "watch-ts": "../../node_modules/.bin/rimraf dist && mkdir dist && ./scripts/copy-config.sh && ../../node_modules/.bin/tsc-watch -p . --onSuccess \"node ./dist/src/app.js\" --onFailure \"echo Beep! Compilation Failed\"",
-    "watch-node": "../../node_modules/.bin/nodemon dist/src/app.js -w dist",
     "watch-test": "npm run test -- --watchAll",
     "tslint": "../../node_modules/.bin/tslint -c ../../tslint.json -p tsconfig.json"
   },

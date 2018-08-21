@@ -1,4 +1,4 @@
-import { Botpress } from 'botpress-xx'
+// import { Botpress } from 'botpress-xx'
 import chalk from 'chalk'
 import dotenv from 'dotenv'
 
@@ -11,11 +11,10 @@ console.log(chalk`=       {yellow Pre-release}       =`)
 console.log(chalk`===========================`)
 
 try {
-  const botpress = container.get<Botpress>(TYPES.Botpress)
-  botpress.start()
+  // Botpress.start()
 } catch (e) {
   console.log(chalk.red('Error starting botpress'))
   console.log(e)
 }
 
-console.log(Botpress)
+// console.log(Botpress)
