@@ -9,7 +9,7 @@
     "@types/tmp": "^0.0.33",
     "babel-core": "^6.26.0",
     "babel-jest": "^23.4.2",
-    "concurrently": "^3.6.0",
+    "concurrently": "^3.6.1",
     "husky": "^0.14.3",
     "jest": "^23.4.1",
     "jest-extended": "^0.8.1",
@@ -32,7 +32,11 @@
   "scripts": {
     "build": "TODO",
     "start": "TODO",
-    "watch": "TODO",
+    "watch": "concurrently \"npm:watch-*\"",
+    "watch-core": "cd ./packages/core && npm run watch",
+    "watch-module-sdk": "cd ./packages/module-sdk && npm run watch",
+    "watch-ui": "cd ./packages/ui && npm run watch",
+    "watch-launcher": "sleep 8 && echo \"Yolo lol\" && cd ./packages/launcher-ce && npm run watch",
     "test": "TODO"
   }
 }

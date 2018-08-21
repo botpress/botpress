@@ -23,3 +23,8 @@ export type ModuleMetadata = {
   incomingMiddleware: Array<MiddlewareDefinition>
   outgoingMiddleware: Array<MiddlewareDefinition>
 }
+
+export type ModuleDefinition = {
+  onInit: Function
+  onReady: Function
+}

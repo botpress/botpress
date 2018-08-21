@@ -14,7 +14,7 @@ console.log(chalk_1.default `=       {yellow Pre-release}       =`);
 console.log(chalk_1.default `===========================`);
 try {
     botpress_xx_1.Botpress.start({
-        modules: [require('botpress-channel-web')]
+        modules: [require('@botpress/channel-web')]
     });
 }
 catch (e) {

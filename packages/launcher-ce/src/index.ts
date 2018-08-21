@@ -12,7 +12,7 @@ console.log(chalk`===========================`)
 
 try {
   Botpress.start({
-    modules: [require('botpress-channel-web')]
+    modules: [require('@botpress/channel-web')]
   })
 } catch (e) {
   console.log(chalk.red('Error starting botpress'))

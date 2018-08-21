@@ -1,4 +1,4 @@
-import { ModuleMetadata } from 'botpress-module-sdk'
+import { ModuleDefinition, ModuleMetadata } from 'botpress-module-sdk'
 import fs from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
 import { Memoize } from 'lodash-decorators'
@@ -33,6 +33,16 @@ export class ModuleLoader {
 
   private async alertUnavailableModule(moduleUrl: string) {
     this.logger.warn(`Module at "${moduleUrl}" is not available`)
+  }
+
+  public async loadModules(modules: ModuleDefinition[]) {
+    for (const module of modules) {
+      await (module.onInit && module.onInit())
+    }
+    for (const module of modules) {
+      await (module.onReady && module.onReady())
+    }
+    return []
   }
 
   @Memoize()

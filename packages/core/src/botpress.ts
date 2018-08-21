@@ -1,3 +1,4 @@
+import { ModuleDefinition } from 'botpress-module-sdk'
 import { inject, injectable, tagged } from 'inversify'
 import { Memoize } from 'lodash-decorators'
 import moment from 'moment'
@@ -85,9 +86,9 @@ export class Botpress {
     return this.database.initialize(this.config!.database)
   }
 
-  private async loadModules(): Promise<void> {
-    const modules = await this.moduleLoader.getAvailableModules()
-    this.logger.info(`Loaded ${modules.length} modules`)
+  private async loadModules(modules: ModuleDefinition[]): Promise<void> {
+    const loadedModules = await this.moduleLoader.loadModules(modules)
+    this.logger.info(`Loaded ${loadedModules.length} modules`)
   }
 
   private async startServer() {
