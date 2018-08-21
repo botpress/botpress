@@ -18,6 +18,10 @@ import { DialogEngine } from './services/dialog/engine'
 import { DialogProcessor } from './services/dialog/processor'
 import { HookService } from './services/hook/hook-service'
 
+export type StartOptions = {
+  modules: any[]
+}
+
 @injectable()
 export class Botpress {
   botpressPath: string
@@ -44,20 +48,20 @@ export class Botpress {
     this.configLocation = path.join(this.botpressPath, '/config')
   }
 
-  async start() {
+  async start(options: StartOptions = { modules: [] }) {
     const beforeDt = moment()
-    await this.initialize()
+    await this.initialize(options)
     const bootTime = moment().diff(beforeDt, 'milliseconds')
     this.logger.info(`Started in ${bootTime}ms`)
   }
 
-  private async initialize() {
+  private async initialize(options: StartOptions) {
     this.config = await this.loadConfiguration()
 
     await this.trackStats()
     await this.createDatabase()
     await this.initializeServices()
-    await this.loadModules()
+    await this.loadModules(options.modules)
     await this.startServer()
 
     await this.hookService.executeHook('after_bot_start')

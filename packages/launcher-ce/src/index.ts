@@ -1,4 +1,4 @@
-// import { Botpress } from 'botpress-xx'
+import { Botpress } from 'botpress-xx'
 import chalk from 'chalk'
 import dotenv from 'dotenv'
 
@@ -11,10 +11,10 @@ console.log(chalk`=       {yellow Pre-release}       =`)
 console.log(chalk`===========================`)
 
 try {
-  // Botpress.start()
+  Botpress.start({
+    modules: [require('botpress-channel-web')]
+  })
 } catch (e) {
   console.log(chalk.red('Error starting botpress'))
   console.log(e)
 }
-
-// console.log(Botpress)

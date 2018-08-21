@@ -1,7 +1,7 @@
 import { inject, injectable } from 'inversify'
 
 import { TYPES } from '../../misc/types'
-import { SessionRepository } from '../../repositories/session-repository'
+import { DialogSession, SessionRepository } from '../../repositories/session-repository'
 
 @injectable()
 export class SessionService {
@@ -22,7 +22,7 @@ export class SessionService {
     return await this.sessionRepository.delete(id)
   }
 
-  async getSession(id: string) {
+  async getSession(id: string): Promise<DialogSession> {
     return await this.sessionRepository.get(id)
   }
 
