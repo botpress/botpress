@@ -1,0 +1,5 @@
+./packages/core/dist/package.json
+./packages/core/package.json
+./packages/launcher-ce/package.json
+./packages/module-sdk/package.json
+./packages/ui/package.json

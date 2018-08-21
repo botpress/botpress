@@ -40,6 +40,6 @@
   "dependencies": {
     "dotenv": "^6.0.0",
     "chalk": "^2.4.1",
-    "botpress-xx": "^1.0.0"
+    "botpress-xx": "file:../core"
   }
 }
