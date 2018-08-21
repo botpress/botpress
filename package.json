@@ -32,6 +32,8 @@
   "scripts": {
     "build": "TODO",
     "start": "TODO",
+    "clean": "./scripts/clean.sh",
+    "bootstrap": "./scripts/bootstrap.sh",
     "watch": "concurrently \"npm:watch-*\"",
     "watch-core": "cd ./packages/core && npm run watch",
     "watch-module-sdk": "cd ./packages/module-sdk && npm run watch",
