@@ -4,14 +4,14 @@ import multer from 'multer'
 import multers3 from 'multer-s3'
 import aws from 'aws-sdk'
 import moment from 'moment'
-
-import injectScript from 'raw-loader!./inject.js'
-import injectStyle from 'raw-loader!./inject.css'
-
+import fs from 'fs'
 import serveStatic from 'serve-static'
 
 import db from './db'
 import users from './users'
+
+const injectScript = fs.readFileSync(path.resolve(__dirname, 'inject.js'))
+const injectStyle = fs.readFileSync(path.resolve(__dirname, '../../static/inject.css'))
 
 const ERR_USER_ID_REQ = '`userId` is required and must be valid'
 const ERR_MSG_TYPE = '`type` is required and must be valid'

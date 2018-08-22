@@ -4,8 +4,6 @@ import _ from 'lodash'
 import uuid from 'uuid'
 import ms from 'ms'
 
-import { DatabaseHelpers as helpers } from 'botpress'
-
 import { sanitizeUserId } from './util'
 
 module.exports = (knex, config) => {

@@ -52,7 +52,10 @@ container
   .bind<Botpress>(TYPES.Botpress)
   .to(Botpress)
   .inSingletonScope()
-container.bind<HTTPServer>(TYPES.HTTPServer).to(HTTPServer)
+container
+  .bind<HTTPServer>(TYPES.HTTPServer)
+  .to(HTTPServer)
+  .inSingletonScope()
 container
   .bind<ConfigProvider>(TYPES.ConfigProvider)
   .to(GhostConfigProvider)

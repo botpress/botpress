@@ -18,10 +18,17 @@ import { Queue } from './queue'
 import MemoryQueue from './queue/memory-queue'
 
 export const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
-  bind<MiddlewareService>(TYPES.MiddlewareService).to(MiddlewareService)
+  bind<MiddlewareService>(TYPES.MiddlewareService)
+    .to(MiddlewareService)
+    .inSingletonScope()
 
-  bind<ObjectCache>(TYPES.ObjectCache).to(MemoryObjectCache)
-  bind<StorageDriver>(TYPES.StorageDriver).to(DiskStorageDriver)
+  bind<ObjectCache>(TYPES.ObjectCache)
+    .to(MemoryObjectCache)
+    .inSingletonScope()
+
+  bind<StorageDriver>(TYPES.StorageDriver)
+    .to(DiskStorageDriver)
+    .inSingletonScope()
 
   bind<GhostService>(TYPES.GhostService)
     .to(GhostService)

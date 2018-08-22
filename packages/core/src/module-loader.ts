@@ -37,7 +37,7 @@ export class ModuleLoader {
   }
 
   public async loadModules(modules: ModuleDefinition[]) {
-    const api = BotpressAPI()
+    const api = BotpressAPI() // TODO This is slow (200+ ms)
 
     for (const module of modules) {
       await (module.onInit && module.onInit(api))

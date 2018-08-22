@@ -1,7 +1,7 @@
-import umm from './umm'
-import api from './api'
-import socket from './socket'
-import db from './db'
+// import umm from './umm'
+// import api from './api'
+// import socket from './socket'
+// import db from './db'
 
 exports.onInit = async bp => {
   console.log('Init!!!', bp)
