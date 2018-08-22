@@ -149,9 +149,7 @@ export default class ConfigReader {
    */
   private async bootstrapGlobalConfigurationFiles() {
     for (const moduleId of this.modules.keys()) {
-      console.log('LOAD CHECK', moduleId)
       if (await this.isGlobalConfigurationFileMissing(moduleId)) {
-        console.log('LOAD MISSING', moduleId)
         const config = this.getModuleDefaultConfigFile(moduleId)
         const fileName = `${moduleId}.json`
         await this.ghost.global().upsertFile('config', fileName, config)
