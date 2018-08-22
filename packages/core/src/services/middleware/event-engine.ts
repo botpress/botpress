@@ -85,11 +85,10 @@ export class ScopedEventEngine {
   }
 
   private async validateEvent(event: BotpressEvent) {
-    joi.validate(event, eventSchema, err => {
-      if (err) {
-        throw new VError(err, 'Invalid Botpress Event')
-      }
-    })
+    const result = joi.validate(event, eventSchema)
+    if (result.error) {
+      throw new VError(result.error, 'Invalid Botpress Event')
+    }
   }
 }
 
