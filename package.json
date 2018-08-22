@@ -39,7 +39,7 @@
     "watch-module-sdk": "cd ./packages/module-sdk && npm run watch",
     "watch-ui": "cd ./packages/ui && npm run watch",
     "watch-launcher": "sleep 8 && echo \"Yolo lol\" && cd ./packages/launcher-ce && npm run watch",
-    "watch-webchat": "cd ./packages/webchat2 && npm run watch",
+    "watch-webchat": "cd ./packages/webchat && npm run watch",
     "test": "TODO"
   }
 }

@@ -1,7 +1,7 @@
-// import umm from './umm'
-// import api from './api'
-// import socket from './socket'
-// import db from './db'
+import umm from './umm'
+import api from './api'
+import socket from './socket'
+import db from './db'
 
 exports.onInit = async bp => {
   bp.console.debug('[webchat] On Init')
@@ -51,3 +51,19 @@ exports.config = {
     env: 'WEBCHAT_RECENT_CONVERSATION_LIFETIME'
   }
 }
+
+exports.defaultConfigJson = `
+{
+  /************
+    Optional settings
+  *************/
+
+  "uploadsUseS3": false,
+  "uploadsS3Bucket": "bucket-name",
+  "uploadsS3Region": "eu-west-1",
+  "uploadsS3AWSAccessKey": "your-aws-key-name",
+  "uploadsS3AWSAccessSecret": "secret-key",
+  "startNewConvoOnTimeout": false,
+  "recentConversationLifetime": "6 hours"
+}
+`

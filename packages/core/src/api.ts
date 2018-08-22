@@ -52,10 +52,16 @@ export class DialogAPI {
   }
 }
 
-export class ModuleAPI {
+export class ConfigAPI {
   constructor(private moduleLoader: ModuleLoader) {}
 
-  getConfigurator(moduleId: string) {}
+  getModuleConfig(moduleId: string): Promise<any> {
+    return this.moduleLoader.configReader.getGlobal(moduleId)
+  }
+
+  getModuleConfigForBot(moduleId: string, botId: string): Promise<any> {
+    return this.moduleLoader.configReader.getForBot(moduleId, botId)
+  }
 }
 
 export class ConsoleAPI {
@@ -83,7 +89,7 @@ export class BotpressAPI {
   http: HttpApi
   events: EventAPI
   dialog: DialogAPI
-  module: ModuleAPI
+  config: ConfigAPI
   realtime: RealTimeAPI
   database: Database
 
@@ -103,7 +109,7 @@ export class BotpressAPI {
     this.http = new HttpApi(botRouter)
     this.events = new EventAPI(eventEngine)
     this.dialog = new DialogAPI(dialogEngine)
-    this.module = new ModuleAPI(moduleLoader)
+    this.config = new ConfigAPI(moduleLoader)
     this.realtime = new RealTimeAPI()
     this.console = new ConsoleAPI(logger)
     this.database = db

@@ -1,13 +1,14 @@
-import fs from 'fs'
-import Joi from 'joi'
+import { ModuleConfigEntry, ModuleDefinition } from 'botpress-module-sdk'
 import json5 from 'json5'
 import _ from 'lodash'
-import { memoize } from 'lodash-decorators'
-import path from 'path'
+import { Memoize } from 'lodash-decorators'
+import { VError } from 'verror'
 import yn from 'yn'
 
 import { Logger } from '../../misc/interfaces'
-import { TYPES } from '../../misc/types'
+import GhostService from '../ghost/service'
+
+type Config = { [key: string]: any }
 
 const validations = {
   any: (value, validation) => validation(value),
@@ -26,6 +27,35 @@ const defaultValues = {
   bool: false
 }
 
+const amendOption = (option, name) => {
+  const validTypes = _.keys(validations)
+  if (!option.type || !_.includes(validTypes, option.type)) {
+    throw new Error(`Invalid type (${option.type || ''}) for config key (${name})`)
+  }
+
+  const validation = option.validation || (() => true)
+
+  if (typeof option.default !== 'undefined' && !validations[option.type](option.default, validation)) {
+    throw new Error(`Invalid default value (${option.default}) for (${name})`)
+  }
+
+  if (!option.default && !_.includes(_.keys(defaultValues), option.type)) {
+    throw new Error(`Default value is mandatory for type ${option.type} (${name})`)
+  }
+
+  return {
+    type: option.type,
+    required: option.required || false,
+    env: option.env || undefined,
+    default: option.default || defaultValues[option.type],
+    validation: validation
+  }
+}
+
+const amendOptions = options => {
+  return _.mapValues(options, amendOption)
+}
+
 /**
  * Load configuration for a specific module in the following precedence order:
  * 1) Default Value (Least precedence)
@@ -34,20 +64,126 @@ const defaultValues = {
  * 4) Per-bot Override (Most precedence)
  */
 export default class ConfigReader {
-  constructor(private logger: Logger) {} // TODO Inject ghost as well, to read global config & per-bot config
+  constructor(private logger: Logger, private modules: Map<string, ModuleDefinition>, private ghost: GhostService) {}
 
-  // TODO Implement this
-  // https://github.com/botpress/botpress/blob/master/packages/core/botpress/src/config-manager/index.js
-  // We need to provide the config definition from the module's entrypoint `config` property somehow here
+  public async initialize() {
+    await this.ghost.global().addRootFolder('config', { filesGlob: '*.json' })
+    await this.ghost.forAllBots().addRootFolder('config', { filesGlob: '*.json' })
+    await this.bootstrapGlobalConfigurationFiles()
+  }
 
-  // TODO We also need to implement this:
-  // https://github.com/botpress/botpress/blob/master/packages/core/botpress/src/config-manager/module.js
-  // This copies the `config.json` default configuration file from the module's folder into the bot's folder
-  // If it was not already there. In our case it should copy this file into the global folder (not per-bot, yet).
+  @Memoize()
+  private getModuleOptions(moduleId: string): { [key: string]: ModuleConfigEntry } {
+    if (!this.modules.has(moduleId)) {
+      throw new Error(
+        `Could not load configuration options for module "${moduleId}". Module was not found or registered properly.`
+      )
+    }
 
-  @memoize()
-  public getGlobal(moduleName: string) {}
+    return amendOptions(this.modules.get(moduleId)!.config)
+  }
 
-  @memoize()
-  public getForBot(moduleName: string, botId: string) {}
+  private async loadFromDefaultValues(moduleId) {
+    return _.mapValues(await this.getModuleOptions(moduleId), value => value.default)
+  }
+
+  private async loadFromBotConfigFile(moduleId: string, botId: string): Promise<any> {
+    const fileName = `${moduleId}.json`
+    try {
+      const json = await this.ghost.forBot(botId).readFileAsString('config', fileName)
+      return json5.parse(json)
+    } catch (e) {
+      return {}
+    }
+  }
+
+  private async loadFromGlobalConfigFile(moduleId: string): Promise<any> {
+    const fileName = `${moduleId}.json`
+    try {
+      const json = await this.ghost.global().readFileAsString('config', fileName)
+      return json5.parse(json)
+    } catch (e) {
+      throw new VError(e, `Could not load default config file for module "${moduleId}"`)
+    }
+  }
+
+  private loadFromEnvVariables(moduleId: string) {
+    const options = this.getModuleOptions(moduleId)
+    const config = {}
+
+    _.mapValues(process.env, (value, key) => {
+      if (_.isNil(value)) {
+        return
+      }
+      const entry = _.findKey(options, { env: key })
+      if (entry) {
+        config[entry] = value
+      }
+    })
+
+    return config
+  }
+
+  @Memoize()
+  private getModuleDefaultConfigFile(moduleId): any | undefined {
+    return this.modules.get(moduleId)!.defaultConfigJson
+  }
+
+  private async isGlobalConfigurationFileMissing(moduleId: string): Promise<boolean> {
+    try {
+      if (this.getModuleDefaultConfigFile(moduleId) === undefined) {
+        return false
+      }
+
+      await this.loadFromGlobalConfigFile(moduleId)
+      return false
+    } catch {
+      return true
+    }
+  }
+
+  /**
+   * @private
+   * For each module, check if the module's default `config.json` file has been copied
+   * to the global configuration folder. If not, copy it and log to the console.
+   */
+  private async bootstrapGlobalConfigurationFiles() {
+    for (const moduleId of this.modules.keys()) {
+      if (await this.isGlobalConfigurationFileMissing(moduleId)) {
+        const config = this.getModuleDefaultConfigFile(moduleId)
+        const fileName = `${moduleId}.json`
+        await this.ghost.global().upsertFile('config', fileName, config)
+        this.logger.info(`Added missing "${fileName}" configuration file`)
+      }
+    }
+  }
+
+  private async getMerged(moduleId: string, botId?: string): Promise<Config> {
+    const options = this.getModuleOptions(moduleId)
+    let config = await this.loadFromDefaultValues(moduleId)
+    config = { ...config, ...(await this.loadFromGlobalConfigFile(moduleId)) }
+    config = { ...config, ...(await this.loadFromEnvVariables(moduleId)) }
+    if (botId) {
+      config = { ...config, ...(await this.loadFromBotConfigFile(moduleId, botId)) }
+    }
+
+    return _.mapValues(config, (value, key) => {
+      const { type } = options[key]
+      if (transformers[type]) {
+        return transformers[type](value)
+      } else {
+        return value
+      }
+    })
+  }
+
+  @Memoize()
+  public async getGlobal(moduleId: string): Promise<Config> {
+    return this.getMerged(moduleId)
+  }
+
+  @Memoize()
+  public getForBot(moduleId: string, botId: string): Promise<Config> {
+    return this.getMerged(moduleId, botId)
+  }
 }

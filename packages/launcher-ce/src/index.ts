@@ -1,4 +1,5 @@
 import { Botpress } from 'botpress-xx'
+import { ModuleDefinition } from 'botpress-xx/node_modules/botpress-module-sdk'
 import chalk from 'chalk'
 import dotenv from 'dotenv'
 
@@ -11,8 +12,12 @@ console.log(chalk`=       {yellow Pre-release}       =`)
 console.log(chalk`===========================`)
 
 try {
+  const modules = new Map<string, ModuleDefinition>()
+
+  modules.set('webchat', require('@botpress/channel-web') as ModuleDefinition)
+
   Botpress.start({
-    modules: [require('@botpress/channel-web')]
+    modules
   })
 } catch (e) {
   console.log(chalk.red('Error starting botpress'))
