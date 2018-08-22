@@ -23,13 +23,29 @@
     "postinstall": "npm run compile",
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "concurrently \"node webpack.js --watch\" \"npm run watch-backend\"",
-    "watch-backend": "babel -w --plugins=transform-object-rest-spread,transform-decorators-legacy src/backend --out-dir dist/backend",
-    "compile-backend": "babel --plugins=transform-object-rest-spread,transform-decorators-legacy src/backend --out-dir dist/backend",
+    "watch-backend": "babel -w src/backend --out-dir dist/backend",
+    "compile-backend": "babel src/backend --out-dir dist/backend",
     "compile": "node webpack.js --compile && npm run compile-backend"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/botpress/modules"
+  },
+  "babel": {
+    "plugins": [
+      "transform-object-rest-spread",
+      "transform-decorators-legacy"
+    ],
+    "presets": [
+      [
+        "es2015",
+        {
+          "targets": {
+            "node": "6.10"
+          }
+        }
+      ]
+    ]
   },
   "author": "Botpress",
   "license": "AGPL-3.0-only",
