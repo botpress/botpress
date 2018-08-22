@@ -27,29 +27,59 @@ export default class HTTPServer {
     @inject(TYPES.Logger)
     @tagged('name', 'HTTP')
     private logger: Logger,
-    @inject(TYPES.BotRepository) botRepository: BotRepository,
-    @inject(TYPES.MiddlewareService) middlewareService: MiddlewareService,
-    @inject(TYPES.CMSService) cmsService: CMSService,
-    @inject(TYPES.FlowService) flowService: FlowService,
-    @inject(TYPES.ActionService) actionService: ActionService
+    @inject(TYPES.BotRepository) private botRepository: BotRepository,
+    @inject(TYPES.MiddlewareService) private middlewareService: MiddlewareService,
+    @inject(TYPES.CMSService) private cmsService: CMSService,
+    @inject(TYPES.FlowService) private flowService: FlowService,
+    @inject(TYPES.ActionService) private actionService: ActionService
   ) {
-    const routers = [
-      new IndexRouter(),
-      new BotRouter({ actionService, botRepository, cmsService, flowService, middlewareService })
-    ]
-
     this.app = express()
-    this.app.use(bodyParser.json())
-    this.app.use(BASE_API_PATH, [...routers.map(r => r.router)])
 
     if (process.env.NODE_ENV === 'development') {
       this.app.use(errorHandler())
+    } else {
+      this.app.use((err, req, res, next) => {
+        const statusCode = err.status || 500
+        const code = err.code || 'BP_000'
+        const message = (err.code && err.message) || 'Unexpected error'
+
+        res.status(statusCode).json({
+          status: 'error',
+          code,
+          type: err.type || Object.getPrototypeOf(err).name || 'Exception',
+          message,
+          docs: err.docs || undefined
+        })
+      })
     }
   }
 
   async start() {
     const botpressConfig = await this.configProvider.getBotpressConfig()
     const config = botpressConfig.httpServer
+
+    const routers = [
+      new IndexRouter(),
+      new BotRouter({
+        actionService: this.actionService,
+        botRepository: this.botRepository,
+        cmsService: this.cmsService,
+        flowService: this.flowService,
+        middlewareService: this.middlewareService
+      })
+    ]
+
+    this.app.use(
+      bodyParser.json({
+        limit: config.bodyLimit
+      })
+    )
+    this.app.use(
+      bodyParser.urlencoded({
+        extended: true
+      })
+    )
+    this.app.use(BASE_API_PATH, routers.map(r => r.router))
 
     await Promise.fromCallback(callback => {
       this.server = this.app.listen(config, callback)

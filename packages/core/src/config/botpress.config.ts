@@ -18,6 +18,7 @@ export type BotpressConfig = {
     host?: string
     port: number
     backlog: number
+    bodyLimit: string | number
   }
   database: DatabaseConfig
 }

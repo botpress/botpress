@@ -1,22 +1,25 @@
 export class ResponseError extends Error {
-  constructor(message, status, code) {
+  code: string
+  status: number
+
+  constructor(message: string, status: number, code: string) {
     super(message)
     Error.captureStackTrace(this, this.constructor)
-    this.code = code
     this.status = status
+    this.code = code
   }
 }
 
 export class AssertionError extends ResponseError {
-  constructor(message) {
-    super('Invalid payload: ' + message, 400, 'BPC_0003')
+  constructor(message: string) {
+    super('Invalid payload: ' + message, 400, 'BP_0003')
   }
 
   type = 'AssertionError'
 }
 
 export class ProcessingError extends ResponseError {
-  constructor(message) {
+  constructor(message: string) {
     super('Error processing the request: ' + message, 500, 'BP_0004')
   }
 
@@ -24,7 +27,7 @@ export class ProcessingError extends ResponseError {
 }
 
 export class UnauthorizedAccessError extends ResponseError {
-  constructor(message) {
+  constructor(message: string) {
     super('Unauthorized: ' + message, 400, 'BP_0005')
   }
 
@@ -32,7 +35,7 @@ export class UnauthorizedAccessError extends ResponseError {
 }
 
 export class InvalidOperationError extends ResponseError {
-  constructor(message) {
+  constructor(message: string) {
     super('Invalid operation: ' + message, 400, 'BP_0006')
   }
 
@@ -40,7 +43,7 @@ export class InvalidOperationError extends ResponseError {
 }
 
 export class NotFoundError extends ResponseError {
-  constructor(message) {
+  constructor(message: string) {
     super('Not Found: ' + message, 400, 'BP_0007')
   }
 
@@ -48,7 +51,7 @@ export class NotFoundError extends ResponseError {
 }
 
 export class TokenExpiredError extends ResponseError {
-  constructor(message) {
+  constructor(message: string) {
     super('Authentication token expired: ' + message, 400, 'BP_0008')
   }
 
@@ -57,7 +60,7 @@ export class TokenExpiredError extends ResponseError {
 
 export class InvalidCredentialsError extends ResponseError {
   constructor() {
-    super('Invalid credentials', 400, 'BPC_0009')
+    super('Invalid credentials', 400, 'BP_0009')
   }
 
   type = 'InvalidCredentialsError'

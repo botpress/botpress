@@ -17,10 +17,8 @@ if (process.env.FORCE_HTTPS) {
   app.use(secure)
 }
 
-// logger
 app.use(morgan('dev'))
 
-// 3rd party middleware
 app.use(
   cors({
     exposedHeaders: config.corsHeaders
@@ -28,7 +26,7 @@ app.use(
 )
 
 httpProxy.proxy('/api/', {
-  proxyReqPathResolver: req => req.url.replace('/api/', '/api/auth/')
+  proxyReqPathResolver: req => req.url.replace('/api/', '/api/v1/auth/')
 })
 
 app.use(express.static(path.join(__dirname, '../static')))
@@ -37,6 +35,7 @@ app.get(/^(?!\/api.*$).*/i, (req, res) => {
   res.sendFile(path.join(__dirname, '../static/index.html'))
 })
 
-app.listen(process.env.PORT || config.port, () => {
-  console.log(`Started on port ${app.server.address().port}`)
+const port = process.env.PORT || config.port
+app.listen(port, () => {
+  console.log(`Started on port ${port}`)
 })

@@ -28,8 +28,8 @@ export class GhostConfigProvider implements ConfigProvider {
   async getBotpressConfig(): Promise<BotpressConfig> {
     const config = await this.getConfig<BotpressConfig>('botpress.config.json')
 
-    config.httpServer.host = process.env.BP_HOST || config.httpServer.host
-    config.httpServer.host = config.httpServer.host === 'localhost' ? undefined : config.httpServer.host
+    const host = process.env.BP_HOST || config.httpServer.host
+    config.httpServer.host = host === 'localhost' ? undefined : host
 
     return config
   }
@@ -48,12 +48,12 @@ export class GhostConfigProvider implements ConfigProvider {
 
   private async getConfig<T>(fileName: string, botId?: string): Promise<T> {
     try {
-      let content
+      let content: string
 
       if (botId) {
-        content = <string>await this.ghostService.forBot(botId).readFileAsString('/', fileName)
+        content = await this.ghostService.forBot(botId).readFileAsString('/', fileName)
       } else {
-        content = <string>await this.ghostService.global().readFileAsString('/', fileName)
+        content = await this.ghostService.global().readFileAsString('/', fileName)
       }
 
       if (!content) {
