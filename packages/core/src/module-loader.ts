@@ -4,7 +4,7 @@ import { inject, injectable, tagged } from 'inversify'
 import { Memoize } from 'lodash-decorators'
 import path from 'path'
 
-import { botpressAPI } from './api'
+import BotpressAPI from './api'
 import { ConfigProvider } from './config/config-loader'
 import { ModuleConfig } from './config/module.config'
 import { ModuleConfigEntry, ModulesConfig } from './config/modules.config'
@@ -37,12 +37,13 @@ export class ModuleLoader {
   }
 
   public async loadModules(modules: ModuleDefinition[]) {
+    const api = BotpressAPI()
+
     for (const module of modules) {
-      const api = botpressAPI()
       await (module.onInit && module.onInit(api))
     }
     for (const module of modules) {
-      await (module.onReady && module.onReady())
+      await (module.onReady && module.onReady(api))
     }
     return []
   }

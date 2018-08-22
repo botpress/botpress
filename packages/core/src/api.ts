@@ -97,6 +97,6 @@ export class BotpressAPI {
   }
 }
 
-export const botpressAPI = () => {
+export default () => {
   return container.get<BotpressAPI>(TYPES.BotpressAPI)
 }

@@ -1,7 +1,7 @@
 import { Container } from 'inversify'
 import path from 'path'
-import { types } from 'util'
 
+import { BotpressAPI } from './api'
 import { BotLoader } from './bot-loader'
 import { Botpress } from './botpress'
 import { ConfigProvider, GhostConfigProvider } from './config/config-loader'
@@ -40,6 +40,10 @@ container.bind<LoggerProvider>(TYPES.LoggerProvider).toProvider<Logger>(context 
   }
 })
 
+container
+  .bind<BotpressAPI>(TYPES.BotpressAPI)
+  .to(BotpressAPI)
+  .inSingletonScope()
 container
   .bind<ModuleLoader>(TYPES.ModuleLoader)
   .to(ModuleLoader)
