@@ -13,8 +13,10 @@ console.log(chalk_1.default `=       Version 0.1       =`);
 console.log(chalk_1.default `=       {yellow Pre-release}       =`);
 console.log(chalk_1.default `===========================`);
 try {
+    const modules = new Map();
+    modules.set('webchat', require('@botpress/channel-web'));
     botpress_xx_1.Botpress.start({
-        modules: [require('@botpress/channel-web')]
+        modules
     });
 }
 catch (e) {

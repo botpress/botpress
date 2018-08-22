@@ -24,8 +24,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "concurrently \"node webpack.js --watch\" \"npm run watch-backend\"",
     "watch-backend": "babel -w src/backend --out-dir dist/backend",
-    "compile-backend": "babel src/backend --out-dir dist/backend",
-    "compile": "node webpack.js --compile && npm run compile-backend"
+    "build-backend": "babel src/backend --out-dir dist/backend",
+    "build": "node webpack.js --compile && npm run compile-backend"
   },
   "repository": {
     "type": "git",

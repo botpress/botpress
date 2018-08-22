@@ -1,7 +1,7 @@
 import { ModuleDefinition, ModuleMetadata } from 'botpress-module-sdk'
 import fs from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
-import { Memoize } from 'lodash-decorators'
+import { Memoize, memoize } from 'lodash-decorators'
 import path from 'path'
 
 import BotpressAPI from './api'
@@ -10,6 +10,8 @@ import { ModuleConfig } from './config/module.config'
 import { ModuleConfigEntry, ModulesConfig } from './config/modules.config'
 import { Logger } from './misc/interfaces'
 import { TYPES } from './misc/types'
+import GhostService from './services/ghost/service'
+import ConfigReader from './services/module/config-reader'
 
 export type AvailableModule = {
   metadata: ModuleMetadata
@@ -19,11 +21,13 @@ export type AvailableModule = {
 @injectable()
 export class ModuleLoader {
   private loadedModules = []
+  private _configReader?: ConfigReader
 
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'ModuleLoader')
     private logger: Logger,
+    @inject(TYPES.GhostService) private ghost: GhostService,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.ProjectLocation) private projectLocation: string
   ) {}
@@ -36,15 +40,36 @@ export class ModuleLoader {
     this.logger.warn(`Module at "${moduleUrl}" is not available`)
   }
 
-  public async loadModules(modules: ModuleDefinition[]) {
+  public get configReader() {
+    if (this._configReader) {
+      return this._configReader
+    }
+
+    throw new Error('Configuration reader is not initialized (you need to load modules first)')
+  }
+
+  public set configReader(value: ConfigReader) {
+    if (this._configReader) {
+      throw new Error('Modules have already been loaded')
+    }
+
+    this._configReader = value
+  }
+
+  public async loadModules(modules: Map<string, ModuleDefinition>) {
     const api = BotpressAPI() // TODO This is slow (200+ ms)
 
-    for (const module of modules) {
+    this.configReader = new ConfigReader(this.logger, modules, this.ghost)
+    await this.configReader.initialize()
+
+    for (const module of modules.values()) {
       await (module.onInit && module.onInit(api))
     }
-    for (const module of modules) {
+
+    for (const module of modules.values()) {
       await (module.onReady && module.onReady(api))
     }
+
     return []
   }
 

@@ -4,7 +4,7 @@ import socket from './socket'
 import db from './db'
 
 exports.onInit = async bp => {
-  console.log('Init!!!', bp)
+  console.log('Init!!!')
   return
   const config = await configurator.loadAll()
 
@@ -18,7 +18,8 @@ exports.onInit = async bp => {
 }
 
 exports.onReady = async bp => {
-  console.log('On ready', bp)
+  console.log('On ready', bp.config)
+  console.log('Config', await bp.config.getModuleConfig('webchat'))
   return
   const config = await configurator.loadAll()
 
@@ -49,3 +50,19 @@ exports.config = {
     env: 'WEBCHAT_RECENT_CONVERSATION_LIFETIME'
   }
 }
+
+exports.defaultConfigJson = `
+{
+  /************
+    Optional settings
+  *************/
+
+  "uploadsUseS3": false,
+  "uploadsS3Bucket": "bucket-name",
+  "uploadsS3Region": "eu-west-1",
+  "uploadsS3AWSAccessKey": "your-aws-key-name",
+  "uploadsS3AWSAccessSecret": "secret-key",
+  "startNewConvoOnTimeout": false,
+  "recentConversationLifetime": "6 hours"
+}
+`

@@ -28,6 +28,7 @@ export type ModuleDefinition = {
   onInit: Function
   onReady: Function
   config: { [key: string]: ModuleConfigEntry }
+  defaultConfigJson?: string
 }
 
 export type ModuleConfigEntry = {

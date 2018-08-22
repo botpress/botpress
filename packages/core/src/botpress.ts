@@ -18,7 +18,7 @@ import { CMSService } from './services/cms/cms-service'
 import { HookService } from './services/hook/hook-service'
 
 export type StartOptions = {
-  modules: any[]
+  modules: Map<string, ModuleDefinition>
 }
 
 @injectable()
@@ -46,7 +46,7 @@ export class Botpress {
     this.configLocation = path.join(this.botpressPath, '/config')
   }
 
-  async start(options: StartOptions = { modules: [] }) {
+  async start(options: StartOptions) {
     const beforeDt = moment()
     await this.initialize(options)
     const bootTime = moment().diff(beforeDt, 'milliseconds')
@@ -83,7 +83,7 @@ export class Botpress {
     return this.database.initialize(this.config!.database)
   }
 
-  private async loadModules(modules: ModuleDefinition[]): Promise<void> {
+  private async loadModules(modules: Map<string, ModuleDefinition>): Promise<void> {
     const loadedModules = await this.moduleLoader.loadModules(modules)
     this.logger.info(`Loaded ${loadedModules.length} modules`)
   }

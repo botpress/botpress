@@ -1,9 +1,7 @@
 import { ModuleConfigEntry, ModuleDefinition } from 'botpress-module-sdk'
-import fs from 'fs'
 import json5 from 'json5'
 import _ from 'lodash'
 import { memoize } from 'lodash-decorators'
-import path from 'path'
 import { VError } from 'verror'
 import yn from 'yn'
 
@@ -66,12 +64,7 @@ const amendOptions = options => {
  * 4) Per-bot Override (Most precedence)
  */
 export default class ConfigReader {
-  constructor(
-    private logger: Logger,
-    private modules: Map<string, ModuleDefinition>,
-    private ghost: GhostService,
-    private projectLocation: string
-  ) {}
+  constructor(private logger: Logger, private modules: Map<string, ModuleDefinition>, private ghost: GhostService) {}
 
   public async initialize() {
     await this.ghost.global().addRootFolder('config', { filesGlob: '*.json' })
@@ -133,12 +126,7 @@ export default class ConfigReader {
 
   @memoize()
   private getModuleDefaultConfigFile(moduleId): any | undefined {
-    const filePath = path.resolve(this.projectLocation, 'modules', moduleId, 'config.json')
-    if (!fs.existsSync(filePath)) {
-      return
-    }
-
-    return fs.readFileSync(filePath, 'utf8')
+    return this.modules.get(moduleId)!.defaultConfigJson
   }
 
   private async isGlobalConfigurationFileMissing(moduleId: string): Promise<boolean> {
@@ -147,7 +135,7 @@ export default class ConfigReader {
         return false
       }
 
-      await this.getModuleOptions(moduleId)
+      await this.loadFromGlobalConfigFile(moduleId)
       return false
     } catch {
       return true
@@ -160,8 +148,10 @@ export default class ConfigReader {
    * to the global configuration folder. If not, copy it and log to the console.
    */
   private async bootstrapGlobalConfigurationFiles() {
-    for (const moduleId in this.modules.keys) {
-      if (this.isGlobalConfigurationFileMissing(moduleId)) {
+    for (const moduleId of this.modules.keys()) {
+      console.log('LOAD CHECK', moduleId)
+      if (await this.isGlobalConfigurationFileMissing(moduleId)) {
+        console.log('LOAD MISSING', moduleId)
         const config = this.getModuleDefaultConfigFile(moduleId)
         const fileName = `${moduleId}.json`
         await this.ghost.global().upsertFile('config', fileName, config)

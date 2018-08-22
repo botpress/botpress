@@ -55,10 +55,16 @@ export class MiddlewareAPI {
   }
 }
 
-export class ModuleAPI {
+export class ConfigAPI {
   constructor(private moduleLoader: ModuleLoader) {}
 
-  getConfigurator(moduleId: string) {}
+  getModuleConfig(moduleId: string): Promise<any> {
+    return this.moduleLoader.configReader.getGlobal(moduleId)
+  }
+
+  getModuleConfigForBot(moduleId: string, botId: string): Promise<any> {
+    return this.moduleLoader.configReader.getForBot(moduleId, botId)
+  }
 }
 
 /**
@@ -76,7 +82,7 @@ export class BotpressAPI {
   public events: EventAPI
   public dialog: DialogAPI
   public middleware: MiddlewareAPI
-  public module: ModuleAPI
+  public config: ConfigAPI
   public realtime: RealTimeAPI
 
   constructor(
@@ -96,7 +102,7 @@ export class BotpressAPI {
     this.events = new EventAPI(this.eventEngine)
     this.dialog = new DialogAPI(this.dialogEngine)
     this.middleware = new MiddlewareAPI(this.mwareService)
-    this.module = new ModuleAPI(this.moduleLoader)
+    this.config = new ConfigAPI(this.moduleLoader)
     this.realtime = new RealTimeAPI()
   }
 }
