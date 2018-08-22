@@ -1,7 +1,7 @@
 import { ModuleConfigEntry, ModuleDefinition } from 'botpress-module-sdk'
 import json5 from 'json5'
 import _ from 'lodash'
-import { memoize } from 'lodash-decorators'
+import { Memoize } from 'lodash-decorators'
 import { VError } from 'verror'
 import yn from 'yn'
 
@@ -72,7 +72,7 @@ export default class ConfigReader {
     await this.bootstrapGlobalConfigurationFiles()
   }
 
-  @memoize()
+  @Memoize()
   private getModuleOptions(moduleId: string): { [key: string]: ModuleConfigEntry } {
     if (!this.modules.has(moduleId)) {
       throw new Error(
@@ -124,7 +124,7 @@ export default class ConfigReader {
     return config
   }
 
-  @memoize()
+  @Memoize()
   private getModuleDefaultConfigFile(moduleId): any | undefined {
     return this.modules.get(moduleId)!.defaultConfigJson
   }
@@ -177,12 +177,12 @@ export default class ConfigReader {
     })
   }
 
-  @memoize()
+  @Memoize()
   public async getGlobal(moduleId: string): Promise<Config> {
     return this.getMerged(moduleId)
   }
 
-  @memoize()
+  @Memoize()
   public getForBot(moduleId: string, botId: string): Promise<Config> {
     return this.getMerged(moduleId, botId)
   }

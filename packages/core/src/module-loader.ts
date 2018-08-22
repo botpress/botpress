@@ -1,7 +1,7 @@
 import { ModuleDefinition, ModuleMetadata } from 'botpress-module-sdk'
 import fs from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
-import { Memoize, memoize } from 'lodash-decorators'
+import { Memoize } from 'lodash-decorators'
 import path from 'path'
 
 import BotpressAPI from './api'
