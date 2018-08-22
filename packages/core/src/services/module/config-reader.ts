@@ -76,7 +76,7 @@ export default class ConfigReader {
   private getModuleOptions(moduleId: string): { [key: string]: ModuleConfigEntry } {
     if (!this.modules.has(moduleId)) {
       throw new Error(
-        `Could not load configuration options for module "${moduleId}". Module was not found or registred properly.`
+        `Could not load configuration options for module "${moduleId}". Module was not found or registered properly.`
       )
     }
 
