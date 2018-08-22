@@ -27,4 +27,12 @@ export type ModuleMetadata = {
 export type ModuleDefinition = {
   onInit: Function
   onReady: Function
+  config: { [key: string]: ModuleConfigEntry }
+}
+
+export type ModuleConfigEntry = {
+  type: 'bool' | 'any' | 'string'
+  required: boolean
+  default: any
+  env?: string
 }
