@@ -34,10 +34,16 @@ const defaultValues = {
  * 4) Per-bot Override (Most precedence)
  */
 export default class ConfigReader {
-  constructor(private logger: Logger) {}
+  constructor(private logger: Logger) {} // TODO Inject ghost as well, to read global config & per-bot config
 
   // TODO Implement this
   // https://github.com/botpress/botpress/blob/master/packages/core/botpress/src/config-manager/index.js
+  // We need to provide the config definition from the module's entrypoint `config` property somehow here
+
+  // TODO We also need to implement this:
+  // https://github.com/botpress/botpress/blob/master/packages/core/botpress/src/config-manager/module.js
+  // This copies the `config.json` default configuration file from the module's folder into the bot's folder
+  // If it was not already there. In our case it should copy this file into the global folder (not per-bot, yet).
 
   @memoize()
   public getGlobal(moduleName: string) {}
