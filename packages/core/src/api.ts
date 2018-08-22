@@ -10,7 +10,7 @@ import { BotRouter } from './router/bot-router'
 import { CMSService } from './services/cms/cms-service'
 import { DialogEngine } from './services/dialog/engine'
 import FlowService from './services/dialog/flow-service'
-import { BotpressEvent, EventEngine } from './services/middleware/event-engine'
+import { EventEngine } from './services/middleware/event-engine'
 import { MiddlewareService } from './services/middleware/middleware-service'
 
 // TODO: The UI doesn't support multi-bots yet
@@ -20,8 +20,11 @@ export class HttpApi {
   constructor(private botRouter: BotRouter) {}
 
   get router() {
+    // TODO Implement that properly
     return this.botRouter.router
   }
+
+  createShortLink() {}
 }
 
 export class EventAPI {
@@ -33,10 +36,6 @@ export class EventAPI {
 
   sendOutgoing(event) {
     this.eventEngine.forBot(BOT_ID).sendOutgoing(event)
-  }
-
-  emit() {
-    // socket
   }
 }
 
@@ -59,22 +58,26 @@ export class MiddlewareAPI {
 export class ModuleAPI {
   constructor(private moduleLoader: ModuleLoader) {}
 
-  stuff() {}
+  getConfigurator(moduleId: string) {}
+}
+
+/**
+ * Socket.IO API to emit events and listen
+ */
+export class RealTimeAPI {
+  emit() {}
 }
 
 @injectable()
 export class BotpressAPI {
-  // http: {} // getRouter(), createShortLink()
-  // io: {} // sendIncoming, sendOutgoing
   // dialog: {}
-  // middleware: {} // register
-
   // config provider
   public http: HttpApi
   public events: EventAPI
   public dialog: DialogAPI
   public middleware: MiddlewareAPI
   public module: ModuleAPI
+  public realtime: RealTimeAPI
 
   constructor(
     @inject(TYPES.BotRepository) private botRepository: BotRepository,
@@ -94,6 +97,7 @@ export class BotpressAPI {
     this.dialog = new DialogAPI(this.dialogEngine)
     this.middleware = new MiddlewareAPI(this.mwareService)
     this.module = new ModuleAPI(this.moduleLoader)
+    this.realtime = new RealTimeAPI()
   }
 }
 
