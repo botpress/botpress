@@ -66,6 +66,8 @@ export class ModuleLoader {
       await (module.onInit && module.onInit(api))
     }
 
+    // Once all the modules have been loaded, we tell them it's ready
+    // TODO We probably want to wait until Botpress is done loading the other services etc
     for (const module of modules.values()) {
       await (module.onReady && module.onReady(api))
     }

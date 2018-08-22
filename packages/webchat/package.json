@@ -20,7 +20,7 @@
     "access": "public"
   },
   "scripts": {
-    "postinstall": "npm run compile",
+    "postinstall": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "concurrently \"node webpack.js --watch\" \"npm run watch-backend\"",
     "watch-backend": "babel -w src/backend --out-dir dist/backend",

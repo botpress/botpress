@@ -76,7 +76,7 @@ export default class ConfigReader {
   private getModuleOptions(moduleId: string): { [key: string]: ModuleConfigEntry } {
     if (!this.modules.has(moduleId)) {
       throw new Error(
-        `Could not load configuration options for module "${moduleId}". Module was not found or registred properly.`
+        `Could not load configuration options for module "${moduleId}". Module was not found or registered properly.`
       )
     }
 
@@ -163,7 +163,7 @@ export default class ConfigReader {
     let config = await this.loadFromDefaultValues(moduleId)
     config = { ...config, ...(await this.loadFromGlobalConfigFile(moduleId)) }
     config = { ...config, ...(await this.loadFromEnvVariables(moduleId)) }
-    if (botId !== undefined) {
+    if (botId) {
       config = { ...config, ...(await this.loadFromBotConfigFile(moduleId, botId)) }
     }
 
