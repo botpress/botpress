@@ -4,31 +4,32 @@ import socket from './socket'
 import db from './db'
 
 exports.onInit = async bp => {
-  console.log('Init!!!')
-  return
-  const config = await configurator.loadAll()
+  bp.console.debug('[webchat] On Init')
 
-  bp.webchat = {}
+  const middleware = {
+    name: 'Slack message',
+    description: 'Receive a message from slack',
+    order: 20,
+    handler: (event, next) => {
+      if (event.type === 'slack') {
+        bp.dialog.processMessage('PENIS', event)
+      }
+    },
+    direction: 'incoming'
+  }
+  await bp.events.load([middleware])
 
-  // Setup the socket events
-  await socket(bp, config)
-
-  // Initialize UMM
-  return umm(bp)
+  const event = {
+    type: 'slack',
+    channel: 'web',
+    target: 'slack_channel_id',
+    direction: 'incoming'
+  }
+  await bp.events.sendIncoming(event)
 }
 
 exports.onReady = async bp => {
-  console.log('On ready', bp.config)
-  console.log('Config', await bp.config.getModuleConfig('webchat'))
-  return
-  const config = await configurator.loadAll()
-
-  // Initialize the database
-  const knex = await bp.db.get()
-  db(knex, config).initialize()
-
-  // Setup the APIs
-  await api(bp, config)
+  bp.console.debug('[webchat] On Ready')
 }
 
 exports.config = {

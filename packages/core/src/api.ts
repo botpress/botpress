@@ -1,4 +1,5 @@
-import { inject, injectable } from 'inversify'
+import { BotpressEvent } from 'botpress-module-sdk'
+import { inject, injectable, tagged } from 'inversify'
 
 import { container } from './app.inversify'
 import Database from './database'
@@ -30,28 +31,24 @@ export class HttpApi {
 export class EventAPI {
   constructor(private eventEngine: EventEngine) {}
 
+  load(middleware: []) {
+    return this.eventEngine.forBot(BOT_ID).load(middleware)
+  }
+
   sendIncoming(event) {
-    this.eventEngine.forBot(BOT_ID).sendIncoming(event)
+    return this.eventEngine.forBot(BOT_ID).sendIncoming(event)
   }
 
   sendOutgoing(event) {
-    this.eventEngine.forBot(BOT_ID).sendOutgoing(event)
+    return this.eventEngine.forBot(BOT_ID).sendOutgoing(event)
   }
 }
 
 export class DialogAPI {
   constructor(private dialogEngine: DialogEngine) {}
 
-  processMessage() {
-    // this.dialogEngine.forBot(BOT_ID).processMessage()
-  }
-}
-
-export class MiddlewareAPI {
-  constructor(private middlewareService: MiddlewareService) {}
-
-  register() {
-    // this.middlewareService
+  processMessage(sessionID: string, event: BotpressEvent) {
+    return this.dialogEngine.forBot(BOT_ID).processMessage(sessionID, event)
   }
 }
 
@@ -67,6 +64,18 @@ export class ConfigAPI {
   }
 }
 
+export class ConsoleAPI {
+  constructor(private logger: Logger) {}
+
+  debug(msg) {
+    this.logger.debug(msg)
+  }
+
+  info(msg) {
+    this.logger.info(msg)
+  }
+}
+
 /**
  * Socket.IO API to emit events and listen
  */
@@ -76,34 +85,34 @@ export class RealTimeAPI {
 
 @injectable()
 export class BotpressAPI {
-  // dialog: {}
-  // config provider
-  public http: HttpApi
-  public events: EventAPI
-  public dialog: DialogAPI
-  public middleware: MiddlewareAPI
-  public config: ConfigAPI
-  public realtime: RealTimeAPI
+  console: ConsoleAPI
+  http: HttpApi
+  events: EventAPI
+  dialog: DialogAPI
+  config: ConfigAPI
+  realtime: RealTimeAPI
+  database: Database
 
   constructor(
-    @inject(TYPES.BotRepository) private botRepository: BotRepository,
-    @inject(TYPES.CMSService) private cmsService: CMSService,
-    @inject(TYPES.DialogEngine) private dialogEngine: DialogEngine,
-    @inject(TYPES.Database) private database: Database,
-    @inject(TYPES.FlowService) private flowService: FlowService,
-    @inject(TYPES.EventEngine) private eventEngine: EventEngine,
-    @inject(TYPES.MiddlewareService) private mwareService: MiddlewareService,
-    @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
-    @inject(TYPES.Logger) private logger: Logger
+    @inject(TYPES.BotRepository) botRepository: BotRepository,
+    @inject(TYPES.CMSService) cmsService: CMSService,
+    @inject(TYPES.DialogEngine) dialogEngine: DialogEngine,
+    @inject(TYPES.Database) db: Database,
+    @inject(TYPES.FlowService) flowService: FlowService,
+    @inject(TYPES.EventEngine) eventEngine: EventEngine,
+    @inject(TYPES.MiddlewareService) mwareService: MiddlewareService,
+    @inject(TYPES.ModuleLoader) moduleLoader: ModuleLoader,
+    @inject(TYPES.Logger) logger: Logger
   ) {
-    const botRouter = new BotRouter(this.botRepository, this.mwareService, this.cmsService, this.flowService)
+    const botRouter = new BotRouter(botRepository, mwareService, cmsService, flowService)
 
     this.http = new HttpApi(botRouter)
-    this.events = new EventAPI(this.eventEngine)
-    this.dialog = new DialogAPI(this.dialogEngine)
-    this.middleware = new MiddlewareAPI(this.mwareService)
-    this.config = new ConfigAPI(this.moduleLoader)
+    this.events = new EventAPI(eventEngine)
+    this.dialog = new DialogAPI(dialogEngine)
+    this.config = new ConfigAPI(moduleLoader)
     this.realtime = new RealTimeAPI()
+    this.console = new ConsoleAPI(logger)
+    this.database = db
   }
 }
 
