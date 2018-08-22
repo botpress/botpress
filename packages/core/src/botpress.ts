@@ -14,6 +14,7 @@ import { TYPES } from './misc/types'
 import { ModuleLoader } from './module-loader'
 import HTTPServer from './server'
 import { HookService } from './services/hook/hook-service'
+import { EventEngine } from './services/middleware/event-engine'
 
 @injectable()
 export class Botpress {
@@ -32,7 +33,8 @@ export class Botpress {
     @inject(TYPES.HTTPServer) private httpServer: HTTPServer,
     @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
     @inject(TYPES.BotLoader) private botLoader: BotLoader,
-    @inject(TYPES.HookService) private hookService: HookService
+    @inject(TYPES.HookService) private hookService: HookService,
+    @inject(TYPES.EventEngine) private eventEngine: EventEngine
   ) {
     this.version = packageJson.version
     this.botpressPath = path.join(process.cwd(), 'dist')
