@@ -1,10 +1,10 @@
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
-import mware, { Event } from 'mware-ts'
 import { NodeVM } from 'vm2'
 
 import { TYPES } from '../../misc/types'
 import Logger from '../../Logger'
+import { MiddlewareChain } from '../middleware/middleware'
 
 import { Flow, FlowNode, FlowView } from '.'
 import FlowService from './flow-service'
@@ -38,11 +38,11 @@ export class ScoppedDialogEngine {
     private logger: Logger
   ) {}
 
-  onBeforeCreated = mware()
-  onAfterCreated = mware()
-  onBeforeEnd = mware()
-  onBeforeNodeEnter = mware()
-  onBeforeSessionTimeout = mware()
+  onBeforeCreated = new MiddlewareChain<any>()
+  onAfterCreated = new MiddlewareChain<any>()
+  onBeforeEnd = new MiddlewareChain<any>()
+  onBeforeNodeEnter = new MiddlewareChain<any>()
+  onBeforeSessionTimeout = new MiddlewareChain<any>()
   onError = (fn: Function) => this.errorHandlers.push(fn)
 
   // TODO: impl actions
@@ -156,6 +156,8 @@ export class ScoppedDialogEngine {
 
         return session
       }
+
+      console.log('BEFOREEEE')
 
       const msg = (event.text || '').substr(0, 20)
       this._trace('<~', 'RECV', `"${msg}"`, context)
@@ -516,7 +518,7 @@ export class ScoppedDialogEngine {
 
     if (!state || !state.currentFlow) {
       const beforeCtx = { sessionId, flowName: this.defaultFlow }
-      await this.onBeforeCreated.run(new Event('onBeforeCreated'), beforeCtx)
+      await this.onBeforeCreated.use((event, next) => {})
 
       const flow = this._findFlow(beforeCtx.flowName)
 

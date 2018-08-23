@@ -12,7 +12,7 @@ import AllTables from './tables'
 
 @injectable()
 export default class Database {
-  knex: ExtendedKnex | undefined
+  knex!: ExtendedKnex
 
   private tables: Table[] = []
 

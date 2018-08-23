@@ -7,12 +7,12 @@ exports.onInit = async bp => {
   bp.console.debug('[webchat] On Init')
 
   const middleware = {
-    name: 'Slack message',
+    name: 'Test slack message',
     description: 'Receive a message from slack',
     order: 20,
     handler: (event, next) => {
       if (event.type === 'slack') {
-        bp.dialog.processMessage('PENIS', event)
+        bp.dialog.processMessage('slack_user_id', event)
       }
     },
     direction: 'incoming'

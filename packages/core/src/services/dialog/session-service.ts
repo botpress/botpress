@@ -23,7 +23,9 @@ export class SessionService {
   }
 
   async getSession(id: string): Promise<DialogSession> {
-    return await this.sessionRepository.get(id)
+    const session = await this.sessionRepository.get(id)
+    console.log(session)
+    return session
   }
 
   async createSession(session) {
