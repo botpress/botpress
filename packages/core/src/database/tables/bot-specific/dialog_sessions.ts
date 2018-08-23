@@ -9,8 +9,8 @@ export default class DialogSessionTable extends Table {
       table.text('state')
       table.text('context')
       table.timestamp('active_on')
-      table.text('created_on')
-      table.text('modified_on')
+      table.timestamp('created_on')
+      table.timestamp('modified_on')
     })
   }
 }

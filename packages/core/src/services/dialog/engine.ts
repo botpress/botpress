@@ -86,7 +86,7 @@ export class ScoppedDialogEngine {
 
   async endFlow(sessionId: string) {
     this._trace('--', 'ENDF', '', undefined)
-    // await this.onBeforeEnd.run(new Event('onBeforeEnd'), { sessionId })
+    await this.onBeforeEnd.run({ sessionId })
     await this.sessionService.deleteSession(sessionId)
     return undefined
   }
@@ -148,7 +148,9 @@ export class ScoppedDialogEngine {
 
       console.log('*** CONTEXT', context)
 
-      let session = await this.sessionService.getSession(sessionId)
+      let session = await this.sessionService.getSession(sessionId).then()
+
+      console.log('*** SESSION', session)
 
       if (event.type === 'bp_dialog_timeout') {
         session = await this._processTimeout(sessionId, session.state, context, event)
@@ -164,11 +166,10 @@ export class ScoppedDialogEngine {
       this._trace('<~', 'RECV', `"${msg}"`, context)
 
       if (!context.currentFlow) {
-        throw new Error('Expected currentFlow to be defined for stateId=' + sessionId)
+        throw new Error('Expected currentFlow to be defined for sessionID=' + sessionId)
       }
 
       const catchAllOnReceive = _.get(context, 'currentFlow.catchAll.onReceive')
-
       if (catchAllOnReceive) {
         this._trace('!!', 'KALL', '', context)
         session = await this._processInstructions(catchAllOnReceive, session, event, context)
@@ -188,6 +189,8 @@ export class ScoppedDialogEngine {
         this._trace('?X', 'KALL', '', context)
       }
 
+      console.log('PROCESS NODE - CONTEXT: ', context)
+
       session = await this._processNode(sessionId, session.state, context, context.node, event)
 
       if (!_.isNil(session)) {
@@ -202,7 +205,7 @@ export class ScoppedDialogEngine {
 
   private async _processTimeout(sessionId: string, userState: any, context: Context, event: any) {
     const beforeCtx = { sessionId }
-    // await this.onBeforeSessionTimeout.run(new Event('onBeforeSessionTimeout'), beforeCtx)
+    await this.onBeforeSessionTimeout.run(beforeCtx)
 
     const currentNodeTimeout = context.node.timeoutNode
     const currentFlowTimeout = context.currentFlow.timeoutNode
@@ -217,10 +220,10 @@ export class ScoppedDialogEngine {
       userState = await this._processNode(sessionId, userState, context, currentFlowTimeout, event)
     } else if (fallbackTimeoutNode) {
       this._trace('<>', 'DNDE', '', context)
-      // userState = await this._processNode(sessionId, userState, context, fallbackTimeoutNode.name, event)
+      userState = await this._processNode(sessionId, userState, context, fallbackTimeoutNode.name, event)
     } else if (fallbackTimeoutFlow) {
       this._trace('<>', 'DFLW', '', context)
-      // userState = await this._processNode(sessionId, userState, context, fallbackTimeoutFlow.name, event)
+      userState = await this._processNode(sessionId, userState, context, fallbackTimeoutFlow.name, event)
     } else {
       this._trace('<>', 'NTHG', '', context)
       userState = await this.endFlow(sessionId)
@@ -238,7 +241,9 @@ export class ScoppedDialogEngine {
       switchedNode = true
     }
 
-    const originalFlow = context.currentFlow.name
+    console.log(nodeName)
+
+    const originalFlow = context.currentFlow
     const originalNode = context.node
 
     if (callSubflowRegex.test(nodeName)) {
@@ -250,7 +255,7 @@ export class ScoppedDialogEngine {
       this._trace('<<', 'FLOW', `"${nodeName}"`, context)
       context = this._gotoPreviousFlow(nodeName, context)
       switchedFlow = true
-    } else if (context.node.name !== nodeName) {
+    } else if (context.node && context.node.name !== nodeName) {
       this._trace('>>', 'FLOW', `"${nodeName}"`, context)
       switchedNode = true
       context.node.name = nodeName
@@ -260,7 +265,11 @@ export class ScoppedDialogEngine {
       context.node = context.currentFlow.startNode
     }
 
-    const node = this._findNode(context.currentFlow.nodes, context.node)
+    console.log('FIND NODE')
+
+    const node = this._findNode(context.currentFlow, context.node)
+
+    console.log('**** NODE ', node)
 
     if (!node || !node.name) {
       userState = await this.endFlow(sessionId)
@@ -292,7 +301,7 @@ export class ScoppedDialogEngine {
       await this._setContextForSession(sessionId, context)
 
       const beforeCtx = { sessionId, node }
-      // await this.onBeforeNodeEnter.run(new Event('onBeforeNodeEnter'), beforeCtx)
+      await this.onBeforeNodeEnter.run(beforeCtx)
 
       if (node.onEnter) {
         this._trace('!!', 'ENTR', '', context)
@@ -515,13 +524,13 @@ export class ScoppedDialogEngine {
   }
 
   private async getOrCreateContext(sessionId: string): Promise<Context> {
-    let state = await this._getContextForSession(sessionId)
+    let context = await this._getContextForSession(sessionId)
 
-    console.log(state)
+    console.log('**** CONTEXT', context)
 
-    if (!state || !state.currentFlow) {
+    if (!context || !context.currentFlow) {
       const beforeCtx = { sessionId, flowName: this.defaultFlow }
-      await this.onBeforeCreated.use((event, next) => {})
+      await this.onBeforeCreated.run(beforeCtx)
 
       const flow = this._findFlow(beforeCtx.flowName)
 
@@ -529,18 +538,18 @@ export class ScoppedDialogEngine {
         throw new Error(`Could not find the default flow "${this.defaultFlow}"`)
       }
 
-      state = {
+      context = {
         currentFlow: flow.name,
         flowStack: [{ flow: flow.name, node: flow.startNode }]
       }
 
-      await this._setContextForSession(sessionId, state)
+      await this._setContextForSession(sessionId, context)
 
       const afterCtx = { ...beforeCtx }
-      // await this.onAfterCreated.run(new Event('onAfterCreated'), afterCtx)
+      await this.onAfterCreated.run(afterCtx)
     }
 
-    return state
+    return context
   }
 
   async registerActions(fnMap, overwrite = false) {

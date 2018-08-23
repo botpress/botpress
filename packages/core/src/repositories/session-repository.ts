@@ -64,13 +64,23 @@ export class KnexSessionRepository implements SessionRepository {
   }
 
   async update(session: DialogSession) {
-    session.modified_on = this.database.knex.date.now().toString()
+    const now = this.database.knex.date.now()
 
-    return await this.database
-      .knex(this.tableName)
-      .update(session)
-      .where('id', session.id)
-      .then()
+    try {
+      await this.database
+        .knex(this.tableName)
+        .where('id', session.id)
+        .update({
+          active_on: session.active_on,
+          modified_on: now,
+          state: JSON.stringify(session.state),
+          context: JSON.stringify(session.context)
+        })
+        .then()
+    } catch (err) {
+      console.log(err)
+    }
+    return
   }
 
   async delete(id: string) {
