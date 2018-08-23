@@ -32,10 +32,16 @@ export default class Convo extends React.Component {
   renderSendButton() {
     return (
       <span>
-        <div className={style['enter-prompt']}>
+        <div className={`${style['enter-prompt']} botpress__send-btn`}>
           <a>
             <i className="flex">
-              <svg width="13" height="13" viewBox="0 0 13 13" xmlns="http://www.w3.org/2000/svg">
+              <svg
+                className="botpress__convo-send-button"
+                width="13"
+                height="13"
+                viewBox="0 0 13 13"
+                xmlns="http://www.w3.org/2000/svg"
+              >
                 <path
                   d="M12.975.38c.014.043.02.087.024.132v.06c-.004.048-.014.095-.03.14-.006.017-.007.032-.014.046L7.252 12.692c-.09.19-.28.308-.49.308-.216-.002-.406-.127-.493-.32l-.537-3.41C5.56 8.18 4.55 7.1 3.478 6.86l-3.2-.72c-.18-.1-.287-.293-.277-.5.012-.206.138-.39.328-.47L12.248.04 12.3.026c.05-.015.098-.025.148-.026.02 0 .038 0 .058.003.046.004.09.013.132.028l.055.02c.056.027.11.06.154.107.053.053.085.11.11.168.008.018.013.036.018.055z"
                   fillRule="evenodd"
@@ -56,11 +62,17 @@ export default class Convo extends React.Component {
     return (
       <span>
         <div className={style['flex-minimal']}>
-          <div className={style.element}>
+          <div className={`${style.element} botpress__promo-element`}>
             <span>
               {"We're "}
               <i>
-                <svg width="7" height="13" viewBox="0 0 7 13" xmlns="http://www.w3.org/2000/svg">
+                <svg
+                  className="botpress__convo-promo-element"
+                  width="7"
+                  height="13"
+                  viewBox="0 0 7 13"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
                   <g fill="none" fillRule="evenodd">
                     <path
                       d="M4.127.496C4.51-.12 5.37.356 5.16 1.07L3.89 5.14H6.22c.483 0 .757.616.464 1.044l-4.338 6.34c-.407.595-1.244.082-1.01-.618L2.72 7.656H.778c-.47 0-.748-.59-.48-1.02L4.13.495z"
@@ -86,7 +98,7 @@ export default class Convo extends React.Component {
 
     return (
       <div
-        className={style.name}
+        className={`${style.name} botpress__name`}
         style={{
           color: this.props.config.textColorOnForeground
         }}
@@ -103,15 +115,18 @@ export default class Convo extends React.Component {
 
     if (this.props.config.botAvatarUrl) {
       content = (
-        <div className={style.picture} style={{ backgroundImage: 'url(' + this.props.config.botAvatarUrl + ')' }} />
+        <div
+          className={`${style.picture} botpress__picture`}
+          style={{ backgroundImage: 'url(' + this.props.config.botAvatarUrl + ')' }}
+        />
       )
     }
 
     return (
-      <div className={style.avatar}>
-        <div className={style.square}>
+      <div className={`${style.avatar} botpress__avatar-container-outer`}>
+        <div className={`${style.square} botpress__avatar-container-inner`}>
           <div
-            className={style.circle}
+            className={`${style.circle} botpress__avatar-circle`}
             style={{
               borderColor: this.props.config.foregroundColor,
               color: this.props.config.foregroundColor
@@ -127,32 +142,32 @@ export default class Convo extends React.Component {
   renderWelcomeMessage() {
     const message = this.props.config.welcomeMsgText || DEFAULT_WELCOME_MESSAGE
 
-    return <div className={style.paragraph}>{message}</div>
+    return <div className={`${style.paragraph} botpress__convo-paragraph`}>{message}</div>
   }
 
   renderHeader() {
     return (
       <div
-        className={style.header}
+        className={`${style.header} botpress__header`}
         style={{
           color: this.props.config.textColorOnForeground,
           backgroundColor: this.props.config.foregroundColor
         }}
       >
-        <div className={style.line}>
-          <div className={style.title}>
+        <div className={`${style.line} botpress__header-line`}>
+          <div className={`${style.title} botpress__header-title`}>
             {this.renderAvatar()}
             {this.renderName()}
           </div>
         </div>
-        <div className={style.text}>{this.renderWelcomeMessage()}</div>
+        <div className={`${style.text} botpress__convo-welcome-text`}>{this.renderWelcomeMessage()}</div>
       </div>
     )
   }
 
   renderComposer() {
     return (
-      <div className={classnames(style.composer)}>
+      <div className={`${classnames(style.composer)} botpress__new-message-container`}>
         <div className={style['flex-column']}>
           <Input
             send={this.props.send}
@@ -161,7 +176,8 @@ export default class Convo extends React.Component {
             text={this.props.text}
             config={this.props.config}
           />
-          <div className={style.bottom}>
+          <div className={`${style.bottom} botpress__new-message-footer`}>
+            <h2>New text</h2>
             <Send text={this.props.text} send={this.props.send} config={this.props.config} />
           </div>
         </div>
@@ -172,9 +188,9 @@ export default class Convo extends React.Component {
   render() {
     const classNames = classnames(style.internal, style[this.props.transition])
     return (
-      <div className={style.external}>
+      <div className={`${style.external} botpress__convo`}>
         <div
-          className={classNames}
+          className={`${classNames} botpress__convo-inner`}
           style={{
             color: this.props.config.textColorOnBackground,
             backgroundColor: this.props.config.backgroundColor
