@@ -5,14 +5,18 @@ import { TYPES } from '../misc/types'
 
 export type DialogSession = {
   id: string
-  state: string
+  state?: string
   context: any
-  created_on: string
-  modified_on: string
-  active_on: string
+  event: string
+
+  // Timestamps are optionnal because they have default values in the database
+  created_on?: Date
+  modified_on?: Date
+  active_on?: Date
 }
 
 export interface SessionRepository {
+  insert(session: DialogSession)
   get(id: string): Promise<DialogSession>
   upsert(session: DialogSession)
   delete(id: string)
@@ -24,6 +28,18 @@ export class KnexSessionRepository implements SessionRepository {
   private readonly tableName = 'dialog_sessions'
 
   constructor(@inject(TYPES.Database) private database: Database) {}
+
+  async insert(session: DialogSession): Promise<DialogSession> {
+    return this.database
+      .knex(this.tableName)
+      .insert({
+        id: session.id,
+        state: session.state,
+        context: session.context
+      })
+      .returning('*')
+      .then(res => <DialogSession>res)
+  }
 
   async get(id: string): Promise<any> {
     const session = await this.database

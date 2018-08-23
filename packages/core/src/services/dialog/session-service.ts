@@ -5,29 +5,50 @@ import { DialogSession, SessionRepository } from '../../repositories/session-rep
 
 @injectable()
 export class SessionService {
-  constructor(@inject(TYPES.SessionRepository) private sessionRepository: SessionRepository) {}
+  constructor(@inject(TYPES.SessionRepository) private repository: SessionRepository) {}
+
+  async createSession(sessionId, currentFlow, currentNode, event): Promise<DialogSession> {
+    const newSession = {
+      id: sessionId,
+      state: '',
+      context: JSON.stringify({
+        currentFlow: currentFlow,
+        currentNode: currentNode
+      }),
+      event: JSON.stringify(event)
+    }
+    return this.repository.insert(newSession)
+  }
 
   async getContextForSession(id: string): Promise<any> {
-    const session = await this.sessionRepository.get(id)
+    const session = await this.repository.get(id)
     return session.context
   }
 
   async setContextForSession(id: string, context: any) {
-    const session = await this.sessionRepository.get(id)
+    const session = await this.repository.get(id)
     session.context = context
-    await this.sessionRepository.update(session)
+    await this.repository.update(session)
   }
 
   async deleteSession(id: string) {
-    return await this.sessionRepository.delete(id)
+    return await this.repository.delete(id)
   }
 
   async getSession(id: string): Promise<DialogSession> {
-    const session = await this.sessionRepository.get(id)
+    const session = await this.repository.get(id)
     return session
   }
 
-  async createSession(session) {
-    return await this.sessionRepository.upsert(session)
+  async getOrCreateSession(sessionId: string, event: any) {
+    // let session = await this.repository.get(sessionId)
+    // if (!session) {
+    //   session = {
+    //     id: sessionId,
+    //     event: JSON.stringify(session.event),
+    //     state: JSON.stringify(session.state)
+    //   }
+    //   await = this.repository.insert()
+    // }
   }
 }

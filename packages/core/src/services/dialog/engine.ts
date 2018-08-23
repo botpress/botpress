@@ -156,7 +156,7 @@ export class ScoppedDialogEngine {
         session = await this._processTimeout(sessionId, session.state, context, event)
 
         if (!session) {
-          await this.sessionService.createSession(session)
+          // await this.sessionService.getOrCreateSession(session)
         }
 
         return session
@@ -194,7 +194,7 @@ export class ScoppedDialogEngine {
       session = await this._processNode(sessionId, session.state, context, context.node, event)
 
       if (!_.isNil(session)) {
-        await this.sessionService.createSession(session)
+        // await this.sessionService.getOrCreateSession(session)
       }
 
       return session

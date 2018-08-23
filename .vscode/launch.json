@@ -9,15 +9,6 @@
       "cwd": "${workspaceFolder:botpress-xx}/packages/launcher-ce",
       "protocol": "inspector",
       "outFiles": ["${workspaceFolder:botpress-xx}/packages/launcher-ce/build/**/*.js"]
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Debug Botpress",
-      "program": "${workspaceFolder:botpress}/packages/core/botpress/src/botpress.js",
-      "cwd": "${workspaceFolder:botpress}/packages/core/",
-      "protocol": "inspector",
-      "outFiles": ["${workspaceFolder:botpress}/packages/core/botpress/build/**/*.js"]
     }
   ]
 }
