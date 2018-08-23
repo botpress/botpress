@@ -20,6 +20,7 @@
     "bluebird-global": "^1.0.1",
     "body-parser": "^1.18.3",
     "botpress-module-sdk": "file:../module-sdk",
+    "cerialize": "^0.1.18",
     "chalk": "^2.4.1",
     "doctrine": "^2.1.0",
     "dotenv": "^6.0.0",

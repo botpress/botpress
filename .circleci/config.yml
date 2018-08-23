@@ -41,5 +41,9 @@ jobs:
             - ~/repo/packages/core/node_modules
 
       - run:
-          name: Run core tests
-          command: cd ~/repo/packages/core && yarn run test
+          name: Test that it builds
+          command: yarn build
+
+      - run:
+          name: Run all tests
+          command: yarn test

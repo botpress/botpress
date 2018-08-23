@@ -1,4 +1,4 @@
-import { inject, injectable, tagged } from 'inversify'
+import { inject, injectable, postConstruct, tagged } from 'inversify'
 import _ from 'lodash'
 import nanoid from 'nanoid'
 import path from 'path'
@@ -36,12 +36,12 @@ export class CMSService implements IDisposeOnExit {
   }
 
   // TODO Test this class
+  @postConstruct()
   async initialize() {
     this.ghost.global().addRootFolder(this.typesDir, { filesGlob: '**.js' })
     this.ghost.forAllBots().addRootFolder(this.elementsDir, { filesGlob: '**.json' })
     await this.prepareDb()
     await this.loadContentTypesFromFiles()
-    await this.recomputeCategoriesMetadata()
   }
 
   private async prepareDb() {
@@ -73,11 +73,13 @@ export class CMSService implements IDisposeOnExit {
       contentElements = _.concat(contentElements, fileContentElements)
     }
 
-    return Promise.map(contentElements, async element => {
-      await this.memDb(this.contentTable)
-        .insert(this.transformItemApiToDb(botId, element))
-        .then(() => this.logger.debug(`Loaded content '${element.id}' for '${botId}'`))
+    const elements = Promise.map(contentElements, element => {
+      return this.memDb(this.contentTable).insert(this.transformItemApiToDb(botId, element))
     })
+
+    await this.recomputeElementsForBot(botId)
+
+    return elements
   }
 
   private async loadContentTypesFromFiles(): Promise<void> {
@@ -125,7 +127,7 @@ export class CMSService implements IDisposeOnExit {
     params: SearchParams = DefaultSearchParams
   ): Promise<ContentElement[]> {
     let query = this.memDb(this.contentTable)
-    query = query.where('botId', botId)
+    query = query.where({ botId })
 
     if (contentTypeId) {
       query = query.where('contentType', contentTypeId)
@@ -135,6 +137,10 @@ export class CMSService implements IDisposeOnExit {
       query = query.where(builder =>
         builder.where('formData', 'like', `%${params.searchTerm}%`).orWhere('id', 'like', `%${params.searchTerm}%`)
       )
+    }
+
+    if (params.ids) {
+      query = query.where(builder => builder.whereIn('id', params.ids!))
     }
 
     params.orderBy.forEach(column => {
@@ -148,18 +154,27 @@ export class CMSService implements IDisposeOnExit {
 
   async getContentElement(botId: string, id: string): Promise<ContentElement> {
     return this.memDb(this.contentTable)
-      .where('botId', botId)
+      .where({ botId })
       .andWhere('id', id)
+      .get(0)
   }
 
   async getContentElements(botId: string, ids: string[]): Promise<ContentElement[]> {
-    return this.memDb(this.contentTable).where(builder => builder.where('botId', botId).whereIn('id', ids))
+    return this.memDb(this.contentTable).where(builder => builder.where({ botId }).whereIn('id', ids))
   }
 
-  async countContentElements(botId: string, contentTypeId: string): Promise<number> {
+  async countContentElements(botId: string): Promise<number> {
     return this.memDb(this.contentTable)
-      .where('botId', botId)
-      .andWhere('contentType', contentTypeId)
+      .where({ botId })
+      .count('* as count')
+      .get(0)
+      .then(row => (row && Number(row.count)) || 0)
+  }
+
+  async countContentElementsForContentType(botId: string, contentType: string): Promise<number> {
+    return this.memDb(this.contentTable)
+      .where({ botId })
+      .andWhere({ contentType })
       .count('* as count')
       .get(0)
       .then(row => (row && Number(row.count)) || 0)
@@ -167,7 +182,7 @@ export class CMSService implements IDisposeOnExit {
 
   async deleteContentElements(botId: string, ids: string[]): Promise<void> {
     return this.memDb(this.contentTable)
-      .where('botId', botId)
+      .where({ botId })
       .whereIn('id', ids)
       .del()
   }
@@ -317,11 +332,12 @@ export class CMSService implements IDisposeOnExit {
     return result
   }
 
-  private async recomputeCategoriesMetadata(): Promise<void> {
+  private async recomputeElementsForBot(botId: string): Promise<void> {
     for (const contentType of this.contentTypes) {
       await this.memDb(this.contentTable)
         .select('id', 'formData', 'botId')
         .where('contentType', contentType.id)
+        .andWhere({ botId })
         .then()
         .each(async ({ id, formData, botId }: any) => {
           const computedProps = await this.fillComputedProps(contentType, JSON.parse(formData))

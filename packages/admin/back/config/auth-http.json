@@ -1,0 +1,27 @@
+{
+  "method": "get",
+  "url": "http://5b1d8c67a1c56c001458c642.mockapi.io/login/1",
+  "headers": {},
+  "params": {
+    "username": "",
+    "password": ""
+  },
+  "data": null,
+  "auth": null,
+  "proxy": false,
+  "requestMapping": {
+    "username": "params.username",
+    "password": "params.password"
+  },
+  "mapping": {
+    "remoteId": "uid",
+    "email": "email",
+    "picture": "avatar",
+    "company": "!Botpress, Inc.",
+    "provider": "",
+    "location": "",
+    "fullname": "name",
+    "firstname": "",
+    "lastname": ""
+  }
+}

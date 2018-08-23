@@ -16,6 +16,7 @@ import { ModuleLoader } from './module-loader'
 import HTTPServer from './server'
 import { CMSService } from './services/cms/cms-service'
 import { HookService } from './services/hook/hook-service'
+import { EventEngine } from './services/middleware/event-engine'
 
 export type StartOptions = {
   modules: Map<string, ModuleDefinition>
@@ -31,7 +32,6 @@ export class Botpress {
 
   constructor(
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
-    @inject(TYPES.CMSService) private cmsService: CMSService,
     @inject(TYPES.Database) private database: Database,
     @inject(TYPES.Logger)
     @tagged('name', 'Server')
@@ -39,7 +39,8 @@ export class Botpress {
     @inject(TYPES.HTTPServer) private httpServer: HTTPServer,
     @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
     @inject(TYPES.BotLoader) private botLoader: BotLoader,
-    @inject(TYPES.HookService) private hookService: HookService
+    @inject(TYPES.HookService) private hookService: HookService,
+    @inject(TYPES.EventEngine) private eventEngine: EventEngine
   ) {
     this.version = packageJson.version
     this.botpressPath = path.join(process.cwd(), 'dist')
@@ -66,7 +67,6 @@ export class Botpress {
   }
 
   private async initializeServices() {
-    await this.cmsService.initialize()
     await this.botLoader.loadAllBots()
   }
 
