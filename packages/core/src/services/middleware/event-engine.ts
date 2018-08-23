@@ -60,17 +60,17 @@ export class ScopedEventEngine {
     }
   }
 
-  async sendIncoming(event: BotpressEvent): Promise<any> {
-    await this.validateEvent(event)
+  sendIncoming(event: BotpressEvent): Promise<any> {
+    this.validateEvent(event)
     return this.incomingChain.run(event)
   }
 
-  async sendOutgoing(event: BotpressEvent): Promise<any> {
-    await this.validateEvent(event)
+  sendOutgoing(event: BotpressEvent): Promise<any> {
+    this.validateEvent(event)
     return this.outgoingChain.run(event)
   }
 
-  private async validateEvent(event: BotpressEvent) {
+  private validateEvent(event: BotpressEvent) {
     const result = joi.validate(event, eventSchema)
     if (result.error) {
       throw new VError(result.error, 'Invalid Botpress Event')

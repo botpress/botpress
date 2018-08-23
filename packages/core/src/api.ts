@@ -8,6 +8,7 @@ import { TYPES } from './misc/types'
 import { ModuleLoader } from './module-loader'
 import { BotRepository } from './repositories/bot-repository'
 import { BotRouter } from './router/bot-router'
+import ActionService from './services/action/action-service'
 import { CMSService } from './services/cms/cms-service'
 import { DialogEngine } from './services/dialog/engine'
 import FlowService from './services/dialog/flow-service'
@@ -100,11 +101,12 @@ export class BotpressAPI {
     @inject(TYPES.Database) db: Database,
     @inject(TYPES.FlowService) flowService: FlowService,
     @inject(TYPES.EventEngine) eventEngine: EventEngine,
-    @inject(TYPES.MiddlewareService) mwareService: MiddlewareService,
+    @inject(TYPES.MiddlewareService) middlewareService: MiddlewareService,
     @inject(TYPES.ModuleLoader) moduleLoader: ModuleLoader,
+    @inject(TYPES.ActionService) actionService: ActionService,
     @inject(TYPES.Logger) logger: Logger
   ) {
-    const botRouter = new BotRouter(botRepository, mwareService, cmsService, flowService)
+    const botRouter = new BotRouter({ botRepository, middlewareService, cmsService, flowService, actionService })
 
     this.http = new HttpApi(botRouter)
     this.events = new EventAPI(eventEngine)

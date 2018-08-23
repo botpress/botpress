@@ -25,7 +25,7 @@
     "watch": "concurrently \"node webpack.js --watch\" \"npm run watch-backend\"",
     "watch-backend": "babel -w src/backend --out-dir dist/backend",
     "build-backend": "babel src/backend --out-dir dist/backend",
-    "build": "node webpack.js --compile && npm run compile-backend"
+    "build": "node webpack.js --compile && npm run build-backend"
   },
   "repository": {
     "type": "git",
