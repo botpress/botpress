@@ -41,7 +41,14 @@ const defaultOptions = {
   showUserAvatar: false,
   botConvoTitle: 'Botpress Webchat',
   enableTranscriptDownload: false,
-  customStylesheet: ''
+  customStylesheet: '',
+  greetingScreen: {
+    type: 'blank_chat',
+    options: {
+      buttonTitle: 'Get Started',
+      message: ''
+    }
+  }
 }
 
 const injectDOMElement = (tagName, targetSelector, options = {}) => {
