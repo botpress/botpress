@@ -33,7 +33,6 @@ export class KnexSessionRepository implements SessionRepository {
       .get(0)
       .then(row => <DialogSession>row)
 
-    console.log(session)
     return session ? this.jsonParse(session) : this.createSession(id)
   }
 
@@ -106,19 +105,19 @@ export class KnexSessionRepository implements SessionRepository {
       `
     }
 
-    await this.database.knex.raw(sql, params)
-    const session = <DialogSession>await this.database
+    await this.database.knex.raw(sql, params).then()
+
+    const session = await this.database
       .knex(this.tableName)
       .select('*')
       .where({ id })
-      .then()
-
+      .then(row => <DialogSession>row)
     return this.jsonParse(session)
   }
 
   private jsonParse(session: DialogSession) {
-    session.context = JSON.parse(session.context)
-    session.state = JSON.parse(session.state)
+    session.context = session.context && JSON.parse(session.context)
+    session.state = session.state && JSON.parse(session.state)
     return session
   }
 }
