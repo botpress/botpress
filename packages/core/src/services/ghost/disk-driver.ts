@@ -55,9 +55,7 @@ export default class DiskStorageDriver implements StorageDriver {
       pattern = path.join(rootDir, '/' + pattern)
     }
 
-    while (pattern.startsWith('/')) {
-      pattern = pattern.substr(1)
-    }
+    pattern = pattern.replace(/\/+/, '') // Remove all leading "/"
 
     try {
       await fse.access(this.resolvePath(directory), fse.constants.R_OK)

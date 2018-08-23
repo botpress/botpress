@@ -35,7 +35,7 @@ const amendOption = (option, name) => {
 
   const validation = option.validation || (() => true)
 
-  if (typeof option.default !== 'undefined' && !validations[option.type](option.default, validation)) {
+  if (option.default !== undefined && !validations[option.type](option.default, validation)) {
     throw new Error(`Invalid default value (${option.default}) for (${name})`)
   }
 
