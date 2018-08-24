@@ -30,7 +30,8 @@ export const saveAllFlows = () => (dispatch, getState) => {
     catchAll: flow.catchAll,
     links: flow.links,
     nodes: flow.nodes,
-    skillData: flow.skillData
+    skillData: flow.skillData,
+    timeoutNode: flow.timeoutNode
   }))
 
   axios.post('/api/flows/save', flows).then(() => {
