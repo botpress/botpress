@@ -253,7 +253,7 @@ module.exports = async (bp, config) => {
           platform: 'webchat',
           type: payload.type,
           user: user,
-          text: payload.text,
+          text: sanitizedPayload.text,
           raw: {
             ...sanitizedPayload,
             conversationId
