@@ -1,6 +1,7 @@
 import express from 'express'
-import { inject, injectable } from 'inversify'
+import { inject, injectable, tagged } from 'inversify'
 
+import { Logger } from '../misc/interfaces'
 import { TYPES } from '../misc/types'
 import { BotRepository } from '../repositories/bot-repository'
 import ActionService from '../services/action/action-service'
@@ -18,6 +19,9 @@ export default class Router {
   private _router = express.Router()
 
   constructor(
+    @inject(TYPES.Logger)
+    @tagged('name', 'Router')
+    private logger: Logger,
     @inject(TYPES.BotRepository) private botRepository: BotRepository,
     @inject(TYPES.MiddlewareService) private middlewareService: MiddlewareService,
     @inject(TYPES.CMSService) private cmsService: CMSService,
@@ -27,7 +31,7 @@ export default class Router {
   ) {
     const routers = {
       '/': new IndexRouter(),
-      '/auth': new AuthRouter(this.authService),
+      '/auth': new AuthRouter(this.logger, this.authService),
       '/bots': new BotRouter({
         actionService: this.actionService,
         botRepository: this.botRepository,

@@ -67,7 +67,7 @@ export default class BaseAuth {
         const { botUrl, token } = payload
 
         if (botUrl) {
-          let finalUrl =
+          const finalUrl =
             botUrl +
             '?' +
             qs.stringify({
@@ -131,14 +131,14 @@ export default class BaseAuth {
 
   setSession(authResult) {
     // Set the time that the access token will expire at
-    let expiresAt = JSON.stringify((authResult.expiresIn || 7200) * 1000 + new Date().getTime())
+    const expiresAt = JSON.stringify((authResult.expiresIn || 7200) * 1000 + new Date().getTime())
     localStorage.setItem('id_token', authResult.idToken)
     localStorage.setItem('expires_at', expiresAt)
   }
 
   parseJwt(token) {
-    var base64Url = token.split('.')[1]
-    var base64 = base64Url.replace('-', '+').replace('_', '/')
+    const base64Url = token.split('.')[1]
+    const base64 = base64Url.replace('-', '+').replace('_', '/')
     return JSON.parse(window.atob(base64))
   }
 
@@ -153,7 +153,7 @@ export default class BaseAuth {
   isAuthenticated() {
     // Check whether the current time is past the
     // access token's expiry time
-    let expiresAt = JSON.parse(localStorage.getItem('expires_at'))
+    const expiresAt = JSON.parse(localStorage.getItem('expires_at'))
     return new Date().getTime() < expiresAt
   }
 }

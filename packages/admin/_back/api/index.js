@@ -29,8 +29,6 @@ export default ({ config, db }) => {
 
   api.use('/bots', checkCloudAuth({ config, db }), bots({ config, db }))
 
-  api.use('/login', basicLogin({ config, db }))
-
   api.use('/login', checkCloudAuth({ config, db }), loadUser, tokenLogin({ config, db }))
 
   api.use('/.well-known', cache('30 minutes'), wellKnown({ config, db }))

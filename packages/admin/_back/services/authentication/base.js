@@ -12,18 +12,37 @@ import TeamService from '../team'
 
 const debug = require('debug')('svc:authentication')
 
+const splitMultiline = s =>
+  s
+    .split('\n')
+    .map(s => s.trim())
+    .filter(Boolean)
+
 export default ({ config, db }) => {
   const team = TeamService({ config, db })
 
-  const adjs = fs
-    .readFileSync(path.resolve('./lang/dic-users-adj.txt'))
-    .toString()
-    .split(/\n|\r\n|,/gi)
+  const adjs = splitMultiline(
+    ```
+    rapid
+    furious
+    extreme
+    lazy
+    marvelous
+    steady
+    ready
+    smart
+  ```
+  )
 
-  const nouns = fs
-    .readFileSync(path.resolve('./lang/dic-users-noun.txt'))
-    .toString()
-    .split(/\n|\r\n|,/gi)
+  const nouns = splitMultiline(
+    ```
+    botmaker
+    botter
+    botgineer
+    botmaster
+    botlord
+  ```
+  )
 
   function getRandomUsername() {
     return (
