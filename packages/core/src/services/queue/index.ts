@@ -1,3 +1,5 @@
+import { Disposer } from 'bluebird'
+
 import { BotpressEvent } from '../../misc/interfaces'
 
 export interface QueueOptions {

@@ -1,5 +1,6 @@
 export type ModuleConfigEntry = {
-  url: string
+  name: string
+  enabled: boolean
 }
 
 export type ModulesConfig = {

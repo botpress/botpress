@@ -2,7 +2,7 @@ import { inject, injectable, tagged } from 'inversify'
 import Knex from 'knex'
 import _ from 'lodash'
 
-import { DatabaseConfig } from '../config/database.config'
+import { DatabaseConfig } from '../config/botpress.config'
 import { Logger } from '../misc/interfaces'
 import { TYPES } from '../misc/types'
 
@@ -12,7 +12,7 @@ import AllTables from './tables'
 
 @injectable()
 export default class Database {
-  knex: ExtendedKnex | undefined
+  knex!: ExtendedKnex
 
   private tables: Table[] = []
 

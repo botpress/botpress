@@ -4,12 +4,6 @@
   "main": "app.js",
   "license": "MIT",
   "dependencies": {
-    "@botpress/audience": "^10.23.0",
-    "@botpress/builtins": "^10.23.0",
-    "@botpress/channel-web": "^10.23.0",
-    "@botpress/hitl": "^10.23.0",
-    "@botpress/nlu": "^10.23.0",
-    "@botpress/skill-choice": "^10.23.0",
     "body-parser": "^1.18.3",
     "@types/jest": "^23.3.1",
     "dotenv": "^6.0.0",

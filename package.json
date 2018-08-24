@@ -1,4 +1,6 @@
 {
+  "name": "botpress",
+  "version": "1.0.2",
   "license": "AGPL-3.0-only",
   "devDependencies": {
     "@types/jest": "^23.3.0",
@@ -7,11 +9,10 @@
     "@types/tmp": "^0.0.33",
     "babel-core": "^6.26.0",
     "babel-jest": "^23.4.2",
-    "concurrently": "^3.6.0",
+    "concurrently": "^3.6.1",
     "husky": "^0.14.3",
     "jest": "^23.4.1",
     "jest-extended": "^0.8.1",
-    "lerna": "^2.11.0",
     "nodemon": "^1.18.2",
     "pkg": "^4.3.3",
     "prettier": "^1.13.7",
@@ -22,13 +23,18 @@
     "tslint": "^5.11.0",
     "typescript": "^3.0.1"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@botpress/xx-ui": "file:packages/ui",
+    "botpress-launcher-ce": "file:packages/launcher-ce",
+    "botpress-module-sdk": "file:packages/module-sdk",
+    "botpress-xx": "file:packages/core"
+  },
   "scripts": {
-    "bootstrap": "lerna bootstrap",
-    "build-sdk": "lerna run build --scope botpress-module-sdk",
-    "dev": "lerna bootstrap && npm run watch",
-    "watch": "npm run build-sdk && lerna run --parallel watch",
-    "test": "lerna run test",
-    "build": "lerna run build"
+    "build": "./scripts/batch-exec.sh \"build\" \"npm run build\"",
+    "start": "cd ./packages/launcher-ce && npm run start",
+    "clean": "./scripts/clean.sh",
+    "bootstrap": "./scripts/bootstrap.sh",
+    "watch": "./scripts/batch-exec.sh \"watch\" \"npm run watch\"",
+    "test": "./scripts/batch-exec.sh \"test\" \"npm run test\""
   }
 }

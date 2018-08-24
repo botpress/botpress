@@ -1,3 +1,4 @@
+import { ModuleDefinition } from 'botpress-module-sdk'
 import { inject, injectable, tagged } from 'inversify'
 import { Memoize } from 'lodash-decorators'
 import moment from 'moment'
@@ -13,8 +14,13 @@ import { Logger } from './misc/interfaces'
 import { TYPES } from './misc/types'
 import { ModuleLoader } from './module-loader'
 import HTTPServer from './server'
+import { CMSService } from './services/cms/cms-service'
 import { HookService } from './services/hook/hook-service'
 import { EventEngine } from './services/middleware/event-engine'
+
+export type StartOptions = {
+  modules: Map<string, ModuleDefinition>
+}
 
 @injectable()
 export class Botpress {
@@ -41,20 +47,20 @@ export class Botpress {
     this.configLocation = path.join(this.botpressPath, '/config')
   }
 
-  async start() {
+  async start(options: StartOptions) {
     const beforeDt = moment()
-    await this.initialize()
+    await this.initialize(options)
     const bootTime = moment().diff(beforeDt, 'milliseconds')
     this.logger.info(`Started in ${bootTime}ms`)
   }
 
-  private async initialize() {
+  private async initialize(options: StartOptions) {
     this.config = await this.loadConfiguration()
 
     await this.trackStats()
     await this.createDatabase()
-    await this.loadModules()
     await this.initializeServices()
+    await this.loadModules(options.modules)
     await this.startServer()
 
     await this.hookService.executeHook('after_bot_start')
@@ -77,9 +83,9 @@ export class Botpress {
     return this.database.initialize(this.config!.database)
   }
 
-  private async loadModules(): Promise<void> {
-    const modules = await this.moduleLoader.getAvailableModules()
-    this.logger.info(`Loaded ${modules.length} modules`)
+  private async loadModules(modules: Map<string, ModuleDefinition>): Promise<void> {
+    const loadedModules = await this.moduleLoader.loadModules(modules)
+    this.logger.info(`Loaded ${loadedModules.length} modules`)
   }
 
   private async startServer() {

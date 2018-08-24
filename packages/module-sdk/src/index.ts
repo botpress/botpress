@@ -23,3 +23,31 @@ export type ModuleMetadata = {
   incomingMiddleware: Array<MiddlewareDefinition>
   outgoingMiddleware: Array<MiddlewareDefinition>
 }
+
+export type ModuleDefinition = {
+  onInit: Function
+  onReady: Function
+  config: { [key: string]: ModuleConfigEntry }
+  defaultConfigJson?: string
+}
+
+export type ModuleConfigEntry = {
+  type: 'bool' | 'any' | 'string'
+  required: boolean
+  default: any
+  env?: string
+}
+
+/**
+ * @property {string} type - The type of the event, i.e. image, text, timeout, etc
+ * @property {string} channel - The channel of communication, i.e web, messenger, twillio
+ * @property {string} target - The target of the event for a specific plateform, i.e
+ */
+export type BotpressEvent = {
+  type: string
+  channel: string
+  target: string
+  direction: Direction
+  text?: string
+  raw?: string
+}

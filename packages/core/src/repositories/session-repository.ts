@@ -1,6 +1,6 @@
 import { inject, injectable } from 'inversify'
 
-import { ExtendedKnex } from '../database/interfaces'
+import Database from '../database'
 import { TYPES } from '../misc/types'
 
 export type DialogSession = {
@@ -23,14 +23,16 @@ export interface SessionRepository {
 export class KnexSessionRepository implements SessionRepository {
   private readonly tableName = 'dialog_sessions'
 
-  constructor(@inject(TYPES.Database) private knex: ExtendedKnex) {}
+  constructor(@inject(TYPES.Database) private database: Database) {}
 
-  async get(id: string): Promise<DialogSession> {
-    const session = <DialogSession>await this.knex(this.tableName)
+  async get(id: string): Promise<any> {
+    const session = await this.database
+      .knex(this.tableName)
       .where({ id })
-      .limit(1)
+      .select('*')
       .get(0)
-      .then()
+      .then(row => <DialogSession>row)
+
     return session ? this.jsonParse(session) : this.createSession(id)
   }
 
@@ -40,38 +42,40 @@ export class KnexSessionRepository implements SessionRepository {
       id: session.id,
       state: JSON.stringify(session.state),
       context: JSON.stringify(session.context),
-      now: this.knex.date.now()
+      now: this.database.knex.date.now()
     }
 
     let sql: string
-    if (this.knex.isLite) {
+    if (this.database.knex.isLite) {
       sql = `
-      INSERT OR REPLACE INTO :tableName (id, state, context, active_on, created_on, modified_on)
+      INSERT OR REPLACE INTO :tableName: (id, state, context, active_on, created_on, modified_on)
       VALUES (:id, :state, :context, :now, :now, :now)
       `
     } else {
       sql = `
-      INSERT INTO :tableName (id, state, context, active_on, created_on, modified_on)
+      INSERT INTO :tableName: (id, state, context, active_on, created_on, modified_on)
       VALUES (:id, :state, :context, :now, :now, :now)
       ON CONFLICT (id) DO UPDATE
       SET state = :state, context = :context, active_on = :now, modified_on = :now
       `
     }
 
-    return this.knex.raw(sql, params)
+    return this.database.knex.raw(sql, params)
   }
 
   async update(session: DialogSession) {
-    session.modified_on = this.knex.date.now().toString()
+    session.modified_on = this.database.knex.date.now().toString()
 
-    return await this.knex(this.tableName)
+    return await this.database
+      .knex(this.tableName)
       .update(session)
       .where('id', session.id)
       .then()
   }
 
   async delete(id: string) {
-    await this.knex(this.tableName)
+    await this.database
+      .knex(this.tableName)
       .where({ id })
       .del()
       .then()
@@ -83,27 +87,37 @@ export class KnexSessionRepository implements SessionRepository {
       id,
       state: '',
       context: '',
-      now: this.knex.date.now()
+      now: this.database.knex.date.now()
     }
 
-    const sql = `
-    INSERT INTO :tableName: (id, state, active_on, created_on)
-    VALUES (:id, :state, :now, :now)
-    ON CONFLICT (id) DO UPDATE
-      SET created_on = :now, active_on = :now, modified_on = :now, state = :state, context = :context`
+    let sql: string
+    if (this.database.knex.isLite) {
+      sql = `
+      INSERT OR REPLACE INTO :tableName: (id, state, active_on, created_on, modified_on)
+      VALUES (:id, :state, :now, :now, :now)
+      `
+    } else {
+      sql = `
+      INSERT INTO :tableName: (id, state, active_on, created_on, modified_on)
+      VALUES (:id, :state, :now, :now, :now)
+      ON CONFLICT (id) DO UPDATE
+        SET created_on = :now, active_on = :now, modified_on = :now, state = :state, context = :context
+      `
+    }
 
-    await this.knex.raw(sql, params)
-    const session = <DialogSession>await this.knex(this.tableName)
+    await this.database.knex.raw(sql, params).then()
+
+    const session = await this.database
+      .knex(this.tableName)
       .select('*')
       .where({ id })
-      .then()
-
+      .then(row => <DialogSession>row)
     return this.jsonParse(session)
   }
 
   private jsonParse(session: DialogSession) {
-    session.context = JSON.parse(session.context)
-    session.state = JSON.parse(session.state)
+    session.context = session.context && JSON.parse(session.context)
+    session.state = session.state && JSON.parse(session.state)
     return session
   }
 }

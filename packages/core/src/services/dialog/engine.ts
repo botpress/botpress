@@ -1,10 +1,10 @@
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
-import mware, { Event } from 'mware-ts'
 import { NodeVM } from 'vm2'
 
 import { TYPES } from '../../misc/types'
 import Logger from '../../Logger'
+import { MiddlewareChain } from '../middleware/middleware'
 
 import { Flow, FlowNode, FlowView } from '.'
 import FlowService from './flow-service'
@@ -38,11 +38,11 @@ export class ScoppedDialogEngine {
     private logger: Logger
   ) {}
 
-  onBeforeCreated = mware()
-  onAfterCreated = mware()
-  onBeforeEnd = mware()
-  onBeforeNodeEnter = mware()
-  onBeforeSessionTimeout = mware()
+  onBeforeCreated = new MiddlewareChain<any>()
+  onAfterCreated = new MiddlewareChain<any>()
+  onBeforeEnd = new MiddlewareChain<any>()
+  onBeforeNodeEnter = new MiddlewareChain<any>()
+  onBeforeSessionTimeout = new MiddlewareChain<any>()
   onError = (fn: Function) => this.errorHandlers.push(fn)
 
   // TODO: impl actions
@@ -86,7 +86,7 @@ export class ScoppedDialogEngine {
 
   async endFlow(sessionId: string) {
     this._trace('--', 'ENDF', '', undefined)
-    await this.onBeforeEnd.run(new Event('onBeforeEnd'), { sessionId })
+    // await this.onBeforeEnd.run(new Event('onBeforeEnd'), { sessionId })
     await this.sessionService.deleteSession(sessionId)
     return undefined
   }
@@ -145,6 +145,9 @@ export class ScoppedDialogEngine {
       }
 
       const context = await this.getOrCreateContext(sessionId)
+
+      console.log('*** CONTEXT', context)
+
       let session = await this.sessionService.getSession(sessionId)
 
       if (event.type === 'bp_dialog_timeout') {
@@ -199,7 +202,7 @@ export class ScoppedDialogEngine {
 
   private async _processTimeout(sessionId: string, userState: any, context: Context, event: any) {
     const beforeCtx = { sessionId }
-    await this.onBeforeSessionTimeout.run(new Event('onBeforeSessionTimeout'), beforeCtx)
+    // await this.onBeforeSessionTimeout.run(new Event('onBeforeSessionTimeout'), beforeCtx)
 
     const currentNodeTimeout = context.node.timeoutNode
     const currentFlowTimeout = context.currentFlow.timeoutNode
@@ -289,7 +292,7 @@ export class ScoppedDialogEngine {
       await this._setContextForSession(sessionId, context)
 
       const beforeCtx = { sessionId, node }
-      await this.onBeforeNodeEnter.run(new Event('onBeforeNodeEnter'), beforeCtx)
+      // await this.onBeforeNodeEnter.run(new Event('onBeforeNodeEnter'), beforeCtx)
 
       if (node.onEnter) {
         this._trace('!!', 'ENTR', '', context)
@@ -514,9 +517,11 @@ export class ScoppedDialogEngine {
   private async getOrCreateContext(sessionId: string): Promise<Context> {
     let state = await this._getContextForSession(sessionId)
 
+    console.log(state)
+
     if (!state || !state.currentFlow) {
       const beforeCtx = { sessionId, flowName: this.defaultFlow }
-      await this.onBeforeCreated.run(new Event('onBeforeCreated'), beforeCtx)
+      await this.onBeforeCreated.use((event, next) => {})
 
       const flow = this._findFlow(beforeCtx.flowName)
 
@@ -532,7 +537,7 @@ export class ScoppedDialogEngine {
       await this._setContextForSession(sessionId, state)
 
       const afterCtx = { ...beforeCtx }
-      await this.onAfterCreated.run(new Event('onAfterCreated'), afterCtx)
+      // await this.onAfterCreated.run(new Event('onAfterCreated'), afterCtx)
     }
 
     return state

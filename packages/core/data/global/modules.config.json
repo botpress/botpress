@@ -1,7 +1,8 @@
 {
   "modules": [
     {
-      "url": "http://localhost:3002"
+      "name": "channel-web",
+      "enabled": true
     }
   ]
 }

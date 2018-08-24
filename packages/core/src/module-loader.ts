@@ -1,13 +1,12 @@
-import axios from 'axios'
-import { ModuleMetadata } from 'botpress-module-sdk'
+import { ModuleDefinition, ModuleMetadata } from 'botpress-module-sdk'
 import { inject, injectable, tagged } from 'inversify'
-import { Memoize, Throttle } from 'lodash-decorators'
-import ms from 'ms'
 
-import { ConfigProvider } from './config/config-loader'
-import { ModuleConfigEntry, ModulesConfig } from './config/modules.config'
+import BotpressAPI from './api'
+import { ModuleConfigEntry } from './config/modules.config'
 import { Logger } from './misc/interfaces'
 import { TYPES } from './misc/types'
+import GhostService from './services/ghost/service'
+import ConfigReader from './services/module/config-reader'
 
 export type AvailableModule = {
   metadata: ModuleMetadata
@@ -16,55 +15,52 @@ export type AvailableModule = {
 
 @injectable()
 export class ModuleLoader {
+  private loadedModules = []
+  private _configReader?: ConfigReader
+
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'ModuleLoader')
     private logger: Logger,
-    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider
+    @inject(TYPES.GhostService) private ghost: GhostService
   ) {}
 
-  @Memoize()
-  private async loadConfiguration(): Promise<ModulesConfig> {
-    return this.configProvider.getModulesConfig()
-  }
-
-  @Memoize()
-  private async alertUnavailableModule(moduleUrl: string) {
-    this.logger.warn(`Module at "${moduleUrl}" is not available`)
-  }
-
-  @Throttle(ms('5m'))
-  async getAvailableModules(): Promise<AvailableModule[]> {
-    const config = await this.loadConfiguration()
-    const available: Map<string, AvailableModule> = new Map()
-
-    for (const module of config.modules) {
-      try {
-        const { data } = await axios.get(`${module.url}/register`)
-        const metadata = <ModuleMetadata>data
-
-        // TODO Do more sophisticated check if metadata is valid
-        if (!metadata || !metadata.name) {
-          this.logger.error(`Invalid metadata received from module at "${module.url}". This module will be ignored.`)
-          continue
-        }
-        const moduleName = metadata.name.toLowerCase()
-        if (available.has(moduleName)) {
-          this.logger.error(`Duplicated module "${moduleName}". This one will be ignored ("${module.url}".)`)
-        } else {
-          available.set(moduleName, {
-            metadata: metadata,
-            definition: module
-          })
-          this.logger.info(`Loaded ${moduleName}, version ${metadata.version}`)
-        }
-      } catch (err) {
-        this.alertUnavailableModule(module.url)
-      }
+  public get configReader() {
+    if (this._configReader) {
+      return this._configReader
     }
 
-    const modules = Array.from(available.values())
+    throw new Error('Configuration reader is not initialized (you need to load modules first)')
+  }
 
-    return modules
+  public set configReader(value: ConfigReader) {
+    if (this._configReader) {
+      throw new Error('Modules have already been loaded')
+    }
+
+    this._configReader = value
+  }
+
+  public async loadModules(modules: Map<string, ModuleDefinition>) {
+    const api = BotpressAPI() // TODO This is slow (200+ ms)
+
+    this.configReader = new ConfigReader(this.logger, modules, this.ghost)
+    await this.configReader.initialize()
+
+    for (const module of modules.values()) {
+      await (module.onInit && module.onInit(api))
+    }
+
+    // Once all the modules have been loaded, we tell them it's ready
+    // TODO We probably want to wait until Botpress is done loading the other services etc
+    for (const module of modules.values()) {
+      await (module.onReady && module.onReady(api))
+    }
+
+    return []
+  }
+
+  public async getAvailableModules(): Promise<AvailableModule[]> {
+    return this.loadedModules
   }
 }

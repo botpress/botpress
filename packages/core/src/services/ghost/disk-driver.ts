@@ -46,7 +46,7 @@ export default class DiskStorageDriver implements StorageDriver {
 
   async directoryListing(folder: string, fileEndingPattern: string): Promise<string[]> {
     const isDirectoryRange = folder.includes('*')
-    let pattern = `**/*${fileEndingPattern}`
+    let pattern = fileEndingPattern.startsWith('.') ? `**/*${fileEndingPattern}` : `**/${fileEndingPattern}`
     let directory = folder
 
     if (isDirectoryRange) {
@@ -54,6 +54,8 @@ export default class DiskStorageDriver implements StorageDriver {
       const rootDir = folder.substr(folder.indexOf('*') + 1)
       pattern = path.join(rootDir, '/' + pattern)
     }
+
+    pattern = pattern.replace(/\/+/, '') // Remove all leading "/"
 
     try {
       await fse.access(this.resolvePath(directory), fse.constants.R_OK)

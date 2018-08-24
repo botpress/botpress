@@ -59,9 +59,7 @@ docs/reference
 
 packages/**/bin
 packages/**/dist
-modules/**/bin
-modules/**/dist
-modules/**/.env
-
+packages/**/build
+packages/**/.env
 
 *.cache

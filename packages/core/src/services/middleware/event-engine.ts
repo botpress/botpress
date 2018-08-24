@@ -1,4 +1,4 @@
-import { Direction, MiddlewareDefinition } from 'botpress-module-sdk'
+import { BotpressEvent, MiddlewareDefinition } from 'botpress-module-sdk'
 import { inject, injectable, tagged } from 'inversify'
 import joi from 'joi'
 import { VError } from 'verror'
@@ -7,20 +7,6 @@ import { Logger } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
 
 import { MiddlewareChain } from './middleware'
-
-/**
- * @property {string} type - The type of the event, i.e. image, text, timeout, etc
- * @property {string} channel - The channel of communication, i.e web, messenger, twillio
- * @property {string} target - The target of the event for a specific plateform, i.e
- */
-export type BotpressEvent = {
-  type: string
-  channel: string
-  target: string
-  direction: Direction
-  text?: string
-  raw?: string
-}
 
 const directionRegex = /^(incoming|outgoing)$/
 
@@ -74,17 +60,17 @@ export class ScopedEventEngine {
     }
   }
 
-  async sendIncoming(event: BotpressEvent): Promise<any> {
-    await this.validateEvent(event)
+  sendIncoming(event: BotpressEvent): Promise<any> {
+    this.validateEvent(event)
     return this.incomingChain.run(event)
   }
 
-  async sendOutgoing(event: BotpressEvent): Promise<any> {
-    await this.validateEvent(event)
+  sendOutgoing(event: BotpressEvent): Promise<any> {
+    this.validateEvent(event)
     return this.outgoingChain.run(event)
   }
 
-  private async validateEvent(event: BotpressEvent) {
+  private validateEvent(event: BotpressEvent) {
     const result = joi.validate(event, eventSchema)
     if (result.error) {
       throw new VError(result.error, 'Invalid Botpress Event')

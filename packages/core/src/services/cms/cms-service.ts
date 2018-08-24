@@ -190,7 +190,7 @@ export class CMSService implements IDisposeOnExit {
   async getAllContentTypes(botId?: string): Promise<ContentType[]> {
     if (botId) {
       const botConfig = await this.configProvider.getBotConfig(botId)
-      const enabledTypes = botConfig.enabledContentTypes || []
+      const enabledTypes = botConfig.imports.contentTypes || []
       return Promise.map(enabledTypes, x => this.getContentType(x))
     }
 

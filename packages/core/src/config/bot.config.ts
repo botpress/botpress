@@ -1,22 +1,14 @@
 export type BotConfig = {
   name: string
+  active: boolean
   description?: string
   author?: string
   version: string
   license?: string
-  modules: BotModuleConfig[]
-  enabledContentTypes: string[]
-}
-
-export type BotModuleConfig = {
-  name: string
-  enabled: boolean
-  incomingMiddleware: MiddlewareConfig[]
-  outgoingMiddleware: MiddlewareConfig[]
-}
-
-export type MiddlewareConfig = {
-  name: string
-  enabled: boolean
-  order: number
+  imports: {
+    modules: string[]
+    contentTypes: string[]
+    incomingMiddleware: string[]
+    outgoingMiddleware: string[]
+  }
 }

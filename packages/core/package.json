@@ -1,21 +1,17 @@
 {
   "name": "botpress-xx",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "author": "Botpress",
   "license": "AGPL-3.0-only",
-  "bin": "dist/src/app.js",
+  "main": "dist/src/app.js",
+  "typings": "dist/src/app.d.ts",
   "private": true,
   "scripts": {
-    "start": "npm run serve",
-    "serve": "node dist/src/app.js",
+    "postinstall": "npm run build",
     "build": "npm run tslint && npm run build-ts && ./scripts/copy-config.sh",
     "build-ts": "../../node_modules/.bin/rimraf dist && ../../node_modules/.bin/tsc",
-    "build-pkg": "npm run build && npm run pkg",
-    "pkg": "./scripts/package-binaries.sh",
-    "test": "../../node_modules/.bin/jest --forceExit --coverage --verbose -c ../../jest.config.js",
-    "watch": "concurrently -c cyan npm:watch-ts",
-    "watch-ts": "../../node_modules/.bin/rimraf dist && mkdir dist && ./scripts/copy-config.sh && ../../node_modules/.bin/tsc-watch -p . --onSuccess \"node ./dist/src/app.js\" --onFailure \"echo Beep! Compilation Failed\"",
-    "watch-node": "../../node_modules/.bin/nodemon dist/src/app.js -w dist",
+    "test": "../../node_modules/.bin/jest --detectOpenHandles -c ../../jest.config.js",
+    "watch": "../../node_modules/.bin/rimraf dist && mkdir dist && ./scripts/copy-config.sh && ../../node_modules/.bin/tsc-watch -p .",
     "watch-test": "npm run test -- --watchAll",
     "tslint": "../../node_modules/.bin/tslint -c ../../tslint.json -p tsconfig.json"
   },
@@ -23,7 +19,7 @@
     "axios": "^0.18.0",
     "bluebird-global": "^1.0.1",
     "body-parser": "^1.18.3",
-    "botpress-module-sdk": "^0.0.1",
+    "botpress-module-sdk": "file:../module-sdk",
     "cerialize": "^0.1.18",
     "chalk": "^2.4.1",
     "doctrine": "^2.1.0",
@@ -35,6 +31,7 @@
     "glob": "^7.1.2",
     "inversify": "^4.13.0",
     "joi": "^13.6.0",
+    "json5": "^2.0.1",
     "knex": "^0.15.2",
     "lodash": "^4.17.10",
     "lodash-decorators": "^6.0.0",
@@ -50,7 +47,8 @@
     "sqlite3": "^4.0.2",
     "tmp": "^0.0.33",
     "verror": "^1.10.0",
-    "vm2": "^3.6.2"
+    "vm2": "^3.6.2",
+    "yn": "^2.0.0"
   },
   "devDependencies": {
     "@types/bluebird-global": "^3.5.6",
@@ -61,20 +59,14 @@
     "@types/fs-extra": "^5.0.4",
     "@types/glob": "^5.0.35",
     "@types/joi": "^13.4.2",
+    "@types/json5": "0.0.30",
     "@types/knex": "^0.14.17",
     "@types/lodash": "^4.14.112",
     "@types/lru-cache": "^4.1.1",
-    "@types/moment": "^2.13.0",
     "@types/ms": "^0.7.30",
     "@types/nanoid": "^1.0.0",
     "@types/verror": "^1.10.3",
     "concurrently": "^3.6.0",
     "jest-extended": "^0.8.1"
-  },
-  "pkg": {
-    "assets": [
-      "node_modules/vm2/lib/*.js",
-      "dist/src/services/action/sandbox-runtime.js"
-    ]
   }
 }

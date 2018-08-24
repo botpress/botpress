@@ -1,0 +1,48 @@
+{
+  "name": "botpress-launcher-ce",
+  "version": "1.0.0",
+  "description": "Botpress Community Edition (CE) Launcher",
+  "bin": "build/src/index.js",
+  "main": "build/src/index.js",
+  "author": "Botpress, Inc.",
+  "license": "AGPL-3.0",
+  "private": true,
+  "scripts": {
+    "postinstall": "npm run build",
+    "start": "npm run serve",
+    "serve": "node build/src/index.js",
+    "build": "npm run tslint && npm run build-ts && npm run clean-dist && cross-os cbuild",
+    "build-ts": "../../node_modules/.bin/tsc",
+    "clean-dist": "../../node_modules/.bin/rimraf ./dist",
+    "test": "../../node_modules/.bin/jest --detectOpenHandles -c ../../jest.config.js",
+    "watch": "npm run watch-ts",
+    "watch-ts": "../../node_modules/.bin/tsc-watch -p . --onSuccess \"node ./build/src/index.js\" --onFailure \"echo Beep! Compilation Failed\"",
+    "watch-ts-die": "../../node_modules/.bin/tsc-watch -p . --onSuccess \"node ./build/src/index.js\" --onFailure \"exit 1\"",
+    "watch-test": "npm run test -- --watchAll",
+    "tslint": "../../node_modules/.bin/tslint -c ../../tslint.json -p tsconfig.json"
+  },
+  "cross-os": {
+    "cbuild": {
+      "darwin": "./src/package-osx.sh"
+    }
+  },
+  "pkg": {
+    "assets": [
+      "node_modules/vm2/lib/*.js",
+      "dist/src/services/action/sandbox-runtime.js"
+    ]
+  },
+  "devDependencies": {
+    "@types/node": "^10.7.1",
+    "@types/dotenv": "^4.0.3",
+    "cross-os": "^1.3.0",
+    "pkg": "^4.3.4",
+    "rimraf": "^2.6.2"
+  },
+  "dependencies": {
+    "@botpress/channel-web": "file:../webchat",
+    "botpress-xx": "file:../core",
+    "chalk": "^2.4.1",
+    "dotenv": "^6.0.0"
+  }
+}

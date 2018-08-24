@@ -1,6 +1,7 @@
 import { Container } from 'inversify'
 import path from 'path'
 
+import { BotpressAPI } from './api'
 import { BotLoader } from './bot-loader'
 import { Botpress } from './botpress'
 import { ConfigProvider, GhostConfigProvider } from './config/config-loader'
@@ -12,7 +13,7 @@ import { ModuleLoader } from './module-loader'
 import { RepositoriesContainerModule } from './repositories/repositories.inversify'
 import HTTPServer from './server'
 import { ServicesContainerModule } from './services/services.inversify'
-import ConsoleLogger from './Logger'
+import ConsoleLogger, { LoggerProvider } from './Logger'
 
 const container = new Container({ autoBindInjectable: true })
 
@@ -33,7 +34,16 @@ container.bind<string>(TYPES.Logger_Name).toDynamicValue(ctx => {
 })
 
 container.bind<Logger>(TYPES.Logger).to(ConsoleLogger)
+container.bind<LoggerProvider>(TYPES.LoggerProvider).toProvider<Logger>(context => {
+  return async name => {
+    return context.container.getTagged<Logger>(TYPES.Logger, 'name', name)
+  }
+})
 
+container
+  .bind<BotpressAPI>(TYPES.BotpressAPI)
+  .to(BotpressAPI)
+  .inSingletonScope()
 container
   .bind<ModuleLoader>(TYPES.ModuleLoader)
   .to(ModuleLoader)
@@ -42,7 +52,10 @@ container
   .bind<Botpress>(TYPES.Botpress)
   .to(Botpress)
   .inSingletonScope()
-container.bind<HTTPServer>(TYPES.HTTPServer).to(HTTPServer)
+container
+  .bind<HTTPServer>(TYPES.HTTPServer)
+  .to(HTTPServer)
+  .inSingletonScope()
 container
   .bind<ConfigProvider>(TYPES.ConfigProvider)
   .to(GhostConfigProvider)

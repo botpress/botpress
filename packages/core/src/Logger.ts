@@ -6,6 +6,8 @@ import util from 'util'
 import { Logger } from './misc/interfaces'
 import { TYPES } from './misc/types'
 
+export type LoggerProvider = (module: string) => Promise<Logger>
+
 @injectable()
 export default class ConsoleLogger implements Logger {
   constructor(
