@@ -8,6 +8,8 @@ import { DatabaseHelpers as helpers } from 'botpress'
 
 import { sanitizeUserId } from './util'
 
+const userInitiatedMessageTypes = ['message', 'text', 'image', 'login_prompt', 'quick_reply', 'form', 'file', 'video']
+
 module.exports = (knex, config) => {
   const RECENT_CONVERSATION_LIFETIME = ms(config.recentConversationLifetime)
 
@@ -91,15 +93,18 @@ module.exports = (knex, config) => {
       sent_on: helpers(knex).date.now()
     }
 
+    const shouldUpdateLastHeard = _.includes(userInitiatedMessageTypes, type.toLowerCase())
+
     return Promise.join(
       knex('web_messages')
         .insert(message)
         .then(),
 
-      knex('web_conversations')
-        .where({ id: conversationId, userId: userId })
-        .update({ last_heard_on: helpers(knex).date.now() })
-        .then(),
+      shouldUpdateLastHeard &&
+        knex('web_conversations')
+          .where({ id: conversationId, userId: userId })
+          .update({ last_heard_on: helpers(knex).date.now() })
+          .then(),
 
       () => ({
         ...message,
@@ -174,19 +179,18 @@ module.exports = (knex, config) => {
       .then()
   }
 
-  async function getOrCreateRecentConversation(userId, { originatesFromUserMessage } = {}) {
+  async function getOrCreateRecentConversation(userId, { ignoreLifetimeExpiry, originatesFromUserMessage } = {}) {
     userId = sanitizeUserId(userId)
 
-    const recentCondition = helpers(knex).date.isAfter(
-      'last_heard_on',
-      moment().subtract(RECENT_CONVERSATION_LIFETIME, 'ms')
-    )
+    const recentCondition =
+      !ignoreLifetimeExpiry &&
+      helpers(knex).date.isAfter('last_heard_on', moment().subtract(RECENT_CONVERSATION_LIFETIME, 'ms'))
 
     const conversation = await knex('web_conversations')
       .select('id')
       .whereNotNull('last_heard_on')
       .andWhere({ userId })
-      .andWhere(recentCondition)
+      .andWhere(recentCondition || {})
       .orderBy('last_heard_on', 'desc')
       .limit(1)
       .then()

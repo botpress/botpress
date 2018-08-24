@@ -38,7 +38,12 @@ module.exports = async (bp, config) => {
 
     const typing = parseTyping(event)
 
-    const conversationId = _.get(event, 'raw.conversationId') || (await getOrCreateRecentConversation(user.id))
+    const conversationId =
+      _.get(event, 'raw.conversationId') ||
+      (await getOrCreateRecentConversation(user.id, {
+        ignoreLifetimeExpiry: true,
+        originatesFromUserMessage: false
+      }))
 
     const socketId = user.userId.replace(/webchat:/gi, '')
 
