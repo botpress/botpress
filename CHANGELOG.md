@@ -3,7 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-  <a name="10.33.1"></a>
+      <a name="10.33.2"></a>
+## [10.33.2](https://github.com/botpress/botpress/compare/v10.33.1...v10.33.2) (2018-08-24)
+
+
+### Bug Fixes
+
+* **channel-web:** fixed message sanitization ([269025a](https://github.com/botpress/botpress/commit/269025a))
+
+
+
+
+      <a name="10.33.1"></a>
 ## [10.33.1](https://github.com/botpress/botpress/compare/v10.33.0...v10.33.1) (2018-08-24)
 
 
@@ -21,7 +32,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-  <a name="10.33.0"></a>
+<a name="10.33.0"></a>
 # [10.33.0](https://github.com/botpress/botpress/compare/v10.32.0...v10.33.0) (2018-08-17)
 
 
