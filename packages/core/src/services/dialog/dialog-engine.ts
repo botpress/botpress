@@ -43,7 +43,7 @@ export class NewDialogEngine {
 
     this.currentSession = await this.getOrCreateSession(sessionId, event)
     this.fillQueue()
-    this.executeQueue()
+    await this.executeQueue()
   }
 
   private fillQueue() {
@@ -55,11 +55,11 @@ export class NewDialogEngine {
     this.callQueue = _.flatten(this.callQueue)
   }
 
-  private executeQueue(): any {
+  private async executeQueue() {
     this.callQueue.reverse() // To act as a queue
 
     const call = this.callQueue.pop()
-    this.callProcessor.processCall(call, {}, {}, {})
+    await this.callProcessor.processCall(call, {}, {}, {})
     // Update session
   }
 
