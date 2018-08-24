@@ -8,6 +8,10 @@ jobs:
     docker:
       # specify the version you desire here
       - image: circleci/node:carbon
+      - image: postgres:9.5
+        environment:
+          - POSTGRES_USER=botpress
+          - POSTGRES_DB=test
 
     working_directory: ~/repo
 
@@ -17,18 +21,23 @@ jobs:
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "package.json" }}
-            # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
 
       - restore_cache:
           keys:
             - v1-dependencies-core-{{ checksum "packages/core/package.json" }}
-            # fallback to using the latest cache if no exact match is found
             - v1-dependencies-core-
 
-      - run:
-          name: Install dependencies
-          command: cd ~/repo/ && yarn install && yarn bootstrap
+      - restore_cache:
+          keys:
+            - v1-dependencies-webchat-{{ checksum "packages/webchat/package.json" }}
+            - v1-dependencies-webchat-
+
+      - run: sudo npm install -g node-pre-gyp
+      - run: npm install --only=dev
+      - run: cd ~/repo/ && NODE_ENV=development npm install || true # Workaround for pkg chmod of "bin" in launcher
+      - run: cd ~/repo/ && NODE_ENV=development npm install # Try again with directories created
+      - run: NODE_ENV=development npm run bootstrap
 
       - save_cache:
           key: v1-dependencies-{{ checksum "package.json" }}
@@ -40,10 +49,18 @@ jobs:
           paths:
             - ~/repo/packages/core/node_modules
 
+      - save_cache:
+          key: v1-dependencies-webchat-{{ checksum "packages/webchat/package.json" }}
+          paths:
+            - ~/repo/packages/webchat/node_modules
+
       - run:
           name: Test that it builds
-          command: yarn build
+          command: NODE_ENV=development npm run build
 
       - run:
           name: Run all tests
-          command: yarn test
+          command: npm run test
+          environment:
+            PG_USER: botpress
+            PG_DB: test

@@ -6,7 +6,7 @@
     "rootDir": ".",
     "types": ["bluebird-global", "reflect-metadata"],
     "typeRoots": ["./node_modules", "../../node_modules"],
-    "composite": true
+    "composite": false
   },
   "include": ["src/**/*"],
   "files": ["package.json"]

@@ -6,5 +6,6 @@ TODO
 
 ## Setup and run all modules
 
-1.  Run `npm install` once
-1.  Run `npm run watch` to start working. This will install dependencies, link the modules and start the project in watch mode
+0. _Optional_ – Run `npm run clean` if coming from a previous version or branch
+1. Run `npm run bootstrap`. This will install dependencies, link the modules
+1. Run `npm run watch` to start working and start the project in watch mode

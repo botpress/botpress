@@ -14,6 +14,10 @@ describe('Memory Queue', () => {
     queue = new Queue('name', logger, options)
   })
 
+  afterEach(() => {
+    queue.dispose()
+  })
+
   it('Respects order (sync)', async () => {
     const order: number[] = []
 

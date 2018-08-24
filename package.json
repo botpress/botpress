@@ -30,16 +30,11 @@
     "botpress-xx": "file:packages/core"
   },
   "scripts": {
-    "build": "TODO",
-    "start": "TODO",
+    "build": "./scripts/batch-exec.sh \"build\" \"npm run build\"",
+    "start": "cd ./packages/launcher-ce && npm run start",
     "clean": "./scripts/clean.sh",
     "bootstrap": "./scripts/bootstrap.sh",
-    "watch": "concurrently \"npm:watch-*\"",
-    "watch-core": "cd ./packages/core && npm run watch",
-    "watch-module-sdk": "cd ./packages/module-sdk && npm run watch",
-    "watch-ui": "cd ./packages/ui && npm run watch",
-    "watch-launcher": "sleep 8 && echo \"FIXME Replace sleep\" && cd ./packages/launcher-ce && npm run watch",
-    "watch-webchat": "cd ./packages/webchat && npm run watch",
-    "test": "TODO"
+    "watch": "./scripts/batch-exec.sh \"watch\" \"npm run watch\"",
+    "test": "./scripts/batch-exec.sh \"test\" \"npm run test\""
   }
 }

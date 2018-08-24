@@ -21,10 +21,10 @@
   },
   "scripts": {
     "postinstall": "npm run build",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "echo \"No tests\"",
     "watch": "concurrently \"node webpack.js --watch\" \"npm run watch-backend\"",
-    "watch-backend": "babel -w src/backend --out-dir dist/backend",
-    "build-backend": "babel src/backend --out-dir dist/backend",
+    "watch-backend": "npx babel-cli -w src/backend --out-dir dist/backend",
+    "build-backend": "npx babel-cli src/backend --out-dir dist/backend",
     "build": "node webpack.js --compile && npm run build-backend"
   },
   "repository": {

@@ -10,7 +10,7 @@
     "postinstall": "npm run build",
     "build": "npm run tslint && npm run build-ts && ./scripts/copy-config.sh",
     "build-ts": "../../node_modules/.bin/rimraf dist && ../../node_modules/.bin/tsc",
-    "test": "../../node_modules/.bin/jest --forceExit --coverage --verbose -c ../../jest.config.js",
+    "test": "../../node_modules/.bin/jest --detectOpenHandles -c ../../jest.config.js",
     "watch": "../../node_modules/.bin/rimraf dist && mkdir dist && ./scripts/copy-config.sh && ../../node_modules/.bin/tsc-watch -p .",
     "watch-test": "npm run test -- --watchAll",
     "tslint": "../../node_modules/.bin/tslint -c ../../tslint.json -p tsconfig.json"

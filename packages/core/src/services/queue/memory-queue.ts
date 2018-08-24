@@ -27,6 +27,12 @@ export default class MemoryQueue implements Queue {
     this._drain = setInterval(this.drain, this.options.drainInterval)
   }
 
+  dispose = () => {
+    if (this._drain) {
+      clearInterval(this._drain)
+    }
+  }
+
   drain = () => {
     if (this.queue.length > 0) {
       this.tick()
