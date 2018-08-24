@@ -10,6 +10,7 @@ import { BotRepository } from './repositories/bot-repository'
 import { BotRouter } from './router/bot-router'
 import ActionService from './services/action/action-service'
 import { CMSService } from './services/cms/cms-service'
+import { NewDialogEngine } from './services/dialog/dialog-engine'
 import { DialogEngine } from './services/dialog/engine'
 import FlowService from './services/dialog/flow-service'
 import { EventEngine } from './services/middleware/event-engine'
@@ -46,10 +47,10 @@ export class EventAPI {
 }
 
 export class DialogAPI {
-  constructor(private dialogEngine: DialogEngine) {}
+  constructor(private dialogEngine: NewDialogEngine) {}
 
   processMessage(sessionID: string, event: BotpressEvent) {
-    return this.dialogEngine.forBot(BOT_ID).processMessage(sessionID, event)
+    return this.dialogEngine.processMessage(sessionID, event)
   }
 }
 
@@ -97,7 +98,7 @@ export class BotpressAPI {
   constructor(
     @inject(TYPES.BotRepository) botRepository: BotRepository,
     @inject(TYPES.CMSService) cmsService: CMSService,
-    @inject(TYPES.DialogEngine) dialogEngine: DialogEngine,
+    @inject(TYPES.DialogEngine) dialogEngine: NewDialogEngine,
     @inject(TYPES.Database) db: Database,
     @inject(TYPES.FlowService) flowService: FlowService,
     @inject(TYPES.EventEngine) eventEngine: EventEngine,

@@ -9,18 +9,9 @@ export default class DialogSessionTable extends Table {
       table.text('state').nullable()
       table.text('context').notNullable()
       table.text('event').notNullable()
-      table
-        .timestamp('active_on')
-        .notNullable()
-        .defaultTo(this.knex.date.now())
-      table
-        .timestamp('created_on')
-        .notNullable()
-        .defaultTo(this.knex.date.now())
-      table
-        .timestamp('modified_on')
-        .notNullable()
-        .defaultTo(this.knex.date.now())
+      table.timestamp('active_on').notNullable()
+      table.timestamp('created_on').notNullable()
+      table.timestamp('modified_on').notNullable()
     })
   }
 }

@@ -34,18 +34,18 @@ const mwSchema = {
   enabled: joi.boolean().default(true)
 }
 
+const incomingChain = new MiddlewareChain<BotpressEvent>()
+const outgoingChain = new MiddlewareChain<BotpressEvent>()
+
 export class ScopedEventEngine {
   private middleware!: MiddlewareDefinition[]
-
-  private incomingChain = new MiddlewareChain<BotpressEvent>()
-  private outgoingChain = new MiddlewareChain<BotpressEvent>()
 
   constructor(private botId: string, private logger: Logger) {}
 
   load(middleware: MiddlewareDefinition[]) {
     this.middleware = middleware
-    this.middleware.filter(mw => mw.direction === 'incoming').map(mw => this.useMiddleware(mw, this.incomingChain))
-    this.middleware.filter(mw => mw.direction === 'outgoing').map(mw => this.useMiddleware(mw, this.outgoingChain))
+    this.middleware.filter(mw => mw.direction === 'incoming').map(mw => this.useMiddleware(mw, incomingChain))
+    this.middleware.filter(mw => mw.direction === 'outgoing').map(mw => this.useMiddleware(mw, outgoingChain))
   }
 
   private useMiddleware(mw: MiddlewareDefinition, middlewareChain: MiddlewareChain<BotpressEvent>) {
@@ -62,12 +62,12 @@ export class ScopedEventEngine {
 
   sendIncoming(event: BotpressEvent): Promise<any> {
     this.validateEvent(event)
-    return this.incomingChain.run(event)
+    return incomingChain.run(event)
   }
 
   sendOutgoing(event: BotpressEvent): Promise<any> {
     this.validateEvent(event)
-    return this.outgoingChain.run(event)
+    return outgoingChain.run(event)
   }
 
   private validateEvent(event: BotpressEvent) {

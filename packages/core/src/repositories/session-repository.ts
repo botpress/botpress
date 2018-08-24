@@ -35,7 +35,11 @@ export class KnexSessionRepository implements SessionRepository {
       .insert({
         id: session.id,
         state: session.state,
-        context: session.context
+        context: session.context,
+        event: session.event,
+        active_on: this.database.knex.date.now(),
+        modified_on: this.database.knex.date.now(),
+        created_on: this.database.knex.date.now()
       })
       .returning('*')
       .then(res => <DialogSession>res)
@@ -48,8 +52,7 @@ export class KnexSessionRepository implements SessionRepository {
       .select('*')
       .get(0)
       .then(row => <DialogSession>row)
-
-    return session ? this.jsonParse(session) : this.createSession(id)
+    return session
   }
 
   async upsert(session: DialogSession) {

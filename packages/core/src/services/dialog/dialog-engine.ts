@@ -1,9 +1,11 @@
-import { inject } from 'inversify'
+import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 
 import { TYPES } from '../../misc/types'
 import { DialogSession } from '../../repositories/session-repository'
+import ActionService from '../action/action-service'
 
+import { CallProcessor } from './call-processor'
 import FlowService from './flow-service'
 import { SessionService } from './session-service'
 
@@ -12,14 +14,19 @@ const BOT_ID = 'bot123'
 const DEFAULT_FLOW_NAME = 'main.flow.json'
 const ENTRY_NODE_NAME = 'entry'
 
+@injectable()
 export class NewDialogEngine {
-  private callstack: any[] = []
+  private callQueue: any[] = []
   private flows: any[] = []
 
   private flowsLoaded = false
   private currentSession: DialogSession | undefined
+  private currentFlow: any
+  private currentNode: any
 
   constructor(
+    @inject(TYPES.ActionService) private actionService: ActionService,
+    @inject(TYPES.CallProcessor) private callProcessor: CallProcessor,
     @inject(TYPES.FlowService) private flowService: FlowService,
     @inject(TYPES.SessionService) private sessionService: SessionService
   ) {}
@@ -35,10 +42,28 @@ export class NewDialogEngine {
     }
 
     this.currentSession = await this.getOrCreateSession(sessionId, event)
-    this.callstack.push(this.currentSession.context.currentFlow.onEnter)
+    this.fillQueue()
+    this.executeQueue()
   }
 
-  private async getOrCreateSession(sessionId, event) {
+  private fillQueue() {
+    const context = JSON.parse(this.currentSession!.context)
+    const onEnter = _.flatten(context.currentNode.onEnter)
+    const onReceive = _.flatten(context.currentNode.onReceive)
+    this.callQueue.push(onEnter, onReceive)
+
+    this.callQueue = _.flatten(this.callQueue)
+  }
+
+  private executeQueue(): any {
+    this.callQueue.reverse() // To act as a queue
+
+    const call = this.callQueue.pop()
+    this.callProcessor.processCall(call, {}, {}, {})
+    // Update session
+  }
+
+  private async getOrCreateSession(sessionId, event): Promise<DialogSession> {
     const session = await this.sessionService.getSession(sessionId)
     if (!session) {
       const defaultFlow = this.findDefaultFlow()
