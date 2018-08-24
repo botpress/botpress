@@ -2,6 +2,7 @@ const TYPES = {
   Logger_Name: Symbol.for('Logger_Name'),
   Logger: Symbol.for('Logger'),
   LoggerProvider: Symbol.for('LoggerProvider'),
+  Router: Symbol.for('Router'),
   Database: Symbol.for('Database'),
   ModuleLoader: Symbol.for('ModuleLoader'),
   Botpress: Symbol.for('Botpress'),
@@ -26,7 +27,8 @@ const TYPES = {
   DialogEngine: Symbol.for('DialogEngine'),
   SessionRepository: Symbol.for('StateManager'),
   SessionService: Symbol.for('SessionService'),
-  BotpressAPI: Symbol.for('BotpressAPI')
+  BotpressAPI: Symbol.for('BotpressAPI'),
+  AuthService: Symbol.for('AuthService')
 }
 
 export { TYPES }

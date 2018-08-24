@@ -7,13 +7,8 @@ import { inject, injectable, tagged } from 'inversify'
 import { ConfigProvider } from './config/config-loader'
 import { Logger } from './misc/interfaces'
 import { TYPES } from './misc/types'
-import { BotRepository } from './repositories/bot-repository'
-import { BotRouter } from './router/bot-router'
-import { IndexRouter } from './router/index-router'
-import ActionService from './services/action/action-service'
-import { CMSService } from './services/cms/cms-service'
-import FlowService from './services/dialog/flow-service'
-import { MiddlewareService } from './services/middleware/middleware-service'
+
+import Router from './router'
 
 const BASE_API_PATH = '/api/v1'
 
@@ -27,11 +22,7 @@ export default class HTTPServer {
     @inject(TYPES.Logger)
     @tagged('name', 'HTTP')
     private logger: Logger,
-    @inject(TYPES.BotRepository) private botRepository: BotRepository,
-    @inject(TYPES.MiddlewareService) private middlewareService: MiddlewareService,
-    @inject(TYPES.CMSService) private cmsService: CMSService,
-    @inject(TYPES.FlowService) private flowService: FlowService,
-    @inject(TYPES.ActionService) private actionService: ActionService
+    @inject(TYPES.Router) private apiRouter: Router
   ) {
     this.app = express()
 
@@ -58,17 +49,6 @@ export default class HTTPServer {
     const botpressConfig = await this.configProvider.getBotpressConfig()
     const config = botpressConfig.httpServer
 
-    const routers = [
-      new IndexRouter(),
-      new BotRouter({
-        actionService: this.actionService,
-        botRepository: this.botRepository,
-        cmsService: this.cmsService,
-        flowService: this.flowService,
-        middlewareService: this.middlewareService
-      })
-    ]
-
     this.app.use(
       bodyParser.json({
         limit: config.bodyLimit
@@ -79,7 +59,8 @@ export default class HTTPServer {
         extended: true
       })
     )
-    this.app.use(BASE_API_PATH, routers.map(r => r.router))
+
+    this.app.use(BASE_API_PATH, this.apiRouter.router)
 
     await Promise.fromCallback(callback => {
       this.server = this.app.listen(config, callback)

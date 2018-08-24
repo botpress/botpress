@@ -34,28 +34,30 @@ export class BotRouter extends BaseRouter {
   }
 
   setupRoutes() {
-    this.router.get('/bots/:botId', async (request, response) => {
+    const router = this.router
+
+    router.get('/:botId', async (request, response) => {
       const botId = request.params.botId
       const bot = await this.botRepository.getBotById(botId)
 
       response.send(bot)
     })
 
-    this.router.get('/bots/:botId/middleware', async (req, res) => {
+    router.get('/:botId/middleware', async (req, res) => {
       const botId = req.params.botId
       const middleware = await this.middlewareService.getMiddlewareForBot(botId)
 
       res.send(middleware)
     })
 
-    this.router.post('/bots/:botId/middleware', async (req, res) => {
+    router.post('/:botId/middleware', async (req, res) => {
       const botId = req.params.botId
       const { middleware } = req.body
       await this.middlewareService.setMiddlewareForBot(botId, middleware)
       res.send(await this.middlewareService.getMiddlewareForBot(botId))
     })
 
-    this.router.get('/bots/:botId/content/types', async (req, res) => {
+    router.get('/:botId/content/types', async (req, res) => {
       const botId = req.params.botId
       const types = await this.cmsService.getAllContentTypes(botId)
 
@@ -77,13 +79,13 @@ export class BotRouter extends BaseRouter {
       res.send(response)
     })
 
-    this.router.get('/bots/:botId/content/elements/count', async (req, res) => {
+    router.get('/:botId/content/elements/count', async (req, res) => {
       const botId = req.params.botId
       const count = await this.cmsService.countContentElements(botId)
       res.send({ count })
     })
 
-    this.router.get('/bots/:botId/content/:contentType?/elements', async (req, res) => {
+    router.get('/:botId/content/:contentType?/elements', async (req, res) => {
       const { botId, contentType } = req.params
       const query = req.query || {}
 
@@ -98,19 +100,19 @@ export class BotRouter extends BaseRouter {
       res.send(types)
     })
 
-    this.router.get('/bots/:botId/content/:contentType?/elements/count', async (req, res) => {
+    router.get('/:botId/content/:contentType?/elements/count', async (req, res) => {
       const { botId, contentType } = req.params
       const count = await this.cmsService.countContentElementsForContentType(botId, contentType)
       res.send({ count })
     })
 
-    this.router.get('/bots/:botId/content/elements/:elementId', async (req, res) => {
+    router.get('/:botId/content/elements/:elementId', async (req, res) => {
       const { botId, elementId } = req.params
       const element = await this.cmsService.getContentElement(botId, elementId)
       res.send(element)
     })
 
-    this.router.post('/bots/:botId/content/:contentType/elements/:elementId?', async (req, res) => {
+    router.post('/:botId/content/:contentType/elements/:elementId?', async (req, res) => {
       const { botId, contentType, elementId } = req.params
       const element = await this.cmsService.createOrUpdateContentElement(
         botId,
@@ -121,13 +123,13 @@ export class BotRouter extends BaseRouter {
       res.send(element)
     })
 
-    this.router.get('/bots/:botId/flows', async (req, res) => {
+    router.get('/:botId/flows', async (req, res) => {
       const botId = req.params.botId
       const flows = await this.flowService.loadAll(botId)
       res.send(flows)
     })
 
-    this.router.post('/bots/:botId/flows', async (req, res) => {
+    router.post('/:botId/flows', async (req, res) => {
       const botId = req.params.botId
       const flowViews = <FlowView[]>req.body
 
@@ -135,7 +137,7 @@ export class BotRouter extends BaseRouter {
       res.sendStatus(201)
     })
 
-    this.router.get('/bots/:botId/actions', async (req, res) => {
+    router.get('/:botId/actions', async (req, res) => {
       const botId = req.params.botId
       const actions = await this.actionService.forBot(botId).listActions({ includeMetadata: true })
       res.send(Serialize(actions))

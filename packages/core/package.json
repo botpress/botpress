@@ -16,6 +16,7 @@
     "tslint": "../../node_modules/.bin/tslint -c ../../tslint.json -p tsconfig.json"
   },
   "dependencies": {
+    "@botpress/xx-util": "^0.0.1",
     "axios": "^0.18.0",
     "bluebird-global": "^1.0.1",
     "body-parser": "^1.18.3",

@@ -1,8 +1,8 @@
-import { Application } from 'express'
+import { Application, Router } from 'express'
 import proxy from 'express-http-proxy'
 
 export class HttpProxy {
-  constructor(private app: Application, private targetHost: string) {}
+  constructor(private app: Application | Router, private targetHost: string) {}
 
   proxy(originPath: string, targetPathOrOptions: string | {}) {
     const options =
