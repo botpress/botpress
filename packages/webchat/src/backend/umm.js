@@ -7,6 +7,7 @@ import mime from 'mime'
 const QUICK_REPLY_PAYLOAD = /\<(.+)\>\s(.+)/i
 
 function getUserId(event) {
+  // FIXME get target from event
   const userId =
     _.get(event, 'user.id') ||
     _.get(event, 'user.userId') ||
@@ -204,6 +205,7 @@ function processForm(formElement) {
 }
 
 function PromisifyEvent(event) {
+  // FIXME replace by EventLifecycle
   if (!event._promise) {
     event._promise = new Promise((resolve, reject) => {
       event._resolve = resolve
@@ -270,22 +272,13 @@ function processOutgoing({ event, blocName, instruction }) {
   throw new Error(`Unrecognized instruction on Web in bloc '${blocName}': ${strRep}`)
 }
 
-////////////
-/// TEMPLATES
-////////////
-
-function getTemplates() {
-  return []
-}
-
 module.exports = bp => {
-  const [renderers, registerConnector] = _.at(bp, ['renderers', 'renderers.registerConnector'])
+  const [registerConnector] = _.at(bp, ['renderers.registerConnector'])
 
   renderers &&
-    registerConnector &&
+  registerConnector && // FIXME channel, change how that works
     registerConnector({
       platform: 'webchat',
-      processOutgoing: args => processOutgoing(Object.assign({}, args, { bp })),
-      templates: getTemplates()
+      processOutgoing: args => processOutgoing(Object.assign({}, args, { bp }))
     })
 }

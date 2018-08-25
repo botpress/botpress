@@ -6,12 +6,15 @@ import db from './db'
 
 const outgoingTypes = ['text', 'login_prompt', 'file', 'carousel', 'custom']
 
-module.exports = async (bp, config) => {
-  const knex = await bp.db.get()
-  const { appendBotMessage, getOrCreateRecentConversation } = db(knex, config)
-  const { getOrCreateUser } = await users(bp, config)
+module.exports = async bp => {
+  const knex = bp.database.knex
 
-  const { botName = 'Bot', botAvatarUrl = null } = config || {}
+  console.log('====>', knex)
+
+  const { appendBotMessage, getOrCreateRecentConversation } = db(knex)
+  const { getOrCreateUser } = await users(bp)
+
+  const { botName = 'Bot', botAvatarUrl = null } = config || {} // FIXME
 
   bp.middlewares.register({
     name: 'webchat.sendMessages',
@@ -33,17 +36,19 @@ module.exports = async (bp, config) => {
       return next('Unsupported event type: ' + event.type)
     }
 
+    // FIXME Get User Id from Event (target)
     const userId = (event.user && event.user.id) || event.raw.to
-    const user = await getOrCreateUser(userId)
+    const user = await getOrCreateUser(userId) // FIXME Take botId
 
     const typing = parseTyping(event)
 
-    const conversationId = _.get(event, 'raw.conversationId') || (await getOrCreateRecentConversation(user.id))
+    const conversationId = _.get(event, 'raw.conversationId') || (await getOrCreateRecentConversation(user.id)) // FIXME botId
 
     const socketId = user.userId.replace(/webchat:/gi, '')
 
     if (typing) {
       bp.events.emit('guest.webchat.typing', {
+        // FIXME Doesn't exist
         timeInMs: typing,
         userId: null,
         __room: 'visitor:' + socketId,
@@ -53,15 +58,18 @@ module.exports = async (bp, config) => {
       await Promise.delay(typing)
     }
 
+    // FIXME botId
     const message = await appendBotMessage(botName, botAvatarUrl, conversationId, event)
 
     Object.assign(message, {
       __room: 'visitor:' + socketId // This is used to send to the relevant user's socket
     })
 
+    // FIXME botId
     bp.events.emit('guest.webchat.message', message)
 
     // Resolve the event promise
+    // FIXME Make official API (BotpressAPI.events.updateStatus(event.id, 'done'))
     event._promise && event._resolve && event._resolve()
   }
 }

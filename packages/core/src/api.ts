@@ -1,4 +1,4 @@
-import { BotpressEvent } from 'botpress-module-sdk'
+import { BotpressEvent, HttpAPI, MiddlewareDefinition } from 'botpress-module-sdk'
 import { inject, injectable, tagged } from 'inversify'
 
 import { container } from './app.inversify'
@@ -18,30 +18,23 @@ import { MiddlewareService } from './services/middleware/middleware-service'
 // TODO: The UI doesn't support multi-bots yet
 const BOT_ID = 'bot123'
 
-export class HttpApi {
-  constructor(private botRouter: BotRouter) {}
-
-  get router() {
-    // TODO Implement that properly
-    return this.botRouter.router
+const http = (botRouter: BotRouter): HttpAPI => {
+  return {
+    createShortLink: () => {}
   }
-
-  createShortLink() {}
 }
 
-export class EventAPI {
-  constructor(private eventEngine: EventEngine) {}
-
-  load(middleware: []) {
-    return this.eventEngine.forBot(BOT_ID).load(middleware)
-  }
-
-  sendIncoming(event) {
-    return this.eventEngine.forBot(BOT_ID).sendIncoming(event)
-  }
-
-  sendOutgoing(event) {
-    return this.eventEngine.forBot(BOT_ID).sendOutgoing(event)
+const event = (eventEngine: EventEngine): EventAPI => {
+  return {
+    register(middleware: MiddlewareDefinition) {
+      eventEngine.register(middleware)
+    },
+    sendIncoming(event: BotpressEvent) {
+      eventEngine.sendIncoming(BOT_ID, event)
+    },
+    sendOutgoing(event: BotpressEvent) {
+      eventEngine.sendOutgoing(BOT_ID, event)
+    }
   }
 }
 
@@ -87,7 +80,7 @@ export class RealTimeAPI {
 @injectable()
 export class BotpressAPI {
   console: ConsoleAPI
-  http: HttpApi
+  http: HttpAPI
   events: EventAPI
   dialog: DialogAPI
   config: ConfigAPI
@@ -108,8 +101,8 @@ export class BotpressAPI {
   ) {
     const botRouter = new BotRouter({ botRepository, middlewareService, cmsService, flowService, actionService })
 
-    this.http = new HttpApi(botRouter)
-    this.events = new EventAPI(eventEngine)
+    this.http = http(botRouter)
+    this.events = event(eventEngine)
     this.dialog = new DialogAPI(dialogEngine)
     this.config = new ConfigAPI(moduleLoader)
     this.realtime = new RealTimeAPI()

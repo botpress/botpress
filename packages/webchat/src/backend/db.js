@@ -6,15 +6,17 @@ import ms from 'ms'
 
 import { sanitizeUserId } from './util'
 
-module.exports = (knex, config) => {
+module.exports = knex => {
+  // FIXME Per-bot now
   const RECENT_CONVERSATION_LIFETIME = ms(config.recentConversationLifetime)
 
   const isLite = knex => {
+    // TODO Remove this (now part of KnexExtended)
     return knex.client.config.client === 'sqlite3'
   }
 
   async function getUserInfo(userId) {
-    const user = await knex('users')
+    const user = await knex('users') // FIXME per-bot
       .where({ platform: 'webchat', userId: sanitizeUserId(userId) })
       .then()
       .get(0)
@@ -32,7 +34,7 @@ module.exports = (knex, config) => {
       throw new Error('you must initialize the database before')
     }
 
-    return helpers(knex)
+    return helpers(knex) // FIXME per-bot
       .createTableIfNotExists('web_conversations', function(table) {
         table.increments('id').primary()
         table.string('userId')
@@ -45,6 +47,7 @@ module.exports = (knex, config) => {
         table.timestamp('bot_last_seen_on')
       })
       .then(function() {
+        // FIXME per-bot
         return helpers(knex).createTableIfNotExists('web_messages', function(table) {
           table.string('id').primary()
           table.integer('conversationId')
@@ -60,6 +63,7 @@ module.exports = (knex, config) => {
       })
   }
 
+  // FIXME per-bot
   async function appendUserMessage(userId, conversationId, { type, text, raw, data }) {
     userId = sanitizeUserId(userId)
 
@@ -95,7 +99,7 @@ module.exports = (knex, config) => {
         .then(),
 
       knex('web_conversations')
-        .where({ id: conversationId, userId: userId })
+        .where({ id: conversationId, userId: userId }) // FIXME per-bot
         .update({ last_heard_on: helpers(knex).date.now() })
         .then(),
 
@@ -109,6 +113,7 @@ module.exports = (knex, config) => {
   }
 
   async function appendBotMessage(botName, botAvatar, conversationId, { type, text, raw, data }) {
+    // FIXME bot-id
     const message = {
       id: uuid.v4(),
       conversationId: conversationId,
@@ -143,7 +148,7 @@ module.exports = (knex, config) => {
 
     await knex('web_conversations')
       .insert({
-        userId,
+        userId, // FIXME bot-id
         created_on: helpers(knex).date.now(),
         last_heard_on: originatesFromUserMessage ? helpers(knex).date.now() : null,
         title

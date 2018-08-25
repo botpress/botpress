@@ -1,18 +1,45 @@
-import umm from './umm'
-import api from './api'
-import socket from './socket'
-import db from './db'
+import { BotpressAPI } from 'botpress-module-sdk'
 
-exports.onInit = async bp => {
+import api from './api'
+import db from './db'
+import socket from './socket'
+import umm from './umm'
+// TODO
+// [x] users.js
+//    [] Core users <--> channels API
+// [] api.js
+//    [] Core createRouter --> ExpressRouter
+// [] db.js
+// [] inject.js
+// [] socket.js
+//    [] Core EventBus (socket.io, per-bot channels)
+// [] umm.js
+//    [] Core EventLifecycle (status('sent'))
+//    [] Core EventLifecycle (waitStatus(eventId, 'sent'))
+//    [] Core new SyntheticEvent() (TimeoutEvent, TimerEvent, CustomEvent, BroadcastEvent)
+//    [] Core schedule(event, dateTime)
+//    [] Core sendImmediate(event)
+// [] util.js
+
+export const onInit = async (bp: BotpressAPI) => {
   bp.console.debug('[webchat] On Init')
 
+  bp.webchat = {}
+
+  await socket(bp)
+  await umm(bp)
+  await api(bp)
+  await db(bp).initialize()
+
+  // const config = await bp.config.getModuleConfig('webchat')
+
   const middleware = {
-    name: 'Test slack message',
+    name: 'Slack message',
     description: 'Receive a message from slack',
     order: 20,
     handler: (event, next) => {
       if (event.type === 'slack') {
-        bp.dialog.processMessage('slack_user_id', event)
+        bp.dialog.processMessage('PENIS', event)
       }
     },
     direction: 'incoming'
@@ -28,11 +55,11 @@ exports.onInit = async bp => {
   await bp.events.sendIncoming(event)
 }
 
-exports.onReady = async bp => {
+export const onReady = async bp => {
   bp.console.debug('[webchat] On Ready')
 }
 
-exports.config = {
+export const config = {
   uploadsUseS3: { type: 'bool', required: false, default: false, env: 'WEBCHAT_USE_S3' },
   uploadsS3Bucket: { type: 'string', required: false, default: 'bucket-name', env: 'WEBCHAT_S3_BUCKET' },
   uploadsS3AWSAccessKey: { type: 'any', required: false, default: null, env: 'WEBCHAT_S3_ACCESS_KEY' },
@@ -52,7 +79,7 @@ exports.config = {
   }
 }
 
-exports.defaultConfigJson = `
+export const defaultConfigJson = `
 {
   /************
     Optional settings

@@ -1,14 +1,15 @@
 import sillyname from 'sillyname'
 
 module.exports = async bp => {
-  const knex = await bp.db.get()
+  const knex = bp.database.knex
 
-  async function getOrCreateUser(userId, throwIfNotFound = false) {
+  async function getOrCreateUser(userId, botId, throwIfNotFound = false) {
     const realUserId = userId.startsWith('webchat:') ? userId.substr(8) : userId
 
     const user = await knex('users')
       .where({
         platform: 'webchat',
+        botId: botId,
         userId: realUserId
       })
       .then()
@@ -26,12 +27,13 @@ module.exports = async bp => {
     return getOrCreateUser(realUserId, true)
   }
 
-  async function getUserProfile(userId) {
+  async function getUserProfile(userId, botId) {
     const realUserId = userId.startsWith('webchat:') ? userId.substr(8) : userId
 
     const user = await knex('users')
       .where({
         platform: 'webchat',
+        botId,
         userId: realUserId
       })
       .then()
@@ -40,11 +42,12 @@ module.exports = async bp => {
     return user
   }
 
-  function createNewUser(userId) {
+  function createNewUser(userId, botId) {
     const [first_name, last_name] = sillyname().split(' ')
 
     return bp.db.saveUser({
       first_name,
+      botId,
       last_name,
       profile_pic: null,
       id: userId,
@@ -52,5 +55,5 @@ module.exports = async bp => {
     })
   }
 
-  return { getOrCreateUser, getUserProfile }
+  return { getOrCreateUser, getUserProfile } // FIXME Make part of Core (users_channels)
 }
