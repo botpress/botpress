@@ -106,6 +106,31 @@ export default data => {
           })
         }
       ]
+    },
+    {
+      on: 'telegram',
+      title: data.title,
+      options: {
+        reply_markup: JSON.stringify({
+          inline_keyboard: [data].map(d => {
+            if (d.action === 'Say something') {
+              return [
+                {
+                  text: d.title,
+                  callback_data: d.title.substring(0, 64) // 1-64 bytes
+                }
+              ]
+            } else if (d.action === 'Open URL') {
+              return [
+                {
+                  text: d.title,
+                  url: d.url
+                }
+              ]
+            }
+          })
+        })
+      }
     }
   ]
 }
