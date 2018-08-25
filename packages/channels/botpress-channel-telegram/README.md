@@ -8,24 +8,22 @@ Botpress Team would really appreciate to have some help from the community to wo
 
 ## Installation
 
-```js
+```sh
 npm install @botpress/channel-telegram
 ```
 
 ## Get started
 
-To setup connexion of your chatbot to Messenger, you need to fill the connexion settings directly in the module interface. In fact, you only need to follow  steps and your bot will be active.
+To setup connexion of your chatbot to Telegram, you need to fill the connexion settings directly in the module interface. In fact, you only need to follow this step and your bot will be active.
 
-botfile.js
-```js
-config: {
-    'botpress-telegram': {
-      botToken: '451660170:AAHM2CD-Z8Kt3AwqcQLnaUgIk5bUJay3s0M'
-    }
-  }
+{{BOOT ROOT DIR}}/config/channel-telegram.json
+```json
+{
+  "botToken": "451660170:AAHM2CD-Z8Kt3AwqcQLnaUgIk5bUJay3s0M"
+}
 ```
 
-You can also set the `TELEGRAM_TOKEN` environement variable
+You can also set the `TELEGRAM_TOKEN` environment variable
 
 ### How to create an Telegram Bot Token
 
