@@ -16,7 +16,7 @@ npm install @botpress/channel-telegram
 
 To setup connexion of your chatbot to Telegram, you need to fill the connexion settings directly in the module interface. In fact, you only need to follow this step and your bot will be active.
 
-{{BOOT ROOT DIR}}/config/channel-telegram.json
+{{BOT ROOT DIR}}/config/channel-telegram.json
 ```json
 {
   "botToken": "451660170:AAHM2CD-Z8Kt3AwqcQLnaUgIk5bUJay3s0M"

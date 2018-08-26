@@ -1,8 +1,3 @@
-// TODO
-// Add buttons support to Telegram
-
-import url from 'url'
-
 const SKIP_CHOICE_PREFIX = /^!skip |^!hide |^!hidden /i
 
 const takeVisible = choices => {

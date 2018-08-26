@@ -1,6 +1,5 @@
 // TODO
 // Add image support to Twilio (SMS)
-// Add image support to Telegram
 
 import url from 'url'
 import mime from 'mime'

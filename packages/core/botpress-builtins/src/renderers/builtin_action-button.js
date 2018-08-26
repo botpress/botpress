@@ -1,6 +1,3 @@
-// TODO
-// Add card support to Telegram
-
 export default data => {
   if (data.action === 'Pick location') {
     throw new Error('Action-button renderers do not support "Pick location" type at the moment')
