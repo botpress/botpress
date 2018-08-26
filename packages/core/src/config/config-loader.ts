@@ -20,10 +20,7 @@ export class GhostConfigProvider implements ConfigProvider {
   constructor(
     @inject(TYPES.GhostService) private ghostService: GhostService,
     @inject(TYPES.ProjectLocation) private projectLocation: string
-  ) {
-    this.ghostService.global().addRootFolder('/', { filesGlob: '*.config.json' })
-    this.ghostService.forAllBots().addRootFolder('/', { filesGlob: '*.config.json' })
-  }
+  ) {}
 
   async getBotpressConfig(): Promise<BotpressConfig> {
     const config = await this.getConfig<BotpressConfig>('botpress.config.json')

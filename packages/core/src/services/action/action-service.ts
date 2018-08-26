@@ -1,6 +1,6 @@
+import { Logger } from 'botpress-module-sdk'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
 
-import { Logger } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
 import GhostContentService from '../ghost/service'
 
@@ -15,12 +15,6 @@ export default class ActionService {
     @tagged('name', 'Actions')
     private logger: Logger
   ) {}
-
-  @postConstruct()
-  async initialize() {
-    await this.ghost.global().addRootFolder('actions', { filesGlob: '*.js' })
-    await this.ghost.forAllBots().addRootFolder('actions', { filesGlob: '*.js' })
-  }
 
   forBot(botId: string): ScopedActionService {
     return new ScopedActionService(this.ghost, this.logger, botId)

@@ -1,10 +1,13 @@
 import { BotpressEvent, MiddlewareDefinition } from 'botpress-module-sdk'
-import { inject, injectable, tagged } from 'inversify'
+import { Logger } from 'botpress-module-sdk'
+import { inject, injectable, postConstruct, tagged } from 'inversify'
 import joi from 'joi'
+import { Memoize } from 'lodash-decorators'
 import { VError } from 'verror'
 
-import { Logger } from '../../misc/interfaces'
+import { BotConfig } from '../../config/bot.config'
 import { TYPES } from '../../misc/types'
+import GhostService from '../ghost/service'
 
 import { MiddlewareChain } from './middleware'
 
@@ -34,23 +37,57 @@ const mwSchema = {
   enabled: joi.boolean().default(true)
 }
 
-export class ScopedEventEngine {
-  private middleware!: MiddlewareDefinition[]
+@injectable()
+export class EventEngine {
+  constructor(
+    @inject(TYPES.Logger)
+    @tagged('name', 'EventEngine')
+    private logger: Logger,
+    @inject(TYPES.GhostService) private ghost: GhostService
+  ) {}
 
-  private incomingChain = new MiddlewareChain<BotpressEvent>()
-  private outgoingChain = new MiddlewareChain<BotpressEvent>()
+  private incomingMiddleware: MiddlewareDefinition[] = []
+  private outgoingMiddleware: MiddlewareDefinition[] = []
 
-  constructor(private botId: string, private logger: Logger) {}
-
-  load(middleware: MiddlewareDefinition[]) {
-    this.middleware = middleware
-    this.middleware.filter(mw => mw.direction === 'incoming').map(mw => this.useMiddleware(mw, this.incomingChain))
-    this.middleware.filter(mw => mw.direction === 'outgoing').map(mw => this.useMiddleware(mw, this.outgoingChain))
+  register(middleware: MiddlewareDefinition) {
+    this.validateMiddleware(middleware)
+    if (middleware.direction === 'incoming') {
+      this.incomingMiddleware.push(middleware)
+    } else {
+      this.outgoingMiddleware.push(middleware)
+    }
   }
 
-  private useMiddleware(mw: MiddlewareDefinition, middlewareChain: MiddlewareChain<BotpressEvent>) {
-    this.validateMiddleware(mw)
-    middlewareChain.use(mw.handler)
+  async sendEvent(botId: string, event: BotpressEvent) {
+    this.validateEvent(event)
+    const { incoming, outgoing } = await this.getBotMiddlewareChains(botId)
+    if (event.direction === 'incoming') {
+      await incoming.run(event)
+    } else {
+      await outgoing.run(event)
+    }
+  }
+
+  @Memoize()
+  private async getBotMiddlewareChains(botId: string) {
+    const incoming = new MiddlewareChain<BotpressEvent>()
+    const outgoing = new MiddlewareChain<BotpressEvent>()
+
+    const botConfig = (await this.ghost.forBot(botId).readFileAsObject('/', 'bot.config.json')) as BotConfig
+
+    for (const mw of this.incomingMiddleware) {
+      if (botConfig.imports.incomingMiddleware.includes(mw.name)) {
+        incoming.use(mw.handler)
+      }
+    }
+
+    for (const mw of this.outgoingMiddleware) {
+      if (botConfig.imports.outgoingMiddleware.includes(mw.name)) {
+        outgoing.use(mw.handler)
+      }
+    }
+
+    return { incoming, outgoing }
   }
 
   private validateMiddleware(middleware: MiddlewareDefinition) {
@@ -60,33 +97,10 @@ export class ScopedEventEngine {
     }
   }
 
-  sendIncoming(event: BotpressEvent): Promise<any> {
-    this.validateEvent(event)
-    return this.incomingChain.run(event)
-  }
-
-  sendOutgoing(event: BotpressEvent): Promise<any> {
-    this.validateEvent(event)
-    return this.outgoingChain.run(event)
-  }
-
   private validateEvent(event: BotpressEvent) {
     const result = joi.validate(event, eventSchema)
     if (result.error) {
       throw new VError(result.error, 'Invalid Botpress Event')
     }
-  }
-}
-
-@injectable()
-export class EventEngine {
-  constructor(
-    @inject(TYPES.Logger)
-    @tagged('name', 'EventEngine')
-    private logger: Logger
-  ) {}
-
-  forBot(botId: string): ScopedEventEngine {
-    return new ScopedEventEngine(botId, this.logger)
   }
 }

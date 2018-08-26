@@ -1,9 +1,9 @@
+import { Logger } from 'botpress-module-sdk'
 import { inject, injectable, tagged } from 'inversify'
 import Knex from 'knex'
 import _ from 'lodash'
 
 import { DatabaseConfig } from '../config/botpress.config'
-import { Logger } from '../misc/interfaces'
 import { TYPES } from '../misc/types'
 
 import { patchKnex } from './helpers'

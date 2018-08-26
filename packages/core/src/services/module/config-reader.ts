@@ -1,11 +1,11 @@
 import { ModuleConfigEntry, ModuleDefinition } from 'botpress-module-sdk'
+import { Logger } from 'botpress-module-sdk'
 import json5 from 'json5'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
 import { VError } from 'verror'
 import yn from 'yn'
 
-import { Logger } from '../../misc/interfaces'
 import GhostService from '../ghost/service'
 
 type Config = { [key: string]: any }
@@ -67,8 +67,6 @@ export default class ConfigReader {
   constructor(private logger: Logger, private modules: Map<string, ModuleDefinition>, private ghost: GhostService) {}
 
   public async initialize() {
-    await this.ghost.global().addRootFolder('config', { filesGlob: '*.json' })
-    await this.ghost.forAllBots().addRootFolder('config', { filesGlob: '*.json' })
     await this.bootstrapGlobalConfigurationFiles()
   }
 

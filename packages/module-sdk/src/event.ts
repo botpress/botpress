@@ -1,4 +1,4 @@
-export type Direction = 'incoming' | 'outgoing'
+import { Direction } from './common'
 
 /**
  * @property {string} type - The type of the event, i.e. image, text, timeout, etc

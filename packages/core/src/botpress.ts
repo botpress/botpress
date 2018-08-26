@@ -1,4 +1,5 @@
 import { ModuleDefinition } from 'botpress-module-sdk'
+import { Logger } from 'botpress-module-sdk'
 import { inject, injectable, tagged } from 'inversify'
 import { Memoize } from 'lodash-decorators'
 import moment from 'moment'
@@ -10,11 +11,11 @@ import { BotLoader } from './bot-loader'
 import { BotpressConfig } from './config/botpress.config'
 import { ConfigProvider } from './config/config-loader'
 import Database from './database'
-import { Logger } from './misc/interfaces'
 import { TYPES } from './misc/types'
 import { ModuleLoader } from './module-loader'
 import HTTPServer from './server'
 import { CMSService } from './services/cms/cms-service'
+import GhostService from './services/ghost/service'
 import { HookService } from './services/hook/hook-service'
 import { EventEngine } from './services/middleware/event-engine'
 
@@ -36,6 +37,7 @@ export class Botpress {
     @inject(TYPES.Logger)
     @tagged('name', 'Server')
     private logger: Logger,
+    @inject(TYPES.GhostService) private ghostService: GhostService,
     @inject(TYPES.HTTPServer) private httpServer: HTTPServer,
     @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
     @inject(TYPES.BotLoader) private botLoader: BotLoader,
@@ -59,11 +61,26 @@ export class Botpress {
 
     await this.trackStats()
     await this.createDatabase()
+    await this.initializeGhost()
     await this.initializeServices()
     await this.loadModules(options.modules)
     await this.startServer()
 
     await this.hookService.executeHook('after_bot_start')
+  }
+
+  async initializeGhost(): Promise<void> {
+    // Global
+    await this.ghostService.global().addRootFolder('/config', { filesGlob: '*.json' })
+    await this.ghostService.global().addRootFolder('/hooks', { filesGlob: '**/*.js' })
+    await this.ghostService.global().addRootFolder('/actions', { filesGlob: '**/*.js' })
+    await this.ghostService.global().addRootFolder('/content-types', { filesGlob: '*.js' })
+    // Bot-specific
+    await this.ghostService.forAllBots().addRootFolder('/', { filesGlob: '*.json' })
+    await this.ghostService.forAllBots().addRootFolder('/actions', { filesGlob: '**/*.js' })
+    await this.ghostService.forAllBots().addRootFolder('/flows', { filesGlob: '**/*.json' })
+    await this.ghostService.forAllBots().addRootFolder('/config', { filesGlob: '*.json' })
+    await this.ghostService.forAllBots().addRootFolder('/content-elements', { filesGlob: '*.json' })
   }
 
   private async initializeServices() {

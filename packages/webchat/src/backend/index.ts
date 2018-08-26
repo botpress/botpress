@@ -1,9 +1,10 @@
-import { BotpressAPI } from 'botpress-module-sdk'
+import { BotpressAPI, BotpressEvent, MiddlewareDefinition } from 'botpress-module-sdk'
 
 import api from './api'
 import db from './db'
 import socket from './socket'
 import umm from './umm'
+
 // TODO
 // [x] users.js
 //    [] Core users <--> channels API
@@ -21,20 +22,23 @@ import umm from './umm'
 //    [] Core sendImmediate(event)
 // [] util.js
 
-export const onInit = async (bp: BotpressAPI) => {
-  bp.console.debug('[webchat] On Init')
+export type Extension = {
+  webchat: {}
+}
 
+export const onInit = async (bp: BotpressAPI & Extension) => {
+  bp.logger.debug('[webchat] On Init')
   bp.webchat = {}
 
-  await socket(bp)
-  await umm(bp)
-  await api(bp)
-  await db(bp).initialize()
+  // await socket(bp)
+  // await umm(bp)
+  // await api(bp)
+  // await db(bp).initialize()
 
   // const config = await bp.config.getModuleConfig('webchat')
 
-  const middleware = {
-    name: 'Slack message',
+  const middleware: MiddlewareDefinition = {
+    name: 'slack.in',
     description: 'Receive a message from slack',
     order: 20,
     handler: (event, next) => {
@@ -44,15 +48,17 @@ export const onInit = async (bp: BotpressAPI) => {
     },
     direction: 'incoming'
   }
-  await bp.events.load([middleware])
 
-  const event = {
+  await bp.events.registerMiddleware(middleware)
+
+  const event: BotpressEvent = {
     type: 'slack',
     channel: 'web',
     target: 'slack_channel_id',
     direction: 'incoming'
   }
-  await bp.events.sendIncoming(event)
+
+  await bp.events.sendEvent(event)
 }
 
 export const onReady = async bp => {
@@ -62,9 +68,9 @@ export const onReady = async bp => {
 export const config = {
   uploadsUseS3: { type: 'bool', required: false, default: false, env: 'WEBCHAT_USE_S3' },
   uploadsS3Bucket: { type: 'string', required: false, default: 'bucket-name', env: 'WEBCHAT_S3_BUCKET' },
-  uploadsS3AWSAccessKey: { type: 'any', required: false, default: null, env: 'WEBCHAT_S3_ACCESS_KEY' },
-  uploadsS3Region: { type: 'any', required: false, default: null, env: 'WEBCHAT_S3_REGION' },
-  uploadsS3AWSAccessSecret: { type: 'any', required: false, default: null, env: 'WEBCHAT_S3_KEY_SECRET' },
+  uploadsS3AWSAccessKey: { type: 'any', required: false, default: undefined, env: 'WEBCHAT_S3_ACCESS_KEY' },
+  uploadsS3Region: { type: 'any', required: false, default: undefined, env: 'WEBCHAT_S3_REGION' },
+  uploadsS3AWSAccessSecret: { type: 'any', required: false, default: undefined, env: 'WEBCHAT_S3_KEY_SECRET' },
   startNewConvoOnTimeout: {
     type: 'bool',
     required: false,

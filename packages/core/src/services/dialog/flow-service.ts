@@ -1,7 +1,7 @@
+import { Logger } from 'botpress-module-sdk'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
 import _ from 'lodash'
 
-import { Logger } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
 import GhostService from '../ghost/service'
 
@@ -21,11 +21,6 @@ export default class FlowService {
     private logger: Logger,
     @inject(TYPES.GhostService) private ghost: GhostService
   ) {}
-
-  @postConstruct()
-  async initialize(): Promise<void> {
-    await this.ghost.forAllBots().addRootFolder(this.flowDir, { filesGlob: '**/*.json' })
-  }
 
   async loadAll(botId: string): Promise<FlowView[]> {
     const flowsPath = this.ghost.forBot(botId).directoryListing(this.flowDir, '.flow.json')

@@ -13,15 +13,10 @@ import MemoryObjectCache from './ghost/memory-cache'
 import GhostService from './ghost/service'
 import { HookService } from './hook/hook-service'
 import { EventEngine } from './middleware/event-engine'
-import { MiddlewareService } from './middleware/middleware-service'
 import { Queue } from './queue'
 import MemoryQueue from './queue/memory-queue'
 
 export const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
-  bind<MiddlewareService>(TYPES.MiddlewareService)
-    .to(MiddlewareService)
-    .inSingletonScope()
-
   bind<ObjectCache>(TYPES.ObjectCache)
     .to(MemoryObjectCache)
     .inSingletonScope()

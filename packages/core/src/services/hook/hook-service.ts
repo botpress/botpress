@@ -1,8 +1,8 @@
+import { Logger } from 'botpress-module-sdk'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
 import _ from 'lodash'
 import { NodeVM } from 'vm2'
 
-import { Logger } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
 import GhostService from '../ghost/service'
 
@@ -26,11 +26,6 @@ export class HookService {
     private logger: Logger,
     @inject(TYPES.GhostService) private ghost: GhostService
   ) {}
-
-  @postConstruct()
-  async initialize() {
-    await this.ghost.global().addRootFolder('hooks', { filesGlob: '**/*.js' })
-  }
 
   async executeHook(hook: Hook): Promise<void> {
     const scripts = await this.extractScripts(hook)

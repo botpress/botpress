@@ -1,11 +1,11 @@
 import bodyParser from 'body-parser'
+import { Logger } from 'botpress-module-sdk'
 import errorHandler from 'errorhandler'
 import express from 'express'
 import { Server } from 'http'
 import { inject, injectable, tagged } from 'inversify'
 
 import { ConfigProvider } from './config/config-loader'
-import { Logger } from './misc/interfaces'
 import { TYPES } from './misc/types'
 import { BotRepository } from './repositories/bot-repository'
 import { BotRouter } from './router/bot-router'
@@ -13,7 +13,6 @@ import { IndexRouter } from './router/index-router'
 import ActionService from './services/action/action-service'
 import { CMSService } from './services/cms/cms-service'
 import FlowService from './services/dialog/flow-service'
-import { MiddlewareService } from './services/middleware/middleware-service'
 
 const BASE_API_PATH = '/api/v1'
 
@@ -28,15 +27,11 @@ export default class HTTPServer {
     @tagged('name', 'HTTP')
     private logger: Logger,
     @inject(TYPES.BotRepository) botRepository: BotRepository,
-    @inject(TYPES.MiddlewareService) middlewareService: MiddlewareService,
     @inject(TYPES.CMSService) cmsService: CMSService,
     @inject(TYPES.FlowService) flowService: FlowService,
     @inject(TYPES.ActionService) actionService: ActionService
   ) {
-    const routers = [
-      new IndexRouter(),
-      new BotRouter({ actionService, botRepository, cmsService, flowService, middlewareService })
-    ]
+    const routers = [new IndexRouter(), new BotRouter({ actionService, botRepository, cmsService, flowService })]
 
     this.app = express()
     this.app.use(bodyParser.json())

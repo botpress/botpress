@@ -1,8 +1,8 @@
+import { Logger } from 'botpress-module-sdk'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import path from 'path'
 
-import { Logger } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
 import { isValidBotId } from '../../misc/validation'
 
@@ -107,7 +107,7 @@ export class ScopedGhostService {
   }
 
   objectCacheKey = str => `string::${str}`
-  bufferCacheKey = str => `string::${str}`
+  bufferCacheKey = str => `buffer::${str}`
 
   private async invalidateFile(fileName: string) {
     await this.cache.invalidate(this.objectCacheKey(fileName))

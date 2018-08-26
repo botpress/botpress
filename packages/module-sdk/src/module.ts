@@ -1,3 +1,5 @@
+import { Direction } from './common'
+
 export type MiddlewareDefinition = {
   name: string
   description: string

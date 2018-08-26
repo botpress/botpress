@@ -1,9 +1,10 @@
-import { BotpressEvent, HttpAPI, MiddlewareDefinition } from 'botpress-module-sdk'
+import { BotpressAPI, BotpressEvent, EventAPI, HttpAPI, LoggerAPI, MiddlewareDefinition } from 'botpress-module-sdk'
+import { Logger } from 'botpress-module-sdk'
 import { inject, injectable, tagged } from 'inversify'
+import { Memoize } from 'lodash-decorators'
 
 import { container } from './app.inversify'
 import Database from './database'
-import { Logger } from './misc/interfaces'
 import { TYPES } from './misc/types'
 import { ModuleLoader } from './module-loader'
 import { BotRepository } from './repositories/bot-repository'
@@ -13,7 +14,7 @@ import { CMSService } from './services/cms/cms-service'
 import { DialogEngine } from './services/dialog/engine'
 import FlowService from './services/dialog/flow-service'
 import { EventEngine } from './services/middleware/event-engine'
-import { MiddlewareService } from './services/middleware/middleware-service'
+import { LoggerProvider } from './Logger'
 
 // TODO: The UI doesn't support multi-bots yet
 const BOT_ID = 'bot123'
@@ -26,14 +27,11 @@ const http = (botRouter: BotRouter): HttpAPI => {
 
 const event = (eventEngine: EventEngine): EventAPI => {
   return {
-    register(middleware: MiddlewareDefinition) {
+    registerMiddleware(middleware: MiddlewareDefinition) {
       eventEngine.register(middleware)
     },
-    sendIncoming(event: BotpressEvent) {
-      eventEngine.sendIncoming(BOT_ID, event)
-    },
-    sendOutgoing(event: BotpressEvent) {
-      eventEngine.sendOutgoing(BOT_ID, event)
+    sendEvent(event: BotpressEvent): void {
+      eventEngine.sendEvent(BOT_ID, event)
     }
   }
 }
@@ -78,8 +76,7 @@ export class RealTimeAPI {
 }
 
 @injectable()
-export class BotpressAPI {
-  console: ConsoleAPI
+export class BotpressAPIProvider {
   http: HttpAPI
   events: EventAPI
   dialog: DialogAPI
@@ -94,23 +91,31 @@ export class BotpressAPI {
     @inject(TYPES.Database) db: Database,
     @inject(TYPES.FlowService) flowService: FlowService,
     @inject(TYPES.EventEngine) eventEngine: EventEngine,
-    @inject(TYPES.MiddlewareService) middlewareService: MiddlewareService,
     @inject(TYPES.ModuleLoader) moduleLoader: ModuleLoader,
     @inject(TYPES.ActionService) actionService: ActionService,
-    @inject(TYPES.Logger) logger: Logger
+    @inject(TYPES.LoggerProvider) private loggerProvider: LoggerProvider
   ) {
-    const botRouter = new BotRouter({ botRepository, middlewareService, cmsService, flowService, actionService })
+    const botRouter = new BotRouter({ botRepository, cmsService, flowService, actionService })
 
     this.http = http(botRouter)
     this.events = event(eventEngine)
     this.dialog = new DialogAPI(dialogEngine)
     this.config = new ConfigAPI(moduleLoader)
     this.realtime = new RealTimeAPI()
-    this.console = new ConsoleAPI(logger)
     this.database = db
+  }
+
+  @Memoize()
+  async create(loggerName: string): Promise<BotpressAPI> {
+    return {
+      dialog: this.dialog,
+      events: this.events,
+      http: this.http,
+      logger: await this.loggerProvider(loggerName)
+    } as BotpressAPI
   }
 }
 
-export default () => {
-  return container.get<BotpressAPI>(TYPES.BotpressAPI)
+export function createForModule(moduleId: string): Promise<BotpressAPI> {
+  return container.get<BotpressAPIProvider>(TYPES.BotpressAPIProvider).create(`Mod[${moduleId}]`)
 }

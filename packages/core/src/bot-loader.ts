@@ -1,12 +1,13 @@
+import { Logger } from 'botpress-module-sdk'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
+import { Memoize } from 'lodash-decorators'
 import path from 'path'
 import plur from 'plur'
 
-import { Memoize } from 'lodash-decorators'
+import { IDisposeOnExit } from './misc/interfaces'
 
 import { BotConfig } from './config/bot.config'
 import { ConfigProvider } from './config/config-loader'
-import { Logger } from './misc/interfaces'
 import { TYPES } from './misc/types'
 import ActionService from './services/action/action-service'
 import { CMSService } from './services/cms/cms-service'

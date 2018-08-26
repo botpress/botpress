@@ -1,9 +1,8 @@
+import { Logger } from 'botpress-module-sdk'
 import { inject, injectable, tagged } from 'inversify'
-
 import _ from 'lodash'
 import nanoid from 'nanoid'
 
-import { Logger } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
 
 import { defaultOptions, Job, JobWithEvent, JobWrapper, Queue, QueueOptions } from '.'

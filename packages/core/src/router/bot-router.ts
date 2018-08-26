@@ -6,7 +6,6 @@ import { DefaultSearchParams } from '../services/cms'
 import { CMSService } from '../services/cms/cms-service'
 import { FlowView } from '../services/dialog'
 import FlowService from '../services/dialog/flow-service'
-import { MiddlewareService } from '../services/middleware/middleware-service'
 
 import { BaseRouter } from './base-router'
 
@@ -15,14 +14,12 @@ export class BotRouter extends BaseRouter {
   private botRepository: BotRepository
   private cmsService: CMSService
   private flowService: FlowService
-  private middlewareService: MiddlewareService
 
   constructor(args: {
     actionService: ActionService
     botRepository: BotRepository
     cmsService: CMSService
     flowService: FlowService
-    middlewareService: MiddlewareService
   }) {
     super()
 
@@ -30,7 +27,6 @@ export class BotRouter extends BaseRouter {
     this.botRepository = args.botRepository
     this.cmsService = args.cmsService
     this.flowService = args.flowService
-    this.middlewareService = args.middlewareService
   }
 
   setupRoutes() {
@@ -43,16 +39,16 @@ export class BotRouter extends BaseRouter {
 
     this.router.get('/bots/:botId/middleware', async (req, res) => {
       const botId = req.params.botId
-      const middleware = await this.middlewareService.getMiddlewareForBot(botId)
+      // const middleware = await this.middlewareService.getMiddlewareForBot(botId)
 
-      res.send(middleware)
+      res.send([])
     })
 
     this.router.post('/bots/:botId/middleware', async (req, res) => {
       const botId = req.params.botId
       const { middleware } = req.body
-      await this.middlewareService.setMiddlewareForBot(botId, middleware)
-      res.send(await this.middlewareService.getMiddlewareForBot(botId))
+      // await this.middlewareService.setMiddlewareForBot(botId, middleware)
+      // res.send(await this.middlewareService.getMiddlewareForBot(botId))
     })
 
     this.router.get('/bots/:botId/content/types', async (req, res) => {

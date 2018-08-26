@@ -1,6 +1,6 @@
 import { Disposer } from 'bluebird'
 
-import { BotpressEvent } from '../../misc/interfaces'
+import { BotpressEvent } from 'botpress-module-sdk'
 
 export interface QueueOptions {
   retries: number

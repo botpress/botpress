@@ -7,8 +7,8 @@
   "license": "AGPL-3.0",
   "imports": {
     "modules": ["channel-web"],
-    "incomingMiddleware": ["test.incoming.middleware"],
-    "outgoingMiddleware": ["test.outgoing.middleware"],
+    "incomingMiddleware": ["slack.in"],
+    "outgoingMiddleware": [],
     "contentTypes": ["builtin_text", "builtin_single-choice", "builtin_image"]
   }
 }

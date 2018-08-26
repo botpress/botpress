@@ -11,7 +11,6 @@ const TYPES = {
   ProjectLocation: Symbol.for('ProjectLocation'),
   GhostService: Symbol.for('GhostService'),
   IsProduction: Symbol.for('IsProduction'),
-  MiddlewareService: Symbol.for('MiddlewareService'),
   CMSService: Symbol.for('CMSService'),
   InMemoryDatabase: Symbol.for('InMemoryDatabase'),
   FlowService: Symbol.for('FlowService'),
@@ -26,7 +25,7 @@ const TYPES = {
   DialogEngine: Symbol.for('DialogEngine'),
   SessionRepository: Symbol.for('StateManager'),
   SessionService: Symbol.for('SessionService'),
-  BotpressAPI: Symbol.for('BotpressAPI')
+  BotpressAPIProvider: Symbol.for('BotpressAPIProvider')
 }
 
 export { TYPES }

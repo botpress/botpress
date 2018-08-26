@@ -1,9 +1,9 @@
 import { ModuleDefinition, ModuleMetadata } from 'botpress-module-sdk'
+import { Logger } from 'botpress-module-sdk'
 import { inject, injectable, tagged } from 'inversify'
 
-import BotpressAPI from './api'
+import { createForModule } from './api'
 import { ModuleConfigEntry } from './config/modules.config'
-import { Logger } from './misc/interfaces'
 import { TYPES } from './misc/types'
 import GhostService from './services/ghost/service'
 import ConfigReader from './services/module/config-reader'
@@ -42,18 +42,18 @@ export class ModuleLoader {
   }
 
   public async loadModules(modules: Map<string, ModuleDefinition>) {
-    const api = BotpressAPI() // TODO This is slow (200+ ms)
-
     this.configReader = new ConfigReader(this.logger, modules, this.ghost)
     await this.configReader.initialize()
 
-    for (const module of modules.values()) {
+    for (const [name, module] of modules) {
+      const api = await createForModule(name)
       await (module.onInit && module.onInit(api))
     }
 
     // Once all the modules have been loaded, we tell them it's ready
     // TODO We probably want to wait until Botpress is done loading the other services etc
-    for (const module of modules.values()) {
+    for (const [name, module] of modules) {
+      const api = await createForModule(name)
       await (module.onReady && module.onReady(api))
     }
 
