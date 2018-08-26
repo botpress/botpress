@@ -76,6 +76,14 @@ class Telegram {
     })
   }
 
+  sendPhoto(chatId, photo, options) {
+    this.validateBeforeSending(chatId, options)
+
+    return Promise.fromCallback(() => {
+      this.bot.sendPhoto(chatId, photo, options)
+    })
+  }
+
   sendEditMessage(text, options = {}) {
     this.validateBeforeSending(options.chat_id, options)
     Telegram.validateText(text)
