@@ -35,5 +35,13 @@ export default data => [
         image_url: data.image
       }
     ]
+  },
+  {
+    on: 'telegram',
+    photo: url.resolve(data.BOT_URL, data.image),
+    options: {
+      caption: data.title,
+      parse_mode: 'Markdown'
+    }
   }
 ]
