@@ -1,11 +1,11 @@
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
+import Mustache from 'mustache'
+import { VError } from 'verror'
 
 import { Logger } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
 import ActionService from '../action/action-service'
-
-import { DialogProcessor } from './processor'
 
 const BOT_ID = 'bot123'
 
@@ -18,13 +18,13 @@ export class CallProcessor {
 
   async processCall(call, state, event, context) {
     try {
-      if (call.startsWith('say')) {
+      if (call.startsWith('say ')) {
         this.invokeOutputProcessor(call, state, event, context)
       } else {
         await this.invokeAction(call, state, event, context)
       }
     } catch (err) {
-      this.logger.error(err)
+      throw new VError(`Error while processing the instruction, ${err}`)
     }
   }
 
@@ -45,36 +45,39 @@ export class CallProcessor {
     // DialogProcessor.default.send({ message: output, state: state, originalEvent: event, flowContext: context })
   }
 
+  // TODO: Test for nested templating
   private async invokeAction(call, state, event, context): Promise<any> {
-    const chunks = call.split(' ')
+    const chunks: string[] = call.split(' ')
     const argsStr = _.tail(chunks).join(' ')
-    const actionName: string | undefined = _.first(chunks)
+    const actionName = _.first(chunks)!
 
+    let args
     try {
-      let args = JSON.parse(argsStr)
-      args = _.mapValues(args, value => {
-        if (_.isString(value) && value.startsWith('{{') && value.endsWith('}}')) {
-          const key = value.substr(2, value.length - 4)
-          // s ??
-          return _.get({ state: state, s: state, event: event, e: event }, key)
-        }
-        return value
-      })
-
-      console.log('**** ARGUMENTS: ', args)
+      args = JSON.parse(argsStr)
     } catch (err) {
       throw new Error(`Action "${actionName}" has invalid arguments (not a valid JSON string): ${argsStr}`)
     }
 
-    if (!actionName) {
-      throw new Error('Unexpected action formatting')
-    }
+    args = _.mapValues(args, value => {
+      if (this.containsTemplate(value)) {
+        const output = Mustache.render(value, state)
+        if (this.containsTemplate(output)) {
+          return Mustache.render(output, state)
+        }
+        return output
+      }
+      return value
+    })
 
     const hasAction = await this.actionService.forBot(BOT_ID).hasAction(actionName)
+    console.log('HAS ACTION', hasAction)
     if (!hasAction) {
       throw new Error(`Action "${actionName}" not found, ${context}, ${state}`)
     }
+    return this.actionService.forBot(BOT_ID).runAction(actionName, state, event, args)
+  }
 
-    return this.actionService.forBot(BOT_ID).runAction(actionName, state, event, argsStr)
+  private containsTemplate(value: string) {
+    return _.isString(value) && value.indexOf('{{') < value.indexOf('}}')
   }
 }

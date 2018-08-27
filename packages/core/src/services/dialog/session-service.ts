@@ -36,8 +36,7 @@ export class SessionService {
   }
 
   async getSession(id: string): Promise<DialogSession> {
-    const session = await this.repository.get(id)
-    return session
+    return this.repository.get(id)
   }
 
   async getOrCreateSession(sessionId: string, event: any) {

@@ -3,7 +3,6 @@ import _ from 'lodash'
 
 import { TYPES } from '../../misc/types'
 import { DialogSession } from '../../repositories/session-repository'
-import ActionService from '../action/action-service'
 
 import { CallProcessor } from './call-processor'
 import FlowService from './flow-service'
@@ -21,11 +20,8 @@ export class NewDialogEngine {
 
   private flowsLoaded = false
   private currentSession: DialogSession | undefined
-  private currentFlow: any
-  private currentNode: any
 
   constructor(
-    @inject(TYPES.ActionService) private actionService: ActionService,
     @inject(TYPES.CallProcessor) private callProcessor: CallProcessor,
     @inject(TYPES.FlowService) private flowService: FlowService,
     @inject(TYPES.SessionService) private sessionService: SessionService
@@ -46,23 +42,6 @@ export class NewDialogEngine {
     await this.executeQueue()
   }
 
-  private fillQueue() {
-    const context = JSON.parse(this.currentSession!.context)
-    const onEnter = _.flatten(context.currentNode.onEnter)
-    const onReceive = _.flatten(context.currentNode.onReceive)
-    this.callQueue.push(onEnter, onReceive)
-
-    this.callQueue = _.flatten(this.callQueue)
-  }
-
-  private async executeQueue() {
-    this.callQueue.reverse() // To act as a queue
-
-    const call = this.callQueue.pop()
-    await this.callProcessor.processCall(call, {}, {}, {})
-    // Update session
-  }
-
   private async getOrCreateSession(sessionId, event): Promise<DialogSession> {
     const session = await this.sessionService.getSession(sessionId)
     if (!session) {
@@ -72,6 +51,23 @@ export class NewDialogEngine {
       return this.sessionService.createSession(sessionId, defaultFlow, entryNode, event)
     }
     return session
+  }
+
+  private fillQueue() {
+    const context = JSON.parse(this.currentSession!.context)
+    const onEnter = _.flatten(context.currentNode.onEnter)
+    const onReceive = _.flatten(context.currentNode.onReceive)
+
+    this.callQueue.push(onEnter, onReceive)
+    this.callQueue = _.flatten(this.callQueue)
+  }
+
+  private async executeQueue() {
+    this.callQueue.reverse() // To act as a queue
+
+    const call = this.callQueue.pop()
+    await this.callProcessor.processCall(call, {}, {}, {})
+    // Update session
   }
 
   private async reloadFlows(): Promise<void> {

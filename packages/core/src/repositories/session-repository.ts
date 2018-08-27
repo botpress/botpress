@@ -16,7 +16,7 @@ export type DialogSession = {
 }
 
 export interface SessionRepository {
-  insert(session: DialogSession)
+  insert(session: DialogSession): Promise<DialogSession>
   get(id: string): Promise<DialogSession>
   upsert(session: DialogSession)
   delete(id: string)
@@ -30,29 +30,24 @@ export class KnexSessionRepository implements SessionRepository {
   constructor(@inject(TYPES.Database) private database: Database) {}
 
   async insert(session: DialogSession): Promise<DialogSession> {
-    return this.database
-      .knex(this.tableName)
-      .insert({
-        id: session.id,
-        state: session.state,
-        context: session.context,
-        event: session.event,
-        active_on: this.database.knex.date.now(),
-        modified_on: this.database.knex.date.now(),
-        created_on: this.database.knex.date.now()
-      })
-      .returning('*')
-      .then(res => <DialogSession>res)
+    return this.database.knex.insertAndRetrieve<DialogSession>(this.tableName, {
+      id: session.id,
+      state: session.state,
+      context: session.context,
+      event: session.event,
+      active_on: this.database.knex.date.now(),
+      modified_on: this.database.knex.date.now(),
+      created_on: this.database.knex.date.now()
+    })
   }
 
   async get(id: string): Promise<any> {
-    const session = await this.database
+    return this.database
       .knex(this.tableName)
       .where({ id })
       .select('*')
       .get(0)
       .then(row => <DialogSession>row)
-    return session
   }
 
   async upsert(session: DialogSession) {

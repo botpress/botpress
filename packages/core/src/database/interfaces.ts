@@ -42,6 +42,12 @@ export type KnexCallback = (tableBuilder: Knex.CreateTableBuilder) => any
 
 export type KnexExtension = {
   isLite: boolean
+  insertAndRetrieve<T>(
+    tableName: string,
+    data: {},
+    returnColumns?: string | string[],
+    idColumnName?: string
+  ): Promise<T>
   createTableIfNotExists(tableName: string, cb: KnexCallback): Promise<any>
   insertAndRetrieve<T>(
     tableName: string,
