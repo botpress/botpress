@@ -62,7 +62,7 @@ export const onInit = async (bp: BotpressAPI & Extension) => {
 }
 
 export const onReady = async bp => {
-  bp.console.debug('[webchat] On Ready')
+  bp.logger.debug('[webchat] On Ready')
 }
 
 export const config = {

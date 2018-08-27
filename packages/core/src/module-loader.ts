@@ -44,20 +44,37 @@ export class ModuleLoader {
   public async loadModules(modules: Map<string, ModuleDefinition>) {
     this.configReader = new ConfigReader(this.logger, modules, this.ghost)
     await this.configReader.initialize()
+    const initedModules = {}
+    const readyModules: string[] = []
 
     for (const [name, module] of modules) {
-      const api = await createForModule(name)
-      await (module.onInit && module.onInit(api))
+      try {
+        const api = await createForModule(name)
+        await (module.onInit && module.onInit(api))
+        initedModules[name] = true
+      } catch (err) {
+        this.logger.error(`Error during module "${name}" init`, err)
+      }
     }
 
     // Once all the modules have been loaded, we tell them it's ready
     // TODO We probably want to wait until Botpress is done loading the other services etc
     for (const [name, module] of modules) {
-      const api = await createForModule(name)
-      await (module.onReady && module.onReady(api))
+      if (!initedModules[name]) {
+        this.logger.warn(`Module "${name}" skipped`)
+        continue
+      }
+
+      try {
+        const api = await createForModule(name)
+        await (module.onReady && module.onReady(api))
+        readyModules.push(name)
+      } catch (err) {
+        this.logger.error(`Error during module "${name}" ready. Module will still be loaded.`, err)
+      }
     }
 
-    return []
+    return readyModules
   }
 
   public async getAvailableModules(): Promise<AvailableModule[]> {

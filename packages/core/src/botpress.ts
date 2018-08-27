@@ -4,6 +4,7 @@ import { inject, injectable, tagged } from 'inversify'
 import { Memoize } from 'lodash-decorators'
 import moment from 'moment'
 import * as path from 'path'
+import plur from 'plur'
 
 import packageJson from '../package.json'
 
@@ -102,7 +103,7 @@ export class Botpress {
 
   private async loadModules(modules: Map<string, ModuleDefinition>): Promise<void> {
     const loadedModules = await this.moduleLoader.loadModules(modules)
-    this.logger.info(`Loaded ${loadedModules.length} modules`)
+    this.logger.info(`Loaded ${loadedModules.length} ${plur('module', loadedModules.length)}`)
   }
 
   private async startServer() {
