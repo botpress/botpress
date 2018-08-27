@@ -10,7 +10,7 @@ import ActionService from '../action/action-service'
 
 const BOT_ID = 'bot123'
 
-type InstructionType = 'transition-condition' | 'on-enter' | 'on-receive'
+type InstructionType = 'transition-condition' | 'on-enter' | 'on-receive' | 'wait'
 
 export type Instruction = {
   type: InstructionType

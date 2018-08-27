@@ -59,7 +59,13 @@ export class NewDialogEngine {
     const onReceive = this.createOnReceives(context)
     const next = this.createConditions(context)
 
-    this.instructionQueue.push(...onEnter, ...onReceive, ...next)
+    this.instructionQueue.push(...onEnter)
+
+    if (_.isEmpty(onReceive)) {
+      // Wait for next message
+    }
+
+    this.instructionQueue.push(...onReceive, ...next)
   }
 
   private createOnEnters(context): Instruction[] {
@@ -99,14 +105,19 @@ export class NewDialogEngine {
     this.instructionQueue.reverse() // To act as a queue
 
     while (!_.isEmpty(this.instructionQueue)) {
-      const instruction = this.instructionQueue.pop()
-      await this.instructionProcessor.process(
+      const instruction = this.instructionQueue.pop()!
+      const result = await this.instructionProcessor.process(
         instruction,
         this.currentSession.state,
         this.currentSession.event,
         this.currentSession.context
       )
-      // await this.sessionService.updateSession(this.currentSession)
+
+      // Condition failed or action failed
+      // TODO: Add max fail attempts
+      if (!result) {
+        this.instructionQueue.push(instruction)
+      }
     }
   }
 
