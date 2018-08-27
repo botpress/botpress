@@ -86,10 +86,10 @@ module.exports = knex => {
           .transacting(trx)
           .then(() =>
             knex
-              .raw('select last_insert_rowid() as id')
+              .select(knex.raw('last_insert_rowid() as id'))
               .transacting(trx)
               .then(([{ id }]) => {
-                if (returnColumns === 'id') {
+                if (returnColumns === idColumnName) {
                   return id
                 }
                 return knex(tableName)
