@@ -25,7 +25,7 @@ class NotificationHub extends NotificationComponent {
   renderEmptyPanel() {
     return (
       <MenuItem header className={styles.empty}>
-        <div>You have no notifications !</div>
+        <div>You have no notifications!</div>
       </MenuItem>
     )
   }
@@ -63,16 +63,17 @@ class NotificationHub extends NotificationComponent {
       >
         <MenuItem header className={classnames(styles.topMenu, 'bp-top-menu')}>
           <span>
-            <strong>Notifications</strong>
-            &nbsp; &middot; &nbsp; total of {notifications.length}
+            <strong>Notifications {!isEmpty && `(${notifications.length})`}</strong>
           </span>
-          <div className="pull-right">
-            <a href="#" onClick={this.markAllAsRead}>
-              Mark all as read
-            </a>
-            &nbsp; &middot; &nbsp;
-            <a href="/notifications">Show all</a>
-          </div>
+          {!isEmpty && (
+            <div className="pull-right">
+              <a href="#" onClick={this.markAllAsRead}>
+                Mark all as read
+              </a>
+              &nbsp; &middot; &nbsp;
+              <a href="/notifications">Show all</a>
+            </div>
+          )}
         </MenuItem>
         {isEmpty && this.renderEmptyPanel()}
         {this.renderMenuItems(displayedNotifications)}

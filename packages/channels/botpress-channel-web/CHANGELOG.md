@@ -3,6 +3,79 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.33.2"></a>
+## [10.33.2](https://github.com/botpress/modules/compare/v10.33.1...v10.33.2) (2018-08-24)
+
+
+### Bug Fixes
+
+* **channel-web:** fixed message sanitization ([269025a](https://github.com/botpress/modules/commit/269025a))
+
+
+
+
+<a name="10.33.1"></a>
+## [10.33.1](https://github.com/botpress/modules/compare/v10.33.0...v10.33.1) (2018-08-24)
+
+
+### Bug Fixes
+
+* **channel-web:** last_heard_on ([a6fb50f](https://github.com/botpress/modules/commit/a6fb50f))
+
+
+
+
+<a name="10.33.0"></a>
+# [10.33.0](https://github.com/botpress/modules/compare/v10.32.0...v10.33.0) (2018-08-17)
+
+
+### Bug Fixes
+
+* **web:** carousel btn as payload (resolve [#845](https://github.com/botpress/modules/issues/845)) ([c3e90d5](https://github.com/botpress/modules/commit/c3e90d5))
+
+
+### Features
+
+* **channel-web:** allow extra messages sanitizing ([7d6033f](https://github.com/botpress/modules/commit/7d6033f))
+
+
+
+
+<a name="10.32.0"></a>
+# [10.32.0](https://github.com/botpress/modules/compare/v10.31.0...v10.32.0) (2018-08-15)
+
+
+
+
+**Note:** Version bump only for package @botpress/channel-web
+
+<a name="10.31.0"></a>
+# [10.31.0](https://github.com/botpress/modules/compare/v10.30.0...v10.31.0) (2018-08-08)
+
+
+
+
+**Note:** Version bump only for package @botpress/channel-web
+
+<a name="10.30.0"></a>
+# [10.30.0](https://github.com/botpress/modules/compare/v10.28.0...v10.30.0) (2018-08-08)
+
+
+### Bug Fixes
+
+* wip ([c36ab78](https://github.com/botpress/modules/commit/c36ab78))
+* **web:** unused code ([832a3db](https://github.com/botpress/modules/commit/832a3db))
+* **webchat:** conversations list last message postgres query ([4657efa](https://github.com/botpress/modules/commit/4657efa))
+* **webchat:** createConvo btn color is configurable ([b7eba94](https://github.com/botpress/modules/commit/b7eba94))
+
+
+### Features
+
+* **web:** implemented btn for create convo (ref [#804](https://github.com/botpress/modules/issues/804)) ([ae42664](https://github.com/botpress/modules/commit/ae42664))
+
+
+
+
 <a name="10.29.0"></a>
 # [10.29.0](https://github.com/botpress/modules/compare/v10.28.0...v10.29.0) (2018-08-07)
 

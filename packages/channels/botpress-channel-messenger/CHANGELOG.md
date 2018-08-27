@@ -3,6 +3,60 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.33.2"></a>
+## [10.33.2](https://github.com/botpress/modules/compare/v10.33.1...v10.33.2) (2018-08-24)
+
+
+
+
+**Note:** Version bump only for package @botpress/channel-messenger
+
+<a name="10.33.1"></a>
+## [10.33.1](https://github.com/botpress/modules/compare/v10.33.0...v10.33.1) (2018-08-24)
+
+
+
+
+**Note:** Version bump only for package @botpress/channel-messenger
+
+<a name="10.33.0"></a>
+# [10.33.0](https://github.com/botpress/modules/compare/v10.32.0...v10.33.0) (2018-08-17)
+
+
+### Bug Fixes
+
+* **messenger:** added possibility to set text ([aeb390e](https://github.com/botpress/modules/commit/aeb390e))
+
+
+
+
+<a name="10.32.0"></a>
+# [10.32.0](https://github.com/botpress/modules/compare/v10.31.0...v10.32.0) (2018-08-15)
+
+
+
+
+**Note:** Version bump only for package @botpress/channel-messenger
+
+<a name="10.31.0"></a>
+# [10.31.0](https://github.com/botpress/modules/compare/v10.30.0...v10.31.0) (2018-08-08)
+
+
+### Bug Fixes
+
+* **messenger:** GET_STARTED response (resolve [#589](https://github.com/botpress/modules/issues/589)) ([f9c31cb](https://github.com/botpress/modules/commit/f9c31cb))
+
+
+
+
+<a name="10.30.0"></a>
+# [10.30.0](https://github.com/botpress/modules/compare/v10.28.0...v10.30.0) (2018-08-08)
+
+
+
+
+**Note:** Version bump only for package @botpress/channel-messenger
+
 <a name="10.29.0"></a>
 # [10.29.0](https://github.com/botpress/modules/compare/v10.28.0...v10.29.0) (2018-08-07)
 

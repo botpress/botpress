@@ -1,3 +1,4 @@
+import React from 'react'
 import { connect } from 'react-redux'
 import { ListGroup, ListGroupItem, Panel, Button, Tooltip, OverlayTrigger } from 'react-bootstrap'
 import _ from 'lodash'
@@ -26,7 +27,6 @@ class NotificationHub extends NotificationComponent {
   render() {
     const notifications = this.props.notifications || []
     const unreadCount = _.filter(notifications, { read: false }).length
-    const canTrash = notifications.length > 0
 
     const trashTip = <Tooltip id="ttip">Delete all</Tooltip>
     const readTip = <Tooltip id="ttip">Mark all as read</Tooltip>
@@ -34,24 +34,30 @@ class NotificationHub extends NotificationComponent {
     return (
       <ContentWrapper>
         <PageHeader>
-          <span> Notifications</span>
+          <span>Notifications</span>
         </PageHeader>
-        <Panel>
-          <Panel.Body>
-            <div className="pull-right">
-              <OverlayTrigger placement="left" overlay={readTip}>
-                <Button disabled={unreadCount === 0} onClick={this.markAllAsRead}>
-                  <em className="glyphicon glyphicon-eye-open" />
-                </Button>
-              </OverlayTrigger>
-              <OverlayTrigger placement="left" overlay={trashTip}>
-                <Button className={styles['bar-btn']} disabled={!canTrash} onClick={this.trashAll}>
-                  <em className="glyphicon glyphicon-trash" />
-                </Button>
-              </OverlayTrigger>
-            </div>
-          </Panel.Body>
-        </Panel>
+        {notifications.length > 0 ? (
+          <Panel>
+            <Panel.Body>
+              <div className="pull-right">
+                <OverlayTrigger placement="left" overlay={readTip}>
+                  <Button disabled={unreadCount === 0} onClick={this.markAllAsRead}>
+                    <em className="glyphicon glyphicon-eye-open" />
+                  </Button>
+                </OverlayTrigger>
+                <OverlayTrigger placement="left" overlay={trashTip}>
+                  <Button className={styles['bar-btn']} onClick={this.trashAll}>
+                    <em className="glyphicon glyphicon-trash" />
+                  </Button>
+                </OverlayTrigger>
+              </div>
+            </Panel.Body>
+          </Panel>
+        ) : (
+          <div className={styles.empty}>
+            <p>You have no notifications!</p>
+          </div>
+        )}
         <ListGroup
           style={{
             padding: 0

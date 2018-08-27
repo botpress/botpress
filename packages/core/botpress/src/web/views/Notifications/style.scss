@@ -51,3 +51,24 @@
 .mark-read-btn:hover {
   cursor: pointer;
 }
+
+.empty {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  p {
+    display: block;
+    margin: 0;
+    padding: 0;
+    font-size: 18px;
+    color: #9a9a9a;
+  }
+}

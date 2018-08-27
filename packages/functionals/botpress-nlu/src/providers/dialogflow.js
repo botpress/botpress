@@ -1,6 +1,5 @@
 import _ from 'lodash'
 import crypto from 'crypto'
-import dialogflow from 'dialogflow'
 
 import Provider from './base'
 
@@ -9,6 +8,9 @@ export default class DialogflowProvider extends Provider {
     super({ ...config, name: 'dialogflow', entityKey: '@dialogflow' })
 
     this.projectId = this.config.googleProjectId
+
+    // TODO: get rid of eval once we drop webpack for node-part (needed to overcome webpack compilation)
+    const dialogflow = eval("require('dialogflow')") // eslint-disable-line no-eval
 
     this.agentClient = new dialogflow.AgentsClient()
     this.sessionClient = new dialogflow.SessionsClient()

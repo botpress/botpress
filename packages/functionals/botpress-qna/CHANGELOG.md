@@ -3,6 +3,67 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.33.2"></a>
+## [10.33.2](https://github.com/botpress/modules/compare/v10.33.1...v10.33.2) (2018-08-24)
+
+
+
+
+**Note:** Version bump only for package @botpress/qna
+
+<a name="10.33.1"></a>
+## [10.33.1](https://github.com/botpress/modules/compare/v10.33.0...v10.33.1) (2018-08-24)
+
+
+
+
+**Note:** Version bump only for package @botpress/qna
+
+<a name="10.33.0"></a>
+# [10.33.0](https://github.com/botpress/modules/compare/v10.32.0...v10.33.0) (2018-08-17)
+
+
+
+
+**Note:** Version bump only for package @botpress/qna
+
+<a name="10.32.0"></a>
+# [10.32.0](https://github.com/botpress/modules/compare/v10.31.0...v10.32.0) (2018-08-15)
+
+
+### Features
+
+* **qna:** display upload CSV status ([efa96ed](https://github.com/botpress/modules/commit/efa96ed))
+
+
+
+
+<a name="10.31.0"></a>
+# [10.31.0](https://github.com/botpress/modules/compare/v10.30.0...v10.31.0) (2018-08-08)
+
+
+### Bug Fixes
+
+* **qna:** display row number in processing error ([3c692ea](https://github.com/botpress/modules/commit/3c692ea))
+* **qna:** don't duplicate questions when reuploading same file ([08b5888](https://github.com/botpress/modules/commit/08b5888))
+* **qna:** paginate questions/answer ([f349899](https://github.com/botpress/modules/commit/f349899))
+
+
+### Features
+
+* **qna:** customizable encoding for exported csv ([de1a2d1](https://github.com/botpress/modules/commit/de1a2d1))
+
+
+
+
+<a name="10.30.0"></a>
+# [10.30.0](https://github.com/botpress/modules/compare/v10.28.0...v10.30.0) (2018-08-08)
+
+
+
+
+**Note:** Version bump only for package @botpress/qna
+
 <a name="10.29.0"></a>
 # [10.29.0](https://github.com/botpress/modules/compare/v10.28.0...v10.29.0) (2018-08-07)
 

@@ -27,6 +27,8 @@ module.exports = {
   init: async function(bp, configurator) {
     const config = await configurator.loadAll()
 
+    bp.webchat = {}
+
     // Setup the socket events
     await socket(bp, config)
 

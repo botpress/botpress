@@ -9,5 +9,5 @@
   "uploadsS3AWSAccessKey": "your-aws-key-name",
   "uploadsS3AWSAccessSecret": "secret-key",
   "startNewConvoOnTimeout": false,
-  "recentConversationLifetime": "6 hours"
+  "recentConversationLifetime": "6 hours" // Only works if "startNewConvoOnTimeout" is true
 }

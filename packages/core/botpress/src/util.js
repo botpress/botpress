@@ -103,6 +103,17 @@ const getInMemoryDb = () =>
 
 const safeId = (length = 10) => generate('1234567890abcdefghijklmnopqrsuvwxyz', length)
 
+const getPackageName = pkg => {
+  const isScoped = pkg.startsWith('@')
+
+  if (isScoped) {
+    const [scope, name] = pkg.match(/^@(.*)\/(.*)/).slice(1)
+    return [scope, name]
+  } else {
+    return [null, pkg]
+  }
+}
+
 const isBotpressPackage = pkg => {
   const [scope, name] = getPackageName(pkg)
   const isBotpress = scope === 'botpress' || name.startsWith('botpress-')
@@ -113,17 +124,6 @@ const getModuleShortname = pkg => {
   const [, name] = getPackageName(pkg)
   const withoutPrefix = name.replace(/^botpress-/i, '')
   return withoutPrefix
-}
-
-const getPackageName = pkg => {
-  const isScoped = pkg.startsWith('@')
-
-  if (isScoped) {
-    const [scope, name] = pkg.match(/^@(.*)\/(.*)/).slice(1)
-    return [scope, name]
-  } else {
-    return [null, pkg]
-  }
 }
 
 const getCircularReplacer = () => {
@@ -143,18 +143,18 @@ const safeStringify = o => JSON.stringify(o, getCircularReplacer())
 
 const validateBotVersion = (bpVersion, botfileVersion) => {
   if (botfileVersion == null) {
-    throw new Error("Version doesn't exist in botfile.js.")
+    throw new Error(`The version field doesn't exist in botfile.js. Set it to "${bpVersion}".`)
   }
 
   if (_.isEmpty(botfileVersion) || !_.isString(botfileVersion)) {
-    throw new Error('Version in botfile.js must be non-empty string specifying the valid semver.')
+    throw new Error(`Version in botfile.js must be non-empty string specifying the valid semver (e.g. "${bpVersion}").`)
   }
 
   try {
     // TODO: change this method if "semver" module will implement semver.isValid()
     semver.valid(botfileVersion)
   } catch (err) {
-    throw new Error('Version in botfile.js must have proper semver format (e.g. 10.25.0).')
+    throw new Error(`Version in botfile.js must have proper semver format (e.g. "${bpVersion}").`)
   }
 
   const msgPreamble = `Your bot may be incompatible with botpress v${bpVersion}
@@ -165,7 +165,7 @@ const validateBotVersion = (bpVersion, botfileVersion) => {
     throw new Error(
       msgPreamble +
         'update the versions of botpress and any @botpress/* modules' +
-        ` in your package.json to ${botfileVersion}.`
+        ` in your package.json to "${botfileVersion}".`
     )
   }
 
@@ -177,7 +177,7 @@ const validateBotVersion = (bpVersion, botfileVersion) => {
       msgPreamble +
         'check https://github.com/botpress/botpress/blob/master/CHANGELOG.md' +
         ' and update your bot for any breaking changes listed there,' +
-        ` then update the version in your botfile.js to ${bpVersion}.`
+        ` then update the version in your botfile.js to "${bpVersion}".`
     )
   }
 }

@@ -218,10 +218,15 @@ module.exports = async (bp, config) => {
       throw new Error('Text must be a valid string of less than 360 chars')
     }
 
-    const sanitizedPayload = _.pick(payload, ['text', 'type', 'data'])
+    let sanitizedPayload = _.pick(payload, ['text', 'type', 'data'])
+
+    // let the bot programmer make extra cleanup
+    if (bp.webchat && bp.webchat.sanitizeIncomingMessage) {
+      sanitizedPayload = bp.webchat.sanitizeIncomingMessage(sanitizedPayload) || sanitizedPayload
+    }
 
     // Because we don't necessarily persist what we emit/received
-    const persistedPayload = Object.assign({}, sanitizedPayload)
+    const persistedPayload = { ...sanitizedPayload }
 
     // We remove the password from the persisted messages for security reasons
     if (payload.type === 'login_prompt') {
@@ -248,10 +253,11 @@ module.exports = async (bp, config) => {
           platform: 'webchat',
           type: payload.type,
           user: user,
-          text: payload.text,
-          raw: Object.assign({}, sanitizedPayload, {
+          text: sanitizedPayload.text,
+          raw: {
+            ...sanitizedPayload,
             conversationId
-          })
+          }
         },
         payload.data
       )

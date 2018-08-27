@@ -3,7 +3,119 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-      <a name="10.29.0"></a>
+      <a name="10.33.2"></a>
+## [10.33.2](https://github.com/botpress/botpress/compare/v10.33.1...v10.33.2) (2018-08-24)
+
+
+### Bug Fixes
+
+* **channel-web:** fixed message sanitization ([269025a](https://github.com/botpress/botpress/commit/269025a))
+
+
+
+
+      <a name="10.33.1"></a>
+## [10.33.1](https://github.com/botpress/botpress/compare/v10.33.0...v10.33.1) (2018-08-24)
+
+
+### Bug Fixes
+
+* **builtins:** change text rendering (resolve [#832](https://github.com/botpress/botpress/issues/832)) ([b33a711](https://github.com/botpress/botpress/commit/b33a711))
+* **channel-web:** last_heard_on ([a6fb50f](https://github.com/botpress/botpress/commit/a6fb50f))
+* **core:** flow-level timeoutNode property persists ([9d16c4e](https://github.com/botpress/botpress/commit/9d16c4e))
+* **core:** increase node-version to 10 in new bot-template ([77d72a6](https://github.com/botpress/botpress/commit/77d72a6))
+* **docs:** typo in skills ([f9bf04c](https://github.com/botpress/botpress/commit/f9bf04c))
+* **nlu:** dialogflow isn't required (resolve [#860](https://github.com/botpress/botpress/issues/860)) ([0bf3bb2](https://github.com/botpress/botpress/commit/0bf3bb2))
+* **nlu:** improve way for handling error (resolve [#790](https://github.com/botpress/botpress/issues/790)) ([d32b74d](https://github.com/botpress/botpress/commit/d32b74d))
+* **nlu:** skip empty utterances on sync (resolve [#859](https://github.com/botpress/botpress/issues/859)) ([6d62700](https://github.com/botpress/botpress/commit/6d62700))
+
+
+
+
+<a name="10.33.0"></a>
+# [10.33.0](https://github.com/botpress/botpress/compare/v10.32.0...v10.33.0) (2018-08-17)
+
+
+### Bug Fixes
+
+* **core:** improve CLI messages about version ([c919412](https://github.com/botpress/botpress/commit/c919412))
+* **messenger:** added possibility to set text ([aeb390e](https://github.com/botpress/botpress/commit/aeb390e))
+* **nlu:** added scroll for intents list (resolve [#846](https://github.com/botpress/botpress/issues/846)) ([b85d3c3](https://github.com/botpress/botpress/commit/b85d3c3))
+* **web:** carousel btn as payload (resolve [#845](https://github.com/botpress/botpress/issues/845)) ([c3e90d5](https://github.com/botpress/botpress/commit/c3e90d5))
+
+
+### Features
+
+* **channel-web:** allow extra messages sanitizing ([7d6033f](https://github.com/botpress/botpress/commit/7d6033f))
+
+
+
+
+<a name="10.32.0"></a>
+# [10.32.0](https://github.com/botpress/botpress/compare/v10.31.0...v10.32.0) (2018-08-15)
+
+
+### Bug Fixes
+
+* **url:** fixed the image url for my GIF ([c8b6cd9](https://github.com/botpress/botpress/commit/c8b6cd9))
+
+
+### Features
+
+* **qna:** display upload CSV status ([efa96ed](https://github.com/botpress/botpress/commit/efa96ed))
+
+
+
+
+<a name="10.31.0"></a>
+# [10.31.0](https://github.com/botpress/botpress/compare/v10.30.0...v10.31.0) (2018-08-08)
+
+
+### Bug Fixes
+
+* **core:** remove global variable rewriting ([6fce6de](https://github.com/botpress/botpress/commit/6fce6de))
+* **docs:** tour shouldn't mention botpress-messenger (ref [#827](https://github.com/botpress/botpress/issues/827)) ([0aa1616](https://github.com/botpress/botpress/commit/0aa1616))
+* **messenger:** GET_STARTED response (resolve [#589](https://github.com/botpress/botpress/issues/589)) ([f9c31cb](https://github.com/botpress/botpress/commit/f9c31cb))
+* **qna:** display row number in processing error ([3c692ea](https://github.com/botpress/botpress/commit/3c692ea))
+* **qna:** don't duplicate questions when reuploading same file ([08b5888](https://github.com/botpress/botpress/commit/08b5888))
+* **qna:** paginate questions/answer ([f349899](https://github.com/botpress/botpress/commit/f349899))
+
+
+### Features
+
+* **builtins:** added ability to hide choice elements ([5919705](https://github.com/botpress/botpress/commit/5919705))
+* **qna:** customizable encoding for exported csv ([de1a2d1](https://github.com/botpress/botpress/commit/de1a2d1))
+* **skill-choice:** added support for NLU ([fa15d06](https://github.com/botpress/botpress/commit/fa15d06))
+
+
+
+
+<a name="10.30.0"></a>
+# [10.30.0](https://github.com/botpress/botpress/compare/v10.28.0...v10.30.0) (2018-08-08)
+
+
+### Bug Fixes
+
+* wip ([c36ab78](https://github.com/botpress/botpress/commit/c36ab78))
+* **core:** improve long strings readability ([904f784](https://github.com/botpress/botpress/commit/904f784))
+* **nlu:** custom entity names ([8e04763](https://github.com/botpress/botpress/commit/8e04763))
+* **nlu:** DialogFlow moved to optional deps ([a05202a](https://github.com/botpress/botpress/commit/a05202a))
+* **nlu:** fixes loading of custom entities ([f63cfab](https://github.com/botpress/botpress/commit/f63cfab))
+* **nlu:** LUIS custom entity resolution ([d813233](https://github.com/botpress/botpress/commit/d813233))
+* **web:** unused code ([832a3db](https://github.com/botpress/botpress/commit/832a3db))
+* **webchat:** conversations list last message postgres query ([4657efa](https://github.com/botpress/botpress/commit/4657efa))
+* **webchat:** createConvo btn color is configurable ([b7eba94](https://github.com/botpress/botpress/commit/b7eba94))
+
+
+### Features
+
+* **core:** implemented validation fot bp module version (resolve [#663](https://github.com/botpress/botpress/issues/663)) ([596528d](https://github.com/botpress/botpress/commit/596528d))
+* **web:** implemented btn for create convo (ref [#804](https://github.com/botpress/botpress/issues/804)) ([ae42664](https://github.com/botpress/botpress/commit/ae42664))
+
+
+
+
+<a name="10.29.0"></a>
 # [10.29.0](https://github.com/botpress/botpress/compare/v10.28.0...v10.29.0) (2018-08-07)
 
 
@@ -27,7 +139,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-      <a name="10.28.0"></a>
+<a name="10.28.0"></a>
 # [10.28.0](https://github.com/botpress/botpress/compare/v10.27.1...v10.28.0) (2018-08-03)
 
 

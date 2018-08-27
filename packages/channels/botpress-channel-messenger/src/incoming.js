@@ -7,6 +7,8 @@ import _ from 'lodash'
 module.exports = (bp, messenger) => {
   const users = Users(bp, messenger)
 
+  const logger = bp.logger
+
   const messagesCache = LRU({
     max: 10000,
     maxAge: 60 * 60 * 1000
@@ -62,7 +64,7 @@ module.exports = (bp, messenger) => {
   })
 
   messenger.on('postback', e => {
-    preprocessEvent(e).then(profile => {
+    preprocessEvent(e).then(async profile => {
       bp.middlewares.sendIncoming({
         platform: 'facebook',
         type: 'postback',
@@ -74,8 +76,14 @@ module.exports = (bp, messenger) => {
       if (e.postback.payload === 'GET_STARTED') {
         const mConfig = messenger.getConfig()
 
-        if (mConfig.displayGetStarted && mConfig.autoResponseOption == 'autoResponseText') {
-          bp.messenger.sendText(profile.id, mConfig.autoResponseText)
+        if (mConfig.displayGetStarted && mConfig.autoResponseOption == 'autoResponseTextRenderer') {
+          try {
+            const options = mConfig.autoResponseText ? { text: mConfig.autoResponseText } : {}
+
+            await bp.renderers.sendToUser(profile.id, mConfig.autoResponseTextRenderer, options)
+          } catch (err) {
+            logger.warn('unavailable "autoResponseTextRenderer"')
+          }
         }
 
         if (mConfig.displayGetStarted && mConfig.autoResponseOption == 'autoResponsePostback') {

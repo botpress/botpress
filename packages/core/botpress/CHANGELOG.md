@@ -3,6 +3,78 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.33.2"></a>
+## [10.33.2](https://github.com/botpress/botpress/compare/v10.33.1...v10.33.2) (2018-08-24)
+
+
+
+
+**Note:** Version bump only for package botpress
+
+<a name="10.33.1"></a>
+## [10.33.1](https://github.com/botpress/botpress/compare/v10.33.0...v10.33.1) (2018-08-24)
+
+
+### Bug Fixes
+
+* **core:** flow-level timeoutNode property persists ([9d16c4e](https://github.com/botpress/botpress/commit/9d16c4e))
+* **core:** increase node-version to 10 in new bot-template ([77d72a6](https://github.com/botpress/botpress/commit/77d72a6))
+
+
+
+
+<a name="10.33.0"></a>
+# [10.33.0](https://github.com/botpress/botpress/compare/v10.32.0...v10.33.0) (2018-08-17)
+
+
+### Bug Fixes
+
+* **core:** improve CLI messages about version ([c919412](https://github.com/botpress/botpress/commit/c919412))
+
+
+### Features
+
+* **channel-web:** allow extra messages sanitizing ([7d6033f](https://github.com/botpress/botpress/commit/7d6033f))
+
+
+
+
+<a name="10.32.0"></a>
+# [10.32.0](https://github.com/botpress/botpress/compare/v10.31.0...v10.32.0) (2018-08-15)
+
+
+
+
+**Note:** Version bump only for package botpress
+
+<a name="10.31.0"></a>
+# [10.31.0](https://github.com/botpress/botpress/compare/v10.30.0...v10.31.0) (2018-08-08)
+
+
+### Bug Fixes
+
+* **core:** remove global variable rewriting ([6fce6de](https://github.com/botpress/botpress/commit/6fce6de))
+* **docs:** tour shouldn't mention botpress-messenger (ref [#827](https://github.com/botpress/botpress/issues/827)) ([0aa1616](https://github.com/botpress/botpress/commit/0aa1616))
+
+
+
+
+<a name="10.30.0"></a>
+# [10.30.0](https://github.com/botpress/botpress/compare/v10.28.0...v10.30.0) (2018-08-08)
+
+
+### Bug Fixes
+
+* **core:** improve long strings readability ([904f784](https://github.com/botpress/botpress/commit/904f784))
+
+
+### Features
+
+* **core:** implemented validation fot bp module version (resolve [#663](https://github.com/botpress/botpress/issues/663)) ([596528d](https://github.com/botpress/botpress/commit/596528d))
+
+
+
+
 <a name="10.29.0"></a>
 # [10.29.0](https://github.com/botpress/botpress/compare/v10.28.0...v10.29.0) (2018-08-07)
 
