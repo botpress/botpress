@@ -63,7 +63,7 @@ export function Node(config) {
 
 export function renderElement(...args) {
   if (args.length === 1) {
-    return _renderElement('#text', args[0])
+    return _renderElement('#builtin_text', args[0])
   } else if (args.length === 2) {
     return _renderElement(args[0], args[1])
   } else {
