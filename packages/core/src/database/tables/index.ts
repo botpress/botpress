@@ -1,4 +1,6 @@
-import { ExtendedKnex, Table } from '../interfaces'
+import { ExtendedKnex } from 'botpress-module-sdk'
+
+import { Table } from '../interfaces'
 
 import DialogSessionTable from './bot-specific/dialog_sessions'
 import BotsTable from './server-wide/bots'

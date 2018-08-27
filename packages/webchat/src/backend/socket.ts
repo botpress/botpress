@@ -1,33 +1,31 @@
+import { BotpressAPI } from 'botpress-module-sdk'
 import _ from 'lodash'
-import Promise from 'bluebird'
 
+import { Extension } from '.'
+import Database from './db'
 import users from './users'
-import db from './db'
 
 const outgoingTypes = ['text', 'login_prompt', 'file', 'carousel', 'custom']
 
-module.exports = async bp => {
-  const knex = bp.database.knex
-
-  console.log('====>', knex)
-
-  const { appendBotMessage, getOrCreateRecentConversation } = db(knex)
+export default async (bp: BotpressAPI & Extension, db: Database) => {
+  const { appendBotMessage, getOrCreateRecentConversation } = db
   const { getOrCreateUser } = await users(bp)
 
-  const { botName = 'Bot', botAvatarUrl = null } = config || {} // FIXME
+  const config: any = {} // FIXME
+  const { botName = 'Bot', botAvatarUrl = undefined } = config || {} // FIXME
 
-  bp.middlewares.register({
-    name: 'webchat.sendMessages',
-    type: 'outgoing',
-    order: 100,
-    handler: outgoingHandler,
-    module: 'botpress-platform-webchat',
+  bp.events.registerMiddleware({
     description:
       'Sends out messages that targets platform = webchat.' +
-      ' This middleware should be placed at the end as it swallows events once sent.'
+      ' This middleware should be placed at the end as it swallows events once sent.',
+    direction: 'outgoing',
+    handler: outgoingHandler,
+    name: 'webchat.sendMessages',
+    order: 100
   })
 
   async function outgoingHandler(event, next) {
+    // FIXME, BotpressEvent
     if (event.platform !== 'webchat') {
       return next()
     }
@@ -47,13 +45,13 @@ module.exports = async bp => {
     const socketId = user.userId.replace(/webchat:/gi, '')
 
     if (typing) {
-      bp.events.emit('guest.webchat.typing', {
-        // FIXME Doesn't exist
-        timeInMs: typing,
-        userId: null,
-        __room: 'visitor:' + socketId,
-        conversationId
-      })
+      // bp.events.emit('guest.webchat.typing', {
+      //   // FIXME Doesn't exist
+      //   timeInMs: typing,
+      //   userId: null,
+      //   __room: 'visitor:' + socketId,
+      //   conversationId
+      // })
 
       await Promise.delay(typing)
     }
@@ -66,7 +64,7 @@ module.exports = async bp => {
     })
 
     // FIXME botId
-    bp.events.emit('guest.webchat.message', message)
+    // bp.events.emit('guest.webchat.message', message)
 
     // Resolve the event promise
     // FIXME Make official API (BotpressAPI.events.updateStatus(event.id, 'done'))

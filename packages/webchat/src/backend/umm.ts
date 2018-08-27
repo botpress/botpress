@@ -1,8 +1,8 @@
-import util from 'util'
-import _ from 'lodash'
 import Promise from 'bluebird'
-import path from 'path'
+import _ from 'lodash'
 import mime from 'mime'
+import path from 'path'
+import util from 'util'
 
 const QUICK_REPLY_PAYLOAD = /\<(.+)\>\s(.+)/i
 
@@ -31,7 +31,8 @@ function processQuickReplies(qrs, blocName) {
 
   return qrs.map(qr => {
     if (_.isString(qr) && QUICK_REPLY_PAYLOAD.test(qr)) {
-      let [, payload, text] = QUICK_REPLY_PAYLOAD.exec(qr)
+      // tslint:disable-next-line:prefer-const
+      let [__, payload, text] = QUICK_REPLY_PAYLOAD.exec(qr)!
       // <.HELLO> becomes <BLOCNAME.HELLO>
       if (payload.startsWith('.')) {
         payload = blocName + payload
@@ -141,7 +142,7 @@ function buildObjectRaw(event, instruction, options, user) {
   const raw = Object.assign(
     {
       to: user,
-      message: instruction.text || null
+      message: instruction.text || undefined
     },
     options,
     _.pick(event && event.raw, 'conversationId')
@@ -272,10 +273,9 @@ function processOutgoing({ event, blocName, instruction }) {
   throw new Error(`Unrecognized instruction on Web in bloc '${blocName}': ${strRep}`)
 }
 
-module.exports = bp => {
+export default bp => {
   const [registerConnector] = _.at(bp, ['renderers.registerConnector'])
 
-  renderers &&
   registerConnector && // FIXME channel, change how that works
     registerConnector({
       platform: 'webchat',

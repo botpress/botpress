@@ -8,7 +8,7 @@ import {
   KnexExtension_Bool,
   KnexExtension_Date,
   KnexExtension_Json
-} from './interfaces'
+} from 'botpress-module-sdk'
 
 export const patchKnex = (knex: Knex): Knex & KnexExtension => {
   const isLite = knex.client.config.client === 'sqlite3'

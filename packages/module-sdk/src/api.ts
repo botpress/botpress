@@ -1,9 +1,7 @@
 import { BotpressEvent, MiddlewareDefinition } from '.'
+import { ExtendedKnex } from './database'
+import { HttpAPI } from './http'
 import { ChannelUser, ChannelUserAttribute } from './user'
-
-export interface HttpAPI {
-  createShortLink(): void
-}
 
 export interface EventAPI {
   registerMiddleware(middleware: MiddlewareDefinition): void
@@ -16,12 +14,21 @@ export interface UserAPI {
   updateUserAttributes(channelName: string, userId: string, attributes: ChannelUserAttribute[]): Promise<void>
 }
 
+export interface DialogAPI {
+  processMessage(userId: string, event: BotpressEvent): Promise<void>
+}
+
 export interface Logger {
   debug(message: string, metadata?: any): void
   info(message: string, metadata?: any): void
   warn(message: string, metadata?: any): void
   error(message: string, metadata?: any): void
   error(message: string, error: Error, metadata?: any): void
+}
+
+export interface ConfigAPI {
+  getModuleConfig(moduleId: string): Promise<any>
+  getModuleConfigForBot(moduleId: string, botId: string): Promise<any>
 }
 
 export type LoggerAPI = Logger
@@ -35,5 +42,7 @@ export type BotpressAPI = {
   http: HttpAPI
   events: EventAPI
   logger: LoggerAPI
-  dialog: any // TODO
+  dialog: DialogAPI
+  config: ConfigAPI
+  database: ExtendedKnex
 }

@@ -1,4 +1,4 @@
-import { Logger } from 'botpress-module-sdk'
+import { ExtendedKnex, Logger } from 'botpress-module-sdk'
 import { inject, injectable, tagged } from 'inversify'
 import Knex from 'knex'
 import _ from 'lodash'
@@ -7,7 +7,7 @@ import { DatabaseConfig } from '../config/botpress.config'
 import { TYPES } from '../misc/types'
 
 import { patchKnex } from './helpers'
-import { ExtendedKnex, Table } from './interfaces'
+import { Table } from './interfaces'
 import AllTables from './tables'
 
 @injectable()

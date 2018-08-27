@@ -1,23 +1,34 @@
+import aws from 'aws-sdk'
+import { BotpressAPI } from 'botpress-module-sdk'
+import fs from 'fs'
 import _ from 'lodash'
-import path from 'path'
+import moment from 'moment'
 import multer from 'multer'
 import multers3 from 'multer-s3'
-import aws from 'aws-sdk'
-import moment from 'moment'
-import fs from 'fs'
+import path from 'path'
 import serveStatic from 'serve-static'
 
-import db from './db'
+import { Extension } from '.'
+import Database from './db'
+
 import users from './users'
 
-const injectScript = fs.readFileSync(path.resolve(__dirname, 'inject.js'))
-const injectStyle = fs.readFileSync(path.resolve(__dirname, '../../static/inject.css'))
+const injectScript = fs.readFileSync(path.resolve(__dirname, 'inject.js')).toString()
+const injectStyle = fs.readFileSync(path.resolve(__dirname, '../../static/inject.css')).toString()
 
 const ERR_USER_ID_REQ = '`userId` is required and must be valid'
 const ERR_MSG_TYPE = '`type` is required and must be valid'
 const ERR_CONV_ID_REQ = '`conversationId` is required and must be valid'
 
-module.exports = async (bp, config) => {
+export default async (bp: BotpressAPI & Extension, db: Database) => {
+  const {
+    listConversations,
+    getConversation,
+    appendUserMessage,
+    getOrCreateRecentConversation,
+    createConversation
+  } = db
+
   const diskStorage = multer.diskStorage({
     limits: {
       files: 1,
@@ -27,22 +38,24 @@ module.exports = async (bp, config) => {
       const userId = _.get(req, 'params.userId') || 'anonymous'
       const ext = path.extname(file.originalname)
 
-      cb(null, `${userId}_${new Date().getTime()}${ext}`)
+      cb(undefined, `${userId}_${new Date().getTime()}${ext}`)
     }
   })
 
+  const globalConfig = await bp.config.getModuleConfig('webchat')
+
   let upload = multer({ storage: diskStorage })
 
-  if (config.uploadsUseS3) {
+  if (globalConfig.uploadsUseS3) {
     /*
       You can override AWS's default settings here. Example:
       { region: 'us-east-1', apiVersion: '2014-10-01', credentials: {...} }
      */
     const awsConfig = {
-      region: config.uploadsS3Region,
+      region: globalConfig.uploadsS3Region,
       credentials: {
-        accessKeyId: config.uploadsS3AWSAccessKey,
-        secretAccessKey: config.uploadsS3AWSAccessSecret
+        accessKeyId: globalConfig.uploadsS3AWSAccessKey,
+        secretAccessKey: globalConfig.uploadsS3AWSAccessSecret
       }
     }
 
@@ -57,7 +70,7 @@ module.exports = async (bp, config) => {
     const s3 = new aws.S3(awsConfig)
     const s3Storage = multers3({
       s3: s3,
-      bucket: config.uploadsS3Bucket || 'uploads',
+      bucket: globalConfig.uploadsS3Bucket || 'uploads',
       contentType: multers3.AUTO_CONTENT_TYPE,
       cacheControl: 'max-age=31536000', // one year caching
       acl: 'public-read',
@@ -65,32 +78,22 @@ module.exports = async (bp, config) => {
         const userId = _.get(req, 'params.userId') || 'anonymous'
         const ext = path.extname(file.originalname)
 
-        cb(null, `${userId}_${new Date().getTime()}${ext}`)
+        cb(undefined, `${userId}_${new Date().getTime()}${ext}`)
       }
     })
 
     upload = multer({ storage: s3Storage })
   }
 
-  const knex = await bp.db.get()
+  const { getOrCreateUser, getUserProfile } = await users(bp)
 
-  const {
-    listConversations,
-    getConversation,
-    appendUserMessage,
-    getOrCreateRecentConversation,
-    createConversation
-  } = db(knex, config)
-
-  const { getOrCreateUser, getUserProfile } = await users(bp, config)
-
-  const router = bp.getRouter('botpress-platform-webchat', { auth: false })
+  const router = bp.http.getBotSpecificRouter('webchat', { checkAuthentication: false, enableJsonBodyParser: true })
 
   const asyncApi = fn => async (req, res, next) => {
     try {
       await fn(req, res, next)
     } catch (err) {
-      bp.logger.error(err.message, err.stack)
+      bp.logger.error('HTTP Handling Error', err)
       res.status(500).send(err && err.message)
     }
   }
@@ -105,16 +108,14 @@ module.exports = async (bp, config) => {
     res.send(injectStyle)
   })
 
-  const pkg = require('../package.json')
-  const modulePath = bp._loadedModules[pkg.name].root
-  const staticFolder = path.join(modulePath, './static')
+  const staticFolder = path.join('', './static') // TODO Fix this, won't work when bundled
   router.use('/static', serveStatic(staticFolder))
 
   // ?conversationId=xxx (optional)
   router.post(
     '/messages/:userId',
     asyncApi(async (req, res) => {
-      const { userId } = req.params || {}
+      const { userId = undefined } = req.params || {}
 
       if (!validateUserId(userId)) {
         return res.status(400).send(ERR_USER_ID_REQ)
@@ -123,7 +124,7 @@ module.exports = async (bp, config) => {
       await getOrCreateUser(userId) // Just to create the user if it doesn't exist
 
       const payload = req.body || {}
-      let { conversationId } = req.query || {}
+      let { conversationId = undefined } = req.query || {}
       conversationId = conversationId && parseInt(conversationId)
 
       if (!_.includes(['text', 'quick_reply', 'form', 'login_prompt', 'visit'], payload.type)) {
@@ -146,7 +147,7 @@ module.exports = async (bp, config) => {
     '/messages/:userId/files',
     upload.single('file'),
     asyncApi(async (req, res) => {
-      const { userId } = req.params || {}
+      const { userId = undefined } = req.params || {}
 
       if (!validateUserId(userId)) {
         return res.status(400).send(ERR_USER_ID_REQ)
@@ -154,7 +155,7 @@ module.exports = async (bp, config) => {
 
       await getOrCreateUser(userId) // Just to create the user if it doesn't exist
 
-      let { conversationId } = req.query || {}
+      let { conversationId = undefined } = req.query || {}
       conversationId = conversationId && parseInt(conversationId)
 
       if (!conversationId) {
@@ -166,7 +167,7 @@ module.exports = async (bp, config) => {
         type: 'file',
         data: {
           storage: req.file.location ? 's3' : 'local',
-          url: req.file.location || null,
+          url: req.file.location || undefined,
           name: req.file.originalname,
           mime: req.file.contentType || req.file.mimetype,
           size: req.file.size
@@ -180,7 +181,7 @@ module.exports = async (bp, config) => {
   )
 
   router.get('/conversations/:userId/:conversationId', async (req, res) => {
-    const { userId, conversationId } = req.params || {}
+    const { userId = undefined, conversationId = undefined } = req.params || {}
 
     if (!validateUserId(userId)) {
       return res.status(400).send(ERR_USER_ID_REQ)
@@ -192,7 +193,7 @@ module.exports = async (bp, config) => {
   })
 
   router.get('/conversations/:userId', async (req, res) => {
-    const { userId } = req.params || {}
+    const { userId = undefined } = req.params || {}
 
     if (!validateUserId(userId)) {
       return res.status(400).send(ERR_USER_ID_REQ)
@@ -202,8 +203,10 @@ module.exports = async (bp, config) => {
 
     const conversations = await listConversations(userId)
 
+    const config: any = {}
+
     return res.send({
-      conversations: [...conversations],
+      conversations: [...conversations], // FIXME Get per-bot config
       startNewConvoOnTimeout: config.startNewConvoOnTimeout,
       recentConversationLifetime: config.recentConversationLifetime
     })
@@ -218,12 +221,13 @@ module.exports = async (bp, config) => {
       throw new Error('Text must be a valid string of less than 360 chars')
     }
 
-    let sanitizedPayload = _.pick(payload, ['text', 'type', 'data'])
+    const sanitizedPayload = _.pick(payload, ['text', 'type', 'data', 'raw'])
 
     // let the bot programmer make extra cleanup
-    if (bp.webchat && bp.webchat.sanitizeIncomingMessage) {
-      sanitizedPayload = bp.webchat.sanitizeIncomingMessage(sanitizedPayload) || sanitizedPayload
-    }
+    // if (bp.webchat.sanitizeIncomingMessage) {
+    // FIXME
+    // sanitizedPayload = bp.webchat.sanitizeIncomingMessage(sanitizedPayload) || sanitizedPayload
+    // }
 
     // Because we don't necessarily persist what we emit/received
     const persistedPayload = { ...sanitizedPayload }
@@ -243,11 +247,13 @@ module.exports = async (bp, config) => {
       __room: 'visitor:' + userId // This is used to send to the relevant user's socket
     })
 
-    bp.events.emit('guest.webchat.message', message)
+    // FIXME
+    // bp.events.emit('guest.webchat.message', message)
 
     const user = await getOrCreateUser(userId)
 
-    return bp.middlewares.sendIncoming(
+    return bp.events.sendEvent(
+      // FIXME TODO
       Object.assign(
         {
           platform: 'webchat',
@@ -267,10 +273,11 @@ module.exports = async (bp, config) => {
   router.post(
     '/events/:userId',
     asyncApi(async (req, res) => {
-      const { type, payload } = req.body || {}
-      const { userId } = req.params || {}
+      const { type = undefined, payload = undefined } = req.body || {}
+      const { userId = undefined } = req.params || {}
       const user = await getOrCreateUser(userId)
-      bp.middlewares.sendIncoming({
+      bp.events.sendEvent({
+        // FIXME TODO
         platform: 'webchat',
         type,
         user,
@@ -294,7 +301,7 @@ module.exports = async (bp, config) => {
       }
 
       await sendNewMessage(userId, conversationId, payload)
-      await bp.dialogEngine.stateManager.deleteState(user.id)
+      // await bp.dialogEngine.stateManager.deleteState(user.id) // FIXME
       res.status(200).send({})
     })
   )
@@ -313,10 +320,13 @@ module.exports = async (bp, config) => {
         params: { userId },
         query: { ref: webchatUrlQuery }
       } = req
-      const state = await bp.dialogEngine.stateManager.getState(userId)
-      const newState = { ...state, webchatUrlQuery }
 
-      await bp.dialogEngine.stateManager.setState(userId, newState)
+      // FIXME
+      // const state = await bp.dialogEngine.stateManager.getState(userId)
+      // const newState = { ...state, webchatUrlQuery }
+
+      // FIXME
+      // await bp.dialogEngine.stateManager.setState(userId, newState)
 
       res.status(200)
     } catch (error) {
@@ -356,7 +366,7 @@ module.exports = async (bp, config) => {
   }
 
   router.get('/conversations/:userId/:conversationId/download/txt', async (req, res) => {
-    const { userId, conversationId } = req.params || {}
+    const { userId = undefined, conversationId = undefined } = req.params || {}
 
     if (!validateUserId(userId)) {
       return res.status(400).send(ERR_USER_ID_REQ)
@@ -367,6 +377,4 @@ module.exports = async (bp, config) => {
 
     res.send({ txt, name: `${conversation.title}.txt` })
   })
-
-  return router
 }

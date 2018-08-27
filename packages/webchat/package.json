@@ -28,7 +28,6 @@
     "build": "node webpack.js --compile && npm run build-backend-js && npm run build-backend-ts",
     "build-backend-js": "babel src/backend --out-dir dist/backend",
     "build-backend-ts": "../../node_modules/.bin/rimraf dist && ../../node_modules/.bin/tsc"
-
   },
   "repository": {
     "type": "git",
@@ -56,6 +55,8 @@
     "botpress": ">= 10.0.0"
   },
   "devDependencies": {
+    "@types/bluebird-global": "^3.5.7",
+    "@types/lodash": "^4.14.116",
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
@@ -92,9 +93,11 @@
     "aws-sdk": "^2.108.0",
     "axios": "^0.16.2",
     "bluebird": "^3.5.1",
+    "bluebird-global": "^1.0.1",
     "botpress-module-sdk": "file:../module-sdk",
     "date-fns": "^1.28.5",
     "lodash": "^4.17.4",
+    "lodash-decorators": "^6.0.0",
     "mime": "^2.0.3",
     "moment": "^2.18.1",
     "ms": "^2.1.1",

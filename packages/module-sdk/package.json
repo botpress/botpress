@@ -16,6 +16,11 @@
     "watch-test": "npm run test -- --watchAll",
     "tslint": "../../node_modules/.bin/tslint -c ../../tslint.json -p tsconfig.json"
   },
-  "dependencies": {},
-  "devDependencies": {}
+  "dependencies": {
+    "knex": "^0.15.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.16.0",
+    "@types/knex": "^0.14.21"
+  }
 }

@@ -1,18 +1,19 @@
+import 'bluebird-global'
 import { BotpressAPI, BotpressEvent, MiddlewareDefinition } from 'botpress-module-sdk'
 
 import api from './api'
-import db from './db'
+import WebchatDatabase from './db'
 import socket from './socket'
 import umm from './umm'
 
 // TODO
 // [x] users.js
 //    [] Core users <--> channels API
-// [] api.js
-//    [] Core createRouter --> ExpressRouter
-// [] db.js
-// [] inject.js
-// [] socket.js
+// [X] api.js
+//    [X] Core createRouter --> ExpressRouter
+// [X] db.js
+// [X] inject.js
+// [X] socket.js
 //    [] Core EventBus (socket.io, per-bot channels)
 // [] umm.js
 //    [] Core EventLifecycle (status('sent'))
@@ -30,35 +31,12 @@ export const onInit = async (bp: BotpressAPI & Extension) => {
   bp.logger.debug('[webchat] On Init')
   bp.webchat = {}
 
-  // await socket(bp)
-  // await umm(bp)
-  // await api(bp)
-  // await db(bp).initialize()
+  const db = new WebchatDatabase(bp)
+  await db.initialize()
 
-  // const config = await bp.config.getModuleConfig('webchat')
-
-  const middleware: MiddlewareDefinition = {
-    name: 'slack.in',
-    description: 'Receive a message from slack',
-    order: 20,
-    handler: (event, next) => {
-      if (event.type === 'slack') {
-        bp.dialog.processMessage('PENIS', event)
-      }
-    },
-    direction: 'incoming'
-  }
-
-  await bp.events.registerMiddleware(middleware)
-
-  const event: BotpressEvent = {
-    type: 'slack',
-    channel: 'web',
-    target: 'slack_channel_id',
-    direction: 'incoming'
-  }
-
-  await bp.events.sendEvent(event)
+  await api(bp, db)
+  await socket(bp, db)
+  await umm(bp)
 }
 
 export const onReady = async bp => {

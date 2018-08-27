@@ -1,3 +1,4 @@
+import { ExtendedKnex } from 'botpress-module-sdk'
 import { ContainerModule, interfaces } from 'inversify'
 import Knex from 'knex'
 
@@ -5,7 +6,6 @@ import { TYPES } from '../misc/types'
 
 import Database from '.'
 import { patchKnex } from './helpers'
-import { ExtendedKnex } from './interfaces'
 
 export const DatabaseContainerModule = new ContainerModule((bind: interfaces.Bind) => {
   bind<Database>(TYPES.Database)

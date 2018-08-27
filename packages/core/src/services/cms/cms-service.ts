@@ -1,11 +1,10 @@
-import { Logger } from 'botpress-module-sdk'
+import { ExtendedKnex, Logger } from 'botpress-module-sdk'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
 import _ from 'lodash'
 import nanoid from 'nanoid'
 import path from 'path'
 
 import { ConfigProvider } from '../../config/config-loader'
-import { ExtendedKnex } from '../../database/interfaces'
 import { IDisposeOnExit } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
 import GhostService from '../ghost/service'

@@ -1,4 +1,6 @@
+import { RouterOptions } from 'botpress-module-sdk'
 import { Serialize } from 'cerialize'
+import { Router } from 'express'
 
 import { BotRepository } from '../repositories/bot-repository'
 import ActionService from '../services/action/action-service'
@@ -27,6 +29,13 @@ export class BotRouter extends BaseRouter {
     this.botRepository = args.botRepository
     this.cmsService = args.cmsService
     this.flowService = args.flowService
+  }
+
+  getNewRouter(path: string, options: RouterOptions) {
+    const router = Router()
+    // TODO Do something with options
+    this.router.use(path, router)
+    return router
   }
 
   setupRoutes() {
