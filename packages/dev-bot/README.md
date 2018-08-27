@@ -36,7 +36,5 @@ There are several things needed for the modern level of DX:
 
 1. Speedup the botpress build time:
 
-    * Do not rebuild node bundle when only the web part has changes
-    * Do not build node bundle in development
-    * Make each build faster (use caches, incremental builds if possible)
+    * Make web build faster (use caches, incremental builds if possible)
     * Add hot-reload for the server and the client

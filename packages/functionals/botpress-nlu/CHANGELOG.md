@@ -3,6 +3,44 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.33.2"></a>
+## [10.33.2](https://github.com/botpress/modules/compare/v10.33.1...v10.33.2) (2018-08-24)
+
+
+
+
+**Note:** Version bump only for package @botpress/nlu
+
+<a name="10.33.1"></a>
+## [10.33.1](https://github.com/botpress/modules/compare/v10.33.0...v10.33.1) (2018-08-24)
+
+
+### Bug Fixes
+
+* **nlu:** dialogflow isn't required (resolve [#860](https://github.com/botpress/modules/issues/860)) ([0bf3bb2](https://github.com/botpress/modules/commit/0bf3bb2))
+* **nlu:** improve way for handling error (resolve [#790](https://github.com/botpress/modules/issues/790)) ([d32b74d](https://github.com/botpress/modules/commit/d32b74d))
+* **nlu:** skip empty utterances on sync (resolve [#859](https://github.com/botpress/modules/issues/859)) ([6d62700](https://github.com/botpress/modules/commit/6d62700))
+
+
+
+
+<a name="10.33.0"></a>
+# [10.33.0](https://github.com/botpress/modules/compare/v10.32.0...v10.33.0) (2018-08-17)
+
+
+### Bug Fixes
+
+* **core:** improve CLI messages about version ([c919412](https://github.com/botpress/modules/commit/c919412))
+* **nlu:** added scroll for intents list (resolve [#846](https://github.com/botpress/modules/issues/846)) ([b85d3c3](https://github.com/botpress/modules/commit/b85d3c3))
+
+
+### Features
+
+* **channel-web:** allow extra messages sanitizing ([7d6033f](https://github.com/botpress/modules/commit/7d6033f))
+
+
+
+
 <a name="10.32.0"></a>
 # [10.32.0](https://github.com/botpress/modules/compare/v10.31.0...v10.32.0) (2018-08-15)
 

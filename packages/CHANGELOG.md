@@ -3,6 +3,53 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.33.2"></a>
+## [10.33.2](https://github.com/botpress/botpress/compare/v10.33.1...v10.33.2) (2018-08-24)
+
+
+### Bug Fixes
+
+* **channel-web:** fixed message sanitization ([269025a](https://github.com/botpress/botpress/commit/269025a))
+
+
+
+
+<a name="10.33.1"></a>
+## [10.33.1](https://github.com/botpress/botpress/compare/v10.33.0...v10.33.1) (2018-08-24)
+
+
+### Bug Fixes
+
+* **builtins:** change text rendering (resolve [#832](https://github.com/botpress/botpress/issues/832)) ([b33a711](https://github.com/botpress/botpress/commit/b33a711))
+* **channel-web:** last_heard_on ([a6fb50f](https://github.com/botpress/botpress/commit/a6fb50f))
+* **core:** flow-level timeoutNode property persists ([9d16c4e](https://github.com/botpress/botpress/commit/9d16c4e))
+* **core:** increase node-version to 10 in new bot-template ([77d72a6](https://github.com/botpress/botpress/commit/77d72a6))
+* **nlu:** dialogflow isn't required (resolve [#860](https://github.com/botpress/botpress/issues/860)) ([0bf3bb2](https://github.com/botpress/botpress/commit/0bf3bb2))
+* **nlu:** improve way for handling error (resolve [#790](https://github.com/botpress/botpress/issues/790)) ([d32b74d](https://github.com/botpress/botpress/commit/d32b74d))
+* **nlu:** skip empty utterances on sync (resolve [#859](https://github.com/botpress/botpress/issues/859)) ([6d62700](https://github.com/botpress/botpress/commit/6d62700))
+
+
+
+
+<a name="10.33.0"></a>
+# [10.33.0](https://github.com/botpress/botpress/compare/v10.32.0...v10.33.0) (2018-08-17)
+
+
+### Bug Fixes
+
+* **core:** improve CLI messages about version ([c919412](https://github.com/botpress/botpress/commit/c919412))
+* **messenger:** added possibility to set text ([aeb390e](https://github.com/botpress/botpress/commit/aeb390e))
+* **nlu:** added scroll for intents list (resolve [#846](https://github.com/botpress/botpress/issues/846)) ([b85d3c3](https://github.com/botpress/botpress/commit/b85d3c3))
+* **web:** carousel btn as payload (resolve [#845](https://github.com/botpress/botpress/issues/845)) ([c3e90d5](https://github.com/botpress/botpress/commit/c3e90d5))
+
+
+### Features
+
+* **channel-web:** allow extra messages sanitizing ([7d6033f](https://github.com/botpress/botpress/commit/7d6033f))
+
+
+
+
 <a name="10.32.0"></a>
 # [10.32.0](https://github.com/botpress/botpress/compare/v10.31.0...v10.32.0) (2018-08-15)
 

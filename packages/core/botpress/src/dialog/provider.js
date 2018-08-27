@@ -60,7 +60,7 @@ export default class FlowProvider extends EventEmitter2 {
         name: flowPath,
         location: flowPath,
         nodes: flow.nodes.filter(Boolean),
-        ..._.pick(flow, 'version', 'catchAll', 'startNode', 'links', 'skillData')
+        ..._.pick(flow, 'version', 'catchAll', 'startNode', 'links', 'skillData', 'timeoutNode')
       }
     })
 
@@ -105,7 +105,7 @@ export default class FlowProvider extends EventEmitter2 {
 
     // What goes in the .flow.json file
     const flowContent = {
-      ..._.pick(flow, 'version', 'catchAll', 'startNode', 'skillData'),
+      ..._.pick(flow, 'version', 'catchAll', 'startNode', 'skillData', 'timeoutNode'),
       nodes: flow.nodes.map(node => _.omit(node, 'x', 'y', 'lastModified'))
     }
 
