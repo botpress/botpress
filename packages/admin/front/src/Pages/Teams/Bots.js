@@ -171,6 +171,7 @@ class Bots extends Component {
   }
 
   renderBots() {
+    // TODO: botenv-related things are obsolete, cleanup
     const bots = this.props.bots.map(bot => {
       return {
         ...bot,

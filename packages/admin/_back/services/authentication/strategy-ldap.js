@@ -1,5 +1,4 @@
 import LdapAuth from 'ldapauth-fork'
-import Promise from 'bluebird'
 import fs from 'fs'
 import _ from 'lodash'
 import ms from 'ms'

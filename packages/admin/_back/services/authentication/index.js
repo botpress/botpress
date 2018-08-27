@@ -1,4 +1,3 @@
-import Base from './base'
 import Auth0Strategy from './strategy-auth0'
 import LDAPStrategy from './strategy-ldap'
 import HTTPStrategy from './strategy-http'

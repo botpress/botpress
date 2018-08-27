@@ -10,6 +10,7 @@ export default class AuthUsersTable extends Table {
         .string('username')
         .unique()
         .notNullable() // validate: { len: [3, 30] }
+      table.string('password')
       table.string('firstname')
       table.string('lastname')
       table.string('picture')
@@ -20,6 +21,7 @@ export default class AuthUsersTable extends Table {
       table.string('provider').notNullable()
       table.unique(['remote_id', 'provider'])
       table.string('location')
+      table.timestamps()
       table.timestamp('last_synced_at')
     })
   }

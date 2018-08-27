@@ -6,6 +6,7 @@ import { TYPES } from '../misc/types'
 import { BotRepository } from '../repositories/bot-repository'
 import ActionService from '../services/action/action-service'
 import AuthService from '../services/auth/auth-service'
+import TeamsService from '../services/auth/teams-service'
 import { CMSService } from '../services/cms/cms-service'
 import FlowService from '../services/dialog/flow-service'
 import { MiddlewareService } from '../services/middleware/middleware-service'
@@ -27,11 +28,12 @@ export default class Router {
     @inject(TYPES.CMSService) private cmsService: CMSService,
     @inject(TYPES.FlowService) private flowService: FlowService,
     @inject(TYPES.ActionService) private actionService: ActionService,
-    @inject(TYPES.AuthService) private authService: AuthService
+    @inject(TYPES.AuthService) private authService: AuthService,
+    @inject(TYPES.TeamsService) private teamsService: TeamsService
   ) {
     const routers = {
       '/': new IndexRouter(),
-      '/auth': new AuthRouter(this.logger, this.authService),
+      '/auth': new AuthRouter(this.logger, this.authService, this.teamsService),
       '/bots': new BotRouter({
         actionService: this.actionService,
         botRepository: this.botRepository,

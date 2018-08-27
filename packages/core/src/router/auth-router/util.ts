@@ -1,13 +1,14 @@
-import { Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import Joi from 'joi'
 
-import { Logger } from '../../misc/interfaces'
+import { Logger, RequestWithUser } from '../../misc/interfaces'
+import AuthService from '../../services/auth/auth-service'
 // TODO: generalize these errors and consolidate them with ~/Errors.ts
-import { AssertionError } from '../../services/auth/errors'
+import { AssertionError, ProcessingError, UnauthorizedAccessError } from '../../services/auth/errors'
 
 export const asyncMiddleware = ({ logger }: { logger: Logger }) => (
-  fn: (req: Request, res: Response, next: Function) => Promise<any>
-) => (req: Request, res: Response, next: Function) => {
+  fn: (req: Request, res: Response, next: NextFunction) => Promise<any>
+) => (req: Request, res: Response, next: NextFunction) => {
   Promise.resolve(fn(req, res, next)).catch(err => {
     logger.debug(`Async request error ${err.message}`, err.stack)
     next(err)
@@ -48,4 +49,57 @@ export const error = (
     message: message || 'Unknown error',
     docs: docs || 'https://botpress.io/docs/cloud'
   })
+}
+
+export const checkTokenHeader = (authService: AuthService) => async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  if (!req.headers.authorization) {
+    return next(new UnauthorizedAccessError('No Authorization header'))
+  }
+
+  const [scheme, token] = req.headers.authorization.toLowerCase().split(' ')
+  if (scheme !== 'bearer') {
+    return next(new UnauthorizedAccessError(`Unknown scheme ${scheme}`))
+  }
+
+  if (!token) {
+    return next(new UnauthorizedAccessError('Missing authentication token'))
+  }
+
+  try {
+    const user = await authService.checkToken(token)
+
+    if (!user) {
+      return next(new UnauthorizedAccessError('Invalid authentication token'))
+    }
+
+    (req as RequestWithUser).user = user
+  } catch (err) {
+    return next(err)
+  }
+
+  next()
+}
+
+export const loadUser = (authService: AuthService) => async (req: Request, res: Response, next: Function) => {
+  const { user } = req as RequestWithUser
+  if (!user) {
+    throw new ProcessingError('No user property in the request')
+  }
+
+  const dbUser = await authService.findUserById(user.id)
+
+  if (!dbUser) {
+    throw new UnauthorizedAccessError('Unknown user ID')
+  }
+
+  (req as RequestWithUser).dbUser = {
+    ...dbUser,
+    fullName: `${dbUser.firstname} ${dbUser.lastname}`
+  }
+
+  next()
 }

@@ -33,6 +33,8 @@ export class BotRouter extends BaseRouter {
     this.middlewareService = args.middlewareService
   }
 
+  init() {}
+
   setupRoutes() {
     const router = this.router
 

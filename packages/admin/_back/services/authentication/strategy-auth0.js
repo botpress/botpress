@@ -11,7 +11,7 @@ const debug = require('debug')('svc:authentication')
 
 const SYNC_FREQUENCY_MS = ms(process.env.PROFILE_SYNC_FREQUENCY)
 
-var auth0 = new ManagementClient({
+const auth0 = new ManagementClient({
   domain: process.env.AUTH0_DOMAIN,
   clientId: process.env.AUTH0_CLIENT_ID,
   clientSecret: process.env.AUTH0_CLIENT_SECRET,
@@ -29,7 +29,6 @@ export default ({ config, db }) => {
   async function updateUserProfile(remoteId) {
     debug(`Updating user profile: ${remoteId}`)
     const az = await getUserProfile(remoteId)
-    const profile = {}
 
     const user = await db.models.user.findOne({ where: { remoteId } })
 

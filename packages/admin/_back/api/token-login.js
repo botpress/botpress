@@ -5,8 +5,7 @@ import _ from 'lodash'
 import { NotFoundError } from '~/errors'
 
 import { validateRequestSchema } from './common/assert'
-import { success, error, asyncMiddleware } from './common/reply'
-import util from './common/util'
+import { success, asyncMiddleware } from './common/reply'
 
 import PairingService from '~/services/pairing'
 import AuthenticationService from '~/services/authentication'
@@ -18,26 +17,6 @@ export default ({ config, db }) => {
   const teamSvc = TeamService({ config, db })
 
   const router = Router()
-
-  router.get(
-    /^\/$|^\/myself$/i,
-    asyncMiddleware(async (req, res) => {
-      return success(res)(
-        'Retrieved profile successfully',
-        _.pick(req.dbUser, ['company', 'email', 'fullName', 'id', 'picture', 'provider', 'username'])
-      )
-    })
-  )
-
-  router.get(
-    '/my-permissions/:teamId',
-    asyncMiddleware(async (req, res) => {
-      return success(res)(
-        "Retrieved team member's permissions successfully",
-        await teamSvc.getUserPermissions(req.dbUser.id, req.params.teamId)
-      )
-    })
-  )
 
   router.get(
     '/bot/:botId/:env',
@@ -133,21 +112,6 @@ export default ({ config, db }) => {
         botUrl: botenv.botUrl,
         botName: bot.name
       })
-    })
-  )
-
-  router.get(
-    '/cli',
-    asyncMiddleware(async (req, res) => {
-      validateRequestSchema(
-        'query',
-        req,
-        Joi.object().keys({
-          refresh: Joi.boolean().optional()
-        })
-      )
-      const { cliToken, validUntil } = await authSvc.getOrCreateCliToken(req.dbUser.id, req.query.refresh)
-      return success(res)('Generated CLI authentication token', { cliToken, validUntil })
     })
   )
 

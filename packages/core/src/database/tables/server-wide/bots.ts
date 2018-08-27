@@ -28,7 +28,7 @@ export default class BotsTable extends Table {
           return this.knex
             .insert({
               id: 123,
-              name: 'Test Bot',
+              name: 'Bot bot_123',
               version: '1.0.0',
               description: 'Just a test bot',
               author: 'Botpress',

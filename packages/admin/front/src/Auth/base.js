@@ -1,10 +1,10 @@
 import nanoid from 'nanoid'
-import qs from 'query-string'
+// import qs from 'query-string'
 import _ from 'lodash'
 import moment from 'moment'
 
 import history from '../history'
-import api from '../api'
+// import api from '../api'
 
 export default class BaseAuth {
   login = async ({
@@ -45,62 +45,67 @@ export default class BaseAuth {
   }
 
   handlePostAuthentication = async state => {
-    const params = {
-      botId: state.botId,
-      env: state.env
-    }
+    // TODO: cleanup
+    console.error('handlePostAuthentication is not expected to be called')
+    return
 
-    try {
-      const { data } = await api.getSecured().get('/api/login/' + state.action, {
-        params: params
-      })
+    // const params = {
+    //   botId: state.botId,
+    //   env: state.env
+    // }
 
-      /****
-        Redirect logic:
-          - If "action=redirect" is specified, redirect to the "botId"'s url
-          - if "action=callback" is specified, ask user permission to provide identity to botId's url
-      ****/
+    // try {
+    //   const { data } = await api.getSecured().get('/api/login/' + state.action, {
+    //     params: params
+    //   })
 
-      const { payload = {} } = data
+    //   /****
+    //     Redirect logic:
+    //       - If "action=redirect" is specified, redirect to the "botId"'s url
+    //       - if "action=callback" is specified, ask user permission to provide identity to botId's url
+    //   ****/
 
-      if (payload.action === 'redirect') {
-        const { botUrl, token } = payload
+    //   const { payload = {} } = data
 
-        if (botUrl) {
-          const finalUrl =
-            botUrl +
-            '?' +
-            qs.stringify({
-              token: token,
-              botId: state.botId,
-              params: state.params
-            })
+    //   if (payload.action === 'redirect') {
+    //     const { botUrl, token } = payload
 
-          return (window.location.href = finalUrl)
-        }
-      } else if (payload.action === 'callback') {
-        return history.replace({
-          pathname: '/callback-grant',
-          search:
-            '?' +
-            qs.stringify({
-              botName: payload.botName,
-              identity: payload.identity,
-              url: payload.botUrl + state.callbackPath
-            })
-        })
-      }
-    } catch (err) {
-      const { message, code } = _.get(err, 'response.data') || {}
-      const { url: errorUrl, query: errorQuery } = qs.parseUrl(document.referrer)
-      errorQuery.error = message || (code && 'Error Code ' + code) || 'Unknown error'
-      return (window.location.href = errorUrl + '?' + qs.stringify(errorQuery))
-    }
+    //     if (botUrl) {
+    //       const finalUrl =
+    //         botUrl +
+    //         '?' +
+    //         qs.stringify({
+    //           token: token,
+    //           botId: state.botId,
+    //           params: state.params
+    //         })
 
-    return history.replace(state.comingFrom || '/home')
+    //       return (window.location.href = finalUrl)
+    //     }
+    //   } else if (payload.action === 'callback') {
+    //     return history.replace({
+    //       pathname: '/callback-grant',
+    //       search:
+    //         '?' +
+    //         qs.stringify({
+    //           botName: payload.botName,
+    //           identity: payload.identity,
+    //           url: payload.botUrl + state.callbackPath
+    //         })
+    //     })
+    //   }
+    // } catch (err) {
+    //   const { message, code } = _.get(err, 'response.data') || {}
+    //   const { url: errorUrl, query: errorQuery } = qs.parseUrl(document.referrer)
+    //   errorQuery.error = message || (code && 'Error Code ' + code) || 'Unknown error'
+    //   return (window.location.href = errorUrl + '?' + qs.stringify(errorQuery))
+    // }
+
+    // return history.replace(state.comingFrom || '/home')
   }
 
   handlePostLimitedSAMLAuthentication = async () => {
+    // TODO: cleanup all the redirect / callback code
     const hash = window.location.hash
 
     const state = JSON.parse(sessionStorage.getItem('preauth_state') || '{}')

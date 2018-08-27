@@ -28,7 +28,8 @@ const TYPES = {
   SessionRepository: Symbol.for('StateManager'),
   SessionService: Symbol.for('SessionService'),
   BotpressAPI: Symbol.for('BotpressAPI'),
-  AuthService: Symbol.for('AuthService')
+  AuthService: Symbol.for('AuthService'),
+  TeamsService: Symbol.for('TeamsService')
 }
 
 export { TYPES }

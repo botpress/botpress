@@ -16,6 +16,7 @@ export default class AuthRolesTable extends Table {
         .integer('team')
         .references('auth_teams.id')
         .onDelete('CASCADE')
+      table.timestamps()
     })
   }
 }

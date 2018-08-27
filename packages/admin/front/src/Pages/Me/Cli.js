@@ -6,8 +6,8 @@ import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { Button } from 'reactstrap'
 import moment from 'moment'
 
-import SectionLayout from '../Layouts/Section'
-import LoadingSection from '../Components/LoadingSection'
+// import SectionLayout from '../Layouts/Section'
+// import LoadingSection from '../Components/LoadingSection'
 
 import api from '../../api'
 
@@ -15,7 +15,7 @@ class Cli extends Component {
   state = { loading: false, token: null, validUntil: null, copied: false }
 
   componentDidMount() {
-    this.getToken(false)
+    // this.getToken(false)
   }
 
   async getToken(refresh = false) {
@@ -70,21 +70,24 @@ class Cli extends Component {
   }
 
   render() {
-    const renderLoading = () => <LoadingSection />
+    // TODO: find and remove any references to it
+    return <h1>You shouldn&apos;t have seen this page</h1>
 
-    const sections = [
-      { title: 'General', active: false, link: '/me' },
-      { title: 'API Key', active: true, link: '/me/cli' }
-    ]
+    // const renderLoading = () => <LoadingSection />
 
-    return (
-      <SectionLayout
-        title="API Key"
-        sections={sections}
-        mainContent={this.state.loading ? renderLoading() : this.renderToken()}
-        sideMenu={this.renderSideMenu()}
-      />
-    )
+    // const sections = [
+    //   { title: 'General', active: false, link: '/me' },
+    //   { title: 'API Key', active: true, link: '/me/cli' }
+    // ]
+
+    // return (
+    //   <SectionLayout
+    //     title="API Key"
+    //     sections={sections}
+    //     mainContent={this.state.loading ? renderLoading() : this.renderToken()}
+    //     sideMenu={this.renderSideMenu()}
+    //   />
+    // )
   }
 }
 
