@@ -4,8 +4,8 @@ import _ from 'lodash'
 import { TYPES } from '../../misc/types'
 import { DialogSession } from '../../repositories/session-repository'
 
-import { CallProcessor } from './call-processor'
 import FlowService from './flow-service'
+import { Instruction, InstructionProcessor } from './instruction-processor'
 import { SessionService } from './session-service'
 
 // TODO: Allow multi-bot
@@ -15,14 +15,14 @@ const ENTRY_NODE_NAME = 'entry'
 
 @injectable()
 export class NewDialogEngine {
-  private callQueue: any[] = []
+  private instructionQueue: Instruction[] = []
   private flows: any[] = []
 
   private flowsLoaded = false
-  private currentSession: DialogSession | undefined
+  private currentSession!: DialogSession
 
   constructor(
-    @inject(TYPES.CallProcessor) private callProcessor: CallProcessor,
+    @inject(TYPES.InstructionProcessor) private instructionProcessor: InstructionProcessor,
     @inject(TYPES.FlowService) private flowService: FlowService,
     @inject(TYPES.SessionService) private sessionService: SessionService
   ) {}
@@ -54,20 +54,60 @@ export class NewDialogEngine {
   }
 
   private fillQueue() {
-    const context = JSON.parse(this.currentSession!.context)
-    const onEnter = _.flatten(context.currentNode.onEnter)
-    const onReceive = _.flatten(context.currentNode.onReceive)
+    const context = JSON.parse(this.currentSession.context)
+    const onEnter = this.createOnEnters(context)
+    const onReceive = this.createOnReceives(context)
+    const next = this.createConditions(context)
 
-    this.callQueue.push(onEnter, onReceive)
-    this.callQueue = _.flatten(this.callQueue)
+    this.instructionQueue.push(...onEnter, ...onReceive, ...next)
+  }
+
+  private createOnEnters(context): Instruction[] {
+    const instructions = context.currentNode && context.currentNode.onEnter
+    if (!instructions) {
+      return []
+    }
+
+    return instructions.map(x => {
+      return { type: 'on-enter', fn: x }
+    })
+  }
+
+  private createOnReceives(context): Instruction[] {
+    const instructions = context.currentNode && context.currentNode.onReceive
+    if (!instructions) {
+      return []
+    }
+
+    return instructions.map(x => {
+      return { type: 'on-receive', fn: x }
+    })
+  }
+
+  private createConditions(context): Instruction[] {
+    const instructions = context.currentNode && context.currentNode.next
+    if (!instructions) {
+      return []
+    }
+
+    return instructions.map(x => {
+      return { type: 'transition-condition', fn: x.condition }
+    })
   }
 
   private async executeQueue() {
-    this.callQueue.reverse() // To act as a queue
+    this.instructionQueue.reverse() // To act as a queue
 
-    const call = this.callQueue.pop()
-    await this.callProcessor.processCall(call, {}, {}, {})
-    // Update session
+    while (!_.isEmpty(this.instructionQueue)) {
+      const instruction = this.instructionQueue.pop()
+      await this.instructionProcessor.process(
+        instruction,
+        this.currentSession.state,
+        this.currentSession.event,
+        this.currentSession.context
+      )
+      // await this.sessionService.updateSession(this.currentSession)
+    }
   }
 
   private async reloadFlows(): Promise<void> {

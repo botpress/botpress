@@ -32,7 +32,12 @@ export class SessionService {
   }
 
   async deleteSession(id: string) {
-    return await this.repository.delete(id)
+    return this.repository.delete(id)
+  }
+
+  async updateSession(session: DialogSession): Promise<DialogSession> {
+    await this.repository.update(session)
+    return session
   }
 
   async getSession(id: string): Promise<DialogSession> {
