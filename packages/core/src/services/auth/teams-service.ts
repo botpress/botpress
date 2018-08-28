@@ -8,7 +8,6 @@ import { AuthRole, AuthRule, AuthTeam, AuthTeamMembership, AuthUser, Bot, Logger
 import { TYPES } from '../../misc/types'
 import { InvalidOperationError, UnauthorizedAccessError } from '../auth/errors'
 
-import AuthService from './auth-service'
 import defaultRoles from './default-roles'
 
 const TEAMS_TABLE = 'auth_teams'
@@ -21,10 +20,9 @@ const BOTS_TABLE = 'srv_bots'
 export default class TeamService {
   constructor(
     @inject(TYPES.Logger)
-    @tagged('name', 'Auth')
+    @tagged('name', 'Auth Teams')
     private logger: Logger,
-    @inject(TYPES.Database) private knex: ExtendedKnex,
-    @inject(TYPES.AuthService) private authService: AuthService
+    @inject(TYPES.Database) private knex: ExtendedKnex
   ) {}
 
   async createNewTeam({ userId, name = 'Default Team' }: { userId: number; name?: string }) {

@@ -4,14 +4,14 @@ import logo from '../media/nobg_white.png'
 
 import { Alert, Card, CardBody, CardTitle, Button, Input, CardText } from 'reactstrap'
 
-export default class Login extends Component {
+export default class Signup extends Component {
   state = { username: '', password: '', error: null }
 
-  login = async () => {
+  signup = async () => {
     this.setState({ error: null })
 
     try {
-      await this.props.auth.login({ username: this.state.username, password: this.state.password })
+      await this.props.auth.register({ username: this.state.username, password: this.state.password })
     } catch (err) {
       this.setState({ error: err.message })
     }
@@ -23,7 +23,7 @@ export default class Login extends Component {
 
   onInputKeyPress = e => {
     if (e.key === 'Enter') {
-      this.login()
+      this.signup()
     }
   }
 
@@ -31,7 +31,7 @@ export default class Login extends Component {
     return (
       <Fragment>
         <CardTitle>Botpress Admin Panel</CardTitle>
-        <CardText>Login</CardText>
+        <CardText>Register</CardText>
         {this.state.error && <Alert color="danger">{this.state.error}</Alert>}
         <Input
           value={this.state.username}
@@ -52,10 +52,10 @@ export default class Login extends Component {
           placeholder="Password"
         />
         <p>
-          <Button onClick={this.login}>Sign in</Button>
+          <Button onClick={this.signup}>Sign up</Button>
         </p>
         <p>
-          <Link to="/signup">Don&apos;t have an account yet? Signup instead.</Link>
+          <Link to="/login">Already have an account? Login here.</Link>
         </p>
       </Fragment>
     )

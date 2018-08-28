@@ -59,8 +59,8 @@ export class TokenExpiredError extends ResponseError {
 }
 
 export class InvalidCredentialsError extends ResponseError {
-  constructor() {
-    super('Invalid credentials', 400, 'BP_0009')
+  constructor(message?: string) {
+    super('Invalid credentials' + (message ? ' ' + message : ''), 400, 'BP_0009')
   }
 
   type = 'InvalidCredentialsError'

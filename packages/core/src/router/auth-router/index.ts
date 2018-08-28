@@ -20,6 +20,16 @@ import {
 
 const REVERSE_PROXY = !!process.env.REVERSE_PROXY
 
+const authSchema = Joi.object().keys({
+  username: Joi.string()
+    .min(1)
+    .trim()
+    .required(),
+  password: Joi.string()
+    .min(1)
+    .required()
+})
+
 export class AuthRouter extends BaseRouter {
   private asyncMiddleware!: Function
   private checkTokenHeader!: RequestHandler
@@ -37,23 +47,24 @@ export class AuthRouter extends BaseRouter {
     this.teamsRouter = new TeamsRouter(this.logger, this.authService, this.teamsService)
   }
 
-  basicLogin = async (req, res) => {
-    validateBodySchema(
-      req,
-      Joi.object().keys({
-        username: Joi.string()
-          .min(1)
-          .trim()
-          .required(),
-        password: Joi.string()
-          .min(1)
-          .required()
-      })
-    )
+  login = async (req, res) => {
+    validateBodySchema(req, authSchema)
 
     const ip = (REVERSE_PROXY ? req.headers['x-forwarded-for'] : undefined) || req.connection.remoteAddress
 
     const token = await this.authService.login(req.body.username, req.body.password, ip)
+
+    return sendSuccess(res, 'Login successful', { token })
+  }
+
+  register = async (req, res) => {
+    validateBodySchema(req, authSchema)
+
+    const ip = (REVERSE_PROXY ? req.headers['x-forwarded-for'] : undefined) || req.connection.remoteAddress
+
+    const { token, userId } = await this.authService.register(req.body.username, req.body.password, ip)
+
+    await this.teamsService.createNewTeam({ userId })
 
     return sendSuccess(res, 'Login successful', { token })
   }
@@ -77,7 +88,9 @@ export class AuthRouter extends BaseRouter {
   setupRoutes() {
     const router = this.router
 
-    router.post('/login', this.asyncMiddleware(this.basicLogin))
+    router.post('/login', this.asyncMiddleware(this.login))
+
+    router.post('/register', this.asyncMiddleware(this.register))
 
     router.get('/me/profile', this.checkTokenHeader, this.loadUser, this.asyncMiddleware(this.getProfile))
 

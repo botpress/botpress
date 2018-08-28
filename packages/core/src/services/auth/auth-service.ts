@@ -7,7 +7,7 @@ import { TYPES } from '../../misc/types'
 
 import { InvalidCredentialsError, UnauthorizedAccessError } from './errors'
 import resources from './resources'
-import { validateHash } from './util'
+import { calculateHash, validateHash } from './util'
 
 const AUTH_PROVIDER = 'basic'
 const USERS_TABLE = 'auth_users'
@@ -54,14 +54,12 @@ export default class AuthService {
   }
 
   async createUser(user: Partial<AuthUser>) {
-    return this.knex(USERS_TABLE)
-      .insert({
-        ...user,
-        provider: AUTH_PROVIDER,
-        remote_id: user.username,
-        last_synced_at: this.knex.date.now()
-      })
-      .then()
+    return this.knex.insertAndRetrieve<number>(USERS_TABLE, {
+      ...user,
+      provider: AUTH_PROVIDER,
+      remote_id: user.username,
+      last_synced_at: this.knex.date.now()
+    })
   }
 
   async updateUser(username: string, userData: Partial<AuthUser>) {
@@ -98,6 +96,24 @@ export default class AuthService {
     }
 
     return this.generateUserToken(userId, 'web-login')
+  }
+
+  async register(
+    username: string,
+    password: string,
+    ipAddress: string = ''
+  ): Promise<{ userId: number; token: string }> {
+    if (await this.findUserByUsername(username)) {
+      throw new InvalidCredentialsError(`Username ${username} is already taken`)
+    }
+
+    const userId = await this.createUser({
+      username,
+      password: calculateHash(password),
+      last_ip: ipAddress
+    })
+
+    return { userId, token: await this.generateUserToken(userId, 'web-login') }
   }
 
   async checkToken(token: string, audience?: string) {

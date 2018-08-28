@@ -6,26 +6,19 @@ import { ConnectedRouter } from 'react-router-redux'
 import App from './App'
 
 import LoginPage from './Pages/Login'
-import CallbackGrantPage from './Pages/CallbackGrant'
-import LoadingPage from './Pages/Loading'
+import SignupPage from './Pages/Signup'
 import TeamBotsPage from './Pages/Teams/Bots'
 import TeamsListPage from './Pages/Teams/List'
 import TeamMembersPage from './Pages/Teams/Members'
 import TeamRolesPage from './Pages/Teams/Roles'
-import MeCliPage from './Pages/Me/Cli'
+import MePage from './Pages/Me'
 
-import { Provider as Auth } from './Auth'
+import Auth from './Auth'
 import PrivateRoute from './PrivateRoute'
 
 import store, { history } from './store'
 
 const auth = new Auth()
-
-const handleAuthentication = ({ location }) => {
-  if (/access_token|id_token|error/.test(location.hash)) {
-    auth.handleAuthentication()
-  }
-}
 
 export const makeMainRoutes = () => {
   return (
@@ -35,35 +28,18 @@ export const makeMainRoutes = () => {
           <Route
             path="/login"
             render={props => {
-              if (~~props.location.query.direct) {
-                auth.login(props.location.query)
-                return <LoadingPage {...props} />
-              }
-
               return <LoginPage auth={auth} {...props} />
             }}
           />
           <Route
-            exact
-            path="/callback"
+            path="/signup"
             render={props => {
-              handleAuthentication(props)
-              return <LoadingPage {...props} />
+              return <SignupPage auth={auth} {...props} />
             }}
           />
-          <PrivateRoute path="/callback-grant" auth={auth} component={props => props.children}>
-            <Route
-              exact
-              path="/callback-grant"
-              render={props => {
-                return <CallbackGrantPage {...props} />
-              }}
-            />
-          </PrivateRoute>
           <PrivateRoute path="/" auth={auth} component={App}>
             <Switch>
-              <Route exact path="/me/cli" render={props => <MeCliPage {...props} />} />
-              <Redirect from="/me" to="/me/cli" />
+              <Route exact path="/me" render={props => <MePage {...props} />} />
               <Route
                 exact
                 from="/teams/:teamId"

@@ -7,14 +7,7 @@ import { InvalidOperationError } from '../../services/auth/errors'
 import TeamsService from '../../services/auth/teams-service'
 import { BaseRouter } from '../base-router'
 
-import {
-  asyncMiddleware,
-  checkTokenHeader,
-  error as sendError,
-  loadUser,
-  success as sendSuccess,
-  validateBodySchema
-} from './util'
+import { asyncMiddleware, success as sendSuccess, validateBodySchema } from './util'
 
 export class TeamsRouter extends BaseRouter {
   private asyncMiddleware!: Function
