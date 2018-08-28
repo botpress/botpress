@@ -7,7 +7,7 @@ import AuthService from '../../services/auth/auth-service'
 import { AssertionError, ProcessingError, UnauthorizedAccessError } from '../../services/auth/errors'
 
 export const asyncMiddleware = ({ logger }: { logger: Logger }) => (
-  fn: (req: Request, res: Response, next: NextFunction) => Promise<any>
+  fn: (req: Request, res: Response, next?: NextFunction) => Promise<any>
 ) => (req: Request, res: Response, next: NextFunction) => {
   Promise.resolve(fn(req, res, next)).catch(err => {
     logger.debug(`Async request error ${err.message}`, err.stack)
@@ -51,7 +51,7 @@ export const error = (
   })
 }
 
-export const checkTokenHeader = (authService: AuthService) => async (
+export const checkTokenHeader = (authService: AuthService, audience?: string) => async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -60,8 +60,8 @@ export const checkTokenHeader = (authService: AuthService) => async (
     return next(new UnauthorizedAccessError('No Authorization header'))
   }
 
-  const [scheme, token] = req.headers.authorization.toLowerCase().split(' ')
-  if (scheme !== 'bearer') {
+  const [scheme, token] = req.headers.authorization.split(' ')
+  if (scheme.toLowerCase() !== 'bearer') {
     return next(new UnauthorizedAccessError(`Unknown scheme ${scheme}`))
   }
 
@@ -70,7 +70,7 @@ export const checkTokenHeader = (authService: AuthService) => async (
   }
 
   try {
-    const user = await authService.checkToken(token)
+    const user = await authService.checkToken(token, audience)
 
     if (!user) {
       return next(new UnauthorizedAccessError('Invalid authentication token'))
@@ -98,7 +98,7 @@ export const loadUser = (authService: AuthService) => async (req: Request, res: 
 
   (req as RequestWithUser).dbUser = {
     ...dbUser,
-    fullName: `${dbUser.firstname} ${dbUser.lastname}`
+    fullName: [dbUser.firstname, dbUser.lastname].filter(Boolean).join(' ')
   }
 
   next()

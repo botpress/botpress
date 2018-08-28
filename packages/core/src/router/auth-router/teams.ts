@@ -12,12 +12,11 @@ import { asyncMiddleware, success as sendSuccess, validateBodySchema } from './u
 export class TeamsRouter extends BaseRouter {
   private asyncMiddleware!: Function
 
-  constructor(private logger: Logger, private authService: AuthService, private teamsService: TeamsService) {
+  constructor(logger: Logger, private authService: AuthService, private teamsService: TeamsService) {
     super()
-  }
+    this.asyncMiddleware = asyncMiddleware({ logger })
 
-  init() {
-    this.asyncMiddleware = asyncMiddleware({ logger: this.logger })
+    this.setupRoutes()
   }
 
   setupRoutes() {

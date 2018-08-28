@@ -1,3 +1,9 @@
+if (process.env.NODE_ENV === 'production') {
+  require('dotenv').config()
+} else {
+  require('dotenv').config({ path: './.env.local' })
+}
+
 import 'bluebird-global'
 import 'reflect-metadata'
 

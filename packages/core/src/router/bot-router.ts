@@ -31,9 +31,9 @@ export class BotRouter extends BaseRouter {
     this.cmsService = args.cmsService
     this.flowService = args.flowService
     this.middlewareService = args.middlewareService
-  }
 
-  init() {}
+    this.setupRoutes()
+  }
 
   setupRoutes() {
     const router = this.router

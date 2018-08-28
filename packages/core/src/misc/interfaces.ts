@@ -62,11 +62,18 @@ export interface AuthRule {
   op: string
 }
 
-export interface AuthRole {
+interface AuthRoleCommon {
   id?: number
   name: string
   description: string
+}
+
+export type AuthRole = AuthRoleCommon & {
   rules: Array<AuthRule>
+}
+
+export type AuthRoleDb = AuthRoleCommon & {
+  rules: string
 }
 
 export interface TokenUser {

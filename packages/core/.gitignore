@@ -1,1 +1,2 @@
 db.sqlite
+.env.local

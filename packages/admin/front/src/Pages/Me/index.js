@@ -17,7 +17,10 @@ class Me extends Component {
   render() {
     const renderLoading = () => <LoadingSection />
 
-    const sections = [{ title: 'General', active: true, link: '/me' }]
+    const sections = [
+      { title: 'Teams', active: false, link: '/teams' },
+      { title: 'Profile', active: true, link: '/me' }
+    ]
 
     return (
       <SectionLayout

@@ -3,8 +3,18 @@ import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import nanoid from 'nanoid'
 
+import Database from '../../database'
 import { ExtendedKnex } from '../../database/interfaces'
-import { AuthRole, AuthRule, AuthTeam, AuthTeamMembership, AuthUser, Bot, Logger } from '../../misc/interfaces'
+import {
+  AuthRole,
+  AuthRoleDb,
+  AuthRule,
+  AuthTeam,
+  AuthTeamMembership,
+  AuthUser,
+  Bot,
+  Logger
+} from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
 import { InvalidOperationError, UnauthorizedAccessError } from '../auth/errors'
 
@@ -22,29 +32,29 @@ export default class TeamService {
     @inject(TYPES.Logger)
     @tagged('name', 'Auth Teams')
     private logger: Logger,
-    @inject(TYPES.Database) private knex: ExtendedKnex
+    @inject(TYPES.Database) private db: Database
   ) {}
+
+  get knex() {
+    return this.db.knex!
+  }
 
   async createNewTeam({ userId, name = 'Default Team' }: { userId: number; name?: string }) {
     const teamId = await this.knex.insertAndRetrieve<number>(TEAMS_TABLE, {
       name,
-      inviteCode: nanoid()
+      invite_code: nanoid()
     })
 
     if (_.isArray(defaultRoles) && defaultRoles.length) {
       await this.knex.batchInsert(
-        TEAMS_TABLE,
+        ROLES_TABLE,
         defaultRoles.map(role => {
-          return { ...role, teamId }
+          return { ...role, team: teamId, rules: JSON.stringify(role.rules) }
         })
       )
     }
 
-    await this.knex(TEAMS_TABLE).insert({
-      user: userId,
-      team: teamId,
-      role: 'owner'
-    })
+    await this.addMemberToTeam(userId, teamId, 'owner')
 
     return teamId
   }
@@ -56,8 +66,14 @@ export default class TeamService {
           .where({ user: userId })
           .as('m')
       })
-      .leftJoin(this.knex(TEAMS_TABLE).as('t'), `${MEMBERS_TABLE}.team`, `${TEAMS_TABLE}.id`)
-      .select(this.knex.raw('m.user as userId'), this.knex.raw('m.team as teamId'), 'm.role', 't.name')
+      .leftJoin(this.knex(TEAMS_TABLE).as('t'), 'm.team', 't.id')
+      .leftJoin(this.knex(ROLES_TABLE).as('r'), 'm.role', 'r.id')
+      .select(
+        this.knex.raw('m.user as userId'),
+        this.knex.raw('m.team as id'),
+        this.knex.raw('r.name as role'),
+        't.name'
+      )
       .then()
   }
 
@@ -86,7 +102,7 @@ export default class TeamService {
 
     const role = await this.getRole({ team: teamId, name: roleName }, ['rules'])
 
-    return (role && role.rules) || []
+    return (role && JSON.parse(role.rules!)) || []
   }
 
   async listTeamMembers(teamId: number) {
@@ -96,13 +112,23 @@ export default class TeamService {
           .where({ team: teamId })
           .as('m')
       })
-      .leftJoin(this.knex(USERS_TABLE).as('u'), `${MEMBERS_TABLE}.user`, `${USERS_TABLE}.id`)
-      .select('u.id', 'm.role', 'u.username', 'u.picture', 'u.email', 'u.firstname', 'u.lastname', 'm.updated_at')
+      .leftJoin(this.knex(USERS_TABLE).as('u'), 'm.user', 'u.id')
+      .leftJoin(this.knex(ROLES_TABLE).as('r'), 'm.role', 'r.id')
+      .select(
+        'u.id',
+        this.knex.raw('r.name as role'),
+        'u.username',
+        'u.picture',
+        'u.email',
+        'u.firstname',
+        'u.lastname',
+        'm.updated_at'
+      )
       .then<Array<AuthUser & { role: string; updated_at: string }>>(res => res)
       .map(x => ({
         ...x,
         updated_at: undefined,
-        fullName: `${x.firstname} ${x.lastname}`
+        fullName: [x.firstname, x.lastname].filter(Boolean).join(' ')
       }))
   }
 
@@ -114,7 +140,7 @@ export default class TeamService {
     }
   }
 
-  async getMembership(where: {}, select?: Array<keyof AuthTeamMembership>) {
+  private async getMembership(where: {}, select?: Array<keyof AuthTeamMembership>) {
     return this.knex(MEMBERS_TABLE)
       .select(select || ['*'])
       .where(where)
@@ -123,7 +149,7 @@ export default class TeamService {
       .get(0)
   }
 
-  async getTeam(where: {}, select?: Array<keyof AuthTeam>) {
+  private async getTeam(where: {}, select?: Array<keyof AuthTeam>) {
     return this.knex(TEAMS_TABLE)
       .select(select || ['*'])
       .where(where)
@@ -144,7 +170,7 @@ export default class TeamService {
     return this.knex(ROLES_TABLE)
       .select('id', 'name', 'description', 'rules', 'created_at', 'updated_at')
       .where({ team: teamId })
-      .then<Array<AuthRole & { rules: string }>>(res => res)
+      .then<Array<AuthRoleDb>>(res => res)
       .map(
         r =>
           ({
@@ -156,7 +182,7 @@ export default class TeamService {
 
   async createTeamRole(teamId: number, role: AuthRole) {
     return this.knex(ROLES_TABLE)
-      .insert({ ..._.pick(role, 'name', 'description', 'rules'), team: teamId })
+      .insert({ ..._.pick(role, 'name', 'description'), team: teamId, rules: JSON.stringify(role.rules) })
       .then()
   }
 
@@ -210,12 +236,12 @@ export default class TeamService {
     }
   }
 
-  async getRole(where: {}, select?: Array<keyof AuthRole>) {
+  private async getRole(where: {}, select?: Array<keyof AuthRole>) {
     return this.knex(ROLES_TABLE)
       .select(select || ['*'])
       .where(where)
       .limit(1)
-      .then<Partial<AuthRole>[]>(res => res)
+      .then<Partial<AuthRoleDb>[]>(res => res)
       .get(0)
   }
 
@@ -228,18 +254,21 @@ export default class TeamService {
   }
 
   async addMemberToTeam(userId: number, teamId: number, roleName: string) {
-    const role = await this.getRole({ team: teamId, name: roleName })
-    return this.knex(MEMBERS_TABLE).insert({ user: userId, team: teamId, role: role.id })
+    const role = await this.getRole({ team: teamId, name: roleName }, ['id'])
+    return this.knex(MEMBERS_TABLE)
+      .insert({ user: userId, team: teamId, role: role.id })
+      .then()
   }
 
   async removeMemberFromTeam(userId, teamId) {
     return this.knex(MEMBERS_TABLE)
       .where({ user: userId, team: teamId })
       .delete()
+      .then()
   }
 
   async changeUserRole(userId: number, teamId: number, roleName: string) {
-    const role = await this.getRole({ team: teamId, name: roleName })
+    const role = await this.getRole({ team: teamId, name: roleName }, ['id'])
     return this.knex(MEMBERS_TABLE)
       .where({ user: userId, team: teamId })
       .update({ role: role.id })
@@ -283,6 +312,7 @@ export default class TeamService {
     await this.knex(BOTS_TABLE)
       .where({ team: teamId, id: botId })
       .delete()
+      .then()
   }
 
   async getInviteCode(teamId) {

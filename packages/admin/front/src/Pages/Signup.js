@@ -7,7 +7,24 @@ import { Alert, Card, CardBody, CardTitle, Button, Input, CardText } from 'react
 export default class Signup extends Component {
   state = { username: '', password: '', error: null }
 
+  validate = () => {
+    const { username, password } = this.state
+
+    if (!username || username.length < 3) {
+      return 'Username must be at least 3 characters long'
+    }
+
+    if (!password || password.length < 6) {
+      return 'Password must be at least 6 characters long'
+    }
+  }
+
   signup = async () => {
+    const error = this.validate()
+    if (error) {
+      return this.setState({ error })
+    }
+
     this.setState({ error: null })
 
     try {

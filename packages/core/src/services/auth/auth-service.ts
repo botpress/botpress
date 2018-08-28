@@ -1,11 +1,11 @@
 import { inject, injectable, tagged } from 'inversify'
 import jsonwebtoken from 'jsonwebtoken'
 
-import { ExtendedKnex } from '../../database/interfaces'
+import Database from '../../database'
 import { AuthUser, Logger, TokenUser } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
 
-import { InvalidCredentialsError, UnauthorizedAccessError } from './errors'
+import { InvalidCredentialsError } from './errors'
 import resources from './resources'
 import { calculateHash, validateHash } from './util'
 
@@ -19,20 +19,23 @@ export default class AuthService {
     @inject(TYPES.Logger)
     @tagged('name', 'Auth')
     private logger: Logger,
-    @inject(TYPES.Database) private knex: ExtendedKnex
+    @inject(TYPES.Database) private db: Database
   ) {}
+
+  get knex() {
+    return this.db.knex!
+  }
 
   getResources() {
     return resources
   }
 
-  async findUser(where: object, selectFields?: Array<keyof AuthUser>): Promise<AuthUser | undefined> {
-    let query = this.knex(USERS_TABLE).where(where)
-
-    if (selectFields) {
-      query = query.select(selectFields)
-    }
-    return query.then<Array<AuthUser>>(res => res).get(0)
+  async findUser(where: {}, selectFields?: Array<keyof AuthUser>): Promise<AuthUser | undefined> {
+    return this.knex(USERS_TABLE)
+      .where(where)
+      .select(selectFields || ['*'])
+      .then<Array<AuthUser>>(res => res)
+      .get(0)
   }
 
   findUserByUsername(username: string, selectFields?: Array<keyof AuthUser>): Promise<AuthUser | undefined> {
@@ -64,7 +67,7 @@ export default class AuthService {
 
   async updateUser(username: string, userData: Partial<AuthUser>) {
     return this.knex(USERS_TABLE)
-      .where(username)
+      .where({ username })
       .update({
         last_synced_at: this.knex.date.now(),
         ...userData
@@ -85,6 +88,14 @@ export default class AuthService {
         },
         cb
       )
+    })
+  }
+
+  async checkToken(token: string, audience?: string) {
+    return Promise.fromCallback<TokenUser>(cb => {
+      jsonwebtoken.verify(token, JWT_SECRET, { audience }, (err, user) => {
+        cb(err, !err ? (user as TokenUser) : undefined)
+      })
     })
   }
 
@@ -114,13 +125,5 @@ export default class AuthService {
     })
 
     return { userId, token: await this.generateUserToken(userId, 'web-login') }
-  }
-
-  async checkToken(token: string, audience?: string) {
-    return Promise.fromCallback<TokenUser>(cb => {
-      jsonwebtoken.verify(token, JWT_SECRET, { audience }, (err, user) => {
-        cb(err, !err ? (user as TokenUser) : undefined)
-      })
-    })
   }
 }

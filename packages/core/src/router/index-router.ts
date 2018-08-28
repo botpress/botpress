@@ -3,10 +3,11 @@ import { HttpProxy } from '@botpress/xx-util'
 import { BaseRouter } from './base-router'
 
 export class IndexRouter extends BaseRouter {
-  private _httpProxy!: HttpProxy
+  private _httpProxy = new HttpProxy(this.router, 'http://localhost:3002')
 
-  init() {
-    this._httpProxy = new HttpProxy(this.router, 'http://localhost:3002')
+  constructor() {
+    super()
+    this.setupRoutes()
   }
 
   setupRoutes() {

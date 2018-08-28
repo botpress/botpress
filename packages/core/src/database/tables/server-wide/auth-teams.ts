@@ -6,10 +6,7 @@ export default class AuthTeamsTable extends Table {
   async bootstrap() {
     await this.knex.createTableIfNotExists(this.name, table => {
       table.increments('id')
-      table
-        .string('name')
-        .unique()
-        .notNullable() // validate: { len: [3, 30] }
+      table.string('name').notNullable() // validate: { len: [3, 30] }
       table.string('invite_code').notNullable()
     })
   }

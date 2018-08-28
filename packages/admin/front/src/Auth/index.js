@@ -26,6 +26,8 @@ export default class BasicAuthentication {
     })
 
     this.setSession({ expiresIn: 7200, idToken: data.payload.token })
+
+    history.replace('/home')
   }
 
   async doRegister({ username, password }) {
@@ -35,6 +37,8 @@ export default class BasicAuthentication {
     })
 
     this.setSession({ expiresIn: 7200, idToken: data.payload.token })
+
+    history.replace('/home')
   }
 
   setSession({ expiresIn, idToken }) {
