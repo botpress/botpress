@@ -1,7 +1,7 @@
 {
   "version": "0.0.1",
   "catchAll": {
-    "onReceive": [],
+    "onReceive": ["debug {}"],
     "next": [
       {
         "condition": "event.nlu.intent.is('forget')",

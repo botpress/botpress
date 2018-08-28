@@ -1,9 +1,11 @@
 import { BotpressEvent } from 'botpress-module-sdk'
+import { validateFlowSchema } from 'botpress-xx/src/services/dialog/validator'
+import { DESIGN_PARAM_TYPES } from 'inversify/dts/constants/metadata_keys'
 import 'reflect-metadata'
 
-import { DialogSession } from '../../repositories/session-repository'
-
-import { NewDialogEngine } from './dialog-engine'
+import { DialogEngine } from './dialog-engine'
+jest.mock('./flow-service')
+jest.mock('./session-service')
 
 const SESSION_ID = 'some_user_id'
 
@@ -17,68 +19,38 @@ export function createSpyObj(baseName, methodNames) {
 }
 
 describe('DialogEngine', () => {
+  let dialogEngine: DialogEngine
+  const processor = createSpyObj('InstructionProcessor', ['process'])
+  const sessionService = { getSession: jest.fn(), createSession: jest.fn() }
   const flowService = createSpyObj('FlowService', ['loadAll'])
-  const sessionService = createSpyObj('SessionService', ['createSession', 'getSession'])
-  const event = stubEvent()
-
-  let dialogEngine: NewDialogEngine
+  const logger = {}
+  const event: BotpressEvent = {
+    type: 'slack',
+    target: 'something',
+    channel: 'web',
+    direction: 'incoming'
+  }
 
   beforeEach(() => {
-    mockLoadFlow()
-    mockGetSession()
-    dialogEngine = new NewDialogEngine(flowService, sessionService)
+    // @ts-ignore: All dependencies are mocked
+    dialogEngine = new DialogEngine(processor, flowService, sessionService, logger)
   })
 
-  it('should load all flows', () => {
+  it('Should load flows', () => {
     dialogEngine.processMessage(SESSION_ID, event)
 
-    expect(flowService.loadAll).toHaveBeenCalled()
+    expect(flowService.loadAll).toBeCalled()
   })
 
-  it('should get an existing session', () => {
-    dialogEngine.processMessage(SESSION_ID, event)
-
-    expect(sessionService.getSession).toHaveBeenCalledWith(SESSION_ID)
-  })
-
-  it('should create a session', () => {
-    sessionService.getSession.mockReturnValue(undefined)
-    dialogEngine = new NewDialogEngine(flowService, sessionService)
+  it('Should not load flows when they are already loaded', () => {
+    flowService.loadAll.mockReturnValue([
+      {
+        name: 'main.flow.json'
+      }
+    ])
 
     dialogEngine.processMessage(SESSION_ID, event)
 
-    expect(sessionService.createSession).toHaveBeenCalled()
+    expect(flowService.loadAll).toBeCalled()
   })
-
-  function mockGetSession() {
-    const session: DialogSession = {
-      id: SESSION_ID,
-      state: '',
-      context: {
-        currentFlow: {
-          onEnter: jest.fn()
-        }
-      },
-      event: ''
-    }
-    sessionService.getSession.mockReturnValue(session)
-  }
-
-  function mockLoadFlow() {
-    const flow = {
-      name: 'main.flow.json',
-      node: { name: 'entry' }
-    }
-    flowService.loadAll.mockReturnValue([flow])
-  }
-
-  function stubEvent(): BotpressEvent {
-    const event: BotpressEvent = {
-      type: 'something',
-      channel: 'asd',
-      target: '',
-      direction: 'incoming'
-    }
-    return event
-  }
 })

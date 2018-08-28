@@ -16,7 +16,7 @@ const ENTRY_NODE_NAME = 'entry'
 const MAX_FAILED_ATTEMPS = 10
 
 @injectable()
-export class NewDialogEngine {
+export class DialogEngine {
   private instructionQueue: Instruction[] = []
   private flows: any[] = []
 
@@ -42,21 +42,10 @@ export class NewDialogEngine {
     }
 
     this.currentSession = await this.getOrCreateSession(sessionId, event)
+
     this.fillQueue()
     await this.executeQueue()
     this.transitionToNext()
-  }
-
-  transitionToNext(): any {
-    const context = JSON.parse(this.currentSession.context)
-    const next = context.currentNode && (context.currentNode.next.node || context.currentNode.next.flow)
-    if (!next) {
-      // exit node?
-    }
-    this.instructionQueue = []
-    // Find node or entry node of flow
-    // Update context
-    // Done.
   }
 
   private async getOrCreateSession(sessionId, event): Promise<DialogSession> {
@@ -74,7 +63,7 @@ export class NewDialogEngine {
     const context = JSON.parse(this.currentSession.context)
     const onEnter = this.createOnEnters(context)
     const onReceive = this.createOnReceives(context)
-    const transitionConditions = this.createConditions(context)
+    const conditions = this.createTransitConditions(context)
 
     this.instructionQueue.push(...onEnter)
 
@@ -82,7 +71,7 @@ export class NewDialogEngine {
       this.pushWait()
     }
 
-    this.instructionQueue.push(...onReceive, ...transitionConditions)
+    this.instructionQueue.push(...onReceive, ...conditions)
   }
 
   private pushWait() {
@@ -102,9 +91,16 @@ export class NewDialogEngine {
   }
 
   private createOnReceives(context): Instruction[] {
-    const instructions = context.currentNode && context.currentNode.onReceive
+    const instructions = <Array<any>>context.currentNode && context.currentNode.onReceive
     if (!instructions) {
       return []
+    }
+
+    // TODO: Test that node relative onReceive are added
+    // Execute onReceives relative to the flow before the ones relative to the node
+    const flowReceive = context.currentFlow.catchAll && context.currentFlow.catchAll.onReceive
+    if (!_.isEmpty(flowReceive)) {
+      instructions.push(flowReceive)
     }
 
     return instructions.map(x => {
@@ -112,7 +108,7 @@ export class NewDialogEngine {
     })
   }
 
-  private createConditions(context): Instruction[] {
+  private createTransitConditions(context): Instruction[] {
     const instructions = context.currentNode && context.currentNode.next
     if (!instructions) {
       return []
@@ -153,6 +149,35 @@ export class NewDialogEngine {
 
       this.resetFailedAttempts()
     }
+  }
+
+  private transitionToNext(): any {
+    const context = JSON.parse(this.currentSession.context)
+
+    if (!context.currentNode) {
+      // No context
+      return
+    }
+
+    console.log(context)
+    const nextNode = context.currentNode.next.node
+    const nextFlow = context.currentNode.next.flow
+    console.log(nextNode, nextFlow)
+
+    this.instructionQueue = []
+
+    // Find node or entry node of flow
+    let next
+    if (nextNode) {
+      next = this.currentSession.context.currentFlow.nodes.find(n => n.name === nextNode)
+    } else if (nextFlow) {
+      next = this.flows.find(f => f.name)
+    }
+
+    console.log('NEXT', next)
+
+    // Update context
+    // Done.
   }
 
   private resetFailedAttempts() {
