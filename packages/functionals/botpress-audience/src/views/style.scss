@@ -26,9 +26,22 @@
   margin-right: 3px;
 }
 
+.usersTableWrapper {
+  overflow: auto;
+}
+
 .usersTable {
+  thead > tr > th {
+    white-space: nowrap;
+  }
+
   tbody > tr > td {
     vertical-align: middle;
+
+    &:nth-child(2) {
+      min-width: 100px;
+      word-break: break-all;
+    }
   }
 
   a {

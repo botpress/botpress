@@ -38,35 +38,32 @@ export default class AudienceModule extends React.Component {
     clearInterval(this.timer)
   }
 
-  fetchUsers(fromId) {
+  async fetchUsers(fromId) {
     this.setState({ loading: true })
 
-    this.getAxios()
-      .post('/api/botpress-audience/users', {
+    try {
+      const { data } = await this.getAxios().post('/api/botpress-audience/users', {
         from: this.state.page * LIMIT_PER_PAGE,
         limit: LIMIT_PER_PAGE
       })
-      .then(res => {
-        this.setState({
-          loading: false,
-          users: res.data
-        })
+
+      this.setState({
+        loading: false,
+        users: data
       })
-      .catch(err => {
-        this.setState({
-          loading: false
-        })
+    } catch (err) {
+      this.setState({
+        loading: false
       })
+    }
   }
 
-  fetchCount() {
-    this.getAxios()
-      .get('/api/botpress-audience/users/count')
-      .then(res => {
-        this.setState({
-          count: res.data
-        })
-      })
+  async fetchCount() {
+    const { data } = await this.getAxios().get('/api/botpress-audience/users/count')
+
+    this.setState({
+      count: data
+    })
   }
 
   handlePreviousClicked() {
@@ -95,7 +92,7 @@ export default class AudienceModule extends React.Component {
           <th>ID</th>
           <th>Name</th>
           <th>Platform</th>
-          <th>Created on</th>
+          <th>Created</th>
           <th>Tags</th>
           <th>Information</th>
         </tr>
@@ -115,12 +112,12 @@ export default class AudienceModule extends React.Component {
 
   renderTags(tags) {
     if (_.isEmpty(tags)) {
-      return <span>Not tagged yet...</span>
+      return <span>Not tagged yet</span>
     }
 
     return tags.map((t, key) => {
       const isBoolean = t.value == 1 || t.value === true
-      const text = isBoolean ? t.tag : t.tag + ' = ' + t.value
+      const text = isBoolean ? t.tag : `${t.tag} = ${t.value}`
       return (
         <Label className={style.tag} key={key}>
           {text}
@@ -141,11 +138,15 @@ export default class AudienceModule extends React.Component {
   }
 
   renderExtra({ locale, timezone, gender }) {
+    if (!locale && !timezone && gender === 'unknown') {
+      return 'No info'
+    }
+
     const popover = (
       <Popover id="popover-trigger-hover-focus">
-        <div>{'Gender: ' + gender}</div>
-        <div>{'Timezone: ' + timezone}</div>
-        <div>{'Locale: ' + locale}</div>
+        {gender !== 'unknown' && <div>{'Gender: ' + gender}</div>}
+        {timezone && <div>{'Timezone: ' + timezone}</div>}
+        {locale && <div>{'Locale: ' + locale}</div>}
       </Popover>
     )
 
@@ -161,11 +162,11 @@ export default class AudienceModule extends React.Component {
       return (
         <tr key={key}>
           <td style={{ width: '10%' }}>{this.renderProfilePicture(user.picture_url)}</td>
-          <td style={{ width: '22%' }}>{user.id}</td>
+          <td style={{ width: '24%' }}>{user.id}</td>
           <td style={{ width: '15%' }}>{this.renderName(user.first_name, user.last_name)}</td>
           <td style={{ width: '10%' }}>{_.upperFirst(user.platform)}</td>
           <td style={{ width: '15%' }}>{this.renderCreatedOn(user.created_on)}</td>
-          <td style={{ width: '23%' }}>{this.renderTags(user.tags)}</td>
+          <td style={{ width: '21%' }}>{this.renderTags(user.tags)}</td>
           <td style={{ width: '5%' }}>{this.renderExtra(user)}</td>
         </tr>
       )
@@ -174,7 +175,7 @@ export default class AudienceModule extends React.Component {
 
   renderTable() {
     return (
-      <div>
+      <div className={style.usersTableWrapper}>
         <Table striped bordered condensed hover className={style.usersTable}>
           {this.renderTableHeader()}
           <tbody>{_.values(this.renderUsers(this.state.users))}</tbody>
@@ -200,7 +201,7 @@ export default class AudienceModule extends React.Component {
       ) : null
 
     const next =
-      this.state.count > this.state.page * LIMIT_PER_PAGE ? (
+      this.state.count > (this.state.page + 1) * LIMIT_PER_PAGE ? (
         <Pager.Item next onClick={::this.handleNextClicked}>
           Next &rarr;
         </Pager.Item>
