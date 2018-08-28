@@ -2,14 +2,14 @@
 
 Botpress Q&A is a Botpress module that adds the unified Q&A management interface to your bot admin panel.
 
-It relies on the NLU module for recognizing the questions. By default it also uses the `builtins` module to end the text response, but it's configurable (see below).
+It either relies on the NLU module or on [Microsoft QnA Maker](https://www.qnamaker.ai) for recognizing the questions. By default it also uses the `builtins` module to send the text response, but it's configurable (see below).
 
 # Installation
 
 ⚠️ **This module only works with the new [Botpress X](https://github.com/botpress/botpress).**
 
 - Install the peer dependencies and the module iteslf `yarn add @botpress/builtins @botpress/nlu @botpress/qna` (note: you can skip the `builtins` module if you use the custom text renderer.)
-- Configure [NLU](https://github.com/botpress/botpress/tree/master/packages/functionals/botpress-nlu#botpress-nlu-)
+- Configure [NLU](https://github.com/botpress/botpress/tree/master/packages/functionals/botpress-nlu#botpress-nlu-) or register at [Microsoft QnA Maker](https://www.qnamaker.ai) and provide the API key for it
 
 # Configuration
 
@@ -20,6 +20,8 @@ The following properties can be configured either in the `qna.json` file or usin
 | `qnaDir` | `QNA_DIR` | No | `./qna` | The directory where the Q&A data is stored.
 | `textRenderer` | `QNA_TEXT_RENDERER` | No | `#builtin_text` (requires `@botpress/builtins` to be installed) | The _renderer_ used to format the text responses.
 | `exportCsvEncoding` | `QNA_EXPORT_CSV_ENCODING` | No | `utf8` | Encoding for CSV that can be exported from Q&A module
+| `qnaMakerApiKey` | `QNA_MAKER_API_KEY` | No | | API-key for [Microsoft QnA Maker](https://www.qnamaker.ai). If provided QnA maker gets used to save items and search through them (instead of NLU-module)
+| `qnaMakerKnowledgebase` | `QNA_MAKER_KNOWLEDGEBASE` | No | `botpress` | Name of the QnA Maker knowledgebase to use
 
 # Usage
 
@@ -76,6 +78,16 @@ const questionsFlatExported = await bp.qna.export({ flat: true })
 //   { question: 'Question2', action: 'text', answer: 'Answer1' },
 //   { question: 'Question3', action: 'redirect', answer: 'main.flow.json#some-node' }
 // ]
+```
+
+```js
+const answers = await bp.qna.answersOn('How can I reach you out?')
+// [ { questions: [ 'How can I reach you out?' ],
+//     answer: 'You could find us on Facebook!',
+//     id: 116,
+//     confidence: 100,
+//     enabled: true,
+//     action: 'text' } ]
 ```
 
 ## Controlling if Q&A should intercept
