@@ -45,7 +45,6 @@ export class DialogEngine {
 
     this.fillQueue()
     await this.executeQueue()
-    this.transitionToNext()
   }
 
   private async getOrCreateSession(sessionId, event): Promise<DialogSession> {
@@ -63,7 +62,7 @@ export class DialogEngine {
     const context = JSON.parse(this.currentSession.context)
     const onEnter = this.createOnEnters(context)
     const onReceive = this.createOnReceives(context)
-    const conditions = this.createTransitConditions(context)
+    const transitions = this.createTransitions(context)
 
     this.instructionQueue.push(...onEnter)
 
@@ -71,7 +70,7 @@ export class DialogEngine {
       this.pushWait()
     }
 
-    this.instructionQueue.push(...onReceive, ...conditions)
+    this.instructionQueue.push(...onReceive, ...transitions)
   }
 
   private pushWait() {
@@ -108,14 +107,15 @@ export class DialogEngine {
     })
   }
 
-  private createTransitConditions(context): Instruction[] {
+  private createTransitions(context): Instruction[] {
+    // TODO: Override with flow transition if present
     const instructions = context.currentNode && context.currentNode.next
     if (!instructions) {
       return []
     }
 
     return instructions.map(x => {
-      return { type: 'transition-condition', fn: x.condition }
+      return { type: 'transition-condition', fn: x.condition, node: x.node }
     })
   }
 
@@ -137,6 +137,12 @@ export class DialogEngine {
         this.currentSession.context
       )
 
+      if (result && instruction.type === 'transition-condition') {
+        // Transition to other node / flow
+        this.transitionToNextNode(instruction.node)
+        break
+      }
+
       if (!result) {
         this.failedAttempts++
         if (this.hasTooManyAttempts()) {
@@ -151,33 +157,27 @@ export class DialogEngine {
     }
   }
 
-  private transitionToNext(): any {
-    const context = JSON.parse(this.currentSession.context)
-
-    if (!context.currentNode) {
-      // No context
-      return
+  private transitionToNextNode(next): any {
+    let context = JSON.parse(this.currentSession.context)
+    let node = context.currentFlow.nodes.find(x => x.name === next)
+    let flow
+    if (!node) {
+      flow = this.flows.find(x => x.name === next)
+      if (flow) {
+        node = flow.startNode
+      }
     }
 
-    console.log(context)
-    const nextNode = context.currentNode.next.node
-    const nextFlow = context.currentNode.next.flow
-    console.log(nextNode, nextFlow)
+    if (node) {
+      context = { ...context, currentNode: node }
+    }
+    if (flow) {
+      context = { ...context, currentFlow: flow }
+    }
 
+    this.currentSession.context = context
+    this.sessionService.updateSession(this.currentSession)
     this.instructionQueue = []
-
-    // Find node or entry node of flow
-    let next
-    if (nextNode) {
-      next = this.currentSession.context.currentFlow.nodes.find(n => n.name === nextNode)
-    } else if (nextFlow) {
-      next = this.flows.find(f => f.name)
-    }
-
-    console.log('NEXT', next)
-
-    // Update context
-    // Done.
   }
 
   private resetFailedAttempts() {

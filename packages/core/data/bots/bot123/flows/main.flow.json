@@ -1,7 +1,7 @@
 {
   "version": "0.0.1",
   "catchAll": {
-    "onReceive": ["debug {}"],
+    "onReceive": [],
     "next": [
       {
         "condition": "event.nlu.intent.is('forget')",
@@ -56,7 +56,7 @@
       "id": "a54a82eb7c",
       "name": "entry",
       "onEnter": ["tagUser {\"tag\":\"Joe\"}", "debug {}"],
-      "onReceive": ["tagUser {\"tag\":\"Joe\"}"],
+      "onReceive": null,
       "next": [
         {
           "condition": "state.$r !== null",

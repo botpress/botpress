@@ -11,9 +11,15 @@ const BOT_ID = 'bot123'
 
 type InstructionType = 'transition-condition' | 'on-enter' | 'on-receive' | 'wait' | 'breakpoint'
 
+/**
+ * @property type The type of instruction
+ * @property fn The function to execute
+ * @property node The target node to transit to
+ */
 export type Instruction = {
   type: InstructionType
   fn?: any
+  node?: any
 }
 
 export type ActionResult = {}
