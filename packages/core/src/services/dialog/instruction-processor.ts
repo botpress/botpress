@@ -1,8 +1,6 @@
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 import Mustache from 'mustache'
-import { VError } from 'verror'
-import { NodeVM, VMScript } from 'vm2'
 
 import { Logger } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
@@ -11,11 +9,11 @@ import { runCode } from '../action/sandbox-launcher'
 
 const BOT_ID = 'bot123'
 
-type InstructionType = 'transition-condition' | 'on-enter' | 'on-receive' | 'wait'
+type InstructionType = 'transition-condition' | 'on-enter' | 'on-receive' | 'wait' | 'pause'
 
 export type Instruction = {
   type: InstructionType
-  fn: any
+  fn?: any
 }
 
 export type ActionResult = {}

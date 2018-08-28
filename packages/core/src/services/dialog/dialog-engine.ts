@@ -65,11 +65,16 @@ export class NewDialogEngine {
 
     this.instructionQueue.push(...onEnter)
 
-    if (_.isEmpty(onReceive)) {
-      // Wait for next message
+    if (!_.isEmpty(onReceive)) {
+      this.pushWait()
     }
 
     this.instructionQueue.push(...onReceive, ...next)
+  }
+
+  private pushWait() {
+    const wait: Instruction = { type: 'wait' }
+    this.instructionQueue.push(wait)
   }
 
   private createOnEnters(context): Instruction[] {
@@ -110,6 +115,12 @@ export class NewDialogEngine {
 
     while (!_.isEmpty(this.instructionQueue)) {
       const instruction = this.instructionQueue.pop()!
+
+      // Stop processing instructions and wait for next message
+      if (instruction.type === 'wait') {
+        break
+      }
+
       const result = await this.instructionProcessor.process(
         instruction,
         this.currentSession.state,
@@ -121,8 +132,10 @@ export class NewDialogEngine {
         this.failedAttempts++
         if (this.checkForFailedAttempts()) {
           throw new Error('Too many instructions failed')
+        } else {
+          this.pushWait()
+          this.instructionQueue.push(instruction)
         }
-        this.instructionQueue.push(instruction)
       }
 
       this.resetFailedAttempts()

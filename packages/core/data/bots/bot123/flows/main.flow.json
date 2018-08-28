@@ -56,7 +56,7 @@
       "id": "a54a82eb7c",
       "name": "entry",
       "onEnter": ["tagUser {\"tag\":\"Joe\"}", "debug {}"],
-      "onReceive": null,
+      "onReceive": ["tagUser {\"tag\":\"Joe\"}"],
       "next": [
         {
           "condition": "state.$r !== null",
