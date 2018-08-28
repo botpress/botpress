@@ -17,7 +17,7 @@ const MAX_FAILED_ATTEMPS = 10
 
 @injectable()
 export class DialogEngine {
-  private instructionQueue: Instruction[] = []
+  private instructions: Instruction[] = []
   private flows: any[] = []
 
   private flowsLoaded = false
@@ -64,18 +64,18 @@ export class DialogEngine {
     const onReceive = this.createOnReceives(context)
     const transitions = this.createTransitions(context)
 
-    this.instructionQueue.push(...onEnter)
+    this.instructions.unshift(...onEnter)
 
     if (!_.isEmpty(onReceive)) {
       this.pushWait()
     }
 
-    this.instructionQueue.push(...onReceive, ...transitions)
+    this.instructions.unshift(...onReceive, ...transitions)
   }
 
   private pushWait() {
     const wait: Instruction = { type: 'wait' }
-    this.instructionQueue.push(wait)
+    this.instructions.unshift(wait)
   }
 
   private createOnEnters(context): Instruction[] {
@@ -120,10 +120,8 @@ export class DialogEngine {
   }
 
   private async executeQueue() {
-    this.instructionQueue.reverse() // To act as a queue
-
-    while (!_.isEmpty(this.instructionQueue)) {
-      const instruction = this.instructionQueue.pop()!
+    while (!_.isEmpty(this.instructions)) {
+      const instruction = this.instructions.pop()!
 
       // Stop processing instructions and wait for next message
       if (instruction.type === 'wait') {
@@ -149,7 +147,7 @@ export class DialogEngine {
           throw new Error('Too many instructions failed')
         } else {
           this.pushWait()
-          this.instructionQueue.push(instruction)
+          this.instructions.unshift(instruction)
         }
       }
 
@@ -177,7 +175,7 @@ export class DialogEngine {
 
     this.currentSession.context = context
     this.sessionService.updateSession(this.currentSession)
-    this.instructionQueue = []
+    this.instructions = []
   }
 
   private resetFailedAttempts() {
