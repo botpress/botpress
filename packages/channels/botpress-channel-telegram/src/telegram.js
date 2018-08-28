@@ -1,7 +1,6 @@
 process.env.NTBA_FIX_319 = true // See https://github.com/yagop/node-telegram-bot-api/issues/319
 
 const TelegramBot = require('node-telegram-bot-api')
-const Promise = require('bluebird')
 
 import incoming from './incoming'
 
@@ -71,26 +70,20 @@ class Telegram {
     this.validateBeforeSending(chatId, options)
     Telegram.validateText(text)
 
-    return Promise.fromCallback(() => {
-      this.bot.sendMessage(chatId, text, options)
-    })
+    return this.bot.sendMessage(chatId, text, options)
   }
 
   sendPhoto(chatId, photo, options) {
     this.validateBeforeSending(chatId, options)
 
-    return Promise.fromCallback(() => {
-      this.bot.sendPhoto(chatId, photo, options)
-    })
+    return this.bot.sendPhoto(chatId, photo, options)
   }
 
   sendEditMessage(text, options = {}) {
     this.validateBeforeSending(options.chat_id, options)
     Telegram.validateText(text)
 
-    return Promise.fromCallback(() => {
-      this.bot.editMessageText(text, options)
-    })
+    return this.bot.editMessageText(text, options)
   }
 
   startPolling(bp) {
