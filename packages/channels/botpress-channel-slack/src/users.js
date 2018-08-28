@@ -55,7 +55,7 @@ module.exports = function(bp, slack) {
             gender: 'unknown',
             timezone: user.tz_offset / 3600,
             locale: 'en',
-            picture_url: user.profile.img_512,
+            picture_url: user.profile.image_512,
             first_name: user.profile.first_name,
             last_name: user.profile.last_name
           })
