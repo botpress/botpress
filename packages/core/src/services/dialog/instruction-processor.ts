@@ -9,7 +9,7 @@ import { runCode } from '../action/sandbox-launcher'
 
 const BOT_ID = 'bot123'
 
-type InstructionType = 'transition-condition' | 'on-enter' | 'on-receive' | 'wait' | 'pause'
+type InstructionType = 'transition-condition' | 'on-enter' | 'on-receive' | 'wait' | 'breakpoint'
 
 export type Instruction = {
   type: InstructionType

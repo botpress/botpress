@@ -44,6 +44,19 @@ export class NewDialogEngine {
     this.currentSession = await this.getOrCreateSession(sessionId, event)
     this.fillQueue()
     await this.executeQueue()
+    this.transitionToNext()
+  }
+
+  transitionToNext(): any {
+    const context = JSON.parse(this.currentSession.context)
+    const next = context.currentNode && (context.currentNode.next.node || context.currentNode.next.flow)
+    if (!next) {
+      // exit node?
+    }
+    this.instructionQueue = []
+    // Find node or entry node of flow
+    // Update context
+    // Done.
   }
 
   private async getOrCreateSession(sessionId, event): Promise<DialogSession> {
@@ -61,7 +74,7 @@ export class NewDialogEngine {
     const context = JSON.parse(this.currentSession.context)
     const onEnter = this.createOnEnters(context)
     const onReceive = this.createOnReceives(context)
-    const next = this.createConditions(context)
+    const transitionConditions = this.createConditions(context)
 
     this.instructionQueue.push(...onEnter)
 
@@ -69,7 +82,7 @@ export class NewDialogEngine {
       this.pushWait()
     }
 
-    this.instructionQueue.push(...onReceive, ...next)
+    this.instructionQueue.push(...onReceive, ...transitionConditions)
   }
 
   private pushWait() {
@@ -130,7 +143,7 @@ export class NewDialogEngine {
 
       if (!result) {
         this.failedAttempts++
-        if (this.checkForFailedAttempts()) {
+        if (this.hasTooManyAttempts()) {
           throw new Error('Too many instructions failed')
         } else {
           this.pushWait()
@@ -146,7 +159,7 @@ export class NewDialogEngine {
     this.failedAttempts = 0
   }
 
-  private checkForFailedAttempts() {
+  private hasTooManyAttempts() {
     return this.failedAttempts >= MAX_FAILED_ATTEMPS
   }
 
