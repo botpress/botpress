@@ -1,1 +1,1 @@
-console.log(args.tag)
+return { state }

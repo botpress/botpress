@@ -7,6 +7,7 @@ import { NodeVM, VMScript } from 'vm2'
 import { Logger } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
 import ActionService from '../action/action-service'
+import { runCode } from '../action/sandbox-launcher'
 
 const BOT_ID = 'bot123'
 
@@ -28,23 +29,19 @@ export class InstructionProcessor {
 
   async process(instruction, state, event, context): Promise<ActionResult | Boolean | void> {
     if (instruction.type === 'on-enter' || instruction.type === 'on-receive') {
-      if (instruction.fn.startsWith('say ')) {
-        console.log('EXEC OUTPUT PROCESSOR')
+      if (instruction.fn.indexOf('say ') > -1) {
         return this.invokeOutputProcessor(instruction, state, event, context)
       } else {
-        console.log('EXEC ACTION')
         return this.invokeAction(instruction, state, event, context)
       }
     } else if (instruction.type === 'transition-condition') {
-      // Run condition in VM.
-      console.log('EXEC CONDITION')
-      const vm = new NodeVM({
-        sandbox: state
-      })
-      const script = new VMScript(instruction.fn)
-      return vm.run(script)
+      return this.runInVM(instruction, state)
     }
-    throw new Error('Could not process instruction ')
+    throw new Error('Could not process instruction')
+  }
+
+  private async runInVM(instruction, state) {
+    return await runCode(`return ${instruction.fn}`, { state })
   }
 
   private async invokeOutputProcessor(instruction, state, event, context) {
@@ -93,7 +90,7 @@ export class InstructionProcessor {
       throw new Error(`Action "${actionName}" not found, ${context}, ${state}`)
     }
 
-    const result = this.actionService.forBot(BOT_ID).runAction(actionName, state, event, args)
+    return await this.actionService.forBot(BOT_ID).runAction(actionName, state, event, args)
   }
 
   private containsTemplate(value: string) {

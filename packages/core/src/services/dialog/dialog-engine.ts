@@ -1,6 +1,7 @@
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 
+import { Logger } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
 import { DialogSession } from '../../repositories/session-repository'
 
@@ -12,6 +13,7 @@ import { SessionService } from './session-service'
 const BOT_ID = 'bot123'
 const DEFAULT_FLOW_NAME = 'main.flow.json'
 const ENTRY_NODE_NAME = 'entry'
+const MAX_FAILED_ATTEMPS = 10
 
 @injectable()
 export class NewDialogEngine {
@@ -20,11 +22,13 @@ export class NewDialogEngine {
 
   private flowsLoaded = false
   private currentSession!: DialogSession
+  private failedAttempts = 0
 
   constructor(
     @inject(TYPES.InstructionProcessor) private instructionProcessor: InstructionProcessor,
     @inject(TYPES.FlowService) private flowService: FlowService,
-    @inject(TYPES.SessionService) private sessionService: SessionService
+    @inject(TYPES.SessionService) private sessionService: SessionService,
+    @inject(TYPES.Logger) private logger: Logger
   ) {}
 
   /**
@@ -113,12 +117,24 @@ export class NewDialogEngine {
         this.currentSession.context
       )
 
-      // Condition failed or action failed
-      // TODO: Add max fail attempts
       if (!result) {
+        this.failedAttempts++
+        if (this.checkForFailedAttempts()) {
+          throw new Error('Too many instructions failed')
+        }
         this.instructionQueue.push(instruction)
       }
+
+      this.resetFailedAttempts()
     }
+  }
+
+  private resetFailedAttempts() {
+    this.failedAttempts = 0
+  }
+
+  private checkForFailedAttempts() {
+    return this.failedAttempts >= MAX_FAILED_ATTEMPS
   }
 
   private async reloadFlows(): Promise<void> {
