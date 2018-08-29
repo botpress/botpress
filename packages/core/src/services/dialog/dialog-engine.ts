@@ -74,7 +74,6 @@ export class DialogEngine {
       )
 
       if (result && instruction.type === 'transition-condition') {
-        // Transition to other node / flow
         this.transitionToNextNode(instruction.node)
         break
       }

@@ -3,6 +3,7 @@ import _ from 'lodash'
 
 import { Instruction } from './instruction-processor'
 
+// TODO: Test this class
 @injectable()
 export class InstructionFactory {
   createOnEnter(context) {

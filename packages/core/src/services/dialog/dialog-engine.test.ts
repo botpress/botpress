@@ -2,11 +2,11 @@ import { BotpressEvent } from 'botpress-module-sdk'
 import 'reflect-metadata'
 
 import { DialogEngine } from './dialog-engine'
-import { flow, session } from './mocks'
+import { flow, session } from './stubs'
 
 const SESSION_ID = 'some_user_id'
 
-describe('DialogEngine', () => {
+describe('Dialog Engine', () => {
   const sessionService = createSpyObj('', ['getSession', 'createSession'])
   const flowService = createSpyObj('', ['loadAll'])
   const instructionFactory = createSpyObj('', ['createWait'])
@@ -126,8 +126,14 @@ describe('DialogEngine', () => {
 
       await dialogEngine.processInstructions()
 
-      expect(spy).toHaveBeenCalled()
+      expect(spy).toHaveBeenCalledWith('another-node')
     })
+  })
+
+  describe('When transiting to another node', () => {
+    it('Assign the next flow as the current flow', () => {})
+    it('Assign the next node as the current node', () => {})
+    it('Update the current session', () => {})
   })
 
   function givenWaitInstruction() {
