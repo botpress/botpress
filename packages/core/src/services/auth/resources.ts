@@ -3,7 +3,7 @@ import { enrichResources, RESOURCES } from '@botpress/util-roles'
 const r = 'r'
 const w = 'w'
 
-export interface CloudResource {
+export interface AuthResource {
   name: string
   description?: string
   children?: {
@@ -13,7 +13,7 @@ export interface CloudResource {
   }[]
 }
 
-const CLOUD_RESOURCES: CloudResource[] = [
+const CLOUD_RESOURCES: AuthResource[] = [
   {
     name: 'cloud',
     description: 'Botpress Cloud permissions',
@@ -48,5 +48,5 @@ const CLOUD_RESOURCES: CloudResource[] = [
 ]
 
 export default enrichResources(CLOUD_RESOURCES)
-  .concat(RESOURCES)
-  .sort((a, b) => a.name.localeCompare(b.name)) as CloudResource[]
+  .concat(RESOURCES as AuthResource[])
+  .sort((a, b) => a.name.localeCompare(b.name)) as AuthResource[]

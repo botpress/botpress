@@ -2,11 +2,12 @@ import { inject, injectable, tagged } from 'inversify'
 import jsonwebtoken from 'jsonwebtoken'
 
 import Database from '../../database'
+import { ExtendedKnex } from '../../database/interfaces'
 import { AuthUser, Logger, TokenUser } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
 
 import { InvalidCredentialsError } from './errors'
-import resources from './resources'
+import resources, { AuthResource } from './resources'
 import { calculateHash, validateHash } from './util'
 
 const AUTH_PROVIDER = 'basic'
@@ -22,11 +23,11 @@ export default class AuthService {
     @inject(TYPES.Database) private db: Database
   ) {}
 
-  get knex() {
+  get knex(): ExtendedKnex {
     return this.db.knex!
   }
 
-  getResources() {
+  getResources(): AuthResource[] {
     return resources
   }
 
