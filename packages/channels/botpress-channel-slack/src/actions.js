@@ -60,6 +60,17 @@ const createAttachments = (channelId, attachments, options = {}) => {
   validateChannelId(channelId)
   validateAttachments(attachments)
 
+  attachments = attachments.map(attachment => {
+    if (attachment.callback_id) {
+      return attachment
+    }
+
+    const defaultPrefix = attachment.text ? attachment.text.replace(/\s/g, '_') : 'slack_attachment'
+    const defaultCallbackId = `${defaultPrefix}:${Date.now()}`
+
+    return { ...attachment, callback_id: defaultCallbackId }
+  })
+
   return create({
     platform: 'slack',
     type: 'attachments',
