@@ -33,7 +33,7 @@
   "license": "ISC",
   "dependencies": {
     "@botpress/util-roles": "^10.17.1",
-    "@botpress/xx-util": "^0.0.1",
+    "@botpress/xx-util": "file:../util",
     "apicache": "^1.2.1",
     "auth0": "^2.9.1",
     "axios": "^0.18.0",

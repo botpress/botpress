@@ -23,12 +23,7 @@
     "tslint": "^5.11.0",
     "typescript": "^3.0.1"
   },
-  "dependencies": {
-    "@botpress/xx-ui": "file:packages/ui",
-    "botpress-launcher-ce": "file:packages/launcher-ce",
-    "botpress-module-sdk": "file:packages/module-sdk",
-    "botpress-xx": "file:packages/core"
-  },
+  "dependencies": {},
   "scripts": {
     "build": "./scripts/batch-exec.sh \"build\" \"npm run build\"",
     "start": "cd ./packages/launcher-ce && npm run start",
