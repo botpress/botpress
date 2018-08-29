@@ -134,7 +134,8 @@ export default class AudienceModule extends React.Component {
     if (!url) {
       picture = <Glyphicon glyph="user" />
     } else {
-      picture = <img src={url} alt="Profile picture" />
+      // TODO: find way to save url without changes in postgresql. In sqlite all okey
+      picture = <img src={url.replace('/profilepic/$1', '/profilepic/?')} alt="Profile picture" />
     }
 
     return <div className={style.image}>{picture}</div>
