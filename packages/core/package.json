@@ -25,7 +25,6 @@
     "cerialize": "^0.1.18",
     "chalk": "^2.4.1",
     "doctrine": "^2.1.0",
-    "dotenv": "^6.0.0",
     "errorhandler": "^1.5.0",
     "express": "^4.16.3",
     "express-http-proxy": "^1.2.0",
@@ -56,7 +55,6 @@
   "devDependencies": {
     "@types/bluebird-global": "^3.5.7",
     "@types/doctrine": "^0.0.3",
-    "@types/dotenv": "^4.0.3",
     "@types/errorhandler": "^0.0.32",
     "@types/express": "^4.16.0",
     "@types/fs-extra": "^5.0.4",

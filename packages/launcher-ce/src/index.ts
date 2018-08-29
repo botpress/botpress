@@ -1,9 +1,8 @@
+require('dotenv').config(process.env.NODE_ENV === 'production' ? {} : { path: './.env.local' })
+
 import { Botpress } from 'botpress-xx'
 import { ModuleDefinition } from 'botpress-xx/node_modules/botpress-module-sdk'
 import chalk from 'chalk'
-import dotenv from 'dotenv'
-
-dotenv.config()
 
 console.log(chalk`===========================`)
 console.log(chalk`=     {bold Botpress Server}     =`)
