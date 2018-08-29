@@ -121,7 +121,7 @@ class Members extends Component {
   }
 
   renderInviteModal() {
-    const inviteLink = this.state.inviteCode ? `${process.env.REACT_APP_URL}/teams/join/${this.state.inviteCode}` : null
+    const inviteLink = this.state.inviteCode ? `${window.location.origin}/teams/join/${this.state.inviteCode}` : null
 
     return (
       <Modal isOpen={this.state.isInviteModalOpen} toggle={this.toggleInviteModal}>
@@ -355,4 +355,7 @@ const mapDispatchToProps = dispatch =>
     dispatch
   )
 
-export default connect(mapStateToProps, mapDispatchToProps)(Members)
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Members)
