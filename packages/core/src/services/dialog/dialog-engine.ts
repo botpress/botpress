@@ -12,7 +12,6 @@ import { SessionService } from './session-service'
 // TODO: Allow multi-bot
 const BOT_ID = 'bot123'
 const DEFAULT_FLOW_NAME = 'main.flow.json'
-const ENTRY_NODE_NAME = 'entry'
 const MAX_FAILED_ATTEMPS = 10
 
 @injectable()
@@ -42,6 +41,7 @@ export class DialogEngine {
     }
 
     this.currentSession = await this.getOrCreateSession(sessionId, event)
+    console.log(this.currentSession)
 
     this.fillQueue()
     await this.executeQueue()
@@ -188,6 +188,7 @@ export class DialogEngine {
 
   private async reloadFlows(): Promise<void> {
     this.flows = await this.flowService.loadAll(BOT_ID)
+    console.log(this.flows)
     this.flowsLoaded = true
   }
 
@@ -196,6 +197,6 @@ export class DialogEngine {
   }
 
   private findEntryNode(flow): any {
-    return flow.nodes.find(n => n.name === ENTRY_NODE_NAME)
+    return flow.nodes.find(n => n.name === flow.startNode)
   }
 }
