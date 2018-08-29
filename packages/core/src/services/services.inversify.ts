@@ -8,6 +8,7 @@ import TeamsService from './auth/teams-service'
 import { CMSService } from './cms/cms-service'
 import { DialogEngine } from './dialog/dialog-engine'
 import FlowService from './dialog/flow-service'
+import { InstructionFactory } from './dialog/instruction-factory'
 import { InstructionProcessor } from './dialog/instruction-processor'
 import { SessionService } from './dialog/session-service'
 import { ObjectCache, StorageDriver } from './ghost'
@@ -79,5 +80,9 @@ export const ServicesContainerModule = new ContainerModule((bind: interfaces.Bin
 
   bind<InstructionProcessor>(TYPES.InstructionProcessor)
     .to(InstructionProcessor)
+    .inSingletonScope()
+
+  bind<InstructionFactory>(TYPES.InstructionFactory)
+    .to(InstructionFactory)
     .inSingletonScope()
 })

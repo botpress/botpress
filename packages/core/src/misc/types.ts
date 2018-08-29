@@ -30,7 +30,8 @@ const TYPES = {
   BotpressAPI: Symbol.for('BotpressAPI'),
   AuthService: Symbol.for('AuthService'),
   TeamsService: Symbol.for('TeamsService'),
-  InstructionProcessor: Symbol.for('InstructionProcessor')
+  InstructionProcessor: Symbol.for('InstructionProcessor'),
+  InstructionFactory: Symbol.for('InstructionFactory')
 }
 
 export { TYPES }

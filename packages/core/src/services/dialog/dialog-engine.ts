@@ -1,11 +1,11 @@
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 
-import { Logger } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
 import { DialogSession } from '../../repositories/session-repository'
 
 import FlowService from './flow-service'
+import { InstructionFactory } from './instruction-factory'
 import { Instruction, InstructionProcessor } from './instruction-processor'
 import { SessionService } from './session-service'
 
@@ -16,18 +16,17 @@ const MAX_FAILED_ATTEMPS = 10
 
 @injectable()
 export class DialogEngine {
-  private instructions: Instruction[] = []
-  private flows: any[] = []
-
-  private flowsLoaded = false
-  private currentSession!: DialogSession
-  private failedAttempts = 0
+  instructions: Instruction[] = []
+  flows: any[] = []
+  flowsLoaded = false
+  currentSession!: DialogSession
+  failedAttempts = 0
 
   constructor(
+    @inject(TYPES.InstructionFactory) private factory: InstructionFactory,
     @inject(TYPES.InstructionProcessor) private instructionProcessor: InstructionProcessor,
     @inject(TYPES.FlowService) private flowService: FlowService,
-    @inject(TYPES.SessionService) private sessionService: SessionService,
-    @inject(TYPES.Logger) private logger: Logger
+    @inject(TYPES.SessionService) private sessionService: SessionService
   ) {}
 
   /**
@@ -41,13 +40,13 @@ export class DialogEngine {
     }
 
     this.currentSession = await this.getOrCreateSession(sessionId, event)
-    console.log(this.currentSession)
+    const context = JSON.parse(this.currentSession.context)
+    this.instructions = this.factory.createInstructions(context)
 
-    this.fillQueue()
-    await this.executeQueue()
+    await this.processInstructions()
   }
 
-  private async getOrCreateSession(sessionId, event): Promise<DialogSession> {
+  async getOrCreateSession(sessionId, event): Promise<DialogSession> {
     const session = await this.sessionService.getSession(sessionId)
     if (!session) {
       const defaultFlow = this.findDefaultFlow()
@@ -58,73 +57,12 @@ export class DialogEngine {
     return session
   }
 
-  private fillQueue() {
-    const context = JSON.parse(this.currentSession.context)
-    const onEnter = this.createOnEnters(context)
-    const onReceive = this.createOnReceives(context)
-    const transitions = this.createTransitions(context)
-
-    this.instructions.unshift(...onEnter)
-
-    if (!_.isEmpty(onReceive)) {
-      this.pushWait()
-    }
-
-    this.instructions.unshift(...onReceive, ...transitions)
-  }
-
-  private pushWait() {
-    const wait: Instruction = { type: 'wait' }
-    this.instructions.unshift(wait)
-  }
-
-  private createOnEnters(context): Instruction[] {
-    const instructions = context.currentNode && context.currentNode.onEnter
-    if (!instructions) {
-      return []
-    }
-
-    return instructions.map(x => {
-      return { type: 'on-enter', fn: x }
-    })
-  }
-
-  private createOnReceives(context): Instruction[] {
-    const instructions = <Array<any>>context.currentNode && context.currentNode.onReceive
-    if (!instructions) {
-      return []
-    }
-
-    // TODO: Test that node relative onReceive are added
-    // Execute onReceives relative to the flow before the ones relative to the node
-    const flowReceive = context.currentFlow.catchAll && context.currentFlow.catchAll.onReceive
-    if (!_.isEmpty(flowReceive)) {
-      instructions.push(flowReceive)
-    }
-
-    return instructions.map(x => {
-      return { type: 'on-receive', fn: x }
-    })
-  }
-
-  private createTransitions(context): Instruction[] {
-    // TODO: Override with flow transition if present
-    const instructions = context.currentNode && context.currentNode.next
-    if (!instructions) {
-      return []
-    }
-
-    return instructions.map(x => {
-      return { type: 'transition-condition', fn: x.condition, node: x.node }
-    })
-  }
-
-  private async executeQueue() {
-    while (!_.isEmpty(this.instructions)) {
+  async processInstructions() {
+    while (this.instructions.length > 0) {
       const instruction = this.instructions.pop()!
 
-      // Stop processing instructions and wait for next message
       if (instruction.type === 'wait') {
+        // Stop processing instructions and wait for next message
         break
       }
 
@@ -143,19 +81,22 @@ export class DialogEngine {
 
       if (!result) {
         this.failedAttempts++
+
         if (this.hasTooManyAttempts()) {
           throw new Error('Too many instructions failed')
-        } else {
-          this.pushWait()
-          this.instructions.unshift(instruction)
         }
-      }
 
-      this.resetFailedAttempts()
+        const wait = this.factory.createWait()
+
+        this.instructions.unshift(wait)
+        this.instructions.unshift(instruction)
+      } else {
+        this.failedAttempts = 0
+      }
     }
   }
 
-  private transitionToNextNode(next): any {
+  async transitionToNextNode(next): Promise<any> {
     let context = JSON.parse(this.currentSession.context)
     let node = context.currentFlow.nodes.find(x => x.name === next)
     let flow
@@ -173,13 +114,10 @@ export class DialogEngine {
       context = { ...context, currentFlow: flow }
     }
 
-    this.currentSession.context = context
-    this.sessionService.updateSession(this.currentSession)
     this.instructions = []
-  }
+    this.currentSession.context = context
 
-  private resetFailedAttempts() {
-    this.failedAttempts = 0
+    await this.sessionService.updateSession(this.currentSession)
   }
 
   private hasTooManyAttempts() {
@@ -188,7 +126,6 @@ export class DialogEngine {
 
   private async reloadFlows(): Promise<void> {
     this.flows = await this.flowService.loadAll(BOT_ID)
-    console.log(this.flows)
     this.flowsLoaded = true
   }
 

@@ -7,6 +7,7 @@ module.exports = {
     }
   },
   collectCoverage: true,
+  verbose: true,
   moduleFileExtensions: ['ts', 'js', 'tsx', 'jsx', 'json'],
   transform: {
     '^.+\\.(ts|tsx)$': 'ts-jest'

@@ -80,7 +80,8 @@ const node = {
 }
 
 export const session = {
-  event: {},
+  id: '',
+  event: '',
   context: {
     currentFlow: flow,
     currentNode: node
