@@ -1,4 +1,5 @@
 import * as base from './builtin_base_properties'
+import QuickReply from './builtin_quick-reply'
 
 export default {
   id: 'builtin_single-choice',
@@ -12,40 +13,31 @@ export default {
     type: 'object',
     required: ['choices'],
     properties: {
+      title: {
+        type: 'string',
+        title: 'Title'
+      },
       text: {
         type: 'string',
-        title: 'Message'
+        title: 'Message to show before the Quick Reply buttons'
       },
       choices: {
         type: 'array',
-        title: 'Choices',
+        title: 'Quick Replies',
         description:
           'Protip: To prevent an element from being rendered on the channel, prefix either the Title or the Value with `!hide `',
         minItems: 1,
         maxItems: 10,
-        items: {
-          type: 'object',
-          required: ['title', 'value'],
-          properties: {
-            title: {
-              description: 'The title of the choice (this is what gets shown to the user)',
-              type: 'string',
-              title: 'Message'
-            },
-            value: {
-              description:
-                'The value that your bot gets when the user picks this choice (usually hidden from the user)',
-              type: 'string',
-              title: 'Value'
-            }
-          }
-        }
+        items: QuickReply.jsonSchema
       },
       ...base.typingIndicators
     }
   },
 
   uiSchema: {
+    text: {
+      'ui:widget': 'textarea'
+    },
     variations: {
       'ui:options': {
         orderable: false
@@ -53,6 +45,6 @@ export default {
     }
   },
 
-  computePreviewText: formData => `Choices (${formData.choices.length}) ${formData.text}`,
+  computePreviewText: formData => `Choices: ${formData.title} [${formData.choices.length}]`,
   computeMetadata: null
 }

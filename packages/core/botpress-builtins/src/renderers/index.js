@@ -1,3 +1,4 @@
+import Raw from './builtin_raw'
 import Text from './builtin_text'
 import Card from './builtin_card'
 import Carousel from './builtin_carousel'
@@ -6,6 +7,7 @@ import SingleChoice from './builtin_single-choice'
 import ActionButton from './builtin_action-button'
 
 export default {
+  builtin_raw: Raw,
   builtin_text: Text,
   builtin_card: Card,
   builtin_carousel: Carousel,

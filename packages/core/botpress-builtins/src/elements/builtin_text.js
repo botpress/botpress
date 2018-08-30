@@ -1,4 +1,6 @@
 import * as base from './builtin_base_properties'
+import ActionButton from './builtin_action-button'
+import QuickReply from './builtin_quick-reply'
 
 export default {
   id: 'builtin_text',
@@ -12,6 +14,10 @@ export default {
     type: 'object',
     required: ['text'],
     properties: {
+      label: {
+        type: 'string',
+        title: 'Label'
+      },
       text: {
         type: 'string',
         title: 'Message'
@@ -23,6 +29,20 @@ export default {
           type: 'string',
           default: ''
         }
+      },
+      actions: {
+        type: 'array',
+        title: 'Action Buttons',
+        items: ActionButton.jsonSchema
+      },
+      choices: {
+        type: 'array',
+        title: 'Quick Replies',
+        description:
+          'Protip: To prevent an element from being rendered on the channel, prefix either the Title or the Value with `!hide `',
+        minItems: 0,
+        maxItems: 10,
+        items: QuickReply.jsonSchema
       },
       ...base.typingIndicators
     }
@@ -39,6 +59,6 @@ export default {
     }
   },
 
-  computePreviewText: formData => 'Text: ' + formData.text,
+  computePreviewText: formData => 'Text: ' + (formData.label || formData.text.substring(0, 40)),
   computeMetadata: null
 }

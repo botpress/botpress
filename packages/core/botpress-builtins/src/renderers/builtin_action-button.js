@@ -15,13 +15,25 @@ export default data => {
               return {
                 type: 'postback',
                 title: a.title,
-                payload: a.title
+                payload: a.text
               }
             } else if (a.action === 'Open URL') {
               return {
                 type: 'web_url',
                 title: a.title,
-                url: a.url
+                url: a.url,
+                webview_height_ratio: a.webview_height_ratio,
+                messenger_extensions: a.messenger_extensions
+              }
+            } else if (a.action === 'Click-to-Call') {
+              return {
+                type: 'phone_number',
+                title: a.title,
+                payload: a.phone_number
+              }
+            } else if (a.action === 'Share') {
+              return {
+                type: 'element_share'
               }
             }
           })

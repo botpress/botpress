@@ -16,6 +16,7 @@ module.exports = (bp, messenger) => {
 
   const preprocessEvent = payload => {
     const userId = payload.sender && payload.sender.id
+    const page_id = payload.recipient && payload.recipient.id
     const mid = payload.message && payload.message.mid
 
     if (mid && !messagesCache.has(mid)) {
@@ -26,8 +27,33 @@ module.exports = (bp, messenger) => {
       messagesCache.set(mid, true)
     }
 
-    return users.getOrFetchUserProfile(userId)
+    return users.getOrFetchUserProfile(userId, page_id)
   }
+
+  messenger.on('feed', e => {
+    if (!e.post_id) {
+      return
+    } // ignore changes without a post
+    const userId = e.from && e.from.id
+    const page_id = e.post_id.split('_')[0]
+    if (userId == page_id) {
+      return
+    } // ignore page actions (e.g. hide post)
+    //TODO: Determine if we can fetch users who didn't authorize the app (???)
+    //... probably not, so just do try/catch and ignore the errors...
+    //... in case of exception create user using the Name/ID of the "from" field
+    users.getOrFetchUserProfile(userId, page_id).then(profile => {
+      bp.middlewares.sendIncoming({
+        platform: 'facebook',
+        type: 'feed',
+        user: profile,
+        page: { id: page_id },
+        object: { id: e.comment_id || e.post_id },
+        text: e.message || '',
+        raw: e
+      })
+    })
+  })
 
   messenger.on('message', e => {
     preprocessEvent(e).then(profile => {
@@ -36,6 +62,7 @@ module.exports = (bp, messenger) => {
         platform: 'facebook',
         type: 'message',
         user: profile,
+        page: e.recipient,
         text: e.message.text,
         raw: e
       })
@@ -48,6 +75,7 @@ module.exports = (bp, messenger) => {
         platform: 'facebook',
         type: 'attachments',
         user: profile,
+        page: e.recipient,
         text: e.message.attachments.length + ' attachments',
         raw: e
       })
@@ -56,6 +84,7 @@ module.exports = (bp, messenger) => {
           platform: 'facebook',
           type: att.type,
           user: profile,
+          page: e.recipient,
           text: att.payload.url ? att.payload.url : JSON.stringify(att.payload),
           raw: att
         })
@@ -69,7 +98,9 @@ module.exports = (bp, messenger) => {
         platform: 'facebook',
         type: 'postback',
         user: profile,
+        page: e.recipient,
         text: e.postback.payload,
+        referral: e.postback.referral || (e.postback.payload == 'GET_STARTED' ? {} : null),
         raw: e
       })
 
@@ -91,6 +122,7 @@ module.exports = (bp, messenger) => {
             platform: 'facebook',
             type: 'postback',
             user: profile,
+            page: e.recipient,
             text: mConfig.autoResponsePostback,
             raw: e
           })
@@ -105,6 +137,7 @@ module.exports = (bp, messenger) => {
         platform: 'facebook',
         type: 'quick_reply',
         user: profile,
+        page: e.recipient,
         text: e.message.quick_reply.payload,
         raw: e
       })
@@ -127,6 +160,7 @@ module.exports = (bp, messenger) => {
         platform: 'facebook',
         type: 'delivery',
         user: profile,
+        page: e.recipient,
         text: e.delivery.watermark.toString(),
         raw: e
       })
@@ -149,6 +183,7 @@ module.exports = (bp, messenger) => {
         platform: 'facebook',
         type: 'read',
         user: profile,
+        page: e.recipient,
         text: e.read.watermark.toString(),
         raw: e
       })
@@ -161,6 +196,7 @@ module.exports = (bp, messenger) => {
         platform: 'facebook',
         type: 'account_linking',
         user: profile,
+        page: e.recipient,
         text: e.account_linking.authorization_code,
         raw: e
       })
@@ -173,6 +209,7 @@ module.exports = (bp, messenger) => {
         platform: 'facebook',
         type: 'optin',
         user: profile,
+        page: e.recipient,
         text: e.optin.ref,
         raw: e
       })
@@ -185,7 +222,9 @@ module.exports = (bp, messenger) => {
         platform: 'facebook',
         type: 'referral',
         user: profile,
+        page: e.recipient,
         text: e.referral.ref,
+        referral: e.referral,
         raw: e
       })
     })
@@ -198,6 +237,7 @@ module.exports = (bp, messenger) => {
         type: 'payment',
         text: 'payment',
         user: profile,
+        page: e.recipient,
         payment: e.payment,
         raw: e
       })

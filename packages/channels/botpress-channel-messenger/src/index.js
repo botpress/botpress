@@ -56,9 +56,21 @@ const initializeMessenger = async (bp, configurator) => {
     return bp.logger.warn('[Messenger] Connection disabled')
   }
 
+  const page_ids = Object.keys(messenger.config.pages)
   return messenger
-    .connect()
-    .then(() => messenger.updateSettings())
+    .connect(page_ids)
+    .then(() => {
+      if (!config.freezeProfile) {
+        if (page_ids.length > 0) {
+          for (let i = 0; i < page_ids.length; i++) {
+            messenger.updateMessengerProfile(page_ids[i])
+          }
+        } else {
+          messenger.updateMessengerProfile()
+        }
+      }
+      return messenger
+    })
     .catch(err => bp.logger.error(err))
 }
 
@@ -69,7 +81,11 @@ module.exports = {
     appSecret: { type: 'string', required: true, default: '', env: 'MESSENGER_APP_SECRET' },
     verifyToken: { type: 'string', required: false, default: '' },
     enabled: { type: 'bool', required: true, default: true },
+    enableProfileFields: { type: 'any', required: false, default: [], validation: v => _.isArray(v) },
     hostname: { type: 'string', required: false, default: '', env: 'MESSENGER_HOST' },
+    freezeProfile: { type: 'bool', required: false, default: false },
+    pages: { type: 'any', required: false, default: {} },
+    custom: { type: 'any', required: false, default: {} },
 
     graphVersion: { type: 'string', required: true, default: '2.12' },
     displayGetStarted: { type: 'bool', required: false, default: true },

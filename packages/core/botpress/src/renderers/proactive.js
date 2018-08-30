@@ -29,7 +29,7 @@ module.exports = ({ sendContent, db }) => {
    * @example
    * bp.renderers.sendToUser(event.user.id, '#!text-77734', { typingIndicators: false })
    */
-  const sendToUser = async (user, elementOrRenderer, data) => {
+  const sendToUser = async (user, elementOrRenderer, data, incoming) => {
     if (!_.isString(elementOrRenderer)) {
       throw new Error('Invalid renderer: ' + elementOrRenderer)
     }
@@ -46,8 +46,10 @@ module.exports = ({ sendContent, db }) => {
     const forgedEvent = {
       platform: user.platform,
       user: user,
+      page: incoming && incoming.raw ? incoming.raw.recipient : {},
       type: 'proactive',
       text: text,
+      incoming: incoming,
       raw: { forged: true, message: text, to: user && user.id }
     }
 

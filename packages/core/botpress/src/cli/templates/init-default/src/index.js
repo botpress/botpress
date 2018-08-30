@@ -20,6 +20,9 @@ module.exports = async bp => {
     await bp.nlu.provider.sync()
   }
 
+  // Pre-load flows
+  await bp.dialogEngine.loadFlows()
+
   const webchat = {
     botName: 'Basic',
     botAvatarUrl: null, // You can provide a URL here
@@ -46,7 +49,7 @@ module.exports = async bp => {
   ////////////////////////////
 
   // All events that should be processed by the Flow Manager
-  bp.hear({ type: /bp_dialog_timeout|text|message|quick_reply/i }, (event, next) => {
+  bp.hear({ type: /bp_dialog_timeout|text|message|quick_reply|attachment|postback|referral/i }, async (event, next) => {
     bp.dialogEngine.processMessage(event.sessionId || event.user.id, event).then()
   })
 }

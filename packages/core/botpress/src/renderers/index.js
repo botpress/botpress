@@ -107,6 +107,8 @@ module.exports = ({ logger, middlewares, db, contentManager, botfile }) => {
           return Promise.delay(message.wait)
         }
       } else {
+        message.incoming = incomingEvent
+        message.page = incomingEvent.page
         return middlewares.sendOutgoing(message)
       }
     })

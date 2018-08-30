@@ -153,7 +153,7 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
     if (catchAllNext) {
       this._trace('..', 'KALL', '', context, state)
       for (const transition of catchAllNext) {
-        if (this._evaluateCondition(transition.condition, state, event)) {
+        if (this._evaluateCondition(transition.condition, state, event, context)) {
           return this._processNode(stateId, state, context, transition.node, event)
         }
       }
@@ -524,7 +524,7 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
   async _transitionToNextNodes(node, context, userState, stateId, event) {
     const nextNodes = node.next || []
     for (const nextNode of nextNodes) {
-      if (this._evaluateCondition(nextNode.condition, userState, event)) {
+      if (this._evaluateCondition(nextNode.condition, userState, event, context)) {
         this._trace('??', 'MTCH', `cond = "${nextNode.condition}"`, context)
         if (/^end$/i.test(nextNode.node)) {
           // Node "END" or "end" ends the flow (reserved keyword)
@@ -733,7 +733,7 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
     return userState
   }
 
-  _evaluateCondition(condition, userState, event) {
+  _evaluateCondition(condition, userState, event, context) {
     if (TRUEISH_WORDS[condition] || condition === '') {
       return true
     }
@@ -743,6 +743,8 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
     vm.freeze(userState, 'state')
     vm.freeze(event, 'event')
     vm.freeze(event, 'e')
+    vm.freeze(context, 'context')
+    vm.freeze(context, 'c')
 
     try {
       return !!vm.run(compileExp(condition))

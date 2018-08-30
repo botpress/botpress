@@ -179,6 +179,10 @@ const createTemplate = (userId, payload, options) => {
   validateUserId(userId)
   validateTemplatePayload(payload)
 
+  if (options && options.quick_replies) {
+    validateQuickReplies(options.quick_replies)
+  }
+
   if (options && options.typing) {
     validateTyping(options.typing)
   }
@@ -191,6 +195,7 @@ const createTemplate = (userId, payload, options) => {
       to: userId,
       payload: payload,
       typing: options && options.typing,
+      quick_replies: options && options.quick_replies,
       waitRead: options && options.waitRead,
       waitDelivery: options && options.waitDelivery
     }
@@ -225,80 +230,10 @@ const createSeen = userId => {
   })
 }
 
-const createPersistentMenu = elements => {
-  if (!elements) {
-    return create({
-      platform: 'facebook',
-      type: 'persistent_menu',
-      text: 'Delete the persistent menu',
-      raw: {
-        delete: true
-      }
-    })
-  }
-
-  validatePersistentMenu(elements)
-  return create({
-    platform: 'facebook',
-    type: 'persistent_menu',
-    text: 'Set persistent menu: ' + elements.length + ' items',
-    raw: {
-      delete: false,
-      elements: elements
-    }
-  })
-}
-
-const createGreetingText = text => {
-  if (text && text.length > 160) {
-    throw new Error('Greeting text must be less than 160 chars')
-  }
-
-  return create({
-    platform: 'facebook',
-    type: 'greeting_text',
-    text: 'Set greeting text: ' + text,
-    raw: {
-      text: text
-    }
-  })
-}
-
-const createGetStarted = postback => {
-  return create({
-    platform: 'facebook',
-    type: 'get_started',
-    text: 'Setting get started button: ' + !!postback,
-    raw: {
-      enabled: !!postback,
-      postback: postback
-    }
-  })
-}
-
-const createWhitelistedDomains = domains => {
-  if (domains && !_.every(domains, _.isString)) {
-    throw new Error('Expected domains to be a list of string')
-  }
-
-  return create({
-    platform: 'facebook',
-    type: 'whitelisted_domains',
-    text: 'Setting whitelisted domains',
-    raw: {
-      domains: domains
-    }
-  })
-}
-
 module.exports = {
   createText,
   createAttachment,
   createTemplate,
   createTyping,
-  createSeen,
-  createGetStarted,
-  createPersistentMenu,
-  createGreetingText,
-  createWhitelistedDomains
+  createSeen
 }

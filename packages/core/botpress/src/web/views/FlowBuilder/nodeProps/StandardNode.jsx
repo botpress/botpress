@@ -92,6 +92,7 @@ export default class StandardNodePropertiesPanel extends Component {
               readOnly={readOnly}
               items={node.next}
               header="Transitions"
+              currentFlow={this.props.flow}
               subflows={this.props.subflows}
               onItemsUpdated={items => this.props.updateNode({ next: items })}
               copyItem={item => this.props.copyFlowNodeElement({ transition: item })}

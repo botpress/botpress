@@ -11,11 +11,17 @@ export default {
   jsonSchema: {
     description: 'A carousel is an array of cards',
     type: 'array',
+    properties: {
+      label: {
+        type: 'string',
+        title: 'Label'
+      }
+    },
     items: Card.jsonSchema,
     ...base.typingIndicators
   },
 
-  computePreviewText: formData => `Carousel: ${formData.length}`,
+  computePreviewText: formData => `Carousel: ${formData.label} [${formData.length}]`,
 
   computeMetadata: null
 }

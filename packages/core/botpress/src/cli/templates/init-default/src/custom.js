@@ -28,7 +28,7 @@ async function registerActions(bp) {
 
       if (meta) {
         metadata[action] = {
-          title: meta.name,
+          title: meta.summary || meta.name,
           description: meta.description,
           category: 'Custom',
           params: meta.params.map(param => ({

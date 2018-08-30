@@ -204,7 +204,7 @@ class botpress {
 
     await db.get() // Running migrations
 
-    const janitor = createJanitor({ db, logger })
+    const janitor = createJanitor({ db, logger, intervalMs: ms(botfile.dialogs.janitorInterval) })
 
     logger.enableDbStorageIfNeeded({ db, janitor })
     logger.info(`Starting botpress version ${version}`)
