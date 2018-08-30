@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import loading from '../media/loading-circle.svg'
+import loadingImage from '../media/loading-circle.svg'
 
 class Loading extends Component {
   render() {
@@ -18,7 +18,7 @@ class Loading extends Component {
 
     return (
       <div style={style}>
-        <img src={loading} alt="loading" />
+        <img src={loadingImage} alt="loading" />
       </div>
     )
   }

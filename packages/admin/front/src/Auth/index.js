@@ -3,6 +3,7 @@ import history from '../history'
 
 const TOKEN_KEY = 'id_token'
 const EXPIRES_KEY = 'expires_at'
+const HOME_ROUTE = '/home'
 
 export default class BasicAuthentication {
   login = async ({ username, password }) => {
@@ -27,7 +28,7 @@ export default class BasicAuthentication {
 
     this.setSession({ expiresIn: 7200, idToken: data.payload.token })
 
-    history.replace('/home')
+    history.replace(HOME_ROUTE)
   }
 
   async doRegister({ username, password }) {
@@ -38,7 +39,7 @@ export default class BasicAuthentication {
 
     this.setSession({ expiresIn: 7200, idToken: data.payload.token })
 
-    history.replace('/home')
+    history.replace(HOME_ROUTE)
   }
 
   setSession({ expiresIn, idToken }) {
@@ -59,7 +60,7 @@ export default class BasicAuthentication {
     localStorage.removeItem(TOKEN_KEY)
     localStorage.removeItem(EXPIRES_KEY)
     // navigate to the home route
-    history.replace('/home')
+    history.replace(HOME_ROUTE)
   }
 
   isAuthenticated() {

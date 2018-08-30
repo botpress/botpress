@@ -49,7 +49,7 @@ class Members extends Component {
 
   toggleInviteModal = () => {
     if (!this.state.isInviteModalOpen) {
-      this.fetchInviteLink()
+      this.fetchInviteCode()
       this.setState({ isInviteModalOpen: true, inviteCodeCopied: false })
     } else {
       this.setState({ isInviteModalOpen: false })
@@ -78,7 +78,7 @@ class Members extends Component {
     }
   }
 
-  async fetchInviteLink() {
+  async fetchInviteCode() {
     const { data } = await api.getSecured().get(`/api/teams/${this.props.teamId}/invite`)
 
     if (data && data.payload && data.payload.inviteCode) {
@@ -86,7 +86,7 @@ class Members extends Component {
     }
   }
 
-  refreshInviteLink = async () => {
+  refreshInviteCode = async () => {
     const { data } = await api.getSecured().post(`/api/teams/${this.props.teamId}/invite`)
 
     if (data && data.payload && data.payload.inviteCode) {
@@ -98,18 +98,6 @@ class Members extends Component {
     if (window.confirm("Are you sure you want to remove this member form the team? This can't be undone.")) {
       await api.getSecured().delete(`/api/teams/${this.props.teamId}/members/${username}`)
       await this.props.fetchTeamData(this.props.teamId)
-    }
-  }
-
-  getColorForLabel(name) {
-    if (/^dev/i.test(name)) {
-      return 'primary'
-    } else if (/^stag/i.test(name)) {
-      return 'warning'
-    } else if (/^prod/i.test(name)) {
-      return 'danger'
-    } else {
-      return 'default'
     }
   }
 
@@ -144,7 +132,7 @@ class Members extends Component {
 
           <Alert color="warning">
             Anybody with this link will be able to join the team. You can also{' '}
-            <a href="#revoke" onClick={this.refreshInviteLink}>
+            <a href="#revoke" onClick={this.refreshInviteCode}>
               revoke this link
             </a>.
           </Alert>
@@ -303,7 +291,7 @@ class Members extends Component {
   }
 
   renderSideMenu() {
-    if (!this.currentUserHasPermission('cloud.team.members', 'write')) {
+    if (!this.currentUserHasPermission('admin.team.members', 'write')) {
       return null
     }
 

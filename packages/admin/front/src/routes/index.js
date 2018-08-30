@@ -3,24 +3,24 @@ import { Route, Switch, Redirect } from 'react-router-dom'
 import { Provider } from 'react-redux'
 import { ConnectedRouter } from 'react-router-redux'
 
-import App from './App'
+import App from '../App'
 
-import LoginPage from './Pages/Login'
-import SignupPage from './Pages/Signup'
-import TeamBotsPage from './Pages/Teams/Bots'
-import TeamsListPage from './Pages/Teams/List'
-import TeamMembersPage from './Pages/Teams/Members'
-import TeamRolesPage from './Pages/Teams/Roles'
-import MePage from './Pages/Me'
+import LoginPage from '../Pages/Login'
+import SignupPage from '../Pages/Signup'
+import TeamBotsPage from '../Pages/Teams/Bots'
+import TeamsListPage from '../Pages/Teams/List'
+import TeamMembersPage from '../Pages/Teams/Members'
+import TeamRolesPage from '../Pages/Teams/Roles'
+import MePage from '../Pages/Me'
 
-import Auth from './Auth'
+import Auth from '../Auth'
 import PrivateRoute from './PrivateRoute'
 
 import store, { history } from './store'
 
-const auth = new Auth()
-
 export const makeMainRoutes = () => {
+  const auth = new Auth()
+
   return (
     <Provider store={store}>
       <ConnectedRouter history={history}>
