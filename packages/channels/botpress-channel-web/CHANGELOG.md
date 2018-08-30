@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.34.0"></a>
+# [10.34.0](https://github.com/botpress/modules/compare/v10.32.0...v10.34.0) (2018-08-30)
+
+
+### Bug Fixes
+
+* **channel-web:** fixed message sanitization ([269025a](https://github.com/botpress/modules/commit/269025a))
+* **channel-web:** last_heard_on ([a6fb50f](https://github.com/botpress/modules/commit/a6fb50f))
+* **web:** carousel btn as payload (resolve [#845](https://github.com/botpress/modules/issues/845)) ([c3e90d5](https://github.com/botpress/modules/commit/c3e90d5))
+* **web:** change order in web channel (resolve [#848](https://github.com/botpress/modules/issues/848)) ([3e1805e](https://github.com/botpress/modules/commit/3e1805e))
+
+
+### Features
+
+* **channel-web:** allow extra messages sanitizing ([7d6033f](https://github.com/botpress/modules/commit/7d6033f))
+
+
+
+
 <a name="10.33.2"></a>
 ## [10.33.2](https://github.com/botpress/modules/compare/v10.33.1...v10.33.2) (2018-08-24)
 

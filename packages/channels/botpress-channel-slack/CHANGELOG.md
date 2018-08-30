@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.34.0"></a>
+# [10.34.0](https://github.com/botpress/modules/compare/v10.32.0...v10.34.0) (2018-08-30)
+
+
+### Bug Fixes
+
+* **core:** improve CLI messages about version ([c919412](https://github.com/botpress/modules/commit/c919412))
+* **slack:** fix slack avatar (ref [#880](https://github.com/botpress/modules/issues/880)) ([47a46f1](https://github.com/botpress/modules/commit/47a46f1))
+
+
+
+
 <a name="10.33.2"></a>
 ## [10.33.2](https://github.com/botpress/modules/compare/v10.33.1...v10.33.2) (2018-08-24)
 
