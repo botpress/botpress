@@ -76,16 +76,12 @@ module.exports = {
         const questionsToSave = parsedQuestions.filter(item => !existingQuestions.includes(JSON.stringify(item)))
 
         if (config.qnaMakerApiKey) {
-          return storage.insert(questionsToSave.map(question => ({ ...question, enabled: true })))
+          recordCsvUploadStatus(csvUploadStatusId, `Inserting ${questionsToSave.length} questions in bulk`)
         }
 
-        let questionsSavedCount = 0
-        return Promise.each(questionsToSave, question =>
-          storage.insert({ ...question, enabled: true }).then(() => {
-            questionsSavedCount += 1
-            recordCsvUploadStatus(csvUploadStatusId, `Saved ${questionsSavedCount}/${questionsToSave.length} questions`)
-          })
-        )
+        const statusCb = processedCount =>
+          recordCsvUploadStatus(csvUploadStatusId, `Saved ${processedCount}/${questionsToSave.length} questions`)
+        return storage.insert(questionsToSave.map(question => ({ ...question, enabled: true })), statusCb)
       },
 
       /**
@@ -100,7 +96,7 @@ module.exports = {
 
         return qnas.flatMap(question => {
           const { data } = question
-          const { questions, answer: textAnswer, action, redirectNode, redirectFlow } = data
+          const { questions, answer: textAnswer, action, redirectNode, redirectFlow, category } = data
 
           let answer = textAnswer
           let answer2 = null
@@ -120,7 +116,7 @@ module.exports = {
           if (!flat) {
             return { questions, action, answer, answer2 }
           }
-          return questions.map(question => ({ question, action, answer, answer2 }))
+          return questions.map(question => ({ question, action, answer, answer2, category }))
         })
       },
 
@@ -215,7 +211,8 @@ module.exports = {
     router.get('/csv', async (req, res) => {
       res.setHeader('Content-Type', 'text/csv')
       res.setHeader('Content-disposition', `attachment; filename=qna_${moment().format('DD-MM-YYYY')}.csv`)
-      const json2csvParser = new Json2csvParser({ fields: ['question', 'action', 'answer', 'answer2'], header: true })
+      const fields = ['question', 'action', 'answer', 'answer2', 'category']
+      const json2csvParser = new Json2csvParser({ fields, header: true })
       res.end(iconv.encode(json2csvParser.parse(await bp.qna.export({ flat: true })), config.exportCsvEncoding))
     })
 
@@ -226,7 +223,10 @@ module.exports = {
       recordCsvUploadStatus(csvUploadStatusId, 'Deleting existing questions')
       if (yn(req.body.isReplace)) {
         const questions = await this.storage.all()
-        await this.storage.delete(questions.map(({ id }) => id))
+
+        const statusCb = processedCount =>
+          recordCsvUploadStatus(csvUploadStatusId, `Deleted ${processedCount}/${questions.length} questions`)
+        await this.storage.delete(questions.map(({ id }) => id), statusCb)
       }
 
       try {

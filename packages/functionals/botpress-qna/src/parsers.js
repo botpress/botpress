@@ -7,7 +7,7 @@ const parseFlow = str => {
 }
 
 export const jsonParse = jsonContent =>
-  jsonContent.map(({ questions, answer: instruction, answer2, action }, i) => {
+  jsonContent.map(({ questions, answer: instruction, answer2, action, category }, i) => {
     if (!['text', 'redirect', 'text_redirect'].includes(action)) {
       throw new Error(
         `Failed to process CSV-row ${i + 1}: action should be either "text", "redirect" or "text_redirect"`
@@ -27,20 +27,20 @@ export const jsonParse = jsonContent =>
     }
 
     const flowParams = redirectInstruction ? parseFlow(redirectInstruction) : { redirectFlow: '', redirectNode: '' }
-    return { questions, action, answer: textAnswer, ...flowParams }
+    return { questions, action, answer: textAnswer, ...flowParams, category }
   })
 
 export const csvParse = csvContent => {
-  const mergeRows = (acc, { question, answer, answer2, action }) => {
+  const mergeRows = (acc, { question, answer, answer2, category, action }) => {
     const [prevRow] = acc.slice(-1)
     const isSameAnswer = prevRow && (prevRow.answer === answer && (!answer2 || answer2 === prevRow.answer2))
     if (isSameAnswer) {
       return [...acc.slice(0, acc.length - 1), { ...prevRow, questions: [...prevRow.questions, question] }]
     }
-    return [...acc, { answer, answer2, action, questions: [question] }]
+    return [...acc, { answer, answer2, action, category, questions: [question] }]
   }
 
-  const rows = parseCsvToJson(csvContent, { columns: ['question', 'action', 'answer', 'answer2'] }).reduce(
+  const rows = parseCsvToJson(csvContent, { columns: ['question', 'action', 'answer', 'answer2', 'category'] }).reduce(
     mergeRows,
     []
   )

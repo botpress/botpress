@@ -64,22 +64,19 @@ export default class Storage {
     return id
   }
 
-  async insert(qna) {
-    const ids = await Promise.all(
-      (_.isArray(qna) ? qna : [qna]).map(async data => {
-        const id = getQuestionId(data)
-        if (data.enabled) {
-          await this.bp.nlu.storage.saveIntent(getIntentId(id), {
-            entities: [],
-            utterances: normalizeQuestions(data.questions)
-          })
-        }
-        await this.ghost.upsertFile(this.qnaDir, `${id}.json`, JSON.stringify({ id, data }, null, 2))
-      })
-    )
-
+  async insert(qna, statusCb) {
+    const ids = await Promise.each(_.isArray(qna) ? qna : [qna], async (data, i) => {
+      const id = getQuestionId(data)
+      if (data.enabled) {
+        await this.bp.nlu.storage.saveIntent(getIntentId(id), {
+          entities: [],
+          utterances: normalizeQuestions(data.questions)
+        })
+      }
+      await this.ghost.upsertFile(this.qnaDir, `${id}.json`, JSON.stringify({ id, data }, null, 2))
+      statusCb && statusCb(i + 1)
+    })
     await this.syncNlu()
-
     return ids
   }
 
@@ -108,7 +105,7 @@ export default class Storage {
     return Promise.map(questions, question => this.getQuestion({ filename: question }))
   }
 
-  async delete(qnaId) {
+  async delete(qnaId, statusCb) {
     const ids = _.isArray(qnaId) ? qnaId : [qnaId]
     if (ids.length === 0) {
       return

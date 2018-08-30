@@ -17,7 +17,7 @@ const qnaItemData = ({ questions, answer, metadata }) => ({
 
 const prepareMeta = data =>
   _.chain(data)
-    .pick(['enabled', 'action', 'redirectFlow', 'redirectNode'])
+    .pick(['enabled', 'action', 'redirectFlow', 'redirectNode', 'category'])
     .toPairs()
     .map(([name, value]) => ({ name, value: _.isString(value) ? markUpperCase(value) : value }))
     .filter(({ value }) => !_.isUndefined(value) && value !== '')
@@ -44,7 +44,7 @@ export default class Storage {
       const { data: { operationId } } = await this.client.post('/knowledgebases/create', {
         name: this.knowledgebaseName
       })
-      await this.waitForOperationToFinish(operationId)
+      await this.waitForOperationToFinish(operationId, 'creating KB')
       const { data: { knowledgebases } } = await this.client.get('/knowledgebases/')
       this.knowledgebase = knowledgebases.find(isBpKnowledgbase)
     }
@@ -56,16 +56,17 @@ export default class Storage {
 
   patchKb = params => this.client.patch(`/knowledgebases/${this.knowledgebase.id}`, params)
 
-  waitForOperationToFinish = async operationId => {
+  waitForOperationToFinish = async (operationId, description) => {
     await Promise.delay(200)
     while (true) {
       const { data, headers: { 'retry-after': timeout } } = await this.client.get(`/operations/${operationId}`)
+      this.bp.logger.info(`[QNA] QnA Maker ${description} #${operationId} ${data.operationState}`)
+      if (data.operationState === 'Failed') {
+        this.bp.logger.error(data.errorResponse.error)
+      }
       if (!['Running', 'NotStarted'].includes(data.operationState)) {
         return
       }
-      this.bp.logger.info(
-        `[QNA] Waiting 3s for ${data.operationState} QnA Maker's #${operationId} operation to finish...`
-      )
       await Promise.delay(ms('3s'))
     }
   }
@@ -97,7 +98,7 @@ export default class Storage {
     return id
   }
 
-  async insert(qna) {
+  async insert(qna, statusCb) {
     const qnas = _.isArray(qna) ? qna : [qna]
     const { data: { operationId } } = await this.patchKb({
       add: {
@@ -109,7 +110,7 @@ export default class Storage {
       }
     })
 
-    await this.waitForOperationToFinish(operationId)
+    await this.waitForOperationToFinish(operationId, 'inserting qna-items')
     this.invalidateCache()
     await this.publish()
     // TODO: should return ids (for consistency)
@@ -147,10 +148,11 @@ export default class Storage {
     return questions.map(qna => ({ id: qna.id, data: qnaItemData(qna) }))
   }
 
-  async answersOn(question) {
+  async answersOn(question, category = null) {
+    const metadataFilters = category ? [{ name: 'category', value: category }] : []
     const { data: { answers } } = await axios.post(
       `/qnamaker/knowledgebases/${this.knowledgebase.id}/generateAnswer`,
-      { question, top: 10, strictFilters: [{ name: 'enabled', value: true }] },
+      { question, top: 10, strictFilters: [{ name: 'enabled', value: true }, ...metadataFilters] },
       { baseURL: this.knowledgebase.hostName, headers: { Authorization: `EndpointKey ${this.endpointKey}` } }
     )
 
@@ -161,15 +163,19 @@ export default class Storage {
     }))
   }
 
-  async delete(id) {
+  async delete(id, statusCb) {
     const ids = _.isArray(id) ? id : [id]
     if (ids.length === 0) {
       return
     }
-    const { data: { operationId } } = await this.client.patch(`/knowledgebases/${this.knowledgebase.id}`, {
-      delete: { ids }
+    const maxQuestionsToDeletePerRequest = 300
+    await Promise.each(_.chunk(ids, maxQuestionsToDeletePerRequest), async (idsChunk, i) => {
+      const { data: { operationId } } = await this.client.patch(`/knowledgebases/${this.knowledgebase.id}`, {
+        delete: { ids: idsChunk }
+      })
+      await this.waitForOperationToFinish(operationId, 'deleting qna-items')
+      statusCb && statusCb(Math.min((i + 1) * maxQuestionsToDeletePerRequest, ids.length))
     })
-    await this.waitForOperationToFinish(operationId)
     this.invalidateCache()
     await this.publish()
   }
