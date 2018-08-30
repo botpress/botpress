@@ -1,12 +1,12 @@
-import { inject, injectable } from 'inversify'
+import { inject, injectable, named } from 'inversify'
 import _ from 'lodash'
 
 import { TYPES } from '../../misc/types'
 import { DialogSession } from '../../repositories/session-repository'
 
 import FlowService from './flow-service'
-import { InstructionFactory } from './instruction-factory'
 import { Instruction, InstructionProcessor } from './instruction-processor'
+import { InstructionQueue } from './instruction-queue'
 import { SessionService } from './session-service'
 
 // TODO: Allow multi-bot
@@ -23,7 +23,7 @@ export class DialogEngine {
   failedAttempts = 0
 
   constructor(
-    @inject(TYPES.InstructionFactory) private factory: InstructionFactory,
+    @inject(TYPES.InstructionQueue) private queue: InstructionQueue,
     @inject(TYPES.InstructionProcessor) private instructionProcessor: InstructionProcessor,
     @inject(TYPES.FlowService) private flowService: FlowService,
     @inject(TYPES.SessionService) private sessionService: SessionService
@@ -41,7 +41,7 @@ export class DialogEngine {
 
     this.currentSession = await this.getOrCreateSession(sessionId, event)
     const context = JSON.parse(this.currentSession.context)
-    this.instructions = this.factory.createInstructions(context)
+    this.instructions = this.queue.enqueueInstructions(context)
 
     await this.processInstructions()
   }
@@ -85,7 +85,7 @@ export class DialogEngine {
           throw new Error('Too many instructions failed')
         }
 
-        const wait = this.factory.createWait()
+        const wait = this.queue.createWait()
 
         this.instructions.unshift(wait)
         this.instructions.unshift(instruction)
@@ -95,10 +95,22 @@ export class DialogEngine {
     }
   }
 
-  async transitionToNextNode(next): Promise<void> {
+  async transitionToNextNode(next: string): Promise<void> {
     const context = this.currentSession.context
-    let node = context.currentFlow.nodes.find(x => x.name === next)
+    let newContext = { ...context, previousNode: context.currentNode, previousFlow: context.currentFlow }
+    let node: any
     let flow: any
+
+    if (next.indexOf('##') > -1) {
+      node = context.previousNode
+      flow = context.previousFlow
+    } else if (next.indexOf('#') > -1) {
+      const nodeName = next.slice(1)
+      node = context.previousFlow.nodes.find(n => n.name === nodeName)
+      flow = context.previousFlow
+    } else {
+      node = context.currentFlow.nodes.find(x => x.name === next)
+    }
 
     if (!node) {
       flow = this.flows.find(x => x.name === next)
@@ -108,7 +120,7 @@ export class DialogEngine {
       node = this.findEntryNode(flow)
     }
 
-    let newContext = { ...context, currentNode: node }
+    newContext = { ...newContext, currentNode: node }
     if (flow) {
       newContext = { ...newContext, currentFlow: flow }
     }

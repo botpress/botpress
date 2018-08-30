@@ -3,11 +3,10 @@ import _ from 'lodash'
 
 import { Instruction } from './instruction-processor'
 
-// TODO: Test this class
 @injectable()
-export class InstructionFactory {
+export class InstructionQueue {
   createOnEnter(context) {
-    const instructions = context.currentNode && context.currentNode.onEnter
+    const instructions = context.currentNode.onEnter
     if (!instructions) {
       return []
     }
@@ -17,25 +16,23 @@ export class InstructionFactory {
     })
   }
 
-  createOnReceive(context) {
-    const instructions = <Array<any>>context.currentNode && context.currentNode.onReceive
+  createOnReceive(context): Instruction[] {
+    const instructions = <Array<any>>context.currentNode.onReceive
     if (!instructions) {
       return []
     }
 
-    // TODO: Test that node relative onReceive are added
-    // Execute onReceives relative to the flow before the ones relative to the node
-    const flowReceive = context.currentFlow.catchAll && context.currentFlow.catchAll.onReceive
-    if (!_.isEmpty(flowReceive)) {
-      instructions.unshift(flowReceive)
+    const flowReceive = <Array<any>>context.currentFlow.catchAll.onReceive
+    if (flowReceive && flowReceive.length > 0) {
+      instructions.push(...flowReceive)
     }
 
-    return instructions.map(x => {
+    return <Instruction[]>instructions.map(x => {
       return { type: 'on-receive', fn: x }
     })
   }
 
-  createTransition(context) {
+  createTransition(context): Instruction[] {
     // TODO: Override with flow transition if present
     const instructions = context.currentNode && context.currentNode.next
     if (!instructions) {
@@ -47,7 +44,11 @@ export class InstructionFactory {
     })
   }
 
-  createInstructions(context) {
+  createWait(): Instruction {
+    return { type: 'wait' }
+  }
+
+  enqueueInstructions(context): Instruction[] {
     const onEnter = this.createOnEnter(context)
     const onReceive = this.createOnReceive(context)
     const transition = this.createTransition(context)
@@ -56,15 +57,13 @@ export class InstructionFactory {
     instructions.unshift(...onEnter)
 
     if (!_.isEmpty(onReceive)) {
-      instructions.unshift(this.createWait())
+      const wait = this.createWait()
+      instructions.unshift(wait)
     }
 
-    instructions.unshift(...onReceive, ...transition)
+    instructions.unshift(...onReceive)
+    instructions.unshift(...transition)
 
     return instructions
-  }
-
-  createWait(): Instruction {
-    return { type: 'wait' }
   }
 }
