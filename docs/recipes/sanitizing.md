@@ -11,16 +11,17 @@ Because you are replacing the `raw` and `text` properties on the object, when yo
 Below is a sample code snippet where the regex is looking for credit card numbers in the format XXXX XXXX XXXX XXXX and replacing them with a string of *'s 
 
 ```js
-if(bp.webchat){
+if (bp.webchat) {
   bp.webchat.sanitizeIncomingMessage = payload => {
-    const copy = { ...payload }
-    if(copy.type === 'text' && copy.text){
-      const sensitiveRegex = /\b(\d[\d-_]{2,}\b)\b/g
-      copy.__sensitive = copy.text.match(sensitiveRegex) || []
-      copy.text = copy.text.replace(sensitiveRegex. '*******')
+    if (payload.type !== 'text' || !payload.text) {
+      return
     }
-    // Use sensitive data here
-    return copy
+    const sensitiveRegex = /\b(\d[\d-_]{2,}\b)\b/g
+    return {
+      ...payload,
+      __sensitive: payload.text.match(sensitiveRegex) || []
+      text: payload.text.replace(sensitiveRegex. '*******')
+    }
   }
 }
 ```
