@@ -26,7 +26,7 @@ const authSchema = Joi.object().keys({
 const getIp = (req: Request) =>
   (REVERSE_PROXY ? <string | undefined>req.headers['x-forwarded-for'] : undefined) || req.connection.remoteAddress
 
-export class AuthRouter extends BaseRouter {
+export class AdminRouter extends BaseRouter {
   private asyncMiddleware!: Function
   private checkTokenHeader!: RequestHandler
   private loadUser!: RequestHandler

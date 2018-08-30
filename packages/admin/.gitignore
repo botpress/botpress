@@ -20,9 +20,7 @@
 **/yarn-debug.log*
 **/yarn-error.log*
 
-back/keys
 back/dist
 back/static
 
-front/package-lock.json
 front/**/*.css

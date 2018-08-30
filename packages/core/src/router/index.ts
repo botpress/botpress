@@ -11,7 +11,7 @@ import { CMSService } from '../services/cms/cms-service'
 import FlowService from '../services/dialog/flow-service'
 import { MiddlewareService } from '../services/middleware/middleware-service'
 
-import { AuthRouter } from './auth-router'
+import { AdminRouter } from './admin-router'
 import { BotRouter } from './bot-router'
 import { IndexRouter } from './index-router'
 
@@ -33,7 +33,7 @@ export default class Router {
   ) {
     const routers = {
       '/': new IndexRouter(),
-      '/auth': new AuthRouter(this.logger, this.authService, this.teamsService),
+      '/admin': new AdminRouter(this.logger, this.authService, this.teamsService),
       '/bots': new BotRouter({
         actionService: this.actionService,
         botRepository: this.botRepository,
