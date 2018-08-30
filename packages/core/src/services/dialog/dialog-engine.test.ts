@@ -2,12 +2,12 @@ import { BotpressEvent } from 'botpress-module-sdk'
 import 'reflect-metadata'
 
 import { DialogEngine } from './dialog-engine'
-import { flow, session } from './stubs'
+import { context, flows, session } from './stubs'
 
 const SESSION_ID = 'some_user_id'
 
 describe('Dialog Engine', () => {
-  const sessionService = createSpyObj('', ['getSession', 'createSession'])
+  const sessionService = createSpyObj('', ['getSession', 'createSession', 'updateSession'])
   const flowService = createSpyObj('', ['loadAll'])
   const instructionFactory = createSpyObj('', ['createWait'])
   const instructionProcessor = createSpyObj('', ['process'])
@@ -21,7 +21,7 @@ describe('Dialog Engine', () => {
 
   describe('When loading a session', () => {
     it('Get a session', async () => {
-      flowService.loadAll.mockReturnValue(JSON.stringify([flow]))
+      flowService.loadAll.mockReturnValue(JSON.stringify(flows))
       sessionService.getSession.mockReturnValue(session)
       const dialogEngine = new DialogEngine(instructionFactory, instructionProcessor, flowService, sessionService)
 
@@ -35,7 +35,7 @@ describe('Dialog Engine', () => {
       sessionService.createSession.mockReturnValue(session)
       const dialogEngine = new DialogEngine(instructionFactory, instructionProcessor, flowService, sessionService)
       dialogEngine.flowsLoaded = false
-      dialogEngine.flows = [flow]
+      dialogEngine.flows = flows
 
       await dialogEngine.getOrCreateSession(SESSION_ID, event)
 
@@ -131,9 +131,29 @@ describe('Dialog Engine', () => {
   })
 
   describe('When transiting to another node', () => {
-    it('Assign the next flow as the current flow', () => {})
-    it('Assign the next node as the current node', () => {})
-    it('Update the current session', () => {})
+    let dialogEngine: DialogEngine
+
+    beforeEach(() => {
+      dialogEngine = new DialogEngine(instructionFactory, instructionProcessor, flowService, sessionService)
+      dialogEngine.currentSession = stubSession()
+      dialogEngine.flows = flows
+    })
+
+    it('Assign the next node and keep the same flow', async () => {
+      await dialogEngine.transitionToNextNode('welcome')
+
+      expect(dialogEngine.currentSession.context.currentNode.name).toEqual('welcome')
+      expect(dialogEngine.currentSession.context.currentFlow.name).toEqual('main.flow.json')
+      expect(sessionService.updateSession).toHaveBeenCalled()
+    })
+
+    it('Assign the next node as the starting node of the next flow', async () => {
+      await dialogEngine.transitionToNextNode('other.flow.json')
+
+      expect(dialogEngine.currentSession.context.currentNode.name).toEqual('entry')
+      expect(dialogEngine.currentSession.context.currentFlow.name).toEqual('other.flow.json')
+      expect(sessionService.updateSession).toHaveBeenCalled()
+    })
   })
 
   function givenWaitInstruction() {
@@ -154,6 +174,6 @@ describe('Dialog Engine', () => {
   }
 
   function stubSession() {
-    return { id: 'an_id', context: {}, event: '' }
+    return { id: 'an_id', context: context, event: '' }
   }
 })

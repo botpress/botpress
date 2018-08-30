@@ -95,26 +95,26 @@ export class DialogEngine {
     }
   }
 
-  async transitionToNextNode(next): Promise<any> {
-    let context = JSON.parse(this.currentSession.context)
+  async transitionToNextNode(next): Promise<void> {
+    const context = this.currentSession.context
     let node = context.currentFlow.nodes.find(x => x.name === next)
-    let flow
+    let flow: any
+
     if (!node) {
       flow = this.flows.find(x => x.name === next)
-      if (flow) {
-        node = flow.startNode
+      if (!flow) {
+        throw new Error(`Could not find any node or flow under the name of "${next}"`)
       }
+      node = this.findEntryNode(flow)
     }
 
-    if (node) {
-      context = { ...context, currentNode: node }
-    }
+    let newContext = { ...context, currentNode: node }
     if (flow) {
-      context = { ...context, currentFlow: flow }
+      newContext = { ...newContext, currentFlow: flow }
     }
 
     this.instructions = []
-    this.currentSession.context = context
+    this.currentSession.context = newContext
 
     await this.sessionService.updateSession(this.currentSession)
   }

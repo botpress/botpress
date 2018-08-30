@@ -6,7 +6,7 @@ module.exports = {
       tsConfigFile: '<rootDir>/tsconfig.json'
     }
   },
-  collectCoverage: true,
+  collectCoverage: false,
   verbose: true,
   moduleFileExtensions: ['ts', 'js', 'tsx', 'jsx', 'json'],
   transform: {
