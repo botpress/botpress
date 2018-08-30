@@ -33,7 +33,13 @@ export class InstructionQueue {
   }
 
   createTransition(context): Instruction[] {
-    // TODO: Override with flow transition if present
+    const flowNext = context.currentFlow.catchAll.next
+    if (flowNext) {
+      return flowNext.map(x => {
+        return { type: 'transition-condition', fn: x.condition, node: x.node }
+      })
+    }
+
     const instructions = context.currentNode && context.currentNode.next
     if (!instructions) {
       return []

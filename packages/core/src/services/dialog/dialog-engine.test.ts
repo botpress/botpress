@@ -1,5 +1,8 @@
 import { BotpressEvent } from 'botpress-module-sdk'
+import _ from 'lodash'
 import 'reflect-metadata'
+
+import { createSpyObject } from '../../misc/utils'
 
 import { DialogEngine } from './dialog-engine'
 import { context, flows, session } from './stubs'
@@ -7,19 +10,19 @@ import { context, flows, session } from './stubs'
 const SESSION_ID = 'some_user_id'
 
 describe('Dialog Engine', () => {
-  const sessionService = createSpyObj('', ['getSession', 'createSession', 'updateSession'])
-  const flowService = createSpyObj('', ['loadAll'])
-  const instructionFactory = createSpyObj('', ['createWait'])
-  const instructionProcessor = createSpyObj('', ['process'])
+  const sessionService = createSpyObject('getSession', 'createSession', 'updateSession')
+  const flowService = createSpyObject('loadAll')
+  const instructionFactory = createSpyObject('createWait')
+  const instructionProcessor = createSpyObject('process')
 
   const event: BotpressEvent = {
-    type: 'slack',
-    target: '',
+    type: 'any',
+    target: 'any',
     direction: 'incoming',
-    channel: 'web'
+    channel: 'any'
   }
 
-  describe('When loading a session', () => {
+  describe('Load a session', () => {
     it('Get a session', async () => {
       flowService.loadAll.mockReturnValue(JSON.stringify(flows))
       sessionService.getSession.mockReturnValue(session)
@@ -44,7 +47,7 @@ describe('Dialog Engine', () => {
     })
   })
 
-  describe('When processing instructions', () => {
+  describe('Process instructions', () => {
     it('Call the instruction processor', async () => {
       givenInstructionsAreSuccessful()
       const dialogEngine = new DialogEngine(instructionFactory, instructionProcessor, flowService, sessionService)
@@ -130,7 +133,7 @@ describe('Dialog Engine', () => {
     })
   })
 
-  describe('When transiting to another node', () => {
+  describe('Transit to another node', () => {
     let dialogEngine: DialogEngine
 
     beforeEach(() => {
@@ -178,15 +181,6 @@ describe('Dialog Engine', () => {
 
   function givenInstructionsAreSuccessful(success: boolean = true) {
     instructionProcessor.process.mockReturnValue(success)
-  }
-
-  function createSpyObj(baseName, methodNames) {
-    const obj: any = {}
-
-    for (let i = 0; i < methodNames.length; i++) {
-      obj[methodNames[i]] = jest.fn()
-    }
-    return obj
   }
 
   function stubSession() {

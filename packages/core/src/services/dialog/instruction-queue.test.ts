@@ -1,6 +1,6 @@
+import _ from 'lodash'
 import 'reflect-metadata'
 
-import { Instruction } from './instruction-processor'
 import { InstructionQueue } from './instruction-queue'
 
 const context = {
@@ -9,7 +9,7 @@ const context = {
     name: 'entry',
     onEnter: ['enter {}'],
     onReceive: ['receive {}'],
-    next: [{ condition: 'a !== b', node: 'another-node' }, { condition: 'b != c', node: 'yet-another-node' }]
+    next: [{ condition: 'a !== b', node: 'another-node' }]
   },
   currentFlow: {
     catchAll: {
@@ -26,29 +26,38 @@ describe('Instruction Queue', () => {
     queue = new InstructionQueue()
   })
 
-  describe('When creating onReveice instructions', () => {
+  describe('Create on reveice instructions', () => {
     it('Enqueue flow relative onReceive before context relative onReceive', () => {
       const onReceive = queue.createOnReceive(context)
-      const flowOnReceive = onReceive.pop()
-      const nodeOnReceive = onReceive.pop()
-      expect(flowOnReceive).toEqual({ type: 'on-receive', fn: 'flowReceive {}' })
-      expect(nodeOnReceive).toEqual({ type: 'on-receive', fn: 'receive {}' })
+
+      // The last element in the array is actually the first to pop
+      expect(onReceive[0]).toEqual({ type: 'on-receive', fn: 'receive {}' })
+      expect(onReceive[1]).toEqual({ type: 'on-receive', fn: 'flowReceive {}' })
     })
   })
 
-  describe('When enqueuing instructions', () => {
-    let instructions: Instruction[]
+  describe('Create transitions instructions', () => {
+    it('Overrides the code transitions with the flow transitions', () => {
+      const otherContext = _.cloneDeep(context)
+      otherContext.currentFlow.catchAll.next = [{ condition: 'true', node: 'override' }]
 
-    beforeAll(() => {
-      instructions = queue.enqueueInstructions(context)
+      const transitions = queue.createTransition(otherContext)
+
+      expect(transitions.pop()).toEqual({ fn: 'true', node: 'override', type: 'transition-condition' })
+      expect(_.isEmpty(transitions)).toBeTruthy()
     })
+  })
 
-    it('Enqueue onEnter instructions first', () => {
+  describe('Enqueue instructions', () => {
+    const queue = new InstructionQueue()
+    const instructions = queue.enqueueInstructions(context)
+
+    it('Enqueue in order', () => {
       expect(instructions.pop()).toEqual({ fn: 'enter {}', type: 'on-enter' })
-    })
-
-    it('Enqueue a wait instruction before onReceive instructions', () => {
       expect(instructions.pop()).toEqual({ type: 'wait' })
+      expect(instructions.pop()).toEqual({ fn: 'flowReceive {}', type: 'on-receive' })
+      expect(instructions.pop()).toEqual({ fn: 'receive {}', type: 'on-receive' })
+      expect(instructions.pop()).toEqual({ type: 'transition-condition', node: 'another-node', fn: 'a !== b' })
     })
   })
 })
