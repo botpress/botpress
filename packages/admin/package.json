@@ -1,7 +1,7 @@
 {
   "name": "@botpress/xx-admin",
   "version": "1.0.0",
-  "description": "The backend of the Botpress Cloud",
+  "description": "Botpress Admin Panel",
   "main": "dist",
   "engines": {
     "node": "^8.9.4"

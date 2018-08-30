@@ -137,22 +137,5 @@ export default ({ config, db }) => {
     }
   }
 
-  async function getUserIdFromCliToken(cliToken) {
-    debug('Authenticating user with CLI token')
-    const cli = await db.models.cli_token.findOne({ where: { cliToken } })
-
-    const getNewTokenMsg = `Visit ${process.env.SERVICE_URL}/me/cli to get a new token.`
-
-    if (!cli) {
-      throw new UnauthorizedAccessError('Invalid CLI token. ' + getNewTokenMsg)
-    }
-
-    if (moment(cli.validUntil).isBefore(moment())) {
-      throw new TokenExpiredError(getNewTokenMsg)
-    }
-
-    return cli.userId
-  }
-
-  return { generateBotJWT, generateIdentityJWT, getUserIdFromCliToken, getOrCreateCliToken, getRandomUsername }
+  return { generateBotJWT, generateIdentityJWT, getOrCreateCliToken, getRandomUsername }
 }

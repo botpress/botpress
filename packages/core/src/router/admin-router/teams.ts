@@ -60,7 +60,7 @@ export class TeamsRouter extends BaseRouter {
       '/:teamId/members', // List team members
       this.asyncMiddleware(async (req, res) => {
         await svc.assertUserMember(req.dbUser.id, req.params.teamId)
-        await svc.assertUserPermission(req.dbUser.id, req.params.teamId, 'cloud.team.members', 'read')
+        await svc.assertUserPermission(req.dbUser.id, req.params.teamId, 'admin.team.members', 'read')
         const teams = await svc.listTeamMembers(req.params.teamId)
         return sendSuccess(res, 'Retrieved team members', teams)
       })
@@ -70,7 +70,7 @@ export class TeamsRouter extends BaseRouter {
       '/:teamId/invite', // Get invite code
       this.asyncMiddleware(async (req, res) => {
         await svc.assertUserMember(req.dbUser.id, req.params.teamId)
-        await svc.assertUserPermission(req.dbUser.id, req.params.teamId, 'cloud.team.members', 'write')
+        await svc.assertUserPermission(req.dbUser.id, req.params.teamId, 'admin.team.members', 'write')
         const code = await svc.getInviteCode(req.params.teamId)
         return sendSuccess(res, 'Retrieved team invite code', code)
       })
@@ -80,7 +80,7 @@ export class TeamsRouter extends BaseRouter {
       '/:teamId/invite', // Refresh invite code
       this.asyncMiddleware(async (req, res) => {
         await svc.assertUserMember(req.dbUser.id, req.params.teamId)
-        await svc.assertUserPermission(req.dbUser.id, req.params.teamId, 'cloud.team.members', 'write')
+        await svc.assertUserPermission(req.dbUser.id, req.params.teamId, 'admin.team.members', 'write')
         const code = await svc.refreshInviteCode(req.params.teamId)
         return sendSuccess(res, 'Refreshed team invite code', code)
       })
@@ -107,7 +107,7 @@ export class TeamsRouter extends BaseRouter {
       '/:teamId/roles', // List team roles
       this.asyncMiddleware(async (req, res) => {
         await svc.assertUserMember(req.dbUser.id, req.params.teamId)
-        await svc.assertUserPermission(req.dbUser.id, req.params.teamId, 'cloud.team.roles', 'read')
+        await svc.assertUserPermission(req.dbUser.id, req.params.teamId, 'admin.team.roles', 'read')
         const roles = await svc.listTeamRoles(req.params.teamId)
         return sendSuccess(res, 'Retrieved team roles', roles)
       })
@@ -117,7 +117,7 @@ export class TeamsRouter extends BaseRouter {
       '/:teamId/roles', // Add team role
       this.asyncMiddleware(async (req, res) => {
         await svc.assertUserMember(req.dbUser.id, req.params.teamId)
-        await svc.assertUserPermission(req.dbUser.id, req.params.teamId, 'cloud.team.roles', 'write')
+        await svc.assertUserPermission(req.dbUser.id, req.params.teamId, 'admin.team.roles', 'write')
         await svc.createTeamRole(req.params.teamId, req.body)
         return sendSuccess(res, 'Created team role')
       })
@@ -127,7 +127,7 @@ export class TeamsRouter extends BaseRouter {
       '/:teamId/roles/:roleId', // Edit team role
       this.asyncMiddleware(async (req, res) => {
         await svc.assertUserMember(req.dbUser.id, req.params.teamId)
-        await svc.assertUserPermission(req.dbUser.id, req.params.teamId, 'cloud.team.roles', 'write')
+        await svc.assertUserPermission(req.dbUser.id, req.params.teamId, 'admin.team.roles', 'write')
         await svc.updateTeamRole(req.params.teamId, req.params.roleId, req.body)
         return sendSuccess(res, 'Updated team role')
       })
@@ -137,7 +137,7 @@ export class TeamsRouter extends BaseRouter {
       '/:teamId/roles/:roleId', // Delete team role
       this.asyncMiddleware(async (req, res) => {
         await svc.assertUserMember(req.dbUser.id, req.params.teamId)
-        await svc.assertUserPermission(req.dbUser.id, req.params.teamId, 'cloud.team.roles', 'write')
+        await svc.assertUserPermission(req.dbUser.id, req.params.teamId, 'admin.team.roles', 'write')
         await svc.deleteTeamRole(req.params.teamId, req.params.roleId)
         return sendSuccess(res, 'Deleted team role')
       })
@@ -154,7 +154,7 @@ export class TeamsRouter extends BaseRouter {
         )
 
         await svc.assertUserMember(req.dbUser.id, req.params.teamId)
-        await svc.assertUserPermission(req.dbUser.id, req.params.teamId, 'cloud.team.members', 'write')
+        await svc.assertUserPermission(req.dbUser.id, req.params.teamId, 'admin.team.members', 'write')
         await svc.assertRoleExists(req.params.teamId, req.body.role)
         const user = await this.authService.findUserByUsername(req.params.username)
         await svc.assertUserNotMember(user!.id, req.params.teamId)
@@ -168,7 +168,7 @@ export class TeamsRouter extends BaseRouter {
       '/:teamId/members/:username', // Remove team member
       this.asyncMiddleware(async (req, res) => {
         await svc.assertUserMember(req.dbUser.id, req.params.teamId)
-        await svc.assertUserPermission(req.dbUser.id, req.params.teamId, 'cloud.team.members', 'write')
+        await svc.assertUserPermission(req.dbUser.id, req.params.teamId, 'admin.team.members', 'write')
         const user = await this.authService.findUserByUsername(req.params.username, ['id'])
         const userId = user!.id
         await svc.assertUserMember(userId, req.params.teamId)
@@ -195,7 +195,7 @@ export class TeamsRouter extends BaseRouter {
         )
 
         await svc.assertUserMember(req.dbUser.id, req.params.teamId)
-        await svc.assertUserPermission(req.dbUser.id, req.params.teamId, 'cloud.team.members', 'write')
+        await svc.assertUserPermission(req.dbUser.id, req.params.teamId, 'admin.team.members', 'write')
         const user = await this.authService.findUserByUsername(req.params.username, ['id'])
         const userId = user!.id
         await svc.assertUserMember(userId, req.params.teamId)
@@ -223,7 +223,7 @@ export class TeamsRouter extends BaseRouter {
       '/:teamId/bots', // Add new bot
       this.asyncMiddleware(async (req, res) => {
         await svc.assertUserMember(req.dbUser.id, req.params.teamId)
-        await svc.assertUserPermission(req.dbUser.id, req.params.teamId, 'cloud.team.bots', 'write')
+        await svc.assertUserPermission(req.dbUser.id, req.params.teamId, 'admin.team.bots', 'write')
         const bot = await svc.addBot(req.params.teamId)
 
         return sendSuccess(res, 'Added new bot', {
@@ -237,7 +237,7 @@ export class TeamsRouter extends BaseRouter {
       '/:teamId/bots', // List bots
       this.asyncMiddleware(async (req, res) => {
         await svc.assertUserMember(req.dbUser.id, req.params.teamId)
-        await svc.assertUserPermission(req.dbUser.id, req.params.teamId, 'cloud.team.bots', 'read')
+        await svc.assertUserPermission(req.dbUser.id, req.params.teamId, 'admin.team.bots', 'read')
 
         const offset = _.get(req, 'query.offset') || 0
 
@@ -250,7 +250,7 @@ export class TeamsRouter extends BaseRouter {
       '/:teamId/bots/:botId', // Delete a bot
       this.asyncMiddleware(async (req, res) => {
         await svc.assertUserMember(req.dbUser.id, req.params.teamId)
-        await svc.assertUserPermission(req.dbUser.id, req.params.teamId, 'cloud.team.bots', 'write')
+        await svc.assertUserPermission(req.dbUser.id, req.params.teamId, 'admin.team.bots', 'write')
         await svc.deleteBot(req.params.teamId, req.params.botId)
 
         return sendSuccess(res, 'Removed bot from team', { botId: req.params.botId })

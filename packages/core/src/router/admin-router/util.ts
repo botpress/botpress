@@ -47,7 +47,7 @@ export const error = (
     type: 'Error',
     code: code || status,
     message: message || 'Unknown error',
-    docs: docs || 'https://botpress.io/docs/cloud'
+    docs: docs || 'https://botpress.io/docs'
   })
 }
 

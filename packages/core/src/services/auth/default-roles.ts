@@ -24,7 +24,7 @@ const roles: Array<AuthRole> = [
   {
     name: 'default',
     description: 'Default member role',
-    rules: [{ res: '*', op: '+r+w' }, { res: 'cloud.*', op: '+r-w' }]
+    rules: [{ res: '*', op: '+r+w' }, { res: 'admin.*', op: '+r-w' }]
   }
 ]
 

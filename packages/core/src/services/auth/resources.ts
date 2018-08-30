@@ -13,14 +13,14 @@ export interface AuthResource {
   }[]
 }
 
-const CLOUD_RESOURCES: AuthResource[] = [
+const ADMIN_RESOURCES: AuthResource[] = [
   {
-    name: 'cloud',
-    description: 'Botpress Cloud permissions',
+    name: 'admin',
+    description: 'Botpress Admin permissions',
     children: [
       {
         name: '*',
-        description: 'Full cloud permissions',
+        description: 'Full Admin permissions',
         operations: [r, w]
       },
       {
@@ -47,6 +47,6 @@ const CLOUD_RESOURCES: AuthResource[] = [
   }
 ]
 
-export default enrichResources(CLOUD_RESOURCES)
+export default enrichResources(ADMIN_RESOURCES)
   .concat(RESOURCES as AuthResource[])
   .sort((a, b) => a.name.localeCompare(b.name)) as AuthResource[]

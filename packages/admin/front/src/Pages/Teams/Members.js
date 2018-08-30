@@ -168,7 +168,7 @@ class Members extends Component {
   renderMemberMenu(member) {
     const items = []
 
-    if (this.currentUserHasPermission('cloud.team.members', 'write')) {
+    if (this.currentUserHasPermission('admin.team.members', 'write')) {
       if (member.role === 'owner') {
         items.push(
           <DropdownItem

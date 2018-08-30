@@ -107,6 +107,7 @@ class Bots extends Component {
   }
 
   renderPairingModal() {
+    // TODO: remove
     const instruction = 'botpress cloud-pair ' + this.state.pairingToken
 
     return (

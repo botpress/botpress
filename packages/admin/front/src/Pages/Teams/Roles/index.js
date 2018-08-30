@@ -134,7 +134,7 @@ class Roles extends Component {
   }
 
   renderSideMenu() {
-    if (!this.currentUserHasPermission('cloud.team.roles', 'write')) {
+    if (!this.currentUserHasPermission('admin.team.roles', 'write')) {
       return null
     }
 
