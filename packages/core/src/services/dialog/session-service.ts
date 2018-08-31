@@ -7,6 +7,14 @@ import { DialogSession, SessionRepository } from '../../repositories/session-rep
 export class SessionService {
   constructor(@inject(TYPES.SessionRepository) private repository: SessionRepository) {}
 
+  async getOrCreateSession(sessionId, event, flow, node): Promise<DialogSession> {
+    const session = await this.getSession(sessionId)
+    if (!session) {
+      return this.createSession(sessionId, flow, node, event)
+    }
+    return session
+  }
+
   async createSession(sessionId, currentFlow, currentNode, event): Promise<DialogSession> {
     const newSession = {
       id: sessionId,

@@ -39,22 +39,14 @@ export class DialogEngine {
       this.reloadFlows()
     }
 
-    this.currentSession = await this.getOrCreateSession(sessionId, event)
+    const defaultFlow = this.findDefaultFlow()
+    const entryNode = this.findEntryNode(defaultFlow)
+    this.currentSession = await this.sessionService.getOrCreateSession(sessionId, event, defaultFlow, entryNode)
+
     const context = JSON.parse(this.currentSession.context)
     this.instructions = this.queue.enqueueInstructions(context)
 
     await this.processInstructions()
-  }
-
-  async getOrCreateSession(sessionId, event): Promise<DialogSession> {
-    const session = await this.sessionService.getSession(sessionId)
-    if (!session) {
-      const defaultFlow = this.findDefaultFlow()
-      const entryNode = this.findEntryNode(defaultFlow)
-
-      return this.sessionService.createSession(sessionId, defaultFlow, entryNode, event)
-    }
-    return session
   }
 
   async processInstructions() {

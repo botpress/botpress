@@ -22,31 +22,6 @@ describe('Dialog Engine', () => {
     channel: 'any'
   }
 
-  describe('Load a session', () => {
-    it('Get a session', async () => {
-      flowService.loadAll.mockReturnValue(JSON.stringify(flows))
-      sessionService.getSession.mockReturnValue(session)
-      const dialogEngine = new DialogEngine(instructionFactory, instructionProcessor, flowService, sessionService)
-
-      await dialogEngine.getOrCreateSession(SESSION_ID, event)
-
-      expect(sessionService.getSession).toHaveBeenCalled()
-    })
-
-    it('Create a new session when it doesnt exists', async () => {
-      sessionService.getSession.mockReturnValue(undefined)
-      sessionService.createSession.mockReturnValue(session)
-      const dialogEngine = new DialogEngine(instructionFactory, instructionProcessor, flowService, sessionService)
-      dialogEngine.flowsLoaded = false
-      dialogEngine.flows = flows
-
-      await dialogEngine.getOrCreateSession(SESSION_ID, event)
-
-      expect(sessionService.getSession).toHaveBeenCalled()
-      expect(sessionService.createSession).toReturnWith(session)
-    })
-  })
-
   describe('Process instructions', () => {
     it('Call the instruction processor', async () => {
       givenInstructionsAreSuccessful()
