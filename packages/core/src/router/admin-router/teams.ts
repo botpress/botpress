@@ -87,7 +87,7 @@ export class TeamsRouter extends BaseRouter {
     )
 
     router.post(
-      '/join', // Refresh invite code
+      '/join', // Join team
       this.asyncMiddleware(async (req, res) => {
         validateBodySchema(
           req,

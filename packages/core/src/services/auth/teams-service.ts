@@ -16,7 +16,7 @@ import {
   Logger
 } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
-import { InvalidOperationError, UnauthorizedAccessError } from '../auth/errors'
+import { InvalidOperationError, NotFoundError, UnauthorizedAccessError } from '../auth/errors'
 
 import defaultRoles from './default-roles'
 
@@ -149,7 +149,7 @@ export default class TeamService {
       .get(0)
   }
 
-  private async getTeam(where: {}, select?: Array<keyof AuthTeam>) {
+  private async getTeam(where: {}, select?: Array<keyof AuthTeam>): Promise<Partial<AuthTeam | undefined>> {
     return this.knex(TEAMS_TABLE)
       .select(select || ['*'])
       .where(where)
@@ -234,6 +234,7 @@ export default class TeamService {
   }
 
   async assertUserNotMember(userId: number, teamId: number) {
+    console.log(userId, teamId)
     const member = this.getMembership({ user: userId, team: teamId }, ['id'])
 
     if (member) {
@@ -325,6 +326,10 @@ export default class TeamService {
   async getInviteCode(teamId) {
     const team = await this.getTeam({ id: teamId }, ['invite_code'])
 
+    if (!team) {
+      throw new NotFoundError(`Team ${teamId} not found`)
+    }
+
     return {
       inviteCode: team.invite_code
     }
@@ -347,6 +352,13 @@ export default class TeamService {
 
   async joinTeamFromInviteCode(userId: number, code: string) {
     const team = await this.getTeam({ invite_code: code }, ['id'])
-    return this.addMemberToTeam(userId, team.id!, 'default')
+
+    if (!team) {
+      throw new NotFoundError('Team not found')
+    }
+
+    await this.assertUserNotMember(userId, team.id!)
+
+    return this.addMemberToTeam(userId, team.id!, 'default').then(ids => ids && ids[0])
   }
 }
