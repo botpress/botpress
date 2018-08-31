@@ -148,6 +148,12 @@ describe('Dialog Engine', () => {
       expect(dialogEngine.currentSession.context.currentNode.name).toEqual('welcome')
       expect(dialogEngine.currentSession.context.currentFlow.name).toEqual('main.flow.json')
     })
+
+    it('Throws when the node or the flow doesnt exists', () => {
+      expect(dialogEngine.transitionToNextNode('unknown')).rejects.toEqual(
+        new Error('Could not find any node or flow under the name of "unknown"')
+      )
+    })
   })
 
   function givenWaitInstruction() {
