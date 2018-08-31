@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import 'reflect-metadata'
 
-import { InstructionQueue } from './instruction-queue'
+import { InstructionFactory } from './instruction-factory'
 
 const context = {
   currentNode: {
@@ -19,11 +19,11 @@ const context = {
   }
 }
 
-describe('Instruction Queue', () => {
-  let queue: InstructionQueue
+describe('Instruction Factory', () => {
+  let queue: InstructionFactory
 
   beforeEach(() => {
-    queue = new InstructionQueue()
+    queue = new InstructionFactory()
   })
 
   describe('Create on reveice instructions', () => {
@@ -49,7 +49,7 @@ describe('Instruction Queue', () => {
   })
 
   describe('Enqueue instructions', () => {
-    const queue = new InstructionQueue()
+    const queue = new InstructionFactory()
     const instructions = queue.enqueueInstructions(context)
 
     it('Enqueue in order', () => {

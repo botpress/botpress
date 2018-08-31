@@ -5,8 +5,8 @@ import { TYPES } from '../../misc/types'
 import { DialogSession } from '../../repositories/session-repository'
 
 import FlowService from './flow-service'
+import { InstructionFactory } from './instruction-factory'
 import { Instruction, InstructionProcessor } from './instruction-processor'
-import { InstructionQueue } from './instruction-queue'
 import { SessionService } from './session-service'
 
 // TODO: Allow multi-bot
@@ -23,7 +23,7 @@ export class DialogEngine {
   failedAttempts = 0
 
   constructor(
-    @inject(TYPES.InstructionQueue) private queue: InstructionQueue,
+    @inject(TYPES.InstructionFactory) private queue: InstructionFactory,
     @inject(TYPES.InstructionProcessor) private instructionProcessor: InstructionProcessor,
     @inject(TYPES.FlowService) private flowService: FlowService,
     @inject(TYPES.SessionService) private sessionService: SessionService

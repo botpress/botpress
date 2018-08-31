@@ -4,7 +4,7 @@ import _ from 'lodash'
 import { Instruction } from './instruction-processor'
 
 @injectable()
-export class InstructionQueue {
+export class InstructionFactory {
   createOnEnter(context) {
     const instructions = context.currentNode.onEnter
     if (!instructions) {

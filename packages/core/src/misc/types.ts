@@ -31,7 +31,7 @@ const TYPES = {
   AuthService: Symbol.for('AuthService'),
   TeamsService: Symbol.for('TeamsService'),
   InstructionProcessor: Symbol.for('InstructionProcessor'),
-  InstructionQueue: Symbol.for('InstructionFactory')
+  InstructionFactory: Symbol.for('InstructionFactory')
 }
 
 export { TYPES }
