@@ -186,11 +186,11 @@ export default class TeamService {
       .then()
   }
 
-  async updateTeamRole(teamId: number, roleId: number, role: AuthRole) {
+  async updateTeamRole(teamId: number, roleId: number, role: Partial<AuthRole>) {
     const dbRole = await this.knex(ROLES_TABLE)
       .select('name')
       .where({ id: roleId, team: teamId })
-      .then<AuthRole[]>(res => res)
+      .then<AuthRoleDb[]>(res => res)
       .get(0)
 
     if (!dbRole) {
@@ -201,9 +201,14 @@ export default class TeamService {
       throw new InvalidOperationError("You can't edit the owner role")
     }
 
+    const patchRole: Partial<AuthRoleDb> = _.pick(role, 'description')
+    if ('rules' in role) {
+      patchRole.rules = JSON.stringify(role.rules)
+    }
+
     return this.knex(ROLES_TABLE)
       .where('id', roleId)
-      .update(_.pick(role, 'description', 'rules'))
+      .update(patchRole)
       .then()
   }
 

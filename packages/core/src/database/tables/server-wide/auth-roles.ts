@@ -6,16 +6,14 @@ export default class AuthRolesTable extends Table {
   async bootstrap() {
     await this.knex.createTableIfNotExists(this.name, table => {
       table.increments('id')
-      table
-        .string('name')
-        .unique()
-        .notNullable()
+      table.string('name').notNullable()
       table.text('description')
       table.json('rules').notNullable()
       table
         .integer('team')
         .references('auth_teams.id')
         .onDelete('CASCADE')
+      table.unique(['team', 'name'])
       table.timestamps()
     })
   }
