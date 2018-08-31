@@ -16,7 +16,7 @@ import MePage from '../Pages/Me'
 import Auth from '../Auth'
 import PrivateRoute from './PrivateRoute'
 
-import store, { history } from './store'
+import store, { history } from '../store'
 
 export const makeMainRoutes = () => {
   const auth = new Auth()
