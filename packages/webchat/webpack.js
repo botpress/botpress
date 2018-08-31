@@ -53,12 +53,12 @@ var webConfig = {
         use: [{ loader: 'style-loader' }, { loader: 'css-loader' }]
       },
       {
-        test: /\.woff|\.woff2|\.svg|.eot|\.ttf/,
+        test: /font.*\.(woff|woff2|svg|eot|ttf)$/,
         use: { loader: 'file-loader', options: { name: '../fonts/[name].[ext]' } }
       },
       {
         test: /\.(jpe?g|png|gif|svg)$/i,
-        use: [{ loader: 'file-loader' }, { loader: 'image-webpack-loader' }]
+        use: [{ loader: 'file-loader', options: { name: '[name].[hash].[ext]' } }, { loader: 'image-webpack-loader' }]
       }
     ]
   }

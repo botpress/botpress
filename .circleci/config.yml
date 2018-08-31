@@ -33,6 +33,7 @@ jobs:
             - v1-dependencies-webchat-{{ checksum "packages/webchat/package.json" }}
             - v1-dependencies-webchat-
 
+      - run: sudo npm install -g npm@6
       - run: sudo npm install -g node-pre-gyp
       - run: npm install --only=dev
       - run: cd ~/repo/ && NODE_ENV=development npm install || true # Workaround for pkg chmod of "bin" in launcher

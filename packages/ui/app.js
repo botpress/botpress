@@ -1,37 +1,32 @@
+require('dotenv').config()
+
 const express = require('express')
 const app = express()
 const path = require('path')
-const dotenv = require('dotenv')
 const proxy = require('express-http-proxy')
 const _ = require('lodash')
 const bodyParser = require('body-parser')
 const qs = require('querystring')
 
+const { HttpProxy } = require('@botpress/xx-util')
+
 const BASE_PATH = '/api/v1'
 const BOT_PATH = BASE_PATH + '/bots/bot123'
-
-dotenv.config()
 
 app.use(bodyParser.json())
 app.use(express.static('./static'))
 
-// TODO: Extract in shared module
-const httpProxy = (originPath, targetPath, targetHost) => {
-  app.use(
-    originPath,
-    proxy(targetHost, {
-      proxyReqPathResolver: async (req, res) => targetPath
-    })
-  )
-}
+const { CORE_API_URL } = process.env
+const httpProxy = new HttpProxy(app, CORE_API_URL)
 
-httpProxy('/api/modules', BASE_PATH + '/modules', process.env.CORE_API_URL)
-httpProxy('/js/modules/channel-web', BASE_PATH + '/modules/channel-web', process.env.CORE_API_URL)
-httpProxy('/api/bot/information', BOT_PATH, process.env.CORE_API_URL)
+httpProxy
+  .proxy('/api/modules', BASE_PATH + '/modules')
+  .proxy('/js/modules/channel-web', BASE_PATH + '/modules/channel-web')
+  .proxy('/api/bot/information', BOT_PATH)
 
 app.post(
   '/api/middlewares/customizations',
-  proxy(process.env.CORE_API_URL, {
+  proxy(CORE_API_URL, {
     proxyReqPathResolver: async (req, res) => BOT_PATH + '/middleware',
     proxyReqBodyDecorator: async (body, srcReq) => {
       // Middleware(s) is a typo. Can't be plural.
@@ -40,11 +35,11 @@ app.post(
   })
 )
 
-httpProxy('/api/middlewares', BOT_PATH + '/middleware', process.env.CORE_API_URL)
+httpProxy.proxy('/api/middlewares', BOT_PATH + '/middleware')
 
 app.post(
   '/api/content/categories/:categoryId/items/:itemId',
-  proxy(process.env.CORE_API_URL, {
+  proxy(CORE_API_URL, {
     proxyReqPathResolver: req => {
       return `${BOT_PATH}/content/${req.params.categoryId}/elements/${req.params.itemId}`
     }
@@ -53,18 +48,18 @@ app.post(
 
 app.post(
   '/api/content/categories/:categoryId/items',
-  proxy(process.env.CORE_API_URL, {
+  proxy(CORE_API_URL, {
     proxyReqPathResolver: async (req, res) => {
       return `${BOT_PATH}/content/${req.params.categoryId}/elements`
     }
   })
 )
 
-httpProxy('/api/content/categories', BOT_PATH + '/content/types', process.env.CORE_API_URL)
+httpProxy.proxy('/api/content/categories', BOT_PATH + '/content/types')
 
 app.get(
   '/api/content/items-batched/:itemIds',
-  proxy(process.env.CORE_API_URL, {
+  proxy(CORE_API_URL, {
     proxyReqPathResolver: req => {
       const elementIds = req.params.itemIds.split(',')
       return `${BOT_PATH}/content/elements?ids=${elementIds.join(',')}`
@@ -74,7 +69,7 @@ app.get(
 
 app.get(
   '/api/content/items',
-  proxy(process.env.CORE_API_URL, {
+  proxy(CORE_API_URL, {
     proxyReqPathResolver: req => {
       const oQuery = req.query || {}
       const query = qs.stringify(_.pick(oQuery, ['from', 'count', 'searchTerm']))
@@ -93,7 +88,7 @@ app.get(
 
 app.get(
   '/api/content/items/count',
-  proxy(process.env.CORE_API_URL, {
+  proxy(CORE_API_URL, {
     proxyReqPathResolver: req => {
       const contentType = req.query.categoryId
       if (contentType) {
@@ -106,7 +101,7 @@ app.get(
 
 app.get(
   '/api/content/items/:itemId',
-  proxy(process.env.CORE_API_URL, {
+  proxy(CORE_API_URL, {
     proxyReqPathResolver: (req, res) => {
       const elementId = req.params.itemId
       return `${BOT_PATH}/content/elements/${elementId}`
@@ -114,12 +109,13 @@ app.get(
   })
 )
 
-httpProxy('/api/flows/available_actions', BOT_PATH + '/actions', process.env.CORE_API_URL)
+httpProxy.proxy('/api/flows/available_actions', BOT_PATH + '/actions')
 
-httpProxy('/api/flows/all', BOT_PATH + '/flows', process.env.CORE_API_URL)
+httpProxy.proxy('/api/flows/all', BOT_PATH + '/flows')
+
 app.post(
   '/api/flows/save',
-  proxy(process.env.CORE_API_URL, {
+  proxy(CORE_API_URL, {
     proxyReqPathResolver: () => {
       return BOT_PATH + '/flows'
     },

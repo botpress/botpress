@@ -49,7 +49,7 @@ class Members extends Component {
 
   toggleInviteModal = () => {
     if (!this.state.isInviteModalOpen) {
-      this.fetchInviteLink()
+      this.fetchInviteCode()
       this.setState({ isInviteModalOpen: true, inviteCodeCopied: false })
     } else {
       this.setState({ isInviteModalOpen: false })
@@ -78,7 +78,7 @@ class Members extends Component {
     }
   }
 
-  async fetchInviteLink() {
+  async fetchInviteCode() {
     const { data } = await api.getSecured().get(`/api/teams/${this.props.teamId}/invite`)
 
     if (data && data.payload && data.payload.inviteCode) {
@@ -86,7 +86,7 @@ class Members extends Component {
     }
   }
 
-  refreshInviteLink = async () => {
+  refreshInviteCode = async () => {
     const { data } = await api.getSecured().post(`/api/teams/${this.props.teamId}/invite`)
 
     if (data && data.payload && data.payload.inviteCode) {
@@ -101,18 +101,6 @@ class Members extends Component {
     }
   }
 
-  getColorForLabel(name) {
-    if (/^dev/i.test(name)) {
-      return 'primary'
-    } else if (/^stag/i.test(name)) {
-      return 'warning'
-    } else if (/^prod/i.test(name)) {
-      return 'danger'
-    } else {
-      return 'default'
-    }
-  }
-
   onCopy = () => {
     this.setState({ copied: true })
     window.setTimeout(() => {
@@ -121,7 +109,7 @@ class Members extends Component {
   }
 
   renderInviteModal() {
-    const inviteLink = this.state.inviteCode ? `${process.env.REACT_APP_URL}/teams/join/${this.state.inviteCode}` : null
+    const inviteLink = this.state.inviteCode ? `${window.location.origin}/teams/join/${this.state.inviteCode}` : null
 
     return (
       <Modal isOpen={this.state.isInviteModalOpen} toggle={this.toggleInviteModal}>
@@ -144,7 +132,7 @@ class Members extends Component {
 
           <Alert color="warning">
             Anybody with this link will be able to join the team. You can also{' '}
-            <a href="#revoke" onClick={this.refreshInviteLink}>
+            <a href="#revoke" onClick={this.refreshInviteCode}>
               revoke this link
             </a>.
           </Alert>
@@ -168,7 +156,7 @@ class Members extends Component {
   renderMemberMenu(member) {
     const items = []
 
-    if (this.currentUserHasPermission('cloud.team.members', 'write')) {
+    if (this.currentUserHasPermission('admin.team.members', 'write')) {
       if (member.role === 'owner') {
         items.push(
           <DropdownItem
@@ -303,7 +291,7 @@ class Members extends Component {
   }
 
   renderSideMenu() {
-    if (!this.currentUserHasPermission('cloud.team.members', 'write')) {
+    if (!this.currentUserHasPermission('admin.team.members', 'write')) {
       return null
     }
 
@@ -355,4 +343,7 @@ const mapDispatchToProps = dispatch =>
     dispatch
   )
 
-export default connect(mapStateToProps, mapDispatchToProps)(Members)
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Members)

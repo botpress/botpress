@@ -41,6 +41,7 @@
   },
   "dependencies": {
     "@botpress/channel-web": "file:../webchat",
+    "botpress-module-sdk": "file:../module-sdk",
     "botpress-xx": "file:../core",
     "chalk": "^2.4.1",
     "dotenv": "^6.0.0"

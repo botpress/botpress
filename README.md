@@ -6,6 +6,7 @@ TODO
 
 ## Setup and run all modules
 
-0. _Optional_ – Run `npm run clean` if coming from a previous version or branch
+1. In every package where you see the `.env` file copy it to `.env.local` and change accordingly if needed
+1. _Optional_ – Run `npm run clean` if coming from a previous version or branch
 1. Run `npm run bootstrap`. This will install dependencies, link the modules
 1. Run `npm run watch` to start working and start the project in watch mode

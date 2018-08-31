@@ -3,6 +3,8 @@ import { ContainerModule, interfaces } from 'inversify'
 import { TYPES } from '../misc/types'
 
 import ActionService from './action/action-service'
+import AuthService from './auth/auth-service'
+import TeamsService from './auth/teams-service'
 import { CMSService } from './cms/cms-service'
 import { DialogEngine } from './dialog/engine'
 import FlowService from './dialog/flow-service'
@@ -64,5 +66,13 @@ export const ServicesContainerModule = new ContainerModule((bind: interfaces.Bin
 
   bind<SessionService>(TYPES.SessionService)
     .to(SessionService)
+    .inSingletonScope()
+
+  bind<AuthService>(TYPES.AuthService)
+    .to(AuthService)
+    .inSingletonScope()
+
+  bind<TeamsService>(TYPES.TeamsService)
+    .to(TeamsService)
     .inSingletonScope()
 })

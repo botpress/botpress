@@ -43,6 +43,12 @@ export type KnexCallback = (tableBuilder: Knex.CreateTableBuilder) => any
 export type KnexExtension = {
   isLite: boolean
   createTableIfNotExists(tableName: string, cb: KnexCallback): Promise<any>
+  insertAndRetrieve<T>(
+    tableName: string,
+    data: {},
+    returnColumns?: string | string[],
+    idColumnName?: string
+  ): Promise<T>
   date: KnexExtension_Date
   bool: KnexExtension_Bool
   json: KnexExtension_Json

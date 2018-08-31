@@ -1,25 +1,19 @@
 import bodyParser from 'body-parser'
-import errorHandler from 'errorhandler'
 import express from 'express'
-import { Server } from 'http'
 import { inject, injectable, tagged } from 'inversify'
 
 import { ConfigProvider } from './config/config-loader'
 import { Logger } from './misc/interfaces'
 import { TYPES } from './misc/types'
-import { BotRepository } from './repositories/bot-repository'
-import { BotRouter } from './router/bot-router'
-import { IndexRouter } from './router/index-router'
-import ActionService from './services/action/action-service'
-import { CMSService } from './services/cms/cms-service'
-import FlowService from './services/dialog/flow-service'
-import { MiddlewareService } from './services/middleware/middleware-service'
+
+import Router from './router'
 
 const BASE_API_PATH = '/api/v1'
 
+const isProd = process.env.NODE_ENV === 'production'
+
 @injectable()
 export default class HTTPServer {
-  server: Server | undefined
   app: express.Express
 
   constructor(
@@ -27,32 +21,51 @@ export default class HTTPServer {
     @inject(TYPES.Logger)
     @tagged('name', 'HTTP')
     private logger: Logger,
-    @inject(TYPES.BotRepository) botRepository: BotRepository,
-    @inject(TYPES.MiddlewareService) middlewareService: MiddlewareService,
-    @inject(TYPES.CMSService) cmsService: CMSService,
-    @inject(TYPES.FlowService) flowService: FlowService,
-    @inject(TYPES.ActionService) actionService: ActionService
+    @inject(TYPES.Router) private apiRouter: Router
   ) {
-    const routers = [
-      new IndexRouter(),
-      new BotRouter({ actionService, botRepository, cmsService, flowService, middlewareService })
-    ]
-
     this.app = express()
-    this.app.use(bodyParser.json())
-    this.app.use(BASE_API_PATH, [...routers.map(r => r.router)])
-
-    if (process.env.NODE_ENV === 'development') {
-      this.app.use(errorHandler())
-    }
   }
 
   async start() {
     const botpressConfig = await this.configProvider.getBotpressConfig()
     const config = botpressConfig.httpServer
 
+    this.app.use(
+      bodyParser.json({
+        limit: config.bodyLimit
+      })
+    )
+    this.app.use(
+      bodyParser.urlencoded({
+        extended: true
+      })
+    )
+
+    this.app.use(BASE_API_PATH, this.apiRouter.router)
+
+    this.app.use((err, req, res, next) => {
+      const statusCode = err.status || 500
+      const code = err.code || 'BP_000'
+      const message = (err.code && err.message) || 'Unexpected error'
+      const devOnly = isProd
+        ? {}
+        : {
+            stack: err.stack,
+            full: err.message
+          }
+
+      res.status(statusCode).json({
+        status: 'error',
+        code,
+        type: err.type || Object.getPrototypeOf(err).name || 'Exception',
+        message,
+        docs: err.docs || undefined,
+        ...devOnly
+      })
+    })
+
     await Promise.fromCallback(callback => {
-      this.server = this.app.listen(config, callback)
+      this.app.listen(config, callback)
     })
 
     this.logger.info(`API listening on http://${config.host || 'localhost'}:${config.port}`)

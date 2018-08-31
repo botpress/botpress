@@ -39,7 +39,7 @@ const TeamNameValidationSchema = Joi.string()
   .max(30)
 
 class List extends Component {
-  state = { isCreateTeamModalOpen: false, canCreateTeam: false, teamName: '', createTeamError: null }
+  state = { isCreateTeamModalOpen: false, canCreateTeam: false, teamName: '', createTeamError: null, inviteCode: null }
 
   componentDidMount() {
     this.props.fetchTeams()
@@ -52,8 +52,13 @@ class List extends Component {
   }
 
   async joinTeam(inviteCode) {
-    await api.getSecured({ toastErrors: false }).post(`/api/teams/join`, {
-      code: inviteCode
+    if (inviteCode === this.state.inviteCode) {
+      return
+    }
+    this.setState({ inviteCode }, async () => {
+      await api.getSecured().post(`/api/teams/join`, {
+        code: inviteCode
+      })
     })
   }
 
