@@ -52,7 +52,6 @@ export class DialogEngine {
       const instruction = this.instructions.pop()!
 
       if (instruction.type === 'wait') {
-        // Stop processing instructions and wait for next message
         break
       }
 
@@ -76,9 +75,8 @@ export class DialogEngine {
         }
 
         const wait = this.instructionFactory.createWait()
-
-        this.instructions.unshift(wait)
-        this.instructions.unshift(instruction)
+        this.instructions.push(instruction)
+        this.instructions.push(wait)
       } else {
         this.failedAttempts = 0
       }

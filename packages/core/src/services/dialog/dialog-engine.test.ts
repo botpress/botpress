@@ -1,13 +1,10 @@
-import { BotpressEvent } from 'botpress-module-sdk'
 import _ from 'lodash'
 import 'reflect-metadata'
 
 import { createSpyObject } from '../../misc/utils'
 
 import { DialogEngine } from './dialog-engine'
-import { context, flows, session } from './stubs'
-
-const SESSION_ID = 'some_user_id'
+import { context, flows } from './stubs'
 
 describe('Dialog Engine', () => {
   const sessionService = createSpyObject('getSession', 'createSession', 'updateSession')
@@ -15,37 +12,50 @@ describe('Dialog Engine', () => {
   const instructionFactory = createSpyObject('createWait')
   const instructionProcessor = createSpyObject('process')
 
-  const event: BotpressEvent = {
-    type: 'any',
-    target: 'any',
-    direction: 'incoming',
-    channel: 'any'
-  }
+  beforeEach(() => {
+    jest.resetAllMocks()
+  })
 
   describe('Process instructions', () => {
-    it('Call the instruction processor', async () => {
+    it('Call the instruction processor and remove the instruction from the queue', async () => {
       givenInstructionsAreSuccessful()
       const dialogEngine = new DialogEngine(instructionFactory, instructionProcessor, flowService, sessionService)
       dialogEngine.currentSession = stubSession()
-      dialogEngine.instructions = [{ type: 'on-enter', fn: () => {} }]
+      dialogEngine.instructions = [{ type: 'on-enter' }]
 
       await dialogEngine.processInstructions()
 
       expect(instructionProcessor.process).toHaveBeenCalled()
+      expect(dialogEngine.instructions.length).toBe(0)
     })
 
-    it('Stop processing on "wait" instruction', async () => {
+    it('Stop processing after encountering a wait instruction', async () => {
       givenInstructionsAreSuccessful()
+
       const dialogEngine = new DialogEngine(instructionFactory, instructionProcessor, flowService, sessionService)
       dialogEngine.currentSession = stubSession()
       dialogEngine.instructions = [{ type: 'on-receive' }, { type: 'wait' }, { type: 'on-enter' }]
 
       await dialogEngine.processInstructions()
 
+      expect(instructionProcessor.process).toHaveBeenCalledTimes(1)
       expect(dialogEngine.instructions).toEqual([{ type: 'on-receive' }])
     })
 
-    it('Wait on fail and retry the failed instruction', async () => {
+    it('Requeue failed instruction and wait before calling another instruction', async () => {
+      givenInstructionsAreSuccessful(false)
+      givenWaitInstruction()
+      const dialogEngine = new DialogEngine(instructionFactory, instructionProcessor, flowService, sessionService)
+      dialogEngine.currentSession = stubSession()
+      dialogEngine.instructions = [{ type: 'on-enter' }, { type: 'on-enter' }]
+
+      await dialogEngine.processInstructions()
+
+      expect(dialogEngine.instructions).toEqual([{ type: 'on-enter' }, { type: 'on-enter' }])
+      expect(instructionProcessor.process).toHaveBeenCalledTimes(1)
+    })
+
+    it('Update failed attempts', async () => {
       givenInstructionsAreSuccessful(false)
       givenWaitInstruction()
       const dialogEngine = new DialogEngine(instructionFactory, instructionProcessor, flowService, sessionService)
@@ -54,19 +64,7 @@ describe('Dialog Engine', () => {
 
       await dialogEngine.processInstructions()
 
-      expect(dialogEngine.instructions).toEqual([{ type: 'on-enter' }])
-    })
-
-    it('Update failed attempts', async () => {
-      givenInstructionsAreSuccessful(false)
-      givenWaitInstruction()
-      const dialogEngine = new DialogEngine(instructionFactory, instructionProcessor, flowService, sessionService)
-      dialogEngine.currentSession = stubSession()
-      dialogEngine.instructions = [{ type: 'on-enter' }, { type: 'on-enter' }, { type: 'on-enter' }]
-
-      await dialogEngine.processInstructions()
-
-      expect(dialogEngine.failedAttempts).toEqual(3)
+      expect(dialogEngine.failedAttempts).toEqual(1)
     })
 
     it('Reset failed attempts on successful process', async () => {
