@@ -99,7 +99,7 @@ describe('Dialog Engine', () => {
       givenInstructionsAreSuccessful()
       const dialogEngine = new DialogEngine(instructionFactory, instructionProcessor, flowService, sessionService)
       dialogEngine.currentSession = stubSession()
-      dialogEngine.instructions = [{ type: 'transition-condition', node: 'another-node' }]
+      dialogEngine.instructions = [{ type: 'transition', node: 'another-node' }]
       const spy = spyOn(dialogEngine, 'transitionToNode')
 
       await dialogEngine.processInstructions()

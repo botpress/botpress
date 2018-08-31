@@ -36,7 +36,7 @@ export class InstructionFactory {
     const flowNext = context.currentFlow.catchAll.next
     if (flowNext) {
       return flowNext.map(x => {
-        return { type: 'transition-condition', fn: x.condition, node: x.node }
+        return { type: 'transition', fn: x.condition, node: x.node }
       })
     }
 
@@ -46,7 +46,7 @@ export class InstructionFactory {
     }
 
     return instructions.map(x => {
-      return { type: 'transition-condition', fn: x.condition, node: x.node }
+      return { type: 'transition', fn: x.condition, node: x.node }
     })
   }
 

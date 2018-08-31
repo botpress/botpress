@@ -43,7 +43,7 @@ describe('Instruction Factory', () => {
 
       const transitions = queue.createTransition(otherContext)
 
-      expect(transitions.pop()).toEqual({ fn: 'true', node: 'override', type: 'transition-condition' })
+      expect(transitions.pop()).toEqual({ fn: 'true', node: 'override', type: 'transition' })
       expect(_.isEmpty(transitions)).toBeTruthy()
     })
   })
@@ -57,7 +57,7 @@ describe('Instruction Factory', () => {
       expect(instructions.pop()).toEqual({ type: 'wait' })
       expect(instructions.pop()).toEqual({ fn: 'flowReceive {}', type: 'on-receive' })
       expect(instructions.pop()).toEqual({ fn: 'receive {}', type: 'on-receive' })
-      expect(instructions.pop()).toEqual({ type: 'transition-condition', node: 'another-node', fn: 'a !== b' })
+      expect(instructions.pop()).toEqual({ type: 'transition', node: 'another-node', fn: 'a !== b' })
     })
   })
 })

@@ -65,7 +65,7 @@ export class DialogEngine {
         this.currentSession.context
       )
 
-      if (result && instruction.type === 'transition-condition') {
+      if (result && instruction.type === 'transition') {
         this.transitionToNode(instruction.node)
         break
       }

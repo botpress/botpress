@@ -9,7 +9,7 @@ import { runCode } from '../action/sandbox-launcher'
 
 const BOT_ID = 'bot123'
 
-type InstructionType = 'transition-condition' | 'on-enter' | 'on-receive' | 'wait' | 'breakpoint'
+type InstructionType = 'transition' | 'on-enter' | 'on-receive' | 'wait' | 'breakpoint'
 
 /**
  * @property type The type of instruction
@@ -38,7 +38,7 @@ export class InstructionProcessor {
       } else {
         return this.invokeAction(instruction, state, event, context)
       }
-    } else if (instruction.type === 'transition-condition') {
+    } else if (instruction.type === 'transition') {
       return this.runInVM(instruction, state)
     }
     throw new Error('Could not process instruction')
