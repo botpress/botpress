@@ -66,7 +66,7 @@ export class DialogEngine {
       )
 
       if (result && instruction.type === 'transition-condition') {
-        this.transitionToNextNode(instruction.node)
+        this.transitionToNode(instruction.node)
         break
       }
 
@@ -87,7 +87,7 @@ export class DialogEngine {
     }
   }
 
-  async transitionToNextNode(next: string): Promise<void> {
+  async transitionToNode(next: string): Promise<void> {
     const context = this.currentSession.context
     let newContext = { ...context, previousNode: context.currentNode, previousFlow: context.currentFlow }
     let node: any

@@ -100,7 +100,7 @@ describe('Dialog Engine', () => {
       const dialogEngine = new DialogEngine(instructionFactory, instructionProcessor, flowService, sessionService)
       dialogEngine.currentSession = stubSession()
       dialogEngine.instructions = [{ type: 'transition-condition', node: 'another-node' }]
-      const spy = spyOn(dialogEngine, 'transitionToNextNode')
+      const spy = spyOn(dialogEngine, 'transitionToNode')
 
       await dialogEngine.processInstructions()
 
@@ -118,7 +118,7 @@ describe('Dialog Engine', () => {
     })
 
     it('Assign current node as the next node in the current flow', async () => {
-      await dialogEngine.transitionToNextNode('welcome')
+      await dialogEngine.transitionToNode('welcome')
 
       expect(dialogEngine.currentSession.context.currentNode.name).toEqual('welcome')
       expect(dialogEngine.currentSession.context.currentFlow.name).toEqual('main.flow.json')
@@ -126,7 +126,7 @@ describe('Dialog Engine', () => {
     })
 
     it('Assign current node as the starting node of the next flow', async () => {
-      await dialogEngine.transitionToNextNode('other.flow.json')
+      await dialogEngine.transitionToNode('other.flow.json')
 
       expect(dialogEngine.currentSession.context.currentNode.name).toEqual('entry')
       expect(dialogEngine.currentSession.context.currentFlow.name).toEqual('other.flow.json')
@@ -134,23 +134,23 @@ describe('Dialog Engine', () => {
     })
 
     it('Assign current node as the last called node in the parent flow', async () => {
-      await dialogEngine.transitionToNextNode('other.flow.json')
-      await dialogEngine.transitionToNextNode('##')
+      await dialogEngine.transitionToNode('other.flow.json')
+      await dialogEngine.transitionToNode('##')
 
       expect(dialogEngine.currentSession.context.currentNode.name).toEqual('entry')
       expect(dialogEngine.currentSession.context.currentFlow.name).toEqual('main.flow.json')
     })
 
     it('Assign current node as a specific node of the parent flow', async () => {
-      await dialogEngine.transitionToNextNode('other.flow.json')
-      await dialogEngine.transitionToNextNode('#welcome')
+      await dialogEngine.transitionToNode('other.flow.json')
+      await dialogEngine.transitionToNode('#welcome')
 
       expect(dialogEngine.currentSession.context.currentNode.name).toEqual('welcome')
       expect(dialogEngine.currentSession.context.currentFlow.name).toEqual('main.flow.json')
     })
 
     it('Throws when the node or the flow doesnt exists', () => {
-      expect(dialogEngine.transitionToNextNode('unknown')).rejects.toEqual(
+      expect(dialogEngine.transitionToNode('unknown')).rejects.toEqual(
         new Error('Could not find any node or flow under the name of "unknown"')
       )
     })
