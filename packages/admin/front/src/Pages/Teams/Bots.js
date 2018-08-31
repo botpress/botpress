@@ -53,7 +53,7 @@ class Bots extends Component {
     }
   }
 
-  async createBot() {
+  createBot = async () => {
     if (window.confirm('Are you sure you want create the new bot?')) {
       await api.getSecured().post(`/api/teams/${this.props.teamId}/bots`)
       await this.props.fetchTeamData(this.props.teamId)

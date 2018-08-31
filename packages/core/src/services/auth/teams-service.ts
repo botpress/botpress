@@ -294,6 +294,8 @@ export default class TeamService {
       .insert(bot)
       .then()
 
+    // TODO: we also want to create the bot skeleton files now
+
     return bot
   }
 
