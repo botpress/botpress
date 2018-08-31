@@ -54,7 +54,7 @@ export class InstructionFactory {
     return { type: 'wait' }
   }
 
-  enqueueInstructions(context): Instruction[] {
+  createInstructions(context): Instruction[] {
     const onEnter = this.createOnEnter(context)
     const onReceive = this.createOnReceive(context)
     const transition = this.createTransition(context)

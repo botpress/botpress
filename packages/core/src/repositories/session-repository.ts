@@ -3,12 +3,8 @@ import { inject, injectable } from 'inversify'
 import Database from '../database'
 import { TYPES } from '../misc/types'
 
-export type DialogSession = {
-  id: string
-  state?: string
-  context: any
-  event: string
-
+export class DialogSession {
+  constructor(public id: string, public state, public context, public event) {}
   // Timestamps are optionnal because they have default values in the database
   created_on?: Date
   modified_on?: Date
@@ -18,7 +14,6 @@ export type DialogSession = {
 export interface SessionRepository {
   insert(session: DialogSession): Promise<DialogSession>
   get(id: string): Promise<DialogSession>
-  upsert(session: DialogSession)
   delete(id: string)
   update(session: DialogSession)
 }
@@ -30,51 +25,38 @@ export class KnexSessionRepository implements SessionRepository {
   constructor(@inject(TYPES.Database) private database: Database) {}
 
   async insert(session: DialogSession): Promise<DialogSession> {
-    return this.database.knex.insertAndRetrieve<DialogSession>(this.tableName, {
+    const newSession = await this.database.knex.insertAndRetrieve<DialogSession>(this.tableName, {
       id: session.id,
-      state: session.state,
-      context: session.context,
-      event: session.event,
+      state: JSON.stringify(session.state),
+      context: JSON.stringify(session.context),
+      event: JSON.stringify(session.event),
       active_on: this.database.knex.date.now(),
       modified_on: this.database.knex.date.now(),
       created_on: this.database.knex.date.now()
     })
+
+    if (newSession) {
+      newSession.state = JSON.parse(newSession.state)
+      newSession.context = JSON.parse(newSession.context)
+      newSession.event = JSON.parse(newSession.event)
+    }
+    return newSession
   }
 
   async get(id: string): Promise<DialogSession> {
-    return this.database
+    const session = <DialogSession>await this.database
       .knex(this.tableName)
       .where({ id })
       .select('*')
       .get(0)
-      .then(row => <DialogSession>row)
-  }
+      .then()
 
-  async upsert(session: DialogSession) {
-    const params = {
-      tableName: this.tableName,
-      id: session.id,
-      state: JSON.stringify(session.state),
-      context: JSON.stringify(session.context),
-      now: this.database.knex.date.now()
+    if (session) {
+      session.state = JSON.parse(session.state)
+      session.context = JSON.parse(session.context)
+      session.event = JSON.parse(session.event)
     }
-
-    let sql: string
-    if (this.database.knex.isLite) {
-      sql = `
-      INSERT OR REPLACE INTO :tableName: (id, state, context, active_on, created_on, modified_on)
-      VALUES (:id, :state, :context, :now, :now, :now)
-      `
-    } else {
-      sql = `
-      INSERT INTO :tableName: (id, state, context, active_on, created_on, modified_on)
-      VALUES (:id, :state, :context, :now, :now, :now)
-      ON CONFLICT (id) DO UPDATE
-      SET state = :state, context = :context, active_on = :now, modified_on = :now
-      `
-    }
-
-    return this.database.knex.raw(sql, params)
+    return session
   }
 
   async update(session: DialogSession): Promise<void> {

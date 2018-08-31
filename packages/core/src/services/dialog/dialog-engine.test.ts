@@ -165,6 +165,6 @@ describe('Dialog Engine', () => {
   }
 
   function stubSession() {
-    return { id: 'an_id', context: context, event: '' }
+    return { id: 'an_id', context: context, event: {}, state: {} }
   }
 })

@@ -48,11 +48,11 @@ describe('Instruction Factory', () => {
     })
   })
 
-  describe('Enqueue instructions', () => {
-    const queue = new InstructionFactory()
-    const instructions = queue.enqueueInstructions(context)
+  describe('Create instructions', () => {
+    const factory = new InstructionFactory()
+    const instructions = factory.createInstructions(context)
 
-    it('Enqueue in order', () => {
+    it('Create instructions in order', () => {
       expect(instructions.pop()).toEqual({ fn: 'enter {}', type: 'on-enter' })
       expect(instructions.pop()).toEqual({ type: 'wait' })
       expect(instructions.pop()).toEqual({ fn: 'flowReceive {}', type: 'on-receive' })

@@ -48,8 +48,8 @@ export class EventAPI {
 export class DialogAPI {
   constructor(private dialogEngine: DialogEngine) {}
 
-  processMessage(sessionID: string, event: BotpressEvent) {
-    return this.dialogEngine.processMessage(sessionID, event)
+  processEvent(sessionId: string, event: BotpressEvent) {
+    return this.dialogEngine.processEvent(sessionId, event)
   }
 }
 

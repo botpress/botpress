@@ -12,7 +12,7 @@ exports.onInit = async bp => {
     order: 20,
     handler: (event, next) => {
       if (event.type === 'slack') {
-        bp.dialog.processMessage('slack_user_id', event)
+        bp.dialog.processEvent('slack_user_id', event)
       }
     },
     direction: 'incoming'

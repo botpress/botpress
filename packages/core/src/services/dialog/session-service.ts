@@ -16,16 +16,8 @@ export class SessionService {
   }
 
   async createSession(sessionId, currentFlow, currentNode, event): Promise<DialogSession> {
-    const newSession = {
-      id: sessionId,
-      state: '',
-      context: JSON.stringify({
-        currentFlow: currentFlow,
-        currentNode: currentNode
-      }),
-      event: JSON.stringify(event)
-    }
-    return this.repository.insert(newSession)
+    const session = new DialogSession(sessionId, '', { currentFlow, currentNode }, event)
+    return this.repository.insert(session)
   }
 
   async deleteSession(id: string) {

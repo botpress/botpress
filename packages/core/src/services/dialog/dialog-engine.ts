@@ -23,7 +23,7 @@ export class DialogEngine {
   failedAttempts = 0
 
   constructor(
-    @inject(TYPES.InstructionFactory) private queue: InstructionFactory,
+    @inject(TYPES.InstructionFactory) private instructionFactory: InstructionFactory,
     @inject(TYPES.InstructionProcessor) private instructionProcessor: InstructionProcessor,
     @inject(TYPES.FlowService) private flowService: FlowService,
     @inject(TYPES.SessionService) private sessionService: SessionService
@@ -34,17 +34,15 @@ export class DialogEngine {
    * @param sessionId The ID that will identify the session. Generally the user ID
    * @param event The incoming botpress event
    */
-  async processMessage(sessionId, event) {
+  async processEvent(sessionId, event) {
     if (!this.flowsLoaded) {
-      this.reloadFlows()
+      await this.reloadFlows()
     }
 
     const defaultFlow = this.findDefaultFlow()
     const entryNode = this.findEntryNode(defaultFlow)
     this.currentSession = await this.sessionService.getOrCreateSession(sessionId, event, defaultFlow, entryNode)
-
-    const context = JSON.parse(this.currentSession.context)
-    this.instructions = this.queue.enqueueInstructions(context)
+    this.instructions = this.instructionFactory.createInstructions(this.currentSession.context)
 
     await this.processInstructions()
   }
@@ -77,7 +75,7 @@ export class DialogEngine {
           throw new Error('Too many instructions failed')
         }
 
-        const wait = this.queue.createWait()
+        const wait = this.instructionFactory.createWait()
 
         this.instructions.unshift(wait)
         this.instructions.unshift(instruction)
