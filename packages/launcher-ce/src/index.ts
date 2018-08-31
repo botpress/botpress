@@ -14,7 +14,7 @@ console.log(chalk`===========================`)
 try {
   const modules = new Map<string, ModuleDefinition>()
 
-  modules.set('webchat', require('@botpress/channel-web') as ModuleDefinition)
+  modules.set('channel-web', require('@botpress/channel-web') as ModuleDefinition)
 
   Botpress.start({
     modules

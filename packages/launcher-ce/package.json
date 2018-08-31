@@ -40,7 +40,7 @@
     "rimraf": "^2.6.2"
   },
   "dependencies": {
-    "@botpress/channel-web": "file:../webchat",
+    "@botpress/channel-web": "file:../channel-web",
     "botpress-xx": "file:../core",
     "chalk": "^2.4.1",
     "dotenv": "^6.0.0"

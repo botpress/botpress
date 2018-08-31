@@ -11,5 +11,5 @@ export type BotpressEvent = {
   target: string
   direction: Direction
   text?: string
-  raw?: string
+  raw?: any
 }

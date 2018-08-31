@@ -1,6 +1,7 @@
 import {
   BotpressAPI,
   BotpressEvent,
+  ChannelOutgoingHandler,
   ConfigAPI,
   DialogAPI,
   EventAPI,
@@ -8,8 +9,10 @@ import {
   HttpAPI,
   MiddlewareDefinition,
   RouterOptions,
-  SubRouter
+  SubRouter,
+  UserAPI
 } from 'botpress-module-sdk'
+
 import { inject, injectable, tagged } from 'inversify'
 import { Memoize } from 'lodash-decorators'
 
@@ -18,7 +21,9 @@ import Database from './database'
 import { TYPES } from './misc/types'
 import { ModuleLoader } from './module-loader'
 import { BotRepository } from './repositories/bot-repository'
-import { BotRouter } from './router/bot-router'
+import { UserRepository } from './repositories/user-repository'
+import { BotsRouter } from './routers'
+import HTTPServer from './server'
 import ActionService from './services/action/action-service'
 import { CMSService } from './services/cms/cms-service'
 import { DialogEngine } from './services/dialog/engine'
@@ -30,15 +35,15 @@ import { LoggerProvider } from './Logger'
 const BOT_ID = 'bot123'
 
 class Http implements HttpAPI {
-  constructor(private botRouter: BotRouter) {}
+  constructor(private httpServer: HTTPServer) {}
 
   createShortLink(): void {
     throw new Error('Method not implemented.')
   }
 
-  getBotSpecificRouter(module: string, options?: RouterOptions): SubRouter {
+  createRouterForBot(routerName: string, options?: RouterOptions): SubRouter {
     const defaultRouterOptions = { checkAuthentication: true, enableJsonBodyParser: true }
-    return this.botRouter.getNewRouter(module, options || defaultRouterOptions)
+    return this.httpServer.createRouterForBot(routerName, options || defaultRouterOptions)
   }
 }
 
@@ -49,6 +54,9 @@ const event = (eventEngine: EventEngine): EventAPI => {
     },
     sendEvent(event: BotpressEvent): void {
       eventEngine.sendEvent(BOT_ID, event)
+    },
+    registerOutgoingChannelHandler(channelHandler: ChannelOutgoingHandler) {
+      eventEngine.registerOutgoingChannelHandler(channelHandler)
     }
   }
 }
@@ -73,6 +81,13 @@ const config = (moduleLoader: ModuleLoader): ConfigAPI => {
   }
 }
 
+const users = (userRepo: UserRepository): UserAPI => {
+  return {
+    getOrCreateUser: userRepo.getOrCreate.bind(userRepo),
+    updateAttributes: userRepo.updateAttributes.bind(userRepo)
+  }
+}
+
 /**
  * Socket.IO API to emit events and listen
  */
@@ -88,6 +103,7 @@ export class BotpressAPIProvider {
   config: ConfigAPI
   realtime: RealTimeAPI
   database: ExtendedKnex
+  users: UserAPI
 
   constructor(
     @inject(TYPES.BotRepository) botRepository: BotRepository,
@@ -98,16 +114,17 @@ export class BotpressAPIProvider {
     @inject(TYPES.EventEngine) eventEngine: EventEngine,
     @inject(TYPES.ModuleLoader) moduleLoader: ModuleLoader,
     @inject(TYPES.ActionService) actionService: ActionService,
-    @inject(TYPES.LoggerProvider) private loggerProvider: LoggerProvider
+    @inject(TYPES.LoggerProvider) private loggerProvider: LoggerProvider,
+    @inject(TYPES.HTTPServer) httpServer: HTTPServer,
+    @inject(TYPES.UserRepository) userRepo: UserRepository
   ) {
-    const botRouter = new BotRouter({ botRepository, cmsService, flowService, actionService })
-
-    this.http = new Http(botRouter)
+    this.http = new Http(httpServer)
     this.events = event(eventEngine)
     this.dialog = dialog(dialogEngine)
     this.config = config(moduleLoader)
     this.realtime = new RealTimeAPI()
     this.database = db.knex
+    this.users = users(userRepo)
   }
 
   @Memoize()
@@ -118,7 +135,8 @@ export class BotpressAPIProvider {
       http: this.http,
       logger: await this.loggerProvider(loggerName),
       config: this.config,
-      database: this.database
+      database: this.database,
+      users: this.users
     } as BotpressAPI
   }
 }

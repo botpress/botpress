@@ -11,5 +11,5 @@ export type RouterOptions = {
 
 export interface HttpAPI {
   createShortLink(): void
-  getBotSpecificRouter(module: string, options?: RouterOptions): SubRouter
+  createRouterForBot(routerName: string, options?: RouterOptions): SubRouter
 }

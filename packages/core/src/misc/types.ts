@@ -25,7 +25,9 @@ const TYPES = {
   DialogEngine: Symbol.for('DialogEngine'),
   SessionRepository: Symbol.for('StateManager'),
   SessionService: Symbol.for('SessionService'),
-  BotpressAPIProvider: Symbol.for('BotpressAPIProvider')
+  BotpressAPIProvider: Symbol.for('BotpressAPIProvider'),
+  RealtimeService: Symbol.for('RealtimeService'),
+  UserRepository: Symbol.for('UserRepository')
 }
 
 export { TYPES }

@@ -1,9 +1,14 @@
 export type ChannelUserAttribute = { key: string; value: string; type: string }
 
+export type ChannelUserAttributes = ChannelUserAttribute[] & {
+  get(key: string): string | undefined
+}
+
 export type ChannelUser = {
-  userId: string
-  channelName: string
+  id: string
+  channel: string
   createdOn: Date
-  attributes?: ChannelUserAttribute[]
+  updatedOn: Date
+  attributes: ChannelUserAttributes
   otherChannels?: ChannelUser[]
 }

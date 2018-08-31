@@ -25,9 +25,23 @@ const httpProxy = (originPath, targetPath, targetHost) => {
   )
 }
 
-httpProxy('/api/modules', BASE_PATH + '/modules', process.env.CORE_API_URL)
-httpProxy('/js/modules/channel-web', BASE_PATH + '/modules/channel-web', process.env.CORE_API_URL)
 httpProxy('/api/bot/information', BOT_PATH, process.env.CORE_API_URL)
+
+app.use(
+  '/socket.io',
+  proxy(process.env.CORE_API_URL, {
+    timeout: 20000,
+    proxyReqPathResolver: function(req) {
+      return '/socket.io' + require('url').parse(req.url).path
+    },
+    userResDecorator: function(proxyRes, proxyResData, userReq, userRes) {
+      console.log(proxyRes.statusCode, proxyResData.toString())
+      return proxyResData
+    }
+  })
+)
+
+// httpProxy('/socket.io', '/socket.io', process.env.CORE_API_URL)
 
 app.post(
   '/api/middlewares/customizations',
@@ -40,6 +54,7 @@ app.post(
   })
 )
 
+//const oQuery = req.query || {}
 httpProxy('/api/middlewares', BOT_PATH + '/middleware', process.env.CORE_API_URL)
 
 app.post(
@@ -133,6 +148,7 @@ app.post(
 )
 
 app.get('/js/env.js', (req, res) => {
+  // TODO FIX Implement this
   res.contentType('text/javascript')
   res.send(`
     (function(window) {
@@ -142,6 +158,7 @@ app.get('/js/env.js', (req, res) => {
         window.BOTPRESS_CLOUD_SETTINGS = {"botId":"","endpoint":"","teamId":"","env":"dev"};
         window.DEV_MODE = true;
         window.AUTH_ENABLED = false;
+        window.BP_SOCKET_URL = 'http://localhost:3000';
         window.AUTH_TOKEN_DURATION = 21600000;
         window.OPT_OUT_STATS = false;
         window.SHOW_GUIDED_TOUR = false;
@@ -153,20 +170,6 @@ app.get('/js/env.js', (req, res) => {
     `)
 })
 
-app.get('/js/commons.js', (req, res) => {
-  const absolutePath = path.join(__dirname, 'static/commons.js')
-
-  res.contentType('text/javascript')
-  res.sendFile(absolutePath)
-})
-
-app.get('/js/web.729e9680ac37ff307159.js', (req, res) => {
-  const absolutePath = path.join(__dirname, 'static/web.729e9680ac37ff307159.js')
-
-  res.contentType('text/javascript')
-  res.sendFile(absolutePath)
-})
-
 app.get('/api/notifications/inbox', (req, res) => {
   res.send('[]')
 })
@@ -175,12 +178,36 @@ app.get('/api/community/hero', (req, res) => {
   res.send({ hidden: true })
 })
 
-app.get('/api/botpress-plateforme-webchat/inject.js', (req, res) => {
-  const absolutePath = path.join(__dirname, 'static/inject.js')
+/********
+  Modules
+*********/
+app.all(
+  '/api/botpress-platform-webchat/*',
+  proxy(process.env.CORE_API_URL, {
+    proxyReqPathResolver: (req, res) => {
+      let parts = _.drop(req.path.split('/'), 3)
+      const newPath = parts.join('/')
+      return `${BOT_PATH}/ext/channel-web/${newPath}`
+    }
+  })
+)
+httpProxy('/api/modules', BASE_PATH + '/modules', process.env.CORE_API_URL)
+app.get(
+  [`/js/modules/:moduleName`, `/js/modules/:moduleName/:subview`],
+  proxy(process.env.CORE_API_URL, {
+    proxyReqPathResolver: (req, res) => {
+      let moduleName = req.params.moduleName
 
-  res.contentType('text/javascript')
-  res.sendFile(absolutePath)
-})
+      let path = req.params.subview || 'index.js'
+      if (!path.endsWith('.js')) {
+        path = path + '.js'
+      }
+
+      return `${BASE_PATH}/modules/${moduleName}/files?path=${path}`
+    }
+  })
+)
+//////////
 
 app.get('/*', (req, res) => {
   const absolutePath = path.join(__dirname, 'static/index.html')

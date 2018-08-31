@@ -1,5 +1,6 @@
-import { BotpressEvent, MiddlewareDefinition } from 'botpress-module-sdk'
+import { BotpressEvent, ChannelOutgoingHandler, MiddlewareDefinition } from 'botpress-module-sdk'
 import { Logger } from 'botpress-module-sdk'
+import EventEmitter from 'events'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
 import joi from 'joi'
 import { Memoize } from 'lodash-decorators'
@@ -46,8 +47,10 @@ export class EventEngine {
     @inject(TYPES.GhostService) private ghost: GhostService
   ) {}
 
+  private outgoingChannelHandlers: ChannelOutgoingHandler[] = []
   private incomingMiddleware: MiddlewareDefinition[] = []
   private outgoingMiddleware: MiddlewareDefinition[] = []
+  private emitter: EventEmitter = new EventEmitter()
 
   register(middleware: MiddlewareDefinition) {
     this.validateMiddleware(middleware)
@@ -56,6 +59,14 @@ export class EventEngine {
     } else {
       this.outgoingMiddleware.push(middleware)
     }
+  }
+
+  registerOutgoingChannelHandler(channelHandler: ChannelOutgoingHandler): any {
+    if (this.outgoingChannelHandlers.find(x => x.channel.toLowerCase() === channelHandler.channel.toLowerCase())) {
+      throw new Error(`Duplicated outgoing handler for channel "${channelHandler.channel}"`)
+    }
+
+    this.outgoingChannelHandlers.push(channelHandler)
   }
 
   async sendEvent(botId: string, event: BotpressEvent) {

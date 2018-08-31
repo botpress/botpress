@@ -15,6 +15,7 @@ import { HookService } from './hook/hook-service'
 import { EventEngine } from './middleware/event-engine'
 import { Queue } from './queue'
 import MemoryQueue from './queue/memory-queue'
+import RealtimeService from './realtime'
 
 export const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
   bind<ObjectCache>(TYPES.ObjectCache)
@@ -59,5 +60,9 @@ export const ServicesContainerModule = new ContainerModule((bind: interfaces.Bin
 
   bind<SessionService>(TYPES.SessionService)
     .to(SessionService)
+    .inSingletonScope()
+
+  bind<RealtimeService>(TYPES.RealtimeService)
+    .to(RealtimeService)
     .inSingletonScope()
 })

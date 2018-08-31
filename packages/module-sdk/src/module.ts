@@ -1,4 +1,5 @@
 import { Direction } from './common'
+import { BotpressEvent } from './event'
 
 export type MiddlewareDefinition = {
   name: string
@@ -24,11 +25,14 @@ export type ModuleMetadata = {
   outgoingMiddleware: Array<MiddlewareDefinition>
 }
 
+export type ModuleFile = {}
+
 export type ModuleDefinition = {
   onInit: Function
   onReady: Function
   config: { [key: string]: ModuleConfigEntry }
   defaultConfigJson?: string
+  serveFile?: ((path: string) => Promise<Buffer>)
 }
 
 export type ModuleConfigEntry = {
@@ -36,4 +40,9 @@ export type ModuleConfigEntry = {
   required: boolean
   default: any
   env?: string
+}
+
+export interface ChannelOutgoingHandler {
+  processContentElement(element): Promise<BotpressEvent[]>
+  readonly channel: string
 }

@@ -1,17 +1,18 @@
 import { BotpressEvent, MiddlewareDefinition } from '.'
 import { ExtendedKnex } from './database'
 import { HttpAPI } from './http'
+import { ChannelOutgoingHandler } from './module'
 import { ChannelUser, ChannelUserAttribute } from './user'
 
 export interface EventAPI {
   registerMiddleware(middleware: MiddlewareDefinition): void
   sendEvent(event: BotpressEvent): void
+  registerOutgoingChannelHandler(channelHandler: ChannelOutgoingHandler): void
 }
 
 export interface UserAPI {
-  getUser(channelName: string, userId: string): Promise<ChannelUser>
-  createUser(channelName: string, userId: string): Promise<void>
-  updateUserAttributes(channelName: string, userId: string, attributes: ChannelUserAttribute[]): Promise<void>
+  getOrCreateUser(channelName: string, userId: string): Promise<[ChannelUser, boolean]>
+  updateAttributes(channel: string, id: string, attributes: ChannelUserAttribute[]): Promise<void>
 }
 
 export interface DialogAPI {
@@ -45,4 +46,5 @@ export type BotpressAPI = {
   dialog: DialogAPI
   config: ConfigAPI
   database: ExtendedKnex
+  users: UserAPI
 }

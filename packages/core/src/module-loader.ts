@@ -1,6 +1,9 @@
 import { ModuleDefinition, ModuleMetadata } from 'botpress-module-sdk'
 import { Logger } from 'botpress-module-sdk'
+import { EFAULT } from 'constants'
 import { inject, injectable, tagged } from 'inversify'
+import _ from 'lodash'
+import { Memoize } from 'lodash-decorators'
 
 import { createForModule } from './api'
 import { ModuleConfigEntry } from './config/modules.config'
@@ -15,7 +18,7 @@ export type AvailableModule = {
 
 @injectable()
 export class ModuleLoader {
-  private loadedModules = []
+  private loadedModules = new Map<string, ModuleDefinition>()
   private _configReader?: ConfigReader
 
   constructor(
@@ -69,6 +72,7 @@ export class ModuleLoader {
         const api = await createForModule(name)
         await (module.onReady && module.onReady(api))
         readyModules.push(name)
+        this.loadedModules.set(name.toLowerCase(), module)
       } catch (err) {
         this.logger.error(`Error during module "${name}" ready. Module will still be loaded.`, err)
       }
@@ -77,7 +81,18 @@ export class ModuleLoader {
     return readyModules
   }
 
-  public async getAvailableModules(): Promise<AvailableModule[]> {
-    return this.loadedModules
+  public getModuleFile(module: string, path: string): Promise<Buffer> {
+    module = module.toLowerCase()
+    if (!this.loadedModules.has(module)) {
+      throw new Error(`Module "${module}" not registered`)
+    }
+
+    const def = this.loadedModules.get(module)!
+
+    if (typeof def.serveFile !== 'function') {
+      throw new Error(`Module "${module} does not support serving files"`)
+    }
+
+    return def.serveFile!(path)
   }
 }

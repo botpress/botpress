@@ -10,7 +10,7 @@ export class GhostBotRepository implements BotRepository {
   constructor(@inject(TYPES.ConfigProvider) private configProvider: ConfigProvider) {}
 
   async getBotById(id: string) {
-    const bot = this.configProvider.getBotConfig(id)
+    const bot = await this.configProvider.getBotConfig(id)
     return { ...bot, id }
   }
 }

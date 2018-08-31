@@ -19,6 +19,7 @@ import { CMSService } from './services/cms/cms-service'
 import GhostService from './services/ghost/service'
 import { HookService } from './services/hook/hook-service'
 import { EventEngine } from './services/middleware/event-engine'
+import RealtimeService from './services/realtime'
 
 export type StartOptions = {
   modules: Map<string, ModuleDefinition>
@@ -43,7 +44,8 @@ export class Botpress {
     @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
     @inject(TYPES.BotLoader) private botLoader: BotLoader,
     @inject(TYPES.HookService) private hookService: HookService,
-    @inject(TYPES.EventEngine) private eventEngine: EventEngine
+    @inject(TYPES.EventEngine) private eventEngine: EventEngine,
+    @inject(TYPES.RealtimeService) private realtimeService: RealtimeService
   ) {
     this.version = packageJson.version
     this.botpressPath = path.join(process.cwd(), 'dist')
@@ -65,6 +67,7 @@ export class Botpress {
     await this.initializeGhost()
     await this.initializeServices()
     await this.loadModules(options.modules)
+    await this.startRealtime()
     await this.startServer()
 
     await this.hookService.executeHook('after_bot_start')
@@ -108,5 +111,9 @@ export class Botpress {
 
   private async startServer() {
     await this.httpServer.start()
+  }
+
+  private startRealtime() {
+    this.realtimeService.installOnHttpServer(this.httpServer.httpServer)
   }
 }
