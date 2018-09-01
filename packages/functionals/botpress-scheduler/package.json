@@ -8,10 +8,7 @@
     "menuIcon": "alarm_on",
     "webBundle": "bin/web.bundle.js"
   },
-  "keywords": [
-    "messenger",
-    "scheduler"
-  ],
+  "keywords": ["messenger", "scheduler"],
   "version-manager": {
     "warn": "",
     "botpress-check": ">= 0.1",
@@ -27,13 +24,8 @@
     "compile": "node webpack.js --compile"
   },
   "babel": {
-    "presets": [
-      "latest",
-      "stage-0"
-    ],
-    "plugins": [
-      "transform-object-rest-spread"
-    ]
+    "presets": ["latest", "stage-0"],
+    "plugins": ["transform-object-rest-spread"]
   },
   "repository": {
     "type": "git",
@@ -65,7 +57,7 @@
     "extract-text-webpack-plugin": "^3.0.2",
     "file-loader": "^1.1.6",
     "mocha": "^3.2.0",
-    "node-sass": "^3.11.2",
+    "node-sass": "^4.9.3",
     "react-toggle": "^4.0.2",
     "riek": "^1.1.0",
     "sass-loader": "^6.0.6",

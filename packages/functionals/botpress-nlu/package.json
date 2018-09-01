@@ -48,7 +48,7 @@
     "draftjs-utils": "^0.9.1",
     "extract-text-webpack-plugin": "^3.0.2",
     "file-loader": "^1.1.6",
-    "node-sass": "^3.11.2",
+    "node-sass": "^4.9.3",
     "react-select": "^1.2.1",
     "react-splitter-layout": "^3.0.0",
     "sass-loader": "^6.0.6",
