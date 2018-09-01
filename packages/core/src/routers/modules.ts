@@ -32,7 +32,7 @@ export class ModulesRouter implements CustomRouter {
       try {
         res.send(await this.moduleLoader.getModuleFile(req.params.moduleName, filePath))
       } catch (err) {
-        next(err)
+        res.sendStatus(404)
       }
     })
   }

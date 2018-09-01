@@ -1,4 +1,5 @@
 import { BotpressAPI, BotpressEvent } from 'botpress-module-sdk'
+import { RealTimePayload } from 'botpress-module-sdk/dist/src/realtime'
 import _ from 'lodash'
 
 import { Extension } from '.'
@@ -51,20 +52,15 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
       await Promise.delay(typing)
     }
 
-    // FIXME botId
+    // TODO && FIXME
     const message = await appendBotMessage(botName, botAvatarUrl, conversationId, {
-      data: event.raw && event.raw.data,
-      raw: event.raw,
-      text: event.text || '',
-      type: event.type
+      data: {},
+      raw: {},
+      text: '',
+      type: ''
     })
 
-    Object.assign(message, {
-      __room: 'visitor:' + socketId // This is used to send to the relevant user's socket
-    })
-
-    // FIXME botId
-    // bp.events.emit('guest.webchat.message', message)
+    bp.realtime.sendPayload(RealTimePayload.forVisitor(socketId, 'webchat.message', message))
 
     // Resolve the event promise
     // FIXME Make official API (BotpressAPI.events.updateStatus(event.id, 'done'))

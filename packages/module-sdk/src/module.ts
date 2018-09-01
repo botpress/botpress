@@ -1,4 +1,4 @@
-import { Direction } from './common'
+import { EventDirection } from './common'
 import { BotpressEvent } from './event'
 
 export type MiddlewareDefinition = {
@@ -6,7 +6,7 @@ export type MiddlewareDefinition = {
   description: string
   order: number
   handler: Function
-  direction: Direction
+  direction: EventDirection
   enabled?: boolean
   /**
    * @deprecated since version 12.0

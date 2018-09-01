@@ -1,5 +1,6 @@
 import aws from 'aws-sdk'
-import { BotpressAPI } from 'botpress-module-sdk'
+import { BotpressAPI, BotpressEvent } from 'botpress-module-sdk'
+import { RealTimePayload } from 'botpress-module-sdk/dist/src/realtime'
 import fs from 'fs'
 import _ from 'lodash'
 import moment from 'moment'
@@ -96,7 +97,7 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
     res.send(injectStyle)
   })
 
-  const staticFolder = path.join('', './static') // TODO FIXME Fix this, won't work when bundled
+  const staticFolder = path.join(__dirname /* dist/backend */, '../../static') // TODO FIXME Fix this, won't work when bundled
   router.use('/static', serveStatic(staticFolder))
 
   // ?conversationId=xxx (optional)
@@ -181,7 +182,7 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
   })
 
   router.get('/conversations/:userId', async (req, res) => {
-    const { userId = undefined } = req.params || {}
+    const { botId = '', userId = undefined } = req.params || {}
 
     if (!validateUserId(userId)) {
       return res.status(400).send(ERR_USER_ID_REQ)
@@ -191,7 +192,7 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
 
     const conversations = await db.listConversations(userId)
 
-    const config: any = {}
+    const config = await bp.config.getModuleConfigForBot('channel-web', botId)
 
     return res.send({
       conversations: [...conversations], // FIXME Get per-bot config
@@ -208,6 +209,10 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
     if (!payload.text || !_.isString(payload.text) || payload.text.length > 360) {
       throw new Error('Text must be a valid string of less than 360 chars')
     }
+
+    console.log('Send new message', userId, conversationId, payload) // TODO Remove me
+
+    const event = BotpressEvent.fromSingleChannelUser(payload.type, 'web', userId, {})
 
     const sanitizedPayload = _.pick(payload, ['text', 'type', 'data', 'raw'])
 
@@ -229,33 +234,10 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
       persistedPayload.data.formId = payload.formId
     }
 
-    const message = await db.appendUserMessage(userId, conversationId, persistedPayload)
-
-    Object.assign(message, {
-      __room: 'visitor:' + userId // This is used to send to the relevant user's socket
-    })
-
-    // FIXME
-    // bp.events.emit('guest.webchat.message', message)
-
     const [user] = await bp.users.getOrCreateUser('web', userId)
-
-    return bp.events.sendEvent(
-      // FIXME TODO
-      Object.assign(
-        {
-          channel: 'web',
-          type: payload.type,
-          user: user,
-          text: payload.text,
-          raw: {
-            ...sanitizedPayload,
-            conversationId
-          }
-        },
-        payload.data
-      )
-    )
+    const message = await db.appendUserMessage(userId, conversationId, persistedPayload)
+    bp.realtime.sendPayload(RealTimePayload.forVisitor(userId, 'webchat.message', message))
+    return bp.events.sendEvent(event)
   }
 
   router.post(

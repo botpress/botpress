@@ -2,6 +2,7 @@ import { BotpressEvent, MiddlewareDefinition } from '.'
 import { ExtendedKnex } from './database'
 import { HttpAPI } from './http'
 import { ChannelOutgoingHandler } from './module'
+import { RealTimeAPI } from './realtime'
 import { ChannelUser, ChannelUserAttribute } from './user'
 
 export interface EventAPI {
@@ -47,4 +48,5 @@ export type BotpressAPI = {
   config: ConfigAPI
   database: ExtendedKnex
   users: UserAPI
+  realtime: RealTimeAPI
 }

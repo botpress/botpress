@@ -18,12 +18,13 @@ const eventSchema = {
   type: joi.string().required(),
   channel: joi.string().required(),
   target: joi.string().required(),
+  id: joi.number().required(),
   direction: joi
     .string()
     .regex(directionRegex)
     .required(),
-  text: joi.string().optional(),
-  raw: joi.object().optional()
+  preview: joi.string().optional(),
+  payload: joi.object().required()
 }
 
 const mwSchema = {
@@ -44,6 +45,7 @@ export class EventEngine {
     @inject(TYPES.Logger)
     @tagged('name', 'EventEngine')
     private logger: Logger,
+    @inject(TYPES.IsProduction) private isProduction: boolean,
     @inject(TYPES.GhostService) private ghost: GhostService
   ) {}
 
@@ -109,6 +111,11 @@ export class EventEngine {
   }
 
   private validateEvent(event: BotpressEvent) {
+    if (this.isProduction) {
+      // In production we optimize for speed, validation is useful for debugging purposes
+      return
+    }
+
     const result = joi.validate(event, eventSchema)
     if (result.error) {
       throw new VError(result.error, 'Invalid Botpress Event')

@@ -1,1 +1,1 @@
-export type Direction = 'incoming' | 'outgoing'
+export type EventDirection = 'incoming' | 'outgoing'

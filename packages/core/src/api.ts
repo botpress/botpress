@@ -12,7 +12,7 @@ import {
   SubRouter,
   UserAPI
 } from 'botpress-module-sdk'
-
+import { RealTimePayload } from 'botpress-module-sdk/dist/src/realtime'
 import { inject, injectable, tagged } from 'inversify'
 import { Memoize } from 'lodash-decorators'
 
@@ -89,10 +89,10 @@ const users = (userRepo: UserRepository): UserAPI => {
 }
 
 /**
- * Socket.IO API to emit events and listen
+ * Socket.IO API to emit payloads to front-end clients
  */
-export class RealTimeAPI {
-  emit() {}
+export class RealTimeAPI implements RealTimeAPI {
+  sendPayload(payload: RealTimePayload) {}
 }
 
 @injectable()
@@ -136,7 +136,8 @@ export class BotpressAPIProvider {
       logger: await this.loggerProvider(loggerName),
       config: this.config,
       database: this.database,
-      users: this.users
+      users: this.users,
+      realtime: this.realtime
     } as BotpressAPI
   }
 }
