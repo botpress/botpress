@@ -20,44 +20,23 @@ const context = {
 }
 
 describe('Instruction Factory', () => {
-  let queue: InstructionFactory
-
-  beforeEach(() => {
-    queue = new InstructionFactory()
-  })
-
   describe('Create on reveice instructions', () => {
     it('Enqueue flow relative onReceive before context relative onReceive', () => {
-      const onReceive = queue.createOnReceive(context)
+      const onReceive = InstructionFactory.createOnReceive(context)
 
-      // The last element in the array is actually the first to pop
       expect(onReceive[0]).toEqual({ type: 'on-receive', fn: 'receive {}' })
       expect(onReceive[1]).toEqual({ type: 'on-receive', fn: 'flowReceive {}' })
     })
   })
 
   describe('Create transitions instructions', () => {
-    it('Overrides the code transitions with the flow transitions', () => {
+    it('Overrides the node transitions with the flow transitions', () => {
       const otherContext = _.cloneDeep(context)
       otherContext.currentFlow.catchAll.next = [{ condition: 'true', node: 'override' }]
 
-      const transitions = queue.createTransition(otherContext)
+      const transitions = InstructionFactory.createTransition(otherContext)
 
-      expect(transitions.pop()).toEqual({ fn: 'true', node: 'override', type: 'transition' })
-      expect(_.isEmpty(transitions)).toBeTruthy()
-    })
-  })
-
-  describe('Create instructions', () => {
-    const factory = new InstructionFactory()
-    const instructions = factory.createInstructions(context)
-
-    it('Create instructions in order', () => {
-      expect(instructions.pop()).toEqual({ fn: 'enter {}', type: 'on-enter' })
-      expect(instructions.pop()).toEqual({ type: 'wait' })
-      expect(instructions.pop()).toEqual({ fn: 'flowReceive {}', type: 'on-receive' })
-      expect(instructions.pop()).toEqual({ fn: 'receive {}', type: 'on-receive' })
-      expect(instructions.pop()).toEqual({ type: 'transition', node: 'another-node', fn: 'a !== b' })
+      expect(transitions).toEqual([{ fn: 'true', node: 'override', type: 'transition' }])
     })
   })
 })

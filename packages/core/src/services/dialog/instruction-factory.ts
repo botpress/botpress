@@ -1,11 +1,9 @@
-import { injectable } from 'inversify'
 import _ from 'lodash'
 
 import { Instruction } from './instruction-processor'
 
-@injectable()
 export class InstructionFactory {
-  createOnEnter(context) {
+  static createOnEnter(context) {
     const instructions = context.currentNode.onEnter
     if (!instructions) {
       return []
@@ -16,7 +14,7 @@ export class InstructionFactory {
     })
   }
 
-  createOnReceive(context): Instruction[] {
+  static createOnReceive(context): Instruction[] {
     const instructions = <Array<any>>context.currentNode.onReceive
     if (!instructions) {
       return []
@@ -32,7 +30,7 @@ export class InstructionFactory {
     })
   }
 
-  createTransition(context): Instruction[] {
+  static createTransition(context): Instruction[] {
     const flowNext = context.currentFlow.catchAll.next
     if (flowNext) {
       return flowNext.map(x => {
@@ -50,26 +48,7 @@ export class InstructionFactory {
     })
   }
 
-  createWait(): Instruction {
+  static createWait(): Instruction {
     return { type: 'wait' }
-  }
-
-  createInstructions(context): Instruction[] {
-    const onEnter = this.createOnEnter(context)
-    const onReceive = this.createOnReceive(context)
-    const transition = this.createTransition(context)
-    const instructions: Instruction[] = []
-
-    instructions.unshift(...onEnter)
-
-    if (!_.isEmpty(onReceive)) {
-      const wait = this.createWait()
-      instructions.unshift(wait)
-    }
-
-    instructions.unshift(...onReceive)
-    instructions.unshift(...transition)
-
-    return instructions
   }
 }
