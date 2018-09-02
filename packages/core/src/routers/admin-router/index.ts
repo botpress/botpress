@@ -1,12 +1,12 @@
-import { Request, RequestHandler, Response } from 'express'
+import { Logger } from 'botpress-module-sdk'
+import { Request, RequestHandler, Response, Router } from 'express'
 import Joi from 'joi'
 import _ from 'lodash'
 
-import { Logger, RequestWithUser } from '../../misc/interfaces'
+import { CustomRouter } from '..'
+import { RequestWithUser } from '../../misc/interfaces'
 import AuthService from '../../services/auth/auth-service'
 import TeamsService from '../../services/auth/teams-service'
-
-import { BaseRouter } from '../base-router'
 
 import { TeamsRouter } from './teams'
 import { asyncMiddleware, checkTokenHeader, loadUser, success as sendSuccess, validateBodySchema } from './util'
@@ -26,7 +26,8 @@ const authSchema = Joi.object().keys({
 const getIp = (req: Request) =>
   (REVERSE_PROXY ? <string | undefined>req.headers['x-forwarded-for'] : undefined) || req.connection.remoteAddress
 
-export class AdminRouter extends BaseRouter {
+export class AdminRouter implements CustomRouter {
+  public readonly router: Router
   private asyncMiddleware!: Function
   private checkTokenHeader!: RequestHandler
   private loadUser!: RequestHandler
@@ -65,7 +66,7 @@ export class AdminRouter extends BaseRouter {
   }
 
   constructor(logger: Logger, private authService: AuthService, private teamsService: TeamsService) {
-    super()
+    this.router = Router({ mergeParams: true })
     this.asyncMiddleware = asyncMiddleware({ logger })
     this.checkTokenHeader = checkTokenHeader(this.authService, 'web-login')
     this.loadUser = loadUser(this.authService)

@@ -33,6 +33,12 @@ export type KnexExtension = {
   date: KnexExtension_Date
   bool: KnexExtension_Bool
   json: KnexExtension_Json
+  insertAndRetrieve<T>(
+    tableName: string,
+    data: {},
+    returnColumns?: string | string[],
+    idColumnName?: string
+  ): Promise<T>
 }
 
 export type QueryBuilder = Knex.QueryBuilder

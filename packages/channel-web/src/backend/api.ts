@@ -12,8 +12,8 @@ import serveStatic from 'serve-static'
 import { Extension } from '.'
 import Database from './db'
 
-const injectScript = fs.readFileSync(path.resolve(__dirname, 'inject.js')).toString()
-const injectStyle = fs.readFileSync(path.resolve(__dirname, '../../static/inject.css')).toString()
+const injectScript = fs.readFileSync(path.join(__dirname, '../../static/inject.js')).toString()
+const injectStyle = fs.readFileSync(path.join(__dirname, '../../static/inject.css')).toString()
 
 const ERR_USER_ID_REQ = '`userId` is required and must be valid'
 const ERR_MSG_TYPE = '`type` is required and must be valid'
@@ -115,8 +115,6 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
       const payload = req.body || {}
       let { conversationId = undefined } = req.query || {}
       conversationId = conversationId && parseInt(conversationId)
-
-      console.log(req.query, conversationId)
 
       if (!_.includes(['text', 'quick_reply', 'form', 'login_prompt', 'visit'], payload.type)) {
         // TODO: Support files

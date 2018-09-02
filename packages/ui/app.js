@@ -19,23 +19,7 @@ app.use(express.static('./static'))
 const { CORE_API_URL } = process.env
 const httpProxy = new HttpProxy(app, CORE_API_URL)
 
-httpProxy('/api/bot/information', BOT_PATH, process.env.CORE_API_URL)
-
-app.use(
-  '/socket.io',
-  proxy(process.env.CORE_API_URL, {
-    timeout: 20000,
-    proxyReqPathResolver: function(req) {
-      return '/socket.io' + require('url').parse(req.url).path
-    },
-    userResDecorator: function(proxyRes, proxyResData, userReq, userRes) {
-      console.log(proxyRes.statusCode, proxyResData.toString())
-      return proxyResData
-    }
-  })
-)
-
-// httpProxy('/socket.io', '/socket.io', process.env.CORE_API_URL)
+httpProxy.proxy('/api/bot/information', BOT_PATH, process.env.CORE_API_URL)
 
 app.post(
   '/api/middlewares/customizations',
@@ -48,7 +32,7 @@ app.post(
   })
 )
 
-httpProxy('/api/middlewares', BOT_PATH + '/middleware', process.env.CORE_API_URL)
+httpProxy.proxy('/api/middlewares', BOT_PATH + '/middleware', process.env.CORE_API_URL)
 
 app.post(
   '/api/content/categories/:categoryId/items/:itemId',
@@ -186,7 +170,7 @@ app.all(
     }
   })
 )
-httpProxy('/api/modules', BASE_PATH + '/modules', process.env.CORE_API_URL)
+httpProxy.proxy('/api/modules', BASE_PATH + '/modules', process.env.CORE_API_URL)
 app.get(
   [`/js/modules/:moduleName`, `/js/modules/:moduleName/:subview`],
   proxy(process.env.CORE_API_URL, {

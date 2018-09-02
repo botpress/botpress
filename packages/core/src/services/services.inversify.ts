@@ -66,7 +66,9 @@ export const ServicesContainerModule = new ContainerModule((bind: interfaces.Bin
     .to(SessionService)
     .inSingletonScope()
 
-  bind<RealtimeService>(TYPES.RealtimeService).to(RealtimeService)
+  bind<RealtimeService>(TYPES.RealtimeService)
+    .to(RealtimeService)
+    .inSingletonScope()
 
   bind<AuthService>(TYPES.AuthService)
     .to(AuthService)

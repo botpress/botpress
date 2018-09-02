@@ -12,7 +12,6 @@ import { TYPES } from './misc/types'
 import { safeStringify } from './misc/util'
 import { ModuleLoader } from './module-loader'
 import { RepositoriesContainerModule } from './repositories/repositories.inversify'
-import Router from './router'
 import HTTPServer from './server'
 import { ServicesContainerModule } from './services/services.inversify'
 import ConsoleLogger, { LoggerProvider } from './Logger'
@@ -30,7 +29,7 @@ container.bind<string>(TYPES.Logger_Name).toDynamicValue(ctx => {
     // Was injected in a logger, which was injected in an other class
     // And that class has a service identifier, which may be a Symbol
     const endclass = ctx.currentRequest.parentRequest && ctx.currentRequest.parentRequest.parentRequest
-    console.log(JSON.parse(JSON.stringify(safeStringify(ctx, 2))))
+
     if (endclass) {
       loggerName =
         endclass!.serviceIdentifier && endclass!.serviceIdentifier.toString().replace(/^Symbol\((.+)\)$/, '$1')
@@ -46,8 +45,6 @@ container.bind<LoggerProvider>(TYPES.LoggerProvider).toProvider<Logger>(context 
     return context.container.getTagged<Logger>(TYPES.Logger, 'name', name)
   }
 })
-
-container.bind<Router>(TYPES.Router).to(Router)
 
 container
   .bind<BotpressAPIProvider>(TYPES.BotpressAPIProvider)

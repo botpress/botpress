@@ -1,7 +1,8 @@
+import { Logger } from 'botpress-module-sdk'
 import { NextFunction, Request, Response } from 'express'
 import Joi from 'joi'
 
-import { Logger, RequestWithUser } from '../../misc/interfaces'
+import { RequestWithUser } from '../../misc/interfaces'
 import AuthService from '../../services/auth/auth-service'
 // TODO: generalize these errors and consolidate them with ~/Errors.ts
 import { AssertionError, ProcessingError, UnauthorizedAccessError } from '../../services/auth/errors'
@@ -52,7 +53,7 @@ export const error = (
 }
 
 export const checkTokenHeader = (authService: AuthService, audience?: string) => async (
-  req: Request,
+  req: RequestWithUser,
   res: Response,
   next: NextFunction
 ) => {
@@ -76,7 +77,7 @@ export const checkTokenHeader = (authService: AuthService, audience?: string) =>
       return next(new UnauthorizedAccessError('Invalid authentication token'))
     }
 
-    (req as RequestWithUser).user = user
+    req.user = user
   } catch (err) {
     return next(err)
   }

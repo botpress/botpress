@@ -9,10 +9,12 @@ import { ConfigProvider } from './config/config-loader'
 import { TYPES } from './misc/types'
 import { BotRepository } from './repositories/bot-repository'
 
-import { BotsRouter, ModulesRouter } from './routers'
+import { AdminRouter, BotsRouter, ModulesRouter } from './routers'
 
 import { ModuleLoader } from './module-loader'
 import ActionService from './services/action/action-service'
+import AuthService from './services/auth/auth-service'
+import TeamsService from './services/auth/teams-service'
 import { CMSService } from './services/cms/cms-service'
 import FlowService from './services/dialog/flow-service'
 
@@ -27,6 +29,7 @@ export default class HTTPServer {
 
   private readonly botsRouter: BotsRouter
   private readonly modulesRouter: ModulesRouter
+  private readonly adminRouter: AdminRouter
 
   constructor(
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
@@ -38,7 +41,9 @@ export default class HTTPServer {
     @inject(TYPES.CMSService) cmsService: CMSService,
     @inject(TYPES.FlowService) flowService: FlowService,
     @inject(TYPES.ActionService) actionService: ActionService,
-    @inject(TYPES.ModuleLoader) moduleLoader: ModuleLoader
+    @inject(TYPES.ModuleLoader) moduleLoader: ModuleLoader,
+    @inject(TYPES.AuthService) private authService: AuthService,
+    @inject(TYPES.TeamsService) private teamsService: TeamsService
   ) {
     this.app = express()
 
@@ -50,6 +55,7 @@ export default class HTTPServer {
 
     this.botsRouter = new BotsRouter({ actionService, botRepository, cmsService, flowService })
     this.modulesRouter = new ModulesRouter(moduleLoader)
+    this.adminRouter = new AdminRouter(this.logger, this.authService, this.teamsService)
   }
 
   async start() {

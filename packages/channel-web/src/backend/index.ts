@@ -93,8 +93,7 @@ export const serveFile = async (filePath: string): Promise<Buffer> => {
   const mapping = {
     'index.js': path.join(__dirname, '../web/web.bundle.js'),
     'embedded.js': path.join(__dirname, '../web/embedded.bundle.js'),
-    'fullscreen.js': path.join(__dirname, '../web/fullscreen.bundle.js'),
-    'inject.js': path.join(__dirname, './inject.js')
+    'fullscreen.js': path.join(__dirname, '../web/fullscreen.bundle.js')
   }
 
   // Web views

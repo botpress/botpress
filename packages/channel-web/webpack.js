@@ -91,8 +91,3 @@ if (process.argv.indexOf('--compile') !== -1) {
 } else if (process.argv.indexOf('--watch') !== -1) {
   compiler.watch(null, postProcess)
 }
-
-module.exports = {
-  web: webConfig,
-  lite: liteConfig
-}

@@ -1,8 +1,8 @@
+import { Logger } from 'botpress-module-sdk'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 import Mustache from 'mustache'
 
-import { Logger } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
 import ActionService from '../action/action-service'
 import { runCode } from '../action/sandbox-launcher'

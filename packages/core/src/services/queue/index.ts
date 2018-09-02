@@ -1,5 +1,3 @@
-import { Disposer } from 'bluebird'
-
 import { BotpressEvent } from 'botpress-module-sdk'
 
 export interface QueueOptions {

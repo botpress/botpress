@@ -5,7 +5,7 @@
   "devDependencies": {
     "@types/jest": "^23.3.0",
     "@types/mustache": "^0.8.31",
-    "@types/node": "^10.5.2",
+    "@types/node": "^10.9.2",
     "@types/tmp": "^0.0.33",
     "babel-core": "^6.26.0",
     "babel-jest": "^23.4.2",

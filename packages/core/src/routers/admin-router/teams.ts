@@ -1,21 +1,22 @@
+import { Logger } from 'botpress-module-sdk'
+import { Router } from 'express'
 import Joi from 'joi'
 import _ from 'lodash'
 
-import { Logger } from '../../misc/interfaces'
+import { CustomRouter } from '..'
 import AuthService from '../../services/auth/auth-service'
 import { InvalidOperationError } from '../../services/auth/errors'
 import TeamsService from '../../services/auth/teams-service'
-import { BaseRouter } from '../base-router'
 
 import { asyncMiddleware, success as sendSuccess, validateBodySchema } from './util'
 
-export class TeamsRouter extends BaseRouter {
+export class TeamsRouter implements CustomRouter {
   private asyncMiddleware!: Function
+  public readonly router: Router
 
   constructor(logger: Logger, private authService: AuthService, private teamsService: TeamsService) {
-    super()
     this.asyncMiddleware = asyncMiddleware({ logger })
-
+    this.router = Router({ mergeParams: true })
     this.setupRoutes()
   }
 

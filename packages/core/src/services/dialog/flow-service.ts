@@ -21,11 +21,6 @@ export default class FlowService {
     @inject(TYPES.GhostService) private ghost: GhostService
   ) {}
 
-  @postConstruct()
-  async initialize(): Promise<void> {
-    await this.ghost.forAllBots().addRootFolder(FLOW_DIR, { filesGlob: '**/*.json' })
-  }
-
   async loadAll(botId: string): Promise<FlowView[]> {
     const flowsPath = this.ghost.forBot(botId).directoryListing(FLOW_DIR, '.flow.json')
 

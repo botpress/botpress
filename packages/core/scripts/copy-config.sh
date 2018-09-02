@@ -6,16 +6,17 @@ if [ -d data/ ]; then
   # keep the SQLite DB between rebuilds
   mkdir -p tmp
   if [ -d dist/storage/ ]; then
-    cp dist/storage/* tmp/
+    cp -R dist/storage/ tmp/
   fi
   rm -rf dist/storage/
   mkdir -p dist/storage/
-  cp tmp/* dist/storage/
-  rm -rf tmp/
   
   rm -rf dist/data/
   mkdir -p dist/data/
-  cp -r data/ dist/data
+  cp -R data/ dist/data
+
+  cp -R tmp/ dist/storage/
+  rm -rf tmp/
 
   echo "   Done."
 fi
