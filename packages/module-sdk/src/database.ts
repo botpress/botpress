@@ -42,3 +42,8 @@ export type KnexExtension = {
 }
 
 export type QueryBuilder = Knex.QueryBuilder
+
+export type GetOrCreateResult<T> = Promise<{
+  created: boolean
+  result: T
+}>

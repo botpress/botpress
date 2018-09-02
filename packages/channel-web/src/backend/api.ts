@@ -234,7 +234,7 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
       persistedPayload.data.formId = payload.formId
     }
 
-    const [user] = await bp.users.getOrCreateUser('web', userId)
+    const { result: user } = await bp.users.getOrCreateUser('web', userId)
     const message = await db.appendUserMessage(userId, conversationId, persistedPayload)
     bp.realtime.sendPayload(RealTimePayload.forVisitor(userId, 'webchat.message', message))
     return bp.events.sendEvent(event)
@@ -245,7 +245,7 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
     asyncApi(async (req, res) => {
       const { type = undefined, payload = undefined } = req.body || {}
       const { userId = undefined } = req.params || {}
-      const [user] = await bp.users.getOrCreateUser('web', userId)
+      const { result: user } = await bp.users.getOrCreateUser('web', userId)
       bp.events.sendEvent({
         channel: 'web',
         type,
@@ -262,7 +262,7 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
     '/conversations/:userId/:conversationId/reset',
     asyncApi(async (req, res) => {
       const { userId, conversationId } = req.params
-      const [user] = await bp.users.getOrCreateUser('web', userId)
+      const { result: user } = await bp.users.getOrCreateUser('web', userId)
 
       const payload = {
         text: `Reset the conversation`,
@@ -316,7 +316,7 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
 
   const convertToTxtFile = async conversation => {
     const { messages } = conversation
-    const [user] = await bp.users.getOrCreateUser('web', conversation.userId)
+    const { result: user } = await bp.users.getOrCreateUser('web', conversation.userId)
     const timeFormat = 'MM/DD/YY HH:mm'
 
     const metadata = `Title: ${conversation.title}\r\nCreated on: ${moment(conversation.created_on).format(

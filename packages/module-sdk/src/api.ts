@@ -1,5 +1,5 @@
 import { BotpressEvent, MiddlewareDefinition } from '.'
-import { ExtendedKnex } from './database'
+import { ExtendedKnex, GetOrCreateResult } from './database'
 import { HttpAPI } from './http'
 import { ChannelOutgoingHandler } from './module'
 import { RealTimeAPI } from './realtime'
@@ -12,7 +12,7 @@ export interface EventAPI {
 }
 
 export interface UserAPI {
-  getOrCreateUser(channelName: string, userId: string): Promise<[ChannelUser, boolean]>
+  getOrCreateUser(channelName: string, userId: string): GetOrCreateResult<ChannelUser>
   updateAttributes(channel: string, id: string, attributes: ChannelUserAttribute[]): Promise<void>
 }
 

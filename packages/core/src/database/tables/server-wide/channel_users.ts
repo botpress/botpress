@@ -6,7 +6,7 @@ export default class ChannelUsersTable extends Table {
   async bootstrap() {
     await this.knex.createTableIfNotExists(this.name, table => {
       table.string('channel')
-      table.string('userId')
+      table.string('user_id')
       table.text('attributes')
       table.timestamps(true, true)
     })

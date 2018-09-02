@@ -1,11 +1,11 @@
-import { ChannelUser, ChannelUserAttribute, ChannelUserAttributes } from 'botpress-module-sdk'
+import { ChannelUser, ChannelUserAttribute, ChannelUserAttributes, GetOrCreateResult } from 'botpress-module-sdk'
 import { inject, injectable } from 'inversify'
 
 import Database from '../database'
 import { TYPES } from '../misc/types'
 
 export interface UserRepository {
-  getOrCreate(channel: string, id: string): Promise<[ChannelUser, boolean]>
+  getOrCreate(channel: string, id: string): GetOrCreateResult<ChannelUser>
   updateAttributes(channel: string, id: string, attributes: ChannelUserAttribute[]): Promise<void>
 }
 
@@ -24,14 +24,14 @@ export class KnexUserRepository implements UserRepository {
 
   constructor(@inject(TYPES.Database) private database: Database) {}
 
-  async getOrCreate(channel: string, id: string): Promise<[ChannelUser, boolean]> {
+  async getOrCreate(channel: string, id: string): GetOrCreateResult<ChannelUser> {
     channel = channel.toLowerCase()
 
     const ug = await this.database
       .knex(this.tableName)
       .where({
         channel,
-        userId: id
+        user_id: id
       })
       .limit(1)
       .select('attributes', 'created_at', 'updated_at')
@@ -39,19 +39,19 @@ export class KnexUserRepository implements UserRepository {
     if (ug) {
       const user: ChannelUser = {
         channel: ug.channel,
-        id: ug.userId,
+        id: ug.user_id,
         createdOn: ug.created_at,
         updatedOn: ug.updated_at,
         attributes: channelUserAttributes(this.database.knex.json.get(ug.attributes)),
         otherChannels: []
       }
 
-      return [user, false]
+      return { result: user, created: false }
     }
 
     await this.database.knex(this.tableName).insert({
       channel,
-      userId: id,
+      user_id: id,
       attributes: this.database.knex.json.set([])
     })
 
@@ -64,7 +64,7 @@ export class KnexUserRepository implements UserRepository {
       otherChannels: []
     }
 
-    return [newUser, true]
+    return { result: newUser, created: true }
   }
 
   async updateAttributes(channel: string, id: string, attributes: ChannelUserAttribute[]): Promise<void> {
@@ -79,6 +79,6 @@ export class KnexUserRepository implements UserRepository {
       .update({
         attributes: this.database.knex.json.set(attributes)
       })
-      .where({ channel, userId: id })
+      .where({ channel, user_id: id })
   }
 }
