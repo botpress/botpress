@@ -41,13 +41,9 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
     const socketId = userId.replace(/webchat:/gi, '')
 
     if (typing) {
-      // bp.events.emit('guest.webchat.typing', {
-      //   // FIXME Doesn't exist
-      //   timeInMs: typing,
-      //   userId: null,
-      //   __room: 'visitor:' + socketId,
-      //   conversationId
-      // })
+      bp.realtime.sendPayload(
+        RealTimePayload.forVisitor(socketId, 'webchat.typing', { timeInMs: typing, conversationId })
+      )
 
       await Promise.delay(typing)
     }

@@ -170,7 +170,7 @@ export default class WebchatDb {
   }
 
   async getOrCreateRecentConversation(userId: string, { originatesFromUserMessage = false } = {}) {
-    const RECENT_CONVERSATION_LIFETIME = ms('5ms') // TODO Fix this, per-bot
+    const RECENT_CONVERSATION_LIFETIME = ms('5min') // TODO FIXME Fix this, per-bot
 
     const recentCondition = this.knex.date.isAfter(
       'last_heard_on',

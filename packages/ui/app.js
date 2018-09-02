@@ -187,7 +187,8 @@ app.all(
     proxyReqPathResolver: (req, res) => {
       let parts = _.drop(req.path.split('/'), 3)
       const newPath = parts.join('/')
-      return `${BOT_PATH}/ext/channel-web/${newPath}`
+      const newQuery = qs.stringify(req.query)
+      return `${BOT_PATH}/ext/channel-web/${newPath}?${newQuery}`
     }
   })
 )

@@ -29,6 +29,7 @@ import { CMSService } from './services/cms/cms-service'
 import { DialogEngine } from './services/dialog/engine'
 import FlowService from './services/dialog/flow-service'
 import { EventEngine } from './services/middleware/event-engine'
+import RealtimeService from './services/realtime'
 import { LoggerProvider } from './Logger'
 
 // TODO: The UI doesn't support multi-bots yet
@@ -92,7 +93,11 @@ const users = (userRepo: UserRepository): UserAPI => {
  * Socket.IO API to emit payloads to front-end clients
  */
 export class RealTimeAPI implements RealTimeAPI {
-  sendPayload(payload: RealTimePayload) {}
+  constructor(private realtimeService: RealtimeService) {}
+
+  sendPayload(payload: RealTimePayload) {
+    this.realtimeService.sendToSocket(payload)
+  }
 }
 
 @injectable()
@@ -116,13 +121,14 @@ export class BotpressAPIProvider {
     @inject(TYPES.ActionService) actionService: ActionService,
     @inject(TYPES.LoggerProvider) private loggerProvider: LoggerProvider,
     @inject(TYPES.HTTPServer) httpServer: HTTPServer,
-    @inject(TYPES.UserRepository) userRepo: UserRepository
+    @inject(TYPES.UserRepository) userRepo: UserRepository,
+    @inject(TYPES.RealtimeService) realtimeService: RealtimeService
   ) {
     this.http = new Http(httpServer)
     this.events = event(eventEngine)
     this.dialog = dialog(dialogEngine)
     this.config = config(moduleLoader)
-    this.realtime = new RealTimeAPI()
+    this.realtime = new RealTimeAPI(realtimeService)
     this.database = db.knex
     this.users = users(userRepo)
   }

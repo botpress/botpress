@@ -1,4 +1,5 @@
 import { Logger } from 'botpress-module-sdk'
+import { RealTimePayload } from 'botpress-module-sdk/dist/src/realtime'
 import { EventEmitter2 } from 'eventemitter2'
 import { Server } from 'http'
 import { inject, injectable, tagged } from 'inversify'
@@ -31,12 +32,17 @@ export default class RealtimeService {
     return (eventName as string).startsWith('guest.')
   }
 
+  sendToSocket(payload: RealTimePayload) {
+    this.ee.emit(payload.eventName, payload.payload, 'server')
+  }
+
   installOnHttpServer(server: Server) {
     const io = socketio(server, {
-      // transports: ['polling'],
-      origins: '*:*'
-      // serveClient: false
+      transports: ['websocket', 'polling'],
+      origins: '*:*',
+      serveClient: false
     })
+
     const admin = io.of('/admin')
     const guest = io.of('/guest')
 
@@ -84,18 +90,18 @@ export default class RealtimeService {
       })
     })
 
-    this.ee.onAny((event, data, from) => {
+    this.ee.onAny((event, payload, from) => {
       if (from === 'client') {
-        return // we sent this ourselves
+        return // This is coming from the client, we don't send this event back to them
       }
 
       const connection = this.isEventTargeted(event) ? guest : admin
 
-      if (data && (data.__socketId || data.__room)) {
+      if (payload && (payload.__socketId || payload.__room)) {
         // Send only to this socketId or room
-        return connection.to(data.__socketId || data.__room).emit('event', {
+        return connection.to(payload.__socketId || payload.__room).emit('event', {
           name: event,
-          data: data
+          data: payload
         })
       }
 
@@ -104,10 +110,10 @@ export default class RealtimeService {
       // broadcast event to the front-end clients
       connection.emit('event', {
         name: event,
-        data: data
+        data: payload
       })
     })
 
-    this.logger.info('Started')
+    this.logger.debug('Socket Ready')
   }
 }

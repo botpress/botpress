@@ -116,6 +116,8 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
       let { conversationId = undefined } = req.query || {}
       conversationId = conversationId && parseInt(conversationId)
 
+      console.log(req.query, conversationId)
+
       if (!_.includes(['text', 'quick_reply', 'form', 'login_prompt', 'visit'], payload.type)) {
         // TODO: Support files
         return res.status(400).send(ERR_MSG_TYPE)
@@ -195,7 +197,7 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
     const config = await bp.config.getModuleConfigForBot('channel-web', botId)
 
     return res.send({
-      conversations: [...conversations], // FIXME Get per-bot config
+      conversations: [...conversations],
       startNewConvoOnTimeout: config.startNewConvoOnTimeout,
       recentConversationLifetime: config.recentConversationLifetime
     })
