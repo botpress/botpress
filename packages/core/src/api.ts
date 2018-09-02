@@ -13,21 +13,16 @@ import {
   UserAPI
 } from 'botpress-module-sdk'
 import { RealTimePayload } from 'botpress-module-sdk/dist/src/realtime'
-import { inject, injectable, tagged } from 'inversify'
+import { inject, injectable } from 'inversify'
 import { Memoize } from 'lodash-decorators'
 
 import { container } from './app.inversify'
 import Database from './database'
 import { TYPES } from './misc/types'
 import { ModuleLoader } from './module-loader'
-import { BotRepository } from './repositories/bot-repository'
 import { UserRepository } from './repositories/user-repository'
-import { BotsRouter } from './routers'
 import HTTPServer from './server'
-import ActionService from './services/action/action-service'
-import { CMSService } from './services/cms/cms-service'
-import { DialogEngine } from './services/dialog/dialog-engine'
-import FlowService from './services/dialog/flow-service'
+import { DialogEngine } from './services/dialog/engine'
 import { EventEngine } from './services/middleware/event-engine'
 import RealtimeService from './services/realtime'
 import { LoggerProvider } from './Logger'
@@ -111,14 +106,10 @@ export class BotpressAPIProvider {
   users: UserAPI
 
   constructor(
-    @inject(TYPES.BotRepository) botRepository: BotRepository,
-    @inject(TYPES.CMSService) cmsService: CMSService,
     @inject(TYPES.DialogEngine) dialogEngine: DialogEngine,
     @inject(TYPES.Database) db: Database,
-    @inject(TYPES.FlowService) flowService: FlowService,
     @inject(TYPES.EventEngine) eventEngine: EventEngine,
     @inject(TYPES.ModuleLoader) moduleLoader: ModuleLoader,
-    @inject(TYPES.ActionService) actionService: ActionService,
     @inject(TYPES.LoggerProvider) private loggerProvider: LoggerProvider,
     @inject(TYPES.HTTPServer) httpServer: HTTPServer,
     @inject(TYPES.UserRepository) userRepo: UserRepository,

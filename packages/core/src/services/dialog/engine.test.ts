@@ -3,13 +3,12 @@ import 'reflect-metadata'
 
 import { createSpyObject } from '../../misc/utils'
 
-import { DialogEngine } from './dialog-engine'
+import { DialogEngine } from './engine'
 import { context, flows } from './stubs'
 
 describe('Dialog Engine', () => {
   const sessionService = createSpyObject('getSession', 'createSession', 'updateSession')
   const flowService = createSpyObject('loadAll')
-  const instructionFactory = createSpyObject('createWait')
   const instructionProcessor = createSpyObject('process')
 
   beforeEach(() => {
@@ -17,50 +16,48 @@ describe('Dialog Engine', () => {
   })
 
   describe('Process instructions', () => {
-    it('Call the instruction processor and remove the instruction from the queue', async () => {
+    it('Call the instruction processor', async () => {
       givenInstructionsAreSuccessful()
-      const dialogEngine = new DialogEngine(instructionFactory, instructionProcessor, flowService, sessionService)
+      const dialogEngine = new DialogEngine(instructionProcessor, flowService, sessionService)
       dialogEngine.currentSession = stubSession()
-      dialogEngine.instructions = [{ type: 'on-enter' }]
+      dialogEngine.queue.enqueue({ type: 'on-enter' })
 
       await dialogEngine.processInstructions()
 
       expect(instructionProcessor.process).toHaveBeenCalled()
-      expect(dialogEngine.instructions.length).toBe(0)
     })
 
     it('Stop processing after encountering a wait instruction', async () => {
       givenInstructionsAreSuccessful()
 
-      const dialogEngine = new DialogEngine(instructionFactory, instructionProcessor, flowService, sessionService)
+      const dialogEngine = new DialogEngine(instructionProcessor, flowService, sessionService)
       dialogEngine.currentSession = stubSession()
-      dialogEngine.instructions = [{ type: 'on-receive' }, { type: 'wait' }, { type: 'on-enter' }]
+      dialogEngine.queue.enqueue({ type: 'on-receive' }, { type: 'wait' }, { type: 'on-enter' })
 
       await dialogEngine.processInstructions()
 
       expect(instructionProcessor.process).toHaveBeenCalledTimes(1)
-      expect(dialogEngine.instructions).toEqual([{ type: 'on-receive' }])
+      expect(dialogEngine.queue.dequeue()).toEqual({ type: 'on-receive' })
     })
 
     it('Requeue failed instruction and wait before calling another instruction', async () => {
       givenInstructionsAreSuccessful(false)
-      givenWaitInstruction()
-      const dialogEngine = new DialogEngine(instructionFactory, instructionProcessor, flowService, sessionService)
+      const dialogEngine = new DialogEngine(instructionProcessor, flowService, sessionService)
       dialogEngine.currentSession = stubSession()
-      dialogEngine.instructions = [{ type: 'on-enter' }, { type: 'on-enter' }]
+      dialogEngine.queue.enqueue({ type: 'on-enter', fn: 'b {}' }, { type: 'on-enter', fn: 'a {}' })
 
       await dialogEngine.processInstructions()
 
-      expect(dialogEngine.instructions).toEqual([{ type: 'on-enter' }, { type: 'on-enter' }])
+      expect(dialogEngine.queue.dequeue()).toEqual({ type: 'on-enter', fn: 'a {}' })
+      expect(dialogEngine.queue.dequeue()).toEqual({ type: 'on-enter', fn: 'b {}' })
       expect(instructionProcessor.process).toHaveBeenCalledTimes(1)
     })
 
     it('Update failed attempts', async () => {
       givenInstructionsAreSuccessful(false)
-      givenWaitInstruction()
-      const dialogEngine = new DialogEngine(instructionFactory, instructionProcessor, flowService, sessionService)
+      const dialogEngine = new DialogEngine(instructionProcessor, flowService, sessionService)
       dialogEngine.currentSession = stubSession()
-      dialogEngine.instructions = [{ type: 'on-enter' }]
+      dialogEngine.queue.enqueue({ type: 'on-enter' })
 
       await dialogEngine.processInstructions()
 
@@ -69,10 +66,9 @@ describe('Dialog Engine', () => {
 
     it('Reset failed attempts on successful process', async () => {
       givenInstructionsAreSuccessful()
-      givenWaitInstruction()
-      const dialogEngine = new DialogEngine(instructionFactory, instructionProcessor, flowService, sessionService)
+      const dialogEngine = new DialogEngine(instructionProcessor, flowService, sessionService)
       dialogEngine.currentSession = stubSession()
-      dialogEngine.instructions = [{ type: 'on-enter' }]
+      dialogEngine.queue.enqueue({ type: 'on-enter' })
       dialogEngine.failedAttempts = 5
 
       await dialogEngine.processInstructions()
@@ -82,10 +78,9 @@ describe('Dialog Engine', () => {
 
     it('Throw on max failed attempts', async () => {
       givenInstructionsAreSuccessful(false)
-      givenWaitInstruction()
-      const dialogEngine = new DialogEngine(instructionFactory, instructionProcessor, flowService, sessionService)
+      const dialogEngine = new DialogEngine(instructionProcessor, flowService, sessionService)
       dialogEngine.currentSession = stubSession()
-      dialogEngine.instructions = [{ type: 'on-enter' }]
+      dialogEngine.queue.enqueue({ type: 'on-enter' })
       dialogEngine.failedAttempts = 9
 
       // Work around issue of expecting throw on async functions
@@ -95,9 +90,9 @@ describe('Dialog Engine', () => {
 
     it('Transit to next node if condition is sucessful', async () => {
       givenInstructionsAreSuccessful()
-      const dialogEngine = new DialogEngine(instructionFactory, instructionProcessor, flowService, sessionService)
+      const dialogEngine = new DialogEngine(instructionProcessor, flowService, sessionService)
       dialogEngine.currentSession = stubSession()
-      dialogEngine.instructions = [{ type: 'transition', node: 'another-node' }]
+      dialogEngine.queue.enqueue({ type: 'transition', node: 'another-node' })
       const spy = spyOn(dialogEngine, 'transitionToNode')
 
       await dialogEngine.processInstructions()
@@ -110,7 +105,7 @@ describe('Dialog Engine', () => {
     let dialogEngine: DialogEngine
 
     beforeEach(() => {
-      dialogEngine = new DialogEngine(instructionFactory, instructionProcessor, flowService, sessionService)
+      dialogEngine = new DialogEngine(instructionProcessor, flowService, sessionService)
       dialogEngine.currentSession = stubSession()
       dialogEngine.flows = flows
     })
@@ -153,10 +148,6 @@ describe('Dialog Engine', () => {
       )
     })
   })
-
-  function givenWaitInstruction() {
-    instructionFactory.createWait.mockReturnValue({ type: 'wait' })
-  }
 
   function givenInstructionsAreSuccessful(success: boolean = true) {
     instructionProcessor.process.mockReturnValue(success)

@@ -1,12 +1,12 @@
-import { inject, injectable, named } from 'inversify'
+import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 
 import { TYPES } from '../../misc/types'
 import { DialogSession } from '../../repositories/session-repository'
 
 import FlowService from './flow-service'
-import { InstructionFactory } from './instruction-factory'
-import { Instruction, InstructionProcessor } from './instruction-processor'
+import { InstructionProcessor } from './instruction-processor'
+import { InstructionQueue } from './instruction-queue'
 import { SessionService } from './session-service'
 
 // TODO: Allow multi-bot
@@ -16,14 +16,13 @@ const MAX_FAILED_ATTEMPS = 10
 
 @injectable()
 export class DialogEngine {
-  instructions: Instruction[] = []
+  queue = new InstructionQueue()
   flows: any[] = []
   flowsLoaded = false
   currentSession!: DialogSession
   failedAttempts = 0
 
   constructor(
-    @inject(TYPES.InstructionFactory) private instructionFactory: InstructionFactory,
     @inject(TYPES.InstructionProcessor) private instructionProcessor: InstructionProcessor,
     @inject(TYPES.FlowService) private flowService: FlowService,
     @inject(TYPES.SessionService) private sessionService: SessionService
@@ -42,14 +41,14 @@ export class DialogEngine {
     const defaultFlow = this.findDefaultFlow()
     const entryNode = this.findEntryNode(defaultFlow)
     this.currentSession = await this.sessionService.getOrCreateSession(sessionId, event, defaultFlow, entryNode)
-    this.instructions = this.instructionFactory.createInstructions(this.currentSession.context)
+    this.queue.enqueueContextInstructions(this.currentSession.context)
 
     await this.processInstructions()
   }
 
   async processInstructions() {
-    while (this.instructions.length > 0) {
-      const instruction = this.instructions.pop()!
+    while (this.queue.hasInstructions()) {
+      const instruction = this.queue.dequeue()!
 
       if (instruction.type === 'wait') {
         break
@@ -62,21 +61,18 @@ export class DialogEngine {
         this.currentSession.context
       )
 
-      if (result && instruction.type === 'transition') {
+      if (result && instruction.type === 'transition' && instruction.node) {
         this.transitionToNode(instruction.node)
         break
       }
 
       if (!result) {
         this.failedAttempts++
-
         if (this.hasTooManyAttempts()) {
           throw new Error('Too many instructions failed')
         }
 
-        const wait = this.instructionFactory.createWait()
-        this.instructions.push(instruction)
-        this.instructions.push(wait)
+        this.queue.retry(instruction)
       } else {
         this.failedAttempts = 0
       }
@@ -113,7 +109,7 @@ export class DialogEngine {
       newContext = { ...newContext, currentFlow: flow }
     }
 
-    this.instructions = []
+    this.queue.clear()
     this.currentSession.context = newContext
 
     await this.sessionService.updateSession(this.currentSession)

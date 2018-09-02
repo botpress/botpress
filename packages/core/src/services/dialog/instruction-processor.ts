@@ -18,8 +18,8 @@ type InstructionType = 'transition' | 'on-enter' | 'on-receive' | 'wait' | 'brea
  */
 export type Instruction = {
   type: InstructionType
-  fn?: any
-  node?: any
+  fn?: string
+  node?: string
 }
 
 export type ActionResult = {}
@@ -33,19 +33,15 @@ export class InstructionProcessor {
 
   async process(instruction, state, event, context): Promise<ActionResult | Boolean | void> {
     if (instruction.type === 'on-enter' || instruction.type === 'on-receive') {
-      if (instruction.fn.indexOf('say ') > -1) {
+      if (instruction.fn.indexOf('say ') === 0) {
         return this.invokeOutputProcessor(instruction, state, event, context)
       } else {
         return this.invokeAction(instruction, state, event, context)
       }
     } else if (instruction.type === 'transition') {
-      return this.runInVM(instruction, state)
+      await runCode(`return ${instruction.fn}`, { state })
     }
     throw new Error('Could not process instruction')
-  }
-
-  private async runInVM(instruction, state) {
-    return await runCode(`return ${instruction.fn}`, { state })
   }
 
   private async invokeOutputProcessor(instruction, state, event, context) {

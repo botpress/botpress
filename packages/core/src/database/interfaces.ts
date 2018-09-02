@@ -1,5 +1,4 @@
 import { ExtendedKnex } from 'botpress-module-sdk'
-import Knex from 'knex'
 
 export abstract class Table {
   constructor(public knex: ExtendedKnex) {}
