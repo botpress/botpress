@@ -3,7 +3,7 @@ import 'reflect-metadata'
 
 import { createSpyObject } from '../../misc/utils'
 
-import { DialogEngine } from './dialog-engine'
+import { DialogEngine } from './engine'
 import { context, flows } from './stubs'
 
 describe('Dialog Engine', () => {
