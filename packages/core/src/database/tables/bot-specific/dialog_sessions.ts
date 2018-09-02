@@ -6,11 +6,12 @@ export default class DialogSessionTable extends Table {
   async bootstrap() {
     await this.knex.createTableIfNotExists(this.name, table => {
       table.string('id').primary()
-      table.text('state')
-      table.text('context')
-      table.timestamp('active_on')
-      table.text('created_on')
-      table.text('modified_on')
+      table.text('state').nullable()
+      table.text('context').notNullable()
+      table.text('event').notNullable()
+      table.timestamp('active_on').notNullable()
+      table.timestamp('created_on').notNullable()
+      table.timestamp('modified_on').notNullable()
     })
   }
 }

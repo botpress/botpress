@@ -2,6 +2,7 @@ const TYPES = {
   Logger_Name: Symbol.for('Logger_Name'),
   Logger: Symbol.for('Logger'),
   LoggerProvider: Symbol.for('LoggerProvider'),
+  Router: Symbol.for('Router'),
   Database: Symbol.for('Database'),
   ModuleLoader: Symbol.for('ModuleLoader'),
   Botpress: Symbol.for('Botpress'),
@@ -27,7 +28,12 @@ const TYPES = {
   SessionService: Symbol.for('SessionService'),
   BotpressAPIProvider: Symbol.for('BotpressAPIProvider'),
   RealtimeService: Symbol.for('RealtimeService'),
-  UserRepository: Symbol.for('UserRepository')
+  UserRepository: Symbol.for('UserRepository'),
+  BotpressAPI: Symbol.for('BotpressAPI'),
+  AuthService: Symbol.for('AuthService'),
+  TeamsService: Symbol.for('TeamsService'),
+  InstructionProcessor: Symbol.for('InstructionProcessor'),
+  InstructionFactory: Symbol.for('InstructionFactory')
 }
 
 export { TYPES }

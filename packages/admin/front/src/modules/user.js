@@ -46,7 +46,7 @@ export const fetchProfile = () => {
   return async dispatch => {
     dispatch({ type: MY_PROFILE_REQUESTED })
 
-    const { data } = await api.getSecured().get('/api/login/myself')
+    const { data } = await api.getSecured().get('/api/me/profile')
 
     dispatch({
       type: MY_PROFILE_RECEIVED,
@@ -59,7 +59,7 @@ export const fetchPermissions = teamId => {
   return async dispatch => {
     dispatch({ type: MY_PERMISSIONS_REQUESTED })
 
-    const { data } = await api.getSecured().get(`/api/login/my-permissions/${teamId}`)
+    const { data } = await api.getSecured().get(`/api/me/permissions/${teamId}`)
 
     dispatch({
       type: MY_PERMISSIONS_RECEIVED,

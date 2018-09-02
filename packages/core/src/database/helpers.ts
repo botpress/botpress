@@ -1,5 +1,6 @@
 import Knex from 'knex'
 import moment from 'moment'
+import { VError } from 'verror'
 
 import {
   ColumnOrDate,
@@ -43,6 +44,52 @@ export const patchKnex = (knex: Knex): Knex & KnexExtension => {
       }
       return knex.schema.createTable(tableName, cb)
     })
+  }
+
+  // only works for single insert beause of SQLite
+  const insertAndRetrieve = async <T>(
+    tableName: string,
+    data: {},
+    returnColumns: string | string[] = 'id',
+    idColumnName: string = 'id'
+  ): Promise<T> => {
+    const handleResult = res => {
+      if (!res || res.length !== 1) {
+        throw new VError('Error doing insertAndRetrieve')
+      }
+      return res[0] as T
+    }
+
+    // postgres supports 'returning' natively
+    if (!isLite) {
+      return knex(tableName)
+        .insert(data)
+        .returning(returnColumns)
+        .then(handleResult)
+    }
+    return knex.transaction(trx =>
+      knex(tableName)
+        .insert(data)
+        .transacting(trx)
+        .then(() =>
+          knex
+            .select(knex.raw('last_insert_rowid() as id'))
+            .transacting(trx)
+            .then(([{ id }]) => {
+              if (returnColumns === idColumnName) {
+                return id
+              }
+              return knex(tableName)
+                .select(typeof returnColumns === 'string' ? [returnColumns] : returnColumns)
+                .where(idColumnName, id)
+                .limit(1)
+                .transacting(trx)
+                .then(handleResult)
+            })
+        )
+        .then(trx.commit)
+        .catch(trx.rollback)
+    )
   }
 
   const date: KnexExtension_Date = {
@@ -92,7 +139,7 @@ export const patchKnex = (knex: Knex): Knex & KnexExtension => {
     get: obj => (isLite ? obj && JSON.parse(obj) : obj)
   }
 
-  const extensions: KnexExtension = { isLite, date, json, bool, createTableIfNotExists }
+  const extensions: KnexExtension = { isLite, date, json, bool, createTableIfNotExists, insertAndRetrieve }
 
   return Object.assign(knex, extensions)
 }

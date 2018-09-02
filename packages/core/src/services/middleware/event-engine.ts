@@ -52,7 +52,6 @@ export class EventEngine {
   private outgoingChannelHandlers: ChannelOutgoingHandler[] = []
   private incomingMiddleware: MiddlewareDefinition[] = []
   private outgoingMiddleware: MiddlewareDefinition[] = []
-  private emitter: EventEmitter = new EventEmitter()
 
   register(middleware: MiddlewareDefinition) {
     this.validateMiddleware(middleware)

@@ -177,7 +177,7 @@ export const fetchExistingPermissions = () => {
 
     const permissions = await api
       .getAnonymous()
-      .get('/api/permissions')
+      .get('/api/all-permissions')
       .then(({ data }) => data)
 
     dispatch({ type: FETCH_PERMISSIONS_RECEIVED, permissions })

@@ -4,12 +4,11 @@
   "main": "app.js",
   "license": "MIT",
   "dependencies": {
+    "@botpress/xx-util": "file:../util",
     "body-parser": "^1.18.3",
-    "@types/jest": "^23.3.1",
     "dotenv": "^6.0.0",
     "express": "^4.16.3",
-    "express-http-proxy": "^1.2.0",
-    "webpack": "^4.12.0"
+    "express-http-proxy": "^1.2.0"
   },
   "scripts": {
     "start": "npm run serve",
@@ -17,6 +16,8 @@
     "watch": "npm run start"
   },
   "devDependencies": {
-    "webpack-cli": "^3.1.0"
+    "@types/jest": "^23.3.1",
+    "webpack-cli": "^3.1.0",
+    "webpack": "^4.12.0"
   }
 }

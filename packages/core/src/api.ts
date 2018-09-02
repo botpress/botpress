@@ -26,7 +26,7 @@ import { BotsRouter } from './routers'
 import HTTPServer from './server'
 import ActionService from './services/action/action-service'
 import { CMSService } from './services/cms/cms-service'
-import { DialogEngine } from './services/dialog/engine'
+import { DialogEngine } from './services/dialog/dialog-engine'
 import FlowService from './services/dialog/flow-service'
 import { EventEngine } from './services/middleware/event-engine'
 import RealtimeService from './services/realtime'
@@ -65,7 +65,7 @@ const event = (eventEngine: EventEngine): EventAPI => {
 const dialog = (dialogEngine: DialogEngine): DialogAPI => {
   return {
     async processMessage(botId: string, event: BotpressEvent): Promise<void> {
-      await dialogEngine.forBot(BOT_ID).processMessage(botId, event)
+      await dialogEngine.processEvent(botId, event)
     }
   }
 }

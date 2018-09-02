@@ -151,8 +151,7 @@ export class CMSService implements IDisposeOnExit {
 
   async getContentElement(botId: string, id: string): Promise<ContentElement> {
     return this.memDb(this.contentTable)
-      .where({ botId })
-      .andWhere('id', id)
+      .where({ botId, id })
       .get(0)
   }
 

@@ -12,6 +12,7 @@ import { TYPES } from './misc/types'
 import { safeStringify } from './misc/util'
 import { ModuleLoader } from './module-loader'
 import { RepositoriesContainerModule } from './repositories/repositories.inversify'
+import Router from './router'
 import HTTPServer from './server'
 import { ServicesContainerModule } from './services/services.inversify'
 import ConsoleLogger, { LoggerProvider } from './Logger'
@@ -45,6 +46,8 @@ container.bind<LoggerProvider>(TYPES.LoggerProvider).toProvider<Logger>(context 
     return context.container.getTagged<Logger>(TYPES.Logger, 'name', name)
   }
 })
+
+container.bind<Router>(TYPES.Router).to(Router)
 
 container
   .bind<BotpressAPIProvider>(TYPES.BotpressAPIProvider)

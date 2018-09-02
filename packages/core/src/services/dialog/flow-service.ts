@@ -10,11 +10,10 @@ import { validateFlowSchema } from './validator'
 
 const PLACING_STEP = 250
 const MIN_POS_X = 50
+const FLOW_DIR = 'flows'
 
 @injectable()
 export default class FlowService {
-  private readonly flowDir = 'flows'
-
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'FlowService')
@@ -22,8 +21,13 @@ export default class FlowService {
     @inject(TYPES.GhostService) private ghost: GhostService
   ) {}
 
+  @postConstruct()
+  async initialize(): Promise<void> {
+    await this.ghost.forAllBots().addRootFolder(FLOW_DIR, { filesGlob: '**/*.json' })
+  }
+
   async loadAll(botId: string): Promise<FlowView[]> {
-    const flowsPath = this.ghost.forBot(botId).directoryListing(this.flowDir, '.flow.json')
+    const flowsPath = this.ghost.forBot(botId).directoryListing(FLOW_DIR, '.flow.json')
 
     try {
       return Promise.map(flowsPath, async (flowPath: string) => {
@@ -37,14 +41,14 @@ export default class FlowService {
   }
 
   private async parseFlow(botId: string, flowPath: string) {
-    const flow = await this.ghost.forBot(botId).readFileAsObject<Flow>(this.flowDir, flowPath)
+    const flow = await this.ghost.forBot(botId).readFileAsObject<Flow>(FLOW_DIR, flowPath)
     const schemaError = validateFlowSchema(flow)
 
     if (!flow || schemaError) {
       throw new Error(`Invalid schema for "${flowPath}". ` + schemaError)
     }
 
-    const uiEq = await this.ghost.forBot(botId).readFileAsObject<FlowView>(this.flowDir, this.uiPath(flowPath))
+    const uiEq = await this.ghost.forBot(botId).readFileAsObject<FlowView>(FLOW_DIR, this.uiPath(flowPath))
     let unplacedIndex = -1
 
     const nodeViews = flow.nodes.map(node => {
@@ -79,14 +83,14 @@ export default class FlowService {
     const flowsToSave = flowViews.map(flow => this.prepareSaveFlow(flow))
     const flowsSavePromises = _.flatten(
       flowsToSave.map(({ flowPath, uiPath, flowContent, uiContent }) => [
-        this.ghost.forBot(botId).upsertFile(this.flowDir, flowPath, JSON.stringify(flowContent, undefined, 2)),
-        this.ghost.forBot(botId).upsertFile(this.flowDir, uiPath, JSON.stringify(uiContent, undefined, 2))
+        this.ghost.forBot(botId).upsertFile(FLOW_DIR, flowPath, JSON.stringify(flowContent, undefined, 2)),
+        this.ghost.forBot(botId).upsertFile(FLOW_DIR, uiPath, JSON.stringify(uiContent, undefined, 2))
       ])
     )
     const pathsToOmit = _.flatten(flowsToSave.map(flow => [flow.flowPath, flow.uiPath]))
 
-    const flowFiles = await this.ghost.forBot(botId).directoryListing(this.flowDir, '.json', pathsToOmit)
-    const flowsDeletePromises = flowFiles.map(filePath => this.ghost.forBot(botId).deleteFile(this.flowDir, filePath))
+    const flowFiles = await this.ghost.forBot(botId).directoryListing(FLOW_DIR, '.json', pathsToOmit)
+    const flowsDeletePromises = flowFiles.map(filePath => this.ghost.forBot(botId).deleteFile(FLOW_DIR, filePath))
 
     await Promise.all(flowsSavePromises.concat(flowsDeletePromises))
   }

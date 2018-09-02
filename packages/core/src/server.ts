@@ -18,11 +18,15 @@ import FlowService from './services/dialog/flow-service'
 
 const BASE_API_PATH = '/api/v1'
 
+const isProd = process.env.NODE_ENV === 'production'
+
 @injectable()
 export default class HTTPServer {
-  readonly httpServer: Server
-  readonly app: express.Express
+  public readonly httpServer: Server
+  public readonly app: express.Express
+
   private readonly botsRouter: BotsRouter
+  private readonly modulesRouter: ModulesRouter
 
   constructor(
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
@@ -38,23 +42,56 @@ export default class HTTPServer {
   ) {
     this.app = express()
 
-    this.botsRouter = new BotsRouter({ actionService, botRepository, cmsService, flowService })
-    const modulesRouter = new ModulesRouter(moduleLoader)
-
-    this.app.use(bodyParser.json()) // TODO FIXME Conditionally enable this
-    this.app.use(`${BASE_API_PATH}/modules`, modulesRouter.router)
-    this.app.use(`${BASE_API_PATH}/bots/:botId`, this.botsRouter.router)
-
     if (!isProduction) {
       this.app.use(errorHandler())
     }
 
     this.httpServer = createServer(this.app)
+
+    this.botsRouter = new BotsRouter({ actionService, botRepository, cmsService, flowService })
+    this.modulesRouter = new ModulesRouter(moduleLoader)
   }
 
   async start() {
     const botpressConfig = await this.configProvider.getBotpressConfig()
     const config = botpressConfig.httpServer
+
+    this.app.use(
+      // TODO FIXME Conditionally enable this
+      bodyParser.json({
+        limit: config.bodyLimit
+      })
+    )
+
+    this.app.use(
+      bodyParser.urlencoded({
+        extended: true
+      })
+    )
+
+    this.app.use(`${BASE_API_PATH}/modules`, this.modulesRouter.router)
+    this.app.use(`${BASE_API_PATH}/bots/:botId`, this.botsRouter.router)
+
+    this.app.use((err, req, res, next) => {
+      const statusCode = err.status || 500
+      const code = err.code || 'BP_000'
+      const message = (err.code && err.message) || 'Unexpected error'
+      const devOnly = isProd
+        ? {}
+        : {
+            stack: err.stack,
+            full: err.message
+          }
+
+      res.status(statusCode).json({
+        status: 'error',
+        code,
+        type: err.type || Object.getPrototypeOf(err).name || 'Exception',
+        message,
+        docs: err.docs || undefined,
+        ...devOnly
+      })
+    })
 
     await Promise.fromCallback(callback => {
       this.httpServer.listen(config, callback)

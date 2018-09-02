@@ -24,8 +24,6 @@ class Section extends Component {
   }
 
   render() {
-    this.props.onBeforeRender && this.props.onBeforeRender()
-
     const help = this.props.helpText ? (
       <span>
         <MdInfoOutline id="sectionTitleHelp" className="section-title-help" />

@@ -39,8 +39,7 @@ export default class Database {
       })
     }
 
-    const knex = await Knex(config)
-    this.knex = patchKnex(knex)
+    this.knex = patchKnex(await Knex(config))
 
     await Promise.mapSeries(AllTables, async Tbl => {
       const table = new Tbl(this.knex!)

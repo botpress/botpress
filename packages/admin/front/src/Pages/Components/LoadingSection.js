@@ -1,14 +1,16 @@
 import React from 'react'
 import { Row, Col } from 'reactstrap'
 
-import loading from '../../media/loading-circle.svg'
+import loadingImage from '../../media/loading-circle.svg'
 
-export default props => (
+const LoadingSection = () => (
   <Row>
     <Col className="section" xs={12}>
       <div className="middle">
-        <img src={loading} alt="loading" />
+        <img src={loadingImage} alt="loading" />
       </div>
     </Col>
   </Row>
 )
+
+export default LoadingSection

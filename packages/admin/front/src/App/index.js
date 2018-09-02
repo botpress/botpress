@@ -22,7 +22,7 @@ import { fetchTeams } from '../modules/teams'
 import { fetchProfile } from '../modules/user'
 
 class Home extends Component {
-  state = { isOpen: true }
+  state = { isMenuOpen: true }
 
   componentDidMount() {
     if (!this.props.profile) {
@@ -34,12 +34,8 @@ class Home extends Component {
     }
   }
 
-  login() {
-    this.props.auth.login()
-  }
-
-  toggle = () => {
-    this.setState({ isOpen: !this.state.isOpen })
+  toggleMenu = () => {
+    this.setState({ isMenuOpen: !this.state.isMenuOpen })
   }
 
   renderProfileMenu() {
@@ -83,7 +79,7 @@ class Home extends Component {
           {this.props.teams &&
             _.take(this.props.teams, 5).map(team => {
               return (
-                <DropdownItem key={team.id} onClick={() => this.props.history.push('/teams/' + team.id)}>
+                <DropdownItem key={team.id} onClick={() => this.props.history.push(`/teams/${team.id}`)}>
                   {team.name}
                 </DropdownItem>
               )
@@ -101,10 +97,10 @@ class Home extends Component {
         <Navbar dark color="dark" expand="md">
           <div className="container">
             <NavbarBrand href="/">
-              Botpress <span className="txt-light">Cloud</span>
+              Botpress <span className="txt-light">Admin</span>
             </NavbarBrand>
-            <NavbarToggler onClick={this.toggle} />
-            <Collapse isOpen={this.state.isOpen} navbar>
+            <NavbarToggler onClick={this.toggleMenu} />
+            <Collapse isOpen={this.state.isMenuOpen} navbar>
               <Nav className="ml-auto" navbar>
                 {this.renderSwitchTeam()}
                 {this.renderProfileMenu()}
@@ -134,4 +130,7 @@ const mapDispatchToProps = dispatch =>
     dispatch
   )
 
-export default connect(mapStateToProps, mapDispatchToProps)(Home)
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Home)
