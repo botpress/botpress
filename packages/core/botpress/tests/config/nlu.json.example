@@ -1,0 +1,7 @@
+{
+  "intentsDir": "./generated/intents",
+  "entitiesDir": "./generated/entities",
+  "provider": "native",
+  "debugModeEnabled": false,
+  "minimumConfidence": "0.3"
+}
