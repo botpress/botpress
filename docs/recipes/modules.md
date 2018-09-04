@@ -2,28 +2,56 @@
 layout: guide
 ---
 
-Why would you need to create modules? You may want to extend botpress functionality in some way, add support of another channel etc. This may be either something usefule for everyone in botpress-community and you may even want to publish your module at npm or this may be something that only makes sense for your particular project and you may want to only include that module to your repository.
+Why would you need to create modules? Creating a new module allows you to extend Botpress' functionality or add support for another channel. 
 
-Let's say we want to implement a page in admin panel showing overall number of dialog-sessions. Here's how this can be done step by step:
+For the example in this recipe we are going to implement a page in the admin panel showing the overall number of dialog-sessions. We will walk you thought it step by step:
 
 ## Initialize new module
 
-1. Let's naviagte to our bot's folder and then create `modules` directory: `mkdir modules && cd modules`
-2. Inside modules directory let's initialize our new module: `mkdr botpress-dialog-sessions && cd botpress-dialog-sessions && botpress create`. You'll need to answer questions cli asks you before module will be created
-3. Let's install module-dependencies and build it so that we can use it in our bot: `yarn && yarn link && yarn watch`
-4. Once module is built, let's add it to `package.json` of our bot:
-  ```json
-    "botpress-dialog-sessions": "./modules/botpress-dialog-sessions"
-  ```
-5. Inside bot's directory run `yarn && yarn link botpress-dialog-sessions` to install dependencies and link `botpress-dialog-sessions` (so that it's easy to see the changes we introduce)
+1. Naviagte to your bot's root folder and then create a `modules` directory: 
 
-If you did everything correct you should now be able to see new item in the admin-panel sidebar called after the name of your bot. You can change that by editing `botpress.menuText` and `botpress.menuIcon` items in `package.json` of your module.
+```bash
+mkdir modules && cd modules
+```
+
+2. Now you are inside the modules directory, initialize your new module: 
+
+```bash
+mkdr botpress-dialog-sessions && cd botpress-dialog-sessions && botpress create
+```
+
+> Note: The CLI will ask you some questions that you will need to answer before the module can be initialized
+
+3. Next, install `module-dependencies` and build it so that you can use it in your bot:
+
+```js
+yarn && yarn link && yarn watch
+```
+
+4. Once module is built, let's add it to `package.json` of our bot:
+
+```json
+  "botpress-dialog-sessions": "./modules/botpress-dialog-sessions"
+```
+
+5. Return to your bot's root directory (`cd ../..`) and run:
+
+```js
+yarn && yarn link botpress-dialog-sessions
+``` 
+This will install your dependencies and link `botpress-dialog-sessions` (so that you can see the changes made in the module)
+
+If everything went to plan, you should now be able to see new item in the admin-panel sidebar with the same name as your bot.
+
+You can change the displayed name by editing `botpress.menuText` and `botpress.menuIcon` items in `package.json` of your module.
+
+> Note: Should you get an error, please search our [forum](https://help.botpress.io/) to see if anyone has had a similar problem and ask for help from the community.
 
 ## Adding API-endpoint
 
-To display number of dialog-sessions we'd need to fetch that data on the server and provide it to the client through an API.
+To display the number of dialog-sessions your bot has had, you need to fetch the data from the server and provide it to the client through an API.
 
-This can be done in `src/index.js` file of your module within `ready` function:
+This can be done in the `src/index.js` file of your module, within the `ready` function.
 
 ```js
   ready: async (bp, configurator, helpers) => {
@@ -44,11 +72,11 @@ This can be done in `src/index.js` file of your module within `ready` function:
   }
 ```
 
-Here we've added a route handler that will be available under `/api/botpress-dialog-sessions` route that fetches data from DB and returns as json.
+In the example above, we have added a route handler that will be available via `/api/botpress-dialog-sessions` and fetches data from the database and returns the data as json.
 
 ## Displaying data on the client
 
-The main view of the module is available under `src/views/index.jsx` file by default. So we can modify it to fetch data from our endpoint and present it to the user like this:
+The main view of the module is found in the `src/views/index.jsx` file by default. By modifying this view, you can fetch the data from your new endpoint and present it to the user:
 
 ```jsx
 export default class TemplateModule extends React.Component {
@@ -63,10 +91,18 @@ export default class TemplateModule extends React.Component {
   render() {
     const { dialogSessions } = this.state;
     return (
-      <h4>{`Currently there are ${dialogSessions} dialogsessions in DB`}</h4>
+      <h4>{`Currently there are ${dialogSessions} dialog sessions in DB`}</h4>
     );
   }
 }
 ```
 
 That's it - wasn't too difficult, right?
+
+## Next steps
+
+Now you have created your shiny new module it falls into one of two catagories: bespoke or reuseable. 
+
+A bespoke module is one that tackles a problem that is specific to your domain and is unlikely to be useful to others.
+
+A reuseable module, as the name suggests, is a module that domain agnostic and can be used across a number of bots. If you have created a reuseable module and think that it maybe of use to others in the Botpress community, please consider publishing it to [npm](https://docs.npmjs.com/cli/publish).
