@@ -17,25 +17,25 @@ export class InstructionQueue {
     const transition = InstructionFactory.createTransition(context)
 
     this.instructions = []
-    this.instructions.unshift(...onEnter)
+    this.instructions.push(...onEnter)
 
     if (!_.isEmpty(onReceive)) {
       const wait = InstructionFactory.createWait()
-      this.instructions.unshift(wait)
+      this.instructions.push(wait)
     }
 
-    this.instructions.unshift(...onReceive)
-    this.instructions.unshift(...transition)
+    this.instructions.push(...onReceive)
+    this.instructions.push(...transition)
     return this.instructions
   }
 
   enqueue(...instruction: Instruction[]) {
-    this.instructions.unshift(...instruction)
+    this.instructions.push(...instruction)
   }
 
   dequeue(): Instruction | undefined {
-    const instruction = this.instructions.pop()!
-    this.waiting = instruction.type === 'wait'
+    const instruction = this.instructions.shift()!
+    this.waiting = instruction && instruction.type === 'wait'
     return instruction
   }
 
@@ -43,13 +43,13 @@ export class InstructionQueue {
     return this.instructions.length > 0
   }
 
-  hasWait(): boolean {
+  isWaiting(): boolean {
     return this.waiting
   }
 
   retry(instruction: Instruction) {
     const wait = InstructionFactory.createWait()
-    this.instructions.push(instruction)
-    this.instructions.push(wait)
+    this.instructions.unshift(instruction)
+    this.instructions.unshift(wait)
   }
 }

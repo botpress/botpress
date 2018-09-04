@@ -26,15 +26,15 @@ describe('Instruction Queue', () => {
   it('Enqueue in order', () => {
     const instructions = queue.enqueueContextInstructions(context)
 
-    expect(instructions[4]).toEqual({ fn: 'enter {}', type: 'on-enter' })
-    expect(instructions[3]).toEqual({ type: 'wait' })
+    expect(instructions[0]).toEqual({ fn: 'enter {}', type: 'on-enter' })
+    expect(instructions[1]).toEqual({ type: 'wait' })
     expect(instructions[2]).toEqual({ fn: 'flowReceive {}', type: 'on-receive' })
-    expect(instructions[1]).toEqual({ fn: 'receive {}', type: 'on-receive' })
-    expect(instructions[0]).toEqual({ type: 'transition', node: 'another-node', fn: 'a !== b' })
+    expect(instructions[3]).toEqual({ fn: 'receive {}', type: 'on-receive' })
+    expect(instructions[4]).toEqual({ type: 'transition', node: 'another-node', fn: 'a !== b' })
   })
 
   it('Dequeue in order', () => {
-    queue.enqueue({ type: 'on-enter', fn: 'c {}' }, { type: 'on-enter', fn: 'b {}' }, { type: 'on-enter', fn: 'a {}' })
+    queue.enqueue({ type: 'on-enter', fn: 'a {}' }, { type: 'on-enter', fn: 'b {}' }, { type: 'on-enter', fn: 'c {}' })
 
     expect(queue.dequeue()).toEqual({ type: 'on-enter', fn: 'a {}' })
     expect(queue.dequeue()).toEqual({ type: 'on-enter', fn: 'b {}' })

@@ -57,7 +57,7 @@ export class DialogEngine {
       this.queue.enqueueContextInstructions(this.currentSession.context)
       console.log('QUEUE = ', this.queue)
       await this.processInstructions()
-    } while (!this.queue.hasWait())
+    } while (!this.queue.isWaiting())
   }
 
   async processInstructions() {

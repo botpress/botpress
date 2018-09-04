@@ -24,8 +24,8 @@ describe('Instruction Factory', () => {
     it('Enqueue flow relative onReceive before context relative onReceive', () => {
       const onReceive = InstructionFactory.createOnReceive(context)
 
-      expect(onReceive[0]).toEqual({ type: 'on-receive', fn: 'receive {}' })
-      expect(onReceive[1]).toEqual({ type: 'on-receive', fn: 'flowReceive {}' })
+      expect(onReceive[0]).toEqual({ type: 'on-receive', fn: 'flowReceive {}' })
+      expect(onReceive[1]).toEqual({ type: 'on-receive', fn: 'receive {}' })
     })
   })
 
