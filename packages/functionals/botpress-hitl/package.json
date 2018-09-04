@@ -1,6 +1,6 @@
 {
   "name": "@botpress/hitl",
-  "version": "10.34.0",
+  "version": "10.35.0",
   "description": "Official HITL (Human In The Loop) module for Botpress",
   "main": "bin/node.bundle.js",
   "botpress": {
@@ -8,7 +8,11 @@
     "menuIcon": "feedback",
     "webBundle": "bin/web.bundle.js"
   },
-  "keywords": ["hitl", "human in the loop", "botpress"],
+  "keywords": [
+    "hitl",
+    "human in the loop",
+    "botpress"
+  ],
   "publishConfig": {
     "access": "public"
   },

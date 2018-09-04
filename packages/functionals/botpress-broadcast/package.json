@@ -1,6 +1,6 @@
 {
   "name": "@botpress/broadcast",
-  "version": "10.34.0",
+  "version": "10.35.0",
   "description": "Broadcast messages to all (or a subset) of your users",
   "main": "bin/node.bundle.js",
   "homepage": "https://github.com/botpress/modules",
@@ -9,7 +9,10 @@
     "menuIcon": "settings_input_antenna",
     "webBundle": "bin/web.bundle.js"
   },
-  "keywords": ["botpress", "broadcast"],
+  "keywords": [
+    "botpress",
+    "broadcast"
+  ],
   "publishConfig": {
     "access": "public"
   },

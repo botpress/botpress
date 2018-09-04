@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.35.0"></a>
+# [10.35.0](https://github.com/botpress/modules/compare/v10.34.0...v10.35.0) (2018-09-04)
+
+
+### Bug Fixes
+
+* updated node-sass package ([8064701](https://github.com/botpress/modules/commit/8064701))
+
+
+### Features
+
+* show toast message for qna and nlu (resolve [#790](https://github.com/botpress/modules/issues/790)) ([53822eb](https://github.com/botpress/modules/commit/53822eb))
+
+
+
+
 <a name="10.34.0"></a>
 # [10.34.0](https://github.com/botpress/modules/compare/v10.32.0...v10.34.0) (2018-08-30)
 
