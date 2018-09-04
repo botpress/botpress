@@ -53,9 +53,11 @@ export class DialogEngine {
     const defaultFlow = this.findDefaultFlow()
     const entryNode = this.findEntryNode(defaultFlow)
     this.currentSession = await this.sessionService.getOrCreateSession(sessionId, event, defaultFlow, entryNode)
-    this.queue.enqueueContextInstructions(this.currentSession.context)
-    console.log('QUEUE = ', this.queue)
-    await this.processInstructions()
+    do {
+      this.queue.enqueueContextInstructions(this.currentSession.context)
+      console.log('QUEUE = ', this.queue)
+      await this.processInstructions()
+    } while (!this.queue.hasWait())
   }
 
   async processInstructions() {
@@ -133,7 +135,6 @@ export class DialogEngine {
 
     this.queue.clear()
     this.currentSession.context = newContext
-
     await this.sessionService.updateSession(this.currentSession)
   }
 

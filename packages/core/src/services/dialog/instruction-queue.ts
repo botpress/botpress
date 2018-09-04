@@ -5,6 +5,7 @@ import { Instruction } from './instruction-processor'
 
 export class InstructionQueue {
   private instructions: Instruction[] = []
+  private waiting = false
 
   clear() {
     this.instructions = []
@@ -33,11 +34,17 @@ export class InstructionQueue {
   }
 
   dequeue(): Instruction | undefined {
-    return this.instructions.pop()
+    const instruction = this.instructions.pop()!
+    this.waiting = instruction.type === 'wait'
+    return instruction
   }
 
   hasInstructions(): boolean {
     return this.instructions.length > 0
+  }
+
+  hasWait(): boolean {
+    return this.waiting
   }
 
   retry(instruction: Instruction) {
