@@ -1,4 +1,4 @@
-import { Logger } from 'botpress-module-sdk'
+import { BotpressEvent, Logger } from 'botpress-module-sdk'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 import Mustache from 'mustache'
@@ -6,6 +6,7 @@ import Mustache from 'mustache'
 import { TYPES } from '../../misc/types'
 import ActionService from '../action/action-service'
 import { runCode } from '../action/sandbox-launcher'
+import { EventEngine } from '../middleware/event-engine'
 
 const BOT_ID = 'bot123'
 
@@ -22,16 +23,29 @@ export type Instruction = {
   node?: string
 }
 
-export type ActionResult = {}
+export type FollowUpAction = 'none' | 'wait' | 'transition'
+export class ProcessingResult {
+  constructor(public success: boolean, public followUpAction: FollowUpAction, public transitionTo: string) {}
+  static none() {
+    return new ProcessingResult(true, 'none', '')
+  }
+  static transition(destination: string) {
+    return new ProcessingResult(true, 'transition', destination)
+  }
+  static wait() {
+    return new ProcessingResult(true, 'wait', '')
+  }
+}
 
 @injectable()
 export class InstructionProcessor {
   constructor(
     @inject(TYPES.ActionService) private actionService: ActionService,
+    @inject(TYPES.EventEngine) private eventEngine: EventEngine,
     @inject(TYPES.Logger) private logger: Logger
   ) {}
 
-  async process(instruction, state, event, context): Promise<ActionResult | Boolean | void> {
+  async process(instruction, state, event, context): Promise<ProcessingResult> {
     if (instruction.type === 'on-enter' || instruction.type === 'on-receive') {
       if (instruction.fn.indexOf('say ') === 0) {
         return this.invokeOutputProcessor(instruction, state, event, context)
@@ -39,12 +53,19 @@ export class InstructionProcessor {
         return this.invokeAction(instruction, state, event, context)
       }
     } else if (instruction.type === 'transition') {
-      await runCode(`return ${instruction.fn}`, { state })
+      const result = await runCode(`return ${instruction.fn}`, { state, event })
+      if (result) {
+        return ProcessingResult.transition(instruction.node)
+      } else {
+        return ProcessingResult.none()
+      }
+    } else if (instruction.type === 'wait') {
+      return ProcessingResult.wait()
     }
     throw new Error('Could not process instruction')
   }
 
-  private async invokeOutputProcessor(instruction, state, event, context) {
+  private async invokeOutputProcessor(instruction, state, event: BotpressEvent, context): Promise<ProcessingResult> {
     const chunks = instruction.fn.split(' ')
     const params = _.slice(chunks, 2).join(' ')
 
@@ -57,12 +78,16 @@ export class InstructionProcessor {
       value: params
     }
 
+    await this.eventEngine.sendContent(BOT_ID, chunks[1], event.target, event.channel) // FIXME
+
+    return ProcessingResult.none()
+
     // Wont work! No reply in MW?
     // DialogProcessor.default.send({ message: output, state: state, originalEvent: event, flowContext: context })
   }
 
   // TODO: Test for nested templating
-  private async invokeAction(instruction, state, event, context): Promise<any> {
+  private async invokeAction(instruction, state, event, context): Promise<ProcessingResult> {
     const chunks: string[] = instruction.fn.split(' ')
     const argsStr = _.tail(chunks).join(' ')
     const actionName = _.first(chunks)!
@@ -90,7 +115,9 @@ export class InstructionProcessor {
       throw new Error(`Action "${actionName}" not found, ${context}, ${state}`)
     }
 
-    return await this.actionService.forBot(BOT_ID).runAction(actionName, state, event, args)
+    await this.actionService.forBot(BOT_ID).runAction(actionName, state, event, args)
+
+    return ProcessingResult.none()
   }
 
   private containsTemplate(value: string) {

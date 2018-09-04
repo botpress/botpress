@@ -142,3 +142,7 @@ export class BotpressAPIProvider {
 export function createForModule(moduleId: string): Promise<BotpressAPI> {
   return container.get<BotpressAPIProvider>(TYPES.BotpressAPIProvider).create(`Mod[${moduleId}]`)
 }
+
+export function createForGlobalHooks(): Promise<BotpressAPI> {
+  return container.get<BotpressAPIProvider>(TYPES.BotpressAPIProvider).create(`Hooks`)
+}

@@ -1,51 +1,42 @@
 import _ from 'lodash'
+import { Transform } from 'stream'
 
 import { Instruction } from './instruction-processor'
 
 export class InstructionFactory {
   static createOnEnter(context) {
-    const instructions = context.currentNode.onEnter
-    if (!instructions) {
-      return []
-    }
-
-    return instructions.map(x => {
-      return { type: 'on-enter', fn: x }
-    })
+    const onEnter = _.reverse(_.get(context, 'currentNode.onEnter', []) || [])
+    return onEnter.map(
+      (x): Instruction => ({
+        type: 'on-enter',
+        fn: x
+      })
+    )
   }
 
   static createOnReceive(context): Instruction[] {
-    const instructions = <Array<any>>context.currentNode.onReceive
-    if (!instructions) {
-      return []
-    }
+    const flowReceive = _.reverse(_.get(context, 'currentFlow.catchAll.onReceive', []) || [])
+    const nodeReceive = _.reverse(_.get(context, 'currentNode.onReceive', []) || [])
 
-    const flowReceive = <Array<any>>context.currentFlow.catchAll.onReceive
-    if (flowReceive && flowReceive.length > 0) {
-      instructions.push(...flowReceive)
-    }
-
-    return <Instruction[]>instructions.map(x => {
-      return { type: 'on-receive', fn: x }
-    })
+    return [...flowReceive, ...nodeReceive].map(
+      (x): Instruction => ({
+        type: 'on-receive',
+        fn: x
+      })
+    )
   }
 
   static createTransition(context): Instruction[] {
-    const flowNext = context.currentFlow.catchAll.next
-    if (flowNext) {
-      return flowNext.map(x => {
-        return { type: 'transition', fn: x.condition, node: x.node }
+    const flowNext = _.reverse(_.get(context, 'currentFlow.catchAll.next', []) || [])
+    const nodeNext = _.reverse(_.get(context, 'currentNode.next', []) || [])
+
+    return [...flowNext, ...nodeNext].map(
+      (x): Instruction => ({
+        type: 'transition',
+        fn: x.condition,
+        node: x.node
       })
-    }
-
-    const instructions = context.currentNode && context.currentNode.next
-    if (!instructions) {
-      return []
-    }
-
-    return instructions.map(x => {
-      return { type: 'transition', fn: x.condition, node: x.node }
-    })
+    )
   }
 
   static createWait(): Instruction {

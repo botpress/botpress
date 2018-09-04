@@ -1,4 +1,4 @@
-import { Logger } from 'botpress-module-sdk'
+import { BotpressAPI, BotpressEvent, Logger } from 'botpress-module-sdk'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
 import _ from 'lodash'
 import { NodeVM } from 'vm2'
@@ -6,16 +6,47 @@ import { NodeVM } from 'vm2'
 import { TYPES } from '../../misc/types'
 import GhostService from '../ghost/service'
 
-type Hook =
-  | 'after_bot_start'
-  | 'after_message_receive'
-  | 'before_message_process'
-  | 'before_message_sent'
-  | 'before_session_end'
-  | 'after_timeout'
+// type Hook =
+//   | 'after_bot_start'
+//   | 'after_message_receive'
+//   | 'before_message_process'
+//   | 'before_message_sent'
+//   | 'before_session_end'
+//   | 'after_timeout'
+
+export namespace Hooks {
+  export interface BaseHook {
+    readonly folder: string
+    readonly args: any
+    readonly timeout: number
+  }
+
+  export class AfterBotStart implements BaseHook {
+    timeout: number
+    args: any
+    folder: string = 'after_bot_start'
+
+    constructor(private bp: BotpressAPI) {
+      this.timeout = 1000
+      this.args = { bp }
+    }
+  }
+
+  export class AfterIncomingMiddleware implements BaseHook {
+    folder: string
+    args: any
+    timeout: number
+
+    constructor(bp: BotpressAPI, event: BotpressEvent) {
+      this.timeout = 1000
+      this.args = { bp, event }
+      this.folder = 'after_incoming_middleware'
+    }
+  }
+}
 
 class HookScript {
-  constructor(public hook: Hook, public path: string, public file: string) {}
+  constructor(public hook: Hooks.BaseHook, public path: string, public file: string) {}
 }
 
 @injectable()
@@ -27,16 +58,16 @@ export class HookService {
     @inject(TYPES.GhostService) private ghost: GhostService
   ) {}
 
-  async executeHook(hook: Hook): Promise<void> {
+  async executeHook(hook: Hooks.BaseHook): Promise<void> {
     const scripts = await this.extractScripts(hook)
-    scripts.forEach(script => this.runScript(script))
+    _.orderBy(scripts).forEach(script => this.runScript(script))
   }
 
-  private async extractScripts(hook: Hook): Promise<HookScript[]> {
-    const filesPaths = await this.ghost.global().directoryListing('hooks/' + hook, '*.js')
+  private async extractScripts(hook: Hooks.BaseHook): Promise<HookScript[]> {
+    const filesPaths = await this.ghost.global().directoryListing('hooks/' + hook.folder, '*.js')
 
     return Promise.map(filesPaths, async path => {
-      const file = await this.ghost.global().readFileAsString('hooks/' + hook, path)
+      const file = await this.ghost.global().readFileAsString('hooks/' + hook.folder, path)
       return new HookScript(hook, path, file)
     })
   }
@@ -44,8 +75,8 @@ export class HookService {
   private runScript(hookScript: HookScript) {
     const vm = new NodeVM({
       console: 'inherit',
-      sandbox: {},
-      timeout: 1000
+      sandbox: hookScript.hook.args,
+      timeout: hookScript.hook.timeout
     })
 
     try {

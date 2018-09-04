@@ -1,4 +1,4 @@
-import { BotpressEvent, ChannelOutgoingHandler, MiddlewareDefinition } from 'botpress-module-sdk'
+import { BotpressAPI, BotpressEvent, ChannelOutgoingHandler, MiddlewareDefinition } from 'botpress-module-sdk'
 import { Logger } from 'botpress-module-sdk'
 import EventEmitter from 'events'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
@@ -6,9 +6,12 @@ import joi from 'joi'
 import { Memoize } from 'lodash-decorators'
 import { VError } from 'verror'
 
+import { createForGlobalHooks } from '../../api'
 import { BotConfig } from '../../config/bot.config'
 import { TYPES } from '../../misc/types'
+import { DialogEngine } from '../dialog/engine'
 import GhostService from '../ghost/service'
+import { Hooks, HookService } from '../hook/hook-service'
 
 import { MiddlewareChain } from './middleware'
 
@@ -41,6 +44,8 @@ const mwSchema = {
 
 @injectable()
 export class EventEngine {
+  public onAfterIncomingMiddleware: ((event) => Promise<void>) | undefined
+
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'EventEngine')
@@ -75,9 +80,14 @@ export class EventEngine {
     const { incoming, outgoing } = await this.getBotMiddlewareChains(botId)
     if (event.direction === 'incoming') {
       await incoming.run(event)
+      this.onAfterIncomingMiddleware && (await this.onAfterIncomingMiddleware(event))
     } else {
       await outgoing.run(event)
     }
+  }
+
+  async sendContent(botId: string, contentId: string, target: string, channel: string) {
+    // TODO
   }
 
   @Memoize()

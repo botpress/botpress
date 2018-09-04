@@ -1,4 +1,4 @@
-import { ModuleDefinition } from 'botpress-module-sdk'
+import { BotpressAPI, DialogAPI, ModuleDefinition } from 'botpress-module-sdk'
 import { Logger } from 'botpress-module-sdk'
 import { inject, injectable, tagged } from 'inversify'
 import { Memoize } from 'lodash-decorators'
@@ -8,6 +8,7 @@ import plur from 'plur'
 
 import packageJson from '../package.json'
 
+import { createForGlobalHooks } from './api'
 import { BotLoader } from './bot-loader'
 import { BotpressConfig } from './config/botpress.config'
 import { ConfigProvider } from './config/config-loader'
@@ -15,11 +16,12 @@ import Database from './database'
 import { TYPES } from './misc/types'
 import { ModuleLoader } from './module-loader'
 import HTTPServer from './server'
-import { CMSService } from './services/cms/cms-service'
+import { DialogEngine } from './services/dialog/engine'
 import GhostService from './services/ghost/service'
-import { HookService } from './services/hook/hook-service'
+import { Hooks, HookService } from './services/hook/hook-service'
 import { EventEngine } from './services/middleware/event-engine'
 import RealtimeService from './services/realtime'
+import { LoggerProvider } from './Logger'
 
 export type StartOptions = {
   modules: Map<string, ModuleDefinition>
@@ -32,6 +34,7 @@ export class Botpress {
   modulesConfig: any
   version: string
   config: BotpressConfig | undefined
+  api!: BotpressAPI
 
   constructor(
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
@@ -44,8 +47,10 @@ export class Botpress {
     @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
     @inject(TYPES.BotLoader) private botLoader: BotLoader,
     @inject(TYPES.HookService) private hookService: HookService,
+    @inject(TYPES.RealtimeService) private realtimeService: RealtimeService,
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
-    @inject(TYPES.RealtimeService) private realtimeService: RealtimeService
+    @inject(TYPES.DialogEngine) private dialogEngine: DialogEngine,
+    @inject(TYPES.LoggerProvider) private loggerProvider: LoggerProvider
   ) {
     this.version = packageJson.version
     this.botpressPath = path.join(process.cwd(), 'dist')
@@ -70,7 +75,8 @@ export class Botpress {
     await this.startRealtime()
     await this.startServer()
 
-    await this.hookService.executeHook('after_bot_start')
+    this.api = await createForGlobalHooks()
+    await this.hookService.executeHook(new Hooks.AfterBotStart(this.api))
   }
 
   async initializeGhost(): Promise<void> {
@@ -89,6 +95,19 @@ export class Botpress {
 
   private async initializeServices() {
     await this.botLoader.loadAllBots()
+    this.eventEngine.onAfterIncomingMiddleware = async event => {
+      await this.hookService.executeHook(new Hooks.AfterIncomingMiddleware(this.api, event))
+      await this.dialogEngine.processEvent(event.target, event)
+    }
+
+    const flowLoger = await this.loggerProvider('DialogEngine')
+    this.dialogEngine.onProcessingError = err => {
+      const message = `Error processing "${err.instruction}"
+Err: ${err.message}
+Flow: ${err.flowName}
+Node: ${err.nodeName}`
+      flowLoger.warn(message)
+    }
   }
 
   @Memoize()

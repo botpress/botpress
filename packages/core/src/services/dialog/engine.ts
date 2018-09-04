@@ -5,7 +5,7 @@ import { TYPES } from '../../misc/types'
 import { DialogSession } from '../../repositories/session-repository'
 
 import FlowService from './flow-service'
-import { InstructionProcessor } from './instruction-processor'
+import { Instruction, InstructionProcessor } from './instruction-processor'
 import { InstructionQueue } from './instruction-queue'
 import { SessionService } from './session-service'
 
@@ -14,6 +14,17 @@ const BOT_ID = 'bot123'
 const DEFAULT_FLOW_NAME = 'main.flow.json'
 const MAX_FAILED_ATTEMPS = 10
 
+export class ProcessingError extends Error {
+  constructor(
+    message: string,
+    public readonly nodeName: string,
+    public readonly flowName: string,
+    public readonly instruction: string
+  ) {
+    super(message)
+  }
+}
+
 @injectable()
 export class DialogEngine {
   queue = new InstructionQueue()
@@ -21,6 +32,7 @@ export class DialogEngine {
   flowsLoaded = false
   currentSession!: DialogSession
   failedAttempts = 0
+  onProcessingError: ((err: ProcessingError) => void) | undefined
 
   constructor(
     @inject(TYPES.InstructionProcessor) private instructionProcessor: InstructionProcessor,
@@ -42,41 +54,51 @@ export class DialogEngine {
     const entryNode = this.findEntryNode(defaultFlow)
     this.currentSession = await this.sessionService.getOrCreateSession(sessionId, event, defaultFlow, entryNode)
     this.queue.enqueueContextInstructions(this.currentSession.context)
-
+    console.log('QUEUE = ', this.queue)
     await this.processInstructions()
   }
 
   async processInstructions() {
     while (this.queue.hasInstructions()) {
       const instruction = this.queue.dequeue()!
+      console.log('Instruction: ', instruction.type, instruction.fn)
+      try {
+        const result = await this.instructionProcessor.process(
+          instruction,
+          this.currentSession.state,
+          this.currentSession.event,
+          this.currentSession.context
+        )
+        console.log('Result = ', result.followUpAction, result.transitionTo)
 
-      if (instruction.type === 'wait') {
-        break
-      }
-
-      const result = await this.instructionProcessor.process(
-        instruction,
-        this.currentSession.state,
-        this.currentSession.event,
-        this.currentSession.context
-      )
-
-      if (result && instruction.type === 'transition' && instruction.node) {
-        this.transitionToNode(instruction.node)
-        break
-      }
-
-      if (!result) {
-        this.failedAttempts++
-        if (this.hasTooManyAttempts()) {
-          throw new Error('Too many instructions failed')
-        }
-
-        this.queue.retry(instruction)
-      } else {
         this.failedAttempts = 0
+        if (result.followUpAction === 'wait') {
+          break
+        } else if (result.followUpAction === 'transition') {
+          this.transitionToNode(result.transitionTo)
+          break
+        } else if (result.followUpAction === 'none') {
+          // continue
+        }
+      } catch (err) {
+        if (this.hasTooManyAttempts()) {
+          // FIXME Report better error
+          throw new Error('Too many instructions failed')
+        } else {
+          !this.queue.retry(instruction)
+          this.failedAttempts++
+          this.reportProcessingError(err, this.currentSession, instruction)
+        }
       }
     }
+  }
+
+  private reportProcessingError(error: Error, session: DialogSession, instruction: Instruction) {
+    const nodeName = _.get(session, 'context.currentNode.name', 'N/A')
+    const flowName = _.get(session, 'context.currentFlow.name', 'N/A')
+    const instructionDetails = instruction.fn || instruction.type
+    this.onProcessingError &&
+      this.onProcessingError(new ProcessingError(error.message, nodeName, flowName, instructionDetails))
   }
 
   async transitionToNode(next: string): Promise<void> {

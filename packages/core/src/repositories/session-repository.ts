@@ -25,20 +25,24 @@ export class KnexSessionRepository implements SessionRepository {
   constructor(@inject(TYPES.Database) private database: Database) {}
 
   async insert(session: DialogSession): Promise<DialogSession> {
-    const newSession = await this.database.knex.insertAndRetrieve<DialogSession>(this.tableName, {
-      id: session.id,
-      state: JSON.stringify(session.state),
-      context: JSON.stringify(session.context),
-      event: JSON.stringify(session.event),
-      active_on: this.database.knex.date.now(),
-      modified_on: this.database.knex.date.now(),
-      created_on: this.database.knex.date.now()
-    })
+    const newSession = await this.database.knex.insertAndRetrieve<DialogSession>(
+      this.tableName,
+      {
+        id: session.id,
+        state: this.database.knex.json.set(session.state || {}),
+        context: this.database.knex.json.set(session.context || {}),
+        event: this.database.knex.json.set(session.event || {}),
+        active_on: this.database.knex.date.now(),
+        modified_on: this.database.knex.date.now(),
+        created_on: this.database.knex.date.now()
+      },
+      ['state', 'context', 'event', 'id', 'active_on', 'modified_on', 'created_on']
+    )
 
     if (newSession) {
-      newSession.state = JSON.parse(newSession.state)
-      newSession.context = JSON.parse(newSession.context)
-      newSession.event = JSON.parse(newSession.event)
+      newSession.state = this.database.knex.json.get(newSession.state)
+      newSession.context = this.database.knex.json.get(newSession.context)
+      newSession.event = this.database.knex.json.get(newSession.event)
     }
     return newSession
   }
@@ -52,9 +56,9 @@ export class KnexSessionRepository implements SessionRepository {
       .then()
 
     if (session) {
-      session.state = JSON.parse(session.state)
-      session.context = JSON.parse(session.context)
-      session.event = JSON.parse(session.event)
+      session.state = this.database.knex.json.get(session.state)
+      session.context = this.database.knex.json.get(session.context)
+      session.event = this.database.knex.json.get(session.event)
     }
     return session
   }
@@ -66,9 +70,9 @@ export class KnexSessionRepository implements SessionRepository {
       .where('id', session.id)
       .update({
         modified_on: now,
-        state: JSON.stringify(session.state),
-        context: JSON.stringify(session.context),
-        event: JSON.stringify(session.event)
+        state: this.database.knex.json.set(session.state),
+        context: this.database.knex.json.set(session.context),
+        event: this.database.knex.json.set(session.event)
       })
       .then()
   }
