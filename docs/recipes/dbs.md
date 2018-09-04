@@ -33,7 +33,8 @@ Firstly, check your botfile for the postgres-configuration section. By default i
   }
 ```
 
-Then to enable Postgres, you just need to pass 2 environment variables: `DATABASE=postgres` and `DATABASE_URL=postgres://login:password@your-db-host.com:5432/your-db-name`
+
+So to enable Postgres you just need to pass 2 environment variables: `DATABASE=postgres` and `DATABASE_URL=postgres://login:password@your-db-host.com:5432/your-db-name`. Please make sure you are using Postgres 9.5 or higher.
 
 ## Other Databases
 
