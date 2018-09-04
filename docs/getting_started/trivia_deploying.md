@@ -67,7 +67,7 @@ heroku config:set BOTPRESS_PASSWORD=hello123
 
 ### Using Postgres as the database
 
-By default, Botpress uses SQLite as a database for persistence. This doesn't work well on Heroku because it has ephemeral storage, which means data will get lost every day or so. The best is to switch the database to Postgres:
+By default, Botpress uses SQLite as a database for persistence. This doesn't work well on Heroku because it has ephemeral storage, which means data will get lost every day or so. The best is to switch the database to Postgres (please make sure you are using Postgres 9.5 or higher):
 
 ```bash
 # Get a free Postgres database
