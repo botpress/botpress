@@ -1,5 +1,5 @@
 import { Logger } from 'botpress-module-sdk'
-import { inject, injectable, postConstruct, tagged } from 'inversify'
+import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
 
@@ -23,7 +23,7 @@ export default class FlowService {
     @inject(TYPES.GhostService) private ghost: GhostService
   ) {}
 
-  // @Memoize()
+  @Memoize()
   async loadAll(botId: string): Promise<FlowView[]> {
     const flowsPath = this.ghost.forBot(botId).directoryListing(FLOW_DIR, '.flow.json')
 

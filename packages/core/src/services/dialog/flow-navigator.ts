@@ -8,7 +8,7 @@ import FlowService from './flow-service'
 
 @injectable()
 export class FlowNavigator {
-  constructor() {}
+  constructor(@inject(TYPES.FlowService) private flowService: FlowService) {}
 
   async navigate(botId: string, next: string, session: DialogSession): Promise<DialogSession> {
     const context = _.get(session, 'context')
@@ -28,12 +28,12 @@ export class FlowNavigator {
     }
 
     if (!node) {
-      // const flows = await this.flowService.loadAll(botId)
-      // flow = flows.find(x => x.name === next)
+      const flows = await this.flowService.loadAll(botId)
+      flow = flows.find(x => x.name === next)
       if (!flow) {
         throw new Error(`Could not find any node or flow under the name of "${next}"`)
       }
-      // node = this.flowService.findEntryNode(flow)
+      node = this.flowService.findEntryNode(flow)
     }
 
     newContext = { ...newContext, currentNode: node }

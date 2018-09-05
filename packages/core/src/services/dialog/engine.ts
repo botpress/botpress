@@ -26,6 +26,9 @@ export class ProcessingError extends Error {
 export class DialogEngine {
   onProcessingError: ((err: ProcessingError) => void) | undefined
 
+  // Persist or in-memory??
+  private queuesBySessions: Map<string, InstructionQueue> = new Map()
+
   constructor(
     @inject(TYPES.FlowNavigator) private flowNavigator: FlowNavigator,
     @inject(TYPES.InstructionProcessor) private instructionProcessor: InstructionProcessor,
@@ -42,43 +45,43 @@ export class DialogEngine {
     const defaultFlow = await this.flowService.findDefaultFlow(botId)
     const entryNode = this.flowService.findEntryNode(defaultFlow)
     const session = await this.sessionService.getOrCreateSession(sessionId, event, defaultFlow, entryNode)
-    const queue = new InstructionQueue()
 
-    do {
+    let queue = this.queuesBySessions.get(sessionId)
+    if (!queue) {
+      queue = new InstructionQueue()
       queue.createFromContext(session.context)
-      console.log(queue)
+      this.queuesBySessions.set(sessionId, queue)
+    }
 
-      while (queue.hasInstructions()) {
-        const instruction = queue.dequeue()!
-        console.log('Instruction: ', instruction.type, instruction.fn)
-        try {
-          const result = await this.instructionProcessor.process(
-            instruction,
-            session.state,
-            session.event,
-            session.context
-          )
+    while (queue.hasInstructions()) {
+      const instruction = queue.dequeue()!
+      console.log('Instruction: ', instruction.type, instruction.fn)
+      try {
+        const result = await this.instructionProcessor.process(
+          instruction,
+          session.state,
+          session.event,
+          session.context
+        )
 
-          this.sessionService.updateSession(session)
+        console.log('Result = ', result.followUpAction, result.options && result.options.transitionTo)
 
-          console.log('Result = ', result.followUpAction, result.options && result.options.transitionTo)
-
-          if (result.followUpAction === 'wait') {
-            break
-          } else if (result.followUpAction === 'transition') {
-            await this.navigateToNextNode(botId, session, result.options && result.options.transitionTo)
-          } else if (result.followUpAction === 'none') {
-            // continue
-          }
-        } catch (err) {
-          instruction.type === 'on-enter'
-            ? queue.createFromContext(session.context)
-            : queue.createFromContext(session.context, { skipOnEnter: true })
-          queue.wait()
-          this.reportProcessingError(err, session, instruction)
+        if (result.followUpAction === 'wait') {
+          break
+        } else if (result.followUpAction === 'transition') {
+          queue.clear()
+          await this.navigateToNextNode(botId, session, result.options && result.options.transitionTo)
+        } else if (result.followUpAction === 'none') {
+          // continue
         }
+      } catch (err) {
+        instruction.type === 'on-enter'
+          ? queue.createFromContext(session.context)
+          : queue.createFromContext(session.context, { skipOnEnter: true })
+        queue.wait()
+        this.reportProcessingError(err, session, instruction)
       }
-    } while (!queue.isWaiting())
+    }
   }
 
   private async navigateToNextNode(botId, session, name) {
