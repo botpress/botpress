@@ -54,7 +54,7 @@ export class ActionStrategy implements InstructionStrategy {
       value: params
     }
 
-    await this.eventEngine.sendContent(botId, chunks[1], event.target, event.channel) // FIXME
+    // await this.eventEngine.sendContent(botId, chunks[1], event.target, event.channel) // FIXME
 
     return ProcessingResult.none()
 

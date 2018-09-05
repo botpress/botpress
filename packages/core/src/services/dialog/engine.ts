@@ -5,9 +5,10 @@ import _ from 'lodash'
 import { TYPES } from '../../misc/types'
 import { DialogSession } from '../../repositories/session-repository'
 
-import { FlowNavigator } from './flow/navigator'
+import { FlowNavigator, NavigationArgs, NavigationPosition } from './flow/navigator'
 import FlowService from './flow/service'
 import { Instruction } from './instruction'
+import { InstructionFactory } from './instruction/factory'
 import { InstructionProcessor } from './instruction/processor'
 import { InstructionQueue } from './instruction/queue'
 import { SessionService } from './session/service'
@@ -23,12 +24,11 @@ export class ProcessingError extends Error {
   }
 }
 
+const DEFAULT_FLOW_NAME = 'main.flow.json'
+
 @injectable()
 export class DialogEngine {
   onProcessingError: ((err: ProcessingError) => void) | undefined
-
-  // Persist or in-memory??
-  private queuesBySessions: Map<string, InstructionQueue> = new Map()
 
   constructor(
     @inject(TYPES.FlowNavigator) private flowNavigator: FlowNavigator,
@@ -43,17 +43,29 @@ export class DialogEngine {
    * @param event The incoming botpress event
    */
   async processEvent(botId: string, sessionId: string, event: BotpressEvent) {
-    const defaultFlow = await this.flowService.findDefaultFlow(botId)
-    const entryNode = this.flowService.findEntryNode(defaultFlow)
-    const session = await this.sessionService.getOrCreateSession(sessionId, event, defaultFlow, entryNode)
+    const flows = await this.flowService.loadAll(botId)
+    const defaultFlow = flows.find(f => f.name === DEFAULT_FLOW_NAME)!
+    const entryNodeName = _.get(defaultFlow, 'startNode')!
 
-    // Or session.context.queue
+    const session = await this.sessionService.getOrCreateSession(sessionId)
+    this.sessionService.updateSessionEvent(session.id, event)
 
-    let queue = this.queuesBySessions.get(sessionId)
-    if (!queue) {
-      queue = new InstructionQueue()
-      queue.createFromContext(session.context)
-      this.queuesBySessions.set(sessionId, queue)
+    if (session.hasEmptyNode()) {
+      this.sessionService.updateSessionContext(session.id, {
+        currentFlowName: defaultFlow.name,
+        currentNodeName: entryNodeName
+      })
+    }
+
+    if (session.hasEmptyQueue()) {
+      const currentFlow = this.getCurrentFlow(session, flows)
+      const currentNode = this.getCurrentNode(session, flows)
+      const queue = this.createQueue(currentNode, currentFlow)
+      await this.sessionService.updateSessionContext(session.id, {
+        currentFlowName: currentFlow.name,
+        currentNodeName: currentNode.name,
+        queue: queue
+      })
     }
 
     while (queue.hasInstructions()) {
@@ -74,30 +86,78 @@ export class DialogEngine {
           break
         } else if (result.followUpAction === 'transition') {
           queue.clear()
-          await this.navigateToNextNode(botId, session, result.transitionTo)
+          const position = await this.navigateToNextNode(flows, queue, result.transitionTo)
         } else if (result.followUpAction === 'none') {
           // continue
         }
       } catch (err) {
-        instruction.type === 'on-enter'
-          ? queue.createFromContext(session.context)
-          : queue.createFromContext(session.context, { skipOnEnter: true })
-        queue.wait()
         this.reportProcessingError(err, session, instruction)
+        queue = this.rebuildQueue(flows, instruction, session)
       } finally {
-        this.queuesBySessions.set(sessionId, queue)
+        session.context.queue = queue
+        this.sessionService.updateSession(session)
       }
     }
   }
 
-  private async navigateToNextNode(botId, session, target) {
-    const updatedSession = await this.flowNavigator.navigate(botId, target, session)
-    await this.sessionService.updateSession(updatedSession)
+  private getCurrentFlow(session, flows) {
+    const flowName = _.get(session, 'context.currentFlowName')
+    return flows.find(f => f.name === flowName)!
+  }
+
+  private getCurrentNode(session, flows) {
+    const nodeName = _.get(session, 'context.currentNodeName')
+    const currentFlow = this.getCurrentFlow(session, flows)
+    return currentFlow.nodes.find(n => n.name === nodeName)
+  }
+
+  private rebuildQueue(flows, instruction, session) {
+    const currentFlow = this.getCurrentFlow(session, flows)
+    const currentNode = this.getCurrentNode(session, flows)
+    const skipOnEnter = true
+
+    const queue =
+      instruction.type === 'on-enter'
+        ? this.createQueue(currentNode, currentFlow)
+        : this.createQueue(currentNode, currentFlow, skipOnEnter)
+    queue.wait()
+  }
+
+  protected createQueue(currentNode, currentFlow, skipOnEnter = false) {
+    const queue = new InstructionQueue()
+
+    if (skipOnEnter) {
+      const onEnter = InstructionFactory.createOnEnter(currentNode)
+      queue.enqueue(...onEnter)
+    }
+
+    const onReceive = InstructionFactory.createOnReceive(currentNode, currentFlow)
+    const transition = InstructionFactory.createTransition(currentNode, currentFlow)
+
+    if (!_.isEmpty(onReceive)) {
+      queue.wait()
+    }
+
+    queue.enqueue(...onReceive)
+    queue.enqueue(...transition)
+    return queue
+  }
+
+  private async navigateToNextNode(flows, session, destination): Promise<NavigationPosition> {
+    const navigationArgs: NavigationArgs = {
+      previousFlowName: _.get(session, ['context.previousFlowName']),
+      previousNodeName: _.get(session, ['context.previousFlowName']),
+      currentFlowName: _.get(session, ['context.currentFlowName']),
+      currentNodeName: _.get(session, ['context.currentNodeName']),
+      flows: flows,
+      destination: destination
+    }
+    return this.flowNavigator.navigate(navigationArgs)
   }
 
   private reportProcessingError(error: Error, session: DialogSession, instruction: Instruction) {
-    const nodeName = _.get(session, 'context.currentNode.name', 'N/A')
-    const flowName = _.get(session, 'context.currentFlow.name', 'N/A')
+    const nodeName = _.get(session, 'context.currentNodeName', 'N/A')
+    const flowName = _.get(session, 'context.currentFlowName', 'N/A')
     const instructionDetails = instruction.fn || instruction.type
     this.onProcessingError &&
       this.onProcessingError(new ProcessingError(error.message, nodeName, flowName, instructionDetails))

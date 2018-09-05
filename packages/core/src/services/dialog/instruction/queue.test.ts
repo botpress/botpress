@@ -24,7 +24,7 @@ describe('Instruction Queue', () => {
   })
 
   it('Enqueue from context', () => {
-    const instructions = queue.createFromContext(context)
+    const instructions = queue.createFromNode(context)
 
     expect(instructions[0]).toEqual({ fn: 'enter {}', type: 'on-enter' })
     expect(instructions[1]).toEqual({ type: 'wait' })

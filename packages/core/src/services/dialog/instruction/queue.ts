@@ -11,27 +11,6 @@ export class InstructionQueue {
     this.instructions = []
   }
 
-  createFromContext(context, options: { skipOnEnter: boolean } = { skipOnEnter: false }) {
-    this.clear()
-
-    if (options && !options.skipOnEnter) {
-      const onEnter = InstructionFactory.createOnEnter(context)
-      this.instructions.push(...onEnter)
-    }
-
-    const onReceive = InstructionFactory.createOnReceive(context)
-    const transition = InstructionFactory.createTransition(context)
-
-    if (!_.isEmpty(onReceive)) {
-      const wait = InstructionFactory.createWait()
-      this.instructions.push(wait)
-    }
-
-    this.instructions.push(...onReceive)
-    this.instructions.push(...transition)
-    return this.instructions
-  }
-
   enqueue(...instruction: Instruction[]) {
     this.instructions.push(...instruction)
   }
