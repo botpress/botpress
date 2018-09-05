@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.35.1"></a>
+## [10.35.1](https://github.com/botpress/botpress/compare/v10.35.0...v10.35.1) (2018-09-05)
+
+
+### Bug Fixes
+
+* **web:** improve path to customStylesheet ([8faa833](https://github.com/botpress/botpress/commit/8faa833))
+
+
+
+
 <a name="10.35.0"></a>
 # [10.35.0](https://github.com/botpress/botpress/compare/v10.34.0...v10.35.0) (2018-09-04)
 
