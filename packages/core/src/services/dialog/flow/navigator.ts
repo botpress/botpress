@@ -33,6 +33,7 @@ export class FlowNavigator {
       const flow = args.flows.find(f => f.name === args.currentFlowName)
       const node = flow.nodes.find(n => n.name === args.destination)
       nodeName = node.name
+      flowName = flow.name
     }
 
     if (!nodeName) {

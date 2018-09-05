@@ -47,26 +47,28 @@ export class DialogEngine {
     const defaultFlow = flows.find(f => f.name === DEFAULT_FLOW_NAME)!
     const entryNodeName = _.get(defaultFlow, 'startNode')!
 
-    const session = await this.sessionService.getOrCreateSession(sessionId)
-    this.sessionService.updateSessionEvent(session.id, event)
+    let session: DialogSession = await this.sessionService.getOrCreateSession(sessionId)
+    session = await this.sessionService.updateSessionEvent(session.id, event)
 
-    if (session.hasEmptyNode()) {
-      this.sessionService.updateSessionContext(session.id, {
+    if (!session.context!.currentNodeName) {
+      session = await this.sessionService.updateSessionContext(session.id, {
         currentFlowName: defaultFlow.name,
         currentNodeName: entryNodeName
       })
     }
 
-    if (session.hasEmptyQueue()) {
+    if (!session.context!.queue) {
       const currentFlow = this.getCurrentFlow(session, flows)
       const currentNode = this.getCurrentNode(session, flows)
       const queue = this.createQueue(currentNode, currentFlow)
-      await this.sessionService.updateSessionContext(session.id, {
+      session = await this.sessionService.updateSessionContext(session.id, {
         currentFlowName: currentFlow.name,
         currentNodeName: currentNode.name,
-        queue: queue
+        queue: queue.toString()
       })
     }
+
+    let queue = new InstructionQueue(session.context!.queue)
 
     while (queue.hasInstructions()) {
       const instruction = queue.dequeue()!
@@ -83,19 +85,38 @@ export class DialogEngine {
         console.log('Result = ', result.followUpAction, result.transitionTo)
 
         if (result.followUpAction === 'wait') {
+          const context = session.context!
+          context.queue = queue.toString()
+          this.sessionService.updateSessionContext(session.id, context)
           break
         } else if (result.followUpAction === 'transition') {
           queue.clear()
-          const position = await this.navigateToNextNode(flows, queue, result.transitionTo)
+
+          const position = await this.navigateToNextNode(flows, session, result.transitionTo)
+          const flow = flows.find(f => f.name === position.flowName)
+          const node = flow!.nodes.find(n => n.name === position.nodeName)
+          queue = this.createQueue(node, flow)
+
+          this.sessionService.updateSessionContext(session.id, {
+            previousFlowName: session.context!.currentFlowName,
+            previousNodeName: session.context!.currentNodeName,
+            currentFlowName: position.flowName,
+            currentNodeName: position.nodeName,
+            queue: queue.toString()
+          })
         } else if (result.followUpAction === 'none') {
-          // continue
+          const context = session.context!
+          context.queue = queue.toString()
+          this.sessionService.updateSessionContext(session.id, context)
         }
       } catch (err) {
-        this.reportProcessingError(err, session, instruction)
         queue = this.rebuildQueue(flows, instruction, session)
-      } finally {
-        session.context.queue = queue
-        this.sessionService.updateSession(session)
+        const context = session.context!
+        context.queue = queue.toString()
+        this.sessionService.updateSessionContext(session.id, context)
+
+        this.reportProcessingError(err, session, instruction)
+        break
       }
     }
   }
@@ -120,13 +141,13 @@ export class DialogEngine {
       instruction.type === 'on-enter'
         ? this.createQueue(currentNode, currentFlow)
         : this.createQueue(currentNode, currentFlow, skipOnEnter)
-    queue.wait()
+    return queue
   }
 
   protected createQueue(currentNode, currentFlow, skipOnEnter = false) {
     const queue = new InstructionQueue()
 
-    if (skipOnEnter) {
+    if (!skipOnEnter) {
       const onEnter = InstructionFactory.createOnEnter(currentNode)
       queue.enqueue(...onEnter)
     }
@@ -135,20 +156,21 @@ export class DialogEngine {
     const transition = InstructionFactory.createTransition(currentNode, currentFlow)
 
     if (!_.isEmpty(onReceive)) {
-      queue.wait()
+      queue.enqueue({ type: 'wait' })
     }
 
     queue.enqueue(...onReceive)
     queue.enqueue(...transition)
+
     return queue
   }
 
-  private async navigateToNextNode(flows, session, destination): Promise<NavigationPosition> {
+  private async navigateToNextNode(flows, session: DialogSession, destination): Promise<NavigationPosition> {
     const navigationArgs: NavigationArgs = {
-      previousFlowName: _.get(session, ['context.previousFlowName']),
-      previousNodeName: _.get(session, ['context.previousFlowName']),
-      currentFlowName: _.get(session, ['context.currentFlowName']),
-      currentNodeName: _.get(session, ['context.currentNodeName']),
+      previousFlowName: session.context!.previousFlowName!,
+      previousNodeName: session.context!.previousNodeName!,
+      currentFlowName: session.context!.currentFlowName,
+      currentNodeName: session.context!.currentNodeName,
       flows: flows,
       destination: destination
     }

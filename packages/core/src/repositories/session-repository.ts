@@ -4,14 +4,13 @@ import _ from 'lodash'
 
 import Database from '../database'
 import { TYPES } from '../misc/types'
-import { InstructionQueue } from '../services/dialog/instruction/queue'
 
 export type DialogContext = {
   previousFlowName?: string
   previousNodeName?: string
   currentNodeName: string
   currentFlowName: string
-  queue?: InstructionQueue
+  queue?: string
 }
 
 export class DialogSession {
@@ -20,14 +19,6 @@ export class DialogSession {
   created_on?: Date
   modified_on?: Date
   active_on?: Date
-
-  hasEmptyNode() {
-    return !_.get(this.context, 'currentFlowName') && !_.get(this.context, 'currentNodeName')
-  }
-
-  hasEmptyQueue() {
-    return !_.get(this.context, 'queue')
-  }
 }
 
 export interface SessionRepository {

@@ -5,7 +5,13 @@ import { InstructionFactory } from './factory'
 
 export class InstructionQueue {
   private instructions: Instruction[] = []
-  private waiting = false
+
+  constructor(instructions?: string) {
+    if (instructions) {
+      console.log(instructions)
+      this.instructions = JSON.parse(instructions)
+    }
+  }
 
   clear() {
     this.instructions = []
@@ -16,21 +22,19 @@ export class InstructionQueue {
   }
 
   dequeue(): Instruction | undefined {
-    const instruction = this.instructions.shift()!
-    this.waiting = instruction && instruction.type === 'wait'
-    return instruction
+    return this.instructions.shift()!
   }
 
   hasInstructions(): boolean {
     return this.instructions.length > 0
   }
 
-  isWaiting(): boolean {
-    return this.waiting
-  }
-
   wait() {
     const wait = InstructionFactory.createWait()
     this.instructions.unshift(wait)
+  }
+
+  toString() {
+    return JSON.stringify(this.instructions)
   }
 }

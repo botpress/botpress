@@ -31,7 +31,7 @@ export interface InstructionStrategy {
 
 @injectable()
 export class ActionStrategy implements InstructionStrategy {
-  constructor(private eventEngine: EventEngine, private actionService: ActionService) {}
+  constructor(@inject(TYPES.ActionService) private actionService: ActionService) {}
 
   async processInstruction(botId, instruction, state, event, context): Promise<ProcessingResult> {
     if (instruction.fn.indexOf('say ') === 0) {
