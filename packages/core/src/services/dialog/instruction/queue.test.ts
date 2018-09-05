@@ -1,4 +1,4 @@
-import { InstructionQueue } from './instruction-queue'
+import { InstructionQueue } from './queue'
 
 const context = {
   currentNode: {

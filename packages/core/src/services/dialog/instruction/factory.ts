@@ -1,6 +1,6 @@
 import _ from 'lodash'
 
-import { Instruction } from './instruction-processor'
+import { Instruction } from '.'
 
 export class InstructionFactory {
   static createOnEnter(context) {

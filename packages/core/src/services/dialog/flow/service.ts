@@ -3,11 +3,10 @@ import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
 
-import { TYPES } from '../../misc/types'
-import GhostService from '../ghost/service'
-
-import { Flow, FlowView, NodeView } from '.'
-import { validateFlowSchema } from './validator'
+import { Flow, FlowView, NodeView } from '..'
+import { TYPES } from '../../../misc/types'
+import GhostService from '../../ghost/service'
+import { validateFlowSchema } from '../validator'
 
 const PLACING_STEP = 250
 const MIN_POS_X = 50

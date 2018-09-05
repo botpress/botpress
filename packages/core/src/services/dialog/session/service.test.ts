@@ -1,9 +1,9 @@
 import { BotpressEvent } from 'botpress-module-sdk'
 import 'reflect-metadata'
 
-import { createSpyObject } from '../../misc/utils'
+import { createSpyObject } from '../../../misc/utils'
 
-import { SessionService } from './session-service'
+import { SessionService } from './service'
 
 const SESSION_ID = 'session-id'
 const EVENT: BotpressEvent = {

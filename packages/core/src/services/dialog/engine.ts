@@ -1,15 +1,16 @@
 import { BotpressEvent } from 'botpress-module-sdk'
-import { inject, injectable, postConstruct } from 'inversify'
+import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 
 import { TYPES } from '../../misc/types'
 import { DialogSession } from '../../repositories/session-repository'
 
-import { FlowNavigator } from './flow-navigator'
-import FlowService from './flow-service'
-import { Instruction, InstructionProcessor } from './instruction-processor'
-import { InstructionQueue } from './instruction-queue'
-import { SessionService } from './session-service'
+import { FlowNavigator } from './flow/navigator'
+import FlowService from './flow/service'
+import { Instruction } from './instruction'
+import { InstructionProcessor } from './instruction/processor'
+import { InstructionQueue } from './instruction/queue'
+import { SessionService } from './session/service'
 
 export class ProcessingError extends Error {
   constructor(

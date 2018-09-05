@@ -1,10 +1,10 @@
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 
-import { TYPES } from '../../misc/types'
-import { DialogSession } from '../../repositories/session-repository'
+import { TYPES } from '../../../misc/types'
+import { DialogSession } from '../../../repositories/session-repository'
 
-import FlowService from './flow-service'
+import FlowService from './service'
 
 @injectable()
 export class FlowNavigator {

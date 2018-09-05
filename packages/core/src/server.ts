@@ -16,7 +16,7 @@ import ActionService from './services/action/action-service'
 import AuthService from './services/auth/auth-service'
 import TeamsService from './services/auth/teams-service'
 import { CMSService } from './services/cms/cms-service'
-import FlowService from './services/dialog/flow-service'
+import FlowService from './services/dialog/flow/service'
 
 const BASE_API_PATH = '/api/v1'
 

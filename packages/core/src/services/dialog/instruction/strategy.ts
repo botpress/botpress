@@ -3,13 +3,13 @@ import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 import Mustache from 'mustache'
 
-import { container } from '../../app.inversify'
-import { TYPES } from '../../misc/types'
-import ActionService from '../action/action-service'
-import { runCode } from '../action/sandbox-launcher'
-import { EventEngine } from '../middleware/event-engine'
+import { container } from '../../../app.inversify'
+import { TYPES } from '../../../misc/types'
+import ActionService from '../../action/action-service'
+import { runCode } from '../../action/sandbox-launcher'
+import { EventEngine } from '../../middleware/event-engine'
 
-import { Instruction, InstructionType, ProcessingResult } from './instruction-processor'
+import { Instruction, InstructionType, ProcessingResult } from '.'
 
 @injectable()
 export class StrategyFactory {

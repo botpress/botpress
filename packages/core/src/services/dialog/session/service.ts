@@ -1,7 +1,7 @@
 import { inject, injectable } from 'inversify'
 
-import { TYPES } from '../../misc/types'
-import { DialogSession, SessionRepository } from '../../repositories/session-repository'
+import { TYPES } from '../../../misc/types'
+import { DialogSession, SessionRepository } from '../../../repositories/session-repository'
 
 @injectable()
 export class SessionService {

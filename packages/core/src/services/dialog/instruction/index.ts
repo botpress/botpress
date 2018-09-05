@@ -1,8 +1,3 @@
-import { injectable } from 'inversify'
-import _ from 'lodash'
-
-import { StrategyFactory } from './instruction-strategy'
-
 export type InstructionType = 'transition' | 'on-enter' | 'on-receive' | 'wait' | 'breakpoint'
 
 /**
@@ -29,15 +24,5 @@ export class ProcessingResult {
   }
   static wait() {
     return new ProcessingResult(true, 'wait')
-  }
-}
-
-@injectable()
-export class InstructionProcessor {
-  constructor(private strategyFactory: StrategyFactory) {}
-
-  async process(botId, instruction, state, event, context): Promise<ProcessingResult> {
-    const instructionStrategy = this.strategyFactory.create(instruction.type)
-    return instructionStrategy.processInstruction(botId, instruction, state, event, context)
   }
 }

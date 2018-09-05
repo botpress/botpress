@@ -4,14 +4,12 @@ import { Memoize } from 'lodash-decorators'
 import path from 'path'
 import plur from 'plur'
 
-import { IDisposeOnExit } from './misc/interfaces'
-
 import { BotConfig } from './config/bot.config'
 import { ConfigProvider } from './config/config-loader'
 import { TYPES } from './misc/types'
 import ActionService from './services/action/action-service'
 import { CMSService } from './services/cms/cms-service'
-import FlowService from './services/dialog/flow-service'
+import FlowService from './services/dialog/flow/service'
 import GhostService from './services/ghost/service'
 
 @injectable()

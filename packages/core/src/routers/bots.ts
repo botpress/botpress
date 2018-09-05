@@ -7,7 +7,7 @@ import ActionService from '../services/action/action-service'
 import { DefaultSearchParams } from '../services/cms'
 import { CMSService } from '../services/cms/cms-service'
 import { FlowView } from '../services/dialog'
-import FlowService from '../services/dialog/flow-service'
+import FlowService from '../services/dialog/flow/service'
 
 import { CustomRouter } from '.'
 

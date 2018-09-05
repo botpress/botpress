@@ -1,7 +1,7 @@
 import _ from 'lodash'
 
-import { InstructionFactory } from './instruction-factory'
-import { Instruction } from './instruction-processor'
+import { Instruction } from '.'
+import { InstructionFactory } from './factory'
 
 export class InstructionQueue {
   private instructions: Instruction[] = []

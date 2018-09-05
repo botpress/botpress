@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import 'reflect-metadata'
 
-import { InstructionFactory } from './instruction-factory'
+import { InstructionFactory } from './factory'
 
 const context = {
   currentNode: {

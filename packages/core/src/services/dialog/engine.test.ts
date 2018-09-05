@@ -5,7 +5,7 @@ import { createSpyObject } from '../../misc/utils'
 import { DialogSession } from '../../repositories/session-repository'
 
 import { DialogEngine } from './engine'
-import { InstructionQueue } from './instruction-queue'
+import { InstructionQueue } from './instruction/queue'
 import { context, flows } from './stubs'
 
 class TestDialogEngine extends DialogEngine {
