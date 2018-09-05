@@ -74,7 +74,7 @@ export default class Web extends React.Component {
       isButtonHidden: hideWidget
     }
 
-    if (config.customStylesheet && /\.css$/.test(config.customStylesheet)) {
+    if (this.state.config.customStylesheet && /\.css$/.test(this.state.config.customStylesheet)) {
       injectDOMElement('link', 'head', { rel: 'stylesheet', href: config.customStylesheet })
     }
   }
