@@ -85,9 +85,7 @@ export class DialogEngine {
         console.log('Result = ', result.followUpAction, result.transitionTo)
 
         if (result.followUpAction === 'wait') {
-          const context = session.context!
-          context.queue = queue.toString()
-          this.sessionService.updateSessionContext(session.id, context)
+          await this.updateQueueForSession(queue, session)
           break
         } else if (result.followUpAction === 'transition') {
           queue.clear()
@@ -105,20 +103,21 @@ export class DialogEngine {
             queue: queue.toString()
           })
         } else if (result.followUpAction === 'none') {
-          const context = session.context!
-          context.queue = queue.toString()
-          this.sessionService.updateSessionContext(session.id, context)
+          await this.updateQueueForSession(queue, session)
         }
       } catch (err) {
         queue = this.rebuildQueue(flows, instruction, session)
-        const context = session.context!
-        context.queue = queue.toString()
-        this.sessionService.updateSessionContext(session.id, context)
-
+        await this.updateQueueForSession(queue, session)
         this.reportProcessingError(err, session, instruction)
         break
       }
     }
+  }
+
+  private async updateQueueForSession(queue: InstructionQueue, session: DialogSession) {
+    const context = session.context!
+    context.queue = queue.toString()
+    await this.sessionService.updateSessionContext(session.id, context)
   }
 
   private getCurrentFlow(session, flows) {
@@ -137,11 +136,9 @@ export class DialogEngine {
     const currentNode = this.getCurrentNode(session, flows)
     const skipOnEnter = true
 
-    const queue =
-      instruction.type === 'on-enter'
-        ? this.createQueue(currentNode, currentFlow)
-        : this.createQueue(currentNode, currentFlow, skipOnEnter)
-    return queue
+    return instruction.type === 'on-enter'
+      ? this.createQueue(currentNode, currentFlow)
+      : this.createQueue(currentNode, currentFlow, skipOnEnter)
   }
 
   protected createQueue(currentNode, currentFlow, skipOnEnter = false) {
