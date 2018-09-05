@@ -23,17 +23,28 @@ export type Instruction = {
   node?: string
 }
 
-export type FollowUpAction = 'none' | 'wait' | 'transition'
+export type FollowUpAction = 'none' | 'wait' | 'transition' | 'retry'
+
 export class ProcessingResult {
-  constructor(public success: boolean, public followUpAction: FollowUpAction, public transitionTo: string) {}
+  constructor(
+    public success: boolean,
+    public followUpAction: FollowUpAction,
+    public options?: {
+      transitionTo?: string
+      retry?: Instruction
+    }
+  ) {}
   static none() {
-    return new ProcessingResult(true, 'none', '')
+    return new ProcessingResult(true, 'none')
   }
   static transition(destination: string) {
-    return new ProcessingResult(true, 'transition', destination)
+    return new ProcessingResult(true, 'transition', { transitionTo: destination })
   }
   static wait() {
-    return new ProcessingResult(true, 'wait', '')
+    return new ProcessingResult(true, 'wait')
+  }
+  static retry(instruction: Instruction): any {
+    return new ProcessingResult(false, 'retry', { retry: instruction })
   }
 }
 

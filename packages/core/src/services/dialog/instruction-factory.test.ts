@@ -9,7 +9,7 @@ const context = {
     name: 'entry',
     onEnter: ['enter {}'],
     onReceive: ['receive {}'],
-    next: [{ condition: 'a !== b', node: 'another-node' }]
+    next: [{ condition: 'true', node: 'another-node' }]
   },
   currentFlow: {
     catchAll: {
@@ -21,22 +21,27 @@ const context = {
 
 describe('Instruction Factory', () => {
   describe('Create on reveice instructions', () => {
-    it('Enqueue flow relative onReceive before context relative onReceive', () => {
+    it('Place flow onReceive before node onReceive', () => {
       const onReceive = InstructionFactory.createOnReceive(context)
 
-      expect(onReceive[0]).toEqual({ type: 'on-receive', fn: 'flowReceive {}' })
-      expect(onReceive[1]).toEqual({ type: 'on-receive', fn: 'receive {}' })
+      expect(onReceive).toEqual([
+        { type: 'on-receive', fn: 'flowReceive {}' },
+        { type: 'on-receive', fn: 'receive {}' }
+      ])
     })
   })
 
   describe('Create transitions instructions', () => {
-    it('Overrides the node transitions with the flow transitions', () => {
+    it('Place flow transitions before node transitions', () => {
       const otherContext = _.cloneDeep(context)
       otherContext.currentFlow.catchAll.next = [{ condition: 'true', node: 'override' }]
 
       const transitions = InstructionFactory.createTransition(otherContext)
 
-      expect(transitions).toEqual([{ fn: 'true', node: 'override', type: 'transition' }])
+      expect(transitions).toEqual([
+        { fn: 'true', node: 'override', type: 'transition' },
+        { fn: 'true', node: 'another-node', type: 'transition' }
+      ])
     })
   })
 })

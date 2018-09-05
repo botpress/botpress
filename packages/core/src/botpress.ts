@@ -97,7 +97,7 @@ export class Botpress {
     await this.botLoader.loadAllBots()
     this.eventEngine.onAfterIncomingMiddleware = async event => {
       await this.hookService.executeHook(new Hooks.AfterIncomingMiddleware(this.api, event))
-      await this.dialogEngine.processEvent(event.target, event)
+      await this.dialogEngine.processEvent('bot123', event.target, event)
     }
 
     const flowLoger = await this.loggerProvider('DialogEngine')

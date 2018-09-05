@@ -11,13 +11,16 @@ export class InstructionQueue {
     this.instructions = []
   }
 
-  enqueueContextInstructions(context) {
-    const onEnter = InstructionFactory.createOnEnter(context)
+  createFromContext(context, options: { skipOnEnter: boolean } = { skipOnEnter: false }) {
+    this.clear()
+
+    if (options && !options.skipOnEnter) {
+      const onEnter = InstructionFactory.createOnEnter(context)
+      this.instructions.push(...onEnter)
+    }
+
     const onReceive = InstructionFactory.createOnReceive(context)
     const transition = InstructionFactory.createTransition(context)
-
-    this.instructions = []
-    this.instructions.push(...onEnter)
 
     if (!_.isEmpty(onReceive)) {
       const wait = InstructionFactory.createWait()
@@ -47,9 +50,8 @@ export class InstructionQueue {
     return this.waiting
   }
 
-  retry(instruction: Instruction) {
+  wait() {
     const wait = InstructionFactory.createWait()
-    this.instructions.unshift(instruction)
     this.instructions.unshift(wait)
   }
 }

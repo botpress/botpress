@@ -60,7 +60,7 @@ const event = (eventEngine: EventEngine): EventAPI => {
 const dialog = (dialogEngine: DialogEngine): DialogAPI => {
   return {
     async processMessage(botId: string, event: BotpressEvent): Promise<void> {
-      await dialogEngine.processEvent(botId, event)
+      await dialogEngine.processEvent(botId, botId, event)
     }
   }
 }

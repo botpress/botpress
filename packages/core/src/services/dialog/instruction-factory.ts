@@ -26,9 +26,10 @@ export class InstructionFactory {
   }
 
   static createTransition(context): Instruction[] {
-    // Will get the flow transition otherwise the node transition
-    const transition = _.get(context, 'currentFlow.catchAll.next') || _.get(context, 'currentNode.next') || []
-    return transition.map(
+    const flowNext = _.get(context, 'currentFlow.catchAll.next', []) || []
+    const nodeNext = _.get(context, 'currentNode.next', []) || []
+
+    return [...flowNext, ...nodeNext].map(
       (x): Instruction => ({
         type: 'transition',
         fn: x.condition,

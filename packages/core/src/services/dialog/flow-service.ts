@@ -1,6 +1,7 @@
 import { Logger } from 'botpress-module-sdk'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
 import _ from 'lodash'
+import { Memoize } from 'lodash-decorators'
 
 import { TYPES } from '../../misc/types'
 import GhostService from '../ghost/service'
@@ -11,6 +12,7 @@ import { validateFlowSchema } from './validator'
 const PLACING_STEP = 250
 const MIN_POS_X = 50
 const FLOW_DIR = 'flows'
+const DEFAULT_FLOW_NAME = 'main.flow.json'
 
 @injectable()
 export default class FlowService {
@@ -21,6 +23,7 @@ export default class FlowService {
     @inject(TYPES.GhostService) private ghost: GhostService
   ) {}
 
+  // @Memoize()
   async loadAll(botId: string): Promise<FlowView[]> {
     const flowsPath = this.ghost.forBot(botId).directoryListing(FLOW_DIR, '.flow.json')
 
@@ -33,6 +36,16 @@ export default class FlowService {
     }
 
     return []
+  }
+
+  async findDefaultFlow(botId: string): Promise<any> {
+    const flows = await this.loadAll(botId)
+    return flows.find(f => f.name === DEFAULT_FLOW_NAME)
+  }
+
+  findEntryNode(flow): any {
+    const nodes = _.get(flow, 'nodes')
+    return nodes.find(n => n.name === flow.startNode)
   }
 
   private async parseFlow(botId: string, flowPath: string) {

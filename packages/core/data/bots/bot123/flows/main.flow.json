@@ -4,7 +4,7 @@
     "onReceive": [],
     "next": [
       {
-        "condition": "event.nlu.intent.is('forget')",
+        "condition": "true",
         "node": "forget-my-name"
       }
     ]
@@ -55,8 +55,8 @@
     {
       "id": "a54a82eb7c",
       "name": "entry",
-      "onEnter": ["tagUser {\"tag\":\"Joe\"}", "debug {}"],
-      "onReceive": null,
+      "onEnter": ["tagUser {\"tag\":\"Joe\"}"],
+      "onReceive": ["debug {}"],
       "next": [
         {
           "condition": "state.$r !== null",

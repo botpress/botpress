@@ -6,12 +6,12 @@ const context = {
     name: 'entry',
     onEnter: ['enter {}'],
     onReceive: ['receive {}'],
-    next: [{ condition: 'a !== b', node: 'another-node' }]
+    next: [{ condition: 'true', node: 'a-node' }]
   },
   currentFlow: {
     catchAll: {
       onReceive: ['flowReceive {}'],
-      next: undefined
+      next: [{ condition: 'true', node: 'b-node' }]
     }
   }
 }
@@ -23,14 +23,15 @@ describe('Instruction Queue', () => {
     queue = new InstructionQueue()
   })
 
-  it('Enqueue in order', () => {
-    const instructions = queue.enqueueContextInstructions(context)
+  it('Enqueue from context', () => {
+    const instructions = queue.createFromContext(context)
 
     expect(instructions[0]).toEqual({ fn: 'enter {}', type: 'on-enter' })
     expect(instructions[1]).toEqual({ type: 'wait' })
     expect(instructions[2]).toEqual({ fn: 'flowReceive {}', type: 'on-receive' })
     expect(instructions[3]).toEqual({ fn: 'receive {}', type: 'on-receive' })
-    expect(instructions[4]).toEqual({ type: 'transition', node: 'another-node', fn: 'a !== b' })
+    expect(instructions[4]).toEqual({ fn: 'true', node: 'b-node', type: 'transition' })
+    expect(instructions[5]).toEqual({ fn: 'true', node: 'a-node', type: 'transition' })
   })
 
   it('Dequeue in order', () => {

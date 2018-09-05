@@ -7,6 +7,7 @@ import AuthService from './auth/auth-service'
 import TeamsService from './auth/teams-service'
 import { CMSService } from './cms/cms-service'
 import { DialogEngine } from './dialog/engine'
+import { FlowNavigator } from './dialog/flow-navigator'
 import FlowService from './dialog/flow-service'
 import { InstructionFactory } from './dialog/instruction-factory'
 import { InstructionProcessor } from './dialog/instruction-processor'
@@ -84,5 +85,9 @@ export const ServicesContainerModule = new ContainerModule((bind: interfaces.Bin
 
   bind<InstructionFactory>(TYPES.InstructionFactory)
     .to(InstructionFactory)
+    .inSingletonScope()
+
+  bind<FlowNavigator>(TYPES.FlowNavigator)
+    .to(FlowNavigator)
     .inSingletonScope()
 })
