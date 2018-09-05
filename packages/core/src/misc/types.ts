@@ -34,7 +34,11 @@ const TYPES = {
   TeamsService: Symbol.for('TeamsService'),
   InstructionProcessor: Symbol.for('InstructionProcessor'),
   InstructionFactory: Symbol.for('InstructionFactory'),
-  FlowNavigator: Symbol.for('FlowNavigator')
+  FlowNavigator: Symbol.for('FlowNavigator'),
+  ActionStrategy: Symbol.for('ActionStrategy'),
+  TransitionStrategy: Symbol.for('TransitionStrategy'),
+  WaitStrategy: Symbol.for('WaitStrategy'),
+  StrategyProvider: Symbol.for('StrategyProvider')
 }
 
 export { TYPES }

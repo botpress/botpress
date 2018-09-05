@@ -60,19 +60,20 @@ export class DialogEngine {
       console.log('Instruction = ', instruction.type, instruction.fn)
       try {
         const result = await this.instructionProcessor.process(
+          botId,
           instruction,
           session.state,
           session.event,
           session.context
         )
 
-        console.log('Result = ', result.followUpAction, result.options && result.options.transitionTo)
+        console.log('Result = ', result.followUpAction, result.transitionTo)
 
         if (result.followUpAction === 'wait') {
           break
         } else if (result.followUpAction === 'transition') {
           queue.clear()
-          await this.navigateToNextNode(botId, session, result.options!.transitionTo)
+          await this.navigateToNextNode(botId, session, result.transitionTo)
         } else if (result.followUpAction === 'none') {
           // continue
         }
@@ -80,6 +81,7 @@ export class DialogEngine {
         instruction.type === 'on-enter'
           ? queue.createFromContext(session.context)
           : queue.createFromContext(session.context, { skipOnEnter: true })
+        queue.wait()
         this.reportProcessingError(err, session, instruction)
       } finally {
         this.queuesBySessions.set(sessionId, queue)
