@@ -46,6 +46,8 @@ export class DialogEngine {
     const entryNode = this.flowService.findEntryNode(defaultFlow)
     const session = await this.sessionService.getOrCreateSession(sessionId, event, defaultFlow, entryNode)
 
+    // Or session.context.queue
+
     let queue = this.queuesBySessions.get(sessionId)
     if (!queue) {
       queue = new InstructionQueue()
@@ -55,7 +57,7 @@ export class DialogEngine {
 
     while (queue.hasInstructions()) {
       const instruction = queue.dequeue()!
-      console.log('Instruction: ', instruction.type, instruction.fn)
+      console.log('Instruction = ', instruction.type, instruction.fn)
       try {
         const result = await this.instructionProcessor.process(
           instruction,
@@ -70,7 +72,7 @@ export class DialogEngine {
           break
         } else if (result.followUpAction === 'transition') {
           queue.clear()
-          await this.navigateToNextNode(botId, session, result.options && result.options.transitionTo)
+          await this.navigateToNextNode(botId, session, result.options!.transitionTo)
         } else if (result.followUpAction === 'none') {
           // continue
         }
@@ -78,14 +80,15 @@ export class DialogEngine {
         instruction.type === 'on-enter'
           ? queue.createFromContext(session.context)
           : queue.createFromContext(session.context, { skipOnEnter: true })
-        queue.wait()
         this.reportProcessingError(err, session, instruction)
+      } finally {
+        this.queuesBySessions.set(sessionId, queue)
       }
     }
   }
 
-  private async navigateToNextNode(botId, session, name) {
-    const updatedSession = await this.flowNavigator.navigate(botId, name, session)
+  private async navigateToNextNode(botId, session, target) {
+    const updatedSession = await this.flowNavigator.navigate(botId, target, session)
     await this.sessionService.updateSession(updatedSession)
   }
 
