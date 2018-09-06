@@ -34,7 +34,7 @@ export default {
             },
             value: {
               description:
-                'The value that your bot gets when the user picks this choice (usually hidden from the user)',
+                'The value that your bot gets when the user picks this choice (usually hidden from the user, and some platforms only supports title)',
               type: 'string',
               title: 'Value'
             }
