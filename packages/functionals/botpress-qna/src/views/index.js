@@ -88,7 +88,8 @@ export default class QnaAdmin extends Component {
     filter: '',
     showBulkImport: undefined,
     page: 1,
-    overallItemsCount: 0
+    overallItemsCount: 0,
+    hasCategory: false
   }
 
   shouldAutofocus = true
@@ -351,14 +352,16 @@ export default class QnaAdmin extends Component {
         {data.action === ACTIONS.REDIRECT && this.renderRedirectSelect(index, onChange)}
         {data.action === ACTIONS.TEXT_REDIRECT && this.renderTextAndRedirectSelect(index, onChange)}
 
-        <FormGroup controlId={this.getFormControlId(index, 'category')}>
-          <ControlLabel>Category:</ControlLabel>
-          <FormControlIme
-            placeholder="Category"
-            value={data.category}
-            onChange={this.onInputChange(index, 'category', onChange)}
-          />
-        </FormGroup>
+        {this.state.hasCategory ? (
+          <FormGroup controlId={this.getFormControlId(index, 'category')}>
+            <ControlLabel>Category:</ControlLabel>
+            <FormControlIme
+              placeholder="Category"
+              value={data.category}
+              onChange={this.onInputChange(index, 'category', onChange)}
+            />
+          </FormGroup>
+        ) : null}
 
         <ButtonToolbar>
           <Button type="button" onClick={() => onReset(index)} disabled={!isDirty}>

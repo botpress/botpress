@@ -32,7 +32,8 @@ module.exports = {
   },
   async init(bp, configurator) {
     const config = await configurator.loadAll()
-    const Storage = config.qnaMakerApiKey ? MicrosoftQnaMakerStorage : NluStorage
+    this.isQnAStorage = config.qnaMakerApiKey
+    const Storage = this.isQnAStorage ? MicrosoftQnaMakerStorage : NluStorage
     this.storage = new Storage({ bp, config })
     await this.storage.initialize()
 
@@ -72,7 +73,10 @@ module.exports = {
       async import(questions, { format = 'json', csvUploadStatusId } = {}) {
         recordCsvUploadStatus(csvUploadStatusId, 'Calculating diff with existing questions')
         const existingQuestions = (await storage.all()).map(item => JSON.stringify(_.omit(item.data, 'enabled')))
-        const parsedQuestions = typeof questions === 'string' ? parsers[`${format}Parse`](questions) : questions
+        const parsedQuestions =
+          typeof questions === 'string'
+            ? parsers[`${format}Parse`](questions, { hasCategory: config.qnaMakerApiKey })
+            : questions
         const questionsToSave = parsedQuestions.filter(item => !existingQuestions.includes(JSON.stringify(item)))
 
         if (config.qnaMakerApiKey) {
@@ -113,10 +117,12 @@ module.exports = {
             }
           }
 
+          const categoryWrapper = config.qnaMakerApiKey ? { category } : {}
+
           if (!flat) {
-            return { questions, action, answer, answer2, category }
+            return { questions, action, answer, answer2, ...categoryWrapper }
           }
-          return questions.map(question => ({ question, action, answer, answer2, category }))
+          return questions.map(question => ({ question, action, answer, answer2, ...categoryWrapper }))
         })
       },
 
@@ -154,7 +160,7 @@ module.exports = {
           offset: offset ? parseInt(offset) : undefined
         })
         const overallItemsCount = await this.storage.count()
-        res.send({ items, overallItemsCount })
+        res.send({ items, overallItemsCount, hasCategory: !!this.isQnAStorage })
       } catch (e) {
         logger.error('QnA Error', e, e.stack)
         res.status(500).send(e.message || 'Error')
@@ -211,8 +217,14 @@ module.exports = {
     router.get('/csv', async (req, res) => {
       res.setHeader('Content-Type', 'text/csv')
       res.setHeader('Content-disposition', `attachment; filename=qna_${moment().format('DD-MM-YYYY')}.csv`)
-      const fields = ['question', 'action', 'answer', 'answer2', 'category']
-      const json2csvParser = new Json2csvParser({ fields, header: true })
+      const categoryWrapper = this.isQnAStorage ? ['category'] : []
+      const parseOptions = {
+        fields: ['question', 'action', 'answer', 'answer2', ...categoryWrapper],
+        header: true
+      }
+
+      const json2csvParser = new Json2csvParser(parseOptions)
+
       res.end(iconv.encode(json2csvParser.parse(await bp.qna.export({ flat: true })), config.exportCsvEncoding))
     })
 
