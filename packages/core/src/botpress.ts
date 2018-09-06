@@ -1,4 +1,4 @@
-import { BotpressAPI, DialogAPI, ModuleDefinition, WellKnownEventFlags } from 'botpress-module-sdk'
+import { BotpressAPI, BotpressEvent, DialogAPI, ModuleDefinition, WellKnownEventFlags } from 'botpress-module-sdk'
 import { Logger } from 'botpress-module-sdk'
 import { inject, injectable, tagged } from 'inversify'
 import { Memoize } from 'lodash-decorators'
@@ -95,10 +95,11 @@ export class Botpress {
 
   private async initializeServices() {
     await this.botLoader.loadAllBots()
-    this.eventEngine.onAfterIncomingMiddleware = async event => {
+    this.eventEngine.onAfterIncomingMiddleware = async (event: BotpressEvent) => {
       await this.hookService.executeHook(new Hooks.AfterIncomingMiddleware(this.api, event))
       if (!event.hasFlag(WellKnownEventFlags.SKIP_DIALOG_ENGINE)) {
-        await this.dialogEngine.processEvent('bot123', event.target, event)
+        const sessionId = `${event.channel}::${event.target}::${event.threadId}`
+        await this.dialogEngine.processEvent(event.botId, sessionId, event)
       }
     }
 
