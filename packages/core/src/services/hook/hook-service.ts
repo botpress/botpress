@@ -43,6 +43,18 @@ export namespace Hooks {
       this.folder = 'after_incoming_middleware'
     }
   }
+
+  export class BeforeSessionTimeout implements BaseHook {
+    folder: string
+    args: any
+    timeout: number
+
+    constructor(bp: BotpressAPI, event: BotpressEvent) {
+      this.timeout = 1000
+      this.args = { bp, event }
+      this.folder = 'before_session_timeout'
+    }
+  }
 }
 
 class HookScript {

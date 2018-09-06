@@ -10,5 +10,8 @@
     "incomingMiddleware": ["slack.in"],
     "outgoingMiddleware": ["web.sendMessages"],
     "contentTypes": ["builtin_text", "builtin_single-choice", "builtin_image", "builtin_carousel", "builtin_card"]
+  },
+  "dialog": {
+    "timeoutInterval": 3000
   }
 }

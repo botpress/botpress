@@ -12,5 +12,9 @@
     "user": "postgres",
     "password": "",
     "database": "botpress_test"
+  },
+  "dialog": {
+    "janitorInterval": 3000,
+    "timeoutInterval": 900000
   }
 }

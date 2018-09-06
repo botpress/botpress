@@ -14,7 +14,11 @@ export type DialogContext = {
 }
 
 export class DialogSession {
-  constructor(public id: string, public state, public context?: DialogContext, public event?: BotpressEvent) {}
+  constructor(public id: string, public botId: string) {}
+  state?: any
+  context?: DialogContext
+  event?: BotpressEvent
+
   // Timestamps are optionnal because they have default values in the database
   created_on?: Date
   modified_on?: Date
@@ -24,6 +28,7 @@ export class DialogSession {
 export interface SessionRepository {
   insert(session: DialogSession): Promise<DialogSession>
   get(id: string): Promise<DialogSession>
+  getIdsOlderThanDate(botsIds: string, time: Date): Promise<string[]>
   delete(id: string)
   update(session: DialogSession)
 }
@@ -39,6 +44,7 @@ export class KnexSessionRepository implements SessionRepository {
       this.tableName,
       {
         id: session.id,
+        botId: session.botId,
         state: this.database.knex.json.set(session.state || {}),
         context: this.database.knex.json.set(session.context || {}),
         event: this.database.knex.json.set(session.event || {}),
@@ -46,7 +52,7 @@ export class KnexSessionRepository implements SessionRepository {
         modified_on: this.database.knex.date.now(),
         created_on: this.database.knex.date.now()
       },
-      ['state', 'context', 'event', 'id', 'active_on', 'modified_on', 'created_on']
+      ['botId', 'state', 'context', 'event', 'id', 'active_on', 'modified_on', 'created_on']
     )
 
     if (newSession) {
@@ -71,6 +77,15 @@ export class KnexSessionRepository implements SessionRepository {
       session.event = this.database.knex.json.get(session.event)
     }
     return session
+  }
+
+  async getIdsOlderThanDate(botId: string, time: Date): Promise<string[]> {
+    return <string[]>await this.database
+      .knex(this.tableName)
+      .where('botId', botId)
+      .andWhere('active_on', '>', time.toISOString())
+      .select('id')
+      .then()
   }
 
   async update(session: DialogSession): Promise<void> {

@@ -4,6 +4,7 @@ import _ from 'lodash'
 
 import { TYPES } from '../../misc/types'
 import { DialogSession } from '../../repositories/session-repository'
+import { Hooks, HookService } from '../hook/hook-service'
 
 import { FlowNavigator, NavigationArgs, NavigationPosition } from './flow/navigator'
 import FlowService from './flow/service'
@@ -24,6 +25,10 @@ export class ProcessingError extends Error {
   }
 }
 
+export class Timeout {
+  constructor(public botId: string, public sessionIds: string[]) {}
+}
+
 const DEFAULT_FLOW_NAME = 'main.flow.json'
 
 @injectable()
@@ -34,7 +39,8 @@ export class DialogEngine {
     @inject(TYPES.FlowNavigator) private flowNavigator: FlowNavigator,
     @inject(TYPES.InstructionProcessor) private instructionProcessor: InstructionProcessor,
     @inject(TYPES.FlowService) private flowService: FlowService,
-    @inject(TYPES.SessionService) private sessionService: SessionService
+    @inject(TYPES.SessionService) private sessionService: SessionService,
+    @inject(TYPES.HookService) private hookService: HookService
   ) {}
 
   /**
@@ -47,7 +53,7 @@ export class DialogEngine {
     const defaultFlow = flows.find(f => f.name === DEFAULT_FLOW_NAME)!
     const entryNodeName = _.get(defaultFlow, 'startNode')!
 
-    let session: DialogSession = await this.sessionService.getOrCreateSession(sessionId)
+    let session: DialogSession = await this.sessionService.getOrCreateSession(sessionId, botId)
     session = await this.sessionService.updateSessionEvent(session.id, event)
 
     if (!session.context!.currentNodeName) {
@@ -119,6 +125,41 @@ export class DialogEngine {
     if (!queue.hasInstructions()) {
       await this.sessionService.deleteSession(session.id)
     }
+  }
+
+  async processTimeout(botId, sessionId): Promise<void> {
+    // this.hookService.executeHook(new Hooks.BeforeSessionTimeout(bp,))
+    const flows = await this.flowService.loadAll(botId)
+    const session = await this.sessionService.getSession(sessionId)
+    const currentFlow = this.getCurrentFlow(session, flows)
+    console.log('CURRENT FLOW', currentFlow)
+
+    let timeoutNode: any
+    let timeoutFlow: any
+
+    // Find timeout node in current flow
+    // Get current flow context timeout node
+    // Find timeout flow
+    timeoutNode = currentFlow.nodes.find(n => n.name === 'timeout')
+    timeoutFlow = currentFlow
+    if (!timeoutNode || !timeoutFlow) {
+      timeoutNode = _.get(currentFlow, 'timeout')
+    } else if (!timeoutNode || !timeoutFlow) {
+      timeoutFlow = flows.find(f => f.name === 'timeout.flow.json')
+      timeoutNode = _.get(timeoutFlow, 'startNode')
+    } else {
+      throw new Error(`Could not find any timeout node for session "${sessionId}"`)
+    }
+
+    const queue = this.createQueue(timeoutNode, timeoutNode)
+
+    this.sessionService.updateSessionContext(session.id, {
+      previousFlowName: session.context!.currentFlowName,
+      previousNodeName: session.context!.currentNodeName,
+      currentFlowName: timeoutFlow,
+      currentNodeName: timeoutNode,
+      queue: queue.toString()
+    })
   }
 
   private async updateQueueForSession(queue: InstructionQueue, session: DialogSession) {

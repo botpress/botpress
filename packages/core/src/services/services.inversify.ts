@@ -12,6 +12,7 @@ import FlowService from './dialog/flow/service'
 import { InstructionFactory } from './dialog/instruction/factory'
 import { InstructionProcessor } from './dialog/instruction/processor'
 import { ActionStrategy, StrategyFactory, TransitionStrategy, WaitStrategy } from './dialog/instruction/strategy'
+import { DialogSessionJanitor } from './dialog/janitor'
 import { SessionService } from './dialog/session/service'
 import { ObjectCache, StorageDriver } from './ghost'
 import DiskStorageDriver from './ghost/disk-driver'
@@ -116,4 +117,8 @@ export const ServicesContainerModule = new ContainerModule((bind: interfaces.Bin
   bind<WaitStrategy>(TYPES.WaitStrategy)
     .to(WaitStrategy)
     .inRequestScope()
+
+  bind<DialogSessionJanitor>(TYPES.DialogSessionJanitor)
+    .to(DialogSessionJanitor)
+    .inSingletonScope()
 })

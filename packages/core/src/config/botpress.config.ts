@@ -13,6 +13,11 @@ export interface DatabaseConfig {
   database?: string
 }
 
+export interface DialogConfig {
+  janitorInterval: number
+  timeoutInterval: number
+}
+
 export type BotpressConfig = {
   httpServer: {
     host?: string
@@ -21,4 +26,5 @@ export type BotpressConfig = {
     bodyLimit: string | number
   }
   database: DatabaseConfig
+  dialog: DialogConfig
 }
