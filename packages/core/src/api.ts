@@ -1,7 +1,6 @@
 import {
   BotpressAPI,
   BotpressEvent,
-  ChannelOutgoingHandler,
   ConfigAPI,
   DialogAPI,
   EventAPI,
@@ -23,6 +22,7 @@ import { ModuleLoader } from './module-loader'
 import { UserRepository } from './repositories/user-repository'
 import HTTPServer from './server'
 import { DialogEngine } from './services/dialog/engine'
+import { SessionService } from './services/dialog/session/service'
 import { EventEngine } from './services/middleware/event-engine'
 import RealtimeService from './services/realtime'
 import { LoggerProvider } from './Logger'
@@ -54,10 +54,19 @@ const event = (eventEngine: EventEngine): EventAPI => {
   }
 }
 
-const dialog = (dialogEngine: DialogEngine): DialogAPI => {
+const dialog = (dialogEngine: DialogEngine, sessionService: SessionService): DialogAPI => {
   return {
     async processMessage(botId: string, event: BotpressEvent): Promise<void> {
       await dialogEngine.processEvent(botId, botId, event)
+    },
+    async deleteSession(userId: string): Promise<void> {
+      await sessionService.deleteSession(userId)
+    },
+    async getState(userId: string): Promise<void> {
+      return sessionService.getStateForSession(userId)
+    },
+    async setState(userId: string, state: any): Promise<void> {
+      await sessionService.updateStateForSession(userId, state)
     }
   }
 }
@@ -110,11 +119,12 @@ export class BotpressAPIProvider {
     @inject(TYPES.LoggerProvider) private loggerProvider: LoggerProvider,
     @inject(TYPES.HTTPServer) httpServer: HTTPServer,
     @inject(TYPES.UserRepository) userRepo: UserRepository,
-    @inject(TYPES.RealtimeService) realtimeService: RealtimeService
+    @inject(TYPES.RealtimeService) realtimeService: RealtimeService,
+    @inject(TYPES.SessionService) sessionService: SessionService
   ) {
     this.http = new Http(httpServer)
     this.events = event(eventEngine)
-    this.dialog = dialog(dialogEngine)
+    this.dialog = dialog(dialogEngine, sessionService)
     this.config = config(moduleLoader)
     this.realtime = new RealTimeAPI(realtimeService)
     this.database = db.knex
