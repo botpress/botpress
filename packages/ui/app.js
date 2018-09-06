@@ -14,7 +14,6 @@ const BASE_PATH = '/api/v1'
 const BOT_PATH = BASE_PATH + '/bots/bot123'
 
 app.use(bodyParser.json())
-app.use(express.static('./static'))
 
 const { CORE_API_URL } = process.env
 const httpProxy = new HttpProxy(app, CORE_API_URL)
@@ -149,20 +148,6 @@ app.get('/js/env.js', (req, res) => {
     `)
 })
 
-app.get('/js/commons.js', (req, res) => {
-  const absolutePath = path.join(__dirname, 'static/commons.js')
-
-  res.contentType('text/javascript')
-  res.sendFile(absolutePath)
-})
-
-app.get('/js/web.729e9680ac37ff307159.js', (req, res) => {
-  const absolutePath = path.join(__dirname, 'static/web.729e9680ac37ff307159.js')
-
-  res.contentType('text/javascript')
-  res.sendFile(absolutePath)
-})
-
 app.get('/api/notifications/inbox', (req, res) => {
   res.send('[]')
 })
@@ -171,18 +156,11 @@ app.get('/api/community/hero', (req, res) => {
   res.send({ hidden: true })
 })
 
-app.get('/api/botpress-plateforme-webchat/inject.js', (req, res) => {
-  const absolutePath = path.join(__dirname, 'static/inject.js')
-
-  res.contentType('text/javascript')
-  res.sendFile(absolutePath)
-})
+app.use(express.static('./static'))
 
 app.get('/*', (req, res) => {
-  const absolutePath = path.join(__dirname, 'static/index.html')
-
   res.contentType('text/html')
-  res.sendFile(absolutePath)
+  res.sendFile(path.join(__dirname, 'static', 'index.html'))
 })
 
 app.listen(process.env.HOST_PORT, () =>
