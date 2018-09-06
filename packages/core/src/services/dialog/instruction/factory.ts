@@ -3,8 +3,8 @@ import _ from 'lodash'
 import { Instruction } from '.'
 
 export class InstructionFactory {
-  static createOnEnter(context) {
-    const onEnter = _.get(context, 'currentNode.onEnter', []) || []
+  static createOnEnter(node) {
+    const onEnter = _.get(node, 'onEnter', []) || []
     return onEnter.map(
       (x): Instruction => ({
         type: 'on-enter',
@@ -13,9 +13,9 @@ export class InstructionFactory {
     )
   }
 
-  static createOnReceive(context): Instruction[] {
-    const flowReceive = _.get(context, 'currentFlow.catchAll.onReceive', []) || []
-    const nodeReceive = _.get(context, 'currentNode.onReceive', []) || []
+  static createOnReceive(node, flow): Instruction[] {
+    const flowReceive = _.get(flow, 'catchAll.onReceive', []) || []
+    const nodeReceive = _.get(node, 'onReceive', []) || []
 
     return [...flowReceive, ...nodeReceive].map(
       (x): Instruction => ({
@@ -25,9 +25,9 @@ export class InstructionFactory {
     )
   }
 
-  static createTransition(context): Instruction[] {
-    const flowNext = _.get(context, 'currentFlow.catchAll.next', []) || []
-    const nodeNext = _.get(context, 'currentNode.next', []) || []
+  static createTransition(node, flow): Instruction[] {
+    const flowNext = _.get(flow, 'catchAll.next', []) || []
+    const nodeNext = _.get(node, 'next', []) || []
 
     return [...flowNext, ...nodeNext].map(
       (x): Instruction => ({

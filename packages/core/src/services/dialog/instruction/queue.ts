@@ -5,31 +5,16 @@ import { InstructionFactory } from './factory'
 
 export class InstructionQueue {
   private instructions: Instruction[] = []
-  private waiting = false
+
+  constructor(instructions?: string) {
+    if (instructions) {
+      console.log(instructions)
+      this.instructions = JSON.parse(instructions)
+    }
+  }
 
   clear() {
     this.instructions = []
-  }
-
-  createFromContext(context, options: { skipOnEnter: boolean } = { skipOnEnter: false }) {
-    this.clear()
-
-    if (options && !options.skipOnEnter) {
-      const onEnter = InstructionFactory.createOnEnter(context)
-      this.instructions.push(...onEnter)
-    }
-
-    const onReceive = InstructionFactory.createOnReceive(context)
-    const transition = InstructionFactory.createTransition(context)
-
-    if (!_.isEmpty(onReceive)) {
-      const wait = InstructionFactory.createWait()
-      this.instructions.push(wait)
-    }
-
-    this.instructions.push(...onReceive)
-    this.instructions.push(...transition)
-    return this.instructions
   }
 
   enqueue(...instruction: Instruction[]) {
@@ -37,21 +22,19 @@ export class InstructionQueue {
   }
 
   dequeue(): Instruction | undefined {
-    const instruction = this.instructions.shift()!
-    this.waiting = instruction && instruction.type === 'wait'
-    return instruction
+    return this.instructions.shift()!
   }
 
   hasInstructions(): boolean {
     return this.instructions.length > 0
   }
 
-  isWaiting(): boolean {
-    return this.waiting
-  }
-
   wait() {
     const wait = InstructionFactory.createWait()
     this.instructions.unshift(wait)
+  }
+
+  toString() {
+    return JSON.stringify(this.instructions)
   }
 }

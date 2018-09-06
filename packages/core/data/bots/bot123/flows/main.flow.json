@@ -2,12 +2,7 @@
   "version": "0.0.1",
   "catchAll": {
     "onReceive": [],
-    "next": [
-      {
-        "condition": "true",
-        "node": "forget-my-name"
-      }
-    ]
+    "next": []
   },
   "startNode": "entry",
   "nodes": [
