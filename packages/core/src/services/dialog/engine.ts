@@ -83,13 +83,12 @@ export class DialogEngine {
         )
 
         console.log('Result = ', result.followUpAction, result.transitionTo)
-        // TODO: Strategy
-        if (result.followUpAction === 'wait') {
+        if (result.followUpAction === 'none') {
+          await this.updateQueueForSession(queue, session)
+        } else if (result.followUpAction === 'wait') {
           await this.updateQueueForSession(queue, session)
           break
         } else if (result.followUpAction === 'transition') {
-          queue.clear()
-
           const position = await this.navigateToNextNode(flows, session, result.transitionTo!)
           if (!position) {
             this.sessionService.deleteSession(session.id)
@@ -107,15 +106,18 @@ export class DialogEngine {
             currentNodeName: position.nodeName,
             queue: queue.toString()
           })
-        } else if (result.followUpAction === 'none') {
-          await this.updateQueueForSession(queue, session)
         }
       } catch (err) {
+        // TODO: Find a better way to handle this
         queue = this.rebuildQueue(flows, instruction, session)
         await this.updateQueueForSession(queue, session)
         this.reportProcessingError(err, session, instruction)
         break
       }
+    }
+
+    if (!queue.hasInstructions()) {
+      await this.sessionService.deleteSession(session.id)
     }
   }
 
