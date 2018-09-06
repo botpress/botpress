@@ -13,6 +13,13 @@ export type BotpressEventCtorArgs = {
 }
 
 /**
+ * TODO Document this
+ */
+export namespace WellKnownEventFlags {
+  export const SKIP_DIALOG_ENGINE = 'skipDialogEngine'
+}
+
+/**
  * @description
  * A BotpressEvent is how conversational channels interact with Botpress.  Events represent all the interactions
  * that make up a conversation.  That means the different message types (text, image, buttons, carousels etc) but also
@@ -36,6 +43,7 @@ export class BotpressEvent {
   public readonly botId: string
   public readonly threadId?: string
   public readonly preview: string
+  private readonly flags: any
 
   constructor(args: BotpressEventCtorArgs) {
     this.type = args.type
@@ -48,6 +56,15 @@ export class BotpressEvent {
     this.threadId = args.threadId ? args.threadId.toString() : undefined
     this.id = args.id || Date.now() * 100000 + ((Math.random() * 100000) | 0)
     this.preview = args.preview || this.constructPreview()
+    this.flags = {}
+  }
+
+  public hasFlag(flag: string): boolean {
+    return Boolean(this.flags[flag.toLowerCase()])
+  }
+
+  public setFlag(flag: string, value: boolean) {
+    this.flags[flag.toLowerCase()] = value
   }
 
   private constructPreview(): string {

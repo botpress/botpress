@@ -1,19 +1,15 @@
-import { BotpressAPI, BotpressEvent, ChannelOutgoingHandler, MiddlewareDefinition } from 'botpress-module-sdk'
+import { BotpressEvent, MiddlewareDefinition } from 'botpress-module-sdk'
 import { Logger } from 'botpress-module-sdk'
-import EventEmitter from 'events'
-import { inject, injectable, postConstruct, tagged } from 'inversify'
+import { inject, injectable, tagged } from 'inversify'
 import joi from 'joi'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
 import { VError } from 'verror'
 
-import { createForGlobalHooks } from '../../api'
 import { BotConfig } from '../../config/bot.config'
 import { TYPES } from '../../misc/types'
 import { CMSService } from '../cms/cms-service'
-import { DialogEngine } from '../dialog/engine'
 import GhostService from '../ghost/service'
-import { Hooks, HookService } from '../hook/hook-service'
 
 import { MiddlewareChain } from './middleware'
 
@@ -31,7 +27,8 @@ const eventSchema = {
   preview: joi.string().optional(),
   payload: joi.object().required(),
   botId: joi.string().required(),
-  threadId: joi.string().optional()
+  threadId: joi.string().optional(),
+  flags: joi.any().required()
 }
 
 const mwSchema = {
