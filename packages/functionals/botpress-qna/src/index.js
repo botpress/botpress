@@ -230,7 +230,9 @@ module.exports = {
       }
 
       try {
-        await bp.qna.import(req.file.buffer.toString(), { format: 'csv', csvUploadStatusId })
+        const questions = iconv.decode(req.file.buffer, config.exportCsvEncoding)
+
+        await bp.qna.import(questions, { format: 'csv', csvUploadStatusId })
         recordCsvUploadStatus(csvUploadStatusId, 'Completed')
       } catch (e) {
         logger.error('QnA Error:', e)
