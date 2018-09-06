@@ -51,6 +51,8 @@ npm i @botpress/channel-messenger
 
 `"greetingMessage"` - set default messege. `Default: "Default greeting message"`
 
+`"enableAllProfileFields"` - If you need to know user timezone, gender, locale set `true` and send you app to review.
+
 <img alt='Greeting Message' src='assets/greeting-message-example.png' width='300px !important;' />
 
 `"persistentMenu"` - added menu to your messenger. [See more](https://developers.facebook.com/docs/messenger-platform/messenger-profile/persistent-menu)

@@ -69,6 +69,7 @@ module.exports = {
     appSecret: { type: 'string', required: true, default: '', env: 'MESSENGER_APP_SECRET' },
     verifyToken: { type: 'string', required: false, default: '', env: 'MESSENGER_VERIFY_TOKEN' },
     enabled: { type: 'bool', required: true, default: true },
+    enableAllProfileFields: { type: 'bool', required: true, default: false },
     hostname: { type: 'string', required: false, default: '', env: 'MESSENGER_HOST' },
 
     graphVersion: { type: 'string', required: true, default: '2.12' },
