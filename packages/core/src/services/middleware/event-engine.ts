@@ -10,8 +10,11 @@ import { BotConfig } from '../../config/bot.config'
 import { TYPES } from '../../misc/types'
 import { CMSService } from '../cms/cms-service'
 import GhostService from '../ghost/service'
+import { Queue } from '../queue'
 
 import { MiddlewareChain } from './middleware'
+
+const MESSAGE_RETRIES = 3
 
 const directionRegex = /^(incoming|outgoing)$/
 
@@ -53,8 +56,21 @@ export class EventEngine {
     private logger: Logger,
     @inject(TYPES.IsProduction) private isProduction: boolean,
     @inject(TYPES.GhostService) private ghost: GhostService,
-    @inject(TYPES.CMSService) private cms: CMSService
-  ) {}
+    @inject(TYPES.CMSService) private cms: CMSService,
+    @inject(TYPES.IncomingQueue) private incomingQueue: Queue,
+    @inject(TYPES.OutgoingQueue) private outgoingQueue: Queue
+  ) {
+    this.incomingQueue.subscribe(async event => {
+      const { incoming } = await this.getBotMiddlewareChains(event.botId)
+      await incoming.run(event)
+      this.onAfterIncomingMiddleware && (await this.onAfterIncomingMiddleware(event))
+    })
+
+    this.outgoingQueue.subscribe(async event => {
+      const { outgoing } = await this.getBotMiddlewareChains(event.botId)
+      await outgoing.run(event)
+    })
+  }
 
   private incomingMiddleware: MiddlewareDefinition[] = []
   private outgoingMiddleware: MiddlewareDefinition[] = []
@@ -70,12 +86,11 @@ export class EventEngine {
 
   async sendEvent(botId: string, event: BotpressEvent) {
     this.validateEvent(event)
-    const { incoming, outgoing } = await this.getBotMiddlewareChains(botId)
+
     if (event.direction === 'incoming') {
-      await incoming.run(event)
-      this.onAfterIncomingMiddleware && (await this.onAfterIncomingMiddleware(event))
+      this.incomingQueue.enqueue(event, MESSAGE_RETRIES, false)
     } else {
-      await outgoing.run(event)
+      this.outgoingQueue.enqueue(event, MESSAGE_RETRIES, false)
     }
   }
 

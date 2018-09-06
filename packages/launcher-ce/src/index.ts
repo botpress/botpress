@@ -10,15 +10,19 @@ console.log(chalk`=       Version 0.1       =`)
 console.log(chalk`=       {yellow Pre-release}       =`)
 console.log(chalk`===========================`)
 
-try {
-  const modules = new Map<string, ModuleDefinition>()
+async function start() {
+  try {
+    const modules = new Map<string, ModuleDefinition>()
 
-  modules.set('channel-web', require('@botpress/channel-web') as ModuleDefinition)
+    modules.set('channel-web', require('@botpress/channel-web') as ModuleDefinition)
 
-  Botpress.start({
-    modules
-  })
-} catch (e) {
-  console.log(chalk.red('Error starting botpress'))
-  console.log(e)
+    await Botpress.start({
+      modules
+    })
+  } catch (e) {
+    console.log(chalk.red('Error starting botpress'))
+    console.log(e)
+  }
 }
+
+start()

@@ -48,9 +48,13 @@ export const ServicesContainerModule = new ContainerModule((bind: interfaces.Bin
     .to(ActionService)
     .inSingletonScope()
 
-  bind<Queue>(TYPES.Queue)
-    .to(MemoryQueue)
-    .inSingletonScope()
+  bind<Queue>(TYPES.IncomingQueue).toDynamicValue((context: interfaces.Context) => {
+    return new MemoryQueue('Incoming', context.container.getTagged(TYPES.Logger, 'name', 'IQueue'))
+  })
+
+  bind<Queue>(TYPES.OutgoingQueue).toDynamicValue((context: interfaces.Context) => {
+    return new MemoryQueue('Outgoing', context.container.getTagged(TYPES.Logger, 'name', 'OQueue'))
+  })
 
   bind<HookService>(TYPES.HookService)
     .to(HookService)

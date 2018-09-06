@@ -1,5 +1,5 @@
 import { Logger } from 'botpress-module-sdk'
-import { inject, injectable, tagged } from 'inversify'
+import { inject, injectable, optional, tagged } from 'inversify'
 import _ from 'lodash'
 import nanoid from 'nanoid'
 
@@ -20,7 +20,7 @@ export default class MemoryQueue implements Queue {
     @inject(TYPES.Logger)
     @tagged('name', 'MemoryQueue')
     private logger: Logger,
-    options: Partial<QueueOptions> = {}
+    @optional() options: Partial<QueueOptions> = {}
   ) {
     this.options = { ...defaultOptions, ...options }
     this._drain = setInterval(this.drain, this.options.drainInterval)
