@@ -150,13 +150,16 @@ export class CMSService implements IDisposeOnExit {
   }
 
   async getContentElement(botId: string, id: string): Promise<ContentElement> {
-    return this.memDb(this.contentTable)
+    const element = await this.memDb(this.contentTable)
       .where({ botId, id })
       .get(0)
+
+    return this.transformDbItemToApi(element)
   }
 
   async getContentElements(botId: string, ids: string[]): Promise<ContentElement[]> {
-    return this.memDb(this.contentTable).where(builder => builder.where({ botId }).whereIn('id', ids))
+    const elements = await this.memDb(this.contentTable).where(builder => builder.where({ botId }).whereIn('id', ids))
+    return Promise.map(elements, this.transformDbItemToApi)
   }
 
   async countContentElements(botId: string): Promise<number> {

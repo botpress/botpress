@@ -8,7 +8,6 @@ import { ChannelUser, ChannelUserAttribute } from './user'
 export interface EventAPI {
   registerMiddleware(middleware: MiddlewareDefinition): void
   sendEvent(event: BotpressEvent): void
-  registerOutgoingChannelHandler(channelHandler: ChannelOutgoingHandler): void
 }
 
 export interface UserAPI {

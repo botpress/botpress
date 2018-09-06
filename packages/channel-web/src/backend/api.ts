@@ -104,7 +104,7 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
   router.post(
     '/messages/:userId',
     asyncApi(async (req, res) => {
-      const { userId = undefined } = req.params || {}
+      const { botId = '', userId = undefined } = req.params || {}
 
       if (!validateUserId(userId)) {
         return res.status(400).send(ERR_USER_ID_REQ)
@@ -125,7 +125,7 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
         conversationId = await db.getOrCreateRecentConversation(userId, { originatesFromUserMessage: true })
       }
 
-      await sendNewMessage(userId, conversationId, payload)
+      await sendNewMessage(botId, userId, conversationId, payload)
 
       return res.sendStatus(200)
     })
@@ -136,7 +136,7 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
     '/messages/:userId/files',
     upload.single('file'),
     asyncApi(async (req, res) => {
-      const { userId = undefined } = req.params || {}
+      const { botId = '', userId = undefined } = req.params || {}
 
       if (!validateUserId(userId)) {
         return res.status(400).send(ERR_USER_ID_REQ)
@@ -163,7 +163,7 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
         }
       }
 
-      await sendNewMessage(userId, conversationId, payload)
+      await sendNewMessage(botId, userId, conversationId, payload)
 
       return res.sendStatus(200)
     })
@@ -205,14 +205,10 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
     return /[a-z0-9-_]+/i.test(userId)
   }
 
-  async function sendNewMessage(userId, conversationId, payload) {
+  async function sendNewMessage(botId, userId, conversationId, payload) {
     if (!payload.text || !_.isString(payload.text) || payload.text.length > 360) {
       throw new Error('Text must be a valid string of less than 360 chars')
     }
-
-    console.log('Send new message', userId, conversationId, payload) // TODO Remove me
-
-    const event = BotpressEvent.fromSingleChannelUser(payload.type, 'web', userId, {})
 
     const sanitizedPayload = _.pick(payload, ['text', 'type', 'data', 'raw'])
 
@@ -235,6 +231,17 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
     }
 
     const { result: user } = await bp.users.getOrCreateUser('web', userId)
+
+    const event = new BotpressEvent({
+      botId,
+      channel: 'web',
+      direction: 'incoming',
+      payload,
+      target: userId,
+      threadId: conversationId,
+      type: payload.type
+    })
+
     const message = await db.appendUserMessage(userId, conversationId, persistedPayload)
     bp.realtime.sendPayload(RealTimePayload.forVisitor(userId, 'webchat.message', message))
     return bp.events.sendEvent(event)
@@ -261,7 +268,7 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
   router.post(
     '/conversations/:userId/:conversationId/reset',
     asyncApi(async (req, res) => {
-      const { userId, conversationId } = req.params
+      const { botId = '', userId, conversationId } = req.params
       const { result: user } = await bp.users.getOrCreateUser('web', userId)
 
       const payload = {
@@ -269,7 +276,7 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
         type: 'session_reset'
       }
 
-      await sendNewMessage(userId, conversationId, payload)
+      await sendNewMessage(botId, userId, conversationId, payload)
       // await bp.dialogEngine.stateManager.deleteState(user.id) // FIXME
       res.status(200).send({})
     })
@@ -277,9 +284,7 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
 
   router.post('/conversations/:userId/new', async (req, res) => {
     const { userId } = req.params
-
     await db.createConversation(userId)
-
     res.sendStatus(200)
   })
 

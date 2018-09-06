@@ -8,8 +8,6 @@ import Database from './db'
 const outgoingTypes = ['text', 'login_prompt', 'file', 'carousel', 'custom']
 
 export default async (bp: BotpressAPI & Extension, db: Database) => {
-  const { appendBotMessage, getOrCreateRecentConversation } = db
-
   const config: any = {} // FIXME
   const { botName = 'Bot', botAvatarUrl = undefined } = config || {} // FIXME
 
@@ -19,58 +17,57 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
       ' This middleware should be placed at the end as it swallows events once sent.',
     direction: 'outgoing',
     handler: outgoingHandler,
-    name: 'webchat.sendMessages',
+    name: 'web.sendMessages',
     order: 100
   })
 
-  async function outgoingHandler(event: BotpressEvent, next) {
-    if (event.channel !== 'webchat') {
+  async function outgoingHandler(event: BotpressEvent, next: Function) {
+    if (event.channel !== 'web') {
       return next()
     }
 
-    if (!_.includes(outgoingTypes, event.type)) {
+    if (event.type !== 'cms-element') {
+      return next('Channel web can only send content elements for now')
+    }
+
+    const messageType = _.get(event.payload, 'type', 'text')
+
+    if (!_.includes(outgoingTypes, messageType)) {
       return next('Unsupported event type: ' + event.type)
     }
 
     const userId = event.target
+    const typing = parseTyping(event.payload.typing)
 
-    const typing = parseTyping(event)
-
-    const conversationId = _.get(event, 'raw.conversationId') || (await getOrCreateRecentConversation(userId)) // FIXME botId
-
-    const socketId = userId.replace(/webchat:/gi, '')
+    const conversationId = event.threadId || (await db.getOrCreateRecentConversation(userId))
 
     if (typing) {
       bp.realtime.sendPayload(
-        RealTimePayload.forVisitor(socketId, 'webchat.typing', { timeInMs: typing, conversationId })
+        RealTimePayload.forVisitor(userId, 'webchat.typing', { timeInMs: typing, conversationId })
       )
 
       await Promise.delay(typing)
     }
 
-    // TODO && FIXME
-    const message = await appendBotMessage(botName, botAvatarUrl, conversationId, {
-      data: {},
-      raw: {},
-      text: '',
-      type: ''
+    const message = await db.appendBotMessage(botName, botAvatarUrl, conversationId, {
+      data: event.payload,
+      raw: event.payload,
+      text: event.preview,
+      type: messageType
     })
 
-    bp.realtime.sendPayload(RealTimePayload.forVisitor(socketId, 'webchat.message', message))
+    bp.realtime.sendPayload(RealTimePayload.forVisitor(userId, 'webchat.message', message))
 
-    // Resolve the event promise
     // FIXME Make official API (BotpressAPI.events.updateStatus(event.id, 'done'))
-
-    // event._promise && event._resolve && event._resolve()
   }
 }
 
-function parseTyping(msg) {
-  if (msg.raw && !!msg.raw.typing) {
-    if (isNaN(msg.raw.typing)) {
+function parseTyping(typing) {
+  if (typing) {
+    if (isNaN(typing)) {
       return 1000
     } else {
-      return Math.max(msg.raw.typing, 500)
+      return Math.max(typing, 500)
     }
   }
 

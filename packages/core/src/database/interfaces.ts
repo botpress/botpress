@@ -2,9 +2,7 @@ import { ExtendedKnex } from 'botpress-module-sdk'
 
 export abstract class Table {
   constructor(public knex: ExtendedKnex) {}
-
-  abstract bootstrap(): Promise<void>
-
+  abstract bootstrap(): Promise<boolean>
   abstract get name(): string
 }
 

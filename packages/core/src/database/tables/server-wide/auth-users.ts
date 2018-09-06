@@ -4,6 +4,7 @@ export default class AuthUsersTable extends Table {
   name: string = 'auth_users'
 
   async bootstrap() {
+    let created = false
     await this.knex.createTableIfNotExists(this.name, table => {
       table.increments('id')
       table
@@ -23,6 +24,8 @@ export default class AuthUsersTable extends Table {
       table.string('location')
       table.timestamps()
       table.timestamp('last_synced_at')
+      created = true
     })
+    return created
   }
 }

@@ -50,9 +50,6 @@ const event = (eventEngine: EventEngine): EventAPI => {
     },
     sendEvent(event: BotpressEvent): void {
       eventEngine.sendEvent(BOT_ID, event)
-    },
-    registerOutgoingChannelHandler(channelHandler: ChannelOutgoingHandler) {
-      eventEngine.registerOutgoingChannelHandler(channelHandler)
     }
   }
 }

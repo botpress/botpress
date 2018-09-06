@@ -1,5 +1,5 @@
 import { BotpressEvent } from 'botpress-module-sdk'
-import { inject, injectable } from 'inversify'
+import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import Mustache from 'mustache'
 
@@ -31,7 +31,10 @@ export interface InstructionStrategy {
 
 @injectable()
 export class ActionStrategy implements InstructionStrategy {
-  constructor(private eventEngine: EventEngine, private actionService: ActionService) {}
+  constructor(
+    @inject(TYPES.EventEngine) private eventEngine: EventEngine,
+    @inject(TYPES.ActionService) private actionService: ActionService
+  ) {}
 
   async processInstruction(botId, instruction, state, event, context): Promise<ProcessingResult> {
     if (instruction.fn.indexOf('say ') === 0) {
@@ -54,12 +57,14 @@ export class ActionStrategy implements InstructionStrategy {
       value: params
     }
 
-    await this.eventEngine.sendContent(botId, chunks[1], event.target, event.channel) // FIXME
+    await this.eventEngine.sendContent(chunks[1], {
+      botId,
+      channel: event.channel,
+      target: event.target,
+      threadId: event.threadId
+    })
 
     return ProcessingResult.none()
-
-    // Wont work! No reply in MW ?
-    // DialogProcessor.default.send({ message: output, state: state, originalEvent: event, flowContext: context })
   }
 
   // TODO: Test for nested templating

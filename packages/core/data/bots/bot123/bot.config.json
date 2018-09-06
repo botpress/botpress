@@ -8,7 +8,7 @@
   "imports": {
     "modules": ["channel-web"],
     "incomingMiddleware": ["slack.in"],
-    "outgoingMiddleware": [],
+    "outgoingMiddleware": ["web.sendMessages"],
     "contentTypes": ["builtin_text", "builtin_single-choice", "builtin_image"]
   }
 }

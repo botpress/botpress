@@ -307,9 +307,8 @@ export default class Web extends React.Component {
 
   safeUpdateCurrentConvo(convoId, addToUnread, updater) {
     // there's no conversation to update or our convo changed
-    if (!this.state.currentConversation || this.state.currentConversationId !== convoId) {
+    if (!this.state.currentConversation || this.state.currentConversationId != convoId) {
       this.fetchConversations().then(this.fetchCurrentConversation)
-
       return
     }
 
@@ -441,8 +440,9 @@ export default class Web extends React.Component {
 
   handleSessionReset = () => {
     const userId = window.__BP_VISITOR_ID
-    const url = `${BOT_HOSTNAME}/api/botpress-platform-webchat/conversations/${userId}/${this.state
-      .currentConversationId}/reset`
+    const url = `${BOT_HOSTNAME}/api/botpress-platform-webchat/conversations/${userId}/${
+      this.state.currentConversationId
+    }/reset`
     return this.props.bp.axios.post(url).then()
   }
 
@@ -535,8 +535,9 @@ export default class Web extends React.Component {
 
   downloadConversation = async () => {
     const userId = window.__BP_VISITOR_ID
-    const url = `${BOT_HOSTNAME}/api/botpress-platform-webchat/conversations/${userId}/${this.state
-      .currentConversationId}/download/txt`
+    const url = `${BOT_HOSTNAME}/api/botpress-platform-webchat/conversations/${userId}/${
+      this.state.currentConversationId
+    }/download/txt`
     const file = (await this.props.bp.axios.get(url)).data
     const blobFile = new Blob([file.txt])
 

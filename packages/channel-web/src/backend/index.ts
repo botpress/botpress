@@ -9,32 +9,11 @@ import OutgoingHandler from './outgoing'
 import socket from './socket'
 import umm from './umm'
 
-// TODO
-// [x] users.js
-//    [X] Core users <--> channels API
-// [X] api.js
-//    [X] Core createRouter --> ExpressRouter
-// [X] db.js
-// [X] inject.js
-// [X] socket.js
-//    [] Core EventBus (socket.io, per-bot channels)
-// [] umm.js
-//    [] Core EventLifecycle (status('sent'))
-//    [] Core EventLifecycle (waitStatus(eventId, 'sent'))
-//    [] Core new SyntheticEvent() (TimeoutEvent, TimerEvent, CustomEvent, BroadcastEvent)
-//    [] Core schedule(event, dateTime)
-//    [] Core sendImmediate(event)
-// [] util.js
-// [] Core API
-//    Serve the module's view(s)
-//    Inject the module's view(s) – overlay
-
 export type Extension = {
   'channel-web': {}
 }
 
 export const onInit = async (bp: BotpressAPI & Extension) => {
-  bp.logger.debug('Init')
   bp['channel-web'] = {}
 
   const db = new WebchatDatabase(bp)
@@ -43,13 +22,9 @@ export const onInit = async (bp: BotpressAPI & Extension) => {
   await api(bp, db)
   await socket(bp, db)
   await umm(bp)
-
-  bp.events.registerOutgoingChannelHandler(new OutgoingHandler())
 }
 
-export const onReady = async bp => {
-  bp.logger.debug('Ready')
-}
+export const onReady = async bp => {}
 
 export const config = {
   uploadsUseS3: { type: 'bool', required: false, default: false, env: 'CHANNEL_WEB_USE_S3' },

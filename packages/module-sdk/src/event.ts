@@ -8,6 +8,8 @@ export type BotpressEventCtorArgs = {
   direction: EventDirection
   preview?: string
   payload: any
+  threadId?: string
+  botId: string
 }
 
 /**
@@ -20,6 +22,8 @@ export type BotpressEventCtorArgs = {
  * @property {string} target - Who will receive this message, usually a user's id
  * @property {EventDirection} direction – Is it (in)coming from the user to the bot or (out)going from the bot to the user?
  * @property {string} preview – A textual representation of the event
+ * @property {string} [threadId] – The id of the thread this message is relating to (only on supported channels)
+ * @property {string} botId – The id of the bot on which this event is relating to
  * @property {any} payload – The channel-specific raw payload
  */
 export class BotpressEvent {
@@ -29,6 +33,8 @@ export class BotpressEvent {
   public readonly target: string
   public readonly direction: EventDirection
   public readonly payload: any
+  public readonly botId: string
+  public readonly threadId?: string
   public readonly preview: string
 
   constructor(args: BotpressEventCtorArgs) {
@@ -37,29 +43,11 @@ export class BotpressEvent {
     this.direction = args.direction
     this.payload = args.payload
     this.target = args.target
+    this.botId = args.botId
 
+    this.threadId = args.threadId ? args.threadId.toString() : undefined
     this.id = args.id || Date.now() * 100000 + ((Math.random() * 100000) | 0)
     this.preview = args.preview || this.constructPreview()
-  }
-
-  static toSingleChannelUser(type: string, channel: string, userId: string, payload: any): BotpressEvent {
-    return new BotpressEvent({
-      type,
-      channel,
-      target: userId,
-      payload,
-      direction: 'outgoing'
-    })
-  }
-
-  static fromSingleChannelUser(type: string, channel: string, userId: string, payload: any): BotpressEvent {
-    return new BotpressEvent({
-      type,
-      channel,
-      target: userId,
-      payload,
-      direction: 'incoming'
-    })
   }
 
   private constructPreview(): string {

@@ -3,12 +3,14 @@ import { Logger } from 'botpress-module-sdk'
 import EventEmitter from 'events'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
 import joi from 'joi'
+import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
 import { VError } from 'verror'
 
 import { createForGlobalHooks } from '../../api'
 import { BotConfig } from '../../config/bot.config'
 import { TYPES } from '../../misc/types'
+import { CMSService } from '../cms/cms-service'
 import { DialogEngine } from '../dialog/engine'
 import GhostService from '../ghost/service'
 import { Hooks, HookService } from '../hook/hook-service'
@@ -27,7 +29,9 @@ const eventSchema = {
     .regex(directionRegex)
     .required(),
   preview: joi.string().optional(),
-  payload: joi.object().required()
+  payload: joi.object().required(),
+  botId: joi.string().required(),
+  threadId: joi.string().optional()
 }
 
 const mwSchema = {
@@ -51,10 +55,10 @@ export class EventEngine {
     @tagged('name', 'EventEngine')
     private logger: Logger,
     @inject(TYPES.IsProduction) private isProduction: boolean,
-    @inject(TYPES.GhostService) private ghost: GhostService
+    @inject(TYPES.GhostService) private ghost: GhostService,
+    @inject(TYPES.CMSService) private cms: CMSService
   ) {}
 
-  private outgoingChannelHandlers: ChannelOutgoingHandler[] = []
   private incomingMiddleware: MiddlewareDefinition[] = []
   private outgoingMiddleware: MiddlewareDefinition[] = []
 
@@ -65,14 +69,6 @@ export class EventEngine {
     } else {
       this.outgoingMiddleware.push(middleware)
     }
-  }
-
-  registerOutgoingChannelHandler(channelHandler: ChannelOutgoingHandler): any {
-    if (this.outgoingChannelHandlers.find(x => x.channel.toLowerCase() === channelHandler.channel.toLowerCase())) {
-      throw new Error(`Duplicated outgoing handler for channel "${channelHandler.channel}"`)
-    }
-
-    this.outgoingChannelHandlers.push(channelHandler)
   }
 
   async sendEvent(botId: string, event: BotpressEvent) {
@@ -86,8 +82,32 @@ export class EventEngine {
     }
   }
 
-  async sendContent(botId: string, contentId: string, target: string, channel: string) {
-    // TODO
+  async sendContent(
+    contentId: string,
+    destination: { target: string; botId: string; channel: string; threadId?: string }
+  ) {
+    contentId = contentId.replace(/^#!?/i, '')
+
+    const content = await this.cms.getContentElement(destination.botId, contentId) // TODO handle errors
+    const contentType = await this.cms.getContentType(content.contentType)
+    let renderedElements = await contentType.renderElement(content.computedData)
+
+    if (!_.isArray(renderedElements)) {
+      renderedElements = [renderedElements]
+    }
+
+    for (const element of renderedElements) {
+      const event = new BotpressEvent({
+        direction: 'outgoing',
+        payload: element,
+        type: 'cms-element',
+        botId: destination.botId,
+        channel: destination.channel,
+        target: destination.target,
+        threadId: destination.threadId
+      })
+      await this.sendEvent(destination.botId, event)
+    }
   }
 
   @Memoize()
