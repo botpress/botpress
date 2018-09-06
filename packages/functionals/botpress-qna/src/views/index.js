@@ -402,19 +402,25 @@ export default class QnaAdmin extends Component {
     const formData = new FormData()
     formData.set('isReplace', this.state.isCsvUploadReplace)
     formData.append('csv', this.state.csvToUpload)
+
     const headers = { 'Content-Type': 'multipart/form-data' }
     const { data: csvStatusId } = await this.props.bp.axios.post('/api/botpress-qna/csv', formData, { headers })
+
     this.setState({ csvStatusId })
+
     while (this.state.csvStatusId) {
       try {
         const { data: status } = await this.props.bp.axios.get(`/api/botpress-qna/csv-upload-status/${csvStatusId}`)
+
         this.setState({ csvUploadStatus: status })
+
         if (status === 'Completed') {
           this.setState({ csvStatusId: null, importCsvModalShow: false })
           this.fetchData()
         } else if (status.startsWith('Error')) {
           this.setState({ csvStatusId: null })
         }
+
         await Promise.delay(CSV_STATUS_POLL_INTERVAL)
       } catch (e) {
         return this.setState({ csvUploadStatus: 'Server Error', csvStatusId: null })
@@ -470,8 +476,89 @@ export default class QnaAdmin extends Component {
     )
   }
 
-  render() {
+  renderImportModal() {
     const { csvUploadStatus } = this.state
+
+    return (
+      <Modal show={this.state.importCsvModalShow} onHide={() => this.setState({ importCsvModalShow: false })}>
+        <Modal.Header closeButton>
+          <Modal.Title>Import CSV</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {csvUploadStatus && (
+            <Alert
+              bsStyle={csvUploadStatus.startsWith('Error') ? 'danger' : 'info'}
+              onDismiss={() => this.setState({ csvUploadStatus: null })}
+            >
+              <p>{this.state.csvUploadStatus}</p>
+            </Alert>
+          )}
+          <form>
+            <FormGroup>
+              <ControlLabel>CSV file</ControlLabel>
+              <FormControl
+                type="file"
+                accept=".csv"
+                onChange={e => this.setState({ csvToUpload: e.target.files[0] })}
+              />
+              <HelpBlock>CSV should be formatted &quot;question,answer_type,answer&quot;</HelpBlock>
+            </FormGroup>
+            <FormGroup>
+              <Checkbox
+                checked={this.state.isCsvUploadReplace}
+                onChange={e => this.setState({ isCsvUploadReplace: e.target.checked })}
+              >
+                Replace existing FAQs
+              </Checkbox>
+              <HelpBlock>Deletes existing FAQs and then uploads new ones from the file</HelpBlock>
+            </FormGroup>
+          </form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button bsStyle="primary" onClick={this.uploadCsv} disabled={!Boolean(this.state.csvToUpload)}>
+            Upload
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    )
+  }
+
+  renderQnAHeader = () => (
+    <FormGroup>
+      <ButtonToolbar>
+        <Button
+          bsStyle="success"
+          onClick={() =>
+            this.setState({
+              importCsvModalShow: true,
+              csvToUpload: null,
+              csvUploadStatus: null,
+              isCsvUploadReplace: false
+            })}
+          type="button"
+        >
+          <Glyphicon glyph="upload" /> &nbsp; Import from CSV
+        </Button>
+        <Button bsStyle="success" onClick={this.downloadCsv} type="button">
+          <Glyphicon glyph="download" />&nbsp; Export to CSV
+        </Button>
+        {this.renderImportModal()}
+      </ButtonToolbar>
+    </FormGroup>
+  )
+
+  renderSearch = () => (
+    <FormGroup>
+      <InputGroup>
+        <FormControlIme placeholder="Filter questions" value={this.state.filter} onChange={this.onFilterChange} />
+        <InputGroup.Addon>
+          <Glyphicon glyph="search" />
+        </InputGroup.Addon>
+      </InputGroup>
+    </FormGroup>
+  )
+
+  render() {
     return (
       <Panel>
         <a
@@ -480,75 +567,8 @@ export default class QnaAdmin extends Component {
           download={this.state.csvDownloadableFileName}
         />
         <Panel.Body>
-          <FormGroup>
-            <ButtonToolbar>
-              <Button
-                bsStyle="success"
-                onClick={() =>
-                  this.setState({
-                    importCsvModalShow: true,
-                    csvToUpload: null,
-                    csvUploadStatus: null,
-                    isCsvUploadReplace: false
-                  })}
-                type="button"
-              >
-                <Glyphicon glyph="upload" /> &nbsp; Import from CSV
-              </Button>
-              <Modal show={this.state.importCsvModalShow} onHide={() => this.setState({ importCsvModalShow: false })}>
-                <Modal.Header closeButton>
-                  <Modal.Title>Import CSV</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                  {csvUploadStatus && (
-                    <Alert
-                      bsStyle={csvUploadStatus.startsWith('Error') ? 'danger' : 'info'}
-                      onDismiss={() => this.setState({ csvUploadStatus: null })}
-                    >
-                      <p>{this.state.csvUploadStatus}</p>
-                    </Alert>
-                  )}
-                  <form>
-                    <FormGroup>
-                      <ControlLabel>CSV file</ControlLabel>
-                      <FormControl
-                        type="file"
-                        accept=".csv"
-                        onChange={e => this.setState({ csvToUpload: e.target.files[0] })}
-                      />
-                      <HelpBlock>CSV should be formatted &quot;question,answer_type,answer&quot;</HelpBlock>
-                    </FormGroup>
-                    <FormGroup>
-                      <Checkbox
-                        checked={this.state.isCsvUploadReplace}
-                        onChange={e => this.setState({ isCsvUploadReplace: e.target.checked })}
-                      >
-                        Replace existing FAQs
-                      </Checkbox>
-                      <HelpBlock>Deletes existing FAQs and then uploads new ones from the file</HelpBlock>
-                    </FormGroup>
-                  </form>
-                </Modal.Body>
-                <Modal.Footer>
-                  <Button bsStyle="primary" onClick={this.uploadCsv} disabled={!Boolean(this.state.csvToUpload)}>
-                    Upload
-                  </Button>
-                </Modal.Footer>
-              </Modal>
-
-              <Button bsStyle="success" onClick={this.downloadCsv} type="button">
-                <Glyphicon glyph="download" />&nbsp; Export to CSV
-              </Button>
-            </ButtonToolbar>
-          </FormGroup>
-          <FormGroup>
-            <InputGroup>
-              <FormControlIme placeholder="Filter questions" value={this.state.filter} onChange={this.onFilterChange} />
-              <InputGroup.Addon>
-                <Glyphicon glyph="search" />
-              </InputGroup.Addon>
-            </InputGroup>
-          </FormGroup>
+          {this.renderQnAHeader()}
+          {this.renderSearch()}
           <ArrayEditor
             items={this.state.items}
             shouldShowItem={this.questionMatches(this.state.filter)}

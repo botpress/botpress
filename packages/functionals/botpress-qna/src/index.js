@@ -114,7 +114,7 @@ module.exports = {
           }
 
           if (!flat) {
-            return { questions, action, answer, answer2 }
+            return { questions, action, answer, answer2, category }
           }
           return questions.map(question => ({ question, action, answer, answer2, category }))
         })
