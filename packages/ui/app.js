@@ -8,6 +8,7 @@ const _ = require('lodash')
 const bodyParser = require('body-parser')
 const qs = require('querystring')
 
+const { version } = require('botpress/package.json')
 const { HttpProxy } = require('@botpress/xx-util')
 
 const BASE_PATH = '/api/v1'
@@ -140,7 +141,7 @@ app.get('/js/env.js', (req, res) => {
         window.AUTH_TOKEN_DURATION = 21600000;
         window.OPT_OUT_STATS = false;
         window.SHOW_GUIDED_TOUR = false;
-        window.BOTPRESS_VERSION = "10.22.3";
+        window.BOTPRESS_VERSION = "${version}";
         window.APP_NAME = "Botpress";
         window.GHOST_ENABLED = false;
         window.BOTPRESS_FLOW_EDITOR_DISABLED = null;
