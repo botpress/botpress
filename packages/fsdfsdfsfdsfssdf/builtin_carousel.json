@@ -1,0 +1,28 @@
+[
+  {
+    "id": "builtin_carousel-mCbE9I",
+    "formData": {
+      "items": [
+        {
+          "title": "Hello, title",
+          "subtitle": "Subtitle",
+          "actions": [
+            {
+              "title": "Get Botpress Now!",
+              "action": "Open URL",
+              "url": "https://botpress.io"
+            },
+            {
+              "title": "Don't click me",
+              "action": "Open URL",
+              "url": "https://google.com"
+            }
+          ]
+        }
+      ],
+      "typing": true
+    },
+    "createdBy": "admin",
+    "createdOn": "2018-09-06T19:50:16.394Z"
+  }
+]

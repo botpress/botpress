@@ -5,7 +5,7 @@ import _ from 'lodash'
 import { Extension } from '.'
 import Database from './db'
 
-const outgoingTypes = ['text', 'login_prompt', 'file', 'carousel', 'custom']
+const outgoingTypes = ['text', 'typing', 'login_prompt', 'file', 'carousel', 'custom']
 
 export default async (bp: BotpressAPI & Extension, db: Database) => {
   const config: any = {} // FIXME
@@ -26,50 +26,41 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
       return next()
     }
 
-    if (event.type !== 'cms-element') {
-      return next('Channel web can only send content elements for now')
-    }
-
-    const messageType = _.get(event.payload, 'type', 'text')
+    const messageType = event.type === 'default' ? 'text' : event.type
+    const userId = event.target
+    const conversationId = event.threadId || (await db.getOrCreateRecentConversation(userId))
 
     if (!_.includes(outgoingTypes, messageType)) {
       return next('Unsupported event type: ' + event.type)
     }
 
-    const userId = event.target
-    const typing = parseTyping(event.payload.typing)
-
-    const conversationId = event.threadId || (await db.getOrCreateRecentConversation(userId))
-
-    if (typing) {
-      bp.realtime.sendPayload(
-        RealTimePayload.forVisitor(userId, 'webchat.typing', { timeInMs: typing, conversationId })
-      )
-
+    if (messageType === 'typing') {
+      const typing = parseTyping(event.payload.value)
+      const payload = RealTimePayload.forVisitor(userId, 'webchat.typing', { timeInMs: typing, conversationId })
+      // Don't store "typing" in DB
+      bp.realtime.sendPayload(payload)
       await Promise.delay(typing)
+    } else if (messageType === 'text' || messageType === 'carousel') {
+      const message = await db.appendBotMessage(botName, botAvatarUrl, conversationId, {
+        data: event.payload,
+        raw: event.payload,
+        text: event.preview,
+        type: messageType
+      })
+
+      bp.realtime.sendPayload(RealTimePayload.forVisitor(userId, 'webchat.message', message))
+    } else {
+      throw new Error(`Message type "${messageType}" not implemented yet`)
     }
-
-    const message = await db.appendBotMessage(botName, botAvatarUrl, conversationId, {
-      data: event.payload,
-      raw: event.payload,
-      text: event.preview,
-      type: messageType
-    })
-
-    bp.realtime.sendPayload(RealTimePayload.forVisitor(userId, 'webchat.message', message))
 
     // FIXME Make official API (BotpressAPI.events.updateStatus(event.id, 'done'))
   }
 }
 
 function parseTyping(typing) {
-  if (typing) {
-    if (isNaN(typing)) {
-      return 1000
-    } else {
-      return Math.max(typing, 500)
-    }
+  if (isNaN(typing)) {
+    return 1000
   }
 
-  return false
+  return Math.max(typing, 500)
 }

@@ -1,5 +1,4 @@
 const ActionButton = require('./builtin_action_button.js')
-const base = require('./_base.js')
 
 module.exports = {
   id: 'builtin_card',
@@ -29,8 +28,7 @@ module.exports = {
         type: 'array',
         title: 'Action Buttons',
         items: ActionButton.jsonSchema
-      },
-      ...base.typingIndicators
+      }
     }
   },
 
@@ -45,5 +43,5 @@ module.exports = {
 
   computePreviewText: formData => `Card: ${formData.title}`,
   computeData: (typeId, formData) => formData,
-  renderElement: data => Carousel([data])
+  renderElement: (data, channel) => Carousel([data], channel)
 }

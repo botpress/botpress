@@ -86,8 +86,13 @@ export class EventEngine {
     contentId = contentId.replace(/^#!?/i, '')
 
     const content = await this.cms.getContentElement(destination.botId, contentId) // TODO handle errors
+
+    if (!content) {
+      throw new Error(`Content element "${contentId}" not found`)
+    }
+
     const contentType = await this.cms.getContentType(content.contentType)
-    let renderedElements = await contentType.renderElement(content.computedData)
+    let renderedElements = await contentType.renderElement(content.computedData, destination.channel)
 
     if (!_.isArray(renderedElements)) {
       renderedElements = [renderedElements]
@@ -97,12 +102,13 @@ export class EventEngine {
       const event = new BotpressEvent({
         direction: 'outgoing',
         payload: element,
-        type: 'cms-element',
+        type: _.get(element, 'type', 'default'),
         botId: destination.botId,
         channel: destination.channel,
         target: destination.target,
         threadId: destination.threadId
       })
+
       await this.sendEvent(destination.botId, event)
     }
   }

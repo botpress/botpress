@@ -1,0 +1,40 @@
+[
+  {
+    "id": "builtin_single-choice-elJyV5",
+    "formData": {
+      "text": "a",
+      "choices": [
+        {
+          "title": "1",
+          "value": "1"
+        },
+        {
+          "title": "2",
+          "value": "2"
+        }
+      ],
+      "typing": true
+    },
+    "createdBy": "admin",
+    "createdOn": "2018-05-17T14:29:04.897Z"
+  },
+  {
+    "id": "builtin_single-choice-ESQ5fG",
+    "formData": {
+      "text": "b",
+      "choices": [
+        {
+          "title": "3",
+          "value": "3"
+        },
+        {
+          "title": "4",
+          "value": "4"
+        }
+      ],
+      "typing": true
+    },
+    "createdBy": "admin",
+    "createdOn": "2018-05-17T14:31:33.282Z"
+  }
+]
