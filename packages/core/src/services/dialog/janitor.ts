@@ -1,35 +1,27 @@
-import { BotpressEvent, WellKnownEventTypes } from 'botpress-module-sdk'
+import { Logger } from 'botpress-module-sdk'
 import { inject, injectable, postConstruct } from 'inversify'
+import _ from 'lodash'
 import moment from 'moment'
 
 import { BotLoader } from '../../bot-loader'
-import { BotConfig } from '../../config/bot.config'
-import { BotpressConfig } from '../../config/botpress.config'
 import { ConfigProvider } from '../../config/config-loader'
 import { TYPES } from '../../misc/types'
-import { EventEngine } from '../middleware/event-engine'
 
-import { DialogEngine, Timeout } from './engine'
+import { DialogEngine } from './engine'
 import { SessionService } from './session/service'
 
-export interface Janitor {
-  run(): Promise<void>
-  install(): void
-  uninstall(): void
-}
-
 @injectable()
-export class DialogSessionJanitor implements Janitor {
+export class Janitor {
   private intervalRef
   private defaultJanitorInterval!: number
   private defaultTimeoutInterval!: number
 
   constructor(
-    @inject(TYPES.EventEngine) private eventEngine: EventEngine,
     @inject(TYPES.SessionService) private sessionService: SessionService,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.BotLoader) private botLoader: BotLoader,
-    @inject(TYPES.DialogEngine) private dialogEngine: DialogEngine
+    @inject(TYPES.DialogEngine) private dialogEngine: DialogEngine,
+    @inject(TYPES.Logger) private logger: Logger
   ) {}
 
   @postConstruct()
@@ -44,7 +36,7 @@ export class DialogSessionJanitor implements Janitor {
   }
 
   install() {
-    console.log('START JANITOR')
+    this.logger.debug('Installing Janitor')
     if (this.intervalRef) {
       this.uninstall()
     }
@@ -60,7 +52,6 @@ export class DialogSessionJanitor implements Janitor {
   }
 
   protected async timeoutSessions() {
-    console.log('TIMING OUT!')
     const botsConfigs = await this.botLoader.getAllBots()
     const botsIds = Array.from(botsConfigs.keys())
 
@@ -68,11 +59,15 @@ export class DialogSessionJanitor implements Janitor {
       const config = botsConfigs.get(botId)!
       const timeoutInterval = config.dialog!.timeoutInterval || this.defaultTimeoutInterval
       const outdatedDate = this.getOudatedDate(timeoutInterval)
-      const sessionsIds = this.sessionService.getIdsActivatedBeforeDate(botId, outdatedDate)
+      const sessionsIds = await this.sessionService.getIdsActivatedBeforeDate(botId, outdatedDate)
 
-      await Promise.map(sessionsIds, async sessionId => {
-        console.log('TIMING OUT - ', sessionId)
-        await this.dialogEngine.processTimeout(botId, sessionId)
+      if (sessionsIds.length > 0) {
+        this.logger.debug(`🔎 Found inactive sessions: ${sessionsIds.map(session => _.get(session, 'id')).join(', ')}`)
+      }
+
+      sessionsIds.map(async sessionId => {
+        const id = _.get(sessionId, 'id')
+        await this.dialogEngine.processTimeout(botId, id)
       })
     })
   }

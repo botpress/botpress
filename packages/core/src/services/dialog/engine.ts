@@ -1,4 +1,4 @@
-import { BotpressEvent } from 'botpress-module-sdk'
+import { BotpressEvent, Logger } from 'botpress-module-sdk'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 
@@ -25,10 +25,6 @@ export class ProcessingError extends Error {
   }
 }
 
-export class Timeout {
-  constructor(public botId: string, public sessionIds: string[]) {}
-}
-
 const DEFAULT_FLOW_NAME = 'main.flow.json'
 
 @injectable()
@@ -40,7 +36,8 @@ export class DialogEngine {
     @inject(TYPES.InstructionProcessor) private instructionProcessor: InstructionProcessor,
     @inject(TYPES.FlowService) private flowService: FlowService,
     @inject(TYPES.SessionService) private sessionService: SessionService,
-    @inject(TYPES.HookService) private hookService: HookService
+    @inject(TYPES.HookService) private hookService: HookService,
+    @inject(TYPES.Logger) private logger: Logger
   ) {}
 
   /**
@@ -49,31 +46,13 @@ export class DialogEngine {
    * @param event The incoming botpress event
    */
   async processEvent(botId: string, sessionId: string, event: BotpressEvent) {
+    await this.createSessionIfNotExists(botId, sessionId, event)
     const flows = await this.flowService.loadAll(botId)
-    const defaultFlow = flows.find(f => f.name === DEFAULT_FLOW_NAME)!
-    const entryNodeName = _.get(defaultFlow, 'startNode')!
+    const session = await this.sessionService.getSession(sessionId)
+    await this.processQueue(botId, session, flows)
+  }
 
-    let session: DialogSession = await this.sessionService.getOrCreateSession(sessionId, botId)
-    session = await this.sessionService.updateSessionEvent(session.id, event)
-
-    if (!session.context!.currentNodeName) {
-      session = await this.sessionService.updateSessionContext(session.id, {
-        currentFlowName: defaultFlow.name,
-        currentNodeName: entryNodeName
-      })
-    }
-
-    if (!session.context!.queue) {
-      const currentFlow = this.getCurrentFlow(session, flows)
-      const currentNode = this.getCurrentNode(session, flows)
-      const queue = this.createQueue(currentNode, currentFlow)
-      session = await this.sessionService.updateSessionContext(session.id, {
-        currentFlowName: currentFlow.name,
-        currentNodeName: currentNode.name,
-        queue: queue.toString()
-      })
-    }
-
+  protected async processQueue(botId, session, flows) {
     let queue = new InstructionQueue(session.context!.queue)
 
     while (queue.hasInstructions()) {
@@ -127,39 +106,68 @@ export class DialogEngine {
     }
   }
 
-  async processTimeout(botId, sessionId): Promise<void> {
-    // this.hookService.executeHook(new Hooks.BeforeSessionTimeout(bp,))
+  protected async createSessionIfNotExists(botId, sessionId, event) {
+    const flows = await this.flowService.loadAll(botId)
+    const defaultFlow = flows.find(f => f.name === DEFAULT_FLOW_NAME)!
+    const entryNodeName = _.get(defaultFlow, 'startNode')!
+
+    let session: DialogSession = await this.sessionService.getOrCreateSession(sessionId, botId)
+    session = await this.sessionService.updateSessionEvent(session.id, event)
+
+    if (!session.context!.currentNodeName) {
+      session = await this.sessionService.updateSessionContext(session.id, {
+        currentFlowName: defaultFlow.name,
+        currentNodeName: entryNodeName
+      })
+    }
+
+    if (!session.context!.queue) {
+      const currentFlow = this.getCurrentFlow(session, flows)
+      const currentNode = this.getCurrentNode(session, flows)
+      const queue = this.createQueue(currentNode, currentFlow)
+      await this.sessionService.updateSessionContext(session.id, {
+        currentFlowName: currentFlow.name,
+        currentNodeName: currentNode.name,
+        queue: queue.toString()
+      })
+    }
+  }
+
+  async processTimeout(botId: string, sessionId: string): Promise<void> {
+    // TODO: Place a hook here
     const flows = await this.flowService.loadAll(botId)
     const session = await this.sessionService.getSession(sessionId)
     const currentFlow = this.getCurrentFlow(session, flows)
-    console.log('CURRENT FLOW', currentFlow)
+    const currentNode = this.getCurrentNode(session, flows)
+    const nodes = _.get(currentFlow, 'nodes')
 
-    let timeoutNode: any
-    let timeoutFlow: any
+    let timeoutNode = _.get(currentNode, 'timeout')
+    let timeoutFlow = currentFlow
 
-    // Find timeout node in current flow
-    // Get current flow context timeout node
-    // Find timeout flow
-    timeoutNode = currentFlow.nodes.find(n => n.name === 'timeout')
-    timeoutFlow = currentFlow
     if (!timeoutNode || !timeoutFlow) {
+      timeoutNode = nodes!.find(n => n.name === 'timeout')
+      timeoutFlow = currentFlow
+    } else if (!timeoutNode || !timeoutFlow) {
       timeoutNode = _.get(currentFlow, 'timeout')
+      timeoutFlow = currentFlow
     } else if (!timeoutNode || !timeoutFlow) {
       timeoutFlow = flows.find(f => f.name === 'timeout.flow.json')
       timeoutNode = _.get(timeoutFlow, 'startNode')
-    } else {
+    } else if (!(timeoutNode && timeoutFlow)) {
       throw new Error(`Could not find any timeout node for session "${sessionId}"`)
     }
 
     const queue = this.createQueue(timeoutNode, timeoutNode)
 
-    this.sessionService.updateSessionContext(session.id, {
+    const updatedSession = await this.sessionService.updateSessionContext(session.id, {
       previousFlowName: session.context!.currentFlowName,
       previousNodeName: session.context!.currentNodeName,
-      currentFlowName: timeoutFlow,
-      currentNodeName: timeoutNode,
+      currentFlowName: timeoutFlow.name,
+      currentNodeName: timeoutNode.name,
       queue: queue.toString()
     })
+
+    await this.processQueue(botId, updatedSession, flows)
   }
 
   private async updateQueueForSession(queue: InstructionQueue, session: DialogSession) {
@@ -170,7 +178,7 @@ export class DialogEngine {
 
   private getCurrentFlow(session, flows) {
     const flowName = _.get(session, 'context.currentFlowName')
-    return flows.find(f => f.name === flowName)!
+    return flows.find(f => f.name === flowName)
   }
 
   private getCurrentNode(session, flows) {

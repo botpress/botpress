@@ -83,7 +83,7 @@ export class KnexSessionRepository implements SessionRepository {
     return <string[]>await this.database
       .knex(this.tableName)
       .where('botId', botId)
-      .andWhere('active_on', '>', time.toISOString())
+      .andWhere('modified_on', '<', time.toISOString())
       .select('id')
       .then()
   }

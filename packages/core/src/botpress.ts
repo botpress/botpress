@@ -17,7 +17,7 @@ import { TYPES } from './misc/types'
 import { ModuleLoader } from './module-loader'
 import HTTPServer from './server'
 import { DialogEngine } from './services/dialog/engine'
-import { DialogSessionJanitor } from './services/dialog/janitor'
+import { Janitor } from './services/dialog/janitor'
 import GhostService from './services/ghost/service'
 import { Hooks, HookService } from './services/hook/hook-service'
 import { EventEngine } from './services/middleware/event-engine'
@@ -52,7 +52,7 @@ export class Botpress {
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
     @inject(TYPES.DialogEngine) private dialogEngine: DialogEngine,
     @inject(TYPES.LoggerProvider) private loggerProvider: LoggerProvider,
-    @inject(TYPES.DialogSessionJanitor) private janitor: DialogSessionJanitor
+    @inject(TYPES.Janitor) private janitor: Janitor
   ) {
     this.version = packageJson.version
     this.botpressPath = path.join(process.cwd(), 'dist')

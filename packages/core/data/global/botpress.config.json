@@ -14,7 +14,7 @@
     "database": "botpress_test"
   },
   "dialog": {
-    "janitorInterval": 3000,
+    "janitorInterval": 15000,
     "timeoutInterval": 900000
   }
 }
