@@ -30,8 +30,9 @@
     "assets": [
       "node_modules/botpress-xx/dist/src/services/action/sandbox-runtime.js",
       "node_modules/botpress-xx/node_modules/vm2/lib/*.js",
-      "node_modules/@botpress/channel-web/static/*.*",
-      "node_modules/@botpress/channel-web/dist/web/*.*"
+      "node_modules/@botpress/channel-web/static/*",
+      "node_modules/@botpress/channel-web/dist/web/*",
+      "node_modules/@botpress/xx-ui/static/**/*"
     ]
   },
   "devDependencies": {
@@ -43,6 +44,8 @@
   },
   "dependencies": {
     "@botpress/channel-web": "file:../channel-web",
+    "@botpress/xx-ui": "file:../ui",
+    "bluebird": "^3.5.2",
     "botpress-module-sdk": "file:../module-sdk",
     "botpress-xx": "file:../core",
     "chalk": "^2.4.1",

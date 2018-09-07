@@ -1,7 +1,7 @@
 {
   "name": "@botpress/xx-ui",
   "version": "1.0.0",
-  "main": "app.js",
+  "main": "proxy.js",
   "license": "MIT",
   "dependencies": {
     "@botpress/xx-util": "file:../util",

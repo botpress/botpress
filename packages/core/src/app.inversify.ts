@@ -1,6 +1,7 @@
 import { Logger } from 'botpress-module-sdk'
 import { Container } from 'inversify'
 import path from 'path'
+import yn from 'yn'
 
 import { BotpressAPIProvider } from './api'
 import { BotLoader } from './bot-loader'
@@ -72,7 +73,7 @@ container
   .inSingletonScope()
 
 const isPackaged = !!eval('process.pkg')
-const isProduction = isPackaged || process.env.NODE_ENV == 'production'
+const isProduction = !yn(process.env.DEBUG) && (isPackaged || process.env.NODE_ENV == 'production')
 
 const projectLocation = isPackaged
   ? path.join(path.dirname(process.execPath)) // We point at the binary path
