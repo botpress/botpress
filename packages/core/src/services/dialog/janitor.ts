@@ -18,10 +18,10 @@ export class Janitor {
 
   constructor(
     @inject(TYPES.SessionService) private sessionService: SessionService,
-    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.BotLoader) private botLoader: BotLoader,
     @inject(TYPES.DialogEngine) private dialogEngine: DialogEngine,
-    @inject(TYPES.Logger) private logger: Logger
+    @inject(TYPES.Logger) private logger: Logger,
+    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider
   ) {}
 
   @postConstruct()
@@ -58,7 +58,7 @@ export class Janitor {
     await Promise.map(botsIds, async botId => {
       const config = botsConfigs.get(botId)!
       const timeoutInterval = config.dialog!.timeoutInterval || this.defaultTimeoutInterval
-      const outdatedDate = this.getOudatedDate(timeoutInterval)
+      const outdatedDate = this.getOutdatedDate(timeoutInterval)
       const sessionsIds = await this.sessionService.getIdsActivatedBeforeDate(botId, outdatedDate)
 
       if (sessionsIds.length > 0) {
@@ -72,7 +72,7 @@ export class Janitor {
     })
   }
 
-  protected getOudatedDate(timeoutInterval): Date {
+  protected getOutdatedDate(timeoutInterval): Date {
     return moment()
       .subtract(timeoutInterval, 'milliseconds')
       .toDate()

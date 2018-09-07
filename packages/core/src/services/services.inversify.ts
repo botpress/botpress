@@ -102,7 +102,7 @@ export const ServicesContainerModule = new ContainerModule((bind: interfaces.Bin
     .to(FlowNavigator)
     .inSingletonScope()
 
-  bind<StrategyFactory>(TYPES.StrategyProvider)
+  bind<StrategyFactory>(TYPES.StrategyFactory)
     .to(StrategyFactory)
     .inSingletonScope()
 

@@ -19,10 +19,6 @@ export namespace WellKnownEventFlags {
   export const SKIP_DIALOG_ENGINE = 'skipDialogEngine'
 }
 
-export namespace WellKnownEventTypes {
-  export const DIALOG_TIMEOUT = 'bp_dialog_timeout'
-}
-
 /**
  * @description
  * A BotpressEvent is how conversational channels interact with Botpress.  Events represent all the interactions

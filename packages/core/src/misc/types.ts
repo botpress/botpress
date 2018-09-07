@@ -36,6 +36,7 @@ const TYPES = {
   InstructionProcessor: Symbol.for('InstructionProcessor'),
   InstructionFactory: Symbol.for('InstructionFactory'),
   FlowNavigator: Symbol.for('FlowNavigator'),
+  StrategyFactory: Symbol.for('StrategyFactory'),
   ActionStrategy: Symbol.for('ActionStrategy'),
   TransitionStrategy: Symbol.for('TransitionStrategy'),
   WaitStrategy: Symbol.for('WaitStrategy'),
