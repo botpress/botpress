@@ -57,7 +57,7 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
       const basename = path.basename(event.payload.url, extension)
 
       const message = await db.appendBotMessage(botName, botAvatarUrl, conversationId, {
-        data: { storage: 'storage', mime: mimeType, name: '', ...event.payload },
+        data: { storage: 'storage', mime: mimeType, name: basename, ...event.payload },
         raw: event.payload,
         text: event.preview,
         type: messageType
