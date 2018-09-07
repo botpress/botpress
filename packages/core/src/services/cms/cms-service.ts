@@ -7,6 +7,7 @@ import path from 'path'
 import { ConfigProvider } from '../../config/config-loader'
 import { IDisposeOnExit } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
+import { LoggerProvider } from '../../Logger'
 import GhostService from '../ghost/service'
 
 import { ContentElement, ContentType, DefaultSearchParams, SearchParams } from '.'
@@ -26,6 +27,7 @@ export class CMSService implements IDisposeOnExit {
     @inject(TYPES.Logger)
     @tagged('name', 'CMS')
     private logger: Logger,
+    @inject(TYPES.LoggerProvider) private loggerProvider: LoggerProvider,
     @inject(TYPES.GhostService) private ghost: GhostService,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.InMemoryDatabase) private memDb: ExtendedKnex
@@ -87,7 +89,7 @@ export class CMSService implements IDisposeOnExit {
       return <CodeFile>{ code: content, relativePath: filename }
     })
 
-    this.sandbox = new SafeCodeSandbox(codeFiles)
+    this.sandbox = new SafeCodeSandbox(codeFiles, await this.loggerProvider('CMS[Render]'))
     let filesLoaded = 0
 
     for (const file of this.sandbox.ls()) {

@@ -33,6 +33,21 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
   httpProxy.proxy('/api/middlewares', BOT_PATH + '/middleware', core_api_url)
 
   app.post(
+    '/api/media',
+    proxy(core_api_url, {
+      proxyReqPathResolver: async (req, res) => BOT_PATH + '/media',
+      parseReqBody: false
+    })
+  )
+
+  app.get(
+    '/media',
+    proxy(core_api_url, {
+      proxyReqPathResolver: async (req, res) => BOT_PATH + '/media'
+    })
+  )
+
+  app.post(
     '/api/content/categories/:categoryId/items/:itemId',
     proxy(core_api_url, {
       proxyReqPathResolver: req => {

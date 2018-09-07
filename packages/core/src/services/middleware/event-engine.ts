@@ -106,8 +106,15 @@ export class EventEngine {
       throw new Error(`Content element "${contentId}" not found`)
     }
 
+    const additionalData = {
+      BOT_URL: 'http://localhost:3000'
+    }
+
     const contentType = await this.cms.getContentType(content.contentType)
-    let renderedElements = await contentType.renderElement(content.computedData, destination.channel)
+    let renderedElements = await contentType.renderElement(
+      { ...additionalData, ...content.computedData },
+      destination.channel
+    )
 
     if (!_.isArray(renderedElements)) {
       renderedElements = [renderedElements]

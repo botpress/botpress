@@ -1,6 +1,8 @@
 import { RouterOptions } from 'botpress-module-sdk'
 import { Serialize } from 'cerialize'
 import { Router } from 'express'
+import multer from 'multer'
+import path from 'path'
 
 import { BotRepository } from '../repositories/bot-repository'
 import ActionService from '../services/action/action-service'
@@ -8,6 +10,7 @@ import { DefaultSearchParams } from '../services/cms'
 import { CMSService } from '../services/cms/cms-service'
 import { FlowView } from '../services/dialog'
 import FlowService from '../services/dialog/flow/service'
+import MediaServive from '../services/media'
 
 import { CustomRouter } from '.'
 
@@ -18,17 +21,20 @@ export class BotsRouter implements CustomRouter {
   private botRepository: BotRepository
   private cmsService: CMSService
   private flowService: FlowService
+  private mediaService: MediaServive
 
   constructor(args: {
     actionService: ActionService
     botRepository: BotRepository
     cmsService: CMSService
     flowService: FlowService
+    mediaService: MediaServive
   }) {
     this.actionService = args.actionService
     this.botRepository = args.botRepository
     this.cmsService = args.cmsService
     this.flowService = args.flowService
+    this.mediaService = args.mediaService
     this.router = Router({ mergeParams: true })
     this.setupRoutes()
   }
@@ -145,6 +151,37 @@ export class BotsRouter implements CustomRouter {
       const botId = req.params.botId
       const actions = await this.actionService.forBot(botId).listActions({ includeMetadata: true })
       res.send(Serialize(actions))
+    })
+
+    const mediaUploadMulter = multer({
+      limits: {
+        fileSize: 1024 * 1000 * 10 // 10mb
+      }
+    })
+
+    // FIXME Do not authenticate this route
+    this.router.get('/media/:filename', async (req, res) => {
+      const botId = req.params.botId
+      const type = path.extname(req.params.filename)
+
+      const contents = await this.mediaService.readFile(botId, req.params.filename).catch(() => undefined)
+      if (!contents) {
+        return res.sendStatus(404)
+      }
+
+      // files are never overwritten because of the unique ID
+      // so we can set the header to cache the asset for 1 year
+      return res
+        .set({ 'Cache-Control': 'max-age=31556926' })
+        .type(type)
+        .send(contents)
+    })
+
+    this.router.post('/media', mediaUploadMulter.single('file'), async (req, res) => {
+      const botId = req.params.botId
+      const fileName = await this.mediaService.saveFile(botId, req['file'].originalname, req['file'].buffer)
+      const url = `/api/v1/bots/${botId}/media/${fileName}`
+      res.json({ url })
     })
   }
 }

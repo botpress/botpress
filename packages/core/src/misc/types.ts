@@ -39,7 +39,8 @@ const TYPES = {
   ActionStrategy: Symbol.for('ActionStrategy'),
   TransitionStrategy: Symbol.for('TransitionStrategy'),
   WaitStrategy: Symbol.for('WaitStrategy'),
-  StrategyProvider: Symbol.for('StrategyProvider')
+  StrategyProvider: Symbol.for('StrategyProvider'),
+  MediaService: Symbol.for('MediaService')
 }
 
 export { TYPES }

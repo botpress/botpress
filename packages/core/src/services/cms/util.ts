@@ -1,7 +1,9 @@
 import fs from 'fs'
+import _ from 'lodash'
 import path from 'path'
 import tmp from 'tmp'
 
+import { Logger } from 'botpress-module-sdk'
 import { VError } from 'verror'
 import { NodeVM } from 'vm2'
 
@@ -16,7 +18,7 @@ export class SafeCodeSandbox {
   private tmpPath: string
   private filesMap: { [name: string]: string } = {}
 
-  constructor(files: CodeFile[]) {
+  constructor(files: CodeFile[], logger: Logger) {
     this.tmpDir = tmp.dirSync({ prefix: 'sandbox-', keep: false, unsafeCleanup: true })
     this.tmpPath = this.tmpDir.name
 
@@ -34,12 +36,28 @@ export class SafeCodeSandbox {
       sourceExtensions: ['js'],
       nesting: false,
       require: {
-        builtin: [],
+        builtin: ['path', 'assert', 'os', 'querystring', 'string_decoder', 'url', 'zlib', 'util'],
         external: true,
         context: 'sandbox',
         import: [],
         root: this.tmpPath
       }
+    })
+
+    this.vm.freeze(_, '_')
+
+    const listen = this.vm['on'].bind(this.vm)
+    listen('console.log', (...args) => {
+      logger && logger.debug(args[0], _.tail(args))
+    })
+    listen('console.info', (...args) => {
+      logger && logger.info(args[0], _.tail(args))
+    })
+    listen('console.warn', (...args) => {
+      logger && logger.warn(args[0], _.tail(args))
+    })
+    listen('console.error', (...args) => {
+      logger && logger.error(args[0], _.tail(args))
     })
   }
 

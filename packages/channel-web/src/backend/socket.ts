@@ -1,6 +1,8 @@
 import { BotpressAPI, BotpressEvent } from 'botpress-module-sdk'
 import { RealTimePayload } from 'botpress-module-sdk/dist/src/realtime'
 import _ from 'lodash'
+import mime from 'mime'
+import path from 'path'
 
 import { Extension } from '.'
 import Database from './db'
@@ -43,6 +45,19 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
     } else if (messageType === 'text' || messageType === 'carousel') {
       const message = await db.appendBotMessage(botName, botAvatarUrl, conversationId, {
         data: event.payload,
+        raw: event.payload,
+        text: event.preview,
+        type: messageType
+      })
+
+      bp.realtime.sendPayload(RealTimePayload.forVisitor(userId, 'webchat.message', message))
+    } else if (messageType === 'file') {
+      const extension = path.extname(event.payload.url)
+      const mimeType = mime.getType(extension)
+      const basename = path.basename(event.payload.url, extension)
+
+      const message = await db.appendBotMessage(botName, botAvatarUrl, conversationId, {
+        data: { storage: 'storage', mime: mimeType, name: '', ...event.payload },
         raw: event.payload,
         text: event.preview,
         type: messageType

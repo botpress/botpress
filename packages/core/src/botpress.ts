@@ -91,6 +91,7 @@ export class Botpress {
     await this.ghostService.forAllBots().addRootFolder('/flows', { filesGlob: '**/*.json' })
     await this.ghostService.forAllBots().addRootFolder('/config', { filesGlob: '*.json' })
     await this.ghostService.forAllBots().addRootFolder('/content-elements', { filesGlob: '*.json' })
+    await this.ghostService.forAllBots().addRootFolder('/media', { filesGlob: '*.*', isBinary: true })
   }
 
   private async initializeServices() {

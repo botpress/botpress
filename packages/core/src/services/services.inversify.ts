@@ -18,6 +18,7 @@ import DiskStorageDriver from './ghost/disk-driver'
 import MemoryObjectCache from './ghost/memory-cache'
 import GhostService from './ghost/service'
 import { HookService } from './hook/hook-service'
+import MediaServive from './media'
 import { EventEngine } from './middleware/event-engine'
 import { Queue } from './queue'
 import MemoryQueue from './queue/memory-queue'
@@ -42,6 +43,10 @@ export const ServicesContainerModule = new ContainerModule((bind: interfaces.Bin
 
   bind<CMSService>(TYPES.CMSService)
     .to(CMSService)
+    .inSingletonScope()
+
+  bind<MediaServive>(TYPES.MediaService)
+    .to(MediaServive)
     .inSingletonScope()
 
   bind<ActionService>(TYPES.ActionService)
