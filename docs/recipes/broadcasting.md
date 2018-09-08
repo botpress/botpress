@@ -2,15 +2,26 @@
 layout: guide
 ---
 
-Broadcasting is a common task for chatbots. We've shown a recipe on how to do it via `@botpress/scheduler` package, but this can be achieved even easier (though less flexible) via `@botpress/broadcast` module.
+Broadcasting a message to your users is a common task for chatbots and is a great way to get your users to reengage. 
 
-To get started you just need to install this module (`npm install @botpress/broadcast`) and use it's interface to set up your first broadcasting message.
+There are two ways to achieve broadcasting. You can use the [`@botpress/scheduler`](https://github.com/botpress/botpress/tree/master/packages/functionals/botpress-scheduler) module, check out [this recipe](/docs/latest/recipes/scheduling/) for an example implementation, or you can use the [`@botpress/broadcast`](https://github.com/botpress/botpress/tree/master/packages/functionals/botpress-broadcast) module. The broadcast module is easier to use but lacks the flexibility of the scheduler module.
 
-Note that except for content date and time you can also select whether the scheduled time is absolute to the bot's time or to individual users. If no timezone information available for the user, GMT is chosen.
+## Installation 
+
+You can install the `@botpress/broadcast` module by running:
+```bash
+# npm 
+npm i @botpress/broadcast
+# yarn
+yarn add @botpress/broadcast
+```
+Once it has been installed, you need to navigate to `http://localhost:3000/modules/broadcast`, from here you can create a new broadcast.
+
+> Note: If no timezone information is available for the user, GMT will be used.
 
 ## Filtering users
 
-You can apply filters to the broadcasts. Filters are small JavaScript functions that will be evaluated before sending the broadcast to a user. The condition is called for every user the broadcast is scheduled to. You can add multiple filter functions and user will be filtered out if at least one of them returns `false`.
+You can apply filters to the broadcasts. Filters are small JavaScript functions that will be evaluated before sending a broadcast message to a user. You can add multiple filter functions and a user will be filtered out if any returns `false`.
 
 Variables exposed to the filter function:
 - `bp` botpress instance
@@ -19,17 +30,15 @@ Variables exposed to the filter function:
 
 The function needs to return a **boolean** or a **Promise of a boolean**.
 
-**Note:** Starting your function with `return ` is optional.
+> Note: Starting your function with `return ` is optional.
 
-## Example
+## Example Filter
 
-Let's say we want to broadcast some message to users that were registered 3 days ago.
+Below is an example that returns `true` if a user first used the bot more than 3 days ago. 
 
-First we'd need to create a filter-function. Since `bp` instance will be available within filters, let's attach our filtering functions to it like this:
+Because the `bp` instance will be available within a broadcasts filter, you can define your filter in your bot `index.js` file.
 
 ```js
-// in your bot's index.js
-
 bp.broadcastFilters = {
   userIsOld: userId => {
     const threeDaysBefore = new Date(new Date() - 3 * 24 * 60 * 60 * 1000)
@@ -44,9 +53,7 @@ bp.broadcastFilters = {
 }
 ```
 
-Once this is done you can add filter-condition to your broadcasts that would look like this:
+Now that the filter method is defined you can now add it to your broadcast messages' filter conditions:
 ```js
 bp.broadcastFilters.userIsOld(userId)
 ```
-
-This will broadcast message only to users that were created earlier then 3 days before now.
