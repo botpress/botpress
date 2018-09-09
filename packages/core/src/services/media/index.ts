@@ -9,7 +9,7 @@ import GhostService from '../ghost/service'
 const safeId = (length = 10) => generate('1234567890abcdefghijklmnopqrsuvwxyz', length)
 
 @injectable()
-export default class MediaServive {
+export default class MediaService {
   constructor(
     @inject(TYPES.GhostService) private ghost: GhostService,
     @inject(TYPES.Logger)

@@ -10,7 +10,7 @@ import { DefaultSearchParams } from '../services/cms'
 import { CMSService } from '../services/cms/cms-service'
 import { FlowView } from '../services/dialog'
 import FlowService from '../services/dialog/flow/service'
-import MediaServive from '../services/media'
+import MediaService from '../services/media'
 
 import { CustomRouter } from '.'
 
@@ -21,14 +21,14 @@ export class BotsRouter implements CustomRouter {
   private botRepository: BotRepository
   private cmsService: CMSService
   private flowService: FlowService
-  private mediaService: MediaServive
+  private mediaService: MediaService
 
   constructor(args: {
     actionService: ActionService
     botRepository: BotRepository
     cmsService: CMSService
     flowService: FlowService
-    mediaService: MediaServive
+    mediaService: MediaService
   }) {
     this.actionService = args.actionService
     this.botRepository = args.botRepository
