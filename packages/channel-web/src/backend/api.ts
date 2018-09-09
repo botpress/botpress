@@ -277,7 +277,7 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
       }
 
       await sendNewMessage(botId, userId, conversationId, payload)
-      // await bp.dialogEngine.stateManager.deleteState(user.id) // FIXME
+      await bp.dialog.deleteSession(userId)
       res.status(200).send({})
     })
   )

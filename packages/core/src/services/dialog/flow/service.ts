@@ -21,7 +21,6 @@ export default class FlowService {
     @inject(TYPES.GhostService) private ghost: GhostService
   ) {}
 
-  @Memoize()
   async loadAll(botId: string): Promise<FlowView[]> {
     const flowsPath = this.ghost.forBot(botId).directoryListing(FLOW_DIR, '.flow.json')
 

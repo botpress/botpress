@@ -1,7 +1,6 @@
 import { BotpressEvent, MiddlewareDefinition } from '.'
 import { ExtendedKnex, GetOrCreateResult } from './database'
 import { HttpAPI } from './http'
-import { ChannelOutgoingHandler } from './module'
 import { RealTimeAPI } from './realtime'
 import { ChannelUser, ChannelUserAttribute } from './user'
 
@@ -17,6 +16,9 @@ export interface UserAPI {
 
 export interface DialogAPI {
   processMessage(userId: string, event: BotpressEvent): Promise<void>
+  deleteSession(userId: string): Promise<void>
+  getState(userId: string): Promise<void>
+  setState(userId: string, state: any): Promise<void>
 }
 
 export interface Logger {

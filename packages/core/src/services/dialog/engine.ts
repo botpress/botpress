@@ -83,14 +83,18 @@ export class DialogEngine {
         )
 
         console.log('Result = ', result.followUpAction, result.transitionTo)
-
-        if (result.followUpAction === 'wait') {
+        if (result.followUpAction === 'none') {
+          await this.updateQueueForSession(queue, session)
+        } else if (result.followUpAction === 'wait') {
           await this.updateQueueForSession(queue, session)
           break
         } else if (result.followUpAction === 'transition') {
-          queue.clear()
+          const position = await this.navigateToNextNode(flows, session, result.transitionTo!)
+          if (!position) {
+            this.sessionService.deleteSession(session.id)
+            break
+          }
 
-          const position = await this.navigateToNextNode(flows, session, result.transitionTo)
           const flow = flows.find(f => f.name === position.flowName)
           const node = flow!.nodes.find(n => n.name === position.nodeName)
           queue = this.createQueue(node, flow)
@@ -102,15 +106,18 @@ export class DialogEngine {
             currentNodeName: position.nodeName,
             queue: queue.toString()
           })
-        } else if (result.followUpAction === 'none') {
-          await this.updateQueueForSession(queue, session)
         }
       } catch (err) {
+        // TODO: Find a better way to handle this
         queue = this.rebuildQueue(flows, instruction, session)
         await this.updateQueueForSession(queue, session)
         this.reportProcessingError(err, session, instruction)
         break
       }
+    }
+
+    if (!queue.hasInstructions()) {
+      await this.sessionService.deleteSession(session.id)
     }
   }
 
@@ -162,7 +169,15 @@ export class DialogEngine {
     return queue
   }
 
-  private async navigateToNextNode(flows, session: DialogSession, destination): Promise<NavigationPosition> {
+  private async navigateToNextNode(
+    flows: any,
+    session: DialogSession,
+    destination: string
+  ): Promise<NavigationPosition | undefined> {
+    if (destination === 'END') {
+      return undefined
+    }
+
     const navigationArgs: NavigationArgs = {
       previousFlowName: session.context!.previousFlowName!,
       previousNodeName: session.context!.previousNodeName!,
