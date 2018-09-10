@@ -117,6 +117,7 @@ Node: ${err.nodeName}`
       flowLoger.warn(message)
     }
 
+    this.dialogJanitor.add({ table: 'dialog_sessions' })
     this.dialogJanitor.start()
   }
 

@@ -50,14 +50,13 @@ export class JanitorRunner {
       .then()
   }
 
-  private runTasks() {
+  private runTasks = () => {
     this.logger.debug('Running tasks')
     if (this.currentPromise) {
-      // don't run the tasks if the previous batch didn't finish yet
       this.logger.debug('Skipping the current run, previous operation still running')
       return
     }
-    this.currentPromise = Promise.each(this.tasks, this.runTask)
+    this.currentPromise = Promise.each(this.tasks, this.runTask.bind(this))
       .catch(err => {
         this.logger.error('Error:', err.message)
       })

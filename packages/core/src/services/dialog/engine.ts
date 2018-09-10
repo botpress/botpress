@@ -137,28 +137,30 @@ export class DialogEngine {
     const session = await this.sessionService.getSession(sessionId)
     const currentFlow = this.getCurrentFlow(session, flows)
     const currentNode = this.getCurrentNode(session, flows)
-    const nodes = _.get(currentFlow, 'nodes')
 
     let timeoutNode = _.get(currentNode, 'timeout')
     let timeoutFlow = currentFlow
-    console.log('1', timeoutNode)
 
-    if (!timeoutNode) {
-      console.log('2', nodes, currentFlow)
-      timeoutNode = nodes!.find(n => n.name === 'timeout')
-    } else if (!timeoutNode) {
-      console.log('3', timeoutNode)
+    if (!timeoutNode || !timeoutFlow) {
+      timeoutNode = timeoutFlow.nodes.find(n => n.name === 'timeout')
+    }
+    if (!timeoutNode || !timeoutFlow) {
       timeoutNode = _.get(currentFlow, 'timeout')
-    } else if (!timeoutNode) {
-      console.log('4', timeoutNode)
+    }
+    if (!timeoutNode || !timeoutFlow) {
       timeoutFlow = flows.find(f => f.name === 'timeout.flow.json')
-      timeoutNode = _.get(timeoutFlow, 'startNode')
-    } else if (!timeoutNode || !timeoutFlow) {
+      if (!timeoutFlow) {
+        return
+      }
+
+      const entryNodeName = _.get(timeoutFlow, 'startNode')
+      timeoutNode = timeoutFlow.nodes.find(n => n.name === entryNodeName)
+    }
+    if (!timeoutNode || !timeoutFlow) {
       throw new Error(`Could not find any timeout node for session "${sessionId}"`)
     }
 
     const queue = this.createQueue(timeoutNode, timeoutNode)
-
     const updatedSession = await this.sessionService.updateSessionContext(session.id, {
       previousFlowName: session.context!.currentFlowName,
       previousNodeName: session.context!.currentNodeName,

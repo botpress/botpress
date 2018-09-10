@@ -29,7 +29,6 @@ export class DialogJanitorRunner extends JanitorRunner {
   async runTask(): Promise<void> {
     const botsConfigs = await this.botLoader.getAllBots()
     const botsIds = Array.from(botsConfigs.keys())
-    this.logger.debug('Working')
 
     await Promise.map(botsIds, async botId => {
       const config = botsConfigs.get(botId)!
@@ -37,14 +36,18 @@ export class DialogJanitorRunner extends JanitorRunner {
       const outdatedDate = moment()
         .subtract(timeoutInterval, 'ms')
         .toDate()
-      const sessionsIds = await this.sessionService.getStaleSessionsIds(botId, outdatedDate)
 
+      const sessionsIds = await this.sessionService.getStaleSessionsIds(botId, outdatedDate)
       if (sessionsIds.length > 0) {
         this.logger.debug(`🔎 Found inactive sessions: ${sessionsIds.join(', ')}`)
       }
 
       await Promise.map(sessionsIds, async id => {
-        await this.dialogEngine.processTimeout(botId, id)
+        try {
+          await this.dialogEngine.processTimeout(botId, id)
+        } catch (err) {
+          this.sessionService.deleteSession(id)
+        }
       })
     })
   }
