@@ -25,7 +25,8 @@
   },
   "dependencies": {},
   "scripts": {
-    "build": "./scripts/batch-exec.sh \"build\" \"npm run build\"",
+    "build-once": "./scripts/batch-exec.sh \"build\" \"npm run build\"",
+    "build": "npm run build-once || true && npm run build-once",
     "start": "cd ./packages/launcher-ce && npm run start",
     "clean": "./scripts/clean.sh",
     "bootstrap": "./scripts/bootstrap.sh",

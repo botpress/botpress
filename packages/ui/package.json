@@ -6,6 +6,7 @@
   "dependencies": {
     "@botpress/xx-util": "file:../util",
     "body-parser": "^1.18.3",
+    "botpress": "^10.35.1",
     "dotenv": "^6.0.0",
     "express": "^4.16.3",
     "express-http-proxy": "^1.2.0"
@@ -13,7 +14,8 @@
   "scripts": {
     "start": "npm run serve",
     "serve": "../../node_modules/.bin/nodemon app.js",
-    "watch": "npm run start"
+    "watch": "npm run start",
+    "build": "./scripts/copy-bp.sh"
   },
   "devDependencies": {
     "@types/jest": "^23.3.1",
