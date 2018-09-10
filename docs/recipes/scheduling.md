@@ -21,7 +21,7 @@ Once this is done you need to navigate to `http://localhost:3000/modules/schedul
 
 3. Set the action - This is the trickiest part. An action is block of code that will be executed at the specified time. 
 
-Below is an example snippet that asynchronous fetches all the userIds from the database and sends them your Christmas message.
+Below is an example snippet that asynchronously fetches all the userIds from the database and sends them your Christmas message.
 
 > Note: Within this code you have access to `bp` and `task` variables.
 
