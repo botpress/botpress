@@ -30,7 +30,7 @@ export class DialogJanitorRunner extends JanitorRunner {
     const botsConfigs = await this.botLoader.getAllBots()
     const botsIds = Array.from(botsConfigs.keys())
 
-    await Promise.map(botsIds, async botId => {
+    Promise.map(botsIds, async botId => {
       const config = botsConfigs.get(botId)!
       const timeoutInterval = ms(config.dialog!.timeoutInterval) || this.defaultTimeoutInterval
       const outdatedDate = moment()
@@ -42,11 +42,11 @@ export class DialogJanitorRunner extends JanitorRunner {
         this.logger.debug(`🔎 Found inactive sessions: ${sessionsIds.join(', ')}`)
       }
 
-      await Promise.map(sessionsIds, async id => {
+      Promise.map(sessionsIds, async id => {
         try {
           await this.dialogEngine.processTimeout(botId, id)
         } catch (err) {
-          this.sessionService.deleteSession(id)
+          await this.sessionService.deleteSession(id)
         }
       })
     })

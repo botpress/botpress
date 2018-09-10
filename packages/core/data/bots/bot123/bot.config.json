@@ -12,6 +12,6 @@
     "contentTypes": ["builtin_text", "builtin_single-choice", "builtin_image", "builtin_carousel", "builtin_card"]
   },
   "dialog": {
-    "timeoutInterval": "10s"
+    "timeoutInterval": "5m"
   }
 }

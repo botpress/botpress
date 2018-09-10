@@ -132,7 +132,6 @@ export class DialogEngine {
   }
 
   async processTimeout(botId: string, sessionId: string): Promise<void> {
-    // TODO: place on_before_process hook
     const flows = await this.flowService.loadAll(botId)
     const session = await this.sessionService.getSession(sessionId)
     const currentFlow = this.getCurrentFlow(session, flows)
@@ -149,13 +148,12 @@ export class DialogEngine {
     }
     if (!timeoutNode || !timeoutFlow) {
       timeoutFlow = flows.find(f => f.name === 'timeout.flow.json')
-      if (!timeoutFlow) {
-        return
+      if (timeoutFlow) {
+        const entryNodeName = _.get(timeoutFlow, 'startNode')
+        timeoutNode = timeoutFlow.nodes.find(n => n.name === entryNodeName)
       }
-
-      const entryNodeName = _.get(timeoutFlow, 'startNode')
-      timeoutNode = timeoutFlow.nodes.find(n => n.name === entryNodeName)
     }
+
     if (!timeoutNode || !timeoutFlow) {
       throw new Error(`Could not find any timeout node for session "${sessionId}"`)
     }
