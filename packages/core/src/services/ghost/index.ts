@@ -1,8 +1,9 @@
 export interface StorageDriver {
-  upsertFile(filePath: string, content: Buffer | string): Promise<void>
+  upsertFile(filePath: string, content: Buffer | string, recordRevision: boolean): Promise<void>
   readFile(filePath: string): Promise<Buffer>
-  deleteFile(filePath: string): Promise<void>
+  deleteFile(filePath: string, recordRevision: boolean): Promise<void>
   directoryListing(folder: string, fileEndingPattern: string): Promise<string[]>
+  listRevisionIds(pathPrefix: string): Promise<string[]>
 }
 
 export interface ObjectCache {
@@ -11,8 +12,6 @@ export interface ObjectCache {
   has(key: string): Promise<boolean>
   invalidate(key: string): Promise<void>
 }
-
-export type GhostWatchFolderOptions = { filesGlob?: string; isBinary?: boolean }
 
 export type GhostPendingRevisions = {
   [rootFolder: string]: Array<{

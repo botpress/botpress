@@ -81,17 +81,19 @@ export class Botpress {
 
   async initializeGhost(): Promise<void> {
     // Global
-    await this.ghostService.global().addRootFolder('/config', { filesGlob: '*.json' })
-    await this.ghostService.global().addRootFolder('/hooks', { filesGlob: '**/*.js' })
-    await this.ghostService.global().addRootFolder('/actions', { filesGlob: '**/*.js' })
-    await this.ghostService.global().addRootFolder('/content-types', { filesGlob: '*.js' })
+    // await this.ghostService.global().addRootFolder('/config', { filesGlob: '*.json' })
+    // await this.ghostService.global().addRootFolder('/hooks', { filesGlob: '**/*.js' })
+    // await this.ghostService.global().addRootFolder('/actions', { filesGlob: '**/*.js' })
+    // await this.ghostService.global().addRootFolder('/content-types', { filesGlob: '*.js' })
+    // if (this.ghostService.)
+    // await this.ghostService.global().syncFolder()
     // Bot-specific
-    await this.ghostService.forAllBots().addRootFolder('/', { filesGlob: '*.json' })
-    await this.ghostService.forAllBots().addRootFolder('/actions', { filesGlob: '**/*.js' })
-    await this.ghostService.forAllBots().addRootFolder('/flows', { filesGlob: '**/*.json' })
-    await this.ghostService.forAllBots().addRootFolder('/config', { filesGlob: '*.json' })
-    await this.ghostService.forAllBots().addRootFolder('/content-elements', { filesGlob: '*.json' })
-    await this.ghostService.forAllBots().addRootFolder('/media', { filesGlob: '*.*', isBinary: true })
+    // await this.ghostService.forAllBots().addRootFolder('/', { filesGlob: '*.json' })
+    // await this.ghostService.forAllBots().addRootFolder('/actions', { filesGlob: '**/*.js' })
+    // await this.ghostService.forAllBots().addRootFolder('/flows', { filesGlob: '**/*.json' })
+    // await this.ghostService.forAllBots().addRootFolder('/config', { filesGlob: '*.json' })
+    // await this.ghostService.forAllBots().addRootFolder('/content-elements', { filesGlob: '*.json' })
+    // await this.ghostService.forAllBots().addRootFolder('/media', { filesGlob: '*.*', isBinary: true })
   }
 
   private async initializeServices() {

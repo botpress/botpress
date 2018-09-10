@@ -1,29 +1,24 @@
-import fse from 'fs-extra'
 import glob from 'glob'
 import { inject, injectable } from 'inversify'
 import path from 'path'
 import { VError } from 'verror'
 
+import Database from '../../database'
 import { TYPES } from '../../misc/types'
 
 import { StorageDriver } from '.'
 
 @injectable()
-export default class DiskStorageDriver implements StorageDriver {
-  constructor(@inject(TYPES.ProjectLocation) private projectLocation: string) {}
+export default class DBStorageDriver implements StorageDriver {
+  constructor(@inject(TYPES.Database) private database: Database) {}
 
-  resolvePath = p => path.resolve(this.projectLocation, p)
-
-  listRevisionIds(pathpathPrefix: string): Promise<string[]> {
-    throw new Error('Method not implemented.')
-  }
-
+  async upsertFile(filePath: string, content: string | Buffer, recordRevision: boolean): Promise<void>
   async upsertFile(filePath: string, content: string | Buffer): Promise<void>
-  async upsertFile(filePath: string, content: string | Buffer, recordRevision: boolean = false): Promise<void> {
+  async upsertFile(filePath: string, content: string | Buffer, recordRevision: boolean = true): Promise<void> {
     try {
-      const folder = path.dirname(this.resolvePath(filePath))
-      await fse.mkdirp(folder)
-      await fse.writeFile(this.resolvePath(filePath), content)
+      const folder = path.dirname(filePath)
+      const fileName = path.basename(filePath)
+      this.database.knex('').where({ folder, file: fileName }) // TODO IMPL
     } catch (e) {
       throw new VError(e, `[Disk Storage] Error upserting file "${filePath}"`)
     }
@@ -31,7 +26,7 @@ export default class DiskStorageDriver implements StorageDriver {
 
   async readFile(filePath: string): Promise<Buffer> {
     try {
-      return fse.readFile(this.resolvePath(filePath))
+      return new Buffer('') // TODO IMPL
     } catch (e) {
       if (e.code === 'ENOENT') {
         throw new Error(`[Disk Storage] File "${filePath}" not found`)
@@ -41,10 +36,11 @@ export default class DiskStorageDriver implements StorageDriver {
     }
   }
 
+  async deleteFile(filePath: string, recordRevision: boolean): Promise<void>
   async deleteFile(filePath: string): Promise<void>
-  async deleteFile(filePath: string, recordRevision: boolean = false): Promise<void> {
+  async deleteFile(filePath: string, recordRevision: boolean = true): Promise<void> {
     try {
-      return fse.unlink(this.resolvePath(filePath))
+      // TODO IMPL
     } catch (e) {
       throw new VError(e, `[Disk Storage] Error deleting file "${filePath}"`)
     }
@@ -64,15 +60,23 @@ export default class DiskStorageDriver implements StorageDriver {
     pattern = pattern.replace(/\/+/, '') // Remove all leading "/"
 
     try {
-      await fse.access(this.resolvePath(directory), fse.constants.R_OK)
+      // await fse.access(this.resolvePath(directory), fse.constants.R_OK)
     } catch (e) {
       throw new VError(e, `[Disk Storage] No read access to directory "${directory}"`)
     }
 
     try {
-      return Promise.fromCallback<string[]>(cb => glob(pattern, { cwd: this.resolvePath(directory) }, cb))
+      // return Promise.fromCallback<string[]>(cb => glob(pattern, { cwd: this.resolvePath(directory) }, cb))
+      // TODO IMPL
+      return []
     } catch (e) {
       throw new VError(e, `[Disk Storage] Error listing directory content for folder "${directory}"`)
     }
   }
+
+  async listRevisionIds(pathPrefix: string): Promise<string[]> {
+    throw new Error('Method not implemented.')
+  }
+
+  async deleteRevisions(revisionIds: string[]) {}
 }

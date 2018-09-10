@@ -1,11 +1,16 @@
-// Inspired by jasmineJs createSpyObject
-// Credit: https://stackoverflow.com/questions/45304270/jest-createspyobj
-export function createSpyObject(...methodNames) {
-  const obj: any = {}
+export type MockObject<T> = { T: T } & { readonly [key in keyof T]: jest.Mock }
 
-  for (let i = 0; i < methodNames.length; i++) {
-    // @ts-ignore: ts-lint cannot find jest when outside of test files
-    obj[methodNames[i]] = jest.fn()
+export function createSpyObject<T>(): MockObject<T> {
+  const obj = {}
+  const handler: ProxyHandler<object> = {
+    get: function(obj, prop) {
+      if (prop === 'T') {
+        return proxy
+      }
+
+      return prop in obj ? obj[prop] : (obj[prop] = jest.fn())
+    }
   }
-  return obj
+  const proxy = new Proxy(obj, handler)
+  return proxy as MockObject<T>
 }

@@ -14,6 +14,7 @@ import { InstructionProcessor } from './dialog/instruction/processor'
 import { ActionStrategy, StrategyFactory, TransitionStrategy, WaitStrategy } from './dialog/instruction/strategy'
 import { SessionService } from './dialog/session/service'
 import { ObjectCache, StorageDriver } from './ghost'
+import DBStorageDriver from './ghost/db-driver'
 import DiskStorageDriver from './ghost/disk-driver'
 import MemoryObjectCache from './ghost/memory-cache'
 import GhostService from './ghost/service'
@@ -29,8 +30,12 @@ export const ServicesContainerModule = new ContainerModule((bind: interfaces.Bin
     .to(MemoryObjectCache)
     .inSingletonScope()
 
-  bind<StorageDriver>(TYPES.StorageDriver)
+  bind<DiskStorageDriver>(TYPES.DiskStorageDriver)
     .to(DiskStorageDriver)
+    .inSingletonScope()
+
+  bind<DBStorageDriver>(TYPES.DBStorageDriver)
+    .to(DBStorageDriver)
     .inSingletonScope()
 
   bind<GhostService>(TYPES.GhostService)
