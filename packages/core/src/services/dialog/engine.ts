@@ -82,7 +82,7 @@ export class DialogEngine {
 
     while (queue.hasInstructions()) {
       const instruction = queue.dequeue()!
-      console.log('Instruction = ', instruction.type, instruction.fn)
+
       try {
         const result = await this.instructionProcessor.process(
           botId,
@@ -92,7 +92,6 @@ export class DialogEngine {
           session.context
         )
 
-        console.log('Result = ', result.followUpAction, result.transitionTo)
         if (result.followUpAction === 'none') {
           await this.updateQueueForSession(queue, session)
         } else if (result.followUpAction === 'wait') {

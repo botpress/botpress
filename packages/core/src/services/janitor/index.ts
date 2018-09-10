@@ -1,5 +1,5 @@
 import { Logger } from 'botpress-module-sdk'
-import { inject, injectable, postConstruct } from 'inversify'
+import { inject, injectable, postConstruct, tagged } from 'inversify'
 import { findIndex } from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
@@ -23,7 +23,9 @@ export class JanitorRunner {
   private intervalRef
 
   constructor(
-    @inject(TYPES.Logger) protected logger: Logger,
+    @inject(TYPES.Logger)
+    @tagged('name', 'Janitor')
+    protected logger: Logger,
     @inject(TYPES.Database) protected database: Database,
     @inject(TYPES.ConfigProvider) protected configProvider: ConfigProvider
   ) {}

@@ -1,5 +1,5 @@
 import { Logger } from 'botpress-module-sdk'
-import { inject, injectable } from 'inversify'
+import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
@@ -16,7 +16,9 @@ import { SessionService } from './session/service'
 @injectable()
 export class DialogJanitorRunner extends JanitorRunner {
   constructor(
-    @inject(TYPES.Logger) protected logger: Logger,
+    @inject(TYPES.Logger)
+    @tagged('name', 'DialogJanitor')
+    protected logger: Logger,
     @inject(TYPES.Database) protected database: Database,
     @inject(TYPES.ConfigProvider) protected configProvider: ConfigProvider,
     @inject(TYPES.DialogEngine) private dialogEngine: DialogEngine,

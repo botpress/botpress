@@ -8,7 +8,6 @@ export class InstructionQueue {
 
   constructor(instructions?: string) {
     if (instructions) {
-      console.log(instructions)
       this.instructions = JSON.parse(instructions)
     }
   }
