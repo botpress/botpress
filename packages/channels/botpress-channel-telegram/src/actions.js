@@ -26,6 +26,27 @@ const createText = ({ chatId, userId }, text, options = {}) => {
   }
 }
 
+const createPhoto = ({ chatId, userId }, photo, options = {}) => {
+  validateChatId(chatId)
+  validateText(photo) // TODO Refactor validators
+
+  if (options.caption) {
+    validateText(options.caption)
+  }
+
+  return {
+    platform: 'telegram',
+    type: 'photo',
+    text: 'Attachment (photo): ' + photo,
+    raw: {
+      chatId: chatId,
+      to: userId,
+      photo: photo,
+      options: options
+    }
+  }
+}
+
 const createEditMessage = (text, options = {}) => {
   return {
     platform: 'telegram',
@@ -40,5 +61,6 @@ const createEditMessage = (text, options = {}) => {
 
 module.exports = {
   createText,
+  createPhoto,
   createEditMessage
 }

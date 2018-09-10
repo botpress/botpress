@@ -1,6 +1,3 @@
-// TODO
-// Add card support to Telegram
-
 export default data => {
   if (data.action === 'Pick location') {
     throw new Error('Action-button renderers do not support "Pick location" type at the moment')
@@ -106,6 +103,31 @@ export default data => {
           })
         }
       ]
+    },
+    {
+      on: 'telegram',
+      title: data.title,
+      options: {
+        reply_markup: JSON.stringify({
+          inline_keyboard: [data].map(d => {
+            if (d.action === 'Say something') {
+              return [
+                {
+                  text: d.title,
+                  callback_data: d.title.substring(0, 64) // 1-64 bytes
+                }
+              ]
+            } else if (d.action === 'Open URL') {
+              return [
+                {
+                  text: d.title,
+                  url: d.url
+                }
+              ]
+            }
+          })
+        })
+      }
     }
   ]
 }
