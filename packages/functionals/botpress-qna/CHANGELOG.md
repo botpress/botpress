@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.36.0"></a>
+# [10.36.0](https://github.com/botpress/modules/compare/v10.35.1...v10.36.0) (2018-09-10)
+
+
+### Bug Fixes
+
+* **qna:** added converting to global app encoding (resolve [#901](https://github.com/botpress/modules/issues/901)) ([6b311a0](https://github.com/botpress/modules/commit/6b311a0))
+
+
+
+
 <a name="10.35.1"></a>
 ## [10.35.1](https://github.com/botpress/modules/compare/v10.35.0...v10.35.1) (2018-09-05)
 
