@@ -21,8 +21,8 @@ export class SessionService {
     return session.state
   }
 
-  async getIdsActivatedBeforeDate(botId: string, outdateTime: Date): Promise<string[]> {
-    return this.repository.getIdsOlderThanDate(botId, outdateTime)
+  async getStaleSessionsIds(botId: string, outdateTime: Date): Promise<string[]> {
+    return this.repository.getStaleSessionsIds(botId, outdateTime)
   }
 
   async updateSessionContext(sessionId, context: DialogContext) {

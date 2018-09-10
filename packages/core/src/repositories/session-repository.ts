@@ -28,7 +28,7 @@ export class DialogSession {
 export interface SessionRepository {
   insert(session: DialogSession): Promise<DialogSession>
   get(id: string): Promise<DialogSession>
-  getIdsOlderThanDate(botsIds: string, time: Date): Promise<string[]>
+  getStaleSessionsIds(botId: string, time: Date): Promise<string[]>
   delete(id: string)
   update(session: DialogSession)
 }
@@ -79,13 +79,16 @@ export class KnexSessionRepository implements SessionRepository {
     return session
   }
 
-  async getIdsOlderThanDate(botId: string, time: Date): Promise<string[]> {
-    return <string[]>await this.database
+  async getStaleSessionsIds(botId: string, time: Date): Promise<string[]> {
+    return (await this.database
       .knex(this.tableName)
       .where('botId', botId)
-      .andWhere('modified_on', '<', time.toISOString())
+      .andWhere(this.database.knex.date.isBefore('modified_on', time))
       .select('id')
-      .then()
+      .limit(250)
+      .then(rows => {
+        return rows.map(r => r.id)
+      })) as string[]
   }
 
   async update(session: DialogSession): Promise<void> {

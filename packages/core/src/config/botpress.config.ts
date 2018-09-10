@@ -14,8 +14,8 @@ export interface DatabaseConfig {
 }
 
 export interface DialogConfig {
-  janitorInterval: number
-  timeoutInterval: number
+  janitorInterval: string
+  timeoutInterval: string
 }
 
 export type BotpressConfig = {

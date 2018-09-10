@@ -1,5 +1,5 @@
 export interface DialogConfig {
-  timeoutInterval: number
+  timeoutInterval: string
 }
 
 export type BotConfig = {

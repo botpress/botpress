@@ -17,9 +17,10 @@ import { TYPES } from './misc/types'
 import { ModuleLoader } from './module-loader'
 import HTTPServer from './server'
 import { DialogEngine } from './services/dialog/engine'
-import { Janitor } from './services/dialog/janitor'
+import { DialogJanitorRunner } from './services/dialog/janitor'
 import GhostService from './services/ghost/service'
 import { Hooks, HookService } from './services/hook/hook-service'
+import { JanitorRunner } from './services/janitor'
 import { EventEngine } from './services/middleware/event-engine'
 import RealtimeService from './services/realtime'
 import { LoggerProvider } from './Logger'
@@ -52,7 +53,8 @@ export class Botpress {
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
     @inject(TYPES.DialogEngine) private dialogEngine: DialogEngine,
     @inject(TYPES.LoggerProvider) private loggerProvider: LoggerProvider,
-    @inject(TYPES.Janitor) private janitor: Janitor
+    @inject(TYPES.JanitorRunner) private janitorRunner: JanitorRunner,
+    @inject(TYPES.DialogJanitorRunner) private dialogJanitor: DialogJanitorRunner
   ) {
     this.version = packageJson.version
     this.botpressPath = path.join(process.cwd(), 'dist')
@@ -115,7 +117,7 @@ Node: ${err.nodeName}`
       flowLoger.warn(message)
     }
 
-    this.janitor.install()
+    this.dialogJanitor.start()
   }
 
   @Memoize()

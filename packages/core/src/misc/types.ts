@@ -42,8 +42,8 @@ const TYPES = {
   WaitStrategy: Symbol.for('WaitStrategy'),
   StrategyProvider: Symbol.for('StrategyProvider'),
   MediaService: Symbol.for('MediaService'),
-  Janitor: Symbol.for('Janitor'),
-  DialogSessionJanitor: Symbol.for('DialogSessionJanitor')
+  JanitorRunner: Symbol.for('JanitorRunner'),
+  DialogJanitorRunner: Symbol.for('DialogJanitorRunner')
 }
 
 export { TYPES }

@@ -141,12 +141,16 @@ export class DialogEngine {
 
     let timeoutNode = _.get(currentNode, 'timeout')
     let timeoutFlow = currentFlow
+    console.log('1', timeoutNode)
 
     if (!timeoutNode) {
+      console.log('2', nodes, currentFlow)
       timeoutNode = nodes!.find(n => n.name === 'timeout')
     } else if (!timeoutNode) {
+      console.log('3', timeoutNode)
       timeoutNode = _.get(currentFlow, 'timeout')
     } else if (!timeoutNode) {
+      console.log('4', timeoutNode)
       timeoutFlow = flows.find(f => f.name === 'timeout.flow.json')
       timeoutNode = _.get(timeoutFlow, 'startNode')
     } else if (!timeoutNode || !timeoutFlow) {
@@ -215,7 +219,7 @@ export class DialogEngine {
   }
 
   private async navigateToNextNode(
-    flows: any,
+    flows,
     session: DialogSession,
     destination: string
   ): Promise<NavigationPosition | undefined> {
