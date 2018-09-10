@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import qs from 'query-string'
 
-import { Button, FormGroup, FormControl, ControlLabel, HelpBlock } from 'react-bootstrap'
+import { Button, FormGroup, FormControl, ControlLabel } from 'react-bootstrap'
 import classnames from 'classnames'
 
 import styles from './style.scss'
@@ -13,11 +13,18 @@ export default class LoginPage extends Component {
     router: PropTypes.object
   }
 
-  state = {
-    user: 'admin',
-    password: '',
-    error: null,
-    loading: false
+  constructor(props) {
+    super(props)
+
+    const isFullLoginMode = window.BOTPRESS_AUTH_FULL
+
+    this.state = {
+      isFullLoginMode,
+      user: isFullLoginMode ? '' : 'admin',
+      password: '',
+      error: null,
+      loading: false
+    }
   }
 
   componentDidMount() {
@@ -38,7 +45,7 @@ export default class LoginPage extends Component {
     this.setState({ loading: true })
 
     login(this.state.user, this.state.password)
-      .then(result => {
+      .then(() => {
         this.setState({ error: null })
         this.context.router.history.push(this.props.location.query.returnTo || '/')
       })
@@ -89,12 +96,18 @@ export default class LoginPage extends Component {
     )
   }
 
-  renderLoginRoot() {
+  renderLoginPassword() {
     return (
       <form onSubmit={this.handleSubmit}>
         <FormGroup>
           <ControlLabel>User</ControlLabel>
-          <FormControl type="text" placeholder="" value={this.state.user} onChange={this.handleUserChange} readOnly />
+          <FormControl
+            type="text"
+            placeholder=""
+            value={this.state.user}
+            onChange={this.handleUserChange}
+            readOnly={!this.state.isFullLoginMode}
+          />
         </FormGroup>
         <FormGroup>
           <ControlLabel>Password</ControlLabel>
@@ -130,7 +143,7 @@ export default class LoginPage extends Component {
     const errorStyle = classnames(styles.error)
     const successStyle = classnames(styles.success)
 
-    const loginBody = window.BOTPRESS_CLOUD_ENABLED ? this.renderLoginCloud() : this.renderLoginRoot()
+    const loginBody = window.BOTPRESS_CLOUD_ENABLED ? this.renderLoginCloud() : this.renderLoginPassword()
 
     const error = this.state.error || this.props.location.query.error
 
