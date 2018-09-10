@@ -31,7 +31,7 @@ class LoggerView extends Component {
   }
 
   loadMore = () => {
-    this.setState(({ limit }) => ({ limit: limit + 50 }))
+    this.setState(({ limit }) => ({ limit: limit + 200 }))
   }
 
   toggleAutoRefresh = () => {
@@ -45,7 +45,7 @@ class LoggerView extends Component {
   }
 
   renderLine(line, index) {
-    const time = moment(new Date(line.timestamp)).format('MMM DD HH:mm:ss')
+    const time = moment(new Date(line.timestamp)).format('YYYY-MM-DD HH:mm:ss')
     const message = line.message.replace(/\[\d\d?m/gi, '')
 
     return (
