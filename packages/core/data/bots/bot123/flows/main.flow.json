@@ -2,12 +2,7 @@
   "version": "0.0.1",
   "catchAll": {
     "onReceive": [],
-    "next": [
-      {
-        "condition": "event.nlu.intent.is('forget')",
-        "node": "forget-my-name"
-      }
-    ]
+    "next": []
   },
   "startNode": "entry",
   "nodes": [
@@ -55,8 +50,8 @@
     {
       "id": "a54a82eb7c",
       "name": "entry",
-      "onEnter": ["getUserVariable {\"name\":\"nickname\",\"output\":\"$r\"}"],
-      "onReceive": null,
+      "onEnter": ["tagUser {\"tag\":\"Joe\"}"],
+      "onReceive": ["debug {}"],
       "next": [
         {
           "condition": "state.$r !== null",

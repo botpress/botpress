@@ -1,20 +1,34 @@
+import { BotpressEvent } from 'botpress-module-sdk'
 import { inject, injectable } from 'inversify'
+import _ from 'lodash'
 
 import Database from '../database'
 import { TYPES } from '../misc/types'
 
-export type DialogSession = {
-  id: string
-  state: string
-  context: any
-  created_on: string
-  modified_on: string
-  active_on: string
+export type DialogContext = {
+  previousFlowName?: string
+  previousNodeName?: string
+  currentNodeName: string
+  currentFlowName: string
+  queue?: string
+}
+
+export class DialogSession {
+  constructor(public id: string, public botId: string) {}
+  state?: any
+  context?: DialogContext
+  event?: BotpressEvent
+
+  // Timestamps are optionnal because they have default values in the database
+  created_on?: Date
+  modified_on?: Date
+  active_on?: Date
 }
 
 export interface SessionRepository {
+  insert(session: DialogSession): Promise<DialogSession>
   get(id: string): Promise<DialogSession>
-  upsert(session: DialogSession)
+  getStaleSessionsIds(botId: string, time: Date): Promise<string[]>
   delete(id: string)
   update(session: DialogSession)
 }
@@ -25,51 +39,69 @@ export class KnexSessionRepository implements SessionRepository {
 
   constructor(@inject(TYPES.Database) private database: Database) {}
 
-  async get(id: string): Promise<any> {
-    const session = await this.database
+  async insert(session: DialogSession): Promise<DialogSession> {
+    const newSession = await this.database.knex.insertAndRetrieve<DialogSession>(
+      this.tableName,
+      {
+        id: session.id,
+        botId: session.botId,
+        state: this.database.knex.json.set(session.state || {}),
+        context: this.database.knex.json.set(session.context || {}),
+        event: this.database.knex.json.set(session.event || {}),
+        active_on: this.database.knex.date.now(),
+        modified_on: this.database.knex.date.now(),
+        created_on: this.database.knex.date.now()
+      },
+      ['botId', 'state', 'context', 'event', 'id', 'active_on', 'modified_on', 'created_on']
+    )
+
+    if (newSession) {
+      newSession.state = this.database.knex.json.get(newSession.state)
+      newSession.context = this.database.knex.json.get(newSession.context)
+      newSession.event = this.database.knex.json.get(newSession.event)
+    }
+    return newSession
+  }
+
+  async get(id: string): Promise<DialogSession> {
+    const session = <DialogSession>await this.database
       .knex(this.tableName)
       .where({ id })
       .select('*')
       .get(0)
-      .then(row => <DialogSession>row)
+      .then()
 
-    return session ? this.jsonParse(session) : this.createSession(id)
+    if (session) {
+      session.state = this.database.knex.json.get(session.state)
+      session.context = this.database.knex.json.get(session.context)
+      session.event = this.database.knex.json.get(session.event)
+    }
+    return session
   }
 
-  async upsert(session: DialogSession) {
-    const params = {
-      tableName: this.tableName,
-      id: session.id,
-      state: JSON.stringify(session.state),
-      context: JSON.stringify(session.context),
-      now: this.database.knex.date.now()
-    }
-
-    let sql: string
-    if (this.database.knex.isLite) {
-      sql = `
-      INSERT OR REPLACE INTO :tableName: (id, state, context, active_on, created_on, modified_on)
-      VALUES (:id, :state, :context, :now, :now, :now)
-      `
-    } else {
-      sql = `
-      INSERT INTO :tableName: (id, state, context, active_on, created_on, modified_on)
-      VALUES (:id, :state, :context, :now, :now, :now)
-      ON CONFLICT (id) DO UPDATE
-      SET state = :state, context = :context, active_on = :now, modified_on = :now
-      `
-    }
-
-    return this.database.knex.raw(sql, params)
-  }
-
-  async update(session: DialogSession) {
-    session.modified_on = this.database.knex.date.now().toString()
-
-    return await this.database
+  async getStaleSessionsIds(botId: string, time: Date): Promise<string[]> {
+    return (await this.database
       .knex(this.tableName)
-      .update(session)
+      .where('botId', botId)
+      .andWhere(this.database.knex.date.isBefore('modified_on', time))
+      .select('id')
+      .limit(250)
+      .then(rows => {
+        return rows.map(r => r.id)
+      })) as string[]
+  }
+
+  async update(session: DialogSession): Promise<void> {
+    const now = this.database.knex.date.now()
+    await this.database
+      .knex(this.tableName)
       .where('id', session.id)
+      .update({
+        modified_on: now,
+        state: this.database.knex.json.set(session.state),
+        context: this.database.knex.json.set(session.context),
+        event: this.database.knex.json.set(session.event)
+      })
       .then()
   }
 
@@ -79,45 +111,5 @@ export class KnexSessionRepository implements SessionRepository {
       .where({ id })
       .del()
       .then()
-  }
-
-  private async createSession(id: string): Promise<DialogSession> {
-    const params = {
-      tableName: this.tableName,
-      id,
-      state: '',
-      context: '',
-      now: this.database.knex.date.now()
-    }
-
-    let sql: string
-    if (this.database.knex.isLite) {
-      sql = `
-      INSERT OR REPLACE INTO :tableName: (id, state, active_on, created_on, modified_on)
-      VALUES (:id, :state, :now, :now, :now)
-      `
-    } else {
-      sql = `
-      INSERT INTO :tableName: (id, state, active_on, created_on, modified_on)
-      VALUES (:id, :state, :now, :now, :now)
-      ON CONFLICT (id) DO UPDATE
-        SET created_on = :now, active_on = :now, modified_on = :now, state = :state, context = :context
-      `
-    }
-
-    await this.database.knex.raw(sql, params).then()
-
-    const session = await this.database
-      .knex(this.tableName)
-      .select('*')
-      .where({ id })
-      .then(row => <DialogSession>row)
-    return this.jsonParse(session)
-  }
-
-  private jsonParse(session: DialogSession) {
-    session.context = session.context && JSON.parse(session.context)
-    session.state = session.state && JSON.parse(session.state)
-    return session
   }
 }

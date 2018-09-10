@@ -4,11 +4,11 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Debug Core",
-      "program": "${workspaceFolder:botpress-xx}/modules/core/src/app.ts",
-      "cwd": "${workspaceFolder:botpress-xx}/modules/core",
+      "name": "Debug Launcher-CE",
+      "program": "${workspaceFolder:botpress-xx}/packages/launcher-ce/src/index.ts",
+      "cwd": "${workspaceFolder:botpress-xx}/packages/launcher-ce",
       "protocol": "inspector",
-      "outFiles": ["${workspaceFolder:botpress-xx}/modules/core/dist/**/*.js"]
+      "outFiles": ["${workspaceFolder:botpress-xx}/packages/launcher-ce/build/**/*.js"]
     }
   ]
 }

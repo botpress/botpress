@@ -31,9 +31,9 @@ export const runCode = (code: string, args: any, options?: LaunchOptions) => {
 
     proc = fork(sandboxPath, [], { env: {} })
 
-    process.on('unhandledRejection', err => {
+    proc.on('unhandledRejection', err => {
       reject(new VError(err, 'Sandbox crashed'))
-      cleanup
+      cleanup()
     })
 
     proc.on('exit', () => {

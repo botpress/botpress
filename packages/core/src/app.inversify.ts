@@ -1,17 +1,18 @@
+import { Logger } from 'botpress-module-sdk'
 import { Container } from 'inversify'
 import path from 'path'
+import yn from 'yn'
 
-import { BotpressAPI } from './api'
+import { BotpressAPIProvider } from './api'
 import { BotLoader } from './bot-loader'
 import { Botpress } from './botpress'
 import { ConfigProvider, GhostConfigProvider } from './config/config-loader'
 import { DatabaseContainerModule } from './database/database.inversify'
-import { Logger } from './misc/interfaces'
 import { applyDisposeOnExit } from './misc/inversify'
 import { TYPES } from './misc/types'
+import { safeStringify } from './misc/util'
 import { ModuleLoader } from './module-loader'
 import { RepositoriesContainerModule } from './repositories/repositories.inversify'
-import Router from './router'
 import HTTPServer from './server'
 import { ServicesContainerModule } from './services/services.inversify'
 import ConsoleLogger, { LoggerProvider } from './Logger'
@@ -22,13 +23,18 @@ const container = new Container({ autoBindInjectable: true })
 // Or else from the Symbol of the class in which the logger is being injected in
 container.bind<string>(TYPES.Logger_Name).toDynamicValue(ctx => {
   const targetName = ctx.currentRequest.parentRequest!.target.name
-  let loggerName = targetName && targetName.value()
+  const byProvider = ctx.plan.rootRequest.target.metadata.find(x => x.key === 'name')
+  let loggerName = (targetName && targetName.value()) || (byProvider && byProvider.value)
 
   if (!loggerName) {
     // Was injected in a logger, which was injected in an other class
     // And that class has a service identifier, which may be a Symbol
     const endclass = ctx.currentRequest.parentRequest && ctx.currentRequest.parentRequest.parentRequest
-    loggerName = endclass!.serviceIdentifier && endclass!.serviceIdentifier.toString().replace(/^Symbol\((.+)\)$/, '$1')
+
+    if (endclass) {
+      loggerName =
+        endclass!.serviceIdentifier && endclass!.serviceIdentifier.toString().replace(/^Symbol\((.+)\)$/, '$1')
+    }
   }
 
   return loggerName || 'Unknown'
@@ -41,11 +47,9 @@ container.bind<LoggerProvider>(TYPES.LoggerProvider).toProvider<Logger>(context 
   }
 })
 
-container.bind<Router>(TYPES.Router).to(Router)
-
 container
-  .bind<BotpressAPI>(TYPES.BotpressAPI)
-  .to(BotpressAPI)
+  .bind<BotpressAPIProvider>(TYPES.BotpressAPIProvider)
+  .to(BotpressAPIProvider)
   .inSingletonScope()
 container
   .bind<ModuleLoader>(TYPES.ModuleLoader)
@@ -69,7 +73,7 @@ container
   .inSingletonScope()
 
 const isPackaged = !!eval('process.pkg')
-const isProduction = isPackaged || process.env.NODE_ENV == 'production'
+const isProduction = !yn(process.env.DEBUG) && (isPackaged || process.env.NODE_ENV == 'production')
 
 const projectLocation = isPackaged
   ? path.join(path.dirname(process.execPath)) // We point at the binary path

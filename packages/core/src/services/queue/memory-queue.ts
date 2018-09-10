@@ -1,9 +1,8 @@
-import { inject, injectable, tagged } from 'inversify'
-
+import { Logger } from 'botpress-module-sdk'
+import { inject, injectable, optional, tagged } from 'inversify'
 import _ from 'lodash'
 import nanoid from 'nanoid'
 
-import { Logger } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
 
 import { defaultOptions, Job, JobWithEvent, JobWrapper, Queue, QueueOptions } from '.'
@@ -21,7 +20,7 @@ export default class MemoryQueue implements Queue {
     @inject(TYPES.Logger)
     @tagged('name', 'MemoryQueue')
     private logger: Logger,
-    options: Partial<QueueOptions> = {}
+    @optional() options: Partial<QueueOptions> = {}
   ) {
     this.options = { ...defaultOptions, ...options }
     this._drain = setInterval(this.drain, this.options.drainInterval)

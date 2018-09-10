@@ -1,9 +1,9 @@
+import { ExtendedKnex, Logger } from 'botpress-module-sdk'
 import { inject, injectable, tagged } from 'inversify'
 import jsonwebtoken from 'jsonwebtoken'
 
 import Database from '../../database'
-import { ExtendedKnex } from '../../database/interfaces'
-import { AuthUser, Logger, TokenUser } from '../../misc/interfaces'
+import { AuthUser, TokenUser } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
 
 import { InvalidCredentialsError } from './errors'

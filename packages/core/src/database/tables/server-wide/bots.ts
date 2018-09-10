@@ -4,6 +4,7 @@ export default class BotsTable extends Table {
   name: string = 'srv_bots'
 
   async bootstrap() {
+    let tcreated = false
     await this.knex
       .createTableIfNotExists(this.name, table => {
         table.increments('id')
@@ -25,6 +26,7 @@ export default class BotsTable extends Table {
       .then(created => {
         // TODO: Use knex seed api instead
         if (created) {
+          tcreated = true
           return this.knex
             .insert({
               id: 123,
@@ -38,5 +40,6 @@ export default class BotsTable extends Table {
             .into(this.name)
         }
       })
+    return tcreated
   }
 }

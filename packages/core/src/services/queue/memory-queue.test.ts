@@ -1,7 +1,7 @@
 import 'bluebird-global'
 import 'reflect-metadata'
 
-import { BotpressEvent } from '../../misc/interfaces'
+import { BotpressEvent } from 'botpress-module-sdk'
 
 import Queue from './memory-queue'
 

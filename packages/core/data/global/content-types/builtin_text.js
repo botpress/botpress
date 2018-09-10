@@ -1,5 +1,33 @@
 const base = require('./_base.js')
 
+function renderForWeb(data) {
+  const events = []
+
+  if (data.typing) {
+    events.push({
+      type: 'typing',
+      value: data.typing
+    })
+  }
+
+  return [
+    ...events,
+    {
+      type: 'text',
+      markdown: true,
+      text: data.text
+    }
+  ]
+}
+
+function renderElement(data, channel) {
+  if (channel === 'web') {
+    return renderForWeb(data)
+  }
+
+  return [] // TODO
+}
+
 module.exports = {
   id: 'builtin_text',
   group: 'Built-in Messages',
@@ -39,12 +67,5 @@ module.exports = {
 
   computePreviewText: formData => 'Text: ' + formData.text,
   computeData: (typeId, formData) => formData,
-  renderElement: data => [
-    {
-      // on: '*',
-      text: data.text,
-      typing: data.typing,
-      markdown: true // Webchat only
-    }
-  ]
+  renderElement: renderElement
 }

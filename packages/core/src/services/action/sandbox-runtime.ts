@@ -36,7 +36,7 @@ function runCode(code: string, args: any = {}) {
         resolve(retValue)
       }
     } catch (err) {
-      returnError(err)
+      reject(err)
     }
   })
 

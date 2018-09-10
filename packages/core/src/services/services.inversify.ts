@@ -7,23 +7,26 @@ import AuthService from './auth/auth-service'
 import TeamsService from './auth/teams-service'
 import { CMSService } from './cms/cms-service'
 import { DialogEngine } from './dialog/engine'
-import FlowService from './dialog/flow-service'
-import { SessionService } from './dialog/session-service'
+import { FlowNavigator } from './dialog/flow/navigator'
+import FlowService from './dialog/flow/service'
+import { InstructionFactory } from './dialog/instruction/factory'
+import { InstructionProcessor } from './dialog/instruction/processor'
+import { ActionStrategy, StrategyFactory, TransitionStrategy, WaitStrategy } from './dialog/instruction/strategy'
+import { DialogJanitorRunner } from './dialog/janitor'
+import { SessionService } from './dialog/session/service'
 import { ObjectCache, StorageDriver } from './ghost'
 import DiskStorageDriver from './ghost/disk-driver'
 import MemoryObjectCache from './ghost/memory-cache'
 import GhostService from './ghost/service'
 import { HookService } from './hook/hook-service'
+import { JanitorRunner } from './janitor'
+import MediaService from './media'
 import { EventEngine } from './middleware/event-engine'
-import { MiddlewareService } from './middleware/middleware-service'
 import { Queue } from './queue'
 import MemoryQueue from './queue/memory-queue'
+import RealtimeService from './realtime'
 
 export const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
-  bind<MiddlewareService>(TYPES.MiddlewareService)
-    .to(MiddlewareService)
-    .inSingletonScope()
-
   bind<ObjectCache>(TYPES.ObjectCache)
     .to(MemoryObjectCache)
     .inSingletonScope()
@@ -44,13 +47,21 @@ export const ServicesContainerModule = new ContainerModule((bind: interfaces.Bin
     .to(CMSService)
     .inSingletonScope()
 
+  bind<MediaService>(TYPES.MediaService)
+    .to(MediaService)
+    .inSingletonScope()
+
   bind<ActionService>(TYPES.ActionService)
     .to(ActionService)
     .inSingletonScope()
 
-  bind<Queue>(TYPES.Queue)
-    .to(MemoryQueue)
-    .inSingletonScope()
+  bind<Queue>(TYPES.IncomingQueue).toDynamicValue((context: interfaces.Context) => {
+    return new MemoryQueue('Incoming', context.container.getTagged(TYPES.Logger, 'name', 'IQueue'))
+  })
+
+  bind<Queue>(TYPES.OutgoingQueue).toDynamicValue((context: interfaces.Context) => {
+    return new MemoryQueue('Outgoing', context.container.getTagged(TYPES.Logger, 'name', 'OQueue'))
+  })
 
   bind<HookService>(TYPES.HookService)
     .to(HookService)
@@ -68,11 +79,51 @@ export const ServicesContainerModule = new ContainerModule((bind: interfaces.Bin
     .to(SessionService)
     .inSingletonScope()
 
+  bind<RealtimeService>(TYPES.RealtimeService)
+    .to(RealtimeService)
+    .inSingletonScope()
+
   bind<AuthService>(TYPES.AuthService)
     .to(AuthService)
     .inSingletonScope()
 
   bind<TeamsService>(TYPES.TeamsService)
     .to(TeamsService)
+    .inSingletonScope()
+
+  bind<InstructionProcessor>(TYPES.InstructionProcessor)
+    .to(InstructionProcessor)
+    .inSingletonScope()
+
+  bind<InstructionFactory>(TYPES.InstructionFactory)
+    .to(InstructionFactory)
+    .inSingletonScope()
+
+  bind<FlowNavigator>(TYPES.FlowNavigator)
+    .to(FlowNavigator)
+    .inSingletonScope()
+
+  bind<StrategyFactory>(TYPES.StrategyFactory)
+    .to(StrategyFactory)
+    .inSingletonScope()
+
+  bind<ActionStrategy>(TYPES.ActionStrategy)
+    .to(ActionStrategy)
+    .inRequestScope()
+
+  bind<TransitionStrategy>(TYPES.TransitionStrategy)
+    .to(TransitionStrategy)
+    .inRequestScope()
+
+  bind<WaitStrategy>(TYPES.WaitStrategy)
+    .to(WaitStrategy)
+    .inRequestScope()
+
+  bind<JanitorRunner>(TYPES.JanitorRunner)
+    .to(JanitorRunner)
+    .inSingletonScope()
+
+  bind<DialogJanitorRunner>(TYPES.DialogJanitorRunner)
+    .to(DialogJanitorRunner)
     .inSingletonScope()
 })

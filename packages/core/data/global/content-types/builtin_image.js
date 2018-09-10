@@ -1,4 +1,34 @@
 const base = require('./_base.js')
+const path = require('path')
+const url = require('url')
+const { tail } = _
+
+function renderForWeb(data) {
+  const events = []
+
+  if (data.typing) {
+    events.push({
+      type: 'typing',
+      value: data.typing
+    })
+  }
+
+  return [
+    ...events,
+    {
+      type: 'file',
+      url: url.resolve(data.BOT_URL, data.image)
+    }
+  ]
+}
+
+function renderElement(data, channel) {
+  if (channel === 'web') {
+    return renderForWeb(data)
+  }
+
+  return [] // TODO Handle channel not supported
+}
 
 module.exports = {
   id: 'builtin_image',
@@ -37,37 +67,8 @@ module.exports = {
     const title = formData.title ? ' | ' + formData.title : ''
     return `Image (${fileName})${title}`
   },
+
   computeData: (typeId, formData) => formData,
-  renderElement: data => [
-    {
-      on: 'facebook',
-      image: url.resolve(data.BOT_URL, data.image),
-      typing: data.typing
-    },
-    {
-      on: 'webchat',
-      type: 'file',
-      url: url.resolve(data.BOT_URL, data.image),
-      typing: data.typing
-    },
-    {
-      on: 'microsoft',
-      attachments: [
-        {
-          contentType: mime.getType(data.image),
-          contentUrl: data.image,
-          name: data.title
-        }
-      ]
-    },
-    {
-      on: 'slack',
-      attachments: [
-        {
-          title: data.title,
-          image_url: data.image
-        }
-      ]
-    }
-  ]
+
+  renderElement: renderElement
 }

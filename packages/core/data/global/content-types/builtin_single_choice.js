@@ -1,5 +1,37 @@
 const base = require('./_base.js')
 
+function renderForWeb(data) {
+  const events = []
+
+  if (data.typing) {
+    events.push({
+      type: 'typing',
+      value: data.typing
+    })
+  }
+
+  return [
+    ...events,
+    {
+      on: 'webchat',
+      text: data.text,
+      quick_replies: data.choices.map(c => ({
+        title: c.title,
+        payload: c.value.toUpperCase()
+      })),
+      typing: data.typing
+    }
+  ]
+}
+
+function renderElement(data, channel) {
+  if (channel === 'web') {
+    return renderForWeb(data)
+  }
+
+  return [] // TODO Handle channel not supported
+}
+
 module.exports = {
   id: 'builtin_single-choice',
   group: 'Built-in Messages',
@@ -51,46 +83,5 @@ module.exports = {
 
   computePreviewText: formData => `Choices (${formData.choices.length}) ${formData.text}`,
   computeData: (typeId, formData) => formData,
-  renderElement: data => [
-    {
-      on: 'facebook',
-      text: data.text,
-      quick_replies: data.choices.map(c => `<${c.value}> ${c.title}`),
-      typing: data.typing
-    },
-    {
-      on: 'webchat',
-      text: data.text,
-      quick_replies: data.choices.map(c => `<${c.value}> ${c.title}`),
-      typing: data.typing
-    },
-    {
-      on: 'microsoft',
-      type: 'message',
-      text: data.text,
-      inputHint: 'expectingInput',
-      suggestedActions: {
-        actions: data.choices.map(c => ({
-          type: 'imBack',
-          title: c.title,
-          value: c.value
-        }))
-      }
-    },
-    {
-      on: 'slack',
-      attachments: [
-        {
-          text: data.text,
-          attachment_type: 'default',
-          actions: data.choices.map(c => ({
-            name: 'press',
-            text: c.title,
-            type: 'button',
-            value: c.value
-          }))
-        }
-      ]
-    }
-  ]
+  renderElement: renderElement
 }

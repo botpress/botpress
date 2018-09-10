@@ -6,7 +6,7 @@ export type ContentType = {
   uiSchema?: object
   computePreviewText?: (formData: object) => string
   computeData?: (typeId: string, formData: object) => object
-  renderElement: (data: object) => object[]
+  renderElement: (data: object, channel: string) => object[]
 }
 
 export type ContentElement = {

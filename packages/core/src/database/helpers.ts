@@ -9,7 +9,7 @@ import {
   KnexExtension_Bool,
   KnexExtension_Date,
   KnexExtension_Json
-} from './interfaces'
+} from 'botpress-module-sdk'
 
 export const patchKnex = (knex: Knex): Knex & KnexExtension => {
   const isLite = knex.client.config.client === 'sqlite3'
@@ -49,7 +49,7 @@ export const patchKnex = (knex: Knex): Knex & KnexExtension => {
   // only works for single insert beause of SQLite
   const insertAndRetrieve = async <T>(
     tableName: string,
-    data: {},
+    data: any,
     returnColumns: string | string[] = 'id',
     idColumnName: string = 'id'
   ): Promise<T> => {
@@ -75,12 +75,13 @@ export const patchKnex = (knex: Knex): Knex & KnexExtension => {
           knex
             .select(knex.raw('last_insert_rowid() as id'))
             .transacting(trx)
-            .then(([{ id }]) => {
+            .then(([{ id: dbId }]) => {
+              const id = (data && data.id) || dbId
               if (returnColumns === idColumnName) {
                 return id
               }
               return knex(tableName)
-                .select(typeof returnColumns === 'string' ? [returnColumns] : returnColumns)
+                .select('*')
                 .where(idColumnName, id)
                 .limit(1)
                 .transacting(trx)

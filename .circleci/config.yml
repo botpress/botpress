@@ -30,8 +30,8 @@ jobs:
 
       - restore_cache:
           keys:
-            - v1-dependencies-webchat-{{ checksum "packages/webchat/package.json" }}
-            - v1-dependencies-webchat-
+            - v1-dependencies-channelweb-{{ checksum "packages/channelweb/package.json" }}
+            - v1-dependencies-channelweb-
 
       - run: sudo npm install -g npm@6
       - run: sudo npm install -g node-pre-gyp
@@ -51,9 +51,9 @@ jobs:
             - ~/repo/packages/core/node_modules
 
       - save_cache:
-          key: v1-dependencies-webchat-{{ checksum "packages/webchat/package.json" }}
+          key: v1-dependencies-channelweb-{{ checksum "packages/channelweb/package.json" }}
           paths:
-            - ~/repo/packages/webchat/node_modules
+            - ~/repo/packages/channelweb/node_modules
 
       - run:
           name: Test that it builds

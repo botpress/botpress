@@ -1,13 +1,13 @@
+import { ExtendedKnex, Logger } from 'botpress-module-sdk'
 import { inject, injectable, tagged } from 'inversify'
 import Knex from 'knex'
 import _ from 'lodash'
 
 import { DatabaseConfig } from '../config/botpress.config'
-import { Logger } from '../misc/interfaces'
 import { TYPES } from '../misc/types'
 
 import { patchKnex } from './helpers'
-import { ExtendedKnex, Table } from './interfaces'
+import { Table } from './interfaces'
 import AllTables from './tables'
 
 @injectable()
@@ -43,12 +43,12 @@ export default class Database {
 
     await Promise.mapSeries(AllTables, async Tbl => {
       const table = new Tbl(this.knex!)
-      await table.bootstrap()
-      this.logger.debug(`Created table '${table.name}'`)
+      const created = await table.bootstrap()
+      if (created) {
+        this.logger.debug(`Created table '${table.name}'`)
+      }
       this.tables.push(table)
     })
-
-    this.logger.info('Created database')
   }
 
   runMigrations() {

@@ -1,20 +1,12 @@
 import { checkRule } from '@botpress/util-roles'
+import { ExtendedKnex, Logger } from 'botpress-module-sdk'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import nanoid from 'nanoid'
 
 import Database from '../../database'
-import { ExtendedKnex } from '../../database/interfaces'
-import {
-  AuthRole,
-  AuthRoleDb,
-  AuthRule,
-  AuthTeam,
-  AuthTeamMembership,
-  AuthUser,
-  Bot,
-  Logger
-} from '../../misc/interfaces'
+
+import { AuthRole, AuthRoleDb, AuthRule, AuthTeam, AuthTeamMembership, AuthUser, Bot } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
 import { InvalidOperationError, NotFoundError, UnauthorizedAccessError } from '../auth/errors'
 
@@ -234,7 +226,6 @@ export default class TeamService {
   }
 
   async assertUserNotMember(userId: number, teamId: number) {
-    console.log(userId, teamId)
     const member = this.getMembership({ user: userId, team: teamId }, ['id'])
 
     if (member) {

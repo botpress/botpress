@@ -1,12 +1,13 @@
+import { ExtendedKnex, Logger } from 'botpress-module-sdk'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
 import _ from 'lodash'
 import nanoid from 'nanoid'
 import path from 'path'
 
 import { ConfigProvider } from '../../config/config-loader'
-import { ExtendedKnex } from '../../database/interfaces'
-import { IDisposeOnExit, Logger } from '../../misc/interfaces'
+import { IDisposeOnExit } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
+import { LoggerProvider } from '../../Logger'
 import GhostService from '../ghost/service'
 
 import { ContentElement, ContentType, DefaultSearchParams, SearchParams } from '.'
@@ -26,6 +27,7 @@ export class CMSService implements IDisposeOnExit {
     @inject(TYPES.Logger)
     @tagged('name', 'CMS')
     private logger: Logger,
+    @inject(TYPES.LoggerProvider) private loggerProvider: LoggerProvider,
     @inject(TYPES.GhostService) private ghost: GhostService,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.InMemoryDatabase) private memDb: ExtendedKnex
@@ -35,11 +37,8 @@ export class CMSService implements IDisposeOnExit {
     this.sandbox && this.sandbox.dispose()
   }
 
-  // TODO Test this class
   @postConstruct()
   async initialize() {
-    this.ghost.global().addRootFolder(this.typesDir, { filesGlob: '**.js' })
-    this.ghost.forAllBots().addRootFolder(this.elementsDir, { filesGlob: '**.json' })
     await this.prepareDb()
     await this.loadContentTypesFromFiles()
   }
@@ -90,7 +89,7 @@ export class CMSService implements IDisposeOnExit {
       return <CodeFile>{ code: content, relativePath: filename }
     })
 
-    this.sandbox = new SafeCodeSandbox(codeFiles)
+    this.sandbox = new SafeCodeSandbox(codeFiles, await this.loggerProvider('CMS[Render]'))
     let filesLoaded = 0
 
     for (const file of this.sandbox.ls()) {
@@ -153,13 +152,16 @@ export class CMSService implements IDisposeOnExit {
   }
 
   async getContentElement(botId: string, id: string): Promise<ContentElement> {
-    return this.memDb(this.contentTable)
+    const element = await this.memDb(this.contentTable)
       .where({ botId, id })
       .get(0)
+
+    return this.transformDbItemToApi(element)
   }
 
   async getContentElements(botId: string, ids: string[]): Promise<ContentElement[]> {
-    return this.memDb(this.contentTable).where(builder => builder.where({ botId }).whereIn('id', ids))
+    const elements = await this.memDb(this.contentTable).where(builder => builder.where({ botId }).whereIn('id', ids))
+    return Promise.map(elements, this.transformDbItemToApi)
   }
 
   async countContentElements(botId: string): Promise<number> {
