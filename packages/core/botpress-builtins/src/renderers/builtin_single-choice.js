@@ -1,8 +1,3 @@
-// TODO
-// Add buttons support to Telegram
-
-import url from 'url'
-
 const SKIP_CHOICE_PREFIX = /^!skip |^!hide |^!hidden /i
 
 const takeVisible = choices => {
@@ -49,5 +44,20 @@ export default data => [
         }))
       }
     ]
+  },
+  {
+    on: 'telegram',
+    title: data.text,
+    options: {
+      parse_mode: 'Markdown',
+      reply_markup: JSON.stringify({
+        keyboard: [
+          takeVisible(data.choices).map(choice => ({
+            text: choice.title
+          }))
+        ],
+        one_time_keyboard: true
+      })
+    }
   }
 ]

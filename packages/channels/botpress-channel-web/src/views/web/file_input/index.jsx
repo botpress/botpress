@@ -29,7 +29,7 @@ export default class FileInput extends Component {
 
   render() {
     return (
-      <div style={this.state.styles.parent}>
+      <div style={this.state.styles.parent} className="botpress__file-input">
         <input
           type="file"
           name={this.props.name}

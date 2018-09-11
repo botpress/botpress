@@ -26,7 +26,7 @@ export default class Send extends Component {
 
   render() {
     return (
-      <div tabIndex="-1" className={style.input}>
+      <div tabIndex="-1" className={`${style.input} botpress__input`}>
         <textarea
           tabIndex="1"
           ref={input => {

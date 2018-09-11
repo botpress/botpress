@@ -38,6 +38,7 @@
     - path: "/recipes/webpack/"
     - path: "/recipes/scheduling/"
     - path: "/recipes/broadcasting/"
+    - path: "/recipes/sanitizing/"
 
 - id: "skills"    
   pages:

@@ -157,6 +157,10 @@ docs_additional_reading: "Additional Reading"
   title: "Broadcasting Messages"
   description: "Learn how to broadcast messages to multiple users"
 
+"/recipes/sanitizing/":
+  title: "Sanitizing Data"
+  description: "Learn how to sanitize data in the chat window and persistant storage"
+
 # Skills
 
 "/skills/":

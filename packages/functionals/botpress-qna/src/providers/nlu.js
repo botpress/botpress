@@ -36,7 +36,7 @@ export default class Storage {
     this.qnaDir = config.qnaDir
   }
 
-  async initializeGhost() {
+  async initialize() {
     mkdirp.sync(path.resolve(this.projectDir, this.qnaDir))
     await this.ghost.addRootFolder(this.qnaDir, { filesGlob: '**/*.json' })
   }
@@ -47,7 +47,7 @@ export default class Storage {
     }
   }
 
-  async saveQuestion(data, id = null, syncNlu = true) {
+  async update(data, id) {
     id = id || getQuestionId(data)
     if (data.enabled) {
       await this.bp.nlu.storage.saveIntent(getIntentId(id), {
@@ -57,11 +57,30 @@ export default class Storage {
     } else {
       await this.bp.nlu.storage.deleteIntent(getIntentId(id))
     }
-    if (syncNlu) {
-      this.syncNlu()
-    }
+
+    await this.syncNlu()
     await this.ghost.upsertFile(this.qnaDir, `${id}.json`, JSON.stringify({ id, data }, null, 2))
+
     return id
+  }
+
+  async insert(qna) {
+    const ids = await Promise.all(
+      (_.isArray(qna) ? qna : [qna]).map(async data => {
+        const id = getQuestionId(data)
+        if (data.enabled) {
+          await this.bp.nlu.storage.saveIntent(getIntentId(id), {
+            entities: [],
+            utterances: normalizeQuestions(data.questions)
+          })
+        }
+        await this.ghost.upsertFile(this.qnaDir, `${id}.json`, JSON.stringify({ id, data }, null, 2))
+      })
+    )
+
+    await this.syncNlu()
+
+    return ids
   }
 
   async getQuestion(opts) {
@@ -76,12 +95,12 @@ export default class Storage {
     return JSON.parse(data)
   }
 
-  async questionsCount() {
+  async count() {
     const questions = await this.ghost.directoryListing(this.qnaDir, '.json')
     return questions.length
   }
 
-  async getQuestions({ limit, offset } = {}) {
+  async all({ limit, offset } = {}) {
     let questions = await this.ghost.directoryListing(this.qnaDir, '.json')
     if (typeof limit !== 'undefined' && typeof offset !== 'undefined') {
       questions = questions.slice(offset, offset + limit)
@@ -89,14 +108,36 @@ export default class Storage {
     return Promise.map(questions, question => this.getQuestion({ filename: question }))
   }
 
-  async deleteQuestion(id, syncNlu = true) {
-    const data = await this.getQuestion(id)
-    if (data.data.enabled) {
-      await this.bp.nlu.storage.deleteIntent(getIntentId(id))
-      if (syncNlu) {
-        this.syncNlu()
-      }
+  async delete(qnaId) {
+    const ids = _.isArray(qnaId) ? qnaId : [qnaId]
+    if (ids.length === 0) {
+      return
     }
-    await this.ghost.deleteFile(this.qnaDir, `${id}.json`)
+    await Promise.all(
+      ids.map(async id => {
+        const data = await this.getQuestion(id)
+        if (data.data.enabled) {
+          await this.bp.nlu.storage.deleteIntent(getIntentId(id))
+        }
+        await this.ghost.deleteFile(this.qnaDir, `${id}.json`)
+      })
+    )
+    await this.syncNlu()
+  }
+
+  async answersOn(text) {
+    const extract = await this.bp.nlu.provider.extract({ text })
+    const intents = _.chain([extract.intent, ...extract.intents])
+      .uniqBy('name')
+      .filter(({ name }) => name.startsWith('__qna__'))
+      .orderBy(['confidence'], ['desc'])
+      .value()
+
+    return Promise.all(
+      intents.map(async ({ name, confidence }) => {
+        const { data: { questions, answer } } = await this.getQuestion(name.replace('__qna__', ''))
+        return { questions, answer, confidence, id: name, metadata: [] }
+      })
+    )
   }
 }

@@ -140,6 +140,8 @@ Botpress NLU will create and train and maintain your projects and models automat
 | recastUserSlug | `NLU_RECAST_USER_SLUG` | Yes |
 | recastBotSlug | `NLU_RECAST_BOT_SLUG` | Yes |
 
+> **Note:** Make sure to use [developer token](https://recast.ai/docs/api-reference/?javascript#authentication) for Recast not request one.
+
 # Contributing
 
 The best way to help right now is by helping with the exising issues here on GitHub and by reporting new issues!

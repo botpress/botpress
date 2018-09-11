@@ -59,7 +59,7 @@ class QuickReply extends Component {
 
     return (
       <button
-        className={style.bubble}
+        className={`${style.bubble} ${style.floatNone}`}
         style={{ color: this.props.fgColor, backgroundColor }}
         onClick={::this.handleClick}
         onMouseOver={() => this.setState({ hover: true })}
@@ -76,7 +76,9 @@ const QuickReplies = props => {
     return null
   }
 
-  const quick_replies = props.quick_replies.map(qr => <QuickReply {...props} {...qr} />)
+  const quick_replies = props.quick_replies.map((qr, index) => (
+    <QuickReply key={`${index}-quick-reply`} {...props} {...qr} />
+  ))
 
   return <div className={style.quickReplyContainer}>{quick_replies}</div>
 }

@@ -289,11 +289,54 @@ window.botpressWebChat.init({
   textColorOnForeground: '#ffffff', // Element text color (header, composer, button..)
   showUserName: false, // Whether or not to show the user's name
   showUserAvatar: false, // Whether or not to show the user's avatar
-  enableTranscriptDownload: false // Whether or not to show the transcript download button
+  enableTranscriptDownload: false, // Whether or not to show the transcript download button
+  customStylesheet: '' // Url to custom .css file
 })
 ```
 
 You can also use `window.botpressWebChat.configure` method to modify web chat options after it's initialized.
+
+### Custom stylesheet example
+
+Style for silver background
+
+```css
+.botpress__side-internal {
+  background-color: rgb(255, 255, 255);
+  border: 1px solid rgba(0, 0, 0, .3);
+}
+
+.botpress__side-external .botpress__side-internal .botpress__side-header {
+  border-bottom: 2px solid #fff;
+}
+
+.botpress__side-header-bot-name,
+.botpress__message-date,
+.botpress__side-item-name,
+.botpress__side-internal .botpress__side-header .botpress__toggle-convos-button i,
+.botpress__side-internal .botpress__side-header .botpress__close-button i {
+  color: #fff;
+}
+
+.botpress__side-conversation,
+.botpress__side-header,
+.botpress__convos-list {
+  background-color: rgba(0, 0, 0, .3);
+}
+
+.botpress__side-external .botpress__side-internal .botpress__side-conversation .botpress__side-conversation-bottom .botpress__side-new-message {
+  background-color: transparent;
+}
+
+.botpress__side-external .botpress__side-item-right .botpress__side-item-title .botpress__side-item-date span,
+.botpress__side-external .botpress__side-internal .botpress__convos-list .botpress__convo-item .botpress__side-item-right .botpress__side-item-text {
+  color: #000;
+}
+
+.botpress__side-external .botpress__side-internal .botpress__convos-list .botpress__convo-item:hover {
+  background-color: rgba(0, 0, 0, .35);
+}
+```
 
 ### Page –> Bot interactions
 

@@ -1,4 +1,5 @@
-import Storage from './storage'
+import NluStorage from './providers/nlu'
+import MicrosoftQnaMakerStorage from './providers/qnaMaker'
 import { processEvent } from './middleware'
 import * as parsers from './parsers.js'
 import _ from 'lodash'
@@ -10,7 +11,6 @@ import Promise from 'bluebird'
 import iconv from 'iconv-lite'
 import nanoid from 'nanoid'
 
-let storage
 let logger
 let shouldProcessMessage
 const csvUploadStatuses = {}
@@ -26,12 +26,15 @@ module.exports = {
   config: {
     qnaDir: { type: 'string', required: true, default: './qna', env: 'QNA_DIR' },
     textRenderer: { type: 'string', required: true, default: '#builtin_text', env: 'QNA_TEXT_RENDERER' },
-    exportCsvEncoding: { type: 'string', required: false, default: 'utf8', env: 'QNA_EXPORT_CSV_ENCODING' }
+    exportCsvEncoding: { type: 'string', required: false, default: 'utf8', env: 'QNA_EXPORT_CSV_ENCODING' },
+    qnaMakerApiKey: { type: 'string', required: false, env: 'QNA_MAKER_API_KEY' },
+    qnaMakerKnowledgebase: { type: 'string', required: false, default: 'botpress', env: 'QNA_MAKER_KNOWLEDGEBASE' }
   },
   async init(bp, configurator) {
     const config = await configurator.loadAll()
-    storage = new Storage({ bp, config })
-    await storage.initializeGhost()
+    const Storage = config.qnaMakerApiKey ? MicrosoftQnaMakerStorage : NluStorage
+    this.storage = new Storage({ bp, config })
+    await this.storage.initialize()
 
     logger = bp.logger
 
@@ -47,7 +50,7 @@ module.exports = {
             return next()
           }
         }
-        if (!await processEvent(event, { bp, storage, logger, config })) {
+        if (!await processEvent(event, { bp, storage: this.storage, logger, config })) {
           next()
         }
       },
@@ -57,6 +60,7 @@ module.exports = {
   },
   async ready(bp, configurator) {
     const config = await configurator.loadAll()
+    const storage = this.storage
     bp.qna = {
       /**
        * Parses and imports questions; consecutive questions with similar answer get merged
@@ -67,16 +71,17 @@ module.exports = {
        */
       async import(questions, { format = 'json', csvUploadStatusId } = {}) {
         recordCsvUploadStatus(csvUploadStatusId, 'Calculating diff with existing questions')
-        const existingQuestions = (await storage.getQuestions()).map(item =>
-          JSON.stringify(_.omit(item.data, 'enabled'))
-        )
+        const existingQuestions = (await storage.all()).map(item => JSON.stringify(_.omit(item.data, 'enabled')))
         const parsedQuestions = typeof questions === 'string' ? parsers[`${format}Parse`](questions) : questions
         const questionsToSave = parsedQuestions.filter(item => !existingQuestions.includes(JSON.stringify(item)))
 
-        let questionsSavedCount = 0
+        if (config.qnaMakerApiKey) {
+          return storage.insert(questionsToSave.map(question => ({ ...question, enabled: true })))
+        }
 
+        let questionsSavedCount = 0
         return Promise.each(questionsToSave, question =>
-          storage.saveQuestion({ ...question, enabled: true }, null, false).then(() => {
+          storage.insert({ ...question, enabled: true }).then(() => {
             questionsSavedCount += 1
             recordCsvUploadStatus(csvUploadStatusId, `Saved ${questionsSavedCount}/${questionsToSave.length} questions`)
           })
@@ -91,7 +96,7 @@ module.exports = {
        * @returns {Array.<{questions: Array, question: String, action: String, answer: String}>}
        */
       async export({ flat = false } = {}) {
-        const qnas = await storage.getQuestions()
+        const qnas = await storage.all()
 
         return qnas.flatMap(question => {
           const { data } = question
@@ -133,18 +138,26 @@ module.exports = {
        * @param {String} id - id of the question to look for
        * @returns {Object}
        */
-      getQuestion: storage.getQuestion.bind(storage)
+      getQuestion: storage.getQuestion.bind(storage),
+
+      /**
+       * @async
+       * Returns array of matchings questions-answers along with their confidence level
+       * @param {String} question - question to match against
+       * @returns {Array.<{questions: Array, answer: String, id: String, confidence: Number, metadata: Array}>}
+       */
+      answersOn: storage.answersOn.bind(storage)
     }
 
     const router = bp.getRouter('botpress-qna')
 
     router.get('/', async ({ query: { limit, offset } }, res) => {
       try {
-        const items = await storage.getQuestions({
+        const items = await this.storage.all({
           limit: limit ? parseInt(limit) : undefined,
           offset: offset ? parseInt(offset) : undefined
         })
-        const overallItemsCount = await storage.questionsCount()
+        const overallItemsCount = await this.storage.count()
         res.send({ items, overallItemsCount })
       } catch (e) {
         logger.error('QnA Error', e, e.stack)
@@ -154,31 +167,48 @@ module.exports = {
 
     router.post('/', async (req, res) => {
       try {
-        const id = await storage.saveQuestion(req.body)
+        bp.events.emit('toast.qna-save', { text: 'QnA Save In Progress', type: 'info', time: 120000 })
+        const id = await this.storage.insert(req.body)
+
         res.send(id)
+
+        bp.events.emit('toast.qna-save', { text: 'QnA Save Success', type: 'success' })
       } catch (e) {
         logger.error('QnA Error', e, e.stack)
         res.status(500).send(e.message || 'Error')
+
+        bp.events.emit('toast.qna-save', { text: `QnA Save Error: ${e.message}`, type: 'error' })
       }
     })
 
     router.put('/:question', async (req, res) => {
       try {
-        await storage.saveQuestion(req.body, req.params.question)
+        bp.events.emit('toast.qna-save', { text: 'QnA Update In Progress', type: 'info', time: 120000 })
+        await this.storage.update(req.body, req.params.question)
+
+        bp.events.emit('toast.qna-save', { text: 'QnA Update Success', type: 'success' })
+
         res.end()
       } catch (e) {
         logger.error('QnA Error', e, e.stack)
         res.status(500).send(e.message || 'Error')
+        bp.events.emit('toast.qna-save', { text: `QnA Update Error: ${e.message}`, type: 'error' })
       }
     })
 
     router.delete('/:question', async (req, res) => {
       try {
-        await storage.deleteQuestion(req.params.question)
+        bp.events.emit('toast.qna-save', { text: 'QnA Delete In Progress', type: 'info', time: 120000 })
+        await this.storage.delete(req.params.question)
+
+        bp.events.emit('toast.qna-save', { text: 'QnA Delete Success', type: 'success' })
+
         res.end()
       } catch (e) {
         logger.error('QnA Error', e, e.stack)
         res.status(500).send(e.message || 'Error')
+
+        bp.events.emit('toast.qna-save', { text: `QnA Delete Error: ${e.message}`, type: 'error' })
       }
     })
 
@@ -195,14 +225,14 @@ module.exports = {
       res.end(csvUploadStatusId)
       recordCsvUploadStatus(csvUploadStatusId, 'Deleting existing questions')
       if (yn(req.body.isReplace)) {
-        const questions = await storage.getQuestions()
-        await Promise.each(questions, ({ id }) => storage.deleteQuestion(id, false))
+        const questions = await this.storage.all()
+        await this.storage.delete(questions.map(({ id }) => id))
       }
 
       try {
-        await bp.qna.import(req.file.buffer.toString(), { format: 'csv', csvUploadStatusId })
-        recordCsvUploadStatus(csvUploadStatusId, 'Syncing NLU-provider')
-        bp.nlu.provider.sync()
+        const questions = iconv.decode(req.file.buffer, config.exportCsvEncoding)
+
+        await bp.qna.import(questions, { format: 'csv', csvUploadStatusId })
         recordCsvUploadStatus(csvUploadStatusId, 'Completed')
       } catch (e) {
         logger.error('QnA Error:', e)

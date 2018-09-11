@@ -12,7 +12,7 @@ class FileMessage extends Component {
 
   renderLocalFile() {
     return (
-      <div className={style.otherFile}>
+      <div className={`${style.otherFile} botpress__message-element-local-file`}>
         <div>{this.props.file.name} (local)</div>
       </div>
     )
@@ -31,7 +31,7 @@ class FileMessage extends Component {
       }
     } else {
       return (
-        <div className={style.otherFile}>
+        <div className={`${style.otherFile} botpress__message-element-remote-file`}>
           <a href={this.props.file.url}>{this.props.file.name}</a>
         </div>
       )
@@ -40,14 +40,14 @@ class FileMessage extends Component {
 
   renderRemoteImage() {
     return (
-      <a href={this.props.file.url} target="_blank">
+      <a className="botpress__message-element-remote-img" href={this.props.file.url} target="_blank">
         <img src={this.props.file.url} title={this.props.file.name} />
       </a>
     )
   }
   renderAudio() {
     return (
-      <audio controls>
+      <audio className="botpress__message-element-audio" controls>
         <source src={this.props.file.url} type={this.props.file.mime} />
       </audio>
     )
@@ -55,7 +55,7 @@ class FileMessage extends Component {
 
   renderVideo() {
     return (
-      <video width="240" controls>
+      <video className="botpress__message-element-video" width="240" controls>
         <source src={this.props.file.url} type={this.props.file.mime} />
       </video>
     )
