@@ -3,13 +3,29 @@ import { inject, injectable } from 'inversify'
 import Database from '../database'
 import { TYPES } from '../misc/types'
 
-type Notification = {}
+export class ModuleNotification {
+  constructor(public id: string, public icon: string, public name: string) {}
+}
+
+export class Notification {
+  constructor(
+    public message: string,
+    public level: string,
+    public module: ModuleNotification,
+    public redirectUrl: string
+  ) {}
+
+  public created_on?: string
+  public read = false
+  public archived = false
+}
 
 export interface NotificationsRepository {
   getBydId(id: string)
   insert(notification: Notification)
   update(notification: Notification)
   deleteById(id: string)
+  getAllUnarchived()
 }
 
 @injectable()
@@ -19,15 +35,24 @@ export class KnexNotificationsRepository implements NotificationsRepository {
   constructor(@inject(TYPES.Database) private database: Database) {}
 
   async getBydId(id: string): Promise<Notification> {
-    return this.database
+    return (await this.database
       .knex(this.TABLE_NAME)
       .select('*')
       .where({ id })
-      .then() as Notification
+      .then()) as Notification
+  }
+
+  async getAllUnarchived(): Promise<Notification[]> {
+    return (await this.database
+      .knex(this.TABLE_NAME)
+      .select('*')
+      .where('archived', false)
+      .limit(250)
+      .then()) as Notification[]
   }
 
   async insert(notification: Notification): Promise<Notification> {
-    return this.database.knex.insertAndRetrieve(this.TABLE_NAME, notification, [
+    return (await this.database.knex.insertAndRetrieve(this.TABLE_NAME, notification, [
       'id',
       'message',
       'level',
@@ -38,7 +63,7 @@ export class KnexNotificationsRepository implements NotificationsRepository {
       'created_on',
       'read',
       'archived'
-    ]) as Notification
+    ])) as Notification
   }
 
   async update(notification: Notification): Promise<void> {

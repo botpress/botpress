@@ -7,11 +7,11 @@ import { inject, injectable, tagged } from 'inversify'
 
 import { ConfigProvider } from './config/config-loader'
 import { TYPES } from './misc/types'
-import { BotRepository } from './repositories/bot-repository'
 
 import { AdminRouter, BotsRouter, ModulesRouter } from './routers'
 
 import { ModuleLoader } from './module-loader'
+import { BotRepository } from './repositories'
 import ActionService from './services/action/action-service'
 import AuthService from './services/auth/auth-service'
 import TeamsService from './services/auth/teams-service'

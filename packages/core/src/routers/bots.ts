@@ -4,7 +4,7 @@ import { Router } from 'express'
 import multer from 'multer'
 import path from 'path'
 
-import { BotRepository } from '../repositories/bot-repository'
+import { BotRepository } from '../repositories'
 import ActionService from '../services/action/action-service'
 import { DefaultSearchParams } from '../services/cms'
 import { CMSService } from '../services/cms/cms-service'

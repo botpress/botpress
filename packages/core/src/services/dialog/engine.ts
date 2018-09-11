@@ -3,7 +3,7 @@ import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 
 import { TYPES } from '../../misc/types'
-import { DialogSession } from '../../repositories/session-repository'
+import { DialogSession } from '../../repositories'
 
 import { FlowNavigator, NavigationArgs, NavigationPosition } from './flow/navigator'
 import FlowService from './flow/service'
