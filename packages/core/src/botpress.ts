@@ -13,8 +13,7 @@ import { BotLoader } from './bot-loader'
 import { BotpressConfig } from './config/botpress.config'
 import { ConfigProvider } from './config/config-loader'
 import Database from './database'
-import DBLogger from './logger/db-logger'
-import { LoggerProvider } from './logger/Logger'
+import { LoggerPersister, LoggerProvider } from './logger'
 import { TYPES } from './misc/types'
 import { ModuleLoader } from './module-loader'
 import HTTPServer from './server'
@@ -54,7 +53,7 @@ export class Botpress {
     @inject(TYPES.DialogEngine) private dialogEngine: DialogEngine,
     @inject(TYPES.LoggerProvider) private loggerProvider: LoggerProvider,
     @inject(TYPES.DialogJanitorRunner) private dialogJanitor: DialogJanitorRunner,
-    @inject(TYPES.DbLogger) private logPersistanceRunner: DBLogger
+    @inject(TYPES.LoggerPersister) private loggerPersister: LoggerPersister
   ) {
     this.version = packageJson.version
     this.botpressPath = path.join(process.cwd(), 'dist')
@@ -131,8 +130,8 @@ Node: ${err.nodeName}`
   }
 
   private async createDatabase(): Promise<void> {
-    await this.logPersistanceRunner.initialize(this.config!.database)
-    this.logPersistanceRunner.start()
+    await this.loggerPersister.initialize(this.config!.database)
+    this.loggerPersister.start()
     return this.database.initialize(this.config!.database)
   }
 

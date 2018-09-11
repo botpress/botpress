@@ -8,8 +8,8 @@ import { BotLoader } from './bot-loader'
 import { Botpress } from './botpress'
 import { ConfigProvider, GhostConfigProvider } from './config/config-loader'
 import { DatabaseContainerModule } from './database/database.inversify'
-import DBLogger from './logger/db-logger'
-import ConsoleLogger, { LoggerProvider } from './logger/Logger'
+
+import { ConsoleLogger, LoggerPersister, LoggerProvider } from './logger'
 import { applyDisposeOnExit } from './misc/inversify'
 import { TYPES } from './misc/types'
 import { ModuleLoader } from './module-loader'
@@ -48,8 +48,8 @@ container.bind<LoggerProvider>(TYPES.LoggerProvider).toProvider<Logger>(context 
 })
 
 container
-  .bind<DBLogger>(TYPES.DbLogger)
-  .to(DBLogger)
+  .bind<LoggerPersister>(TYPES.LoggerPersister)
+  .to(LoggerPersister)
   .inSingletonScope()
 container
   .bind<BotpressAPIProvider>(TYPES.BotpressAPIProvider)

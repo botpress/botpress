@@ -44,7 +44,7 @@ const TYPES = {
   MediaService: Symbol.for('MediaService'),
   JanitorRunner: Symbol.for('JanitorRunner'),
   DialogJanitorRunner: Symbol.for('DialogJanitorRunner'),
-  DbLogger: Symbol.for('DbLogger')
+  LoggerPersister: Symbol.for('LoggerPersister')
 }
 
 export { TYPES }

@@ -11,8 +11,8 @@ import { patchKnex } from '../database/helpers'
 import LogsTable from '../database/tables/server-wide/logs'
 
 @injectable()
-export default class DBLogger {
-  private readonly BATCH_SIZE = 10
+export class LoggerPersister {
+  private readonly BATCH_SIZE = 100
   private readonly TABLE_NAME = 'srv_logs'
 
   private knex!: ExtendedKnex
@@ -67,7 +67,7 @@ export default class DBLogger {
 
   private log(message: string) {
     const time = moment().format('HH:mm:ss.SSS')
-    console.log(chalk`{grey ${time}} {white.bold DBLogger} ${message}`)
+    console.log(chalk`{grey ${time}} {white.bold LogPersister} ${message}`)
   }
 
   private validateInit() {
@@ -77,7 +77,8 @@ export default class DBLogger {
   }
 
   private async runTask(): Promise<void> {
-    console.log('running task')
+    // this.log(`Saving ${this.batch.length} logs`)
+
     if (this.currentPromise) {
       return
     }

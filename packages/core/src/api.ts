@@ -17,7 +17,7 @@ import { Memoize } from 'lodash-decorators'
 
 import { container } from './app.inversify'
 import Database from './database'
-import { LoggerProvider } from './logger/Logger'
+import { LoggerProvider } from './logger'
 import { TYPES } from './misc/types'
 import { ModuleLoader } from './module-loader'
 import { UserRepository } from './repositories/user-repository'

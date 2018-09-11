@@ -7,21 +7,22 @@ import util from 'util'
 
 import { TYPES } from '../misc/types'
 
-import DBLogger from './db-logger'
+import { LoggerPersister } from '.'
 
 export type LoggerProvider = (module: string) => Promise<Logger>
 
 @injectable()
-export default class ConsoleLogger implements Logger {
+export class ConsoleLogger implements Logger {
   constructor(
     @inject(TYPES.Logger_Name) private name: string,
     @inject(TYPES.IsProduction) private isProduction: boolean,
-    @inject(TYPES.DbLogger) private dbLogger: DBLogger
+    @inject(TYPES.LoggerPersister) private loggerPersister: LoggerPersister
   ) {}
 
   private print(level: Level, message: string, metadata: any) {
+    // Saving raw log data so that it may be used by another logger if need be
     const entry = new LogEntry(level.name, this.name, message, metadata, moment().toISOString())
-    this.dbLogger.saveEntry(entry)
+    this.loggerPersister.saveEntry(entry)
 
     const serializedMetadata = metadata ? ' | ' + util.inspect(metadata, false, 2, true) : ''
     const time = moment().format('HH:mm:ss.SSS')
