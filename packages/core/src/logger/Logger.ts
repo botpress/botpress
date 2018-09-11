@@ -12,7 +12,8 @@ import { LoggerPersister } from '.'
 export type LoggerProvider = (module: string) => Promise<Logger>
 
 @injectable()
-export class ConsoleLogger implements Logger {
+// Suggestion: Would be best to have a CompositeLogger that separates the Console and DB loggers
+export class PersistedConsoleLogger implements Logger {
   constructor(
     @inject(TYPES.Logger_Name) private name: string,
     @inject(TYPES.IsProduction) private isProduction: boolean,
@@ -22,7 +23,7 @@ export class ConsoleLogger implements Logger {
   private print(level: Level, message: string, metadata: any) {
     // Saving raw log data so that it may be used by another logger if need be
     const entry = new LogEntry(level.name, this.name, message, metadata, moment().toISOString())
-    this.loggerPersister.saveEntry(entry)
+    this.loggerPersister.appendLog(entry)
 
     const serializedMetadata = metadata ? ' | ' + util.inspect(metadata, false, 2, true) : ''
     const time = moment().format('HH:mm:ss.SSS')

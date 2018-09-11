@@ -9,10 +9,12 @@ import AuthTeamsTable from './server-wide/auth-teams'
 import AuthUsersTable from './server-wide/auth-users'
 import BotsTable from './server-wide/bots'
 import ChannelUsersTable from './server-wide/channel_users'
+import LogsTable from './server-wide/logs'
 import MetadataTable from './server-wide/metadata'
 import MigrationsTable from './server-wide/migrations'
 
 const tables: (typeof Table)[] = [
+  LogsTable,
   MigrationsTable,
   MetadataTable,
   ChannelUsersTable,

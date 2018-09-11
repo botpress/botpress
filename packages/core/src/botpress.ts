@@ -130,9 +130,9 @@ Node: ${err.nodeName}`
   }
 
   private async createDatabase(): Promise<void> {
-    await this.loggerPersister.initialize(this.config!.database)
+    await this.database.initialize(this.config!.database)
+    await this.loggerPersister.initialize(this.database, await this.loggerProvider('LoggerPersister'))
     this.loggerPersister.start()
-    return this.database.initialize(this.config!.database)
   }
 
   private async loadModules(modules: Map<string, ModuleDefinition>): Promise<void> {

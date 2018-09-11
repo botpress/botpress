@@ -9,7 +9,8 @@ import { Botpress } from './botpress'
 import { ConfigProvider, GhostConfigProvider } from './config/config-loader'
 import { DatabaseContainerModule } from './database/database.inversify'
 
-import { ConsoleLogger, LoggerPersister, LoggerProvider } from './logger'
+import Database from './database'
+import { LoggerPersister, LoggerProvider, PersistedConsoleLogger } from './logger'
 import { applyDisposeOnExit } from './misc/inversify'
 import { TYPES } from './misc/types'
 import { ModuleLoader } from './module-loader'
@@ -40,7 +41,7 @@ container.bind<string>(TYPES.Logger_Name).toDynamicValue(ctx => {
   return loggerName || 'Unknown'
 })
 
-container.bind<Logger>(TYPES.Logger).to(ConsoleLogger)
+container.bind<Logger>(TYPES.Logger).to(PersistedConsoleLogger)
 container.bind<LoggerProvider>(TYPES.LoggerProvider).toProvider<Logger>(context => {
   return async name => {
     return context.container.getTagged<Logger>(TYPES.Logger, 'name', name)
@@ -51,6 +52,7 @@ container
   .bind<LoggerPersister>(TYPES.LoggerPersister)
   .to(LoggerPersister)
   .inSingletonScope()
+
 container
   .bind<BotpressAPIProvider>(TYPES.BotpressAPIProvider)
   .to(BotpressAPIProvider)

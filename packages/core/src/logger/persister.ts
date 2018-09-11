@@ -1,15 +1,11 @@
-import { ExtendedKnex, LogEntry } from 'botpress-module-sdk'
+import { ExtendedKnex, LogEntry, Logger } from 'botpress-module-sdk'
 import chalk from 'chalk'
-import { inject, injectable } from 'inversify'
-import Knex from 'knex'
+import { injectable } from 'inversify'
 import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
 
-import { DatabaseConfig } from '../config/botpress.config'
-import { patchKnex } from '../database/helpers'
-import LogsTable from '../database/tables/server-wide/logs'
-import { TYPES } from '../misc/types'
+import Database from '../database'
 
 @injectable()
 export class LoggerPersister {
@@ -21,41 +17,22 @@ export class LoggerPersister {
   private batch: LogEntry[] = []
   private intervalRef
   private currentPromise
+  private logger!: Logger
 
-  constructor(@inject(TYPES.IsProduction) private isProduction: boolean) {}
+  constructor() {}
 
-  async initialize(dbConfig: DatabaseConfig) {
-    const config: Knex.Config = {
-      useNullAsDefault: true
-    }
-
-    if (dbConfig.type.toLowerCase() === 'postgres') {
-      Object.assign(config, {
-        client: 'pg',
-        connection: dbConfig.url || _.pick(dbConfig, ['host', 'port', 'user', 'password', 'database', 'ssl'])
-      })
-    } else {
-      Object.assign(config, {
-        client: 'sqlite3',
-        connection: { filename: dbConfig.location }
-      })
-    }
-
-    this.knex = patchKnex(await Knex(config))
-    const table = new LogsTable(this.knex!)
-    const created = await table.bootstrap()
-    if (created) {
-      this.log(`Created table '${table.name}'`)
-    }
+  async initialize(database: Database, logger: Logger) {
+    this.knex = database.knex
+    this.logger = logger
   }
 
-  saveEntry(log: LogEntry) {
+  appendLog(log: LogEntry) {
     this.batch.push(log)
   }
 
   start() {
     this.validateInit()
-    this.log('Started')
+    this.logger.debug('Started')
 
     if (this.intervalRef) {
       return
@@ -66,43 +43,40 @@ export class LoggerPersister {
   stop() {
     clearInterval(this.intervalRef)
     this.intervalRef = undefined
-    this.log('Stopped')
-  }
-
-  private log(message: string) {
-    const time = moment().format('HH:mm:ss.SSS')
-    console.log(chalk`{grey ${time}} {white.bold LogPersister} ${message}`)
+    this.logger.info('Stopped')
   }
 
   private validateInit() {
     if (!this.knex) {
       throw new Error('The database is not initialized. You have to call initialize() first.')
     }
+
+    if (!this.logger) {
+      throw new Error('Required a logger instance')
+    }
   }
 
   private runTask = async () => {
+    if (process.env.DEBUG_LOGGER) {
+      this.logger.debug(`Saving ${this.batch.length} logs`)
+    }
+
     if (this.currentPromise || this.batch.length === 0) {
       return
     }
 
-    // Might be annoying
-    if (!this.isProduction) {
-      this.log(`Saving ${this.batch.length} logs`)
-    }
-
     this.currentPromise = this.knex
       .batchInsert(this.TABLE_NAME, this.batch, this.BATCH_SIZE)
-      .then()
-      .catch(err => this.log('Error:' + err.message))
-      .finally(() => {
-        this.currentPromise = undefined
-      })
       .then(() => {
         if (this.batch.length >= this.BATCH_SIZE) {
           this.batch.splice(0, this.BATCH_SIZE)
         } else {
           this.batch.splice(0, this.batch.length)
         }
+      })
+      .catch(err => this.logger.error('Error persisting messages', err))
+      .finally(() => {
+        this.currentPromise = undefined
       })
   }
 }
