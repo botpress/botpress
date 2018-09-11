@@ -54,6 +54,17 @@ function processOutgoing({ event, blocName, instruction }) {
     return actions.createText({ chatId: event.chat.id, userId: getUserId(event) }, instruction.text, options)
   }
 
+  if (!_.isNil(instruction.photo)) {
+    return actions.createPhoto({ chatId: event.chat.id, userId: getUserId(event) }, instruction.photo, options)
+  }
+
+  if (!_.isNil(instruction.options) && !_.isNil(instruction.options.reply_markup)) {
+    return actions.createText(
+      { chatId: event.chat.id, userId: getUserId(event) },
+      instruction.title,
+      instruction.options
+    )
+  }
   ////////////
   /// POST-PROCESSING
   ////////////

@@ -30,7 +30,7 @@ class MessageGroup extends Component {
     }
 
     return (
-      <div className={style.avatar} style={{ color: this.props.fgColor }}>
+      <div className={`${style.avatar} botpress__message-avatar`} style={{ color: this.props.fgColor }}>
         {content}
       </div>
     )
@@ -42,11 +42,13 @@ class MessageGroup extends Component {
     const textColor = this.props.textColor
 
     return (
-      <div className={className}>
+      <div className={`${className} botpress_messages-container-outer`}>
         {this.renderAvatar()}
         <div className={style['message-container']}>
-          {this.props.showUserName && <div className={style['info-line']}>{this.props.userName}</div>}
-          <div className={style.group}>
+          {this.props.showUserName && (
+            <div className={`${style['info-line']} botpress_messages-container-inner`}>{this.props.userName}</div>
+          )}
+          <div className={`${style.group} botpress__messages-list`}>
             {this.props.messages.map((data, i) => {
               return (
                 <Message
@@ -112,7 +114,7 @@ export default class MessageList extends Component {
 
   renderDate(date) {
     return (
-      <div className={style.date}>
+      <div className={`${style.date} botpress__message-date`}>
         {format(new Date(date), 'MMMM Do YYYY, h:mm a')}
         <div className={style.smallLine} />
       </div>
@@ -229,14 +231,14 @@ class Message extends Component {
       )
     return (
       <Linkify properties={{ target: '_blank' }}>
-        <div>{element}</div>
+        <div className="botpress__message-text-container">{element}</div>
       </Linkify>
     )
   }
 
   render_form() {
     return (
-      <div>
+      <div className="botpress__message-form">
         <p style={this.getAddStyle()}>{this.props.data.message_text}</p>
       </div>
     )
@@ -244,7 +246,7 @@ class Message extends Component {
 
   render_quick_reply() {
     return (
-      <div>
+      <div className="botpress__message-quick-reply">
         <p>{this.props.data.message_text}</p>
       </div>
     )
@@ -255,7 +257,7 @@ class Message extends Component {
     const isBotMessage = !this.props.data.userId
 
     return (
-      <div style={this.getAddStyle()}>
+      <div style={`${this.getAddStyle()} botpress__message-login`}>
         <LoginPrompt
           isLastMessage={isLastMessage}
           isBotMessage={isBotMessage}
@@ -280,7 +282,7 @@ class Message extends Component {
     )
 
     return (
-      <div className={style.typingGroup}>
+      <div className={`${style.typingGroup} botpress__message-typing`}>
         {bubble()}
         {bubble()}
         {bubble()}
@@ -298,7 +300,7 @@ class Message extends Component {
     const data = this.props.data.message_raw.custom_data
     return (
       <Linkify>
-        <div>
+        <div className="botpress__message-custom">
           <p style={this.getAddStyle()}>{this.props.data.message_text}</p>
           {Plugin ? <Plugin onSendData={this.props.onSendData} {...data} /> : this.render_unsupported()}
         </div>
@@ -316,7 +318,7 @@ class Message extends Component {
 
   render_unsupported() {
     return (
-      <div style={this.getAddStyle()}>
+      <div style={`${this.getAddStyle()} botpress__message-unsupported`}>
         <p>*Unsupported message type*</p>
       </div>
     )
@@ -335,7 +337,10 @@ class Message extends Component {
     }
 
     return (
-      <div className={classnames(style.bubble, style[this.props.data.message_type])} style={bubbleStyle}>
+      <div
+        className={`${classnames(style.bubble, style[this.props.data.message_type])} botpress__messages-container`}
+        style={bubbleStyle}
+      >
         {rendered}
       </div>
     )

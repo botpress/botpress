@@ -1,6 +1,6 @@
 {
   "name": "@botpress/broadcast",
-  "version": "10.34.0",
+  "version": "10.37.1",
   "description": "Broadcast messages to all (or a subset) of your users",
   "main": "bin/node.bundle.js",
   "homepage": "https://github.com/botpress/modules",
@@ -53,7 +53,7 @@
     "css-loader": "^0.28.9",
     "extract-text-webpack-plugin": "^3.0.2",
     "file-loader": "^1.1.6",
-    "node-sass": "^3.11.2",
+    "node-sass": "^4.9.3",
     "react-bootstrap": "^0.32.1",
     "react-bootstrap-date-picker": "github:mixxt/react-bootstrap-date-picker",
     "react-bootstrap-time-picker": "^1.0.3",

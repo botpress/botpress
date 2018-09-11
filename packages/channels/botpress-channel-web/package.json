@@ -1,6 +1,6 @@
 {
   "name": "@botpress/channel-web",
-  "version": "10.34.0",
+  "version": "10.37.1",
   "description": "An embeddable web chat for Botpress bots",
   "main": "bin/node.bundle.js",
   "homepage": "https://github.com/botpress/modules",
@@ -50,7 +50,7 @@
     "extract-text-webpack-plugin": "^3.0.2",
     "file-loader": "^1.1.6",
     "image-webpack-loader": "^3.4.2",
-    "node-sass": "^3.11.2",
+    "node-sass": "^4.9.3",
     "raw-loader": "^0.5.1",
     "react-chatview": "^0.2.5",
     "react-dropzone": "^3.13.1",

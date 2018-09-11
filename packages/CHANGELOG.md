@@ -3,6 +3,82 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.37.1"></a>
+## [10.37.1](https://github.com/botpress/botpress/compare/v10.37.0...v10.37.1) (2018-09-11)
+
+
+
+
+**Note:** Version bump only for package botpress-fake-root
+
+<a name="10.37.0"></a>
+# [10.37.0](https://github.com/botpress/botpress/compare/v10.36.1...v10.37.0) (2018-09-11)
+
+
+### Features
+
+* **core:** add the hook to switch the UI to editable username ([d2a6eab](https://github.com/botpress/botpress/commit/d2a6eab))
+
+
+
+
+<a name="10.36.1"></a>
+## [10.36.1](https://github.com/botpress/botpress/compare/v10.36.0...v10.36.1) (2018-09-10)
+
+
+
+
+**Note:** Version bump only for package botpress-fake-root
+
+<a name="10.36.0"></a>
+# [10.36.0](https://github.com/botpress/botpress/compare/v10.35.1...v10.36.0) (2018-09-10)
+
+
+### Bug Fixes
+
+* **qna:** added converting to global app encoding (resolve [#901](https://github.com/botpress/botpress/issues/901)) ([6b311a0](https://github.com/botpress/botpress/commit/6b311a0))
+* **telegram:** action promises were never resolved ([dfe0996](https://github.com/botpress/botpress/commit/dfe0996))
+* **telegram:** update README.md ([3f1da72](https://github.com/botpress/botpress/commit/3f1da72))
+
+
+### Features
+
+* **telegram:** support action buttons and single-choice ([ff5211f](https://github.com/botpress/botpress/commit/ff5211f))
+* **telegram:** support image builtin type ([b1ecac6](https://github.com/botpress/botpress/commit/b1ecac6))
+
+
+
+
+<a name="10.35.1"></a>
+## [10.35.1](https://github.com/botpress/botpress/compare/v10.35.0...v10.35.1) (2018-09-05)
+
+
+### Bug Fixes
+
+* **web:** improve path to customStylesheet ([8faa833](https://github.com/botpress/botpress/commit/8faa833))
+
+
+
+
+<a name="10.35.0"></a>
+# [10.35.0](https://github.com/botpress/botpress/compare/v10.34.0...v10.35.0) (2018-09-04)
+
+
+### Bug Fixes
+
+* added note about postgres minimal valid value ([dd57575](https://github.com/botpress/botpress/commit/dd57575))
+* updated node-sass package ([8064701](https://github.com/botpress/botpress/commit/8064701))
+
+
+### Features
+
+* **audience:** various improvement to the Audience admin view ([41fed12](https://github.com/botpress/botpress/commit/41fed12))
+* show toast message for qna and nlu (resolve [#790](https://github.com/botpress/botpress/issues/790)) ([53822eb](https://github.com/botpress/botpress/commit/53822eb))
+* **web:** implemented custom stylesheet (ref [#808](https://github.com/botpress/botpress/issues/808)) ([3a060ac](https://github.com/botpress/botpress/commit/3a060ac))
+
+
+
+
 <a name="10.34.0"></a>
 # [10.34.0](https://github.com/botpress/botpress/compare/v10.32.0...v10.34.0) (2018-08-30)
 

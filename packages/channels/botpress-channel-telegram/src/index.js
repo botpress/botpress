@@ -2,8 +2,6 @@ import outgoing from './outgoing'
 import actions from './actions'
 import umm from './umm'
 
-const path = require('path')
-const fs = require('fs')
 const _ = require('lodash')
 const Promise = require('bluebird')
 
@@ -47,7 +45,7 @@ module.exports = {
     botToken: { type: 'string', required: true, default: '', env: 'TELEGRAM_TOKEN' }
   },
 
-  init: function(bp, config) {
+  init: function(bp) {
     bp.middlewares.register({
       name: 'telegram.sendMessages',
       type: 'outgoing',

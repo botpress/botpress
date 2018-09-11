@@ -3,6 +3,64 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.37.1"></a>
+## [10.37.1](https://github.com/botpress/modules/compare/v10.37.0...v10.37.1) (2018-09-11)
+
+
+
+
+**Note:** Version bump only for package @botpress/channel-telegram
+
+<a name="10.37.0"></a>
+# [10.37.0](https://github.com/botpress/modules/compare/v10.36.1...v10.37.0) (2018-09-11)
+
+
+
+
+**Note:** Version bump only for package @botpress/channel-telegram
+
+<a name="10.36.1"></a>
+## [10.36.1](https://github.com/botpress/modules/compare/v10.36.0...v10.36.1) (2018-09-10)
+
+
+
+
+**Note:** Version bump only for package @botpress/channel-telegram
+
+<a name="10.36.0"></a>
+# [10.36.0](https://github.com/botpress/modules/compare/v10.35.1...v10.36.0) (2018-09-10)
+
+
+### Bug Fixes
+
+* **telegram:** action promises were never resolved ([dfe0996](https://github.com/botpress/modules/commit/dfe0996))
+* **telegram:** update README.md ([3f1da72](https://github.com/botpress/modules/commit/3f1da72))
+
+
+### Features
+
+* **telegram:** support action buttons and single-choice ([ff5211f](https://github.com/botpress/modules/commit/ff5211f))
+* **telegram:** support image builtin type ([b1ecac6](https://github.com/botpress/modules/commit/b1ecac6))
+
+
+
+
+<a name="10.35.1"></a>
+## [10.35.1](https://github.com/botpress/modules/compare/v10.35.0...v10.35.1) (2018-09-05)
+
+
+
+
+**Note:** Version bump only for package @botpress/channel-telegram
+
+<a name="10.35.0"></a>
+# [10.35.0](https://github.com/botpress/modules/compare/v10.34.0...v10.35.0) (2018-09-04)
+
+
+
+
+**Note:** Version bump only for package @botpress/channel-telegram
+
 <a name="10.34.0"></a>
 # [10.34.0](https://github.com/botpress/modules/compare/v10.32.0...v10.34.0) (2018-08-30)
 

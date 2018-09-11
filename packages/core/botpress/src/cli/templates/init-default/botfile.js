@@ -114,7 +114,7 @@ module.exports = {
 
   /*
     Postgres configuration
-    If Postgres is not enabled, Botpress uses SQLite 3 (file-based database)
+    If Postgres (>= 9.5) is not enabled, Botpress uses SQLite 3 (file-based database)
   */
   postgres: {
     enabled: process.env.DATABASE === 'postgres',

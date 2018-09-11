@@ -22,6 +22,18 @@ const handleText = (event, next, telegram) => {
   return handlePromise(next, telegram.sendText(chatId, text, options))
 }
 
+const handlePhoto = (event, next, telegram) => {
+  if (event.platform !== 'telegram' || event.type !== 'photo') {
+    return next()
+  }
+
+  const chatId = event.raw.chatId
+  const photo = event.raw.photo
+  const options = event.raw.options
+
+  return handlePromise(next, telegram.sendPhoto(chatId, photo, options))
+}
+
 const handleEditMessageText = (event, next, telegram) => {
   if (event.platform !== 'telegram' || event.type !== 'edited_message_text') {
     return next()
@@ -38,6 +50,7 @@ const handleEditMessageText = (event, next, telegram) => {
 
 module.exports = {
   text: handleText,
+  photo: handlePhoto,
   edited_message_text: handleEditMessageText,
   pending: {}
 }

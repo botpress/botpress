@@ -1,6 +1,6 @@
 {
   "name": "@botpress/hitl",
-  "version": "10.34.0",
+  "version": "10.37.1",
   "description": "Official HITL (Human In The Loop) module for Botpress",
   "main": "bin/node.bundle.js",
   "botpress": {
@@ -54,7 +54,7 @@
     "css-loader": "^0.28.9",
     "extract-text-webpack-plugin": "^3.0.2",
     "file-loader": "^1.1.6",
-    "node-sass": "^3.11.2",
+    "node-sass": "^4.9.3",
     "react-audio-player": "^0.9.0",
     "react-toggle": "^4.0.2",
     "sass-loader": "^6.0.6",
