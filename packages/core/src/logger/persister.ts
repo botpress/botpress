@@ -1,6 +1,6 @@
 import { ExtendedKnex, LogEntry } from 'botpress-module-sdk'
 import chalk from 'chalk'
-import { injectable } from 'inversify'
+import { inject, injectable } from 'inversify'
 import Knex from 'knex'
 import _ from 'lodash'
 import moment from 'moment'
@@ -9,16 +9,20 @@ import ms from 'ms'
 import { DatabaseConfig } from '../config/botpress.config'
 import { patchKnex } from '../database/helpers'
 import LogsTable from '../database/tables/server-wide/logs'
+import { TYPES } from '../misc/types'
 
 @injectable()
 export class LoggerPersister {
-  private readonly BATCH_SIZE = 100
+  private readonly BATCH_SIZE = 1000
   private readonly TABLE_NAME = 'srv_logs'
+  private readonly INTERVAL = ms('2s')
 
   private knex!: ExtendedKnex
   private batch: LogEntry[] = []
   private intervalRef
   private currentPromise
+
+  constructor(@inject(TYPES.IsProduction) private isProduction: boolean) {}
 
   async initialize(dbConfig: DatabaseConfig) {
     const config: Knex.Config = {
@@ -56,7 +60,7 @@ export class LoggerPersister {
     if (this.intervalRef) {
       return
     }
-    this.intervalRef = setInterval(() => this.runTask(), ms('2s'))
+    this.intervalRef = setInterval(this.runTask, this.INTERVAL)
   }
 
   stop() {
@@ -76,12 +80,16 @@ export class LoggerPersister {
     }
   }
 
-  private async runTask(): Promise<void> {
-    // this.log(`Saving ${this.batch.length} logs`)
-
-    if (this.currentPromise) {
+  private runTask = async () => {
+    if (this.currentPromise || this.batch.length === 0) {
       return
     }
+
+    // Might be annoying
+    if (!this.isProduction) {
+      this.log(`Saving ${this.batch.length} logs`)
+    }
+
     this.currentPromise = this.knex
       .batchInsert(this.TABLE_NAME, this.batch, this.BATCH_SIZE)
       .then()
