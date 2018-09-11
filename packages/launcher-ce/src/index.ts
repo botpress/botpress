@@ -9,7 +9,7 @@ import chalk from 'chalk'
 
 async function start() {
   try {
-    const logger = await Logger('[Launcher]')
+    const logger = await Logger('Launcher')
 
     logger.info(chalk`===========================`)
     logger.info(chalk`=     {bold Botpress Server}     =`)

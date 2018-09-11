@@ -53,14 +53,13 @@ export class JanitorRunner {
   }
 
   private runTasks = () => {
-    this.logger.debug('Running tasks')
     if (this.currentPromise) {
       this.logger.debug('Skipping the current run, previous operation still running')
       return
     }
     this.currentPromise = Promise.each(this.tasks, this.runTask.bind(this))
       .catch(err => {
-        this.logger.error('Error:', err.message)
+        this.logger.error('Error running task', err)
       })
       .finally(() => {
         this.currentPromise = undefined

@@ -3,8 +3,8 @@ import 'reflect-metadata'
 
 import { container } from './app.inversify'
 import { Botpress as Core } from './botpress'
+import { LoggerProvider } from './logger/Logger'
 import { TYPES } from './misc/types'
-import { LoggerProvider } from './Logger'
 
 let botpress
 let logger
