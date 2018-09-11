@@ -4,6 +4,7 @@ import { TYPES } from '../misc/types'
 
 import { BotRepository } from './bot-repository'
 import { GhostBotRepository } from './ghost-bot-repository'
+import { KnexLogsRepository, LogsRepository } from './logs'
 import { KnexSessionRepository, SessionRepository } from './session-repository'
 import { KnexUserRepository, UserRepository } from './user-repository'
 
@@ -18,5 +19,9 @@ export const RepositoriesContainerModule = new ContainerModule((bind: interfaces
 
   bind<UserRepository>(TYPES.UserRepository)
     .to(KnexUserRepository)
+    .inSingletonScope()
+
+  bind<LogsRepository>(TYPES.LogsRepository)
+    .to(KnexLogsRepository)
     .inSingletonScope()
 })

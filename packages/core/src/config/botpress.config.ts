@@ -18,6 +18,10 @@ export interface DialogConfig {
   timeoutInterval: string
 }
 
+export interface LogsConfig {
+  journey: string
+}
+
 export type BotpressConfig = {
   httpServer: {
     host?: string
@@ -27,4 +31,5 @@ export type BotpressConfig = {
   }
   database: DatabaseConfig
   dialog: DialogConfig
+  logs: LogsConfig
 }

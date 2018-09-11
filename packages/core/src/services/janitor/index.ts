@@ -13,6 +13,10 @@ const DEFAULTS = {
   timestampColumn: 'created_on'
 }
 
+export type JanitorOptions = {
+  table: string
+}
+
 @injectable()
 export class JanitorRunner {
   protected defaultJanitorInterval!: number
@@ -74,7 +78,7 @@ export class JanitorRunner {
     this.logger.info('Started')
   }
 
-  add(options) {
+  add(options: JanitorOptions) {
     this.logger.debug(`Added table "${options.table}"`)
     const id = nanoid()
     this.tasks.push({ id, DEFAULTS, options })

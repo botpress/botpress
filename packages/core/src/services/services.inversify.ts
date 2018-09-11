@@ -19,7 +19,8 @@ import DiskStorageDriver from './ghost/disk-driver'
 import MemoryObjectCache from './ghost/memory-cache'
 import GhostService from './ghost/service'
 import { HookService } from './hook/hook-service'
-import { JanitorRunner } from './janitor'
+import { LogJanitorRunner } from './logs/janitor'
+import { LogsService } from './logs/service'
 import MediaService from './media'
 import { EventEngine } from './middleware/event-engine'
 import { Queue } from './queue'
@@ -119,11 +120,15 @@ export const ServicesContainerModule = new ContainerModule((bind: interfaces.Bin
     .to(WaitStrategy)
     .inRequestScope()
 
-  bind<JanitorRunner>(TYPES.JanitorRunner)
-    .to(JanitorRunner)
-    .inSingletonScope()
-
   bind<DialogJanitorRunner>(TYPES.DialogJanitorRunner)
     .to(DialogJanitorRunner)
+    .inSingletonScope()
+
+  bind<LogJanitorRunner>(TYPES.LogJanitorRunner)
+    .to(LogJanitorRunner)
+    .inSingletonScope()
+
+  bind<LogsService>(TYPES.LogsService)
+    .to(LogsService)
     .inSingletonScope()
 })

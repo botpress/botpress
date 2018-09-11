@@ -16,5 +16,8 @@
   "dialog": {
     "timeoutInterval": "2m",
     "janitorInterval": "10s"
+  },
+  "logs": {
+    "journey": "2 weeks"
   }
 }
