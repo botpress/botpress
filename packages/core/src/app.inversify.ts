@@ -8,14 +8,14 @@ import { BotLoader } from './bot-loader'
 import { Botpress } from './botpress'
 import { ConfigProvider, GhostConfigProvider } from './config/config-loader'
 import { DatabaseContainerModule } from './database/database.inversify'
+import DBLogger from './logger/db-logger'
+import ConsoleLogger, { LoggerProvider } from './logger/Logger'
 import { applyDisposeOnExit } from './misc/inversify'
 import { TYPES } from './misc/types'
-import { safeStringify } from './misc/util'
 import { ModuleLoader } from './module-loader'
 import { RepositoriesContainerModule } from './repositories/repositories.inversify'
 import HTTPServer from './server'
 import { ServicesContainerModule } from './services/services.inversify'
-import ConsoleLogger, { LoggerProvider } from './Logger'
 
 const container = new Container({ autoBindInjectable: true })
 
@@ -47,6 +47,10 @@ container.bind<LoggerProvider>(TYPES.LoggerProvider).toProvider<Logger>(context 
   }
 })
 
+container
+  .bind<DBLogger>(TYPES.DbLogger)
+  .to(DBLogger)
+  .inSingletonScope()
 container
   .bind<BotpressAPIProvider>(TYPES.BotpressAPIProvider)
   .to(BotpressAPIProvider)

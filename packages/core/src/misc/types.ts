@@ -43,7 +43,8 @@ const TYPES = {
   StrategyProvider: Symbol.for('StrategyProvider'),
   MediaService: Symbol.for('MediaService'),
   JanitorRunner: Symbol.for('JanitorRunner'),
-  DialogJanitorRunner: Symbol.for('DialogJanitorRunner')
+  DialogJanitorRunner: Symbol.for('DialogJanitorRunner'),
+  DbLogger: Symbol.for('DbLogger')
 }
 
 export { TYPES }

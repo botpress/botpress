@@ -1,4 +1,4 @@
-import { BotpressAPI, BotpressEvent, DialogAPI, ModuleDefinition, WellKnownEventFlags } from 'botpress-module-sdk'
+import { BotpressAPI, BotpressEvent, ModuleDefinition, WellKnownEventFlags } from 'botpress-module-sdk'
 import { Logger } from 'botpress-module-sdk'
 import { inject, injectable, tagged } from 'inversify'
 import { Memoize } from 'lodash-decorators'
@@ -13,6 +13,8 @@ import { BotLoader } from './bot-loader'
 import { BotpressConfig } from './config/botpress.config'
 import { ConfigProvider } from './config/config-loader'
 import Database from './database'
+import DBLogger from './logger/db-logger'
+import { LoggerProvider } from './logger/Logger'
 import { TYPES } from './misc/types'
 import { ModuleLoader } from './module-loader'
 import HTTPServer from './server'
@@ -20,10 +22,8 @@ import { DialogEngine } from './services/dialog/engine'
 import { DialogJanitorRunner } from './services/dialog/janitor'
 import GhostService from './services/ghost/service'
 import { Hooks, HookService } from './services/hook/hook-service'
-import { JanitorRunner } from './services/janitor'
 import { EventEngine } from './services/middleware/event-engine'
 import RealtimeService from './services/realtime'
-import { LoggerProvider } from './Logger'
 
 export type StartOptions = {
   modules: Map<string, ModuleDefinition>
@@ -53,8 +53,8 @@ export class Botpress {
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
     @inject(TYPES.DialogEngine) private dialogEngine: DialogEngine,
     @inject(TYPES.LoggerProvider) private loggerProvider: LoggerProvider,
-    @inject(TYPES.JanitorRunner) private janitorRunner: JanitorRunner,
-    @inject(TYPES.DialogJanitorRunner) private dialogJanitor: DialogJanitorRunner
+    @inject(TYPES.DialogJanitorRunner) private dialogJanitor: DialogJanitorRunner,
+    @inject(TYPES.DbLogger) private logPersistanceRunner: DBLogger
   ) {
     this.version = packageJson.version
     this.botpressPath = path.join(process.cwd(), 'dist')
@@ -130,7 +130,9 @@ Node: ${err.nodeName}`
     // TODO
   }
 
-  private createDatabase(): Promise<void> {
+  private async createDatabase(): Promise<void> {
+    await this.logPersistanceRunner.initialize(this.config!.database)
+    this.logPersistanceRunner.start()
     return this.database.initialize(this.config!.database)
   }
 

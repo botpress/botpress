@@ -17,6 +17,7 @@ import { Memoize } from 'lodash-decorators'
 
 import { container } from './app.inversify'
 import Database from './database'
+import { LoggerProvider } from './logger/Logger'
 import { TYPES } from './misc/types'
 import { ModuleLoader } from './module-loader'
 import { UserRepository } from './repositories/user-repository'
@@ -25,7 +26,6 @@ import { DialogEngine } from './services/dialog/engine'
 import { SessionService } from './services/dialog/session/service'
 import { EventEngine } from './services/middleware/event-engine'
 import RealtimeService from './services/realtime'
-import { LoggerProvider } from './Logger'
 
 // TODO: The UI doesn't support multi-bots yet
 const BOT_ID = 'bot123'
