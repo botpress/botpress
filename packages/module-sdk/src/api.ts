@@ -1,4 +1,4 @@
-import { BotpressEvent, MiddlewareDefinition } from '.'
+import { BotpressEvent, LogEntry, MiddlewareDefinition } from '.'
 import { ExtendedKnex, GetOrCreateResult } from './database'
 import { HttpAPI } from './http'
 import { RealTimeAPI } from './realtime'
@@ -19,6 +19,10 @@ export interface DialogAPI {
   deleteSession(userId: string): Promise<void>
   getState(userId: string): Promise<void>
   setState(userId: string, state: any): Promise<void>
+}
+
+export interface LogsAPI {
+  getLogs(count: number): Promise<LogEntry[]>
 }
 
 export interface Logger {
@@ -44,6 +48,7 @@ export type LoggerAPI = Logger
 export type BotpressAPI = {
   http: HttpAPI
   events: EventAPI
+  logs: LogsAPI
   logger: LoggerAPI
   dialog: DialogAPI
   config: ConfigAPI

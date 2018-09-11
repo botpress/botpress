@@ -5,6 +5,7 @@ import { TYPES } from '../misc/types'
 
 export interface LogsRepository {
   deleteLogsBeforeDate(date: Date)
+  getLimit(limit: number)
 }
 
 @injectable()
@@ -15,5 +16,13 @@ export class KnexLogsRepository implements LogsRepository {
 
   async deleteLogsBeforeDate(date: Date): Promise<void> {
     await this.database.knex(this.TABLE_NAME).where(this.database.knex.date.isBefore('timestamp', date))
+  }
+
+  async getLimit(limit: number) {
+    return this.database
+      .knex(this.TABLE_NAME)
+      .select('*')
+      .limit(limit)
+      .then()
   }
 }

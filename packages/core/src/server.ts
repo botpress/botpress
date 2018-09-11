@@ -9,7 +9,7 @@ import { ConfigProvider } from './config/config-loader'
 import { TYPES } from './misc/types'
 import { BotRepository } from './repositories/bot-repository'
 
-import { AdminRouter, BotsRouter, ModulesRouter } from './routers'
+import { AdminRouter, BotsRouter, LogsRouter, ModulesRouter } from './routers'
 
 import { ModuleLoader } from './module-loader'
 import ActionService from './services/action/action-service'
@@ -17,6 +17,7 @@ import AuthService from './services/auth/auth-service'
 import TeamsService from './services/auth/teams-service'
 import { CMSService } from './services/cms/cms-service'
 import FlowService from './services/dialog/flow/service'
+import { LogsService } from './services/logs/service'
 import MediaService from './services/media'
 
 const BASE_API_PATH = '/api/v1'
@@ -31,6 +32,7 @@ export default class HTTPServer {
   private readonly botsRouter: BotsRouter
   private readonly modulesRouter: ModulesRouter
   private readonly adminRouter: AdminRouter
+  private readonly logsRouter: LogsRouter
 
   constructor(
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
@@ -45,7 +47,8 @@ export default class HTTPServer {
     @inject(TYPES.ModuleLoader) moduleLoader: ModuleLoader,
     @inject(TYPES.AuthService) private authService: AuthService,
     @inject(TYPES.TeamsService) private teamsService: TeamsService,
-    @inject(TYPES.MediaService) mediaService: MediaService
+    @inject(TYPES.MediaService) mediaService: MediaService,
+    @inject(TYPES.LogsService) logsService: LogsService
   ) {
     this.app = express()
 
@@ -58,6 +61,7 @@ export default class HTTPServer {
     this.botsRouter = new BotsRouter({ actionService, botRepository, cmsService, flowService, mediaService })
     this.modulesRouter = new ModulesRouter(moduleLoader)
     this.adminRouter = new AdminRouter(this.logger, this.authService, this.teamsService)
+    this.logsRouter = new LogsRouter(logsService)
   }
 
   async start() {
@@ -79,6 +83,7 @@ export default class HTTPServer {
 
     this.app.use(`${BASE_API_PATH}/modules`, this.modulesRouter.router)
     this.app.use(`${BASE_API_PATH}/bots/:botId`, this.botsRouter.router)
+    this.app.use(`${BASE_API_PATH}/logs`, this.logsRouter.router)
 
     this.app.use((err, req, res, next) => {
       const statusCode = err.status || 500

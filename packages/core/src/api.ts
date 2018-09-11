@@ -6,6 +6,8 @@ import {
   EventAPI,
   ExtendedKnex,
   HttpAPI,
+  LogEntry,
+  LogsAPI,
   MiddlewareDefinition,
   RouterOptions,
   SubRouter,
@@ -24,6 +26,7 @@ import { UserRepository } from './repositories/user-repository'
 import HTTPServer from './server'
 import { DialogEngine } from './services/dialog/engine'
 import { SessionService } from './services/dialog/session/service'
+import { LogsService } from './services/logs/service'
 import { EventEngine } from './services/middleware/event-engine'
 import RealtimeService from './services/realtime'
 
@@ -90,6 +93,14 @@ const users = (userRepo: UserRepository): UserAPI => {
   }
 }
 
+const logs = (logsService: LogsService): LogsAPI => {
+  return {
+    async getLogs(count: number): Promise<LogEntry[]> {
+      return logsService.getLogs(count)
+    }
+  }
+}
+
 /**
  * Socket.IO API to emit payloads to front-end clients
  */
@@ -110,6 +121,7 @@ export class BotpressAPIProvider {
   realtime: RealTimeAPI
   database: ExtendedKnex
   users: UserAPI
+  logs: LogsAPI
 
   constructor(
     @inject(TYPES.DialogEngine) dialogEngine: DialogEngine,
@@ -120,7 +132,8 @@ export class BotpressAPIProvider {
     @inject(TYPES.HTTPServer) httpServer: HTTPServer,
     @inject(TYPES.UserRepository) userRepo: UserRepository,
     @inject(TYPES.RealtimeService) realtimeService: RealtimeService,
-    @inject(TYPES.SessionService) sessionService: SessionService
+    @inject(TYPES.SessionService) sessionService: SessionService,
+    @inject(TYPES.LogsService) logsService: LogsService
   ) {
     this.http = new Http(httpServer)
     this.events = event(eventEngine)
@@ -129,6 +142,7 @@ export class BotpressAPIProvider {
     this.realtime = new RealTimeAPI(realtimeService)
     this.database = db.knex
     this.users = users(userRepo)
+    this.logs = logs(logsService)
   }
 
   @Memoize()
@@ -141,7 +155,8 @@ export class BotpressAPIProvider {
       config: this.config,
       database: this.database,
       users: this.users,
-      realtime: this.realtime
+      realtime: this.realtime,
+      logs: this.logs
     } as BotpressAPI
   }
 }
