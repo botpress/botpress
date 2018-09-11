@@ -1,6 +1,6 @@
 {
   "name": "@botpress/channel-telegram",
-  "version": "10.35.1",
+  "version": "10.37.1",
   "description": "Official Telegram connector for Botpress",
   "main": "bin/node.bundle.js",
   "homepage": "https://github.com/botpress/modules",
