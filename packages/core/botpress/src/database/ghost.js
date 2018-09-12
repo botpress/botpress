@@ -21,6 +21,7 @@ module.exports = knex => {
         table.string('revision')
         table.timestamp('created_on').defaultTo(knex.fn.now())
         table.string('created_by')
+        table.unique(['folder', 'file'])
       })
     )
 }
