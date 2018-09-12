@@ -8,11 +8,11 @@ import { LogsRepository } from '../../repositories/logs'
 export class LogsService {
   constructor(@inject(TYPES.LogsRepository) private logsRepository: LogsRepository) {}
 
-  async deleteExpiredLogs(date: Date): Promise<void> {
-    await this.logsRepository.deleteLogsBeforeDate(date)
+  async deleteExpiredLogs(botId: string, date: Date): Promise<void> {
+    await this.logsRepository.deleteBeforeDate(botId, date)
   }
 
-  async getLogs(count?: number): Promise<LogEntry[]> {
-    return this.logsRepository.get(count)
+  async getLogsForBot(botId: string, count?: number): Promise<LogEntry[]> {
+    return this.logsRepository.getByBot(botId, count)
   }
 }

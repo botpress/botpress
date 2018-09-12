@@ -9,7 +9,7 @@ import { ConfigProvider } from './config/config-loader'
 import { TYPES } from './misc/types'
 import { BotRepository } from './repositories/bot-repository'
 
-import { AdminRouter, BotsRouter, LogsRouter, ModulesRouter } from './routers'
+import { AdminRouter, BotsRouter, ModulesRouter } from './routers'
 
 import { ModuleLoader } from './module-loader'
 import ActionService from './services/action/action-service'
@@ -32,7 +32,6 @@ export default class HTTPServer {
   private readonly botsRouter: BotsRouter
   private readonly modulesRouter: ModulesRouter
   private readonly adminRouter: AdminRouter
-  private readonly logsRouter: LogsRouter
 
   constructor(
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
@@ -58,10 +57,16 @@ export default class HTTPServer {
 
     this.httpServer = createServer(this.app)
 
-    this.botsRouter = new BotsRouter({ actionService, botRepository, cmsService, flowService, mediaService })
+    this.botsRouter = new BotsRouter({
+      actionService,
+      botRepository,
+      cmsService,
+      flowService,
+      mediaService,
+      logsService
+    })
     this.modulesRouter = new ModulesRouter(moduleLoader)
     this.adminRouter = new AdminRouter(this.logger, this.authService, this.teamsService)
-    this.logsRouter = new LogsRouter(logsService)
   }
 
   async start() {
@@ -83,7 +88,6 @@ export default class HTTPServer {
 
     this.app.use(`${BASE_API_PATH}/modules`, this.modulesRouter.router)
     this.app.use(`${BASE_API_PATH}/bots/:botId`, this.botsRouter.router)
-    this.app.use(`${BASE_API_PATH}/logs`, this.logsRouter.router)
 
     this.app.use((err, req, res, next) => {
       const statusCode = err.status || 500

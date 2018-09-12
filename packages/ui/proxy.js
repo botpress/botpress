@@ -174,7 +174,7 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
     proxy(core_api_url, {
       proxyReqPathResolver: (req, res) => {
         const limit = req.query.limit
-        return limit ? `${BASE_PATH}/logs?limit=${limit}` : `${BASE_PATH}/logs`
+        return limit ? `${BOT_PATH}/logs?limit=${limit}` : `${BOT_PATH}/logs`
       }
     })
   )

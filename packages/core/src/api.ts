@@ -6,8 +6,6 @@ import {
   EventAPI,
   ExtendedKnex,
   HttpAPI,
-  LogEntry,
-  LogsAPI,
   MiddlewareDefinition,
   RouterOptions,
   SubRouter,
@@ -93,14 +91,6 @@ const users = (userRepo: UserRepository): UserAPI => {
   }
 }
 
-const logs = (logsService: LogsService): LogsAPI => {
-  return {
-    async getLogs(count?: number): Promise<LogEntry[]> {
-      return logsService.getLogs(count)
-    }
-  }
-}
-
 /**
  * Socket.IO API to emit payloads to front-end clients
  */
@@ -121,7 +111,6 @@ export class BotpressAPIProvider {
   realtime: RealTimeAPI
   database: ExtendedKnex
   users: UserAPI
-  logs: LogsAPI
 
   constructor(
     @inject(TYPES.DialogEngine) dialogEngine: DialogEngine,
@@ -142,7 +131,6 @@ export class BotpressAPIProvider {
     this.realtime = new RealTimeAPI(realtimeService)
     this.database = db.knex
     this.users = users(userRepo)
-    this.logs = logs(logsService)
   }
 
   @Memoize()
@@ -155,8 +143,7 @@ export class BotpressAPIProvider {
       config: this.config,
       database: this.database,
       users: this.users,
-      realtime: this.realtime,
-      logs: this.logs
+      realtime: this.realtime
     } as BotpressAPI
   }
 }

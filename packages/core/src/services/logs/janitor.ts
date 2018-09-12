@@ -4,6 +4,7 @@ import { Memoize } from 'lodash-decorators'
 import moment from 'moment'
 import ms from 'ms'
 
+import { BotLoader } from '../../bot-loader'
 import { BotpressConfig } from '../../config/botpress.config'
 import { ConfigProvider } from '../../config/config-loader'
 import { TYPES } from '../../misc/types'
@@ -18,7 +19,8 @@ export class LogsJanitor extends Janitor {
     @tagged('name', 'LogsJanitor')
     protected logger: Logger,
     @inject(TYPES.LogsService) private logsService: LogsService,
-    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider
+    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
+    @inject(TYPES.BotLoader) private botLoader: BotLoader
   ) {
     super(logger)
   }
@@ -38,10 +40,17 @@ export class LogsJanitor extends Janitor {
       this.logger.debug('Cleaning up logs')
     }
 
-    const config = await this.getBotpresConfig()
-    const expiration = moment()
-      .subtract(ms(config!.logs.expiration))
-      .toDate()
-    this.logsService.deleteExpiredLogs(expiration)
+    const botpressConfig = await this.getBotpresConfig()
+    const botsConfigs = await this.botLoader.getAllBots()
+    const botsIds = Array.from(botsConfigs.keys())
+    const botExpiryTime = ms(botpressConfig.logs.expiration)
+
+    Promise.mapSeries(botsIds, botId => {
+      const botConfig = botsConfigs.get(botId)!
+      const expiration = moment()
+        .subtract(ms(botConfig.logs!.expiration) || botExpiryTime)
+        .toDate()
+      this.logsService.deleteExpiredLogs(botId, expiration)
+    })
   }
 }
