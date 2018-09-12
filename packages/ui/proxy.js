@@ -189,7 +189,8 @@ function start({ coreApiUrl, proxyHost, proxyPort }, callback) {
         window.BOTPRESS_CLOUD_ENABLED = false;
         window.BOTPRESS_CLOUD_SETTINGS = {"botId":"","endpoint":"","teamId":"","env":"dev"};
         window.DEV_MODE = true;
-        window.AUTH_ENABLED = false;
+        window.AUTH_ENABLED = true;
+        window.BOTPRESS_AUTH_FULL = true;
         window.BP_SOCKET_URL = '${coreApiUrl}';
         window.AUTH_TOKEN_DURATION = 21600000;
         window.OPT_OUT_STATS = false;
@@ -212,7 +213,7 @@ function start({ coreApiUrl, proxyHost, proxyPort }, callback) {
 
   app.get(
     '/api/logs',
-    proxy(core_api_url, {
+    proxy(coreApiUrl, {
       proxyReqPathResolver: (req, res) => {
         const apiPath = setApiBasePath(req)
         const limit = req.query.limit
@@ -221,9 +222,51 @@ function start({ coreApiUrl, proxyHost, proxyPort }, callback) {
     })
   )
 
-  /********
-    Modules
-  *********/
+  /**
+   * Auth
+   */
+  httpProxy
+    .proxy('/api/login', {
+      proxyReqPathResolver: () => '/api/v1/admin/login',
+      proxyReqBodyDecorator: ({ user, password }) => {
+        return { username: user, password }
+      },
+      userResDecorator: (proxyRes, proxyResData, userReq, userRes) => {
+        try {
+          const data = JSON.parse(proxyResData.toString('utf8'))
+          if (data.status === 'error') {
+            userRes.status(200)
+            return JSON.stringify({ success: false, reason: data.message })
+          } else {
+            return JSON.stringify({ success: true, token: data.payload.token })
+          }
+        } catch (e) {
+          console.error(e)
+          return proxyResData
+        }
+      }
+    })
+    .proxy('/api/my-account', {
+      proxyReqPathResolver: () => '/api/v1/admin/me/profile',
+      userResDecorator: (proxyRes, proxyResData, userReq, userRes) => {
+        try {
+          const data = JSON.parse(proxyResData.toString('utf8'))
+          if (data.status === 'error') {
+            userRes.status(200)
+            return JSON.stringify({ success: false, reason: data.message })
+          } else {
+            return JSON.stringify(data.payload)
+          }
+        } catch (e) {
+          console.error(e)
+          return proxyResData
+        }
+      }
+    })
+
+  /**
+   * Modules
+   */
   app.all(
     '/api/botpress-platform-webchat/*',
     proxy(coreApiUrl, {

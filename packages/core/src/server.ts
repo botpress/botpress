@@ -89,6 +89,7 @@ export default class HTTPServer {
       })
     )
 
+    this.app.use(`${BASE_API_PATH}/admin`, this.adminRouter.router)
     this.app.use(`${BASE_API_PATH}/modules`, this.modulesRouter.router)
     this.app.use(`${BASE_API_PATH}/bots/:botId`, this.botsRouter.router)
     this.app.use(`${BASE_API_PATH}/admin`, this.adminRouter.router)

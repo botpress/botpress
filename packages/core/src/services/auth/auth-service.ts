@@ -48,9 +48,9 @@ export default class AuthService {
   }
 
   async checkUserAuth(username: string, password: string) {
-    const user = await this.findUserByUsername(username, ['id', 'password'])
+    const user = await this.findUserByUsername(username || '', ['id', 'password'])
 
-    if (!user || !validateHash(password, user.password)) {
+    if (!user || !validateHash(password || '', user.password)) {
       throw new InvalidCredentialsError()
     }
 
