@@ -6,7 +6,7 @@
   "dependencies": {
     "@botpress/xx-util": "file:../util",
     "body-parser": "^1.18.3",
-    "botpress": "^10.35.1",
+    "botpress": "10.37.1",
     "dotenv": "^6.0.0",
     "express": "^4.16.3",
     "express-http-proxy": "^1.2.0"
