@@ -8,8 +8,10 @@
   "private": true,
   "scripts": {
     "postinstall": "npm run build",
+    "build-json-schemas": "../../node_modules/.bin/typescript-json-schema --required \"src/config/*.ts\" BotpressConfig --out data/botpress.config.schema.json --ignoreErrors",
+    "build-json-schemas-2": "../../node_modules/.bin/typescript-json-schema --required \"src/config/*.ts\" BotConfig --out data/bot.config.schema.json --ignoreErrors",
     "build": "npm run tslint && npm run build-ts && ./scripts/copy-config.sh",
-    "build-ts": "../../node_modules/.bin/rimraf dist && ../../node_modules/.bin/tsc",
+    "build-ts": "../../node_modules/.bin/rimraf dist && ../../node_modules/.bin/tsc && npm run build-json-schemas && npm run build-json-schemas-2",
     "test": "../../node_modules/.bin/jest --detectOpenHandles -c ../../jest.config.js",
     "watch": "../../node_modules/.bin/rimraf dist && mkdir dist && ./scripts/copy-config.sh && ../../node_modules/.bin/tsc-watch -p .",
     "watch-test": "npm run test -- --watchAll",

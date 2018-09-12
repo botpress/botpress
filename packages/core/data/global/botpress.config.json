@@ -1,16 +1,21 @@
 {
+  "$schema": "../botpress.config.schema.json",
   "httpServer": {
     "host": "localhost",
     "port": 3000,
-    "bodyLimit": "100kb"
+    "bodyLimit": "100kb",
+    "backlog": 0
   },
   "database": {
     "type": "sqlite",
     "location": "%BOTPRESS_DIR%/storage/core.sqlite",
     "host": "localhost",
-    "port": "5432",
+    "port": 5432,
     "user": "postgres",
     "password": "",
     "database": "botpress_test"
+  },
+  "ghost": {
+    "enabled": "$isProduction"
   }
 }

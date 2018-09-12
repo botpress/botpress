@@ -26,7 +26,13 @@ describe('Ghost Service', () => {
     ghost = new Ghost(diskDriver.T, dbDriver.T, cache.T, logger.T)
   })
 
-  describe(`Disk Driver`, () => {
+  describe(`Using Disk Driver`, () => {
+    beforeEach(async () => {
+      await ghost.initialize({
+        ghost: { enabled: false }
+      })
+    })
+
     it('DB Driver is never ever called', async () => {
       await ghost.global().deleteFile('', '')
       await ghost.global().directoryListing('', '')
@@ -93,10 +99,122 @@ describe('Ghost Service', () => {
 
     it('Never has any pending revisions', async () => {
       dbDriver.listRevisionIds.mockReturnValue(['abc']) // Even if DB driver says there are some revisions
-      await ghost.global().upsertFile('test', 'a.json', 'Hello') // And that we modify a file
+      await ghost.forBot(BOT_ID).upsertFile('test', 'a.json', 'Hello') // And that we modify a file
 
       const revisions = await ghost.global().getPending()
       expect(revisions).toMatchObject({})
+    })
+  })
+
+  describe('Using DB Driver', async () => {
+    beforeEach(() => {
+      ghost.initialize({
+        ghost: { enabled: true }
+      })
+    })
+
+    describe('read/write/delete', async () => {
+      it('read files uses DB', async () => {
+        dbDriver.readFile.mockImplementation(fileName => fileName)
+        const content = await ghost.global().readFileAsString('test', 'my/test.json')
+
+        expect(diskDriver.readFile).not.toHaveBeenCalled()
+        expect(dbDriver.readFile).toHaveBeenCalled()
+        expect(content).toContain('test/my/test.json')
+      })
+      it('write uses DB', async () => {
+        await ghost.global().upsertFile('test', 'test.json', 'my content')
+
+        expect(dbDriver.upsertFile).toHaveBeenCalled()
+        expect(dbDriver.upsertFile.mock.calls[0][0]).toContain('test.json')
+        expect(dbDriver.upsertFile.mock.calls[0][1]).toContain('my content')
+        expect(diskDriver.upsertFile).not.toHaveBeenCalled()
+      })
+      it('write creates revisions', async () => {
+        await ghost.global().upsertFile('test', 'test.json', 'my content')
+
+        expect(dbDriver.upsertFile).toHaveBeenCalled()
+        expect(dbDriver.upsertFile.mock.calls[0][2]).toBe(true)
+      })
+      it('delete operates on DB', async () => {
+        await ghost.global().deleteFile('test', 'test.json')
+
+        expect(dbDriver.deleteFile).toHaveBeenCalled()
+        expect(diskDriver.deleteFile).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('directory listing', async () => {
+      it('reads files from the DB', async () => {
+        await ghost.global().directoryListing('test', '*.json')
+        expect(dbDriver.directoryListing).toHaveBeenCalled()
+        expect(diskDriver.directoryListing).not.toHaveBeenCalled()
+      })
+      it('path filters work', async () => {
+        dbDriver.directoryListing.mockReturnValue(['test/a.json', 'test/nested/b.json', 'test/c.js'])
+        const allFiles = await ghost.global().directoryListing('test')
+        const jsonFiles = await ghost.forBot(BOT_ID).directoryListing('test', '*.json')
+        const aFile = await ghost.forBot(BOT_ID).directoryListing('test', 'a.json')
+        const bFile = await ghost.global().directoryListing('test', '**/NESTED/*') // case-insensitive, ** globs
+
+        expect(allFiles).toHaveLength(3)
+        expect(jsonFiles).toHaveLength(2)
+        expect(aFile).toHaveLength(1)
+        expect(bFile).toHaveLength(1)
+      })
+    })
+
+    describe('sync', async () => {
+      it('if disk is not up to date, mark as dirty and dont sync disk files', async () => {
+        dbDriver.listRevisionIds.mockReturnValue(['1', '2', '3'])
+        diskDriver.listRevisionIds.mockReturnValue(['1', '2']) // missing revision "3"
+
+        await ghost.global().sync(['test'])
+
+        expect(diskDriver.readFile).not.toHaveBeenCalled()
+        expect(diskDriver.directoryListing).not.toHaveBeenCalled()
+        expect(dbDriver.upsertFile).not.toHaveBeenCalled()
+      })
+      it('if disk is up to date, sync disk files', async () => {
+        dbDriver.listRevisionIds.mockReturnValue(['1', '2', '3'])
+        diskDriver.listRevisionIds.mockReturnValue(['1', '2', '3']) // All synced!
+        diskDriver.readFile.mockReturnValueOnce('FILE A CONTENT')
+        diskDriver.readFile.mockReturnValueOnce('FILE D CONTENT')
+
+        dbDriver.directoryListing.mockReturnValue(['test/a.json', 'test/c.json'])
+        diskDriver.directoryListing.mockReturnValue(['test/a.json', 'test/d.json'])
+
+        dbDriver.deleteRevisions.mockImplementation(() => {
+          dbDriver.listRevisionIds.mockReset()
+          dbDriver.listRevisionIds.mockReturnValue([])
+        })
+
+        await ghost.global().sync(['test'])
+
+        // Deleted revisions
+        expect(dbDriver.deleteRevisions).toHaveBeenCalledWith(['1', '2', '3'])
+
+        expect(dbDriver.upsertFile).toHaveBeenCalledTimes(2)
+
+        // Overwritten existing DB file by disk file
+        expect(dbDriver.upsertFile.mock.calls[0][0]).toContain('a.json')
+        expect(dbDriver.upsertFile.mock.calls[0][1]).toContain('FILE A CONTENT')
+
+        // Added new file (d.js)
+        expect(dbDriver.upsertFile.mock.calls[1][0]).toContain('d.json')
+        expect(dbDriver.upsertFile.mock.calls[1][1]).toContain('FILE D CONTENT')
+
+        // Deleted file from DB that no longer exists on disk
+        expect(dbDriver.deleteFile).toHaveBeenCalledTimes(1)
+        expect(dbDriver.deleteFile.mock.calls[0][0]).toContain('c.json')
+        expect(dbDriver.deleteFile.mock.calls[0][1]).toBe(false) // No revision recorded
+      })
+    })
+
+    describe('revisions', async () => {
+      it('empty when no revisions', async () => {})
+      it('returns list of revisions when files modified', async () => {})
+      it('revision with content works', async () => {})
     })
   })
 })

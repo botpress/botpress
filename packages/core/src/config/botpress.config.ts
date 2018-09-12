@@ -1,5 +1,7 @@
 export type DatabaseType = 'postgres' | 'sqlite'
 
+export type BotpressCondition = '$isProduction' | '$isDevelopment'
+
 export interface DatabaseConfig {
   migrations?: string
   type: DatabaseType
@@ -21,4 +23,10 @@ export type BotpressConfig = {
     bodyLimit: string | number
   }
   database: DatabaseConfig
+  /**
+   * @description Testing comments
+   */
+  ghost: {
+    enabled: boolean | BotpressCondition
+  }
 }

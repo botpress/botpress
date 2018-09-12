@@ -5,10 +5,10 @@
       "type": "node",
       "request": "launch",
       "name": "Debug Launcher-CE",
-      "program": "${workspaceFolder:botpress-xx}/packages/launcher-ce/src/index.ts",
-      "cwd": "${workspaceFolder:botpress-xx}/packages/launcher-ce",
+      "program": "${workspaceFolder:xx}/packages/launcher-ce/src/index.ts",
+      "cwd": "${workspaceFolder:xx}/packages/launcher-ce",
       "protocol": "inspector",
-      "outFiles": ["${workspaceFolder:botpress-xx}/packages/launcher-ce/build/**/*.js"]
+      "outFiles": ["${workspaceFolder:xx}/packages/launcher-ce/build/**/*.js"]
     }
   ]
 }
