@@ -43,11 +43,17 @@ export class DialogEngine {
    * @param event The incoming botpress event
    */
   async processEvent(botId: string, sessionId: string, event: BotpressEvent) {
+    const session = await this.getOrCreateSession(botId, sessionId, event)
+    const flows = await this.flowService.loadAll(botId)
+    await this.processSession(botId, session, flows)
+  }
+
+  protected async getOrCreateSession(botId, sessionId, event): Promise<DialogSession> {
     const flows = await this.flowService.loadAll(botId)
     const defaultFlow = flows.find(f => f.name === DEFAULT_FLOW_NAME)!
     const entryNodeName = _.get(defaultFlow, 'startNode')!
 
-    let session: DialogSession = await this.sessionService.getOrCreateSession(sessionId)
+    let session: DialogSession = await this.sessionService.getOrCreateSession(sessionId, botId)
     session = await this.sessionService.updateSessionEvent(session.id, event)
 
     if (!session.context!.currentNodeName) {
@@ -68,11 +74,15 @@ export class DialogEngine {
       })
     }
 
+    return session
+  }
+
+  protected async processSession(botId, session, flows) {
     let queue = new InstructionQueue(session.context!.queue)
 
     while (queue.hasInstructions()) {
       const instruction = queue.dequeue()!
-      console.log('Instruction = ', instruction.type, instruction.fn)
+
       try {
         const result = await this.instructionProcessor.process(
           botId,
@@ -82,7 +92,6 @@ export class DialogEngine {
           session.context
         )
 
-        console.log('Result = ', result.followUpAction, result.transitionTo)
         if (result.followUpAction === 'none') {
           await this.updateQueueForSession(queue, session)
         } else if (result.followUpAction === 'wait') {
@@ -121,6 +130,45 @@ export class DialogEngine {
     }
   }
 
+  async processTimeout(botId: string, sessionId: string): Promise<void> {
+    const flows = await this.flowService.loadAll(botId)
+    const session = await this.sessionService.getSession(sessionId)
+    const currentFlow = this.getCurrentFlow(session, flows)
+    const currentNode = this.getCurrentNode(session, flows)
+
+    let timeoutNode = _.get(currentNode, 'timeout')
+    let timeoutFlow = currentFlow
+
+    if (!timeoutNode || !timeoutFlow) {
+      timeoutNode = timeoutFlow.nodes.find(n => n.name === 'timeout')
+    }
+    if (!timeoutNode || !timeoutFlow) {
+      timeoutNode = _.get(currentFlow, 'timeout')
+    }
+    if (!timeoutNode || !timeoutFlow) {
+      timeoutFlow = flows.find(f => f.name === 'timeout.flow.json')
+      if (timeoutFlow) {
+        const entryNodeName = _.get(timeoutFlow, 'startNode')
+        timeoutNode = timeoutFlow.nodes.find(n => n.name === entryNodeName)
+      }
+    }
+
+    if (!timeoutNode || !timeoutFlow) {
+      throw new Error(`Could not find any timeout node for session "${sessionId}"`)
+    }
+
+    const queue = this.createQueue(timeoutNode, timeoutNode)
+    const updatedSession = await this.sessionService.updateSessionContext(session.id, {
+      previousFlowName: session.context!.currentFlowName,
+      previousNodeName: session.context!.currentNodeName,
+      currentFlowName: timeoutFlow.name,
+      currentNodeName: timeoutNode.name,
+      queue: queue.toString()
+    })
+
+    await this.processSession(botId, updatedSession, flows)
+  }
+
   private async updateQueueForSession(queue: InstructionQueue, session: DialogSession) {
     const context = session.context!
     context.queue = queue.toString()
@@ -129,7 +177,7 @@ export class DialogEngine {
 
   private getCurrentFlow(session, flows) {
     const flowName = _.get(session, 'context.currentFlowName')
-    return flows.find(f => f.name === flowName)!
+    return flows.find(f => f.name === flowName)
   }
 
   private getCurrentNode(session, flows) {
@@ -170,7 +218,7 @@ export class DialogEngine {
   }
 
   private async navigateToNextNode(
-    flows: any,
+    flows,
     session: DialogSession,
     destination: string
   ): Promise<NavigationPosition | undefined> {

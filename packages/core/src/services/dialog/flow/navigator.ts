@@ -11,8 +11,8 @@ export type NavigationArgs = {
 }
 
 export type NavigationPosition = {
-  nodeName
-  flowName
+  nodeName: string
+  flowName: string
 }
 
 @injectable()

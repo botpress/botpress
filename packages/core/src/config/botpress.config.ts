@@ -15,6 +15,11 @@ export interface DatabaseConfig {
   database?: string
 }
 
+export interface DialogConfig {
+  janitorInterval: string
+  timeoutInterval: string
+}
+
 export type BotpressConfig = {
   httpServer: {
     host?: string
@@ -23,10 +28,8 @@ export type BotpressConfig = {
     bodyLimit: string | number
   }
   database: DatabaseConfig
-  /**
-   * @description Testing comments
-   */
   ghost: {
     enabled: boolean | BotpressCondition
   }
+  dialog: DialogConfig
 }

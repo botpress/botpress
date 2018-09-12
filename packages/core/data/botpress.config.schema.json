@@ -45,14 +45,31 @@
                 "sqlite"
             ],
             "type": "string"
+        },
+        "DialogConfig": {
+            "properties": {
+                "janitorInterval": {
+                    "type": "string"
+                },
+                "timeoutInterval": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "janitorInterval",
+                "timeoutInterval"
+            ],
+            "type": "object"
         }
     },
     "properties": {
         "database": {
             "$ref": "#/definitions/DatabaseConfig"
         },
+        "dialog": {
+            "$ref": "#/definitions/DialogConfig"
+        },
         "ghost": {
-            "description": "Testing comments",
             "properties": {
                 "enabled": {
                     "enum": [
@@ -96,6 +113,7 @@
     },
     "required": [
         "database",
+        "dialog",
         "ghost",
         "httpServer"
     ],

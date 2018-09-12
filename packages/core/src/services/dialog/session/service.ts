@@ -8,10 +8,10 @@ import { DialogContext, DialogSession, SessionRepository } from '../../../reposi
 export class SessionService {
   constructor(@inject(TYPES.SessionRepository) private repository: SessionRepository) {}
 
-  async getOrCreateSession(sessionId): Promise<DialogSession> {
+  async getOrCreateSession(sessionId: string, botId: string): Promise<DialogSession> {
     const session = await this.getSession(sessionId)
     if (!session) {
-      return this.createSession(sessionId)
+      return this.createSession(sessionId, botId)
     }
     return session
   }
@@ -19,6 +19,10 @@ export class SessionService {
   async getStateForSession(sessionId: string): Promise<any> {
     const session = await this.getSession(sessionId)
     return session.state
+  }
+
+  async getStaleSessionsIds(botId: string, outdateTime: Date): Promise<string[]> {
+    return this.repository.getStaleSessionsIds(botId, outdateTime)
   }
 
   async updateSessionContext(sessionId, context: DialogContext) {
@@ -33,8 +37,8 @@ export class SessionService {
     return this.updateSession(session)
   }
 
-  async createSession(sessionId): Promise<DialogSession> {
-    const session = new DialogSession(sessionId, '')
+  async createSession(sessionId, botId): Promise<DialogSession> {
+    const session = new DialogSession(sessionId, botId)
     return this.repository.insert(session)
   }
 

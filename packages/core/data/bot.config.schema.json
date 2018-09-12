@@ -1,5 +1,18 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
+    "definitions": {
+        "DialogConfig": {
+            "properties": {
+                "timeoutInterval": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "timeoutInterval"
+            ],
+            "type": "object"
+        }
+    },
     "properties": {
         "active": {
             "type": "boolean"
@@ -9,6 +22,9 @@
         },
         "description": {
             "type": "string"
+        },
+        "dialog": {
+            "$ref": "#/definitions/DialogConfig"
         },
         "imports": {
             "properties": {

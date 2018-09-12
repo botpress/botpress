@@ -5,9 +5,9 @@ import nanoid from 'nanoid'
 import path from 'path'
 
 import { ConfigProvider } from '../../config/config-loader'
+import { LoggerProvider } from '../../logger/Logger'
 import { IDisposeOnExit } from '../../misc/interfaces'
 import { TYPES } from '../../misc/types'
-import { LoggerProvider } from '../../Logger'
 import GhostService from '../ghost/service'
 
 import { ContentElement, ContentType, DefaultSearchParams, SearchParams } from '.'

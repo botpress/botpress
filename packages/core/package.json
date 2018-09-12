@@ -18,7 +18,7 @@
     "tslint": "../../node_modules/.bin/tslint -c ../../tslint.json -p tsconfig.json"
   },
   "dependencies": {
-    "@botpress/util-roles": "^10.33.2",
+    "@botpress/util-roles": "^10.36.1",
     "@botpress/xx-util": "file:../util",
     "axios": "^0.18.0",
     "bluebird-global": "^1.0.1",

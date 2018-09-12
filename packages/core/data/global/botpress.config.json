@@ -17,5 +17,9 @@
   },
   "ghost": {
     "enabled": "$isProduction"
+  },
+  "dialog": {
+    "timeoutInterval": "2m",
+    "janitorInterval": "10s"
   }
 }

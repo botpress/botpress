@@ -1,3 +1,7 @@
+export interface DialogConfig {
+  timeoutInterval: string
+}
+
 export type BotConfig = {
   name: string
   active: boolean
@@ -11,4 +15,5 @@ export type BotConfig = {
     incomingMiddleware: string[]
     outgoingMiddleware: string[]
   }
+  dialog?: DialogConfig
 }

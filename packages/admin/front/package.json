@@ -6,7 +6,7 @@
     "node": "^8.9.4"
   },
   "dependencies": {
-    "@botpress/util-roles": "^10.17.1",
+    "@botpress/util-roles": "^10.36.1",
     "auth0-js": "^9.3.3",
     "axios": "^0.18.0",
     "bluebird": "^3.5.1",
