@@ -2,10 +2,10 @@ import { Logger } from 'botpress-module-sdk'
 import { NextFunction, Request, Response } from 'express'
 import Joi from 'joi'
 
-import { RequestWithUser } from '../../misc/interfaces'
-import AuthService from '../../services/auth/auth-service'
 // TODO: generalize these errors and consolidate them with ~/Errors.ts
-import { AssertionError, ProcessingError, UnauthorizedAccessError } from '../../services/auth/errors'
+import { RequestWithUser } from '../misc/interfaces'
+import AuthService from '../services/auth/auth-service'
+import { AssertionError, ProcessingError, UnauthorizedAccessError } from '../services/auth/errors'
 
 export const asyncMiddleware = ({ logger }: { logger: Logger }) => (
   fn: (req: Request, res: Response, next?: NextFunction) => Promise<any>

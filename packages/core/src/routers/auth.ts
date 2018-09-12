@@ -1,37 +1,35 @@
-import { Logger } from 'botpress-module-sdk'
-import { Request, RequestHandler, Response, Router } from 'express'
 import Joi from 'joi'
 import _ from 'lodash'
 
-import { CustomRouter } from '..'
-import { RequestWithUser } from '../../misc/interfaces'
-import AuthService from '../../services/auth/auth-service'
-import TeamsService from '../../services/auth/teams-service'
+import { Logger } from 'botpress-module-sdk'
+import { Request, RequestHandler, Router } from 'express'
 
-import { TeamsRouter } from './teams'
+import { RequestWithUser } from '../misc/interfaces'
+import AuthService from '../services/auth/auth-service'
+import TeamsService from '../services/auth/teams-service'
+
+import { CustomRouter } from '.'
 import { asyncMiddleware, checkTokenHeader, loadUser, success as sendSuccess, validateBodySchema } from './util'
 
 const REVERSE_PROXY = !!process.env.REVERSE_PROXY
 
-const authSchema = Joi.object().keys({
-  username: Joi.string()
-    .min(3)
-    .trim()
-    .required(),
-  password: Joi.string()
-    .min(6)
-    .required()
-})
-
 const getIp = (req: Request) =>
   (REVERSE_PROXY ? <string | undefined>req.headers['x-forwarded-for'] : undefined) || req.connection.remoteAddress
 
-export class AdminRouter implements CustomRouter {
+export class AuthRouter implements CustomRouter {
   public readonly router: Router
   private asyncMiddleware!: Function
   private checkTokenHeader!: RequestHandler
   private loadUser!: RequestHandler
-  private teamsRouter!: TeamsRouter
+
+  constructor(logger: Logger, private authService: AuthService, private teamsService: TeamsService) {
+    this.router = Router({ mergeParams: true })
+    this.asyncMiddleware = asyncMiddleware({ logger })
+    this.checkTokenHeader = checkTokenHeader(this.authService, 'web-login')
+    this.loadUser = loadUser(this.authService)
+
+    this.setupRoutes()
+  }
 
   login = async (req, res) => {
     const token = await this.authService.login(req.body.username, req.body.password, getIp(req))
@@ -40,7 +38,18 @@ export class AdminRouter implements CustomRouter {
   }
 
   register = async (req, res) => {
-    validateBodySchema(req, authSchema)
+    validateBodySchema(
+      req,
+      Joi.object().keys({
+        username: Joi.string()
+          .min(3)
+          .trim()
+          .required(),
+        password: Joi.string()
+          .min(6)
+          .required()
+      })
+    )
 
     const { token, userId } = await this.authService.register(req.body.username, req.body.password, getIp(req))
 
@@ -65,16 +74,6 @@ export class AdminRouter implements CustomRouter {
     )
   }
 
-  constructor(logger: Logger, private authService: AuthService, private teamsService: TeamsService) {
-    this.router = Router({ mergeParams: true })
-    this.asyncMiddleware = asyncMiddleware({ logger })
-    this.checkTokenHeader = checkTokenHeader(this.authService, 'web-login')
-    this.loadUser = loadUser(this.authService)
-    this.teamsRouter = new TeamsRouter(logger, this.authService, this.teamsService)
-
-    this.setupRoutes()
-  }
-
   setupRoutes() {
     const router = this.router
 
@@ -90,11 +89,5 @@ export class AdminRouter implements CustomRouter {
       this.loadUser,
       this.asyncMiddleware(this.getPermissions)
     )
-
-    router.get('/all-permissions', (req, res) => {
-      res.json(this.authService.getResources())
-    })
-
-    router.use('/teams', this.checkTokenHeader, this.loadUser, this.teamsRouter.router)
   }
 }

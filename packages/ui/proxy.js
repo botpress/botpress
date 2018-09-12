@@ -227,7 +227,7 @@ function start({ coreApiUrl, proxyHost, proxyPort }, callback) {
    */
   httpProxy
     .proxy('/api/login', {
-      proxyReqPathResolver: () => '/api/v1/admin/login',
+      proxyReqPathResolver: () => '/api/v1/auth/login',
       proxyReqBodyDecorator: ({ user, password }) => {
         return { username: user, password }
       },
@@ -247,7 +247,7 @@ function start({ coreApiUrl, proxyHost, proxyPort }, callback) {
       }
     })
     .proxy('/api/my-account', {
-      proxyReqPathResolver: () => '/api/v1/admin/me/profile',
+      proxyReqPathResolver: () => '/api/v1/auth/me/profile',
       userResDecorator: (proxyRes, proxyResData, userReq, userRes) => {
         try {
           const data = JSON.parse(proxyResData.toString('utf8'))
