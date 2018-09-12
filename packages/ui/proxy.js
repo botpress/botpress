@@ -6,6 +6,7 @@ const bodyParser = require('body-parser')
 const qs = require('querystring')
 
 const { HttpProxy, setApiBasePath, BASE_PATH } = require('@botpress/xx-util')
+const { version: uiVersion } = require('botpress/package.json')
 
 // UI res.set(...)
 // Proxy req.get(...)
@@ -20,19 +21,19 @@ function noCache(req, res, next) {
   next()
 }
 
-function start({ core_api_url, proxy_host, proxy_port }, callback) {
+function start({ coreApiUrl, proxyHost, proxyPort }, callback) {
   const app = express()
   app.use(bodyParser.json())
   app.use(express.static(path.join(__dirname, 'static')))
 
-  const httpProxy = new HttpProxy(app, core_api_url)
+  const httpProxy = new HttpProxy(app, coreApiUrl)
 
   httpProxy.proxy('/api/bot/information', '/')
 
   app.post(
     '/api/middlewares/customizations',
     noCache,
-    proxy(core_api_url, {
+    proxy(coreApiUrl, {
       proxyReqPathResolver: async (req, res) => setApiBasePath(req) + '/middleware',
       proxyReqBodyDecorator: async (body, srcReq) => {
         // Middleware(s) is a typo. Can't be plural.
@@ -45,7 +46,7 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
 
   app.post(
     '/api/media',
-    proxy(core_api_url, {
+    proxy(coreApiUrl, {
       proxyReqPathResolver: async (req, res) => setApiBasePath(req) + '/media',
       parseReqBody: false
     })
@@ -53,14 +54,14 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
 
   app.get(
     '/media',
-    proxy(core_api_url, {
+    proxy(coreApiUrl, {
       proxyReqPathResolver: async (req, res) => setApiBasePath(req) + '/media'
     })
   )
 
   app.post(
     '/api/content/categories/:categoryId/items/:itemId',
-    proxy(core_api_url, {
+    proxy(coreApiUrl, {
       proxyReqPathResolver: req => {
         return `${setApiBasePath(req)}/content/${req.params.categoryId}/elements/${req.params.itemId}`
       }
@@ -69,7 +70,7 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
 
   app.post(
     '/api/content/categories/:categoryId/items',
-    proxy(core_api_url, {
+    proxy(coreApiUrl, {
       proxyReqPathResolver: async (req, res) => {
         return `${setApiBasePath(req)}/content/${req.params.categoryId}/elements`
       }
@@ -81,7 +82,7 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
   app.get(
     '/api/content/items-batched/:itemIds',
     noCache,
-    proxy(core_api_url, {
+    proxy(coreApiUrl, {
       proxyReqPathResolver: req => {
         const elementIds = req.params.itemIds.split(',')
         return `${setApiBasePath(req)}/content/elements?ids=${elementIds.join(',')}`
@@ -102,7 +103,7 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
   app.get(
     '/api/content/items',
     noCache,
-    proxy(core_api_url, {
+    proxy(coreApiUrl, {
       proxyReqPathResolver: req => {
         const apiPath = setApiBasePath(req)
         const oQuery = req.query || {}
@@ -124,7 +125,7 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
   app.get(
     '/api/content/items/count',
     noCache,
-    proxy(core_api_url, {
+    proxy(coreApiUrl, {
       proxyReqPathResolver: req => {
         const contentType = req.query.categoryId
         const apiPath = setApiBasePath(req)
@@ -139,7 +140,7 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
 
   app.get(
     '/api/content/items/:itemId',
-    proxy(core_api_url, {
+    proxy(coreApiUrl, {
       proxyReqPathResolver: (req, res) => {
         const elementId = req.params.itemId
         const apiPath = setApiBasePath(req)
@@ -165,7 +166,7 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
   app.post(
     '/api/flows/save',
     noCache,
-    proxy(core_api_url, {
+    proxy(coreApiUrl, {
       proxyReqPathResolver: req => {
         return setApiBasePath(req) + '/flows'
       },
@@ -189,11 +190,11 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
         window.BOTPRESS_CLOUD_SETTINGS = {"botId":"","endpoint":"","teamId":"","env":"dev"};
         window.DEV_MODE = true;
         window.AUTH_ENABLED = false;
-        window.BP_SOCKET_URL = '${core_api_url}';
+        window.BP_SOCKET_URL = '${coreApiUrl}';
         window.AUTH_TOKEN_DURATION = 21600000;
         window.OPT_OUT_STATS = false;
         window.SHOW_GUIDED_TOUR = false;
-        window.BOTPRESS_VERSION = "10.22.3";
+        window.BOTPRESS_VERSION = "${uiVersion}";
         window.APP_NAME = "Botpress";
         window.GHOST_ENABLED = false;
         window.BOTPRESS_FLOW_EDITOR_DISABLED = null;
@@ -221,11 +222,11 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
   )
 
   /********
-  Modules
-*********/
+    Modules
+  *********/
   app.all(
     '/api/botpress-platform-webchat/*',
-    proxy(core_api_url, {
+    proxy(coreApiUrl, {
       proxyReqPathResolver: (req, res) => {
         let parts = _.drop(req.path.split('/'), 3)
         const newPath = parts.join('/')
@@ -238,7 +239,7 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
 
   app.get(
     '/api/modules',
-    proxy(core_api_url, {
+    proxy(coreApiUrl, {
       proxyReqPathResolver: () => {
         return `${BASE_PATH}/modules/`
       }
@@ -247,7 +248,7 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
 
   app.get(
     [`/js/modules/:moduleName`, `/js/modules/:moduleName/:subview`],
-    proxy(core_api_url, {
+    proxy(coreApiUrl, {
       proxyReqPathResolver: (req, res) => {
         let moduleName = req.params.moduleName
 
@@ -272,7 +273,7 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
     res.sendFile(absolutePath)
   })
 
-  return app.listen(proxy_port, callback)
+  return app.listen(proxyPort, callback)
 }
 
 module.exports = start
