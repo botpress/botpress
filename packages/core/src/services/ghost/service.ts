@@ -109,6 +109,7 @@ export class ScopedGhostService {
 
   async sync(paths: string[]) {
     if (!this.useDbDriver) {
+      // We don't have to sync anything as we're just using the files from disk
       return
     }
 
@@ -117,23 +118,26 @@ export class ScopedGhostService {
     const syncedRevs = _.union(diskRevs, dbRevs)
     await this.dbDriver.deleteRevisions(syncedRevs)
 
-    if (await this.isFullySynced()) {
-      for (const path of paths) {
-        const currentFiles = await this.dbDriver.directoryListing(this.normalizeFolderName(path))
-        const newFiles = await this.diskDriver.directoryListing(this.normalizeFolderName(path))
+    if (!(await this.isFullySynced())) {
+      this.logger.warn(`Found unsynced file changes in "${this.baseDir}"`)
+      return
+    }
 
-        // We delete files that have been deleted from disk
-        for (const file of _.difference(currentFiles, newFiles)) {
-          const filePath = this.normalizeFileName(path, file)
-          await this.dbDriver.deleteFile(filePath, false)
-        }
+    for (const path of paths) {
+      const currentFiles = await this.dbDriver.directoryListing(this.normalizeFolderName(path))
+      const newFiles = await this.diskDriver.directoryListing(this.normalizeFolderName(path))
 
-        // We now update files in DB by those on the disk
-        for (const file of newFiles) {
-          const filePath = this.normalizeFileName(path, file)
-          const content = await this.diskDriver.readFile(filePath)
-          await this.dbDriver.upsertFile(filePath, content, false)
-        }
+      // We delete files that have been deleted from disk
+      for (const file of _.difference(currentFiles, newFiles)) {
+        const filePath = this.normalizeFileName(path, file)
+        await this.dbDriver.deleteFile(filePath, false)
+      }
+
+      // We now update files in DB by those on the disk
+      for (const file of newFiles) {
+        const filePath = this.normalizeFileName(path, file)
+        const content = await this.diskDriver.readFile(filePath)
+        await this.dbDriver.upsertFile(filePath, content, false)
       }
     }
   }
