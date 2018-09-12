@@ -5,7 +5,6 @@ import { Server } from 'http'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import socketio from 'socket.io'
-import socketioJwt from 'socketio-jwt'
 
 import { TYPES } from '../../misc/types'
 
@@ -91,6 +90,7 @@ export default class RealtimeService {
     })
 
     this.ee.onAny((event, payload, from) => {
+      console.log('EVENTTTTTT!!!!!!!!', event, payload, from)
       if (from === 'client') {
         return // This is coming from the client, we don't send this event back to them
       }

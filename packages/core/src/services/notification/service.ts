@@ -14,7 +14,7 @@ export class NotificationsService {
 
   async archiveAll() {
     const notifications = await this.notificationsRepository.getAll({ archived: false })
-    await Promise.mapSeries(notifications, notification => this.archive(notification))
+    await Promise.mapSeries(notifications, n => this.archive(n))
   }
 
   async create(notification: Notification): Promise<Notification> {
@@ -32,7 +32,7 @@ export class NotificationsService {
 
   async markAllAsRead(): Promise<void> {
     const notifications = await this.notificationsRepository.getAll({ archived: false, read: false })
-    await Promise.mapSeries(notifications, u => this.markAsRead(u))
+    await Promise.mapSeries(notifications, n => this.markAsRead(n))
   }
 
   async getArchived(): Promise<Notification[]> {
