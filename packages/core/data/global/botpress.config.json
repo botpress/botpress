@@ -18,6 +18,7 @@
     "janitorInterval": "10s"
   },
   "logs": {
-    "journey": "2 weeks"
+    "expiration": "2 weeks",
+    "janitorInterval": "2s"
   }
 }

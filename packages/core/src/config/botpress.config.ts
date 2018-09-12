@@ -19,7 +19,8 @@ export interface DialogConfig {
 }
 
 export interface LogsConfig {
-  journey: string
+  expiration: string
+  janitorInterval: string
 }
 
 export type BotpressConfig = {

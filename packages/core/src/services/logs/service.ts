@@ -12,7 +12,7 @@ export class LogsService {
     await this.logsRepository.deleteLogsBeforeDate(date)
   }
 
-  async getLogs(count: number): Promise<LogEntry[]> {
-    return this.logsRepository.getLimit(count)
+  async getLogs(count?: number): Promise<LogEntry[]> {
+    return this.logsRepository.get(count)
   }
 }

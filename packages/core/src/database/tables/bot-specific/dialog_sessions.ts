@@ -1,6 +1,6 @@
 import { Table } from '../../interfaces'
 
-export default class DialogSessionTable extends Table {
+export class DialogSessionTable extends Table {
   name: string = 'dialog_sessions'
 
   async bootstrap() {

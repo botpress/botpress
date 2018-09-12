@@ -1,6 +1,6 @@
 import { Table } from '../../interfaces'
 
-export default class ChannelUsersTable extends Table {
+export class ChannelUsersTable extends Table {
   name: string = 'srv_channel_users'
 
   async bootstrap() {

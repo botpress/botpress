@@ -1,67 +1,26 @@
 import { Logger } from 'botpress-module-sdk'
-import { inject, injectable, postConstruct, tagged } from 'inversify'
-import { findIndex } from 'lodash'
-import moment from 'moment'
+import { injectable } from 'inversify'
 import ms from 'ms'
-import nanoid from 'nanoid'
-
-import { ConfigProvider } from '../../config/config-loader'
-import Database from '../../database'
-import { TYPES } from '../../misc/types'
-
-const DEFAULTS = {
-  timestampColumn: 'created_on'
-}
-
-export type JanitorOptions = {
-  table: string
-}
 
 @injectable()
-export class JanitorRunner {
-  protected defaultJanitorInterval!: number
-  protected defaultTimeoutInterval!: number
+export abstract class Janitor {
+  protected runningInterval!: string
 
-  private tasks: any = []
   private currentPromise
   private intervalRef
 
-  constructor(
-    @inject(TYPES.Logger)
-    @tagged('name', 'Janitor')
-    protected logger: Logger,
-    @inject(TYPES.Database) protected database: Database,
-    @inject(TYPES.ConfigProvider) protected configProvider: ConfigProvider
-  ) {}
+  constructor(protected logger: Logger) {}
 
-  @postConstruct()
-  async initialize() {
-    const config = await this.configProvider.getBotpressConfig()
-    this.defaultJanitorInterval = ms(config.dialog.janitorInterval)
-    this.defaultTimeoutInterval = ms(config.dialog.timeoutInterval)
-  }
+  protected abstract getInterval(): Promise<string>
 
-  protected async runTask(table, timestampColumn): Promise<void> {
-    this.logger.debug(`Running for table ${table}`)
-    const outdatedCondition = this.database.knex.date.isBefore(
-      timestampColumn,
-      moment()
-        .subtract(this.defaultTimeoutInterval, 'ms')
-        .toDate()
-    )
-    await this.database
-      .knex(table)
-      .where(outdatedCondition)
-      .del()
-      .then()
-  }
+  protected abstract async runTask(): Promise<void>
 
-  private runTasks = () => {
+  private runTaskWhenReady = () => {
     if (this.currentPromise) {
       this.logger.debug('Skipping the current run, previous operation still running')
       return
     }
-    this.currentPromise = Promise.each(this.tasks, this.runTask.bind(this))
+    this.currentPromise = this.runTask()
       .catch(err => {
         this.logger.error('Error running task', err)
       })
@@ -70,29 +29,19 @@ export class JanitorRunner {
       })
   }
 
-  start() {
+  async start() {
+    this.runningInterval = await this.getInterval()
+
+    if (!this.runningInterval) {
+      throw new Error('A running interval has to be set before starting the janitor')
+    }
+
     if (this.intervalRef) {
-      return
+      throw new Error(`The Janitor is already started`)
     }
-    this.intervalRef = setInterval(this.runTasks, this.defaultJanitorInterval)
+
+    this.intervalRef = setInterval(this.runTaskWhenReady.bind(this), ms(this.runningInterval))
     this.logger.info('Started')
-  }
-
-  add(options: JanitorOptions) {
-    this.logger.debug(`Added table "${options.table}"`)
-    const id = nanoid()
-    this.tasks.push({ id, DEFAULTS, options })
-    return id
-  }
-
-  remove(id) {
-    const i = findIndex(this.tasks, { id })
-    if (i < 0) {
-      this.logger.error(`Unknown task ID "${id}"`)
-      return
-    }
-    const [{ table }] = this.tasks.splice(i, 1)
-    this.logger.debug(`Removed table "${table}"`)
   }
 
   stop() {

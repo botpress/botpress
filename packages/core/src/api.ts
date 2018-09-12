@@ -95,7 +95,7 @@ const users = (userRepo: UserRepository): UserAPI => {
 
 const logs = (logsService: LogsService): LogsAPI => {
   return {
-    async getLogs(count: number): Promise<LogEntry[]> {
+    async getLogs(count?: number): Promise<LogEntry[]> {
       return logsService.getLogs(count)
     }
   }
