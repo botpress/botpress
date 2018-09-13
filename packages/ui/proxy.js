@@ -73,6 +73,13 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
       proxyReqPathResolver: req => {
         const elementIds = req.params.itemIds.split(',')
         return `${BOT_PATH}/content/elements?ids=${elementIds.join(',')}`
+      },
+      userResDecorator: function(proxyRes, proxyResData, userReq, userRes) {
+        const body = JSON.parse(proxyResData)
+        body.forEach(x =>
+          _.assign(x, { categoryId: x.contentType, data: x.computedData, categorySchema: { title: 'Text' } })
+        )
+        return body
       }
     })
   )
