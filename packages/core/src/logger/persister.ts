@@ -1,8 +1,6 @@
 import { ExtendedKnex, LogEntry, Logger } from 'botpress-module-sdk'
-import chalk from 'chalk'
 import { injectable } from 'inversify'
 import _ from 'lodash'
-import moment from 'moment'
 import ms from 'ms'
 
 import Database from '../database'

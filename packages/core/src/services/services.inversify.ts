@@ -12,14 +12,15 @@ import FlowService from './dialog/flow/service'
 import { InstructionFactory } from './dialog/instruction/factory'
 import { InstructionProcessor } from './dialog/instruction/processor'
 import { ActionStrategy, StrategyFactory, TransitionStrategy, WaitStrategy } from './dialog/instruction/strategy'
-import { DialogJanitorRunner } from './dialog/janitor'
+import { DialogJanitor } from './dialog/janitor'
 import { SessionService } from './dialog/session/service'
 import { ObjectCache, StorageDriver } from './ghost'
 import DiskStorageDriver from './ghost/disk-driver'
 import MemoryObjectCache from './ghost/memory-cache'
 import GhostService from './ghost/service'
 import { HookService } from './hook/hook-service'
-import { JanitorRunner } from './janitor'
+import { LogsJanitor } from './logs/janitor'
+import { LogsService } from './logs/service'
 import MediaService from './media'
 import { EventEngine } from './middleware/event-engine'
 import { Queue } from './queue'
@@ -119,11 +120,15 @@ export const ServicesContainerModule = new ContainerModule((bind: interfaces.Bin
     .to(WaitStrategy)
     .inRequestScope()
 
-  bind<JanitorRunner>(TYPES.JanitorRunner)
-    .to(JanitorRunner)
+  bind<DialogJanitor>(TYPES.DialogJanitorRunner)
+    .to(DialogJanitor)
     .inSingletonScope()
 
-  bind<DialogJanitorRunner>(TYPES.DialogJanitorRunner)
-    .to(DialogJanitorRunner)
+  bind<LogsJanitor>(TYPES.LogJanitorRunner)
+    .to(LogsJanitor)
+    .inSingletonScope()
+
+  bind<LogsService>(TYPES.LogsService)
+    .to(LogsService)
     .inSingletonScope()
 })
