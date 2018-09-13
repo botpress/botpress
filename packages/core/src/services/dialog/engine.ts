@@ -243,6 +243,6 @@ export class DialogEngine {
     const flowName = _.get(session, 'context.currentFlowName', 'N/A')
     const instructionDetails = instruction.fn || instruction.type
     this.onProcessingError &&
-      this.onProcessingError(new ProcessingError(botId, error.message, nodeName, flowName, instructionDetails))
+      this.onProcessingError(new ProcessingError(error.message, botId, nodeName, flowName, instructionDetails))
   }
 }
