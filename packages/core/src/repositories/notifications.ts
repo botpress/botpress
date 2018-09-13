@@ -24,11 +24,11 @@ export class Notification {
 type DefaultGetOptions = { archived?: boolean; read?: boolean }
 
 export interface NotificationsRepository {
-  getBydId(botId: string, id: string): Promise<Notification>
+  getBydId(id: string): Promise<Notification>
   getAll(botId: string, options?: DefaultGetOptions): Promise<Notification[]>
   insert(botId: string, notification: Notification): Promise<Notification>
-  update(botId: string, notification: Notification): Promise<void>
-  deleteById(botId: string, id: string): Promise<void>
+  update(notification: Notification): Promise<void>
+  deleteById(id: string): Promise<void>
 }
 
 @injectable()
@@ -37,12 +37,11 @@ export class KnexNotificationsRepository implements NotificationsRepository {
 
   constructor(@inject(TYPES.Database) private database: Database) {}
 
-  async getBydId(botId: string, id: string): Promise<Notification> {
+  async getBydId(id: string): Promise<Notification> {
     return (await this.database
       .knex(this.TABLE_NAME)
       .select('*')
-      .where({ botId })
-      .andWhere({ id })
+      .where({ id })
       .then()) as Notification
   }
 
@@ -80,20 +79,18 @@ export class KnexNotificationsRepository implements NotificationsRepository {
     ])) as Notification
   }
 
-  async update(botId: string, notification: Notification): Promise<void> {
+  async update(notification: Notification): Promise<void> {
     await this.database
       .knex(this.TABLE_NAME)
-      .where({ botId })
-      .andWhere({ id: notification.id })
+      .where({ id: notification.id })
       .update(notification)
       .then()
   }
 
-  async deleteById(botId: string, id: string): Promise<void> {
+  async deleteById(id: string): Promise<void> {
     await this.database
       .knex(this.TABLE_NAME)
-      .where({ botId })
-      .andWhere({ id })
+      .where({ id })
       .del()
       .then()
   }

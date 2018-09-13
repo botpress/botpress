@@ -179,6 +179,8 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
     })
   )
 
+  httpProxy.proxy('/api/bot/information', `${BOT_PATH}/notifications`, core_api_url)
+
   /********
   Modules
 *********/
