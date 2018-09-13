@@ -90,7 +90,6 @@ export default class RealtimeService {
     })
 
     this.ee.onAny((event, payload, from) => {
-      console.log('EVENTTTTTT!!!!!!!!', event, payload, from)
       if (from === 'client') {
         return // This is coming from the client, we don't send this event back to them
       }

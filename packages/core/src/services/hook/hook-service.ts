@@ -93,7 +93,10 @@ export class HookService {
 
     try {
       vm.run(hookScript.file, hookScript.path)
-      this.logger.debug(`Executed '${hookScript.path}' on '${hookScript.hook}'`)
+
+      const botId = _.get(hookScript.hook.args, 'event.botId')
+      const message = `Executed '${hookScript.path}' on '${hookScript.hook}'`
+      botId ? this.logger.forBot(botId).debug(message) : this.logger.debug(message)
     } catch (err) {
       this.logger.error(`Could not execute '${hookScript.path}' on '${hookScript.hook}'`)
     }

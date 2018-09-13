@@ -82,7 +82,7 @@ export class ScopedActionService {
   }
 
   async runAction(actionName: string, dialogState: any, incomingEvent: any, actionArgs: any): Promise<any> {
-    this.logger.debug(`Running action "${actionName}"`)
+    this.logger.forBot(this.botId).debug(`Running action "${actionName}"`)
     const code = await this.findActionScript(actionName)
 
     return runCode(

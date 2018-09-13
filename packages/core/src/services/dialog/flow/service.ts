@@ -56,7 +56,7 @@ export default class FlowService {
       }
     })
 
-    this.logger.debug(`Loaded flow '${flowPath}' for bot '${botId}'`)
+    this.logger.forBot(botId).debug(`Loaded flow '${flowPath}'`)
 
     return {
       name: flowPath,
