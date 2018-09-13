@@ -109,13 +109,13 @@ export class Botpress {
       }
     }
 
-    const flowLoger = await this.loggerProvider('DialogEngine')
+    const flowLogger = await this.loggerProvider('DialogEngine')
     this.dialogEngine.onProcessingError = err => {
       const message = `Error processing "${err.instruction}"
 Err: ${err.message}
 Flow: ${err.flowName}
 Node: ${err.nodeName}`
-      flowLoger.forBot(err.botId).warn(message)
+      flowLogger.forBot(err.botId).warn(message)
     }
 
     await this.logJanitor.start()
