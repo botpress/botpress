@@ -5,6 +5,8 @@ import { Notification, NotificationsRepository } from '../../repositories'
 
 @injectable()
 export class NotificationsService {
+  onNotification!: () => void | undefined
+
   constructor(@inject(TYPES.NotificationsRepository) private notificationsRepository: NotificationsRepository) {}
 
   async archive(notificationId: string): Promise<void> {
@@ -22,7 +24,10 @@ export class NotificationsService {
   }
 
   async create(botId: string, notification: Notification): Promise<Notification> {
-    return this.notificationsRepository.insert(botId, notification)
+    return this.notificationsRepository.insert(botId, notification).then(notification => {
+      this.onNotification && this.onNotification()
+      return notification
+    })
   }
 
   async getInbox(botId: string): Promise<Notification[]> {
