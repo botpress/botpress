@@ -19,6 +19,7 @@ import { CMSService } from './services/cms/cms-service'
 import FlowService from './services/dialog/flow/service'
 import { LogsService } from './services/logs/service'
 import MediaService from './services/media'
+import { NotificationsService } from './services/notification/service'
 
 const BASE_API_PATH = '/api/v1'
 
@@ -47,7 +48,8 @@ export default class HTTPServer {
     @inject(TYPES.AuthService) private authService: AuthService,
     @inject(TYPES.TeamsService) private teamsService: TeamsService,
     @inject(TYPES.MediaService) mediaService: MediaService,
-    @inject(TYPES.LogsService) logsService: LogsService
+    @inject(TYPES.LogsService) logsService: LogsService,
+    @inject(TYPES.NotificationsService) notificationService: NotificationsService
   ) {
     this.app = express()
 
@@ -63,7 +65,8 @@ export default class HTTPServer {
       cmsService,
       flowService,
       mediaService,
-      logsService
+      logsService,
+      notificationService
     })
     this.modulesRouter = new ModulesRouter(moduleLoader)
     this.adminRouter = new AdminRouter(this.logger, this.authService, this.teamsService)

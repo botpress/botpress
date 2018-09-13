@@ -11,26 +11,39 @@ import { LoggerPersister } from '.'
 
 export type LoggerProvider = (module: string) => Promise<Logger>
 
-const BOT_ID = 'bot123'
-
 @injectable()
 // Suggestion: Would be best to have a CompositeLogger that separates the Console and DB loggers
 export class PersistedConsoleLogger implements Logger {
+  private botId: string | undefined
+
   constructor(
     @inject(TYPES.Logger_Name) private name: string,
     @inject(TYPES.IsProduction) private isProduction: boolean,
     @inject(TYPES.LoggerPersister) private loggerPersister: LoggerPersister
   ) {}
 
+  forBot(botId: string): this {
+    this.botId = botId
+    return this
+  }
+
   private print(level: Level, message: string, metadata: any) {
-    // Saving raw log data so that it may be used by another logger if need be
-    const entry = new LogEntry(BOT_ID, level.name, this.name, message, metadata, moment().toISOString())
+    const args = {
+      botId: this.botId,
+      level: level.name,
+      scope: this.name,
+      message: message,
+      metadata: metadata,
+      timestamp: moment().toISOString()
+    }
+    const entry = new LogEntry(args)
     this.loggerPersister.appendLog(entry)
 
     const serializedMetadata = metadata ? ' | ' + util.inspect(metadata, false, 2, true) : ''
     const time = moment().format('HH:mm:ss.SSS')
 
     console.log(chalk`{grey ${time}} {${level.color}.bold ${this.name}} ${message}${serializedMetadata}`)
+    this.botId = undefined
   }
 
   debug(message: string, metadata?: any): void {

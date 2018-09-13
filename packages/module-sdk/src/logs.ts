@@ -9,13 +9,29 @@ export namespace Level {
   export const Error = new Level('error', 'red')
 }
 
+type LogEntryArgs = {
+  botId?: string
+  level: string
+  scope: string
+  message: string
+  metadata: any
+  timestamp: string
+}
 export class LogEntry {
-  constructor(
-    public botId: string,
-    public level: string,
-    public scope: string,
-    public message: string,
-    public metadata: any,
-    public timestamp: string
-  ) {}
+  botId?: string
+  level: string
+  scope: string
+  message: string
+  metadata: any
+  timestamp: string
+
+  constructor(args: LogEntryArgs) {
+    const { botId, level, scope, message, metadata, timestamp } = args
+    this.botId = botId
+    this.level = level
+    this.scope = scope
+    this.message = message
+    this.metadata = metadata
+    this.timestamp = timestamp
+  }
 }
