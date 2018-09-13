@@ -115,7 +115,7 @@ export class Botpress {
 Err: ${err.message}
 Flow: ${err.flowName}
 Node: ${err.nodeName}`
-      flowLoger.warn(message)
+      flowLoger.forBot(err.botId).warn(message)
     }
 
     await this.logJanitor.start()
