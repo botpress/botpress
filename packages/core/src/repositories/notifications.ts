@@ -14,6 +14,7 @@ export class Notification {
     public redirectUrl: string
   ) {}
 
+  public id?: string
   public created_on?: string
   public modified_on?: string
   public read = false
@@ -23,11 +24,11 @@ export class Notification {
 type DefaultGetOptions = { archived?: boolean; read?: boolean }
 
 export interface NotificationsRepository {
-  getBydId(id: string): Promise<Notification>
-  getAll(options?: DefaultGetOptions): Promise<Notification[]>
-  insert(notification: Notification): Promise<Notification>
-  update(notification: Notification): Promise<void>
-  deleteById(id: string): Promise<void>
+  getBydId(botId: string, id: string): Promise<Notification>
+  getAll(botId: string, options?: DefaultGetOptions): Promise<Notification[]>
+  insert(botId: string, notification: Notification): Promise<Notification>
+  update(botId: string, notification: Notification): Promise<void>
+  deleteById(botId: string, id: string): Promise<void>
 }
 
 @injectable()
@@ -36,32 +37,37 @@ export class KnexNotificationsRepository implements NotificationsRepository {
 
   constructor(@inject(TYPES.Database) private database: Database) {}
 
-  async getBydId(id: string): Promise<Notification> {
+  async getBydId(botId: string, id: string): Promise<Notification> {
     return (await this.database
       .knex(this.TABLE_NAME)
       .select('*')
-      .where({ id })
+      .where({ botId })
+      .andWhere({ id })
       .then()) as Notification
   }
 
-  async getAll(options?: DefaultGetOptions): Promise<Notification[]> {
+  async getAll(botId: string, options?: DefaultGetOptions): Promise<Notification[]> {
     let query = this.database.knex(this.TABLE_NAME).select('*')
-    // Knex cannot chain "where" clause like "orderBy". They must be chained with "andWhere" or "orWhere"
-    if (options && options.archived && options.read) {
-      query = query.where('archived', options.archived).andWhere('read', options.read)
-    } else if (options && options.archived) {
-      query = query.where('archived', options.archived)
-    } else if (options && options.read) {
-      query = query.where('read', options.read)
+    query = query.where({ botId })
+
+    const { archived, read } = options!
+
+    if (archived) {
+      query = query.andWhere('archived', archived)
+    }
+    if (read) {
+      query = query.andWhere('read', read)
     }
     query.limit(250)
 
     return (await query.then()) as Notification[]
   }
 
-  async insert(notification: Notification): Promise<Notification> {
+  async insert(botId: string, notification: Notification): Promise<Notification> {
+    notification.botId = botId
     return (await this.database.knex.insertAndRetrieve(this.TABLE_NAME, notification, [
       'id',
+      'botId',
       'message',
       'level',
       'module_id',
@@ -74,17 +80,20 @@ export class KnexNotificationsRepository implements NotificationsRepository {
     ])) as Notification
   }
 
-  async update(notification: Notification): Promise<void> {
+  async update(botId: string, notification: Notification): Promise<void> {
     await this.database
       .knex(this.TABLE_NAME)
+      .where({ botId })
+      .andWhere({ id: notification.id })
       .update(notification)
       .then()
   }
 
-  async deleteById(id: string): Promise<void> {
+  async deleteById(botId: string, id: string): Promise<void> {
     await this.database
       .knex(this.TABLE_NAME)
-      .where({ id })
+      .where({ botId })
+      .andWhere({ id })
       .del()
       .then()
   }

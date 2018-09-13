@@ -12,6 +12,7 @@ import { FlowView } from '../services/dialog'
 import FlowService from '../services/dialog/flow/service'
 import { LogsService } from '../services/logs/service'
 import MediaService from '../services/media'
+import { NotificationsService } from '../services/notification/service'
 
 import { CustomRouter } from '.'
 
@@ -24,6 +25,7 @@ export class BotsRouter implements CustomRouter {
   private flowService: FlowService
   private mediaService: MediaService
   private logsService: LogsService
+  private notificationService: NotificationsService
 
   constructor(args: {
     actionService: ActionService
@@ -32,6 +34,7 @@ export class BotsRouter implements CustomRouter {
     flowService: FlowService
     mediaService: MediaService
     logsService: LogsService
+    notificationService: NotificationsService
   }) {
     this.actionService = args.actionService
     this.botRepository = args.botRepository
@@ -39,6 +42,7 @@ export class BotsRouter implements CustomRouter {
     this.flowService = args.flowService
     this.mediaService = args.mediaService
     this.logsService = args.logsService
+    this.notificationService = args.notificationService
     this.router = Router({ mergeParams: true })
     this.setupRoutes()
   }
@@ -192,7 +196,13 @@ export class BotsRouter implements CustomRouter {
       const limit = req.query.limit
       const botId = req.params.botId
       const logs = await this.logsService.getLogsForBot(botId, limit)
-      res.send(logs)
+      res.json(logs)
+    })
+
+    this.router.get('/notifications', async (req, res) => {
+      const botId = req.params.botId
+      const notifications = await this.notificationService.forBot(botId)
+      res.json(notifications)
     })
   }
 }
