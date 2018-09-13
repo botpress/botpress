@@ -1,3 +1,4 @@
+import { Logger } from 'botpress-module-sdk'
 import { inject, injectable } from 'inversify'
 
 import Database from '../database'
@@ -42,20 +43,27 @@ export class KnexNotificationsRepository implements NotificationsRepository {
       .knex(this.TABLE_NAME)
       .select('*')
       .where({ id })
-      .then()) as Notification
+      .limit(1)
+      .get(0)
+      .then(res => {
+        if (!res) {
+          throw new Error('Entity not found')
+        }
+        return res
+      })) as Notification
   }
 
   async getAll(botId: string, options?: DefaultGetOptions): Promise<Notification[]> {
-    let query = this.database.knex(this.TABLE_NAME).select('*')
-    query = query.where({ botId })
+    const query = this.database.knex(this.TABLE_NAME).select('*')
+    query.where({ botId })
 
     const { archived, read } = options!
 
     if (archived) {
-      query = query.andWhere('archived', archived)
+      query.andWhere('archived', archived)
     }
     if (read) {
-      query = query.andWhere('read', read)
+      query.andWhere('read', read)
     }
     query.limit(250)
 
@@ -82,7 +90,6 @@ export class KnexNotificationsRepository implements NotificationsRepository {
   async update(notification: Notification): Promise<void> {
     await this.database
       .knex(this.TABLE_NAME)
-      .where({ id: notification.id })
       .update(notification)
       .then()
   }

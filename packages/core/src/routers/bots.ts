@@ -196,13 +196,38 @@ export class BotsRouter implements CustomRouter {
       const limit = req.query.limit
       const botId = req.params.botId
       const logs = await this.logsService.getLogsForBot(botId, limit)
-      res.json(logs)
+      res.send(logs)
     })
 
     this.router.get('/notifications', async (req, res) => {
       const botId = req.params.botId
-      const notifications = await this.notificationService.forBot(botId)
-      res.json(notifications)
+      const notifications = await this.notificationService.getInbox(botId)
+      res.send(notifications)
+    })
+
+    this.router.get('/notifications/archive', async (req, res) => {
+      const botId = req.params.botId
+      const notifications = await this.notificationService.getArchived(botId)
+      res.send(notifications)
+    })
+
+    this.router.post('/notifications/:notificationId?/read', async (req, res) => {
+      const notificationId = req.params.notificationId
+      const botId = req.params.botId
+
+      notificationId
+        ? await this.notificationService.markAsRead(notificationId)
+        : await this.notificationService.markAllAsRead(botId)
+      res.status(201)
+    })
+
+    this.router.post('/notifications/:notificationId?/archive', async (req, res) => {
+      const notificationId = req.params.notificationId
+      const botId = req.params.botId
+      notificationId
+        ? await this.notificationService.archive(notificationId)
+        : await this.notificationService.archiveAll(botId)
+      res.status(201)
     })
   }
 }

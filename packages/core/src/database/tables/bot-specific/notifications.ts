@@ -5,9 +5,12 @@ export class NotificationsTable extends Table {
 
   async bootstrap() {
     let created = false
-    await this.knex.createTableIfNotExists('notifications', table => {
+    await this.knex.createTableIfNotExists('srv_notifications', table => {
       table.uuid('id').primary()
-      table.string('botId')
+      table
+        .string('botId')
+        .references('id')
+        .inTable('srv_bots')
       table.string('message')
       table.string('level')
       table.string('module_id')
@@ -17,11 +20,6 @@ export class NotificationsTable extends Table {
       table.timestamp('created_on')
       table.boolean('read')
       table.boolean('archived')
-
-      table
-        .foreign('botId')
-        .references('id')
-        .inTable('srv_bots')
       created = true
     })
     return created
