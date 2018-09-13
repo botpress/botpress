@@ -16,7 +16,7 @@ export class NotificationsService {
 
   async archive(notification: Notification): Promise<void> {
     notification.archived = true
-    await this.notificationsRepository.update(this.botId, notification)
+    await this.notificationsRepository.update(notification)
   }
 
   async archiveAll() {
@@ -34,7 +34,7 @@ export class NotificationsService {
 
   async markAsRead(notification: Notification): Promise<void> {
     notification.read = true
-    await this.notificationsRepository.update(this.botId, notification)
+    await this.notificationsRepository.update(notification)
   }
 
   async markAllAsRead(): Promise<void> {
