@@ -95,11 +95,11 @@ export class HookService {
       vm.run(hookScript.file, hookScript.path)
 
       const botId = _.get(hookScript.hook.args, 'event.botId')
-      const message = `Executed '${hookScript.path}' on '${hookScript.hook}'`
+      const message = `Executed '${hookScript.path}' on '${hookScript.hook.folder}'`
       botId ? this.logger.forBot(botId).debug(message) : this.logger.debug(message)
     } catch (err) {
       const botId = _.get(hookScript.hook.args, 'event.botId')
-      const message = `Could not execute '${hookScript.path}' on '${hookScript.hook}'`
+      const message = `Could not execute '${hookScript.path}' on '${hookScript.hook.folder}'`
       botId ? this.logger.forBot(botId).error(message) : this.logger.error(message)
     }
   }
