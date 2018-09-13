@@ -17,7 +17,6 @@ export class Notification {
 
   public id?: string
   public created_on?: string
-  public modified_on?: string
   public read = false
   public archived = false
 }
@@ -27,7 +26,7 @@ type DefaultGetOptions = { archived?: boolean; read?: boolean }
 export interface NotificationsRepository {
   getBydId(id: string): Promise<Notification>
   getAll(botId: string, options?: DefaultGetOptions): Promise<Notification[]>
-  insert(botId: string, notification: Notification): Promise<Notification>
+  insert(botId: string, notification: Notification): Promise<void>
   update(notification: Notification): Promise<void>
   deleteById(id: string): Promise<void>
 }
@@ -70,27 +69,32 @@ export class KnexNotificationsRepository implements NotificationsRepository {
     return (await query.then()) as Notification[]
   }
 
-  async insert(botId: string, notification: Notification): Promise<Notification> {
-    notification.botId = botId
-    return (await this.database.knex.insertAndRetrieve(this.TABLE_NAME, notification, [
-      'id',
-      'botId',
-      'message',
-      'level',
-      'module_id',
-      'module_icon',
-      'module_name',
-      'redirect_url',
-      'created_on',
-      'read',
-      'archived'
-    ])) as Notification
+  async insert(botId: string, notification: Notification): Promise<void> {
+    const now = this.database.knex.date.now
+    await this.database
+      .knex(this.TABLE_NAME)
+      .insert({
+        id: notification.id,
+        botId: botId,
+        level: notification.level,
+        message: notification.message,
+        module_id: notification.moduleId,
+        module_name: notification.moduleName,
+        module_icon: notification.moduleIcon,
+        redirect_url: notification.redirectUrl,
+        created_on: now()
+      })
+      .then()
   }
 
   async update(notification: Notification): Promise<void> {
     await this.database
       .knex(this.TABLE_NAME)
-      .update(notification)
+      .update({
+        read: notification.read,
+        archived: notification.archived
+      })
+      .where({ id: notification.id })
       .then()
   }
 

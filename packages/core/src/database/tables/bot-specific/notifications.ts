@@ -6,7 +6,10 @@ export class NotificationsTable extends Table {
   async bootstrap() {
     let created = false
     await this.knex.createTableIfNotExists('srv_notifications', table => {
-      table.uuid('id').primary()
+      table
+        .increments('id')
+        .notNullable()
+        .primary()
       table
         .string('botId')
         .references('id')
@@ -18,8 +21,8 @@ export class NotificationsTable extends Table {
       table.string('module_name')
       table.string('redirect_url')
       table.timestamp('created_on')
-      table.boolean('read')
-      table.boolean('archived')
+      table.boolean('read').defaultTo(false)
+      table.boolean('archived').defaultTo(false)
       created = true
     })
     return created

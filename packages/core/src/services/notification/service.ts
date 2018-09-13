@@ -23,11 +23,9 @@ export class NotificationsService {
     })
   }
 
-  async create(botId: string, notification: Notification): Promise<Notification> {
-    return this.notificationsRepository.insert(botId, notification).then(notification => {
-      this.onNotification && this.onNotification()
-      return notification
-    })
+  async create(botId: string, notification: Notification): Promise<void> {
+    await this.notificationsRepository.insert(botId, notification)
+    this.onNotification && this.onNotification()
   }
 
   async getInbox(botId: string): Promise<Notification[]> {
