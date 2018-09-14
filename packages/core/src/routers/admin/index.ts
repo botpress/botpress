@@ -3,7 +3,7 @@ import { RequestHandler, Router } from 'express'
 import _ from 'lodash'
 
 import { CustomRouter } from '..'
-import AuthService from '../../services/auth/auth-service'
+import AuthService, { TOKEN_AUDIENCE } from '../../services/auth/auth-service'
 import TeamsService from '../../services/auth/teams-service'
 import { checkTokenHeader, loadUser } from '../util'
 
@@ -17,7 +17,7 @@ export class AdminRouter implements CustomRouter {
 
   constructor(logger: Logger, private authService: AuthService, private teamsService: TeamsService) {
     this.router = Router({ mergeParams: true })
-    this.checkTokenHeader = checkTokenHeader(this.authService, 'web-login')
+    this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
     this.loadUser = loadUser(this.authService)
     this.teamsRouter = new TeamsRouter(logger, this.authService, this.teamsService)
 

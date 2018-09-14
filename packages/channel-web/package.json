@@ -64,6 +64,7 @@
   },
   "devDependencies": {
     "@types/bluebird-global": "^3.5.7",
+    "@types/express": "^4.16.0",
     "@types/lodash": "^4.14.116",
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.0",

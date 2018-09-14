@@ -1,5 +1,5 @@
 import { Logger } from 'botpress-module-sdk'
-import { inject, injectable, postConstruct, tagged } from 'inversify'
+import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import minimatch from 'minimatch'
 import path from 'path'

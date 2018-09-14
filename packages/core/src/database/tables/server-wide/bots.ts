@@ -7,12 +7,13 @@ const insertBots = async (knex: ExtendedKnex, tableName: string) => {
   return knex
     .batchInsert(tableName, [
       {
-        id: 123,
-        name: 'Bot bot_123',
+        id: 'bot123',
+        name: 'Bot 123',
         version: '1.0.0',
         description: 'Just a test bot',
         author: 'Botpress',
-        license: 'AGPL-3.0'
+        license: 'AGPL-3.0',
+        team: 1
       }
     ])
     .then()
@@ -24,7 +25,10 @@ export class BotsTable extends Table {
   async bootstrap() {
     return this.knex
       .createTableIfNotExists(this.name, table => {
-        table.increments('id')
+        table
+          .string('id')
+          .notNullable()
+          .unique()
         table.string('name')
         table.string('version')
         table.string('description')

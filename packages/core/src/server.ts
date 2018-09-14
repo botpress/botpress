@@ -71,7 +71,9 @@ export default class HTTPServer {
       flowService,
       mediaService,
       logsService,
-      notificationService
+      notificationService,
+      authService,
+      teamsService
     })
   }
 

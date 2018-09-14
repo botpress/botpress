@@ -19,7 +19,7 @@ const USERS_TABLE = 'auth_users'
 const BOTS_TABLE = 'srv_bots'
 
 @injectable()
-export default class TeamService {
+export default class TeamsService {
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'Auth Teams')
@@ -295,7 +295,7 @@ export default class TeamService {
     return bot
   }
 
-  async getBotTeam(botId: number) {
+  async getBotTeam(botId: string) {
     return this.knex(BOTS_TABLE)
       .select(['team'])
       .where({ id: botId })
@@ -318,14 +318,14 @@ export default class TeamService {
     return { count: bots.length, bots }
   }
 
-  async deleteBot(teamId, botId) {
+  async deleteBot(teamId: number, botId: string) {
     await this.knex(BOTS_TABLE)
       .where({ team: teamId, id: botId })
       .delete()
       .then()
   }
 
-  async getInviteCode(teamId) {
+  async getInviteCode(teamId: number) {
     const team = await this.getTeam({ id: teamId }, ['invite_code'])
 
     if (!team) {

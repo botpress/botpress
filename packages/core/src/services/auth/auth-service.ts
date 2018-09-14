@@ -12,6 +12,7 @@ import { calculateHash, validateHash } from './util'
 
 const USERS_TABLE = 'auth_users'
 const JWT_SECRET = <string>process.env.JWT_SECRET
+export const TOKEN_AUDIENCE = 'web-login'
 
 @injectable()
 export default class AuthService {
@@ -98,7 +99,7 @@ export default class AuthService {
       await this.updateUser(username, { last_ip: ipAddress })
     }
 
-    return this.generateUserToken(userId, 'web-login')
+    return this.generateUserToken(userId, TOKEN_AUDIENCE)
   }
 
   async register(
@@ -116,6 +117,6 @@ export default class AuthService {
       last_ip: ipAddress
     })
 
-    return { userId, token: await this.generateUserToken(userId, 'web-login') }
+    return { userId, token: await this.generateUserToken(userId, TOKEN_AUDIENCE) }
   }
 }

@@ -1,12 +1,14 @@
 import { RouterOptions } from 'botpress-module-sdk'
 import { Serialize } from 'cerialize'
-import { Router } from 'express'
+import { RequestHandler, Router } from 'express'
 import _ from 'lodash'
 import multer from 'multer'
 import path from 'path'
 
 import { BotRepository } from '../repositories'
 import ActionService from '../services/action/action-service'
+import AuthService, { TOKEN_AUDIENCE } from '../services/auth/auth-service'
+import TeamsService from '../services/auth/teams-service'
 import { ContentElement, DefaultSearchParams } from '../services/cms'
 import { CMSService } from '../services/cms/cms-service'
 import { FlowView } from '../services/dialog'
@@ -16,6 +18,7 @@ import MediaService from '../services/media'
 import { NotificationsService } from '../services/notification/service'
 
 import { CustomRouter } from '.'
+import { checkTokenHeader, needPermissions } from './util'
 
 export class BotsRouter implements CustomRouter {
   public readonly router: Router
@@ -27,6 +30,10 @@ export class BotsRouter implements CustomRouter {
   private mediaService: MediaService
   private logsService: LogsService
   private notificationService: NotificationsService
+  private authService: AuthService
+  private teamsService: TeamsService
+  private checkTokenHeader: RequestHandler
+  private needPermissions: (operation: string, resource: string) => RequestHandler
 
   constructor(args: {
     actionService: ActionService
@@ -36,6 +43,8 @@ export class BotsRouter implements CustomRouter {
     mediaService: MediaService
     logsService: LogsService
     notificationService: NotificationsService
+    authService: AuthService
+    teamsService: TeamsService
   }) {
     this.actionService = args.actionService
     this.botRepository = args.botRepository
@@ -44,6 +53,12 @@ export class BotsRouter implements CustomRouter {
     this.mediaService = args.mediaService
     this.logsService = args.logsService
     this.notificationService = args.notificationService
+    this.authService = args.authService
+    this.teamsService = args.teamsService
+
+    this.needPermissions = needPermissions(this.teamsService)
+    this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
+
     this.router = Router({ mergeParams: true })
     this.setupRoutes()
   }
@@ -68,101 +83,141 @@ export class BotsRouter implements CustomRouter {
   }
 
   private setupRoutes() {
-    this.router.get('/', async (req, res) => {
+    this.router.get('/', this.checkTokenHeader, this.needPermissions('read', 'bot.information'), async (req, res) => {
       const botId = req.params.botId
       const bot = await this.botRepository.getBotById(botId)
 
       res.send(bot)
     })
 
-    this.router.get('/middleware', async (req, res) => {
-      const botId = req.params.botId
-      // const middleware = await this.middlewareService.getMiddlewareForBot(botId)
+    this.router.get(
+      '/middleware',
+      this.checkTokenHeader,
+      this.needPermissions('read', 'bot.middleware'),
+      async (req, res) => {
+        const botId = req.params.botId
+        // const middleware = await this.middlewareService.getMiddlewareForBot(botId)
 
-      res.send([])
-    })
+        res.send([])
+      }
+    )
 
-    this.router.post('/middleware', async (req, res) => {
-      const botId = req.params.botId
-      const { middleware } = req.body
-      // await this.middlewareService.setMiddlewareForBot(botId, middleware)
-      // res.send(await this.middlewareService.getMiddlewareForBot(botId))
-    })
+    this.router.post(
+      '/middleware',
+      this.checkTokenHeader,
+      this.needPermissions('write', 'bot.middleware'),
+      async (req, res) => {
+        const botId = req.params.botId
+        const { middleware } = req.body
+        // await this.middlewareService.setMiddlewareForBot(botId, middleware)
+        // res.send(await this.middlewareService.getMiddlewareForBot(botId))
+      }
+    )
 
-    this.router.get('/content/types', async (req, res) => {
-      const botId = req.params.botId
-      const types = await this.cmsService.getAllContentTypes(botId)
+    this.router.get(
+      '/content/types',
+      this.checkTokenHeader,
+      this.needPermissions('read', 'bot.content'),
+      async (req, res) => {
+        const botId = req.params.botId
+        const types = await this.cmsService.getAllContentTypes(botId)
 
-      const response = await Promise.map(types, async type => {
-        const count = await this.cmsService.countContentElementsForContentType(botId, type.id)
-        return {
-          id: type.id,
-          count,
-          title: type.title,
-          schema: {
-            json: type.jsonSchema,
-            ui: type.uiSchema,
+        const response = await Promise.map(types, async type => {
+          const count = await this.cmsService.countContentElementsForContentType(botId, type.id)
+          return {
+            id: type.id,
+            count,
             title: type.title,
-            renderer: type.id
+            schema: {
+              json: type.jsonSchema,
+              ui: type.uiSchema,
+              title: type.title,
+              renderer: type.id
+            }
           }
-        }
-      })
+        })
 
-      res.send(response)
-    })
+        res.send(response)
+      }
+    )
 
-    this.router.get('/content/elements/count', async (req, res) => {
-      const botId = req.params.botId
-      const count = await this.cmsService.countContentElements(botId)
-      res.send({ count })
-    })
+    this.router.get(
+      '/content/elements/count',
+      this.checkTokenHeader,
+      this.needPermissions('read', 'bot.content'),
+      async (req, res) => {
+        const botId = req.params.botId
+        const count = await this.cmsService.countContentElements(botId)
+        res.send({ count })
+      }
+    )
 
-    this.router.get('/content/:contentType?/elements', async (req, res) => {
-      const { botId, contentType } = req.params
-      const query = req.query || {}
+    this.router.get(
+      '/content/:contentType?/elements',
+      this.checkTokenHeader,
+      this.needPermissions('read', 'bot.content'),
+      async (req, res) => {
+        const { botId, contentType } = req.params
+        const query = req.query || {}
 
-      const elements = await this.cmsService.listContentElements(botId, contentType, {
-        ...DefaultSearchParams,
-        count: Number(query.count) || DefaultSearchParams.count,
-        from: Number(query.from) || DefaultSearchParams.from,
-        searchTerm: query.searchTerm || DefaultSearchParams.searchTerm,
-        ids: (query.ids && query.ids.split(',')) || DefaultSearchParams.ids
-      })
+        const elements = await this.cmsService.listContentElements(botId, contentType, {
+          ...DefaultSearchParams,
+          count: Number(query.count) || DefaultSearchParams.count,
+          from: Number(query.from) || DefaultSearchParams.from,
+          searchTerm: query.searchTerm || DefaultSearchParams.searchTerm,
+          ids: (query.ids && query.ids.split(',')) || DefaultSearchParams.ids
+        })
 
-      const augmentedElements = await Promise.map(elements, this.augmentElement)
-      res.send(augmentedElements)
-    })
+        const augmentedElements = await Promise.map(elements, this.augmentElement)
+        res.send(augmentedElements)
+      }
+    )
 
-    this.router.get('/content/:contentType?/elements/count', async (req, res) => {
-      const { botId, contentType } = req.params
-      const count = await this.cmsService.countContentElementsForContentType(botId, contentType)
-      res.send({ count })
-    })
+    this.router.get(
+      '/content/:contentType?/elements/count',
+      this.checkTokenHeader,
+      this.needPermissions('read', 'bot.content'),
+      async (req, res) => {
+        const { botId, contentType } = req.params
+        const count = await this.cmsService.countContentElementsForContentType(botId, contentType)
+        res.send({ count })
+      }
+    )
 
-    this.router.get('/content/elements/:elementId', async (req, res) => {
-      const { botId, elementId } = req.params
-      const element = await this.cmsService.getContentElement(botId, elementId)
-      res.send(await this.augmentElement(element))
-    })
+    this.router.get(
+      '/content/elements/:elementId',
+      this.checkTokenHeader,
+      this.needPermissions('read', 'bot.content'),
+      async (req, res) => {
+        const { botId, elementId } = req.params
+        const element = await this.cmsService.getContentElement(botId, elementId)
+        res.send(await this.augmentElement(element))
+      }
+    )
 
-    this.router.post('/content/:contentType/elements/:elementId?', async (req, res) => {
-      const { botId, contentType, elementId } = req.params
-      const element = await this.cmsService.createOrUpdateContentElement(
-        botId,
-        contentType,
-        req.body.formData,
-        elementId
-      )
-      res.send(element)
-    })
+    this.router.post(
+      '/content/:contentType/elements/:elementId?',
+      this.checkTokenHeader,
+      this.needPermissions('write', 'bot.content'),
+      async (req, res) => {
+        const { botId, contentType, elementId } = req.params
+        const element = await this.cmsService.createOrUpdateContentElement(
+          botId,
+          contentType,
+          req.body.formData,
+          elementId
+        )
+        res.send(element)
+      }
+    )
 
-    this.router.get('/flows', async (req, res) => {
+    this.router.get('/flows', this.checkTokenHeader, this.needPermissions('read', 'bot.flows'), async (req, res) => {
       const botId = req.params.botId
       const flows = await this.flowService.loadAll(botId)
       res.send(flows)
     })
 
-    this.router.post('/flows', async (req, res) => {
+    this.router.post('/flows', this.checkTokenHeader, this.needPermissions('write', 'bot.flows'), async (req, res) => {
       const botId = req.params.botId
       const flowViews = <FlowView[]>req.body
 
@@ -170,7 +225,7 @@ export class BotsRouter implements CustomRouter {
       res.sendStatus(201)
     })
 
-    this.router.get('/actions', async (req, res) => {
+    this.router.get('/actions', this.checkTokenHeader, this.needPermissions('read', 'bot.flows'), async (req, res) => {
       const botId = req.params.botId
       const actions = await this.actionService.forBot(botId).listActions({ includeMetadata: true })
       res.send(Serialize(actions))
@@ -200,14 +255,20 @@ export class BotsRouter implements CustomRouter {
         .send(contents)
     })
 
-    this.router.post('/media', mediaUploadMulter.single('file'), async (req, res) => {
-      const botId = req.params.botId
-      const fileName = await this.mediaService.saveFile(botId, req['file'].originalname, req['file'].buffer)
-      const url = `/api/v1/bots/${botId}/media/${fileName}`
-      res.json({ url })
-    })
+    this.router.post(
+      '/media',
+      this.checkTokenHeader,
+      this.needPermissions('write', 'bot.media'),
+      mediaUploadMulter.single('file'),
+      async (req, res) => {
+        const botId = req.params.botId
+        const fileName = await this.mediaService.saveFile(botId, req['file'].originalname, req['file'].buffer)
+        const url = `/api/v1/bots/${botId}/media/${fileName}`
+        res.json({ url })
+      }
+    )
 
-    this.router.get('/logs', async (req, res) => {
+    this.router.get('/logs', this.checkTokenHeader, this.needPermissions('read', 'bot.logs'), async (req, res) => {
       const limit = req.query.limit
       const botId = req.params.botId
       const logs = await this.logsService.getLogsForBot(botId, limit)

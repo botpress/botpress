@@ -54,8 +54,8 @@ const event = (eventEngine: EventEngine): EventAPI => {
 
 const dialog = (dialogEngine: DialogEngine, sessionService: SessionService): DialogAPI => {
   return {
-    async processMessage(botId: string, event: BotpressEvent): Promise<void> {
-      await dialogEngine.processEvent(botId, botId, event)
+    async processMessage(userId: string, event: BotpressEvent): Promise<void> {
+      await dialogEngine.processEvent(event.botId, userId, event)
     },
     async deleteSession(userId: string): Promise<void> {
       await sessionService.deleteSession(userId)

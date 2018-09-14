@@ -5,7 +5,7 @@ import { Logger } from 'botpress-module-sdk'
 import { Request, RequestHandler, Router } from 'express'
 
 import { RequestWithUser } from '../misc/interfaces'
-import AuthService from '../services/auth/auth-service'
+import AuthService, { TOKEN_AUDIENCE } from '../services/auth/auth-service'
 import TeamsService from '../services/auth/teams-service'
 
 import { CustomRouter } from '.'
@@ -25,7 +25,7 @@ export class AuthRouter implements CustomRouter {
   constructor(logger: Logger, private authService: AuthService, private teamsService: TeamsService) {
     this.router = Router({ mergeParams: true })
     this.asyncMiddleware = asyncMiddleware({ logger })
-    this.checkTokenHeader = checkTokenHeader(this.authService, 'web-login')
+    this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
     this.loadUser = loadUser(this.authService)
 
     this.setupRoutes()
