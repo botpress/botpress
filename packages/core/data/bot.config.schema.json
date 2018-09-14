@@ -11,6 +11,17 @@
                 "timeoutInterval"
             ],
             "type": "object"
+        },
+        "LogsConfig": {
+            "properties": {
+                "expiration": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "expiration"
+            ],
+            "type": "object"
         }
     },
     "properties": {
@@ -63,6 +74,9 @@
         },
         "license": {
             "type": "string"
+        },
+        "logs": {
+            "$ref": "#/definitions/LogsConfig"
         },
         "name": {
             "type": "string"

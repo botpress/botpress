@@ -20,6 +20,11 @@ export interface DialogConfig {
   timeoutInterval: string
 }
 
+export interface LogsConfig {
+  expiration: string
+  janitorInterval: string
+}
+
 export type BotpressConfig = {
   httpServer: {
     host?: string
@@ -32,4 +37,5 @@ export type BotpressConfig = {
     enabled: boolean | BotpressCondition
   }
   dialog: DialogConfig
+  logs: LogsConfig
 }

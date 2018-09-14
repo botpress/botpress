@@ -11,6 +11,7 @@ export namespace Level {
 
 export class LogEntry {
   constructor(
+    public botId: string,
     public level: string,
     public scope: string,
     public message: string,

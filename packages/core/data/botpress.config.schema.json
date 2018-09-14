@@ -60,6 +60,21 @@
                 "timeoutInterval"
             ],
             "type": "object"
+        },
+        "LogsConfig": {
+            "properties": {
+                "expiration": {
+                    "type": "string"
+                },
+                "janitorInterval": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "expiration",
+                "janitorInterval"
+            ],
+            "type": "object"
         }
     },
     "properties": {
@@ -109,13 +124,17 @@
                 "port"
             ],
             "type": "object"
+        },
+        "logs": {
+            "$ref": "#/definitions/LogsConfig"
         }
     },
     "required": [
         "database",
         "dialog",
         "ghost",
-        "httpServer"
+        "httpServer",
+        "logs"
     ],
     "type": "object"
 }

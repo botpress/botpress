@@ -169,6 +169,16 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
     res.send({ hidden: true })
   })
 
+  app.get(
+    '/api/logs',
+    proxy(core_api_url, {
+      proxyReqPathResolver: (req, res) => {
+        const limit = req.query.limit
+        return limit ? `${BOT_PATH}/logs?limit=${limit}` : `${BOT_PATH}/logs`
+      }
+    })
+  )
+
   /********
   Modules
 *********/

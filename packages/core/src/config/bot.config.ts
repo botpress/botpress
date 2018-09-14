@@ -1,3 +1,7 @@
+export interface LogsConfig {
+  expiration: string
+}
+
 export interface DialogConfig {
   timeoutInterval: string
 }
@@ -16,4 +20,5 @@ export type BotConfig = {
     outgoingMiddleware: string[]
   }
   dialog?: DialogConfig
+  logs?: LogsConfig
 }

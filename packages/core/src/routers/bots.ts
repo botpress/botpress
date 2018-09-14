@@ -10,6 +10,7 @@ import { DefaultSearchParams } from '../services/cms'
 import { CMSService } from '../services/cms/cms-service'
 import { FlowView } from '../services/dialog'
 import FlowService from '../services/dialog/flow/service'
+import { LogsService } from '../services/logs/service'
 import MediaService from '../services/media'
 
 import { CustomRouter } from '.'
@@ -22,6 +23,7 @@ export class BotsRouter implements CustomRouter {
   private cmsService: CMSService
   private flowService: FlowService
   private mediaService: MediaService
+  private logsService: LogsService
 
   constructor(args: {
     actionService: ActionService
@@ -29,12 +31,14 @@ export class BotsRouter implements CustomRouter {
     cmsService: CMSService
     flowService: FlowService
     mediaService: MediaService
+    logsService: LogsService
   }) {
     this.actionService = args.actionService
     this.botRepository = args.botRepository
     this.cmsService = args.cmsService
     this.flowService = args.flowService
     this.mediaService = args.mediaService
+    this.logsService = args.logsService
     this.router = Router({ mergeParams: true })
     this.setupRoutes()
   }
@@ -182,6 +186,13 @@ export class BotsRouter implements CustomRouter {
       const fileName = await this.mediaService.saveFile(botId, req['file'].originalname, req['file'].buffer)
       const url = `/api/v1/bots/${botId}/media/${fileName}`
       res.json({ url })
+    })
+
+    this.router.get('/logs', async (req, res) => {
+      const limit = req.query.limit
+      const botId = req.params.botId
+      const logs = await this.logsService.getLogsForBot(botId, limit)
+      res.send(logs)
     })
   }
 }

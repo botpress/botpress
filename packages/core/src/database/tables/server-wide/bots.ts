@@ -1,6 +1,6 @@
 import { Table } from '../../interfaces'
 
-export default class BotsTable extends Table {
+export class BotsTable extends Table {
   name: string = 'srv_bots'
 
   async bootstrap() {
