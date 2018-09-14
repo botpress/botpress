@@ -146,7 +146,7 @@ createDatabaseSuite('GhostDB Driver', function(database: Database) {
   describe('deleteRevisions', () => {
     it('no revisions', async () => {
       await driver.upsertFile('/root1/a.txt', '...', false)
-      await driver.deleteRevision('/root1/a.txt', 'anything')
+      await expectAsync(driver.deleteRevision('/root1/a.txt', 'anything'), m => m.toBeDefined())
     })
 
     it('a lot of revisions', async () => {
