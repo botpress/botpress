@@ -5,7 +5,7 @@ import { Notification, NotificationsRepository } from '../../repositories'
 
 @injectable()
 export class NotificationsService {
-  onNotification!: () => void | undefined
+  onNotification!: (() => void | undefined) | undefined
 
   constructor(@inject(TYPES.NotificationsRepository) private notificationsRepository: NotificationsRepository) {}
 
@@ -40,7 +40,7 @@ export class NotificationsService {
 
   async markAllAsRead(botId: string): Promise<void> {
     const notifications = await this.notificationsRepository.getAll(botId, { archived: false, read: false })
-    await Promise.mapSeries(notifications, notification => {
+    await Promise.each(notifications, notification => {
       notification.read = true
       this.notificationsRepository.update(notification)
     })

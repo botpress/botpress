@@ -161,8 +161,8 @@ export class Botpress {
 
   private formatError(err: ProcessingError) {
     return `Error processing "${err.instruction}"
-    Err: ${err.message}
-    Flow: ${err.flowName}
-    Node: ${err.nodeName}`
+Err: ${err.message}
+Flow: ${err.flowName}
+Node: ${err.nodeName}`
   }
 }

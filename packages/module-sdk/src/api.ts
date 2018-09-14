@@ -22,7 +22,7 @@ export interface DialogAPI {
 }
 
 export interface Logger {
-  forBot(botId: string): Logger
+  forBot(botId: string): this
   debug(message: string, metadata?: any): void
   info(message: string, metadata?: any): void
   warn(message: string, metadata?: any): void

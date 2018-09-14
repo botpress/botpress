@@ -1,4 +1,3 @@
-import { Logger } from 'botpress-module-sdk'
 import { inject, injectable } from 'inversify'
 
 import Database from '../database'
@@ -56,35 +55,32 @@ export class KnexNotificationsRepository implements NotificationsRepository {
     const query = this.database.knex(this.TABLE_NAME).select('*')
     query.where({ botId })
 
-    const { archived, read } = options!
+    if (options && options.archived) {
+      query.andWhere('archived', options.archived)
+    }
 
-    if (archived) {
-      query.andWhere('archived', archived)
+    if (options && options.read) {
+      query.andWhere('read', options.read)
     }
-    if (read) {
-      query.andWhere('read', read)
-    }
+
     query.limit(250)
 
-    return (await query.then()) as Notification[]
+    return (await query) as Notification[]
   }
 
   async insert(botId: string, notification: Notification): Promise<void> {
     const now = this.database.knex.date.now
-    await this.database
-      .knex(this.TABLE_NAME)
-      .insert({
-        id: notification.id,
-        botId: botId,
-        level: notification.level,
-        message: notification.message,
-        module_id: notification.moduleId,
-        module_name: notification.moduleName,
-        module_icon: notification.moduleIcon,
-        redirect_url: notification.redirectUrl,
-        created_on: now()
-      })
-      .then()
+    await this.database.knex(this.TABLE_NAME).insert({
+      id: notification.id,
+      botId: botId,
+      level: notification.level,
+      message: notification.message,
+      module_id: notification.moduleId,
+      module_name: notification.moduleName,
+      module_icon: notification.moduleIcon,
+      redirect_url: notification.redirectUrl,
+      created_on: now()
+    })
   }
 
   async update(notification: Notification): Promise<void> {
@@ -95,7 +91,6 @@ export class KnexNotificationsRepository implements NotificationsRepository {
         archived: notification.archived
       })
       .where({ id: notification.id })
-      .then()
   }
 
   async deleteById(id: string): Promise<void> {
@@ -103,6 +98,5 @@ export class KnexNotificationsRepository implements NotificationsRepository {
       .knex(this.TABLE_NAME)
       .where({ id })
       .del()
-      .then()
   }
 }
