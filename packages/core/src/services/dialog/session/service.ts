@@ -2,7 +2,7 @@ import { BotpressEvent } from 'botpress-module-sdk'
 import { inject, injectable } from 'inversify'
 
 import { TYPES } from '../../../misc/types'
-import { DialogContext, DialogSession, SessionRepository } from '../../../repositories/session-repository'
+import { DialogContext, DialogSession, SessionRepository } from '../../../repositories'
 
 @injectable()
 export class SessionService {

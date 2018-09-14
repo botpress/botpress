@@ -24,6 +24,7 @@ import { LogsJanitor } from './logs/janitor'
 import { LogsService } from './logs/service'
 import MediaService from './media'
 import { EventEngine } from './middleware/event-engine'
+import { NotificationsService } from './notification/service'
 import { Queue } from './queue'
 import MemoryQueue from './queue/memory-queue'
 import RealtimeService from './realtime'
@@ -135,5 +136,9 @@ export const ServicesContainerModule = new ContainerModule((bind: interfaces.Bin
 
   bind<LogsService>(TYPES.LogsService)
     .to(LogsService)
+    .inSingletonScope()
+
+  bind<NotificationsService>(TYPES.NotificationsService)
+    .to(NotificationsService)
     .inSingletonScope()
 })

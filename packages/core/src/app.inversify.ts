@@ -9,7 +9,6 @@ import { Botpress } from './botpress'
 import { ConfigProvider, GhostConfigProvider } from './config/config-loader'
 import { DatabaseContainerModule } from './database/database.inversify'
 
-import Database from './database'
 import { LoggerPersister, LoggerProvider, PersistedConsoleLogger } from './logger'
 import { applyDisposeOnExit } from './misc/inversify'
 import { TYPES } from './misc/types'

@@ -2,7 +2,7 @@ import { ExtendedKnex } from 'botpress-module-sdk'
 
 import { Table } from '../interfaces'
 
-import { DialogSessionTable, GhostFilesTable, GhostRevisionsTable, LogsTable } from './bot-specific'
+import { DialogSessionTable, GhostFilesTable, GhostRevisionsTable, LogsTable, NotificationsTable } from './bot-specific'
 import {
   AuthRolesTable,
   AuthTeamMembersTable,
@@ -27,7 +27,8 @@ const tables: (typeof Table)[] = [
   ChannelUsersTable,
   DialogSessionTable,
   GhostFilesTable,
-  GhostRevisionsTable
+  GhostRevisionsTable,
+  NotificationsTable
 ]
 
 export default <(new (knex: ExtendedKnex) => Table)[]>tables

@@ -48,7 +48,9 @@ const TYPES = {
   LoggerPersister: Symbol.for('LoggerPersister'),
   LogsService: Symbol.for('LogsService'),
   LogsRepository: Symbol.for('LogsRepository'),
-  LogJanitorRunner: Symbol.for('LogJanitorRunner')
+  LogJanitorRunner: Symbol.for('LogJanitorRunner'),
+  NotificationsRepository: Symbol.for('NotificationsRepository'),
+  NotificationsService: Symbol.for('NotificationsService')
 }
 
 export { TYPES }

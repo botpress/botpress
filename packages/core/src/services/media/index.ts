@@ -18,7 +18,7 @@ export default class MediaService {
   ) {}
 
   async saveFile(botId: string, fileName: string, content: Buffer): Promise<string> {
-    this.logger.debug(`Saving "${fileName}"`)
+    this.logger.forBot(botId).debug(`Saving "${fileName}"`)
     fileName = `${safeId(20)}-${path.basename(fileName)}`
     await this.ghost.forBot(botId).upsertFile('media', fileName, content)
     return fileName
