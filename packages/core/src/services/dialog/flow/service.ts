@@ -29,7 +29,7 @@ export default class FlowService {
         return this.parseFlow(botId, flowPath)
       })
     } catch (err) {
-      this.logger.error(`Could not load flows for bot ID "${botId}"`)
+      this.logger.forBot(botId).error(`Could not load flows`)
     }
 
     return []
@@ -56,7 +56,7 @@ export default class FlowService {
       }
     })
 
-    this.logger.debug(`Loaded flow '${flowPath}' for bot '${botId}'`)
+    this.logger.forBot(botId).debug(`Loaded flow '${flowPath}'`)
 
     return {
       name: flowPath,

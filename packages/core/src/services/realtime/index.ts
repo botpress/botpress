@@ -5,7 +5,6 @@ import { Server } from 'http'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import socketio from 'socket.io'
-import socketioJwt from 'socketio-jwt'
 
 import { TYPES } from '../../misc/types'
 

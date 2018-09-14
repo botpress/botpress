@@ -1,5 +1,5 @@
 import { BotpressAPI, BotpressEvent, Logger } from 'botpress-module-sdk'
-import { inject, injectable, postConstruct, tagged } from 'inversify'
+import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import { NodeVM } from 'vm2'
 
@@ -91,11 +91,23 @@ export class HookService {
       timeout: hookScript.hook.timeout
     })
 
+    const botId = _.get(hookScript.hook.args, 'event.botId')
+
     try {
       vm.run(hookScript.file, hookScript.path)
-      this.logger.debug(`Executed '${hookScript.path}' on '${hookScript.hook}'`)
+      this.logScriptRun(botId, hookScript.path, hookScript.hook.folder)
     } catch (err) {
-      this.logger.error(`Could not execute '${hookScript.path}' on '${hookScript.hook}'`)
+      this.logScriptError(botId, hookScript.path, hookScript.hook.folder)
     }
+  }
+
+  private logScriptRun(botId, path, folder) {
+    const message = `Executed '${path}' on '${folder}'`
+    botId ? this.logger.forBot(botId).debug(message) : this.logger.debug(message)
+  }
+
+  private logScriptError(botId, path, folder) {
+    const message = `Could not execute '${path}' on '${folder}'`
+    botId ? this.logger.forBot(botId).error(message) : this.logger.error(message)
   }
 }

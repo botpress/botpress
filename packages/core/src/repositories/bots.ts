@@ -3,7 +3,9 @@ import { inject, injectable } from 'inversify'
 import { ConfigProvider } from '../config/config-loader'
 import { TYPES } from '../misc/types'
 
-import { BotRepository } from './bot-repository'
+export interface BotRepository {
+  getBotById(id: string): Promise<any>
+}
 
 @injectable()
 export class GhostBotRepository implements BotRepository {

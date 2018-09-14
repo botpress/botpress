@@ -1,5 +1,6 @@
 import { BotpressAPI, BotpressEvent, ModuleDefinition, WellKnownEventFlags } from 'botpress-module-sdk'
 import { Logger } from 'botpress-module-sdk'
+import { RealTimePayload } from 'botpress-module-sdk/dist/src/realtime'
 import { inject, injectable, tagged } from 'inversify'
 import { Memoize } from 'lodash-decorators'
 import moment from 'moment'
@@ -17,12 +18,13 @@ import { LoggerPersister, LoggerProvider } from './logger'
 import { TYPES } from './misc/types'
 import { ModuleLoader } from './module-loader'
 import HTTPServer from './server'
-import { DialogEngine } from './services/dialog/engine'
+import { DialogEngine, ProcessingError } from './services/dialog/engine'
 import { DialogJanitor } from './services/dialog/janitor'
 import GhostService from './services/ghost/service'
 import { Hooks, HookService } from './services/hook/hook-service'
 import { LogsJanitor } from './services/logs/janitor'
 import { EventEngine } from './services/middleware/event-engine'
+import { NotificationsService } from './services/notification/service'
 import RealtimeService from './services/realtime'
 
 export type StartOptions = {
@@ -55,7 +57,8 @@ export class Botpress {
     @inject(TYPES.LoggerProvider) private loggerProvider: LoggerProvider,
     @inject(TYPES.DialogJanitorRunner) private dialogJanitor: DialogJanitor,
     @inject(TYPES.LogJanitorRunner) private logJanitor: LogsJanitor,
-    @inject(TYPES.LoggerPersister) private loggerPersister: LoggerPersister
+    @inject(TYPES.LoggerPersister) private loggerPersister: LoggerPersister,
+    @inject(TYPES.NotificationsService) private notificationService: NotificationsService
   ) {
     this.version = packageJson.version
     this.botpressPath = path.join(process.cwd(), 'dist')
@@ -101,6 +104,7 @@ export class Botpress {
 
   private async initializeServices() {
     await this.botLoader.loadAllBots()
+
     this.eventEngine.onAfterIncomingMiddleware = async (event: BotpressEvent) => {
       await this.hookService.executeHook(new Hooks.AfterIncomingMiddleware(this.api, event))
       if (!event.hasFlag(WellKnownEventFlags.SKIP_DIALOG_ENGINE)) {
@@ -109,13 +113,18 @@ export class Botpress {
       }
     }
 
-    const flowLoger = await this.loggerProvider('DialogEngine')
+    const flowLogger = await this.loggerProvider('DialogEngine')
     this.dialogEngine.onProcessingError = err => {
-      const message = `Error processing "${err.instruction}"
-Err: ${err.message}
-Flow: ${err.flowName}
-Node: ${err.nodeName}`
-      flowLoger.warn(message)
+      const message = this.formatError(err)
+      flowLogger.forBot(err.botId).warn(message)
+    }
+
+    this.notificationService.onNotification = () => {
+      const payload: RealTimePayload = {
+        eventName: 'notification.new',
+        payload: {} // pass notification here? or just notify the client to fetch the new notifications via the http api?
+      }
+      this.realtimeService.sendToSocket(payload)
     }
 
     await this.logJanitor.start()
@@ -148,5 +157,12 @@ Node: ${err.nodeName}`
 
   private startRealtime() {
     this.realtimeService.installOnHttpServer(this.httpServer.httpServer)
+  }
+
+  private formatError(err: ProcessingError) {
+    return `Error processing "${err.instruction}"
+Err: ${err.message}
+Flow: ${err.flowName}
+Node: ${err.nodeName}`
   }
 }

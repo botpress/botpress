@@ -53,7 +53,7 @@ export class DialogJanitor extends Janitor {
 
       const sessionsIds = await this.sessionService.getStaleSessionsIds(botId, outdatedDate)
       if (sessionsIds.length > 0) {
-        this.logger.debug(`🔎 Found inactive sessions: ${sessionsIds.join(', ')}`)
+        this.logger.forBot(botId).debug(`🔎 Found inactive sessions: ${sessionsIds.join(', ')}`)
       }
 
       Promise.map(sessionsIds, async id => {

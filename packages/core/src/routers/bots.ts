@@ -4,7 +4,7 @@ import { Router } from 'express'
 import multer from 'multer'
 import path from 'path'
 
-import { BotRepository } from '../repositories/bot-repository'
+import { BotRepository, Notification } from '../repositories'
 import ActionService from '../services/action/action-service'
 import { DefaultSearchParams } from '../services/cms'
 import { CMSService } from '../services/cms/cms-service'
@@ -12,6 +12,7 @@ import { FlowView } from '../services/dialog'
 import FlowService from '../services/dialog/flow/service'
 import { LogsService } from '../services/logs/service'
 import MediaService from '../services/media'
+import { NotificationsService } from '../services/notification/service'
 
 import { CustomRouter } from '.'
 
@@ -24,6 +25,7 @@ export class BotsRouter implements CustomRouter {
   private flowService: FlowService
   private mediaService: MediaService
   private logsService: LogsService
+  private notificationService: NotificationsService
 
   constructor(args: {
     actionService: ActionService
@@ -32,6 +34,7 @@ export class BotsRouter implements CustomRouter {
     flowService: FlowService
     mediaService: MediaService
     logsService: LogsService
+    notificationService: NotificationsService
   }) {
     this.actionService = args.actionService
     this.botRepository = args.botRepository
@@ -39,6 +42,7 @@ export class BotsRouter implements CustomRouter {
     this.flowService = args.flowService
     this.mediaService = args.mediaService
     this.logsService = args.logsService
+    this.notificationService = args.notificationService
     this.router = Router({ mergeParams: true })
     this.setupRoutes()
   }
@@ -193,6 +197,37 @@ export class BotsRouter implements CustomRouter {
       const botId = req.params.botId
       const logs = await this.logsService.getLogsForBot(botId, limit)
       res.send(logs)
+    })
+
+    this.router.get('/notifications', async (req, res) => {
+      const botId = req.params.botId
+      const notifications = await this.notificationService.getInbox(botId)
+      res.send(notifications)
+    })
+
+    this.router.get('/notifications/archive', async (req, res) => {
+      const botId = req.params.botId
+      const notifications = await this.notificationService.getArchived(botId)
+      res.send(notifications)
+    })
+
+    this.router.post('/notifications/:notificationId?/read', async (req, res) => {
+      const notificationId = req.params.notificationId
+      const botId = req.params.botId
+
+      notificationId
+        ? await this.notificationService.markAsRead(notificationId)
+        : await this.notificationService.markAllAsRead(botId)
+      res.status(201)
+    })
+
+    this.router.post('/notifications/:notificationId?/archive', async (req, res) => {
+      const notificationId = req.params.notificationId
+      const botId = req.params.botId
+      notificationId
+        ? await this.notificationService.archive(notificationId)
+        : await this.notificationService.archiveAll(botId)
+      res.status(201)
     })
   }
 }

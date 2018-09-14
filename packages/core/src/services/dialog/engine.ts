@@ -3,7 +3,7 @@ import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 
 import { TYPES } from '../../misc/types'
-import { DialogSession } from '../../repositories/session-repository'
+import { DialogSession } from '../../repositories'
 
 import { FlowNavigator, NavigationArgs, NavigationPosition } from './flow/navigator'
 import FlowService from './flow/service'
@@ -16,6 +16,7 @@ import { SessionService } from './session/service'
 export class ProcessingError extends Error {
   constructor(
     message: string,
+    public readonly botId: string,
     public readonly nodeName: string,
     public readonly flowName: string,
     public readonly instruction: string
@@ -120,7 +121,7 @@ export class DialogEngine {
         // TODO: Find a better way to handle this
         queue = this.rebuildQueue(flows, instruction, session)
         await this.updateQueueForSession(queue, session)
-        this.reportProcessingError(err, session, instruction)
+        this.reportProcessingError(botId, err, session, instruction)
         break
       }
     }
@@ -237,11 +238,11 @@ export class DialogEngine {
     return this.flowNavigator.navigate(navigationArgs)
   }
 
-  private reportProcessingError(error: Error, session: DialogSession, instruction: Instruction) {
+  private reportProcessingError(botId: string, error: Error, session: DialogSession, instruction: Instruction) {
     const nodeName = _.get(session, 'context.currentNodeName', 'N/A')
     const flowName = _.get(session, 'context.currentFlowName', 'N/A')
     const instructionDetails = instruction.fn || instruction.type
     this.onProcessingError &&
-      this.onProcessingError(new ProcessingError(error.message, nodeName, flowName, instructionDetails))
+      this.onProcessingError(new ProcessingError(error.message, botId, nodeName, flowName, instructionDetails))
   }
 }
