@@ -83,7 +83,7 @@ export default class FlowService {
       ])
     )
     const pathsToOmit = _.flatten(flowsToSave.map(flow => [flow.flowPath, flow.uiPath]))
-    let flowFiles = await this.ghost.forBot(botId).directoryListing(FLOW_DIR, '.json')
+    let flowFiles = await this.ghost.forBot(botId).directoryListing(FLOW_DIR, '*.json')
     flowFiles = flowFiles.filter(f => pathsToOmit.includes(f)) // TODO FIXME Check this
 
     const flowsDeletePromises = flowFiles.map(filePath => this.ghost.forBot(botId).deleteFile(FLOW_DIR, filePath))

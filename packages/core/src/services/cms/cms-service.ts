@@ -59,7 +59,7 @@ export class CMSService implements IDisposeOnExit {
   }
 
   async loadContentElementsForBot(botId: string): Promise<any[]> {
-    const fileNames = await this.ghost.forBot(botId).directoryListing(this.elementsDir, '.json')
+    const fileNames = await this.ghost.forBot(botId).directoryListing(this.elementsDir, '*.json')
     let contentElements: ContentElement[] = []
 
     for (const fileName of fileNames) {
@@ -82,7 +82,7 @@ export class CMSService implements IDisposeOnExit {
   }
 
   private async loadContentTypesFromFiles(): Promise<void> {
-    const fileNames = await this.ghost.global().directoryListing(this.typesDir, '.js')
+    const fileNames = await this.ghost.global().directoryListing(this.typesDir, '*.js')
 
     const codeFiles = await Promise.map(fileNames, async filename => {
       const content = <string>await this.ghost.global().readFileAsString(this.typesDir, filename)
