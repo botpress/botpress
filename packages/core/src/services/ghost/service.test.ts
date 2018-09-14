@@ -37,7 +37,7 @@ describe('Ghost Service', () => {
       await ghost.global().deleteFile('', '')
       await ghost.global().directoryListing('', '')
       await ghost.global().getPending()
-      await ghost.global().getPendingWithContent({ stringifyBinary: true })
+      await ghost.global().getPendingWithContent()
       await ghost.global().isFullySynced()
       await ghost.global().readFileAsBuffer('', '')
       await ghost.global().sync([''])
