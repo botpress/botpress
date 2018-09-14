@@ -211,16 +211,31 @@ export class ScopedGhostService {
       return {}
     }
 
-    // get pending revisions
-    // get pending revisions with content
-    throw new Error('Not implemented')
-  }
+    const revisions = await this.dbDriver.listRevisions(this.baseDir)
+    const result: GhostPendingRevisions = {}
 
-  async getPendingWithContent(options: { stringifyBinary: boolean }): Promise<GhostPendingRevisionsWithContent> {
-    if (!this.useDbDriver) {
-      return {}
+    for (const revision of revisions) {
+      const path = revision.path.substr(this.baseDir.length + 1)
+      const folder = path.includes('/') ? path.substr(0, path.indexOf('/')) : 'root'
+
+      if (!result[folder]) {
+        result[folder] = []
+      }
+
+      result[folder].push(revision)
     }
 
-    throw new Error('Not implemented')
+    return result
+  }
+
+  async getPendingWithContent(): Promise<GhostPendingRevisionsWithContent> {
+    const revisions = await this.getPending()
+    const result = {}
+    for (const folder in revisions) {
+      result[folder] = await Promise.mapSeries(revisions[folder], async x => {
+        return { ...x, content: await this.dbDriver.readFile(x.path) }
+      })
+    }
+    return result
   }
 }
