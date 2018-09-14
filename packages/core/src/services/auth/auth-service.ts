@@ -10,7 +10,6 @@ import { InvalidCredentialsError } from './errors'
 import resources, { AuthResource } from './resources'
 import { calculateHash, validateHash } from './util'
 
-const AUTH_PROVIDER = 'basic'
 const USERS_TABLE = 'auth_users'
 const JWT_SECRET = <string>process.env.JWT_SECRET
 
@@ -58,21 +57,13 @@ export default class AuthService {
   }
 
   async createUser(user: Partial<AuthUser>) {
-    return this.knex.insertAndRetrieve<number>(USERS_TABLE, {
-      ...user,
-      provider: AUTH_PROVIDER,
-      remote_id: user.username,
-      last_synced_at: this.knex.date.now()
-    })
+    return this.knex.insertAndRetrieve<number>(USERS_TABLE, user)
   }
 
   async updateUser(username: string, userData: Partial<AuthUser>) {
     return this.knex(USERS_TABLE)
       .where({ username })
-      .update({
-        last_synced_at: this.knex.date.now(),
-        ...userData
-      })
+      .update(userData)
       .then()
   }
 

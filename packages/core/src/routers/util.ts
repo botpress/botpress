@@ -1,3 +1,4 @@
+import { checkRule } from '@botpress/util-roles'
 import { Logger } from 'botpress-module-sdk'
 import { NextFunction, Request, Response } from 'express'
 import Joi from 'joi'
@@ -6,6 +7,7 @@ import Joi from 'joi'
 import { RequestWithUser } from '../misc/interfaces'
 import AuthService from '../services/auth/auth-service'
 import { AssertionError, ProcessingError, UnauthorizedAccessError } from '../services/auth/errors'
+import TeamService from '../services/auth/teams-service'
 
 export const asyncMiddleware = ({ logger }: { logger: Logger }) => (
   fn: (req: Request, res: Response, next?: NextFunction) => Promise<any>
@@ -100,6 +102,69 @@ export const loadUser = (authService: AuthService) => async (req: Request, res: 
   (req as RequestWithUser).dbUser = {
     ...dbUser,
     fullName: [dbUser.firstname, dbUser.lastname].filter(Boolean).join(' ')
+  }
+
+  next()
+}
+
+const getParam = (req: Request, name: string, defaultValue?: any) =>
+  req.params[name] || req.body[name] || req.query[name]
+
+class PermissionError extends AssertionError {
+  constructor(message: string) {
+    super('Permission check error: ' + message)
+  }
+}
+
+export const needPermissions = (teamService: TeamService) => (operation: string, resource: string) => async (
+  req: RequestWithUser,
+  res: Response,
+  next: NextFunction
+) => {
+  // TODO FIXME remove this value once the UI actually starts working
+  // with multibots
+  // const BOT_ID = '1'
+
+  const userId = req.user && req.user.id
+
+  console.log('needPermissions', 'user', userId)
+
+  if (userId == undefined) {
+    next(new PermissionError('user is not authenticated'))
+    return
+  }
+
+  const botIdString = getParam(req, 'botId')
+  const botId = botIdString ? parseInt(botIdString, 10) : undefined
+  const teamIdString = getParam(req, 'teamId')
+  let teamId = teamIdString ? parseInt(teamIdString, 10) : undefined
+
+  console.log('needPermissions', 'bot', botId)
+  console.log('needPermissions', 'team', teamId)
+
+  if (botId == undefined && teamId == undefined) {
+    next(new PermissionError('botId or teamId must be present on the request'))
+    return
+  }
+
+  if (teamId == undefined) {
+    teamId = await teamService.getBotTeam(botId!)
+    console.log('needPermissions', 'team2', teamId)
+  }
+
+  if (teamId == undefined) {
+    console.log('needPermissions', 'team3', teamId)
+    next(new PermissionError('botId or teamId must be present on the request'))
+    return
+  }
+
+  const rules = await teamService.getUserPermissions(userId, teamId)
+
+  console.log('needPermissions', 'rules', rules)
+
+  if (!checkRule(rules, operation, resource)) {
+    next(new PermissionError(`user does not have sufficient permissions to ${operation} ${resource}`))
+    return
   }
 
   next()

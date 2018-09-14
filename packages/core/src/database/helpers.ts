@@ -37,12 +37,12 @@ export const patchKnex = (knex: Knex): Knex & KnexExtension => {
     return dateFormat(<Date>colOrDate)
   }
 
-  const createTableIfNotExists = async (tableName: string, cb: KnexCallback) => {
+  const createTableIfNotExists = (tableName: string, cb: KnexCallback) => {
     return knex.schema.hasTable(tableName).then(exists => {
       if (exists) {
-        return
+        return false
       }
-      return knex.schema.createTable(tableName, cb)
+      return knex.schema.createTable(tableName, cb).then(() => true)
     })
   }
 

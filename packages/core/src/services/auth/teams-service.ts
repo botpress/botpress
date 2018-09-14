@@ -89,7 +89,7 @@ export default class TeamService {
     return role.name!
   }
 
-  async getUserPermissions(userId: number, teamId: number) {
+  async getUserPermissions(userId: number, teamId: number): Promise<AuthRule[]> {
     const roleName = await this.getUserRole(userId, teamId)
 
     const role = await this.getRole({ team: teamId, name: roleName }, ['rules'])
@@ -283,8 +283,7 @@ export default class TeamService {
     const id = nanoid(8)
     const bot: Partial<Bot> = {
       team: teamId,
-      name: `Bot ${id}`,
-      public_id: id
+      name: `Bot ${id}`
     }
 
     await this.knex(BOTS_TABLE)
@@ -294,6 +293,18 @@ export default class TeamService {
     // TODO: we also want to create the bot skeleton files now
 
     return bot
+  }
+
+  async getBotTeam(botId: number) {
+    return this.knex(BOTS_TABLE)
+      .select(['team'])
+      .where({ id: botId })
+      .limit(1)
+      .then<Partial<Bot>[]>(res => res)
+      .get(0)
+      .then(bot => {
+        return bot ? bot.team : undefined
+      })
   }
 
   async listBots(teamId: number, offset: number = 0, limit: number = 100) {
