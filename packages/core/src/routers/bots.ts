@@ -1,12 +1,13 @@
 import { RouterOptions } from 'botpress-module-sdk'
 import { Serialize } from 'cerialize'
 import { Router } from 'express'
+import _ from 'lodash'
 import multer from 'multer'
 import path from 'path'
 
 import { BotRepository, Notification } from '../repositories'
 import ActionService from '../services/action/action-service'
-import { DefaultSearchParams } from '../services/cms'
+import { ContentElement, DefaultSearchParams } from '../services/cms'
 import { CMSService } from '../services/cms/cms-service'
 import { FlowView } from '../services/dialog'
 import FlowService from '../services/dialog/flow/service'
@@ -51,6 +52,19 @@ export class BotsRouter implements CustomRouter {
     const router = Router({ mergeParams: true })
     this.router.use('/ext/' + path, router)
     return router
+  }
+
+  private augmentElement = async (element: ContentElement) => {
+    const contentType = await this.cmsService.getContentType(element.contentType)
+    return {
+      ...element,
+      schema: {
+        json: contentType.jsonSchema,
+        ui: contentType.uiSchema,
+        title: contentType.title,
+        renderer: contentType.id
+      }
+    }
   }
 
   private setupRoutes() {
@@ -107,7 +121,7 @@ export class BotsRouter implements CustomRouter {
       const { botId, contentType } = req.params
       const query = req.query || {}
 
-      const types = await this.cmsService.listContentElements(botId, contentType, {
+      const elements = await this.cmsService.listContentElements(botId, contentType, {
         ...DefaultSearchParams,
         count: Number(query.count) || DefaultSearchParams.count,
         from: Number(query.from) || DefaultSearchParams.from,
@@ -115,7 +129,8 @@ export class BotsRouter implements CustomRouter {
         ids: (query.ids && query.ids.split(',')) || DefaultSearchParams.ids
       })
 
-      res.send(types)
+      const augmentedElements = await Promise.map(elements, this.augmentElement)
+      res.send(augmentedElements)
     })
 
     this.router.get('/content/:contentType?/elements/count', async (req, res) => {
@@ -127,7 +142,7 @@ export class BotsRouter implements CustomRouter {
     this.router.get('/content/elements/:elementId', async (req, res) => {
       const { botId, elementId } = req.params
       const element = await this.cmsService.getContentElement(botId, elementId)
-      res.send(element)
+      res.send(await this.augmentElement(element))
     })
 
     this.router.post('/content/:contentType/elements/:elementId?', async (req, res) => {
