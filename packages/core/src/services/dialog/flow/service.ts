@@ -22,7 +22,7 @@ export default class FlowService {
   ) {}
 
   async loadAll(botId: string): Promise<FlowView[]> {
-    const flowsPath = this.ghost.forBot(botId).directoryListing(FLOW_DIR, '.flow.json')
+    const flowsPath = this.ghost.forBot(botId).directoryListing(FLOW_DIR, '*.flow.json')
 
     try {
       return Promise.map(flowsPath, async (flowPath: string) => {

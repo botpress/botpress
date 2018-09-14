@@ -50,7 +50,12 @@ export class DialogEngine {
 
   protected async getOrCreateSession(botId, sessionId, event): Promise<DialogSession> {
     const flows = await this.flowService.loadAll(botId)
-    const defaultFlow = flows.find(f => f.name === DEFAULT_FLOW_NAME)!
+    const defaultFlow = flows.find(f => f.name === DEFAULT_FLOW_NAME)
+
+    if (!defaultFlow) {
+      throw new Error(`Default flow "${DEFAULT_FLOW_NAME}" not found for bot "${botId}"`)
+    }
+
     const entryNodeName = _.get(defaultFlow, 'startNode')!
 
     let session: DialogSession = await this.sessionService.getOrCreateSession(sessionId, botId)

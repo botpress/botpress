@@ -54,7 +54,7 @@ export default class DiskStorageDriver implements StorageDriver {
     }
 
     try {
-      return Promise.fromCallback<string[]>(cb => glob('*/*', { cwd: this.resolvePath(folder) }, cb))
+      return Promise.fromCallback<string[]>(cb => glob('**/*.*', { cwd: this.resolvePath(folder) }, cb))
     } catch (e) {
       throw new VError(e, `[Disk Storage] Error listing directory content for folder "${folder}"`)
     }
