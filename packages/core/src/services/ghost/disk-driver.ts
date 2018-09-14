@@ -6,17 +6,13 @@ import { VError } from 'verror'
 
 import { TYPES } from '../../misc/types'
 
-import { StorageDriver } from '.'
+import { GhostFileRevision, StorageDriver } from '.'
 
 @injectable()
 export default class DiskStorageDriver implements StorageDriver {
   constructor(@inject(TYPES.ProjectLocation) private projectLocation: string) {}
 
   resolvePath = p => path.resolve(this.projectLocation, p)
-
-  listRevisionIds(pathpathPrefix: string): Promise<string[]> {
-    throw new Error('Method not implemented.')
-  }
 
   async upsertFile(filePath: string, content: string | Buffer): Promise<void>
   async upsertFile(filePath: string, content: string | Buffer, recordRevision: boolean = false): Promise<void> {
@@ -62,5 +58,13 @@ export default class DiskStorageDriver implements StorageDriver {
     } catch (e) {
       throw new VError(e, `[Disk Storage] Error listing directory content for folder "${folder}"`)
     }
+  }
+
+  async deleteRevision(filePath: string, revision: string): Promise<void> {
+    throw new Error('Method not implemented.')
+  }
+
+  listRevisions(pathpathPrefix: string): Promise<GhostFileRevision[]> {
+    throw new Error('Method not implemented.')
   }
 }

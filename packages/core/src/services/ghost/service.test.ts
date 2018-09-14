@@ -4,7 +4,7 @@ import 'reflect-metadata'
 
 import { createSpyObject, MockObject } from '../../misc/utils'
 
-import { ObjectCache } from '.'
+import { GhostFileRevision, ObjectCache } from '.'
 import DBStorageDriver from './db-driver'
 import DiskStorageDriver from './disk-driver'
 import Ghost from './service'
@@ -85,7 +85,7 @@ describe('Ghost Service', () => {
       const json = `{ "name": "test" }`
       cache.has.mockReturnValue(false)
 
-      diskDriver.listRevisionIds.mockReturnValue([])
+      diskDriver.listRevisions.mockReturnValue([])
       diskDriver.readFile.mockReturnValue(json)
 
       await ghost.global().readFileAsBuffer('test', 'a.json')
@@ -98,7 +98,7 @@ describe('Ghost Service', () => {
     })
 
     it('Never has any pending revisions', async () => {
-      dbDriver.listRevisionIds.mockReturnValue(['abc']) // Even if DB driver says there are some revisions
+      dbDriver.listRevisions.mockReturnValue([{ file_path: 'abc', revision: 'rev' }]) // Even if DB driver says there are some revisions
       await ghost.forBot(BOT_ID).upsertFile('test', 'a.json', 'Hello') // And that we modify a file
 
       const revisions = await ghost.global().getPending()
@@ -166,8 +166,14 @@ describe('Ghost Service', () => {
 
     describe('sync', async () => {
       it('if disk is not up to date, mark as dirty and dont sync disk files', async () => {
-        dbDriver.listRevisionIds.mockReturnValue(['1', '2', '3'])
-        diskDriver.listRevisionIds.mockReturnValue(['1', '2']) // missing revision "3"
+        const buildRev = n =>
+          <GhostFileRevision>{
+            path: 'file',
+            revision: n
+          }
+
+        dbDriver.listRevisions.mockReturnValue(['1', '2', '3'].map(buildRev))
+        diskDriver.listRevisions.mockReturnValue(['1', '2'].map(buildRev)) // missing revision "3"
 
         await ghost.global().sync(['test'])
 
@@ -181,23 +187,29 @@ describe('Ghost Service', () => {
         expect(dbDriver.upsertFile).not.toHaveBeenCalled()
       })
       it('if disk is up to date, sync disk files', async () => {
-        dbDriver.listRevisionIds.mockReturnValue(['1', '2', '3'])
-        diskDriver.listRevisionIds.mockReturnValue(['1', '2', '3']) // All synced!
+        const buildRev = n =>
+          <GhostFileRevision>{
+            path: 'file',
+            revision: n
+          }
+
+        dbDriver.listRevisions.mockReturnValue(['1', '2', '3'].map(buildRev))
+        diskDriver.listRevisions.mockReturnValue(['1', '2', '3'].map(buildRev)) // All synced!
         diskDriver.readFile.mockReturnValueOnce('FILE A CONTENT')
         diskDriver.readFile.mockReturnValueOnce('FILE D CONTENT')
 
         dbDriver.directoryListing.mockReturnValue(['test/a.json', 'test/c.json'])
         diskDriver.directoryListing.mockReturnValue(['test/a.json', 'test/d.json'])
 
-        dbDriver.deleteRevisions.mockImplementation(() => {
-          dbDriver.listRevisionIds.mockReset()
-          dbDriver.listRevisionIds.mockReturnValue([])
+        dbDriver.deleteRevision.mockImplementation(() => {
+          dbDriver.listRevisions.mockReset()
+          dbDriver.listRevisions.mockReturnValue([])
         })
 
         await ghost.global().sync(['test'])
 
         // Deleted revisions
-        expect(dbDriver.deleteRevisions).toHaveBeenCalledWith(['1', '2', '3'])
+        expect(dbDriver.deleteRevision).toHaveBeenCalledTimes(3)
 
         expect(dbDriver.upsertFile).toHaveBeenCalledTimes(2)
 

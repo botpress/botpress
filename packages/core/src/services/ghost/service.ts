@@ -113,10 +113,10 @@ export class ScopedGhostService {
       return
     }
 
-    const diskRevs = await this.diskDriver.listRevisionIds(this.baseDir)
-    const dbRevs = await this.dbDriver.listRevisionIds(this.baseDir)
-    const syncedRevs = _.union(diskRevs, dbRevs)
-    await this.dbDriver.deleteRevisions(syncedRevs)
+    const diskRevs = await this.diskDriver.listRevisions(this.baseDir)
+    const dbRevs = await this.dbDriver.listRevisions(this.baseDir)
+    const syncedRevs = _.unionBy(diskRevs, dbRevs, x => `${x.path} | ${x.revision}`)
+    await Promise.each(syncedRevs, rev => this.dbDriver.deleteRevision(rev.path, rev.revision))
 
     if (!(await this.isFullySynced())) {
       this.logger.warn(`Found unsynced file changes in "${this.baseDir}"`)
@@ -147,7 +147,7 @@ export class ScopedGhostService {
       return true
     }
 
-    const revisions = await this.dbDriver.listRevisionIds(this.baseDir)
+    const revisions = await this.dbDriver.listRevisions(this.baseDir)
     return revisions.length === 0
   }
 

@@ -1,12 +1,11 @@
-import glob from 'glob'
 import { inject, injectable } from 'inversify'
-import path from 'path'
+import nanoid from 'nanoid'
 import { VError } from 'verror'
 
 import Database from '../../database'
 import { TYPES } from '../../misc/types'
 
-import { StorageDriver } from '.'
+import { GhostFileRevision, StorageDriver } from '.'
 
 @injectable()
 export default class DBStorageDriver implements StorageDriver {
@@ -16,23 +15,65 @@ export default class DBStorageDriver implements StorageDriver {
   async upsertFile(filePath: string, content: string | Buffer): Promise<void>
   async upsertFile(filePath: string, content: string | Buffer, recordRevision: boolean = true): Promise<void> {
     try {
-      const folder = path.dirname(filePath)
-      const fileName = path.basename(filePath)
-      this.database.knex('').where({ folder, file: fileName }) // TODO IMPL
+      let sql
+
+      if (this.database.knex.isLite) {
+        sql = `
+        INSERT OR REPLACE INTO :tableName: (:keyCol:, :valueCol:, deleted, :modifiedOnCol:)
+        VALUES (:key, :value, false, :now)
+        `
+      } else {
+        sql = `
+        INSERT INTO :tableName: (:keyCol:, :valueCol:, deleted, :modifiedOnCol:)
+        VALUES (:key, :value, false, :now)
+        ON CONFLICT (:keyCol:) DO UPDATE
+          SET :valueCol: = :value, :modifiedOnCol: = :now
+        `
+      }
+
+      await this.database.knex.raw(sql, {
+        modifiedOnCol: 'modified_on',
+        tableName: 'srv_ghost_files',
+        keyCol: 'file_path',
+        key: filePath,
+        valueCol: 'content',
+        value: content,
+        now: this.database.knex.date.now()
+      })
+
+      if (recordRevision) {
+        await this.database.knex('srv_ghost_index').insert({
+          file_path: filePath,
+          revision: nanoid(8),
+          created_by: 'admin',
+          created_on: this.database.knex.date.now()
+        })
+      }
     } catch (e) {
-      throw new VError(e, `[Disk Storage] Error upserting file "${filePath}"`)
+      throw new VError(e, `[DB Driver] Error upserting file "${filePath}"`)
     }
   }
 
   async readFile(filePath: string): Promise<Buffer> {
     try {
-      return new Buffer('') // TODO IMPL
-    } catch (e) {
-      if (e.code === 'ENOENT') {
-        throw new Error(`[Disk Storage] File "${filePath}" not found`)
+      const file = await this.database
+        .knex('srv_ghost_files')
+        .where({
+          file_path: filePath,
+          deleted: false
+        })
+        .select('content')
+        .limit(1)
+        .get(0)
+        .then()
+
+      if (!file) {
+        throw new Error(`[DB Storage] File "${filePath}" not found`)
       }
 
-      throw new VError(e, `[Disk Storage] Error reading file "${filePath}"`)
+      return new Buffer((<any>file).content as Buffer)
+    } catch (e) {
+      throw new VError(e, `[DB Storage] Error reading file "${filePath}"`)
     }
   }
 
@@ -40,31 +81,84 @@ export default class DBStorageDriver implements StorageDriver {
   async deleteFile(filePath: string): Promise<void>
   async deleteFile(filePath: string, recordRevision: boolean = true): Promise<void> {
     try {
-      // TODO IMPL
+      if (recordRevision) {
+        await this.database
+          .knex('srv_ghost_files')
+          .where({ file_path: filePath })
+          .update({ deleted: true })
+
+        await this.database.knex('srv_ghost_index').insert({
+          file_path: filePath,
+          revision: nanoid(8),
+          created_by: 'admin',
+          created_on: this.database.knex.date.now()
+        })
+      } else {
+        await this.database
+          .knex('srv_ghost_files')
+          .where({ file_path: filePath })
+          .del()
+      }
     } catch (e) {
-      throw new VError(e, `[Disk Storage] Error deleting file "${filePath}"`)
+      throw new VError(e, `[DB Storage] Error deleting file "${filePath}"`)
     }
   }
 
   async directoryListing(folder: string): Promise<string[]> {
     try {
-      // await fse.access(this.resolvePath(directory), fse.constants.R_OK)
-    } catch (e) {
-      throw new VError(e, `[Disk Storage] No read access to directory "${folder}"`)
-    }
+      let query = this.database
+        .knex('srv_ghost_files')
+        .select('file_path')
+        .where({
+          deleted: false
+        })
 
+      if (folder.length) {
+        query = query.andWhere('file_path', 'like', folder + '%')
+      }
+
+      return query.then().map((x: any) => x.file_path)
+    } catch (e) {
+      throw new VError(e, `[DB Storage] Error listing directory content for folder "${folder}"`)
+    }
+  }
+
+  async listRevisions(pathPrefix: string): Promise<GhostFileRevision[]> {
     try {
-      // return Promise.fromCallback<string[]>(cb => glob(pattern, { cwd: this.resolvePath(directory) }, cb))
-      // TODO IMPL
-      return []
+      let query = this.database.knex('srv_ghost_index')
+
+      if (pathPrefix.length) {
+        query = query.where('file_path', 'like', pathPrefix + '%')
+      }
+
+      return await query.then(entries =>
+        entries.map(
+          x =>
+            <GhostFileRevision>{
+              id: x.id,
+              path: x.file_path,
+              revision: x.revision,
+              created_on: new Date(x.created_on),
+              created_by: x.created_by
+            }
+        )
+      )
     } catch (e) {
-      throw new VError(e, `[Disk Storage] Error listing directory content for folder "${folder}"`)
+      throw new VError(e, `[DB Storage] Error getting revisions in "${pathPrefix}"`)
     }
   }
 
-  async listRevisionIds(pathPrefix: string): Promise<string[]> {
-    throw new Error('Method not implemented.')
+  async deleteRevision(filePath: string, revision: string): Promise<void> {
+    try {
+      await this.database
+        .knex('srv_ghost_index')
+        .where({
+          file_path: filePath,
+          revision: revision
+        })
+        .del()
+    } catch (e) {
+      throw new VError(e, `[DB Storage] Error deleting revision "${revision}" for file "${filePath}"`)
+    }
   }
-
-  async deleteRevisions(revisionIds: string[]) {}
 }

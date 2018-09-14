@@ -14,3 +14,15 @@ export function createSpyObject<T>(): MockObject<T> {
   const proxy = new Proxy(obj, handler)
   return proxy as MockObject<T>
 }
+
+export async function expectAsync<T>(promise: Promise<T>, matcher: (obj: jest.Matchers<T>) => void): Promise<void> {
+  try {
+    const ret = await promise
+    matcher(expect(ret))
+  } catch (err) {
+    const fn = (() => {
+      throw err
+    }) as any
+    matcher(expect(fn as T))
+  }
+}
