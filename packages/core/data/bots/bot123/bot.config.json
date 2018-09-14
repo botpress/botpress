@@ -14,5 +14,8 @@
   },
   "dialog": {
     "timeoutInterval": "5m"
+  },
+  "logs": {
+    "expiration": "1 week"
   }
 }

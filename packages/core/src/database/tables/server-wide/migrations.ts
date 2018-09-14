@@ -1,6 +1,6 @@
 import { Table } from '../../interfaces'
 
-export default class MigrationsTable extends Table {
+export class MigrationsTable extends Table {
   name: string = 'knex_core_migrations'
 
   async bootstrap() {

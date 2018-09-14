@@ -11,6 +11,8 @@ import { LoggerPersister } from '.'
 
 export type LoggerProvider = (module: string) => Promise<Logger>
 
+const BOT_ID = 'bot123'
+
 @injectable()
 // Suggestion: Would be best to have a CompositeLogger that separates the Console and DB loggers
 export class PersistedConsoleLogger implements Logger {
@@ -22,7 +24,7 @@ export class PersistedConsoleLogger implements Logger {
 
   private print(level: Level, message: string, metadata: any) {
     // Saving raw log data so that it may be used by another logger if need be
-    const entry = new LogEntry(level.name, this.name, message, metadata, moment().toISOString())
+    const entry = new LogEntry(BOT_ID, level.name, this.name, message, metadata, moment().toISOString())
     this.loggerPersister.appendLog(entry)
 
     const serializedMetadata = metadata ? ' | ' + util.inspect(metadata, false, 2, true) : ''

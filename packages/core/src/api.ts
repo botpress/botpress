@@ -24,6 +24,7 @@ import { UserRepository } from './repositories/user-repository'
 import HTTPServer from './server'
 import { DialogEngine } from './services/dialog/engine'
 import { SessionService } from './services/dialog/session/service'
+import { LogsService } from './services/logs/service'
 import { EventEngine } from './services/middleware/event-engine'
 import RealtimeService from './services/realtime'
 
@@ -120,7 +121,8 @@ export class BotpressAPIProvider {
     @inject(TYPES.HTTPServer) httpServer: HTTPServer,
     @inject(TYPES.UserRepository) userRepo: UserRepository,
     @inject(TYPES.RealtimeService) realtimeService: RealtimeService,
-    @inject(TYPES.SessionService) sessionService: SessionService
+    @inject(TYPES.SessionService) sessionService: SessionService,
+    @inject(TYPES.LogsService) logsService: LogsService
   ) {
     this.http = new Http(httpServer)
     this.events = event(eventEngine)

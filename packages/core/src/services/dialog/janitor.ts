@@ -1,42 +1,54 @@
 import { Logger } from 'botpress-module-sdk'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
+import { Memoize } from 'lodash-decorators'
 import moment from 'moment'
 import ms from 'ms'
 
 import { BotLoader } from '../../bot-loader'
+import { BotpressConfig } from '../../config/botpress.config'
 import { ConfigProvider } from '../../config/config-loader'
-import Database from '../../database'
 import { TYPES } from '../../misc/types'
-import { JanitorRunner } from '../janitor'
+import { Janitor } from '../janitor'
 
 import { DialogEngine } from './engine'
 import { SessionService } from './session/service'
 
 @injectable()
-export class DialogJanitorRunner extends JanitorRunner {
+export class DialogJanitor extends Janitor {
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'DialogJanitor')
     protected logger: Logger,
-    @inject(TYPES.Database) protected database: Database,
-    @inject(TYPES.ConfigProvider) protected configProvider: ConfigProvider,
+    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.DialogEngine) private dialogEngine: DialogEngine,
     @inject(TYPES.BotLoader) private botLoader: BotLoader,
     @inject(TYPES.SessionService) private sessionService: SessionService
   ) {
-    super(logger, database, configProvider)
+    super(logger)
   }
 
-  async runTask(): Promise<void> {
+  @Memoize
+  private async getBotpresConfig(): Promise<BotpressConfig> {
+    return this.configProvider.getBotpressConfig()
+  }
+
+  protected async getInterval(): Promise<string> {
+    const config = await this.getBotpresConfig()
+    return config.dialog.janitorInterval
+  }
+
+  protected async runTask(): Promise<void> {
+    // Bot config can change at runtime
+    const botpressConfig = await this.getBotpresConfig()
     const botsConfigs = await this.botLoader.getAllBots()
     const botsIds = Array.from(botsConfigs.keys())
-
     Promise.map(botsIds, async botId => {
-      const config = botsConfigs.get(botId)!
-      const timeoutInterval = ms(config.dialog!.timeoutInterval) || this.defaultTimeoutInterval
+      const botsConfigs = await this.botLoader.getAllBots()
+      const botConfig = botsConfigs.get(botId)
+      const expiryTime = ms(botConfig!.dialog!.timeoutInterval) || ms(botpressConfig.dialog.timeoutInterval)
       const outdatedDate = moment()
-        .subtract(timeoutInterval, 'ms')
+        .subtract(expiryTime, 'ms')
         .toDate()
 
       const sessionsIds = await this.sessionService.getStaleSessionsIds(botId, outdatedDate)

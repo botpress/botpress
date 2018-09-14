@@ -1,6 +1,6 @@
 import { Table } from '../../interfaces'
 
-export default class AuthTeamsTable extends Table {
+export class AuthTeamsTable extends Table {
   name: string = 'auth_teams'
 
   async bootstrap() {
