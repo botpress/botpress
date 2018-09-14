@@ -52,18 +52,20 @@ export class KnexNotificationsRepository implements NotificationsRepository {
   }
 
   async getAll(botId: string, options?: DefaultGetOptions): Promise<Notification[]> {
-    const query = this.database.knex(this.TABLE_NAME).select('*')
-    query.where({ botId })
+    let query = this.database
+      .knex(this.TABLE_NAME)
+      .select('*')
+      .where({ botId })
 
     if (options && options.archived) {
-      query.andWhere('archived', options.archived)
+      query = query.andWhere('archived', options.archived)
     }
 
     if (options && options.read) {
-      query.andWhere('read', options.read)
+      query = query.andWhere('read', options.read)
     }
 
-    query.limit(250)
+    query = query.limit(250)
 
     return (await query) as Notification[]
   }
