@@ -27,9 +27,6 @@ import { SessionService } from './services/dialog/session/service'
 import { EventEngine } from './services/middleware/event-engine'
 import RealtimeService from './services/realtime'
 
-// TODO: The UI doesn't support multi-bots yet
-const BOT_ID = 'bot123'
-
 class Http implements HttpAPI {
   constructor(private httpServer: HTTPServer) {}
 
@@ -49,7 +46,7 @@ const event = (eventEngine: EventEngine): EventAPI => {
       eventEngine.register(middleware)
     },
     sendEvent(event: BotpressEvent): void {
-      eventEngine.sendEvent(BOT_ID, event)
+      eventEngine.sendEvent(event)
     }
   }
 }

@@ -4,7 +4,7 @@ import { Router } from 'express'
 import multer from 'multer'
 import path from 'path'
 
-import { BotRepository, Notification } from '../repositories'
+import { BotRepository } from '../repositories'
 import ActionService from '../services/action/action-service'
 import { DefaultSearchParams } from '../services/cms'
 import { CMSService } from '../services/cms/cms-service'
@@ -54,11 +54,11 @@ export class BotsRouter implements CustomRouter {
   }
 
   private setupRoutes() {
-    this.router.get('/', async (request, response) => {
-      const botId = request.params.botId
+    this.router.get('/', async (req, res) => {
+      const botId = req.params.botId
       const bot = await this.botRepository.getBotById(botId)
 
-      response.send(bot)
+      res.send(bot)
     })
 
     this.router.get('/middleware', async (req, res) => {

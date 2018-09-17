@@ -84,7 +84,7 @@ export class EventEngine {
     }
   }
 
-  async sendEvent(botId: string, event: BotpressEvent) {
+  async sendEvent(event: BotpressEvent) {
     this.validateEvent(event)
 
     if (event.direction === 'incoming') {
@@ -131,7 +131,7 @@ export class EventEngine {
         threadId: destination.threadId
       })
 
-      await this.sendEvent(destination.botId, event)
+      await this.sendEvent(event)
     }
   }
 
