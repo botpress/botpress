@@ -1,6 +1,5 @@
 import { Logger } from 'botpress-module-sdk'
-import { inject, injectable, postConstruct, tagged } from 'inversify'
-import { Memoize } from 'lodash-decorators'
+import { inject, injectable, tagged } from 'inversify'
 import path from 'path'
 import plur from 'plur'
 
