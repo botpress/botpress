@@ -62,7 +62,7 @@ export default class WebchatDb {
       })
   }
 
-  async appendUserMessage(userId, conversationId, { type, text, raw, data }) {
+  async appendUserMessage(botId, userId, conversationId, { type, text, raw, data }) {
     const { fullName, avatar_url } = await this.getUserInfo(userId)
 
     const convo = await this.knex('web_conversations')
@@ -95,7 +95,7 @@ export default class WebchatDb {
         .then(),
 
       this.knex('web_conversations')
-        .where({ id: conversationId, userId: userId }) // FIXME per-bot
+        .where({ id: conversationId, userId: userId, botId: botId })
         .update({ last_heard_on: this.knex.date.now() })
         .then(),
 
@@ -109,7 +109,6 @@ export default class WebchatDb {
   }
 
   async appendBotMessage(botName, botAvatar, conversationId, { type, text, raw, data }) {
-    // FIXME bot-id
     const message = {
       id: uuid.v4(),
       conversationId: conversationId,
@@ -134,7 +133,7 @@ export default class WebchatDb {
     })
   }
 
-  async createConversation(userId, { originatesFromUserMessage = false } = {}) {
+  async createConversation(botId, userId, { originatesFromUserMessage = false } = {}) {
     const uid = Math.random()
       .toString()
       .substr(2, 6)
@@ -142,7 +141,8 @@ export default class WebchatDb {
 
     await this.knex('web_conversations')
       .insert({
-        userId, // FIXME bot-id
+        botId,
+        userId,
         created_on: this.knex.date.now(),
         last_heard_on: originatesFromUserMessage ? this.knex.date.now() : undefined,
         title
@@ -150,7 +150,7 @@ export default class WebchatDb {
       .then()
 
     const conversation = await this.knex('web_conversations')
-      .where({ title, userId })
+      .where({ title, userId, botId })
       .select('id')
       .then<any>()
       .get(0)
@@ -169,13 +169,14 @@ export default class WebchatDb {
       .then()
   }
 
-  async getOrCreateRecentConversation(userId: string, { originatesFromUserMessage = false } = {}) {
-    const RECENT_CONVERSATION_LIFETIME = ms('5min') // TODO FIXME Fix this, per-bot
+  async getOrCreateRecentConversation(botId: string, userId: string, { originatesFromUserMessage = false } = {}) {
+    const config = await this.bp.config.getConfig(botId)
+    const lifetime = config.conversationLifetime
 
     const recentCondition = this.knex.date.isAfter(
       'last_heard_on',
       moment()
-        .subtract(RECENT_CONVERSATION_LIFETIME, 'ms')
+        .subtract(lifetime, 'ms')
         .toDate()
     )
 
@@ -189,7 +190,7 @@ export default class WebchatDb {
       .then<any>()
       .get(0)
 
-    return conversation ? conversation.id : this.createConversation(userId, { originatesFromUserMessage })
+    return conversation ? conversation.id : this.createConversation(botId, userId, { originatesFromUserMessage })
   }
 
   async listConversations(userId) {

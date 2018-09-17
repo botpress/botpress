@@ -30,7 +30,7 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
 
     const messageType = event.type === 'default' ? 'text' : event.type
     const userId = event.target
-    const conversationId = event.threadId || (await db.getOrCreateRecentConversation(userId))
+    const conversationId = event.threadId || (await db.getOrCreateRecentConversation(event.botId, userId))
 
     if (!_.includes(outgoingTypes, messageType)) {
       return next('Unsupported event type: ' + event.type)

@@ -5,10 +5,11 @@ const _ = require('lodash')
 const bodyParser = require('body-parser')
 const qs = require('querystring')
 
-const { HttpProxy } = require('@botpress/xx-util')
+const { HttpProxy, setApiBasePath, BASE_PATH } = require('@botpress/xx-util')
 
-const BASE_PATH = '/api/v1'
-const BOT_PATH = BASE_PATH + '/bots/bot123'
+// UI res.set(...)
+// Proxy req.get(...)
+// Proxy set api path
 
 function noCache(req, res, next) {
   res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate')
@@ -26,13 +27,13 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
 
   const httpProxy = new HttpProxy(app, core_api_url)
 
-  httpProxy.proxy('/api/bot/information', BOT_PATH, core_api_url)
+  httpProxy.proxy('/api/bot/information', '/')
 
   app.post(
     '/api/middlewares/customizations',
     noCache,
     proxy(core_api_url, {
-      proxyReqPathResolver: async (req, res) => BOT_PATH + '/middleware',
+      proxyReqPathResolver: async (req, res) => setApiBasePath(req) + '/middleware',
       proxyReqBodyDecorator: async (body, srcReq) => {
         // Middleware(s) is a typo. Can't be plural.
         return { middleware: body.middlewares }
@@ -40,12 +41,12 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
     })
   )
 
-  httpProxy.proxy('/api/middlewares', BOT_PATH + '/middleware', core_api_url)
+  httpProxy.proxy('/api/middlewares', '/middleware')
 
   app.post(
     '/api/media',
     proxy(core_api_url, {
-      proxyReqPathResolver: async (req, res) => BOT_PATH + '/media',
+      proxyReqPathResolver: async (req, res) => setApiBasePath(req) + '/media',
       parseReqBody: false
     })
   )
@@ -53,7 +54,7 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
   app.get(
     '/media',
     proxy(core_api_url, {
-      proxyReqPathResolver: async (req, res) => BOT_PATH + '/media'
+      proxyReqPathResolver: async (req, res) => setApiBasePath(req) + '/media'
     })
   )
 
@@ -61,7 +62,7 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
     '/api/content/categories/:categoryId/items/:itemId',
     proxy(core_api_url, {
       proxyReqPathResolver: req => {
-        return `${BOT_PATH}/content/${req.params.categoryId}/elements/${req.params.itemId}`
+        return `${setApiBasePath(req)}/content/${req.params.categoryId}/elements/${req.params.itemId}`
       }
     })
   )
@@ -70,12 +71,12 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
     '/api/content/categories/:categoryId/items',
     proxy(core_api_url, {
       proxyReqPathResolver: async (req, res) => {
-        return `${BOT_PATH}/content/${req.params.categoryId}/elements`
+        return `${setApiBasePath(req)}/content/${req.params.categoryId}/elements`
       }
     })
   )
 
-  httpProxy.proxy('/api/content/categories', BOT_PATH + '/content/types')
+  httpProxy.proxy('/api/content/categories', '/content/types')
 
   app.get(
     '/api/content/items-batched/:itemIds',
@@ -83,7 +84,7 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
     proxy(core_api_url, {
       proxyReqPathResolver: req => {
         const elementIds = req.params.itemIds.split(',')
-        return `${BOT_PATH}/content/elements?ids=${elementIds.join(',')}`
+        return `${setApiBasePath(req)}/content/elements?ids=${elementIds.join(',')}`
       },
       userResDecorator: function(proxyRes, proxyResData, userReq, userRes) {
         const body = JSON.parse(proxyResData)
@@ -103,12 +104,14 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
     noCache,
     proxy(core_api_url, {
       proxyReqPathResolver: req => {
+        const apiPath = setApiBasePath(req)
         const oQuery = req.query || {}
         const query = qs.stringify(_.pick(oQuery, ['from', 'count', 'searchTerm']))
+
         if (!oQuery.categoryId || oQuery.categoryId === 'all') {
-          return `${BOT_PATH}/content/elements?${query}`
+          return `${apiPath}/content/elements?${query}`
         }
-        return `${BOT_PATH}/content/${oQuery.categoryId}/elements?${query}`
+        return `${apiPath}/content/${oQuery.categoryId}/elements?${query}`
       },
       userResDecorator: function(proxyRes, proxyResData, userReq, userRes) {
         const body = JSON.parse(proxyResData)
@@ -124,10 +127,12 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
     proxy(core_api_url, {
       proxyReqPathResolver: req => {
         const contentType = req.query.categoryId
+        const apiPath = setApiBasePath(req)
+
         if (contentType) {
-          return `${BOT_PATH}/content/${contentType}/elements/count`
+          return `${apiPath}/content/${contentType}/elements/count`
         }
-        return `${BOT_PATH}/content/elements/count`
+        return `${apiPath}/content/elements/count`
       }
     })
   )
@@ -137,7 +142,8 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
     proxy(core_api_url, {
       proxyReqPathResolver: (req, res) => {
         const elementId = req.params.itemId
-        return `${BOT_PATH}/content/elements/${elementId}`
+        const apiPath = setApiBasePath(req)
+        return `${apiPath}/content/elements/${elementId}`
       },
       userResDecorator: function(proxyRes, proxyResData, userReq, userRes) {
         const body = JSON.parse(proxyResData)
@@ -152,16 +158,16 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
     })
   )
 
-  httpProxy.proxy('/api/flows/available_actions', BOT_PATH + '/actions')
+  httpProxy.proxy('/api/flows/available_actions', '/actions')
 
-  httpProxy.proxy('/api/flows/all', BOT_PATH + '/flows')
+  httpProxy.proxy('/api/flows/all', '/flows')
 
   app.post(
     '/api/flows/save',
     noCache,
     proxy(core_api_url, {
-      proxyReqPathResolver: () => {
-        return BOT_PATH + '/flows'
+      proxyReqPathResolver: req => {
+        return setApiBasePath(req) + '/flows'
       },
       proxyReqBodyDecorator: async body => {
         // name prop is new
@@ -207,13 +213,12 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
     '/api/logs',
     proxy(core_api_url, {
       proxyReqPathResolver: (req, res) => {
+        const apiPath = setApiBasePath(req)
         const limit = req.query.limit
-        return limit ? `${BOT_PATH}/logs?limit=${limit}` : `${BOT_PATH}/logs`
+        return limit ? `${apiPath}/logs?limit=${limit}` : `${apiPath}/logs`
       }
     })
   )
-
-  httpProxy.proxy('/api/bot/information', `${BOT_PATH}/notifications`, core_api_url)
 
   /********
   Modules
@@ -225,11 +230,21 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
         let parts = _.drop(req.path.split('/'), 3)
         const newPath = parts.join('/')
         const newQuery = qs.stringify(req.query)
-        return `${BOT_PATH}/ext/channel-web/${newPath}?${newQuery}`
+        const apiPath = setApiBasePath(req)
+        return `${apiPath}/ext/channel-web/${newPath}?${newQuery}`
       }
     })
   )
-  httpProxy.proxy('/api/modules', BASE_PATH + '/modules', core_api_url)
+
+  app.get(
+    '/api/modules',
+    proxy(core_api_url, {
+      proxyReqPathResolver: () => {
+        return `${BASE_PATH}/modules/`
+      }
+    })
+  )
+
   app.get(
     [`/js/modules/:moduleName`, `/js/modules/:moduleName/:subview`],
     proxy(core_api_url, {

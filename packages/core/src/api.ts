@@ -16,6 +16,7 @@ import { inject, injectable } from 'inversify'
 import { Memoize } from 'lodash-decorators'
 
 import { container } from './app.inversify'
+import { ConfigProvider } from './config/config-loader'
 import Database from './database'
 import { LoggerProvider } from './logger'
 import { TYPES } from './misc/types'
@@ -26,9 +27,6 @@ import { DialogEngine } from './services/dialog/engine'
 import { SessionService } from './services/dialog/session/service'
 import { EventEngine } from './services/middleware/event-engine'
 import RealtimeService from './services/realtime'
-
-// TODO: The UI doesn't support multi-bots yet
-const BOT_ID = 'bot123'
 
 class Http implements HttpAPI {
   constructor(private httpServer: HTTPServer) {}
@@ -49,7 +47,7 @@ const event = (eventEngine: EventEngine): EventAPI => {
       eventEngine.register(middleware)
     },
     sendEvent(event: BotpressEvent): void {
-      eventEngine.sendEvent(BOT_ID, event)
+      eventEngine.sendEvent(event)
     }
   }
 }
@@ -71,12 +69,14 @@ const dialog = (dialogEngine: DialogEngine, sessionService: SessionService): Dia
   }
 }
 
-const config = (moduleLoader: ModuleLoader): ConfigAPI => {
+const config = (moduleLoader: ModuleLoader, configProvider: ConfigProvider): ConfigAPI => {
   return {
+    getConfig(botId: string): Promise<any> {
+      return configProvider.getBotConfig(botId)
+    },
     getModuleConfig(moduleId: string): Promise<any> {
       return moduleLoader.configReader.getGlobal(moduleId)
     },
-
     getModuleConfigForBot(moduleId: string, botId: string): Promise<any> {
       return moduleLoader.configReader.getForBot(moduleId, botId)
     }
@@ -120,12 +120,13 @@ export class BotpressAPIProvider {
     @inject(TYPES.HTTPServer) httpServer: HTTPServer,
     @inject(TYPES.UserRepository) userRepo: UserRepository,
     @inject(TYPES.RealtimeService) realtimeService: RealtimeService,
-    @inject(TYPES.SessionService) sessionService: SessionService
+    @inject(TYPES.SessionService) sessionService: SessionService,
+    @inject(TYPES.ConfigProvider) configProvider: ConfigProvider
   ) {
     this.http = new Http(httpServer)
     this.events = event(eventEngine)
     this.dialog = dialog(dialogEngine, sessionService)
-    this.config = config(moduleLoader)
+    this.config = config(moduleLoader, configProvider)
     this.realtime = new RealTimeAPI(realtimeService)
     this.database = db.knex
     this.users = users(userRepo)

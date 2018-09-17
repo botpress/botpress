@@ -1,13 +1,11 @@
 import 'bluebird-global'
-import { BotpressAPI, BotpressEvent, MiddlewareDefinition } from 'botpress-module-sdk'
+import { BotpressAPI } from 'botpress-module-sdk'
 import fs from 'fs'
 import path from 'path'
 
 import api from './api'
 import WebchatDatabase from './db'
-import OutgoingHandler from './outgoing'
 import socket from './socket'
-import umm from './umm'
 
 export type Extension = {
   'channel-web': {}
@@ -21,7 +19,6 @@ export const onInit = async (bp: BotpressAPI & Extension) => {
 
   await api(bp, db)
   await socket(bp, db)
-  await umm(bp)
 }
 
 export const onReady = async bp => {}

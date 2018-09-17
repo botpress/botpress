@@ -104,7 +104,7 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
   router.post(
     '/messages/:userId',
     asyncApi(async (req, res) => {
-      const { botId = '', userId = undefined } = req.params || {}
+      const { botId, userId = undefined } = req.params
 
       if (!validateUserId(userId)) {
         return res.status(400).send(ERR_USER_ID_REQ)
@@ -122,7 +122,7 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
       }
 
       if (!conversationId) {
-        conversationId = await db.getOrCreateRecentConversation(userId, { originatesFromUserMessage: true })
+        conversationId = await db.getOrCreateRecentConversation(botId, userId, { originatesFromUserMessage: true })
       }
 
       await sendNewMessage(botId, userId, conversationId, payload)
@@ -242,7 +242,7 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
       type: payload.type
     })
 
-    const message = await db.appendUserMessage(userId, conversationId, persistedPayload)
+    const message = await db.appendUserMessage(botId, userId, conversationId, persistedPayload)
     bp.realtime.sendPayload(RealTimePayload.forVisitor(userId, 'webchat.message', message))
     return bp.events.sendEvent(event)
   }
@@ -283,8 +283,8 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
   )
 
   router.post('/conversations/:userId/new', async (req, res) => {
-    const { userId } = req.params
-    await db.createConversation(userId)
+    const { userId, botId } = req.params
+    await db.createConversation(botId, userId)
     res.sendStatus(200)
   })
 
