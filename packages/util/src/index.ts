@@ -2,7 +2,7 @@ import { Application, Router } from 'express'
 import proxy from 'express-http-proxy'
 
 export const BASE_PATH = '/api/v1'
-const BOT_REQUEST_HEADERS = 'x-api-bot-id'
+const BOT_REQUEST_HEADERS = 'X-API-Bot-Id'
 
 export class HttpProxy {
   constructor(private app: Application | Router, private targetHost: string) {}
@@ -21,7 +21,6 @@ export class HttpProxy {
 }
 
 export function setApiBasePath(req) {
-  // TODO: Get actual headers once the UI has been modified
-  const botId = req.get(BOT_REQUEST_HEADERS) || 'bot123'
+  const botId = req.get(BOT_REQUEST_HEADERS)
   return `${BASE_PATH}/bots/${botId}`
 }
