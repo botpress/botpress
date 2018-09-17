@@ -7,10 +7,6 @@ const qs = require('querystring')
 
 const { HttpProxy, setApiBasePath, BASE_PATH } = require('@botpress/xx-util')
 
-// UI res.set(...)
-// Proxy req.get(...)
-// Proxy set api path
-
 function noCache(req, res, next) {
   res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate')
   res.header('Expires', '-1')

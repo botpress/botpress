@@ -19,7 +19,6 @@ export type BotConfig = {
     incomingMiddleware: string[]
     outgoingMiddleware: string[]
   }
-  conversationLifetime: string
   dialog?: DialogConfig
   logs?: LogsConfig
 }
