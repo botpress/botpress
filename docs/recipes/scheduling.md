@@ -2,16 +2,28 @@
 layout: guide
 ---
 
-You may sometimes require to schedule some actions for the future.
-In our example let's say we want to send a message at some defined date wishing our users "Merry Christmas"
+You may sometimes require your bot to send a message to your users at a point in the future. The scheduler module allows you to define a message and set when to send it, ether on a timer or once.
 
-First of all you need to have `@botpress/scheduler` module installed.
-Once this is done you need to navigate to `/modules/scheduler` route and create new schedule.
+In the example below you are going to create a schedule that sends the message `Hey! Wishing you Merry Christmas!` to all your users on Christmas Eve. 
 
-In our case we can set up "Expression type" to "Once", specify date and time like `December 24, 2018 at 5:00pm`.
+Firstly, you need to install the [`@botpress/scheduler`](https://github.com/botpress/botpress/tree/master/packages/functionals/botpress-scheduler) module: 
+```bash
+# npm 
+npm i @botpress/scheduler
+# yarn
+yarn add @botpress/scheduler
+```
+Once this is done you need to navigate to `http://localhost:3000/modules/scheduler`, from here you can create a new schedule.
 
-The final step is to specify action. This is the trickiest part. An action is code that will be executed at specified time.
-Within this code you have access to `bp` and `task` variables. Here's an example snippet that uses await syntax to fetch all the userIds and to send them messages.
+1. Set the title - Click in the title text (`New Schedule 1`) and give your schedule a meaningful name, like `Wish Users Merry Xmas`
+
+2. Set the time - Set the "Expression type" to "Once" and specify the date and time you want it to run, like `December 24, 2018 at 5:00pm`.
+
+3. Set the action - This is the trickiest part. An action is block of code that will be executed at the specified time. 
+
+Below is an example snippet that asynchronously fetches all the userIds from the database and sends them your Christmas message.
+
+> Note: Within this code you have access to `bp` and `task` variables.
 
 ```js
 const knex = await bp.db.get()
@@ -22,4 +34,4 @@ return Promise.all(
 )
 ```
 
-Note that in this example we are using `builtin_text` renderer which has to be registered properly.
+> Note: in this example we are using `builtin_text` renderer which has to be registered properly.

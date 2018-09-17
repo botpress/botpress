@@ -3,14 +3,16 @@ layout: guide
 ---
 
 By default `botpress init` initializes a minimal installation of the bot. It's pretty lightweight and is easy to work with.
-But if you want to use latest ecmascript-features like ES6-modules you may need to enable transpiling. One of the ways to do that is via webpack.
+But if you want to use the latest ECMAscript features, like ES6-modules, you will need to enable transpiling. One of the ways to do that is via webpack.
 
-Let's say you have just initialized a new bot. How can you make it transpiled via webpack?
+So you have just initialized a new bot. How can you make it transpiled via webpack?
 
-First you'd need to install missing dependencies to it:
-`yarn add --dev babel-core babel-loader babel-preset-latest webpack@4 webpack-node-externals`
+Firstly, you will need to install the required dependencies into the project:
+```js
+yarn add --dev babel-core babel-loader babel-preset-latest webpack@4 webpack-node-externals
+```
 
-Next thing is adding webpack config. It could look something like this:
+Next, you need to add a webpack config file (`webpack.config`). It will need to look something like this:
 
 ```js
 var webpack = require('webpack')
@@ -54,7 +56,7 @@ if (process.argv.indexOf('--compile') !== -1) {
 module.exports = { node: nodeConfig }
 ```
 
-Now when we have config ready we need to update our package json with scripts that compile or watch our app and change an entry-point of the app:
+Now that you have a `webpack.config` file you need to update your `package.json` with 2 scripts that compile your app and change the entry-point of the app:
 
 ```json
   "main": "bin/node.bundle.js",
@@ -65,9 +67,8 @@ Now when we have config ready we need to update our package json with scripts th
   },
 ```
 
-From now on you can run `yarn compile && yarn start` to compile your app and start the server. You can also run `yarn watch` in separate session to make it rebuild automatically.
-
-But if you start an app you may face a problem with JSDoc-package that is added to new bots by default to enable documenting actions. An issue is that path should now be set up relevantly to `/bin` folder while we should still require transpiled actions. To fix it you may need to update your `src/custom.js` like this:
+Finally, you need to change the file path JSDocs uses as it now needs to be relevantly to the `/bin` directory. 
+Update your `src/custom.js` to look like this:
 
 ```js
 /* ... */
@@ -90,3 +91,7 @@ async function registerActions(bp) {
   }
 }
 ```
+
+To compile your bot and start the server, run `yarn compile && yarn start`. To watch the files in the project for changes and rebuild the bot, run `yarn watch` instead.
+
+> Note: Should you get an error, please search our [forum](https://help.botpress.io/) to see if anyone has had a similar problem and ask for help from the community.

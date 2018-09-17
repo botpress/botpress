@@ -7,6 +7,7 @@ import moment from 'moment'
 
 import PageHeader from '~/components/Layout/PageHeader'
 import ContentWrapper from '~/components/Layout/ContentWrapper'
+import {downloadBlob} from '~/util'
 
 import styles from './style.scss'
 
@@ -31,7 +32,7 @@ class LoggerView extends Component {
   }
 
   loadMore = () => {
-    this.setState(({ limit }) => ({ limit: limit + 50 }))
+    this.setState(({ limit }) => ({ limit: limit + 200 }))
   }
 
   toggleAutoRefresh = () => {
@@ -45,7 +46,7 @@ class LoggerView extends Component {
   }
 
   renderLine(line, index) {
-    const time = moment(new Date(line.timestamp)).format('MMM DD HH:mm:ss')
+    const time = moment(new Date(line.timestamp)).format('YYYY-MM-DD HH:mm:ss')
     const message = line.message.replace(/\[\d\d?m/gi, '')
 
     return (
@@ -61,22 +62,21 @@ class LoggerView extends Component {
     return <div style={{ marginTop: '20px' }} className="whirl traditional" />
   }
 
-  queryLogs = () => {
-    axios
-      .get('/api/logs', {
-        params: {
-          limit: this.state.limit
-        }
-      })
-      .then(result => {
-        if (this.cancelLoading) {
-          return
-        }
-        this.setState({
-          logs: result.data,
-          hasMore: result.data && result.data.length >= this.state.limit
-        })
-      })
+  queryLogs = async () => {
+    const {data} = await axios.get('/api/logs', {
+      params: {
+        limit: this.state.limit
+      }
+    })
+
+    if (this.cancelLoading) {
+      return
+    }
+
+    this.setState({
+      logs: data,
+      hasMore: data && data.length >= this.state.limit
+    })
   }
 
   renderLines() {
@@ -87,19 +87,9 @@ class LoggerView extends Component {
     return this.state.logs.filter(x => _.isString(x.message)).map(this.renderLine)
   }
 
-  downloadArchive = () => {
-    axios({
-      url: '/api/logs/archive/',
-      method: 'GET',
-      responseType: 'blob'
-    }).then(response => {
-      const url = window.URL.createObjectURL(new Blob([response.data]))
-      const link = document.createElement('a')
-      link.href = url
-      link.setAttribute('download', 'logs.txt')
-      document.body.appendChild(link)
-      link.click()
-    })
+  downloadArchive = async () => {
+    const {data} = await axios.get('/api/logs/archive/', {responseType: 'blob'});
+    downloadBlob('logs.txt', data);
   }
 
   render() {
@@ -110,7 +100,7 @@ class LoggerView extends Component {
     return (
       <ContentWrapper>
         <PageHeader>
-          <span> Logs</span>
+          <span>Logs</span>
         </PageHeader>
         <Panel className={styles.panel}>
           <Panel.Body>
@@ -121,11 +111,11 @@ class LoggerView extends Component {
                 inline
                 onChange={this.toggleAutoRefresh}
               >
-                Auto refresh
+                Auto-refresh
               </Checkbox>
             </form>
             <div className="pull-right">
-              <Button onClick={this.downloadArchive}>Export logs archive</Button>
+              <Button onClick={this.downloadArchive}>Download log archive</Button>
             </div>
           </Panel.Body>
         </Panel>

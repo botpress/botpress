@@ -2,15 +2,15 @@
 layout: guide
 ---
 
-Botpress web channel supports variety of message-types that can be rendered to the user. But it also supports custom message types that you can implement on your own via webchat-extensions.
+The Botpress web channel supports a variety of message types that can be rendered to the user. There are a number of types that are available out-of-the-box, but Botpress also supports custom message types. Custom message types are implement via webchat-extensions.
 
-Webchat-extension is a special kind of botpress-module that:
-1. Is marked as webchat-plugin in `botpress`-section of `package.json` via `isPlugin` flag
-2. Exports React-component through global `window.botpress` variable
+A webchat-extension is a special kind of botpress-module that:
+1. Is marked as webchat-plugin in `botpress` section of is `package.json` via the `isPlugin` flag
+2. Exports a React-component through the global `window.botpress` variable
 
-Let's say we want to implement select-box webchat-plugin that allows user to select an option from a drop-down menu. For it we'd need to create an botpress-module. Please refer first step of [Creating modules](/docs/recipes/modules) recipe to initilize new module.
+To create your webchat-extention you will need to initialize a new botpress-module. To do this please refer to the first step of the [Creating modules](/docs/recipes/modules) recipe.
 
-Once this is done, you'd need to update your `package.json` to convert you botpress-module to webchat-plugin. Here's how `botpress` section may look like:
+Once you have initialize your botpress-module you will need to convert it into a webchat-plugin. Below is an example of how the `botpress` section may look like in your botpress-module's `package.json`:
 
 ```json
 {
@@ -22,8 +22,9 @@ Once this is done, you'd need to update your `package.json` to convert you botpr
   }
 }
 ```
+In this recipe we will be creating a select webchat-plugin that allows the user to select an option from a drop-down menu.
 
-Select-box plugin index.js file could look something like this:
+Within the webchat-plugin's index.js file, you need to make a react component that looks something like this:
 
 ```js
 export const Plugin = ({ slots, id, onSendData }) => {
@@ -49,11 +50,11 @@ export const Plugin = ({ slots, id, onSendData }) => {
 export const Entry = () => null;
 ```
 
-`Plugin` is a React-component that gets used to render actual content in the webchat.
+`Plugin` is a React-component that gets used to render the content in the webchat.
 
-`Entry` refers entry-point of our plugin that get's executed during botpress initialization on the client. Potentially it can be used for adding something to initialization procedure.
+`Entry` refers to the entry point of your plugin that gets executed during your bot's initialization on the client. This can be used to add functions to the initialization process.  
 
-That's it, you can now use `@botpress-webchat-plugin-calendar` type in renderers for web-channel:
+That's it, you can now use your new module (`@botpress-webchat-plugin-select`) type in renderers for the web-channel:
 
 ```js
 '#select': data => ({
