@@ -8,7 +8,6 @@ export class HttpProxy {
   constructor(private app: Application | Router, private targetHost: string) {}
 
   proxy(originPath: string, targetPathOrOptions: string | {}) {
-    console.log(targetPathOrOptions)
     const options =
       typeof targetPathOrOptions === 'string'
         ? {
@@ -22,10 +21,7 @@ export class HttpProxy {
 }
 
 export function setApiBasePath(req) {
-  if (!req) {
-    throw new Error('Request parameter is missing!')
-  }
   // TODO: Get actual headers once the UI has been modified
-  const botId = req.get(BOT_REQUEST_HEADERS) ? req.get(BOT_REQUEST_HEADERS) : 'bot123'
+  const botId = req.get(BOT_REQUEST_HEADERS) || 'bot123'
   return `${BASE_PATH}/bots/${botId}`
 }
