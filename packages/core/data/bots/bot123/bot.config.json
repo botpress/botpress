@@ -1,4 +1,5 @@
 {
+  "$schema": "../../bot.config.schema.json",
   "name": "Botpress 123 Test",
   "description": "Test lol",
   "active": true,

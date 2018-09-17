@@ -35,7 +35,7 @@ export class BotsTable extends Table {
               description: 'Just a test bot',
               author: 'Botpress',
               license: 'AGPL-3.0',
-              public_id: 'bot_123'
+              public_id: 'bot123'
             })
             .into(this.name)
         }

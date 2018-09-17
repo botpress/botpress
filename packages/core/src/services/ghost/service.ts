@@ -1,63 +1,47 @@
 import { Logger } from 'botpress-module-sdk'
-import { inject, injectable, tagged } from 'inversify'
+import { inject, injectable, postConstruct, tagged } from 'inversify'
 import _ from 'lodash'
+import minimatch from 'minimatch'
 import path from 'path'
 
+import { BotpressConfig } from '../../config/botpress.config'
 import { TYPES } from '../../misc/types'
 import { isValidBotId } from '../../misc/validation'
 
-import {
-  GhostPendingRevisions,
-  GhostPendingRevisionsWithContent,
-  GhostWatchFolderOptions,
-  ObjectCache,
-  StorageDriver
-} from '.'
-
-class TrackedFolders {
-  private folders = {}
-
-  addRootFolder(rootFolder: string, options: GhostWatchFolderOptions) {
-    if (this.folders[rootFolder]) {
-      throw new Error(`The folder "${rootFolder}" is already tracked`)
-    }
-
-    this.folders[rootFolder] = options
-  }
-
-  getOptionsForFolder(rootFolder: string): GhostWatchFolderOptions {
-    return this.folders[rootFolder]
-  }
-
-  getOptionsForFile(filePath: string): GhostWatchFolderOptions {
-    const candidates = Object.keys(this.folders).filter(x => {
-      // TODO This will not work with rootFolders with an '*' in their path
-      return filePath.startsWith(x)
-    })
-
-    if (!candidates.length) {
-      throw new Error(`File "${filePath}" does not seem to be tracked by the Ghost Service`)
-    }
-
-    const mostPrecise = _.orderBy(candidates, x => x.length, 'desc')
-    return this.folders[mostPrecise[0]]
-  }
-}
+import { GhostPendingRevisions, GhostPendingRevisionsWithContent, ObjectCache, StorageDriver } from '.'
+import DBStorageDriver from './db-driver'
+import DiskStorageDriver from './disk-driver'
 
 @injectable()
 export default class GhostService {
-  trackedFolders: TrackedFolders = new TrackedFolders()
+  config: Partial<BotpressConfig> | undefined
+
+  private get useDBDriver() {
+    return _.get(this.config, 'ghost.enabled', false)
+  }
 
   constructor(
-    @inject(TYPES.StorageDriver) private driver: StorageDriver,
+    @inject(TYPES.DiskStorageDriver) private diskDriver: DiskStorageDriver,
+    @inject(TYPES.DBStorageDriver) private dbDriver: DBStorageDriver,
     @inject(TYPES.ObjectCache) private cache: ObjectCache,
     @inject(TYPES.Logger)
     @tagged('name', 'GhostService')
     private logger: Logger
   ) {}
 
+  async initialize(config: Partial<BotpressConfig>) {
+    this.config = config
+  }
+
   global(): ScopedGhostService {
-    return new ScopedGhostService(`./data/global`, this.driver, this.trackedFolders, this.cache, this.logger)
+    return new ScopedGhostService(
+      `./data/global`,
+      this.diskDriver,
+      this.dbDriver,
+      this.useDBDriver,
+      this.cache,
+      this.logger
+    )
   }
 
   forBot(botId: string): ScopedGhostService {
@@ -65,21 +49,26 @@ export default class GhostService {
       throw new Error(`Invalid botId "${botId}"`)
     }
 
-    return new ScopedGhostService(`./data/bots/${botId}`, this.driver, this.trackedFolders, this.cache, this.logger)
-  }
-
-  forAllBots(): ScopedGhostService {
-    return new ScopedGhostService(`./data/bots/*`, this.driver, this.trackedFolders, this.cache, this.logger)
+    return new ScopedGhostService(
+      `./data/bots/${botId}`,
+      this.diskDriver,
+      this.dbDriver,
+      this.useDBDriver,
+      this.cache,
+      this.logger
+    )
   }
 }
 
 export class ScopedGhostService {
   isDirectoryGlob: boolean
+  primaryDriver: StorageDriver
 
   constructor(
     private baseDir: string,
-    private driver: StorageDriver,
-    private trackedFolders: TrackedFolders,
+    private diskDriver: DiskStorageDriver,
+    private dbDriver: DBStorageDriver,
+    private useDbDriver: boolean,
     private cache: ObjectCache,
     private logger: Logger
   ) {
@@ -88,6 +77,7 @@ export class ScopedGhostService {
     }
 
     this.isDirectoryGlob = this.baseDir.endsWith('*')
+    this.primaryDriver = useDbDriver ? dbDriver : diskDriver
   }
 
   private normalizeFolderName(rootFolder: string) {
@@ -96,14 +86,6 @@ export class ScopedGhostService {
 
   private normalizeFileName(rootFolder: string, file: string) {
     return path.join(this.normalizeFolderName(rootFolder), file)
-  }
-
-  async addRootFolder(rootFolder: string, options?: GhostWatchFolderOptions): Promise<void> {
-    this.trackedFolders.addRootFolder(this.normalizeFolderName(rootFolder), {
-      filesGlob: '*.*',
-      isBinary: false,
-      ...options
-    })
   }
 
   objectCacheKey = str => `string::${str}`
@@ -121,8 +103,52 @@ export class ScopedGhostService {
 
     const fileName = this.normalizeFileName(rootFolder, file)
 
-    await this.driver.upsertFile(fileName, content)
+    await this.primaryDriver.upsertFile(fileName, content, true)
     this.invalidateFile(fileName)
+  }
+
+  async sync(paths: string[]) {
+    if (!this.useDbDriver) {
+      // We don't have to sync anything as we're just using the files from disk
+      return
+    }
+
+    const diskRevs = await this.diskDriver.listRevisions(this.baseDir)
+    const dbRevs = await this.dbDriver.listRevisions(this.baseDir)
+    const syncedRevs = _.unionBy(diskRevs, dbRevs, x => `${x.path} | ${x.revision}`)
+    await Promise.each(syncedRevs, rev => this.dbDriver.deleteRevision(rev.path, rev.revision))
+
+    if (!(await this.isFullySynced())) {
+      this.logger.warn(`Found unsynced file changes in "${this.baseDir}"`)
+      return
+    }
+
+    for (const path of paths) {
+      const currentFiles = await this.dbDriver.directoryListing(this.normalizeFolderName(path))
+      const newFiles = await this.diskDriver.directoryListing(this.normalizeFolderName(path))
+
+      // We delete files that have been deleted from disk
+      for (const file of _.difference(currentFiles, newFiles)) {
+        const filePath = this.normalizeFileName(path, file)
+        await this.dbDriver.deleteFile(filePath, false)
+      }
+
+      // We now update files in DB by those on the disk
+      for (const file of newFiles) {
+        const filePath = this.normalizeFileName(path, file)
+        const content = await this.diskDriver.readFile(filePath)
+        await this.dbDriver.upsertFile(filePath, content, false)
+      }
+    }
+  }
+
+  public async isFullySynced(): Promise<boolean> {
+    if (!this.useDbDriver) {
+      return true
+    }
+
+    const revisions = await this.dbDriver.listRevisions(this.baseDir)
+    return revisions.length === 0
   }
 
   async readFileAsBuffer(rootFolder: string, file: string): Promise<Buffer> {
@@ -134,7 +160,7 @@ export class ScopedGhostService {
     const cacheKey = this.bufferCacheKey(fileName)
 
     if (!(await this.cache.has(cacheKey))) {
-      const value = await this.driver.readFile(fileName)
+      const value = await this.primaryDriver.readFile(fileName)
       await this.cache.set(cacheKey, value)
       return value
     }
@@ -166,25 +192,50 @@ export class ScopedGhostService {
     }
 
     const fileName = this.normalizeFileName(rootFolder, file)
-    await this.driver.deleteFile(fileName)
+    await this.primaryDriver.deleteFile(fileName, true)
     await this.invalidateFile(fileName)
   }
 
-  async directoryListing(rootFolder: string, fileEndingPattern: string, pathsToOmit?: string[]): Promise<string[]> {
+  async directoryListing(rootFolder: string, fileEndingPattern: string = '*.*'): Promise<string[]> {
     try {
-      const files = await this.driver.directoryListing(this.normalizeFolderName(rootFolder), fileEndingPattern)
-      return pathsToOmit ? files.filter(path => !pathsToOmit.includes(path)) : files
+      const files = await this.primaryDriver.directoryListing(this.normalizeFolderName(rootFolder))
+      return files.filter(minimatch.filter(fileEndingPattern, { matchBase: true, nocase: true, noglobstar: false }))
     } catch (err) {
       this.logger.error(`Could not list directory under ${rootFolder}. ${err}`)
     }
     return []
   }
 
-  getPending(): Promise<GhostPendingRevisions> {
-    throw new Error('Not implemented')
+  async getPending(): Promise<GhostPendingRevisions> {
+    if (!this.useDbDriver) {
+      return {}
+    }
+
+    const revisions = await this.dbDriver.listRevisions(this.baseDir)
+    const result: GhostPendingRevisions = {}
+
+    for (const revision of revisions) {
+      const path = revision.path.substr(this.baseDir.length + 1)
+      const folder = path.includes('/') ? path.substr(0, path.indexOf('/')) : 'root'
+
+      if (!result[folder]) {
+        result[folder] = []
+      }
+
+      result[folder].push(revision)
+    }
+
+    return result
   }
 
-  getPendingWithContent(options: { stringifyBinary: boolean }): Promise<GhostPendingRevisionsWithContent> {
-    throw new Error('Not implemented')
+  async getPendingWithContent(): Promise<GhostPendingRevisionsWithContent> {
+    const revisions = await this.getPending()
+    const result = {}
+    for (const folder in revisions) {
+      result[folder] = await Promise.mapSeries(revisions[folder], async x => {
+        return { ...x, content: await this.dbDriver.readFile(x.path) }
+      })
+    }
+    return result
   }
 }

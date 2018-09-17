@@ -1,4 +1,5 @@
 import { inject, injectable } from 'inversify'
+import yn from 'yn'
 
 import { TYPES } from '../misc/types'
 import GhostService from '../services/ghost/service'
@@ -19,7 +20,8 @@ export interface ConfigProvider {
 export class GhostConfigProvider implements ConfigProvider {
   constructor(
     @inject(TYPES.GhostService) private ghostService: GhostService,
-    @inject(TYPES.ProjectLocation) private projectLocation: string
+    @inject(TYPES.ProjectLocation) private projectLocation: string,
+    @inject(TYPES.IsProduction) private isProduction: string
   ) {}
 
   async getBotpressConfig(): Promise<BotpressConfig> {
@@ -27,6 +29,8 @@ export class GhostConfigProvider implements ConfigProvider {
 
     const host = process.env.BP_HOST || config.httpServer.host
     config.httpServer.host = host === 'localhost' ? undefined : host
+
+    config.ghost.enabled = yn(process.env.GHOST_ENABLED) || config.ghost.enabled
 
     return config
   }
@@ -59,6 +63,8 @@ export class GhostConfigProvider implements ConfigProvider {
 
       // Variables substitution
       content = content.replace('%BOTPRESS_DIR%', this.projectLocation)
+      content = content.replace('"$isProduction"', this.isProduction ? 'true' : 'false')
+      content = content.replace('"$isDevelopment"', this.isProduction ? 'false' : 'true')
 
       return <T>JSON.parse(content)
     } catch (e) {
