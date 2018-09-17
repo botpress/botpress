@@ -78,7 +78,6 @@ export default class WebchatDb {
 
     const message = {
       id: uuid.v4(),
-      botId,
       conversationId,
       userId,
       full_name: fullName,
@@ -109,10 +108,9 @@ export default class WebchatDb {
     )
   }
 
-  async appendBotMessage(botId, botName, botAvatar, conversationId, { type, text, raw, data }) {
+  async appendBotMessage(botName, botAvatar, conversationId, { type, text, raw, data }) {
     const message = {
       id: uuid.v4(),
-      botId: botId,
       conversationId: conversationId,
       userId: undefined,
       full_name: botName,
@@ -172,12 +170,13 @@ export default class WebchatDb {
   }
 
   async getOrCreateRecentConversation(botId: string, userId: string, { originatesFromUserMessage = false } = {}) {
-    const RECENT_CONVERSATION_LIFETIME = ms('5min') // TODO FIXME Fix this, per-bot
+    const config = await this.bp.config.getConfig(botId)
+    const lifetime = config.conversationLifetime
 
     const recentCondition = this.knex.date.isAfter(
       'last_heard_on',
       moment()
-        .subtract(RECENT_CONVERSATION_LIFETIME, 'ms')
+        .subtract(lifetime, 'ms')
         .toDate()
     )
 

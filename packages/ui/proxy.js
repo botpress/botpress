@@ -5,7 +5,7 @@ const _ = require('lodash')
 const bodyParser = require('body-parser')
 const qs = require('querystring')
 
-const { HttpProxy, setApiBasePath } = require('@botpress/xx-util')
+const { HttpProxy, setApiBasePath, BASE_PATH } = require('@botpress/xx-util')
 
 // UI res.set(...)
 // Proxy req.get(...)
@@ -202,7 +202,14 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
     })
   )
 
-  httpProxy.proxy('/api/modules', '/modules')
+  app.get(
+    '/api/modules',
+    proxy(core_api_url, {
+      proxyReqPathResolver: () => {
+        return `${BASE_PATH}/modules/`
+      }
+    })
+  )
 
   app.get(
     [`/js/modules/:moduleName`, `/js/modules/:moduleName/:subview`],

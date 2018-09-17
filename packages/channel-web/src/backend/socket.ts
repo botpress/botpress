@@ -43,7 +43,7 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
       bp.realtime.sendPayload(payload)
       await Promise.delay(typing)
     } else if (messageType === 'text' || messageType === 'carousel') {
-      const message = await db.appendBotMessage(event.botId, botName, botAvatarUrl, conversationId, {
+      const message = await db.appendBotMessage(botName, botAvatarUrl, conversationId, {
         data: event.payload,
         raw: event.payload,
         text: event.preview,
@@ -56,7 +56,7 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
       const mimeType = mime.getType(extension)
       const basename = path.basename(event.payload.url, extension)
 
-      const message = await db.appendBotMessage(event.botId, botName, botAvatarUrl, conversationId, {
+      const message = await db.appendBotMessage(botName, botAvatarUrl, conversationId, {
         data: { storage: 'storage', mime: mimeType, name: basename, ...event.payload },
         raw: event.payload,
         text: event.preview,
