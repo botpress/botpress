@@ -12,7 +12,7 @@ npm i @botpress/channel-messenger
 2. You need to create [Facebook App](https://developers.facebook.com/)
 <p>1)</p>
 <img alt='Create App' src='assets/create_new_app_fb.png' />
-2)
+2) Click on Messenger `Set Up`
 <img alt='Set Up Messenger' src='assets/set_up_ms_fb.png' />
 3. Get all required fields from `config/channel-messenger.json` [config template](https://github.com/botpress/botpress/blob/master/packages/channels/botpress-channel-messenger/config.json)
 
@@ -24,7 +24,24 @@ npm i @botpress/channel-messenger
 <img alt='App Token' src='assets/token_fb.png' />
 4)
 <img alt='Webhook' src='assets/webhook_fb.png' />
+
 4. In you facebook-app configuration at https://developers.facebook.com/ set webhook (an url should be something like `https://[bot-hostname]/api/botpress-messenger/webhook`) and chose [next option.](https://github.com/dmytropanontko/botpress/blob/docs/messenger-tutorial/packages/channels/botpress-channel-messenger/config.json#L41). (webhook template `https://[bot-hostname]/api/botpress-messenger/webhook`)
+
+5. You need to send review request to FB. Do following:
+
+1) Go to https://developers.facebook.com -> Select your App -> `App Review` -> `Submit Items for Approval` -> `Start a Submission` -> pick up: `publish_pages` and `manage_pages` -> Resolve all `Additional Information Required`
+
+<img alt='Start submission' src='assets/start_sub.png' />
+
+<img alt='Pick fields' src='assets/pick.png' />
+
+2) `Messenger` -> `Settings` -> Go to section `App Review for Messenger` -> Select all fields -> Resolve all `Additional Information Required`
+
+<img alt='Pick fields' src='assets/review_mess.png' />
+
+6. Go to `Settings` -> `Basic` -> Need resolve all `Currently Ineligible for Submission`
+
+<img alt='Pick fields' src='assets/basic_error.png' />
 
 ## Explaining config keys
 
