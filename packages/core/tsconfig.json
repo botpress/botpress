@@ -4,7 +4,7 @@
     "outDir": "dist",
     "baseUrl": ".",
     "rootDir": ".",
-    "types": ["bluebird-global", "reflect-metadata"],
+    "types": ["bluebird-global", "reflect-metadata", "jest"],
     "typeRoots": ["./node_modules", "../../node_modules"],
     "composite": false
   },

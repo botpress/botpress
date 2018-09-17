@@ -6,7 +6,7 @@ import { VError } from 'verror'
 
 import { TYPES } from '../../misc/types'
 
-import { StorageDriver } from '.'
+import { GhostFileRevision, StorageDriver } from '.'
 
 @injectable()
 export default class DiskStorageDriver implements StorageDriver {
@@ -14,7 +14,8 @@ export default class DiskStorageDriver implements StorageDriver {
 
   resolvePath = p => path.resolve(this.projectLocation, p)
 
-  async upsertFile(filePath: string, content: string | Buffer): Promise<void> {
+  async upsertFile(filePath: string, content: string | Buffer): Promise<void>
+  async upsertFile(filePath: string, content: string | Buffer, recordRevision: boolean = false): Promise<void> {
     try {
       const folder = path.dirname(this.resolvePath(filePath))
       await fse.mkdirp(folder)
@@ -36,7 +37,8 @@ export default class DiskStorageDriver implements StorageDriver {
     }
   }
 
-  async deleteFile(filePath: string): Promise<void> {
+  async deleteFile(filePath: string): Promise<void>
+  async deleteFile(filePath: string, recordRevision: boolean = false): Promise<void> {
     try {
       return fse.unlink(this.resolvePath(filePath))
     } catch (e) {
@@ -44,29 +46,25 @@ export default class DiskStorageDriver implements StorageDriver {
     }
   }
 
-  async directoryListing(folder: string, fileEndingPattern: string): Promise<string[]> {
-    const isDirectoryRange = folder.includes('*')
-    let pattern = fileEndingPattern.startsWith('.') ? `**/*${fileEndingPattern}` : `**/${fileEndingPattern}`
-    let directory = folder
-
-    if (isDirectoryRange) {
-      directory = folder.substr(0, folder.indexOf('*'))
-      const rootDir = folder.substr(folder.indexOf('*') + 1)
-      pattern = path.join(rootDir, '/' + pattern)
-    }
-
-    pattern = pattern.replace(/\/+/, '') // Remove all leading "/"
-
+  async directoryListing(folder: string): Promise<string[]> {
     try {
-      await fse.access(this.resolvePath(directory), fse.constants.R_OK)
+      await fse.access(this.resolvePath(folder), fse.constants.R_OK)
     } catch (e) {
-      throw new VError(e, `[Disk Storage] No read access to directory "${directory}"`)
+      throw new VError(e, `[Disk Storage] No read access to directory "${folder}"`)
     }
 
     try {
-      return Promise.fromCallback<string[]>(cb => glob(pattern, { cwd: this.resolvePath(directory) }, cb))
+      return Promise.fromCallback<string[]>(cb => glob('**/*.*', { cwd: this.resolvePath(folder) }, cb))
     } catch (e) {
-      throw new VError(e, `[Disk Storage] Error listing directory content for folder "${directory}"`)
+      throw new VError(e, `[Disk Storage] Error listing directory content for folder "${folder}"`)
     }
+  }
+
+  async deleteRevision(filePath: string, revision: string): Promise<void> {
+    throw new Error('Method not implemented.')
+  }
+
+  listRevisions(pathpathPrefix: string): Promise<GhostFileRevision[]> {
+    throw new Error('Method not implemented.')
   }
 }

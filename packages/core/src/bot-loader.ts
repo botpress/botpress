@@ -21,8 +21,7 @@ export class BotLoader {
   ) {}
 
   public async getAllBots(): Promise<Map<string, BotConfig>> {
-    const botConfigs = await this.ghost.forAllBots().directoryListing('./', 'bot.config.json')
-    const botIds = botConfigs.map(x => x.split(path.sep)[0])
+    const botIds = ['bot123'] // TODO FIXME Pull bot Ids from the database
     const bots = new Map<string, BotConfig>()
 
     for (const botId of botIds) {

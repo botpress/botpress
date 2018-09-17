@@ -1,0 +1,141 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "definitions": {
+        "DatabaseConfig": {
+            "properties": {
+                "database": {
+                    "type": "string"
+                },
+                "host": {
+                    "type": "string"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "migrations": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "number"
+                },
+                "ssl": {
+                    "type": "boolean"
+                },
+                "type": {
+                    "$ref": "#/definitions/DatabaseType"
+                },
+                "url": {
+                    "type": "string"
+                },
+                "user": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "type"
+            ],
+            "type": "object"
+        },
+        "DatabaseType": {
+            "enum": [
+                "postgres",
+                "sqlite"
+            ],
+            "type": "string"
+        },
+        "DialogConfig": {
+            "properties": {
+                "janitorInterval": {
+                    "type": "string"
+                },
+                "timeoutInterval": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "janitorInterval",
+                "timeoutInterval"
+            ],
+            "type": "object"
+        },
+        "LogsConfig": {
+            "properties": {
+                "expiration": {
+                    "type": "string"
+                },
+                "janitorInterval": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "expiration",
+                "janitorInterval"
+            ],
+            "type": "object"
+        }
+    },
+    "properties": {
+        "database": {
+            "$ref": "#/definitions/DatabaseConfig"
+        },
+        "dialog": {
+            "$ref": "#/definitions/DialogConfig"
+        },
+        "ghost": {
+            "properties": {
+                "enabled": {
+                    "enum": [
+                        "$isDevelopment",
+                        "$isProduction",
+                        false,
+                        true
+                    ]
+                }
+            },
+            "required": [
+                "enabled"
+            ],
+            "type": "object"
+        },
+        "httpServer": {
+            "properties": {
+                "backlog": {
+                    "type": "number"
+                },
+                "bodyLimit": {
+                    "type": [
+                        "string",
+                        "number"
+                    ]
+                },
+                "host": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "backlog",
+                "bodyLimit",
+                "port"
+            ],
+            "type": "object"
+        },
+        "logs": {
+            "$ref": "#/definitions/LogsConfig"
+        }
+    },
+    "required": [
+        "database",
+        "dialog",
+        "ghost",
+        "httpServer",
+        "logs"
+    ],
+    "type": "object"
+}
+

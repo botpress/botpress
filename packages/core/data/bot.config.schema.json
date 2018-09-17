@@ -1,0 +1,96 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "definitions": {
+        "DialogConfig": {
+            "properties": {
+                "timeoutInterval": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "timeoutInterval"
+            ],
+            "type": "object"
+        },
+        "LogsConfig": {
+            "properties": {
+                "expiration": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "expiration"
+            ],
+            "type": "object"
+        }
+    },
+    "properties": {
+        "active": {
+            "type": "boolean"
+        },
+        "author": {
+            "type": "string"
+        },
+        "description": {
+            "type": "string"
+        },
+        "dialog": {
+            "$ref": "#/definitions/DialogConfig"
+        },
+        "imports": {
+            "properties": {
+                "contentTypes": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "incomingMiddleware": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "modules": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "outgoingMiddleware": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                }
+            },
+            "required": [
+                "contentTypes",
+                "incomingMiddleware",
+                "modules",
+                "outgoingMiddleware"
+            ],
+            "type": "object"
+        },
+        "license": {
+            "type": "string"
+        },
+        "logs": {
+            "$ref": "#/definitions/LogsConfig"
+        },
+        "name": {
+            "type": "string"
+        },
+        "version": {
+            "type": "string"
+        }
+    },
+    "required": [
+        "active",
+        "imports",
+        "name",
+        "version"
+    ],
+    "type": "object"
+}
+
