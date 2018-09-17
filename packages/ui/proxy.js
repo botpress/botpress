@@ -10,6 +10,15 @@ const { HttpProxy } = require('@botpress/xx-util')
 const BASE_PATH = '/api/v1'
 const BOT_PATH = BASE_PATH + '/bots/bot123'
 
+function noCache(req, res, next) {
+  res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate')
+  res.header('Expires', '-1')
+  res.header('Pragma', 'no-cache')
+  delete req.headers['if-modified-since']
+  delete req.headers['if-none-match']
+  next()
+}
+
 function start({ core_api_url, proxy_host, proxy_port }, callback) {
   const app = express()
   app.use(bodyParser.json())
@@ -21,6 +30,7 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
 
   app.post(
     '/api/middlewares/customizations',
+    noCache,
     proxy(core_api_url, {
       proxyReqPathResolver: async (req, res) => BOT_PATH + '/middleware',
       proxyReqBodyDecorator: async (body, srcReq) => {
@@ -69,16 +79,28 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
 
   app.get(
     '/api/content/items-batched/:itemIds',
+    noCache,
     proxy(core_api_url, {
       proxyReqPathResolver: req => {
         const elementIds = req.params.itemIds.split(',')
         return `${BOT_PATH}/content/elements?ids=${elementIds.join(',')}`
+      },
+      userResDecorator: function(proxyRes, proxyResData, userReq, userRes) {
+        const body = JSON.parse(proxyResData)
+        return body.map(x => ({
+          ...x,
+          categoryId: x.contentType,
+          data: x.computedData,
+          categorySchema: x.schema,
+          categoryTitle: x.schema.title
+        }))
       }
     })
   )
 
   app.get(
     '/api/content/items',
+    noCache,
     proxy(core_api_url, {
       proxyReqPathResolver: req => {
         const oQuery = req.query || {}
@@ -98,6 +120,7 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
 
   app.get(
     '/api/content/items/count',
+    noCache,
     proxy(core_api_url, {
       proxyReqPathResolver: req => {
         const contentType = req.query.categoryId
@@ -115,6 +138,16 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
       proxyReqPathResolver: (req, res) => {
         const elementId = req.params.itemId
         return `${BOT_PATH}/content/elements/${elementId}`
+      },
+      userResDecorator: function(proxyRes, proxyResData, userReq, userRes) {
+        const body = JSON.parse(proxyResData)
+        return {
+          ...body,
+          categoryId: body.contentType,
+          data: body.computedData,
+          categorySchema: body.schema,
+          categoryTitle: body.schema.title
+        }
       }
     })
   )
@@ -125,6 +158,7 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
 
   app.post(
     '/api/flows/save',
+    noCache,
     proxy(core_api_url, {
       proxyReqPathResolver: () => {
         return BOT_PATH + '/flows'
