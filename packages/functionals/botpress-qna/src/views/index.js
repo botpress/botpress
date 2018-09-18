@@ -5,7 +5,6 @@ import {
   Col,
   FormGroup,
   ControlLabel,
-  FormControl,
   InputGroup,
   Glyphicon,
   Checkbox,
@@ -27,6 +26,7 @@ import some from 'lodash/some'
 import get from 'lodash/get'
 import Promise from 'bluebird'
 
+import { FormControlIme } from './FormControlIme'
 import ArrayEditor from './ArrayEditor'
 import QuestionsEditor from './QuestionsEditor'
 import QuestionsBulkImport from './QuestionsBulkImport'
@@ -189,7 +189,7 @@ export default class QnaAdmin extends Component {
     return (
       <FormGroup controlId={this.getFormControlId(index, 'answer')}>
         <ControlLabel>Answer:</ControlLabel>
-        <FormControl
+        <FormControlIme
           componentClass="textarea"
           placeholder="Answer"
           value={answer}
@@ -501,7 +501,7 @@ export default class QnaAdmin extends Component {
                   <form>
                     <FormGroup>
                       <ControlLabel>CSV file</ControlLabel>
-                      <FormControl
+                      <FormControlIme
                         type="file"
                         accept=".csv"
                         onChange={e => this.setState({ csvToUpload: e.target.files[0] })}
@@ -533,7 +533,7 @@ export default class QnaAdmin extends Component {
           </FormGroup>
           <FormGroup>
             <InputGroup>
-              <FormControl placeholder="Filter questions" value={this.state.filter} onChange={this.onFilterChange} />
+              <FormControlIme placeholder="Filter questions" value={this.state.filter} onChange={this.onFilterChange} />
               <InputGroup.Addon>
                 <Glyphicon glyph="search" />
               </InputGroup.Addon>
