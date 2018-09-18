@@ -1,36 +1,36 @@
 import { expect } from 'chai'
 import path from 'path'
 import { existsSync } from 'fs'
-import { exec, execSync } from 'child_process'
+import { exec } from 'child_process'
 import moment from 'moment'
 import rimraf from 'rimraf'
 
 const bin = path.resolve(__dirname, '../bin/botpress')
 const botDir = path.resolve(__dirname, '../tmp-bot')
 const botConfig = path.resolve(__dirname, '../tmp-bot/config')
-const botpressDir = path.resolve(__dirname)
 const rootDir = path.resolve(__dirname, '../../../../')
 const compileLinkBash = path.resolve(rootDir, './compile-link.sh')
-const configVar = require('./config/env.json')
+const configVar = require('./config/env.js')
 
 const botpressModules = [
-  '@botpress/analytics',
-  '@botpress/audience',
-  '@botpress/broadcast',
-  '@botpress/hitl',
-  '@botpress/nlu',
-  '@botpress/qna',
-  '@botpress/scheduler',
-  '@botpress/terminal',
-  '@botpress/channel-messenger',
-  '@botpress/channel-slack',
-  '@botpress/channel-telegram',
-  '@botpress/channel-twilio',
-  '@botpress/channel-microsoft',
-  '@botpress/builtins',
-  '@botpress/util-roles',
-  '@botpress/skill-choice',
-  'botpress'
+  `file:${path.resolve(rootDir, './packages/functionals/botpress-analytics')}`,
+  `file:${path.resolve(rootDir, './packages/functionals/botpress-audience')}`,
+  `file:${path.resolve(rootDir, './packages/functionals/botpress-broadcast')}`,
+  `file:${path.resolve(rootDir, './packages/functionals/botpress-hitl')}`,
+  `file:${path.resolve(rootDir, './packages/functionals/botpress-nlu')}`,
+  `file:${path.resolve(rootDir, './packages/functionals/botpress-qna')}`,
+  `file:${path.resolve(rootDir, './packages/functionals/botpress-scheduler')}`,
+  `file:${path.resolve(rootDir, './packages/functionals/botpress-terminal')}`,
+  `file:${path.resolve(rootDir, './packages/channels/botpress-channel-messenger')}`,
+  `file:${path.resolve(rootDir, './packages/channels/botpress-channel-slack')}`,
+  `file:${path.resolve(rootDir, './packages/channels/botpress-channel-telegram')}`,
+  `file:${path.resolve(rootDir, './packages/channels/botpress-channel-twilio')}`,
+  `file:${path.resolve(rootDir, './packages/channels/botpress-channel-microsoft')}`,
+  `file:${path.resolve(rootDir, './packages/channels/botpress-channel-web')}`,
+  `file:${path.resolve(rootDir, './packages/core/botpress-builtins')}`,
+  `file:${path.resolve(rootDir, './packages/core/botpress-util-roles')}`,
+  `file:${path.resolve(rootDir, './packages/skills/botpress-skill-choice')}`,
+  `file:${path.resolve(rootDir, './packages/core/botpress')}`
 ]
 
 const LAUNCHED = /Bot launched/gi
@@ -92,16 +92,6 @@ describe('Create new bot', function() {
     ifErrorSkipIt()
 
     exec(`yarn add ${botpressModules.join(' ')}`, { cwd: botDir }, err => {
-      checkTaskStatus(err)
-
-      done()
-    })
-  })
-
-  it('yarn link modules', done => {
-    ifErrorSkipIt()
-
-    exec(`yarn link ${botpressModules.join(' ')}`, { cwd: botDir }, err => {
       checkTaskStatus(err)
 
       done()
