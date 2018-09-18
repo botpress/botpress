@@ -26,7 +26,7 @@ async function start() {
     })
 
     await BPromise.fromCallback(cb =>
-      startProxy({ core_api_url: 'http://localhost:3000', proxy_host: 'http://localhost', proxy_port: '3001' }, cb)
+      startProxy({ coreApiUrl: 'http://localhost:3000', proxyHost: 'http://localhost', proxyPort: '3001' }, cb)
     )
 
     logger.info(`UI Proxy running on http://localhost:3001/`)

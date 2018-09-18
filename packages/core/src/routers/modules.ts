@@ -1,8 +1,5 @@
 import { Router } from 'express'
-import fs from 'fs-extra'
-import path from 'path'
 
-import { TYPES } from '../misc/types'
 import { ModuleLoader } from '../module-loader'
 
 import { CustomRouter } from '.'

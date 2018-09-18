@@ -1,6 +1,6 @@
 /**
  * This is a private action to this bot
- * @author bot123
+ * @author bot 123
  */
 
 return true
