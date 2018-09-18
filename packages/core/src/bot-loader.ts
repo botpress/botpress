@@ -1,6 +1,6 @@
 import { Logger } from 'botpress-module-sdk'
 import { inject, injectable, tagged } from 'inversify'
-import path from 'path'
+import _ from 'lodash'
 import plur from 'plur'
 
 import { BotConfig } from './config/bot.config'

@@ -8,7 +8,7 @@ import AuthService from '../../services/auth/auth-service'
 import { InvalidOperationError } from '../../services/auth/errors'
 import TeamsService from '../../services/auth/teams-service'
 
-import { asyncMiddleware, success as sendSuccess, validateBodySchema } from './util'
+import { asyncMiddleware, success as sendSuccess, validateBodySchema } from '../util'
 
 export class TeamsRouter implements CustomRouter {
   private asyncMiddleware!: Function
@@ -39,8 +39,9 @@ export class TeamsRouter implements CustomRouter {
           })
         )
 
+        const userId = req.dbUser.id
         const name = req.body.name
-        const teamId = await svc.createNewTeam({ userId: req.dbUser.id, name })
+        const teamId = await svc.createNewTeam({ userId, name })
 
         return sendSuccess(res, 'Team created successfully', {
           name,
@@ -52,7 +53,8 @@ export class TeamsRouter implements CustomRouter {
     router.get(
       '/', // List teams
       this.asyncMiddleware(async (req, res) => {
-        const teams = await svc.listUserTeams(req.dbUser.id)
+        const userId = req.dbUser.id
+        const teams = await svc.listUserTeams(userId)
         return sendSuccess(res, 'Retrieved teams', teams)
       })
     )
@@ -60,9 +62,11 @@ export class TeamsRouter implements CustomRouter {
     router.get(
       '/:teamId/members', // List team members
       this.asyncMiddleware(async (req, res) => {
-        await svc.assertUserMember(req.dbUser.id, req.params.teamId)
-        await svc.assertUserPermission(req.dbUser.id, req.params.teamId, 'admin.team.members', 'read')
-        const teams = await svc.listTeamMembers(req.params.teamId)
+        const { teamId } = req.params
+        const userId = req.dbUser.id
+        await svc.assertUserMember(userId, teamId)
+        await svc.assertUserPermission(userId, teamId, 'admin.team.members', 'read')
+        const teams = await svc.listTeamMembers(teamId)
         return sendSuccess(res, 'Retrieved team members', teams)
       })
     )
@@ -70,9 +74,11 @@ export class TeamsRouter implements CustomRouter {
     router.get(
       '/:teamId/invite', // Get invite code
       this.asyncMiddleware(async (req, res) => {
-        await svc.assertUserMember(req.dbUser.id, req.params.teamId)
-        await svc.assertUserPermission(req.dbUser.id, req.params.teamId, 'admin.team.members', 'write')
-        const code = await svc.getInviteCode(req.params.teamId)
+        const { teamId } = req.params
+        const userId = req.dbUser.id
+        await svc.assertUserMember(userId, teamId)
+        await svc.assertUserPermission(userId, teamId, 'admin.team.members', 'write')
+        const code = await svc.getInviteCode(teamId)
         return sendSuccess(res, 'Retrieved team invite code', code)
       })
     )
@@ -80,9 +86,11 @@ export class TeamsRouter implements CustomRouter {
     router.post(
       '/:teamId/invite', // Refresh invite code
       this.asyncMiddleware(async (req, res) => {
-        await svc.assertUserMember(req.dbUser.id, req.params.teamId)
-        await svc.assertUserPermission(req.dbUser.id, req.params.teamId, 'admin.team.members', 'write')
-        const code = await svc.refreshInviteCode(req.params.teamId)
+        const { teamId } = req.params
+        const userId = req.dbUser.id
+        await svc.assertUserMember(userId, teamId)
+        await svc.assertUserPermission(userId, teamId, 'admin.team.members', 'write')
+        const code = await svc.refreshInviteCode(teamId)
         return sendSuccess(res, 'Refreshed team invite code', code)
       })
     )
@@ -99,7 +107,8 @@ export class TeamsRouter implements CustomRouter {
           })
         )
 
-        const team = await svc.joinTeamFromInviteCode(req.dbUser.id, req.body.code)
+        const userId = req.dbUser.id
+        const team = await svc.joinTeamFromInviteCode(userId, req.body.code)
         return sendSuccess(res, 'Joined team successfully', team)
       })
     )
@@ -107,9 +116,11 @@ export class TeamsRouter implements CustomRouter {
     router.get(
       '/:teamId/roles', // List team roles
       this.asyncMiddleware(async (req, res) => {
-        await svc.assertUserMember(req.dbUser.id, req.params.teamId)
-        await svc.assertUserPermission(req.dbUser.id, req.params.teamId, 'admin.team.roles', 'read')
-        const roles = await svc.listTeamRoles(req.params.teamId)
+        const { teamId } = req.params
+        const userId = req.dbUser.id
+        await svc.assertUserMember(userId, teamId)
+        await svc.assertUserPermission(userId, teamId, 'admin.team.roles', 'read')
+        const roles = await svc.listTeamRoles(teamId)
         return sendSuccess(res, 'Retrieved team roles', roles)
       })
     )
@@ -117,9 +128,11 @@ export class TeamsRouter implements CustomRouter {
     router.post(
       '/:teamId/roles', // Add team role
       this.asyncMiddleware(async (req, res) => {
-        await svc.assertUserMember(req.dbUser.id, req.params.teamId)
-        await svc.assertUserPermission(req.dbUser.id, req.params.teamId, 'admin.team.roles', 'write')
-        await svc.createTeamRole(req.params.teamId, req.body)
+        const { teamId } = req.params
+        const userId = req.dbUser.id
+        await svc.assertUserMember(userId, teamId)
+        await svc.assertUserPermission(userId, teamId, 'admin.team.roles', 'write')
+        await svc.createTeamRole(teamId, req.body)
         return sendSuccess(res, 'Created team role')
       })
     )
@@ -127,9 +140,11 @@ export class TeamsRouter implements CustomRouter {
     router.patch(
       '/:teamId/roles/:roleId', // Edit team role
       this.asyncMiddleware(async (req, res) => {
-        await svc.assertUserMember(req.dbUser.id, req.params.teamId)
-        await svc.assertUserPermission(req.dbUser.id, req.params.teamId, 'admin.team.roles', 'write')
-        await svc.updateTeamRole(req.params.teamId, req.params.roleId, req.body)
+        const { teamId } = req.params
+        const userId = req.dbUser.id
+        await svc.assertUserMember(userId, teamId)
+        await svc.assertUserPermission(userId, teamId, 'admin.team.roles', 'write')
+        await svc.updateTeamRole(teamId, req.params.roleId, req.body)
         return sendSuccess(res, 'Updated team role')
       })
     )
@@ -137,9 +152,11 @@ export class TeamsRouter implements CustomRouter {
     router.delete(
       '/:teamId/roles/:roleId', // Delete team role
       this.asyncMiddleware(async (req, res) => {
-        await svc.assertUserMember(req.dbUser.id, req.params.teamId)
-        await svc.assertUserPermission(req.dbUser.id, req.params.teamId, 'admin.team.roles', 'write')
-        await svc.deleteTeamRole(req.params.teamId, req.params.roleId)
+        const { teamId } = req.params
+        const userId = req.dbUser.id
+        await svc.assertUserMember(userId, teamId)
+        await svc.assertUserPermission(userId, teamId, 'admin.team.roles', 'write')
+        await svc.deleteTeamRole(teamId, req.params.roleId)
         return sendSuccess(res, 'Deleted team role')
       })
     )
@@ -154,12 +171,14 @@ export class TeamsRouter implements CustomRouter {
           })
         )
 
-        await svc.assertUserMember(req.dbUser.id, req.params.teamId)
-        await svc.assertUserPermission(req.dbUser.id, req.params.teamId, 'admin.team.members', 'write')
-        await svc.assertRoleExists(req.params.teamId, req.body.role)
+        const { teamId } = req.params
+        const userId = req.dbUser.id
+        await svc.assertUserMember(userId, teamId)
+        await svc.assertUserPermission(userId, teamId, 'admin.team.members', 'write')
+        await svc.assertRoleExists(teamId, req.body.role)
         const user = await this.authService.findUserByUsername(req.params.username)
-        await svc.assertUserNotMember(user!.id, req.params.teamId)
-        await svc.addMemberToTeam(user!.id, req.params.teamId, req.body.role)
+        await svc.assertUserNotMember(user!.id, teamId)
+        await svc.addMemberToTeam(user!.id, teamId, req.body.role)
 
         return sendSuccess(res, 'Added team member', {})
       })
@@ -168,18 +187,20 @@ export class TeamsRouter implements CustomRouter {
     router.delete(
       '/:teamId/members/:username', // Remove team member
       this.asyncMiddleware(async (req, res) => {
-        await svc.assertUserMember(req.dbUser.id, req.params.teamId)
-        await svc.assertUserPermission(req.dbUser.id, req.params.teamId, 'admin.team.members', 'write')
+        const currentUserId = req.dbUser.id
+        const { teamId } = req.params
+        await svc.assertUserMember(currentUserId, teamId)
+        await svc.assertUserPermission(currentUserId, teamId, 'admin.team.members', 'write')
         const user = await this.authService.findUserByUsername(req.params.username, ['id'])
         const userId = user!.id
-        await svc.assertUserMember(userId, req.params.teamId)
+        await svc.assertUserMember(userId, teamId)
 
-        const role = await svc.getUserRole(userId, req.params.teamId)
+        const role = await svc.getUserRole(userId, teamId)
         if (role === 'owner') {
           throw new InvalidOperationError("You can't remove the owner of the team")
         }
 
-        await svc.removeMemberFromTeam(userId, req.params.teamId)
+        await svc.removeMemberFromTeam(userId, teamId)
 
         return sendSuccess(res, 'Removed team member', {})
       })
@@ -195,13 +216,15 @@ export class TeamsRouter implements CustomRouter {
           })
         )
 
-        await svc.assertUserMember(req.dbUser.id, req.params.teamId)
-        await svc.assertUserPermission(req.dbUser.id, req.params.teamId, 'admin.team.members', 'write')
+        const { teamId } = req.params
+        const currentUserId = req.dbUser.id
+        await svc.assertUserMember(currentUserId, teamId)
+        await svc.assertUserPermission(currentUserId, teamId, 'admin.team.members', 'write')
         const user = await this.authService.findUserByUsername(req.params.username, ['id'])
         const userId = user!.id
-        await svc.assertUserMember(userId, req.params.teamId)
-        await svc.assertRoleExists(req.params.teamId, req.body.role)
-        await svc.changeUserRole(userId, req.params.teamId, req.body.role)
+        await svc.assertUserMember(userId, teamId)
+        await svc.assertRoleExists(teamId, req.body.role)
+        await svc.changeUserRole(userId, teamId, req.body.role)
 
         return sendSuccess(res, 'Updated team member', {})
       })
@@ -210,12 +233,14 @@ export class TeamsRouter implements CustomRouter {
     router.delete(
       '/:teamId', // Delete team
       this.asyncMiddleware(async (req, res) => {
-        await svc.assertUserMember(req.dbUser.id, req.params.teamId)
-        await svc.assertUserRole(req.dbUser.id, req.params.teamId, 'owner')
-        await svc.deleteTeam(req.params.teamId)
+        const { teamId } = req.params
+        const userId = req.dbUser.id
+        await svc.assertUserMember(userId, teamId)
+        await svc.assertUserRole(userId, teamId, 'owner')
+        await svc.deleteTeam(teamId)
 
         return sendSuccess(res, 'Team deleted', {
-          teamId: req.params.teamId
+          teamId: teamId
         })
       })
     )
@@ -223,13 +248,15 @@ export class TeamsRouter implements CustomRouter {
     router.post(
       '/:teamId/bots', // Add new bot
       this.asyncMiddleware(async (req, res) => {
-        await svc.assertUserMember(req.dbUser.id, req.params.teamId)
-        await svc.assertUserPermission(req.dbUser.id, req.params.teamId, 'admin.team.bots', 'write')
-        const bot = await svc.addBot(req.params.teamId)
+        const { teamId } = req.params
+        const userId = req.dbUser.id
+        await svc.assertUserMember(userId, teamId)
+        await svc.assertUserPermission(userId, teamId, 'admin.team.bots', 'write')
+        const bot = await svc.addBot(teamId)
 
         return sendSuccess(res, 'Added new bot', {
           botId: bot.id,
-          teamId: req.params.teamId
+          teamId: teamId
         })
       })
     )
@@ -237,12 +264,15 @@ export class TeamsRouter implements CustomRouter {
     router.get(
       '/:teamId/bots', // List bots
       this.asyncMiddleware(async (req, res) => {
-        await svc.assertUserMember(req.dbUser.id, req.params.teamId)
-        await svc.assertUserPermission(req.dbUser.id, req.params.teamId, 'admin.team.bots', 'read')
+        const { teamId } = req.params
+        const userId = req.dbUser.id
+
+        await svc.assertUserMember(userId, teamId)
+        await svc.assertUserPermission(userId, teamId, 'admin.team.bots', 'read')
 
         const offset = _.get(req, 'query.offset') || 0
 
-        const { count, bots } = await svc.listBots(req.params.teamId, offset, 100)
+        const { count, bots } = await svc.listBots(teamId, offset, 100)
         return sendSuccess(res, 'Retrieved team bots', { count, bots })
       })
     )
@@ -250,11 +280,14 @@ export class TeamsRouter implements CustomRouter {
     router.delete(
       '/:teamId/bots/:botId', // Delete a bot
       this.asyncMiddleware(async (req, res) => {
-        await svc.assertUserMember(req.dbUser.id, req.params.teamId)
-        await svc.assertUserPermission(req.dbUser.id, req.params.teamId, 'admin.team.bots', 'write')
-        await svc.deleteBot(req.params.teamId, req.params.botId)
+        const { botId, teamId } = req.params
+        const userId = req.dbUser.id
 
-        return sendSuccess(res, 'Removed bot from team', { botId: req.params.botId })
+        await svc.assertUserMember(userId, teamId)
+        await svc.assertUserPermission(userId, teamId, 'admin.team.bots', 'write')
+        await svc.deleteBot(teamId, botId)
+
+        return sendSuccess(res, 'Removed bot from team', { botId })
       })
     )
   }

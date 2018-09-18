@@ -15,10 +15,7 @@ export interface AuthUser {
   company?: string
   last_ip?: string
   email?: string
-  remote_id: string
-  provider: string
   location?: string
-  last_synced_at: string
 }
 
 export interface AuthTeam {
@@ -69,7 +66,6 @@ export interface Bot {
   description?: string
   author?: string
   license?: string
-  public_id: string
   created_at: string
   updated_at: string
   team: number

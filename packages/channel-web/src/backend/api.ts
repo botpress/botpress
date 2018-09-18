@@ -1,6 +1,7 @@
 import aws from 'aws-sdk'
 import { BotpressAPI, BotpressEvent } from 'botpress-module-sdk'
 import { RealTimePayload } from 'botpress-module-sdk/dist/src/realtime'
+import { Request } from 'express'
 import fs from 'fs'
 import _ from 'lodash'
 import moment from 'moment'
@@ -136,7 +137,7 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
     '/messages/:userId/files',
     upload.single('file'),
     asyncApi(async (req, res) => {
-      const { botId = '', userId = undefined } = req.params || {}
+      const { botId = undefined, userId = undefined } = req.params || {}
 
       if (!validateUserId(userId)) {
         return res.status(400).send(ERR_USER_ID_REQ)
@@ -182,7 +183,7 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
   })
 
   router.get('/conversations/:userId', async (req, res) => {
-    const { botId = '', userId = undefined } = req.params || {}
+    const { botId = undefined, userId = undefined } = req.params || {}
 
     if (!validateUserId(userId)) {
       return res.status(400).send(ERR_USER_ID_REQ)
@@ -205,7 +206,7 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
     return /[a-z0-9-_]+/i.test(userId)
   }
 
-  async function sendNewMessage(botId, userId, conversationId, payload) {
+  async function sendNewMessage(botId: string, userId: string, conversationId, payload) {
     if (!payload.text || !_.isString(payload.text) || payload.text.length > 360) {
       throw new Error('Text must be a valid string of less than 360 chars')
     }
@@ -268,7 +269,7 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
   router.post(
     '/conversations/:userId/:conversationId/reset',
     asyncApi(async (req, res) => {
-      const { botId = '', userId, conversationId } = req.params
+      const { botId, userId, conversationId } = req.params
       const { result: user } = await bp.users.getOrCreateUser('web', userId)
 
       const payload = {

@@ -14,7 +14,7 @@ import { InstructionProcessor } from './dialog/instruction/processor'
 import { ActionStrategy, StrategyFactory, TransitionStrategy, WaitStrategy } from './dialog/instruction/strategy'
 import { DialogJanitor } from './dialog/janitor'
 import { SessionService } from './dialog/session/service'
-import { ObjectCache, StorageDriver } from './ghost'
+import { CacheInvalidators, ObjectCache, StorageDriver } from './ghost'
 import DBStorageDriver from './ghost/db-driver'
 import DiskStorageDriver from './ghost/disk-driver'
 import MemoryObjectCache from './ghost/memory-cache'
@@ -30,6 +30,10 @@ import MemoryQueue from './queue/memory-queue'
 import RealtimeService from './realtime'
 
 export const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
+  bind<CacheInvalidators.FileChangedInvalidator>(TYPES.FileCacheInvalidator)
+    .to(CacheInvalidators.FileChangedInvalidator)
+    .inSingletonScope()
+
   bind<ObjectCache>(TYPES.ObjectCache)
     .to(MemoryObjectCache)
     .inSingletonScope()

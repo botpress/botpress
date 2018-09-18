@@ -1,18 +1,23 @@
-import { injectable } from 'inversify'
+import { inject, injectable } from 'inversify'
 import LRU from 'lru-cache'
 
+import { TYPES } from '../../misc/types'
+
 import { ObjectCache } from '.'
+import { CacheInvalidators } from './cache-invalidators'
 
 @injectable()
 export default class MemoryObjectCache implements ObjectCache {
   cache: LRU.Cache<string, any>
 
-  constructor() {
+  constructor(@inject(TYPES.FileCacheInvalidator) private cacheInvalidator: CacheInvalidators.FileChangedInvalidator) {
     this.cache = LRU({
       // For now we cache up to 5000 elements, whatever the size
       // We will probably want to assign different length to various element types in the future
       max: 5000
     })
+
+    this.cacheInvalidator.install(this)
   }
 
   async get<T>(key: string): Promise<T> {
@@ -29,5 +34,10 @@ export default class MemoryObjectCache implements ObjectCache {
 
   async invalidate(key: string): Promise<void> {
     this.cache.del(key)
+  }
+
+  async invalidateStartingWith(prefix: string): Promise<void> {
+    const keys = this.cache.keys().filter(x => x.startsWith(prefix))
+    keys.forEach(x => this.cache.del(x))
   }
 }

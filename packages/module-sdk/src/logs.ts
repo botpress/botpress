@@ -26,12 +26,11 @@ export class LogEntry {
   timestamp: string
 
   constructor(args: LogEntryArgs) {
-    const { botId, level, scope, message, metadata, timestamp } = args
-    this.botId = botId
-    this.level = level
-    this.scope = scope
-    this.message = message
-    this.metadata = metadata
-    this.timestamp = timestamp
+    this.botId = args.botId
+    this.level = args.level
+    this.scope = args.scope
+    this.message = args.message
+    this.metadata = args.metadata
+    this.timestamp = args.timestamp
   }
 }

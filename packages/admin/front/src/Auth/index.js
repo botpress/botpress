@@ -21,7 +21,7 @@ export default class BasicAuthentication {
   }
 
   async doLogin({ username, password }) {
-    const { data } = await api.getAnonymous({ toastErrors: false }).post('/api/login', {
+    const { data } = await api.getAnonymous({ toastErrors: false }).post('/api/auth/login', {
       username,
       password
     })
@@ -32,7 +32,7 @@ export default class BasicAuthentication {
   }
 
   async doRegister({ username, password }) {
-    const { data } = await api.getAnonymous({ toastErrors: false }).post('/api/register', {
+    const { data } = await api.getAnonymous({ toastErrors: false }).post('/api/auth/register', {
       username,
       password
     })

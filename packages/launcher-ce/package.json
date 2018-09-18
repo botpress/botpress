@@ -11,7 +11,7 @@
     "postinstall": "npm run build",
     "start": "npm run serve",
     "serve": "node build/src/index.js",
-    "build": "npm run tslint && npm run build-ts && npm run clean-dist && cross-os cbuild",
+    "build": "npm run tslint && npm run build-ts && npm run clean-dist",
     "build-ts": "../../node_modules/.bin/tsc",
     "clean-dist": "../../node_modules/.bin/rimraf ./dist",
     "test": "../../node_modules/.bin/jest --detectOpenHandles -c ../../jest.config.js",

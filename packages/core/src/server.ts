@@ -8,7 +8,7 @@ import { inject, injectable, tagged } from 'inversify'
 import { ConfigProvider } from './config/config-loader'
 import { TYPES } from './misc/types'
 
-import { AdminRouter, BotsRouter, ModulesRouter } from './routers'
+import { AdminRouter, AuthRouter, BotsRouter, ModulesRouter } from './routers'
 
 import { ModuleLoader } from './module-loader'
 import { BotRepository } from './repositories'
@@ -30,9 +30,10 @@ export default class HTTPServer {
   public readonly httpServer: Server
   public readonly app: express.Express
 
-  private readonly botsRouter: BotsRouter
-  private readonly modulesRouter: ModulesRouter
+  private readonly authRouter: AuthRouter
   private readonly adminRouter: AdminRouter
+  private readonly modulesRouter: ModulesRouter
+  private readonly botsRouter: BotsRouter
 
   constructor(
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
@@ -59,6 +60,10 @@ export default class HTTPServer {
 
     this.httpServer = createServer(this.app)
 
+    this.modulesRouter = new ModulesRouter(moduleLoader)
+    this.authRouter = new AuthRouter(this.logger, this.authService, this.teamsService)
+    this.adminRouter = new AdminRouter(this.logger, this.authService, this.teamsService)
+    this.modulesRouter = new ModulesRouter(moduleLoader)
     this.botsRouter = new BotsRouter({
       actionService,
       botRepository,
@@ -66,10 +71,10 @@ export default class HTTPServer {
       flowService,
       mediaService,
       logsService,
-      notificationService
+      notificationService,
+      authService,
+      teamsService
     })
-    this.modulesRouter = new ModulesRouter(moduleLoader)
-    this.adminRouter = new AdminRouter(this.logger, this.authService, this.teamsService)
   }
 
   async start() {
@@ -89,6 +94,8 @@ export default class HTTPServer {
       })
     )
 
+    this.app.use(`${BASE_API_PATH}/auth`, this.authRouter.router)
+    this.app.use(`${BASE_API_PATH}/admin`, this.adminRouter.router)
     this.app.use(`${BASE_API_PATH}/modules`, this.modulesRouter.router)
     this.app.use(`${BASE_API_PATH}/bots/:botId`, this.botsRouter.router)
     this.app.use(`${BASE_API_PATH}/admin`, this.adminRouter.router)

@@ -19,7 +19,7 @@ const USERS_TABLE = 'auth_users'
 const BOTS_TABLE = 'srv_bots'
 
 @injectable()
-export default class TeamService {
+export default class TeamsService {
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'Auth Teams')
@@ -89,7 +89,7 @@ export default class TeamService {
     return role.name!
   }
 
-  async getUserPermissions(userId: number, teamId: number) {
+  async getUserPermissions(userId: number, teamId: number): Promise<AuthRule[]> {
     const roleName = await this.getUserRole(userId, teamId)
 
     const role = await this.getRole({ team: teamId, name: roleName }, ['rules'])
@@ -283,8 +283,7 @@ export default class TeamService {
     const id = nanoid(8)
     const bot: Partial<Bot> = {
       team: teamId,
-      name: `Bot ${id}`,
-      public_id: id
+      name: `Bot ${id}`
     }
 
     await this.knex(BOTS_TABLE)
@@ -294,6 +293,18 @@ export default class TeamService {
     // TODO: we also want to create the bot skeleton files now
 
     return bot
+  }
+
+  async getBotTeam(botId: string) {
+    return this.knex(BOTS_TABLE)
+      .select(['team'])
+      .where({ id: botId })
+      .limit(1)
+      .then<Partial<Bot>[]>(res => res)
+      .get(0)
+      .then(bot => {
+        return bot ? bot.team : undefined
+      })
   }
 
   async listBots(teamId: number, offset: number = 0, limit: number = 100) {
@@ -307,14 +318,14 @@ export default class TeamService {
     return { count: bots.length, bots }
   }
 
-  async deleteBot(teamId, botId) {
+  async deleteBot(teamId: number, botId: string) {
     await this.knex(BOTS_TABLE)
       .where({ team: teamId, id: botId })
       .delete()
       .then()
   }
 
-  async getInviteCode(teamId) {
+  async getInviteCode(teamId: number) {
     const team = await this.getTeam({ id: teamId }, ['invite_code'])
 
     if (!team) {

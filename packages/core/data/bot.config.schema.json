@@ -31,6 +31,9 @@
         "author": {
             "type": "string"
         },
+        "conversationLifetime": {
+            "type": "string"
+        },
         "description": {
             "type": "string"
         },
@@ -87,6 +90,7 @@
     },
     "required": [
         "active",
+        "conversationLifetime",
         "imports",
         "name",
         "version"

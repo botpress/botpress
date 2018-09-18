@@ -25,9 +25,13 @@ app.use(
   })
 )
 
-httpProxy.proxy('/api/', {
-  proxyReqPathResolver: req => req.originalUrl.replace('/api/', '/api/v1/admin/')
-})
+httpProxy
+  .proxy('/api/auth/', {
+    proxyReqPathResolver: req => req.originalUrl.replace('/api/auth/', '/api/v1/auth/')
+  })
+  .proxy('/api/', {
+    proxyReqPathResolver: req => req.originalUrl.replace('/api/', '/api/v1/admin/')
+  })
 
 app.use(express.static(path.join(__dirname, '../static')))
 

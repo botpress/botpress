@@ -1,11 +1,18 @@
+import { checkRule } from '@botpress/util-roles'
 import { Logger } from 'botpress-module-sdk'
 import { NextFunction, Request, Response } from 'express'
 import Joi from 'joi'
 
-import { RequestWithUser } from '../../misc/interfaces'
-import AuthService from '../../services/auth/auth-service'
 // TODO: generalize these errors and consolidate them with ~/Errors.ts
-import { AssertionError, ProcessingError, UnauthorizedAccessError } from '../../services/auth/errors'
+import { RequestWithUser } from '../misc/interfaces'
+import AuthService from '../services/auth/auth-service'
+import {
+  AssertionError,
+  InvalidOperationError,
+  ProcessingError,
+  UnauthorizedAccessError
+} from '../services/auth/errors'
+import TeamsService from '../services/auth/teams-service'
 
 export const asyncMiddleware = ({ logger }: { logger: Logger }) => (
   fn: (req: Request, res: Response, next?: NextFunction) => Promise<any>
@@ -86,7 +93,8 @@ export const checkTokenHeader = (authService: AuthService, audience?: string) =>
 }
 
 export const loadUser = (authService: AuthService) => async (req: Request, res: Response, next: Function) => {
-  const { user } = req as RequestWithUser
+  const reqWithUser = req as RequestWithUser
+  const { user } = reqWithUser
   if (!user) {
     throw new ProcessingError('No user property in the request')
   }
@@ -97,9 +105,57 @@ export const loadUser = (authService: AuthService) => async (req: Request, res: 
     throw new UnauthorizedAccessError('Unknown user ID')
   }
 
-  (req as RequestWithUser).dbUser = {
+  reqWithUser.dbUser = {
     ...dbUser,
     fullName: [dbUser.firstname, dbUser.lastname].filter(Boolean).join(' ')
+  }
+
+  next()
+}
+
+const getParam = (req: Request, name: string, defaultValue?: any) =>
+  req.params[name] || req.body[name] || req.query[name]
+
+class PermissionError extends AssertionError {
+  constructor(message: string) {
+    super('Permission check error: ' + message)
+  }
+}
+
+export const needPermissions = (teamsService: TeamsService) => (operation: string, resource: string) => async (
+  req: RequestWithUser,
+  res: Response,
+  next: NextFunction
+) => {
+  const userId = req.user && req.user.id
+
+  if (userId == undefined) {
+    next(new PermissionError('user is not authenticated'))
+    return
+  }
+
+  const botId = getParam(req, 'botId')
+  let teamId = getParam(req, 'teamId')
+
+  if (!botId && !teamId) {
+    next(new PermissionError('botId or teamId must be present on the request'))
+    return
+  }
+
+  if (!teamId) {
+    teamId = await teamsService.getBotTeam(botId!)
+  }
+
+  if (!teamId) {
+    next(new PermissionError('botId or teamId must be present on the request'))
+    return
+  }
+
+  const rules = await teamsService.getUserPermissions(userId, teamId)
+
+  if (!checkRule(rules, operation, resource)) {
+    next(new PermissionError(`user does not have sufficient permissions to ${operation} ${resource}`))
+    return
   }
 
   next()
