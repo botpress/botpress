@@ -5,7 +5,7 @@ const _ = require('lodash')
 const bodyParser = require('body-parser')
 const qs = require('querystring')
 
-const { HttpProxy, setApiBasePath, BASE_PATH } = require('@botpress/xx-util')
+const { HttpProxy, getApiBasePath, BASE_PATH } = require('@botpress/xx-util')
 
 function noCache(req, res, next) {
   res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate')
@@ -29,7 +29,7 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
     '/api/middlewares/customizations',
     noCache,
     proxy(core_api_url, {
-      proxyReqPathResolver: async (req, res) => setApiBasePath(req) + '/middleware',
+      proxyReqPathResolver: async (req, res) => getApiBasePath(req) + '/middleware',
       proxyReqBodyDecorator: async (body, srcReq) => {
         // Middleware(s) is a typo. Can't be plural.
         return { middleware: body.middlewares }
@@ -42,7 +42,7 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
   app.post(
     '/api/media',
     proxy(core_api_url, {
-      proxyReqPathResolver: async (req, res) => setApiBasePath(req) + '/media',
+      proxyReqPathResolver: async (req, res) => getApiBasePath(req) + '/media',
       parseReqBody: false
     })
   )
@@ -50,7 +50,7 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
   app.get(
     '/media',
     proxy(core_api_url, {
-      proxyReqPathResolver: async (req, res) => setApiBasePath(req) + '/media'
+      proxyReqPathResolver: async (req, res) => getApiBasePath(req) + '/media'
     })
   )
 
@@ -58,7 +58,7 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
     '/api/content/categories/:categoryId/items/:itemId',
     proxy(core_api_url, {
       proxyReqPathResolver: req => {
-        return `${setApiBasePath(req)}/content/${req.params.categoryId}/elements/${req.params.itemId}`
+        return `${getApiBasePath(req)}/content/${req.params.categoryId}/elements/${req.params.itemId}`
       }
     })
   )
@@ -67,7 +67,7 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
     '/api/content/categories/:categoryId/items',
     proxy(core_api_url, {
       proxyReqPathResolver: async (req, res) => {
-        return `${setApiBasePath(req)}/content/${req.params.categoryId}/elements`
+        return `${getApiBasePath(req)}/content/${req.params.categoryId}/elements`
       }
     })
   )
@@ -80,7 +80,7 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
     proxy(core_api_url, {
       proxyReqPathResolver: req => {
         const elementIds = req.params.itemIds.split(',')
-        return `${setApiBasePath(req)}/content/elements?ids=${elementIds.join(',')}`
+        return `${getApiBasePath(req)}/content/elements?ids=${elementIds.join(',')}`
       },
       userResDecorator: function(proxyRes, proxyResData, userReq, userRes) {
         const body = JSON.parse(proxyResData)
@@ -100,7 +100,7 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
     noCache,
     proxy(core_api_url, {
       proxyReqPathResolver: req => {
-        const apiPath = setApiBasePath(req)
+        const apiPath = getApiBasePath(req)
         const oQuery = req.query || {}
         const query = qs.stringify(_.pick(oQuery, ['from', 'count', 'searchTerm']))
 
@@ -123,7 +123,7 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
     proxy(core_api_url, {
       proxyReqPathResolver: req => {
         const contentType = req.query.categoryId
-        const apiPath = setApiBasePath(req)
+        const apiPath = getApiBasePath(req)
 
         if (contentType) {
           return `${apiPath}/content/${contentType}/elements/count`
@@ -138,7 +138,7 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
     proxy(core_api_url, {
       proxyReqPathResolver: (req, res) => {
         const elementId = req.params.itemId
-        const apiPath = setApiBasePath(req)
+        const apiPath = getApiBasePath(req)
         return `${apiPath}/content/elements/${elementId}`
       },
       userResDecorator: function(proxyRes, proxyResData, userReq, userRes) {
@@ -163,7 +163,7 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
     noCache,
     proxy(core_api_url, {
       proxyReqPathResolver: req => {
-        return setApiBasePath(req) + '/flows'
+        return getApiBasePath(req) + '/flows'
       },
       proxyReqBodyDecorator: async body => {
         // name prop is new
@@ -209,7 +209,7 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
     '/api/logs',
     proxy(core_api_url, {
       proxyReqPathResolver: (req, res) => {
-        const apiPath = setApiBasePath(req)
+        const apiPath = getApiBasePath(req)
         const limit = req.query.limit
         return limit ? `${apiPath}/logs?limit=${limit}` : `${apiPath}/logs`
       }
@@ -226,7 +226,7 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
         let parts = _.drop(req.path.split('/'), 3)
         const newPath = parts.join('/')
         const newQuery = qs.stringify(req.query)
-        const apiPath = setApiBasePath(req)
+        const apiPath = getApiBasePath(req)
         return `${apiPath}/ext/channel-web/${newPath}?${newQuery}`
       }
     })
