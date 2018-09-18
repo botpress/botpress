@@ -12,7 +12,7 @@ They can be seen as reusable components between multiple flows or even multiple 
 
 ## Installing skills
 
-Skills are implemented under a special kind of Botpress module whose name starts with `botpress-skills-`. Many skills are open-source and available for you to install.
+Skills are implemented under a special kind of Botpress module whose name starts with `@botpress/skill-`. Many skills are open-source and available for you to install.
 
 ### Installing the `choice` skill <a class="toc" id="installing-the-choice-skill" href="#installing-the-choice-skill"></a>
 
@@ -20,10 +20,10 @@ Installing a skill is as simple as installing a regular npm package. Once instal
 
 ```bash
 # using npm
-npm install --save botpress-skill-choice
+npm install --save @botpress/skill-choice
 
 # using yarn
-yarn add botpress-skill-choice
+yarn add @botpress/skill-choice
 ```
 
 ## Using skills
