@@ -1,7 +1,6 @@
 import Bluebird from 'bluebird'
-import { BotpressAPI, ExtendedKnex, KnexCallback, QueryBuilder, UserAPI } from 'botpress-module-sdk'
+import { BotpressAPI, ExtendedKnex, QueryBuilder, UserAPI } from 'botpress-module-sdk'
 import _ from 'lodash'
-import { Memoize } from 'lodash-decorators'
 import moment from 'moment'
 import ms from 'ms'
 import uuid from 'uuid'
@@ -13,11 +12,6 @@ export default class WebchatDb {
   constructor(private bp: BotpressAPI) {
     this.users = bp.users
     this.knex = bp.database
-  }
-
-  @Memoize()
-  private getConfigPerBot(botId: string): Promise<any> {
-    return this.bp.config.getModuleConfigForBot('webchat', botId)
   }
 
   async getUserInfo(userId) {
@@ -170,13 +164,13 @@ export default class WebchatDb {
   }
 
   async getOrCreateRecentConversation(botId: string, userId: string, { originatesFromUserMessage = false } = {}) {
-    const config = await this.bp.config.getConfig(botId)
-    const lifetime = config.conversationLifetime
+    // TODO: Lifetime config by bot
+    const config = await this.bp.config.getModuleConfigForBot('channel-web', botId)
 
     const recentCondition = this.knex.date.isAfter(
       'last_heard_on',
       moment()
-        .subtract(lifetime, 'ms')
+        .subtract(ms(config.recentConversationLifetime), 'ms')
         .toDate()
     )
 

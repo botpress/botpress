@@ -1,9 +1,7 @@
 import { ModuleDefinition, ModuleMetadata } from 'botpress-module-sdk'
 import { Logger } from 'botpress-module-sdk'
-import { EFAULT } from 'constants'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
-import { Memoize } from 'lodash-decorators'
 
 import { createForModule } from './api'
 import { ModuleConfigEntry } from './config/modules.config'

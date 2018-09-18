@@ -11,7 +11,7 @@ export class HttpProxy {
     const options =
       typeof targetPathOrOptions === 'string'
         ? {
-            proxyReqPathResolver: req => setApiBasePath(req) + targetPathOrOptions
+            proxyReqPathResolver: req => getApiBasePath(req) + targetPathOrOptions
           }
         : targetPathOrOptions
     this.app.use(originPath, proxy(this.targetHost, options))
@@ -20,7 +20,8 @@ export class HttpProxy {
   }
 }
 
-export function setApiBasePath(req) {
-  const botId = req.get(BOT_REQUEST_HEADERS)
+export function getApiBasePath(req) {
+  // FIXME: Remove the hardcoded botId once the headers in the UI will be added.
+  const botId = req.get(BOT_REQUEST_HEADERS) || 'bot123'
   return `${BASE_PATH}/bots/${botId}`
 }

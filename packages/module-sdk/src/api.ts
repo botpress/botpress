@@ -31,7 +31,6 @@ export interface Logger {
 }
 
 export interface ConfigAPI {
-  getConfig(botId: string): Promise<any>
   getModuleConfig(moduleId: string): Promise<any>
   getModuleConfigForBot(moduleId: string, botId: string): Promise<any>
 }

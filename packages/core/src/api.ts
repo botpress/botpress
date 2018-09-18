@@ -16,7 +16,6 @@ import { inject, injectable } from 'inversify'
 import { Memoize } from 'lodash-decorators'
 
 import { container } from './app.inversify'
-import { ConfigProvider } from './config/config-loader'
 import Database from './database'
 import { LoggerProvider } from './logger'
 import { TYPES } from './misc/types'
@@ -69,11 +68,8 @@ const dialog = (dialogEngine: DialogEngine, sessionService: SessionService): Dia
   }
 }
 
-const config = (moduleLoader: ModuleLoader, configProvider: ConfigProvider): ConfigAPI => {
+const config = (moduleLoader: ModuleLoader): ConfigAPI => {
   return {
-    getConfig(botId: string): Promise<any> {
-      return configProvider.getBotConfig(botId)
-    },
     getModuleConfig(moduleId: string): Promise<any> {
       return moduleLoader.configReader.getGlobal(moduleId)
     },
@@ -120,13 +116,12 @@ export class BotpressAPIProvider {
     @inject(TYPES.HTTPServer) httpServer: HTTPServer,
     @inject(TYPES.UserRepository) userRepo: UserRepository,
     @inject(TYPES.RealtimeService) realtimeService: RealtimeService,
-    @inject(TYPES.SessionService) sessionService: SessionService,
-    @inject(TYPES.ConfigProvider) configProvider: ConfigProvider
+    @inject(TYPES.SessionService) sessionService: SessionService
   ) {
     this.http = new Http(httpServer)
     this.events = event(eventEngine)
     this.dialog = dialog(dialogEngine, sessionService)
-    this.config = config(moduleLoader, configProvider)
+    this.config = config(moduleLoader)
     this.realtime = new RealTimeAPI(realtimeService)
     this.database = db.knex
     this.users = users(userRepo)
