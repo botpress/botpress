@@ -26,6 +26,10 @@ function start({ coreApiUrl, proxyHost, proxyPort }, callback) {
 
   httpProxy.proxy('/api/bot/information', '/')
 
+  app.use((err, req, res, next) => {
+    console.log('ERR +===>>>', err)
+  })
+
   app.post(
     '/api/middlewares/customizations',
     noCache,
