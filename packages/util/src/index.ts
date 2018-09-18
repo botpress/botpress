@@ -4,6 +4,12 @@ import proxy from 'express-http-proxy'
 export const BASE_PATH = '/api/v1'
 const BOT_REQUEST_HEADERS = 'X-API-Bot-Id'
 
+export function getApiBasePath(req) {
+  // FIXME: Remove the hardcoded botId once the headers in the UI will be added.
+  const botId = req.get(BOT_REQUEST_HEADERS) || 'bot123'
+  return `${BASE_PATH}/bots/${botId}`
+}
+
 export class HttpProxy {
   constructor(private app: Application | Router, private targetHost: string) {}
 
@@ -18,10 +24,4 @@ export class HttpProxy {
 
     return this
   }
-}
-
-export function getApiBasePath(req) {
-  // FIXME: Remove the hardcoded botId once the headers in the UI will be added.
-  const botId = req.get(BOT_REQUEST_HEADERS) || 'bot123'
-  return `${BASE_PATH}/bots/${botId}`
 }

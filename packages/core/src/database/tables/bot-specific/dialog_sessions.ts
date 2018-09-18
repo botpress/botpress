@@ -10,7 +10,7 @@ export class DialogSessionTable extends Table {
       table
         .string('botId')
         .notNullable()
-        .references('public_id')
+        .references('id')
         .inTable('srv_bots')
       table.text('state').nullable()
       table.text('context').notNullable()

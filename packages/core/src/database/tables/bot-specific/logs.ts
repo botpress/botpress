@@ -9,7 +9,7 @@ export class LogsTable extends Table {
       table
         .string('botId')
         .nullable()
-        .references('public_id')
+        .references('id')
         .inTable('srv_bots')
         .onDelete('CASCADE')
       table.string('timestamp')

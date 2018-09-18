@@ -5,7 +5,7 @@ const _ = require('lodash')
 const bodyParser = require('body-parser')
 const qs = require('querystring')
 
-const { HttpProxy, setApiBasePath, BASE_PATH } = require('@botpress/xx-util')
+const { HttpProxy, getApiBasePath, BASE_PATH } = require('@botpress/xx-util')
 const { version: uiVersion } = require('botpress/package.json')
 
 function noCache(req, res, next) {
@@ -29,7 +29,7 @@ function start({ coreApiUrl, proxyHost, proxyPort }, callback) {
   app.post(
     '/api/middlewares/customizations',
     noCache,
-    proxy(core_api_url, {
+    proxy(coreApiUrl, {
       proxyReqPathResolver: async (req, res) => getApiBasePath(req) + '/middleware',
       proxyReqBodyDecorator: async (body, srcReq) => {
         // Middleware(s) is a typo. Can't be plural.
@@ -42,7 +42,7 @@ function start({ coreApiUrl, proxyHost, proxyPort }, callback) {
 
   app.post(
     '/api/media',
-    proxy(core_api_url, {
+    proxy(coreApiUrl, {
       proxyReqPathResolver: async (req, res) => getApiBasePath(req) + '/media',
       parseReqBody: false
     })
@@ -50,7 +50,7 @@ function start({ coreApiUrl, proxyHost, proxyPort }, callback) {
 
   app.get(
     '/media',
-    proxy(core_api_url, {
+    proxy(coreApiUrl, {
       proxyReqPathResolver: async (req, res) => getApiBasePath(req) + '/media'
     })
   )

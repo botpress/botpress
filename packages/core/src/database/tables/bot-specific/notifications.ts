@@ -12,7 +12,7 @@ export class NotificationsTable extends Table {
         .primary()
       table
         .string('botId')
-        .references('public_id')
+        .references('id')
         .inTable('srv_bots')
       table.string('message')
       table.string('level')
