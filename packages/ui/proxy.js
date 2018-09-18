@@ -193,7 +193,7 @@ function start({ core_api_url, proxy_host, proxy_port }, callback) {
         window.APP_NAME = "Botpress";
         window.GHOST_ENABLED = false;
         window.BOTPRESS_FLOW_EDITOR_DISABLED = null;
-        window.BOTPRESS_BOT_ID_RESPONSE = true;
+        window.BOTPRESS_XX = true;
       })(typeof window != 'undefined' ? window : {})
     `)
   })
