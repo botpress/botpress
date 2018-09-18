@@ -29,7 +29,7 @@ const eventSchema = {
     .required(),
   preview: joi.string().optional(),
   payload: joi.object().required(),
-  botId: joi.number().required(),
+  botId: joi.string().required(),
   threadId: joi.string().optional(),
   flags: joi.any().required()
 }
