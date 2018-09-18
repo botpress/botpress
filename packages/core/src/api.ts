@@ -16,7 +16,6 @@ import { inject, injectable } from 'inversify'
 import { Memoize } from 'lodash-decorators'
 
 import { container } from './app.inversify'
-import { ConfigProvider } from './config/config-loader'
 import Database from './database'
 import { LoggerProvider } from './logger'
 import { TYPES } from './misc/types'

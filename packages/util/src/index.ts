@@ -21,6 +21,7 @@ export class HttpProxy {
 }
 
 export function getApiBasePath(req) {
-  const botId = req.get(BOT_REQUEST_HEADERS)
+  // FIXME: Remove the hardcoded botId once the headers in the UI will be added.
+  const botId = req.get(BOT_REQUEST_HEADERS) || 'bot123'
   return `${BASE_PATH}/bots/${botId}`
 }
