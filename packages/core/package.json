@@ -46,6 +46,7 @@
     "mustache": "^2.3.1",
     "mware-ts": "^1.0.1",
     "nanoid": "^1.2.3",
+    "nsfw": "^1.0.16",
     "pg": "^7.4.3",
     "plur": "^3.0.1",
     "reflect-metadata": "^0.1.12",

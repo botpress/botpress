@@ -50,7 +50,8 @@ const TYPES = {
   LogsRepository: Symbol.for('LogsRepository'),
   LogJanitorRunner: Symbol.for('LogJanitorRunner'),
   NotificationsRepository: Symbol.for('NotificationsRepository'),
-  NotificationsService: Symbol.for('NotificationsService')
+  NotificationsService: Symbol.for('NotificationsService'),
+  FileCacheInvalidator: Symbol.for('FileCacheInvalidator')
 }
 
 export { TYPES }
