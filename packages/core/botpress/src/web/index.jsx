@@ -22,6 +22,10 @@ if (token) {
   axios.defaults.headers.common['Authorization'] = `Bearer ${token.token}`
 }
 
+if (axios && axios.defaults) {
+  axios.defaults.headers.common['X-Botpress-App'] = 'Studio'
+}
+
 // Do not use "import App from ..." as hoisting will screw up styling
 const App = require('./components/App').default
 

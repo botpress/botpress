@@ -65,7 +65,7 @@ class Header extends React.Component {
           <Nav pullRight>
             <NavItem onClick={this.handleFullscreen}>{this.renderFullScreenButton()}</NavItem>
             <PermissionsChecker user={this.props.user} res="bot.logs" op="read">
-              <NavItem href="/logs">
+              <NavItem href={window.BP_BASE_PATH + '/logs'}>
                 <Glyphicon glyph="list-alt" />
               </NavItem>
             </PermissionsChecker>

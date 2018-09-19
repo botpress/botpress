@@ -71,7 +71,7 @@ class NotificationHub extends NotificationComponent {
                 Mark all as read
               </a>
               &nbsp; &middot; &nbsp;
-              <a href="/notifications">Show all</a>
+              <a href={window.BP_BASE_PATH + '/notifications'}>Show all</a>
             </div>
           )}
         </MenuItem>

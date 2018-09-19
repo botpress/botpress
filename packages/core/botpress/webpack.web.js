@@ -18,7 +18,7 @@ const webConfig = {
   },
   output: {
     path: path.resolve(__dirname, './lib/web/js'),
-    publicPath: '/js/',
+    publicPath: '$$BP_BASE_URL$$/js/',
     filename: '[name].[chunkhash].js'
   },
   resolve: {
@@ -125,7 +125,16 @@ const webConfig = {
       },
       {
         test: /\.woff|\.woff2|\.svg|.eot|\.ttf/,
-        use: [{ loader: 'file-loader', options: { name: '../fonts/[name].[ext]' } }]
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: '[name].[ext]',
+              outputPath: '../fonts',
+              publicPath: '/fonts'
+            }
+          }
+        ]
       }
     ]
   }

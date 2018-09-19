@@ -4,6 +4,7 @@ import fs from 'fs'
 import ms from 'ms'
 import util from '../util'
 import yn from 'yn'
+import tamper from 'tamper'
 
 module.exports = bp => {
   const serveModule = (app, module) => {
@@ -89,6 +90,19 @@ module.exports = bp => {
       serveModule(app, module)
     }
 
+    app.use(
+      tamper(function(req, res) {
+        const contentType = res.getHeaders()['content-type']
+        if (!contentType.includes('text/html')) {
+          return
+        }
+
+        return function(body) {
+          return body.replace(/\$\$BP_BASE_URL\$\$/g, '')
+        }
+      })
+    )
+
     app.use('/js/env.js', async (req, res) => {
       const { tokenExpiry, enabled: authEnabled, useCloud } = bp.botfile.login
       const { enabled: ghostEnabled } = bp.botfile.ghostContent
@@ -107,6 +121,7 @@ module.exports = bp => {
       res.send(`(function(window) {
         window.NODE_ENV = "${process.env.NODE_ENV || 'development'}";
         window.BOTPRESS_ENV = "${bp.botfile.env}";
+        window.BP_BASE_PATH = "";
         window.BOTPRESS_CLOUD_ENABLED = ${isUsingCloud};
         window.BOTPRESS_CLOUD_SETTINGS = ${JSON.stringify(pairingInfo)};
         window.DEV_MODE = ${util.isDeveloping};
