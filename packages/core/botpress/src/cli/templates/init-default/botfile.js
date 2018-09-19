@@ -62,11 +62,13 @@ module.exports = {
   mediaDir: './generated/media',
 
   /*
-    By default logs are enabled and stored in the DB
+    By default logs are enabled and stored in the DB. 
+    Silent mode prevents logs from being displayed in the console
    */
   logs: {
     enabled: true,
-    keepDays: 30
+    keepDays: 30,
+    silentMode: false
   },
 
   /*
@@ -133,5 +135,10 @@ module.exports = {
       If this is set to false, you should call `bp.middlewares.load` manually
      */
     autoLoading: true
-  }
+  },
+
+  /*
+    Prevents Botpress from creating worker threads
+   */
+  disableClusterMode: false
 }
