@@ -1,5 +1,5 @@
 import { ExtendedKnex, Logger } from 'botpress-module-sdk'
-import { inject, injectable, tagged } from 'inversify'
+import { inject, injectable, postConstruct, tagged } from 'inversify'
 import jsonwebtoken from 'jsonwebtoken'
 
 import Database from '../../database'
@@ -22,6 +22,13 @@ export default class AuthService {
     private logger: Logger,
     @inject(TYPES.Database) private db: Database
   ) {}
+
+  @postConstruct()
+  ensureHasSecret() {
+    if (!JWT_SECRET) {
+      throw new Error('JWT_SECRET has not been set!')
+    }
+  }
 
   get knex(): ExtendedKnex {
     return this.db.knex!
