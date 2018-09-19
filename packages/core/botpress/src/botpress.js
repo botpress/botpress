@@ -472,7 +472,9 @@ class botpress {
         }
       })
 
-      cluster.fork().on('message', receiveMessageFromWorker)
+      if (!this.botfile.disableClusterMode) {
+        cluster.fork().on('message', receiveMessageFromWorker)
+      }
     }
 
     if (cluster.isWorker) {
