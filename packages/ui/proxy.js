@@ -5,17 +5,8 @@ const _ = require('lodash')
 const bodyParser = require('body-parser')
 const qs = require('querystring')
 
-const { HttpProxy, getApiBasePath, BASE_PATH } = require('@botpress/xx-util')
+const { HttpProxy, getApiBasePath, BASE_PATH, noCache } = require('@botpress/xx-util')
 const { version: uiVersion } = require('botpress/package.json')
-
-function noCache(req, res, next) {
-  res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate')
-  res.header('Expires', '-1')
-  res.header('Pragma', 'no-cache')
-  delete req.headers['if-modified-since']
-  delete req.headers['if-none-match']
-  next()
-}
 
 function start({ coreApiUrl, proxyHost, proxyPort }, callback) {
   const app = express()
