@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.39.0"></a>
+# [10.39.0](https://github.com/botpress/modules/compare/v10.38.0...v10.39.0) (2018-09-19)
+
+
+### Bug Fixes
+
+* **messenger:** added new point of Getting Started ([#918](https://github.com/botpress/modules/issues/918)) ([43019cc](https://github.com/botpress/modules/commit/43019cc))
+
+
+
+
 <a name="10.38.0"></a>
 # [10.38.0](https://github.com/botpress/modules/compare/v10.37.1...v10.38.0) (2018-09-12)
 
