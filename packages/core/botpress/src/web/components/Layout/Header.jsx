@@ -11,10 +11,17 @@ import { logout } from '~/util/Auth'
 import style from './Header.scss'
 import { viewModeChanged } from '~/actions'
 import PermissionsChecker from './PermissionsChecker'
+import Select from 'react-select'
+import { changeBot, fetchBotInformation } from '../../actions'
+import _ from 'lodash'
 
 class Header extends React.Component {
   state = {
     loading: true
+  }
+
+  componentDidMount() {
+    this.props.fetchAllBots()
   }
 
   handleFullscreen = () => {
@@ -40,6 +47,30 @@ class Header extends React.Component {
           <b>Logout</b>
         </MenuItem>
       </NavDropdown>
+    )
+  }
+
+  switchBot = botId => {
+    this.setState({ selectedBot: botId })
+    this.props.changeBot(botId)
+  }
+
+  renderBotSelect() {
+    if (!window.BOTPRESS_XX) {
+      return null
+    }
+
+    const options = (this.props.bots || []).map(bot => ({ value: bot.id, label: `${bot.team}/${bot.name}` }))
+    const defaultValue = _.get(options, '0.value')
+
+    return (
+      <div className={style['bp-select-bot']}>
+        <Select
+          options={options}
+          value={this.state.selectedBot || defaultValue}
+          onChange={option => this.switchBot(option.value)}
+        />
+      </div>
     )
   }
 
@@ -72,6 +103,7 @@ class Header extends React.Component {
             <PermissionsChecker user={this.props.user} res="bot.notifications" op="read">
               <NotificationHub />
             </PermissionsChecker>
+            {this.renderBotSelect()}
             {this.renderLogoutButton()}
           </Nav>
           <Nav pullRight className="bp-navbar-module-buttons" />
@@ -84,9 +116,10 @@ class Header extends React.Component {
 const mapStateToProps = state => ({
   user: state.user,
   viewMode: state.ui.viewMode,
-  customStyle: state.ui.customStyle
+  customStyle: state.ui.customStyle,
+  bots: state.bots
 })
 
-const mapDispatchToProps = dispatch => bindActionCreators({ viewModeChanged }, dispatch)
+const mapDispatchToProps = dispatch => bindActionCreators({ viewModeChanged, fetchBotInformation, changeBot }, dispatch)
 
 export default connect(mapStateToProps, mapDispatchToProps)(Header)
