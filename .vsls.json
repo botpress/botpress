@@ -1,6 +1,0 @@
-{
-  "$schema": "http://json.schemastore.org/vsls",
-  "gitignore": "none",
-  "excludeFiles": ["*.p12", "*.cer", "token", ".gitignore"],
-  "hideFiles": ["bin", "obj"]
-}
