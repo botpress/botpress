@@ -89,7 +89,7 @@ class Sidebar extends React.Component {
 
     return (
       <li key={`menu_module_${module.name}`}>
-        <NavLink to={window.BP_BASE_PATH + path} title={module.menuText} activeClassName={style.active}>
+        <NavLink to={path} title={module.menuText} activeClassName={style.active}>
           {moduleIcon}
           <span>{module.menuText}</span>
         </NavLink>
@@ -101,7 +101,7 @@ class Sidebar extends React.Component {
     return (
       <PermissionsChecker user={this.props.user} res={rule.res} op={rule.op} key={name}>
         <li key={path}>
-          <NavLink to={window.BP_BASE_PATH + path} title={name} activeClassName={style.active}>
+          <NavLink to={path} title={name} activeClassName={style.active}>
             <i className="icon material-icons">{icon}</i>
             {name}
             {renderSuffix && renderSuffix()}
