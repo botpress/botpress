@@ -22,7 +22,7 @@ export function noCache(req, res, next) {
 export class HttpProxy {
   constructor(private app: Application | Router, private targetHost: string) {}
 
-  proxy(originPath: string, targetPathOrOptions: string | {}) {
+  proxyForBot(originPath: string, targetPathOrOptions: string | {}) {
     if (!this.targetHost) {
       throw new Error('The proxy target host is empty!')
     }
@@ -31,6 +31,22 @@ export class HttpProxy {
       typeof targetPathOrOptions === 'string'
         ? {
             proxyReqPathResolver: req => getApiBasePath(req) + targetPathOrOptions
+          }
+        : targetPathOrOptions
+    this.app.use(originPath, noCache, proxy(this.targetHost, options))
+
+    return this
+  }
+
+  proxyAdmin(originPath: string, targetPathOrOptions: string | {}) {
+    if (!this.targetHost) {
+      throw new Error('The proxy target host is empty!')
+    }
+
+    const options =
+      typeof targetPathOrOptions === 'string'
+        ? {
+            proxyReqPathResolver: () => `${BASE_PATH}/admin${targetPathOrOptions}`
           }
         : targetPathOrOptions
     this.app.use(originPath, noCache, proxy(this.targetHost, options))

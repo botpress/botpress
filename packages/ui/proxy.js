@@ -15,11 +15,13 @@ function start({ coreApiUrl, proxyHost, proxyPort }, callback) {
 
   const httpProxy = new HttpProxy(app, coreApiUrl)
 
-  httpProxy.proxy('/api/bot/information', '/')
+  httpProxy.proxyForBot('/api/bot/information', '/')
 
   app.use((err, req, res, next) => {
     console.log('ERR +===>>>', err)
   })
+
+  httpProxy.proxyAdmin('/api/teams/bots', '/teams/bots')
 
   app.post(
     '/api/middlewares/customizations',
@@ -33,7 +35,7 @@ function start({ coreApiUrl, proxyHost, proxyPort }, callback) {
     })
   )
 
-  httpProxy.proxy('/api/middlewares', '/middleware')
+  httpProxy.proxyForBot('/api/middlewares', '/middleware')
 
   app.post(
     '/api/media',
@@ -68,7 +70,7 @@ function start({ coreApiUrl, proxyHost, proxyPort }, callback) {
     })
   )
 
-  httpProxy.proxy('/api/content/categories', '/content/types')
+  httpProxy.proxyForBot('/api/content/categories', '/content/types')
 
   app.get(
     '/api/content/items-batched/:itemIds',
@@ -150,9 +152,9 @@ function start({ coreApiUrl, proxyHost, proxyPort }, callback) {
     })
   )
 
-  httpProxy.proxy('/api/flows/available_actions', '/actions')
+  httpProxy.proxyForBot('/api/flows/available_actions', '/actions')
 
-  httpProxy.proxy('/api/flows/all', '/flows')
+  httpProxy.proxyForBot('/api/flows/all', '/flows')
 
   app.post(
     '/api/flows/save',
@@ -218,7 +220,7 @@ function start({ coreApiUrl, proxyHost, proxyPort }, callback) {
    * Auth
    */
   httpProxy
-    .proxy('/api/login', {
+    .proxyForBot('/api/login', {
       proxyReqPathResolver: () => '/api/v1/auth/login',
       proxyReqBodyDecorator: ({ user, password }) => {
         return { username: user, password }
@@ -238,7 +240,7 @@ function start({ coreApiUrl, proxyHost, proxyPort }, callback) {
         }
       }
     })
-    .proxy('/api/my-account', {
+    .proxyForBot('/api/my-account', {
       proxyReqPathResolver: () => '/api/v1/auth/me/profile',
       userResDecorator: (proxyRes, proxyResData, userReq, userRes) => {
         try {
