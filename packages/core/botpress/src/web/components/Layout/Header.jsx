@@ -12,7 +12,7 @@ import style from './Header.scss'
 import { viewModeChanged } from '~/actions'
 import PermissionsChecker from './PermissionsChecker'
 import Select from 'react-select'
-import { changeBot, fetchBotInformation } from '../../actions'
+import { changeBot, fetchBotInformation, fetchAllBots } from '../../actions'
 import _ from 'lodash'
 
 class Header extends React.Component {
@@ -64,13 +64,13 @@ class Header extends React.Component {
     const defaultValue = _.get(options, '0.value')
 
     return (
-      <div className={style['bp-select-bot']}>
+      <NavItem className={style['bp-select-bot']}>
         <Select
           options={options}
           value={this.state.selectedBot || defaultValue}
           onChange={option => this.switchBot(option.value)}
         />
-      </div>
+      </NavItem>
     )
   }
 
@@ -120,6 +120,7 @@ const mapStateToProps = state => ({
   bots: state.bots
 })
 
-const mapDispatchToProps = dispatch => bindActionCreators({ viewModeChanged, fetchBotInformation, changeBot }, dispatch)
+const mapDispatchToProps = dispatch =>
+  bindActionCreators({ viewModeChanged, fetchBotInformation, changeBot, fetchAllBots }, dispatch)
 
 export default connect(mapStateToProps, mapDispatchToProps)(Header)

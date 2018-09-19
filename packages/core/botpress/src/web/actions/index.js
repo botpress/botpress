@@ -174,7 +174,7 @@ export const fetchBotInformation = () => dispatch => {
   })
 }
 
-export const changeBot = () => {
+export const changeBot = () => dispatch => {
   if (window.BOTPRESS_XX) {
     // TODO Change bot logic goes here. Waiting for multi-bots logic
   }
