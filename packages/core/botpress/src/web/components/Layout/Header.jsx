@@ -52,7 +52,7 @@ class Header extends React.Component {
 
   switchBot = botId => {
     this.setState({ selectedBot: botId })
-    this.props.changeBot(botId)
+    window.location = '/studio/' + botId
   }
 
   renderBotSelect() {
@@ -61,13 +61,13 @@ class Header extends React.Component {
     }
 
     const options = (this.props.bots || []).map(bot => ({ value: bot.id, label: `${bot.team}/${bot.name}` }))
-    const defaultValue = _.get(options, '0.value')
+    const currentBot = _.get(this.props.bot, 'id') || _.get(options, '0.value')
 
     return (
       <NavItem className={style['bp-select-bot']}>
         <Select
           options={options}
-          value={this.state.selectedBot || defaultValue}
+          value={this.state.selectedBot || currentBot}
           onChange={option => this.switchBot(option.value)}
         />
       </NavItem>
@@ -117,6 +117,7 @@ const mapStateToProps = state => ({
   user: state.user,
   viewMode: state.ui.viewMode,
   customStyle: state.ui.customStyle,
+  bot: state.bot,
   bots: state.bots
 })
 
