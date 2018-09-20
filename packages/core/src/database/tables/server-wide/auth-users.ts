@@ -41,7 +41,7 @@ export class AuthUsersTable extends Table {
         table.string('last_ip')
         table.string('email') // validate: { isEmail: true }
         table.string('location')
-        table.timestamps()
+        table.timestamps(true, true)
       })
       .then(async created => {
         if (created) {
