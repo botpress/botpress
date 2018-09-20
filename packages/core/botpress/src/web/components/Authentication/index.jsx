@@ -44,7 +44,7 @@ const ensureAuthenticated = WrappedComponent => {
       const urlToken = _.get(this.props, 'location.query.token')
 
       if (location.pathname !== '/login' && !urlToken) {
-        this.context.router.history.push('/login?returnTo=' + location.pathname)
+        this.context.router.history.push('/login?returnTo=' + this.context.router.history.location.pathname)
       }
       window.botpressWebChat && window.botpressWebChat.sendEvent({ type: 'hide' })
     }
