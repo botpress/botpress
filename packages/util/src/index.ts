@@ -4,9 +4,12 @@ import proxy from 'express-http-proxy'
 export const BASE_PATH = '/api/v1'
 const BOT_REQUEST_HEADERS = 'X-Botpress-Bot-Id'
 
+export function extractBotId(req) {
+  return req.get(BOT_REQUEST_HEADERS)
+}
+
 export function getApiBasePath(req) {
-  // FIXME: Remove the hardcoded botId once the headers in the UI will be added.
-  const botId = req.get(BOT_REQUEST_HEADERS) || 'bot123'
+  const botId = extractBotId(req)
   return `${BASE_PATH}/bots/${botId}`
 }
 

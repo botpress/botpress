@@ -6,11 +6,16 @@ const bodyParser = require('body-parser')
 const qs = require('querystring')
 const tamper = require('tamper')
 
-const { HttpProxy, getApiBasePath, BASE_PATH, noCache } = require('@botpress/xx-util')
+const { HttpProxy, extractBotId, getApiBasePath, BASE_PATH, noCache } = require('@botpress/xx-util')
 const { version: uiVersion } = require('botpress/package.json')
 
-function start({ coreApiUrl, proxyHost, proxyPort }, callback) {
+async function start({ coreApiUrl, proxyHost, proxyPort }, callback) {
   const app = express()
+
+  app.use((err, req, res, next) => {
+    console.warn('unhandled error', err) // TODO Setup better error handling
+    next()
+  })
 
   app.use(bodyParser.json())
 
@@ -18,10 +23,10 @@ function start({ coreApiUrl, proxyHost, proxyPort }, callback) {
 
   const options = { httpProxy, coreApiUrl, app, proxyHost, proxyPort }
 
-  setupStaticProxy(options)
-  setupAPIProxy(options)
-  setupStudioAppProxy(options)
-  setupAdminAppProxy(options)
+  await setupStaticProxy(options)
+  await setupAPIProxy(options)
+  await setupStudioAppProxy(options)
+  await setupAdminAppProxy(options)
 
   return app.listen(proxyPort, callback)
 }
@@ -41,14 +46,14 @@ function setupStudioAppProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort 
       }
 
       return function(body) {
-        const botId = 'bot123' // TODO FIXME Replace by botId from the headers
+        const { botId } = req.params
         return body.replace(/\$\$BP_BASE_URL\$\$/g, `/studio/${botId}`)
       }
     })
   )
 
   app.get('/studio/:botId/js/env.js', (req, res) => {
-    const botId = 'bot123' // TODO FIXME Replace by botId from the headers
+    const { botId } = req.params
 
     res.contentType('text/javascript')
     res.send(`
