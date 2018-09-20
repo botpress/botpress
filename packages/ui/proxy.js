@@ -12,11 +12,7 @@ const { version: uiVersion } = require('botpress/package.json')
 async function start({ coreApiUrl, proxyHost, proxyPort }, callback) {
   const app = express()
 
-  app.use((err, req, res, next) => {
-    console.warn('unhandled error', err) // TODO Setup better error handling
-    next()
-  })
-
+  app.use(noCache)
   app.use(bodyParser.json())
 
   const httpProxy = new HttpProxy(app, coreApiUrl)
@@ -38,7 +34,7 @@ function setupStaticProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) 
 
 function setupStudioAppProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
   app.use(
-    '/studio/:botId',
+    '/:app(studio|lite)/:botId?',
     tamper(function(req, res) {
       const contentType = res.getHeaders()['content-type']
       if (!contentType.includes('text/html')) {
@@ -46,42 +42,61 @@ function setupStudioAppProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort 
       }
 
       return function(body) {
-        const { botId } = req.params
-        return body.replace(/\$\$BP_BASE_URL\$\$/g, `/studio/${botId}`)
+        let { botId, app } = req.params
+        if (!botId && app === 'lite') {
+          botId = extractBotId(req)
+        }
+
+        return body.replace(/\$\$BP_BASE_URL\$\$/g, `/${app}/${botId}`)
       }
     })
   )
 
-  app.get('/studio/:botId/js/env.js', (req, res) => {
-    const { botId } = req.params
+  app.get('/:app(studio|lite)/:botId/js/env.js', (req, res) => {
+    const { botId, app } = req.params
 
-    res.contentType('text/javascript')
-    res.send(`
-    (function(window) {
-        window.BASE_PATH = "/studio";
-        window.NODE_ENV = "production";
-        window.BOTPRESS_ENV = "dev";
-        window.BP_BASE_PATH = "/studio/${botId}";
-        window.BOTPRESS_CLOUD_ENABLED = false;
-        window.BOTPRESS_CLOUD_SETTINGS = {"botId":"","endpoint":"","teamId":"","env":"dev"};
-        window.DEV_MODE = true;
-        window.AUTH_ENABLED = true;
+    let liteEnv = `
+        // Lite Views Specific
+    `
+    let studioEnv = `
+        // Botpress Studio Specific
         window.BOTPRESS_AUTH_FULL = true;
-        window.BP_SOCKET_URL = '${coreApiUrl}';
         window.AUTH_TOKEN_DURATION = 21600000;
         window.OPT_OUT_STATS = false;
         window.SHOW_GUIDED_TOUR = false;
-        window.BOTPRESS_VERSION = "${uiVersion}";
-        window.APP_NAME = "Botpress";
         window.GHOST_ENABLED = false;
         window.BOTPRESS_FLOW_EDITOR_DISABLED = null;
+        window.BOTPRESS_CLOUD_SETTINGS = {"botId":"","endpoint":"","teamId":"","env":"dev"};
+    `
+
+    let totalEnv = `
+    (function(window) {
+        // Common
+        window.BASE_PATH = "/${app}";
+        window.BP_BASE_PATH = "/${app}/${botId}";
+        window.BP_SOCKET_URL = '${coreApiUrl}';
+        window.BOTPRESS_VERSION = "${uiVersion}";
+        window.APP_NAME = "Botpress";
         window.BOTPRESS_XX = true;
+        window.NODE_ENV = "production";
+        window.BOTPRESS_ENV = "dev";
+        window.BOTPRESS_CLOUD_ENABLED = false;
+        window.DEV_MODE = true;
+        window.AUTH_ENABLED = true;
+        ${app === 'studio' ? studioEnv : ''}
+        ${app === 'lite' ? liteEnv : ''}
+        // End
       })(typeof window != 'undefined' ? window : {})
-    `)
+    `
+
+    res.contentType('text/javascript')
+    res.send(totalEnv)
   })
 
-  app.use('/studio/:botId', express.static(path.join(__dirname, 'static/studio')))
-  app.get(['/studio/:botId/*'], (req, res) => {
+  app.use('/:app(studio)/:botId', express.static(path.join(__dirname, 'static/studio')))
+  app.use('/:app(lite)/:botId?', express.static(path.join(__dirname, 'static/studio/lite')))
+  app.use('/:app(lite)/:botId', express.static(path.join(__dirname, 'static/studio'))) // Fallback Static Assets
+  app.get(['/:app(studio)/:botId/*'], (req, res) => {
     const absolutePath = path.join(__dirname, 'static/studio/index.html')
     res.contentType('text/html')
     res.sendFile(absolutePath)

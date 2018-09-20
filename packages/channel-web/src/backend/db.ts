@@ -60,7 +60,7 @@ export default class WebchatDb {
     const { fullName, avatar_url } = await this.getUserInfo(userId)
 
     const convo = await this.knex('web_conversations')
-      .where({ userId, id: conversationId })
+      .where({ userId, id: conversationId, botId })
       .select('id')
       .limit(1)
       .then<any>()
@@ -152,17 +152,6 @@ export default class WebchatDb {
     return conversation && conversation.id
   }
 
-  async patchConversation(userId, conversationId, title, description, logoUrl) {
-    await this.knex('web_conversations')
-      .where({ userId, id: conversationId })
-      .update({
-        title,
-        description,
-        logo_url: logoUrl
-      })
-      .then()
-  }
-
   async getOrCreateRecentConversation(botId: string, userId: string, { originatesFromUserMessage = false } = {}) {
     // TODO: Lifetime config by bot
     const config = await this.bp.config.getModuleConfigForBot('channel-web', botId)
@@ -177,7 +166,7 @@ export default class WebchatDb {
     const conversation = await this.knex('web_conversations')
       .select('id')
       .whereNotNull('last_heard_on')
-      .andWhere({ userId })
+      .andWhere({ userId, botId })
       .andWhere(recentCondition)
       .orderBy('last_heard_on', 'desc')
       .limit(1)
@@ -187,10 +176,10 @@ export default class WebchatDb {
     return conversation ? conversation.id : this.createConversation(botId, userId, { originatesFromUserMessage })
   }
 
-  async listConversations(userId) {
+  async listConversations(userId: string, botId: string) {
     const conversations = (await this.knex('web_conversations')
       .select('id')
-      .where({ userId })
+      .where({ userId, botId })
       .orderBy('last_heard_on', 'desc')
       .limit(100)
       .then()) as any[]
@@ -218,7 +207,7 @@ export default class WebchatDb {
     return this.knex
       .from(function(this: QueryBuilder) {
         this.from('web_conversations')
-          .where({ userId })
+          .where({ userId, botId })
           .as('wc')
       })
       .leftJoin(lastMessages.as('wm'), 'wm.conversationId', 'wc.id')
@@ -238,8 +227,8 @@ export default class WebchatDb {
       )
   }
 
-  async getConversation(userId, conversationId, fromId = undefined) {
-    const condition: any = { userId: userId }
+  async getConversation(userId, conversationId, botId) {
+    const condition: any = { userId, botId }
 
     if (conversationId && conversationId !== 'null') {
       condition.id = conversationId
@@ -254,7 +243,7 @@ export default class WebchatDb {
       return undefined
     }
 
-    const messages = await this.getConversationMessages(conversationId, fromId)
+    const messages = await this.getConversationMessages(conversationId)
 
     messages.forEach(m => {
       return Object.assign(m, {

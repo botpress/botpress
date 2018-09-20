@@ -1,11 +1,14 @@
 import { Application, Router } from 'express'
 import proxy from 'express-http-proxy'
+import _ from 'lodash'
 
 export const BASE_PATH = '/api/v1'
 const BOT_REQUEST_HEADERS = 'X-Botpress-Bot-Id'
 
 export function extractBotId(req) {
-  return req.get(BOT_REQUEST_HEADERS)
+  const regex = /\/(studio|lite)\/(.+?)\//i
+  const fromReferer = _.get((req.get('Referer') || '').match(regex), '2')
+  return req.get(BOT_REQUEST_HEADERS) || fromReferer
 }
 
 export function getApiBasePath(req) {
