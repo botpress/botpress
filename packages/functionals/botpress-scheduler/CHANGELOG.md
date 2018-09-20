@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.40.0"></a>
+# [10.40.0](https://github.com/botpress/modules/compare/v10.38.0...v10.40.0) (2018-09-20)
+
+
+
+
+**Note:** Version bump only for package @botpress/scheduler
+
 <a name="10.39.0"></a>
 # [10.39.0](https://github.com/botpress/modules/compare/v10.38.0...v10.39.0) (2018-09-19)
 

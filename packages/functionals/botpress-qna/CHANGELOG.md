@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.40.0"></a>
+# [10.40.0](https://github.com/botpress/modules/compare/v10.38.0...v10.40.0) (2018-09-20)
+
+
+### Bug Fixes
+
+* **qna:** handle IME-composing in QNA-form ([#930](https://github.com/botpress/modules/issues/930)) ([8493314](https://github.com/botpress/modules/commit/8493314))
+
+
+
+
 <a name="10.39.0"></a>
 # [10.39.0](https://github.com/botpress/modules/compare/v10.38.0...v10.39.0) (2018-09-19)
 
