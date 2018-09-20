@@ -29,7 +29,7 @@ export class AuthRolesTable extends Table {
           .references('auth_teams.id')
           .onDelete('CASCADE')
         table.unique(['team', 'name'])
-        table.timestamps()
+        table.timestamps(true, true)
       })
       .then(async created => {
         if (created) {
