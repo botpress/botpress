@@ -62,6 +62,7 @@ module.exports = {
   async ready(bp, configurator) {
     const config = await configurator.loadAll()
     const storage = this.storage
+    let categories = []
     bp.qna = {
       /**
        * Parses and imports questions; consecutive questions with similar answer get merged
@@ -148,7 +149,18 @@ module.exports = {
        * @param {String} question - question to match against
        * @returns {Array.<{questions: Array, answer: String, id: String, confidence: Number, metadata: Array}>}
        */
-      answersOn: storage.answersOn.bind(storage)
+      answersOn: storage.answersOn.bind(storage),
+
+      /**
+       * @param {string[]} categoriesToRegister - array of category names to register
+       */
+
+      registerCategories(categoriesToRegister) {
+        if (!_.isArray(categoriesToRegister)) {
+          return
+        }
+        categories = [...categories, ...categoriesToRegister]
+      }
     }
 
     const router = bp.getRouter('botpress-qna')
