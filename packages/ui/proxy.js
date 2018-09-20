@@ -4,6 +4,7 @@ const proxy = require('express-http-proxy')
 const _ = require('lodash')
 const bodyParser = require('body-parser')
 const qs = require('querystring')
+const tamper = require('tamper')
 
 const { HttpProxy, getApiBasePath, BASE_PATH } = require('@botpress/xx-util')
 const { version: uiVersion } = require('botpress/package.json')
@@ -19,16 +20,80 @@ function noCache(req, res, next) {
 
 function start({ coreApiUrl, proxyHost, proxyPort }, callback) {
   const app = express()
+
   app.use(bodyParser.json())
-  app.use(express.static(path.join(__dirname, 'static')))
 
   const httpProxy = new HttpProxy(app, coreApiUrl)
 
-  httpProxy.proxy('/api/bot/information', '/')
+  const options = { httpProxy, coreApiUrl, app, proxyHost, proxyPort }
 
-  app.use((err, req, res, next) => {
-    console.log('ERR +===>>>', err)
+  setupStaticProxy(options)
+  setupAPIProxy(options)
+  setupStudioAppProxy(options)
+  setupAdminAppProxy(options)
+
+  return app.listen(proxyPort, callback)
+}
+
+function setupStaticProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
+  app.use('/fonts', express.static(path.join(__dirname, 'static/studio/fonts')))
+  app.use('/img', express.static(path.join(__dirname, 'static/studio/img')))
+}
+
+function setupStudioAppProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
+  app.use(
+    '/studio/:botId',
+    tamper(function(req, res) {
+      const contentType = res.getHeaders()['content-type']
+      if (!contentType.includes('text/html')) {
+        return
+      }
+
+      return function(body) {
+        const botId = 'bot123' // TODO FIXME Replace by botId from the headers
+        return body.replace(/\$\$BP_BASE_URL\$\$/g, `/studio/${botId}`)
+      }
+    })
+  )
+
+  app.get('/studio/:botId/js/env.js', (req, res) => {
+    const botId = 'bot123' // TODO FIXME Replace by botId from the headers
+
+    res.contentType('text/javascript')
+    res.send(`
+    (function(window) {
+        window.BASE_PATH = "/studio";
+        window.NODE_ENV = "production";
+        window.BOTPRESS_ENV = "dev";
+        window.BP_BASE_PATH = "/studio/${botId}";
+        window.BOTPRESS_CLOUD_ENABLED = false;
+        window.BOTPRESS_CLOUD_SETTINGS = {"botId":"","endpoint":"","teamId":"","env":"dev"};
+        window.DEV_MODE = true;
+        window.AUTH_ENABLED = true;
+        window.BOTPRESS_AUTH_FULL = true;
+        window.BP_SOCKET_URL = '${coreApiUrl}';
+        window.AUTH_TOKEN_DURATION = 21600000;
+        window.OPT_OUT_STATS = false;
+        window.SHOW_GUIDED_TOUR = false;
+        window.BOTPRESS_VERSION = "${uiVersion}";
+        window.APP_NAME = "Botpress";
+        window.GHOST_ENABLED = false;
+        window.BOTPRESS_FLOW_EDITOR_DISABLED = null;
+        window.BOTPRESS_XX = true;
+      })(typeof window != 'undefined' ? window : {})
+    `)
   })
+
+  app.use('/studio/:botId', express.static(path.join(__dirname, 'static/studio')))
+  app.get(['/studio/:botId/*'], (req, res) => {
+    const absolutePath = path.join(__dirname, 'static/studio/index.html')
+    res.contentType('text/html')
+    res.sendFile(absolutePath)
+  })
+}
+
+function setupAPIProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
+  httpProxy.proxy('/api/bot/information', '/')
 
   app.post(
     '/api/middlewares/customizations',
@@ -179,31 +244,6 @@ function start({ coreApiUrl, proxyHost, proxyPort }, callback) {
     })
   )
 
-  app.get('/js/env.js', (req, res) => {
-    // TODO FIX Implement this
-    res.contentType('text/javascript')
-    res.send(`
-    (function(window) {
-        window.NODE_ENV = "production";
-        window.BOTPRESS_ENV = "dev";
-        window.BOTPRESS_CLOUD_ENABLED = false;
-        window.BOTPRESS_CLOUD_SETTINGS = {"botId":"","endpoint":"","teamId":"","env":"dev"};
-        window.DEV_MODE = true;
-        window.AUTH_ENABLED = true;
-        window.BOTPRESS_AUTH_FULL = true;
-        window.BP_SOCKET_URL = '${coreApiUrl}';
-        window.AUTH_TOKEN_DURATION = 21600000;
-        window.OPT_OUT_STATS = false;
-        window.SHOW_GUIDED_TOUR = false;
-        window.BOTPRESS_VERSION = "${uiVersion}";
-        window.APP_NAME = "Botpress";
-        window.GHOST_ENABLED = false;
-        window.BOTPRESS_FLOW_EDITOR_DISABLED = null;
-        window.BOTPRESS_XX = true;
-      })(typeof window != 'undefined' ? window : {})
-    `)
-  })
-
   app.get('/api/notifications/inbox', (req, res) => {
     res.send('[]')
   })
@@ -309,15 +349,8 @@ function start({ coreApiUrl, proxyHost, proxyPort }, callback) {
       }
     })
   )
-
-  app.get('/*', (req, res) => {
-    const absolutePath = path.join(__dirname, 'static/index.html')
-
-    res.contentType('text/html')
-    res.sendFile(absolutePath)
-  })
-
-  return app.listen(proxyPort, callback)
 }
+
+function setupAdminAppProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {}
 
 module.exports = start
