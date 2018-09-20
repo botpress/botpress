@@ -384,6 +384,9 @@ function setupAdminAppProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }
     res.contentType('text/html')
     res.sendFile(absolutePath)
   })
+  app.get('/', (req, res) => {
+    res.redirect('/admin')
+  })
 }
 
 module.exports = start
