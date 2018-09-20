@@ -60,6 +60,28 @@ export class TeamsRouter implements CustomRouter {
     )
 
     router.get(
+      '/bots',
+      this.asyncMiddleware(async (req, res) => {
+        const userId = req.dbUser.id
+        const teams = (await svc.listUserTeams(userId)) as any[]
+        let bots: any[] = []
+        for (const team of teams) {
+          const { bots: teamBots } = await this.teamsService.listBots(team.id)
+
+          bots = [
+            ...teamBots.map(x => ({
+              ...x,
+              team: team.name
+            })),
+            ...bots
+          ]
+        }
+
+        return sendSuccess(res, 'Retrieved bots for all teams', bots)
+      })
+    )
+
+    router.get(
       '/:teamId/members', // List team members
       this.asyncMiddleware(async (req, res) => {
         const { teamId } = req.params

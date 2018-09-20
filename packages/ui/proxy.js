@@ -6,17 +6,8 @@ const bodyParser = require('body-parser')
 const qs = require('querystring')
 const tamper = require('tamper')
 
-const { HttpProxy, getApiBasePath, BASE_PATH } = require('@botpress/xx-util')
+const { HttpProxy, getApiBasePath, BASE_PATH, noCache } = require('@botpress/xx-util')
 const { version: uiVersion } = require('botpress/package.json')
-
-function noCache(req, res, next) {
-  res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate')
-  res.header('Expires', '-1')
-  res.header('Pragma', 'no-cache')
-  delete req.headers['if-modified-since']
-  delete req.headers['if-none-match']
-  next()
-}
 
 function start({ coreApiUrl, proxyHost, proxyPort }, callback) {
   const app = express()
@@ -93,7 +84,8 @@ function setupStudioAppProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort 
 }
 
 function setupAPIProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
-  httpProxy.proxy('/api/bot/information', '/')
+  httpProxy.proxyForBot('/api/bot/information', '/')
+  httpProxy.proxyAdmin('/api/teams/bots', '/teams/bots')
 
   app.post(
     '/api/middlewares/customizations',
@@ -107,7 +99,7 @@ function setupAPIProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
     })
   )
 
-  httpProxy.proxy('/api/middlewares', '/middleware')
+  httpProxy.proxyForBot('/api/middlewares', '/middleware')
 
   app.post(
     '/api/media',
@@ -142,7 +134,7 @@ function setupAPIProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
     })
   )
 
-  httpProxy.proxy('/api/content/categories', '/content/types')
+  httpProxy.proxyForBot('/api/content/categories', '/content/types')
 
   app.get(
     '/api/content/items-batched/:itemIds',
@@ -224,9 +216,9 @@ function setupAPIProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
     })
   )
 
-  httpProxy.proxy('/api/flows/available_actions', '/actions')
+  httpProxy.proxyForBot('/api/flows/available_actions', '/actions')
 
-  httpProxy.proxy('/api/flows/all', '/flows')
+  httpProxy.proxyForBot('/api/flows/all', '/flows')
 
   app.post(
     '/api/flows/save',
@@ -267,7 +259,7 @@ function setupAPIProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
    * Auth
    */
   httpProxy
-    .proxy('/api/login', {
+    .proxyForBot('/api/login', {
       proxyReqPathResolver: () => '/api/v1/auth/login',
       proxyReqBodyDecorator: ({ user, password }) => {
         return { username: user, password }
@@ -287,7 +279,7 @@ function setupAPIProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
         }
       }
     })
-    .proxy('/api/my-account', {
+    .proxyForBot('/api/my-account', {
       proxyReqPathResolver: () => '/api/v1/auth/me/profile',
       userResDecorator: (proxyRes, proxyResData, userReq, userRes) => {
         try {

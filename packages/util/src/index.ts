@@ -10,17 +10,46 @@ export function getApiBasePath(req) {
   return `${BASE_PATH}/bots/${botId}`
 }
 
+export function noCache(req, res, next) {
+  res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate')
+  res.header('Expires', '-1')
+  res.header('Pragma', 'no-cache')
+  delete req.headers['if-modified-since']
+  delete req.headers['if-none-match']
+  next()
+}
+
 export class HttpProxy {
   constructor(private app: Application | Router, private targetHost: string) {}
 
-  proxy(originPath: string, targetPathOrOptions: string | {}) {
+  proxyForBot(originPath: string, targetPathOrOptions: string | {}) {
+    if (!this.targetHost) {
+      throw new Error('The proxy target host is empty!')
+    }
+
     const options =
       typeof targetPathOrOptions === 'string'
         ? {
             proxyReqPathResolver: req => getApiBasePath(req) + targetPathOrOptions
           }
         : targetPathOrOptions
-    this.app.use(originPath, proxy(this.targetHost, options))
+    this.app.use(originPath, noCache, proxy(this.targetHost, options))
+
+    return this
+  }
+
+  proxyAdmin(originPath: string, targetPathOrOptions: string | {}) {
+    if (!this.targetHost) {
+      throw new Error('The proxy target host is empty!')
+    }
+
+    const options =
+      typeof targetPathOrOptions === 'string'
+        ? {
+            proxyReqPathResolver: () => `${BASE_PATH}/admin${targetPathOrOptions}`
+          }
+        : targetPathOrOptions
+    this.app.use(originPath, noCache, proxy(this.targetHost, options))
 
     return this
   }
