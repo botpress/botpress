@@ -247,6 +247,35 @@ module.exports = async (bp, config) => {
 
     const user = await getOrCreateUser(userId)
 
+    if (payload.data && payload.data.payload) {
+      const data = payload.data.payload
+
+      if (typeof data === 'string' && data.startsWith('crypt|')) {
+        let decrypted = null
+        try {
+          decrypted = JSON.parse(bp.crypto.decrypt(data.slice(6)))
+        } catch (err) {
+          throw new Error('Error while decrypting payload', err)
+        }
+
+        if (decrypted.userId != user.id) {
+          throw new Error('The encrypted payload is for a different user')
+        }
+
+        if (moment().isAfter(moment.unix(decrypted.expire))) {
+          throw new Error('User payload expired')
+        }
+
+        if (decrypted.action === 'gotoFlow') {
+          const dest = decrypted.dest.split('#')
+          const flow = dest.shift()
+          const node = dest.shift()
+
+          await bp.dialogEngine.jumpTo(user.id, flow, node)
+        }
+      }
+    }
+
     return bp.middlewares.sendIncoming(
       Object.assign(
         {

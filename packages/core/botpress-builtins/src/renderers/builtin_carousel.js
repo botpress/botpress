@@ -24,8 +24,6 @@ export default data => [
             title: a.title,
             url: a.url
           }
-        } else if (a.action === 'Pick location') {
-          throw new Error('Messenger does not support "Pick location" action-buttons for carousels')
         }
       })
     })),
@@ -42,14 +40,24 @@ export default data => [
       subtitle: card.subtitle,
       buttons: (card.actions || []).map(a => {
         if (a.action === 'Say something') {
-          throw new Error('Webchat carousel does not support "Say something" action-buttons at the moment')
+          return {
+            title: a.title,
+            payload: a.title
+          }
         } else if (a.action === 'Open URL') {
           return {
             title: a.title,
             url: a.url
           }
-        } else if (a.action === 'Pick location') {
-          throw new Error('Webchat carousel does not support "Pick location" action-buttons at the moment')
+        } else if (a.action === 'Flow to ...') {
+          return {
+            title: a.title,
+            encrypt: true,
+            payload: {
+              action: 'gotoFlow',
+              dest: a.flow
+            }
+          }
         }
       })
     })),
@@ -76,8 +84,6 @@ export default data => [
               title: a.title,
               value: a.url
             }
-          } else if (a.action === 'Pick location') {
-            throw new Error('Microsoft carousel does not support "Pick location" action-buttons at the moment')
           }
         })
       }
@@ -103,8 +109,6 @@ export default data => [
             text: a.title,
             url: a.url
           }
-        } else if (a.action === 'Pick location') {
-          throw new Error('Slack carousel does not support "Pick location" action-buttons at the moment')
         }
       })
     }))
