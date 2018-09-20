@@ -4,7 +4,7 @@ import ReactDOM from 'expose-loader?ReactDOM!react-dom'
 
 import axios from 'axios'
 import { getToken } from '~/util/Auth'
-
+import { parseBotId } from './util'
 /* eslint-disable */
 import PropTypes from 'expose-loader?PropTypes!prop-types'
 import ReactBootstrap from 'expose-loader?ReactBootstrap!react-bootstrap'
@@ -24,13 +24,7 @@ if (token) {
   axios.defaults.headers.common['Authorization'] = `Bearer ${token.token}`
 }
 
-const parseBotId = () => {
-  const botIdRegex = /^\/studio\/(.+)?\//i
-  const matches = window.location.pathname.match(botIdRegex)
-  return (matches && matches[1]) || ''
-}
-
-if (axios && axios.defaults) {
+if (window.BOTPRESS_XX && axios && axios.defaults) {
   axios.defaults.headers.common['X-Botpress-App'] = 'Studio'
   axios.defaults.headers.common['X-Botpress-Bot-Id'] = parseBotId()
 }

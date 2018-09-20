@@ -8,15 +8,22 @@ import { Provider } from 'react-redux'
 import queryString from 'query-string'
 import axios from 'axios'
 
+import { parseBotId } from './util'
 import store from './store'
 import { fetchModules } from './actions'
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
 import { moduleViewNames } from '~/util/Modules'
 import { getToken, getUniqueVisitorId } from '~/util/Auth'
+import { fromPromise } from 'rxjs/observable/fromPromise'
 
 const token = getToken()
 if (token) {
   axios.defaults.headers.common['Authorization'] = `Bearer ${token.token}`
+}
+
+if (window.BOTPRESS_XX && axios && axios.defaults) {
+  axios.defaults.headers.common['X-Botpress-App'] = 'Lite'
+  axios.defaults.headers.common['X-Botpress-Bot-Id'] = parseBotId()
 }
 
 const { m, v, ref } = queryString.parse(location.search)
