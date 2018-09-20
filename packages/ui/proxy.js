@@ -109,7 +109,6 @@ function setupAPIProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
 
   app.post(
     '/api/middlewares/customizations',
-    noCache,
     proxy(coreApiUrl, {
       proxyReqPathResolver: async (req, res) => getApiBasePath(req) + '/middleware',
       proxyReqBodyDecorator: async (body, srcReq) => {
@@ -158,7 +157,6 @@ function setupAPIProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
 
   app.get(
     '/api/content/items-batched/:itemIds',
-    noCache,
     proxy(coreApiUrl, {
       proxyReqPathResolver: req => {
         const elementIds = req.params.itemIds.split(',')
@@ -179,7 +177,6 @@ function setupAPIProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
 
   app.get(
     '/api/content/items',
-    noCache,
     proxy(coreApiUrl, {
       proxyReqPathResolver: req => {
         const apiPath = getApiBasePath(req)
@@ -201,7 +198,6 @@ function setupAPIProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
 
   app.get(
     '/api/content/items/count',
-    noCache,
     proxy(coreApiUrl, {
       proxyReqPathResolver: req => {
         const contentType = req.query.categoryId
@@ -242,7 +238,6 @@ function setupAPIProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
 
   app.post(
     '/api/flows/save',
-    noCache,
     proxy(coreApiUrl, {
       proxyReqPathResolver: req => {
         return getApiBasePath(req) + '/flows'
@@ -278,6 +273,11 @@ function setupAPIProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
   /**
    * Auth
    */
+
+  httpProxy.proxyForBot('/api/auth/', {
+    proxyReqPathResolver: req => req.originalUrl.replace('/api/auth/', '/api/v1/auth/')
+  })
+
   httpProxy
     .proxyForBot('/api/login', {
       proxyReqPathResolver: () => '/api/v1/auth/login',
@@ -363,6 +363,27 @@ function setupAPIProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
   )
 }
 
-function setupAdminAppProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {}
+function setupAdminAppProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
+  const sanitizePath = path => path.replace('//', '/')
+  app.use(
+    '/admin/api/',
+    proxy(coreApiUrl, {
+      proxyReqPathResolver: async (req, res) => {
+        console.log(req.path, BASE_PATH)
+        if (req.path.startsWith('/auth')) {
+          return sanitizePath(`${BASE_PATH}/${req.path}`)
+        }
+
+        return sanitizePath(`${BASE_PATH}/admin/${req.path}`)
+      }
+    })
+  )
+  app.use('/admin', express.static(path.join(__dirname, 'static/admin')))
+  app.get(['/admin', '/admin/*'], (req, res) => {
+    const absolutePath = path.join(__dirname, 'static/admin/index.html')
+    res.contentType('text/html')
+    res.sendFile(absolutePath)
+  })
+}
 
 module.exports = start

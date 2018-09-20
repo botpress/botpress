@@ -60,7 +60,7 @@ export type RequestWithUser = Request & {
 }
 
 export interface Bot {
-  id: number
+  id: string
   name?: string
   version?: string
   description?: string

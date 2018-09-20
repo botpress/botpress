@@ -8,4 +8,4 @@ mkdir static
 mkdir static/studio
 mkdir static/admin
 cp -r ./node_modules/botpress/lib/web/* static/studio
-cp -r ./node_modules/@botpress/xx-admin/front/build/* static/admin
+cp -r ../admin/front/build/* static/admin/
