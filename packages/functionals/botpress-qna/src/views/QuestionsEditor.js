@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 
-import { FormGroup, FormControl, ButtonToolbar, Button, InputGroup, Glyphicon } from 'react-bootstrap'
+import { FormGroup, ButtonToolbar, Button, InputGroup, Glyphicon } from 'react-bootstrap'
+import { FormControlIme } from './FormControlIme'
 
 import classnames from 'classnames'
 
@@ -69,7 +70,7 @@ export default class QuestionsEditor extends Component {
     return (
       <FormGroup>
         <InputGroup>
-          <FormControl
+          <FormControlIme
             inputRef={this.onInputRendered(index)}
             placeholder="Question"
             value={data}
