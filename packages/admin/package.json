@@ -11,7 +11,7 @@
     "dev-back": "cd back && nodemon -w src --exec \"babel-node src\"",
     "build-back": "cd back && babel src -s -D -d dist",
     "build-front": "cd front && npm install && npm run build && cp -r build ../back/static",
-    "build": "npm run build-front && npm run build-back",
+    "build": "npm run build-front && npm run build-back && cp -r front/build ../ui/static/admin",
     "start": "cd back && node dist",
     "test": "cd back && eslint src"
   },

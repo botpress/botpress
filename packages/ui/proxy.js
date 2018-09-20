@@ -219,6 +219,11 @@ function start({ coreApiUrl, proxyHost, proxyPort }, callback) {
   /**
    * Auth
    */
+
+  httpProxy.proxyForBot('/api/auth/', {
+    proxyReqPathResolver: req => req.originalUrl.replace('/api/auth/', '/api/v1/auth/')
+  })
+
   httpProxy
     .proxyForBot('/api/login', {
       proxyReqPathResolver: () => '/api/v1/auth/login',
@@ -309,6 +314,13 @@ function start({ coreApiUrl, proxyHost, proxyPort }, callback) {
     res.contentType('text/html')
     res.sendFile(absolutePath)
   })
+
+  app.use('/admin', express.static(path.join(__dirname, 'static/admin/index.html')))
+
+  // app.get(/^(?!\/api.*$).*/i, (req, res) => {
+  //   res.contentType('text/html')
+  //   res.sendFile(path.join(__dirname, 'static/admin/index.html'))
+  // })
 
   return app.listen(proxyPort, callback)
 }
