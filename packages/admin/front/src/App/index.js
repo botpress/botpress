@@ -65,7 +65,7 @@ class Home extends Component {
     if (!this.props.currentTeam) {
       return (
         <NavItem>
-          <NavLink href="/teams">Choose team</NavLink>
+          <NavLink href="/admin/teams">Choose team</NavLink>
         </NavItem>
       )
     }
@@ -96,7 +96,7 @@ class Home extends Component {
       <div>
         <Navbar dark color="dark" expand="md">
           <div className="container">
-            <NavbarBrand href="/">
+            <NavbarBrand href="/admin">
               Botpress <span className="txt-light">Admin</span>
             </NavbarBrand>
             <NavbarToggler onClick={this.toggleMenu} />
