@@ -33,6 +33,11 @@
   }
 }
 
+.bp-select-bot {
+  display: inline-block;
+  width: 200px;
+}
+
 :global(.navbar-default .navbar-nav > .open > a) {
   background-color: #ffffff !important;
 }
