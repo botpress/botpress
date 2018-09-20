@@ -15,6 +15,7 @@
     "jdenticon": "^2.0.0",
     "joi-browser": "^13.0.1",
     "moment": "^2.21.0",
+    "ms": "^2.1.1",
     "nanoid": "^1.0.2",
     "node-sass-chokidar": "^1.1.2",
     "npm-run-all": "^4.1.2",
@@ -32,12 +33,6 @@
     "reactstrap": "^5.0.0",
     "redux": "^3.7.2",
     "redux-thunk": "^2.2.0"
-  },
-  "proxy": {
-    "/api": {
-      "target": "http://localhost:4000",
-      "ws": true
-    }
   },
   "scripts": {
     "build-css": "node-sass-chokidar src/ -o src/",

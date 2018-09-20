@@ -7,13 +7,9 @@
     "node": "^8.9.4"
   },
   "scripts": {
-    "watch": "concurrently --kill-others --names \"back,front\" \"npm run dev-back\" \"cd front && npm start\"",
-    "dev-back": "cd back && nodemon -w src --exec \"babel-node src\"",
-    "build-back": "cd back && babel src -s -D -d dist",
+    "watch": "concurrently --kill-others --names \"front\" \"cd front && npm start\"",
     "build-front": "cd front && npm install && npm run build && cp -r build ../back/static",
-    "build": "npm run build-front && npm run build-back && cp -r front/build ../ui/static/admin",
-    "start": "cd back && node dist",
-    "test": "cd back && eslint src"
+    "build": "npm run build-front && cp -r front/build ../ui/static/admin"
   },
   "eslintConfig": {
     "extends": "eslint:recommended",

@@ -33,6 +33,10 @@ function setupStaticProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) 
 }
 
 function setupStudioAppProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
+  app.get('/studio', (req, res, next) => {
+    res.redirect('/admin')
+  })
+
   app.use(
     '/:app(studio|lite)/:botId?',
     tamper(function(req, res) {

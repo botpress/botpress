@@ -1,9 +1,19 @@
 import api from '../api'
 import history from '../history'
+import ms from 'ms'
 
-const TOKEN_KEY = 'id_token'
-const EXPIRES_KEY = 'expires_at'
+export const TOKEN_KEY = 'bp/token'
 const HOME_ROUTE = '/home'
+
+export function pullToken() {
+  const ls = localStorage.getItem(TOKEN_KEY)
+  return (ls && JSON.parse(ls)) || { token: null, expires: 0 }
+}
+
+export function setToken(token, expiresAt) {
+  const ls = JSON.stringify({ token, expires: expiresAt || new Date() + ms('4h'), time: new Date() })
+  localStorage.setItem(TOKEN_KEY, ls)
+}
 
 export default class BasicAuthentication {
   login = async ({ username, password }) => {
@@ -28,7 +38,12 @@ export default class BasicAuthentication {
 
     this.setSession({ expiresIn: 7200, idToken: data.payload.token })
 
-    history.replace(HOME_ROUTE)
+    const returnTo = history.location.query.returnTo
+    if (returnTo) {
+      location.replace(returnTo)
+    } else {
+      history.replace(HOME_ROUTE)
+    }
   }
 
   async doRegister({ username, password }) {
@@ -45,8 +60,7 @@ export default class BasicAuthentication {
   setSession({ expiresIn, idToken }) {
     // Set the time that the access token will expire at
     const expiresAt = JSON.stringify((expiresIn || 7200) * 1000 + new Date().getTime())
-    localStorage.setItem(TOKEN_KEY, idToken)
-    localStorage.setItem(EXPIRES_KEY, expiresAt)
+    setToken(idToken, expiresAt)
   }
 
   parseJwt(token) {
@@ -58,7 +72,6 @@ export default class BasicAuthentication {
   logout = () => {
     // Clear access token and ID token from local storage
     localStorage.removeItem(TOKEN_KEY)
-    localStorage.removeItem(EXPIRES_KEY)
     // navigate to the home route
     history.replace(HOME_ROUTE)
   }
@@ -66,7 +79,7 @@ export default class BasicAuthentication {
   isAuthenticated() {
     // Check whether the current time is past the
     // access token's expiry time
-    const expiresAt = JSON.parse(localStorage.getItem(EXPIRES_KEY))
-    return new Date().getTime() < expiresAt && localStorage.getItem(TOKEN_KEY)
+    const { token, expires } = pullToken()
+    return token && new Date().getTime() < expires
   }
 }

@@ -1,4 +1,0 @@
-{
-  "port": 4000,
-  "corsHeaders": ["Link"]
-}
