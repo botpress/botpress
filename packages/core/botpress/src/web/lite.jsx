@@ -19,6 +19,22 @@ if (token) {
   axios.defaults.headers.common['Authorization'] = `Bearer ${token.token}`
 }
 
+const parseBotId = () => {
+  const botIdRegex = /^\/lite\/(.+)?(\/|$)/i
+  let matches = window.location.pathname.match(botIdRegex)
+
+  if (!matches || matches.length < 2 || !matches[1]) {
+    matches = window.BP_BASE_PATH.match(botIdRegex)
+  }
+
+  return (matches && matches[1]) || ''
+}
+
+if (window.BOTPRESS_XX && axios && axios.defaults) {
+  axios.defaults.headers.common['X-Botpress-App'] = 'Lite'
+  axios.defaults.headers.common['X-Botpress-Bot-Id'] = parseBotId()
+}
+
 const { m, v, ref } = queryString.parse(location.search)
 
 const alternateModuleNames = {

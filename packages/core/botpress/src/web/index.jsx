@@ -30,7 +30,7 @@ const parseBotId = () => {
   return (matches && matches[1]) || ''
 }
 
-if (axios && axios.defaults) {
+if (window.BOTPRESS_XX && axios && axios.defaults) {
   axios.defaults.headers.common['X-Botpress-App'] = 'Studio'
   axios.defaults.headers.common['X-Botpress-Bot-Id'] = parseBotId()
 }
