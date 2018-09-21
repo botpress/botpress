@@ -42,6 +42,7 @@
     "nanoid": "^1.0.1",
     "node-machine-id": "^1.1.3",
     "nodemon": "^1.12.1",
+    "opn": "^5.4.0",
     "pg": "^6.1.2",
     "prepend-file": "^1.3.1",
     "prompt": "^1.0.0",
@@ -153,11 +154,7 @@
   "license": "AGPL-3.0-only",
   "main": "lib/index.js",
   "repository": "git+https://github.com/botpress/botpress.git",
-  "os": [
-    "darwin",
-    "linux",
-    "win32"
-  ],
+  "os": ["darwin", "linux", "win32"],
   "scripts": {
     "prepublishOnly": "npm run compile-prod",
     "compile": "./build.sh",
@@ -169,9 +166,7 @@
   },
   "watch": {
     "compile": {
-      "patterns": [
-        "src"
-      ],
+      "patterns": ["src"],
       "extensions": "js,jsx,scss,json,html"
     }
   }

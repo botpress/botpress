@@ -32,6 +32,7 @@ import _ from 'lodash'
 import cluster from 'cluster'
 import dotenv from 'dotenv'
 import ms from 'ms'
+import opn from 'opn'
 
 import createMiddlewares from './middlewares'
 import createLogger from './logger'
@@ -402,6 +403,10 @@ class botpress {
 
       const { botUrl } = botfile
       logger.info(chalk.green.bold(`Bot launched. Visit: ${botUrl}`))
+
+      if (isDeveloping) {
+        opn(botUrl, { wait: false })
+      }
     })
 
     const middlewareAutoLoading = _.get(botfile, 'middleware.autoLoading')
