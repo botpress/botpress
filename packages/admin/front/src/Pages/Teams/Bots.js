@@ -81,10 +81,12 @@ class Bots extends Component {
           <Row>
             <Col style={{ textAlign: 'center' }} sm="12" md={{ size: 8, offset: 2 }}>
               <h1>
-                <IoIosBoxOutline />&nbsp; This team has no bot, yet.
+                <IoIosBoxOutline />
+                &nbsp; This team has no bot, yet.
               </h1>
               <p>
-                In Botpress, bots are always assigned to a team.<br />
+                In Botpress, bots are always assigned to a team.
+                <br />
                 <Button color="success" onClick={this.createBot}>
                   <MdCreate /> Create Bot Now
                 </Button>
@@ -114,7 +116,9 @@ class Bots extends Component {
               <ListGroupItem key={'bot-' + bot.id}>
                 <ListGroupItemHeading className="header">
                   <svg width="32" height="32" data-jdenticon-value={bot.name} />
-                  <span className="title">{bot.name}</span>
+                  <a className="title" href={`/studio/${bot.id}`}>
+                    {bot.name}
+                  </a>
 
                   <UncontrolledDropdown className="float-right">
                     <DropdownToggle caret size="sm" color="link">

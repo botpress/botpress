@@ -151,7 +151,7 @@ export default class TeamsService {
   }
 
   async assertUserRole(userId: number, teamId: number, roleName: string) {
-    const isMember = this.getMembership({ user: userId, team: teamId, role: roleName }, ['role'])
+    const isMember = await this.getMembership({ user: userId, team: teamId, role: roleName }, ['role'])
 
     if (!isMember) {
       throw new UnauthorizedAccessError(`User does not have role ${roleName} in the team`)
@@ -226,7 +226,7 @@ export default class TeamsService {
   }
 
   async assertUserNotMember(userId: number, teamId: number) {
-    const member = this.getMembership({ user: userId, team: teamId }, ['id'])
+    const member = await this.getMembership({ user: userId, team: teamId }, ['id'])
 
     if (member) {
       throw new InvalidOperationError('User is already part of the team')
@@ -282,6 +282,7 @@ export default class TeamsService {
   async addBot(teamId: number) {
     const id = nanoid(8)
     const bot: Partial<Bot> = {
+      id,
       team: teamId,
       name: `Bot ${id}`
     }

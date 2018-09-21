@@ -2,6 +2,7 @@ import Promise from 'bluebird'
 import axios from 'axios'
 import { toast } from 'react-toastify'
 import _ from 'lodash'
+import { pullToken } from './Auth'
 
 const defaultOptions = {
   timeout: 2000
@@ -9,6 +10,7 @@ const defaultOptions = {
 
 const createClient = (clientOptions, { toastErrors }) => {
   const client = axios.create({
+    baseURL: '/admin',
     ...defaultOptions,
     ...clientOptions
   })
@@ -45,7 +47,10 @@ const createClient = (clientOptions, { toastErrors }) => {
 
 export default {
   getSecured({ token, toastErrors = true } = {}) {
-    token = token || localStorage.getItem('id_token')
+    if (!token) {
+      const ls = pullToken()
+      token = ls && ls.token
+    }
 
     return createClient(
       {

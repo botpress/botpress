@@ -4,28 +4,115 @@ const proxy = require('express-http-proxy')
 const _ = require('lodash')
 const bodyParser = require('body-parser')
 const qs = require('querystring')
+const tamper = require('tamper')
 
-const { HttpProxy, getApiBasePath, BASE_PATH, noCache } = require('@botpress/xx-util')
+const { HttpProxy, extractBotId, getApiBasePath, BASE_PATH, noCache } = require('@botpress/xx-util')
 const { version: uiVersion } = require('botpress/package.json')
 
-function start({ coreApiUrl, proxyHost, proxyPort }, callback) {
+async function start({ coreApiUrl, proxyHost, proxyPort }, callback) {
   const app = express()
+
+  app.use(noCache)
   app.use(bodyParser.json())
-  app.use(express.static(path.join(__dirname, 'static')))
 
   const httpProxy = new HttpProxy(app, coreApiUrl)
 
-  httpProxy.proxyForBot('/api/bot/information', '/')
+  const options = { httpProxy, coreApiUrl, app, proxyHost, proxyPort }
 
-  app.use((err, req, res, next) => {
-    console.log('ERR +===>>>', err)
+  await setupStaticProxy(options)
+  await setupAPIProxy(options)
+  await setupStudioAppProxy(options)
+  await setupAdminAppProxy(options)
+
+  return app.listen(proxyPort, callback)
+}
+
+function setupStaticProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
+  app.use('/fonts', express.static(path.join(__dirname, 'static/studio/fonts')))
+  app.use('/img', express.static(path.join(__dirname, 'static/studio/img')))
+}
+
+function setupStudioAppProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
+  app.get('/studio', (req, res, next) => {
+    res.redirect('/admin')
   })
 
+  app.use(
+    '/:app(studio|lite)/:botId?',
+    tamper(function(req, res) {
+      const contentType = res.getHeaders()['content-type']
+      if (!contentType.includes('text/html')) {
+        return
+      }
+
+      return function(body) {
+        let { botId, app } = req.params
+        if (!botId && app === 'lite') {
+          botId = extractBotId(req)
+        }
+
+        return body.replace(/\$\$BP_BASE_URL\$\$/g, `/${app}/${botId}`)
+      }
+    })
+  )
+
+  app.get('/:app(studio|lite)/:botId/js/env.js', (req, res) => {
+    const { botId, app } = req.params
+
+    let liteEnv = `
+        // Lite Views Specific
+    `
+    let studioEnv = `
+        // Botpress Studio Specific
+        window.BOTPRESS_AUTH_FULL = true;
+        window.AUTH_TOKEN_DURATION = 21600000;
+        window.OPT_OUT_STATS = false;
+        window.SHOW_GUIDED_TOUR = false;
+        window.GHOST_ENABLED = false;
+        window.BOTPRESS_FLOW_EDITOR_DISABLED = null;
+        window.BOTPRESS_CLOUD_SETTINGS = {"botId":"","endpoint":"","teamId":"","env":"dev"};
+    `
+
+    let totalEnv = `
+    (function(window) {
+        // Common
+        window.BASE_PATH = "/${app}";
+        window.BP_BASE_PATH = "/${app}/${botId}";
+        window.BP_SOCKET_URL = '${coreApiUrl}';
+        window.BOTPRESS_VERSION = "${uiVersion}";
+        window.APP_NAME = "Botpress";
+        window.BOTPRESS_XX = true;
+        window.NODE_ENV = "production";
+        window.BOTPRESS_ENV = "dev";
+        window.BOTPRESS_CLOUD_ENABLED = false;
+        window.DEV_MODE = true;
+        window.AUTH_ENABLED = true;
+        ${app === 'studio' ? studioEnv : ''}
+        ${app === 'lite' ? liteEnv : ''}
+        // End
+      })(typeof window != 'undefined' ? window : {})
+    `
+
+    res.contentType('text/javascript')
+    res.send(totalEnv)
+  })
+
+  app.use('/:app(studio)/:botId', express.static(path.join(__dirname, 'static/studio')))
+  app.use('/:app(lite)/:botId?', express.static(path.join(__dirname, 'static/studio/lite')))
+  app.use('/:app(lite)/:botId', express.static(path.join(__dirname, 'static/studio'))) // Fallback Static Assets
+  app.get(['/:app(studio)/:botId/*'], (req, res) => {
+    const absolutePath = path.join(__dirname, 'static/studio/index.html')
+    res.contentType('text/html')
+    res.sendFile(absolutePath)
+  })
+}
+
+function setupAPIProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
+  httpProxy.proxyForBot('/api/bot/information', '/')
   httpProxy.proxyAdmin('/api/teams/bots', '/teams/bots')
 
   app.post(
     '/api/middlewares/customizations',
-    noCache,
     proxy(coreApiUrl, {
       proxyReqPathResolver: async (req, res) => getApiBasePath(req) + '/middleware',
       proxyReqBodyDecorator: async (body, srcReq) => {
@@ -74,7 +161,6 @@ function start({ coreApiUrl, proxyHost, proxyPort }, callback) {
 
   app.get(
     '/api/content/items-batched/:itemIds',
-    noCache,
     proxy(coreApiUrl, {
       proxyReqPathResolver: req => {
         const elementIds = req.params.itemIds.split(',')
@@ -95,7 +181,6 @@ function start({ coreApiUrl, proxyHost, proxyPort }, callback) {
 
   app.get(
     '/api/content/items',
-    noCache,
     proxy(coreApiUrl, {
       proxyReqPathResolver: req => {
         const apiPath = getApiBasePath(req)
@@ -117,7 +202,6 @@ function start({ coreApiUrl, proxyHost, proxyPort }, callback) {
 
   app.get(
     '/api/content/items/count',
-    noCache,
     proxy(coreApiUrl, {
       proxyReqPathResolver: req => {
         const contentType = req.query.categoryId
@@ -158,7 +242,6 @@ function start({ coreApiUrl, proxyHost, proxyPort }, callback) {
 
   app.post(
     '/api/flows/save',
-    noCache,
     proxy(coreApiUrl, {
       proxyReqPathResolver: req => {
         return getApiBasePath(req) + '/flows'
@@ -171,31 +254,6 @@ function start({ coreApiUrl, proxyHost, proxyPort }, callback) {
       }
     })
   )
-
-  app.get('/js/env.js', (req, res) => {
-    // TODO FIX Implement this
-    res.contentType('text/javascript')
-    res.send(`
-    (function(window) {
-        window.NODE_ENV = "production";
-        window.BOTPRESS_ENV = "dev";
-        window.BOTPRESS_CLOUD_ENABLED = false;
-        window.BOTPRESS_CLOUD_SETTINGS = {"botId":"","endpoint":"","teamId":"","env":"dev"};
-        window.DEV_MODE = true;
-        window.AUTH_ENABLED = true;
-        window.BOTPRESS_AUTH_FULL = true;
-        window.BP_SOCKET_URL = '${coreApiUrl}';
-        window.AUTH_TOKEN_DURATION = 21600000;
-        window.OPT_OUT_STATS = false;
-        window.SHOW_GUIDED_TOUR = false;
-        window.BOTPRESS_VERSION = "${uiVersion}";
-        window.APP_NAME = "Botpress";
-        window.GHOST_ENABLED = false;
-        window.BOTPRESS_FLOW_EDITOR_DISABLED = null;
-        window.BOTPRESS_XX = true;
-      })(typeof window != 'undefined' ? window : {})
-    `)
-  })
 
   app.get('/api/notifications/inbox', (req, res) => {
     res.send('[]')
@@ -219,6 +277,11 @@ function start({ coreApiUrl, proxyHost, proxyPort }, callback) {
   /**
    * Auth
    */
+
+  httpProxy.proxyForBot('/api/auth/', {
+    proxyReqPathResolver: req => req.originalUrl.replace('/api/auth/', '/api/v1/auth/')
+  })
+
   httpProxy
     .proxyForBot('/api/login', {
       proxyReqPathResolver: () => '/api/v1/auth/login',
@@ -302,15 +365,31 @@ function start({ coreApiUrl, proxyHost, proxyPort }, callback) {
       }
     })
   )
+}
 
-  app.get('/*', (req, res) => {
-    const absolutePath = path.join(__dirname, 'static/index.html')
+function setupAdminAppProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
+  const sanitizePath = path => path.replace('//', '/')
+  app.use(
+    '/admin/api/',
+    proxy(coreApiUrl, {
+      proxyReqPathResolver: async (req, res) => {
+        if (req.path.startsWith('/auth')) {
+          return sanitizePath(`${BASE_PATH}/${req.path}`)
+        }
 
+        return sanitizePath(`${BASE_PATH}/admin/${req.path}`)
+      }
+    })
+  )
+  app.use('/admin', express.static(path.join(__dirname, 'static/admin')))
+  app.get(['/admin', '/admin/*'], (req, res) => {
+    const absolutePath = path.join(__dirname, 'static/admin/index.html')
     res.contentType('text/html')
     res.sendFile(absolutePath)
   })
-
-  return app.listen(proxyPort, callback)
+  app.get('/', (req, res) => {
+    res.redirect('/admin')
+  })
 }
 
 module.exports = start

@@ -171,13 +171,13 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
   )
 
   router.get('/conversations/:userId/:conversationId', async (req, res) => {
-    const { userId = undefined, conversationId = undefined } = req.params || {}
+    const { userId, conversationId, botId } = req.params
 
     if (!validateUserId(userId)) {
       return res.status(400).send(ERR_USER_ID_REQ)
     }
 
-    const conversation = await db.getConversation(userId, conversationId)
+    const conversation = await db.getConversation(userId, conversationId, botId)
 
     return res.send(conversation)
   })
@@ -191,7 +191,7 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
 
     await bp.users.getOrCreateUser('web', userId)
 
-    const conversations = await db.listConversations(userId)
+    const conversations = await db.listConversations(userId, botId)
 
     const config = await bp.config.getModuleConfigForBot('channel-web', botId)
 
@@ -341,13 +341,13 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
   }
 
   router.get('/conversations/:userId/:conversationId/download/txt', async (req, res) => {
-    const { userId = undefined, conversationId = undefined } = req.params || {}
+    const { userId, conversationId, botId } = req.params
 
     if (!validateUserId(userId)) {
       return res.status(400).send(ERR_USER_ID_REQ)
     }
 
-    const conversation = await db.getConversation(userId, conversationId)
+    const conversation = await db.getConversation(userId, conversationId, botId)
     const txt = await convertToTxtFile(conversation)
 
     res.send({ txt, name: `${conversation.title}.txt` })
