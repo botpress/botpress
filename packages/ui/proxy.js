@@ -373,7 +373,6 @@ function setupAdminAppProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }
     '/admin/api/',
     proxy(coreApiUrl, {
       proxyReqPathResolver: async (req, res) => {
-        console.log(req.path, BASE_PATH)
         if (req.path.startsWith('/auth')) {
           return sanitizePath(`${BASE_PATH}/${req.path}`)
         }

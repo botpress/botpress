@@ -49,7 +49,6 @@ export default {
   getSecured({ token, toastErrors = true } = {}) {
     if (!token) {
       const ls = pullToken()
-      console.log(ls)
       token = ls && ls.token
     }
 
