@@ -1,7 +1,18 @@
-const r = 'r'
-const w = 'w'
+export type Operation = 'r' | 'w'
 
-const _enrichResources = (resources, parent) => {
+const r: Operation = 'r'
+const w: Operation = 'w'
+
+export type Resource = {
+  name: string
+  description?: string
+  operations?: Operation[]
+  children?: Resource[]
+}
+
+export type EnrichedResource = Resource & { displayName?: string }
+
+const _enrichResources = (resources: Resource[] | undefined, parent?: string): EnrichedResource[] | undefined => {
   if (!resources) {
     return resources
   }
@@ -13,13 +24,13 @@ const _enrichResources = (resources, parent) => {
       displayName: res.name,
       name: fullName,
       children: _enrichResources(res.children, fullName)
-    }
+    } as EnrichedResource
   })
 }
 
-export const enrichResources = resources => _enrichResources(resources)
+export const enrichResources = (resources: Resource[]) => _enrichResources(resources)
 
-const _RESOURCES = [
+const _RESOURCES: Resource[] = [
   {
     name: '*',
     description: 'All resources, at once. Use with caution',

@@ -1,21 +1,21 @@
-import { ressourceMatches, checkRule, enrichResources } from './index'
+import { resourceMatches, checkRule, enrichResources } from './index'
 
-test('ressourceMatches', () => {
-  expect(ressourceMatches('', '')).toBe(true)
-  expect(ressourceMatches('*', 'everything.will.match')).toBe(true)
-  expect(ressourceMatches('everything.*', 'everything.will.match')).toBe(true)
-  expect(ressourceMatches('everything.*.match', 'everything.here.match')).toBe(true)
-  expect(ressourceMatches('everything.*.match.again', 'everything.here.match.again')).toBe(true)
-  expect(ressourceMatches('everything.*.*.again', 'everything.here.match.again')).toBe(true)
-  expect(ressourceMatches('*.will.*.again', 'everything.will.match.again')).toBe(true)
-  expect(ressourceMatches('everything', 'everything.will.match')).toBe(true)
+test('resourceMatches', () => {
+  expect(resourceMatches('', '')).toBe(true)
+  expect(resourceMatches('*', 'everything.will.match')).toBe(true)
+  expect(resourceMatches('everything.*', 'everything.will.match')).toBe(true)
+  expect(resourceMatches('everything.*.match', 'everything.here.match')).toBe(true)
+  expect(resourceMatches('everything.*.match.again', 'everything.here.match.again')).toBe(true)
+  expect(resourceMatches('everything.*.*.again', 'everything.here.match.again')).toBe(true)
+  expect(resourceMatches('*.will.*.again', 'everything.will.match.again')).toBe(true)
+  expect(resourceMatches('everything', 'everything.will.match')).toBe(true)
 
-  expect(ressourceMatches('', 'nothing.will.match')).toBe(false)
-  expect(ressourceMatches('nothing.match', 'nothing.will.match')).toBe(false)
-  expect(ressourceMatches('this.*.match', 'nothing.will.match')).toBe(false)
-  expect(ressourceMatches('*.*.match', 'nothing.will.work')).toBe(false)
-  expect(ressourceMatches('a.b.c', 'b.a.c')).toBe(false)
-  expect(ressourceMatches('*.b.c', 'b.a.c')).toBe(false)
+  expect(resourceMatches('', 'nothing.will.match')).toBe(false)
+  expect(resourceMatches('nothing.match', 'nothing.will.match')).toBe(false)
+  expect(resourceMatches('this.*.match', 'nothing.will.match')).toBe(false)
+  expect(resourceMatches('*.*.match', 'nothing.will.work')).toBe(false)
+  expect(resourceMatches('a.b.c', 'b.a.c')).toBe(false)
+  expect(resourceMatches('*.b.c', 'b.a.c')).toBe(false)
 })
 
 test('checkRule', () => {
