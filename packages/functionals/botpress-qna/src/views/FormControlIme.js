@@ -13,7 +13,7 @@ export class FormControlIme extends Component {
   }
 
   setValueFromProps = () => {
-    this.input.value = this.props.value
+    this.input.value = this.props.value || ''
   }
 
   componentDidMount = this.setValueFromProps
