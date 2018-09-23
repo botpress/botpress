@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.41.0"></a>
+# [10.41.0](https://github.com/botpress/botpress/compare/v10.40.0...v10.41.0) (2018-09-23)
+
+
+### Features
+
+* **webchat:** added 'flow to' action button ([b3a545c](https://github.com/botpress/botpress/commit/b3a545c))
+
+
+
+
 <a name="10.40.0"></a>
 # [10.40.0](https://github.com/botpress/botpress/compare/v10.38.0...v10.40.0) (2018-09-20)
 
