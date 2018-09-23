@@ -1,6 +1,4 @@
-import { Operation } from './resources'
-
-export { RESOURCES, enrichResources, Operation } from './resources'
+export { RESOURCES, enrichResources, Operation, Resource } from './resources'
 
 export const resourceMatches = (pattern: string, res: string) => {
   const separator = /[\/\.]/
@@ -86,7 +84,7 @@ export const checkRule = (rules: Rule[] | undefined | null, operation: string, r
   return permission
 }
 
-export const checkMultipleRoles = (roles: { [name: string]: Rule[] } | null, operation, resource) => {
+export const checkMultipleRoles = (roles: { [name: string]: Rule[] } | undefined | null, operation, resource) => {
   if (!roles) {
     return false
   }

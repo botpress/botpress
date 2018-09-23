@@ -5,14 +5,13 @@ const w: Operation = 'w'
 
 export type Resource = {
   name: string
+  displayName?: string
   description?: string
   operations?: Operation[]
   children?: Resource[]
 }
 
-export type EnrichedResource = Resource & { displayName?: string }
-
-const _enrichResources = (resources: Resource[] | undefined, parent?: string): EnrichedResource[] | undefined => {
+const _enrichResources = (resources: Resource[] | undefined, parent?: string): Resource[] | undefined => {
   if (!resources) {
     return resources
   }
@@ -24,7 +23,7 @@ const _enrichResources = (resources: Resource[] | undefined, parent?: string): E
       displayName: res.name,
       name: fullName,
       children: _enrichResources(res.children, fullName)
-    } as EnrichedResource
+    } as Resource
   })
 }
 
@@ -130,4 +129,4 @@ const _RESOURCES: Resource[] = [
   }
 ].sort((a, b) => a.name.localeCompare(b.name))
 
-export const RESOURCES = enrichResources(_RESOURCES)
+export const RESOURCES = enrichResources(_RESOURCES)!
