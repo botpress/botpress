@@ -6,10 +6,7 @@ import {
   FormGroup,
   FormControl,
   ControlLabel,
-  InputGroup,
-  Glyphicon,
   Checkbox,
-  Radio,
   Panel,
   ButtonToolbar,
   Button,
@@ -17,9 +14,7 @@ import {
   Modal,
   HelpBlock,
   Alert,
-  Pagination,
-  DropdownButton,
-  MenuItem
+  Pagination
 } from 'react-bootstrap'
 import Select from 'react-select'
 
@@ -31,9 +26,8 @@ import Promise from 'bluebird'
 
 import { FormControlIme } from './FormControlIme'
 import ArrayEditor from './ArrayEditor'
-import QuestionsEditor from './QuestionsEditor'
 import QuestionsBulkImport from './QuestionsBulkImport'
-import NewQnAModal from './newQnAModal'
+import FormModal from './FormModal'
 import style from './style.scss'
 import './button.css'
 
@@ -360,6 +354,7 @@ export default class QnaAdmin extends Component {
       )
     })
 
+  // TODO: pagination should have same colors as the rest of UI (e.g. #108c67)
   renderPagination = () => {
     const pagesCount = Math.ceil(this.state.overallItemsCount / ITEMS_PER_PAGE)
     if (pagesCount <= 1) {
@@ -468,7 +463,7 @@ export default class QnaAdmin extends Component {
   )
 
   renderSearch = () => (
-    <div className={`${style['qna-nav-bar']} qna-nav-bar`}>
+    <div className={classnames(style['qna-nav-bar'], 'qna-nav-bar')}>
       <div className={style['search-bar']}>
         <Select
           className={style['serach-questions']}
@@ -541,10 +536,10 @@ export default class QnaAdmin extends Component {
         </div>
         <div className={style['item-action']}>
           {this.toggleButton({ value: item.enabled, onChange: this.enabledItem(item, id) })}
-          <i className={`material-icons ${style['item-action__delete']}`} onClick={this.deleteItem(id)}>
+          <i className={classnames('material-icons', style['item-action__delete'])} onClick={this.deleteItem(id)}>
             delete
           </i>
-          <i className={`material-icons ${style['item-action__edit']}`} onClick={this.editItem(id)}>
+          <i className={classnames('material-icons', style['item-action__edit'])} onClick={this.editItem(id)}>
             edit
           </i>
         </div>
@@ -564,6 +559,7 @@ export default class QnaAdmin extends Component {
     this.setState({ QnAModalType: 'edit', currentItemId: id }, this.toggleQnAModal)
   }
 
+  // TODO: should refresh view on operation success
   enabledItem = (item, id) => value => {
     item.enabled = value
     this.props.bp.axios.put(`/api/botpress-qna/${id}`, item).then(() => this.fetchData(this.state.page))
@@ -580,7 +576,7 @@ export default class QnaAdmin extends Component {
     const toggleCssClass = classnames('slider', { checked: value })
 
     return (
-      <label className={`switch ${style['toggle-button']}`}>
+      <label className={classnames('switch', style['toggle-button'])}>
         <input className="toggle-input" value={value} onChange={() => onChange(!value)} type="checkbox" />
         <span className={toggleCssClass} />
       </label>
@@ -612,7 +608,7 @@ export default class QnaAdmin extends Component {
             updateState={this.updateState}
             createNewItem={this.createEmptyQuestion}
           />
-          <NewQnAModal
+          <FormModal
             flows={this.state.flows}
             flowsList={this.state.flowsList}
             bp={this.props.bp}

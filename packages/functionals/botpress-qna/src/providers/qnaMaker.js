@@ -130,8 +130,8 @@ export default class Storage {
   invalidateCache = () => (this.questions = null)
 
   async getQuestion(id) {
-    const questions = await this.fetchQuestions()
-    return questions.find(({ id: qnaId }) => qnaId == id)
+    const question = (await this.fetchQuestions()).find(({ id: qnaId }) => qnaId == id)
+    return question && qnaItemData(question)
   }
 
   async count() {

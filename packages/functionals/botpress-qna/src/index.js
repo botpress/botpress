@@ -7,7 +7,6 @@ import multer from 'multer'
 import { Parser as Json2csvParser } from 'json2csv'
 import yn from 'yn'
 import moment from 'moment'
-import Promise from 'bluebird'
 import iconv from 'iconv-lite'
 import nanoid from 'nanoid'
 
