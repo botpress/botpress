@@ -4,7 +4,7 @@ type OriginalDate = Date
 
 declare module 'Knex' {
   interface QueryBuilder {
-    get(index?: number): QueryBuilder
+    // get(index?: number): ChainableInterface
   }
 
   type ColumnOrDate = string | OriginalDate | Sql

@@ -1,8 +1,8 @@
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 
-import { TYPES } from '../../types'
-import { DialogSession } from '../../repositories'
+import { TYPES } from 'core/types'
+import { DialogSession } from 'core/repositories'
 
 import { FlowNavigator, NavigationArgs, NavigationPosition } from './flow/navigator'
 import FlowService from './flow/service'
@@ -11,7 +11,7 @@ import { InstructionFactory } from './instruction/factory'
 import { InstructionProcessor } from './instruction/processor'
 import { InstructionQueue } from './instruction/queue'
 import { SessionService } from './session/service'
-import { IO } from 'bp/common'
+import * as IO from 'common/io'
 
 export class ProcessingError extends Error {
   constructor(

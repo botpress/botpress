@@ -1,6 +1,10 @@
-import { IO, Users, Knex, Logging } from './common'
-import { RealTime } from './common'
-import { Request, Router } from 'typings/express'
+import * as Users from './users'
+import * as IO from './io'
+import * as RealTime from './realtime'
+import { Logger } from './logging'
+
+import { Request, Router } from 'express'
+import Knex from 'knex'
 
 export interface RealTimeAPI {
   sendPayload(payload: RealTime.Payload)
@@ -45,14 +49,10 @@ export interface ConfigAPI {
 export default interface CoreSDK {
   http: HttpAPI
   events: EventAPI
-  logger: Logging.Logger
+  logger: Logger
   dialog: DialogAPI
   config: ConfigAPI
   database: Knex
   users: UserAPI
   realtime: RealTimeAPI
-}
-
-declare module 'sdk' {
-  export = CoreSDK
 }

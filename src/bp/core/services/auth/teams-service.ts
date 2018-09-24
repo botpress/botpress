@@ -10,8 +10,8 @@ import { TYPES } from '../../types'
 import { InvalidOperationError, NotFoundError, UnauthorizedAccessError } from '../auth/errors'
 
 import defaultRoles from './default-roles'
-import { Logging } from '../../../common'
-import { checkRule } from 'bp/core/misc/auth'
+import { Logger } from 'common/logging'
+import { checkRule } from 'core/misc/auth'
 
 const TEAMS_TABLE = 'auth_teams'
 const MEMBERS_TABLE = 'auth_team_members'
@@ -24,7 +24,7 @@ export default class TeamsService {
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'Auth Teams')
-    private logger: Logging.Logger,
+    private logger: Logger,
     @inject(TYPES.Database) private db: Database
   ) {}
 

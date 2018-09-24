@@ -3,7 +3,7 @@ import _ from 'lodash'
 
 import Database from '../database'
 import { TYPES } from '../types'
-import { IO } from 'bp/common'
+import * as IO from 'common/io'
 
 export type DialogContext = {
   previousFlowName?: string

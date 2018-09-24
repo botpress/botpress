@@ -3,6 +3,7 @@ import { RequestHandler, Router } from 'express'
 import _ from 'lodash'
 import multer from 'multer'
 import path from 'path'
+import { RouterOptions } from 'request'
 
 import { BotRepository } from '../repositories'
 import ActionService from '../services/action/action-service'
@@ -18,7 +19,6 @@ import { NotificationsService } from '../services/notification/service'
 
 import { CustomRouter } from '.'
 import { checkTokenHeader, needPermissions } from './util'
-import { RouterOptions } from 'bp/sdk'
 
 export class BotsRouter implements CustomRouter {
   public readonly router: Router

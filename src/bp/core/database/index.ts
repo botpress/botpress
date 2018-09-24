@@ -2,8 +2,9 @@ import { inject, injectable, tagged } from 'inversify'
 import Knex from 'knex'
 import _ from 'lodash'
 
-import { Logging, KnexExtension } from 'bp/common'
-import { TYPES } from 'bp/core/types'
+import { Logger } from 'common/logging'
+import { KnexExtension } from 'common/knex'
+import { TYPES } from 'core/types'
 
 import { DatabaseConfig } from '../config/botpress.config'
 
@@ -20,7 +21,7 @@ export default class Database {
   public constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'Database')
-    private logger: Logging.Logger
+    private logger: Logger
   ) {}
 
   async bootstrap() {

@@ -4,8 +4,9 @@ import moment from 'moment'
 import * as path from 'path'
 import plur from 'plur'
 
-import packageJson from '../../../package.json'
+// import packageJson from '../../../package.json'
 
+import * as IO from 'common/io'
 import { createForGlobalHooks } from './api'
 import { BotLoader } from './bot-loader'
 import { BotpressConfig } from './config/botpress.config'
@@ -23,9 +24,10 @@ import { LogsJanitor } from './services/logs/janitor'
 import { EventEngine } from './services/middleware/event-engine'
 import { NotificationsService } from './services/notification/service'
 import RealtimeService from './services/realtime'
-import CoreSDK from '../sdk'
-import { ModuleDefinition } from '../module'
-import { Logging, IO, RealTime } from 'bp/common'
+import CoreSDK from 'common/sdk'
+import { ModuleDefinition } from 'common/module'
+import { Logger } from 'common/logging'
+import * as RealTime from 'common/realtime'
 
 export type StartOptions = {
   modules: Map<string, ModuleDefinition>
@@ -45,7 +47,7 @@ export class Botpress {
     @inject(TYPES.Database) private database: Database,
     @inject(TYPES.Logger)
     @tagged('name', 'Server')
-    private logger: Logging.Logger,
+    private logger: Logger,
     @inject(TYPES.GhostService) private ghostService: GhostService,
     @inject(TYPES.HTTPServer) private httpServer: HTTPServer,
     @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
@@ -60,7 +62,7 @@ export class Botpress {
     @inject(TYPES.LoggerPersister) private loggerPersister: LoggerPersister,
     @inject(TYPES.NotificationsService) private notificationService: NotificationsService
   ) {
-    this.version = packageJson.version
+    this.version = '12.0.1'
     this.botpressPath = path.join(process.cwd(), 'dist')
     this.configLocation = path.join(this.botpressPath, '/config')
   }

@@ -1,7 +1,8 @@
 import Knex from 'knex'
+import { KnexExtension } from 'common/knex'
 
 export abstract class Table {
-  constructor(public knex: Knex) {}
+  constructor(public knex: Knex & KnexExtension) {}
   abstract bootstrap(): Promise<boolean>
   abstract get name(): string
 }

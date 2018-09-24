@@ -7,7 +7,7 @@ import TeamsService from '../../services/auth/teams-service'
 import { checkTokenHeader, loadUser } from '../util'
 
 import { TeamsRouter } from './teams'
-import { Logging } from '../../../common'
+import { Logger } from 'common/logging'
 
 export class AdminRouter implements CustomRouter {
   public readonly router: Router
@@ -15,7 +15,7 @@ export class AdminRouter implements CustomRouter {
   private loadUser!: RequestHandler
   private teamsRouter!: TeamsRouter
 
-  constructor(logger: Logging.Logger, private authService: AuthService, private teamsService: TeamsService) {
+  constructor(logger: Logger, private authService: AuthService, private teamsService: TeamsService) {
     this.router = Router({ mergeParams: true })
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
     this.loadUser = loadUser(this.authService)

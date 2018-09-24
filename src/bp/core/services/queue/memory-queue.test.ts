@@ -1,7 +1,7 @@
 import 'bluebird-global'
 import 'reflect-metadata'
 
-import { IO } from '../../../common'
+import * as IO from '../../../common/io'
 
 import Queue from './memory-queue'
 

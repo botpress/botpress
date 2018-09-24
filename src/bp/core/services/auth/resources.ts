@@ -1,4 +1,4 @@
-import { enrichResources, RESOURCES, Resource } from 'bp/core/misc/auth'
+import { enrichResources, RESOURCES, Resource } from 'core/misc/auth'
 
 const r = 'r'
 const w = 'w'

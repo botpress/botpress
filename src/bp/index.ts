@@ -1,6 +1,8 @@
 import 'bluebird-global'
 
 import chalk from 'chalk'
+import { Logger, Botpress } from 'core/app'
+import { ModuleDefinition } from 'common/module'
 
 async function start() {
   try {
@@ -20,9 +22,9 @@ async function start() {
       modules
     })
 
-    await Promise.fromCallback(cb =>
-      startProxy({ coreApiUrl: 'http://localhost:3000', proxyHost: 'http://localhost', proxyPort: '3001' }, cb)
-    )
+    // await Promise.fromCallback(cb =>
+    //   startProxy({ coreApiUrl: 'http://localhost:3000', proxyHost: 'http://localhost', proxyPort: '3001' }, cb)
+    // )
 
     logger.info(`UI Proxy running on http://localhost:3001/`)
   } catch (e) {

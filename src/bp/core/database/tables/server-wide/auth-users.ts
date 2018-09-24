@@ -1,8 +1,8 @@
 import Knex from 'knex'
 import _ from 'lodash'
 
-import { calculateHash } from '../../../services/auth/util'
-import { Table } from '../../interfaces'
+import { calculateHash } from 'core/services/auth/util'
+import { Table } from 'core/database/interfaces'
 
 const USERS = ['admin', 'sylvain', 'renaud']
 const PASSWORD = '123456'

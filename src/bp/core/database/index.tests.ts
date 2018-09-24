@@ -1,14 +1,14 @@
 import 'bluebird-global'
 import 'reflect-metadata'
 
-import { Logging } from 'bp/common'
+import { Logger } from 'common/logging'
 import tmp from 'tmp'
 
 import { createSpyObject } from '../misc/utils'
 
 import Database from '.'
 
-const logger = createSpyObject<Logging.Logger>()
+const logger = createSpyObject<Logger>()
 
 export type DatabaseTestSuite = ((database: Database) => void)
 

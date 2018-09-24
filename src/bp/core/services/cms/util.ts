@@ -5,7 +5,7 @@ import tmp from 'tmp'
 
 import { VError } from 'verror'
 import { NodeVM } from 'vm2'
-import { Logging } from '../../../common'
+import { Logger } from 'common/logging'
 
 export type CodeFile = {
   relativePath: string
@@ -18,7 +18,7 @@ export class SafeCodeSandbox {
   private tmpPath: string
   private filesMap: { [name: string]: string } = {}
 
-  constructor(files: CodeFile[], logger: Logging.Logger) {
+  constructor(files: CodeFile[], logger: Logger) {
     this.tmpDir = tmp.dirSync({ prefix: 'sandbox-', keep: false, unsafeCleanup: true })
     this.tmpPath = this.tmpDir.name
 

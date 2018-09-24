@@ -4,16 +4,9 @@ import { NodeVM } from 'vm2'
 
 import { TYPES } from '../../types'
 import { GhostService } from '..'
-import CoreSDK from '../../../sdk'
-import { IO, Logging } from 'bp/common'
-
-// type Hook =
-//   | 'after_bot_start'
-//   | 'after_message_receive'
-//   | 'before_message_process'
-//   | 'before_message_sent'
-//   | 'before_session_end'
-//   | 'after_timeout'
+import CoreSDK from 'common/sdk'
+import { Logger } from 'common/logging'
+import * as IO from 'common/io'
 
 export namespace Hooks {
   export interface BaseHook {
@@ -67,7 +60,7 @@ export class HookService {
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'HookService')
-    private logger: Logging.Logger,
+    private logger: Logger,
     @inject(TYPES.GhostService) private ghost: GhostService
   ) {}
 

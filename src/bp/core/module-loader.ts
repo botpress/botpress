@@ -5,8 +5,8 @@ import { createForModule } from './api'
 import { TYPES } from './types'
 import { GhostService } from './services'
 import ConfigReader from './services/module/config-reader'
-import { ModuleDefinition } from 'bp/module'
-import { Logging } from '../common'
+import { ModuleDefinition } from 'common/module'
+import { Logger } from 'common/logging'
 
 @injectable()
 export class ModuleLoader {
@@ -16,7 +16,7 @@ export class ModuleLoader {
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'ModuleLoader')
-    private logger: Logging.Logger,
+    private logger: Logger,
     @inject(TYPES.GhostService) private ghost: GhostService
   ) {}
 

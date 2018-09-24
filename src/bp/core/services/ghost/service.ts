@@ -1,4 +1,4 @@
-import { Logging } from 'bp/common'
+import { Logger } from 'common/logging'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import minimatch from 'minimatch'
@@ -26,7 +26,7 @@ export class GhostService {
     @inject(TYPES.ObjectCache) private cache: ObjectCache,
     @inject(TYPES.Logger)
     @tagged('name', 'GhostService')
-    private logger: Logging.Logger
+    private logger: Logger
   ) {}
 
   async initialize(config: Partial<BotpressConfig>) {
@@ -70,7 +70,7 @@ class ScopedGhostService {
     private dbDriver: DBStorageDriver,
     private useDbDriver: boolean,
     private cache: ObjectCache,
-    private logger: Logging.Logger
+    private logger: Logger
   ) {
     if (![-1, this.baseDir.length - 1].includes(this.baseDir.indexOf('*'))) {
       throw new Error(`Base directory can only contain '*' at the end of the path`)

@@ -6,10 +6,10 @@ import { RequestWithUser } from '../misc/interfaces'
 import AuthService from '../services/auth/auth-service'
 import { AssertionError, ProcessingError, UnauthorizedAccessError } from '../services/auth/errors'
 import TeamsService from '../services/auth/teams-service'
-import { Logging } from 'bp/common'
-import { checkRule } from 'bp/core/misc/auth'
+import { Logger } from 'common/logging'
+import { checkRule } from 'core/misc/auth'
 
-export const asyncMiddleware = ({ logger }: { logger: Logging.Logger }) => (
+export const asyncMiddleware = ({ logger }: { logger: Logger }) => (
   fn: (req: Request, res: Response, next?: NextFunction) => Promise<any>
 ) => (req: Request, res: Response, next: NextFunction) => {
   Promise.resolve(fn(req, res, next)).catch(err => {

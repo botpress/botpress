@@ -1,8 +1,9 @@
 import { inject, injectable } from 'inversify'
 
-import { TYPES } from '../../../types'
-import { DialogContext, DialogSession, SessionRepository } from '../../../repositories'
-import { IO } from 'bp/common'
+import * as IO from 'common/io'
+
+import { TYPES } from 'core/types'
+import { DialogContext, DialogSession, SessionRepository } from 'core/repositories'
 
 @injectable()
 export class SessionService {

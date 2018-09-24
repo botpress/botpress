@@ -12,14 +12,14 @@ import { Janitor } from '../janitor'
 
 import { DialogEngine } from './engine'
 import { SessionService } from './session/service'
-import { Logging } from 'bp/common'
+import { Logger } from 'common/logging'
 
 @injectable()
 export class DialogJanitor extends Janitor {
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'DialogJanitor')
-    protected logger: Logging.Logger,
+    protected logger: Logger,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.DialogEngine) private dialogEngine: DialogEngine,
     @inject(TYPES.BotLoader) private botLoader: BotLoader,

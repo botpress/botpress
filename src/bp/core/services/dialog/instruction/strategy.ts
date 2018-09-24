@@ -9,7 +9,7 @@ import { runCode } from '../../action/sandbox-launcher'
 import { EventEngine } from '../../middleware/event-engine'
 
 import { Instruction, InstructionType, ProcessingResult } from '.'
-import { IO } from 'bp/common'
+import * as IO from 'common/io'
 
 @injectable()
 export class StrategyFactory {

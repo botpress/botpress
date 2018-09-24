@@ -1,4 +1,4 @@
-import { Knex } from 'bp/common'
+import Knex from 'knex'
 
 import { Table } from '../interfaces'
 

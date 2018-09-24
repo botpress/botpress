@@ -5,8 +5,8 @@ import { VError } from 'verror'
 import yn from 'yn'
 
 import { GhostService } from '../'
-import { Logging } from '../../../common'
-import { ModuleConfigEntry, ModuleDefinition } from '../../../module'
+import { Logger } from 'common/logging'
+import { ModuleConfigEntry, ModuleDefinition } from 'common/module'
 
 type Config = { [key: string]: any }
 
@@ -64,11 +64,7 @@ const amendOptions = options => {
  * 4) Per-bot Override (Most precedence)
  */
 export default class ConfigReader {
-  constructor(
-    private logger: Logging.Logger,
-    private modules: Map<string, ModuleDefinition>,
-    private ghost: GhostService
-  ) {}
+  constructor(private logger: Logger, private modules: Map<string, ModuleDefinition>, private ghost: GhostService) {}
 
   public async initialize() {
     await this.bootstrapGlobalConfigurationFiles()

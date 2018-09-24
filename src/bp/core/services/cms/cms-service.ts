@@ -12,7 +12,8 @@ import { GhostService } from '../'
 
 import { ContentElement, ContentType, DefaultSearchParams, SearchParams } from '.'
 import { CodeFile, SafeCodeSandbox } from './util'
-import { Logging, KnexExtension } from 'bp/common'
+import { Logger } from 'common/logging'
+import { KnexExtension } from 'common/knex'
 
 @injectable()
 export class CMSService implements IDisposeOnExit {
@@ -27,7 +28,7 @@ export class CMSService implements IDisposeOnExit {
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'CMS')
-    private logger: Logging.Logger,
+    private logger: Logger,
     @inject(TYPES.LoggerProvider) private loggerProvider: LoggerProvider,
     @inject(TYPES.GhostService) private ghost: GhostService,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,

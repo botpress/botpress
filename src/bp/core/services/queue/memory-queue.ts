@@ -5,7 +5,7 @@ import nanoid from 'nanoid'
 import { TYPES } from '../../types'
 
 import { defaultOptions, Job, JobWithEvent, JobWrapper, Queue, QueueOptions } from '.'
-import { Logging } from '../../../common'
+import { Logger } from 'common/logging'
 
 @injectable()
 export default class MemoryQueue implements Queue {
@@ -19,7 +19,7 @@ export default class MemoryQueue implements Queue {
     public name: string,
     @inject(TYPES.Logger)
     @tagged('name', 'MemoryQueue')
-    private logger: Logging.Logger,
+    private logger: Logger,
     @optional() options: Partial<QueueOptions> = {}
   ) {
     this.options = { ...defaultOptions, ...options }

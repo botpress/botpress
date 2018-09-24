@@ -1,6 +1,6 @@
 import { injectable } from 'inversify'
 import ms from 'ms'
-import { Logging } from 'bp/common'
+import { Logger } from 'common/logging'
 
 @injectable()
 export abstract class Janitor {
@@ -9,7 +9,7 @@ export abstract class Janitor {
   private currentPromise
   private intervalRef
 
-  constructor(protected logger: Logging.Logger) {}
+  constructor(protected logger: Logger) {}
 
   protected abstract getInterval(): Promise<string>
 

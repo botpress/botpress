@@ -7,14 +7,14 @@ import { ConfigProvider } from './config/config-loader'
 import { TYPES } from './types'
 import { CMSService } from './services/cms/cms-service'
 import { GhostService } from './services'
-import { Logging } from 'bp/common'
+import { Logger } from 'common/logging'
 
 @injectable()
 export class BotLoader {
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'BotLoader')
-    private logger: Logging.Logger,
+    private logger: Logger,
     @inject(TYPES.CMSService) private cms: CMSService,
     @inject(TYPES.GhostService) private ghost: GhostService,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider

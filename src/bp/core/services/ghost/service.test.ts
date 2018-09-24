@@ -7,7 +7,7 @@ import { GhostFileRevision, ObjectCache } from '.'
 import DBStorageDriver from './db-driver'
 import DiskStorageDriver from './disk-driver'
 import { GhostService } from './service'
-import { Logging } from '../../../common'
+import { Logger } from '../../../common/logging'
 
 const BOT_ID = 'bot123'
 
@@ -16,13 +16,13 @@ describe('Ghost Service', () => {
   let diskDriver: MockObject<DiskStorageDriver>,
     dbDriver: MockObject<DBStorageDriver>,
     cache: MockObject<ObjectCache>,
-    logger: MockObject<Logging.Logger>
+    logger: MockObject<Logger>
 
   beforeEach(() => {
     diskDriver = createSpyObject<DiskStorageDriver>()
     dbDriver = createSpyObject<DBStorageDriver>()
     cache = createSpyObject<ObjectCache>()
-    logger = createSpyObject<Logging.Logger>()
+    logger = createSpyObject<Logger>()
     ghost = new GhostService(diskDriver.T, dbDriver.T, cache.T, logger.T)
   })
 

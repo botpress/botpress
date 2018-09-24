@@ -9,8 +9,9 @@ import { TYPES } from '../../types'
 import { InvalidCredentialsError } from './errors'
 import resources from './resources'
 import { calculateHash, validateHash } from './util'
-import { Logging, KnexExtension } from '../../../common'
+import { Logger } from 'common/logging'
 import { Resource } from '../../misc/auth'
+import { KnexExtension } from 'common/knex'
 
 const USERS_TABLE = 'auth_users'
 const JWT_SECRET = <string>process.env.JWT_SECRET
@@ -21,7 +22,7 @@ export default class AuthService {
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'Auth')
-    private logger: Logging.Logger,
+    private logger: Logger,
     @inject(TYPES.Database) private db: Database
   ) {}
 

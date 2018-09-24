@@ -1,4 +1,4 @@
-import { Table } from 'bp/core/database/interfaces'
+import { Table } from 'core/database/interfaces'
 
 export class GhostFilesTable extends Table {
   readonly name: string = 'srv_ghost_files'

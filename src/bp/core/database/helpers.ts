@@ -1,6 +1,6 @@
 import moment from 'moment'
 import { VError } from 'verror'
-import { KnexExtension } from 'bp/common'
+import { KnexExtension } from 'common/knex'
 import Knex from 'knex'
 
 export const patchKnex = (knex: Knex): Knex & KnexExtension => {

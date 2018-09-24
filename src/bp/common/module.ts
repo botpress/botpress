@@ -1,4 +1,4 @@
-export type ModuleDefinition = {
+export interface ModuleDefinition {
   onInit: Function
   onReady: Function
   config: { [key: string]: ModuleConfigEntry }

@@ -7,13 +7,13 @@ import util from 'util'
 import { TYPES } from '../types'
 
 import { LoggerPersister } from '.'
-import { Logging } from 'bp/common'
+import { Logger, Level, LogEntry } from 'common/logging'
 
-export type LoggerProvider = (module: string) => Promise<Logging.Logger>
+export type LoggerProvider = (module: string) => Promise<Logger>
 
 @injectable()
 // Suggestion: Would be best to have a CompositeLogger that separates the Console and DB loggers
-export class PersistedConsoleLogger implements Logging.Logger {
+export class PersistedConsoleLogger implements Logger {
   private botId: string | undefined
 
   constructor(
@@ -28,14 +28,14 @@ export class PersistedConsoleLogger implements Logging.Logger {
   }
 
   colors = {
-    [Logging.Level.Info]: 'green',
-    [Logging.Level.Warn]: 'yellow',
-    [Logging.Level.Error]: 'red',
-    [Logging.Level.Debug]: 'blue'
+    [Level.Info]: 'green',
+    [Level.Warn]: 'yellow',
+    [Level.Error]: 'red',
+    [Level.Debug]: 'blue'
   }
 
-  private print(level: Logging.Level, message: string, metadata: any) {
-    const entry: Logging.LogEntry = {
+  private print(level: Level, message: string, metadata: any) {
+    const entry: LogEntry = {
       botId: this.botId,
       level: level.toString(),
       scope: this.name,
@@ -55,25 +55,25 @@ export class PersistedConsoleLogger implements Logging.Logger {
 
   debug(message: string, metadata?: any): void {
     if (!this.isProduction) {
-      this.print(Logging.Level.Debug, message, metadata)
+      this.print(Level.Debug, message, metadata)
     }
   }
 
   info(message: string, metadata?: any): void {
-    this.print(Logging.Level.Info, message, metadata)
+    this.print(Level.Info, message, metadata)
   }
 
   warn(message: string, metadata?: any): void {
-    this.print(Logging.Level.Warn, message, metadata)
+    this.print(Level.Warn, message, metadata)
   }
 
   error(message: string, metadata?: any): void
   error(message: string, error: Error, metadata?: any): void {
     if (error instanceof Error) {
       const msg = message + ` [${error.name}, ${error.message}]`
-      return this.print(Logging.Level.Error, msg, metadata)
+      return this.print(Level.Error, msg, metadata)
     }
 
-    this.print(Logging.Level.Error, message, error)
+    this.print(Level.Error, message, error)
   }
 }

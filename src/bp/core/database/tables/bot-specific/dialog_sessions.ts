@@ -1,10 +1,11 @@
-import { Table } from 'bp/core/database/interfaces'
+import { Table } from 'core/database/interfaces'
 
 export class DialogSessionTable extends Table {
   name: string = 'dialog_sessions'
 
   async bootstrap() {
     let created = false
+
     await this.knex.createTableIfNotExists(this.name, table => {
       table.string('id').primary()
       table

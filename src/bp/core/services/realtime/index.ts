@@ -5,7 +5,8 @@ import _ from 'lodash'
 import socketio from 'socket.io'
 
 import { TYPES } from '../../types'
-import { Logging, RealTime } from '../../../common'
+import { Logger } from 'common/logging'
+import * as RealTime from 'common/realtime'
 
 @injectable()
 export default class RealtimeService {
@@ -14,7 +15,7 @@ export default class RealtimeService {
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'Realtime')
-    private logger: Logging.Logger /* TODO Add security / auth service here */
+    private logger: Logger /* TODO Add security / auth service here */
   ) {
     this.ee = new EventEmitter2({
       wildcard: true,

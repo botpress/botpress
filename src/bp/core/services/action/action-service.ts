@@ -5,7 +5,7 @@ import { GhostService } from '..'
 
 import { ActionMetadata, extractMetadata } from './metadata'
 import { runCode } from './sandbox-launcher'
-import { Logging } from 'bp/common'
+import { Logger } from 'common/logging'
 
 @injectable()
 export default class ActionService {
@@ -13,7 +13,7 @@ export default class ActionService {
     @inject(TYPES.GhostService) private ghost: GhostService,
     @inject(TYPES.Logger)
     @tagged('name', 'Actions')
-    private logger: Logging.Logger
+    private logger: Logger
   ) {}
 
   forBot(botId: string): ScopedActionService {

@@ -1,17 +1,8 @@
-import {
-  BotpressAPI,
-  BotpressEvent,
-  ConfigAPI,
-  DialogAPI,
-  EventAPI,
-  ExtendedKnex,
-  HttpAPI,
-  MiddlewareDefinition,
-  RouterOptions,
-  SubRouter,
-  UserAPI
-} from 'botpress-module-sdk'
-import { RealTimePayload } from 'botpress-module-sdk/dist/src/realtime'
+import CoreSDK, { ConfigAPI, DialogAPI, EventAPI, HttpAPI, RouterOptions, SubRouter, UserAPI } from 'common/sdk'
+import { MiddlewareDefinition, Event } from 'common/io'
+import Knex from 'knex'
+
+import { Payload } from 'common/realtime'
 import { inject, injectable } from 'inversify'
 import { Memoize } from 'lodash-decorators'
 
@@ -45,7 +36,7 @@ const event = (eventEngine: EventEngine): EventAPI => {
     registerMiddleware(middleware: MiddlewareDefinition) {
       eventEngine.register(middleware)
     },
-    sendEvent(event: BotpressEvent): void {
+    sendEvent(event: Event): void {
       eventEngine.sendEvent(event)
     }
   }
@@ -53,7 +44,7 @@ const event = (eventEngine: EventEngine): EventAPI => {
 
 const dialog = (dialogEngine: DialogEngine, sessionService: SessionService): DialogAPI => {
   return {
-    async processMessage(userId: string, event: BotpressEvent): Promise<void> {
+    async processMessage(userId: string, event: Event): Promise<void> {
       await dialogEngine.processEvent(event.botId, userId, event)
     },
     async deleteSession(userId: string): Promise<void> {
@@ -92,7 +83,7 @@ const users = (userRepo: UserRepository): UserAPI => {
 export class RealTimeAPI implements RealTimeAPI {
   constructor(private realtimeService: RealtimeService) {}
 
-  sendPayload(payload: RealTimePayload) {
+  sendPayload(payload: Payload) {
     this.realtimeService.sendToSocket(payload)
   }
 }
@@ -104,7 +95,7 @@ export class BotpressAPIProvider {
   dialog: DialogAPI
   config: ConfigAPI
   realtime: RealTimeAPI
-  database: ExtendedKnex
+  database: Knex
   users: UserAPI
 
   constructor(
@@ -128,7 +119,7 @@ export class BotpressAPIProvider {
   }
 
   @Memoize()
-  async create(loggerName: string): Promise<BotpressAPI> {
+  async create(loggerName: string): Promise<CoreSDK> {
     return {
       dialog: this.dialog,
       events: this.events,
@@ -138,14 +129,14 @@ export class BotpressAPIProvider {
       database: this.database,
       users: this.users,
       realtime: this.realtime
-    } as BotpressAPI
+    } as CoreSDK
   }
 }
 
-export function createForModule(moduleId: string): Promise<BotpressAPI> {
+export function createForModule(moduleId: string): Promise<CoreSDK> {
   return container.get<BotpressAPIProvider>(TYPES.BotpressAPIProvider).create(`Mod[${moduleId}]`)
 }
 
-export function createForGlobalHooks(): Promise<BotpressAPI> {
+export function createForGlobalHooks(): Promise<CoreSDK> {
   return container.get<BotpressAPIProvider>(TYPES.BotpressAPIProvider).create(`Hooks`)
 }

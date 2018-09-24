@@ -1,6 +1,6 @@
 import Knex from 'knex'
 
-import { Table } from '../../interfaces'
+import { Table } from 'core/database/interfaces'
 
 // TODO: Use knex seed api instead
 const insertBots = async (knex: Knex, tableName: string) => {

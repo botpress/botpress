@@ -1,4 +1,4 @@
-import { Table } from 'bp/core/database/interfaces'
+import { Table } from 'core/database/interfaces'
 
 export class NotificationsTable extends Table {
   name: string = 'srv_notifications'

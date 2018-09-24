@@ -3,21 +3,22 @@ import { Memoize } from 'lodash-decorators'
 import moment from 'moment'
 import ms from 'ms'
 
-import { BotLoader } from '../../bot-loader'
-import { BotpressConfig } from '../../config/botpress.config'
-import { ConfigProvider } from '../../config/config-loader'
-import { TYPES } from '../../types'
+import { BotLoader } from 'core/bot-loader'
+import { BotpressConfig } from 'core/config/botpress.config'
+import { ConfigProvider } from 'core/config/config-loader'
+import { TYPES } from 'core/types'
+
 import { Janitor } from '../janitor'
 
 import { LogsService } from './service'
-import { Logging } from 'bp/common'
+import { Logger } from 'common/logging'
 
 @injectable()
 export class LogsJanitor extends Janitor {
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'LogsJanitor')
-    protected logger: Logging.Logger,
+    protected logger: Logger,
     @inject(TYPES.LogsService) private logsService: LogsService,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.BotLoader) private botLoader: BotLoader

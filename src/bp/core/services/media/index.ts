@@ -4,7 +4,7 @@ import path from 'path'
 
 import { TYPES } from '../../types'
 import { GhostService } from '..'
-import { Logging } from '../../../common'
+import { Logger } from 'common/logging'
 
 const safeId = (length = 10) => generate('1234567890abcdefghijklmnopqrsuvwxyz', length)
 
@@ -14,7 +14,7 @@ export default class MediaService {
     @inject(TYPES.GhostService) private ghost: GhostService,
     @inject(TYPES.Logger)
     @tagged('name', 'MediaService')
-    private logger: Logging.Logger
+    private logger: Logger
   ) {}
 
   async saveFile(botId: string, fileName: string, content: Buffer): Promise<string> {

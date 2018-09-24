@@ -4,6 +4,8 @@
     "outDir": "dist",
     "baseUrl": ".",
     "rootDir": "src",
+    "forceConsistentCasingInFileNames": true,
+    "outFile": "botpress_full.js",
     "types": ["bluebird-global"]
   },
   "include": ["src/**/*"]

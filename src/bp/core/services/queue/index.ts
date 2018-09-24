@@ -1,4 +1,4 @@
-import { IO } from 'bp/common'
+import * as IO from 'common/io'
 
 export interface QueueOptions {
   retries: number

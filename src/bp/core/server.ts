@@ -19,8 +19,8 @@ import FlowService from './services/dialog/flow/service'
 import { LogsService } from './services/logs/service'
 import MediaService from './services/media'
 import { NotificationsService } from './services/notification/service'
-import { RouterOptions } from 'bp/sdk'
-import { Logging } from 'bp/common'
+import { RouterOptions } from 'common/sdk'
+import { Logger } from 'common/logging'
 
 const BASE_API_PATH = '/api/v1'
 
@@ -40,7 +40,7 @@ export default class HTTPServer {
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.Logger)
     @tagged('name', 'HTTP')
-    private logger: Logging.Logger,
+    private logger: Logger,
     @inject(TYPES.IsProduction) isProduction: boolean,
     @inject(TYPES.BotRepository) botRepository: BotRepository,
     @inject(TYPES.CMSService) cmsService: CMSService,

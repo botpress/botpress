@@ -1,6 +1,6 @@
 import Knex from 'knex'
 
-import { Table } from '../../interfaces'
+import { Table } from 'core/database/interfaces'
 
 const insertTeams = async (knex: Knex, tableName: string) => {
   return knex

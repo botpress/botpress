@@ -1,4 +1,4 @@
-import { Table } from '../../interfaces'
+import { Table } from 'core/database/interfaces'
 import Knex from 'knex'
 
 const insertMembers = async (knex: Knex, tableName: string) => {

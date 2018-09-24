@@ -3,7 +3,7 @@ import _ from 'lodash'
 import ms from 'ms'
 
 import Database from '../database'
-import { Logging } from 'bp/common'
+import { LogEntry, Logger } from 'common/logging'
 import Knex from 'knex'
 
 @injectable()
@@ -13,19 +13,19 @@ export class LoggerPersister {
   private readonly INTERVAL = ms('2s')
 
   private knex!: Knex
-  private batch: Logging.LogEntry[] = []
+  private batch: LogEntry[] = []
   private intervalRef
   private currentPromise
-  private logger!: Logging.Logger
+  private logger!: Logger
 
   constructor() {}
 
-  async initialize(database: Database, logger: Logging.Logger) {
+  async initialize(database: Database, logger: Logger) {
     this.knex = database.knex
     this.logger = logger
   }
 
-  appendLog(log: Logging.LogEntry) {
+  appendLog(log: LogEntry) {
     this.batch.push(log)
   }
 

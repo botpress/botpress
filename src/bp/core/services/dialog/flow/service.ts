@@ -5,7 +5,7 @@ import { Flow, FlowView, NodeView } from '..'
 import { TYPES } from '../../../types'
 import { GhostService } from '../..'
 import { validateFlowSchema } from '../validator'
-import { Logging } from 'bp/common'
+import { Logger } from 'common/logging'
 
 const PLACING_STEP = 250
 const MIN_POS_X = 50
@@ -16,7 +16,7 @@ export default class FlowService {
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'FlowService')
-    private logger: Logging.Logger,
+    private logger: Logger,
     @inject(TYPES.GhostService) private ghost: GhostService
   ) {}
 

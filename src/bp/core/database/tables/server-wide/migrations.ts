@@ -1,4 +1,4 @@
-import { Table } from '../../interfaces'
+import { Table } from 'core/database/interfaces'
 
 export class MigrationsTable extends Table {
   name: string = 'knex_core_migrations'

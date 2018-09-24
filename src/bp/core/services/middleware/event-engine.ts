@@ -11,7 +11,8 @@ import { GhostService } from '..'
 import { Queue } from '../queue'
 
 import { MiddlewareChain } from './middleware'
-import { Logging, IO } from 'bp/common'
+import { Logger } from 'common/logging'
+import * as IO from 'common/io'
 
 const MESSAGE_RETRIES = 3
 
@@ -52,7 +53,7 @@ export class EventEngine {
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'EventEngine')
-    private logger: Logging.Logger,
+    private logger: Logger,
     @inject(TYPES.IsProduction) private isProduction: boolean,
     @inject(TYPES.GhostService) private ghost: GhostService,
     @inject(TYPES.CMSService) private cms: CMSService,
@@ -120,7 +121,7 @@ export class EventEngine {
     }
 
     for (const element of renderedElements) {
-      const event = new IO.Event({
+      const event = IO.Event({
         direction: 'outgoing',
         payload: element,
         type: _.get(element, 'type', 'default'),

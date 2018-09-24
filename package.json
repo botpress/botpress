@@ -58,5 +58,8 @@
     "jest": "^23.6.0",
     "jest-extended": "^0.10.0",
     "ts-jest": "^23.10.1"
+  },
+  "optionalDependencies": {
+    "sqlite3": "^4.0.2"
   }
 }

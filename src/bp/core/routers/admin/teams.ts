@@ -8,13 +8,13 @@ import { InvalidOperationError } from '../../services/auth/errors'
 import TeamsService from '../../services/auth/teams-service'
 
 import { asyncMiddleware, success as sendSuccess, validateBodySchema } from '../util'
-import { Logging } from '../../../common'
+import { Logger } from 'common/logging'
 
 export class TeamsRouter implements CustomRouter {
   private asyncMiddleware!: Function
   public readonly router: Router
 
-  constructor(logger: Logging.Logger, private authService: AuthService, private teamsService: TeamsService) {
+  constructor(logger: Logger, private authService: AuthService, private teamsService: TeamsService) {
     this.asyncMiddleware = asyncMiddleware({ logger })
     this.router = Router({ mergeParams: true })
     this.setupRoutes()
