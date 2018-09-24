@@ -54,7 +54,10 @@
 }
 
 .new-qna-modal .modal-dialog {
+  position: absolute;
+  top: 5px;
   margin: 0;
+  max-width: calc(100vw - 20px);
 }
 
 .new-qna-modal .Select-arrow {
@@ -64,4 +67,9 @@
 .qna-nav-bar .btn-success {
   background-color: #108c67;
   border-color: #0b6e51;
+}
+
+.qna-category-error,
+.qna-category-error .Select-control {
+  border-color: red;
 }

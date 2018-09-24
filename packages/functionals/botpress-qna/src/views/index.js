@@ -33,6 +33,7 @@ import { FormControlIme } from './FormControlIme'
 import ArrayEditor from './ArrayEditor'
 import QuestionsEditor from './QuestionsEditor'
 import QuestionsBulkImport from './QuestionsBulkImport'
+import NewQnAModal from './newQnAModal'
 import style from './style.scss'
 import './button.css'
 
@@ -87,33 +88,48 @@ export default class QnaAdmin extends Component {
   state = {
     newItem: this.createEmptyQuestion(),
     items: [],
+    categories: [],
     flows: null,
+    flowsList: [],
     filter: '',
     showBulkImport: undefined,
     page: 1,
     overallItemsCount: 0,
     hasCategory: false,
-    showQnAModal: false
+    showQnAModal: false,
+    category: '',
+    QnAModalType: 'create'
   }
 
   shouldAutofocus = true
 
   fetchFlows() {
     this.props.bp.axios.get('/api/flows/all').then(({ data }) => {
-      this.setState({ flows: data })
+      const flowsList = data.map(({ name }) => ({ label: name, value: name }))
+
+      this.setState({ flows: data, flowsList })
     })
   }
 
-  fetchData(page = 1) {
+  fetchData = (page = 1) => {
     const params = { limit: ITEMS_PER_PAGE, offset: (page - 1) * ITEMS_PER_PAGE }
     this.props.bp.axios.get('/api/botpress-qna', { params }).then(({ data }) => {
       this.setState({ ...data, page })
     })
   }
 
+  fetchCategories() {
+    this.props.bp.axios.get('/api/botpress-qna/category/list').then(({ data: { categories } }) => {
+      const categoriesOptions = categories.map(category => ({ label: category, value: category }))
+
+      this.setState({ categories: categoriesOptions })
+    })
+  }
+
   componentDidMount() {
     this.fetchData()
     this.fetchFlows()
+    this.fetchCategories()
   }
 
   onCreate = value => {
@@ -283,110 +299,6 @@ export default class QnaAdmin extends Component {
           this.setState({ showBulkImport: undefined })
         }}
       />
-    )
-  }
-
-  renderForm = ({ data }, index, { isDirty, onCreate, onEdit, onReset, onDelete, onChange }) => {
-    const { shouldAutofocus } = this
-    this.shouldAutofocus = false
-
-    const { showBulkImport } = this.state
-    const saveSign = `${isDirty ? '* ' : ''}Save`
-
-    return (
-      <Well bsSize="small" bsClass={classnames('well', style.qna, { [style.pale]: !data.enabled })}>
-        {index == null && <h4>New Q&amp;A</h4>}
-
-        <Checkbox
-          checked={data.enabled}
-          onChange={this.onInputChange(index, 'enabled', onChange)}
-          bsClass={classnames('checkbox', { [style.strong]: data.enabled })}
-        >
-          Enabled
-        </Checkbox>
-
-        <Panel>
-          <Panel.Heading>
-            Questions
-            <Button bsSize="xs" bsStyle="link" onClick={this.showQuestionsBulkImportModal(index)}>
-              bulk import
-            </Button>
-            {showBulkImport === index && this.renderBulkImportModal(index, onChange)}
-          </Panel.Heading>
-          <Panel.Body>
-            <QuestionsEditor
-              autofocus={shouldAutofocus && index == null}
-              items={data.questions}
-              onChange={this.onQuestionsChanged(index, onChange)}
-            />
-          </Panel.Body>
-        </Panel>
-
-        <FormGroup>
-          <strong>Reply with:</strong>&nbsp;&nbsp;&nbsp;
-          <Radio
-            name={this.getFormControlId(index, 'action')}
-            value={ACTIONS.TEXT}
-            checked={data.action === ACTIONS.TEXT}
-            onChange={this.onInputChange(index, 'action', onChange)}
-            inline
-          >
-            text answer
-          </Radio>
-          <Radio
-            name={this.getFormControlId(index, 'action')}
-            value={ACTIONS.REDIRECT}
-            checked={data.action === ACTIONS.REDIRECT}
-            onChange={this.onInputChange(index, 'action', onChange)}
-            inline
-          >
-            redirect to flow node
-          </Radio>
-          <Radio
-            name={this.getFormControlId(index, 'action')}
-            value={ACTIONS.TEXT_REDIRECT}
-            checked={data.action === ACTIONS.TEXT_REDIRECT}
-            onChange={this.onInputChange(index, 'action', onChange)}
-            inline
-          >
-            text answer and redirect to flow node
-          </Radio>
-        </FormGroup>
-
-        {data.action === ACTIONS.TEXT && this.renderTextInput(index, onChange)}
-        {data.action === ACTIONS.REDIRECT && this.renderRedirectSelect(index, onChange)}
-        {data.action === ACTIONS.TEXT_REDIRECT && this.renderTextAndRedirectSelect(index, onChange)}
-
-        {this.state.hasCategory ? (
-          <FormGroup controlId={this.getFormControlId(index, 'category')}>
-            <ControlLabel>Category:</ControlLabel>
-            <FormControlIme
-              placeholder="Category"
-              value={data.category}
-              onChange={this.onInputChange(index, 'category', onChange)}
-            />
-          </FormGroup>
-        ) : null}
-
-        <ButtonToolbar>
-          <Button type="button" onClick={() => onReset(index)} disabled={!isDirty}>
-            Reset
-          </Button>
-          {index != null && (
-            <Button type="button" bsStyle="danger" onClick={() => onDelete(index)}>
-              Delete
-            </Button>
-          )}
-          <Button
-            type="button"
-            bsStyle="success"
-            onClick={() => (index != null ? onEdit(index) : onCreate())}
-            disabled={!isDirty || !this.canSave(data)}
-          >
-            {index != null ? saveSign : 'Create'}
-          </Button>
-        </ButtonToolbar>
-      </Well>
     )
   }
 
@@ -567,20 +479,29 @@ export default class QnaAdmin extends Component {
         {this.state.hasCategory ? (
           <Select
             className={style['serach-questions']}
-            value={this.state.filter}
-            onChange={this.onFilterChange}
+            isMulti
+            value={this.state.category}
+            options={this.state.categories}
+            onChange={value => {
+              console.log('serach-questions: ', value)
+              this.setState({ category: value })
+            }}
             placeholder="Filter caterories"
           />
         ) : null}
       </div>
-      <Button className={style['qna-nav-bar__add-new']} bsStyle="success" onClick={this.toggleQnAModal} type="button">
+      <Button
+        className={style['qna-nav-bar__add-new']}
+        bsStyle="success"
+        onClick={() => this.setState({ QnAModalType: 'create', currentItemId: null }, this.toggleQnAModal)}
+        type="button"
+      >
         + Add new
       </Button>
     </div>
   )
 
-  renderItem = ({ data: item, id, ...args }, index, { isDirty, onCreate, onEdit, onReset, onDelete, onChange }) => {
-    // for some reason I had item.questions === [""] and item.answer === ""
+  renderItem = ({ data: item, id, ...args }, index, { onChange }) => {
     if (!id) {
       return null
     }
@@ -594,11 +515,23 @@ export default class QnaAdmin extends Component {
             <span className={style['item-questions__title']}>Q: </span>
             <div className={style['questions-list']}>{this.renderQustions(item.questions)}</div>
           </div>
-          <div className={style['item-answer']}>
+          <div className={style['item-answer-container']}>
             <span className={style['item-answer__title']}>A: </span>
-            <span className={style['item-answer__text']}>{item.answer}</span>
-            {isRedirect ? <span>Flow: {item.redirectFlow}</span> : null}
-            {isRedirect ? <span>Node: {item.redirectNode}</span> : null}
+            <div className={style['item-answer']}>
+              <span className={style['item-answer__text']}>{item.answer}</span>
+              <div className={style['item-redirect']}>
+                {isRedirect ? (
+                  <div className={style['item-flow']}>
+                    Flow: <span className={style['item-flow__name']}>{item.redirectFlow}</span>
+                  </div>
+                ) : null}
+                {isRedirect ? (
+                  <div className={style['item-node']}>
+                    Node: <span className={style['item-node__name']}>{item.redirectNode}</span>
+                  </div>
+                ) : null}
+              </div>
+            </div>
           </div>
           {this.state.hasCategory || item.category ? (
             <div className={style['question-category']}>
@@ -607,12 +540,33 @@ export default class QnaAdmin extends Component {
           ) : null}
         </div>
         <div className={style['item-action']}>
-          {this.toggleButton({ value: item.enabled, onChange: this.onPropChange(index, 'enabled', onChange) })}
-          <i className={`material-icons ${style['item-action__delete']}`}>delete</i>
-          <i className={`material-icons ${style['item-action__edit']}`}>edit</i>
+          {this.toggleButton({ value: item.enabled, onChange: this.enabledItem(item, id) })}
+          <i className={`material-icons ${style['item-action__delete']}`} onClick={this.deleteItem(id)}>
+            delete
+          </i>
+          <i className={`material-icons ${style['item-action__edit']}`} onClick={this.editItem(id)}>
+            edit
+          </i>
         </div>
       </Well>
     )
+  }
+
+  deleteItem = id => () => {
+    const needDetelete = confirm('Do you want delete Question')
+
+    if (needDetelete) {
+      this.props.bp.axios.delete(`/api/botpress-qna/${id}`)
+    }
+  }
+
+  editItem = id => () => {
+    this.setState({ QnAModalType: 'edit', currentItemId: id }, this.toggleQnAModal)
+  }
+
+  enabledItem = (item, id) => value => {
+    item.enabled = value
+    this.props.bp.axios.put(`/api/botpress-qna/${id}`, item).then(() => this.fetchData(this.state.page))
   }
 
   renderQustions = questions =>
@@ -634,83 +588,6 @@ export default class QnaAdmin extends Component {
   }
 
   toggleQnAModal = () => this.setState({ showQnAModal: !this.state.showQnAModal })
-
-  renderModal() {
-    return (
-      <Modal
-        className={`${style['new-qna-modal']} new-qna-modal`}
-        show={this.state.showQnAModal}
-        onHide={this.toggleQnAModal}
-      >
-        <Modal.Header className={style['qna-modal-header']}>
-          <Modal.Title>Create a new Q&A</Modal.Title>
-        </Modal.Header>
-
-        <Modal.Body className={style['qna-modal-body']}>
-          {this.state.hasCategory ? (
-            <div className={style['qna-category']}>
-              <span className={style['qna-category__title']}>Category</span>
-              <Select
-                className={style['qna-category__select']}
-                value=""
-                onChange={() => ({})}
-                placeholder="Search or choose category"
-              />
-            </div>
-          ) : null}
-          <div className={style['qna-questions']}>
-            <span className={style['qna-questions__title']}>Questions</span>
-            <span className={style['qna-questions__hint']}>
-              Type/Paste your questions here separated with a new line
-            </span>
-            <FormControl className={style['qna-questions__textarea']} componentClass="textarea" />
-          </div>
-          <div className={style['qna-reply']}>
-            <span className={style['qna-reply__title']}>Reply with:</span>
-            <div className={style['qna-answer']}>
-              <span className={style['qna-answer__check']}>
-                <input type="checkbox" value="" />&nbsp;Type your answer
-              </span>
-              <FormControl className={style['qna-answer__textarea']} componentClass="textarea" />
-            </div>
-            <div className={style['qna-and-or']}>
-              <div className={style['qna-and-or__line']} />
-              <div className={style['qna-and-or__text']}>and / or</div>
-              <div className={style['qna-and-or__line']} />
-            </div>
-            <div className={style['qna-redirect']}>
-              <div className={style['qna-redirect-to-flow']}>
-                <span className={style['qna-redirect-to-flow-check']}>
-                  <input
-                    type="checkbox"
-                    value=""
-                    className={style['qna-redirect-to-flow-check__checkbox']}
-                  />&nbsp;Redirect to flow
-                </span>
-                <Select
-                  className={style['qna-redirect-to-flow-check__select']}
-                  value=""
-                  onChange={() => ({})}
-                  placeholder=""
-                />
-              </div>
-              <div className={style['qna-redirect-node']}>
-                <span className={style['qna-redirect-node__title']}>Node</span>
-                <Select className={style['qna-redirect-node__select']} value="" onChange={() => ({})} placeholder="" />
-              </div>
-            </div>
-          </div>
-        </Modal.Body>
-
-        <Modal.Footer className={style['qna-modal-footer']}>
-          <Button className={style['qna-modal-footer__cancel-btn']} onClick={this.toggleQnAModal}>
-            Cancel
-          </Button>
-          <Button className={style['qna-modal-footer__save-btn']}>Save</Button>
-        </Modal.Footer>
-      </Modal>
-    )
-  }
 
   render() {
     return (
@@ -735,7 +612,18 @@ export default class QnaAdmin extends Component {
             updateState={this.updateState}
             createNewItem={this.createEmptyQuestion}
           />
-          {this.renderModal()}
+          <NewQnAModal
+            flows={this.state.flows}
+            flowsList={this.state.flowsList}
+            bp={this.props.bp}
+            showQnAModal={this.state.showQnAModal}
+            toggleQnAModal={this.toggleQnAModal}
+            hasCategory={this.state.hasCategory}
+            categories={this.state.categories}
+            fetchData={this.fetchData}
+            id={this.state.currentItemId}
+            modalType={this.state.QnAModalType}
+          />
         </Panel.Body>
       </Panel>
     )

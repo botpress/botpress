@@ -146,8 +146,14 @@ $mainGreen: #1bb68a;
   color: #1bb68a;
 }
 
-.item-answer {
+.item-answer-container {
   margin-top: 5px;
+  display: flex;
+}
+
+.item-answer {
+  display: flex;
+  flex-direction: column;
 }
 
 .item-answer__text {
@@ -162,6 +168,10 @@ $mainGreen: #1bb68a;
   justify-content: flex-end;
   align-items: flex-start;
   padding-top: 15px;
+}
+
+.item-redirect {
+  display: flex;
 }
 
 .toggle-button {
@@ -370,4 +380,21 @@ $mainGreen: #1bb68a;
 
 .qna-modal-footer__save-btn {
   background-color: #14a77b;
+}
+
+.qna-category-error {
+  border-color: red;
+}
+
+.item-node,
+.item-flow {
+  font-weight: 900;
+  color: #686669;
+  margin-right: 30px;
+}
+
+.item-flow__name,
+.item-node__name {
+  color: #8a888b;
+  font-weight: 500;
 }

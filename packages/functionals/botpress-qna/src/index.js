@@ -195,6 +195,17 @@ module.exports = {
       }
     })
 
+    router.get('/:questionId', async (req, res) => {
+      try {
+        const question = await this.storage.getQuestion(req.params.questionId)
+
+        res.send(question)
+        res.end()
+      } catch (err) {
+        bp.events.emit('toast.qna-save', { text: `QnA Fetch Error: ${err.message}`, type: 'error' })
+      }
+    })
+
     router.put('/:question', async (req, res) => {
       try {
         bp.events.emit('toast.qna-save', { text: 'QnA Update In Progress', type: 'info', time: 120000 })
@@ -266,6 +277,10 @@ module.exports = {
 
     router.get('/csv-upload-status/:csvUploadStatusId', async (req, res) => {
       res.end(csvUploadStatuses[req.params.csvUploadStatusId])
+    })
+
+    router.get('/category/list', (req, res) => {
+      res.send({ categories })
     })
   }
 }
