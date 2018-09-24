@@ -17,7 +17,9 @@ import {
   Modal,
   HelpBlock,
   Alert,
-  Pagination
+  Pagination,
+  DropdownButton,
+  MenuItem
 } from 'react-bootstrap'
 import Select from 'react-select'
 
@@ -32,6 +34,7 @@ import ArrayEditor from './ArrayEditor'
 import QuestionsEditor from './QuestionsEditor'
 import QuestionsBulkImport from './QuestionsBulkImport'
 import style from './style.scss'
+import './button.css'
 
 const getInputValue = input => {
   switch (input.type) {
@@ -89,7 +92,8 @@ export default class QnaAdmin extends Component {
     showBulkImport: undefined,
     page: 1,
     overallItemsCount: 0,
-    hasCategory: false
+    hasCategory: false,
+    showQnAModal: false
   }
 
   shouldAutofocus = true
@@ -141,6 +145,7 @@ export default class QnaAdmin extends Component {
 
   onPropChange = (index, prop, onChange) => propValue => {
     const value = index == null ? this.state.newItem : this.state.items[index]
+
     onChange(
       {
         ...value,
@@ -527,10 +532,10 @@ export default class QnaAdmin extends Component {
   }
 
   renderQnAHeader = () => (
-    <FormGroup>
-      <ButtonToolbar>
+    <FormGroup className={style['qna-header']}>
+      <ButtonToolbar className={style.csvContainer}>
         <Button
-          bsStyle="success"
+          className={style.csvButton}
           onClick={() =>
             this.setState({
               importCsvModalShow: true,
@@ -540,10 +545,10 @@ export default class QnaAdmin extends Component {
             })}
           type="button"
         >
-          <Glyphicon glyph="upload" /> &nbsp; Import from CSV
+          Import from CSV
         </Button>
-        <Button bsStyle="success" onClick={this.downloadCsv} type="button">
-          <Glyphicon glyph="download" />&nbsp; Export to CSV
+        <Button className={style.csvButton} onClick={this.downloadCsv} type="button">
+          Export to CSV
         </Button>
         {this.renderImportModal()}
       </ButtonToolbar>
@@ -551,19 +556,165 @@ export default class QnaAdmin extends Component {
   )
 
   renderSearch = () => (
-    <FormGroup>
-      <InputGroup>
-        <FormControlIme placeholder="Filter questions" value={this.state.filter} onChange={this.onFilterChange} />
-        <InputGroup.Addon>
-          <Glyphicon glyph="search" />
-        </InputGroup.Addon>
-      </InputGroup>
-    </FormGroup>
+    <div className={`${style['qna-nav-bar']} qna-nav-bar`}>
+      <div className={style['search-bar']}>
+        <Select
+          className={style['serach-questions']}
+          value={this.state.filter}
+          onChange={this.onFilterChange}
+          placeholder="Filter questions"
+        />
+        {this.state.hasCategory ? (
+          <Select
+            className={style['serach-questions']}
+            value={this.state.filter}
+            onChange={this.onFilterChange}
+            placeholder="Filter caterories"
+          />
+        ) : null}
+      </div>
+      <Button className={style['qna-nav-bar__add-new']} bsStyle="success" onClick={this.toggleQnAModal} type="button">
+        + Add new
+      </Button>
+    </div>
   )
+
+  renderItem = ({ data: item, id, ...args }, index, { isDirty, onCreate, onEdit, onReset, onDelete, onChange }) => {
+    // for some reason I had item.questions === [""] and item.answer === ""
+    if (!id) {
+      return null
+    }
+
+    const isRedirect = item.redirectFlow && item.redirectNode
+
+    return (
+      <Well className={style['qna-item']} bsSize="small">
+        <div className={style['item-container']}>
+          <div className={style['item-questions']}>
+            <span className={style['item-questions__title']}>Q: </span>
+            <div className={style['questions-list']}>{this.renderQustions(item.questions)}</div>
+          </div>
+          <div className={style['item-answer']}>
+            <span className={style['item-answer__title']}>A: </span>
+            <span className={style['item-answer__text']}>{item.answer}</span>
+            {isRedirect ? <span>Flow: {item.redirectFlow}</span> : null}
+            {isRedirect ? <span>Node: {item.redirectNode}</span> : null}
+          </div>
+          {this.state.hasCategory || item.category ? (
+            <div className={style['question-category']}>
+              Category: <span className={style['question-category__title']}>&nbsp;{item.category}</span>
+            </div>
+          ) : null}
+        </div>
+        <div className={style['item-action']}>
+          {this.toggleButton({ value: item.enabled, onChange: this.onPropChange(index, 'enabled', onChange) })}
+          <i className={`material-icons ${style['item-action__delete']}`}>delete</i>
+          <i className={`material-icons ${style['item-action__edit']}`}>edit</i>
+        </div>
+      </Well>
+    )
+  }
+
+  renderQustions = questions =>
+    questions.map(question => (
+      <div key={question} className={style['question-text']}>
+        {question}
+      </div>
+    ))
+
+  toggleButton = ({ value, onChange }) => {
+    const toggleCssClass = classnames('slider', { checked: value })
+
+    return (
+      <label className={`switch ${style['toggle-button']}`}>
+        <input className="toggle-input" value={value} onChange={() => onChange(!value)} type="checkbox" />
+        <span className={toggleCssClass} />
+      </label>
+    )
+  }
+
+  toggleQnAModal = () => this.setState({ showQnAModal: !this.state.showQnAModal })
+
+  renderModal() {
+    return (
+      <Modal
+        className={`${style['new-qna-modal']} new-qna-modal`}
+        show={this.state.showQnAModal}
+        onHide={this.toggleQnAModal}
+      >
+        <Modal.Header className={style['qna-modal-header']}>
+          <Modal.Title>Create a new Q&A</Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body className={style['qna-modal-body']}>
+          {this.state.hasCategory ? (
+            <div className={style['qna-category']}>
+              <span className={style['qna-category__title']}>Category</span>
+              <Select
+                className={style['qna-category__select']}
+                value=""
+                onChange={() => ({})}
+                placeholder="Search or choose category"
+              />
+            </div>
+          ) : null}
+          <div className={style['qna-questions']}>
+            <span className={style['qna-questions__title']}>Questions</span>
+            <span className={style['qna-questions__hint']}>
+              Type/Paste your questions here separated with a new line
+            </span>
+            <FormControl className={style['qna-questions__textarea']} componentClass="textarea" />
+          </div>
+          <div className={style['qna-reply']}>
+            <span className={style['qna-reply__title']}>Reply with:</span>
+            <div className={style['qna-answer']}>
+              <span className={style['qna-answer__check']}>
+                <input type="checkbox" value="" />&nbsp;Type your answer
+              </span>
+              <FormControl className={style['qna-answer__textarea']} componentClass="textarea" />
+            </div>
+            <div className={style['qna-and-or']}>
+              <div className={style['qna-and-or__line']} />
+              <div className={style['qna-and-or__text']}>and / or</div>
+              <div className={style['qna-and-or__line']} />
+            </div>
+            <div className={style['qna-redirect']}>
+              <div className={style['qna-redirect-to-flow']}>
+                <span className={style['qna-redirect-to-flow-check']}>
+                  <input
+                    type="checkbox"
+                    value=""
+                    className={style['qna-redirect-to-flow-check__checkbox']}
+                  />&nbsp;Redirect to flow
+                </span>
+                <Select
+                  className={style['qna-redirect-to-flow-check__select']}
+                  value=""
+                  onChange={() => ({})}
+                  placeholder=""
+                />
+              </div>
+              <div className={style['qna-redirect-node']}>
+                <span className={style['qna-redirect-node__title']}>Node</span>
+                <Select className={style['qna-redirect-node__select']} value="" onChange={() => ({})} placeholder="" />
+              </div>
+            </div>
+          </div>
+        </Modal.Body>
+
+        <Modal.Footer className={style['qna-modal-footer']}>
+          <Button className={style['qna-modal-footer__cancel-btn']} onClick={this.toggleQnAModal}>
+            Cancel
+          </Button>
+          <Button className={style['qna-modal-footer__save-btn']}>Save</Button>
+        </Modal.Footer>
+      </Modal>
+    )
+  }
 
   render() {
     return (
-      <Panel>
+      <Panel className={style['qna-container']}>
         <a
           ref={this.csvDownloadableLink}
           href={this.state.csvDownloadableLinkHref}
@@ -576,7 +727,7 @@ export default class QnaAdmin extends Component {
             items={this.state.items}
             shouldShowItem={this.questionMatches(this.state.filter)}
             newItem={this.state.newItem}
-            renderItem={this.renderForm}
+            renderItem={this.renderItem}
             renderPagination={this.renderPagination}
             onCreate={this.onCreate}
             onEdit={this.onEdit}
@@ -584,6 +735,7 @@ export default class QnaAdmin extends Component {
             updateState={this.updateState}
             createNewItem={this.createEmptyQuestion}
           />
+          {this.renderModal()}
         </Panel.Body>
       </Panel>
     )
