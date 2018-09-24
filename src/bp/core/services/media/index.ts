@@ -1,10 +1,10 @@
-import { Logger } from 'botpress-module-sdk'
 import { inject, injectable, tagged } from 'inversify'
 import generate from 'nanoid/generate'
 import path from 'path'
 
-import { TYPES } from '../../misc/types'
-import GhostService from '../ghost/service'
+import { TYPES } from '../../types'
+import { GhostService } from '..'
+import { Logging } from '../../../common'
 
 const safeId = (length = 10) => generate('1234567890abcdefghijklmnopqrsuvwxyz', length)
 
@@ -14,7 +14,7 @@ export default class MediaService {
     @inject(TYPES.GhostService) private ghost: GhostService,
     @inject(TYPES.Logger)
     @tagged('name', 'MediaService')
-    private logger: Logger
+    private logger: Logging.Logger
   ) {}
 
   async saveFile(botId: string, fileName: string, content: Buffer): Promise<string> {

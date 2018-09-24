@@ -1,19 +1,9 @@
-import { enrichResources, RESOURCES } from '@botpress/util-roles'
+import { enrichResources, RESOURCES, Resource } from 'bp/core/misc/auth'
 
 const r = 'r'
 const w = 'w'
 
-export interface AuthResource {
-  name: string
-  description?: string
-  children?: {
-    name: string
-    description: string
-    operations: string[]
-  }[]
-}
-
-const ADMIN_RESOURCES: AuthResource[] = [
+const ADMIN_RESOURCES: Resource[] = [
   {
     name: 'admin',
     description: 'Botpress Admin permissions',
@@ -47,6 +37,6 @@ const ADMIN_RESOURCES: AuthResource[] = [
   }
 ]
 
-export default enrichResources(ADMIN_RESOURCES)
-  .concat(RESOURCES as AuthResource[])
-  .sort((a, b) => a.name.localeCompare(b.name)) as AuthResource[]
+export default enrichResources(ADMIN_RESOURCES)!
+  .concat(RESOURCES)
+  .sort((a, b) => a.name.localeCompare(b.name))

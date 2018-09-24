@@ -1,12 +1,11 @@
 import bodyParser from 'body-parser'
-import { Logger, RouterOptions } from 'botpress-module-sdk'
 import errorHandler from 'errorhandler'
 import express from 'express'
 import { createServer, Server } from 'http'
 import { inject, injectable, tagged } from 'inversify'
 
 import { ConfigProvider } from './config/config-loader'
-import { TYPES } from './misc/types'
+import { TYPES } from './types'
 
 import { AdminRouter, AuthRouter, BotsRouter, ModulesRouter } from './routers'
 
@@ -20,6 +19,8 @@ import FlowService from './services/dialog/flow/service'
 import { LogsService } from './services/logs/service'
 import MediaService from './services/media'
 import { NotificationsService } from './services/notification/service'
+import { RouterOptions } from 'bp/sdk'
+import { Logging } from 'bp/common'
 
 const BASE_API_PATH = '/api/v1'
 
@@ -39,7 +40,7 @@ export default class HTTPServer {
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.Logger)
     @tagged('name', 'HTTP')
-    private logger: Logger,
+    private logger: Logging.Logger,
     @inject(TYPES.IsProduction) isProduction: boolean,
     @inject(TYPES.BotRepository) botRepository: BotRepository,
     @inject(TYPES.CMSService) cmsService: CMSService,

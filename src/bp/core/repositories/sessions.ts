@@ -1,9 +1,9 @@
-import { BotpressEvent } from 'botpress-module-sdk'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 
 import Database from '../database'
-import { TYPES } from '../misc/types'
+import { TYPES } from '../types'
+import { IO } from 'bp/common'
 
 export type DialogContext = {
   previousFlowName?: string
@@ -17,7 +17,7 @@ export class DialogSession {
   constructor(public id: string, public botId: string) {}
   state?: any
   context?: DialogContext
-  event?: BotpressEvent
+  event?: IO.Event
 
   // Timestamps are optionnal because they have default values in the database
   created_on?: Date

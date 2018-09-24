@@ -1,4 +1,4 @@
-import { Table } from '../../interfaces'
+import { Table } from 'bp/core/database/interfaces'
 
 export class LogsTable extends Table {
   name: string = 'srv_logs'

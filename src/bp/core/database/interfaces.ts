@@ -1,12 +1,12 @@
-import { ExtendedKnex } from 'botpress-module-sdk'
+import Knex from 'knex'
 
 export abstract class Table {
-  constructor(public knex: ExtendedKnex) {}
+  constructor(public knex: Knex) {}
   abstract bootstrap(): Promise<boolean>
   abstract get name(): string
 }
 
 export abstract class DatabaseMigration {
-  abstract up(knex: ExtendedKnex): Promise<void>
-  abstract down(knex: ExtendedKnex): Promise<void>
+  abstract up(knex: Knex): Promise<void>
+  abstract down(knex: Knex): Promise<void>
 }

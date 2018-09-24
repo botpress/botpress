@@ -1,9 +1,4 @@
-require('dotenv').config(process.env.NODE_ENV === 'production' ? {} : { path: './.env.local' })
-
-import startProxy from '@botpress/xx-ui'
-import BPromise from 'bluebird'
-import { ModuleDefinition } from 'botpress-module-sdk'
-import { Botpress, Logger } from 'botpress-xx'
+import 'bluebird-global'
 
 import chalk from 'chalk'
 
@@ -25,7 +20,7 @@ async function start() {
       modules
     })
 
-    await BPromise.fromCallback(cb =>
+    await Promise.fromCallback(cb =>
       startProxy({ coreApiUrl: 'http://localhost:3000', proxyHost: 'http://localhost', proxyPort: '3001' }, cb)
     )
 

@@ -1,5 +1,4 @@
 import 'bluebird-global'
-import { Logger } from 'botpress-module-sdk'
 import 'reflect-metadata'
 
 import { createSpyObject, MockObject } from '../../misc/utils'
@@ -7,23 +6,24 @@ import { createSpyObject, MockObject } from '../../misc/utils'
 import { GhostFileRevision, ObjectCache } from '.'
 import DBStorageDriver from './db-driver'
 import DiskStorageDriver from './disk-driver'
-import Ghost from './service'
+import { GhostService } from './service'
+import { Logging } from '../../../common'
 
 const BOT_ID = 'bot123'
 
 describe('Ghost Service', () => {
-  let ghost: Ghost // tslint:disable-line
+  let ghost: GhostService // tslint:disable-line
   let diskDriver: MockObject<DiskStorageDriver>,
     dbDriver: MockObject<DBStorageDriver>,
     cache: MockObject<ObjectCache>,
-    logger: MockObject<Logger>
+    logger: MockObject<Logging.Logger>
 
   beforeEach(() => {
     diskDriver = createSpyObject<DiskStorageDriver>()
     dbDriver = createSpyObject<DBStorageDriver>()
     cache = createSpyObject<ObjectCache>()
-    logger = createSpyObject<Logger>()
-    ghost = new Ghost(diskDriver.T, dbDriver.T, cache.T, logger.T)
+    logger = createSpyObject<Logging.Logger>()
+    ghost = new GhostService(diskDriver.T, dbDriver.T, cache.T, logger.T)
   })
 
   describe(`Using Disk Driver`, () => {

@@ -1,6 +1,6 @@
 import { ContainerModule, interfaces } from 'inversify'
 
-import { TYPES } from '../misc/types'
+import { TYPES } from '../types'
 
 import ActionService from './action/action-service'
 import AuthService from './auth/auth-service'
@@ -18,7 +18,7 @@ import { CacheInvalidators, ObjectCache, StorageDriver } from './ghost'
 import DBStorageDriver from './ghost/db-driver'
 import DiskStorageDriver from './ghost/disk-driver'
 import MemoryObjectCache from './ghost/memory-cache'
-import GhostService from './ghost/service'
+import { GhostService } from './ghost/service'
 import { HookService } from './hook/hook-service'
 import { LogsJanitor } from './logs/janitor'
 import { LogsService } from './logs/service'

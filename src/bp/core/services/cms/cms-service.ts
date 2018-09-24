@@ -1,17 +1,18 @@
-import { ExtendedKnex, Logger } from 'botpress-module-sdk'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
 import _ from 'lodash'
 import nanoid from 'nanoid'
 import path from 'path'
+import Knex from 'knex'
 
 import { ConfigProvider } from '../../config/config-loader'
 import { LoggerProvider } from '../../logger/Logger'
 import { IDisposeOnExit } from '../../misc/interfaces'
-import { TYPES } from '../../misc/types'
-import GhostService from '../ghost/service'
+import { TYPES } from '../../types'
+import { GhostService } from '../'
 
 import { ContentElement, ContentType, DefaultSearchParams, SearchParams } from '.'
 import { CodeFile, SafeCodeSandbox } from './util'
+import { Logging, KnexExtension } from 'bp/common'
 
 @injectable()
 export class CMSService implements IDisposeOnExit {
@@ -26,11 +27,11 @@ export class CMSService implements IDisposeOnExit {
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'CMS')
-    private logger: Logger,
+    private logger: Logging.Logger,
     @inject(TYPES.LoggerProvider) private loggerProvider: LoggerProvider,
     @inject(TYPES.GhostService) private ghost: GhostService,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
-    @inject(TYPES.InMemoryDatabase) private memDb: ExtendedKnex
+    @inject(TYPES.InMemoryDatabase) private memDb: Knex & KnexExtension
   ) {}
 
   disposeOnExit() {

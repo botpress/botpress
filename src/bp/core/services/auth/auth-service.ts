@@ -1,14 +1,16 @@
-import { ExtendedKnex, Logger } from 'botpress-module-sdk'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
 import jsonwebtoken from 'jsonwebtoken'
 
+import Knex from 'knex'
 import Database from '../../database'
 import { AuthUser, TokenUser } from '../../misc/interfaces'
-import { TYPES } from '../../misc/types'
+import { TYPES } from '../../types'
 
 import { InvalidCredentialsError } from './errors'
-import resources, { AuthResource } from './resources'
+import resources from './resources'
 import { calculateHash, validateHash } from './util'
+import { Logging, KnexExtension } from '../../../common'
+import { Resource } from '../../misc/auth'
 
 const USERS_TABLE = 'auth_users'
 const JWT_SECRET = <string>process.env.JWT_SECRET
@@ -19,7 +21,7 @@ export default class AuthService {
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'Auth')
-    private logger: Logger,
+    private logger: Logging.Logger,
     @inject(TYPES.Database) private db: Database
   ) {}
 
@@ -30,11 +32,11 @@ export default class AuthService {
     }
   }
 
-  get knex(): ExtendedKnex {
+  get knex(): Knex & KnexExtension {
     return this.db.knex!
   }
 
-  getResources(): AuthResource[] {
+  getResources(): Resource[] {
     return resources
   }
 

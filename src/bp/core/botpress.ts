@@ -1,13 +1,10 @@
-import { BotpressAPI, BotpressEvent, ModuleDefinition, WellKnownEventFlags } from 'botpress-module-sdk'
-import { Logger } from 'botpress-module-sdk'
-import { RealTimePayload } from 'botpress-module-sdk/dist/src/realtime'
 import { inject, injectable, tagged } from 'inversify'
 import { Memoize } from 'lodash-decorators'
 import moment from 'moment'
 import * as path from 'path'
 import plur from 'plur'
 
-import packageJson from '../package.json'
+import packageJson from '../../../package.json'
 
 import { createForGlobalHooks } from './api'
 import { BotLoader } from './bot-loader'
@@ -15,17 +12,20 @@ import { BotpressConfig } from './config/botpress.config'
 import { ConfigProvider } from './config/config-loader'
 import Database from './database'
 import { LoggerPersister, LoggerProvider } from './logger'
-import { TYPES } from './misc/types'
+import { TYPES } from './types'
 import { ModuleLoader } from './module-loader'
 import HTTPServer from './server'
 import { DialogEngine, ProcessingError } from './services/dialog/engine'
 import { DialogJanitor } from './services/dialog/janitor'
-import GhostService from './services/ghost/service'
+import { GhostService } from './services'
 import { Hooks, HookService } from './services/hook/hook-service'
 import { LogsJanitor } from './services/logs/janitor'
 import { EventEngine } from './services/middleware/event-engine'
 import { NotificationsService } from './services/notification/service'
 import RealtimeService from './services/realtime'
+import CoreSDK from '../sdk'
+import { ModuleDefinition } from '../module'
+import { Logging, IO, RealTime } from 'bp/common'
 
 export type StartOptions = {
   modules: Map<string, ModuleDefinition>
@@ -38,14 +38,14 @@ export class Botpress {
   modulesConfig: any
   version: string
   config: BotpressConfig | undefined
-  api!: BotpressAPI
+  api!: CoreSDK
 
   constructor(
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.Database) private database: Database,
     @inject(TYPES.Logger)
     @tagged('name', 'Server')
-    private logger: Logger,
+    private logger: Logging.Logger,
     @inject(TYPES.GhostService) private ghostService: GhostService,
     @inject(TYPES.HTTPServer) private httpServer: HTTPServer,
     @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
@@ -99,9 +99,9 @@ export class Botpress {
   private async initializeServices() {
     await this.botLoader.loadAllBots()
 
-    this.eventEngine.onAfterIncomingMiddleware = async (event: BotpressEvent) => {
+    this.eventEngine.onAfterIncomingMiddleware = async (event: IO.Event) => {
       await this.hookService.executeHook(new Hooks.AfterIncomingMiddleware(this.api, event))
-      if (!event.hasFlag(WellKnownEventFlags.SKIP_DIALOG_ENGINE)) {
+      if (!event.hasFlag(IO.WellKnownFlags.SKIP_DIALOG_ENGINE)) {
         const sessionId = `${event.channel}::${event.target}::${event.threadId}`
         await this.dialogEngine.processEvent(event.botId, sessionId, event)
       }
@@ -114,7 +114,7 @@ export class Botpress {
     }
 
     this.notificationService.onNotification = () => {
-      const payload: RealTimePayload = {
+      const payload: RealTime.Payload = {
         eventName: 'notification.new',
         payload: {} // pass notification here? or just notify the client to fetch the new notifications via the http api?
       }

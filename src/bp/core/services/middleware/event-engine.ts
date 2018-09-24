@@ -1,5 +1,3 @@
-import { BotpressEvent, MiddlewareDefinition } from 'botpress-module-sdk'
-import { Logger } from 'botpress-module-sdk'
 import { inject, injectable, tagged } from 'inversify'
 import joi from 'joi'
 import _ from 'lodash'
@@ -7,12 +5,13 @@ import { Memoize } from 'lodash-decorators'
 import { VError } from 'verror'
 
 import { BotConfig } from '../../config/bot.config'
-import { TYPES } from '../../misc/types'
+import { TYPES } from '../../types'
 import { CMSService } from '../cms/cms-service'
-import GhostService from '../ghost/service'
+import { GhostService } from '..'
 import { Queue } from '../queue'
 
 import { MiddlewareChain } from './middleware'
+import { Logging, IO } from 'bp/common'
 
 const MESSAGE_RETRIES = 3
 
@@ -53,7 +52,7 @@ export class EventEngine {
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'EventEngine')
-    private logger: Logger,
+    private logger: Logging.Logger,
     @inject(TYPES.IsProduction) private isProduction: boolean,
     @inject(TYPES.GhostService) private ghost: GhostService,
     @inject(TYPES.CMSService) private cms: CMSService,
@@ -72,10 +71,10 @@ export class EventEngine {
     })
   }
 
-  private incomingMiddleware: MiddlewareDefinition[] = []
-  private outgoingMiddleware: MiddlewareDefinition[] = []
+  private incomingMiddleware: IO.MiddlewareDefinition[] = []
+  private outgoingMiddleware: IO.MiddlewareDefinition[] = []
 
-  register(middleware: MiddlewareDefinition) {
+  register(middleware: IO.MiddlewareDefinition) {
     this.validateMiddleware(middleware)
     if (middleware.direction === 'incoming') {
       this.incomingMiddleware.push(middleware)
@@ -84,7 +83,7 @@ export class EventEngine {
     }
   }
 
-  async sendEvent(event: BotpressEvent) {
+  async sendEvent(event: IO.Event) {
     this.validateEvent(event)
 
     if (event.direction === 'incoming') {
@@ -121,7 +120,7 @@ export class EventEngine {
     }
 
     for (const element of renderedElements) {
-      const event = new BotpressEvent({
+      const event = new IO.Event({
         direction: 'outgoing',
         payload: element,
         type: _.get(element, 'type', 'default'),
@@ -137,8 +136,8 @@ export class EventEngine {
 
   @Memoize()
   private async getBotMiddlewareChains(botId: string) {
-    const incoming = new MiddlewareChain<BotpressEvent>()
-    const outgoing = new MiddlewareChain<BotpressEvent>()
+    const incoming = new MiddlewareChain<IO.Event>()
+    const outgoing = new MiddlewareChain<IO.Event>()
 
     const botConfig = (await this.ghost.forBot(botId).readFileAsObject('/', 'bot.config.json')) as BotConfig
 
@@ -157,14 +156,14 @@ export class EventEngine {
     return { incoming, outgoing }
   }
 
-  private validateMiddleware(middleware: MiddlewareDefinition) {
+  private validateMiddleware(middleware: IO.MiddlewareDefinition) {
     const result = joi.validate(middleware, mwSchema)
     if (result.error) {
       throw new VError(result.error, 'Invalid middleware definition')
     }
   }
 
-  private validateEvent(event: BotpressEvent) {
+  private validateEvent(event: IO.Event) {
     if (this.isProduction) {
       // In production we optimize for speed, validation is useful for debugging purposes
       return

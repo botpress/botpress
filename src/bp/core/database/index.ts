@@ -1,10 +1,11 @@
-import { ExtendedKnex, Logger } from 'botpress-module-sdk'
 import { inject, injectable, tagged } from 'inversify'
 import Knex from 'knex'
 import _ from 'lodash'
 
+import { Logging, KnexExtension } from 'bp/common'
+import { TYPES } from 'bp/core/types'
+
 import { DatabaseConfig } from '../config/botpress.config'
-import { TYPES } from '../misc/types'
 
 import { patchKnex } from './helpers'
 import { Table } from './interfaces'
@@ -12,14 +13,14 @@ import AllTables from './tables'
 
 @injectable()
 export default class Database {
-  knex!: ExtendedKnex
+  knex!: Knex & KnexExtension
 
   private tables: Table[] = []
 
   public constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'Database')
-    private logger: Logger
+    private logger: Logging.Logger
   ) {}
 
   async bootstrap() {

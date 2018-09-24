@@ -1,20 +1,20 @@
-import { Logger } from 'botpress-module-sdk'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import plur from 'plur'
 
 import { BotConfig } from './config/bot.config'
 import { ConfigProvider } from './config/config-loader'
-import { TYPES } from './misc/types'
+import { TYPES } from './types'
 import { CMSService } from './services/cms/cms-service'
-import GhostService from './services/ghost/service'
+import { GhostService } from './services'
+import { Logging } from 'bp/common'
 
 @injectable()
 export class BotLoader {
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'BotLoader')
-    private logger: Logger,
+    private logger: Logging.Logger,
     @inject(TYPES.CMSService) private cms: CMSService,
     @inject(TYPES.GhostService) private ghost: GhostService,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider

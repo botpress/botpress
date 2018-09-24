@@ -2,7 +2,7 @@ import { inject, injectable, postConstruct } from 'inversify'
 import nsfw from 'nsfw'
 import path from 'path'
 
-import { TYPES } from '../../misc/types'
+import { TYPES } from '../../types'
 
 import { ObjectCache } from '.'
 

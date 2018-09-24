@@ -1,7 +1,7 @@
 import { inject, injectable } from 'inversify'
 
 import Database from '../database'
-import { TYPES } from '../misc/types'
+import { TYPES } from '../types'
 
 export class Notification {
   constructor(
@@ -42,12 +42,11 @@ export class KnexNotificationsRepository implements NotificationsRepository {
       .select('*')
       .where({ id })
       .limit(1)
-      .get(0)
       .then(res => {
-        if (!res) {
+        if (!res || !res.length) {
           throw new Error('Entity not found')
         }
-        return res
+        return res[0]
       })) as Notification
   }
 

@@ -1,14 +1,14 @@
 import 'bluebird-global'
 import 'reflect-metadata'
 
-import { Logger } from 'botpress-module-sdk'
+import { Logging } from 'bp/common'
 import tmp from 'tmp'
 
 import { createSpyObject } from '../misc/utils'
 
 import Database from '.'
 
-const logger = createSpyObject<Logger>()
+const logger = createSpyObject<Logging.Logger>()
 
 export type DatabaseTestSuite = ((database: Database) => void)
 

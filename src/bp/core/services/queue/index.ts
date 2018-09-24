@@ -1,4 +1,4 @@
-import { BotpressEvent } from 'botpress-module-sdk'
+import { IO } from 'bp/common'
 
 export interface QueueOptions {
   retries: number
@@ -8,10 +8,10 @@ export interface QueueOptions {
 export const defaultOptions: QueueOptions = { retries: 2, drainInterval: 2000 }
 
 export type JobWithEvent = {
-  event: BotpressEvent
+  event: IO.Event
 }
 
-export type Job = JobWithEvent | BotpressEvent
+export type Job = JobWithEvent | IO.Event
 
 export interface JobWrapper {
   job: Job
@@ -20,7 +20,7 @@ export interface JobWrapper {
   retries: number
 }
 
-export type QueueConsummer = ((message: BotpressEvent) => Promise<void>)
+export type QueueConsummer = ((message: IO.Event) => Promise<void>)
 
 export interface Queue {
   isEmpty(): Promise<boolean>

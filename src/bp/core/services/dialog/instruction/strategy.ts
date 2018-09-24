@@ -1,15 +1,15 @@
-import { BotpressEvent } from 'botpress-module-sdk'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import Mustache from 'mustache'
 
 import { container } from '../../../app.inversify'
-import { TYPES } from '../../../misc/types'
+import { TYPES } from '../../../types'
 import ActionService from '../../action/action-service'
 import { runCode } from '../../action/sandbox-launcher'
 import { EventEngine } from '../../middleware/event-engine'
 
 import { Instruction, InstructionType, ProcessingResult } from '.'
+import { IO } from 'bp/common'
 
 @injectable()
 export class StrategyFactory {
@@ -44,7 +44,7 @@ export class ActionStrategy implements InstructionStrategy {
     }
   }
 
-  private async invokeOutputProcessor(botId, instruction, event: BotpressEvent): Promise<ProcessingResult> {
+  private async invokeOutputProcessor(botId, instruction, event: IO.Event): Promise<ProcessingResult> {
     const chunks = instruction.fn.split(' ')
     const params = _.slice(chunks, 2).join(' ')
 

@@ -39,7 +39,7 @@ export const extractMetadata = (code: string) => {
   const author = _.find(extracted.tags, { title: 'author' })
 
   if (author) {
-    metadata.author = author.description || ''
+    metadata.author = (author as any).description || ''
   }
 
   metadata.params = _.filter(extracted.tags, { title: 'param' }).map(tag => {
@@ -48,7 +48,7 @@ export const extractMetadata = (code: string) => {
     const def = _.get(tag, 'type.default', '')
 
     return {
-      description: tag.description || '',
+      description: (tag as any).description || '',
       type,
       default: def,
       isOptional

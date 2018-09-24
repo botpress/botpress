@@ -1,20 +1,15 @@
-import { checkRule } from '@botpress/util-roles'
-import { Logger } from 'botpress-module-sdk'
 import { NextFunction, Request, Response } from 'express'
 import Joi from 'joi'
 
 // TODO: generalize these errors and consolidate them with ~/Errors.ts
 import { RequestWithUser } from '../misc/interfaces'
 import AuthService from '../services/auth/auth-service'
-import {
-  AssertionError,
-  InvalidOperationError,
-  ProcessingError,
-  UnauthorizedAccessError
-} from '../services/auth/errors'
+import { AssertionError, ProcessingError, UnauthorizedAccessError } from '../services/auth/errors'
 import TeamsService from '../services/auth/teams-service'
+import { Logging } from 'bp/common'
+import { checkRule } from 'bp/core/misc/auth'
 
-export const asyncMiddleware = ({ logger }: { logger: Logger }) => (
+export const asyncMiddleware = ({ logger }: { logger: Logging.Logger }) => (
   fn: (req: Request, res: Response, next?: NextFunction) => Promise<any>
 ) => (req: Request, res: Response, next: NextFunction) => {
   Promise.resolve(fn(req, res, next)).catch(err => {

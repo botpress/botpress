@@ -1,4 +1,4 @@
-import { ExtendedKnex } from 'botpress-module-sdk'
+import Knex from 'knex'
 import _ from 'lodash'
 
 import { calculateHash } from '../../../services/auth/util'
@@ -7,7 +7,7 @@ import { Table } from '../../interfaces'
 const USERS = ['admin', 'sylvain', 'renaud']
 const PASSWORD = '123456'
 
-const insertUsers = async (knex: ExtendedKnex, tableName: string) => {
+const insertUsers = async (knex: Knex, tableName: string) => {
   return knex
     .batchInsert(
       tableName,

@@ -1,7 +1,6 @@
 import Joi from 'joi'
 import _ from 'lodash'
 
-import { Logger } from 'botpress-module-sdk'
 import { Request, RequestHandler, Router } from 'express'
 
 import { RequestWithUser } from '../misc/interfaces'
@@ -10,6 +9,7 @@ import TeamsService from '../services/auth/teams-service'
 
 import { CustomRouter } from '.'
 import { asyncMiddleware, checkTokenHeader, loadUser, success as sendSuccess, validateBodySchema } from './util'
+import { Logging } from '../../common'
 
 const REVERSE_PROXY = !!process.env.REVERSE_PROXY
 
@@ -22,7 +22,7 @@ export class AuthRouter implements CustomRouter {
   private checkTokenHeader!: RequestHandler
   private loadUser!: RequestHandler
 
-  constructor(logger: Logger, private authService: AuthService, private teamsService: TeamsService) {
+  constructor(logger: Logging.Logger, private authService: AuthService, private teamsService: TeamsService) {
     this.router = Router({ mergeParams: true })
     this.asyncMiddleware = asyncMiddleware({ logger })
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)

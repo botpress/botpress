@@ -1,9 +1,9 @@
-import { ExtendedKnex } from 'botpress-module-sdk'
+import Knex from 'knex'
 
 import { Table } from '../../interfaces'
 
 // TODO: Use knex seed api instead
-const insertBots = async (knex: ExtendedKnex, tableName: string) => {
+const insertBots = async (knex: Knex, tableName: string) => {
   return knex
     .batchInsert(tableName, [
       {

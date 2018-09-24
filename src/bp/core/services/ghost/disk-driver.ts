@@ -4,7 +4,7 @@ import { inject, injectable } from 'inversify'
 import path from 'path'
 import { VError } from 'verror'
 
-import { TYPES } from '../../misc/types'
+import { TYPES } from '../../types'
 
 import { GhostFileRevision, StorageDriver } from '.'
 

@@ -1,4 +1,3 @@
-import { Logger } from 'botpress-module-sdk'
 import { Container } from 'inversify'
 import path from 'path'
 import yn from 'yn'
@@ -11,11 +10,12 @@ import { DatabaseContainerModule } from './database/database.inversify'
 
 import { LoggerPersister, LoggerProvider, PersistedConsoleLogger } from './logger'
 import { applyDisposeOnExit } from './misc/inversify'
-import { TYPES } from './misc/types'
+import { TYPES } from './types'
 import { ModuleLoader } from './module-loader'
 import { RepositoriesContainerModule } from './repositories/repositories.inversify'
 import HTTPServer from './server'
 import { ServicesContainerModule } from './services/services.inversify'
+import { Logging } from '../common'
 
 const container = new Container({ autoBindInjectable: true })
 
@@ -40,10 +40,10 @@ container.bind<string>(TYPES.Logger_Name).toDynamicValue(ctx => {
   return loggerName || 'Unknown'
 })
 
-container.bind<Logger>(TYPES.Logger).to(PersistedConsoleLogger)
-container.bind<LoggerProvider>(TYPES.LoggerProvider).toProvider<Logger>(context => {
+container.bind<Logging.Logger>(TYPES.Logger).to(PersistedConsoleLogger)
+container.bind<LoggerProvider>(TYPES.LoggerProvider).toProvider<Logging.Logger>(context => {
   return async name => {
-    return context.container.getTagged<Logger>(TYPES.Logger, 'name', name)
+    return context.container.getTagged<Logging.Logger>(TYPES.Logger, 'name', name)
   }
 })
 

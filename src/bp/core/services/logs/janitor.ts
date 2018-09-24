@@ -1,4 +1,3 @@
-import { Logger } from 'botpress-module-sdk'
 import { inject, injectable, tagged } from 'inversify'
 import { Memoize } from 'lodash-decorators'
 import moment from 'moment'
@@ -7,17 +6,18 @@ import ms from 'ms'
 import { BotLoader } from '../../bot-loader'
 import { BotpressConfig } from '../../config/botpress.config'
 import { ConfigProvider } from '../../config/config-loader'
-import { TYPES } from '../../misc/types'
+import { TYPES } from '../../types'
 import { Janitor } from '../janitor'
 
 import { LogsService } from './service'
+import { Logging } from 'bp/common'
 
 @injectable()
 export class LogsJanitor extends Janitor {
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'LogsJanitor')
-    protected logger: Logger,
+    protected logger: Logging.Logger,
     @inject(TYPES.LogsService) private logsService: LogsService,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.BotLoader) private botLoader: BotLoader

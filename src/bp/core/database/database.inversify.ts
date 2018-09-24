@@ -1,8 +1,7 @@
-import { ExtendedKnex } from 'botpress-module-sdk'
 import { ContainerModule, interfaces } from 'inversify'
 import Knex from 'knex'
 
-import { TYPES } from '../misc/types'
+import { TYPES } from '../types'
 
 import Database from '.'
 import { patchKnex } from './helpers'
@@ -12,7 +11,7 @@ export const DatabaseContainerModule = new ContainerModule((bind: interfaces.Bin
     .to(Database)
     .inSingletonScope()
 
-  bind<ExtendedKnex>(TYPES.InMemoryDatabase).toDynamicValue(() => {
+  bind<Knex>(TYPES.InMemoryDatabase).toDynamicValue(() => {
     return patchKnex(
       Knex({
         client: 'sqlite3',

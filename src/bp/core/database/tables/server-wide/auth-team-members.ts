@@ -1,8 +1,7 @@
-import { ExtendedKnex } from 'botpress-module-sdk'
-
 import { Table } from '../../interfaces'
+import Knex from 'knex'
 
-const insertMembers = async (knex: ExtendedKnex, tableName: string) => {
+const insertMembers = async (knex: Knex, tableName: string) => {
   return knex
     .batchInsert(
       tableName,

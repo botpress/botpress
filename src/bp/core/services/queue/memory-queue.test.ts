@@ -1,7 +1,7 @@
 import 'bluebird-global'
 import 'reflect-metadata'
 
-import { BotpressEvent } from 'botpress-module-sdk'
+import { IO } from '../../../common'
 
 import Queue from './memory-queue'
 
@@ -21,7 +21,7 @@ describe('Memory Queue', () => {
   it('Respects order (sync)', async () => {
     const order: number[] = []
 
-    queue.subscribe((event: BotpressEvent) => {
+    queue.subscribe((event: IO.Event) => {
       order.push(event.id! as number) // Sync processing
     })
 
@@ -40,7 +40,7 @@ describe('Memory Queue', () => {
   it('Respects order (async)', async () => {
     const order: number[] = []
 
-    queue.subscribe(async (event: BotpressEvent) => {
+    queue.subscribe(async (event: IO.Event) => {
       await Promise.delay(1) // Async processing
       order.push(event.id! as number)
     })
@@ -64,7 +64,7 @@ describe('Memory Queue', () => {
 
     let i = 0
 
-    queue.subscribe(async (event: BotpressEvent) => {
+    queue.subscribe(async (event: IO.Event) => {
       if (i === 0) {
         i++
         throw new Error('Failed job')
@@ -89,7 +89,7 @@ describe('Memory Queue', () => {
   it('Abandon retrying after two errors', async () => {
     const order: number[] = []
     let i = 0
-    queue.subscribe(async (event: BotpressEvent) => {
+    queue.subscribe(async (event: IO.Event) => {
       if (i <= 1) {
         i++
         throw new Error('Failed job')
@@ -112,9 +112,9 @@ describe('Memory Queue', () => {
 
   it('Runs in parallel for different users', async () => {
     const order: number[] = []
-    queue.subscribe(async (event: BotpressEvent) => {
+    queue.subscribe(async (event: IO.Event) => {
       order.push(event.id! as number)
-      if (event.userId === 'a') {
+      if (event.target === 'a') {
         await Promise.delay(5)
       }
     })
@@ -135,12 +135,12 @@ describe('Memory Queue', () => {
   it('Cancels all only for requested user', async () => {
     const userListA: number[] = []
     const userListB: number[] = []
-    queue.subscribe(async (event: BotpressEvent) => {
+    queue.subscribe(async (event: IO.Event) => {
       await Promise.delay(1)
-      if (event.userId === 'a') {
+      if (event.target === 'a') {
         userListA.push(event.id! as number)
       }
-      if (event.userId === 'b') {
+      if (event.target === 'b') {
         userListB.push(event.id! as number)
       }
     })

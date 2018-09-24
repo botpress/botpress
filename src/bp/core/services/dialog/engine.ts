@@ -1,8 +1,7 @@
-import { BotpressEvent } from 'botpress-module-sdk'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 
-import { TYPES } from '../../misc/types'
+import { TYPES } from '../../types'
 import { DialogSession } from '../../repositories'
 
 import { FlowNavigator, NavigationArgs, NavigationPosition } from './flow/navigator'
@@ -12,6 +11,7 @@ import { InstructionFactory } from './instruction/factory'
 import { InstructionProcessor } from './instruction/processor'
 import { InstructionQueue } from './instruction/queue'
 import { SessionService } from './session/service'
+import { IO } from 'bp/common'
 
 export class ProcessingError extends Error {
   constructor(
@@ -43,7 +43,7 @@ export class DialogEngine {
    * @param sessionId The ID that will identify the session. Generally the user ID
    * @param event The incoming botpress event
    */
-  async processEvent(botId: string, sessionId: string, event: BotpressEvent) {
+  async processEvent(botId: string, sessionId: string, event: IO.Event) {
     const session = await this.getOrCreateSession(botId, sessionId, event)
     const flows = await this.flowService.loadAll(botId)
     await this.processSession(botId, session, flows)

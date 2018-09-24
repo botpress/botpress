@@ -1,16 +1,17 @@
-import { checkRule } from '@botpress/util-roles'
-import { ExtendedKnex, Logger } from 'botpress-module-sdk'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import nanoid from 'nanoid'
+import Knex from 'knex'
 
 import Database from '../../database'
 
 import { AuthRole, AuthRoleDb, AuthRule, AuthTeam, AuthTeamMembership, AuthUser, Bot } from '../../misc/interfaces'
-import { TYPES } from '../../misc/types'
+import { TYPES } from '../../types'
 import { InvalidOperationError, NotFoundError, UnauthorizedAccessError } from '../auth/errors'
 
 import defaultRoles from './default-roles'
+import { Logging } from '../../../common'
+import { checkRule } from 'bp/core/misc/auth'
 
 const TEAMS_TABLE = 'auth_teams'
 const MEMBERS_TABLE = 'auth_team_members'
@@ -23,7 +24,7 @@ export default class TeamsService {
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'Auth Teams')
-    private logger: Logger,
+    private logger: Logging.Logger,
     @inject(TYPES.Database) private db: Database
   ) {}
 
@@ -53,7 +54,7 @@ export default class TeamsService {
 
   async listUserTeams(userId: number) {
     return this.knex
-      .from(function(this: ExtendedKnex) {
+      .from(function(this: Knex) {
         this.from(MEMBERS_TABLE)
           .where({ user: userId })
           .as('m')
@@ -99,7 +100,7 @@ export default class TeamsService {
 
   async listTeamMembers(teamId: number) {
     return this.knex
-      .from(function(this: ExtendedKnex) {
+      .from(function(this: Knex) {
         this.from(MEMBERS_TABLE)
           .where({ team: teamId })
           .as('m')

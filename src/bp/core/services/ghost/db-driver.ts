@@ -3,7 +3,7 @@ import nanoid from 'nanoid'
 import { VError } from 'verror'
 
 import Database from '../../database'
-import { TYPES } from '../../misc/types'
+import { TYPES } from '../../types'
 
 import { GhostFileRevision, StorageDriver } from '.'
 

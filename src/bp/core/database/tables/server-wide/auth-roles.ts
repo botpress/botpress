@@ -1,9 +1,8 @@
-import { ExtendedKnex } from 'botpress-module-sdk'
-
 import defaultRoles from '../../../services/auth/default-roles'
 import { Table } from '../../interfaces'
+import Knex from 'knex'
 
-const insertRoles = async (knex: ExtendedKnex, tableName: string) => {
+const insertRoles = async (knex: Knex, tableName: string) => {
   return knex
     .batchInsert(
       tableName,

@@ -1,7 +1,7 @@
 import { inject, injectable } from 'inversify'
 
 import Database from '../database'
-import { TYPES } from '../misc/types'
+import { TYPES } from '../types'
 
 export interface LogsRepository {
   deleteBeforeDate(botId: string, date: Date)

@@ -1,15 +1,7 @@
-import Knex from 'knex'
 import moment from 'moment'
 import { VError } from 'verror'
-
-import {
-  ColumnOrDate,
-  KnexCallback,
-  KnexExtension,
-  KnexExtension_Bool,
-  KnexExtension_Date,
-  KnexExtension_Json
-} from 'botpress-module-sdk'
+import { KnexExtension } from 'bp/common'
+import Knex from 'knex'
 
 export const patchKnex = (knex: Knex): Knex & KnexExtension => {
   const isLite = knex.client.config.client === 'sqlite3'
@@ -18,14 +10,14 @@ export const patchKnex = (knex: Knex): Knex & KnexExtension => {
     return isLite ? knex.raw(`strftime('%Y-%m-%dT%H:%M:%fZ', ${exp})`) : knex.raw(exp)
   }
 
-  const dateFormat = (date: moment.MomentInput) => {
+  const dateFormat = (date: Date) => {
     const iso = moment(date)
       .toDate()
       .toISOString()
     return dateParse(`'${iso}'`)
   }
 
-  const columnOrDateFormat = (colOrDate: ColumnOrDate) => {
+  const columnOrDateFormat = (colOrDate: Knex.ColumnOrDate) => {
     if ((<Knex.Sql>colOrDate).sql) {
       return (<Knex.Sql>colOrDate).sql
     }
@@ -37,7 +29,7 @@ export const patchKnex = (knex: Knex): Knex & KnexExtension => {
     return dateFormat(<Date>colOrDate)
   }
 
-  const createTableIfNotExists = async (tableName: string, cb: KnexCallback): Promise<boolean> => {
+  const createTableIfNotExists = async (tableName: string, cb: Knex.KnexCallback): Promise<boolean> => {
     return knex.schema.hasTable(tableName).then(exists => {
       if (exists) {
         return false
@@ -93,23 +85,23 @@ export const patchKnex = (knex: Knex): Knex & KnexExtension => {
     )
   }
 
-  const date: KnexExtension_Date = {
+  const date: Knex.Date = {
     format: dateFormat,
     now: () => (isLite ? knex.raw(`strftime('%Y-%m-%dT%H:%M:%fZ', 'now')`) : knex.raw('now()')),
 
-    isBefore: (d1: ColumnOrDate, d2: ColumnOrDate): Knex.Raw => {
+    isBefore: (d1: Knex.ColumnOrDate, d2: Knex.ColumnOrDate): Knex.Raw => {
       const exp1 = columnOrDateFormat(d1)
       const exp2 = columnOrDateFormat(d2)
       return knex.raw(exp1 + ' < ' + exp2)
     },
 
-    isAfter: (d1: ColumnOrDate, d2: ColumnOrDate): Knex.Raw => {
+    isAfter: (d1: Knex.ColumnOrDate, d2: Knex.ColumnOrDate): Knex.Raw => {
       const exp1 = columnOrDateFormat(d1)
       const exp2 = columnOrDateFormat(d2)
       return knex.raw(exp1 + ' > ' + exp2)
     },
 
-    isBetween: (date: ColumnOrDate, betweenA: ColumnOrDate, betweenB: ColumnOrDate): Knex.Raw => {
+    isBetween: (date: Knex.ColumnOrDate, betweenA: Knex.ColumnOrDate, betweenB: Knex.ColumnOrDate): Knex.Raw => {
       const exp1 = columnOrDateFormat(date)
       const exp2 = columnOrDateFormat(betweenA)
       const exp3 = columnOrDateFormat(betweenB)
@@ -117,25 +109,25 @@ export const patchKnex = (knex: Knex): Knex & KnexExtension => {
       return knex.raw(`${exp1} BETWEEN ${exp2} AND ${exp3}`)
     },
 
-    isSameDay: (d1: ColumnOrDate, d2: ColumnOrDate): Knex.Raw => {
+    isSameDay: (d1: Knex.ColumnOrDate, d2: Knex.ColumnOrDate): Knex.Raw => {
       const exp1 = columnOrDateFormat(d1)
       const exp2 = columnOrDateFormat(d2)
       return knex.raw(`date(${exp1}) = date(${exp2})`)
     },
 
-    hourOfDay: (date: ColumnOrDate): Knex.Raw => {
+    hourOfDay: (date: Knex.ColumnOrDate): Knex.Raw => {
       const exp1 = columnOrDateFormat(date)
       return isLite ? knex.raw(`strftime('%H', ${exp1})`) : knex.raw(`to_char(${exp1}, 'HH24')`)
     }
   }
 
-  const bool: KnexExtension_Bool = {
+  const bool: Knex.Bool = {
     true: () => (isLite ? 1 : true),
     false: () => (isLite ? 0 : false),
     parse: value => (isLite ? !!value : value)
   }
 
-  const json: KnexExtension_Json = {
+  const json: Knex.Json = {
     set: obj => (isLite ? obj && JSON.stringify(obj) : obj),
     get: obj => (isLite ? obj && JSON.parse(obj) : obj)
   }

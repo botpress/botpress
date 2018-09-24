@@ -1,12 +1,11 @@
-import { Logger } from 'botpress-module-sdk'
-import { RealTimePayload } from 'botpress-module-sdk/dist/src/realtime'
 import { EventEmitter2 } from 'eventemitter2'
 import { Server } from 'http'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import socketio from 'socket.io'
 
-import { TYPES } from '../../misc/types'
+import { TYPES } from '../../types'
+import { Logging, RealTime } from '../../../common'
 
 @injectable()
 export default class RealtimeService {
@@ -15,7 +14,7 @@ export default class RealtimeService {
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'Realtime')
-    private logger: Logger /* TODO Add security / auth service here */
+    private logger: Logging.Logger /* TODO Add security / auth service here */
   ) {
     this.ee = new EventEmitter2({
       wildcard: true,
@@ -31,7 +30,7 @@ export default class RealtimeService {
     return (eventName as string).startsWith('guest.')
   }
 
-  sendToSocket(payload: RealTimePayload) {
+  sendToSocket(payload: RealTime.Payload) {
     this.ee.emit(payload.eventName, payload.payload, 'server')
   }
 

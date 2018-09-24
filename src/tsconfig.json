@@ -14,8 +14,8 @@
     "emitDecoratorMetadata": true,
     "baseUrl": ".",
     "outDir": "../out",
-    "typeRoots": ["typings"],
-    "types": ["reflect-metadata"]
+    "typeRoots": ["typings", "../node_modules/@types"],
+    "types": ["reflect-metadata", "jest", "bluebird-global"]
   },
   "exclude": ["**/*.test.ts", "../out"]
 }

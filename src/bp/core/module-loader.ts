@@ -1,18 +1,12 @@
-import { ModuleDefinition, ModuleMetadata } from 'botpress-module-sdk'
-import { Logger } from 'botpress-module-sdk'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 
 import { createForModule } from './api'
-import { ModuleConfigEntry } from './config/modules.config'
-import { TYPES } from './misc/types'
-import GhostService from './services/ghost/service'
+import { TYPES } from './types'
+import { GhostService } from './services'
 import ConfigReader from './services/module/config-reader'
-
-export type AvailableModule = {
-  metadata: ModuleMetadata
-  definition: ModuleConfigEntry
-}
+import { ModuleDefinition } from 'bp/module'
+import { Logging } from '../common'
 
 @injectable()
 export class ModuleLoader {
@@ -22,7 +16,7 @@ export class ModuleLoader {
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'ModuleLoader')
-    private logger: Logger,
+    private logger: Logging.Logger,
     @inject(TYPES.GhostService) private ghost: GhostService
   ) {}
 

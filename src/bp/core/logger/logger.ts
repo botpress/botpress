@@ -1,19 +1,19 @@
-import { Level, LogEntry, Logger } from 'botpress-module-sdk'
 import chalk from 'chalk'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 import moment from 'moment'
 import util from 'util'
 
-import { TYPES } from '../misc/types'
+import { TYPES } from '../types'
 
 import { LoggerPersister } from '.'
+import { Logging } from 'bp/common'
 
-export type LoggerProvider = (module: string) => Promise<Logger>
+export type LoggerProvider = (module: string) => Promise<Logging.Logger>
 
 @injectable()
 // Suggestion: Would be best to have a CompositeLogger that separates the Console and DB loggers
-export class PersistedConsoleLogger implements Logger {
+export class PersistedConsoleLogger implements Logging.Logger {
   private botId: string | undefined
 
   constructor(
@@ -27,46 +27,53 @@ export class PersistedConsoleLogger implements Logger {
     return this
   }
 
-  private print(level: Level, message: string, metadata: any) {
-    const args = {
+  colors = {
+    [Logging.Level.Info]: 'green',
+    [Logging.Level.Warn]: 'yellow',
+    [Logging.Level.Error]: 'red',
+    [Logging.Level.Debug]: 'blue'
+  }
+
+  private print(level: Logging.Level, message: string, metadata: any) {
+    const entry: Logging.LogEntry = {
       botId: this.botId,
-      level: level.name,
+      level: level.toString(),
       scope: this.name,
       message: message,
       metadata: metadata,
       timestamp: moment().toISOString()
     }
-    const entry = new LogEntry(args)
+
     this.loggerPersister.appendLog(entry)
 
     const serializedMetadata = metadata ? ' | ' + util.inspect(metadata, false, 2, true) : ''
     const time = moment().format('HH:mm:ss.SSS')
 
-    console.log(chalk`{grey ${time}} {${level.color}.bold ${this.name}} ${message}${serializedMetadata}`)
+    console.log(chalk`{grey ${time}} {${this.colors[level]}.bold ${this.name}} ${message}${serializedMetadata}`)
     this.botId = undefined
   }
 
   debug(message: string, metadata?: any): void {
     if (!this.isProduction) {
-      this.print(Level.Debug, message, metadata)
+      this.print(Logging.Level.Debug, message, metadata)
     }
   }
 
   info(message: string, metadata?: any): void {
-    this.print(Level.Info, message, metadata)
+    this.print(Logging.Level.Info, message, metadata)
   }
 
   warn(message: string, metadata?: any): void {
-    this.print(Level.Warn, message, metadata)
+    this.print(Logging.Level.Warn, message, metadata)
   }
 
   error(message: string, metadata?: any): void
   error(message: string, error: Error, metadata?: any): void {
     if (error instanceof Error) {
       const msg = message + ` [${error.name}, ${error.message}]`
-      return this.print(Level.Error, msg, metadata)
+      return this.print(Logging.Level.Error, msg, metadata)
     }
 
-    this.print(Level.Error, message, error)
+    this.print(Logging.Level.Error, message, error)
   }
 }

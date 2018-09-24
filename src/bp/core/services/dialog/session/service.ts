@@ -1,8 +1,8 @@
-import { BotpressEvent } from 'botpress-module-sdk'
 import { inject, injectable } from 'inversify'
 
-import { TYPES } from '../../../misc/types'
+import { TYPES } from '../../../types'
 import { DialogContext, DialogSession, SessionRepository } from '../../../repositories'
+import { IO } from 'bp/common'
 
 @injectable()
 export class SessionService {
@@ -31,7 +31,7 @@ export class SessionService {
     return this.updateSession(session)
   }
 
-  async updateSessionEvent(sessionId, event: BotpressEvent) {
+  async updateSessionEvent(sessionId, event: IO.Event) {
     const session = await this.getSession(sessionId)
     session.event = event
     return this.updateSession(session)

@@ -1,7 +1,7 @@
 import { inject, injectable } from 'inversify'
 import LRU from 'lru-cache'
 
-import { TYPES } from '../../misc/types'
+import { TYPES } from '../../types'
 
 import { ObjectCache } from '.'
 import { CacheInvalidators } from './cache-invalidators'

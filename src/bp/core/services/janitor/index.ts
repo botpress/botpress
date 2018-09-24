@@ -1,6 +1,6 @@
-import { Logger } from 'botpress-module-sdk'
 import { injectable } from 'inversify'
 import ms from 'ms'
+import { Logging } from 'bp/common'
 
 @injectable()
 export abstract class Janitor {
@@ -9,7 +9,7 @@ export abstract class Janitor {
   private currentPromise
   private intervalRef
 
-  constructor(protected logger: Logger) {}
+  constructor(protected logger: Logging.Logger) {}
 
   protected abstract getInterval(): Promise<string>
 

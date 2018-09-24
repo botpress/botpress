@@ -1,11 +1,11 @@
-import { Logger } from 'botpress-module-sdk'
+import { Logging } from 'bp/common'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import minimatch from 'minimatch'
 import path from 'path'
 
 import { BotpressConfig } from '../../config/botpress.config'
-import { TYPES } from '../../misc/types'
+import { TYPES } from '../../types'
 import { isValidBotId } from '../../misc/validation'
 
 import { GhostPendingRevisions, GhostPendingRevisionsWithContent, ObjectCache, StorageDriver } from '.'
@@ -13,7 +13,7 @@ import DBStorageDriver from './db-driver'
 import DiskStorageDriver from './disk-driver'
 
 @injectable()
-export default class GhostService {
+export class GhostService {
   config: Partial<BotpressConfig> | undefined
 
   private get useDBDriver() {
@@ -26,7 +26,7 @@ export default class GhostService {
     @inject(TYPES.ObjectCache) private cache: ObjectCache,
     @inject(TYPES.Logger)
     @tagged('name', 'GhostService')
-    private logger: Logger
+    private logger: Logging.Logger
   ) {}
 
   async initialize(config: Partial<BotpressConfig>) {
@@ -60,7 +60,7 @@ export default class GhostService {
   }
 }
 
-export class ScopedGhostService {
+class ScopedGhostService {
   isDirectoryGlob: boolean
   primaryDriver: StorageDriver
 
@@ -70,7 +70,7 @@ export class ScopedGhostService {
     private dbDriver: DBStorageDriver,
     private useDbDriver: boolean,
     private cache: ObjectCache,
-    private logger: Logger
+    private logger: Logging.Logger
   ) {
     if (![-1, this.baseDir.length - 1].includes(this.baseDir.indexOf('*'))) {
       throw new Error(`Base directory can only contain '*' at the end of the path`)

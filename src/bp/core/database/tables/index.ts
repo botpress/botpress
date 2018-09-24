@@ -1,4 +1,4 @@
-import { ExtendedKnex } from 'botpress-module-sdk'
+import { Knex } from 'bp/common'
 
 import { Table } from '../interfaces'
 
@@ -31,4 +31,4 @@ const tables: (typeof Table)[] = [
   NotificationsTable
 ]
 
-export default <(new (knex: ExtendedKnex) => Table)[]>tables
+export default <(new (knex: Knex) => Table)[]>tables

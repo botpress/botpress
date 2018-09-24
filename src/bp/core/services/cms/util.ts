@@ -3,9 +3,9 @@ import _ from 'lodash'
 import path from 'path'
 import tmp from 'tmp'
 
-import { Logger } from 'botpress-module-sdk'
 import { VError } from 'verror'
 import { NodeVM } from 'vm2'
+import { Logging } from '../../../common'
 
 export type CodeFile = {
   relativePath: string
@@ -18,7 +18,7 @@ export class SafeCodeSandbox {
   private tmpPath: string
   private filesMap: { [name: string]: string } = {}
 
-  constructor(files: CodeFile[], logger: Logger) {
+  constructor(files: CodeFile[], logger: Logging.Logger) {
     this.tmpDir = tmp.dirSync({ prefix: 'sandbox-', keep: false, unsafeCleanup: true })
     this.tmpPath = this.tmpDir.name
 

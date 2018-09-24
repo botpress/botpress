@@ -1,6 +1,6 @@
 import { ContainerModule, interfaces } from 'inversify'
 
-import { TYPES } from '../misc/types'
+import { TYPES } from '../types'
 
 import {
   BotRepository,

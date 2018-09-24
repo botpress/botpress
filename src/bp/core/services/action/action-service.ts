@@ -1,19 +1,19 @@
-import { Logger } from 'botpress-module-sdk'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
 
-import { TYPES } from '../../misc/types'
-import GhostContentService from '../ghost/service'
+import { TYPES } from '../../types'
+import { GhostService } from '..'
 
 import { ActionMetadata, extractMetadata } from './metadata'
 import { runCode } from './sandbox-launcher'
+import { Logging } from 'bp/common'
 
 @injectable()
 export default class ActionService {
   constructor(
-    @inject(TYPES.GhostService) private ghost: GhostContentService,
+    @inject(TYPES.GhostService) private ghost: GhostService,
     @inject(TYPES.Logger)
     @tagged('name', 'Actions')
-    private logger: Logger
+    private logger: Logging.Logger
   ) {}
 
   forBot(botId: string): ScopedActionService {
@@ -31,7 +31,7 @@ export type ActionDefinition = {
 }
 
 export class ScopedActionService {
-  constructor(private ghost: GhostContentService, private logger, private botId: string) {}
+  constructor(private ghost: GhostService, private logger, private botId: string) {}
 
   async listActions({ includeMetadata = false } = {}): Promise<ActionDefinition[]> {
     const globalActionsFiles = await this.ghost.global().directoryListing('actions', '*.js')

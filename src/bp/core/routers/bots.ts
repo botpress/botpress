@@ -1,4 +1,3 @@
-import { RouterOptions } from 'botpress-module-sdk'
 import { Serialize } from 'cerialize'
 import { RequestHandler, Router } from 'express'
 import _ from 'lodash'
@@ -19,6 +18,7 @@ import { NotificationsService } from '../services/notification/service'
 
 import { CustomRouter } from '.'
 import { checkTokenHeader, needPermissions } from './util'
+import { RouterOptions } from 'bp/sdk'
 
 export class BotsRouter implements CustomRouter {
   public readonly router: Router

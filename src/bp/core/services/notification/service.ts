@@ -1,6 +1,6 @@
 import { inject, injectable } from 'inversify'
 
-import { TYPES } from '../../misc/types'
+import { TYPES } from '../../types'
 import { Notification, NotificationsRepository } from '../../repositories'
 
 @injectable()
