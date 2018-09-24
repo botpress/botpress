@@ -28,8 +28,8 @@ async function start({ coreApiUrl, proxyHost, proxyPort }, callback) {
 }
 
 function setupStaticProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
-  app.use('/fonts', express.static(path.join(__dirname, 'static/studio/fonts')))
-  app.use('/img', express.static(path.join(__dirname, 'static/studio/img')))
+  app.use('/fonts', express.static(path.join(__dirname, '../ui-studio/static/fonts')))
+  app.use('/img', express.static(path.join(__dirname, '../ui-studio/static/img')))
 }
 
 function setupStudioAppProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
@@ -37,8 +37,14 @@ function setupStudioAppProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort 
     res.redirect('/admin')
   })
 
+  app.use('/:app(studio|lite)/:botId', (req, res, next) => {
+    // TODO Somehow req.params is overwritten by tamper below
+    req.originalParams = { ...req.params }
+    next()
+  })
+
   app.use(
-    '/:app(studio|lite)/:botId?',
+    '/:app(studio|lite)/:botId',
     tamper(function(req, res) {
       const contentType = res.getHeaders()['content-type']
       if (!contentType.includes('text/html')) {
@@ -46,7 +52,8 @@ function setupStudioAppProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort 
       }
 
       return function(body) {
-        let { botId, app } = req.params
+        let { botId, app } = req.originalParams
+
         if (!botId && app === 'lite') {
           botId = extractBotId(req)
         }
@@ -97,11 +104,11 @@ function setupStudioAppProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort 
     res.send(totalEnv)
   })
 
-  app.use('/:app(studio)/:botId', express.static(path.join(__dirname, 'static/studio')))
-  app.use('/:app(lite)/:botId?', express.static(path.join(__dirname, 'static/studio/lite')))
-  app.use('/:app(lite)/:botId', express.static(path.join(__dirname, 'static/studio'))) // Fallback Static Assets
+  app.use('/:app(studio)/:botId', express.static(path.join(__dirname, '../ui-studio/static')))
+  app.use('/:app(lite)/:botId?', express.static(path.join(__dirname, '../ui-studio/static/lite')))
+  app.use('/:app(lite)/:botId', express.static(path.join(__dirname, '../ui-studio/static'))) // Fallback Static Assets
   app.get(['/:app(studio)/:botId/*'], (req, res) => {
-    const absolutePath = path.join(__dirname, 'static/studio/index.html')
+    const absolutePath = path.join(__dirname, '../ui-studio/static/index.html')
     res.contentType('text/html')
     res.sendFile(absolutePath)
   })

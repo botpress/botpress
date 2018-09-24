@@ -1,3 +1,4 @@
+import 'common/polyfills'
 import 'bluebird-global'
 
 import chalk from 'chalk'
@@ -14,6 +15,15 @@ async function start() {
     logger.info(chalk`=       Version 0.1       =`)
     logger.info(chalk`=       {yellow Pre-release}       =`)
     logger.info(chalk`===========================`)
+
+    process.on('unhandledRejection', err => {
+      logger.error('Unhandled Rejection', err)
+    })
+
+    process.on('uncaughtException', err => {
+      logger.error('Fatal Error (uncaught). Process will exit.', err)
+      process.exit(1)
+    })
 
     const modules = new Map<string, ModuleDefinition>()
 

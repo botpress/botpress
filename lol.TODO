@@ -6,3 +6,5 @@
 
 [] Port Web channel
 [] Set Env variables for compilation (gulp scripts)
+
+[] const { CORE_API_URL, HOST_PORT, HOST_URL } = process.env
