@@ -40,7 +40,7 @@ export default class BasicAuthentication {
 
     const returnTo = history.location.query.returnTo
     if (returnTo) {
-      location.replace(returnTo)
+      window.location.replace(returnTo)
     } else {
       history.replace(HOME_ROUTE)
     }

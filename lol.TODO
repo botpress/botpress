@@ -1,0 +1,8 @@
+[] Build with Gulp
+  [] Copy Studio & Admin UIs files
+  [] Copy vanilla data
+  [] Create sotrage directory
+  [] Watch on typescript changes
+
+[] Port Web channel
+[] Set Env variables for compilation (gulp scripts)
