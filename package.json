@@ -9,8 +9,8 @@
   "private": true,
   "scripts": {
     "start": "cd ./out/bp && NODE_PATH=./ JWT_SECRET=secret node index.js",
-    "build": "gulp",
-    "watch": "gulp watch-ts"
+    "build": "./node_modules/.bin/gulp",
+    "watch": "./node_modules/.bin/gulp watch-ts"
   },
   "dependencies": {
     "axios": "^0.18.0",
@@ -62,6 +62,7 @@
     "@types/verror": "^1.10.3",
     "babel-jest": "^23.6.0",
     "gulp": "^3.9.1",
+    "gulp-cli": "^2.0.1",
     "gulp-copy": "^4.0.0",
     "gulp-ignore": "^2.0.2",
     "gulp-rimraf": "^0.2.2",
