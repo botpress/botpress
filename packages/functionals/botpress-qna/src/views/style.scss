@@ -91,6 +91,7 @@ $mainGreen: #1bb68a;
   margin-right: 15px;
   font-weight: 600;
   margin-bottom: 20px;
+  z-index: 4;
 
   .dropdown-button {
     border-left: none;
@@ -110,6 +111,10 @@ $mainGreen: #1bb68a;
 
   &:focus {
     background-color: #108c67;
+
+    &:active {
+      background-color: #108c67;
+    }
   }
 
   &:active {
@@ -376,10 +381,38 @@ $mainGreen: #1bb68a;
 
 .qna-modal-footer__cancel-btn {
   margin-right: 20px;
+
+  &:hover,
+  &:focus,
+  &:active {
+    background-color: #9e9d9e;
+    color: #fff;
+  }
+
+  &:focus {
+    &:active {
+      background-color: #9e9d9e;
+      color: #fff;
+    }
+  }
 }
 
 .qna-modal-footer__save-btn {
   background-color: #14a77b;
+
+  &:hover,
+  &:focus,
+  &:active {
+    background-color: #108b66;
+    color: #fff;
+  }
+
+  &:focus {
+    &:active {
+      background-color: #108b66;
+      color: #fff;
+    }
+  }
 }
 
 .qna-category-error {

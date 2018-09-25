@@ -73,3 +73,13 @@
 .qna-category-error .Select-control {
   border-color: red;
 }
+
+.qna-container .pagination > .active > a,
+.pagination > .active > span,
+.qna-container .pagination > .active > a:hover,
+.qna-container .pagination > .active > span:hover,
+.qna-container .pagination > .active > a:focus,
+.qna-container .pagination > .active > span:focus {
+  background-color: #108c67;
+  border-color: #108c67;
+}

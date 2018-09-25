@@ -1,5 +1,5 @@
 import NluStorage from './providers/nlu'
-import MicrosoftQnaMakerStorage from './providers/qnaMaker'
+import MicrosoftQnaMakerStorage, { qnaItemData } from './providers/qnaMaker'
 import { processEvent } from './middleware'
 import * as parsers from './parsers.js'
 import _ from 'lodash'
@@ -170,6 +170,7 @@ module.exports = {
           limit: limit ? parseInt(limit) : undefined,
           offset: offset ? parseInt(offset) : undefined
         })
+
         const overallItemsCount = await this.storage.count()
         res.send({ items, overallItemsCount, hasCategory: !!this.isQnAStorage })
       } catch (e) {
@@ -280,6 +281,48 @@ module.exports = {
 
     router.get('/category/list', (req, res) => {
       res.send({ categories })
+    })
+
+    const getFieldFromMetadata = (metadata, field) => metadata.find(({ name }) => name === field)
+
+    const filterByCategoryAndQuestion = async ({ question, categories }) => {
+      const allQuestions = await this.storage.fetchQuestions()
+      const filteredQuestions = allQuestions.filter(({ id, metadata }) => {
+        const category = getFieldFromMetadata(metadata, 'category')
+
+        const isRightId = question.includes(`${id}`)
+
+        if (!categories.length) {
+          return isRightId
+        }
+
+        if (!question.length) {
+          return category && categories.includes(category.value)
+        }
+
+        return isRightId && category && categories.includes(category.value)
+      })
+
+      const questions = filteredQuestions.reverse().map(qna => ({ id: qna.id, data: qnaItemData(qna) }))
+
+      return questions
+    }
+
+    router.get('/question/filter', async (req, res) => {
+      const { query: { question = [], categories = [], limit, offset } } = req
+      let questions = []
+      let count = 0
+
+      if (!(question.length || categories.length)) {
+        questions = await this.storage.all({ limit, offset: 0 }, { limit, offset })
+        count = await this.storage.count()
+      } else {
+        const tmpQuestions = await filterByCategoryAndQuestion({ question, categories })
+        questions = tmpQuestions.slice(offset, offset + limit)
+        count = tmpQuestions.length
+      }
+
+      res.send({ items: questions, count })
     })
   }
 }

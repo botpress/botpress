@@ -14,7 +14,7 @@ const ACTIONS = {
 export default class FormModal extends Component {
   defaultState = {
     item: {
-      questions: '', // TODO: we should accept questions as array and transform it here
+      questions: [],
       answer: '',
       redirectFlow: '',
       redirectNode: '',
@@ -22,8 +22,7 @@ export default class FormModal extends Component {
       category: '',
       enabled: true
     },
-    // TODO: could it be an array of invalid fields?
-    validFields: {
+    invalidFields: {
       category: true,
       questions: true,
       answer: true,
@@ -61,6 +60,7 @@ export default class FormModal extends Component {
 
   changeItemProperty = (key, value) => {
     const { item } = this.state
+
     this.setState({ item: { ...item, [key]: value } })
   }
 
@@ -79,7 +79,7 @@ export default class FormModal extends Component {
     const { hasCategory, categories } = this.props
     const { item, isText, isRedirect } = this.state
     const categoryWrapper = hasCategory ? { category: !categories.length || item.category } : {}
-    const validFields = {
+    const invalidFields = {
       ...categoryWrapper,
       questions: item.questions,
       answer: !this.state.isText || this.state.item.answer,
@@ -88,10 +88,10 @@ export default class FormModal extends Component {
       redirectNode: !this.state.isRedirect || this.state.item.redirectNode
     }
 
-    this.setState({ validFields })
+    this.setState({ invalidFields })
 
-    for (const field in validFields) {
-      if (!validFields[field]) {
+    for (const field in invalidFields) {
+      if (!invalidFields[field]) {
         return true
       }
     }
@@ -111,12 +111,7 @@ export default class FormModal extends Component {
       this.setState({ isValidForm: true })
     }
 
-    const item = {
-      ...this.state.item,
-      questions: this.state.item.questions.split(/\n/)
-    }
-
-    return this.props.bp.axios.post('/api/botpress-qna', item).then(() => {
+    return this.props.bp.axios.post('/api/botpress-qna', this.state.item).then(() => {
       this.onClose()
       this.props.fetchData()
     })
@@ -154,18 +149,18 @@ export default class FormModal extends Component {
       return null
     }
 
-    const isValidInputs = Object.values(this.state.validFields).find(Boolean)
+    const isValidInputs = Object.values(this.state.invalidFields).find(Boolean)
 
     return (
       <div>
-        {!this.state.validFields.checkbox ? <Alert bsStyle="danger">Action checkbox is required</Alert> : null}
+        {!this.state.invalidFields.checkbox ? <Alert bsStyle="danger">Action checkbox is required</Alert> : null}
         {isValidInputs ? <Alert bsStyle="danger">Inputs are required</Alert> : null}
       </div>
     )
   }
 
   render() {
-    const { item: { redirectFlow }, validFields } = this.state
+    const { item: { redirectFlow }, invalidFields } = this.state
     const { flows, flowsList, showQnAModal, categories, modalType } = this.props
     const currentFlow = flows ? flows.find(({ name }) => name === redirectFlow) || { nodes: [] } : { nodes: [] }
     const nodeList = currentFlow.nodes.map(({ name }) => ({ label: name, value: name }))
@@ -185,7 +180,7 @@ export default class FormModal extends Component {
                 <span className={style['qna-category__title']}>Category</span>
                 <Select
                   className={classnames(style['qna-category__select'], {
-                    'qna-category-error': !validFields.category
+                    'qna-category-error': !invalidFields.category
                   })}
                   value={this.state.item.category}
                   options={categories}
@@ -201,10 +196,10 @@ export default class FormModal extends Component {
               </span>
               <FormControl
                 className={classnames(style['qna-questions__textarea'], {
-                  'qna-category-error': !validFields.questions
+                  'qna-category-error': !invalidFields.questions
                 })}
-                value={this.state.item.questions}
-                onChange={event => this.changeItemProperty('questions', event.target.value)}
+                value={this.state.item.questions.join('\n')}
+                onChange={event => this.changeItemProperty('questions', event.target.value.split(/\n/))}
                 componentClass="textarea"
               />
             </div>
@@ -217,7 +212,7 @@ export default class FormModal extends Component {
                 </span>
                 <FormControl
                   className={classnames(style['qna-answer__textarea'], {
-                    'qna-category-error': !validFields.answer
+                    'qna-category-error': !invalidFields.answer
                   })}
                   value={this.state.item.answer}
                   onChange={event => this.changeItemProperty('answer', event.target.value)}
@@ -241,7 +236,7 @@ export default class FormModal extends Component {
                   </span>
                   <Select
                     className={classnames(style['qna-redirect-to-flow-check__select'], {
-                      'qna-category-error': !validFields.redirectFlow
+                      'qna-category-error': !invalidFields.redirectFlow
                     })}
                     value={this.state.item.redirectFlow}
                     options={flowsList}
@@ -252,7 +247,7 @@ export default class FormModal extends Component {
                   <span className={style['qna-redirect-node__title']}>Node</span>
                   <Select
                     className={classnames(style['qna-redirect-node__select'], {
-                      'qna-category-error': !validFields.redirectNode
+                      'qna-category-error': !invalidFields.redirectNode
                     })}
                     value={this.state.item.redirectNode}
                     options={nodeList}
@@ -263,7 +258,6 @@ export default class FormModal extends Component {
             </div>
           </Modal.Body>
 
-          {/* TODO: buttons shouldn't fallback to default styling on hover */}
           <Modal.Footer className={style['qna-modal-footer']}>
             <Button className={style['qna-modal-footer__cancel-btn']} onClick={this.onClose}>
               Cancel

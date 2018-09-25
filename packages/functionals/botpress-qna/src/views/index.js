@@ -1,8 +1,6 @@
 import React, { Component } from 'react'
 
 import {
-  Row,
-  Col,
   FormGroup,
   FormControl,
   ControlLabel,
@@ -19,42 +17,11 @@ import {
 import Select from 'react-select'
 
 import classnames from 'classnames'
-import find from 'lodash/find'
-import some from 'lodash/some'
-import get from 'lodash/get'
 import Promise from 'bluebird'
 
-import { FormControlIme } from './FormControlIme'
-import ArrayEditor from './ArrayEditor'
-import QuestionsBulkImport from './QuestionsBulkImport'
 import FormModal from './FormModal'
 import style from './style.scss'
 import './button.css'
-
-const getInputValue = input => {
-  switch (input.type) {
-    case 'radio':
-      const els = [].slice.call(document.getElementsByName(input.name))
-      for (const el of els) {
-        if (el.checked) {
-          return el.value
-        }
-      }
-      return null
-    case 'checkbox':
-      return input.checked
-    default:
-      return input.value
-  }
-}
-
-const cleanupQuestions = questions => questions.map(q => q.trim()).filter(Boolean)
-
-const ACTIONS = {
-  TEXT: 'text',
-  REDIRECT: 'redirect',
-  TEXT_REDIRECT: 'text_redirect'
-}
 
 const ITEMS_PER_PAGE = 50
 const CSV_STATUS_POLL_INTERVAL = 1000
@@ -65,24 +32,8 @@ export default class QnaAdmin extends Component {
     this.csvDownloadableLink = React.createRef()
   }
 
-  createEmptyQuestion() {
-    return {
-      id: null,
-      data: {
-        questions: [''],
-        answer: '',
-        redirectFlow: '',
-        redirectNode: '',
-        action: ACTIONS.TEXT,
-        enabled: true
-      }
-    }
-  }
-
   state = {
-    newItem: this.createEmptyQuestion(),
     items: [],
-    categories: [],
     flows: null,
     flowsList: [],
     filter: '',
@@ -92,7 +43,12 @@ export default class QnaAdmin extends Component {
     hasCategory: false,
     showQnAModal: false,
     category: '',
-    QnAModalType: 'create'
+    QnAModalType: 'create',
+    quentionsOptions: [],
+    categoriesOptions: [],
+    filterCategory: [],
+    filterQuestion: [],
+    selectedQuestion: []
   }
 
   shouldAutofocus = true
@@ -106,9 +62,15 @@ export default class QnaAdmin extends Component {
   }
 
   fetchData = (page = 1) => {
+    console.log('fetchData: ', page)
     const params = { limit: ITEMS_PER_PAGE, offset: (page - 1) * ITEMS_PER_PAGE }
     this.props.bp.axios.get('/api/botpress-qna', { params }).then(({ data }) => {
-      this.setState({ ...data, page })
+      const quentionsOptions = data.items.map(({ id, data: { questions } }) => ({
+        label: questions.join(','),
+        value: id
+      }))
+
+      this.setState({ ...data, page, quentionsOptions })
     })
   }
 
@@ -116,7 +78,7 @@ export default class QnaAdmin extends Component {
     this.props.bp.axios.get('/api/botpress-qna/category/list').then(({ data: { categories } }) => {
       const categoriesOptions = categories.map(category => ({ label: category, value: category }))
 
-      this.setState({ categories: categoriesOptions })
+      this.setState({ categoriesOptions })
     })
   }
 
@@ -126,190 +88,26 @@ export default class QnaAdmin extends Component {
     this.fetchCategories()
   }
 
-  onCreate = value => {
-    const data = {
-      ...value.data,
-      questions: cleanupQuestions(value.data.questions)
-    }
-    return this.props.bp.axios.post('/api/botpress-qna', data).then(({ data: id }) => ({
-      // update the value with the retrieved ID
-      id,
-      // and the cleaned data
-      data
-    }))
-  }
+  onCategoriesFilter = filterCategory => this.setState({ filterCategory }, this.filterQuestions)
 
-  onEdit = index => {
-    const value = this.state.items[index]
-    this.props.bp.axios.put(`/api/botpress-qna/${value.id}`, value.data)
-  }
+  onQuestioinsFilter = filterQuestion => this.setState({ filterQuestion }, this.filterQuestions)
 
-  onDelete = value => {
-    this.props.bp.axios.delete(`/api/botpress-qna/${value.id}`)
-  }
+  filterQuestions = (page = 1) => {
+    console.log('filterQuestions: ', page)
+    const { filterQuestion, filterCategory } = this.state
+    const question = filterQuestion.map(({ value }) => value)
+    const categories = filterCategory.map(({ value }) => value)
 
-  onInputChange = (index, prop, onChange) => event =>
-    this.onPropChange(index, prop, onChange)(getInputValue(event.target))
-
-  onSelectChange = (index, prop, onChange) => ({ value }) => this.onPropChange(index, prop, onChange)(value)
-
-  onPropChange = (index, prop, onChange) => propValue => {
-    const value = index == null ? this.state.newItem : this.state.items[index]
-
-    onChange(
-      {
-        ...value,
-        data: {
-          ...value.data,
-          [prop]: propValue
+    this.props.bp.axios
+      .get('/api/botpress-qna/question/filter', {
+        params: {
+          question,
+          categories,
+          limit: ITEMS_PER_PAGE,
+          offset: (page - 1) * ITEMS_PER_PAGE
         }
-      },
-      index
-    )
-  }
-
-  onQuestionsChanged = (index, onChange) => questions => {
-    const value = index == null ? this.state.newItem : this.state.items[index]
-    onChange(
-      {
-        ...value,
-        data: {
-          ...value.data,
-          questions
-        }
-      },
-      index
-    )
-  }
-
-  updateState = newState => this.setState(newState)
-
-  getFormControlId = (index, suffix) => `form-${index != null ? index : 'new'}-${suffix}`
-
-  canSave = data =>
-    !!cleanupQuestions(data.questions).length &&
-    (data.action === ACTIONS.TEXT ? !!data.answer : !!data.redirectFlow && !!data.redirectNode)
-
-  renderTextAndRedirectSelect(index, onChange) {
-    return (
-      <div>
-        {this.renderTextInput(index, onChange)}
-        {this.renderRedirectSelect(index, onChange)}
-      </div>
-    )
-  }
-
-  renderTextInput = (index, onChange) => {
-    const item = index === null ? 'newItem' : `items.${index}`
-    const answer = get(this.state, `${item}.data.answer`, '')
-
-    return (
-      <FormGroup controlId={this.getFormControlId(index, 'answer')}>
-        <ControlLabel>Answer:</ControlLabel>
-        <FormControlIme
-          componentClass="textarea"
-          placeholder="Answer"
-          value={answer}
-          onChange={this.onInputChange(index, 'answer', onChange)}
-        />
-      </FormGroup>
-    )
-  }
-
-  renderRedirectSelect(index, onChange) {
-    const { flows } = this.state
-    if (!flows) {
-      return null
-    }
-    const flowOptions = flows.map(({ name }) => ({ label: name, value: name }))
-
-    const { data } = index == null ? this.state.newItem : this.state.items[index]
-    const { redirectFlow } = data
-
-    const nodeOptions = !redirectFlow
-      ? []
-      : get(find(flows, { name: redirectFlow }), 'nodes', []).map(({ name }) => ({ label: name, value: name }))
-
-    return (
-      <div className={style.paddedRow}>
-        <Row>
-          <Col sm={6} md={2}>
-            Flow:
-          </Col>
-          <Col sm={6} md={4}>
-            <Select
-              value={redirectFlow}
-              options={flowOptions}
-              onChange={this.onSelectChange(index, 'redirectFlow', onChange)}
-            />
-          </Col>
-
-          <Col sm={6} md={2}>
-            Node:
-          </Col>
-          <Col sm={6} md={4}>
-            <Select
-              value={data.redirectNode}
-              options={nodeOptions}
-              onChange={this.onSelectChange(index, 'redirectNode', onChange)}
-            />
-          </Col>
-        </Row>
-      </div>
-    )
-  }
-
-  doQuestionsBulkImport = (index, onChange) => newQuestions => {
-    if (index === undefined) {
-      return
-    }
-    this.setState({ showBulkImport: undefined })
-
-    const value = index == null ? this.state.newItem : this.state.items[index]
-
-    const oldQuestions = value.data.questions.map(s => s.trim()).filter(Boolean)
-
-    onChange(
-      {
-        ...value,
-        data: {
-          ...value.data,
-          questions: newQuestions.concat(oldQuestions)
-        }
-      },
-      index
-    )
-  }
-
-  showQuestionsBulkImportModal = index => () => {
-    this.setState({ showBulkImport: index })
-  }
-
-  renderBulkImportModal(index, onChange) {
-    return (
-      <QuestionsBulkImport
-        onSubmit={this.doQuestionsBulkImport(index, onChange)}
-        onCancel={() => {
-          this.setState({ showBulkImport: undefined })
-        }}
-      />
-    )
-  }
-
-  onFilterChange = event => {
-    this.setState({ filter: event.target.value })
-  }
-
-  questionMatches = filter => ({ data: { questions, answer, action } }, index) => {
-    if (index == null || !filter) {
-      return true
-    }
-
-    if (action === ACTIONS.TEXT && answer.indexOf(filter) >= 0) {
-      return true
-    }
-
-    return some(questions, q => q.indexOf(filter) >= 0)
+      })
+      .then(({ data: { items, count } }) => this.setState({ items, overallItemsCount: count, page }))
   }
 
   uploadCsv = async () => {
@@ -354,9 +152,11 @@ export default class QnaAdmin extends Component {
       )
     })
 
-  // TODO: pagination should have same colors as the rest of UI (e.g. #108c67)
   renderPagination = () => {
     const pagesCount = Math.ceil(this.state.overallItemsCount / ITEMS_PER_PAGE)
+    const { filterQuestion, filterCategory } = this.state
+    const isFilter = filterQuestion.length || filterCategory
+
     if (pagesCount <= 1) {
       return null
     }
@@ -365,13 +165,19 @@ export default class QnaAdmin extends Component {
         {page}
       </Pagination.Item>
     )
+    const firstPage = () => (isFilter ? this.filterQuestions(1) : this.fetchData(1))
+    const prevPage = () =>
+      this.state.page > 1 &&
+      (isFilter ? this.filterQuestions(this.state.page - 1) : this.fetchData(this.state.page - 1))
+    const nextPage = () =>
+      this.state.page < pagesCount &&
+      (isFilter ? this.filterQuestions(this.state.page + 1) : this.fetchData(this.state.page + 1))
+    const lastPage = () => (isFilter ? this.filterQuestions(pagesCount) : this.fetchData(pagesCount))
+
     return (
       <Pagination>
-        <Pagination.First onClick={() => this.fetchData(1)} />
-        <Pagination.Prev
-          onClick={() => this.state.page > 1 && this.fetchData(this.state.page - 1)}
-          disabled={this.state.page === 1}
-        />
+        <Pagination.First onClick={firstPage} />
+        <Pagination.Prev onClick={prevPage} disabled={this.state.page === 1} />
         {new Array(pagesCount).fill().map((_x, i) => {
           const page = i + 1
           if (Math.abs(this.state.page - page) === 5) {
@@ -382,11 +188,8 @@ export default class QnaAdmin extends Component {
           }
           return renderPageBtn(page)
         })}
-        <Pagination.Next
-          onClick={() => this.state.page < pagesCount && this.fetchData(this.state.page + 1)}
-          disabled={this.state.page >= pagesCount}
-        />
-        <Pagination.Last onClick={() => this.fetchData(pagesCount)} />
+        <Pagination.Next onClick={nextPage} disabled={this.state.page >= pagesCount} />
+        <Pagination.Last onClick={lastPage} />
       </Pagination>
     )
   }
@@ -467,20 +270,19 @@ export default class QnaAdmin extends Component {
       <div className={style['search-bar']}>
         <Select
           className={style['serach-questions']}
-          value={this.state.filter}
-          onChange={this.onFilterChange}
+          multi
+          value={this.state.filterQuestion}
+          options={this.state.quentionsOptions}
+          onChange={this.onQuestioinsFilter}
           placeholder="Filter questions"
         />
         {this.state.hasCategory ? (
           <Select
             className={style['serach-questions']}
-            isMulti
-            value={this.state.category}
-            options={this.state.categories}
-            onChange={value => {
-              console.log('serach-questions: ', value)
-              this.setState({ category: value })
-            }}
+            multi
+            value={this.state.filterCategory}
+            options={this.state.categoriesOptions}
+            onChange={this.onCategoriesFilter}
             placeholder="Filter caterories"
           />
         ) : null}
@@ -496,7 +298,7 @@ export default class QnaAdmin extends Component {
     </div>
   )
 
-  renderItem = ({ data: item, id, ...args }, index, { onChange }) => {
+  renderItem = ({ data: item, id }) => {
     if (!id) {
       return null
     }
@@ -559,7 +361,6 @@ export default class QnaAdmin extends Component {
     this.setState({ QnAModalType: 'edit', currentItemId: id }, this.toggleQnAModal)
   }
 
-  // TODO: should refresh view on operation success
   enabledItem = (item, id) => value => {
     item.enabled = value
     this.props.bp.axios.put(`/api/botpress-qna/${id}`, item).then(() => this.fetchData(this.state.page))
@@ -585,9 +386,11 @@ export default class QnaAdmin extends Component {
 
   toggleQnAModal = () => this.setState({ showQnAModal: !this.state.showQnAModal })
 
+  questionsList = () => this.state.items.map(this.renderItem)
+
   render() {
     return (
-      <Panel className={style['qna-container']}>
+      <Panel className={`${style['qna-container']} qna-container`}>
         <a
           ref={this.csvDownloadableLink}
           href={this.state.csvDownloadableLinkHref}
@@ -596,18 +399,9 @@ export default class QnaAdmin extends Component {
         <Panel.Body>
           {this.renderQnAHeader()}
           {this.renderSearch()}
-          <ArrayEditor
-            items={this.state.items}
-            shouldShowItem={this.questionMatches(this.state.filter)}
-            newItem={this.state.newItem}
-            renderItem={this.renderItem}
-            renderPagination={this.renderPagination}
-            onCreate={this.onCreate}
-            onEdit={this.onEdit}
-            onDelete={this.onDelete}
-            updateState={this.updateState}
-            createNewItem={this.createEmptyQuestion}
-          />
+          {this.renderPagination()}
+          {this.questionsList()}
+          {this.renderPagination()}
           <FormModal
             flows={this.state.flows}
             flowsList={this.state.flowsList}
