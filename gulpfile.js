@@ -10,14 +10,15 @@ const wipe = () => {
 }
 
 const clean = () => {
-  return gulp.src('./out').pipe(rimraf())
+  const folder = './out'
+  return gulp.src(folder, { read: false, allowEmpty: true }).pipe(rimraf())
 }
 
 const buildTs = () => {
   return tsProject
     .src()
     .pipe(tsProject())
-    .pipe(gulp.dest('./out'))
+    .pipe(gulp.dest('./out/bp'))
 }
 
 const watch = () => {
@@ -32,7 +33,7 @@ const createDirectories = () => {
 }
 
 const copyStatic = () => {
-  return gulp.src('./src/bp/vanilla/**/*').pipe(gulp.dest('./out/bp/data'))
+  return gulp.src('./src/bp/vanilla/**/*').pipe(gulp.dest('./out/data'))
 }
 
 const buildSchemas = () => {
