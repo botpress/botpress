@@ -12,9 +12,9 @@ async function start() {
     const logger = await Logger('Launcher')
 
     logger.info(chalk`===========================`)
-    logger.info(chalk`= {bold Botpress Server} `)
-    logger.info(chalk`=  Version ${sdk.version} `)
-    logger.info(chalk`=  {yellow Pre-release} `)
+    logger.info(chalk`= {bold Botpress Server} =`)
+    logger.info(chalk`=  Version ${sdk.version} =`)
+    logger.info(chalk`=  {yellow Pre-release} =`)
     logger.info(chalk`===========================`)
 
     process.on('unhandledRejection', err => {
