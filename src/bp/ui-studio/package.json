@@ -4,7 +4,6 @@
   "main": "proxy.js",
   "license": "MIT",
   "dependencies": {
-    "@botpress/xx-util": "file:../util",
     "body-parser": "^1.18.3",
     "dotenv": "^6.0.0",
     "express": "^4.16.3",
@@ -13,15 +12,14 @@
   },
   "scripts": {
     "start": "npm run serve",
-    "serve": "../../node_modules/.bin/nodemon app.js",
     "watch": "npm run start",
     "build": "./scripts/copy-bp.sh"
   },
   "devDependencies": {
-    "@botpress/xx-admin": "file:../admin",
     "@types/jest": "^23.3.1",
-    "webpack": "^4.12.0",
     "botpress": "10.37.1",
+    "nodemon": "^1.18.4",
+    "webpack": "^4.12.0",
     "webpack-cli": "^3.1.0"
   }
 }
