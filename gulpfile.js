@@ -4,6 +4,7 @@ const rimraf = require('gulp-rimraf')
 const run = require('gulp-run')
 
 const tsProject = ts.createProject('./src/tsconfig.json')
+const buildJsonSchemas = require('./build/jsonschemas')
 
 const wipe = () => {
   return gulp.src(['./node_modules', './out']).pipe(rimraf())
@@ -37,14 +38,9 @@ const copyStatic = () => {
 }
 
 const buildSchemas = () => {
-  const botpressJsonSchemas =
-    './node_modules/.bin/typescript-json-schema --required "src/bp/core/config/*.ts" BotpressConfig --out "out/botpress.config.schema.json" --ignoreErrors'
-  const botJsonSchemas =
-    './node_modules/.bin/typescript-json-schema --required "src/bp/core/config/*.ts" BotConfig --out "out/bot.config.schema.json" --ignoreErrors'
-  return gulp
-    .src('.')
-    .pipe(run(botpressJsonSchemas))
-    .pipe(run(botJsonSchemas))
+  return Promise.resolve(() => {
+    buildJsonSchemas()
+  })
 }
 
 const runTests = () => {
