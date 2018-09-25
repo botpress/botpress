@@ -5,7 +5,7 @@ import path from 'path'
 import Knex from 'knex'
 
 import { ConfigProvider } from '../../config/config-loader'
-import { LoggerProvider } from '../../logger/Logger'
+import { LoggerProvider } from '../../logger/logger'
 import { IDisposeOnExit } from '../../misc/interfaces'
 import { TYPES } from '../../types'
 import { GhostService } from '../'
