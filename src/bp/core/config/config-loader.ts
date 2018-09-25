@@ -62,7 +62,8 @@ export class GhostConfigProvider implements ConfigProvider {
       }
 
       // Variables substitution
-      content = content.replace('%BOTPRESS_DIR%', this.projectLocation)
+      //TODO Check of a better way to handle path correction
+      content = content.replace('%BOTPRESS_DIR%', this.projectLocation.replace(/\\/g, '/'))
       content = content.replace('"$isProduction"', this.isProduction ? 'true' : 'false')
       content = content.replace('"$isDevelopment"', this.isProduction ? 'false' : 'true')
 
