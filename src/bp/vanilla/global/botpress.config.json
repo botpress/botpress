@@ -8,7 +8,7 @@
   },
   "database": {
     "type": "sqlite",
-    "location": "%BOTPRESS_DIR%/storage/core.sqlite",
+    "location": "%BOTPRESS_DIR%/data/storage/core.sqlite",
     "host": "localhost",
     "port": 5432,
     "user": "postgres",
