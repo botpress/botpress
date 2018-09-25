@@ -2,7 +2,7 @@ import 'knex'
 
 type OriginalDate = Date
 
-declare module 'Knex' {
+declare module 'knex' {
   interface QueryBuilder {
     // get(index?: number): ChainableInterface
   }
