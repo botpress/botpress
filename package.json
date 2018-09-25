@@ -10,7 +10,7 @@
   "scripts": {
     "start": "cd ./out/bp && NODE_PATH=./ JWT_SECRET=secret node index.js",
     "build": "./node_modules/.bin/gulp",
-    "watch": "./node_modules/.bin/gulp watch-ts"
+    "watch": "./node_modules/.bin/gulp dev"
   },
   "dependencies": {
     "axios": "^0.18.0",
@@ -60,7 +60,7 @@
     "@types/node": "^10.10.3",
     "@types/verror": "^1.10.3",
     "babel-jest": "^23.6.0",
-    "gulp": "^3.9.1",
+    "gulp": "^4.0.0",
     "gulp-cli": "^2.0.1",
     "gulp-copy": "^4.0.0",
     "gulp-ignore": "^2.0.2",
