@@ -8,7 +8,9 @@
   "license": "AGPL-3.0",
   "private": true,
   "scripts": {
-    "start": "gulp && cd ./out/bp && NODE_PATH=./ node index.js"
+    "start": "cd ./out/bp && NODE_PATH=./ JWT_SECRET=secret node index.js",
+    "build": "gulp",
+    "watch": "gulp watch-ts"
   },
   "dependencies": {
     "axios": "^0.18.0",

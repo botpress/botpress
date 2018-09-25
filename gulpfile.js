@@ -2,20 +2,13 @@ const gulp = require('gulp')
 const ts = require('gulp-typescript')
 const rimraf = require('gulp-rimraf')
 const run = require('gulp-run')
-const ignore = require('gulp-ignore')
 
-process.on('unhandledRejection', (reason, p) => {
-  console.log('Unhandled Rejection at: Promise', p, 'reason:', reason)
-  process.exit(1)
+gulp.task('clean-all', () => {
+  return gulp.src(['./node_modules', './out']).pipe(rimraf())
 })
 
-gulp.task('clean-all', () => gulp.src('./out').pipe(rimraf()))
-
 gulp.task('clean', () => {
-  return gulp
-    .src('./out')
-    .pipe(ignore('node_modules/**'))
-    .pipe(rimraf())
+  return gulp.src('./out').pipe(rimraf())
 })
 
 gulp.task('build-ts', () => {
@@ -26,15 +19,11 @@ gulp.task('build-ts', () => {
     .pipe(gulp.dest('./out'))
 })
 
-gulp.task('serve', () => {
-  return run('cd ./out/bp && NODE_PATH=./ node index.js').exec()
-})
-
 gulp.task('watch-ts', ['build-ts'], () => {
   return gulp.watch('./src/**/*.ts', ['build-ts'])
 })
 
-gulp.task('static', ['build-ts'], () => {
+gulp.task('build-static', ['build-ts'], () => {
   return gulp.src('./src/bp/vanilla/**/*').pipe(gulp.dest('./out/bp/data'))
 })
 
@@ -53,6 +42,11 @@ gulp.task('test', ['build-ts'], () => {
   return gulp.src('.').pipe(run('./node_modules/.bin/jest --detectOpenHandles -c ./jest.config.js'))
 })
 
-gulp.task('default', ['clean-all', 'build-ts', 'build-schemas', 'static'])
+process.on('uncaughtException', err => {
+  console.error('An error coccured in your gulpfile: ', err)
+  process.exit(1)
+})
 
-gulp.task('dev', ['clean', 'build-schemas', 'static', 'watch-ts', 'serve'])
+gulp.task('default', ['clean', 'build-ts', 'build-schemas', 'build-static'])
+
+gulp.task('dev', ['clean', 'build-schemas', 'build-static', 'watch-ts'])
