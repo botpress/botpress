@@ -5,7 +5,7 @@ import tmp from 'tmp'
 
 import { VError } from 'verror'
 import { NodeVM } from 'vm2'
-import { Logger } from 'common/logging'
+import { Logger } from 'botpress/sdk'
 
 export type CodeFile = {
   relativePath: string

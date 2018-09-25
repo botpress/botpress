@@ -11,7 +11,7 @@ import { InstructionFactory } from './instruction/factory'
 import { InstructionProcessor } from './instruction/processor'
 import { InstructionQueue } from './instruction/queue'
 import { SessionService } from './session/service'
-import * as IO from 'common/io'
+import { IO } from 'botpress/sdk'
 
 export class ProcessingError extends Error {
   constructor(

@@ -12,7 +12,7 @@ import { GhostService } from '../'
 
 import { ContentElement, ContentType, DefaultSearchParams, SearchParams } from '.'
 import { CodeFile, SafeCodeSandbox } from './util'
-import { Logger } from 'common/logging'
+import { Logger } from 'botpress/sdk'
 import { KnexExtension } from 'common/knex'
 
 @injectable()

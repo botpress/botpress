@@ -1,12 +1,11 @@
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import { NodeVM } from 'vm2'
+import * as sdk from 'botpress/sdk'
 
 import { TYPES } from '../../types'
 import { GhostService } from '..'
-import CoreSDK from 'common/sdk'
-import { Logger } from 'common/logging'
-import * as IO from 'common/io'
+import { IO } from 'botpress/sdk'
 
 export namespace Hooks {
   export interface BaseHook {
@@ -20,7 +19,7 @@ export namespace Hooks {
     args: any
     folder: string = 'after_bot_start'
 
-    constructor(private bp: CoreSDK) {
+    constructor(private bp: typeof sdk) {
       this.timeout = 1000
       this.args = { bp }
     }
@@ -31,7 +30,7 @@ export namespace Hooks {
     args: any
     timeout: number
 
-    constructor(bp: CoreSDK, event: IO.Event) {
+    constructor(bp: typeof sdk, event: IO.Event) {
       this.timeout = 1000
       this.args = { bp, event }
       this.folder = 'after_incoming_middleware'
@@ -43,7 +42,7 @@ export namespace Hooks {
     args: any
     timeout: number
 
-    constructor(bp: CoreSDK, event: IO.Event) {
+    constructor(bp: typeof sdk, event: IO.Event) {
       this.timeout = 1000
       this.args = { bp, event }
       this.folder = 'before_session_timeout'
@@ -60,7 +59,7 @@ export class HookService {
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'HookService')
-    private logger: Logger,
+    private logger: sdk.Logger,
     @inject(TYPES.GhostService) private ghost: GhostService
   ) {}
 

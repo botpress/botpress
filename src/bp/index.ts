@@ -1,9 +1,10 @@
 import 'common/polyfills'
 import 'bluebird-global'
+import 'common/rewire'
 
 import chalk from 'chalk'
 import { Logger, Botpress } from 'core/app'
-import { ModuleDefinition } from 'common/module'
+import * as sdk from 'botpress/sdk'
 const { start: startProxy } = require('./http/api')
 
 async function start() {
@@ -11,9 +12,9 @@ async function start() {
     const logger = await Logger('Launcher')
 
     logger.info(chalk`===========================`)
-    logger.info(chalk`=     {bold Botpress Server}     =`)
-    logger.info(chalk`=       Version 0.1       =`)
-    logger.info(chalk`=       {yellow Pre-release}       =`)
+    logger.info(chalk`= {bold Botpress Server}\t`)
+    logger.info(chalk`=  Version ${sdk.version}\t`)
+    logger.info(chalk`=  yellow Pre-release}\t`)
     logger.info(chalk`===========================`)
 
     process.on('unhandledRejection', err => {
@@ -25,7 +26,7 @@ async function start() {
       process.exit(1)
     })
 
-    const modules = new Map<string, ModuleDefinition>()
+    const modules = new Map<string, sdk.ModuleDefinition>()
 
     // modules.set('channel-web', require('@botpress/channel-web') as ModuleDefinition)
 

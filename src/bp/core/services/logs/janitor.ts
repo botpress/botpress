@@ -11,7 +11,7 @@ import { TYPES } from 'core/types'
 import { Janitor } from '../janitor'
 
 import { LogsService } from './service'
-import { Logger } from 'common/logging'
+import { Logger } from 'botpress/sdk'
 
 @injectable()
 export class LogsJanitor extends Janitor {

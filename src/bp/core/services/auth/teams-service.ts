@@ -10,7 +10,7 @@ import { TYPES } from '../../types'
 import { InvalidOperationError, NotFoundError, UnauthorizedAccessError } from '../auth/errors'
 
 import defaultRoles from './default-roles'
-import { Logger } from 'common/logging'
+import { Logger } from 'botpress/sdk'
 import { checkRule } from 'core/misc/auth'
 
 const TEAMS_TABLE = 'auth_teams'

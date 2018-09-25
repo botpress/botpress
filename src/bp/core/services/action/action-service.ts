@@ -5,7 +5,7 @@ import { GhostService } from '..'
 
 import { ActionMetadata, extractMetadata } from './metadata'
 import { runCode } from './sandbox-launcher'
-import { Logger } from 'common/logging'
+import { Logger } from 'botpress/sdk'
 
 @injectable()
 export default class ActionService {

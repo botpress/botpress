@@ -4,7 +4,7 @@ import path from 'path'
 
 import { TYPES } from '../../types'
 import { GhostService } from '..'
-import { Logger } from 'common/logging'
+import { Logger } from 'botpress/sdk'
 
 const safeId = (length = 10) => generate('1234567890abcdefghijklmnopqrsuvwxyz', length)
 

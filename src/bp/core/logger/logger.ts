@@ -8,7 +8,7 @@ import util from 'util'
 import { TYPES } from '../types'
 
 import { LoggerPersister } from '.'
-import { Logger, Level, LogEntry } from 'common/logging'
+import { Logger, LoggerLevel, LoggerEntry } from 'botpress/sdk'
 
 export type LoggerProvider = (module: string) => Promise<Logger>
 
@@ -29,14 +29,14 @@ export class PersistedConsoleLogger implements Logger {
   }
 
   colors = {
-    [Level.Info]: 'green',
-    [Level.Warn]: 'yellow',
-    [Level.Error]: 'red',
-    [Level.Debug]: 'blue'
+    [LoggerLevel.Info]: 'green',
+    [LoggerLevel.Warn]: 'yellow',
+    [LoggerLevel.Error]: 'red',
+    [LoggerLevel.Debug]: 'blue'
   }
 
-  private print(level: Level, message: string, metadata: any) {
-    const entry: LogEntry = {
+  private print(level: LoggerLevel, message: string, metadata: any) {
+    const entry: LoggerEntry = {
       botId: this.botId,
       level: level.toString(),
       scope: this.name,
@@ -58,16 +58,16 @@ export class PersistedConsoleLogger implements Logger {
 
   debug(message: string, metadata?: any): void {
     if (!this.isProduction) {
-      this.print(Level.Debug, message, metadata)
+      this.print(LoggerLevel.Debug, message, metadata)
     }
   }
 
   info(message: string, metadata?: any): void {
-    this.print(Level.Info, message, metadata)
+    this.print(LoggerLevel.Info, message, metadata)
   }
 
   warn(message: string, metadata?: any): void {
-    this.print(Level.Warn, message, metadata)
+    this.print(LoggerLevel.Warn, message, metadata)
   }
 
   error(message: string, metadata?: any): void
@@ -79,9 +79,9 @@ export class PersistedConsoleLogger implements Logger {
         msg += chalk.grey(os.EOL + error.stack)
       }
 
-      return this.print(Level.Error, msg, metadata)
+      return this.print(LoggerLevel.Error, msg, metadata)
     }
 
-    this.print(Level.Error, message, error)
+    this.print(LoggerLevel.Error, message, error)
   }
 }

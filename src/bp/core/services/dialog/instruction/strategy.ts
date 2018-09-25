@@ -9,7 +9,7 @@ import { runCode } from '../../action/sandbox-launcher'
 import { EventEngine } from '../../middleware/event-engine'
 
 import { Instruction, InstructionType, ProcessingResult } from '.'
-import * as IO from 'common/io'
+import { IO } from 'botpress/sdk'
 
 @injectable()
 export class StrategyFactory {

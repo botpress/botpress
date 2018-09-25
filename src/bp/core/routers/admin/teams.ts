@@ -8,7 +8,7 @@ import { InvalidOperationError } from '../../services/auth/errors'
 import TeamsService from '../../services/auth/teams-service'
 
 import { asyncMiddleware, success as sendSuccess, validateBodySchema } from '../util'
-import { Logger } from 'common/logging'
+import { Logger } from 'botpress/sdk'
 
 export class TeamsRouter implements CustomRouter {
   private asyncMiddleware!: Function

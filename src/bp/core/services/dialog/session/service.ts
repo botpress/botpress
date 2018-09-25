@@ -1,6 +1,5 @@
 import { inject, injectable } from 'inversify'
-
-import * as IO from 'common/io'
+import { IO } from 'botpress/sdk'
 
 import { TYPES } from 'core/types'
 import { DialogContext, DialogSession, SessionRepository } from 'core/repositories'

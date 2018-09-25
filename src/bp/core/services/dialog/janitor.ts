@@ -12,7 +12,7 @@ import { Janitor } from '../janitor'
 
 import { DialogEngine } from './engine'
 import { SessionService } from './session/service'
-import { Logger } from 'common/logging'
+import { Logger } from 'botpress/sdk'
 
 @injectable()
 export class DialogJanitor extends Janitor {

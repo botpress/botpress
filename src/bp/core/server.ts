@@ -19,8 +19,7 @@ import FlowService from './services/dialog/flow/service'
 import { LogsService } from './services/logs/service'
 import MediaService from './services/media'
 import { NotificationsService } from './services/notification/service'
-import { RouterOptions } from 'common/sdk'
-import { Logger } from 'common/logging'
+import { RouterOptions, Logger } from 'botpress/sdk'
 
 const BASE_API_PATH = '/api/v1'
 

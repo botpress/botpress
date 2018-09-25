@@ -3,7 +3,7 @@ import _ from 'lodash'
 
 import Database from '../database'
 import { TYPES } from '../types'
-import * as IO from 'common/io'
+import { IO } from 'botpress/sdk'
 
 export type DialogContext = {
   previousFlowName?: string

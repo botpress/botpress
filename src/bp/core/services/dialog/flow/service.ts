@@ -5,7 +5,7 @@ import { Flow, FlowView, NodeView } from '..'
 import { TYPES } from '../../../types'
 import { GhostService } from '../..'
 import { validateFlowSchema } from '../validator'
-import { Logger } from 'common/logging'
+import { Logger } from 'botpress/sdk'
 
 const PLACING_STEP = 250
 const MIN_POS_X = 50
