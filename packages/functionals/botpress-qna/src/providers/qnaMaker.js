@@ -138,7 +138,7 @@ export default class Storage {
       questions = questions.slice(offset, offset + limit)
     }
 
-    return questions.map(qna => ({ id: qna.id, data: qnaItemData(qna) }))
+    return questions.reverse().map(qna => ({ id: qna.id, data: qnaItemData(qna) }))
   }
 
   async answersOn(question) {

@@ -4,6 +4,7 @@ import {
   Row,
   Col,
   FormGroup,
+  FormControl,
   ControlLabel,
   InputGroup,
   Glyphicon,
@@ -501,7 +502,7 @@ export default class QnaAdmin extends Component {
                   <form>
                     <FormGroup>
                       <ControlLabel>CSV file</ControlLabel>
-                      <FormControlIme
+                      <FormControl
                         type="file"
                         accept=".csv"
                         onChange={e => this.setState({ csvToUpload: e.target.files[0] })}
