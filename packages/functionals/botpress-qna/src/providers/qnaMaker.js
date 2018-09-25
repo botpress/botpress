@@ -135,10 +135,10 @@ export default class Storage {
   async all({ limit, offset } = {}) {
     let questions = await this.fetchQuestions()
     if (typeof limit !== 'undefined' && typeof offset !== 'undefined') {
-      questions = questions.slice(offset, offset + limit)
+      questions = questions.reverse().slice(offset, offset + limit)
     }
 
-    return questions.reverse().map(qna => ({ id: qna.id, data: qnaItemData(qna) }))
+    return questions.map(qna => ({ id: qna.id, data: qnaItemData(qna) }))
   }
 
   async answersOn(question) {
