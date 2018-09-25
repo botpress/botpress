@@ -257,7 +257,7 @@ class Message extends Component {
     const isBotMessage = !this.props.data.userId
 
     return (
-      <div style={`${this.getAddStyle()} botpress__message-login`}>
+      <div className="botpress__message-login" style={this.getAddStyle()}>
         <LoginPrompt
           isLastMessage={isLastMessage}
           isBotMessage={isBotMessage}
