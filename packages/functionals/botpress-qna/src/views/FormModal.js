@@ -48,8 +48,7 @@ export default class FormModal extends Component {
     if (!id) {
       return this.setState(this.defaultState)
     }
-    this.props.bp.axios.get(`/api/botpress-qna/${id}`).then(({ data }) => {
-      const item = { ...data, questions: data.questions.join('\n') }
+    this.props.bp.axios.get(`/api/botpress-qna/${id}`).then(({ data: item }) => {
       this.setState({
         item,
         isRedirect: [ACTIONS.REDIRECT, ACTIONS.TEXT_REDIRECT].includes(item.action),

@@ -62,7 +62,6 @@ export default class QnaAdmin extends Component {
   }
 
   fetchData = (page = 1) => {
-    console.log('fetchData: ', page)
     const params = { limit: ITEMS_PER_PAGE, offset: (page - 1) * ITEMS_PER_PAGE }
     this.props.bp.axios.get('/api/botpress-qna', { params }).then(({ data }) => {
       const quentionsOptions = data.items.map(({ id, data: { questions } }) => ({
@@ -93,7 +92,6 @@ export default class QnaAdmin extends Component {
   onQuestioinsFilter = filterQuestion => this.setState({ filterQuestion }, this.filterQuestions)
 
   filterQuestions = (page = 1) => {
-    console.log('filterQuestions: ', page)
     const { filterQuestion, filterCategory } = this.state
     const question = filterQuestion.map(({ value }) => value)
     const categories = filterCategory.map(({ value }) => value)
