@@ -5,7 +5,7 @@ let rootDir = process.cwd()
 
 if (path.resolve(rootDir) === __dirname) {
   console.warn("You can't run tests from the root. Running Core tests instead.")
-  rootDir = path.join(__dirname, 'packages/core')
+  rootDir = path.join(__dirname, 'src/bp')
 }
 
 module.exports = {

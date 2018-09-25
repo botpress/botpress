@@ -7,6 +7,11 @@
   "author": "Sylvain Perron <slvn.perron+github@gmail.com>",
   "license": "AGPL-3.0",
   "private": true,
+  "scripts": {
+    "start": "cd ./out/bp && NODE_PATH=./ JWT_SECRET=secret node index.js",
+    "build": "./node_modules/.bin/gulp",
+    "watch": "./node_modules/.bin/gulp watch-ts"
+  },
   "dependencies": {
     "axios": "^0.18.0",
     "bluebird-global": "^1.0.1",
@@ -55,10 +60,18 @@
     "@types/node": "^10.10.3",
     "@types/verror": "^1.10.3",
     "babel-jest": "^23.6.0",
+    "gulp": "^3.9.1",
+    "gulp-cli": "^2.0.1",
+    "gulp-copy": "^4.0.0",
+    "gulp-ignore": "^2.0.2",
+    "gulp-rimraf": "^0.2.2",
+    "gulp-run": "^1.7.1",
+    "gulp-typescript": "^5.0.0-alpha.3",
     "jest": "^23.6.0",
     "jest-extended": "^0.10.0",
+    "rimraf": "^2.6.2",
     "ts-jest": "^23.10.1",
-    "ts-node": "^7.0.1"
+    "typescript-json-schema": "^0.32.0"
   },
   "optionalDependencies": {
     "sqlite3": "^4.0.2"
