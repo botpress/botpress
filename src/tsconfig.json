@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "declaration": true,
-    "sourceMap": false,
+    "sourceMap": true,
     "strict": true,
     "declarationMap": true,
     "module": "commonjs",

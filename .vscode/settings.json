@@ -2,5 +2,5 @@
   "editor.tabSize": 2,
   "editor.formatOnSave": true,
   "tslint.autoFixOnSave": true,
-  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.tsdk": "node_modules/typescript/lib"
 }

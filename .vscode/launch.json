@@ -5,10 +5,14 @@
       "type": "node",
       "request": "launch",
       "name": "Debug Launcher-CE",
-      "program": "${workspaceFolder}/packages/launcher-ce/src/index.ts",
-      "cwd": "${workspaceFolder}/packages/launcher-ce",
+      "program": "${workspaceFolder}/src/bp/index.ts",
+      "cwd": "${workspaceFolder}/src/bp",
       "protocol": "inspector",
-      "outFiles": ["${workspaceFolder}/packages/launcher-ce/build/**/*.js"]
+      "env": {
+        "JWT_SECRET": "very_secret",
+        "NODE_PATH": "${workspaceFolder}/out"
+      },
+      "outFiles": ["${workspaceFolder}/out/**/*.js"]
     }
   ]
 }

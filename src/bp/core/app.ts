@@ -7,7 +7,7 @@ import { LoggerProvider } from './logger/Logger'
 import { TYPES } from './types'
 
 let botpress
-let logger
+let logger: LoggerProvider | undefined
 try {
   botpress = container.get<Core>(TYPES.Botpress)
   logger = container.get<LoggerProvider>(TYPES.LoggerProvider)
@@ -16,4 +16,4 @@ try {
 }
 
 export const Botpress = botpress
-export const Logger = logger
+export const Logger = logger!

@@ -1,3 +1,4 @@
+import os from 'os'
 import chalk from 'chalk'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
@@ -49,7 +50,9 @@ export class PersistedConsoleLogger implements Logger {
     const serializedMetadata = metadata ? ' | ' + util.inspect(metadata, false, 2, true) : ''
     const time = moment().format('HH:mm:ss.SSS')
 
-    console.log(chalk`{grey ${time}} {${this.colors[level]}.bold ${this.name}} ${message}${serializedMetadata}`)
+    const displayName = process.env.INDENT_LOGS ? this.name.substr(0, 15).padEnd(15, ' ') : this.name
+
+    console.log(chalk`{grey ${time}} {${this.colors[level]}.bold ${displayName}} ${message}${serializedMetadata}`)
     this.botId = undefined
   }
 
@@ -70,7 +73,12 @@ export class PersistedConsoleLogger implements Logger {
   error(message: string, metadata?: any): void
   error(message: string, error: Error, metadata?: any): void {
     if (error instanceof Error) {
-      const msg = message + ` [${error.name}, ${error.message}]`
+      let msg = message + ` [${error.name}, ${error.message}]`
+      if (!this.isProduction && error.stack) {
+        msg += chalk.grey(os.EOL + '----- STACK -----')
+        msg += chalk.grey(os.EOL + error.stack)
+      }
+
       return this.print(Level.Error, msg, metadata)
     }
 
