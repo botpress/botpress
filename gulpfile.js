@@ -29,12 +29,12 @@ const watch = () => {
 const createDirectories = () => {
   return gulp
     .src('*.*', { read: false })
-    .pipe(gulp.dest('./out/data'))
-    .pipe(gulp.dest('./out/data/storage'))
+    .pipe(gulp.dest('./out/bp/data'))
+    .pipe(gulp.dest('./out/bp/data/storage'))
 }
 
 const copyStatic = () => {
-  return gulp.src('./src/bp/vanilla/**/*').pipe(gulp.dest('./out/data'))
+  return gulp.src('./src/bp/vanilla/**/*').pipe(gulp.dest('./out/bp/data'))
 }
 
 const buildSchemas = () => {
