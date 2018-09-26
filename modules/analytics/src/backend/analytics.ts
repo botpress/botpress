@@ -1,9 +1,10 @@
-import _ from 'lodash'
-import moment from 'moment'
-import Stats from './stats'
 import sdk from 'botpress/sdk'
 import fs from 'fs'
+import _ from 'lodash'
+import moment from 'moment'
 import path from 'path'
+
+import Stats from './stats'
 
 const createEmptyFileIfDoesntExist = file => {
   if (!fs.existsSync(file)) {

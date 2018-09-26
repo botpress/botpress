@@ -1,6 +1,6 @@
-import moment from 'moment'
 import Promise from 'bluebird'
 import _ from 'lodash'
+import moment from 'moment'
 
 const oneDayMs = 1000 * 60 * 60 * 24
 
@@ -14,7 +14,7 @@ export default class Stats {
       .get(0)
       .then(result => {
         if (!result.min || !result.max) {
-          return null
+          return undefined
         }
 
         const range = moment(result.max).diff(moment(result.min), 'days')
@@ -25,7 +25,7 @@ export default class Stats {
         const ret = {
           min: result.min,
           max: result.max,
-          format: null,
+          format: undefined,
           ranges: ranges
         }
         if (range < 360) {
@@ -171,7 +171,7 @@ export default class Stats {
         sum(r6) as s6,
         sum(r7) as s7,
         sum(r8) as s8
-      from (select 
+      from (select
         (select count(*) as count where c between 0 and 1) as r1,
         (select count(*) where c between 2 and 3) as r2,
         (select count(*) where c between 4 and 5) as r3,
@@ -363,13 +363,13 @@ export default class Stats {
                     .startOf('day')
                     .isSameOrAfter(moment().startOf('day'))
                 ) {
-                  return null
+                  return undefined
                 }
 
                 return partial_retention / cohort_size || 0
               })
           }).then(retention => {
-            const mean = _.mean(_.filter(retention, v => v !== null))
+            const mean = _.mean(_.filter(retention, v => v !== undefined))
             result[cohortName] = [cohort_size, ...retention, mean]
           })
         })

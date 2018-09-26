@@ -1,12 +1,13 @@
+import 'bluebird-global'
 import checkVersion from 'botpress-version-manager'
+import _ from 'lodash'
+
 import Analytics from './analytics'
 import CustomAnalytics from './custom-analytics'
 import DB from './db'
-import _ from 'lodash'
-import 'bluebird-global'
 
-let analytics = null
-let db = null
+let analytics = undefined
+let db = undefined
 
 const interactionsToTrack = ['message', 'text', 'button', 'template', 'quick_reply', 'postback']
 

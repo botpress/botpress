@@ -1,7 +1,8 @@
+import fs from 'fs'
 import _ from 'lodash'
 import moment from 'moment'
+
 import db from './db'
-import fs from 'fs'
 
 const dbFile = process.env.DB_PATH || './seed.sqlite'
 const daysBack = 98

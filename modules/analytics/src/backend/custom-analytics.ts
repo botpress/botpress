@@ -1,5 +1,5 @@
-import moment from 'moment'
 import _ from 'lodash'
+import moment from 'moment'
 
 export default ({ bp }) => {
   const graphs = []
@@ -57,7 +57,7 @@ export default ({ bp }) => {
     return update(name, count, count)
   }
 
-  //{ name, type, description, variables }
+  // { name, type, description, variables }
   function addGraph(graph) {
     if (!_.includes(['count', 'countUniq', 'percent', 'piechart'], graph.type)) {
       throw new Error('Unknown graph of type ' + graph.type)
