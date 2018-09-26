@@ -1,7 +1,6 @@
 import 'bluebird-global'
 import fs from 'fs'
 import path from 'path'
-import * as sdk from 'botpress/sdk'
 
 import api from './api'
 import WebchatDatabase from './db'
@@ -11,7 +10,9 @@ export type Extension = {
   'channel-web': {}
 }
 
-export const onInit = async (bp: typeof sdk & Extension) => {
+export type SDK = typeof import('botpress/sdk') & Extension
+
+export const onInit = async (bp: SDK) => {
   bp['channel-web'] = {}
 
   const db = new WebchatDatabase(bp)
@@ -21,7 +22,7 @@ export const onInit = async (bp: typeof sdk & Extension) => {
   await socket(bp, db)
 }
 
-export const onReady = async bp => {}
+export const onReady = async (bp: SDK) => {}
 
 export const config = {
   uploadsUseS3: { type: 'bool', required: false, default: false, env: 'CHANNEL_WEB_USE_S3' },

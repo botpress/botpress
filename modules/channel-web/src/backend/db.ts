@@ -5,13 +5,13 @@ import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
 import uuid from 'uuid'
-import { Extension } from '.'
+import { SDK } from '.'
 
 export default class WebchatDb {
   knex: any
   users: typeof sdk.users
 
-  constructor(private bp: typeof sdk & Extension) {
+  constructor(private bp: SDK) {
     this.users = bp.users
     this.knex = bp['database'] // TODO Fixme
   }

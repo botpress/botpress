@@ -65,6 +65,7 @@
     "gulp-cli": "^2.0.1",
     "gulp-copy": "^4.0.0",
     "gulp-ignore": "^2.0.2",
+    "gulp-print": "^5.0.0",
     "gulp-rimraf": "^0.2.2",
     "gulp-run": "^1.7.1",
     "gulp-typescript": "^5.0.0-alpha.3",

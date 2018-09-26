@@ -1,6 +1,6 @@
 import 'common/polyfills'
 import 'bluebird-global'
-import 'common/rewire'
+import 'sdk/rewire'
 import center from 'core/logger/center'
 
 import chalk from 'chalk'

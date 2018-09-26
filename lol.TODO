@@ -1,10 +1,9 @@
-[] Build with Gulp
-  [] Copy Studio & Admin UIs files
-  [] Copy vanilla data
-  [] Create sotrage directory
-  [] Watch on typescript changes
+[] Gulp for modules
+  [] copy botpress.d.ts from core
+  [] Git ignore botpress.d.ts
+  [] Proper injection of SDK (throw when using it)
+  [] Proper factory in api.ts
 
-[] Port Web channel
-[] Set Env variables for compilation (gulp scripts)
+[] Import modules the proper way
 
-[] const { CORE_API_URL, HOST_PORT, HOST_URL } = process.env
+[] Fix the $$BOTPRESS_BASE_PATH$$ in view

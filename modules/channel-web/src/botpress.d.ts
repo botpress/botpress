@@ -17,6 +17,8 @@ declare module 'botpress/sdk' {
     Debug = 'debug'
   }
 
+  export const database: any
+
   export interface Logger {
     forBot(botId: string): this
     debug(message: string, metadata?: any): void
