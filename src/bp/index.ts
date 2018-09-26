@@ -1,6 +1,7 @@
 import 'common/polyfills'
 import 'bluebird-global'
 import 'sdk/rewire'
+import center from 'core/logger/center'
 
 import chalk from 'chalk'
 import { Logger, Botpress } from 'core/app'
@@ -11,11 +12,11 @@ async function start() {
   try {
     const logger = await Logger('Launcher')
 
-    logger.info(chalk`===========================`)
-    logger.info(chalk`= {bold Botpress Server} =`)
-    logger.info(chalk`=  Version ${sdk.version} =`)
-    logger.info(chalk`=  {yellow Pre-release} =`)
-    logger.info(chalk`===========================`)
+    logger.info(chalk`===============================`)
+    logger.info(chalk`{bold ${center(`Botpress Server`, 30)}}`)
+    logger.info(chalk`{bold ${center(`Version ${sdk.version}`, 30)}}`)
+    logger.info(chalk`{yellow ${center(`Pre-release`, 30)}}`)
+    logger.info(chalk`===============================`)
 
     process.on('unhandledRejection', err => {
       logger.error('Unhandled Rejection', err)
