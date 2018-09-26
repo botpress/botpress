@@ -21,8 +21,13 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "node webpack.js --watch",
-    "compile": "node webpack.js --compile"
+    "compile": "node webpack.js --compile",
+    "watch": "concurrently \"node webpack.js --watch\" \"npm run watch-backend-js\" \"npm run watch-backend-ts\"",
+    "watch-backend-js": "babel -w src/backend --out-dir dist/backend",
+    "watch-backend-ts": "../../node_modules/.bin/tsc-watch -p .",
+    "build": "npm run build-backend-js && npm run build-backend-ts && node webpack.js --compile",
+    "build-backend-js": "babel src/backend --out-dir dist/backend",
+    "build-backend-ts": "../../node_modules/.bin/rimraf dist && ../../node_modules/.bin/tsc"
   },
   "author": "Botpress, Inc.",
   "license": "AGPL-3.0-only",
@@ -30,6 +35,7 @@
     "botpress": ">= 10.0.0"
   },
   "devDependencies": {
+    "babel-cli": "^6.26.0",
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
     "babel-plugin-transform-async-to-generator": "^6.24.1",
@@ -51,8 +57,10 @@
     "node-sass": "^4.9.3",
     "react-select": "^1.2.1",
     "react-splitter-layout": "^3.0.0",
+    "rimraf": "^2.6.2",
     "sass-loader": "^6.0.6",
     "style-loader": "^0.20.1",
+    "tsc-watch": "^1.0.29",
     "webpack": "^3.11.0",
     "webpack-node-externals": "^1.6.0"
   },
