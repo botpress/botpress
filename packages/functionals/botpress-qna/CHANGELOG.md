@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.42.0"></a>
+# [10.42.0](https://github.com/botpress/modules/compare/v10.40.0...v10.42.0) (2018-09-26)
+
+
+### Bug Fixes
+
+* **qna:** fix qna import-modal crashing ([#938](https://github.com/botpress/modules/issues/938)) ([3edfe2e](https://github.com/botpress/modules/commit/3edfe2e))
+* **qna:** reverse results obtained from QNA-Maker ([#934](https://github.com/botpress/modules/issues/934)) ([3bd9a45](https://github.com/botpress/modules/commit/3bd9a45))
+* **qna:** reverse results obtained from QNA-Maker ([#934](https://github.com/botpress/modules/issues/934)) ([#941](https://github.com/botpress/modules/issues/941)) ([448f54d](https://github.com/botpress/modules/commit/448f54d))
+
+
+
+
 <a name="10.41.1"></a>
 ## [10.41.1](https://github.com/botpress/modules/compare/v10.41.0...v10.41.1) (2018-09-23)
 

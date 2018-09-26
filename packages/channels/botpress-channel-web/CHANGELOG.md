@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.42.0"></a>
+# [10.42.0](https://github.com/botpress/modules/compare/v10.40.0...v10.42.0) (2018-09-26)
+
+
+### Bug Fixes
+
+* **channel-web:** login_prompt renderer styles were crashing webchat ([#943](https://github.com/botpress/modules/issues/943)) ([620360f](https://github.com/botpress/modules/commit/620360f))
+
+
+### Features
+
+* **webchat:** added 'flow to' action button ([b3a545c](https://github.com/botpress/modules/commit/b3a545c))
+
+
+
+
 <a name="10.41.1"></a>
 ## [10.41.1](https://github.com/botpress/modules/compare/v10.41.0...v10.41.1) (2018-09-23)
 
