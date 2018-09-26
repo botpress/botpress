@@ -1,5 +1,5 @@
-import { BotpressAPI, BotpressEvent } from 'botpress-module-sdk'
-import { RealTimePayload } from 'botpress-module-sdk/dist/src/realtime'
+import * as sdk from 'botpress/sdk'
+
 import _ from 'lodash'
 import mime from 'mime'
 import path from 'path'
@@ -9,7 +9,7 @@ import Database from './db'
 
 const outgoingTypes = ['text', 'typing', 'login_prompt', 'file', 'carousel', 'custom']
 
-export default async (bp: BotpressAPI & Extension, db: Database) => {
+export default async (bp: typeof sdk & Extension, db: Database) => {
   const config: any = {} // FIXME
   const { botName = 'Bot', botAvatarUrl = undefined } = config || {} // FIXME
 
@@ -20,10 +20,11 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
     direction: 'outgoing',
     handler: outgoingHandler,
     name: 'web.sendMessages',
-    order: 100
+    order: 100,
+    enabled: true
   })
 
-  async function outgoingHandler(event: BotpressEvent, next: Function) {
+  async function outgoingHandler(event: sdk.IO.Event, next: Function) {
     if (event.channel !== 'web') {
       return next()
     }
@@ -38,7 +39,7 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
 
     if (messageType === 'typing') {
       const typing = parseTyping(event.payload.value)
-      const payload = RealTimePayload.forVisitor(userId, 'webchat.typing', { timeInMs: typing, conversationId })
+      const payload = sdk.RealTimePayload.forVisitor(userId, 'webchat.typing', { timeInMs: typing, conversationId })
       // Don't store "typing" in DB
       bp.realtime.sendPayload(payload)
       await Promise.delay(typing)
@@ -50,7 +51,7 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
         type: messageType
       })
 
-      bp.realtime.sendPayload(RealTimePayload.forVisitor(userId, 'webchat.message', message))
+      bp.realtime.sendPayload(sdk.RealTimePayload.forVisitor(userId, 'webchat.message', message))
     } else if (messageType === 'file') {
       const extension = path.extname(event.payload.url)
       const mimeType = mime.getType(extension)
@@ -63,7 +64,7 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
         type: messageType
       })
 
-      bp.realtime.sendPayload(RealTimePayload.forVisitor(userId, 'webchat.message', message))
+      bp.realtime.sendPayload(sdk.RealTimePayload.forVisitor(userId, 'webchat.message', message))
     } else {
       throw new Error(`Message type "${messageType}" not implemented yet`)
     }

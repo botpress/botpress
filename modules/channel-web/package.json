@@ -105,7 +105,6 @@
     "axios": "^0.16.2",
     "bluebird": "^3.5.1",
     "bluebird-global": "^1.0.1",
-    "botpress-module-sdk": "file:../module-sdk",
     "date-fns": "^1.28.5",
     "lodash": "^4.17.4",
     "lodash-decorators": "^6.0.0",

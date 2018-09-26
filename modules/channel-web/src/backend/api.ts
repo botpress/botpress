@@ -1,7 +1,5 @@
+import * as sdk from 'botpress/sdk'
 import aws from 'aws-sdk'
-import { BotpressAPI, BotpressEvent } from 'botpress-module-sdk'
-import { RealTimePayload } from 'botpress-module-sdk/dist/src/realtime'
-import { Request } from 'express'
 import fs from 'fs'
 import _ from 'lodash'
 import moment from 'moment'
@@ -20,7 +18,7 @@ const ERR_USER_ID_REQ = '`userId` is required and must be valid'
 const ERR_MSG_TYPE = '`type` is required and must be valid'
 const ERR_CONV_ID_REQ = '`conversationId` is required and must be valid'
 
-export default async (bp: BotpressAPI & Extension, db: Database) => {
+export default async (bp: typeof sdk & Extension, db: Database) => {
   const diskStorage = multer.diskStorage({
     limits: {
       files: 1,
@@ -233,7 +231,7 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
 
     const { result: user } = await bp.users.getOrCreateUser('web', userId)
 
-    const event = new BotpressEvent({
+    const event = sdk.IO.Event({
       botId,
       channel: 'web',
       direction: 'incoming',
@@ -244,7 +242,7 @@ export default async (bp: BotpressAPI & Extension, db: Database) => {
     })
 
     const message = await db.appendUserMessage(botId, userId, conversationId, persistedPayload)
-    bp.realtime.sendPayload(RealTimePayload.forVisitor(userId, 'webchat.message', message))
+    bp.realtime.sendPayload(sdk.RealTimePayload.forVisitor(userId, 'webchat.message', message))
     return bp.events.sendEvent(event)
   }
 

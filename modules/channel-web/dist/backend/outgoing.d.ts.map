@@ -1,1 +1,0 @@
-{"version":3,"file":"outgoing.d.ts","sourceRoot":"","sources":["../../src/backend/outgoing.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,aAAa,EAAE,sBAAsB,EAAE,MAAM,qBAAqB,CAAA;AAE3E,MAAM,CAAC,OAAO,OAAO,eAAgB,YAAW,sBAAsB;IACpE,QAAQ,CAAC,OAAO,EAAE,MAAM,CAAY;IAE9B,qBAAqB,CAAC,OAAO,EAAE,GAAG,GAAG,OAAO,CAAC,aAAa,EAAE,CAAC;CAGpE"}

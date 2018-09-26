@@ -1,7 +1,7 @@
 import 'bluebird-global'
-import { BotpressAPI } from 'botpress-module-sdk'
 import fs from 'fs'
 import path from 'path'
+import * as sdk from 'botpress/sdk'
 
 import api from './api'
 import WebchatDatabase from './db'
@@ -11,7 +11,7 @@ export type Extension = {
   'channel-web': {}
 }
 
-export const onInit = async (bp: BotpressAPI & Extension) => {
+export const onInit = async (bp: typeof sdk & Extension) => {
   bp['channel-web'] = {}
 
   const db = new WebchatDatabase(bp)

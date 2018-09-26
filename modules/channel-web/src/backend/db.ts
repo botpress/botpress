@@ -1,17 +1,19 @@
+import * as sdk from 'botpress/sdk'
+
 import Bluebird from 'bluebird'
-import { BotpressAPI, ExtendedKnex, QueryBuilder, UserAPI } from 'botpress-module-sdk'
 import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
 import uuid from 'uuid'
+import { Extension } from '.'
 
 export default class WebchatDb {
-  knex: ExtendedKnex
-  users: UserAPI
+  knex: any
+  users: typeof sdk.users
 
-  constructor(private bp: BotpressAPI) {
+  constructor(private bp: typeof sdk & Extension) {
     this.users = bp.users
-    this.knex = bp.database
+    this.knex = bp['database'] // TODO Fixme
   }
 
   async getUserInfo(userId) {
@@ -63,7 +65,7 @@ export default class WebchatDb {
       .where({ userId, id: conversationId, botId })
       .select('id')
       .limit(1)
-      .then<any>()
+      .then()
       .get(0)
 
     if (!convo) {
@@ -146,7 +148,7 @@ export default class WebchatDb {
     const conversation = await this.knex('web_conversations')
       .where({ title, userId, botId })
       .select('id')
-      .then<any>()
+      .then()
       .get(0)
 
     return conversation && conversation.id
@@ -170,7 +172,7 @@ export default class WebchatDb {
       .andWhere(recentCondition)
       .orderBy('last_heard_on', 'desc')
       .limit(1)
-      .then<any>()
+      .then()
       .get(0)
 
     return conversation ? conversation.id : this.createConversation(botId, userId, { originatesFromUserMessage })
@@ -205,7 +207,7 @@ export default class WebchatDb {
     }
 
     return this.knex
-      .from(function(this: QueryBuilder) {
+      .from(function(this: any) {
         this.from('web_conversations')
           .where({ userId, botId })
           .as('wc')
@@ -236,7 +238,7 @@ export default class WebchatDb {
 
     const conversation = await this.knex('web_conversations')
       .where(condition)
-      .then<any>()
+      .then()
       .get(0)
 
     if (!conversation) {
