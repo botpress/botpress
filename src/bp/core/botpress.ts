@@ -25,6 +25,7 @@ import { LogsJanitor } from './services/logs/janitor'
 import { EventEngine } from './services/middleware/event-engine'
 import { NotificationsService } from './services/notification/service'
 import RealtimeService from './services/realtime'
+import { WellKnownFlags } from 'core/sdk/enums'
 
 export type StartOptions = {
   modules: Map<string, sdk.ModuleDefinition>
@@ -101,7 +102,7 @@ export class Botpress {
 
     this.eventEngine.onAfterIncomingMiddleware = async (event: IO.Event) => {
       await this.hookService.executeHook(new Hooks.AfterIncomingMiddleware(this.api, event))
-      if (!event.hasFlag(IO.WellKnownFlags.SKIP_DIALOG_ENGINE)) {
+      if (!event.hasFlag(WellKnownFlags.SKIP_DIALOG_ENGINE)) {
         const sessionId = `${event.channel}::${event.target}::${event.threadId}`
         await this.dialogEngine.processEvent(event.botId, sessionId, event)
       }

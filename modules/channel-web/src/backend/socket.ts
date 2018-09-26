@@ -39,7 +39,7 @@ export default async (bp: typeof sdk & Extension, db: Database) => {
 
     if (messageType === 'typing') {
       const typing = parseTyping(event.payload.value)
-      const payload = sdk.RealTimePayload.forVisitor(userId, 'webchat.typing', { timeInMs: typing, conversationId })
+      const payload = bp.RealTimePayload.forVisitor(userId, 'webchat.typing', { timeInMs: typing, conversationId })
       // Don't store "typing" in DB
       bp.realtime.sendPayload(payload)
       await Promise.delay(typing)
@@ -51,7 +51,7 @@ export default async (bp: typeof sdk & Extension, db: Database) => {
         type: messageType
       })
 
-      bp.realtime.sendPayload(sdk.RealTimePayload.forVisitor(userId, 'webchat.message', message))
+      bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.message', message))
     } else if (messageType === 'file') {
       const extension = path.extname(event.payload.url)
       const mimeType = mime.getType(extension)
@@ -64,7 +64,7 @@ export default async (bp: typeof sdk & Extension, db: Database) => {
         type: messageType
       })
 
-      bp.realtime.sendPayload(sdk.RealTimePayload.forVisitor(userId, 'webchat.message', message))
+      bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.message', message))
     } else {
       throw new Error(`Message type "${messageType}" not implemented yet`)
     }

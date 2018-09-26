@@ -2,6 +2,6 @@
   "extends": "../tsconfig.shared.json",
   "compilerOptions": {
     "rootDir": "./src",
-    "outDir": "./out"
+    "outDir": "./dist"
   }
 }

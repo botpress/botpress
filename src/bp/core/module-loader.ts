@@ -45,6 +45,7 @@ export class ModuleLoader {
     for (const [name, module] of modules) {
       try {
         const api = await createForModule(name)
+        console.log(api)
         await (module.onInit && module.onInit(api))
         initedModules[name] = true
       } catch (err) {

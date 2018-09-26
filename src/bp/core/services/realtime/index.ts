@@ -5,8 +5,7 @@ import _ from 'lodash'
 import socketio from 'socket.io'
 
 import { TYPES } from '../../types'
-import { Logger } from 'botpress/sdk'
-import * as RealTime from 'common/realtime'
+import { Logger, RealTimePayload } from 'botpress/sdk'
 
 @injectable()
 export default class RealtimeService {
@@ -31,7 +30,7 @@ export default class RealtimeService {
     return (eventName as string).startsWith('guest.')
   }
 
-  sendToSocket(payload: RealTime.Payload) {
+  sendToSocket(payload: RealTimePayload) {
     this.ee.emit(payload.eventName, payload.payload, 'server')
   }
 

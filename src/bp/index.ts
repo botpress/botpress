@@ -28,7 +28,7 @@ async function start() {
 
     const modules = new Map<string, sdk.ModuleDefinition>()
 
-    // modules.set('channel-web', require('@botpress/channel-web') as ModuleDefinition)
+    modules.set('channel-web', require('/Users/slvn/bots/xx/modules/channel-web') as sdk.ModuleDefinition)
 
     await Botpress.start({
       modules

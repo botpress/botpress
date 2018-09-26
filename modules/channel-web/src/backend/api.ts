@@ -231,7 +231,7 @@ export default async (bp: typeof sdk & Extension, db: Database) => {
 
     const { result: user } = await bp.users.getOrCreateUser('web', userId)
 
-    const event = sdk.IO.Event({
+    const event = bp.IO.Event({
       botId,
       channel: 'web',
       direction: 'incoming',
@@ -242,7 +242,8 @@ export default async (bp: typeof sdk & Extension, db: Database) => {
     })
 
     const message = await db.appendUserMessage(botId, userId, conversationId, persistedPayload)
-    bp.realtime.sendPayload(sdk.RealTimePayload.forVisitor(userId, 'webchat.message', message))
+
+    bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.message', message))
     return bp.events.sendEvent(event)
   }
 

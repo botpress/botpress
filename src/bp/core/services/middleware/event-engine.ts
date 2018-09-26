@@ -12,7 +12,7 @@ import { Queue } from '../queue'
 
 import { MiddlewareChain } from './middleware'
 import * as sdk from 'botpress/sdk'
-import { IO } from 'botpress/sdk'
+import { Event } from 'core/sdk/impl'
 
 const MESSAGE_RETRIES = 3
 
@@ -72,10 +72,10 @@ export class EventEngine {
     })
   }
 
-  private incomingMiddleware: IO.MiddlewareDefinition[] = []
-  private outgoingMiddleware: IO.MiddlewareDefinition[] = []
+  private incomingMiddleware: sdk.IO.MiddlewareDefinition[] = []
+  private outgoingMiddleware: sdk.IO.MiddlewareDefinition[] = []
 
-  register(middleware: IO.MiddlewareDefinition) {
+  register(middleware: sdk.IO.MiddlewareDefinition) {
     this.validateMiddleware(middleware)
     if (middleware.direction === 'incoming') {
       this.incomingMiddleware.push(middleware)
@@ -84,7 +84,7 @@ export class EventEngine {
     }
   }
 
-  async sendEvent(event: IO.Event) {
+  async sendEvent(event: sdk.IO.Event) {
     this.validateEvent(event)
 
     if (event.direction === 'incoming') {
@@ -121,7 +121,7 @@ export class EventEngine {
     }
 
     for (const element of renderedElements) {
-      const event = IO.Event({
+      const event = Event({
         direction: 'outgoing',
         payload: element,
         type: _.get(element, 'type', 'default'),
@@ -137,8 +137,8 @@ export class EventEngine {
 
   @Memoize()
   private async getBotMiddlewareChains(botId: string) {
-    const incoming = new MiddlewareChain<IO.Event>()
-    const outgoing = new MiddlewareChain<IO.Event>()
+    const incoming = new MiddlewareChain<sdk.IO.Event>()
+    const outgoing = new MiddlewareChain<sdk.IO.Event>()
 
     const botConfig = (await this.ghost.forBot(botId).readFileAsObject('/', 'bot.config.json')) as BotConfig
 
@@ -157,14 +157,14 @@ export class EventEngine {
     return { incoming, outgoing }
   }
 
-  private validateMiddleware(middleware: IO.MiddlewareDefinition) {
+  private validateMiddleware(middleware: sdk.IO.MiddlewareDefinition) {
     const result = joi.validate(middleware, mwSchema)
     if (result.error) {
       throw new VError(result.error, 'Invalid middleware definition')
     }
   }
 
-  private validateEvent(event: IO.Event) {
+  private validateEvent(event: sdk.IO.Event) {
     if (this.isProduction) {
       // In production we optimize for speed, validation is useful for debugging purposes
       return

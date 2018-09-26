@@ -6,12 +6,4 @@ const impl = <typeof sdk>{
   LoggerLevel: enums.LoggerLevel
 }
 
-// const injectEventService = (EventService) => {
-//   sdk.IO.EventService = EventService
-// }
-
-// const awaitInitialized = async () => {
-
-// }
-
 module.exports = impl
