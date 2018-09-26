@@ -1,0 +1,169 @@
+.workspace {
+  width: 100%;
+  height: calc(100vh - 51px);
+}
+
+.workspace > div {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+footer {
+  flex: 0 0 auto;
+  font-size: 12px;
+  padding: 12px 20px;
+  border-top: 1px solid #e5e5e5;
+}
+
+.main {
+  flex: 1 1 auto;
+  display: flex;
+  height: 100%;
+}
+
+.navigationBar {
+  position: relative;
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  width: 240px;
+  height: 100%;
+  background-color: #fcfcfc;
+  border-right: 1px solid #e5e5e5;
+
+  .filter {
+    width: 100%;
+    padding: 7px;
+
+    input {
+      width: 100%;
+      padding: 5px;
+      font-size: 14px;
+    }
+    .checkbox input {
+      width: auto;
+    }
+  }
+
+  .list {
+    flex-grow: 2;
+    position: relative;
+    overflow: hidden;
+    padding: 7px;
+    height: 100%;
+
+    ul {
+      list-style: none;
+      padding: 0;
+
+      li {
+        padding: 3px 7px;
+        cursor: pointer;
+
+        &:hover {
+          background: #e9e9e9;
+        }
+
+        &.active {
+          font-weight: bold;
+        }
+      }
+    }
+  }
+
+  .create {
+    padding: 10px 15px;
+  }
+
+  .sync {
+    padding: 10px 15px;
+    text-align: center;
+
+    div {
+      font-weight: bold;
+      line-height: 20px;
+
+      &.out {
+        color: #ff3653;
+      }
+      &.in {
+        color: #00d129;
+      }
+    }
+  }
+}
+
+.intentsContainer {
+  height: 100%;
+}
+
+.intentsList {
+  max-height: calc(100% - 20px);
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #888;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+}
+
+.childContent {
+  flex: 1 1 auto;
+  position: relative;
+  overflow: hidden;
+  background-color: #ffffff;
+}
+
+.caret {
+  margin-left: 5px;
+  display: inline-block;
+  cursor: pointer;
+  padding: 0px 6px 0 3px;
+
+  &:hover {
+    background: #e9e9e9;
+  }
+
+  &.inverted :global(.caret) {
+    transform: rotate(180deg);
+  }
+}
+
+.loading {
+  font-size: 30px;
+}
+
+.loading:after {
+  overflow: hidden;
+  display: inline-block;
+  vertical-align: bottom;
+  -webkit-animation: ellipsis steps(4, end) 900ms infinite;
+  animation: ellipsis steps(4, end) 900ms infinite;
+  content: '\2026'; /* ascii code for the ellipsis character */
+  width: 0px;
+}
+
+@keyframes ellipsis {
+  to {
+    width: 1.25em;
+  }
+}
+
+@-webkit-keyframes ellipsis {
+  to {
+    width: 1.25em;
+  }
+}

@@ -5,6 +5,7 @@ import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
 import uuid from 'uuid'
+
 import { SDK } from '.'
 
 export default class WebchatDb {

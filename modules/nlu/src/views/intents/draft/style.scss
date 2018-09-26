@@ -1,0 +1,41 @@
+.editorContainer {
+  width: 100%;
+  padding: 10px;
+
+  .controls {
+    display: none;
+    margin-top: 5px;
+    text-align: right;
+  }
+
+  .action {
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  &.focus {
+    background-color: #fff889;
+    outline: none;
+
+    .controls {
+      display: block;
+    }
+  }
+}
+
+.editor {
+  background-color: white;
+  width: 100%;
+  border: 1px solid #ececec;
+  font-size: 16px;
+  padding: 5px;
+  display: block;
+
+  &:hover {
+    border: 1px solid #cbcbcb;
+  }
+}
+
+.entity-label {
+  cursor: pointer;
+}
