@@ -1,0 +1,19 @@
+{
+  "version": "0.0.1",
+  "catchAll": {
+    "onReceive": [],
+    "next": []
+  },
+  "startNode": "entry",
+  "nodes": [
+    {
+      "id": "a54a82eb7c",
+      "name": "entry",
+      "onEnter": [
+        "say #!builtin_text-POxMg5"
+      ],
+      "onReceive": [],
+      "next": []
+    }
+  ]
+}

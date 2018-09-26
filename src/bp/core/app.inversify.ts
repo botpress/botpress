@@ -1,7 +1,6 @@
 import { Container } from 'inversify'
 import path from 'path'
 import yn from 'yn'
-import { Logger } from 'botpress/sdk'
 
 import { BotLoader } from './bot-loader'
 import { Botpress } from './botpress'
@@ -15,6 +14,8 @@ import { ModuleLoader } from './module-loader'
 import { RepositoriesContainerModule } from './repositories/repositories.inversify'
 import HTTPServer from './server'
 import { ServicesContainerModule } from './services/services.inversify'
+import { Logger } from 'botpress/sdk'
+import { BotConfigFactory, BotConfigWriter } from './config'
 
 const container = new Container({ autoBindInjectable: true })
 
@@ -74,6 +75,14 @@ container
 container
   .bind<BotLoader>(TYPES.BotLoader)
   .to(BotLoader)
+  .inSingletonScope()
+container
+  .bind<BotConfigFactory>(TYPES.BotConfigFactory)
+  .to(BotConfigFactory)
+  .inSingletonScope()
+container
+  .bind<BotConfigWriter>(TYPES.BotConfigWriter)
+  .to(BotConfigWriter)
   .inSingletonScope()
 
 const isPackaged = !!eval('process.pkg')

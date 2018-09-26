@@ -51,7 +51,9 @@ const TYPES = {
   LogJanitorRunner: Symbol.for('LogJanitorRunner'),
   NotificationsRepository: Symbol.for('NotificationsRepository'),
   NotificationsService: Symbol.for('NotificationsService'),
-  FileCacheInvalidator: Symbol.for('FileCacheInvalidator')
+  FileCacheInvalidator: Symbol.for('FileCacheInvalidator'),
+  BotConfigFactory: Symbol.for('BotConfigFactory'),
+  BotConfigWriter: Symbol.for('BotConfigWriter')
 }
 
 export { TYPES }

@@ -32,8 +32,12 @@ const createDirectories = () => {
     .pipe(gulp.dest('./out/bp/data/storage'))
 }
 
-const copyStatic = () => {
+const copyVanilla = () => {
   return gulp.src('./src/bp/vanilla/**/*').pipe(gulp.dest('./out/bp/data'))
+}
+
+const copyTempates = () => {
+  return gulp.src('./src/templates/**/*').pipe(gulp.dest('./out/templates'))
 }
 
 const copyAdmin = () => {
@@ -60,5 +64,21 @@ process.on('uncaughtException', err => {
 })
 
 gulp.task('test', gulp.series([buildTs, runTests]))
-gulp.task('default', gulp.series([clean, buildTs, buildSchemas, createDirectories, copyStatic, copyAdmin, copyStudio]))
-gulp.task('dev', gulp.series([(clean, buildSchemas, createDirectories, copyStatic, copyAdmin, copyStudio, watch)]))
+gulp.task(
+  'default',
+  gulp.series([clean, buildTs, buildSchemas, createDirectories, copyVanilla, copyAdmin, copyStudio, copyTempates])
+)
+gulp.task(
+  'dev',
+  gulp.series([
+    clean,
+    buildTs,
+    buildSchemas,
+    createDirectories,
+    copyVanilla,
+    copyAdmin,
+    copyStudio,
+    copyTempates,
+    watch
+  ])
+)
