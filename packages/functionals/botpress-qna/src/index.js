@@ -164,6 +164,47 @@ module.exports = {
 
     const router = bp.getRouter('botpress-qna')
 
+    const getFieldFromMetadata = (metadata, field) => metadata.find(({ name }) => name === field)
+
+    const filterByCategoryAndQuestion = async ({ question, categories }) => {
+      const allQuestions = await this.storage.fetchQuestions()
+      const filteredQuestions = allQuestions.filter(({ questions, metadata }) => {
+        const category = getFieldFromMetadata(metadata, 'category')
+
+        const isRightId = questions.join('\n').indexOf(question) !== -1
+
+        if (!categories.length) {
+          return isRightId
+        }
+
+        if (!question) {
+          return category && categories.indexOf(category.value) !== -1
+        }
+
+        return isRightId && category && categories.indexOf(category.value) !== -1
+      })
+
+      const questions = filteredQuestions.reverse().map(qna => ({ id: qna.id, data: qnaItemData(qna) }))
+
+      return questions
+    }
+
+    const getQuestions = async ({ question = '', categories = [] }, { limit = 50, offset = 0 }) => {
+      let items = []
+      let count = 0
+
+      if (!(question || categories.length)) {
+        items = await this.storage.all({ limit, offset: 0 })
+        count = await this.storage.count()
+      } else {
+        const tmpQuestions = await filterByCategoryAndQuestion({ question, categories })
+        items = tmpQuestions.slice(offset, offset + limit)
+        count = tmpQuestions.length
+      }
+
+      return { items, count }
+    }
+
     router.get('/', async ({ query: { limit, offset } }, res) => {
       try {
         const items = await this.storage.all({
@@ -195,9 +236,9 @@ module.exports = {
       }
     })
 
-    router.get('/:questionId', async (req, res) => {
+    router.get('/question/:id', async (req, res) => {
       try {
-        const question = await this.storage.getQuestion(req.params.questionId)
+        const question = await this.storage.getQuestion(req.params.id)
 
         res.send(question)
         res.end()
@@ -207,13 +248,16 @@ module.exports = {
     })
 
     router.put('/:question', async (req, res) => {
+      const { query: { limit, offset, question, categories } } = req
+
       try {
         bp.events.emit('toast.qna-save', { text: 'QnA Update In Progress', type: 'info', time: 120000 })
         await this.storage.update(req.body, req.params.question)
+        const questions = await getQuestions({ question, categories }, { limit, offset })
 
         bp.events.emit('toast.qna-save', { text: 'QnA Update Success', type: 'success' })
 
-        res.end()
+        res.send(questions)
       } catch (e) {
         logger.error('QnA Error', e, e.stack)
         res.status(500).send(e.message || 'Error')
@@ -222,13 +266,16 @@ module.exports = {
     })
 
     router.delete('/:question', async (req, res) => {
+      const { query: { limit, offset, question, categories } } = req
       try {
         bp.events.emit('toast.qna-save', { text: 'QnA Delete In Progress', type: 'info', time: 120000 })
         await this.storage.delete(req.params.question)
 
+        const questionsData = await getQuestions({ question, categories }, { limit, offset })
+
         bp.events.emit('toast.qna-save', { text: 'QnA Delete Success', type: 'success' })
 
-        res.end()
+        res.send(questionsData)
       } catch (e) {
         logger.error('QnA Error', e, e.stack)
         res.status(500).send(e.message || 'Error')
@@ -247,6 +294,8 @@ module.exports = {
       }
 
       const json2csvParser = new Json2csvParser(parseOptions)
+
+      const tmp = await bp.qna.export({ flat: true })
 
       res.end(iconv.encode(json2csvParser.parse(await bp.qna.export({ flat: true })), config.exportCsvEncoding))
     })
@@ -283,46 +332,11 @@ module.exports = {
       res.send({ categories })
     })
 
-    const getFieldFromMetadata = (metadata, field) => metadata.find(({ name }) => name === field)
+    router.get('/questions/filter', async (req, res) => {
+      const { query: { question = '', categories = [], limit, offset } } = req
+      const questionsData = await getQuestions({ question, categories }, { limit, offset })
 
-    const filterByCategoryAndQuestion = async ({ question, categories }) => {
-      const allQuestions = await this.storage.fetchQuestions()
-      const filteredQuestions = allQuestions.filter(({ id, metadata }) => {
-        const category = getFieldFromMetadata(metadata, 'category')
-
-        const isRightId = question.includes(`${id}`)
-
-        if (!categories.length) {
-          return isRightId
-        }
-
-        if (!question.length) {
-          return category && categories.includes(category.value)
-        }
-
-        return isRightId && category && categories.includes(category.value)
-      })
-
-      const questions = filteredQuestions.reverse().map(qna => ({ id: qna.id, data: qnaItemData(qna) }))
-
-      return questions
-    }
-
-    router.get('/question/filter', async (req, res) => {
-      const { query: { question = [], categories = [], limit, offset } } = req
-      let questions = []
-      let count = 0
-
-      if (!(question.length || categories.length)) {
-        questions = await this.storage.all({ limit, offset: 0 }, { limit, offset })
-        count = await this.storage.count()
-      } else {
-        const tmpQuestions = await filterByCategoryAndQuestion({ question, categories })
-        questions = tmpQuestions.slice(offset, offset + limit)
-        count = tmpQuestions.length
-      }
-
-      res.send({ items: questions, count })
+      res.send(questionsData)
     })
   }
 }

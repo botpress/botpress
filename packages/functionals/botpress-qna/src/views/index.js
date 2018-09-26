@@ -47,7 +47,7 @@ export default class QnaAdmin extends Component {
     quentionsOptions: [],
     categoriesOptions: [],
     filterCategory: [],
-    filterQuestion: [],
+    filterQuestion: '',
     selectedQuestion: []
   }
 
@@ -62,7 +62,6 @@ export default class QnaAdmin extends Component {
   }
 
   fetchData = (page = 1) => {
-    console.log('fetchData: ', page)
     const params = { limit: ITEMS_PER_PAGE, offset: (page - 1) * ITEMS_PER_PAGE }
     this.props.bp.axios.get('/api/botpress-qna', { params }).then(({ data }) => {
       const quentionsOptions = data.items.map(({ id, data: { questions } }) => ({
@@ -90,15 +89,15 @@ export default class QnaAdmin extends Component {
 
   onCategoriesFilter = filterCategory => this.setState({ filterCategory }, this.filterQuestions)
 
-  onQuestioinsFilter = filterQuestion => this.setState({ filterQuestion }, this.filterQuestions)
+  onQuestioinsFilter = event => this.setState({ filterQuestion: event.target.value }, this.filterQuestions)
 
   filterQuestions = (page = 1) => {
     const { filterQuestion, filterCategory } = this.state
-    const question = filterQuestion.map(({ value }) => value)
+    const question = filterQuestion
     const categories = filterCategory.map(({ value }) => value)
 
     this.props.bp.axios
-      .get('/api/botpress-qna/question/filter', {
+      .get('/api/botpress-qna/questions/filter', {
         params: {
           question,
           categories,
@@ -141,7 +140,7 @@ export default class QnaAdmin extends Component {
 
   downloadCsv = () =>
     // We can't just download file directly due to security restrictions
-    this.props.bp.axios({ url: '/api/botpress-qna/csv', responseType: 'blob' }).then(response => {
+    this.props.bp.axios({ method: 'get', url: '/api/botpress-qna/csv', responseType: 'blob' }).then(response => {
       this.setState(
         {
           csvDownloadableLinkHref: window.URL.createObjectURL(new Blob([response.data])),
@@ -154,16 +153,19 @@ export default class QnaAdmin extends Component {
   renderPagination = () => {
     const pagesCount = Math.ceil(this.state.overallItemsCount / ITEMS_PER_PAGE)
     const { filterQuestion, filterCategory } = this.state
-    const isFilter = filterQuestion.length || filterCategory
+    const isFilter = filterQuestion || filterCategory.length
 
     if (pagesCount <= 1) {
       return null
     }
+
+    const fetchPage = page => () => (isFilter ? this.filterQuestions(page) : this.fetchData(page))
     const renderPageBtn = page => (
-      <Pagination.Item key={'page' + page} onClick={() => this.fetchData(page)} active={this.state.page === page}>
+      <Pagination.Item key={'page' + page} onClick={fetchPage(page)} active={this.state.page === page}>
         {page}
       </Pagination.Item>
     )
+
     const firstPage = () => (isFilter ? this.filterQuestions(1) : this.fetchData(1))
     const prevPage = () =>
       this.state.page > 1 &&
@@ -267,11 +269,9 @@ export default class QnaAdmin extends Component {
   renderSearch = () => (
     <div className={classnames(style['qna-nav-bar'], 'qna-nav-bar')}>
       <div className={style['search-bar']}>
-        <Select
+        <FormControl
           className={style['serach-questions']}
-          multi
           value={this.state.filterQuestion}
-          options={this.state.quentionsOptions}
           onChange={this.onQuestioinsFilter}
           placeholder="Filter questions"
         />
@@ -349,10 +349,17 @@ export default class QnaAdmin extends Component {
   }
 
   deleteItem = id => () => {
-    const needDetelete = confirm('Do you want delete Question')
+    const needDetelete = confirm('Do you want delete question?')
+    const { filterQuestion, filterCategory, page } = this.state
+    const params = {
+      question: filterQuestion,
+      categories: filterCategory.map(({ value }) => value),
+      limit: ITEMS_PER_PAGE,
+      offset: (page - 1) * ITEMS_PER_PAGE
+    }
 
     if (needDetelete) {
-      this.props.bp.axios.delete(`/api/botpress-qna/${id}`)
+      this.props.bp.axios.delete(`/api/botpress-qna/${id}`, { params }).then(({ data }) => this.setState({ ...data }))
     }
   }
 
@@ -361,8 +368,13 @@ export default class QnaAdmin extends Component {
   }
 
   enabledItem = (item, id) => value => {
+    const { page } = this.state
+    const params = { limit: ITEMS_PER_PAGE, offset: (page - 1) * ITEMS_PER_PAGE }
+
     item.enabled = value
-    this.props.bp.axios.put(`/api/botpress-qna/${id}`, item).then(() => this.fetchData(this.state.page))
+    this.props.bp.axios
+      .put(`/api/botpress-qna/${id}`, item, { params })
+      .then(({ data: items }) => this.setState({ items }))
   }
 
   renderQustions = questions =>
@@ -387,6 +399,8 @@ export default class QnaAdmin extends Component {
 
   questionsList = () => this.state.items.map(this.renderItem)
 
+  updateQuestion = ({ items }) => this.setState({ items })
+
   render() {
     return (
       <Panel className={`${style['qna-container']} qna-container`}>
@@ -408,10 +422,13 @@ export default class QnaAdmin extends Component {
             showQnAModal={this.state.showQnAModal}
             toggleQnAModal={this.toggleQnAModal}
             hasCategory={this.state.hasCategory}
-            categories={this.state.categories}
+            categories={this.state.categoriesOptions}
             fetchData={this.fetchData}
             id={this.state.currentItemId}
             modalType={this.state.QnAModalType}
+            page={{ offset: (this.state.page - 1) * ITEMS_PER_PAGE, limit: ITEMS_PER_PAGE }}
+            updateQuestion={this.updateQuestion}
+            filters={{ question: this.state.filterQuestion, categories: this.state.filterCategory }}
           />
         </Panel.Body>
       </Panel>

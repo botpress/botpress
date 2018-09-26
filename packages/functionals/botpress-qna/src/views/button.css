@@ -83,3 +83,13 @@
   background-color: #108c67;
   border-color: #108c67;
 }
+
+.qna-container .pagination > li > a,
+.qna-container .pagination > li > span {
+  color: #108c67;
+}
+
+.qna-container .pagination > li.active > a,
+.qna-container .pagination > li.active > span {
+  color: #fff;
+}

@@ -98,6 +98,10 @@ $mainGreen: #1bb68a;
   }
 }
 
+.serach-questions {
+  height: 36px;
+}
+
 .qna-nav-bar__add-new {
   background-color: $mainGreen;
   font-size: 16px;
@@ -128,12 +132,13 @@ $mainGreen: #1bb68a;
 
 .qna-item {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   padding: 13px;
 }
 
 .item-container {
-  flex: 1 1 75%;
+  flex: 0 1 75%;
 }
 
 .item-questions__title,

@@ -48,7 +48,8 @@ export default class FormModal extends Component {
     if (!id) {
       return this.setState(this.defaultState)
     }
-    this.props.bp.axios.get(`/api/botpress-qna/${id}`).then(({ data: item }) => {
+    this.props.bp.axios.get(`/api/botpress-qna/question/${id}`).then(({ data: item }) => {
+      console.log('Item: ', item)
       this.setState({
         item,
         isRedirect: [ACTIONS.REDIRECT, ACTIONS.TEXT_REDIRECT].includes(item.action),
@@ -63,7 +64,8 @@ export default class FormModal extends Component {
     this.setState({ item: { ...item, [key]: value } })
   }
 
-  handleSelect = key => ({ value }) => this.changeItemProperty(key, value)
+  handleSelect = key => selectedOptions =>
+    this.changeItemProperty(key, selectedOptions ? selectedOptions.value : selectedOptions)
 
   changeItemAction = actionType => () => {
     this.setState({ [actionType]: !this.state[actionType] }, () => {
@@ -128,20 +130,19 @@ export default class FormModal extends Component {
       this.setState({ isValidForm: true })
     }
 
-    const item = {
-      ...this.state.item,
-      questions: this.state.item.questions.split(/\n/)
-    }
+    const { page, filters: { question, categories } } = this.props
 
-    return this.props.bp.axios.put(`/api/botpress-qna/${this.props.id}`, item).then(() => {
-      this.onClose()
-      this.props.fetchData()
-    })
+    return this.props.bp.axios
+      .put(`/api/botpress-qna/${this.props.id}`, this.state.item, {
+        params: { ...page, question, categories: categories.map(({ value }) => value) }
+      })
+      .then(({ data }) => {
+        this.onClose()
+        this.props.updateQuestion(data)
+      })
   }
 
-  onClose = () => {
-    this.props.toggleQnAModal()
-  }
+  onClose = () => this.props.toggleQnAModal()
 
   alertMessage() {
     if (this.state.isValidForm) {
