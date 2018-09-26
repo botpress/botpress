@@ -1967,6 +1967,14 @@ gulp-copy@^4.0.0:
     plugin-error "^0.1.2"
     through2 "^2.0.3"
 
+gulp-exec@^3.0.2:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/gulp-exec/-/gulp-exec-3.0.2.tgz#6e461646221dd6c47f5803d7f69b399bde20e214"
+  dependencies:
+    lodash.template "^4.4.0"
+    plugin-error "^0.1.2"
+    through2 "^2.0.3"
+
 gulp-ignore@^2.0.2:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/gulp-ignore/-/gulp-ignore-2.0.2.tgz#5c2ea2a0a4402e0ab4a2bcd12efd9295344d78f2"
@@ -3331,7 +3339,7 @@ lodash.template@^3.0.0:
     lodash.restparam "^3.0.0"
     lodash.templatesettings "^3.0.0"
 
-lodash.template@^4.0.2:
+lodash.template@^4.0.2, lodash.template@^4.4.0:
   version "4.4.0"
   resolved "https://registry.yarnpkg.com/lodash.template/-/lodash.template-4.4.0.tgz#e73a0385c8355591746e020b99679c690e68fba0"
   dependencies:

@@ -64,6 +64,7 @@
     "gulp": "^4.0.0",
     "gulp-cli": "^2.0.1",
     "gulp-copy": "^4.0.0",
+    "gulp-exec": "^3.0.2",
     "gulp-ignore": "^2.0.2",
     "gulp-print": "^5.0.0",
     "gulp-rimraf": "^0.2.2",
