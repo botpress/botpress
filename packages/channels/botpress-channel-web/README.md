@@ -290,7 +290,14 @@ window.botpressWebChat.init({
   showUserName: false, // Whether or not to show the user's name
   showUserAvatar: false, // Whether or not to show the user's avatar
   enableTranscriptDownload: false, // Whether or not to show the transcript download button
-  customStylesheet: '' // Url to custom .css file
+  customStylesheet: '', // Url to custom .css file
+  greetingScreen: {
+    type: 'blank_chat', // If you want to see "Get started" button you need to change it to 'get_started'
+    options: {
+      buttonTitle: 'Get Started',
+      message: ''
+    }
+  }
 })
 ```
 
