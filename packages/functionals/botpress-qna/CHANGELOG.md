@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.43.0"></a>
+# [10.43.0](https://github.com/botpress/modules/compare/v10.42.0...v10.43.0) (2018-09-26)
+
+
+### Bug Fixes
+
+* **qna:** qna-maker score ordering ([c21d0ac](https://github.com/botpress/modules/commit/c21d0ac))
+
+
+
+
 <a name="10.42.0"></a>
 # [10.42.0](https://github.com/botpress/modules/compare/v10.40.0...v10.42.0) (2018-09-26)
 
