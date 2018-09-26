@@ -1,4 +1,3 @@
-import * as sdk from 'botpress/sdk'
 import aws from 'aws-sdk'
 import fs from 'fs'
 import _ from 'lodash'
@@ -8,7 +7,7 @@ import multers3 from 'multer-s3'
 import path from 'path'
 import serveStatic from 'serve-static'
 
-import { Extension } from '.'
+import { SDK } from '.'
 import Database from './db'
 
 const injectScript = fs.readFileSync(path.join(__dirname, '../../static/inject.js')).toString()
@@ -18,7 +17,7 @@ const ERR_USER_ID_REQ = '`userId` is required and must be valid'
 const ERR_MSG_TYPE = '`type` is required and must be valid'
 const ERR_CONV_ID_REQ = '`conversationId` is required and must be valid'
 
-export default async (bp: typeof sdk & Extension, db: Database) => {
+export default async (bp: SDK, db: Database) => {
   const diskStorage = multer.diskStorage({
     limits: {
       files: 1,

@@ -1,4 +1,4 @@
-import { inject, injectable, postConstruct, tagged } from 'inversify'
+import { inject, injectable, tagged } from 'inversify'
 
 import { TYPES } from '../../types'
 import { GhostService } from '..'

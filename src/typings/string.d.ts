@@ -1,3 +1,3 @@
 declare interface String {
-  padEnd(n: number, str: string): string
+  padEnd(targetLength: number, padString: string): string
 }

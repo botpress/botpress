@@ -1,6 +1,6 @@
 import 'common/polyfills'
 import 'bluebird-global'
-import 'common/rewire'
+import 'sdk/rewire'
 
 import chalk from 'chalk'
 import { Logger, Botpress } from 'core/app'

@@ -1,3 +1,5 @@
+// @ts-check
+
 const TJS = require('typescript-json-schema')
 const os = require('os')
 const fs = require('fs')
@@ -9,7 +11,7 @@ module.exports = () => {
     ignoreErrors: true
   }
 
-  const files = require('glob').sync('./src/bp/core/config/*.ts')
+  const files = glob.sync('./src/bp/core/config/*.ts')
   const program = TJS.getProgramFromFiles(files)
 
   const writeSchema = (typeName, jsonFile) => {

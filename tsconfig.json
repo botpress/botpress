@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "node",
+    "typeRoots": ["./node_modules/@types"],
+    "types": ["reflect-metadata", "jest", "bluebird-global"],
+    "checkJs": true
+  }
+}

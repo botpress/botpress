@@ -5,8 +5,6 @@ import * as path from 'path'
 import plur from 'plur'
 import * as sdk from 'botpress/sdk'
 
-// import packageJson from '../../../package.json'
-
 import { IO } from 'botpress/sdk'
 import { createForGlobalHooks } from './api'
 import { BotLoader } from './bot-loader'

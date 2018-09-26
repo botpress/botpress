@@ -5,6 +5,7 @@
   "main": "dist/backend/index.js",
   "homepage": "https://github.com/botpress/modules",
   "botpress": {
+    "src": "src",
     "menuText": "Web Chat",
     "menuIcon": "chrome_reader_mode",
     "webBundle": "bin/web.bundle.js",
