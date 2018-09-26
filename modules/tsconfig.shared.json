@@ -12,7 +12,6 @@
     "moduleResolution": "node",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "outDir": "./out",
     "typeRoots": ["typings", "../node_modules/@types"],
     "types": ["reflect-metadata", "jest", "bluebird-global"]
   },
