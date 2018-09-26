@@ -4,14 +4,15 @@ import nanoid from 'nanoid'
 import Knex from 'knex'
 
 import Database from '../../database'
-
 import { AuthRole, AuthRoleDb, AuthRule, AuthTeam, AuthTeamMembership, AuthUser, Bot } from '../../misc/interfaces'
-import { TYPES } from '../../types'
 import { InvalidOperationError, NotFoundError, UnauthorizedAccessError } from '../auth/errors'
 
 import defaultRoles from './default-roles'
+import { TYPES } from '../../types'
 import { Logger } from 'common/logging'
-import { checkRule } from 'core/misc/auth'
+import { checkRule } from '../../misc/auth'
+import { BotConfigFactory, BotConfigWriter } from '../../config'
+import Joi from 'joi'
 
 const TEAMS_TABLE = 'auth_teams'
 const MEMBERS_TABLE = 'auth_team_members'
@@ -19,13 +20,24 @@ const ROLES_TABLE = 'auth_roles'
 const USERS_TABLE = 'auth_users'
 const BOTS_TABLE = 'srv_bots'
 
+const BotValidationSchema = Joi.object().keys({
+  id: Joi.string()
+    .regex(/^[a-zA-Z0-9-_]+$/)
+    .required(),
+  name: Joi.string().required(),
+  description: Joi.string().required(),
+  team: Joi.number().required()
+})
+
 @injectable()
 export default class TeamsService {
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'Auth Teams')
     private logger: Logger,
-    @inject(TYPES.Database) private db: Database
+    @inject(TYPES.Database) private db: Database,
+    @inject(TYPES.BotConfigFactory) private botConfigFactory: BotConfigFactory,
+    @inject(TYPES.BotConfigWriter) private botConfigWriter: BotConfigWriter
   ) {}
 
   get knex() {
@@ -280,21 +292,16 @@ export default class TeamsService {
       .then()
   }
 
-  async addBot(teamId: number) {
-    const id = nanoid(8)
-    const bot: Partial<Bot> = {
-      id,
-      team: teamId,
-      name: `Bot ${id}`
+  async addBot(teamId: number, bot: Bot): Promise<void> {
+    bot.team = teamId
+    const { error } = Joi.validate(bot, BotValidationSchema)
+    if (error) {
+      throw new Error(`An error occurred while creating the bot: ${error.message}`)
     }
 
-    await this.knex(BOTS_TABLE)
-      .insert(bot)
-      .then()
-
-    // TODO: we also want to create the bot skeleton files now
-
-    return bot
+    await this.knex(BOTS_TABLE).insert(bot)
+    const botConfig = this.botConfigFactory.createDefault({ id: bot.id, name: bot.name, description: bot.description })
+    await this.botConfigWriter.writeToFile(botConfig)
   }
 
   async getBotTeam(botId: string) {

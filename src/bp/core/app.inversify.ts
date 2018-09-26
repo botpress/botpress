@@ -16,6 +16,7 @@ import { RepositoriesContainerModule } from './repositories/repositories.inversi
 import HTTPServer from './server'
 import { ServicesContainerModule } from './services/services.inversify'
 import { Logger } from 'common/logging'
+import { BotConfigFactory, BotConfigWriter } from './config'
 
 const container = new Container({ autoBindInjectable: true })
 
@@ -75,6 +76,14 @@ container
 container
   .bind<BotLoader>(TYPES.BotLoader)
   .to(BotLoader)
+  .inSingletonScope()
+container
+  .bind<BotConfigFactory>(TYPES.BotConfigFactory)
+  .to(BotConfigFactory)
+  .inSingletonScope()
+container
+  .bind<BotConfigWriter>(TYPES.BotConfigWriter)
+  .to(BotConfigWriter)
   .inSingletonScope()
 
 const isPackaged = !!eval('process.pkg')

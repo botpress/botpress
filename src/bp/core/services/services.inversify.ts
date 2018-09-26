@@ -28,6 +28,7 @@ import { NotificationsService } from './notification/service'
 import { Queue } from './queue'
 import MemoryQueue from './queue/memory-queue'
 import RealtimeService from './realtime'
+import { BotConfigFactory, BotConfigWriter } from '../config'
 
 export const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
   bind<CacheInvalidators.FileChangedInvalidator>(TYPES.FileCacheInvalidator)
