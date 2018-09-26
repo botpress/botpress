@@ -1,10 +1,11 @@
+const path = require('path')
 const gulp = require('gulp')
 const ts = require('gulp-typescript')
 const rimraf = require('rimraf')
 const run = require('gulp-run')
 
 const buildJsonSchemas = require('./jsonschemas')
-const tsProject = ts.createProject('../src/tsconfig.json')
+const tsProject = ts.createProject(path.resolve(__dirname, '../src/tsconfig.json'))
 
 const wipe = () => {
   return gulp.src(['./node_modules', './out']).pipe(rimraf())

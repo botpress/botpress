@@ -1,22 +1,12 @@
 const _ = require('lodash')
 const fs = require('fs')
-const undertaker = require('undertaker')
 const path = require('path')
 const gulp = require('gulp')
-const ts = require('gulp-typescript')
-const rimraf = require('rimraf')
 const run = require('gulp-run')
 const glob = require('glob')
 const print = require('gulp-print').default
 
 const cwd = path.join(__dirname, '../modules')
-
-const allModulesSrc = () => {
-  return gulp.src('**/package.json', {
-    cwd,
-    ignore: '**/node_modules/**'
-  })
-}
 
 const getAllModulesRoot = () => {
   return glob
@@ -71,7 +61,6 @@ const buildModules = () => {
     return taskName
   })
 
-  console.log(tasks)
   return gulp.parallel(tasks)
 }
 
