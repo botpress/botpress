@@ -1,6 +1,6 @@
+import _ from 'lodash'
 import mkdirp from 'mkdirp'
 import path from 'path'
-import _ from 'lodash'
 
 const formatFilename = name =>
   name

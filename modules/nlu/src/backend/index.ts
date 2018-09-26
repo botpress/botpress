@@ -1,16 +1,14 @@
+import 'bluebird-global'
 import retry from 'bluebird-retry'
 import moment from 'moment'
 
-import Storage from './storage'
 import Parser from './parser'
-
 import DialogflowProvider from './providers/dialogflow'
 import LuisProvider from './providers/luis'
+import NativeProvider from './providers/native'
 import RasaProvider from './providers/rasa'
 import RecastProvider from './providers/recast'
-import NativeProvider from './providers/native'
-
-import 'bluebird-global'
+import Storage from './storage'
 
 let storage
 let provider
