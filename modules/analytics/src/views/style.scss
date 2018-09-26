@@ -1,0 +1,141 @@
+.container {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 10px;
+  width: 100%;
+  height: 100%;
+  background-color: #fff;
+}
+
+.metricInfo {
+  float: right;
+  i {
+    font-size: 16px;
+  }
+}
+
+.metricName {
+  text-transform: uppercase;
+  font-size: 12px;
+  padding: 0;
+  margin: 0;
+}
+
+.customCount {
+  font-size: 48px;
+  text-align: center;
+  font-weight: bolder;
+}
+
+.customCountSmall {
+  font-size: 15px;
+  line-height: 35px;
+  text-align: center;
+  color: #888;
+}
+
+.rangeDropdown {
+  display: inline-block;
+  width: 200px;
+  margin: -10px;
+  margin-left: 20px;
+}
+
+.title {
+  font-size: 20px;
+  padding-left: 15px;
+}
+
+hr {
+  margin: 10px 15px 20px 15px;
+  border-color: #d6d6d6;
+}
+
+.graphContainer {
+  height: 350px;
+}
+
+.smallGraphContainer {
+  height: 150px;
+}
+
+.graphContainerTwoColumn {
+  height: 250px;
+}
+
+.specificMetrics {
+  text-align: center;
+
+  h4 {
+    margin: 0px;
+    padding-top: 15px;
+    padding-bottom: 0px;
+  }
+  h1 {
+    font-size: 40px;
+    margin: 15px;
+  }
+  h3 {
+    margin: 10px;
+  }
+}
+
+.rententionHeatMap {
+  text-align: center;
+  height: 100%;
+
+  th {
+    text-align: center;
+  }
+
+  td.noData {
+    background-color: #efefef;
+  }
+}
+
+.busyHoursHeatMap {
+  overflow-x: scroll;
+  table {
+    min-width: 800px;
+  }
+
+  thead {
+    th {
+      text-align: right;
+    }
+    td,
+    th {
+      border-style: none;
+      border-width: 0px;
+      font-size: 12px;
+    }
+  }
+  tbody {
+    tr {
+      td,
+      th {
+        border-style: solid;
+        border-color: #ffffff;
+        border-width: 3px;
+        font-size: 12px;
+        text-align: right;
+      }
+    }
+  }
+}
+
+.metadata {
+  padding-right: 20px;
+  padding-bottom: 10px;
+  color: #404040;
+  font-size: small;
+
+  i {
+    vertical-align: bottom;
+    font-size: 14px;
+    padding-bottom: 2px;
+    padding-left: 5px;
+    color: #999999;
+  }
+}
