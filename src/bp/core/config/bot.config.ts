@@ -7,6 +7,8 @@ export interface DialogConfig {
 }
 
 export type BotConfig = {
+  $schema?: string
+  id: string
   name: string
   active: boolean
   description?: string

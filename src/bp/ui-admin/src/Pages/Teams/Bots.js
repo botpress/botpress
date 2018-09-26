@@ -8,6 +8,7 @@ import { connect } from 'react-redux'
 import { checkRule } from '@botpress/util-roles'
 
 import jdenticon from 'jdenticon'
+import Joi from 'joi-browser'
 
 import {
   ListGroup,
@@ -20,7 +21,15 @@ import {
   ListGroupItem,
   Row,
   Col,
-  Button
+  Button,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  FormGroup,
+  FormFeedback,
+  Label,
+  Input
 } from 'reactstrap'
 
 import _ from 'lodash'
@@ -35,6 +44,14 @@ import { getMenu } from './menu'
 import api from '../../api'
 
 class Bots extends Component {
+  state = {
+    isCreateBotModalOpen: false,
+    errorCreateBot: undefined,
+    id: '',
+    name: '',
+    description: ''
+  }
+
   renderLoading() {
     return <LoadingSection />
   }
@@ -54,10 +71,70 @@ class Bots extends Component {
   }
 
   createBot = async () => {
-    if (window.confirm('Are you sure you want create the new bot?')) {
-      await api.getSecured().post(`/api/teams/${this.props.teamId}/bots`)
-      await this.props.fetchTeamData(this.props.teamId)
+    const botForm = {
+      id: this.state.id,
+      name: this.state.name,
+      description: this.state.description
     }
+
+    await api
+      .getSecured()
+      .post(`/api/teams/${this.props.teamId}/bots`, botForm)
+      .catch(err => this.setState({ errorCreateBot: err }))
+    await this.props.fetchTeamData(this.props.teamId)
+    this.toggleCreateBotModal()
+  }
+
+  toggleCreateBotModal = () => this.setState({ isCreateBotModalOpen: !this.state.isCreateBotModalOpen })
+
+  generateBotId() {
+    const id = this.state.name
+      .toLowerCase()
+      .replace(/\s/g, '-')
+      .replace(/[$&+,:;=?@#|'<>.^*()%!]/g, '')
+    this.setState({ id })
+  }
+
+  renderCreateBot() {
+    return (
+      <Modal isOpen={this.state.isCreateBotModalOpen} toggle={this.toggleCreateBotModal}>
+        <ModalHeader toggle={this.toggleCreateBotModal}>Create a new bot</ModalHeader>
+        <ModalBody>
+          <FormGroup>
+            <Label for="id">Identifier</Label>
+            <Input
+              placeholder="Auto-generated"
+              disabled="disabled"
+              type="text"
+              id="id"
+              value={this.state.id}
+              onChange={event => this.setState({ id: event.target.value })}
+            />
+            <Label for="name">Name</Label>
+            <Input
+              type="text"
+              id="name"
+              value={this.state.name}
+              onChange={event => this.setState({ name: event.target.value })}
+              onBlur={() => this.generateBotId()}
+            />
+            <Label for="description">Description</Label>
+            <Input
+              type="textarea"
+              id="description"
+              value={this.state.description}
+              onChange={event => this.setState({ description: event.target.value })}
+            />
+            {!!this.state.errorCreateBot && <FormFeedback>{this.state.errorCreateBot.message}</FormFeedback>}
+          </FormGroup>
+        </ModalBody>
+        <ModalFooter>
+          <Button color="primary" onClick={this.createBot}>
+            Create
+          </Button>
+        </ModalFooter>
+      </Modal>
+    )
   }
 
   async deleteBot(botId) {
@@ -87,14 +164,25 @@ class Bots extends Component {
               <p>
                 In Botpress, bots are always assigned to a team.
                 <br />
-                <Button color="success" onClick={this.createBot}>
-                  <MdCreate /> Create Bot Now
-                </Button>
+                {this.renderCreateNewBotButton()}
               </p>
             </Col>
           </Row>
         </Jumbotron>
+        {this.renderCreateBot()}
       </div>
+    )
+  }
+
+  renderCreateNewBotButton() {
+    return (
+      <Row>
+        <Col md={{ size: 12 }}>
+          <Button className="float-right" color="success" onClick={() => this.setState({ isCreateBotModalOpen: true })}>
+            <MdCreate /> Create Bot Now
+          </Button>
+        </Col>
+      </Row>
     )
   }
 
@@ -105,11 +193,10 @@ class Bots extends Component {
       return this.renderEmptyBots()
     }
 
-    // TODO: bots properties editing (name, description)
-    // and show bots info (author, version, license)
-
     return (
       <div className="bots">
+        {this.renderCreateNewBotButton()}
+        {this.renderCreateBot()}
         <ListGroup>
           {bots.map(bot => {
             return (

@@ -7,7 +7,8 @@ import AuthService from '../../services/auth/auth-service'
 import { InvalidOperationError } from '../../services/auth/errors'
 import TeamsService from '../../services/auth/teams-service'
 
-import { asyncMiddleware, success as sendSuccess, validateBodySchema } from '../util'
+import { Bot } from '../../misc/interfaces'
+import { asyncMiddleware, success as sendSuccess, error as sendError, validateBodySchema } from '../util'
 import { Logger } from 'botpress/sdk'
 
 export class TeamsRouter implements CustomRouter {
@@ -271,10 +272,15 @@ export class TeamsRouter implements CustomRouter {
       '/:teamId/bots', // Add new bot
       this.asyncMiddleware(async (req, res) => {
         const { teamId } = req.params
+        const bot = <Bot>req.body
         const userId = req.dbUser.id
         await svc.assertUserMember(userId, teamId)
         await svc.assertUserPermission(userId, teamId, 'admin.team.bots', 'write')
-        const bot = await svc.addBot(teamId)
+        try {
+          await svc.addBot(teamId, bot)
+        } catch (err) {
+          return sendError(res, 400, undefined, err.message)
+        }
 
         return sendSuccess(res, 'Added new bot', {
           botId: bot.id,

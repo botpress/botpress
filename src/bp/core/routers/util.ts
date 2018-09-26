@@ -38,13 +38,7 @@ export const success = (res: Response, message: string = 'Success', payload = {}
   })
 }
 
-export const error = (
-  res: Response,
-  status = 400,
-  code: string | null,
-  message: string | null,
-  docs: string | null
-) => {
+export const error = (res: Response, status = 400, code?: string, message?: string, docs?: string) => {
   res.status(status).json({
     status: 'error',
     type: 'Error',
