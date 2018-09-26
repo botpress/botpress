@@ -1,4 +1,4 @@
-import { Logger } from 'common/logging'
+import { Logger } from 'botpress/sdk'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import minimatch from 'minimatch'

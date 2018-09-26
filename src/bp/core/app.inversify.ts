@@ -2,7 +2,6 @@ import { Container } from 'inversify'
 import path from 'path'
 import yn from 'yn'
 
-import { BotpressAPIProvider } from './api'
 import { BotLoader } from './bot-loader'
 import { Botpress } from './botpress'
 import { ConfigProvider, GhostConfigProvider } from './config/config-loader'
@@ -15,7 +14,7 @@ import { ModuleLoader } from './module-loader'
 import { RepositoriesContainerModule } from './repositories/repositories.inversify'
 import HTTPServer from './server'
 import { ServicesContainerModule } from './services/services.inversify'
-import { Logger } from 'common/logging'
+import { Logger } from 'botpress/sdk'
 import { BotConfigFactory, BotConfigWriter } from './config'
 
 const container = new Container({ autoBindInjectable: true })
@@ -53,10 +52,10 @@ container
   .to(LoggerPersister)
   .inSingletonScope()
 
-container
-  .bind<BotpressAPIProvider>(TYPES.BotpressAPIProvider)
-  .to(BotpressAPIProvider)
-  .inSingletonScope()
+// container // TODO Implement this
+//   .bind<BotpressAPIProvider>(TYPES.BotpressAPIProvider)
+//   .to(BotpressAPIProvider)
+//   .inSingletonScope()
 container
   .bind<ModuleLoader>(TYPES.ModuleLoader)
   .to(ModuleLoader)

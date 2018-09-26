@@ -1,6 +1,6 @@
 import { injectable } from 'inversify'
 import ms from 'ms'
-import { Logger } from 'common/logging'
+import { Logger } from 'botpress/sdk'
 
 @injectable()
 export abstract class Janitor {

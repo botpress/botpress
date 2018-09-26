@@ -5,7 +5,7 @@ import nanoid from 'nanoid'
 import { TYPES } from '../../types'
 
 import { defaultOptions, Job, JobWithEvent, JobWrapper, Queue, QueueOptions } from '.'
-import { Logger } from 'common/logging'
+import { Logger } from 'botpress/sdk'
 
 @injectable()
 export default class MemoryQueue implements Queue {

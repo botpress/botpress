@@ -9,7 +9,7 @@ import { TYPES } from '../../types'
 import { InvalidCredentialsError } from './errors'
 import resources from './resources'
 import { calculateHash, validateHash } from './util'
-import { Logger } from 'common/logging'
+import { Logger } from 'botpress/sdk'
 import { Resource } from '../../misc/auth'
 import { KnexExtension } from 'common/knex'
 

@@ -3,20 +3,20 @@ import Knex from 'knex'
 
 import Database from '../database'
 import { TYPES } from '../types'
-import { AttributeMap, Attribute, User } from 'common/users'
+import { UserAttributeMap, UserAttribute, User } from 'botpress/sdk'
 
 export interface UserRepository {
   getOrCreate(channel: string, id: string): Knex.GetOrCreateResult<User>
-  updateAttributes(channel: string, id: string, attributes: Attribute[]): Promise<void>
+  updateAttributes(channel: string, id: string, attributes: UserAttribute[]): Promise<void>
 }
 
-function channelUserAttributes(arr: Attribute[] = []): AttributeMap {
-  ;(arr as AttributeMap).get = (key: string): string | undefined => {
+function channelUserAttributes(arr: UserAttribute[] = []): UserAttributeMap {
+  ;(arr as UserAttributeMap).get = (key: string): string | undefined => {
     const match = arr.find(x => x.key.toLowerCase() === key.toLowerCase())
     return (match && match.value) || undefined
   }
 
-  return arr as AttributeMap
+  return arr as UserAttributeMap
 }
 
 @injectable()
@@ -68,7 +68,7 @@ export class KnexUserRepository implements UserRepository {
     return { result: newUser, created: true }
   }
 
-  async updateAttributes(channel: string, id: string, attributes: Attribute[]): Promise<void> {
+  async updateAttributes(channel: string, id: string, attributes: UserAttribute[]): Promise<void> {
     channel = channel.toLowerCase()
 
     if (!attributes || attributes.length === undefined) {

@@ -7,7 +7,7 @@ import { ConfigProvider } from './config/config-loader'
 import { TYPES } from './types'
 import { CMSService } from './services/cms/cms-service'
 import { GhostService } from './services'
-import { Logger } from 'common/logging'
+import { Logger } from 'botpress/sdk'
 
 @injectable()
 export class BotLoader {

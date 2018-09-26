@@ -1,12 +1,12 @@
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 
-import { createForModule } from './api'
+import { createForModule } from './api' // TODO
 import { TYPES } from './types'
 import { GhostService } from './services'
 import ConfigReader from './services/module/config-reader'
-import { ModuleDefinition } from 'common/module'
-import { Logger } from 'common/logging'
+
+import { Logger, ModuleDefinition } from 'botpress/sdk'
 
 @injectable()
 export class ModuleLoader {

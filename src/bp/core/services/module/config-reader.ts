@@ -5,8 +5,7 @@ import { VError } from 'verror'
 import yn from 'yn'
 
 import { GhostService } from '../'
-import { Logger } from 'common/logging'
-import { ModuleConfigEntry, ModuleDefinition } from 'common/module'
+import { ModuleConfigEntry, ModuleDefinition, Logger } from 'botpress/sdk'
 
 type Config = { [key: string]: any }
 

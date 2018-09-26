@@ -1,7 +1,7 @@
 import 'bluebird-global'
 import 'reflect-metadata'
 
-import { Logger } from 'common/logging'
+import { Logger } from 'botpress/sdk'
 import tmp from 'tmp'
 
 import { createSpyObject } from '../misc/utils'

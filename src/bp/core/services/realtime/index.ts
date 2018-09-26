@@ -5,7 +5,7 @@ import _ from 'lodash'
 import socketio from 'socket.io'
 
 import { TYPES } from '../../types'
-import { Logger } from 'common/logging'
+import { Logger } from 'botpress/sdk'
 import * as RealTime from 'common/realtime'
 
 @injectable()

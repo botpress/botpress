@@ -5,14 +5,14 @@ import path from 'path'
 import Knex from 'knex'
 
 import { ConfigProvider } from '../../config/config-loader'
-import { LoggerProvider } from '../../logger/Logger'
+import { LoggerProvider } from '../../logger/logger'
 import { IDisposeOnExit } from '../../misc/interfaces'
 import { TYPES } from '../../types'
 import { GhostService } from '../'
 
 import { ContentElement, ContentType, DefaultSearchParams, SearchParams } from '.'
 import { CodeFile, SafeCodeSandbox } from './util'
-import { Logger } from 'common/logging'
+import { Logger } from 'botpress/sdk'
 import { KnexExtension } from 'common/knex'
 
 @injectable()

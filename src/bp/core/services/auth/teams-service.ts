@@ -9,7 +9,7 @@ import { InvalidOperationError, NotFoundError, UnauthorizedAccessError } from '.
 
 import defaultRoles from './default-roles'
 import { TYPES } from '../../types'
-import { Logger } from 'common/logging'
+import { Logger } from 'botpress/sdk'
 import { checkRule } from '../../misc/auth'
 import { BotConfigFactory, BotConfigWriter } from '../../config'
 import Joi from 'joi'

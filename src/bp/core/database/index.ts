@@ -2,7 +2,7 @@ import { inject, injectable, tagged } from 'inversify'
 import Knex from 'knex'
 import _ from 'lodash'
 
-import { Logger } from 'common/logging'
+import { Logger } from 'botpress/sdk'
 import { KnexExtension } from 'common/knex'
 import { TYPES } from 'core/types'
 

@@ -7,7 +7,7 @@ import TeamsService from '../../services/auth/teams-service'
 import { checkTokenHeader, loadUser } from '../util'
 
 import { TeamsRouter } from './teams'
-import { Logger } from 'common/logging'
+import { Logger } from 'botpress/sdk'
 
 export class AdminRouter implements CustomRouter {
   public readonly router: Router

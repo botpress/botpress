@@ -9,7 +9,7 @@ import TeamsService from '../../services/auth/teams-service'
 
 import { Bot } from '../../misc/interfaces'
 import { asyncMiddleware, success as sendSuccess, error as sendError, validateBodySchema } from '../util'
-import { Logger } from 'common/logging'
+import { Logger } from 'botpress/sdk'
 
 export class TeamsRouter implements CustomRouter {
   private asyncMiddleware!: Function

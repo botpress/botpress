@@ -13,5 +13,3 @@ export interface KnexExtension {
     idColumnName?: string
   ): Promise<T>
 }
-
-// const f: Knex

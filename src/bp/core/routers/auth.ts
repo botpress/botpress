@@ -9,7 +9,7 @@ import TeamsService from 'core/services/auth/teams-service'
 
 import { CustomRouter } from '.'
 import { asyncMiddleware, checkTokenHeader, loadUser, success as sendSuccess, validateBodySchema } from './util'
-import { Logger } from 'common/logging'
+import { Logger } from 'botpress/sdk'
 
 const REVERSE_PROXY = !!process.env.REVERSE_PROXY
 

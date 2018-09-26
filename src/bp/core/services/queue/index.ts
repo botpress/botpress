@@ -1,4 +1,4 @@
-import * as IO from 'common/io'
+import { IO } from 'botpress/sdk'
 
 export interface QueueOptions {
   retries: number
