@@ -1,6 +1,5 @@
 import path from 'path'
-import nsfw from 'nsfw'
-import minimatch from 'minimatch'
+import chokidar from 'chokidar'
 
 import { debug } from './log'
 import { buildBackend } from './build'
@@ -11,21 +10,22 @@ export default async (argv: any) => {
 
   let promise: null | Promise<void> = buildBackend(modulePath)
 
-  const watcher = await nsfw(
-    path.join(modulePath, 'src'),
-    events => {
-      const files = events.map(x => path.relative(modulePath, path.join(x.directory, x.file)))
-      const matchDts = minimatch.match(files, '!**/*.d.ts', { nocase: true })
-      const matchWeb = minimatch.match(files, '!src/views/**', { nocase: true })
-      if (matchDts.length && matchWeb.length && !promise.isPending) {
-        debug('Backend files changed')
-        promise = buildBackend(modulePath)
-      }
-    },
-    { debounceMS: 500 }
-  )
+  const rebuild = () => {
+    if (!promise.isPending) {
+      debug('Backend files changed')
+      promise = buildBackend(modulePath)
+    }
+  }
 
-  watcher.start()
+  const watcher = chokidar.watch(path.join(modulePath, 'src'), {
+    ignored: ['**/*.d.ts', '**/src/views/**'],
+    ignoreInitial: true,
+    atomic: 500
+  })
+
+  watcher.on('add', rebuild)
+  watcher.on('change', rebuild)
+  watcher.on('unlink', rebuild)
 
   webpackWatch(modulePath)
 }
