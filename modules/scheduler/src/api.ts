@@ -9,10 +9,10 @@ export default async (bp: typeof sdk & Extension, db: Database) => {
     add: ({ id, schedule, action, enabled = true, scheduleType = 'once' }) =>
       db
         .create(id, { schedule, action, enabled, schedule_type: scheduleType })
-        .then(() => bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(null, 'scheduler.update', null))),
+        .then(() => bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('scheduler.update', null))),
 
     remove: id =>
-      db.delete(id).then(() => bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(null, 'scheduler.update', null)))
+      db.delete(id).then(() => bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('scheduler.update', null)))
   }
 
   const router = bp.http.createRouterForBot('botpress-scheduler')
@@ -54,7 +54,7 @@ export default async (bp: typeof sdk & Extension, db: Database) => {
     db.create(req.body.id, req.body)
       .then(schedules => {
         res.send(schedules)
-        bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(null, 'scheduler.update', null))
+        bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('scheduler.update', null))
       })
       .catch(catchError(res))
   })
@@ -63,7 +63,7 @@ export default async (bp: typeof sdk & Extension, db: Database) => {
     db.update(req.body.id, req.body)
       .then(() => {
         res.sendStatus(200)
-        bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(null, 'scheduler.update', null))
+        bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('scheduler.update', null))
       })
       .catch(catchError(res))
   })
@@ -72,7 +72,7 @@ export default async (bp: typeof sdk & Extension, db: Database) => {
     db.delete(req.query.id)
       .then(() => {
         res.sendStatus(200)
-        bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(null, 'scheduler.update', null))
+        bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('scheduler.update', null))
       })
       .catch(catchError(res))
   })
@@ -81,7 +81,7 @@ export default async (bp: typeof sdk & Extension, db: Database) => {
     db.deleteDone()
       .then(() => {
         res.sendStatus(200)
-        bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(null, 'scheduler.update', null))
+        bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('scheduler.update', null))
       })
       .catch(catchError(res))
   })
