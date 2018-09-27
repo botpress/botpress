@@ -48,6 +48,7 @@ declare module 'botpress/sdk' {
     readonly payload: any
     constructor(eventName: string, payload: any)
     public static forVisitor(visitorId: string, eventName: string, payload: any): RealTimePayload
+    public static forAdmins(eventName: string, payload: any): RealTimePayload
   }
 
   export namespace IO {
@@ -128,6 +129,11 @@ declare module 'botpress/sdk' {
 
   export type EventDirection = 'incoming' | 'outgoing'
 
+  export type Notification = {
+    message: string
+    level: string
+  }
+
   /**
    * ////////////////
    * //////// API
@@ -175,6 +181,10 @@ declare module 'botpress/sdk' {
   export namespace config {
     export function getModuleConfig(moduleId: string): Promise<any>
     export function getModuleConfigForBot(moduleId: string, botId: string): Promise<any>
+  }
+
+  export namespace notifications {
+    export function send(notification: Notification)
   }
 
   export const logger: Logger
