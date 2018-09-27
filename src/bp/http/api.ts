@@ -37,14 +37,13 @@ function setupStudioAppProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort 
     res.redirect('/admin')
   })
 
-  app.use('/:app(studio|lite)/:botId', (req, res, next) => {
-    // TODO Somehow req.params is overwritten by tamper below
-    req.originalParams = { ...req.params }
-    next()
-  })
-
   app.use(
-    '/:app(studio|lite)/:botId',
+    '/:app(studio|lite)/:botId?',
+    (req, res, next) => {
+      // TODO Somehow req.params is overwritten by tamper below
+      req.originalParams = { ...req.params }
+      next()
+    },
     tamper(function(req, res) {
       const contentType = res.getHeaders()['content-type']
       if (!contentType.includes('text/html')) {
@@ -52,6 +51,7 @@ function setupStudioAppProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort 
       }
 
       return function(body) {
+        // tslint:disable-next-line:prefer-const
         let { botId, app } = req.originalParams
 
         if (!botId && app === 'lite') {
@@ -66,10 +66,10 @@ function setupStudioAppProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort 
   app.get('/:app(studio|lite)/:botId/js/env.js', (req, res) => {
     const { botId, app } = req.params
 
-    let liteEnv = `
+    const liteEnv = `
         // Lite Views Specific
     `
-    let studioEnv = `
+    const studioEnv = `
         // Botpress Studio Specific
         window.BOTPRESS_AUTH_FULL = true;
         window.AUTH_TOKEN_DURATION = 21600000;
@@ -80,7 +80,7 @@ function setupStudioAppProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort 
         window.BOTPRESS_CLOUD_SETTINGS = {"botId":"","endpoint":"","teamId":"","env":"dev"};
     `
 
-    let totalEnv = `
+    const totalEnv = `
     (function(window) {
         // Common
         window.BASE_PATH = "/${app}";
@@ -335,7 +335,7 @@ function setupAPIProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
     '/api/botpress-platform-webchat/*',
     proxy(coreApiUrl, {
       proxyReqPathResolver: (req, res) => {
-        let parts = _.drop(req.path.split('/'), 3)
+        const parts = _.drop(req.path.split('/'), 3)
         const newPath = parts.join('/')
         const newQuery = qs.stringify(req.query)
         const apiPath = getApiBasePath(req)
@@ -357,7 +357,7 @@ function setupAPIProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
     [`/js/modules/:moduleName`, `/js/modules/:moduleName/:subview`],
     proxy(coreApiUrl, {
       proxyReqPathResolver: (req, res) => {
-        let moduleName = req.params.moduleName
+        const moduleName = req.params.moduleName
 
         if (moduleName === 'web.bundle.js.map') {
           return null
