@@ -1,23 +1,21 @@
 import * as sdk from 'botpress/sdk'
-
-import Knex from 'knex'
-
+import { WellKnownFlags } from 'core/sdk/enums'
 import { inject, injectable } from 'inversify'
+import Knex from 'knex'
 import { Memoize } from 'lodash-decorators'
 
 import { container } from './app.inversify'
 import Database from './database'
 import { LoggerProvider } from './logger'
-import { TYPES } from './types'
 import { ModuleLoader } from './module-loader'
 import { UserRepository } from './repositories'
+import { Event, RealTimePayload } from './sdk/impl'
 import HTTPServer from './server'
 import { DialogEngine } from './services/dialog/engine'
 import { SessionService } from './services/dialog/session/service'
 import { EventEngine } from './services/middleware/event-engine'
 import RealtimeService from './services/realtime'
-import { RealTimePayload, Event } from './sdk/impl'
-import { WellKnownFlags } from 'core/sdk/enums'
+import { TYPES } from './types'
 
 const http = (httpServer: HTTPServer) =>
   ({
