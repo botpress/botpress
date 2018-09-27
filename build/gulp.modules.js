@@ -41,13 +41,8 @@ const copySdkDefinitions = () => {
   return stream
 }
 
-const copyBoilerplateFiles = () => {
-  let stream = gulp.src(['modules/.babelrc'])
-  const modules = getAllModulesRoot()
-  for (let m of modules) {
-    stream = stream.pipe(gulp.dest(m)).pipe(print())
-  }
-  return stream
+const copyBoilerplateFiles = cb => {
+  cb() // No boiletplate files for now
 }
 
 const buildModule = modulePath => {
