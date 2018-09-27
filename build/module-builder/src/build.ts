@@ -1,11 +1,11 @@
-import glob from 'glob'
 import * as babel from '@babel/core'
+import fs from 'fs'
+import glob from 'glob'
 import mkdirp from 'mkdirp'
 import path from 'path'
-import fs from 'fs'
 import rimraf from 'rimraf'
-import { debug, error, normal } from './log'
 
+import { debug, error, normal } from './log'
 import { build as webpackBuild } from './webpack'
 
 export default async (argv: any) => {
@@ -19,7 +19,18 @@ export default async (argv: any) => {
 
 export async function buildBackend(modulePath: string) {
   let babelConfig: babel.TransformOptions = {
-    presets: ['@babel/preset-env', '@babel/preset-typescript', '@babel/preset-react'],
+    presets: [
+      [
+        '@babel/preset-env',
+        {
+          targets: {
+            node: 'current'
+          }
+        }
+      ],
+      '@babel/preset-typescript',
+      '@babel/preset-react'
+    ],
     plugins: ['@babel/plugin-proposal-class-properties', '@babel/plugin-proposal-function-bind'],
     sourceType: 'module',
     cwd: modulePath
@@ -41,12 +52,12 @@ export async function buildBackend(modulePath: string) {
 
   const outputFiles = []
 
-  for (let file of files) {
+  for (const file of files) {
     try {
       const dBefore = Date.now()
       const result = babel.transformFileSync(file, babelConfig)
 
-      const dest = file.replace(/^src\//i, 'dist/')
+      const dest = file.replace(/^src\//i, 'dist/').replace(/.ts$/i, '.js')
       mkdirp.sync(path.dirname(dest))
       fs.writeFileSync(dest, result.code)
       const totalTime = Date.now() - dBefore

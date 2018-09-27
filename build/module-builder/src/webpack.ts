@@ -1,6 +1,7 @@
 import fs, { stat } from 'fs'
-import webpack from 'webpack'
 import path from 'path'
+import webpack from 'webpack'
+
 import { debug, error, normal } from './log'
 
 export function config(projectPath) {
@@ -35,7 +36,7 @@ export function config(projectPath) {
           use: {
             loader: 'babel-loader',
             options: {
-              presets: ['@babel/preset-env', '@babel/preset-typescript', '@babel/preset-react'],
+              presets: [['@babel/preset-env'], '@babel/preset-typescript', '@babel/preset-react'],
               plugins: [
                 '@babel/plugin-proposal-class-properties',
                 '@babel/plugin-syntax-function-bind',

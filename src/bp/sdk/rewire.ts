@@ -1,5 +1,5 @@
-var Module = require('module')
-var originalRequire = Module.prototype.require
+import Module from 'module'
+const originalRequire = Module.prototype.require
 
 Module.prototype.require = function() {
   if (arguments && arguments[0] === 'botpress/sdk') {
