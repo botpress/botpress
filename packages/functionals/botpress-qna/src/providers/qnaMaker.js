@@ -148,7 +148,7 @@ export default class Storage {
       { baseURL: this.knowledgebase.hostName, headers: { Authorization: `EndpointKey ${this.endpointKey}` } }
     )
 
-    return _.orderBy(answers, ['score'], ['asc']).map(answer => ({
+    return _.orderBy(answers, ['score'], ['desc']).map(answer => ({
       ..._.pick(answer, ['questions', 'answer', 'id']),
       confidence: answer.score / 100,
       ...qnaItemData(answer)
