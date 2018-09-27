@@ -71,7 +71,7 @@ export function config(projectPath) {
         },
         {
           test: /\.(jpe?g|png|gif|svg)$/i,
-          use: [{ loader: 'file-loader', options: { name: '[name].[hash].[ext]' } }, { loader: 'image-webpack-loader' }]
+          use: [{ loader: 'file-loader', options: { name: '[name].[hash].[ext]' } }]
         }
       ]
     }

@@ -27,7 +27,6 @@
     "extract-text-webpack-plugin": "^3.0.2",
     "file-loader": "^2.0.0",
     "glob": "^7.1.3",
-    "image-webpack-loader": "^4.3.1",
     "mkdirp": "^0.5.1",
     "node-sass": "^4.9.3",
     "raw-loader": "^0.5.1",
