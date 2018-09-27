@@ -48,7 +48,6 @@ declare module 'botpress/sdk' {
     readonly payload: any
     constructor(eventName: string, payload: any)
     public static forVisitor(visitorId: string, eventName: string, payload: any): RealTimePayload
-    public static forAdmins(eventName: string, payload: any): RealTimePayload
   }
 
   export namespace IO {
