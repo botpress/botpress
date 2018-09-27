@@ -1,6 +1,7 @@
 import fs, { stat } from 'fs'
 import webpack from 'webpack'
 import path from 'path'
+import { debug, error, normal } from './log'
 
 export function config(projectPath) {
   const packageJson = require(path.join(projectPath, 'package.json'))
@@ -91,7 +92,7 @@ export function config(projectPath) {
 
   const webpackFile = path.join(projectPath, 'webpack.frontend.js')
   if (fs.existsSync(webpackFile)) {
-    console.log('Webpack override found for frontend')
+    debug('Webpack override found for frontend')
     return require(webpackFile)({ web, lite })
   }
 
@@ -100,14 +101,14 @@ export function config(projectPath) {
 
 function writeStats(err, stats, exitOnError = true) {
   if (err || stats.hasErrors()) {
-    console.log(stats.toString('minimal'))
+    error(stats.toString('minimal'))
     if (exitOnError) {
       return process.exit(1)
     }
   }
 
   for (const child of stats.toJson().children) {
-    console.log(`Generated frontend bundle (${child.time} ms)`)
+    normal(`Generated frontend bundle (${child.time} ms)`)
   }
 }
 

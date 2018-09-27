@@ -8,7 +8,7 @@
   "license": "AGPL-3.0-only",
   "private": true,
   "scripts": {
-    "build": "./node_modules/.bin/babel src --out-dir bin --extensions .ts",
+    "build": "./node_modules/.bin/babel src --out-dir bin --extensions \".ts,.js\"",
     "watch": "./node_modules/.bin/babel src --watch --out-dir bin --extensions .ts"
   },
   "dependencies": {
@@ -20,6 +20,7 @@
     "@babel/preset-react": "^7.0.0",
     "@babel/preset-typescript": "^7.1.0",
     "babel-loader": "^8.0.2",
+    "chalk": "^2.4.1",
     "copy-webpack-plugin": "^4.5.2",
     "css-loader": "^1.0.0",
     "extract-text-webpack-plugin": "^3.0.2",
@@ -42,6 +43,7 @@
     "@types/glob": "^7.1.0",
     "@types/mkdirp": "^0.5.2",
     "@types/rimraf": "^2.0.2",
-    "@types/webpack": "^4.4.12"
+    "@types/webpack": "^4.4.12",
+    "babel-plugin-search-and-replace": "^0.3.0"
   }
 }

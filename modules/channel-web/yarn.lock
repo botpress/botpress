@@ -687,8 +687,8 @@
   resolved "https://registry.yarnpkg.com/@types/mime/-/mime-2.0.0.tgz#5a7306e367c539b9f6543499de8dd519fac37a8b"
 
 "@types/node@*":
-  version "10.11.1"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-10.11.1.tgz#adc48781dd50b2635a8a7854d99c759a26ede840"
+  version "10.11.2"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-10.11.2.tgz#59508b88ce90fe2742f7b8414c6f5db3e359570d"
 
 "@types/range-parser@*":
   version "1.2.2"
@@ -4322,6 +4322,7 @@ module-builder@../../build/module-builder:
     "@babel/preset-react" "^7.0.0"
     "@babel/preset-typescript" "^7.1.0"
     babel-loader "^8.0.2"
+    chalk "^2.4.1"
     copy-webpack-plugin "^4.5.2"
     css-loader "^1.0.0"
     extract-text-webpack-plugin "^3.0.2"
