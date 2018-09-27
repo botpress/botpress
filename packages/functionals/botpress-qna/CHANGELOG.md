@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.44.0"></a>
+# [10.44.0](https://github.com/botpress/modules/compare/v10.43.0...v10.44.0) (2018-09-27)
+
+
+### Bug Fixes
+
+* **qna:** fix answers ordering (came from c21d0ac) ([#954](https://github.com/botpress/modules/issues/954)) ([1f4ddba](https://github.com/botpress/modules/commit/1f4ddba))
+
+
+
+
 <a name="10.43.0"></a>
 # [10.43.0](https://github.com/botpress/modules/compare/v10.42.0...v10.43.0) (2018-09-26)
 
