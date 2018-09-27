@@ -11,9 +11,8 @@
     "lib": ["es7"],
     "moduleResolution": "node",
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
+    "emitDecoratorMetadata": false,
     "typeRoots": ["typings", "../node_modules/@types"],
     "types": ["reflect-metadata", "jest", "bluebird-global"]
-  },
-  "exclude": ["**/*.test.ts", "../out", "**/node_modules/**/*.ts"]
+  }
 }

@@ -41,9 +41,18 @@ const copySdkDefinitions = () => {
   return stream
 }
 
+const copyBoilerplateFiles = () => {
+  let stream = gulp.src(['modules/.babelrc'])
+  const modules = getAllModulesRoot()
+  for (let m of modules) {
+    stream = stream.pipe(gulp.dest(m)).pipe(print())
+  }
+  return stream
+}
+
 const buildModule = modulePath => {
   return gulp.src(modulePath, { allowEmpty: true }).pipe(
-    run('yarn build', {
+    run('yarn && yarn build', {
       cwd: modulePath
     })
   )
@@ -64,4 +73,4 @@ const buildModules = () => {
   return gulp.parallel(tasks)
 }
 
-module.exports = { copySdkDefinitions, buildModules }
+module.exports = { copySdkDefinitions, copyBoilerplateFiles, buildModules }
