@@ -41,6 +41,10 @@ const copySdkDefinitions = () => {
   return stream
 }
 
+const copyBoilerplateFiles = cb => {
+  cb() // No boiletplate files for now
+}
+
 const buildModule = modulePath => {
   return gulp.src(modulePath, { allowEmpty: true }).pipe(
     exec('yarn && yarn build', {
@@ -64,4 +68,4 @@ const buildModules = () => {
   return gulp.parallel(tasks)
 }
 
-module.exports = { copySdkDefinitions, buildModules }
+module.exports = { copySdkDefinitions, copyBoilerplateFiles, buildModules }

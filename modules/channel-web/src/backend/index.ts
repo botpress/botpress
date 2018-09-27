@@ -1,4 +1,5 @@
 import 'bluebird-global'
+import * as sdk from 'botpress/sdk'
 import fs from 'fs'
 import path from 'path'
 
@@ -10,7 +11,7 @@ export type Extension = {
   'channel-web': {}
 }
 
-export type SDK = typeof import('botpress/sdk') & Extension
+export type SDK = typeof sdk & Extension
 
 export const onInit = async (bp: SDK) => {
   bp['channel-web'] = {}
