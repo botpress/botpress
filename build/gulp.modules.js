@@ -2,9 +2,9 @@ const _ = require('lodash')
 const fs = require('fs')
 const path = require('path')
 const gulp = require('gulp')
-const run = require('gulp-run')
 const glob = require('glob')
 const print = require('gulp-print').default
+const exec = require('gulp-exec')
 
 const cwd = path.join(__dirname, '../modules')
 
@@ -52,7 +52,7 @@ const copyBoilerplateFiles = () => {
 
 const buildModule = modulePath => {
   return gulp.src(modulePath, { allowEmpty: true }).pipe(
-    run('yarn && yarn build', {
+    exec('yarn && yarn build', {
       cwd: modulePath
     })
   )

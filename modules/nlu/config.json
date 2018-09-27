@@ -1,0 +1,8 @@
+{
+  "intentsDir": "./intents",
+  "entitiesDir": "./entities",
+  "provider": "native",
+  "debugModeEnabled": false,
+  "minimumConfidence": "0.3",
+  "nativeAdjustementThreshold": "0.25"
+}
