@@ -1,20 +1,18 @@
+import * as sdk from 'botpress/sdk'
+import { Event } from 'core/sdk/impl'
 import { inject, injectable, tagged } from 'inversify'
 import joi from 'joi'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
 import { VError } from 'verror'
 
+import { GhostService } from '..'
 import { BotConfig } from '../../config/bot.config'
 import { TYPES } from '../../types'
 import { CMSService } from '../cms/cms-service'
-import { GhostService } from '..'
 import { Queue } from '../queue'
 
 import { MiddlewareChain } from './middleware'
-import * as sdk from 'botpress/sdk'
-import { Event } from 'core/sdk/impl'
-
-const MESSAGE_RETRIES = 3
 
 const directionRegex = /^(incoming|outgoing)$/
 
@@ -88,9 +86,9 @@ export class EventEngine {
     this.validateEvent(event)
 
     if (event.direction === 'incoming') {
-      this.incomingQueue.enqueue(event, MESSAGE_RETRIES, false)
+      this.incomingQueue.enqueue(event, 1, false)
     } else {
-      this.outgoingQueue.enqueue(event, MESSAGE_RETRIES, false)
+      this.outgoingQueue.enqueue(event, 1, false)
     }
   }
 
