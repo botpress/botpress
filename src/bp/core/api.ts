@@ -16,6 +16,8 @@ import { SessionService } from './services/dialog/session/service'
 import { EventEngine } from './services/middleware/event-engine'
 import RealtimeService from './services/realtime'
 import { TYPES } from './types'
+import { NotificationsService } from './services/notification/service'
+import { Notification } from 'core/repositories'
 
 const http = (httpServer: HTTPServer) =>
   ({
@@ -75,6 +77,14 @@ const users = (userRepo: UserRepository): typeof sdk.users => {
   }
 }
 
+const notifications = (notificationService: NotificationsService): typeof sdk.notifications => {
+  return {
+    async create(botId: string, notification: any): Promise<any> {
+      await notificationService.create(botId, notification)
+    }
+  }
+}
+
 /**
  * Socket.IO API to emit payloads to front-end clients
  */
@@ -95,6 +105,7 @@ export class BotpressAPIProvider {
   realtime: RealTimeAPI
   database: Knex
   users: typeof sdk.users
+  notifications: typeof sdk.notifications
 
   constructor(
     @inject(TYPES.DialogEngine) dialogEngine: DialogEngine,
@@ -105,7 +116,8 @@ export class BotpressAPIProvider {
     @inject(TYPES.HTTPServer) httpServer: HTTPServer,
     @inject(TYPES.UserRepository) userRepo: UserRepository,
     @inject(TYPES.RealtimeService) realtimeService: RealtimeService,
-    @inject(TYPES.SessionService) sessionService: SessionService
+    @inject(TYPES.SessionService) sessionService: SessionService,
+    @inject(TYPES.NotificationsService) notificationService: NotificationsService
   ) {
     this.http = http(httpServer)
     this.events = event(eventEngine)
@@ -114,6 +126,7 @@ export class BotpressAPIProvider {
     this.realtime = new RealTimeAPI(realtimeService)
     this.database = db.knex
     this.users = users(userRepo)
+    this.notifications = notifications(notificationService)
   }
 
   @Memoize()
@@ -133,7 +146,8 @@ export class BotpressAPIProvider {
       config: this.config,
       database: this.database,
       users: this.users,
-      realtime: this.realtime
+      realtime: this.realtime,
+      notifications: this.notifications
     }
   }
 }
