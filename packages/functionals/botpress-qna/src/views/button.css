@@ -35,8 +35,6 @@
 }
 
 .slider.checked:before {
-  -webkit-transform: translateX(19px);
-  -ms-transform: translateX(19px);
   transform: translateX(19px);
   background-color: #1bb68a;
 }

@@ -289,7 +289,7 @@ export default class QnaAdmin extends Component {
       <Button
         className={style['qna-nav-bar__add-new']}
         bsStyle="success"
-        onClick={() => this.setState({ QnAModalType: 'create', currentItemId: null }, this.toggleQnAModal)}
+        onClick={() => this.setState({ QnAModalType: 'create', currentItemId: null, showQnAModal: true })}
         type="button"
       >
         + Add new
@@ -364,17 +364,22 @@ export default class QnaAdmin extends Component {
   }
 
   editItem = id => () => {
-    this.setState({ QnAModalType: 'edit', currentItemId: id }, this.toggleQnAModal)
+    this.setState({ QnAModalType: 'edit', currentItemId: id, showQnAModal: true })
   }
 
   enabledItem = (item, id) => value => {
-    const { page } = this.state
-    const params = { limit: ITEMS_PER_PAGE, offset: (page - 1) * ITEMS_PER_PAGE }
+    const { page, filterQuestion, filterCategory } = this.state
+    const params = {
+      limit: ITEMS_PER_PAGE,
+      offset: (page - 1) * ITEMS_PER_PAGE,
+      question: filterQuestion,
+      categories: filterCategory
+    }
 
     item.enabled = value
     this.props.bp.axios
       .put(`/api/botpress-qna/${id}`, item, { params })
-      .then(({ data: items }) => this.setState({ items }))
+      .then(({ data: { items } }) => this.setState({ items }))
   }
 
   renderQustions = questions =>
@@ -395,7 +400,7 @@ export default class QnaAdmin extends Component {
     )
   }
 
-  toggleQnAModal = () => this.setState({ showQnAModal: !this.state.showQnAModal })
+  closeQnAModal = () => this.setState({ showQnAModal: false })
 
   questionsList = () => this.state.items.map(this.renderItem)
 
@@ -420,7 +425,7 @@ export default class QnaAdmin extends Component {
             flowsList={this.state.flowsList}
             bp={this.props.bp}
             showQnAModal={this.state.showQnAModal}
-            toggleQnAModal={this.toggleQnAModal}
+            closeQnAModal={this.closeQnAModal}
             hasCategory={this.state.hasCategory}
             categories={this.state.categoriesOptions}
             fetchData={this.fetchData}

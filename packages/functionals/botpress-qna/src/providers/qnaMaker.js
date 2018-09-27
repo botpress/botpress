@@ -98,7 +98,7 @@ export default class Storage {
     return id
   }
 
-  async insert(qna, statusCb) {
+  async insert(qna) {
     const qnas = _.isArray(qna) ? qna : [qna]
     const { data: { operationId } } = await this.patchKb({
       add: {

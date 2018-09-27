@@ -35,10 +35,7 @@ export default class FormModal extends Component {
     isValidForm: true
   }
 
-  constructor(props) {
-    super(props)
-    this.state = this.defaultState
-  }
+  state = this.defaultState
 
   componentDidUpdate(prevProps) {
     const { id } = this.props
@@ -49,7 +46,6 @@ export default class FormModal extends Component {
       return this.setState(this.defaultState)
     }
     this.props.bp.axios.get(`/api/botpress-qna/question/${id}`).then(({ data: item }) => {
-      console.log('Item: ', item)
       this.setState({
         item,
         isRedirect: [ACTIONS.REDIRECT, ACTIONS.TEXT_REDIRECT].includes(item.action),
@@ -64,8 +60,8 @@ export default class FormModal extends Component {
     this.setState({ item: { ...item, [key]: value } })
   }
 
-  handleSelect = key => selectedOptions =>
-    this.changeItemProperty(key, selectedOptions ? selectedOptions.value : selectedOptions)
+  handleSelect = key => selectedOption =>
+    this.changeItemProperty(key, selectedOption ? selectedOption.value : selectedOption)
 
   changeItemAction = actionType => () => {
     this.setState({ [actionType]: !this.state[actionType] }, () => {
@@ -142,19 +138,19 @@ export default class FormModal extends Component {
       })
   }
 
-  onClose = () => this.props.toggleQnAModal()
+  onClose = () => this.props.closeQnAModal()
 
   alertMessage() {
     if (this.state.isValidForm) {
       return null
     }
 
-    const isValidInputs = Object.values(this.state.invalidFields).find(Boolean)
+    const hasInvalidInputs = Object.values(this.state.invalidFields).find(Boolean)
 
     return (
       <div>
         {!this.state.invalidFields.checkbox ? <Alert bsStyle="danger">Action checkbox is required</Alert> : null}
-        {isValidInputs ? <Alert bsStyle="danger">Inputs are required</Alert> : null}
+        {hasInvalidInputs ? <Alert bsStyle="danger">Inputs are required</Alert> : null}
       </div>
     )
   }

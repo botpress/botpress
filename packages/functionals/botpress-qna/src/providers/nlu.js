@@ -105,7 +105,7 @@ export default class Storage {
     return Promise.map(questions, question => this.getQuestion({ filename: question }))
   }
 
-  async delete(qnaId, statusCb) {
+  async delete(qnaId) {
     const ids = _.isArray(qnaId) ? qnaId : [qnaId]
     if (ids.length === 0) {
       return

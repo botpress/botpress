@@ -31,8 +31,8 @@ module.exports = {
   },
   async init(bp, configurator) {
     const config = await configurator.loadAll()
-    this.isQnAStorage = config.qnaMakerApiKey
-    const Storage = this.isQnAStorage ? MicrosoftQnaMakerStorage : NluStorage
+    this.isMicrosoftMakerUsed = config.qnaMakerApiKey
+    const Storage = this.isMicrosoftMakerUsed ? MicrosoftQnaMakerStorage : NluStorage
     this.storage = new Storage({ bp, config })
     await this.storage.initialize()
 
@@ -194,7 +194,10 @@ module.exports = {
       let count = 0
 
       if (!(question || categories.length)) {
-        items = await this.storage.all({ limit, offset: 0 })
+        items = await this.storage.all({
+          limit: limit ? parseInt(limit) : undefined,
+          offset: offset ? parseInt(offset) : undefined
+        })
         count = await this.storage.count()
       } else {
         const tmpQuestions = await filterByCategoryAndQuestion({ question, categories })
@@ -213,7 +216,7 @@ module.exports = {
         })
 
         const overallItemsCount = await this.storage.count()
-        res.send({ items, overallItemsCount, hasCategory: !!this.isQnAStorage })
+        res.send({ items, overallItemsCount, hasCategory: !!this.isMicrosoftMakerUsed })
       } catch (e) {
         logger.error('QnA Error', e, e.stack)
         res.status(500).send(e.message || 'Error')
@@ -241,7 +244,6 @@ module.exports = {
         const question = await this.storage.getQuestion(req.params.id)
 
         res.send(question)
-        res.end()
       } catch (err) {
         bp.events.emit('toast.qna-save', { text: `QnA Fetch Error: ${err.message}`, type: 'error' })
       }
@@ -287,15 +289,13 @@ module.exports = {
     router.get('/csv', async (req, res) => {
       res.setHeader('Content-Type', 'text/csv')
       res.setHeader('Content-disposition', `attachment; filename=qna_${moment().format('DD-MM-YYYY')}.csv`)
-      const categoryWrapper = this.isQnAStorage ? ['category'] : []
+      const categoryWrapper = this.isMicrosoftMakerUsed ? ['category'] : []
       const parseOptions = {
         fields: ['question', 'action', 'answer', 'answer2', ...categoryWrapper],
         header: true
       }
 
       const json2csvParser = new Json2csvParser(parseOptions)
-
-      const tmp = await bp.qna.export({ flat: true })
 
       res.end(iconv.encode(json2csvParser.parse(await bp.qna.export({ flat: true })), config.exportCsvEncoding))
     })

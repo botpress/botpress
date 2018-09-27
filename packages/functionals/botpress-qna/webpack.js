@@ -18,7 +18,7 @@ const nodeConfig = {
     __dirname: false
   },
   resolve: {
-    extensions: ['.js', '.jsx']
+    extensions: ['.js']
   },
   module: {
     rules: [
