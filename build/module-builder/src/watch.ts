@@ -2,14 +2,11 @@ import path from 'path'
 import nsfw from 'nsfw'
 import minimatch from 'minimatch'
 
+import { debug } from './log'
 import { buildBackend } from './build'
 import { watch as webpackWatch } from './webpack'
 
 export default async (argv: any) => {
-  if (argv.verbose) {
-    console.log('Verbose on!')
-  }
-
   const modulePath = path.resolve(argv.path || process.cwd())
 
   let promise: null | Promise<void> = buildBackend(modulePath)
@@ -21,7 +18,7 @@ export default async (argv: any) => {
       const matchDts = minimatch.match(files, '!**/*.d.ts', { nocase: true })
       const matchWeb = minimatch.match(files, '!src/views/**', { nocase: true })
       if (matchDts.length && matchWeb.length && !promise.isPending) {
-        console.log('Backend files changed')
+        debug('Backend files changed')
         promise = buildBackend(modulePath)
       }
     },

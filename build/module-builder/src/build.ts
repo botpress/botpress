@@ -4,20 +4,17 @@ import mkdirp from 'mkdirp'
 import path from 'path'
 import fs from 'fs'
 import rimraf from 'rimraf'
+import { debug, error, normal } from './log'
 
 import { build as webpackBuild } from './webpack'
 
 export default async (argv: any) => {
-  if (argv.verbose) {
-    console.log('Verbose on!')
-  }
-
   const modulePath = path.resolve(argv.path || process.cwd())
 
   await buildBackend(modulePath)
   await webpackBuild(modulePath)
 
-  console.log('Build completed')
+  normal('Build completed')
 }
 
 export async function buildBackend(modulePath: string) {
@@ -31,7 +28,7 @@ export async function buildBackend(modulePath: string) {
   const babelFile = path.join(modulePath, 'babel.backend.js')
 
   if (fs.existsSync(babelFile)) {
-    console.log('Babel override found for backend')
+    debug('Babel override found for backend')
     babelConfig = require(babelFile)(babelConfig)
   }
 
@@ -54,11 +51,11 @@ export async function buildBackend(modulePath: string) {
       fs.writeFileSync(dest, result.code)
       const totalTime = Date.now() - dBefore
 
-      console.log(`Generated "${dest}" (${totalTime} ms)`)
+      debug(`Generated "${dest}" (${totalTime} ms)`)
 
       outputFiles.push(dest)
     } catch (err) {
-      console.error(`Error transpiling file "${file}"`) // TODO Better error
+      error(`Error transpiling file "${file}"`) // TODO Better error
       throw err
     }
   }
