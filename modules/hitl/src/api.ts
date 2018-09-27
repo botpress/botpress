@@ -59,10 +59,8 @@ export default async (bp: typeof sdk & Extension, db: Database) => {
   router.post('/sessions/:sessionId/pause', (req, res) => {
     db.setSessionPaused(true, null, null, 'operator', req.params.sessionId)
       .then(sessionId => {
-        bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(null, 'hitl.session', { id: sessionId }))
-        bp.realtime.sendPayload(
-          bp.RealTimePayload.forVisitor(null, 'hitl.session.changed', { id: sessionId, paused: 1 })
-        )
+        bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('hitl.session', { id: sessionId }))
+        bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('hitl.session.changed', { id: sessionId, paused: 1 }))
       })
       .then(res.sendStatus(200))
   })
@@ -70,10 +68,8 @@ export default async (bp: typeof sdk & Extension, db: Database) => {
   router.post('/sessions/:sessionId/unpause', (req, res) => {
     db.setSessionPaused(false, null, null, 'operator', req.params.sessionId)
       .then(sessionId => {
-        bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(null, 'hitl.session', { id: sessionId }))
-        bp.realtime.sendPayload(
-          bp.RealTimePayload.forVisitor(null, 'hitl.session.changed', { id: sessionId, paused: 0 })
-        )
+        bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('hitl.session', { id: sessionId }))
+        bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('hitl.session.changed', { id: sessionId, paused: 0 }))
       })
       .then(res.sendStatus(200))
   })

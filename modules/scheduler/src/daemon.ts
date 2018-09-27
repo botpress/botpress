@@ -42,8 +42,8 @@ class Daemon {
     const AsyncFunction = eval('Object.getPrototypeOf(async function() {}).constructor') // eslint-disable-line no-eval
     const fn = new AsyncFunction('bp', 'task', expired.action)
 
-    this.bp.realtime.sendPayload(this.bp.RealTimePayload.forVisitor(null, 'scheduler.update', null))
-    this.bp.realtime.sendPayload(this.bp.RealTimePayload.forVisitor(null, 'scheduler.started', expired))
+    this.bp.realtime.sendPayload(this.bp.RealTimePayload.forAdmins('scheduler.update', null))
+    this.bp.realtime.sendPayload(this.bp.RealTimePayload.forAdmins('scheduler.started', expired))
 
     const fromDate = new Date()
     result = await fn(this.bp, expired)
@@ -66,8 +66,8 @@ class Daemon {
     const flattenLogs = ((logs && logs.file && logs.file.map(x => x.message)) || []).join('\n')
     await db(bp).updateTask(expired.taskId, 'done', flattenLogs, returned)*/
 
-    this.bp.realtime.sendPayload(this.bp.RealTimePayload.forVisitor(null, 'scheduler.update', null))
-    this.bp.realtime.sendPayload(this.bp.RealTimePayload.forVisitor(null, 'scheduler.started', expired))
+    this.bp.realtime.sendPayload(this.bp.RealTimePayload.forAdmins('scheduler.update', null))
+    this.bp.realtime.sendPayload(this.bp.RealTimePayload.forAdmins('scheduler.started', expired))
   }
 
   private _run = async () => {
@@ -81,7 +81,8 @@ class Daemon {
         .catch(err => {
           this.bp.logger.error('[scheduler]', err.message, err.stack)
 
-          this.bp.notifications.send({
+          this.bp.notifications.create(undefined, {
+            botId: undefined,
             message: 'An error occured while running task: ' + taskId + '. Please check the logs for more info.',
             level: 'error'
           })

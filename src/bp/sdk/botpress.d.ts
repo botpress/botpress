@@ -130,8 +130,13 @@ declare module 'botpress/sdk' {
   export type EventDirection = 'incoming' | 'outgoing'
 
   export type Notification = {
+    botId: string
     message: string
     level: string
+    moduleId?: string
+    moduleIcon?: string
+    moduleName?: string
+    redirectUrl?: string
   }
 
   /**
@@ -184,7 +189,7 @@ declare module 'botpress/sdk' {
   }
 
   export namespace notifications {
-    export function send(notification: Notification)
+    export function create(botId: string, notification: Notification): Promise<any>
   }
 
   export const logger: Logger
