@@ -1,27 +1,24 @@
 const process = require('process')
 const path = require('path')
 
-let rootDir = process.cwd()
-
-if (path.resolve(rootDir) === __dirname) {
-  console.warn("You can't run tests from the root. Running Core tests instead.")
-  rootDir = path.join(__dirname, 'src/bp')
-}
+const rootDir = path.join(process.cwd(), 'src')
 
 module.exports = {
   globals: {
     'ts-jest': {
-      tsConfigFile: '<rootDir>/tsconfig.json'
+      tsConfig: '<rootDir>/tsconfig.json'
     }
   },
   collectCoverage: false,
   verbose: true,
-  moduleFileExtensions: ['ts', 'js', 'tsx', 'jsx', 'json'],
+  modulePaths: ['<rootDir>/bp/'],
+  moduleFileExtensions: ['js', 'json', 'jsx', 'ts', 'tsx'],
   transform: {
     '^.+\\.(ts|tsx)$': 'ts-jest'
   },
   testMatch: ['**/(src|test)/**/*.test.(ts|js)'],
-  testPathIgnorePatterns: ['dist', 'build'],
+  testPathIgnorePatterns: ['out', 'build'],
   testEnvironment: 'node',
-  rootDir
+  rootDir: 'src',
+  preset: 'ts-jest'
 }
