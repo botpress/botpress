@@ -1,0 +1,113 @@
+.task {
+  text-align: left;
+  border-radius: 0 !important;
+  border-top: none;
+  margin-bottom: 0px;
+}
+
+.header_id {
+  font-size: 20px;
+  font-weight: 300;
+}
+
+.header_when {
+  margin-left: 5px;
+  font-size: 16px;
+  font-weight: 100;
+  color: #888;
+}
+
+.panel {
+  &.soon {
+    font-weight: 300;
+    color: #b0140d;
+  }
+}
+
+.line {
+  display: block;
+  font-weight: 400;
+
+  span {
+    color: #888;
+    font-weight: 200;
+  }
+}
+
+.delete {
+  bottom: 10px;
+  font-size: 16px;
+  margin-left: 5px;
+  vertical-align: middle;
+  transition: color ease-in-out 0.15s, opacity ease-in-out 0.15s;
+  opacity: 0;
+  color: #ccc;
+}
+
+.task:hover {
+  .delete {
+    cursor: pointer;
+    opacity: 1;
+
+    &:hover {
+      color: #888;
+    }
+  }
+}
+
+.action {
+  display: block;
+  margin: 10px 0;
+  border: 1px solid #eee;
+  border-radius: 3px;
+  border-left: 4px solid #ddd;
+  color: #999;
+  padding: 10px;
+  height: 50px;
+  overflow: hidden;
+}
+
+textarea.action {
+  width: 100%;
+  height: 200px;
+  padding: 10px 0;
+}
+
+.toggle {
+  display: block;
+  position: absolute;
+  top: 15px;
+  right: 25px;
+
+  &:global(.react-toggle--checked) {
+    :global(.react-toggle-thumb) {
+      border-color: #56c0b2;
+    }
+
+    :global(.react-toggle-track) {
+      background-color: #56c0b2 !important;
+    }
+  }
+}
+
+.buttons {
+  text-align: right;
+  padding-top: 10px;
+
+  button {
+    width: 100px;
+    margin-left: 5px;
+  }
+
+  :global(.btn-success) {
+    color: #fff;
+    background-color: #4cbeb9;
+    border-color: #4cbeb9;
+    transition: background-color ease-in-out 0.15s;
+
+    &:hover {
+      background-color: #46b0ac;
+      border-color: #46b0ac;
+    }
+  }
+}
