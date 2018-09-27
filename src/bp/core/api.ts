@@ -6,7 +6,6 @@ import { Memoize } from 'lodash-decorators'
 
 import { container } from './app.inversify'
 import Database from './database'
-import { KeyValueStore } from './database/key-value-store'
 import { LoggerProvider } from './logger'
 import { ModuleLoader } from './module-loader'
 import { UserRepository } from './repositories'
@@ -14,6 +13,7 @@ import { Event, RealTimePayload } from './sdk/impl'
 import HTTPServer from './server'
 import { DialogEngine } from './services/dialog/engine'
 import { SessionService } from './services/dialog/session/service'
+import { KeyValueStore } from './services/kvs/kvs'
 import { EventEngine } from './services/middleware/event-engine'
 import RealtimeService from './services/realtime'
 import { TYPES } from './types'
@@ -78,11 +78,26 @@ const users = (userRepo: UserRepository): typeof sdk.users => {
 
 const kvs = (kvs: KeyValueStore): typeof sdk.kvs => {
   return {
-    async get(key: string, path?: string): Promise<any> {
-      return kvs.get(key, path)
+    async get(botId: string, key: string, path?: string): Promise<any> {
+      return kvs.get(botId, key, path)
     },
     async set(botId: string, key: string, value: string, path?: string) {
       return kvs.set(botId, key, value, path)
+    },
+    async getStorageWithExpiry(botId, key): Promise<any> {
+      return kvs.getStorageWithExpiry(botId, key)
+    },
+    async setStorageWithExpiry(botId: string, key: string, value, expiryInMs?: string | number): Promise<void> {
+      return kvs.setStorageWithExpiry(botId, key, value, expiryInMs)
+    },
+    getConversationStorageKey(sessionId, variable): string {
+      return kvs.getConversationStorageKey(sessionId, variable)
+    },
+    getUserStorageKey(userId, variable): string {
+      return kvs.getUserStorageKey(userId, variable)
+    },
+    getGlobalStorageKey(variable): string {
+      return kvs.getGlobalStorageKey(variable)
     }
   }
 }

@@ -5,8 +5,8 @@ import minimatch from 'minimatch'
 import path from 'path'
 
 import { BotpressConfig } from '../../config/botpress.config'
-import { TYPES } from '../../types'
 import { isValidBotId } from '../../misc/validation'
+import { TYPES } from '../../types'
 
 import { GhostPendingRevisions, GhostPendingRevisionsWithContent, ObjectCache, StorageDriver } from '.'
 import DBStorageDriver from './db-driver'

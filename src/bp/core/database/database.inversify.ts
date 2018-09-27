@@ -5,7 +5,6 @@ import { TYPES } from '../types'
 
 import Database from '.'
 import { patchKnex } from './helpers'
-import { KeyValueStore } from './key-value-store'
 
 export const DatabaseContainerModule = new ContainerModule((bind: interfaces.Bind) => {
   bind<Database>(TYPES.Database)
@@ -22,8 +21,4 @@ export const DatabaseContainerModule = new ContainerModule((bind: interfaces.Bin
       })
     )
   })
-
-  bind<KeyValueStore>(TYPES.KeyValueStore)
-    .to(KeyValueStore)
-    .inSingletonScope()
 })

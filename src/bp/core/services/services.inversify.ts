@@ -20,6 +20,7 @@ import DiskStorageDriver from './ghost/disk-driver'
 import MemoryObjectCache from './ghost/memory-cache'
 import { GhostService } from './ghost/service'
 import { HookService } from './hook/hook-service'
+import { KeyValueStore } from './kvs/kvs'
 import { LogsJanitor } from './logs/janitor'
 import { LogsService } from './logs/service'
 import MediaService from './media'
@@ -28,7 +29,6 @@ import { NotificationsService } from './notification/service'
 import { Queue } from './queue'
 import MemoryQueue from './queue/memory-queue'
 import RealtimeService from './realtime'
-import { BotConfigFactory, BotConfigWriter } from '../config'
 
 export const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
   bind<CacheInvalidators.FileChangedInvalidator>(TYPES.FileCacheInvalidator)
@@ -145,5 +145,9 @@ export const ServicesContainerModule = new ContainerModule((bind: interfaces.Bin
 
   bind<NotificationsService>(TYPES.NotificationsService)
     .to(NotificationsService)
+    .inSingletonScope()
+
+  bind<KeyValueStore>(TYPES.KeyValueStore)
+    .to(KeyValueStore)
     .inSingletonScope()
 })
