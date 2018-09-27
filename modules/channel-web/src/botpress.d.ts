@@ -178,8 +178,13 @@ declare module 'botpress/sdk' {
   }
 
   export namespace kvs {
-    export function get(key: string, path?: string): Promise<any>
+    export function get(botId: string, key: string, path?: string): Promise<any>
     export function set(botId: string, key: string, value: any, path?: string): Promise<void>
+    export function setStorageWithExpiry(botId: string, key: string, value, expiryInMs?: string | number)
+    export function getStorageWithExpiry(botId: string, key: string)
+    export function getConversationStorageKey(sessionId: string, variable: string): string
+    export function getUserStorageKey(userId: string, variable: string): string
+    export function getGlobalStorageKey(variable: string): string
   }
 
   export const logger: Logger
