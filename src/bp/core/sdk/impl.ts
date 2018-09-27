@@ -25,6 +25,10 @@ export class RealTimePayload {
       __room: `visitor:${visitorId}`
     })
   }
+
+  public static forAdmins(eventName: string, payload: any): RealTimePayload {
+    return new RealTimePayload(eventName, payload)
+  }
 }
 
 export class IOEvent implements sdk.IO.Event {
