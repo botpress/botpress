@@ -177,5 +177,10 @@ declare module 'botpress/sdk' {
     export function getModuleConfigForBot(moduleId: string, botId: string): Promise<any>
   }
 
+  export namespace kvs {
+    export function get(key: string, path?: string): Promise<any>
+    export function set(botId: string, key: string, value: any, path?: string): Promise<void>
+  }
+
   export const logger: Logger
 }

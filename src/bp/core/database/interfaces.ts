@@ -1,5 +1,5 @@
-import Knex from 'knex'
 import { KnexExtension } from 'common/knex'
+import Knex from 'knex'
 
 export abstract class Table {
   constructor(public knex: Knex & KnexExtension) {}

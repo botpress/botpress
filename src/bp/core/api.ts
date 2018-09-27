@@ -1,23 +1,22 @@
 import * as sdk from 'botpress/sdk'
-
-import Knex from 'knex'
-
+import { WellKnownFlags } from 'core/sdk/enums'
 import { inject, injectable } from 'inversify'
+import Knex from 'knex'
 import { Memoize } from 'lodash-decorators'
 
 import { container } from './app.inversify'
 import Database from './database'
+import { KeyValueStore } from './database/key-value-store'
 import { LoggerProvider } from './logger'
-import { TYPES } from './types'
 import { ModuleLoader } from './module-loader'
 import { UserRepository } from './repositories'
+import { Event, RealTimePayload } from './sdk/impl'
 import HTTPServer from './server'
 import { DialogEngine } from './services/dialog/engine'
 import { SessionService } from './services/dialog/session/service'
 import { EventEngine } from './services/middleware/event-engine'
 import RealtimeService from './services/realtime'
-import { RealTimePayload, Event } from './sdk/impl'
-import { WellKnownFlags } from 'core/sdk/enums'
+import { TYPES } from './types'
 
 const http = (httpServer: HTTPServer) =>
   ({
@@ -77,6 +76,17 @@ const users = (userRepo: UserRepository): typeof sdk.users => {
   }
 }
 
+const kvs = (kvs: KeyValueStore): typeof sdk.kvs => {
+  return {
+    async get(key: string, path?: string): Promise<any> {
+      return kvs.get(key, path)
+    },
+    async set(botId: string, key: string, value: string, path?: string) {
+      return kvs.set(botId, key, value, path)
+    }
+  }
+}
+
 /**
  * Socket.IO API to emit payloads to front-end clients
  */
@@ -97,6 +107,7 @@ export class BotpressAPIProvider {
   realtime: RealTimeAPI
   database: Knex
   users: typeof sdk.users
+  kvs: typeof sdk.kvs
 
   constructor(
     @inject(TYPES.DialogEngine) dialogEngine: DialogEngine,
@@ -107,7 +118,8 @@ export class BotpressAPIProvider {
     @inject(TYPES.HTTPServer) httpServer: HTTPServer,
     @inject(TYPES.UserRepository) userRepo: UserRepository,
     @inject(TYPES.RealtimeService) realtimeService: RealtimeService,
-    @inject(TYPES.SessionService) sessionService: SessionService
+    @inject(TYPES.SessionService) sessionService: SessionService,
+    @inject(TYPES.KeyValueStore) keyValueStore: KeyValueStore
   ) {
     this.http = http(httpServer)
     this.events = event(eventEngine)
@@ -116,6 +128,7 @@ export class BotpressAPIProvider {
     this.realtime = new RealTimeAPI(realtimeService)
     this.database = db.knex
     this.users = users(userRepo)
+    this.kvs = kvs(keyValueStore)
   }
 
   @Memoize()
@@ -135,7 +148,8 @@ export class BotpressAPIProvider {
       config: this.config,
       database: this.database,
       users: this.users,
-      realtime: this.realtime
+      realtime: this.realtime,
+      kvs: this.kvs
     }
   }
 }

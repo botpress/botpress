@@ -1,11 +1,11 @@
-import 'common/polyfills'
 import 'bluebird-global'
-import 'sdk/rewire'
+import 'common/polyfills'
 import center from 'core/logger/center'
+import 'sdk/rewire'
 
-import chalk from 'chalk'
-import { Logger, Botpress } from 'core/app'
 import * as sdk from 'botpress/sdk'
+import chalk from 'chalk'
+import { Botpress, Logger } from 'core/app'
 const { start: startProxy } = require('./http/api')
 
 async function start() {
@@ -29,7 +29,7 @@ async function start() {
 
     const modules = new Map<string, sdk.ModuleDefinition>()
 
-    // modules.set('channel-web', require('/Users/slvn/bots/xx/modules/channel-web') as sdk.ModuleDefinition)
+    modules.set('channel-web', require('/Users/slvn/bots/xx/modules/channel-web') as sdk.ModuleDefinition)
 
     await Botpress.start({
       modules

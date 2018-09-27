@@ -2,7 +2,14 @@ import Knex from 'knex'
 
 import { Table } from '../interfaces'
 
-import { DialogSessionTable, GhostFilesTable, GhostRevisionsTable, LogsTable, NotificationsTable } from './bot-specific'
+import {
+  DialogSessionTable,
+  GhostFilesTable,
+  GhostRevisionsTable,
+  KeyValueStoreTable,
+  LogsTable,
+  NotificationsTable
+} from './bot-specific'
 import {
   AuthRolesTable,
   AuthTeamMembersTable,
@@ -28,7 +35,8 @@ const tables: (typeof Table)[] = [
   DialogSessionTable,
   GhostFilesTable,
   GhostRevisionsTable,
-  NotificationsTable
+  NotificationsTable,
+  KeyValueStoreTable
 ]
 
 export default <(new (knex: Knex) => Table)[]>tables
