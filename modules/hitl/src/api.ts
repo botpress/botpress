@@ -3,7 +3,7 @@ import { Extension } from '.'
 import Database from './db'
 
 export default async (bp: typeof sdk & Extension, db: Database) => {
-  bp['hitl'] = {
+  bp.hitl = {
     pause: (platform, userId) => {
       return db.setSessionPaused(true, platform, userId, 'code').then(sessionId => {
         bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'hitl.session', { id: sessionId }))

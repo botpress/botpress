@@ -10,7 +10,11 @@ import api from './api'
 let db = null
 
 export type Extension = {
-  hitl: {}
+  hitl: {
+    pause: Function
+    unpause: Function
+    isPaused: Function
+  }
 }
 
 export const config = {
@@ -19,8 +23,6 @@ export const config = {
 }
 
 export const onInit = async (bp: typeof sdk & Extension) => {
-  bp['hitl'] = {}
-
   db = new HitlDb(bp)
   await db.initialize()
   await mware(bp, db, config)
