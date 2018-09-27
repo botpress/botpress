@@ -1,5 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import { WellKnownFlags } from 'core/sdk/enums'
+import { NotificationsService } from 'core/services/notification/service'
 import { inject, injectable } from 'inversify'
 import Knex from 'knex'
 import { Memoize } from 'lodash-decorators'
@@ -102,6 +103,14 @@ const kvs = (kvs: KeyValueStore): typeof sdk.kvs => {
   }
 }
 
+const notifications = (notificationService: NotificationsService): typeof sdk.notifications => {
+  return {
+    async create(botId: string, notification: any): Promise<any> {
+      await notificationService.create(botId, notification)
+    }
+  }
+}
+
 /**
  * Socket.IO API to emit payloads to front-end clients
  */
@@ -123,6 +132,7 @@ export class BotpressAPIProvider {
   database: Knex
   users: typeof sdk.users
   kvs: typeof sdk.kvs
+  notifications: typeof sdk.notifications
 
   constructor(
     @inject(TYPES.DialogEngine) dialogEngine: DialogEngine,
@@ -134,7 +144,8 @@ export class BotpressAPIProvider {
     @inject(TYPES.UserRepository) userRepo: UserRepository,
     @inject(TYPES.RealtimeService) realtimeService: RealtimeService,
     @inject(TYPES.SessionService) sessionService: SessionService,
-    @inject(TYPES.KeyValueStore) keyValueStore: KeyValueStore
+    @inject(TYPES.KeyValueStore) keyValueStore: KeyValueStore,
+    @inject(TYPES.NotificationsService) notificationService: NotificationsService
   ) {
     this.http = http(httpServer)
     this.events = event(eventEngine)
@@ -144,6 +155,7 @@ export class BotpressAPIProvider {
     this.database = db.knex
     this.users = users(userRepo)
     this.kvs = kvs(keyValueStore)
+    this.notifications = notifications(notificationService)
   }
 
   @Memoize()
@@ -164,7 +176,8 @@ export class BotpressAPIProvider {
       database: this.database,
       users: this.users,
       realtime: this.realtime,
-      kvs: this.kvs
+      kvs: this.kvs,
+      notifications: this.notifications
     }
   }
 }

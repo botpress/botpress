@@ -1,11 +1,14 @@
 import fs, { stat } from 'fs'
-import webpack from 'webpack'
 import path from 'path'
+import webpack from 'webpack'
+
 import { debug, error, normal } from './log'
+
+const libraryTarget = mod => `botpress = typeof botpress === "object" ? botpress : {}; botpress["${mod}"]`
 
 export function config(projectPath) {
   const packageJson = require(path.join(projectPath, 'package.json'))
-
+  console.log('PACKAGESON', packageJson, packageJson.name)
   const web: webpack.Configuration = {
     mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
     devtool: 'source-map',
@@ -15,7 +18,7 @@ export function config(projectPath) {
       publicPath: '/js/modules/',
       filename: 'web.bundle.js',
       libraryTarget: 'assign',
-      library: ['botpress', packageJson.name]
+      library: libraryTarget(packageJson.name)
     },
     externals: {
       react: 'React',
@@ -35,7 +38,7 @@ export function config(projectPath) {
           use: {
             loader: 'babel-loader',
             options: {
-              presets: ['@babel/preset-env', '@babel/preset-typescript', '@babel/preset-react'],
+              presets: [['@babel/preset-env'], '@babel/preset-typescript', '@babel/preset-react'],
               plugins: [
                 '@babel/plugin-proposal-class-properties',
                 '@babel/plugin-syntax-function-bind',
@@ -70,7 +73,7 @@ export function config(projectPath) {
         },
         {
           test: /\.(jpe?g|png|gif|svg)$/i,
-          use: [{ loader: 'file-loader', options: { name: '[name].[hash].[ext]' } }, { loader: 'image-webpack-loader' }]
+          use: [{ loader: 'file-loader', options: { name: '[name].[hash].[ext]' } }]
         }
       ]
     }
@@ -86,7 +89,7 @@ export function config(projectPath) {
       publicPath: '/js/lite-modules/',
       filename: '[name].bundle.js',
       libraryTarget: 'assign',
-      library: ['botpress', packageJson.name]
+      library: libraryTarget(packageJson.name)
     }
   })
 

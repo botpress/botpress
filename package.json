@@ -9,7 +9,7 @@
   "private": true,
   "scripts": {
     "test": "./node_modules/.bin/jest --detectOpenHandles -c jest.config.js",
-    "start": "cd ./out/bp && cross-env NODE_PATH=./ cross-env JWT_SECRET=secret node index.js",
+    "start": "cd ./out/bp && cross-env NODE_PATH=./ cross-env JWT_SECRET=secret cross-env BP_MODULES_PATH=../../modules node index.js",
     "build": "./node_modules/.bin/gulp",
     "watch": "./node_modules/.bin/gulp dev",
     "build-modules": "./node_modules/.bin/gulp modules"

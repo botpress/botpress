@@ -129,6 +129,16 @@ declare module 'botpress/sdk' {
 
   export type EventDirection = 'incoming' | 'outgoing'
 
+  export type Notification = {
+    botId: string
+    message: string
+    level: string
+    moduleId?: string
+    moduleIcon?: string
+    moduleName?: string
+    redirectUrl?: string
+  }
+
   /**
    * ////////////////
    * //////// API
@@ -186,6 +196,10 @@ declare module 'botpress/sdk' {
     export function getConversationStorageKey(sessionId: string, variable: string): string
     export function getUserStorageKey(userId: string, variable: string): string
     export function getGlobalStorageKey(variable: string): string
+  }
+
+  export namespace notifications {
+    export function create(botId: string, notification: Notification): Promise<any>
   }
 
   export const logger: Logger

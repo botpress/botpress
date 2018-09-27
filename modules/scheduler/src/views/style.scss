@@ -1,0 +1,88 @@
+.mainContainer {
+  :global(.container) {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+  }
+}
+
+.sectionHeader {
+  border: solid 1px #ddd;
+  padding: 15px;
+  margin: 0;
+  background-color: white;
+  position: relative;
+
+  h4 {
+    font-weight: bolder;
+    color: gray;
+    font-size: 22px;
+    margin: 0;
+  }
+  a {
+    position: absolute;
+    right: 10px;
+    top: 14px;
+  }
+
+  .historyBadge {
+    margin-left: 10px;
+    vertical-align: middle;
+
+    p {
+      line-height: 16px;
+      padding-top: 1px;
+      padding-right: 1px;
+    }
+  }
+
+  button {
+    position: absolute;
+    right: 10px;
+    top: 12px;
+    background-color: #56c0b2;
+    border: none;
+
+    &:hover {
+      background-color: #36baa9;
+    }
+  }
+}
+
+.emptyText {
+  border: solid 1px #ddd;
+  border-top: none;
+  padding: 15px;
+  margin: 0;
+  background-color: white;
+}
+
+.row-centered {
+  text-align: center;
+}
+
+.col-centered {
+  display: inline-block;
+  float: none;
+  text-align: middle;
+  margin-right: -4px;
+}
+
+:global(.badge) {
+  p {
+    font-size: 12px;
+    line-height: 12px;
+    padding-top: 2px;
+    margin: 0;
+  }
+}
+
+.tasks {
+  margin-top: 15px;
+}
+
+.trashAll {
+  a {
+    color: #17ba90;
+  }
+}
