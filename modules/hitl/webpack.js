@@ -1,12 +1,47 @@
-var webpack = require('webpack')
+const webpack = require('webpack')
 const path = require('path')
-var pkg = require('./package.json')
+const nodeExternals = require('webpack-node-externals')
+const pkg = require('./package.json')
+
+var nodeConfig = {
+  devtool: 'source-map',
+  entry: ['./src/index.js'],
+  output: {
+    path: path.resolve(__dirname, './bin'),
+    filename: 'node.bundle.js',
+    libraryTarget: 'commonjs2',
+    publicPath: __dirname
+  },
+  externals: [nodeExternals(), 'botpress'],
+  target: 'node',
+  node: {
+    __dirname: false
+  },
+  resolve: {
+    extensions: ['.js']
+  },
+  module: {
+    rules: [
+      {
+        test: /\.js$/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['latest', 'stage-0'],
+            plugins: ['transform-object-rest-spread', 'transform-async-to-generator']
+          }
+        },
+        exclude: /node_modules/
+      }
+    ]
+  }
+}
 
 var webConfig = {
   devtool: 'source-map',
   entry: ['./src/views/index.jsx'],
   output: {
-    path: path.resolve(__dirname, './dist/web'),
+    path: path.resolve(__dirname, './bin'),
     publicPath: '/js/modules/',
     filename: 'web.bundle.js',
     libraryTarget: 'assign',
@@ -15,7 +50,8 @@ var webConfig = {
   externals: {
     react: 'React',
     'react-dom': 'ReactDOM',
-    'react-bootstrap': 'ReactBootstrap'
+    'react-bootstrap': 'ReactBootstrap',
+    'prop-types': 'PropTypes'
   },
   resolve: {
     extensions: ['.js', '.jsx']
@@ -53,36 +89,16 @@ var webConfig = {
         use: [{ loader: 'style-loader' }, { loader: 'css-loader' }]
       },
       {
-        test: /font.*\.(woff|woff2|svg|eot|ttf)$/,
+        test: /\.woff|\.woff2|\.svg|.eot|\.ttf/,
         use: { loader: 'file-loader', options: { name: '../fonts/[name].[ext]' } }
-      },
-      {
-        test: /\.(jpe?g|png|gif|svg)$/i,
-        use: [{ loader: 'file-loader', options: { name: '[name].[hash].[ext]' } }, { loader: 'image-webpack-loader' }]
       }
     ]
   }
 }
 
-const liteConfig = Object.assign({}, webConfig, {
-  entry: {
-    embedded: './src/views/web/embedded.jsx',
-    fullscreen: './src/views/web/fullscreen.jsx'
-  },
-  output: {
-    path: path.resolve(__dirname, './dist/web'),
-    publicPath: '/js/lite-modules/',
-    filename: '[name].bundle.js',
-    libraryTarget: 'assign',
-    library: ['botpress', pkg.name]
-  }
-})
-
-var compiler = webpack([webConfig, liteConfig])
+var compiler = webpack([nodeConfig, webConfig])
 var postProcess = function(err, stats) {
-  if (err) {
-    throw err
-  }
+  if (err) throw err
   console.log(stats.toString('minimal'))
 }
 
@@ -90,4 +106,9 @@ if (process.argv.indexOf('--compile') !== -1) {
   compiler.run(postProcess)
 } else if (process.argv.indexOf('--watch') !== -1) {
   compiler.watch(null, postProcess)
+}
+
+module.exports = {
+  web: webConfig,
+  node: nodeConfig
 }

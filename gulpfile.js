@@ -38,4 +38,4 @@ gulp.task(
   ])
 )
 
-gulp.task('modules', gulp.series([modules.copySdkDefinitions, modules.buildModules()]))
+gulp.task('modules', gulp.series([modules.copySdkDefinitions, modules.copyBoilerplateFiles, modules.buildModules()]))
