@@ -4,9 +4,11 @@ import webpack from 'webpack'
 
 import { debug, error, normal } from './log'
 
+const libraryTarget = mod => `botpress = typeof botpress === "object" ? botpress : {}; botpress["${mod}"]`
+
 export function config(projectPath) {
   const packageJson = require(path.join(projectPath, 'package.json'))
-
+  console.log('PACKAGESON', packageJson, packageJson.name)
   const web: webpack.Configuration = {
     mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
     devtool: 'source-map',
@@ -16,7 +18,7 @@ export function config(projectPath) {
       publicPath: '/js/modules/',
       filename: 'web.bundle.js',
       libraryTarget: 'assign',
-      library: ['botpress', packageJson.name]
+      library: libraryTarget(packageJson.name)
     },
     externals: {
       react: 'React',
@@ -87,7 +89,7 @@ export function config(projectPath) {
       publicPath: '/js/lite-modules/',
       filename: '[name].bundle.js',
       libraryTarget: 'assign',
-      library: ['botpress', packageJson.name]
+      library: libraryTarget(packageJson.name)
     }
   })
 
