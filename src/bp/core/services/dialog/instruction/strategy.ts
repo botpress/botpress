@@ -1,3 +1,4 @@
+import { IO } from 'botpress/sdk'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import Mustache from 'mustache'
@@ -9,7 +10,6 @@ import { runCode } from '../../action/sandbox-launcher'
 import { EventEngine } from '../../middleware/event-engine'
 
 import { Instruction, InstructionType, ProcessingResult } from '.'
-import { IO } from 'botpress/sdk'
 
 @injectable()
 export class StrategyFactory {

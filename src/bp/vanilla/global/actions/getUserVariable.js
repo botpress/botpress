@@ -1,4 +1,15 @@
-const userId = event.user.id
-const key = bp.kvs.getUserStorageKey(userId, name)
-const result = await bp.kvs.getStorageWithExpiry(event.botId, key)
-return { ...state, [output]: result }
+/**
+ * Get a variable under this user's storage
+ * @title Get user variable
+ * @category Storage
+ * @author Botpress, Inc.
+ * @param {string} name - The name of the variable
+ */
+const getUserVariable = async name => {
+  const userId = event.target
+  const key = bp.kvs.getUserStorageKey(userId, name)
+  const result = await bp.kvs.getStorageWithExpiry(event.botId, key)
+  return { ...state, output: result }
+}
+
+getUserVariable(args.name)

@@ -16,6 +16,7 @@ import ms from 'ms'
 import { TYPES } from '../../types'
 
 import Database from '../../database'
+import { safeStringify } from '../../misc/util'
 
 // TODO: Create repository to interact with the database
 @injectable()
@@ -30,6 +31,7 @@ export class KeyValueStore {
   constructor(@inject(TYPES.Database) private database: Database) {}
 
   upsert = (botId: string, key: string, value) => {
+    console.log('UPSERT')
     let sql
 
     const params = {
@@ -40,7 +42,7 @@ export class KeyValueStore {
       modifiedOnCol: 'modified_on',
       botId,
       key,
-      value: JSON.stringify(value),
+      value: safeStringify(value),
       now: this.database.knex.date.now()
     }
 
@@ -111,6 +113,8 @@ export class KeyValueStore {
    * @memberof! KVS
    */
   set = (botId: string, key: string, value, path?: string) => {
+    console.log('SET', botId, key, value)
+
     if (!path) {
       return this.upsert(botId, key, value)
     }

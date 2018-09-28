@@ -1,3 +1,4 @@
+import { Logger, ModuleConfigEntry, ModuleDefinition } from 'botpress/sdk'
 import json5 from 'json5'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
@@ -5,7 +6,6 @@ import { VError } from 'verror'
 import yn from 'yn'
 
 import { GhostService } from '../'
-import { ModuleConfigEntry, ModuleDefinition, Logger } from 'botpress/sdk'
 
 type Config = { [key: string]: any }
 
