@@ -1,9 +1,9 @@
 import 'bluebird-global'
 import 'common/polyfills'
+import center from 'core/logger/center'
 import 'core/modules-resolver'
 import 'sdk/rewire'
-
-import center from 'core/logger/center'
+import 'sdk/rewire'
 
 import * as sdk from 'botpress/sdk'
 import chalk from 'chalk'

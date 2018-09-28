@@ -1,14 +1,14 @@
-import os from 'os'
+import { Logger, LoggerEntry, LoggerLevel } from 'botpress/sdk'
 import chalk from 'chalk'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 import moment from 'moment'
+import os from 'os'
 import util from 'util'
 
 import { TYPES } from '../types'
 
 import { LoggerPersister } from '.'
-import { Logger, LoggerLevel, LoggerEntry } from 'botpress/sdk'
 
 export type LoggerProvider = (module: string) => Promise<Logger>
 

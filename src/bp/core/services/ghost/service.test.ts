@@ -1,13 +1,12 @@
 import 'bluebird-global'
+import { PersistedConsoleLogger } from 'core/logger'
+import { createSpyObject, MockObject } from 'core/misc/utils'
 import 'reflect-metadata'
-
-import { createSpyObject, MockObject } from '../../misc/utils'
 
 import { GhostFileRevision, ObjectCache } from '.'
 import DBStorageDriver from './db-driver'
 import DiskStorageDriver from './disk-driver'
 import { GhostService } from './service'
-import { Logger } from '../../../common/logging'
 
 const BOT_ID = 'bot123'
 
@@ -16,13 +15,13 @@ describe('Ghost Service', () => {
   let diskDriver: MockObject<DiskStorageDriver>,
     dbDriver: MockObject<DBStorageDriver>,
     cache: MockObject<ObjectCache>,
-    logger: MockObject<Logger>
+    logger: MockObject<PersistedConsoleLogger>
 
   beforeEach(() => {
     diskDriver = createSpyObject<DiskStorageDriver>()
     dbDriver = createSpyObject<DBStorageDriver>()
     cache = createSpyObject<ObjectCache>()
-    logger = createSpyObject<Logger>()
+    logger = createSpyObject<PersistedConsoleLogger>()
     ghost = new GhostService(diskDriver.T, dbDriver.T, cache.T, logger.T)
   })
 

@@ -8,6 +8,8 @@ import { createSpyObject } from '../misc/utils'
 
 import Database from '.'
 
+const TEST_DATABASE = 'botpress_tests'
+
 const logger = createSpyObject<Logger>()
 
 export type DatabaseTestSuite = ((database: Database) => void)
@@ -38,19 +40,19 @@ export function createDatabaseSuite(suiteName: string, suite: DatabaseTestSuite)
   })
 
   describe(`DB[Postgres] ${suiteName}`, () => {
-    afterAll(async () => {
-      await postgres.knex.destroy()
-    })
-
     beforeAll(async () => {
       await postgres.initialize({
         type: 'postgres',
         host: process.env.PG_HOST || 'localhost',
         port: Number(process.env.PG_PORT || 5432),
-        database: process.env.PG_DB || 'slvn',
-        user: process.env.PG_USER || '',
+        database: process.env.PG_DB || TEST_DATABASE,
+        user: process.env.PG_USER || 'postgres',
         password: process.env.PG_PASSWORD || ''
       })
+    })
+
+    afterAll(async () => {
+      await postgres.knex.destroy()
     })
 
     afterEach(async () => {

@@ -8,6 +8,7 @@
   "license": "AGPL-3.0",
   "private": true,
   "scripts": {
+    "test": "./node_modules/.bin/jest --detectOpenHandles -c jest.config.js",
     "start": "cd ./out/bp && cross-env NODE_PATH=./ cross-env JWT_SECRET=secret cross-env BP_MODULES_PATH=../../modules node index.js",
     "build": "./node_modules/.bin/gulp",
     "watch": "./node_modules/.bin/gulp dev",
@@ -40,6 +41,7 @@
     "mustache": "^3.0.0",
     "nanoid": "^1.2.3",
     "nsfw": "^1.1.0",
+    "pg": "^7.4.3",
     "plur": "^3.0.1",
     "querystring": "^0.2.0",
     "reflect-metadata": "^0.1.12",

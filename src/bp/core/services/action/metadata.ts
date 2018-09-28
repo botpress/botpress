@@ -5,11 +5,13 @@ import _ from 'lodash'
 const JSDocCommentRegex = /\/\*\*\s*\n([^\*]|(\*(?!\/)))*\*\//gi
 
 export type ActionMetadata = {
+  title: string
+  category: string
   description: string
   author: string
   params: {
     type: string
-    isOptional: boolean
+    required: boolean
     default: any
     description: string
   }[]
@@ -18,6 +20,8 @@ export type ActionMetadata = {
 export const extractMetadata = (code: string) => {
   const match = code.match(JSDocCommentRegex)
   const metadata: ActionMetadata = {
+    title: '',
+    category: '',
     description: '',
     author: '',
     params: []
@@ -36,22 +40,32 @@ export const extractMetadata = (code: string) => {
   })
 
   metadata.description = extracted.description
-  const author = _.find(extracted.tags, { title: 'author' })
 
+  const author = _.find(extracted.tags, { title: 'author' })
   if (author) {
     metadata.author = (author as any).description || ''
   }
 
+  const category = _.find(extracted.tags, { title: 'category' })
+  if (category) {
+    metadata.category = (category as any).description || ''
+  }
+
+  const title = _.find(extracted.tags, { title: 'title' })
+  if (title) {
+    metadata.title = (title as any).description || ''
+  }
+
   metadata.params = _.filter(extracted.tags, { title: 'param' }).map(tag => {
     const type: string = _.get(tag, 'type.name', '')
-    const isOptional = _.get(tag, 'type.type') === doctrine.type.Syntax.OptionalType
+    const required = _.get(tag, 'type.type') !== doctrine.type.Syntax.OptionalType
     const def = _.get(tag, 'type.default', '')
 
     return {
       description: (tag as any).description || '',
       type,
       default: def,
-      isOptional
+      required
     }
   })
 

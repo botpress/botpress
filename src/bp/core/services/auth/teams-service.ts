@@ -1,19 +1,19 @@
+import { Logger } from 'botpress/sdk'
 import { inject, injectable, tagged } from 'inversify'
+import Joi from 'joi'
+import Knex from 'knex'
 import _ from 'lodash'
 import nanoid from 'nanoid'
-import Knex from 'knex'
 
+import { BotConfigFactory, BotConfigWriter } from '../../config'
 import Database from '../../database'
+import { checkRule } from '../../misc/auth'
 import { AuthRole, AuthRoleDb, AuthRule, AuthTeam, AuthTeamMembership, AuthUser, Bot } from '../../misc/interfaces'
+import { BOTID_REGEX } from '../../misc/validation'
+import { TYPES } from '../../types'
 import { InvalidOperationError, NotFoundError, UnauthorizedAccessError } from '../auth/errors'
 
 import defaultRoles from './default-roles'
-import { TYPES } from '../../types'
-import { Logger } from 'botpress/sdk'
-import { checkRule } from '../../misc/auth'
-import { BotConfigFactory, BotConfigWriter } from '../../config'
-import Joi from 'joi'
-
 const TEAMS_TABLE = 'auth_teams'
 const MEMBERS_TABLE = 'auth_team_members'
 const ROLES_TABLE = 'auth_roles'
@@ -22,7 +22,7 @@ const BOTS_TABLE = 'srv_bots'
 
 const BotValidationSchema = Joi.object().keys({
   id: Joi.string()
-    .regex(/^[a-zA-Z0-9-_]+$/)
+    .regex(BOTID_REGEX)
     .required(),
   name: Joi.string().required(),
   description: Joi.string().required(),

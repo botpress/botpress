@@ -11,16 +11,23 @@ export type Instruction = {
   node?: string
 }
 
-export type FollowUpAction = 'none' | 'wait' | 'transition'
+export type FollowUpAction = 'none' | 'wait' | 'transition' | 'update'
 
 export class ProcessingResult {
-  constructor(public success: boolean, public followUpAction: FollowUpAction, public transitionTo?: string) {}
+  constructor(
+    public success: boolean,
+    public followUpAction: FollowUpAction,
+    public options?: { transitionTo?: string; state? }
+  ) {}
 
+  static updateState(state) {
+    return new ProcessingResult(true, 'update', { state })
+  }
   static none() {
     return new ProcessingResult(true, 'none')
   }
   static transition(destination: string) {
-    return new ProcessingResult(true, 'transition', destination)
+    return new ProcessingResult(true, 'transition', { transitionTo: destination })
   }
   static wait() {
     return new ProcessingResult(true, 'wait')

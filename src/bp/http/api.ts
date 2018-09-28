@@ -360,7 +360,7 @@ function setupAPIProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
         const moduleName = req.params.moduleName
 
         if (moduleName === 'web.bundle.js.map') {
-          return null
+          return undefined
         }
 
         let path = req.params.subview || 'index.js'

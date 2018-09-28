@@ -1,10 +1,11 @@
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
-import { NodeVM } from 'vm2'
 import * as sdk from 'botpress/sdk'
+import { NodeVM } from 'vm2'
 
-import { TYPES } from '../../types'
 import { GhostService } from '..'
+import { TYPES } from '../../types'
+
 import { IO } from 'botpress/sdk'
 
 export namespace Hooks {

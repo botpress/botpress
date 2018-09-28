@@ -1,8 +1,8 @@
+import { IO } from 'botpress/sdk'
+import { DialogSession } from 'core/repositories'
+import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
-
-import { TYPES } from 'core/types'
-import { DialogSession } from 'core/repositories'
 
 import { FlowNavigator, NavigationArgs, NavigationPosition } from './flow/navigator'
 import FlowService from './flow/service'
@@ -11,7 +11,6 @@ import { InstructionFactory } from './instruction/factory'
 import { InstructionProcessor } from './instruction/processor'
 import { InstructionQueue } from './instruction/queue'
 import { SessionService } from './session/service'
-import { IO } from 'botpress/sdk'
 
 export class ProcessingError extends Error {
   constructor(
@@ -98,13 +97,16 @@ export class DialogEngine {
           session.context
         )
 
-        if (result.followUpAction === 'none') {
+        if (result.followUpAction === 'update') {
+          await this.updateQueueForSession(queue, session)
+          await this.sessionService.updateStateForSession(session.id, result.options!.state!)
+        } else if (result.followUpAction === 'none') {
           await this.updateQueueForSession(queue, session)
         } else if (result.followUpAction === 'wait') {
           await this.updateQueueForSession(queue, session)
           break
         } else if (result.followUpAction === 'transition') {
-          const position = await this.navigateToNextNode(flows, session, result.transitionTo!)
+          const position = await this.navigateToNextNode(flows, session, result.options!.transitionTo!)
           if (!position) {
             this.sessionService.deleteSession(session.id)
             break

@@ -244,6 +244,16 @@ declare module 'botpress/sdk' {
     export function getModuleConfigForBot(moduleId: string, botId: string): Promise<any>
   }
 
+  export namespace kvs {
+    export function get(botId: string, key: string, path?: string): Promise<any>
+    export function set(botId: string, key: string, value: any, path?: string): Promise<void>
+    export function setStorageWithExpiry(botId: string, key: string, value, expiryInMs?: string | number)
+    export function getStorageWithExpiry(botId: string, key: string)
+    export function getConversationStorageKey(sessionId: string, variable: string): string
+    export function getUserStorageKey(userId: string, variable: string): string
+    export function getGlobalStorageKey(variable: string): string
+  }
+
   export namespace bots {
     export function getAllBots(): Promise<Map<string, BotConfig>>
   }

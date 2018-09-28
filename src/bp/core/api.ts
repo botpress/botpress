@@ -1,5 +1,4 @@
 import * as sdk from 'botpress/sdk'
-import { Notification } from 'core/repositories'
 import { WellKnownFlags } from 'core/sdk/enums'
 import { inject, injectable } from 'inversify'
 import Knex from 'knex'
@@ -18,6 +17,7 @@ import { GhostService } from './services'
 import { DialogEngine } from './services/dialog/engine'
 import { SessionService } from './services/dialog/session/service'
 import { ScopedGhostService } from './services/ghost/service'
+import { KeyValueStore } from './services/kvs/kvs'
 import { EventEngine } from './services/middleware/event-engine'
 import { NotificationsService } from './services/notification/service'
 import RealtimeService from './services/realtime'
@@ -89,6 +89,32 @@ const users = (userRepo: UserRepository): typeof sdk.users => {
   }
 }
 
+const kvs = (kvs: KeyValueStore): typeof sdk.kvs => {
+  return {
+    async get(botId: string, key: string, path?: string): Promise<any> {
+      return kvs.get(botId, key, path)
+    },
+    async set(botId: string, key: string, value: string, path?: string) {
+      return kvs.set(botId, key, value, path)
+    },
+    async getStorageWithExpiry(botId, key): Promise<any> {
+      return kvs.getStorageWithExpiry(botId, key)
+    },
+    async setStorageWithExpiry(botId: string, key: string, value, expiryInMs?: string | number): Promise<void> {
+      return kvs.setStorageWithExpiry(botId, key, value, expiryInMs)
+    },
+    getConversationStorageKey(sessionId, variable): string {
+      return kvs.getConversationStorageKey(sessionId, variable)
+    },
+    getUserStorageKey(userId, variable): string {
+      return kvs.getUserStorageKey(userId, variable)
+    },
+    getGlobalStorageKey(variable): string {
+      return kvs.getGlobalStorageKey(variable)
+    }
+  }
+}
+
 const notifications = (notificationService: NotificationsService): typeof sdk.notifications => {
   return {
     async create(botId: string, notification: any): Promise<any> {
@@ -125,6 +151,7 @@ export class BotpressAPIProvider {
   realtime: RealTimeAPI
   database: Knex
   users: typeof sdk.users
+  kvs: typeof sdk.kvs
   notifications: typeof sdk.notifications
   bots: typeof sdk.bots
   ghost: typeof sdk.ghost
@@ -139,6 +166,7 @@ export class BotpressAPIProvider {
     @inject(TYPES.UserRepository) userRepo: UserRepository,
     @inject(TYPES.RealtimeService) realtimeService: RealtimeService,
     @inject(TYPES.SessionService) sessionService: SessionService,
+    @inject(TYPES.KeyValueStore) keyValueStore: KeyValueStore,
     @inject(TYPES.NotificationsService) notificationService: NotificationsService,
     @inject(TYPES.BotLoader) botLoader: BotLoader,
     @inject(TYPES.GhostService) ghostService: GhostService
@@ -150,6 +178,7 @@ export class BotpressAPIProvider {
     this.realtime = new RealTimeAPI(realtimeService)
     this.database = db.knex
     this.users = users(userRepo)
+    this.kvs = kvs(keyValueStore)
     this.notifications = notifications(notificationService)
     this.bots = bots(botLoader)
     this.ghost = ghost(ghostService)
@@ -173,6 +202,7 @@ export class BotpressAPIProvider {
       database: this.database,
       users: this.users,
       realtime: this.realtime,
+      kvs: this.kvs,
       notifications: this.notifications,
       ghost: this.ghost,
       bots: this.bots
@@ -192,4 +222,8 @@ export function createForGlobalHooks(): Promise<typeof sdk> {
 
 export function createForBotpress(): Promise<typeof sdk> {
   return container.get<BotpressAPIProvider>(TYPES.BotpressAPIProvider).create(`Botpress`)
+}
+
+export function createForAction(): Promise<typeof sdk> {
+  return container.get<BotpressAPIProvider>(TYPES.BotpressAPIProvider).create('Actions')
 }
