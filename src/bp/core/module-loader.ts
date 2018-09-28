@@ -1,4 +1,4 @@
-import { Logger, ModuleDefinition } from 'botpress/sdk'
+import { Logger, ModuleEntryPoint } from 'botpress/sdk'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 
@@ -9,7 +9,7 @@ import { TYPES } from './types'
 
 @injectable()
 export class ModuleLoader {
-  private loadedModules = new Map<string, ModuleDefinition>()
+  private loadedModules = new Map<string, ModuleEntryPoint>()
   private _configReader?: ConfigReader
 
   constructor(
@@ -35,7 +35,7 @@ export class ModuleLoader {
     this._configReader = value
   }
 
-  public async loadModules(modules: Map<string, ModuleDefinition>) {
+  public async loadModules(modules: Map<string, ModuleEntryPoint>) {
     this.configReader = new ConfigReader(this.logger, modules, this.ghost)
     await this.configReader.initialize()
     const initedModules = {}
@@ -44,7 +44,6 @@ export class ModuleLoader {
     for (const [name, module] of modules) {
       try {
         const api = await createForModule(name)
-        console.log(api)
         await (module.onInit && module.onInit(api))
         initedModules[name] = true
       } catch (err) {

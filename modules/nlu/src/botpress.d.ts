@@ -28,12 +28,32 @@ declare module 'botpress/sdk' {
     error(message: string, error: Error, metadata?: any): void
   }
 
-  export interface ModuleDefinition {
+  export interface ModuleEntryPoint {
     onInit: Function
     onReady: Function
     config: { [key: string]: ModuleConfigEntry }
     defaultConfigJson?: string
     serveFile?: ((path: string) => Promise<Buffer>)
+  }
+
+  export interface ModuleDefdinition {
+    name: string
+    fullName: string
+    plugins: ModulePluginEntry[]
+    moduleView: ModuleViewOptions
+    noInterface: boolean
+    menuIcon: string
+    menuText: string
+    homepage: string
+  }
+
+  export interface ModulePluginEntry {
+    entry: string
+    position: 'overlay'
+  }
+
+  export interface ModuleViewOptions {
+    stretched: boolean
   }
 
   export type ModuleConfigEntry = {
@@ -48,6 +68,7 @@ declare module 'botpress/sdk' {
     readonly payload: any
     constructor(eventName: string, payload: any)
     public static forVisitor(visitorId: string, eventName: string, payload: any): RealTimePayload
+    public static forAdmins(eventName: string, payload: any): RealTimePayload
   }
 
   export namespace IO {
@@ -128,6 +149,16 @@ declare module 'botpress/sdk' {
 
   export type EventDirection = 'incoming' | 'outgoing'
 
+  export type Notification = {
+    botId: string
+    message: string
+    level: string
+    moduleId?: string
+    moduleIcon?: string
+    moduleName?: string
+    redirectUrl?: string
+  }
+
   /**
    * ////////////////
    * //////// API
@@ -175,6 +206,10 @@ declare module 'botpress/sdk' {
   export namespace config {
     export function getModuleConfig(moduleId: string): Promise<any>
     export function getModuleConfigForBot(moduleId: string, botId: string): Promise<any>
+  }
+
+  export namespace notifications {
+    export function create(botId: string, notification: Notification): Promise<any>
   }
 
   export const logger: Logger

@@ -1,32 +1,32 @@
+import * as sdk from 'botpress/sdk'
+import { IO } from 'botpress/sdk'
+import { WellKnownFlags } from 'core/sdk/enums'
 import { inject, injectable, tagged } from 'inversify'
 import { Memoize } from 'lodash-decorators'
 import moment from 'moment'
 import * as path from 'path'
 import plur from 'plur'
-import * as sdk from 'botpress/sdk'
 
-import { IO } from 'botpress/sdk'
 import { createForGlobalHooks } from './api'
 import { BotLoader } from './bot-loader'
 import { BotpressConfig } from './config/botpress.config'
 import { ConfigProvider } from './config/config-loader'
 import Database from './database'
 import { LoggerPersister, LoggerProvider } from './logger'
-import { TYPES } from './types'
 import { ModuleLoader } from './module-loader'
 import HTTPServer from './server'
+import { GhostService } from './services'
 import { DialogEngine, ProcessingError } from './services/dialog/engine'
 import { DialogJanitor } from './services/dialog/janitor'
-import { GhostService } from './services'
 import { Hooks, HookService } from './services/hook/hook-service'
 import { LogsJanitor } from './services/logs/janitor'
 import { EventEngine } from './services/middleware/event-engine'
 import { NotificationsService } from './services/notification/service'
 import RealtimeService from './services/realtime'
-import { WellKnownFlags } from 'core/sdk/enums'
+import { TYPES } from './types'
 
 export type StartOptions = {
-  modules: Map<string, sdk.ModuleDefinition>
+  modules: Map<string, sdk.ModuleEntryPoint>
 }
 
 @injectable()
@@ -58,7 +58,6 @@ export class Botpress {
     @inject(TYPES.LoggerPersister) private loggerPersister: LoggerPersister,
     @inject(TYPES.NotificationsService) private notificationService: NotificationsService
   ) {
-    this.logger.warn(`Using Botpress '${sdk.version}'`)
     this.version = '12.0.1'
     this.botpressPath = path.join(process.cwd(), 'dist')
     this.configLocation = path.join(this.botpressPath, '/config')
@@ -139,7 +138,7 @@ export class Botpress {
     this.loggerPersister.start()
   }
 
-  private async loadModules(modules: Map<string, sdk.ModuleDefinition>): Promise<void> {
+  private async loadModules(modules: Map<string, sdk.ModuleEntryPoint>): Promise<void> {
     const loadedModules = await this.moduleLoader.loadModules(modules)
     this.logger.info(`Loaded ${loadedModules.length} ${plur('module', loadedModules.length)}`)
   }

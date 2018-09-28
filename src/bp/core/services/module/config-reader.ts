@@ -1,3 +1,4 @@
+import { Logger, ModuleConfigEntry, ModuleEntryPoint } from 'botpress/sdk'
 import json5 from 'json5'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
@@ -5,7 +6,6 @@ import { VError } from 'verror'
 import yn from 'yn'
 
 import { GhostService } from '../'
-import { ModuleConfigEntry, ModuleDefinition, Logger } from 'botpress/sdk'
 
 type Config = { [key: string]: any }
 
@@ -63,7 +63,7 @@ const amendOptions = options => {
  * 4) Per-bot Override (Most precedence)
  */
 export default class ConfigReader {
-  constructor(private logger: Logger, private modules: Map<string, ModuleDefinition>, private ghost: GhostService) {}
+  constructor(private logger: Logger, private modules: Map<string, ModuleEntryPoint>, private ghost: GhostService) {}
 
   public async initialize() {
     await this.bootstrapGlobalConfigurationFiles()

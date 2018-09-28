@@ -28,12 +28,32 @@ declare module 'botpress/sdk' {
     error(message: string, error: Error, metadata?: any): void
   }
 
-  export interface ModuleDefinition {
+  export interface ModuleEntryPoint {
     onInit: Function
     onReady: Function
     config: { [key: string]: ModuleConfigEntry }
     defaultConfigJson?: string
     serveFile?: ((path: string) => Promise<Buffer>)
+  }
+
+  export interface ModuleDefdinition {
+    name: string
+    fullName: string
+    plugins: ModulePluginEntry[]
+    moduleView: ModuleViewOptions
+    noInterface: boolean
+    menuIcon: string
+    menuText: string
+    homepage: string
+  }
+
+  export interface ModulePluginEntry {
+    entry: string
+    position: 'overlay'
+  }
+
+  export interface ModuleViewOptions {
+    stretched: boolean
   }
 
   export type ModuleConfigEntry = {

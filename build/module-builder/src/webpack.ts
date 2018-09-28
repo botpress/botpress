@@ -1,4 +1,4 @@
-import fs, { stat } from 'fs'
+import fs from 'fs'
 import path from 'path'
 import webpack from 'webpack'
 
@@ -8,7 +8,6 @@ const libraryTarget = mod => `botpress = typeof botpress === "object" ? botpress
 
 export function config(projectPath) {
   const packageJson = require(path.join(projectPath, 'package.json'))
-  console.log('PACKAGESON', packageJson, packageJson.name)
   const web: webpack.Configuration = {
     mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
     devtool: 'source-map',
