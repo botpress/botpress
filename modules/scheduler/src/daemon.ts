@@ -1,26 +1,26 @@
-import sdk from 'botpress/sdk'
 import Bluebird from 'bluebird'
-
-import Database from './db'
-import util from './util'
 import _ from 'lodash'
 
-let daemon: Daemon = null
+import { SDK } from '.'
+import Database from './db'
+import util from './util'
+
+let daemon: Daemon = undefined
 
 class Daemon {
-  private db: Database = null
-  private bp: typeof sdk = null
-  private timerInterval = null
+  private db: Database = undefined
+  private bp: SDK = undefined
+  private timerInterval = undefined
   private lock = false
 
-  constructor(bp: typeof sdk, db: Database) {
+  constructor(bp: SDK, db: Database) {
     this.db = db
     this.bp = bp
   }
 
   private reschedule = task => {
     if (task.schedule_type.toLowerCase() === 'once') {
-      return Bluebird.resolve(null)
+      return Bluebird.resolve(undefined)
     }
 
     const nextOccurence = util.getNextOccurence(task.schedule_type, task.schedule).toDate()
@@ -29,20 +29,20 @@ class Daemon {
   }
 
   private runSingleTask = async expired => {
-    await this.db.updateTask(expired.taskId, 'executing', null, null)
+    await this.db.updateTask(expired.taskId, 'executing', undefined, undefined)
 
-    let result = null
+    let result = undefined
 
     if (!expired.enabled) {
       this.bp.logger.debug('[scheduler] Skipped task ' + expired.taskId + '. Reason=disabled')
-      await this.db.updateTask(expired.taskId, 'skipped', null, null)
+      await this.db.updateTask(expired.taskId, 'skipped', undefined, undefined)
       return
     }
 
     const AsyncFunction = eval('Object.getPrototypeOf(async function() {}).constructor') // eslint-disable-line no-eval
     const fn = new AsyncFunction('bp', 'task', expired.action)
 
-    this.bp.realtime.sendPayload(this.bp.RealTimePayload.forAdmins('scheduler.update', null))
+    this.bp.realtime.sendPayload(this.bp.RealTimePayload.forAdmins('scheduler.update', undefined))
     this.bp.realtime.sendPayload(this.bp.RealTimePayload.forAdmins('scheduler.started', expired))
 
     const fromDate = new Date()
@@ -60,13 +60,13 @@ class Daemon {
       fields: ['message']
     }
 
-    //TODO Add logger query for db
+    // TODO Add logger query for db
 
     /*const logs = await Promise.fromCallback(callback => bp.logger.query(logsQuery, callback))
     const flattenLogs = ((logs && logs.file && logs.file.map(x => x.message)) || []).join('\n')
     await db(bp).updateTask(expired.taskId, 'done', flattenLogs, returned)*/
 
-    this.bp.realtime.sendPayload(this.bp.RealTimePayload.forAdmins('scheduler.update', null))
+    this.bp.realtime.sendPayload(this.bp.RealTimePayload.forAdmins('scheduler.update', undefined))
     this.bp.realtime.sendPayload(this.bp.RealTimePayload.forAdmins('scheduler.started', expired))
   }
 
@@ -87,7 +87,7 @@ class Daemon {
             level: 'error'
           })
 
-          return this.db.updateTask(taskId, 'error', null, null)
+          return this.db.updateTask(taskId, 'error', undefined, undefined)
         })
         .finally(async () => {
           if (!rescheduled[taskId]) {
@@ -119,7 +119,7 @@ class Daemon {
   stop = () => clearInterval(this.timerInterval)
 }
 
-export default (bp: typeof sdk, db: Database) => {
+export default (bp: SDK, db: Database) => {
   if (!daemon) {
     daemon = new Daemon(bp, db)
   }
