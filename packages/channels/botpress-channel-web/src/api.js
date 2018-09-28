@@ -283,7 +283,7 @@ module.exports = async (bp, config) => {
           conversationId
         }
       },
-      ...payload.data
+      ...(payload.data || {})
     )
   }
 
