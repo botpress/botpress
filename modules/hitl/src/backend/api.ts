@@ -1,4 +1,5 @@
 import * as sdk from 'botpress/sdk'
+
 import { Extension } from '.'
 import Database from './db'
 
@@ -25,7 +26,7 @@ export default async (bp: typeof sdk & Extension, db: Database) => {
     }
   }
 
-  const router = bp.http.createRouterForBot('hitl')
+  const router = bp.http.createRouterForBot('botpress-hitl')
 
   router.get('/sessions', (req, res) => {
     db.getAllSessions(req.query.onlyPaused === 'true').then(sessions => res.send(sessions))
@@ -57,7 +58,7 @@ export default async (bp: typeof sdk & Extension, db: Database) => {
   // TODO post /sessions/:id/typing
 
   router.post('/sessions/:sessionId/pause', (req, res) => {
-    db.setSessionPaused(true, null, null, 'operator', req.params.sessionId)
+    db.setSessionPaused(true, undefined, undefined, 'operator', req.params.sessionId)
       .then(sessionId => {
         bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('hitl.session', { id: sessionId }))
         bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('hitl.session.changed', { id: sessionId, paused: 1 }))
@@ -66,7 +67,7 @@ export default async (bp: typeof sdk & Extension, db: Database) => {
   })
 
   router.post('/sessions/:sessionId/unpause', (req, res) => {
-    db.setSessionPaused(false, null, null, 'operator', req.params.sessionId)
+    db.setSessionPaused(false, undefined, undefined, 'operator', req.params.sessionId)
       .then(sessionId => {
         bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('hitl.session', { id: sessionId }))
         bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('hitl.session.changed', { id: sessionId, paused: 0 }))

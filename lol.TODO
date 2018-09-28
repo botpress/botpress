@@ -1,9 +1,5 @@
 [] Gulp for modules
-  [] copy botpress.d.ts from core
-  [] Git ignore botpress.d.ts
-  [] Proper injection of SDK (throw when using it)
+  [x] copy botpress.d.ts from core
+  [x] Git ignore botpress.d.ts
+  [x] Proper injection of SDK (throw when using it)
   [] Proper factory in api.ts
-
-[] Import modules the proper way
-
-[] Fix the $$BOTPRESS_BASE_PATH$$ in view

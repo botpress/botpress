@@ -28,12 +28,32 @@ declare module 'botpress/sdk' {
     error(message: string, error: Error, metadata?: any): void
   }
 
-  export interface ModuleDefinition {
+  export interface ModuleEntryPoint {
     onInit: Function
     onReady: Function
     config: { [key: string]: ModuleConfigEntry }
     defaultConfigJson?: string
     serveFile?: ((path: string) => Promise<Buffer>)
+  }
+
+  export interface ModuleDefdinition {
+    name: string
+    fullName: string
+    plugins: ModulePluginEntry[]
+    moduleView: ModuleViewOptions
+    noInterface: boolean
+    menuIcon: string
+    menuText: string
+    homepage: string
+  }
+
+  export interface ModulePluginEntry {
+    entry: string
+    position: 'overlay'
+  }
+
+  export interface ModuleViewOptions {
+    stretched: boolean
   }
 
   export type ModuleConfigEntry = {
@@ -139,6 +159,42 @@ declare module 'botpress/sdk' {
     redirectUrl?: string
   }
 
+  export interface ScopedGhostService {
+    upsertFile(rootFolder: string, file: string, content: string | Buffer): Promise<void>
+    readFileAsBuffer(rootFolder: string, file: string): Promise<Buffer>
+    readFileAsString(rootFolder: string, file: string): Promise<string>
+    readFileAsObject<T>(rootFolder: string, file: string): Promise<T>
+    deleteFile(rootFolder: string, file: string): Promise<void>
+    directoryListing(rootFolder: string, fileEndingPattern: string): Promise<string[]>
+  }
+
+  export type BotConfig = {
+    $schema?: string
+    id: string
+    name: string
+    active: boolean
+    description?: string
+    author?: string
+    version: string
+    license?: string
+    imports: {
+      modules: string[]
+      contentTypes: string[]
+      incomingMiddleware: string[]
+      outgoingMiddleware: string[]
+    }
+    dialog?: DialogConfig
+    logs?: LogsConfig
+  }
+
+  export interface LogsConfig {
+    expiration: string
+  }
+
+  export interface DialogConfig {
+    timeoutInterval: string
+  }
+
   /**
    * ////////////////
    * //////// API
@@ -198,8 +254,16 @@ declare module 'botpress/sdk' {
     export function getGlobalStorageKey(variable: string): string
   }
 
+  export namespace bots {
+    export function getAllBots(): Promise<Map<string, BotConfig>>
+  }
+
   export namespace notifications {
     export function create(botId: string, notification: Notification): Promise<any>
+  }
+
+  export namespace ghost {
+    export function forBot(botId: string): ScopedGhostService
   }
 
   export const logger: Logger

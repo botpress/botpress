@@ -1,8 +1,8 @@
-import _ from 'lodash'
 import crypto from 'crypto'
+import _ from 'lodash'
 
-import zscore from 'zscore'
 import natural from 'natural'
+import zscore from 'zscore'
 
 import Provider from './base'
 
@@ -23,7 +23,7 @@ export default class NativeProvider extends Provider {
 
   constructor(config) {
     super({ ...config, name: 'native', entityKey: '@native' })
-    this.classifier = null
+    this.classifier = undefined
   }
 
   async init() {}
@@ -40,10 +40,10 @@ export default class NativeProvider extends Provider {
 
   setStemmer(stemmer) {
     if (!stemmer) {
-      this.customStemmer = null
+      this.customStemmer = undefined
     } else if (!_.isFunction(stemmer)) {
       this.logger.error('[NLU::Native] Stemmer must be a function')
-      this.customStemmer = null
+      this.customStemmer = undefined
     } else {
       this.customStemmer = stemmer
     }
@@ -66,9 +66,10 @@ export default class NativeProvider extends Provider {
       .createHash('md5')
       .update(JSON.stringify(localIntents))
       .digest('hex')
-
-    const metadata = await this.kvs.get(NATIVE_HASH_KVS_KEY)
-    return metadata && metadata.hash === intentsHash
+    // TOFIX
+    // const metadata = await this.kvs.get(NATIVE_HASH_KVS_KEY)
+    // return metadata && metadata.hash === intentsHash
+    return true
   }
 
   private async onSyncSuccess(localIntents) {
@@ -77,9 +78,10 @@ export default class NativeProvider extends Provider {
       .update(JSON.stringify(localIntents))
       .digest('hex')
 
+    // TOFIX
     // We save the model hash and model to the KVS
-    await this.kvs.set(NATIVE_HASH_KVS_KEY, { hash: intentsHash })
-    await this.kvs.set(NATIVE_MODEL, JSON.stringify(this.classifier))
+    // await this.kvs.set(NATIVE_HASH_KVS_KEY, { hash: intentsHash })
+    // await this.kvs.set(NATIVE_MODEL, JSON.stringify(this.classifier))
   }
 
   private async restoreModel() {

@@ -1,21 +1,25 @@
 import * as sdk from 'botpress/sdk'
 import { WellKnownFlags } from 'core/sdk/enums'
-import { NotificationsService } from 'core/services/notification/service'
 import { inject, injectable } from 'inversify'
 import Knex from 'knex'
 import { Memoize } from 'lodash-decorators'
 
 import { container } from './app.inversify'
+import { BotLoader } from './bot-loader'
+import { BotConfig } from './config/bot.config'
 import Database from './database'
 import { LoggerProvider } from './logger'
 import { ModuleLoader } from './module-loader'
 import { UserRepository } from './repositories'
 import { Event, RealTimePayload } from './sdk/impl'
 import HTTPServer from './server'
+import { GhostService } from './services'
 import { DialogEngine } from './services/dialog/engine'
 import { SessionService } from './services/dialog/session/service'
+import { ScopedGhostService } from './services/ghost/service'
 import { KeyValueStore } from './services/kvs/kvs'
 import { EventEngine } from './services/middleware/event-engine'
+import { NotificationsService } from './services/notification/service'
 import RealtimeService from './services/realtime'
 import { TYPES } from './types'
 
@@ -70,6 +74,14 @@ const config = (moduleLoader: ModuleLoader): typeof sdk.config => {
   }
 }
 
+const bots = (botLoader: BotLoader): typeof sdk.bots => {
+  return {
+    getAllBots(): Promise<Map<string, BotConfig>> {
+      return botLoader.getAllBots()
+    }
+  }
+}
+
 const users = (userRepo: UserRepository): typeof sdk.users => {
   return {
     getOrCreateUser: userRepo.getOrCreate.bind(userRepo),
@@ -111,6 +123,14 @@ const notifications = (notificationService: NotificationsService): typeof sdk.no
   }
 }
 
+const ghost = (ghostService: GhostService): typeof sdk.ghost => {
+  return {
+    forBot(botId: string): ScopedGhostService {
+      return ghostService.forBot(botId)
+    }
+  }
+}
+
 /**
  * Socket.IO API to emit payloads to front-end clients
  */
@@ -133,6 +153,8 @@ export class BotpressAPIProvider {
   users: typeof sdk.users
   kvs: typeof sdk.kvs
   notifications: typeof sdk.notifications
+  bots: typeof sdk.bots
+  ghost: typeof sdk.ghost
 
   constructor(
     @inject(TYPES.DialogEngine) dialogEngine: DialogEngine,
@@ -145,7 +167,9 @@ export class BotpressAPIProvider {
     @inject(TYPES.RealtimeService) realtimeService: RealtimeService,
     @inject(TYPES.SessionService) sessionService: SessionService,
     @inject(TYPES.KeyValueStore) keyValueStore: KeyValueStore,
-    @inject(TYPES.NotificationsService) notificationService: NotificationsService
+    @inject(TYPES.NotificationsService) notificationService: NotificationsService,
+    @inject(TYPES.BotLoader) botLoader: BotLoader,
+    @inject(TYPES.GhostService) ghostService: GhostService
   ) {
     this.http = http(httpServer)
     this.events = event(eventEngine)
@@ -156,6 +180,8 @@ export class BotpressAPIProvider {
     this.users = users(userRepo)
     this.kvs = kvs(keyValueStore)
     this.notifications = notifications(notificationService)
+    this.bots = bots(botLoader)
+    this.ghost = ghost(ghostService)
   }
 
   @Memoize()
@@ -177,7 +203,9 @@ export class BotpressAPIProvider {
       users: this.users,
       realtime: this.realtime,
       kvs: this.kvs,
-      notifications: this.notifications
+      notifications: this.notifications,
+      ghost: this.ghost,
+      bots: this.bots
     }
   }
 }

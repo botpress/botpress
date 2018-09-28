@@ -3,6 +3,8 @@ import * as sdk from 'botpress/sdk'
 import fs from 'fs'
 import path from 'path'
 
+import '../botpress'
+
 import api from './api'
 import WebchatDatabase from './db'
 import socket from './socket'
@@ -13,7 +15,7 @@ export type Extension = {
 
 export type SDK = typeof sdk & Extension
 
-export const onInit = async (bp: SDK) => {
+const onInit = async (bp: SDK) => {
   bp['channel-web'] = {}
 
   const db = new WebchatDatabase(bp)
@@ -23,9 +25,9 @@ export const onInit = async (bp: SDK) => {
   await socket(bp, db)
 }
 
-export const onReady = async (bp: SDK) => {}
+const onReady = async (bp: SDK) => {}
 
-export const config = {
+const config: sdk.ModuleConfig = {
   uploadsUseS3: { type: 'bool', required: false, default: false, env: 'CHANNEL_WEB_USE_S3' },
   uploadsS3Bucket: { type: 'string', required: false, default: 'bucket-name', env: 'CHANNEL_WEB_S3_BUCKET' },
   uploadsS3AWSAccessKey: { type: 'any', required: false, default: undefined, env: 'CHANNEL_WEB_S3_ACCESS_KEY' },
@@ -45,7 +47,7 @@ export const config = {
   }
 }
 
-export const defaultConfigJson = `
+const defaultConfigJson = `
 {
   /************
     Optional settings
@@ -61,7 +63,7 @@ export const defaultConfigJson = `
 }
 `
 
-export const serveFile = async (filePath: string): Promise<Buffer> => {
+const serveFile = async (filePath: string): Promise<Buffer> => {
   filePath = filePath.toLowerCase()
 
   const mapping = {
@@ -77,3 +79,13 @@ export const serveFile = async (filePath: string): Promise<Buffer> => {
 
   return new Buffer('')
 }
+
+const obj: sdk.ModuleEntryPoint = {
+  onInit: onInit,
+  onReady: onReady,
+  config: config,
+  defaultConfigJson: defaultConfigJson,
+  serveFile: serveFile
+}
+
+export default obj

@@ -60,7 +60,7 @@ export class GhostService {
   }
 }
 
-class ScopedGhostService {
+export class ScopedGhostService {
   isDirectoryGlob: boolean
   primaryDriver: StorageDriver
 

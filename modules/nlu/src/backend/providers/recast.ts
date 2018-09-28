@@ -1,6 +1,6 @@
-import _ from 'lodash'
 import axios, { AxiosInstance } from 'axios'
 import crypto from 'crypto'
+import _ from 'lodash'
 
 import Provider from './base'
 
@@ -247,12 +247,12 @@ export default class RecastProvider extends Provider {
         }
 
         return {
-          name: null,
+          name: undefined,
           type: entity.entityType,
           value,
           original: entity.raw,
           confidence: entity.confidence,
-          position: null,
+          position: undefined,
           provider: 'recast'
         }
       }),

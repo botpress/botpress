@@ -1,5 +1,5 @@
-import _ from 'lodash'
 import crypto from 'crypto'
+import _ from 'lodash'
 
 import Provider from './base'
 
@@ -85,9 +85,9 @@ export default class DialogflowProvider extends Provider {
         name: entity.name, // usually the entity name, but can be modified
         type: entity.name, // when parameter name modified dialogflow doesn't give the original entity name
         value: entity.value,
-        original: null,
-        confidence: null,
-        position: null,
+        original: undefined,
+        confidence: undefined,
+        position: undefined,
         provider: 'dialogflow'
       }))
     }
