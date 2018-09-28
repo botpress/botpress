@@ -14,4 +14,4 @@ const setUserVariable = async (name, value, expiry) => {
   return { ...state }
 }
 
-setUserVariable(args.name, args.value, args.expiry)
+return setUserVariable(args.name, args.value, args.expiry)

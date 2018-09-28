@@ -2,6 +2,7 @@ import { IO } from 'botpress/sdk'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import Mustache from 'mustache'
+import { VError } from 'verror'
 
 import { container } from '../../../app.inversify'
 import { TYPES } from '../../../types'
@@ -96,9 +97,13 @@ export class ActionStrategy implements InstructionStrategy {
       throw new Error(`Action "${actionName}" not found, ${context}, ${state}`)
     }
 
-    await this.actionService.forBot(botId).runAction(actionName, state, event, args)
-
-    return ProcessingResult.none()
+    const result = await this.actionService
+      .forBot(botId)
+      .runAction(actionName, state, event, args)
+      .catch(err => {
+        throw new VError(err, `An error occurred while executing the action: "${actionName}"`)
+      })
+    return ProcessingResult.updateState(result)
   }
 
   private containsTemplate(value: string) {

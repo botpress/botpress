@@ -89,6 +89,7 @@ export class ScopedActionService {
     const api = await createForAction()
 
     const vm = new NodeVM({
+      wrapper: 'none',
       sandbox: {
         bp: api,
         event: incomingEvent,
@@ -100,13 +101,20 @@ export class ScopedActionService {
 
     const script = new VMScript(code)
 
-    try {
-      const retValue = vm.run(script)
-      console.log('RET VALUE', retValue)
-    } catch (err) {
-      console.log('ERROR', err)
-      throw new VError(err, `An error occurred while executing the action: "${actionName}"`)
-    }
+    return new Promise((resolve, reject) => {
+      try {
+        const retValue = vm.run(script)
+
+        // Check if code returned a Promise-like object
+        if (retValue && typeof retValue.then === 'function') {
+          retValue.then(resolve, reject)
+        } else {
+          resolve(retValue)
+        }
+      } catch (err) {
+        reject(err)
+      }
+    })
   }
 
   private async findActionScript(actionName: string): Promise<string> {
