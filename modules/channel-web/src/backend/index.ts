@@ -3,8 +3,6 @@ import * as sdk from 'botpress/sdk'
 import fs from 'fs'
 import path from 'path'
 
-import '../botpress'
-
 import api from './api'
 import WebchatDatabase from './db'
 import socket from './socket'
