@@ -66,10 +66,9 @@ export default class NativeProvider extends Provider {
       .createHash('md5')
       .update(JSON.stringify(localIntents))
       .digest('hex')
-    // TOFIX
-    // const metadata = await this.kvs.get(NATIVE_HASH_KVS_KEY)
-    // return metadata && metadata.hash === intentsHash
-    return true
+
+    const metadata = await this.kvs.get(this.botId, NATIVE_HASH_KVS_KEY)
+    return metadata && metadata.hash === intentsHash
   }
 
   private async onSyncSuccess(localIntents) {
@@ -78,14 +77,13 @@ export default class NativeProvider extends Provider {
       .update(JSON.stringify(localIntents))
       .digest('hex')
 
-    // TOFIX
     // We save the model hash and model to the KVS
-    // await this.kvs.set(NATIVE_HASH_KVS_KEY, { hash: intentsHash })
-    // await this.kvs.set(NATIVE_MODEL, JSON.stringify(this.classifier))
+    await this.kvs.set(this.botId, NATIVE_HASH_KVS_KEY, { hash: intentsHash })
+    await this.kvs.set(this.botId, NATIVE_MODEL, JSON.stringify(this.classifier))
   }
 
   private async restoreModel() {
-    const model = await this.kvs.get(NATIVE_MODEL)
+    const model = await this.kvs.get(this.botId, NATIVE_MODEL)
 
     if (!model) {
       this.classifier = new natural.BayesClassifier()

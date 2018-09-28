@@ -86,7 +86,7 @@ export default class LuisProvider extends Provider {
       .update(JSON.stringify(localIntents))
       .digest('hex')
 
-    const metadata = await this.kvs.get(LUIS_HASH_KVS_KEY)
+    const metadata = await this.kvs.get(this.botId, LUIS_HASH_KVS_KEY)
 
     return metadata && metadata.hash === intentsHash && metadata.time === remoteVersion.lastModifiedDateTime
   }
@@ -103,7 +103,7 @@ export default class LuisProvider extends Provider {
       .update(JSON.stringify(localIntents))
       .digest('hex')
 
-    await this.kvs.set(LUIS_HASH_KVS_KEY, {
+    await this.kvs.set(this.botId, LUIS_HASH_KVS_KEY, {
       hash: intentsHash,
       time: remoteVersion.lastModifiedDateTime
     })

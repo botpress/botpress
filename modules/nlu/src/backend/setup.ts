@@ -1,4 +1,5 @@
 import retry from 'bluebird-retry'
+import moment from 'moment'
 
 import { SDK } from '.'
 import ScopedNlu from './scopednlu'
@@ -33,12 +34,11 @@ export default async (bp: SDK) => {
       return
     }
 
-    // TODO when kvs is ready
-    /*const previous = JSON.parse((await bp.kvs.get('nlu/requestsLimit')) || '{}')
+    const previous = JSON.parse((await bp.kvs.get(event.botId, 'nlu/requestsLimit')) || '{}')
     const hour = moment().startOf('hour')
     const requestsCount = hour.isSame(previous.hour) ? previous.requestsCount : 0
 
-    await bp.kvs.set('nlu/requestsLimit', JSON.stringify({ hour, requestsCount: requestsCount + 1 }))
+    await bp.kvs.set(event.botId, 'nlu/requestsLimit', JSON.stringify({ hour, requestsCount: requestsCount + 1 }))
 
     const maximumRequestsPerHour = parseFloat(botCtx.config.maximumRequestsPerHour)
     if (requestsCount > maximumRequestsPerHour) {
@@ -46,7 +46,7 @@ export default async (bp: SDK) => {
         `[NLU] Requests limit per hour exceeded: ${maximumRequestsPerHour} allowed ` +
           `while getting ${requestsCount}. You can set higher value to NLU_MAX_REQUESTS_PER_HOUR.`
       )
-    }*/
+    }
 
     let eventIntent = { confidence: undefined, name: undefined }
     let eventIntents = []
