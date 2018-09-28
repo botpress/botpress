@@ -1,11 +1,12 @@
 import Bluebird from 'bluebird'
-import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
+
+import { SDK } from '.'
 
 export default class HitlDb {
   knex: any
 
-  constructor(private bp: typeof sdk) {
+  constructor(private bp: SDK) {
     this.knex = bp.database
   }
 
@@ -102,7 +103,7 @@ export default class HitlDb {
       last_heard_on: this.knex.date.now(),
       paused: 0,
       full_name: full_name,
-      paused_trigger: null
+      paused_trigger: undefined
     }
 
     return this.knex('hitl_sessions')

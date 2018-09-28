@@ -1,14 +1,13 @@
 import _ from 'lodash'
-import * as sdk from 'botpress/sdk'
-import util from './util.js'
-import { Extension } from '.'
 
+import { SDK } from '.'
+import util from './util.js'
 const Validate = require('validate-arguments')
 
 export default class SchedulerDb {
   knex: any
 
-  constructor(private bp: typeof sdk & Extension) {
+  constructor(private bp: SDK) {
     this.knex = bp.database
   }
 
@@ -23,7 +22,7 @@ export default class SchedulerDb {
         table.timestamp('created_on')
         table.string('action')
       })
-      .then(function() {
+      .then(() => {
         return this.knex.createTableIfNotExists('scheduler_tasks', function(table) {
           table.increments('id')
           table
