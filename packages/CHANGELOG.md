@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.44.2"></a>
+## [10.44.2](https://github.com/botpress/botpress/compare/v10.44.1...v10.44.2) (2018-09-28)
+
+
+### Bug Fixes
+
+* **channel-web:** handle missing payload.data ([13b296f](https://github.com/botpress/botpress/commit/13b296f))
+
+
+
+
 <a name="10.44.1"></a>
 ## [10.44.1](https://github.com/botpress/botpress/compare/v10.44.0...v10.44.1) (2018-09-28)
 
