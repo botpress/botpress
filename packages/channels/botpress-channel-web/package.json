@@ -1,6 +1,6 @@
 {
   "name": "@botpress/channel-web",
-  "version": "10.44.0",
+  "version": "10.44.1",
   "description": "An embeddable web chat for Botpress bots",
   "main": "bin/node.bundle.js",
   "homepage": "https://github.com/botpress/modules",

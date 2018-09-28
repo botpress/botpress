@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.44.1"></a>
+## [10.44.1](https://github.com/botpress/modules/compare/v10.44.0...v10.44.1) (2018-09-28)
+
+
+### Bug Fixes
+
+* **nlu:** native-NLU values should be in 0..1 interval (resolve [#865](https://github.com/botpress/modules/issues/865)) ([82acb3a](https://github.com/botpress/modules/commit/82acb3a))
+
+
+
+
 <a name="10.44.0"></a>
 # [10.44.0](https://github.com/botpress/modules/compare/v10.43.0...v10.44.0) (2018-09-27)
 

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.44.1"></a>
+## [10.44.1](https://github.com/botpress/modules/compare/v10.44.0...v10.44.1) (2018-09-28)
+
+
+### Bug Fixes
+
+* **messenger:** made profiles fields option for FB (resolve [#829](https://github.com/botpress/modules/issues/829)) ([ed74212](https://github.com/botpress/modules/commit/ed74212))
+
+
+
+
 <a name="10.44.0"></a>
 # [10.44.0](https://github.com/botpress/modules/compare/v10.43.0...v10.44.0) (2018-09-27)
 
