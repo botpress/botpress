@@ -1,6 +1,6 @@
 import Bluebird from 'bluebird'
-import _ from 'lodash'
 import * as sdk from 'botpress/sdk'
+import _ from 'lodash'
 
 export default class HitlDb {
   knex: any
@@ -64,7 +64,7 @@ export default class HitlDb {
         table.boolean('paused')
         table.string('paused_trigger')
       })
-      .then(function() {
+      .then(() => {
         return this.knex.createTableIfNotExists('hitl_messages', function(table) {
           table.increments('id').primary()
           table
@@ -82,7 +82,7 @@ export default class HitlDb {
   }
 
   createUserSession(event) {
-    let profileUrl = null
+    let profileUrl = undefined
     let full_name =
       '#' +
       Math.random()
@@ -121,7 +121,7 @@ export default class HitlDb {
     const userId = (event.user && event.user.id) || event.raw.to
 
     if (!userId) {
-      return null
+      return undefined
     }
 
     return this.knex('hitl_sessions')
@@ -144,7 +144,7 @@ export default class HitlDb {
       .limit(1)
       .then(users => {
         if (!users || users.length === 0) {
-          return null
+          return undefined
         } else {
           return users[0]
         }
@@ -187,7 +187,7 @@ export default class HitlDb {
     )
   }
 
-  setSessionPaused(paused, platform, userId, trigger, sessionId = null) {
+  setSessionPaused(paused, platform, userId, trigger, sessionId = undefined) {
     if (sessionId) {
       return this.knex('hitl_sessions')
         .where({ id: sessionId })
@@ -206,7 +206,7 @@ export default class HitlDb {
     }
   }
 
-  isSessionPaused(platform, userId, sessionId = null) {
+  isSessionPaused(platform, userId, sessionId = undefined) {
     const toBool = s => this.knex.bool.parse(s)
 
     if (sessionId) {
@@ -228,7 +228,7 @@ export default class HitlDb {
 
   getAllSessions(onlyPaused) {
     let condition = ''
-
+    const knex2 = this.knex
     if (onlyPaused === true) {
       condition = 'hitl_sessions.paused = ' + this.knex.bool.true()
     }
@@ -236,7 +236,7 @@ export default class HitlDb {
     return this.knex
       .select('*')
       .from(function() {
-        this.select([this.knex.raw('max(id) as mId'), 'session_id', this.knex.raw('count(*) as count')])
+        this.select([knex2.raw('max(id) as mId'), 'session_id', knex2.raw('count(*) as count')])
           .from('hitl_messages')
           .groupBy('session_id')
           .as('q1')
