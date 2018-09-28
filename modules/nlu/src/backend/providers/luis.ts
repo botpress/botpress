@@ -1,6 +1,7 @@
 import axios from 'axios'
-import _ from 'lodash'
 import crypto from 'crypto'
+import _ from 'lodash'
+
 import Provider, { defaultExtractData } from './base'
 
 const LUIS_APP_VERSION = '1.0' // Static, we're not using this as everything is source-controlled in your bot
@@ -285,7 +286,7 @@ export default class LuisProvider extends Provider {
       const detailedError = _.get(err, 'response.data.error.message') || (err && err.message) || err
       this.logger.error('[NLU::Luis] Could not sync the model. Error = ' + detailedError)
     }
-    this.syncingSince = null
+    this.syncingSince = undefined
   }
 
   async train() {
@@ -396,7 +397,7 @@ export default class LuisProvider extends Provider {
         provider: 'luis'
       })),
       entities: entities.map(entity => ({
-        name: null,
+        name: undefined,
         type: entity.type,
         value:
           _.get(entity, 'resolution.values.0.value') ||
@@ -404,7 +405,7 @@ export default class LuisProvider extends Provider {
           _.get(entity, 'resolution.values.0') ||
           entity.entity,
         original: entity.entity,
-        confidence: null,
+        confidence: undefined,
         position: entity.startIndex,
         provider: 'luis'
       }))

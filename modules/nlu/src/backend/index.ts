@@ -1,17 +1,151 @@
 import 'bluebird-global'
 import retry from 'bluebird-retry'
+import * as sdk from 'botpress/sdk'
+import fs from 'fs'
 import moment from 'moment'
+import path from 'path'
 
-import Parser from './parser'
-import DialogflowProvider from './providers/dialogflow'
-import LuisProvider from './providers/luis'
-import NativeProvider from './providers/native'
-import RasaProvider from './providers/rasa'
-import RecastProvider from './providers/recast'
-import Storage from './storage'
+import api from './api'
+import ScopedNlu from './scopednlu'
 
-let storage
-let provider
+export type Extension = {
+  nlu: {
+    processEvent: Function // (event: sdk.IO.Event) =>
+    forBot: (botId: string) => ScopedNlu
+  }
+}
+
+export type SDK = typeof sdk & Extension
+
+const scopedNlus: Map<string, ScopedNlu> = new Map<string, ScopedNlu>()
+
+export const onInit = async (bp: SDK) => {
+  const bots = await bp.bots.getAllBots()
+
+  for (const [id] of bots) {
+    // if (!bot.isMiddlewareEnabled('nlu')) {
+    //  return
+    // }
+
+    const scoped = new ScopedNlu(bp, id)
+    await scoped.initialize()
+
+    scopedNlus.set(id, scoped)
+  }
+
+  function forBot(botId): ScopedNlu {
+    return scopedNlus.get(botId)
+  }
+
+  async function processEvent(event) {
+    if (['session_reset', 'bp_dialog_timeout'].includes(event.type)) {
+      return
+    }
+
+    const botCtx = forBot(event.botId)
+    if (!botCtx) {
+      return
+    }
+
+    // TODO when kvs is ready
+    /*const previous = JSON.parse((await bp.kvs.get('nlu/requestsLimit')) || '{}')
+    const hour = moment().startOf('hour')
+    const requestsCount = hour.isSame(previous.hour) ? previous.requestsCount : 0
+
+    await bp.kvs.set('nlu/requestsLimit', JSON.stringify({ hour, requestsCount: requestsCount + 1 }))
+
+    const maximumRequestsPerHour = parseFloat(botCtx.config.maximumRequestsPerHour)
+    if (requestsCount > maximumRequestsPerHour) {
+      throw new Error(
+        `[NLU] Requests limit per hour exceeded: ${maximumRequestsPerHour} allowed ` +
+          `while getting ${requestsCount}. You can set higher value to NLU_MAX_REQUESTS_PER_HOUR.`
+      )
+    }*/
+
+    let eventIntent = { confidence: undefined, name: undefined }
+    let eventIntents = []
+
+    try {
+      if (botCtx.config.debugModeEnabled) {
+        bp.logger.info('[NLU Extraction] ' + event.text, event.raw)
+      }
+
+      const metadata = await retry(() => botCtx.provider.extract(event), botCtx.retryPolicy)
+
+      if (metadata) {
+        Object.assign(event, { nlu: metadata })
+        eventIntent = metadata.intent
+        eventIntents = metadata.intents
+      }
+    } catch (err) {
+      bp.logger.warn('[NLU] Error extracting metadata for incoming text: ' + err.message)
+    }
+
+    const intentConfidentEnough = () => {
+      const confidence = eventIntent.confidence != undefined ? eventIntent.confidence : 1
+      return confidence >= botCtx.minConfidence && confidence <= botCtx.maxConfidence
+    }
+
+    if (event.nlu) {
+      Object.assign(event.nlu.intent, {
+        intentConfidentEnough,
+        is: intentName => {
+          intentName = (intentName || '').toLowerCase()
+          return intentConfidentEnough() && (eventIntent.name || '').toLowerCase() === intentName
+        },
+        startsWith: prefix => {
+          prefix = (prefix || '').toLowerCase()
+          return intentConfidentEnough() && (eventIntent.name || '').toLowerCase().startsWith(prefix)
+        }
+      })
+      Object.assign(event.nlu.intents, {
+        has: intentName => {
+          intentName = (intentName || '').toLowerCase()
+          return !!eventIntents.find(intent => (intent.name || '').toLowerCase() === intentName)
+        }
+      })
+    }
+  }
+
+  bp.nlu = {
+    processEvent,
+    forBot
+  }
+
+  bp.events.registerMiddleware({
+    name: 'nlu.incoming',
+    direction: 'incoming',
+    handler: async (event, next) => {
+      await processEvent(event)
+      next()
+    },
+    order: 10,
+    description:
+      'Process natural language in the form of text. Structured data with an action and parameters for that action is injected in the incoming message event.',
+    enabled: true
+  })
+}
+
+export const onReady = async bp => {
+  await api(bp)
+}
+
+export const serveFile = async (filePath: string): Promise<Buffer> => {
+  filePath = filePath.toLowerCase()
+
+  const mapping = {
+    'index.js': path.join(__dirname, '../web/web.bundle.js')
+    // 'embedded.js': path.join(__dirname, '../web/embedded.bundle.js'),
+    // 'fullscreen.js': path.join(__dirname, '../web/fullscreen.bundle.js')
+  }
+
+  // Web views
+  if (mapping[filePath]) {
+    return fs.readFileSync(mapping[filePath])
+  }
+
+  return new Buffer('')
+}
 
 export const config = {
   intentsDir: { type: 'string', required: true, default: './intents', env: 'NLU_INTENTS_DIR' },
@@ -55,177 +189,4 @@ export const config = {
   // The maximum number of requests per hour
   // Useful to make sure you don't overuse your budget on paid NLU-services (like LUIS)
   maximumRequestsPerHour: { type: 'string', required: false, default: '1000', env: 'NLU_MAX_REQUESTS_PER_HOUR' }
-}
-
-export const init = async (bp, configurator) => {
-  const config = await configurator.loadAll()
-  storage = new Storage({ bp, config })
-  await storage.initializeGhost()
-
-  const Provider = {
-    dialogflow: DialogflowProvider,
-    luis: LuisProvider,
-    rasa: RasaProvider,
-    recast: RecastProvider,
-    native: NativeProvider
-  }[config.provider.toLowerCase()]
-
-  if (!Provider) {
-    throw new Error(`Unknown NLU provider "${config.provider}"`)
-  }
-
-  let MIN_CONFIDENCE = parseFloat(config.minimumConfidence)
-
-  if (isNaN(MIN_CONFIDENCE) || MIN_CONFIDENCE < 0 || MIN_CONFIDENCE > 1) {
-    MIN_CONFIDENCE = 0
-  }
-
-  let MAX_CONFIDENCE = parseFloat(config.maximumConfidence)
-
-  if (isNaN(MAX_CONFIDENCE) || MAX_CONFIDENCE < 0) {
-    MAX_CONFIDENCE = 10000
-  }
-
-  provider = new Provider({
-    logger: bp.logger,
-    storage,
-    parser: new Parser(),
-    kvs: bp.kvs,
-    config
-  })
-  await provider.init()
-
-  const retryPolicy = {
-    interval: 100,
-    max_interval: 500,
-    timeout: 5000,
-    max_tries: 3
-  }
-
-  async function processEvent(event) {
-    if (['session_reset', 'bp_dialog_timeout'].includes(event.type)) {
-      return
-    }
-
-    const previous = JSON.parse((await bp.kvs.get('nlu/requestsLimit')) || '{}')
-    const hour = moment().startOf('hour')
-    const requestsCount = hour.isSame(previous.hour) ? previous.requestsCount : 0
-
-    await bp.kvs.set('nlu/requestsLimit', JSON.stringify({ hour, requestsCount: requestsCount + 1 }))
-
-    const maximumRequestsPerHour = parseFloat(config.maximumRequestsPerHour)
-    if (requestsCount > maximumRequestsPerHour) {
-      throw new Error(
-        `[NLU] Requests limit per hour exceeded: ${maximumRequestsPerHour} allowed ` +
-          `while getting ${requestsCount}. You can set higher value to NLU_MAX_REQUESTS_PER_HOUR.`
-      )
-    }
-
-    let eventIntent = { confidence: undefined, name: undefined }
-    let eventIntents = []
-
-    try {
-      if (config.debugModeEnabled) {
-        bp.logger.info('[NLU Extraction] ' + event.text, event.raw)
-      }
-
-      const metadata = await retry(() => provider.extract(event), retryPolicy)
-
-      if (metadata) {
-        Object.assign(event, { nlu: metadata })
-        eventIntent = metadata.intent
-        eventIntents = metadata.intents
-      }
-    } catch (err) {
-      bp.logger.warn('[NLU] Error extracting metadata for incoming text: ' + err.message)
-    }
-
-    const intentConfidentEnough = () => {
-      const confidence = eventIntent.confidence != undefined ? eventIntent.confidence : 1
-      return confidence >= MIN_CONFIDENCE && confidence <= MAX_CONFIDENCE
-    }
-
-    if (event.nlu) {
-      Object.assign(event.nlu.intent, {
-        intentConfidentEnough,
-        is: intentName => {
-          intentName = (intentName || '').toLowerCase()
-          return intentConfidentEnough() && (eventIntent.name || '').toLowerCase() === intentName
-        },
-        startsWith: prefix => {
-          prefix = (prefix || '').toLowerCase()
-          return intentConfidentEnough() && (eventIntent.name || '').toLowerCase().startsWith(prefix)
-        }
-      })
-      Object.assign(event.nlu.intents, {
-        has: intentName => {
-          intentName = (intentName || '').toLowerCase()
-          return !!eventIntents.find(intent => (intent.name || '').toLowerCase() === intentName)
-        }
-      })
-    }
-  }
-
-  bp.nlu = {
-    processEvent,
-    provider,
-    storage
-  }
-
-  bp.middlewares.register({
-    name: 'nlu.incoming',
-    module: 'botpress-nlu',
-    type: 'incoming',
-    handler: async (event, next) => {
-      await processEvent(event)
-      next()
-    },
-    order: 10,
-    description:
-      'Process natural language in the form of text. Structured data with an action and parameters for that action is injected in the incoming message event.'
-  })
-}
-
-export const ready = async bp => {
-  const router = bp.getRouter('botpress-nlu')
-
-  router.delete('/intents/:intent', async (req, res) => {
-    await storage.deleteIntent(req.params.intent)
-    res.sendStatus(200)
-  })
-
-  router.post('/intents/:intent', async (req, res) => {
-    await storage.saveIntent(req.params.intent, req.body)
-    res.sendStatus(200)
-  })
-
-  router.get('/intents', async (req, res) => {
-    res.send(await storage.getIntents())
-  })
-
-  router.get('/intents/:intent', async (req, res) => {
-    res.send(await storage.getIntent(req.params.intent))
-  })
-
-  router.get('/entities', async (req, res) => {
-    res.send((await provider.getAvailableEntities()).map(x => x.name))
-  })
-
-  router.get('/sync/check', async (req, res) => {
-    res.send(await provider.checkSyncNeeded())
-  })
-
-  router.get('/sync', async (req, res) => {
-    try {
-      bp.events.emit('toast.nlu-sync', { text: 'NLU Sync In Progress', type: 'info', time: 120000 })
-
-      await provider.sync()
-
-      bp.events.emit('toast.nlu-sync', { text: 'NLU Sync Success', type: 'success' })
-      res.sendStatus(200)
-    } catch (e) {
-      bp.events.emit('toast.nlu-sync', { text: `NLU Sync Error: ${e.name} : ${e.message}`, type: 'error' })
-      res.status(500).send(`${e.name} : ${e.message}`)
-    }
-  })
 }
