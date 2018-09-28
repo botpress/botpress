@@ -1,6 +1,7 @@
+import { ScopedGhostService } from 'botpress/sdk'
 import _ from 'lodash'
-import mkdirp from 'mkdirp'
-import path from 'path'
+
+import { SDK } from '.'
 
 const formatFilename = name =>
   name
@@ -12,24 +13,14 @@ const formatFilename = name =>
     .replace('.utterances.txt', '')
 
 export default class Storage {
-  private ghost: any
+  private ghost: ScopedGhostService
   private intentsDir: any
   private entitiesDir: any
-  private projectDir: any
 
-  constructor({ bp, config }) {
-    this.ghost = bp.ghostManager
+  constructor(bp: SDK, config, botId) {
+    this.ghost = bp.ghost.forBot(botId)
     this.intentsDir = config.intentsDir
     this.entitiesDir = config.entitiesDir
-    this.projectDir = bp.projectLocation
-  }
-
-  async initializeGhost() {
-    mkdirp.sync(path.resolve(this.projectDir, this.intentsDir))
-    mkdirp.sync(path.resolve(this.projectDir, this.entitiesDir))
-
-    await this.ghost.addRootFolder(this.intentsDir, { filesGlob: '**/*.*' })
-    await this.ghost.addRootFolder(this.entitiesDir, { filesGlob: '**/*.entity.json' })
   }
 
   async saveIntent(intent, content) {
@@ -82,7 +73,7 @@ export default class Storage {
   }
 
   async getIntents() {
-    const intents = await this.ghost.directoryListing(this.intentsDir, '.json')
+    const intents = await this.ghost.directoryListing(this.intentsDir, '*.json')
     return Promise.mapSeries(intents, intent => this.getIntent(intent))
   }
 
@@ -95,8 +86,11 @@ export default class Storage {
 
     const filename = `${intent}.json`
 
-    const propertiesContent = await this.ghost.readFile(this.intentsDir, filename)
-    const utterancesContent = await this.ghost.readFile(this.intentsDir, filename.replace('.json', '.utterances.txt'))
+    const propertiesContent = await this.ghost.readFileAsString(this.intentsDir, filename)
+    const utterancesContent = await this.ghost.readFileAsString(
+      this.intentsDir,
+      filename.replace('.json', '.utterances.txt')
+    )
 
     const utterances = _.split(utterancesContent, /\r|\r\n|\n/i).filter(x => x.length)
     const properties = JSON.parse(propertiesContent)
@@ -124,7 +118,7 @@ export default class Storage {
 
     const filename = `${entity}.entity.json`
 
-    const definitionContent = await this.ghost.readFile(this.entitiesDir, filename)
+    const definitionContent = await this.ghost.readFileAsString(this.entitiesDir, filename)
     const definition = JSON.parse(definitionContent)
 
     return {

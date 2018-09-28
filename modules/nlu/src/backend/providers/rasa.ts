@@ -1,6 +1,6 @@
 import axios, { AxiosInstance } from 'axios'
-import _ from 'lodash'
 import crypto from 'crypto'
+import _ from 'lodash'
 import ms from 'ms'
 
 import Provider, { defaultExtractData } from './base'
@@ -253,11 +253,11 @@ export default class RasaProvider extends Provider {
         provider: 'rasa'
       })),
       entities: entities.map(entity => ({
-        name: null,
+        name: undefined,
         type: entity.entity,
         value: entity.value,
         original: entity.text,
-        confidence: null,
+        confidence: undefined,
         position: entity.start,
         provider: entity.extractor
       }))

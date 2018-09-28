@@ -1,7 +1,8 @@
 const ENVIRONEMENT = process.env.NODE_ENV === 'production' ? 'prod' : 'dev'
 
-import Entities from './entities'
 import _ from 'lodash'
+
+import Entities from './entities'
 
 export default abstract class Provider {
   protected name: any
@@ -36,7 +37,7 @@ export default abstract class Provider {
 
   abstract async getCustomEntities(): Promise<any>
 
-  protected async getAvailableEntities() {
+  public async getAvailableEntities() {
     return [...(await this.getCustomEntities()), ...(await this._getProviderEntities())]
   }
 

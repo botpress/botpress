@@ -1,23 +1,27 @@
 import * as sdk from 'botpress/sdk'
+import { Notification } from 'core/repositories'
 import { WellKnownFlags } from 'core/sdk/enums'
 import { inject, injectable } from 'inversify'
 import Knex from 'knex'
 import { Memoize } from 'lodash-decorators'
 
 import { container } from './app.inversify'
+import { BotLoader } from './bot-loader'
+import { BotConfig } from './config/bot.config'
 import Database from './database'
 import { LoggerProvider } from './logger'
 import { ModuleLoader } from './module-loader'
 import { UserRepository } from './repositories'
 import { Event, RealTimePayload } from './sdk/impl'
 import HTTPServer from './server'
+import { GhostService } from './services'
 import { DialogEngine } from './services/dialog/engine'
 import { SessionService } from './services/dialog/session/service'
+import { ScopedGhostService } from './services/ghost/service'
 import { EventEngine } from './services/middleware/event-engine'
+import { NotificationsService } from './services/notification/service'
 import RealtimeService from './services/realtime'
 import { TYPES } from './types'
-import { NotificationsService } from './services/notification/service'
-import { Notification } from 'core/repositories'
 
 const http = (httpServer: HTTPServer) =>
   ({
@@ -70,6 +74,14 @@ const config = (moduleLoader: ModuleLoader): typeof sdk.config => {
   }
 }
 
+const bots = (botLoader: BotLoader): typeof sdk.bots => {
+  return {
+    getAllBots(): Promise<Map<string, BotConfig>> {
+      return botLoader.getAllBots()
+    }
+  }
+}
+
 const users = (userRepo: UserRepository): typeof sdk.users => {
   return {
     getOrCreateUser: userRepo.getOrCreate.bind(userRepo),
@@ -81,6 +93,14 @@ const notifications = (notificationService: NotificationsService): typeof sdk.no
   return {
     async create(botId: string, notification: any): Promise<any> {
       await notificationService.create(botId, notification)
+    }
+  }
+}
+
+const ghost = (ghostService: GhostService): typeof sdk.ghost => {
+  return {
+    forBot(botId: string): ScopedGhostService {
+      return ghostService.forBot(botId)
     }
   }
 }
@@ -106,6 +126,8 @@ export class BotpressAPIProvider {
   database: Knex
   users: typeof sdk.users
   notifications: typeof sdk.notifications
+  bots: typeof sdk.bots
+  ghost: typeof sdk.ghost
 
   constructor(
     @inject(TYPES.DialogEngine) dialogEngine: DialogEngine,
@@ -117,7 +139,9 @@ export class BotpressAPIProvider {
     @inject(TYPES.UserRepository) userRepo: UserRepository,
     @inject(TYPES.RealtimeService) realtimeService: RealtimeService,
     @inject(TYPES.SessionService) sessionService: SessionService,
-    @inject(TYPES.NotificationsService) notificationService: NotificationsService
+    @inject(TYPES.NotificationsService) notificationService: NotificationsService,
+    @inject(TYPES.BotLoader) botLoader: BotLoader,
+    @inject(TYPES.GhostService) ghostService: GhostService
   ) {
     this.http = http(httpServer)
     this.events = event(eventEngine)
@@ -127,6 +151,8 @@ export class BotpressAPIProvider {
     this.database = db.knex
     this.users = users(userRepo)
     this.notifications = notifications(notificationService)
+    this.bots = bots(botLoader)
+    this.ghost = ghost(ghostService)
   }
 
   @Memoize()
@@ -147,7 +173,9 @@ export class BotpressAPIProvider {
       database: this.database,
       users: this.users,
       realtime: this.realtime,
-      notifications: this.notifications
+      notifications: this.notifications,
+      ghost: this.ghost,
+      bots: this.bots
     }
   }
 }
