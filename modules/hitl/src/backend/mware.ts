@@ -1,7 +1,8 @@
 import * as sdk from 'botpress/sdk'
+import _ from 'lodash'
+
 import { Extension } from '.'
 import Database from './db'
-import _ from 'lodash'
 
 export default async (bp: typeof sdk & Extension, db: Database, config: any) => {
   bp.events.registerMiddleware({
