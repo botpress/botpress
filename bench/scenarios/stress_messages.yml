@@ -7,13 +7,15 @@ config:
     path: "users.csv"
     fields: ["prefix", "uuid"]
     order: "sequence"
+  processor: "./functions.js"
 scenarios:
   - name: Each user sends 50 messages
     flow:
+      - function: "setupTestId"
       - loop:
         - post:
-            url: "/api/botpress-platform-webchat/messages/{{ prefix }}{{ uuid }}"
+            url: "/api/botpress-platform-webchat/messages/{{ prefix }}{{ testId }}_{{ uuid }}"
             json:
               type: "text"
-              text: "U{{ uuid }}|M{{ $loopCount }}"
+              text: "U{{ testId }}_{{ uuid }}|M{{ $loopCount }}"
         count: 50

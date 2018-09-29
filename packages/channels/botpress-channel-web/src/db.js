@@ -1,8 +1,9 @@
 import moment from 'moment'
 import Promise from 'bluebird'
-import _ from 'lodash'
+import { orderBy, keyBy, throttle, memoize } from 'lodash'
 import uuid from 'uuid'
 import ms from 'ms'
+import LRU from 'lru-cache'
 
 import { DatabaseHelpers as helpers } from 'botpress'
 
@@ -12,32 +13,41 @@ const userInitiatedMessageTypes = ['message', 'text', 'image', 'login_prompt', '
 
 module.exports = (knex, config) => {
   const RECENT_CONVERSATION_LIFETIME = ms(config.recentConversationLifetime)
+  // TODO make these vars configurable?
+  const RECENT_CONVERSATIONS_LIMIT = 100
+  const USER_INFO_CACHE_TTL = ms('1 minute')
+  const USER_INFO_CACHE_SIZE = 1000
+  const KNOWN_CONVOS_CACHE_SIZE = 1000
 
-  const isLite = knex => {
-    return knex.client.config.client === 'sqlite3'
-  }
+  const h = helpers(knex)
+  const isLite = () => h.isLite()
 
-  async function getUserInfo(userId) {
-    const user = await knex('users')
-      .where({ platform: 'webchat', userId: sanitizeUserId(userId) })
-      .then()
-      .get(0)
-    const name = user && `${user.first_name} ${user.last_name}`
-    const avatar = (user && user.picture_url) || null
+  const userInfoCache = LRU({
+    maxAge: USER_INFO_CACHE_TTL,
+    max: USER_INFO_CACHE_SIZE
+  })
 
-    return {
-      fullName: name,
-      avatar_url: avatar
-    }
-  }
+  const knownConvosCache = LRU(KNOWN_CONVOS_CACHE_SIZE)
 
   function initialize() {
     if (!knex) {
       throw new Error('you must initialize the database before')
     }
 
-    return helpers(knex)
-      .createTableIfNotExists('web_conversations', function(table) {
+    const createIndex = (tableName, ...index) =>
+      knex.schema
+        .alterTable(tableName, table => {
+          table.index(...index)
+        })
+        .catch(err => {
+          if (err.message.includes('already exists')) {
+            return
+          }
+          throw err
+        })
+
+    return h
+      .createTableIfNotExists('web_conversations', table => {
         table.increments('id').primary()
         table.string('userId')
         table.string('title')
@@ -48,8 +58,11 @@ module.exports = (knex, config) => {
         table.timestamp('user_last_seen_on')
         table.timestamp('bot_last_seen_on')
       })
-      .then(function() {
-        return helpers(knex).createTableIfNotExists('web_messages', function(table) {
+      .then(() => createIndex('web_conversations', 'userId'))
+      .then(() => createIndex('web_conversations', ['id', 'userId']))
+      .then(() => createIndex('web_conversations', ['userId', knex.raw('last_heard_on DESC')]))
+      .then(() =>
+        h.createTableIfNotExists('web_messages', table => {
           table.string('id').primary()
           table.integer('conversationId')
           table.string('userId')
@@ -61,16 +74,19 @@ module.exports = (knex, config) => {
           table.string('avatar_url')
           table.timestamp('sent_on')
         })
-      })
+      )
   }
 
-  async function appendUserMessage(userId, conversationId, { type, text, raw, data }) {
-    userId = sanitizeUserId(userId)
-
-    const { fullName, avatar_url } = await getUserInfo(userId)
+  async function checkConversation(conversationId, userId) {
+    const knownUserId = knownConvosCache.get(conversationId)
+    if (knownUserId === userId) {
+      return
+    } else if (knownUserId && knownUserId !== userId) {
+      throw new Error(`Conversation "${conversationId}" not found`)
+    }
 
     const convo = await knex('web_conversations')
-      .where({ userId, id: conversationId })
+      .where({ id: conversationId, userId })
       .select('id')
       .limit(1)
       .then()
@@ -80,31 +96,72 @@ module.exports = (knex, config) => {
       throw new Error(`Conversation "${conversationId}" not found`)
     }
 
+    knownConvosCache.set(conversationId, userId)
+  }
+
+  async function getUserInfo(userId) {
+    userId = sanitizeUserId(userId)
+
+    let res = userInfoCache.get(userId)
+    if (res) {
+      return res
+    }
+
+    const user = await knex('users')
+      .where({ platform: 'webchat', userId })
+      .then()
+      .get(0)
+
+    res = {
+      full_name: user && `${user.first_name} ${user.last_name}`,
+      avatar_url: (user && user.picture_url) || null
+    }
+
+    userInfoCache.set(userId, res)
+
+    return res
+  }
+
+  const bumpLastHeardOn = memoize(conversationId =>
+    throttle(
+      () =>
+        knex('web_conversations')
+          .where('id', conversationId)
+          .update({ last_heard_on: h.date.now() })
+          .then(),
+      50
+    )
+  )
+
+  async function appendUserMessage(userId, conversationId, { type, text, raw, data }) {
+    userId = sanitizeUserId(userId)
+
+    await checkConversation(conversationId, userId)
+
     const message = {
       id: uuid.v4(),
       conversationId,
       userId,
-      full_name: fullName,
-      avatar_url,
+      ...(await getUserInfo(userId)),
       message_type: type,
       message_text: text,
-      message_raw: helpers(knex).json.set(raw),
-      message_data: helpers(knex).json.set(data),
-      sent_on: helpers(knex).date.now()
+      message_raw: h.json.set(raw),
+      message_data: h.json.set(data),
+      sent_on: h.date.now()
     }
 
-    const shouldUpdateLastHeard = _.includes(userInitiatedMessageTypes, type.toLowerCase())
+    const shouldUpdateLastHeard = userInitiatedMessageTypes.includes(type.toLowerCase())
+
+    // PERF: message insertion is a serious bottlenecks
+    // consider implementing in-memory batching queue
+    // similar to logs
 
     return Promise.join(
       knex('web_messages')
         .insert(message)
         .then(),
 
-      shouldUpdateLastHeard &&
-        knex('web_conversations')
-          .where({ id: conversationId, userId: userId })
-          .update({ last_heard_on: helpers(knex).date.now() })
-          .then(),
+      shouldUpdateLastHeard && bumpLastHeardOn(conversationId)(),
 
       () => ({
         ...message,
@@ -124,23 +181,24 @@ module.exports = (knex, config) => {
       avatar_url: botAvatar,
       message_type: type,
       message_text: text,
-      message_raw: helpers(knex).json.set(raw),
-      message_data: helpers(knex).json.set(data),
-      sent_on: helpers(knex).date.now()
+      message_raw: h.json.set(raw),
+      message_data: h.json.set(data),
+      sent_on: h.date.now()
     }
 
     await knex('web_messages')
       .insert(message)
       .then()
 
-    return Object.assign(message, {
+    return {
+      ...message,
       sent_on: new Date(),
-      message_raw: helpers(knex).json.get(message.message_raw),
-      message_data: helpers(knex).json.get(message.message_data)
-    })
+      message_raw: raw,
+      message_data: data
+    }
   }
 
-  async function createConversation(userId, { originatesFromUserMessage } = {}) {
+  const createConversation = (userId, { originatesFromUserMessage } = {}) => {
     userId = sanitizeUserId(userId)
 
     const uid = Math.random()
@@ -148,29 +206,19 @@ module.exports = (knex, config) => {
       .substr(2, 6)
     const title = `Conversation ${uid}`
 
-    await knex('web_conversations')
-      .insert({
-        userId,
-        created_on: helpers(knex).date.now(),
-        last_heard_on: originatesFromUserMessage ? helpers(knex).date.now() : null,
-        title
-      })
-      .then()
-
-    const conversation = await knex('web_conversations')
-      .where({ title, userId })
-      .select('id')
-      .then()
-      .get(0)
-
-    return conversation && conversation.id
+    return h.insertAndRetrieve('web_conversations', {
+      userId,
+      created_on: h.date.now(),
+      last_heard_on: originatesFromUserMessage ? h.date.now() : null,
+      title
+    })
   }
 
   async function patchConversation(userId, conversationId, title, description, logoUrl) {
     userId = sanitizeUserId(userId)
 
     await knex('web_conversations')
-      .where({ userId, id: conversationId })
+      .where({ id: conversationId, userId })
       .update({
         title,
         description,
@@ -187,7 +235,7 @@ module.exports = (knex, config) => {
       helpers(knex).date.isAfter('last_heard_on', moment().subtract(RECENT_CONVERSATION_LIFETIME, 'ms'))
 
     const conversation = await knex('web_conversations')
-      .select('id')
+      .select('id', 'last_heard_on')
       .whereNotNull('last_heard_on')
       .andWhere({ userId })
       .andWhere(recentCondition || {})
@@ -196,7 +244,16 @@ module.exports = (knex, config) => {
       .then()
       .get(0)
 
-    return conversation ? conversation.id : createConversation(userId, { originatesFromUserMessage })
+    if (
+      conversation &&
+      moment(conversation.last_heard_on)
+        .add(RECENT_CONVERSATION_LIFETIME, 'ms')
+        .isAfter(/* no arg = now */)
+    ) {
+      return conversation.id
+    }
+
+    return createConversation(userId, { originatesFromUserMessage })
   }
 
   async function listConversations(userId) {
@@ -206,18 +263,14 @@ module.exports = (knex, config) => {
       .select('id')
       .where({ userId })
       .orderBy('last_heard_on', 'desc')
-      .limit(100)
+      .limit(RECENT_CONVERSATIONS_LIMIT)
       .then()
 
     const conversationIds = conversations.map(c => c.id)
 
-    let lastMessages = knex
-      .from('web_messages')
-      .distinct(knex.raw('ON ("conversationId") *'))
-      .orderBy('conversationId')
-      .orderBy('sent_on', 'desc')
+    let lastMessages
 
-    if (isLite(knex)) {
+    if (h.isLite()) {
       const lastMessagesDate = knex('web_messages')
         .whereIn('conversationId', conversationIds)
         .groupBy('conversationId')
@@ -227,8 +280,22 @@ module.exports = (knex, config) => {
         .from('web_messages')
         .select('*')
         .whereIn('sent_on', lastMessagesDate)
+    } else {
+      lastMessages = knex
+        .from('web_messages')
+        .distinct(knex.raw('ON ("conversationId") *'))
+        .orderBy('conversationId')
+        .orderBy('sent_on', 'desc')
     }
 
+    // TODO: before this code was changed the join here
+    // used to be a bottleneck
+    // if true could be fixed by collecting all conv data in the first query
+    // see https://github.com/botpress/botpress/commit/16b075b1b40807833a85ef241c0110e3bc1529e5#diff-68e20bc9f0dcb53c1e8aeb45b6ec9ab8
+    // The idea is:
+    // - in the first query collect all convo data once
+    // - select the needed messages without JOIN
+    // - manually extend messages with their convo data matched by convo ID
     return knex
       .from(function() {
         this.from('web_conversations')
@@ -255,7 +322,7 @@ module.exports = (knex, config) => {
   async function getConversation(userId, conversationId, fromId = null) {
     userId = sanitizeUserId(userId)
 
-    const condition = { userId: userId }
+    const condition = { userId }
 
     if (conversationId && conversationId !== 'null') {
       condition.id = conversationId
@@ -273,14 +340,14 @@ module.exports = (knex, config) => {
     const messages = await getConversationMessages(conversationId, fromId)
 
     messages.forEach(m => {
-      return Object.assign(m, {
-        message_raw: helpers(knex).json.get(m.message_raw),
-        message_data: helpers(knex).json.get(m.message_data)
+      Object.assign(m, {
+        message_raw: h.json.get(m.message_raw),
+        message_data: h.json.get(m.message_data)
       })
     })
 
     return Object.assign({}, conversation, {
-      messages: _.orderBy(messages, ['sent_on'], ['asc'])
+      messages: orderBy(messages, ['sent_on'], ['asc'])
     })
   }
 

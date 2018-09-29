@@ -32,6 +32,7 @@ import _ from 'lodash'
 import cluster from 'cluster'
 import dotenv from 'dotenv'
 import ms from 'ms'
+import opn from 'opn'
 
 import createMiddlewares from './middlewares'
 import createLogger from './logger'
@@ -63,6 +64,7 @@ import DialogProcessors from './dialog/processors'
 import DialogJanitor from './dialog/janitor'
 import SkillsManager from './skills'
 import Queue from './queues/memory'
+import Crypto from './security/crypto'
 
 import packageJson from '../package.json'
 
@@ -293,6 +295,7 @@ class botpress {
     const flowProvider = new FlowProvider({ logger, projectLocation, botfile, ghostManager })
     const dialogJanitor = DialogJanitor({ db, middlewares, botfile })
     const dialogEngine = new DialogEngine({ flowProvider, stateManager, logger })
+    const crypto = new Crypto({ botfile })
 
     const skillsManager = new SkillsManager({ logger })
 
@@ -357,6 +360,7 @@ class botpress {
       dialogEngine,
       dialogJanitor,
       messages,
+      crypto,
       skills: skillsManager
     })
 
@@ -402,6 +406,10 @@ class botpress {
 
       const { botUrl } = botfile
       logger.info(chalk.green.bold(`Bot launched. Visit: ${botUrl}`))
+
+      if (isDeveloping) {
+        opn(botUrl, { wait: false })
+      }
     })
 
     const middlewareAutoLoading = _.get(botfile, 'middleware.autoLoading')

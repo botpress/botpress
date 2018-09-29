@@ -81,7 +81,7 @@ module.exports = {
     applicationID: { type: 'string', required: true, default: '', env: 'MESSENGER_APP_ID' },
     accessToken: { type: 'string', required: true, default: '', env: 'MESSENGER_ACCESS_TOKEN' },
     appSecret: { type: 'string', required: true, default: '', env: 'MESSENGER_APP_SECRET' },
-    verifyToken: { type: 'string', required: false, default: '' },
+    verifyToken: { type: 'string', required: false, default: '', env: 'MESSENGER_VERIFY_TOKEN' },
     enabled: { type: 'bool', required: true, default: true },
     extraProfileFields: { type: 'any', required: false, default: [], validation: v => _.isArray(v) },
     hostname: { type: 'string', required: false, default: '', env: 'MESSENGER_HOST' },

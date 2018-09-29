@@ -144,19 +144,24 @@ export default class NativeProvider extends Provider {
 
     let allScores = zscore(classifications.map(c => parseFloat(c.value)))
 
-    allScores = allScores.map((s, i) => {
-      const delta = Math.abs(s - allScores[i + 1] / s)
-      if (delta >= threshold) {
-        return s
-      }
+    const SIGMOID_ADJUSTMENT = -3.5
+    const sigmoid = t => 1 / (1 + Math.pow(Math.E, -(t + SIGMOID_ADJUSTMENT)))
 
-      return (
-        s -
-        Math.max(0, allScores[i + 1] || 0) * 0.5 -
-        Math.max(0, allScores[i + 2] || 0) * 0.75 -
-        Math.max(0, allScores[i + 3] || 0)
-      )
-    })
+    allScores = allScores
+      .map((s, i) => {
+        const delta = Math.abs(s - allScores[i + 1] / s)
+        if (delta >= threshold) {
+          return s
+        }
+
+        return (
+          s -
+          Math.max(0, allScores[i + 1] || 0) * 0.5 -
+          Math.max(0, allScores[i + 2] || 0) * 0.75 -
+          Math.max(0, allScores[i + 3] || 0)
+        )
+      })
+      .map(sigmoid)
 
     const intents = _.orderBy(
       classifications.map((c, i) => ({

@@ -1,11 +1,11 @@
-export { RESOURCES, enrichResources } from './resources'
+export { RESOURCES, enrichResources, Operation, Resource } from './resources'
 
-export const ressourceMatches = (pattern, res) => {
+export const resourceMatches = (pattern: string, res: string) => {
   const separator = /[\/\.]/
   pattern = pattern || ''
 
-  if (!~pattern.indexOf('*')) {
-    pattern = pattern += '.*'
+  if (pattern.indexOf('*') < 0) {
+    pattern = pattern + '.*'
   }
 
   const parts = pattern.split(separator)
@@ -32,7 +32,12 @@ const OPERATION_ALIASES = {
 
 const KNOWN_OPERATIONS = ['r', 'w']
 
-export const checkRule = (rules, operation, ressource) => {
+export type Rule = {
+  op: string
+  res: string
+}
+
+export const checkRule = (rules: Rule[] | undefined | null, operation: string, resource: string) => {
   if (!rules) {
     return false
   }
@@ -52,7 +57,7 @@ export const checkRule = (rules, operation, ressource) => {
       throw new Error(`Invalid rule operation: ${op}`)
     }
 
-    if (!ressourceMatches(rule.res, ressource)) {
+    if (!resourceMatches(rule.res, resource)) {
       continue
     }
 
@@ -79,13 +84,13 @@ export const checkRule = (rules, operation, ressource) => {
   return permission
 }
 
-export const checkMultipleRoles = (roles, operation, ressource) => {
+export const checkMultipleRoles = (roles: { [name: string]: Rule[] } | undefined | null, operation, resource) => {
   if (!roles) {
     return false
   }
 
   for (const roleName in roles) {
-    if (checkRule(roles[roleName], operation, ressource)) {
+    if (checkRule(roles[roleName], operation, resource)) {
       return true
     }
   }

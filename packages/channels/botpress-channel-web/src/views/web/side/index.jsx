@@ -335,10 +335,36 @@ export default class Side extends React.Component {
       onSendData: this.props.onSendData
     }
 
+    const hasMessages = Array.isArray(messagesProps.messages) && messagesProps.messages.length
+    const isGettingStarted = this.props.config.greetingScreen && this.props.config.greetingScreen.type === 'get_started'
+
+    if (isGettingStarted && (!messagesProps.messages || !hasMessages)) {
+      return this.renderGreetingScreen()
+    }
+
     return (
       <div className={`${style.conversation} botpress__side-conversation`}>
         <MessageList {...messagesProps} />
         <div className={`${style.bottom} botpress__side-conversation-bottom`}>{this.renderComposer()}</div>
+      </div>
+    )
+  }
+
+  handleGetStarted = () => {
+    const { options } = this.props.config.greetingScreen
+
+    this.props.onSendData({ type: 'text', text: options.buttonTitle || 'Get started' })
+  }
+
+  renderGreetingScreen() {
+    const { options } = this.props.config.greetingScreen
+
+    return (
+      <div className={style.greetingScreen}>
+        {options.message ? <div className={style.greetingScreenMessage}>{options.message}</div> : null}
+        <button className={style.getStartedButton} onClick={this.handleGetStarted}>
+          {options.buttonTitle || 'Get started'}
+        </button>
       </div>
     )
   }

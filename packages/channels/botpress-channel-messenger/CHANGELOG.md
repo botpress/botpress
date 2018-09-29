@@ -3,6 +3,68 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.44.2"></a>
+## [10.44.2](https://github.com/botpress/modules/compare/v10.44.1...v10.44.2) (2018-09-28)
+
+
+
+
+**Note:** Version bump only for package @botpress/channel-messenger
+
+<a name="10.44.1"></a>
+## [10.44.1](https://github.com/botpress/modules/compare/v10.44.0...v10.44.1) (2018-09-28)
+
+
+### Bug Fixes
+
+* **messenger:** made profiles fields option for FB (resolve [#829](https://github.com/botpress/modules/issues/829)) ([ed74212](https://github.com/botpress/modules/commit/ed74212))
+
+
+
+
+<a name="10.44.0"></a>
+# [10.44.0](https://github.com/botpress/modules/compare/v10.43.0...v10.44.0) (2018-09-27)
+
+
+### Bug Fixes
+
+* **core:** added env.VAR for correct testing ([3db498d](https://github.com/botpress/modules/commit/3db498d))
+
+
+
+
+<a name="10.43.0"></a>
+# [10.43.0](https://github.com/botpress/modules/compare/v10.42.0...v10.43.0) (2018-09-26)
+
+
+
+
+**Note:** Version bump only for package @botpress/channel-messenger
+
+<a name="10.42.0"></a>
+# [10.42.0](https://github.com/botpress/modules/compare/v10.40.0...v10.42.0) (2018-09-26)
+
+
+
+
+**Note:** Version bump only for package @botpress/channel-messenger
+
+<a name="10.41.1"></a>
+## [10.41.1](https://github.com/botpress/modules/compare/v10.41.0...v10.41.1) (2018-09-23)
+
+
+
+
+**Note:** Version bump only for package @botpress/channel-messenger
+
+<a name="10.41.0"></a>
+# [10.41.0](https://github.com/botpress/modules/compare/v10.40.0...v10.41.0) (2018-09-23)
+
+
+
+
+**Note:** Version bump only for package @botpress/channel-messenger
+
 <a name="10.40.0"></a>
 # [10.40.0](https://github.com/botpress/modules/compare/v10.38.0...v10.40.0) (2018-09-20)
 

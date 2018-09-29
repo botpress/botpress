@@ -1,6 +1,6 @@
 {
   "name": "@botpress/audience",
-  "version": "10.40.0",
+  "version": "10.44.2",
   "description": "Official Audience viewer for botpress",
   "main": "bin/node.bundle.js",
   "homepage": "https://github.com/botpress/modules",

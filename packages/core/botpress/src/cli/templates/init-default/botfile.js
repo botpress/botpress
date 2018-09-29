@@ -137,6 +137,13 @@ module.exports = {
     autoLoading: true
   },
 
+  /* 
+    This secret key will be used by the encryption / decryption feature. 
+    If left undefined, a new one will be generated each time the bot is started.
+    The key must be 32 characters long.
+  */
+  secretKey: null,
+
   /*
     Prevents Botpress from creating worker threads
    */

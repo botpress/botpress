@@ -3,6 +3,79 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.44.2"></a>
+## [10.44.2](https://github.com/botpress/modules/compare/v10.44.1...v10.44.2) (2018-09-28)
+
+
+
+
+**Note:** Version bump only for package @botpress/qna
+
+<a name="10.44.1"></a>
+## [10.44.1](https://github.com/botpress/modules/compare/v10.44.0...v10.44.1) (2018-09-28)
+
+
+### Bug Fixes
+
+* **qna:** reverse qna-questions for consistency ([0043fee](https://github.com/botpress/modules/commit/0043fee))
+
+
+
+
+<a name="10.44.0"></a>
+# [10.44.0](https://github.com/botpress/modules/compare/v10.43.0...v10.44.0) (2018-09-27)
+
+
+### Bug Fixes
+
+* **qna:** fix answers ordering (came from c21d0ac) ([#954](https://github.com/botpress/modules/issues/954)) ([1f4ddba](https://github.com/botpress/modules/commit/1f4ddba))
+
+
+
+
+<a name="10.43.0"></a>
+# [10.43.0](https://github.com/botpress/modules/compare/v10.42.0...v10.43.0) (2018-09-26)
+
+
+### Bug Fixes
+
+* **qna:** qna-maker score ordering ([c21d0ac](https://github.com/botpress/modules/commit/c21d0ac))
+
+
+
+
+<a name="10.42.0"></a>
+# [10.42.0](https://github.com/botpress/modules/compare/v10.40.0...v10.42.0) (2018-09-26)
+
+
+### Bug Fixes
+
+* **qna:** fix qna import-modal crashing ([#938](https://github.com/botpress/modules/issues/938)) ([3edfe2e](https://github.com/botpress/modules/commit/3edfe2e))
+* **qna:** reverse results obtained from QNA-Maker ([#934](https://github.com/botpress/modules/issues/934)) ([3bd9a45](https://github.com/botpress/modules/commit/3bd9a45))
+* **qna:** reverse results obtained from QNA-Maker ([#934](https://github.com/botpress/modules/issues/934)) ([#941](https://github.com/botpress/modules/issues/941)) ([448f54d](https://github.com/botpress/modules/commit/448f54d))
+
+
+
+
+<a name="10.41.1"></a>
+## [10.41.1](https://github.com/botpress/modules/compare/v10.41.0...v10.41.1) (2018-09-23)
+
+
+
+
+**Note:** Version bump only for package @botpress/qna
+
+<a name="10.41.0"></a>
+# [10.41.0](https://github.com/botpress/modules/compare/v10.40.0...v10.41.0) (2018-09-23)
+
+
+### Bug Fixes
+
+* **qna:** reverse results obtained from QNA-Maker ([#934](https://github.com/botpress/modules/issues/934)) ([3bd9a45](https://github.com/botpress/modules/commit/3bd9a45))
+
+
+
+
 <a name="10.40.0"></a>
 # [10.40.0](https://github.com/botpress/modules/compare/v10.38.0...v10.40.0) (2018-09-20)
 

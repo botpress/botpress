@@ -16,6 +16,7 @@ import users from './users'
 const ERR_USER_ID_REQ = '`userId` is required and must be valid'
 const ERR_MSG_TYPE = '`type` is required and must be valid'
 const ERR_CONV_ID_REQ = '`conversationId` is required and must be valid'
+const VALID_USER_ID_RE = /^[a-z0-9-_]+$/i
 
 module.exports = async (bp, config) => {
   const diskStorage = multer.diskStorage({
@@ -31,7 +32,7 @@ module.exports = async (bp, config) => {
     }
   })
 
-  let upload = multer({ storage: diskStorage })
+  let upload = null
 
   if (config.uploadsUseS3) {
     /*
@@ -70,6 +71,8 @@ module.exports = async (bp, config) => {
     })
 
     upload = multer({ storage: s3Storage })
+  } else {
+    upload = multer({ storage: diskStorage })
   }
 
   const knex = await bp.db.get()
@@ -82,7 +85,7 @@ module.exports = async (bp, config) => {
     createConversation
   } = db(knex, config)
 
-  const { getOrCreateUser, getUserProfile } = await users(bp, config)
+  const { getOrCreateUser, getUserProfile, ensureUserExists } = await users(bp, config)
 
   const router = bp.getRouter('botpress-platform-webchat', { auth: false })
 
@@ -120,13 +123,13 @@ module.exports = async (bp, config) => {
         return res.status(400).send(ERR_USER_ID_REQ)
       }
 
-      await getOrCreateUser(userId) // Just to create the user if it doesn't exist
+      await ensureUserExists(userId)
 
       const payload = req.body || {}
       let { conversationId } = req.query || {}
       conversationId = conversationId && parseInt(conversationId)
 
-      if (!_.includes(['text', 'quick_reply', 'form', 'login_prompt', 'visit'], payload.type)) {
+      if (!['text', 'quick_reply', 'form', 'login_prompt', 'visit'].includes(payload.type)) {
         // TODO: Support files
         return res.status(400).send(ERR_MSG_TYPE)
       }
@@ -152,7 +155,7 @@ module.exports = async (bp, config) => {
         return res.status(400).send(ERR_USER_ID_REQ)
       }
 
-      await getOrCreateUser(userId) // Just to create the user if it doesn't exist
+      await ensureUserExists(userId)
 
       let { conversationId } = req.query || {}
       conversationId = conversationId && parseInt(conversationId)
@@ -186,9 +189,7 @@ module.exports = async (bp, config) => {
       return res.status(400).send(ERR_USER_ID_REQ)
     }
 
-    const conversation = await getConversation(userId, conversationId)
-
-    return res.send(conversation)
+    return res.send(await getConversation(userId, conversationId))
   })
 
   router.get('/conversations/:userId', async (req, res) => {
@@ -198,20 +199,18 @@ module.exports = async (bp, config) => {
       return res.status(400).send(ERR_USER_ID_REQ)
     }
 
-    await getOrCreateUser(userId) // Just to create the user if it doesn't exist
+    await ensureUserExists(userId)
 
     const conversations = await listConversations(userId)
 
     return res.send({
-      conversations: [...conversations],
+      conversations,
       startNewConvoOnTimeout: config.startNewConvoOnTimeout,
       recentConversationLifetime: config.recentConversationLifetime
     })
   })
 
-  function validateUserId(userId) {
-    return /[a-z0-9-_]+/i.test(userId)
-  }
+  const validateUserId = userId => VALID_USER_ID_RE.test(userId)
 
   async function sendNewMessage(userId, conversationId, payload) {
     if (!payload.text || !_.isString(payload.text) || payload.text.length > 360) {
@@ -231,36 +230,60 @@ module.exports = async (bp, config) => {
     // We remove the password from the persisted messages for security reasons
     if (payload.type === 'login_prompt') {
       persistedPayload.data = _.omit(persistedPayload.data, ['password'])
-    }
-
-    if (payload.type === 'form') {
+    } else if (payload.type === 'form') {
       persistedPayload.data.formId = payload.formId
     }
 
-    const message = await appendUserMessage(userId, conversationId, persistedPayload)
-
-    Object.assign(message, {
-      __room: 'visitor:' + userId // This is used to send to the relevant user's socket
-    })
+    const message = {
+      ...(await appendUserMessage(userId, conversationId, persistedPayload)),
+      __room: `visitor:${userId}` // This is used to send to the relevant user's socket
+    }
 
     bp.events.emit('guest.webchat.message', message)
 
     const user = await getOrCreateUser(userId)
 
+    if (payload.data && payload.data.payload) {
+      const data = payload.data.payload
+
+      if (typeof data === 'string' && data.startsWith('crypt|')) {
+        let decrypted = null
+        try {
+          decrypted = JSON.parse(bp.crypto.decrypt(data.slice(6)))
+        } catch (err) {
+          throw new Error('Error while decrypting payload', err)
+        }
+
+        if (decrypted.userId != user.id) {
+          throw new Error('The encrypted payload is for a different user')
+        }
+
+        if (moment().isAfter(moment.unix(decrypted.expire))) {
+          throw new Error('User payload expired')
+        }
+
+        if (decrypted.action === 'gotoFlow') {
+          const dest = decrypted.dest.split('#')
+          const flow = dest.shift()
+          const node = dest.shift()
+
+          await bp.dialogEngine.jumpTo(user.id, flow, node)
+        }
+      }
+    }
+
     return bp.middlewares.sendIncoming(
-      Object.assign(
-        {
-          platform: 'webchat',
-          type: payload.type,
-          user: user,
-          text: sanitizedPayload.text,
-          raw: {
-            ...sanitizedPayload,
-            conversationId
-          }
-        },
-        payload.data
-      )
+      {
+        platform: 'webchat',
+        type: payload.type,
+        user: user,
+        text: sanitizedPayload.text,
+        raw: {
+          ...sanitizedPayload,
+          conversationId
+        }
+      },
+      ...(payload.data || {})
     )
   }
 

@@ -3,6 +3,89 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.44.2"></a>
+## [10.44.2](https://github.com/botpress/modules/compare/v10.44.1...v10.44.2) (2018-09-28)
+
+
+### Bug Fixes
+
+* **channel-web:** handle missing payload.data ([13b296f](https://github.com/botpress/modules/commit/13b296f))
+
+
+
+
+<a name="10.44.1"></a>
+## [10.44.1](https://github.com/botpress/modules/compare/v10.44.0...v10.44.1) (2018-09-28)
+
+
+
+
+**Note:** Version bump only for package @botpress/channel-web
+
+<a name="10.44.0"></a>
+# [10.44.0](https://github.com/botpress/modules/compare/v10.43.0...v10.44.0) (2018-09-27)
+
+
+### Bug Fixes
+
+* **channel-web:** add todo about message insertion batching ([01a2e36](https://github.com/botpress/modules/commit/01a2e36))
+* **channel-web:** extract frequently used regex ([f22d357](https://github.com/botpress/modules/commit/f22d357))
+* **channel-web:** fix users caching ([c56ceb0](https://github.com/botpress/modules/commit/c56ceb0))
+
+
+### Features
+
+* **channel-web:** added ensureUserExists method ([3e5d23c](https://github.com/botpress/modules/commit/3e5d23c))
+
+
+
+
+<a name="10.43.0"></a>
+# [10.43.0](https://github.com/botpress/modules/compare/v10.42.0...v10.43.0) (2018-09-26)
+
+
+### Features
+
+* **web:** implemented 'Greeting Screen' (ref [#808](https://github.com/botpress/modules/issues/808)) ([#869](https://github.com/botpress/modules/issues/869)) ([a066c90](https://github.com/botpress/modules/commit/a066c90))
+
+
+
+
+<a name="10.42.0"></a>
+# [10.42.0](https://github.com/botpress/modules/compare/v10.40.0...v10.42.0) (2018-09-26)
+
+
+### Bug Fixes
+
+* **channel-web:** login_prompt renderer styles were crashing webchat ([#943](https://github.com/botpress/modules/issues/943)) ([620360f](https://github.com/botpress/modules/commit/620360f))
+
+
+### Features
+
+* **webchat:** added 'flow to' action button ([b3a545c](https://github.com/botpress/modules/commit/b3a545c))
+
+
+
+
+<a name="10.41.1"></a>
+## [10.41.1](https://github.com/botpress/modules/compare/v10.41.0...v10.41.1) (2018-09-23)
+
+
+
+
+**Note:** Version bump only for package @botpress/channel-web
+
+<a name="10.41.0"></a>
+# [10.41.0](https://github.com/botpress/modules/compare/v10.40.0...v10.41.0) (2018-09-23)
+
+
+### Features
+
+* **webchat:** added 'flow to' action button ([b3a545c](https://github.com/botpress/modules/commit/b3a545c))
+
+
+
+
 <a name="10.40.0"></a>
 # [10.40.0](https://github.com/botpress/modules/compare/v10.38.0...v10.40.0) (2018-09-20)
 

@@ -16,7 +16,7 @@ export default {
       },
       action: {
         type: 'string',
-        enum: ['Say something', 'Open URL', 'Click-to-Call', 'Share', 'Pick location'],
+        enum: ['Say something', 'Open URL', 'Click-to-Call', 'Share', 'Flow to ...'],
         default: 'Say something'
       }
     },
@@ -26,7 +26,7 @@ export default {
           {
             properties: {
               action: {
-                enum: ['Pick location', 'Share']
+                enum: ['Share']
               }
             }
           },
@@ -76,6 +76,18 @@ export default {
               }
             },
             required: ['text']
+          },
+          {
+            properties: {
+              action: {
+                enum: ['Flow to ...']
+              },
+              flow: {
+                type: 'string',
+                $subtype: 'flow',
+                title: 'Flow to a specific node'
+              }
+            }
           }
         ]
       }

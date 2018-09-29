@@ -60,7 +60,7 @@ module.exports = ({ sqlite, postgres, logger, botpressPath }) => {
     return knex
   }
 
-  const saveUser = ({
+  const saveUser = async ({
     id,
     platform,
     gender = 'unknown',
@@ -77,31 +77,31 @@ module.exports = ({ sqlite, postgres, logger, botpressPath }) => {
       platform,
       gender,
       timezone,
+      picture_url,
+      last_name,
+      first_name,
       locale,
-      created_on: moment(new Date()).toISOString(),
-      picture_url: picture_url,
-      last_name: last_name,
-      first_name: first_name
+      created_on: moment(new Date()).toISOString()
     }
 
-    return getDb().then(knex => {
-      let query = knex('users')
-        .insert(userRow)
-        .where(function() {
-          return this.select(knex.raw(1))
-            .from('users')
-            .where('id', '=', userId)
-        })
+    const knex = await getDb()
+    let query = knex('users')
+      .insert(userRow)
+      .where(function() {
+        return this.select(knex.raw(1))
+          .from('users')
+          .where('id', '=', userId)
+      })
 
-      if (postgres.enabled) {
-        query = `${query} on conflict (id) do nothing`.replace('?', '\\?') // escape "?" symbols in strings
-      } else {
-        // SQLite
-        query = query.toString().replace(/^insert/i, 'insert or ignore')
-      }
+    if (postgres.enabled) {
+      query = `${query.toString()} on conflict (id) do nothing`.replace('?', '\\?') // escape "?" symbols in strings
+    } else {
+      // SQLite
+      query = query.toString().replace(/^insert/i, 'insert or ignore')
+    }
 
-      return knex.raw(query)
-    })
+    await knex.raw(query)
+    return userRow
   }
 
   let kvsInstance = null

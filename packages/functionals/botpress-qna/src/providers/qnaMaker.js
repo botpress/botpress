@@ -101,7 +101,11 @@ export default class Storage {
     const qnas = _.isArray(qna) ? qna : [qna]
     const { data: { operationId } } = await this.patchKb({
       add: {
-        qnaList: qnas.map(qna => ({ ..._.pick(qna, ['answer', 'questions']), metadata: prepareMeta(qna) }))
+        qnaList: qnas.map(qna => ({
+          answer: qna.answer,
+          questions: qna.questions.reverse(), // To be able to prepend questions
+          metadata: prepareMeta(qna)
+        }))
       }
     })
 
@@ -114,7 +118,9 @@ export default class Storage {
   async fetchQuestions() {
     if (!this.questions) {
       const { data: { qnaDocuments } } = await this.client.get(`/knowledgebases/${this.knowledgebase.id}/test/qna/`)
-      this.questions = qnaDocuments
+
+      // Showing latest items first
+      this.questions = qnaDocuments.reverse().map(doc => ({ ...doc, questions: doc.questions.reverse() }))
     }
 
     return this.questions
@@ -148,7 +154,7 @@ export default class Storage {
       { baseURL: this.knowledgebase.hostName, headers: { Authorization: `EndpointKey ${this.endpointKey}` } }
     )
 
-    return _.orderBy(answers, ['confidence'], ['desc']).map(answer => ({
+    return _.orderBy(answers, ['score'], ['desc']).map(answer => ({
       ..._.pick(answer, ['questions', 'answer', 'id']),
       confidence: answer.score / 100,
       ...qnaItemData(answer)
