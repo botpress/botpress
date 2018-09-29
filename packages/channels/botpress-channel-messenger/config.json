@@ -6,13 +6,29 @@
   "applicationID": "<<UPDATE_ME>>", // ENV Variable: MESSENGER_APP_ID
   "accessToken": "<<UPDATE_ME>>", // ENV Variable: MESSENGER_ACCESS_TOKEN
   "appSecret": "<<UPDATE_ME>>", // ENV Variable: MESSENGER_APP_SECRET
-
   "verifyToken": "<<UPDATE_ME>>", // <== Input a long random, hard-to-guess string here
+
   "hostname": "<<UPDATE_ME>>", // The URL to reach your bot, must be HTTPS (google: ngrok)
+  "freezeProfile": false,
 
   /************
     Optional settings
   *************/
+
+  "custom": {
+    key1: "val1",
+    key2: "val2"
+  },
+  "pages": {
+    "<<PAGE_ID1>>": {
+      accessToken: "ACCESS_TOKEN1",
+      persistentMenuItems: []
+    },
+    "<<PAGE_ID2>>": {
+      accessToken: "ACCESS_TOKEN2",
+      persistentMenuItems: []
+    }
+  },
 
   "graphVersion": "2.12",
   "enabled": true,

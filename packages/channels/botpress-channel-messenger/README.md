@@ -47,6 +47,12 @@ npm i @botpress/channel-messenger
 
 [Config template](https://github.com/dmytropanontko/botpress/blob/docs/messenger-tutorial/packages/channels/botpress-channel-messenger/config.json)
 
+`"freezeProfile"` - if set, do not update Messenger Profile on bot restart. `Default: false`
+
+`"custom"` - convenience config for globally storing any custom bot-specific settings
+
+`"pages"` - page-specific settings, stored in objects by page ID; may override any value from the default top-level config
+
 `"displayGetStarted"` - exclude/include interaction with Get Started. `Default: true`
 
 `"greetingMessage"` - set default messege. `Default: "Default greeting message"`
