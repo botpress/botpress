@@ -1,11 +1,13 @@
+import { Logger } from 'botpress/sdk'
 import { inject, injectable, tagged } from 'inversify'
+import { VError } from 'verror'
+import { NodeVM, VMScript } from 'vm2'
 
-import { TYPES } from '../../types'
 import { GhostService } from '..'
+import { createForAction } from '../../api'
+import { TYPES } from '../../types'
 
 import { ActionMetadata, extractMetadata } from './metadata'
-import { runCode } from './sandbox-launcher'
-import { Logger } from 'botpress/sdk'
 
 @injectable()
 export default class ActionService {
@@ -84,16 +86,35 @@ export class ScopedActionService {
   async runAction(actionName: string, dialogState: any, incomingEvent: any, actionArgs: any): Promise<any> {
     this.logger.forBot(this.botId).debug(`Running action "${actionName}"`)
     const code = await this.findActionScript(actionName)
+    const api = await createForAction()
 
-    return runCode(
-      code,
-      {
+    const vm = new NodeVM({
+      wrapper: 'none',
+      sandbox: {
+        bp: api,
         event: incomingEvent,
         state: dialogState,
         args: actionArgs
       },
-      { timeout: 5000 }
-    )
+      timeout: 5000
+    })
+
+    const script = new VMScript(code)
+
+    return new Promise((resolve, reject) => {
+      try {
+        const retValue = vm.run(script)
+
+        // Check if code returned a Promise-like object
+        if (retValue && typeof retValue.then === 'function') {
+          retValue.then(resolve, reject)
+        } else {
+          resolve(retValue)
+        }
+      } catch (err) {
+        reject(err)
+      }
+    })
   }
 
   private async findActionScript(actionName: string): Promise<string> {

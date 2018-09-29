@@ -20,18 +20,20 @@ export type Extension = {
   }
 }
 
+export type SDK = typeof sdk & Extension
+
 export const config = {
   sessionExpiry: { type: 'string', default: '3 days' },
   paused: { type: 'bool', default: false, env: 'BOTPRESS_HITL_PAUSED' }
 }
 
-export const onInit = async (bp: typeof sdk & Extension) => {
+export const onInit = async (bp: SDK) => {
   db = new HitlDb(bp)
   await db.initialize()
   await mware(bp, db, config)
 }
 
-export const onReady = async (bp: typeof sdk & Extension) => {
+export const onReady = async (bp: SDK) => {
   await api(bp, db)
 }
 

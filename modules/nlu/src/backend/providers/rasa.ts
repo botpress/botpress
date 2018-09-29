@@ -59,7 +59,7 @@ export default class RasaProvider extends Provider {
       .update(JSON.stringify(localIntents))
       .digest('hex')
 
-    const metadata = await this.kvs.get(RASA_HASH_KVS_KEY)
+    const metadata = await this.kvs.get(this.botId, RASA_HASH_KVS_KEY)
 
     return metadata && metadata.hash === intentsHash && _.includes(remoteVersions, metadata.modelId)
   }
@@ -78,14 +78,14 @@ export default class RasaProvider extends Provider {
       throw new Error('[NLU::Rasa] Could not sync model, could not list project models after training')
     }
 
-    await this.kvs.set(RASA_HASH_KVS_KEY, {
+    await this.kvs.set(this.botId, RASA_HASH_KVS_KEY, {
       hash: intentsHash,
       modelId: version
     })
   }
 
   private async cacheLatestModel() {
-    const metadata = await this.kvs.get(RASA_HASH_KVS_KEY)
+    const metadata = await this.kvs.get(this.botId, RASA_HASH_KVS_KEY)
     this.modelId = metadata.modelId
     return metadata.modelId
   }

@@ -1,8 +1,11 @@
 import sdk from 'botpress/sdk'
+import fs from 'fs'
 import _ from 'lodash'
-import SchedulerDb from './db'
-import Daemon from './daemon'
+import path from 'path'
+
 import api from './api'
+import Daemon from './daemon'
+import SchedulerDb from './db'
 
 export type Extension = {
   scheduler: {
@@ -24,7 +27,9 @@ export type Extension = {
   }
 }
 
-let db = null
+export type SDK = typeof sdk & Extension
+
+let db = undefined
 
 export const onInit = async (bp: typeof sdk & Extension) => {
   db = new SchedulerDb(bp)
@@ -39,4 +44,17 @@ export const onReady = async (bp: typeof sdk & Extension) => {
   await api(bp, db)
 }
 
-//export const config: {}
+export const serveFile = async (filePath: string): Promise<Buffer> => {
+  filePath = filePath.toLowerCase()
+
+  const mapping = {
+    'index.js': path.join(__dirname, '../web/web.bundle.js')
+  }
+
+  // Web views
+  if (mapping[filePath]) {
+    return fs.readFileSync(mapping[filePath])
+  }
+
+  return new Buffer('')
+}

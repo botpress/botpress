@@ -1,10 +1,10 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { Extension } from '.'
+import { SDK } from '.'
 import Database from './db'
 
-export default async (bp: typeof sdk & Extension, db: Database, config: any) => {
+export default async (bp: SDK, db: Database, config: any) => {
   bp.events.registerMiddleware({
     name: 'hitl.captureInMessages',
     direction: 'incoming',

@@ -1,7 +1,7 @@
-import moment from 'moment'
-import { VError } from 'verror'
 import { KnexExtension } from 'common/knex'
 import Knex from 'knex'
+import moment from 'moment'
+import { VError } from 'verror'
 
 export const patchKnex = (knex: Knex): Knex & KnexExtension => {
   const isLite = knex.client.config.client === 'sqlite3'

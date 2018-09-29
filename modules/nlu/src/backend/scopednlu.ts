@@ -55,10 +55,11 @@ export default class ScopedNlu {
     const bp = this.bp
 
     this.provider = new Provider({
+      botId: this.botId,
       logger: bp.logger,
       storage,
       parser: new Parser(),
-      // kvs: bp.kvs,
+      kvs: bp.kvs,
       config
     })
     await this.provider.init()

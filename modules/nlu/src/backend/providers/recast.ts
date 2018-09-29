@@ -89,7 +89,7 @@ export default class RecastProvider extends Provider {
   private async onSyncSuccess() {
     const intentsHash = await this.getIntentsHash()
 
-    await this.kvs.set(RECAST_HASH_KVS_KEY, intentsHash)
+    await this.kvs.set(this.botId, RECAST_HASH_KVS_KEY, intentsHash)
     this.syncing = false
   }
 
@@ -207,7 +207,7 @@ export default class RecastProvider extends Provider {
 
   async checkSyncNeeded() {
     const intentsHash = await this.getIntentsHash()
-    const savedHash = await this.kvs.get(RECAST_HASH_KVS_KEY)
+    const savedHash = await this.kvs.get(this.botId, RECAST_HASH_KVS_KEY)
 
     return savedHash !== intentsHash
   }

@@ -1,9 +1,8 @@
-import { inject, injectable } from 'inversify'
-import yn from 'yn'
-
 import { GhostService } from 'core/services'
 import { TYPES } from 'core/types'
 import { FatalError } from 'errors'
+import { inject, injectable } from 'inversify'
+import yn from 'yn'
 
 import { BotConfig } from './bot.config'
 import { BotpressConfig } from './botpress.config'

@@ -1,9 +1,7 @@
-import * as sdk from 'botpress/sdk'
-
-import { Extension } from '.'
+import { SDK } from '.'
 import Database from './db'
 
-export default async (bp: typeof sdk & Extension, db: Database) => {
+export default async (bp: SDK, db: Database) => {
   bp.hitl = {
     pause: (platform, userId) => {
       return db.setSessionPaused(true, platform, userId, 'code').then(sessionId => {
