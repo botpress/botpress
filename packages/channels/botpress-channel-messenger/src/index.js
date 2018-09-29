@@ -60,14 +60,16 @@ const initializeMessenger = async (bp, configurator) => {
   return messenger
     .connect(page_ids)
     .then(() => {
-      if (!config.freezeProfile) {
-        if (page_ids.length > 0) {
-          for (let i = 0; i < page_ids.length; i++) {
-            messenger.updateMessengerProfile(page_ids[i])
-          }
-        } else {
-          messenger.updateMessengerProfile()
+      if (config.freezeProfile) {
+        return messenger
+      }
+
+      if (page_ids.length > 0) {
+        for (let i = 0; i < page_ids.length; i++) {
+          messenger.updateMessengerProfile(page_ids[i])
         }
+      } else {
+        messenger.updateMessengerProfile()
       }
       return messenger
     })
