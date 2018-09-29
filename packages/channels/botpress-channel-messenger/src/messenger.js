@@ -274,7 +274,7 @@ class Messenger extends EventEmitter {
 
   getUserProfile(userId, page_id) {
     const token = this.getConfigVal('accessToken', page_id)
-    const profileFields = ['first_name', 'last_name', 'profile_pic'].concat(this.config.enableProfileFields)
+    const profileFields = ['first_name', 'last_name', 'profile_pic'].concat(this.config.extraProfileFields)
     const url = `https://graph.facebook.com/v${this.config.graphVersion}/${userId}?fields=${profileFields.join(
       ','
     )}&access_token=${token}`

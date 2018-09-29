@@ -51,7 +51,7 @@ npm i @botpress/channel-messenger
 
 `"greetingMessage"` - set default messege. `Default: "Default greeting message"`
 
-`"enableProfileFields"` - To retrieve user timezone, gender, or locale, include these fields in this array
+`"extraProfileFields"` - To retrieve user timezone, gender, or locale, include these fields in this array
 
 <img alt='Greeting Message' src='assets/greeting-message-example.png' width='300px !important;' />
 

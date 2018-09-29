@@ -83,7 +83,7 @@ module.exports = {
     appSecret: { type: 'string', required: true, default: '', env: 'MESSENGER_APP_SECRET' },
     verifyToken: { type: 'string', required: false, default: '' },
     enabled: { type: 'bool', required: true, default: true },
-    enableProfileFields: { type: 'any', required: false, default: [], validation: v => _.isArray(v) },
+    extraProfileFields: { type: 'any', required: false, default: [], validation: v => _.isArray(v) },
     hostname: { type: 'string', required: false, default: '', env: 'MESSENGER_HOST' },
     freezeProfile: { type: 'bool', required: false, default: false },
     pages: { type: 'any', required: false, default: {} },

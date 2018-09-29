@@ -16,7 +16,7 @@
 
   "graphVersion": "2.12",
   "enabled": true,
-  "enableProfileFields": [], // 'locale', 'timezone', 'gender'
+  "extraProfileFields": [], // 'locale', 'timezone', 'gender'
 
   "displayGetStarted": true,
   "greetingMessage": "Default greeting message",
