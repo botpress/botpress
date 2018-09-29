@@ -3,8 +3,6 @@ import * as sdk from 'botpress/sdk'
 import fs from 'fs'
 import path from 'path'
 
-import '../botpress'
-
 import api from './api'
 import WebchatDatabase from './db'
 import socket from './socket'
@@ -85,7 +83,15 @@ const obj: sdk.ModuleEntryPoint = {
   onReady: onReady,
   config: config,
   defaultConfigJson: defaultConfigJson,
-  serveFile: serveFile
+  serveFile: serveFile,
+  definition: {
+    name: 'channel-web',
+    menuIcon: 'chrome_reader_mode',
+    fullName: 'Web Chat',
+    homepage: 'https://botpress.io',
+    noInterface: true,
+    plugins: [{ entry: 'WebBotpressUIInjection', position: 'overlay' }]
+  }
 }
 
 export default obj

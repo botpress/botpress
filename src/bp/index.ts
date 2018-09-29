@@ -1,3 +1,5 @@
+#!yarn start
+
 import 'bluebird-global'
 import 'common/polyfills'
 import 'core/modules-resolver'
@@ -8,6 +10,8 @@ import center from 'core/logger/center'
 import * as sdk from 'botpress/sdk'
 import chalk from 'chalk'
 import { Botpress, Logger } from 'core/app'
+import { FatalError } from 'core/errors'
+import { ModuleLoader } from 'core/module-loader'
 const { start: startProxy } = require('./http/api')
 
 async function start() {
@@ -29,13 +33,22 @@ async function start() {
       process.exit(1)
     })
 
-    const modules = new Map<string, sdk.ModuleEntryPoint>()
+    const modules: sdk.ModuleEntryPoint[] = []
 
-    modules.set('channel-web', require('bp/modules/channel-web') as sdk.ModuleEntryPoint)
+    const modulesToLoad = ['bp/modules/channel-web']
 
-    await Botpress.start({
-      modules
-    })
+    for (const module of modulesToLoad) {
+      try {
+        const req = require(module)
+        const rawEntry = (req.default ? req.default : req) as sdk.ModuleEntryPoint
+        const entryPoint = ModuleLoader.processModuleEntryPoint(rawEntry, module)
+        modules.push(entryPoint)
+      } catch (err) {
+        throw new FatalError(err, `Error loading module "${module}"`)
+      }
+    }
+
+    await Botpress.start({ modules })
 
     await Promise.fromCallback(cb =>
       startProxy({ coreApiUrl: 'http://localhost:3000', proxyHost: 'http://localhost', proxyPort: '3001' }, cb)

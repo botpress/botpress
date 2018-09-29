@@ -28,27 +28,30 @@ declare module 'botpress/sdk' {
     error(message: string, error: Error, metadata?: any): void
   }
 
+  export type ModuleConfig = { [key: string]: ModuleConfigEntry }
+
   export interface ModuleEntryPoint {
     onInit: Function
     onReady: Function
-    config: { [key: string]: ModuleConfigEntry }
+    config: ModuleConfig
     defaultConfigJson?: string
     serveFile?: ((path: string) => Promise<Buffer>)
+    definition: ModuleDefinition
   }
 
-  export interface ModuleDefdinition {
+  export interface ModuleDefinition {
     name: string
-    fullName: string
-    plugins: ModulePluginEntry[]
-    moduleView: ModuleViewOptions
-    noInterface: boolean
-    menuIcon: string
-    menuText: string
-    homepage: string
+    fullName?: string
+    plugins?: ModulePluginEntry[]
+    moduleView?: ModuleViewOptions
+    noInterface?: boolean
+    menuIcon?: string
+    menuText?: string
+    homepage?: string
   }
 
   export interface ModulePluginEntry {
-    entry: string
+    entry: 'WebBotpressUIInjection'
     position: 'overlay'
   }
 
@@ -159,6 +162,42 @@ declare module 'botpress/sdk' {
     redirectUrl?: string
   }
 
+  export interface ScopedGhostService {
+    upsertFile(rootFolder: string, file: string, content: string | Buffer): Promise<void>
+    readFileAsBuffer(rootFolder: string, file: string): Promise<Buffer>
+    readFileAsString(rootFolder: string, file: string): Promise<string>
+    readFileAsObject<T>(rootFolder: string, file: string): Promise<T>
+    deleteFile(rootFolder: string, file: string): Promise<void>
+    directoryListing(rootFolder: string, fileEndingPattern: string): Promise<string[]>
+  }
+
+  export type BotConfig = {
+    $schema?: string
+    id: string
+    name: string
+    active: boolean
+    description?: string
+    author?: string
+    version: string
+    license?: string
+    imports: {
+      modules: string[]
+      contentTypes: string[]
+      incomingMiddleware: string[]
+      outgoingMiddleware: string[]
+    }
+    dialog?: DialogConfig
+    logs?: LogsConfig
+  }
+
+  export interface LogsConfig {
+    expiration: string
+  }
+
+  export interface DialogConfig {
+    timeoutInterval: string
+  }
+
   /**
    * ////////////////
    * //////// API
@@ -208,8 +247,16 @@ declare module 'botpress/sdk' {
     export function getModuleConfigForBot(moduleId: string, botId: string): Promise<any>
   }
 
+  export namespace bots {
+    export function getAllBots(): Promise<Map<string, BotConfig>>
+  }
+
   export namespace notifications {
     export function create(botId: string, notification: Notification): Promise<any>
+  }
+
+  export namespace ghost {
+    export function forBot(botId: string): ScopedGhostService
   }
 
   export const logger: Logger

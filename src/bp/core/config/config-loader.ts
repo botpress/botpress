@@ -1,9 +1,9 @@
 import { inject, injectable } from 'inversify'
 import yn from 'yn'
 
-import { FatalError } from 'errors'
-import { TYPES } from 'core/types'
 import { GhostService } from 'core/services'
+import { TYPES } from 'core/types'
+import { FatalError } from 'errors'
 
 import { BotConfig } from './bot.config'
 import { BotpressConfig } from './botpress.config'
@@ -62,7 +62,7 @@ export class GhostConfigProvider implements ConfigProvider {
       }
 
       // Variables substitution
-      //TODO Check of a better way to handle path correction
+      // TODO Check of a better way to handle path correction
       content = content.replace('%BOTPRESS_DIR%', this.projectLocation.replace(/\\/g, '/'))
       content = content.replace('"$isProduction"', this.isProduction ? 'true' : 'false')
       content = content.replace('"$isDevelopment"', this.isProduction ? 'false' : 'true')

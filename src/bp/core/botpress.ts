@@ -26,7 +26,7 @@ import RealtimeService from './services/realtime'
 import { TYPES } from './types'
 
 export type StartOptions = {
-  modules: Map<string, sdk.ModuleEntryPoint>
+  modules: sdk.ModuleEntryPoint[]
 }
 
 @injectable()
@@ -138,7 +138,7 @@ export class Botpress {
     this.loggerPersister.start()
   }
 
-  private async loadModules(modules: Map<string, sdk.ModuleEntryPoint>): Promise<void> {
+  private async loadModules(modules: sdk.ModuleEntryPoint[]): Promise<void> {
     const loadedModules = await this.moduleLoader.loadModules(modules)
     this.logger.info(`Loaded ${loadedModules.length} ${plur('module', loadedModules.length)}`)
   }

@@ -3,7 +3,7 @@
     "declaration": true,
     "sourceMap": true,
     "strict": true,
-    "declarationMap": true,
+    // "declarationMap": true,
     "module": "commonjs",
     "esModuleInterop": true,
     "resolveJsonModule": true,

@@ -3,7 +3,6 @@ import { Router } from 'express'
 import { ModuleLoader } from '../module-loader'
 
 import { CustomRouter } from '.'
-import MODULES from './__modules'
 
 export class ModulesRouter implements CustomRouter {
   public readonly router: Router
@@ -14,9 +13,8 @@ export class ModulesRouter implements CustomRouter {
   }
 
   private setupRoutes(): void {
-    // FIXME TODO Implement this properly
     this.router.get('/', async (req, res) => {
-      res.json(MODULES)
+      res.json(this.moduleLoader.getLoadedModules())
     })
 
     this.router.get('/:moduleName/files', async (req, res, next) => {

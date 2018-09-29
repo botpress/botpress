@@ -70,6 +70,7 @@
     "gulp-print": "^5.0.0",
     "gulp-rimraf": "^0.2.2",
     "gulp-run": "^1.7.1",
+    "gulp-sourcemaps": "^2.6.4",
     "gulp-typescript": "^5.0.0-alpha.3",
     "jest": "^23.6.0",
     "jest-extended": "^0.10.0",

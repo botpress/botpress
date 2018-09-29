@@ -7,14 +7,7 @@
     "src": "src",
     "menuText": "Web Chat",
     "menuIcon": "chrome_reader_mode",
-    "webBundle": "bin/web.bundle.js",
-    "noInterface": true,
-    "plugins": [
-      {
-        "entry": "WebBotpressUIInjection",
-        "position": "overlay"
-      }
-    ]
+    "webBundle": "bin/web.bundle.js"
   },
   "scripts": {
     "build": "./node_modules/.bin/module-builder build",

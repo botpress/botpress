@@ -5,14 +5,18 @@
       "type": "node",
       "request": "launch",
       "name": "Debug Launcher-CE",
-      "program": "${workspaceFolder}/src/bp/index.ts",
-      "cwd": "${workspaceFolder}/src/bp",
+      "program": "${workspaceFolder}/out/bp/index.js",
+      "cwd": "${workspaceFolder}",
       "protocol": "inspector",
       "env": {
         "JWT_SECRET": "very_secret",
-        "NODE_PATH": "${workspaceFolder}/out"
+        "BP_MODULES_PATH": "./modules",
+        "NODE_PATH": "${workspaceFolder}/out/bp"
       },
-      "outFiles": ["${workspaceFolder}/out/**/*.js"]
+      "outFiles": ["${workspaceFolder}/out/**/*.js"],
+      "console": "integratedTerminal",
+      "sourceMaps": true,
+      "autoAttachChildProcesses": true
     }
   ]
 }

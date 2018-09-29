@@ -28,27 +28,30 @@ declare module 'botpress/sdk' {
     error(message: string, error: Error, metadata?: any): void
   }
 
+  export type ModuleConfig = { [key: string]: ModuleConfigEntry }
+
   export interface ModuleEntryPoint {
     onInit: Function
     onReady: Function
-    config: { [key: string]: ModuleConfigEntry }
+    config: ModuleConfig
     defaultConfigJson?: string
     serveFile?: ((path: string) => Promise<Buffer>)
+    definition: ModuleDefinition
   }
 
-  export interface ModuleDefdinition {
+  export interface ModuleDefinition {
     name: string
-    fullName: string
-    plugins: ModulePluginEntry[]
-    moduleView: ModuleViewOptions
-    noInterface: boolean
-    menuIcon: string
-    menuText: string
-    homepage: string
+    fullName?: string
+    plugins?: ModulePluginEntry[]
+    moduleView?: ModuleViewOptions
+    noInterface?: boolean
+    menuIcon?: string
+    menuText?: string
+    homepage?: string
   }
 
   export interface ModulePluginEntry {
-    entry: string
+    entry: 'WebBotpressUIInjection'
     position: 'overlay'
   }
 

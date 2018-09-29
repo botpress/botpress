@@ -1,0 +1,5 @@
+{
+  "compilerOptions": {
+    "typeRoots": ["./src/botpress.d.ts", "node_modules/**"]
+  }
+}

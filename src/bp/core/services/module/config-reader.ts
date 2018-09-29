@@ -63,7 +63,16 @@ const amendOptions = options => {
  * 4) Per-bot Override (Most precedence)
  */
 export default class ConfigReader {
-  constructor(private logger: Logger, private modules: Map<string, ModuleEntryPoint>, private ghost: GhostService) {}
+  private modules = new Map<string, ModuleEntryPoint>()
+
+  constructor(private logger: Logger, modules: ModuleEntryPoint[], private ghost: GhostService) {
+    for (const module of modules) {
+      const name = _.get(module, 'definition.name', '').toLowerCase()
+      if (name.length) {
+        this.modules.set(name, module)
+      }
+    }
+  }
 
   public async initialize() {
     await this.bootstrapGlobalConfigurationFiles()

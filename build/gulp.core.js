@@ -3,6 +3,7 @@ const gulp = require('gulp')
 const ts = require('gulp-typescript')
 const rimraf = require('rimraf')
 const run = require('gulp-run')
+const sourcemaps = require('gulp-sourcemaps')
 
 const buildJsonSchemas = require('./jsonschemas')
 const tsProject = ts.createProject(path.resolve(__dirname, '../src/tsconfig.json'))
@@ -18,7 +19,16 @@ const clean = cb => {
 const buildTs = () => {
   return tsProject
     .src()
+    .pipe(sourcemaps.init())
     .pipe(tsProject())
+    .pipe(
+      sourcemaps.write({
+        sourceRoot: file => {
+          const sourceFile = path.join(file.cwd, 'src/bp', file.sourceMap.file)
+          return path.relative(path.dirname(sourceFile), file.cwd)
+        }
+      })
+    )
     .pipe(gulp.dest('./out/bp'))
 }
 
