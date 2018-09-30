@@ -19,11 +19,11 @@ async function start() {
   try {
     const logger = await Logger('Launcher')
 
-    logger.info(chalk`===============================`)
-    logger.info(chalk`{bold ${center(`Botpress Server`, 30)}}`)
-    logger.info(chalk`{bold ${center(`Version ${sdk.version}`, 30)}}`)
-    logger.info(chalk`{yellow ${center(`Pre-release`, 30)}}`)
-    logger.info(chalk`===============================`)
+    logger.info(chalk`===============================
+{bold ${center(`Botpress Server`, 30)}}
+{dim ${center(`Version ${sdk.version}`, 30)}}
+{yellow ${center(`Pre-release`, 30)}}
+===============================`)
 
     process.on('unhandledRejection', err => {
       logger.error('Unhandled Rejection', err)
@@ -42,7 +42,7 @@ async function start() {
     for (const entry of globalConfig.modules) {
       try {
         if (!entry.enabled) {
-          modulesLog += os.EOL + `${chalk.yellowBright('⊖')} ${entry.location} ${chalk.gray('(disabled)')}`
+          modulesLog += os.EOL + `${chalk.dim('⊝')} ${entry.location} ${chalk.gray('(disabled)')}`
           continue
         }
 
