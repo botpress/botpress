@@ -18,7 +18,12 @@ async function registerActions(bp) {
   bp.dialogEngine.registerActionMetadataProvider(action => metadata[action])
 
   for (const actionFile of actionFiles) {
-    const docs = await jsdoc.explain({ files: path.join(__dirname, actionFile) })
+    // TODO: fails with "spawn node ENOENT" error on CircleCI otherwise
+    let docs = []
+    if (process.env.NODE_ENV !== 'test') {
+      docs = await jsdoc.explain({ files: path.join(__dirname, actionFile) })
+    }
+
     const actions = require(actionFile)
 
     for (const action of Object.keys(actions)) {
