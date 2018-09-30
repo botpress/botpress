@@ -59,10 +59,9 @@ const copyStudio = () => {
   return gulp.src('./src/bp/ui-studio/static/**/*').pipe(gulp.dest('./out/bp/ui-studio/static'))
 }
 
-const buildSchemas = () => {
-  return Promise.resolve(() => {
-    buildJsonSchemas()
-  })
+const buildSchemas = cb => {
+  buildJsonSchemas()
+  cb()
 }
 
 const runTests = () => {

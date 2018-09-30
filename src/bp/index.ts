@@ -9,9 +9,10 @@ import 'sdk/rewire'
 
 import * as sdk from 'botpress/sdk'
 import chalk from 'chalk'
-import { Botpress, Logger } from 'core/app'
+import { Botpress, Config, Logger } from 'core/app'
 import { FatalError } from 'core/errors'
 import { ModuleLoader } from 'core/module-loader'
+import os from 'os'
 const { start: startProxy } = require('./http/api')
 
 async function start() {
@@ -34,18 +35,36 @@ async function start() {
     })
 
     const modules: sdk.ModuleEntryPoint[] = []
+    const globalConfig = await Config.getBotpressConfig()
+    const loadingErrors: Error[] = []
+    let modulesLog = ''
 
-    const modulesToLoad = ['bp/modules/channel-web']
-
-    for (const module of modulesToLoad) {
+    for (const entry of globalConfig.modules) {
       try {
-        const req = require(module)
+        if (!entry.enabled) {
+          modulesLog += os.EOL + `${chalk.yellowBright('⊖')} ${entry.location} ${chalk.gray('(disabled)')}`
+          continue
+        }
+
+        const req = require(entry.location)
         const rawEntry = (req.default ? req.default : req) as sdk.ModuleEntryPoint
-        const entryPoint = ModuleLoader.processModuleEntryPoint(rawEntry, module)
+        const entryPoint = ModuleLoader.processModuleEntryPoint(rawEntry, entry.location)
         modules.push(entryPoint)
+        modulesLog += os.EOL + `${chalk.greenBright('⦿')} ${entry.location}`
       } catch (err) {
-        throw new FatalError(err, `Error loading module "${module}"`)
+        modulesLog += os.EOL + `${chalk.redBright('⊗')} ${entry.location} ${chalk.gray('(error)')}`
+        loadingErrors.push(new FatalError(err, `Fatal error loading module "${entry.location}"`))
       }
+    }
+
+    logger.info(`Loaded ${chalk.bold(modules.length.toString())} modules` + modulesLog)
+
+    for (const err of loadingErrors) {
+      logger.error('Error starting Botpress', err)
+    }
+
+    if (loadingErrors.length) {
+      process.exit(1)
     }
 
     await Botpress.start({ modules })

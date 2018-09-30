@@ -6,11 +6,9 @@ import yn from 'yn'
 
 import { BotConfig } from './bot.config'
 import { BotpressConfig } from './botpress.config'
-import { ModulesConfig } from './modules.config'
 
 export interface ConfigProvider {
   getBotpressConfig(): Promise<BotpressConfig>
-  getModulesConfig(): Promise<ModulesConfig>
   getBotConfig(botId: string): Promise<BotConfig>
   setBotConfig(botId: string, config: BotConfig): Promise<void>
 }
@@ -32,10 +30,6 @@ export class GhostConfigProvider implements ConfigProvider {
     config.ghost.enabled = yn(process.env.GHOST_ENABLED) || config.ghost.enabled
 
     return config
-  }
-
-  async getModulesConfig(): Promise<ModulesConfig> {
-    return this.getConfig<ModulesConfig>('modules.config.json')
   }
 
   async getBotConfig(botId: string): Promise<BotConfig> {

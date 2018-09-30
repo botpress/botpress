@@ -1,96 +1,103 @@
 {
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "definitions": {
-        "DialogConfig": {
-            "properties": {
-                "timeoutInterval": {
-                    "type": "string"
-                }
-            },
-            "required": [
-                "timeoutInterval"
-            ],
-            "type": "object"
-        },
-        "LogsConfig": {
-            "properties": {
-                "expiration": {
-                    "type": "string"
-                }
-            },
-            "required": [
-                "expiration"
-            ],
-            "type": "object"
-        }
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
     },
-    "properties": {
-        "active": {
-            "type": "boolean"
-        },
-        "author": {
-            "type": "string"
-        },
-        "description": {
-            "type": "string"
-        },
-        "dialog": {
-            "$ref": "#/definitions/DialogConfig"
-        },
-        "imports": {
-            "properties": {
-                "contentTypes": {
-                    "items": {
-                        "type": "string"
-                    },
-                    "type": "array"
-                },
-                "incomingMiddleware": {
-                    "items": {
-                        "type": "string"
-                    },
-                    "type": "array"
-                },
-                "modules": {
-                    "items": {
-                        "type": "string"
-                    },
-                    "type": "array"
-                },
-                "outgoingMiddleware": {
-                    "items": {
-                        "type": "string"
-                    },
-                    "type": "array"
-                }
-            },
-            "required": [
-                "contentTypes",
-                "incomingMiddleware",
-                "modules",
-                "outgoingMiddleware"
-            ],
-            "type": "object"
-        },
-        "license": {
-            "type": "string"
-        },
-        "logs": {
-            "$ref": "#/definitions/LogsConfig"
-        },
-        "name": {
-            "type": "string"
-        },
-        "version": {
-            "type": "string"
-        }
+    "id": {
+      "type": "string"
     },
-    "required": [
-        "active",
-        "imports",
-        "name",
-        "version"
-    ],
-    "type": "object"
+    "name": {
+      "type": "string"
+    },
+    "active": {
+      "type": "boolean"
+    },
+    "description": {
+      "type": "string"
+    },
+    "author": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "license": {
+      "type": "string"
+    },
+    "imports": {
+      "type": "object",
+      "properties": {
+        "modules": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "contentTypes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "incomingMiddleware": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "outgoingMiddleware": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "contentTypes",
+        "incomingMiddleware",
+        "modules",
+        "outgoingMiddleware"
+      ]
+    },
+    "dialog": {
+      "$ref": "#/definitions/DialogConfig"
+    },
+    "logs": {
+      "$ref": "#/definitions/LogsConfig"
+    }
+  },
+  "required": [
+    "active",
+    "id",
+    "imports",
+    "name",
+    "version"
+  ],
+  "definitions": {
+    "DialogConfig": {
+      "type": "object",
+      "properties": {
+        "timeoutInterval": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "timeoutInterval"
+      ]
+    },
+    "LogsConfig": {
+      "type": "object",
+      "properties": {
+        "expiration": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "expiration"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
 }
 

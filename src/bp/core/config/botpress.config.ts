@@ -2,6 +2,11 @@ export type DatabaseType = 'postgres' | 'sqlite'
 
 export type BotpressCondition = '$isProduction' | '$isDevelopment'
 
+export type ModuleConfigEntry = {
+  location: string
+  enabled: boolean
+}
+
 export interface DatabaseConfig {
   migrations?: string
   type: DatabaseType
@@ -38,4 +43,5 @@ export type BotpressConfig = {
   }
   dialog: DialogConfig
   logs: LogsConfig
+  modules: Array<ModuleConfigEntry>
 }

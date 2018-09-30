@@ -25,5 +25,11 @@
   "logs": {
     "expiration": "2 weeks",
     "janitorInterval": "2s"
-  }
+  },
+  "modules": [
+    {
+      "location": "bp/modules/channel-web",
+      "enabled": true
+    }
+  ]
 }

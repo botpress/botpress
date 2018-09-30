@@ -48,11 +48,17 @@ export class PersistedConsoleLogger implements Logger {
     this.loggerPersister.appendLog(entry)
 
     const serializedMetadata = metadata ? ' | ' + util.inspect(metadata, false, 2, true) : ''
-    const time = moment().format('HH:mm:ss.SSS')
+    const timeFormat = 'HH:mm:ss.SSS'
+    const time = moment().format(timeFormat)
 
     const displayName = process.env.INDENT_LOGS ? this.name.substr(0, 15).padEnd(15, ' ') : this.name
+    const newLineIndent = chalk.dim('⋅'.repeat(`${timeFormat} ${displayName}`.length)) + ' '
+    const indentedMessage =
+      level === LoggerLevel.Error ? message : message.replace(new RegExp(os.EOL, 'g'), os.EOL + newLineIndent)
 
-    console.log(chalk`{grey ${time}} {${this.colors[level]}.bold ${displayName}} ${message}${serializedMetadata}`)
+    console.log(
+      chalk`{grey ${time}} {${this.colors[level]}.bold ${displayName}} ${indentedMessage}${serializedMetadata}`
+    )
     this.botId = undefined
   }
 
