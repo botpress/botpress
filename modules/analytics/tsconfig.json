@@ -1,8 +1,6 @@
 {
-  "extends": "../tsconfig.shared.json",
   "compilerOptions": {
-    "rootDir": "./src",
-    "outDir": "./dist",
-    "typeRoots": ["typings", "node_modules/@types"]
+    "esModuleInterop": true,
+    "typeRoots": ["./src/botpress.d.ts", "./node_modules/@types", "./node_modules"]
   }
 }

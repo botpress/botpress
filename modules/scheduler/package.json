@@ -12,29 +12,12 @@
     "messenger",
     "scheduler"
   ],
-  "version-manager": {
-    "warn": "",
-    "botpress-check": ">= 0.1",
-    "botpress-update": "^1.x",
-    "module-downgrade": "~1.0.x"
-  },
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
-    "test": "mocha --compilers js:babel-core/register",
-    "watch": "node webpack.js --watch",
-    "compile": "node webpack.js --compile",
-    "build": "../../node_modules/.bin/rimraf dist && ../../node_modules/.bin/tsc"
-  },
-  "babel": {
-    "presets": [
-      "latest",
-      "stage-0"
-    ],
-    "plugins": [
-      "transform-object-rest-spread"
-    ]
+    "build": "./node_modules/.bin/module-builder build",
+    "watch": "./node_modules/.bin/module-builder watch"
   },
   "repository": {
     "type": "git",
@@ -47,39 +30,20 @@
     "botpress": ">= 10.0.0"
   },
   "devDependencies": {
-    "babel-core": "^6.26.0",
-    "babel-loader": "^7.1.2",
-    "babel-plugin-transform-async-to-generator": "^6.24.1",
-    "babel-plugin-transform-decorators-legacy": "^1.3.4",
-    "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "babel-preset-es2015": "^6.24.1",
-    "babel-preset-latest": "^6.24.1",
-    "babel-preset-react": "^6.24.1",
-    "babel-preset-stage-0": "^6.24.1",
-    "babel-register": "^6.26.0",
+    "@types/node": "^10.11.3",
     "chai": "^3.5.0",
     "chrono-node": "^1.2.5",
     "classnames": "^2.2.5",
-    "copy-webpack-plugin": "^4.4.1",
-    "core-js": "^2.4.1",
-    "css-loader": "^0.28.9",
-    "extract-text-webpack-plugin": "^3.0.2",
-    "file-loader": "^1.1.6",
     "mocha": "^3.2.0",
-    "node-sass": "^4.9.3",
     "react-toggle": "^4.0.2",
-    "riek": "^1.1.0",
-    "sass-loader": "^6.0.6",
-    "style-loader": "^0.20.1",
-    "webpack": "^3.11.0",
-    "webpack-node-externals": "^1.6.0"
+    "riek": "^1.1.0"
   },
   "dependencies": {
     "bluebird": "^3.4.6",
-    "botpress-version-manager": "^1.0.2",
     "cronstrue": "^0.8.0",
     "later": "RickCarlino/later",
     "lodash": "^4.17.2",
+    "module-builder": "../../build/module-builder",
     "moment": "^2.17.1",
     "validate-arguments": "0.0.8"
   }

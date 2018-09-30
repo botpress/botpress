@@ -1,10 +1,10 @@
+const exec = require('child_process').exec
 const _ = require('lodash')
 const fs = require('fs')
 const path = require('path')
 const gulp = require('gulp')
 const glob = require('glob')
 const print = require('gulp-print').default
-const exec = require('gulp-exec')
 
 const cwd = path.join(__dirname, '../modules')
 
@@ -45,12 +45,15 @@ const copyBoilerplateFiles = cb => {
   cb() // No boiletplate files for now
 }
 
-const buildModule = modulePath => {
-  return gulp.src(modulePath, { allowEmpty: true }).pipe(
-    exec('yarn && yarn build', {
-      cwd: modulePath
-    })
-  )
+const buildModule = (modulePath, cb) => {
+  const linkCmd = ` && yarn link "module-builder"` // TODO Change this
+  exec(`yarn${linkCmd} && yarn build`, { cwd: modulePath }, (err, stdout, stderr) => {
+    if (err) {
+      console.error(stderr)
+      return cb(err)
+    }
+    cb()
+  })
 }
 
 const buildModules = () => {
@@ -59,8 +62,8 @@ const buildModules = () => {
     const config = readModuleConfig(m)
     const moduleName = _.get(config, 'name', 'Unknown')
     const taskName = `build-module ${moduleName}`
-    gulp.task(taskName, () => {
-      return buildModule(m)
+    gulp.task(taskName, cb => {
+      buildModule(m, cb)
     })
     return taskName
   })

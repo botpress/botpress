@@ -8,6 +8,7 @@ const libraryTarget = mod => `botpress = typeof botpress === "object" ? botpress
 
 export function config(projectPath) {
   const packageJson = require(path.join(projectPath, 'package.json'))
+
   const web: webpack.Configuration = {
     mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
     devtool: 'source-map',
@@ -78,11 +79,9 @@ export function config(projectPath) {
     }
   }
 
+  const liteViews = (packageJson.botpress && packageJson.botpress.liteViews) || {}
   const lite: webpack.Configuration = Object.assign({}, web, {
-    entry: {
-      embedded: './src/views/web/embedded.jsx',
-      fullscreen: './src/views/web/fullscreen.jsx'
-    },
+    entry: liteViews,
     output: {
       path: path.resolve(projectPath, './dist/web'),
       publicPath: '/js/lite-modules/',
@@ -98,7 +97,11 @@ export function config(projectPath) {
     return require(webpackFile)({ web, lite })
   }
 
-  return { web, lite }
+  const configs = [web]
+  if (Object.keys(liteViews).length) {
+    configs.push(lite)
+  }
+  return configs
 }
 
 function writeStats(err, stats, exitOnError = true) {
@@ -115,12 +118,12 @@ function writeStats(err, stats, exitOnError = true) {
 }
 
 export function watch(projectPath: string) {
-  const { web, lite } = config(projectPath)
-  const compiler = webpack([web, lite])
+  const confs = config(projectPath)
+  const compiler = webpack(confs)
   compiler.watch({}, (err, stats) => writeStats(err, stats, false))
 }
 
 export function build(projectPath: string) {
-  const { web, lite } = config(projectPath)
-  webpack([web, lite], (err, stats) => writeStats(err, stats, true))
+  const confs = config(projectPath)
+  webpack(confs, (err, stats) => writeStats(err, stats, true))
 }

@@ -17,15 +17,15 @@ export type Extension = {
 
 export type SDK = typeof sdk & Extension
 
-export const onInit = async (bp: SDK) => {
+const onInit = async (bp: SDK) => {
   await setup(bp)
 }
 
-export const onReady = async (bp: SDK) => {
+const onReady = async (bp: SDK) => {
   await api(bp)
 }
 
-export const serveFile = async (filePath: string): Promise<Buffer> => {
+const serveFile = async (filePath: string): Promise<Buffer> => {
   filePath = filePath.toLowerCase()
 
   const mapping = {
@@ -40,7 +40,7 @@ export const serveFile = async (filePath: string): Promise<Buffer> => {
   return new Buffer('')
 }
 
-export const defaultConfigJson = `
+const defaultConfigJson = `
 {
   "intentsDir": "./intents",
   "entitiesDir": "./entities",
@@ -51,7 +51,7 @@ export const defaultConfigJson = `
 }
 `
 
-export const config = {
+const config: sdk.ModuleConfig = {
   intentsDir: { type: 'string', required: true, default: './intents', env: 'NLU_INTENTS_DIR' },
   entitiesDir: { type: 'string', required: true, default: './entities', env: 'NLU_ENTITIES_DIR' },
 
@@ -94,3 +94,22 @@ export const config = {
   // Useful to make sure you don't overuse your budget on paid NLU-services (like LUIS)
   maximumRequestsPerHour: { type: 'string', required: false, default: '1000', env: 'NLU_MAX_REQUESTS_PER_HOUR' }
 }
+
+const obj: sdk.ModuleEntryPoint = {
+  onInit: onInit,
+  onReady: onReady,
+  config: config,
+  defaultConfigJson: defaultConfigJson,
+  serveFile: serveFile,
+  definition: {
+    name: 'nlu',
+    menuIcon: 'fiber_smart_record',
+    fullName: 'NLU',
+    homepage: 'https://botpress.io',
+    noInterface: false,
+    plugins: [],
+    moduleView: { stretched: true }
+  }
+}
+
+export default obj

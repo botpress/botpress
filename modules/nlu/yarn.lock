@@ -368,8 +368,6 @@
 "@babel/plugin-transform-destructuring@^7.0.0":
   version "7.1.1"
   resolved "https://registry.yarnpkg.com/@babel/plugin-transform-destructuring/-/plugin-transform-destructuring-7.1.1.tgz#7845ae1c52281f7dfa56d2276c0ad646a6cd61b4"
-  dependencies:
-    "@babel/helper-plugin-utils" "^7.0.0"
 
 "@babel/plugin-transform-dotall-regex@^7.0.0":
   version "7.0.0"
@@ -696,6 +694,10 @@
 "@types/node@^10.1.0":
   version "10.11.0"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-10.11.0.tgz#ddd0d67a3b6c3810dd1a59e36675fa82de5e19ae"
+
+"@types/node@^10.11.3":
+  version "10.11.3"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-10.11.3.tgz#c055536ac8a5e871701aa01914be5731539d01ee"
 
 "@webassemblyjs/ast@1.7.8":
   version "1.7.8"
