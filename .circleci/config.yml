@@ -28,15 +28,6 @@ jobs:
           name: Install dependencies
           command: cd ~/repo/packages/core/botpress && yarn --force --build-from-source
 
-      - run:
-          name: Install ngrok
-          comand: |
-            wget https://s3.amazonaws.com/build-tools-prd/ngrok.zip
-            unzip ngrok.zip
-            ./ngrok http -subdomain=$CIRCLE_SHA1 3000
-            BOTPRESS_URL=https://$CIRCLE_SHA1.ngrok.com
-          background: true
-
       - save_cache:
           paths:
             - ~/repo/packages/core/botpress/node_modules
