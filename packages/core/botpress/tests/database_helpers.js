@@ -39,7 +39,7 @@ run('helpers', () => {
   })
 
   describe('insertAndRetrieve', function() {
-    this.timeout(5000)
+    this.timeout(30000)
     itBoth('returns inserted data', (knex, sampleTable) => {
       return Promise.map(_.range(500), index => {
         const tString =
