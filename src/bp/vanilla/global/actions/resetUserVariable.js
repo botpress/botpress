@@ -12,4 +12,4 @@ const resetUserVariable = async name => {
   return { ...state }
 }
 
-resetUserVariable(args.name)
+return resetUserVariable(args.name)

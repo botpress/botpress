@@ -97,12 +97,7 @@ export class ActionStrategy implements InstructionStrategy {
       throw new Error(`Action "${actionName}" not found, ${context}, ${state}`)
     }
 
-    const result = await this.actionService
-      .forBot(botId)
-      .runAction(actionName, state, event, args)
-      .catch(err => {
-        throw new VError(err, `An error occurred while executing the action: "${actionName}"`)
-      })
+    const result = await this.actionService.forBot(botId).runAction(actionName, state, event, args)
     return ProcessingResult.updateState(result)
   }
 

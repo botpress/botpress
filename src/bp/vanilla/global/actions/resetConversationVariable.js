@@ -12,4 +12,4 @@ const resetConversationVariable = async name => {
   return { ...state }
 }
 
-resetConversationVariable(args.name)
+return resetConversationVariable(args.name)

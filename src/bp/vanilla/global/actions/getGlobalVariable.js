@@ -11,4 +11,4 @@ const getGlobalVariable = async name => {
   return { ...state, output: result }
 }
 
-getGlobalVariable(args.name)
+return getGlobalVariable(args.name)

@@ -11,7 +11,8 @@ const setConversationVariable = async (name, value, expiry) => {
   const threadId = event.threadId
   const key = bp.kvs.getConversationStorageKey(threadId, name)
   await bp.kvs.setStorageWithExpiry(event.botId, key, value, expiry)
+  state.test = 'test'
   return { ...state }
 }
 
-setConversationVariable(args.name, args.value, args.expiry)
+return setConversationVariable(args.name, args.value, args.expiry)

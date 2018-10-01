@@ -1,6 +1,5 @@
 import { Logger } from 'botpress/sdk'
 import { inject, injectable, tagged } from 'inversify'
-import { VError } from 'verror'
 import { NodeVM, VMScript } from 'vm2'
 
 import { GhostService } from '..'
@@ -109,7 +108,8 @@ export class ScopedActionService {
         if (retValue && typeof retValue.then === 'function') {
           retValue.then(resolve, reject)
         } else {
-          resolve(retValue)
+          const error = new Error(`State is not returned in action "${actionName}"`)
+          reject(error)
         }
       } catch (err) {
         reject(err)
