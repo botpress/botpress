@@ -80,7 +80,7 @@ export default async (bp: SDK, db: Database) => {
     try {
       await fn(req, res, next)
     } catch (err) {
-      bp.logger.error('HTTP Handling Error', err)
+      bp.logger.attachError(err).error('HTTP Handling Error')
       res.status(500).send(err && err.message)
     }
   }

@@ -79,7 +79,7 @@ class Daemon {
 
       return this.runSingleTask(expired)
         .catch(err => {
-          this.bp.logger.error('[scheduler]', err.message, err.stack)
+          this.bp.logger.attachError(err).error('Error running scheduled task ' + taskId)
 
           this.bp.notifications.create(undefined, {
             botId: undefined,

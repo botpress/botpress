@@ -93,14 +93,14 @@ export class ModuleLoader {
     const readyModules: string[] = []
 
     for (const module of modules) {
+      const name = _.get(module, 'definition.name', '').toLowerCase()
       try {
-        const name = _.get(module, 'definition.name', '').toLowerCase()
         ModuleLoader.processModuleEntryPoint(module, name)
         const api = await createForModule(name)
         await (module.onInit && module.onInit(api))
         initedModules[name] = true
       } catch (err) {
-        this.logger.error('Error during module', err)
+        this.logger.attachError(err).error(`Error in module "${name}" onInit`)
       }
     }
 
@@ -119,7 +119,7 @@ export class ModuleLoader {
         readyModules.push(name)
         this.entryPoints.set(name, module)
       } catch (err) {
-        this.logger.error(`Error during module "${name}" ready. Module will still be loaded.`, err)
+        this.logger.warn(`Error in module "${name}" 'onReady'. Module will still be loaded. Err: ${err.message}`)
       }
     }
 

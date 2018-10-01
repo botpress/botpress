@@ -159,7 +159,7 @@ export default class ConfigReader {
         const config = this.getModuleDefaultConfigFile(moduleId)
         const fileName = `${moduleId}.json`
         await this.ghost.global().upsertFile('config', fileName, config)
-        this.logger.info(`Added missing "${fileName}" configuration file`)
+        this.logger.debug(`Added missing "${fileName}" configuration file`)
       }
     }
   }

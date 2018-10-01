@@ -284,7 +284,7 @@ export default class LuisProvider extends Provider {
       this.logger.info('[NLU::Luis] Synced model [' + result.data + ']')
     } catch (err) {
       const detailedError = _.get(err, 'response.data.error.message') || (err && err.message) || err
-      this.logger.error('[NLU::Luis] Could not sync the model. Error = ' + detailedError)
+      this.logger.attachError(err).error('[NLU::Luis] Could not sync the model. Error = ' + detailedError)
     }
     this.syncingSince = undefined
   }

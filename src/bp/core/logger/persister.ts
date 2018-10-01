@@ -1,10 +1,10 @@
+import { Logger, LoggerEntry } from 'botpress/sdk'
 import { injectable } from 'inversify'
+import Knex from 'knex'
 import _ from 'lodash'
 import ms from 'ms'
 
 import Database from '../database'
-import { Logger, LoggerEntry } from 'botpress/sdk'
-import Knex from 'knex'
 
 @injectable()
 export class LoggerPersister {
@@ -31,7 +31,6 @@ export class LoggerPersister {
 
   start() {
     this.validateInit()
-    this.logger.debug('Started')
 
     if (this.intervalRef) {
       return
@@ -73,7 +72,7 @@ export class LoggerPersister {
           this.batch.splice(0, this.batch.length)
         }
       })
-      .catch(err => this.logger.error('Error persisting messages', err))
+      .catch(err => this.logger.attachError(err).error('Error persisting messages'))
       .finally(() => {
         this.currentPromise = undefined
       })

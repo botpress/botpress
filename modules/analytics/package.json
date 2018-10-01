@@ -3,12 +3,6 @@
   "version": "10.38.0",
   "description": "Provides high level analytics about your bot usage.",
   "main": "dist/backend/index.js",
-  "botpress": {
-    "src": "src",
-    "menuText": "Analytics",
-    "menuIcon": "timeline",
-    "webBundle": "dist/web/web.bundle.js"
-  },
   "scripts": {
     "build": "./node_modules/.bin/module-builder build",
     "watch": "./node_modules/.bin/module-builder watch"

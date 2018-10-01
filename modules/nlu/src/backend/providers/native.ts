@@ -124,7 +124,7 @@ export default class NativeProvider extends Provider {
     try {
       classifier.train()
     } catch (err) {
-      return this.logger.error(`[NLU::Native] Error training model: ${err.message}`)
+      return this.logger.attachError(err).error('[NLU::Native] Error training model')
     }
 
     this.classifier = classifier

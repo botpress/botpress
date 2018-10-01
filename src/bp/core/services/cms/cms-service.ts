@@ -1,19 +1,20 @@
+import { Logger } from 'botpress/sdk'
+import { KnexExtension } from 'common/knex'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
+import Knex from 'knex'
 import _ from 'lodash'
 import nanoid from 'nanoid'
 import path from 'path'
-import Knex from 'knex'
+import plur from 'plur'
 
+import { GhostService } from '../'
 import { ConfigProvider } from '../../config/config-loader'
 import { LoggerProvider } from '../../logger/logger'
 import { IDisposeOnExit } from '../../misc/interfaces'
 import { TYPES } from '../../types'
-import { GhostService } from '../'
 
 import { ContentElement, ContentType, DefaultSearchParams, SearchParams } from '.'
 import { CodeFile, SafeCodeSandbox } from './util'
-import { Logger } from 'botpress/sdk'
-import { KnexExtension } from 'common/knex'
 
 @injectable()
 export class CMSService implements IDisposeOnExit {
@@ -39,7 +40,6 @@ export class CMSService implements IDisposeOnExit {
     this.sandbox && this.sandbox.dispose()
   }
 
-  @postConstruct()
   async initialize() {
     await this.prepareDb()
     await this.loadContentTypesFromFiles()
@@ -58,6 +58,20 @@ export class CMSService implements IDisposeOnExit {
       table.timestamp('createdOn')
       table.timestamp('modifiedOn')
     })
+  }
+
+  async preloadContentForAllBots(botIds: string[]): Promise<void> {
+    const elementCount = await Promise.reduce(
+      botIds,
+      async (total, botId) => {
+        const elements = await this.loadContentElementsForBot(botId)
+        return total + elements.length
+      },
+      0
+    )
+    this.logger.info(
+      `Loaded ${elementCount} ${plur('element', elementCount)} from ${botIds.length} ${plur('bot', botIds.length)}`
+    )
   }
 
   async loadContentElementsForBot(botId: string): Promise<any[]> {
@@ -103,8 +117,8 @@ export class CMSService implements IDisposeOnExit {
         }
         await this.loadContentTypeFromFile(file)
         filesLoaded++
-      } catch (e) {
-        this.logger.error(e, `Could not load Content Type "${file}"`)
+      } catch (err) {
+        this.logger.attachError(err).error(`Could not load Content Type "${file}"`)
       }
     }
 

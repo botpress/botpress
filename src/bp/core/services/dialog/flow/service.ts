@@ -1,11 +1,11 @@
+import { Logger } from 'botpress/sdk'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 
 import { Flow, FlowView, NodeView } from '..'
-import { TYPES } from '../../../types'
 import { GhostService } from '../..'
+import { TYPES } from '../../../types'
 import { validateFlowSchema } from '../validator'
-import { Logger } from 'botpress/sdk'
 
 const PLACING_STEP = 250
 const MIN_POS_X = 50
@@ -28,7 +28,10 @@ export default class FlowService {
         return this.parseFlow(botId, flowPath)
       })
     } catch (err) {
-      this.logger.forBot(botId).error(`Could not load flows`)
+      this.logger
+        .forBot(botId)
+        .attachError(err)
+        .error('Could not load flows')
     }
 
     return []
@@ -54,8 +57,6 @@ export default class FlowService {
         y: position ? position.y : (_.maxBy(flow.nodes, 'y') || { y: 0 })['y'] + PLACING_STEP
       }
     })
-
-    this.logger.forBot(botId).debug(`Loaded flow '${flowPath}'`)
 
     return {
       name: flowPath,

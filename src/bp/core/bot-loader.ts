@@ -1,13 +1,12 @@
+import { Logger } from 'botpress/sdk'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
-import plur from 'plur'
 
 import { BotConfig } from './config/bot.config'
 import { ConfigProvider } from './config/config-loader'
-import { TYPES } from './types'
-import { CMSService } from './services/cms/cms-service'
 import { GhostService } from './services'
-import { Logger } from 'botpress/sdk'
+import { CMSService } from './services/cms/cms-service'
+import { TYPES } from './types'
 
 @injectable()
 export class BotLoader {
@@ -33,8 +32,6 @@ export class BotLoader {
 
   async loadAllBots() {
     const bots = await this.getAllBots()
-
-    const elements = await Promise.map(bots.keys(), bot => this.cms.loadContentElementsForBot(bot))
-    this.logger.info(`Loaded ${elements[0].length} ${plur('element', elements[0].length)}`)
+    await this.cms.preloadContentForAllBots(Array.from(bots.keys()))
   }
 }

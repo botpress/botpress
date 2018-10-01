@@ -26,11 +26,11 @@ async function start() {
 ===============================`)
 
     process.on('unhandledRejection', err => {
-      logger.error('Unhandled Rejection', err)
+      logger.attachError(err).error('Unhandled Rejection')
     })
 
     process.on('uncaughtException', err => {
-      logger.error('Fatal Error (uncaught). Process will exit.', err)
+      logger.attachError(err).error('Fatal Error (uncaught). Process will exit.')
       process.exit(1)
     })
 
@@ -57,10 +57,10 @@ async function start() {
       }
     }
 
-    logger.info(`Loaded ${chalk.bold(modules.length.toString())} modules` + modulesLog)
+    logger.info(`Using ${chalk.bold(modules.length.toString())} modules` + modulesLog)
 
     for (const err of loadingErrors) {
-      logger.error('Error starting Botpress', err)
+      logger.attachError(err).error('Error starting Botpress')
     }
 
     if (loadingErrors.length) {

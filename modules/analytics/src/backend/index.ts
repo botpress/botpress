@@ -1,5 +1,6 @@
 import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
+
 import fs from 'fs'
 import _ from 'lodash'
 import path from 'path'
@@ -24,7 +25,7 @@ export type SDK = typeof sdk & Extension
 
 const interactionsToTrack = ['message', 'text', 'button', 'template', 'quick_reply', 'postback']
 
-export const onInit = async (bp: SDK) => {
+const onInit = async (bp: SDK) => {
   db = new AnalyticsDb(bp)
   await db.initializeDb()
 
@@ -37,7 +38,7 @@ export const onInit = async (bp: SDK) => {
   analytics = new Analytics(bp)
 }
 
-export const onReady = (bp: SDK) => {
+const onReady = (bp: SDK) => {
   const router = bp.http.createRouterForBot('botpress-analytics')
 
   router.get('/graphs', (req, res, next) => {
@@ -54,7 +55,7 @@ export const onReady = (bp: SDK) => {
   })
 }
 
-export const serveFile = async (filePath: string): Promise<Buffer> => {
+const serveFile = async (filePath: string): Promise<Buffer> => {
   filePath = filePath.toLowerCase()
 
   const mapping = {
@@ -68,3 +69,18 @@ export const serveFile = async (filePath: string): Promise<Buffer> => {
 
   return new Buffer('')
 }
+
+const entryPoint: sdk.ModuleEntryPoint = {
+  onInit,
+  onReady,
+  serveFile,
+  config: {},
+  definition: {
+    name: 'analytics',
+    fullName: 'Analytics',
+    homepage: 'https://botpress.io',
+    menuIcon: 'timeline'
+  }
+}
+
+export default entryPoint

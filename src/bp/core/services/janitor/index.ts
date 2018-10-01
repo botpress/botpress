@@ -1,6 +1,6 @@
+import { Logger } from 'botpress/sdk'
 import { injectable } from 'inversify'
 import ms from 'ms'
-import { Logger } from 'botpress/sdk'
 
 @injectable()
 export abstract class Janitor {
@@ -21,8 +21,8 @@ export abstract class Janitor {
       return
     }
     this.currentPromise = this.runTask()
-      .catch(err => {
-        this.logger.error('Error running task', err)
+      .catch((err: Error) => {
+        this.logger.warn('Error running task: ' + err && err.message)
       })
       .finally(() => {
         this.currentPromise = undefined
@@ -41,7 +41,6 @@ export abstract class Janitor {
     }
 
     this.intervalRef = setInterval(this.runTaskWhenReady.bind(this), ms(this.runningInterval))
-    this.logger.info('Started')
   }
 
   stop() {

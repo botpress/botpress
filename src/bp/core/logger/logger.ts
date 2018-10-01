@@ -16,6 +16,7 @@ export type LoggerProvider = (module: string) => Promise<Logger>
 // Suggestion: Would be best to have a CompositeLogger that separates the Console and DB loggers
 export class PersistedConsoleLogger implements Logger {
   private botId: string | undefined
+  private attachedError: Error | undefined
 
   constructor(
     @inject(TYPES.Logger_Name) private name: string,
@@ -25,6 +26,11 @@ export class PersistedConsoleLogger implements Logger {
 
   forBot(botId: string): this {
     this.botId = botId
+    return this
+  }
+
+  attachError(error: Error): this {
+    this.attachedError = error
     return this
   }
 
@@ -47,6 +53,14 @@ export class PersistedConsoleLogger implements Logger {
 
     this.loggerPersister.appendLog(entry)
 
+    if (level === LoggerLevel.Error && this.attachedError) {
+      message += ` [${this.attachedError.name}, ${this.attachedError.message}]`
+      if (!this.isProduction && this.attachedError.stack) {
+        message += chalk.grey(os.EOL + '----- STACK -----')
+        message += chalk.grey(os.EOL + this.attachedError.stack)
+      }
+    }
+
     const serializedMetadata = metadata ? ' | ' + util.inspect(metadata, false, 2, true) : ''
     const timeFormat = 'HH:mm:ss.SSS'
     const time = moment().format(timeFormat)
@@ -60,6 +74,7 @@ export class PersistedConsoleLogger implements Logger {
       chalk`{grey ${time}} {${this.colors[level]}.bold ${displayName}} ${indentedMessage}${serializedMetadata}`
     )
     this.botId = undefined
+    this.attachedError = undefined
   }
 
   debug(message: string, metadata?: any): void {
@@ -76,18 +91,7 @@ export class PersistedConsoleLogger implements Logger {
     this.print(LoggerLevel.Warn, message, metadata)
   }
 
-  error(message: string, metadata?: any): void
-  error(message: string, error: Error, metadata?: any): void {
-    if (error instanceof Error) {
-      let msg = message + ` [${error.name}, ${error.message}]`
-      if (!this.isProduction && error.stack) {
-        msg += chalk.grey(os.EOL + '----- STACK -----')
-        msg += chalk.grey(os.EOL + error.stack)
-      }
-
-      return this.print(LoggerLevel.Error, msg, metadata)
-    }
-
-    this.print(LoggerLevel.Error, message, error)
+  error(message: string, metadata?: any): void {
+    this.print(LoggerLevel.Error, message, metadata)
   }
 }

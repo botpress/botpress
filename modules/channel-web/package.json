@@ -4,10 +4,10 @@
   "description": "An embeddable webchat for Botpress",
   "main": "dist/backend/index.js",
   "botpress": {
-    "src": "src",
-    "menuText": "Web Chat",
-    "menuIcon": "chrome_reader_mode",
-    "webBundle": "bin/web.bundle.js"
+    "liteViews": {
+      "embedded": "./src/views/web/embedded.jsx",
+      "fullscreen": "./src/views/web/fullscreen.jsx"
+    }
   },
   "scripts": {
     "build": "./node_modules/.bin/module-builder build",

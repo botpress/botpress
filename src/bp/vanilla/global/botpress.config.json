@@ -30,6 +30,18 @@
     {
       "location": "bp/modules/channel-web",
       "enabled": true
+    },
+    {
+      "location": "bp/modules/nlu",
+      "enabled": true
+    },
+    {
+      "location": "bp/modules/analytics",
+      "enabled": false
+    },
+    {
+      "location": "bp/modules/hitl",
+      "enabled": false
     }
   ]
 }
