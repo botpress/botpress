@@ -47,47 +47,47 @@
   border-radius: 50%;
 }
 
-.new-qna-modal .modal-content {
+.newQnaModal .modal-content {
   border-radius: 15px;
 }
 
-.new-qna-modal .modal-dialog {
+.newQnaModal .modal-dialog {
   position: absolute;
   top: 5px;
   margin: 0;
   max-width: calc(100vw - 20px);
 }
 
-.new-qna-modal .Select-arrow {
+.newQnaModal .Select-arrow {
   border-color: #000 transparent transparent;
 }
 
-.qna-nav-bar .btn-success {
+.qnaNavBar .btn-success {
   background-color: #108c67;
   border-color: #0b6e51;
 }
 
-.qna-category-error,
-.qna-category-error .Select-control {
+.qnaCategoryError,
+.qnaCategoryError .Select-control {
   border-color: red;
 }
 
-.qna-container .pagination > .active > a,
+.qnaContainer .pagination > .active > a,
 .pagination > .active > span,
-.qna-container .pagination > .active > a:hover,
-.qna-container .pagination > .active > span:hover,
-.qna-container .pagination > .active > a:focus,
-.qna-container .pagination > .active > span:focus {
+.qnaContainer .pagination > .active > a:hover,
+.qnaContainer .pagination > .active > span:hover,
+.qnaContainer .pagination > .active > a:focus,
+.qnaContainer .pagination > .active > span:focus {
   background-color: #108c67;
   border-color: #108c67;
 }
 
-.qna-container .pagination > li > a,
-.qna-container .pagination > li > span {
+.qnaContainer .pagination > li > a,
+.qnaContainer .pagination > li > span {
   color: #108c67;
 }
 
-.qna-container .pagination > li.active > a,
-.qna-container .pagination > li.active > span {
+.qnaContainer .pagination > li.active > a,
+.qnaContainer .pagination > li.active > span {
   color: #fff;
 }

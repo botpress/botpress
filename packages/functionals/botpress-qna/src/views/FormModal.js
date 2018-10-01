@@ -163,20 +163,20 @@ export default class FormModal extends Component {
     const isEdit = modalType === 'edit'
 
     return (
-      <Modal className={classnames(style['new-qna-modal'], 'new-qna-modal')} show={showQnAModal} onHide={this.onClose}>
+      <Modal className={classnames(style['newQnaModal'], 'newQnaModal')} show={showQnAModal} onHide={this.onClose}>
         <form onSubmit={!isEdit ? this.onCreate : this.onEdit}>
-          <Modal.Header className={style['qna-modal-header']}>
+          <Modal.Header className={style['qnaModalHeader']}>
             <Modal.Title>{!isEdit ? 'Create a new' : 'Edit'} Q&A</Modal.Title>
           </Modal.Header>
 
-          <Modal.Body className={style['qna-modal-body']}>
+          <Modal.Body className={style['qnaModalBody']}>
             {this.alertMessage()}
             {this.props.hasCategory ? (
               <div className={style['qna-category']}>
-                <span className={style['qna-category__title']}>Category</span>
+                <span className={style['qnaCategoryTitle']}>Category</span>
                 <Select
-                  className={classnames(style['qna-category__select'], {
-                    'qna-category-error': !invalidFields.category
+                  className={classnames(style['qnaCategorySelect'], {
+                    qnaCategoryError: !invalidFields.category
                   })}
                   value={this.state.item.category}
                   options={categories}
@@ -185,65 +185,65 @@ export default class FormModal extends Component {
                 />
               </div>
             ) : null}
-            <div className={style['qna-questions']}>
-              <span className={style['qna-questions__title']}>Questions</span>
-              <span className={style['qna-questions__hint']}>
+            <div className={style['qnaQuestions']}>
+              <span className={style['qnaQuestionsTitle']}>Questions</span>
+              <span className={style['qnaQuestionsHint']}>
                 Type/Paste your questions here separated with a new line
               </span>
               <FormControl
-                className={classnames(style['qna-questions__textarea'], {
-                  'qna-category-error': !invalidFields.questions
+                className={classnames(style['qnaQuestionsTextarea'], {
+                  qnaCategoryError: !invalidFields.questions
                 })}
                 value={this.state.item.questions.join('\n')}
                 onChange={event => this.changeItemProperty('questions', event.target.value.split(/\n/))}
                 componentClass="textarea"
               />
             </div>
-            <div className={style['qna-reply']}>
-              <span className={style['qna-reply__title']}>Reply with:</span>
-              <div className={style['qna-answer']}>
-                <span className={style['qna-answer__check']}>
+            <div className={style['qnaReply']}>
+              <span className={style['qnaReplyTitle']}>Reply with:</span>
+              <div className={style['qnaAnswer']}>
+                <span className={style['qnaAnswerCheck']}>
                   <input type="checkbox" checked={this.state.isText} onChange={this.changeItemAction('isText')} />&nbsp;
                   Type your answer
                 </span>
                 <FormControl
-                  className={classnames(style['qna-answer__textarea'], {
-                    'qna-category-error': !invalidFields.answer
+                  className={classnames(style['qnaAnswerTextarea'], {
+                    qnaCategoryError: !invalidFields.answer
                   })}
                   value={this.state.item.answer}
                   onChange={event => this.changeItemProperty('answer', event.target.value)}
                   componentClass="textarea"
                 />
               </div>
-              <div className={style['qna-and-or']}>
-                <div className={style['qna-and-or__line']} />
-                <div className={style['qna-and-or__text']}>and / or</div>
-                <div className={style['qna-and-or__line']} />
+              <div className={style['qnaAndOr']}>
+                <div className={style['qnaAndOrLine']} />
+                <div className={style['qnaAndOrText']}>and / or</div>
+                <div className={style['qnaAndOrLine']} />
               </div>
-              <div className={style['qna-redirect']}>
-                <div className={style['qna-redirect-to-flow']}>
-                  <span className={style['qna-redirect-to-flow-check']}>
+              <div className={style['qnaRedirect']}>
+                <div className={style['qnaRedirectToFlow']}>
+                  <span className={style['qnaRedirectToFlowCheck']}>
                     <input
                       type="checkbox"
                       checked={this.state.isRedirect}
                       onChange={this.changeItemAction('isRedirect')}
-                      className={style['qna-redirect-to-flow-check__checkbox']}
+                      className={style['qnaRedirectToFlowCheckCheckbox']}
                     />&nbsp;Redirect to flow
                   </span>
                   <Select
-                    className={classnames(style['qna-redirect-to-flow-check__select'], {
-                      'qna-category-error': !invalidFields.redirectFlow
+                    className={classnames(style['qnaRedirectToFlowCheckSelect'], {
+                      qnaCategoryError: !invalidFields.redirectFlow
                     })}
                     value={this.state.item.redirectFlow}
                     options={flowsList}
                     onChange={this.handleSelect('redirectFlow')}
                   />
                 </div>
-                <div className={style['qna-redirect-node']}>
-                  <span className={style['qna-redirect-node__title']}>Node</span>
+                <div className={style['qnaRedirect-node']}>
+                  <span className={style['qnaRedirectNodeTitle']}>Node</span>
                   <Select
-                    className={classnames(style['qna-redirect-node__select'], {
-                      'qna-category-error': !invalidFields.redirectNode
+                    className={classnames(style['qnaRedirectNodeSelect'], {
+                      qnaCategoryError: !invalidFields.redirectNode
                     })}
                     value={this.state.item.redirectNode}
                     options={nodeList}
@@ -254,11 +254,11 @@ export default class FormModal extends Component {
             </div>
           </Modal.Body>
 
-          <Modal.Footer className={style['qna-modal-footer']}>
-            <Button className={style['qna-modal-footer__cancel-btn']} onClick={this.onClose}>
+          <Modal.Footer className={style['qnaModalFooter']}>
+            <Button className={style['qnaModalFooterCancelBtn']} onClick={this.onClose}>
               Cancel
             </Button>
-            <Button className={style['qna-modal-footer__save-btn']} type="submit">
+            <Button className={style['qnaModalFooterSaveBtn']} type="submit">
               {isEdit ? 'Edit' : 'Save'}
             </Button>
           </Modal.Footer>

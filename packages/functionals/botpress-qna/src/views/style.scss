@@ -63,29 +63,29 @@ $mainGreen: #1bb68a;
   }
 }
 
-.qna-container {
+.qnaContainer {
   padding: 25px;
 }
 
-.qna-nav-bar {
+.qnaNavBar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
 }
 
-.qna-header {
+.qnaHeader {
   margin-bottom: 60px;
 }
 
-.search-bar {
+.searchBar {
   display: flex;
   flex-wrap: wrap;
   margin-bottom: 0;
 }
 
-.serach-questions,
-.serach-category {
+.serachQuestions,
+.serachCategory {
   max-width: 300px;
   width: 300px;
   margin-right: 15px;
@@ -98,11 +98,11 @@ $mainGreen: #1bb68a;
   }
 }
 
-.serach-questions {
+.serachQuestions {
   height: 36px;
 }
 
-.qna-nav-bar__add-new {
+.qnaNavBarAddNew {
   background-color: $mainGreen;
   font-size: 16px;
   font-weight: 600;
@@ -126,29 +126,29 @@ $mainGreen: #1bb68a;
   }
 }
 
-.item-questions {
+.itemQuestions {
   display: flex;
 }
 
-.qna-item {
+.qnaItem {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
   padding: 13px;
 }
 
-.item-container {
+.itemContainer {
   flex: 0 1 75%;
 }
 
-.item-questions__title,
-.item-answer__title {
+.itemQuestionsTitle,
+.itemAnswerTitle {
   font-size: 18px;
   font-weight: 600;
   margin-right: 10px;
 }
 
-.questions-list {
+.questionsList {
   display: flex;
   flex-direction: column;
   font-size: 18px;
@@ -156,23 +156,23 @@ $mainGreen: #1bb68a;
   color: #1bb68a;
 }
 
-.item-answer-container {
+.itemAnswerContainer {
   margin-top: 5px;
   display: flex;
 }
 
-.item-answer {
+.itemAnswer {
   display: flex;
   flex-direction: column;
 }
 
-.item-answer__text {
+.itemAnswerText {
   color: rgb(182, 182, 182);
   font-weight: 600;
   font-size: 15px;
 }
 
-.item-action {
+.itemAction {
   display: flex;
   flex: 1 1 25%;
   justify-content: flex-end;
@@ -180,16 +180,16 @@ $mainGreen: #1bb68a;
   padding-top: 15px;
 }
 
-.item-redirect {
+.itemRedirect {
   display: flex;
 }
 
-.toggle-button {
+.toggleButton {
   margin-bottom: 0;
   margin-right: 30px;
 }
 
-.item-action__delete {
+.itemActionDelete {
   margin-right: 30px;
   cursor: pointer;
 
@@ -198,7 +198,7 @@ $mainGreen: #1bb68a;
   }
 }
 
-.item-action__edit {
+.itemActionEdit {
   cursor: pointer;
 
   &:hover {
@@ -206,29 +206,29 @@ $mainGreen: #1bb68a;
   }
 }
 
-.question-category {
+.questionCategory {
   font-weight: 600;
   margin-top: 25px;
   font-size: 16px;
 }
 
-.question-category__title {
+.questionCategoryTitle {
   color: #b6b6b6;
 }
 
-.new-qna-modal {
+.newQnaModal {
   display: flex !important;
   align-items: center;
   justify-content: center;
 }
 
-.qna-modal-body,
-.qna-modal-footer {
+.qnaModalBody,
+.qnaModalFooter {
   background-color: #faf8fb;
   padding-right: 30px;
 }
 
-.qna-modal-header {
+.qnaModalHeader {
   background-color: #d9d7da;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
@@ -239,62 +239,62 @@ $mainGreen: #1bb68a;
   }
 }
 
-.qna-modal-body {
+.qnaModalBody {
   border-radius: 10px;
 }
 
-.qna-modal-footer {
+.qnaModalFooter {
   border-top: none;
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
 }
 
-.qna-category__title,
-.qna-questions__title,
-.qna-reply__title {
+.qnaCategoryTitle,
+.qnaQuestionsTitle,
+.qnaReplyTitle {
   font-weight: 600;
   color: #000;
   font-size: 18px;
 }
 
-.qna-category__select {
+.qnaCategorySelect {
   width: 250px;
   margin-top: 5px;
 }
 
-.qna-questions {
+.qnaQuestions {
   margin-top: 50px;
   display: flex;
   flex-direction: column;
 }
 
-.qna-questions__hint {
+.qnaQuestionsHint {
   color: #000;
 }
 
-.qna-questions__textarea {
+.qnaQuestionsTextarea {
   margin-top: 5px;
 }
 
-.qna-reply {
+.qnaReply {
   margin-top: 40px;
 }
 
-.qna-answer {
+.qnaAnswer {
   margin-top: 15px;
 }
 
-.qna-answer__check {
+.qnaAnswerCheck {
   display: flex;
 }
 
-.qna-answer__textarea {
+.qnaAnswerTextarea {
   margin-top: 5px;
   width: calc(100% - 15px);
   margin-left: 15px;
 }
 
-.qna-and-or {
+.qnaAndOr {
   display: flex;
   align-items: center;
   width: calc(100% - 15px);
@@ -302,7 +302,7 @@ $mainGreen: #1bb68a;
   margin-top: 10px;
 }
 
-.qna-and-or__text {
+.qnaAndOrText {
   font-weight: 600;
   color: #000;
   flex: 1 1 150px;
@@ -310,13 +310,13 @@ $mainGreen: #1bb68a;
   justify-content: center;
 }
 
-.qna-and-or__line {
+.qnaAndOrLine {
   height: 2px;
   background-color: #e5e3e6;
   flex: 1 1 100%;
 }
 
-.qna-redirect {
+.qnaRedirect {
   display: flex;
   justify-content: space-between;
   margin-top: 5px;
@@ -326,8 +326,8 @@ $mainGreen: #1bb68a;
   }
 }
 
-.qna-redirect-to-flow,
-.qna-redirect-node {
+.qnaRedirectToFlow,
+.qnaRedirect-node {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -340,7 +340,7 @@ $mainGreen: #1bb68a;
   }
 }
 
-.qna-redirect-node {
+.qnaRedirect-node {
   @media (max-width: 475px) {
     flex: 1 1 calc(100% - 15px);
     max-width: calc(100% - 15px);
@@ -349,32 +349,32 @@ $mainGreen: #1bb68a;
   }
 }
 
-.qna-redirect-to-flow-check {
+.qnaRedirectToFlowCheck {
   display: flex;
   align-items: center;
   color: #000;
 
-  .qna-redirect-to-flow-check__checkbox {
+  .qnaRedirectToFlowCheckCheckbox {
     margin-top: 0;
   }
 }
 
-.qna-redirect-to-flow-check__select,
-.qna-redirect-node__select {
+.qnaRedirectToFlowCheckSelect,
+.qnaRedirectNodeSelect {
   margin-top: 5px;
 }
 
-.qna-redirect-to-flow-check__select {
+.qnaRedirectToFlowCheckSelect {
   width: calc(100% - 15px);
   margin-left: 15px;
 }
 
-.qna-redirect-node__title {
+.qnaRedirectNodeTitle {
   color: #000;
 }
 
-.qna-modal-footer__cancel-btn,
-.qna-modal-footer__save-btn {
+.qnaModalFooterCancelBtn,
+.qnaModalFooterSaveBtn {
   font-weight: 600;
   font-size: 18px;
   color: #fff;
@@ -384,7 +384,7 @@ $mainGreen: #1bb68a;
   background-color: #b2b0b3;
 }
 
-.qna-modal-footer__cancel-btn {
+.qnaModalFooterCancelBtn {
   margin-right: 20px;
 
   &:hover,
@@ -402,7 +402,7 @@ $mainGreen: #1bb68a;
   }
 }
 
-.qna-modal-footer__save-btn {
+.qnaModalFooterSaveBtn {
   background-color: #14a77b;
 
   &:hover,
@@ -420,19 +420,19 @@ $mainGreen: #1bb68a;
   }
 }
 
-.qna-category-error {
+.qnaCategoryError {
   border-color: red;
 }
 
-.item-node,
-.item-flow {
+.itemNode,
+.itemFlow {
   font-weight: 900;
   color: #686669;
   margin-right: 30px;
 }
 
-.item-flow__name,
-.item-node__name {
+.itemFlowName,
+.itemNodeName {
   color: #8a888b;
   font-weight: 500;
 }

@@ -110,7 +110,7 @@ export default class Storage {
       }
     })
 
-    await this.waitForOperationToFinish(operationId, 'inserting qna-items')
+    await this.waitForOperationToFinish(operationId, 'inserting qnaItems')
     this.invalidateCache()
     await this.publish()
     // TODO: should return ids (for consistency)
@@ -174,7 +174,7 @@ export default class Storage {
       const { data: { operationId } } = await this.client.patch(`/knowledgebases/${this.knowledgebase.id}`, {
         delete: { ids: idsChunk }
       })
-      await this.waitForOperationToFinish(operationId, 'deleting qna-items')
+      await this.waitForOperationToFinish(operationId, 'deleting qnaItems')
       statusCb && statusCb(Math.min((i + 1) * maxQuestionsToDeletePerRequest, ids.length))
     })
     this.invalidateCache()
