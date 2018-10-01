@@ -1,9 +1,9 @@
+import { IO } from 'botpress/sdk'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 
 import Database from '../database'
 import { TYPES } from '../types'
-import { IO } from 'botpress/sdk'
 
 export type DialogContext = {
   previousFlowName?: string

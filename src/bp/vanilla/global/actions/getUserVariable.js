@@ -12,4 +12,4 @@ const getUserVariable = async name => {
   return { ...state, output: result }
 }
 
-getUserVariable(args.name)
+return getUserVariable(args.name)

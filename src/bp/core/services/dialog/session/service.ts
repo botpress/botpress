@@ -1,8 +1,8 @@
-import { inject, injectable } from 'inversify'
 import { IO } from 'botpress/sdk'
+import { inject, injectable } from 'inversify'
 
-import { TYPES } from 'core/types'
 import { DialogContext, DialogSession, SessionRepository } from 'core/repositories'
+import { TYPES } from 'core/types'
 
 @injectable()
 export class SessionService {

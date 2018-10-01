@@ -13,4 +13,4 @@ const setGlobalVariable = async (name, value, expiry) => {
   return { ...state }
 }
 
-setGlobalVariable(args.name, args.value, args.expiry)
+return setGlobalVariable(args.name, args.value, args.expiry)

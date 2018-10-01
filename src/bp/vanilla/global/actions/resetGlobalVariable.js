@@ -11,4 +11,4 @@ const resetGlobalVariable = async name => {
   return { ...state }
 }
 
-resetGlobalVariable(args.name)
+return resetGlobalVariable(args.name)

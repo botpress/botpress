@@ -12,4 +12,4 @@ const getConversationVariable = async name => {
   return { ...state, output: result }
 }
 
-getConversationVariable(args.name)
+return getConversationVariable(args.name)
