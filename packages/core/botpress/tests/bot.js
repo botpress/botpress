@@ -1,109 +1,100 @@
+/* global before */
+
 import { expect } from 'chai'
 import path from 'path'
-import { existsSync } from 'fs'
-import { exec } from 'child_process'
+import { existsSync, symlinkSync } from 'fs'
+import { exec, execSync, spawnSync } from 'child_process'
 import moment from 'moment'
 import rimraf from 'rimraf'
 
 const bin = path.resolve(__dirname, '../bin/botpress')
 const botDir = path.resolve(__dirname, '../tmp-bot')
-const botConfig = path.resolve(__dirname, '../tmp-bot/config')
+const botConfig = path.resolve(__dirname, `${botDir}/config`)
 const rootDir = path.resolve(__dirname, '../../../../')
-const compileLinkBash = path.resolve(rootDir, './compile-link.sh')
 const configVar = require('./config/env.js')
 
-const botpressModules = [
-  `file:${path.resolve(rootDir, './packages/functionals/botpress-analytics')}`,
-  `file:${path.resolve(rootDir, './packages/functionals/botpress-audience')}`,
-  `file:${path.resolve(rootDir, './packages/functionals/botpress-broadcast')}`,
-  `file:${path.resolve(rootDir, './packages/functionals/botpress-hitl')}`,
-  `file:${path.resolve(rootDir, './packages/functionals/botpress-nlu')}`,
-  `file:${path.resolve(rootDir, './packages/functionals/botpress-qna')}`,
-  `file:${path.resolve(rootDir, './packages/functionals/botpress-scheduler')}`,
-  `file:${path.resolve(rootDir, './packages/functionals/botpress-terminal')}`,
-  `file:${path.resolve(rootDir, './packages/channels/botpress-channel-messenger')}`,
-  `file:${path.resolve(rootDir, './packages/channels/botpress-channel-slack')}`,
-  `file:${path.resolve(rootDir, './packages/channels/botpress-channel-telegram')}`,
-  `file:${path.resolve(rootDir, './packages/channels/botpress-channel-twilio')}`,
-  `file:${path.resolve(rootDir, './packages/channels/botpress-channel-microsoft')}`,
-  `file:${path.resolve(rootDir, './packages/channels/botpress-channel-web')}`,
-  `file:${path.resolve(rootDir, './packages/core/botpress-builtins')}`,
-  `file:${path.resolve(rootDir, './packages/core/botpress-util-roles')}`,
-  `file:${path.resolve(rootDir, './packages/skills/botpress-skill-choice')}`,
-  `file:${path.resolve(rootDir, './packages/core/botpress')}`
-]
+const botpressModules = {
+  botpress: './packages/core/botpress',
+  '@botpress/channel-messenger': './packages/channels/botpress-channel-messenger',
+  '@botpress/channel-slack': './packages/channels/botpress-channel-slack',
+  '@botpress/channel-telegram': './packages/channels/botpress-channel-telegram',
+  '@botpress/channel-twilio': './packages/channels/botpress-channel-twilio',
+  '@botpress/channel-microsoft': './packages/channels/botpress-channel-microsoft',
+  '@botpress/channel-web': './packages/channels/botpress-channel-web',
+  '@botpress/analytics': './packages/functionals/botpress-analytics',
+  '@botpress/audience': './packages/functionals/botpress-audience',
+  '@botpress/broadcast': './packages/functionals/botpress-broadcast',
+  '@botpress/hitl': './packages/functionals/botpress-hitl',
+  '@botpress/nlu': './packages/functionals/botpress-nlu',
+  '@botpress/qna': './packages/functionals/botpress-qna',
+  '@botpress/scheduler': './packages/functionals/botpress-scheduler',
+  '@botpress/terminal': './packages/functionals/botpress-terminal',
+  '@botpress/builtins': './packages/core/botpress-builtins',
+  '@botpress/util-roles': './packages/core/botpress-util-roles',
+  '@botpress/skill-choice': './packages/skills/botpress-skill-choice'
+}
 
 const LAUNCHED = /Bot launched/gi
 const TWENTY_MIN = 1200000
 
-describe('Create new bot', function() {
+describe('Running new bot', function() {
   this.timeout(TWENTY_MIN)
 
-  const startTime = moment()
-
   let hasError = false
-  const ifErrorSkipIt = () => expect(!!hasError).to.be.false
   const checkTaskStatus = err => {
     hasError = err
     expect(err).to.be.null
   }
 
-  // eslint-disable-next-line
   before(done => {
     if (existsSync(botDir)) {
-      rimraf(botDir, () => done())
-    } else {
-      done()
+      rimraf.sync(botDir)
     }
+    done()
   })
 
-  it('build all modules', done => {
-    ifErrorSkipIt()
+  beforeEach(done => {
+    // Tests here depend on previous steps so doesn't make sense to run further steps if previous failed
+    expect(!!hasError).to.be.false
+    done()
+  })
 
-    exec(`bash ${compileLinkBash}`, err => {
+  it('compile modules', done => {
+    const lerna = './node_modules/.bin/lerna'
+    spawnSync('yarn', { cwd: rootDir })
+    exec(`${lerna} bootstrap && ${lerna} run compile`, { cwd: rootDir }, err => {
       checkTaskStatus(err)
-
       done()
     })
   })
 
-  it('create', done => {
-    ifErrorSkipIt()
-
+  it('botpress init', done => {
     exec(`node ${bin} init ${botDir} -y`, err => {
       checkTaskStatus(err)
-
       done()
     })
   })
 
-  it('copy config', done => {
-    ifErrorSkipIt()
-
+  it('bot starts', done => {
+    // Create config-files
     rimraf.sync(botConfig)
-    exec(`cp -a ./tests/config ${botDir}`, err => {
-      checkTaskStatus(err)
+    spawnSync(`cp -a ./tests/config ${botDir}`)
 
-      done()
+    // Install dependencies and link to modules that we compiled
+    spawnSync('yarn', { cwd: botDir })
+    Object.entries(botpressModules).forEach(([name, modulePath]) => {
+      const linkPath = `${botDir}/node_modules/${name}`
+      if (existsSync(linkPath)) {
+        rimraf.sync(linkPath)
+      }
+      symlinkSync(path.resolve(rootDir, modulePath), linkPath)
     })
-  })
-
-  it('install modules', done => {
-    ifErrorSkipIt()
-
-    exec(`yarn add ${botpressModules.join(' ')}`, { cwd: botDir }, err => {
-      checkTaskStatus(err)
-
-      done()
-    })
-  })
-
-  it('run bot', done => {
-    ifErrorSkipIt()
 
     let lastDate = moment().toDate()
     let isLaunched = false
-    const botProcess = exec('node index.js', { cwd: botDir, env: configVar })
+    const botProcess = exec('NODE_ENV=test node index.js', { cwd: botDir, env: configVar }, err => {
+      checkTaskStatus(err)
+    })
     const CHECKING_BOT_STATUS_EVERY = 5000
 
     botProcess.stdout.on('data', data => {
@@ -128,12 +119,5 @@ describe('Create new bot', function() {
         done()
       }
     }, CHECKING_BOT_STATUS_EVERY)
-  })
-  /* eslint-disable-next-line */
-  after(() => {
-    const endTime = moment()
-    const testDuration = moment.duration(endTime.diff(startTime))
-
-    console.log('Test duration: ', testDuration.asMinutes(), 'm')
   })
 })
