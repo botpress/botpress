@@ -4,12 +4,13 @@
  * @category Storage
  * @author Botpress, Inc.
  * @param {string} name - The name of the variable
+ * @param {string} output - The state variable to output to
  */
-const getConversationVariable = async name => {
+const getConversationVariable = async (name, output) => {
   const sessionId = event.threadId
   const key = bp.kvs.getConversationStorageKey(sessionId, name)
   const result = await bp.kvs.getStorageWithExpiry(event.botId, key)
-  return { ...state, output: result }
+  return { ...state, [output]: result }
 }
 
-return getConversationVariable(args.name)
+return getConversationVariable(args.name, args.output)

@@ -1,9 +1,7 @@
 import * as sdk from 'botpress/sdk'
-import { Event } from 'core/sdk/impl'
 import { inject, injectable, tagged } from 'inversify'
 import joi from 'joi'
 import _ from 'lodash'
-import { Memoize } from 'lodash-decorators'
 import { VError } from 'verror'
 
 import { GhostService } from '..'
@@ -92,48 +90,6 @@ export class EventEngine {
     }
   }
 
-  async sendContent(
-    contentId: string,
-    destination: { target: string; botId: string; channel: string; threadId?: string }
-  ) {
-    contentId = contentId.replace(/^#!?/i, '')
-
-    const content = await this.cms.getContentElement(destination.botId, contentId) // TODO handle errors
-
-    if (!content) {
-      throw new Error(`Content element "${contentId}" not found`)
-    }
-
-    const additionalData = {
-      BOT_URL: 'http://localhost:3000'
-    }
-
-    const contentType = await this.cms.getContentType(content.contentType)
-    let renderedElements = await contentType.renderElement(
-      { ...additionalData, ...content.computedData },
-      destination.channel
-    )
-
-    if (!_.isArray(renderedElements)) {
-      renderedElements = [renderedElements]
-    }
-
-    for (const element of renderedElements) {
-      const event = Event({
-        direction: 'outgoing',
-        payload: element,
-        type: _.get(element, 'type', 'default'),
-        botId: destination.botId,
-        channel: destination.channel,
-        target: destination.target,
-        threadId: destination.threadId
-      })
-
-      await this.sendEvent(event)
-    }
-  }
-
-  @Memoize()
   private async getBotMiddlewareChains(botId: string) {
     const incoming = new MiddlewareChain<sdk.IO.Event>()
     const outgoing = new MiddlewareChain<sdk.IO.Event>()

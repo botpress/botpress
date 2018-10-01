@@ -6,7 +6,7 @@ import ms from 'ms'
 import { TYPES } from '../../types'
 
 import Database from '../../database'
-import { safeStringify } from '../../misc/util'
+import { safeStringify } from '../../misc/utils'
 
 // TODO: Create repository to interact with the database
 @injectable()
@@ -58,6 +58,7 @@ export class KeyValueStore {
       .where({ botId })
       .andWhere({ key })
       .limit(1)
+      .get(0)
       .then(row => {
         if (!row) {
           return undefined

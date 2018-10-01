@@ -60,6 +60,7 @@
     "@types/joi": "^13.4.5",
     "@types/knex": "^0.14.24",
     "@types/lodash": "^4.14.116",
+    "@types/mustache": "^0.8.31",
     "@types/node": "^10.10.3",
     "@types/verror": "^1.10.3",
     "babel-jest": "^23.6.0",

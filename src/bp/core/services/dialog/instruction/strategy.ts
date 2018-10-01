@@ -1,14 +1,13 @@
 import { IO } from 'botpress/sdk'
-import { inject, injectable, tagged } from 'inversify'
+import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 import Mustache from 'mustache'
-import { VError } from 'verror'
 
 import { container } from '../../../app.inversify'
 import { TYPES } from '../../../types'
 import ActionService from '../../action/action-service'
 import { runCode } from '../../action/sandbox-launcher'
-import { EventEngine } from '../../middleware/event-engine'
+import { ContentElementSender } from '../../cms/content-sender'
 
 import { Instruction, InstructionType, ProcessingResult } from '.'
 
@@ -33,19 +32,19 @@ export interface InstructionStrategy {
 @injectable()
 export class ActionStrategy implements InstructionStrategy {
   constructor(
-    @inject(TYPES.EventEngine) private eventEngine: EventEngine,
-    @inject(TYPES.ActionService) private actionService: ActionService
+    @inject(TYPES.ActionService) private actionService: ActionService,
+    @inject(TYPES.ContentElementSender) private contentElementSender: ContentElementSender
   ) {}
 
   async processInstruction(botId, instruction, state, event, context): Promise<ProcessingResult> {
     if (instruction.fn.indexOf('say ') === 0) {
-      return this.invokeOutputProcessor(botId, instruction, event)
+      return this.invokeOutputProcessor(botId, instruction, state, event)
     } else {
       return this.invokeAction(botId, instruction, state, event, context)
     }
   }
 
-  private async invokeOutputProcessor(botId, instruction, event: IO.Event): Promise<ProcessingResult> {
+  private async invokeOutputProcessor(botId, instruction, state, event: IO.Event): Promise<ProcessingResult> {
     const chunks = instruction.fn.split(' ')
     const params = _.slice(chunks, 2).join(' ')
 
@@ -58,12 +57,7 @@ export class ActionStrategy implements InstructionStrategy {
       value: params
     }
 
-    await this.eventEngine.sendContent(chunks[1], {
-      botId,
-      channel: event.channel,
-      target: event.target,
-      threadId: event.threadId
-    })
+    await this.contentElementSender.sendContent(output.type, state, event)
 
     return ProcessingResult.none()
   }
@@ -81,11 +75,13 @@ export class ActionStrategy implements InstructionStrategy {
       throw new Error(`Action "${actionName}" has invalid arguments (not a valid JSON string): ${argsStr}`)
     }
 
+    const view = { state, event }
+
     args = _.mapValues(args, value => {
       if (this.containsTemplate(value)) {
-        const output = Mustache.render(value, state)
+        const output = Mustache.render(value, view)
         if (this.containsTemplate(output)) {
-          return Mustache.render(output, state)
+          return Mustache.render(output, view)
         }
         return output
       }
