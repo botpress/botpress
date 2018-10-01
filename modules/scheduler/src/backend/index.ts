@@ -1,3 +1,4 @@
+import 'bluebird-global'
 import sdk from 'botpress/sdk'
 import fs from 'fs'
 import _ from 'lodash'
@@ -31,7 +32,7 @@ export type SDK = typeof sdk & Extension
 
 let db = undefined
 
-export const onInit = async (bp: typeof sdk & Extension) => {
+const onInit = async (bp: typeof sdk & Extension) => {
   db = new SchedulerDb(bp)
   await db.initialize()
 
@@ -40,11 +41,11 @@ export const onInit = async (bp: typeof sdk & Extension) => {
   daemon.start()
 }
 
-export const onReady = async (bp: typeof sdk & Extension) => {
+const onReady = async (bp: typeof sdk & Extension) => {
   await api(bp, db)
 }
 
-export const serveFile = async (filePath: string): Promise<Buffer> => {
+const serveFile = async (filePath: string): Promise<Buffer> => {
   filePath = filePath.toLowerCase()
 
   const mapping = {
@@ -58,3 +59,21 @@ export const serveFile = async (filePath: string): Promise<Buffer> => {
 
   return new Buffer('')
 }
+
+const obj: sdk.ModuleEntryPoint = {
+  onInit,
+  onReady,
+  config: {},
+  serveFile,
+  definition: {
+    name: 'scheduler',
+    menuIcon: 'alarm_on',
+    fullName: 'Scheduler',
+    homepage: 'https://botpress.io',
+    noInterface: false,
+    plugins: [],
+    moduleView: { stretched: true }
+  }
+}
+
+export default obj

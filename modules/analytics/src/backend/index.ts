@@ -39,7 +39,7 @@ const onInit = async (bp: SDK) => {
 }
 
 const onReady = (bp: SDK) => {
-  const router = bp.http.createRouterForBot('botpress-analytics')
+  const router = bp.http.createRouterForBot('analytics')
 
   router.get('/graphs', (req, res, next) => {
     res.send(analytics.getChartsGraphData())

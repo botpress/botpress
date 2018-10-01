@@ -24,7 +24,7 @@ export default class EntitiesEditor extends React.Component {
   )
 
   fetchAvailableEntities = () => {
-    return this.props.axios.get(`/api/botpress-nlu/entities`).then(res => {
+    return this.props.axios.get(`/api/ext/nlu/entities`).then(res => {
       this.setState({
         availableEntities: res.data
       })

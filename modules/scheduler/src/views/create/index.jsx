@@ -82,7 +82,11 @@ export default class CreateModal extends React.Component {
     }
 
     return (
-      <div className={style.callout}>{occurences.map((o, i) => <Label key={i}>{moment(o).format('lll')}</Label>)}</div>
+      <div className={style.callout}>
+        {occurences.map((o, i) => (
+          <Label key={i}>{moment(o).format('lll')}</Label>
+        ))}
+      </div>
     )
   }
 
@@ -95,7 +99,7 @@ export default class CreateModal extends React.Component {
 
     const type = _.find(selectOptions, { id: this.state.expressionType }).type
 
-    const url = '/api/botpress-scheduler/schedules'
+    const url = '/api/ext/scheduler/schedules'
     this.props.axios
       .put(url, {
         schedule_type: type,

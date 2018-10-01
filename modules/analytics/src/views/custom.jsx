@@ -145,7 +145,7 @@ export default class CustomMetrics extends React.Component {
     const range = this.getCurrentRange()
 
     return this.props.axios
-      .get('/api/botpress-analytics/custom_metrics', {
+      .get('/api/ext/analytics/custom_metrics', {
         params: {
           from: range.from,
           to: range.to
@@ -233,8 +233,8 @@ export default class CustomMetrics extends React.Component {
     }
 
     const sum = _.sumBy(metric.results, 'percent')
-    let avgPerDay = (sum / metric.results.length * 100).toFixed(1)
-    let absAvg = (sum / data.length * 100).toFixed(1)
+    let avgPerDay = ((sum / metric.results.length) * 100).toFixed(1)
+    let absAvg = ((sum / data.length) * 100).toFixed(1)
 
     avgPerDay = isNaN(avgPerDay) ? 0 : avgPerDay
     absAvg = isNaN(absAvg) ? 0 : absAvg
@@ -266,7 +266,9 @@ export default class CustomMetrics extends React.Component {
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie data={data} cy={70} innerRadius={0} outerRadius={70} fill="#82ca9d" label={renderCustomizedLabel}>
-              {data.map((entry, index) => <Cell key={index} fill={pieChartColors[index % pieChartColors.length]} />)}
+              {data.map((entry, index) => (
+                <Cell key={index} fill={pieChartColors[index % pieChartColors.length]} />
+              ))}
             </Pie>
             <Tooltip />
           </PieChart>
