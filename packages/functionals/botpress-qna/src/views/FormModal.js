@@ -23,12 +23,12 @@ export default class FormModal extends Component {
       enabled: true
     },
     invalidFields: {
-      category: true,
-      questions: true,
-      answer: true,
-      checkbox: true,
-      redirectFlow: true,
-      redirectNode: true
+      category: false,
+      questions: false,
+      answer: false,
+      checkbox: false,
+      redirectFlow: false,
+      redirectNode: false
     },
     isText: true,
     isRedirect: false,
@@ -75,20 +75,20 @@ export default class FormModal extends Component {
   validateForm() {
     const { hasCategory, categories } = this.props
     const { item, isText, isRedirect } = this.state
-    const categoryWrapper = hasCategory ? { category: !categories.length || item.category } : {}
+    const categoryWrapper = hasCategory ? { category: categories.length && item.category } : {}
     const invalidFields = {
       ...categoryWrapper,
-      questions: item.questions,
-      answer: !this.state.isText || this.state.item.answer,
-      checkbox: isText || isRedirect,
-      redirectFlow: !this.state.isRedirect || this.state.item.redirectFlow,
-      redirectNode: !this.state.isRedirect || this.state.item.redirectNode
+      questions: !item.questions.length,
+      answer: !(this.state.isText && this.state.item.answer),
+      checkbox: !(isText || isRedirect),
+      redirectFlow: this.state.isRedirect && !this.state.item.redirectFlow,
+      redirectNode: this.state.isRedirect && !this.state.item.redirectNode
     }
 
     this.setState({ invalidFields })
 
     for (const field in invalidFields) {
-      if (!invalidFields[field]) {
+      if (invalidFields[field]) {
         return true
       }
     }
@@ -138,7 +138,7 @@ export default class FormModal extends Component {
       })
   }
 
-  onClose = () => this.props.closeQnAModal()
+  onClose = () => this.setState(this.defaultState, this.props.closeQnAModal)
 
   alertMessage() {
     if (this.state.isValidForm) {
@@ -149,7 +149,7 @@ export default class FormModal extends Component {
 
     return (
       <div>
-        {!this.state.invalidFields.checkbox ? <Alert bsStyle="danger">Action checkbox is required</Alert> : null}
+        {this.state.invalidFields.checkbox ? <Alert bsStyle="danger">Action checkbox is required</Alert> : null}
         {hasInvalidInputs ? <Alert bsStyle="danger">Inputs are required</Alert> : null}
       </div>
     )
@@ -163,20 +163,20 @@ export default class FormModal extends Component {
     const isEdit = modalType === 'edit'
 
     return (
-      <Modal className={classnames(style['newQnaModal'], 'newQnaModal')} show={showQnAModal} onHide={this.onClose}>
+      <Modal className={classnames(style.newQnaModal, 'newQnaModal')} show={showQnAModal} onHide={this.onClose}>
         <form onSubmit={!isEdit ? this.onCreate : this.onEdit}>
-          <Modal.Header className={style['qnaModalHeader']}>
+          <Modal.Header className={style.qnaModalHeader}>
             <Modal.Title>{!isEdit ? 'Create a new' : 'Edit'} Q&A</Modal.Title>
           </Modal.Header>
 
-          <Modal.Body className={style['qnaModalBody']}>
+          <Modal.Body className={style.qnaModalBody}>
             {this.alertMessage()}
             {this.props.hasCategory ? (
-              <div className={style['qna-category']}>
-                <span className={style['qnaCategoryTitle']}>Category</span>
+              <div className={style.qnaCategory}>
+                <span className={style.qnaCategoryTitle}>Category</span>
                 <Select
-                  className={classnames(style['qnaCategorySelect'], {
-                    qnaCategoryError: !invalidFields.category
+                  className={classnames(style.qnaCategorySelect, {
+                    qnaCategoryError: invalidFields.category
                   })}
                   value={this.state.item.category}
                   options={categories}
@@ -185,65 +185,63 @@ export default class FormModal extends Component {
                 />
               </div>
             ) : null}
-            <div className={style['qnaQuestions']}>
-              <span className={style['qnaQuestionsTitle']}>Questions</span>
-              <span className={style['qnaQuestionsHint']}>
-                Type/Paste your questions here separated with a new line
-              </span>
+            <div className={style.qnaQuestions}>
+              <span className={style.qnaQuestionsTitle}>Questions</span>
+              <span className={style.qnaQuestionsHint}>Type/Paste your questions here separated with a new line</span>
               <FormControl
-                className={classnames(style['qnaQuestionsTextarea'], {
-                  qnaCategoryError: !invalidFields.questions
+                className={classnames(style.qnaQuestionsTextarea, {
+                  qnaCategoryError: invalidFields.questions
                 })}
                 value={this.state.item.questions.join('\n')}
                 onChange={event => this.changeItemProperty('questions', event.target.value.split(/\n/))}
                 componentClass="textarea"
               />
             </div>
-            <div className={style['qnaReply']}>
-              <span className={style['qnaReplyTitle']}>Reply with:</span>
-              <div className={style['qnaAnswer']}>
-                <span className={style['qnaAnswerCheck']}>
+            <div className={style.qnaReply}>
+              <span className={style.qnaReplyTitle}>Reply with:</span>
+              <div className={style.qnaAnswer}>
+                <span className={style.qnaAnswerCheck}>
                   <input type="checkbox" checked={this.state.isText} onChange={this.changeItemAction('isText')} />&nbsp;
                   Type your answer
                 </span>
                 <FormControl
-                  className={classnames(style['qnaAnswerTextarea'], {
-                    qnaCategoryError: !invalidFields.answer
+                  className={classnames(style.qnaAnswerTextarea, {
+                    qnaCategoryError: invalidFields.answer
                   })}
                   value={this.state.item.answer}
                   onChange={event => this.changeItemProperty('answer', event.target.value)}
                   componentClass="textarea"
                 />
               </div>
-              <div className={style['qnaAndOr']}>
-                <div className={style['qnaAndOrLine']} />
-                <div className={style['qnaAndOrText']}>and / or</div>
-                <div className={style['qnaAndOrLine']} />
+              <div className={style.qnaAndOr}>
+                <div className={style.qnaAndOrLine} />
+                <div className={style.qnaAndOrText}>and / or</div>
+                <div className={style.qnaAndOrLine} />
               </div>
-              <div className={style['qnaRedirect']}>
-                <div className={style['qnaRedirectToFlow']}>
-                  <span className={style['qnaRedirectToFlowCheck']}>
+              <div className={style.qnaRedirect}>
+                <div className={style.qnaRedirectToFlow}>
+                  <span className={style.qnaRedirectToFlowCheck}>
                     <input
                       type="checkbox"
                       checked={this.state.isRedirect}
                       onChange={this.changeItemAction('isRedirect')}
-                      className={style['qnaRedirectToFlowCheckCheckbox']}
+                      className={style.qnaRedirectToFlowCheckCheckbox}
                     />&nbsp;Redirect to flow
                   </span>
                   <Select
-                    className={classnames(style['qnaRedirectToFlowCheckSelect'], {
-                      qnaCategoryError: !invalidFields.redirectFlow
+                    className={classnames(style.qnaRedirectToFlowCheckSelect, {
+                      qnaCategoryError: invalidFields.redirectFlow
                     })}
                     value={this.state.item.redirectFlow}
                     options={flowsList}
                     onChange={this.handleSelect('redirectFlow')}
                   />
                 </div>
-                <div className={style['qnaRedirect-node']}>
-                  <span className={style['qnaRedirectNodeTitle']}>Node</span>
+                <div className={style.qnaRedirectNode}>
+                  <span className={style.qnaRedirectNodeTitle}>Node</span>
                   <Select
-                    className={classnames(style['qnaRedirectNodeSelect'], {
-                      qnaCategoryError: !invalidFields.redirectNode
+                    className={classnames(style.qnaRedirectNodeSelect, {
+                      qnaCategoryError: invalidFields.redirectNode
                     })}
                     value={this.state.item.redirectNode}
                     options={nodeList}
@@ -254,11 +252,11 @@ export default class FormModal extends Component {
             </div>
           </Modal.Body>
 
-          <Modal.Footer className={style['qnaModalFooter']}>
-            <Button className={style['qnaModalFooterCancelBtn']} onClick={this.onClose}>
+          <Modal.Footer className={style.qnaModalFooter}>
+            <Button className={style.qnaModalFooterCancelBtn} onClick={this.onClose}>
               Cancel
             </Button>
-            <Button className={style['qnaModalFooterSaveBtn']} type="submit">
+            <Button className={style.qnaModalFooterSaveBtn} type="submit">
               {isEdit ? 'Edit' : 'Save'}
             </Button>
           </Modal.Footer>

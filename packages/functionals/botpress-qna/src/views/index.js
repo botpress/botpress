@@ -243,7 +243,7 @@ export default class QnaAdmin extends Component {
   }
 
   renderQnAHeader = () => (
-    <FormGroup className={style['qnaHeader']}>
+    <FormGroup className={style.qnaHeader}>
       <ButtonToolbar className={style.csvContainer}>
         <Button
           className={style.csvButton}
@@ -267,17 +267,17 @@ export default class QnaAdmin extends Component {
   )
 
   renderSearch = () => (
-    <div className={classnames(style['qnaNavBar'], 'qnaNavBar')}>
-      <div className={style['searchBar']}>
+    <div className={classnames(style.qnaNavBar, 'qnaNavBar')}>
+      <div className={style.searchBar}>
         <FormControl
-          className={style['serachQuestions']}
+          className={style.serachQuestions}
           value={this.state.filterQuestion}
           onChange={this.onQuestioinsFilter}
           placeholder="Filter questions"
         />
         {this.state.hasCategory ? (
           <Select
-            className={style['serachQuestions']}
+            className={style.serachQuestions}
             multi
             value={this.state.filterCategory}
             options={this.state.categoriesOptions}
@@ -287,7 +287,7 @@ export default class QnaAdmin extends Component {
         ) : null}
       </div>
       <Button
-        className={style['qnaNavBarAddNew']}
+        className={style.qnaNavBarAddNew}
         bsStyle="success"
         onClick={() => this.setState({ QnAModalType: 'create', currentItemId: null, showQnAModal: true })}
         type="button"
@@ -305,42 +305,42 @@ export default class QnaAdmin extends Component {
     const isRedirect = item.redirectFlow && item.redirectNode
 
     return (
-      <Well className={style['qnaItem']} bsSize="small">
-        <div className={style['itemContainer']}>
-          <div className={style['itemQuestions']}>
-            <span className={style['itemQuestionsTitle']}>Q: </span>
-            <div className={style['questionsList']}>{this.renderQustions(item.questions)}</div>
+      <Well className={style.qnaItem} bsSize="small">
+        <div className={style.itemContainer}>
+          <div className={style.itemQuestions}>
+            <span className={style.itemQuestionsTitle}>Q: </span>
+            <div className={style.questionsList}>{this.renderQustions(item.questions)}</div>
           </div>
-          <div className={style['itemAnswerContainer']}>
-            <span className={style['itemAnswerTitle']}>A: </span>
-            <div className={style['itemAnswer']}>
-              <span className={style['itemAnswerText']}>{item.answer}</span>
-              <div className={style['itemRedirect']}>
+          <div className={style.itemAnswerContainer}>
+            <span className={style.itemAnswerTitle}>A: </span>
+            <div className={style.itemAnswer}>
+              <span className={style.itemAnswerText}>{item.answer}</span>
+              <div className={style.itemRedirect}>
                 {isRedirect ? (
-                  <div className={style['itemFlow']}>
-                    Flow: <span className={style['itemFlowName']}>{item.redirectFlow}</span>
+                  <div className={style.itemFlow}>
+                    Flow: <span className={style.itemFlowName}>{item.redirectFlow}</span>
                   </div>
                 ) : null}
                 {isRedirect ? (
-                  <div className={style['itemNode']}>
-                    Node: <span className={style['itemNodeName']}>{item.redirectNode}</span>
+                  <div className={style.itemNode}>
+                    Node: <span className={style.itemNodeName}>{item.redirectNode}</span>
                   </div>
                 ) : null}
               </div>
             </div>
           </div>
           {this.state.hasCategory || item.category ? (
-            <div className={style['questionCategory']}>
-              Category: <span className={style['questionCategoryTitle']}>&nbsp;{item.category}</span>
+            <div className={style.questionCategory}>
+              Category: <span className={style.questionCategoryTitle}>&nbsp;{item.category}</span>
             </div>
           ) : null}
         </div>
-        <div className={style['itemAction']}>
+        <div className={style.itemAction}>
           {this.toggleButton({ value: item.enabled, onChange: this.enabledItem(item, id) })}
-          <i className={classnames('material-icons', style['itemActionDelete'])} onClick={this.deleteItem(id)}>
+          <i className={classnames('material-icons', style.itemActionDelete)} onClick={this.deleteItem(id)}>
             delete
           </i>
-          <i className={classnames('material-icons', style['itemActionEdit'])} onClick={this.editItem(id)}>
+          <i className={classnames('material-icons', style.itemActionEdit)} onClick={this.editItem(id)}>
             edit
           </i>
         </div>
@@ -384,7 +384,7 @@ export default class QnaAdmin extends Component {
 
   renderQustions = questions =>
     questions.map(question => (
-      <div key={question} className={style['question-text']}>
+      <div key={question} className={style.questionText}>
         {question}
       </div>
     ))
@@ -393,7 +393,7 @@ export default class QnaAdmin extends Component {
     const toggleCssClass = classnames('slider', { checked: value })
 
     return (
-      <label className={classnames('switch', style['toggleButton'])}>
+      <label className={classnames('switch', style.toggleButton)}>
         <input className="toggle-input" value={value} onChange={() => onChange(!value)} type="checkbox" />
         <span className={toggleCssClass} />
       </label>
@@ -408,7 +408,7 @@ export default class QnaAdmin extends Component {
 
   render() {
     return (
-      <Panel className={`${style['qnaContainer']} qnaContainer`}>
+      <Panel className={`${style.qnaContainer} qnaContainer`}>
         <a
           ref={this.csvDownloadableLink}
           href={this.state.csvDownloadableLinkHref}

@@ -327,7 +327,7 @@ $mainGreen: #1bb68a;
 }
 
 .qnaRedirectToFlow,
-.qnaRedirect-node {
+.qnaRedirectNode {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -340,7 +340,7 @@ $mainGreen: #1bb68a;
   }
 }
 
-.qnaRedirect-node {
+.qnaRedirectNode {
   @media (max-width: 475px) {
     flex: 1 1 calc(100% - 15px);
     max-width: calc(100% - 15px);
