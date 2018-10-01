@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.45.0"></a>
+# [10.45.0](https://github.com/botpress/modules/compare/v10.44.2...v10.45.0) (2018-10-01)
+
+
+### Features
+
+* **qna:** new interface for QnA-module ([9b8ee56](https://github.com/botpress/modules/commit/9b8ee56)), closes [#903](https://github.com/botpress/modules/issues/903) [#903](https://github.com/botpress/modules/issues/903) [#902](https://github.com/botpress/modules/issues/902) [#902](https://github.com/botpress/modules/issues/902) [#902](https://github.com/botpress/modules/issues/902)
+
+
+
+
 <a name="10.44.2"></a>
 ## [10.44.2](https://github.com/botpress/modules/compare/v10.44.1...v10.44.2) (2018-09-28)
 

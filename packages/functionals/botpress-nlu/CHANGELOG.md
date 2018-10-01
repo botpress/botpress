@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.45.0"></a>
+# [10.45.0](https://github.com/botpress/modules/compare/v10.44.2...v10.45.0) (2018-10-01)
+
+
+### Features
+
+* **nlu:** added age entity for LUIS ([acbd2e0](https://github.com/botpress/modules/commit/acbd2e0))
+* **nlu:** added unit property to LUIS entity ([bcce650](https://github.com/botpress/modules/commit/bcce650))
+
+
+
+
 <a name="10.44.2"></a>
 ## [10.44.2](https://github.com/botpress/modules/compare/v10.44.1...v10.44.2) (2018-09-28)
 
