@@ -332,14 +332,15 @@ function setupAPIProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
    * Modules
    */
   app.all(
-    '/api/botpress-platform-webchat/*',
+    ['/api/botpress-(:moduleName)/*', '/api/ext/:moduleName/*'],
     proxy(coreApiUrl, {
       proxyReqPathResolver: (req, res) => {
-        const parts = _.drop(req.path.split('/'), 3)
+        const parts = _.drop(req.path.split('/'), req.path.includes('/api/ext/') ? 4 : 3)
         const newPath = parts.join('/')
         const newQuery = qs.stringify(req.query)
+        const { moduleName } = req.params
         const apiPath = getApiBasePath(req)
-        return `${apiPath}/ext/channel-web/${newPath}?${newQuery}`
+        return `${apiPath}/ext/${moduleName}/${newPath}?${newQuery}`
       }
     })
   )
