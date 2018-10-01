@@ -16,7 +16,7 @@ import users from './users'
 const ERR_USER_ID_REQ = '`userId` is required and must be valid'
 const ERR_MSG_TYPE = '`type` is required and must be valid'
 const ERR_CONV_ID_REQ = '`conversationId` is required and must be valid'
-const VALID_USER_ID_RE = /^[a-z0-9-_]+$/i
+const VALID_USER_ID_RE = /^[a-z0-9-_~]+$/i
 
 module.exports = async (bp, config) => {
   const diskStorage = multer.diskStorage({
