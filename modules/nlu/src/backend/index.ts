@@ -95,7 +95,7 @@ const config: sdk.ModuleConfig = {
   maximumRequestsPerHour: { type: 'string', required: false, default: '1000', env: 'NLU_MAX_REQUESTS_PER_HOUR' }
 }
 
-const obj: sdk.ModuleEntryPoint = {
+const entryPoint: sdk.ModuleEntryPoint = {
   onInit: onInit,
   onReady: onReady,
   config: config,
@@ -112,4 +112,4 @@ const obj: sdk.ModuleEntryPoint = {
   }
 }
 
-export default obj
+export default entryPoint

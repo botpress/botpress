@@ -53,7 +53,7 @@ const serveFile = async (filePath: string): Promise<Buffer> => {
   return new Buffer('')
 }
 
-const obj: sdk.ModuleEntryPoint = {
+const entryPoint: sdk.ModuleEntryPoint = {
   onInit,
   onReady,
   config,
@@ -69,4 +69,4 @@ const obj: sdk.ModuleEntryPoint = {
   }
 }
 
-export default obj
+export default entryPoint
