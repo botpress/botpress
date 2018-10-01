@@ -1,4 +1,5 @@
 import doctrine from 'doctrine'
+import { meta } from 'joi'
 import _ from 'lodash'
 
 // Credit: https://stackoverflow.com/questions/35905181/regex-for-jsdoc-comments
@@ -59,13 +60,15 @@ export const extractMetadata = (code: string) => {
   metadata.params = _.filter(extracted.tags, { title: 'param' }).map(tag => {
     const type: string = _.get(tag, 'type.name', '')
     const required = _.get(tag, 'type.type') !== doctrine.type.Syntax.OptionalType
-    const def = _.get(tag, 'type.default', '')
+    const def = _.get(tag, 'default', '')
+    const name = _.get(tag, 'name', '')
 
     return {
       description: (tag as any).description || '',
       type,
       default: def,
-      required
+      required,
+      name
     }
   })
 
