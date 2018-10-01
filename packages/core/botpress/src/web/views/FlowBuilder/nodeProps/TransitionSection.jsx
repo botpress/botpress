@@ -112,6 +112,7 @@ export default class TransitionSection extends Component {
         {!readOnly && (
           <ConditionModalForm
             currentFlow={this.props.currentFlow}
+            currentNodeName={this.props.currentNodeName}
             subflows={this.props.subflows}
             show={this.state.showConditionalModalForm}
             onClose={() => this.setState({ showConditionalModalForm: false, itemToEditIndex: null })}
