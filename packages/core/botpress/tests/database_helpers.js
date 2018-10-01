@@ -2,7 +2,7 @@
 
 const { itBoth, run } = require('./database_base')
 const helpers = require('../src/database/helpers')
-const expect = require('chai').expect
+const { expect } = require('chai')
 const moment = require('moment')
 const _ = require('lodash')
 const Promise = require('bluebird')
@@ -10,67 +10,61 @@ const { randomTableName } = require('./_util')
 
 run('helpers', () => {
   describe('createTableIfNotExists', () => {
-    itBoth('Creates if not exists', knex => {
+    itBoth('Creates if not exists', async knex => {
       const randomName = randomTableName('tmp_rnd_')
 
-      return helpers(knex)
-        .createTableIfNotExists(randomName, table => {
-          table.increments('id')
-        })
-        .then(() => knex.schema.hasTable(randomName))
-        .then(has => expect(has).to.equal(true))
+      await helpers(knex).createTableIfNotExists(randomName, table => {
+        table.increments('id')
+      })
+
+      expect(await knex.schema.hasTable(randomName)).to.equal(true)
     })
 
-    itBoth("Doesn't throw if already exists", knex => {
+    itBoth("Doesn't throw if already exists", async knex => {
       const randomName = randomTableName('tmp_rnd_')
 
-      return helpers(knex)
-        .createTableIfNotExists(randomName, table => {
-          table.increments('id')
-        })
-        .then(() => knex.schema.hasTable(randomName))
-        .then(has => expect(has).to.equal(true))
-        .then(() =>
-          helpers(knex).createTableIfNotExists(randomName, table => {
-            table.increments('id')
-          })
-        )
+      await helpers(knex).createTableIfNotExists(randomName, table => {
+        table.increments('id')
+      })
+
+      expect(await knex.schema.hasTable(randomName)).to.equal(true)
+
+      await helpers(knex).createTableIfNotExists(randomName, table => {
+        table.increments('id')
+      })
     })
   })
 
   describe('insertAndRetrieve', function() {
     this.timeout(5000)
     itBoth('returns inserted data', (knex, sampleTable) => {
-      return Promise.map(_.range(500), index => {
+      return Promise.map(_.range(500), async index => {
         const tString =
           index +
           ':' +
           Math.random()
             .toString()
             .substr(2)
-        return helpers(knex)
+
+        const inserted = await helpers(knex)
           .insertAndRetrieve(sampleTable, { tString }, ['tId', 'tString'], 'tId')
-          .then(inserted => {
-            expect(inserted).to.not.equal(null)
-            expect(inserted.tString).to.equal(tString)
-            expect(typeof inserted.tId).to.equal('number')
-          })
+
+        expect(inserted).to.not.equal(null)
+        expect(inserted.tString).to.equal(tString)
+        expect(typeof inserted.tId).to.equal('number')
       })
     })
   })
 
   describe('date', () => {
-    itBoth('now works', (knex, sampleTable) => {
-      knex(sampleTable)
-        .insert({ tTimestamp: helpers(knex).date.now() })
-        .then(() => knex(sampleTable).select('*'))
-        .then(rows => {
-          const delta = moment().diff(moment(rows[0].tTimestamp), 'milliseconds')
-          expect(delta).to.be.below(250)
-        })
+    itBoth('now works', async (knex, sampleTable) => {
+      await knex(sampleTable).insert({ tTimestamp: helpers(knex).date.now() })
+      const rows = await knex(sampleTable).select('*');
+      const delta = moment().diff(moment(rows[0].tTimestamp), 'milliseconds')
+      expect(delta).to.be.below(250)
     })
 
-    itBoth('format works', (knex, sampleTable) => {
+    itBoth('format works', async (knex, sampleTable) => {
       const now = helpers(knex).date.now()
       const later = helpers(knex).date.format(
         moment()
@@ -78,17 +72,14 @@ run('helpers', () => {
           .toDate()
       )
 
-      knex(sampleTable)
-        .insert({ tTimestamp: now })
-        .then(() => knex(sampleTable).insert({ tTimestamp: later }))
-        .then(() => knex(sampleTable).select('*'))
-        .then(rows => {
-          const delta = moment(rows[1].tTimestamp).diff(moment(rows[0].tTimestamp), 'hours')
-          expect(delta).to.be.within(23, 24)
-        })
+      await knex(sampleTable).insert({ tTimestamp: now })
+      await knex(sampleTable).insert({ tTimestamp: later })
+      const rows = await knex(sampleTable).select('*')
+      const delta = moment(rows[1].tTimestamp).diff(moment(rows[0].tTimestamp), 'hours')
+      expect(delta).to.be.within(23, 24)
     })
 
-    itBoth('isBefore works (col < exp)', (knex, sampleTable) => {
+    itBoth('isBefore works (col < exp)', async (knex, sampleTable) => {
       const now = helpers(knex).date.now()
       const later = helpers(knex).date.format(
         moment()
@@ -101,21 +92,18 @@ run('helpers', () => {
           .toDate()
       )
 
-      knex(sampleTable)
-        .insert({ tTimestamp: now })
-        .then(() => knex(sampleTable).insert({ tTimestamp: later }))
-        .then(() =>
-          knex(sampleTable)
-            .whereRaw(helpers(knex).date.isBefore('tTimestamp', between))
-            .select('*')
-        )
-        .then(rows => {
-          expect(rows.length).to.equal(1)
-          expect(rows[0].tId).to.equal(1)
-        })
+      await knex(sampleTable).insert({ tTimestamp: now })
+      await knex(sampleTable).insert({ tTimestamp: later })
+
+      const rows = await knex(sampleTable)
+        .whereRaw(helpers(knex).date.isBefore('tTimestamp', between))
+        .select('*')
+
+      expect(rows.length).to.equal(1)
+      expect(rows[0].tId).to.equal(1)
     })
 
-    itBoth('isBefore works (col < date)', (knex, sampleTable) => {
+    itBoth('isBefore works (col < date)', async (knex, sampleTable) => {
       const now = helpers(knex).date.now()
       const later = helpers(knex).date.format(
         moment()
@@ -126,21 +114,18 @@ run('helpers', () => {
         .add(1, 'hour')
         .toDate()
 
-      knex(sampleTable)
-        .insert({ tTimestamp: now })
-        .then(() => knex(sampleTable).insert({ tTimestamp: later }))
-        .then(() =>
-          knex(sampleTable)
-            .whereRaw(helpers(knex).date.isBefore('tTimestamp', between))
-            .select('*')
-        )
-        .then(rows => {
-          expect(rows.length).to.equal(1)
-          expect(rows[0].tId).to.equal(1)
-        })
+      await knex(sampleTable).insert({ tTimestamp: now })
+      await knex(sampleTable).insert({ tTimestamp: later })
+
+      const rows = await knex(sampleTable)
+        .whereRaw(helpers(knex).date.isBefore('tTimestamp', between))
+        .select('*')
+
+      expect(rows.length).to.equal(1)
+      expect(rows[0].tId).to.equal(1)
     })
 
-    itBoth('isAfter works (col < date)', (knex, sampleTable) => {
+    itBoth('isAfter works (col < date)', async (knex, sampleTable) => {
       const now = helpers(knex).date.now()
       const later = helpers(knex).date.format(
         moment()
@@ -151,21 +136,18 @@ run('helpers', () => {
         .add(1, 'hour')
         .toDate()
 
-      knex(sampleTable)
-        .insert({ tTimestamp: now })
-        .then(() => knex(sampleTable).insert({ tTimestamp: later }))
-        .then(() =>
-          knex(sampleTable)
-            .whereRaw(helpers(knex).date.isAfter('tTimestamp', between))
-            .select('*')
-        )
-        .then(rows => {
-          expect(rows.length).to.equal(1)
-          expect(rows[0].tId).to.equal(2)
-        })
+      await knex(sampleTable).insert({ tTimestamp: now })
+      await knex(sampleTable).insert({ tTimestamp: later })
+
+      const rows = await knex(sampleTable)
+        .whereRaw(helpers(knex).date.isAfter('tTimestamp', between))
+        .select('*')
+
+      expect(rows.length).to.equal(1)
+      expect(rows[0].tId).to.equal(2)
     })
 
-    itBoth('isBetween works', (knex, sampleTable) => {
+    itBoth('isBetween works', async (knex, sampleTable) => {
       const now = helpers(knex).date.now()
       const later = helpers(knex).date.format(
         moment()
@@ -173,21 +155,18 @@ run('helpers', () => {
           .toDate()
       )
 
-      knex(sampleTable)
-        .insert({ tTimestamp: now })
-        .then(() => knex(sampleTable).insert({ tTimestamp: later }))
-        .then(() =>
-          knex(sampleTable)
-            .whereRaw(helpers(knex).date.isBetween('tTimestamp', now, later))
-            .select('*')
-        )
-        .then(rows => {
-          expect(rows.length).to.equal(1)
-          expect(rows[0].tId).to.equal(2)
-        })
+      await knex(sampleTable).insert({ tTimestamp: now })
+      await knex(sampleTable).insert({ tTimestamp: later })
+
+      const rows = await knex(sampleTable)
+        .whereRaw(helpers(knex).date.isBetween('tTimestamp', now, later))
+        .select('*')
+
+      expect(rows.length).to.equal(1)
+      expect(rows[0].tId).to.equal(2)
     })
 
-    itBoth('isSameDay works', (knex, sampleTable) => {
+    itBoth('isSameDay works', async (knex, sampleTable) => {
       const now = helpers(knex).date.now()
       const laterToday = helpers(knex).date.format(
         moment()
@@ -200,18 +179,15 @@ run('helpers', () => {
           .toDate()
       )
 
-      return knex(sampleTable)
-        .insert({ tTimestamp: now })
-        .then(() => knex(sampleTable).insert({ tTimestamp: laterToday }))
-        .then(() => knex(sampleTable).insert({ tTimestamp: tomorrow }))
-        .then(() =>
-          knex(sampleTable)
-            .whereRaw(helpers(knex).date.isSameDay('tTimestamp', now))
-            .select('*')
-        )
-        .then(rows => {
-          return expect(rows.length).to.equal(2)
-        })
+      await knex(sampleTable).insert({ tTimestamp: now })
+      await knex(sampleTable).insert({ tTimestamp: laterToday })
+      await knex(sampleTable).insert({ tTimestamp: tomorrow })
+
+      const rows = await knex(sampleTable)
+        .whereRaw(helpers(knex).date.isSameDay('tTimestamp', now))
+        .select('*')
+
+      expect(rows.length).to.equal(2)
     })
   })
 })
