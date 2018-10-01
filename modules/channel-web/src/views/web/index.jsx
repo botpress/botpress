@@ -85,7 +85,7 @@ export default class Web extends React.Component {
 
     this.props.bp.axios.interceptors.request.use(
       config => {
-        if (/\/api\/botpress-platform-webchat\//i.test(config.url)) {
+        if (/\/api\/ext\/channel-web\//i.test(config.url)) {
           const prefix = config.url.indexOf('?') > 0 ? '&' : '?'
           config.url += prefix + '__ts=' + new Date().getTime()
         }
@@ -116,7 +116,7 @@ export default class Web extends React.Component {
         this.handleSendMessage()
       } else {
         const userId = window.__BP_VISITOR_ID
-        const url = `${BOT_HOSTNAME}/api/botpress-platform-webchat/events/${userId}`
+        const url = `${BOT_HOSTNAME}/api/ext/channel-web/events/${userId}`
         return this.props.bp.axios.post(url, { type, payload })
       }
     }
@@ -238,7 +238,7 @@ export default class Web extends React.Component {
   fetchConversations = () => {
     const axios = this.props.bp.axios
     const userId = this.userId
-    const url = `${BOT_HOSTNAME}/api/botpress-platform-webchat/conversations/${userId}`
+    const url = `${BOT_HOSTNAME}/api/ext/channel-web/conversations/${userId}`
 
     return axios.get(url).then(({ data }) => new Promise(resolve => !this.isUnmounted && this.setState(data, resolve)))
   }
@@ -258,7 +258,7 @@ export default class Web extends React.Component {
       this.setState({ currentConversationId: conversationIdToFetch })
     }
 
-    const url = `${BOT_HOSTNAME}/api/botpress-platform-webchat/conversations/${userId}/${conversationIdToFetch}`
+    const url = `${BOT_HOSTNAME}/api/ext/channel-web/conversations/${userId}/${conversationIdToFetch}`
 
     return axios.get(url).then(({ data }) => {
       // Possible race condition if the current conversation changed while fetching
@@ -333,7 +333,7 @@ export default class Web extends React.Component {
   playSound() {
     if (!this.state.played && this.state.view !== 'convo') {
       // TODO: Remove this condition (view !== 'convo') and fix transition sounds
-      const audio = new Audio('/api/botpress-platform-webchat/static/notification.mp3')
+      const audio = new Audio('/api/ext/channel-web/static/notification.mp3')
       audio.play()
 
       this.setState({
@@ -408,7 +408,7 @@ export default class Web extends React.Component {
 
   handleFileUploadSend = (title, payload, file) => {
     const userId = window.__BP_VISITOR_ID
-    const url = `${BOT_HOSTNAME}/api/botpress-platform-webchat/messages/${userId}/files`
+    const url = `${BOT_HOSTNAME}/api/ext/channel-web/messages/${userId}/files`
     const config = { params: { conversationId: this.state.currentConversationId } }
 
     const data = new FormData()
@@ -419,7 +419,7 @@ export default class Web extends React.Component {
 
   handleSendData = data => {
     const userId = window.__BP_VISITOR_ID
-    const url = `${BOT_HOSTNAME}/api/botpress-platform-webchat/messages/${userId}`
+    const url = `${BOT_HOSTNAME}/api/ext/channel-web/messages/${userId}`
     const config = { params: { conversationId: this.state.currentConversationId } }
 
     return this.props.bp.axios.post(url, data, config).then()
@@ -440,7 +440,7 @@ export default class Web extends React.Component {
 
   handleSessionReset = () => {
     const userId = window.__BP_VISITOR_ID
-    const url = `${BOT_HOSTNAME}/api/botpress-platform-webchat/conversations/${userId}/${
+    const url = `${BOT_HOSTNAME}/api/ext/channel-web/conversations/${userId}/${
       this.state.currentConversationId
     }/reset`
     return this.props.bp.axios.post(url).then()
@@ -493,7 +493,7 @@ export default class Web extends React.Component {
   createConversation = () => {
     this.setState({ currentConversation: null })
     const userId = window.__BP_VISITOR_ID
-    const url = `${BOT_HOSTNAME}/api/botpress-platform-webchat/conversations/${userId}/new`
+    const url = `${BOT_HOSTNAME}/api/ext/channel-web/conversations/${userId}/new`
 
     return this.props.bp.axios.post(url).then(this.fetchConversations)
   }
@@ -535,7 +535,7 @@ export default class Web extends React.Component {
 
   downloadConversation = async () => {
     const userId = window.__BP_VISITOR_ID
-    const url = `${BOT_HOSTNAME}/api/botpress-platform-webchat/conversations/${userId}/${
+    const url = `${BOT_HOSTNAME}/api/ext/channel-web/conversations/${userId}/${
       this.state.currentConversationId
     }/download/txt`
     const file = (await this.props.bp.axios.get(url)).data

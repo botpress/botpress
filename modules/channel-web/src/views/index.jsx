@@ -1,16 +1,10 @@
 import React from 'react'
-import classnames from 'classnames'
-
-import Resizable from 'react-resizable-box'
-
 import WebComponent from './web'
-
-import style from './style.scss'
 
 export const Web = WebComponent
 
-const INJECTION_ID = 'botpress-platform-webchat-injection'
-const INJECTION_URL = '/api/botpress-platform-webchat/inject.js'
+const INJECTION_ID = 'bp-channel-web-injection'
+const INJECTION_URL = '/api/ext/channel-web/inject.js'
 
 export class WebBotpressUIInjection extends React.Component {
   componentWillMount() {

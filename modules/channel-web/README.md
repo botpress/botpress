@@ -2,8 +2,8 @@
 
 This channel is a customizable web chat that can be:
 
-* **Embedded** on any website
-* Used as a **Standalone** full-screen chat
+- **Embedded** on any website
+- Used as a **Standalone** full-screen chat
 
 ## Installation
 
@@ -125,7 +125,7 @@ You can always catch formId in the hear function, because Id is not an option in
       /* ... */
     }
   }
-] 
+]
 
 '#form-email': data => [
   {
@@ -268,7 +268,7 @@ This **URL is public** (no authentication required) so you can share it we other
 To embedded the web interface to a website, you simply need to add this script at the end of the `<body>` tag. Don't forget to set the `host` correctly to match the public hostname of your bot.
 
 ```html
-<script src="<host>/api/botpress-platform-webchat/inject.js"></script>
+<script src="<host>/api/ext/channel-web/inject.js"></script>
 <script>window.botpressWebChat.init({ host: '<host>' })</script>
 ```
 
