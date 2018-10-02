@@ -198,6 +198,17 @@ declare module 'botpress/sdk' {
     timeoutInterval: string
   }
 
+  export interface ContentElement {
+    id: string
+    contentType: string
+    formData: object
+    computedData: object
+    createdOn: Date
+    createdBy: string
+    modifiedOn: Date
+    previewText: string
+  }
+
   /**
    * ////////////////
    * //////// API
@@ -268,6 +279,11 @@ declare module 'botpress/sdk' {
 
   export namespace ghost {
     export function forBot(botId: string): ScopedGhostService
+  }
+
+  export namespace cms {
+    export function getContentElement(botId: string, id: string): Promise<ContentElement>
+    export function listContentElements(botId: string, contentTypeId?: string): Promise<ContentElement[]>
   }
 
   export const logger: Logger

@@ -9,17 +9,6 @@ export type ContentType = {
   renderElement: (data: object, channel: string) => object[]
 }
 
-export type ContentElement = {
-  id: string
-  contentType: string
-  formData: object
-  computedData: object
-  createdOn: Date
-  createdBy: string
-  modifiedOn: Date
-  previewText: string
-}
-
 export type SearchParams = {
   searchTerm?: string
   orderBy: string[]

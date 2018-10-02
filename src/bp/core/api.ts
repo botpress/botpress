@@ -14,6 +14,7 @@ import { UserRepository } from './repositories'
 import { Event, RealTimePayload } from './sdk/impl'
 import HTTPServer from './server'
 import { GhostService } from './services'
+import { CMSService } from './services/cms/cms-service'
 import { DialogEngine } from './services/dialog/engine'
 import { SessionService } from './services/dialog/session/service'
 import { ScopedGhostService } from './services/ghost/service'
@@ -134,6 +135,17 @@ const ghost = (ghostService: GhostService): typeof sdk.ghost => {
   }
 }
 
+const cms = (cmsService: CMSService): typeof sdk.cms => {
+  return {
+    getContentElement(botId: string, id: string): Promise<any> {
+      return cmsService.getContentElement(botId, id)
+    },
+    listContentElements(botId: string, contentTypeId?: string): Promise<any> {
+      return cmsService.listContentElements(botId, contentTypeId)
+    }
+  }
+}
+
 /**
  * Socket.IO API to emit payloads to front-end clients
  */
@@ -158,6 +170,7 @@ export class BotpressAPIProvider {
   notifications: typeof sdk.notifications
   bots: typeof sdk.bots
   ghost: typeof sdk.ghost
+  cms: typeof sdk.cms
 
   constructor(
     @inject(TYPES.DialogEngine) dialogEngine: DialogEngine,
@@ -172,7 +185,8 @@ export class BotpressAPIProvider {
     @inject(TYPES.KeyValueStore) keyValueStore: KeyValueStore,
     @inject(TYPES.NotificationsService) notificationService: NotificationsService,
     @inject(TYPES.BotLoader) botLoader: BotLoader,
-    @inject(TYPES.GhostService) ghostService: GhostService
+    @inject(TYPES.GhostService) ghostService: GhostService,
+    @inject(TYPES.CMSService) cmsService: CMSService
   ) {
     this.http = http(httpServer)
     this.events = event(eventEngine)
@@ -185,6 +199,7 @@ export class BotpressAPIProvider {
     this.notifications = notifications(notificationService)
     this.bots = bots(botLoader)
     this.ghost = ghost(ghostService)
+    this.cms = cms(cmsService)
   }
 
   @Memoize()
@@ -208,7 +223,8 @@ export class BotpressAPIProvider {
       kvs: this.kvs,
       notifications: this.notifications,
       ghost: this.ghost,
-      bots: this.bots
+      bots: this.bots,
+      cms: this.cms
     }
   }
 }
