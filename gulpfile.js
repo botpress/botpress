@@ -1,6 +1,7 @@
 const gulp = require('gulp')
 const core = require('./build/gulp.core')
 const modules = require('./build/gulp.modules')
+const package = require('./build/gulp.package')
 
 process.on('uncaughtException', err => {
   console.error('An error coccured in your gulpfile: ', err)
@@ -39,3 +40,5 @@ gulp.task(
 )
 
 gulp.task('modules', gulp.series([modules.copySdkDefinitions, modules.copyBoilerplateFiles, modules.buildModules()]))
+
+gulp.task('package', package.packageApp, package.copyData)

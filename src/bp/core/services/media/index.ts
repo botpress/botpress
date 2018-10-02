@@ -1,10 +1,10 @@
+import { Logger } from 'botpress/sdk'
 import { inject, injectable, tagged } from 'inversify'
-import generate from 'nanoid/generate'
+import { generate } from 'nanoid'
 import path from 'path'
 
-import { TYPES } from '../../types'
 import { GhostService } from '..'
-import { Logger } from 'botpress/sdk'
+import { TYPES } from '../../types'
 
 const safeId = (length = 10) => generate('1234567890abcdefghijklmnopqrsuvwxyz', length)
 

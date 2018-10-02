@@ -1,20 +1,20 @@
+import { Logger } from 'botpress/sdk'
+import { KnexExtension } from 'common/knex'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
 import jsonwebtoken from 'jsonwebtoken'
-
 import Knex from 'knex'
+
 import Database from '../../database'
+import { Resource } from '../../misc/auth'
 import { AuthUser, TokenUser } from '../../misc/interfaces'
 import { TYPES } from '../../types'
 
 import { InvalidCredentialsError } from './errors'
 import resources from './resources'
 import { calculateHash, validateHash } from './util'
-import { Logger } from 'botpress/sdk'
-import { Resource } from '../../misc/auth'
-import { KnexExtension } from 'common/knex'
 
 const USERS_TABLE = 'auth_users'
-const JWT_SECRET = <string>process.env.JWT_SECRET
+const JWT_SECRET = <string>process.env.JWT_SECRET || 'very_secret' // TODO FIXME Important for security
 export const TOKEN_AUDIENCE = 'web-login'
 
 @injectable()

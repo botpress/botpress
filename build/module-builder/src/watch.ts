@@ -1,8 +1,8 @@
-import path from 'path'
 import chokidar from 'chokidar'
+import path from 'path'
 
-import { debug } from './log'
 import { buildBackend } from './build'
+import { debug } from './log'
 import { watch as webpackWatch } from './webpack'
 
 export default async (argv: any) => {

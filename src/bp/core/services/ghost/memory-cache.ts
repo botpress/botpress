@@ -37,7 +37,10 @@ export default class MemoryObjectCache implements ObjectCache {
   }
 
   async invalidateStartingWith(prefix: string): Promise<void> {
-    const keys = this.cache.keys().filter(x => x.startsWith(prefix))
+    const keys = this.cache.keys().filter(x => {
+      return x.startsWith('buffer::' + prefix) || x.startsWith('string::' + prefix)
+    })
+
     keys.forEach(x => this.cache.del(x))
   }
 }

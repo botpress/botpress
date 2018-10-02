@@ -1,5 +1,5 @@
+import chokidar from 'chokidar'
 import { inject, injectable, postConstruct } from 'inversify'
-import nsfw from 'nsfw'
 import path from 'path'
 
 import { TYPES } from '../../types'
@@ -42,24 +42,27 @@ export namespace CacheInvalidators {
 
     async install(objectCache: ObjectCache) {
       this.cache = objectCache
-      this.watcher = await nsfw(path.join(this.projectLocation, './data'), this.handle)
-      await this.watcher.start()
+
+      const watcher = chokidar.watch(path.join(this.projectLocation, './data'), {
+        ignoreInitial: true
+      })
+
+      watcher.on('add', this.handle)
+      watcher.on('change', this.handle)
+      watcher.on('unlink', this.handle)
     }
 
     async stop() {
       await this.watcher.stop()
     }
 
-    handle = (events: ChangeEventType[]) => {
+    handle = file => {
       if (!this.cache) {
         return
       }
 
-      if (events && events.length) {
-        for (const event of events) {
-          this.cache.invalidateStartingWith(event.directory)
-        }
-      }
+      const relativePath = path.relative(this.projectLocation, path.dirname(file))
+      this.cache.invalidateStartingWith(relativePath)
     }
   }
 }
