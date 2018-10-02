@@ -12,10 +12,11 @@ const execAsync = promisify(exec)
 
 export default async (argv: any) => {
   const modulePath = path.resolve(argv.path || process.cwd())
+  const out = argv.out
 
   try {
     await installProductionDeps(modulePath)
-    await zipFiles(modulePath)
+    await zipFiles(modulePath, out)
   } catch (err) {
     return error(`Error packaging module: ${err.message || ''} ${err.cmd || ''} ${err.stderr || ''}`)
   } finally {
@@ -27,9 +28,12 @@ export default async (argv: any) => {
 
 async function installProductionDeps(modulePath) {
   debug('Installing production modules...')
-  const { stdout } = await execAsync('yarn install --modules-folder node_production_modules --production', {
-    cwd: modulePath
-  })
+  const { stdout } = await execAsync(
+    'yarn install --modules-folder node_production_modules --production --no-lockfile --ignore-scripts',
+    {
+      cwd: modulePath
+    }
+  )
   debug(stdout)
 }
 
@@ -38,22 +42,29 @@ async function cleanup(modulePath) {
   rimraf.sync(path.join(modulePath, 'node_production_modules'))
 }
 
-async function zipFiles(modulePath) {
-  debug('Zipping files...')
-
+async function zipFiles(modulePath, outPath) {
   const packageJson = require(path.join(modulePath, 'package.json'))
-  const outName = `${packageJson.name}_${packageJson.version}`.replace('@botpress/', '').replace(/\W/gi, '_') + '.zip'
-  const outputFile = path.join(modulePath, outName)
+  outPath = outPath.replace(/%name%/gi, packageJson.name.replace('@botpress/', '').replace(/\W/gi, '_'))
+  outPath = outPath.replace(/%version%/gi, packageJson.version.replace(/\W/gi, '_'))
+
+  if (!path.isAbsolute(outPath)) {
+    outPath = path.join(modulePath, outPath)
+  }
+
+  debug(`Writing to "${outPath}"`)
 
   const files = glob.sync('**/*.*', {
     cwd: modulePath,
+    nodir: true,
     ignore: ['node_modules/**', 'src/**']
   })
+
+  debug(`Zipping ${files.length} files...`)
 
   const zip = new yazl.ZipFile()
 
   const promise = new Promise(resolve => {
-    zip.outputStream.pipe(fs.createWriteStream(outputFile)).on('close', () => resolve())
+    zip.outputStream.pipe(fs.createWriteStream(outPath)).on('close', () => resolve())
   })
 
   for (const file of files) {

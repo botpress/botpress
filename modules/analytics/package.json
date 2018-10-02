@@ -20,7 +20,7 @@
   "devDependencies": {
     "@types/node": "^10.11.0",
     "classnames": "^2.2.5",
-    "react-select": "^1.2.c",
+    "react-select": "^1.2.0",
     "recharts": "^1.0.0-beta.10"
   }
 }

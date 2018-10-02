@@ -5,6 +5,7 @@ const path = require('path')
 const gulp = require('gulp')
 const glob = require('glob')
 const print = require('gulp-print').default
+const mkdirp = require('mkdirp')
 
 const cwd = path.join(__dirname, '../modules')
 
@@ -46,7 +47,7 @@ const copyBoilerplateFiles = cb => {
 }
 
 const buildModule = (modulePath, cb) => {
-  const linkCmd = ` && yarn link "module-builder"` // TODO Change this
+  const linkCmd = process.env.LINK ? ` && yarn link "module-builder"` : ''
   exec(`yarn${linkCmd} && yarn build`, { cwd: modulePath }, (err, stdout, stderr) => {
     if (err) {
       console.error(stderr)
@@ -54,6 +55,21 @@ const buildModule = (modulePath, cb) => {
     }
     cb()
   })
+}
+
+const packageModule = (modulePath, cb) => {
+  exec(
+    `./node_modules/.bin/module-builder package -v --out ../../out/binaries/modules/%name%.zip`,
+    { cwd: modulePath },
+    (err, stdout, stderr) => {
+      if (err) {
+        console.error(stderr)
+        return cb(err)
+      }
+      console.log(stdout)
+      cb()
+    }
+  )
 }
 
 const buildModules = () => {
@@ -71,4 +87,20 @@ const buildModules = () => {
   return gulp.parallel(tasks)
 }
 
-module.exports = { copySdkDefinitions, copyBoilerplateFiles, buildModules }
+const packageModules = () => {
+  mkdirp.sync('out/binaries/modules')
+  const modules = getAllModulesRoot()
+  const tasks = modules.map(m => {
+    const config = readModuleConfig(m)
+    const moduleName = _.get(config, 'name', 'Unknown')
+    const taskName = `package-module ${moduleName}`
+    gulp.task(taskName, cb => {
+      packageModule(m, cb)
+    })
+    return taskName
+  })
+
+  return gulp.series(tasks)
+}
+
+module.exports = { copySdkDefinitions, copyBoilerplateFiles, buildModules, packageModules }

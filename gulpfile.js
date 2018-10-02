@@ -41,4 +41,4 @@ gulp.task(
 
 gulp.task('modules', gulp.series([modules.copySdkDefinitions, modules.copyBoilerplateFiles, modules.buildModules()]))
 
-gulp.task('package', package.packageApp, package.copyData)
+gulp.task('package', gulp.series(package.packageApp, modules.packageModules(), package.copyData))

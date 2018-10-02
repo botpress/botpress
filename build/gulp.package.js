@@ -1,6 +1,7 @@
 const exec = require('child_process').exec
 const path = require('path')
 const fse = require('fs-extra')
+const gulp = require('gulp')
 
 const promisify = require('util').promisify
 const execAsync = promisify(exec)
@@ -19,7 +20,7 @@ const packageApp = async () => {
   } catch (err) {
     console.error('Error running: ', err.cmd, '\nMessage: ', err.stderr, err)
   } finally {
-    // await fse.unlink(tempPkgPath)
+    await fse.unlink(tempPkgPath)
   }
 }
 
