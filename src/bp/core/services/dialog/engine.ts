@@ -85,9 +85,15 @@ export class DialogEngine {
 
   protected async processSession(botId, session, flows) {
     let queue = new InstructionQueue(session.context!.queue)
+    let sessionIsStale = false
 
     while (queue.hasInstructions()) {
       const instruction = queue.dequeue()!
+
+      if (sessionIsStale) {
+        session = await this.sessionService.getSession(session.id)
+        sessionIsStale = false
+      }
 
       try {
         const result = await this.instructionProcessor.process(
@@ -101,6 +107,7 @@ export class DialogEngine {
         if (result.followUpAction === 'update') {
           await this.updateQueueForSession(queue, session)
           await this.sessionService.updateStateForSession(session.id, result.options!.state!)
+          sessionIsStale = true
         } else if (result.followUpAction === 'none') {
           await this.updateQueueForSession(queue, session)
         } else if (result.followUpAction === 'wait') {

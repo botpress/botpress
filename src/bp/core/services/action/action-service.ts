@@ -104,7 +104,7 @@ export class ScopedActionService {
       timeout: 5000
     })
     const runner = new VmRunner()
-    runner.runInVm(vm, code, actionName)
+    return runner.runInVm(vm, code, actionName)
   }
 
   private async findActionScript(actionName: string): Promise<string> {

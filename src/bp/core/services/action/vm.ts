@@ -18,12 +18,15 @@ export class VmRunner {
         // Check if code returned a Promise-like object
         if (retValue && typeof retValue.then === 'function') {
           retValue.then(resolve, reject)
-        } else {
+          // can be true or false
+        } else if (retValue !== undefined) {
           resolve(retValue)
+        } else {
+          const error = new Error(`An error occurred while executing "${identifier}"`)
+          reject(error)
         }
       } catch (err) {
-        const verror = new VError(err, `Could not execute "${identifier}"`)
-        reject(verror)
+        reject(err)
       }
     })
   }

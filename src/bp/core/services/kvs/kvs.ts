@@ -120,7 +120,6 @@ export class KeyValueStore {
       .knex(this.tableName)
       .where('key', 'like', key + '%')
       .del()
-      .then()
   }
 
   getConversationStorageKey = (sessionId, variable) => `storage/conversation/${sessionId}/${variable}`

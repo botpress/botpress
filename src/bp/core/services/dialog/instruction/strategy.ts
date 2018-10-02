@@ -107,24 +107,33 @@ export class ActionStrategy implements InstructionStrategy {
 @injectable()
 export class TransitionStrategy implements InstructionStrategy {
   async processInstruction(botId, instruction, state, event, context): Promise<ProcessingResult> {
-    const result = await this.runCode(instruction, { state, event })
-    console.log('TRANSITION RESULT', result)
+    const conditionSuccessful = await this.runConditionCode(instruction, { state, event })
 
-    if (result) {
+    if (conditionSuccessful) {
       return ProcessingResult.transition(instruction.node)
     } else {
       return ProcessingResult.none()
     }
   }
 
-  private async runCode(instruction, sandbox): Promise<any> {
+  private async runConditionCode(instruction, sandbox): Promise<any> {
     const vm = new NodeVM({
       wrapper: 'none',
       sandbox: sandbox,
       timeout: 5000
     })
     const runner = new VmRunner()
-    const code = `return ${instruction.fn}`
+    const code = `
+    try {
+      console.log(state)
+      return ${instruction.fn}
+    } catch (err) {
+      if (err instanceof TypeError) {
+        return false
+      }
+      throw err
+    }
+    `
     return runner.runInVm(vm, code, `Transition (${instruction.fn})`)
   }
 }
