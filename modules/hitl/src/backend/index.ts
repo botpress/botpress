@@ -6,7 +6,7 @@ import path from 'path'
 
 import api from './api'
 import HitlDb from './db'
-import mware from './mware'
+import setup from './setup'
 
 // TODO: Cleanup old sessions
 // TODO: If messages count > X, delete some
@@ -23,15 +23,10 @@ export type Extension = {
 
 export type SDK = typeof sdk & Extension
 
-const config: sdk.ModuleConfig = {
-  sessionExpiry: { type: 'string', required: false, default: '3 days' },
-  paused: { type: 'bool', required: false, default: false, env: 'BOTPRESS_HITL_PAUSED' }
-}
-
 const onInit = async (bp: SDK) => {
   db = new HitlDb(bp)
   await db.initialize()
-  await mware(bp, db, config)
+  await setup(bp, db)
 }
 
 const onReady = async (bp: SDK) => {
@@ -53,11 +48,24 @@ const serveFile = async (filePath: string): Promise<Buffer> => {
   return new Buffer('')
 }
 
+const config: sdk.ModuleConfig = {
+  sessionExpiry: { type: 'string', required: false, default: '3 days' },
+  paused: { type: 'bool', required: false, default: false, env: 'BOTPRESS_HITL_PAUSED' }
+}
+
+const defaultConfigJson = `
+{
+  "paused": false,
+  "sessionExpiry": "3 days"
+}
+`
+
 const entryPoint: sdk.ModuleEntryPoint = {
   onInit,
   onReady,
   config,
   serveFile,
+  defaultConfigJson,
   definition: {
     name: 'hitl',
     menuIcon: 'feedback',

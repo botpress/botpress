@@ -6,6 +6,7 @@ import ActionService from './action/action-service'
 import AuthService from './auth/auth-service'
 import TeamsService from './auth/teams-service'
 import { CMSService } from './cms/cms-service'
+import { ContentElementSender } from './cms/content-sender'
 import { DialogEngine } from './dialog/engine'
 import { FlowNavigator } from './dialog/flow/navigator'
 import FlowService from './dialog/flow/service'
@@ -149,5 +150,9 @@ export const ServicesContainerModule = new ContainerModule((bind: interfaces.Bin
 
   bind<KeyValueStore>(TYPES.KeyValueStore)
     .to(KeyValueStore)
+    .inSingletonScope()
+
+  bind<ContentElementSender>(TYPES.ContentElementSender)
+    .to(ContentElementSender)
     .inSingletonScope()
 })

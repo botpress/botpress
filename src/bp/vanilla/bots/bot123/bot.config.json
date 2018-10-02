@@ -8,8 +8,8 @@
   "license": "AGPL-3.0",
   "imports": {
     "modules": ["channel-web"],
-    "incomingMiddleware": ["slack.in"],
-    "outgoingMiddleware": ["web.sendMessages"],
+    "incomingMiddleware": ["nlu.incoming", "hitl.captureInMessages"],
+    "outgoingMiddleware": ["hitl.captureOutMessages", "web.sendMessages"],
     "contentTypes": ["builtin_text", "builtin_single-choice", "builtin_image", "builtin_carousel", "builtin_card"]
   },
   "dialog": {
