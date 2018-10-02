@@ -36,7 +36,7 @@ jobs:
       - restore_cache:
           name: Restore botpress package cache
           keys:
-            - bp-{{ checksum "/yarn.lock" }}
+            - bp-{{ checksum "yarn.lock" }}
 
       - run: cd ~/repo && NODE_ENV=development yarn
       - run: cd ~/repo/build/module-builder/ && NODE_ENV=development yarn && yarn build
