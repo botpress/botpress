@@ -2,6 +2,7 @@
 
 import buildCmd from './build'
 import { configure } from './log'
+import packageCmd from './package'
 import watchCmd from './watch'
 
 require('yargs')
@@ -12,6 +13,10 @@ require('yargs')
   .command('watch', 'watch and rebuild a module', {}, argv => {
     configure(argv.verbose)
     watchCmd(argv)
+  })
+  .command('package', 'packages a module for distribution (.zip)', {}, argv => {
+    configure(argv.verbose)
+    packageCmd(argv)
   })
   .option('verbose', {
     alias: 'v',
