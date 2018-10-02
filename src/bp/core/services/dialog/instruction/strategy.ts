@@ -94,6 +94,7 @@ export class ActionStrategy implements InstructionStrategy {
     }
 
     const result = await this.actionService.forBot(botId).runAction(actionName, state, event, args)
+    console.log('ACTION RESULT', result)
     return ProcessingResult.updateState(result)
   }
 
@@ -107,6 +108,7 @@ export class TransitionStrategy implements InstructionStrategy {
   async processInstruction(botId, instruction, state, event, context): Promise<ProcessingResult> {
     const code = `return ${instruction.fn}`
     const result = await runCode(code, { state, event })
+    console.log('TRANSITION RESULT', result)
     if (result) {
       return ProcessingResult.transition(instruction.node)
     } else {

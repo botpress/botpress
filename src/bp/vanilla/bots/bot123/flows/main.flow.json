@@ -87,6 +87,17 @@
         "say #!builtin_text-bFsOmf"
       ],
       "onReceive": null
+    },
+    {
+      "id": "f665775ece",
+      "name": "forget-my-name",
+      "next": [],
+      "onEnter": [
+        "say #!builtin_text-TtzrCV",
+        "resetUserVariable {\"name\":\"nickname\"}",
+        "say #!builtin_text-kKQ8C3"
+      ],
+      "onReceive": null
     }
   ]
 }
