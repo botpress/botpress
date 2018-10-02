@@ -1,16 +1,15 @@
 import 'bluebird-global'
 import 'reflect-metadata'
-
-import { Logger } from 'botpress/sdk'
 import tmp from 'tmp'
 
-import { createSpyObject } from '../misc/utils'
+import { PersistedConsoleLogger } from '../logger'
+import { createSpyObject, MockObject } from '../misc/utils'
 
 import Database from '.'
 
 const TEST_DATABASE = 'botpress_tests'
 
-const logger = createSpyObject<Logger>()
+const logger: MockObject<PersistedConsoleLogger> = createSpyObject<PersistedConsoleLogger>()
 
 export type DatabaseTestSuite = ((database: Database) => void)
 
