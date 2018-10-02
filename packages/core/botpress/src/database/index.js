@@ -10,10 +10,11 @@ import Promise from 'bluebird'
 import moment from 'moment'
 import knex from 'knex'
 import pick from 'lodash/pick'
+import path from 'path'
 
 import tables from './tables'
 import kvs from './kvs'
-import path from 'path'
+import migration from './migration'
 
 const initializeCoreDatabase = (knex, botpressPath) => {
   if (!knex) {
@@ -139,6 +140,7 @@ module.exports = ({ sqlite, postgres, logger, botpressPath }) => {
     get: getDb,
     saveUser,
     location: postgres.enabled ? 'postgres' : sqlite.location,
+    migration,
     get kvs() {
       logger &&
         logger.warn(
