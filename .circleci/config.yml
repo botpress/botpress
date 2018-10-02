@@ -19,49 +19,63 @@ jobs:
       - checkout
 
       - restore_cache:
+          name: Restore channel-web yarn package cache
           keys:
-            - v1-dependencies-{{ checksum "package.json" }}
-            - v1-dependencies-
+            - channel-web-{{ checksum "modules/channel-web/yarn.lock" }}
 
       - restore_cache:
+          name: Restore nlu yarn package cache
           keys:
-            - v1-dependencies-core-{{ checksum "packages/core/package.json" }}
-            - v1-dependencies-core-
+            - nlu-{{ checksum "modules/nlu/yarn.lock" }}
 
       - restore_cache:
+          name: Restore hitl package cache
           keys:
-            - v1-dependencies-channel-web-{{ checksum "packages/channel-web/package.json" }}
-            - v1-dependencies-channel-web-
+            - hitl-{{ checksum "modules/hitl/yarn.lock" }}
 
-      - run: sudo npm install -g npm@6
-      - run: sudo npm install -g node-pre-gyp
-      - run: npm install --only=dev
-      - run: cd ~/repo/ && NODE_ENV=development npm install || true # Workaround for pkg chmod of "bin" in launcher
-      - run: cd ~/repo/ && NODE_ENV=development npm install # Try again with directories created
-      - run: NODE_ENV=development npm run bootstrap
+      - restore_cache:
+          name: Restore botpress package cache
+          keys:
+            - bp-{{ checksum "/yarn.lock" }}
 
-      - save_cache:
-          key: v1-dependencies-{{ checksum "package.json" }}
-          paths:
-            - ~/repo/packages/node_modules
-
-      - save_cache:
-          key: v1-dependencies-core-{{ checksum "packages/core/package.json" }}
-          paths:
-            - ~/repo/packages/core/node_modules
+      - run: cd ~/repo && NODE_ENV=development yarn
+      - run: NODE_ENV=development yarn build
+      - run: cd ~/repo/build/module-builder/ && NODE_ENV=development yarn build
+      - run: cd ~/repo/modules/channel-web && NODE_ENV=development yarn build
+      - run: cd ~/repo/modules/nlu && NODE_ENV=development yarn build
+      - run: cd ~/repo/modules/hitl && NODE_ENV=development yarn build
 
       - save_cache:
-          key: v1-dependencies-channel-web-{{ checksum "packages/channel-web/package.json" }}
+          name: Save channel-web yarn package cache
+          key: channel-web-{{ checksum "modules/channel-web/yarn.lock" }}
           paths:
-            - ~/repo/packages/channel-web/node_modules
+            - ~/repo/modules/channel-web/node_modules
+
+      - save_cache:
+          name: Save nlu yarn package cache
+          key: nlu-{{ checksum "modules/nlu/yarn.lock" }}
+          paths:
+            - ~/repo/modules/nlu/node_modules
+
+      - save_cache:
+          name: Save hitl yarn package cache
+          key: hitl-{{ checksum "modules/hitl/yarn.lock" }}
+          paths:
+            - ~/repo/modules/hitl/node_modules
+
+      - save_cache:
+          name: Save botpress yarn package cache
+          key: bp-{{ checksum "yarn.lock"}}
+          paths:
+            - ~/repo
 
       - run:
           name: Test that it builds
-          command: NODE_ENV=development npm run build
+          command: cd ~/repo && NODE_ENV=development yarn build
 
       - run:
           name: Run all tests
-          command: npm run test
+          command: yarn test
           environment:
             PG_USER: botpress
             PG_DB: test
