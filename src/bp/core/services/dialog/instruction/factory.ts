@@ -2,6 +2,7 @@ import _ from 'lodash'
 
 import { Instruction } from '.'
 
+// TODO: Test this
 export class InstructionFactory {
   static createOnEnter(node) {
     const onEnter = _.get(node, 'onEnter', []) || []
@@ -26,8 +27,11 @@ export class InstructionFactory {
   }
 
   static createTransition(node, flow): Instruction[] {
-    const flowNext = _.get(flow, 'catchAll.next', []) || []
     const nodeNext = _.get(node, 'next', []) || []
+    if (_.isEmpty(nodeNext)) {
+      return []
+    }
+    const flowNext = _.get(flow, 'catchAll.next', []) || []
 
     return [...flowNext, ...nodeNext].map(
       (x): Instruction => ({

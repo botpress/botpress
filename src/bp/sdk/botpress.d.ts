@@ -255,6 +255,7 @@ declare module 'botpress/sdk' {
     export function getConversationStorageKey(sessionId: string, variable: string): string
     export function getUserStorageKey(userId: string, variable: string): string
     export function getGlobalStorageKey(variable: string): string
+    export function removeStorageKeysStartingWith(key): Promise<void>
   }
 
   export namespace bots {
