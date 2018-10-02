@@ -1013,9 +1013,9 @@ block-stream@*:
   dependencies:
     inherits "~2.0.0"
 
-bluebird@^3.4.6:
-  version "3.4.7"
-  resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.4.7.tgz#f72d760be09b7f76d08ed8fae98b289a8d05fab3"
+bluebird-global@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/bluebird-global/-/bluebird-global-1.0.1.tgz#147c174f4e3a19740e80d992ea70ec3dc51d0d95"
 
 bluebird@^3.5.1:
   version "3.5.2"
@@ -1122,6 +1122,10 @@ browserslist@^4.1.0:
     caniuse-lite "^1.0.30000884"
     electron-to-chromium "^1.3.62"
     node-releases "^1.0.0-alpha.11"
+
+buffer-crc32@~0.2.3:
+  version "0.2.13"
+  resolved "https://registry.yarnpkg.com/buffer-crc32/-/buffer-crc32-0.2.13.tgz#0d333e3f00eac50aa1454abd30ef8c2a5d9a7242"
 
 buffer-from@^1.0.0:
   version "1.1.1"
@@ -2964,6 +2968,7 @@ module-builder@../../build/module-builder:
     style-loader "^0.23.0"
     webpack "^4.20.2"
     yargs "^12.0.2"
+    yazl "^2.4.3"
 
 moment@^2.10.3, moment@^2.17.1:
   version "2.17.1"
@@ -4617,3 +4622,9 @@ yargs@^7.0.0:
     which-module "^1.0.0"
     y18n "^3.2.1"
     yargs-parser "^5.0.0"
+
+yazl@^2.4.3:
+  version "2.4.3"
+  resolved "https://registry.yarnpkg.com/yazl/-/yazl-2.4.3.tgz#ec26e5cc87d5601b9df8432dbdd3cd2e5173a071"
+  dependencies:
+    buffer-crc32 "~0.2.3"

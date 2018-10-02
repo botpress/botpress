@@ -26,7 +26,8 @@
     "classnames": "^2.2.5",
     "mocha": "^3.2.0",
     "react-toggle": "^4.0.2",
-    "riek": "^1.1.0"
+    "riek": "^1.1.0",
+    "module-builder": "../../build/module-builder"
   },
   "dependencies": {
     "bluebird": "^3.5.1",
@@ -34,7 +35,6 @@
     "cronstrue": "^0.8.0",
     "later": "RickCarlino/later",
     "lodash": "^4.17.2",
-    "module-builder": "../../build/module-builder",
     "moment": "^2.17.1",
     "validate-arguments": "0.0.8"
   }
