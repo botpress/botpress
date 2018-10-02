@@ -4,7 +4,7 @@ import _ from 'lodash'
 import { SDK } from '.'
 import Database from './db'
 
-export default async (bp: SDK, db: Database, config: any) => {
+export default async (bp: SDK, db: Database) => {
   bp.events.registerMiddleware({
     name: 'hitl.captureInMessages',
     direction: 'incoming',
@@ -43,6 +43,9 @@ export default async (bp: SDK, db: Database, config: any) => {
 
     const message = db.appendMessageToSession(event, session.id, 'in')
     bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(event.target, 'hitl.message', message))
+
+    const config = await bp.config.getModuleConfigForBot('hitl', event.botId)
+
     if ((!!session.paused || config.paused) && _.includes(['text', 'message'], event.type)) {
       bp.logger.debug('[hitl] Session paused, message swallowed:', event.preview)
       // the session or bot is paused, swallow the message

@@ -41,7 +41,7 @@
     },
     {
       "location": "bp/modules/hitl",
-      "enabled": false
+      "enabled": true
     }
   ]
 }
