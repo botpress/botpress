@@ -23,7 +23,6 @@ import {
 
 const tables: (typeof Table)[] = [
   MigrationsTable,
-  LogsTable,
   ServerMetadataTable,
   ChannelUsersTable,
   AuthUsersTable,
@@ -31,6 +30,7 @@ const tables: (typeof Table)[] = [
   AuthRolesTable,
   AuthTeamMembersTable,
   BotsTable,
+  LogsTable,
   ChannelUsersTable,
   DialogSessionTable,
   GhostFilesTable,
