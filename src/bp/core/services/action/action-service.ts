@@ -95,6 +95,11 @@ export class ScopedActionService {
         state: dialogState,
         args: actionArgs
       },
+      require: {
+        external: true,
+        builtin: ['moment', 'axios'],
+        root: './'
+      },
       timeout: 5000
     })
 

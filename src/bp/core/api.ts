@@ -100,7 +100,7 @@ const kvs = (kvs: KeyValueStore): typeof sdk.kvs => {
     async getStorageWithExpiry(botId, key): Promise<any> {
       return kvs.getStorageWithExpiry(botId, key)
     },
-    async setStorageWithExpiry(botId: string, key: string, value, expiryInMs?: string | number): Promise<void> {
+    async setStorageWithExpiry(botId: string, key: string, value, expiryInMs?: string): Promise<void> {
       return kvs.setStorageWithExpiry(botId, key, value, expiryInMs)
     },
     getConversationStorageKey(sessionId, variable): string {

@@ -54,7 +54,8 @@ const TYPES = {
   FileCacheInvalidator: Symbol.for('FileCacheInvalidator'),
   BotConfigFactory: Symbol.for('BotConfigFactory'),
   BotConfigWriter: Symbol.for('BotConfigWriter'),
-  KeyValueStore: Symbol.for('KeyValueStore')
+  KeyValueStore: Symbol.for('KeyValueStore'),
+  ContentElementSender: Symbol.for('ContentElementSender')
 }
 
 export { TYPES }
