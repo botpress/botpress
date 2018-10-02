@@ -15,7 +15,7 @@
       "onReceive": null,
       "next": [
         {
-          "condition": "state.$r === undefined",
+          "condition": "state.$r !== undefined",
           "node": "welcome"
         },
         {
@@ -37,7 +37,7 @@
         "say #!builtin_text-z0J9qh"
       ],
       "onReceive": [
-        "setUserVariable {\"name\":\"nickname\",\"value\":\"{{event.text}}\",\"expiry\":\"never\"}"
+        "setUserVariable {\"name\":\"nickname\",\"value\":\"{{event.payload.text}}\",\"expiry\":\"never\",\"output\":\"$r\"}"
       ]
     },
     {
@@ -54,7 +54,8 @@
         }
       ],
       "onEnter": [
-        "say #!builtin_text-pSsHWg"
+        "say #!builtin_text-pSsHWg",
+        "increaseConversationsNumber {\"output\":\"$r\"}"
       ],
       "onReceive": null
     },

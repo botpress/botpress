@@ -105,7 +105,8 @@ export class ActionStrategy implements InstructionStrategy {
 @injectable()
 export class TransitionStrategy implements InstructionStrategy {
   async processInstruction(botId, instruction, state, event, context): Promise<ProcessingResult> {
-    const result = await runCode(`return ${instruction.fn}`, { state, event })
+    const code = `return ${instruction.fn}`
+    const result = await runCode(code, { state, event })
     if (result) {
       return ProcessingResult.transition(instruction.node)
     } else {

@@ -105,7 +105,7 @@ export class KeyValueStore {
     return undefined
   }
 
-  setStorageWithExpiry = async (botId: string, key: string, value, expiryInMs) => {
+  setStorageWithExpiry = async (botId: string, key: string, value, expiryInMs?: string) => {
     const box = this.boxWithExpiry(value, expiryInMs)
     await this.set(botId, key, box)
   }
