@@ -38,11 +38,21 @@ jobs:
           keys:
             - bp-{{ checksum "yarn.lock" }}
 
-      - run: cd ~/repo && NODE_ENV=development yarn
-      - run: cd ~/repo/build/module-builder/ && NODE_ENV=development yarn && yarn build
-      - run: cd ~/repo/modules/channel-web && NODE_ENV=development yarn && yarn build
-      - run: cd ~/repo/modules/nlu && NODE_ENV=development yarn && yarn build
-      - run: cd ~/repo/modules/hitl && NODE_ENV=development yarn && yarn build
+      - run:
+          name: Install botpress dependencies
+          command: cd ~/repo && NODE_ENV=development yarn
+      - run:
+          name: Install module builder dependencies and build
+          command: cd ~/repo/build/module-builder/ && NODE_ENV=development yarn && yarn build
+      - run:
+          name: Install channel-web dependencies and build
+          command: cd ~/repo/modules/channel-web && NODE_ENV=development yarn && yarn build
+      - run:
+          name: Install nlu dependencies and build
+          command: cd ~/repo/modules/nlu && NODE_ENV=development yarn && yarn build
+      - run:
+          name: Install hitl dependencies and build
+          command: cd ~/repo/modules/hitl && NODE_ENV=development yarn && yarn build
 
       - save_cache:
           name: Save channel-web yarn package cache
@@ -69,11 +79,11 @@ jobs:
             - ~/repo
 
       - run:
-          name: Test that it builds
+          name: Build botpress
           command: cd ~/repo && NODE_ENV=development yarn build
 
       - run:
-          name: Run all tests
+          name: Run tests
           command: yarn test
           environment:
             PG_USER: botpress
