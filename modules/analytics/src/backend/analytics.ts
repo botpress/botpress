@@ -34,9 +34,9 @@ export default class Analytics {
     this.bp = bp
     this.knex = bp['database']
     this.stats = new Stats(this.knex)
-    this.chartsDatafile = path.join(bp.projectLocation, bp.botfile.dataDir, 'botpress-analytics.charts.json')
+    // this.chartsDatafile = path.join(bp.projectLocation, bp.botfile.dataDir, 'botpress-analytics.charts.json')
 
-    createEmptyFileIfDoesntExist(this.chartsDatafile)
+    // createEmptyFileIfDoesntExist(this.chartsDatafile)
 
     const running = false
     setInterval(() => {
@@ -75,7 +75,7 @@ export default class Analytics {
       return
     }
     this.running = true
-    this.bp.logger.debug('botpress-analytics: recompiling analytics')
+    this.bp.logger.debug('analytics: recompiling analytics')
     this.stats
       .getTotalUsers()
       .then(data => this.savePartialData('totalUsers', data))

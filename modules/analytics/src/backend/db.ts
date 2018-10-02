@@ -9,8 +9,7 @@ export default class AnalyticsDb {
     this.knex = bp.database
   }
 
-  initializeDb = (bp: SDK) => {
-    console.log('init')
+  initializeDb = () => {
     if (!this.knex) {
       throw new Error('you must initialize the database before')
     }

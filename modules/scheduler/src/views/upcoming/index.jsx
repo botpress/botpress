@@ -21,7 +21,7 @@ export default class Upcoming extends React.Component {
       [style.soon]: isSoon
     })
 
-    const modifyUrl = '/api/botpress-scheduler/schedules'
+    const modifyUrl = '/api/ext/scheduler/schedules'
 
     const toggleEnabled = () => {
       axios.post(modifyUrl, Object.assign({}, task, { enabled: !task.enabled }))

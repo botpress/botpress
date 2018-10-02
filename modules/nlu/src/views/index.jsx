@@ -33,7 +33,7 @@ export default class Module extends React.Component {
   }
 
   checkSync = () => {
-    return this.props.bp.axios.get('/api/botpress-nlu/sync/check').then(res => {
+    return this.props.bp.axios.get('/api/ext/nlu/sync/check').then(res => {
       if (this.state.syncNeeded !== res.data) {
         this.setState({ syncNeeded: res.data })
       }
@@ -45,7 +45,7 @@ export default class Module extends React.Component {
   }
 
   fetchIntents = () => {
-    return this.props.bp.axios.get('/api/botpress-nlu/intents').then(res => {
+    return this.props.bp.axios.get('/api/ext/nlu/intents').then(res => {
       const dataToSet = { intents: res.data }
 
       if (!this.state.currentIntent) {
@@ -93,7 +93,7 @@ export default class Module extends React.Component {
     }
 
     return this.props.bp.axios
-      .post(`/api/botpress-nlu/intents/${name}`, {
+      .post(`/api/ext/nlu/intents/${name}`, {
         utterances: [],
         entities: []
       })
@@ -137,7 +137,9 @@ export default class Module extends React.Component {
           <ul className={style.intentsList}>
             {intents.map((el, i) => (
               <li key={i} className={getClassName(el)} onClick={() => this.setCurrentIntent(el.name)}>
-                {el.name}&nbsp;({_.get(el, 'utterances.length') || 0})
+                {el.name}
+                &nbsp;(
+                {_.get(el, 'utterances.length') || 0})
               </li>
             ))}
           </ul>

@@ -2,8 +2,12 @@ import _ from 'lodash'
 
 import { SDK } from '.'
 import Database from './db'
+import AnalyticsDb from './db'
 
-export default async (bp: SDK, db: Database, interactionsToTrack: any) => {
+export default async (bp: SDK, interactionsToTrack: any) => {
+  const db: Database = new AnalyticsDb(bp)
+  await db.initializeDb()
+
   bp.events.registerMiddleware({
     name: 'analytics.incoming',
     direction: 'incoming',

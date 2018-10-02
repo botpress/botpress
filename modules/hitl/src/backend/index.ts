@@ -1,3 +1,4 @@
+import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
 import fs from 'fs'
 import _ from 'lodash'
@@ -22,28 +23,26 @@ export type Extension = {
 
 export type SDK = typeof sdk & Extension
 
-export const config = {
-  sessionExpiry: { type: 'string', default: '3 days' },
-  paused: { type: 'bool', default: false, env: 'BOTPRESS_HITL_PAUSED' }
+const config: sdk.ModuleConfig = {
+  sessionExpiry: { type: 'string', required: false, default: '3 days' },
+  paused: { type: 'bool', required: false, default: false, env: 'BOTPRESS_HITL_PAUSED' }
 }
 
-export const onInit = async (bp: SDK) => {
+const onInit = async (bp: SDK) => {
   db = new HitlDb(bp)
   await db.initialize()
   await mware(bp, db, config)
 }
 
-export const onReady = async (bp: SDK) => {
+const onReady = async (bp: SDK) => {
   await api(bp, db)
 }
 
-export const serveFile = async (filePath: string): Promise<Buffer> => {
+const serveFile = async (filePath: string): Promise<Buffer> => {
   filePath = filePath.toLowerCase()
 
   const mapping = {
-    'index.js': path.join(__dirname, '../web/web.bundle.js'),
-    // 'embedded.js': path.join(__dirname, '../web/embedded.bundle.js'),
-    'fullscreen.js': path.join(__dirname, '../web/fullscreen.bundle.js')
+    'index.js': path.join(__dirname, '../web/web.bundle.js')
   }
 
   // Web views
@@ -53,3 +52,21 @@ export const serveFile = async (filePath: string): Promise<Buffer> => {
 
   return new Buffer('')
 }
+
+const entryPoint: sdk.ModuleEntryPoint = {
+  onInit,
+  onReady,
+  config,
+  serveFile,
+  definition: {
+    name: 'hitl',
+    menuIcon: 'feedback',
+    fullName: 'HITL',
+    homepage: 'https://botpress.io',
+    noInterface: false,
+    plugins: [],
+    moduleView: { stretched: true }
+  }
+}
+
+export default entryPoint

@@ -15,7 +15,7 @@ export default async (bp: SDK, db: Database) => {
       db.delete(id).then(() => bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('scheduler.update', undefined)))
   }
 
-  const router = bp.http.createRouterForBot('botpress-scheduler')
+  const router = bp.http.createRouterForBot('scheduler')
 
   const catchError = res => err => {
     const message = typeof err === 'string' ? err : err.message

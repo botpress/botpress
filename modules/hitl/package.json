@@ -5,8 +5,6 @@
   "main": "dist/backend/index.js",
   "botpress": {
     "src": "src",
-    "menuText": "HITL",
-    "menuIcon": "feedback",
     "webBundle": "bin/web.bundle.js"
   },
   "keywords": [

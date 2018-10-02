@@ -1,7 +1,7 @@
 import { SDK } from '.'
 
 export default async (bp: SDK) => {
-  const router = bp.http.createRouterForBot('botpress-nlu')
+  const router = bp.http.createRouterForBot('nlu')
 
   router.delete('/intents/:intent', async (req, res) => {
     await bp.nlu.forBot(req.params.botId).storage.deleteIntent(req.params.intent)

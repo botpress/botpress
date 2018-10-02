@@ -79,14 +79,14 @@ export default class IntentsEditor extends React.Component {
       return
     }
 
-    this.props.axios.delete(`/api/botpress-nlu/intents/${this.props.intent.name}`).then(() => {
+    this.props.axios.delete(`/api/ext/nlu/intents/${this.props.intent.name}`).then(() => {
       this.props.reloadIntents && this.props.reloadIntents()
     })
   }
 
   saveIntent = () => {
     this.props.axios
-      .post(`/api/botpress-nlu/intents/${this.props.intent.name}`, {
+      .post(`/api/ext/nlu/intents/${this.props.intent.name}`, {
         utterances: this.getCanonicalUtterances(),
         entities: this.state.entities
       })
@@ -120,7 +120,7 @@ export default class IntentsEditor extends React.Component {
   isDirty = () => this.initialHash && this.computeHash() !== this.initialHash
 
   fetchEntities = () => {
-    return this.props.axios.get(`/api/botpress-nlu/entities`).then(res => res.data)
+    return this.props.axios.get(`/api/ext/nlu/entities`).then(res => res.data)
   }
 
   focusFirstUtterance = () => {
@@ -241,7 +241,8 @@ export default class IntentsEditor extends React.Component {
         <div className={style.header}>
           <div className="pull-left">
             <h1>
-              intents/<span className={style.intent}>{name}</span>
+              intents/
+              <span className={style.intent}>{name}</span>
               {dirtyLabel}
             </h1>
           </div>

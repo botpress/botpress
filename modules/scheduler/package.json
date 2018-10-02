@@ -2,10 +2,8 @@
   "name": "@botpress/scheduler",
   "version": "10.43.0",
   "description": "Schedule one-off and recurring tasks",
-  "main": "bin/node.bundle.js",
+  "main": "dist/backend/index.js",
   "botpress": {
-    "menuText": "Scheduler",
-    "menuIcon": "alarm_on",
     "webBundle": "bin/web.bundle.js"
   },
   "keywords": [
@@ -19,16 +17,8 @@
     "build": "./node_modules/.bin/module-builder build",
     "watch": "./node_modules/.bin/module-builder watch"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/botpress/modules"
-  },
-  "homepage": "https://github.com/botpress/modules",
   "author": "Botpress Team",
   "license": "AGPL-3.0-only",
-  "peerDependencies": {
-    "botpress": ">= 10.0.0"
-  },
   "devDependencies": {
     "@types/node": "^10.11.3",
     "chai": "^3.5.0",
@@ -39,7 +29,8 @@
     "riek": "^1.1.0"
   },
   "dependencies": {
-    "bluebird": "^3.4.6",
+    "bluebird": "^3.5.1",
+    "bluebird-global": "^1.0.1",
     "cronstrue": "^0.8.0",
     "later": "RickCarlino/later",
     "lodash": "^4.17.2",

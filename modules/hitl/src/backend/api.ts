@@ -24,7 +24,7 @@ export default async (bp: SDK, db: Database) => {
     }
   }
 
-  const router = bp.http.createRouterForBot('botpress-hitl')
+  const router = bp.http.createRouterForBot('hitl')
 
   router.get('/sessions', (req, res) => {
     db.getAllSessions(req.query.onlyPaused === 'true').then(sessions => res.send(sessions))

@@ -5,8 +5,6 @@
   "main": "dist/backend/index.js",
   "botpress": {
     "src": "src",
-    "menuText": "NLU",
-    "menuIcon": "fiber_smart_record",
     "webBundle": "bin/web.bundle.js",
     "moduleView": {
       "stretched": true
