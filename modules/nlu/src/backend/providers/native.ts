@@ -19,7 +19,6 @@ export default class NativeProvider extends Provider {
   private classifier: any
   private project: any
   private customStemmer: any
-  private nativeAdjustementThreshold: number
 
   constructor(config) {
     super({ ...config, name: 'native', entityKey: '@native' })
@@ -143,10 +142,13 @@ export default class NativeProvider extends Provider {
       }
     }
 
-    const threshold = parseFloat(String(this.nativeAdjustementThreshold) || String(DEFAULT_THRESHOLD))
+    const threshold = parseFloat(String(this.config.nativeAdjustementThreshold) || String(DEFAULT_THRESHOLD))
 
-    const classifications = _.orderBy(this.classifier.getClassifications(incomingEvent.text), ['value'], ['desc'])
-
+    const classifications = _.orderBy(
+      this.classifier.getClassifications(incomingEvent.payload.text),
+      ['value'],
+      ['desc']
+    )
     let allScores = zscore(classifications.map(c => parseFloat(c.value)))
 
     allScores = allScores.map((s, i) => {

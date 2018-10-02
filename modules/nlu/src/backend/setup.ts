@@ -53,7 +53,7 @@ export default async (bp: SDK) => {
 
     try {
       if (botCtx.config.debugModeEnabled) {
-        bp.logger.info('[NLU Extraction] ' + event.text, event.raw)
+        bp.logger.info('[NLU Extraction] ' + event.preview, event.payload)
       }
 
       const metadata = await retry(() => botCtx.provider.extract(event), botCtx.retryPolicy)
