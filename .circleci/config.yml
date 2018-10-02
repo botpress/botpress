@@ -39,11 +39,10 @@ jobs:
             - bp-{{ checksum "/yarn.lock" }}
 
       - run: cd ~/repo && NODE_ENV=development yarn
-      - run: NODE_ENV=development yarn build
-      - run: cd ~/repo/build/module-builder/ && NODE_ENV=development yarn build
-      - run: cd ~/repo/modules/channel-web && NODE_ENV=development yarn build
-      - run: cd ~/repo/modules/nlu && NODE_ENV=development yarn build
-      - run: cd ~/repo/modules/hitl && NODE_ENV=development yarn build
+      - run: cd ~/repo/build/module-builder/ && NODE_ENV=development yarn && yarn build
+      - run: cd ~/repo/modules/channel-web && NODE_ENV=development yarn && yarn build
+      - run: cd ~/repo/modules/nlu && NODE_ENV=development yarn && yarn build
+      - run: cd ~/repo/modules/hitl && NODE_ENV=development yarn && yarn build
 
       - save_cache:
           name: Save channel-web yarn package cache
