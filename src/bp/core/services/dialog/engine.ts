@@ -43,6 +43,7 @@ export class DialogEngine {
    * @param event The incoming botpress event
    */
   async processEvent(botId: string, sessionId: string, event: IO.Event) {
+    console.log(event)
     const session = await this.getOrCreateSession(botId, sessionId, event)
     const flows = await this.flowService.loadAll(botId)
     await this.processSession(botId, session, flows)

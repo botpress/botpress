@@ -2,11 +2,12 @@ import { IO } from 'botpress/sdk'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 import Mustache from 'mustache'
+import { NodeVM } from 'vm2'
 
 import { container } from '../../../app.inversify'
 import { TYPES } from '../../../types'
 import ActionService from '../../action/action-service'
-import { runCode } from '../../action/sandbox-launcher'
+import { VmRunner } from '../../action/vm'
 import { ContentElementSender } from '../../cms/content-sender'
 
 import { Instruction, InstructionType, ProcessingResult } from '.'
@@ -106,14 +107,25 @@ export class ActionStrategy implements InstructionStrategy {
 @injectable()
 export class TransitionStrategy implements InstructionStrategy {
   async processInstruction(botId, instruction, state, event, context): Promise<ProcessingResult> {
-    const code = `return ${instruction.fn}`
-    const result = await runCode(code, { state, event })
+    const result = await this.runCode(instruction, { state, event })
     console.log('TRANSITION RESULT', result)
+
     if (result) {
       return ProcessingResult.transition(instruction.node)
     } else {
       return ProcessingResult.none()
     }
+  }
+
+  private async runCode(instruction, sandbox): Promise<any> {
+    const vm = new NodeVM({
+      wrapper: 'none',
+      sandbox: sandbox,
+      timeout: 5000
+    })
+    const runner = new VmRunner()
+    const code = `return ${instruction.fn}`
+    return runner.runInVm(vm, code, `Transition (${instruction.fn})`)
   }
 }
 

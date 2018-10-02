@@ -7,6 +7,7 @@ import { createForAction } from '../../api'
 import { TYPES } from '../../types'
 
 import { ActionMetadata, extractMetadata } from './metadata'
+import { VmRunner } from './vm'
 
 @injectable()
 export default class ActionService {
@@ -102,24 +103,8 @@ export class ScopedActionService {
       },
       timeout: 5000
     })
-
-    const script = new VMScript(code)
-
-    return new Promise((resolve, reject) => {
-      try {
-        const retValue = vm.run(script)
-
-        // Check if code returned a Promise-like object
-        if (retValue && typeof retValue.then === 'function') {
-          retValue.then(resolve, reject)
-        } else {
-          const error = new Error(`State is not returned in action "${actionName}"`)
-          reject(error)
-        }
-      } catch (err) {
-        reject(err)
-      }
-    })
+    const runner = new VmRunner()
+    runner.runInVm(vm, code, actionName)
   }
 
   private async findActionScript(actionName: string): Promise<string> {
