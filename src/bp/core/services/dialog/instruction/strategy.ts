@@ -1,5 +1,5 @@
-import { IO } from 'botpress/sdk'
-import { inject, injectable } from 'inversify'
+import { IO, Logger } from 'botpress/sdk'
+import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import Mustache from 'mustache'
 import { NodeVM } from 'vm2'
@@ -95,7 +95,6 @@ export class ActionStrategy implements InstructionStrategy {
     }
 
     const result = await this.actionService.forBot(botId).runAction(actionName, state, event, args)
-    console.log('ACTION RESULT', result)
     return ProcessingResult.updateState(result)
   }
 
@@ -106,8 +105,14 @@ export class ActionStrategy implements InstructionStrategy {
 
 @injectable()
 export class TransitionStrategy implements InstructionStrategy {
+  constructor(
+    @inject(TYPES.Logger)
+    @tagged('name', 'Transition')
+    private logger: Logger
+  ) {}
+
   async processInstruction(botId, instruction, state, event, context): Promise<ProcessingResult> {
-    const conditionSuccessful = await this.runConditionCode(instruction, { state, event })
+    const conditionSuccessful = await this.runCode(instruction, { state, event })
 
     if (conditionSuccessful) {
       return ProcessingResult.transition(instruction.node)
@@ -116,7 +121,7 @@ export class TransitionStrategy implements InstructionStrategy {
     }
   }
 
-  private async runConditionCode(instruction, sandbox): Promise<any> {
+  private async runCode(instruction, sandbox): Promise<any> {
     const vm = new NodeVM({
       wrapper: 'none',
       sandbox: sandbox,
@@ -125,16 +130,17 @@ export class TransitionStrategy implements InstructionStrategy {
     const runner = new VmRunner()
     const code = `
     try {
-      console.log(state)
       return ${instruction.fn}
     } catch (err) {
       if (err instanceof TypeError) {
+        console.log(err)
         return false
       }
       throw err
     }
     `
-    return runner.runInVm(vm, code, `Transition (${instruction.fn})`)
+    this.logger.debug(`Running condition for transition "${instruction.fn}"`)
+    return await runner.runInVm(vm, code, `Transition (${instruction.fn})`)
   }
 }
 
