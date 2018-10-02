@@ -22,6 +22,7 @@ describe('Ghost Service', () => {
     dbDriver = createSpyObject<DBStorageDriver>()
     cache = createSpyObject<ObjectCache>()
     logger = createSpyObject<PersistedConsoleLogger>()
+    logger.attachError.mockReturnValue(logger)
     ghost = new GhostService(diskDriver.T, dbDriver.T, cache.T, logger.T)
   })
 
