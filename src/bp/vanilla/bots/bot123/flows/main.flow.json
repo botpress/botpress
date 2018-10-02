@@ -62,7 +62,12 @@
     {
       "id": "a8dd265d97",
       "name": "first-time",
-      "next": [],
+      "next": [
+        {
+          "condition": "true",
+          "node": "END"
+        }
+      ],
       "onEnter": [
         "say #!builtin_text-AY5SSW",
         "say #!builtin_text-X069Le"
@@ -72,7 +77,12 @@
     {
       "id": "55e5e14c60",
       "name": "many-times",
-      "next": [],
+      "next": [
+        {
+          "condition": "true",
+          "node": "END"
+        }
+      ],
       "onEnter": [
         "say #!builtin_text-bFsOmf"
       ],
