@@ -158,7 +158,7 @@ export default class HitlDb {
   toPlainObject(object) {
     // trims SQL queries from objects
     return _.mapValues(object, v => {
-      return v.sql ? v.sql : v
+      return v && v.sql ? v.sql : v
     })
   }
 

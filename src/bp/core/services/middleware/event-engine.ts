@@ -96,14 +96,16 @@ export class EventEngine {
 
     const botConfig = (await this.ghost.forBot(botId).readFileAsObject('/', 'bot.config.json')) as BotConfig
 
-    for (const mw of this.incomingMiddleware) {
-      if (botConfig.imports.incomingMiddleware.includes(mw.name)) {
+    for (const name of botConfig.imports.incomingMiddleware) {
+      const mw = this.incomingMiddleware.find(mw => mw.name === name)
+      if (mw) {
         incoming.use(mw.handler)
       }
     }
 
-    for (const mw of this.outgoingMiddleware) {
-      if (botConfig.imports.outgoingMiddleware.includes(mw.name)) {
+    for (const name of botConfig.imports.outgoingMiddleware) {
+      const mw = this.outgoingMiddleware.find(mw => mw.name === name)
+      if (mw) {
         outgoing.use(mw.handler)
       }
     }
