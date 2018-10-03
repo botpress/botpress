@@ -8,7 +8,7 @@ const _ = require('lodash')
 let analytics = null
 let db = null
 
-const interactionsToTrack = ['message', 'text', 'button', 'template', 'quick_reply', 'postback']
+const interactionsToTrack = ['message', 'text', 'button', 'template', 'quick_reply', 'postback', 'referral']
 
 const incomingMiddleware = (event, next) => {
   if (!_.includes(interactionsToTrack, event.type)) {

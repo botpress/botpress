@@ -65,7 +65,7 @@ function saveInteractionOut(event) {
   const interactionRow = {
     ts: helpers(knex).date.now(),
     type: event.type,
-    text: event.text,
+    text: event.text.substring(0, 20),
     user: userId,
     direction: 'out'
   }
