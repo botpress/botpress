@@ -74,7 +74,7 @@ export default class QnaAdmin extends Component {
   }
 
   fetchCategories() {
-    this.props.bp.axios.get('/api/botpress-qna/category/list').then(({ data: { categories } }) => {
+    this.props.bp.axios.get('/api/botpress-qna/categories').then(({ data: { categories } }) => {
       const categoriesOptions = categories.map(category => ({ label: category, value: category }))
 
       this.setState({ categoriesOptions })
@@ -97,7 +97,7 @@ export default class QnaAdmin extends Component {
     const categories = filterCategory.map(({ value }) => value)
 
     this.props.bp.axios
-      .get('/api/botpress-qna/questions/filter', {
+      .get('/api/botpress-qna/', {
         params: {
           question,
           categories,
