@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.46.1"></a>
+## [10.46.1](https://github.com/botpress/modules/compare/v10.46.0...v10.46.1) (2018-10-03)
+
+
+### Bug Fixes
+
+* **qna:** close qna-form on submit ([#981](https://github.com/botpress/modules/issues/981)) ([d137e88](https://github.com/botpress/modules/commit/d137e88))
+* **qna:** fix validating QNA-items ([#979](https://github.com/botpress/modules/issues/979)) ([92b186f](https://github.com/botpress/modules/commit/92b186f))
+
+
+
+
 <a name="10.46.0"></a>
 # [10.46.0](https://github.com/botpress/modules/compare/v10.45.0...v10.46.0) (2018-10-03)
 
