@@ -109,7 +109,7 @@ export default class FormModal extends Component {
     }
 
     return this.props.bp.axios.post('/api/botpress-qna', this.state.item).then(() => {
-      this.onClose()
+      this.props.closeQnAModal()
       this.props.fetchData()
     })
   }
@@ -133,12 +133,10 @@ export default class FormModal extends Component {
         params: { ...page, question, categories: categories.map(({ value }) => value) }
       })
       .then(({ data }) => {
-        this.onClose()
+        this.props.closeQnAModal()
         this.props.updateQuestion(data)
       })
   }
-
-  onClose = () => this.setState(this.defaultState, this.props.closeQnAModal)
 
   alertMessage() {
     if (this.state.isValidForm) {
@@ -163,7 +161,11 @@ export default class FormModal extends Component {
     const isEdit = modalType === 'edit'
 
     return (
-      <Modal className={classnames(style.newQnaModal, 'newQnaModal')} show={showQnAModal} onHide={this.onClose}>
+      <Modal
+        className={classnames(style.newQnaModal, 'newQnaModal')}
+        show={showQnAModal}
+        onHide={this.props.closeQnAModal}
+      >
         <form onSubmit={!isEdit ? this.onCreate : this.onEdit}>
           <Modal.Header className={style.qnaModalHeader}>
             <Modal.Title>{!isEdit ? 'Create a new' : 'Edit'} Q&A</Modal.Title>
@@ -253,7 +255,7 @@ export default class FormModal extends Component {
           </Modal.Body>
 
           <Modal.Footer className={style.qnaModalFooter}>
-            <Button className={style.qnaModalFooterCancelBtn} onClick={this.onClose}>
+            <Button className={style.qnaModalFooterCancelBtn} onClick={this.props.closeQnAModal}>
               Cancel
             </Button>
             <Button className={style.qnaModalFooterSaveBtn} type="submit">

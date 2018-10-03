@@ -400,7 +400,7 @@ export default class QnaAdmin extends Component {
     )
   }
 
-  closeQnAModal = () => this.setState({ showQnAModal: false })
+  closeQnAModal = () => this.setState({ showQnAModal: false, currentItemId: null })
 
   questionsList = () => this.state.items.map(this.renderItem)
 
@@ -408,7 +408,7 @@ export default class QnaAdmin extends Component {
 
   render() {
     return (
-      <Panel className={`${style.qnaContainer} qnaContainer`}>
+      <Panel className={classnames(style.qnaContainer, 'qnaContainer')}>
         <a
           ref={this.csvDownloadableLink}
           href={this.state.csvDownloadableLinkHref}
