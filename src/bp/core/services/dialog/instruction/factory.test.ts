@@ -77,4 +77,11 @@ describe('Instruction Factory', () => {
       expect(value).toEqual([])
     })
   })
+
+  describe('Create wait', () => {
+    it('Returns a wait instruction', () => {
+      const value = InstructionFactory.createWait()
+      expect(value).toEqual({ type: 'wait' })
+    })
+  })
 })
