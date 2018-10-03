@@ -171,7 +171,11 @@ module.exports = {
       const filteredQuestions = allQuestions.filter(({ questions, metadata }) => {
         const category = getFieldFromMetadata(metadata, 'category')
 
-        const isRightId = questions.join('\n').indexOf(question) !== -1
+        const isRightId =
+          questions
+            .join('\n')
+            .toLowerCase()
+            .indexOf(question.toLowerCase()) !== -1
 
         if (!categories.length) {
           return isRightId
@@ -208,15 +212,10 @@ module.exports = {
       return { items, count }
     }
 
-    router.get('/', async ({ query: { limit, offset } }, res) => {
+    router.get('/', async ({ query: { question = '', categories = [], limit, offset } }, res) => {
       try {
-        const items = await this.storage.all({
-          limit: limit ? parseInt(limit) : undefined,
-          offset: offset ? parseInt(offset) : undefined
-        })
-
-        const overallItemsCount = await this.storage.count()
-        res.send({ items, overallItemsCount, hasCategory: !!this.isMicrosoftMakerUsed })
+        const items = await getQuestions({ question, categories }, { limit, offset })
+        res.send({ ...items, hasCategory: !!this.isMicrosoftMakerUsed })
       } catch (e) {
         logger.error('QnA Error', e, e.stack)
         res.status(500).send(e.message || 'Error')
@@ -328,15 +327,8 @@ module.exports = {
       res.end(csvUploadStatuses[req.params.csvUploadStatusId])
     })
 
-    router.get('/category/list', (req, res) => {
+    router.get('/categories', (req, res) => {
       res.send({ categories })
-    })
-
-    router.get('/questions/filter', async (req, res) => {
-      const { query: { question = '', categories = [], limit, offset } } = req
-      const questionsData = await getQuestions({ question, categories }, { limit, offset })
-
-      res.send(questionsData)
     })
   }
 }
