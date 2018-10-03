@@ -4,36 +4,36 @@ import { Instruction } from '.'
 import { InstructionFactory } from './factory'
 
 export class InstructionQueue {
-  private instructions: Instruction[] = []
+  protected _instructions: Instruction[] = []
 
   constructor(instructions?: string) {
     if (instructions) {
-      this.instructions = JSON.parse(instructions)
+      this._instructions = JSON.parse(instructions)
     }
   }
 
   clear() {
-    this.instructions = []
+    this._instructions = []
   }
 
   enqueue(...instruction: Instruction[]) {
-    this.instructions.push(...instruction)
+    this._instructions.push(...instruction)
   }
 
   dequeue(): Instruction | undefined {
-    return this.instructions.shift()!
+    return this._instructions.shift()!
   }
 
   hasInstructions(): boolean {
-    return this.instructions.length > 0
+    return this._instructions.length > 0
   }
 
   wait() {
     const wait = InstructionFactory.createWait()
-    this.instructions.unshift(wait)
+    this._instructions.unshift(wait)
   }
 
   toString() {
-    return JSON.stringify(this.instructions)
+    return JSON.stringify(this._instructions)
   }
 }
