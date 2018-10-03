@@ -1,17 +1,7 @@
 import { InstructionQueue } from './queue'
 
-class InstructionQueueTest extends InstructionQueue {
-  constructor() {
-    super()
-  }
-
-  get instructions() {
-    return this._instructions
-  }
-}
-
 describe('Instruction Queue', () => {
-  const queue = new InstructionQueueTest()
+  const queue = new InstructionQueue()
 
   beforeEach(() => {
     queue.enqueue({ type: 'on-enter', fn: 'abc {}' }, { type: 'on-enter', fn: 'def {}' })
