@@ -95,7 +95,7 @@ module.exports = ({ sqlite, postgres, logger, botpressPath }) => {
       })
 
     if (postgres.enabled) {
-      query = `${query.toString()} on conflict (id) do nothing`
+      query = `${query.toString()} on conflict (id) do nothing`.replace('?', '\\?') // escape "?" symbols in strings
     } else {
       // SQLite
       query = query.toString().replace(/^insert/i, 'insert or ignore')
