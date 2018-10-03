@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.46.0"></a>
+# [10.46.0](https://github.com/botpress/modules/compare/v10.45.0...v10.46.0) (2018-10-03)
+
+
+### Bug Fixes
+
+* **qna:** fix qna-form not displaying item data ([#974](https://github.com/botpress/modules/issues/974)) ([ca8e2eb](https://github.com/botpress/modules/commit/ca8e2eb))
+
+
+
+
 <a name="10.45.0"></a>
 # [10.45.0](https://github.com/botpress/modules/compare/v10.44.2...v10.45.0) (2018-10-01)
 
