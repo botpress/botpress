@@ -19,24 +19,21 @@ jobs:
       - checkout
 
       - restore_cache:
-          name: Restore channel-web yarn package cache
+          name: Restore channel-web package cache
           keys:
-            - channel-web-{{ checksum "modules/channel-web/yarn.lock" }}
-
+            - channel-web-{{ checksum "modules/channel-web/package.json" }}
       - restore_cache:
-          name: Restore nlu yarn package cache
+          name: Restore nlu package cache
           keys:
-            - nlu-{{ checksum "modules/nlu/yarn.lock" }}
-
+            - nlu-{{ checksum "modules/nlu/package.json" }}
       - restore_cache:
           name: Restore hitl package cache
           keys:
-            - hitl-{{ checksum "modules/hitl/yarn.lock" }}
-
+            - hitl-{{ checksum "modules/hitl/package.json" }}
       - restore_cache:
           name: Restore botpress package cache
           keys:
-            - bp-{{ checksum "yarn.lock" }}
+            - bp-{{ checksum "package.json" }}
 
       - run:
           name: Install botpress dependencies
@@ -55,33 +52,29 @@ jobs:
           command: cd ~/repo/modules/hitl && NODE_ENV=development yarn && yarn build
 
       - save_cache:
-          name: Save channel-web yarn package cache
-          key: channel-web-{{ checksum "modules/channel-web/yarn.lock" }}
+          name: Save channel-web package cache
+          key: channel-web-{{ checksum "modules/channel-web/package.json" }}
           paths:
             - ~/repo/modules/channel-web/node_modules
-
       - save_cache:
-          name: Save nlu yarn package cache
-          key: nlu-{{ checksum "modules/nlu/yarn.lock" }}
+          name: Save nlu package cache
+          key: nlu-{{ checksum "modules/nlu/package.json" }}
           paths:
             - ~/repo/modules/nlu/node_modules
-
       - save_cache:
-          name: Save hitl yarn package cache
-          key: hitl-{{ checksum "modules/hitl/yarn.lock" }}
+          name: Save hitl package cache
+          key: hitl-{{ checksum "modules/hitl/package.json" }}
           paths:
             - ~/repo/modules/hitl/node_modules
-
       - save_cache:
-          name: Save botpress yarn package cache
-          key: bp-{{ checksum "yarn.lock"}}
+          name: Save botpress package cache
+          key: bp-{{ checksum "package.json"}}
           paths:
             - ~/repo
 
       - run:
           name: Build botpress
           command: cd ~/repo && NODE_ENV=development yarn build
-
       - run:
           name: Run tests
           command: yarn test
