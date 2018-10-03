@@ -99,6 +99,33 @@ export default class TemplateModule extends React.Component {
 
 That's it - wasn't too difficult, right?
 
+## Database
+
+Botpress can work with two databses (`DB`): sqlite OR Postgres.
+Main process with `DB` is located within [core module](https://github.com/botpress/botpress/tree/master/packages/core/botpress/src/database).
+But other modules may have their own `DB` logic.
+
+### DB migration
+
+If you need to create migration in your module, do the following:
+
+1) Create `migrations` directory in your modules root folder.
+
+2) Every file in `migrations` directory must be named like this: `[timastamp]__[migration__name].js`
+
+3) Your file must contain following structure:
+
+```javascript
+module.exports = {
+  up: knex => {},
+  down: knex => {}
+}
+```
+
+Modules migration runs every time when bot start works.
+
+**Note:** We implemented only `up()` migration. `down` can only run manually.
+
 ## Next steps
 
 Now you have created your shiny new module it falls into one of two catagories: bespoke or reuseable. 
