@@ -1,7 +1,13 @@
 import { InstructionQueue } from './queue'
 
+class InstructionQueueTest extends InstructionQueue {
+  get instructions() {
+    return this._instructions
+  }
+}
+
 describe('Instruction Queue', () => {
-  const queue = new InstructionQueue()
+  const queue = new InstructionQueueTest()
 
   beforeEach(() => {
     queue.enqueue({ type: 'on-enter', fn: 'abc {}' }, { type: 'on-enter', fn: 'def {}' })
@@ -13,7 +19,6 @@ describe('Instruction Queue', () => {
 
   describe('Has instructions', () => {
     it('Returns true when not empty', () => {
-      const yo = queue.yo
       expect(queue.hasInstructions()).toBeTruthy()
     })
   })

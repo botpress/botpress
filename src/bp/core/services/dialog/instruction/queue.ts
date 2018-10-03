@@ -4,20 +4,12 @@ import { Instruction } from '.'
 import { InstructionFactory } from './factory'
 
 export class InstructionQueue {
-  private _instructions: Instruction[] = []
+  protected _instructions: Instruction[] = []
 
   constructor(instructions?: string) {
     if (instructions) {
       this._instructions = JSON.parse(instructions)
     }
-  }
-
-  get yo() {
-    return 'yo'
-  }
-
-  get instructions() {
-    return this._instructions
   }
 
   clear() {
