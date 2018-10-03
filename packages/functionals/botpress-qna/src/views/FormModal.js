@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { FormControl, Button, Modal, Alert } from 'react-bootstrap'
 import classnames from 'classnames'
+import some from 'lodash/some'
 
 import Select from 'react-select'
 import style from './style.scss'
@@ -73,12 +74,9 @@ export default class FormModal extends Component {
   }
 
   validateForm() {
-    const { hasCategory, categories } = this.props
     const { item, isText, isRedirect } = this.state
-    const categoryWrapper = hasCategory ? { category: categories.length && item.category } : {}
     const invalidFields = {
-      ...categoryWrapper,
-      questions: !item.questions.length,
+      questions: !item.questions.length || !item.questions[0].length,
       answer: !(this.state.isText && this.state.item.answer),
       checkbox: !(isText || isRedirect),
       redirectFlow: this.state.isRedirect && !this.state.item.redirectFlow,
@@ -86,14 +84,7 @@ export default class FormModal extends Component {
     }
 
     this.setState({ invalidFields })
-
-    for (const field in invalidFields) {
-      if (invalidFields[field]) {
-        return true
-      }
-    }
-
-    return false
+    return some(invalidFields)
   }
 
   onCreate = event => {
