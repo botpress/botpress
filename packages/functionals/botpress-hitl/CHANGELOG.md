@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.46.2"></a>
+## [10.46.2](https://github.com/botpress/modules/compare/v10.46.1...v10.46.2) (2018-10-03)
+
+
+### Bug Fixes
+
+* **hitl:** hitl bug with outgoing message to slack (resolve [#924](https://github.com/botpress/modules/issues/924)) ([#978](https://github.com/botpress/modules/issues/978)) ([e8dbe80](https://github.com/botpress/modules/commit/e8dbe80))
+
+
+
+
 <a name="10.46.1"></a>
 ## [10.46.1](https://github.com/botpress/modules/compare/v10.46.0...v10.46.1) (2018-10-03)
 
