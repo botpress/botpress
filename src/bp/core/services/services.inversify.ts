@@ -1,3 +1,4 @@
+import { DialogContainerModule } from 'core/services/dialog/dialog.inversify'
 import { ContainerModule, interfaces } from 'inversify'
 
 import { TYPES } from '../types'
@@ -7,19 +8,7 @@ import AuthService from './auth/auth-service'
 import TeamsService from './auth/teams-service'
 import { CMSService } from './cms/cms-service'
 import { ContentElementSender } from './cms/content-sender'
-import { DialogEngine } from './dialog/engine'
-import { FlowNavigator } from './dialog/flow/navigator'
-import FlowService from './dialog/flow/service'
-import { InstructionFactory } from './dialog/instruction/factory'
-import { InstructionProcessor } from './dialog/instruction/processor'
-import { ActionStrategy, StrategyFactory, TransitionStrategy, WaitStrategy } from './dialog/instruction/strategy'
-import { DialogJanitor } from './dialog/janitor'
-import { SessionService } from './dialog/session/service'
-import { CacheInvalidators, ObjectCache, StorageDriver } from './ghost'
-import DBStorageDriver from './ghost/db-driver'
-import DiskStorageDriver from './ghost/disk-driver'
-import MemoryObjectCache from './ghost/memory-cache'
-import { GhostService } from './ghost/service'
+import { GhostContainerModule } from './ghost/ghost.inversify'
 import { HookService } from './hook/hook-service'
 import { KeyValueStore } from './kvs/kvs'
 import { LogsJanitor } from './logs/janitor'
@@ -31,31 +20,7 @@ import { Queue } from './queue'
 import MemoryQueue from './queue/memory-queue'
 import RealtimeService from './realtime'
 
-export const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
-  bind<CacheInvalidators.FileChangedInvalidator>(TYPES.FileCacheInvalidator)
-    .to(CacheInvalidators.FileChangedInvalidator)
-    .inSingletonScope()
-
-  bind<ObjectCache>(TYPES.ObjectCache)
-    .to(MemoryObjectCache)
-    .inSingletonScope()
-
-  bind<DiskStorageDriver>(TYPES.DiskStorageDriver)
-    .to(DiskStorageDriver)
-    .inSingletonScope()
-
-  bind<DBStorageDriver>(TYPES.DBStorageDriver)
-    .to(DBStorageDriver)
-    .inSingletonScope()
-
-  bind<GhostService>(TYPES.GhostService)
-    .to(GhostService)
-    .inSingletonScope()
-
-  bind<FlowService>(TYPES.FlowService)
-    .to(FlowService)
-    .inSingletonScope()
-
+const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
   bind<CMSService>(TYPES.CMSService)
     .to(CMSService)
     .inSingletonScope()
@@ -84,14 +49,6 @@ export const ServicesContainerModule = new ContainerModule((bind: interfaces.Bin
     .to(EventEngine)
     .inSingletonScope()
 
-  bind<DialogEngine>(TYPES.DialogEngine)
-    .to(DialogEngine)
-    .inSingletonScope()
-
-  bind<SessionService>(TYPES.SessionService)
-    .to(SessionService)
-    .inSingletonScope()
-
   bind<RealtimeService>(TYPES.RealtimeService)
     .to(RealtimeService)
     .inSingletonScope()
@@ -102,38 +59,6 @@ export const ServicesContainerModule = new ContainerModule((bind: interfaces.Bin
 
   bind<TeamsService>(TYPES.TeamsService)
     .to(TeamsService)
-    .inSingletonScope()
-
-  bind<InstructionProcessor>(TYPES.InstructionProcessor)
-    .to(InstructionProcessor)
-    .inSingletonScope()
-
-  bind<InstructionFactory>(TYPES.InstructionFactory)
-    .to(InstructionFactory)
-    .inSingletonScope()
-
-  bind<FlowNavigator>(TYPES.FlowNavigator)
-    .to(FlowNavigator)
-    .inSingletonScope()
-
-  bind<StrategyFactory>(TYPES.StrategyFactory)
-    .to(StrategyFactory)
-    .inSingletonScope()
-
-  bind<ActionStrategy>(TYPES.ActionStrategy)
-    .to(ActionStrategy)
-    .inRequestScope()
-
-  bind<TransitionStrategy>(TYPES.TransitionStrategy)
-    .to(TransitionStrategy)
-    .inRequestScope()
-
-  bind<WaitStrategy>(TYPES.WaitStrategy)
-    .to(WaitStrategy)
-    .inRequestScope()
-
-  bind<DialogJanitor>(TYPES.DialogJanitorRunner)
-    .to(DialogJanitor)
     .inSingletonScope()
 
   bind<LogsJanitor>(TYPES.LogJanitorRunner)
@@ -156,3 +81,5 @@ export const ServicesContainerModule = new ContainerModule((bind: interfaces.Bin
     .to(ContentElementSender)
     .inSingletonScope()
 })
+
+export const ServicesContainerModules = [ServicesContainerModule, DialogContainerModule, GhostContainerModule]
