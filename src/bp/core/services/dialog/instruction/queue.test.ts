@@ -13,6 +13,7 @@ describe('Instruction Queue', () => {
 
   describe('Has instructions', () => {
     it('Returns true when not empty', () => {
+      const yo = queue.yo
       expect(queue.hasInstructions()).toBeTruthy()
     })
   })

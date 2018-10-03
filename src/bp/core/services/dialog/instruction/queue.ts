@@ -12,6 +12,10 @@ export class InstructionQueue {
     }
   }
 
+  get yo() {
+    return 'yo'
+  }
+
   get instructions() {
     return this._instructions
   }
