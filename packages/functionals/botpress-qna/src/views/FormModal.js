@@ -99,8 +99,8 @@ export default class FormModal extends Component {
       this.setState({ isValidForm: true })
     }
 
+    this.props.closeQnAModal()
     return this.props.bp.axios.post('/api/botpress-qna', this.state.item).then(() => {
-      this.props.closeQnAModal()
       this.props.fetchData()
     })
   }
@@ -119,12 +119,12 @@ export default class FormModal extends Component {
 
     const { page, filters: { question, categories } } = this.props
 
+    this.props.closeQnAModal()
     return this.props.bp.axios
       .put(`/api/botpress-qna/${this.props.id}`, this.state.item, {
         params: { ...page, question, categories: categories.map(({ value }) => value) }
       })
       .then(({ data }) => {
-        this.props.closeQnAModal()
         this.props.updateQuestion(data)
       })
   }
