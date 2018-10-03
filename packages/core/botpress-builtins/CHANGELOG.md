@@ -3,6 +3,38 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.46.2"></a>
+## [10.46.2](https://github.com/botpress/botpress/compare/v10.46.1...v10.46.2) (2018-10-03)
+
+
+
+
+**Note:** Version bump only for package @botpress/builtins
+
+<a name="10.46.1"></a>
+## [10.46.1](https://github.com/botpress/botpress/compare/v10.46.0...v10.46.1) (2018-10-03)
+
+
+
+
+**Note:** Version bump only for package @botpress/builtins
+
+<a name="10.46.0"></a>
+# [10.46.0](https://github.com/botpress/botpress/compare/v10.45.0...v10.46.0) (2018-10-03)
+
+
+
+
+**Note:** Version bump only for package @botpress/builtins
+
+<a name="10.45.0"></a>
+# [10.45.0](https://github.com/botpress/botpress/compare/v10.44.2...v10.45.0) (2018-10-01)
+
+
+
+
+**Note:** Version bump only for package @botpress/builtins
+
 <a name="10.44.2"></a>
 ## [10.44.2](https://github.com/botpress/botpress/compare/v10.44.1...v10.44.2) (2018-09-28)
 

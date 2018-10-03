@@ -9,44 +9,6 @@ function initialize() {
     throw new Error('you must initialize the database before')
   }
 
-  const table = 'hitl_messages'
-  const alertSQLTextString = async () =>
-    helpers(knex) // sqlite doesn't support "alterColumn" https://www.sqlite.org/omitted.html
-      .createTableIfNotExists('tmp_hitl_messages', function(table) {
-        table.increments('id').primary()
-        table
-          .integer('session_id')
-          .references('hitl_sessions.id')
-          .onDelete('CASCADE')
-        table.string('type')
-        table.string('text', 640)
-        table.jsonb('raw_message')
-        table.enu('direction', ['in', 'out'])
-        table.timestamp('ts')
-      })
-      .then(async () => {
-        await knex.raw('INSERT INTO tmp_hitl_messages SELECT * FROM hitl_messages')
-        await knex.schema.dropTable(table)
-        await knex.raw('ALTER TABLE tmp_hitl_messages RENAME TO hitl_messages')
-      })
-
-  const migrateTable = () =>
-    knex(table)
-      .columnInfo('text')
-      .then(async info => {
-        const isPostgress = process.env.DATABASE === 'postgres'
-
-        if (info.maxLength !== '640') {
-          if (isPostgress) {
-            return knex.schema.alterTable(table, t => {
-              t.string('text', 640).alter()
-            })
-          } else {
-            return alertSQLTextString()
-          }
-        }
-      })
-
   return helpers(knex)
     .createTableIfNotExists('hitl_sessions', table => {
       table.increments('id').primary()
@@ -83,10 +45,10 @@ function initialize() {
         table.timestamp('ts')
       })
     )
-    .then(migrateTable)
 }
 
 function createUserSession(event) {
+  let raw = {}
   let profileUrl = null
   let full_name =
     '#' +
@@ -99,6 +61,13 @@ function createUserSession(event) {
     full_name = event.user.first_name + ' ' + event.user.last_name
   }
 
+  if (event.platform === 'slack') {
+    raw = {
+      channelId: event.channel.id,
+      options: {}
+    }
+  }
+
   const session = {
     platform: event.platform,
     userId: event.user.id,
@@ -107,7 +76,8 @@ function createUserSession(event) {
     last_heard_on: helpers(knex).date.now(),
     paused: 0,
     full_name: full_name,
-    paused_trigger: null
+    paused_trigger: null,
+    raw: JSON.stringify(raw)
   }
 
   return knex('hitl_sessions')
@@ -137,6 +107,8 @@ async function getUserSession(event) {
       if (!users || users.length === 0) {
         return createUserSession(event)
       } else {
+        users[0].raw = typeof users[0].raw === 'string' ? JSON.parse(users[0].raw) : null
+
         return users[0]
       }
     })
@@ -151,6 +123,8 @@ function getSession(sessionId) {
       if (!users || users.length === 0) {
         return null
       } else {
+        users[0].raw = typeof users[0].raw === 'string' ? JSON.parse(users[0].raw) : null
+
         return users[0]
       }
     })

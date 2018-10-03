@@ -373,6 +373,9 @@ class botpress {
 
     const loadedModules = await modules._load(moduleDefinitions, this)
 
+    const dbModulesMigration = await this.db.migration(db, moduleDefinitions)
+    await dbModulesMigration.up()
+
     this.stats.track('bot', 'modules', 'loaded', loadedModules.length)
 
     _.assign(this, {

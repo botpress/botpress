@@ -3,6 +3,51 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.46.2"></a>
+## [10.46.2](https://github.com/botpress/modules/compare/v10.46.1...v10.46.2) (2018-10-03)
+
+
+### Bug Fixes
+
+* **qna:** questions-filter is case-insensitive ([#980](https://github.com/botpress/modules/issues/980)) ([03fa755](https://github.com/botpress/modules/commit/03fa755))
+
+
+
+
+<a name="10.46.1"></a>
+## [10.46.1](https://github.com/botpress/modules/compare/v10.46.0...v10.46.1) (2018-10-03)
+
+
+### Bug Fixes
+
+* **qna:** close qna-form on submit ([#981](https://github.com/botpress/modules/issues/981)) ([d137e88](https://github.com/botpress/modules/commit/d137e88))
+* **qna:** fix validating QNA-items ([#979](https://github.com/botpress/modules/issues/979)) ([92b186f](https://github.com/botpress/modules/commit/92b186f))
+
+
+
+
+<a name="10.46.0"></a>
+# [10.46.0](https://github.com/botpress/modules/compare/v10.45.0...v10.46.0) (2018-10-03)
+
+
+### Bug Fixes
+
+* **qna:** fix qna-form not displaying item data ([#974](https://github.com/botpress/modules/issues/974)) ([ca8e2eb](https://github.com/botpress/modules/commit/ca8e2eb))
+
+
+
+
+<a name="10.45.0"></a>
+# [10.45.0](https://github.com/botpress/modules/compare/v10.44.2...v10.45.0) (2018-10-01)
+
+
+### Features
+
+* **qna:** new interface for QnA-module ([9b8ee56](https://github.com/botpress/modules/commit/9b8ee56)), closes [#903](https://github.com/botpress/modules/issues/903) [#903](https://github.com/botpress/modules/issues/903) [#902](https://github.com/botpress/modules/issues/902) [#902](https://github.com/botpress/modules/issues/902) [#902](https://github.com/botpress/modules/issues/902)
+
+
+
+
 <a name="10.44.2"></a>
 ## [10.44.2](https://github.com/botpress/modules/compare/v10.44.1...v10.44.2) (2018-09-28)
 
