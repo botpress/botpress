@@ -196,9 +196,9 @@ export class ScopedGhostService {
     await this.invalidateFile(fileName)
   }
 
-  async directoryListing(rootFolder: string, fileEndingPattern: string = '*.*'): Promise<string[]> {
+  async directoryListing(rootFolder: string, fileEndingPattern: string = '*.*', exludes?): Promise<string[]> {
     try {
-      const files = await this.primaryDriver.directoryListing(this.normalizeFolderName(rootFolder))
+      const files = await this.primaryDriver.directoryListing(this.normalizeFolderName(rootFolder), exludes)
       return files.filter(minimatch.filter(fileEndingPattern, { matchBase: true, nocase: true, noglobstar: false }))
     } catch (err) {
       this.logger.attachError(err).error(`Could not list directory under ${rootFolder}`)

@@ -9,7 +9,6 @@ const resetUserVariable = async name => {
   const userId = event.target
   const key = bp.kvs.getUserStorageKey(userId, name)
   await bp.kvs.removeStorageKeysStartingWith(key)
-  return { ...state }
 }
 
 return resetUserVariable(args.name)
