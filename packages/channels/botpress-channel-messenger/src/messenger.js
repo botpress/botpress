@@ -60,55 +60,49 @@ class Messenger extends EventEmitter {
     return this.config
   }
 
-  getConfigVal(config_key, page_id) {
-    const page_config = this.config.pages[page_id]
-    return page_config && page_config[config_key] ? page_config[config_key] : this.config[config_key]
+  getConfigVal(configKey, pageId) {
+    const pageConfig = this.config.pages[pageId]
+    return pageConfig && pageConfig[configKey] ? pageConfig[configKey] : this.config[configKey]
   }
 
-  connect(page_ids) {
+  connect(pageIds) {
     return this._setupNewWebhook().then(() => {
-      if (page_ids && page_ids.length > 0) {
-        for (let i = 0; i < page_ids.length; i++) {
-          this._subscribePage(page_ids[i])
-        }
-      } else {
-        this._subscribePage()
-      }
+      pageIds.forEach(pageId => this._subscribePage(pageId))
     })
   }
 
-  disconnect(page_id) {
-    return this._unsubscribePage(page_id)
+  disconnect(pageId) {
+    return this._unsubscribePage(pageId)
   }
 
-  sendTextMessage(recipientId, text, quickReplies, options, page_id) {
+  sendTextMessage(recipientId, text, quickReplies, options, pageId) {
     const message = { text }
     const formattedQuickReplies = this._formatQuickReplies(quickReplies)
     if (formattedQuickReplies && formattedQuickReplies.length > 0) {
       message.quick_replies = formattedQuickReplies
     }
-    return this.sendMessage(recipientId, message, options, page_id)
+    return this.sendMessage(recipientId, message, options, pageId)
   }
 
-  sendButtonTemplate(recipientId, text, buttons, options, quickReplies, page_id) {
+  sendButtonTemplate(recipientId, text, buttons, options, quickReplies, pageId) {
     const payload = {
       template_type: 'button',
       text
     }
     const formattedButtons = this._formatButtons(buttons)
     payload.buttons = formattedButtons
-    return this.sendTemplate(recipientId, payload, options, quickReplies, page_id)
+    return this.sendTemplate(recipientId, payload, options, quickReplies, pageId)
   }
 
-  sendGenericTemplate(recipientId, elements, options, quickReplies, page_id) {
+  sendGenericTemplate(recipientId, elements, options, quickReplies, pageId) {
     const payload = {
       template_type: 'generic',
       elements
     }
-    return this.sendTemplate(recipientId, payload, options, quickReplies, page_id)
+    return this.sendTemplate(recipientId, payload, options, quickReplies, pageId)
   }
 
-  sendTemplate(recipientId, payload, options, quickReplies, page_id) {
+  sendTemplate(recipientId, payload, options, quickReplies, pageId) {
     const message = {
       attachment: {
         type: 'template',
@@ -119,10 +113,10 @@ class Messenger extends EventEmitter {
     if (formattedQuickReplies && formattedQuickReplies.length > 0) {
       message.quick_replies = formattedQuickReplies
     }
-    return this.sendMessage(recipientId, message, options, page_id)
+    return this.sendMessage(recipientId, message, options, pageId)
   }
 
-  async sendAttachment(recipientId, type, url, quickReplies, options, page_id) {
+  async sendAttachment(recipientId, type, url, quickReplies, options, pageId) {
     const message = {
       attachment: {
         type: type,
@@ -153,14 +147,14 @@ class Messenger extends EventEmitter {
       message.quick_replies = formattedQuickReplies
     }
 
-    return this.sendMessage(recipientId, message, options, page_id).then(res => {
+    return this.sendMessage(recipientId, message, options, pageId).then(res => {
       if (res && res.attachment_id) {
         db.addAttachment(url, res.attachment_id)
       }
     })
   }
 
-  sendAction(recipientId, action, page_id) {
+  sendAction(recipientId, action, pageId) {
     return this.sendRequest(
       {
         recipient: {
@@ -170,11 +164,11 @@ class Messenger extends EventEmitter {
       },
       null,
       null,
-      page_id
+      pageId
     )
   }
 
-  sendMessage(recipientId, message, options, page_id) {
+  sendMessage(recipientId, message, options, pageId) {
     const req = () =>
       this.sendRequest(
         {
@@ -185,21 +179,21 @@ class Messenger extends EventEmitter {
         },
         null,
         null,
-        page_id
+        pageId
       )
 
     if (options && options.typing) {
       const autoTimeout = message && message.text ? 500 + message.text.length * 10 : 1000
       const timeout = typeof options.typing === 'number' ? options.typing : autoTimeout
-      return this.sendTypingIndicator(recipientId, timeout, page_id).then(req)
+      return this.sendTypingIndicator(recipientId, timeout, pageId).then(req)
     }
 
     return req()
   }
 
-  sendValidationRequest(page_id) {
+  sendValidationRequest(pageId) {
     const applicationID = this.config.applicationID
-    const accessToken = this.getConfigVal('accessToken', page_id)
+    const accessToken = this.getConfigVal('accessToken', pageId)
 
     return fetch(`https://graph.facebook.com/v${this.config.graphVersion}/${applicationID}/subscriptions_sample`, {
       method: 'POST',
@@ -208,7 +202,7 @@ class Messenger extends EventEmitter {
         object_id: applicationID,
         object: 'page',
         field: 'messages',
-        custom_fields: { page_id: applicationID },
+        custom_fields: { pageId: applicationID },
         access_token: accessToken
       })
     })
@@ -216,11 +210,11 @@ class Messenger extends EventEmitter {
       .then(res => res.json())
   }
 
-  sendRequest(body, endpoint, method, page_id) {
+  sendRequest(body, endpoint, method, pageId) {
     endpoint = endpoint || 'messages'
     method = method || 'POST'
 
-    const token = this.getConfigVal('accessToken', page_id)
+    const token = this.getConfigVal('accessToken', pageId)
     const url = `https://graph.facebook.com/v${this.config.graphVersion}/me/${endpoint}`
     return fetch(`${url}?access_token=${token}`, {
       method,
@@ -242,8 +236,8 @@ class Messenger extends EventEmitter {
       })
   }
 
-  sendPrivateReply(objectId, text, page_id) {
-    const token = this.getConfigVal('accessToken', page_id)
+  sendPrivateReply(objectId, text, pageId) {
+    const token = this.getConfigVal('accessToken', pageId)
     const url = `https://graph.facebook.com/v${this.config
       .graphVersion}/${objectId}/private_replies?access_token=${token}`
     return fetch(url, {
@@ -258,7 +252,7 @@ class Messenger extends EventEmitter {
       .catch(err => console.log(`Error posting private reply: ${err}`))
   }
 
-  sendTypingIndicator(recipientId, milliseconds, page_id) {
+  sendTypingIndicator(recipientId, milliseconds, pageId) {
     let timeout = !milliseconds || isNaN(milliseconds) ? 0 : milliseconds
     timeout = Math.min(20000, timeout)
 
@@ -267,13 +261,13 @@ class Messenger extends EventEmitter {
     }
 
     const before =
-      timeout > 0 ? Promise.resolve(this.sendAction(recipientId, 'typing_on', page_id)) : Promise.resolve(true)
+      timeout > 0 ? Promise.resolve(this.sendAction(recipientId, 'typing_on', pageId)) : Promise.resolve(true)
 
-    return before.delay(timeout + 1000).then(() => this.sendAction(recipientId, 'typing_off', page_id))
+    return before.delay(timeout + 1000).then(() => this.sendAction(recipientId, 'typing_off', pageId))
   }
 
-  getUserProfile(userId, page_id) {
-    const token = this.getConfigVal('accessToken', page_id)
+  getUserProfile(userId, pageId) {
+    const token = this.getConfigVal('accessToken', pageId)
     const profileFields = ['first_name', 'last_name', 'profile_pic'].concat(this.config.extraProfileFields)
     const url = `https://graph.facebook.com/v${this.config.graphVersion}/${userId}?fields=${profileFields.join(
       ','
@@ -284,18 +278,18 @@ class Messenger extends EventEmitter {
       .catch(err => console.log(`Error getting user profile: ${err}`))
   }
 
-  getPageDetails(page_id) {
-    return this._getPage(page_id)
+  getPageDetails(pageId) {
+    return this._getPage(pageId)
   }
 
-  updateMessengerProfile(page_id) {
+  updateMessengerProfile(pageId) {
     // Accumulate fields for updates/deletes batches
     //  https://developers.facebook.com/docs/messenger-platform/reference/messenger-profile-api
     const updateFields = {}
     const deleteFields = []
 
     // Get Started Button
-    const displayGetStarted = this.getConfigVal('displayGetStarted', page_id)
+    const displayGetStarted = this.getConfigVal('displayGetStarted', pageId)
     if (displayGetStarted) {
       updateFields.get_started = { payload: 'GET_STARTED' }
     } else {
@@ -303,7 +297,7 @@ class Messenger extends EventEmitter {
     }
 
     // Greeting
-    const greetingMessage = this.getConfigVal('greetingMessage', page_id)
+    const greetingMessage = this.getConfigVal('greetingMessage', pageId)
     if (greetingMessage) {
       updateFields.greeting = [
         {
@@ -317,10 +311,10 @@ class Messenger extends EventEmitter {
     }
 
     // Persistent Menu / Composer
-    const persistentMenu = this.getConfigVal('persistentMenu', page_id)
+    const persistentMenu = this.getConfigVal('persistentMenu', pageId)
     if (persistentMenu) {
-      const composerInputDisabled = this.getConfigVal('composerInputDisabled', page_id)
-      const persistentMenuItems = this.getConfigVal('persistentMenuItems', page_id)
+      const composerInputDisabled = this.getConfigVal('composerInputDisabled', pageId)
+      const persistentMenuItems = this.getConfigVal('persistentMenuItems', pageId)
       updateFields.persistent_menu = [
         {
           // TODO: Support different menus for different locales
@@ -334,7 +328,7 @@ class Messenger extends EventEmitter {
     }
 
     // Target Audience
-    switch (this.getConfigVal('targetAudience', page_id)) {
+    switch (this.getConfigVal('targetAudience', pageId)) {
       case 'openToAll':
         updateFields.target_audience = { audience_type: 'all' }
         break
@@ -347,7 +341,7 @@ class Messenger extends EventEmitter {
         updateFields.target_audience = {
           audience_type: 'custom',
           countries: {
-            whitelist: this.getConfigVal('targetAudienceOpenToSome', page_id).split(/, ?/g)
+            whitelist: this.getConfigVal('targetAudienceOpenToSome', pageId).split(/, ?/g)
           }
         }
         break
@@ -356,41 +350,41 @@ class Messenger extends EventEmitter {
         updateFields.target_audience = {
           audience_type: 'custom',
           countries: {
-            blacklist: this.getConfigVal('targetAudienceCloseToSome', page_id).split(/, ?/g)
+            blacklist: this.getConfigVal('targetAudienceCloseToSome', pageId).split(/, ?/g)
           }
         }
         break
     }
 
     // Home URL
-    const chatExtensionHomeUrl = this.getConfigVal('chatExtensionHomeUrl', page_id)
+    const chatExtensionHomeUrl = this.getConfigVal('chatExtensionHomeUrl', pageId)
     if (chatExtensionHomeUrl) {
       updateFields.home_url = {
         url: chatExtensionHomeUrl,
         webview_height_ratio: 'tall',
-        webview_share_button: this.getConfigVal('chatExtensionShowShareButton', page_id) ? 'show' : 'hide',
-        in_test: this.getConfigVal('chatExtensionInTest', page_id)
+        webview_share_button: this.getConfigVal('chatExtensionShowShareButton', pageId) ? 'show' : 'hide',
+        in_test: this.getConfigVal('chatExtensionInTest', pageId)
       }
     } else {
       deleteFields.push('home_url')
     }
 
     // Trusted Domains
-    const trustedDomains = this.getConfigVal('trustedDomains', page_id)
+    const trustedDomains = this.getConfigVal('trustedDomains', pageId)
     if (!_.isEmpty(chatExtensionHomeUrl) && trustedDomains.indexOf(chatExtensionHomeUrl) == -1) {
       trustedDomains.push(chatExtensionHomeUrl)
     }
     updateFields.whitelisted_domains = trustedDomains
 
     // Payment Testers
-    const paymentTesters = this.getConfigVal('paymentTesters', page_id)
+    const paymentTesters = this.getConfigVal('paymentTesters', pageId)
     updateFields.payment_settings = {
       testers: paymentTesters
     }
 
     // Delete & Update the profile settings
-    this.sendRequest({ fields: deleteFields }, 'messenger_profile', 'DELETE', page_id)
-    this.sendRequest(updateFields, 'messenger_profile', 'POST', page_id)
+    this.sendRequest({ fields: deleteFields }, 'messenger_profile', 'DELETE', pageId)
+    this.sendRequest(updateFields, 'messenger_profile', 'POST', pageId)
   }
 
   module(factory) {
@@ -652,10 +646,10 @@ class Messenger extends EventEmitter {
       .then(res => res.json())
   }
 
-  _subscribePage(page_id) {
+  _subscribePage(pageId) {
     const url =
       `https://graph.facebook.com/v${this.config.graphVersion}/me/subscribed_apps?access_token=` +
-      this.getConfigVal('accessToken', page_id)
+      this.getConfigVal('accessToken', pageId)
 
     return fetch(url, { method: 'POST' })
       .then(this._handleFacebookResponse)
@@ -663,10 +657,10 @@ class Messenger extends EventEmitter {
       .catch(err => console.log(err))
   }
 
-  _unsubscribePage(page_id) {
+  _unsubscribePage(pageId) {
     const url =
       `https://graph.facebook.com/v${this.config.graphVersion}/me/subscribed_apps?access_token=` +
-      this.getConfigVal('accessToken', page_id)
+      this.getConfigVal('accessToken', pageId)
 
     return fetch(url, { method: 'DELETE' })
       .then(this._handleFacebookResponse)
@@ -674,10 +668,10 @@ class Messenger extends EventEmitter {
       .catch(err => console.log(err))
   }
 
-  _getPage(page_id) {
+  _getPage(pageId) {
     const url =
       `https://graph.facebook.com/v${this.config.graphVersion}/me/?access_token=` +
-      this.getConfigVal('accessToken', page_id)
+      this.getConfigVal('accessToken', pageId)
 
     return fetch(url, { method: 'GET' })
       .then(this._handleFacebookResponse)

@@ -26,7 +26,7 @@ module.exports = function(bp, messenger) {
     }
   }
 
-  async function getOrFetchUserProfile(userId, page_id) {
+  async function getOrFetchUserProfile(userId, pageId) {
     const knex = await bp.db.get()
 
     const user = await knex('users')
@@ -39,7 +39,7 @@ module.exports = function(bp, messenger) {
       return dbEntryToProfile(user)
     }
 
-    const profile = Object.assign(await messenger.getUserProfile(userId, page_id), { id: userId })
+    const profile = Object.assign(await messenger.getUserProfile(userId, pageId), { id: userId })
     await bp.db.saveUser(profileToDbEntry(profile))
 
     return profile

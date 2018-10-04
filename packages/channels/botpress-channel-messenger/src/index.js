@@ -56,20 +56,13 @@ const initializeMessenger = async (bp, configurator) => {
     return bp.logger.warn('[Messenger] Connection disabled')
   }
 
-  const page_ids = Object.keys(messenger.config.pages)
+  const { pages } = messenger.config
+  const pageIds = Object.keys(pages).length === 0 ? [null] : Object.keys(pages)
   return messenger
-    .connect(page_ids)
+    .connect(pageIds)
     .then(() => {
-      if (config.freezeProfile) {
-        return messenger
-      }
-
-      if (page_ids.length > 0) {
-        for (let i = 0; i < page_ids.length; i++) {
-          messenger.updateMessengerProfile(page_ids[i])
-        }
-      } else {
-        messenger.updateMessengerProfile()
+      if (!config.freezeProfile) {
+        pageIds.forEach(pageId => messenger.updateMessengerProfile(pageId))
       }
       return messenger
     })
