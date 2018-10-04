@@ -1,6 +1,7 @@
 import { Logger } from 'botpress/sdk'
 import { inject, injectable, tagged } from 'inversify'
-import { NodeVM, VMScript } from 'vm2'
+import path from 'path'
+import { NodeVM } from 'vm2'
 
 import { GhostService } from '..'
 import { createForAction } from '../../api'
@@ -36,8 +37,8 @@ export class ScopedActionService {
   constructor(private ghost: GhostService, private logger, private botId: string) {}
 
   async listActions({ includeMetadata = false } = {}): Promise<ActionDefinition[]> {
-    const globalActionsFiles = await this.ghost.global().directoryListing('actions', '*.js')
-    const localActionsFiles = await this.ghost.forBot(this.botId).directoryListing('actions', '*.js')
+    const globalActionsFiles = await this.ghost.global().directoryListing('actions', '*.js', 'node_modules/**')
+    const localActionsFiles = await this.ghost.forBot(this.botId).directoryListing('actions', '*.js', 'node_modules/**')
 
     const actions: ActionDefinition[] = (await Promise.map(globalActionsFiles, async file =>
       this.getActionDefinition(file, 'global', includeMetadata)
@@ -97,14 +98,13 @@ export class ScopedActionService {
         args: actionArgs
       },
       require: {
-        external: true,
-        builtin: ['moment', 'axios'],
-        root: './'
+        external: true
       },
       timeout: 5000
     })
     const runner = new VmRunner()
-    return runner.runInVm(vm, code, actionName)
+    const actionsDirPath = path.join(process.cwd(), '/data/global/actions/')
+    return runner.runInVm(vm, code, actionName, actionsDirPath)
   }
 
   private async findActionScript(actionName: string): Promise<string> {

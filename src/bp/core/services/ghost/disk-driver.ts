@@ -46,15 +46,20 @@ export default class DiskStorageDriver implements StorageDriver {
     }
   }
 
-  async directoryListing(folder: string): Promise<string[]> {
+  async directoryListing(folder: string, exclude?: any): Promise<string[]> {
     try {
       await fse.access(this.resolvePath(folder), fse.constants.R_OK)
     } catch (e) {
       throw new VError(e, `[Disk Storage] No read access to directory "${folder}"`)
     }
 
+    const options = { cwd: this.resolvePath(folder) }
+    if (exclude) {
+      options['ignore'] = exclude
+    }
+
     try {
-      return Promise.fromCallback<string[]>(cb => glob('**/*.*', { cwd: this.resolvePath(folder) }, cb))
+      return Promise.fromCallback<string[]>(cb => glob('**/*.*', options, cb))
     } catch (e) {
       throw new VError(e, `[Disk Storage] Error listing directory content for folder "${folder}"`)
     }
