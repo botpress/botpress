@@ -65,7 +65,7 @@ export default class QnaAdmin extends Component {
     const params = { limit: ITEMS_PER_PAGE, offset: (page - 1) * ITEMS_PER_PAGE }
     this.props.bp.axios.get('/api/botpress-qna', { params }).then(({ data }) => {
       const quentionsOptions = data.items.map(({ id, data: { questions } }) => ({
-        label: questions.join(','),
+        label: (questions || []).join(','),
         value: id
       }))
 
