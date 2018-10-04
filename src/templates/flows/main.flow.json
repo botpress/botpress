@@ -55,7 +55,7 @@
       ],
       "onEnter": [
         "say #!builtin_text-pSsHWg",
-        "increaseConversationsNumber {\"output\":\"$r\"}"
+        "incrementNumberOfConversations {\"output\":\"$r\"}"
       ],
       "onReceive": null
     },

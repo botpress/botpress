@@ -17,7 +17,7 @@ gulp.task(
     core.buildTs,
     core.buildSchemas,
     core.createDirectories,
-    core.copyVanilla,
+    core.copyGlobal,
     core.copyAdmin,
     core.copyStudio,
     core.copyTempates
@@ -31,7 +31,7 @@ gulp.task(
     core.buildTs,
     core.buildSchemas,
     core.createDirectories,
-    core.copyVanilla,
+    core.copyGlobal,
     core.copyAdmin,
     core.copyStudio,
     core.copyTempates,

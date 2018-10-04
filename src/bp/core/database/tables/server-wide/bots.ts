@@ -42,7 +42,7 @@ export class BotsTable extends Table {
       })
       .then(async created => {
         if (created) {
-          await insertBots(this.knex, this.name)
+          // await insertBots(this.knex, this.name)
         }
         return created
       })

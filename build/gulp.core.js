@@ -47,6 +47,10 @@ const copyVanilla = () => {
   return gulp.src('./src/bp/vanilla/**/*').pipe(gulp.dest('./out/bp/data'))
 }
 
+const copyGlobal = () => {
+  return gulp.src('./src/templates/global/**/*').pipe(gulp.dest('./out/bp/data/global'))
+}
+
 const copyTempates = () => {
   return gulp.src('./src/templates/**/*').pipe(gulp.dest('./out/templates'))
 }
@@ -73,7 +77,7 @@ module.exports = {
   buildTs,
   buildSchemas,
   createDirectories,
-  copyVanilla,
+  copyGlobal,
   copyAdmin,
   copyStudio,
   copyTempates,
