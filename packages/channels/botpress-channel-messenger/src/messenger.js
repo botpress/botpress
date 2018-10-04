@@ -246,145 +246,6 @@ class Messenger extends EventEmitter {
       .catch(err => console.log(`Error getting user profile: ${err}`))
   }
 
-  createTargetAudienceSetting() {
-    const setting = { target_audience: {} }
-
-    switch (this.config.targetAudience) {
-      case 'openToAll':
-        setting.target_audience.audience_type = 'all'
-        break
-
-      case 'openToSome':
-        const countriesWhitelist = this.config.targetAudienceOpenToSome.split(/, ?/g)
-        setting.target_audience.audience_type = 'custom'
-        setting.target_audience.countries = {
-          whitelist: countriesWhitelist
-        }
-        break
-
-      case 'closeToSome':
-        setting.target_audience.audience_type = 'custom'
-        const countriesBlacklist = this.config.targetAudienceCloseToSome.split(/, ?/g)
-        setting.target_audience.countries = {
-          blacklist: countriesBlacklist
-        }
-        break
-
-      case 'closeToAll':
-        setting.target_audience.audience_type = 'none'
-        break
-    }
-
-    return setting
-  }
-
-  setTargetAudience() {
-    const setting = this.createTargetAudienceSetting()
-    return this.sendRequest(setting, 'messenger_profile', 'POST')
-  }
-
-  async setWhitelistedDomains(domains, chatExtensionHomeUrl) {
-    // the chat extension home url is controlled by a different state value
-    // but it still needs to be whitelisted.  It's also possible that this url
-    // has already been whitelisted for another purpose
-    // so we need to check:
-    //    a) that it's set, and
-    //    b) that it's not already in the list
-    if (!_.isEmpty(chatExtensionHomeUrl)) {
-      if (domains.indexOf(chatExtensionHomeUrl) == -1) {
-        domains.push(chatExtensionHomeUrl)
-      }
-    }
-
-    const url = `https://graph.facebook.com/v${this.config.graphVersion}/me/messenger_profile?access_token=${this.config
-      .accessToken}`
-
-    await fetch(url, {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        fields: ['whitelisted_domains']
-      })
-    }).then(this._handleFacebookResponse)
-
-    if (domains.length === 0) {
-      return
-    }
-
-    return fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        whitelisted_domains: domains
-      })
-    }).then(this._handleFacebookResponse)
-  }
-
-  setGreetingText(text) {
-    return this.sendThreadRequest({
-      setting_type: 'greeting',
-      greeting: { text }
-    })
-  }
-
-  deleteGreetingText() {
-    return this.sendThreadRequest(
-      {
-        setting_type: 'greeting'
-      },
-      'DELETE'
-    )
-  }
-
-  setGetStartedButton(action) {
-    const payload = typeof action === 'string' ? action : 'GET_STARTED'
-    if (typeof action === 'function') {
-      this.on(`postback:${payload}`, action)
-    }
-    return this.sendThreadRequest({
-      setting_type: 'call_to_actions',
-      thread_state: 'new_thread',
-      call_to_actions: [{ payload }]
-    })
-  }
-
-  deleteGetStartedButton() {
-    return this.sendThreadRequest(
-      {
-        setting_type: 'call_to_actions',
-        thread_state: 'new_thread'
-      },
-      'DELETE'
-    )
-  }
-
-  setPersistentMenu(buttons, composerInputDisabled) {
-    const formattedButtons = this._formatButtons(buttons)
-    return this.sendRequest(
-      {
-        persistent_menu: [
-          {
-            // TODO Allow setting multiple menues for different locales
-            locale: 'default',
-            composer_input_disabled: composerInputDisabled,
-            call_to_actions: formattedButtons
-          }
-        ]
-      },
-      'messenger_profile'
-    )
-  }
-
-  deletePersistentMenu() {
-    return this.sendRequest(
-      {
-        fields: ['persistent_menu']
-      },
-      'messenger_profile',
-      'DELETE'
-    )
-  }
-
   /**
    * Create the settings to add a new chat extension home url
    *
@@ -456,61 +317,168 @@ class Messenger extends EventEmitter {
     return this._getPage()
   }
 
-  updateSettings() {
-    const updateGetStarted = () =>
-      this.config.displayGetStarted ? this.setGetStartedButton() : this.deleteGetStartedButton()
-
-    const updateGreetingText = () =>
-      _.isEmpty(this.config.greetingMessage)
-        ? this.deleteGreetingText()
-        : this.setGreetingText(this.config.greetingMessage)
-
-    const items = this._reformatPersistentMenuItems(this.config.persistentMenuItems)
-    const updatePersistentMenu = () =>
-      this.config.persistentMenu
-        ? this.setPersistentMenu(items, this.config.composerInputDisabled)
-        : this.deletePersistentMenu()
-
-    const updateTargetAudience = () => this.setTargetAudience()
-
-    const updateTrustedDomains = () =>
-      this.setWhitelistedDomains(this.config.trustedDomains, this.config.chatExtensionHomeUrl)
-
-    const updateChatExtensionHomeUrl = () =>
-      _.isEmpty(this.config.chatExtensionHomeUrl)
-        ? this.deleteChatExtensionHomeUrl()
-        : this.setChatExtensionHomeUrl(
-            this.config.chatExtensionHomeUrl,
-            this.config.chatExtensionInTest,
-            this.config.chatExtensionShowShareButton
-          )
-
-    const updatePaymentTesters = () => this.setPaymentTesters()
-
-    let thrown = false
-    const contextifyError = context => err => {
-      if (thrown) {
-        throw err
-      }
-      const message = `Error setting ${context}\n${err.message}`
-      thrown = true
-      throw new Error(message)
+  displayGetStarted() {
+    if (this.config.displayGetStarted) {
+      return { type: 'update', field: { name: 'get_started', value: { payload: 'GET_STARTED' } } }
     }
 
-    return updateGetStarted()
-      .catch(contextifyError('get started'))
-      .then(updateGreetingText)
-      .catch(contextifyError('greeting text'))
-      .then(updatePersistentMenu)
-      .catch(contextifyError('persistent menu'))
-      .then(updateTargetAudience)
-      .catch(contextifyError('target audience'))
-      .then(updateTrustedDomains)
-      .catch(contextifyError('trusted domains'))
-      .then(updateChatExtensionHomeUrl)
-      .catch(contextifyError('chat extensions'))
-      .then(updatePaymentTesters)
-      .catch(contextifyError('payment testers'))
+    return { type: 'delete', field: { name: 'get_started' } }
+  }
+
+  greetingMessage() {
+    const { greetingMessage } = this.config
+    const isGreetingMessageEmpty = _.isEmpty(this.config.greetingMessage)
+
+    if (isGreetingMessageEmpty) {
+      return { type: 'delete', field: { name: 'greeting' } }
+    }
+
+    return {
+      type: 'update',
+      field: {
+        name: 'greeting',
+        value: [
+          {
+            locale: 'default',
+            text: greetingMessage
+          }
+        ]
+      }
+    }
+  }
+
+  persistentMenu() {
+    const { composerInputDisabled, persistentMenu, persistentMenuItems } = this.config
+
+    if (!persistentMenu) {
+      return { type: 'delete', field: { name: 'persistent_menu' } }
+    }
+
+    return {
+      type: 'update',
+      field: {
+        name: 'persistent_menu',
+        value: [
+          {
+            // TODO: Support different menus for different locales
+            locale: 'default',
+            composer_input_disabled: composerInputDisabled,
+            call_to_actions: this._formatButtons(this._reformatPersistentMenuItems(persistentMenuItems))
+          }
+        ]
+      }
+    }
+  }
+
+  targetAudience() {
+    const { targetAudience, targetAudienceOpenToSome, targetAudienceCloseToSome } = this.config
+
+    switch (targetAudience) {
+      case 'openToAll':
+        return { type: 'update', field: { name: 'target_audience', value: { audience_type: 'all' } } }
+      case 'closeToAll':
+        return { type: 'update', field: { name: 'target_audience', value: { audience_type: 'none' } } }
+      case 'openToSome':
+        return {
+          type: 'update',
+          field: {
+            name: 'target_audience',
+            value: {
+              audience_type: 'custom',
+              countries: {
+                whitelist: targetAudienceOpenToSome.split(/, ?/g)
+              }
+            }
+          }
+        }
+      case 'closeToSome':
+        return {
+          type: 'update',
+          field: {
+            name: 'target_audience',
+            value: {
+              audience_type: 'custom',
+              countries: {
+                blacklist: targetAudienceCloseToSome.split(/, ?/g)
+              }
+            }
+          }
+        }
+      default:
+        return { type: 'update', field: { name: 'target_audience', value: { audience_type: 'all' } } }
+    }
+  }
+
+  chatExtensionHomeUrl() {
+    const { chatExtensionHomeUrl, chatExtensionShowShareButton, chatExtensionInTest } = this.config
+
+    if (!chatExtensionHomeUrl) {
+      return { type: 'delete', field: { name: 'home_url' } }
+    }
+
+    return {
+      type: 'update',
+      field: {
+        name: 'home_url',
+        value: {
+          url: chatExtensionHomeUrl,
+          webview_height_ratio: 'tall',
+          webview_share_button: chatExtensionShowShareButton ? 'show' : 'hide',
+          in_test: chatExtensionInTest
+        }
+      }
+    }
+  }
+
+  trustedDomains() {
+    const { trustedDomains, chatExtensionHomeUrl } = this.config
+    if (!_.isEmpty(chatExtensionHomeUrl) && trustedDomains.indexOf(chatExtensionHomeUrl) === -1) {
+      trustedDomains.push(chatExtensionHomeUrl)
+    }
+
+    if (_.isEmpty(trustedDomains)) {
+      return { type: 'next' }
+    }
+
+    return { type: 'update', field: { name: 'whitelisted_domains', value: trustedDomains } }
+  }
+
+  paymentTesters() {
+    const { paymentTesters } = this.config
+
+    return { type: 'update', field: { name: 'payment_settings', value: { testers: paymentTesters } } }
+  }
+
+  updateSettings() {
+    const messageConfigKeys = Object.keys(this.config)
+
+    const profileFields = messageConfigKeys.reduce(
+      (settings, key) => {
+        if (!this[key]) {
+          return settings
+        }
+
+        const { type, field } = this[key]()
+
+        if (type === 'next') {
+          return settings
+        }
+
+        if (type === 'update') {
+          settings.update[field.name] = field.value
+        }
+
+        if (type === 'delete') {
+          settings.delete.push(field.name)
+        }
+
+        return settings
+      },
+      { update: {}, delete: [] }
+    )
+
+    this.sendRequest({ fields: profileFields.delete }, 'messenger_profile', 'DELETE')
+    this.sendRequest(profileFields.update, 'messenger_profile', 'POST')
   }
 
   module(factory) {
