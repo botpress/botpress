@@ -39,7 +39,7 @@ jobs:
       - restore_cache:
           name: Restore botpress package cache
           keys:
-            - bp-{{ checksum "yarn.lock" }}
+            - bp-{{ checksum "yarn.lock"}}-{{ checksum "package.json" }}
             - bp-
 
       - run:
@@ -81,7 +81,7 @@ jobs:
 
       - save_cache:
           name: Save botpress package cache
-          key: bp-{{ checksum "yarn.lock"}}
+          key: bp-{{ checksum "yarn.lock"}}-{{ checksum "package.json" }}
           paths:
             - ~/repo/node_modules
 
