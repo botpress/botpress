@@ -1,6 +1,7 @@
 import { Logger } from 'botpress/sdk'
 import { inject, injectable, tagged } from 'inversify'
 import path from 'path'
+import { VError } from 'verror'
 import { NodeVM } from 'vm2'
 
 import { GhostService } from '..'
@@ -102,9 +103,13 @@ export class ScopedActionService {
       },
       timeout: 5000
     })
+
     const runner = new VmRunner()
-    const actionsDirPath = path.join(process.cwd(), '/data/global/actions/')
-    return runner.runInVm(vm, code, actionName, actionsDirPath)
+    const dirPath = path.join(process.cwd(), '/data/global/actions/')
+
+    return runner.runInVm(vm, code, dirPath).catch(err => {
+      throw new VError(err, `An error occurred while executing the action "${actionName}"`)
+    })
   }
 
   private async findActionScript(actionName: string): Promise<string> {

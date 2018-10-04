@@ -8,7 +8,6 @@
 const resetGlobalVariable = async name => {
   const key = bp.kvs.getGlobalStorageKey(name)
   await bp.kvs.removeStorageKeysStartingWith(key)
-  return { ...state }
 }
 
 return resetGlobalVariable(args.name)
