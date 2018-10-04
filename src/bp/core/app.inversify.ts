@@ -1,23 +1,21 @@
+import { Logger } from 'botpress/sdk'
 import { Container } from 'inversify'
 import path from 'path'
 import yn from 'yn'
 
-import { Logger } from 'botpress/sdk'
+import { BotpressAPIProvider } from './api'
 import { BotLoader } from './bot-loader'
 import { Botpress } from './botpress'
+import { BotConfigFactory, BotConfigWriter } from './config'
 import { ConfigProvider, GhostConfigProvider } from './config/config-loader'
-import { DatabaseContainerModule } from './database/database.inversify'
-
+import { DatabaseContainerModules } from './database/database.inversify'
 import { LoggerPersister, LoggerProvider, PersistedConsoleLogger } from './logger'
 import { applyDisposeOnExit } from './misc/inversify'
-import { TYPES } from './types'
 import { ModuleLoader } from './module-loader'
-import { RepositoriesContainerModule } from './repositories/repositories.inversify'
+import { RepositoriesContainerModules } from './repositories/repositories.inversify'
 import HTTPServer from './server'
-import { ServicesContainerModule } from './services/services.inversify'
-
-import { BotConfigFactory, BotConfigWriter } from './config'
-import { BotpressAPIProvider } from './api'
+import { ServicesContainerModules } from './services/services.inversify'
+import { TYPES } from './types'
 
 const container = new Container({ autoBindInjectable: true })
 
@@ -99,9 +97,9 @@ container.bind<boolean>(TYPES.IsProduction).toConstantValue(isProduction)
 container.bind<boolean>(TYPES.IsPackaged).toConstantValue(isPackaged)
 container.bind<string>(TYPES.ProjectLocation).toConstantValue(projectLocation)
 
-container.load(DatabaseContainerModule)
-container.load(ServicesContainerModule)
-container.load(RepositoriesContainerModule)
+container.load(...DatabaseContainerModules)
+container.load(...RepositoriesContainerModules)
+container.load(...ServicesContainerModules)
 
 applyDisposeOnExit(container)
 

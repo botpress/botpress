@@ -14,7 +14,7 @@ import {
 } from '.'
 import { KnexLogsRepository, LogsRepository } from './logs'
 
-export const RepositoriesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
+const RepositoriesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
   bind<BotRepository>(TYPES.BotRepository)
     .to(GhostBotRepository)
     .inSingletonScope()
@@ -35,3 +35,5 @@ export const RepositoriesContainerModule = new ContainerModule((bind: interfaces
     .to(KnexNotificationsRepository)
     .inSingletonScope()
 })
+
+export const RepositoriesContainerModules = [RepositoriesContainerModule]

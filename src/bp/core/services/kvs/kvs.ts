@@ -86,9 +86,7 @@ export class KeyValueStore {
       }
     }
 
-    return this.get(botId, key).then(
-      original => this.onGetOrSet && this.onGetOrSet().then(() => this.upsert(botId, key, setValue(original || {})))
-    )
+    return this.get(botId, key).then(original => this.upsert(botId, key, setValue(original || {})))
   }
 
   private boxWithExpiry = (value, expiry = 'never') => {

@@ -6,7 +6,7 @@ import { TYPES } from '../types'
 import Database from '.'
 import { patchKnex } from './helpers'
 
-export const DatabaseContainerModule = new ContainerModule((bind: interfaces.Bind) => {
+const DatabaseContainerModule = new ContainerModule((bind: interfaces.Bind) => {
   bind<Database>(TYPES.Database)
     .to(Database)
     .inSingletonScope()
@@ -22,3 +22,5 @@ export const DatabaseContainerModule = new ContainerModule((bind: interfaces.Bin
     )
   })
 })
+
+export const DatabaseContainerModules = [DatabaseContainerModule]

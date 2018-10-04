@@ -19,25 +19,32 @@ jobs:
       - checkout
 
       - restore_cache:
-          name: Restore channel-web yarn package cache
+          name: Restore channel-web package cache
           keys:
             - channel-web-{{ checksum "modules/channel-web/yarn.lock" }}
+            - channel-web-
 
       - restore_cache:
-          name: Restore nlu yarn package cache
+          name: Restore nlu package cache
           keys:
             - nlu-{{ checksum "modules/nlu/yarn.lock" }}
+            - nlu-
 
       - restore_cache:
           name: Restore hitl package cache
           keys:
             - hitl-{{ checksum "modules/hitl/yarn.lock" }}
+            - hitl-
 
       - restore_cache:
           name: Restore botpress package cache
           keys:
             - bp-{{ checksum "yarn.lock" }}
+            - bp-
 
+      - run:
+          name: Installing yarn
+          command: sudo npm i -g yarn
       - run:
           name: Install botpress dependencies
           command: cd ~/repo && NODE_ENV=development yarn
@@ -55,33 +62,32 @@ jobs:
           command: cd ~/repo/modules/hitl && NODE_ENV=development yarn && yarn build
 
       - save_cache:
-          name: Save channel-web yarn package cache
+          name: Save channel-web package cache
           key: channel-web-{{ checksum "modules/channel-web/yarn.lock" }}
           paths:
             - ~/repo/modules/channel-web/node_modules
 
       - save_cache:
-          name: Save nlu yarn package cache
+          name: Save nlu package cache
           key: nlu-{{ checksum "modules/nlu/yarn.lock" }}
           paths:
             - ~/repo/modules/nlu/node_modules
 
       - save_cache:
-          name: Save hitl yarn package cache
+          name: Save hitl package cache
           key: hitl-{{ checksum "modules/hitl/yarn.lock" }}
           paths:
             - ~/repo/modules/hitl/node_modules
 
       - save_cache:
-          name: Save botpress yarn package cache
+          name: Save botpress package cache
           key: bp-{{ checksum "yarn.lock"}}
           paths:
-            - ~/repo
+            - ~/repo/node_modules
 
       - run:
           name: Build botpress
           command: cd ~/repo && NODE_ENV=development yarn build
-
       - run:
           name: Run tests
           command: yarn test
