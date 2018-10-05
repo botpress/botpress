@@ -40,12 +40,11 @@ export default class QnaAdmin extends Component {
     showBulkImport: undefined,
     page: 1,
     overallItemsCount: 0,
-    hasCategory: false,
     showQnAModal: false,
     category: '',
     QnAModalType: 'create',
     quentionsOptions: [],
-    categoriesOptions: [],
+    categoryOptions: [],
     filterCategory: [],
     filterQuestion: '',
     selectedQuestion: []
@@ -69,15 +68,20 @@ export default class QnaAdmin extends Component {
         value: id
       }))
 
-      this.setState({ ...data, page, quentionsOptions })
+      this.setState({
+        items: data.items,
+        overallItemsCount: data.count,
+        page,
+        quentionsOptions
+      })
     })
   }
 
   fetchCategories() {
     this.props.bp.axios.get('/api/botpress-qna/categories').then(({ data: { categories } }) => {
-      const categoriesOptions = categories.map(category => ({ label: category, value: category }))
+      const categoryOptions = categories.map(category => ({ label: category, value: category }))
 
-      this.setState({ categoriesOptions })
+      this.setState({ categoryOptions })
     })
   }
 
@@ -275,12 +279,12 @@ export default class QnaAdmin extends Component {
           onChange={this.onQuestioinsFilter}
           placeholder="Filter questions"
         />
-        {this.state.hasCategory ? (
+        {this.state.categoryOptions.length ? (
           <Select
             className={style.serachQuestions}
             multi
             value={this.state.filterCategory}
-            options={this.state.categoriesOptions}
+            options={this.state.categoryOptions}
             onChange={this.onCategoriesFilter}
             placeholder="Filter caterories"
           />
@@ -329,7 +333,7 @@ export default class QnaAdmin extends Component {
               </div>
             </div>
           </div>
-          {this.state.hasCategory || item.category ? (
+          {item.category ? (
             <div className={style.questionCategory}>
               Category: <span className={style.questionCategoryTitle}>&nbsp;{item.category}</span>
             </div>
@@ -426,8 +430,7 @@ export default class QnaAdmin extends Component {
             bp={this.props.bp}
             showQnAModal={this.state.showQnAModal}
             closeQnAModal={this.closeQnAModal}
-            hasCategory={this.state.hasCategory}
-            categories={this.state.categoriesOptions}
+            categories={this.state.categoryOptions}
             fetchData={this.fetchData}
             id={this.state.currentItemId}
             modalType={this.state.QnAModalType}

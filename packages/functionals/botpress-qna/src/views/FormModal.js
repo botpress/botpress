@@ -164,7 +164,7 @@ export default class FormModal extends Component {
 
           <Modal.Body className={style.qnaModalBody}>
             {this.alertMessage()}
-            {this.props.hasCategory ? (
+            {categories.length ? (
               <div className={style.qnaCategory}>
                 <span className={style.qnaCategoryTitle}>Category</span>
                 <Select
