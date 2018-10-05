@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.46.3"></a>
+## [10.46.3](https://github.com/botpress/modules/compare/v10.46.2...v10.46.3) (2018-10-05)
+
+
+### Bug Fixes
+
+* **qna:** categories can be provided as config-variable ([#989](https://github.com/botpress/modules/issues/989)) ([a30f18d](https://github.com/botpress/modules/commit/a30f18d))
+* **qna:** fix pagination not appearing on initial render ([#992](https://github.com/botpress/modules/issues/992)) ([87fba19](https://github.com/botpress/modules/commit/87fba19))
+* **qna:** fix qna-module errors when using NLU (resolve [#973](https://github.com/botpress/modules/issues/973)) ([#988](https://github.com/botpress/modules/issues/988)) ([eb8c30d](https://github.com/botpress/modules/commit/eb8c30d))
+
+
+
+
 <a name="10.46.2"></a>
 ## [10.46.2](https://github.com/botpress/modules/compare/v10.46.1...v10.46.2) (2018-10-03)
 

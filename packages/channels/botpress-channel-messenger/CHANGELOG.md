@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.46.3"></a>
+## [10.46.3](https://github.com/botpress/modules/compare/v10.46.2...v10.46.3) (2018-10-05)
+
+
+### Bug Fixes
+
+* **messenger:** improve rate limit (author dmk23 resolve [#884](https://github.com/botpress/modules/issues/884)) ([#986](https://github.com/botpress/modules/issues/986)) ([cc682a5](https://github.com/botpress/modules/commit/cc682a5))
+
+
+
+
 <a name="10.46.2"></a>
 ## [10.46.2](https://github.com/botpress/modules/compare/v10.46.1...v10.46.2) (2018-10-03)
 
