@@ -42,6 +42,10 @@
     {
       "location": "bp/modules/hitl",
       "enabled": true
+    },
+    {
+      "location": "bp/modules/skill-choice",
+      "enabled": true
     }
   ]
 }

@@ -1,13 +1,13 @@
 import { Flow, FlowNode, NodeActionType, SkillFlow } from 'botpress/sdk'
 import { injectable } from 'inversify'
 import _ from 'lodash'
-import nanoid from 'nanoid'
+import generate from 'nanoid/generate'
 
 @injectable()
 export class SkillService {
   constructor() {}
 
-  public finalizeFlow(partialFlow: SkillFlow): Flow {
+  public finalizeFlow(partialFlow: SkillFlow) {
     if (!partialFlow || !partialFlow.nodes || partialFlow.nodes.length == 0) {
       throw new Error(`You must provide a flow with at least one node`)
     }
@@ -20,7 +20,8 @@ export class SkillService {
       node.onEnter = this.parseActionQuery(node.onEnter)
     }
 
-    return completeFlow
+    // TODO change when studio is updated, since actual doesn't support catchall
+    return { flow: completeFlow, transitions: completeFlow.catchAll && completeFlow.catchAll.next }
   }
 
   private parseActionQuery(nodes) {
@@ -53,19 +54,22 @@ export class SkillService {
 
   private setDefaultsForMissingValues(partialFlow: SkillFlow) {
     const defaultNode: FlowNode = {
-      id: nanoid(6),
       name: '',
       onEnter: [],
       onReceive: [],
       next: []
     }
 
-    _.forEach(partialFlow.nodes, node => (node = _.defaults(node, defaultNode)))
+    _.forEach(partialFlow.nodes, node => {
+      defaultNode.id = generate('1234567890', 6)
+      node = _.defaults(node, defaultNode)
+    })
 
+    const name = generate('1234567890', 6)
     const defaultFlow: Flow = {
       version: '0.0',
-      name: nanoid(6),
-      location: nanoid(6),
+      name: name,
+      location: name,
       startNode: partialFlow.nodes[0].name,
       nodes: []
     }
