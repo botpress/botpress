@@ -17,10 +17,10 @@ gulp.task(
     core.buildTs,
     core.buildSchemas,
     core.createDirectories,
-    core.copyVanilla,
+    core.copyGlobal,
     core.copyAdmin,
     core.copyStudio,
-    core.copyTempates
+    core.copyTemplates
   ])
 )
 
@@ -31,13 +31,16 @@ gulp.task(
     core.buildTs,
     core.buildSchemas,
     core.createDirectories,
-    core.copyVanilla,
+    core.copyGlobal,
     core.copyAdmin,
     core.copyStudio,
-    core.copyTempates,
+    core.copyTemplates,
+    core.copyVanilla,
     core.watch
   ])
 )
+
+gulp.task('clean', core.clean)
 
 gulp.task('modules', gulp.series([modules.copySdkDefinitions, modules.copyBoilerplateFiles, modules.buildModules()]))
 

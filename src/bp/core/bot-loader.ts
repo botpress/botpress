@@ -4,6 +4,7 @@ import _ from 'lodash'
 
 import { BotConfig } from './config/bot.config'
 import { ConfigProvider } from './config/config-loader'
+import Database from './database'
 import { GhostService } from './services'
 import { CMSService } from './services/cms/cms-service'
 import { TYPES } from './types'
@@ -15,16 +16,24 @@ export class BotLoader {
     @tagged('name', 'BotLoader')
     private logger: Logger,
     @inject(TYPES.CMSService) private cms: CMSService,
+    @inject(TYPES.Database) private database: Database,
     @inject(TYPES.GhostService) private ghost: GhostService,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider
   ) {}
 
   public async getAllBots(): Promise<Map<string, BotConfig>> {
-    const botIds = ['bot123'] // TODO FIXME Pull bot Ids from the database
+    const botIds = await this.database
+      .knex('srv_bots')
+      .select('id')
+      .map(x => x['id'])
     const bots = new Map<string, BotConfig>()
 
     for (const botId of botIds) {
-      bots.set(botId, await this.configProvider.getBotConfig(botId))
+      try {
+        bots.set(botId, await this.configProvider.getBotConfig(botId))
+      } catch (err) {
+        this.logger.attachError(err).error(`Bot configuration file not found for bot "${botId}"`)
+      }
     }
 
     return bots
