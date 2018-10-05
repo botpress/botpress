@@ -3,6 +3,8 @@ import _ from 'lodash'
 
 import actions from './actions'
 
+const getUser = event => _.get(event, 'user') || _.get(event, 'raw.user')
+
 function getChannelId(event) {
   const channelId =
     _.get(event, 'channel.id') ||
@@ -38,7 +40,10 @@ function processOutgoing({ event, blocName, instruction }) {
 
   const optionsList = []
 
-  const options = _.pick(instruction, optionsList)
+  const options = {
+    ...instruction.options,
+    user: getUser(event)
+  }
 
   for (const prop of optionsList) {
     delete ins[prop]
@@ -49,15 +54,15 @@ function processOutgoing({ event, blocName, instruction }) {
   /////////
 
   if (!_.isNil(instruction.attachments)) {
-    return actions.createAttachments(getChannelId(event), instruction.attachments, instruction.options)
+    return actions.createAttachments(getChannelId(event), instruction.attachments, options)
   }
 
   if (!_.isNil(instruction.attachment)) {
-    return actions.createAttachments(getChannelId(event), [instruction.attachment], instruction.options)
+    return actions.createAttachments(getChannelId(event), [instruction.attachment], options)
   }
 
   if (!_.isNil(instruction.text)) {
-    return actions.createText(getChannelId(event), instruction.text, instruction.options)
+    return actions.createText(getChannelId(event), instruction.text, options)
   }
 
   if (!_.isNil(instruction.reaction)) {
@@ -69,7 +74,7 @@ function processOutgoing({ event, blocName, instruction }) {
           timestamp: getMessageTs(event),
           channel: getChannelId(event)
         },
-        instruction.options
+        options
       )
     )
   }
