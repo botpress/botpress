@@ -85,10 +85,9 @@ module.exports = {
 
     config = await configurator.loadAll()
 
-    bp.db
-      .get()
-      .then(knex => (db = DB(knex)))
-      .then(() => db.initialize())
+    const knex = await bp.db.get()
+    db = DB(knex)
+    return db.initialize()
   },
 
   ready: function(bp) {

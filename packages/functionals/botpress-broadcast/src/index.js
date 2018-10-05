@@ -3,19 +3,19 @@ import checkVersion from 'botpress-version-manager'
 
 import daemon from './daemon'
 import DB from './db'
-import moment from 'moment'
 
 let db = null
 let knex = null
 
 module.exports = {
-  init: function(bp) {
+  init: async function(bp) {
     checkVersion(bp, bp.botpressPath)
-    daemon(bp)
-    bp.db.get().then(_knex => {
-      knex = _knex
-      db = DB(knex)
-    })
+
+    knex = await bp.db.get()
+    db = DB(knex)
+    await db.initialize()
+
+    daemon(bp, knex)
   },
   ready: function(bp) {
     const router = bp.getRouter('botpress-broadcast')
