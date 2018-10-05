@@ -1,5 +1,5 @@
 import { Logger } from 'botpress/sdk'
-import { ContentElement } from 'botpress/sdk'
+import { ContentElement, ContentType } from 'botpress/sdk'
 import { KnexExtension } from 'common/knex'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
 import Knex from 'knex'
@@ -14,7 +14,7 @@ import { LoggerProvider } from '../../logger/logger'
 import { IDisposeOnExit } from '../../misc/interfaces'
 import { TYPES } from '../../types'
 
-import { ContentType, DefaultSearchParams, SearchParams } from '.'
+import { DefaultSearchParams, SearchParams } from '.'
 import { CodeFile, SafeCodeSandbox } from './util'
 
 @injectable()

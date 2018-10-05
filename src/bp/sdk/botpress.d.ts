@@ -209,6 +209,16 @@ declare module 'botpress/sdk' {
     previewText: string
   }
 
+  export type ContentType = {
+    id: string
+    title: string
+    description: string
+    jsonSchema: object
+    uiSchema?: object
+    computePreviewText?: (formData: object) => string
+    computeData?: (typeId: string, formData: object) => object
+    renderElement: (data: object, channel: string) => object[]
+  }
   /**
    * ////////////////
    * //////// API
@@ -284,6 +294,7 @@ declare module 'botpress/sdk' {
   export namespace cms {
     export function getContentElement(botId: string, id: string): Promise<ContentElement>
     export function listContentElements(botId: string, contentTypeId?: string): Promise<ContentElement[]>
+    export function getAllContentTypes(botId?: string): Promise<ContentType[]>
   }
 
   export const logger: Logger

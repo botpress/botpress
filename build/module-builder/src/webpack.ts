@@ -79,6 +79,10 @@ export function config(projectPath) {
     }
   }
 
+  if (packageJson.webpack) {
+    Object.assign(web, packageJson.webpack)
+  }
+
   const liteViews = (packageJson.botpress && packageJson.botpress.liteViews) || {}
   const lite: webpack.Configuration = Object.assign({}, web, {
     entry: liteViews,
