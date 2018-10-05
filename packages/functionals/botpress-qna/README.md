@@ -22,6 +22,7 @@ The following properties can be configured either in the `qna.json` file or usin
 | `exportCsvEncoding` | `QNA_EXPORT_CSV_ENCODING` | No | `utf8` | Encoding for CSV that can be exported from Q&A module
 | `qnaMakerApiKey` | `QNA_MAKER_API_KEY` | No | | API-key for [Microsoft QnA Maker](https://www.qnamaker.ai). If provided QnA maker gets used to save items and search through them (instead of NLU-module)
 | `qnaMakerKnowledgebase` | `QNA_MAKER_KNOWLEDGEBASE` | No | `botpress` | Name of the QnA Maker knowledgebase to use
+| `qnaCategories` | `QNA_CATEGORIES` | No | | Comma-separated list of categories to use within QNA-module
 
 # Usage
 
