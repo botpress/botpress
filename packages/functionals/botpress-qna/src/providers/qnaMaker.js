@@ -131,7 +131,10 @@ export default class Storage {
 
   async getQuestion(id) {
     const question = (await this.fetchQuestions()).find(({ id: qnaId }) => qnaId == id)
-    return question && qnaItemData(question)
+    if (!question) {
+      return
+    }
+    return { id: question.id, data: qnaItemData(question) }
   }
 
   async count() {
