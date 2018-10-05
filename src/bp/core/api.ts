@@ -211,6 +211,7 @@ export class BotpressAPIProvider {
       version: '',
       RealTimePayload: RealTimePayload,
       LoggerLevel: require('./sdk/enums').LoggerLevel,
+      NodeActionType: require('./sdk/enums').NodeActionType,
       IO: {
         Event: Event,
         WellKnownFlags: WellKnownFlags

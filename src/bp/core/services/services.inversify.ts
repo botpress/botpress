@@ -8,6 +8,7 @@ import AuthService from './auth/auth-service'
 import TeamsService from './auth/teams-service'
 import { CMSService } from './cms/cms-service'
 import { ContentElementSender } from './cms/content-sender'
+import { SkillService } from './dialog/skill/service'
 import { GhostContainerModule } from './ghost/ghost.inversify'
 import { HookService } from './hook/hook-service'
 import { KeyValueStore } from './kvs/kvs'
@@ -79,6 +80,10 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
 
   bind<ContentElementSender>(TYPES.ContentElementSender)
     .to(ContentElementSender)
+    .inSingletonScope()
+
+  bind<SkillService>(TYPES.SkillService)
+    .to(SkillService)
     .inSingletonScope()
 })
 

@@ -1,8 +1,8 @@
-import { Logger } from 'botpress/sdk'
+import { Flow, Logger } from 'botpress/sdk'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 
-import { Flow, FlowView, NodeView } from '..'
+import { FlowView, NodeView } from '..'
 import { GhostService } from '../..'
 import { TYPES } from '../../../types'
 import { validateFlowSchema } from '../validator'

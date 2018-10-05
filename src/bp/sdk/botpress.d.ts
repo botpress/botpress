@@ -37,6 +37,7 @@ declare module 'botpress/sdk' {
     defaultConfigJson?: string
     serveFile?: ((path: string) => Promise<Buffer>)
     definition: ModuleDefinition
+    flowGenerator?: any
   }
 
   export interface ModuleDefinition {
@@ -219,6 +220,56 @@ declare module 'botpress/sdk' {
     computeData?: (typeId: string, formData: object) => object
     renderElement: (data: object, channel: string) => object[]
   }
+
+  export interface Flow {
+    name: string
+    location?: string
+    version?: string
+    startNode?: string
+    skillData?: any
+    nodes: FlowNode[]
+    catchAll?: NodeActions
+    timeoutNode?: string
+    type?: string
+    timeout?: { name: string; flow: string; node: string }[]
+  }
+
+  export type SkillFlow = Partial<Flow> & Pick<Required<Flow>, 'nodes'>
+
+  export type FlowNode = {
+    id?: string
+    name: string
+    type?: any
+    timeoutNode?: string
+    flow?: string
+  } & (NodeActions)
+
+  export type SkillFlowNode = Partial<FlowNode> & Pick<Required<FlowNode>, 'name'>
+
+  export interface NodeTransition {
+    caption?: string
+    condition: string
+    node: string
+  }
+
+  export interface NodeActions {
+    onEnter?: ActionBuilderProps[] | string[]
+    onReceive?: ActionBuilderProps[] | string[]
+    next?: NodeTransition[]
+  }
+
+  export interface ActionBuilderProps {
+    name: string
+    type: NodeActionType
+    args?: any
+  }
+
+  export enum NodeActionType {
+    RenderElement = 'render',
+    RunAction = 'run',
+    RenderText = 'say'
+  }
+
   /**
    * ////////////////
    * //////// API

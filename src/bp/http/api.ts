@@ -354,6 +354,25 @@ function setupAPIProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
     })
   )
 
+  app.post(
+    '/api/modules/:moduleName/flow/:flowName/generate',
+    proxy(coreApiUrl, {
+      proxyReqPathResolver: req => {
+        return `${BASE_PATH}/modules/${req.params.moduleName}/${req.params.flowName}/generate`
+      }
+    })
+  )
+
+  // TODO Hack for skill choice.. need to fix studio call url
+  app.post(
+    '/api/skills/skill-choice/generate',
+    proxy(coreApiUrl, {
+      proxyReqPathResolver: req => {
+        return `${BASE_PATH}/modules/skill-choice/flow/choice/generate`
+      }
+    })
+  )
+
   app.get(
     [`/js/modules/:moduleName`, `/js/modules/:moduleName/:subview`],
     proxy(coreApiUrl, {

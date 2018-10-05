@@ -15,6 +15,7 @@ const MODULE_SCHEMA = joi.object().keys({
   config: joi.object().optional(),
   defaultConfigJson: joi.string().optional(),
   serveFile: joi.func().optional(),
+  flowGenerator: joi.array().optional(),
   definition: joi.object().keys({
     name: joi.string().required(),
     fullName: joi.string().optional(),
@@ -126,13 +127,13 @@ export class ModuleLoader {
     return readyModules
   }
 
-  public getModuleFile(module: string, path: string): Promise<Buffer> {
-    module = module.toLowerCase()
-    if (!this.entryPoints.has(module)) {
-      throw new Error(`Module "${module}" not registered`)
-    }
+  public getLoadedModules(): ModuleDefinition[] {
+    const definitions = Array.from(this.entryPoints.values()).map(x => x.definition)
+    return definitions
+  }
 
-    const def = this.entryPoints.get(module)!
+  public getModuleFile(module: string, path: string): Promise<Buffer> {
+    const def = this.getModule(module)!
 
     if (typeof def.serveFile !== 'function') {
       throw new Error(`Module "${module} does not support serving files"`)
@@ -141,8 +142,19 @@ export class ModuleLoader {
     return def.serveFile!(path)
   }
 
-  public getLoadedModules(): ModuleDefinition[] {
-    const definitions = Array.from(this.entryPoints.values()).map(x => x.definition)
-    return definitions
+  public async getFlowGenerator(moduleName, flowName) {
+    const module = this.getModule(moduleName)
+    const flow = _.find(module.flowGenerator, x => x.name === flowName)
+
+    return flow && flow.generator
+  }
+
+  private getModule(module: string) {
+    module = module.toLowerCase()
+    if (!this.entryPoints.has(module)) {
+      throw new Error(`Module "${module}" not registered`)
+    }
+
+    return this.entryPoints.get(module)!
   }
 }
