@@ -35,6 +35,7 @@ gulp.task(
     core.copyAdmin,
     core.copyStudio,
     core.copyTemplates,
+    core.copyVanilla,
     core.watch
   ])
 )

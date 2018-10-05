@@ -43,8 +43,8 @@ const createDirectories = () => {
     .pipe(gulp.dest('./out/bp/data/storage'))
 }
 
-const setupDefaultBot = () => {
-  return gulp.src('./src/bp/templates/vanilla/**/*').pipe(gulp.dest('./out/bp/data'))
+const copyVanilla = () => {
+  return gulp.src('./src/templates/vanilla/bots/bot123/**/*').pipe(gulp.dest('./out/bp/data/bots/bot123'))
 }
 
 const copyGlobal = () => {
@@ -81,6 +81,7 @@ module.exports = {
   copyAdmin,
   copyStudio,
   copyTemplates,
+  copyVanilla,
   watch,
   wipe,
   runTests
