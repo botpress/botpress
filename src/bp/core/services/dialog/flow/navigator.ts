@@ -29,6 +29,10 @@ export class FlowNavigator {
       const node = flow.nodes.find(n => n.name === destinationNodeName)
       flowName = flow.name
       nodeName = node.name
+    } else if (args.destination.includes('.json')) {
+      const flow = args.flows.find(f => f.name === args.destination)
+      nodeName = _.get(flow, 'startNode')
+      flowName = flow.name
     } else {
       const flow = args.flows.find(f => f.name === args.currentFlowName)
       const node = flow.nodes.find(n => n.name === args.destination)
