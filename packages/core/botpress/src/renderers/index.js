@@ -153,7 +153,7 @@ module.exports = ({ logger, middlewares, db, contentManager, botfile }) => {
     const fullContext = {
       ...initialData,
       user: incomingEvent.user,
-      event: _.pick(incomingEvent, ['raw', 'text', 'type', 'platform', 'user']),
+      event: _.pick(incomingEvent, ['raw', 'text', 'type', 'platform', 'user', 'page']),
       ...additionalData
     }
 

@@ -12,7 +12,7 @@ module.exports = {
       if (rendered && rendered.includes('{{')) {
         rendered = Mustache.render(rendered, {
           ...state,
-          event: _.pick(originalEvent, ['raw', 'text', 'type', 'platform', 'user']),
+          event: _.pick(originalEvent, ['raw', 'text', 'type', 'platform', 'user', 'page']),
           _context: {
             ..._.pick(flowContext, ['node', 'flowStack']),
             currentFlow: _.pick(flowContext.currentFlow, ['name', 'version', 'startNode'])
