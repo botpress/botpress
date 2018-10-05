@@ -5,6 +5,7 @@ import Knex from 'knex'
 import _ from 'lodash'
 import nanoid from 'nanoid'
 
+import { BotLoader } from '../../bot-loader'
 import { BotConfigFactory, BotConfigWriter } from '../../config'
 import Database from '../../database'
 import { checkRule } from '../../misc/auth'
@@ -37,7 +38,8 @@ export default class TeamsService {
     private logger: Logger,
     @inject(TYPES.Database) private db: Database,
     @inject(TYPES.BotConfigFactory) private botConfigFactory: BotConfigFactory,
-    @inject(TYPES.BotConfigWriter) private botConfigWriter: BotConfigWriter
+    @inject(TYPES.BotConfigWriter) private botConfigWriter: BotConfigWriter,
+    @inject(TYPES.BotLoader) private botLoader: BotLoader
   ) {}
 
   get knex() {
@@ -302,6 +304,7 @@ export default class TeamsService {
     await this.knex(BOTS_TABLE).insert(bot)
     const botConfig = this.botConfigFactory.createDefault({ id: bot.id, name: bot.name, description: bot.description })
     await this.botConfigWriter.writeToFile(botConfig)
+    await this.botLoader.loadAllBots()
   }
 
   async getBotTeam(botId: string) {
