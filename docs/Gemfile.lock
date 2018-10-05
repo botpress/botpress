@@ -64,9 +64,9 @@ GEM
       domain_name (~> 0.5)
     http_parser.rb (0.6.0)
     httpclient (2.8.3)
-    i18n (0.9.1)
+    i18n (0.9.5)
       concurrent-ruby (~> 1.0)
-    jekyll (3.8.3)
+    jekyll (3.8.4)
       addressable (~> 2.4)
       colorator (~> 1.0)
       em-websocket (~> 0.5)
@@ -125,7 +125,7 @@ GEM
       http-cookie (>= 1.0.2, < 2.0)
       mime-types (>= 1.16, < 4.0)
       netrc (~> 0.8)
-    rouge (3.2.1)
+    rouge (3.3.0)
     ruby_dep (1.5.0)
     rubyzip (1.2.2)
     s3_website (3.4.0)
@@ -134,7 +134,7 @@ GEM
       dotenv (~> 1.0)
       thor (~> 0.18)
     safe_yaml (1.0.4)
-    sass (3.5.7)
+    sass (3.6.0)
       sass-listen (~> 4.0.0)
     sass-listen (4.0.0)
       rb-fsevent (~> 0.9, >= 0.9.4)
@@ -161,7 +161,7 @@ PLATFORMS
 DEPENDENCIES
   algoliasearch-jekyll (~> 0.9.0)
   crowdin-cli
-  jekyll (~> 3.8.3)
+  jekyll (~> 3.8.4)
   jekyll-assets
   jekyll-paginate
   jekyll-redirect-from
