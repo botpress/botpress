@@ -22,18 +22,6 @@ createDatabaseSuite('KVS', (database: Database) => {
   }
 
   beforeEach(async () => {
-    // TODO: Add to bots seeding data when running a test
-    await database.knex.batchInsert('srv_bots', [
-      {
-        id: 'bot123',
-        name: 'Bot 123',
-        version: '1.0.0',
-        description: 'Just a test bot',
-        author: 'Botpress',
-        license: 'AGPL-3.0',
-        team: 1
-      }
-    ])
     await kvs.set(BOTID, KEY, defaultValue)
   })
 
