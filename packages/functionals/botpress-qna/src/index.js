@@ -215,7 +215,7 @@ module.exports = {
     router.get('/', async ({ query: { question = '', categories = [], limit, offset } }, res) => {
       try {
         const items = await getQuestions({ question, categories }, { limit, offset })
-        res.send({ ...items, hasCategory: !!this.isMicrosoftMakerUsed })
+        res.send({ ...items })
       } catch (e) {
         logger.error('QnA Error', e, e.stack)
         res.status(500).send(e.message || 'Error')
