@@ -1,17 +1,17 @@
-import { inject, injectable, tagged } from 'inversify'
-import { Memoize } from 'lodash-decorators'
-import moment from 'moment'
-import ms from 'ms'
-
+import { Logger } from 'botpress/sdk'
 import { BotLoader } from 'core/bot-loader'
 import { BotpressConfig } from 'core/config/botpress.config'
 import { ConfigProvider } from 'core/config/config-loader'
 import { TYPES } from 'core/types'
+import { inject, injectable, tagged } from 'inversify'
+import _ from 'lodash'
+import { Memoize } from 'lodash-decorators'
+import moment from 'moment'
+import ms from 'ms'
 
 import { Janitor } from '../janitor'
 
 import { LogsService } from './service'
-import { Logger } from 'botpress/sdk'
 
 @injectable()
 export class LogsJanitor extends Janitor {
@@ -44,12 +44,12 @@ export class LogsJanitor extends Janitor {
     const botpressConfig = await this.getBotpresConfig()
     const botsConfigs = await this.botLoader.getAllBots()
     const botsIds = Array.from(botsConfigs.keys())
-    const botExpiryTime = ms(botpressConfig.logs.expiration)
+    const globalLogsExpiryTime = ms(botpressConfig.logs.expiration)
 
     Promise.mapSeries(botsIds, botId => {
       const botConfig = botsConfigs.get(botId)!
       const expiration = moment()
-        .subtract(ms(botConfig.logs!.expiration) || botExpiryTime)
+        .subtract(ms(_.get(botConfig, 'logs.expiration') || globalLogsExpiryTime))
         .toDate()
       this.logsService.deleteExpiredLogs(botId, expiration)
     })

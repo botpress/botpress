@@ -1,3 +1,4 @@
+import { Logger } from 'botpress/sdk'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
@@ -12,7 +13,6 @@ import { Janitor } from '../janitor'
 
 import { DialogEngine } from './engine'
 import { SessionService } from './session/service'
-import { Logger } from 'botpress/sdk'
 
 @injectable()
 export class DialogJanitor extends Janitor {
@@ -46,7 +46,7 @@ export class DialogJanitor extends Janitor {
     Promise.map(botsIds, async botId => {
       const botsConfigs = await this.botLoader.getAllBots()
       const botConfig = botsConfigs.get(botId)
-      const expiryTime = ms(botConfig!.dialog!.timeoutInterval) || ms(botpressConfig.dialog.timeoutInterval)
+      const expiryTime = ms(_.get(botConfig, 'dialog.timeoutInterval') || botpressConfig.dialog.timeoutInterval)
       const outdatedDate = moment()
         .subtract(expiryTime, 'ms')
         .toDate()

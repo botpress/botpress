@@ -12,7 +12,7 @@ export class BotConfigWriter {
 
   async writeToFile(config: BotConfig) {
     const filePath = path.join(this.projectLocation, `./data/bots/${config.id}/`)
-    const templatePath = path.join(this.projectLocation, '../templates')
+    const templatePath = path.join(this.projectLocation, '../templates/bot-specific/')
     const fileName = 'bot.config.json'
 
     try {

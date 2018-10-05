@@ -43,15 +43,15 @@ const createDirectories = () => {
     .pipe(gulp.dest('./out/bp/data/storage'))
 }
 
-const copyVanilla = () => {
-  return gulp.src('./src/bp/vanilla/**/*').pipe(gulp.dest('./out/bp/data'))
+const setupDefaultBot = () => {
+  return gulp.src('./src/bp/templates/vanilla/**/*').pipe(gulp.dest('./out/bp/data'))
 }
 
 const copyGlobal = () => {
   return gulp.src('./src/templates/global/**/*').pipe(gulp.dest('./out/bp/data/global'))
 }
 
-const copyTempates = () => {
+const copyTemplates = () => {
   return gulp.src('./src/templates/**/*').pipe(gulp.dest('./out/templates'))
 }
 
@@ -69,7 +69,7 @@ const buildSchemas = cb => {
 }
 
 const runTests = () => {
-  return gulp.src('.').pipe(run('./node_modules/.bin/jest --detectOpenHandles -c ./jest.config.js'))
+  return gulp.src('.').pipe(run('./node_modules/.bin/jest -i --detectOpenHandles -c ./jest.config.js'))
 }
 
 module.exports = {
@@ -80,7 +80,7 @@ module.exports = {
   copyGlobal,
   copyAdmin,
   copyStudio,
-  copyTempates,
+  copyTemplates,
   watch,
   wipe,
   runTests

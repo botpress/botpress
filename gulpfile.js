@@ -20,7 +20,7 @@ gulp.task(
     core.copyGlobal,
     core.copyAdmin,
     core.copyStudio,
-    core.copyTempates
+    core.copyTemplates
   ])
 )
 
@@ -34,7 +34,7 @@ gulp.task(
     core.copyGlobal,
     core.copyAdmin,
     core.copyStudio,
-    core.copyTempates,
+    core.copyTemplates,
     core.watch
   ])
 )
