@@ -1,7 +1,7 @@
-import { IO } from 'botpress/sdk'
+import { IO, Logger } from 'botpress/sdk'
 import { DialogSession } from 'core/repositories'
 import { TYPES } from 'core/types'
-import { inject, injectable } from 'inversify'
+import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 
 import { FlowNavigator, NavigationArgs, NavigationPosition } from './flow/navigator'
@@ -35,7 +35,10 @@ export class DialogEngine {
     @inject(TYPES.FlowNavigator) private flowNavigator: FlowNavigator,
     @inject(TYPES.InstructionProcessor) private instructionProcessor: InstructionProcessor,
     @inject(TYPES.FlowService) private flowService: FlowService,
-    @inject(TYPES.SessionService) private sessionService: SessionService
+    @inject(TYPES.SessionService) private sessionService: SessionService,
+    @inject(TYPES.Logger)
+    @tagged('name', 'DialogEngine')
+    private logger: Logger
   ) {}
 
   /**
@@ -104,6 +107,12 @@ export class DialogEngine {
           session.context
         )
 
+        this.logger.debug(
+          `Processing Instruction. Current session context: '${session.context!.currentFlowName}' '${
+            session.context!.currentNodeName
+          }'`
+        )
+
         if (result.followUpAction === 'update') {
           await this.updateQueueForSession(queue, session)
           await this.sessionService.updateStateForSession(session.id, result.options!.state!)
@@ -124,13 +133,20 @@ export class DialogEngine {
           const node = flow!.nodes.find(n => n.name === position.nodeName)
           queue = this.createQueue(node, flow)
 
-          this.sessionService.updateSessionContext(session.id, {
+          await this.sessionService.updateSessionContext(session.id, {
             previousFlowName: session.context!.currentFlowName,
             previousNodeName: session.context!.currentNodeName,
             currentFlowName: position.flowName,
             currentNodeName: position.nodeName,
             queue: queue.toString()
           })
+
+          this.logger.debug(
+            `Updating session. Previous: '${session.context!.currentFlowName}' '${
+              session.context!.currentNodeName
+            }'. Current: '${position.flowName}' '${position.nodeName}'`
+          )
+          this.logger.debug(`Queue: ${queue.toString()}`)
         }
       } catch (err) {
         // TODO: Find a better way to handle this
