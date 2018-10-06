@@ -1,15 +1,11 @@
-import path from 'path'
-import fs from 'fs'
 import _ from 'lodash'
 
-import Promise from 'bluebird'
-
 import Messenger from './messenger'
-import actions from './actions'
 import outgoing from './outgoing'
 import incoming from './incoming'
 import Users from './users'
 import UMM from './umm'
+import DB from './db'
 
 let messenger = null
 const outgoingPending = outgoing.pending
@@ -106,7 +102,7 @@ module.exports = {
     }
   },
 
-  init: function(bp) {
+  init: async function(bp) {
     bp.middlewares.register({
       name: 'messenger.sendMessages',
       type: 'outgoing',
@@ -119,6 +115,9 @@ module.exports = {
     })
 
     bp.messenger = {}
+
+    const knex = await bp.db.get()
+    await DB(knex).initialize()
 
     UMM(bp) // Initializes Messenger in the UMM
   },

@@ -32,16 +32,15 @@ module.exports = {
     // Setup the socket events
     await socket(bp, config)
 
+    const knex = await bp.db.get()
+    db(knex, config).initialize()
+
     // Initialize UMM
     return umm(bp)
   },
 
   ready: async function(bp, configurator) {
     const config = await configurator.loadAll()
-
-    // Initialize the database
-    const knex = await bp.db.get()
-    db(knex, config).initialize()
 
     // Setup the APIs
     await api(bp, config)

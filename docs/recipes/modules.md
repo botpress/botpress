@@ -103,7 +103,8 @@ That's it - wasn't too difficult, right?
 
 Botpress can work with two databses (`DB`): sqlite OR Postgres.
 Main process with `DB` is located within [core module](https://github.com/botpress/botpress/tree/master/packages/core/botpress/src/database).
-But other modules may have their own `DB` logic.
+But other modules may have their own `DB` logic. If your module uses a `DB`
+you need initialize all your `DB tables` in `init block` of your `src/index.js`
 
 ### DB migration
 
