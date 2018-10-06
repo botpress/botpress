@@ -24,7 +24,7 @@ const buildTs = () => {
     .pipe(
       sourcemaps.write({
         sourceRoot: file => {
-          const sourceFile = path.join(file.cwd, 'src/bp', file.sourceMap.file)
+          const sourceFile = path.join(file.cwd, 'src', file.sourceMap.file)
           return path.relative(path.dirname(sourceFile), file.cwd)
         }
       })
