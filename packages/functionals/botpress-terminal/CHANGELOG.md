@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.46.5"></a>
+## [10.46.5](https://github.com/botpress/modules/compare/v10.46.4...v10.46.5) (2018-10-06)
+
+
+
+
+**Note:** Version bump only for package @botpress/terminal
+
 <a name="10.46.4"></a>
 ## [10.46.4](https://github.com/botpress/modules/compare/v10.46.3...v10.46.4) (2018-10-06)
 

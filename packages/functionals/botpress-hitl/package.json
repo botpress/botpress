@@ -1,6 +1,6 @@
 {
   "name": "@botpress/hitl",
-  "version": "10.46.4",
+  "version": "10.46.5",
   "description": "Official HITL (Human In The Loop) module for Botpress",
   "main": "bin/node.bundle.js",
   "botpress": {
