@@ -2,16 +2,19 @@
   "version": "0.0.1",
   "catchAll": {
     "onReceive": [],
-    "next": []
+    "next": [
+      {
+        "condition": "event.nlu.intent.name === 'forget'",
+        "node": "forget-my-name"
+      }
+    ]
   },
   "startNode": "entry",
   "nodes": [
     {
       "id": "a54a82eb7c",
       "name": "entry",
-      "onEnter": [
-        "getUserVariable {\"name\":\"nickname\",\"output\":\"$r\"}"
-      ],
+      "onEnter": ["getUserVariable {\"name\":\"nickname\",\"output\":\"$r\"}"],
       "onReceive": null,
       "next": [
         {
@@ -33,9 +36,7 @@
           "node": "welcome"
         }
       ],
-      "onEnter": [
-        "say #!builtin_text-z0J9qh"
-      ],
+      "onEnter": ["say #!builtin_text-z0J9qh"],
       "onReceive": [
         "setUserVariable {\"name\":\"nickname\",\"value\":\"{{event.payload.text}}\",\"expiry\":\"never\",\"output\":\"$r\"}"
       ]
@@ -53,10 +54,7 @@
           "node": "many-times"
         }
       ],
-      "onEnter": [
-        "say #!builtin_text-pSsHWg",
-        "increaseConversationsNumber {\"output\":\"$r\"}"
-      ],
+      "onEnter": ["say #!builtin_text-pSsHWg", "incrementNumberOfConversations {\"output\":\"$r\"}"],
       "onReceive": null
     },
     {
@@ -68,10 +66,7 @@
           "node": "END"
         }
       ],
-      "onEnter": [
-        "say #!builtin_text-AY5SSW",
-        "say #!builtin_text-X069Le"
-      ],
+      "onEnter": ["say #!builtin_text-AY5SSW", "say #!builtin_text-X069Le"],
       "onReceive": null
     },
     {
@@ -83,9 +78,7 @@
           "node": "END"
         }
       ],
-      "onEnter": [
-        "say #!builtin_text-bFsOmf"
-      ],
+      "onEnter": ["say #!builtin_text-bFsOmf"],
       "onReceive": null
     },
     {

@@ -17,11 +17,12 @@ export default class ActionService {
     @inject(TYPES.GhostService) private ghost: GhostService,
     @inject(TYPES.Logger)
     @tagged('name', 'Actions')
-    private logger: Logger
+    private logger: Logger,
+    @inject(TYPES.ProjectLocation) private projectLocation: string
   ) {}
 
   forBot(botId: string): ScopedActionService {
-    return new ScopedActionService(this.ghost, this.logger, botId)
+    return new ScopedActionService(this.ghost, this.logger, botId, this.projectLocation)
   }
 }
 
@@ -35,7 +36,7 @@ export type ActionDefinition = {
 }
 
 export class ScopedActionService {
-  constructor(private ghost: GhostService, private logger, private botId: string) {}
+  constructor(private ghost: GhostService, private logger, private botId: string, private projectLocation) {}
 
   async listActions({ includeMetadata = false } = {}): Promise<ActionDefinition[]> {
     const globalActionsFiles = await this.ghost.global().directoryListing('actions', '*.js', 'node_modules/**')
@@ -105,7 +106,7 @@ export class ScopedActionService {
     })
 
     const runner = new VmRunner()
-    const dirPath = path.join(process.cwd(), '/data/global/actions/')
+    const dirPath = path.join(this.projectLocation, '/data/global/actions/')
 
     return runner.runInVm(vm, code, dirPath).catch(err => {
       throw new VError(err, `An error occurred while executing the action "${actionName}"`)
