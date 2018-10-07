@@ -377,6 +377,7 @@ function setupAPIProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
 
 function setupAdminAppProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
   const sanitizePath = path => path.replace('//', '/')
+
   app.use(
     '/admin/api/',
     proxy(coreApiUrl, {
@@ -389,12 +390,15 @@ function setupAdminAppProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }
       }
     })
   )
+
   app.use('/admin', express.static(path.join(__dirname, '../ui-admin/public')))
+
   app.get(['/admin', '/admin/*'], (req, res) => {
     const absolutePath = path.join(__dirname, '../ui-admin/public/index.html')
     res.contentType('text/html')
     res.sendFile(absolutePath)
   })
+
   app.get('/', (req, res) => {
     res.redirect('/admin')
   })

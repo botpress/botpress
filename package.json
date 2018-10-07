@@ -48,10 +48,10 @@
     "socket.io": "^2.1.1",
     "socketio-jwt": "^4.5.0",
     "tamper": "^1.0.0",
+    "tar": "^4.4.6",
     "tmp": "^0.0.33",
     "verror": "^1.10.0",
     "vm2": "^3.6.3",
-    "yauzl": "^2.10.0",
     "yn": "^2.0.0"
   },
   "devDependencies": {

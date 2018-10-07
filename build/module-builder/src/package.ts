@@ -4,9 +4,10 @@ import glob from 'glob'
 import path from 'path'
 import rimraf from 'rimraf'
 import { promisify } from 'util'
-import yazl from 'yazl'
 
 import { debug, error, normal } from './log'
+
+const tar = require('tar')
 
 const execAsync = promisify(exec)
 
@@ -44,8 +45,8 @@ async function cleanup(modulePath) {
 
 async function zipFiles(modulePath, outPath) {
   const packageJson = require(path.join(modulePath, 'package.json'))
-  outPath = outPath.replace(/%name%/gi, packageJson.name.replace('@botpress/', '').replace(/\W/gi, '_'))
-  outPath = outPath.replace(/%version%/gi, packageJson.version.replace(/\W/gi, '_'))
+  outPath = outPath.replace(/%name%/gi, packageJson.name.replace('@botpress/', '').replace(/[^\w-]/gi, '_'))
+  outPath = outPath.replace(/%version%/gi, packageJson.version.replace(/[^\w-]/gi, '_'))
 
   if (!path.isAbsolute(outPath)) {
     outPath = path.join(modulePath, outPath)
@@ -61,17 +62,5 @@ async function zipFiles(modulePath, outPath) {
 
   debug(`Zipping ${files.length} files...`)
 
-  const zip = new yazl.ZipFile()
-
-  const promise = new Promise(resolve => {
-    zip.outputStream.pipe(fs.createWriteStream(outPath)).on('close', () => resolve())
-  })
-
-  for (const file of files) {
-    zip.addFile(path.resolve(modulePath, file), file.replace(/^node_production_modules\//i, 'node_modules/'))
-  }
-
-  zip.end()
-
-  return promise
+  await tar.create({ gzip: true, follow: true, file: outPath, portable: true }, files)
 }

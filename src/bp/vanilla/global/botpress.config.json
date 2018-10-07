@@ -28,19 +28,19 @@
   },
   "modules": [
     {
-      "location": "bp/modules/channel-web",
+      "location": "MODULES_ROOT/channel-web",
       "enabled": true
     },
     {
-      "location": "bp/modules/nlu",
+      "location": "MODULES_ROOT/nlu",
       "enabled": true
     },
     {
-      "location": "bp/modules/analytics",
-      "enabled": false
+      "location": "MODULES_ROOT/hitl",
+      "enabled": true
     },
     {
-      "location": "bp/modules/hitl",
+      "location": "MODULES_ROOT/analytics",
       "enabled": true
     }
   ]
