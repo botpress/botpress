@@ -1,6 +1,8 @@
+import { container } from 'core/app.inversify'
+import { Table } from 'core/database/interfaces'
 import Knex from 'knex'
 
-import { Table } from 'core/database/interfaces'
+import { TYPES } from '../../../types'
 
 // TODO: Use knex seed api instead
 const insertBots = async (knex: Knex, tableName: string) => {
@@ -41,7 +43,8 @@ export class BotsTable extends Table {
           .onDelete('SET NULL')
       })
       .then(async created => {
-        if (created) {
+        const isDevelopment = !container.get<boolean>(TYPES.IsProduction)
+        if (isDevelopment && created) {
           await insertBots(this.knex, this.name)
         }
         return created

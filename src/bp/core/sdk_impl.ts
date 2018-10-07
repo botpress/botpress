@@ -3,7 +3,8 @@ import * as enums from 'core/sdk/enums'
 
 const impl = <typeof sdk>{
   version: '11.0-alpha.1',
-  LoggerLevel: enums.LoggerLevel
+  LoggerLevel: enums.LoggerLevel,
+  NodeActionType: enums.NodeActionType
 }
 
 module.exports = impl

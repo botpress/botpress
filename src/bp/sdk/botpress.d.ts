@@ -37,6 +37,7 @@ declare module 'botpress/sdk' {
     defaultConfigJson?: string
     serveFile?: ((path: string) => Promise<Buffer>)
     definition: ModuleDefinition
+    flowGenerator?: any
   }
 
   export interface ModuleDefinition {
@@ -78,6 +79,7 @@ declare module 'botpress/sdk' {
     export type EventDirection = 'incoming' | 'outgoing'
     export namespace WellKnownFlags {
       export const SKIP_DIALOG_ENGINE: symbol
+      export const AVOID_QNA_PROCESSING: symbol
     }
     interface EventCtorArgs {
       id?: Number
@@ -198,6 +200,77 @@ declare module 'botpress/sdk' {
     timeoutInterval: string
   }
 
+  export interface ContentElement {
+    id: string
+    contentType: string
+    formData: object
+    computedData: object
+    createdOn: Date
+    createdBy: string
+    modifiedOn: Date
+    previewText: string
+  }
+
+  export type ContentType = {
+    id: string
+    title: string
+    description: string
+    jsonSchema: object
+    uiSchema?: object
+    computePreviewText?: (formData: object) => string
+    computeData?: (typeId: string, formData: object) => object
+    renderElement: (data: object, channel: string) => object[]
+  }
+
+  export interface Flow {
+    name: string
+    location?: string
+    version?: string
+    startNode?: string
+    skillData?: any
+    nodes: FlowNode[]
+    catchAll?: NodeActions
+    timeoutNode?: string
+    type?: string
+    timeout?: { name: string; flow: string; node: string }[]
+  }
+
+  export type SkillFlow = Partial<Flow> & Pick<Required<Flow>, 'nodes'>
+
+  export type FlowNode = {
+    id?: string
+    name: string
+    type?: any
+    timeoutNode?: string
+    flow?: string
+  } & (NodeActions)
+
+  export type SkillFlowNode = Partial<FlowNode> & Pick<Required<FlowNode>, 'name'>
+
+  export interface NodeTransition {
+    caption?: string
+    condition: string
+    node: string
+  }
+
+  export interface NodeActions {
+    onEnter?: ActionBuilderProps[] | string[]
+    onReceive?: ActionBuilderProps[] | string[]
+    next?: NodeTransition[]
+  }
+
+  export interface ActionBuilderProps {
+    name: string
+    type: NodeActionType
+    args?: any
+  }
+
+  export enum NodeActionType {
+    RenderElement = 'render',
+    RunAction = 'run',
+    RenderText = 'say'
+  }
+
   /**
    * ////////////////
    * //////// API
@@ -268,6 +341,12 @@ declare module 'botpress/sdk' {
 
   export namespace ghost {
     export function forBot(botId: string): ScopedGhostService
+  }
+
+  export namespace cms {
+    export function getContentElement(botId: string, id: string): Promise<ContentElement>
+    export function listContentElements(botId: string, contentTypeId?: string): Promise<ContentElement[]>
+    export function getAllContentTypes(botId?: string): Promise<ContentType[]>
   }
 
   export const logger: Logger

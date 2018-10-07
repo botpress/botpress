@@ -4,7 +4,7 @@ import { Instruction } from '.'
 import { InstructionFactory } from './factory'
 
 export class InstructionQueue {
-  private instructions: Instruction[] = []
+  instructions: Instruction[] = []
 
   constructor(instructions?: string) {
     if (instructions) {

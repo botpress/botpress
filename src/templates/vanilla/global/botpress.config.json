@@ -1,0 +1,47 @@
+{
+  "$schema": "../botpress.config.schema.json",
+  "httpServer": {
+    "host": "localhost",
+    "port": 3000,
+    "bodyLimit": "100kb",
+    "backlog": 0
+  },
+  "database": {
+    "type": "sqlite",
+    "location": "%BOTPRESS_DIR%/data/storage/core.sqlite",
+    "host": "localhost",
+    "port": 5432,
+    "user": "postgres",
+    "password": "",
+    "database": "botpress_test"
+  },
+  "ghost": {
+    "enabled": "$isProduction"
+  },
+  "dialog": {
+    "timeoutInterval": "2m",
+    "janitorInterval": "10s"
+  },
+  "logs": {
+    "expiration": "2 weeks",
+    "janitorInterval": "2s"
+  },
+  "modules": [
+    {
+      "location": "bp/modules/channel-web",
+      "enabled": true
+    },
+    {
+      "location": "bp/modules/nlu",
+      "enabled": true
+    },
+    {
+      "location": "bp/modules/analytics",
+      "enabled": false
+    },
+    {
+      "location": "bp/modules/hitl",
+      "enabled": true
+    }
+  ]
+}

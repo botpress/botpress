@@ -31,6 +31,9 @@ export async function buildBackend(modulePath: string) {
       '@babel/preset-typescript',
       '@babel/preset-react'
     ],
+    parserOpts: {
+      allowReturnOutsideFunction: true
+    },
     plugins: ['@babel/plugin-proposal-class-properties', '@babel/plugin-proposal-function-bind'],
     sourceType: 'module',
     cwd: modulePath

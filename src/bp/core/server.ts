@@ -1,25 +1,24 @@
 import bodyParser from 'body-parser'
+import { Logger, RouterOptions } from 'botpress/sdk'
 import errorHandler from 'errorhandler'
 import express from 'express'
 import { createServer, Server } from 'http'
 import { inject, injectable, tagged } from 'inversify'
 
 import { ConfigProvider } from './config/config-loader'
-import { TYPES } from './types'
-
-import { AdminRouter, AuthRouter, BotsRouter, ModulesRouter } from './routers'
-
 import { ModuleLoader } from './module-loader'
 import { BotRepository } from './repositories'
+import { AdminRouter, AuthRouter, BotsRouter, ModulesRouter } from './routers'
 import ActionService from './services/action/action-service'
 import AuthService from './services/auth/auth-service'
 import TeamsService from './services/auth/teams-service'
 import { CMSService } from './services/cms/cms-service'
 import FlowService from './services/dialog/flow/service'
+import { SkillService } from './services/dialog/skill/service'
 import { LogsService } from './services/logs/service'
 import MediaService from './services/media'
 import { NotificationsService } from './services/notification/service'
-import { RouterOptions, Logger } from 'botpress/sdk'
+import { TYPES } from './types'
 
 const BASE_API_PATH = '/api/v1'
 
@@ -50,7 +49,8 @@ export default class HTTPServer {
     @inject(TYPES.TeamsService) private teamsService: TeamsService,
     @inject(TYPES.MediaService) mediaService: MediaService,
     @inject(TYPES.LogsService) logsService: LogsService,
-    @inject(TYPES.NotificationsService) notificationService: NotificationsService
+    @inject(TYPES.NotificationsService) notificationService: NotificationsService,
+    @inject(TYPES.SkillService) skillService: SkillService
   ) {
     this.app = express()
 
@@ -60,10 +60,9 @@ export default class HTTPServer {
 
     this.httpServer = createServer(this.app)
 
-    this.modulesRouter = new ModulesRouter(moduleLoader)
+    this.modulesRouter = new ModulesRouter(moduleLoader, skillService)
     this.authRouter = new AuthRouter(this.logger, this.authService, this.teamsService)
     this.adminRouter = new AdminRouter(this.logger, this.authService, this.teamsService)
-    this.modulesRouter = new ModulesRouter(moduleLoader)
     this.botsRouter = new BotsRouter({
       actionService,
       botRepository,
