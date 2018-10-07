@@ -9,7 +9,7 @@ const lookupPaths: string[] = []
 
 if (process.pkg) {
   // Running botpress in packages mode
-  lookupPaths.push(process.cwd() + '/modules')
+  lookupPaths.push(path.dirname(process.execPath) + '/modules')
 }
 
 if (process.env.BP_MODULES_PATH) {

@@ -7,7 +7,7 @@ export default async (bp: SDK, config) => {
       name: 'qna.incoming',
       direction: 'incoming',
       handler: async (event, next) => {
-        if (!event.hasFlag(bp.IO.WellKnownFlags.AVOID_QNA_PROCESSING)) {
+        if (!event.hasFlag(bp.IO.WellKnownFlags.SKIP_QNA_PROCESSING)) {
           if (!(await processEvent(event, { bp, storage: this.storage, config }))) {
             next()
           }

@@ -1,5 +1,0 @@
-[] Gulp for modules
-  [x] copy botpress.d.ts from core
-  [x] Git ignore botpress.d.ts
-  [x] Proper injection of SDK (throw when using it)
-  [] Proper factory in api.ts

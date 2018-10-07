@@ -79,7 +79,7 @@ declare module 'botpress/sdk' {
     export type EventDirection = 'incoming' | 'outgoing'
     export namespace WellKnownFlags {
       export const SKIP_DIALOG_ENGINE: symbol
-      export const AVOID_QNA_PROCESSING: symbol
+      export const SKIP_QNA_PROCESSING: symbol
     }
     interface EventCtorArgs {
       id?: Number

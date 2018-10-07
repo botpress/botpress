@@ -47,7 +47,6 @@ async function start() {
       modules.push(entryPoint)
       modulesLog += os.EOL + `${chalk.greenBright('⦿')} ${entry.location}`
     } catch (err) {
-      console.log(err)
       modulesLog += os.EOL + `${chalk.redBright('⊗')} ${entry.location} ${chalk.gray('(error)')}`
       loadingErrors.push(new FatalError(err, `Fatal error loading module "${entry.location}"`))
     }

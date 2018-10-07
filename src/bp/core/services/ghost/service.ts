@@ -3,6 +3,7 @@ import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import minimatch from 'minimatch'
 import path from 'path'
+import { VError } from 'verror'
 
 import { BotpressConfig } from '../../config/botpress.config'
 import { isValidBotId } from '../../misc/validation'
@@ -196,14 +197,17 @@ export class ScopedGhostService {
     await this.invalidateFile(fileName)
   }
 
-  async directoryListing(rootFolder: string, fileEndingPattern: string = '*.*', exludes?): Promise<string[]> {
+  async directoryListing(
+    rootFolder: string,
+    fileEndingPattern: string = '*.*',
+    exludes?: string | string[]
+  ): Promise<string[]> {
     try {
       const files = await this.primaryDriver.directoryListing(this.normalizeFolderName(rootFolder), exludes)
       return files.filter(minimatch.filter(fileEndingPattern, { matchBase: true, nocase: true, noglobstar: false }))
     } catch (err) {
-      this.logger.attachError(err).error(`Could not list directory under ${rootFolder}`)
+      throw new VError(err, `Could not list directory under ${rootFolder}`)
     }
-    return []
   }
 
   async getPending(): Promise<GhostPendingRevisions> {
