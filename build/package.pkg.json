@@ -7,6 +7,6 @@
   "private": true,
   "pkg": {
     "scripts": "./errors.js",
-    "assets": ["./core/**", "../../node_modules/vm2/lib/*.js"]
+    "assets": ["./core/**", "../../node_modules/vm2/lib/*.js", "./ui-admin/**", "./ui-studio/**"]
   }
 }

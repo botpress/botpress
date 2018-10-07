@@ -13,7 +13,7 @@ const getAllModulesRoot = () => {
   return glob
     .sync('**/package.json', {
       cwd,
-      ignore: '**/node_modules/**'
+      ignore: ['**/node_modules/**', '**/node_production_modules/**']
     })
     .map(x => path.join(cwd, x))
     .map(x => path.dirname(x))
@@ -59,7 +59,7 @@ const buildModule = (modulePath, cb) => {
 
 const packageModule = (modulePath, cb) => {
   exec(
-    `./node_modules/.bin/module-builder package -v --out ../../out/binaries/modules/%name%.zip`,
+    `./node_modules/.bin/module-builder package -v --out ../../out/binaries/modules/%name%.tgz`,
     { cwd: modulePath },
     (err, stdout, stderr) => {
       if (err) {

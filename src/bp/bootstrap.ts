@@ -7,11 +7,11 @@ import './common/polyfills'
 import sdk from 'botpress/sdk'
 import chalk from 'chalk'
 import { Botpress, Config, Logger } from 'core/app'
-import { FatalError } from 'core/errors'
 import center from 'core/logger/center'
 import { ModuleLoader } from 'core/module-loader'
-import 'core/modules-resolver'
+import { resolve as ModuleResolver } from 'core/modules/resolver'
 import os from 'os'
+import { FatalError } from './errors'
 
 const { start: startProxy } = require('./http/api')
 
@@ -40,7 +40,8 @@ async function start() {
         continue
       }
 
-      const req = require(entry.location)
+      const moduleLocation = await ModuleResolver(entry.location)
+      const req = require(moduleLocation)
       const rawEntry = (req.default ? req.default : req) as sdk.ModuleEntryPoint
       const entryPoint = ModuleLoader.processModuleEntryPoint(rawEntry, entry.location)
       modules.push(entryPoint)

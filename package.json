@@ -4,7 +4,7 @@
   "description": "The world's most powerful conversational engine",
   "main": "index.js",
   "repository": "https://github.com/botpress/botpress-xx.git",
-  "author": "Sylvain Perron <slvn.perron+github@gmail.com>",
+  "author": "Botpress, Inc.",
   "license": "AGPL-3.0",
   "private": true,
   "scripts": {
@@ -13,7 +13,8 @@
     "build": "./node_modules/.bin/gulp",
     "watch": "./node_modules/.bin/gulp dev",
     "build-modules": "./node_modules/.bin/gulp modules",
-    "clean": "./node_modules/.bin/gulp clean"
+    "clean": "./node_modules/.bin/gulp clean",
+    "package": "./node_modules/.bin/gulp package"
   },
   "dependencies": {
     "axios": "^0.18.0",
@@ -49,10 +50,10 @@
     "socket.io": "^2.1.1",
     "socketio-jwt": "^4.5.0",
     "tamper": "^1.0.0",
+    "tar": "^4.4.6",
     "tmp": "^0.0.33",
     "verror": "^1.10.0",
     "vm2": "^3.6.3",
-    "yauzl": "^2.10.0",
     "yn": "^2.0.0"
   },
   "devDependencies": {
