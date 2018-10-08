@@ -1,8 +1,7 @@
+import axios from 'axios'
 import Bluebird from 'bluebird'
 import _ from 'lodash'
-import mkdirp from 'mkdirp'
 import generate from 'nanoid/generate'
-import path from 'path'
 
 import { Pagination, QnaStorage, SDK } from '../types'
 
@@ -33,43 +32,43 @@ const normalizeQuestions = questions =>
 export default class Storage implements QnaStorage {
   bp: SDK
   config
-  qnaDir: string
+  botId: string
+  axiosConfig
 
-  constructor(bp: SDK, config) {
+  constructor(bp: SDK, config, botId) {
     this.bp = bp
-
-    this.qnaDir = config.qnaDir
+    this.config = config
+    this.botId = botId
   }
 
   async initialize() {
-    //  mkdirp.sync(path.resolve(this.projectDir, this.qnaDir))
+    this.axiosConfig = await this.bp.http.getAxiosConfigForBot(this.botId)
   }
 
   async syncNlu() {
-    // TODO: Fix because nlu not defined
-    /*
-    if (await this.bp.nlu.provider.checkSyncNeeded()) {
-      await this.bp.nlu.provider.sync()
-    }*/
+    const { data: isNeeded } = await axios.get('/api/ext/nlu/sync/check', this.axiosConfig)
+    if (isNeeded) {
+      await axios.get('/api/ext/nlu/sync', this.axiosConfig)
+    }
   }
 
   async update(data, id) {
     id = id || getQuestionId(data)
     if (data.enabled) {
-      // TODO: Fix because nlu not defined
-      /*
-      await this.bp.nlu.forBot('bot123').storage.saveIntent(getIntentId(id), {
+      const intent = {
         entities: [],
         utterances: normalizeQuestions(data.questions)
-      })*/
+      }
+
+      axios.post(`/api/ext/nlu/intents/${getIntentId(id)}`, intent, this.axiosConfig)
     } else {
-      await this.bp.nlu.storage.deleteIntent(getIntentId(id))
+      await axios.delete(`/api/ext/nlu/intents/${getIntentId(id)}`, this.axiosConfig)
     }
 
     await this.syncNlu()
     await this.bp.ghost
-      .forBot('bot123')
-      .upsertFile(this.qnaDir, `${id}.json`, JSON.stringify({ id, data }, undefined, 2))
+      .forBot(this.botId)
+      .upsertFile(this.config.qnaDir, `${id}.json`, JSON.stringify({ id, data }, undefined, 2))
 
     return id
   }
@@ -78,17 +77,19 @@ export default class Storage implements QnaStorage {
     const ids = await Bluebird.all(
       (_.isArray(qna) ? qna : [qna]).map(async data => {
         const id = getQuestionId(data)
-        // TODO: Fix because nlu not defined
-        /*
+
         if (data.enabled) {
-          await this.bp.nlu.forBot('bot123').storage.saveIntent(getIntentId(id), {
+          const intent = {
             entities: [],
             utterances: normalizeQuestions(data.questions)
-          })
-        }*/
+          }
+
+          await axios.post(`/api/ext/nlu/intents/${getIntentId(id)}`, intent, this.axiosConfig)
+        }
+
         await this.bp.ghost
-          .forBot('bot123')
-          .upsertFile(this.qnaDir, `${id}.json`, JSON.stringify({ id, data }, undefined, 2))
+          .forBot(this.botId)
+          .upsertFile(this.config.qnaDir, `${id}.json`, JSON.stringify({ id, data }, undefined, 2))
       })
     )
 
@@ -105,17 +106,17 @@ export default class Storage implements QnaStorage {
       // opts object
       filename = opts.filename
     }
-    const data = await this.bp.ghost.forBot('bot123').readFileAsString(this.qnaDir, filename)
+    const data = await this.bp.ghost.forBot(this.botId).readFileAsString(this.config.qnaDir, filename)
     return JSON.parse(data)
   }
 
   async count() {
-    const questions = await this.bp.ghost.forBot('bot123').directoryListing(this.qnaDir, '*.json')
+    const questions = await this.bp.ghost.forBot(this.botId).directoryListing(this.config.qnaDir, '*.json')
     return questions.length
   }
 
   async all(opts?: Pagination) {
-    let questions = await this.bp.ghost.forBot('bot123').directoryListing(this.qnaDir, '*.json')
+    let questions = await this.bp.ghost.forBot(this.botId).directoryListing(this.config.qnaDir, '*.json')
     if (opts && opts.limit && opts.offset) {
       questions = questions.slice(opts.offset, opts.offset + opts.limit)
     }
@@ -130,16 +131,17 @@ export default class Storage implements QnaStorage {
     await Promise.all(
       ids.map(async id => {
         const data = await this.getQuestion(id)
-        // TODO: Fix because nlu not defined
-        /*if (data.data.enabled) {
-          await this.bp.nlu.storage.deleteIntent(getIntentId(id))
-        }*/
-        await this.bp.ghost.forBot('bot123').deleteFile(this.qnaDir, `${id}.json`)
+
+        if (data.data.enabled) {
+          axios.delete(`/api/ext/nlu/intents/${getIntentId(id)}`, this.axiosConfig)
+        }
+        await this.bp.ghost.forBot(this.botId).deleteFile(this.config.qnaDir, `${id}.json`)
       })
     )
     await this.syncNlu()
   }
 
+  // TODO Call the module's api instead of global object
   async answersOn(text) {
     const extract = await this.bp.nlu.provider.extract({ text })
     const intents = _.chain([extract.intent, ...extract.intents])

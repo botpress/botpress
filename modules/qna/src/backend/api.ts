@@ -9,70 +9,17 @@ import multer from 'multer'
 import nanoid from 'nanoid'
 import yn from 'yn'
 
-import * as parsers from './parsers.js'
+import { importQuestions, prepareExport } from './transfer'
 import { QnaStorage, SDK } from './types'
 
-export default async (bp: SDK, config, storage: QnaStorage) => {
+export default async (bp: SDK, botScopedStorage: Map<string, QnaStorage>) => {
   const csvUploadStatuses = {}
 
-  const recordCsvUploadStatus = (csvUploadStatusId, status) => {
-    if (!csvUploadStatusId) {
+  const updateUploadStatus = (uploadStatusId, status) => {
+    if (!uploadStatusId) {
       return
     }
-    csvUploadStatuses[csvUploadStatusId] = status
-  }
-
-  bp.qna = {
-    async import(questions, { format = 'json', csvUploadStatusId = '' } = {}) {
-      recordCsvUploadStatus(csvUploadStatusId, 'Calculating diff with existing questions')
-      const existingQuestions = (await storage.all()).map(item => JSON.stringify(_.omit(item.data, 'enabled')))
-      const parsedQuestions = typeof questions === 'string' ? parsers[`${format}Parse`](questions) : questions
-      const questionsToSave = parsedQuestions.filter(item => !existingQuestions.includes(JSON.stringify(item)))
-
-      if (config.qnaMakerApiKey) {
-        return storage.insert(questionsToSave.map(question => ({ ...question, enabled: true })))
-      }
-
-      let questionsSavedCount = 0
-      return Promise.each(questionsToSave, question =>
-        storage.insert({ ...question, enabled: true }).then(() => {
-          questionsSavedCount += 1
-          recordCsvUploadStatus(csvUploadStatusId, `Saved ${questionsSavedCount}/${questionsToSave.length} questions`)
-        })
-      )
-    },
-
-    async export({ flat = false } = {}) {
-      const qnas = await storage.all()
-
-      return qnas.flatMap(question => {
-        const { data } = question
-        const { questions, answer: textAnswer, action, redirectNode, redirectFlow } = data
-
-        let answer = textAnswer
-        let answer2 = undefined
-
-        if (action === 'redirect') {
-          answer = redirectFlow
-          if (redirectNode) {
-            answer += '#' + redirectNode
-          }
-        } else if (action === 'text_redirect') {
-          answer2 = redirectFlow
-          if (redirectNode) {
-            answer2 += '#' + redirectNode
-          }
-        }
-
-        if (!flat) {
-          return { questions, action, answer, answer2 }
-        }
-        return questions.map(question => ({ question, action, answer, answer2 }))
-      })
-    },
-
-    getQuestion: storage.getQuestion.bind(storage),
-    answersOn: storage.answersOn.bind(storage)
+    csvUploadStatuses[uploadStatusId] = status
   }
 
   const router = bp.http.createRouterForBot('qna')
@@ -95,12 +42,18 @@ export default async (bp: SDK, config, storage: QnaStorage) => {
     )
   }
 
-  router.get('/list', async ({ query: { limit, offset } }, res) => {
+  router.get('/list', async (req, res) => {
     try {
+      const {
+        query: { limit, offset }
+      } = req
+      const storage = botScopedStorage.get(req.params.botId)
+
       const items = await storage.all({
         limit: limit ? parseInt(limit) : undefined,
         offset: offset ? parseInt(offset) : undefined
       })
+
       const overallItemsCount = await storage.count()
       res.send({ items, overallItemsCount })
     } catch (e) {
@@ -112,6 +65,7 @@ export default async (bp: SDK, config, storage: QnaStorage) => {
   router.post('/create', async (req, res) => {
     try {
       sendToastProgress('Save')
+      const storage = botScopedStorage.get(req.params.botId)
       const id = await storage.insert(req.body)
       res.send(id)
       sendToastSuccess('Save')
@@ -125,6 +79,7 @@ export default async (bp: SDK, config, storage: QnaStorage) => {
   router.put('/:question', async (req, res) => {
     try {
       sendToastProgress('Update')
+      const storage = botScopedStorage.get(req.params.botId)
       await storage.update(req.body, req.params.question)
       sendToastSuccess('Update')
       res.end()
@@ -138,6 +93,7 @@ export default async (bp: SDK, config, storage: QnaStorage) => {
   router.delete('/:question', async (req, res) => {
     try {
       sendToastProgress('Delete')
+      const storage = botScopedStorage.get(req.params.botId)
       await storage.delete(req.params.question)
       sendToastSuccess('Delete')
       res.end()
@@ -149,35 +105,56 @@ export default async (bp: SDK, config, storage: QnaStorage) => {
     }
   })
 
-  router.get('/csv', async (req, res) => {
-    res.setHeader('Content-Type', 'text/csv')
-    res.setHeader('Content-disposition', `attachment; filename=qna_${moment().format('DD-MM-YYYY')}.csv`)
-    const json2csvParser = new Json2csvParser({ fields: ['question', 'action', 'answer', 'answer2'], header: true })
-    res.end(iconv.encode(json2csvParser.parse(await bp.qna.export({ flat: true })), config.exportCsvEncoding))
+  router.get('/export/:format', async (req, res) => {
+    const storage = botScopedStorage.get(req.params.botId)
+    const config = await bp.config.getModuleConfigForBot('qna', req.params.botId)
+    const data = await prepareExport(storage, { flat: true })
+
+    if (req.params.format === 'csv') {
+      res.setHeader('Content-Type', 'text/csv')
+      res.setHeader('Content-disposition', `attachment; filename=qna_${moment().format('DD-MM-YYYY')}.csv`)
+      const json2csvParser = new Json2csvParser({ fields: ['question', 'action', 'answer', 'answer2'], header: true })
+      res.end(iconv.encode(json2csvParser.parse(data), config.exportCsvEncoding))
+    } else {
+      res.setHeader('Content-Type', 'application/json')
+      res.setHeader('Content-disposition', `attachment; filename=qna_${moment().format('DD-MM-YYYY')}.json`)
+      res.end(JSON.stringify(data))
+    }
   })
 
   const upload = multer()
-  router.post('/csv', upload.single('csv'), async (req, res) => {
-    const csvUploadStatusId = nanoid()
-    res.end(csvUploadStatusId)
-    recordCsvUploadStatus(csvUploadStatusId, 'Deleting existing questions')
+  router.post('/import/csv', upload.single('csv'), async (req, res) => {
+    const storage = botScopedStorage.get(req.params.botId)
+    const config = await bp.config.getModuleConfigForBot('qna', req.params.botId)
+
+    const uploadStatusId = nanoid()
+    res.end(uploadStatusId)
+
+    updateUploadStatus(uploadStatusId, 'Deleting existing questions')
     if (yn(req.body.isReplace)) {
-      const questions = await this.storage.all()
+      const questions = await storage.all()
       await storage.delete(questions.map(({ id }) => id))
     }
 
     try {
       const questions = iconv.decode(req.file.buffer, config.exportCsvEncoding)
+      const params = {
+        storage,
+        config,
+        format: 'csv',
+        statusCallback: updateUploadStatus,
+        uploadStatusId
+      }
+      await importQuestions(questions, params)
 
-      await bp.qna.import(questions, { format: 'csv', csvUploadStatusId })
-      recordCsvUploadStatus(csvUploadStatusId, 'Completed')
+      updateUploadStatus(uploadStatusId, 'Completed')
     } catch (e) {
       bp.logger.error('QnA Error:', e)
-      recordCsvUploadStatus(csvUploadStatusId, `Error: ${e.message}`)
+      updateUploadStatus(uploadStatusId, `Error: ${e.message}`)
     }
   })
 
-  router.get('/csv-upload-status/:csvUploadStatusId', async (req, res) => {
-    res.end(csvUploadStatuses[req.params.csvUploadStatusId])
+  router.get('/csv-upload-status/:uploadStatusId', async (req, res) => {
+    res.end(csvUploadStatuses[req.params.uploadStatusId])
   })
 }

@@ -395,7 +395,7 @@ export default class QnaAdmin extends Component {
     formData.set('isReplace', this.state.isCsvUploadReplace)
     formData.append('csv', this.state.csvToUpload)
     const headers = { 'Content-Type': 'multipart/form-data' }
-    const { data: csvStatusId } = await this.props.bp.axios.post('/api/ext/qna/csv', formData, { headers })
+    const { data: csvStatusId } = await this.props.bp.axios.post('/api/ext/qna/import/csv', formData, { headers })
     this.setState({ csvStatusId })
     while (this.state.csvStatusId) {
       try {
@@ -416,7 +416,7 @@ export default class QnaAdmin extends Component {
 
   downloadCsv = () =>
     // We can't just download file directly due to security restrictions
-    this.props.bp.axios({ url: '/api/ext/qna/csv', responseType: 'blob' }).then(response => {
+    this.props.bp.axios({ url: '/api/ext/qna/export/csv', responseType: 'blob' }).then(response => {
       this.setState(
         {
           csvDownloadableLinkHref: window.URL.createObjectURL(new Blob([response.data])),
