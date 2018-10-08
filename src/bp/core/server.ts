@@ -1,5 +1,5 @@
 import bodyParser from 'body-parser'
-import { Logger, RouterOptions } from 'botpress/sdk'
+import { AxiosBotConfig, Logger, RouterOptions } from 'botpress/sdk'
 import errorHandler from 'errorhandler'
 import express from 'express'
 import { createServer, Server } from 'http'
@@ -130,5 +130,18 @@ export default class HTTPServer {
 
   createRouterForBot(router: string, options: RouterOptions) {
     return this.botsRouter.getNewRouter(router, options)
+  }
+
+  async getAxiosConfigForBot(botId: string): Promise<AxiosBotConfig> {
+    const botpressConfig = await this.configProvider.getBotpressConfig()
+    const config = botpressConfig.httpServer
+
+    return {
+      baseURL: `http://${config.host || 'localhost'}:${config.proxyPort}`,
+      headers: {
+        'X-Botpress-Bot-Id': botId,
+        'X-Botpress-App': 'Studio'
+      }
+    }
   }
 }

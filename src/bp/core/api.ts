@@ -24,17 +24,20 @@ import { NotificationsService } from './services/notification/service'
 import RealtimeService from './services/realtime'
 import { TYPES } from './types'
 
-const http = (httpServer: HTTPServer) =>
-  ({
+const http = (httpServer: HTTPServer): typeof sdk.http => {
+  return {
     createShortLink(): void {
       throw new Error('Method not implemented.')
     },
-
     createRouterForBot(routerName: string, options?: sdk.RouterOptions): any {
       const defaultRouterOptions = { checkAuthentication: true, enableJsonBodyParser: true }
       return httpServer.createRouterForBot(routerName, options || defaultRouterOptions)
+    },
+    async getAxiosConfigForBot(botId: string): Promise<any> {
+      return httpServer.getAxiosConfigForBot(botId)
     }
-  } as typeof sdk.http)
+  }
+}
 
 const event = (eventEngine: EventEngine): typeof sdk.events => {
   return {
