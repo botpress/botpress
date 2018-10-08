@@ -12,7 +12,8 @@
   },
   "scripts": {
     "build": "./node_modules/.bin/module-builder build",
-    "watch": "./node_modules/.bin/module-builder watch"
+    "watch": "./node_modules/.bin/module-builder watch",
+    "postinstall": "./node_modules/.bin/rimraf **/bmp-stuff.png"
   },
   "author": "Botpress, Inc.",
   "license": "AGPL-3.0-only",

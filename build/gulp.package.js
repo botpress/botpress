@@ -2,6 +2,9 @@ const exec = require('child_process').exec
 const path = require('path')
 const fse = require('fs-extra')
 const gulp = require('gulp')
+const glob = require('glob')
+const mkdirp = require('mkdirp')
+const fs = require('fs')
 
 const promisify = require('util').promisify
 const execAsync = promisify(exec)
@@ -28,7 +31,17 @@ const copyData = () => {
   return gulp.src(['out/bp/data/**/*']).pipe(gulp.dest('out/binaries/data'))
 }
 
+const copyNativeExtensions = async () => {
+  mkdirp.sync('out/binaries/bindings')
+  const files = glob.sync('./node_modules/**/node-v64-*/*.node')
+
+  for (const file of files) {
+    fs.copyFileSync(path.resolve(file), path.resolve('./out/binaries/bindings/', path.basename(file)))
+  }
+}
+
 module.exports = {
   packageApp,
-  copyData
+  copyData,
+  copyNativeExtensions
 }

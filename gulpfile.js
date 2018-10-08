@@ -49,6 +49,7 @@ gulp.task(
   gulp.series([
     package.packageApp,
     ...(process.argv.includes('--skip-modules') ? [] : [modules.packageModules()]),
-    package.copyData
+    package.copyData,
+    package.copyNativeExtensions
   ])
 )

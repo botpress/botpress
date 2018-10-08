@@ -271,6 +271,11 @@ declare module 'botpress/sdk' {
     RenderText = 'say'
   }
 
+  export interface AxiosBotConfig {
+    baseURL: string
+    headers: object
+  }
+
   /**
    * ////////////////
    * //////// API
@@ -291,6 +296,7 @@ declare module 'botpress/sdk' {
   export namespace http {
     export function createShortLink(): void
     export function createRouterForBot(routerName: string, options?: RouterOptions): any // TODO Better interface for the router
+    export function getAxiosConfigForBot(botId: string): Promise<AxiosBotConfig>
   }
 
   export namespace events {

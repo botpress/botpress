@@ -1,9 +1,11 @@
+import { Logger } from 'botpress/sdk'
+import { TYPES } from 'core/types'
 import { ConfigurationError } from 'errors'
 import fs from 'fs'
-
+import { inject } from 'inversify'
 import path from 'path'
 
-import { unpack } from './unpacker'
+import Unpacker from './unpacker'
 
 const lookupPaths: string[] = []
 
@@ -25,36 +27,16 @@ if (process.env.BP_PATH) {
 /** Makes path with forward slashes work on all OS */
 const fixPathForOS = p => p.replace(/\/\//g, '/').replace(/\//g, path.sep)
 
-/**
- * Resolves the real absolute path of a module from a path defined in [`botpress.config.json`]{@see BotpressConfig}
- * @private
- * @param modulePath The module path to load, which may be pointing to a TGZ file or a folder and may also contain variables like {{MODULES_ROOT}}
- */
-export async function resolve(modulePath: string) {
-  const paths = lookupPaths.reduce((arr: string[], lp?: string) => {
-    const item = modulePath.replace('MODULES_ROOT', lp!)
-    arr.push(fixPathForOS(item))
-    arr.push(fixPathForOS(item + '.tgz'))
-    return arr
-  }, [])
+export default class ModuleResolver {
+  unpacker: Unpacker
 
-  for (const p of paths) {
-    if (!fs.existsSync(p)) {
-      continue
-    }
+  constructor(@inject(TYPES.Logger) private logger: Logger) {
+    this.unpacker = new Unpacker(this.logger)
+  }
 
-    if (fs.statSync(p).isDirectory()) {
-      addToNodePath(path.resolve(p, 'node_modules'))
-      return p
-    }
-
-    if (!p.endsWith('.tgz')) {
-      throw new ConfigurationError(`The file at "${p}" is not a .tgz file`)
-    }
-
-    const finalDestination = await unpack(p)
-    const nodeProductionModuleDir = path.resolve(finalDestination, 'node_production_modules')
-    const nodeModuleDir = path.resolve(finalDestination, 'node_modules')
+  private addModuleNodePath(modulePath) {
+    const nodeProductionModuleDir = path.resolve(modulePath, 'node_production_modules')
+    const nodeModuleDir = path.resolve(modulePath, 'node_modules')
 
     if (fs.existsSync(nodeProductionModuleDir)) {
       addToNodePath(nodeProductionModuleDir)
@@ -63,9 +45,41 @@ export async function resolve(modulePath: string) {
     if (fs.existsSync(nodeModuleDir)) {
       addToNodePath(nodeModuleDir)
     }
-
-    return finalDestination
   }
 
-  throw new ConfigurationError(`Could not find module at path "${modulePath}"`)
+  /**
+   * Resolves the real absolute path of a module from a path defined in [`botpress.config.json`]{@see BotpressConfig}
+   * @private
+   * @param modulePath The module path to load, which may be pointing to a TGZ file or a folder and may also contain variables like {{MODULES_ROOT}}
+   */
+  async resolve(modulePath: string) {
+    const paths = lookupPaths.reduce((arr: string[], lp?: string) => {
+      const item = modulePath.replace('MODULES_ROOT', lp!)
+      arr.push(fixPathForOS(item))
+      arr.push(fixPathForOS(item + '.tgz'))
+      return arr
+    }, [])
+
+    for (const p of paths) {
+      if (!fs.existsSync(p)) {
+        continue
+      }
+
+      if (fs.statSync(p).isDirectory()) {
+        this.addModuleNodePath(p)
+        return p
+      }
+
+      if (!p.endsWith('.tgz')) {
+        throw new ConfigurationError(`The file at "${p}" is not a .tgz file`)
+      }
+
+      const finalDestination = await this.unpacker.unpack(p)
+      this.addModuleNodePath(finalDestination)
+
+      return finalDestination
+    }
+
+    throw new ConfigurationError(`Could not find module at path "${modulePath}"`)
+  }
 }

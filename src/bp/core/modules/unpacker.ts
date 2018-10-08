@@ -1,5 +1,8 @@
+import { Logger } from 'botpress/sdk'
+import { TYPES } from 'core/types'
 import crypto from 'crypto'
 import fs from 'fs'
+import { inject } from 'inversify'
 import mkdirp from 'mkdirp'
 import path from 'path'
 
@@ -20,22 +23,28 @@ async function fileHash(filePath: string) {
   })
 }
 
-export async function unpack(modulePath: string) {
-  const hash = await fileHash(modulePath)
-  const directory = path.join(path.dirname(modulePath), '.cache')
+export default class ModuleUnpacker {
+  constructor(@inject(TYPES.Logger) private logger: Logger) {}
 
-  const finalDestination = path.join(directory, `./module__${hash}`)
+  async unpack(modulePath: string) {
+    const hash = await fileHash(modulePath)
+    const directory = path.join(path.dirname(modulePath), '.cache')
 
-  if (fs.existsSync(finalDestination)) {
+    const finalDestination = path.join(directory, `./module__${hash}`)
+
+    if (fs.existsSync(finalDestination)) {
+      return finalDestination
+    }
+
+    mkdirp.sync(finalDestination) // Create the `.cache` directory if doesn't exist
+
+    this.logger.info(`Extracting module "${path.basename(modulePath)}" ...`)
+
+    await tar.extract({
+      file: modulePath,
+      cwd: finalDestination
+    })
+
     return finalDestination
   }
-
-  mkdirp.sync(finalDestination) // Create the `.cache` directory if doesn't exist
-
-  await tar.extract({
-    file: modulePath,
-    cwd: finalDestination
-  })
-
-  return finalDestination
 }

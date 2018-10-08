@@ -9,7 +9,7 @@ import chalk from 'chalk'
 import { Botpress, Config, Logger } from 'core/app'
 import center from 'core/logger/center'
 import { ModuleLoader } from 'core/module-loader'
-import { resolve as ModuleResolver } from 'core/modules/resolver'
+import ModuleResolver from 'core/modules/resolver'
 import os from 'os'
 import { FatalError } from './errors'
 
@@ -33,6 +33,8 @@ async function start() {
   const loadingErrors: Error[] = []
   let modulesLog = ''
 
+  const resolver = new ModuleResolver(logger)
+
   for (const entry of globalConfig.modules) {
     try {
       if (!entry.enabled) {
@@ -40,7 +42,7 @@ async function start() {
         continue
       }
 
-      const moduleLocation = await ModuleResolver(entry.location)
+      const moduleLocation = await resolver.resolve(entry.location)
       const req = require(moduleLocation)
       const rawEntry = (req.default ? req.default : req) as sdk.ModuleEntryPoint
       const entryPoint = ModuleLoader.processModuleEntryPoint(rawEntry, entry.location)
