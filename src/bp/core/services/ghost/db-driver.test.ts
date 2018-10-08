@@ -20,7 +20,7 @@ createDatabaseSuite('GhostDB Driver', function(database: Database) {
 
     it('writing large blob', async () => {
       const size = 1024 * 1024 * 1 // 1mb
-      await driver.upsertFile(F_A_PATH, new Buffer(size))
+      await driver.upsertFile(F_A_PATH, Buffer.alloc(size))
       const buffer = await driver.readFile(F_A_PATH)
       expect(buffer.length).toBe(size)
     })

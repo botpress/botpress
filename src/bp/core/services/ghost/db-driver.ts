@@ -71,7 +71,7 @@ export default class DBStorageDriver implements StorageDriver {
         throw new Error(`[DB Storage] File "${filePath}" not found`)
       }
 
-      return new Buffer((<any>file).content as Buffer)
+      return Buffer.from((<any>file).content as Buffer)
     } catch (e) {
       throw new VError(e, `[DB Storage] Error reading file "${filePath}"`)
     }

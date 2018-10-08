@@ -54,7 +54,7 @@ describe('Ghost Service', () => {
 
     it('Reads files from disk', async () => {
       diskDriver.readFile
-        .mockReturnValueOnce(new Buffer(''))
+        .mockReturnValueOnce(Buffer.from(''))
         .mockReturnValueOnce(`{ "name": "test" }`)
         .mockReturnValueOnce('Hello')
 
@@ -249,7 +249,7 @@ describe('Ghost Service', () => {
         const r2 = { path: './data/global/a/2.txt', revision: 'r2' }
         const r3 = { path: './data/global/b/3.txt', revision: 'r3' }
 
-        dbDriver.readFile.mockReturnValue(new Buffer('content'))
+        dbDriver.readFile.mockReturnValue(Buffer.from('content'))
         dbDriver.listRevisions.mockReturnValue([r1, r2, r3])
 
         const pending = await ghost.global().getPendingWithContent()

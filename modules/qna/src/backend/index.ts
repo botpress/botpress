@@ -29,7 +29,7 @@ const serveFile = async (filePath: string): Promise<Buffer> => {
     return fs.readFileSync(mapping[filePath])
   }
 
-  return new Buffer('')
+  return Buffer.from('')
 }
 
 const config: sdk.ModuleConfig = {
