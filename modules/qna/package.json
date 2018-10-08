@@ -3,11 +3,6 @@
   "version": "10.43.0",
   "description": "Botpress Q&A module",
   "main": "dist/backend/index.js",
-  "botpress": {
-    "moduleView": {
-      "stretched": true
-    }
-  },
   "scripts": {
     "build": "./node_modules/.bin/module-builder build",
     "watch": "./node_modules/.bin/module-builder watch"
