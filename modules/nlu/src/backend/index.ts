@@ -8,21 +8,18 @@ import api from './api'
 import ScopedNlu from './scopednlu'
 import setup from './setup'
 
-export type Extension = {
-  nlu: {
-    processEvent: (event: sdk.IO.Event) => void
-    forBot: (botId: string) => ScopedNlu
-  }
-}
+export type Extension = {}
 
 export type SDK = typeof sdk & Extension
 
+const botScopedNlu: Map<string, ScopedNlu> = new Map<string, ScopedNlu>()
+
 const onInit = async (bp: SDK) => {
-  await setup(bp)
+  await setup(bp, botScopedNlu)
 }
 
 const onReady = async (bp: SDK) => {
-  await api(bp)
+  await api(bp, botScopedNlu)
 }
 
 const serveFile = async (filePath: string): Promise<Buffer> => {
