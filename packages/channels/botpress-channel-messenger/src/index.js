@@ -58,6 +58,12 @@ const initializeMessenger = async (bp, configurator) => {
     .catch(err => bp.logger.error(err))
 }
 
+let hostname = []
+const defaultHostname =
+  process.env.BOTPRESS_URL && process.env.NODE_ENV === 'production'
+    ? (hostname = process.env.BOTPRESS_URL.match(/https:\/\/(.*?)\//)) && hostname[1]
+    : ''
+
 module.exports = {
   config: {
     applicationID: { type: 'string', required: true, default: '', env: 'MESSENGER_APP_ID' },
@@ -66,7 +72,7 @@ module.exports = {
     verifyToken: { type: 'string', required: false, default: '', env: 'MESSENGER_VERIFY_TOKEN' },
     enabled: { type: 'bool', required: true, default: true },
     enableAllProfileFields: { type: 'bool', required: true, default: false },
-    hostname: { type: 'string', required: false, default: '', env: 'MESSENGER_HOST' },
+    hostname: { type: 'string', required: false, default: defaultHostname, env: 'MESSENGER_HOST' },
 
     graphVersion: { type: 'string', required: true, default: '2.12' },
     displayGetStarted: { type: 'bool', required: false, default: true },
