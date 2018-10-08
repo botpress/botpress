@@ -331,6 +331,14 @@ function setupAPIProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
   /**
    * Modules
    */
+  app.post(
+    ['/api/ext/qna/import/csv'],
+    proxy(coreApiUrl, {
+      proxyReqPathResolver: async (req, res) => getApiBasePath(req) + '/ext/qna/import/csv',
+      parseReqBody: false
+    })
+  )
+
   app.all(
     ['/api/botpress-(:moduleName)/*', '/api/ext/:moduleName/*'],
     proxy(coreApiUrl, {

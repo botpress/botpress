@@ -4,26 +4,17 @@ import _ from 'lodash'
 import path from 'path'
 
 import api from './api'
-import NluStorage from './providers/nlu'
-import MicrosoftQnaMakerStorage from './providers/qnaMaker'
+import setup from './setup'
 import { QnaStorage, SDK } from './types'
 
-let storage: QnaStorage = undefined
+const botScopedStorage: Map<string, QnaStorage> = new Map<string, QnaStorage>()
 
 const onInit = async (bp: SDK) => {
-  const config = await bp.config.getModuleConfigForBot('qna', 'bot123')
-
-  if (config.qnaMakerApiKey) {
-    storage = new MicrosoftQnaMakerStorage(bp, config)
-  } else {
-    storage = new NluStorage(bp, config)
-  }
-
-  await storage.initialize()
+  await setup(bp, botScopedStorage)
 }
 
 const onReady = async (bp: SDK) => {
-  await api(bp, config, storage)
+  await api(bp, botScopedStorage)
 }
 
 const serveFile = async (filePath: string): Promise<Buffer> => {
