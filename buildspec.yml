@@ -4,7 +4,6 @@ env:
   variables:
     CHILD_CONCURRENCY: 1
     GULP_SERIES: true
-    npm_config_target_platform: darwin
 
 phases:
   install:
@@ -13,24 +12,51 @@ phases:
 
   pre_build:
     commands:
-      - npm_config_target_platform=darwin yarn install
+      - yarn install
       - (cd build/module-builder && yarn install && yarn build)
 
   build:
     commands:
       - (cd src/bp/ui-admin && yarn install && yarn build)
       # OSX Build
+      - export npm_config_target_platform=darwin
       - yarn run build --mac
       - yarn run package --mac
-      - mkdir out/binaries/data/storage
+      - mkdir -p out/binaries/data/storage
       - touch out/binaries/data/storage/.keep
       - mv out out_darwin
+      # Windows Build
+      - export npm_config_target_platform=windows
+      - yarn run build --win32
+      - yarn run package --win32
+      - mkdir -p out/binaries/data/storage
+      - touch out/binaries/data/storage/.keep
+      - mv out out_win32
+      # Linux Build
+      - export npm_config_target_platform=linux
+      - yarn run build --linux
+      - yarn run package --linux
+      - mkdir -p out/binaries/data/storage
+      - touch out/binaries/data/storage/.keep
+      - mv out out_linux
 
 artifacts:
   files:
     - '**/*'
   base-directory: out_darwin/binaries
   name: botpress-$(./source_version.sh)-darwin-x64.zip
+
+secondary-artifacts:
+  linux:
+    files:
+      - '**/*'
+    base-directory: out_linux/binaries
+    name: botpress-$(./source_version.sh)-linux-x64.zip
+  windows:
+    files:
+      - '**/*'
+    base-directory: out_win32/binaries
+    name: botpress-$(./source_version.sh)-win-x64.zip
 
 cache:
   paths:
