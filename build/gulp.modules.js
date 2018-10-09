@@ -95,7 +95,7 @@ const buildModules = () => {
     return taskName
   })
 
-  return gulp.parallel(tasks)
+  return gulp.series(tasks)
 }
 
 const packageModules = () => {
