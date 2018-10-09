@@ -1,0 +1,27 @@
+{
+  "name": "@botpress/broadcast",
+  "version": "10.43.0",
+  "description": "Broadcast messages to all (or a subset) of your users",
+  "main": "dist/backend/index.js",
+  "scripts": {
+    "build": "./node_modules/.bin/module-builder build",
+    "watch": "./node_modules/.bin/module-builder watch"
+  },
+  "author": "Botpress",
+  "license": "AGPL-3.0-only",
+  "devDependencies": {
+    "classnames": "^2.2.5",
+    "core-js": "^2.4.1",
+    "module-builder": "../../build/module-builder",
+    "react-bootstrap": "^0.32.1",
+    "react-bootstrap-date-picker": "github:mixxt/react-bootstrap-date-picker",
+    "react-bootstrap-time-picker": "^1.0.3"
+  },
+  "dependencies": {
+    "bluebird": "^3.4.6",
+    "bluebird-retry": "^0.8.0",
+    "dateformat": "^1.0.12",
+    "lodash": "^4.17.2",
+    "moment": "^2.16.0"
+  }
+}
