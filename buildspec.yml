@@ -10,6 +10,7 @@ phases:
   install:
     commands:
       - npm install -g yarn
+      - yarn global add fileicon
 
   pre_build:
     commands:
@@ -19,10 +20,12 @@ phases:
   build:
     commands:
       - (cd src/bp/ui-admin && yarn install && yarn build)
+      # OSX Build
       - yarn run build --mac
       - yarn run package --mac
       - mkdir out/binaries/data/storage
       - touch out/binaries/data/storage/.keep
+      - fileicon set out/binaries/bp icon.png
       - mv out out_darwin
 
 artifacts:
