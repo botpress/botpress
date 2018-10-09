@@ -46,9 +46,20 @@ const copyBoilerplateFiles = cb => {
   cb() // No boiletplate files for now
 }
 
+const getTargetOSConfig = () => {
+  if (process.argv.find(x => x.toLowerCase() === '--win32')) {
+    return 'npm_config_target_platform=win32'
+  } else if (process.argv.find(x => x.toLowerCase() === '--linux')) {
+    return 'npm_config_target_platform=linux'
+  } else {
+    return 'npm_config_target_platform=darwin'
+  }
+}
+
 const buildModule = (modulePath, cb) => {
+  const yarnCconfig = getTargetOSConfig()
   const linkCmd = process.env.LINK ? ` && yarn link "module-builder"` : ''
-  exec(`yarn${linkCmd} && yarn build`, { cwd: modulePath }, (err, stdout, stderr) => {
+  exec(`${yarnCconfig} yarn${linkCmd} && yarn build`, { cwd: modulePath }, (err, stdout, stderr) => {
     if (err) {
       console.error(stderr)
       return cb(err)

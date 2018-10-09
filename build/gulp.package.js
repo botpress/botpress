@@ -9,6 +9,16 @@ const fs = require('fs')
 const promisify = require('util').promisify
 const execAsync = promisify(exec)
 
+const getTargetOS = () => {
+  if (process.argv.find(x => x.toLowerCase() === '--win32')) {
+    return 'node10-win32-x64'
+  } else if (process.argv.find(x => x.toLowerCase() === '--linux')) {
+    return 'node10-linux-x64'
+  } else {
+    return 'node10-macos-x64'
+  }
+}
+
 const packageApp = async () => {
   const additionalPackageJson = require(path.resolve(__dirname, './package.pkg.json'))
   const realPackageJson = require(path.resolve(__dirname, '../package.json'))
@@ -17,7 +27,7 @@ const packageApp = async () => {
   try {
     const packageJson = Object.assign(realPackageJson, additionalPackageJson)
     await fse.writeFile(tempPkgPath, JSON.stringify(packageJson, null, 2), 'utf8')
-    await execAsync('../../node_modules/.bin/pkg --targets node10-macos-x64 --output ../binaries/bp ./package.json', {
+    await execAsync(`../../node_modules/.bin/pkg --targets ${getTargetOS()} --output ../binaries/bp ./package.json`, {
       cwd
     })
   } catch (err) {

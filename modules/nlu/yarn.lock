@@ -368,6 +368,8 @@
 "@babel/plugin-transform-destructuring@^7.0.0":
   version "7.1.1"
   resolved "https://registry.yarnpkg.com/@babel/plugin-transform-destructuring/-/plugin-transform-destructuring-7.1.1.tgz#7845ae1c52281f7dfa56d2276c0ad646a6cd61b4"
+  dependencies:
+    "@babel/helper-plugin-utils" "^7.0.0"
 
 "@babel/plugin-transform-dotall-regex@^7.0.0":
   version "7.0.0"
@@ -1152,10 +1154,6 @@ brace-expansion@^1.1.7:
   dependencies:
     balanced-match "^1.0.0"
     concat-map "0.0.1"
-
-brace@^0.11.0:
-  version "0.11.0"
-  resolved "https://registry.yarnpkg.com/brace/-/brace-0.11.0.tgz#155cd80607687dc8cb908f0df94e62a033c1d563"
 
 braces@^2.3.0, braces@^2.3.1:
   version "2.3.2"

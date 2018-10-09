@@ -1,0 +1,27 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - npm install -g yarn
+
+  pre-build:
+    commands:
+      - npm_config_target_platform=darwin yarn install
+      - cd build/module-builder && npm_config_target_platform=darwin yarn install && yarn build
+
+  build:
+    commands:
+      - yarn run build --mac
+      - yarn run package --mac
+
+artifacts:
+  files:
+    - 'out/binaries/**/*'
+  name: binaries
+
+cache:
+  paths:
+    - node_modules
+    - modules/**/node_modules
+    - build/module-builder/node_modules
