@@ -8,9 +8,7 @@ import api from './api'
 import ScopedNlu from './scopednlu'
 import setup from './setup'
 
-export type Extension = {}
-
-export type SDK = typeof sdk & Extension
+export type SDK = typeof sdk
 
 const botScopedNlu: Map<string, ScopedNlu> = new Map<string, ScopedNlu>()
 
@@ -93,19 +91,16 @@ const config: sdk.ModuleConfig = {
 }
 
 const entryPoint: sdk.ModuleEntryPoint = {
-  onInit: onInit,
-  onReady: onReady,
-  config: config,
-  defaultConfigJson: defaultConfigJson,
-  serveFile: serveFile,
+  onInit,
+  onReady,
+  config,
+  defaultConfigJson,
+  serveFile,
   definition: {
     name: 'nlu',
     menuIcon: 'fiber_smart_record',
     fullName: 'NLU',
-    homepage: 'https://botpress.io',
-    noInterface: false,
-    plugins: [],
-    moduleView: { stretched: true }
+    homepage: 'https://botpress.io'
   }
 }
 

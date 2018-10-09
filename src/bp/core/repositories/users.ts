@@ -1,13 +1,15 @@
+import { Paging, User, UserAttribute, UserAttributeMap } from 'botpress/sdk'
 import { inject, injectable } from 'inversify'
 import Knex from 'knex'
 
 import Database from '../database'
 import { TYPES } from '../types'
-import { UserAttributeMap, UserAttribute, User } from 'botpress/sdk'
 
 export interface UserRepository {
   getOrCreate(channel: string, id: string): Knex.GetOrCreateResult<User>
   updateAttributes(channel: string, id: string, attributes: UserAttribute[]): Promise<void>
+  getAllUsers(paging?: Paging): Promise<any>
+  getUserCount(): Promise<any>
 }
 
 function channelUserAttributes(arr: UserAttribute[] = []): UserAttributeMap {
@@ -81,5 +83,31 @@ export class KnexUserRepository implements UserRepository {
         attributes: this.database.knex.json.set(attributes)
       })
       .where({ channel, user_id: id })
+  }
+
+  async getAllUsers(paging?: Paging) {
+    let query = this.database
+      .knex(this.tableName)
+      .select('*')
+      .orderBy('created_at', 'asc')
+
+    if (paging) {
+      query = query.offset(paging.start).limit(paging.count)
+    }
+
+    return await query
+  }
+
+  async getUserCount() {
+    return await this.database
+      .knex(this.tableName)
+      .count('user_id as qty')
+      .then(res => {
+        if (res && res.length > 0) {
+          return res[0].qty
+        } else {
+          return 0
+        }
+      })
   }
 }

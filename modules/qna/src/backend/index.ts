@@ -4,8 +4,8 @@ import _ from 'lodash'
 import path from 'path'
 
 import api from './api'
+import { QnaStorage, SDK } from './qna'
 import setup from './setup'
-import { QnaStorage, SDK } from './types'
 
 const botScopedStorage: Map<string, QnaStorage> = new Map<string, QnaStorage>()
 
@@ -56,10 +56,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
     name: 'qna',
     menuIcon: 'question_answer',
     fullName: 'QNA',
-    homepage: 'https://botpress.io',
-    noInterface: false,
-    plugins: [],
-    moduleView: { stretched: true }
+    homepage: 'https://botpress.io'
   }
 }
 

@@ -1,24 +1,25 @@
 import 'bluebird-global'
+
 import * as sdk from 'botpress/sdk'
 import fs from 'fs'
-import _ from 'lodash'
 import path from 'path'
 
 import api from './api'
-import HitlDb from './db'
-import setup from './setup'
 
-// TODO: Cleanup old sessions
-// TODO: If messages count > X, delete some
+import Daemon from './daemon'
+import BroadcastDb from './db'
+
+export type Extension = {}
+
+export type SDK = typeof sdk & Extension
 
 let db = undefined
 
-export type SDK = typeof sdk
-
 const onInit = async (bp: SDK) => {
-  db = new HitlDb(bp)
+  db = new BroadcastDb(bp)
   await db.initialize()
-  await setup(bp, db)
+
+  Daemon(bp, db)
 }
 
 const onReady = async (bp: SDK) => {
@@ -37,31 +38,18 @@ const serveFile = async (filePath: string): Promise<Buffer> => {
     return fs.readFileSync(mapping[filePath])
   }
 
-  return Buffer.from('')
+  return new Buffer('')
 }
-
-const config: sdk.ModuleConfig = {
-  sessionExpiry: { type: 'string', required: false, default: '3 days' },
-  paused: { type: 'bool', required: false, default: false, env: 'BOTPRESS_HITL_PAUSED' }
-}
-
-const defaultConfigJson = `
-{
-  "paused": false,
-  "sessionExpiry": "3 days"
-}
-`
 
 const entryPoint: sdk.ModuleEntryPoint = {
   onInit,
   onReady,
-  config,
+  config: {},
   serveFile,
-  defaultConfigJson,
   definition: {
-    name: 'hitl',
-    menuIcon: 'feedback',
-    fullName: 'HITL',
+    name: 'broadcast',
+    menuIcon: 'settings_input_antenna',
+    fullName: 'Broadcast',
     homepage: 'https://botpress.io'
   }
 }

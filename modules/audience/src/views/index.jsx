@@ -161,11 +161,11 @@ export default class AudienceModule extends React.Component {
     return _.mapValues(users, (user, key) => {
       return (
         <tr key={key}>
-          <td style={{ width: '10%' }}>{this.renderProfilePicture(user.picture_url)}</td>
-          <td style={{ width: '24%' }}>{user.id}</td>
-          <td style={{ width: '15%' }}>{this.renderName(user.first_name, user.last_name)}</td>
-          <td style={{ width: '10%' }}>{_.upperFirst(user.platform)}</td>
-          <td style={{ width: '15%' }}>{this.renderCreatedOn(user.created_on)}</td>
+          <td style={{ width: '10%' }}>{this.renderProfilePicture(user.attributes.picture_url)}</td>
+          <td style={{ width: '24%' }}>{user.user_id}</td>
+          <td style={{ width: '15%' }}>{this.renderName(user.attributes.first_name, user.attributes.last_name)}</td>
+          <td style={{ width: '10%' }}>{_.upperFirst(user.channel)}</td>
+          <td style={{ width: '15%' }}>{this.renderCreatedOn(user.created_at)}</td>
           <td style={{ width: '21%' }}>{this.renderTags(user.tags)}</td>
           <td style={{ width: '5%' }}>{this.renderExtra(user)}</td>
         </tr>
