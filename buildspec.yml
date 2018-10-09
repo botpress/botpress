@@ -12,9 +12,7 @@ phases:
 
   pre_build:
     commands:
-      - echo $CODEBUILD_SOURCE_VERSION
-      - echo " HEY $CODEBUILD_SOURCE_VERSION"
-      - echo "VERSION $(./build/artifact_name.sh)"
+      - echo "BUILDING VERSION $(./build/artifact_name.sh)"
       - yarn install
       - (cd build/module-builder && yarn install && yarn build)
 
