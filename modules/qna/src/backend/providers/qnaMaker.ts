@@ -1,8 +1,9 @@
 import axios from 'axios'
+import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import ms from 'ms'
 
-import { Pagination, QnaStorage, SDK } from '../types'
+import { QnaStorage, SDK } from '../qna'
 
 // Handles QnA Maker API downcasing all key-values in metadata
 const markUpperCase = str => str.replace(/([A-Z])/g, 'a-a-a-a-a$1a-a-a-a-a')
@@ -156,10 +157,10 @@ export default class Storage implements QnaStorage {
     return questions.length
   }
 
-  async all(opts?: Pagination) {
+  async all(paging?: sdk.Paging) {
     let questions = await this.fetchQuestions()
-    if (opts && opts.limit && opts.offset) {
-      questions = questions.reverse().slice(opts.offset, opts.offset + opts.limit)
+    if (paging && paging.start && paging.count) {
+      questions = questions.reverse().slice(paging.start, paging.start + paging.count)
     }
 
     return questions.map(qna => ({ id: qna.id, data: qnaItemData(qna) }))

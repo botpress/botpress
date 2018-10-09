@@ -3,7 +3,7 @@ import Bluebird from 'bluebird'
 import _ from 'lodash'
 import generate from 'nanoid/generate'
 
-import { Pagination, QnaStorage, SDK } from '../types'
+import { Pagination, QnaStorage, SDK } from '../qna'
 
 const safeId = (length = 10) => generate('1234567890abcdefghijklmnopqrsuvwxyz', length)
 

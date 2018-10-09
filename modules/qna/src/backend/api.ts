@@ -1,5 +1,3 @@
-import Bluebird from 'bluebird'
-import * as sdk from 'botpress/sdk'
 import { eventNames } from 'cluster'
 import iconv from 'iconv-lite'
 import { Parser as Json2csvParser } from 'json2csv'
@@ -9,8 +7,8 @@ import multer from 'multer'
 import nanoid from 'nanoid'
 import yn from 'yn'
 
+import { QnaStorage, SDK } from './qna'
 import { importQuestions, prepareExport } from './transfer'
-import { QnaStorage, SDK } from './types'
 
 export default async (bp: SDK, botScopedStorage: Map<string, QnaStorage>) => {
   const csvUploadStatuses = {}
@@ -50,8 +48,8 @@ export default async (bp: SDK, botScopedStorage: Map<string, QnaStorage>) => {
       const storage = botScopedStorage.get(req.params.botId)
 
       const items = await storage.all({
-        limit: limit ? parseInt(limit) : undefined,
-        offset: offset ? parseInt(offset) : undefined
+        start: offset ? parseInt(offset) : undefined,
+        count: limit ? parseInt(limit) : undefined
       })
 
       const overallItemsCount = await storage.count()

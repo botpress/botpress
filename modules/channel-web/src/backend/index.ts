@@ -78,12 +78,12 @@ const serveFile = async (filePath: string): Promise<Buffer> => {
   return Buffer.from('')
 }
 
-const obj: sdk.ModuleEntryPoint = {
-  onInit: onInit,
-  onReady: onReady,
-  config: config,
-  defaultConfigJson: defaultConfigJson,
-  serveFile: serveFile,
+const entryPoint: sdk.ModuleEntryPoint = {
+  onInit,
+  onReady,
+  config,
+  defaultConfigJson,
+  serveFile,
   definition: {
     name: 'channel-web',
     menuIcon: 'chrome_reader_mode',
@@ -94,4 +94,4 @@ const obj: sdk.ModuleEntryPoint = {
   }
 }
 
-export default obj
+export default entryPoint

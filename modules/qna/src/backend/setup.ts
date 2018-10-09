@@ -1,7 +1,7 @@
 import { NLU_PREFIX } from './providers/nlu'
 import NluStorage from './providers/nlu'
 import MicrosoftQnaMakerStorage from './providers/qnaMaker'
-import { QnaStorage, SDK } from './types'
+import { QnaStorage, SDK } from './qna'
 
 export default async (bp: SDK, botScopedStorage: Map<string, QnaStorage>) => {
   const initialize = async () => {
