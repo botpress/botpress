@@ -28,7 +28,7 @@
     "react-redux": "^5.0.7",
     "react-router-dom": "^4.2.2",
     "react-router-redux": "^5.0.0-alpha.9",
-    "react-scripts": "1.1.1",
+    "react-scripts": "^2.0.4",
     "react-select": "^1.2.1",
     "react-toastify": "^4.0.0-rc.4",
     "reactstrap": "^5.0.0",
@@ -47,5 +47,11 @@
   },
   "devDependencies": {
     "cross-env": "^5.2.0"
-  }
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
 }
