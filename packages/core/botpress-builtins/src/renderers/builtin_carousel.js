@@ -7,11 +7,8 @@ export default data => [
   {
     on: 'facebook',
     template_type: 'generic',
-    elements: data.items.map(card => ({
-      title: card.title,
-      image_url: card.image ? url.resolve(data.BOT_URL, card.image) : null,
-      subtitle: card.subtitle,
-      buttons: (card.actions || []).map(a => {
+    elements: data.items.map(card => {
+      const buttons = (card.actions || []).map(a => {
         if (a.action === 'Say something') {
           return {
             type: 'postback',
@@ -26,7 +23,15 @@ export default data => [
           }
         }
       })
-    })),
+      const buttonsWrapper = card.actions ? { buttons } : {}
+
+      return {
+        title: card.title,
+        image_url: card.image ? url.resolve(data.BOT_URL, card.image) : null,
+        subtitle: card.subtitle,
+        ...buttonsWrapper
+      }
+    }),
 
     typing: data.typing
   },
