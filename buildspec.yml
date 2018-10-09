@@ -12,6 +12,9 @@ phases:
 
   pre_build:
     commands:
+      - echo $CODEBUILD_SOURCE_VERSION
+      - echo " HEY $CODEBUILD_SOURCE_VERSION"
+      - echo "VERSION $(./build/artifact_name.sh)"
       - yarn install
       - (cd build/module-builder && yarn install && yarn build)
 
@@ -44,19 +47,19 @@ artifacts:
   files:
     - '**/*'
   base-directory: out_darwin/binaries
-  name: botpress-$(./source_version.sh)-darwin-x64.zip
+  name: botpress-$(./build/artifact_name.sh)-darwin-x64.zip
 
 secondary-artifacts:
   linux:
     files:
       - '**/*'
     base-directory: out_linux/binaries
-    name: botpress-$(./source_version.sh)-linux-x64.zip
+    name: botpress-$(./build/artifact_name.sh)-linux-x64.zip
   windows:
     files:
       - '**/*'
     base-directory: out_win32/binaries
-    name: botpress-$(./source_version.sh)-win-x64.zip
+    name: botpress-$(./build/artifact_name.sh)-win-x64.zip
 
 cache:
   paths:
