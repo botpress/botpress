@@ -1,5 +1,9 @@
 version: 0.2
 
+env:
+  variables:
+    CHILD_CONCURRENCY: 1
+
 phases:
   install:
     commands:
