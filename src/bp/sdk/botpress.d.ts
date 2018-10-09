@@ -276,7 +276,7 @@ declare module 'botpress/sdk' {
     headers: object
   }
 
-  export interface Pagination {
+  export interface Paging {
     start: number
     count: number
   }
@@ -317,7 +317,7 @@ declare module 'botpress/sdk' {
   export namespace users {
     export function getOrCreateUser(channelName: string, userId: string): GetOrCreateResult<User>
     export function updateAttributes(channel: string, id: string, attributes: UserAttribute[]): Promise<void>
-    export function getAllUsers(pagination?: Pagination): Promise<any>
+    export function getAllUsers(paging?: Paging): Promise<any>
     export function getUserCount(): Promise<any>
   }
 

@@ -1,4 +1,4 @@
-import { Pagination, User, UserAttribute, UserAttributeMap } from 'botpress/sdk'
+import { Paging, User, UserAttribute, UserAttributeMap } from 'botpress/sdk'
 import { inject, injectable } from 'inversify'
 import Knex from 'knex'
 
@@ -8,7 +8,7 @@ import { TYPES } from '../types'
 export interface UserRepository {
   getOrCreate(channel: string, id: string): Knex.GetOrCreateResult<User>
   updateAttributes(channel: string, id: string, attributes: UserAttribute[]): Promise<void>
-  getAllUsers(pagination?: Pagination): Promise<any>
+  getAllUsers(paging?: Paging): Promise<any>
   getUserCount(): Promise<any>
 }
 
@@ -85,14 +85,14 @@ export class KnexUserRepository implements UserRepository {
       .where({ channel, user_id: id })
   }
 
-  async getAllUsers(pagination?: Pagination) {
+  async getAllUsers(paging?: Paging) {
     let query = this.database
       .knex(this.tableName)
       .select('*')
       .orderBy('created_at', 'asc')
 
-    if (pagination) {
-      query = query.offset(pagination.start).limit(pagination.count)
+    if (paging) {
+      query = query.offset(paging.start).limit(paging.count)
     }
 
     return await query
