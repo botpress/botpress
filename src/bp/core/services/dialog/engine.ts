@@ -54,21 +54,27 @@ export class DialogEngine {
 
   protected async getOrCreateSession(botId, sessionId, event): Promise<DialogSession> {
     const flows = await this.flowService.loadAll(botId)
-    const defaultFlow = flows.find(f => f.name === DEFAULT_FLOW_NAME)
+    let defaultFlow = flows.find(f => f.name === DEFAULT_FLOW_NAME)
 
     if (!defaultFlow) {
       throw new Error(`Default flow "${DEFAULT_FLOW_NAME}" not found for bot "${botId}"`)
     }
 
-    const entryNodeName = _.get(defaultFlow, 'startNode')!
+    let entryNodeName = _.get(defaultFlow, 'startNode')
+    const entryNode = defaultFlow.nodes.find(n => n.name === entryNodeName)
+    if (entryNode && entryNode.flow) {
+      const flow = flows.find(f => f.name === entryNode.flow)
+      entryNodeName = flow!.startNode
+      defaultFlow = flow
+    }
 
     let session: DialogSession = await this.sessionService.getOrCreateSession(sessionId, botId)
     session = await this.sessionService.updateSessionEvent(session.id, event)
 
     if (!session.context!.currentNodeName) {
       session = await this.sessionService.updateSessionContext(session.id, {
-        currentFlowName: defaultFlow.name,
-        currentNodeName: entryNodeName
+        currentFlowName: defaultFlow!.name,
+        currentNodeName: entryNodeName!
       })
     }
 
@@ -255,6 +261,7 @@ export class DialogEngine {
     destination: string
   ): Promise<NavigationPosition | undefined> {
     if (destination === 'END') {
+      await this.sessionService.deleteSession(session.id)
       return undefined
     }
 

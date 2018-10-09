@@ -62,7 +62,7 @@ const generateFlow = (data): sdk.SkillFlow => {
   return {
     nodes: nodes,
     catchAll: {
-      next: globalTransitions(data)
+      next: []
     }
   }
 }

@@ -2,6 +2,7 @@ import { IO, Logger } from 'botpress/sdk'
 import chalk from 'chalk'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
+import { isRegExp } from 'util'
 
 import { TYPES } from '../../../types'
 
@@ -42,12 +43,13 @@ export class FlowNavigator {
       flowName = args.previousFlowName
     } else if (args.destination.indexOf('#') > -1) {
       this.logger.debug('  Transition to specific node of previous flow')
-      // Transition to a specific node in the previous flow
+      // Return to calling node
       const destinationNodeName = args.destination.slice(1)
       if (!destinationNodeName) {
         nodeName = args.previousNodeName
         flowName = args.previousFlowName
       } else {
+        // Transition to a specific node in the previous flow
         const flow = args.flows.find(f => f.name === args.previousFlowName)
         const node = flow.nodes.find(n => n.name === destinationNodeName)
         flowName = flow.name
@@ -61,11 +63,21 @@ export class FlowNavigator {
       flowName = flow.name
     } else {
       this.logger.debug(`Transition to specific node in current flow '${args.currentFlowName}' '${args.destination}'`)
-      // Transition to a specific node in the current flow
-      const flow = args.flows.find(f => f.name === args.currentFlowName)
-      const node = flow.nodes.find(n => n.name === args.destination)
-      nodeName = node.name
-      flowName = flow.name
+      const currentFlow = args.flows.find(f => f.name === args.currentFlowName)
+      const destinationNode = currentFlow.nodes.find(n => n.name === args.destination)
+      if (destinationNode.flow) {
+        // Subflow
+        const destinationFlow = args.flows.find(f => f.name === destinationNode.flow)
+        const node = destinationFlow.startNode
+        nodeName = node.name
+        flowName = destinationFlow.name
+      } else {
+        // Transition to a specific node in the current flow
+        const flow = args.flows.find(f => f.name === args.currentFlowName)
+        const node = flow.nodes.find(n => n.name === args.destination)
+        nodeName = node.name
+        flowName = flow.name
+      }
     }
 
     this.logger.debug(`Final Destination: '${flowName}' '${nodeName}'`)

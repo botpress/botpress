@@ -1,0 +1,121 @@
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _nlu = _interopRequireWildcard(require("./providers/nlu"));
+
+var _qnaMaker = _interopRequireDefault(require("./providers/qnaMaker"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+
+var _default = async (bp, botScopedStorage) => {
+  const initialize = async () => {
+    const bots = await bp.bots.getAllBots();
+
+    for (const [id] of bots) {
+      const config = await bp.config.getModuleConfigForBot('qna', id);
+      let storage = undefined;
+
+      if (config.qnaMakerApiKey) {
+        storage = new _qnaMaker.default(bp, config);
+      } else {
+        storage = new _nlu.default(bp, config, id);
+      }
+
+      await storage.initialize();
+      botScopedStorage.set(id, storage);
+    }
+  };
+
+  const registerMiddleware = async () => {
+    bp.events.registerMiddleware({
+      name: 'qna.incoming',
+      direction: 'incoming',
+      handler: async (event, next) => {
+        if (!event.hasFlag(bp.IO.WellKnownFlags.SKIP_QNA_PROCESSING)) {
+          const config = bp.config.getModuleConfigForBot('qna', event.botId);
+          const storage = botScopedStorage.get(event.botId);
+
+          if (!(await processEvent(event, {
+            bp,
+            storage,
+            config
+          }))) {
+            next();
+          }
+        }
+      },
+      order: 11,
+      // must be after the NLU middleware and before the dialog middleware
+      description: 'Listen for predefined questions and send canned responses.',
+      enabled: true
+    });
+  };
+
+  const processEvent = async (event, {
+    bp: SDK,
+    storage,
+    config
+  }) => {
+    let answer;
+
+    if (config.qnaMakerApiKey) {
+      answer = (await bp.qna.answersOn(event.text)).pop();
+
+      if (!answer) {
+        return false;
+      }
+
+      bp.logger.debug('QnA: matched QnA-maker question', answer.id);
+    } else {
+      // NB: we rely on NLU being loaded before we receive any event.
+      // I'm not sure yet if we can guarantee it
+      if (!(event.nlu || {}).intent || !event.nlu.intent.startsWith(_nlu.NLU_PREFIX)) {
+        return false;
+      }
+
+      bp.logger.debug('QnA: matched NLU intent', event.nlu.intent.name);
+      const id = event.nlu.intent.name.substring(_nlu.NLU_PREFIX.length);
+      answer = (await storage.getQuestion(id)).data;
+    }
+
+    if (!answer.enabled) {
+      bp.logger.debug('QnA: question disabled, skipping');
+      return false;
+    }
+
+    if (answer.action.includes('text')) {
+      bp.logger.debug('QnA: replying to recognized question with plain text answer', answer.id); // TODO: Send reply to user
+      // event.reply(config.textRenderer, { text: answer.answer })
+      // return `true` to prevent further middlewares from capturing the message
+
+      if (answer.action === 'text') {
+        return true;
+      }
+    }
+
+    if (answer.action.includes('redirect')) {
+      bp.logger.debug('QnA: replying to recognized question with redirect', answer.id); // TODO: This is used as the `stateId` by the bot template
+      // Not sure if it's universal enough for every use-case but
+      // I don't see a better alternative as of now
+
+      const stateId = event.sessionId || event.user.id;
+      bp.logger.debug(`QnA: jumping ${stateId} to ${answer.redirectFlow} ${answer.redirectNode}`); // TODO jump to correct location
+      // await bp.dialogEngine.jumpTo(stateId, answer.redirectFlow, answer.redirectNode)
+      // We return false here because the we only jump to the right flow/node and let
+      // the bot's natural middleware chain take care of processing the message the normal way
+
+      return false;
+    }
+  };
+
+  initialize();
+  registerMiddleware();
+};
+
+exports.default = _default;
