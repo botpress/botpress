@@ -8,7 +8,10 @@ phases:
   pre_build:
     commands:
       - npm_config_target_platform=darwin yarn install
-      - cd build/module-builder && npm_config_target_platform=darwin yarn install && yarn build
+      - cd build/module-builder
+      - npm_config_target_platform=darwin yarn install
+      - yarn build
+      - cd ../..
 
   build:
     commands:
