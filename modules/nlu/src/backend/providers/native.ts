@@ -78,7 +78,7 @@ export default class NativeProvider extends Provider {
 
     // We save the model hash and model to the KVS
     await this.kvs.set(this.botId, NATIVE_HASH_KVS_KEY, { hash: intentsHash })
-    await this.kvs.set(this.botId, NATIVE_MODEL, JSON.stringify(this.classifier))
+    await this.kvs.set(this.botId, NATIVE_MODEL, this.classifier)
   }
 
   private async restoreModel() {
@@ -88,7 +88,7 @@ export default class NativeProvider extends Provider {
       this.classifier = new natural.BayesClassifier()
     }
 
-    this.classifier = natural.BayesClassifier.restore(JSON.parse(model), this.getStemmer())
+    this.classifier = natural.BayesClassifier.restore(model, this.getStemmer())
   }
 
   async getCustomEntities() {

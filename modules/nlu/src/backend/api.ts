@@ -52,4 +52,20 @@ export default async (bp: SDK, botScopedNlu: Map<string, ScopedNlu>) => {
       res.status(500).send(`${e.name} : ${e.message}`)
     }
   })
+
+  router.post('/extract', async (req, res) => {
+    const eventText = {
+      preview: req.body.text,
+      payload: {
+        text: req.body.text
+      }
+    }
+
+    try {
+      const result = await botScopedNlu.get(req.params.botId).provider.extract(eventText)
+      res.send(result)
+    } catch (err) {
+      res.status(500).send(`Error extracting NLU data from event: ${err}`)
+    }
+  })
 }

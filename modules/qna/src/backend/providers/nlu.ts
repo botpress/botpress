@@ -1,9 +1,10 @@
 import axios from 'axios'
 import Bluebird from 'bluebird'
+import { Paging } from 'botpress/sdk'
 import _ from 'lodash'
 import generate from 'nanoid/generate'
 
-import { Pagination, QnaStorage, SDK } from '../qna'
+import { QnaStorage, SDK } from '../qna'
 
 const safeId = (length = 10) => generate('1234567890abcdefghijklmnopqrsuvwxyz', length)
 
@@ -115,10 +116,10 @@ export default class Storage implements QnaStorage {
     return questions.length
   }
 
-  async all(opts?: Pagination) {
+  async all(opts?: Paging) {
     let questions = await this.bp.ghost.forBot(this.botId).directoryListing(this.config.qnaDir, '*.json')
-    if (opts && opts.limit && opts.offset) {
-      questions = questions.slice(opts.offset, opts.offset + opts.limit)
+    if (opts && opts.start && opts.count) {
+      questions = questions.slice(opts.start, opts.start + opts.count)
     }
     return Promise.map(questions, question => this.getQuestion({ filename: question }))
   }
@@ -141,10 +142,9 @@ export default class Storage implements QnaStorage {
     await this.syncNlu()
   }
 
-  // TODO Call the module's api instead of global object
   async answersOn(text) {
-    const extract = await this.bp.nlu.provider.extract({ text })
-    const intents = _.chain([extract.intent, ...extract.intents])
+    const extract = await axios.post('/api/ext/nlu/extract', { text }, this.axiosConfig)
+    const intents = _.chain([extract.data['intent'], ...extract.data['intents']])
       .uniqBy('name')
       .filter(({ name }) => name.startsWith('__qna__'))
       .orderBy(['confidence'], ['desc'])

@@ -41,10 +41,10 @@ export default async (bp: SDK, botScopedStorage: Map<string, QnaStorage>) => {
     })
   }
 
-  const processEvent = async (event, { bp: SDK, storage, config }) => {
+  const processEvent = async (event, { bp, storage, config }) => {
     let answer
     if (config.qnaMakerApiKey) {
-      answer = (await bp.qna.answersOn(event.text)).pop()
+      answer = (await storage.answersOn(event.text)).pop()
       if (!answer) {
         return false
       }
@@ -74,6 +74,7 @@ export default async (bp: SDK, botScopedStorage: Map<string, QnaStorage>) => {
       // return `true` to prevent further middlewares from capturing the message
 
       if (answer.action === 'text') {
+        event.setFlag(bp.IO.WellKnownFlags.SKIP_DIALOG_ENGINE, true)
         return true
       }
     }

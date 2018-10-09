@@ -13,7 +13,7 @@ export interface UserRepository {
 }
 
 function channelUserAttributes(arr: UserAttribute[] = []): UserAttributeMap {
-  ;(arr as UserAttributeMap).get = (key: string): string | undefined => {
+  (arr as UserAttributeMap).get = (key: string): string | undefined => {
     const match = arr.find(x => x.key.toLowerCase() === key.toLowerCase())
     return (match && match.value) || undefined
   }
@@ -38,11 +38,12 @@ export class KnexUserRepository implements UserRepository {
       })
       .limit(1)
       .select('attributes', 'created_at', 'updated_at')
+      .first()
 
     if (ug) {
       const user: User = {
-        channel: ug.channel,
-        id: ug.user_id,
+        channel,
+        id: id,
         createdOn: ug.created_at,
         updatedOn: ug.updated_at,
         attributes: channelUserAttributes(this.database.knex.json.get(ug.attributes)),
@@ -102,12 +103,7 @@ export class KnexUserRepository implements UserRepository {
     return await this.database
       .knex(this.tableName)
       .count('user_id as qty')
-      .then(res => {
-        if (res && res.length > 0) {
-          return res[0].qty
-        } else {
-          return 0
-        }
-      })
+      .first()
+      .then(result => result.qty)
   }
 }

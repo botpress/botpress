@@ -1,6 +1,6 @@
-import moment from 'moment'
 import later from 'later'
 import _ from 'lodash'
+import moment from 'moment'
 
 const cronstrue = require('cronstrue')
 
@@ -43,4 +43,4 @@ const getHumanExpression = (type, exp) => {
   }
 }
 
-module.exports = { getNextOccurence, validateExpression, getHumanExpression }
+export default { getNextOccurence, validateExpression, getHumanExpression }
