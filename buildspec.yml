@@ -4,6 +4,7 @@ env:
   variables:
     CHILD_CONCURRENCY: 1
     GULP_SERIES: true
+    npm_config_target_platform: darwin
 
 phases:
   install:
@@ -13,13 +14,11 @@ phases:
   pre_build:
     commands:
       - npm_config_target_platform=darwin yarn install
-      - cd build/module-builder
-      - npm_config_target_platform=darwin yarn install
-      - yarn build
-      - cd ../..
+      - (cd build/module-builder && yarn install && yarn build)
 
   build:
     commands:
+      - (cd src/bp/ui-admin && yarn install && yarn build)
       - yarn run build --mac
       - yarn run package --mac
 
