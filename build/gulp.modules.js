@@ -1,3 +1,4 @@
+const yn = require('yn')
 const exec = require('child_process').exec
 const _ = require('lodash')
 const fs = require('fs')
@@ -95,7 +96,11 @@ const buildModules = () => {
     return taskName
   })
 
-  return gulp.series(tasks)
+  if (yn(process.env.GULP_SERIES)) {
+    return gulp.series(tasks)
+  }
+
+  return gulp.parallel(tasks)
 }
 
 const packageModules = () => {

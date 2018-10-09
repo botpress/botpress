@@ -3,6 +3,7 @@ version: 0.2
 env:
   variables:
     CHILD_CONCURRENCY: 1
+    GULP_SERIES: true
 
 phases:
   install:
@@ -27,8 +28,8 @@ artifacts:
     - 'out/binaries/**/*'
   name: binaries
 
-# cache:
-#   paths:
-#     - node_modules
-#     - modules/**/node_modules
-#     - build/module-builder/node_modules
+cache:
+  paths:
+    - node_modules
+    - modules/**/node_modules
+    - build/module-builder/node_modules
