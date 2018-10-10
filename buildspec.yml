@@ -12,9 +12,9 @@ phases:
 
   pre_build:
     commands:
-      - $(./build/codebuild-extras.sh)
+      - bash -c "$(./build/codebuild-extras.sh)"
       - echo "CODE BUILD VERSION $CODEBUILD_GIT_ESCAPED_BRANCH"
-      - echo "BUILDING VERSION $(./build/artifact_name.sh)"
+      - echo "BUILDING VERSION $ARTIFACT_NAME"
       - yarn install
       - (cd build/module-builder && yarn install && yarn build)
 
@@ -47,18 +47,18 @@ artifacts:
   files:
     - '**/*'
   base-directory: out_darwin/binaries
-  name: botpress-$(./build/artifact_name.sh)-darwin-x64.zip
+  name: botpress-$ARTIFACT_NAME-darwin-x64.zip
   secondary-artifacts:
     linux:
       files:
         - '**/*'
       base-directory: out_linux/binaries
-      name: botpress-$(./build/artifact_name.sh)-linux-x64.zip
+      name: botpress-$ARTIFACT_NAME-linux-x64.zip
     windows:
       files:
         - '**/*'
       base-directory: out_win32/binaries
-      name: botpress-$(./build/artifact_name.sh)-win-x64.zip
+      name: botpress-$ARTIFACT_NAME-win-x64.zip
 
   cache:
     paths:
