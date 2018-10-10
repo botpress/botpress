@@ -4,7 +4,7 @@ import './sdk/rewire'
 // tslint:disable-next-line:ordered-imports
 import './common/polyfills'
 
-import sdk from 'botpress/sdk'
+import sdk, { logger } from 'botpress/sdk'
 import chalk from 'chalk'
 import { Botpress, Config, Logger } from 'core/app'
 import center from 'core/logger/center'

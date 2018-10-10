@@ -7,6 +7,12 @@ export enum LoggerLevel {
   Debug = 'debug'
 }
 
+export enum LogLevel {
+  PRODUCTION = 0,
+  DEV = 1,
+  DEBUG = 2
+}
+
 export enum NodeActionType {
   RenderElement = 'render',
   RunAction = 'run',
