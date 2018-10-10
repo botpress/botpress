@@ -1,5 +1,4 @@
 import * as sdk from 'botpress/sdk'
-import { IO } from 'botpress/sdk'
 import { WellKnownFlags } from 'core/sdk/enums'
 import { inject, injectable, tagged } from 'inversify'
 import { Memoize } from 'lodash-decorators'
@@ -103,7 +102,7 @@ export class Botpress {
     await this.cmsService.initialize()
     await this.botLoader.loadAllBots()
 
-    this.eventEngine.onAfterIncomingMiddleware = async (event: IO.Event) => {
+    this.eventEngine.onAfterIncomingMiddleware = async (event: sdk.IO.Event) => {
       await this.hookService.executeHook(new Hooks.AfterIncomingMiddleware(this.api, event))
       if (!event.hasFlag(WellKnownFlags.SKIP_DIALOG_ENGINE)) {
         const sessionId = `${event.channel}::${event.target}::${event.threadId}`

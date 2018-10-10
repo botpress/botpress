@@ -1,44 +1,47 @@
+import 'bluebird-global'
 import retry from 'bluebird-retry'
 import moment from 'moment'
 
 import { SDK } from '.'
 import ScopedNlu from './scopednlu'
 
-export default async (bp: SDK) => {
-  const botScopedNlu: Map<string, ScopedNlu> = new Map<string, ScopedNlu>()
-
+export default async (bp: SDK, botScopedNlu: Map<string, ScopedNlu>) => {
   const bots = await bp.bots.getAllBots()
-
   for (const [id] of bots) {
-    // if (!bot.isMiddlewareEnabled('nlu')) {
-    //  return
-    // }
-
     const scoped = new ScopedNlu(bp, id)
     await scoped.initialize()
 
     botScopedNlu.set(id, scoped)
   }
 
-  function forBot(botId): ScopedNlu {
-    return botScopedNlu.get(botId)
-  }
+  bp.events.registerMiddleware({
+    name: 'nlu.incoming',
+    direction: 'incoming',
+    handler: async (event, next) => {
+      await processEvent(event)
+      next()
+    },
+    order: 10,
+    description:
+      'Process natural language in the form of text. Structured data with an action and parameters for that action is injected in the incoming message event.',
+    enabled: true
+  })
 
   async function processEvent(event) {
     if (['session_reset', 'bp_dialog_timeout'].includes(event.type)) {
       return
     }
 
-    const botCtx = forBot(event.botId)
+    const botCtx = botScopedNlu.get(event.botId)
     if (!botCtx) {
       return
     }
 
-    const previous = JSON.parse((await bp.kvs.get(event.botId, 'nlu/requestsLimit')) || '{}')
+    const previous = (await bp.kvs.get(event.botId, 'nlu/requestsLimit')) || {}
     const hour = moment().startOf('hour')
     const requestsCount = hour.isSame(previous.hour) ? previous.requestsCount : 0
 
-    await bp.kvs.set(event.botId, 'nlu/requestsLimit', JSON.stringify({ hour, requestsCount: requestsCount + 1 }))
+    await bp.kvs.set(event.botId, 'nlu/requestsLimit', { hour, requestsCount: requestsCount + 1 })
 
     const maximumRequestsPerHour = parseFloat(botCtx.config.maximumRequestsPerHour)
     if (requestsCount > maximumRequestsPerHour) {
@@ -92,22 +95,4 @@ export default async (bp: SDK) => {
       })
     }
   }
-
-  bp.nlu = {
-    processEvent,
-    forBot
-  }
-
-  bp.events.registerMiddleware({
-    name: 'nlu.incoming',
-    direction: 'incoming',
-    handler: async (event, next) => {
-      await processEvent(event)
-      next()
-    },
-    order: 10,
-    description:
-      'Process natural language in the form of text. Structured data with an action and parameters for that action is injected in the incoming message event.',
-    enabled: true
-  })
 }

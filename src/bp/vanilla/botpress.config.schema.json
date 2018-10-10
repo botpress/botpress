@@ -10,6 +10,9 @@
         "port": {
           "type": "number"
         },
+        "proxyPort": {
+          "type": "number"
+        },
         "backlog": {
           "type": "number"
         },
@@ -23,7 +26,8 @@
       "required": [
         "backlog",
         "bodyLimit",
-        "port"
+        "port",
+        "proxyPort"
       ]
     },
     "database": {

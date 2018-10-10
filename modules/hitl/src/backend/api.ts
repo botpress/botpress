@@ -2,28 +2,6 @@ import { SDK } from '.'
 import Database from './db'
 
 export default async (bp: SDK, db: Database) => {
-  bp.hitl = {
-    pause: (botId, channel, userId) => {
-      return db.setSessionPaused(true, botId, channel, userId, 'code').then(sessionId => {
-        bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'hitl.session', { id: sessionId }))
-        bp.realtime.sendPayload(
-          bp.RealTimePayload.forVisitor(userId, 'hitl.session.changed', { id: sessionId, paused: 1 })
-        )
-      })
-    },
-    unpause: (botId, channel, userId) => {
-      return db.setSessionPaused(false, botId, channel, userId, 'code').then(sessionId => {
-        bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'hitl.session', { id: sessionId }))
-        bp.realtime.sendPayload(
-          bp.RealTimePayload.forVisitor(userId, 'hitl.session.changed', { id: sessionId, paused: 0 })
-        )
-      })
-    },
-    isPaused: (botId, channel, userId) => {
-      return db.isSessionPaused(botId, channel, userId)
-    }
-  }
-
   const router = bp.http.createRouterForBot('hitl')
 
   router.get('/sessions', (req, res) => {
@@ -55,8 +33,14 @@ export default async (bp: SDK, db: Database) => {
 
   // TODO post /sessions/:id/typing
 
+  router.post('/sessions/:sessionId/isPaused', async (req, res) => {
+    res.send(await db.isSessionPaused({ sessionId: req.params.sessionId }))
+  })
+
   router.post('/sessions/:sessionId/pause', (req, res) => {
-    db.setSessionPaused(true, undefined, undefined, undefined, 'operator', req.params.sessionId)
+    const { sessionId, trigger = 'operator' } = req.params
+
+    db.setSessionPaused(true, { sessionId }, trigger)
       .then(sessionId => {
         bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('hitl.session', { id: sessionId }))
         bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('hitl.session.changed', { id: sessionId, paused: 1 }))
@@ -65,7 +49,36 @@ export default async (bp: SDK, db: Database) => {
   })
 
   router.post('/sessions/:sessionId/unpause', (req, res) => {
-    db.setSessionPaused(false, undefined, undefined, undefined, 'operator', req.params.sessionId)
+    const { sessionId, trigger = 'operator' } = req.params
+
+    db.setSessionPaused(false, { sessionId }, trigger)
+      .then(sessionId => {
+        bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('hitl.session', { id: sessionId }))
+        bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('hitl.session.changed', { id: sessionId, paused: 0 }))
+      })
+      .then(res.sendStatus(200))
+  })
+
+  router.post('/channel/:channel/user/:userId/isPaused', async (req, res) => {
+    const { botId, channel, userId } = req.params
+    res.send(await db.isSessionPaused({ botId, channel, userId }))
+  })
+
+  router.post('/channel/:channel/user/:userId/pause', (req, res) => {
+    const { botId, channel, userId, trigger = 'operator' } = req.params
+
+    db.setSessionPaused(true, { botId, channel, userId }, trigger)
+      .then(sessionId => {
+        bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('hitl.session', { id: sessionId }))
+        bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('hitl.session.changed', { id: sessionId, paused: 1 }))
+      })
+      .then(res.sendStatus(200))
+  })
+
+  router.post('/channel/:channel/user/:userId/unpause', (req, res) => {
+    const { botId, channel, userId, trigger = 'operator' } = req.params
+
+    db.setSessionPaused(false, { botId, channel, userId }, trigger)
       .then(sessionId => {
         bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('hitl.session', { id: sessionId }))
         bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('hitl.session.changed', { id: sessionId, paused: 0 }))

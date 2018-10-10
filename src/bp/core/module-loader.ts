@@ -6,7 +6,7 @@ import joi from 'joi'
 import _ from 'lodash'
 
 import { createForModule } from './api' // TODO
-import { resolveModulePath } from './modules-resolver'
+import ModuleResolver from './modules/resolver'
 import { GhostService } from './services'
 import ConfigReader from './services/module/config-reader'
 import { TYPES } from './types'
@@ -120,7 +120,7 @@ export class ModuleLoader {
       try {
         const api = await createForModule(name)
         await (module.onReady && module.onReady(api))
-        this.loadModulesActions(name)
+        this.loadModulesActions(name) // This is a hack to get the module location
         readyModules.push(name)
         this.entryPoints.set(name, module)
       } catch (err) {
@@ -132,8 +132,9 @@ export class ModuleLoader {
   }
 
   private async loadModulesActions(name: string) {
-    const modulePath = resolveModulePath(name) // Not sure why it doesnt resolve w/ module name
-    const moduleActionsDir = `${modulePath}/${name}/dist/actions`
+    const resolver = new ModuleResolver(this.logger)
+    const modulePath = await resolver.resolve('MODULES_ROOT/' + name)
+    const moduleActionsDir = `${modulePath}/dist/actions`
     if (fse.pathExistsSync(moduleActionsDir)) {
       const globalActionsDir = `${this.projectLocation}/data/global/actions/${name}`
       fse.mkdirpSync(globalActionsDir)

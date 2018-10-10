@@ -1,12 +1,11 @@
+import * as sdk from 'botpress/sdk'
+import { IO } from 'botpress/sdk'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
-import * as sdk from 'botpress/sdk'
 import { NodeVM } from 'vm2'
 
 import { GhostService } from '..'
 import { TYPES } from '../../types'
-
-import { IO } from 'botpress/sdk'
 
 export namespace Hooks {
   export interface BaseHook {
@@ -66,16 +65,20 @@ export class HookService {
 
   async executeHook(hook: Hooks.BaseHook): Promise<void> {
     const scripts = await this.extractScripts(hook)
-    _.orderBy(scripts).forEach(script => this.runScript(script))
+    await Promise.mapSeries(_.orderBy(scripts, ['file'], ['asc']), script => this.runScript(script))
   }
 
   private async extractScripts(hook: Hooks.BaseHook): Promise<HookScript[]> {
-    const filesPaths = await this.ghost.global().directoryListing('hooks/' + hook.folder, '*.js')
+    try {
+      const filesPaths = await this.ghost.global().directoryListing('hooks/' + hook.folder, '*.js')
 
-    return Promise.map(filesPaths, async path => {
-      const file = await this.ghost.global().readFileAsString('hooks/' + hook.folder, path)
-      return new HookScript(hook, path, file)
-    })
+      return Promise.map(filesPaths, async path => {
+        const file = await this.ghost.global().readFileAsString('hooks/' + hook.folder, path)
+        return new HookScript(hook, path, file)
+      })
+    } catch (err) {
+      return []
+    }
   }
 
   private runScript(hookScript: HookScript) {

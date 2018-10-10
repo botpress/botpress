@@ -4,14 +4,14 @@ import './sdk/rewire'
 // tslint:disable-next-line:ordered-imports
 import './common/polyfills'
 
-import * as sdk from 'botpress/sdk'
+import sdk from 'botpress/sdk'
 import chalk from 'chalk'
 import { Botpress, Config, Logger } from 'core/app'
-import { FatalError } from 'core/errors'
 import center from 'core/logger/center'
 import { ModuleLoader } from 'core/module-loader'
-import 'core/modules-resolver'
+import ModuleResolver from 'core/modules/resolver'
 import os from 'os'
+import { FatalError } from './errors'
 
 const { start: startProxy } = require('./http/api')
 
@@ -33,6 +33,8 @@ async function start() {
   const loadingErrors: Error[] = []
   let modulesLog = ''
 
+  const resolver = new ModuleResolver(logger)
+
   for (const entry of globalConfig.modules) {
     try {
       if (!entry.enabled) {
@@ -40,7 +42,8 @@ async function start() {
         continue
       }
 
-      const req = require(entry.location)
+      const moduleLocation = await resolver.resolve(entry.location)
+      const req = require(moduleLocation)
       const rawEntry = (req.default ? req.default : req) as sdk.ModuleEntryPoint
       const entryPoint = ModuleLoader.processModuleEntryPoint(rawEntry, entry.location)
       modules.push(entryPoint)

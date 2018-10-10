@@ -1,0 +1,26 @@
+{
+  "name": "@botpress/audience",
+  "version": "10.43.0",
+  "description": "Official Audience viewer for botpress",
+  "main": "dist/backend/index.js",
+  "keywords": [
+    "audience",
+    "visualiaze",
+    "botpress",
+    "botpress-viewer"
+  ],
+  "scripts": {
+    "build": "./node_modules/.bin/module-builder build",
+    "watch": "./node_modules/.bin/module-builder watch"
+  },
+  "author": "Botpress",
+  "license": "AGPL-3.0-only",
+  "dependencies": {
+    "lodash": "^4.16.6",
+    "moment": "^2.18.1"
+  },
+  "devDependencies": {
+    "module-builder": "../../build/module-builder",
+    "classnames": "^2.2.5"
+  }
+}

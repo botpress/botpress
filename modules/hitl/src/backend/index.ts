@@ -13,15 +13,7 @@ import setup from './setup'
 
 let db = undefined
 
-export type Extension = {
-  hitl: {
-    pause: Function
-    unpause: Function
-    isPaused: Function
-  }
-}
-
-export type SDK = typeof sdk & Extension
+export type SDK = typeof sdk
 
 const onInit = async (bp: SDK) => {
   db = new HitlDb(bp)
@@ -45,7 +37,7 @@ const serveFile = async (filePath: string): Promise<Buffer> => {
     return fs.readFileSync(mapping[filePath])
   }
 
-  return new Buffer('')
+  return Buffer.from('')
 }
 
 const config: sdk.ModuleConfig = {
@@ -70,10 +62,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
     name: 'hitl',
     menuIcon: 'feedback',
     fullName: 'HITL',
-    homepage: 'https://botpress.io',
-    noInterface: false,
-    plugins: [],
-    moduleView: { stretched: true }
+    homepage: 'https://botpress.io'
   }
 }
 

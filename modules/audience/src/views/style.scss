@@ -1,0 +1,59 @@
+:global(.form-control) {
+  margin-bottom: 5px;
+}
+
+:global(.panel-body) {
+  color: gray;
+}
+
+.image {
+  height: 60px;
+  margin: auto;
+  text-align: center;
+  font-size: 50px;
+  vertical-align: top;
+
+  img,
+  i {
+    height: 60px;
+    display: block;
+    margin: auto;
+    border-radius: 5px;
+  }
+}
+
+.tag {
+  margin-right: 3px;
+}
+
+.usersTableWrapper {
+  overflow: auto;
+}
+
+.usersTable {
+  thead > tr > th {
+    white-space: nowrap;
+  }
+
+  tbody > tr > td {
+    vertical-align: middle;
+
+    &:nth-child(2) {
+      min-width: 100px;
+      word-break: break-all;
+    }
+  }
+
+  a {
+    text-decoration: underline;
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
+}
+
+.count {
+  text-align: right;
+  margin-bottom: 10px;
+}

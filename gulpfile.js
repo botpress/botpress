@@ -13,14 +13,14 @@ gulp.task('test', gulp.series([core.buildTs, core.runTests]))
 gulp.task(
   'default',
   gulp.series([
-    core.clean,
+    ...(process.argv.includes('--skip-clean') ? [] : [core.clean]),
     core.buildTs,
     core.buildSchemas,
     core.createDirectories,
-    core.copyVanilla,
+    core.copyGlobal,
     core.copyAdmin,
     core.copyStudio,
-    core.copyTempates
+    core.copyTemplates
   ])
 )
 
@@ -31,14 +31,25 @@ gulp.task(
     core.buildTs,
     core.buildSchemas,
     core.createDirectories,
-    core.copyVanilla,
+    core.copyGlobal,
     core.copyAdmin,
     core.copyStudio,
-    core.copyTempates,
+    core.copyTemplates,
+    core.copyVanilla,
     core.watch
   ])
 )
 
+gulp.task('clean', core.clean)
+
 gulp.task('modules', gulp.series([modules.copySdkDefinitions, modules.copyBoilerplateFiles, modules.buildModules()]))
 
-gulp.task('package', gulp.series(package.packageApp, modules.packageModules(), package.copyData))
+gulp.task(
+  'package',
+  gulp.series([
+    package.packageApp,
+    ...(process.argv.includes('--skip-modules') ? [] : [modules.packageModules()]),
+    package.copyData,
+    package.copyNativeExtensions
+  ])
+)

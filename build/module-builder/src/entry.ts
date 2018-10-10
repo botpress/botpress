@@ -16,12 +16,12 @@ require('yargs')
   })
   .command(
     'package',
-    'packages a module for distribution (.zip)',
+    'packages a module for distribution (.tgz)',
     {
       out: {
         alias: 'o',
         describe: 'the output location of the package',
-        default: './%name%_%version%.zip'
+        default: './%name%_%version%.tgz'
       }
     },
     argv => {

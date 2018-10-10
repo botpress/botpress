@@ -191,7 +191,9 @@ export default class HitlDb {
     )
   }
 
-  setSessionPaused(paused, botId, channel, userId, trigger, sessionId = undefined) {
+  setSessionPaused(paused, session, trigger) {
+    const { botId = undefined, channel = undefined, userId = undefined, sessionId = undefined } = session
+
     if (sessionId) {
       return this.knex('hitl_sessions')
         .where({ id: sessionId })
@@ -210,7 +212,8 @@ export default class HitlDb {
     }
   }
 
-  isSessionPaused(botId, channel, userId, sessionId = undefined) {
+  isSessionPaused(session) {
+    const { botId = undefined, channel = undefined, userId = undefined, sessionId = undefined } = session
     const toBool = s => this.knex.bool.parse(s)
 
     if (sessionId) {

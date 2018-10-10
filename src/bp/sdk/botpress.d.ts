@@ -79,6 +79,7 @@ declare module 'botpress/sdk' {
     export type EventDirection = 'incoming' | 'outgoing'
     export namespace WellKnownFlags {
       export const SKIP_DIALOG_ENGINE: symbol
+      export const SKIP_QNA_PROCESSING: symbol
     }
     interface EventCtorArgs {
       id?: Number
@@ -275,6 +276,16 @@ declare module 'botpress/sdk' {
     RenderText = 'say'
   }
 
+  export interface AxiosBotConfig {
+    baseURL: string
+    headers: object
+  }
+
+  export interface Paging {
+    start: number
+    count: number
+  }
+
   /**
    * ////////////////
    * //////// API
@@ -295,6 +306,7 @@ declare module 'botpress/sdk' {
   export namespace http {
     export function createShortLink(): void
     export function createRouterForBot(routerName: string, options?: RouterOptions): any // TODO Better interface for the router
+    export function getAxiosConfigForBot(botId: string): Promise<AxiosBotConfig>
   }
 
   export namespace events {
@@ -310,6 +322,8 @@ declare module 'botpress/sdk' {
   export namespace users {
     export function getOrCreateUser(channelName: string, userId: string): GetOrCreateResult<User>
     export function updateAttributes(channel: string, id: string, attributes: UserAttribute[]): Promise<void>
+    export function getAllUsers(paging?: Paging): Promise<any>
+    export function getUserCount(): Promise<any>
   }
 
   export namespace dialog {

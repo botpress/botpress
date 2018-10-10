@@ -98,7 +98,7 @@ export class ActionStrategy implements InstructionStrategy {
 
     const result = await this.actionService.forBot(botId).runAction(actionName, state, event, args)
     // Will only trigger a state update when the state is returned
-    return result !== undefined ? ProcessingResult.updateState(result) : ProcessingResult.none()
+    return result === undefined ? ProcessingResult.none() : ProcessingResult.updateState(result)
   }
 
   private containsTemplate(value: string) {

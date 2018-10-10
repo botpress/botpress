@@ -46,7 +46,7 @@ export default class DiskStorageDriver implements StorageDriver {
     }
   }
 
-  async directoryListing(folder: string, exclude?: any): Promise<string[]> {
+  async directoryListing(folder: string, exclude?: string | string[]): Promise<string[]> {
     try {
       await fse.access(this.resolvePath(folder), fse.constants.R_OK)
     } catch (e) {

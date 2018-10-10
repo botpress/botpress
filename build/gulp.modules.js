@@ -1,3 +1,4 @@
+const yn = require('yn')
 const exec = require('child_process').exec
 const _ = require('lodash')
 const fs = require('fs')
@@ -13,7 +14,7 @@ const getAllModulesRoot = () => {
   return glob
     .sync('**/package.json', {
       cwd,
-      ignore: '**/node_modules/**'
+      ignore: ['**/node_modules/**', '**/node_production_modules/**']
     })
     .map(x => path.join(cwd, x))
     .map(x => path.dirname(x))
@@ -46,9 +47,20 @@ const copyBoilerplateFiles = cb => {
   cb() // No boiletplate files for now
 }
 
+const getTargetOSConfig = () => {
+  if (process.argv.find(x => x.toLowerCase() === '--win32')) {
+    return 'npm_config_target_platform=win32'
+  } else if (process.argv.find(x => x.toLowerCase() === '--linux')) {
+    return 'npm_config_target_platform=linux'
+  } else {
+    return 'npm_config_target_platform=darwin'
+  }
+}
+
 const buildModule = (modulePath, cb) => {
+  const yarnCconfig = getTargetOSConfig()
   const linkCmd = process.env.LINK ? ` && yarn link "module-builder"` : ''
-  exec(`yarn${linkCmd} && yarn build`, { cwd: modulePath }, (err, stdout, stderr) => {
+  exec(`${yarnCconfig} yarn${linkCmd} && yarn build`, { cwd: modulePath }, (err, stdout, stderr) => {
     if (err) {
       console.error(stderr)
       return cb(err)
@@ -59,7 +71,7 @@ const buildModule = (modulePath, cb) => {
 
 const packageModule = (modulePath, cb) => {
   exec(
-    `./node_modules/.bin/module-builder package -v --out ../../out/binaries/modules/%name%.zip`,
+    `./node_modules/.bin/module-builder package -v --out ../../out/binaries/modules/%name%.tgz`,
     { cwd: modulePath },
     (err, stdout, stderr) => {
       if (err) {
@@ -83,6 +95,10 @@ const buildModules = () => {
     })
     return taskName
   })
+
+  if (yn(process.env.GULP_SERIES)) {
+    return gulp.series(tasks)
+  }
 
   return gulp.parallel(tasks)
 }
