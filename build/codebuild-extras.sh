@@ -10,8 +10,6 @@ if [ "$CODEBUILD_GIT_BRANCH" == "" ] ; then
   export CODEBUILD_GIT_BRANCH=${CODEBUILD_GIT_BRANCH#remotes/origin/}
 fi
 
-echo "$CODEBUILD_GIT_BRANCH"
-
 export CODEBUILD_GIT_MESSAGE=`git log -1 --pretty=%B`
 export CODEBUILD_GIT_AUTHOR=`git log -1 --pretty=%an`
 export CODEBUILD_GIT_AUTHOR_EMAIL=`git log -1 --pretty=%ae`
