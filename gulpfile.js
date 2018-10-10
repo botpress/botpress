@@ -17,10 +17,10 @@ gulp.task(
     core.buildTs,
     core.buildSchemas,
     core.createDirectories,
-    core.copyGlobal,
+    core.copyData,
+    core.copyBotTemplate,
     core.copyAdmin,
-    core.copyStudio,
-    core.copyTemplates
+    core.copyStudio
   ])
 )
 
@@ -31,11 +31,10 @@ gulp.task(
     core.buildTs,
     core.buildSchemas,
     core.createDirectories,
-    core.copyGlobal,
+    core.copyData,
+    core.copyBotTemplate,
     core.copyAdmin,
     core.copyStudio,
-    core.copyTemplates,
-    core.copyVanilla,
     core.watch
   ])
 )

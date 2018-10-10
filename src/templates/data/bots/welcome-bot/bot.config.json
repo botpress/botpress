@@ -1,9 +1,9 @@
 {
   "$schema": "../../bot.config.schema.json",
-  "name": "Botpress 123 Test",
-  "description": "Test bot",
+  "name": "Welcome Bot",
+  "description": "Welcome bot",
   "active": true,
-  "version": "1.2.3",
+  "version": "1.0.0",
   "author": "Botpress, Inc.",
   "license": "AGPL-3.0",
   "imports": {

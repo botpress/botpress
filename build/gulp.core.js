@@ -43,16 +43,12 @@ const createDirectories = () => {
     .pipe(gulp.dest('./out/bp/data/storage'))
 }
 
-const copyVanilla = () => {
-  return gulp.src('./src/templates/vanilla/bots/bot123/**/*').pipe(gulp.dest('./out/bp/data/bots/bot123'))
+const copyData = () => {
+  return gulp.src('./src/templates/data/**/*').pipe(gulp.dest('./out/bp/data'))
 }
 
-const copyGlobal = () => {
-  return gulp.src('./src/templates/global/**/*').pipe(gulp.dest('./out/bp/data/global'))
-}
-
-const copyTemplates = () => {
-  return gulp.src('./src/templates/**/*').pipe(gulp.dest('./out/templates'))
+const copyBotTemplate = () => {
+  return gulp.src('./src/templates/bot-template/**/*').pipe(gulp.dest('./out/templates/bot-template'))
 }
 
 const copyAdmin = () => {
@@ -77,11 +73,10 @@ module.exports = {
   buildTs,
   buildSchemas,
   createDirectories,
-  copyGlobal,
+  copyData,
+  copyBotTemplate,
   copyAdmin,
   copyStudio,
-  copyTemplates,
-  copyVanilla,
   watch,
   wipe,
   runTests

@@ -235,6 +235,11 @@ declare module 'botpress/sdk' {
     timeout?: { name: string; flow: string; node: string }[]
   }
 
+  export interface FlowGenerationResult {
+    flow: SkillFlow
+    transitions: NodeTransition[]
+  }
+
   export type SkillFlow = Partial<Flow> & Pick<Required<Flow>, 'nodes'>
 
   export type FlowNode = {
@@ -276,6 +281,11 @@ declare module 'botpress/sdk' {
     headers: object
   }
 
+  export interface Paging {
+    start: number
+    count: number
+  }
+
   /**
    * ////////////////
    * //////// API
@@ -302,6 +312,7 @@ declare module 'botpress/sdk' {
   export namespace events {
     export function registerMiddleware(middleware: IO.MiddlewareDefinition): void
     export function sendEvent(event: IO.Event): void
+    export function replyToEvent(event: IO.Event, payloads: any[])
   }
 
   export type GetOrCreateResult<T> = Promise<{
@@ -312,6 +323,8 @@ declare module 'botpress/sdk' {
   export namespace users {
     export function getOrCreateUser(channelName: string, userId: string): GetOrCreateResult<User>
     export function updateAttributes(channel: string, id: string, attributes: UserAttribute[]): Promise<void>
+    export function getAllUsers(paging?: Paging): Promise<any>
+    export function getUserCount(): Promise<any>
   }
 
   export namespace dialog {
@@ -353,6 +366,7 @@ declare module 'botpress/sdk' {
     export function getContentElement(botId: string, id: string): Promise<ContentElement>
     export function listContentElements(botId: string, contentTypeId?: string): Promise<ContentElement[]>
     export function getAllContentTypes(botId?: string): Promise<ContentType[]>
+    export function renderElement(contentTypeId: string, payload: any, channel: string)
   }
 
   export const logger: Logger
