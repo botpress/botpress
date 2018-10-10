@@ -295,7 +295,7 @@ class Message extends Component {
   }
 
   render_custom() {
-    const type = this.props.data.message_raw.custom_type || ''
+    const type = this.props.data.message_raw.custom_type.substring(1) || ''
     const Plugin = ((window.botpress || {})[type] || {})['Plugin']
     const data = this.props.data.message_raw.custom_data
     return (
@@ -318,7 +318,7 @@ class Message extends Component {
 
   render_unsupported() {
     return (
-      <div style={`${this.getAddStyle()} botpress__message-unsupported`}>
+      <div style={this.getAddStyle()} className="botpress__message-unsupported">
         <p>*Unsupported message type*</p>
       </div>
     )
