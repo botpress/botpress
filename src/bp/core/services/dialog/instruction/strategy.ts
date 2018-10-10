@@ -69,9 +69,11 @@ export class ActionStrategy implements InstructionStrategy {
     const argsStr = _.tail(chunks).join(' ')
     const actionName = _.first(chunks)!
 
-    let args
+    let args: { [key: string]: any } = {}
     try {
-      args = JSON.parse(argsStr)
+      if (argsStr && argsStr.length) {
+        args = JSON.parse(argsStr)
+      }
     } catch (err) {
       throw new Error(`Action "${actionName}" has invalid arguments (not a valid JSON string): ${argsStr}`)
     }

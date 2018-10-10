@@ -5,8 +5,8 @@ import { SDK } from '.'
 export default async (bp: SDK) => {
   const router = bp.http.createRouterForBot('skill-choice')
 
-  router.get('/config', (req, res) => {
-    const config = bp.config.getModuleConfigForBot('skill-choice', req.params.botId)
+  router.get('/config', async (req, res) => {
+    const config = await bp.config.getModuleConfigForBot('skill-choice', req.params.botId)
     res.send(_.pick(config, ['defaultContentElement', 'defaultContentRenderer', 'defaultMaxAttempts', 'matchNumbers']))
   })
 

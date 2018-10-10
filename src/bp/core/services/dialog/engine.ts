@@ -252,12 +252,12 @@ export class DialogEngine {
   ) {
     const queue = new InstructionQueue()
 
-    if (!options.skipOnEnter || !options.onlyTransitions) {
-      const onEnter = InstructionFactory.createOnEnter(currentNode)
-      queue.enqueue(...onEnter)
-    }
-
     if (!options.onlyTransitions) {
+      if (!options.skipOnEnter) {
+        const onEnter = InstructionFactory.createOnEnter(currentNode)
+        queue.enqueue(...onEnter)
+      }
+
       const onReceive = InstructionFactory.createOnReceive(currentNode, currentFlow)
       if (!_.isEmpty(onReceive)) {
         queue.enqueue({ type: 'wait' })
