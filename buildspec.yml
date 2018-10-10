@@ -23,7 +23,9 @@ phases:
       # OSX Build
       - rm -rf node_modules
       - export npm_config_target_platform=darwin
-      - yarn install --force
+      # Twice because of potential OS-specific errors
+      - yarn install --force --ignore-engines
+      - yarn install --force --ignore-engines
       - yarn run build --mac
       - yarn run package --mac
       - mkdir -p out/binaries/data/storage
@@ -33,7 +35,9 @@ phases:
       # Windows Build
       - rm -rf node_modules
       - export npm_config_target_platform=windows
-      - yarn install --force
+      # Twice because of potential OS-specific errors
+      - yarn install --force --ignore-engines
+      - yarn install --force --ignore-engines
       - yarn run build --win32
       - yarn run package --win32
       - mkdir -p out/binaries/data/storage
@@ -43,7 +47,7 @@ phases:
       # Linux Build
       - rm -rf node_modules
       - export npm_config_target_platform=linux
-      - yarn install --force
+      - yarn install --force --ignore-engines
       - yarn run build --linux
       - yarn run package --linux
       - mkdir -p out/binaries/data/storage

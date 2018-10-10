@@ -43,7 +43,7 @@ const copyData = () => {
 
 const copyNativeExtensions = async () => {
   mkdirp.sync('out/binaries/bindings')
-  const files = [...glob.sync('./node_modules/**/node-v64-*/*.node'), ...glob.sync('./build/native-extensions/*.node')]
+  const files = [...glob.sync('./build/native-extensions/*.node'), ...glob.sync('./node_modules/**/node-v64-*/*.node')]
 
   for (const file of files) {
     fs.copyFileSync(path.resolve(file), path.resolve('./out/binaries/bindings/', path.basename(file)))
