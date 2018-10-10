@@ -29,18 +29,18 @@ export default async (argv: any) => {
 
 const getTargetOSConfig = () => {
   if (process.argv.find(x => x.toLowerCase() === '--win32')) {
-    return 'npm_config_target_platform=win32'
+    return 'win32'
   } else if (process.argv.find(x => x.toLowerCase() === '--linux')) {
-    return 'npm_config_target_platform=linux'
+    return 'linux'
   } else {
-    return 'npm_config_target_platform=darwin'
+    return 'darwin'
   }
 }
 
 async function installProductionDeps(modulePath) {
   debug('Installing production modules...')
   const { stdout } = await execAsync(
-    `${getTargetOSConfig()} yarn install --modules-folder node_production_modules --production --no-lockfile --ignore-scripts --force`,
+    `cross-env npm_config_target_platform=${getTargetOSConfig()} yarn install --modules-folder node_production_modules --production --no-lockfile --ignore-scripts --force`,
     {
       cwd: modulePath
     }

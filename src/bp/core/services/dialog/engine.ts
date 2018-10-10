@@ -75,9 +75,9 @@ export class DialogEngine {
 
     if (!session.context!.currentNodeName) {
       session = await this.sessionService.updateSessionContext(session.id, {
-        previousFlowName: skillFlow.name ? defaultFlow.name : undefined,
+        previousFlowName: skillFlow && skillFlow.name ? defaultFlow.name : undefined,
         previousNodeName: skillEntryNode ? entryNodeName : undefined,
-        currentFlowName: skillFlow.name || defaultFlow.name,
+        currentFlowName: (skillFlow && skillFlow.name) || defaultFlow.name,
         currentNodeName: skillEntryNode || entryNodeName
       })
     }
