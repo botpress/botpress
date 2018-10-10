@@ -14,7 +14,6 @@ phases:
     commands:
       - $(./build/codebuild-extras.sh)
       - echo "BUILDING FOR '$ARTIFACT_NAME'"
-      - printenv
       - yarn install
       - (cd build/module-builder && yarn install && yarn build)
 
@@ -53,6 +52,11 @@ phases:
       - ls -a out_linux
 
 artifacts:
+  base-directory: $CODEBUILD_SRC_DIR
+  name: botpress-$ARTIFACT_NAME-all-x64.zip
+  files:
+    - 'out_*/**/*'
+
   secondary-artifacts:
     darwin:
       base-directory: $CODEBUILD_SRC_DIR/out_darwin/binaries
