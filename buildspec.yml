@@ -28,6 +28,7 @@ phases:
       - mkdir -p out/binaries/data/storage
       - touch out/binaries/data/storage/.keep
       - mv out out_darwin
+      - mkdir -p out
       # Windows Build
       - export npm_config_target_platform=windows
       - yarn run build --win32
@@ -35,6 +36,7 @@ phases:
       - mkdir -p out/binaries/data/storage
       - touch out/binaries/data/storage/.keep
       - mv out out_win32
+      - mkdir -p out
       # Linux Build
       - export npm_config_target_platform=linux
       - yarn run build --linux
@@ -42,6 +44,13 @@ phases:
       - mkdir -p out/binaries/data/storage
       - touch out/binaries/data/storage/.keep
       - mv out out_linux
+
+  post_build:
+    commands:
+      - ls -a
+      - ls -a out_darwin
+      - ls -a out_win32
+      - ls -a out_linux
 
 artifacts:
   files:
