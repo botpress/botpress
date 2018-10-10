@@ -1,4 +1,4 @@
-echo $(cat ../package.json \
+echo $(cat package.json \
 | grep version \
 | head -1 \
 | awk -F: '{ print $2 }' \

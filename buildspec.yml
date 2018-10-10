@@ -12,7 +12,8 @@ phases:
 
   pre_build:
     commands:
-      - echo "BUILDING VERSION $(./build/artifact_name.sh)"
+      - $(./build/codebuild-extras.sh)
+      - echo "BUILDING FOR '$ARTIFACT_NAME'"
       - yarn install
       - (cd build/module-builder && yarn install && yarn build)
 
@@ -20,47 +21,76 @@ phases:
     commands:
       - (cd src/bp/ui-admin && yarn install && yarn build)
       # OSX Build
+      - rm -rf node_modules
+      - rm -rf modules/**/node_modules
       - export npm_config_target_platform=darwin
+      # Twice because of potential OS-specific errors
+      - yarn install --force --ignore-engines
+      - yarn install --force --ignore-engines
       - yarn run build --mac
       - yarn run package --mac
       - mkdir -p out/binaries/data/storage
       - touch out/binaries/data/storage/.keep
       - mv out out_darwin
+      - mkdir -p out
       # Windows Build
+      - rm -rf node_modules
+      - rm -rf modules/**/node_modules
       - export npm_config_target_platform=windows
+      # Twice because of potential OS-specific errors
+      - yarn install --force --ignore-engines
+      - yarn install --force --ignore-engines
       - yarn run build --win32
       - yarn run package --win32
       - mkdir -p out/binaries/data/storage
       - touch out/binaries/data/storage/.keep
       - mv out out_win32
+      - mkdir -p out
       # Linux Build
+      - rm -rf node_modules
+      - rm -rf modules/**/node_modules
       - export npm_config_target_platform=linux
+      - yarn install --force --ignore-engines
       - yarn run build --linux
       - yarn run package --linux
       - mkdir -p out/binaries/data/storage
       - touch out/binaries/data/storage/.keep
       - mv out out_linux
 
+  post_build:
+    commands:
+      - ls -a
+      - ls -a out_darwin
+      - ls -a out_win32
+      - ls -a out_linux
+
 artifacts:
+  base-directory: $CODEBUILD_SRC_DIR
+  name: botpress-$ARTIFACT_NAME-all-x64.zip
   files:
-    - '**/*'
-  base-directory: out_darwin/binaries
-  name: botpress-$(./build/artifact_name.sh)-darwin-x64.zip
+    - 'out_*/**/*'
 
-secondary-artifacts:
-  linux:
-    files:
-      - '**/*'
-    base-directory: out_linux/binaries
-    name: botpress-$(./build/artifact_name.sh)-linux-x64.zip
-  windows:
-    files:
-      - '**/*'
-    base-directory: out_win32/binaries
-    name: botpress-$(./build/artifact_name.sh)-win-x64.zip
+  secondary-artifacts:
+    darwin:
+      base-directory: $CODEBUILD_SRC_DIR/out_darwin/binaries
+      name: botpress-$ARTIFACT_NAME-darwin-x64.zip
+      files:
+        - '**/*'
 
-cache:
-  paths:
-    - node_modules
-    - modules/**/node_modules
-    - build/module-builder/node_modules
+    linux:
+      base-directory: $CODEBUILD_SRC_DIR/out_linux/binaries
+      name: botpress-$ARTIFACT_NAME-linux-x64.zip
+      files:
+        - '**/*'
+
+    windows:
+      base-directory: $CODEBUILD_SRC_DIR/out_win32/binaries
+      name: botpress-$ARTIFACT_NAME-win-x64.zip
+      files:
+        - '**/*'
+
+  cache:
+    paths:
+      - node_modules
+      - modules/**/node_modules
+      - build/module-builder/node_modules
