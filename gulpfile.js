@@ -12,25 +12,15 @@ gulp.task('test', gulp.series([core.buildTs, core.runTests]))
 
 gulp.task(
   'default',
-  gulp.series([
-    ...(process.argv.includes('--skip-clean') ? [] : [core.clean]),
-    core.buildTs,
-    core.buildSchemas,
-    core.createDirectories,
-    core.copyData,
-    core.copyBotTemplate,
-    core.copyAdmin,
-    core.copyStudio
-  ])
+  gulp.series([...(process.argv.includes('--skip-clean') ? [] : [core.clean]), core.buildTs, core.buildSchemas])
 )
 
 gulp.task(
   'dev',
   gulp.series([
-    core.clean,
+    ...(process.argv.includes('--skip-clean') ? [] : [core.clean]),
     core.buildTs,
     core.buildSchemas,
-    core.createDirectories,
     core.copyData,
     core.copyBotTemplate,
     core.copyAdmin,
@@ -39,7 +29,17 @@ gulp.task(
   ])
 )
 
-gulp.task('clean', core.clean)
+gulp.task(
+  'clean',
+  gulp.series([
+    core.clean,
+    core.createDirectories,
+    core.copyData,
+    core.copyBotTemplate,
+    core.copyAdmin,
+    core.copyStudio
+  ])
+)
 
 gulp.task('modules', gulp.series([modules.copySdkDefinitions, modules.copyBoilerplateFiles, modules.buildModules()]))
 

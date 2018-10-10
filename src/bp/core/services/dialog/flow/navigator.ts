@@ -73,8 +73,7 @@ export class FlowNavigator {
       if (destinationNode.flow) {
         // Subflow
         const destinationFlow = args.flows.find(f => f.name === destinationNode.flow)
-        const node = destinationFlow.startNode
-        nodeName = node.name
+        nodeName = destinationFlow.startNode
         flowName = destinationFlow.name
       } else {
         // Transition to a specific node in the current flow
