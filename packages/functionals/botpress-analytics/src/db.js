@@ -38,7 +38,12 @@ function initializeDb() {
 }
 
 function saveInteractionIn(event) {
-  let user = _.get(event, 'user.id') || _.get(event, 'user.userId') || _.get(event, 'raw.from') || _.get(event, 'user')
+  let user =
+    _.get(event, 'user.id') ||
+    _.get(event, 'user.userId') ||
+    _.get(event, 'raw.from') ||
+    _.get(event, 'raw.user.id') ||
+    _.get(event, 'user')
 
   if (!user.startsWith(event.platform)) {
     user = event.platform + ':' + user
@@ -56,7 +61,12 @@ function saveInteractionIn(event) {
 }
 
 function saveInteractionOut(event) {
-  let userId = _.get(event, 'user.id') || _.get(event, 'user.userId') || _.get(event, 'raw.to') || _.get(event, 'user')
+  let userId =
+    _.get(event, 'user.id') ||
+    _.get(event, 'user.userId') ||
+    _.get(event, 'raw.from') ||
+    _.get(event, 'raw.user.id') ||
+    _.get(event, 'user')
 
   if (!userId.startsWith(event.platform)) {
     userId = event.platform + ':' + userId

@@ -10,7 +10,7 @@ export default data => {
       elements: [
         {
           title: data.title,
-          buttons: [data.action].map(a => {
+          buttons: [data].map(a => {
             if (a.action === 'Say something') {
               return {
                 type: 'postback',
@@ -49,7 +49,7 @@ export default data => {
       elements: [
         {
           title: data.title,
-          buttons: [data.action].map(a => {
+          buttons: [data].map(a => {
             if (a.action === 'Open URL') {
               return {
                 title: a.title,
@@ -72,7 +72,7 @@ export default data => {
           contentType: 'application/vnd.microsoft.card.hero',
           content: {
             title: data.title,
-            buttons: [data.action].map(a => {
+            buttons: [data].map(a => {
               if (a.action === 'Say something') {
                 return {
                   type: 'imBack',
@@ -97,7 +97,7 @@ export default data => {
         {
           title: data.title,
           text: data.subtitle,
-          actions: [data.action].map(a => {
+          actions: [data].map(a => {
             if (a.action === 'Say something') {
               return {
                 name: 'press',

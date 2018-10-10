@@ -46,7 +46,7 @@ export default class FormModal extends Component {
     if (!id) {
       return this.setState(this.defaultState)
     }
-    this.props.bp.axios.get(`/api/botpress-qna/question/${id}`).then(({ data: item }) => {
+    this.props.bp.axios.get(`/api/botpress-qna/question/${id}`).then(({ data: { data: item } }) => {
       this.setState({
         item,
         isRedirect: [ACTIONS.REDIRECT, ACTIONS.TEXT_REDIRECT].includes(item.action),
@@ -164,7 +164,7 @@ export default class FormModal extends Component {
 
           <Modal.Body className={style.qnaModalBody}>
             {this.alertMessage()}
-            {this.props.hasCategory ? (
+            {categories.length ? (
               <div className={style.qnaCategory}>
                 <span className={style.qnaCategoryTitle}>Category</span>
                 <Select
@@ -185,7 +185,7 @@ export default class FormModal extends Component {
                 className={classnames(style.qnaQuestionsTextarea, {
                   qnaCategoryError: invalidFields.questions
                 })}
-                value={this.state.item.questions.join('\n')}
+                value={(this.state.item.questions || []).join('\n')}
                 onChange={event => this.changeItemProperty('questions', event.target.value.split(/\n/))}
                 componentClass="textarea"
               />

@@ -27,7 +27,8 @@ module.exports = {
     textRenderer: { type: 'string', required: true, default: '#builtin_text', env: 'QNA_TEXT_RENDERER' },
     exportCsvEncoding: { type: 'string', required: false, default: 'utf8', env: 'QNA_EXPORT_CSV_ENCODING' },
     qnaMakerApiKey: { type: 'string', required: false, env: 'QNA_MAKER_API_KEY' },
-    qnaMakerKnowledgebase: { type: 'string', required: false, default: 'botpress', env: 'QNA_MAKER_KNOWLEDGEBASE' }
+    qnaMakerKnowledgebase: { type: 'string', required: false, default: 'botpress', env: 'QNA_MAKER_KNOWLEDGEBASE' },
+    qnaCategories: { type: 'string', required: false, default: '', env: 'QNA_CATEGORIES' }
   },
   async init(bp, configurator) {
     const config = await configurator.loadAll()
@@ -61,7 +62,7 @@ module.exports = {
   async ready(bp, configurator) {
     const config = await configurator.loadAll()
     const storage = this.storage
-    let categories = []
+    const categories = config.qnaCategories.split(',')
     bp.qna = {
       /**
        * Parses and imports questions; consecutive questions with similar answer get merged
@@ -148,18 +149,7 @@ module.exports = {
        * @param {String} question - question to match against
        * @returns {Array.<{questions: Array, answer: String, id: String, confidence: Number, metadata: Array}>}
        */
-      answersOn: storage.answersOn.bind(storage),
-
-      /**
-       * @param {string[]} categoriesToRegister - array of category names to register
-       */
-
-      registerCategories(categoriesToRegister) {
-        if (!_.isArray(categoriesToRegister)) {
-          return
-        }
-        categories = [...categories, ...categoriesToRegister]
-      }
+      answersOn: storage.answersOn.bind(storage)
     }
 
     const router = bp.getRouter('botpress-qna')
@@ -215,7 +205,7 @@ module.exports = {
     router.get('/', async ({ query: { question = '', categories = [], limit, offset } }, res) => {
       try {
         const items = await getQuestions({ question, categories }, { limit, offset })
-        res.send({ ...items, hasCategory: !!this.isMicrosoftMakerUsed })
+        res.send({ ...items })
       } catch (e) {
         logger.error('QnA Error', e, e.stack)
         res.status(500).send(e.message || 'Error')

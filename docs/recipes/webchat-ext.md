@@ -60,7 +60,7 @@ That's it, you can now use your new module (`@botpress-webchat-plugin-select`) t
 '#select': data => ({
   text: 'Select option',
   type: '@botpress/new-module',
-  data: { slots: data }
+  data: { slots: data.slots }
 })
 ```
 

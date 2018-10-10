@@ -71,7 +71,7 @@ module.exports = {
       custom: CustomAnalytics({ bp })
     }
 
-    bp.db.get().then(knex => {
+    return bp.db.get().then(knex => {
       db = DB(knex, bp)
       return db.initializeDb().then(() => (analytics = new Analytics(bp, knex)))
     })
