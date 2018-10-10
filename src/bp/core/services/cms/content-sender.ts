@@ -17,26 +17,34 @@ export class ContentElementSender {
   ) {}
 
   // TODO: Test if the payload is parsing its template properly
-  async sendContent(contentId: string, state, event) {
-    contentId = contentId.replace(/^#!?/i, '')
+  async sendContent(contentId: string, args: string, state, event) {
+    contentId = contentId.replace(/^#?/i, '')
 
     const { botId, channel, target, threadId } = event
-    const content = await this.cms.getContentElement(botId, contentId) // TODO handle errors
 
-    if (!content) {
-      throw new Error(`Content element "${contentId}" not found`)
+    let renderedElements
+
+    if (contentId.startsWith('!')) {
+      const content = await this.cms.getContentElement(botId, contentId.substr(1)) // TODO handle errors
+
+      if (!content) {
+        throw new Error(`Content element "${contentId}" not found`)
+      }
+
+      const view = { state, event }
+
+      // FIXME: Add variations
+      _.set(content, 'previewPath', Mustache.render(content.previewText, view))
+
+      const computedDataText = _.get(content.computedData, 'text')
+      if (computedDataText) {
+        _.set(content, 'computedData.text', Mustache.render(computedDataText, view))
+      }
+
+      renderedElements = await this.cms.renderElement(content.contentType, content.computedData, channel)
+    } else {
+      renderedElements = await this.cms.renderElement(contentId, args, channel)
     }
-
-    const view = { state, event }
-
-    // FIXME: Add variations
-    _.set(content, 'previewPath', Mustache.render(content.previewText, view))
-    _.set(content, 'computedData.text', Mustache.render(_.get(content.computedData, 'text'), view))
-
-    const additionnalData = { BOT_URL: 'http://localhost:3000' }
-
-    const contentType = await this.cms.getContentType(content.contentType)
-    let renderedElements = await contentType.renderElement({ ...additionnalData, ...content.computedData }, channel)
 
     if (!_.isArray(renderedElements)) {
       renderedElements = [renderedElements]

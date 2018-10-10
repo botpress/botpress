@@ -53,12 +53,18 @@ export class ActionStrategy implements InstructionStrategy {
       throw new Error('Invalid text instruction. Expected an instruction along "say #text Something"')
     }
 
-    const output = {
-      type: chunks[1],
-      value: params
+    const outputType = chunks[1]
+    let args
+
+    if (params.length > 0) {
+      try {
+        args = JSON.parse(params)
+      } catch (err) {
+        throw new Error(`Say "${outputType}" has invalid arguments (not a valid JSON string): ${params}`)
+      }
     }
 
-    await this.contentElementSender.sendContent(output.type, state, event)
+    await this.contentElementSender.sendContent(outputType, args, state, event)
 
     return ProcessingResult.none()
   }

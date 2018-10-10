@@ -69,9 +69,8 @@ export default async (bp: SDK, botScopedStorage: Map<string, QnaStorage>) => {
     if (answer.action.includes('text')) {
       bp.logger.debug('QnA: replying to recognized question with plain text answer', answer.id)
 
-      // TODO: Send reply to user
-      // event.reply(config.textRenderer, { text: answer.answer })
-      // return `true` to prevent further middlewares from capturing the message
+      const payloads = await bp.cms.renderElement('builtin_text', { text: answer.answer, typing: true }, 'web')
+      bp.events.replyToEvent(event, payloads)
 
       if (answer.action === 'text') {
         event.setFlag(bp.IO.WellKnownFlags.SKIP_DIALOG_ENGINE, true)

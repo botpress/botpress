@@ -1,4 +1,5 @@
 import fs from 'fs'
+import _ from 'lodash'
 import path from 'path'
 import webpack from 'webpack'
 
@@ -80,7 +81,7 @@ export function config(projectPath) {
   }
 
   if (packageJson.webpack) {
-    Object.assign(web, packageJson.webpack)
+    _.merge(web, packageJson.webpack)
   }
 
   const liteViews = (packageJson.botpress && packageJson.botpress.liteViews) || {}

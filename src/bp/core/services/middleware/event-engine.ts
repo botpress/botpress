@@ -6,6 +6,7 @@ import { VError } from 'verror'
 
 import { GhostService } from '..'
 import { BotConfig } from '../../config/bot.config'
+import { Event } from '../../sdk/impl'
 import { TYPES } from '../../types'
 import { CMSService } from '../cms/cms-service'
 import { Queue } from '../queue'
@@ -87,6 +88,21 @@ export class EventEngine {
       this.incomingQueue.enqueue(event, 1, false)
     } else {
       this.outgoingQueue.enqueue(event, 1, false)
+    }
+  }
+
+  async replyToEvent(event: sdk.IO.Event, payloads: any[]) {
+    const originalEvent = _.pick(event, 'channel', 'target', 'botId', 'threadId')
+
+    for (const payload of payloads) {
+      const replyEvent = Event({
+        ...originalEvent,
+        direction: 'outgoing',
+        type: _.get(payload, 'type', 'default'),
+        payload
+      })
+
+      await this.sendEvent(replyEvent)
     }
   }
 
