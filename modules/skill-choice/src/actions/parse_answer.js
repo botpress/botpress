@@ -11,8 +11,6 @@ const INTENT_PREFIX = 'intent:'
  */
 const validateChoice = async data => {
   let choice = undefined
-  console.log('DATA', data)
-  data = JSON.parse(data.data)
   const config = await bp.config.getModuleConfigForBot('skill-choice', event.botId)
   const nb = _.get(event.preview.match(/^[#).!]?([\d]{1,2})[#).!]?$/), '[1]')
 

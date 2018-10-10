@@ -48,6 +48,11 @@ export class FlowNavigator {
       if (!destinationNodeName) {
         nodeName = args.previousNodeName
         flowName = args.previousFlowName
+        if (!nodeName) {
+          const defaultFlow = args.flows.find(f => f.name === 'main.flow.json')
+          nodeName = defaultFlow.startNode
+          flowName = defaultFlow.name
+        }
       } else {
         // Transition to a specific node in the previous flow
         const flow = args.flows.find(f => f.name === args.previousFlowName)

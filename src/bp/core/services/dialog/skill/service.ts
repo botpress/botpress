@@ -1,4 +1,4 @@
-import { Flow, FlowNode, NodeActionType, SkillFlow } from 'botpress/sdk'
+import { Flow, FlowGenerationResult, FlowNode, NodeActionType, SkillFlow } from 'botpress/sdk'
 import { injectable } from 'inversify'
 import _ from 'lodash'
 import generate from 'nanoid/generate'
@@ -7,12 +7,12 @@ import generate from 'nanoid/generate'
 export class SkillService {
   constructor() {}
 
-  public finalizeFlow(partialFlow: SkillFlow) {
-    if (!partialFlow || !partialFlow.nodes || partialFlow.nodes.length == 0) {
+  public finalizeFlow(partialFlow: FlowGenerationResult) {
+    if (_.get(partialFlow, 'flow.nodes.lenght') == 0) {
       throw new Error(`You must provide a flow with at least one node`)
     }
 
-    const completeFlow = this.setDefaultsForMissingValues(partialFlow)
+    const completeFlow = this.setDefaultsForMissingValues(partialFlow.flow)
 
     // Convert ActonBuilderProps to string, since dialog flow can't handle objects
     for (const node of completeFlow.nodes) {
@@ -21,7 +21,7 @@ export class SkillService {
     }
 
     // TODO change when studio is updated, since actual doesn't support catchall
-    return { flow: completeFlow, transitions: completeFlow.catchAll && completeFlow.catchAll.next }
+    return { flow: completeFlow, transitions: partialFlow.transitions }
   }
 
   private parseActionQuery(nodes) {

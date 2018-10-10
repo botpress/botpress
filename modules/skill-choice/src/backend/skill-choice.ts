@@ -2,7 +2,7 @@ import * as sdk from 'botpress/sdk'
 
 import _ from 'lodash'
 
-const generateFlow = (data): sdk.SkillFlow => {
+const generateFlow = (data): sdk.FlowGenerationResult => {
   const invalidTextData: any = {}
   if (data.config.invalidText && data.config.invalidText.length) {
     invalidTextData.text = data.config.invalidText
@@ -60,14 +60,17 @@ const generateFlow = (data): sdk.SkillFlow => {
   ]
 
   return {
-    nodes: nodes,
-    catchAll: {
-      next: []
+    transitions: createTransitions(data),
+    flow: {
+      nodes: nodes,
+      catchAll: {
+        next: []
+      }
     }
   }
 }
 
-const globalTransitions = data => {
+const createTransitions = data => {
   const transitions: sdk.NodeTransition[] = Object.keys(data.keywords).map(choice => {
     const choiceShort = choice.length > 8 ? choice.substr(0, 7) + '...' : choice
 

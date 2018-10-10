@@ -4,7 +4,6 @@ import { WellKnownFlags } from 'core/sdk/enums'
 import { inject, injectable, tagged } from 'inversify'
 import { Memoize } from 'lodash-decorators'
 import moment from 'moment'
-import * as path from 'path'
 import plur from 'plur'
 
 import { createForGlobalHooks } from './api'

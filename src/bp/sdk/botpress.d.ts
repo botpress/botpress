@@ -234,6 +234,11 @@ declare module 'botpress/sdk' {
     timeout?: { name: string; flow: string; node: string }[]
   }
 
+  export interface FlowGenerationResult {
+    flow: SkillFlow
+    transitions: NodeTransition[]
+  }
+
   export type SkillFlow = Partial<Flow> & Pick<Required<Flow>, 'nodes'>
 
   export type FlowNode = {
