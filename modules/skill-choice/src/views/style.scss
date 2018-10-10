@@ -1,0 +1,40 @@
+.keywords {
+  h4 {
+    font-weight: 400;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #efefef;
+  }
+
+  :global(.ReactTags__tags) {
+    padding-left: 15px;
+    border-left: 5px solid #eee;
+  }
+
+  :global(.ReactTags__remove) {
+    margin-left: 5px;
+  }
+
+  :global(.ReactTags__tag) {
+    opacity: 1;
+    padding: 5px;
+    background-color: #eee;
+
+    & + :global(.ReactTags__tag) {
+      margin-left: 5px;
+    }
+  }
+
+  :global(.ReactTags__selected) {
+    padding: 5px 0;
+  }
+
+  :global(.ReactTags__tagInputField) {
+    margin: 5px 0;
+    padding: 5px;
+    width: 100%;
+  }
+
+  :global(.ReactTags__tag) + :global(.ReactTags__tagInput) {
+    margin-top: 10px;
+  }
+}

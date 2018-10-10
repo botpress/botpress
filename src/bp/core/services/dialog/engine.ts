@@ -1,7 +1,7 @@
-import { IO } from 'botpress/sdk'
+import { IO, Logger } from 'botpress/sdk'
 import { DialogSession } from 'core/repositories'
 import { TYPES } from 'core/types'
-import { inject, injectable } from 'inversify'
+import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 
 import { FlowNavigator, NavigationArgs, NavigationPosition } from './flow/navigator'
@@ -35,7 +35,10 @@ export class DialogEngine {
     @inject(TYPES.FlowNavigator) private flowNavigator: FlowNavigator,
     @inject(TYPES.InstructionProcessor) private instructionProcessor: InstructionProcessor,
     @inject(TYPES.FlowService) private flowService: FlowService,
-    @inject(TYPES.SessionService) private sessionService: SessionService
+    @inject(TYPES.SessionService) private sessionService: SessionService,
+    @inject(TYPES.Logger)
+    @tagged('name', 'DialogEngine')
+    private logger: Logger
   ) {}
 
   /**
@@ -52,20 +55,30 @@ export class DialogEngine {
   protected async getOrCreateSession(botId, sessionId, event): Promise<DialogSession> {
     const flows = await this.flowService.loadAll(botId)
     const defaultFlow = flows.find(f => f.name === DEFAULT_FLOW_NAME)
+    let skillEntryNode
+    let skillFlow
 
     if (!defaultFlow) {
       throw new Error(`Default flow "${DEFAULT_FLOW_NAME}" not found for bot "${botId}"`)
     }
 
-    const entryNodeName = _.get(defaultFlow, 'startNode')!
+    const entryNodeName = _.get(defaultFlow, 'startNode')
+    const entryNode = defaultFlow.nodes.find(n => n.name === entryNodeName)
+    if (_.get(entryNode, 'type') === 'skill-call') {
+      const flow = flows.find(f => f.name === _.get(entryNode, 'flow'))
+      skillEntryNode = _.get(flow, 'startNode')
+      skillFlow = flow
+    }
 
     let session: DialogSession = await this.sessionService.getOrCreateSession(sessionId, botId)
     session = await this.sessionService.updateSessionEvent(session.id, event)
 
     if (!session.context!.currentNodeName) {
       session = await this.sessionService.updateSessionContext(session.id, {
-        currentFlowName: defaultFlow.name,
-        currentNodeName: entryNodeName
+        previousFlowName: skillFlow.name ? defaultFlow.name : undefined,
+        previousNodeName: skillEntryNode ? entryNodeName : undefined,
+        currentFlowName: skillFlow.name || defaultFlow.name,
+        currentNodeName: skillEntryNode || entryNodeName
       })
     }
 
@@ -73,11 +86,9 @@ export class DialogEngine {
       const currentFlow = this.getCurrentFlow(session, flows)
       const currentNode = this.getCurrentNode(session, flows)
       const queue = this.createQueue(currentNode, currentFlow)
-      session = await this.sessionService.updateSessionContext(session.id, {
-        currentFlowName: currentFlow.name,
-        currentNodeName: currentNode.name,
-        queue: queue.toString()
-      })
+      const context = session.context!
+      context.queue = queue.toString()
+      session = await this.sessionService.updateSessionContext(session.id, context)
     }
 
     return session
@@ -104,6 +115,12 @@ export class DialogEngine {
           session.context
         )
 
+        this.logger.debug(
+          `Processing Instruction. Current session context: '${session.context!.currentFlowName}' '${
+            session.context!.currentNodeName
+          }'`
+        )
+
         if (result.followUpAction === 'update') {
           await this.updateQueueForSession(queue, session)
           await this.sessionService.updateStateForSession(session.id, result.options!.state!)
@@ -114,6 +131,7 @@ export class DialogEngine {
           await this.updateQueueForSession(queue, session)
           break
         } else if (result.followUpAction === 'transition') {
+          sessionIsStale = true
           const position = await this.navigateToNextNode(flows, session, result.options!.transitionTo!)
           if (!position) {
             this.sessionService.deleteSession(session.id)
@@ -122,15 +140,31 @@ export class DialogEngine {
 
           const flow = flows.find(f => f.name === position.flowName)
           const node = flow!.nodes.find(n => n.name === position.nodeName)
-          queue = this.createQueue(node, flow)
 
-          this.sessionService.updateSessionContext(session.id, {
-            previousFlowName: session.context!.currentFlowName,
+          // Check to exit subflow
+          if (_.get(result, 'options.transitionTo') === '#' && session.context.previousFlowName === position.flowName) {
+            queue = this.createQueue(node, flow, { onlyTransitions: true })
+          } else {
+            queue = this.createQueue(node, flow)
+          }
+
+          await this.sessionService.updateSessionContext(session.id, {
+            previousFlowName: session.context!.previousFlowName,
             previousNodeName: session.context!.currentNodeName,
-            currentFlowName: position.flowName,
+            currentFlowName:
+              position.flowName === session.context!.previousFlowName
+                ? session.context.previousFlowName
+                : position.flowName,
             currentNodeName: position.nodeName,
             queue: queue.toString()
           })
+
+          this.logger.debug(
+            `Updating session. Previous: '${session.context!.currentFlowName}' '${
+              session.context!.currentNodeName
+            }'. Current: '${position.flowName}' '${position.nodeName}'`
+          )
+          this.logger.debug(`Queue: ${queue.toString()}`)
         }
       } catch (err) {
         // TODO: Find a better way to handle this
@@ -205,29 +239,34 @@ export class DialogEngine {
   private rebuildQueue(flows, instruction, session) {
     const currentFlow = this.getCurrentFlow(session, flows)
     const currentNode = this.getCurrentNode(session, flows)
-    const skipOnEnter = true
 
     return instruction.type === 'on-enter'
       ? this.createQueue(currentNode, currentFlow)
-      : this.createQueue(currentNode, currentFlow, skipOnEnter)
+      : this.createQueue(currentNode, currentFlow, { skipOnEnter: true })
   }
 
-  protected createQueue(currentNode, currentFlow, skipOnEnter = false) {
+  protected createQueue(
+    currentNode,
+    currentFlow,
+    options: { skipOnEnter?: boolean; onlyTransitions?: boolean } = { skipOnEnter: false, onlyTransitions: false }
+  ) {
     const queue = new InstructionQueue()
 
-    if (!skipOnEnter) {
-      const onEnter = InstructionFactory.createOnEnter(currentNode)
-      queue.enqueue(...onEnter)
+    if (!options.onlyTransitions) {
+      if (!options.skipOnEnter) {
+        const onEnter = InstructionFactory.createOnEnter(currentNode)
+        queue.enqueue(...onEnter)
+      }
+
+      const onReceive = InstructionFactory.createOnReceive(currentNode, currentFlow)
+      if (!_.isEmpty(onReceive)) {
+        queue.enqueue({ type: 'wait' })
+      }
+      queue.enqueue(...onReceive)
     }
 
-    const onReceive = InstructionFactory.createOnReceive(currentNode, currentFlow)
     const transition = InstructionFactory.createTransition(currentNode, currentFlow)
 
-    if (!_.isEmpty(onReceive)) {
-      queue.enqueue({ type: 'wait' })
-    }
-
-    queue.enqueue(...onReceive)
     queue.enqueue(...transition)
 
     return queue
@@ -239,6 +278,7 @@ export class DialogEngine {
     destination: string
   ): Promise<NavigationPosition | undefined> {
     if (destination === 'END') {
+      await this.sessionService.deleteSession(session.id)
       return undefined
     }
 

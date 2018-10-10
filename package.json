@@ -61,6 +61,7 @@
   "devDependencies": {
     "@types/bluebird-global": "^3.5.9",
     "@types/express": "^4.16.0",
+    "@types/fs-extra": "^5.0.4",
     "@types/jest": "^23.3.2",
     "@types/joi": "^13.4.5",
     "@types/knex": "^0.14.24",

@@ -1,10 +1,12 @@
 import { Logger, ModuleDefinition, ModuleEntryPoint } from 'botpress/sdk'
 import { ValidationError } from 'errors'
+import fse from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
 import joi from 'joi'
 import _ from 'lodash'
 
 import { createForModule } from './api' // TODO
+import ModuleResolver from './modules/resolver'
 import { GhostService } from './services'
 import ConfigReader from './services/module/config-reader'
 import { TYPES } from './types'
@@ -48,7 +50,8 @@ export class ModuleLoader {
     @inject(TYPES.Logger)
     @tagged('name', 'ModuleLoader')
     private logger: Logger,
-    @inject(TYPES.GhostService) private ghost: GhostService
+    @inject(TYPES.GhostService) private ghost: GhostService,
+    @inject(TYPES.ProjectLocation) private projectLocation: string
   ) {}
 
   public get configReader() {
@@ -117,6 +120,7 @@ export class ModuleLoader {
       try {
         const api = await createForModule(name)
         await (module.onReady && module.onReady(api))
+        this.loadModulesActions(name) // This is a hack to get the module location
         readyModules.push(name)
         this.entryPoints.set(name, module)
       } catch (err) {
@@ -125,6 +129,17 @@ export class ModuleLoader {
     }
 
     return readyModules
+  }
+
+  private async loadModulesActions(name: string) {
+    const resolver = new ModuleResolver(this.logger)
+    const modulePath = await resolver.resolve('MODULES_ROOT/' + name)
+    const moduleActionsDir = `${modulePath}/dist/actions`
+    if (fse.pathExistsSync(moduleActionsDir)) {
+      const globalActionsDir = `${this.projectLocation}/data/global/actions/${name}`
+      fse.mkdirpSync(globalActionsDir)
+      fse.copySync(moduleActionsDir, globalActionsDir)
+    }
   }
 
   public getLoadedModules(): ModuleDefinition[] {
@@ -136,7 +151,7 @@ export class ModuleLoader {
     const def = this.getModule(module)!
 
     if (typeof def.serveFile !== 'function') {
-      throw new Error(`Module "${module} does not support serving files"`)
+      throw new Error(`Module '${module} does not support serving files'`)
     }
 
     return def.serveFile!(path)
@@ -152,7 +167,7 @@ export class ModuleLoader {
   private getModule(module: string) {
     module = module.toLowerCase()
     if (!this.entryPoints.has(module)) {
-      throw new Error(`Module "${module}" not registered`)
+      throw new Error(`Module '${module}' not registered`)
     }
 
     return this.entryPoints.get(module)!
