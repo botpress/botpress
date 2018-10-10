@@ -8,35 +8,34 @@ process.on('uncaughtException', err => {
   process.exit(1)
 })
 
+const cleanSteps = [
+  core.clean,
+  core.createDirectories,
+  core.copyGlobal,
+  core.copyAdmin,
+  core.copyStudio,
+  core.copyTemplates,
+  core.copyVanilla
+]
+
 gulp.task('test', gulp.series([core.buildTs, core.runTests]))
 
 gulp.task(
   'default',
-  gulp.series([...(process.argv.includes('--skip-clean') ? [] : [core.clean]), core.buildTs, core.buildSchemas])
+  gulp.series([...(process.argv.includes('--skip-clean') ? [] : cleanSteps), core.buildTs, core.buildSchemas])
 )
 
 gulp.task(
   'dev',
   gulp.series([
-    ...(process.argv.includes('--skip-clean') ? [] : [core.clean]),
+    ...(process.argv.includes('--skip-clean') ? [] : cleanSteps),
     core.buildTs,
     core.buildSchemas,
     core.watch
   ])
 )
 
-gulp.task(
-  'clean',
-  gulp.series([
-    core.clean,
-    core.createDirectories,
-    core.copyGlobal,
-    core.copyAdmin,
-    core.copyStudio,
-    core.copyTemplates,
-    core.copyVanilla
-  ])
-)
+gulp.task('clean', gulp.series(cleanSteps))
 
 gulp.task('modules', gulp.series([modules.copySdkDefinitions, modules.copyBoilerplateFiles, modules.buildModules()]))
 

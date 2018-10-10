@@ -13,6 +13,7 @@
     "build": "yarn build:core && yarn build:modules",
     "build:core": "./node_modules/.bin/gulp --skip-clean",
     "build:modules": "./node_modules/.bin/gulp modules",
+    "bootstrap": "./node_modules/.bin/gulp && yarn build:modules",
     "watch": "./node_modules/.bin/gulp --skip-clean dev",
     "clean": "./node_modules/.bin/gulp clean",
     "package": "./node_modules/.bin/gulp package",
