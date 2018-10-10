@@ -53,21 +53,24 @@ phases:
       - ls -a out_linux
 
 artifacts:
-  files:
-    - '**/*'
-  base-directory: out_darwin/binaries
-  name: botpress-$ARTIFACT_NAME-darwin-x64.zip
   secondary-artifacts:
+    darwin:
+      base-directory: $CODEBUILD_SRC_DIR/out_darwin/binaries
+      name: botpress-$ARTIFACT_NAME-darwin-x64.zip
+      files:
+        - '**/*'
+
     linux:
-      files:
-        - '**/*'
-      base-directory: ../out_linux/binaries
+      base-directory: $CODEBUILD_SRC_DIR/out_linux/binaries
       name: botpress-$ARTIFACT_NAME-linux-x64.zip
-    windows:
       files:
         - '**/*'
-      base-directory: ../out_win32/binaries
+
+    windows:
+      base-directory: $CODEBUILD_SRC_DIR/out_win32/binaries
       name: botpress-$ARTIFACT_NAME-win-x64.zip
+      files:
+        - '**/*'
 
   cache:
     paths:
