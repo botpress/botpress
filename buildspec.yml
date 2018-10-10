@@ -47,21 +47,20 @@ artifacts:
     - '**/*'
   base-directory: out_darwin/binaries
   name: botpress-$(./build/artifact_name.sh)-darwin-x64.zip
+  secondary-artifacts:
+    linux:
+      files:
+        - '**/*'
+      base-directory: out_linux/binaries
+      name: botpress-$(./build/artifact_name.sh)-linux-x64.zip
+    windows:
+      files:
+        - '**/*'
+      base-directory: out_win32/binaries
+      name: botpress-$(./build/artifact_name.sh)-win-x64.zip
 
-secondary-artifacts:
-  linux:
-    files:
-      - '**/*'
-    base-directory: out_linux/binaries
-    name: botpress-$(./build/artifact_name.sh)-linux-x64.zip
-  windows:
-    files:
-      - '**/*'
-    base-directory: out_win32/binaries
-    name: botpress-$(./build/artifact_name.sh)-win-x64.zip
-
-cache:
-  paths:
-    - node_modules
-    - modules/**/node_modules
-    - build/module-builder/node_modules
+  cache:
+    paths:
+      - node_modules
+      - modules/**/node_modules
+      - build/module-builder/node_modules
