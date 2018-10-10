@@ -9,6 +9,7 @@ phases:
   install:
     commands:
       - npm install -g yarn
+      - bash -c "$(curl -fsSL https://raw.githubusercontent.com/thii/aws-codebuild-extras/master/install)"
 
   pre_build:
     commands:
