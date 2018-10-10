@@ -13,7 +13,7 @@ phases:
   pre_build:
     commands:
       - bash -c "$(./build/codebuild-extras.sh)"
-      - echo "CODE BUILD VERSION $CODEBUILD_GIT_ESCAPED_BRANCH"
+      - echo "CODE BUILD VERSION $CODEBUILD_GIT_BRANCH"
       - echo "BUILDING VERSION $ARTIFACT_NAME"
       - yarn install
       - (cd build/module-builder && yarn install && yarn build)
