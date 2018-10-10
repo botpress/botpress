@@ -4,7 +4,6 @@ export CI=true
 export CODEBUILD=true
 
 export CODEBUILD_GIT_BRANCH=`git symbolic-ref HEAD --short 2>/dev/null`
-echo "BRANCH $CODEBUILD_GIT_BRANCH"
 
 if [ "$CODEBUILD_GIT_BRANCH" == "" ] ; then
   CODEBUILD_GIT_BRANCH=`git branch -a --contains HEAD | sed -n 2p | awk '{ printf $1 }'`
@@ -29,7 +28,3 @@ export ARTIFACT_NAME="nightly-$(date +"%m-%d-%y")"
 if [ "$CODEBUILD_GIT_ESCAPED_BRANCH" == "stable" ] ; then
   export ARTIFACT_NAME="v$(./build/source_version.sh)"
 fi
-
-echo "==> CI = $CI"
-echo "==> CODEBUILD_GIT_MESSAGE = $CODEBUILD_GIT_MESSAGE"
-echo "==> ARTIFACT_NAME = $ARTIFACT_NAME"
