@@ -27,3 +27,5 @@ export ARTIFACT_NAME="nightly-$(date +"%m-%d-%y")"
 if [ "$CODEBUILD_GIT_BRANCH" == "stable" ] ; then
   export ARTIFACT_NAME="v$(./build/source_version.sh)"
 fi
+
+echo "$ARTIFACT_NAME"

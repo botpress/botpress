@@ -9,11 +9,10 @@ phases:
   install:
     commands:
       - npm install -g yarn
-      - bash -c "$(curl -fsSL https://raw.githubusercontent.com/thii/aws-codebuild-extras/master/install)"
 
   pre_build:
     commands:
-      - bash -c "$(cat ./build/codebuild-extras.sh)"
+      - export ARTIFACT_NAME=$(./build/codebuild-extras.sh)
       - echo "$CODEBUILD_GIT_BRANCH"
       - echo "$ARTIFACT_NAME"
       - echo "CODE BUILD VERSION $CODEBUILD_GIT_BRANCH"
