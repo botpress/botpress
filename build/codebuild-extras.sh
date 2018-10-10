@@ -1,5 +1,3 @@
-#!/bin/bash
-
 export CI=true
 export CODEBUILD=true
 
