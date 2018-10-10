@@ -61,12 +61,12 @@ artifacts:
     linux:
       files:
         - '**/*'
-      base-directory: out_linux/binaries
+      base-directory: ../out_linux/binaries
       name: botpress-$ARTIFACT_NAME-linux-x64.zip
     windows:
       files:
         - '**/*'
-      base-directory: out_win32/binaries
+      base-directory: ../out_win32/binaries
       name: botpress-$ARTIFACT_NAME-win-x64.zip
 
   cache:
