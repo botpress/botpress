@@ -22,6 +22,7 @@ phases:
       - (cd src/bp/ui-admin && yarn install && yarn build)
       # OSX Build
       - rm -rf node_modules
+      - rm -rf modules/**/node_modules
       - export npm_config_target_platform=darwin
       # Twice because of potential OS-specific errors
       - yarn install --force --ignore-engines
@@ -34,6 +35,7 @@ phases:
       - mkdir -p out
       # Windows Build
       - rm -rf node_modules
+      - rm -rf modules/**/node_modules
       - export npm_config_target_platform=windows
       # Twice because of potential OS-specific errors
       - yarn install --force --ignore-engines
@@ -46,6 +48,7 @@ phases:
       - mkdir -p out
       # Linux Build
       - rm -rf node_modules
+      - rm -rf modules/**/node_modules
       - export npm_config_target_platform=linux
       - yarn install --force --ignore-engines
       - yarn run build --linux
