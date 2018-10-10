@@ -12,7 +12,7 @@ phases:
 
   pre_build:
     commands:
-      - export ARTIFACT_NAME=$(./build/codebuild-extras.sh)
+      - $(./build/codebuild-extras.sh)
       - echo "$CODEBUILD_GIT_BRANCH"
       - echo "$ARTIFACT_NAME"
       - echo "CODE BUILD VERSION $CODEBUILD_GIT_BRANCH"
