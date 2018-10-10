@@ -44,7 +44,7 @@ const createDirectories = () => {
 }
 
 const copyData = () => {
-  return gulp.src('./src/templates/data/**/*').pipe(gulp.dest('./out/bp/data'))
+  return gulp.src('./src/templates/data/**/*').pipe(gulp.dest('./out/bp/data', { overwrite: false }))
 }
 
 const copyBotTemplate = () => {
