@@ -3,9 +3,9 @@ import _ from 'lodash'
 import path from 'path'
 import tmp from 'tmp'
 
+import { Logger } from 'botpress/sdk'
 import { VError } from 'verror'
 import { NodeVM } from 'vm2'
-import { Logger } from 'botpress/sdk'
 
 export type CodeFile = {
   relativePath: string

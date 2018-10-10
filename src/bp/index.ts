@@ -18,6 +18,22 @@ process.on('uncaughtException', err => {
 })
 
 try {
+  let defaultVerbosity = process.pkg ? 0 : 2
+  if (!isNaN(Number(process.env.VERBOSITY_LEVEL))) {
+    defaultVerbosity = Number(process.env.VERBOSITY_LEVEL)
+  }
+
+  const argv = require('yargs')
+    .option('verbose', {
+      alias: 'v',
+      default: defaultVerbosity,
+      description: 'verbosity level'
+    })
+    .count('verbose')
+    .help().argv
+
+  process.VERBOSITY_LEVEL = Number(argv.verbose)
+
   require('./bootstrap')
 } catch (err) {
   global.printErrorDefault(err)
