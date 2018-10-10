@@ -61,7 +61,7 @@ artifacts:
   base-directory: $CODEBUILD_SRC_DIR
   name: botpress-$ARTIFACT_NAME-all-x64.zip
   files:
-    - 'out_*/**/*'
+    - 'out_*/binaries/**/*'
 
   secondary-artifacts:
     darwin:
