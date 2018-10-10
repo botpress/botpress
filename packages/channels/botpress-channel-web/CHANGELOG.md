@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.47.0"></a>
+# [10.47.0](https://github.com/botpress/modules/compare/v10.46.5...v10.47.0) (2018-10-10)
+
+
+### Bug Fixes
+
+* **webchat:** render unsupported messages and extensions ([#1001](https://github.com/botpress/modules/issues/1001)) ([5f4cb6e](https://github.com/botpress/modules/commit/5f4cb6e))
+
+
+
+
 <a name="10.46.5"></a>
 ## [10.46.5](https://github.com/botpress/modules/compare/v10.46.4...v10.46.5) (2018-10-06)
 
