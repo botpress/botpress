@@ -103,12 +103,11 @@ function scheduleToOutbox() {
                     total_count: count
                   })
                   .then(() => {
-                    bp.logger.info('[broadcast] Scheduled broadcast #' + schedule['id'], '. [' + count + ' messages]')
+                    bp.logger.info('Scheduled broadcast #' + schedule['id'], '. [' + count + ' messages]')
 
                     if (schedule['filters'] && JSON.parse(schedule['filters']).length > 0) {
                       bp.logger.info(
-                        '[broadcast] Filters found on broadcast #' + schedule['id'],
-                        '. Filters are applied at sending time.'
+                        `Filters found on broadcast #${schedule['id']}. Filters are applied at sending time.`
                       )
                     }
 
@@ -138,7 +137,7 @@ const _sendBroadcast = Promise.method(row => {
     }).then(values => {
       return _.some(values, v => {
         if (v !== true && v !== false) {
-          bp.logger.warn('[broadcast] Filter returned something other ' + 'than a boolean (or a Promise of a boolean)')
+          bp.logger.warn('Filter returned something other ' + 'than a boolean (or a Promise of a boolean)')
         }
 
         return typeof v !== 'undefined' && v !== null && v !== true
@@ -148,7 +147,7 @@ const _sendBroadcast = Promise.method(row => {
 
   return dropPromise.then(drop => {
     if (drop) {
-      bp.logger.debug('[broadcast] Drop sending #' + row.scheduleId + ' to user: ' + row.userId + '. Reason = Filters')
+      bp.logger.debug(`Drop sending #${row.scheduleId} to user: ${row.userId}. Reason = Filters`)
       return
     }
     return bp.renderers.sendToUser(row.userId, '#!' + row.text)
@@ -204,9 +203,7 @@ function sendBroadcasts() {
           .catch(err => {
             abort = true
 
-            bp.logger.error(
-              '[broadcast] Broadcast #' + row['scheduleId'] + ' failed. Broadcast aborted. Reason: ' + err.message
-            )
+            bp.logger.error(`Broadcast #${row['scheduleId']}' failed. Broadcast aborted. Reason: ${err.message}`)
 
             bp.notifications.send({
               level: 'error',

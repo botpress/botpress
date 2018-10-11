@@ -55,7 +55,7 @@ export default async (bp: SDK, botScopedStorage: Map<string, QnaStorage>) => {
       const overallItemsCount = await storage.count()
       res.send({ items, overallItemsCount })
     } catch (e) {
-      bp.logger.error('QnA Error', e)
+      bp.logger.error('Error while listing: ', e)
       res.status(500).send(e.message || 'Error')
     }
   })
@@ -68,7 +68,7 @@ export default async (bp: SDK, botScopedStorage: Map<string, QnaStorage>) => {
       res.send(id)
       sendToastSuccess('Save')
     } catch (e) {
-      bp.logger.error('QnA Error', e)
+      bp.logger.error('Error while creating: ', e)
       res.status(500).send(e.message || 'Error')
       sendToastError('Save', e.message)
     }
@@ -82,7 +82,7 @@ export default async (bp: SDK, botScopedStorage: Map<string, QnaStorage>) => {
       sendToastSuccess('Update')
       res.end()
     } catch (e) {
-      bp.logger.error('QnA Error', eventNames)
+      bp.logger.error('Update error: ', eventNames)
       res.status(500).send(e.message || 'Error')
       sendToastError('Update', e.message)
     }
@@ -96,7 +96,7 @@ export default async (bp: SDK, botScopedStorage: Map<string, QnaStorage>) => {
       sendToastSuccess('Delete')
       res.end()
     } catch (e) {
-      bp.logger.error('QnA Error', e)
+      bp.logger.error('Delete error: ', e)
       res.status(500).send(e.message || 'Error')
 
       sendToastError('Delete', e.message)
@@ -147,7 +147,7 @@ export default async (bp: SDK, botScopedStorage: Map<string, QnaStorage>) => {
 
       updateUploadStatus(uploadStatusId, 'Completed')
     } catch (e) {
-      bp.logger.error('QnA Error:', e)
+      bp.logger.error('Upload error :', e)
       updateUploadStatus(uploadStatusId, `Error: ${e.message}`)
     }
   })

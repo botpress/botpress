@@ -102,12 +102,12 @@ export default class RecastProvider extends Provider {
 
   async sync() {
     if (this.syncing) {
-      this.logger.warn('[NLU::Recast] Model is already syncing !')
+      this.logger.warn('[Recast] Model is already syncing !')
       return
     }
 
     this.syncing = true
-    this.logger.debug('[NLU::Recast] Syncing Model...')
+    this.logger.debug('[Recast] Syncing Model...')
 
     try {
       // Delete all gazettes
@@ -143,7 +143,7 @@ export default class RecastProvider extends Provider {
 
       for (const intent of localIntents) {
         if (intent.utterances.length === 0) {
-          this.logger.warn(`[NLU::Recast] Intent ${intent.name} has been skipped because it has no utterances`)
+          this.logger.warn(`[Recast] Intent ${intent.name} has been skipped because it has no utterances`)
           continue
         }
 
@@ -202,7 +202,7 @@ export default class RecastProvider extends Provider {
 
     await this.onSyncSuccess()
 
-    this.logger.info('[NLU::Recast] Synced Model')
+    this.logger.info('[Recast] Synced Model')
   }
 
   async checkSyncNeeded() {

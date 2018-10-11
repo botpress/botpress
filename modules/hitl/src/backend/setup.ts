@@ -47,7 +47,7 @@ export default async (bp: SDK, db: Database) => {
     const config = await bp.config.getModuleConfigForBot('hitl', event.botId)
 
     if ((!!session.paused || config.paused) && _.includes(['text', 'message'], event.type)) {
-      bp.logger.debug('[hitl] Session paused, message swallowed:', event.preview)
+      bp.logger.debug('Session paused, message swallowed:', event.preview)
       // the session or bot is paused, swallow the message
       return
     }

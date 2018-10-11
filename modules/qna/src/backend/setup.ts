@@ -48,7 +48,7 @@ export default async (bp: SDK, botScopedStorage: Map<string, QnaStorage>) => {
       if (!answer) {
         return false
       }
-      bp.logger.debug('QnA: matched QnA-maker question', answer.id)
+      bp.logger.debug('Matched question', answer.id)
     } else {
       // NB: we rely on NLU being loaded before we receive any event.
       // I'm not sure yet if we can guarantee it
@@ -56,18 +56,18 @@ export default async (bp: SDK, botScopedStorage: Map<string, QnaStorage>) => {
         return false
       }
 
-      bp.logger.debug('QnA: matched NLU intent', event.nlu.intent.name)
+      bp.logger.debug('Matched NLU intent', event.nlu.intent.name)
       const id = event.nlu.intent.name.substring(NLU_PREFIX.length)
       answer = (await storage.getQuestion(id)).data
     }
 
     if (!answer.enabled) {
-      bp.logger.debug('QnA: question disabled, skipping')
+      bp.logger.debug('Question disabled, skipping')
       return false
     }
 
     if (answer.action.includes('text')) {
-      bp.logger.debug('QnA: replying to recognized question with plain text answer', answer.id)
+      bp.logger.debug('Replying to recognized question with plain text answer', answer.id)
 
       const payloads = await bp.cms.renderElement('builtin_text', { text: answer.answer, typing: true }, 'web')
       bp.events.replyToEvent(event, payloads)
@@ -79,12 +79,12 @@ export default async (bp: SDK, botScopedStorage: Map<string, QnaStorage>) => {
     }
 
     if (answer.action.includes('redirect')) {
-      bp.logger.debug('QnA: replying to recognized question with redirect', answer.id)
+      bp.logger.debug('Replying to recognized question with redirect', answer.id)
       // TODO: This is used as the `stateId` by the bot template
       // Not sure if it's universal enough for every use-case but
       // I don't see a better alternative as of now
       const stateId = event.sessionId || event.user.id
-      bp.logger.debug(`QnA: jumping ${stateId} to ${answer.redirectFlow} ${answer.redirectNode}`)
+      bp.logger.debug(`Jumping ${stateId} to ${answer.redirectFlow} ${answer.redirectNode}`)
 
       // TODO jump to correct location
       // await bp.dialogEngine.jumpTo(stateId, answer.redirectFlow, answer.redirectNode)

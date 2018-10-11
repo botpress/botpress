@@ -56,7 +56,7 @@ export default async (bp: SDK, botScopedNlu: Map<string, ScopedNlu>) => {
 
     try {
       if (botCtx.config.debugModeEnabled) {
-        bp.logger.info('[NLU Extraction] ' + event.preview, event.payload)
+        bp.logger.info('Extraction: ' + event.preview, event.payload)
       }
 
       const metadata = await retry(() => botCtx.provider.extract(event), botCtx.retryPolicy)
@@ -67,7 +67,7 @@ export default async (bp: SDK, botScopedNlu: Map<string, ScopedNlu>) => {
         eventIntents = metadata.intents
       }
     } catch (err) {
-      bp.logger.warn('[NLU] Error extracting metadata for incoming text: ' + err.message)
+      bp.logger.warn('Error extracting metadata for incoming text: ' + err.message)
     }
 
     const intentConfidentEnough = () => {

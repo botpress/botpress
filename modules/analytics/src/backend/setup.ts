@@ -36,7 +36,7 @@ export default async (bp: SDK, interactionsToTrack: any) => {
       db.saveIncoming(event)
         .then()
         .catch(() => {
-          bp.logger.debug('[Analytics] Could not save incoming interaction for ' + event.platform)
+          bp.logger.debug('Could not save incoming interaction for ' + event.platform)
         })
     }
 
@@ -52,7 +52,7 @@ export default async (bp: SDK, interactionsToTrack: any) => {
     db.saveOutgoing(event)
       .then()
       .catch(() => {
-        bp.logger.debug('[Analytics] Could not save outgoing interaction for ' + event.platform)
+        bp.logger.debug('Could not save outgoing interaction for ' + event.platform)
       })
 
     next()
