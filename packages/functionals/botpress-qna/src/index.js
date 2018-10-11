@@ -1,5 +1,5 @@
 import NluStorage from './providers/nlu'
-import MicrosoftQnaMakerStorage from './providers/qnaMaker'
+import MicrosoftQnaMakerStorage, { qnaItemData } from './providers/qnaMaker'
 import { processEvent } from './middleware'
 import * as parsers from './parsers.js'
 import _ from 'lodash'
@@ -7,7 +7,6 @@ import multer from 'multer'
 import { Parser as Json2csvParser } from 'json2csv'
 import yn from 'yn'
 import moment from 'moment'
-import Promise from 'bluebird'
 import iconv from 'iconv-lite'
 import nanoid from 'nanoid'
 
@@ -28,11 +27,13 @@ module.exports = {
     textRenderer: { type: 'string', required: true, default: '#builtin_text', env: 'QNA_TEXT_RENDERER' },
     exportCsvEncoding: { type: 'string', required: false, default: 'utf8', env: 'QNA_EXPORT_CSV_ENCODING' },
     qnaMakerApiKey: { type: 'string', required: false, env: 'QNA_MAKER_API_KEY' },
-    qnaMakerKnowledgebase: { type: 'string', required: false, default: 'botpress', env: 'QNA_MAKER_KNOWLEDGEBASE' }
+    qnaMakerKnowledgebase: { type: 'string', required: false, default: 'botpress', env: 'QNA_MAKER_KNOWLEDGEBASE' },
+    qnaCategories: { type: 'string', required: false, default: '', env: 'QNA_CATEGORIES' }
   },
   async init(bp, configurator) {
     const config = await configurator.loadAll()
-    const Storage = config.qnaMakerApiKey ? MicrosoftQnaMakerStorage : NluStorage
+    this.isMicrosoftMakerUsed = config.qnaMakerApiKey
+    const Storage = this.isMicrosoftMakerUsed ? MicrosoftQnaMakerStorage : NluStorage
     this.storage = new Storage({ bp, config })
     await this.storage.initialize()
 
@@ -61,6 +62,7 @@ module.exports = {
   async ready(bp, configurator) {
     const config = await configurator.loadAll()
     const storage = this.storage
+    const categories = config.qnaCategories.split(',')
     bp.qna = {
       /**
        * Parses and imports questions; consecutive questions with similar answer get merged
@@ -72,20 +74,19 @@ module.exports = {
       async import(questions, { format = 'json', csvUploadStatusId } = {}) {
         recordCsvUploadStatus(csvUploadStatusId, 'Calculating diff with existing questions')
         const existingQuestions = (await storage.all()).map(item => JSON.stringify(_.omit(item.data, 'enabled')))
-        const parsedQuestions = typeof questions === 'string' ? parsers[`${format}Parse`](questions) : questions
+        const parsedQuestions =
+          typeof questions === 'string'
+            ? parsers[`${format}Parse`](questions, { hasCategory: config.qnaMakerApiKey })
+            : questions
         const questionsToSave = parsedQuestions.filter(item => !existingQuestions.includes(JSON.stringify(item)))
 
         if (config.qnaMakerApiKey) {
-          return storage.insert(questionsToSave.map(question => ({ ...question, enabled: true })))
+          recordCsvUploadStatus(csvUploadStatusId, `Inserting ${questionsToSave.length} questions in bulk`)
         }
 
-        let questionsSavedCount = 0
-        return Promise.each(questionsToSave, question =>
-          storage.insert({ ...question, enabled: true }).then(() => {
-            questionsSavedCount += 1
-            recordCsvUploadStatus(csvUploadStatusId, `Saved ${questionsSavedCount}/${questionsToSave.length} questions`)
-          })
-        )
+        const statusCb = processedCount =>
+          recordCsvUploadStatus(csvUploadStatusId, `Saved ${processedCount}/${questionsToSave.length} questions`)
+        return storage.insert(questionsToSave.map(question => ({ ...question, enabled: true })), statusCb)
       },
 
       /**
@@ -100,7 +101,7 @@ module.exports = {
 
         return qnas.flatMap(question => {
           const { data } = question
-          const { questions, answer: textAnswer, action, redirectNode, redirectFlow } = data
+          const { questions, answer: textAnswer, action, redirectNode, redirectFlow, category } = data
 
           let answer = textAnswer
           let answer2 = null
@@ -117,10 +118,12 @@ module.exports = {
             }
           }
 
+          const categoryWrapper = config.qnaMakerApiKey ? { category } : {}
+
           if (!flat) {
-            return { questions, action, answer, answer2 }
+            return { questions, action, answer, answer2, ...categoryWrapper }
           }
-          return questions.map(question => ({ question, action, answer, answer2 }))
+          return questions.map(question => ({ question, action, answer, answer2, ...categoryWrapper }))
         })
       },
 
@@ -151,14 +154,58 @@ module.exports = {
 
     const router = bp.getRouter('botpress-qna')
 
-    router.get('/', async ({ query: { limit, offset } }, res) => {
-      try {
-        const items = await this.storage.all({
+    const getFieldFromMetadata = (metadata, field) => metadata.find(({ name }) => name === field)
+
+    const filterByCategoryAndQuestion = async ({ question, categories }) => {
+      const allQuestions = await this.storage.fetchQuestions()
+      const filteredQuestions = allQuestions.filter(({ questions, metadata }) => {
+        const category = getFieldFromMetadata(metadata, 'category')
+
+        const isRightId =
+          questions
+            .join('\n')
+            .toLowerCase()
+            .indexOf(question.toLowerCase()) !== -1
+
+        if (!categories.length) {
+          return isRightId
+        }
+
+        if (!question) {
+          return category && categories.indexOf(category.value) !== -1
+        }
+
+        return isRightId && category && categories.indexOf(category.value) !== -1
+      })
+
+      const questions = filteredQuestions.reverse().map(qna => ({ id: qna.id, data: qnaItemData(qna) }))
+
+      return questions
+    }
+
+    const getQuestions = async ({ question = '', categories = [] }, { limit = 50, offset = 0 }) => {
+      let items = []
+      let count = 0
+
+      if (!(question || categories.length)) {
+        items = await this.storage.all({
           limit: limit ? parseInt(limit) : undefined,
           offset: offset ? parseInt(offset) : undefined
         })
-        const overallItemsCount = await this.storage.count()
-        res.send({ items, overallItemsCount })
+        count = await this.storage.count()
+      } else {
+        const tmpQuestions = await filterByCategoryAndQuestion({ question, categories })
+        items = tmpQuestions.slice(offset, offset + limit)
+        count = tmpQuestions.length
+      }
+
+      return { items, count }
+    }
+
+    router.get('/', async ({ query: { question = '', categories = [], limit, offset } }, res) => {
+      try {
+        const items = await getQuestions({ question, categories }, { limit, offset })
+        res.send({ ...items })
       } catch (e) {
         logger.error('QnA Error', e, e.stack)
         res.status(500).send(e.message || 'Error')
@@ -181,14 +228,27 @@ module.exports = {
       }
     })
 
+    router.get('/question/:id', async (req, res) => {
+      try {
+        const question = await this.storage.getQuestion(req.params.id)
+
+        res.send(question)
+      } catch (err) {
+        bp.events.emit('toast.qna-save', { text: `QnA Fetch Error: ${err.message}`, type: 'error' })
+      }
+    })
+
     router.put('/:question', async (req, res) => {
+      const { query: { limit, offset, question, categories } } = req
+
       try {
         bp.events.emit('toast.qna-save', { text: 'QnA Update In Progress', type: 'info', time: 120000 })
         await this.storage.update(req.body, req.params.question)
+        const questions = await getQuestions({ question, categories }, { limit, offset })
 
         bp.events.emit('toast.qna-save', { text: 'QnA Update Success', type: 'success' })
 
-        res.end()
+        res.send(questions)
       } catch (e) {
         logger.error('QnA Error', e, e.stack)
         res.status(500).send(e.message || 'Error')
@@ -197,13 +257,16 @@ module.exports = {
     })
 
     router.delete('/:question', async (req, res) => {
+      const { query: { limit, offset, question, categories } } = req
       try {
         bp.events.emit('toast.qna-save', { text: 'QnA Delete In Progress', type: 'info', time: 120000 })
         await this.storage.delete(req.params.question)
 
+        const questionsData = await getQuestions({ question, categories }, { limit, offset })
+
         bp.events.emit('toast.qna-save', { text: 'QnA Delete Success', type: 'success' })
 
-        res.end()
+        res.send(questionsData)
       } catch (e) {
         logger.error('QnA Error', e, e.stack)
         res.status(500).send(e.message || 'Error')
@@ -215,7 +278,14 @@ module.exports = {
     router.get('/csv', async (req, res) => {
       res.setHeader('Content-Type', 'text/csv')
       res.setHeader('Content-disposition', `attachment; filename=qna_${moment().format('DD-MM-YYYY')}.csv`)
-      const json2csvParser = new Json2csvParser({ fields: ['question', 'action', 'answer', 'answer2'], header: true })
+      const categoryWrapper = this.isMicrosoftMakerUsed ? ['category'] : []
+      const parseOptions = {
+        fields: ['question', 'action', 'answer', 'answer2', ...categoryWrapper],
+        header: true
+      }
+
+      const json2csvParser = new Json2csvParser(parseOptions)
+
       res.end(iconv.encode(json2csvParser.parse(await bp.qna.export({ flat: true })), config.exportCsvEncoding))
     })
 
@@ -226,7 +296,10 @@ module.exports = {
       recordCsvUploadStatus(csvUploadStatusId, 'Deleting existing questions')
       if (yn(req.body.isReplace)) {
         const questions = await this.storage.all()
-        await this.storage.delete(questions.map(({ id }) => id))
+
+        const statusCb = processedCount =>
+          recordCsvUploadStatus(csvUploadStatusId, `Deleted ${processedCount}/${questions.length} questions`)
+        await this.storage.delete(questions.map(({ id }) => id), statusCb)
       }
 
       try {
@@ -242,6 +315,10 @@ module.exports = {
 
     router.get('/csv-upload-status/:csvUploadStatusId', async (req, res) => {
       res.end(csvUploadStatuses[req.params.csvUploadStatusId])
+    })
+
+    router.get('/categories', (req, res) => {
+      res.send({ categories })
     })
   }
 }

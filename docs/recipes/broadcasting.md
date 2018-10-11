@@ -43,7 +43,7 @@ bp.broadcastFilters = {
   userIsOld: userId => {
     const threeDaysBefore = new Date(new Date() - 3 * 24 * 60 * 60 * 1000)
     return bp.db.get()
-      .then(knex =>
+      .then(knex => knex
         .where({ userId })
         .where('created_on', '<', threeDaysBefore.toISOString())
         .count('* as count')

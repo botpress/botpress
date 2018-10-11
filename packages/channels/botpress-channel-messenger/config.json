@@ -16,6 +16,7 @@
 
   "graphVersion": "2.12",
   "enabled": true,
+  "enableAllProfileFields": false, // To be able to fetch all profile fields you need to submit your application for FB review
 
   "displayGetStarted": true,
   "greetingMessage": "Default greeting message",

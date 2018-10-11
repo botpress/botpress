@@ -70,6 +70,42 @@ module.exports = knex => {
       })
     },
 
+    // only works for single insert beause of SQLite
+    insertAndRetrieve: (tableName, data, returnColumns = 'id', idColumnName = 'id') => {
+      // postgres supports 'returning' natively
+      if (!isLite(knex)) {
+        return knex(tableName)
+          .insert(data)
+          .returning(returnColumns)
+          .then()
+          .get(0)
+      }
+      return knex.transaction(trx =>
+        knex(tableName)
+          .insert(data)
+          .transacting(trx)
+          .then(() =>
+            knex
+              .select(knex.raw('last_insert_rowid() as id'))
+              .transacting(trx)
+              .then(([{ id }]) => {
+                if (returnColumns === idColumnName) {
+                  return id
+                }
+                return knex(tableName)
+                  .select(returnColumns)
+                  .where(idColumnName, id)
+                  .limit(1)
+                  .transacting(trx)
+                  .then()
+                  .get(0)
+              })
+          )
+          .then(trx.commit)
+          .catch(trx.rollback)
+      )
+    },
+
     date: {
       format: dateFormat,
       now: () => (isLite(knex) ? knex.raw("strftime('%Y-%m-%dT%H:%M:%fZ', 'now')") : knex.raw('now()')),

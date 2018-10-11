@@ -34,9 +34,7 @@ run('users', () => {
       }
 
       await Promise.delay(1)
-      await knex('users')
-        .insert(userRow)
-        .then()
+      await knex('users').insert(userRow)
     }
   }
 

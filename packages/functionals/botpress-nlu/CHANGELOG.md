@@ -3,6 +3,152 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.47.0"></a>
+# [10.47.0](https://github.com/botpress/modules/compare/v10.46.5...v10.47.0) (2018-10-10)
+
+
+
+
+**Note:** Version bump only for package @botpress/nlu
+
+<a name="10.46.5"></a>
+## [10.46.5](https://github.com/botpress/modules/compare/v10.46.4...v10.46.5) (2018-10-06)
+
+
+
+
+**Note:** Version bump only for package @botpress/nlu
+
+<a name="10.46.4"></a>
+## [10.46.4](https://github.com/botpress/modules/compare/v10.46.3...v10.46.4) (2018-10-06)
+
+
+
+
+**Note:** Version bump only for package @botpress/nlu
+
+<a name="10.46.3"></a>
+## [10.46.3](https://github.com/botpress/modules/compare/v10.46.2...v10.46.3) (2018-10-05)
+
+
+
+
+**Note:** Version bump only for package @botpress/nlu
+
+<a name="10.46.2"></a>
+## [10.46.2](https://github.com/botpress/modules/compare/v10.46.1...v10.46.2) (2018-10-03)
+
+
+
+
+**Note:** Version bump only for package @botpress/nlu
+
+<a name="10.46.1"></a>
+## [10.46.1](https://github.com/botpress/modules/compare/v10.46.0...v10.46.1) (2018-10-03)
+
+
+
+
+**Note:** Version bump only for package @botpress/nlu
+
+<a name="10.46.0"></a>
+# [10.46.0](https://github.com/botpress/modules/compare/v10.45.0...v10.46.0) (2018-10-03)
+
+
+### Bug Fixes
+
+* **nlu:** force coherent nlu native values (resolve [#971](https://github.com/botpress/modules/issues/971)) ([#975](https://github.com/botpress/modules/issues/975)) ([991d9fb](https://github.com/botpress/modules/commit/991d9fb))
+
+
+
+
+<a name="10.45.0"></a>
+# [10.45.0](https://github.com/botpress/modules/compare/v10.44.2...v10.45.0) (2018-10-01)
+
+
+### Features
+
+* **nlu:** added age entity for LUIS ([acbd2e0](https://github.com/botpress/modules/commit/acbd2e0))
+* **nlu:** added unit property to LUIS entity ([bcce650](https://github.com/botpress/modules/commit/bcce650))
+
+
+
+
+<a name="10.44.2"></a>
+## [10.44.2](https://github.com/botpress/modules/compare/v10.44.1...v10.44.2) (2018-09-28)
+
+
+
+
+**Note:** Version bump only for package @botpress/nlu
+
+<a name="10.44.1"></a>
+## [10.44.1](https://github.com/botpress/modules/compare/v10.44.0...v10.44.1) (2018-09-28)
+
+
+### Bug Fixes
+
+* **nlu:** native-NLU values should be in 0..1 interval (resolve [#865](https://github.com/botpress/modules/issues/865)) ([82acb3a](https://github.com/botpress/modules/commit/82acb3a))
+
+
+
+
+<a name="10.44.0"></a>
+# [10.44.0](https://github.com/botpress/modules/compare/v10.43.0...v10.44.0) (2018-09-27)
+
+
+
+
+**Note:** Version bump only for package @botpress/nlu
+
+<a name="10.43.0"></a>
+# [10.43.0](https://github.com/botpress/modules/compare/v10.42.0...v10.43.0) (2018-09-26)
+
+
+
+
+**Note:** Version bump only for package @botpress/nlu
+
+<a name="10.42.0"></a>
+# [10.42.0](https://github.com/botpress/modules/compare/v10.40.0...v10.42.0) (2018-09-26)
+
+
+
+
+**Note:** Version bump only for package @botpress/nlu
+
+<a name="10.41.1"></a>
+## [10.41.1](https://github.com/botpress/modules/compare/v10.41.0...v10.41.1) (2018-09-23)
+
+
+
+
+**Note:** Version bump only for package @botpress/nlu
+
+<a name="10.41.0"></a>
+# [10.41.0](https://github.com/botpress/modules/compare/v10.40.0...v10.41.0) (2018-09-23)
+
+
+
+
+**Note:** Version bump only for package @botpress/nlu
+
+<a name="10.40.0"></a>
+# [10.40.0](https://github.com/botpress/modules/compare/v10.38.0...v10.40.0) (2018-09-20)
+
+
+
+
+**Note:** Version bump only for package @botpress/nlu
+
+<a name="10.39.0"></a>
+# [10.39.0](https://github.com/botpress/modules/compare/v10.38.0...v10.39.0) (2018-09-19)
+
+
+
+
+**Note:** Version bump only for package @botpress/nlu
+
 <a name="10.38.0"></a>
 # [10.38.0](https://github.com/botpress/modules/compare/v10.37.1...v10.38.0) (2018-09-12)
 

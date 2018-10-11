@@ -3,7 +3,7 @@
 const knex = require('knex')
 const tmp = require('tmp')
 const dotenv = require('dotenv')
-const expect = require('chai').expect
+const { expect } = require('chai')
 const { randomTableName } = require('./_util')
 
 // Loads .env file and sets environement variable
@@ -40,7 +40,7 @@ const sqlite = knex({
   }
 })
 
-const createSampleTable = () => {
+const createSampleTable = async () => {
   const name = randomTableName()
 
   const tableCb = table => {
@@ -50,15 +50,15 @@ const createSampleTable = () => {
     table.enu('tEnu', ['a', 'b', 'c'])
   }
 
-  return postgres.schema
-    .createTable(name, tableCb)
-    .then(() => sqlite.schema.createTable(name, tableCb))
-    .then(() => name)
+  await postgres.schema.createTable(name, tableCb)
+  await sqlite.schema.createTable(name, tableCb)
+
+  return name
 }
 
 const itBoth = sampleTableGetter => (name, fn) => {
-  it(name, () => fn(postgres, sampleTableGetter()))
-  it(name, () => fn(sqlite, sampleTableGetter()))
+  it(`${name} (postgres)`, () => fn(postgres, sampleTableGetter()))
+  it(`${name} (sqlite)`, () => fn(sqlite, sampleTableGetter()))
 }
 
 let emptyTable = null
@@ -67,15 +67,26 @@ module.exports = {
   sqlite: sqlite,
   postgres: postgres,
   createSampleTable: createSampleTable,
-  doBoth: fn => () => fn && fn(postgres).then(() => fn(sqlite)),
+  doBoth: fn => async () => {
+    if (!fn) {
+      return
+    }
+
+    await fn(postgres)
+    await fn(sqlite)
+  },
   itBoth: itBoth(() => emptyTable),
   run: (name, cb) => {
     describe('Setup', () => {
       before(() => postgres.raw('DROP SCHEMA public CASCADE; CREATE SCHEMA public;'))
 
-      beforeEach(() => createSampleTable().then(name => (emptyTable = name)))
+      beforeEach(async () => {
+        emptyTable = await createSampleTable()
+      })
 
-      itBoth('Tables created', knex => knex.schema.hasTable(emptyTable).then(has => expect(has).to.equal(true)))
+      itBoth('Tables created', async knex => {
+        expect(await knex.schema.hasTable(emptyTable)).to.equal(true)
+      })
 
       describe(name, cb)
     })

@@ -1,15 +1,11 @@
-import path from 'path'
-import fs from 'fs'
 import _ from 'lodash'
 
-import Promise from 'bluebird'
-
 import Messenger from './messenger'
-import actions from './actions'
 import outgoing from './outgoing'
 import incoming from './incoming'
 import Users from './users'
 import UMM from './umm'
+import DB from './db'
 
 let messenger = null
 const outgoingPending = outgoing.pending
@@ -62,14 +58,21 @@ const initializeMessenger = async (bp, configurator) => {
     .catch(err => bp.logger.error(err))
 }
 
+let hostname = []
+const defaultHostname =
+  process.env.BOTPRESS_URL && process.env.NODE_ENV === 'production'
+    ? (hostname = process.env.BOTPRESS_URL.match(/https:\/\/(.*?)\//)) && hostname[1]
+    : ''
+
 module.exports = {
   config: {
     applicationID: { type: 'string', required: true, default: '', env: 'MESSENGER_APP_ID' },
     accessToken: { type: 'string', required: true, default: '', env: 'MESSENGER_ACCESS_TOKEN' },
     appSecret: { type: 'string', required: true, default: '', env: 'MESSENGER_APP_SECRET' },
-    verifyToken: { type: 'string', required: false, default: '' },
+    verifyToken: { type: 'string', required: false, default: '', env: 'MESSENGER_VERIFY_TOKEN' },
     enabled: { type: 'bool', required: true, default: true },
-    hostname: { type: 'string', required: false, default: '', env: 'MESSENGER_HOST' },
+    enableAllProfileFields: { type: 'bool', required: true, default: false },
+    hostname: { type: 'string', required: false, default: defaultHostname, env: 'MESSENGER_HOST' },
 
     graphVersion: { type: 'string', required: true, default: '2.12' },
     displayGetStarted: { type: 'bool', required: false, default: true },
@@ -105,7 +108,7 @@ module.exports = {
     }
   },
 
-  init: function(bp) {
+  init: async function(bp) {
     bp.middlewares.register({
       name: 'messenger.sendMessages',
       type: 'outgoing',
@@ -118,6 +121,9 @@ module.exports = {
     })
 
     bp.messenger = {}
+
+    const knex = await bp.db.get()
+    await DB(knex).initialize()
 
     UMM(bp) // Initializes Messenger in the UMM
   },

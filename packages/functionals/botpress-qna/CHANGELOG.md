@@ -3,6 +3,180 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.47.0"></a>
+# [10.47.0](https://github.com/botpress/modules/compare/v10.46.5...v10.47.0) (2018-10-10)
+
+
+
+
+**Note:** Version bump only for package @botpress/qna
+
+<a name="10.46.5"></a>
+## [10.46.5](https://github.com/botpress/modules/compare/v10.46.4...v10.46.5) (2018-10-06)
+
+
+
+
+**Note:** Version bump only for package @botpress/qna
+
+<a name="10.46.4"></a>
+## [10.46.4](https://github.com/botpress/modules/compare/v10.46.3...v10.46.4) (2018-10-06)
+
+
+
+
+**Note:** Version bump only for package @botpress/qna
+
+<a name="10.46.3"></a>
+## [10.46.3](https://github.com/botpress/modules/compare/v10.46.2...v10.46.3) (2018-10-05)
+
+
+### Bug Fixes
+
+* **qna:** categories can be provided as config-variable ([#989](https://github.com/botpress/modules/issues/989)) ([a30f18d](https://github.com/botpress/modules/commit/a30f18d))
+* **qna:** fix pagination not appearing on initial render ([#992](https://github.com/botpress/modules/issues/992)) ([87fba19](https://github.com/botpress/modules/commit/87fba19))
+* **qna:** fix qna-module errors when using NLU (resolve [#973](https://github.com/botpress/modules/issues/973)) ([#988](https://github.com/botpress/modules/issues/988)) ([eb8c30d](https://github.com/botpress/modules/commit/eb8c30d))
+
+
+
+
+<a name="10.46.2"></a>
+## [10.46.2](https://github.com/botpress/modules/compare/v10.46.1...v10.46.2) (2018-10-03)
+
+
+### Bug Fixes
+
+* **qna:** questions-filter is case-insensitive ([#980](https://github.com/botpress/modules/issues/980)) ([03fa755](https://github.com/botpress/modules/commit/03fa755))
+
+
+
+
+<a name="10.46.1"></a>
+## [10.46.1](https://github.com/botpress/modules/compare/v10.46.0...v10.46.1) (2018-10-03)
+
+
+### Bug Fixes
+
+* **qna:** close qna-form on submit ([#981](https://github.com/botpress/modules/issues/981)) ([d137e88](https://github.com/botpress/modules/commit/d137e88))
+* **qna:** fix validating QNA-items ([#979](https://github.com/botpress/modules/issues/979)) ([92b186f](https://github.com/botpress/modules/commit/92b186f))
+
+
+
+
+<a name="10.46.0"></a>
+# [10.46.0](https://github.com/botpress/modules/compare/v10.45.0...v10.46.0) (2018-10-03)
+
+
+### Bug Fixes
+
+* **qna:** fix qna-form not displaying item data ([#974](https://github.com/botpress/modules/issues/974)) ([ca8e2eb](https://github.com/botpress/modules/commit/ca8e2eb))
+
+
+
+
+<a name="10.45.0"></a>
+# [10.45.0](https://github.com/botpress/modules/compare/v10.44.2...v10.45.0) (2018-10-01)
+
+
+### Features
+
+* **qna:** new interface for QnA-module ([9b8ee56](https://github.com/botpress/modules/commit/9b8ee56)), closes [#903](https://github.com/botpress/modules/issues/903) [#903](https://github.com/botpress/modules/issues/903) [#902](https://github.com/botpress/modules/issues/902) [#902](https://github.com/botpress/modules/issues/902) [#902](https://github.com/botpress/modules/issues/902)
+
+
+
+
+<a name="10.44.2"></a>
+## [10.44.2](https://github.com/botpress/modules/compare/v10.44.1...v10.44.2) (2018-09-28)
+
+
+
+
+**Note:** Version bump only for package @botpress/qna
+
+<a name="10.44.1"></a>
+## [10.44.1](https://github.com/botpress/modules/compare/v10.44.0...v10.44.1) (2018-09-28)
+
+
+### Bug Fixes
+
+* **qna:** reverse qna-questions for consistency ([0043fee](https://github.com/botpress/modules/commit/0043fee))
+
+
+
+
+<a name="10.44.0"></a>
+# [10.44.0](https://github.com/botpress/modules/compare/v10.43.0...v10.44.0) (2018-09-27)
+
+
+### Bug Fixes
+
+* **qna:** fix answers ordering (came from c21d0ac) ([#954](https://github.com/botpress/modules/issues/954)) ([1f4ddba](https://github.com/botpress/modules/commit/1f4ddba))
+
+
+
+
+<a name="10.43.0"></a>
+# [10.43.0](https://github.com/botpress/modules/compare/v10.42.0...v10.43.0) (2018-09-26)
+
+
+### Bug Fixes
+
+* **qna:** qna-maker score ordering ([c21d0ac](https://github.com/botpress/modules/commit/c21d0ac))
+
+
+
+
+<a name="10.42.0"></a>
+# [10.42.0](https://github.com/botpress/modules/compare/v10.40.0...v10.42.0) (2018-09-26)
+
+
+### Bug Fixes
+
+* **qna:** fix qna import-modal crashing ([#938](https://github.com/botpress/modules/issues/938)) ([3edfe2e](https://github.com/botpress/modules/commit/3edfe2e))
+* **qna:** reverse results obtained from QNA-Maker ([#934](https://github.com/botpress/modules/issues/934)) ([3bd9a45](https://github.com/botpress/modules/commit/3bd9a45))
+* **qna:** reverse results obtained from QNA-Maker ([#934](https://github.com/botpress/modules/issues/934)) ([#941](https://github.com/botpress/modules/issues/941)) ([448f54d](https://github.com/botpress/modules/commit/448f54d))
+
+
+
+
+<a name="10.41.1"></a>
+## [10.41.1](https://github.com/botpress/modules/compare/v10.41.0...v10.41.1) (2018-09-23)
+
+
+
+
+**Note:** Version bump only for package @botpress/qna
+
+<a name="10.41.0"></a>
+# [10.41.0](https://github.com/botpress/modules/compare/v10.40.0...v10.41.0) (2018-09-23)
+
+
+### Bug Fixes
+
+* **qna:** reverse results obtained from QNA-Maker ([#934](https://github.com/botpress/modules/issues/934)) ([3bd9a45](https://github.com/botpress/modules/commit/3bd9a45))
+
+
+
+
+<a name="10.40.0"></a>
+# [10.40.0](https://github.com/botpress/modules/compare/v10.38.0...v10.40.0) (2018-09-20)
+
+
+### Bug Fixes
+
+* **qna:** handle IME-composing in QNA-form ([#930](https://github.com/botpress/modules/issues/930)) ([8493314](https://github.com/botpress/modules/commit/8493314))
+
+
+
+
+<a name="10.39.0"></a>
+# [10.39.0](https://github.com/botpress/modules/compare/v10.38.0...v10.39.0) (2018-09-19)
+
+
+
+
+**Note:** Version bump only for package @botpress/qna
+
 <a name="10.38.0"></a>
 # [10.38.0](https://github.com/botpress/modules/compare/v10.37.1...v10.38.0) (2018-09-12)
 

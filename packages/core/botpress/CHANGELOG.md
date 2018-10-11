@@ -3,6 +3,196 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.47.0"></a>
+# [10.47.0](https://github.com/botpress/botpress/compare/v10.46.5...v10.47.0) (2018-10-10)
+
+
+
+
+**Note:** Version bump only for package botpress
+
+<a name="10.46.5"></a>
+## [10.46.5](https://github.com/botpress/botpress/compare/v10.46.4...v10.46.5) (2018-10-06)
+
+
+
+
+**Note:** Version bump only for package botpress
+
+<a name="10.46.4"></a>
+## [10.46.4](https://github.com/botpress/botpress/compare/v10.46.3...v10.46.4) (2018-10-06)
+
+
+
+
+**Note:** Version bump only for package botpress
+
+<a name="10.46.3"></a>
+## [10.46.3](https://github.com/botpress/botpress/compare/v10.46.2...v10.46.3) (2018-10-05)
+
+
+
+
+**Note:** Version bump only for package botpress
+
+<a name="10.46.2"></a>
+## [10.46.2](https://github.com/botpress/botpress/compare/v10.46.1...v10.46.2) (2018-10-03)
+
+
+
+
+**Note:** Version bump only for package botpress
+
+<a name="10.46.1"></a>
+## [10.46.1](https://github.com/botpress/botpress/compare/v10.46.0...v10.46.1) (2018-10-03)
+
+
+
+
+**Note:** Version bump only for package botpress
+
+<a name="10.46.0"></a>
+# [10.46.0](https://github.com/botpress/botpress/compare/v10.45.0...v10.46.0) (2018-10-03)
+
+
+### Bug Fixes
+
+* **core:** replace all (?) to (\?) (author mdk23 resolve [#880](https://github.com/botpress/botpress/issues/880)) ([#976](https://github.com/botpress/botpress/issues/976)) ([e74c0d8](https://github.com/botpress/botpress/commit/e74c0d8))
+
+
+### Features
+
+* **core:** implemneted migration for every modules ([#972](https://github.com/botpress/botpress/issues/972)) ([c771e34](https://github.com/botpress/botpress/commit/c771e34))
+
+
+
+
+<a name="10.45.0"></a>
+# [10.45.0](https://github.com/botpress/botpress/compare/v10.44.2...v10.45.0) (2018-10-01)
+
+
+### Bug Fixes
+
+* **core:** disallow transitions to same node (resolve [#900](https://github.com/botpress/botpress/issues/900)) ([#962](https://github.com/botpress/botpress/issues/962)) ([cdfcd26](https://github.com/botpress/botpress/commit/cdfcd26))
+* **core:** fix test running fresh bot ([a2969dc](https://github.com/botpress/botpress/commit/a2969dc))
+* **core:** increase insertAndRetrieve test timeout ([676f5a5](https://github.com/botpress/botpress/commit/676f5a5))
+
+
+### Features
+
+* **qna:** new interface for QnA-module ([9b8ee56](https://github.com/botpress/botpress/commit/9b8ee56)), closes [#903](https://github.com/botpress/botpress/issues/903) [#903](https://github.com/botpress/botpress/issues/903) [#902](https://github.com/botpress/botpress/issues/902) [#902](https://github.com/botpress/botpress/issues/902) [#902](https://github.com/botpress/botpress/issues/902)
+
+
+
+
+<a name="10.44.2"></a>
+## [10.44.2](https://github.com/botpress/botpress/compare/v10.44.1...v10.44.2) (2018-09-28)
+
+
+
+
+**Note:** Version bump only for package botpress
+
+<a name="10.44.1"></a>
+## [10.44.1](https://github.com/botpress/botpress/compare/v10.44.0...v10.44.1) (2018-09-28)
+
+
+
+
+**Note:** Version bump only for package botpress
+
+<a name="10.44.0"></a>
+# [10.44.0](https://github.com/botpress/botpress/compare/v10.43.0...v10.44.0) (2018-09-27)
+
+
+### Bug Fixes
+
+* **core:** added env.VAR for correct testing ([3db498d](https://github.com/botpress/botpress/commit/3db498d))
+
+
+### Features
+
+* **channel-web:** added ensureUserExists method ([3e5d23c](https://github.com/botpress/botpress/commit/3e5d23c))
+* **core:** automatically open the admin at startup in development ([#936](https://github.com/botpress/botpress/issues/936)) ([09db0e6](https://github.com/botpress/botpress/commit/09db0e6))
+
+
+
+
+<a name="10.43.0"></a>
+# [10.43.0](https://github.com/botpress/botpress/compare/v10.42.0...v10.43.0) (2018-09-26)
+
+
+
+
+**Note:** Version bump only for package botpress
+
+<a name="10.42.0"></a>
+# [10.42.0](https://github.com/botpress/botpress/compare/v10.40.0...v10.42.0) (2018-09-26)
+
+
+### Bug Fixes
+
+* **core:** fix typo in sqlite-connection (resolve [#932](https://github.com/botpress/botpress/issues/932), ref [#497](https://github.com/botpress/botpress/issues/497)) ([#940](https://github.com/botpress/botpress/issues/940)) ([7aa9dd1](https://github.com/botpress/botpress/commit/7aa9dd1))
+
+
+### Features
+
+* **webchat:** added 'flow to' action button ([b3a545c](https://github.com/botpress/botpress/commit/b3a545c))
+
+
+
+
+<a name="10.41.1"></a>
+## [10.41.1](https://github.com/botpress/botpress/compare/v10.41.0...v10.41.1) (2018-09-23)
+
+
+
+
+**Note:** Version bump only for package botpress
+
+<a name="10.41.0"></a>
+# [10.41.0](https://github.com/botpress/botpress/compare/v10.40.0...v10.41.0) (2018-09-23)
+
+
+### Features
+
+* **webchat:** added 'flow to' action button ([b3a545c](https://github.com/botpress/botpress/commit/b3a545c))
+
+
+
+
+<a name="10.40.0"></a>
+# [10.40.0](https://github.com/botpress/botpress/compare/v10.38.0...v10.40.0) (2018-09-20)
+
+
+### Bug Fixes
+
+* **core:** improve bot test for circleci ([#925](https://github.com/botpress/botpress/issues/925)) ([3932353](https://github.com/botpress/botpress/commit/3932353))
+
+
+### Features
+
+* **core:** new configs to silence logs and disable cluster mode ([7be9a1b](https://github.com/botpress/botpress/commit/7be9a1b))
+
+
+
+
+<a name="10.39.0"></a>
+# [10.39.0](https://github.com/botpress/botpress/compare/v10.38.0...v10.39.0) (2018-09-19)
+
+
+### Bug Fixes
+
+* **core:** improve bot test for circleci ([#925](https://github.com/botpress/botpress/issues/925)) ([3932353](https://github.com/botpress/botpress/commit/3932353))
+
+
+### Features
+
+* **core:** new configs to silence logs and disable cluster mode ([7be9a1b](https://github.com/botpress/botpress/commit/7be9a1b))
+
+
+
+
 <a name="10.38.0"></a>
 # [10.38.0](https://github.com/botpress/botpress/compare/v10.37.1...v10.38.0) (2018-09-12)
 

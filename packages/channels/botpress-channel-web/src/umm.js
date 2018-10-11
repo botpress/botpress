@@ -3,6 +3,7 @@ import _ from 'lodash'
 import Promise from 'bluebird'
 import path from 'path'
 import mime from 'mime'
+import moment from 'moment'
 
 const QUICK_REPLY_PAYLOAD = /\<(.+)\>\s(.+)/i
 
@@ -146,7 +147,40 @@ function buildObjectRaw(event, instruction, options, user) {
     _.pick(event && event.raw, 'conversationId')
   )
 
+  if (raw.elements) {
+    encryptIfRequired(raw.elements, event.bp, user)
+  }
+
   return raw
+}
+
+function encryptIfRequired(obj, bp, user) {
+  if (obj instanceof Array) {
+    for (let i = 0; i < obj.length; i++) {
+      encryptIfRequired(obj[i], bp, user)
+    }
+  } else {
+    for (const prop in obj) {
+      if (prop === 'encrypt' && obj.encrypt && obj.payload) {
+        const payloadToEncrypt = {
+          userId: user,
+          expire: moment()
+            .add(1, 'hours')
+            .unix(),
+          ...obj.payload
+        }
+
+        const encrypted = bp.crypto.encrypt(JSON.stringify(payloadToEncrypt))
+
+        obj.payload = `crypt|${encrypted}`
+        delete obj.encrypt
+      }
+
+      if (obj[prop] instanceof Object || obj[prop] instanceof Array) {
+        encryptIfRequired(obj[prop], bp, user)
+      }
+    }
+  }
 }
 
 function processForm(formElement) {

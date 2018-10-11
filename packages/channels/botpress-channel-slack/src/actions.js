@@ -45,13 +45,17 @@ const createText = (channelId, text, options = {}) => {
   validateChannelId(channelId)
   validateText(text)
 
+  const user = Object.assign({}, options.user)
+  delete options.user
+
   return create({
     platform: 'slack',
     type: 'text',
     text: text,
     raw: {
       channelId: channelId,
-      options: options
+      options: options,
+      user
     }
   })
 }
@@ -59,6 +63,9 @@ const createText = (channelId, text, options = {}) => {
 const createAttachments = (channelId, attachments, options = {}) => {
   validateChannelId(channelId)
   validateAttachments(attachments)
+
+  const user = Object.assign({}, options.user)
+  delete options.user
 
   attachments = attachments.map(attachment => {
     if (attachment.callback_id) {
@@ -78,19 +85,24 @@ const createAttachments = (channelId, attachments, options = {}) => {
     raw: {
       channelId: channelId,
       attachments: attachments,
-      options: options
+      options: options,
+      user
     }
   })
 }
 
 const createReaction = (name, options = {}) => {
+  const user = Object.assign({}, options.user)
+  delete options.user
+
   return create({
     platform: 'slack',
     type: 'reaction',
     text: 'App sent a reaction',
     raw: {
       name: name,
-      options: options
+      options: options,
+      user
     }
   })
 }
@@ -99,6 +111,9 @@ const createUpdateText = (ts, channelId, text, options = {}) => {
   validateChannelId(channelId)
   validateText(text)
 
+  const user = Object.assign({}, options.user)
+  delete options.user
+
   return create({
     platform: 'slack',
     type: 'update_text',
@@ -106,7 +121,8 @@ const createUpdateText = (ts, channelId, text, options = {}) => {
     raw: {
       channelId: channelId,
       ts: ts,
-      options: options
+      options: options,
+      user
     }
   })
 }
@@ -114,6 +130,9 @@ const createUpdateText = (ts, channelId, text, options = {}) => {
 const createUpdateAttachments = (ts, channelId, attachments, options = {}) => {
   validateChannelId(channelId)
   validateAttachments(attachments)
+
+  const user = Object.assign({}, options.user)
+  delete options.user
 
   return create({
     platform: 'slack',
@@ -123,13 +142,17 @@ const createUpdateAttachments = (ts, channelId, attachments, options = {}) => {
       channelId: channelId,
       attachments: attachments,
       ts: ts,
-      options: options
+      options: options,
+      user
     }
   })
 }
 
 const createDeleteTextOrAttachments = (ts, channelId, options = {}) => {
   validateChannelId(channelId)
+
+  const user = Object.assign({}, options.user)
+  delete options.user
 
   return create({
     platform: 'slack',
@@ -138,19 +161,24 @@ const createDeleteTextOrAttachments = (ts, channelId, options = {}) => {
     raw: {
       channelId: channelId,
       ts: ts,
-      options: options
+      options: options,
+      user
     }
   })
 }
 
 const createRemoveReaction = (name, options = {}) => {
+  const user = Object.assign({}, options.user)
+  delete options.user
+
   return create({
     platform: 'slack',
     type: 'remove_reaction',
     text: 'App remove a reaction',
     raw: {
       name: name,
-      options: options
+      options: options,
+      user
     }
   })
 }

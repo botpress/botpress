@@ -4,6 +4,7 @@ import BaseInput from 'react-jsonschema-form/lib/components/widgets/BaseInput'
 
 import RefWidget from './RefWidget'
 import UploadWidget from './UploadWidget'
+import FlowPickWidget from './FlowPickWidget'
 
 const CustomBaseInput = props => {
   if (props.schema.type === 'string' && props.schema.$subtype === 'ref') {
@@ -11,6 +12,9 @@ const CustomBaseInput = props => {
   }
   if (props.schema.type === 'string' && props.schema.$subtype === 'media') {
     return <UploadWidget {...props} />
+  }
+  if (props.schema.type === 'string' && props.schema.$subtype === 'flow') {
+    return <FlowPickWidget {...props} />
   }
   return <BaseInput {...props} />
 }

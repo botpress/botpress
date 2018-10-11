@@ -30,6 +30,7 @@ module.exports = logConfig => {
       new winston.transports.Console({
         prettyPrint: true,
         colorize: true,
+        silent: logConfig.silentMode,
         timestamp: () => moment().format('HH:mm:ss')
       })
     ]

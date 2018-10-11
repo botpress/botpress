@@ -229,14 +229,10 @@ function sendBroadcasts() {
     })
 }
 
-module.exports = botpress => {
+module.exports = (botpress, k) => {
   bp = botpress
 
-  bp.db.get().then(k => {
-    const { initialize } = DB(k)
-    knex = k
-    initialize()
-  })
+  knex = k
 
   setInterval(scheduleToOutbox, SCHEDULE_TO_OUTBOX_INTERVAL)
   setInterval(sendBroadcasts, SEND_BROADCAST_INTERVAL)

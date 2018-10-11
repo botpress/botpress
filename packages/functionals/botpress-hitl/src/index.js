@@ -26,7 +26,7 @@ const incomingMiddleware = async (event, next) => {
     event.bp.events.emit('hitl.session', session)
   }
 
-  const message = db.appendMessageToSession(event, session.id, 'in')
+  const message = await db.appendMessageToSession(event, session.id, 'in')
   event.bp.events.emit('hitl.message', message)
   if ((!!session.paused || config.paused) && _.includes(['text', 'message'], event.type)) {
     event.bp.logger.debug('[hitl] Session paused, message swallowed:', event.text)
@@ -50,7 +50,8 @@ const outgoingMiddleware = async (event, next) => {
     event.bp.events.emit('hitl.session', session)
   }
 
-  const message = db.appendMessageToSession(event, session.id, 'out')
+  const message = await db.appendMessageToSession(event, session.id, 'out')
+
   event.bp.events.emit('hitl.message', message)
   next()
 }
@@ -84,10 +85,9 @@ module.exports = {
 
     config = await configurator.loadAll()
 
-    bp.db
-      .get()
-      .then(knex => (db = DB(knex)))
-      .then(() => db.initialize())
+    const knex = await bp.db.get()
+    db = DB(knex)
+    return db.initialize()
   },
 
   ready: function(bp) {
@@ -126,7 +126,7 @@ module.exports = {
         const event = {
           type: 'text',
           platform: session.platform,
-          raw: { to: session.userId, message: message },
+          raw: { ...session.raw, to: session.userId, message: message },
           user: { id: session.userId },
           text: message
         }
