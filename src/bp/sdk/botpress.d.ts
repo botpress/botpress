@@ -318,6 +318,15 @@ declare module 'botpress/sdk' {
     uiSchema?: object
 
     /**
+     * Function that defines how a Content Type gets rendered on the different channels.
+     * This function resides in the javascript definition of the Content Type.
+     *
+     * @param data The necessary data to render the Content Elements. e.g. Text, images, button actions, etc.
+     * @param channel The channel of communication. e.g. channel-web, messenger, twilio, etc.
+     * @returns Return an array of rendered Content Elements
+     */
+    renderElements: (data: object, channel: string) => object[]
+    /**
      * Function that computes the visual representation of the text.
      * This function resides in the javascript definition of the Content Type.
      */
@@ -327,11 +336,6 @@ declare module 'botpress/sdk' {
      * This function resides in the javascript definition of the Content Type.
      */
     computeData?: (typeId: string, formData: object) => object
-    /**
-     * Function that defines how a Content Type gets rendered on the different channels.
-     * This function resides in the javascript definition of the Content Type.
-     */
-    renderElement: (data: object, channel: string) => object[]
   }
 
   export interface Flow {
