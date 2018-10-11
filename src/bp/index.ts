@@ -8,6 +8,25 @@ const printPlainError = err => {
 
 global.printErrorDefault = printPlainError
 
+const originalWrite = process.stdout.write
+
+const shouldDiscardError = message =>
+  !![
+    '[DEP0005]' // Buffer() deprecation warning
+  ].find(e => message.indexOf(e) >= 0)
+
+function stripDeprecationWrite(buffer: string, encoding: string, cb?: Function | undefined): boolean
+function stripDeprecationWrite(buffer: string | Buffer, cb?: Function | undefined): boolean
+function stripDeprecationWrite(this: Function): boolean {
+  if (typeof arguments[0] === 'string' && shouldDiscardError(arguments[0])) {
+    return (arguments[2] || arguments[1])()
+  }
+
+  return originalWrite.apply(this, arguments)
+}
+
+process.stderr.write = stripDeprecationWrite
+
 process.on('unhandledRejection', err => {
   global.printErrorDefault(err)
 })

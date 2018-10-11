@@ -75,8 +75,7 @@ export class PersistedConsoleLogger implements Logger {
 
     const displayName = process.env.INDENT_LOGS ? this.name.substr(0, 15).padEnd(15, ' ') : this.name
     const newLineIndent = chalk.dim(' '.repeat(`${timeFormat} ${displayName}`.length)) + ' '
-    const indentedMessage =
-      level === LoggerLevel.Error ? message : message.replace(new RegExp(os.EOL, 'g'), os.EOL + newLineIndent)
+    const indentedMessage = level === LoggerLevel.Error ? message : message.replace(/\r\n|\n/g, os.EOL + newLineIndent)
 
     if (this.displayLevel >= (this.currentMessageLevel! || 0)) {
       console.log(
