@@ -2,11 +2,11 @@ import axios from 'axios'
 import Bluebird from 'bluebird'
 import { Paging } from 'botpress/sdk'
 import _ from 'lodash'
-import nanoid from 'nanoid'
+import shortid from 'shortid'
 
 import { QnaStorage, SDK } from '../qna'
 
-const safeId = (length = 10) => nanoid.generate('1234567890abcdefghijklmnopqrsuvwxyz', length)
+const safeId = (length = 10) => shortid.generate('1234567890abcdefghijklmnopqrsuvwxyz', length)
 
 const slugify = s => (s || '').toLowerCase().replace(/[^a-z0-9]/g, '_')
 

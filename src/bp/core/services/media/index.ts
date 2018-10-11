@@ -1,12 +1,12 @@
 import { Logger } from 'botpress/sdk'
 import { inject, injectable, tagged } from 'inversify'
-import { generate } from 'nanoid'
 import path from 'path'
+import shortid from 'shortid'
 
 import { GhostService } from '..'
 import { TYPES } from '../../types'
 
-const safeId = (length = 10) => generate('1234567890abcdefghijklmnopqrsuvwxyz', length)
+const safeId = (length = 10) => shortid.generate('1234567890abcdefghijklmnopqrsuvwxyz', length)
 
 @injectable()
 export default class MediaService {

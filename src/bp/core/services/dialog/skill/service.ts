@@ -1,7 +1,7 @@
 import { Flow, FlowGenerationResult, FlowNode, NodeActionType, SkillFlow } from 'botpress/sdk'
 import { injectable } from 'inversify'
 import _ from 'lodash'
-import nanoid from 'nanoid'
+import shortid from 'shortid'
 
 @injectable()
 export class SkillService {
@@ -61,11 +61,11 @@ export class SkillService {
     }
 
     _.forEach(partialFlow.nodes, node => {
-      defaultNode.id = nanoid.generate('1234567890', 6)
+      defaultNode.id = shortid.generate('1234567890', 6)
       node = _.defaults(node, defaultNode)
     })
 
-    const name = nanoid.generate('1234567890', 6)
+    const name = shortid.generate('1234567890', 6)
     const defaultFlow: Flow = {
       version: '0.0',
       name: name,

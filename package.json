@@ -50,6 +50,7 @@
     "plur": "^3.0.1",
     "querystring": "^0.2.0",
     "reflect-metadata": "^0.1.12",
+    "shortid": "^2.2.13",
     "socket.io": "^2.1.1",
     "socketio-jwt": "^4.5.0",
     "tamper": "^1.0.0",
