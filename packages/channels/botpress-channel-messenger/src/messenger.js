@@ -418,13 +418,13 @@ class Messenger extends EventEmitter {
             payload: 'QR_' + normalizeString(reply)
           }
         } else if (reply && reply.title) {
-          if (reply.title == 'Send Location' && reply.payload == 'SEND LOCATION') {
+          if (reply.title == 'Send Location' && reply.payload.toUpperCase() == 'SEND LOCATION') {
             return { content_type: 'location' }
           }
-          if (reply.title == 'Send Email' && reply.payload == 'SEND EMAIL') {
+          if (reply.title == 'Send Email' && reply.payload.toUpperCase() == 'SEND EMAIL') {
             return { content_type: 'user_email' }
           }
-          if (reply.title == 'Send Phone' && reply.payload == 'SEND PHONE') {
+          if (reply.title == 'Send Phone' && reply.payload.toUpperCase() == 'SEND PHONE') {
             return { content_type: 'user_phone_number' }
           }
           return {
