@@ -31,7 +31,7 @@ function processQuickReplies(qrs, blocName) {
 
       return {
         title: text,
-        payload: payload.toUpperCase()
+        payload: payload
       }
     }
 
