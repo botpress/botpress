@@ -9,9 +9,10 @@ const buildJsonSchemas = require('./jsonschemas')
 const tsProject = ts.createProject(path.resolve(__dirname, '../src/tsconfig.json'))
 
 const generateDoc = () => {
-  return gulp.src(['./src/bp/**/*.ts']).pipe(
+  return gulp.src(['./src/bp/sdk/botpress.d.ts']).pipe(
     typedoc({
       out: './doc',
+      mode: 'file',
       name: 'Botpress Reference',
       includeDeclarations: true,
       ignoreCompilerErrors: true,
