@@ -25,8 +25,8 @@ export CODEBUILD_PROJECT=${CODEBUILD_BUILD_ID%:$CODEBUILD_LOG_PATH}
 export CODEBUILD_BUILD_URL=https://$AWS_DEFAULT_REGION.console.aws.amazon.com/codebuild/home?region=$AWS_DEFAULT_REGION#/builds/$CODEBUILD_BUILD_ID/view/new
 
 export ARTIFACT_NAME="nightly-$(date +"%Y-%m-%d")"
-if [[ $CODEBUILD_GIT_BRANCH == "stable/*" ]] ; then
-  export ARTIFACT_NAME="v$(./build/source_version.sh)"
+if [[ $CODEBUILD_GIT_TAG == v* ]] ; then
+  export ARTIFACT_NAME="$CODEBUILD_GIT_TAG"
 fi
 
 echo "export ARTIFACT_NAME=$ARTIFACT_NAME"
