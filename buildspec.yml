@@ -23,7 +23,7 @@ phases:
     commands:
       - ls -la $CODEBUILD_SRC_DIR/build/native-extensions/windows/7z.sfx
       - stat $CODEBUILD_SRC_DIR/build/native-extensions/windows/7z.sfx
-      - (cp $CODEBUILD_SRC_DIR/build/native-extensions/windows/7z.sfx . && ll && 7z a -sfx'7z.sfx' windows_sfx.exe ./src/* )
+      - (cp $CODEBUILD_SRC_DIR/build/native-extensions/windows/7z.sfx . && ls -a && 7z a -sfx'7z.sfx' windows_sfx.exe ./src/* )
       #- 7z a -sfx$CODEBUILD_SRC_DIR/build/native-extensions/windows/7z.sfx $CODEBUILD_SRC_DIR/windows_sfx.exe $CODEBUILD_SRC_DIR/bp/*
       - (cd src/bp/ui-admin && yarn install && yarn build)
       # OSX Build
