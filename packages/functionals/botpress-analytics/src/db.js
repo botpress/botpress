@@ -64,7 +64,7 @@ function saveInteractionOut(event) {
   let userId =
     _.get(event, 'user.id') ||
     _.get(event, 'user.userId') ||
-    _.get(event, 'raw.from') ||
+    _.get(event, 'raw.to') ||
     _.get(event, 'raw.user.id') ||
     _.get(event, 'user')
 
