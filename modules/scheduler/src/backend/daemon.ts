@@ -34,7 +34,7 @@ class Daemon {
     let result = undefined
 
     if (!expired.enabled) {
-      this.bp.logger.debug('[scheduler] Skipped task ' + expired.taskId + '. Reason=disabled')
+      this.bp.logger.debug('Skipped task ' + expired.taskId + '. Reason=disabled')
       await this.db.updateTask(expired.taskId, 'skipped', undefined, undefined)
       return
     }

@@ -75,7 +75,7 @@ export default class Analytics {
       return
     }
     this.running = true
-    this.bp.logger.debug('analytics: recompiling analytics')
+    this.bp.logger.debug('recompiling analytics')
     this.stats
       .getTotalUsers()
       .then(data => this.savePartialData('totalUsers', data))
