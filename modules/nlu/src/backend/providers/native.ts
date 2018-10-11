@@ -41,7 +41,7 @@ export default class NativeProvider extends Provider {
     if (!stemmer) {
       this.customStemmer = undefined
     } else if (!_.isFunction(stemmer)) {
-      this.logger.error('[NLU::Native] Stemmer must be a function')
+      this.logger.error('[Native] Stemmer must be a function')
       this.customStemmer = undefined
     } else {
       this.customStemmer = stemmer
@@ -100,10 +100,10 @@ export default class NativeProvider extends Provider {
     const intents = await this.storage.getIntents()
 
     if (await this.isInSync(intents)) {
-      this.logger.debug('[NLU::Native] Model is up to date')
+      this.logger.debug('[Native] Model is up to date')
       return
     } else {
-      this.logger.debug('[NLU::Native] The model needs to be updated')
+      this.logger.debug('[Native] The model needs to be updated')
     }
 
     const classifier = new natural.BayesClassifier(this.getStemmer())
@@ -118,19 +118,19 @@ export default class NativeProvider extends Provider {
       })
     })
 
-    this.logger.debug(`[NLU::Native] Started training model from ${samples_count} samples`)
+    this.logger.debug(`[Native] Started training model from ${samples_count} samples`)
 
     try {
       classifier.train()
     } catch (err) {
-      return this.logger.attachError(err).error('[NLU::Native] Error training model')
+      return this.logger.attachError(err).error('[Native] Error training model')
     }
 
     this.classifier = classifier
 
     await this.onSyncSuccess(intents)
 
-    this.logger.info(`[NLU::Native] Synced model`)
+    this.logger.info(`[Native] Synced model`)
   }
 
   async extract(incomingEvent) {

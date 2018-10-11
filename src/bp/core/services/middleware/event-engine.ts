@@ -76,8 +76,10 @@ export class EventEngine {
     this.validateMiddleware(middleware)
     if (middleware.direction === 'incoming') {
       this.incomingMiddleware.push(middleware)
+      this.incomingMiddleware = _.sortBy(this.incomingMiddleware, mw => mw.order)
     } else {
       this.outgoingMiddleware.push(middleware)
+      this.outgoingMiddleware = _.sortBy(this.outgoingMiddleware, mw => mw.order)
     }
   }
 
@@ -110,9 +112,17 @@ export class EventEngine {
     const incoming = new MiddlewareChain<sdk.IO.Event>()
     const outgoing = new MiddlewareChain<sdk.IO.Event>()
 
-    const botConfig = (await this.ghost.forBot(botId).readFileAsObject('/', 'bot.config.json')) as BotConfig
+    // const botConfig = (await this.ghost.forBot(botId).readFileAsObject('/', 'bot.config.json')) as BotConfig
 
-    for (const name of botConfig.imports.incomingMiddleware) {
+    for (const mw of this.incomingMiddleware) {
+      incoming.use(mw.handler)
+    }
+
+    for (const mw of this.outgoingMiddleware) {
+      outgoing.use(mw.handler)
+    }
+
+    /*for (const name of botConfig.imports.incomingMiddleware) {
       const mw = this.incomingMiddleware.find(mw => mw.name === name)
       if (mw) {
         incoming.use(mw.handler)
@@ -124,7 +134,7 @@ export class EventEngine {
       if (mw) {
         outgoing.use(mw.handler)
       }
-    }
+    }*/
 
     return { incoming, outgoing }
   }

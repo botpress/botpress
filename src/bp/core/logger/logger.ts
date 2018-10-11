@@ -1,4 +1,4 @@
-import { Logger, LoggerEntry, LoggerLevel } from 'botpress/sdk'
+import { Logger, LoggerEntry, LoggerLevel, LogLevel } from 'botpress/sdk'
 import chalk from 'chalk'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
@@ -17,12 +17,15 @@ export type LoggerProvider = (module: string) => Promise<Logger>
 export class PersistedConsoleLogger implements Logger {
   private botId: string | undefined
   private attachedError: Error | undefined
+  public readonly displayLevel: number
+  private currentMessageLevel: LogLevel | undefined
 
   constructor(
     @inject(TYPES.Logger_Name) private name: string,
-    @inject(TYPES.IsProduction) private isProduction: boolean,
     @inject(TYPES.LoggerPersister) private loggerPersister: LoggerPersister
-  ) {}
+  ) {
+    this.displayLevel = process.VERBOSITY_LEVEL
+  }
 
   forBot(botId: string): this {
     this.botId = botId
@@ -31,6 +34,11 @@ export class PersistedConsoleLogger implements Logger {
 
   attachError(error: Error): this {
     this.attachedError = error
+    return this
+  }
+
+  level(level: LogLevel): this {
+    this.currentMessageLevel = level
     return this
   }
 
@@ -55,7 +63,7 @@ export class PersistedConsoleLogger implements Logger {
 
     if (level === LoggerLevel.Error && this.attachedError) {
       message += ` [${this.attachedError.name}, ${this.attachedError.message}]`
-      if (!this.isProduction && this.attachedError.stack) {
+      if (this.displayLevel >= 1 && this.attachedError.stack) {
         message += chalk.grey(os.EOL + '----- STACK -----')
         message += chalk.grey(os.EOL + this.attachedError.stack)
       }
@@ -67,31 +75,48 @@ export class PersistedConsoleLogger implements Logger {
 
     const displayName = process.env.INDENT_LOGS ? this.name.substr(0, 15).padEnd(15, ' ') : this.name
     const newLineIndent = chalk.dim(' '.repeat(`${timeFormat} ${displayName}`.length)) + ' '
-    const indentedMessage =
-      level === LoggerLevel.Error ? message : message.replace(new RegExp(os.EOL, 'g'), os.EOL + newLineIndent)
+    const indentedMessage = level === LoggerLevel.Error ? message : message.replace(/\r\n|\n/g, os.EOL + newLineIndent)
 
-    console.log(
-      chalk`{grey ${time}} {${this.colors[level]}.bold ${displayName}} ${indentedMessage}${serializedMetadata}`
-    )
+    if (this.displayLevel >= (this.currentMessageLevel! || 0)) {
+      console.log(
+        chalk`{grey ${time}} {${this.colors[level]}.bold ${displayName}} ${indentedMessage}${serializedMetadata}`
+      )
+    }
+
+    this.currentMessageLevel = undefined
     this.botId = undefined
     this.attachedError = undefined
   }
 
   debug(message: string, metadata?: any): void {
-    if (!this.isProduction) {
-      this.print(LoggerLevel.Debug, message, metadata)
+    if (this.currentMessageLevel === undefined) {
+      this.currentMessageLevel = LogLevel.DEV
     }
+
+    this.print(LoggerLevel.Debug, message, metadata)
   }
 
   info(message: string, metadata?: any): void {
+    if (this.currentMessageLevel === undefined) {
+      this.currentMessageLevel = LogLevel.PRODUCTION
+    }
+
     this.print(LoggerLevel.Info, message, metadata)
   }
 
   warn(message: string, metadata?: any): void {
+    if (this.currentMessageLevel === undefined) {
+      this.currentMessageLevel = LogLevel.PRODUCTION
+    }
+
     this.print(LoggerLevel.Warn, message, metadata)
   }
 
   error(message: string, metadata?: any): void {
+    if (this.currentMessageLevel === undefined) {
+      this.currentMessageLevel = LogLevel.PRODUCTION
+    }
+
     this.print(LoggerLevel.Error, message, metadata)
   }
 }

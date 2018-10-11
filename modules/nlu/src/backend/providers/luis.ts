@@ -38,7 +38,7 @@ export default class LuisProvider extends Provider {
 
       return _.find(res.data, { version: LUIS_APP_VERSION })
     } catch (err) {
-      this.logger.debug('[NLU::Luis] Could not fetch app versions')
+      this.logger.debug('[Luis] Could not fetch app versions')
       return []
     }
   }
@@ -57,10 +57,10 @@ export default class LuisProvider extends Provider {
       )
 
       if (del.status === 200) {
-        this.logger.debug('[NLU::Luis] Removed old version of the model')
+        this.logger.debug('[Luis] Removed old version of the model')
       }
     } catch (err) {
-      this.logger.debug('[NLU::Luis] Could not remove old version of the model')
+      this.logger.debug('[Luis] Could not remove old version of the model')
     }
   }
 
@@ -76,7 +76,7 @@ export default class LuisProvider extends Provider {
       )
       return response.data
     } catch (err) {
-      throw new Error('[NLU::Luis] Could not find app ' + this.appId)
+      throw new Error('[Luis] Could not find app ' + this.appId)
     }
   }
 
@@ -144,7 +144,7 @@ export default class LuisProvider extends Provider {
 
   validateCredentials() {
     const missingPattern = name =>
-      '[NLU::LUIS] "' +
+      '[LUIS] "' +
       name +
       '" is missing from the configuration, please have a look at botpress-nlu ' +
       'documentation to learn how to setup the credentials.'
@@ -181,14 +181,14 @@ export default class LuisProvider extends Provider {
     let currentVersion = await this.getRemoteVersion()
 
     if (await this.isInSync(intents, currentVersion)) {
-      this.logger.debug('[NLU::Luis] Model is up to date')
+      this.logger.debug('[Luis] Model is up to date')
       return
     } else {
-      this.logger.debug('[NLU::Luis] The model needs to be updated')
+      this.logger.debug('[Luis] The model needs to be updated')
     }
 
     if (currentVersion) {
-      this.logger.debug('[NLU::Luis] Deleting old version of the model')
+      this.logger.debug('[Luis] Deleting old version of the model')
       await this.deleteVersion()
     }
 
@@ -214,7 +214,7 @@ export default class LuisProvider extends Provider {
           const entity = _.find(availableEntities, { name: label.type })
 
           if (!entity) {
-            throw new Error('[NLU::Luis] Unknown entity: ' + label.type)
+            throw new Error('[Luis] Unknown entity: ' + label.type)
           }
 
           if (entity.isFromProvider && builtinEntities.indexOf(entity.nameProvider) === -1) {
@@ -281,10 +281,10 @@ export default class LuisProvider extends Provider {
       currentVersion = await this.getRemoteVersion()
       await this.onSyncSuccess(intents, currentVersion)
 
-      this.logger.info('[NLU::Luis] Synced model [' + result.data + ']')
+      this.logger.info('[Luis] Synced model [' + result.data + ']')
     } catch (err) {
       const detailedError = _.get(err, 'response.data.error.message') || (err && err.message) || err
-      this.logger.attachError(err).error('[NLU::Luis] Could not sync the model. Error = ' + detailedError)
+      this.logger.attachError(err).error('[Luis] Could not sync the model. Error = ' + detailedError)
     }
     this.syncingSince = undefined
   }
@@ -325,16 +325,14 @@ export default class LuisProvider extends Provider {
       const error = _.find(models, m => m.details.status === 'Fail')
 
       if (error) {
-        throw new Error(
-          `[NLU::Luis] Error training model "${error.modelId}", reason is "${error.details.failureReason}"`
-        )
+        throw new Error(`[Luis] Error training model "${error.modelId}", reason is "${error.details.failureReason}"`)
       }
 
       if (percent >= 1) {
-        this.logger.debug('[NLU::Luis] Model trained (100%)')
+        this.logger.debug('[Luis] Model trained (100%)')
         break
       } else {
-        this.logger.debug('[NLU::Luis] Training... ' + Number(percent.toFixed(2)) * 100 + '%')
+        this.logger.debug('[Luis] Training... ' + Number(percent.toFixed(2)) * 100 + '%')
       }
 
       await Promise.delay(1000)
@@ -361,9 +359,7 @@ export default class LuisProvider extends Provider {
     try {
       this.validateCredentials()
     } catch (err) {
-      this.logger.warn(
-        '[NLU::Luis] Did not extract NLU metadata for incoming text because Luis is not configured properly.'
-      )
+      this.logger.warn('[Luis] Did not extract NLU metadata for incoming text because Luis is not configured properly.')
 
       return defaultExtractData('luis')
     }
