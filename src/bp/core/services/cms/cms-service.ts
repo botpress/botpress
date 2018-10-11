@@ -1,12 +1,13 @@
 import { Logger } from 'botpress/sdk'
 import { ContentElement, ContentType } from 'botpress/sdk'
 import { KnexExtension } from 'common/knex'
-import { inject, injectable, postConstruct, tagged } from 'inversify'
+import { inject, injectable, tagged } from 'inversify'
 import Knex from 'knex'
 import _ from 'lodash'
 import nanoid from 'nanoid'
 import path from 'path'
 import plur from 'plur'
+import { VError } from 'verror'
 
 import { GhostService } from '../'
 import { ConfigProvider } from '../../config/config-loader'
@@ -329,19 +330,19 @@ export class CMSService implements IDisposeOnExit {
     }
   }
 
-  private transformItemApiToDb(botId: string, item) {
-    if (!item) {
-      return item
+  private transformItemApiToDb(botId: string, element) {
+    if (!element) {
+      return element
     }
 
-    const result = { ...item, botId }
+    const result = { ...element, botId }
 
-    if ('formData' in item) {
-      result.formData = JSON.stringify(item.formData)
+    if ('formData' in element) {
+      result.formData = JSON.stringify(element.formData)
     }
 
-    if ('computedData' in item) {
-      result.computedData = JSON.stringify(item.computedData)
+    if ('computedData' in element) {
+      result.computedData = JSON.stringify(element.computedData)
     }
 
     return result
@@ -354,12 +355,17 @@ export class CMSService implements IDisposeOnExit {
         .where('contentType', contentType.id)
         .andWhere({ botId })
         .then()
-        .each(async ({ id, formData, botId }: any) => {
-          const computedProps = await this.fillComputedProps(contentType, JSON.parse(formData))
+        .each(async (element: any) => {
+          const computedProps = await this.fillComputedProps(contentType, JSON.parse(element.formData))
+          element = { ...element, ...computedProps }
+
           return this.memDb(this.contentTable)
-            .where('id', id)
-            .update(this.transformItemApiToDb(botId, computedProps))
-            .then()
+            .where('id', element.id)
+            .andWhere({ botId })
+            .update(this.transformItemApiToDb(botId, element))
+            .catch(err => {
+              throw new VError(err, `Could not update the element for ID "${element.id}"`)
+            })
         })
     }
   }

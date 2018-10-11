@@ -2,8 +2,8 @@ const path = require('path')
 const gulp = require('gulp')
 const ts = require('gulp-typescript')
 const rimraf = require('rimraf')
-const run = require('gulp-run')
 const sourcemaps = require('gulp-sourcemaps')
+const exec = require('gulp-exec')
 
 const buildJsonSchemas = require('./jsonschemas')
 const tsProject = ts.createProject(path.resolve(__dirname, '../src/tsconfig.json'))
@@ -43,16 +43,12 @@ const createDirectories = () => {
     .pipe(gulp.dest('./out/bp/data/storage'))
 }
 
-const copyVanilla = () => {
-  return gulp.src('./src/templates/vanilla/bots/bot123/**/*').pipe(gulp.dest('./out/bp/data/bots/bot123'))
+const copyData = () => {
+  return gulp.src('./src/templates/data/**/*').pipe(gulp.dest('./out/bp/data', { overwrite: false }))
 }
 
-const copyGlobal = () => {
-  return gulp.src('./src/templates/global/**/*').pipe(gulp.dest('./out/bp/data/global'))
-}
-
-const copyTemplates = () => {
-  return gulp.src('./src/templates/**/*').pipe(gulp.dest('./out/templates'))
+const copyBotTemplate = () => {
+  return gulp.src('./src/templates/bot-template/**/*').pipe(gulp.dest('./out/templates/bot-template'))
 }
 
 const copyAdmin = () => {
@@ -68,21 +64,15 @@ const buildSchemas = cb => {
   cb()
 }
 
-const runTests = () => {
-  return gulp.src('.').pipe(run('./node_modules/.bin/jest -i --detectOpenHandles -c ./jest.config.js'))
-}
-
 module.exports = {
   clean,
   buildTs,
   buildSchemas,
   createDirectories,
-  copyGlobal,
+  copyData,
+  copyBotTemplate,
   copyAdmin,
   copyStudio,
-  copyTemplates,
-  copyVanilla,
   watch,
-  wipe,
-  runTests
+  wipe
 }

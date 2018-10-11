@@ -304,7 +304,6 @@ export default class TeamsService {
     await this.knex(BOTS_TABLE).insert(bot)
     const botConfig = this.botConfigFactory.createDefault({ id: bot.id, name: bot.name, description: bot.description })
     await this.botConfigWriter.writeToFile(botConfig)
-    await this.botLoader.loadAllBots()
   }
 
   async getBotTeam(botId: string) {

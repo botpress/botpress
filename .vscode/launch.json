@@ -10,7 +10,7 @@
       "protocol": "inspector",
       "env": {
         "JWT_SECRET": "very_secret",
-        "BP_MODULES_PATH": "./modules",
+        "BP_MODULES_PATH": "${workspaceFolder}/modules",
         "NODE_PATH": "${workspaceFolder}/out/bp"
       },
       "outFiles": ["${workspaceFolder}/out/**/*.js"],
