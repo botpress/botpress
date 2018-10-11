@@ -16,6 +16,7 @@ phases:
       - echo "BUILDING FOR '$ARTIFACT_NAME'"
       - yarn install
       - (cd build/module-builder && yarn install && yarn build)
+      - apt-get update
       - apt-get install p7zip-full
 
   build:
