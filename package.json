@@ -13,7 +13,7 @@
     "build:core": "./node_modules/.bin/gulp clean-build",
     "build:modules": "./node_modules/.bin/gulp modules",
     "bootstrap": "./node_modules/.bin/gulp && yarn build:modules",
-    "watch": "./node_modules/.bin/gulp build-watch",
+    "watch": "./node_modules/.bin/gulp watch",
     "test": "./node_modules/.bin/jest -i --detectOpenHandles -c jest.config.js",
     "clean": "./node_modules/.bin/gulp clean",
     "package": "./node_modules/.bin/gulp package",
