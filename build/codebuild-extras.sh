@@ -10,6 +10,7 @@ if [ "$CODEBUILD_GIT_BRANCH" == "" ] ; then
   export CODEBUILD_GIT_BRANCH=${CODEBUILD_GIT_BRANCH#remotes/origin/}
 fi
 
+export CODEBUILD_GIT_TAG=`git describe --tags --exact-match 2>/dev/null`
 export CODEBUILD_GIT_MESSAGE=`git log -1 --pretty=%B`
 export CODEBUILD_GIT_AUTHOR=`git log -1 --pretty=%an`
 export CODEBUILD_GIT_AUTHOR_EMAIL=`git log -1 --pretty=%ae`
@@ -23,13 +24,15 @@ fi
 export CODEBUILD_PROJECT=${CODEBUILD_BUILD_ID%:$CODEBUILD_LOG_PATH}
 export CODEBUILD_BUILD_URL=https://$AWS_DEFAULT_REGION.console.aws.amazon.com/codebuild/home?region=$AWS_DEFAULT_REGION#/builds/$CODEBUILD_BUILD_ID/view/new
 
-export ARTIFACT_NAME="nightly-$(date +"%m-%d-%y")"
-if [ "$CODEBUILD_GIT_BRANCH" == "stable" ] ; then
-  export ARTIFACT_NAME="v$(./build/source_version.sh)"
+export ARTIFACT_NAME="nightly-$(date +"%Y-%m-%d")"
+if [[ "$CODEBUILD_GIT_TAG" == v* ]] ; then
+  export ARTIFACT_NAME=`echo $CODEBUILD_GIT_TAG | sed 's/\./_/g'`
 fi
 
+
+
 echo "export ARTIFACT_NAME=$ARTIFACT_NAME"
-echo "export CODEBUILD_GIT_MESSAGE=$CODEBUILD_GIT_MESSAGE"
 echo "export CODEBUILD_GIT_BRANCH=$CODEBUILD_GIT_BRANCH"
 echo "export CODEBUILD_GIT_AUTHOR=$CODEBUILD_GIT_AUTHOR"
 echo "export CODEBUILD_PULL_REQUEST=$CODEBUILD_PULL_REQUEST"
+echo "export CODEBUILD_GIT_TAG=$CODEBUILD_GIT_TAG"

@@ -16,6 +16,8 @@ phases:
       - echo "BUILDING FOR '$ARTIFACT_NAME'"
       - yarn install
       - (cd build/module-builder && yarn install && yarn build)
+      - apt-get update
+      - apt-get install p7zip-full
 
   build:
     commands:
@@ -56,6 +58,8 @@ phases:
       - ls -a out_darwin
       - ls -a out_win32
       - ls -a out_linux
+      - 7z a -sfxbuild/native-extensions/windows/7z.sfx windows_sfx.exe ./out_win32/binaries/*
+      - ls -a
 
 artifacts:
   base-directory: $CODEBUILD_SRC_DIR
@@ -81,6 +85,12 @@ artifacts:
       name: botpress-$ARTIFACT_NAME-win-x64.zip
       files:
         - '**/*'
+
+    windows_sfx:
+      base-directory: $CODEBUILD_SRC_DIR
+      name: botpress-$ARTIFACT_NAME-win-x64-sfx.exe
+      files:
+        - 'windows_sfx.exe'
 
   cache:
     paths:
