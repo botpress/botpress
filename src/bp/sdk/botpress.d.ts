@@ -89,6 +89,9 @@ declare module 'botpress/sdk' {
   export namespace IO {
     export type EventDirection = 'incoming' | 'outgoing'
     export namespace WellKnownFlags {
+      /**
+       * Whether the event should be processed by the dialog engine.
+       */
       export const SKIP_DIALOG_ENGINE: symbol
       export const SKIP_QNA_PROCESSING: symbol
     }
@@ -105,39 +108,87 @@ declare module 'botpress/sdk' {
     }
 
     /**
-     * @description
-     * A BotpressEvent is how conversational channels interact with Botpress.  Events represent all the interactions
-     * that make up a conversation.  That means the different message types (text, image, buttons, carousels etc) but also
+     * A BotpressEvent is how conversational channels interact with Botpress. Events represent all the interactions
+     * that make up a conversation. That means the different message types (text, image, buttons, carousels etc) but also
      * the navigational events (chat open, user typing) and contextual events (user returned home, order delivered).
-     * @property {string} type - The type of the event, i.e. image, text, timeout, etc
-     * @property {string} channel - The channel of communication, i.e web, messenger, twillio
-     * @property {string} target - Who will receive this message, usually a user's id
-     * @property {EventDirection} direction – Is it (in)coming from the user to the bot or (out)going from the bot to the user?
-     * @property {string} preview – A textual representation of the event
-     * @property {string} [threadId] – The id of the thread this message is relating to (only on supported channels)
-     * @property {string} botId – The id of the bot on which this event is relating to
-     * @property {any} payload – The channel-specific raw payload
      */
     export interface Event {
       readonly id: Number
+      /**
+       * The type of the event, i.e. image, text, timeout, etc
+       */
       readonly type: string
+      /**
+       * The channel of communication, i.e web, messenger, twillio
+       */
       readonly channel: string
+      /**
+       * Who will receive this message, usually a user's id
+       */
       readonly target: string
+      /**
+       * Is it (in)coming from the user to the bot or (out)going from the bot to the user?
+       */
       readonly direction: EventDirection
+      /**
+       * The channel-specific raw payload
+       */
       readonly payload: any
+      /**
+       * The id of the bot on which this event is relating to
+       */
       readonly botId: string
+      /**
+       * The id of the thread this message is relating to (only on supported channels)
+       */
       readonly threadId?: string
+      /**
+       * A textual representation of the event
+       */
       readonly preview: string
+      /**
+       * Verify if the event has a specific flag
+       * @param flag The flag symbol to verify. {@link IO.WellKnownFlags} to know more about existing flags
+       * @returns Return wheter or not the event has the flag
+       * @example event.hasFlag(bp.IO.WellKnownFlags.SKIP_DIALOG_ENGINE)
+       */
       hasFlag(flag: symbol): boolean
-      setFlag(flag: symbol, value: boolean)
+      /**
+       * Sets a flag on the event so it can be intercepted and properly handled if the case applies
+       * @param flag The flag symbol to set. {@link IO.WellKnownFlags}
+       * @param value The value of the flag.
+       * @example event.setFlag(bp.IO.WellKnownFlags.SKIP_DIALOG_ENGINE, true)
+       */
+      setFlag(flag: symbol, value: boolean): void
     }
 
+    /**
+     * The definition of the middleware that will be executed in the middleware chain.
+     * There are two middleware chains - an incoming and an outgoing.
+     * The incoming middleware chain is executed when botpress is receiving an event.
+     * The outgoing middleware chain is executed when botpress is sending an event.
+     */
     export type MiddlewareDefinition = {
+      /**
+       * The name identifying the middleware
+       */
       name: string
       description: string
+      /**
+       * The order of executing of the middleware in the chain
+       */
       order: number
+      /**
+       * The middleware function to execute
+       */
       handler: Function
+      /**
+       * The direction of the event. This will dictate which middleware chain to register to
+       */
       direction: EventDirection
+      /**
+       * Whether the middleware is enabled or disabled
+       */
       enabled: boolean
     }
 
@@ -163,6 +214,11 @@ declare module 'botpress/sdk' {
     otherChannels?: User[]
   }
 
+  /**
+   * The direction of the event. An incoming event will register itself into the incoming middleware chain.
+   * An outgoing event will register itself into the outgoing middleware chain.
+   * @see MiddlewareDefinition to learn more about middleware.
+   */
   export type EventDirection = 'incoming' | 'outgoing'
 
   export type Notification = {
@@ -184,6 +240,9 @@ declare module 'botpress/sdk' {
     directoryListing(rootFolder: string, fileEndingPattern: string): Promise<string[]>
   }
 
+  /**
+   * The configuration definition of a bot.
+   */
   export type BotConfig = {
     $schema?: string
     id: string
@@ -303,13 +362,18 @@ declare module 'botpress/sdk' {
     count: number
   }
 
-  /**
-   * ////////////////
-   * //////// API
-   * ////////////////
-   */
+  ////////////////
+  //////// API
+  ////////////////
 
+  /**
+   * Realtime is used to communicate with the client via websockets
+   */
   export namespace realtime {
+    /**
+     * Sends a payload to the client via the websocket
+     * @param payload The payload to send
+     */
     export function sendPayload(payload: RealTimePayload)
   }
 
@@ -326,7 +390,14 @@ declare module 'botpress/sdk' {
     export function getAxiosConfigForBot(botId: string): Promise<AxiosBotConfig>
   }
 
+  /**
+   * Events is used to interact with the middleware chains. i.e. send an event, register a middleware.
+   */
   export namespace events {
+    /**
+     * Registers a middleware in the middleware chain.
+     * @param middleware
+     */
     export function registerMiddleware(middleware: IO.MiddlewareDefinition): void
     export function sendEvent(event: IO.Event): void
     export function replyToEvent(event: IO.Event, payloads: any[])
@@ -344,11 +415,40 @@ declare module 'botpress/sdk' {
     export function getUserCount(): Promise<any>
   }
 
+  /**
+   * A state is mutable object that contains properties used by the dialog engine during a conversation.
+   * Properties like "nickname" or "nbOfConversations" used during a conversation to execute flow logic. e.g. Navigating to a certain node when a condition is met.
+   */
+  export type State = any
+
+  /**
+   * The dialog engine is what processes conversations. It orchestrates the conversationnal flow logic.
+   */
   export namespace dialog {
-    export function processMessage(userId: string, event: IO.Event): Promise<void>
-    export function deleteSession(userId: string): Promise<void>
-    export function getState(userId: string): Promise<void>
-    export function setState(userId: string, state: any): Promise<void>
+    /**
+     * Calls the dialog engine to start processing an event.
+     * @param sessionId A unique string that will be used to identify the session. We recommend using the user Id. e.g. a messenger user Id, a slack user Id or a web application user Id
+     * @param event The event to be processed by the dialog engine
+     */
+    export function processEvent(sessionId: string, event: IO.Event): Promise<void>
+    /**
+     * Deletes a session
+     * @param sessionId The Id of the session to delete
+     */
+    export function deleteSession(sessionId: string): Promise<void>
+    /**
+     * Gets the state object of a session
+     * @param sessionId The session Id from which to get the state
+     */
+    export function getState(sessionId: string): Promise<void>
+    /**
+     * Sets a new state for the session. **The state will be overwritten**.
+     * @param sessionId The Id of the session
+     * @param state The state object to set in the session.
+     * @example
+     * bp.dialog.setState(sessionId, {...state, newProp: 'a new property'})
+     */
+    export function setState(sessionId: string, state: State): Promise<void>
   }
 
   export namespace config {

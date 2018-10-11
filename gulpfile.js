@@ -12,11 +12,12 @@ const dataTasks = [core.createDirectories, core.copyData, core.copyBotTemplate]
 const uiTasks = [core.copyAdmin, core.copyStudio]
 const buildTasks = [core.buildTs, core.buildSchemas, ...dataTasks, ...uiTasks]
 
+gulp.task('generate-doc', core.generateDoc)
 gulp.task('clean-build', gulp.series([core.clean, ...buildTasks]))
 gulp.task('clean-build-watch', gulp.series([core.clean, ...buildTasks, core.watch]))
 gulp.task('build-watch', gulp.series([...buildTasks, core.watch]))
-gulp.task('watch', gulp.series([core.watch]))
-gulp.task('clean', gulp.series([core.clean]))
+gulp.task('watch', core.watch)
+gulp.task('clean', core.clean)
 gulp.task('modules', gulp.series([modules.copySdkDefinitions, modules.copyBoilerplateFiles, modules.buildModules()]))
 gulp.task(
   'package',

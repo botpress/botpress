@@ -16,6 +16,7 @@
     "watch": "./node_modules/.bin/gulp watch",
     "test": "./node_modules/.bin/jest -i --detectOpenHandles -c jest.config.js",
     "clean": "./node_modules/.bin/gulp clean",
+    "build:doc": "gulp generate-doc",
     "package": "./node_modules/.bin/gulp package",
     "package:core": "./node_modules/.bin/gulp package --skip-modules"
   },
@@ -82,6 +83,7 @@
     "gulp-rimraf": "^0.2.2",
     "gulp-run": "^1.7.1",
     "gulp-sourcemaps": "^2.6.4",
+    "gulp-typedoc": "^2.2.0",
     "gulp-typescript": "^5.0.0-alpha.3",
     "jest": "^23.6.0",
     "jest-extended": "^0.10.0",
@@ -89,6 +91,7 @@
     "rimraf": "^2.6.2",
     "ts-jest": "^23.10.1",
     "tslint": "^5.11.0",
+    "typedoc": "^0.13.0",
     "typescript-json-schema": "^0.32.0"
   },
   "optionalDependencies": {
