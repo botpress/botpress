@@ -26,8 +26,10 @@ export CODEBUILD_BUILD_URL=https://$AWS_DEFAULT_REGION.console.aws.amazon.com/co
 
 export ARTIFACT_NAME="nightly-$(date +"%Y-%m-%d")"
 if [[ "$CODEBUILD_GIT_TAG" == v* ]] ; then
-  export ARTIFACT_NAME="$CODEBUILD_GIT_TAG"
+  export ARTIFACT_NAME=`echo $CODEBUILD_GIT_TAG | sed 's/\./_/g'`
 fi
+
+
 
 echo "export ARTIFACT_NAME=$ARTIFACT_NAME"
 echo "export CODEBUILD_GIT_MESSAGE=$CODEBUILD_GIT_MESSAGE"
