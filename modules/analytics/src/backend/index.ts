@@ -62,7 +62,8 @@ const entryPoint: sdk.ModuleEntryPoint = {
     name: 'analytics',
     fullName: 'Analytics',
     homepage: 'https://botpress.io',
-    menuIcon: 'timeline'
+    menuIcon: 'timeline',
+    menuText: 'Analytics'
   }
 }
 

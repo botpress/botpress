@@ -362,6 +362,15 @@ function setupAPIProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
     })
   )
 
+  app.get(
+    '/s/:name',
+    proxy(coreApiUrl, {
+      proxyReqPathResolver: req => {
+        return `${BASE_PATH}/s/${req.params.name}`
+      }
+    })
+  )
+
   app.post(
     '/api/modules/:moduleName/flow/:flowName/generate',
     proxy(coreApiUrl, {

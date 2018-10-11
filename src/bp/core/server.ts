@@ -9,6 +9,7 @@ import { ConfigProvider } from './config/config-loader'
 import { ModuleLoader } from './module-loader'
 import { BotRepository } from './repositories'
 import { AdminRouter, AuthRouter, BotsRouter, ModulesRouter } from './routers'
+import { ShortLinksRouter } from './routers/shortlinks'
 import ActionService from './services/action/action-service'
 import AuthService from './services/auth/auth-service'
 import TeamsService from './services/auth/teams-service'
@@ -33,6 +34,7 @@ export default class HTTPServer {
   private readonly adminRouter: AdminRouter
   private readonly modulesRouter: ModulesRouter
   private readonly botsRouter: BotsRouter
+  private readonly shortlinksRouter: ShortLinksRouter
 
   constructor(
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
@@ -63,6 +65,7 @@ export default class HTTPServer {
     this.modulesRouter = new ModulesRouter(moduleLoader, skillService)
     this.authRouter = new AuthRouter(this.logger, this.authService, this.teamsService)
     this.adminRouter = new AdminRouter(this.logger, this.authService, this.teamsService)
+    this.shortlinksRouter = new ShortLinksRouter()
     this.botsRouter = new BotsRouter({
       actionService,
       botRepository,
@@ -97,6 +100,7 @@ export default class HTTPServer {
     this.app.use(`${BASE_API_PATH}/admin`, this.adminRouter.router)
     this.app.use(`${BASE_API_PATH}/modules`, this.modulesRouter.router)
     this.app.use(`${BASE_API_PATH}/bots/:botId`, this.botsRouter.router)
+    this.app.use(`${BASE_API_PATH}/s`, this.shortlinksRouter.router)
 
     this.app.use((err, req, res, next) => {
       const statusCode = err.status || 500
@@ -130,6 +134,10 @@ export default class HTTPServer {
 
   createRouterForBot(router: string, options: RouterOptions) {
     return this.botsRouter.getNewRouter(router, options)
+  }
+
+  createShortLink(name: string, destination: string, params: any) {
+    this.shortlinksRouter.createShortLink(name, destination, params)
   }
 
   async getAxiosConfigForBot(botId: string): Promise<AxiosBotConfig> {

@@ -99,6 +99,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   definition: {
     name: 'nlu',
     menuIcon: 'fiber_smart_record',
+    menuText: 'NLU',
     fullName: 'NLU',
     homepage: 'https://botpress.io'
   }

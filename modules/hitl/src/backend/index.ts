@@ -61,7 +61,8 @@ const entryPoint: sdk.ModuleEntryPoint = {
   definition: {
     name: 'hitl',
     menuIcon: 'feedback',
-    fullName: 'HITL',
+    menuText: 'HITL',
+    fullName: 'Human In The Loop',
     homepage: 'https://botpress.io'
   }
 }

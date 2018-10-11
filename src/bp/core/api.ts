@@ -26,8 +26,8 @@ import { TYPES } from './types'
 
 const http = (httpServer: HTTPServer): typeof sdk.http => {
   return {
-    createShortLink(): void {
-      throw new Error('Method not implemented.')
+    createShortLink(name: string, destination: string, params?: any): void {
+      httpServer.createShortLink(name, destination, params)
     },
     createRouterForBot(routerName: string, options?: sdk.RouterOptions): any {
       const defaultRouterOptions = { checkAuthentication: true, enableJsonBodyParser: true }
@@ -148,6 +148,9 @@ const cms = (cmsService: CMSService): typeof sdk.cms => {
     getContentElement(botId: string, id: string): Promise<any> {
       return cmsService.getContentElement(botId, id)
     },
+    getContentElements(botId: string, ids: string[]): Promise<any[]> {
+      return cmsService.getContentElements(botId, ids)
+    },
     listContentElements(botId: string, contentTypeId?: string): Promise<any> {
       return cmsService.listContentElements(botId, contentTypeId)
     },
@@ -156,6 +159,14 @@ const cms = (cmsService: CMSService): typeof sdk.cms => {
     },
     renderElement(contentTypeId: string, payload: any, channel: string) {
       return cmsService.renderElement(contentTypeId, payload, channel)
+    },
+    createOrUpdateContentElement(
+      botId: string,
+      contentTypeId: string,
+      formData: string,
+      contentElementId?: string
+    ): Promise<string> {
+      return cmsService.createOrUpdateContentElement(botId, contentTypeId, formData, contentElementId)
     }
   }
 }

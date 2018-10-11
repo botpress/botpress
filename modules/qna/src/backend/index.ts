@@ -55,6 +55,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   definition: {
     name: 'qna',
     menuIcon: 'question_answer',
+    menuText: 'QNA',
     fullName: 'QNA',
     homepage: 'https://botpress.io'
   }

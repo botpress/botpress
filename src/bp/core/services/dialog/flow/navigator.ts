@@ -39,13 +39,14 @@ export class FlowNavigator {
     if (args.destination.indexOf('##') > -1) {
       this.logger.debug('  Transition to starting node of previous flow')
       // Transition to the starting node of the previous flow
-      nodeName = args.previousNodeName
       flowName = args.previousFlowName
+      const findFlow = args.flows.find(f => f.name === flowName)
+      nodeName = findFlow.startNode
     } else if (args.destination.indexOf('#') > -1) {
-      this.logger.debug('  Transition to specific node of previous flow')
       // Return to calling node
       const destinationNodeName = args.destination.slice(1)
       if (!destinationNodeName) {
+        this.logger.debug('Return to calling node')
         nodeName = args.previousNodeName
         flowName = args.previousFlowName
         if (!nodeName) {
@@ -54,6 +55,7 @@ export class FlowNavigator {
           flowName = defaultFlow.name
         }
       } else {
+        this.logger.debug('Transition to specific node of previous flow')
         // Transition to a specific node in the previous flow
         const flow = args.flows.find(f => f.name === args.previousFlowName)
         const node = flow.nodes.find(n => n.name === destinationNodeName)
