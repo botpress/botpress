@@ -14,8 +14,8 @@ phases:
     commands:
       - $(./build/codebuild-extras.sh)
       - echo "BUILDING FOR '$ARTIFACT_NAME'"
-      - yarn install
-      - (cd build/module-builder && yarn install && yarn build)
+      #- yarn install
+      #- (cd build/module-builder && yarn install && yarn build)
       - apt-get update
       - apt-get install p7zip-full
 
@@ -23,9 +23,8 @@ phases:
     commands:
       - ls -la $CODEBUILD_SRC_DIR/build/native-extensions/windows/7z.sfx
       - stat $CODEBUILD_SRC_DIR/build/native-extensions/windows/7z.sfx
-      - stat ./build/native-extensions/windows/7z.sfx
-      - stat build/native-extensions/windows/7z.sfx
-      - 7z a -sfx$CODEBUILD_SRC_DIR/build/native-extensions/windows/7z.sfx $CODEBUILD_SRC_DIR/windows_sfx.exe $CODEBUILD_SRC_DIR/bp/*
+      - (cp $CODEBUILD_SRC_DIR/build/native-extensions/windows/7z.sfx . && ll && 7z a -sfx'7z.sfx' windows_sfx.exe ./src/* )
+      #- 7z a -sfx$CODEBUILD_SRC_DIR/build/native-extensions/windows/7z.sfx $CODEBUILD_SRC_DIR/windows_sfx.exe $CODEBUILD_SRC_DIR/bp/*
       - (cd src/bp/ui-admin && yarn install && yarn build)
       # OSX Build
       - export npm_config_target_platform=darwin
