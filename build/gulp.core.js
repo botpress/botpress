@@ -2,8 +2,8 @@ const path = require('path')
 const gulp = require('gulp')
 const ts = require('gulp-typescript')
 const rimraf = require('rimraf')
-const run = require('gulp-run')
 const sourcemaps = require('gulp-sourcemaps')
+const exec = require('gulp-exec')
 
 const buildJsonSchemas = require('./jsonschemas')
 const tsProject = ts.createProject(path.resolve(__dirname, '../src/tsconfig.json'))
@@ -64,10 +64,6 @@ const buildSchemas = cb => {
   cb()
 }
 
-const runTests = () => {
-  return gulp.src('.').pipe(run('./node_modules/.bin/jest -i --detectOpenHandles -c ./jest.config.js'))
-}
-
 module.exports = {
   clean,
   buildTs,
@@ -78,6 +74,5 @@ module.exports = {
   copyAdmin,
   copyStudio,
   watch,
-  wipe,
-  runTests
+  wipe
 }

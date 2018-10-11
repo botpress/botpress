@@ -8,12 +8,13 @@
   "license": "AGPL-3.0",
   "private": true,
   "scripts": {
-    "test": "./node_modules/.bin/jest -i --detectOpenHandles -c jest.config.js",
     "start": "cd ./out/bp && cross-env NODE_PATH=./ cross-env JWT_SECRET=secret cross-env BP_MODULES_PATH=../../modules node index.js",
     "build": "yarn build:core && yarn build:modules",
-    "build:core": "./node_modules/.bin/gulp --skip-clean",
+    "build:core": "./node_modules/.bin/gulp clean-build",
     "build:modules": "./node_modules/.bin/gulp modules",
-    "watch": "./node_modules/.bin/gulp --skip-clean dev",
+    "bootstrap": "./node_modules/.bin/gulp && yarn build:modules",
+    "watch": "./node_modules/.bin/gulp build-watch",
+    "test": "./node_modules/.bin/jest -i --detectOpenHandles -c jest.config.js",
     "clean": "./node_modules/.bin/gulp clean",
     "package": "./node_modules/.bin/gulp package",
     "package:core": "./node_modules/.bin/gulp package --skip-modules"
