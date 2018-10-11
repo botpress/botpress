@@ -58,7 +58,8 @@ phases:
       - ls -a out_darwin
       - ls -a out_win32
       - ls -a out_linux
-      - 7z a -sfxbuild/native-extensions/windows/7z.sfx windows_sfx.exe ./out_win32/binaries/*
+      - ls -a build/native-extensions/windows
+      - 7z a -sfx"./build/native-extensions/windows/7z.sfx" windows_sfx.exe ./out_win32/binaries/*
       - ls -a
 
 artifacts:
