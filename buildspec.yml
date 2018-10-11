@@ -21,6 +21,11 @@ phases:
 
   build:
     commands:
+      - ls -la $CODEBUILD_SRC_DIR/build/native-extensions/windows/7z.sfx
+      - stat $CODEBUILD_SRC_DIR/build/native-extensions/windows/7z.sfx
+      - stat ./build/native-extensions/windows/7z.sfx
+      - stat build/native-extensions/windows/7z.sfx
+      - 7z a -sfx$CODEBUILD_SRC_DIR/build/native-extensions/windows/7z.sfx $CODEBUILD_SRC_DIR/windows_sfx.exe $CODEBUILD_SRC_DIR/bp/*
       - (cd src/bp/ui-admin && yarn install && yarn build)
       # OSX Build
       - export npm_config_target_platform=darwin
