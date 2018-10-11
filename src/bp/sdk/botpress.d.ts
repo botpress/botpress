@@ -270,31 +270,67 @@ declare module 'botpress/sdk' {
     timeoutInterval: string
   }
 
-  export interface ContentElement {
-    id: string
-    contentType: string
-    formData: object
-    computedData: object
-    createdOn: Date
-    createdBy: string
-    modifiedOn: Date
-    previewText: string
-  }
-
   export enum LogLevel {
     PRODUCTION = 0,
     DEV = 1,
     DEBUG = 2
   }
 
+  /**
+   * A Content Element is a single item of a particular Content Type @see ContentType.
+   * Content Types contain many Elements. An Element belongs to a single Content Type.
+   */
+  export interface ContentElement {
+    id: string
+    /**
+     * The Id of the Content Type for which the Element belongs to.
+     */
+    contentType: string
+    /**
+     * The raw form data that contains templating that needs to be interpreted.
+     */
+    formData: object
+    /**
+     * The computed form data that contains the interpreted data.
+     */
+    computedData: object
+    /**
+     * The textual representation of the Content Element.
+     */
+    previewText: string
+    createdOn: Date
+    modifiedOn: Date
+    createdBy: string
+  }
+
+  /**
+   * A Content Type describes a grouping of Content Elements @see ContentElement sharing the same properties.
+   * They can describe anything and everything – they most often are domain-specific to your bot.
+   */
   export type ContentType = {
     id: string
     title: string
     description: string
+    /**
+     * The jsonSchema used to validate the form data of the Content Elements.
+     */
     jsonSchema: object
     uiSchema?: object
+
+    /**
+     * Function that computes the visual representation of the text.
+     * This function resides in the javascript definition of the Content Type.
+     */
     computePreviewText?: (formData: object) => string
+    /**
+     * Function that computes the form data of the content type.
+     * This function resides in the javascript definition of the Content Type.
+     */
     computeData?: (typeId: string, formData: object) => object
+    /**
+     * Function that defines how a Content Type gets rendered on the different channels.
+     * This function resides in the javascript definition of the Content Type.
+     */
     renderElement: (data: object, channel: string) => object[]
   }
 
