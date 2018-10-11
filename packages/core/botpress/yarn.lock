@@ -85,10 +85,6 @@
     lodash "^4.2.0"
     to-fast-properties "^2.0.0"
 
-"@botpress/util-roles@^10.38.0":
-  version "10.38.0"
-  resolved "https://registry.yarnpkg.com/@botpress/util-roles/-/util-roles-10.38.0.tgz#a1ceb14c274e6c548d5c4ab490e2fc76eff71330"
-
 "@sinonjs/formatio@3.0.0":
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/@sinonjs/formatio/-/formatio-3.0.0.tgz#9d282d81030a03a03fa0c5ce31fd8786a4da311a"
@@ -4874,10 +4870,6 @@ nan@^2.10.0, nan@^2.9.2:
   version "2.11.0"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.11.0.tgz#574e360e4d954ab16966ec102c0c049fd961a099"
 
-nan@~2.10.0:
-  version "2.10.0"
-  resolved "https://registry.yarnpkg.com/nan/-/nan-2.10.0.tgz#96d0cd610ebd58d4b4de9cc0c6828cda99c7548f"
-
 nanoid@^1.0.1:
   version "1.2.3"
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-1.2.3.tgz#b8f022193a5808f9e3112658a2c34e43b24c009a"
@@ -4990,7 +4982,7 @@ node-machine-id@^1.1.3:
   version "1.1.10"
   resolved "https://registry.yarnpkg.com/node-machine-id/-/node-machine-id-1.1.10.tgz#b4cb8f01b25b90d4e0675be00df30e61ee75179b"
 
-node-pre-gyp@^0.10.0, node-pre-gyp@^0.10.3:
+node-pre-gyp@^0.10.0:
   version "0.10.3"
   resolved "https://registry.yarnpkg.com/node-pre-gyp/-/node-pre-gyp-0.10.3.tgz#3070040716afdc778747b61b6887bf78880b80fc"
   dependencies:
@@ -7181,14 +7173,6 @@ split@^1.0.0, split@^1.0.1:
 sprintf-js@~1.0.2:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/sprintf-js/-/sprintf-js-1.0.3.tgz#04e6926f662895354f3dd015203633b857297e2c"
-
-sqlite3@^4.0.1:
-  version "4.0.2"
-  resolved "https://registry.yarnpkg.com/sqlite3/-/sqlite3-4.0.2.tgz#1bbeb68b03ead5d499e42a3a1b140064791c5a64"
-  dependencies:
-    nan "~2.10.0"
-    node-pre-gyp "^0.10.3"
-    request "^2.87.0"
 
 sshpk@^1.7.0:
   version "1.14.2"

@@ -36,6 +36,10 @@
 .bp-select-bot {
   display: inline-block;
   width: 200px;
+
+  a[role='button'] {
+    padding: 7px 15px !important;
+  }
 }
 
 :global(.navbar-default .navbar-nav > .open > a) {

@@ -94,6 +94,7 @@ class Header extends React.Component {
       <Navbar className={classNames} style={customStyle}>
         <Navbar.Collapse>
           <Nav pullRight>
+            {this.renderBotSelect()}
             <NavItem onClick={this.handleFullscreen}>{this.renderFullScreenButton()}</NavItem>
             <PermissionsChecker user={this.props.user} res="bot.logs" op="read">
               <NavItem href={window.BP_BASE_PATH + '/logs'}>
@@ -103,7 +104,6 @@ class Header extends React.Component {
             <PermissionsChecker user={this.props.user} res="bot.notifications" op="read">
               <NotificationHub />
             </PermissionsChecker>
-            {this.renderBotSelect()}
             {this.renderLogoutButton()}
           </Nav>
           <Nav pullRight className="bp-navbar-module-buttons" />
