@@ -1,5 +1,6 @@
 {
   "$schema": "../../bot.config.schema.json",
+  "id": "welcome-bot",
   "name": "Welcome Bot",
   "description": "Welcome bot",
   "active": true,
