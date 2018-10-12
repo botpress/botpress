@@ -1,7 +1,13 @@
+/*---------------------------------------------------------------------------------------------
+*  Copyright (c) Botpress, Inc. All rights reserved.
+*  Licensed under the AGPL-3.0 license. See license.txt at project root for more information.
+*--------------------------------------------------------------------------------------------*/
+
 import { ContentElement } from 'botpress/sdk'
 import { Serialize } from 'cerialize'
 import { RequestHandler, Router } from 'express'
 import _ from 'lodash'
+import ms from 'ms'
 import multer from 'multer'
 import path from 'path'
 import { RouterOptions } from 'request'
@@ -84,6 +90,29 @@ export class BotsRouter implements CustomRouter {
   }
 
   private setupRoutes() {
+    // Unauthenticated, don't return sensitive info here
+    this.router.get('/studio-params', async (req, res) => {
+      // TODO If botId doesn't exist, throw an error
+
+      const info = {
+        botId: req.params.botId,
+        authentication: {
+          enabled: true,
+          tokenDuration: ms('6h')
+        },
+        sendStatistics: true, // TODO Add way to opt out
+        showGuidedTour: false, // TODO
+        ghostEnabled: true, // TODO
+        flowEditorDisabled: true, // TODO
+        botpress: {
+          name: 'Botpress Lite', // TODO
+          version: '11.0.0' // TODO
+        }
+      }
+
+      res.send(info)
+    })
+
     this.router.get('/', this.checkTokenHeader, this.needPermissions('read', 'bot.information'), async (req, res) => {
       const botId = req.params.botId
       const bot = await this.botRepository.getBotById(botId)

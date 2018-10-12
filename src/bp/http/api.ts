@@ -63,46 +63,53 @@ function setupStudioAppProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort 
     })
   )
 
-  app.get('/:app(studio|lite)/:botId/js/env.js', (req, res) => {
-    const { botId, app } = req.params
+  app.get(
+    '/:app(studio|lite)/:botId/js/env.js',
+    proxy(coreApiUrl, {
+      proxyReqPathResolver: async req => getApiBasePath(req) + '/studio-params',
+      userResDecorator: function(proxyRes, proxyResData, userReq, userRes) {
+        const data = JSON.parse(proxyResData.toString('utf8'))
+        const { botId, app } = userReq.params
 
-    const liteEnv = `
-        // Lite Views Specific
-    `
-    const studioEnv = `
-        // Botpress Studio Specific
-        window.BOTPRESS_AUTH_FULL = true;
-        window.AUTH_TOKEN_DURATION = 21600000;
-        window.OPT_OUT_STATS = false;
-        window.SHOW_GUIDED_TOUR = false;
-        window.GHOST_ENABLED = false;
-        window.BOTPRESS_FLOW_EDITOR_DISABLED = null;
-        window.BOTPRESS_CLOUD_SETTINGS = {"botId":"","endpoint":"","teamId":"","env":"dev"};
-    `
+        const liteEnv = `
+            // Lite Views Specific
+        `
+        const studioEnv = `
+            // Botpress Studio Specific
+            window.BOTPRESS_AUTH_FULL = ${data.authentication.enabled};
+            window.AUTH_TOKEN_DURATION = ${data.authentication.tokenDuration};
+            window.OPT_OUT_STATS = ${!data.sendStatistics};
+            window.SHOW_GUIDED_TOUR = ${data.showGuidedTour};
+            window.GHOST_ENABLED = ${data.ghostEnabled};
+            window.BOTPRESS_FLOW_EDITOR_DISABLED = ${data.flowEditorDisabled};
+            window.BOTPRESS_CLOUD_SETTINGS = {"botId":"","endpoint":"","teamId":"","env":"dev"};
+        `
 
-    const totalEnv = `
-    (function(window) {
-        // Common
-        window.BASE_PATH = "/${app}";
-        window.BP_BASE_PATH = "/${app}/${botId}";
-        window.BP_SOCKET_URL = '${coreApiUrl}';
-        window.BOTPRESS_VERSION = "${version}";
-        window.APP_NAME = "Botpress";
-        window.BOTPRESS_XX = true;
-        window.NODE_ENV = "production";
-        window.BOTPRESS_ENV = "dev";
-        window.BOTPRESS_CLOUD_ENABLED = false;
-        window.DEV_MODE = true;
-        window.AUTH_ENABLED = true;
-        ${app === 'studio' ? studioEnv : ''}
-        ${app === 'lite' ? liteEnv : ''}
-        // End
-      })(typeof window != 'undefined' ? window : {})
-    `
+        const totalEnv = `
+        (function(window) {
+            // Common
+            window.BASE_PATH = "/${app}";
+            window.BP_BASE_PATH = "/${app}/${botId}";
+            window.BP_SOCKET_URL = '${coreApiUrl}';
+            window.BOTPRESS_VERSION = "${data.botpress.version}";
+            window.APP_NAME = "${data.botpress.name}";
+            window.BOTPRESS_XX = true;
+            window.NODE_ENV = "production";
+            window.BOTPRESS_ENV = "dev";
+            window.BOTPRESS_CLOUD_ENABLED = false;
+            window.DEV_MODE = true;
+            window.AUTH_ENABLED = ${data.authentication.enabled};
+            ${app === 'studio' ? studioEnv : ''}
+            ${app === 'lite' ? liteEnv : ''}
+            // End
+          })(typeof window != 'undefined' ? window : {})
+        `
 
-    res.contentType('text/javascript')
-    res.send(totalEnv)
-  })
+        userRes.contentType('text/javascript')
+        return totalEnv
+      }
+    })
+  )
 
   app.use('/:app(studio)/:botId', express.static(path.join(__dirname, '../ui-studio/static')))
   app.use('/:app(lite)/:botId?', express.static(path.join(__dirname, '../ui-studio/static/lite')))
