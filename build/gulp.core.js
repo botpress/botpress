@@ -3,26 +3,9 @@ const gulp = require('gulp')
 const ts = require('gulp-typescript')
 const rimraf = require('rimraf')
 const sourcemaps = require('gulp-sourcemaps')
-const typedoc = require('gulp-typedoc')
 
 const buildJsonSchemas = require('./jsonschemas')
 const tsProject = ts.createProject(path.resolve(__dirname, '../src/tsconfig.json'))
-
-const generateDoc = () => {
-  return gulp.src(['./src/bp/sdk/botpress.d.ts']).pipe(
-    typedoc({
-      out: './doc',
-      mode: 'file',
-      name: 'Botpress Reference',
-      includeDeclarations: true,
-      ignoreCompilerErrors: true,
-      version: true,
-      excludeExternals: true,
-      excludePattern: '**/node_modules/**',
-      tsconfig: path.resolve(__dirname, '../src/tsconfig.json')
-    })
-  )
-}
 
 const wipe = () => {
   return gulp.src(['./node_modules', './out']).pipe(rimraf())
@@ -80,16 +63,32 @@ const buildSchemas = cb => {
   cb()
 }
 
+const buildReferenceDoc = () => {
+  return gulp.src(['./src/bp/sdk/botpress.d.ts']).pipe(
+    typedoc({
+      out: './docs/reference',
+      mode: 'file',
+      name: 'Botpress Reference',
+      includeDeclarations: true,
+      ignoreCompilerErrors: true,
+      version: true,
+      excludeExternals: true,
+      excludePattern: '**/node_modules/**',
+      tsconfig: path.resolve(__dirname, '../src/tsconfig.json')
+    })
+  )
+}
+
 module.exports = {
   clean,
   buildTs,
   buildSchemas,
+  buildSdkDoc,
   createDirectories,
   copyData,
   copyBotTemplate,
   copyAdmin,
   copyStudio,
-  generateDoc,
   watch,
   wipe
 }

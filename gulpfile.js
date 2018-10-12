@@ -2,6 +2,7 @@ const gulp = require('gulp')
 const core = require('./build/gulp.core')
 const modules = require('./build/gulp.modules')
 const package = require('./build/gulp.package')
+const doc = require('./build/gulp.doc')
 
 process.on('uncaughtException', err => {
   console.error('An error coccured in your gulpfile: ', err)
@@ -12,7 +13,7 @@ const dataTasks = [core.createDirectories, core.copyData, core.copyBotTemplate]
 const uiTasks = [core.copyAdmin, core.copyStudio]
 const buildTasks = [core.buildTs, core.buildSchemas, ...dataTasks, ...uiTasks]
 
-gulp.task('generate-doc', core.generateDoc)
+gulp.task('build-sdk-doc', core.buildSdkDoc)
 gulp.task('clean-build', gulp.series([core.clean, ...buildTasks]))
 gulp.task('clean-build-watch', gulp.series([core.clean, ...buildTasks, core.watch]))
 gulp.task('build-watch', gulp.series([...buildTasks, core.watch]))
