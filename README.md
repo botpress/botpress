@@ -6,7 +6,7 @@
 
 1. Run `yarn` to fetch node packages
 1. In the folder _src/bp/ui-admin_, run `yarn && yarn build`
-1. Go back to the root of the project and run `yarn build` to compile TS files and deploy static content
+1. Go back to the root of the project and run `yarn build` to compile TS files and copy static content
 1. Run `yarn start` to start the server.
 
 ## Development
