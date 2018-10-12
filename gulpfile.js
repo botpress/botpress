@@ -13,7 +13,7 @@ const dataTasks = [core.createDirectories, core.copyData, core.copyBotTemplate]
 const uiTasks = [core.copyAdmin, core.copyStudio]
 const buildTasks = [core.buildTs, core.buildSchemas, ...dataTasks, ...uiTasks]
 
-gulp.task('build-sdk-doc', core.buildReferenceDoc)
+gulp.task('build-reference', core.buildReferenceDoc)
 gulp.task('clean-build', gulp.series([core.clean, ...buildTasks]))
 gulp.task('clean-build-watch', gulp.series([core.clean, ...buildTasks, core.watch]))
 gulp.task('build-watch', gulp.series([...buildTasks, core.watch]))

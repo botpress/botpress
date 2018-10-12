@@ -8,26 +8,15 @@
 // See https://docusaurus.io/docs/site-config for all the possible
 // site configuration options.
 
-// List of projects/orgs using your project for the users page.
-const users = []
-
 const siteConfig = {
-  title: '| Documentation', // Title for your website.
+  title: "| Developer's Guide",
   tagline: 'Guides and references for all you need to know about Botpress',
-  url: 'https://botpress.io', // Your website URL
-  baseUrl: '/', // Base URL for your project */
-  // For github.io type URLs, you would set the url and baseUrl like:
-  //   url: 'https://facebook.github.io',
-  //   baseUrl: '/test-site/',
-
-  // Used for publishing and more
+  url: 'https://botpress.io',
+  baseUrl: '/',
   projectName: 'botpress-docs',
   organizationName: 'botpress',
-  // For top-level user or org sites, the organization is still the same.
-  // e.g., for the https://JoelMarcey.github.io site, it would be set like...
-  //   organizationName: 'JoelMarcey'
 
-  // For no header links in the top nav bar -> headerLinks: [],
+  // TODO: Enable search once the site is up: https://docusaurus.io/docs/en/search
   headerLinks: [
     { doc: 'getting_started/index', label: 'Docs' },
     { href: 'https://help.botpress.io/', label: 'Help' },
@@ -36,39 +25,18 @@ const siteConfig = {
     { search: true }
   ],
 
-  // If you have users set above, you add it here:
-  users,
-
-  /* path to images for header/footer */
   headerIcon: 'img/botpress.svg',
   footerIcon: 'img/botpress.svg',
   favicon: 'img/favicon.png',
 
-  /* Colors for website */
   colors: {
     primaryColor: '#1b4af7',
     secondaryColor: '#343a40'
   },
 
-  /* Custom fonts for website */
-  /*
-  fonts: {
-    myFont: [
-      "Times New Roman",
-      "Serif"
-    ],
-    myOtherFont: [
-      "-apple-system",
-      "system-ui"
-    ]
-  },
-  */
-
-  // This copyright info is used in /core/Footer.js and blog RSS/Atom feeds.
   copyright: `Copyright © ${new Date().getFullYear()} Botpress, Inc.`,
 
   highlight: {
-    // Highlight.js theme to use for syntax highlighting in code blocks.
     theme: 'default'
   },
 

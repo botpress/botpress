@@ -68,7 +68,7 @@ const buildReferenceDoc = () => {
     typedoc({
       out: './docs/reference',
       mode: 'file',
-      name: 'Botpress Reference',
+      name: 'Botpress | API Reference',
       includeDeclarations: true,
       ignoreCompilerErrors: true,
       version: true,

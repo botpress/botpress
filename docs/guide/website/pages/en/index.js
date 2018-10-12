@@ -9,7 +9,6 @@ const React = require('react')
 
 const CompLibrary = require('../../core/CompLibrary.js')
 
-const MarkdownBlock = CompLibrary.MarkdownBlock /* Used to read markdown */
 const Container = CompLibrary.Container
 const GridBlock = CompLibrary.GridBlock
 
@@ -67,16 +66,13 @@ const PromoSection = props => (
 
 class HomeSplash extends React.Component {
   render() {
-    const language = this.props.language || ''
     return (
       <SplashContainer>
         <div className="inner">
           <img className="mainLogo" src={imgUrl('botpress.svg')} alt="Project Logo" />
           <ProjectTitle />
           <PromoSection>
-            <Button href="#try">Try It Out</Button>
-            <Button href={docUrl('doc1.html', language)}>Example Link</Button>
-            <Button href={docUrl('doc2.html', language)}>Example Link 2</Button>
+            <Button href="https://botpress.io">Try It Out</Button>
           </PromoSection>
         </div>
       </SplashContainer>
@@ -90,7 +86,7 @@ const Block = props => (
   </Container>
 )
 
-// TODO: Update urls
+// FIXME: Urls wont work here. We need to create our own card component
 const GuideCards = () => (
   <Block layout="fourColumn">
     {[
