@@ -16,9 +16,11 @@
     "watch": "./node_modules/.bin/gulp watch",
     "test": "./node_modules/.bin/jest -i --detectOpenHandles -c jest.config.js",
     "clean": "./node_modules/.bin/gulp clean",
-    "build:doc": "gulp generate-doc",
     "package": "./node_modules/.bin/gulp package",
-    "package:core": "./node_modules/.bin/gulp package --skip-modules"
+    "package:core": "./node_modules/.bin/gulp package --skip-modules",
+    "build:reference": "gulp build-reference",
+    "start:guide": "cd docs/guide/website && yarn && yarn start",
+    "build:guide": "cd docs/guide/website && yarn run build"
   },
   "dependencies": {
     "axios": "^0.18.0",
