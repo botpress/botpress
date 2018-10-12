@@ -25,6 +25,7 @@ export default class Analytics {
   private stats
   private chartsDatafile
   private running
+  private tempChartData: Map<string, object>
 
   constructor(bp) {
     if (!bp) {
@@ -34,9 +35,7 @@ export default class Analytics {
     this.bp = bp
     this.knex = bp['database']
     this.stats = new Stats(this.knex)
-    // this.chartsDatafile = path.join(bp.projectLocation, bp.botfile.dataDir, 'botpress-analytics.charts.json')
-
-    // createEmptyFileIfDoesntExist(this.chartsDatafile)
+    this.tempChartData = new Map<string, object>()
 
     const running = false
     setInterval(() => {
@@ -81,8 +80,8 @@ export default class Analytics {
       .then(data => this.savePartialData('totalUsers', data))
       .then(() => this.stats.getDailyActiveUsers())
       .then(data => this.savePartialData('activeUsers', data))
-      .then(() => this.stats.getDailyGender())
-      .then(data => this.savePartialData('genderUsage', data))
+      // .then(() => this.stats.getDailyGender())
+      // .then(data => this.savePartialData('genderUsage', data))
       .then(() => this.stats.getInteractionRanges())
       .then(data => this.savePartialData('interactionsRange', data))
       .then(() => this.stats.getAverageInteractions())
@@ -102,26 +101,40 @@ export default class Analytics {
       .then(data => this.savePartialData('busyHoursHeatMap', data))
       .then(() => {
         const data = this.getChartsGraphData()
-        this.bp.events.emit('data.send', data)
+        // TODO alternative
+        // this.bp.events.emit('data.send', data)
         this.stats.setLastRun()
       })
       .then(() => (this.running = false))
   }
 
   savePartialData(property, data) {
-    const chartsData = loadDataFromFile(this.chartsDatafile)
+    this.tempChartData.set(property, data)
+
+    /*  const chartsData = loadDataFromFile(this.chartsDatafile)
     chartsData[property] = data
-    fs.writeFileSync(this.chartsDatafile, JSON.stringify(chartsData))
+    fs.writeFileSync(this.chartsDatafile, JSON.stringify(chartsData))*/
   }
 
   getChartsGraphData() {
-    const chartsData = loadDataFromFile(this.chartsDatafile)
+    // const chartsData = loadDataFromFile(this.chartsDatafile)
 
-    if (_.isEmpty(chartsData)) {
+    /*if (_.isEmpty(chartsData)) {
       return { loading: true, noData: true }
-    }
+    }*/
 
     return {
+      loading: false,
+      noData: false,
+      totalUsersChartData: this.tempChartData.get('totalUsers') || [],
+      activeUsersChartData: this.tempChartData.get('activeUsers') || [],
+      genderUsageChartData: this.tempChartData.get('genderUsage') || [],
+      typicalConversationLengthInADay: this.tempChartData.get('interactionsRange') || [],
+      specificMetricsForLastDays: this.tempChartData.get('fictiveSpecificMetrics') || {},
+      retentionHeatMap: this.tempChartData.get('retentionHeatMap') || [],
+      busyHoursHeatMap: this.tempChartData.get('busyHoursHeatMap') || []
+    }
+    /*return {
       loading: false,
       noData: false,
       totalUsersChartData: chartsData.totalUsers || [],
@@ -131,6 +144,6 @@ export default class Analytics {
       specificMetricsForLastDays: chartsData.fictiveSpecificMetrics || {},
       retentionHeatMap: chartsData.retentionHeatMap || [],
       busyHoursHeatMap: chartsData.busyHoursHeatMap || []
-    }
+    }*/
   }
 }

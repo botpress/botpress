@@ -7,6 +7,14 @@ export default async (bp: SDK) => {
     const { from, limit } = req.body
     try {
       const users = await bp.users.getAllUsers({ start: from, count: limit })
+      for (const user of users) {
+        try {
+          user.attributes = JSON.parse(user.attributes)
+        } catch (Err) {
+          console.log(Err)
+        }
+      }
+
       res.send(users)
     } catch (err) {
       res.status(500).send({ message: err.message })

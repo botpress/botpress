@@ -20,7 +20,8 @@ export default class AnalyticsDb {
         table.timestamp('ts')
         table.string('type')
         table.string('text')
-        table.string('user').references('users.id')
+        table.string('channel')
+        table.string('user_id')
         table.enu('direction', ['in', 'out'])
       })
       .then(() => {
@@ -41,18 +42,12 @@ export default class AnalyticsDb {
   }
 
   saveIncoming = event => {
-    let user =
-      _.get(event, 'user.id') || _.get(event, 'user.userId') || _.get(event, 'raw.from') || _.get(event, 'user')
-
-    if (!user.startsWith(event.platform)) {
-      user = event.platform + ':' + user
-    }
-
     const interactionRow = {
-      ts: this.knex.knex.date.now(),
+      ts: this.knex.date.now(),
       type: event.type,
-      text: event.text,
-      user: user,
+      text: event.payload.text,
+      channel: event.channel,
+      user_id: event.target,
       direction: 'in'
     }
 
@@ -60,25 +55,15 @@ export default class AnalyticsDb {
   }
 
   saveOutgoing = event => {
-    let userId =
-      _.get(event, 'user.id') || _.get(event, 'user.userId') || _.get(event, 'raw.to') || _.get(event, 'user')
-
-    if (!userId.startsWith(event.platform)) {
-      userId = event.platform + ':' + userId
-    }
-
     const interactionRow = {
       ts: this.knex.date.now(),
       type: event.type,
       text: event.text,
-      user: userId,
+      channel: event.channel,
+      user_id: event.target,
       direction: 'out'
     }
 
-    return this.knex('analytics_interactions')
-      .insert(interactionRow)
-      .then(function(result) {
-        return true
-      })
+    return this.knex('analytics_interactions').insert(interactionRow)
   }
 }

@@ -8,8 +8,8 @@ export default class Stats {
   constructor(private knex) {}
 
   rangeDates() {
-    return this.knex('users')
-      .select(this.knex.raw('max(created_on) as max, min(created_on) as min'))
+    return this.knex('srv_channel_users')
+      .select(this.knex.raw('max(created_at) as max, min(created_at) as min'))
       .then()
       .get(0)
       .then(result => {
@@ -44,42 +44,45 @@ export default class Stats {
       if (!dates) {
         return
       }
-      return this.knex('users')
-        .select(this.knex.raw('distinct platform'))
-        .then(platforms => {
-          const statsBase = platforms.reduce(
+      return this.knex('srv_channel_users')
+        .select(this.knex.raw('distinct channel'))
+        .then(channels => {
+          const statsBase = channels.reduce(
             (acc, curr) => {
-              acc[curr.platform] = 0
+              acc[curr.channel] = 0
               return acc
             },
             { total: 0 }
           )
 
-          return this.knex('users')
-            .select(this.knex.raw('count(*) as count, max(created_on) as date, max(platform) as platform'))
-            .groupBy(this.knex.raw('date(created_on), platform'))
-            .orderBy(this.knex.raw('date(created_on)'))
+          return this.knex('srv_channel_users')
+            .select(this.knex.raw('count(*) as count, max(created_at) as date, channel'))
+            .groupBy(this.knex.raw('date(created_at), channel'))
+            .orderBy(this.knex.raw('date(created_at)'))
             .then(rows => {
               let total = 0
-              const totalPlatform = {}
+              const totalChannel = {}
               const result = {}
               const min = dates.format(moment(new Date(dates.min)).subtract(1, 'day'))
               result[min] = Object.assign({}, statsBase)
+
               rows.map(row => {
                 const date = dates.format(row.date)
                 if (!result[date]) {
                   result[date] = Object.assign({}, statsBase)
                 }
-                if (!totalPlatform[row.platform]) {
-                  totalPlatform[row.platform] = 0
+                if (!totalChannel[row.channel]) {
+                  totalChannel[row.channel] = 0
                 }
                 const count = parseInt(row.count)
-                totalPlatform[row.platform] += count
+                totalChannel[row.channel] += count
                 result[date].total = total += count
-                result[date][row.platform] = totalPlatform[row.platform]
+                result[date][row.channel] = totalChannel[row.channel]
               })
+
               const max = dates.format(moment(new Date(dates.max)).add(1, 'hour'))
-              result[max] = Object.assign({}, statsBase, { total: total }, totalPlatform)
+              result[max] = Object.assign({}, statsBase, { total: total }, totalChannel)
+
               return _.toPairs(result).map(([k, v]) => {
                 v['name'] = k
                 return v
@@ -107,27 +110,28 @@ export default class Stats {
   getDailyActiveUsers() {
     const ranges = _.reverse(this.getLastDaysRange())
     return Promise.mapSeries(ranges, range => {
-      return this.knex('analytics_interactions')
-        .select(this.knex.raw('count(*) as count, platform'))
-        .join('users', 'users.id', 'analytics_interactions.user')
-        .where(this.knex.date.isBetween('ts', range.start, range.end))
-        .andWhere('direction', '=', 'in')
-        .groupBy(['user', 'platform'])
+      return this.knex('analytics_interactions as ai')
+        .select(this.knex.raw('count(*) as count, ai.channel'))
+        .join('srv_channel_users', 'srv_channel_users.user_id', 'ai.user_id')
+        .where(this.knex.date.isBetween('ts', range['start'], range['end']))
+        .where('direction', '=', 'in')
+        .groupBy(['ai.user_id', 'ai.channel'])
         .then(results => {
           return results.reduce(
             function(acc, curr) {
               const count = parseInt(curr.count)
               acc.total += count
-              acc[curr.platform] = count
+              acc[curr.channel] = count
+
               return acc
             },
-            { total: 0, name: range.date }
+            { total: 0, name: range['date'] }
           )
         })
     })
   }
 
-  getDailyGender() {
+  /*getDailyGender() {
     const ranges = _.reverse(this.getLastDaysRange())
     return Promise.mapSeries(ranges, range => {
       return this.knex('analytics_interactions')
@@ -148,16 +152,16 @@ export default class Stats {
           )
         })
     })
-  }
+  }*/
 
   getInteractionRanges() {
     const ranges = this.getLastDaysRange()
     return Promise.mapSeries(ranges, range => {
       const inner = this.knex
         .from('analytics_interactions')
-        .where(this.knex.date.isBetween('ts', range.start, range.end))
+        .where(this.knex.date.isBetween('ts', range['start'], range['end']))
         .andWhere('direction', '=', 'in')
-        .groupBy('user')
+        .groupBy('user_id')
         .select(this.knex.raw('count(*) as c'))
         .toString()
 
@@ -222,15 +226,16 @@ export default class Stats {
       .subtract(7, 'days')
       .toDate()
     const now = this.knex.date.now()
+    const knx = this.knex
 
     return this.knex
       .select(this.knex.raw('avg(c) as count'))
       .from(function() {
         return this.from('analytics_interactions')
-          .where(this.knex.date.isBetween('ts', lastWeek, now))
+          .where(knx.date.isBetween('ts', lastWeek, now))
           .andWhere('direction', '=', 'in')
-          .groupBy(this.knex.raw('user, date(ts)'))
-          .select(this.knex.raw('count(*) as c'))
+          .groupBy(knx.raw('user_id, date(ts)'))
+          .select(knx.raw('count(*) as c'))
           .as('q1')
       })
       .then()
@@ -241,6 +246,7 @@ export default class Stats {
   }
 
   getNumberOfUsers() {
+    const knx = this.knex
     // Get total number of active users for today, yesterday, this week
 
     const ranges = [
@@ -278,15 +284,15 @@ export default class Stats {
         .select(this.knex.raw('count(*) as count'))
         .from(function() {
           return this.from('analytics_interactions')
-            .where(this.knex.date.isBetween('ts', range.start, range.end))
+            .where(knx.date.isBetween('ts', range['start'], range['end']))
             .andWhere('direction', '=', 'in')
-            .groupBy('user')
-            .select(this.knex.raw(1))
+            .groupBy('user_id')
+            .select(knx.raw(1))
             .as('q1')
         })
         .then()
         .get(0)
-        .then(result => ({ label: range.label, count: result.count }))
+        .then(result => ({ label: range['label'], count: result.count }))
     }).then(results => {
       return results.reduce((acc, curr) => {
         acc[curr.label] = curr.count
@@ -296,6 +302,7 @@ export default class Stats {
   }
 
   usersRetention() {
+    const knx = this.knex
     // Get the last 7 days cohort of users along with the retention rate
     let cohorts: any = _.times(8, n => Number(8 - n))
     cohorts = cohorts.map(n => {
@@ -317,8 +324,8 @@ export default class Stats {
       const cohortName = _.get(coo, 'name')
 
       // Compute the cohort size [i.e. how many new users on this day?]
-      return this.knex('users')
-        .where(this.knex.date.isBetween('created_on', cohortStart, cohortEnd))
+      return this.knex('srv_channel_users')
+        .where(this.knex.date.isBetween('created_at', cohortStart, cohortEnd))
         .select(this.knex.raw('count(*) as cohort_size'))
         .then()
         .get(0)
@@ -339,16 +346,16 @@ export default class Stats {
             return this.knex
               .from(function() {
                 this.from('analytics_interactions')
-                  .join('users', 'analytics_interactions.user', 'users.id')
+                  .join('srv_channel_users', 'analytics_interactions.user_id', 'srv_channel_users.user_id')
                   // where he is a member a this cohort
-                  .where(this.knex.date.isBetween('created_on', cohortStart, cohortEnd))
+                  .where(knx.date.isBetween('created_at', cohortStart, cohortEnd))
                   // and where he interacted with the bot since onboard+X days
-                  .andWhere(this.knex.date.isAfter('ts', since))
+                  .andWhere(knx.date.isAfter('ts', since))
                   // and where the user spoke, not the bot
                   .andWhere('direction', '=', 'in')
-                  .groupBy('users')
+                  .groupBy('srv_channel_users.user_id')
                   // returns the number of interactions per user
-                  .select(this.knex.raw('count(*) as interaction_count'))
+                  .select(knx.raw('count(*) as interaction_count'))
                   .as('q1')
               })
               .select(this.knex.raw('count(*) as partial_retention')) // return the total number of users

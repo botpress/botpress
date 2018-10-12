@@ -2,11 +2,14 @@ import _ from 'lodash'
 
 import { SDK } from '.'
 import Database from './db'
-import AnalyticsDb from './db'
+import seed from './seed'
 
 export default async (bp: SDK, interactionsToTrack: any) => {
-  const db: Database = new AnalyticsDb(bp)
+  const db: Database = new Database(bp)
   await db.initializeDb()
+
+  // Dev: uncomment to generate users/interactions
+  // seed.run(bp.database)
 
   bp.events.registerMiddleware({
     name: 'analytics.incoming',
@@ -31,14 +34,12 @@ export default async (bp: SDK, interactionsToTrack: any) => {
       return next()
     }
 
-    if (event.user) {
-      // Asynchronously save the interaction (non-blocking)
-      db.saveIncoming(event)
-        .then()
-        .catch(() => {
-          bp.logger.debug('Could not save incoming interaction for ' + event.platform)
-        })
-    }
+    // Asynchronously save the interaction (non-blocking)
+    db.saveIncoming(event)
+      .then()
+      .catch(() => {
+        bp.logger.debug('Could not save incoming interaction for ' + event.channel)
+      })
 
     next()
   }
@@ -52,7 +53,7 @@ export default async (bp: SDK, interactionsToTrack: any) => {
     db.saveOutgoing(event)
       .then()
       .catch(() => {
-        bp.logger.debug('Could not save outgoing interaction for ' + event.platform)
+        bp.logger.debug('Could not save outgoing interaction for ' + event.channel)
       })
 
     next()

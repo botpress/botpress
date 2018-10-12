@@ -159,15 +159,19 @@ export default class AudienceModule extends React.Component {
 
   renderUsers(users) {
     return _.mapValues(users, (user, key) => {
+      const picture_url = _.get(_.find(user.attributes, { key: 'picture_url' }), 'value')
+      const first_name = _.get(_.find(user.attributes, { key: 'first_name' }), 'value')
+      const last_name = _.get(_.find(user.attributes, { key: 'last_name' }), 'value')
+
       return (
         <tr key={key}>
-          <td style={{ width: '10%' }}>{this.renderProfilePicture(user.attributes.picture_url)}</td>
+          <td style={{ width: '10%' }}>{this.renderProfilePicture(picture_url)}</td>
           <td style={{ width: '24%' }}>{user.user_id}</td>
-          <td style={{ width: '15%' }}>{this.renderName(user.attributes.first_name, user.attributes.last_name)}</td>
+          <td style={{ width: '15%' }}>{this.renderName(first_name, last_name)}</td>
           <td style={{ width: '10%' }}>{_.upperFirst(user.channel)}</td>
           <td style={{ width: '15%' }}>{this.renderCreatedOn(user.created_at)}</td>
           <td style={{ width: '21%' }}>{this.renderTags(user.tags)}</td>
-          <td style={{ width: '5%' }}>{this.renderExtra(user)}</td>
+          <td style={{ width: '5%' }}>{this.renderExtra(user.attributes)}</td>
         </tr>
       )
     })
