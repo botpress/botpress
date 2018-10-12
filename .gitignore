@@ -40,3 +40,4 @@ node_modules
 # Botpress Build
 /out
 /tmp
+/doc

@@ -416,6 +416,6 @@ export class CMSService implements IDisposeOnExit {
     const contentType = await this.getContentType(contentTypeId)
     const additionnalData = { BOT_URL: 'http://localhost:3000' }
 
-    return await contentType.renderElement({ ...additionnalData, ...payload }, channel)
+    return await contentType.renderElements({ ...additionnalData, ...payload }, channel)
   }
 }

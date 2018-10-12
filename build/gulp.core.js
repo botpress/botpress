@@ -3,10 +3,26 @@ const gulp = require('gulp')
 const ts = require('gulp-typescript')
 const rimraf = require('rimraf')
 const sourcemaps = require('gulp-sourcemaps')
-const exec = require('gulp-exec')
+const typedoc = require('gulp-typedoc')
 
 const buildJsonSchemas = require('./jsonschemas')
 const tsProject = ts.createProject(path.resolve(__dirname, '../src/tsconfig.json'))
+
+const generateDoc = () => {
+  return gulp.src(['./src/bp/sdk/botpress.d.ts']).pipe(
+    typedoc({
+      out: './doc',
+      mode: 'file',
+      name: 'Botpress Reference',
+      includeDeclarations: true,
+      ignoreCompilerErrors: true,
+      version: true,
+      excludeExternals: true,
+      excludePattern: '**/node_modules/**',
+      tsconfig: path.resolve(__dirname, '../src/tsconfig.json')
+    })
+  )
+}
 
 const wipe = () => {
   return gulp.src(['./node_modules', './out']).pipe(rimraf())
@@ -73,6 +89,7 @@ module.exports = {
   copyBotTemplate,
   copyAdmin,
   copyStudio,
+  generateDoc,
   watch,
   wipe
 }
