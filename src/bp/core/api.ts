@@ -157,7 +157,7 @@ const cms = (cmsService: CMSService): typeof sdk.cms => {
     getAllContentTypes(botId?: string): Promise<any[]> {
       return cmsService.getAllContentTypes(botId)
     },
-    renderElement(contentTypeId: string, payload: any, channel: string) {
+    renderElement(contentTypeId: string, payload: any, channel: string): Promise<any> {
       return cmsService.renderElement(contentTypeId, payload, channel)
     },
     createOrUpdateContentElement(

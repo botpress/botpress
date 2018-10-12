@@ -702,7 +702,7 @@ declare module 'botpress/sdk' {
      * @param channel - The name of the channel where the payload will be used
      * @returns An array of payloads
      */
-    export function renderElement(contentTypeId: string, payload: any, channel: string): object[]
+    export function renderElement(contentTypeId: string, payload: any, channel: string): Promise<object[]>
     export function createOrUpdateContentElement(
       botId: string,
       contentTypeId: string,
