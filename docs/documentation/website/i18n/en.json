@@ -5,39 +5,14 @@
     "previous": "Previous",
     "tagline": "Guides and references for all you need to know about Botpress",
     "docs": {
-      "doc1": {
-        "title": "Latin-ish",
-        "sidebar_label": "Example Page"
-      },
-      "doc2": {
-        "title": "document number 2"
-      },
-      "doc3": {
-        "title": "This is document number 3"
-      },
-      "doc4": {
-        "title": "Other Document"
-      },
-      "doc5": {
-        "title": "Fifth Document"
-      },
-      "getting_started/about": {
-        "title": "About"
-      },
-      "getting_started/components": {
-        "title": "Components"
-      },
-      "getting_started/index": {
-        "title": "Getting Started"
-      },
-      "getting_started/install": {
-        "title": "Install"
-      },
       "getting_started/actions": {
         "title": "Actions"
       },
       "getting_started/changes": {
         "title": "Changes"
+      },
+      "getting_started/components": {
+        "title": "Components"
       },
       "getting_started/content": {
         "title": "Content"
@@ -51,8 +26,17 @@
       "getting_started/flows": {
         "title": "Flows"
       },
+      "getting_started/index": {
+        "title": "What you will learn"
+      },
+      "getting_started/install": {
+        "title": "Install"
+      },
       "getting_started/nlu": {
         "title": "NLU"
+      },
+      "getting_started/philosphy": {
+        "title": "The Botpress Philosophy"
       },
       "getting_started/skills": {
         "title": "Skills"
@@ -64,72 +48,69 @@
         "title": "Templates"
       },
       "recipes/analytics": {
-        "title": "recipes/analytics"
+        "title": "Analytics"
       },
       "recipes/apis": {
-        "title": "recipes/apis"
+        "title": "Using external APIs"
       },
       "recipes/broadcasting": {
-        "title": "recipes/broadcasting"
+        "title": "Broadcasting"
       },
       "recipes/carousel": {
-        "title": "recipes/carousel"
+        "title": "Carousel"
       },
-      "recipes/dbs": {
-        "title": "recipes/dbs"
+      "recipes/databases": {
+        "title": "Supported databases"
       },
       "recipes/embedding": {
-        "title": "recipes/embedding"
+        "title": "Embedding the Webchat on a website"
       },
       "recipes/hitl": {
-        "title": "recipes/hitl"
+        "title": "HITL (Human-in-the-loop)"
       },
       "recipes/i18n": {
-        "title": "recipes/i18n"
+        "title": "i18n"
       },
       "recipes/index": {
-        "title": "recipes/index"
+        "title": "What are they?"
       },
       "recipes/jumps": {
-        "title": "recipes/jumps"
+        "title": "Jump to"
       },
       "recipes/login": {
-        "title": "recipes/login"
+        "title": "Login"
       },
       "recipes/modules": {
-        "title": "recipes/modules"
+        "title": "Modules"
       },
       "recipes/proactive": {
-        "title": "recipes/proactive"
+        "title": "Proactive acting"
       },
       "recipes/sanitizing": {
-        "title": "recipes/sanitizing"
+        "title": "Sanitizing"
       },
       "recipes/scheduling": {
-        "title": "recipes/scheduling"
+        "title": "Scheduling messages"
       },
       "recipes/shortlinks": {
-        "title": "recipes/shortlinks"
+        "title": "Shortlinks"
       },
       "recipes/timeout": {
-        "title": "recipes/timeout"
+        "title": "Timeout"
       },
-      "recipes/webchat-ext": {
-        "title": "recipes/webchat-ext"
-      },
-      "recipes/webpack": {
-        "title": "recipes/webpack"
+      "recipes/extensions": {
+        "title": "Webchat Extensions"
       }
     },
     "links": {
       "Docs": "Docs",
+      "Help": "Help",
       "API": "API",
-      "Help": "Help"
+      "Github": "Github"
     },
     "categories": {
       "Getting Started": "Getting Started",
-      "First Category": "First Category",
-      "Second Category": "Second Category"
+      "Recipes": "Recipes"
     }
   },
   "pages-strings": {

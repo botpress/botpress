@@ -1,9 +1,7 @@
 ---
-id: about
-title: About
+id: philosphy
+title: The Botpress Philosophy
 ---
-
-## The Botpress Philosophy <a class="toc" id="botpress_philosophy" href="#botpress_philosophy"></a>
 
 Building bots is something new and sounds like a fun challenge for most developers.
 To be able to create software that converses in a natural way with humans is an exciting new reality.
@@ -18,7 +16,7 @@ any requirements that might come down the line.
 
 Botpress’ goal is to empower developers to create the highest quality bots as fun and as quickly as possible.
 
-## Why Botpress is different <a class="toc" id="why_different" href="#why_different"></a>
+## Why Botpress is different
 
 We enable technical people to easily create bots, but also enable non-technical people
 to manage and maintain them post-deployment.
@@ -33,7 +31,7 @@ to build bots (without a considerable learning curve).
 
 Developers build bots, then non-technical people can manage them.
 
-## The technology behind Botpress <a class="toc" id="tech_behind" href="#tech_behind"></a>
+## The technology behind Botpress
 
 Botpress is 100% JavaScript.
 
@@ -47,16 +45,16 @@ Botpress is lightweight (~10mb), blazing fast and has zero system dependencies (
 Botpress works on Windows, macOS, and Linux. It can run anywhere: on your laptop, on any cloud provider
 and even on your private corporate infrastructure.
 
-## What’s new in Botpress X <a class="toc" id="whats_new" href="#whats_new"></a>
+## What’s new in Botpress X
 
-### If you’re coming from Botpress 1.0/1.1 <a class="toc" id="coming_from_1_1" href="#coming_from_1_1"></a>
+### If you’re coming from Botpress 1.0/1.1
 
 Botpress X isn’t meant to be backward compatible with Botpress 1.0/1.1, although your old bots should theoretically
 run without much change to the code. Be aware that we deprecated the Convos in favor of the new
 Flow Builder and Dialog Manager. For these reasons, we suggest that you bootstrap a new
 Botpress X bot and manually migrate the logic to Botpress X.
 
-### Botpress X <a class="toc" id="botpress_x" href="#botpress_x"></a>
+### Botpress X
 
 Botpress X now allows non-technical users to create and edit the bot content through the Content Manager.
 

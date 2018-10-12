@@ -1,5 +1,6 @@
 ---
-layout: guide
+id: analytics
+title: Analytics
 ---
 
 The [Botpress Analytics (@botpress/analytics)](https://github.com/botpress/botpress/tree/master/packages/functionals/botpress-analytics) package allows you to monitor the bots total user count, retention and lots more.

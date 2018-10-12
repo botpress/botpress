@@ -1,10 +1,40 @@
 {
   "docs": {
-    "Getting Started": ["getting_started/index", "getting_started/about"],
-    "First Category": ["doc2"],
-    "Second Category": ["doc3"]
-  },
-  "docs-other": {
-    "First Category": ["doc4", "doc5"]
+    "Getting Started": [
+      "getting_started/index",
+      "getting_started/philosphy",
+      "getting_started/install",
+      "getting_started/components",
+      "getting_started/templates",
+      "getting_started/dashboard",
+      "getting_started/content",
+      "getting_started/flows",
+      "getting_started/actions",
+      "getting_started/storage",
+      "getting_started/skills",
+      "getting_started/nlu",
+      "getting_started/deploying",
+      "getting_started/changes"
+    ],
+    "Recipes": [
+      "recipes/index",
+      "recipes/analytics",
+      "recipes/apis",
+      "recipes/broadcasting",
+      "recipes/carousel",
+      "recipes/databases",
+      "recipes/embedding",
+      "recipes/hitl",
+      "recipes/i18n",
+      "recipes/jumps",
+      "recipes/login",
+      "recipes/modules",
+      "recipes/proactive",
+      "recipes/sanitizing",
+      "recipes/scheduling",
+      "recipes/shortlinks",
+      "recipes/timeout",
+      "recipes/extensions"
+    ]
   }
 }

@@ -1,15 +1,13 @@
 ---
 id: index
-title: Getting Started
+title: What you will learn
 ---
 
-Botpress is the leading open-source platform for building and managing voice and chat bots. 
+Botpress is the leading open-source platform for building and managing voice and chat bots.
 The easiest way to explain what Botpress does is to say that “Botpress is to bots what Wordpress is to websites”.
 
-
-## What you will learn <a class="toc" id="what-youll-learn" href="#what-youll-learn"></a>
-
 At the end of this guide, you will know:
+
 - What Botpress is and how it compares to the other frameworks
 - How to setup Botpress on your local machine
 - How to create and customize a bot

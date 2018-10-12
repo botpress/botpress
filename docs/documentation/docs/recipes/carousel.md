@@ -1,10 +1,12 @@
 ---
-layout: guide
+id: carousel
+title: Carousel
 ---
 
-Webchat carousel is a useful way of showing a collection of elements. The example below shows two different types of element, shown in a responsive layout, depending on the width of the users device. 
+Webchat carousel is a useful way of showing a collection of elements. The example below shows two different types of element, shown in a responsive layout, depending on the width of the users device.
 
 The webchat supports the following action buttons out of the box:
+
 - Say something: When clicked, the text of the button is sent to the bot
 - Open URL: When clicked, the url is opened in a new window
 - Flow to...: Redirect the user to a new flow/node and process it
@@ -31,8 +33,8 @@ The webchat supports the following action buttons out of the box:
     title: 'Action',
     subtitle: 'This will trigger an action',
     buttons: [{ payload: 'TRIGGER_ACTION', title: 'Run' }] // This button acts as a quick-reply
-  }, { 
-    title: 'Go to another flow action', 
+  }, {
+    title: 'Go to another flow action',
     encrypt: true,
     payload: {
       action: 'gotoFlow',

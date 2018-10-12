@@ -1,8 +1,7 @@
 ---
-layout: guide
+id: embedding
+title: Embedding the Webchat on a website
 ---
-
-# Embedding the webchat on a website
 
 Embedding a bot to your existing site is quite straightforward. You will need to deploy your bot to a server or hosting provider and make it accessible via a URL.
 
@@ -26,7 +25,7 @@ And that's it! Once you deploy the changes to your website, the bot will become 
 
 # Displaying and hiding the webchat programmatically from the website
 
-If the default Botpress button doesn't work for you, it can be changed by adding a `click` event listener to any element on the page. You  will also need to pass the `hideWidget` key to your `init` function like this:
+If the default Botpress button doesn't work for you, it can be changed by adding a `click` event listener to any element on the page. You will also need to pass the `hideWidget` key to your `init` function like this:
 
 ```html
 <script>

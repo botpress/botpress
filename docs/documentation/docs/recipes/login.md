@@ -1,8 +1,9 @@
 ---
-layout: guide
+id: login
+title: Login
 ---
 
-The easiest way to implement login is to have a list of users either in your database or in a static json-file. You will need to store their username and a **hash** of their password. 
+The easiest way to implement login is to have a list of users either in your database or in a static json-file. You will need to store their username and a **hash** of their password.
 
 Within the bot you will need to do the following:
 
@@ -15,7 +16,9 @@ First you need to send the user a form to ask for their login-data. Below is an 
 Second - make sure that your `bp.hear` listens to `login_prompt` event types:
 
 ```js
-bp.hear({ type: /login_prompt|text|message|quick_reply/i }, (event, next) => { /* ... */ })
+bp.hear({ type: /login_prompt|text|message|quick_reply/i }, (event, next) => {
+  /* ... */
+})
 ```
 
 Third and finally you need an action that will compare the provided login-data with the stored records (in JSON or the DB) and set a state variable indicating the login status.
@@ -26,13 +29,13 @@ const users = [
   {
     username: 'testuser',
     password: '$2b$10$xAwE6hDEZnu6wd8gMMOVf.OERQXLp96Ew/CVO4VM.RkEmVvzKdpya' // Hashed 'myPlaintextPassword'
-  },
+  }
   /* ... */
 ]
 
 async function login(state, { raw: { data } }) {
   const user = users.find(user => user.username === data.username)
-  const isLoginOk = user && await bcrypt.compare(data.password, user.password)
+  const isLoginOk = user && (await bcrypt.compare(data.password, user.password))
   return { ...state, username: isLoginOk ? user.username : null }
 }
 ```
@@ -41,7 +44,7 @@ Note that in the example above we are relying on [`bcrypt`](https://www.npmjs.co
 
 # Botpress-cloud Authentication
 
-To save your users from remembering yet another password they can be authenticated through Botpress Cloud (or other OAuth service). 
+To save your users from remembering yet another password they can be authenticated through Botpress Cloud (or other OAuth service).
 
 To implement this you will need to:
 
@@ -49,7 +52,7 @@ To implement this you will need to:
 2. Handle the callback request that the service will make to your bot
 3. Save the user's data in state and indicate their login status
 
-The following example is for Botpress Cloud and assumes you have paired your bot with the service 
+The following example is for Botpress Cloud and assumes you have paired your bot with the service
 
 <!--Link here to the botpress cloud docs for setup-->
 
@@ -120,11 +123,9 @@ authRouter.get('/pair/:userId', async (req, res) => {
 To have this message handled by the dialog engine, you have to make sure that the bot is listening for this type of event:
 
 ```js
-  bp.hear({ type: /message|text|login_callback/i }, async (event, next) =>
-    bp.dialogEngine
-      .processMessage(event.sessionId || event.user.id, event)
-      .then()
-  )
+bp.hear({ type: /message|text|login_callback/i }, async (event, next) =>
+  bp.dialogEngine.processMessage(event.sessionId || event.user.id, event).then()
+)
 ```
 
 ## 3. Storing user login details
@@ -134,7 +135,7 @@ Again you will need to store the users details, in this case just the email addr
 ```js
 // Stub replacing DB or static file
 const users = [
-  { email: 'testuser@domain.com' },
+  { email: 'testuser@domain.com' }
   /* ... */
 ]
 

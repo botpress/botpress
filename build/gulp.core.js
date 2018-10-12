@@ -83,7 +83,7 @@ module.exports = {
   clean,
   buildTs,
   buildSchemas,
-  buildSdkDoc,
+  buildReferenceDoc,
   createDirectories,
   copyData,
   copyBotTemplate,

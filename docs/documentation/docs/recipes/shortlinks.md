@@ -1,10 +1,12 @@
 ---
-layout: guide
+id: shortlinks
+title: Shortlinks
 ---
 
 In Botpress you can natively create shortlinks to your bot.
 
 This has a number of advantages:
+
 1. Short URLs - no one likes a long URL
 2. Flexibility - it allows you to change any of the parameters without affecting the URL
 
@@ -14,7 +16,10 @@ Below is an example where our new shortlink `/s/fullscreen-webchat` will redirec
 bp.createShortlink('fullscreen-webchat', '/lite', {
   m: 'channel-web',
   v: 'fullscreen',
-  options: JSON.stringify({ config: { /* Custom config here... */ } })
+  options: JSON.stringify({
+    config: {
+      /* Custom config here... */
+    }
+  })
 })
 ```
-

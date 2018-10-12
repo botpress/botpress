@@ -1,5 +1,6 @@
 ---
-layout: guide
+id: databases
+title: Supported databases
 ---
 
 Botpress comes with support for SQL databases out-the-box and can be accessed by:
@@ -33,7 +34,6 @@ Firstly, check your botfile for the postgres-configuration section. By default i
   }
 ```
 
-
 So to enable Postgres you just need to pass 2 environment variables: `DATABASE=postgres` and `DATABASE_URL=postgres://login:password@your-db-host.com:5432/your-db-name`. Please make sure you are using Postgres 9.5 or higher.
 
 ## Other Databases
@@ -47,7 +47,6 @@ const mongoClient = await MongoClient.connect('mongodb://localhost:27017')
 process.on('SIGINT', () => mongoClient.close()) // Graceful connection shutdown on CTRL+C
 bp.mongoDb = mongoClient.db('myDbName')
 ```
-
 
 ```js
 // MySQL
