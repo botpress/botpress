@@ -2,7 +2,6 @@ const gulp = require('gulp')
 const core = require('./build/gulp.core')
 const modules = require('./build/gulp.modules')
 const package = require('./build/gulp.package')
-const doc = require('./build/gulp.doc')
 
 process.on('uncaughtException', err => {
   console.error('An error coccured in your gulpfile: ', err)
