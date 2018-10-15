@@ -2,6 +2,7 @@ import { ContentElement } from 'botpress/sdk'
 import { Serialize } from 'cerialize'
 import { RequestHandler, Router } from 'express'
 import _ from 'lodash'
+import moment from 'moment'
 import multer from 'multer'
 import path from 'path'
 import { RouterOptions } from 'request'
@@ -275,6 +276,26 @@ export class BotsRouter implements CustomRouter {
       const logs = await this.logsService.getLogsForBot(botId, limit)
       res.send(logs)
     })
+
+    this.router.get(
+      '/logs/archive',
+      this.checkTokenHeader,
+      this.needPermissions('read', 'bot.logs'),
+      async (req, res) => {
+        const botId = req.params.botId
+        const logs = await this.logsService.getLogsForBot(botId)
+        res.setHeader('Content-type', 'text/plain')
+        res.setHeader('Content-disposition', 'attachment; filename=logs.txt')
+        res.send(
+          logs
+            .map(({ timestamp, level, message }) => {
+              const time = moment(new Date(timestamp)).format('MMM DD HH:mm:ss')
+              return `${time} ${level}: ${message}`
+            })
+            .join('\n')
+        )
+      }
+    )
 
     this.router.get('/notifications', async (req, res) => {
       const botId = req.params.botId
