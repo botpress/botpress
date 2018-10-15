@@ -39,10 +39,8 @@ module.exports = (bp, messenger) => {
     if (userId === pageId) {
       return
     } // ignore page actions (e.g. hide post)
-    //TODO: Determine if we can fetch users who didn't authorize the app (???)
-    //... probably not, so just do try/catch and ignore the errors...
-    //... in case of exception create user using the Name/ID of the "from" field
-    users.getOrFetchUserProfile(userId, pageId).then(profile => {
+
+    const sendFeedEvent = profile => {
       bp.middlewares.sendIncoming({
         platform: 'facebook',
         type: 'feed',
@@ -52,7 +50,27 @@ module.exports = (bp, messenger) => {
         text: e.message || '',
         raw: e
       })
-    })
+    }
+
+    users
+      .getOrFetchUserProfile(userId, pageId, true)
+      .then(sendFeedEvent)
+      .catch(async function(error) {
+        // this is triggered if user has not authorized the app
+        //TODO: Update their profile when they do authorize later..
+        const tokens = e.from.name.split(' ')
+        const first_name = tokens[0]
+        const last_name = e.from.name.substring(tokens[0].length).trim()
+        sendFeedEvent(
+          await bp.db.saveUser({
+            id: userId,
+            platform: 'facebook',
+            picture_url: null,
+            first_name,
+            last_name
+          })
+        )
+      })
   })
 
   messenger.on('message', e => {

@@ -266,7 +266,7 @@ class Messenger extends EventEmitter {
     return before.delay(timeout + 1000).then(() => this.sendAction(recipientId, 'typing_off', pageId))
   }
 
-  getUserProfile(userId, pageId) {
+  getUserProfile(userId, pageId, ignoreErrors) {
     const token = this.getConfigVal('accessToken', pageId)
     const profileFields = ['first_name', 'last_name', 'profile_pic'].concat(this.config.extraProfileFields)
     const url = `https://graph.facebook.com/v${this.config.graphVersion}/${userId}?fields=${profileFields.join(
@@ -275,7 +275,9 @@ class Messenger extends EventEmitter {
     return fetch(url)
       .then(this._handleFacebookResponse)
       .then(res => res.json())
-      .catch(err => console.log(`Error getting user profile: ${err}`))
+      .catch(err => {
+        !ignoreErrors && console.log(`Error getting user profile: ${err}`)
+      })
   }
 
   getPageDetails(pageId) {

@@ -49,9 +49,12 @@ module.exports = async bp => {
   ////////////////////////////
 
   // All events that should be processed by the Flow Manager
-  bp.hear({ type: /bp_dialog_timeout|text|message|quick_reply|attachment|postback|referral/i }, async (event, next) => {
-    bp.dialogEngine.processMessage(event.sessionId || event.user.id, event).then()
-  })
+  bp.hear(
+    { type: /bp_dialog_timeout|text|message|quick_reply|attachment|postback|referral|feed/i },
+    async (event, next) => {
+      bp.dialogEngine.processMessage(event.sessionId || event.user.id, event).then()
+    }
+  )
 }
 
 async function registerBuiltin(bp) {
