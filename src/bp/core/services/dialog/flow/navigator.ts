@@ -30,14 +30,7 @@ export class FlowNavigator {
   async navigate(args: NavigationArgs): Promise<NavigationPosition> {
     let nodeName, flowName
 
-    this.logger.debug(
-      chalk`Start Navigator. Previous: '${args.previousFlowName}' '${args.previousNodeName}', Current: '${
-        args.currentFlowName
-      }' '${args.currentNodeName}', Destination: '${args.destination}'`
-    )
-
     if (args.destination.indexOf('##') > -1) {
-      this.logger.debug('  Transition to starting node of previous flow')
       // Transition to the starting node of the previous flow
       flowName = args.previousFlowName
       const findFlow = args.flows.find(f => f.name === flowName)
@@ -46,7 +39,6 @@ export class FlowNavigator {
       // Return to calling node
       const destinationNodeName = args.destination.slice(1)
       if (!destinationNodeName) {
-        this.logger.debug('Return to calling node')
         nodeName = args.previousNodeName
         flowName = args.previousFlowName
         if (!nodeName) {
@@ -55,7 +47,6 @@ export class FlowNavigator {
           flowName = defaultFlow.name
         }
       } else {
-        this.logger.debug('Transition to specific node of previous flow')
         // Transition to a specific node in the previous flow
         const flow = args.flows.find(f => f.name === args.previousFlowName)
         const node = flow.nodes.find(n => n.name === destinationNodeName)
@@ -63,13 +54,11 @@ export class FlowNavigator {
         nodeName = node.name
       }
     } else if (args.destination.includes('.json')) {
-      this.logger.debug(`  Transition to subflow: '${args.destination}'`)
       // Transition to subflow
       const flow = args.flows.find(f => f.name === args.destination)
       nodeName = _.get(flow, 'startNode')
       flowName = flow.name
     } else {
-      this.logger.debug(`Transition to specific node in current flow '${args.currentFlowName}' '${args.destination}'`)
       const currentFlow = args.flows.find(f => f.name === args.currentFlowName)
       const destinationNode = currentFlow.nodes.find(n => n.name === args.destination)
       if (destinationNode.flow) {
@@ -85,8 +74,6 @@ export class FlowNavigator {
         flowName = flow.name
       }
     }
-
-    this.logger.debug(`Final Destination: '${flowName}' '${nodeName}'`)
 
     if (!nodeName || !flowName) {
       throw new Error(`Could not find any node or flow under the name of "${args.destination}"`)

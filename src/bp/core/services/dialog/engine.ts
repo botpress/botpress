@@ -115,12 +115,6 @@ export class DialogEngine {
           session.context
         )
 
-        this.logger.debug(
-          `Processing Instruction. Current session context: '${session.context!.currentFlowName}' '${
-            session.context!.currentNodeName
-          }'`
-        )
-
         if (result.followUpAction === 'update') {
           await this.updateQueueForSession(queue, session)
           await this.sessionService.updateStateForSession(session.id, result.options!.state!)
@@ -158,13 +152,6 @@ export class DialogEngine {
             currentNodeName: position.nodeName,
             queue: queue.toString()
           })
-
-          this.logger.debug(
-            `Updating session. Previous: '${session.context!.currentFlowName}' '${
-              session.context!.currentNodeName
-            }'. Current: '${position.flowName}' '${position.nodeName}'`
-          )
-          this.logger.debug(`Queue: ${queue.toString()}`)
         }
       } catch (err) {
         // TODO: Find a better way to handle this
