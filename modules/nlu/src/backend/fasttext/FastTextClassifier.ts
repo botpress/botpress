@@ -74,18 +74,17 @@ class FastTextClassifier {
   }
 
   predict(input: string, numClass = 1) {
-    const tmpF = tmp.fileSync()
-
-    if (this.modelPath) {
-      writeFileSync(tmpF.name, input)
-
-      const preds = FTWrapper.predictProb(this.modelPath, tmpF.name, numClass)
-      tmpF.removeCallback()
-
-      return this.parsePredictions(preds)
-    } else {
-      throw new Error('Model is not set')
+    if (!this.modelPath) {
+      throw new Error('model is not set')
     }
+
+    const tmpF = tmp.fileSync()
+    writeFileSync(tmpF.name, input)
+
+    const preds = FTWrapper.predictProb(this.modelPath, tmpF.name, numClass)
+    tmpF.removeCallback()
+
+    return this.parsePredictions(preds)
   }
 }
 
