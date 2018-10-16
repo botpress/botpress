@@ -87,10 +87,11 @@ export class Botpress {
   }
 
   async initializeGhost(): Promise<void> {
+    await this.ghostService.initialize(this.config!)
     await this.ghostService.global().sync(['actions', 'content-types', 'hooks'])
 
-    const botIds = await this.botLoader.getAllBots()
-    for (const bot of botIds.keys()) {
+    const botIds = await this.botLoader.getAllBotIds()
+    for (const bot of botIds) {
       await this.ghostService.forBot(bot).sync(['actions', 'content-elements', 'flows'])
     }
   }

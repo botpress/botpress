@@ -5,6 +5,7 @@
 
 import { ContentElement } from 'botpress/sdk'
 import { Serialize } from 'cerialize'
+import { GhostService } from 'core/services'
 import { RequestHandler, Router } from 'express'
 import _ from 'lodash'
 import ms from 'ms'
@@ -39,6 +40,7 @@ export class BotsRouter implements CustomRouter {
   private notificationService: NotificationsService
   private authService: AuthService
   private teamsService: TeamsService
+  private ghostService: GhostService
   private checkTokenHeader: RequestHandler
   private needPermissions: (operation: string, resource: string) => RequestHandler
 
@@ -52,6 +54,7 @@ export class BotsRouter implements CustomRouter {
     notificationService: NotificationsService
     authService: AuthService
     teamsService: TeamsService
+    ghostService: GhostService
   }) {
     this.actionService = args.actionService
     this.botRepository = args.botRepository
@@ -62,6 +65,7 @@ export class BotsRouter implements CustomRouter {
     this.notificationService = args.notificationService
     this.authService = args.authService
     this.teamsService = args.teamsService
+    this.ghostService = args.ghostService
 
     this.needPermissions = needPermissions(this.teamsService)
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
@@ -102,8 +106,8 @@ export class BotsRouter implements CustomRouter {
         },
         sendStatistics: true, // TODO Add way to opt out
         showGuidedTour: false, // TODO
-        ghostEnabled: true, // TODO
-        flowEditorDisabled: true, // TODO
+        ghostEnabled: this.ghostService.isGhostEnabled,
+        flowEditorDisabled: false, // TODO
         botpress: {
           name: 'Botpress Lite', // TODO
           version: '11.0.0' // TODO
@@ -267,7 +271,7 @@ export class BotsRouter implements CustomRouter {
       }
     })
 
-    // FIXME Do not authenticate this route
+    // This is not a bug: do not authenticate this route
     this.router.get('/media/:filename', async (req, res) => {
       const botId = req.params.botId
       const type = path.extname(req.params.filename)
@@ -305,35 +309,121 @@ export class BotsRouter implements CustomRouter {
       res.send(logs)
     })
 
-    this.router.get('/notifications', async (req, res) => {
-      const botId = req.params.botId
-      const notifications = await this.notificationService.getInbox(botId)
-      res.send(notifications)
+    this.router.get(
+      '/notifications',
+      this.checkTokenHeader,
+      this.needPermissions('read', 'bot.notifications'),
+      async (req, res) => {
+        const botId = req.params.botId
+        const notifications = await this.notificationService.getInbox(botId)
+        res.send(notifications)
+      }
+    )
+
+    this.router.get(
+      '/notifications/archive',
+      this.checkTokenHeader,
+      this.needPermissions('read', 'bot.notifications'),
+      async (req, res) => {
+        const botId = req.params.botId
+        const notifications = await this.notificationService.getArchived(botId)
+        res.send(notifications)
+      }
+    )
+
+    this.router.post(
+      '/notifications/:notificationId?/read',
+      this.checkTokenHeader,
+      this.needPermissions('write', 'bot.notifications'),
+      async (req, res) => {
+        const notificationId = req.params.notificationId
+        const botId = req.params.botId
+
+        notificationId
+          ? await this.notificationService.markAsRead(notificationId)
+          : await this.notificationService.markAllAsRead(botId)
+        res.status(201)
+      }
+    )
+
+    this.router.post(
+      '/notifications/:notificationId?/archive',
+      this.checkTokenHeader,
+      this.needPermissions('write', 'bot.notifications'),
+      async (req, res) => {
+        const notificationId = req.params.notificationId
+        const botId = req.params.botId
+        notificationId
+          ? await this.notificationService.archive(notificationId)
+          : await this.notificationService.archiveAll(botId)
+        res.status(201)
+      }
+    )
+
+    // TODO
+    // Tester que modifier des fichiers quand Ghost = enabled enrégistre des révisions
+    // Tester que la liste des révisions is good
+    // Tester que le batching fonctionne
+    // Tester revert fonctionne et expire le cache
+    // Tester le sync des modifications vers l'environment local (CLI)
+    // Tester le revision file on sync, supression des revisions
+
+    this.router.get(
+      '/versioning/pending',
+      this.checkTokenHeader,
+      this.needPermissions('read', 'bot.ghost_content'),
+      async (req, res) => {
+        res.send(await this.ghostService.forBot(req.params.botId).getPending())
+      }
+    )
+
+    this.router.get(
+      '/versioning/export',
+      this.checkTokenHeader,
+      this.needPermissions('read', 'bot.ghost_content'),
+      async (req, res) => {
+        const tarball = await this.ghostService.forBot(req.params.botId).exportArchive()
+        const name = 'archive_' + req.params.botId.replace(/\W/gi, '') + '_' + Date.now() + '.tgz'
+        res.writeHead(200, {
+          'Content-Type': 'application/tar+gzip',
+          'Content-Disposition': `attachment; filename=${name}`,
+          'Content-Length': tarball.length
+        })
+        res.end(tarball)
+      }
+    )
+
+    const archiveUploadMulter = multer({
+      limits: {
+        fileSize: 1024 * 1000 * 100 // 100mb
+      }
     })
 
-    this.router.get('/notifications/archive', async (req, res) => {
-      const botId = req.params.botId
-      const notifications = await this.notificationService.getArchived(botId)
-      res.send(notifications)
-    })
+    this.router.get(
+      '/versioning/import',
+      this.checkTokenHeader,
+      this.needPermissions('write', 'bot.ghost_content'),
+      archiveUploadMulter.single('file'),
+      async (req, res) => {
+        const buffer = req['file'].buffer
+        const botId = req.params.botId
+        await this.ghostService.forBot(botId).importArchive(buffer)
+        res.sendStatus(200)
+      }
+    )
 
-    this.router.post('/notifications/:notificationId?/read', async (req, res) => {
-      const notificationId = req.params.notificationId
-      const botId = req.params.botId
-
-      notificationId
-        ? await this.notificationService.markAsRead(notificationId)
-        : await this.notificationService.markAllAsRead(botId)
-      res.status(201)
-    })
-
-    this.router.post('/notifications/:notificationId?/archive', async (req, res) => {
-      const notificationId = req.params.notificationId
-      const botId = req.params.botId
-      notificationId
-        ? await this.notificationService.archive(notificationId)
-        : await this.notificationService.archiveAll(botId)
-      res.status(201)
-    })
+    // Revision ID
+    this.router.delete(
+      '/versioning/pending',
+      this.checkTokenHeader,
+      this.needPermissions('write', 'bot.ghost_content'),
+      async (req, res) => {
+        // TODO get revisionId and full filePath
+        const revisionId = req.params.revision
+        const filePath = req.params.filePath
+        await this.ghostService.forBot(req.params.botId).revertFileRevision(filePath, revisionId)
+        res.sendStatus(200)
+      }
+    )
   }
 }

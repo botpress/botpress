@@ -1,8 +1,12 @@
 import { Logger } from 'botpress/sdk'
+import fse from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import minimatch from 'minimatch'
+import mkdirp from 'mkdirp'
 import path from 'path'
+import stream from 'stream'
+import tmp from 'tmp'
 import { VError } from 'verror'
 
 import { BotpressConfig } from '../../config/botpress.config'
@@ -13,11 +17,13 @@ import { GhostPendingRevisions, GhostPendingRevisionsWithContent, ObjectCache, S
 import DBStorageDriver from './db-driver'
 import DiskStorageDriver from './disk-driver'
 
+const tar = require('tar')
+
 @injectable()
 export class GhostService {
-  config: Partial<BotpressConfig> | undefined
+  private config: Partial<BotpressConfig> | undefined
 
-  private get useDBDriver() {
+  public get isGhostEnabled() {
     return _.get(this.config, 'ghost.enabled', false)
   }
 
@@ -39,7 +45,7 @@ export class GhostService {
       `./data/global`,
       this.diskDriver,
       this.dbDriver,
-      this.useDBDriver,
+      this.isGhostEnabled,
       this.cache,
       this.logger
     )
@@ -54,7 +60,7 @@ export class GhostService {
       `./data/bots/${botId}`,
       this.diskDriver,
       this.dbDriver,
-      this.useDBDriver,
+      this.isGhostEnabled,
       this.cache,
       this.logger
     )
@@ -116,7 +122,7 @@ export class ScopedGhostService {
 
     const diskRevs = await this.diskDriver.listRevisions(this.baseDir)
     const dbRevs = await this.dbDriver.listRevisions(this.baseDir)
-    const syncedRevs = _.unionBy(diskRevs, dbRevs, x => `${x.path} | ${x.revision}`)
+    const syncedRevs = _.intersectionBy(diskRevs, dbRevs, x => `${x.path} | ${x.revision}`)
     await Promise.each(syncedRevs, rev => this.dbDriver.deleteRevision(rev.path, rev.revision))
 
     if (!(await this.isFullySynced())) {
@@ -124,9 +130,15 @@ export class ScopedGhostService {
       return
     }
 
-    for (const path of paths) {
-      const currentFiles = await this.dbDriver.directoryListing(this.normalizeFolderName(path))
-      const newFiles = await this.diskDriver.directoryListing(this.normalizeFolderName(path))
+    for (const path of [...paths, './']) {
+      const normalizedPath = this.normalizeFolderName(path)
+      let currentFiles = await this.dbDriver.directoryListing(normalizedPath)
+      let newFiles = await this.diskDriver.directoryListing(normalizedPath)
+
+      if (path === './') {
+        currentFiles = currentFiles.filter(x => !x.includes('/'))
+        newFiles = newFiles.filter(x => !x.includes('/'))
+      }
 
       // We delete files that have been deleted from disk
       for (const file of _.difference(currentFiles, newFiles)) {
@@ -141,6 +153,62 @@ export class ScopedGhostService {
         await this.dbDriver.upsertFile(filePath, content, false)
       }
     }
+  }
+
+  public async revertFileRevision(fullFilePath: string, revision: string): Promise<void> {
+    const backup = await this.dbDriver.readFile(fullFilePath)
+    try {
+      const content = await this.diskDriver.readFile(fullFilePath)
+      await this.dbDriver.upsertFile(fullFilePath, content)
+      await this.dbDriver.deleteRevision(fullFilePath, revision)
+    } catch (err) {
+      await this.dbDriver.upsertFile(fullFilePath, backup)
+      throw err
+    }
+  }
+
+  public async exportArchive(): Promise<Buffer> {
+    const allFiles = await this.directoryListing('./')
+    const tmpDir = tmp.dirSync()
+
+    for (const file of allFiles) {
+      const content = await this.primaryDriver.readFile(this.normalizeFileName('./', file))
+      const outPath = path.join(tmpDir.name, file)
+      mkdirp.sync(path.dirname(outPath))
+      await fse.writeFile(outPath, content)
+    }
+
+    const outFile = path.join(tmpDir.name, 'archive.tgz')
+
+    await tar.create(
+      {
+        cwd: tmpDir.name,
+        file: outFile,
+        portable: true,
+        gzip: true
+      },
+      allFiles
+    )
+
+    return fse.readFile(outFile)
+  }
+
+  public async importArchive(tarball: Buffer): Promise<void> {
+    const tgzStream = new stream.PassThrough()
+    const tmpDir = tmp.dirSync()
+    tgzStream.end(tarball)
+    tgzStream.pipe(
+      tar.x({
+        cwd: tmpDir.name
+      })
+    )
+    await Promise.fromCallback(cb => {
+      tgzStream.on('end', () => cb(undefined))
+      tgzStream.on('error', err => cb(err))
+    })
+
+    const files = await fse.readdir(tmpDir.name)
+    console.log('PATH EXTRACT', tmpDir.name, files) // TODO
   }
 
   public async isFullySynced(): Promise<boolean> {
@@ -219,8 +287,8 @@ export class ScopedGhostService {
     const result: GhostPendingRevisions = {}
 
     for (const revision of revisions) {
-      const path = revision.path.substr(this.baseDir.length + 1)
-      const folder = path.includes('/') ? path.substr(0, path.indexOf('/')) : 'root'
+      const rPath = path.relative(this.baseDir, revision.path)
+      const folder = rPath.includes(path.sep) ? rPath.substr(0, rPath.indexOf(path.sep)) : 'root'
 
       if (!result[folder]) {
         result[folder] = []
@@ -237,7 +305,8 @@ export class ScopedGhostService {
     const result = {}
     for (const folder in revisions) {
       result[folder] = await Promise.mapSeries(revisions[folder], async x => {
-        return { ...x, content: await this.dbDriver.readFile(x.path) }
+        const content = await this.dbDriver.readFile(x.path)
+        return { ...x, content: content.toString() }
       })
     }
     return result

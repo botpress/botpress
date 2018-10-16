@@ -250,6 +250,32 @@ function setupAPIProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
     })
   )
 
+  app.get(
+    '/api/ghost_content/status',
+    proxy(coreApiUrl, {
+      proxyReqPathResolver: async (req, res) => getApiBasePath(req) + '/versioning/pending',
+      userResDecorator: function(proxyRes, proxyResData, userReq, userRes) {
+        const body = JSON.parse(proxyResData)
+        return _.mapValues(body, (revisions, folder) => {
+          console.log(body, revisions)
+          return (
+            (revisions &&
+              revisions.map(revision => {
+                const rpath = revision.path
+                const sfolder = path.sep + folder + path.sep
+                const file = rpath.substr(rpath.indexOf(sfolder) + sfolder.length)
+                return {
+                  ...revision,
+                  file
+                }
+              })) ||
+            []
+          )
+        })
+      }
+    })
+  )
+
   httpProxy.proxyForBot('/api/flows/available_actions', '/actions')
 
   httpProxy.proxyForBot('/api/flows/all', '/flows')

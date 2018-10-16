@@ -69,7 +69,7 @@ export default class DiskStorageDriver implements StorageDriver {
     throw new Error('Method not implemented.')
   }
 
-  listRevisions(pathpathPrefix: string): Promise<GhostFileRevision[]> {
-    throw new Error('Method not implemented.')
+  async listRevisions(pathpathPrefix: string): Promise<GhostFileRevision[]> {
+    return [] // TODO Implement this
   }
 }
