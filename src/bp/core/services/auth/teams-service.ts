@@ -5,7 +5,6 @@ import Knex from 'knex'
 import _ from 'lodash'
 import nanoid from 'nanoid'
 
-import { BotLoader } from '../../bot-loader'
 import { BotConfigFactory, BotConfigWriter } from '../../config'
 import Database from '../../database'
 import { checkRule } from '../../misc/auth'
@@ -30,16 +29,50 @@ const BotValidationSchema = Joi.object().keys({
   team: Joi.number().required()
 })
 
+export interface TeamsServiceFacade {
+  addMemberToTeam(userId: number, teamId: number, roleName: string)
+  removeMemberFromTeam(userId, teamId)
+  listUserTeams(userId: number)
+
+  createTeamRole(teamId: number, role: AuthRole)
+  deleteTeamRole(teamId: number, roleId: number)
+  updateTeamRole(teamId: number, roleId: number, role: Partial<AuthRole>)
+  listTeamRoles(teamId: number)
+
+  addBot(teamId: number, bot: Bot): Promise<void>
+  deleteBot(teamId: number, botId: string)
+  listBots(teamId: number, offset?: number, limit?: number)
+
+  createNewTeam(args: { userId: number; name?: string })
+  getBotTeam(botId: string)
+  deleteTeam(teamId: number)
+
+  getInviteCode(teamId: number)
+  refreshInviteCode(teamId: number)
+
+  getUserPermissions(userId: number, teamId: number): Promise<AuthRule[]>
+  getUserRole(userId: number, teamId: number)
+  changeUserRole(userId: number, teamId: number, roleName: string)
+
+  joinTeamFromInviteCode(userId: number, code: string)
+  listTeamMembers(teamId: number)
+
+  assertUserMember(userId: number, teamId: number)
+  assertUserPermission(userId: number, teamId: number, resource: string, operation: string)
+  assertUserNotMember(userId: number, teamId: number)
+  assertRoleExists(teamId: number, roleName: string)
+  assertUserRole(userId: number, teamId: number, roleName: string)
+}
+
 @injectable()
-export default class TeamsService {
+export default class BaseTeamsService implements TeamsServiceFacade {
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'Auth Teams')
     private logger: Logger,
     @inject(TYPES.Database) private db: Database,
     @inject(TYPES.BotConfigFactory) private botConfigFactory: BotConfigFactory,
-    @inject(TYPES.BotConfigWriter) private botConfigWriter: BotConfigWriter,
-    @inject(TYPES.BotLoader) private botLoader: BotLoader
+    @inject(TYPES.BotConfigWriter) private botConfigWriter: BotConfigWriter
   ) {}
 
   get knex() {

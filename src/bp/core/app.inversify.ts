@@ -88,6 +88,7 @@ container
 
 const isPackaged = !!eval('process.pkg')
 const isProduction = !yn(process.env.DEBUG) && (isPackaged || process.env.NODE_ENV == 'production')
+const botpressEdition = process.env.EDITION || 'community'
 
 const projectLocation = isPackaged
   ? path.join(path.dirname(process.execPath)) // We point at the binary path
@@ -96,6 +97,7 @@ const projectLocation = isPackaged
 container.bind<boolean>(TYPES.IsProduction).toConstantValue(isProduction)
 container.bind<boolean>(TYPES.IsPackaged).toConstantValue(isPackaged)
 container.bind<string>(TYPES.ProjectLocation).toConstantValue(projectLocation)
+container.bind<string>(TYPES.BotpressEdition).toConstantValue(botpressEdition)
 
 container.load(...DatabaseContainerModules)
 container.load(...RepositoriesContainerModules)

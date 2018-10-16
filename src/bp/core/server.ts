@@ -12,7 +12,7 @@ import { AdminRouter, AuthRouter, BotsRouter, ModulesRouter } from './routers'
 import { ShortLinksRouter } from './routers/shortlinks'
 import ActionService from './services/action/action-service'
 import AuthService from './services/auth/auth-service'
-import TeamsService from './services/auth/teams-service'
+import { TeamsServiceFacade } from './services/auth/teams-service'
 import { CMSService } from './services/cms/cms-service'
 import FlowService from './services/dialog/flow/service'
 import { SkillService } from './services/dialog/skill/service'
@@ -48,7 +48,7 @@ export default class HTTPServer {
     @inject(TYPES.ActionService) actionService: ActionService,
     @inject(TYPES.ModuleLoader) moduleLoader: ModuleLoader,
     @inject(TYPES.AuthService) private authService: AuthService,
-    @inject(TYPES.TeamsService) private teamsService: TeamsService,
+    @inject(TYPES.TeamsServiceFacade) private teamsService: TeamsServiceFacade,
     @inject(TYPES.MediaService) mediaService: MediaService,
     @inject(TYPES.LogsService) logsService: LogsService,
     @inject(TYPES.NotificationsService) notificationService: NotificationsService,

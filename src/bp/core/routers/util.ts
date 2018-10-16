@@ -1,13 +1,12 @@
+import { Logger } from 'botpress/sdk'
+import { checkRule } from 'core/misc/auth'
 import { NextFunction, Request, Response } from 'express'
 import Joi from 'joi'
 
-// TODO: generalize these errors and consolidate them with ~/Errors.ts
 import { RequestWithUser } from '../misc/interfaces'
 import AuthService from '../services/auth/auth-service'
 import { AssertionError, ProcessingError, UnauthorizedAccessError } from '../services/auth/errors'
-import TeamsService from '../services/auth/teams-service'
-import { Logger } from 'botpress/sdk'
-import { checkRule } from 'core/misc/auth'
+import { TeamsServiceFacade } from '../services/auth/teams-service'
 
 export const asyncMiddleware = ({ logger }: { logger: Logger }) => (
   fn: (req: Request, res: Response, next?: NextFunction) => Promise<any>
@@ -111,7 +110,7 @@ class PermissionError extends AssertionError {
   }
 }
 
-export const needPermissions = (teamsService: TeamsService) => (operation: string, resource: string) => async (
+export const needPermissions = (teamsService: TeamsServiceFacade) => (operation: string, resource: string) => async (
   req: RequestWithUser,
   res: Response,
   next: NextFunction

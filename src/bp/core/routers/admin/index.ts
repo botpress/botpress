@@ -1,13 +1,13 @@
+import { Logger } from 'botpress/sdk'
 import { RequestHandler, Router } from 'express'
 import _ from 'lodash'
 
 import { CustomRouter } from '..'
 import AuthService, { TOKEN_AUDIENCE } from '../../services/auth/auth-service'
-import TeamsService from '../../services/auth/teams-service'
+import { TeamsServiceFacade } from '../../services/auth/teams-service'
 import { checkTokenHeader, loadUser } from '../util'
 
 import { TeamsRouter } from './teams'
-import { Logger } from 'botpress/sdk'
 
 export class AdminRouter implements CustomRouter {
   public readonly router: Router
@@ -15,7 +15,7 @@ export class AdminRouter implements CustomRouter {
   private loadUser!: RequestHandler
   private teamsRouter!: TeamsRouter
 
-  constructor(logger: Logger, private authService: AuthService, private teamsService: TeamsService) {
+  constructor(logger: Logger, private authService: AuthService, private teamsService: TeamsServiceFacade) {
     this.router = Router({ mergeParams: true })
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
     this.loadUser = loadUser(this.authService)

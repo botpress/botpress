@@ -33,7 +33,7 @@ const TYPES = {
   UserRepository: Symbol.for('UserRepository'),
   BotpressAPI: Symbol.for('BotpressAPI'),
   AuthService: Symbol.for('AuthService'),
-  TeamsService: Symbol.for('TeamsService'),
+  BaseTeamsService: Symbol.for('BaseTeamsService'),
   InstructionProcessor: Symbol.for('InstructionProcessor'),
   InstructionFactory: Symbol.for('InstructionFactory'),
   FlowNavigator: Symbol.for('FlowNavigator'),
@@ -56,7 +56,10 @@ const TYPES = {
   BotConfigWriter: Symbol.for('BotConfigWriter'),
   KeyValueStore: Symbol.for('KeyValueStore'),
   ContentElementSender: Symbol.for('ContentElementSender'),
-  SkillService: Symbol.for('SkillService')
+  SkillService: Symbol.for('SkillService'),
+  SessionProcessor: Symbol.for('SessionProcessor'),
+  BotpressEdition: Symbol.for('BotpressEdition'),
+  TeamsServiceFacade: Symbol.for('EditionTeamsService')
 }
 
 export { TYPES }

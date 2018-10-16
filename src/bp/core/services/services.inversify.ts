@@ -5,7 +5,7 @@ import { TYPES } from '../types'
 
 import ActionService from './action/action-service'
 import AuthService from './auth/auth-service'
-import TeamsService from './auth/teams-service'
+import { AuthContainerModule } from './auth/auth.inversify'
 import { CMSService } from './cms/cms-service'
 import { ContentElementSender } from './cms/content-sender'
 import { SkillService } from './dialog/skill/service'
@@ -58,10 +58,6 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
     .to(AuthService)
     .inSingletonScope()
 
-  bind<TeamsService>(TYPES.TeamsService)
-    .to(TeamsService)
-    .inSingletonScope()
-
   bind<LogsJanitor>(TYPES.LogJanitorRunner)
     .to(LogsJanitor)
     .inSingletonScope()
@@ -87,4 +83,9 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
     .inSingletonScope()
 })
 
-export const ServicesContainerModules = [ServicesContainerModule, DialogContainerModule, GhostContainerModule]
+export const ServicesContainerModules = [
+  ServicesContainerModule,
+  AuthContainerModule,
+  DialogContainerModule,
+  GhostContainerModule
+]

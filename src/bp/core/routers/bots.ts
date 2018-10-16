@@ -10,7 +10,7 @@ import { RouterOptions } from 'request'
 import { BotRepository } from '../repositories'
 import ActionService from '../services/action/action-service'
 import AuthService, { TOKEN_AUDIENCE } from '../services/auth/auth-service'
-import TeamsService from '../services/auth/teams-service'
+import { TeamsServiceFacade } from '../services/auth/teams-service'
 import { DefaultSearchParams } from '../services/cms'
 import { CMSService } from '../services/cms/cms-service'
 import { FlowView } from '../services/dialog'
@@ -33,7 +33,7 @@ export class BotsRouter implements CustomRouter {
   private logsService: LogsService
   private notificationService: NotificationsService
   private authService: AuthService
-  private teamsService: TeamsService
+  private teamsService: TeamsServiceFacade
   private checkTokenHeader: RequestHandler
   private needPermissions: (operation: string, resource: string) => RequestHandler
 
@@ -46,7 +46,7 @@ export class BotsRouter implements CustomRouter {
     logsService: LogsService
     notificationService: NotificationsService
     authService: AuthService
-    teamsService: TeamsService
+    teamsService: TeamsServiceFacade
   }) {
     this.actionService = args.actionService
     this.botRepository = args.botRepository
