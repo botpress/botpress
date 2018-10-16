@@ -74,7 +74,6 @@ export default async (bp: SDK, botScopedStorage: Map<string, QnaStorage>) => {
 
     try {
       const storage = botScopedStorage.get(req.params.botId)
-
       await storage.delete(req.params.question, undefined)
       const questionsData = await storage.getQuestions({ question, categories }, { limit, offset })
       res.send(questionsData)
@@ -96,6 +95,7 @@ export default async (bp: SDK, botScopedStorage: Map<string, QnaStorage>) => {
     const storage = botScopedStorage.get(req.params.botId)
     const config = await bp.config.getModuleConfigForBot('qna', req.params.botId)
     const data = await prepareExport(storage, { flat: true })
+
     if (req.params.format === 'csv') {
       res.setHeader('Content-Type', 'text/csv')
       res.setHeader('Content-disposition', `attachment; filename=qna_${moment().format('DD-MM-YYYY')}.csv`)
@@ -153,18 +153,6 @@ export default async (bp: SDK, botScopedStorage: Map<string, QnaStorage>) => {
   router.get('/csv-upload-status/:uploadStatusId', async (req, res) => {
     res.end(csvUploadStatuses[req.params.uploadStatusId])
   })
-
-  const sendToastProgress = action => {
-    bp.realtime.sendPayload(
-      bp.RealTimePayload.forAdmins('toast.qna-save', { text: `QnA ${action} In Progress`, type: 'info', time: 120000 })
-    )
-  }
-
-  const sendToastSuccess = action => {
-    bp.realtime.sendPayload(
-      bp.RealTimePayload.forAdmins('toast.qna-save', { text: `QnA ${action} Success`, type: 'success' })
-    )
-  }
 
   const sendToastError = (action, error) => {
     bp.realtime.sendPayload(
