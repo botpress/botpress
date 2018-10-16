@@ -413,14 +413,13 @@ export class BotsRouter implements CustomRouter {
     )
 
     // Revision ID
-    this.router.delete(
-      '/versioning/pending',
+    this.router.post(
+      '/versioning/revert',
       this.checkTokenHeader,
       this.needPermissions('write', 'bot.ghost_content'),
       async (req, res) => {
-        // TODO get revisionId and full filePath
-        const revisionId = req.params.revision
-        const filePath = req.params.filePath
+        const revisionId = req.body.revision
+        const filePath = req.body.filePath
         await this.ghostService.forBot(req.params.botId).revertFileRevision(filePath, revisionId)
         res.sendStatus(200)
       }

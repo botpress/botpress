@@ -159,8 +159,9 @@ export class ScopedGhostService {
     const backup = await this.dbDriver.readFile(fullFilePath)
     try {
       const content = await this.diskDriver.readFile(fullFilePath)
-      await this.dbDriver.upsertFile(fullFilePath, content)
+      await this.dbDriver.upsertFile(fullFilePath, content, false)
       await this.dbDriver.deleteRevision(fullFilePath, revision)
+      await this.cache.invalidateStartingWith(fullFilePath)
     } catch (err) {
       await this.dbDriver.upsertFile(fullFilePath, backup)
       throw err
