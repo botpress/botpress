@@ -52,7 +52,8 @@ export default class HTTPServer {
     @inject(TYPES.MediaService) mediaService: MediaService,
     @inject(TYPES.LogsService) logsService: LogsService,
     @inject(TYPES.NotificationsService) notificationService: NotificationsService,
-    @inject(TYPES.SkillService) skillService: SkillService
+    @inject(TYPES.SkillService) skillService: SkillService,
+    @inject(TYPES.BotpressEdition) private edition: string
   ) {
     this.app = express()
 
@@ -64,7 +65,7 @@ export default class HTTPServer {
 
     this.modulesRouter = new ModulesRouter(moduleLoader, skillService)
     this.authRouter = new AuthRouter(this.logger, this.authService, this.teamsService)
-    this.adminRouter = new AdminRouter(this.logger, this.authService, this.teamsService)
+    this.adminRouter = new AdminRouter(this.logger, this.authService, this.teamsService, this.edition)
     this.shortlinksRouter = new ShortLinksRouter()
     this.botsRouter = new BotsRouter({
       actionService,

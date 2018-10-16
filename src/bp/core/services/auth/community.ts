@@ -1,6 +1,6 @@
 import { AuthRole, AuthRule, Bot } from 'core/misc/interfaces'
 import { TYPES } from 'core/types'
-import { inject, injectable, postConstruct } from 'inversify'
+import { inject, injectable } from 'inversify'
 
 import { FeatureNotAvailableError } from './errors'
 import BaseTeamsService, { TeamsServiceFacade } from './teams-service'
@@ -11,11 +11,6 @@ export class CommunityTeamsService implements TeamsServiceFacade {
     @inject(TYPES.BaseTeamsService) private teamsService: BaseTeamsService,
     @inject(TYPES.BotpressEdition) private edition: string
   ) {}
-
-  @postConstruct()
-  init() {
-    console.log('COMMUNITY')
-  }
 
   addMemberToTeam(userId: number, teamId: number, roleName: string) {
     throw new FeatureNotAvailableError(this.edition)
@@ -45,12 +40,12 @@ export class CommunityTeamsService implements TeamsServiceFacade {
     throw new FeatureNotAvailableError(this.edition)
   }
 
-  addBot(teamId: number, bot: Bot): Promise<void> {
-    throw new FeatureNotAvailableError(this.edition)
+  async addBot(teamId: number, bot: Bot): Promise<void> {
+    await this.teamsService.addBot(teamId, bot)
   }
 
-  deleteBot(teamId: number, botId: string) {
-    throw new FeatureNotAvailableError(this.edition)
+  async deleteBot(teamId: number, botId: string) {
+    await this.teamsService.deleteBot(teamId, botId)
   }
 
   async listBots(teamId: number, offset: number, limit: number) {

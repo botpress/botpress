@@ -1,17 +1,12 @@
 import { AuthRole, AuthRule, Bot } from 'core/misc/interfaces'
 import { TYPES } from 'core/types'
-import { inject, injectable, postConstruct } from 'inversify'
+import { inject, injectable } from 'inversify'
 
 import BaseTeamsService, { TeamsServiceFacade } from './teams-service'
 
 @injectable()
 export class EnterpriseTeamsService implements TeamsServiceFacade {
   constructor(@inject(TYPES.BaseTeamsService) private teamsService: BaseTeamsService) {}
-
-  @postConstruct()
-  init() {
-    console.log('ENTERPRISE')
-  }
 
   async addMemberToTeam(userId: number, teamId: number, roleName: string) {
     await this.teamsService.addMemberToTeam(userId, teamId, roleName)

@@ -1,3 +1,5 @@
+import { http } from 'botpress/sdk'
+
 const express = require('express')
 const path = require('path')
 const proxy = require('express-http-proxy')

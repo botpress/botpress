@@ -14,6 +14,9 @@ export const SWITCH_TEAM_RECEIVED = 'teams/SWITCH_TEAM_RECEIVED'
 export const FETCH_PERMISSIONS_REQUESTED = 'teams/FETCH_PERMISSIONS_REQUESTED'
 export const FETCH_PERMISSIONS_RECEIVED = 'teams/FETCH_PERMISSIONS_RECEIVED'
 
+export const FETCH_LICENSE_REQUESTED = 'FETCH_LICENSE_REQUESTED'
+export const FETCH_LICENSE_RECEIVED = 'FETCH_LICENSE_RECEIVED'
+
 const initialState = {
   loadingTeams: false,
   loadingTeam: false,
@@ -23,7 +26,8 @@ const initialState = {
   members: null,
   roles: null,
   team: null,
-  permissions: null
+  permissions: null,
+  license: null
 }
 
 const teamIdRouteRegex = /^\/teams\/(\d+)/
@@ -84,6 +88,13 @@ export default (state = initialState, action) => {
       return {
         ...state,
         permissions: action.permissions
+      }
+
+    case FETCH_LICENSE_RECEIVED:
+      console.log('ACTION', action)
+      return {
+        ...state,
+        license: action.license
       }
 
     default:
@@ -181,5 +192,18 @@ export const fetchExistingPermissions = () => {
       .then(({ data }) => data)
 
     dispatch({ type: FETCH_PERMISSIONS_RECEIVED, permissions })
+  }
+}
+
+export const fetchLicense = () => {
+  return async dispatch => {
+    dispatch({ type: FETCH_LICENSE_REQUESTED })
+
+    const license = await api
+      .getAnonymous()
+      .get('/api/license')
+      .then(({ data }) => data)
+
+    dispatch({ type: FETCH_LICENSE_RECEIVED, license })
   }
 }

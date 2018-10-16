@@ -34,7 +34,7 @@ import {
 
 import _ from 'lodash'
 
-import { fetchTeamData } from '../../modules/teams'
+import { fetchTeamData, fetchLicense } from '../../modules/teams'
 import { fetchPermissions } from '../../modules/user'
 
 import SectionLayout from '../Layouts/Section'
@@ -57,6 +57,7 @@ class Bots extends Component {
   }
 
   componentDidMount() {
+    this.props.fetchLicense()
     this.props.fetchTeamData(this.props.teamId, { bots: true })
     this.props.fetchPermissions(this.props.teamId)
   }
@@ -251,6 +252,7 @@ class Bots extends Component {
         title={`${this.props.team.name}'s bots`}
         helpText="This page lists all the bots created under this team."
         sections={sections}
+        license={this.props.license}
         mainContent={this.renderBots()}
         sideMenu={this.renderSideMenu()}
       />
@@ -263,14 +265,16 @@ const mapStateToProps = state => ({
   teamId: state.teams.teamId,
   team: state.teams.team,
   loading: state.teams.loadingTeam,
-  currentUserPermissions: state.user.permissions[state.teams.teamId]
+  currentUserPermissions: state.user.permissions[state.teams.teamId],
+  license: state.license
 })
 
 const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
       fetchTeamData,
-      fetchPermissions
+      fetchPermissions,
+      fetchLicense
     },
     dispatch
   )
