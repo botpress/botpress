@@ -11,6 +11,7 @@ module.exports = knex => {
       table.increments('id')
       table.string('folder')
       table.string('file')
+      table.unique(['folder', 'file'])
       table.text('content')
       table.timestamp('modified_on').defaultTo(knex.fn.now())
     })
@@ -21,7 +22,6 @@ module.exports = knex => {
         table.string('revision')
         table.timestamp('created_on').defaultTo(knex.fn.now())
         table.string('created_by')
-        table.unique(['folder', 'file'])
       })
     )
 }
