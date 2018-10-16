@@ -18,10 +18,15 @@ interface Intent {
 
 class FastTextClassifier {
   private modelPath = ''
+  private modelDir
+
+  constructor(modelDir: string = __dirname) {
+    this.modelDir = modelDir
+  }
 
   private newModelPath(withExt: boolean) {
     const ext = withExt ? '.bin' : ''
-    return join(__dirname, `../models/${Date.now()}${ext}`)
+    return `${this.modelDir}/${Date.now()}${ext}`
   }
 
   private parsePredictions(predictionStr: string) {
@@ -57,12 +62,12 @@ class FastTextClassifier {
 
   train(intents: Array<Intent>) {
     const trainFileName = tmp.tmpNameSync()
-    const modelFileName = this.newModelPath(false)
+    const modelPath = this.newModelPath(false)
 
     this.writeTrainingSet(intents, trainFileName)
 
-    FTWrapper.supervised(trainFileName, modelFileName)
-    this.modelPath = `${modelFileName}.bin`
+    FTWrapper.supervised(trainFileName, modelPath)
+    this.modelPath = `${modelPath}.bin`
   }
 
   loadModel(model: Buffer) {
