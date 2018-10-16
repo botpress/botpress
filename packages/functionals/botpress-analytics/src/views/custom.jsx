@@ -10,7 +10,8 @@ import Bootstrap, {
   OverlayTrigger,
   DropdownButton,
   MenuItem,
-  ButtonGroup
+  ButtonGroup,
+  Table
 } from 'react-bootstrap'
 
 import Select from 'react-select'
@@ -182,6 +183,42 @@ export default class CustomMetrics extends React.Component {
     }
 
     return _.sortBy(data, ['name'])
+  }
+
+  render_table = metric => {
+    const data = this.mergeDataWithDates(
+      metric.results.map(row => {
+        return { name: row.date, value: row.name, count: row.count }
+      })
+    )
+
+    return (
+        <ResponsiveContainer width="100%" height={75}>
+          <Table responsive hover>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Event</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.map(row => {
+                if (row.count) {
+                  return (
+                    <tr>
+                      <td>{row.name}</td>
+                      <td>{row.value}</td>
+                      <td>{row.count}</td>
+                    </tr>
+                  )
+                }
+              } 
+              )}
+            </tbody>
+          </Table>
+        </ResponsiveContainer>
+    )
   }
 
   render_count = metric => {

@@ -22,11 +22,85 @@ For latter you need to:
 `bp.analytics.custom.addGraph` accepts an object with following keys:
 
 - name (String)
-- type (one of 'count', 'countUniq', 'percent', 'piechart')
+- type (one of 'count', 'countUniq', 'percent', 'piechart', 'table')
 - description (String)
 - variables ([String]),
 - fn: (Function that is used to calculate result)
 - fnAvg: (Function) => that gets used for 'percent' type to calculate average value
+
+## Examples
+
+If you need some statistics about the satisfaction of your users, you can create 3 graphs : 2 counts and 1 table.
+
+### Read events
+
+To generate your graphs, create a new file inside `src` folder called `analytics.js`. 
+Inside this file, call the `addGraph()` function :
+
+```js
+module.exports = async bp => {
+    bp.analytics.custom.addGraph({
+        name: '😃 users',
+        type: 'count',
+        description: 'Happy users',
+        variables: ['happy']
+    })
+
+    bp.analytics.custom.addGraph({
+        name: '😕 users',
+        type: 'count',
+        description: 'Mad users',
+        variables: ['mad']
+    })
+
+    bp.analytics.custom.addGraph({
+        name: 'Unsatisfied reasons',
+        type: 'table',
+        description: 'Why your users are mad?',
+        variables: ['reason']
+    })
+}
+```
+
+and then you can call the `analytics.js` file inside the `index.js` file :
+
+```js
+const registerAnalytics = require('./analytics')
+
+module.exports = async bp => {
+
+    // ...
+    // register functions
+    // ...
+
+    await registerAnalytics(bp)
+}
+
+```
+
+### Send events
+
+To send events, create nodes that passes inside functions that calls the botpress customs analytics functions :
+
+Examples of functions inside the `actions.js` file :
+
+```js
+module.exports = {
+    userIsHappy: async (state, { bp, user }, params) => {
+        await bp.analytics.custom.increment(`happy~${user.id}`);
+    },
+
+    userIsMad: async (state, { bp, user }, params) => {
+        await bp.analytics.custom.increment(`mad~${user.id}`);
+    },
+
+    satisfactionReason: async (state, event, { bp, user }) => {
+        await bp.analytics.custom.set(`${event.text}~reason~${user.id}`);
+    }
+}
+```
+
+For more details, please read the [documentation](https://botpress.io/docs/latest/recipes/analytics/).
 
 ## License
 
