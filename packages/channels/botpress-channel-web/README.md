@@ -297,7 +297,8 @@ window.botpressWebChat.init({
       buttonTitle: 'Get Started',
       message: ''
     }
-  }
+  },
+  filterQuickReplies: false // If you have a lot of quick replies, you can apply a search filter on them
 })
 ```
 
