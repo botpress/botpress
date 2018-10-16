@@ -69,7 +69,12 @@ export default class DiskStorageDriver implements StorageDriver {
     throw new Error('Method not implemented.')
   }
 
-  async listRevisions(pathpathPrefix: string): Promise<GhostFileRevision[]> {
-    return [] // TODO Implement this
+  async listRevisions(pathPrefix: string): Promise<GhostFileRevision[]> {
+    try {
+      const content = await this.readFile(path.join(pathPrefix, 'revisions.json'))
+      return JSON.parse(content.toString())
+    } catch (err) {
+      return []
+    }
   }
 }

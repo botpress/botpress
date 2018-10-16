@@ -172,11 +172,19 @@ export class ScopedGhostService {
     const allFiles = await this.directoryListing('./')
     const tmpDir = tmp.dirSync()
 
-    for (const file of allFiles) {
+    for (const file of allFiles.filter(x => x !== 'revisions.json')) {
       const content = await this.primaryDriver.readFile(this.normalizeFileName('./', file))
       const outPath = path.join(tmpDir.name, file)
       mkdirp.sync(path.dirname(outPath))
       await fse.writeFile(outPath, content)
+    }
+
+    const oldRevisions = await this.diskDriver.listRevisions(this.baseDir)
+    const newRevisions = await this.dbDriver.listRevisions(this.baseDir)
+    const mergedRevisions = _.unionBy(oldRevisions, newRevisions, x => x.path + ' ' + x.revision)
+    await fse.writeFile(path.join(tmpDir.name, 'revisions.json'), JSON.stringify(mergedRevisions, undefined, 2))
+    if (!allFiles.includes('revisions.json')) {
+      allFiles.push('revisions.json')
     }
 
     const outFile = path.join(tmpDir.name, 'archive.tgz')

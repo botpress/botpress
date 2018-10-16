@@ -274,6 +274,7 @@ function setupAPIProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
     })
   )
 
+  httpProxy.proxyForBot('/api/versioning/export', '/versioning/export')
   httpProxy.proxyForBot('/api/versioning/revert', '/versioning/revert')
 
   httpProxy.proxyForBot('/api/flows/available_actions', '/actions')

@@ -15,7 +15,7 @@ export const applyDisposeOnExit = (container: Container) => {
         target = bindingOnActivation(context, target)
       }
 
-      if (typeof target.disposeOnExit === 'function') {
+      if (target && typeof target.disposeOnExit === 'function') {
         disposeMethods.push(target.disposeOnExit.bind(target))
       }
 
