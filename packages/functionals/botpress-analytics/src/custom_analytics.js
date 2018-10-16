@@ -60,7 +60,7 @@ module.exports = ({ bp }) => {
 
   //{ name, type, description, variables }
   function addGraph(graph) {
-    if (!_.includes(['count', 'countUniq', 'percent', 'piechart'], graph.type)) {
+    if (!_.includes(['count', 'countUniq', 'percent', 'piechart', 'table'], graph.type)) {
       throw new Error('Unknown graph of type ' + graph.type)
     }
 
@@ -87,6 +87,31 @@ module.exports = ({ bp }) => {
   }
 
   const getters = {
+    table: async function (table, from, to) {
+      const knex = await bp.db.get()
+
+      const variable = _.first(table.variables)
+
+      const rows = await knex('analytics_custom')
+        .select(['date', 'name', knex.raw('sum(count) as count')])
+        .where('date', '>=', from)
+        .andWhere('date', '<=', to)
+        .andWhere('name', 'LIKE', '%~' + variable + '~%')
+        .groupBy('name')
+        .then(rows => {
+          return rows.map(row => {
+            const name = _.first(row.name.split('~'))
+
+            return Object.assign(row, {
+              name: _.isEmpty(name) ? 'unknown' : name,
+              count: parseInt(row.count)
+            })
+          })
+        })
+
+      return Object.assign({}, table, { results: rows })
+    },
+
     count: async function(graph, from, to) {
       const knex = await bp.db.get()
 
