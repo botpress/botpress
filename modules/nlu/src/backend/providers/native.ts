@@ -1,63 +1,22 @@
 import crypto from 'crypto'
-import _ from 'lodash'
+import { join } from 'path'
 
-import natural from 'natural'
-import zscore from 'zscore'
+import FastTextClassifier from '../fasttext/FastTextClassifier'
 
 import Provider from './base'
 
 const NATIVE_HASH_KVS_KEY = 'nlu/native/updateMetadata'
-const NATIVE_MODEL = 'nlu/native/model'
-const DEFAULT_THRESHOLD = 0.25
-const EMPTY_INTENT = {
-  name: 'None',
-  confidence: 0,
-  provider: 'native'
-}
 
-export default class NativeProvider extends Provider {
-  private classifier: any
-  private project: any
-  private customStemmer: any
+export default class ReNativeProvider extends Provider {
+  private languageDetector: any
+  private intentClassifier: FastTextClassifier
 
   constructor(config) {
     super({ ...config, name: 'native', entityKey: '@native' })
-    this.classifier = undefined
-  }
 
-  async init() {}
-
-  async checkSyncNeeded() {
-    const intents = await this.storage.getIntents()
-    return !(await this.isInSync(intents))
-  }
-
-  private getProjectName() {
-    const scope = 'all'
-    return `${this.env}__${this.project}__${scope}`
-  }
-
-  setStemmer(stemmer) {
-    if (!stemmer) {
-      this.customStemmer = undefined
-    } else if (!_.isFunction(stemmer)) {
-      this.logger.error('[Native] Stemmer must be a function')
-      this.customStemmer = undefined
-    } else {
-      this.customStemmer = stemmer
-    }
-  }
-
-  getStemmer() {
-    return { tokenizeAndStem: this.stemText.bind(this) }
-  }
-
-  private stemText(text) {
-    if (this.customStemmer) {
-      return this.customStemmer(text)
-    } else {
-      return natural.PorterStemmer.tokenizeAndStem(text)
-    }
+    const modelDir = join(__dirname, '../nativeModels')
+    this.intentClassifier = new FastTextClassifier(modelDir)
+    // TODO implement languagedetector provider
   }
 
   private async isInSync(localIntents) {
@@ -76,24 +35,8 @@ export default class NativeProvider extends Provider {
       .update(JSON.stringify(localIntents))
       .digest('hex')
 
-    // We save the model hash and model to the KVS
+    // We save the model hash to the KVS
     await this.kvs.set(this.botId, NATIVE_HASH_KVS_KEY, { hash: intentsHash })
-    await this.kvs.set(this.botId, NATIVE_MODEL, this.classifier)
-  }
-
-  private async restoreModel() {
-    const model = await this.kvs.get(this.botId, NATIVE_MODEL)
-
-    if (!model) {
-      this.classifier = new natural.BayesClassifier()
-    }
-
-    this.classifier = natural.BayesClassifier.restore(model, this.getStemmer())
-  }
-
-  async getCustomEntities() {
-    // Native NLU doesn't support entity extraction
-    return []
   }
 
   async sync() {
@@ -103,82 +46,40 @@ export default class NativeProvider extends Provider {
       this.logger.debug('[Native] Model is up to date')
       return
     } else {
-      this.logger.debug('[Native] The model needs to be updated')
+      this.logger.debug('[Native] The model needs to be updated, training model')
     }
 
-    const classifier = new natural.BayesClassifier(this.getStemmer())
-
-    let samples_count = 0
-
-    intents.forEach(intent => {
-      intent.utterances.forEach(utterance => {
-        const extracted = this.parser.extractLabelsFromCanonical(utterance, intent.entities)
-        samples_count += 1
-        classifier.addDocument(this.stemText(extracted.text), intent.name)
-      })
-    })
-
-    this.logger.debug(`[Native] Started training model from ${samples_count} samples`)
-
     try {
-      classifier.train()
+      this.intentClassifier.train(intents)
     } catch (err) {
       return this.logger.attachError(err).error('[Native] Error training model')
     }
 
-    this.classifier = classifier
-
     await this.onSyncSuccess(intents)
-
-    this.logger.info(`[Native] Synced model`)
   }
 
-  async extract(incomingEvent) {
-    if (!this.classifier) {
-      if (await this.checkSyncNeeded()) {
-        await this.sync()
-      } else {
-        await this.restoreModel()
-      }
+  async checkSyncNeeded() {
+    const intents = await this.storage.getIntents()
+    return !(await this.isInSync(intents))
+  }
+
+  async extract(incomingText) {
+    if (await this.checkSyncNeeded()) {
+      await this.sync()
     }
 
-    const threshold = parseFloat(String(this.config.nativeAdjustementThreshold) || String(DEFAULT_THRESHOLD))
+    const predictions = this.intentClassifier.predict(incomingText)
 
-    const classifications = _.orderBy(
-      this.classifier.getClassifications(incomingEvent.payload.text),
-      ['value'],
-      ['desc']
-    )
-    let allScores = zscore(classifications.map(c => parseFloat(c.value)))
-
-    allScores = allScores.map((s, i) => {
-      const delta = Math.abs(s - allScores[i + 1] / s)
-      if (delta >= threshold) {
-        return s
-      }
-
-      return (
-        s -
-        Math.max(0, allScores[i + 1] || 0) * 0.5 -
-        Math.max(0, allScores[i + 2] || 0) * 0.75 -
-        Math.max(0, allScores[i + 3] || 0)
-      )
-    })
-
-    const intents = _.orderBy(
-      classifications.map((c, i) => ({
-        name: c.label,
-        confidence: allScores[i],
-        provider: 'native'
-      })),
-      ['confidence'],
-      'desc'
-    )
-
+    // TODO use language detector to detec langage
     return {
-      intent: intents.length ? intents[0] : { ...EMPTY_INTENT },
-      intents,
-      entities: [] // Unsupported for now
+      intent: predictions[0],
+      intents: predictions.map(p => ({ ...p, provider: 'native' })),
+      entities: []
     }
+  }
+
+  async getCustomEntities(): Promise<any> {
+    // Native NLU doesn't support entity extraction
+    return []
   }
 }

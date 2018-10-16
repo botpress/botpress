@@ -1,7 +1,7 @@
 import { createWriteStream, writeFileSync } from 'fs'
 import { EOL } from 'os'
-import { join } from 'path'
 import tmp from 'tmp'
+import { join } from 'upath'
 
 import FTWrapper from './fasttext.wrapper'
 
@@ -10,6 +10,11 @@ const FAST_TEXT_LABEL_KEY = '__label__'
 interface Intent {
   name: string
   utterances: Array<String>
+}
+
+interface Prediction {
+  name: string
+  confidence: number
 }
 
 // TODO implement fastTrain
@@ -26,7 +31,7 @@ class FastTextClassifier {
 
   private newModelPath(withExt: boolean) {
     const ext = withExt ? '.bin' : ''
-    return `${this.modelDir}/${Date.now()}${ext}`
+    return join(this.modelDir, Date.now() + ext)
   }
 
   private parsePredictions(predictionStr: string) {
@@ -37,7 +42,7 @@ class FastTextClassifier {
       const psplit = p.split(' ')
 
       return {
-        label: psplit[0],
+        name: psplit[0],
         confidence: parseFloat(psplit[1])
       }
     })
@@ -78,7 +83,7 @@ class FastTextClassifier {
     this.modelPath = modelPath
   }
 
-  predict(input: string, numClass = 1) {
+  predict(input: string, numClass = 1): Array<Prediction> {
     if (!this.modelPath) {
       throw new Error('model is not set')
     }

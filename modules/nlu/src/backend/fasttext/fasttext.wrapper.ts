@@ -1,9 +1,11 @@
 import { execFileSync } from 'child_process'
 import { join } from 'path'
 
-let bin = 'fasttext'
+let bin = 'ft_lnx'
 if (process.platform === 'win32') {
-  bin = 'fasttext_win'
+  bin = 'ft_win'
+} else if (process.platform === 'darwin') {
+  bin = 'ft_osx'
 }
 
 const BINPATH = join(__dirname, bin)
