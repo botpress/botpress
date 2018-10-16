@@ -202,23 +202,24 @@ export class ScopedGhostService {
     return fse.readFile(outFile)
   }
 
-  public async importArchive(tarball: Buffer): Promise<void> {
-    const tgzStream = new stream.PassThrough()
-    const tmpDir = tmp.dirSync()
-    tgzStream.end(tarball)
-    tgzStream.pipe(
-      tar.x({
-        cwd: tmpDir.name
-      })
-    )
-    await Promise.fromCallback(cb => {
-      tgzStream.on('end', () => cb(undefined))
-      tgzStream.on('error', err => cb(err))
-    })
+  // TODO WIP Partial progress towards importing tarballs from the UI
 
-    const files = await fse.readdir(tmpDir.name)
-    console.log('PATH EXTRACT', tmpDir.name, files) // TODO
-  }
+  // public async importArchive(tarball: Buffer): Promise<void> {
+  //   const tgzStream = new stream.PassThrough()
+  //   const tmpDir = tmp.dirSync()
+  //   tgzStream.end(tarball)
+  //   tgzStream.pipe(
+  //     tar.x({
+  //       cwd: tmpDir.name
+  //     })
+  //   )
+  //   await Promise.fromCallback(cb => {
+  //     tgzStream.on('end', () => cb(undefined))
+  //     tgzStream.on('error', err => cb(err))
+  //   })
+
+  //   const files = await fse.readdir(tmpDir.name)
+  // }
 
   public async isFullySynced(): Promise<boolean> {
     if (!this.useDbDriver) {

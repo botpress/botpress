@@ -342,11 +342,7 @@ declare module 'botpress/sdk' {
      * @param channel The channel used to communicate, e.g. channel-web, messenger, twilio, etc.
      * @returns Return an array of rendered Content Elements
      */
-<<<<<<< HEAD
-    renderElements: (data: object, channel: string) => object[]
-=======
     renderElement: (data: object, channel: string) => object[]
->>>>>>> 766b5e78dc1baccc4deeb358d2ecae7ed89d489a
     /**
      * Function that computes the visual representation of the text.
      * This function resides in the javascript definition of the Content Type.
