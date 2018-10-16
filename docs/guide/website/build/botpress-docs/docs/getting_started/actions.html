@@ -1,0 +1,145 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Actions · | Documentation</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="## How actions work"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Actions · | Documentation"/><meta property="og:type" content="website"/><meta property="og:url" content="https://botpress.io/index.html"/><meta property="og:description" content="## How actions work"/><meta property="og:image" content="https://botpress.io/img/docusaurus.png"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://botpress.io/img/docusaurus.png"/><link rel="shortcut icon" href="/img/favicon.png"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><link rel="stylesheet" href="/css/main.css"/></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/"><img class="logo" src="/img/botpress.svg" alt="| Documentation"/><h2 class="headerTitleWithLogo">| Documentation</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/docs/getting_started/" target="_self">Docs</a></li><li class=""><a href="https://help.botpress.io/" target="_self">Help</a></li><li class=""><a href="https://botpress.io/docs/latest/reference/" target="_self">API</a></li><li class=""><a href="https://github.com/botpress" target="_self">Github</a></li><li class=""><a target="_self"></a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><i></i></div><h2><i>›</i><span>Getting Started</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">Getting Started</h3><ul><li class="navListItem"><a class="navItem" href="/docs/getting_started/">What you will learn</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/philosphy">The Botpress Philosophy</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/install">Install</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/components">Components</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/templates">Templates</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/dashboard">Dashboard</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/content">Content</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/flows">Flows</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/docs/getting_started/actions">Actions</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/storage">Storage</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/skills">Skills</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/nlu">NLU</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/deploying">Deploying</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/changes">Changes</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Recipes</h3><ul><li class="navListItem"><a class="navItem" href="/docs/recipes/">What are they?</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/analytics">Analytics</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/apis">Using external APIs</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/broadcasting">Broadcasting</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/carousel">Carousel</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/databases">Supported databases</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/embedding">Embedding the Webchat on a website</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/hitl">HITL (Human-in-the-loop)</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/i18n">i18n</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/jumps">Jump to</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/login">Login</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/modules">Modules</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/proactive">Proactive acting</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/sanitizing">Sanitizing</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/scheduling">Scheduling messages</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/shortlinks">Shortlinks</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/timeout">Timeout</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/extensions">Webchat Extensions</a></li></ul></div></div></section></div><script>
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              const headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                if (event.target.tagName === 'A') {
+                  document.body.classList.remove('tocActive');
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                if (!toggler) {
+                  return;
+                }
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer docMainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1 class="postHeaderTitle">Actions</h1></header><article><div><span><h2><a class="anchor" aria-hidden="true" id="how-actions-work"></a><a href="#how-actions-work" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>How actions work</h2>
+<p>Actions are essentially <em>server-side functions</em> that get executed by the bot as part of a conversational flow. Actions have the power to do many things:</p>
+<ul>
+<li>Alter the state of the conversation</li>
+<li>Send customized messages to the conversation</li>
+<li>Execute arbitrary code like calling an API or storing data in the database</li>
+</ul>
+<p>Since they are just regular JavaScript functions, they can, in fact, do pretty much anything.</p>
+<p>When an action is invoked by the Dialogue Manager (DM), it gets passed the following arguments:</p>
+<ul>
+<li><strong><code>state</code></strong>: The current state of the conversation. <strong>This object is <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze"><code>frozen</code></a> and can't be mutated.</strong></li>
+<li><strong><code>event</code></strong>: The original (latest) event received from the user in the conversation. <strong>This object is <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze"><code>frozen</code></a> and can't be mutated.</strong></li>
+<li><strong><code>args</code></strong>: The arguments that were passed to this action from the Visual Flow Builder.</li>
+</ul>
+<p>The action itself <strong>must return a new state object</strong>.</p>
+<h2><a class="anchor" aria-hidden="true" id="how-to-define-new-actions"></a><a href="#how-to-define-new-actions" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>How to define new actions</h2>
+<p>In the context of our tutorial, all actions are defined in our <code>src/actions.js</code> file and are registered in <code>src/index.js</code> as follows:</p>
+<pre><code class="hljs css language-js">bp.dialogEngine.registerActions(actions)
+</code></pre>
+<p><code>registerActions(map)</code> takes a map as a parameter, the keys being the name of the action and the value the action function. You can call <code>registerActions</code> as many times as you want, which allows you to split your actions into multiple files if you wish to.</p>
+<h2><a class="anchor" aria-hidden="true" id="examples-of-actions"></a><a href="#examples-of-actions" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Examples of actions</h2>
+<p>Let's have a look at the <code>startGame</code> action. This action is very simple: it takes the <code>state</code> as a parameter and returns a new state that marks the beginning of a new game.</p>
+<pre><code class="hljs css language-js">startGame: <span class="hljs-function"><span class="hljs-params">state</span> =&gt;</span> {
+  <span class="hljs-keyword">return</span> {
+    ...state, <span class="hljs-comment">// we clone the existing state</span>
+    count: <span class="hljs-number">0</span>, <span class="hljs-comment">// we then reset the number of questions asked to `0`</span>
+    score: <span class="hljs-number">0</span>  <span class="hljs-comment">// and we reset the score to `0`</span>
+  }
+},
+</code></pre>
+<p>Now let's look at a slightly more complicated action.</p>
+<p>The <code>sendRandomQuestion</code> action does the following: [[This section needs more explanation and it doesn't make sense. I will revisit when it's elaborated on]]</p>
+<ul>
+<li>It sends a random <em>Content Element</em> from the <code>trivia</code> <em>Content Types</em> using the built-in <code>event.reply</code> method</li>
+<li>It captures the message sent to the user</li>
+<li>It extracts the good answer from the multiple choices</li>
+<li>It stores the good answer in the state</li>
+</ul>
+<pre><code class="hljs css language-js">sendRandomQuestion: <span class="hljs-keyword">async</span> (state, event) =&gt; {
+  <span class="hljs-comment">// The `-random()` extension picks a random element in all trivia Q's</span>
+  <span class="hljs-comment">// We also retrieve the message we just sent</span>
+  <span class="hljs-comment">// Notice that `event.reply` is asynchronous, so we need to `await` it</span>
+  <span class="hljs-keyword">const</span> messageSent = <span class="hljs-keyword">await</span> event.reply(<span class="hljs-string">'#!trivia-random()'</span>)
+
+  <span class="hljs-comment">// We find the good answer</span>
+  <span class="hljs-keyword">const</span> goodAnswer = _.find(messageSent.context.choices, { <span class="hljs-attr">payload</span>: <span class="hljs-string">'TRIVIA_GOOD'</span> })
+
+  <span class="hljs-keyword">return</span> {
+    ...state, <span class="hljs-comment">// We clone the state</span>
+    isCorrect: <span class="hljs-literal">null</span>, <span class="hljs-comment">// We reset `isCorrect` (optional)</span>
+    count: state.count + <span class="hljs-number">1</span>, <span class="hljs-comment">// We increase the number of questions we asked so far</span>
+    goodAnswer <span class="hljs-comment">// We store the goodAnswer in the state</span>
+  }
+},
+</code></pre>
+<p>And lastly, let's look at the <code>setUserTag</code> action which makes use of custom arguments passed to the function from the flow.</p>
+<pre><code class="hljs css language-js"><span class="hljs-comment">/**
+ * Sets user Tag.
+ * @param {string} args.name - Name of the tag.
+ * @param {string} args.value - Value of the tag.
+ */</span>
+setUserTag: <span class="hljs-keyword">async</span> (state, event, { name, value }) =&gt; {
+  <span class="hljs-keyword">await</span> event.bp.users.tag(event.user.id, name, value)
+  <span class="hljs-keyword">return</span> { ...state }
+},
+</code></pre>
+<blockquote>
+<p><strong>Note:</strong> <code>name</code> and <code>value</code> come from the Flow Builder. <code>name</code> is a static value whereas <code>value</code> is an expression that will be evaluated at execution time. In this case, <code>event.text</code> is what the user said (i.e., his nickname).</p>
+</blockquote>
+<p>If the some variable is available under <code>state</code> or <code>event</code> in the action normally it doesn't make sense to pass it as custom arguments.</p>
+<p><img src="{{site.baseurl}}/images/setUserTagArgs.jpg" alt="Passing arguments from the flow editor"></p>
+<p>JSDoc-comments before function can be used to prepopulate params for the function when it gets selected in flow-editor.
+To enable this you'd need to call <code>bp.dialogEngine.registerActionMetadataProvider</code> like in the snippet below (included in default bot installation):</p>
+<pre><code class="hljs css language-js"><span class="hljs-keyword">const</span> metadata = {}
+bp.dialogEngine.registerActionMetadataProvider(<span class="hljs-function"><span class="hljs-params">action</span> =&gt;</span> metadata[action])
+
+<span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> actionFile <span class="hljs-keyword">of</span> actionFiles) {
+  <span class="hljs-keyword">const</span> docs = <span class="hljs-keyword">await</span> jsdoc.explain({ <span class="hljs-attr">files</span>: path.join(__dirname, actionFile) })
+  <span class="hljs-keyword">const</span> actions = <span class="hljs-built_in">require</span>(actionFile)
+
+  <span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> action <span class="hljs-keyword">of</span> <span class="hljs-built_in">Object</span>.keys(actions)) {
+    <span class="hljs-keyword">const</span> meta = docs.find(<span class="hljs-function"><span class="hljs-params">doc</span> =&gt;</span> {
+      <span class="hljs-keyword">return</span> doc.name === action &amp;&amp; doc.comment.length &gt; <span class="hljs-number">0</span>
+    })
+
+    <span class="hljs-keyword">if</span> (meta) {
+      metadata[action] = {
+        <span class="hljs-attr">title</span>: meta.name,
+        <span class="hljs-attr">description</span>: meta.description,
+        <span class="hljs-attr">category</span>: <span class="hljs-string">'Custom'</span>,
+        <span class="hljs-attr">params</span>: meta.params.map(<span class="hljs-function"><span class="hljs-params">param</span> =&gt;</span> ({
+          <span class="hljs-attr">type</span>: _.get(param, <span class="hljs-string">'type.names.0'</span>) || <span class="hljs-string">'string'</span>,
+          <span class="hljs-attr">name</span>: param.name.replace(<span class="hljs-string">'params.'</span>, <span class="hljs-string">''</span>),
+          <span class="hljs-attr">description</span>: param.description,
+          <span class="hljs-attr">default</span>: param.defaultvalue || <span class="hljs-string">''</span>,
+          <span class="hljs-attr">required</span>: !param.optional
+        }))
+      }
+    }
+  }
+
+  bp.dialogEngine.registerActions(actions)
+}
+</code></pre>
+<h2><a class="anchor" aria-hidden="true" id="altering-the-state"></a><a href="#altering-the-state" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Altering the state</h2>
+<p>You <strong>must</strong> return a new state object. You can't modify the original state object as it is frozen. To return a new state object, clone the original state by using <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign"><code>Object.assign()</code></a> or the <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax">ES6 spread operator</a>.</p>
+<h3><a class="anchor" aria-hidden="true" id="examples"></a><a href="#examples" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Examples</h3>
+<pre><code class="hljs css language-js"><span class="hljs-comment">// Adding properties using the spread operator</span>
+<span class="hljs-keyword">return</span> { ...state, <span class="hljs-attr">nickname</span>: <span class="hljs-string">'Jackob'</span> }
+
+<span class="hljs-comment">// Removing properties using the spread operator</span>
+<span class="hljs-keyword">const</span> clone = { ...state }
+<span class="hljs-keyword">delete</span> clone.nickname
+<span class="hljs-keyword">return</span> clone
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="non-altering-actions"></a><a href="#non-altering-actions" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Non-altering actions</h3>
+<p>If your action does not modify the state, just return nothing (<code>return</code>). You can also return a clone of the original state: <code>return {...state}</code>.</p>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/docs/getting_started/flows"><span class="arrow-prev">← </span><span>Previous</span></a><a class="docs-next button" href="/docs/getting_started/storage"><span>Next</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav docOnPageNav"><ul class="toc-headings"><li><a href="#how-actions-work">How actions work</a></li><li><a href="#how-to-define-new-actions">How to define new actions</a></li><li><a href="#examples-of-actions">Examples of actions</a></li><li><a href="#altering-the-state">Altering the state</a><ul class="toc-headings"><li><a href="#examples">Examples</a></li><li><a href="#non-altering-actions">Non-altering actions</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/botpress.svg" alt="| Documentation" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/en/doc1.html">Getting Started (or other categories)</a><a href="/docs/en/doc2.html">Guides (or other categories)</a><a href="/docs/en/doc3.html">API Reference (or other categories)</a></div><div><h5>Community</h5><a href="/en/users.html">User Showcase</a><a href="http://stackoverflow.com/questions/tagged/" target="_blank" rel="noreferrer noopener">Stack Overflow</a><a href="https://discordapp.com/">Project Chat</a><a href="https://twitter.com/" target="_blank" rel="noreferrer noopener">Twitter</a></div><div><h5>More</h5><a href="/blog">Blog</a><a href="https://github.com/">GitHub</a><a class="github-button" data-icon="octicon-star" data-count-href="/facebook/docusaurus/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" rel="noreferrer noopener" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2018 Botpress, Inc.</section></footer></div></body></html>

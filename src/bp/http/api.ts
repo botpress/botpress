@@ -146,6 +146,8 @@ function setupAPIProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
     })
   )
 
+  httpProxy.proxyForBot('/api/logs/archive/', '/logs/archive')
+
   app.get(
     '/media',
     proxy(coreApiUrl, {

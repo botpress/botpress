@@ -13,3 +13,18 @@
 
 1. Run `yarn watch` to build the project and rebuild it everytime you change a .ts file
 1. Run `yarn start` in another terminal
+
+## Documentation
+
+### Developer's Guide
+
+We use [Docusaurus](https://docusaurus.io/en/) to create the Developer's Guide.
+
+- To start the development server, run `yarn start:guide`
+- To generate the static files, run `yarn build:guide`. The generated files will appear under `/docs/guide/build`
+
+### SDK Reference
+
+We use [TypeDoc](https://github.com/TypeStrong/typedoc) the generate the SDK Reference directly from the source code.
+
+- Run `yarn build:reference` to generate the documentation. THe static files will appear under `/docs/reference/`.
