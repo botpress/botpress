@@ -27,6 +27,7 @@
     "ms": "^2.1.1",
     "nanoid": "^1.0.1",
     "natural": "^0.6.1",
+    "tmp": "^0.0.33",
     "zscore": "^0.1.0"
   },
   "optionalDependencies": {
