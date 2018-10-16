@@ -92,10 +92,19 @@ export default class MessageList extends Component {
     const messages = this.props.messages || []
     const message = messages[messages.length - 1]
     const quick_replies = message && message['message_raw'] && message['message_raw']['quick_replies']
+    const currentText = this.props.currentText
+    const filterQuickReplies = this.props.filterQuickReplies
+
+    const filteredQuickReplies = quick_replies ? quick_replies.filter(
+      quick_reply => {
+        const regExp = new RegExp(currentText, "i");
+        return regExp.test(quick_reply.title);
+      }
+    ) : quick_replies;
 
     return (
       <QuickReplies
-        quick_replies={quick_replies}
+        quick_replies={filterQuickReplies ? filteredQuickReplies : quick_replies}
         fgColor={this.props.fgColor}
         onQuickReplySend={this.props.onQuickReplySend}
         onFileUploadSend={this.props.onFileUploadSend}
