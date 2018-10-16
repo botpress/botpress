@@ -381,14 +381,6 @@ export class BotsRouter implements CustomRouter {
       }
     )
 
-    // TODO
-    // Tester que modifier des fichiers quand Ghost = enabled enrégistre des révisions
-    // Tester que la liste des révisions is good
-    // Tester que le batching fonctionne
-    // Tester revert fonctionne et expire le cache
-    // Tester le sync des modifications vers l'environment local (CLI)
-    // Tester le revision file on sync, supression des revisions
-
     this.router.get(
       '/versioning/pending',
       this.checkTokenHeader,
@@ -420,18 +412,20 @@ export class BotsRouter implements CustomRouter {
       }
     })
 
-    this.router.get(
-      '/versioning/import',
-      this.checkTokenHeader,
-      this.needPermissions('write', 'bot.ghost_content'),
-      archiveUploadMulter.single('file'),
-      async (req, res) => {
-        const buffer = req['file'].buffer
-        const botId = req.params.botId
-        await this.ghostService.forBot(botId).importArchive(buffer)
-        res.sendStatus(200)
-      }
-    )
+    // TODO WIP Partial progress towards importing tarballs from the UI
+
+    // this.router.get(
+    //   '/versioning/import',
+    //   this.checkTokenHeader,
+    //   this.needPermissions('write', 'bot.ghost_content'),
+    //   archiveUploadMulter.single('file'),
+    //   async (req, res) => {
+    //     const buffer = req['file'].buffer
+    //     const botId = req.params.botId
+    //     await this.ghostService.forBot(botId).importArchive(buffer)
+    //     res.sendStatus(200)
+    //   }
+    // )
 
     // Revision ID
     this.router.post(

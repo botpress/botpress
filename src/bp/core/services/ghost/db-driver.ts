@@ -131,7 +131,7 @@ export default class DBStorageDriver implements StorageDriver {
       let query = this.database.knex('srv_ghost_index')
 
       if (pathPrefix.length) {
-        pathPrefix = pathPrefix.replace(/^.\//g, '') // Remove './' if the case
+        pathPrefix = pathPrefix.replace(/^.\//g, '') // Remove heading './' if present
         query = query.where('file_path', 'like', pathPrefix + '%')
       }
 
