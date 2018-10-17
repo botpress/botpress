@@ -28,7 +28,7 @@ class FastTextClassifier {
   private parsePredictions(predictionStr: string) {
     const predictions = predictionStr.split(FAST_TEXT_LABEL_KEY)
 
-    return predictions.filter(p => p != '').map(p => {
+    const parsed = predictions.filter(p => p != '' && p != '\n').map(p => {
       p = p.replace(FAST_TEXT_LABEL_KEY, '')
       const psplit = p.split(' ')
 
@@ -37,6 +37,8 @@ class FastTextClassifier {
         confidence: parseFloat(psplit[1])
       }
     })
+
+    return parsed.length ? parsed : { name: 'none', confidence: 0.9999 }
   }
 
   private writeTrainingSet(intents: Array<Intent>, trainingFilePath) {
