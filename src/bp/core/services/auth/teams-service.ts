@@ -308,7 +308,8 @@ export default class TeamsService {
     await this.knex(BOTS_TABLE).insert(bot)
     const botConfig = this.botConfigFactory.createDefault({ id: bot.id, name: bot.name, description: bot.description })
     await this.botConfigWriter.writeToFile(botConfig)
-    await this.ghostService.forBot(bot.id).sync(['actions', 'content-elements', 'flows'])
+    // TODO move this in  bot loader
+    await this.ghostService.forBot(bot.id).sync(['actions', 'content-elements', 'flows', 'intents'])
     await this.botLoader.loadForBot(bot.id)
     await this.moduleLoader.loadModulesForBot(bot.id)
   }

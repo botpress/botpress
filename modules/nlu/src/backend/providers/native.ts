@@ -31,13 +31,14 @@ export default class NativeProvider extends Provider {
       await this.intentClassifier.loadModel(modelBuffer, modelHash)
       return
     } else {
-      this.logger.debug('[Native] The model needs to be updated, training model')
+      this.logger.debug('[Native] The model needs to be updated, training model ...')
       try {
         // TODO return buffer instead of path ?
         const modelPath = await this.intentClassifier.train(intents, modelHash)
         const modelBuffer = readFileSync(modelPath)
         const modelName = `${Date.now()}__${modelHash}.bin`
         await this.storage.persistModel(modelBuffer, modelName)
+        this.logger.debug('[Native] Done training model.')
       } catch (err) {
         return this.logger.attachError(err).error('[Native] Error training model')
       }
@@ -46,8 +47,10 @@ export default class NativeProvider extends Provider {
 
   public async checkSyncNeeded() {
     const intents = await this.storage.getIntents()
-    const intentsHash = this.getIntentsHash(intents)
-    return this.intentClassifier.currentModelId !== intentsHash
+    if (intents.length) {
+      const intentsHash = this.getIntentsHash(intents)
+      return this.intentClassifier.currentModelId !== intentsHash
+    } else return false
   }
 
   private getIntentsHash(intents) {
