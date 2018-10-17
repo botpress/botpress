@@ -94,6 +94,29 @@ export class DialogEngine {
     return session
   }
 
+  async jumpTo(botId: string, sessionId: string, flowName: string, nodeName?: string) {
+    const flows = await this.flowService.loadAll(botId)
+    const targetFlow = flows.find(f => f.name === flowName)
+    let targetNode
+
+    if (nodeName) {
+      targetNode = targetFlow!.nodes.find(n => n.name === nodeName)
+      if (!targetNode) {
+        throw new Error(`The target node "${nodeName}" doesnt exists in the provided flow "${flowName}"`)
+      }
+    }
+
+    if (!targetNode) {
+      const startNodeName = targetFlow!.startNode
+      targetNode = targetFlow!.nodes.find(n => n.name === startNodeName)
+    }
+
+    const session = await this.sessionService.getSession(sessionId)
+
+    const queue = this.createQueue(targetNode, targetFlow)
+    await this.updateQueueForSession(queue, session)
+  }
+
   protected async processSession(botId, session, flows) {
     let queue = new InstructionQueue(session.context!.queue)
     let sessionIsStale = false
