@@ -28,7 +28,7 @@ export default async (bp: SDK, botScopedNlu: Map<string, ScopedNlu>) => {
   })
 
   async function processEvent(event) {
-    if (['session_reset', 'bp_dialog_timeout'].includes(event.type)) {
+    if (['session_reset', 'bp_dialog_timeout', 'visit'].includes(event.type)) {
       return
     }
 

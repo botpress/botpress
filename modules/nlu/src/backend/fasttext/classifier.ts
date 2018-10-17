@@ -1,7 +1,6 @@
 import { createWriteStream, writeFileSync } from 'fs'
 import { EOL } from 'os'
 import tmp from 'tmp'
-import { join } from 'upath'
 
 import FTWrapper from './fasttext.wrapper'
 
@@ -52,21 +51,20 @@ class FastTextClassifier {
     return Promise.fromCallback(cb => fileStream.end(cb))
   }
 
-  async train(intents: Array<Intent>) {
+  async train(intents: Array<Intent>, modelId: string) {
     const dataFn = tmp.tmpNameSync()
     await this.writeTrainingSet(intents, dataFn)
 
     const modelFn = tmp.tmpNameSync()
     FTWrapper.supervised(dataFn, modelFn)
-    return (this.modelPath = `${modelFn}.bin`)
+    this.modelPath = `${modelFn}.bin`
+    this.currentModelId = modelId
+
+    return this.modelPath
   }
 
   loadModel(model: Buffer, modelId?: string) {
-    this.currentModelId =
-      modelId ||
-      Math.random()
-        .toString()
-        .substr(0)
+    this.currentModelId = modelId
 
     const tmpFn = tmp.tmpNameSync()
     writeFileSync(tmpFn, model)

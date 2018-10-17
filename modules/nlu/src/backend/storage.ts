@@ -140,12 +140,6 @@ export default class Storage {
     return this.ghost.upsertFile(this.modelsDir, modelName, modelBuffer)
   }
 
-  async loadModel(modelHash: string): Promise<Buffer> {
-    const models = await this.getAvailableModels()
-    const fname = _.find(models, m => m.hash === modelHash)
-    return this.ghost.readFileAsBuffer(this.modelsDir, fname + '.bin')
-  }
-
   async getAvailableModels(): Promise<AvailableModel[]> {
     const models = await this.ghost.directoryListing(this.modelsDir, '*.bin')
     return models.map(x => {
@@ -156,5 +150,17 @@ export default class Storage {
         hash: parts[1]
       }
     })
+  }
+
+  async modelExists(modelHash: string): Promise<boolean> {
+    const models = await this.getAvailableModels()
+    return !!_.find(models, m => m.hash === modelHash)
+  }
+
+  async getModelAsBuffer(modelHash: string): Promise<Buffer> {
+    const models = await this.ghost.directoryListing(this.modelsDir, '*.bin')
+    const modelFn = _.find(models, m => m.indexOf(modelHash) !== -1)
+
+    return this.ghost.readFileAsBuffer(this.modelsDir, modelFn)
   }
 }
