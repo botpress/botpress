@@ -55,8 +55,8 @@ const event = (eventEngine: EventEngine): typeof sdk.events => {
 
 const dialog = (dialogEngine: DialogEngine, sessionService: SessionService): typeof sdk.dialog => {
   return {
-    async processEvent(userId: string, event: sdk.IO.Event): Promise<void> {
-      await dialogEngine.processEvent(event.botId, userId, event)
+    async processEvent(event: sdk.IO.Event): Promise<void> {
+      await dialogEngine.processEvent(event)
     },
     async deleteSession(userId: string): Promise<void> {
       await sessionService.deleteSession(userId)

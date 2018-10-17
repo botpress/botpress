@@ -606,10 +606,9 @@ declare module 'botpress/sdk' {
   export namespace dialog {
     /**
      * Calls the dialog engine to start processing an event.
-     * @param sessionId A unique string that will be used to identify the session. We recommend using the user Id. e.g. a messenger user Id, a slack user Id or a web application user Id
      * @param event The event to be processed by the dialog engine
      */
-    export function processEvent(sessionId: string, event: IO.Event): Promise<void>
+    export function processEvent(event: IO.Event): Promise<void>
     /**
      * Deletes a session
      * @param sessionId The Id of the session to delete
@@ -628,6 +627,15 @@ declare module 'botpress/sdk' {
      * bp.dialog.setState(sessionId, {...state, newProp: 'a new property'})
      */
     export function setState(sessionId: string, state: State): Promise<void>
+
+    /**
+     * Jumps to a specific flow and optionaly a specific node. This is useful when the default flow behaviour needs to be bypassed.
+     * @param event The event to be processed
+     * @param flowName The name of the flow to jump to
+     * @param nodeName The name of the optionnal node to jump to.
+     * The node will default to the starting node of the flow if this value is omitted.
+     */
+    export function jumpTo(event: IO.Event, flowName: string, nodeName?: string): Promise<void>
   }
 
   export namespace config {
