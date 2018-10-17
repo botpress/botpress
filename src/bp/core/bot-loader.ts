@@ -21,11 +21,16 @@ export class BotLoader {
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider
   ) {}
 
-  public async getAllBots(): Promise<Map<string, BotConfig>> {
-    const botIds = await this.database
+  public async getAllBotIds(): Promise<string[]> {
+    return this.database
       .knex('srv_bots')
       .select('id')
-      .map(x => x['id'])
+      .then<any[]>()
+      .map(x => x['id'] as string)
+  }
+
+  public async getAllBots(): Promise<Map<string, BotConfig>> {
+    const botIds = await this.getAllBotIds()
     const bots = new Map<string, BotConfig>()
 
     for (const botId of botIds) {

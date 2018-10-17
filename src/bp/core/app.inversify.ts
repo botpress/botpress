@@ -87,7 +87,7 @@ container
   .inSingletonScope()
 
 const isPackaged = !!eval('process.pkg')
-const isProduction = !yn(process.env.DEBUG) && (isPackaged || process.env.NODE_ENV == 'production')
+const isProduction = process.IS_PRODUCTION
 
 const projectLocation = isPackaged
   ? path.join(path.dirname(process.execPath)) // We point at the binary path

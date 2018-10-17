@@ -10,6 +10,7 @@ import { ModuleLoader } from './module-loader'
 import { BotRepository } from './repositories'
 import { AdminRouter, AuthRouter, BotsRouter, ModulesRouter } from './routers'
 import { ShortLinksRouter } from './routers/shortlinks'
+import { GhostService } from './services'
 import ActionService from './services/action/action-service'
 import AuthService from './services/auth/auth-service'
 import TeamsService from './services/auth/teams-service'
@@ -52,7 +53,8 @@ export default class HTTPServer {
     @inject(TYPES.MediaService) mediaService: MediaService,
     @inject(TYPES.LogsService) logsService: LogsService,
     @inject(TYPES.NotificationsService) notificationService: NotificationsService,
-    @inject(TYPES.SkillService) skillService: SkillService
+    @inject(TYPES.SkillService) skillService: SkillService,
+    @inject(TYPES.GhostService) ghostService: GhostService
   ) {
     this.app = express()
 
@@ -75,7 +77,8 @@ export default class HTTPServer {
       logsService,
       notificationService,
       authService,
-      teamsService
+      teamsService,
+      ghostService
     })
   }
 

@@ -1,3 +1,5 @@
+const yn = require('yn')
+
 const printPlainError = err => {
   console.log('Error starting botpress')
   console.log(err)
@@ -48,10 +50,17 @@ try {
       default: defaultVerbosity,
       description: 'verbosity level'
     })
+    .option('production', {
+      alias: 'p',
+      default: false,
+      description: 'run in production mode'
+    })
+    .boolean('production')
     .count('verbose')
     .help().argv
 
   process.VERBOSITY_LEVEL = Number(argv.verbose)
+  process.IS_PRODUCTION = argv.production || yn(process.env.BP_PRODUCTION)
 
   require('./bootstrap')
 } catch (err) {
