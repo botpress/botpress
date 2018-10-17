@@ -166,6 +166,15 @@ function setupAPIProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
     })
   )
 
+  app.post(
+    '/api/content/categories/all/bulk_delete',
+    proxy(coreApiUrl, {
+      proxyReqPathResolver: async (req, res) => {
+        return `${getApiBasePath(req)}/content/categories/all/bulk_delete`
+      }
+    })
+  )
+
   httpProxy.proxyForBot('/api/content/categories', '/content/types')
 
   app.get(
