@@ -14,6 +14,8 @@ import { TYPES } from './types'
 const MODULE_SCHEMA = joi.object().keys({
   onInit: joi.func().required(),
   onReady: joi.func().required(),
+  onBotMount: joi.func().optional(),
+  onBotUnmount: joi.func().optional(),
   config: joi.object().optional(),
   defaultConfigJson: joi.string().optional(),
   serveFile: joi.func().optional(),
