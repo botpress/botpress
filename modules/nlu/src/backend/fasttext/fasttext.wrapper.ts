@@ -13,17 +13,21 @@ const BINPATH = join(__dirname, bin)
 export default class FTWrapper {
   binpath = BINPATH
   static supervised(trainingSetPath: string, modelOutPath: string, learningRate: number = 0.7, epoch: number = 1) {
-    execFileSync(BINPATH, [
-      'supervised',
-      '-input',
-      trainingSetPath,
-      '-output',
-      modelOutPath,
-      '-lr',
-      learningRate.toString(),
-      '-epoch',
-      epoch.toString()
-    ])
+    execFileSync(
+      BINPATH,
+      [
+        'supervised',
+        '-input',
+        trainingSetPath,
+        '-output',
+        modelOutPath,
+        '-lr',
+        learningRate.toString(),
+        '-epoch',
+        epoch.toString()
+      ],
+      { stdio: 'ignore' }
+    )
   }
 
   static predictProb(modelPath: string, inputFilePath: string, numClass = 1): string {
