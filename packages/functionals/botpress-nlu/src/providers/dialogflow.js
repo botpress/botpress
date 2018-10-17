@@ -80,6 +80,7 @@ export default class DialogflowProvider extends Provider {
     return {
       intent,
       intents: [intent],
+      original: detection,
       entities: entities.map(entity => ({
         name: entity.name, // usually the entity name, but can be modified
         type: entity.name, // when parameter name modified dialogflow doesn't give the original entity name
