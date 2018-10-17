@@ -100,7 +100,7 @@ export default class FormModal extends Component {
     }
 
     this.props.closeQnAModal()
-    return this.props.bp.axios.post('/api/ext/qna', this.state.item).then(() => {
+    return this.props.bp.axios.post('/api/ext/qna/create', this.state.item).then(() => {
       this.props.fetchData()
     })
   }
