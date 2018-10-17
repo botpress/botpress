@@ -15,6 +15,12 @@ export default class NativeProvider extends Provider {
     this.intentClassifier = new FastTextClassifier()
   }
 
+  async init() {
+    if (await this.checkSyncNeeded()) {
+      await this.sync()
+    }
+  }
+
   public async sync() {
     const intents = await this.storage.getIntents()
     const modelHash = this.getIntentsHash(intents)
