@@ -77,10 +77,10 @@ export default class FormModal extends Component {
     const { item, isText, isRedirect } = this.state
     const invalidFields = {
       questions: !item.questions.length || !item.questions[0].length,
-      answer: !(this.state.isText && this.state.item.answer),
+      answer: isText && !item.answer.length,
       checkbox: !(isText || isRedirect),
-      redirectFlow: this.state.isRedirect && !this.state.item.redirectFlow,
-      redirectNode: this.state.isRedirect && !this.state.item.redirectNode
+      redirectFlow: isRedirect && !item.redirectFlow,
+      redirectNode: isRedirect && !item.redirectNode
     }
 
     this.setState({ invalidFields })
