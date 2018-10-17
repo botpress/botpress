@@ -53,6 +53,27 @@ export async function buildBackend(modulePath: string) {
 
   rimraf.sync(path.join(modulePath, 'dist'))
 
+  // Allows to copy additional files to the dist directory of the module
+  const extrasFile = path.join(modulePath, 'build.extras.js')
+  if (fs.existsSync(extrasFile)) {
+    const extras = require(extrasFile)
+    if (extras && extras.copyFiles) {
+      for (const instruction of extras.copyFiles) {
+        const toCopy = glob.sync(instruction, {
+          cwd: modulePath
+        })
+
+        for (const file of toCopy) {
+          const buff = fs.readFileSync(path.join(modulePath, file))
+          const dest = file.replace(/^src\//i, 'dist/').replace(/.ts$/i, '.js')
+          mkdirp.sync(path.dirname(path.join(modulePath, dest)))
+          fs.writeFileSync(path.join(modulePath, dest), buff)
+          debug(`Copied "${file}" -> "${dest}"`)
+        }
+      }
+    }
+  }
+
   const outputFiles = []
 
   for (const file of files) {
