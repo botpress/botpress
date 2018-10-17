@@ -6,7 +6,7 @@ import path from 'path'
 
 import api from './api'
 import ScopedNlu from './scopednlu'
-import setup from './setup'
+import setup, { setupForBot } from './setup'
 
 export type SDK = typeof sdk
 
@@ -18,6 +18,10 @@ const onInit = async (bp: SDK) => {
 
 const onReady = async (bp: SDK) => {
   await api(bp, botScopedNlu)
+}
+
+const onBotMount = async (bp: SDK, botId: string) => {
+  await setupForBot(bp, botScopedNlu, botId)
 }
 
 const serveFile = async (filePath: string): Promise<Buffer> => {
@@ -93,6 +97,7 @@ const config: sdk.ModuleConfig = {
 const entryPoint: sdk.ModuleEntryPoint = {
   onInit,
   onReady,
+  onBotMount,
   config,
   defaultConfigJson,
   serveFile,

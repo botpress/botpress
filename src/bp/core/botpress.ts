@@ -106,8 +106,7 @@ export class Botpress {
     this.eventEngine.onAfterIncomingMiddleware = async (event: sdk.IO.Event) => {
       await this.hookService.executeHook(new Hooks.AfterIncomingMiddleware(this.api, event))
       if (!event.hasFlag(WellKnownFlags.SKIP_DIALOG_ENGINE)) {
-        const sessionId = `${event.channel}::${event.target}::${event.threadId}`
-        await this.dialogEngine.processEvent(event.botId, sessionId, event)
+        await this.dialogEngine.processEvent(event)
       }
     }
 

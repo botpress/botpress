@@ -246,6 +246,16 @@ export class BotsRouter implements CustomRouter {
       }
     )
 
+    this.router.post(
+      '/content/categories/all/bulk_delete',
+      this.checkTokenHeader,
+      this.needPermissions('write', 'bot.content'),
+      async (req, res) => {
+        await this.cmsService.deleteContentElements(req.params.botId, req.body)
+        res.sendStatus(200)
+      }
+    )
+
     this.router.get('/flows', this.checkTokenHeader, this.needPermissions('read', 'bot.flows'), async (req, res) => {
       const botId = req.params.botId
       const flows = await this.flowService.loadAll(botId)

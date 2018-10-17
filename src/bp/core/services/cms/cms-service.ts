@@ -90,7 +90,7 @@ export class CMSService implements IDisposeOnExit {
       contentElements = _.concat(contentElements, fileContentElements)
     }
 
-    const elements = Promise.map(contentElements, element => {
+    const elements = await Promise.map(contentElements, element => {
       return this.memDb(this.contentTable).insert(this.transformItemApiToDb(botId, element))
     })
 
@@ -337,7 +337,7 @@ export class CMSService implements IDisposeOnExit {
 
     const result = { ...element, botId }
 
-    if ('formData' in element) {
+    if ('formData' in element && typeof element.formData !== 'string') {
       result.formData = JSON.stringify(element.formData)
     }
 

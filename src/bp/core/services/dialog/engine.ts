@@ -46,13 +46,17 @@ export class DialogEngine {
    * @param sessionId The ID that will identify the session. Generally the user ID
    * @param event The incoming botpress event
    */
-  async processEvent(botId: string, sessionId: string, event: IO.Event) {
-    const session = await this.getOrCreateSession(botId, sessionId, event)
-    const flows = await this.flowService.loadAll(botId)
-    await this.processSession(botId, session, flows)
+  async processEvent(event: IO.Event) {
+    const session = await this.getOrCreateSession(event.botId, event)
+    const flows = await this.flowService.loadAll(event.botId)
+    await this.processSession(event.botId, session, flows)
   }
 
-  protected async getOrCreateSession(botId, sessionId, event): Promise<DialogSession> {
+  private getSessionIdFromEvent(event: IO.Event) {
+    return `${event.channel}::${event.target}::${event.threadId}`
+  }
+
+  protected async getOrCreateSession(botId, event): Promise<DialogSession> {
     const flows = await this.flowService.loadAll(botId)
     const defaultFlow = flows.find(f => f.name === DEFAULT_FLOW_NAME)
     let skillEntryNode
@@ -70,6 +74,7 @@ export class DialogEngine {
       skillFlow = flow
     }
 
+    const sessionId = this.getSessionIdFromEvent(event)
     let session: DialogSession = await this.sessionService.getOrCreateSession(sessionId, botId)
     session = await this.sessionService.updateSessionEvent(session.id, event)
 
@@ -92,6 +97,36 @@ export class DialogEngine {
     }
 
     return session
+  }
+
+  async jumpTo(event: any, flowName: string, nodeName?: string) {
+    const flows = await this.flowService.loadAll(event.botId)
+    const targetFlow = flows.find(f => f.name === flowName)
+    let targetNode
+
+    if (nodeName) {
+      targetNode = targetFlow!.nodes.find(n => n.name === nodeName)
+      if (!targetNode) {
+        throw new Error(`The target node "${nodeName}" doesnt exists in the provided flow "${flowName}"`)
+      }
+    }
+
+    if (!targetNode) {
+      const startNodeName = targetFlow!.startNode
+      targetNode = targetFlow!.nodes.find(n => n.name === startNodeName)
+    }
+
+    const session = await this.getOrCreateSession(event.botId, event)
+    const queue = this.createQueue(targetNode, targetFlow)
+
+    const context = {
+      previousFlowName: session.context!.currentFlowName,
+      previousNodeName: session.context!.currentNodeName,
+      currentFlowName: targetFlow!.name,
+      currentNodeName: targetNode.name,
+      queue: queue.toString()
+    }
+    await this.sessionService.updateSessionContext(session.id, context)
   }
 
   protected async processSession(botId, session, flows) {
