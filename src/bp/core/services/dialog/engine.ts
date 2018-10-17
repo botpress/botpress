@@ -112,9 +112,16 @@ export class DialogEngine {
     }
 
     const session = await this.getOrCreateSession(event.botId, event.target, event)
-
     const queue = this.createQueue(targetNode, targetFlow)
-    await this.updateQueueForSession(queue, session)
+
+    const context = {
+      previousFlowName: session.context!.currentFlowName,
+      previousNodeName: session.context!.currentNodeName,
+      currentFlowName: targetFlow!.name,
+      currentNodeName: targetNode.name,
+      queue: queue.toString()
+    }
+    await this.sessionService.updateSessionContext(session.id, context)
   }
 
   protected async processSession(botId, session, flows) {
