@@ -40,6 +40,7 @@ node_modules
 # Botpress Build
 /out
 /tmp
+test-report.html
 
 # Botpress docs
 /docs/reference

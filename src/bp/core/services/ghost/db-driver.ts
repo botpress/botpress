@@ -1,5 +1,6 @@
 import { inject, injectable } from 'inversify'
 import nanoid from 'nanoid'
+import path from 'path'
 import { VError } from 'verror'
 
 import Database from '../../database'
@@ -117,7 +118,9 @@ export default class DBStorageDriver implements StorageDriver {
         query = query.andWhere('file_path', 'like', folder + '%')
       }
 
-      return query.then().map((x: any) => x.file_path)
+      return query.then().map((x: any) => {
+        return path.relative(folder, x.file_path)
+      })
     } catch (e) {
       throw new VError(e, `[DB Storage] Error listing directory content for folder "${folder}"`)
     }
@@ -128,6 +131,7 @@ export default class DBStorageDriver implements StorageDriver {
       let query = this.database.knex('srv_ghost_index')
 
       if (pathPrefix.length) {
+        pathPrefix = pathPrefix.replace(/^.\//g, '') // Remove heading './' if present
         query = query.where('file_path', 'like', pathPrefix + '%')
       }
 
@@ -135,7 +139,6 @@ export default class DBStorageDriver implements StorageDriver {
         entries.map(
           x =>
             <GhostFileRevision>{
-              id: x.id,
               path: x.file_path,
               revision: x.revision,
               created_on: new Date(x.created_on),
