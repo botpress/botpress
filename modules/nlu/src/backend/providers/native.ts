@@ -1,7 +1,6 @@
 import sdk from 'botpress/sdk'
 import crypto from 'crypto'
 import { readFileSync } from 'fs'
-import { find } from 'lodash'
 
 import FastTextClassifier from '../fasttext/classifier'
 

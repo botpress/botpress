@@ -31,15 +31,20 @@ const normalizeQuestions = questions =>
     .filter(Boolean)
 
 export default class Storage implements QnaStorage {
-  bp: SDK
-  config
-  botId: string
-  axiosConfig
+  private bp: SDK
+  private config
+  private botId: string
+  private axiosConfig
+  private categories: string[]
 
   constructor(bp: SDK, config, botId) {
     this.bp = bp
     this.config = config
     this.botId = botId
+
+    if (config.qnaCategories && config.qnaCategories.length > 0) {
+      this.categories = config.qnaCategories.split(',')
+    }
   }
 
   async initialize() {
@@ -74,25 +79,23 @@ export default class Storage implements QnaStorage {
     return id
   }
 
-  async insert(qna) {
-    const ids = await Bluebird.all(
-      (_.isArray(qna) ? qna : [qna]).map(async data => {
-        const id = getQuestionId(data)
+  async insert(qna, statusCb) {
+    const ids = await Promise.each(_.isArray(qna) ? qna : [qna], async (data, i) => {
+      const id = getQuestionId(data)
 
-        if (data.enabled) {
-          const intent = {
-            entities: [],
-            utterances: normalizeQuestions(data.questions)
-          }
-
-          await axios.post(`/api/ext/nlu/intents/${getIntentId(id)}`, intent, this.axiosConfig)
+      if (data.enabled) {
+        const intent = {
+          entities: [],
+          utterances: normalizeQuestions(data.questions)
         }
+        await axios.post(`/api/ext/nlu/intents/${getIntentId(id)}`, intent, this.axiosConfig)
+      }
 
-        await this.bp.ghost
-          .forBot(this.botId)
-          .upsertFile(this.config.qnaDir, `${id}.json`, JSON.stringify({ id, data }, undefined, 2))
-      })
-    )
+      await this.bp.ghost
+        .forBot(this.botId)
+        .upsertFile(this.config.qnaDir, `${id}.json`, JSON.stringify({ id, data }, undefined, 2))
+      statusCb && statusCb(i + 1)
+    })
 
     await this.syncNlu()
 
@@ -111,17 +114,65 @@ export default class Storage implements QnaStorage {
     return JSON.parse(data)
   }
 
-  async count() {
-    const questions = await this.bp.ghost.forBot(this.botId).directoryListing(this.config.qnaDir, '*.json')
-    return questions.length
+  async fetchAllQuestions(opts?: Paging) {
+    try {
+      let questions = await this.bp.ghost.forBot(this.botId).directoryListing(this.config.qnaDir, '*.json')
+      if (opts && opts.start && opts.count) {
+        questions = questions.slice(opts.start, opts.start + opts.count)
+      }
+
+      return Promise.map(questions, question => this.getQuestion({ filename: question }))
+    } catch (err) {
+      this.bp.logger.warn(`Error while reading questions. ${err}`)
+      return []
+    }
   }
 
-  async all(opts?: Paging) {
-    let questions = await this.bp.ghost.forBot(this.botId).directoryListing(this.config.qnaDir, '*.json')
-    if (opts && opts.start && opts.count) {
-      questions = questions.slice(opts.start, opts.start + opts.count)
+  async filterByCategoryAndQuestion({ question, categories }) {
+    const allQuestions = await this.fetchAllQuestions()
+    const filteredQuestions = allQuestions.filter(q => {
+      const { questions, category } = q.data
+
+      const isRightId =
+        questions
+          .join('\n')
+          .toLowerCase()
+          .indexOf(question.toLowerCase()) !== -1
+
+      if (!categories.length) {
+        return isRightId
+      }
+
+      if (!question) {
+        return category && categories.indexOf(category) !== -1
+      }
+      return isRightId && category && categories.indexOf(category) !== -1
+    })
+
+    return filteredQuestions.reverse()
+  }
+
+  async getQuestions({ question = '', categories = [] }, { limit = 50, offset = 0 }) {
+    let items = []
+    let count = 0
+
+    if (!(question || categories.length)) {
+      items = await this.fetchAllQuestions({
+        start: offset ? parseInt(offset) : undefined,
+        count: limit ? parseInt(limit) : undefined
+      })
+      count = await this.count()
+    } else {
+      const tmpQuestions = await this.filterByCategoryAndQuestion({ question, categories })
+      items = tmpQuestions.slice(offset, offset + limit)
+      count = tmpQuestions.length
     }
-    return Promise.map(questions, question => this.getQuestion({ filename: question }))
+    return { items, count }
+  }
+
+  async count() {
+    const questions = await this.fetchAllQuestions()
+    return questions.length
   }
 
   async delete(qnaId) {
@@ -158,5 +209,13 @@ export default class Storage implements QnaStorage {
         return { questions, answer, confidence, id: name, metadata: [] }
       })
     )
+  }
+
+  getCategories() {
+    return this.categories
+  }
+
+  hasCategories() {
+    return this.categories && this.categories.length > 0
   }
 }

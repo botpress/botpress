@@ -400,6 +400,7 @@ export default class LuisProvider extends Provider {
           _.get(entity, 'resolution.value') ||
           _.get(entity, 'resolution.values.0') ||
           entity.entity,
+        unit: _.get(entity, 'resolution.unit'),
         original: entity.entity,
         confidence: undefined,
         position: entity.startIndex,

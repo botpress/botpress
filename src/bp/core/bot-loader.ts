@@ -43,4 +43,8 @@ export class BotLoader {
     const bots = await this.getAllBots()
     await this.cms.preloadContentForAllBots(Array.from(bots.keys()))
   }
+
+  async loadForBot(botId: string) {
+    await this.cms.loadContentElementsForBot(botId)
+  }
 }

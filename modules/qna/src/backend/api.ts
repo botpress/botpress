@@ -1,4 +1,3 @@
-import { eventNames } from 'cluster'
 import iconv from 'iconv-lite'
 import { Parser as Json2csvParser } from 'json2csv'
 import _ from 'lodash'
@@ -12,48 +11,17 @@ import { importQuestions, prepareExport } from './transfer'
 
 export default async (bp: SDK, botScopedStorage: Map<string, QnaStorage>) => {
   const csvUploadStatuses = {}
-
-  const updateUploadStatus = (uploadStatusId, status) => {
-    if (!uploadStatusId) {
-      return
-    }
-    csvUploadStatuses[uploadStatusId] = status
-  }
-
   const router = bp.http.createRouterForBot('qna')
-
-  const sendToastProgress = action => {
-    bp.realtime.sendPayload(
-      bp.RealTimePayload.forAdmins('toast.qna-save', { text: `QnA ${action} In Progress`, type: 'info', time: 120000 })
-    )
-  }
-
-  const sendToastSuccess = action => {
-    bp.realtime.sendPayload(
-      bp.RealTimePayload.forAdmins('toast.qna-save', { text: `QnA ${action} Success`, type: 'success' })
-    )
-  }
-
-  const sendToastError = (action, error) => {
-    bp.realtime.sendPayload(
-      bp.RealTimePayload.forAdmins('toast.qna-save', { text: `QnA ${action} Error: ${error}`, type: 'error' })
-    )
-  }
 
   router.get('/list', async (req, res) => {
     try {
       const {
-        query: { limit, offset }
+        query: { question = '', categories = [], limit, offset }
       } = req
+
       const storage = botScopedStorage.get(req.params.botId)
-
-      const items = await storage.all({
-        start: offset ? parseInt(offset) : undefined,
-        count: limit ? parseInt(limit) : undefined
-      })
-
-      const overallItemsCount = await storage.count()
-      res.send({ items, overallItemsCount })
+      const items = await storage.getQuestions({ question, categories }, { limit, offset })
+      res.send({ ...items })
     } catch (e) {
       bp.logger.error('Error while listing: ', e)
       res.status(500).send(e.message || 'Error')
@@ -62,11 +30,9 @@ export default async (bp: SDK, botScopedStorage: Map<string, QnaStorage>) => {
 
   router.post('/create', async (req, res) => {
     try {
-      sendToastProgress('Save')
       const storage = botScopedStorage.get(req.params.botId)
       const id = await storage.insert(req.body)
       res.send(id)
-      sendToastSuccess('Save')
     } catch (e) {
       bp.logger.error('Error while creating: ', e)
       res.status(500).send(e.message || 'Error')
@@ -74,33 +40,55 @@ export default async (bp: SDK, botScopedStorage: Map<string, QnaStorage>) => {
     }
   })
 
-  router.put('/:question', async (req, res) => {
+  router.get('/question/:id', async (req, res) => {
     try {
-      sendToastProgress('Update')
+      const storage = botScopedStorage.get(req.params.botId)
+      const question = await storage.getQuestion(req.params.id)
+      res.send(question)
+    } catch (e) {
+      sendToastError('Fetch', e.message)
+    }
+  })
+
+  router.put('/:question', async (req, res) => {
+    const {
+      query: { limit, offset, question, categories }
+    } = req
+
+    try {
       const storage = botScopedStorage.get(req.params.botId)
       await storage.update(req.body, req.params.question)
-      sendToastSuccess('Update')
-      res.end()
+      const questions = await storage.getQuestions({ question, categories }, { limit, offset })
+      res.send(questions)
     } catch (e) {
-      bp.logger.error('Update error: ', eventNames)
+      bp.logger.error('Update error: ', e)
       res.status(500).send(e.message || 'Error')
       sendToastError('Update', e.message)
     }
   })
 
   router.delete('/:question', async (req, res) => {
+    const {
+      query: { limit, offset, question, categories }
+    } = req
+
     try {
-      sendToastProgress('Delete')
       const storage = botScopedStorage.get(req.params.botId)
-      await storage.delete(req.params.question)
-      sendToastSuccess('Delete')
-      res.end()
+      await storage.delete(req.params.question, undefined)
+      const questionsData = await storage.getQuestions({ question, categories }, { limit, offset })
+      res.send(questionsData)
     } catch (e) {
       bp.logger.error('Delete error: ', e)
       res.status(500).send(e.message || 'Error')
 
       sendToastError('Delete', e.message)
     }
+  })
+
+  router.get('/categories', async (req, res) => {
+    const storage = botScopedStorage.get(req.params.botId)
+    const categories = await storage.getCategories()
+    res.send({ categories })
   })
 
   router.get('/export/:format', async (req, res) => {
@@ -111,7 +99,14 @@ export default async (bp: SDK, botScopedStorage: Map<string, QnaStorage>) => {
     if (req.params.format === 'csv') {
       res.setHeader('Content-Type', 'text/csv')
       res.setHeader('Content-disposition', `attachment; filename=qna_${moment().format('DD-MM-YYYY')}.csv`)
-      const json2csvParser = new Json2csvParser({ fields: ['question', 'action', 'answer', 'answer2'], header: true })
+
+      const categoryWrapper = storage.hasCategories() ? ['category'] : []
+      const parseOptions = {
+        fields: ['question', 'action', 'answer', 'answer2', ...categoryWrapper],
+        header: true
+      }
+      const json2csvParser = new Json2csvParser(parseOptions)
+
       res.end(iconv.encode(json2csvParser.parse(data), config.exportCsvEncoding))
     } else {
       res.setHeader('Content-Type', 'application/json')
@@ -130,8 +125,11 @@ export default async (bp: SDK, botScopedStorage: Map<string, QnaStorage>) => {
 
     updateUploadStatus(uploadStatusId, 'Deleting existing questions')
     if (yn(req.body.isReplace)) {
-      const questions = await storage.all()
-      await storage.delete(questions.map(({ id }) => id))
+      const questions = await storage.fetchAllQuestions()
+
+      const statusCb = processedCount =>
+        updateUploadStatus(uploadStatusId, `Deleted ${processedCount}/${questions.length} questions`)
+      await storage.delete(questions.map(({ id }) => id), statusCb)
     }
 
     try {
@@ -155,4 +153,17 @@ export default async (bp: SDK, botScopedStorage: Map<string, QnaStorage>) => {
   router.get('/csv-upload-status/:uploadStatusId', async (req, res) => {
     res.end(csvUploadStatuses[req.params.uploadStatusId])
   })
+
+  const sendToastError = (action, error) => {
+    bp.realtime.sendPayload(
+      bp.RealTimePayload.forAdmins('toast.qna-save', { text: `QnA ${action} Error: ${error}`, type: 'error' })
+    )
+  }
+
+  const updateUploadStatus = (uploadStatusId, status) => {
+    if (!uploadStatusId) {
+      return
+    }
+    csvUploadStatuses[uploadStatusId] = status
+  }
 }

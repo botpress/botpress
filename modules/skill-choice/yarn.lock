@@ -1556,6 +1556,10 @@ currently-unhandled@^0.4.1:
 cyclist@~0.2.2:
   version "0.2.2"
   resolved "https://registry.yarnpkg.com/cyclist/-/cyclist-0.2.2.tgz#1b33792e11e914a2fd6d6ed6447464444e5fa640"
+<<<<<<< HEAD
+=======
+  integrity sha1-GzN5LhHpFKL9bW7WRHRkRE5fpkA=
+>>>>>>> ead2cecf3d02ec9c7577cc36d3c624e202270bf1
 
 dashdash@^1.12.0:
   version "1.14.1"

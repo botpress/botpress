@@ -1,4 +1,5 @@
 import { Logger } from 'botpress/sdk'
+import { ModuleLoader } from 'core/module-loader'
 import { inject, injectable, tagged } from 'inversify'
 import Joi from 'joi'
 import Knex from 'knex'
@@ -13,6 +14,7 @@ import { AuthRole, AuthRoleDb, AuthRule, AuthTeam, AuthTeamMembership, AuthUser,
 import { BOTID_REGEX } from '../../misc/validation'
 import { TYPES } from '../../types'
 import { InvalidOperationError, NotFoundError, UnauthorizedAccessError } from '../auth/errors'
+import { GhostService } from '../ghost/service'
 
 import defaultRoles from './default-roles'
 const TEAMS_TABLE = 'auth_teams'
@@ -39,7 +41,9 @@ export default class TeamsService {
     @inject(TYPES.Database) private db: Database,
     @inject(TYPES.BotConfigFactory) private botConfigFactory: BotConfigFactory,
     @inject(TYPES.BotConfigWriter) private botConfigWriter: BotConfigWriter,
-    @inject(TYPES.BotLoader) private botLoader: BotLoader
+    @inject(TYPES.BotLoader) private botLoader: BotLoader,
+    @inject(TYPES.GhostService) private ghostService: GhostService,
+    @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader
   ) {}
 
   get knex() {
@@ -304,6 +308,9 @@ export default class TeamsService {
     await this.knex(BOTS_TABLE).insert(bot)
     const botConfig = this.botConfigFactory.createDefault({ id: bot.id, name: bot.name, description: bot.description })
     await this.botConfigWriter.writeToFile(botConfig)
+    await this.ghostService.forBot(bot.id).sync(['actions', 'content-elements', 'flows'])
+    await this.botLoader.loadForBot(bot.id)
+    await this.moduleLoader.loadModulesForBot(bot.id)
   }
 
   async getBotTeam(botId: string) {
