@@ -66,6 +66,9 @@ const dialog = (dialogEngine: DialogEngine, sessionService: SessionService): typ
     },
     async setState(userId: string, state: any): Promise<void> {
       await sessionService.updateStateForSession(userId, state)
+    },
+    async jumpTo(event: any, flowName: string, nodeName?: string): Promise<void> {
+      await dialogEngine.jumpTo(event, flowName, nodeName)
     }
   }
 }

@@ -628,6 +628,8 @@ declare module 'botpress/sdk' {
      * bp.dialog.setState(sessionId, {...state, newProp: 'a new property'})
      */
     export function setState(sessionId: string, state: State): Promise<void>
+
+    export function jumpTo(event: any, flowName: string, nodeName?: string): Promise<void>
   }
 
   export namespace config {

@@ -83,11 +83,13 @@ export default async (bp: SDK, botScopedStorage: Map<string, QnaStorage>) => {
       // TODO: This is used as the `stateId` by the bot template
       // Not sure if it's universal enough for every use-case but
       // I don't see a better alternative as of now
-      const stateId = event.sessionId || event.user.id
-      bp.logger.debug(`Jumping ${stateId} to ${answer.redirectFlow} ${answer.redirectNode}`)
+      // const stateId = event.sessionId || event.user.id
+      // bp.logger.debug(`Jumping ${stateId} to ${answer.redirectFlow} ${answer.redirectNode}`)
 
       // TODO jump to correct location
-      // await bp.dialogEngine.jumpTo(stateId, answer.redirectFlow, answer.redirectNode)
+      // console.log(event.botId, event.target, answer.redirectFlow, answer.redirectNode)
+
+      await bp.dialog.jumpTo(event, answer.redirectFlow, answer.redirectNode)
       // We return false here because the we only jump to the right flow/node and let
       // the bot's natural middleware chain take care of processing the message the normal way
       return false

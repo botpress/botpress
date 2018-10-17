@@ -94,8 +94,8 @@ export class DialogEngine {
     return session
   }
 
-  async jumpTo(botId: string, sessionId: string, flowName: string, nodeName?: string) {
-    const flows = await this.flowService.loadAll(botId)
+  async jumpTo(event: any, flowName: string, nodeName?: string) {
+    const flows = await this.flowService.loadAll(event.botId)
     const targetFlow = flows.find(f => f.name === flowName)
     let targetNode
 
@@ -111,7 +111,7 @@ export class DialogEngine {
       targetNode = targetFlow!.nodes.find(n => n.name === startNodeName)
     }
 
-    const session = await this.sessionService.getSession(sessionId)
+    const session = await this.getOrCreateSession(event.botId, event.target, event)
 
     const queue = this.createQueue(targetNode, targetFlow)
     await this.updateQueueForSession(queue, session)
