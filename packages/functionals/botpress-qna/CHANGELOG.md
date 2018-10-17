@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.48.1"></a>
+## [10.48.1](https://github.com/botpress/modules/compare/v10.48.0...v10.48.1) (2018-10-17)
+
+
+### Bug Fixes
+
+* **qna:** fix deleting questions for QnA-maker ([#1027](https://github.com/botpress/modules/issues/1027)) ([3ed1788](https://github.com/botpress/modules/commit/3ed1788))
+
+
+
+
 <a name="10.48.0"></a>
 # [10.48.0](https://github.com/botpress/modules/compare/v10.47.1...v10.48.0) (2018-10-16)
 
