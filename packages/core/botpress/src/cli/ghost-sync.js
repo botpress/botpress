@@ -29,10 +29,16 @@ const writeRevisions = async (revisionsFile, revisions) => {
   })
 }
 
-const writeFile = folderPath => async ({ file, content, deleted }) => {
-  const filePath = path.join(folderPath, file)
+const writeFile = rootFolderPath => async ({ file, content, deleted }) => {
+  const folderPath = path.join(rootFolderPath, ...file.split('/').slice(0, -1))
+  const filePath = path.join(rootFolderPath, file)
 
   if (!deleted) {
+    try {
+      await fs.statAsync(folderPath)
+    } catch (e) {
+      await fs.mkdirAsync(folderPath, { recursive: true })
+    }
     return fs.writeFileAsync(filePath, content)
   }
 
@@ -48,6 +54,11 @@ const writeFile = folderPath => async ({ file, content, deleted }) => {
 
 const updateFolder = projectLocation => async ({ files, revisions, binary }, folder) => {
   const folderPath = path.join(projectLocation, folder)
+  try {
+    await fs.statAsync(folderPath)
+  } catch (e) {
+    await fs.mkdirAsync(folderPath, { recursive: true })
+  }
   const revisionsFile = path.join(folderPath, REVISIONS_FILE_NAME)
   await writeRevisions(revisionsFile, revisions)
 
