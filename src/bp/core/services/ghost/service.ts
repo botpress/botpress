@@ -206,6 +206,9 @@ export class ScopedGhostService {
       const files = await this.primaryDriver.directoryListing(this.normalizeFolderName(rootFolder), exludes)
       return files.filter(minimatch.filter(fileEndingPattern, { matchBase: true, nocase: true, noglobstar: false }))
     } catch (err) {
+      if (err && err.message && err.message.includes('ENOENT')) {
+        return []
+      }
       throw new VError(err, `Could not list directory under ${rootFolder}`)
     }
   }
