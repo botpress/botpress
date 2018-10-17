@@ -1,6 +1,6 @@
 {
   "name": "@botpress/util-sdk",
-  "version": "10.48.1",
+  "version": "10.48.2",
   "description": "The built-in stuff such as Content Elements, Content Renderers and Actions for Botpress X+",
   "main": "./dist/index.js",
   "repository": "https://github.com/botpress/botpress",
