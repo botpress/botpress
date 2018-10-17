@@ -3,7 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-  <a name="10.48.2"></a>
+      <a name="10.48.3"></a>
+## [10.48.3](https://github.com/botpress/botpress/compare/v10.48.2...v10.48.3) (2018-10-17)
+
+
+### Bug Fixes
+
+* **core:** create missing files/folder during ghost-sync (resolve [#996](https://github.com/botpress/botpress/issues/996)) ([#1031](https://github.com/botpress/botpress/issues/1031)) ([8463aa2](https://github.com/botpress/botpress/commit/8463aa2))
+
+
+
+
+      <a name="10.48.2"></a>
 ## [10.48.2](https://github.com/botpress/botpress/compare/v10.48.1...v10.48.2) (2018-10-17)
 
 
@@ -14,7 +25,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-  <a name="10.48.1"></a>
+<a name="10.48.1"></a>
 ## [10.48.1](https://github.com/botpress/botpress/compare/v10.48.0...v10.48.1) (2018-10-17)
 
 
