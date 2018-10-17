@@ -5,13 +5,17 @@ import moment from 'moment'
 import { SDK } from '.'
 import ScopedNlu from './scopednlu'
 
+export const setupForBot = async (bp: SDK, botScopedNlu: Map<string, ScopedNlu>, botId: string) => {
+  const scoped = new ScopedNlu(bp, botId)
+  await scoped.initialize()
+
+  botScopedNlu.set(botId, scoped)
+}
+
 export default async (bp: SDK, botScopedNlu: Map<string, ScopedNlu>) => {
   const bots = await bp.bots.getAllBots()
   for (const [id] of bots) {
-    const scoped = new ScopedNlu(bp, id)
-    await scoped.initialize()
-
-    botScopedNlu.set(id, scoped)
+    await setupForBot(bp, botScopedNlu, id)
   }
 
   bp.events.registerMiddleware({

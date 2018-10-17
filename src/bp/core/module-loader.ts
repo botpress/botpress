@@ -14,6 +14,8 @@ import { TYPES } from './types'
 const MODULE_SCHEMA = joi.object().keys({
   onInit: joi.func().required(),
   onReady: joi.func().required(),
+  onBotMount: joi.func().optional(),
+  onBotUnmount: joi.func().optional(),
   config: joi.object().optional(),
   defaultConfigJson: joi.string().optional(),
   serveFile: joi.func().optional(),
@@ -90,6 +92,7 @@ export class ModuleLoader {
     return _.merge({ definition }, ret.value)
   }
 
+  // FIXME: Load modules for bots using onBotMount instead of init
   public async loadModules(modules: ModuleEntryPoint[]) {
     this.configReader = new ConfigReader(this.logger, modules, this.ghost)
     await this.configReader.initialize()
@@ -120,7 +123,7 @@ export class ModuleLoader {
       try {
         const api = await createForModule(name)
         await (module.onReady && module.onReady(api))
-        this.loadModulesActions(name) // This is a hack to get the module location
+        this.loadModulesActions(name)
         readyModules.push(name)
         this.entryPoints.set(name, module)
       } catch (err) {
@@ -129,6 +132,15 @@ export class ModuleLoader {
     }
 
     return readyModules
+  }
+
+  public async loadModulesForBot(botId: string) {
+    const modules = this.getLoadedModules()
+    for (const module of modules) {
+      const entryPoint = this.getModule(module.name)
+      const api = await createForModule(module.name)
+      await (entryPoint.onBotMount && entryPoint.onBotMount(api, botId))
+    }
   }
 
   private async loadModulesActions(name: string) {
