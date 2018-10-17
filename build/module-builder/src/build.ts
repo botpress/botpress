@@ -1,5 +1,6 @@
 import * as babel from '@babel/core'
 import fs from 'fs'
+import fse from 'fs-extra'
 import glob from 'glob'
 import mkdirp from 'mkdirp'
 import path from 'path'
@@ -64,10 +65,11 @@ export async function buildBackend(modulePath: string) {
         })
 
         for (const file of toCopy) {
-          const buff = fs.readFileSync(path.join(modulePath, file))
+          const fromFull = path.join(modulePath, file)
           const dest = file.replace(/^src\//i, 'dist/').replace(/.ts$/i, '.js')
-          mkdirp.sync(path.dirname(path.join(modulePath, dest)))
-          fs.writeFileSync(path.join(modulePath, dest), buff)
+          const destFull = path.join(modulePath, dest)
+          mkdirp.sync(path.dirname(destFull))
+          fse.copySync(fromFull, destFull)
           debug(`Copied "${file}" -> "${dest}"`)
         }
       }
