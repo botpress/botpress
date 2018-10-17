@@ -38,7 +38,7 @@ class FastTextClassifier {
       }
     })
 
-    return parsed.length ? parsed : { name: 'none', confidence: 0.9999 }
+    return parsed.length ? parsed : [{ name: 'none', confidence: 0.9999 }]
   }
 
   private writeTrainingSet(intents: Array<Intent>, trainingFilePath) {
