@@ -157,4 +157,17 @@ export default class Storage {
       }
     })
   }
+
+  async modelExists(modelHash: string): Promise<boolean> {
+    const models = await this.getAvailableModels()
+    return !!_.find(models, m => m.hash === modelHash)
+  }
+
+  async getModelAsBuffer(modelHash: string): Promise<Buffer> {
+    const models = await this.ghost.directoryListing(this.modelsDir, '*.bin')
+    const modelFn = _.find(models, m => m.indexOf(modelHash) !== -1)
+
+    console.log('found model', modelFn)
+    return this.ghost.readFileAsBuffer(this.modelsDir, modelFn)
+  }
 }
