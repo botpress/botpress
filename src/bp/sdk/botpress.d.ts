@@ -76,6 +76,8 @@ declare module 'botpress/sdk' {
     onInit: Function
     /** This is called once all modules are initialized, usually for routing and logic */
     onReady: Function
+    onBotMount?: Function
+    onBotUnmount?: Function
     /** The configuration options of the module */
     config: ModuleConfig
     /** This is used to create the json config file if none is present */
