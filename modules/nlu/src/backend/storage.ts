@@ -1,5 +1,6 @@
 import { ScopedGhostService } from 'botpress/sdk'
 import _ from 'lodash'
+import path from 'path'
 
 import { SDK } from '.'
 
@@ -12,15 +13,22 @@ const formatFilename = name =>
     .replace('.json', '')
     .replace('.utterances.txt', '')
 
+export interface AvailableModel {
+  created_on: Date
+  hash: string
+}
+
 export default class Storage {
   private ghost: ScopedGhostService
-  private intentsDir: any
-  private entitiesDir: any
+  private intentsDir: string
+  private entitiesDir: string
+  private modelsDir: string
 
   constructor(bp: SDK, config, botId) {
     this.ghost = bp.ghost.forBot(botId)
     this.intentsDir = config.intentsDir
     this.entitiesDir = config.entitiesDir
+    this.modelsDir = config.modelsDir
   }
 
   async saveIntent(intent, content) {
@@ -125,5 +133,28 @@ export default class Storage {
       name: entity,
       definition: definition
     }
+  }
+
+  async persistModel(modelBuffer: Buffer, modelName: string) {
+    // TODO Ghost to support streams?
+    return this.ghost.upsertFile(this.modelsDir, modelName, modelBuffer)
+  }
+
+  async loadModel(modelHash: string): Promise<Buffer> {
+    const models = await this.getAvailableModels()
+    const fname = _.find(models, m => m.hash === modelHash)
+    return this.ghost.readFileAsBuffer(this.modelsDir, fname + '.bin')
+  }
+
+  async getAvailableModels(): Promise<AvailableModel[]> {
+    const models = await this.ghost.directoryListing(this.modelsDir, '*.bin')
+    return models.map(x => {
+      const fileName = path.basename(x, '.bin')
+      const parts = fileName.split('__')
+      return <AvailableModel>{
+        created_on: new Date(parts[0]),
+        hash: parts[1]
+      }
+    })
   }
 }

@@ -39,6 +39,7 @@ const defaultConfigJson = `
 {
   "intentsDir": "./intents",
   "entitiesDir": "./entities",
+  "modelsDir": "./models",
   "provider": "native",
   "debugModeEnabled": false,
   "minimumConfidence": "0.3",
@@ -49,6 +50,7 @@ const defaultConfigJson = `
 const config: sdk.ModuleConfig = {
   intentsDir: { type: 'string', required: true, default: './intents', env: 'NLU_INTENTS_DIR' },
   entitiesDir: { type: 'string', required: true, default: './entities', env: 'NLU_ENTITIES_DIR' },
+  modelsDir: { type: 'string', required: true, default: './models', env: 'NLU_MODELS_DIR' },
 
   // Provider config
   provider: { type: 'string', required: true, default: 'native', env: 'NLU_PROVIDER' },
@@ -98,6 +100,9 @@ const entryPoint: sdk.ModuleEntryPoint = {
   serveFile,
   definition: {
     name: 'nlu',
+    moduleView: {
+      stretched: true
+    },
     menuIcon: 'fiber_smart_record',
     menuText: 'NLU',
     fullName: 'NLU',

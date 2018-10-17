@@ -23,16 +23,8 @@ interface Prediction {
 
 class FastTextClassifier {
   private modelPath = ''
-  private modelDir
 
-  constructor(modelDir: string = __dirname) {
-    this.modelDir = modelDir
-  }
-
-  private newModelPath(withExt: boolean) {
-    const ext = withExt ? '.bin' : ''
-    return join(this.modelDir, Date.now() + ext)
-  }
+  public currentModelId: string | undefined
 
   private parsePredictions(predictionStr: string) {
     const predictions = predictionStr.split(FAST_TEXT_LABEL_KEY)
@@ -51,36 +43,34 @@ class FastTextClassifier {
   private writeTrainingSet(intents: Array<Intent>, trainingFilePath) {
     const fileStream = createWriteStream(trainingFilePath, { flags: 'a' })
 
-    let chunk = ''
-    let counter = 0
     for (const intent of intents) {
       intent.utterances.forEach(text => {
-        chunk += `${FAST_TEXT_LABEL_KEY}${intent.name} ${text}${EOL}`
-        if (++counter % 100 === 0) {
-          fileStream.write(chunk)
-          chunk = ''
-        }
+        fileStream.write(`${FAST_TEXT_LABEL_KEY}${intent.name} ${text}${EOL}`)
       })
     }
-    fileStream.end()
+
+    return Promise.fromCallback(cb => fileStream.end(cb))
   }
 
-  train(intents: Array<Intent>) {
-    const trainFileName = tmp.tmpNameSync()
-    const modelPath = this.newModelPath(false)
+  async train(intents: Array<Intent>) {
+    const dataFn = tmp.tmpNameSync()
+    await this.writeTrainingSet(intents, dataFn)
 
-    this.writeTrainingSet(intents, trainFileName)
-
-    FTWrapper.supervised(trainFileName, modelPath)
-    this.modelPath = `${modelPath}.bin`
+    const modelFn = tmp.tmpNameSync()
+    FTWrapper.supervised(dataFn, modelFn)
+    return (this.modelPath = `${modelFn}.bin`)
   }
 
-  loadModel(model: Buffer) {
-    const modelPath = this.newModelPath(true)
+  loadModel(model: Buffer, modelId?: string) {
+    this.currentModelId =
+      modelId ||
+      Math.random()
+        .toString()
+        .substr(0)
 
-    writeFileSync(modelPath, model)
-
-    this.modelPath = modelPath
+    const tmpFn = tmp.tmpNameSync()
+    writeFileSync(tmpFn, model)
+    this.modelPath = tmpFn
   }
 
   predict(input: string, numClass = 1): Array<Prediction> {
