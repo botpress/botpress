@@ -92,6 +92,7 @@ export class ModuleLoader {
     return _.merge({ definition }, ret.value)
   }
 
+  // FIXME: Load modules for bots using onBotMount instead of init
   public async loadModules(modules: ModuleEntryPoint[]) {
     this.configReader = new ConfigReader(this.logger, modules, this.ghost)
     await this.configReader.initialize()

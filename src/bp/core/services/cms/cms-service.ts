@@ -337,7 +337,7 @@ export class CMSService implements IDisposeOnExit {
 
     const result = { ...element, botId }
 
-    if ('formData' in element) {
+    if ('formData' in element && typeof element.formData !== 'string') {
       result.formData = JSON.stringify(element.formData)
     }
 

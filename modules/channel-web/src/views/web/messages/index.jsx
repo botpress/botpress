@@ -214,7 +214,6 @@ class Message extends Component {
   }
 
   getMarkdownElement() {
-    console.log(this.props)
     let html = snarkdown(this.props.data.message_text)
     html = html.replace(/<a href/gi, `<a target="_blank" href`)
 
