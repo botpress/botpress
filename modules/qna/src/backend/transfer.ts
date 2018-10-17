@@ -6,8 +6,14 @@ export const importQuestions = async (questions, params) => {
   const { storage, config, format = 'json', statusCallback, uploadStatusId } = params
 
   statusCallback(uploadStatusId, 'Calculating diff with existing questions')
-  const existingQuestions = (await storage.all()).map(item => JSON.stringify(_.omit(item.data, 'enabled')))
-  const parsedQuestions = typeof questions === 'string' ? parsers[`${format}Parse`](questions) : questions
+
+  const existingQuestions = (await storage.fetchAllQuestions()).map(item =>
+    JSON.stringify(_.omit(item.data, 'enabled'))
+  )
+
+  const hasCategory = storage.hasCategories()
+  const parsedQuestions =
+    typeof questions === 'string' ? parsers[`${format}Parse`](questions, { hasCategory }) : questions
   const questionsToSave = parsedQuestions.filter(item => !existingQuestions.includes(JSON.stringify(item)))
 
   if (config.qnaMakerApiKey) {
@@ -24,11 +30,11 @@ export const importQuestions = async (questions, params) => {
 }
 
 export const prepareExport = async (storage, { flat = false } = {}) => {
-  const qnas = await storage.all()
+  const qnas = await storage.fetchAllQuestions()
 
   return _.flatMap(qnas, question => {
     const { data } = question
-    const { questions, answer: textAnswer, action, redirectNode, redirectFlow } = data
+    const { questions, answer: textAnswer, action, redirectNode, redirectFlow, category } = data
 
     let answer = textAnswer
     let answer2 = undefined
@@ -44,10 +50,11 @@ export const prepareExport = async (storage, { flat = false } = {}) => {
         answer2 += '#' + redirectNode
       }
     }
+    const categoryWrapper = storage.getCategories() ? { category } : {}
 
     if (!flat) {
-      return { questions, action, answer, answer2 }
+      return { questions, action, answer, answer2, ...categoryWrapper }
     }
-    return questions.map(question => ({ question, action, answer, answer2 }))
+    return questions.map(question => ({ question, action, answer, answer2, ...categoryWrapper }))
   })
 }

@@ -157,12 +157,19 @@ export default class NativeProvider extends Provider {
         return s
       }
 
-      return (
+      const res =
         s -
         Math.max(0, allScores[i + 1] || 0) * 0.5 -
         Math.max(0, allScores[i + 2] || 0) * 0.75 -
         Math.max(0, allScores[i + 3] || 0)
-      )
+
+      if (res < 0) {
+        return 0
+      } else if (res > 1) {
+        return 1
+      } else {
+        return res
+      }
     })
 
     const intents = _.orderBy(
