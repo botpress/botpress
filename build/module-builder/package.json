@@ -23,6 +23,7 @@
     "chalk": "^2.4.1",
     "chokidar": "^2.0.4",
     "copy-webpack-plugin": "^4.5.2",
+    "cross-env": "^5.2.0",
     "css-loader": "^1.0.0",
     "extract-text-webpack-plugin": "^3.0.2",
     "file-loader": "^2.0.0",

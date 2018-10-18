@@ -2,9 +2,9 @@ import { execFile, execFileSync } from 'child_process'
 import { join } from 'path'
 import { Readable } from 'stream'
 
-let bin = 'ft_lnx'
+let bin = 'ft_linux'
 if (process.platform === 'win32') {
-  bin = 'ft_win'
+  bin = 'ft_win.exe'
 } else if (process.platform === 'darwin') {
   bin = 'ft_osx'
 }
