@@ -1,5 +1,6 @@
 import { execFile, execFileSync } from 'child_process'
 import { join } from 'path'
+import { Readable } from 'stream'
 
 let bin = 'ft_lnx'
 if (process.platform === 'win32') {
