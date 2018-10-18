@@ -49,12 +49,34 @@ export default class Storage implements QnaStorage {
 
   async initialize() {
     this.axiosConfig = await this.bp.http.getAxiosConfigForBot(this.botId)
+    this.syncQnaToNlu()
   }
 
   async syncNlu() {
     const { data: isNeeded } = await axios.get('/api/ext/nlu/sync/check', this.axiosConfig)
     if (isNeeded) {
       await axios.get('/api/ext/nlu/sync', this.axiosConfig)
+    }
+  }
+
+  // TODO Find better way to implement. When manually copying QNA, intents are not created.
+  // Manual edit & save of each one is required for the intent to be created.
+  async syncQnaToNlu() {
+    const allQuestions = await this.fetchAllQuestions()
+    const { data: allIntents } = await axios.get(`/api/ext/nlu/intents`, this.axiosConfig)
+
+    for (const question of allQuestions) {
+      const found = _.find(allIntents, intent => intent.name === getIntentId(question.id).toLowerCase())
+
+      if (question.data.enabled && !found) {
+        const intent = {
+          entities: [],
+          utterances: normalizeQuestions(question.data.questions)
+        }
+
+        await axios.post(`/api/ext/nlu/intents/${getIntentId(question.id)}`, intent, this.axiosConfig)
+        this.bp.logger.info(`Created NLU intent for QNA ${question.id}`)
+      }
     }
   }
 
