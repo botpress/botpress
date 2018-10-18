@@ -1,4 +1,4 @@
-import { createWriteStream, writeFileSync } from 'fs'
+import { createWriteStream, readFileSync, writeFileSync } from 'fs'
 import { EOL } from 'os'
 import tmp from 'tmp'
 
@@ -8,7 +8,7 @@ const FAST_TEXT_LABEL_KEY = '__label__'
 
 interface Intent {
   name: string
-  utterances: Array<String>
+  utterances: Array<string>
 }
 
 interface Prediction {
@@ -41,12 +41,17 @@ class FastTextClassifier {
     return parsed.length ? parsed : [{ name: 'none', confidence: 0.9999 }]
   }
 
+  private sanitizeText(text: string): string {
+    return text.toLowerCase().replace(/[^\w\s]/gi, '')
+  }
+
   private writeTrainingSet(intents: Array<Intent>, trainingFilePath) {
     const fileStream = createWriteStream(trainingFilePath, { flags: 'a' })
 
     for (const intent of intents) {
       intent.utterances.forEach(text => {
-        fileStream.write(`${FAST_TEXT_LABEL_KEY}${intent.name} ${text}${EOL}`)
+        const clean = this.sanitizeText(text)
+        fileStream.write(`${FAST_TEXT_LABEL_KEY}${intent.name} ${clean}${EOL}`)
       })
     }
 
@@ -56,6 +61,7 @@ class FastTextClassifier {
   async train(intents: Array<Intent>, modelId: string) {
     const dataFn = tmp.tmpNameSync()
     await this.writeTrainingSet(intents, dataFn)
+    console.log('==>', dataFn)
 
     const modelFn = tmp.tmpNameSync()
     FTWrapper.supervised(dataFn, modelFn)
@@ -73,17 +79,12 @@ class FastTextClassifier {
     this.modelPath = tmpFn
   }
 
-  predict(input: string, numClass = 1): Array<Prediction> {
+  async predict(input: string, numClass = 5): Promise<Prediction[]> {
     if (!this.modelPath) {
       throw new Error('model is not set')
     }
 
-    const tmpF = tmp.fileSync()
-    writeFileSync(tmpF.name, input)
-
-    const preds = FTWrapper.predictProb(this.modelPath, tmpF.name, numClass)
-    tmpF.removeCallback()
-
+    const preds = await FTWrapper.predictProb(this.modelPath, this.sanitizeText(input), numClass)
     return this.parsePredictions(preds)
   }
 }

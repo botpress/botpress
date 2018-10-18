@@ -65,7 +65,7 @@ export default class NativeProvider extends Provider {
       await this.sync()
     }
 
-    const predictions = this.intentClassifier.predict(incomingEvent.preview)
+    const predictions = await this.intentClassifier.predict(incomingEvent.preview)
 
     // TODO Add language detection result here
     return {
