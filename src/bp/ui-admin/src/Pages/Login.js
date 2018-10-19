@@ -54,9 +54,6 @@ export default class Login extends Component {
         <p>
           <Button onClick={this.login}>Sign in</Button>
         </p>
-        <p>
-          <Link to="/signup">Don&apos;t have an account yet? Signup instead.</Link>
-        </p>
       </Fragment>
     )
   }

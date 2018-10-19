@@ -15,7 +15,7 @@ export default {
   '@native.ordinal': { '@luis': 'ordinal', '@dialogflow': 'ordinal', '@recast': 'ordinal' },
 
   // Amounts with Units
-  '@native.age': { '@dialogflow': 'age' },
+  '@native.age': { '@dialogflow': 'age', '@luis': 'age' },
   '@native.duration': { '@dialogflow': 'duration', '@recast': 'duration' },
   '@native.percentage': { '@luis': 'percentage', '@dialogflow': 'percentage', '@recast': 'percent' },
   '@native.set': { '@recast': 'set' },

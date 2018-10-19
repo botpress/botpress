@@ -4,7 +4,7 @@ import _ from 'lodash'
 import { Table } from 'core/database/interfaces'
 import { calculateHash } from 'core/services/auth/util'
 
-const USERS = ['admin', 'sylvain', 'renaud']
+const USERS = ['admin']
 const PASSWORD = '123456'
 
 const insertUsers = async (knex: Knex, tableName: string) => {

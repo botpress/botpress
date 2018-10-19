@@ -57,9 +57,9 @@ const TYPES = {
   KeyValueStore: Symbol.for('KeyValueStore'),
   ContentElementSender: Symbol.for('ContentElementSender'),
   SkillService: Symbol.for('SkillService'),
-  SessionProcessor: Symbol.for('SessionProcessor'),
   BotpressEdition: Symbol.for('BotpressEdition'),
-  TeamsServiceFacade: Symbol.for('EditionTeamsService')
+  TeamsServiceFacade: Symbol.for('EditionTeamsService'),
+  AppLifecycle: Symbol.for('AppLifecycle')
 }
 
 export { TYPES }

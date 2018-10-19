@@ -19,5 +19,6 @@ module.exports = {
   testPathIgnorePatterns: ['out', 'build'],
   testEnvironment: 'node',
   rootDir: 'src',
-  preset: 'ts-jest'
+  preset: 'ts-jest',
+  testResultsProcessor: '../node_modules/jest-html-reporter'
 }

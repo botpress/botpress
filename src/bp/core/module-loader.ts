@@ -3,6 +3,7 @@ import { ValidationError } from 'errors'
 import fse from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
 import joi from 'joi'
+import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 
 import { createForModule } from './api' // TODO
@@ -14,6 +15,8 @@ import { TYPES } from './types'
 const MODULE_SCHEMA = joi.object().keys({
   onInit: joi.func().required(),
   onReady: joi.func().required(),
+  onBotMount: joi.func().optional(),
+  onBotUnmount: joi.func().optional(),
   config: joi.object().optional(),
   defaultConfigJson: joi.string().optional(),
   serveFile: joi.func().optional(),
@@ -51,7 +54,7 @@ export class ModuleLoader {
     @tagged('name', 'ModuleLoader')
     private logger: Logger,
     @inject(TYPES.GhostService) private ghost: GhostService,
-    @inject(TYPES.ProjectLocation) private projectLocation: string
+    @inject(TYPES.AppLifecycle) private lifecycle: AppLifecycle
   ) {}
 
   public get configReader() {
@@ -90,11 +93,11 @@ export class ModuleLoader {
     return _.merge({ definition }, ret.value)
   }
 
+  // FIXME: Load modules for bots using onBotMount instead of init
   public async loadModules(modules: ModuleEntryPoint[]) {
     this.configReader = new ConfigReader(this.logger, modules, this.ghost)
     await this.configReader.initialize()
     const initedModules = {}
-    const readyModules: string[] = []
 
     for (const module of modules) {
       const name = _.get(module, 'definition.name', '').toLowerCase()
@@ -103,10 +106,18 @@ export class ModuleLoader {
         const api = await createForModule(name)
         await (module.onInit && module.onInit(api))
         initedModules[name] = true
+        this.entryPoints.set(name, module)
       } catch (err) {
         this.logger.attachError(err).error(`Error in module "${name}" onInit`)
       }
     }
+
+    this.callModulesOnReady(modules, initedModules) // Floating promise here is on purpose, we are doing this in background
+    return Object.keys(initedModules)
+  }
+
+  private async callModulesOnReady(modules: ModuleEntryPoint[], initedModules: {}): Promise<void> {
+    await this.lifecycle.waitFor(AppLifecycleEvents.HTTP_SERVER_READY)
 
     // Once all the modules have been loaded, we tell them it's ready
     // TODO We probably want to wait until Botpress is done loading the other services etc
@@ -120,15 +131,20 @@ export class ModuleLoader {
       try {
         const api = await createForModule(name)
         await (module.onReady && module.onReady(api))
-        this.loadModulesActions(name) // This is a hack to get the module location
-        readyModules.push(name)
-        this.entryPoints.set(name, module)
+        this.loadModulesActions(name)
       } catch (err) {
         this.logger.warn(`Error in module "${name}" 'onReady'. Module will still be loaded. Err: ${err.message}`)
       }
     }
+  }
 
-    return readyModules
+  public async loadModulesForBot(botId: string) {
+    const modules = this.getLoadedModules()
+    for (const module of modules) {
+      const entryPoint = this.getModule(module.name)
+      const api = await createForModule(module.name)
+      await (entryPoint.onBotMount && entryPoint.onBotMount(api, botId))
+    }
   }
 
   private async loadModulesActions(name: string) {
@@ -136,7 +152,7 @@ export class ModuleLoader {
     const modulePath = await resolver.resolve('MODULES_ROOT/' + name)
     const moduleActionsDir = `${modulePath}/dist/actions`
     if (fse.pathExistsSync(moduleActionsDir)) {
-      const globalActionsDir = `${this.projectLocation}/data/global/actions/${name}`
+      const globalActionsDir = `${process.PROJECT_LOCATION}/data/global/actions/${name}`
       fse.mkdirpSync(globalActionsDir)
       fse.copySync(moduleActionsDir, globalActionsDir)
     }

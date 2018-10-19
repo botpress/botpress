@@ -6,13 +6,22 @@
 
 1. Run `yarn` to fetch node packages
 1. In the folder _src/bp/ui-admin_, run `yarn && yarn build`
+1. In the folder _build/module-builder_, run `yarn && yarn build`
 1. Go back to the root of the project and run `yarn build` to compile TS files and copy static content
 1. Run `yarn start` to start the server.
 
+### Building issues
+
+If you have errors when building modules (timeout, random errors, etc), try the following:
+
+1. Set the environment variable GULP_SERIES=true before starting the build
+1. If it doesn't work, go in each module folder and type `yarn && yarn build`
+
 ## Development
 
-1. Run `yarn watch` to build the project and rebuild it everytime you change a .ts file
+1. Run `yarn watch` to rebuild everytime you change a .ts file
 1. Run `yarn start` in another terminal
+1. Optionnaly run `yarn watch` in each module folders you are working on
 
 ## Documentation
 

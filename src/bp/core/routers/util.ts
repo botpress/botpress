@@ -74,7 +74,7 @@ export const checkTokenHeader = (authService: AuthService, audience?: string) =>
 
     req.user = user
   } catch (err) {
-    return next(err)
+    return next(new UnauthorizedAccessError('Invalid authentication token'))
   }
 
   next()

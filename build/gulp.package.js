@@ -54,6 +54,10 @@ const copyData = () => {
   return gulp.src(['out/bp/data/**/*']).pipe(gulp.dest('out/binaries/data'))
 }
 
+const copyTemplates = () => {
+  return gulp.src(['out/bp/templates/**/*']).pipe(gulp.dest('out/binaries/templates'))
+}
+
 const copyNativeExtensions = async () => {
   mkdirp.sync('out/binaries/bindings')
   const files = [
@@ -70,5 +74,6 @@ const copyNativeExtensions = async () => {
 module.exports = {
   packageApp,
   copyData,
+  copyTemplates,
   copyNativeExtensions
 }

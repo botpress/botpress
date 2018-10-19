@@ -15,19 +15,19 @@ export function setToken(token, expiresAt) {
   localStorage.setItem(TOKEN_KEY, ls)
 }
 
+export function logout() {
+  // Clear access token and ID token from local storage
+  localStorage.removeItem(TOKEN_KEY)
+  // navigate to the home route
+  history.replace(HOME_ROUTE)
+}
+
 export default class BasicAuthentication {
   login = async ({ username, password }) => {
     if (this.isAuthenticated()) {
       return
     }
     await this.doLogin({ username, password })
-  }
-
-  register = async ({ username, password }) => {
-    if (this.isAuthenticated()) {
-      return
-    }
-    await this.doRegister({ username, password })
   }
 
   async doLogin({ username, password }) {
@@ -46,17 +46,6 @@ export default class BasicAuthentication {
     }
   }
 
-  async doRegister({ username, password }) {
-    const { data } = await api.getAnonymous({ toastErrors: false }).post('/api/auth/register', {
-      username,
-      password
-    })
-
-    this.setSession({ expiresIn: 7200, idToken: data.payload.token })
-
-    history.replace(HOME_ROUTE)
-  }
-
   setSession({ expiresIn, idToken }) {
     // Set the time that the access token will expire at
     const expiresAt = JSON.stringify((expiresIn || 7200) * 1000 + new Date().getTime())
@@ -70,10 +59,7 @@ export default class BasicAuthentication {
   }
 
   logout = () => {
-    // Clear access token and ID token from local storage
-    localStorage.removeItem(TOKEN_KEY)
-    // navigate to the home route
-    history.replace(HOME_ROUTE)
+    logout()
   }
 
   isAuthenticated() {

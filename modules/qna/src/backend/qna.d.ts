@@ -4,11 +4,14 @@ export type SDK = typeof sdk
 
 export interface QnaStorage {
   initialize()
-  all(paging?: sdk.Paging)
-  insert(qna: any)
+  fetchAllQuestions(paging?: sdk.Paging)
+  getQuestions({ question, categories }, { limit, offset })
+  insert(qna: any, statusCallback?: any)
   update(data: any, id: any)
-  delete(id: any): void
-  count(): any
+  delete(id: any, statusCallback?: any): void
+  count(): Promise<number>
   answersOn(question)
   getQuestion(opts: any)
+  getCategories(): string[]
+  hasCategories(): boolean
 }

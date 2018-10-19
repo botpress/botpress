@@ -3,6 +3,7 @@ const gulp = require('gulp')
 const ts = require('gulp-typescript')
 const rimraf = require('rimraf')
 const sourcemaps = require('gulp-sourcemaps')
+const typedoc = require('gulp-typedoc')
 
 const buildJsonSchemas = require('./jsonschemas')
 const tsProject = ts.createProject(path.resolve(__dirname, '../src/tsconfig.json'))
@@ -47,7 +48,7 @@ const copyData = () => {
 }
 
 const copyBotTemplate = () => {
-  return gulp.src('./src/templates/bot-template/**/*').pipe(gulp.dest('./out/templates/bot-template'))
+  return gulp.src('./src/templates/bot-template/**/*').pipe(gulp.dest('./out/src/templates/bot-template'))
 }
 
 const copyAdmin = () => {

@@ -19,6 +19,7 @@ export class PersistedConsoleLogger implements Logger {
   private attachedError: Error | undefined
   public readonly displayLevel: number
   private currentMessageLevel: LogLevel | undefined
+  private willPersistMessage: boolean = true
 
   constructor(
     @inject(TYPES.Logger_Name) private name: string,
@@ -34,6 +35,11 @@ export class PersistedConsoleLogger implements Logger {
 
   attachError(error: Error): this {
     this.attachedError = error
+    return this
+  }
+
+  persist(shouldPersist: boolean): this {
+    this.willPersistMessage = shouldPersist
     return this
   }
 
@@ -59,7 +65,9 @@ export class PersistedConsoleLogger implements Logger {
       timestamp: moment().toISOString()
     }
 
-    this.loggerPersister.appendLog(entry)
+    if (this.willPersistMessage) {
+      this.loggerPersister.appendLog(entry)
+    }
 
     if (level === LoggerLevel.Error && this.attachedError) {
       message += ` [${this.attachedError.name}, ${this.attachedError.message}]`
@@ -86,6 +94,7 @@ export class PersistedConsoleLogger implements Logger {
     this.currentMessageLevel = undefined
     this.botId = undefined
     this.attachedError = undefined
+    this.willPersistMessage = true
   }
 
   debug(message: string, metadata?: any): void {

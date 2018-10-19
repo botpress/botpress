@@ -5,7 +5,7 @@ const insertMembers = async (knex: Knex, tableName: string) => {
   return knex
     .batchInsert(
       tableName,
-      [1, 2, 3].map(userId => ({
+      [1].map(userId => ({
         id: userId,
         team: 1,
         user: userId,

@@ -1,5 +1,6 @@
 import { Logger } from 'botpress/sdk'
 import { Container } from 'inversify'
+import { AppLifecycle } from 'lifecycle'
 import path from 'path'
 import yn from 'yn'
 
@@ -47,6 +48,8 @@ container.bind<LoggerProvider>(TYPES.LoggerProvider).toProvider<Logger>(context 
   }
 })
 
+container.bind<AppLifecycle>(TYPES.AppLifecycle).to(AppLifecycle)
+
 container
   .bind<LoggerPersister>(TYPES.LoggerPersister)
   .to(LoggerPersister)
@@ -87,16 +90,11 @@ container
   .inSingletonScope()
 
 const isPackaged = !!eval('process.pkg')
-const isProduction = !yn(process.env.DEBUG) && (isPackaged || process.env.NODE_ENV == 'production')
+const isProduction = process.IS_PRODUCTION
 const botpressEdition = process.env.EDITION || 'community'
-
-const projectLocation = isPackaged
-  ? path.join(path.dirname(process.execPath)) // We point at the binary path
-  : path.join(__dirname, '..') // e.g. /dist/..
 
 container.bind<boolean>(TYPES.IsProduction).toConstantValue(isProduction)
 container.bind<boolean>(TYPES.IsPackaged).toConstantValue(isPackaged)
-container.bind<string>(TYPES.ProjectLocation).toConstantValue(projectLocation)
 container.bind<string>(TYPES.BotpressEdition).toConstantValue(botpressEdition)
 
 container.load(...DatabaseContainerModules)

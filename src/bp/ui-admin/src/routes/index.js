@@ -6,7 +6,6 @@ import { ConnectedRouter } from 'react-router-redux'
 import App from '../App'
 
 import LoginPage from '../Pages/Login'
-import SignupPage from '../Pages/Signup'
 import TeamBotsPage from '../Pages/Teams/Bots'
 import TeamsListPage from '../Pages/Teams/List'
 import TeamMembersPage from '../Pages/Teams/Members'
@@ -29,12 +28,6 @@ export const makeMainRoutes = () => {
             path="/login"
             render={props => {
               return <LoginPage auth={auth} {...props} />
-            }}
-          />
-          <Route
-            path="/signup"
-            render={props => {
-              return <SignupPage auth={auth} {...props} />
             }}
           />
           <PrivateRoute path="/" auth={auth} component={App}>

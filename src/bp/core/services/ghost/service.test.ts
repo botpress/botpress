@@ -1,7 +1,8 @@
 import 'bluebird-global'
-import { PersistedConsoleLogger } from 'core/logger'
-import { createSpyObject, MockObject } from 'core/misc/utils'
 import 'reflect-metadata'
+
+import { PersistedConsoleLogger } from '../../logger'
+import { createSpyObject, MockObject } from '../../misc/utils'
 
 import { GhostFileRevision, ObjectCache } from '.'
 import DBStorageDriver from './db-driver'

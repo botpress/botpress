@@ -9,11 +9,10 @@ import setup from './setup'
 
 const botScopedStorage: Map<string, QnaStorage> = new Map<string, QnaStorage>()
 
-const onInit = async (bp: SDK) => {
-  await setup(bp, botScopedStorage)
-}
+const onInit = async (bp: SDK) => {}
 
 const onReady = async (bp: SDK) => {
+  await setup(bp, botScopedStorage)
   await api(bp, botScopedStorage)
 }
 
@@ -37,7 +36,8 @@ const config: sdk.ModuleConfig = {
   textRenderer: { type: 'string', required: true, default: '#builtin_text', env: 'QNA_TEXT_RENDERER' },
   exportCsvEncoding: { type: 'string', required: false, default: 'utf8', env: 'QNA_EXPORT_CSV_ENCODING' },
   qnaMakerApiKey: { type: 'string', required: false, default: '', env: 'QNA_MAKER_API_KEY' },
-  qnaMakerKnowledgebase: { type: 'string', required: false, default: 'botpress', env: 'QNA_MAKER_KNOWLEDGEBASE' }
+  qnaMakerKnowledgebase: { type: 'string', required: false, default: 'botpress', env: 'QNA_MAKER_KNOWLEDGEBASE' },
+  qnaCategories: { type: 'string', required: false, default: '', env: 'QNA_CATEGORIES' }
 }
 
 const defaultConfigJson = `
@@ -55,7 +55,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   definition: {
     name: 'qna',
     menuIcon: 'question_answer',
-    menuText: 'QNA',
+    menuText: 'Q&A',
     fullName: 'QNA',
     homepage: 'https://botpress.io'
   }

@@ -1,8 +1,6 @@
 import chokidar from 'chokidar'
-import { inject, injectable, postConstruct } from 'inversify'
+import { injectable } from 'inversify'
 import path from 'path'
-
-import { TYPES } from '../../types'
 
 import { ObjectCache } from '.'
 
@@ -38,12 +36,10 @@ export namespace CacheInvalidators {
     }
     cache?: ObjectCache
 
-    constructor(@inject(TYPES.ProjectLocation) private projectLocation: string) {}
-
     async install(objectCache: ObjectCache) {
       this.cache = objectCache
 
-      const watcher = chokidar.watch(path.join(this.projectLocation, './data'), {
+      const watcher = chokidar.watch(path.join(process.PROJECT_LOCATION, './data'), {
         ignoreInitial: true
       })
 
@@ -61,7 +57,7 @@ export namespace CacheInvalidators {
         return
       }
 
-      const relativePath = path.relative(this.projectLocation, path.dirname(file))
+      const relativePath = path.relative(process.PROJECT_LOCATION, path.dirname(file))
       this.cache.invalidateStartingWith(relativePath)
     }
   }

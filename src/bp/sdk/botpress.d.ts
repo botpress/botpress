@@ -48,6 +48,8 @@ declare module 'botpress/sdk' {
   export interface Logger {
     forBot(botId: string): this
     attachError(error: Error): this
+    persist(shouldPersist: boolean): this
+    level(level: LogLevel): this
 
     /**
      * Sets the level that will be required at runtime to
@@ -76,6 +78,8 @@ declare module 'botpress/sdk' {
     onInit: Function
     /** This is called once all modules are initialized, usually for routing and logic */
     onReady: Function
+    onBotMount?: Function
+    onBotUnmount?: Function
     /** The configuration options of the module */
     config: ModuleConfig
     /** This is used to create the json config file if none is present */
@@ -605,8 +609,12 @@ declare module 'botpress/sdk' {
    */
   export namespace dialog {
     /**
+     * Create a session Id from a Botpress Event
+     * @param event The event used to create the Dialog Session Id
+     */
+    export function createId(event: IO.Event): Promise<string>
+    /**
      * Calls the dialog engine to start processing an event.
-     * @param sessionId A unique string that will be used to identify the session. We recommend using the user Id. e.g. a messenger user Id, a slack user Id or a web application user Id
      * @param event The event to be processed by the dialog engine
      */
     export function processEvent(sessionId: string, event: IO.Event): Promise<void>
@@ -628,6 +636,16 @@ declare module 'botpress/sdk' {
      * bp.dialog.setState(sessionId, {...state, newProp: 'a new property'})
      */
     export function setState(sessionId: string, state: State): Promise<void>
+
+    /**
+     * Jumps to a specific flow and optionaly a specific node. This is useful when the default flow behaviour needs to be bypassed.
+     * @param sessionId The Id of the the current Dialog Session. If the session doesn't exists, it will be created with this Id.
+     * @param event The event to be processed
+     * @param flowName The name of the flow to jump to
+     * @param nodeName The name of the optionnal node to jump to.
+     * The node will default to the starting node of the flow if this value is omitted.
+     */
+    export function jumpTo(sessionId: string, event: IO.Event, flowName: string, nodeName?: string): Promise<void>
   }
 
   export namespace config {

@@ -1,6 +1,6 @@
 {
   "name": "@botpress/nlu",
-  "version": "10.38.0",
+  "version": "10.47.1",
   "description": "Botpress NLU module",
   "main": "dist/backend/index.js",
   "scripts": {
@@ -26,7 +26,7 @@
     "lodash": "^4.17.4",
     "ms": "^2.1.1",
     "nanoid": "^1.0.1",
-    "natural": "^0.6.1",
+    "tmp": "^0.0.33",
     "zscore": "^0.1.0"
   },
   "optionalDependencies": {

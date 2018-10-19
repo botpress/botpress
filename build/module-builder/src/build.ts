@@ -1,5 +1,6 @@
 import * as babel from '@babel/core'
 import fs from 'fs'
+import fse from 'fs-extra'
 import glob from 'glob'
 import mkdirp from 'mkdirp'
 import path from 'path'
@@ -52,6 +53,28 @@ export async function buildBackend(modulePath: string) {
   })
 
   rimraf.sync(path.join(modulePath, 'dist'))
+
+  // Allows to copy additional files to the dist directory of the module
+  const extrasFile = path.join(modulePath, 'build.extras.js')
+  if (fs.existsSync(extrasFile)) {
+    const extras = require(extrasFile)
+    if (extras && extras.copyFiles) {
+      for (const instruction of extras.copyFiles) {
+        const toCopy = glob.sync(instruction, {
+          cwd: modulePath
+        })
+
+        for (const file of toCopy) {
+          const fromFull = path.join(modulePath, file)
+          const dest = file.replace(/^src\//i, 'dist/').replace(/.ts$/i, '.js')
+          const destFull = path.join(modulePath, dest)
+          mkdirp.sync(path.dirname(destFull))
+          fse.copySync(fromFull, destFull)
+          debug(`Copied "${file}" -> "${dest}"`)
+        }
+      }
+    }
+  }
 
   const outputFiles = []
 

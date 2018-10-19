@@ -46,13 +46,13 @@ export class DialogEngine {
    * @param sessionId The ID that will identify the session. Generally the user ID
    * @param event The incoming botpress event
    */
-  async processEvent(botId: string, sessionId: string, event: IO.Event) {
-    const session = await this.getOrCreateSession(botId, sessionId, event)
-    const flows = await this.flowService.loadAll(botId)
-    await this.processSession(botId, session, flows)
+  async processEvent(sessionId: string, event: IO.Event) {
+    const session = await this.getOrCreateSession(sessionId, event.botId, event)
+    const flows = await this.flowService.loadAll(event.botId)
+    await this.processSession(event.botId, session, flows)
   }
 
-  protected async getOrCreateSession(botId, sessionId, event): Promise<DialogSession> {
+  protected async getOrCreateSession(sessionId, botId, event): Promise<DialogSession> {
     const flows = await this.flowService.loadAll(botId)
     const defaultFlow = flows.find(f => f.name === DEFAULT_FLOW_NAME)
     let skillEntryNode
@@ -62,11 +62,11 @@ export class DialogEngine {
       throw new Error(`Default flow "${DEFAULT_FLOW_NAME}" not found for bot "${botId}"`)
     }
 
-    const entryNodeName = _.get(defaultFlow, 'startNode')
+    const entryNodeName = defaultFlow.startNode
     const entryNode = defaultFlow.nodes.find(n => n.name === entryNodeName)
-    if (_.get(entryNode, 'type') === 'skill-call') {
-      const flow = flows.find(f => f.name === _.get(entryNode, 'flow'))
-      skillEntryNode = _.get(flow, 'startNode')
+    if (entryNode && entryNode.type === 'skill-call') {
+      const flow = flows.find(f => f.name === entryNode.flow)
+      skillEntryNode = flow && flow.startNode
       skillFlow = flow
     }
 
@@ -74,12 +74,13 @@ export class DialogEngine {
     session = await this.sessionService.updateSessionEvent(session.id, event)
 
     if (!session.context!.currentNodeName) {
-      session = await this.sessionService.updateSessionContext(session.id, {
+      const context = {
+        previousNodeName: session.context!.previousNodeName ? session.context!.previousNodeName : entryNodeName,
         previousFlowName: skillFlow && skillFlow.name ? defaultFlow.name : undefined,
-        previousNodeName: skillEntryNode ? entryNodeName : undefined,
         currentFlowName: (skillFlow && skillFlow.name) || defaultFlow.name,
         currentNodeName: skillEntryNode || entryNodeName
-      })
+      }
+      session = await this.sessionService.updateSessionContext(session.id, context)
     }
 
     if (!session.context!.queue) {
@@ -92,6 +93,35 @@ export class DialogEngine {
     }
 
     return session
+  }
+
+  async jumpTo(sessionId: string, event: any, flowName: string, nodeName?: string) {
+    const flows = await this.flowService.loadAll(event.botId)
+    const targetFlow = flows.find(f => f.name === flowName)
+    let targetNode
+
+    if (nodeName) {
+      targetNode = targetFlow!.nodes.find(n => n.name === nodeName)
+      if (!targetNode) {
+        throw new Error(`The target node "${nodeName}" doesnt exists in the provided flow "${flowName}"`)
+      }
+    }
+
+    if (!targetNode) {
+      const startNodeName = targetFlow!.startNode
+      targetNode = targetFlow!.nodes.find(n => n.name === startNodeName)
+    }
+
+    const session = await this.getOrCreateSession(sessionId, event.botId, event)
+    const queue = this.createQueue(targetNode, targetFlow)
+
+    const context = {
+      previousFlowName: session.context!.currentFlowName,
+      currentFlowName: targetFlow!.name,
+      currentNodeName: targetNode.name,
+      queue: queue.toString()
+    }
+    await this.sessionService.updateSessionContext(session.id, context)
   }
 
   protected async processSession(botId, session, flows) {
@@ -126,6 +156,7 @@ export class DialogEngine {
           break
         } else if (result.followUpAction === 'transition') {
           sessionIsStale = true
+
           const position = await this.navigateToNextNode(flows, session, result.options!.transitionTo!)
           if (!position) {
             this.sessionService.deleteSession(session.id)
@@ -142,19 +173,17 @@ export class DialogEngine {
             queue = this.createQueue(node, flow)
           }
 
-          await this.sessionService.updateSessionContext(session.id, {
-            previousFlowName: session.context!.previousFlowName,
-            previousNodeName: session.context!.currentNodeName,
-            currentFlowName:
-              position.flowName === session.context!.previousFlowName
-                ? session.context.previousFlowName
-                : position.flowName,
+          const context = {
+            previousNodeName: position.previousNode ? position.previousNode : session.context.previousNodeName,
+            previousFlowName: session.context.previousFlowName || session.context.currentFlowName,
+            currentFlowName: position.flowName,
             currentNodeName: position.nodeName,
             queue: queue.toString()
-          })
+          }
+
+          await this.sessionService.updateSessionContext(session.id, context)
         }
       } catch (err) {
-        // TODO: Find a better way to handle this
         queue = this.rebuildQueue(flows, instruction, session)
         await this.updateQueueForSession(queue, session)
         this.reportProcessingError(botId, err, session, instruction)
@@ -197,7 +226,6 @@ export class DialogEngine {
     const queue = this.createQueue(timeoutNode, timeoutNode)
     const updatedSession = await this.sessionService.updateSessionContext(session.id, {
       previousFlowName: session.context!.currentFlowName,
-      previousNodeName: session.context!.currentNodeName,
       currentFlowName: timeoutFlow.name,
       currentNodeName: timeoutNode.name,
       queue: queue.toString()
@@ -270,8 +298,8 @@ export class DialogEngine {
     }
 
     const navigationArgs: NavigationArgs = {
-      previousFlowName: session.context!.previousFlowName!,
       previousNodeName: session.context!.previousNodeName!,
+      previousFlowName: session.context!.previousFlowName!,
       currentFlowName: session.context!.currentFlowName,
       currentNodeName: session.context!.currentNodeName,
       flows: flows,

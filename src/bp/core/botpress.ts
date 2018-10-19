@@ -1,6 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import { WellKnownFlags } from 'core/sdk/enums'
 import { inject, injectable, tagged } from 'inversify'
+import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import { Memoize } from 'lodash-decorators'
 import moment from 'moment'
 import path from 'path'
@@ -18,6 +19,7 @@ import { GhostService } from './services'
 import { CMSService } from './services/cms/cms-service'
 import { DialogEngine, ProcessingError } from './services/dialog/engine'
 import { DialogJanitor } from './services/dialog/janitor'
+import { SessionIdFactory } from './services/dialog/session/id-factory'
 import { Hooks, HookService } from './services/hook/hook-service'
 import { LogsJanitor } from './services/logs/janitor'
 import { EventEngine } from './services/middleware/event-engine'
@@ -57,7 +59,8 @@ export class Botpress {
     @inject(TYPES.DialogJanitorRunner) private dialogJanitor: DialogJanitor,
     @inject(TYPES.LogJanitorRunner) private logJanitor: LogsJanitor,
     @inject(TYPES.LoggerPersister) private loggerPersister: LoggerPersister,
-    @inject(TYPES.NotificationsService) private notificationService: NotificationsService
+    @inject(TYPES.NotificationsService) private notificationService: NotificationsService,
+    @inject(TYPES.AppLifecycle) private lifecycle: AppLifecycle
   ) {
     this.version = '12.0.1'
     this.botpressPath = path.join(process.cwd(), 'dist')
@@ -87,10 +90,11 @@ export class Botpress {
   }
 
   async initializeGhost(): Promise<void> {
+    await this.ghostService.initialize(this.config!)
     await this.ghostService.global().sync(['actions', 'content-types', 'hooks'])
 
-    const botIds = await this.botLoader.getAllBots()
-    for (const bot of botIds.keys()) {
+    const botIds = await this.botLoader.getAllBotIds()
+    for (const bot of botIds) {
       await this.ghostService.forBot(bot).sync(['actions', 'content-elements', 'flows'])
     }
   }
@@ -105,8 +109,8 @@ export class Botpress {
     this.eventEngine.onAfterIncomingMiddleware = async (event: sdk.IO.Event) => {
       await this.hookService.executeHook(new Hooks.AfterIncomingMiddleware(this.api, event))
       if (!event.hasFlag(WellKnownFlags.SKIP_DIALOG_ENGINE)) {
-        const sessionId = `${event.channel}::${event.target}::${event.threadId}`
-        await this.dialogEngine.processEvent(event.botId, sessionId, event)
+        const sessionId = SessionIdFactory.createIdFromEvent(event)
+        await this.dialogEngine.processEvent(sessionId, event)
       }
     }
 
@@ -148,6 +152,7 @@ export class Botpress {
 
   private async startServer() {
     await this.httpServer.start()
+    this.lifecycle.setDone(AppLifecycleEvents.HTTP_SERVER_READY)
   }
 
   private startRealtime() {

@@ -4,15 +4,11 @@ import { inject, injectable } from 'inversify'
 import path from 'path'
 import { VError } from 'verror'
 
-import { TYPES } from '../../types'
-
 import { GhostFileRevision, StorageDriver } from '.'
 
 @injectable()
 export default class DiskStorageDriver implements StorageDriver {
-  constructor(@inject(TYPES.ProjectLocation) private projectLocation: string) {}
-
-  resolvePath = p => path.resolve(this.projectLocation, p)
+  resolvePath = p => path.resolve(process.PROJECT_LOCATION, p)
 
   async upsertFile(filePath: string, content: string | Buffer): Promise<void>
   async upsertFile(filePath: string, content: string | Buffer, recordRevision: boolean = false): Promise<void> {
@@ -61,7 +57,7 @@ export default class DiskStorageDriver implements StorageDriver {
     try {
       return Promise.fromCallback<string[]>(cb => glob('**/*.*', options, cb))
     } catch (e) {
-      throw new VError(e, `[Disk Storage] Error listing directory content for folder "${folder}"`)
+      return []
     }
   }
 
@@ -69,7 +65,12 @@ export default class DiskStorageDriver implements StorageDriver {
     throw new Error('Method not implemented.')
   }
 
-  listRevisions(pathpathPrefix: string): Promise<GhostFileRevision[]> {
-    throw new Error('Method not implemented.')
+  async listRevisions(pathPrefix: string): Promise<GhostFileRevision[]> {
+    try {
+      const content = await this.readFile(path.join(pathPrefix, 'revisions.json'))
+      return JSON.parse(content.toString())
+    } catch (err) {
+      return []
+    }
   }
 }

@@ -17,12 +17,11 @@ export default class ActionService {
     @inject(TYPES.GhostService) private ghost: GhostService,
     @inject(TYPES.Logger)
     @tagged('name', 'Actions')
-    private logger: Logger,
-    @inject(TYPES.ProjectLocation) private projectLocation: string
+    private logger: Logger
   ) {}
 
   forBot(botId: string): ScopedActionService {
-    return new ScopedActionService(this.ghost, this.logger, botId, this.projectLocation)
+    return new ScopedActionService(this.ghost, this.logger, botId)
   }
 }
 
@@ -36,11 +35,13 @@ export type ActionDefinition = {
 }
 
 export class ScopedActionService {
-  constructor(private ghost: GhostService, private logger, private botId: string, private projectLocation) {}
+  constructor(private ghost: GhostService, private logger, private botId: string) {}
 
   async listActions({ includeMetadata = false } = {}): Promise<ActionDefinition[]> {
-    const globalActionsFiles = await this.ghost.global().directoryListing('actions', '*.js', 'node_modules/**')
-    const localActionsFiles = await this.ghost.forBot(this.botId).directoryListing('actions', '*.js', 'node_modules/**')
+    // node_production_modules are node_modules that are compressed for production
+    const exclude = ['**/node_modules/**', '**/node_production_modules/**']
+    const globalActionsFiles = await this.ghost.global().directoryListing('actions', '*.js', exclude)
+    const localActionsFiles = await this.ghost.forBot(this.botId).directoryListing('actions', '*.js', exclude)
 
     const actions: ActionDefinition[] = (await Promise.map(globalActionsFiles, async file =>
       this.getActionDefinition(file, 'global', includeMetadata)
@@ -88,8 +89,19 @@ export class ScopedActionService {
 
   async runAction(actionName: string, dialogState: any, incomingEvent: any, actionArgs: any): Promise<any> {
     this.logger.forBot(this.botId).debug(`Running action "${actionName}"`)
-    const code = await this.findActionScript(actionName)
+    const action = await this.findAction(actionName)
+    const code = await this.getActionScript(action)
     const api = await createForAction()
+
+    const printMock = new Proxy(
+      {},
+      {
+        get: (obj, prop) => {
+          console.log('REQUIRE==>', prop)
+          return {}
+        }
+      }
+    )
 
     const vm = new NodeVM({
       wrapper: 'none',
@@ -101,19 +113,21 @@ export class ScopedActionService {
       },
       require: {
         external: true
+        // mock: printMock
       },
       timeout: 5000
     })
 
     const runner = new VmRunner()
-    const dirPath = path.join(this.projectLocation, '/data/global/actions/')
+    const botFolder = action.location === 'global' ? 'global' : 'bots/' + this.botId
+    const dirPath = path.resolve(path.join(process.PROJECT_LOCATION, `/data/${botFolder}/actions/${actionName}`))
 
     return runner.runInVm(vm, code, dirPath).catch(err => {
       throw new VError(err, `An error occurred while executing the action "${actionName}"`)
     })
   }
 
-  private async findActionScript(actionName: string): Promise<string> {
+  private async findAction(actionName: string): Promise<ActionDefinition> {
     const actions = await this.listActions()
     const action = actions.find(x => x.name === actionName)
 
@@ -121,6 +135,6 @@ export class ScopedActionService {
       throw new Error(`Action "${actionName}" not found`)
     }
 
-    return this.getActionScript(action)
+    return action
   }
 }

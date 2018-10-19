@@ -1,3 +1,6 @@
+const yn = require('yn')
+const pa = require('path')
+
 const printPlainError = err => {
   console.log('Error starting botpress')
   console.log(err)
@@ -25,6 +28,10 @@ function stripDeprecationWrite(this: Function): boolean {
   return originalWrite.apply(this, arguments)
 }
 
+process.PROJECT_LOCATION = process.pkg
+  ? pa.dirname(process.execPath) // We point at the binary path
+  : __dirname // e.g. /dist/..
+
 process.stderr.write = stripDeprecationWrite
 
 process.on('unhandledRejection', err => {
@@ -48,10 +55,17 @@ try {
       default: defaultVerbosity,
       description: 'verbosity level'
     })
+    .option('production', {
+      alias: 'p',
+      default: false,
+      description: 'run in production mode'
+    })
+    .boolean('production')
     .count('verbose')
     .help().argv
 
   process.VERBOSITY_LEVEL = Number(argv.verbose)
+  process.IS_PRODUCTION = argv.production || yn(process.env.BP_PRODUCTION)
 
   require('./bootstrap')
 } catch (err) {

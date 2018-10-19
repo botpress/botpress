@@ -111,22 +111,4 @@ export default class AuthService {
 
     return this.generateUserToken(userId, TOKEN_AUDIENCE)
   }
-
-  async register(
-    username: string,
-    password: string,
-    ipAddress: string = ''
-  ): Promise<{ userId: number; token: string }> {
-    if (await this.findUserByUsername(username)) {
-      throw new InvalidCredentialsError(`Username ${username} is already taken`)
-    }
-
-    const userId = await this.createUser({
-      username,
-      password: calculateHash(password),
-      last_ip: ipAddress
-    })
-
-    return { userId, token: await this.generateUserToken(userId, TOKEN_AUDIENCE) }
-  }
 }

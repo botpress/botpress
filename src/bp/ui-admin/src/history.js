@@ -7,7 +7,7 @@ const addLocationQuery = history => {
   })
 }
 
-const history = createHistory({ basename: '/admin' })
+const history = createHistory({ forceRefresh: true, basename: '/admin' })
 
 addLocationQuery(history)
 history.listen(() => addLocationQuery(history))
