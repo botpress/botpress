@@ -56,7 +56,8 @@ const TYPES = {
   BotConfigWriter: Symbol.for('BotConfigWriter'),
   KeyValueStore: Symbol.for('KeyValueStore'),
   ContentElementSender: Symbol.for('ContentElementSender'),
-  SkillService: Symbol.for('SkillService')
+  SkillService: Symbol.for('SkillService'),
+  AppLifecycle: Symbol.for('AppLifecycle')
 }
 
 export { TYPES }

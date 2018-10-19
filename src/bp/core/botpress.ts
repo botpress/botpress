@@ -1,6 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import { WellKnownFlags } from 'core/sdk/enums'
 import { inject, injectable, tagged } from 'inversify'
+import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import { Memoize } from 'lodash-decorators'
 import moment from 'moment'
 import path from 'path'
@@ -57,7 +58,8 @@ export class Botpress {
     @inject(TYPES.DialogJanitorRunner) private dialogJanitor: DialogJanitor,
     @inject(TYPES.LogJanitorRunner) private logJanitor: LogsJanitor,
     @inject(TYPES.LoggerPersister) private loggerPersister: LoggerPersister,
-    @inject(TYPES.NotificationsService) private notificationService: NotificationsService
+    @inject(TYPES.NotificationsService) private notificationService: NotificationsService,
+    @inject(TYPES.AppLifecycle) private lifecycle: AppLifecycle
   ) {
     this.version = '12.0.1'
     this.botpressPath = path.join(process.cwd(), 'dist')
@@ -148,6 +150,7 @@ export class Botpress {
 
   private async startServer() {
     await this.httpServer.start()
+    this.lifecycle.setDone(AppLifecycleEvents.HTTP_SERVER_READY)
   }
 
   private startRealtime() {
