@@ -48,6 +48,8 @@ declare module 'botpress/sdk' {
   export interface Logger {
     forBot(botId: string): this
     attachError(error: Error): this
+    persist(shouldPersist: boolean): this
+    level(level: LogLevel): this
 
     /**
      * Sets the level that will be required at runtime to

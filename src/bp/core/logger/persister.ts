@@ -72,7 +72,12 @@ export class LoggerPersister {
           this.batch.splice(0, this.batch.length)
         }
       })
-      .catch(err => this.logger.attachError(err).error('Error persisting messages'))
+      .catch(err =>
+        this.logger
+          .attachError(err)
+          .persist(false)
+          .error('Error persisting messages')
+      )
       .finally(() => {
         this.currentPromise = undefined
       })
