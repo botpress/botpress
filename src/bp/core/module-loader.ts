@@ -3,6 +3,7 @@ import { ValidationError } from 'errors'
 import fse from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
 import joi from 'joi'
+import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 
 import { createForModule } from './api' // TODO
@@ -52,7 +53,8 @@ export class ModuleLoader {
     @inject(TYPES.Logger)
     @tagged('name', 'ModuleLoader')
     private logger: Logger,
-    @inject(TYPES.GhostService) private ghost: GhostService
+    @inject(TYPES.GhostService) private ghost: GhostService,
+    @inject(TYPES.AppLifecycle) private lifecycle: AppLifecycle
   ) {}
 
   public get configReader() {
@@ -96,7 +98,6 @@ export class ModuleLoader {
     this.configReader = new ConfigReader(this.logger, modules, this.ghost)
     await this.configReader.initialize()
     const initedModules = {}
-    const readyModules: string[] = []
 
     for (const module of modules) {
       const name = _.get(module, 'definition.name', '').toLowerCase()
@@ -109,6 +110,13 @@ export class ModuleLoader {
         this.logger.attachError(err).error(`Error in module "${name}" onInit`)
       }
     }
+
+    this.callModulesOnReady(modules, initedModules) // Floating promise here is on purpose, we are doing this in background
+    return Object.keys(initedModules)
+  }
+
+  private async callModulesOnReady(modules: ModuleEntryPoint[], initedModules: {}): Promise<void> {
+    await this.lifecycle.waitFor(AppLifecycleEvents.HTTP_SERVER_READY)
 
     // Once all the modules have been loaded, we tell them it's ready
     // TODO We probably want to wait until Botpress is done loading the other services etc
@@ -123,14 +131,11 @@ export class ModuleLoader {
         const api = await createForModule(name)
         await (module.onReady && module.onReady(api))
         this.loadModulesActions(name)
-        readyModules.push(name)
         this.entryPoints.set(name, module)
       } catch (err) {
         this.logger.warn(`Error in module "${name}" 'onReady'. Module will still be loaded. Err: ${err.message}`)
       }
     }
-
-    return readyModules
   }
 
   public async loadModulesForBot(botId: string) {

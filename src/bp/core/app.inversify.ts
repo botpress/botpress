@@ -1,5 +1,6 @@
 import { Logger } from 'botpress/sdk'
 import { Container } from 'inversify'
+import { AppLifecycle } from 'lifecycle'
 import path from 'path'
 import yn from 'yn'
 
@@ -46,6 +47,8 @@ container.bind<LoggerProvider>(TYPES.LoggerProvider).toProvider<Logger>(context 
     return context.container.getTagged<Logger>(TYPES.Logger, 'name', name)
   }
 })
+
+container.bind<AppLifecycle>(TYPES.AppLifecycle).to(AppLifecycle)
 
 container
   .bind<LoggerPersister>(TYPES.LoggerPersister)
