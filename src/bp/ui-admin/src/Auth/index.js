@@ -23,13 +23,6 @@ export default class BasicAuthentication {
     await this.doLogin({ username, password })
   }
 
-  register = async ({ username, password }) => {
-    if (this.isAuthenticated()) {
-      return
-    }
-    await this.doRegister({ username, password })
-  }
-
   async doLogin({ username, password }) {
     const { data } = await api.getAnonymous({ toastErrors: false }).post('/api/auth/login', {
       username,
@@ -44,17 +37,6 @@ export default class BasicAuthentication {
     } else {
       history.replace(HOME_ROUTE)
     }
-  }
-
-  async doRegister({ username, password }) {
-    const { data } = await api.getAnonymous({ toastErrors: false }).post('/api/auth/register', {
-      username,
-      password
-    })
-
-    this.setSession({ expiresIn: 7200, idToken: data.payload.token })
-
-    history.replace(HOME_ROUTE)
   }
 
   setSession({ expiresIn, idToken }) {
