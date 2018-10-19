@@ -329,9 +329,8 @@ function setupAPIProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
   /**
    * Auth
    */
-
-  httpProxy.proxyForBot('/api/auth/', {
-    proxyReqPathResolver: req => req.originalUrl.replace('/api/auth/', '/api/v1/auth/')
+  httpProxy.proxyForBot('/api/auth', {
+    proxyReqPathResolver: req => req.originalUrl.replace('/api/auth', '/api/v1/auth')
   })
 
   httpProxy

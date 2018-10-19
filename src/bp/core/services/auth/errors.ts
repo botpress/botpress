@@ -28,7 +28,7 @@ export class ProcessingError extends ResponseError {
 
 export class UnauthorizedAccessError extends ResponseError {
   constructor(message: string) {
-    super('Unauthorized: ' + message, 400, 'BP_0005')
+    super('Unauthorized: ' + message, 401, 'BP_0005')
   }
 
   type = 'UnauthorizedAccessError'
