@@ -3,8 +3,8 @@ import { RequestHandler, Router } from 'express'
 import _ from 'lodash'
 
 import { CustomRouter } from '..'
+import { AdminService } from '../../services/admin/profesionnal/admin-service'
 import AuthService, { TOKEN_AUDIENCE } from '../../services/auth/auth-service'
-import { TeamsServiceFacade } from '../../services/auth/teams-service'
 import { checkTokenHeader, loadUser } from '../util'
 
 import { TeamsRouter } from './teams'
@@ -18,7 +18,7 @@ export class AdminRouter implements CustomRouter {
   constructor(
     logger: Logger,
     private authService: AuthService,
-    private teamsService: TeamsServiceFacade,
+    private teamsService: AdminService,
     private edition: string
   ) {
     this.router = Router({ mergeParams: true })

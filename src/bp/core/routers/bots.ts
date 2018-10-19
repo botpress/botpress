@@ -16,8 +16,8 @@ import { RouterOptions } from 'request'
 
 import { BotRepository } from '../repositories'
 import ActionService from '../services/action/action-service'
+import { AdminService } from '../services/admin/profesionnal/admin-service'
 import AuthService, { TOKEN_AUDIENCE } from '../services/auth/auth-service'
-import { TeamsServiceFacade } from '../services/auth/teams-service'
 import { DefaultSearchParams } from '../services/cms'
 import { CMSService } from '../services/cms/cms-service'
 import { FlowView } from '../services/dialog'
@@ -40,7 +40,7 @@ export class BotsRouter implements CustomRouter {
   private logsService: LogsService
   private notificationService: NotificationsService
   private authService: AuthService
-  private teamsService: TeamsServiceFacade
+  private adminService: AdminService
   private ghostService: GhostService
   private checkTokenHeader: RequestHandler
   private needPermissions: (operation: string, resource: string) => RequestHandler
@@ -54,7 +54,7 @@ export class BotsRouter implements CustomRouter {
     logsService: LogsService
     notificationService: NotificationsService
     authService: AuthService
-    teamsService: TeamsServiceFacade
+    adminService: AdminService
     ghostService: GhostService
   }) {
     this.actionService = args.actionService
@@ -65,10 +65,10 @@ export class BotsRouter implements CustomRouter {
     this.logsService = args.logsService
     this.notificationService = args.notificationService
     this.authService = args.authService
-    this.teamsService = args.teamsService
+    this.adminService = args.adminService
     this.ghostService = args.ghostService
 
-    this.needPermissions = needPermissions(this.teamsService)
+    this.needPermissions = needPermissions(this.adminService)
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
 
     this.router = Router({ mergeParams: true })

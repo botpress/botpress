@@ -65,9 +65,3 @@ export class InvalidCredentialsError extends ResponseError {
 
   type = 'InvalidCredentialsError'
 }
-
-export class FeatureNotAvailableError extends Error {
-  constructor(edition: string) {
-    super(`This command is not available in the ${edition} edition of Botpress.`)
-  }
-}

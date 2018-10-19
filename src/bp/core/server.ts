@@ -12,8 +12,8 @@ import { AdminRouter, AuthRouter, BotsRouter, ModulesRouter } from './routers'
 import { ShortLinksRouter } from './routers/shortlinks'
 import { GhostService } from './services'
 import ActionService from './services/action/action-service'
+import { AdminService } from './services/admin/profesionnal/admin-service'
 import AuthService from './services/auth/auth-service'
-import { TeamsServiceFacade } from './services/auth/teams-service'
 import { CMSService } from './services/cms/cms-service'
 import FlowService from './services/dialog/flow/service'
 import { SkillService } from './services/dialog/skill/service'
@@ -49,7 +49,7 @@ export default class HTTPServer {
     @inject(TYPES.ActionService) actionService: ActionService,
     @inject(TYPES.ModuleLoader) moduleLoader: ModuleLoader,
     @inject(TYPES.AuthService) private authService: AuthService,
-    @inject(TYPES.TeamsServiceFacade) private teamsService: TeamsServiceFacade,
+    @inject(TYPES.AdminService) private adminService: AdminService,
     @inject(TYPES.MediaService) mediaService: MediaService,
     @inject(TYPES.LogsService) logsService: LogsService,
     @inject(TYPES.NotificationsService) notificationService: NotificationsService,
@@ -66,8 +66,8 @@ export default class HTTPServer {
     this.httpServer = createServer(this.app)
 
     this.modulesRouter = new ModulesRouter(moduleLoader, skillService)
-    this.authRouter = new AuthRouter(this.logger, this.authService, this.teamsService)
-    this.adminRouter = new AdminRouter(this.logger, this.authService, this.teamsService, this.edition)
+    this.authRouter = new AuthRouter(this.logger, this.authService, this.adminService)
+    this.adminRouter = new AdminRouter(this.logger, this.authService, this.adminService, this.edition)
     this.shortlinksRouter = new ShortLinksRouter()
     this.botsRouter = new BotsRouter({
       actionService,
@@ -78,7 +78,7 @@ export default class HTTPServer {
       logsService,
       notificationService,
       authService,
-      teamsService,
+      adminService,
       ghostService
     })
   }

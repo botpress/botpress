@@ -1,4 +1,5 @@
 import { Logger } from 'botpress/sdk'
+import { AdminService } from 'core/services/admin/profesionnal/admin-service'
 import { Router } from 'express'
 import Joi from 'joi'
 import _ from 'lodash'
@@ -7,14 +8,13 @@ import { CustomRouter } from '..'
 import { Bot } from '../../misc/interfaces'
 import AuthService from '../../services/auth/auth-service'
 import { InvalidOperationError } from '../../services/auth/errors'
-import { TeamsServiceFacade } from '../../services/auth/teams-service'
 import { asyncMiddleware, error as sendError, success as sendSuccess, validateBodySchema } from '../util'
 
 export class TeamsRouter implements CustomRouter {
   private asyncMiddleware!: Function
   public readonly router: Router
 
-  constructor(logger: Logger, private authService: AuthService, private teamsService: TeamsServiceFacade) {
+  constructor(logger: Logger, private authService: AuthService, private adminService: AdminService) {
     this.asyncMiddleware = asyncMiddleware({ logger })
     this.router = Router({ mergeParams: true })
     this.setupRoutes()
@@ -22,7 +22,7 @@ export class TeamsRouter implements CustomRouter {
 
   setupRoutes() {
     const router = this.router
-    const svc = this.teamsService
+    const svc = this.adminService
 
     router.post(
       '/', // Create team
@@ -66,7 +66,7 @@ export class TeamsRouter implements CustomRouter {
         const teams = (await svc.listUserTeams(userId)) as any[]
         let bots: any[] = []
         for (const team of teams) {
-          const { bots: teamBots } = await this.teamsService.listBots(team.id)
+          const { bots: teamBots } = await this.adminService.listBots(team.id)
 
           bots = [
             ...teamBots.map(x => ({

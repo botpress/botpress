@@ -4,8 +4,8 @@ import { ContainerModule, interfaces } from 'inversify'
 import { TYPES } from '../types'
 
 import ActionService from './action/action-service'
+import { AdminContainerModule } from './admin/profesionnal/admin.inversify'
 import AuthService from './auth/auth-service'
-import { AuthContainerModule } from './auth/auth.inversify'
 import { CMSService } from './cms/cms-service'
 import { ContentElementSender } from './cms/content-sender'
 import { SkillService } from './dialog/skill/service'
@@ -85,7 +85,7 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
 
 export const ServicesContainerModules = [
   ServicesContainerModule,
-  AuthContainerModule,
+  AdminContainerModule,
   DialogContainerModule,
   GhostContainerModule
 ]
