@@ -1,14 +1,12 @@
-import { IO, Logger } from 'botpress/sdk'
-import chalk from 'chalk'
+import { Logger } from 'botpress/sdk'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
-import { isRegExp } from 'util'
 
 import { TYPES } from '../../../types'
 
 export type NavigationArgs = {
-  previousFlowName: string
   previousNodeName: string
+  previousFlowName: string
   currentNodeName: string
   currentFlowName: string
   flows: any[]
@@ -18,6 +16,7 @@ export type NavigationArgs = {
 export type NavigationPosition = {
   nodeName: string
   flowName: string
+  previousNode: string
 }
 
 @injectable()
@@ -28,24 +27,22 @@ export class FlowNavigator {
     private logger: Logger
   ) {}
   async navigate(args: NavigationArgs): Promise<NavigationPosition> {
-    let nodeName, flowName
+    let nodeName, flowName, previousNode
 
-    if (args.destination.indexOf('##') > -1) {
+    if (args.destination.indexOf('##') === 0) {
       // Transition to the starting node of the previous flow
       flowName = args.previousFlowName
       const findFlow = args.flows.find(f => f.name === flowName)
       nodeName = findFlow.startNode
-    } else if (args.destination.indexOf('#') > -1) {
+    } else if (args.destination.indexOf('#') === 0) {
       // Return to calling node
       const destinationNodeName = args.destination.slice(1)
       if (!destinationNodeName) {
-        nodeName = args.previousNodeName
-        flowName = args.previousFlowName
-        if (!nodeName) {
-          const defaultFlow = args.flows.find(f => f.name === 'main.flow.json')
-          nodeName = defaultFlow.startNode
-          flowName = defaultFlow.name
-        }
+        // Go to startNode of previous flow
+        const previousFlow = args.flows.find(f => f.name === args.previousFlowName)
+        // nodeName = previousNode || previousFlow.startNode || args.previousNodeName
+        nodeName = previousNode || args.previousNodeName
+        flowName = previousFlow.name
       } else {
         // Transition to a specific node in the previous flow
         const flow = args.flows.find(f => f.name === args.previousFlowName)
@@ -64,6 +61,7 @@ export class FlowNavigator {
       if (destinationNode.flow) {
         // Subflow
         const destinationFlow = args.flows.find(f => f.name === destinationNode.flow)
+        previousNode = args.destination
         nodeName = destinationFlow.startNode
         flowName = destinationFlow.name
       } else {
@@ -79,6 +77,6 @@ export class FlowNavigator {
       throw new Error(`Could not find any node or flow under the name of "${args.destination}"`)
     }
 
-    return { nodeName, flowName }
+    return { nodeName, flowName, previousNode }
   }
 }

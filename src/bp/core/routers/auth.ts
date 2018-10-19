@@ -1,15 +1,13 @@
-import Joi from 'joi'
-import _ from 'lodash'
-
-import { Request, RequestHandler, Router } from 'express'
-
+import { Logger } from 'botpress/sdk'
 import { RequestWithUser } from 'core/misc/interfaces'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import TeamsService from 'core/services/auth/teams-service'
+import { Request, RequestHandler, Router } from 'express'
+import Joi from 'joi'
+import _ from 'lodash'
 
 import { CustomRouter } from '.'
 import { asyncMiddleware, checkTokenHeader, loadUser, success as sendSuccess, validateBodySchema } from './util'
-import { Logger } from 'botpress/sdk'
 
 const REVERSE_PROXY = !!process.env.REVERSE_PROXY
 
@@ -37,27 +35,6 @@ export class AuthRouter implements CustomRouter {
     return sendSuccess(res, 'Login successful', { token })
   }
 
-  register = async (req, res) => {
-    validateBodySchema(
-      req,
-      Joi.object().keys({
-        username: Joi.string()
-          .min(3)
-          .trim()
-          .required(),
-        password: Joi.string()
-          .min(6)
-          .required()
-      })
-    )
-
-    const { token, userId } = await this.authService.register(req.body.username, req.body.password, getIp(req))
-
-    await this.teamsService.createNewTeam({ userId })
-
-    return sendSuccess(res, 'Login successful', { token })
-  }
-
   getProfile = async (req, res) => {
     return sendSuccess(
       res,
@@ -78,8 +55,6 @@ export class AuthRouter implements CustomRouter {
     const router = this.router
 
     router.post('/login', this.asyncMiddleware(this.login))
-
-    router.post('/register', this.asyncMiddleware(this.register))
 
     router.get('/me/profile', this.checkTokenHeader, this.loadUser, this.asyncMiddleware(this.getProfile))
 

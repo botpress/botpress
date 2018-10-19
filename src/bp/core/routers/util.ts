@@ -1,13 +1,12 @@
+import { Logger } from 'botpress/sdk'
+import { checkRule } from 'core/misc/auth'
 import { NextFunction, Request, Response } from 'express'
 import Joi from 'joi'
 
-// TODO: generalize these errors and consolidate them with ~/Errors.ts
 import { RequestWithUser } from '../misc/interfaces'
 import AuthService from '../services/auth/auth-service'
 import { AssertionError, ProcessingError, UnauthorizedAccessError } from '../services/auth/errors'
 import TeamsService from '../services/auth/teams-service'
-import { Logger } from 'botpress/sdk'
-import { checkRule } from 'core/misc/auth'
 
 export const asyncMiddleware = ({ logger }: { logger: Logger }) => (
   fn: (req: Request, res: Response, next?: NextFunction) => Promise<any>
@@ -75,7 +74,7 @@ export const checkTokenHeader = (authService: AuthService, audience?: string) =>
 
     req.user = user
   } catch (err) {
-    return next(err)
+    return next(new UnauthorizedAccessError('Invalid authentication token'))
   }
 
   next()
