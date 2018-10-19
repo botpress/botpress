@@ -48,7 +48,7 @@ const copyData = () => {
 }
 
 const copyBotTemplate = () => {
-  return gulp.src('./src/templates/bot-template/**/*').pipe(gulp.dest('./out/templates/bot-template'))
+  return gulp.src('./src/templates/bot-template/**/*').pipe(gulp.dest('./out/src/templates/bot-template'))
 }
 
 const copyAdmin = () => {
