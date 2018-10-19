@@ -16,6 +16,7 @@ import HTTPServer from './server'
 import { GhostService } from './services'
 import { CMSService } from './services/cms/cms-service'
 import { DialogEngine } from './services/dialog/engine'
+import { SessionIdFactory } from './services/dialog/session/id-factory'
 import { SessionService } from './services/dialog/session/service'
 import { ScopedGhostService } from './services/ghost/service'
 import { KeyValueStore } from './services/kvs/kvs'
@@ -55,8 +56,11 @@ const event = (eventEngine: EventEngine): typeof sdk.events => {
 
 const dialog = (dialogEngine: DialogEngine, sessionService: SessionService): typeof sdk.dialog => {
   return {
-    async processEvent(event: sdk.IO.Event): Promise<void> {
-      await dialogEngine.processEvent(event)
+    async createId(event: sdk.IO.Event) {
+      return SessionIdFactory.createIdFromEvent(event)
+    },
+    async processEvent(sessionId: string, event: sdk.IO.Event): Promise<void> {
+      await dialogEngine.processEvent(sessionId, event)
     },
     async deleteSession(userId: string): Promise<void> {
       await sessionService.deleteSession(userId)
@@ -67,8 +71,8 @@ const dialog = (dialogEngine: DialogEngine, sessionService: SessionService): typ
     async setState(userId: string, state: any): Promise<void> {
       await sessionService.updateStateForSession(userId, state)
     },
-    async jumpTo(event: any, flowName: string, nodeName?: string): Promise<void> {
-      await dialogEngine.jumpTo(event, flowName, nodeName)
+    async jumpTo(sessionId: string, event: any, flowName: string, nodeName?: string): Promise<void> {
+      await dialogEngine.jumpTo(sessionId, event, flowName, nodeName)
     }
   }
 }

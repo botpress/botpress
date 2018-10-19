@@ -89,7 +89,8 @@ export default async (bp: SDK, botScopedStorage: Map<string, QnaStorage>) => {
       // TODO jump to correct location
       // console.log(event.botId, event.target, answer.redirectFlow, answer.redirectNode)
 
-      await bp.dialog.jumpTo(event, answer.redirectFlow, answer.redirectNode)
+      const sessionId = bp.dialog.createId(event)
+      await bp.dialog.jumpTo(sessionId, event, answer.redirectFlow, answer.redirectNode)
       // We return false here because the we only jump to the right flow/node and let
       // the bot's natural middleware chain take care of processing the message the normal way
       return false

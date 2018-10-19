@@ -46,17 +46,13 @@ export class DialogEngine {
    * @param sessionId The ID that will identify the session. Generally the user ID
    * @param event The incoming botpress event
    */
-  async processEvent(event: IO.Event) {
-    const session = await this.getOrCreateSession(event.botId, event)
+  async processEvent(sessionId: string, event: IO.Event) {
+    const session = await this.getOrCreateSession(sessionId, event.botId, event)
     const flows = await this.flowService.loadAll(event.botId)
     await this.processSession(event.botId, session, flows)
   }
 
-  private getSessionIdFromEvent(event: IO.Event) {
-    return `${event.channel}::${event.target}::${event.threadId}`
-  }
-
-  protected async getOrCreateSession(botId, event): Promise<DialogSession> {
+  protected async getOrCreateSession(sessionId, botId, event): Promise<DialogSession> {
     const flows = await this.flowService.loadAll(botId)
     const defaultFlow = flows.find(f => f.name === DEFAULT_FLOW_NAME)
     let skillEntryNode
@@ -74,7 +70,6 @@ export class DialogEngine {
       skillFlow = flow
     }
 
-    const sessionId = this.getSessionIdFromEvent(event)
     let session: DialogSession = await this.sessionService.getOrCreateSession(sessionId, botId)
     session = await this.sessionService.updateSessionEvent(session.id, event)
 
@@ -100,7 +95,7 @@ export class DialogEngine {
     return session
   }
 
-  async jumpTo(event: any, flowName: string, nodeName?: string) {
+  async jumpTo(sessionId: string, event: any, flowName: string, nodeName?: string) {
     const flows = await this.flowService.loadAll(event.botId)
     const targetFlow = flows.find(f => f.name === flowName)
     let targetNode
@@ -117,7 +112,7 @@ export class DialogEngine {
       targetNode = targetFlow!.nodes.find(n => n.name === startNodeName)
     }
 
-    const session = await this.getOrCreateSession(event.botId, event)
+    const session = await this.getOrCreateSession(sessionId, event.botId, event)
     const queue = this.createQueue(targetNode, targetFlow)
 
     const context = {
