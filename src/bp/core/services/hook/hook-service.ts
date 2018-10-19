@@ -6,6 +6,7 @@ import { NodeVM } from 'vm2'
 
 import { GhostService } from '..'
 import { TYPES } from '../../types'
+import { VmRunner } from '../action/vm'
 
 export namespace Hooks {
   export interface BaseHook {
@@ -81,7 +82,7 @@ export class HookService {
     }
   }
 
-  private runScript(hookScript: HookScript) {
+  private async runScript(hookScript: HookScript) {
     const vm = new NodeVM({
       console: 'inherit',
       sandbox: hookScript.hook.args,
@@ -89,22 +90,28 @@ export class HookService {
     })
 
     const botId = _.get(hookScript.hook.args, 'event.botId')
+    const vmRunner = new VmRunner()
 
-    try {
-      vm.run(hookScript.file, hookScript.path)
-      this.logScriptRun(botId, hookScript.path, hookScript.hook.folder)
-    } catch (err) {
-      this.logScriptError(botId, hookScript.path, hookScript.hook.folder)
+    await vmRunner.runInVm(vm, hookScript.file, hookScript.path).catch(err => {
+      this.logScriptError(err, botId, hookScript.path, hookScript.hook.folder)
+    })
+    this.logScriptRun(botId, hookScript.path, hookScript.hook.folder)
+  }
+
+  private logScriptError(err, botId, path, folder) {
+    const message = `An error occured on "${path}" on "${folder}". ${err}`
+    if (botId) {
+      this.logger
+        .forBot(botId)
+        .attachError(err)
+        .error(message)
+    } else {
+      this.logger.attachError(err).error(message)
     }
   }
 
   private logScriptRun(botId, path, folder) {
-    const message = `Executed '${path}' on '${folder}'`
+    const message = `Executed "${path}" on "${folder}"`
     botId ? this.logger.forBot(botId).debug(message) : this.logger.debug(message)
-  }
-
-  private logScriptError(botId, path, folder) {
-    const message = `Could not execute '${path}' on '${folder}'`
-    botId ? this.logger.forBot(botId).error(message) : this.logger.error(message)
   }
 }
