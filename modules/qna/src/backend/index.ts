@@ -9,11 +9,10 @@ import setup from './setup'
 
 const botScopedStorage: Map<string, QnaStorage> = new Map<string, QnaStorage>()
 
-const onInit = async (bp: SDK) => {
-  await setup(bp, botScopedStorage)
-}
+const onInit = async (bp: SDK) => {}
 
 const onReady = async (bp: SDK) => {
+  await setup(bp, botScopedStorage)
   await api(bp, botScopedStorage)
 }
 
