@@ -2,7 +2,7 @@ import Promise from 'bluebird'
 import axios from 'axios'
 import { toast } from 'react-toastify'
 import _ from 'lodash'
-import { pullToken } from './Auth'
+import { pullToken, logout } from './Auth'
 
 const defaultOptions = {
   timeout: 2000
@@ -18,6 +18,10 @@ const createClient = (clientOptions, { toastErrors }) => {
   client.interceptors.response.use(
     response => response,
     error => {
+      if (error.response.status === 401) {
+        return logout()
+      }
+
       const wrappedError = _.get(error, 'response.data')
 
       if (_.get(wrappedError, 'code')) {

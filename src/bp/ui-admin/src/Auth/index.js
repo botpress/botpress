@@ -15,6 +15,13 @@ export function setToken(token, expiresAt) {
   localStorage.setItem(TOKEN_KEY, ls)
 }
 
+export function logout() {
+  // Clear access token and ID token from local storage
+  localStorage.removeItem(TOKEN_KEY)
+  // navigate to the home route
+  history.replace(HOME_ROUTE)
+}
+
 export default class BasicAuthentication {
   login = async ({ username, password }) => {
     if (this.isAuthenticated()) {
@@ -52,10 +59,7 @@ export default class BasicAuthentication {
   }
 
   logout = () => {
-    // Clear access token and ID token from local storage
-    localStorage.removeItem(TOKEN_KEY)
-    // navigate to the home route
-    history.replace(HOME_ROUTE)
+    logout()
   }
 
   isAuthenticated() {
