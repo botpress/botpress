@@ -93,6 +93,16 @@ export class ScopedActionService {
     const code = await this.getActionScript(action)
     const api = await createForAction()
 
+    const printMock = new Proxy(
+      {},
+      {
+        get: (obj, prop) => {
+          console.log(prop)
+          return {}
+        }
+      }
+    )
+
     const vm = new NodeVM({
       wrapper: 'none',
       sandbox: {
@@ -102,7 +112,8 @@ export class ScopedActionService {
         args: actionArgs
       },
       require: {
-        external: true
+        external: true,
+        mock: printMock
       },
       timeout: 5000
     })
