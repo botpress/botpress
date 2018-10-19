@@ -66,13 +66,13 @@ async function start() {
 
   await Botpress.start({ modules })
 
-  const { host, port, proxyPort } = globalConfig.httpServer
+  const { port, proxyPort } = globalConfig.httpServer
 
   await Promise.fromCallback(cb =>
-    startProxy({ coreApiUrl: `http://${host}:${port}`, proxyHost: `http://${host}`, proxyPort }, cb)
+    startProxy({ coreApiUrl: `http://localhost:${port}`, proxyHost: `http://localhost`, proxyPort }, cb)
   )
 
-  logger.info(`UI Proxy running on http://${host}:${proxyPort}/`)
+  logger.info(`UI Proxy running on http://localhost:${proxyPort}/`)
 }
 
 start().catch(global.printErrorDefault)
