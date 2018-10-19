@@ -30,11 +30,12 @@ phases:
       - mkdir -p out/binaries/data/storage
       - touch out/binaries/data/storage/.keep
       - mv out out_darwin
-      - rm -rf out_darwin/**/node_modules
-      - rm -rf out_darwin/**/node_production_modules
+      - rm -rf **/node_modules
+      - rm -rf **/node_production_modules
       - mkdir -p out
       # Windows Build
       - export npm_config_target_platform=windows
+      - yarn cache clean
       - yarn install --force --ignore-engines
       - yarn install --force --ignore-engines
       - yarn run build --win32
@@ -42,19 +43,20 @@ phases:
       - mkdir -p out/binaries/data/storage
       - touch out/binaries/data/storage/.keep
       - mv out out_win32
-      - rm -rf out_win32/**/node_modules
-      - rm -rf out_win32/**/node_production_modules
+      - rm -rf **/node_modules
+      - rm -rf **/node_production_modules
       - mkdir -p out
       # Linux Build
       - export npm_config_target_platform=linux
+      - yarn cache clean
       - yarn install --force --ignore-engines
       - yarn run build --linux
       - yarn run package --linux
       - mkdir -p out/binaries/data/storage
       - touch out/binaries/data/storage/.keep
       - mv out out_linux
-      - rm -rf out_linux/**/node_modules
-      - rm -rf out_linux/**/node_production_modules
+      - rm -rf **/node_modules
+      - rm -rf **/node_production_modules
 
   post_build:
     commands:
