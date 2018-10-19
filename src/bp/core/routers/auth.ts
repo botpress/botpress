@@ -1,9 +1,9 @@
+import { resolve } from 'bluebird'
 import { Logger } from 'botpress/sdk'
 import { RequestWithUser } from 'core/misc/interfaces'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import TeamsService from 'core/services/auth/teams-service'
 import { Request, RequestHandler, Router } from 'express'
-import Joi from 'joi'
 import _ from 'lodash'
 
 import { CustomRouter } from '.'
@@ -51,8 +51,14 @@ export class AuthRouter implements CustomRouter {
     )
   }
 
+  sendSuccess = async (req, res) => {
+    return sendSuccess(res)
+  }
+
   setupRoutes() {
     const router = this.router
+
+    router.get('/ping', this.checkTokenHeader, this.asyncMiddleware(this.sendSuccess))
 
     router.post('/login', this.asyncMiddleware(this.login))
 

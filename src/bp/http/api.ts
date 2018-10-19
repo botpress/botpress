@@ -333,6 +333,13 @@ function setupAPIProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
     proxyReqPathResolver: req => req.originalUrl.replace('/api/auth', '/api/v1/auth')
   })
 
+  app.get(
+    '/api/ping',
+    proxy(coreApiUrl, {
+      proxyReqPathResolver: () => `${BASE_PATH}/auth/ping`
+    })
+  )
+
   httpProxy
     .proxyForBot('/api/login', {
       proxyReqPathResolver: () => '/api/v1/auth/login',
