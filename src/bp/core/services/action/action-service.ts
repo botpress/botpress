@@ -97,7 +97,7 @@ export class ScopedActionService {
       {},
       {
         get: (obj, prop) => {
-          console.log(prop)
+          console.log('REQUIRE==>', prop)
           return {}
         }
       }
@@ -112,8 +112,8 @@ export class ScopedActionService {
         args: actionArgs
       },
       require: {
-        external: true,
-        mock: printMock
+        external: true
+        // mock: printMock
       },
       timeout: 5000
     })

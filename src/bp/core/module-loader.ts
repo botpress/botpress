@@ -106,6 +106,7 @@ export class ModuleLoader {
         const api = await createForModule(name)
         await (module.onInit && module.onInit(api))
         initedModules[name] = true
+        this.entryPoints.set(name, module)
       } catch (err) {
         this.logger.attachError(err).error(`Error in module "${name}" onInit`)
       }
@@ -131,7 +132,6 @@ export class ModuleLoader {
         const api = await createForModule(name)
         await (module.onReady && module.onReady(api))
         this.loadModulesActions(name)
-        this.entryPoints.set(name, module)
       } catch (err) {
         this.logger.warn(`Error in module "${name}" 'onReady'. Module will still be loaded. Err: ${err.message}`)
       }
