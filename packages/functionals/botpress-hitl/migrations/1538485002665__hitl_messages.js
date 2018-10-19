@@ -26,33 +26,29 @@ module.exports = {
     knex(table)
       .columnInfo('text')
       .then(async info => {
-        const isPostgress = process.env.DATABASE === 'postgres'
-
         if (info.maxLength !== '640') {
-          if (isPostgress) {
-            return knex.schema.alterTable(table, t => {
-              t.string('text', 640).alter()
-            })
-          } else {
-            return alertSQLTextString(knex, 640)
-          }
+          return
         }
+        if (knex.client.config.client === 'pg') {
+          return knex.schema.alterTable(table, t => {
+            t.string('text', 640).alter()
+          })
+        }
+        return alertSQLTextString(knex, 640)
       }),
 
   down: knex =>
     knex(table)
       .columnInfo('text')
       .then(async info => {
-        const isPostgress = process.env.DATABASE === 'postgres'
-
         if (info.maxLength === '640') {
-          if (isPostgress) {
-            return knex.schema.alterTable(table, t => {
-              t.string('text', 255).alter()
-            })
-          } else {
-            return alertSQLTextString(knex, 255)
-          }
+          return
         }
+        if (knex.client.config.client === 'pg') {
+          return knex.schema.alterTable(table, t => {
+            t.string('text', 255).alter()
+          })
+        }
+        return alertSQLTextString(knex, 255)
       })
 }
