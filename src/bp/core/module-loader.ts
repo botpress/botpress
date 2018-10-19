@@ -52,8 +52,7 @@ export class ModuleLoader {
     @inject(TYPES.Logger)
     @tagged('name', 'ModuleLoader')
     private logger: Logger,
-    @inject(TYPES.GhostService) private ghost: GhostService,
-    @inject(TYPES.ProjectLocation) private projectLocation: string
+    @inject(TYPES.GhostService) private ghost: GhostService
   ) {}
 
   public get configReader() {
@@ -148,7 +147,7 @@ export class ModuleLoader {
     const modulePath = await resolver.resolve('MODULES_ROOT/' + name)
     const moduleActionsDir = `${modulePath}/dist/actions`
     if (fse.pathExistsSync(moduleActionsDir)) {
-      const globalActionsDir = `${this.projectLocation}/data/global/actions/${name}`
+      const globalActionsDir = `${process.PROJECT_LOCATION}/data/global/actions/${name}`
       fse.mkdirpSync(globalActionsDir)
       fse.copySync(moduleActionsDir, globalActionsDir)
     }

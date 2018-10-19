@@ -1,4 +1,5 @@
 const yn = require('yn')
+const pa = require('path')
 
 const printPlainError = err => {
   console.log('Error starting botpress')
@@ -26,6 +27,10 @@ function stripDeprecationWrite(this: Function): boolean {
 
   return originalWrite.apply(this, arguments)
 }
+
+process.PROJECT_LOCATION = process.pkg
+  ? pa.dirname(process.execPath) // We point at the binary path
+  : __dirname // e.g. /dist/..
 
 process.stderr.write = stripDeprecationWrite
 

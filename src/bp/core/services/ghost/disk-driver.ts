@@ -4,15 +4,11 @@ import { inject, injectable } from 'inversify'
 import path from 'path'
 import { VError } from 'verror'
 
-import { TYPES } from '../../types'
-
 import { GhostFileRevision, StorageDriver } from '.'
 
 @injectable()
 export default class DiskStorageDriver implements StorageDriver {
-  constructor(@inject(TYPES.ProjectLocation) private projectLocation: string) {}
-
-  resolvePath = p => path.resolve(this.projectLocation, p)
+  resolvePath = p => path.resolve(process.PROJECT_LOCATION, p)
 
   async upsertFile(filePath: string, content: string | Buffer): Promise<void>
   async upsertFile(filePath: string, content: string | Buffer, recordRevision: boolean = false): Promise<void> {

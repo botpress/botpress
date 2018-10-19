@@ -89,13 +89,8 @@ container
 const isPackaged = !!eval('process.pkg')
 const isProduction = process.IS_PRODUCTION
 
-const projectLocation = isPackaged
-  ? path.dirname(process.execPath) // We point at the binary path
-  : path.join(__dirname, '..') // e.g. /dist/..
-
 container.bind<boolean>(TYPES.IsProduction).toConstantValue(isProduction)
 container.bind<boolean>(TYPES.IsPackaged).toConstantValue(isPackaged)
-container.bind<string>(TYPES.ProjectLocation).toConstantValue(projectLocation)
 
 container.load(...DatabaseContainerModules)
 container.load(...RepositoriesContainerModules)

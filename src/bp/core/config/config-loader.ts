@@ -17,7 +17,6 @@ export interface ConfigProvider {
 export class GhostConfigProvider implements ConfigProvider {
   constructor(
     @inject(TYPES.GhostService) private ghostService: GhostService,
-    @inject(TYPES.ProjectLocation) private projectLocation: string,
     @inject(TYPES.IsProduction) private isProduction: string
   ) {}
 
@@ -56,7 +55,7 @@ export class GhostConfigProvider implements ConfigProvider {
 
       // Variables substitution
       // TODO Check of a better way to handle path correction
-      content = content.replace('%BOTPRESS_DIR%', this.projectLocation.replace(/\\/g, '/'))
+      content = content.replace('%BOTPRESS_DIR%', process.PROJECT_LOCATION.replace(/\\/g, '/'))
       content = content.replace('"$isProduction"', this.isProduction ? 'true' : 'false')
       content = content.replace('"$isDevelopment"', this.isProduction ? 'false' : 'true')
 
