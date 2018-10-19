@@ -9,8 +9,8 @@ import { inject, injectable } from 'inversify'
 
 import { GhostService } from '..'
 
-import CoreAdminService, { AdminService } from './profesionnal/admin-service'
-import { RequestNotAvailableError } from './profesionnal/errors'
+import CoreAdminService, { AdminService } from './professionnal/admin-service'
+import { RequestNotAvailableError } from './professionnal/errors'
 
 @injectable()
 export class CommunityAdminService implements AdminService {

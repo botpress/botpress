@@ -16,7 +16,7 @@ import { RouterOptions } from 'request'
 
 import { BotRepository } from '../repositories'
 import ActionService from '../services/action/action-service'
-import { AdminService } from '../services/admin/profesionnal/admin-service'
+import { AdminService } from '../services/admin/professionnal/admin-service'
 import AuthService, { TOKEN_AUDIENCE } from '../services/auth/auth-service'
 import { DefaultSearchParams } from '../services/cms'
 import { CMSService } from '../services/cms/cms-service'

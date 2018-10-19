@@ -4,7 +4,7 @@ import { ContainerModule, interfaces } from 'inversify'
 import { TYPES } from '../types'
 
 import ActionService from './action/action-service'
-import { AdminContainerModule } from './admin/profesionnal/admin.inversify'
+import { AdminContainerModule } from './admin/professionnal/admin.inversify'
 import AuthService from './auth/auth-service'
 import { CMSService } from './cms/cms-service'
 import { ContentElementSender } from './cms/content-sender'

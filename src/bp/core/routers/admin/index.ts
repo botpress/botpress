@@ -3,7 +3,7 @@ import { RequestHandler, Router } from 'express'
 import _ from 'lodash'
 
 import { CustomRouter } from '..'
-import { AdminService } from '../../services/admin/profesionnal/admin-service'
+import { AdminService } from '../../services/admin/professionnal/admin-service'
 import AuthService, { TOKEN_AUDIENCE } from '../../services/auth/auth-service'
 import { checkTokenHeader, loadUser } from '../util'
 

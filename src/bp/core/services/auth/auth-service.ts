@@ -8,7 +8,7 @@ import Database from '../../database'
 import { Resource } from '../../misc/auth'
 import { AuthUser, TokenUser } from '../../misc/interfaces'
 import { TYPES } from '../../types'
-import resources from '../admin/profesionnal/resources'
+import resources from '../admin/professionnal/resources'
 
 import { InvalidCredentialsError } from './errors'
 import { calculateHash, validateHash } from './util'
