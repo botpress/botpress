@@ -88,7 +88,8 @@ export class ScopedActionService {
 
   async runAction(actionName: string, dialogState: any, incomingEvent: any, actionArgs: any): Promise<any> {
     this.logger.forBot(this.botId).debug(`Running action "${actionName}"`)
-    const code = await this.findActionScript(actionName)
+    const action = await this.findAction(actionName)
+    const code = await this.getActionScript(action)
     const api = await createForAction()
 
     const vm = new NodeVM({
@@ -106,14 +107,15 @@ export class ScopedActionService {
     })
 
     const runner = new VmRunner()
-    const dirPath = path.join(this.projectLocation, '/data/global/actions/')
+    const botFolder = action.location === 'global' ? 'global' : 'bots/' + this.botId
+    const dirPath = path.resolve(path.join(this.projectLocation, `/data/${botFolder}/actions/${actionName}`))
 
     return runner.runInVm(vm, code, dirPath).catch(err => {
       throw new VError(err, `An error occurred while executing the action "${actionName}"`)
     })
   }
 
-  private async findActionScript(actionName: string): Promise<string> {
+  private async findAction(actionName: string): Promise<ActionDefinition> {
     const actions = await this.listActions()
     const action = actions.find(x => x.name === actionName)
 
@@ -121,6 +123,6 @@ export class ScopedActionService {
       throw new Error(`Action "${actionName}" not found`)
     }
 
-    return this.getActionScript(action)
+    return action
   }
 }
