@@ -3,16 +3,18 @@ import crypto from 'crypto'
 import { readFileSync } from 'fs'
 
 import FastTextClassifier from '../fasttext/classifier'
+import { LanguageDetector, LanguageDetectorProvider } from '../fasttext/language-detector'
 
 import Provider from './base'
 
 export default class NativeProvider extends Provider {
-  private languageDetector: any // TODO Implement me :-(
   private intentClassifier: FastTextClassifier
+  private langDetector: LanguageDetector
 
   constructor(config) {
     super({ ...config, name: 'native', entityKey: '@native' })
     this.intentClassifier = new FastTextClassifier()
+    this.langDetector = LanguageDetectorProvider.getLanguageDetector()
   }
 
   async init() {
@@ -65,10 +67,11 @@ export default class NativeProvider extends Provider {
       await this.sync()
     }
 
+    const language = await this.langDetector.detectLang(incomingEvent.preview)
     const predictions = await this.intentClassifier.predict(incomingEvent.preview)
 
-    // TODO Add language detection result here
     return {
+      language,
       intent: predictions[0],
       intents: predictions.map(p => ({ ...p, provider: 'native' })),
       entities: []
