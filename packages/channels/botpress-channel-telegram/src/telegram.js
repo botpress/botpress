@@ -1,6 +1,7 @@
 process.env.NTBA_FIX_319 = true // See https://github.com/yagop/node-telegram-bot-api/issues/319
 
 const TelegramBot = require('node-telegram-bot-api')
+const Agent = require('socks5-https-client/lib/Agent')
 
 import incoming from './incoming'
 
@@ -12,7 +13,16 @@ class Telegram {
 
     this.bot = null
     this.connected = false
-    this.bot = new TelegramBot(config.botToken)
+
+    const advancedOptions = Object.assign({}, config.advancedOptions)
+    if (config.proxy) {
+      advancedOptions.request = Object.assign({}, advancedOptions.request, {
+        agentClass: Agent,
+        agentOptions: config.proxy
+      })
+    }
+
+    this.bot = new TelegramBot(config.botToken, advancedOptions)
     bp.logger.info('Telegram bot created')
   }
 

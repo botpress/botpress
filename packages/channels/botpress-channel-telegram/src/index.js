@@ -42,7 +42,9 @@ const outgoingMiddleware = (event, next) => {
 
 module.exports = {
   config: {
-    botToken: { type: 'string', required: true, default: '', env: 'TELEGRAM_TOKEN' }
+    botToken: { type: 'string', required: true, default: '', env: 'TELEGRAM_TOKEN' },
+    proxy: { type: 'any', required: false, default: '', env: 'TELEGRAM_PROXY' },
+    advancedOptions: { type: 'any', required: false, default: {}, env: 'TELEGRAM_ADVANCED_OPTIONS' }
   },
 
   init: function(bp) {

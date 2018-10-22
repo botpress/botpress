@@ -54,6 +54,7 @@
     "eventemitter2": "^4.0.0",
     "lodash": "latest",
     "lru-cache": "latest",
-    "node-telegram-bot-api": "^0.30.0"
+    "node-telegram-bot-api": "^0.30.0",
+    "socks5-https-client": "^1.2.1"
   }
 }

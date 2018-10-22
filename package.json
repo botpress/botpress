@@ -19,7 +19,8 @@
     "lint": "eslint packages/**/{src,lib,tests}/**/*.{js,jsx}",
     "bootstrap": "yarn && lerna bootstrap && lerna run compile && cd packages/core/botpress && yarn link",
     "start": "cd packages/core/botpress && yarn run watch",
-    "init-foobot": "cd .. && node botpress/packages/core/botpress/bin/botpress init foobot --yes && cd foobot && yarn link botpress && yarn"
+    "init-foobot":
+      "cd .. && node botpress/packages/core/botpress/bin/botpress init foobot --yes && cd foobot && yarn link botpress && yarn"
   },
   "lint-staged": {
     "*.{js,jsx}": ["prettier --write", "eslint", "git add"],
