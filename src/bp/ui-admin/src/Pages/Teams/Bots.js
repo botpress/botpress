@@ -266,7 +266,7 @@ const mapStateToProps = state => ({
   team: state.teams.team,
   loading: state.teams.loadingTeam,
   currentUserPermissions: state.user.permissions[state.teams.teamId],
-  license: state.license
+  license: state.teams.license
 })
 
 const mapDispatchToProps = dispatch =>

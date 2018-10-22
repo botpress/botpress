@@ -14,7 +14,6 @@ class Section extends Component {
   }
 
   isCommunity() {
-    console.log('Is community', this.props)
     return this.props.license && this.props.license.edition === 'community'
   }
 
@@ -30,7 +29,7 @@ class Section extends Component {
                   disabled={section.disabled || section.active || this.isCommunity()}
                   to={section.link}
                 >
-                  {section.title} {this.renderBadge(this.isCommunity())}
+                  {section.title} {section.hasBadge && this.renderBadge(this.isCommunity())}
                 </NavLink>
               </NavItem>
             ))}
