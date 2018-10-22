@@ -1,8 +1,8 @@
 export const getMenu = ({ teamId, currentPage, userHasPermission }) => {
   const pages = [
     { title: 'Bots', link: 'bots', show: userHasPermission('admin.team.bots', 'read') },
-    { title: 'Members', link: 'members', show: userHasPermission('admin.team.members', 'read') },
-    { title: 'Roles', link: 'roles', show: userHasPermission('admin.team.roles', 'read') },
+    { title: 'Members', link: 'members', show: userHasPermission('admin.team.members', 'read'), hasBadge: true },
+    { title: 'Roles', link: 'roles', show: userHasPermission('admin.team.roles', 'read'), hasBadge: true },
     { title: 'Settings', link: 'settings', disabled: true }
   ]
 

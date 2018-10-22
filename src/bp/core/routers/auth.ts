@@ -1,13 +1,12 @@
-import { resolve } from 'bluebird'
 import { Logger } from 'botpress/sdk'
 import { RequestWithUser } from 'core/misc/interfaces'
+import { AdminService } from 'core/services/admin/professionnal/admin-service'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
-import TeamsService from 'core/services/auth/teams-service'
 import { Request, RequestHandler, Router } from 'express'
 import _ from 'lodash'
 
 import { CustomRouter } from '.'
-import { asyncMiddleware, checkTokenHeader, loadUser, success as sendSuccess, validateBodySchema } from './util'
+import { asyncMiddleware, checkTokenHeader, loadUser, success as sendSuccess } from './util'
 
 const REVERSE_PROXY = !!process.env.REVERSE_PROXY
 
@@ -20,7 +19,7 @@ export class AuthRouter implements CustomRouter {
   private checkTokenHeader!: RequestHandler
   private loadUser!: RequestHandler
 
-  constructor(logger: Logger, private authService: AuthService, private teamsService: TeamsService) {
+  constructor(logger: Logger, private authService: AuthService, private adminService: AdminService) {
     this.router = Router({ mergeParams: true })
     this.asyncMiddleware = asyncMiddleware({ logger })
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
@@ -47,7 +46,7 @@ export class AuthRouter implements CustomRouter {
     return sendSuccess(
       res,
       "Retrieved team member's permissions successfully",
-      await this.teamsService.getUserPermissions((req as RequestWithUser).dbUser!.id, req.params.teamId)
+      await this.adminService.getUserPermissions((req as RequestWithUser).dbUser!.id, req.params.teamId)
     )
   }
 

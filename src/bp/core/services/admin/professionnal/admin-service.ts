@@ -1,20 +1,18 @@
 import { Logger } from 'botpress/sdk'
+import { BotLoader } from 'core/bot-loader'
 import { ModuleLoader } from 'core/module-loader'
-import { inject, injectable, tagged } from 'inversify'
 import Joi from 'joi'
 import Knex from 'knex'
 import _ from 'lodash'
 import nanoid from 'nanoid'
 
-import { BotLoader } from '../../bot-loader'
-import { BotConfigFactory, BotConfigWriter } from '../../config'
-import Database from '../../database'
-import { checkRule } from '../../misc/auth'
-import { AuthRole, AuthRoleDb, AuthRule, AuthTeam, AuthTeamMembership, AuthUser, Bot } from '../../misc/interfaces'
-import { BOTID_REGEX } from '../../misc/validation'
-import { TYPES } from '../../types'
-import { InvalidOperationError, NotFoundError, UnauthorizedAccessError } from '../auth/errors'
-import { GhostService } from '../ghost/service'
+import { BotConfigFactory, BotConfigWriter } from '../../../config'
+import Database from '../../../database'
+import { checkRule } from '../../../misc/auth'
+import { AuthRole, AuthRoleDb, AuthRule, AuthTeam, AuthTeamMembership, AuthUser, Bot } from '../../../misc/interfaces'
+import { BOTID_REGEX } from '../../../misc/validation'
+import { InvalidOperationError, NotFoundError, UnauthorizedAccessError } from '../../auth/errors'
+import { GhostService } from '../../ghost/service'
 
 import defaultRoles from './default-roles'
 const TEAMS_TABLE = 'auth_teams'
@@ -32,18 +30,50 @@ const BotValidationSchema = Joi.object().keys({
   team: Joi.number().required()
 })
 
-@injectable()
-export default class TeamsService {
+export interface AdminService {
+  addMemberToTeam(userId: number, teamId: number, roleName: string)
+  removeMemberFromTeam(userId, teamId)
+  listUserTeams(userId: number)
+
+  createTeamRole(teamId: number, role: AuthRole)
+  deleteTeamRole(teamId: number, roleId: number)
+  updateTeamRole(teamId: number, roleId: number, role: Partial<AuthRole>)
+  listTeamRoles(teamId: number)
+
+  addBot(teamId: number, bot: Bot): Promise<void>
+  deleteBot(teamId: number, botId: string)
+  listBots(teamId: number, offset?: number, limit?: number)
+
+  createNewTeam(args: { userId: number; name?: string })
+  getBotTeam(botId: string)
+  deleteTeam(teamId: number)
+
+  getInviteCode(teamId: number)
+  refreshInviteCode(teamId: number)
+
+  getUserPermissions(userId: number, teamId: number): Promise<AuthRule[]>
+  getUserRole(userId: number, teamId: number)
+  changeUserRole(userId: number, teamId: number, roleName: string)
+
+  joinTeamFromInviteCode(userId: number, code: string)
+  listTeamMembers(teamId: number)
+
+  assertUserMember(userId: number, teamId: number)
+  assertUserPermission(userId: number, teamId: number, resource: string, operation: string)
+  assertUserNotMember(userId: number, teamId: number)
+  assertRoleExists(teamId: number, roleName: string)
+  assertUserRole(userId: number, teamId: number, roleName: string)
+}
+
+export default class CoreAdminService implements AdminService {
   constructor(
-    @inject(TYPES.Logger)
-    @tagged('name', 'Auth Teams')
     private logger: Logger,
-    @inject(TYPES.Database) private db: Database,
-    @inject(TYPES.BotConfigFactory) private botConfigFactory: BotConfigFactory,
-    @inject(TYPES.BotConfigWriter) private botConfigWriter: BotConfigWriter,
-    @inject(TYPES.BotLoader) private botLoader: BotLoader,
-    @inject(TYPES.GhostService) private ghostService: GhostService,
-    @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader
+    private db: Database,
+    private botConfigFactory: BotConfigFactory,
+    private botConfigWriter: BotConfigWriter,
+    private botLoader: BotLoader,
+    private ghostService: GhostService,
+    private moduleLoader: ModuleLoader
   ) {}
 
   get knex() {
