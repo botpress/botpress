@@ -6,11 +6,11 @@ import { AuthRole, AuthRule, Bot } from 'core/misc/interfaces'
 import { ModuleLoader } from 'core/module-loader'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
+import CoreAdminService, { AdminService } from 'professional/services/admin/admin-service'
 
 import { GhostService } from '..'
 
 import { FeatureNotAvailableError } from './errors'
-import CoreAdminService, { AdminService } from './professional/admin-service'
 
 @injectable()
 export class CommunityAdminService implements AdminService {

@@ -3,15 +3,15 @@ import { KnexExtension } from 'common/knex'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
 import jsonwebtoken from 'jsonwebtoken'
 import Knex from 'knex'
+import resources from 'professional/services/admin/resources'
 
 import Database from '../../database'
 import { Resource } from '../../misc/auth'
 import { AuthUser, TokenUser } from '../../misc/interfaces'
 import { TYPES } from '../../types'
-import resources from '../admin/professional/resources'
 
 import { InvalidCredentialsError } from './errors'
-import { calculateHash, validateHash } from './util'
+import { validateHash } from './util'
 
 const USERS_TABLE = 'auth_users'
 const JWT_SECRET = <string>process.env.JWT_SECRET || 'very_secret' // TODO FIXME Important for security
