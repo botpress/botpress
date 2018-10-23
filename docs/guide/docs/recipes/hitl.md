@@ -1,16 +1,16 @@
 ---
 id: hitl
-title: HITL (Human-in-the-loop)
+title: !!HITL (Human-in-the-loop)
 ---
 
 Botpress allows you to build a powerful tool for autonomous communication with your users.
 However there may be cases where it is difficult or very resource-consuming to implement a conversation flow within the bot. At this point you may consider having a human take over the conversation and continue to communicate with your user.
 
-The [Human-in-the-Loop (@botpress/hitl)](https://github.com/botpress/botpress/tree/master/packages/functionals/botpress-hitl) module allows you to do just that!
+The [Human-in-the-Loop (hitl)](https://github.com/botpress/botpress/tree/master/modules/hitl) module allows you to do just that!
 
 Human-in-the-Loop is currently supported on `channel-web` and `channel-messenger`.
 
-Once you have this module installed (`npm install --save @botpress/hitl`) you will be able to:
+Once you have this module installed, you will be able to:
 
 1. Pause a user's conversation with the bot
 2. Alert your agents that a conversation requires attention
@@ -23,9 +23,10 @@ There are several ways you can pause the conversation:
 
 - from the admin-panel, toggling the appropriate button
 - by performing an API-request:
-  - POST /api/botpress-hitl/sessions/{$id}/pause
-  - POST /api/botpress-hitl/sessions/{$id}/unpause
-- programmatically by calling `bp.hitl.pause(platform, userId)` and `bp.hitl.unpause(platform, userId)`
+  - POST /api/ext/hitl/sessions/{$id}/pause
+  - POST /api/ext/hitl/sessions/{$id}/unpause
+  - POST /api/ext/hitl/channel/{$channel}/user/{$userId}/pause
+  - POST /api/ext/hitl/channel/{$channel}/user/{$userId}/unpause
 
 # Alerting agents
 
@@ -33,7 +34,7 @@ There are a number of ways to alert your agents of a paused conversation, an ema
 
 ```js
 const message = event.user.first_name + ' wants to talk to a human'
-bp.notifications.send({ message, level: 'info', url: '/modules/botpress-hitl' })
+!!!bp.notifications.send({ message, level: 'info', url: '/modules/hitl' })
 ```
 
 The agent can then navigate to the appropriate conversation and take over the conversation from the bot.
@@ -42,7 +43,7 @@ The agent can then navigate to the appropriate conversation and take over the co
 
 Once the agent is done communicating with the user, they can unpause the conversation.
 
-It is also possible for the user to unpause the conversation programmatically by triggering an action that calls `bp.hitl.unpause(platform, userId)`. This is implemented in the example below.
+It is also possible for the user to unpause the conversation by calling the API endpoint. This is implemented in the example below.
 
 # Example
 
@@ -52,7 +53,7 @@ HITL_START pauses conversation the conversation with the bot, alerts the agents 
 
 ```js
 bp.hear(/HITL_START/, (event, next) => {
-  bp.messenger.sendTemplate(event.user.id, {
+  !!!bp.messenger.sendTemplate(event.user.id, {
     template_type: 'button',
     text: 'Bot paused, a human will get in touch very soon.',
     buttons: [{ type: 'postback', title: 'Cancel request', payload: 'HITL_STOP' }]

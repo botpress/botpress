@@ -1,6 +1,6 @@
 ---
 id: skills
-title: Skills
+title: !!!Skills
 ---
 
 # 📚 Skills

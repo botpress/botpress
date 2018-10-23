@@ -1,6 +1,6 @@
 ---
 id: nlu
-title: NLU
+title: !!!NLU
 ---
 
 # 📚 NLU
@@ -28,22 +28,24 @@ In Botpress, NLU is acheived by connecting with 3rd-party providers such as [Ras
 ## Intent Classification
 
 Intent classification helps you detect the intent of the users. Examples:
-- **User said:** *"I want to fly to Dubai"* , **Intent:** `search_flight`
-- **User said:** *"My flight is delayed, help!"* , **Intent:** `faq_flight_delayed`
-- **User said:** *"Can I bring a pet aboard?"* , **Intent:** `faq_pet`
+
+- **User said:** _"I want to fly to Dubai"_ , **Intent:** `search_flight`
+- **User said:** _"My flight is delayed, help!"_ , **Intent:** `faq_flight_delayed`
+- **User said:** _"Can I bring a pet aboard?"_ , **Intent:** `faq_pet`
 
 Intent classification is, in general, a better way than using keywords to understand what the user is trying to say.
 
 ## Entity Extraction
 
 Entity Extraction helps you extract and normalize known entities from phrases. Examples:
-- **User said:** *"I want to fly to Dubai tomorrow"* , **Destination:** `Dubai` , **Date:** `01 Jan 2018`
+
+- **User said:** _"I want to fly to Dubai tomorrow"_ , **Destination:** `Dubai` , **Date:** `01 Jan 2018`
 
 Entity Extraction is usually used in combination with Intent Classification.
 
 ## How it works
 
-Botpress abstracts the different NLU providers and provides a clean, easy-to-use interface to do Intent Classification and Entity Extraction. The intents and entities are stored locally (by default in the `./entities` and `./intents` folders) and they follow the source code of your bot so that your NLU and bot logic are always in sync.  Importantly this means you have access to and control over your set up data.
+Botpress abstracts the different NLU providers and provides a clean, easy-to-use interface to do Intent Classification and Entity Extraction. The intents and entities are stored locally (by default in the `./entities` and `./intents` folders) and they follow the source code of your bot so that your NLU and bot logic are always in sync. Importantly this means you have access to and control over your set up data.
 
 > Since the details and inner workings differ from one provider to another, we invite you to read more about the NLU module directly on GitHub.
 
@@ -59,7 +61,7 @@ Once that's done, restart your bot. You should see a new "NLU" item in the left 
 
 Click the "Create new intent" at the bottom and type `play`.
 
-Now let's add a couple of new utterances (variations) of what a user would usually type if he wanted to say to the bot that he wants to play a new game.  About 10 phrases should suffice to start. Don't forget to save the file once you're done.
+Now let's add a couple of new utterances (variations) of what a user would usually type if he wanted to say to the bot that he wants to play a new game. About 10 phrases should suffice to start. Don't forget to save the file once you're done.
 
 Do the same for the `leaderboard` intent.
 
@@ -67,7 +69,7 @@ Do the same for the `leaderboard` intent.
 
 To train your bot using these new intents, simply restart the bot. You should see the training progress in the console.
 
-![Training status in console][nluConsole]
+![Training status in console][nluconsole]
 
 ## Using the intents in flows
 
@@ -82,9 +84,9 @@ The Botpress NLU makes it convenient to test which intent is currently detected 
   entities: [] }
 ```
 
-We could very easily add a condition similar to the one below in the entry point node of the bot so that if the user starts the conversation with something like "*Who's the best player?*", it would redirect him straight to the `leaderboard` flow.
+We could very easily add a condition similar to the one below in the entry point node of the bot so that if the user starts the conversation with something like "_Who's the best player?_", it would redirect him straight to the `leaderboard` flow.
 
-![Final flow][nluFlow]
+![Final flow][nluflow]
 
 ```js
 event.nlu.intent.name === 'leaderboard'
@@ -94,15 +96,16 @@ event.nlu.intent.is('leaderboard')
 
 The latter example has the advantage of being case insensitive and is guaranteed to always be available by the NLU module, even if intent classification fails.
 
-![Flowing to the leaderboard flow][nluLeaderboard]
+![Flowing to the leaderboard flow][nluleaderboard]
 
-[nluLeaderboard]: {{site.baseurl}}/images/nluLeaderboard.jpg
-[nluConsole]: {{site.baseurl}}/images/nluConsole.jpg
-[nluFlow]: {{site.baseurl}}/images/nluFlow.jpg
+[nluleaderboard]: {{site.baseurl}}/images/nluLeaderboard.jpg
+[nluconsole]: {{site.baseurl}}/images/nluConsole.jpg
+[nluflow]: {{site.baseurl}}/images/nluFlow.jpg
 
 ## Changing the NLU provider
 
 To change NLU-provider you basically need to change several env-variables so that app knows provider and credentials to use.
+
 ```bash
 NLU_PROVIDER=luis # can be native, dialogflow, rasa, luis, recast
 
@@ -126,4 +129,3 @@ NLU_RECAST_TOKEN
 NLU_RECAST_USER_SLUG
 NLU_RECAST_BOT_SLUG
 ```
-

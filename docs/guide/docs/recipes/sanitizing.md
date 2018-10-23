@@ -1,6 +1,6 @@
 ---
 id: sanitizing
-title: Sanitizing
+title: !!!Sanitizing
 ---
 
 You may have a situation with your bot where you require the user to input sensitive data via your bot. this could then pose a security risk if someone was to see the chat or gain access to your persistent data.

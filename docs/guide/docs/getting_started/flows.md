@@ -1,6 +1,6 @@
 ---
 id: flows
-title: Flows
+title: !!!Flows
 ---
 
 For this section, you'll need to head to the dashboard and click on the "Flows" section. You should see a flow diagram with a bunch of boxes and links.
@@ -20,6 +20,7 @@ Your bots conversation logic is specified in the flows. More complex bots are ge
 Our flow engine is event-based and is non-blocking by default, which means that a flow will execute all it can execute until it needs to wait.
 
 > **Note:** There are currently two reasons for a flow to "wait":
+>
 > - A node is marked as waiting for user input
 > - A node couldn't match a condition to transition to another node
 
@@ -27,25 +28,28 @@ Almost all the logic is defined and happens in the **Nodes** (the boxes inside t
 
 ### Flow-wide "On Receive"
 
-The *On Receive* actions are **executed for every new message received by the bot inside this flow**.
+The _On Receive_ actions are **executed for every new message received by the bot inside this flow**.
 
-To define new *Flow-wide On Receive Actions*, navigate to the relevant flow, then double click anywhere on the checkered background to show the *Flow Properties Pop up*. Under the *On Receive* section, click the *Add Action* button to add a new action.
-![GIF showing how to show the Flow Properties pop up][GettingStarted_TriviaFlows_FlowWideOnReceive]
+To define new _Flow-wide On Receive Actions_, navigate to the relevant flow, then double click anywhere on the checkered background to show the _Flow Properties Pop up_. Under the _On Receive_ section, click the _Add Action_ button to add a new action.
+![GIF showing how to show the Flow Properties pop up][gettingstarted_triviaflows_flowwideonreceive]
+
 > **👓 Examples:** Flow-wide On Receive
+>
 > - Audit Trail: Record specific logs of messages received in the scope of this particular flow
 > - Authentication Gate: Run some authentication
 > - Sentiment Analysis: Making sure the sentiment of the conversation is staying healthy
 
 ### Flow-wide "Transitions"
 
-The *Transitions* are very closely related to *On Receive Actions*. The actions themselves can only run actions (and modify the 
-), but they can't make the flow switch to another node. This is the role of *Transitions*.
+The _Transitions_ are very closely related to _On Receive Actions_. The actions themselves can only run actions (and modify the
+), but they can't make the flow switch to another node. This is the role of _Transitions_.
 
 **A transition is defined by a condition and a destination.** They can be seen as global conversation hooks in some way because they have the power to reroute the conversation to an entirely new node or flow.
 
-The *Flow-wide Transitions* are evaluated sequentially, and the first to match is the one that will be triggered (the others won't be tried). If no condition is matched, then nothing happens and the regular flow is continued.
+The _Flow-wide Transitions_ are evaluated sequentially, and the first to match is the one that will be triggered (the others won't be tried). If no condition is matched, then nothing happens and the regular flow is continued.
 
 > **👓 Examples:** Flow-wide Transitions
+>
 > - Authentication Gate: Re-route the user to the login flow if they are not authenticated
 > - Sentiment Analysis: Re-route the user to the human fallback node if the conversation is degrading
 > - Matching flow-wide intents such as "`cancel`" etc..
@@ -61,17 +65,17 @@ Flows are stored as JSON files in the bot's source files. In the context of this
 
 Nodes are the primary units of the conversational logic of your bot. **An active conversation** (which we call a "**session**") **always has one and only one active node**. A node generally transitions to another node or flow. When it doesn't, the conversation is ended. The next message from the user will then be part of an entirely new session.
 
-A *node* is separated into three different stages: **onEnter** (A), **onReceive** (B) and **onNext** (C).
+A _node_ is separated into three different stages: **onEnter** (A), **onReceive** (B) and **onNext** (C).
 
 ![Typical Flow Node][flow_node]
 
 ### onEnter
 
-*onEnter* is a list of actions that will be executed when the node is **entered**. If multiple actions are defined, all of them will be executed sequentially.
+_onEnter_ is a list of actions that will be executed when the node is **entered**. If multiple actions are defined, all of them will be executed sequentially.
 
 ### onReceive
 
-*onReceive* is a list of actions that will be executed when the node receives a message while being the active node. As soon as there is an action defined, the node will automatically be waiting for user input (orange node).
+_onReceive_ is a list of actions that will be executed when the node receives a message while being the active node. As soon as there is an action defined, the node will automatically be waiting for user input (orange node).
 
 When this property is left unused, the node is non-blocking (black), which means it will flow straight from the `onEnter` to the `onNext`.
 
@@ -79,10 +83,10 @@ When this property is left unused, the node is non-blocking (black), which means
 
 ### onNext / Transitions
 
-*onNext* (which can also be called Transitions) is exactly the same thing as *Flow-wide Transitions* except that the conditions are evaluated only after `onReceive` or `onEnter` have been executed.
+_onNext_ (which can also be called Transitions) is exactly the same thing as _Flow-wide Transitions_ except that the conditions are evaluated only after `onReceive` or `onEnter` have been executed.
 
 > **Special cases**: If no condition is defined, the default behavior is that the conversation ends.
-If there are conditions defined but none match, nothing happens, i.e., the current node stays active, and it will flow when a condition is matched. By default, the `onNext` will only be retried after `onReceive` is re-invoked.
+> If there are conditions defined but none match, nothing happens, i.e., the current node stays active, and it will flow when a condition is matched. By default, the `onNext` will only be retried after `onReceive` is re-invoked.
 
 Nodes can flow to:
 
@@ -96,21 +100,21 @@ Nodes can flow to:
 
 Each conversation has a **State** associated with it. The state is created when the conversation session is started and is destroyed when the session is ended.
 
-In the context of this tutorial, this means that a state is created just before the "*entry*" node is entered and just after the "*over*" node is executed.
+In the context of this tutorial, this means that a state is created just before the "_entry_" node is entered and just after the "_over_" node is executed.
 
-![Lifetime of a conversation state][stateLifetime]
+![Lifetime of a conversation state][statelifetime]
 
 > **Note:** The state is global to the conversation, so if the conversation spans multiple flows, **the state is shared for all the flows**.
 
 ---
 
-#  🔨 Hands-on
+# 🔨 Hands-on
 
 Now that you understand how flows and nodes work, let's jump into some use cases for our Trivia bot.
 
 ## Asking 5 questions instead of 3
 
-Let's start with something trivial. You should identify the black node called "*next*".
+Let's start with something trivial. You should identify the black node called "_next_".
 
 You'll notice the following Transition:
 
@@ -124,7 +128,7 @@ You can change `3` by `5` from the UI, then hit the "Save" icon at the top to pe
 
 The recommended way to create and edit the flows is via the graphical interface. It is usually much quicker, faster and less error-prone.
 
-But for the sake of completeness of this tutorial and since we're technical folks and love code (right?) let's see how to do that in code instead. Open up the `src/flows/main.flow.json` and locate the "*next*" node. Let's update the code as follow:
+But for the sake of completeness of this tutorial and since we're technical folks and love code (right?) let's see how to do that in code instead. Open up the `src/flows/main.flow.json` and locate the "_next_" node. Let's update the code as follow:
 
 ```diff
 {
@@ -154,14 +158,15 @@ In order to do that, we will need to tell the bot to memorize the nickname of th
 ### Calling an action from the Visual Flow Builder
 
 What we want is the following:
+
 - WHEN the user tells the bot their nickname
-- THEN we want to say "*Thanks, `{{event.text}}` is an original nickname!*"
+- THEN we want to say "_Thanks, `{{event.text}}` is an original nickname!_"
 - THEN we want to persist their nickname into a user-wide variable
 
-To do that, click on the "*ask-name*" node, then in the "*On Receive*" section, click **Add action**.
+To do that, click on the "_ask-name_" node, then in the "_On Receive_" section, click **Add action**.
 
-![Set the nickname into user tag][setUserTag]
-![Set the nickname into user tag (node)][setUserTagNode]
+![Set the nickname into user tag][setusertag]
+![Set the nickname into user tag (node)][setusertagnode]
 
 What the `setUserTag({ name, value })` action does is that is saves anything (`value`) into a user storage variable (tag named `name`).
 
@@ -171,45 +176,40 @@ What the `setUserTag({ name, value })` action does is that is saves anything (`v
 
 OK, now that we persist the user's nickname somewhere, we also need to pull that nickname back when the user starts a new game.
 
-To do that, click on the "*entry*" node, then in the "*On Enter*" section, click **Add action**.
+To do that, click on the "_entry_" node, then in the "_On Enter_" section, click **Add action**.
 
-![Get the nickname from user tag][getUserTag]
-![Get the nickname from user tag (node)][getUserTagNode]
+![Get the nickname from user tag][getusertag]
+![Get the nickname from user tag (node)][getusertagnode]
 
-What the `getUserTag({ name, into })` action does is load a tag (named `name`) *into* the state under a variable called `into`.
+What the `getUserTag({ name, into })` action does is load a tag (named `name`) _into_ the state under a variable called `into`.
 
 ### Conditional asking
 
-The last step now is to only ask for the nickname when we don't know the nickname already. When this is the case, `getUserTag` should put `null` *into* the *"nickname"* state variable.
+The last step now is to only ask for the nickname when we don't know the nickname already. When this is the case, `getUserTag` should put `null` _into_ the _"nickname"_ state variable.
 
-![Asking only when nickname is unknown][nicknameCondition1]
-![Nickname is unknown condition][nicknameCondition2]
+![Asking only when nickname is unknown][nicknamecondition1]
+![Nickname is unknown condition][nicknamecondition2]
 
 Finally, you want to end the flow if we already know the nickname:
 
-![End flow otherwise][otherwiseCondition]
-![End flow otherwise (result)][otherwiseConditionResult]
+![End flow otherwise][otherwisecondition]
+![End flow otherwise (result)][otherwiseconditionresult]
 
 That's it! Your bot is now asking the user for their nickname once and then remembering it forever.
 
-> **🌟 Tip:** Say `/forget` to the bot to make it forget your *nickname*.
+> **🌟 Tip:** Say `/forget` to the bot to make it forget your _nickname_.
 
-[GettingStarted_TriviaFlows_FlowWideOnReceive]: {{site.baseurl}}/images/GettingStarted_TriviaFlows_FlowWideOnReceive.gif
-
-[stateLifetime]: {{site.baseurl}}/images/stateLifetime.jpg
-
+[gettingstarted_triviaflows_flowwideonreceive]: {{site.baseurl}}/images/GettingStarted_TriviaFlows_FlowWideOnReceive.gif
+[statelifetime]: {{site.baseurl}}/images/stateLifetime.jpg
 [flow_node]: {{site.baseurl}}/images/flow_node.png
 [node_blocking]: {{site.baseurl}}/images/node_blocking.png
 [node_transition]: {{site.baseurl}}/images/node_transition.png
 [ask_nickname]: {{site.baseurl}}/images/ask_nickname.jpg
-
-[getUserTag]: {{site.baseurl}}/images/getUserTag.jpg
-[getUserTagNode]: {{site.baseurl}}/images/getUserTagNode.jpg
-[setUserTag]: {{site.baseurl}}/images/setUserTag.jpg
-[setUserTagNode]: {{site.baseurl}}/images/setUserTagNode.png
-
-[nicknameCondition1]: {{site.baseurl}}/images/nicknameCondition1.jpg
-[nicknameCondition2]: {{site.baseurl}}/images/nicknameCondition2.jpg
-
-[otherwiseCondition]: {{site.baseurl}}/images/otherwiseCondition.jpg
-[otherwiseConditionResult]: {{site.baseurl}}/images/otherwiseConditionResult.jpg
+[getusertag]: {{site.baseurl}}/images/getUserTag.jpg
+[getusertagnode]: {{site.baseurl}}/images/getUserTagNode.jpg
+[setusertag]: {{site.baseurl}}/images/setUserTag.jpg
+[setusertagnode]: {{site.baseurl}}/images/setUserTagNode.png
+[nicknamecondition1]: {{site.baseurl}}/images/nicknameCondition1.jpg
+[nicknamecondition2]: {{site.baseurl}}/images/nicknameCondition2.jpg
+[otherwisecondition]: {{site.baseurl}}/images/otherwiseCondition.jpg
+[otherwiseconditionresult]: {{site.baseurl}}/images/otherwiseConditionResult.jpg

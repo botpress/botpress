@@ -1,6 +1,6 @@
 ---
 id: dashboard
-title: Dashboard
+title: !!!Dashboard
 ---
 
 ## The layout

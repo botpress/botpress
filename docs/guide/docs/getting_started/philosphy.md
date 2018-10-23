@@ -1,6 +1,6 @@
 ---
 id: philosphy
-title: The Botpress Philosophy
+title: !!!The Botpress Philosophy
 ---
 
 Building bots is something new and sounds like a fun challenge for most developers.

@@ -6,25 +6,28 @@
     "tagline": "Guides and references for all you need to know about Botpress",
     "docs": {
       "getting_started/actions": {
-        "title": "Actions"
+        "title": "!!!Actions"
       },
       "getting_started/changes": {
         "title": "Changes"
       },
       "getting_started/components": {
-        "title": "Components"
+        "title": "!!Components"
       },
       "getting_started/content": {
-        "title": "Content"
+        "title": "!!!Content"
       },
       "getting_started/dashboard": {
-        "title": "Dashboard"
+        "title": "!!!Dashboard"
       },
       "getting_started/deploying": {
-        "title": "Deploying"
+        "title": "!!!Deploying"
       },
       "getting_started/flows": {
-        "title": "Flows"
+        "title": "!!!Flows"
+      },
+      "getting_started/hooks": {
+        "title": "Hooks"
       },
       "getting_started/index": {
         "title": "What you will learn"
@@ -33,43 +36,64 @@
         "title": "Install"
       },
       "getting_started/nlu": {
-        "title": "NLU"
+        "title": "!!!NLU"
       },
       "getting_started/philosphy": {
-        "title": "The Botpress Philosophy"
+        "title": "!!!The Botpress Philosophy"
       },
       "getting_started/skills": {
-        "title": "Skills"
+        "title": "!!!Skills"
       },
       "getting_started/storage": {
-        "title": "Storage"
+        "title": "!!!Storage"
       },
       "getting_started/templates": {
-        "title": "Templates"
+        "title": "!!!Templates"
+      },
+      "modules/actions": {
+        "title": "Actions"
+      },
+      "modules/api-endpoint": {
+        "title": "API endpoint"
+      },
+      "modules/build": {
+        "title": "Building"
+      },
+      "modules/create": {
+        "title": "Creation"
+      },
+      "modules/database": {
+        "title": "Database"
+      },
+      "modules/install": {
+        "title": "Installation"
+      },
+      "modules/views": {
+        "title": "Views"
       },
       "recipes/analytics": {
-        "title": "Analytics"
+        "title": "!!Analytics"
       },
       "recipes/apis": {
         "title": "Using external APIs"
       },
       "recipes/broadcasting": {
-        "title": "Broadcasting"
+        "title": "!!Broadcasting"
       },
       "recipes/carousel": {
-        "title": "Carousel"
+        "title": "!!Carousel"
       },
       "recipes/databases": {
-        "title": "Supported databases"
+        "title": "!!Supported databases"
       },
       "recipes/embedding": {
-        "title": "Embedding the Webchat on a website"
+        "title": "!!!Embedding the Webchat on a website"
       },
       "recipes/hitl": {
-        "title": "HITL (Human-in-the-loop)"
+        "title": "!!HITL (Human-in-the-loop)"
       },
       "recipes/i18n": {
-        "title": "i18n"
+        "title": "!!!i18n"
       },
       "recipes/index": {
         "title": "What are they?"
@@ -78,7 +102,7 @@
         "title": "Jump to"
       },
       "recipes/login": {
-        "title": "Login"
+        "title": "!!!Login"
       },
       "recipes/modules": {
         "title": "Modules"
@@ -87,19 +111,19 @@
         "title": "Proactive acting"
       },
       "recipes/sanitizing": {
-        "title": "Sanitizing"
+        "title": "!!!Sanitizing"
       },
       "recipes/scheduling": {
-        "title": "Scheduling messages"
+        "title": "!!!Scheduling messages"
       },
       "recipes/shortlinks": {
         "title": "Shortlinks"
       },
       "recipes/timeout": {
-        "title": "Timeout"
+        "title": "!!!Timeout"
       },
       "recipes/extensions": {
-        "title": "Webchat Extensions"
+        "title": "!!!Webchat Extensions"
       }
     },
     "links": {
@@ -110,6 +134,7 @@
     },
     "categories": {
       "Getting Started": "Getting Started",
+      "Modules": "Modules",
       "Recipes": "Recipes"
     }
   },

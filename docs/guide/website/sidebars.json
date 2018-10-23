@@ -14,7 +14,17 @@
       "getting_started/skills",
       "getting_started/nlu",
       "getting_started/deploying",
+      "getting_started/hooks",
       "getting_started/changes"
+    ],
+    "Modules": [
+      "modules/install",
+      "modules/create",
+      "modules/build",
+      "modules/api-endpoint",
+      "modules/views",
+      "modules/actions",
+      "modules/database"
     ],
     "Recipes": [
       "recipes/index",
@@ -28,7 +38,6 @@
       "recipes/i18n",
       "recipes/jumps",
       "recipes/login",
-      "recipes/modules",
       "recipes/proactive",
       "recipes/sanitizing",
       "recipes/scheduling",

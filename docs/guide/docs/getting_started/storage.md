@@ -1,6 +1,6 @@
 ---
 id: storage
-title: Storage
+title: !!!Storage
 ---
 
 # 📚 Storage Mechanisms
@@ -100,8 +100,8 @@ Now that we understand how to store data, how to write custom actions and how fl
 
 To determine the score of the user, we will take into account two variables:
 
-* The total time it took to respond to all the questions
-* The total score
+- The total time it took to respond to all the questions
+- The total score
 
 The score will be determined as follow: `SCORE / TIME_IN_MILLISECONDS * 1000 * 5000`
 

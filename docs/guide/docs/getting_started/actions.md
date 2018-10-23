@@ -1,35 +1,32 @@
 ---
 id: actions
-title: Actions
+title: !!!Actions
 ---
 
 ## How actions work
 
 Actions are essentially _server-side functions_ that get executed by the bot as part of a conversational flow. Actions have the power to do many things:
 
-* Alter the state of the conversation
-* Send customized messages to the conversation
-* Execute arbitrary code like calling an API or storing data in the database
+- Alter the state of the conversation
+- Send customized messages to the conversation
+- Execute arbitrary code like calling an API or storing data in the database
 
 Since they are just regular JavaScript functions, they can, in fact, do pretty much anything.
 
 When an action is invoked by the Dialogue Manager (DM), it gets passed the following arguments:
 
-* **`state`**: The current state of the conversation. **This object is [`frozen`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze) and can't be mutated.**
-* **`event`**: The original (latest) event received from the user in the conversation. **This object is [`frozen`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze) and can't be mutated.**
-* **`args`**: The arguments that were passed to this action from the Visual Flow Builder.
+- **`state`**: The current state of the conversation. **This object is [`frozen`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze) and can't be mutated.**
+- **`event`**: The original (latest) event received from the user in the conversation. **This object is [`frozen`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze) and can't be mutated.**
+- **`args`**: The arguments that were passed to this action from the Visual Flow Builder.
 
 The action itself **must return a new state object**.
 
+Actions are run in a virtual machine, so scripting errors won't bring your bot down.
+
 ## How to define new actions
 
-In the context of our tutorial, all actions are defined in our `src/actions.js` file and are registered in `src/index.js` as follows:
-
-```js
-bp.dialogEngine.registerActions(actions)
-```
-
-`registerActions(map)` takes a map as a parameter, the keys being the name of the action and the value the action function. You can call `registerActions` as many times as you want, which allows you to split your actions into multiple files if you wish to.
+You may add actions globally or for a specific bot by adding a `.js` file in the folder `data/global/actions` or `data/bots/{bot_name}/actions`.
+Actions may be added or edited at runtime without restarting the bot.
 
 ## Examples of actions
 
@@ -49,10 +46,10 @@ Now let's look at a slightly more complicated action.
 
 The `sendRandomQuestion` action does the following: [[This section needs more explanation and it doesn't make sense. I will revisit when it's elaborated on]]
 
-* It sends a random _Content Element_ from the `trivia` _Content Types_ using the built-in `event.reply` method
-* It captures the message sent to the user
-* It extracts the good answer from the multiple choices
-* It stores the good answer in the state
+- It sends a random _Content Element_ from the `trivia` _Content Types_ using the built-in `event.reply` method
+- It captures the message sent to the user
+- It extracts the good answer from the multiple choices
+- It stores the good answer in the state
 
 ```js
 sendRandomQuestion: async (state, event) => {

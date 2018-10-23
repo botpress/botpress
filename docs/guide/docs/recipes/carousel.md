@@ -1,6 +1,6 @@
 ---
 id: carousel
-title: Carousel
+title: !!Carousel
 ---
 
 Webchat carousel is a useful way of showing a collection of elements. The example below shows two different types of element, shown in a responsive layout, depending on the width of the users device.
@@ -34,7 +34,7 @@ The webchat supports the following action buttons out of the box:
     subtitle: 'This will trigger an action',
     buttons: [{ payload: 'TRIGGER_ACTION', title: 'Run' }] // This button acts as a quick-reply
   }, {
-    title: 'Go to another flow action',
+  !!!  title: 'Go to another flow action',
     encrypt: true,
     payload: {
       action: 'gotoFlow',
@@ -44,4 +44,4 @@ The webchat supports the following action buttons out of the box:
 },
 ```
 
-You can check the [package README](https://github.com/botpress/botpress/tree/master/packages/channels/botpress-channel-web) for all the options you can pass into the carousel object.
+You can check the [package README](https://github.com/botpress/botpress/tree/master/modules/channel-web) for all the options you can pass into the carousel object.

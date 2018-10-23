@@ -1,6 +1,6 @@
 ---
 id: components
-title: Components
+title: !!Components
 ---
 
 Botpress can seem intimidating at first, but it is, in fact, straightforward once you understand how it works and why. Let’s dissect all the major components of a Botpress bot.
@@ -27,7 +27,7 @@ Although NLU is optional, a bot without NLU would have to rely on obsolete techn
 
 NLU is a subset of NLP (_Natural Language Processing_). NLU is, in general, a very complex subject involving linguistics and machine learning. Fortunately, there are many providers that allow us to abstract all these complexities, such as [LUIS](https://www.luis.ai) (Microsoft), [DialogFlow](https://dialogflow.com/) (Google), [IBM Watson](https://www.ibm.com/watson/services/natural-language-understanding/) and [RASA](https://github.com/RasaHQ/rasa_nlu).
 
-NLU is available in Botpress by installing the [`botpress-nlu`](https://github.com/botpress/modules/tree/master/functionals/botpress-nlu) module and can be connected to any of these providers.
+NLU is available in Botpress by installing the [`nlu`](https://github.com/botpress/botpress/tree/master/modules/nlu) module and can be connected to any of these providers.
 
 ## Dialogue Manager <a class="toc" id="dialogue" href="#dialogue"></a>
 
