@@ -1,0 +1,54 @@
+// Layout
+
+.bp-header {
+  background-color: var(--c-neutral--dark-1);
+
+  &__logo {
+    width: 100px;
+  }
+
+  &__title {
+    font-size: 14px;
+  }
+
+  .navbar-brand,
+  .nav-link {
+    color: var(--c-neutral--light-3);
+    font-size: 14px;
+  }
+}
+
+.bp-main-content {
+  &-header {
+    border-bottom: 1px solid var(--c-neutral--light-2);
+    padding: 5px;
+    margin-bottom: 10px;
+
+    &__nav {
+      padding: 0;
+    }
+
+    .nav-link {
+      color: #494949;
+
+      &:hover {
+        color: var(--c-neutral--dark-1);
+      }
+
+      &.active {
+        color: #007bff;
+        font-weight: 600;
+      }
+
+      &.disabled {
+        color: #6c757d;
+      }
+    }
+  }
+
+  &__title {
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+  }
+}
