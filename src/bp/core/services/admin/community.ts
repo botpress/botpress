@@ -9,8 +9,8 @@ import { inject, injectable } from 'inversify'
 
 import { GhostService } from '..'
 
+import { FeatureNotAvailableError } from './errors'
 import CoreAdminService, { AdminService } from './professionnal/admin-service'
-import { RequestNotAvailableError } from './professionnal/errors'
 
 @injectable()
 export class CommunityAdminService implements AdminService {
@@ -38,11 +38,11 @@ export class CommunityAdminService implements AdminService {
   }
 
   addMemberToTeam(userId: number, teamId: number, roleName: string) {
-    throw new RequestNotAvailableError(this.edition)
+    throw new FeatureNotAvailableError(this.edition)
   }
 
   removeMemberFromTeam(userId: any, teamId: any) {
-    throw new RequestNotAvailableError(this.edition)
+    throw new FeatureNotAvailableError(this.edition)
   }
 
   async listUserTeams(userId: number) {
@@ -50,15 +50,15 @@ export class CommunityAdminService implements AdminService {
   }
 
   createTeamRole(teamId: number, role: AuthRole) {
-    throw new RequestNotAvailableError(this.edition)
+    throw new FeatureNotAvailableError(this.edition)
   }
 
   deleteTeamRole(teamId: number, roleId: number) {
-    throw new RequestNotAvailableError(this.edition)
+    throw new FeatureNotAvailableError(this.edition)
   }
 
   updateTeamRole(teamId: number, roleId: number, role: Partial<AuthRole>) {
-    throw new RequestNotAvailableError(this.edition)
+    throw new FeatureNotAvailableError(this.edition)
   }
 
   async listTeamRoles(teamId: number) {
@@ -78,7 +78,7 @@ export class CommunityAdminService implements AdminService {
   }
 
   createNewTeam(args: { userId: number; name?: string | undefined }) {
-    throw new RequestNotAvailableError(this.edition)
+    throw new FeatureNotAvailableError(this.edition)
   }
 
   async getBotTeam(botId: string) {
@@ -86,15 +86,15 @@ export class CommunityAdminService implements AdminService {
   }
 
   deleteTeam(teamId: number) {
-    throw new RequestNotAvailableError(this.edition)
+    throw new FeatureNotAvailableError(this.edition)
   }
 
   getInviteCode(teamId: number) {
-    throw new RequestNotAvailableError(this.edition)
+    throw new FeatureNotAvailableError(this.edition)
   }
 
   refreshInviteCode(teamId: number) {
-    throw new RequestNotAvailableError(this.edition)
+    throw new FeatureNotAvailableError(this.edition)
   }
 
   async getUserPermissions(userId: number, teamId: number): Promise<AuthRule[]> {
@@ -106,11 +106,11 @@ export class CommunityAdminService implements AdminService {
   }
 
   changeUserRole(userId: number, teamId: number, roleName: string) {
-    throw new RequestNotAvailableError(this.edition)
+    throw new FeatureNotAvailableError(this.edition)
   }
 
   joinTeamFromInviteCode(userId: number, code: string) {
-    throw new RequestNotAvailableError(this.edition)
+    throw new FeatureNotAvailableError(this.edition)
   }
 
   async listTeamMembers(teamId: number) {

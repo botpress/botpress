@@ -91,7 +91,6 @@ export default (state = initialState, action) => {
       }
 
     case FETCH_LICENSE_RECEIVED:
-      console.log('ACTION', action)
       return {
         ...state,
         license: action.license

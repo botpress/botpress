@@ -1,11 +1,11 @@
 import { TYPES } from 'core/types'
 import { ContainerModule, interfaces } from 'inversify'
 
-import { CommunityAdminService } from '../community'
+import { CommunityAdminService } from './community'
 
-import { AdminService } from './admin-service'
-import { EnterpriseAdminService } from './enterprise'
-import { ProfessionnalAdminService } from './profesionnal'
+import { AdminService } from './professionnal/admin-service'
+import { EnterpriseAdminService } from './professionnal/enterprise'
+import { ProfessionnalAdminService } from './professionnal/profesionnal'
 
 export const AdminContainerModule = new ContainerModule((bind: interfaces.Bind) => {
   bind<AdminService>(TYPES.AdminService)

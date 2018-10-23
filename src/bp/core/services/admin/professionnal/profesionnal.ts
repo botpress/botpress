@@ -8,9 +8,9 @@ import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 
 import { GhostService } from '../..'
+import { FeatureNotAvailableError } from '../errors'
 
 import CoreAdminService, { AdminService } from './admin-service'
-import { RequestNotAvailableError } from './errors'
 
 @injectable()
 export class ProfessionnalAdminService implements AdminService {
@@ -50,15 +50,15 @@ export class ProfessionnalAdminService implements AdminService {
   }
 
   createTeamRole(teamId: number, role: AuthRole) {
-    throw new RequestNotAvailableError(this.edition)
+    throw new FeatureNotAvailableError(this.edition)
   }
 
   deleteTeamRole(teamId: number, roleId: number) {
-    throw new RequestNotAvailableError(this.edition)
+    throw new FeatureNotAvailableError(this.edition)
   }
 
   updateTeamRole(teamId: number, roleId: number, role: Partial<AuthRole>) {
-    throw new RequestNotAvailableError(this.edition)
+    throw new FeatureNotAvailableError(this.edition)
   }
 
   async listTeamRoles(teamId: number) {
