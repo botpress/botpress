@@ -10,7 +10,7 @@ import { inject, injectable } from 'inversify'
 import { GhostService } from '..'
 
 import { FeatureNotAvailableError } from './errors'
-import CoreAdminService, { AdminService } from './professionnal/admin-service'
+import CoreAdminService, { AdminService } from './professional/admin-service'
 
 @injectable()
 export class CommunityAdminService implements AdminService {

@@ -3,9 +3,9 @@ import { ContainerModule, interfaces } from 'inversify'
 
 import { CommunityAdminService } from './community'
 
-import { AdminService } from './professionnal/admin-service'
-import { EnterpriseAdminService } from './professionnal/enterprise'
-import { ProfessionnalAdminService } from './professionnal/profesionnal'
+import { AdminService } from './professional/admin-service'
+import { EnterpriseAdminService } from './professional/enterprise'
+import { ProfessionnalAdminService } from './professional/profesionnal'
 
 export const AdminContainerModule = new ContainerModule((bind: interfaces.Bind) => {
   bind<AdminService>(TYPES.AdminService)
@@ -16,7 +16,7 @@ export const AdminContainerModule = new ContainerModule((bind: interfaces.Bind) 
   bind<AdminService>(TYPES.AdminService)
     .to(ProfessionnalAdminService)
     .inSingletonScope()
-    .when(request => isExpectedEdition('professionnal', request.parentContext))
+    .when(request => isExpectedEdition('professional', request.parentContext))
 
   bind<AdminService>(TYPES.AdminService)
     .to(EnterpriseAdminService)
