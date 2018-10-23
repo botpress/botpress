@@ -26,7 +26,7 @@ const BotValidationSchema = Joi.object().keys({
     .regex(BOTID_REGEX)
     .required(),
   name: Joi.string().required(),
-  description: Joi.string().required(),
+  description: Joi.string(),
   team: Joi.number().required()
 })
 
