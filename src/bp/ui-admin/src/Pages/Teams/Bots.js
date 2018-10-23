@@ -34,13 +34,8 @@ import {
 
 import _ from 'lodash'
 
-<<<<<<< Updated upstream
 import { fetchTeamData, fetchLicense } from '../../modules/teams'
 import { fetchPermissions } from '../../modules/user'
-=======
-import {fetchTeamData} from '../../modules/teams'
-import {fetchPermissions} from '../../modules/user'
->>>>>>> Stashed changes
 
 import SectionLayout from '../Layouts/Section'
 import LoadingSection from '../Components/LoadingSection'
@@ -62,12 +57,8 @@ class Bots extends Component {
   }
 
   componentDidMount() {
-<<<<<<< Updated upstream
     this.props.fetchLicense()
     this.props.fetchTeamData(this.props.teamId, { bots: true })
-=======
-    this.props.fetchTeamData(this.props.teamId, {bots: true})
->>>>>>> Stashed changes
     this.props.fetchPermissions(this.props.teamId)
   }
 

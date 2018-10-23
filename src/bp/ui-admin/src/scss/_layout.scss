@@ -28,16 +28,19 @@
       padding: 0;
     }
 
+    .nav-item {
+      &.active .nav-link.disabled {
+        color: #007bff;
+        cursor: default;
+        font-weight: 600;
+      }
+    }
+
     .nav-link {
       color: #494949;
 
       &:hover {
         color: var(--c-neutral--dark-1);
-      }
-
-      &.active {
-        color: #007bff;
-        font-weight: 600;
       }
 
       &.disabled {

@@ -3,11 +3,7 @@ import {Link} from 'react-router-dom'
 
 import {MdInfoOutline} from 'react-icons/lib/md'
 
-<<<<<<< Updated upstream
 import { Container, Row, Col, Navbar, Nav, NavItem, NavLink, UncontrolledTooltip, Badge } from 'reactstrap'
-=======
-import {Container, Row, Col, Navbar, Nav, NavItem, NavLink, UncontrolledTooltip} from 'reactstrap'
->>>>>>> Stashed changes
 
 class Section extends Component {
   renderBadge(displayBadge) {
@@ -26,10 +22,10 @@ class Section extends Component {
       <Navbar className="bp-main-content-header__nav container">
         <Nav>
           {this.props.sections &&
-<<<<<<< Updated upstream
             this.props.sections.map(section => (
               <NavItem key={section.title} active={section.active}>
                 <NavLink
+                  className="btn-sm"
                   tag={Link}
                   disabled={section.disabled || section.active || this.isCommunity()}
                   to={section.link}
@@ -38,16 +34,6 @@ class Section extends Component {
                 </NavLink>
               </NavItem>
             ))}
-=======
-          this.props.sections.map(section => (
-            <NavItem key={section.title} active={section.active}>
-              <NavLink className="btn-sm" tag={Link} active={section.active} disabled={section.disabled}
-                       to={section.link}>
-                {section.title}
-              </NavLink>
-            </NavItem>
-          ))}
->>>>>>> Stashed changes
         </Nav>
       </Navbar>
     )

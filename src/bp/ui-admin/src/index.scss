@@ -152,6 +152,7 @@ pre.code {
 @import 'node_modules/bootstrap/scss/bootstrap';
 @import './scss/_dropdown.scss';
 @import './scss/_layout.scss';
+@import './scss/_landing.scss';
 @import './scss/_list-item.scss';
 @import './scss/_profile.scss';
 
@@ -169,4 +170,8 @@ pre.code {
   &:hover {
     fill: var(--c-neutral);
   }
+}
+
+.is-block {
+  display: block;
 }

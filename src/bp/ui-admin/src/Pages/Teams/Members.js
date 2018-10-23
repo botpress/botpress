@@ -12,10 +12,6 @@ import {checkRule} from '@botpress/util-roles'
 import {
   Alert,
   ListGroup,
-  UncontrolledDropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
   ListGroupItemHeading,
   ListGroupItem,
   Button,
