@@ -1,7 +1,7 @@
-import React, {Component, Fragment} from 'react'
+import React, { Component } from 'react'
 
-import {Row, Col, Button, ButtonGroup, FormGroup, Label, Input} from 'reactstrap'
-import {MdArrowDropUp, MdArrowDropDown, MdDelete} from 'react-icons/lib/md'
+import { Row, Col, Button, ButtonGroup, FormGroup, Label, Input } from 'reactstrap'
+import { MdArrowDropUp, MdArrowDropDown, MdDelete } from 'react-icons/lib/md'
 
 const parseOp = op => {
   const res = {
@@ -15,14 +15,14 @@ const parseOp = op => {
 
   let parts = []
   if (op.length === 2) {
-    parts = [{op: op[1], allowed: op[0]}]
+    parts = [{ op: op[1], allowed: op[0] }]
   } else if (op.length === 3) {
-    parts = [{op: op[1], allowed: op[0]}, {op: op[2], allowed: op[0]}]
+    parts = [{ op: op[1], allowed: op[0] }, { op: op[2], allowed: op[0] }]
   } else if (op.length === 4) {
-    parts = [{op: op[1], allowed: op[0]}, {op: op[3], allowed: op[2]}]
+    parts = [{ op: op[1], allowed: op[0] }, { op: op[3], allowed: op[2] }]
   }
 
-  parts.forEach(({op, allowed}) => {
+  parts.forEach(({ op, allowed }) => {
     res[op] = allowed === '+'
   })
 
@@ -46,7 +46,7 @@ export default class Rule extends Component {
     if (!props.rule || props.rule === state.rule) {
       return null
     }
-    return {rule: props.rule, op: parseOp(props.rule.op)}
+    return { rule: props.rule, op: parseOp(props.rule.op) }
   }
 
   onChange = key => event => {
@@ -64,8 +64,8 @@ export default class Rule extends Component {
   }
 
   render() {
-    const {op} = this.state
-    const {index, total, ruleInfo, rule, readOnly} = this.props
+    const { op } = this.state
+    const { index, total, ruleInfo, rule, readOnly } = this.props
 
     return (
       <Row className="actions-table-row">
@@ -78,7 +78,7 @@ export default class Rule extends Component {
           {op.r != null && (
             <FormGroup check>
               <Label check>
-                <Input type="checkbox" checked={op.r} onChange={this.onChange('r')} disabled={readOnly}/> read
+                <Input type="checkbox" checked={op.r} onChange={this.onChange('r')} disabled={readOnly} /> read
               </Label>
             </FormGroup>
           )}
@@ -87,7 +87,7 @@ export default class Rule extends Component {
           {op.w != null && (
             <FormGroup check>
               <Label check>
-                <Input type="checkbox" checked={op.w} onChange={this.onChange('w')} disabled={readOnly}/> write
+                <Input type="checkbox" checked={op.w} onChange={this.onChange('w')} disabled={readOnly} /> write
               </Label>
             </FormGroup>
           )}

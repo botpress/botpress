@@ -1,4 +1,4 @@
-import React, {Component, Fragment} from 'react'
+import React, { Component} from 'react'
 
 import SectionLayout from '../Layouts/Section'
 import LoadingSection from '../Components/LoadingSection'
@@ -9,7 +9,7 @@ import {
 } from 'reactstrap'
 
 class Me extends Component {
-  state = {loading: false}
+  state = { loading: false }
 
   renderBody() {
     return (
@@ -40,7 +40,7 @@ class Me extends Component {
   }
 
   render() {
-    const renderLoading = () => <LoadingSection/>
+    const renderLoading = () => <LoadingSection />
 
     const sections = [
       {title: 'Teams', active: false, link: '/teams'},

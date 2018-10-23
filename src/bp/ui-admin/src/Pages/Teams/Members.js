@@ -1,13 +1,13 @@
-import React, {Component, Fragment} from 'react'
-import {CopyToClipboard} from 'react-copy-to-clipboard'
-import {find} from 'lodash'
+import React, { Component, Fragment } from 'react'
+import { CopyToClipboard } from 'react-copy-to-clipboard'
+import { find } from 'lodash'
 
-import {MdPersonAdd} from 'react-icons/lib/md'
+import { MdPersonAdd } from 'react-icons/lib/md'
 
-import {bindActionCreators} from 'redux'
-import {connect} from 'react-redux'
+import { bindActionCreators } from 'redux'
+import { connect } from 'react-redux'
 import moment from 'moment'
-import {checkRule} from '@botpress/util-roles'
+import { checkRule } from '@botpress/util-roles'
 
 import {
   Alert,
@@ -25,12 +25,12 @@ import {
 } from 'reactstrap'
 import Select from 'react-select'
 
-import {fetchTeamData} from '../../modules/teams'
-import {fetchPermissions} from '../../modules/user'
+import { fetchTeamData } from '../../modules/teams'
+import { fetchPermissions } from '../../modules/user'
 
 import SectionLayout from '../Layouts/Section'
 import LoadingSection from '../Components/LoadingSection'
-import {getMenu} from './menu'
+import { getMenu } from './menu'
 
 import api from '../../api'
 
@@ -46,18 +46,18 @@ class Members extends Component {
   toggleInviteModal = () => {
     if (!this.state.isInviteModalOpen) {
       this.fetchInviteCode()
-      this.setState({isInviteModalOpen: true, inviteCodeCopied: false})
+      this.setState({ isInviteModalOpen: true, inviteCodeCopied: false })
     } else {
-      this.setState({isInviteModalOpen: false})
+      this.setState({ isInviteModalOpen: false })
     }
   }
 
   renderLoading() {
-    return <LoadingSection/>
+    return <LoadingSection />
   }
 
   fetchTeamData = () => {
-    this.props.fetchTeamData(this.props.teamId, {members: true, roles: true})
+    this.props.fetchTeamData(this.props.teamId, { members: true, roles: true })
   }
 
   componentDidMount() {
@@ -75,10 +75,10 @@ class Members extends Component {
   }
 
   async fetchInviteCode() {
-    const {data} = await api.getSecured().get(`/api/teams/${this.props.teamId}/invite`)
+    const { data } = await api.getSecured().get(`/api/teams/${this.props.teamId}/invite`)
 
     if (data && data.payload && data.payload.inviteCode) {
-      this.setState({inviteCode: data.payload.inviteCode})
+      this.setState({ inviteCode: data.payload.inviteCode })
     }
   }
 
@@ -86,7 +86,7 @@ class Members extends Component {
     const {data} = await api.getSecured().post(`/api/teams/${this.props.teamId}/invite`)
 
     if (data && data.payload && data.payload.inviteCode) {
-      this.setState({inviteCode: data.payload.inviteCode})
+      this.setState({ inviteCode: data.payload.inviteCode })
     }
   }
 
@@ -98,9 +98,9 @@ class Members extends Component {
   }
 
   onCopy = () => {
-    this.setState({copied: true})
+    this.setState({ copied: true })
     window.setTimeout(() => {
-      this.setState({copied: false})
+      this.setState({ copied: false })
     }, 750)
   }
 
@@ -115,7 +115,7 @@ class Members extends Component {
 
           {this.state.inviteCode && (
             <InputGroup>
-              <Input id="inviteCode" disabled value={inviteLink}/>
+              <Input id="inviteCode" disabled value={inviteLink} />
               <InputGroupAddon addonType="append">
                 <CopyToClipboard text={inviteLink} onCopy={this.onCopy}>
                   <Button>{this.state.copied ? 'Copied!' : 'Copy to clipboard'}</Button>
@@ -124,7 +124,7 @@ class Members extends Component {
             </InputGroup>
           )}
 
-          <hr/>
+          <hr />
 
           <Alert color="warning">
             Anybody with this link will be able to join the team. You can also{' '}
@@ -189,25 +189,25 @@ class Members extends Component {
 
     api
       .getSecured()
-      .patch(`/api/teams/${this.props.teamId}/members/${member.username}`, {role})
+      .patch(`/api/teams/${this.props.teamId}/members/${member.username}`, { role })
       .then(() => {
-        this.setState({changeRoleMember: null, newUserRole: ''})
+        this.setState({ changeRoleMember: null, newUserRole: '' })
       })
       .then(this.fetchTeamData)
   }
 
   openChangeMemberRole = member => () => {
     if (member.role !== 'owner') {
-      this.setState({changeRoleMember: member, newUserRole: member.role})
+      this.setState({ changeRoleMember: member, newUserRole: member.role })
     }
   }
 
   toggleChangeMemberRole = () => {
-    this.setState(({changeRoleMember}) => ({changeRoleMember: !changeRoleMember}))
+    this.setState(({changeRoleMember}) => ({ changeRoleMember: !changeRoleMember }))
   }
 
   renderMemberRole(member) {
-    const role = find(this.props.roles, {name: member.role})
+    const role = find(this.props.roles, { name: member.role })
     const title = [role && role.description, member.role !== 'owner' && 'Click to change.'].filter(Boolean).join('. ')
     return (
       <abbr data-title={title} onClick={this.openChangeMemberRole(member)}>
@@ -216,8 +216,8 @@ class Members extends Component {
     )
   }
 
-  onNewUserRoleChange = ({value}) => {
-    this.setState({newUserRole: value})
+  onNewUserRoleChange = ({ value }) => {
+    this.setState({ newUserRole: value })
   }
 
   renderChangeUserRoleModal() {
@@ -232,18 +232,18 @@ class Members extends Component {
       }
     ]
       .concat(
-        this.props.roles.map(({name}) => ({
+        this.props.roles.map(({ name }) => ({
           label: name,
           value: name
         }))
       )
-      .filter(({value}) => value !== 'owner' && value !== (member && member.role))
+      .filter(({ value }) => value !== 'owner' && value !== (member && member.role))
 
     return (
       <Modal isOpen={!!member} toggle={this.toggleChangeMemberRole}>
         <ModalHeader toggle={this.toggleChangeMemberRole}>Change role for user {member && member.username}</ModalHeader>
         <ModalBody>
-          <Select options={options} value={this.state.newUserRole} onChange={this.onNewUserRoleChange}/>
+          <Select options={options} value={this.state.newUserRole} onChange={this.onNewUserRoleChange} />
         </ModalBody>
         <ModalFooter>
           <Button color="primary" onClick={this.changeMemberRole}>
@@ -255,7 +255,7 @@ class Members extends Component {
   }
 
   renderMembers() {
-    const {members} = this.props
+    const { members } = this.props
 
     return (
       <div className="members">
@@ -291,7 +291,7 @@ class Members extends Component {
 
     return (
       <Button className="float-right" color="primary" size="sm" onClick={this.toggleInviteModal}>
-        <MdPersonAdd/> Invite Users
+        <MdPersonAdd /> Invite Users
       </Button>
     )
   }

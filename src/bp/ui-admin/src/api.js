@@ -10,7 +10,7 @@ const defaultOptions = {
 
 const createClient = (clientOptions, { toastErrors }) => {
   const client = axios.create({
-    baseURL: 'http://localhost:3001/admin',
+    baseURL: '/admin',
     ...defaultOptions,
     ...clientOptions
   })

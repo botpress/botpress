@@ -1,4 +1,4 @@
-import React, {Component, Fragment} from 'react'
+import React, { Component, Fragment } from 'react'
 
 import {
   Button,
@@ -52,7 +52,7 @@ export default class Role extends Component {
       return null
     }
 
-    const {role} = this.props
+    const { role } = this.props
 
     const deleteItem =
       role.name === 'owner' ? (
@@ -81,7 +81,7 @@ export default class Role extends Component {
   }
 
   render() {
-    const {role} = this.props
+    const { role } = this.props
     if (!role) {
       return null
     }
@@ -91,7 +91,7 @@ export default class Role extends Component {
     return (
       <ListGroupItem>
         <ListGroupItemHeading>
-          {role.name}
+          { role.name }
         </ListGroupItemHeading>
         {this.renderMenu()}
         {role.description && <small>{role.description}</small>}

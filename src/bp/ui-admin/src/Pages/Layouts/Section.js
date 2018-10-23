@@ -1,7 +1,7 @@
-import React, {Component, Fragment} from 'react'
+import React, { Component, Fragment } from 'react'
 import {Link} from 'react-router-dom'
 
-import {MdInfoOutline} from 'react-icons/lib/md'
+import { MdInfoOutline } from 'react-icons/lib/md'
 
 import { Container, Row, Col, Navbar, Nav, NavItem, NavLink, UncontrolledTooltip, Badge } from 'reactstrap'
 
@@ -42,7 +42,7 @@ class Section extends Component {
   render() {
     const help = this.props.helpText ? (
       <span>
-        <MdInfoOutline id="sectionTitleHelp" className="section-title-help"/>
+        <MdInfoOutline id="sectionTitleHelp" className="section-title-help" />
         <UncontrolledTooltip placement="right" target="sectionTitleHelp">
           {this.props.helpText}
         </UncontrolledTooltip>

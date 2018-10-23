@@ -1,7 +1,7 @@
-import React, {Component, Fragment} from 'react'
-import {find} from 'lodash'
+import React, { Component, Fragment } from 'react'
+import { find } from 'lodash'
 
-import {Row, Col, Button, FormGroup, Input, Modal, ModalHeader, ModalBody, ModalFooter} from 'reactstrap'
+import { Row, Col, Button, FormGroup, Input, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
 import Select from 'react-select'
 
 import Rule from './Rule'
@@ -94,7 +94,7 @@ export default class Role extends Component {
   }
 
   onRuleOpChange = i => op => {
-    this.setState(({role}) => {
+    this.setState(({ role }) => {
       const rules = [...role.rules]
       rules[i].op = op
 
@@ -121,9 +121,9 @@ export default class Role extends Component {
   }
 
   onNameChange = event => {
-    const {value} = event.target
+    const { value } = event.target
 
-    this.setState(({role}) => {
+    this.setState(({ role }) => {
       return {
         role: {
           ...role,
@@ -150,7 +150,7 @@ export default class Role extends Component {
   }
 
   onRuleDelete = i => () => {
-    this.setState(({role}) => {
+    this.setState(({ role }) => {
       const rules = [...role.rules]
       rules.splice(i, 1)
 
@@ -188,7 +188,7 @@ export default class Role extends Component {
       return
     }
 
-    this.setState(({role}) => {
+    this.setState(({ role }) => {
       const rules = [...role.rules]
       const t = rules[i]
       rules[i] = rules[i + 1]
@@ -208,8 +208,8 @@ export default class Role extends Component {
       return
     }
 
-    this.setState(({role, newRuleResource, indexedPermissions}) => {
-      const newRule = {res: newRuleResource, op: getDefaultPermissions(indexedPermissions[newRuleResource])}
+    this.setState(({ role, newRuleResource, indexedPermissions }) => {
+      const newRule = { res: newRuleResource, op: getDefaultPermissions(indexedPermissions[newRuleResource]) }
       const rules = [...role.rules, newRule]
 
       return {
@@ -229,7 +229,7 @@ export default class Role extends Component {
   }
 
   onReset = () => {
-    this.setState(({originalRole}) => ({
+    this.setState(({ originalRole }) => ({
       role: originalRole
     }))
   }
@@ -280,7 +280,7 @@ export default class Role extends Component {
     )
   }
 
-  changeNewRule = ({value}) => {
+  changeNewRule = ({ value }) => {
     this.setState({newRuleResource: value})
   }
 
@@ -289,12 +289,12 @@ export default class Role extends Component {
       return null
     }
 
-    const options = this.state.permissionOptions.filter(({value}) => !find(this.state.role.rules, {res: value}))
+    const options = this.state.permissionOptions.filter(({ value }) => !find(this.state.role.rules, { res: value }))
 
     return (
       <Row>
         <Col sm="9" md="10">
-          <Select value={this.state.newRuleResource} onChange={this.changeNewRule} options={options}/>
+          <Select value={this.state.newRuleResource} onChange={this.changeNewRule} options={options} />
         </Col>
         <Col sm="3" md="2" className="text-right">
           <Button color="secondary" onClick={this.onRuleAdd}>
@@ -306,8 +306,8 @@ export default class Role extends Component {
   }
 
   render() {
-    const {role, indexedPermissions} = this.state
-    const {createMode, readOnly} = this.props
+    const { role, indexedPermissions } = this.state
+    const { createMode, readOnly } = this.props
     if (!role) {
       return null
     }

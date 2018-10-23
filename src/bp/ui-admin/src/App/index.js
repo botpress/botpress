@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import React, {Component, Fragment} from 'react'
+import React, { Component, Fragment } from 'react'
 
 import {
   Nav,
@@ -15,16 +15,16 @@ import {
   NavLink
 } from 'reactstrap'
 
-import {connect} from 'react-redux'
-import {bindActionCreators} from 'redux'
+import { connect } from 'react-redux'
+import { bindActionCreators } from 'redux'
 
-import {fetchTeams} from '../modules/teams'
-import {fetchProfile} from '../modules/user'
+import { fetchTeams } from '../modules/teams'
+import { fetchProfile } from '../modules/user'
 
 import logo from '../botpress.svg'
 
 class Home extends Component {
-  state = {isMenuOpen: true}
+  state = { isMenuOpen: true }
 
   componentDidMount() {
     if (!this.props.profile) {
@@ -37,7 +37,7 @@ class Home extends Component {
   }
 
   toggleMenu = () => {
-    this.setState({isMenuOpen: !this.state.isMenuOpen})
+    this.setState({ isMenuOpen: !this.state.isMenuOpen })
   }
 
   renderProfileMenu() {
@@ -49,14 +49,14 @@ class Home extends Component {
       <UncontrolledDropdown nav inNavbar>
         <DropdownToggle nav caret>
           <span className="user-profile">
-            <img alt="" src={this.props.profile.picture} className="user-avatar"/>
+            <img alt="" src={this.props.profile.picture} className="user-avatar" />
             <span>{this.props.profile.username}</span>
           </span>
         </DropdownToggle>
         <DropdownMenu right>
           <DropdownItem onClick={() => this.props.history.push('/me')}>My profile</DropdownItem>
           <DropdownItem disabled>Preferences</DropdownItem>
-          <DropdownItem divider/>
+          <DropdownItem divider />
           <DropdownItem onClick={() => this.props.auth.logout()}>Logout</DropdownItem>
         </DropdownMenu>
       </UncontrolledDropdown>
