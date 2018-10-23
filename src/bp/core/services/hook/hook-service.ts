@@ -86,7 +86,10 @@ export class HookService {
     const vm = new NodeVM({
       console: 'inherit',
       sandbox: hookScript.hook.args,
-      timeout: hookScript.hook.timeout
+      timeout: hookScript.hook.timeout,
+      require: {
+        external: true
+      }
     })
 
     const botId = _.get(hookScript.hook.args, 'event.botId')
