@@ -20,7 +20,8 @@
     "package:core": "./node_modules/.bin/gulp package --skip-modules",
     "build:reference": "gulp build-reference",
     "start:guide": "cd docs/guide/website && yarn && yarn start",
-    "build:guide": "cd docs/guide/website && yarn run build"
+    "build:guide": "cd docs/guide/website && yarn run build",
+    "build:admin": "cd src/bp/ui-admin && yarn build && ../../../node_modules/.bin/gulp copy-admin"
   },
   "dependencies": {
     "axios": "^0.18.0",
