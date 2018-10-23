@@ -46,7 +46,10 @@ container.bind<LoggerProvider>(TYPES.LoggerProvider).toProvider<Logger>(context 
   }
 })
 
-container.bind<AppLifecycle>(TYPES.AppLifecycle).to(AppLifecycle)
+container
+  .bind<AppLifecycle>(TYPES.AppLifecycle)
+  .to(AppLifecycle)
+  .inSingletonScope()
 
 container
   .bind<LoggerPersister>(TYPES.LoggerPersister)

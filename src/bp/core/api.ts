@@ -7,6 +7,7 @@ import { Memoize } from 'lodash-decorators'
 import { container } from './app.inversify'
 import { BotLoader } from './bot-loader'
 import { BotConfig } from './config/bot.config'
+import { ConfigProvider } from './config/config-loader'
 import Database from './database'
 import { LoggerProvider } from './logger'
 import { ModuleLoader } from './module-loader'
@@ -77,13 +78,16 @@ const dialog = (dialogEngine: DialogEngine, sessionService: SessionService): typ
   }
 }
 
-const config = (moduleLoader: ModuleLoader): typeof sdk.config => {
+const config = (moduleLoader: ModuleLoader, configProfider: ConfigProvider): typeof sdk.config => {
   return {
     getModuleConfig(moduleId: string): Promise<any> {
       return moduleLoader.configReader.getGlobal(moduleId)
     },
     getModuleConfigForBot(moduleId: string, botId: string): Promise<any> {
       return moduleLoader.configReader.getForBot(moduleId, botId)
+    },
+    getBotpressConfig(): Promise<any> {
+      return configProfider.getBotpressConfig()
     }
   }
 }
@@ -218,12 +222,13 @@ export class BotpressAPIProvider {
     @inject(TYPES.NotificationsService) notificationService: NotificationsService,
     @inject(TYPES.BotLoader) botLoader: BotLoader,
     @inject(TYPES.GhostService) ghostService: GhostService,
-    @inject(TYPES.CMSService) cmsService: CMSService
+    @inject(TYPES.CMSService) cmsService: CMSService,
+    @inject(TYPES.ConfigProvider) configProfider: ConfigProvider
   ) {
     this.http = http(httpServer)
     this.events = event(eventEngine)
     this.dialog = dialog(dialogEngine, sessionService)
-    this.config = config(moduleLoader)
+    this.config = config(moduleLoader, configProfider)
     this.realtime = new RealTimeAPI(realtimeService)
     this.database = db.knex
     this.users = users(userRepo)

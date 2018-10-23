@@ -93,15 +93,19 @@ declare module 'botpress/sdk' {
   }
 
   export interface ModuleDefinition {
+    /** This name should be in lowercase and without special characters (only - and _) */
     name: string
     fullName?: string
     plugins?: ModulePluginEntry[]
+    /** Additional options that can be applied to the module's view */
     moduleView?: ModuleViewOptions
     /** If set to true, no menu item will be displayed */
     noInterface?: boolean
+    /** An icon to display next to the name, if none is specified, it will receive a default one */
     menuIcon?: string
     /** The name displayed on the menu */
     menuText?: string
+    /** Optionnaly specify a link to your page or github repo */
     homepage?: string
   }
 
@@ -657,6 +661,11 @@ declare module 'botpress/sdk' {
      * @param botId
      */
     export function getModuleConfigForBot(moduleId: string, botId: string): Promise<any>
+
+    /**
+     * Returns the configuration options of Botpress
+     */
+    export function getBotpressConfig(): Promise<any>
   }
 
   /**
