@@ -1,8 +1,6 @@
 import { Logger } from 'botpress/sdk'
 import { Container } from 'inversify'
 import { AppLifecycle } from 'lifecycle'
-import path from 'path'
-import yn from 'yn'
 
 import { BotpressAPIProvider } from './api'
 import { BotLoader } from './bot-loader'
@@ -91,11 +89,11 @@ container
 
 const isPackaged = !!eval('process.pkg')
 const isProduction = process.IS_PRODUCTION
-const botpressEdition = process.env.EDITION || 'community'
+const botpressEdition = process.env.EDITION || process.env.edition || 'community'
 
 container.bind<boolean>(TYPES.IsProduction).toConstantValue(isProduction)
 container.bind<boolean>(TYPES.IsPackaged).toConstantValue(isPackaged)
-container.bind<string>(TYPES.BotpressEdition).toConstantValue(botpressEdition)
+container.bind<string>(TYPES.BotpressEdition).toConstantValue(botpressEdition.toLowerCase())
 
 container.load(...DatabaseContainerModules)
 container.load(...RepositoriesContainerModules)
