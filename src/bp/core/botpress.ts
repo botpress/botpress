@@ -6,7 +6,7 @@ import moment from 'moment'
 import path from 'path'
 import plur from 'plur'
 
-import { AppLifecycle, AppLifecycleEvents } from '../lifecycle'
+import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 
 import { createForGlobalHooks } from './api'
 import { BotLoader } from './bot-loader'

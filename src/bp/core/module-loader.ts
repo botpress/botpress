@@ -5,7 +5,7 @@ import { inject, injectable, tagged } from 'inversify'
 import joi from 'joi'
 import _ from 'lodash'
 
-import { AppLifecycle, AppLifecycleEvents } from '../lifecycle'
+import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 
 import { createForModule } from './api' // TODO
 import ModuleResolver from './modules/resolver'

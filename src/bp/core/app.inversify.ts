@@ -1,7 +1,7 @@
 import { Logger } from 'botpress/sdk'
 import { Container } from 'inversify'
 
-import { AppLifecycle } from '../lifecycle'
+import { AppLifecycle } from 'lifecycle'
 
 import { BotpressAPIProvider } from './api'
 import { BotLoader } from './bot-loader'
