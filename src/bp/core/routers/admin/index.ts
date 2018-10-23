@@ -18,13 +18,13 @@ export class AdminRouter implements CustomRouter {
   constructor(
     logger: Logger,
     private authService: AuthService,
-    private teamsService: AdminService,
+    private adminService: AdminService,
     private edition: string
   ) {
     this.router = Router({ mergeParams: true })
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
     this.loadUser = loadUser(this.authService)
-    this.teamsRouter = new TeamsRouter(logger, this.authService, this.teamsService)
+    this.teamsRouter = new TeamsRouter(logger, this.authService, this.adminService)
 
     this.setupRoutes()
   }

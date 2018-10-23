@@ -61,8 +61,8 @@ export class CommunityAdminService implements AdminService {
     throw new RequestNotAvailableError(this.edition)
   }
 
-  listTeamRoles(teamId: number) {
-    throw new RequestNotAvailableError(this.edition)
+  async listTeamRoles(teamId: number) {
+    return this.adminService.listTeamRoles(teamId)
   }
 
   async addBot(teamId: number, bot: Bot): Promise<void> {
@@ -101,8 +101,8 @@ export class CommunityAdminService implements AdminService {
     return this.adminService.getUserPermissions(userId, teamId)
   }
 
-  getUserRole(userId: number, teamId: number) {
-    throw new RequestNotAvailableError(this.edition)
+  async getUserRole(userId: number, teamId: number) {
+    return this.adminService.getUserRole(userId, teamId)
   }
 
   changeUserRole(userId: number, teamId: number, roleName: string) {

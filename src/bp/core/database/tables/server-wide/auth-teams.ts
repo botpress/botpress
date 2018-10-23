@@ -1,17 +1,15 @@
 import Knex from 'knex'
 
 import { Table } from 'core/database/interfaces'
+import shortid from 'shortid'
 
 const insertTeams = async (knex: Knex, tableName: string) => {
-  return knex
-    .batchInsert(tableName, [
-      {
-        id: 1,
-        name: 'Test Team',
-        invite_code: 'test_code'
-      }
-    ])
-    .then()
+  return knex.batchInsert(tableName, [
+    {
+      name: 'My Team',
+      invite_code: shortid.generate()
+    }
+  ])
 }
 
 export class AuthTeamsTable extends Table {
