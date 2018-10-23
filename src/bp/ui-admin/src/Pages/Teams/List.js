@@ -107,7 +107,6 @@ class List extends Component {
               value={this.state.teamName}
             />
             {!!this.state.createTeamError && <FormFeedback>{this.state.createTeamError.message}</FormFeedback>}
-            <FormText>You can change that name later</FormText>
           </FormGroup>
         </ModalBody>
         <ModalFooter>
@@ -144,7 +143,7 @@ class List extends Component {
   renderSideMenu() {
     return (
       <div>
-        <Button color="primary" outline onClick={this.toggleCreateTeamModalOpen}>
+        <Button className="float-right" color="primary" size="sm" onClick={this.toggleCreateTeamModalOpen}>
           <MdGroupAdd /> Create team
         </Button>
         {this.renderCreateTeamModal()}

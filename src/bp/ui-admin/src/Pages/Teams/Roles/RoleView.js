@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react'
+import React, {Component, Fragment} from 'react'
 
 import {
   Button,
@@ -44,76 +44,73 @@ export default class Role extends Component {
     }
   }
 
-  onEdit = () => {}
+  onEdit = () => {
+  }
 
   renderMenu() {
     if (this.props.readOnly) {
       return null
     }
 
-    const { role } = this.props
+    const {role} = this.props
 
     const deleteItem =
       role.name === 'owner' ? (
-        <DropdownItem
+        <Button
           className="text-muted disabled"
+          color="link"
           title="You cannot remove the team owner role"
           onClick={() => alert('You cannot remove the team owner role.')}
         >
           Delete
-        </DropdownItem>
+        </Button>
       ) : (
-        <DropdownItem key="remove" className="text-danger" onClick={this.onDelete}>
+        <Button key="remove" color="link" onClick={this.onDelete}>
           Delete
-        </DropdownItem>
+        </Button>
       )
 
     return (
-      <div className="float-right">
-        <Button onClick={this.props.onEdit} size="sm" color="info" outline>
+      <div className="list-group-item__actions">
+        <Button onClick={this.props.onEdit} color="link">
           Edit
         </Button>
-        <UncontrolledDropdown tag="span">
-          <DropdownToggle caret size="sm" color="link">
-            More
-          </DropdownToggle>
-          <DropdownMenu>{deleteItem}</DropdownMenu>
-        </UncontrolledDropdown>
+        {deleteItem}
       </div>
     )
   }
 
   render() {
-    const { role } = this.props
+    const {role} = this.props
     if (!role) {
       return null
     }
 
-    const { indexedPermissions } = this.state
+    const {indexedPermissions} = this.state
 
     return (
       <ListGroupItem>
-        <ListGroupItemHeading className="header">
+        <ListGroupItemHeading>
           {role.name}
-          {this.renderMenu()}
         </ListGroupItemHeading>
-        {role.description && <p style={{ marginTop: 15 }}>{role.description}</p>}
+        {this.renderMenu()}
+        {role.description && <small>{role.description}</small>}
         {role.rules &&
-          role.rules.length && (
-            <Fragment>
-              <strong>Role Permissions:</strong>
-              {role.rules.map((rule, i) => (
-                <Rule
-                  index={i}
-                  total={role.rules.length}
-                  readOnly={true}
-                  rule={rule}
-                  ruleInfo={(indexedPermissions && indexedPermissions[rule.res]) || {}}
-                  key={`${i}.${rule.res}.${rule.op}`}
-                />
-              ))}
-            </Fragment>
-          )}
+        role.rules.length && (
+          <Fragment>
+            <p className="list-group-item__permissions">Role Permissions:</p>
+            {role.rules.map((rule, i) => (
+              <Rule
+                index={i}
+                total={role.rules.length}
+                readOnly={false}
+                rule={rule}
+                ruleInfo={(indexedPermissions && indexedPermissions[rule.res]) || {}}
+                key={`${i}.${rule.res}.${rule.op}`}
+              />
+            ))}
+          </Fragment>
+        )}
       </ListGroupItem>
     )
   }

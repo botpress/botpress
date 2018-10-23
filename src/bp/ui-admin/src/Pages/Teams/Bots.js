@@ -1,11 +1,11 @@
-import React, { Component } from 'react'
+import React, {Component} from 'react'
 
-import { IoIosBoxOutline } from 'react-icons/lib/io'
-import { MdCreate } from 'react-icons/lib/md'
+import {IoIosBoxOutline} from 'react-icons/lib/io'
+import {MdCreate} from 'react-icons/lib/md'
 
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
-import { checkRule } from '@botpress/util-roles'
+import {bindActionCreators} from 'redux'
+import {connect} from 'react-redux'
+import {checkRule} from '@botpress/util-roles'
 
 import jdenticon from 'jdenticon'
 import Joi from 'joi-browser'
@@ -34,12 +34,17 @@ import {
 
 import _ from 'lodash'
 
+<<<<<<< Updated upstream
 import { fetchTeamData, fetchLicense } from '../../modules/teams'
 import { fetchPermissions } from '../../modules/user'
+=======
+import {fetchTeamData} from '../../modules/teams'
+import {fetchPermissions} from '../../modules/user'
+>>>>>>> Stashed changes
 
 import SectionLayout from '../Layouts/Section'
 import LoadingSection from '../Components/LoadingSection'
-import { getMenu } from './menu'
+import {getMenu} from './menu'
 
 import api from '../../api'
 
@@ -53,18 +58,22 @@ class Bots extends Component {
   }
 
   renderLoading() {
-    return <LoadingSection />
+    return <LoadingSection/>
   }
 
   componentDidMount() {
+<<<<<<< Updated upstream
     this.props.fetchLicense()
     this.props.fetchTeamData(this.props.teamId, { bots: true })
+=======
+    this.props.fetchTeamData(this.props.teamId, {bots: true})
+>>>>>>> Stashed changes
     this.props.fetchPermissions(this.props.teamId)
   }
 
   componentDidUpdate(prevProps) {
     if ((!this.props.bots && !this.props.loading) || prevProps.teamId !== this.props.teamId) {
-      this.props.fetchTeamData(this.props.teamId, { bots: true })
+      this.props.fetchTeamData(this.props.teamId, {bots: true})
     }
     if (prevProps.teamId !== this.props.teamId) {
       this.props.fetchPermissions(this.props.teamId)
@@ -81,19 +90,19 @@ class Bots extends Component {
     await api
       .getSecured()
       .post(`/api/teams/${this.props.teamId}/bots`, botForm)
-      .catch(err => this.setState({ errorCreateBot: err }))
+      .catch(err => this.setState({errorCreateBot: err}))
     await this.props.fetchTeamData(this.props.teamId)
     this.toggleCreateBotModal()
   }
 
-  toggleCreateBotModal = () => this.setState({ isCreateBotModalOpen: !this.state.isCreateBotModalOpen })
+  toggleCreateBotModal = () => this.setState({isCreateBotModalOpen: !this.state.isCreateBotModalOpen})
 
   generateBotId() {
     const id = this.state.name
       .toLowerCase()
       .replace(/\s/g, '-')
       .replace(/[$&+,:;=?@#|'<>.^*()%!]/g, '')
-    this.setState({ id })
+    this.setState({id})
   }
 
   renderCreateBot() {
@@ -102,29 +111,33 @@ class Bots extends Component {
         <ModalHeader toggle={this.toggleCreateBotModal}>Create a new bot</ModalHeader>
         <ModalBody>
           <FormGroup>
-            <Label for="id">Identifier</Label>
+            <Label for="id"><strong>Identifier</strong></Label>
             <Input
               placeholder="Auto-generated"
               disabled="disabled"
               type="text"
               id="id"
               value={this.state.id}
-              onChange={event => this.setState({ id: event.target.value })}
+              onChange={event => this.setState({id: event.target.value})}
             />
-            <Label for="name">Name</Label>
+          </FormGroup>
+          <FormGroup>
+            <Label for="name"><strong>Name</strong></Label>
             <Input
               type="text"
               id="name"
               value={this.state.name}
-              onChange={event => this.setState({ name: event.target.value })}
+              onChange={event => this.setState({name: event.target.value})}
               onBlur={() => this.generateBotId()}
             />
-            <Label for="description">Description</Label>
+          </FormGroup>
+          <FormGroup>
+            <Label for="description"><strong>Description</strong></Label>
             <Input
               type="textarea"
               id="description"
               value={this.state.description}
-              onChange={event => this.setState({ description: event.target.value })}
+              onChange={event => this.setState({description: event.target.value})}
             />
             {!!this.state.errorCreateBot && <FormFeedback>{this.state.errorCreateBot.message}</FormFeedback>}
           </FormGroup>
@@ -157,15 +170,13 @@ class Bots extends Component {
       <div className="bots">
         <Jumbotron>
           <Row>
-            <Col style={{ textAlign: 'center' }} sm="12" md={{ size: 8, offset: 2 }}>
+            <Col style={{textAlign: 'center'}} sm="12" md={{size: 8, offset: 2}}>
               <h1>
-                <IoIosBoxOutline />
+                <IoIosBoxOutline/>
                 &nbsp; This team has no bot, yet.
               </h1>
               <p>
                 In Botpress, bots are always assigned to a team.
-                <br />
-                {this.renderCreateNewBotButton()}
               </p>
             </Col>
           </Row>
@@ -178,9 +189,10 @@ class Bots extends Component {
   renderCreateNewBotButton() {
     return (
       <Row>
-        <Col md={{ size: 12 }}>
-          <Button className="float-right" color="success" onClick={() => this.setState({ isCreateBotModalOpen: true })}>
-            <MdCreate /> Create Bot Now
+        <Col md={{size: 12}}>
+          <Button className="float-right" onClick={() => this.setState({isCreateBotModalOpen: true})} color="primary"
+                  size="sm">
+            <MdCreate/> Create Bot Now
           </Button>
         </Col>
       </Row>
@@ -196,30 +208,22 @@ class Bots extends Component {
 
     return (
       <div className="bots">
-        {this.renderCreateNewBotButton()}
         {this.renderCreateBot()}
         <ListGroup>
           {bots.map(bot => {
             return (
               <ListGroupItem key={'bot-' + bot.id}>
-                <ListGroupItemHeading className="header">
-                  <svg width="32" height="32" data-jdenticon-value={bot.name} />
+                <ListGroupItemHeading>
                   <a className="title" href={`/studio/${bot.id}`}>
                     {bot.name}
                   </a>
-
-                  <UncontrolledDropdown className="float-right">
-                    <DropdownToggle caret size="sm" color="link">
-                      More
-                    </DropdownToggle>
-                    <DropdownMenu>
-                      <DropdownItem className="text-danger" onClick={() => this.deleteBot(bot.id)}>
-                        Delete
-                      </DropdownItem>
-                    </DropdownMenu>
-                  </UncontrolledDropdown>
                 </ListGroupItemHeading>
-                <div className="description">{bot.description}</div>
+                <div className="list-group-item__actions">
+                  <Button color="link" onClick={() => this.deleteBot(bot.id)}>
+                    Delete
+                  </Button>
+                </div>
+                <small>{bot.description}</small>
               </ListGroupItem>
             )
           })}
@@ -254,7 +258,7 @@ class Bots extends Component {
         sections={sections}
         license={this.props.license}
         mainContent={this.renderBots()}
-        sideMenu={this.renderSideMenu()}
+        sideMenu={this.renderCreateNewBotButton()}
       />
     )
   }

@@ -1,7 +1,7 @@
-import React, { Component, Fragment } from 'react'
-import { find } from 'lodash'
+import React, {Component, Fragment} from 'react'
+import {find} from 'lodash'
 
-import { Row, Col, Button, Input, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
+import {Row, Col, Button, FormGroup, Input, Modal, ModalHeader, ModalBody, ModalFooter} from 'reactstrap'
 import Select from 'react-select'
 
 import Rule from './Rule'
@@ -94,7 +94,7 @@ export default class Role extends Component {
   }
 
   onRuleOpChange = i => op => {
-    this.setState(({ role }) => {
+    this.setState(({role}) => {
       const rules = [...role.rules]
       rules[i].op = op
 
@@ -108,9 +108,9 @@ export default class Role extends Component {
   }
 
   onDescChange = event => {
-    const { value } = event.target
+    const {value} = event.target
 
-    this.setState(({ role }) => {
+    this.setState(({role}) => {
       return {
         role: {
           ...role,
@@ -121,9 +121,9 @@ export default class Role extends Component {
   }
 
   onNameChange = event => {
-    const { value } = event.target
+    const {value} = event.target
 
-    this.setState(({ role }) => {
+    this.setState(({role}) => {
       return {
         role: {
           ...role,
@@ -150,7 +150,7 @@ export default class Role extends Component {
   }
 
   onRuleDelete = i => () => {
-    this.setState(({ role }) => {
+    this.setState(({role}) => {
       const rules = [...role.rules]
       rules.splice(i, 1)
 
@@ -168,7 +168,7 @@ export default class Role extends Component {
       return
     }
 
-    this.setState(({ role }) => {
+    this.setState(({role}) => {
       const rules = [...this.state.role.rules]
       const t = rules[i]
       rules[i] = rules[i - 1]
@@ -188,7 +188,7 @@ export default class Role extends Component {
       return
     }
 
-    this.setState(({ role }) => {
+    this.setState(({role}) => {
       const rules = [...role.rules]
       const t = rules[i]
       rules[i] = rules[i + 1]
@@ -208,8 +208,8 @@ export default class Role extends Component {
       return
     }
 
-    this.setState(({ role, newRuleResource, indexedPermissions }) => {
-      const newRule = { res: newRuleResource, op: getDefaultPermissions(indexedPermissions[newRuleResource]) }
+    this.setState(({role, newRuleResource, indexedPermissions}) => {
+      const newRule = {res: newRuleResource, op: getDefaultPermissions(indexedPermissions[newRuleResource])}
       const rules = [...role.rules, newRule]
 
       return {
@@ -229,7 +229,7 @@ export default class Role extends Component {
   }
 
   onReset = () => {
-    this.setState(({ originalRole }) => ({
+    this.setState(({originalRole}) => ({
       role: originalRole
     }))
   }
@@ -269,19 +269,19 @@ export default class Role extends Component {
 
     return (
       <Fragment>
-        <Button onClick={this.onClose}>Cancel</Button>
-        <Button onClick={this.onReset} disabled={!isDirty}>
+        <Button onClick={this.onClose} outline>Cancel</Button>
+        <Button onClick={this.onReset} outline disabled={!isDirty}>
           Reset changes
         </Button>
-        <Button onClick={this.onSave} disabled={!canSave} color={canSave ? 'success' : ''} outline={!isDirty}>
-          {isDirty ? '* ' : ''}Save
+        <Button onClick={this.onSave} disabled={!canSave} color={canSave ? 'primary' : 'primary'}>
+          {isDirty ? '' : ''}Save
         </Button>
       </Fragment>
     )
   }
 
-  changeNewRule = ({ value }) => {
-    this.setState({ newRuleResource: value })
+  changeNewRule = ({value}) => {
+    this.setState({newRuleResource: value})
   }
 
   renderAddRule() {
@@ -289,15 +289,15 @@ export default class Role extends Component {
       return null
     }
 
-    const options = this.state.permissionOptions.filter(({ value }) => !find(this.state.role.rules, { res: value }))
+    const options = this.state.permissionOptions.filter(({value}) => !find(this.state.role.rules, {res: value}))
 
     return (
       <Row>
         <Col sm="9" md="10">
-          <Select value={this.state.newRuleResource} onChange={this.changeNewRule} options={options} />
+          <Select value={this.state.newRuleResource} onChange={this.changeNewRule} options={options}/>
         </Col>
         <Col sm="3" md="2" className="text-right">
-          <Button outline color="success" onClick={this.onRuleAdd}>
+          <Button color="secondary" onClick={this.onRuleAdd}>
             Add
           </Button>
         </Col>
@@ -306,38 +306,41 @@ export default class Role extends Component {
   }
 
   render() {
-    const { role, indexedPermissions } = this.state
-    const { createMode, readOnly } = this.props
+    const {role, indexedPermissions} = this.state
+    const {createMode, readOnly} = this.props
     if (!role) {
       return null
     }
 
     return (
       <Modal isOpen={this.props.show} toggle={this.props.onClose}>
-        <ModalHeader toggle={this.props.onClose}>{createMode ? <em>New Role</em> : role.name}</ModalHeader>
+        <ModalHeader toggle={this.props.onClose}>{createMode ? 'New Role' : role.name}</ModalHeader>
         <ModalBody>
           {createMode && (
-            <p style={{ marginTop: 15 }}>
-              <Input id="inputName" placeholder="Role Name" value={role.name || ''} onChange={this.onNameChange} />
-            </p>
+            <FormGroup>
+              <label><strong>Role Title</strong></label>
+              <Input id="inputName" value={role.name || ''} onChange={this.onNameChange}/>
+            </FormGroup>
           )}
 
-          <p style={{ marginTop: 15 }}>
-            <strong>Role Description:</strong>
+          <FormGroup>
+            <label><strong>Role Description</strong></label>
             {!readOnly ? (
               <Input
                 id="inputDescripton"
-                placeholder="Description"
+                // placeholder="Description"
                 value={role.description || ''}
                 onChange={this.onDescChange}
               />
             ) : (
               role.description || ''
             )}
-          </p>
+          </FormGroup>
 
-          <strong>Role Permissions:</strong>
-          <div style={{ margin: '5px 0 15px' }}>{this.renderAddRule()}</div>
+          <FormGroup>
+            <label><strong>Role Permissions</strong></label>
+            <div className="form-control">{this.renderAddRule()}</div>
+          </FormGroup>
           {role.rules.map((rule, i) => (
             <Rule
               index={i}

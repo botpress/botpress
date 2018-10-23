@@ -139,7 +139,7 @@ class Roles extends Component {
     }
 
     return (
-      <Button color="primary" outline onClick={this.onRoleCreateStart}>
+      <Button className="float-right" color="primary" size="sm" onClick={this.onRoleCreateStart}>
         <MdPersonAdd /> Add role
       </Button>
     )

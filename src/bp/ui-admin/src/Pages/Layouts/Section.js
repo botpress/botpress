@@ -1,9 +1,13 @@
-import React, { Component } from 'react'
-import { Link } from 'react-router-dom'
+import React, {Component, Fragment} from 'react'
+import {Link} from 'react-router-dom'
 
-import { MdInfoOutline } from 'react-icons/lib/md'
+import {MdInfoOutline} from 'react-icons/lib/md'
 
+<<<<<<< Updated upstream
 import { Container, Row, Col, Navbar, Nav, NavItem, NavLink, UncontrolledTooltip, Badge } from 'reactstrap'
+=======
+import {Container, Row, Col, Navbar, Nav, NavItem, NavLink, UncontrolledTooltip} from 'reactstrap'
+>>>>>>> Stashed changes
 
 class Section extends Component {
   renderBadge(displayBadge) {
@@ -19,9 +23,10 @@ class Section extends Component {
 
   renderSectionHeader() {
     return (
-      <Navbar className="section-header">
+      <Navbar className="bp-main-content-header__nav container">
         <Nav>
           {this.props.sections &&
+<<<<<<< Updated upstream
             this.props.sections.map(section => (
               <NavItem key={section.title} active={section.active}>
                 <NavLink
@@ -33,6 +38,16 @@ class Section extends Component {
                 </NavLink>
               </NavItem>
             ))}
+=======
+          this.props.sections.map(section => (
+            <NavItem key={section.title} active={section.active}>
+              <NavLink className="btn-sm" tag={Link} active={section.active} disabled={section.disabled}
+                       to={section.link}>
+                {section.title}
+              </NavLink>
+            </NavItem>
+          ))}
+>>>>>>> Stashed changes
         </Nav>
       </Navbar>
     )
@@ -41,7 +56,7 @@ class Section extends Component {
   render() {
     const help = this.props.helpText ? (
       <span>
-        <MdInfoOutline id="sectionTitleHelp" className="section-title-help" />
+        <MdInfoOutline id="sectionTitleHelp" className="section-title-help"/>
         <UncontrolledTooltip placement="right" target="sectionTitleHelp">
           {this.props.helpText}
         </UncontrolledTooltip>
@@ -49,23 +64,25 @@ class Section extends Component {
     ) : null
 
     return (
-      <div>
-        {this.renderSectionHeader()}
+      <Fragment>
+        <header className="bp-main-content-header">
+          {this.renderSectionHeader()}
+        </header>
         <Container>
-          <h2 style={{ marginBottom: '16px' }}>
+          <h2 className="bp-main-content__title">
             {this.props.title}
             {help}
           </h2>
           <Row>
-            <Col xs={12} md={8} className="mainContent">
+            <Col xs={12} md={8}>
               {this.props.mainContent}
             </Col>
-            <Col xs={12} md={4} className="section-menu">
+            <Col xs={12} md={4}>
               {this.props.sideMenu}
             </Col>
           </Row>
         </Container>
-      </div>
+      </Fragment>
     )
   }
 }

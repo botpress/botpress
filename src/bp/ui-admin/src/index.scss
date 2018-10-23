@@ -2,20 +2,14 @@
 
 $theme-colors: ('dark': $dark-background);
 
-.txt-light {
-  font-weight: 300;
-}
-
-$body-bg: $light-background;
-
 body {
   margin: 0;
   padding: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji',
-    'Segoe UI Emoji', 'Segoe UI Symbol';
+  'Segoe UI Emoji', 'Segoe UI Symbol';
 }
 
-.navbar > .container {
+.container > .navbar {
   padding: 0;
 }
 
@@ -26,10 +20,6 @@ body {
 
 .mainContent {
   margin-bottom: 20px;
-}
-
-.section-menu {
-  border-left: 1px solid $light-background;
 }
 
 .main-content {
@@ -80,23 +70,6 @@ body {
 
 .bots,
 .members {
-  .list-group-item {
-    .header {
-      * {
-        vertical-align: middle;
-      }
-
-      svg {
-        border-radius: 3px;
-      }
-
-      .title {
-        line-height: 1.5;
-        margin-left: 10px;
-      }
-    }
-  }
-
   .tags {
     margin: 10px 0;
     font-size: 20px;
@@ -177,12 +150,23 @@ pre.code {
 }
 
 @import 'node_modules/bootstrap/scss/bootstrap';
+@import './scss/_dropdown.scss';
+@import './scss/_layout.scss';
+@import './scss/_list-item.scss';
+@import './scss/_profile.scss';
 
-@include media-breakpoint-up(sm) {
-  .actions-table-row__buttons .btn {
-    visibility: hidden;
-    .actions-table-row:hover & {
-      visibility: visible;
-    }
+// BP
+
+.form-check-label {
+  font-size: 12px;
+}
+
+.btn__icon {
+  fill:var(--c-neutral--dark-1);
+  width: 16px;
+  height: auto;
+
+  &:hover {
+    fill: var(--c-neutral);
   }
 }
