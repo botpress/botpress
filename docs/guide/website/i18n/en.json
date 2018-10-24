@@ -9,7 +9,7 @@
         "title": "Admin Panel"
       },
       "general/botpressxx": {
-        "title": "Botpress X vs Botpress XX"
+        "title": "Botpress X vs XX"
       },
       "general/licensing": {
         "title": "Licenses"
@@ -18,10 +18,7 @@
         "title": "Migrating to Botpress XX"
       },
       "general/philosphy": {
-        "title": "!!!The Botpress Philosophy"
-      },
-      "general/welcome": {
-        "title": "Intro"
+        "title": "Introduction"
       },
       "getting_started/actions": {
         "title": "!!Actions"

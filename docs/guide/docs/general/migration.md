@@ -18,6 +18,25 @@ If your bot is using `bp.dialogEngine.registerActions`, this is no longer suppor
 
 If your bot has custom logic in `index.js`, such as in bp.hear, that concept has been changed. We replaced those with [hooks](../getting_started/hooks). They allow you to intercept events and tell Botpress how to handle them.
 
+Content types are handled similarly, but the UI and Renderers are now bundled in a single file.
+
+## Event parameters
+
+One notable change is the standardization of event parameters. The term `platform` was replaced with `channel`, we now refer to a user/group with `target` and all other parameters related to the type of the event is stored in `payload`. When you send a message to a user, the payload is given to the content renderer, which returns the channel-specific payload.
+
+```js
+const event = {
+  target: 'user1234',
+  channel: 'web',
+  type: 'text',
+  payload: {
+    text: 'Hello there',
+    typing: true
+  }
+  preview: 'Hello there'
+}
+```
+
 ## Database
 
 This will require some work on your side since there is no migration script at this time. We are only listing changes in the database.
