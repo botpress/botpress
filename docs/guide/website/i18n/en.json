@@ -12,7 +12,7 @@
         "title": "Changes"
       },
       "getting_started/components": {
-        "title": "!!Components"
+        "title": "Components"
       },
       "getting_started/content": {
         "title": "!!!Content"
@@ -65,6 +65,9 @@
       "modules/database": {
         "title": "Database"
       },
+      "modules/example": {
+        "title": "Example"
+      },
       "modules/install": {
         "title": "Installation"
       },
@@ -103,9 +106,6 @@
       },
       "recipes/login": {
         "title": "!!!Login"
-      },
-      "recipes/modules": {
-        "title": "Modules"
       },
       "recipes/proactive": {
         "title": "Proactive acting"

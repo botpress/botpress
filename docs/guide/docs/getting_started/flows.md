@@ -31,7 +31,7 @@ Almost all the logic is defined and happens in the **Nodes** (the boxes inside t
 The _On Receive_ actions are **executed for every new message received by the bot inside this flow**.
 
 To define new _Flow-wide On Receive Actions_, navigate to the relevant flow, then double click anywhere on the checkered background to show the _Flow Properties Pop up_. Under the _On Receive_ section, click the _Add Action_ button to add a new action.
-![GIF showing how to show the Flow Properties pop up][gettingstarted_triviaflows_flowwideonreceive]
+![GIF showing how to show the Flow Properties pop up](assets/GettingStarted_TriviaFlows_FlowWideOnReceive.gif)
 
 > **👓 Examples:** Flow-wide On Receive
 >
@@ -67,7 +67,7 @@ Nodes are the primary units of the conversational logic of your bot. **An active
 
 A _node_ is separated into three different stages: **onEnter** (A), **onReceive** (B) and **onNext** (C).
 
-![Typical Flow Node][flow_node]
+![Typical Flow Node](assets/flow_node.png)
 
 ### onEnter
 
@@ -79,7 +79,7 @@ _onReceive_ is a list of actions that will be executed when the node receives a 
 
 When this property is left unused, the node is non-blocking (black), which means it will flow straight from the `onEnter` to the `onNext`.
 
-![Blocking vs Non-Blocking Nodes][node_blocking]
+![Blocking vs Non-Blocking Nodes](assets/node_blocking.png)
 
 ### onNext / Transitions
 
@@ -102,7 +102,7 @@ Each conversation has a **State** associated with it. The state is created when 
 
 In the context of this tutorial, this means that a state is created just before the "_entry_" node is entered and just after the "_over_" node is executed.
 
-![Lifetime of a conversation state][statelifetime]
+![Lifetime of a conversation state](assets/stateLifetime.jpg)
 
 > **Note:** The state is global to the conversation, so if the conversation spans multiple flows, **the state is shared for all the flows**.
 
@@ -124,7 +124,7 @@ state.count >= 3
 
 You can change `3` by `5` from the UI, then hit the "Save" icon at the top to persist the changes.
 
-![Updating a transition from the UI][node_transition]
+![Updating a transition from the UI](assets/node_transition.png)
 
 The recommended way to create and edit the flows is via the graphical interface. It is usually much quicker, faster and less error-prone.
 
@@ -149,7 +149,7 @@ OK, now that the bot asks a reasonable amount of questions, we want to build a l
 
 The first step to building a leaderboard is to ask the user for his nickname at the end of the game:
 
-![Asking the user for his or her nickname][ask_nickname]
+![Asking the user for his or her nickname](assets/ask_nickname.jpg)
 
 Now the bot will be asking the user for his or her nickname at the end of every game. But that's not what we want! We actually want to ask the user only if we don't already know what their nickname is.
 
@@ -165,8 +165,8 @@ What we want is the following:
 
 To do that, click on the "_ask-name_" node, then in the "_On Receive_" section, click **Add action**.
 
-![Set the nickname into user tag][setusertag]
-![Set the nickname into user tag (node)][setusertagnode]
+![Set the nickname into user tag](assets/setUserTag.jpg)
+![Set the nickname into user tag (node)](assets/setUserTagNode.png)
 
 What the `setUserTag({ name, value })` action does is that is saves anything (`value`) into a user storage variable (tag named `name`).
 
@@ -178,8 +178,8 @@ OK, now that we persist the user's nickname somewhere, we also need to pull that
 
 To do that, click on the "_entry_" node, then in the "_On Enter_" section, click **Add action**.
 
-![Get the nickname from user tag][getusertag]
-![Get the nickname from user tag (node)][getusertagnode]
+![Get the nickname from user tag](assets/getUserTag.jpg)
+![Get the nickname from user tag (node)](assets/getUserTagNode.jpg)
 
 What the `getUserTag({ name, into })` action does is load a tag (named `name`) _into_ the state under a variable called `into`.
 
@@ -187,29 +187,14 @@ What the `getUserTag({ name, into })` action does is load a tag (named `name`) _
 
 The last step now is to only ask for the nickname when we don't know the nickname already. When this is the case, `getUserTag` should put `null` _into_ the _"nickname"_ state variable.
 
-![Asking only when nickname is unknown][nicknamecondition1]
-![Nickname is unknown condition][nicknamecondition2]
+![Asking only when nickname is unknown](assets/nicknameCondition1.jpg)
+![Nickname is unknown condition](assets/nicknameCondition2.jpg)
 
 Finally, you want to end the flow if we already know the nickname:
 
-![End flow otherwise][otherwisecondition]
-![End flow otherwise (result)][otherwiseconditionresult]
+![End flow otherwise](assets/otherwiseCondition.jpg)
+![End flow otherwise (result)](assets/otherwiseConditionResult.jpg)
 
 That's it! Your bot is now asking the user for their nickname once and then remembering it forever.
 
 > **🌟 Tip:** Say `/forget` to the bot to make it forget your _nickname_.
-
-[gettingstarted_triviaflows_flowwideonreceive]: {{site.baseurl}}/images/GettingStarted_TriviaFlows_FlowWideOnReceive.gif
-[statelifetime]: {{site.baseurl}}/images/stateLifetime.jpg
-[flow_node]: {{site.baseurl}}/images/flow_node.png
-[node_blocking]: {{site.baseurl}}/images/node_blocking.png
-[node_transition]: {{site.baseurl}}/images/node_transition.png
-[ask_nickname]: {{site.baseurl}}/images/ask_nickname.jpg
-[getusertag]: {{site.baseurl}}/images/getUserTag.jpg
-[getusertagnode]: {{site.baseurl}}/images/getUserTagNode.jpg
-[setusertag]: {{site.baseurl}}/images/setUserTag.jpg
-[setusertagnode]: {{site.baseurl}}/images/setUserTagNode.png
-[nicknamecondition1]: {{site.baseurl}}/images/nicknameCondition1.jpg
-[nicknamecondition2]: {{site.baseurl}}/images/nicknameCondition2.jpg
-[otherwisecondition]: {{site.baseurl}}/images/otherwiseCondition.jpg
-[otherwiseconditionresult]: {{site.baseurl}}/images/otherwiseConditionResult.jpg

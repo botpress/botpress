@@ -69,7 +69,7 @@ Do the same for the `leaderboard` intent.
 
 To train your bot using these new intents, simply restart the bot. You should see the training progress in the console.
 
-![Training status in console][nluconsole]
+![Training status in console](assets/nluConsole.jpg)
 
 ## Using the intents in flows
 
@@ -86,7 +86,7 @@ The Botpress NLU makes it convenient to test which intent is currently detected 
 
 We could very easily add a condition similar to the one below in the entry point node of the bot so that if the user starts the conversation with something like "_Who's the best player?_", it would redirect him straight to the `leaderboard` flow.
 
-![Final flow][nluflow]
+![Final flow](assets/nluFlow.jpg)
 
 ```js
 event.nlu.intent.name === 'leaderboard'
@@ -96,11 +96,7 @@ event.nlu.intent.is('leaderboard')
 
 The latter example has the advantage of being case insensitive and is guaranteed to always be available by the NLU module, even if intent classification fails.
 
-![Flowing to the leaderboard flow][nluleaderboard]
-
-[nluleaderboard]: {{site.baseurl}}/images/nluLeaderboard.jpg
-[nluconsole]: {{site.baseurl}}/images/nluConsole.jpg
-[nluflow]: {{site.baseurl}}/images/nluFlow.jpg
+![Flowing to the leaderboard flow](assets/nluLeaderboard.jpg)
 
 ## Changing the NLU provider
 

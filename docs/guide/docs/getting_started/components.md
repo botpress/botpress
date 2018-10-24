@@ -1,6 +1,6 @@
 ---
 id: components
-title: !!Components
+title: Components
 ---
 
 Botpress can seem intimidating at first, but it is, in fact, straightforward once you understand how it works and why. Let’s dissect all the major components of a Botpress bot.
@@ -9,7 +9,7 @@ Botpress can seem intimidating at first, but it is, in fact, straightforward onc
 
 ## Modules <a class="toc" id="modules" href="#modules"></a>
 
-A module is an extra component outside of the Botpress Core itself that you can install in your bot to add new features to Botpress. Every bot uses modules in a way since almost everything in Botpress is a module. This architecture allows for maximum flexibility and freedom for developers. There are three informal categories of modules: **channels**, **skills** and **functionals**.
+A module is an extra component outside of the Botpress Core itself that you can install in your bot to add new features to Botpress. Every bot uses modules in a way since almost everything in Botpress is a module. This architecture allows for maximum flexibility and freedom for developers.
 
 ## Channels <a class="toc" id="channels" href="#channels"></a>
 
@@ -49,6 +49,4 @@ The purpose of a Content Renderer is to allow developers to specify how the same
 
 Channels, which are a special kind of module, receive messages from the different chat platforms. These messages are then processed by NLU so that the natural text is turned into structured data the bot understands. The Dialog Manager decides what the bot needs to say next, which the Content Renderer turns into a message specific to the target chat platform.
 
-![Components Overview][components]
-
-[components]: {{site.baseurl}}/images/components.png
+![Components Overview](assets/components.png)

@@ -24,7 +24,8 @@
       "modules/api-endpoint",
       "modules/views",
       "modules/actions",
-      "modules/database"
+      "modules/database",
+      "modules/example"
     ],
     "Recipes": [
       "recipes/index",

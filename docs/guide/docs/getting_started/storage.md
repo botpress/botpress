@@ -138,7 +138,7 @@ endGame: state => {
 },
 ```
 
-![Calling the endGame][totalscore]
+![Calling the endGame](assets/totalScore.jpg)
 
 ## Storing top scores in KVS
 
@@ -181,7 +181,7 @@ Now that we have the single action that is in charge of storing the scores and d
 
 This is very straightforward, so we'll skip the details:
 
-![Leaderboard flow nodes][leaderboard]
+![Leaderboard flow nodes](assets/leaderboardFlow.jpg)
 
 ## Note A
 
@@ -207,6 +207,3 @@ leaderboard: data => ({
   typing: '2s'
 })
 ```
-
-[totalscore]: {{site.baseurl}}/images/totalScore.jpg
-[leaderboard]: {{site.baseurl}}/images/leaderboardFlow.jpg
