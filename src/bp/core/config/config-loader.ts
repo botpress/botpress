@@ -25,6 +25,7 @@ export class GhostConfigProvider implements ConfigProvider {
 
     const host = process.env.BP_HOST || config.httpServer.host
     config.httpServer.host = host === 'localhost' ? undefined : host
+    config.httpServer.proxyPort = process.env.PORT ? parseInt(process.env.PORT) : config.httpServer.proxyPort
 
     config.ghost.enabled = yn(process.env.GHOST_ENABLED) || config.ghost.enabled
 
