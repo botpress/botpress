@@ -1,8 +1,8 @@
 import { Logger } from 'botpress/sdk'
+import { AdminService } from 'core/services/admin/professionnal/admin-service'
 import { Router } from 'express'
 import Joi from 'joi'
 import _ from 'lodash'
-import { AdminService } from 'professional/services/admin'
 
 import { CustomRouter } from '..'
 import { Bot } from '../../misc/interfaces'

@@ -7,13 +7,12 @@ import { ModuleLoader } from 'core/module-loader'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 
-import { GhostService } from '..'
+import { GhostService } from '../..'
 
-import { FeatureNotAvailableError } from './errors'
-import CoreAdminService, { AdminService } from './professionnal/admin-service'
+import CoreAdminService, { AdminService } from './admin-service'
 
 @injectable()
-export class CommunityAdminService implements AdminService {
+export class EnterpriseAdminService implements AdminService {
   private adminService!: CoreAdminService
 
   constructor(
@@ -37,28 +36,28 @@ export class CommunityAdminService implements AdminService {
     )
   }
 
-  addMemberToTeam(userId: number, teamId: number, roleName: string) {
-    throw new FeatureNotAvailableError(this.edition)
+  async addMemberToTeam(userId: number, teamId: number, roleName: string) {
+    await this.adminService.addMemberToTeam(userId, teamId, roleName)
   }
 
-  removeMemberFromTeam(userId: any, teamId: any) {
-    throw new FeatureNotAvailableError(this.edition)
+  async removeMemberFromTeam(userId: any, teamId: any) {
+    await this.adminService.removeMemberFromTeam(userId, teamId)
   }
 
   async listUserTeams(userId: number) {
     return this.adminService.listUserTeams(userId)
   }
 
-  createTeamRole(teamId: number, role: AuthRole) {
-    throw new FeatureNotAvailableError(this.edition)
+  async createTeamRole(teamId: number, role: AuthRole) {
+    return this.adminService.createTeamRole(teamId, role)
   }
 
-  deleteTeamRole(teamId: number, roleId: number) {
-    throw new FeatureNotAvailableError(this.edition)
+  async deleteTeamRole(teamId: number, roleId: number) {
+    return this.adminService.deleteTeamRole(teamId, roleId)
   }
 
-  updateTeamRole(teamId: number, roleId: number, role: Partial<AuthRole>) {
-    throw new FeatureNotAvailableError(this.edition)
+  async updateTeamRole(teamId: number, roleId: number, role: Partial<AuthRole>) {
+    return this.adminService.updateTeamRole(teamId, roleId, role)
   }
 
   async listTeamRoles(teamId: number) {
@@ -77,24 +76,20 @@ export class CommunityAdminService implements AdminService {
     return this.adminService.listBots(teamId, offset, limit)
   }
 
-  createNewTeam(args: { userId: number; name?: string | undefined }) {
-    throw new FeatureNotAvailableError(this.edition)
+  async createNewTeam(args: { userId: number; name?: string | undefined }) {
+    await this.adminService.createNewTeam(args)
   }
 
   async getBotTeam(botId: string) {
     return this.adminService.getBotTeam(botId)
   }
 
-  deleteTeam(teamId: number) {
-    throw new FeatureNotAvailableError(this.edition)
+  async deleteTeam(teamId: number) {
+    await this.adminService.deleteTeam(teamId)
   }
 
-  getInviteCode(teamId: number) {
-    throw new FeatureNotAvailableError(this.edition)
-  }
-
-  refreshInviteCode(teamId: number) {
-    throw new FeatureNotAvailableError(this.edition)
+  async getInviteCode(teamId: number) {
+    return this.adminService.getInviteCode(teamId)
   }
 
   async getUserPermissions(userId: number, teamId: number): Promise<AuthRule[]> {
@@ -105,12 +100,12 @@ export class CommunityAdminService implements AdminService {
     return this.adminService.getUserRole(userId, teamId)
   }
 
-  changeUserRole(userId: number, teamId: number, roleName: string) {
-    throw new FeatureNotAvailableError(this.edition)
+  async changeUserRole(userId: number, teamId: number, roleName: string) {
+    await this.adminService.changeUserRole(userId, teamId, roleName)
   }
 
-  joinTeamFromInviteCode(userId: number, code: string) {
-    throw new FeatureNotAvailableError(this.edition)
+  async joinTeamFromInviteCode(userId: number, code: string) {
+    await this.adminService.joinTeamFromInviteCode(userId, code)
   }
 
   async listTeamMembers(teamId: number) {
@@ -123,6 +118,10 @@ export class CommunityAdminService implements AdminService {
 
   async assertUserPermission(userId: number, teamId: number, resource: string, operation: string) {
     await this.adminService.assertUserPermission(userId, teamId, resource, operation)
+  }
+
+  async refreshInviteCode(teamId: number) {
+    return this.adminService.refreshInviteCode(teamId)
   }
 
   async assertUserNotMember(userId: number, teamId: number) {

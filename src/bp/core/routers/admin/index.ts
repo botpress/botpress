@@ -1,9 +1,9 @@
 import { Logger } from 'botpress/sdk'
 import { RequestHandler, Router } from 'express'
 import _ from 'lodash'
-import { AdminService } from 'professional/services/admin/admin-service'
 
 import { CustomRouter } from '..'
+import { AdminService } from '../../services/admin/professionnal/admin-service'
 import AuthService, { TOKEN_AUDIENCE } from '../../services/auth/auth-service'
 import { checkTokenHeader, loadUser } from '../util'
 
