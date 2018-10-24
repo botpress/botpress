@@ -37,8 +37,8 @@ export class SessionService {
     return this.updateSession(session)
   }
 
-  async createSession(sessionId, botId): Promise<DialogSession> {
-    const session = new DialogSession(sessionId, botId)
+  async createSession(sessionId, botId, state, context, event): Promise<DialogSession> {
+    const session = new DialogSession(sessionId, botId, state, context, event)
     return this.repository.insert(session)
   }
 
