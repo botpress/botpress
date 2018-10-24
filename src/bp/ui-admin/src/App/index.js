@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
 
 import {
   Nav,
@@ -20,6 +20,8 @@ import { bindActionCreators } from 'redux'
 
 import { fetchTeams } from '../modules/teams'
 import { fetchProfile } from '../modules/user'
+
+import logo from '../botpress.svg'
 
 class Home extends Component {
   state = { isMenuOpen: true }
@@ -48,7 +50,7 @@ class Home extends Component {
         <DropdownToggle nav caret>
           <span className="user-profile">
             <img alt="" src={this.props.profile.picture} className="user-avatar" />
-            <span>{this.props.profile.fullName}</span>
+            <span>{this.props.profile.username}</span>
           </span>
         </DropdownToggle>
         <DropdownMenu right>
@@ -63,17 +65,13 @@ class Home extends Component {
 
   renderSwitchTeam() {
     if (!this.props.currentTeam) {
-      return (
-        <NavItem>
-          <NavLink href="/admin/teams">Choose team</NavLink>
-        </NavItem>
-      )
+      return null
     }
 
     return (
       <UncontrolledDropdown nav inNavbar>
         <DropdownToggle nav caret>
-          {this.props.currentTeam.name}
+          Teams
         </DropdownToggle>
         <DropdownMenu right>
           {this.props.teams &&
@@ -93,23 +91,26 @@ class Home extends Component {
 
   render() {
     return (
-      <div>
-        <Navbar dark color="dark" expand="md">
+      <Fragment>
+        <header className="bp-header">
           <div className="container">
-            <NavbarBrand href="/admin">
-              Botpress <span className="txt-light">Admin</span>
-            </NavbarBrand>
-            <NavbarToggler onClick={this.toggleMenu} />
-            <Collapse isOpen={this.state.isMenuOpen} navbar>
-              <Nav className="ml-auto" navbar>
-                {this.renderSwitchTeam()}
-                {this.renderProfileMenu()}
-              </Nav>
-            </Collapse>
+            <Navbar expand="md">
+              <NavbarBrand href="/admin">
+                <img src={logo} alt="logo" className="bp-header__logo" />&nbsp;|&nbsp;
+                <span className="bp-header__title">Admin</span>
+              </NavbarBrand>
+              <NavbarToggler onClick={this.toggleMenu} />
+              <Collapse isOpen={this.state.isMenuOpen} navbar>
+                <Nav className="ml-auto" navbar>
+                  {this.renderSwitchTeam()}
+                  {this.renderProfileMenu()}
+                </Nav>
+              </Collapse>
+            </Navbar>
           </div>
-        </Navbar>
-        <div className="main-content container">{this.props.children}</div>
-      </div>
+        </header>
+        <div className="main-content">{this.props.children}</div>
+      </Fragment>
     )
   }
 }

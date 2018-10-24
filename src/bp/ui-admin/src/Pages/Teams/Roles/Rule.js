@@ -70,7 +70,7 @@ export default class Rule extends Component {
     return (
       <Row className="actions-table-row">
         <Col sm="5">
-          <abbr title={ruleInfo.description || ''}>
+          <abbr data-title={ruleInfo.description || ''}>
             <code>{rule.res}</code>
           </abbr>
         </Col>
@@ -92,21 +92,21 @@ export default class Rule extends Component {
             </FormGroup>
           )}
         </Col>
-        <Col sm="3" className="actions-table-row__buttons">
-          {!readOnly && (
+        {!readOnly && (
+          <div className="actions-table-row__buttons ml-auto">
             <ButtonGroup>
               <Button onClick={this.props.onMoveUp} size="sm" outline disabled={index < 1}>
-                <MdArrowDropUp />
+                <MdArrowDropUp className="btn__icon" />
               </Button>
               <Button onClick={this.props.onMoveDown} size="sm" outline disabled={index > total - 2}>
-                <MdArrowDropDown />
-              </Button>
-              <Button onClick={this.props.onDelete} size="sm" color="danger" outline>
-                <MdDelete />
+                <MdArrowDropDown className="btn__icon" />
               </Button>
             </ButtonGroup>
-          )}
-        </Col>
+            <Button onClick={this.props.onDelete} color="link">
+              <MdDelete className="btn__icon" />
+            </Button>
+          </div>
+        )}
       </Row>
     )
   }
