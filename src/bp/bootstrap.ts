@@ -73,7 +73,7 @@ async function start() {
     startProxy({ coreApiUrl: `http://${hostname}:${port}`, proxyHost: `http://${hostname}`, proxyPort }, cb)
   )
 
-  logger.info(`UI Proxy running on http://localhost:${proxyPort}/`)
+  logger.info(`UI Proxy running on http://${hostname}:${proxyPort}/`)
 }
 
 start().catch(global.printErrorDefault)
