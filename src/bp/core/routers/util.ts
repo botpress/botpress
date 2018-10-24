@@ -2,9 +2,9 @@ import { Logger } from 'botpress/sdk'
 import { checkRule } from 'core/misc/auth'
 import { NextFunction, Request, Response } from 'express'
 import Joi from 'joi'
+import { AdminService } from 'professional/services/admin'
 
 import { RequestWithUser } from '../misc/interfaces'
-import { AdminService } from '../services/admin/professionnal/admin-service'
 import AuthService from '../services/auth/auth-service'
 import { AssertionError, ProcessingError, UnauthorizedAccessError } from '../services/auth/errors'
 

@@ -1,11 +1,8 @@
 import { TYPES } from 'core/types'
 import { ContainerModule, interfaces } from 'inversify'
+import { AdminService, EnterpriseAdminService, ProfessionnalAdminService } from 'professional/services/admin'
 
 import { CommunityAdminService } from './community'
-
-import { AdminService } from './professionnal/admin-service'
-import { EnterpriseAdminService } from './professionnal/enterprise'
-import { ProfessionnalAdminService } from './professionnal/profesionnal'
 
 export const AdminContainerModule = new ContainerModule((bind: interfaces.Bind) => {
   bind<AdminService>(TYPES.AdminService)
@@ -16,7 +13,7 @@ export const AdminContainerModule = new ContainerModule((bind: interfaces.Bind) 
   bind<AdminService>(TYPES.AdminService)
     .to(ProfessionnalAdminService)
     .inSingletonScope()
-    .when(request => isExpectedEdition('professionnal', request.parentContext))
+    .when(request => isExpectedEdition('professional', request.parentContext))
 
   bind<AdminService>(TYPES.AdminService)
     .to(EnterpriseAdminService)
