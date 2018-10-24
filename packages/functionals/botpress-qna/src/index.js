@@ -28,7 +28,8 @@ module.exports = {
     exportCsvEncoding: { type: 'string', required: false, default: 'utf8', env: 'QNA_EXPORT_CSV_ENCODING' },
     qnaMakerApiKey: { type: 'string', required: false, env: 'QNA_MAKER_API_KEY' },
     qnaMakerKnowledgebase: { type: 'string', required: false, default: 'botpress', env: 'QNA_MAKER_KNOWLEDGEBASE' },
-    qnaCategories: { type: 'string', required: false, default: '', env: 'QNA_CATEGORIES' }
+    qnaCategories: { type: 'string', required: false, default: '', env: 'QNA_CATEGORIES' },
+    qnaShowTyping: { type: 'string', required: false, default: '0s', env: 'QNA_SHOW_TYPING' }
   },
   async init(bp, configurator) {
     const config = await configurator.loadAll()
