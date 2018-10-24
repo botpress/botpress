@@ -11,9 +11,7 @@ import { logout } from '~/util/Auth'
 import style from './Header.scss'
 import { viewModeChanged } from '~/actions'
 import PermissionsChecker from './PermissionsChecker'
-import Select from 'react-select'
 import { changeBot, fetchBotInformation, fetchAllBots } from '../../actions'
-import _ from 'lodash'
 
 class Header extends React.Component {
   state = {
@@ -50,30 +48,6 @@ class Header extends React.Component {
     )
   }
 
-  switchBot = botId => {
-    this.setState({ selectedBot: botId })
-    window.location = '/studio/' + botId
-  }
-
-  renderBotSelect() {
-    if (!window.BOTPRESS_XX) {
-      return null
-    }
-
-    const options = (this.props.bots || []).map(bot => ({ value: bot.id, label: `${bot.team}/${bot.name}` }))
-    const currentBot = _.get(this.props.bot, 'id') || _.get(options, '0.value')
-
-    return (
-      <NavItem className={style['bp-select-bot']}>
-        <Select
-          options={options}
-          value={this.state.selectedBot || currentBot}
-          onChange={option => this.switchBot(option.value)}
-        />
-      </NavItem>
-    )
-  }
-
   renderFullScreenButton() {
     return (
       <span className={classnames(style.fullScreen, 'bp-full-screen')}>
@@ -94,7 +68,6 @@ class Header extends React.Component {
       <Navbar className={classNames} style={customStyle}>
         <Navbar.Collapse>
           <Nav pullRight>
-            {this.renderBotSelect()}
             <NavItem onClick={this.handleFullscreen}>{this.renderFullScreenButton()}</NavItem>
             <PermissionsChecker user={this.props.user} res="bot.logs" op="read">
               <NavItem href={window.BP_BASE_PATH + '/logs'}>
