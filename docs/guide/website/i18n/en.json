@@ -14,8 +14,14 @@
       "general/licensing": {
         "title": "Licenses"
       },
+      "general/migration": {
+        "title": "Migrating to Botpress XX"
+      },
       "general/philosphy": {
         "title": "!!!The Botpress Philosophy"
+      },
+      "general/welcome": {
+        "title": "Intro"
       },
       "getting_started/actions": {
         "title": "!!Actions"

@@ -33,17 +33,23 @@ Developers build bots, then non-technical people can manage them.
 
 ## The technology behind Botpress
 
-Botpress is 100% JavaScript.
+Botpress is 100% written in TypeScript.
 
 The backend runs on [Node.js](https://nodejs.org), [SQLite](https://www.sqlite.org) and – in production – [PostgreSQL](https://www.postgresql.org).
 
 The frontend runs on [React](https://reactjs.org)/[Redux](https://redux.js.org)/[Bootstrap](https://getbootstrap.com/).
 We’re also using all sort of cool libs such as [Socket.IO](https://socket.io/), [Lodash](https://lodash.com/), [Axios](https://github.com/axios/axios), [JWT](https://jwt.io/), [Knex](http://knexjs.org/) and [Bluebird](http://bluebirdjs.com/).
 
-Botpress is lightweight (~10mb), blazing fast and has zero system dependencies (apart from Node.js).
+Botpress is lightweight, blazing fast and has zero system dependencies (apart from Node.js - except when you download the binary)
 
 Botpress works on Windows, macOS, and Linux. It can run anywhere: on your laptop, on any cloud provider
 and even on your private corporate infrastructure.
+
+## What’s new in Botpress XX
+
+### If you're coming from Botpress X
+
+Botpress XX is mostly compatible with Botpress X. Most of your bots may be transferred effortlessly. Flows, QNA, NLU and Content Elements are the same. The biggest changes are under the hood, and in the database (to support multi-bots). There are some changes to Content Types / Renderers. You can read about the migration of your bots (on this page)[./migration]
 
 ## What’s new in Botpress X
 
