@@ -1,0 +1,19 @@
+// Dropdown
+
+.dropdown {
+  &-menu {
+    padding: 0;
+  }
+
+  &-item {
+    font-size: 14px;
+
+    &:hover {
+      background-color: var(--c-neutral--light-1);
+    }
+  }
+
+  &-divider {
+    margin: 0;
+  }
+}

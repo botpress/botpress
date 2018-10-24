@@ -2,19 +2,21 @@ import Knex from 'knex'
 import _ from 'lodash'
 
 import { Table } from 'core/database/interfaces'
-import { calculateHash } from 'core/services/auth/util'
+import { saltHashPassword } from 'core/services/auth/util'
 
 const USERS = ['admin']
 const PASSWORD = '123456'
 
 const insertUsers = async (knex: Knex, tableName: string) => {
+  const saltHashed = saltHashPassword(PASSWORD)
   return knex
     .batchInsert(
       tableName,
       USERS.map((username, index) => ({
         id: index + 1,
         username,
-        password: calculateHash(PASSWORD),
+        password: saltHashed.hash,
+        salt: saltHashed.salt,
         firstname: username,
         lastname: username
       }))
@@ -34,6 +36,7 @@ export class AuthUsersTable extends Table {
           .unique()
           .notNullable() // validate: { len: [3, 30] }
         table.string('password').notNullable()
+        table.string('salt').notNullable()
         table.string('firstname')
         table.string('lastname')
         table.string('picture')

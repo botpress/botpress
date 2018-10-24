@@ -8,6 +8,7 @@ export interface AuthUser {
   id: number
   username: string
   password: string
+  salt: string
   firstname?: string
   lastname?: string
   fullName?: string

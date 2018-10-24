@@ -3,15 +3,37 @@ import React, { Component } from 'react'
 import SectionLayout from '../Layouts/Section'
 import LoadingSection from '../Components/LoadingSection'
 
+import { Row, Col } from 'reactstrap'
+
 class Me extends Component {
   state = { loading: false }
 
   renderBody() {
-    return <section>TBD</section>
-  }
-
-  renderSideMenu() {
-    return <p>TBD</p>
+    return (
+      <Row className="profile">
+        <Col sm="12" md="4">
+          <div className="profile__avatar" />
+        </Col>
+        <Col sm="12" md="6">
+          <div className="form-group">
+            <label for="firstName">First Name</label>
+            <input type="text" id="firstName" className="form-control" disabled />
+          </div>
+          <div className="form-group">
+            <label for="lastName">Last Name</label>
+            <input type="text" id="lastName" className="form-control" disabled />
+          </div>
+          <div className="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" className="form-control" disabled />
+          </div>
+          <div className="form-group">
+            <label for="email">Email</label>
+            <input type="text" id="email" className="form-control" disabled />
+          </div>
+        </Col>
+      </Row>
+    )
   }
 
   render() {
@@ -27,7 +49,6 @@ class Me extends Component {
         title="Profile"
         sections={sections}
         mainContent={this.state.loading ? renderLoading() : this.renderBody()}
-        sideMenu={this.renderSideMenu()}
       />
     )
   }

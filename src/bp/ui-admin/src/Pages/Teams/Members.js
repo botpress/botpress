@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { find } from 'lodash'
 
@@ -12,10 +12,6 @@ import { checkRule } from '@botpress/util-roles'
 import {
   Alert,
   ListGroup,
-  UncontrolledDropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
   ListGroupItemHeading,
   ListGroupItem,
   Button,
@@ -154,41 +150,35 @@ class Members extends Component {
   }
 
   renderMemberMenu(member) {
-    const items = []
+    const actions = []
 
     if (this.currentUserHasPermission('admin.team.members', 'write')) {
       if (member.role === 'owner') {
-        items.push(
-          <DropdownItem
+        actions.push(
+          <Button
             key="remove"
+            color="link"
             className="text-muted disabled"
             title="You cannot remove the team owner"
             onClick={() => alert('You cannot remove the team owner.')}
           >
             Remove
-          </DropdownItem>
+          </Button>
         )
       } else {
-        items.push(
-          <DropdownItem key="remove" className="text-danger" onClick={() => this.removeMember(member.username)}>
+        actions.push(
+          <Button key="remove" color="link" onClick={() => this.removeMember(member.username)}>
             Remove
-          </DropdownItem>
+          </Button>
         )
       }
     }
 
-    if (!items.length) {
+    if (!actions.length) {
       return null
     }
 
-    return (
-      <UncontrolledDropdown className="float-right">
-        <DropdownToggle caret size="sm" color="link">
-          More
-        </DropdownToggle>
-        <DropdownMenu>{items}</DropdownMenu>
-      </UncontrolledDropdown>
-    )
+    return <Fragment>{actions}</Fragment>
   }
 
   changeMemberRole = () => {
@@ -218,7 +208,7 @@ class Members extends Component {
     const role = find(this.props.roles, { name: member.role })
     const title = [role && role.description, member.role !== 'owner' && 'Click to change.'].filter(Boolean).join('. ')
     return (
-      <abbr title={title} onClick={this.openChangeMemberRole(member)}>
+      <abbr data-title={title} onClick={this.openChangeMemberRole(member)}>
         {member.role || <em>(no role)</em>}
       </abbr>
     )
@@ -272,13 +262,13 @@ class Members extends Component {
             const joinedAgo = moment(member.joinedAt).fromNow()
             return (
               <ListGroupItem key={`user-${member.id}`}>
-                <ListGroupItemHeading className="header">
-                  <img alt="" width="32" height="32" src={member.picture} />
-                  <span className="title">{member.fullName}</span>
-                  {this.renderMemberMenu(member)}
+                <ListGroupItemHeading>
+                  <img className="list-group-item__avatar" alt="" width="32" height="32" src={member.picture} />
+                  <span className="title">{member.username}</span>
                 </ListGroupItemHeading>
+                <div className="list-group-item__actions">{this.renderMemberMenu(member)}</div>
                 <small>
-                  <b>Role</b> {this.renderMemberRole(member)} | <b>Username</b> {member.username} | Joined {joinedAgo}
+                  <b>Role:</b> {this.renderMemberRole(member)} | <b>Username:</b> {member.username} | Joined {joinedAgo}
                 </small>
               </ListGroupItem>
             )
@@ -296,7 +286,7 @@ class Members extends Component {
     }
 
     return (
-      <Button color="primary" outline onClick={this.toggleInviteModal}>
+      <Button className="float-right" color="primary" size="sm" onClick={this.toggleInviteModal}>
         <MdPersonAdd /> Invite Users
       </Button>
     )
