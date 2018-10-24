@@ -96,14 +96,14 @@ export default class Rule extends Component {
           <div className="actions-table-row__buttons ml-auto">
             <ButtonGroup>
               <Button onClick={this.props.onMoveUp} size="sm" outline disabled={index < 1}>
-                <MdArrowDropUp className="btn__icon"/>
+                <MdArrowDropUp className="btn__icon" />
               </Button>
               <Button onClick={this.props.onMoveDown} size="sm" outline disabled={index > total - 2}>
-                <MdArrowDropDown className="btn__icon"/>
+                <MdArrowDropDown className="btn__icon" />
               </Button>
             </ButtonGroup>
             <Button onClick={this.props.onDelete} color="link">
-              <MdDelete className="btn__icon"/>
+              <MdDelete className="btn__icon" />
             </Button>
           </div>
         )}

@@ -75,14 +75,14 @@ class Home extends Component {
         </DropdownToggle>
         <DropdownMenu right>
           {this.props.teams &&
-          _.take(this.props.teams, 5).map(team => {
-            return (
-              <DropdownItem key={team.id} onClick={() => this.props.history.push(`/teams/${team.id}`)}>
-                {team.name}
-              </DropdownItem>
-            )
-          })}
-          <DropdownItem divider/>
+            _.take(this.props.teams, 5).map(team => {
+              return (
+                <DropdownItem key={team.id} onClick={() => this.props.history.push(`/teams/${team.id}`)}>
+                  {team.name}
+                </DropdownItem>
+              )
+            })}
+          <DropdownItem divider />
           <DropdownItem onClick={() => this.props.history.push('/teams')}>See all</DropdownItem>
         </DropdownMenu>
       </UncontrolledDropdown>
@@ -96,10 +96,10 @@ class Home extends Component {
           <div className="container">
             <Navbar expand="md">
               <NavbarBrand href="/admin">
-                <img src={logo} alt="logo" className="bp-header__logo"/>&nbsp;|&nbsp;
+                <img src={logo} alt="logo" className="bp-header__logo" />&nbsp;|&nbsp;
                 <span className="bp-header__title">Admin</span>
               </NavbarBrand>
-              <NavbarToggler onClick={this.toggleMenu}/>
+              <NavbarToggler onClick={this.toggleMenu} />
               <Collapse isOpen={this.state.isMenuOpen} navbar>
                 <Nav className="ml-auto" navbar>
                   {this.renderSwitchTeam()}

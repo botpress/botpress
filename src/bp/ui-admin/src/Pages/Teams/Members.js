@@ -83,7 +83,7 @@ class Members extends Component {
   }
 
   refreshInviteCode = async () => {
-    const {data} = await api.getSecured().post(`/api/teams/${this.props.teamId}/invite`)
+    const { data } = await api.getSecured().post(`/api/teams/${this.props.teamId}/invite`)
 
     if (data && data.payload && data.payload.inviteCode) {
       this.setState({ inviteCode: data.payload.inviteCode })
@@ -178,9 +178,7 @@ class Members extends Component {
       return null
     }
 
-    return (
-      <Fragment>{actions}</Fragment>
-    )
+    return <Fragment>{actions}</Fragment>
   }
 
   changeMemberRole = () => {
@@ -203,7 +201,7 @@ class Members extends Component {
   }
 
   toggleChangeMemberRole = () => {
-    this.setState(({changeRoleMember}) => ({ changeRoleMember: !changeRoleMember }))
+    this.setState(({ changeRoleMember }) => ({ changeRoleMember: !changeRoleMember }))
   }
 
   renderMemberRole(member) {
@@ -265,12 +263,10 @@ class Members extends Component {
             return (
               <ListGroupItem key={`user-${member.id}`}>
                 <ListGroupItemHeading>
-                  <img className="list-group-item__avatar" alt="" width="32" height="32" src={member.picture}/>
+                  <img className="list-group-item__avatar" alt="" width="32" height="32" src={member.picture} />
                   <span className="title">{member.username}</span>
                 </ListGroupItemHeading>
-                <div className="list-group-item__actions">
-                  {this.renderMemberMenu(member)}
-                </div>
+                <div className="list-group-item__actions">{this.renderMemberMenu(member)}</div>
                 <small>
                   <b>Role:</b> {this.renderMemberRole(member)} | <b>Username:</b> {member.username} | Joined {joinedAgo}
                 </small>

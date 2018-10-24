@@ -108,9 +108,9 @@ export default class Role extends Component {
   }
 
   onDescChange = event => {
-    const {value} = event.target
+    const { value } = event.target
 
-    this.setState(({role}) => {
+    this.setState(({ role }) => {
       return {
         role: {
           ...role,
@@ -168,7 +168,7 @@ export default class Role extends Component {
       return
     }
 
-    this.setState(({role}) => {
+    this.setState(({ role }) => {
       const rules = [...this.state.role.rules]
       const t = rules[i]
       rules[i] = rules[i - 1]
@@ -269,7 +269,9 @@ export default class Role extends Component {
 
     return (
       <Fragment>
-        <Button onClick={this.onClose} outline>Cancel</Button>
+        <Button onClick={this.onClose} outline>
+          Cancel
+        </Button>
         <Button onClick={this.onReset} outline disabled={!isDirty}>
           Reset changes
         </Button>
@@ -281,7 +283,7 @@ export default class Role extends Component {
   }
 
   changeNewRule = ({ value }) => {
-    this.setState({newRuleResource: value})
+    this.setState({ newRuleResource: value })
   }
 
   renderAddRule() {
@@ -318,13 +320,17 @@ export default class Role extends Component {
         <ModalBody>
           {createMode && (
             <FormGroup>
-              <label><strong>Role Title</strong></label>
-              <Input id="inputName" value={role.name || ''} onChange={this.onNameChange}/>
+              <label>
+                <strong>Role Title</strong>
+              </label>
+              <Input id="inputName" value={role.name || ''} onChange={this.onNameChange} />
             </FormGroup>
           )}
 
           <FormGroup>
-            <label><strong>Role Description</strong></label>
+            <label>
+              <strong>Role Description</strong>
+            </label>
             {!readOnly ? (
               <Input
                 id="inputDescripton"
@@ -338,7 +344,9 @@ export default class Role extends Component {
           </FormGroup>
 
           <FormGroup>
-            <label><strong>Role Permissions</strong></label>
+            <label>
+              <strong>Role Permissions</strong>
+            </label>
             <div className="form-control">{this.renderAddRule()}</div>
           </FormGroup>
           {role.rules.map((rule, i) => (

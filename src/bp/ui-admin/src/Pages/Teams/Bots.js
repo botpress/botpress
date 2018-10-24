@@ -8,15 +8,10 @@ import { connect } from 'react-redux'
 import { checkRule } from '@botpress/util-roles'
 
 import jdenticon from 'jdenticon'
-import Joi from 'joi-browser'
 
 import {
   ListGroup,
   Jumbotron,
-  UncontrolledDropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
   ListGroupItemHeading,
   ListGroupItem,
   Row,
@@ -102,7 +97,9 @@ class Bots extends Component {
         <ModalHeader toggle={this.toggleCreateBotModal}>Create a new bot</ModalHeader>
         <ModalBody>
           <FormGroup>
-            <Label for="id"><strong>Identifier</strong></Label>
+            <Label for="id">
+              <strong>Identifier</strong>
+            </Label>
             <Input
               placeholder="Auto-generated"
               disabled="disabled"
@@ -113,7 +110,9 @@ class Bots extends Component {
             />
           </FormGroup>
           <FormGroup>
-            <Label for="name"><strong>Name</strong></Label>
+            <Label for="name">
+              <strong>Name</strong>
+            </Label>
             <Input
               type="text"
               id="name"
@@ -123,7 +122,9 @@ class Bots extends Component {
             />
           </FormGroup>
           <FormGroup>
-            <Label for="description"><strong>Description</strong></Label>
+            <Label for="description">
+              <strong>Description</strong>
+            </Label>
             <Input
               type="textarea"
               id="description"
@@ -161,14 +162,12 @@ class Bots extends Component {
       <div className="bots">
         <Jumbotron>
           <Row>
-            <Col style={{textAlign: 'center'}} sm="12" md={{ size: 8, offset: 2 }}>
+            <Col style={{ textAlign: 'center' }} sm="12" md={{ size: 8, offset: 2 }}>
               <h1>
-                <IoIosBoxOutline/>
+                <IoIosBoxOutline />
                 &nbsp; This team has no bot, yet.
               </h1>
-              <p>
-                In Botpress, bots are always assigned to a team.
-              </p>
+              <p>In Botpress, bots are always assigned to a team.</p>
             </Col>
           </Row>
         </Jumbotron>
@@ -180,10 +179,14 @@ class Bots extends Component {
   renderCreateNewBotButton() {
     return (
       <Row>
-        <Col md={{size: 12}}>
-          <Button className="float-right" onClick={() => this.setState({ isCreateBotModalOpen: true })} color="primary"
-                  size="sm">
-            <MdCreate/> Create Bot Now
+        <Col md={{ size: 12 }}>
+          <Button
+            className="float-right"
+            onClick={() => this.setState({ isCreateBotModalOpen: true })}
+            color="primary"
+            size="sm"
+          >
+            <MdCreate /> Create Bot Now
           </Button>
         </Col>
       </Row>

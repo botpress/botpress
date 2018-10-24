@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react'
-import {Link} from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 import { MdInfoOutline } from 'react-icons/lib/md'
 
@@ -51,9 +51,7 @@ class Section extends Component {
 
     return (
       <Fragment>
-        <header className="bp-main-content-header">
-          {this.renderSectionHeader()}
-        </header>
+        <header className="bp-main-content-header">{this.renderSectionHeader()}</header>
         <Container>
           <h2 className="bp-main-content__title">
             {this.props.title}

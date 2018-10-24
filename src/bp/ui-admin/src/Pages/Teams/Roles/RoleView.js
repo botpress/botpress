@@ -44,8 +44,7 @@ export default class Role extends Component {
     }
   }
 
-  onEdit = () => {
-  }
+  onEdit = () => {}
 
   renderMenu() {
     if (this.props.readOnly) {
@@ -86,31 +85,29 @@ export default class Role extends Component {
       return null
     }
 
-    const {indexedPermissions} = this.state
+    const { indexedPermissions } = this.state
 
     return (
       <ListGroupItem>
-        <ListGroupItemHeading>
-          { role.name }
-        </ListGroupItemHeading>
+        <ListGroupItemHeading>{role.name}</ListGroupItemHeading>
         {this.renderMenu()}
         {role.description && <small>{role.description}</small>}
         {role.rules &&
-        role.rules.length && (
-          <Fragment>
-            <p className="list-group-item__permissions">Role Permissions:</p>
-            {role.rules.map((rule, i) => (
-              <Rule
-                index={i}
-                total={role.rules.length}
-                readOnly={false}
-                rule={rule}
-                ruleInfo={(indexedPermissions && indexedPermissions[rule.res]) || {}}
-                key={`${i}.${rule.res}.${rule.op}`}
-              />
-            ))}
-          </Fragment>
-        )}
+          role.rules.length && (
+            <Fragment>
+              <p className="list-group-item__permissions">Role Permissions:</p>
+              {role.rules.map((rule, i) => (
+                <Rule
+                  index={i}
+                  total={role.rules.length}
+                  readOnly={false}
+                  rule={rule}
+                  ruleInfo={(indexedPermissions && indexedPermissions[rule.res]) || {}}
+                  key={`${i}.${rule.res}.${rule.op}`}
+                />
+              ))}
+            </Fragment>
+          )}
       </ListGroupItem>
     )
   }
