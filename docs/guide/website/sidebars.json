@@ -1,8 +1,8 @@
 {
   "docs": {
+    "General": ["general/philosphy", "general/botpressxx", "general/admin", "general/licensing"],
     "Getting Started": [
       "getting_started/index",
-      "getting_started/philosphy",
       "getting_started/install",
       "getting_started/components",
       "getting_started/templates",

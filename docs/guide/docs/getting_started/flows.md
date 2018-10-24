@@ -1,6 +1,6 @@
 ---
 id: flows
-title: !!!Flows
+title: Flows
 ---
 
 For this section, you'll need to head to the dashboard and click on the "Flows" section. You should see a flow diagram with a bunch of boxes and links.
@@ -56,7 +56,7 @@ The _Flow-wide Transitions_ are evaluated sequentially, and the first to match i
 
 ### Storage
 
-Flows are stored as JSON files in the bot's source files. In the context of this tutorial, the flows are stored in the `src/flows/` folder. Each flow is split into two files: the logic (`*.flow.json`) and the visual-specific properties (`*.ui.json`). The reason to split these is to make easier to maintain and review changes.
+Flows are stored as JSON files in the bot's source files. In the context of this tutorial, the flows are stored in the `data/bots/trivia-bot/flows/` folder. Each flow is split into two files: the logic (`*.flow.json`) and the visual-specific properties (`*.ui.json`). The reason to split these is to make easier to maintain and review changes.
 
 - `*.ui.json` files can almost always be ignored from code reviews as they don't affect the functionality of the bot.
 - `*.flow.json` files could also, in theory, be created manually by developers instead of using the GUI. This is the case for [Skills](./skills), which we will cover later.
@@ -128,7 +128,7 @@ You can change `3` by `5` from the UI, then hit the "Save" icon at the top to pe
 
 The recommended way to create and edit the flows is via the graphical interface. It is usually much quicker, faster and less error-prone.
 
-But for the sake of completeness of this tutorial and since we're technical folks and love code (right?) let's see how to do that in code instead. Open up the `src/flows/main.flow.json` and locate the "_next_" node. Let's update the code as follow:
+But for the sake of completeness of this tutorial and since we're technical folks and love code (right?) let's see how to do that in code instead. Open up the `data/bots/trivia-bot/flows/main.flow.json` and locate the "_next_" node. Let's update the code as follow:
 
 ```diff
 {

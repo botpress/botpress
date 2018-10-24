@@ -1,23 +1,15 @@
 ---
 id: nlu
-title: !!!NLU
+title: NLU
 ---
 
 # 📚 NLU
 
 A bot tutorial wouldn't be complete without covering Natural Language Understanding (NLU).
 
-## The `@botpress/nlu` module
+## The `nlu` module
 
-Botpress has an official module for easily adding NLU to your bots. Let's start by installing this module:
-
-```bash
-# using npm
-npm install --save @botpress/nlu
-
-# using yarn
-yarn add @botpress/nlu
-```
+Botpress has an official module for easily adding NLU to your bots. Let's start by downloading it and placing it in our bot's modules folder. [Click here for instructions on how to download & install modules](../modules/install)
 
 ## Providers
 
@@ -55,7 +47,7 @@ Botpress abstracts the different NLU providers and provides a clean, easy-to-use
 
 For this tutorial, there are two user intents that we want to support: `play` and `see_leaderboard`. A real production bot would usually try to understand more things and be more complete, but for this tutorial, it will be enough.
 
-First, install the [`@botpress/nlu`](https://github.com/botpress/botpress/tree/master/packages/functionals/botpress-nlu) module.
+First, install the [`nlu`](https://github.com/botpress/botpress/tree/master/modules/nlu) module.
 
 Once that's done, restart your bot. You should see a new "NLU" item in the left menu. Open it.
 

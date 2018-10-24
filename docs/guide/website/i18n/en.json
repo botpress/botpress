@@ -5,8 +5,20 @@
     "previous": "Previous",
     "tagline": "Guides and references for all you need to know about Botpress",
     "docs": {
+      "general/admin": {
+        "title": "Admin Panel"
+      },
+      "general/botpressxx": {
+        "title": "Botpress X vs Botpress XX"
+      },
+      "general/licensing": {
+        "title": "Licenses"
+      },
+      "general/philosphy": {
+        "title": "!!!The Botpress Philosophy"
+      },
       "getting_started/actions": {
-        "title": "!!!Actions"
+        "title": "!!Actions"
       },
       "getting_started/changes": {
         "title": "Changes"
@@ -24,7 +36,7 @@
         "title": "!!!Deploying"
       },
       "getting_started/flows": {
-        "title": "!!!Flows"
+        "title": "Flows"
       },
       "getting_started/hooks": {
         "title": "Hooks"
@@ -36,13 +48,10 @@
         "title": "Install"
       },
       "getting_started/nlu": {
-        "title": "!!!NLU"
-      },
-      "getting_started/philosphy": {
-        "title": "!!!The Botpress Philosophy"
+        "title": "NLU"
       },
       "getting_started/skills": {
-        "title": "!!!Skills"
+        "title": "!!Skills"
       },
       "getting_started/storage": {
         "title": "!!!Storage"
@@ -133,6 +142,7 @@
       "Github": "Github"
     },
     "categories": {
+      "General": "General",
       "Getting Started": "Getting Started",
       "Modules": "Modules",
       "Recipes": "Recipes"

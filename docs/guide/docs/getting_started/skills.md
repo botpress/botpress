@@ -1,6 +1,6 @@
 ---
 id: skills
-title: !!!Skills
+title: !!Skills
 ---
 
 # 📚 Skills
@@ -13,19 +13,11 @@ They can be seen as reusable components between multiple flows or even multiple 
 
 ## Installing skills
 
-Skills are implemented under a special kind of Botpress module whose name starts with `@botpress/skill-`. Many skills are open-source and available for you to install.
+Skills are implemented under a special kind of Botpress module whose name starts with `skill-`. Many skills are open-source and available for you to install.
 
 ### Installing the `choice` skill <a class="toc" id="installing-the-choice-skill" href="#installing-the-choice-skill"></a>
 
-Installing a skill is as simple as installing a regular npm package. Once installed, restart your bot and the skill will be automatically detected and loaded by your bot.
-
-```bash
-# using npm
-npm install --save @botpress/skill-choice
-
-# using yarn
-yarn add @botpress/skill-choice
-```
+To install a new skill, download the module package and add it to your bot. [Click here for instructions on how to download & install modules](../modules/install)
 
 ## Using skills
 
@@ -37,7 +29,7 @@ After filling in the form, you'll be able to click anywhere in the flow to inser
 
 ## Persistence
 
-Skills are stored as flows under the `src/flows/skills` folder.
+Skills are stored as flows under the `data/bots/your-bot/flows/skills` folder.
 
 You can also visualize the generated skills from the GUI:
 

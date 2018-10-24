@@ -1,6 +1,6 @@
 ---
 id: actions
-title: !!!Actions
+title: !!Actions
 ---
 
 ## How actions work
@@ -27,6 +27,19 @@ Actions are run in a virtual machine, so scripting errors won't bring your bot d
 
 You may add actions globally or for a specific bot by adding a `.js` file in the folder `data/global/actions` or `data/bots/{bot_name}/actions`.
 Actions may be added or edited at runtime without restarting the bot.
+
+JSDoc comments before the function can be used to describe the action and prepopulate parameters when it is picked in the flow editor.
+Usage is pretty straightforward:
+
+```js
+/**
+ * Some description of what this action does
+ * @title Sets a tag for the user
+ * @category MyActions
+ * @param {string} tag - A parameter named tag
+ * @param {string} [expiry=never] - Sets a default value
+ */
+```
 
 ## Examples of actions
 
@@ -88,43 +101,7 @@ setUserTag: async (state, event, { name, value }) => {
 
 If the some variable is available under `state` or `event` in the action normally it doesn't make sense to pass it as custom arguments.
 
-![Passing arguments from the flow editor][setusertagargs]
-
-JSDoc-comments before function can be used to prepopulate params for the function when it gets selected in flow-editor.
-To enable this you'd need to call `bp.dialogEngine.registerActionMetadataProvider` like in the snippet below (included in default bot installation):
-
-```js
-const metadata = {}
-bp.dialogEngine.registerActionMetadataProvider(action => metadata[action])
-
-for (const actionFile of actionFiles) {
-  const docs = await jsdoc.explain({ files: path.join(__dirname, actionFile) })
-  const actions = require(actionFile)
-
-  for (const action of Object.keys(actions)) {
-    const meta = docs.find(doc => {
-      return doc.name === action && doc.comment.length > 0
-    })
-
-    if (meta) {
-      metadata[action] = {
-        title: meta.name,
-        description: meta.description,
-        category: 'Custom',
-        params: meta.params.map(param => ({
-          type: _.get(param, 'type.names.0') || 'string',
-          name: param.name.replace('params.', ''),
-          description: param.description,
-          default: param.defaultvalue || '',
-          required: !param.optional
-        }))
-      }
-    }
-  }
-
-  bp.dialogEngine.registerActions(actions)
-}
-```
+![Passing arguments from the flow editor](assets/setUserTagArgs.jpg)
 
 ## Altering the state
 
@@ -145,5 +122,3 @@ return clone
 ### Non-altering actions
 
 If your action does not modify the state, just return nothing (`return`). You can also return a clone of the original state: `return {...state}`.
-
-[setusertagargs]: {{site.baseurl}}/images/setUserTagArgs.jpg
