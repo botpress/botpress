@@ -1,4 +1,4 @@
-import { IO } from 'botpress/sdk'
+import { IO, Logger } from 'botpress/sdk'
 import { DialogContext } from 'core/repositories'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
@@ -35,9 +35,10 @@ export class DialogEngine {
   private _flowsByBot: Map<string, FlowView[]> = new Map()
 
   constructor(
+    @inject(TYPES.Logger) private logger: Logger,
     @inject(TYPES.FlowService) private flowService: FlowService,
     @inject(TYPES.SessionService) private sessionService: SessionService,
-    @inject(TYPES.InstructionProcessor) private instructionProcesseor: InstructionProcessor
+    @inject(TYPES.InstructionProcessor) private instructionProcessor: InstructionProcessor
   ) {}
 
   public async processEvent(sessionId: string, event: IO.Event) {
@@ -62,9 +63,11 @@ export class DialogEngine {
     const currentFlow = this._findFlow(botId, session.context.currentFlowName)
     const currentNode = this._findNode(currentFlow, session.context.currentNodeName)
 
-    // skill-call type means that the current node contains the subflow for a skill-choice
-    if (currentNode.type === 'skill-call') {
-      return this._goToSubflow(botId, event, session, currentNode, currentFlow)
+    // skill-call type means that the current node contains the subflow for a skill-choice.
+    // We skip this step if we're exiting from a subflow, otherwise this will result in an infinite loop.
+    if (currentNode.type === 'skill-call' && !this._exitingSubflow(session)) {
+      await this._goToSubflow(botId, event, session, currentNode, currentFlow)
+      return
     }
 
     let queue: InstructionQueue
@@ -83,7 +86,8 @@ export class DialogEngine {
     }
 
     try {
-      const result = await this.instructionProcesseor.process(botId, instruction, session.state, session.event, session.context)
+      const result = await this.instructionProcessor.process(botId, instruction, session)
+
       if (result.followUpAction === 'none') {
         await this._updateQueue(sessionId, queue)
         await this.processEvent(sessionId, event)
@@ -156,20 +160,27 @@ export class DialogEngine {
     const session = await this.sessionService.getSession(sessionId)
     let context = session.context
 
-    // Return to the parent node (coming from a subflow)
     if (transitionTo.indexOf('#') === 0) {
+      // Return to the parent node (coming from a subflow)
+      const parentFlow = this._findFlow(event.botId, session.context.previousFlowName!)
+      const parentNode = this._findNode(parentFlow, session.context.previousNodeName!)
+      const builder = new InstructionsQueueBuilder(parentNode, parentFlow)
+      const queue = builder.onlyTransitions().build()
+
       context = {
-        currentNodeName : session.context.previousNodeName!,
-        currentFlowName : session.context.previousFlowName!,
-        previousNodeName : undefined,
-        previousFlowName : undefined,
+        ...context,
+        currentNodeName : parentNode.name,
+        currentFlowName : parentFlow.name,
+        queue: queue.toString(),
       }
-    // END means the node has a transition of "end flow" in the flow editor
+      this.logger.debug(`(${context.currentFlowName})[${context.currentNodeName}] << (${context.previousFlowName})[${context.previousNodeName}]`)
     } else if (transitionTo === 'END') {
+      // END means the node has a transition of "end flow" in the flow editor
       await this.sessionService.deleteSession(sessionId)
       return
-    // Transition to the next node in the current flow
     } else {
+      // Transition to the next node in the current flow
+      this.logger.debug(`(${context.currentFlowName})[${context.currentNodeName}] -> [${transitionTo}]`)
       context = {...context, currentNodeName: transitionTo}
     }
 
@@ -210,6 +221,8 @@ export class DialogEngine {
       previousFlowName: parentFlow.name
     }
 
+    this.logger.debug(`(${context.previousFlowName})[${context.previousNodeName}] >> (${context.currentFlowName})[${context.currentNodeName}]`)
+
     await this.sessionService.updateSessionContext(session.id, context)
     await this.processEvent(session.id, event)
   }
@@ -246,5 +259,11 @@ export class DialogEngine {
     const instructionDetails = instruction.fn || instruction.type
     this.onProcessingError &&
       this.onProcessingError(new ProcessingError(error.message, botId, nodeName, flowName, instructionDetails))
+  }
+
+  private _exitingSubflow(session) {
+    const sameFlow =  session.context.previousFlowName === session.context.currentFlowName
+    const sameNode = session.context.previousNodeName === session.context.currentNodeName
+    return sameFlow && sameNode
   }
 }

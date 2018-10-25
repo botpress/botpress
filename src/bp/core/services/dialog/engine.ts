@@ -140,9 +140,7 @@ class DialogEngine {
         const result = await this.instructionProcessor.process(
           botId,
           instruction,
-          session.state,
-          session.event,
-          session.context
+          session
         )
 
         if (result.followUpAction === 'update') {

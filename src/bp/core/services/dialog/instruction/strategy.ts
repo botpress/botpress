@@ -33,6 +33,9 @@ export interface InstructionStrategy {
 @injectable()
 export class ActionStrategy implements InstructionStrategy {
   constructor(
+    @inject(TYPES.Logger)
+    @tagged('name', 'Actions')
+    private logger: Logger,
     @inject(TYPES.ActionService) private actionService: ActionService,
     @inject(TYPES.ContentElementSender) private contentElementSender: ContentElementSender
   ) {}
@@ -63,6 +66,8 @@ export class ActionStrategy implements InstructionStrategy {
         throw new Error(`Say "${outputType}" has invalid arguments (not a valid JSON string): ${params}`)
       }
     }
+
+    this.logger.debug(`Output content "${outputType}"`)
 
     await this.contentElementSender.sendContent(outputType, args, state, event)
 
@@ -124,8 +129,10 @@ export class TransitionStrategy implements InstructionStrategy {
     const conditionSuccessful = await this.runCode(instruction, { state, event })
 
     if (conditionSuccessful) {
+      this.logger.debug(`Success transition to "${instruction.node}" on condition: "${instruction.fn}"`)
       return ProcessingResult.transition(instruction.node)
     } else {
+      this.logger.debug(`Failed transition to "${instruction.node}" on condition: "${instruction.fn}"`)
       return ProcessingResult.none()
     }
   }
@@ -148,8 +155,7 @@ export class TransitionStrategy implements InstructionStrategy {
       throw err
     }
     `
-    this.logger.debug(`Running condition for transition "${instruction.fn}"`)
-    return await runner.runInVm(vm, code, `Transition (${instruction.fn})`)
+    return await runner.runInVm(vm, code)
   }
 }
 
