@@ -111,8 +111,45 @@ export class DialogEngine {
 
   }
 
-  public processTimeout(botId, id) {
+  public async processTimeout(botId, sessionId, event) {
+    const session = await this.sessionService.getSession(sessionId)
+    const currentFlow = this._findFlow(botId, session.context.currentFlowName)
+    const currentNode = this._findNode(currentFlow, session.context.currentNodeName)
 
+    // Check for a timeout property in the current node
+    let timeoutNode = _.get(currentNode, 'timeout')
+    let timeoutFlow = currentFlow
+
+    // Check for a timeout node in the current flow
+    if (!timeoutNode || !timeoutFlow) {
+      timeoutNode = this._findNode(timeoutFlow, 'timeout')
+    }
+
+    // Check for a timeout property in the current flow
+    if (!timeoutNode || !timeoutFlow) {
+      timeoutNode = _.get(currentFlow, 'timeout')
+    }
+
+    // Check for a timeout.flow.json and get the start node
+    if (!timeoutNode || !timeoutFlow) {
+      timeoutFlow = this._findFlow(botId, 'timeout.flow.json')
+      if (timeoutFlow) {
+        const startNodeName = timeoutFlow.startNode
+        timeoutNode = this._findNode(timeoutFlow, startNodeName)
+      }
+    }
+
+    if (!timeoutNode || !timeoutFlow) {
+      throw new Error(`Could not find any timeout node for session "${sessionId}"`)
+    }
+
+    const context = {
+      currentNodeName: timeoutNode.name,
+      currentFlowName: timeoutFlow.name
+    }
+
+    await this._updateContext(sessionId, context)
+    await this.processEvent(sessionId, event)
   }
 
   private async _transition(sessionId, event, transitionTo: string) {
