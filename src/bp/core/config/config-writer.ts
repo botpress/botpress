@@ -8,7 +8,7 @@ import { BotConfig } from './bot.config'
 @injectable()
 export class BotConfigWriter {
   async writeToFile(config: BotConfig) {
-    const filePath = path.join(process.PROJECT_LOCATION, `./data/bots/${config.id}/`)
+    const filePath = this.getBotFilePath(config.id)
     const templatePath = path.join(process.PROJECT_LOCATION, './templates/bot-template/')
     const fileName = 'bot.config.json'
 
@@ -19,5 +19,19 @@ export class BotConfigWriter {
     } catch (e) {
       throw new VError(e, `Error writing file "${filePath}"`)
     }
+  }
+
+  async deleteBotFolder(botId: string) {
+    const filePath = this.getBotFilePath(botId)
+
+    try {
+      await fse.remove(filePath)
+    } catch (err) {
+      throw new VError(err, `Error while deleting file at "${filePath}"`)
+    }
+  }
+
+  private getBotFilePath(botId: string) {
+    return path.join(process.PROJECT_LOCATION, `./data/bots/${botId}/`)
   }
 }
