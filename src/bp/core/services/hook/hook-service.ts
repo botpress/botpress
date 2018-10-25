@@ -84,6 +84,7 @@ export class HookService {
 
   private async runScript(hookScript: HookScript) {
     const vm = new NodeVM({
+      wrapper: 'none',
       console: 'inherit',
       sandbox: hookScript.hook.args,
       timeout: hookScript.hook.timeout,
