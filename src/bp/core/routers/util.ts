@@ -1,8 +1,8 @@
 import { Logger } from 'botpress/sdk'
 import { checkRule } from 'core/misc/auth'
+import { AdminService } from 'core/services/admin/service'
 import { NextFunction, Request, Response } from 'express'
 import Joi from 'joi'
-import { AdminService } from 'professional/services/admin'
 
 import { RequestWithUser } from '../misc/interfaces'
 import AuthService from '../services/auth/auth-service'

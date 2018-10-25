@@ -1,10 +1,10 @@
 import { Logger } from 'botpress/sdk'
+import { AdminService } from 'core/services/admin/service'
+import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import { RequestHandler, Router } from 'express'
 import _ from 'lodash'
-import { AdminService } from 'professional/services/admin/admin-service'
 
 import { CustomRouter } from '..'
-import AuthService, { TOKEN_AUDIENCE } from '../../services/auth/auth-service'
 import { checkTokenHeader, loadUser } from '../util'
 
 import { TeamsRouter } from './teams'

@@ -1,6 +1,7 @@
 import { Logger } from 'botpress/sdk'
 import { Container } from 'inversify'
 import { AppLifecycle } from 'lifecycle'
+import { ProfessionnalContainerModule } from 'professional/services/admin/professionnal.inversify'
 
 import { BotpressAPIProvider } from './api'
 import { BotLoader } from './bot-loader'
@@ -89,7 +90,13 @@ container
 
 const isPackaged = !!eval('process.pkg')
 const isProduction = process.IS_PRODUCTION
-const botpressEdition = process.env.EDITION || process.env.edition || 'community'
+
+const verifyEdition = edition => {
+  // Fallback to community if edition doesnt exists
+  return edition === 'community' || edition === 'pro' || edition === 'enterprise' ? edition : 'community'
+}
+
+const botpressEdition = verifyEdition(process.env.EDITION)
 
 container.bind<boolean>(TYPES.IsProduction).toConstantValue(isProduction)
 container.bind<boolean>(TYPES.IsPackaged).toConstantValue(isPackaged)
@@ -98,6 +105,10 @@ container.bind<string>(TYPES.BotpressEdition).toConstantValue(botpressEdition.to
 container.load(...DatabaseContainerModules)
 container.load(...RepositoriesContainerModules)
 container.load(...ServicesContainerModules)
+
+if (botpressEdition !== 'community') {
+  container.load(ProfessionnalContainerModule)
+}
 
 applyDisposeOnExit(container)
 

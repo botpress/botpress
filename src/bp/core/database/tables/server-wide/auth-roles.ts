@@ -1,6 +1,6 @@
 import { Table } from 'core/database/interfaces'
 import Knex from 'knex'
-import defaultRoles from 'professional/services/admin/default-roles'
+import defaultRoles from 'professional/services/admin/pro-roles'
 
 const insertRoles = async (knex: Knex, tableName: string) => {
   return knex
