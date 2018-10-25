@@ -52,7 +52,7 @@ export namespace Hooks {
 }
 
 class HookScript {
-  constructor(public hook: Hooks.BaseHook, public path: string, public file: string) {}
+  constructor(public hook: Hooks.BaseHook, public path: string, public code: string) {}
 }
 
 @injectable()
@@ -96,7 +96,7 @@ export class HookService {
     const botId = _.get(hookScript.hook.args, 'event.botId')
     const vmRunner = new VmRunner()
 
-    await vmRunner.runInVm(vm, hookScript.file, hookScript.path).catch(err => {
+    await vmRunner.runInVm(vm, hookScript.code, hookScript.path).catch(err => {
       this.logScriptError(err, botId, hookScript.path, hookScript.hook.folder)
     })
     this.logScriptRun(botId, hookScript.path, hookScript.hook.folder)
