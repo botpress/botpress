@@ -94,15 +94,12 @@ export class ScopedActionService {
 
     const lookups: string[] = [actionLocation]
 
-    if (parts[1] in process.LOADED_MODULES) {
+    if (parts[0] in process.LOADED_MODULES) {
       // the action is in a directory by the same name as a module
-      lookups.unshift(process.LOADED_MODULES[parts[1]])
+      lookups.unshift(process.LOADED_MODULES[parts[0]])
     }
 
-    return module => {
-      console.log(`Looking for "${module}" in "${lookups.join(', ')}"`)
-      return requireAtPaths(module, lookups)
-    }
+    return module => requireAtPaths(module, lookups)
   }
 
   async runAction(actionName: string, dialogState: any, incomingEvent: any, actionArgs: any): Promise<any> {
@@ -116,12 +113,9 @@ export class ScopedActionService {
 
     const _require = this._prepareRequire(path.dirname(dirPath))
 
-    const modRequire = new Proxy(
-      {},
-      {
-        get: (_obj, prop) => _require(prop)
-      }
-    )
+    const modRequire = new Proxy({}, {
+      get: (_obj, prop) => _require(prop)
+    })
 
     const vm = new NodeVM({
       wrapper: 'none',
