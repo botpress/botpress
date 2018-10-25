@@ -15,6 +15,9 @@ phases:
       - $(aws ecr get-login --region $AWS_DEFAULT_REGION --no-include-email)
       - $(./build/codebuild-extras.sh)
       - echo "BUILDING FOR '$ARTIFACT_NAME'"
+      - echo "REPOSITORY IS '$REPOSITORY_URI'"
+      - echo "COMMIT IS '$COMMIT_HASH'"
+      - echo "IMAGE_TAG IS '$IMAGE_TAG'"
       - yarn install
       - (cd build/module-builder && yarn install && yarn build)
 
@@ -61,6 +64,7 @@ phases:
       - ls -a
       - ls -a out_linux/binaries
       - mv Dockerfile out_linux/binaries/
+      - echo $REPOSITORY_URI:latest
       - docker build -t $REPOSITORY_URI:latest out_linux/binaries
       - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
 
