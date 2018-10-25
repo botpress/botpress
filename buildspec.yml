@@ -83,18 +83,21 @@ artifacts:
     darwin:
       base-directory: $CODEBUILD_SRC_DIR/out_darwin/binaries
       name: botpress-$ARTIFACT_NAME-darwin-x64.zip
+      type: S3
       files:
         - '**/*'
 
     linux:
       base-directory: $CODEBUILD_SRC_DIR/out_linux/binaries
       name: botpress-$ARTIFACT_NAME-linux-x64.zip
+      type: S3
       files:
         - '**/*'
 
     windows:
       base-directory: $CODEBUILD_SRC_DIR/out_win32/binaries
       name: botpress-$ARTIFACT_NAME-win-x64.zip
+      type: S3
       files:
         - '**/*'
 
