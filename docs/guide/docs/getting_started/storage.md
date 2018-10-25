@@ -1,6 +1,6 @@
 ---
 id: storage
-title: Storage
+title: !!!Storage
 ---
 
 # 📚 Storage Mechanisms
@@ -100,8 +100,8 @@ Now that we understand how to store data, how to write custom actions and how fl
 
 To determine the score of the user, we will take into account two variables:
 
-* The total time it took to respond to all the questions
-* The total score
+- The total time it took to respond to all the questions
+- The total score
 
 The score will be determined as follow: `SCORE / TIME_IN_MILLISECONDS * 1000 * 5000`
 
@@ -138,7 +138,7 @@ endGame: state => {
 },
 ```
 
-![Calling the endGame][totalscore]
+![Calling the endGame](assets/totalScore.jpg)
 
 ## Storing top scores in KVS
 
@@ -181,7 +181,7 @@ Now that we have the single action that is in charge of storing the scores and d
 
 This is very straightforward, so we'll skip the details:
 
-![Leaderboard flow nodes][leaderboard]
+![Leaderboard flow nodes](assets/leaderboardFlow.jpg)
 
 ## Note A
 
@@ -207,6 +207,3 @@ leaderboard: data => ({
   typing: '2s'
 })
 ```
-
-[totalscore]: {{site.baseurl}}/images/totalScore.jpg
-[leaderboard]: {{site.baseurl}}/images/leaderboardFlow.jpg

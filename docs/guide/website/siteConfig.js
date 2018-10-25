@@ -31,8 +31,8 @@ const siteConfig = {
   favicon: 'img/favicon.png',
 
   colors: {
-    primaryColor: '#1b4af7',
-    secondaryColor: '#343a40'
+    primaryColor: '#090909',
+    secondaryColor: '#cfcfcf'
   },
 
   copyright: `Copyright © ${new Date().getFullYear()} Botpress, Inc.`,

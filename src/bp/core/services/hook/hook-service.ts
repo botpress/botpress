@@ -86,28 +86,35 @@ export class HookService {
     const vm = new NodeVM({
       console: 'inherit',
       sandbox: hookScript.hook.args,
-      timeout: hookScript.hook.timeout
+      timeout: hookScript.hook.timeout,
+      require: {
+        external: true
+      }
     })
 
     const botId = _.get(hookScript.hook.args, 'event.botId')
+    const vmRunner = new VmRunner()
 
-    const runner = new VmRunner()
+    await vmRunner.runInVm(vm, hookScript.code, hookScript.path).catch(err => {
+      this.logScriptError(err, botId, hookScript.path, hookScript.hook.folder)
+    })
+    this.logScriptRun(botId, hookScript.path, hookScript.hook.folder)
+  }
 
-    try {
-      await runner.runInVm(vm, hookScript.code, hookScript.path)
-      this.logScriptRun(botId, hookScript.path, hookScript.hook.folder)
-    } catch (err) {
-      this.logScriptError(botId, hookScript.path, hookScript.hook.folder)
+  private logScriptError(err, botId, path, folder) {
+    const message = `An error occured on "${path}" on "${folder}". ${err}`
+    if (botId) {
+      this.logger
+        .forBot(botId)
+        .attachError(err)
+        .error(message)
+    } else {
+      this.logger.attachError(err).error(message)
     }
   }
 
   private logScriptRun(botId, path, folder) {
-    const message = `Executed '${path}' on '${folder}'`
+    const message = `Executed "${path}" on "${folder}"`
     botId ? this.logger.forBot(botId).debug(message) : this.logger.debug(message)
-  }
-
-  private logScriptError(botId, path, folder) {
-    const message = `Could not execute '${path}' on '${folder}'`
-    botId ? this.logger.forBot(botId).error(message) : this.logger.error(message)
   }
 }

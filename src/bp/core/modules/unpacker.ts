@@ -2,6 +2,7 @@ import { Logger } from 'botpress/sdk'
 import { TYPES } from 'core/types'
 import crypto from 'crypto'
 import fs from 'fs'
+import fse from 'fs-extra'
 import { inject } from 'inversify'
 import mkdirp from 'mkdirp'
 import path from 'path'
@@ -28,23 +29,36 @@ export default class ModuleUnpacker {
 
   async unpack(modulePath: string) {
     const hash = await fileHash(modulePath)
-    const directory = path.join(path.dirname(modulePath), '.cache')
-
-    const finalDestination = path.join(directory, `./module__${hash}`)
+    const tempDirectory = this.createModulePath(modulePath, '.temp_cache')
+    const temporaryDestination = this.createDestination(tempDirectory, hash)
+    const finalDirectory = this.createModulePath(modulePath, '.cache')
+    const finalDestination = this.createDestination(finalDirectory, hash)
 
     if (fs.existsSync(finalDestination)) {
       return finalDestination
     }
 
-    mkdirp.sync(finalDestination) // Create the `.cache` directory if doesn't exist
+    mkdirp.sync(temporaryDestination) // Create the `.temp_cache` directory if doesn't exist
 
     this.logger.info(`Extracting module "${path.basename(modulePath)}" ...`)
 
     await tar.extract({
       file: modulePath,
-      cwd: finalDestination
+      cwd: temporaryDestination
     })
 
+    mkdirp.sync(finalDirectory) // Create the `.cache` directory if doesn't exist
+    // We rename in case the extraction failed and .cache is corrupted
+    fse.renameSync(temporaryDestination, finalDestination)
+
     return finalDestination
+  }
+
+  private createModulePath(modulePath, name) {
+    return path.join(path.dirname(modulePath), name)
+  }
+
+  private createDestination(directory, hash) {
+    return path.join(directory, `./module__${hash}`)
   }
 }

@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react'
 import { find } from 'lodash'
 
-import { Row, Col, Button, Input, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
+import { Row, Col, Button, FormGroup, Input, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
 import Select from 'react-select'
 
 import Rule from './Rule'
@@ -269,12 +269,14 @@ export default class Role extends Component {
 
     return (
       <Fragment>
-        <Button onClick={this.onClose}>Cancel</Button>
-        <Button onClick={this.onReset} disabled={!isDirty}>
+        <Button onClick={this.onClose} outline>
+          Cancel
+        </Button>
+        <Button onClick={this.onReset} outline disabled={!isDirty}>
           Reset changes
         </Button>
-        <Button onClick={this.onSave} disabled={!canSave} color={canSave ? 'success' : ''} outline={!isDirty}>
-          {isDirty ? '* ' : ''}Save
+        <Button onClick={this.onSave} disabled={!canSave} color={canSave ? 'primary' : 'primary'}>
+          {isDirty ? '' : ''}Save
         </Button>
       </Fragment>
     )
@@ -297,7 +299,7 @@ export default class Role extends Component {
           <Select value={this.state.newRuleResource} onChange={this.changeNewRule} options={options} />
         </Col>
         <Col sm="3" md="2" className="text-right">
-          <Button outline color="success" onClick={this.onRuleAdd}>
+          <Button color="secondary" onClick={this.onRuleAdd}>
             Add
           </Button>
         </Col>
@@ -314,30 +316,39 @@ export default class Role extends Component {
 
     return (
       <Modal isOpen={this.props.show} toggle={this.props.onClose}>
-        <ModalHeader toggle={this.props.onClose}>{createMode ? <em>New Role</em> : role.name}</ModalHeader>
+        <ModalHeader toggle={this.props.onClose}>{createMode ? 'New Role' : role.name}</ModalHeader>
         <ModalBody>
           {createMode && (
-            <p style={{ marginTop: 15 }}>
-              <Input id="inputName" placeholder="Role Name" value={role.name || ''} onChange={this.onNameChange} />
-            </p>
+            <FormGroup>
+              <label>
+                <strong>Role Title</strong>
+              </label>
+              <Input id="inputName" value={role.name || ''} onChange={this.onNameChange} />
+            </FormGroup>
           )}
 
-          <p style={{ marginTop: 15 }}>
-            <strong>Role Description:</strong>
+          <FormGroup>
+            <label>
+              <strong>Role Description</strong>
+            </label>
             {!readOnly ? (
               <Input
                 id="inputDescripton"
-                placeholder="Description"
+                // placeholder="Description"
                 value={role.description || ''}
                 onChange={this.onDescChange}
               />
             ) : (
               role.description || ''
             )}
-          </p>
+          </FormGroup>
 
-          <strong>Role Permissions:</strong>
-          <div style={{ margin: '5px 0 15px' }}>{this.renderAddRule()}</div>
+          <FormGroup>
+            <label>
+              <strong>Role Permissions</strong>
+            </label>
+            <div className="form-control">{this.renderAddRule()}</div>
+          </FormGroup>
           {role.rules.map((rule, i) => (
             <Rule
               index={i}

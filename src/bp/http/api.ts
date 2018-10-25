@@ -1,3 +1,5 @@
+import { http } from 'botpress/sdk'
+
 const express = require('express')
 const path = require('path')
 const proxy = require('express-http-proxy')
@@ -464,6 +466,15 @@ function setupAPIProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
 
 function setupAdminAppProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
   const sanitizePath = path => path.replace('//', '/')
+
+  app.get(
+    '/api/license',
+    proxy(coreApiUrl, {
+      proxyReqPathResolver: async (req, res) => {
+        return sanitizePath(`${BASE_PATH}/admin/license`)
+      }
+    })
+  )
 
   app.use(
     '/admin/api/',

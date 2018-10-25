@@ -1,6 +1,6 @@
 ---
 id: scheduling
-title: Scheduling messages
+title: !!!Scheduling messages
 ---
 
 You may sometimes require your bot to send a message to your users at a point in the future. The scheduler module allows you to define a message and set when to send it, ether on a timer or once.

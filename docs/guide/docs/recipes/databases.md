@@ -1,16 +1,16 @@
 ---
 id: databases
-title: Supported databases
+title: !!Supported databases
 ---
 
 Botpress comes with support for SQL databases out-the-box and can be accessed by:
 
-1. The key-value store - This can be accessed via functions like `bp.kvs.get('key')` and `bp.kvs.get('key', 'value', 'path')`
+1. The key-value store - This can be accessed via functions like `bp.kvs.get('key')` and `bp.kvs.set('key', 'value', 'path')`
 2. A knex-instance - This allows you to work with the DB directly via `bp.db.get()`
 
 ## Switching DB to Postgres
 
-By default Botpress uses SQLite as it's database. This will be fine for local development and for self-hosted installations but you may run into issues when hosting using services like Heroku.
+By default Botpress uses SQLite as its database. This will be fine for local development and for self-hosted installations, but you may run into issues when hosting using services like Heroku.
 
 To fix this issue and to provide you with a more powerful database, Botpress also supports Postgres.
 Switching to it is straightforward.

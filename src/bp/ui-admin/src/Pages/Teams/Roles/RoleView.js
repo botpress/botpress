@@ -55,30 +55,26 @@ export default class Role extends Component {
 
     const deleteItem =
       role.name === 'owner' ? (
-        <DropdownItem
+        <Button
           className="text-muted disabled"
+          color="link"
           title="You cannot remove the team owner role"
           onClick={() => alert('You cannot remove the team owner role.')}
         >
           Delete
-        </DropdownItem>
+        </Button>
       ) : (
-        <DropdownItem key="remove" className="text-danger" onClick={this.onDelete}>
+        <Button key="remove" color="link" onClick={this.onDelete}>
           Delete
-        </DropdownItem>
+        </Button>
       )
 
     return (
-      <div className="float-right">
-        <Button onClick={this.props.onEdit} size="sm" color="info" outline>
+      <div className="list-group-item__actions">
+        <Button onClick={this.props.onEdit} color="link">
           Edit
         </Button>
-        <UncontrolledDropdown tag="span">
-          <DropdownToggle caret size="sm" color="link">
-            More
-          </DropdownToggle>
-          <DropdownMenu>{deleteItem}</DropdownMenu>
-        </UncontrolledDropdown>
+        {deleteItem}
       </div>
     )
   }
@@ -93,20 +89,18 @@ export default class Role extends Component {
 
     return (
       <ListGroupItem>
-        <ListGroupItemHeading className="header">
-          {role.name}
-          {this.renderMenu()}
-        </ListGroupItemHeading>
-        {role.description && <p style={{ marginTop: 15 }}>{role.description}</p>}
+        <ListGroupItemHeading>{role.name}</ListGroupItemHeading>
+        {this.renderMenu()}
+        {role.description && <small>{role.description}</small>}
         {role.rules &&
           role.rules.length && (
             <Fragment>
-              <strong>Role Permissions:</strong>
+              <p className="list-group-item__permissions">Role Permissions:</p>
               {role.rules.map((rule, i) => (
                 <Rule
                   index={i}
                   total={role.rules.length}
-                  readOnly={true}
+                  readOnly={false}
                   rule={rule}
                   ruleInfo={(indexedPermissions && indexedPermissions[rule.res]) || {}}
                   key={`${i}.${rule.res}.${rule.op}`}

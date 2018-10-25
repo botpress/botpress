@@ -1,11 +1,12 @@
 import * as sdk from 'botpress/sdk'
 import { WellKnownFlags } from 'core/sdk/enums'
 import { inject, injectable, tagged } from 'inversify'
-import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import { Memoize } from 'lodash-decorators'
 import moment from 'moment'
 import path from 'path'
 import plur from 'plur'
+
+import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 
 import { createForGlobalHooks } from './api'
 import { BotLoader } from './bot-loader'
@@ -19,6 +20,7 @@ import { GhostService } from './services'
 import { CMSService } from './services/cms/cms-service'
 import { DialogEngine, ProcessingError } from './services/dialog/engine'
 import { DialogJanitor } from './services/dialog/janitor'
+import { SessionIdFactory } from './services/dialog/session/id-factory'
 import { Hooks, HookService } from './services/hook/hook-service'
 import { LogsJanitor } from './services/logs/janitor'
 import { EventEngine } from './services/middleware/event-engine'
@@ -108,7 +110,8 @@ export class Botpress {
     this.eventEngine.onAfterIncomingMiddleware = async (event: sdk.IO.Event) => {
       await this.hookService.executeHook(new Hooks.AfterIncomingMiddleware(this.api, event))
       if (!event.hasFlag(WellKnownFlags.SKIP_DIALOG_ENGINE)) {
-        await this.dialogEngine.processEvent(event)
+        const sessionId = SessionIdFactory.createIdFromEvent(event)
+        await this.dialogEngine.processEvent(sessionId, event)
       }
     }
 

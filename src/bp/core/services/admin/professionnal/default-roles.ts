@@ -1,4 +1,4 @@
-import { AuthRole } from '../../misc/interfaces'
+import { AuthRole } from '../../../misc/interfaces'
 
 const roles: Array<AuthRole> = [
   {

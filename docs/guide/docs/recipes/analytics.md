@@ -1,18 +1,11 @@
 ---
 id: analytics
-title: Analytics
+title: !!Analytics
 ---
 
-The [Botpress Analytics (@botpress/analytics)](https://github.com/botpress/botpress/tree/master/packages/functionals/botpress-analytics) package allows you to monitor the bots total user count, retention and lots more.
+The [Botpress Analytics (@botpress/analytics)](https://github.com/botpress/botpress/tree/master/modules/analytics) package allows you to monitor the bots total user count, retention and lots more.
 
-To perform the basic setup, you will need to install the package (`npm install --save @botpress/analytics`) and initialize it by adding the following snippet to your `src/index.js` file
-
-```js
-const analytics = require('./analytics')
-await analytics({ bp })
-```
-
-Once this is done, you will be able to see the "Analytics" tab in your admin dashboard. Note analytics-tracking only starts from this moment, and it won't show analytics on past activity that wasn't recorded.
+This module is already packaged with Botpress when you download the binary. Please check [here for instructions on how to install a module](./../getting_started/modules)
 
 # Custom analytics
 
@@ -24,14 +17,14 @@ Assuming you already have your flows in place it is a simple task.
 First, you register the diagrams that will be displayed as custom analytics:
 
 ```js
-bp.analytics.custom.addGraph({
+!!!bp.analytics.custom.addGraph({
   name: 'Number of conversations',
   type: 'count',
   description: 'Number of conversations with each user',
   variables: ['conversation']
 })
 
-bp.analytics.custom.addGraph({
+!!!bp.analytics.custom.addGraph({
   name: 'Misunderstood Messages',
   type: 'percent',
   description: 'Percentage of misunderstood messages',

@@ -1,6 +1,6 @@
 ---
 id: login
-title: Login
+title: !!!Login
 ---
 
 The easiest way to implement login is to have a list of users either in your database or in a static json-file. You will need to store their username and a **hash** of their password.

@@ -1,8 +1,7 @@
 import { Logger } from 'botpress/sdk'
 import { Container } from 'inversify'
+
 import { AppLifecycle } from 'lifecycle'
-import path from 'path'
-import yn from 'yn'
 
 import { BotpressAPIProvider } from './api'
 import { BotLoader } from './bot-loader'
@@ -48,7 +47,10 @@ container.bind<LoggerProvider>(TYPES.LoggerProvider).toProvider<Logger>(context 
   }
 })
 
-container.bind<AppLifecycle>(TYPES.AppLifecycle).to(AppLifecycle)
+container
+  .bind<AppLifecycle>(TYPES.AppLifecycle)
+  .to(AppLifecycle)
+  .inSingletonScope()
 
 container
   .bind<LoggerPersister>(TYPES.LoggerPersister)
@@ -91,9 +93,11 @@ container
 
 const isPackaged = !!eval('process.pkg')
 const isProduction = process.IS_PRODUCTION
+const botpressEdition = process.env.EDITION || process.env.edition || 'community'
 
 container.bind<boolean>(TYPES.IsProduction).toConstantValue(isProduction)
 container.bind<boolean>(TYPES.IsPackaged).toConstantValue(isPackaged)
+container.bind<string>(TYPES.BotpressEdition).toConstantValue(botpressEdition.toLowerCase())
 
 container.load(...DatabaseContainerModules)
 container.load(...RepositoriesContainerModules)

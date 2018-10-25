@@ -11,6 +11,8 @@ import TeamsListPage from '../Pages/Teams/List'
 import TeamMembersPage from '../Pages/Teams/Members'
 import TeamRolesPage from '../Pages/Teams/Roles'
 import MePage from '../Pages/Me'
+import Landing from "../Pages/Landing";
+import LandingStep2 from "../Pages/LandingStep2";
 
 import Auth from '../Auth'
 import PrivateRoute from './PrivateRoute'
@@ -24,6 +26,18 @@ export const makeMainRoutes = () => {
     <Provider store={store}>
       <ConnectedRouter history={history}>
         <Switch>
+          <Route
+            path="/landing"
+            render={props => {
+              return <Landing />
+            }}
+          />
+          <Route
+            path="/landingstep2"
+            render={props => {
+              return <LandingStep2 />
+            }}
+          />
           <Route
             path="/login"
             render={props => {

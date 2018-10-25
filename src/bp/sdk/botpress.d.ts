@@ -93,15 +93,19 @@ declare module 'botpress/sdk' {
   }
 
   export interface ModuleDefinition {
+    /** This name should be in lowercase and without special characters (only - and _) */
     name: string
     fullName?: string
     plugins?: ModulePluginEntry[]
+    /** Additional options that can be applied to the module's view */
     moduleView?: ModuleViewOptions
     /** If set to true, no menu item will be displayed */
     noInterface?: boolean
+    /** An icon to display next to the name, if none is specified, it will receive a default one */
     menuIcon?: string
     /** The name displayed on the menu */
     menuText?: string
+    /** Optionnaly specify a link to your page or github repo */
     homepage?: string
   }
 
@@ -609,10 +613,15 @@ declare module 'botpress/sdk' {
    */
   export namespace dialog {
     /**
+     * Create a session Id from a Botpress Event
+     * @param event The event used to create the Dialog Session Id
+     */
+    export function createId(event: IO.Event): Promise<string>
+    /**
      * Calls the dialog engine to start processing an event.
      * @param event The event to be processed by the dialog engine
      */
-    export function processEvent(event: IO.Event): Promise<void>
+    export function processEvent(sessionId: string, event: IO.Event): Promise<void>
     /**
      * Deletes a session
      * @param sessionId The Id of the session to delete
@@ -634,12 +643,13 @@ declare module 'botpress/sdk' {
 
     /**
      * Jumps to a specific flow and optionaly a specific node. This is useful when the default flow behaviour needs to be bypassed.
+     * @param sessionId The Id of the the current Dialog Session. If the session doesn't exists, it will be created with this Id.
      * @param event The event to be processed
      * @param flowName The name of the flow to jump to
      * @param nodeName The name of the optionnal node to jump to.
      * The node will default to the starting node of the flow if this value is omitted.
      */
-    export function jumpTo(event: IO.Event, flowName: string, nodeName?: string): Promise<void>
+    export function jumpTo(sessionId: string, event: IO.Event, flowName: string, nodeName?: string): Promise<void>
   }
 
   export namespace config {
@@ -651,6 +661,11 @@ declare module 'botpress/sdk' {
      * @param botId
      */
     export function getModuleConfigForBot(moduleId: string, botId: string): Promise<any>
+
+    /**
+     * Returns the configuration options of Botpress
+     */
+    export function getBotpressConfig(): Promise<any>
   }
 
   /**

@@ -7,6 +7,7 @@ import { Memoize } from 'lodash-decorators'
 import { container } from './app.inversify'
 import { BotLoader } from './bot-loader'
 import { BotConfig } from './config/bot.config'
+import { ConfigProvider } from './config/config-loader'
 import Database from './database'
 import { LoggerProvider } from './logger'
 import { ModuleLoader } from './module-loader'
@@ -16,6 +17,7 @@ import HTTPServer from './server'
 import { GhostService } from './services'
 import { CMSService } from './services/cms/cms-service'
 import { DialogEngine } from './services/dialog/engine'
+import { SessionIdFactory } from './services/dialog/session/id-factory'
 import { SessionService } from './services/dialog/session/service'
 import { ScopedGhostService } from './services/ghost/service'
 import { KeyValueStore } from './services/kvs/kvs'
@@ -55,8 +57,11 @@ const event = (eventEngine: EventEngine): typeof sdk.events => {
 
 const dialog = (dialogEngine: DialogEngine, sessionService: SessionService): typeof sdk.dialog => {
   return {
-    async processEvent(event: sdk.IO.Event): Promise<void> {
-      await dialogEngine.processEvent(event)
+    async createId(event: sdk.IO.Event) {
+      return SessionIdFactory.createIdFromEvent(event)
+    },
+    async processEvent(sessionId: string, event: sdk.IO.Event): Promise<void> {
+      await dialogEngine.processEvent(sessionId, event)
     },
     async deleteSession(userId: string): Promise<void> {
       await sessionService.deleteSession(userId)
@@ -67,19 +72,22 @@ const dialog = (dialogEngine: DialogEngine, sessionService: SessionService): typ
     async setState(userId: string, state: any): Promise<void> {
       await sessionService.updateStateForSession(userId, state)
     },
-    async jumpTo(event: any, flowName: string, nodeName?: string): Promise<void> {
-      await dialogEngine.jumpTo(event, flowName, nodeName)
+    async jumpTo(sessionId: string, event: any, flowName: string, nodeName?: string): Promise<void> {
+      await dialogEngine.jumpTo(sessionId, event, flowName, nodeName)
     }
   }
 }
 
-const config = (moduleLoader: ModuleLoader): typeof sdk.config => {
+const config = (moduleLoader: ModuleLoader, configProfider: ConfigProvider): typeof sdk.config => {
   return {
     getModuleConfig(moduleId: string): Promise<any> {
       return moduleLoader.configReader.getGlobal(moduleId)
     },
     getModuleConfigForBot(moduleId: string, botId: string): Promise<any> {
       return moduleLoader.configReader.getForBot(moduleId, botId)
+    },
+    getBotpressConfig(): Promise<any> {
+      return configProfider.getBotpressConfig()
     }
   }
 }
@@ -214,12 +222,13 @@ export class BotpressAPIProvider {
     @inject(TYPES.NotificationsService) notificationService: NotificationsService,
     @inject(TYPES.BotLoader) botLoader: BotLoader,
     @inject(TYPES.GhostService) ghostService: GhostService,
-    @inject(TYPES.CMSService) cmsService: CMSService
+    @inject(TYPES.CMSService) cmsService: CMSService,
+    @inject(TYPES.ConfigProvider) configProfider: ConfigProvider
   ) {
     this.http = http(httpServer)
     this.events = event(eventEngine)
     this.dialog = dialog(dialogEngine, sessionService)
-    this.config = config(moduleLoader)
+    this.config = config(moduleLoader, configProfider)
     this.realtime = new RealTimeAPI(realtimeService)
     this.database = db.knex
     this.users = users(userRepo)

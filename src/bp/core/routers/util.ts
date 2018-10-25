@@ -4,9 +4,9 @@ import { NextFunction, Request, Response } from 'express'
 import Joi from 'joi'
 
 import { RequestWithUser } from '../misc/interfaces'
+import { AdminService } from '../services/admin/professionnal/admin-service'
 import AuthService from '../services/auth/auth-service'
 import { AssertionError, ProcessingError, UnauthorizedAccessError } from '../services/auth/errors'
-import TeamsService from '../services/auth/teams-service'
 
 export const asyncMiddleware = ({ logger }: { logger: Logger }) => (
   fn: (req: Request, res: Response, next?: NextFunction) => Promise<any>
@@ -110,7 +110,7 @@ class PermissionError extends AssertionError {
   }
 }
 
-export const needPermissions = (teamsService: TeamsService) => (operation: string, resource: string) => async (
+export const needPermissions = (teamsService: AdminService) => (operation: string, resource: string) => async (
   req: RequestWithUser,
   res: Response,
   next: NextFunction

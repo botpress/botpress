@@ -33,7 +33,6 @@ const TYPES = {
   UserRepository: Symbol.for('UserRepository'),
   BotpressAPI: Symbol.for('BotpressAPI'),
   AuthService: Symbol.for('AuthService'),
-  TeamsService: Symbol.for('TeamsService'),
   InstructionProcessor: Symbol.for('InstructionProcessor'),
   InstructionFactory: Symbol.for('InstructionFactory'),
   FlowNavigator: Symbol.for('FlowNavigator'),
@@ -57,6 +56,8 @@ const TYPES = {
   KeyValueStore: Symbol.for('KeyValueStore'),
   ContentElementSender: Symbol.for('ContentElementSender'),
   SkillService: Symbol.for('SkillService'),
+  BotpressEdition: Symbol.for('BotpressEdition'),
+  AdminService: Symbol.for('AdminService'),
   AppLifecycle: Symbol.for('AppLifecycle')
 }
 
