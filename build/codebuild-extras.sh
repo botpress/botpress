@@ -29,6 +29,10 @@ if [[ "$CODEBUILD_GIT_TAG" == v* ]] ; then
   export ARTIFACT_NAME=`echo $CODEBUILD_GIT_TAG | sed 's/\./_/g'`
 fi
 
-
-
+export REPOSITORY_URI=786908872151.dkr.ecr.us-east-1.amazonaws.com/bptest
+export COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+export IMAGE_TAG=${COMMIT_HASH:=latest}
+echo $CODEBUILD_RESOLVED_SOURCE_VERSION
+echo $COMMIT_HASH
+echo $IMAGE_TAG
 echo "export ARTIFACT_NAME=$ARTIFACT_NAME"

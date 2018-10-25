@@ -12,6 +12,7 @@ phases:
 
   pre_build:
     commands:
+      - $(aws ecr get-login --region $AWS_DEFAULT_REGION --no-include-email)
       - $(./build/codebuild-extras.sh)
       - echo "BUILDING FOR '$ARTIFACT_NAME'"
       - yarn install
@@ -21,31 +22,31 @@ phases:
     commands:
       - (cd src/bp/ui-admin && yarn install && yarn build)
       # OSX Build
-      - export npm_config_target_platform=darwin
+      # - export npm_config_target_platform=darwin
       # Twice because of potential OS-specific errors
-      - yarn install --force --ignore-engines
-      - yarn install --force --ignore-engines
-      - yarn run build --mac
-      - yarn run package --mac
-      - mkdir -p out/binaries/data/storage
-      - touch out/binaries/data/storage/.keep
-      - mv out out_darwin
-      - rm -rf **/node_modules
-      - rm -rf **/node_production_modules
-      - mkdir -p out
-      # Windows Build
-      - export npm_config_target_platform=windows
-      - yarn cache clean
-      - yarn install --force --ignore-engines
-      - yarn install --force --ignore-engines
-      - yarn run build --win32
-      - yarn run package --win32
-      - mkdir -p out/binaries/data/storage
-      - touch out/binaries/data/storage/.keep
-      - mv out out_win32
-      - rm -rf **/node_modules
-      - rm -rf **/node_production_modules
-      - mkdir -p out
+      # - yarn install --force --ignore-engines
+      # - yarn install --force --ignore-engines
+      # - yarn run build --mac
+      # - yarn run package --mac
+      # - mkdir -p out/binaries/data/storage
+      # - touch out/binaries/data/storage/.keep
+      # - mv out out_darwin
+      # - rm -rf **/node_modules
+      # - rm -rf **/node_production_modules
+      # - mkdir -p out
+      # # Windows Build
+      # - export npm_config_target_platform=windows
+      # - yarn cache clean
+      # - yarn install --force --ignore-engines
+      # - yarn install --force --ignore-engines
+      # - yarn run build --win32
+      # - yarn run package --win32
+      # - mkdir -p out/binaries/data/storage
+      # - touch out/binaries/data/storage/.keep
+      # - mv out out_win32
+      # - rm -rf **/node_modules
+      # - rm -rf **/node_production_modules
+      # - mkdir -p out
       # Linux Build
       - export npm_config_target_platform=linux
       - yarn cache clean
@@ -57,10 +58,17 @@ phases:
       - mv out out_linux
       - rm -rf **/node_modules
       - rm -rf **/node_production_modules
+      - ls -a
+      - ls -a out_linux/binaries
+      - mv Dockerfile out_linux/binaries/
+      - docker build -t $REPOSITORY_URI:latest out_linux/binaries
+      - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
 
   post_build:
     commands:
       - ls -a
+      - docker push $REPOSITORY_URI:latest
+      - docker push $REPOSITORY_URI:$IMAGE_TAG
       - ls -a out_darwin
       - ls -a out_win32
       - ls -a out_linux
