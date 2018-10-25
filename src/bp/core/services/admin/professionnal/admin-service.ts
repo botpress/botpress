@@ -372,6 +372,9 @@ export default class CoreAdminService implements AdminService {
       .where({ team: teamId, id: botId })
       .delete()
       .then()
+
+    await this.moduleLoader.unloadModulesForBot(botId)
+    await this.botConfigWriter.deleteBotFolder(botId)
   }
 
   async getInviteCode(teamId: number) {
