@@ -107,6 +107,10 @@ export class Botpress {
     await this.cmsService.initialize()
     await this.botLoader.loadAllBots()
 
+    this.eventEngine.onBeforeIncomingMiddleware = async (event: sdk.IO.Event) => {
+      await this.hookService.executeHook(new Hooks.BeforeIncomingMiddleware(this.api, event))
+    }
+
     this.eventEngine.onAfterIncomingMiddleware = async (event: sdk.IO.Event) => {
       await this.hookService.executeHook(new Hooks.AfterIncomingMiddleware(this.api, event))
       if (!event.hasFlag(WellKnownFlags.SKIP_DIALOG_ENGINE)) {

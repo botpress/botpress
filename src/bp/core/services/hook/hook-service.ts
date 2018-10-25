@@ -26,6 +26,18 @@ export namespace Hooks {
     }
   }
 
+  export class BeforeIncomingMiddleware implements BaseHook {
+    folder: string
+    args: any
+    timeout: number
+
+    constructor(bp: typeof sdk, event: IO.Event) {
+      this.timeout = 1000
+      this.args = { bp, event }
+      this.folder = 'before_incoming_middleware'
+    }
+  }
+
   export class AfterIncomingMiddleware implements BaseHook {
     folder: string
     args: any
@@ -52,7 +64,7 @@ export namespace Hooks {
 }
 
 class HookScript {
-  constructor(public hook: Hooks.BaseHook, public path: string, public code: string) {}
+  constructor(public hook: Hooks.BaseHook, public path: string, public filename: string, public code: string) {}
 }
 
 @injectable()
@@ -66,16 +78,16 @@ export class HookService {
 
   async executeHook(hook: Hooks.BaseHook): Promise<void> {
     const scripts = await this.extractScripts(hook)
-    await Promise.mapSeries(_.orderBy(scripts, ['file'], ['asc']), script => this.runScript(script))
+    await Promise.mapSeries(_.orderBy(scripts, ['filename'], ['asc']), script => this.runScript(script))
   }
 
   private async extractScripts(hook: Hooks.BaseHook): Promise<HookScript[]> {
     try {
       const filesPaths = await this.ghost.global().directoryListing('hooks/' + hook.folder, '*.js')
-
       return Promise.map(filesPaths, async path => {
-        const file = await this.ghost.global().readFileAsString('hooks/' + hook.folder, path)
-        return new HookScript(hook, path, file)
+        const script = await this.ghost.global().readFileAsString('hooks/' + hook.folder, path)
+        const filename = path.replace(/^.*[\\\/]/, '')
+        return new HookScript(hook, path, filename, script)
       })
     } catch (err) {
       return []

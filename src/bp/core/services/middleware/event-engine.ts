@@ -45,6 +45,7 @@ const mwSchema = {
 
 @injectable()
 export class EventEngine {
+  public onBeforeIncomingMiddleware: ((event) => Promise<void>) | undefined
   public onAfterIncomingMiddleware: ((event) => Promise<void>) | undefined
 
   constructor(
@@ -58,6 +59,7 @@ export class EventEngine {
     @inject(TYPES.OutgoingQueue) private outgoingQueue: Queue
   ) {
     this.incomingQueue.subscribe(async event => {
+      this.onBeforeIncomingMiddleware && (await this.onBeforeIncomingMiddleware(event))
       const { incoming } = await this.getBotMiddlewareChains(event.botId)
       await incoming.run(event)
       this.onAfterIncomingMiddleware && (await this.onAfterIncomingMiddleware(event))
