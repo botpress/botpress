@@ -6,6 +6,7 @@ import { NodeVM } from 'vm2'
 
 import { GhostService } from '..'
 import { TYPES } from '../../types'
+import { VmRunner } from '../action/vm'
 
 export namespace Hooks {
   export interface BaseHook {
@@ -51,7 +52,7 @@ export namespace Hooks {
 }
 
 class HookScript {
-  constructor(public hook: Hooks.BaseHook, public path: string, public file: string) {}
+  constructor(public hook: Hooks.BaseHook, public path: string, public code: string) {}
 }
 
 @injectable()
@@ -81,7 +82,7 @@ export class HookService {
     }
   }
 
-  private runScript(hookScript: HookScript) {
+  private async runScript(hookScript: HookScript) {
     const vm = new NodeVM({
       console: 'inherit',
       sandbox: hookScript.hook.args,
@@ -90,8 +91,10 @@ export class HookService {
 
     const botId = _.get(hookScript.hook.args, 'event.botId')
 
+    const runner = new VmRunner()
+
     try {
-      vm.run(hookScript.file, hookScript.path)
+      await runner.runInVm(vm, hookScript.code, hookScript.path)
       this.logScriptRun(botId, hookScript.path, hookScript.hook.folder)
     } catch (err) {
       this.logScriptError(botId, hookScript.path, hookScript.hook.folder)
