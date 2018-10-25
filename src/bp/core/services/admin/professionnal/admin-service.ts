@@ -26,7 +26,6 @@ const BotValidationSchema = Joi.object().keys({
     .regex(BOTID_REGEX)
     .required(),
   name: Joi.string().required(),
-  description: Joi.string(),
   team: Joi.number().required()
 })
 
@@ -336,7 +335,7 @@ export default class CoreAdminService implements AdminService {
     }
 
     await this.knex(BOTS_TABLE).insert(bot)
-    const botConfig = this.botConfigFactory.createDefault({ id: bot.id, name: bot.name, description: bot.description })
+    const botConfig = this.botConfigFactory.createDefault({ id: bot.id, name: bot.name })
     await this.botConfigWriter.writeToFile(botConfig)
     // TODO move this in  bot loader
     await this.ghostService.forBot(bot.id).sync(['actions', 'content-elements', 'flows', 'intents'])
