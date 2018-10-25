@@ -75,11 +75,11 @@ declare module 'botpress/sdk' {
    */
   export interface ModuleEntryPoint {
     /** Called once the core is initialized. Usually for middlewares / database init */
-    onInit: Function
+    onInit: ((bp: typeof import('botpress/sdk')) => void)
     /** This is called once all modules are initialized, usually for routing and logic */
-    onReady: Function
-    onBotMount?: Function
-    onBotUnmount?: Function
+    onReady: ((bp: typeof import('botpress/sdk')) => void)
+    onBotMount?: ((bp: typeof import('botpress/sdk'), botId: string) => void)
+    onBotUnmount?: ((bp: typeof import('botpress/sdk'), botId: string) => void)
     /** The configuration options of the module */
     config: ModuleConfig
     /** This is used to create the json config file if none is present */

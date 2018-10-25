@@ -117,6 +117,15 @@ export class ModuleLoader {
     return Object.keys(initedModules)
   }
 
+  public async unloadModulesForBot(botId: string) {
+    const modules = this.getLoadedModules()
+    for (const module of modules) {
+      const entryPoint = this.getModule(module.name)
+      const api = await createForModule(module.name)
+      await (entryPoint.onBotUnmount && entryPoint.onBotUnmount(api, botId))
+    }
+  }
+
   private async callModulesOnReady(modules: ModuleEntryPoint[], initedModules: {}): Promise<void> {
     await this.lifecycle.waitFor(AppLifecycleEvents.HTTP_SERVER_READY)
 
