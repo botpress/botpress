@@ -2,12 +2,13 @@ import * as sdk from 'botpress/sdk'
 import { IO } from 'botpress/sdk'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
+import path from 'path'
 import { NodeVM } from 'vm2'
 
 import { GhostService } from '..'
 import { TYPES } from '../../types'
+import { requireAtPaths } from '../action/require'
 import { VmRunner } from '../action/vm'
-
 export namespace Hooks {
   export interface BaseHook {
     readonly folder: string
@@ -94,14 +95,41 @@ export class HookService {
     }
   }
 
+  private _prepareRequire(hookLocation: string, hookType: string) {
+    let parts = path.relative(process.PROJECT_LOCATION, hookLocation).split(path.sep)
+    parts = parts.slice(parts.indexOf(hookType) + 1) // We only keep the parts after /hooks/{type}/...
+
+    const lookups: string[] = [hookLocation]
+
+    if (parts[0] in process.LOADED_MODULES) {
+      // the hook is in a directory by the same name as a module
+      lookups.unshift(process.LOADED_MODULES[parts[0]])
+    }
+
+    return module => requireAtPaths(module, lookups)
+  }
+
   private async runScript(hookScript: HookScript) {
+    const hookPath = `/data/global/hooks/${hookScript.hook.folder}/${hookScript.path}.js`
+    const dirPath = path.resolve(path.join(process.PROJECT_LOCATION, hookPath))
+
+    const _require = this._prepareRequire(path.dirname(dirPath), hookScript.hook.folder)
+
+    const modRequire = new Proxy(
+      {},
+      {
+        get: (_obj, prop) => _require(prop)
+      }
+    )
+
     const vm = new NodeVM({
       wrapper: 'none',
       console: 'inherit',
       sandbox: hookScript.hook.args,
       timeout: hookScript.hook.timeout,
       require: {
-        external: true
+        external: true,
+        mock: modRequire
       }
     })
 
