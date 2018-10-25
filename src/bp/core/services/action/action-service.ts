@@ -9,6 +9,7 @@ import { createForAction } from '../../api'
 import { TYPES } from '../../types'
 
 import { ActionMetadata, extractMetadata } from './metadata'
+import { requireAtPaths } from './require'
 import { VmRunner } from './vm'
 
 @injectable()
@@ -87,19 +88,38 @@ export class ScopedActionService {
     return !!actions.find(x => x.name === actionName)
   }
 
+  private _prepareRequire(actionLocation: string) {
+    let parts = path.relative(process.PROJECT_LOCATION, actionLocation).split(path.sep)
+    parts = parts.slice(parts.indexOf('actions') + 1) // We only keep the parts after /actions/...
+
+    const lookups: string[] = [actionLocation]
+
+    if (parts[1] in process.LOADED_MODULES) {
+      // the action is in a directory by the same name as a module
+      lookups.unshift(process.LOADED_MODULES[parts[1]])
+    }
+
+    return module => {
+      console.log(`Looking for "${module}" in "${lookups.join(', ')}"`)
+      return requireAtPaths(module, lookups)
+    }
+  }
+
   async runAction(actionName: string, dialogState: any, incomingEvent: any, actionArgs: any): Promise<any> {
     this.logger.forBot(this.botId).debug(`Running action "${actionName}"`)
     const action = await this.findAction(actionName)
     const code = await this.getActionScript(action)
     const api = await createForAction()
 
-    const printMock = new Proxy(
+    const botFolder = action.location === 'global' ? 'global' : 'bots/' + this.botId
+    const dirPath = path.resolve(path.join(process.PROJECT_LOCATION, `/data/${botFolder}/actions/${actionName}.js`))
+
+    const _require = this._prepareRequire(path.dirname(dirPath))
+
+    const modRequire = new Proxy(
       {},
       {
-        get: (obj, prop) => {
-          console.log('REQUIRE==>', prop)
-          return {}
-        }
+        get: (_obj, prop) => _require(prop)
       }
     )
 
@@ -112,15 +132,13 @@ export class ScopedActionService {
         args: actionArgs
       },
       require: {
-        external: true
-        // mock: printMock
+        external: true,
+        mock: modRequire
       },
       timeout: 5000
     })
 
     const runner = new VmRunner()
-    const botFolder = action.location === 'global' ? 'global' : 'bots/' + this.botId
-    const dirPath = path.resolve(path.join(process.PROJECT_LOCATION, `/data/${botFolder}/actions/${actionName}`))
 
     return runner.runInVm(vm, code, dirPath).catch(err => {
       throw new VError(err, `An error occurred while executing the action "${actionName}"`)

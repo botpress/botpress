@@ -8,6 +8,7 @@ declare namespace NodeJS {
     VERBOSITY_LEVEL: number
     IS_PRODUCTION: boolean
     PROJECT_LOCATION: string
+    LOADED_MODULES: { [module: string]: string }
     pkg: any
   }
 }

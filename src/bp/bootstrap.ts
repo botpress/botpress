@@ -47,6 +47,7 @@ async function start() {
       const rawEntry = (req.default ? req.default : req) as sdk.ModuleEntryPoint
       const entryPoint = ModuleLoader.processModuleEntryPoint(rawEntry, entry.location)
       modules.push(entryPoint)
+      process.LOADED_MODULES[entryPoint.definition.name] = entry.location
       modulesLog += os.EOL + `${chalk.greenBright('⦿')} ${entry.location}`
     } catch (err) {
       modulesLog += os.EOL + `${chalk.redBright('⊗')} ${entry.location} ${chalk.gray('(error)')}`
