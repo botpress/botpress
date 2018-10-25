@@ -9,13 +9,10 @@
         "title": "Admin Panel"
       },
       "general/botpressxx": {
-        "title": "Botpress X vs XX"
+        "title": "Migration to Botpress XX"
       },
       "general/licensing": {
         "title": "Licenses"
-      },
-      "general/migration": {
-        "title": "Migrating to Botpress XX"
       },
       "general/philosphy": {
         "title": "Introduction"
@@ -48,7 +45,7 @@
         "title": "What you will learn"
       },
       "getting_started/install": {
-        "title": "Install"
+        "title": "Installation"
       },
       "getting_started/nlu": {
         "title": "NLU"

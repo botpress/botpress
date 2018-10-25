@@ -1,6 +1,6 @@
 ---
 id: install
-title: Install
+title: Installation
 ---
 
 Getting started with Botpress is very easy. You may download the source code and build it yourself, but we also provide and recommend using the binaries.

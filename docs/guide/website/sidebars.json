@@ -1,13 +1,6 @@
 {
   "docs": {
-    "General": [
-      "general/welcome",
-      "general/philosphy",
-      "general/botpressxx",
-      "general/migration",
-      "general/admin",
-      "general/licensing"
-    ],
+    "General": ["general/welcome", "general/philosphy", "general/botpressxx", "general/admin", "general/licensing"],
     "Getting Started": [
       "getting_started/index",
       "getting_started/install",

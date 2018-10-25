@@ -15,13 +15,14 @@ Users will be able to kickstart their projects very quickly !
 
 This is the basic structure that your module should have:
 
-```
-- src
-  - backend
-    - index.ts
-  - views
-    - index.jsx
-- package.json
+```bash
+module-directory
+├── package.json
+└── src
+    ├── backend
+    │   └── index.ts
+    └── views
+        └── index.jsx
 ```
 
 There are other optional folders like [`actions`](./actions) or [`build.extras.js`](./build) that are discussed elsewhere.
