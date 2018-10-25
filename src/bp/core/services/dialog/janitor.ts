@@ -11,7 +11,7 @@ import { ConfigProvider } from '../../config/config-loader'
 import { TYPES } from '../../types'
 import { Janitor } from '../janitor'
 
-import { DialogEngine } from './engine'
+import { DialogEngine } from './engine-v2'
 import { SessionService } from './session/service'
 
 @injectable()

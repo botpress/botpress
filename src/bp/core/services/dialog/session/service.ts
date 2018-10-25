@@ -11,7 +11,7 @@ export class SessionService {
   async getOrCreateSession(sessionId: string, botId: string): Promise<DialogSession> {
     const session = await this.getSession(sessionId)
     if (!session) {
-      return this.createSession(sessionId, botId)
+      // return this.createSession(sessionId, botId)
     }
     return session
   }

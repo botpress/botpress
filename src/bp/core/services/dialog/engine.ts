@@ -12,24 +12,24 @@ import { InstructionProcessor } from './instruction/processor'
 import { InstructionQueue } from './instruction/queue'
 import { SessionService } from './session/service'
 
-export class ProcessingError extends Error {
-  constructor(
-    message: string,
-    public readonly botId: string,
-    public readonly nodeName: string,
-    public readonly flowName: string,
-    public readonly instruction: string
-  ) {
-    super(message)
-  }
-}
+// export class ProcessingError extends Error {
+//   constructor(
+//     message: string,
+//     public readonly botId: string,
+//     public readonly nodeName: string,
+//     public readonly flowName: string,
+//     public readonly instruction: string
+//   ) {
+//     super(message)
+//   }
+// }
 
 const DEFAULT_FLOW_NAME = 'main.flow.json'
 
 // TODO: Test this
 @injectable()
-export class DialogEngine {
-  onProcessingError: ((err: ProcessingError) => void) | undefined
+class DialogEngine {
+  // onProcessingError: ((err: ProcessingError) => void) | undefined
 
   constructor(
     @inject(TYPES.FlowNavigator) private flowNavigator: FlowNavigator,
@@ -312,7 +312,7 @@ export class DialogEngine {
     const nodeName = _.get(session, 'context.currentNodeName', 'N/A')
     const flowName = _.get(session, 'context.currentFlowName', 'N/A')
     const instructionDetails = instruction.fn || instruction.type
-    this.onProcessingError &&
-      this.onProcessingError(new ProcessingError(error.message, botId, nodeName, flowName, instructionDetails))
+    // this.onProcessingError &&
+    //   this.onProcessingError(new ProcessingError(error.message, botId, nodeName, flowName, instructionDetails))
   }
 }

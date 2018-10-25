@@ -1,7 +1,8 @@
 import { TYPES } from 'core/types'
 import { ContainerModule, interfaces } from 'inversify'
 
-import { DialogEngine } from './engine'
+// import { DialogEngine } from './engine'
+import { DialogEngine } from './engine-v2'
 import { FlowNavigator } from './flow/navigator'
 import FlowService from './flow/service'
 import { InstructionFactory } from './instruction/factory'
