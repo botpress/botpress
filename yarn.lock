@@ -200,6 +200,10 @@
     "@types/glob" "*"
     "@types/node" "*"
 
+"@types/tmp@^0.0.33":
+  version "0.0.33"
+  resolved "https://registry.yarnpkg.com/@types/tmp/-/tmp-0.0.33.tgz#1073c4bc824754ae3d10cfab88ab0237ba964e4d"
+
 "@types/verror@^1.10.3":
   version "1.10.3"
   resolved "https://registry.yarnpkg.com/@types/verror/-/verror-1.10.3.tgz#8be16b0e750018fd4e2e4a766b8f2351d8b5df6a"

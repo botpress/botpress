@@ -28,6 +28,7 @@ function stripDeprecationWrite(this: Function): boolean {
   return originalWrite.apply(this, arguments)
 }
 
+process.LOADED_MODULES = {}
 process.PROJECT_LOCATION = process.pkg
   ? pa.dirname(process.execPath) // We point at the binary path
   : __dirname // e.g. /dist/..

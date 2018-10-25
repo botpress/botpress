@@ -55,8 +55,8 @@ export default class ModuleResolver {
   async resolve(modulePath: string) {
     const paths = lookupPaths.reduce((arr: string[], lp?: string) => {
       const item = modulePath.replace('MODULES_ROOT', lp!)
-      arr.push(fixPathForOS(item))
-      arr.push(fixPathForOS(item + '.tgz'))
+      arr.push(path.resolve(fixPathForOS(item)))
+      arr.push(path.resolve(fixPathForOS(item + '.tgz')))
       return arr
     }, [])
 

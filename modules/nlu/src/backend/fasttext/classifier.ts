@@ -61,7 +61,6 @@ class FastTextClassifier {
   async train(intents: Array<Intent>, modelId: string) {
     const dataFn = tmp.tmpNameSync()
     await this.writeTrainingSet(intents, dataFn)
-    console.log('==>', dataFn)
 
     const modelFn = tmp.tmpNameSync()
     FTWrapper.supervised(dataFn, modelFn)
