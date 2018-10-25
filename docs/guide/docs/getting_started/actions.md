@@ -1,35 +1,45 @@
 ---
 id: actions
-title: Actions
+title: !!Actions
 ---
 
 ## How actions work
 
 Actions are essentially _server-side functions_ that get executed by the bot as part of a conversational flow. Actions have the power to do many things:
 
-* Alter the state of the conversation
-* Send customized messages to the conversation
-* Execute arbitrary code like calling an API or storing data in the database
+- Alter the state of the conversation
+- Send customized messages to the conversation
+- Execute arbitrary code like calling an API or storing data in the database
 
 Since they are just regular JavaScript functions, they can, in fact, do pretty much anything.
 
 When an action is invoked by the Dialogue Manager (DM), it gets passed the following arguments:
 
-* **`state`**: The current state of the conversation. **This object is [`frozen`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze) and can't be mutated.**
-* **`event`**: The original (latest) event received from the user in the conversation. **This object is [`frozen`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze) and can't be mutated.**
-* **`args`**: The arguments that were passed to this action from the Visual Flow Builder.
+- **`state`**: The current state of the conversation. **This object is [`frozen`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze) and can't be mutated.**
+- **`event`**: The original (latest) event received from the user in the conversation. **This object is [`frozen`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze) and can't be mutated.**
+- **`args`**: The arguments that were passed to this action from the Visual Flow Builder.
 
 The action itself **must return a new state object**.
 
+Actions are run in a virtual machine, so scripting errors won't bring your bot down.
+
 ## How to define new actions
 
-In the context of our tutorial, all actions are defined in our `src/actions.js` file and are registered in `src/index.js` as follows:
+You may add actions globally or for a specific bot by adding a `.js` file in the folder `data/global/actions` or `data/bots/{bot_name}/actions`.
+Actions may be added or edited at runtime without restarting the bot.
+
+JSDoc comments before the function can be used to describe the action and prepopulate parameters when it is picked in the flow editor.
+Usage is pretty straightforward:
 
 ```js
-bp.dialogEngine.registerActions(actions)
+/**
+ * Some description of what this action does
+ * @title Sets a tag for the user
+ * @category MyActions
+ * @param {string} tag - A parameter named tag
+ * @param {string} [expiry=never] - Sets a default value
+ */
 ```
-
-`registerActions(map)` takes a map as a parameter, the keys being the name of the action and the value the action function. You can call `registerActions` as many times as you want, which allows you to split your actions into multiple files if you wish to.
 
 ## Examples of actions
 
@@ -49,10 +59,10 @@ Now let's look at a slightly more complicated action.
 
 The `sendRandomQuestion` action does the following: [[This section needs more explanation and it doesn't make sense. I will revisit when it's elaborated on]]
 
-* It sends a random _Content Element_ from the `trivia` _Content Types_ using the built-in `event.reply` method
-* It captures the message sent to the user
-* It extracts the good answer from the multiple choices
-* It stores the good answer in the state
+- It sends a random _Content Element_ from the `trivia` _Content Types_ using the built-in `event.reply` method
+- It captures the message sent to the user
+- It extracts the good answer from the multiple choices
+- It stores the good answer in the state
 
 ```js
 sendRandomQuestion: async (state, event) => {
@@ -91,43 +101,7 @@ setUserTag: async (state, event, { name, value }) => {
 
 If the some variable is available under `state` or `event` in the action normally it doesn't make sense to pass it as custom arguments.
 
-![Passing arguments from the flow editor][setusertagargs]
-
-JSDoc-comments before function can be used to prepopulate params for the function when it gets selected in flow-editor.
-To enable this you'd need to call `bp.dialogEngine.registerActionMetadataProvider` like in the snippet below (included in default bot installation):
-
-```js
-const metadata = {}
-bp.dialogEngine.registerActionMetadataProvider(action => metadata[action])
-
-for (const actionFile of actionFiles) {
-  const docs = await jsdoc.explain({ files: path.join(__dirname, actionFile) })
-  const actions = require(actionFile)
-
-  for (const action of Object.keys(actions)) {
-    const meta = docs.find(doc => {
-      return doc.name === action && doc.comment.length > 0
-    })
-
-    if (meta) {
-      metadata[action] = {
-        title: meta.name,
-        description: meta.description,
-        category: 'Custom',
-        params: meta.params.map(param => ({
-          type: _.get(param, 'type.names.0') || 'string',
-          name: param.name.replace('params.', ''),
-          description: param.description,
-          default: param.defaultvalue || '',
-          required: !param.optional
-        }))
-      }
-    }
-  }
-
-  bp.dialogEngine.registerActions(actions)
-}
-```
+![Passing arguments from the flow editor](assets/setUserTagArgs.jpg)
 
 ## Altering the state
 
@@ -148,5 +122,3 @@ return clone
 ### Non-altering actions
 
 If your action does not modify the state, just return nothing (`return`). You can also return a clone of the original state: `return {...state}`.
-
-[setusertagargs]: {{site.baseurl}}/images/setUserTagArgs.jpg
