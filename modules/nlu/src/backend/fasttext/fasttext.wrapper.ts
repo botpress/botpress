@@ -21,27 +21,38 @@ export default class FTWrapper {
     bucket: number = 10000,
     dim: number = 10
   ) {
-    execFileSync(
-      BINPATH,
-      [
-        'supervised',
-        '-input',
-        trainingSetPath,
-        '-output',
-        modelOutPath,
-        '-lr',
-        learningRate.toString(),
-        '-epoch',
-        epoch.toString(),
-        '-loss',
-        'hs',
-        '-dim',
-        dim.toString(),
-        '-bucket',
-        bucket.toString()
-      ],
-      { stdio: 'ignore' }
-    )
+    try {
+      execFileSync(
+        BINPATH,
+        [
+          'supervised',
+          '-input',
+          trainingSetPath,
+          '-output',
+          modelOutPath,
+          '-lr',
+          learningRate.toString(),
+          '-epoch',
+          epoch.toString(),
+          '-loss',
+          'hs',
+          '-dim',
+          dim.toString(),
+          '-bucket',
+          bucket.toString()
+        ],
+        { stdio: 'ignore' }
+      )
+    } catch (err) {
+      throw new Error(`Error training the NLU model.
+stdout: ${err.stdout && err.stdout.toString()}
+stderr: ${err.stderr && err.stderr.toString()}
+message: ${err.message}
+status: ${err.status}
+pid: ${err.pid}
+signal: ${err.signal}
+`)
+    }
   }
 
   static async predictProb(modelPath: string, inputText: string, numClass = 5): Promise<string> {
