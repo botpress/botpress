@@ -1,10 +1,10 @@
 import { container } from 'core/app.inversify'
 import { Table } from 'core/database/interfaces'
-import roles from 'core/services/admin/community-roles'
+import communityRoles from 'core/services/admin/community-roles'
 import { TYPES } from 'core/types'
 import Knex from 'knex'
 
-const insertRoles = async (knex: Knex, tableName: string) => {
+const insertRoles = async (knex: Knex, tableName: string, roles) => {
   return knex.batchInsert(
     tableName,
     roles.map((role, index) => {
@@ -34,7 +34,10 @@ export class AuthRolesTable extends Table {
         // Pro submodule have its own seeding for auth roles
         const edition = container.get<string>(TYPES.BotpressEdition)
         if (created && edition === 'ce') {
-          await insertRoles(this.knex, this.name)
+          await insertRoles(this.knex, this.name, communityRoles)
+        } else {
+          const { roles } = await import('professional/services/admin/pro-roles')
+          await insertRoles(this.knex, this.name, roles)
         }
         return created
       })

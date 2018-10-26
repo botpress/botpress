@@ -13,7 +13,6 @@ import {
   UserRepository
 } from '.'
 import { KnexLogsRepository, LogsRepository } from './logs'
-import { AuthRolesRepository, KnexAuthRolesRepository } from './roles'
 
 const RepositoriesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
   bind<BotRepository>(TYPES.BotRepository)
@@ -34,10 +33,6 @@ const RepositoriesContainerModule = new ContainerModule((bind: interfaces.Bind) 
 
   bind<NotificationsRepository>(TYPES.NotificationsRepository)
     .to(KnexNotificationsRepository)
-    .inSingletonScope()
-
-  bind<AuthRolesRepository>(TYPES.AuthRolesRepository)
-    .to(KnexAuthRolesRepository)
     .inSingletonScope()
 })
 

@@ -33,11 +33,6 @@ export default class Database {
       }
       this.tables.push(table)
     })
-
-    if (this.edition !== 'ce') {
-      const seed = require('professional/seed')
-      seed()
-    }
   }
 
   async teardownTables() {

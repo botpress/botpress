@@ -32,8 +32,8 @@ export class AdminRouter implements CustomRouter {
   setupRoutes() {
     const router = this.router
 
-    router.get('/all-permissions', (req, res) => {
-      res.json(this.authService.getResources())
+    router.get('/all-permissions', async (req, res) => {
+      res.json(await this.authService.getResources())
     })
 
     this.router.get('/license', (req, res) => {
