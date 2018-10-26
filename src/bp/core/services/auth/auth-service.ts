@@ -39,7 +39,7 @@ export default class AuthService {
 
   async getResources(): Promise<Resource[]> {
     if (this.edition !== 'ce') {
-      const resources = await import('professional/services/admin/pro-resources')
+      const resources = require('professional/services/admin/pro-resources')
       return resources.PRO_RESOURCES
     }
     return []

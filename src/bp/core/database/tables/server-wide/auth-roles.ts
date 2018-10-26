@@ -33,11 +33,13 @@ export class AuthRolesTable extends Table {
       .then(async created => {
         // Pro submodule have its own seeding for auth roles
         const edition = container.get<string>(TYPES.BotpressEdition)
-        if (created && edition === 'ce') {
-          await insertRoles(this.knex, this.name, communityRoles)
-        } else {
-          const { roles } = await import('professional/services/admin/pro-roles')
-          await insertRoles(this.knex, this.name, roles)
+        if (created) {
+          if (edition === 'ce') {
+            await insertRoles(this.knex, this.name, communityRoles)
+          } else {
+            const { roles } = require('professional/services/admin/pro-roles')
+            await insertRoles(this.knex, this.name, roles)
+          }
         }
         return created
       })
