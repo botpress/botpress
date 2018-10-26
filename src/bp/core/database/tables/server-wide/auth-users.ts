@@ -5,7 +5,7 @@ import { Table } from 'core/database/interfaces'
 import { saltHashPassword } from 'core/services/auth/util'
 
 const USERS = ['admin']
-const PASSWORD = '123456'
+const PASSWORD = ''
 
 const insertUsers = async (knex: Knex, tableName: string) => {
   const saltHashed = saltHashPassword(PASSWORD)
@@ -17,6 +17,7 @@ const insertUsers = async (knex: Knex, tableName: string) => {
         username,
         password: saltHashed.hash,
         salt: saltHashed.salt,
+        password_expired: true,
         firstname: username,
         lastname: username
       }))
@@ -37,6 +38,7 @@ export class AuthUsersTable extends Table {
           .notNullable() // validate: { len: [3, 30] }
         table.string('password').notNullable()
         table.string('salt').notNullable()
+        table.boolean('password_expired')
         table.string('firstname')
         table.string('lastname')
         table.string('picture')

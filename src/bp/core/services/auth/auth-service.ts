@@ -1,6 +1,5 @@
 import { Logger } from 'botpress/sdk'
 import { KnexExtension } from 'common/knex'
-import { saltHashPassword } from 'core/services/auth/util'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
 import jsonwebtoken from 'jsonwebtoken'
 import Knex from 'knex'
@@ -11,8 +10,8 @@ import { AuthUser, TokenUser } from '../../misc/interfaces'
 import { TYPES } from '../../types'
 import resources from '../admin/professionnal/resources'
 
-import { InvalidCredentialsError } from './errors'
-import { validateHash } from './util'
+import { InvalidCredentialsError, PasswordExpiredError } from './errors'
+import { saltHashPassword, validateHash } from './util'
 
 const USERS_TABLE = 'auth_users'
 const JWT_SECRET = <string>process.env.JWT_SECRET || 'very_secret' // TODO FIXME Important for security
@@ -58,11 +57,15 @@ export default class AuthService {
     return this.findUser({ id }, selectFields)
   }
 
-  async checkUserAuth(username: string, password: string) {
-    const user = await this.findUserByUsername(username || '', ['id', 'password', 'salt'])
+  async checkUserAuth(username: string, password: string, newPassword?: string) {
+    const user = await this.findUserByUsername(username || '', ['id', 'password', 'salt', 'password_expired'])
 
     if (!user || !validateHash(password || '', user.password, user.salt)) {
       throw new InvalidCredentialsError()
+    }
+
+    if (user.password_expired && !newPassword) {
+      throw new PasswordExpiredError()
     }
 
     return user.id
@@ -103,8 +106,17 @@ export default class AuthService {
     })
   }
 
-  async login(username: string, password: string, ipAddress: string = ''): Promise<string> {
-    const userId = await this.checkUserAuth(username, password)
+  async login(username: string, password: string, newPassword?: string, ipAddress: string = ''): Promise<string> {
+    const userId = await this.checkUserAuth(username, password, newPassword)
+
+    if (newPassword) {
+      const hash = saltHashPassword(newPassword)
+      await this.updateUser(username, {
+        password: hash.hash,
+        salt: hash.salt,
+        password_expired: false
+      })
+    }
 
     if (ipAddress) {
       await this.updateUser(username, { last_ip: ipAddress })

@@ -8,6 +8,7 @@ export interface AuthUser {
   id: number
   username: string
   password: string
+  password_expired?: boolean
   salt: string
   firstname?: string
   lastname?: string

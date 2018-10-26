@@ -1,23 +1,36 @@
 import React, { Component, Fragment } from 'react'
-import { Redirect, Link } from 'react-router-dom'
+import { Redirect } from 'react-router-dom'
 import logo from '../media/nobg_white.png'
 
 import { Alert, Card, CardBody, CardTitle, Button, Input, CardText } from 'reactstrap'
 
-export default class Login extends Component {
-  state = { username: '', password: '', passwordExpired: false, error: null }
+export default class ChangePassword extends Component {
+  constructor(props) {
+    super(props)
+
+    this.state = {
+      ...props.location.state,
+      newPassword: '',
+      confirmPassword: ''
+    }
+  }
 
   login = async () => {
     this.setState({ error: null })
 
+    if (this.state.newPassword !== this.state.confirmPassword) {
+      this.setState({ error: `Passwords don't match` })
+      return
+    }
+
     try {
-      await this.props.auth.login({ username: this.state.username, password: this.state.password })
+      await this.props.auth.login({
+        username: this.state.username,
+        password: this.state.password,
+        newPassword: this.state.newPassword
+      })
     } catch (err) {
-      if (err.type === 'PasswordExpiredError') {
-        this.setState({ passwordExpired: true })
-      } else {
-        this.setState({ error: err.message })
-      }
+      this.setState({ error: err.message })
     }
   }
 
@@ -32,35 +45,35 @@ export default class Login extends Component {
   }
 
   renderForm = () => {
-    if (this.state.passwordExpired) {
-      return <Redirect to={{ pathname: '/ChangePassword', state: this.state }} />
+    if (!this.state.username) {
+      return <Redirect to="/" />
     }
 
     return (
       <Fragment>
         <CardTitle>Botpress Admin Panel</CardTitle>
-        <CardText>Login</CardText>
+        <CardText>Either it is your first time or your password is expired. Please change it.</CardText>
         {this.state.error && <Alert color="danger">{this.state.error}</Alert>}
         <Input
-          value={this.state.username}
-          onChange={this.onInputChange('username')}
-          type="text"
-          name="username"
-          id="username"
-          onKeyPress={this.onInputKeyPress}
-          placeholder="Username"
-        />
-        <Input
-          value={this.state.password}
-          onChange={this.onInputChange('password')}
+          value={this.state.newPassword}
+          onChange={this.onInputChange('newPassword')}
           type="password"
-          name="password"
-          id="password"
+          name="newPassword"
+          id="newPassword"
           onKeyPress={this.onInputKeyPress}
           placeholder="Password"
         />
+        <Input
+          value={this.state.confirmPassword}
+          onChange={this.onInputChange('confirmPassword')}
+          type="password"
+          name="confirmPassword"
+          id="confirmPassword"
+          onKeyPress={this.onInputKeyPress}
+          placeholder="Confirm"
+        />
         <p>
-          <Button onClick={this.login}>Sign in</Button>
+          <Button onClick={this.login}>Change</Button>
         </p>
       </Fragment>
     )
