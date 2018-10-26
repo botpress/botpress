@@ -61,8 +61,7 @@ export class Botpress {
     @inject(TYPES.LogJanitorRunner) private logJanitor: LogsJanitor,
     @inject(TYPES.LoggerPersister) private loggerPersister: LoggerPersister,
     @inject(TYPES.NotificationsService) private notificationService: NotificationsService,
-    @inject(TYPES.AppLifecycle) private lifecycle: AppLifecycle,
-    @inject(TYPES.BotpressEdition) private edition: string
+    @inject(TYPES.AppLifecycle) private lifecycle: AppLifecycle
   ) {
     this.version = '12.0.1'
     this.botpressPath = path.join(process.cwd(), 'dist')
@@ -74,7 +73,6 @@ export class Botpress {
     await this.initialize(options)
     const bootTime = moment().diff(beforeDt, 'milliseconds')
     this.logger.info(`Started in ${bootTime}ms`)
-    this.logger.info(`You are running Botpress Server ${this.formatEdition()}`)
   }
 
   private async initialize(options: StartOptions) {
@@ -171,16 +169,5 @@ export class Botpress {
 Err: ${err.message}
 Flow: ${err.flowName}
 Node: ${err.nodeName}`
-  }
-
-  private formatEdition() {
-    switch (this.edition) {
-      case 'ce':
-        return 'Community'
-      case 'pro':
-        return 'Professional'
-      case 'ee':
-        return 'Enterprise'
-    }
   }
 }

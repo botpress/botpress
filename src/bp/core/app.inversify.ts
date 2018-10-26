@@ -94,22 +94,14 @@ container
 const isPackaged = !!eval('process.pkg')
 const isProduction = process.IS_PRODUCTION
 
-const verifyEdition = edition => {
-  // Fallback to community if edition doesnt exists
-  return edition === 'ce' || edition === 'pro' || edition === 'ee' ? edition : 'ce'
-}
-
-const botpressEdition = verifyEdition(process.env.EDITION)
-
 container.bind<boolean>(TYPES.IsProduction).toConstantValue(isProduction)
 container.bind<boolean>(TYPES.IsPackaged).toConstantValue(isPackaged)
-container.bind<string>(TYPES.BotpressEdition).toConstantValue(botpressEdition.toLowerCase())
 
 container.load(...DatabaseContainerModules)
 container.load(...RepositoriesContainerModules)
 container.load(...ServicesContainerModules)
 
-if (botpressEdition !== 'ce') {
+if (process.env.EDITION !== 'ce') {
   // Otherwise this will fail on compile when the submodule is not available.
   const ProContainerModule = require('professional/services/admin/professionnal.inversify')
   container.load(ProContainerModule)

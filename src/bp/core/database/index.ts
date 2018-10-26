@@ -20,8 +20,7 @@ export default class Database {
   public constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'Database')
-    private logger: Logger,
-    @inject(TYPES.BotpressEdition) private edition: string
+    private logger: Logger
   ) {}
 
   async bootstrap() {

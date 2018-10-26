@@ -22,8 +22,7 @@ export default class AuthService {
     @inject(TYPES.Logger)
     @tagged('name', 'Auth')
     private logger: Logger,
-    @inject(TYPES.Database) private db: Database,
-    @inject(TYPES.BotpressEdition) private edition: string
+    @inject(TYPES.Database) private db: Database
   ) {}
 
   @postConstruct()
@@ -38,7 +37,7 @@ export default class AuthService {
   }
 
   async getResources(): Promise<Resource[]> {
-    if (this.edition !== 'ce') {
+    if (process.env.EDITION !== 'ce') {
       const resources = require('professional/services/admin/pro-resources')
       return resources.PRO_RESOURCES
     }

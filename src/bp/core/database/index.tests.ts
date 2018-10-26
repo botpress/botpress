@@ -15,8 +15,8 @@ export type DatabaseTestSuite = ((database: Database) => void)
 
 export function createDatabaseSuite(suiteName: string, suite: DatabaseTestSuite) {
   const sqlitePath = tmp.fileSync().name
-  const sqlite = new Database(logger.T, '')
-  const postgres = new Database(logger.T, '')
+  const sqlite = new Database(logger.T)
+  const postgres = new Database(logger.T)
 
   describe(`DB[SQLite] ${suiteName}`, () => {
     beforeAll(async () => {

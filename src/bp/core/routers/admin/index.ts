@@ -15,12 +15,7 @@ export class AdminRouter implements CustomRouter {
   private loadUser!: RequestHandler
   private teamsRouter!: TeamsRouter
 
-  constructor(
-    logger: Logger,
-    private authService: AuthService,
-    private adminService: AdminService,
-    private edition: string
-  ) {
+  constructor(logger: Logger, private authService: AuthService, private adminService: AdminService) {
     this.router = Router({ mergeParams: true })
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
     this.loadUser = loadUser(this.authService)
@@ -37,9 +32,7 @@ export class AdminRouter implements CustomRouter {
     })
 
     this.router.get('/license', (req, res) => {
-      const license = {
-        edition: this.edition
-      }
+      const license = {}
       res.send(license)
     })
 

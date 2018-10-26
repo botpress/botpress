@@ -37,6 +37,8 @@ export class CommunityAdminService implements AdminService {
     team: Joi.number().required()
   })
 
+  private edition = process.env.EDITION!
+
   constructor(
     @inject(TYPES.Database) private database: Database,
     @inject(TYPES.Logger) private logger: Logger,
@@ -44,8 +46,7 @@ export class CommunityAdminService implements AdminService {
     @inject(TYPES.BotConfigWriter) private botConfigWriter: BotConfigWriter,
     @inject(TYPES.BotLoader) private botLoader: BotLoader,
     @inject(TYPES.GhostService) private ghostService: GhostService,
-    @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
-    @inject(TYPES.BotpressEdition) private edition: string
+    @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader
   ) {}
 
   protected get knex() {

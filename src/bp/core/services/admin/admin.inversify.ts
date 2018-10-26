@@ -8,10 +8,5 @@ export const AdminContainerModule = new ContainerModule((bind: interfaces.Bind) 
   bind<AdminService>(TYPES.AdminService)
     .to(CommunityAdminService)
     .inSingletonScope()
-    .when(request => isExpectedEdition('ce', request.parentContext))
+    .when(() => process.env.EDITION === 'ce')
 })
-
-function isExpectedEdition(expected: string, context: interfaces.Context) {
-  const edition = context.container.get<string>(TYPES.BotpressEdition)
-  return edition === expected
-}
