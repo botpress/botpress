@@ -4,6 +4,9 @@ env:
   variables:
     CHILD_CONCURRENCY: 1
     GULP_SERIES: true
+  parameter-store:
+    DOCKER_USERNAME: 'docker_username'
+    DOCKER_PASSWORD: 'docker_password'
 
 phases:
   install:
@@ -12,7 +15,8 @@ phases:
 
   pre_build:
     commands:
-      - $(aws ecr get-login --region $AWS_DEFAULT_REGION --no-include-email)
+      - echo $DOCKER_USERNAME
+      - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
       - $(./build/codebuild-extras.sh)
       - echo "BUILDING FOR '$ARTIFACT_NAME'"
       - yarn install
