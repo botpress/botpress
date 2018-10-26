@@ -23,17 +23,18 @@ export function logout() {
 }
 
 export default class BasicAuthentication {
-  login = async ({ username, password }) => {
+  login = async ({ username, password, newPassword }) => {
     if (this.isAuthenticated()) {
       return
     }
-    await this.doLogin({ username, password })
+    await this.doLogin({ username, password, newPassword })
   }
 
-  async doLogin({ username, password }) {
+  async doLogin({ username, password, newPassword }) {
     const { data } = await api.getAnonymous({ toastErrors: false }).post('/api/auth/login', {
       username,
-      password
+      password,
+      newPassword
     })
 
     this.setSession({ expiresIn: 7200, idToken: data.payload.token })

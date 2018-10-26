@@ -29,7 +29,7 @@ export class AuthRouter implements CustomRouter {
   }
 
   login = async (req, res) => {
-    const token = await this.authService.login(req.body.username, req.body.password, getIp(req))
+    const token = await this.authService.login(req.body.username, req.body.password, req.body.newPassword, getIp(req))
 
     return sendSuccess(res, 'Login successful', { token })
   }
