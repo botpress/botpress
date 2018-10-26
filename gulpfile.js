@@ -10,7 +10,7 @@ process.on('uncaughtException', err => {
 
 const dataTasks = [core.createDirectories, core.copyData, core.copyBotTemplate]
 const uiTasks = [core.copyAdmin, core.copyStudio]
-const buildTasks = [core.buildTs, core.buildSchemas, ...dataTasks, ...uiTasks]
+const buildTasks = [core.fetchPro, core.buildTs, core.buildSchemas, ...dataTasks, ...uiTasks]
 
 gulp.task('copy-admin', core.copyAdmin)
 gulp.task('build-reference', core.buildReferenceDoc)
