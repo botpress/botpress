@@ -5,9 +5,43 @@ title: Hooks
 
 Hooks are very useful to execute actions when specific events occurs.
 
-They are defined globally as javascript files in the folder `data/global/hooks/${hookName}`. You can add as many files as you'd like in those, they will be processed sequentially, in alphabetical order
+They are defined globally as javascript files in the folder `data/global/hooks/${hookName}`. You can add as many files as you'd like in those, they will be processed sequentially, in alphabetical order.
 
-Hooks always have access to the Botpress server (`bp`) and may have additional parameters.
+> Note: subfolders are allowed, but they are ignored in the ordering. If you have `02_hook.js` and `00/01_hook.js`, the order will be `01_hook.js` then `02_hook.js`
+
+They all have access to the Botpress SDK (`bp`).
+
+## Virtual Machine
+
+Every hook is executed in a separate virtual machine to prevent server crashes if there is a scripting error. Your scripts may require any module that is loaded by botpress by default (for example: lodash, axios, moment, nanoid, and [much more](https://github.com/botpress/botpress/blob/master/package.json)).
+
+If you want to include anything else, there are two possible ways. You can add the `node_modules` folder containing your dependency or you can [create a module](../modules/hooks) that includes your dependency.
+
+To help you vizualize how it works, check the snippet below.
+
+```js
+const virtual_machine = async (bp: SDK) => {
+  //Your code goes here. Example:
+  const _ = require('lodash')
+  if (event.type === 'text') {
+    const id = await bp.dialog.createId(event)
+    //...
+  }
+}
+```
+
+It is also possible to wrap your code with an async method:
+
+```js
+const virtual_machine = async (bp: SDK) => {
+  //Your code goes here. Example:
+  const myMethod = async () => {
+    console.log('Hello!')
+  }
+
+  return myMethod()
+}
+```
 
 ## After bot starts
 
@@ -16,6 +50,22 @@ This event is called once all modules are loaded and the bot is ready to accept 
 Location: `data/global/hooks/after_bot_start`
 
 Parameters: `bp`
+
+## Before Incoming Middleware
+
+This hook is called when an event is received, before any middleware. It is possible to change event properties.
+
+Location: `data/global/hooks/before_incoming_middleware`
+
+Parameters: `bp`, `event`
+
+This hook is often used to set flags to skip some processing, for example QNA:
+
+```js
+if (event.type === 'quick_reply') {
+  event.setFlag(bp.IO.WellKnownFlags.SKIP_QNA_PROCESSING, true)
+}
+```
 
 ## After Incoming Middleware
 
