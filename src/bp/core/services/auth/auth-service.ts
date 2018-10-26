@@ -3,7 +3,6 @@ import { KnexExtension } from 'common/knex'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
 import jsonwebtoken from 'jsonwebtoken'
 import Knex from 'knex'
-import resources from 'professional/services/admin/pro-resources'
 
 import Database from '../../database'
 import { Resource } from '../../misc/auth'
@@ -40,6 +39,7 @@ export default class AuthService {
 
   getResources(): Resource[] {
     if (this.edition !== 'ce') {
+      const resources = require('professional/services/admin/pro-resources')
       return resources
     }
     return []
