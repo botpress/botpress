@@ -2,6 +2,7 @@
   "name": "botpress",
   "version": "11.0.0",
   "description": "The world's most powerful conversational engine",
+  "engines": { "node": ">=10" },
   "main": "index.js",
   "repository": "https://github.com/botpress/botpress-xx.git",
   "author": "Botpress, Inc.",

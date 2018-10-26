@@ -3,9 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "publisher": "botpress",
-  "engines": {
-    "botpress": "^10.0.0"
-  },
+  "engines": { "node": ">=10" },
   "dependencies": {
     "@botpress/util-roles": "^10.36.1",
     "auth0-js": "^9.3.3",
