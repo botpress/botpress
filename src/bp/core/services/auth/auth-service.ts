@@ -8,7 +8,6 @@ import Database from '../../database'
 import { Resource } from '../../misc/auth'
 import { AuthUser, TokenUser } from '../../misc/interfaces'
 import { TYPES } from '../../types'
-import resources from '../admin/professionnal/resources'
 
 import { InvalidCredentialsError, PasswordExpiredError } from './errors'
 import { saltHashPassword, validateHash } from './util'
@@ -37,8 +36,12 @@ export default class AuthService {
     return this.db.knex!
   }
 
-  getResources(): Resource[] {
-    return resources
+  async getResources(): Promise<Resource[]> {
+    if (process.env.EDITION !== 'ce') {
+      const resources = require('professional/services/admin/pro-resources')
+      return resources.PRO_RESOURCES
+    }
+    return []
   }
 
   async findUser(where: {}, selectFields?: Array<keyof AuthUser>): Promise<AuthUser | undefined> {

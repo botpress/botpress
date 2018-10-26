@@ -1,5 +1,6 @@
 const yn = require('yn')
 const pa = require('path')
+const file = require('../../edition.json')
 
 const printPlainError = err => {
   console.log('Error starting botpress')
@@ -45,6 +46,7 @@ process.on('uncaughtException', err => {
 })
 
 try {
+  process.env.EDITION = file.edition
   let defaultVerbosity = process.pkg ? 0 : 2
   if (!isNaN(Number(process.env.VERBOSITY_LEVEL))) {
     defaultVerbosity = Number(process.env.VERBOSITY_LEVEL)

@@ -4,10 +4,8 @@
 
 ## Quick Start
 
-1. Run `yarn` to fetch node packages
-1. In the folder _src/bp/ui-admin_, run `yarn && yarn build`
-1. In the folder _build/module-builder_, run `yarn && yarn build`
-1. Go back to the root of the project and run `yarn build` to compile TS files and copy static content
+1. Run `yarn` to fetch node packages.
+1. Run `yarn bootstrap` to build the admin website and buid the app.
 1. Run `yarn start` to start the server.
 
 ### Building issues
@@ -22,6 +20,10 @@ If you have errors when building modules (timeout, random errors, etc), try the 
 1. Run `yarn watch` to rebuild everytime you change a .ts file
 1. Run `yarn start` in another terminal
 1. Optionnaly run `yarn watch` in each module folders you are working on
+
+## Target a specific Botpress Edition
+
+You can target a specific Botpress Edition when building the app. Just add the following environment variable: `EDITION=<ce|pro|ee> yarn build`. This will fetch the pro submodule and build the app. By default, `yarn build` will target the Community Edition.
 
 ## Documentation
 

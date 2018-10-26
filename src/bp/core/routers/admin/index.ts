@@ -1,10 +1,10 @@
 import { Logger } from 'botpress/sdk'
+import { AdminService } from 'core/services/admin/service'
+import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import { RequestHandler, Router } from 'express'
 import _ from 'lodash'
 
 import { CustomRouter } from '..'
-import { AdminService } from '../../services/admin/professionnal/admin-service'
-import AuthService, { TOKEN_AUDIENCE } from '../../services/auth/auth-service'
 import { checkTokenHeader, loadUser } from '../util'
 
 import { TeamsRouter } from './teams'
@@ -15,12 +15,7 @@ export class AdminRouter implements CustomRouter {
   private loadUser!: RequestHandler
   private teamsRouter!: TeamsRouter
 
-  constructor(
-    logger: Logger,
-    private authService: AuthService,
-    private adminService: AdminService,
-    private edition: string
-  ) {
+  constructor(logger: Logger, private authService: AuthService, private adminService: AdminService) {
     this.router = Router({ mergeParams: true })
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
     this.loadUser = loadUser(this.authService)
@@ -32,13 +27,13 @@ export class AdminRouter implements CustomRouter {
   setupRoutes() {
     const router = this.router
 
-    router.get('/all-permissions', (req, res) => {
-      res.json(this.authService.getResources())
+    router.get('/all-permissions', async (req, res) => {
+      res.json(await this.authService.getResources())
     })
 
     this.router.get('/license', (req, res) => {
       const license = {
-        edition: this.edition
+        edition: process.env.EDITION
       }
       res.send(license)
     })
