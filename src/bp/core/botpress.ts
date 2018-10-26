@@ -170,11 +170,11 @@ Node: ${err.nodeName}`
 
   private formatEdition() {
     switch (this.edition) {
-      case 'community':
+      case 'ce':
         return 'Community'
       case 'pro':
         return 'Professional'
-      case 'enterprise':
+      case 'ee':
         return 'Enterprise'
     }
   }

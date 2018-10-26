@@ -8,7 +8,7 @@ export const AdminContainerModule = new ContainerModule((bind: interfaces.Bind) 
   bind<AdminService>(TYPES.AdminService)
     .to(CommunityAdminService)
     .inSingletonScope()
-    .when(request => isExpectedEdition('community', request.parentContext))
+    .when(request => isExpectedEdition('ce', request.parentContext))
 })
 
 function isExpectedEdition(expected: string, context: interfaces.Context) {

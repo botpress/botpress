@@ -26,7 +26,7 @@ If you have errors when building modules (timeout, random errors, etc), try the 
 
 ## Target a specific Botpress Edition
 
-You can target a specific Botpress Edition when starting the app. Just add the following environment variable: `EDITION=<community|pro|enterprise> yarn start`. By default, `yarn start` will target the Community Edition.
+You can target a specific Botpress Edition when starting the app. Just add the following environment variable: `EDITION=<ce|pro|ee> yarn start`. By default, `yarn start` will target the Community Edition.
 
 ## Documentation
 

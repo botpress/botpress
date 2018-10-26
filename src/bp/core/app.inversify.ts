@@ -1,7 +1,6 @@
 import { Logger } from 'botpress/sdk'
 import { Container } from 'inversify'
 import { AppLifecycle } from 'lifecycle'
-import { ProfessionnalContainerModule } from 'professional/services/admin/professionnal.inversify'
 
 import { BotpressAPIProvider } from './api'
 import { BotLoader } from './bot-loader'
@@ -93,7 +92,7 @@ const isProduction = process.IS_PRODUCTION
 
 const verifyEdition = edition => {
   // Fallback to community if edition doesnt exists
-  return edition === 'community' || edition === 'pro' || edition === 'enterprise' ? edition : 'community'
+  return edition === 'ce' || edition === 'pro' || edition === 'ee' ? edition : 'ce'
 }
 
 const botpressEdition = verifyEdition(process.env.EDITION)
@@ -106,8 +105,10 @@ container.load(...DatabaseContainerModules)
 container.load(...RepositoriesContainerModules)
 container.load(...ServicesContainerModules)
 
-if (botpressEdition !== 'community') {
-  container.load(ProfessionnalContainerModule)
+if (botpressEdition !== 'ce') {
+  // Otherwise this will fail on compile when the submodule is not available.
+  const ProContainerModule = require('professional/services/admin/professionnal.inversify')
+  container.load(ProContainerModule)
 }
 
 applyDisposeOnExit(container)

@@ -20,7 +20,8 @@ export default class Database {
   public constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'Database')
-    private logger: Logger
+    private logger: Logger,
+    @inject(TYPES.BotpressEdition) private edition: string
   ) {}
 
   async bootstrap() {
@@ -32,6 +33,11 @@ export default class Database {
       }
       this.tables.push(table)
     })
+
+    if (this.edition !== 'ce') {
+      const seed = require('professional/seed')
+      seed()
+    }
   }
 
   async teardownTables() {
