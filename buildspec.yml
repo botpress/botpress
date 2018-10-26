@@ -62,11 +62,9 @@ phases:
       - rm -rf **/node_modules
       - rm -rf **/node_production_modules
       - cp Dockerfile out_linux/binaries/
-      - cp docker-readme.md out_linux/binaries/README.md
       - docker build -t $REPOSITORY_URI:$ARTIFACT_NAME out_linux/binaries
       - docker tag $REPOSITORY_URI:$ARTIFACT_NAME $REPOSITORY_URI:$IMAGE_TAG
       - rm out_linux/binaries/Dockerfile
-      - rm out_linux/binaries/README.md
 
   post_build:
     commands:
