@@ -69,7 +69,6 @@ phases:
 
   post_build:
     commands:
-      - ls -a
       - docker push $REPOSITORY_URI:latest
       - docker push $REPOSITORY_URI:$IMAGE_TAG
       - ls -a out_darwin
