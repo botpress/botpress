@@ -21,7 +21,7 @@ const clean = cb => {
 
 const runningPro = process.env.EDITION === 'pro' || process.env.EDITION === 'ee'
 const fetchPro = () => {
-  return gulp.src('./').pipe(gulpif(runningPro, run('git submodule init && git submodule update')))
+  return gulp.src('./').pipe(gulpif(runningPro, run('git submodule init && git submodule update', { verbosity: 2 })))
 }
 
 const formatEdition = edition => {
@@ -33,10 +33,7 @@ const formatEdition = edition => {
 }`
 }
 const writeEdition = () => {
-  return gulp
-    .src('.')
-    .pipe(file('edition.json', formatEdition(process.env.EDITION)))
-    .pipe(gulp.dest('.'))
+  return file('edition.json', formatEdition(process.env.EDITION), { src: true }).pipe(gulp.dest('./'))
 }
 
 const buildTs = () => {
