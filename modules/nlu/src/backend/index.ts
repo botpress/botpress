@@ -24,6 +24,10 @@ const onBotMount = async (bp: SDK, botId: string) => {
   await setupForBot(bp, botScopedNlu, botId)
 }
 
+const onBotUnmount = async (bp: SDK, botId: string) => {
+  botScopedNlu.delete(botId)
+}
+
 const serveFile = async (filePath: string): Promise<Buffer> => {
   filePath = filePath.toLowerCase()
 
@@ -100,6 +104,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onInit,
   onReady,
   onBotMount,
+  onBotUnmount,
   config,
   defaultConfigJson,
   serveFile,

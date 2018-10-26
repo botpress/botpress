@@ -4,6 +4,9 @@ env:
   variables:
     CHILD_CONCURRENCY: 1
     GULP_SERIES: true
+  parameter-store:
+    DOCKER_USERNAME: 'docker_username'
+    DOCKER_PASSWORD: 'docker_password'
 
 phases:
   install:
@@ -12,6 +15,7 @@ phases:
 
   pre_build:
     commands:
+      - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
       - $(./build/codebuild-extras.sh)
       - echo "BUILDING FOR '$ARTIFACT_NAME'"
       - yarn install
@@ -33,7 +37,7 @@ phases:
       - rm -rf **/node_modules
       - rm -rf **/node_production_modules
       - mkdir -p out
-      # Windows Build
+      # # Windows Build
       - export npm_config_target_platform=windows
       - yarn cache clean
       - yarn install --force --ignore-engines
@@ -57,10 +61,15 @@ phases:
       - mv out out_linux
       - rm -rf **/node_modules
       - rm -rf **/node_production_modules
+      - cp Dockerfile out_linux/binaries/
+      - docker build -t $REPOSITORY_URI:$ARTIFACT_NAME out_linux/binaries
+      - docker tag $REPOSITORY_URI:$ARTIFACT_NAME $REPOSITORY_URI:$IMAGE_TAG
+      - rm out_linux/binaries/Dockerfile
 
   post_build:
     commands:
-      - ls -a
+      - docker push $REPOSITORY_URI:$ARTIFACT_NAME
+      - docker push $REPOSITORY_URI:$IMAGE_TAG
       - ls -a out_darwin
       - ls -a out_win32
       - ls -a out_linux

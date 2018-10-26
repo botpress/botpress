@@ -1,6 +1,6 @@
 ---
 id: extensions
-title: Webchat Extensions
+title: !!!Webchat Extensions
 ---
 
 The Botpress web channel supports a variety of message types that can be rendered to the user. There are a number of types that are available out-of-the-box, but Botpress also supports custom message types. Custom message types are implement via webchat-extensions.

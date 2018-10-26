@@ -1,11 +1,12 @@
 import * as sdk from 'botpress/sdk'
 import { WellKnownFlags } from 'core/sdk/enums'
 import { inject, injectable, tagged } from 'inversify'
-import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import { Memoize } from 'lodash-decorators'
 import moment from 'moment'
 import path from 'path'
 import plur from 'plur'
+
+import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 
 import { createForGlobalHooks } from './api'
 import { BotLoader } from './bot-loader'
@@ -107,6 +108,10 @@ export class Botpress {
 
     await this.cmsService.initialize()
     await this.botLoader.loadAllBots()
+
+    this.eventEngine.onBeforeIncomingMiddleware = async (event: sdk.IO.Event) => {
+      await this.hookService.executeHook(new Hooks.BeforeIncomingMiddleware(this.api, event))
+    }
 
     this.eventEngine.onAfterIncomingMiddleware = async (event: sdk.IO.Event) => {
       await this.hookService.executeHook(new Hooks.AfterIncomingMiddleware(this.api, event))

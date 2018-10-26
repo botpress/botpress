@@ -1,24 +1,17 @@
 ---
 id: broadcasting
-title: Broadcasting
+title: !!Broadcasting
 ---
 
 Broadcasting a message to your users is a common task for chatbots and is a great way to get your users to reengage.
 
-There are two ways to achieve broadcasting. You can use the [`@botpress/scheduler`](https://github.com/botpress/botpress/tree/master/packages/functionals/botpress-scheduler) module, check out [this recipe](/docs/latest/recipes/scheduling/) for an example implementation, or you can use the [`@botpress/broadcast`](https://github.com/botpress/botpress/tree/master/packages/functionals/botpress-broadcast) module. The broadcast module is easier to use but lacks the flexibility of the scheduler module.
+There are two ways to achieve broadcasting. You can use the [`scheduler`](https://github.com/botpress/botpress/tree/master/modules/scheduler) module, check out [this recipe](/docs/latest/recipes/scheduling/) for an example implementation, or you can use the [`broadcast`](https://github.com/botpress/botpress/tree/master/modules/broadcast) module. The broadcast module is easier to use but lacks the flexibility of the scheduler module.
 
 ## Installation
 
-You can install the `@botpress/broadcast` module by running:
+Please click [here for instructions on how to install a module](./../getting_started/modules)
 
-```bash
-# npm
-npm i @botpress/broadcast
-# yarn
-yarn add @botpress/broadcast
-```
-
-Once it has been installed, you need to navigate to `http://localhost:3000/modules/broadcast`, from here you can create a new broadcast.
+Once it has been installed, you need to navigate to `http://localhost:3001/studio/{my-bot-name}/modules/broadcast`, from here you can create a new broadcast.
 
 > Note: If no timezone information is available for the user, GMT will be used.
 
@@ -29,7 +22,7 @@ You can apply filters to the broadcasts. Filters are small JavaScript functions 
 Variables exposed to the filter function:
 
 - `bp` botpress instance
-- `userId` the userId to send the message to
+- !!!`userId` the userId to send the message to
 - `platform` the platform on which the user is on
 
 The function needs to return a **boolean** or a **Promise of a boolean**.
@@ -43,7 +36,7 @@ Below is an example that returns `true` if a user first used the bot more than 3
 Because the `bp` instance will be available within a broadcasts filter, you can define your filter in your bot `index.js` file.
 
 ```js
-bp.broadcastFilters = {
+!!!bp.broadcastFilters = {
   userIsOld: userId => {
     const threeDaysBefore = new Date(new Date() - 3 * 24 * 60 * 60 * 1000)
     return bp.db.get().then(knex =>
@@ -62,5 +55,5 @@ bp.broadcastFilters = {
 Now that the filter method is defined you can now add it to your broadcast messages' filter conditions:
 
 ```js
-bp.broadcastFilters.userIsOld(userId)
+!!!bp.broadcastFilters.userIsOld(userId)
 ```

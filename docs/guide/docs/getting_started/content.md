@@ -1,6 +1,6 @@
 ---
 id: content
-title: Content
+title: !!!Content
 ---
 
 # 📚 Types, Elements, Renderers
@@ -16,6 +16,7 @@ In the context of this tutorial, the template shipped with two Content Types: `T
 > **🌟 Tip**: As a general rule, the more domain-specific the Content Types are, the easier it is to manage the bot for non-technical people.
 
 Content Types are very specific to the bots they are associated with. Here are some typical examples:
+
 - A restaurant "Menu" and "MenuPage" types
 - A "QuestionWithChoices" type
 - An "ImportantBroadcast" type
@@ -48,7 +49,7 @@ In the context of this tutorial, Content Renderers are defined in the `src/rende
 
 ---
 
-#  🔨 Hands-on
+# 🔨 Hands-on
 
 Now that you understand the concepts of Content Management, let's make a small change to our bot that covers all of the above concepts.
 
@@ -62,10 +63,7 @@ const { contentElements, contentRenderers, actions, setup } = require('@botpress
 await setup(bp)
 
 // Register built-in content elements
-await Promise.all(
-  Object.values(contentElements)
-    .map(schema => bp.contentManager.loadCategoryFromSchema(schema))
-)
+await Promise.all(Object.values(contentElements).map(schema => bp.contentManager.loadCategoryFromSchema(schema)))
 
 // Register renderers for the built-in elements
 _.toPairs(contentRenderers).forEach(params => bp.renderers.register(...params))

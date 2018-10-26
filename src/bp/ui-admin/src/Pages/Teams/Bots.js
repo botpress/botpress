@@ -8,15 +8,10 @@ import { connect } from 'react-redux'
 import { checkRule } from '@botpress/util-roles'
 
 import jdenticon from 'jdenticon'
-import Joi from 'joi-browser'
 
 import {
   ListGroup,
   Jumbotron,
-  UncontrolledDropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
   ListGroupItemHeading,
   ListGroupItem,
   Row,
@@ -75,7 +70,6 @@ class Bots extends Component {
     const botForm = {
       id: this.state.id,
       name: this.state.name,
-      description: this.state.description
     }
 
     await api
@@ -102,7 +96,9 @@ class Bots extends Component {
         <ModalHeader toggle={this.toggleCreateBotModal}>Create a new bot</ModalHeader>
         <ModalBody>
           <FormGroup>
-            <Label for="id">Identifier</Label>
+            <Label for="id">
+              <strong>Identifier</strong>
+            </Label>
             <Input
               placeholder="Auto-generated"
               disabled="disabled"
@@ -111,20 +107,17 @@ class Bots extends Component {
               value={this.state.id}
               onChange={event => this.setState({ id: event.target.value })}
             />
-            <Label for="name">Name</Label>
+          </FormGroup>
+          <FormGroup>
+            <Label for="name">
+              <strong>Name</strong>
+            </Label>
             <Input
               type="text"
               id="name"
               value={this.state.name}
               onChange={event => this.setState({ name: event.target.value })}
               onBlur={() => this.generateBotId()}
-            />
-            <Label for="description">Description</Label>
-            <Input
-              type="textarea"
-              id="description"
-              value={this.state.description}
-              onChange={event => this.setState({ description: event.target.value })}
             />
             {!!this.state.errorCreateBot && <FormFeedback>{this.state.errorCreateBot.message}</FormFeedback>}
           </FormGroup>
@@ -162,11 +155,7 @@ class Bots extends Component {
                 <IoIosBoxOutline />
                 &nbsp; This team has no bot, yet.
               </h1>
-              <p>
-                In Botpress, bots are always assigned to a team.
-                <br />
-                {this.renderCreateNewBotButton()}
-              </p>
+              <p>In Botpress, bots are always assigned to a team.</p>
             </Col>
           </Row>
         </Jumbotron>
@@ -179,7 +168,12 @@ class Bots extends Component {
     return (
       <Row>
         <Col md={{ size: 12 }}>
-          <Button className="float-right" color="success" onClick={() => this.setState({ isCreateBotModalOpen: true })}>
+          <Button
+            className="float-right"
+            onClick={() => this.setState({ isCreateBotModalOpen: true })}
+            color="primary"
+            size="sm"
+          >
             <MdCreate /> Create Bot Now
           </Button>
         </Col>
@@ -196,30 +190,22 @@ class Bots extends Component {
 
     return (
       <div className="bots">
-        {this.renderCreateNewBotButton()}
         {this.renderCreateBot()}
         <ListGroup>
           {bots.map(bot => {
             return (
               <ListGroupItem key={'bot-' + bot.id}>
-                <ListGroupItemHeading className="header">
-                  <svg width="32" height="32" data-jdenticon-value={bot.name} />
+                <ListGroupItemHeading>
                   <a className="title" href={`/studio/${bot.id}`}>
                     {bot.name}
                   </a>
-
-                  <UncontrolledDropdown className="float-right">
-                    <DropdownToggle caret size="sm" color="link">
-                      More
-                    </DropdownToggle>
-                    <DropdownMenu>
-                      <DropdownItem className="text-danger" onClick={() => this.deleteBot(bot.id)}>
-                        Delete
-                      </DropdownItem>
-                    </DropdownMenu>
-                  </UncontrolledDropdown>
                 </ListGroupItemHeading>
-                <div className="description">{bot.description}</div>
+                <div className="list-group-item__actions">
+                  <Button color="link" onClick={() => this.deleteBot(bot.id)}>
+                    Delete
+                  </Button>
+                </div>
+                <small>{bot.description}</small>
               </ListGroupItem>
             )
           })}
@@ -254,7 +240,7 @@ class Bots extends Component {
         sections={sections}
         license={this.props.license}
         mainContent={this.renderBots()}
-        sideMenu={this.renderSideMenu()}
+        sideMenu={this.renderCreateNewBotButton()}
       />
     )
   }

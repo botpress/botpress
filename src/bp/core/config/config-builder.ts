@@ -4,6 +4,7 @@ export class BotConfigBuilder {
   private schema = '../../bot.config.schema.json'
   private active = false
   private version = '0.0.1'
+  private description: string | undefined
   private license: string | undefined
   private author: string | undefined
   private contentTypes: string[] = []
@@ -11,7 +12,12 @@ export class BotConfigBuilder {
   private outgoingMiddleware: string[] = []
   private incomingMiddleware: string[] = []
 
-  constructor(private name: string, private id: string, private description: string) {}
+  constructor(private name: string, private id: string) {}
+
+  withDescription(description: string ): this {
+    this.description = description
+    return this
+  }
 
   withlicense(license: string): this {
     this.license = license

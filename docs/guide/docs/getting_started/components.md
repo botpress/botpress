@@ -9,7 +9,7 @@ Botpress can seem intimidating at first, but it is, in fact, straightforward onc
 
 ## Modules <a class="toc" id="modules" href="#modules"></a>
 
-A module is an extra component outside of the Botpress Core itself that you can install in your bot to add new features to Botpress. Every bot uses modules in a way since almost everything in Botpress is a module. This architecture allows for maximum flexibility and freedom for developers. There are three informal categories of modules: **channels**, **skills** and **functionals**.
+A module is an extra component outside of the Botpress Core itself that you can install in your bot to add new features to Botpress. Every bot uses modules in a way since almost everything in Botpress is a module. This architecture allows for maximum flexibility and freedom for developers.
 
 ## Channels <a class="toc" id="channels" href="#channels"></a>
 
@@ -27,7 +27,7 @@ Although NLU is optional, a bot without NLU would have to rely on obsolete techn
 
 NLU is a subset of NLP (_Natural Language Processing_). NLU is, in general, a very complex subject involving linguistics and machine learning. Fortunately, there are many providers that allow us to abstract all these complexities, such as [LUIS](https://www.luis.ai) (Microsoft), [DialogFlow](https://dialogflow.com/) (Google), [IBM Watson](https://www.ibm.com/watson/services/natural-language-understanding/) and [RASA](https://github.com/RasaHQ/rasa_nlu).
 
-NLU is available in Botpress by installing the [`botpress-nlu`](https://github.com/botpress/modules/tree/master/functionals/botpress-nlu) module and can be connected to any of these providers.
+NLU is available in Botpress by installing the [`nlu`](https://github.com/botpress/botpress/tree/master/modules/nlu) module and can be connected to any of these providers.
 
 ## Dialogue Manager <a class="toc" id="dialogue" href="#dialogue"></a>
 
@@ -49,6 +49,4 @@ The purpose of a Content Renderer is to allow developers to specify how the same
 
 Channels, which are a special kind of module, receive messages from the different chat platforms. These messages are then processed by NLU so that the natural text is turned into structured data the bot understands. The Dialog Manager decides what the bot needs to say next, which the Content Renderer turns into a message specific to the target chat platform.
 
-![Components Overview][components]
-
-[components]: {{site.baseurl}}/images/components.png
+![Components Overview](assets/components.png)

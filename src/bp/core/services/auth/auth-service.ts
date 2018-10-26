@@ -1,5 +1,6 @@
 import { Logger } from 'botpress/sdk'
 import { KnexExtension } from 'common/knex'
+import { saltHashPassword } from 'core/services/auth/util'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
 import jsonwebtoken from 'jsonwebtoken'
 import Knex from 'knex'
@@ -8,6 +9,7 @@ import Database from '../../database'
 import { Resource } from '../../misc/auth'
 import { AuthUser, TokenUser } from '../../misc/interfaces'
 import { TYPES } from '../../types'
+import resources from '../admin/professionnal/resources'
 
 import { InvalidCredentialsError } from './errors'
 import { validateHash } from './util'
@@ -62,9 +64,9 @@ export default class AuthService {
   }
 
   async checkUserAuth(username: string, password: string) {
-    const user = await this.findUserByUsername(username || '', ['id', 'password'])
+    const user = await this.findUserByUsername(username || '', ['id', 'password', 'salt'])
 
-    if (!user || !validateHash(password || '', user.password)) {
+    if (!user || !validateHash(password || '', user.password, user.salt)) {
       throw new InvalidCredentialsError()
     }
 

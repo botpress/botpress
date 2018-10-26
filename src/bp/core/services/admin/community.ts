@@ -112,7 +112,7 @@ export class CommunityAdminService implements AdminService {
     }
 
     await this.knex(this.botsTable).insert(bot)
-    const botConfig = this.botConfigFactory.createDefault({ id: bot.id, name: bot.name, description: bot.description })
+    const botConfig = this.botConfigFactory.createDefault({ id: bot.id, name: bot.name })
     await this.botConfigWriter.writeToFile(botConfig)
     // TODO move this in  bot loader
     await this.ghostService.forBot(bot.id).sync(['actions', 'content-elements', 'flows', 'intents'])

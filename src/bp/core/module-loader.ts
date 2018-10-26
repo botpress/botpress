@@ -3,8 +3,9 @@ import { ValidationError } from 'errors'
 import fse from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
 import joi from 'joi'
-import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
+
+import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 
 import { createForModule } from './api' // TODO
 import ModuleResolver from './modules/resolver'
@@ -116,6 +117,15 @@ export class ModuleLoader {
     return Object.keys(initedModules)
   }
 
+  public async unloadModulesForBot(botId: string) {
+    const modules = this.getLoadedModules()
+    for (const module of modules) {
+      const entryPoint = this.getModule(module.name)
+      const api = await createForModule(module.name)
+      await (entryPoint.onBotUnmount && entryPoint.onBotUnmount(api, botId))
+    }
+  }
+
   private async callModulesOnReady(modules: ModuleEntryPoint[], initedModules: {}): Promise<void> {
     await this.lifecycle.waitFor(AppLifecycleEvents.HTTP_SERVER_READY)
 
@@ -132,6 +142,7 @@ export class ModuleLoader {
         const api = await createForModule(name)
         await (module.onReady && module.onReady(api))
         this.loadModulesActions(name)
+        this.loadModuleHooks(name)
       } catch (err) {
         this.logger.warn(`Error in module "${name}" 'onReady'. Module will still be loaded. Err: ${err.message}`)
       }
@@ -155,6 +166,22 @@ export class ModuleLoader {
       const globalActionsDir = `${process.PROJECT_LOCATION}/data/global/actions/${name}`
       fse.mkdirpSync(globalActionsDir)
       fse.copySync(moduleActionsDir, globalActionsDir)
+    }
+  }
+
+  private async loadModuleHooks(name: string) {
+    const resolver = new ModuleResolver(this.logger)
+    const modulePath = await resolver.resolve('MODULES_ROOT/' + name)
+
+    const moduleHooks = `${modulePath}/dist/hooks/`
+    if (fse.pathExistsSync(moduleHooks)) {
+      const hookTypes = await fse.readdir(moduleHooks)
+
+      for (const hookType of hookTypes) {
+        const globalHooksDir = `${process.PROJECT_LOCATION}/data/global/hooks/${hookType}/${name}`
+        fse.mkdirpSync(globalHooksDir)
+        fse.copySync(`${moduleHooks}/${hookType}`, globalHooksDir)
+      }
     }
   }
 

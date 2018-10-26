@@ -1,6 +1,6 @@
 ---
 id: templates
-title: Templates
+title: !!!Templates
 ---
 
 ## Bot Templates
@@ -88,9 +88,11 @@ yarn start
 ```
 
 If everything goes well, you should see:
-```bash 
+
+```bash
 info: Bot launched. Visit: http://localhost:3000
-``` 
+```
+
 Should you get an error, please search our [forum](https://help.botpress.io/) to see if anyone has had a similar problem and ask for help from the community. If it is an issue in the codebase, head over to GitHub to [open an issue](https://github.com/botpress/botpress/issues/new).
 
 ## Speaking with your bot

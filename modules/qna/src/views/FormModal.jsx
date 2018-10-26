@@ -55,6 +55,11 @@ export default class FormModal extends Component {
     })
   }
 
+  closeAndClear = () => {
+    this.props.closeQnAModal()
+    this.setState(this.defaultState)
+  }
+
   changeItemProperty = (key, value) => {
     const { item } = this.state
 
@@ -99,9 +104,9 @@ export default class FormModal extends Component {
       this.setState({ isValidForm: true })
     }
 
-    this.props.closeQnAModal()
     return this.props.bp.axios.post('/api/ext/qna/create', this.state.item).then(() => {
       this.props.fetchData()
+      this.closeAndClear()
     })
   }
 
@@ -122,13 +127,13 @@ export default class FormModal extends Component {
       filters: { question, categories }
     } = this.props
 
-    this.props.closeQnAModal()
     return this.props.bp.axios
       .put(`/api/ext/qna/${this.props.id}`, this.state.item, {
         params: { ...page, question, categories: categories.map(({ value }) => value) }
       })
       .then(({ data }) => {
         this.props.updateQuestion(data)
+        this.closeAndClear()
       })
   }
 
@@ -158,11 +163,7 @@ export default class FormModal extends Component {
     const isEdit = modalType === 'edit'
 
     return (
-      <Modal
-        className={classnames(style.newQnaModal, 'newQnaModal')}
-        show={showQnAModal}
-        onHide={this.props.closeQnAModal}
-      >
+      <Modal className={classnames(style.newQnaModal, 'newQnaModal')} show={showQnAModal} onHide={this.closeAndClear}>
         <form onSubmit={!isEdit ? this.onCreate : this.onEdit}>
           <Modal.Header className={style.qnaModalHeader}>
             <Modal.Title>{!isEdit ? 'Create a new' : 'Edit'} Q&A</Modal.Title>
@@ -253,7 +254,7 @@ export default class FormModal extends Component {
           </Modal.Body>
 
           <Modal.Footer className={style.qnaModalFooter}>
-            <Button className={style.qnaModalFooterCancelBtn} onClick={this.props.closeQnAModal}>
+            <Button className={style.qnaModalFooterCancelBtn} onClick={this.closeAndClear}>
               Cancel
             </Button>
             <Button className={style.qnaModalFooterSaveBtn} type="submit">

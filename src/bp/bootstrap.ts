@@ -35,6 +35,7 @@ async function start() {
 
   const resolver = new ModuleResolver(logger)
 
+
   for (const entry of globalConfig.modules) {
     try {
       if (!entry.enabled) {
@@ -47,6 +48,7 @@ async function start() {
       const rawEntry = (req.default ? req.default : req) as sdk.ModuleEntryPoint
       const entryPoint = ModuleLoader.processModuleEntryPoint(rawEntry, entry.location)
       modules.push(entryPoint)
+      process.LOADED_MODULES[entryPoint.definition.name] = moduleLocation
       modulesLog += os.EOL + `${chalk.greenBright('⦿')} ${entry.location}`
     } catch (err) {
       modulesLog += os.EOL + `${chalk.redBright('⊗')} ${entry.location} ${chalk.gray('(error)')}`
@@ -66,13 +68,14 @@ async function start() {
 
   await Botpress.start({ modules })
 
-  const { port, proxyPort } = globalConfig.httpServer
+  const { host, port, proxyPort } = globalConfig.httpServer
+  const hostname = host === undefined ? 'localhost' : host
 
   await Promise.fromCallback(cb =>
-    startProxy({ coreApiUrl: `http://localhost:${port}`, proxyHost: `http://localhost`, proxyPort }, cb)
+    startProxy({ coreApiUrl: `http://${hostname}:${port}`, proxyHost: `http://${hostname}`, proxyPort }, cb)
   )
 
-  logger.info(`UI Proxy running on http://localhost:${proxyPort}/`)
+  logger.info(`UI Proxy running on http://${hostname}:${proxyPort}/`)
 }
 
 start().catch(global.printErrorDefault)

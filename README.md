@@ -5,10 +5,9 @@
 ## Quick Start
 
 1. Run `yarn` to fetch node packages
-1. Run `yarn bootstrap`. This will do the following commands:
-   - Build the admin website and copy the static files to the assets folder i.e. `out/bp/ui-admin/public`
-   - Build the module builder
-   - Build the app and all the modules
+1. In the folder _src/bp/ui-admin_, run `yarn && yarn build`
+1. In the folder _build/module-builder_, run `yarn && yarn build`
+1. Go back to the root of the project and run `yarn build` to compile TS files and copy static content
 1. Run `yarn start` to start the server.
 
 ### Building issues

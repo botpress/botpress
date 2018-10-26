@@ -78,6 +78,8 @@ export default class Storage implements QnaStorage {
         this.bp.logger.info(`Created NLU intent for QNA ${question.id}`)
       }
     }
+
+    await this.syncNlu()
   }
 
   async update(data, id) {
