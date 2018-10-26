@@ -7,7 +7,7 @@ Hooks are very useful to execute actions when specific events occurs.
 
 They are defined globally as javascript files in the folder `data/global/hooks/${hookName}`. You can add as many files as you'd like in those, they will be processed sequentially, in alphabetical order.
 
-> Note: subfolders are allowed, but they are ignored in the ordering. If you have `02_hook.js` and `00/01_hook.js`, the order will be `01_hook.js` then `02_hook.js`
+> Note: subfolders are allowed, but they are ignored in the ordering. If you have `02_hook.js` and `03/01_hook.js`, the order will be `01_hook.js` then `02_hook.js`
 
 They all have access to the Botpress SDK (`bp`).
 
@@ -20,14 +20,16 @@ If you want to include anything else, there are two possible ways. You can add t
 To help you vizualize how it works, check the snippet below.
 
 ```js
-const virtual_machine = async (bp: SDK) => {
+/** const virtual_machine = async (bp: SDK) => { *//
+
   //Your code goes here. Example:
   const _ = require('lodash')
   if (event.type === 'text') {
     const id = await bp.dialog.createId(event)
     //...
   }
-}
+
+/** } *//
 ```
 
 It is also possible to wrap your code with an async method:
