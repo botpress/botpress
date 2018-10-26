@@ -14,7 +14,7 @@ class Section extends Component {
   }
 
   isCommunity() {
-    return process.env.EDITION === 'ce'
+    return this.props.license && this.props.license.edition === 'ce'
   }
 
   renderSectionHeader() {

@@ -32,7 +32,9 @@ export class AdminRouter implements CustomRouter {
     })
 
     this.router.get('/license', (req, res) => {
-      const license = {}
+      const license = {
+        edition: process.env.EDITION
+      }
       res.send(license)
     })
 
