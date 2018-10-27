@@ -116,11 +116,6 @@ artifacts:
 
 cache:
   paths:
-    - node_modules/**/*
-    - modules/**/node_modules/**/*
-    - modules/**/node_production_modules/**/*
-    - src/**/node_modules/**/*
-    - build/module-builder/node_modules/**/*
     - /codebuild/output/.cache/yarn-win/**/*
     - /codebuild/output/.cache/yarn-linux/**/*
     - /codebuild/output/.cache/yarn-darwin/**/*
