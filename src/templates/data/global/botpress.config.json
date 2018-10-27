@@ -5,7 +5,10 @@
     "port": 3000,
     "proxyPort": 3001,
     "bodyLimit": "100kb",
-    "backlog": 0
+    "backlog": 0,
+    "cors": {
+      "enabled": false
+    }
   },
   "database": {
     "type": "sqlite",
