@@ -40,6 +40,7 @@
     "watch-css": "npm run build-css && node-sass-chokidar src/ -o src/ --watch --recursive",
     "start-js": "cross-env BROWSER=none react-scripts start",
     "start": "cross-env PUBLIC_URL=/admin npm-run-all -p watch-css start-js",
+    "start:dev": "cross-env PUBLIC_URL=/admin cross-env REACT_APP_API_URL=http://localhost:3001 cross-env PORT=3002 npm-run-all -p watch-css start-js",
     "build-js": "react-scripts build",
     "build": "cross-env PUBLIC_URL=/admin npm-run-all build-css build-js",
     "test": "react-scripts test --env=jsdom",
