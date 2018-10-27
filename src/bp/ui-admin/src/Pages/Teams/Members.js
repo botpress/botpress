@@ -90,7 +90,7 @@ class Members extends Component {
         label: 'Add',
         type: 'primary',
         needRefresh: true,
-        method: user => this.addMember(user)
+        onClick: user => this.addMember(user)
       }
     ]
 

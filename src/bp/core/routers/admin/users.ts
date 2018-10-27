@@ -5,7 +5,6 @@ import Joi from 'joi'
 import _ from 'lodash'
 
 import { CustomRouter } from '..'
-import { Bot } from '../../misc/interfaces'
 import AuthService from '../../services/auth/auth-service'
 import { InvalidOperationError } from '../../services/auth/errors'
 import { asyncMiddleware, error as sendError, success as sendSuccess, validateBodySchema } from '../util'

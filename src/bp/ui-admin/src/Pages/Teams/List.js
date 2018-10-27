@@ -25,6 +25,7 @@ import { fetchTeams } from '../../modules/teams'
 import SectionLayout from '../Layouts/Section'
 import LoadingSection from '../Components/LoadingSection'
 import api from '../../api'
+import ProfileUpdate from '../Components/ProfileUpdate'
 
 // TODO We can reuse this logic between Node and Front
 const TeamNameValidationSchema = Joi.string()
@@ -122,6 +123,7 @@ class List extends Component {
           <MdGroupAdd /> Create team
         </Button>
         {this.renderCreateTeamModal()}
+        <ProfileUpdate />
       </div>
     )
   }

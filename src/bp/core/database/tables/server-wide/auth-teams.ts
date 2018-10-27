@@ -1,7 +1,6 @@
 import Knex from 'knex'
 
 import { Table } from 'core/database/interfaces'
-import shortid from 'shortid'
 
 const insertTeams = async (knex: Knex, tableName: string) => {
   return knex.batchInsert(tableName, [

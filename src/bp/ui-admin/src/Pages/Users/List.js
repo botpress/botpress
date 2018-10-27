@@ -9,6 +9,7 @@ import { Button, Modal, FormGroup, Input, Label, FormFeedback, ModalHeader, Moda
 import { MdGroupAdd } from 'react-icons/lib/md'
 import SectionLayout from '../Layouts/Section'
 import api from '../../api'
+import { fetchUsers } from '../../modules/user'
 
 const UserNameValidationSchema = Joi.string()
   .regex(/^[0-9A-Za-z _-]+$/)
@@ -21,8 +22,7 @@ class List extends Component {
     isCreateUserModalOpen: false,
     isRenderEmailModalOpen: false,
     userName: '',
-    createUserError: null,
-    refreshUsers: false
+    createUserError: null
   }
 
   toggleCreateUserModalOpen = () => {
@@ -64,6 +64,8 @@ Password: ${payload.tempPassword}`
       emailMessage: message,
       createUserError: null
     })
+
+    this.props.fetchUsers()
   }
 
   async resetPassword(user, list) {
@@ -145,19 +147,19 @@ Password: ${payload.tempPassword}`
       {
         label: 'Reset PW',
         type: 'primary',
-        method: user => this.resetPassword(user)
+        onClick: user => this.resetPassword(user)
       },
       {
         label: 'Delete',
         type: 'danger',
         needRefresh: true,
-        method: user => this.deleteUser(user)
+        onClick: user => this.deleteUser(user)
       }
     ]
 
     return (
       <div>
-        <UserList actions={actions} detailed="true" refresh={this.state.refreshUsers} />
+        <UserList actions={actions} detailed="true" />
         <br />
         <UserList actions={actions} detailed="false" />
       </div>
@@ -193,7 +195,7 @@ const mapStateToProps = state => ({
   loading: state.user.loadingUsers
 })
 
-const mapDispatchToProps = dispatch => bindActionCreators({}, dispatch)
+const mapDispatchToProps = dispatch => bindActionCreators({ fetchUsers }, dispatch)
 
 export default connect(
   mapStateToProps,

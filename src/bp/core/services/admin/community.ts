@@ -69,6 +69,12 @@ export class CommunityAdminService implements AdminService {
     throw new FeatureNotAvailableError(this.edition)
   }
 
+  async updateUserProfile(userId: number, firstname: string, lastname: string) {
+    await this.knex(this.usersTable)
+      .update({ firstname, lastname })
+      .where({ id: userId })
+  }
+
   addMemberToTeam(userId: number, teamId: number, roleName: string) {
     throw new FeatureNotAvailableError(this.edition)
   }

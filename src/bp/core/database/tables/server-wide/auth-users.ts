@@ -38,7 +38,6 @@ export class AuthUsersTable extends Table {
           .notNullable() // validate: { len: [3, 30] }
         table.string('password').notNullable()
         table.string('salt').notNullable()
-        table.boolean('password_expired')
         table.string('firstname')
         table.string('lastname')
         table.string('picture')
@@ -48,6 +47,7 @@ export class AuthUsersTable extends Table {
         table.string('location')
         table.timestamps(true, true)
         table.timestamp('last_logon')
+        table.boolean('password_expired')
       })
       .then(async created => {
         if (created) {

@@ -56,7 +56,7 @@ class UserList extends Component {
                             size="sm"
                             key={idx}
                             onClick={() => {
-                              action.method(user)
+                              action.onClick(user)
 
                               if (action.needRefresh) {
                                 this.setState({ needRefresh: true })

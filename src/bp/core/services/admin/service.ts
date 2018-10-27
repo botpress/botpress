@@ -6,6 +6,8 @@ export interface AdminService {
   deleteUser(userId: any)
   resetPassword(userId: any)
 
+  updateUserProfile(userId: number, firstname: string, lastname: string)
+
   addMemberToTeam(userId: number, teamId: number, roleName: string)
   removeMemberFromTeam(userId, teamId)
   listUserTeams(userId: number)
