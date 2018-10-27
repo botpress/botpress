@@ -44,9 +44,7 @@ export class CommunityAdminService implements AdminService {
     @inject(TYPES.Logger) private logger: Logger,
     @inject(TYPES.BotConfigFactory) private botConfigFactory: BotConfigFactory,
     @inject(TYPES.BotConfigWriter) private botConfigWriter: BotConfigWriter,
-    @inject(TYPES.BotLoader) private botLoader: BotLoader,
-    @inject(TYPES.GhostService) private ghostService: GhostService,
-    @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader
+    @inject(TYPES.BotLoader) private botLoader: BotLoader
   ) {}
 
   protected get knex() {
@@ -115,10 +113,8 @@ export class CommunityAdminService implements AdminService {
     await this.knex(this.botsTable).insert(bot)
     const botConfig = this.botConfigFactory.createDefault({ id: bot.id, name: bot.name })
     await this.botConfigWriter.writeToFile(botConfig)
-    // TODO move this in  bot loader
-    await this.ghostService.forBot(bot.id).sync(['actions', 'content-elements', 'flows', 'intents'])
-    await this.botLoader.loadForBot(bot.id)
-    await this.moduleLoader.loadModulesForBot(bot.id)
+
+    await this.botLoader.mountBot(bot.id, true)
   }
 
   async deleteBot(teamId: number, botId: string) {
@@ -126,6 +122,8 @@ export class CommunityAdminService implements AdminService {
       .where({ team: teamId, id: botId })
       .delete()
       .then()
+
+    this.botLoader.unmountBot(botId)
   }
 
   async listBots(teamId: number, offset: number, limit: number) {
