@@ -1,5 +1,4 @@
 import React, { Component, Fragment } from 'react'
-import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { find } from 'lodash'
 
 import { MdPersonAdd } from 'react-icons/lib/md'
@@ -8,23 +7,21 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import moment from 'moment'
 import { checkRule } from '@botpress/util-roles'
+import _ from 'lodash'
 
 import {
-  Alert,
   ListGroup,
   ListGroupItemHeading,
   ListGroupItem,
   Button,
-  InputGroup,
-  InputGroupAddon,
   Modal,
   ModalHeader,
   ModalBody,
-  ModalFooter,
-  Input
+  ModalFooter
 } from 'reactstrap'
-import Select from 'react-select'
 
+import Select from 'react-select'
+import UserList from '../Components/UserList'
 import { fetchTeamData } from '../../modules/teams'
 import { fetchPermissions } from '../../modules/user'
 
@@ -36,20 +33,13 @@ import api from '../../api'
 
 class Members extends Component {
   state = {
-    isInviteModalOpen: false,
+    isAddUsersModalOpen: false,
     changeRoleMember: null,
-    newUserRole: '',
-    inviteCode: null,
-    inviteCodeCopied: false
+    newUserRole: ''
   }
 
-  toggleInviteModal = () => {
-    if (!this.state.isInviteModalOpen) {
-      this.fetchInviteCode()
-      this.setState({ isInviteModalOpen: true, inviteCodeCopied: false })
-    } else {
-      this.setState({ isInviteModalOpen: false })
-    }
+  toggleAddUsers = () => {
+    this.setState({ isAddUsersModalOpen: !this.state.isAddUsersModalOpen })
   }
 
   renderLoading() {
@@ -74,22 +64,6 @@ class Members extends Component {
     }
   }
 
-  async fetchInviteCode() {
-    const { data } = await api.getSecured().get(`/api/teams/${this.props.teamId}/invite`)
-
-    if (data && data.payload && data.payload.inviteCode) {
-      this.setState({ inviteCode: data.payload.inviteCode })
-    }
-  }
-
-  refreshInviteCode = async () => {
-    const { data } = await api.getSecured().post(`/api/teams/${this.props.teamId}/invite`)
-
-    if (data && data.payload && data.payload.inviteCode) {
-      this.setState({ inviteCode: data.payload.inviteCode })
-    }
-  }
-
   removeMember = async username => {
     if (window.confirm("Are you sure you want to remove this member form the team? This can't be undone.")) {
       await api.getSecured().delete(`/api/teams/${this.props.teamId}/members/${username}`)
@@ -104,40 +78,28 @@ class Members extends Component {
     }, 750)
   }
 
-  renderInviteModal() {
-    const inviteLink = this.state.inviteCode ? `${window.location.origin}/teams/join/${this.state.inviteCode}` : null
+  addMember = async user => {
+    await api.getSecured().post(`/api/teams/${this.props.teamId}/members/${user.username}`, { role: 'default' })
+    await this.props.fetchTeamData(this.props.teamId)
+  }
+
+  renderAddUserModal() {
+    const groupMembers = _.map(this.props.members, 'id')
+    const actions = [
+      {
+        label: 'Add',
+        type: 'primary',
+        needRefresh: true,
+        method: user => this.addMember(user)
+      }
+    ]
 
     return (
-      <Modal isOpen={this.state.isInviteModalOpen} toggle={this.toggleInviteModal}>
-        <ModalHeader toggle={this.toggleInviteModal}>Invite users to this team</ModalHeader>
+      <Modal isOpen={this.state.isAddUsersModalOpen} toggle={this.toggleAddUsers}>
+        <ModalHeader toggle={this.toggleAddUsers}>Add users to this team</ModalHeader>
         <ModalBody>
-          <p>Securely share this link to people you want to invite to join this team.</p>
-
-          {this.state.inviteCode && (
-            <InputGroup>
-              <Input id="inviteCode" disabled value={inviteLink} />
-              <InputGroupAddon addonType="append">
-                <CopyToClipboard text={inviteLink} onCopy={this.onCopy}>
-                  <Button>{this.state.copied ? 'Copied!' : 'Copy to clipboard'}</Button>
-                </CopyToClipboard>
-              </InputGroupAddon>
-            </InputGroup>
-          )}
-
-          <hr />
-
-          <Alert color="warning">
-            Anybody with this link will be able to join the team. You can also{' '}
-            <a href="#revoke" onClick={this.refreshInviteCode}>
-              revoke this link
-            </a>.
-          </Alert>
+          <UserList actions={actions} detailed="false" ignoreUsers={groupMembers} refresh={this.refreshUsers} />
         </ModalBody>
-        <ModalFooter>
-          <Button color="primary" onClick={this.toggleInviteModal}>
-            Done
-          </Button>
-        </ModalFooter>
       </Modal>
     )
   }
@@ -275,7 +237,7 @@ class Members extends Component {
           })}
         </ListGroup>
         {this.renderChangeUserRoleModal()}
-        {this.renderInviteModal()}
+        {this.renderAddUserModal()}
       </div>
     )
   }
@@ -286,8 +248,8 @@ class Members extends Component {
     }
 
     return (
-      <Button className="float-right" color="primary" size="sm" onClick={this.toggleInviteModal}>
-        <MdPersonAdd /> Invite Users
+      <Button className="float-right" color="primary" size="sm" onClick={this.toggleAddUsers}>
+        <MdPersonAdd /> Add Users
       </Button>
     )
   }

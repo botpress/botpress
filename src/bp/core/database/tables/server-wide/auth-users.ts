@@ -47,6 +47,7 @@ export class AuthUsersTable extends Table {
         table.string('email') // validate: { isEmail: true }
         table.string('location')
         table.timestamps(true, true)
+        table.timestamp('last_logon')
       })
       .then(async created => {
         if (created) {

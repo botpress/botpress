@@ -18,12 +18,12 @@ export interface AuthUser {
   last_ip?: string
   email?: string
   location?: string
+  last_logon?: Date
 }
 
 export interface AuthTeam {
   id: number
   name: string
-  invite_code: string
 }
 
 export interface AuthTeamMembership {

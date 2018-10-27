@@ -121,10 +121,7 @@ export default class AuthService {
       })
     }
 
-    if (ipAddress) {
-      await this.updateUser(username, { last_ip: ipAddress })
-    }
-
+    await this.updateUser(username, { last_ip: ipAddress, last_logon: new Date() })
     return this.generateUserToken(userId, TOKEN_AUDIENCE)
   }
 }

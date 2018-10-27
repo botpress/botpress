@@ -1,6 +1,6 @@
-import React, { Component, Fragment } from 'react'
+import React, { Component } from 'react'
 
-import { Button, FormFeedback, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap'
+import { Button, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap'
 
 class Landing extends Component {
   constructor(props) {
