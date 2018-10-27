@@ -100,7 +100,7 @@ export default class Role extends Component {
                 <Rule
                   index={i}
                   total={role.rules.length}
-                  readOnly={false}
+                  readOnly={true}
                   rule={rule}
                   ruleInfo={(indexedPermissions && indexedPermissions[rule.res]) || {}}
                   key={`${i}.${rule.res}.${rule.op}`}
