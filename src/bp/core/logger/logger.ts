@@ -67,6 +67,9 @@ export class PersistedConsoleLogger implements Logger {
 
     if (this.willPersistMessage) {
       this.loggerPersister.appendLog(entry)
+    } else {
+      // We reset it right away to prevent race conditions (since the persister might log a new message asynchronously)
+      this.willPersistMessage = true
     }
 
     if (level === LoggerLevel.Error && this.attachedError) {
@@ -94,7 +97,6 @@ export class PersistedConsoleLogger implements Logger {
     this.currentMessageLevel = undefined
     this.botId = undefined
     this.attachedError = undefined
-    this.willPersistMessage = true
   }
 
   debug(message: string, metadata?: any): void {
