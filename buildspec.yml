@@ -4,6 +4,9 @@ env:
   variables:
     CHILD_CONCURRENCY: 1
     GULP_SERIES: true
+    YARN_CACHE_DIR_WIN: /codebuild/output/.cache/yarn-win
+    YARN_CACHE_DIR_LINUX: /codebuild/output/.cache/yarn-linux
+    YARN_CACHE_DIR_DARWIN: /codebuild/output/.cache/yarn-darwin
   parameter-store:
     DOCKER_USERNAME: 'docker_username'
     DOCKER_PASSWORD: 'docker_password'
@@ -13,6 +16,9 @@ phases:
   install:
     commands:
       - npm install -g yarn
+      - mkdir -p $YARN_CACHE_DIR_WIN
+      - mkdir -p $YARN_CACHE_DIR_LINUX
+      - mkdir -p $YARN_CACHE_DIR_DARWIN
 
   pre_build:
     commands:
@@ -30,8 +36,10 @@ phases:
 
   build:
     commands:
+      - yarn config set cache-folder $YARN_CACHE_DIR_LINUX
       - (cd src/bp/ui-admin && yarn install && yarn build)
       # OSX Build
+      - yarn config set cache-folder $YARN_CACHE_DIR_DARWIN
       - export npm_config_target_platform=darwin
       # Twice because of potential OS-specific errors
       - yarn install --force --ignore-engines
@@ -45,8 +53,8 @@ phases:
       - rm -rf **/node_production_modules
       - mkdir -p out
       # # Windows Build
+      - yarn config set cache-folder $YARN_CACHE_DIR_WIN
       - export npm_config_target_platform=windows
-      - yarn cache clean
       - yarn install --force --ignore-engines
       - yarn install --force --ignore-engines
       - yarn run build --win32
@@ -58,8 +66,8 @@ phases:
       - rm -rf **/node_production_modules
       - mkdir -p out
       # Linux Build
+      - yarn config set cache-folder $YARN_CACHE_DIR_LINUX
       - export npm_config_target_platform=linux
-      - yarn cache clean
       - yarn install --force --ignore-engines
       - yarn run build --linux
       - yarn run package --linux
@@ -106,8 +114,13 @@ artifacts:
       files:
         - '**/*'
 
-  cache:
-    paths:
-      - node_modules
-      - modules/**/node_modules
-      - build/module-builder/node_modules
+cache:
+  paths:
+    - node_modules/**/*
+    - modules/**/node_modules/**/*
+    - modules/**/node_production_modules/**/*
+    - src/**/node_modules/**/*
+    - build/module-builder/node_modules/**/*
+    - /codebuild/output/.cache/yarn-win/**/*
+    - /codebuild/output/.cache/yarn-linux/**/*
+    - /codebuild/output/.cache/yarn-darwin/**/*
