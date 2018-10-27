@@ -7,18 +7,27 @@ import { Alert, Card, CardBody, CardTitle, Button, Input, CardText } from 'react
 export default class Login extends Component {
   state = { username: '', password: '', passwordExpired: false, error: null }
 
-  login = async () => {
+  login = async ({ username, password, showError = true }) => {
     this.setState({ error: null })
 
     try {
-      await this.props.auth.login({ username: this.state.username, password: this.state.password })
+      await this.props.auth.login({
+        username: username || this.state.username,
+        password: password || this.state.password
+      })
     } catch (err) {
       if (err.type === 'PasswordExpiredError') {
-        this.setState({ passwordExpired: true })
+        this.setState({ passwordExpired: true, username, password })
       } else {
-        this.setState({ error: err.message })
+        showError && this.setState({ error: err.message })
       }
     }
+  }
+
+  componentDidMount() {
+    // When we first load the page, we try to connect with default credentials automatically
+    // We don't display an error if the default credentials fail
+    this.login({ username: 'admin', password: '', showError: false })
   }
 
   onInputChange = name => event => {

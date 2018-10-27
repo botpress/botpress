@@ -44,6 +44,14 @@ export default class ChangePassword extends Component {
     }
   }
 
+  getReasonText = () => {
+    if (this.state.password === '') {
+      return 'This is the first time you run Botpress. Please pick a password.'
+    }
+
+    return 'Your password has expired or was temporary. Please set a new password.'
+  }
+
   renderForm = () => {
     if (!this.state.username) {
       return <Redirect to="/" />
@@ -52,7 +60,7 @@ export default class ChangePassword extends Component {
     return (
       <Fragment>
         <CardTitle>Botpress Admin Panel</CardTitle>
-        <CardText>Either it is your first time or your password is expired. Please change it.</CardText>
+        <CardText>{this.getReasonText()}</CardText>
         {this.state.error && <Alert color="danger">{this.state.error}</Alert>}
         <Input
           value={this.state.newPassword}
