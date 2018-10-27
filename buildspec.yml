@@ -7,6 +7,7 @@ env:
   parameter-store:
     DOCKER_USERNAME: 'docker_username'
     DOCKER_PASSWORD: 'docker_password'
+    GIT_PRO_SSH: 'bp_git_pro_ssh_codebuild'
 
 phases:
   install:
@@ -15,6 +16,12 @@ phases:
 
   pre_build:
     commands:
+      # Add our encrypted SSH key to our keychain so we can checkout the "Pro" private submodule
+      - echo "$GIT_PRO_SSH" > pro-ssh
+      - chmod 400 pro-ssh
+      - eval "$(ssh-agent -s)"
+      - echo "" | ssh-add pro-ssh
+      # Docker setup
       - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
       - $(./build/codebuild-extras.sh)
       - echo "BUILDING FOR '$ARTIFACT_NAME'"
@@ -76,26 +83,26 @@ phases:
 
 artifacts:
   base-directory: $CODEBUILD_SRC_DIR
-  name: botpress-$ARTIFACT_NAME-all-x64.zip
+  name: botpress-$EDITION-$ARTIFACT_NAME-all-x64.zip
   files:
     - 'out_*/**/*'
 
   secondary-artifacts:
     darwin:
       base-directory: $CODEBUILD_SRC_DIR/out_darwin/binaries
-      name: botpress-$ARTIFACT_NAME-darwin-x64.zip
+      name: botpress-$EDITION-$ARTIFACT_NAME-darwin-x64.zip
       files:
         - '**/*'
 
     linux:
       base-directory: $CODEBUILD_SRC_DIR/out_linux/binaries
-      name: botpress-$ARTIFACT_NAME-linux-x64.zip
+      name: botpress-$EDITION-$ARTIFACT_NAME-linux-x64.zip
       files:
         - '**/*'
 
     windows:
       base-directory: $CODEBUILD_SRC_DIR/out_win32/binaries
-      name: botpress-$ARTIFACT_NAME-win-x64.zip
+      name: botpress-$EDITION-$ARTIFACT_NAME-win-x64.zip
       files:
         - '**/*'
 
