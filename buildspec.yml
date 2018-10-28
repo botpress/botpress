@@ -114,8 +114,8 @@ artifacts:
       files:
         - '**/*'
 
-cache:
-  paths:
-    - /codebuild/output/.cache/yarn-win/**/*
-    - /codebuild/output/.cache/yarn-linux/**/*
-    - /codebuild/output/.cache/yarn-darwin/**/*
+# cache:
+#   paths:
+#     - /codebuild/output/.cache/yarn-win/**/*
+#     - /codebuild/output/.cache/yarn-linux/**/*
+#     - /codebuild/output/.cache/yarn-darwin/**/*
