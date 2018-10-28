@@ -5,15 +5,24 @@ import path from 'path'
 
 import api from './api'
 import { QnaStorage, SDK } from './qna'
-import setup from './setup'
+import { initBot, initModule } from './setup'
 
 const botScopedStorage: Map<string, QnaStorage> = new Map<string, QnaStorage>()
 
-const onInit = async (bp: SDK) => {}
+const onInit = async (bp: SDK) => {
+  await initModule(bp, botScopedStorage)
+}
 
 const onReady = async (bp: SDK) => {
-  await setup(bp, botScopedStorage)
   await api(bp, botScopedStorage)
+}
+
+const onBotMount = async (bp: SDK, botId: string) => {
+  await initBot(bp, botScopedStorage, botId)
+}
+
+const onBotUnmount = async (bp: SDK, botId: string) => {
+  botScopedStorage.delete(botId)
 }
 
 const serveFile = async (filePath: string): Promise<Buffer> => {
@@ -49,6 +58,8 @@ const defaultConfigJson = `
 const entryPoint: sdk.ModuleEntryPoint = {
   onInit,
   onReady,
+  onBotMount,
+  onBotUnmount,
   config,
   defaultConfigJson,
   serveFile,
