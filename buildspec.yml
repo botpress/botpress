@@ -29,8 +29,9 @@ phases:
       - echo "" | ssh-add pro-ssh
       # Docker setup
       - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+      - echo "Edition = '$EDITION'"
       - $(./build/codebuild-extras.sh)
-      - echo "BUILDING FOR '$ARTIFACT_NAME'"
+      - echo "BUILDING FOR '$ARTIFACT_NAME' edition '$EDITION'"
       - yarn install
       - (cd build/module-builder && yarn install && yarn build)
 
