@@ -15,8 +15,7 @@ export default class Analytics {
   constructor(private bp: SDK, private botId: string) {
     this._knex = bp['database']
     this._stats = new Stats(this._knex)
-    // TODO: Put interval in config file
-    this._task = new UpdateTask(this.bp, ms('30s'))
+    this._task = new UpdateTask(this.bp, this._getInterval())
   }
 
   public async start() {
@@ -89,6 +88,13 @@ export default class Analytics {
     } else {
       return 1
     }
+  }
+
+  private _getInterval() {
+    // TODO: Might be necessary to fix interval based on db size later on.
+    // TODO: Might be necessary to add a property in bot config.
+    // return this._getDBSize() < 5 ? ms('5m') : ms('1h')
+    return ms('5m')
   }
 
   private async _savePartialData(botId: string, property, data) {
