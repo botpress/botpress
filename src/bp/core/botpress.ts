@@ -4,6 +4,7 @@ import { inject, injectable, tagged } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import { Memoize } from 'lodash-decorators'
 import moment from 'moment'
+import nanoid from 'nanoid'
 import path from 'path'
 import plur from 'plur'
 
@@ -77,6 +78,7 @@ export class Botpress {
   private async initialize(options: StartOptions) {
     this.config = await this.loadConfiguration()
 
+    await this.checkJwtSecret()
     await this.trackStats()
     await this.createDatabase()
     await this.initializeGhost()
@@ -88,6 +90,16 @@ export class Botpress {
 
     this.api = await createForGlobalHooks()
     await this.hookService.executeHook(new Hooks.AfterServerStart(this.api))
+  }
+
+  async checkJwtSecret() {
+    if (!this.config!.jwtSecret) {
+      this.config!.jwtSecret = nanoid(40)
+      this.configProvider.setBotpressConfig(this.config!)
+      this.logger.warn(`JWT Secret isn't defined. Generating a random key...`)
+    }
+
+    process.JWT_SECRET = this.config!.jwtSecret
   }
 
   async discoverBots(): Promise<void> {

@@ -7,6 +7,7 @@ declare namespace NodeJS {
   export interface Process {
     VERBOSITY_LEVEL: number
     IS_PRODUCTION: boolean
+    JWT_SECRET: string
     PROJECT_LOCATION: string
     LOADED_MODULES: { [module: string]: string }
     pkg: any

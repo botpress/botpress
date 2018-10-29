@@ -31,6 +31,7 @@ export interface LogsConfig {
 }
 
 export type BotpressConfig = {
+  jwtSecret: string
   httpServer: {
     host?: string
     port: number

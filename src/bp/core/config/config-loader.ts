@@ -9,6 +9,7 @@ import { BotpressConfig } from './botpress.config'
 
 export interface ConfigProvider {
   getBotpressConfig(): Promise<BotpressConfig>
+  setBotpressConfig(config: BotpressConfig): Promise<void>
   getBotConfig(botId: string): Promise<BotConfig>
   setBotConfig(botId: string, config: BotConfig): Promise<void>
 }
@@ -30,6 +31,10 @@ export class GhostConfigProvider implements ConfigProvider {
     config.ghost.enabled = yn(process.env.GHOST_ENABLED) || config.ghost.enabled
 
     return config
+  }
+
+  async setBotpressConfig(config: BotpressConfig) {
+    await this.ghostService.global().upsertFile('/', 'botpress.config.json', JSON.stringify(config, undefined, 2))
   }
 
   async getBotConfig(botId: string): Promise<BotConfig> {
