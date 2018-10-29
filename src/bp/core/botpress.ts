@@ -130,8 +130,8 @@ export class Botpress {
 
     this.notificationService.onNotification = notification => {
       const payload: sdk.RealTimePayload = {
-        eventName: 'notification.new',
-        payload: notification // pass notification here? or just notify the client to fetch the new notifications via the http api?
+        eventName: 'notifications.new',
+        payload: notification
       }
       this.realtimeService.sendToSocket(payload)
     }
