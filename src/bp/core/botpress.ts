@@ -138,6 +138,8 @@ export class Botpress {
 
     await this.logJanitor.start()
     await this.dialogJanitor.start()
+
+    await this.lifecycle.setDone(AppLifecycleEvents.SERVICES_READY)
   }
 
   @Memoize()

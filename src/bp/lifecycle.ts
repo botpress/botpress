@@ -2,7 +2,8 @@ import { injectable } from 'inversify'
 import { Dictionary } from 'lodash'
 
 export enum AppLifecycleEvents {
-  HTTP_SERVER_READY = 'HTTP_SERVER_READY'
+  HTTP_SERVER_READY = 'HTTP_SERVER_READY',
+  SERVICES_READY = 'SERVICES_READY'
 }
 
 type CacheEntry = { promise: Promise<void>; resolve: Function; reject: Function }
