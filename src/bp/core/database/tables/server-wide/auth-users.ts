@@ -17,9 +17,7 @@ const insertUsers = async (knex: Knex, tableName: string) => {
         username,
         password: saltHashed.hash,
         salt: saltHashed.salt,
-        password_expired: true,
-        firstname: username,
-        lastname: username
+        password_expired: true
       }))
     )
     .then()
@@ -38,7 +36,6 @@ export class AuthUsersTable extends Table {
           .notNullable() // validate: { len: [3, 30] }
         table.string('password').notNullable()
         table.string('salt').notNullable()
-        table.boolean('password_expired')
         table.string('firstname')
         table.string('lastname')
         table.string('picture')
@@ -47,6 +44,8 @@ export class AuthUsersTable extends Table {
         table.string('email') // validate: { isEmail: true }
         table.string('location')
         table.timestamps(true, true)
+        table.timestamp('last_logon')
+        table.boolean('password_expired')
       })
       .then(async created => {
         if (created) {

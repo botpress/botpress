@@ -6,9 +6,9 @@ import api from './api'
 
 export type SDK = typeof sdk
 
-const onInit = async (bp: SDK) => {}
+const onServerStarted = async (bp: SDK) => {}
 
-const onReady = async (bp: SDK) => {
+const onServerReady = async (bp: SDK) => {
   await api(bp)
 }
 
@@ -28,8 +28,8 @@ const serveFile = async (filePath: string): Promise<Buffer> => {
 }
 
 const entryPoint: sdk.ModuleEntryPoint = {
-  onInit,
-  onReady,
+  onServerStarted,
+  onServerReady,
   config: {},
   serveFile,
   definition: {

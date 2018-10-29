@@ -37,6 +37,10 @@ export type BotpressConfig = {
     proxyPort: number
     backlog: number
     bodyLimit: string | number
+    cors: {
+      enabled?: boolean
+      origin?: string
+    }
   }
   database: DatabaseConfig
   ghost: {

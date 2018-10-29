@@ -20,6 +20,8 @@ export function logout() {
   localStorage.removeItem(TOKEN_KEY)
   // navigate to the home route
   history.replace(HOME_ROUTE)
+  // need to force reload otherwise the token wont clear properly
+  window.location.reload()
 }
 
 export default class BasicAuthentication {

@@ -32,7 +32,7 @@ export type SDK = typeof sdk & Extension
 
 let db = undefined
 
-const onInit = async (bp: typeof sdk & Extension) => {
+const onServerStarted = async (bp: typeof sdk & Extension) => {
   db = new SchedulerDb(bp)
   await db.initialize()
 
@@ -41,7 +41,7 @@ const onInit = async (bp: typeof sdk & Extension) => {
   daemon.start()
 }
 
-const onReady = async (bp: typeof sdk & Extension) => {
+const onServerReady = async (bp: typeof sdk & Extension) => {
   await api(bp, db)
 }
 
@@ -61,8 +61,8 @@ const serveFile = async (filePath: string): Promise<Buffer> => {
 }
 
 const obj: sdk.ModuleEntryPoint = {
-  onInit,
-  onReady,
+  onServerStarted,
+  onServerReady,
   config: {},
   serveFile,
   definition: {

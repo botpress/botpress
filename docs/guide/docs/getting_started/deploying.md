@@ -1,6 +1,6 @@
 ---
 id: deploying
-title: !!!Deploying
+title: !!Deploying
 ---
 
 # 🚀 Deploying our bot
@@ -19,19 +19,30 @@ We're using Heroku because it's fast, easy and free to deploy and manage your bo
 
 - Type `heroku login` in your terminal to log in to Heroku.
 
-### Git
+### Preparing the Docker image
 
-Let's init a git repo in our bot directory:
+Create a file named `Dockerfile` in any directory, and copy your `data` folder in the same place. Example:
 
 ```bash
-git init
-
-git add .
-
-git commit -m "First commit"
+my-new-bot
+├── Dockerfile
+└── data
+    ├── bots
+    └── global
 ```
 
-Then let's create a Heroku App:
+The Dockerfile content:
+
+```docker
+FROM botpress/server:11.0.0
+ADD . /botpress
+WORKDIR /botpress
+CMD ["./bp"]
+```
+
+Then open a command prompt and type these commands:
+
+This command creates an application with a random name. Remember it.
 
 ```bash
 heroku create
@@ -40,31 +51,20 @@ heroku create
 # https://glacial-inlet-29943.herokuapp.com/ | https://git.heroku.com/glacial-inlet-29943.git
 ```
 
-Alright, now let's deploy our app:
-
 ```bash
-git push heroku master
+# Login to the container registry
+heroku container:login
+
+# This uses your Dockerfile to build the image.
+heroku container:push web --app $APP_NAME
+
+# This is the last step, your bot will be available at https://$APP_NAME.herokuapp.com/
+heroku container:release web --app $APP_NAME
 ```
-
-And you're done! You should see something like:
-
-```bash
-remote:        https://glacial-inlet-29943.herokuapp.com/ deployed to Heroku
-remote:
-remote: Verifying deploy... done.
-To https://git.heroku.com/glacial-inlet-29943.git
- * [new branch]      master -> master
-```
-
-For more information about how to setup Heroku, [read this](https://devcenter.heroku.com/articles/git).
 
 ## Configuring our app
 
-Your bot is now live at the URL that Heroku just gave you in the last command run. If you open that URL, you'll notice that you are facing a login page. The default password is `password`. You can change this password by setting the `BOTPRESS_PASSWORD` env variable:
-
-```bash
-heroku config:set BOTPRESS_PASSWORD=hello123
-```
+Your bot is now live at the URL that Heroku just gave you in the last command run. If you open that URL, you'll notice that you are facing a login page. There is no default password but you will be invited to change it the first time you login.
 
 ### Using Postgres as the database
 
