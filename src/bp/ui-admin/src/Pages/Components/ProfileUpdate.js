@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import _ from 'lodash'
-import { Button, Modal, Input, Label, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
+import { Button, Modal, Input, Label, ModalHeader, ModalBody, ModalFooter, FormGroup } from 'reactstrap'
 import api from '../../api'
 
 class ProfileUpdate extends Component {
@@ -42,20 +42,24 @@ class ProfileUpdate extends Component {
       <Modal isOpen={this.isModalOpen()} toggle={this.closeModal}>
         <ModalHeader toggle={this.closeModal}>Please complete your profile</ModalHeader>
         <ModalBody>
-          <Label for="firstName">First Name</Label>
-          <Input
-            name="firstName"
-            onChange={this.onInputChanged}
-            onKeyPress={this.onInputKeyPress}
-            value={this.state.firstName}
-          />
-          <Label for="lastName">Last Name</Label>
-          <Input
-            name="lastName"
-            onChange={this.onInputChanged}
-            onKeyPress={this.onInputKeyPress}
-            value={this.state.lastName}
-          />
+          <FormGroup>
+            <Label for="firstName">First Name</Label>
+            <Input
+              name="firstName"
+              onChange={this.onInputChanged}
+              onKeyPress={this.onInputKeyPEditress}
+              value={this.state.firstName}
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label for="lastName">Last Name</Label>
+            <Input
+              name="lastName"
+              onChange={this.onInputChanged}
+              onKeyPress={this.onInputKeyPress}
+              value={this.state.lastName}
+            />
+          </FormGroup>
         </ModalBody>
         <ModalFooter>
           <Button color="primary" onClick={() => this.updateProfile()}>
