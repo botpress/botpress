@@ -2,6 +2,7 @@ import Knex from 'knex'
 
 export interface KnexExtension {
   isLite: boolean
+  location: string
   createTableIfNotExists(tableName: string, cb: Knex.KnexCallback): Promise<boolean>
   date: Knex.Date
   bool: Knex.Bool

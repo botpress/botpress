@@ -1,149 +1,97 @@
-import sdk from 'botpress/sdk'
 import fs from 'fs'
 import _ from 'lodash'
 import moment from 'moment'
-import path from 'path'
+import ms from 'ms'
 
+import { SDK } from '.'
 import Stats from './stats'
-
-const createEmptyFileIfDoesntExist = file => {
-  if (!fs.existsSync(file)) {
-    fs.writeFileSync(file, '{}')
-  }
-}
-
-const loadDataFromFile = file => {
-  if (!fs.existsSync(file)) {
-    sdk.logger.debug(`Analytics file "${file}" doesn't exist.`)
-  }
-  return JSON.parse(fs.readFileSync(file, 'utf-8'))
-}
+import { UpdateTask } from './task'
 
 export default class Analytics {
-  private bp
-  private knex
-  private stats
-  private chartsDatafile
-  private running
-  private tempChartData: Map<string, object>
+  private _knex
+  private _stats
+  private _task
 
-  constructor(bp) {
-    if (!bp) {
-      throw new Error('You need to specify botpress')
-    }
-
-    this.bp = bp
-    this.knex = bp['database']
-    this.stats = new Stats(this.knex)
-    this.tempChartData = new Map<string, object>()
-
-    const running = false
-    setInterval(() => {
-      this.stats.getLastRun().then(ts => {
-        const elasped = moment.duration(moment().diff(ts)).asMinutes()
-        if (!ts || elasped >= this.getUpdateFrequency()) {
-          this.updateData()
-        }
-      })
-    }, 5000)
+  constructor(private bp: SDK, private botId: string) {
+    this._knex = bp['database']
+    this._stats = new Stats(this._knex)
+    // TODO: Put interval in config file
+    this._task = new UpdateTask(this.bp, ms('30s'))
   }
 
-  getDBSize() {
-    if (this.bp.db.location !== 'postgres') {
-      return fs.statSync(this.bp.db.location)['size'] / 1000000.0 // in megabytes
+  public async start() {
+    this._task.runTask = async () => {
+      await this._updateData()
+    }
+
+    await this._task.start(this.botId)
+  }
+
+  public async stop() {
+    await this._task.stop(this.botId)
+  }
+
+  public getAnalyticsMetadata() {
+    return this._stats.getLastRun().then(ts => {
+      const run = moment(new Date(ts))
+      const then = moment(new Date()).subtract(30, 'minutes')
+      const elasped = moment.duration(then.diff(run)).humanize()
+      return { lastUpdated: elasped, size: this._getDBSize() }
+    })
+  }
+
+  private async _updateData() {
+    this.bp.logger.forBot(this.botId).debug('Recompiling analytics')
+
+    const totalUsers = await this._stats.getTotalUsers()
+    await this._savePartialData(this.botId, 'totalUsers', totalUsers || 0)
+
+    const activeUsers = await this._stats.getDailyActiveUsers()
+    await this._savePartialData(this.botId, 'activeUsers', activeUsers)
+
+    const interactionRanges = await this._stats.getInteractionRanges()
+    await this._savePartialData(this.botId, 'interactionsRange', interactionRanges)
+
+    const avgInteractions = await this._stats.getAverageInteractions()
+    const nbUsers = await this._stats.getNumberOfUsers()
+    await this._savePartialData(this.botId, 'fictiveSpecificMetrics', {
+      numberOfInteractionInAverage: avgInteractions,
+      numberOfUsersToday: nbUsers.today,
+      numberOfUsersYesterday: nbUsers.yesterday,
+      numberOfUsersThisWeek: nbUsers.week
+    })
+
+    const rentention = await this._stats.usersRetention()
+    await this._savePartialData(this.botId, 'retentionHeatMap', rentention)
+
+    const busyHours = await this._stats.getBusyHours()
+    await this._savePartialData(this.botId, 'busyHoursHeatMap', busyHours)
+    await this._stats.setLastRun()
+  }
+
+  public async getChartsGraphData() {
+    return {
+      loading: false,
+      noData: false,
+      totalUsersChartData: (await this.bp.kvs.get(this.botId, 'totalUsers')) || [],
+      activeUsersChartData: (await this.bp.kvs.get(this.botId, 'activeUsers')) || [],
+      genderUsageChartData: (await this.bp.kvs.get(this.botId, 'genderUsage')) || [],
+      typicalConversationLengthInADay: (await this.bp.kvs.get(this.botId, 'interactionsRange')) || [],
+      specificMetricsForLastDays: (await this.bp.kvs.get(this.botId, 'fictiveSpecificMetrics')) || {},
+      retentionHeatMap: (await this.bp.kvs.get(this.botId, 'retentionHeatMap')) || [],
+      busyHoursHeatMap: (await this.bp.kvs.get(this.botId, 'busyHoursHeatMap')) || []
+    }
+  }
+
+  private _getDBSize() {
+    if (this.bp.database.isLite) {
+      return fs.statSync(this.bp.database.location)['size'] / 1000000.0 // in megabytes
     } else {
       return 1
     }
   }
 
-  getAnalyticsMetadata() {
-    return this.stats.getLastRun().then(ts => {
-      const run = moment(new Date(ts))
-      const then = moment(new Date()).subtract(30, 'minutes')
-      const elasped = moment.duration(then.diff(run)).humanize()
-      return { lastUpdated: elasped, size: this.getDBSize() }
-    })
-  }
-
-  getUpdateFrequency() {
-    return this.getDBSize() < 5 ? 5 : 60
-  }
-
-  updateData() {
-    if (this.running) {
-      return
-    }
-    this.running = true
-    this.bp.logger.debug('recompiling analytics')
-    this.stats
-      .getTotalUsers()
-      .then(data => this.savePartialData('totalUsers', data))
-      .then(() => this.stats.getDailyActiveUsers())
-      .then(data => this.savePartialData('activeUsers', data))
-      // .then(() => this.stats.getDailyGender())
-      // .then(data => this.savePartialData('genderUsage', data))
-      .then(() => this.stats.getInteractionRanges())
-      .then(data => this.savePartialData('interactionsRange', data))
-      .then(() => this.stats.getAverageInteractions())
-      .then(averageInteractions => {
-        this.stats.getNumberOfUsers().then(nbUsers => {
-          this.savePartialData('fictiveSpecificMetrics', {
-            numberOfInteractionInAverage: averageInteractions,
-            numberOfUsersToday: nbUsers.today,
-            numberOfUsersYesterday: nbUsers.yesterday,
-            numberOfUsersThisWeek: nbUsers.week
-          })
-        })
-      })
-      .then(() => this.stats.usersRetention())
-      .then(data => this.savePartialData('retentionHeatMap', data))
-      .then(() => this.stats.getBusyHours())
-      .then(data => this.savePartialData('busyHoursHeatMap', data))
-      .then(() => {
-        const data = this.getChartsGraphData()
-        // TODO alternative
-        // this.bp.events.emit('data.send', data)
-        this.stats.setLastRun()
-      })
-      .then(() => (this.running = false))
-  }
-
-  savePartialData(property, data) {
-    this.tempChartData.set(property, data)
-
-    /*  const chartsData = loadDataFromFile(this.chartsDatafile)
-    chartsData[property] = data
-    fs.writeFileSync(this.chartsDatafile, JSON.stringify(chartsData))*/
-  }
-
-  getChartsGraphData() {
-    // const chartsData = loadDataFromFile(this.chartsDatafile)
-
-    /*if (_.isEmpty(chartsData)) {
-      return { loading: true, noData: true }
-    }*/
-
-    return {
-      loading: false,
-      noData: false,
-      totalUsersChartData: this.tempChartData.get('totalUsers') || [],
-      activeUsersChartData: this.tempChartData.get('activeUsers') || [],
-      genderUsageChartData: this.tempChartData.get('genderUsage') || [],
-      typicalConversationLengthInADay: this.tempChartData.get('interactionsRange') || [],
-      specificMetricsForLastDays: this.tempChartData.get('fictiveSpecificMetrics') || {},
-      retentionHeatMap: this.tempChartData.get('retentionHeatMap') || [],
-      busyHoursHeatMap: this.tempChartData.get('busyHoursHeatMap') || []
-    }
-    /*return {
-      loading: false,
-      noData: false,
-      totalUsersChartData: chartsData.totalUsers || [],
-      activeUsersChartData: chartsData.activeUsers || [],
-      genderUsageChartData: chartsData.genderUsage || [],
-      typicalConversationLengthInADay: chartsData.interactionsRange || [],
-      specificMetricsForLastDays: chartsData.fictiveSpecificMetrics || {},
-      retentionHeatMap: chartsData.retentionHeatMap || [],
-      busyHoursHeatMap: chartsData.busyHoursHeatMap || []
-    }*/
+  private async _savePartialData(botId: string, property, data) {
+    await this.bp.kvs.set(botId, property, data)
   }
 }
