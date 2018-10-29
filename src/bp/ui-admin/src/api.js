@@ -18,13 +18,12 @@ const createClient = (clientOptions, { toastErrors }) => {
   client.interceptors.response.use(
     response => response,
     error => {
-      if (error.response.code === 'BP_0005') {
-        return logout()
-      }
-
       const wrappedError = _.get(error, 'response.data')
-
-      if (_.get(wrappedError, 'code')) {
+      const code = _.get(wrappedError, 'code')
+      if (code) {
+        if (code === 'BP_0005') {
+          return logout()
+        }
         return Promise.reject(wrappedError)
       } else {
         return Promise.reject(error)
