@@ -11,8 +11,10 @@ import TeamsListPage from '../Pages/Teams/List'
 import TeamMembersPage from '../Pages/Teams/Members'
 import TeamRolesPage from '../Pages/Teams/Roles'
 import MePage from '../Pages/Me'
-import Landing from "../Pages/Landing";
-import LandingStep2 from "../Pages/LandingStep2";
+import Landing from '../Pages/Landing'
+import LandingStep2 from '../Pages/LandingStep2'
+import ChangePassword from '../Pages/ChangePassword'
+import UsersListPage from '../Pages/Users/List'
 
 import Auth from '../Auth'
 import PrivateRoute from './PrivateRoute'
@@ -44,6 +46,12 @@ export const makeMainRoutes = () => {
               return <LoginPage auth={auth} {...props} />
             }}
           />
+          <Route
+            path="/changePassword"
+            render={props => {
+              return <ChangePassword auth={auth} {...props} />
+            }}
+          />
           <PrivateRoute path="/" auth={auth} component={App}>
             <Switch>
               <Route exact path="/me" render={props => <MePage {...props} />} />
@@ -55,10 +63,10 @@ export const makeMainRoutes = () => {
                 }}
               />
               <Route exact path="/teams" render={props => <TeamsListPage {...props} />} />
-              <Route exact path="/teams/join/:inviteCode" render={props => <TeamsListPage {...props} />} />
               <Route exact path="/teams/:teamId/bots" render={props => <TeamBotsPage {...props} />} />
               <Route exact path="/teams/:teamId/members" render={props => <TeamMembersPage {...props} />} />
               <Route exact path="/teams/:teamId/roles" render={props => <TeamRolesPage {...props} />} />
+              <Route exact path="/users" render={props => <UsersListPage {...props} />} />
               <Redirect from="/" to="/teams" />
             </Switch>
           </PrivateRoute>

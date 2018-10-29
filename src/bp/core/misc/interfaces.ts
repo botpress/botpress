@@ -17,6 +17,8 @@ export interface AuthUser {
   last_ip?: string
   email?: string
   location?: string
+  last_logon?: Date
+  password_expired?: boolean
 }
 
 export interface AuthTeam {

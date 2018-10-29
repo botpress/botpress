@@ -1,6 +1,6 @@
 ---
 id: embedding
-title: Embedding the Webchat on a website
+title: !!!Embedding the Webchat on a website
 ---
 
 Embedding a bot to your existing site is quite straightforward. You will need to deploy your bot to a server or hosting provider and make it accessible via a URL.

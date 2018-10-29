@@ -1,12 +1,10 @@
 {
   "docs": {
+    "General": ["general/welcome", "general/philosphy", "general/botpressxx", "general/admin", "general/licensing"],
     "Getting Started": [
       "getting_started/index",
-      "getting_started/philosphy",
       "getting_started/install",
       "getting_started/components",
-      "getting_started/templates",
-      "getting_started/dashboard",
       "getting_started/content",
       "getting_started/flows",
       "getting_started/actions",
@@ -14,7 +12,18 @@
       "getting_started/skills",
       "getting_started/nlu",
       "getting_started/deploying",
+      "getting_started/hooks",
       "getting_started/changes"
+    ],
+    "Modules": [
+      "modules/install",
+      "modules/create",
+      "modules/build",
+      "modules/api-endpoint",
+      "modules/views",
+      "modules/actions",
+      "modules/database",
+      "modules/example"
     ],
     "Recipes": [
       "recipes/index",
@@ -28,7 +37,6 @@
       "recipes/i18n",
       "recipes/jumps",
       "recipes/login",
-      "recipes/modules",
       "recipes/proactive",
       "recipes/sanitizing",
       "recipes/scheduling",

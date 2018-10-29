@@ -41,6 +41,7 @@ node_modules
 /out
 /tmp
 test-report.html
+edition.json
 
 # Botpress docs
 /docs/reference

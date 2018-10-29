@@ -55,3 +55,11 @@ export class InvalidCredentialsError extends ResponseError {
 
   type = 'InvalidCredentialsError'
 }
+
+export class PasswordExpiredError extends ResponseError {
+  constructor(message?: string) {
+    super('Password Expired' + (message ? ' ' + message : ''), 400, 'BP_0010')
+  }
+
+  type = 'PasswordExpiredError'
+}

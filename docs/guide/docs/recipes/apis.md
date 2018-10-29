@@ -15,10 +15,25 @@ repoStarsByInput: async (state, event) => {
   try {
     const {
       data: { stargazers_count }
-    } = await axios.get(`${endPoint}/${event.text}`)
-    await event.reply('#builtin_text', { text: `This repo has ${stargazers_count} ★` })
+    } = await axios.get(`${endPoint}/${event.payload.text}`)
+
+    const payloads = await bp.cms.renderElement(
+      'builtin_text',
+      {
+        text: `This repo has ${stargazers_count} ★`
+      },
+      event.channel
+    )
+    await bp.events.replyToEvent(event, payloads)
   } catch (e) {
-    await event.reply('#builtin_text', { text: `Failed to fetch data for this repo` })
+    const payloads = await bp.cms.renderElement(
+      'builtin_text',
+      {
+        text: `Failed to fetch data for this repo`
+      },
+      event.channel
+    )
+    await bp.events.replyToEvent(event, payloads)
   }
 }
 ```

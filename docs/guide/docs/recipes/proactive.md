@@ -13,18 +13,20 @@ With Botpress this is simple:
 window.botpressWebChat.sendEvent({ type: 'show' })
 window.botpressWebChat.sendEvent({
   type: 'proactive-trigger',
-  platform: 'web',
-  text: 'smth'
+  channel: 'web',
+  payload: {
+    text: 'smth'
+  }
 })
 ```
 
-2. This trigger will be dispatched to the bot so you need to add a handler for it. Here is a simple example:
+2. This trigger will be dispatched to the bot so you need to add a handler for it. This should be added as a [Hook](../get_started/hooks)
 
 ```js
-bp.hear({ type: /proactive-trigger/i }, async ({ user, text }, next) => {
-  bp.renderers.sendToUser(user, '#builtin_text', { text: 'Hey there!', typing: true })
-  next()
-})
+if (event.type === 'proactive-trigger') {
+  const payloads = await bp.cms.renderElement('builtin_text', { text: 'Hey there!', typing: true }, event.channel)
+  bp.events.replyToEvent(event, payloads)
+}
 ```
 
 That's it! If you have your builtin renderers registered, the code above will work!

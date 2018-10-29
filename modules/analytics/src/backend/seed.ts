@@ -151,9 +151,3 @@ if (fs.existsSync(dbFile)) {
 }
 
 export default { run }
-// FIXME: Fix the fix!
-// db.getOrCreate(dbFile) // TODO Fix that
-//   .then(knex => {
-//     return run(knex)
-//   })
-//   .then(() => process.exit(0))

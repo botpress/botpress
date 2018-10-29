@@ -5,6 +5,7 @@ import { VError } from 'verror'
 
 export const patchKnex = (knex: Knex): Knex & KnexExtension => {
   const isLite = knex.client.config.client === 'sqlite3'
+  const location = isLite ? knex.client.connectionSettings.filename : undefined
 
   const dateParse = (exp: string): Knex.Raw => {
     return isLite ? knex.raw(`strftime('%Y-%m-%dT%H:%M:%fZ', ${exp})`) : knex.raw(exp)
@@ -132,7 +133,7 @@ export const patchKnex = (knex: Knex): Knex & KnexExtension => {
     get: obj => (isLite ? obj && JSON.parse(obj) : obj)
   }
 
-  const extensions: KnexExtension = { isLite, date, json, bool, createTableIfNotExists, insertAndRetrieve }
+  const extensions: KnexExtension = { isLite, location, date, json, bool, createTableIfNotExists, insertAndRetrieve }
 
   return Object.assign(knex, extensions)
 }

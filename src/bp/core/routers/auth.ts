@@ -1,6 +1,6 @@
 import { Logger } from 'botpress/sdk'
 import { RequestWithUser } from 'core/misc/interfaces'
-import { AdminService } from 'core/services/admin/professionnal/admin-service'
+import { AdminService } from 'core/services/admin/service'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import { Request, RequestHandler, Router } from 'express'
 import _ from 'lodash'
@@ -29,7 +29,7 @@ export class AuthRouter implements CustomRouter {
   }
 
   login = async (req, res) => {
-    const token = await this.authService.login(req.body.username, req.body.password, getIp(req))
+    const token = await this.authService.login(req.body.username, req.body.password, req.body.newPassword, getIp(req))
 
     return sendSuccess(res, 'Login successful', { token })
   }
@@ -40,6 +40,11 @@ export class AuthRouter implements CustomRouter {
       'Retrieved profile successfully',
       _.pick((req as RequestWithUser).dbUser, ['company', 'email', 'fullName', 'id', 'picture', 'provider', 'username'])
     )
+  }
+
+  updateProfile = async (req, res) => {
+    await this.adminService.updateUserProfile(req.dbUser.id, req.body.firstname, req.body.lastname)
+    return sendSuccess(res, 'Updated profile successfully')
   }
 
   getPermissions = async (req, res) => {
@@ -62,6 +67,8 @@ export class AuthRouter implements CustomRouter {
     router.post('/login', this.asyncMiddleware(this.login))
 
     router.get('/me/profile', this.checkTokenHeader, this.loadUser, this.asyncMiddleware(this.getProfile))
+
+    router.post('/me/profile', this.checkTokenHeader, this.loadUser, this.asyncMiddleware(this.updateProfile))
 
     router.get(
       '/me/permissions/:teamId',

@@ -1,5 +1,6 @@
 const yn = require('yn')
 const pa = require('path')
+const file = require('../../edition.json')
 
 const printPlainError = err => {
   console.log('Error starting botpress')
@@ -28,6 +29,7 @@ function stripDeprecationWrite(this: Function): boolean {
   return originalWrite.apply(this, arguments)
 }
 
+process.LOADED_MODULES = {}
 process.PROJECT_LOCATION = process.pkg
   ? pa.dirname(process.execPath) // We point at the binary path
   : __dirname // e.g. /dist/..
@@ -44,6 +46,7 @@ process.on('uncaughtException', err => {
 })
 
 try {
+  process.env.EDITION = file.edition
   let defaultVerbosity = process.pkg ? 0 : 2
   if (!isNaN(Number(process.env.VERBOSITY_LEVEL))) {
     defaultVerbosity = Number(process.env.VERBOSITY_LEVEL)

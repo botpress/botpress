@@ -70,7 +70,6 @@ class Bots extends Component {
     const botForm = {
       id: this.state.id,
       name: this.state.name,
-      description: this.state.description
     }
 
     await api
@@ -119,17 +118,6 @@ class Bots extends Component {
               value={this.state.name}
               onChange={event => this.setState({ name: event.target.value })}
               onBlur={() => this.generateBotId()}
-            />
-          </FormGroup>
-          <FormGroup>
-            <Label for="description">
-              <strong>Description</strong>
-            </Label>
-            <Input
-              type="textarea"
-              id="description"
-              value={this.state.description}
-              onChange={event => this.setState({ description: event.target.value })}
             />
             {!!this.state.errorCreateBot && <FormFeedback>{this.state.errorCreateBot.message}</FormFeedback>}
           </FormGroup>

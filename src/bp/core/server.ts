@@ -12,7 +12,7 @@ import { AdminRouter, AuthRouter, BotsRouter, ModulesRouter } from './routers'
 import { ShortLinksRouter } from './routers/shortlinks'
 import { GhostService } from './services'
 import ActionService from './services/action/action-service'
-import { AdminService } from './services/admin/professionnal/admin-service'
+import { AdminService } from './services/admin/service'
 import AuthService from './services/auth/auth-service'
 import { CMSService } from './services/cms/cms-service'
 import FlowService from './services/dialog/flow/service'
@@ -54,7 +54,6 @@ export default class HTTPServer {
     @inject(TYPES.LogsService) logsService: LogsService,
     @inject(TYPES.NotificationsService) notificationService: NotificationsService,
     @inject(TYPES.SkillService) skillService: SkillService,
-    @inject(TYPES.BotpressEdition) private edition: string,
     @inject(TYPES.GhostService) ghostService: GhostService
   ) {
     this.app = express()
@@ -67,7 +66,7 @@ export default class HTTPServer {
 
     this.modulesRouter = new ModulesRouter(moduleLoader, skillService)
     this.authRouter = new AuthRouter(this.logger, this.authService, this.adminService)
-    this.adminRouter = new AdminRouter(this.logger, this.authService, this.adminService, this.edition)
+    this.adminRouter = new AdminRouter(this.logger, this.authService, this.adminService)
     this.shortlinksRouter = new ShortLinksRouter()
     this.botsRouter = new BotsRouter({
       actionService,

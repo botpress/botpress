@@ -1,14 +1,6 @@
 import React, { Component, Fragment } from 'react'
 
-import {
-  Button,
-  ListGroupItem,
-  ListGroupItemHeading,
-  UncontrolledDropdown,
-  DropdownItem,
-  DropdownToggle,
-  DropdownMenu
-} from 'reactstrap'
+import { Button, ListGroupItem, ListGroupItemHeading } from 'reactstrap'
 
 import Rule from './Rule'
 
@@ -100,7 +92,7 @@ export default class Role extends Component {
                 <Rule
                   index={i}
                   total={role.rules.length}
-                  readOnly={false}
+                  readOnly={true}
                   rule={rule}
                   ruleInfo={(indexedPermissions && indexedPermissions[rule.res]) || {}}
                   key={`${i}.${rule.res}.${rule.op}`}

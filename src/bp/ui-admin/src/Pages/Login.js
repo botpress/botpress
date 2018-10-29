@@ -1,20 +1,33 @@
 import React, { Component, Fragment } from 'react'
-import { Redirect, Link } from 'react-router-dom'
+import { Redirect } from 'react-router-dom'
 import logo from '../media/nobg_white.png'
 
 import { Alert, Card, CardBody, CardTitle, Button, Input, CardText } from 'reactstrap'
 
 export default class Login extends Component {
-  state = { username: '', password: '', error: null }
+  state = { username: '', password: '', passwordExpired: false, error: null }
 
-  login = async () => {
+  login = async ({ username, password, showError = true }) => {
     this.setState({ error: null })
 
     try {
-      await this.props.auth.login({ username: this.state.username, password: this.state.password })
+      await this.props.auth.login({
+        username: username || this.state.username,
+        password: password || this.state.password
+      })
     } catch (err) {
-      this.setState({ error: err.message })
+      if (err.type === 'PasswordExpiredError') {
+        this.setState({ passwordExpired: true, username, password })
+      } else {
+        showError && this.setState({ error: err.message })
+      }
     }
+  }
+
+  componentDidMount() {
+    // When we first load the page, we try to connect with default credentials automatically
+    // We don't display an error if the default credentials fail
+    this.login({ username: 'admin', password: '', showError: false })
   }
 
   onInputChange = name => event => {
@@ -28,6 +41,10 @@ export default class Login extends Component {
   }
 
   renderForm = () => {
+    if (this.state.passwordExpired) {
+      return <Redirect to={{ pathname: '/ChangePassword', state: this.state }} />
+    }
+
     return (
       <Fragment>
         <CardTitle>Botpress Admin Panel</CardTitle>

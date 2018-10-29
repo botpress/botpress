@@ -7,10 +7,9 @@ import path from 'path'
 import Analytics from './analytics'
 import api from './api'
 import CustomAnalytics from './custom-analytics'
-
 import setup from './setup'
 
-let analytics = undefined
+const scopedAnalytics: Map<string, Analytics> = new Map<string, Analytics>()
 
 export type Extension = {
   analytics: {
@@ -24,18 +23,28 @@ export type SDK = typeof sdk & Extension
 
 const interactionsToTrack = ['message', 'text', 'button', 'template', 'quick_reply', 'postback']
 
-const onInit = async (bp: SDK) => {
+const onServerStarted = async (bp: SDK) => {
   bp.analytics = {
     custom: CustomAnalytics({ bp })
   }
 
   await setup(bp, interactionsToTrack)
-
-  analytics = new Analytics(bp)
 }
 
-const onReady = async (bp: SDK) => {
+const onServerReady = async (bp: SDK) => {}
+
+const onBotMount = async (bp: SDK, botId: string) => {
+  const analytics = new Analytics(bp, botId)
+  scopedAnalytics.set(botId, analytics)
+
   await api(bp, analytics)
+  await analytics.start()
+}
+
+const onBotUnmount = async (bp: SDK, botId: string) => {
+  const analytics = scopedAnalytics.get(botId)
+  await analytics.stop()
+  scopedAnalytics.delete(botId)
 }
 
 const serveFile = async (filePath: string): Promise<Buffer> => {
@@ -54,8 +63,10 @@ const serveFile = async (filePath: string): Promise<Buffer> => {
 }
 
 const entryPoint: sdk.ModuleEntryPoint = {
-  onInit,
-  onReady,
+  onServerStarted,
+  onServerReady,
+  onBotMount,
+  onBotUnmount,
   serveFile,
   config: {},
   definition: {

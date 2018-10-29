@@ -14,8 +14,8 @@ import ConfigReader from './services/module/config-reader'
 import { TYPES } from './types'
 
 const MODULE_SCHEMA = joi.object().keys({
-  onInit: joi.func().required(),
-  onReady: joi.func().required(),
+  onServerStarted: joi.func().required(),
+  onServerReady: joi.func().required(),
   onBotMount: joi.func().optional(),
   onBotUnmount: joi.func().optional(),
   config: joi.object().optional(),
@@ -105,16 +105,25 @@ export class ModuleLoader {
       try {
         ModuleLoader.processModuleEntryPoint(module, name)
         const api = await createForModule(name)
-        await (module.onInit && module.onInit(api))
+        await (module.onServerStarted && module.onServerStarted(api))
         initedModules[name] = true
         this.entryPoints.set(name, module)
       } catch (err) {
-        this.logger.attachError(err).error(`Error in module "${name}" onInit`)
+        this.logger.attachError(err).error(`Error in module "${name}" onServerStarted`)
       }
     }
 
     this.callModulesOnReady(modules, initedModules) // Floating promise here is on purpose, we are doing this in background
     return Object.keys(initedModules)
+  }
+
+  public async unloadModulesForBot(botId: string) {
+    const modules = this.getLoadedModules()
+    for (const module of modules) {
+      const entryPoint = this.getModule(module.name)
+      const api = await createForModule(module.name)
+      await (entryPoint.onBotUnmount && entryPoint.onBotUnmount(api, botId))
+    }
   }
 
   private async callModulesOnReady(modules: ModuleEntryPoint[], initedModules: {}): Promise<void> {
@@ -131,10 +140,11 @@ export class ModuleLoader {
 
       try {
         const api = await createForModule(name)
-        await (module.onReady && module.onReady(api))
+        await (module.onServerReady && module.onServerReady(api))
         this.loadModulesActions(name)
+        this.loadModuleHooks(name)
       } catch (err) {
-        this.logger.warn(`Error in module "${name}" 'onReady'. Module will still be loaded. Err: ${err.message}`)
+        this.logger.warn(`Error in module "${name}" 'onServerReady'. Module will still be loaded. Err: ${err.message}`)
       }
     }
   }
@@ -156,6 +166,22 @@ export class ModuleLoader {
       const globalActionsDir = `${process.PROJECT_LOCATION}/data/global/actions/${name}`
       fse.mkdirpSync(globalActionsDir)
       fse.copySync(moduleActionsDir, globalActionsDir)
+    }
+  }
+
+  private async loadModuleHooks(name: string) {
+    const resolver = new ModuleResolver(this.logger)
+    const modulePath = await resolver.resolve('MODULES_ROOT/' + name)
+
+    const moduleHooks = `${modulePath}/dist/hooks/`
+    if (fse.pathExistsSync(moduleHooks)) {
+      const hookTypes = await fse.readdir(moduleHooks)
+
+      for (const hookType of hookTypes) {
+        const globalHooksDir = `${process.PROJECT_LOCATION}/data/global/hooks/${hookType}/${name}`
+        fse.mkdirpSync(globalHooksDir)
+        fse.copySync(`${moduleHooks}/${hookType}`, globalHooksDir)
+      }
     }
   }
 

@@ -1,17 +1,17 @@
 import { injectable } from 'inversify'
-import { BotConfig } from './bot.config'
+
 import { BotConfigBuilder } from '.'
+import { BotConfig } from './bot.config'
 
 export type DefaultArguments = {
   id: string
   name: string
-  description: string
 }
 
 @injectable()
 export class BotConfigFactory {
   createDefault(args: DefaultArguments): BotConfig {
-    const builder = new BotConfigBuilder(args.name, args.id, args.description)
+    const builder = new BotConfigBuilder(args.name, args.id)
 
     builder.withModules('channel-web')
     builder.withContentTypes(

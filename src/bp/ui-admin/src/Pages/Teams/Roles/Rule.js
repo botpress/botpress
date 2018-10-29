@@ -58,7 +58,7 @@ export default class Rule extends Component {
         }
       },
       () => {
-        this.props.onChange(serializeOp(this.state.op))
+        this.props.onChange && this.props.onChange(serializeOp(this.state.op))
       }
     )
   }

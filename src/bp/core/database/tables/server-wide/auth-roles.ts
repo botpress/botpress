@@ -1,16 +1,14 @@
 import { Table } from 'core/database/interfaces'
-import defaultRoles from 'core/services/admin/professionnal/default-roles'
+import communityRoles from 'core/services/admin/community-roles'
 import Knex from 'knex'
 
-const insertRoles = async (knex: Knex, tableName: string) => {
-  return knex
-    .batchInsert(
-      tableName,
-      defaultRoles.map((role, index) => {
-        return { ...role, id: index + 1, team: 1, rules: JSON.stringify(role.rules) }
-      })
-    )
-    .then()
+const insertRoles = async (knex: Knex, tableName: string, roles) => {
+  return knex.batchInsert(
+    tableName,
+    roles.map((role, index) => {
+      return { ...role, id: index + 1, team: 1, rules: JSON.stringify(role.rules) }
+    })
+  )
 }
 
 export class AuthRolesTable extends Table {
@@ -31,8 +29,14 @@ export class AuthRolesTable extends Table {
         table.timestamps(true, true)
       })
       .then(async created => {
+        // Pro submodule have its own seeding for auth roles
         if (created) {
-          await insertRoles(this.knex, this.name)
+          if (process.env.EDITION === 'ce') {
+            await insertRoles(this.knex, this.name, communityRoles)
+          } else {
+            const { roles } = require('professional/services/admin/pro-roles')
+            await insertRoles(this.knex, this.name, roles)
+          }
         }
         return created
       })

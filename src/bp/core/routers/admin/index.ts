@@ -1,30 +1,28 @@
 import { Logger } from 'botpress/sdk'
+import { AdminService } from 'core/services/admin/service'
+import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import { RequestHandler, Router } from 'express'
 import _ from 'lodash'
 
 import { CustomRouter } from '..'
-import { AdminService } from '../../services/admin/professionnal/admin-service'
-import AuthService, { TOKEN_AUDIENCE } from '../../services/auth/auth-service'
 import { checkTokenHeader, loadUser } from '../util'
 
 import { TeamsRouter } from './teams'
+import { UsersRouter } from './users'
 
 export class AdminRouter implements CustomRouter {
   public readonly router: Router
   private checkTokenHeader!: RequestHandler
   private loadUser!: RequestHandler
   private teamsRouter!: TeamsRouter
+  private usersRouter!: UsersRouter
 
-  constructor(
-    logger: Logger,
-    private authService: AuthService,
-    private adminService: AdminService,
-    private edition: string
-  ) {
+  constructor(logger: Logger, private authService: AuthService, private adminService: AdminService) {
     this.router = Router({ mergeParams: true })
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
     this.loadUser = loadUser(this.authService)
     this.teamsRouter = new TeamsRouter(logger, this.authService, this.adminService)
+    this.usersRouter = new UsersRouter(logger, this.authService, this.adminService)
 
     this.setupRoutes()
   }
@@ -32,17 +30,18 @@ export class AdminRouter implements CustomRouter {
   setupRoutes() {
     const router = this.router
 
-    router.get('/all-permissions', (req, res) => {
-      res.json(this.authService.getResources())
+    router.get('/all-permissions', async (req, res) => {
+      res.json(await this.authService.getResources())
     })
 
     this.router.get('/license', (req, res) => {
       const license = {
-        edition: this.edition
+        edition: process.env.EDITION
       }
       res.send(license)
     })
 
     router.use('/teams', this.checkTokenHeader, this.loadUser, this.teamsRouter.router)
+    router.use('/users', this.checkTokenHeader, this.loadUser, this.usersRouter.router)
   }
 }

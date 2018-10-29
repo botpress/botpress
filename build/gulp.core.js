@@ -4,6 +4,9 @@ const ts = require('gulp-typescript')
 const rimraf = require('rimraf')
 const sourcemaps = require('gulp-sourcemaps')
 const typedoc = require('gulp-typedoc')
+const gulpif = require('gulp-if')
+const run = require('gulp-run')
+const file = require('gulp-file')
 
 const buildJsonSchemas = require('./jsonschemas')
 const tsProject = ts.createProject(path.resolve(__dirname, '../src/tsconfig.json'))
@@ -14,6 +17,23 @@ const wipe = () => {
 
 const clean = cb => {
   rimraf('./out', cb)
+}
+
+const runningPro = process.env.EDITION === 'pro' || process.env.EDITION === 'ee'
+const fetchPro = () => {
+  return gulp.src('./').pipe(gulpif(runningPro, run('git submodule init && git submodule update', { verbosity: 2 })))
+}
+
+const formatEdition = edition => {
+  if (edition === undefined) {
+    edition = 'ce'
+  }
+  return `{
+  "edition": "${edition}"
+}`
+}
+const writeEdition = () => {
+  return file('edition.json', formatEdition(process.env.EDITION), { src: true }).pipe(gulp.dest('./'))
 }
 
 const buildTs = () => {
@@ -82,6 +102,8 @@ const buildReferenceDoc = () => {
 
 module.exports = {
   clean,
+  fetchPro,
+  writeEdition,
   buildTs,
   buildSchemas,
   buildReferenceDoc,

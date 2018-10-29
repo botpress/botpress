@@ -6,6 +6,8 @@
 import { ContentElement } from 'botpress/sdk'
 import { Serialize } from 'cerialize'
 import { GhostService } from 'core/services'
+import { AdminService } from 'core/services/admin/service'
+import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import { RequestHandler, Router } from 'express'
 import _ from 'lodash'
 import moment from 'moment'
@@ -16,8 +18,6 @@ import { RouterOptions } from 'request'
 
 import { BotRepository } from '../repositories'
 import ActionService from '../services/action/action-service'
-import { AdminService } from '../services/admin/professionnal/admin-service'
-import AuthService, { TOKEN_AUDIENCE } from '../services/auth/auth-service'
 import { DefaultSearchParams } from '../services/cms'
 import { CMSService } from '../services/cms/cms-service'
 import { FlowView } from '../services/dialog'
@@ -373,7 +373,7 @@ export class BotsRouter implements CustomRouter {
         notificationId
           ? await this.notificationService.markAsRead(notificationId)
           : await this.notificationService.markAllAsRead(botId)
-        res.status(201)
+        res.sendStatus(201)
       }
     )
 
@@ -387,7 +387,7 @@ export class BotsRouter implements CustomRouter {
         notificationId
           ? await this.notificationService.archive(notificationId)
           : await this.notificationService.archiveAll(botId)
-        res.status(201)
+        res.sendStatus(201)
       }
     )
 
