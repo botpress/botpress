@@ -93,7 +93,7 @@ module.exports = bp => {
     app.use(
       tamper(function(req, res) {
         const contentType = res.getHeaders()['content-type']
-        if (!contentType.includes('text/html')) {
+        if (!contentType || !contentType.includes('text/html')) {
           return
         }
 

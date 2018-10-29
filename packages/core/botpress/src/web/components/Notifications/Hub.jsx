@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import { NavDropdown, MenuItem } from 'react-bootstrap'
 import _ from 'lodash'
 import classnames from 'classnames'
+import { fetchNotifications } from '~/actions'
 
 import NotificationComponent from './index.jsx'
 import styles from './hubStyle.scss'
@@ -83,5 +84,6 @@ class NotificationHub extends NotificationComponent {
 }
 
 const mapStateToProps = state => ({ notifications: state.notifications })
+const mapDispatchToProps = { fetchNotifications }
 
-export default connect(mapStateToProps)(NotificationHub)
+export default connect(mapStateToProps, { fetchNotifications, mapDispatchToProps })(NotificationHub)
