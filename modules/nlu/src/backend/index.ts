@@ -12,11 +12,11 @@ export type SDK = typeof sdk
 
 const botScopedNlu: Map<string, ScopedNlu> = new Map<string, ScopedNlu>()
 
-const onInit = async (bp: SDK) => {
+const onServerStarted = async (bp: SDK) => {
   await initModule(bp, botScopedNlu)
 }
 
-const onReady = async (bp: SDK) => {
+const onServerReady = async (bp: SDK) => {
   await api(bp, botScopedNlu)
 }
 
@@ -101,8 +101,8 @@ const config: sdk.ModuleConfig = {
 }
 
 const entryPoint: sdk.ModuleEntryPoint = {
-  onInit,
-  onReady,
+  onServerStarted,
+  onServerReady,
   onBotMount,
   onBotUnmount,
   config,

@@ -123,7 +123,7 @@ export class CommunityAdminService implements AdminService {
       .delete()
       .then()
 
-    this.botLoader.unmountBot(botId)
+    await this.botLoader.unmountBot(botId)
   }
 
   async listBots(teamId: number, offset: number, limit: number) {

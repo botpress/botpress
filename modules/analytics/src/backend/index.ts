@@ -24,7 +24,7 @@ export type SDK = typeof sdk & Extension
 
 const interactionsToTrack = ['message', 'text', 'button', 'template', 'quick_reply', 'postback']
 
-const onInit = async (bp: SDK) => {
+const onServerStarted = async (bp: SDK) => {
   bp.analytics = {
     custom: CustomAnalytics({ bp })
   }
@@ -34,7 +34,7 @@ const onInit = async (bp: SDK) => {
   analytics = new Analytics(bp)
 }
 
-const onReady = async (bp: SDK) => {
+const onServerReady = async (bp: SDK) => {
   await api(bp, analytics)
 }
 
@@ -54,8 +54,8 @@ const serveFile = async (filePath: string): Promise<Buffer> => {
 }
 
 const entryPoint: sdk.ModuleEntryPoint = {
-  onInit,
-  onReady,
+  onServerStarted,
+  onServerReady,
   serveFile,
   config: {},
   definition: {

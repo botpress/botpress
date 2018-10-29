@@ -1,5 +1,4 @@
 import * as sdk from 'botpress/sdk'
-import { SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION } from 'constants'
 import { WellKnownFlags } from 'core/sdk/enums'
 import { inject, injectable, tagged } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
@@ -83,7 +82,7 @@ export class Botpress {
     await this.initializeGhost()
     await this.initializeServices()
     await this.loadModules(options.modules)
-    await this.mountAllBots()
+    await this.discoverBots()
     await this.startRealtime()
     await this.startServer()
 
@@ -91,7 +90,7 @@ export class Botpress {
     await this.hookService.executeHook(new Hooks.AfterServerStart(this.api))
   }
 
-  async mountAllBots(): Promise<void> {
+  async discoverBots(): Promise<void> {
     await this.botLoader.loadAllBots()
 
     const botIds = await this.botLoader.getAllBotIds()

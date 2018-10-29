@@ -13,7 +13,7 @@ export type Extension = {
 
 export type SDK = typeof sdk & Extension
 
-const onInit = async (bp: SDK) => {
+const onServerStarted = async (bp: SDK) => {
   bp['channel-web'] = {}
 
   const db = new WebchatDatabase(bp)
@@ -23,7 +23,7 @@ const onInit = async (bp: SDK) => {
   await socket(bp, db)
 }
 
-const onReady = async (bp: SDK) => {}
+const onServerReady = async (bp: SDK) => {}
 
 const config: sdk.ModuleConfig = {
   uploadsUseS3: { type: 'bool', required: false, default: false, env: 'CHANNEL_WEB_USE_S3' },
@@ -79,8 +79,8 @@ const serveFile = async (filePath: string): Promise<Buffer> => {
 }
 
 const entryPoint: sdk.ModuleEntryPoint = {
-  onInit,
-  onReady,
+  onServerStarted,
+  onServerReady,
   config,
   defaultConfigJson,
   serveFile,

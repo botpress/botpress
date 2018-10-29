@@ -9,11 +9,11 @@ import { initBot, initModule } from './setup'
 
 const botScopedStorage: Map<string, QnaStorage> = new Map<string, QnaStorage>()
 
-const onInit = async (bp: SDK) => {
+const onServerStarted = async (bp: SDK) => {
   await initModule(bp, botScopedStorage)
 }
 
-const onReady = async (bp: SDK) => {
+const onServerReady = async (bp: SDK) => {
   await api(bp, botScopedStorage)
 }
 
@@ -56,8 +56,8 @@ const defaultConfigJson = `
 }`
 
 const entryPoint: sdk.ModuleEntryPoint = {
-  onInit,
-  onReady,
+  onServerStarted,
+  onServerReady,
   onBotMount,
   onBotUnmount,
   config,
