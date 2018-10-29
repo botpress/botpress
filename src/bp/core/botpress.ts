@@ -1,12 +1,11 @@
 import * as sdk from 'botpress/sdk'
 import { WellKnownFlags } from 'core/sdk/enums'
 import { inject, injectable, tagged } from 'inversify'
+import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import { Memoize } from 'lodash-decorators'
 import moment from 'moment'
 import path from 'path'
 import plur from 'plur'
-
-import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 
 import { createForGlobalHooks } from './api'
 import { BotLoader } from './bot-loader'
@@ -83,21 +82,26 @@ export class Botpress {
     await this.initializeGhost()
     await this.initializeServices()
     await this.loadModules(options.modules)
+    await this.discoverBots()
     await this.startRealtime()
     await this.startServer()
 
     this.api = await createForGlobalHooks()
-    await this.hookService.executeHook(new Hooks.AfterBotStart(this.api))
+    await this.hookService.executeHook(new Hooks.AfterServerStart(this.api))
+  }
+
+  async discoverBots(): Promise<void> {
+    await this.botLoader.loadAllBots()
+
+    const botIds = await this.botLoader.getAllBotIds()
+    for (const bot of botIds) {
+      await this.botLoader.mountBot(bot)
+    }
   }
 
   async initializeGhost(): Promise<void> {
     await this.ghostService.initialize(this.config!)
     await this.ghostService.global().sync(['actions', 'content-types', 'hooks'])
-
-    const botIds = await this.botLoader.getAllBotIds()
-    for (const bot of botIds) {
-      await this.ghostService.forBot(bot).sync(['actions', 'content-elements', 'flows'])
-    }
   }
 
   private async initializeServices() {
@@ -105,7 +109,6 @@ export class Botpress {
     this.loggerPersister.start()
 
     await this.cmsService.initialize()
-    await this.botLoader.loadAllBots()
 
     this.eventEngine.onBeforeIncomingMiddleware = async (event: sdk.IO.Event) => {
       await this.hookService.executeHook(new Hooks.BeforeIncomingMiddleware(this.api, event))

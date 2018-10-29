@@ -32,7 +32,7 @@ const result = await this.props.bp.axios.get('/api/ext/my-modyle/query')
 
 ## Creating an API endpoint
 
-Modules are global, as is the API, so they must be able to manage multiple bots. We recommend setting up the API route in the `onReady` method of your entry point.
+Modules are global, as is the API, so they must be able to manage multiple bots. We recommend setting up the API route in the `onServerReady` method of your entry point.
 
 The bot ID targeted by the request is always available via `req.params.botId`
 

@@ -37,8 +37,8 @@ We will explore each property below.
 
 ```js
 const entryPoint: sdk.ModuleEntryPoint = {
-  onInit,
-  onReady,
+  onServerReady,
+  onServerStarted,
   onBotMount,
   onBotUnmount,
   config,
@@ -58,19 +58,19 @@ const entryPoint: sdk.ModuleEntryPoint = {
 export default entryPoint
 ```
 
-### onInit
+### onServerStarted
 
 This method is called as soon as the bot is starting up. The server is not available at that time, and calls to other API will fail. This is usually used to set up database connection, which you can access via Knex (`bp.database`). You can [read more about Database access here](./database)
 
 Example:
 
 ```js
-const onInit = async (bp: SDK) => {
+const onServerStarted = async (bp: SDK) => {
   await db(bp)
 }
 ```
 
-### onReady
+### onServerReady
 
 This is called once all modules are initialized and when the server is listening for incoming connections.
 
@@ -79,7 +79,7 @@ Usually you will setup your [API endpoint](./api-endpoint) here.
 Example:
 
 ```js
-const onReady = async (bp: SDK) => {
+const onServerReady = async (bp: SDK) => {
   await api(bp)
 }
 ```

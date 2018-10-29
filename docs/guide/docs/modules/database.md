@@ -9,7 +9,7 @@ Your module can access the bot's database to create and update required tables.
 
 ## Database initialization + Table creation
 
-Tables initialization should be done in the `onInit` block of your `src/backend/index.ts` file.
+Tables initialization should be done in the `onServerStarted` block of your `src/backend/index.ts` file.
 
 index.ts
 
@@ -18,7 +18,7 @@ import Database from './db'
 
 let db = undefined
 
-const onInit = async (bp: SDK) => {
+const onServerStarted = async (bp: SDK) => {
   db = new Database(bp)
   await db.initialize()
 }
