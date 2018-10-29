@@ -99,6 +99,12 @@ export class CMSService implements IDisposeOnExit {
     return elements
   }
 
+  async unloadContentElementsForBot(botId: string) {
+    await this.memDb(this.contentTable)
+      .where({ botId })
+      .delete()
+  }
+
   private async loadContentTypesFromFiles(): Promise<void> {
     const fileNames = await this.ghost.global().directoryListing(this.typesDir, '*.js')
 

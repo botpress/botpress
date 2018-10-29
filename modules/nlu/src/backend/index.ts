@@ -6,22 +6,22 @@ import path from 'path'
 
 import api from './api'
 import ScopedNlu from './scopednlu'
-import setup, { setupForBot } from './setup'
+import { initBot, initModule } from './setup'
 
 export type SDK = typeof sdk
 
 const botScopedNlu: Map<string, ScopedNlu> = new Map<string, ScopedNlu>()
 
-const onInit = async (bp: SDK) => {
-  await setup(bp, botScopedNlu)
+const onServerStarted = async (bp: SDK) => {
+  await initModule(bp, botScopedNlu)
 }
 
-const onReady = async (bp: SDK) => {
+const onServerReady = async (bp: SDK) => {
   await api(bp, botScopedNlu)
 }
 
 const onBotMount = async (bp: SDK, botId: string) => {
-  await setupForBot(bp, botScopedNlu, botId)
+  await initBot(bp, botScopedNlu, botId)
 }
 
 const onBotUnmount = async (bp: SDK, botId: string) => {
@@ -101,8 +101,8 @@ const config: sdk.ModuleConfig = {
 }
 
 const entryPoint: sdk.ModuleEntryPoint = {
-  onInit,
-  onReady,
+  onServerStarted,
+  onServerReady,
   onBotMount,
   onBotUnmount,
   config,
