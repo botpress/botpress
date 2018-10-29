@@ -309,9 +309,26 @@ function setupAPIProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
     })
   )
 
-  app.get('/api/notifications/inbox', (req, res) => {
-    res.send('[]')
-  })
+  app.get(
+    '/api/notifications/inbox',
+    proxy(coreApiUrl, {
+      proxyReqPathResolver: async req => getApiBasePath(req) + '/notifications'
+    })
+  )
+
+  app.post(
+    '/api/notifications/:notificationId?/:action',
+    proxy(coreApiUrl, {
+      proxyReqPathResolver: async req => {
+        const apiPath = getApiBasePath(req)
+        const { notificationId, action } = req.params
+
+        return notificationId
+          ? `${apiPath}/notifications/${notificationId}/${action}`
+          : `${apiPath}/notifications/${action}`
+      }
+    })
+  )
 
   app.get('/api/community/hero', (req, res) => {
     res.send({ hidden: true })

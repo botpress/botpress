@@ -125,10 +125,10 @@ export class Botpress {
       flowLogger.forBot(err.botId).warn(message)
     }
 
-    this.notificationService.onNotification = () => {
+    this.notificationService.onNotification = notification => {
       const payload: sdk.RealTimePayload = {
         eventName: 'notification.new',
-        payload: {} // pass notification here? or just notify the client to fetch the new notifications via the http api?
+        payload: notification // pass notification here? or just notify the client to fetch the new notifications via the http api?
       }
       this.realtimeService.sendToSocket(payload)
     }

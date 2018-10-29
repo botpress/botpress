@@ -25,7 +25,7 @@ type DefaultGetOptions = { archived?: boolean; read?: boolean }
 export interface NotificationsRepository {
   getBydId(id: string): Promise<Notification>
   getAll(botId: string, options?: DefaultGetOptions): Promise<Notification[]>
-  insert(botId: string, notification: Notification): Promise<void>
+  insert(botId: string, notification: Notification): Promise<Notification>
   update(notification: Notification): Promise<void>
   deleteById(id: string): Promise<void>
 }
@@ -56,12 +56,12 @@ export class KnexNotificationsRepository implements NotificationsRepository {
       .select('*')
       .where({ botId })
 
-    if (options && options.archived) {
+    if (options && options.archived !== undefined) {
       query = query.andWhere('archived', options.archived)
     }
 
-    if (options && options.read) {
-      query = query.andWhere('read', options.read)
+    if (options && options.read !== undefined) {
+      query = query.andWhere('read', options && options.read)
     }
 
     query = query.limit(250)
@@ -69,19 +69,23 @@ export class KnexNotificationsRepository implements NotificationsRepository {
     return (await query) as Notification[]
   }
 
-  async insert(botId: string, notification: Notification): Promise<void> {
+  async insert(botId: string, notification: Notification): Promise<Notification> {
     const now = this.database.knex.date.now
-    await this.database.knex(this.TABLE_NAME).insert({
-      id: notification.id,
-      botId: botId,
-      level: notification.level,
-      message: notification.message,
-      module_id: notification.moduleId,
-      module_name: notification.moduleName,
-      module_icon: notification.moduleIcon,
-      redirect_url: notification.redirectUrl,
-      created_on: now()
-    })
+    return await this.database.knex.insertAndRetrieve<Notification>(
+      this.TABLE_NAME,
+      {
+        id: notification.id,
+        botId: botId,
+        level: notification.level,
+        message: notification.message,
+        module_id: notification.moduleId,
+        module_name: notification.moduleName,
+        module_icon: notification.moduleIcon,
+        redirect_url: notification.redirectUrl,
+        created_on: now()
+      },
+      ['id', 'botId', 'level', 'message', 'module_id', 'module_name', 'module_icon', 'redirect_url', 'created_on']
+    )
   }
 
   async update(notification: Notification): Promise<void> {
