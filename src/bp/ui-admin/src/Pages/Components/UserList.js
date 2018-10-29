@@ -29,9 +29,7 @@ class UserList extends Component {
           <thead>
             <tr>
               <th>Username</th>
-              <th style={isDetailed}>Name</th>
-              <th style={isDetailed}>Created at</th>
-              <th style={isDetailed}>Last logon</th>
+              <th style={isDetailed} />
               <th>Actions</th>
             </tr>
           </thead>
@@ -44,10 +42,18 @@ class UserList extends Component {
 
                 return (
                   <tr key={user.id}>
-                    <td>{user.username}</td>
-                    <td style={isDetailed}>{user.first_name}</td>
-                    <td style={isDetailed}>{moment(user.created_at).format('LLLL')}</td>
-                    <td style={isDetailed}>{user.last_logon ? moment(user.last_logon).fromNow() : 'never'}</td>
+                    <td>
+                      {user.firstname} {user.lastname}
+                      <br />
+                      <small>{user.username}</small>
+                    </td>
+                    <td style={isDetailed}>
+                      <small>
+                        Created at: {moment(user.created_at).format('LLLL')}
+                        <br />
+                        Last Logon: {user.last_logon ? moment(user.last_logon).fromNow() : 'never'}
+                      </small>
+                    </td>
                     <td>
                       {this.props.actions.map((action, idx) => {
                         return (

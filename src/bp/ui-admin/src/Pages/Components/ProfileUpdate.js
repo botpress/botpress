@@ -8,7 +8,7 @@ import api from '../../api'
 class ProfileUpdate extends Component {
   state = { forceClose: false, firstName: '', lastName: '' }
 
-  toggleModal = () => {
+  closeModal = () => {
     this.setState({ forceClose: true })
   }
 
@@ -39,8 +39,8 @@ class ProfileUpdate extends Component {
 
   render() {
     return (
-      <Modal isOpen={this.isModalOpen()} toggle={this.toggleModal}>
-        <ModalHeader toggle={this.toggleModal}>Please complete your profile</ModalHeader>
+      <Modal isOpen={this.isModalOpen()} toggle={this.closeModal}>
+        <ModalHeader toggle={this.closeModal}>Please complete your profile</ModalHeader>
         <ModalBody>
           <Label for="firstName">First Name</Label>
           <Input

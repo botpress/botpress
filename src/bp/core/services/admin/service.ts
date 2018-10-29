@@ -36,5 +36,5 @@ export interface AdminService {
   assertUserNotMember(userId: number, teamId: number)
   assertRoleExists(teamId: number, roleName: string)
   assertUserRole(userId: number, teamId: number, roleName: string)
-  assertIsAdmin(userId: number)
+  assertIsRootAdmin(userId: number)
 }

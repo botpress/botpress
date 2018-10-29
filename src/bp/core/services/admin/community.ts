@@ -6,6 +6,7 @@ import { checkRule } from 'core/misc/auth'
 import { AuthRole, AuthRoleDb, AuthRule, AuthTeam, AuthTeamMembership, AuthUser, Bot } from 'core/misc/interfaces'
 import { BOTID_REGEX } from 'core/misc/validation'
 import { ModuleLoader } from 'core/module-loader'
+import { saltHashPassword } from 'core/services/auth/util'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import Joi from 'joi'
@@ -27,6 +28,7 @@ export class CommunityAdminService implements AdminService {
   protected rolesTable = 'auth_roles'
   protected usersTable = 'auth_users'
   protected botsTable = 'srv_bots'
+  protected ROOT_ADMIN_ID = 1
 
   protected botValidationSchema = Joi.object().keys({
     id: Joi.string()
@@ -65,8 +67,15 @@ export class CommunityAdminService implements AdminService {
     throw new FeatureNotAvailableError(this.edition)
   }
 
-  resetPassword(userId: number) {
-    throw new FeatureNotAvailableError(this.edition)
+  async resetPassword(userId: any) {
+    const password = nanoid(15)
+    const { hash, salt } = saltHashPassword(password)
+
+    await this.knex(this.usersTable)
+      .update({ password: hash, salt, password_expired: true })
+      .where({ id: userId })
+
+    return password
   }
 
   async updateUserProfile(userId: number, firstname: string, lastname: string) {
@@ -291,9 +300,9 @@ export class CommunityAdminService implements AdminService {
     }
   }
 
-  async assertIsAdmin(userId: number) {
-    if (userId !== 1) {
-      throw new UnauthorizedAccessError(`Only admins are allowed to use this`)
+  async assertIsRootAdmin(userId: number) {
+    if (userId !== this.ROOT_ADMIN_ID) {
+      throw new UnauthorizedAccessError(`Only root admin is allowed to use this`)
     }
   }
 

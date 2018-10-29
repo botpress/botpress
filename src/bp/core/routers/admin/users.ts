@@ -34,15 +34,13 @@ export class UsersRouter implements CustomRouter {
     router.post(
       '/', // Create user
       this.asyncMiddleware(async (req, res) => {
-        await svc.assertIsAdmin(req.dbUser.id)
+        await svc.assertIsRootAdmin(req.dbUser.id)
         validateBodySchema(
           req,
           Joi.object().keys({
             username: Joi.string()
-              .regex(/^[0-9A-Za-z _-]+$/)
+              .email()
               .trim()
-              .min(3)
-              .max(30)
               .required()
           })
         )
@@ -50,7 +48,7 @@ export class UsersRouter implements CustomRouter {
         const alreadyExists = await this.authService.findUserByUsername(username, ['id'])
 
         if (alreadyExists) {
-          throw new InvalidOperationError(`User ${username} already exists`)
+          throw new InvalidOperationError(`User ${username} is already taken`)
         }
 
         const tempPassword = await svc.createUser(username)
@@ -65,7 +63,7 @@ export class UsersRouter implements CustomRouter {
     router.delete(
       '/:userId', // Delete user
       this.asyncMiddleware(async (req, res) => {
-        await svc.assertIsAdmin(req.dbUser.id)
+        await svc.assertIsRootAdmin(req.dbUser.id)
         const { userId } = req.params
 
         if (userId == 1) {
@@ -82,7 +80,7 @@ export class UsersRouter implements CustomRouter {
     router.get(
       '/reset/:userId',
       this.asyncMiddleware(async (req, res) => {
-        await svc.assertIsAdmin(req.dbUser.id)
+        await svc.assertIsRootAdmin(req.dbUser.id)
         const tempPassword = await svc.resetPassword(req.params.userId)
         return sendSuccess(res, 'Password reseted', {
           tempPassword

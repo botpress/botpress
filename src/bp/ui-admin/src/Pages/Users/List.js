@@ -12,10 +12,8 @@ import api from '../../api'
 import { fetchUsers } from '../../modules/user'
 
 const UserNameValidationSchema = Joi.string()
-  .regex(/^[0-9A-Za-z _-]+$/)
+  .email()
   .trim()
-  .min(3)
-  .max(30)
 
 class List extends Component {
   state = {
@@ -145,7 +143,7 @@ Password: ${payload.tempPassword}`
   renderAllUsers() {
     const actions = [
       {
-        label: 'Reset PW',
+        label: 'Reset Password',
         type: 'primary',
         onClick: user => this.resetPassword(user)
       },
@@ -160,8 +158,6 @@ Password: ${payload.tempPassword}`
     return (
       <div>
         <UserList actions={actions} detailed="true" />
-        <br />
-        <UserList actions={actions} detailed="false" />
       </div>
     )
   }

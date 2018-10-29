@@ -17,9 +17,7 @@ const insertUsers = async (knex: Knex, tableName: string) => {
         username,
         password: saltHashed.hash,
         salt: saltHashed.salt,
-        password_expired: true,
-        firstname: username,
-        lastname: username
+        password_expired: true
       }))
     )
     .then()
