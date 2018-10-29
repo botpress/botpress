@@ -157,13 +157,16 @@ export class CommunityAdminService implements AdminService {
     await this.botLoader.unmountBot(botId)
   }
 
-  async listBots(teamId: number, offset: number, limit: number) {
-    const bots = await this.knex(this.botsTable)
+  async listBots(teamId: number, offset?: number, limit?: number) {
+    const query = this.knex(this.botsTable)
       .where({ team: teamId })
-      .offset(offset)
-      .limit(limit)
       .select('id', 'name', 'description', 'created_at')
-      .then<Array<Bot>>(res => res)
+
+    if (offset && limit) {
+      query.offset(offset).limit(limit)
+    }
+
+    const bots = await query.then<Array<Bot>>(res => res)
 
     return { count: bots.length, bots }
   }
