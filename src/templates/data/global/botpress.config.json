@@ -54,6 +54,10 @@
     {
       "location": "MODULES_ROOT/audience",
       "enabled": true
+    },
+    {
+      "location": "MODULES_ROOT/analytics",
+      "enabled": true
     }
   ]
 }
