@@ -6,7 +6,6 @@ export default async (bp: SDK, analytics: Analytics) => {
 
   router.get('/graphs', async (req, res) => {
     const graphData = await analytics.getChartsGraphData()
-    console.log('GRAPH', graphData)
     res.send(graphData)
   })
 
