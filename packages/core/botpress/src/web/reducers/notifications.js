@@ -15,7 +15,8 @@ const reducer = handleActions(
         sound.play()
       }
 
-      return [...state.unshift(...payload)]
+      state.unshift(...payload)
+      return [...state]
     }
   },
   defaultState

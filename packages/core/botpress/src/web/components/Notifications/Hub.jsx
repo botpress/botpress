@@ -84,6 +84,5 @@ class NotificationHub extends NotificationComponent {
 }
 
 const mapStateToProps = state => ({ notifications: state.notifications })
-const mapDispatchToProps = { fetchNotifications }
 
-export default connect(mapStateToProps, { fetchNotifications, mapDispatchToProps })(NotificationHub)
+export default connect(mapStateToProps, { fetchNotifications })(NotificationHub)
