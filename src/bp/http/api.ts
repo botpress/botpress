@@ -9,7 +9,6 @@ const qs = require('querystring')
 const tamper = require('tamper')
 
 const { HttpProxy, extractBotId, getApiBasePath, BASE_PATH, noCache } = require('./common')
-const version = '10.42.1'
 
 async function start({ coreApiUrl, proxyHost, proxyPort }, callback) {
   const app = express()

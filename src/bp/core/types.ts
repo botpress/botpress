@@ -57,6 +57,7 @@ const TYPES = {
   ContentElementSender: Symbol.for('ContentElementSender'),
   SkillService: Symbol.for('SkillService'),
   AdminService: Symbol.for('AdminService'),
+  LicensingService: Symbol.for('LicensingService'),
   AppLifecycle: Symbol.for('AppLifecycle'),
   AuthRolesRepository: Symbol.for('AuthRolesRepository')
 }

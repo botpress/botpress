@@ -27,6 +27,7 @@
     "expiration": "2 weeks",
     "janitorInterval": "2s"
   },
+  "licenseKey": "paste your license key here",
   "modules": [
     {
       "location": "MODULES_ROOT/channel-web",

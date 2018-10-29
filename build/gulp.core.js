@@ -24,16 +24,17 @@ const fetchPro = () => {
   return gulp.src('./').pipe(gulpif(runningPro, run('git submodule init && git submodule update', { verbosity: 2 })))
 }
 
-const formatEdition = edition => {
-  if (edition === undefined) {
-    edition = 'ce'
-  }
-  return `{
-  "edition": "${edition}"
-}`
-}
 const writeEdition = () => {
-  return file('edition.json', formatEdition(process.env.EDITION), { src: true }).pipe(gulp.dest('./'))
+  const metadata = JSON.stringify(
+    {
+      edition: process.env.EDITION || 'ce',
+      version: require(path.join(__dirname, '../package.json')).version
+    },
+    null,
+    2
+  )
+
+  return file('metadata.json', metadata, { src: true }).pipe(gulp.dest('./'))
 }
 
 const buildTs = () => {

@@ -2,7 +2,9 @@
   "name": "botpress",
   "version": "11.0.0",
   "description": "The world's most powerful conversational engine",
-  "engines": { "node": ">=10" },
+  "engines": {
+    "node": ">=10"
+  },
   "main": "index.js",
   "repository": "https://github.com/botpress/botpress-xx.git",
   "author": "Botpress, Inc.",
@@ -57,6 +59,7 @@
     "plur": "^3.0.1",
     "querystring": "^0.2.0",
     "reflect-metadata": "^0.1.12",
+    "semver": "^5.6.0",
     "shortid": "^2.2.13",
     "socket.io": "^2.1.1",
     "socketio-jwt": "^4.5.0",

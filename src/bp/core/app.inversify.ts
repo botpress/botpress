@@ -103,7 +103,7 @@ container.load(...ServicesContainerModules)
 
 if (process.env.EDITION !== 'ce') {
   // Otherwise this will fail on compile when the submodule is not available.
-  const ProContainerModule = require('professional/services/admin/professionnal.inversify')
+  const ProContainerModule = require('professional/services/professionnal.inversify')
   container.load(ProContainerModule)
 }
 
