@@ -8,7 +8,6 @@ export interface AuthUser {
   id: number
   username: string
   password: string
-  password_expired?: boolean
   salt: string
   firstname?: string
   lastname?: string
@@ -18,12 +17,13 @@ export interface AuthUser {
   last_ip?: string
   email?: string
   location?: string
+  last_logon?: Date
+  password_expired?: boolean
 }
 
 export interface AuthTeam {
   id: number
   name: string
-  invite_code: string
 }
 
 export interface AuthTeamMembership {

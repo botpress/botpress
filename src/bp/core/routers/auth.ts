@@ -42,6 +42,11 @@ export class AuthRouter implements CustomRouter {
     )
   }
 
+  updateProfile = async (req, res) => {
+    await this.adminService.updateUserProfile(req.dbUser.id, req.body.firstname, req.body.lastname)
+    return sendSuccess(res, 'Updated profile successfully')
+  }
+
   getPermissions = async (req, res) => {
     return sendSuccess(
       res,
@@ -62,6 +67,8 @@ export class AuthRouter implements CustomRouter {
     router.post('/login', this.asyncMiddleware(this.login))
 
     router.get('/me/profile', this.checkTokenHeader, this.loadUser, this.asyncMiddleware(this.getProfile))
+
+    router.post('/me/profile', this.checkTokenHeader, this.loadUser, this.asyncMiddleware(this.updateProfile))
 
     router.get(
       '/me/permissions/:teamId',

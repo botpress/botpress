@@ -48,6 +48,8 @@ const createClient = (clientOptions, { toastErrors }) => {
   return client
 }
 
+const overrideApiUrl = process.env.REACT_APP_API_URL ? { baseURL: `${process.env.REACT_APP_API_URL}/admin` } : {}
+
 export default {
   getSecured({ token, toastErrors = true } = {}) {
     if (!token) {
@@ -59,13 +61,14 @@ export default {
       {
         headers: {
           Authorization: `Bearer ${token}`
-        }
+        },
+        ...overrideApiUrl
       },
       { toastErrors }
     )
   },
 
   getAnonymous({ toastErrors = true } = {}) {
-    return createClient({}, { toastErrors })
+    return createClient(overrideApiUrl, { toastErrors })
   }
 }

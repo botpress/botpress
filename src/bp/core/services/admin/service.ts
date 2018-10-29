@@ -1,6 +1,13 @@
 import { AuthRole, AuthRule, Bot } from 'core/misc/interfaces'
 
 export interface AdminService {
+  listUsers()
+  createUser(username: string)
+  deleteUser(userId: any)
+  resetPassword(userId: any)
+
+  updateUserProfile(userId: number, firstname: string, lastname: string)
+
   addMemberToTeam(userId: number, teamId: number, roleName: string)
   removeMemberFromTeam(userId, teamId)
   listUserTeams(userId: number)
@@ -18,14 +25,10 @@ export interface AdminService {
   getBotTeam(botId: string)
   deleteTeam(teamId: number)
 
-  getInviteCode(teamId: number)
-  refreshInviteCode(teamId: number)
-
   getUserPermissions(userId: number, teamId: number): Promise<AuthRule[]>
   getUserRole(userId: number, teamId: number)
   changeUserRole(userId: number, teamId: number, roleName: string)
 
-  joinTeamFromInviteCode(userId: number, code: string)
   listTeamMembers(teamId: number)
 
   assertUserMember(userId: number, teamId: number)
@@ -33,4 +36,5 @@ export interface AdminService {
   assertUserNotMember(userId: number, teamId: number)
   assertRoleExists(teamId: number, roleName: string)
   assertUserRole(userId: number, teamId: number, roleName: string)
+  assertIsRootAdmin(userId: number)
 }

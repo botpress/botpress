@@ -7,15 +7,20 @@ const _ = require('lodash')
 const bodyParser = require('body-parser')
 const qs = require('querystring')
 const tamper = require('tamper')
+const cors = require('cors')
 
 const { HttpProxy, extractBotId, getApiBasePath, BASE_PATH, noCache } = require('./common')
 const version = '10.42.1'
 
-async function start({ coreApiUrl, proxyHost, proxyPort }, callback) {
+async function start({ coreApiUrl, proxyHost, proxyPort, corsConfig }, callback) {
   const app = express()
 
   app.use(noCache)
   app.use(bodyParser.json())
+
+  if (corsConfig && corsConfig.enabled) {
+    app.use(cors(corsConfig.origin ? { origin: corsConfig.origin } : {}))
+  }
 
   const httpProxy = new HttpProxy(app, coreApiUrl)
 

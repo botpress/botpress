@@ -78,10 +78,12 @@ export default class AuthService {
     return this.knex.insertAndRetrieve<number>(USERS_TABLE, user)
   }
 
-  async updateUser(username: string, userData: Partial<AuthUser>) {
+  async updateUser(username: string, userData: Partial<AuthUser>, updateLastLogon?: boolean) {
+    // Shady thing because knex date is a raw and can't be assigned to a date object...
+    const more = updateLastLogon ? { last_logon: this.db.knex.date.now() } : {}
     return this.knex(USERS_TABLE)
       .where({ username })
-      .update(userData)
+      .update({ ...userData, ...more })
       .then()
   }
 
@@ -121,10 +123,7 @@ export default class AuthService {
       })
     }
 
-    if (ipAddress) {
-      await this.updateUser(username, { last_ip: ipAddress })
-    }
-
+    await this.updateUser(username, { last_ip: ipAddress }, true)
     return this.generateUserToken(userId, TOKEN_AUDIENCE)
   }
 }

@@ -2,7 +2,9 @@
   "name": "botpress",
   "version": "11.0.0",
   "description": "The world's most powerful conversational engine",
-  "engines": { "node": ">=10" },
+  "engines": {
+    "node": ">=10"
+  },
   "main": "index.js",
   "repository": "https://github.com/botpress/botpress-xx.git",
   "author": "Botpress, Inc.",
@@ -32,7 +34,7 @@
     "cerialize": "^0.1.18",
     "chalk": "^2.4.1",
     "chokidar": "^2.0.4",
-    "compromise": "^11.12.1",
+    "cors": "^2.8.4",
     "doctrine": "^2.1.0",
     "errorhandler": "^1.5.0",
     "eventemitter2": "^5.0.1",

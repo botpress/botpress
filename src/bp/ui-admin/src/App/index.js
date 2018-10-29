@@ -10,9 +10,7 @@ import {
   UncontrolledDropdown,
   DropdownToggle,
   DropdownMenu,
-  DropdownItem,
-  NavItem,
-  NavLink
+  DropdownItem
 } from 'reactstrap'
 
 import { connect } from 'react-redux'
@@ -96,7 +94,8 @@ class Home extends Component {
           <div className="container">
             <Navbar expand="md">
               <NavbarBrand href="/admin">
-                <img src={logo} alt="logo" className="bp-header__logo" />&nbsp;|&nbsp;
+                <img src={logo} alt="logo" className="bp-header__logo" />
+                &nbsp;|&nbsp;
                 <span className="bp-header__title">Admin</span>
               </NavbarBrand>
               <NavbarToggler onClick={this.toggleMenu} />

@@ -4,6 +4,7 @@ import SectionLayout from '../Layouts/Section'
 import LoadingSection from '../Components/LoadingSection'
 
 import { Row, Col } from 'reactstrap'
+import displaySections from '../sections'
 
 class Me extends Component {
   state = { loading: false }
@@ -39,15 +40,10 @@ class Me extends Component {
   render() {
     const renderLoading = () => <LoadingSection />
 
-    const sections = [
-      { title: 'Teams', active: false, link: '/teams' },
-      { title: 'Profile', active: true, link: '/me' }
-    ]
-
     return (
       <SectionLayout
         title="Profile"
-        sections={sections}
+        sections={displaySections('profile')}
         mainContent={this.state.loading ? renderLoading() : this.renderBody()}
       />
     )
