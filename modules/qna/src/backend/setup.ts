@@ -3,43 +3,38 @@ import NluStorage from './providers/nlu'
 import MicrosoftQnaMakerStorage from './providers/qnaMaker'
 import { QnaStorage, SDK } from './qna'
 
-export default async (bp: SDK, botScopedStorage: Map<string, QnaStorage>) => {
-  const initialize = async () => {
-    const bots = await bp.bots.getAllBots()
-    for (const [id] of bots) {
-      const config = await bp.config.getModuleConfigForBot('qna', id)
+export const initBot = async (bp: SDK, botScopedStorage: Map<string, QnaStorage>, botId: string) => {
+  const config = await bp.config.getModuleConfigForBot('qna', botId)
 
-      let storage = undefined
-      if (config.qnaMakerApiKey) {
-        storage = new MicrosoftQnaMakerStorage(bp, config)
-      } else {
-        storage = new NluStorage(bp, config, id)
-      }
-
-      await storage.initialize()
-      botScopedStorage.set(id, storage)
-    }
+  let storage = undefined
+  if (config.qnaMakerApiKey) {
+    storage = new MicrosoftQnaMakerStorage(bp, config)
+  } else {
+    storage = new NluStorage(bp, config, botId)
   }
 
-  const registerMiddleware = async () => {
-    bp.events.registerMiddleware({
-      name: 'qna.incoming',
-      direction: 'incoming',
-      handler: async (event, next) => {
-        if (!event.hasFlag(bp.IO.WellKnownFlags.SKIP_QNA_PROCESSING)) {
-          const config = bp.config.getModuleConfigForBot('qna', event.botId)
-          const storage = botScopedStorage.get(event.botId)
+  await storage.initialize()
+  botScopedStorage.set(botId, storage)
+}
 
-          if (!(await processEvent(event, { bp, storage, config }))) {
-            next()
-          }
+export const initModule = async (bp: SDK, botScopedStorage: Map<string, QnaStorage>) => {
+  bp.events.registerMiddleware({
+    name: 'qna.incoming',
+    direction: 'incoming',
+    handler: async (event, next) => {
+      if (!event.hasFlag(bp.IO.WellKnownFlags.SKIP_QNA_PROCESSING)) {
+        const config = bp.config.getModuleConfigForBot('qna', event.botId)
+        const storage = botScopedStorage.get(event.botId)
+
+        if (!(await processEvent(event, { bp, storage, config }))) {
+          next()
         }
-      },
-      order: 11, // must be after the NLU middleware and before the dialog middleware
-      description: 'Listen for predefined questions and send canned responses.',
-      enabled: true
-    })
-  }
+      }
+    },
+    order: 11, // must be after the NLU middleware and before the dialog middleware
+    description: 'Listen for predefined questions and send canned responses.',
+    enabled: true
+  })
 
   const processEvent = async (event, { bp, storage, config }) => {
     let answer
@@ -88,7 +83,4 @@ export default async (bp: SDK, botScopedStorage: Map<string, QnaStorage>) => {
       return false
     }
   }
-
-  initialize()
-  registerMiddleware()
 }

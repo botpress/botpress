@@ -11,9 +11,9 @@ export type Extension = {}
 
 export type SDK = typeof sdk & Extension
 
-const onInit = async (bp: SDK) => {}
+const onServerStarted = async (bp: SDK) => {}
 
-const onReady = async (bp: SDK) => {
+const onServerReady = async (bp: SDK) => {
   await setup(bp)
 }
 
@@ -70,8 +70,8 @@ const defaultConfigJson = `
 `
 
 const entryPoint: sdk.ModuleEntryPoint = {
-  onInit,
-  onReady,
+  onServerStarted,
+  onServerReady,
   config,
   defaultConfigJson,
   serveFile: serveFile,

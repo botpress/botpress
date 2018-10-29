@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react'
-import { Redirect, Link } from 'react-router-dom'
+import { Redirect } from 'react-router-dom'
 import logo from '../media/nobg_white.png'
 
 import { Alert, Card, CardBody, CardTitle, Button, Input, CardText } from 'reactstrap'

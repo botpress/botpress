@@ -18,13 +18,12 @@ const createClient = (clientOptions, { toastErrors }) => {
   client.interceptors.response.use(
     response => response,
     error => {
-      if (error.response.code === 'BP_0005') {
-        return logout()
-      }
-
       const wrappedError = _.get(error, 'response.data')
-
-      if (_.get(wrappedError, 'code')) {
+      const code = _.get(wrappedError, 'code')
+      if (code) {
+        if (code === 'BP_0005') {
+          return logout()
+        }
         return Promise.reject(wrappedError)
       } else {
         return Promise.reject(error)
@@ -49,6 +48,8 @@ const createClient = (clientOptions, { toastErrors }) => {
   return client
 }
 
+const overrideApiUrl = process.env.REACT_APP_API_URL ? { baseURL: `${process.env.REACT_APP_API_URL}/admin` } : {}
+
 export default {
   getSecured({ token, toastErrors = true } = {}) {
     if (!token) {
@@ -60,13 +61,14 @@ export default {
       {
         headers: {
           Authorization: `Bearer ${token}`
-        }
+        },
+        ...overrideApiUrl
       },
       { toastErrors }
     )
   },
 
   getAnonymous({ toastErrors = true } = {}) {
-    return createClient({}, { toastErrors })
+    return createClient(overrideApiUrl, { toastErrors })
   }
 }

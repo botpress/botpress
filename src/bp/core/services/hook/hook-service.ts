@@ -16,14 +16,36 @@ export namespace Hooks {
     readonly timeout: number
   }
 
-  export class AfterBotStart implements BaseHook {
+  export class AfterServerStart implements BaseHook {
     timeout: number
     args: any
-    folder: string = 'after_bot_start'
+    folder: string = 'after_server_start'
 
     constructor(private bp: typeof sdk) {
       this.timeout = 1000
       this.args = { bp }
+    }
+  }
+
+  export class AfterBotMount implements BaseHook {
+    timeout: number
+    args: any
+    folder: string = 'after_bot_mount'
+
+    constructor(private bp: typeof sdk, botId: string) {
+      this.timeout = 1000
+      this.args = { bp, botId }
+    }
+  }
+
+  export class AfterBotUnmount implements BaseHook {
+    timeout: number
+    args: any
+    folder: string = 'after_bot_unmount'
+
+    constructor(private bp: typeof sdk, botId) {
+      this.timeout = 1000
+      this.args = { bp, botId }
     }
   }
 

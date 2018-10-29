@@ -1,6 +1,6 @@
 ---
 id: actions
-title: !!Actions
+title: Actions
 ---
 
 ## How actions work
@@ -41,49 +41,9 @@ Usage is pretty straightforward:
  */
 ```
 
-## Examples of actions
+## Examples of action
 
-Let's have a look at the `startGame` action. This action is very simple: it takes the `state` as a parameter and returns a new state that marks the beginning of a new game.
-
-```js
-startGame: state => {
-  return {
-    ...state, // we clone the existing state
-    count: 0, // we then reset the number of questions asked to `0`
-    score: 0  // and we reset the score to `0`
-  }
-},
-```
-
-Now let's look at a slightly more complicated action.
-
-The `sendRandomQuestion` action does the following: [[This section needs more explanation and it doesn't make sense. I will revisit when it's elaborated on]]
-
-- It sends a random _Content Element_ from the `trivia` _Content Types_ using the built-in `event.reply` method
-- It captures the message sent to the user
-- It extracts the good answer from the multiple choices
-- It stores the good answer in the state
-
-```js
-sendRandomQuestion: async (state, event) => {
-  // The `-random()` extension picks a random element in all trivia Q's
-  // We also retrieve the message we just sent
-  // Notice that `event.reply` is asynchronous, so we need to `await` it
-  const messageSent = await event.reply('#!trivia-random()')
-
-  // We find the good answer
-  const goodAnswer = _.find(messageSent.context.choices, { payload: 'TRIVIA_GOOD' })
-
-  return {
-    ...state, // We clone the state
-    isCorrect: null, // We reset `isCorrect` (optional)
-    count: state.count + 1, // We increase the number of questions we asked so far
-    goodAnswer // We store the goodAnswer in the state
-  }
-},
-```
-
-And lastly, let's look at the `setUserTag` action which makes use of custom arguments passed to the function from the flow.
+And lastly, let's look at the `setUserVariable` action which makes use of custom arguments passed to the function from the flow.
 
 ```js
 /**

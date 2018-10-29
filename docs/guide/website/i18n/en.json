@@ -18,7 +18,7 @@
         "title": "Introduction"
       },
       "getting_started/actions": {
-        "title": "!!Actions"
+        "title": "Actions"
       },
       "getting_started/changes": {
         "title": "Changes"
@@ -27,13 +27,10 @@
         "title": "Components"
       },
       "getting_started/content": {
-        "title": "!!!Content"
-      },
-      "getting_started/dashboard": {
-        "title": "!!!Dashboard"
+        "title": "!!Content"
       },
       "getting_started/deploying": {
-        "title": "!!!Deploying"
+        "title": "!!Deploying"
       },
       "getting_started/flows": {
         "title": "Flows"
@@ -54,10 +51,7 @@
         "title": "!!Skills"
       },
       "getting_started/storage": {
-        "title": "!!!Storage"
-      },
-      "getting_started/templates": {
-        "title": "!!!Templates"
+        "title": "Storage"
       },
       "modules/actions": {
         "title": "Actions"

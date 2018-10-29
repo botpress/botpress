@@ -373,7 +373,7 @@ export class BotsRouter implements CustomRouter {
         notificationId
           ? await this.notificationService.markAsRead(notificationId)
           : await this.notificationService.markAllAsRead(botId)
-        res.status(201)
+        res.sendStatus(201)
       }
     )
 
@@ -387,7 +387,7 @@ export class BotsRouter implements CustomRouter {
         notificationId
           ? await this.notificationService.archive(notificationId)
           : await this.notificationService.archiveAll(botId)
-        res.status(201)
+        res.sendStatus(201)
       }
     )
 
