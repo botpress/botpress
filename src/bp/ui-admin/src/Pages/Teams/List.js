@@ -123,7 +123,7 @@ class List extends Component {
           <MdGroupAdd /> Create team
         </Button>
         {this.renderCreateTeamModal()}
-        <ProfileUpdate />
+        <ProfileUpdate renderAsModal="true" />
       </div>
     )
   }

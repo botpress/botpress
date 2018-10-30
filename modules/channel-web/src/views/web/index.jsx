@@ -49,6 +49,7 @@ export default class Web extends React.Component {
 
     const { options } = queryString.parse(location.search)
     const { hideWidget, config } = JSON.parse(decodeURIComponent(options || '{}'))
+    this.axiosConfig = config.botId ? { headers: { 'X-Botpress-Bot-Id': config.botId } } : {}
 
     this.state = {
       view: null,
@@ -117,7 +118,7 @@ export default class Web extends React.Component {
       } else {
         const userId = window.__BP_VISITOR_ID
         const url = `${BOT_HOSTNAME}/api/ext/channel-web/events/${userId}`
-        return this.props.bp.axios.post(url, { type, payload })
+        return this.props.bp.axios.post(url, { type, payload }, this.axiosConfig)
       }
     }
   }
@@ -240,7 +241,9 @@ export default class Web extends React.Component {
     const userId = this.userId
     const url = `${BOT_HOSTNAME}/api/ext/channel-web/conversations/${userId}`
 
-    return axios.get(url).then(({ data }) => new Promise(resolve => !this.isUnmounted && this.setState(data, resolve)))
+    return axios
+      .get(url, this.axiosConfig)
+      .then(({ data }) => new Promise(resolve => !this.isUnmounted && this.setState(data, resolve)))
   }
 
   fetchCurrentConversation = convoId => {
@@ -260,7 +263,7 @@ export default class Web extends React.Component {
 
     const url = `${BOT_HOSTNAME}/api/ext/channel-web/conversations/${userId}/${conversationIdToFetch}`
 
-    return axios.get(url).then(({ data }) => {
+    return axios.get(url, this.axiosConfig).then(({ data }) => {
       // Possible race condition if the current conversation changed while fetching
       if (this.state.currentConversationId !== conversationIdToFetch) {
         // In which case we simply restart fetching
@@ -409,7 +412,7 @@ export default class Web extends React.Component {
   handleFileUploadSend = (title, payload, file) => {
     const userId = window.__BP_VISITOR_ID
     const url = `${BOT_HOSTNAME}/api/ext/channel-web/messages/${userId}/files`
-    const config = { params: { conversationId: this.state.currentConversationId } }
+    const config = { params: { conversationId: this.state.currentConversationId }, ...this.axiosConfig }
 
     const data = new FormData()
     data.append('file', file)
@@ -420,7 +423,7 @@ export default class Web extends React.Component {
   handleSendData = data => {
     const userId = window.__BP_VISITOR_ID
     const url = `${BOT_HOSTNAME}/api/ext/channel-web/messages/${userId}`
-    const config = { params: { conversationId: this.state.currentConversationId } }
+    const config = { params: { conversationId: this.state.currentConversationId }, ...this.axiosConfig }
 
     return this.props.bp.axios.post(url, data, config).then()
   }
@@ -440,10 +443,8 @@ export default class Web extends React.Component {
 
   handleSessionReset = () => {
     const userId = window.__BP_VISITOR_ID
-    const url = `${BOT_HOSTNAME}/api/ext/channel-web/conversations/${userId}/${
-      this.state.currentConversationId
-    }/reset`
-    return this.props.bp.axios.post(url).then()
+    const url = `${BOT_HOSTNAME}/api/ext/channel-web/conversations/${userId}/${this.state.currentConversationId}/reset`
+    return this.props.bp.axios.post(url, {}, ...this.axiosConfig).then()
   }
 
   renderOpenIcon() {
@@ -495,7 +496,7 @@ export default class Web extends React.Component {
     const userId = window.__BP_VISITOR_ID
     const url = `${BOT_HOSTNAME}/api/ext/channel-web/conversations/${userId}/new`
 
-    return this.props.bp.axios.post(url).then(this.fetchConversations)
+    return this.props.bp.axios.post(url, {}, this.axiosConfig).then(this.fetchConversations)
   }
 
   renderWidget() {
@@ -538,7 +539,7 @@ export default class Web extends React.Component {
     const url = `${BOT_HOSTNAME}/api/ext/channel-web/conversations/${userId}/${
       this.state.currentConversationId
     }/download/txt`
-    const file = (await this.props.bp.axios.get(url)).data
+    const file = (await this.props.bp.axios.get(url, this.axiosConfig)).data
     const blobFile = new Blob([file.txt])
 
     this.downaloadFile(file.name, blobFile)

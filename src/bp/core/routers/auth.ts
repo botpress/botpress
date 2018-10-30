@@ -38,7 +38,17 @@ export class AuthRouter implements CustomRouter {
     return sendSuccess(
       res,
       'Retrieved profile successfully',
-      _.pick((req as RequestWithUser).dbUser, ['company', 'email', 'fullName', 'id', 'picture', 'provider', 'username'])
+      _.pick((req as RequestWithUser).dbUser, [
+        'company',
+        'email',
+        'fullName',
+        'id',
+        'picture',
+        'provider',
+        'username',
+        'firstname',
+        'lastname'
+      ])
     )
   }
 

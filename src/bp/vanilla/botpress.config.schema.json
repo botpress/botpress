@@ -17,10 +17,7 @@
           "type": "number"
         },
         "bodyLimit": {
-          "type": [
-            "string",
-            "number"
-          ]
+          "type": ["string", "number"]
         },
         "cors": {
           "type": "object",
@@ -34,13 +31,7 @@
           }
         }
       },
-      "required": [
-        "backlog",
-        "bodyLimit",
-        "cors",
-        "port",
-        "proxyPort"
-      ]
+      "required": ["backlog", "bodyLimit", "cors", "port", "proxyPort"]
     },
     "database": {
       "$ref": "#/definitions/DatabaseConfig"
@@ -49,17 +40,10 @@
       "type": "object",
       "properties": {
         "enabled": {
-          "enum": [
-            "$isDevelopment",
-            "$isProduction",
-            false,
-            true
-          ]
+          "enum": ["$isDevelopment", "$isProduction", false, true]
         }
       },
-      "required": [
-        "enabled"
-      ]
+      "required": ["enabled"]
     },
     "dialog": {
       "$ref": "#/definitions/DialogConfig"
@@ -79,26 +63,18 @@
             "type": "boolean"
           }
         },
-        "required": [
-          "enabled",
-          "location"
-        ]
+        "required": ["enabled", "location"]
       }
     },
     "licenseKey": {
       "description": "The license key for the server.  Optionally you can use the BP_LICENSE_KEY env variable.\nYou can purchase a license on https://botpress.io\nFor usage with Botpress Pro/Enterprise.",
       "type": "string"
+    },
+    "allowStats": {
+      "type": "boolean"
     }
   },
-  "required": [
-    "database",
-    "dialog",
-    "ghost",
-    "httpServer",
-    "licenseKey",
-    "logs",
-    "modules"
-  ],
+  "required": ["allowStats", "database", "dialog", "ghost", "httpServer", "licenseKey", "logs", "modules"],
   "definitions": {
     "DatabaseConfig": {
       "type": "object",
@@ -134,15 +110,10 @@
           "type": "string"
         }
       },
-      "required": [
-        "type"
-      ]
+      "required": ["type"]
     },
     "DatabaseType": {
-      "enum": [
-        "postgres",
-        "sqlite"
-      ],
+      "enum": ["postgres", "sqlite"],
       "type": "string"
     },
     "DialogConfig": {
@@ -155,10 +126,7 @@
           "type": "string"
         }
       },
-      "required": [
-        "janitorInterval",
-        "timeoutInterval"
-      ]
+      "required": ["janitorInterval", "timeoutInterval"]
     },
     "LogsConfig": {
       "type": "object",
@@ -170,12 +138,8 @@
           "type": "string"
         }
       },
-      "required": [
-        "expiration",
-        "janitorInterval"
-      ]
+      "required": ["expiration", "janitorInterval"]
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }
-

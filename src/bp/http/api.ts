@@ -202,7 +202,7 @@ function setupAPIProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
         return body.map(x => ({
           ...x,
           categoryId: x.contentType,
-          data: x.computedData,
+          data: x.formData,
           categorySchema: x.schema,
           categoryTitle: x.schema.title
         }))
@@ -259,7 +259,7 @@ function setupAPIProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
         return {
           ...body,
           categoryId: body.contentType,
-          data: body.computedData,
+          data: body.formData,
           categorySchema: body.schema,
           categoryTitle: body.schema.title
         }

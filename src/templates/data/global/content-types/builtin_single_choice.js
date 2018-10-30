@@ -82,6 +82,5 @@ module.exports = {
   },
 
   computePreviewText: formData => `Choices (${formData.choices.length}) ${formData.text}`,
-  computeData: (typeId, formData) => formData,
   renderElement: renderElement
 }

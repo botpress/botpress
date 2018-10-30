@@ -66,6 +66,5 @@ module.exports = {
   },
 
   computePreviewText: formData => 'Text: ' + formData.text,
-  computeData: (typeId, formData) => formData,
   renderElement: renderElement
 }

@@ -65,6 +65,5 @@ module.exports = {
   },
 
   computePreviewText: formData => `Carousel: ${formData.length}`,
-  computeData: (typeId, formData) => formData,
   renderElement: renderElement
 }

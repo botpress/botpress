@@ -28,7 +28,7 @@
   },
   "logs": {
     "expiration": "2 weeks",
-    "janitorInterval": "2s"
+    "janitorInterval": "30s"
   },
   "licenseKey": "paste your license key here",
   "modules": [
@@ -55,6 +55,11 @@
     {
       "location": "MODULES_ROOT/audience",
       "enabled": true
+    },
+    {
+      "location": "MODULES_ROOT/analytics",
+      "enabled": true
     }
-  ]
+  ],
+  "allowStats": true
 }

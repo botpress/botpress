@@ -43,9 +43,18 @@
   }
 
   .btn-link {
-    color: var(--c-neutral--dark-1);
     font-size: 12px;
-    text-decoration: underline;
+    position: relative;
+
+    &:last-child:not(:first-child):before {
+      content: "";
+      background-color: #ccc;
+      display: inline-block;
+      height: 20px;
+      left: 0;
+      position: absolute;
+      width: 1px;
+    }
 
     &:hover {
       color: var(--primary);
