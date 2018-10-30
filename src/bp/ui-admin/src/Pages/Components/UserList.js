@@ -30,8 +30,8 @@ class UserList extends Component {
             <tr>
               <th>Username</th>
               <th>Name</th>
-              <th>Created at</th>
-              <th>Last Logon</th>
+              <th style={isDetailed}>Created at</th>
+              <th style={isDetailed}>Last Logon</th>
               <th>Actions</th>
             </tr>
           </thead>
