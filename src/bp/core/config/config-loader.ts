@@ -33,10 +33,6 @@ export class GhostConfigProvider implements ConfigProvider {
     return config
   }
 
-  async setBotpressConfig(config: BotpressConfig) {
-    await this.ghostService.global().upsertFile('/', 'botpress.config.json', JSON.stringify(config, undefined, 2))
-  }
-
   async getBotConfig(botId: string): Promise<BotConfig> {
     return this.getConfig<BotConfig>('bot.config.json', botId)
   }

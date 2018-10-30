@@ -95,7 +95,7 @@ export class Botpress {
   async checkJwtSecret() {
     if (!this.config!.jwtSecret) {
       this.config!.jwtSecret = nanoid(40)
-      this.configProvider.setBotpressConfig(this.config!)
+      // this.configProvider.setBotpressConfig(this.config!)
       this.logger.warn(`JWT Secret isn't defined. Generating a random key...`)
     }
 
