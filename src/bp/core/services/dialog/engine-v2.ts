@@ -24,7 +24,6 @@ export class ProcessingError extends Error {
 }
 
 class DialogEngineError extends Error {}
-
 class FlowNotFoundError extends DialogEngineError {}
 class NodeNotFoundError extends DialogEngineError {}
 
@@ -44,22 +43,8 @@ export class DialogEngine {
   public async processEvent(sessionId: string, event: IO.Event) {
     const botId = event.botId
     await this._loadFlows(botId)
-    let session = await this.sessionService.getSession(sessionId)
 
-    if (!session) {
-      // Create the new session context
-      const defaultFlow = this._findFlow(botId, 'main.flow.json')
-      const startNode = this._findNode(defaultFlow, defaultFlow.startNode)
-      const context = {
-        currentNodeName: startNode.name,
-        currentFlowName: defaultFlow.name
-      }
-      const emptyState = {}
-      session = await this.sessionService.createSession(sessionId, botId, emptyState, context, event)
-    } else {
-      await this.sessionService.updateSessionEvent(sessionId, event)
-    }
-
+    const session = await this._getOrCreateSession(sessionId, event)
     const currentFlow = this._findFlow(botId, session.context.currentFlowName)
     const currentNode = this._findNode(currentFlow, session.context.currentNodeName)
 
@@ -111,11 +96,29 @@ export class DialogEngine {
     }
   }
 
-  public jumpTo(sessionId, event, flowName, nodeName) {
+  public async jumpTo(sessionId, event, targetFlowName, targetNodeName?) {
+    const session = await this._getOrCreateSession(sessionId, event)
+    const botId = event.botId
 
+    const targetFlow = this._findFlow(botId, targetFlowName)
+    let targetNode
+    if (targetNodeName) {
+      targetNode = this._findNode(targetFlow, targetNodeName)
+    } else {
+      targetNode = this._findNode(targetFlow, targetFlow.startNode)
+    }
+
+    const context = {
+      currentFlowName: targetFlow.name,
+      currentNodeName: targetNode.name
+    }
+
+    await this._updateContext(sessionId, context)
   }
 
   public async processTimeout(botId, sessionId, event) {
+    // TODO: hook on before timeout
+
     const session = await this.sessionService.getSession(sessionId)
     const currentFlow = this._findFlow(botId, session.context.currentFlowName)
     const currentNode = this._findNode(currentFlow, session.context.currentNodeName)
@@ -156,6 +159,26 @@ export class DialogEngine {
     await this.processEvent(sessionId, event)
   }
 
+  private async _getOrCreateSession(sessionId, event) {
+    const session = await this.sessionService.getSession(sessionId)
+
+    if (!session) {
+      this._logStart(event.botId)
+
+      // Create the new session context
+      const defaultFlow = this._findFlow(event.botId, 'main.flow.json')
+      const startNode = this._findNode(defaultFlow, defaultFlow.startNode)
+      const context = {
+        currentNodeName: startNode.name,
+        currentFlowName: defaultFlow.name
+      }
+      const emptyState = {}
+      return this.sessionService.createSession(sessionId, event.botId, emptyState, context, event)
+    }
+
+    return this.sessionService.updateSessionEvent(sessionId, event)
+  }
+
   private async _transition(sessionId, event, transitionTo: string) {
     const session = await this.sessionService.getSession(sessionId)
     let context = session.context
@@ -169,19 +192,20 @@ export class DialogEngine {
 
       context = {
         ...context,
-        currentNodeName : parentNode.name,
-        currentFlowName : parentFlow.name,
-        queue: queue.toString(),
+        currentNodeName: parentNode.name,
+        currentFlowName: parentFlow.name,
+        queue: queue.toString()
       }
-      this.logger.debug(`(${context.currentFlowName})[${context.currentNodeName}] << (${context.previousFlowName})[${context.previousNodeName}]`)
+      this._logExitFlow(event.botId, context.currentFlowName, context.currentFlowName, parentFlow, parentNode)
     } else if (transitionTo === 'END') {
       // END means the node has a transition of "end flow" in the flow editor
       await this.sessionService.deleteSession(sessionId)
+      this._logEnd(event.botId)
       return
     } else {
       // Transition to the next node in the current flow
-      this.logger.debug(`(${context.currentFlowName})[${context.currentNodeName}] -> [${transitionTo}]`)
-      context = {...context, currentNodeName: transitionTo}
+      this._logTransition(event.botId, context.currentFlowName, context.currentNodeName, transitionTo)
+      context = { ...context, currentNodeName: transitionTo }
     }
 
     await this._updateContext(sessionId, context)
@@ -221,8 +245,13 @@ export class DialogEngine {
       previousFlowName: parentFlow.name
     }
 
-    this.logger.debug(`(${context.previousFlowName})[${context.previousNodeName}] >> (${context.currentFlowName})[${context.currentNodeName}]`)
-
+    this._logEnterFlow(
+      botId,
+      context.currentFlowName,
+      context.currentNodeName,
+      context.previousFlowName,
+      context.previousNodeName
+    )
     await this.sessionService.updateSessionContext(session.id, context)
     await this.processEvent(session.id, event)
   }
@@ -238,7 +267,7 @@ export class DialogEngine {
       throw new FlowNotFoundError(`Could not find any flow for ${botId}.`)
     }
 
-    const flow =  flows.find(x => x.name === flowName)
+    const flow = flows.find(x => x.name === flowName)
     if (!flow) {
       throw new FlowNotFoundError(`Flow ${flowName} not found for bot ${botId}.`)
     }
@@ -262,8 +291,28 @@ export class DialogEngine {
   }
 
   private _exitingSubflow(session) {
-    const sameFlow =  session.context.previousFlowName === session.context.currentFlowName
+    const sameFlow = session.context.previousFlowName === session.context.currentFlowName
     const sameNode = session.context.previousNodeName === session.context.currentNodeName
     return sameFlow && sameNode
+  }
+
+  private _logExitFlow(botId, currentFlow, currentNode, previousFlow, previousNode) {
+    this.logger.forBot(botId).debug(`(${currentFlow})[${currentNode}] << (${previousFlow})[${previousNode}]`)
+  }
+
+  private _logEnterFlow(botId, currentFlow, currentNode, previousFlow, previousNode) {
+    this.logger.forBot(botId).debug(`(${previousFlow})[${previousNode}] >> (${currentFlow})[${currentNode}]`)
+  }
+
+  private _logTransition(botId, currentFlow, currentNode, transitionTo) {
+    this.logger.forBot(botId).debug(`(${currentFlow})[${currentNode}] -> [${transitionTo}]`)
+  }
+
+  private _logEnd(botId) {
+    this.logger.forBot(botId).debug(`END`)
+  }
+
+  private _logStart(botId) {
+    this.logger.forBot(botId).debug(`START`)
   }
 }

@@ -67,7 +67,7 @@ export class ActionStrategy implements InstructionStrategy {
       }
     }
 
-    this.logger.debug(`Output content "${outputType}"`)
+    this.logger.debug(`Output "${outputType}"`)
 
     await this.contentElementSender.sendContent(outputType, args, state, event)
 
@@ -129,10 +129,9 @@ export class TransitionStrategy implements InstructionStrategy {
     const conditionSuccessful = await this.runCode(instruction, { state, event })
 
     if (conditionSuccessful) {
-      this.logger.debug(`Success transition to "${instruction.node}" on condition: "${instruction.fn}"`)
+      this.logger.forBot(botId).debug(`Success "${instruction.node}" on condition: "${instruction.fn}"`)
       return ProcessingResult.transition(instruction.node)
     } else {
-      this.logger.debug(`Failed transition to "${instruction.node}" on condition: "${instruction.fn}"`)
       return ProcessingResult.none()
     }
   }
