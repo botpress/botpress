@@ -12,6 +12,7 @@ import { ModuleLoader } from 'core/module-loader'
 import ModuleResolver from 'core/modules/resolver'
 import os from 'os'
 import { FatalError } from './errors'
+const portFinder = require('portfinder')
 
 const { start: startProxy } = require('./http/api')
 const editions = { ce: 'Community', pro: 'Professional', ee: 'Enterprise' }
@@ -67,14 +68,29 @@ async function start() {
 
   await Botpress.start({ modules })
 
-  const { host, port, proxyPort } = globalConfig.httpServer
+  const { host, proxyPort, cors } = globalConfig.httpServer
   const hostname = host === undefined ? 'localhost' : host
 
+  process.PROXY_PORT = await portFinder.getPortPromise({ port: proxyPort })
+  if (process.PROXY_PORT !== proxyPort) {
+    logger.warn(
+      `Configured proxy port ${proxyPort} is already in use. Using next port available: ${process.PROXY_PORT}`
+    )
+  }
+
   await Promise.fromCallback(cb =>
-    startProxy({ coreApiUrl: `http://${hostname}:${port}`, proxyHost: `http://${hostname}`, proxyPort }, cb)
+    startProxy(
+      {
+        coreApiUrl: `http://${hostname}:${process.PORT}`,
+        proxyHost: `http://${hostname}`,
+        proxyPort: process.PROXY_PORT,
+        corsConfig: cors
+      },
+      cb
+    )
   )
 
-  logger.info(`UI Proxy running on http://${hostname}:${proxyPort}/`)
+  logger.info(`UI Proxy running on http://${hostname}:${process.PROXY_PORT}/`)
 }
 
 start().catch(global.printErrorDefault)

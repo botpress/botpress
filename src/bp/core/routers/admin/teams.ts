@@ -94,48 +94,6 @@ export class TeamsRouter implements CustomRouter {
     )
 
     router.get(
-      '/:teamId/invite', // Get invite code
-      this.asyncMiddleware(async (req, res) => {
-        const { teamId } = req.params
-        const userId = req.dbUser.id
-        await svc.assertUserMember(userId, teamId)
-        await svc.assertUserPermission(userId, teamId, 'admin.team.members', 'write')
-        const code = await svc.getInviteCode(teamId)
-        return sendSuccess(res, 'Retrieved team invite code', code)
-      })
-    )
-
-    router.post(
-      '/:teamId/invite', // Refresh invite code
-      this.asyncMiddleware(async (req, res) => {
-        const { teamId } = req.params
-        const userId = req.dbUser.id
-        await svc.assertUserMember(userId, teamId)
-        await svc.assertUserPermission(userId, teamId, 'admin.team.members', 'write')
-        const code = await svc.refreshInviteCode(teamId)
-        return sendSuccess(res, 'Refreshed team invite code', code)
-      })
-    )
-
-    router.post(
-      '/join', // Join team
-      this.asyncMiddleware(async (req, res) => {
-        validateBodySchema(
-          req,
-          Joi.object().keys({
-            code: Joi.string()
-              .trim()
-              .required()
-          })
-        )
-
-        const userId = req.dbUser.id
-        const team = await svc.joinTeamFromInviteCode(userId, req.body.code)
-        return sendSuccess(res, 'Joined team successfully', team)
-      })
-    )
-
-    router.get(
       '/:teamId/roles', // List team roles
       this.asyncMiddleware(async (req, res) => {
         const { teamId } = req.params

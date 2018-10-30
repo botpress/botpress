@@ -4,7 +4,7 @@ import { inject, injectable } from 'inversify'
 
 @injectable()
 export class NotificationsService {
-  onNotification!: (() => void | undefined) | undefined
+  onNotification!: ((notification) => void | undefined) | undefined
 
   constructor(@inject(TYPES.NotificationsRepository) private notificationsRepository: NotificationsRepository) {}
 
@@ -23,12 +23,12 @@ export class NotificationsService {
   }
 
   async create(botId: string, notification: Notification): Promise<void> {
-    await this.notificationsRepository.insert(botId, notification)
-    this.onNotification && this.onNotification()
+    const inserted = await this.notificationsRepository.insert(botId, notification)
+    this.onNotification && this.onNotification(inserted)
   }
 
   async getInbox(botId: string): Promise<Notification[]> {
-    return this.notificationsRepository.getAll(botId, { archived: false, read: false })
+    return await this.notificationsRepository.getAll(botId, { archived: false, read: false })
   }
 
   async markAsRead(notificationId: string): Promise<void> {

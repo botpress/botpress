@@ -45,13 +45,29 @@ const virtual_machine = async (bp: SDK) => {
 }
 ```
 
-## After bot starts
+## After Server Starts
 
-This event is called once all modules are loaded and the bot is ready to accept incoming connections.
+This event is called once all modules and bots are loaded and the bot is ready to accept incoming connections.
 
-Location: `data/global/hooks/after_bot_start`
+Location: `data/global/hooks/after_server_start`
 
 Parameters: `bp`
+
+## After Bot Mount
+
+This event is called everytime a bot is mounted, be it when the server is starting up or when new bots are added at runtime.
+
+Location: `data/global/hooks/after_bot_mount`
+
+Parameters: `bp`, `botId`
+
+## After Bot Unmount
+
+This event is called everytime a bot is unmounted. This is usually to do cleanup when a bot is deleted.
+
+Location: `data/global/hooks/after_bot_unmount`
+
+Parameters: `bp`, `botId`
 
 ## Before Incoming Middleware
 

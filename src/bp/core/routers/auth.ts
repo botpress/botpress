@@ -38,8 +38,23 @@ export class AuthRouter implements CustomRouter {
     return sendSuccess(
       res,
       'Retrieved profile successfully',
-      _.pick((req as RequestWithUser).dbUser, ['company', 'email', 'fullName', 'id', 'picture', 'provider', 'username'])
+      _.pick((req as RequestWithUser).dbUser, [
+        'company',
+        'email',
+        'fullName',
+        'id',
+        'picture',
+        'provider',
+        'username',
+        'firstname',
+        'lastname'
+      ])
     )
+  }
+
+  updateProfile = async (req, res) => {
+    await this.adminService.updateUserProfile(req.dbUser.id, req.body.firstname, req.body.lastname)
+    return sendSuccess(res, 'Updated profile successfully')
   }
 
   getPermissions = async (req, res) => {
@@ -62,6 +77,8 @@ export class AuthRouter implements CustomRouter {
     router.post('/login', this.asyncMiddleware(this.login))
 
     router.get('/me/profile', this.checkTokenHeader, this.loadUser, this.asyncMiddleware(this.getProfile))
+
+    router.post('/me/profile', this.checkTokenHeader, this.loadUser, this.asyncMiddleware(this.updateProfile))
 
     router.get(
       '/me/permissions/:teamId',

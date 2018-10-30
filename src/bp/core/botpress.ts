@@ -1,12 +1,12 @@
 import * as sdk from 'botpress/sdk'
 import { WellKnownFlags } from 'core/sdk/enums'
 import { inject, injectable, tagged } from 'inversify'
+import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import { Memoize } from 'lodash-decorators'
 import moment from 'moment'
+import nanoid from 'nanoid'
 import path from 'path'
 import plur from 'plur'
-
-import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 
 import { createForGlobalHooks } from './api'
 import { BotLoader } from './bot-loader'
@@ -26,6 +26,7 @@ import { LogsJanitor } from './services/logs/janitor'
 import { EventEngine } from './services/middleware/event-engine'
 import { NotificationsService } from './services/notification/service'
 import RealtimeService from './services/realtime'
+import { Statistics } from './stats'
 import { TYPES } from './types'
 
 export type StartOptions = {
@@ -42,6 +43,7 @@ export class Botpress {
   api!: typeof sdk
 
   constructor(
+    @inject(TYPES.Statistics) private stats: Statistics,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.Database) private database: Database,
     @inject(TYPES.Logger)
@@ -76,28 +78,44 @@ export class Botpress {
   }
 
   private async initialize(options: StartOptions) {
+    this.stats.track('server', 'starting')
     this.config = await this.loadConfiguration()
 
-    await this.trackStats()
+    await this.checkJwtSecret()
     await this.createDatabase()
     await this.initializeGhost()
     await this.initializeServices()
     await this.loadModules(options.modules)
+    await this.discoverBots()
     await this.startRealtime()
     await this.startServer()
 
     this.api = await createForGlobalHooks()
-    await this.hookService.executeHook(new Hooks.AfterBotStart(this.api))
+    await this.hookService.executeHook(new Hooks.AfterServerStart(this.api))
+  }
+
+  async checkJwtSecret() {
+    if (!this.config!.jwtSecret) {
+      this.config!.jwtSecret = nanoid(40)
+      // this.configProvider.setBotpressConfig(this.config!)
+      this.logger.warn(`JWT Secret isn't defined. Generating a random key...`)
+    }
+
+    process.JWT_SECRET = this.config!.jwtSecret
+  }
+
+  async discoverBots(): Promise<void> {
+    await this.botLoader.loadAllBots()
+
+    const botIds = await this.botLoader.getAllBotIds()
+    for (const bot of botIds) {
+      await this.botLoader.mountBot(bot)
+    }
   }
 
   async initializeGhost(): Promise<void> {
     await this.ghostService.initialize(this.config!)
     await this.ghostService.global().sync(['actions', 'content-types', 'hooks'])
-
-    const botIds = await this.botLoader.getAllBotIds()
-    for (const bot of botIds) {
-      await this.ghostService.forBot(bot).sync(['actions', 'content-elements', 'flows'])
-    }
   }
 
   private async initializeServices() {
@@ -105,7 +123,6 @@ export class Botpress {
     this.loggerPersister.start()
 
     await this.cmsService.initialize()
-    await this.botLoader.loadAllBots()
 
     this.eventEngine.onBeforeIncomingMiddleware = async (event: sdk.IO.Event) => {
       await this.hookService.executeHook(new Hooks.BeforeIncomingMiddleware(this.api, event))
@@ -125,10 +142,10 @@ export class Botpress {
       flowLogger.forBot(err.botId).warn(message)
     }
 
-    this.notificationService.onNotification = () => {
+    this.notificationService.onNotification = notification => {
       const payload: sdk.RealTimePayload = {
-        eventName: 'notification.new',
-        payload: {} // pass notification here? or just notify the client to fetch the new notifications via the http api?
+        eventName: 'notifications.new',
+        payload: notification
       }
       this.realtimeService.sendToSocket(payload)
     }
@@ -140,10 +157,6 @@ export class Botpress {
   @Memoize()
   private async loadConfiguration(): Promise<BotpressConfig> {
     return this.configProvider.getBotpressConfig()
-  }
-
-  private async trackStats(): Promise<void> {
-    // TODO
   }
 
   private async createDatabase(): Promise<void> {

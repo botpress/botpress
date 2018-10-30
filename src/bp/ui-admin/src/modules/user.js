@@ -4,9 +4,13 @@ export const MY_PROFILE_REQUESTED = 'user/MY_PROFILE_REQUESTED'
 export const MY_PROFILE_RECEIVED = 'user/MY_PROFILE_RECEIVED'
 export const MY_PERMISSIONS_REQUESTED = 'user/MY_PERMISSIONS_REQUESTED'
 export const MY_PERMISSIONS_RECEIVED = 'user/MY_PERMISSIONS_RECEIVED'
+export const FETCH_USERS_REQUESTED = 'user/FETCH_USERS_REQUESTED'
+export const FETCH_USERS_RECEIVED = 'user/FETCH_USERS_RECEIVED'
 
 const initialState = {
+  users: null,
   loading: false,
+  loadingUsers: false,
   profile: null,
   permissions: {}
 }
@@ -18,6 +22,12 @@ export default (state = initialState, action) => {
       return {
         ...state,
         loading: true
+      }
+
+    case FETCH_USERS_REQUESTED:
+      return {
+        ...state,
+        loadingUsers: true
       }
 
     case MY_PROFILE_RECEIVED:
@@ -37,8 +47,36 @@ export default (state = initialState, action) => {
         }
       }
 
+    case FETCH_USERS_RECEIVED:
+      return {
+        ...state,
+        loadingUsers: false,
+        items: action.users
+      }
+
     default:
       return state
+  }
+}
+
+export const fetchUsers = () => {
+  return async (dispatch, getState) => {
+    const { user: state } = getState()
+
+    if (state.loadingUsers) {
+      return
+    }
+
+    dispatch({
+      type: FETCH_USERS_REQUESTED
+    })
+
+    const { data: users } = await api.getSecured().get('/api/users')
+
+    dispatch({
+      type: FETCH_USERS_RECEIVED,
+      users: users.payload
+    })
   }
 }
 

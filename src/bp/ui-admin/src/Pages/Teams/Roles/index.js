@@ -4,7 +4,7 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { checkRule } from '@botpress/util-roles'
 
-import { Button, ListGroup } from 'reactstrap'
+import { Button, Col, ListGroup, Row } from 'reactstrap'
 import { MdPersonAdd } from 'react-icons/lib/md'
 
 import { pick } from 'lodash'
@@ -108,28 +108,30 @@ class Roles extends Component {
     const { roles, existingPermissions } = this.props
     const { roleToEdit, createNewRole } = this.state
     return (
-      <Fragment>
-        <ListGroup>
-          {roles.map(role => (
-            <Role
-              role={role}
-              readOnly={role.name === 'owner'}
+      <Row>
+        <Col xs={12} md={8}>
+          <ListGroup>
+            {roles.map(role => (
+              <Role
+                role={role}
+                readOnly={role.name === 'owner'}
+                existingPermissions={existingPermissions}
+                onEdit={this.onRoleEditStart(role)}
+                onDelete={this.onRoleDelete(role.id)}
+                key={role.id}
+              />
+            ))}
+            <RoleEdit
+              show={!!roleToEdit || createNewRole}
+              role={roleToEdit}
+              createMode={createNewRole}
               existingPermissions={existingPermissions}
-              onEdit={this.onRoleEditStart(role)}
-              onDelete={this.onRoleDelete(role.id)}
-              key={role.id}
+              onSave={createNewRole ? this.onRoleCreate : this.onRoleChange}
+              onClose={this.onRoleEditDone}
             />
-          ))}
-          <RoleEdit
-            show={!!roleToEdit || createNewRole}
-            role={roleToEdit}
-            createMode={createNewRole}
-            existingPermissions={existingPermissions}
-            onSave={createNewRole ? this.onRoleCreate : this.onRoleChange}
-            onClose={this.onRoleEditDone}
-          />
-        </ListGroup>
-      </Fragment>
+          </ListGroup>
+        </Col>
+      </Row>
     )
   }
 

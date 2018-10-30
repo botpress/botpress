@@ -31,12 +31,17 @@ export interface LogsConfig {
 }
 
 export type BotpressConfig = {
+  jwtSecret: string
   httpServer: {
     host?: string
     port: number
     proxyPort: number
     backlog: number
     bodyLimit: string | number
+    cors: {
+      enabled?: boolean
+      origin?: string
+    }
   }
   database: DatabaseConfig
   ghost: {
@@ -45,4 +50,5 @@ export type BotpressConfig = {
   dialog: DialogConfig
   logs: LogsConfig
   modules: Array<ModuleConfigEntry>
+  allowStats: boolean
 }

@@ -4,6 +4,7 @@ import { Server } from 'http'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import socketio from 'socket.io'
+import socketioJwt from 'socketio-jwt'
 
 import { TYPES } from '../../types'
 
@@ -46,15 +47,12 @@ export default class RealtimeService {
 
     // TODO Implement that
     // Only admin UI users requests are authenticated
-
-    // if (bp.botfile.login.enabled) {
-    //   admin.use(
-    //     socketioJwt.authorize({
-    //       secret: await bp.security.getJWTSecretOrCertificate(),
-    //       handshake: true
-    //     })
-    //   )
-    // }
+    admin.use(
+      socketioJwt.authorize({
+        secret: process.JWT_SECRET,
+        handshake: true
+      })
+    )
 
     admin.on('connection', socket => {
       const visitorId = _.get(socket, 'handshake.query.visitorId')

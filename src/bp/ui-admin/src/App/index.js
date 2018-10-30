@@ -10,9 +10,7 @@ import {
   UncontrolledDropdown,
   DropdownToggle,
   DropdownMenu,
-  DropdownItem,
-  NavItem,
-  NavLink
+  DropdownItem
 } from 'reactstrap'
 
 import { connect } from 'react-redux'
@@ -55,6 +53,7 @@ class Home extends Component {
         </DropdownToggle>
         <DropdownMenu right>
           <DropdownItem onClick={() => this.props.history.push('/me')}>My profile</DropdownItem>
+          <DropdownItem onClick={() => this.props.history.push('/licence')}>Licence</DropdownItem>
           <DropdownItem disabled>Preferences</DropdownItem>
           <DropdownItem divider />
           <DropdownItem onClick={() => this.props.auth.logout()}>Logout</DropdownItem>
@@ -96,7 +95,8 @@ class Home extends Component {
           <div className="container">
             <Navbar expand="md">
               <NavbarBrand href="/admin">
-                <img src={logo} alt="logo" className="bp-header__logo" />&nbsp;|&nbsp;
+                <img src={logo} alt="logo" className="bp-header__logo" />
+                &nbsp;|&nbsp;
                 <span className="bp-header__title">Admin</span>
               </NavbarBrand>
               <NavbarToggler onClick={this.toggleMenu} />

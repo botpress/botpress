@@ -18,7 +18,7 @@
         "title": "Introduction"
       },
       "getting_started/actions": {
-        "title": "!!Actions"
+        "title": "Actions"
       },
       "getting_started/changes": {
         "title": "Changes"
@@ -27,13 +27,10 @@
         "title": "Components"
       },
       "getting_started/content": {
-        "title": "!!!Content"
-      },
-      "getting_started/dashboard": {
-        "title": "!!!Dashboard"
+        "title": "!!Content"
       },
       "getting_started/deploying": {
-        "title": "!!!Deploying"
+        "title": "!!Deploying"
       },
       "getting_started/flows": {
         "title": "Flows"
@@ -54,10 +51,7 @@
         "title": "!!Skills"
       },
       "getting_started/storage": {
-        "title": "!!!Storage"
-      },
-      "getting_started/templates": {
-        "title": "!!!Templates"
+        "title": "Storage"
       },
       "modules/actions": {
         "title": "Actions"
@@ -99,13 +93,13 @@
         "title": "!!Supported databases"
       },
       "recipes/embedding": {
-        "title": "!!!Embedding the Webchat on a website"
+        "title": "Embedding the Webchat on a website"
       },
       "recipes/hitl": {
-        "title": "!!HITL (Human-in-the-loop)"
+        "title": "HITL (Human-in-the-loop)"
       },
       "recipes/i18n": {
-        "title": "!!!i18n"
+        "title": "i18n"
       },
       "recipes/index": {
         "title": "What are they?"
@@ -129,7 +123,7 @@
         "title": "Shortlinks"
       },
       "recipes/timeout": {
-        "title": "!!!Timeout"
+        "title": "Timeout"
       },
       "recipes/extensions": {
         "title": "!!!Webchat Extensions"

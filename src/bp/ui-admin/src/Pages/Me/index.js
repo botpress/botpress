@@ -4,6 +4,9 @@ import SectionLayout from '../Layouts/Section'
 import LoadingSection from '../Components/LoadingSection'
 
 import { Row, Col } from 'reactstrap'
+import displaySections from '../sections'
+import ChangePassword from '../Components/ChangePassword'
+import ProfileUpdate from '../Components/ProfileUpdate'
 
 class Me extends Component {
   state = { loading: false }
@@ -13,24 +16,10 @@ class Me extends Component {
       <Row className="profile">
         <Col sm="12" md="4">
           <div className="profile__avatar" />
+          <ChangePassword />
         </Col>
         <Col sm="12" md="6">
-          <div className="form-group">
-            <label for="firstName">First Name</label>
-            <input type="text" id="firstName" className="form-control" disabled />
-          </div>
-          <div className="form-group">
-            <label for="lastName">Last Name</label>
-            <input type="text" id="lastName" className="form-control" disabled />
-          </div>
-          <div className="form-group">
-            <label for="username">Username</label>
-            <input type="text" id="username" className="form-control" disabled />
-          </div>
-          <div className="form-group">
-            <label for="email">Email</label>
-            <input type="text" id="email" className="form-control" disabled />
-          </div>
+          <ProfileUpdate />
         </Col>
       </Row>
     )
@@ -39,15 +28,10 @@ class Me extends Component {
   render() {
     const renderLoading = () => <LoadingSection />
 
-    const sections = [
-      { title: 'Teams', active: false, link: '/teams' },
-      { title: 'Profile', active: true, link: '/me' }
-    ]
-
     return (
       <SectionLayout
         title="Profile"
-        sections={sections}
+        sections={displaySections('profile')}
         mainContent={this.state.loading ? renderLoading() : this.renderBody()}
       />
     )

@@ -14,8 +14,8 @@ import ConfigReader from './services/module/config-reader'
 import { TYPES } from './types'
 
 const MODULE_SCHEMA = joi.object().keys({
-  onInit: joi.func().required(),
-  onReady: joi.func().required(),
+  onServerStarted: joi.func().required(),
+  onServerReady: joi.func().required(),
   onBotMount: joi.func().optional(),
   onBotUnmount: joi.func().optional(),
   config: joi.object().optional(),
@@ -105,11 +105,11 @@ export class ModuleLoader {
       try {
         ModuleLoader.processModuleEntryPoint(module, name)
         const api = await createForModule(name)
-        await (module.onInit && module.onInit(api))
+        await (module.onServerStarted && module.onServerStarted(api))
         initedModules[name] = true
         this.entryPoints.set(name, module)
       } catch (err) {
-        this.logger.attachError(err).error(`Error in module "${name}" onInit`)
+        this.logger.attachError(err).error(`Error in module "${name}" onServerStarted`)
       }
     }
 
@@ -140,11 +140,11 @@ export class ModuleLoader {
 
       try {
         const api = await createForModule(name)
-        await (module.onReady && module.onReady(api))
+        await (module.onServerReady && module.onServerReady(api))
         this.loadModulesActions(name)
         this.loadModuleHooks(name)
       } catch (err) {
-        this.logger.warn(`Error in module "${name}" 'onReady'. Module will still be loaded. Err: ${err.message}`)
+        this.logger.warn(`Error in module "${name}" 'onServerReady'. Module will still be loaded. Err: ${err.message}`)
       }
     }
   }

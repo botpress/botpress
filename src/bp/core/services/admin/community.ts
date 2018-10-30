@@ -5,7 +5,8 @@ import Database from 'core/database'
 import { checkRule } from 'core/misc/auth'
 import { AuthRole, AuthRoleDb, AuthRule, AuthTeam, AuthTeamMembership, AuthUser, Bot } from 'core/misc/interfaces'
 import { BOTID_REGEX } from 'core/misc/validation'
-import { ModuleLoader } from 'core/module-loader'
+import { saltHashPassword } from 'core/services/auth/util'
+import { Statistics } from 'core/stats'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import Joi from 'joi'
@@ -27,6 +28,7 @@ export class CommunityAdminService implements AdminService {
   protected rolesTable = 'auth_roles'
   protected usersTable = 'auth_users'
   protected botsTable = 'srv_bots'
+  protected ROOT_ADMIN_ID = 1
 
   protected botValidationSchema = Joi.object().keys({
     id: Joi.string()
@@ -45,12 +47,40 @@ export class CommunityAdminService implements AdminService {
     @inject(TYPES.BotConfigFactory) private botConfigFactory: BotConfigFactory,
     @inject(TYPES.BotConfigWriter) private botConfigWriter: BotConfigWriter,
     @inject(TYPES.BotLoader) private botLoader: BotLoader,
-    @inject(TYPES.GhostService) private ghostService: GhostService,
-    @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader
+    @inject(TYPES.Statistics) private stats: Statistics
   ) {}
 
   protected get knex() {
     return this.database.knex!
+  }
+
+  listUsers() {
+    throw new FeatureNotAvailableError(this.edition)
+  }
+
+  createUser(username: string) {
+    throw new FeatureNotAvailableError(this.edition)
+  }
+
+  deleteUser(userId: number) {
+    throw new FeatureNotAvailableError(this.edition)
+  }
+
+  async resetPassword(userId: any) {
+    const password = nanoid(15)
+    const { hash, salt } = saltHashPassword(password)
+
+    await this.knex(this.usersTable)
+      .update({ password: hash, salt, password_expired: true })
+      .where({ id: userId })
+
+    return password
+  }
+
+  async updateUserProfile(userId: number, firstname: string, lastname: string) {
+    await this.knex(this.usersTable)
+      .update({ firstname, lastname })
+      .where({ id: userId })
   }
 
   addMemberToTeam(userId: number, teamId: number, roleName: string) {
@@ -106,6 +136,7 @@ export class CommunityAdminService implements AdminService {
   }
 
   async addBot(teamId: number, bot: Bot): Promise<void> {
+    this.stats.track('api', 'admin', 'addBot')
     bot.team = teamId
     const { error } = Joi.validate(bot, this.botValidationSchema)
     if (error) {
@@ -115,10 +146,8 @@ export class CommunityAdminService implements AdminService {
     await this.knex(this.botsTable).insert(bot)
     const botConfig = this.botConfigFactory.createDefault({ id: bot.id, name: bot.name })
     await this.botConfigWriter.writeToFile(botConfig)
-    // TODO move this in  bot loader
-    await this.ghostService.forBot(bot.id).sync(['actions', 'content-elements', 'flows', 'intents'])
-    await this.botLoader.loadForBot(bot.id)
-    await this.moduleLoader.loadModulesForBot(bot.id)
+
+    await this.botLoader.mountBot(bot.id, true)
   }
 
   async deleteBot(teamId: number, botId: string) {
@@ -126,23 +155,27 @@ export class CommunityAdminService implements AdminService {
       .where({ team: teamId, id: botId })
       .delete()
       .then()
+
+    await this.botLoader.unmountBot(botId)
   }
 
-  async listBots(teamId: number, offset: number, limit: number) {
-    const bots = await this.knex(this.botsTable)
+  async listBots(teamId: number, offset?: number, limit?: number) {
+    const query = this.knex(this.botsTable)
       .where({ team: teamId })
-      .offset(offset)
-      .limit(limit)
       .select('id', 'name', 'description', 'created_at')
-      .then<Array<Bot>>(res => res)
+
+    if (offset && limit) {
+      query.offset(offset).limit(limit)
+    }
+
+    const bots = await query.then<Array<Bot>>(res => res)
 
     return { count: bots.length, bots }
   }
 
   async createNewTeam({ userId, name = 'Default Team' }: { userId: number; name?: string }) {
     const teamId = await this.knex.insertAndRetrieve<number>(this.teamsTable, {
-      name,
-      invite_code: nanoid()
+      name
     })
 
     if (_.isArray(communityRoles) && communityRoles.length) {
@@ -178,14 +211,6 @@ export class CommunityAdminService implements AdminService {
       .then()
   }
 
-  getInviteCode(teamId: number) {
-    throw new FeatureNotAvailableError(this.edition)
-  }
-
-  refreshInviteCode(teamId: number) {
-    throw new FeatureNotAvailableError(this.edition)
-  }
-
   async getUserPermissions(userId: number, teamId: number): Promise<AuthRule[]> {
     const roleName = await this.getUserRole(userId, teamId)
 
@@ -207,10 +232,6 @@ export class CommunityAdminService implements AdminService {
   }
 
   changeUserRole(userId: number, teamId: number, roleName: string) {
-    throw new FeatureNotAvailableError(this.edition)
-  }
-
-  joinTeamFromInviteCode(userId: number, code: string) {
     throw new FeatureNotAvailableError(this.edition)
   }
 
@@ -279,6 +300,12 @@ export class CommunityAdminService implements AdminService {
 
     if (!isMember) {
       throw new UnauthorizedAccessError(`User does not have role ${roleName} in the team`)
+    }
+  }
+
+  async assertIsRootAdmin(userId: number) {
+    if (userId !== this.ROOT_ADMIN_ID) {
+      throw new UnauthorizedAccessError(`Only root admin is allowed to use this`)
     }
   }
 

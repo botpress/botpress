@@ -7,15 +7,20 @@ const _ = require('lodash')
 const bodyParser = require('body-parser')
 const qs = require('querystring')
 const tamper = require('tamper')
+const cors = require('cors')
 
 const { HttpProxy, extractBotId, getApiBasePath, BASE_PATH, noCache } = require('./common')
 const version = '10.42.1'
 
-async function start({ coreApiUrl, proxyHost, proxyPort }, callback) {
+async function start({ coreApiUrl, proxyHost, proxyPort, corsConfig }, callback) {
   const app = express()
 
   app.use(noCache)
   app.use(bodyParser.json())
+
+  if (corsConfig && corsConfig.enabled) {
+    app.use(cors(corsConfig.origin ? { origin: corsConfig.origin } : {}))
+  }
 
   const httpProxy = new HttpProxy(app, coreApiUrl)
 
@@ -198,7 +203,7 @@ function setupAPIProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
         return body.map(x => ({
           ...x,
           categoryId: x.contentType,
-          data: x.computedData,
+          data: x.formData,
           categorySchema: x.schema,
           categoryTitle: x.schema.title
         }))
@@ -255,7 +260,7 @@ function setupAPIProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
         return {
           ...body,
           categoryId: body.contentType,
-          data: body.computedData,
+          data: body.formData,
           categorySchema: body.schema,
           categoryTitle: body.schema.title
         }
@@ -309,9 +314,26 @@ function setupAPIProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
     })
   )
 
-  app.get('/api/notifications/inbox', (req, res) => {
-    res.send('[]')
-  })
+  app.get(
+    '/api/notifications/inbox',
+    proxy(coreApiUrl, {
+      proxyReqPathResolver: async req => getApiBasePath(req) + '/notifications'
+    })
+  )
+
+  app.post(
+    '/api/notifications/:notificationId?/:action',
+    proxy(coreApiUrl, {
+      proxyReqPathResolver: async req => {
+        const apiPath = getApiBasePath(req)
+        const { notificationId, action } = req.params
+
+        return notificationId
+          ? `${apiPath}/notifications/${notificationId}/${action}`
+          : `${apiPath}/notifications/${action}`
+      }
+    })
+  )
 
   app.get('/api/community/hero', (req, res) => {
     res.send({ hidden: true })

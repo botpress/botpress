@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react'
-import { Redirect, Link } from 'react-router-dom'
+import { Redirect } from 'react-router-dom'
 import logo from '../media/nobg_white.png'
 
 import { Alert, Card, CardBody, CardTitle, Button, Input, CardText } from 'reactstrap'
@@ -7,7 +7,7 @@ import { Alert, Card, CardBody, CardTitle, Button, Input, CardText } from 'react
 export default class Login extends Component {
   state = { username: '', password: '', passwordExpired: false, error: null }
 
-  login = async ({ username, password, showError = true }) => {
+  login = async ({ username, password, showError = true }={}) => {
     this.setState({ error: null })
 
     try {

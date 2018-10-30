@@ -1,14 +1,6 @@
 import React, { Component, Fragment } from 'react'
 
-import {
-  Button,
-  ListGroupItem,
-  ListGroupItemHeading,
-  UncontrolledDropdown,
-  DropdownItem,
-  DropdownToggle,
-  DropdownMenu
-} from 'reactstrap'
+import { Button, ListGroupItem, ListGroupItemHeading } from 'reactstrap'
 
 import Rule from './Rule'
 

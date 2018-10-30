@@ -35,19 +35,15 @@ export class ContentElementSender {
 
       _.set(content, 'previewPath', Mustache.render(content.previewText, view))
 
-      let computedDataText = _.get(content.computedData, 'text')
+      const text = _.get(content.formData, 'text')
+      const variations = _.get(content.formData, 'variations')
 
-      const variations = _.get(content.computedData, 'variations')
-      if (variations) {
-        const choices = _.concat(computedDataText, variations)
-        computedDataText = choices[_.random(choices.length - 1)]
+      const message = _.sample([text, ...(variations || [])])
+      if (message) {
+        _.set(content, 'formData.text', Mustache.render(message, view))
       }
 
-      if (computedDataText) {
-        _.set(content, 'computedData.text', Mustache.render(computedDataText, view))
-      }
-
-      renderedElements = await this.cms.renderElement(content.contentType, content.computedData, channel)
+      renderedElements = await this.cms.renderElement(content.contentType, content.formData, channel)
     } else {
       renderedElements = await this.cms.renderElement(contentId, args, channel)
     }

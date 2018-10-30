@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import Joi from 'joi-browser'
+import displaySections from '../sections'
 
 import {
   ListGroup,
@@ -13,23 +14,20 @@ import {
   Input,
   Label,
   FormFeedback,
-  FormText,
   ModalHeader,
   ModalBody,
-  ModalFooter
+  ModalFooter,
+  Row,
+  Col
 } from 'reactstrap'
 
 import moment from 'moment'
 import { MdGroupAdd } from 'react-icons/lib/md'
-
 import { fetchTeams } from '../../modules/teams'
-
 import SectionLayout from '../Layouts/Section'
 import LoadingSection from '../Components/LoadingSection'
-
-import _ from 'lodash'
-
 import api from '../../api'
+import ProfileUpdate from '../Components/ProfileUpdate'
 
 // TODO We can reuse this logic between Node and Front
 const TeamNameValidationSchema = Joi.string()
@@ -39,7 +37,7 @@ const TeamNameValidationSchema = Joi.string()
   .max(30)
 
 class List extends Component {
-  state = { isCreateTeamModalOpen: false, canCreateTeam: false, teamName: '', createTeamError: null, inviteCode: null }
+  state = { isCreateTeamModalOpen: false, canCreateTeam: false, teamName: '', createTeamError: null }
 
   componentDidMount() {
     this.props.fetchTeams()
@@ -48,26 +46,6 @@ class List extends Component {
   componentDidUpdate(prevProps) {
     if (!prevProps.teams) {
       this.props.fetchTeams()
-    }
-  }
-
-  async joinTeam(inviteCode) {
-    if (inviteCode === this.state.inviteCode) {
-      return
-    }
-    this.setState({ inviteCode }, async () => {
-      await api.getSecured().post(`/api/teams/join`, {
-        code: inviteCode
-      })
-    })
-  }
-
-  // TODO: refactor https://reactjs.org/docs/react-component.html#unsafe_componentwillreceiveprops
-  async componentWillReceiveProps(nextProps) {
-    const inviteCode = _.get(nextProps, 'match.params.inviteCode')
-    if (inviteCode) {
-      await this.joinTeam(inviteCode)
-      this.props.history.push(`/teams`)
     }
   }
 
@@ -120,23 +98,27 @@ class List extends Component {
 
   renderAllTeams() {
     return (
-      <ListGroup>
-        {this.props.teams.map(team => {
-          const createdAgo = moment(team.createdAt).fromNow()
-          return (
-            <ListGroupItem
-              tag="a"
-              key={team.id}
-              action
-              href="#"
-              onClick={() => this.props.history.push(`/teams/${team.id}`)}
-            >
-              <ListGroupItemHeading>{team.name}</ListGroupItemHeading>
-              <small>Created {createdAgo}</small>
-            </ListGroupItem>
-          )
-        })}
-      </ListGroup>
+      <Row>
+        <Col xs={12} md={8}>
+          <ListGroup>
+            {this.props.teams.map(team => {
+              const createdAgo = moment(team.createdAt).fromNow()
+              return (
+                <ListGroupItem
+                  tag="a"
+                  key={team.id}
+                  action
+                  href="#"
+                  onClick={() => this.props.history.push(`/teams/${team.id}`)}
+                >
+                  <ListGroupItemHeading>{team.name}</ListGroupItemHeading>
+                  <small>Created {createdAgo}</small>
+                </ListGroupItem>
+              )
+            })}
+          </ListGroup>
+        </Col>
+      </Row>
     )
   }
 
@@ -147,6 +129,7 @@ class List extends Component {
           <MdGroupAdd /> Create team
         </Button>
         {this.renderCreateTeamModal()}
+        <ProfileUpdate renderAsModal="true" />
       </div>
     )
   }
@@ -154,19 +137,13 @@ class List extends Component {
   render() {
     const renderLoading = () => <LoadingSection />
 
-    const sections = [
-      { title: 'Teams', active: true, link: '/teams' },
-      { title: 'Profile', active: false, link: '/me' }
-    ]
-
     return (
       <SectionLayout
         title="My teams"
         helpText="These are the teams you are a member of.
-          You can join an existing team by asking someone you know for an
-          invite code, or you can create your own team and invite others to
+          You can join an existing team by asking someone you know, or you can create your own team and invite others to
           collaborate with you."
-        sections={sections}
+        sections={displaySections('teams')}
         mainContent={!this.props.teams || this.props.loading ? renderLoading() : this.renderAllTeams()}
         sideMenu={this.renderSideMenu()}
       />

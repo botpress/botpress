@@ -75,9 +75,9 @@ declare module 'botpress/sdk' {
    */
   export interface ModuleEntryPoint {
     /** Called once the core is initialized. Usually for middlewares / database init */
-    onInit: ((bp: typeof import('botpress/sdk')) => void)
+    onServerStarted: ((bp: typeof import('botpress/sdk')) => void)
     /** This is called once all modules are initialized, usually for routing and logic */
-    onReady: ((bp: typeof import('botpress/sdk')) => void)
+    onServerReady: ((bp: typeof import('botpress/sdk')) => void)
     onBotMount?: ((bp: typeof import('botpress/sdk'), botId: string) => void)
     onBotUnmount?: ((bp: typeof import('botpress/sdk'), botId: string) => void)
     /** The configuration options of the module */
@@ -247,10 +247,12 @@ declare module 'botpress/sdk' {
   export type Notification = {
     botId: string
     message: string
+    /** Can be info, error, success */
     level: string
     moduleId?: string
     moduleIcon?: string
     moduleName?: string
+    /** An URL to redirect to when the notification is clicked */
     redirectUrl?: string
   }
 

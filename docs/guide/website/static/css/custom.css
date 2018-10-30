@@ -16,26 +16,26 @@
 }
 
 .blockElement.alignCenter.fourByGridBlock {
-    border: 1px solid #1b4af7;
-    border-radius: 3px;
+  border: 1px solid #1b4af7;
+  border-radius: 3px;
 }
 
 .blockElement.alignCenter.fourByGridBlock p {
-    padding: 0 16px 0 16px;
-    text-align: left;
+  padding: 0 16px 0 16px;
+  text-align: left;
 }
 
 .fixedHeaderContainer {
-    background-color: #1b4af7
+  background-color: #090909;
 }
 
 .logo {
-    margin-right: 5px !important;
-    filter: brightness(0) invert(1);
+  margin-right: 5px !important;
+  filter: brightness(0) invert(1);
 }
 
 .mainLogo {
-    width: 30%;
-    display: inline-block;
-    filter: brightness(0);
+  width: 30%;
+  display: inline-block;
+  filter: brightness(0);
 }

@@ -5,7 +5,10 @@
     "port": 3000,
     "proxyPort": 3001,
     "bodyLimit": "100kb",
-    "backlog": 0
+    "backlog": 0,
+    "cors": {
+      "enabled": false
+    }
   },
   "database": {
     "type": "sqlite",
@@ -25,7 +28,7 @@
   },
   "logs": {
     "expiration": "2 weeks",
-    "janitorInterval": "2s"
+    "janitorInterval": "30s"
   },
   "modules": [
     {
@@ -51,6 +54,11 @@
     {
       "location": "MODULES_ROOT/audience",
       "enabled": true
+    },
+    {
+      "location": "MODULES_ROOT/analytics",
+      "enabled": true
     }
-  ]
+  ],
+  "allowStats": true
 }

@@ -15,14 +15,14 @@ export type SDK = typeof sdk & Extension
 
 let db = undefined
 
-const onInit = async (bp: SDK) => {
+const onServerStarted = async (bp: SDK) => {
   db = new BroadcastDb(bp)
   await db.initialize()
 
   Daemon(bp, db)
 }
 
-const onReady = async (bp: SDK) => {
+const onServerReady = async (bp: SDK) => {
   await api(bp, db)
 }
 
@@ -42,8 +42,8 @@ const serveFile = async (filePath: string): Promise<Buffer> => {
 }
 
 const entryPoint: sdk.ModuleEntryPoint = {
-  onInit,
-  onReady,
+  onServerStarted,
+  onServerReady,
   config: {},
   serveFile,
   definition: {

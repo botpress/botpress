@@ -4,6 +4,7 @@ import errorHandler from 'errorhandler'
 import express from 'express'
 import { createServer, Server } from 'http'
 import { inject, injectable, tagged } from 'inversify'
+import portFinder from 'portfinder'
 
 import { ConfigProvider } from './config/config-loader'
 import { ModuleLoader } from './module-loader'
@@ -126,11 +127,17 @@ export default class HTTPServer {
       })
     })
 
+    process.PORT = await portFinder.getPortPromise({ port: config.port })
+    if (process.PORT !== config.port) {
+      this.logger.warn(`Configured port ${config.port} is already in use. Using next port available: ${process.PORT}`)
+      config.port = process.PORT
+    }
+
     await Promise.fromCallback(callback => {
       this.httpServer.listen(config, callback)
     })
 
-    this.logger.info(`API listening on http://${config.host || 'localhost'}:${config.port}`)
+    this.logger.info(`API listening on http://${config.host || 'localhost'}:${process.PORT}`)
 
     return this.app
   }
