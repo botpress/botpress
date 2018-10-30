@@ -5,7 +5,6 @@ import { connect } from 'react-redux'
 
 import { Link, NavLink } from 'react-router-dom'
 import classnames from 'classnames'
-import moment from 'moment'
 
 import { toggleLicenseModal, toggleAboutModal, fetchAllBots } from '~/actions'
 import Select from 'react-select'
@@ -36,42 +35,6 @@ class SidebarFooter extends React.Component {
     this.props.toggleAboutModal()
   }
 
-  renderProgressBar() {
-    const limit = this.props.license.limit
-
-    const progressClassNames = classnames(style.progressBar, 'bp-progress')
-
-    const progress = limit && limit.get('progress')
-    const usedClassNames = classnames(style.used, 'bp-used', {
-      [style.warning]: progress >= 0.75,
-      ['bp-warning']: progress >= 0.75,
-      [style.urgent]: progress >= 0.9,
-      ['bp-urgent']: progress >= 0.9,
-      [style.reached]: progress >= 1,
-      ['bp-reached']: progress >= 1
-    })
-
-    let width = limit && limit.get('progress') * 100 + '%'
-
-    if (limit && limit.get('reached')) {
-      width = '100%'
-    }
-
-    const usedStyle = {
-      width
-    }
-
-    if (limit && limit.get('progress')) {
-      return (
-        <div className={progressClassNames}>
-          <div style={usedStyle} className={usedClassNames} />
-        </div>
-      )
-    }
-
-    return null
-  }
-
   renderStatusDiv(message) {
     const limit = this.props.license.limit
 
@@ -91,69 +54,11 @@ class SidebarFooter extends React.Component {
   }
 
   renderLicenseStatus() {
-    const limit = this.props.license.limit
+    if (!window.IS_LICENSED) {
+      const licenseClassNames = classnames(style.unlicensed, 'bp-unlicensed')
 
-    if (limit && limit.get('message')) {
-      return this.renderStatusDiv(limit.get('message'))
+      return <div className={licenseClassNames}>Unlicensed</div>
     }
-
-    const date = this.props.license.date
-
-    if (date) {
-      const expiration = moment(date).format('MMM Do YYYY')
-      const text = 'Valid until ' + expiration
-
-      return this.renderStatusDiv(text)
-    }
-
-    return null
-  }
-
-  renderBuyLink() {
-    const limit = this.props.license.limit
-    const licensed = this.props.license.licensed
-
-    if ((limit && limit.get('reached')) || !licensed) {
-      const classNames = classnames(style.buy, 'bp-buy')
-
-      return (
-        <a className={classNames} href="https://botpress.io">
-          Buy a license
-        </a>
-      )
-    }
-
-    return null
-  }
-
-  renderLicense() {
-    const { licensed } = this.props.license
-    const license = licensed ? this.props.license.name : 'Unlicensed'
-
-    const classNames = classnames(style.license, 'bp-edition-license', {
-      [style.unlicensed]: !licensed
-    })
-
-    return (
-      <Link className={classNames} to="#" title="License" onClick={this.openLicenseComponent}>
-        {license}
-      </Link>
-    )
-  }
-
-  renderAllLicenseElements() {
-    if (!window.AUTH_ENABLED) {
-      return null
-    }
-
-    return (
-      <div>
-        {this.renderLicense()}
-        {this.renderProgressBar()}
-        {this.renderLicenseStatus()}
-        {this.renderBuyLink()}
-      </div>
-    )
   }
 
   switchBot = botId => {
@@ -204,7 +109,7 @@ class SidebarFooter extends React.Component {
             </a>
             {this.renderBotSelect()}
             <div className={productionClassNames}>{production}</div>
-            {this.renderAllLicenseElements()}
+            {this.renderLicenseStatus()}
             <Link className={aboutClassNames} to="#" title="About" onClick={this.openAbout}>
               About Botpress
             </Link>
