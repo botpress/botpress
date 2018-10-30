@@ -3,18 +3,29 @@ import PropTypes from 'prop-types'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
-import { Link } from 'react-router-dom'
+import { Link, NavLink } from 'react-router-dom'
 import classnames from 'classnames'
 import moment from 'moment'
 
-import { toggleLicenseModal, toggleAboutModal } from '~/actions'
-import { operationAllowed } from './PermissionsChecker'
+import { toggleLicenseModal, toggleAboutModal, fetchAllBots } from '~/actions'
+import Select from 'react-select'
+import _ from 'lodash'
 
 const style = require('./SidebarFooter.scss')
 
 class SidebarFooter extends React.Component {
+  constructor(props) {
+    super(props)
+
+    this.state = { selectedBot: null }
+  }
+
   static contextTypes = {
     router: PropTypes.object.isRequired
+  }
+
+  componentDidMount() {
+    this.props.fetchAllBots()
   }
 
   openLicenseComponent = () => {
@@ -145,6 +156,31 @@ class SidebarFooter extends React.Component {
     )
   }
 
+  switchBot = botId => {
+    this.setState({ selectedBot: botId })
+    window.location = '/studio/' + botId
+  }
+
+  renderBotSelect() {
+    if (!window.BOTPRESS_XX) {
+      return null
+    }
+
+    const options = (this.props.bots || []).map(bot => ({ value: bot.id, label: `${bot.team}/${bot.name}` }))
+    const currentBot = _.get(this.props.bot, 'id') || _.get(options, '0.value')
+    const selectClassNames = classnames(style.select, 'bp-select')
+
+    return (
+      <div className={selectClassNames}>
+        <Select
+          options={options}
+          value={this.state.selectedBot || currentBot}
+          onChange={option => this.switchBot(option.value)}
+        />
+      </div>
+    )
+  }
+
   render() {
     if (this.props.viewMode >= 1) {
       return null
@@ -152,18 +188,21 @@ class SidebarFooter extends React.Component {
 
     const production = window.DEV_MODE ? 'in development' : 'in production'
 
-    const name = this.props.botInformation && this.props.botInformation.name
-
     const sidebarFooterClassNames = classnames(style.bottomInformation, 'bp-sidebar-footer')
     const sidebarInnerClassNames = classnames(style.innerFooter, 'bp-inner-footer')
-    const nameClassNames = classnames(style.name, 'bp-name')
     const productionClassNames = classnames(style.production, 'bp-production')
     const aboutClassNames = classnames(style.about, 'bp-about')
+    const adminClassNames = classnames(style.admin, 'bp-admin')
 
     return (
       <div className={sidebarFooterClassNames}>
         <div className={sidebarInnerClassNames}>
-          <div className={nameClassNames}>{name}</div>
+          {/*TODO link to admin*/}
+          <NavLink className={adminClassNames} to="./admin" title="admin">
+            <i className="icon material-icons">home</i>
+            <span>Admin</span>
+          </NavLink>
+          {this.renderBotSelect()}
           <div className={productionClassNames}>{production}</div>
           {this.renderAllLicenseElements()}
           <Link className={aboutClassNames} to="#" title="About" onClick={this.openAbout}>
@@ -178,9 +217,11 @@ class SidebarFooter extends React.Component {
 const mapStateToProps = state => ({
   botInformation: state.bot,
   license: state.license,
-  viewMode: state.ui.viewMode
+  viewMode: state.ui.viewMode,
+  bots: state.bots
 })
 
-const mapDispatchToProps = dispatch => bindActionCreators({ toggleLicenseModal, toggleAboutModal }, dispatch)
+const mapDispatchToProps = dispatch =>
+  bindActionCreators({ toggleLicenseModal, toggleAboutModal, fetchAllBots }, dispatch)
 
 export default connect(mapStateToProps, mapDispatchToProps)(SidebarFooter)
