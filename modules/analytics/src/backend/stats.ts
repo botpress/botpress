@@ -1,8 +1,5 @@
-import Promise from 'bluebird'
 import _ from 'lodash'
 import moment from 'moment'
-
-const oneDayMs = 1000 * 60 * 60 * 24
 
 export default class Stats {
   constructor(private knex) {}
@@ -131,28 +128,29 @@ export default class Stats {
     })
   }
 
-  /*getDailyGender() {
-    const ranges = _.reverse(this.getLastDaysRange())
-    return Promise.mapSeries(ranges, range => {
-      return this.knex('analytics_interactions')
-        .select(this.knex.raw('count(*) as count, gender'))
-        .join('users', 'users.id', 'analytics_interactions.user')
-        .where(this.knex.date.isBetween('ts', range.start, range.end))
-        .andWhere('direction', '=', 'in')
-        .groupBy(['user', 'gender'])
-        .then(results => {
-          return results.reduce(
-            function(acc, curr) {
-              const count = parseInt(curr.count)
-              acc.total += count
-              acc[curr.gender] = count
-              return acc
-            },
-            { total: 0, name: range.date }
-          )
-        })
-    })
-  }*/
+  // FIXME: Fix or remove, gender is not a valid column anymore
+  // getDailyGender() {
+  //   const ranges = _.reverse(this.getLastDaysRange())
+  //   return Promise.mapSeries(ranges, range => {
+  //     return this.knex('analytics_interactions')
+  //       .select(this.knex.raw('count(*) as count, gender'))
+  //       .join('users', 'users.id', 'analytics_interactions.user')
+  //       .where(this.knex.date.isBetween('ts', range.start, range.end))
+  //       .andWhere('direction', '=', 'in')
+  //       .groupBy(['user', 'gender'])
+  //       .then(results => {
+  //         return results.reduce(
+  //           function(acc, curr) {
+  //             const count = parseInt(curr.count)
+  //             acc.total += count
+  //             acc[curr.gender] = count
+  //             return acc
+  //           },
+  //           { total: 0, name: range.date }
+  //         )
+  //       })
+  //   })
+  // }
 
   getInteractionRanges() {
     const ranges = this.getLastDaysRange()
@@ -420,9 +418,7 @@ export default class Stats {
       })
   }
 
-  setLastRun() {
-    return this.knex('analytics_runs')
-      .insert({ ts: this.knex.date.now() })
-      .then(true)
+  async setLastRun() {
+    return this.knex('analytics_runs').insert({ ts: this.knex.date.now() })
   }
 }

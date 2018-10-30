@@ -26,6 +26,7 @@ import { LogsJanitor } from './services/logs/janitor'
 import { EventEngine } from './services/middleware/event-engine'
 import { NotificationsService } from './services/notification/service'
 import RealtimeService from './services/realtime'
+import { Statistics } from './stats'
 import { TYPES } from './types'
 
 export type StartOptions = {
@@ -42,6 +43,7 @@ export class Botpress {
   api!: typeof sdk
 
   constructor(
+    @inject(TYPES.Statistics) private stats: Statistics,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.Database) private database: Database,
     @inject(TYPES.Logger)
@@ -76,10 +78,10 @@ export class Botpress {
   }
 
   private async initialize(options: StartOptions) {
+    this.stats.track('server', 'starting')
     this.config = await this.loadConfiguration()
 
     await this.checkJwtSecret()
-    await this.trackStats()
     await this.createDatabase()
     await this.initializeGhost()
     await this.initializeServices()
@@ -155,10 +157,6 @@ export class Botpress {
   @Memoize()
   private async loadConfiguration(): Promise<BotpressConfig> {
     return this.configProvider.getBotpressConfig()
-  }
-
-  private async trackStats(): Promise<void> {
-    // TODO
   }
 
   private async createDatabase(): Promise<void> {

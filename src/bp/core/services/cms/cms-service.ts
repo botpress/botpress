@@ -54,7 +54,6 @@ export class CMSService implements IDisposeOnExit {
       table.primary(['id', 'botId'])
       table.string('contentType')
       table.text('formData')
-      table.text('computedData')
       table.text('previewText')
       table.string('createdBy')
       table.timestamp('createdOn')
@@ -331,7 +330,6 @@ export class CMSService implements IDisposeOnExit {
 
     return {
       ...item,
-      computedData: JSON.parse(item.computedData),
       formData: JSON.parse(item.formData)
     }
   }
@@ -345,10 +343,6 @@ export class CMSService implements IDisposeOnExit {
 
     if ('formData' in element && typeof element.formData !== 'string') {
       result.formData = JSON.stringify(element.formData)
-    }
-
-    if ('computedData' in element) {
-      result.computedData = JSON.stringify(element.computedData)
     }
 
     return result
@@ -382,19 +376,14 @@ export class CMSService implements IDisposeOnExit {
     }
 
     const expandedFormData = await this.resolveRefs(formData)
-    const computedData = await this.computeData(contentType.id, expandedFormData)
     const previewText = await this.computePreviewText(contentType.id, expandedFormData)
 
     if (!_.isString(previewText)) {
       throw new Error('computePreviewText must return a string')
     }
 
-    if (computedData == undefined) {
-      throw new Error('computeData must return a valid object')
-    }
-
     return {
-      computedData,
+      formData,
       previewText
     }
   }

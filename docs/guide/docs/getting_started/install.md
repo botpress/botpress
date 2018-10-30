@@ -13,7 +13,7 @@ This is the easiest way to kick start your development. The server comes already
 
 ## Use our Docker image
 
-The docker images simply loads the linux binary and sets up persistent storage. You may then easily create your Dockerfile based from this image and deploy it in the cloud.
+The docker images simply loads the linux binary and sets up persistent storage. You may then easily create your Dockerfile based from this image and deploy it in the cloud. There is a tutorial in the [deploying](./deploying) section on how to easily deploy it on Heroku.
 
 ## Build from source <a class="toc" id="source" href="#source"></a>
 

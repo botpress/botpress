@@ -50,4 +50,5 @@ export type BotpressConfig = {
   dialog: DialogConfig
   logs: LogsConfig
   modules: Array<ModuleConfigEntry>
+  allowStats: boolean
 }

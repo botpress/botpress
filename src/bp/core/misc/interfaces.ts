@@ -24,6 +24,7 @@ export interface AuthUser {
 export interface AuthTeam {
   id: number
   name: string
+  invite_code: string
 }
 
 export interface AuthTeamMembership {

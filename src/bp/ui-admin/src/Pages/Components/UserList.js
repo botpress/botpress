@@ -25,11 +25,13 @@ class UserList extends Component {
 
     return (
       <div className="users">
-        <Table>
+        <Table className="table bp-table">
           <thead>
             <tr>
               <th>Username</th>
-              <th style={isDetailed} />
+              <th>Name</th>
+              <th style={isDetailed}>Created at</th>
+              <th style={isDetailed}>Last Logon</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -42,23 +44,17 @@ class UserList extends Component {
 
                 return (
                   <tr key={user.id}>
-                    <td>
-                      {user.firstname} {user.lastname}
-                      <br />
-                      <small>{user.username}</small>
+                    <td>{user.username}</td>
+                    <td className="table-cell--ellipsis">
+                      {user.firstname}&nbsp;{user.lastname}
                     </td>
-                    <td style={isDetailed}>
-                      <small>
-                        Created at: {moment(user.created_at).format('LLLL')}
-                        <br />
-                        Last Logon: {user.last_logon ? moment(user.last_logon).fromNow() : 'never'}
-                      </small>
-                    </td>
+                    <td style={isDetailed}>{moment(user.created_at).format('lll')}</td>
+                    <td style={isDetailed}>{user.last_logon ? moment(user.last_logon).fromNow() : 'never'}</td>
                     <td>
                       {this.props.actions.map((action, idx) => {
                         return (
                           <Button
-                            color={action.type ? action.type : 'primary'}
+                            color={action.type ? action.type : 'link'}
                             size="sm"
                             key={idx}
                             onClick={() => {

@@ -1,6 +1,6 @@
 ---
 id: hitl
-title: !!HITL (Human-in-the-loop)
+title: HITL (Human-in-the-loop)
 ---
 
 Botpress allows you to build a powerful tool for autonomous communication with your users.
@@ -34,7 +34,7 @@ There are a number of ways to alert your agents of a paused conversation, an ema
 
 ```js
 const message = event.user.first_name + ' wants to talk to a human'
-!!!bp.notifications.send({ message, level: 'info', url: '/modules/hitl' })
+bp.notifications.create({ message, level: 'info', url: '/modules/hitl' })
 ```
 
 The agent can then navigate to the appropriate conversation and take over the conversation from the bot.
@@ -43,32 +43,4 @@ The agent can then navigate to the appropriate conversation and take over the co
 
 Once the agent is done communicating with the user, they can unpause the conversation.
 
-It is also possible for the user to unpause the conversation by calling the API endpoint. This is implemented in the example below.
-
-# Example
-
-Below is an example implementing HITL_START and HITL_STOP events.
-
-HITL_START pauses conversation the conversation with the bot, alerts the agents via the admin-panel and sends the user a button, allowing them to resume conversation with bot. HITL_STOP resumes conversation.
-
-```js
-bp.hear(/HITL_START/, (event, next) => {
-  !!!bp.messenger.sendTemplate(event.user.id, {
-    template_type: 'button',
-    text: 'Bot paused, a human will get in touch very soon.',
-    buttons: [{ type: 'postback', title: 'Cancel request', payload: 'HITL_STOP' }]
-  })
-
-  bp.notifications.send({
-    message: event.user.first_name + ' wants to talk to a human',
-    level: 'info',
-    url: '/modules/botpress-hitl'
-  })
-  bp.hitl.pause(event.platform, event.user.id)
-})
-
-bp.hear(/HITL_STOP/, (event, next) => {
-  bp.messenger.sendText(event.user.id, 'Human in the loop disabled. Bot resumed.')
-  bp.hitl.unpause(event.platform, event.user.id)
-})
-```
+It is also possible for the user to unpause the conversation by calling the API endpoint.

@@ -17,7 +17,7 @@ const validateChoice = async data => {
   if (config.matchNumbers && nb) {
     const index = parseInt(nb) - 1
     const element = await bp.cms.getContentElement(event.botId, data.contentId)
-    choice = _.get(element, `computedData.choices.${index}.value`)
+    choice = _.get(element, `formData.choices.${index}.value`)
   }
 
   if (!choice && config.matchNLU && typeof _.get(event.nlu, 'intent.is') === 'function') {

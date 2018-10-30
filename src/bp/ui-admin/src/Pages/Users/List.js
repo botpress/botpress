@@ -144,12 +144,12 @@ Password: ${payload.tempPassword}`
     const actions = [
       {
         label: 'Reset Password',
-        type: 'primary',
+        type: 'link',
         onClick: user => this.resetPassword(user)
       },
       {
         label: 'Delete',
-        type: 'danger',
+        type: 'link',
         needRefresh: true,
         onClick: user => this.deleteUser(user)
       }
