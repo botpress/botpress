@@ -247,10 +247,12 @@ declare module 'botpress/sdk' {
   export type Notification = {
     botId: string
     message: string
+    /** Can be info, error, success */
     level: string
     moduleId?: string
     moduleIcon?: string
     moduleName?: string
+    /** An URL to redirect to when the notification is clicked */
     redirectUrl?: string
   }
 

@@ -68,7 +68,5 @@ module.exports = {
     return `Image (${fileName})${title}`
   },
 
-  computeData: (typeId, formData) => formData,
-
   renderElement: renderElement
 }

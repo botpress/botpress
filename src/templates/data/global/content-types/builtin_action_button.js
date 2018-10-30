@@ -55,6 +55,5 @@ module.exports = {
   uiSchema: {},
 
   computePreviewText: formData => `Action: ${formData.action}`,
-  computeData: (typeId, formData) => formData,
   renderElement: renderElement
 }
