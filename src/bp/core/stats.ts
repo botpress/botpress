@@ -29,32 +29,25 @@ export class Statistics {
     })
 
     this._visitor = ua('UA-128404261-1', mid, { strictCidFormat: false })
-    this._queued.forEach(a => a())
+    this._queued.forEach(event => event())
     this._queued = []
   }
 
-  public track(category: StatsCategory, action: string, label?: string, value?: string | number) {
+  public track(category: StatsCategory, action: string, label: string = '', value: string | number = '') {
     if (!this._allowStats) {
       return
     }
 
+    // Queue events while the visitor is not available
     if (!this._visitor) {
       this._queued.push(() => this.track(category, action, label, value))
       return
     }
 
-    if (!label) {
-      label = ''
-    }
-
-    if (!value) {
-      value = ''
-    }
-
-    this._visitor.event(category, action, label, value, err => this._handleError).send()
+    this._visitor.event(category, action, label, value, () => this._handleError).send()
   }
 
-  private _handleError(error) {
-    // ingore
+  private _handleError() {
+    // ignore
   }
 }
