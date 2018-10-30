@@ -84,9 +84,13 @@
           "location"
         ]
       }
+    },
+    "allowStats": {
+      "type": "boolean"
     }
   },
   "required": [
+    "allowStats",
     "database",
     "dialog",
     "ghost",

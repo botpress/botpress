@@ -5,8 +5,8 @@ import Database from 'core/database'
 import { checkRule } from 'core/misc/auth'
 import { AuthRole, AuthRoleDb, AuthRule, AuthTeam, AuthTeamMembership, AuthUser, Bot } from 'core/misc/interfaces'
 import { BOTID_REGEX } from 'core/misc/validation'
-import { ModuleLoader } from 'core/module-loader'
 import { saltHashPassword } from 'core/services/auth/util'
+import { Statistics } from 'core/stats'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import Joi from 'joi'
@@ -46,7 +46,8 @@ export class CommunityAdminService implements AdminService {
     @inject(TYPES.Logger) private logger: Logger,
     @inject(TYPES.BotConfigFactory) private botConfigFactory: BotConfigFactory,
     @inject(TYPES.BotConfigWriter) private botConfigWriter: BotConfigWriter,
-    @inject(TYPES.BotLoader) private botLoader: BotLoader
+    @inject(TYPES.BotLoader) private botLoader: BotLoader,
+    @inject(TYPES.Statistics) private stats: Statistics
   ) {}
 
   protected get knex() {
@@ -135,6 +136,7 @@ export class CommunityAdminService implements AdminService {
   }
 
   async addBot(teamId: number, bot: Bot): Promise<void> {
+    this.stats.track('api', 'admin', 'addBot')
     bot.team = teamId
     const { error } = Joi.validate(bot, this.botValidationSchema)
     if (error) {
