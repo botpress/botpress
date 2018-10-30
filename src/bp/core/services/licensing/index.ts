@@ -1,4 +1,4 @@
-import LicensingService, { FingerprintType, LicenseStatus } from 'common/licensing-service'
+import LicensingService, { FingerprintType, LicenseInfo, LicenseStatus } from 'common/licensing-service'
 import { injectable } from 'inversify'
 
 @injectable()
@@ -13,8 +13,11 @@ export default class CELicensingService implements LicensingService {
     throw new Error('Not implemented')
   }
 
-  getLicenseStatus(): Promise<LicenseStatus> {
-    throw new Error('Not implemented')
+  async getLicenseStatus(): Promise<LicenseStatus> {
+    return {
+      breachReasons: [],
+      status: 'licensed'
+    }
   }
 
   getLicenseKey(): Promise<string> {
@@ -22,6 +25,10 @@ export default class CELicensingService implements LicensingService {
   }
 
   getFingerprint(fingerprintType: FingerprintType): Promise<string> {
+    throw new Error('Not implemented')
+  }
+
+  getLicenseInfo(): Promise<LicenseInfo> {
     throw new Error('Not implemented')
   }
 }

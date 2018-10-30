@@ -4,6 +4,7 @@ export default interface LicensingService {
   replaceLicenseKey(): Promise<boolean>
 
   getLicenseStatus(): Promise<LicenseStatus>
+  getLicenseInfo(): Promise<LicenseInfo>
   getLicenseKey(): Promise<string>
   getFingerprint(fingerprintType: FingerprintType): Promise<string>
 }
@@ -21,6 +22,8 @@ export interface LicenseInfo {
   edition: 'pro' | 'enterprise'
   startDate: string
   endDate: string
+  paidUntil: Date
   versions: string
   seats: number
+  support: 'standard'
 }
