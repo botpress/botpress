@@ -6,7 +6,7 @@ import { PersistedConsoleLogger } from '../../logger'
 import { createSpyObject, expectAsync, MockObject } from '../../misc/utils'
 import { DialogSession } from '../../repositories'
 
-import { DialogEngine } from './engine-v2'
+import { DialogEngineV2 } from './engine-v2'
 import { FlowService } from './flow/service'
 import { InstructionProcessor } from './instruction/processor'
 import { SessionService } from './session/service'
@@ -17,7 +17,7 @@ describe('Dialog Engine', () => {
   const flowService: MockObject<FlowService> = createSpyObject<FlowService>()
   const sessionService: MockObject<SessionService> = createSpyObject<SessionService>()
   const instructionProcessor: MockObject<InstructionProcessor> = createSpyObject<InstructionProcessor>()
-  let dialogEngine: DialogEngine
+  let dialogEngine: DialogEngineV2
 
   const SESSION_ID = 'sessionId'
   const BOT_ID = 'botId'
@@ -34,7 +34,7 @@ describe('Dialog Engine', () => {
 
   beforeEach(() => {
     jest.resetAllMocks()
-    dialogEngine = new DialogEngine(logger.T, flowService.T, sessionService.T, instructionProcessor.T)
+    dialogEngine = new DialogEngineV2(logger.T, flowService.T, sessionService.T, instructionProcessor.T)
     sessionService.getSession.mockReturnValue(SESSION)
     sessionService.createSession.mockReturnValue(SESSION)
     sessionService.updateSessionEvent.mockReturnValue(SESSION)

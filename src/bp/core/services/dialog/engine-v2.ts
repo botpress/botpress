@@ -27,8 +27,9 @@ class DialogEngineError extends Error {}
 class FlowNotFoundError extends DialogEngineError {}
 class NodeNotFoundError extends DialogEngineError {}
 
+// TODO: Rename when its safe to ditch V1
 @injectable()
-export class DialogEngine {
+export class DialogEngineV2 {
   public onProcessingError: ((err: ProcessingError) => void) | undefined
 
   private _flowsByBot: Map<string, FlowView[]> = new Map()
@@ -184,7 +185,23 @@ export class DialogEngine {
     const session = await this.sessionService.getSession(sessionId)
     let context = session.context
 
-    if (transitionTo.indexOf('#') === 0) {
+    if (transitionTo.includes('.flow.json')) {
+      // Transition to other flow
+      const flow = this._findFlow(event.botId, transitionTo)
+      const startNode = this._findNode(flow, flow.startNode)
+
+      context = {
+        currentFlowName: flow.name,
+        currentNodeName: startNode.name
+      }
+      this._logEnterFlow(
+        event.botId,
+        context.currentFlowName,
+        context.currentNodeName,
+        session.context.currentFlowName,
+        session.context.currentNodeName
+      )
+    } else if (transitionTo.indexOf('#') === 0) {
       // Return to the parent node (coming from a subflow)
       const parentFlow = this._findFlow(event.botId, session.context.previousFlowName!)
       const parentNode = this._findNode(parentFlow, session.context.previousNodeName!)
@@ -204,7 +221,7 @@ export class DialogEngine {
       this._logEnd(event.botId)
       return
     } else {
-      // Transition to the next node in the current flow
+      // Transition to the target node in the current flow
       this._logTransition(event.botId, context.currentFlowName, context.currentNodeName, transitionTo)
       context = { ...context, currentNodeName: transitionTo }
     }
@@ -310,10 +327,10 @@ export class DialogEngine {
   }
 
   private _logEnd(botId) {
-    this.logger.forBot(botId).debug(`END`)
+    this.logger.forBot(botId).debug(`Flow ended.`)
   }
 
   private _logStart(botId) {
-    this.logger.forBot(botId).debug(`START`)
+    this.logger.forBot(botId).debug(`Flow started.`)
   }
 }

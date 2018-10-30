@@ -129,7 +129,7 @@ export class TransitionStrategy implements InstructionStrategy {
     const conditionSuccessful = await this.runCode(instruction, { state, event })
 
     if (conditionSuccessful) {
-      this.logger.forBot(botId).debug(`Success "${instruction.node}" on condition: "${instruction.fn}"`)
+      this.logger.forBot(botId).debug(`Condition "${instruction.fn}" OK for "${instruction.node}"`)
       return ProcessingResult.transition(instruction.node)
     } else {
       return ProcessingResult.none()
