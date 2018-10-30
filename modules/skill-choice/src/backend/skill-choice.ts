@@ -42,7 +42,7 @@ const generateFlow = (data): sdk.FlowGenerationResult => {
         }
       ],
       next: [
-        { condition: `state['skill-choice-invalid-count'] <= ${maxAttempts}`, node: 'sorry' },
+        { condition: `state['skill-choice-invalid-count'] <= "3"`, node: 'sorry' },
         { condition: 'true', node: '#' }
       ]
     },

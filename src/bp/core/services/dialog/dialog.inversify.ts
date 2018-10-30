@@ -1,9 +1,9 @@
 import { TYPES } from 'core/types'
 import { ContainerModule, interfaces } from 'inversify'
 
-import { DialogEngine } from './engine'
+import { DialogEngineV2 } from './engine-v2'
 import { FlowNavigator } from './flow/navigator'
-import FlowService from './flow/service'
+import { FlowService } from './flow/service'
 import { InstructionFactory } from './instruction/factory'
 import { InstructionProcessor } from './instruction/processor'
 import { ActionStrategy, StrategyFactory, TransitionStrategy, WaitStrategy } from './instruction/strategy'
@@ -11,8 +11,12 @@ import { DialogJanitor } from './janitor'
 import { SessionService } from './session/service'
 
 export const DialogContainerModule = new ContainerModule((bind: interfaces.Bind) => {
-  bind<DialogEngine>(TYPES.DialogEngine)
-    .to(DialogEngine)
+  // FIXME: Replace DialogEngine by V2 once its safe
+  // bind<DialogEngine>(TYPES.DialogEngine)
+  //   .to(DialogEngine)
+  //   .inSingletonScope()
+  bind<DialogEngineV2>(TYPES.DialogEngine)
+    .to(DialogEngineV2)
     .inSingletonScope()
   bind<FlowNavigator>(TYPES.FlowNavigator)
     .to(FlowNavigator)

@@ -18,8 +18,12 @@ export default class FTWrapper {
     modelOutPath: string,
     learningRate: number = 1,
     epoch: number = 500,
-    bucket: number = 10000,
-    dim: number = 10
+    bucket: number = 25000,
+    dim: number = 10,
+    wordGram: number = 3,
+    minCount: number = 1,
+    minn: number = 3,
+    maxn: number = 6
   ) {
     try {
       execFileSync(
@@ -39,7 +43,15 @@ export default class FTWrapper {
           '-dim',
           dim.toString(),
           '-bucket',
-          bucket.toString()
+          bucket.toString(),
+          '-wordNgrams',
+          wordGram.toString(),
+          '-minCount',
+          minCount.toString(),
+          '-minn',
+          minn.toString(),
+          '-maxn',
+          maxn.toString()
         ],
         { stdio: 'ignore' }
       )

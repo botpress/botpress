@@ -8,8 +8,8 @@ import { ProcessingResult } from '.'
 export class InstructionProcessor {
   constructor(private strategyFactory: StrategyFactory) {}
 
-  async process(botId, instruction, state, event, context): Promise<ProcessingResult> {
+  async process(botId, instruction, session): Promise<ProcessingResult> {
     const instructionStrategy = this.strategyFactory.create(instruction.type)
-    return instructionStrategy.processInstruction(botId, instruction, state, event, context)
+    return instructionStrategy.processInstruction(botId, instruction, session.state, session.event, session.context)
   }
 }

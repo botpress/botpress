@@ -11,7 +11,7 @@ export class SessionService {
   async getOrCreateSession(sessionId: string, botId: string): Promise<DialogSession> {
     const session = await this.getSession(sessionId)
     if (!session) {
-      return this.createSession(sessionId, botId)
+      // return this.createSession(sessionId, botId)
     }
     return session
   }
@@ -37,8 +37,8 @@ export class SessionService {
     return this.updateSession(session)
   }
 
-  async createSession(sessionId, botId): Promise<DialogSession> {
-    const session = new DialogSession(sessionId, botId)
+  async createSession(sessionId, botId, state, context, event): Promise<DialogSession> {
+    const session = new DialogSession(sessionId, botId, state, context, event)
     return this.repository.insert(session)
   }
 

@@ -14,10 +14,13 @@ export type DialogContext = {
 }
 
 export class DialogSession {
-  constructor(public id: string, public botId: string) {}
-  state?: any
-  context?: DialogContext
-  event?: IO.Event
+  constructor(
+    public id: string,
+    public botId: string,
+    public state,
+    public context: DialogContext,
+    public event: IO.Event
+  ) {}
 
   // Timestamps are optionnal because they have default values in the database
   created_on?: Date
