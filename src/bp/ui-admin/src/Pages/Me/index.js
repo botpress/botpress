@@ -5,6 +5,8 @@ import LoadingSection from '../Components/LoadingSection'
 
 import { Row, Col } from 'reactstrap'
 import displaySections from '../sections'
+import ChangePassword from '../Components/ChangePassword'
+import ProfileUpdate from '../Components/ProfileUpdate'
 
 class Me extends Component {
   state = { loading: false }
@@ -16,23 +18,10 @@ class Me extends Component {
           <div className="profile__avatar" />
         </Col>
         <Col sm="12" md="6">
-          <div className="form-group">
-            <label for="firstName">First Name</label>
-            <input type="text" id="firstName" className="form-control" disabled />
-          </div>
-          <div className="form-group">
-            <label for="lastName">Last Name</label>
-            <input type="text" id="lastName" className="form-control" disabled />
-          </div>
-          <div className="form-group">
-            <label for="username">Username</label>
-            <input type="text" id="username" className="form-control" disabled />
-          </div>
-          <div className="form-group">
-            <label for="email">Email</label>
-            <input type="text" id="email" className="form-control" disabled />
-          </div>
+          <ProfileUpdate />
         </Col>
+
+        <ChangePassword />
       </Row>
     )
   }

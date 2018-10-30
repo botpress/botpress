@@ -25,14 +25,7 @@ class UserList extends Component {
 
     return (
       <div className="users">
-        <Table>
-          <thead>
-            <tr>
-              <th>Username</th>
-              <th style={isDetailed} />
-              <th>Actions</th>
-            </tr>
-          </thead>
+        <Table className="table bp-table">
           <tbody>
             {this.props.users &&
               this.props.users.map(user => {
@@ -45,20 +38,21 @@ class UserList extends Component {
                     <td>
                       {user.firstname} {user.lastname}
                       <br />
-                      <small>{user.username}</small>
+                      <strong>{user.username}</strong>
                     </td>
                     <td style={isDetailed}>
-                      <small>
-                        Created at: {moment(user.created_at).format('LLLL')}
-                        <br />
-                        Last Logon: {user.last_logon ? moment(user.last_logon).fromNow() : 'never'}
-                      </small>
+                      <span className="bp-table-details">
+                        <span className="bp-table-details__created">
+                          <strong>Created at:</strong> {moment(user.created_at).format('lll')}
+                        </span>
+                        <strong>Last Logon:</strong> {user.last_logon ? moment(user.last_logon).fromNow() : 'never'}
+                      </span>
                     </td>
                     <td>
                       {this.props.actions.map((action, idx) => {
                         return (
                           <Button
-                            color={action.type ? action.type : 'primary'}
+                            color={action.type ? action.type : 'link'}
                             size="sm"
                             key={idx}
                             onClick={() => {

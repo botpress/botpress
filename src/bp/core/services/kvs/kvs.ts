@@ -1,12 +1,12 @@
-import { inject, injectable } from 'inversify'
+import { Logger } from 'botpress/sdk'
+import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
 
-import { TYPES } from '../../types'
-
 import Database from '../../database'
 import { safeStringify } from '../../misc/utils'
+import { TYPES } from '../../types'
 
 // TODO: Create repository to interact with the database
 @injectable()
@@ -18,7 +18,12 @@ export class KeyValueStore {
 
   private readonly tableName = 'srv_kvs'
 
-  constructor(@inject(TYPES.Database) private database: Database) {}
+  constructor(
+    @inject(TYPES.Database) private database: Database,
+    @inject(TYPES.Logger)
+    @tagged('name', 'KVS')
+    private logger: Logger
+  ) {}
 
   upsert = (botId: string, key: string, value) => {
     let sql
@@ -73,6 +78,13 @@ export class KeyValueStore {
       })
 
   set = (botId: string, key: string, value, path?: string) => {
+    if (!value) {
+      // We might want to throw an error here.
+      // But we might actually want to insert an undefined value on a key.
+      // Or should we just delete the key?
+      this.logger.forBot(botId).warn(`An undefined value has been set for key "${key}"`)
+    }
+
     if (!path) {
       return this.upsert(botId, key, value)
     }

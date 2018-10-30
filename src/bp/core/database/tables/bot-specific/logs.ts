@@ -6,12 +6,7 @@ export class LogsTable extends Table {
   async bootstrap() {
     let created = false
     await this.knex.createTableIfNotExists(this.name, table => {
-      table
-        .string('botId')
-        .nullable()
-        .references('id')
-        .inTable('srv_bots')
-        .onDelete('CASCADE')
+      table.string('botId').nullable()
       table.string('timestamp')
       table.string('level')
       table.string('scope')

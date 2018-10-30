@@ -1,0 +1,47 @@
+// Tables
+
+.bp-table {
+  font-size: 14px;
+  line-height: 1.25;
+
+  thead th {
+    border: none;
+  }
+
+  &-details {
+    font-size: 12px;
+
+    &__created {
+      display: block;
+    }
+  }
+
+  tr:nth-child(odd) td {
+    background-color: #f1f1f1;
+  }
+
+  th:last-child,
+  td:last-child {
+    text-align: right;
+  }
+
+  .btn-sm {
+    font-size: 12px;
+    position: relative;
+
+    &:last-child:not(:first-child):before {
+      content: "";
+      background-color: #ccc;
+      display: inline-block;
+      height: 20px;
+      left: 0;
+      position: absolute;
+      width: 1px;
+    }
+  }
+
+  &__check {
+    color: green;
+    font-size: 16px;
+  }
+}

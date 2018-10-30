@@ -55,4 +55,5 @@ export type BotpressConfig = {
    * For usage with Botpress Pro/Enterprise.
    */
   licenseKey: string
+  allowStats: boolean
 }
