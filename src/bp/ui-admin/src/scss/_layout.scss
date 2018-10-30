@@ -17,6 +17,25 @@
     color: var(--c-neutral--light-3);
     font-size: 14px;
   }
+
+  &__warning {
+    background-color: red;
+    color: var(--c-neutral--light-3);
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+
+    svg {
+      margin-right: 10px;
+      margin-top: -2px;
+      width: 15px;
+    }
+
+    a {
+      color: var(--c-neutral--light-3);
+      margin: 0;
+    }
+  }
 }
 
 .bp-main-content {
