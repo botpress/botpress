@@ -26,6 +26,15 @@ class UserList extends Component {
     return (
       <div className="users">
         <Table className="table bp-table">
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Name</th>
+              <th style={isDetailed}>Created at</th>
+              <th style={isDetailed}>Last Logon</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
           <tbody>
             {this.props.users &&
               this.props.users.map(user => {
@@ -35,19 +44,12 @@ class UserList extends Component {
 
                 return (
                   <tr key={user.id}>
-                    <td>
-                      {user.firstname} {user.lastname}
-                      <br />
-                      <strong>{user.username}</strong>
+                    <td>{user.username}</td>
+                    <td className="table-cell--ellipsis">
+                      {user.firstname}&nbsp;{user.lastname}
                     </td>
-                    <td style={isDetailed}>
-                      <span className="bp-table-details">
-                        <span className="bp-table-details__created">
-                          <strong>Created at:</strong> {moment(user.created_at).format('lll')}
-                        </span>
-                        <strong>Last Logon:</strong> {user.last_logon ? moment(user.last_logon).fromNow() : 'never'}
-                      </span>
-                    </td>
+                    <td style={isDetailed}>{moment(user.created_at).format('lll')}</td>
+                    <td style={isDetailed}>{user.last_logon ? moment(user.last_logon).fromNow() : 'never'}</td>
                     <td>
                       {this.props.actions.map((action, idx) => {
                         return (

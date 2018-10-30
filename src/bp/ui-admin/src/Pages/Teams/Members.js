@@ -17,7 +17,9 @@ import {
   Modal,
   ModalHeader,
   ModalBody,
-  ModalFooter
+  ModalFooter,
+  Col,
+  Row
 } from 'reactstrap'
 
 import Select from 'react-select'
@@ -219,25 +221,30 @@ class Members extends Component {
 
     return (
       <div className="members">
-        <ListGroup>
-          {members.map(member => {
-            const joinedAgo = moment(member.joinedAt).fromNow()
-            return (
-              <ListGroupItem key={`user-${member.id}`}>
-                <ListGroupItemHeading>
-                  <img className="list-group-item__avatar" alt="" width="32" height="32" src={member.picture} />
-                  <span className="title">{member.username}</span>
-                </ListGroupItemHeading>
-                <div className="list-group-item__actions">{this.renderMemberMenu(member)}</div>
-                <small>
-                  <b>Role:</b> {this.renderMemberRole(member)} | <b>Username:</b> {member.username} | Joined {joinedAgo}
-                </small>
-              </ListGroupItem>
-            )
-          })}
-        </ListGroup>
-        {this.renderChangeUserRoleModal()}
-        {this.renderAddUserModal()}
+        <Row>
+          <Col xs={12} md={8}>
+            <ListGroup>
+              {members.map(member => {
+                const joinedAgo = moment(member.joinedAt).fromNow()
+                return (
+                  <ListGroupItem key={`user-${member.id}`}>
+                    <ListGroupItemHeading>
+                      <img className="list-group-item__avatar" alt="" width="32" height="32" src={member.picture} />
+                      <span className="title">{member.username}</span>
+                    </ListGroupItemHeading>
+                    <div className="list-group-item__actions">{this.renderMemberMenu(member)}</div>
+                    <small>
+                      <b>Role:</b> {this.renderMemberRole(member)} | <b>Username:</b> {member.username} | Joined{' '}
+                      {joinedAgo}
+                    </small>
+                  </ListGroupItem>
+                )
+              })}
+            </ListGroup>
+            {this.renderChangeUserRoleModal()}
+            {this.renderAddUserModal()}
+          </Col>
+        </Row>
       </div>
     )
   }
