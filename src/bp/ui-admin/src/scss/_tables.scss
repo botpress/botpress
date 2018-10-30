@@ -1,19 +1,12 @@
 // Tables
 
 .bp-table {
-  font-size: 14px;
+  font-size: 12px;
   line-height: 1.25;
+  table-layout: fixed;
 
   thead th {
     border: none;
-  }
-
-  &-details {
-    font-size: 12px;
-
-    &__created {
-      display: block;
-    }
   }
 
   tr:nth-child(odd) td {
@@ -26,7 +19,10 @@
   }
 
   .btn-sm {
+    border: 0;
     font-size: 12px;
+    margin: 0;
+    padding: 0 .5rem;
     position: relative;
 
     &:last-child:not(:first-child):before {
@@ -43,5 +39,11 @@
   &__check {
     color: green;
     font-size: 16px;
+  }
+
+  .table-cell--ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }

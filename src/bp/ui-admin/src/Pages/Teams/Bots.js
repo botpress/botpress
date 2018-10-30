@@ -166,18 +166,14 @@ class Bots extends Component {
 
   renderCreateNewBotButton() {
     return (
-      <Row>
-        <Col md={{ size: 12 }}>
-          <Button
-            className="float-right"
-            onClick={() => this.setState({ isCreateBotModalOpen: true })}
-            color="primary"
-            size="sm"
-          >
-            <MdCreate /> Create Bot Now
-          </Button>
-        </Col>
-      </Row>
+      <Button
+        className="float-right"
+        onClick={() => this.setState({ isCreateBotModalOpen: true })}
+        color="primary"
+        size="sm"
+      >
+        <MdCreate /> Create Bot Now
+      </Button>
     )
   }
 
@@ -190,26 +186,30 @@ class Bots extends Component {
 
     return (
       <div className="bots">
-        {this.renderCreateBot()}
-        <ListGroup>
-          {bots.map(bot => {
-            return (
-              <ListGroupItem key={'bot-' + bot.id}>
-                <ListGroupItemHeading>
-                  <a className="title" href={`/studio/${bot.id}`}>
-                    {bot.name}
-                  </a>
-                </ListGroupItemHeading>
-                <div className="list-group-item__actions">
-                  <Button color="link" onClick={() => this.deleteBot(bot.id)}>
-                    Delete
-                  </Button>
-                </div>
-                <small>{bot.description}</small>
-              </ListGroupItem>
-            )
-          })}
-        </ListGroup>
+        <Row>
+          <Col xs={12} md={8}>
+            {this.renderCreateBot()}
+            <ListGroup>
+              {bots.map(bot => {
+                return (
+                  <ListGroupItem key={'bot-' + bot.id}>
+                    <ListGroupItemHeading>
+                      <a className="title" href={`/studio/${bot.id}`}>
+                        {bot.name}
+                      </a>
+                    </ListGroupItemHeading>
+                    <div className="list-group-item__actions">
+                      <Button color="link" onClick={() => this.deleteBot(bot.id)}>
+                        Delete
+                      </Button>
+                    </div>
+                    <small>{bot.description}</small>
+                  </ListGroupItem>
+                )
+              })}
+            </ListGroup>
+          </Col>
+        </Row>
       </div>
     )
   }

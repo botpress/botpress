@@ -16,12 +16,11 @@ class Me extends Component {
       <Row className="profile">
         <Col sm="12" md="4">
           <div className="profile__avatar" />
+          <ChangePassword />
         </Col>
         <Col sm="12" md="6">
           <ProfileUpdate />
         </Col>
-
-        <ChangePassword />
       </Row>
     )
   }
