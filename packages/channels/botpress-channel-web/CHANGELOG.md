@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.49.0"></a>
+# [10.49.0](https://github.com/botpress/modules/compare/v10.48.5...v10.49.0) (2018-10-30)
+
+
+### Features
+
+* **web:** add filterQuickReplies option into snippet ([964557e](https://github.com/botpress/modules/commit/964557e))
+
+
+
+
 <a name="10.48.5"></a>
 ## [10.48.5](https://github.com/botpress/modules/compare/v10.48.4...v10.48.5) (2018-10-19)
 
