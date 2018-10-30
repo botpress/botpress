@@ -84,9 +84,9 @@ export class Botpress {
     await this.initializeGhost()
     await this.initializeServices()
     await this.loadModules(options.modules)
-    await this.discoverBots()
     await this.startRealtime()
     await this.startServer()
+    await this.discoverBots()
 
     this.api = await createForGlobalHooks()
     await this.hookService.executeHook(new Hooks.AfterServerStart(this.api))

@@ -9,11 +9,11 @@ import { initBot, initModule } from './setup'
 
 const botScopedStorage: Map<string, QnaStorage> = new Map<string, QnaStorage>()
 
-const onServerStarted = async (bp: SDK) => {}
+const onServerStarted = async (bp: SDK) => {
+  await initModule(bp, botScopedStorage)
+}
 
 const onServerReady = async (bp: SDK) => {
-  // Leave initModule in onServeReady, since it requires the API to be available
-  await initModule(bp, botScopedStorage)
   await api(bp, botScopedStorage)
 }
 
