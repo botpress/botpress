@@ -5,22 +5,23 @@ title: !!!Webchat Extensions
 
 The Botpress web channel supports a variety of message types that can be rendered to the user. There are a number of types that are available out-of-the-box, but Botpress also supports custom message types. Custom message types are implement via webchat-extensions.
 
-A webchat-extension is a special kind of botpress-module that:
+A webchat-extension is a module that includes the following:
 
-1. Is marked as webchat-plugin in `botpress` section of is `package.json` via the `isPlugin` flag
+1. The section `definition.plugins` is defined in `index.ts`
 2. Exports a React-component through the global `window.botpress` variable
 
-To create your webchat-extention you will need to initialize a new botpress-module. To do this please refer to the first step of the [Creating modules](/docs/recipes/modules) recipe.
+To create your webchat-extention you will need to initialize a new module. To do this please refer to the first step of the [Module creation](../modules/create) page.
 
-Once you have initialize your botpress-module you will need to convert it into a webchat-plugin. Below is an example of how the `botpress` section may look like in your botpress-module's `package.json`:
+Here is how your module's entry point should look like:
 
-```json
-{
-  "botpress": {
-    "webBundle": "bin/web.bundle.js",
-    "noInterface": true,
-    "isPlugin": true,
-    "plugins": [{ "entry": "Entry", "position": "overlay" }]
+```js
+const entryPoint: sdk.ModuleEntryPoint = {
+  ...,
+  definition: {
+    name: 'my-module',
+    fullName: 'My Module',
+    noInterface: true,
+    plugins: [{ entry: 'Entry', position: 'overlay' }]
   }
 }
 ```
@@ -57,7 +58,7 @@ export const Entry = () => null
 
 `Entry` refers to the entry point of your plugin that gets executed during your bot's initialization on the client. This can be used to add functions to the initialization process.
 
-That's it, you can now use your new module (`@botpress-webchat-plugin-select`) type in renderers for the web-channel:
+That's it, you can now use your new module type in renderers for the web-channel:
 
 ```js
 '#select': data => ({

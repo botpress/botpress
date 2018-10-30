@@ -9,6 +9,7 @@
       "cwd": "${workspaceFolder}",
       "protocol": "inspector",
       "env": {
+        "BP_PRODUCTION": "true",
         "BP_MODULES_PATH": "${workspaceFolder}/modules",
         "NODE_PATH": "${workspaceFolder}/out/bp"
       },

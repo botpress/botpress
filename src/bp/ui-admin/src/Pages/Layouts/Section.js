@@ -53,16 +53,20 @@ class Section extends Component {
       <Fragment>
         <header className="bp-main-content-header">{this.renderSectionHeader()}</header>
         <Container>
-          <h2 className="bp-main-content__title">
-            {this.props.title}
-            {help}
-          </h2>
           <Row>
-            <Col xs={12} md={8}>
-              {this.props.mainContent}
+            <Col xs={12} md={10}>
+              <h2 className="bp-main-content__title">
+                {this.props.title}
+                {help}
+              </h2>
             </Col>
-            <Col xs={12} md={4}>
+            <Col xs={12} md={2}>
               {this.props.sideMenu}
+            </Col>
+          </Row>
+          <Row>
+            <Col xs={12} md={10}>
+              {this.props.mainContent}
             </Col>
           </Row>
         </Container>

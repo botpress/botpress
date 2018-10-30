@@ -28,7 +28,7 @@ export class Statistics {
       return hash.digest('hex')
     })
 
-    this._visitor = ua('UA-128404261-1', mid, { strictCidFormat: false })
+    this._visitor = ua('UA-90044826-3', mid, { strictCidFormat: false })
     this._queued.forEach(event => event())
     this._queued = []
   }

@@ -13,7 +13,6 @@ import { InvalidCredentialsError, PasswordExpiredError } from './errors'
 import { saltHashPassword, validateHash } from './util'
 
 const USERS_TABLE = 'auth_users'
-const JWT_SECRET = <string>process.env.JWT_SECRET || 'very_secret' // TODO FIXME Important for security
 export const TOKEN_AUDIENCE = 'web-login'
 
 @injectable()
@@ -24,13 +23,6 @@ export default class AuthService {
     private logger: Logger,
     @inject(TYPES.Database) private db: Database
   ) {}
-
-  @postConstruct()
-  ensureHasSecret() {
-    if (!JWT_SECRET) {
-      throw new Error('JWT_SECRET has not been set!')
-    }
-  }
 
   get knex(): Knex & KnexExtension {
     return this.db.knex!
@@ -93,7 +85,7 @@ export default class AuthService {
         {
           id: userId
         },
-        JWT_SECRET,
+        process.JWT_SECRET,
         {
           expiresIn: '6h',
           audience
@@ -105,7 +97,7 @@ export default class AuthService {
 
   async checkToken(token: string, audience?: string) {
     return Promise.fromCallback<TokenUser>(cb => {
-      jsonwebtoken.verify(token, JWT_SECRET, { audience }, (err, user) => {
+      jsonwebtoken.verify(token, process.JWT_SECRET, { audience }, (err, user) => {
         cb(err, !err ? (user as TokenUser) : undefined)
       })
     })

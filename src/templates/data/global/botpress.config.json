@@ -28,7 +28,7 @@
   },
   "logs": {
     "expiration": "2 weeks",
-    "janitorInterval": "2s"
+    "janitorInterval": "30s"
   },
   "modules": [
     {

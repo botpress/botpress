@@ -1,6 +1,7 @@
 import 'bluebird-global'
 import retry from 'bluebird-retry'
 import moment from 'moment'
+import util from 'util'
 
 import { SDK } from '.'
 import ScopedNlu from './scopednlu'
@@ -54,16 +55,30 @@ export const initModule = async (bp: SDK, botScopedNlu: Map<string, ScopedNlu>) 
     let eventIntents = []
 
     try {
-      if (botCtx.config.debugModeEnabled) {
-        bp.logger.info('Extraction: ' + event.preview, event.payload)
-      }
-
       const metadata = await retry(() => botCtx.provider.extract(event), botCtx.retryPolicy)
 
       if (metadata) {
         Object.assign(event, { nlu: metadata })
         eventIntent = metadata.intent
         eventIntents = metadata.intents
+
+        if (botCtx.config.debugModeEnabled) {
+          const debugCtx = {
+            text: event.preview,
+            intent: eventIntent && eventIntent.name,
+            confidence: eventIntent && eventIntent.confidence,
+            bot_min_confidence: botCtx.minConfidence,
+            bot_max_confidence: botCtx.maxConfidence,
+            is_confident_enough:
+              eventIntent &&
+              eventIntent.confidence >= botCtx.minConfidence &&
+              eventIntent.confidence <= botCtx.maxConfidence,
+            language: metadata.language || 'N/A',
+            entities: metadata.entities || []
+          }
+          const debugStr = util.inspect(debugCtx, { colors: true, depth: 2 })
+          bp.logger.debug('NLU Extraction ' + debugStr)
+        }
       }
     } catch (err) {
       bp.logger.warn('Error extracting metadata for incoming text: ' + err.message)
