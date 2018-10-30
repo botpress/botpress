@@ -35,7 +35,7 @@ class NotificationHub extends NotificationComponent {
     const notifications = this.props.notifications || []
     const isEmpty = notifications.length === 0
     const displayedNotifications = _.take(notifications, NB_OF_NOTIFICATIONS_TO_DISPLAY)
-    const unread = _.filter(notifications, { read: false })
+    const unread = _.filter(notifications, notif => notif.read === false || notif.read === 0)
     const unreadCount = unread.length
 
     const hasAnyError = _.some(unread, notif => {

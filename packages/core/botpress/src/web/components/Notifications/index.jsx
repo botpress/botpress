@@ -107,8 +107,8 @@ export default class NotificationComponent extends Component {
         <Row>
           <Col xs={11} onClick={() => this.onNotifClicked(notification)}>
             <strong className={styles.header}>
-              <i className={iconClass}>{notification.icon}</i>
-              &nbsp; {notification.name}
+              <i className={iconClass}>{notification.icon || notification.module_icon}</i>
+              &nbsp; {notification.name || notification.module_name}
             </strong>
             {this.renderMessage(notification.message)}
             <small className="text-muted">{date}</small>
