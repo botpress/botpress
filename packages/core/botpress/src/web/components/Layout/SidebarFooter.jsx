@@ -194,23 +194,34 @@ class SidebarFooter extends React.Component {
     const aboutClassNames = classnames(style.about, 'bp-about')
     const adminClassNames = classnames(style.admin, 'bp-admin')
 
-    return (
-      <div className={sidebarFooterClassNames}>
-        <div className={sidebarInnerClassNames}>
-          {/*TODO link to admin*/}
-          <NavLink className={adminClassNames} to="./admin" title="admin">
-            <i className="icon material-icons">home</i>
-            <span>Admin</span>
-          </NavLink>
-          {this.renderBotSelect()}
-          <div className={productionClassNames}>{production}</div>
-          {this.renderAllLicenseElements()}
-          <Link className={aboutClassNames} to="#" title="About" onClick={this.openAbout}>
-            About Botpress
-          </Link>
+    if (window.BOTPRESS_XX) {
+      return (
+        <div className={sidebarFooterClassNames}>
+          <div className={sidebarInnerClassNames}>
+            <a className={adminClassNames} href="../../admin" title="admin">
+              <i className="icon material-icons">home</i>
+              <span>Admin</span>
+            </a>
+            {this.renderBotSelect()}
+            <div className={productionClassNames}>{production}</div>
+            {this.renderAllLicenseElements()}
+            <Link className={aboutClassNames} to="#" title="About" onClick={this.openAbout}>
+              About Botpress
+            </Link>
+          </div>
         </div>
-      </div>
-    )
+      )
+    } else {
+      return (
+        <div className={sidebarFooterClassNames}>
+          <div className={sidebarInnerClassNames}>
+            <Link className={aboutClassNames} to="#" title="About" onClick={this.openAbout}>
+              About Botpress
+            </Link>
+          </div>
+        </div>
+      )
+    }
   }
 }
 
