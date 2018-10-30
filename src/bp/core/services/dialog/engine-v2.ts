@@ -28,6 +28,7 @@ class FlowNotFoundError extends DialogEngineError {}
 class NodeNotFoundError extends DialogEngineError {}
 
 // TODO: Rename when its safe to ditch V1
+// TODO: Add integration tests and use the default welcome-bot flow as a test bench
 @injectable()
 export class DialogEngineV2 {
   public onProcessingError: ((err: ProcessingError) => void) | undefined
