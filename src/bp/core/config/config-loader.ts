@@ -9,7 +9,6 @@ import { BotpressConfig } from './botpress.config'
 
 export interface ConfigProvider {
   getBotpressConfig(): Promise<BotpressConfig>
-  setBotpressConfig(config: BotpressConfig): Promise<void>
   getBotConfig(botId: string): Promise<BotConfig>
   setBotConfig(botId: string, config: BotConfig): Promise<void>
 }
