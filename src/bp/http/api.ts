@@ -10,7 +10,6 @@ const tamper = require('tamper')
 const cors = require('cors')
 
 const { HttpProxy, extractBotId, getApiBasePath, BASE_PATH, noCache } = require('./common')
-const version = '10.42.1'
 
 async function start({ coreApiUrl, proxyHost, proxyPort, corsConfig }, callback) {
   const app = express()

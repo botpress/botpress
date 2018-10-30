@@ -74,10 +74,11 @@ export class PersistedConsoleLogger implements Logger {
 
     if (level === LoggerLevel.Error && this.attachedError) {
       message += ` [${this.attachedError.name}, ${this.attachedError.message}]`
-      if (this.displayLevel >= 1 && this.attachedError.stack) {
-        message += chalk.grey(os.EOL + '----- STACK -----')
-        message += chalk.grey(os.EOL + this.attachedError.stack)
-      }
+    }
+
+    if (this.attachedError && this.displayLevel >= 1 && this.attachedError.stack) {
+      message += chalk.grey(os.EOL + '----- STACK -----')
+      message += chalk.grey(os.EOL + this.attachedError.stack)
     }
 
     const serializedMetadata = metadata ? ' | ' + util.inspect(metadata, false, 2, true) : ''

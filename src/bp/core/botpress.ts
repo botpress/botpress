@@ -39,7 +39,7 @@ export class Botpress {
   configLocation: string
   modulesConfig: any
   version: string
-  config: BotpressConfig | undefined
+  config!: BotpressConfig | undefined
   api!: typeof sdk
 
   constructor(
@@ -86,22 +86,23 @@ export class Botpress {
     await this.initializeGhost()
     await this.initializeServices()
     await this.loadModules(options.modules)
-    await this.discoverBots()
     await this.startRealtime()
     await this.startServer()
+    await this.discoverBots()
 
     this.api = await createForGlobalHooks()
     await this.hookService.executeHook(new Hooks.AfterServerStart(this.api))
   }
 
   async checkJwtSecret() {
-    if (!this.config!.jwtSecret) {
-      this.config!.jwtSecret = nanoid(40)
-      // this.configProvider.setBotpressConfig(this.config!)
+    let jwtSecret = this.config!.jwtSecret
+    if (!jwtSecret) {
+      jwtSecret = nanoid(40)
+      this.configProvider.mergeBotpressConfig({ jwtSecret })
       this.logger.warn(`JWT Secret isn't defined. Generating a random key...`)
     }
 
-    process.JWT_SECRET = this.config!.jwtSecret
+    process.JWT_SECRET = jwtSecret
   }
 
   async discoverBots(): Promise<void> {
@@ -152,6 +153,8 @@ export class Botpress {
 
     await this.logJanitor.start()
     await this.dialogJanitor.start()
+
+    await this.lifecycle.setDone(AppLifecycleEvents.SERVICES_READY)
   }
 
   @Memoize()

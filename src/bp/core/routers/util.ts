@@ -12,7 +12,9 @@ export const asyncMiddleware = ({ logger }: { logger: Logger }) => (
   fn: (req: Request, res: Response, next?: NextFunction) => Promise<any>
 ) => (req: Request, res: Response, next: NextFunction) => {
   Promise.resolve(fn(req, res, next)).catch(err => {
-    logger.debug(`Async request error ${err.message}`, err.stack)
+    if (err.logError) {
+      logger.attachError(err).debug(`Async request error ${err.message}`)
+    }
     next(err)
   })
 }

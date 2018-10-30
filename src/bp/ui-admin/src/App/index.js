@@ -53,7 +53,7 @@ class Home extends Component {
         </DropdownToggle>
         <DropdownMenu right>
           <DropdownItem onClick={() => this.props.history.push('/me')}>My profile</DropdownItem>
-          <DropdownItem onClick={() => this.props.history.push('/licence')}>Licence</DropdownItem>
+          <DropdownItem onClick={() => this.props.history.push('/license')}>License</DropdownItem>
           <DropdownItem disabled>Preferences</DropdownItem>
           <DropdownItem divider />
           <DropdownItem onClick={() => this.props.auth.logout()}>Logout</DropdownItem>

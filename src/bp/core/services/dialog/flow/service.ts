@@ -71,6 +71,7 @@ export class FlowService {
   }
 
   async saveAll(botId: string, flowViews: FlowView[]) {
+    process.ASSERT_LICENSED()
     if (!flowViews.find(f => f.name === 'main.flow.json')) {
       throw new Error(`Expected flows list to contain 'main.flow.json'`)
     }

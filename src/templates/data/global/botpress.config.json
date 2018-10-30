@@ -7,7 +7,7 @@
     "bodyLimit": "100kb",
     "backlog": 0,
     "cors": {
-      "enabled": false
+      "enabled": true
     }
   },
   "database": {
@@ -30,6 +30,7 @@
     "expiration": "2 weeks",
     "janitorInterval": "30s"
   },
+  "licenseKey": "paste your license key here",
   "modules": [
     {
       "location": "MODULES_ROOT/channel-web",

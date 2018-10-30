@@ -13,6 +13,8 @@ declare namespace NodeJS {
     PROJECT_LOCATION: string
     LOADED_MODULES: { [module: string]: string }
     pkg: any
+    IS_LICENSED: boolean
+    ASSERT_LICENSED: Function
   }
 }
 

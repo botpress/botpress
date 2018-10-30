@@ -50,5 +50,11 @@ export type BotpressConfig = {
   dialog: DialogConfig
   logs: LogsConfig
   modules: Array<ModuleConfigEntry>
+  /**
+   * The license key for the server.  Optionally you can use the BP_LICENSE_KEY env variable.
+   * You can purchase a license on https://botpress.io
+   * For usage with Botpress Pro/Enterprise.
+   */
+  licenseKey: string
   allowStats: boolean
 }

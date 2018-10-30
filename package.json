@@ -62,6 +62,7 @@
     "portfinder": "^1.0.19",
     "querystring": "^0.2.0",
     "reflect-metadata": "^0.1.12",
+    "semver": "^5.6.0",
     "shortid": "^2.2.13",
     "socket.io": "^2.1.1",
     "socketio-jwt": "^4.5.0",

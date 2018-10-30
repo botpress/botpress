@@ -111,9 +111,8 @@ export default class HitlDb {
       paused_trigger: undefined
     }
 
-    return this.knex('hitl_sessions')
-      .insert(session)
-      .returning('id')
+    return this.knex
+      .insertAndRetrieve('hitl_sessions', session)
       .then(([id]) =>
         this.knex('hitl_sessions')
           .where({ id })
