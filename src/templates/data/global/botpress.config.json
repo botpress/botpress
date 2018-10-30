@@ -59,5 +59,6 @@
       "location": "MODULES_ROOT/analytics",
       "enabled": true
     }
-  ]
+  ],
+  "allowStats": true
 }
