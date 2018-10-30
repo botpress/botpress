@@ -5,7 +5,7 @@ import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 
 import { FlowView } from '.'
-import FlowService from './flow/service'
+import { FlowService } from './flow/service'
 import { InstructionProcessor } from './instruction/processor'
 import { InstructionQueue } from './instruction/queue'
 import { InstructionsQueueBuilder } from './queue-builder'
@@ -29,7 +29,7 @@ class NodeNotFoundError extends DialogEngineError {}
 
 @injectable()
 export class DialogEngine {
-  onProcessingError: ((err: ProcessingError) => void) | undefined
+  public onProcessingError: ((err: ProcessingError) => void) | undefined
 
   private _flowsByBot: Map<string, FlowView[]> = new Map()
 
@@ -48,8 +48,8 @@ export class DialogEngine {
     const currentFlow = this._findFlow(botId, session.context.currentFlowName)
     const currentNode = this._findNode(currentFlow, session.context.currentNodeName)
 
-    // skill-call type means that the current node contains the subflow for a skill-choice.
-    // We skip this step if we're exiting from a subflow, otherwise this will result in an infinite loop.
+    // Property type skill-call means that the node points to a subflow.
+    // We skip this step if we're exiting from a subflow, otherwise it will result in an infinite loop.
     if (currentNode.type === 'skill-call' && !this._exitingSubflow(session)) {
       await this._goToSubflow(botId, event, session, currentNode, currentFlow)
       return
@@ -67,6 +67,7 @@ export class DialogEngine {
     // End session if there are no more instructions in the queue
     if (!instruction) {
       await this.sessionService.deleteSession(sessionId)
+      this._logEnd(botId)
       return
     }
 
@@ -96,7 +97,7 @@ export class DialogEngine {
     }
   }
 
-  public async jumpTo(sessionId, event, targetFlowName, targetNodeName?) {
+  public async jumpTo(sessionId: string, event: IO.Event, targetFlowName: string, targetNodeName?: string) {
     const session = await this._getOrCreateSession(sessionId, event)
     const botId = event.botId
 
@@ -113,10 +114,10 @@ export class DialogEngine {
       currentNodeName: targetNode.name
     }
 
-    await this._updateContext(sessionId, context)
+    await this._updateContext(session.id, context)
   }
 
-  public async processTimeout(botId, sessionId, event) {
+  public async processTimeout(botId: string, sessionId: string, event: IO.Event) {
     // TODO: hook on before timeout
 
     const session = await this.sessionService.getSession(sessionId)
@@ -179,7 +180,7 @@ export class DialogEngine {
     return this.sessionService.updateSessionEvent(sessionId, event)
   }
 
-  private async _transition(sessionId, event, transitionTo: string) {
+  private async _transition(sessionId, event, transitionTo) {
     const session = await this.sessionService.getSession(sessionId)
     let context = session.context
 
@@ -218,13 +219,13 @@ export class DialogEngine {
     await this.sessionService.updateSession(session)
   }
 
-  private async _updateState(sessionId: string, state) {
+  private async _updateState(sessionId, state) {
     const session = await this.sessionService.getSession(sessionId)
     session.state = state
     await this.sessionService.updateSession(session)
   }
 
-  private async _updateQueue(sessionId: string, queue?: InstructionQueue) {
+  private async _updateQueue(sessionId, queue?: InstructionQueue) {
     const session = await this.sessionService.getSession(sessionId)
     const context = session.context
     context.queue = queue ? queue.toString() : undefined

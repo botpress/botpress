@@ -5,7 +5,7 @@ import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 
 import { FlowNavigator, NavigationArgs, NavigationPosition } from './flow/navigator'
-import FlowService from './flow/service'
+import { FlowService } from './flow/service'
 import { Instruction } from './instruction'
 import { InstructionFactory } from './instruction/factory'
 import { InstructionProcessor } from './instruction/processor'
@@ -137,11 +137,7 @@ class DialogEngine {
       }
 
       try {
-        const result = await this.instructionProcessor.process(
-          botId,
-          instruction,
-          session
-        )
+        const result = await this.instructionProcessor.process(botId, instruction, session)
 
         if (result.followUpAction === 'update') {
           await this.updateQueueForSession(queue, session)

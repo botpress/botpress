@@ -12,7 +12,7 @@ const MIN_POS_X = 50
 const FLOW_DIR = 'flows'
 
 @injectable()
-export default class FlowService {
+export class FlowService {
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'FlowService')

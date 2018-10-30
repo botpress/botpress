@@ -1,11 +1,14 @@
 import Database from '../../database'
 import { createDatabaseSuite } from '../../database/index.tests'
+import { PersistedConsoleLogger } from '../../logger'
+import { createSpyObject, MockObject } from '../../misc/utils'
 
 import { KeyValueStore } from './kvs'
 
 createDatabaseSuite('KVS', (database: Database) => {
-  const kvs = new KeyValueStore(database)
-  const BOTID = 'bot123'
+  const logger: MockObject<PersistedConsoleLogger> = createSpyObject<PersistedConsoleLogger>()
+  const kvs = new KeyValueStore(database, logger.T)
+  const BOTID = 'welcome-bot'
   const KEY = 'key'
   const defaultValue = {
     profile: {
