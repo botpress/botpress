@@ -1,8 +1,11 @@
 import { IO, Logger } from 'botpress/sdk'
+import { createForGlobalHooks } from 'core/api'
 import { DialogContext } from 'core/repositories'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
+
+import { Hooks, HookService } from '../hook/hook-service'
 
 import { FlowView } from '.'
 import { FlowService } from './flow/service'
@@ -25,7 +28,6 @@ export class ProcessingError extends Error {
 
 class DialogEngineError extends Error {}
 class FlowNotFoundError extends DialogEngineError {}
-class NodeNotFoundError extends DialogEngineError {}
 
 // TODO: Rename when its safe to ditch V1
 // TODO: Add integration tests and use the default welcome-bot flow as a test bench
@@ -39,7 +41,8 @@ export class DialogEngineV2 {
     @inject(TYPES.Logger) private logger: Logger,
     @inject(TYPES.FlowService) private flowService: FlowService,
     @inject(TYPES.SessionService) private sessionService: SessionService,
-    @inject(TYPES.InstructionProcessor) private instructionProcessor: InstructionProcessor
+    @inject(TYPES.InstructionProcessor) private instructionProcessor: InstructionProcessor,
+    @inject(TYPES.HookService) private hookService: HookService
   ) {}
 
   public async processEvent(sessionId: string, event: IO.Event) {
@@ -120,7 +123,9 @@ export class DialogEngineV2 {
   }
 
   public async processTimeout(botId: string, sessionId: string, event: IO.Event) {
-    // TODO: hook on before timeout
+    this._logTimeout(botId)
+    const api = await createForGlobalHooks()
+    await this.hookService.executeHook(new Hooks.BeforeSessionTimeout(api, event))
 
     const session = await this.sessionService.getSession(sessionId)
     const currentFlow = this._findFlow(botId, session.context.currentFlowName)
@@ -131,22 +136,24 @@ export class DialogEngineV2 {
     let timeoutFlow = currentFlow
 
     // Check for a timeout node in the current flow
-    if (!timeoutNode || !timeoutFlow) {
+    if (!timeoutNode) {
       timeoutNode = this._findNode(timeoutFlow, 'timeout')
     }
 
     // Check for a timeout property in the current flow
-    if (!timeoutNode || !timeoutFlow) {
-      timeoutNode = _.get(currentFlow, 'timeout')
+    if (!timeoutNode) {
+      timeoutNode = _.get(timeoutFlow, 'timeout')
     }
 
     // Check for a timeout.flow.json and get the start node
-    if (!timeoutNode || !timeoutFlow) {
-      timeoutFlow = this._findFlow(botId, 'timeout.flow.json')
-      if (timeoutFlow) {
-        const startNodeName = timeoutFlow.startNode
-        timeoutNode = this._findNode(timeoutFlow, startNodeName)
+    if (!timeoutNode) {
+      try {
+        timeoutFlow = this._findFlow(botId, 'timeout.flow.json')
+      } catch (err) {
+        // ignore
       }
+      const startNodeName = timeoutFlow.startNode
+      timeoutNode = this._findNode(timeoutFlow, startNodeName)
     }
 
     if (!timeoutNode || !timeoutFlow) {
@@ -294,11 +301,7 @@ export class DialogEngineV2 {
   }
 
   private _findNode(flow, nodeName: string) {
-    const node = flow.nodes && flow.nodes.find(x => x.name === nodeName)
-    if (!node) {
-      throw new NodeNotFoundError(`Node ${nodeName} not found in flow ${flow.name}`)
-    }
-    return node
+    return flow.nodes && flow.nodes.find(x => x.name === nodeName)
   }
 
   private _reportProcessingError(botId, error, session, instruction) {
@@ -328,10 +331,14 @@ export class DialogEngineV2 {
   }
 
   private _logEnd(botId) {
-    this.logger.forBot(botId).debug(`Flow ended.`)
+    this.logger.forBot(botId).debug('Flow ended.')
   }
 
   private _logStart(botId) {
-    this.logger.forBot(botId).debug(`Flow started.`)
+    this.logger.forBot(botId).debug('Flow started.')
+  }
+
+  private _logTimeout(botId) {
+    this.logger.forBot(botId).debug('Flow timed out.')
   }
 }
