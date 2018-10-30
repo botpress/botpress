@@ -15,6 +15,7 @@ import { ModuleLoader } from './module-loader'
 import { RepositoriesContainerModules } from './repositories/repositories.inversify'
 import HTTPServer from './server'
 import { ServicesContainerModules } from './services/services.inversify'
+import { Statistics } from './stats'
 import { TYPES } from './types'
 
 const container = new Container({ autoBindInjectable: true })
@@ -89,6 +90,10 @@ container
 container
   .bind<BotConfigWriter>(TYPES.BotConfigWriter)
   .to(BotConfigWriter)
+  .inSingletonScope()
+container
+  .bind<Statistics>(TYPES.Statistics)
+  .to(Statistics)
   .inSingletonScope()
 
 const isPackaged = !!eval('process.pkg')
