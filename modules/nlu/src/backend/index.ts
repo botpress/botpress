@@ -49,9 +49,8 @@ const defaultConfigJson = `
   "entitiesDir": "./entities",
   "modelsDir": "./models",
   "provider": "native",
-  "debugModeEnabled": false,
-  "minimumConfidence": "0.3",
-  "nativeAdjustementThreshold": "0.25"
+  "debugModeEnabled": true,
+  "minimumConfidence": "0.3"
 }
 `
 
@@ -93,8 +92,6 @@ const config: sdk.ModuleConfig = {
   // Mostly irrelevant except for NLU=native
   maximumConfidence: { type: 'string', required: false, default: '1000', env: 'NLU_MAX_CONFIDENCE' },
 
-  // The minimum difference between scores required before we apply a distribution fixes
-  nativeAdjustementThreshold: { type: 'string', required: false, default: '0.25', env: 'NLU_NATIVE_ADJ_THRESHOLD' },
   // The maximum number of requests per hour
   // Useful to make sure you don't overuse your budget on paid NLU-services (like LUIS)
   maximumRequestsPerHour: { type: 'string', required: false, default: '1000', env: 'NLU_MAX_REQUESTS_PER_HOUR' }
