@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 
 import { MdInfoOutline } from 'react-icons/lib/md'
 
-import { Container, Row, Col, Navbar, Nav, NavItem, NavLink, UncontrolledTooltip, Badge } from 'reactstrap'
+import { Row, Col, Navbar, Nav, NavItem, NavLink, UncontrolledTooltip, Badge } from 'reactstrap'
 
 class Section extends Component {
   renderBadge(displayBadge) {
@@ -19,7 +19,7 @@ class Section extends Component {
 
   renderSectionHeader() {
     return (
-      <Navbar className="bp-main-content-header__nav container">
+      <Navbar className="bp-main-content-sidebar__nav">
         <Nav>
           {this.props.sections &&
             this.props.sections.map(section => (
@@ -51,8 +51,8 @@ class Section extends Component {
 
     return (
       <Fragment>
-        <header className="bp-main-content-header">{this.renderSectionHeader()}</header>
-        <Container>
+        <aside className="bp-main-content-sidebar">{this.renderSectionHeader()}</aside>
+        <div className="bp-main-content-main">
           <Row>
             <Col xs={12} md={10}>
               <h2 className="bp-main-content__title">
@@ -69,7 +69,7 @@ class Section extends Component {
               {this.props.mainContent}
             </Col>
           </Row>
-        </Container>
+        </div>
       </Fragment>
     )
   }

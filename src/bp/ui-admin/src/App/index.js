@@ -23,6 +23,9 @@ import logo from '../botpress.svg'
 
 class Home extends Component {
   state = { isMenuOpen: true }
+  toggleMenu = () => {
+    this.setState({ isMenuOpen: !this.state.isMenuOpen })
+  }
 
   componentDidMount() {
     if (!this.props.profile) {
@@ -32,10 +35,6 @@ class Home extends Component {
     if (!this.props.teams) {
       this.props.fetchTeams()
     }
-  }
-
-  toggleMenu = () => {
-    this.setState({ isMenuOpen: !this.state.isMenuOpen })
   }
 
   renderProfileMenu() {
@@ -92,24 +91,22 @@ class Home extends Component {
     return (
       <Fragment>
         <header className="bp-header">
-          <div className="container">
-            <Navbar expand="md">
-              <NavbarBrand href="/admin">
-                <img src={logo} alt="logo" className="bp-header__logo" />
-                &nbsp;|&nbsp;
-                <span className="bp-header__title">Admin</span>
-              </NavbarBrand>
-              <NavbarToggler onClick={this.toggleMenu} />
-              <Collapse isOpen={this.state.isMenuOpen} navbar>
-                <Nav className="ml-auto" navbar>
-                  {this.renderSwitchTeam()}
-                  {this.renderProfileMenu()}
-                </Nav>
-              </Collapse>
-            </Navbar>
-          </div>
+          <Navbar expand="md">
+            <NavbarBrand href="/admin">
+              <img src={logo} alt="logo" className="bp-header__logo" />
+              &nbsp;|&nbsp;
+              <span className="bp-header__title">Admin</span>
+            </NavbarBrand>
+            <NavbarToggler onClick={this.toggleMenu} />
+            <Collapse isOpen={this.state.isMenuOpen} navbar>
+              <Nav className="ml-auto" navbar>
+                {this.renderSwitchTeam()}
+                {this.renderProfileMenu()}
+              </Nav>
+            </Collapse>
+          </Navbar>
         </header>
-        <div className="main-content">{this.props.children}</div>
+        <div className="bp-main-content">{this.props.children}</div>
       </Fragment>
     )
   }
