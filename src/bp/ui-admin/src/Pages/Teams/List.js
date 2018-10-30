@@ -16,7 +16,9 @@ import {
   FormFeedback,
   ModalHeader,
   ModalBody,
-  ModalFooter
+  ModalFooter,
+  Row,
+  Col
 } from 'reactstrap'
 
 import moment from 'moment'
@@ -96,23 +98,27 @@ class List extends Component {
 
   renderAllTeams() {
     return (
-      <ListGroup>
-        {this.props.teams.map(team => {
-          const createdAgo = moment(team.createdAt).fromNow()
-          return (
-            <ListGroupItem
-              tag="a"
-              key={team.id}
-              action
-              href="#"
-              onClick={() => this.props.history.push(`/teams/${team.id}`)}
-            >
-              <ListGroupItemHeading>{team.name}</ListGroupItemHeading>
-              <small>Created {createdAgo}</small>
-            </ListGroupItem>
-          )
-        })}
-      </ListGroup>
+      <Row>
+        <Col xs={12} md={8}>
+          <ListGroup>
+            {this.props.teams.map(team => {
+              const createdAgo = moment(team.createdAt).fromNow()
+              return (
+                <ListGroupItem
+                  tag="a"
+                  key={team.id}
+                  action
+                  href="#"
+                  onClick={() => this.props.history.push(`/teams/${team.id}`)}
+                >
+                  <ListGroupItemHeading>{team.name}</ListGroupItemHeading>
+                  <small>Created {createdAgo}</small>
+                </ListGroupItem>
+              )
+            })}
+          </ListGroup>
+        </Col>
+      </Row>
     )
   }
 

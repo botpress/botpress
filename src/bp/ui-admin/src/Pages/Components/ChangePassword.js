@@ -54,6 +54,8 @@ class ChangePassword extends Component {
               onKeyPress={this.onInputKeyPress}
               value={this.state.firstName}
             />
+          </FormGroup>
+          <FormGroup>
             <Label for="lastName">New Password</Label>
             <Input
               value={this.state.newPassword}
@@ -62,6 +64,8 @@ class ChangePassword extends Component {
               onChange={this.onInputChange}
               onKeyPress={this.onInputKeyPress}
             />
+          </FormGroup>
+          <FormGroup>
             <Label for="lastName">Confirm Password</Label>
             <Input
               value={this.state.confirmPassword}
