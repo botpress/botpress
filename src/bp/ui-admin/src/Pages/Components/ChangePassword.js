@@ -1,7 +1,5 @@
 import React, { Component } from 'react'
-import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import _ from 'lodash'
 import { Button, Modal, Input, Label, ModalHeader, ModalBody, ModalFooter, FormGroup, Alert } from 'reactstrap'
 import api from '../../api'
 
@@ -95,13 +93,5 @@ class ChangePassword extends Component {
   }
 }
 
-const mapStateToProps = state => ({
-  profile: state.user.profile
-})
-
-const mapDispatchToProps = dispatch => bindActionCreators({}, dispatch)
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ChangePassword)
+const mapStateToProps = state => ({ profile: state.user.profile })
+export default connect(mapStateToProps)(ChangePassword)
