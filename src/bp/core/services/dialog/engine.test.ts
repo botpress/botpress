@@ -1,10 +1,10 @@
-import { when } from 'joi'
 import 'reflect-metadata'
 
 import { IOEvent } from '../../../core/sdk/impl'
 import { PersistedConsoleLogger } from '../../logger'
 import { createSpyObject, expectAsync, MockObject } from '../../misc/utils'
 import { DialogSession } from '../../repositories'
+import { HookService } from '../hook/hook-service'
 
 import { DialogEngineV2 } from './engine-v2'
 import { FlowService } from './flow/service'
@@ -17,6 +17,7 @@ describe('Dialog Engine', () => {
   const flowService: MockObject<FlowService> = createSpyObject<FlowService>()
   const sessionService: MockObject<SessionService> = createSpyObject<SessionService>()
   const instructionProcessor: MockObject<InstructionProcessor> = createSpyObject<InstructionProcessor>()
+  const hookService: MockObject<HookService> = createSpyObject<HookService>()
   let dialogEngine: DialogEngineV2
 
   const SESSION_ID = 'sessionId'
@@ -34,7 +35,7 @@ describe('Dialog Engine', () => {
 
   beforeEach(() => {
     jest.resetAllMocks()
-    dialogEngine = new DialogEngineV2(logger.T, flowService.T, sessionService.T, instructionProcessor.T)
+    dialogEngine = new DialogEngineV2(logger.T, flowService.T, sessionService.T, instructionProcessor.T, hookService.T)
     sessionService.getSession.mockReturnValue(SESSION)
     sessionService.createSession.mockReturnValue(SESSION)
     sessionService.updateSessionEvent.mockReturnValue(SESSION)

@@ -1,6 +1,9 @@
 {
   "type": "object",
   "properties": {
+    "jwtSecret": {
+      "type": "string"
+    },
     "httpServer": {
       "type": "object",
       "properties": {
@@ -95,6 +98,7 @@
     "dialog",
     "ghost",
     "httpServer",
+    "jwtSecret",
     "logs",
     "modules"
   ],
