@@ -18,7 +18,7 @@ import { ModuleLoader } from './module-loader'
 import HTTPServer from './server'
 import { GhostService } from './services'
 import { CMSService } from './services/cms/cms-service'
-import { DialogEngine, ProcessingError } from './services/dialog/engine'
+import { DialogEngineV2, ProcessingError } from './services/dialog/engine-v2'
 import { DialogJanitor } from './services/dialog/janitor'
 import { SessionIdFactory } from './services/dialog/session/id-factory'
 import { Hooks, HookService } from './services/hook/hook-service'
@@ -57,7 +57,7 @@ export class Botpress {
     @inject(TYPES.RealtimeService) private realtimeService: RealtimeService,
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
     @inject(TYPES.CMSService) private cmsService: CMSService,
-    @inject(TYPES.DialogEngine) private dialogEngine: DialogEngine,
+    @inject(TYPES.DialogEngine) private dialogEngine: DialogEngineV2,
     @inject(TYPES.LoggerProvider) private loggerProvider: LoggerProvider,
     @inject(TYPES.DialogJanitorRunner) private dialogJanitor: DialogJanitor,
     @inject(TYPES.LogJanitorRunner) private logJanitor: LogsJanitor,

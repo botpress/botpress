@@ -21,7 +21,7 @@ export class InstructionQueue {
   }
 
   dequeue(): Instruction | undefined {
-    return this.instructions.shift()!
+    return this.instructions.shift()
   }
 
   hasInstructions(): boolean {

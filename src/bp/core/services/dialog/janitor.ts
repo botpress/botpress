@@ -1,4 +1,5 @@
 import { Logger } from 'botpress/sdk'
+import { IOEvent } from 'core/sdk/impl'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
@@ -11,7 +12,7 @@ import { ConfigProvider } from '../../config/config-loader'
 import { TYPES } from '../../types'
 import { Janitor } from '../janitor'
 
-import { DialogEngine } from './engine'
+import { DialogEngineV2 } from './engine-v2'
 import { SessionService } from './session/service'
 
 @injectable()
@@ -21,7 +22,7 @@ export class DialogJanitor extends Janitor {
     @tagged('name', 'DialogJanitor')
     protected logger: Logger,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
-    @inject(TYPES.DialogEngine) private dialogEngine: DialogEngine,
+    @inject(TYPES.DialogEngine) private dialogEngine: DialogEngineV2,
     @inject(TYPES.BotLoader) private botLoader: BotLoader,
     @inject(TYPES.SessionService) private sessionService: SessionService
   ) {
@@ -58,7 +59,16 @@ export class DialogJanitor extends Janitor {
 
       Promise.map(sessionsIds, async id => {
         try {
-          await this.dialogEngine.processTimeout(botId, id)
+          // This event only exists so that processTimeout can call processEvent
+          const fakeEvent = new IOEvent({
+            type: 'timeout',
+            channel: 'none',
+            target: 'none',
+            direction: 'incoming',
+            payload: 'node',
+            botId: botId
+          })
+          await this.dialogEngine.processTimeout(botId, id, fakeEvent)
         } catch (err) {
           await this.sessionService.deleteSession(id)
         }

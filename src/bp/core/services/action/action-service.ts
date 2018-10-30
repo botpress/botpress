@@ -103,7 +103,8 @@ export class ScopedActionService {
   }
 
   async runAction(actionName: string, dialogState: any, incomingEvent: any, actionArgs: any): Promise<any> {
-    this.logger.forBot(this.botId).debug(`Running action "${actionName}"`)
+    this.logger.forBot(this.botId).debug(`Running "${actionName}"`)
+
     const action = await this.findAction(actionName)
     const code = await this.getActionScript(action)
     const api = await createForAction()
@@ -113,9 +114,12 @@ export class ScopedActionService {
 
     const _require = this._prepareRequire(path.dirname(dirPath))
 
-    const modRequire = new Proxy({}, {
-      get: (_obj, prop) => _require(prop)
-    })
+    const modRequire = new Proxy(
+      {},
+      {
+        get: (_obj, prop) => _require(prop)
+      }
+    )
 
     const vm = new NodeVM({
       wrapper: 'none',

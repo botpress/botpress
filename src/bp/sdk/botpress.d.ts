@@ -373,7 +373,7 @@ declare module 'botpress/sdk' {
     location?: string
     version?: string
     /** This is the home node. The user will be directed there when he enters the flow */
-    startNode?: string
+    startNode: string
     /** An object containing all the properties required to edit a skill */
     skillData?: any
     /** An array of all the nodes included in the flow */

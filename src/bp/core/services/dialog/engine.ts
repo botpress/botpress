@@ -5,7 +5,7 @@ import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 
 import { FlowNavigator, NavigationArgs, NavigationPosition } from './flow/navigator'
-import FlowService from './flow/service'
+import { FlowService } from './flow/service'
 import { Instruction } from './instruction'
 import { InstructionFactory } from './instruction/factory'
 import { InstructionProcessor } from './instruction/processor'
@@ -26,7 +26,6 @@ export class ProcessingError extends Error {
 
 const DEFAULT_FLOW_NAME = 'main.flow.json'
 
-// TODO: Test this
 @injectable()
 export class DialogEngine {
   onProcessingError: ((err: ProcessingError) => void) | undefined
@@ -137,13 +136,7 @@ export class DialogEngine {
       }
 
       try {
-        const result = await this.instructionProcessor.process(
-          botId,
-          instruction,
-          session.state,
-          session.event,
-          session.context
-        )
+        const result = await this.instructionProcessor.process(botId, instruction, session)
 
         if (result.followUpAction === 'update') {
           await this.updateQueueForSession(queue, session)
