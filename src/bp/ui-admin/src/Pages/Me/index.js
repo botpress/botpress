@@ -14,7 +14,7 @@ class Me extends Component {
   renderBody() {
     return (
       <Row className="profile">
-        <Col sm="12" md="4">
+        <Col sm="12" md="3">
           <div className="profile__avatar" />
           <ChangePassword />
         </Col>
