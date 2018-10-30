@@ -19,11 +19,29 @@ To setup connexion of your chatbot to Telegram, you need to fill the connexion s
 {{BOT ROOT DIR}}/config/channel-telegram.json
 ```json
 {
-  "botToken": "451660170:AAHM2CD-Z8Kt3AwqcQLnaUgIk5bUJay3s0M"
+  "botToken": "451660170:AAHM2CD-Z8Kt3AwqcQLnaUgIk5bUJay3s0M",
+  "proxy": {
+    "socksHost": "example.com",
+    "socksPort": 12345,
+    "socksUsername": "user1",
+    "socksPassword": "password1"
+
+  },
+  "advancedOptions": {
+    "polling": {
+      "interval": 300
+    }
+  }
 }
 ```
 
-You can also set the `TELEGRAM_TOKEN` environment variable
+##### Arguments
+
+1. ` botToken ` (_String_, _required_): Correspond to unique Channel's recipient identifier. Usually, this `channelId` is available from input message. You can also set the `TELEGRAM_TOKEN` environment variable.
+
+2. ` proxy ` (_Object_): An object that may contain possible options for SOCKS5 proxy library (`socks5-https-client`) (see [documentation](https://github.com/mattcg/socks5-https-client) for more details). You can also set the `TELEGRAM_PROXY` environment variable.
+
+3. ` advancedOptions ` (_Object_): An object that may contain possible options for `node-telegram-bot-api` library (see [documentation](https://github.com/yagop/node-telegram-bot-api/blob/release/doc/api.md#new-telegrambottoken-options) for more details). You can also set the `TELEGRAM_ADVANCED_OPTIONS` environment variable.
 
 ### How to create an Telegram Bot Token
 
