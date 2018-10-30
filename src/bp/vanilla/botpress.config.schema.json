@@ -17,7 +17,10 @@
           "type": "number"
         },
         "bodyLimit": {
-          "type": ["string", "number"]
+          "type": [
+            "string",
+            "number"
+          ]
         },
         "cors": {
           "type": "object",
@@ -31,7 +34,13 @@
           }
         }
       },
-      "required": ["backlog", "bodyLimit", "cors", "port", "proxyPort"]
+      "required": [
+        "backlog",
+        "bodyLimit",
+        "cors",
+        "port",
+        "proxyPort"
+      ]
     },
     "database": {
       "$ref": "#/definitions/DatabaseConfig"
@@ -40,10 +49,17 @@
       "type": "object",
       "properties": {
         "enabled": {
-          "enum": ["$isDevelopment", "$isProduction", false, true]
+          "enum": [
+            "$isDevelopment",
+            "$isProduction",
+            false,
+            true
+          ]
         }
       },
-      "required": ["enabled"]
+      "required": [
+        "enabled"
+      ]
     },
     "dialog": {
       "$ref": "#/definitions/DialogConfig"
@@ -63,7 +79,10 @@
             "type": "boolean"
           }
         },
-        "required": ["enabled", "location"]
+        "required": [
+          "enabled",
+          "location"
+        ]
       }
     },
     "licenseKey": {
@@ -74,7 +93,16 @@
       "type": "boolean"
     }
   },
-  "required": ["allowStats", "database", "dialog", "ghost", "httpServer", "licenseKey", "logs", "modules"],
+  "required": [
+    "allowStats",
+    "database",
+    "dialog",
+    "ghost",
+    "httpServer",
+    "licenseKey",
+    "logs",
+    "modules"
+  ],
   "definitions": {
     "DatabaseConfig": {
       "type": "object",
@@ -110,10 +138,15 @@
           "type": "string"
         }
       },
-      "required": ["type"]
+      "required": [
+        "type"
+      ]
     },
     "DatabaseType": {
-      "enum": ["postgres", "sqlite"],
+      "enum": [
+        "postgres",
+        "sqlite"
+      ],
       "type": "string"
     },
     "DialogConfig": {
@@ -126,7 +159,10 @@
           "type": "string"
         }
       },
-      "required": ["janitorInterval", "timeoutInterval"]
+      "required": [
+        "janitorInterval",
+        "timeoutInterval"
+      ]
     },
     "LogsConfig": {
       "type": "object",
@@ -138,8 +174,12 @@
           "type": "string"
         }
       },
-      "required": ["expiration", "janitorInterval"]
+      "required": [
+        "expiration",
+        "janitorInterval"
+      ]
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }
+

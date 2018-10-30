@@ -7,7 +7,7 @@
     "bodyLimit": "100kb",
     "backlog": 0,
     "cors": {
-      "enabled": false
+      "enabled": true
     }
   },
   "database": {

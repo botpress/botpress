@@ -9,7 +9,7 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; }
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; }
 
 .container > .navbar {
   padding: 0; }
@@ -6599,55 +6599,55 @@ abbr {
   margin-bottom: 20px;
   width: 150px; }
 
-.licence-status {
+.license-status {
   background-color: var(--c-neutral--light-2);
   border: 2px solid var(--c-neutral);
-  padding: .5rem;
+  padding: 0.5rem;
   margin-bottom: 1rem; }
-  .licence-status.unlicenced {
+  .license-status.unlicensed {
     border-color: red; }
-  .licence-status.licenced {
+  .license-status.licensed {
     border-color: green; }
-  .licence-status__badge {
+  .license-status__badge {
     border-radius: 50%;
     display: inline-block;
     margin-right: 5px;
     height: 20px;
     width: 20px;
     vertical-align: middle; }
-    .unlicenced .licence-status__badge {
+    .unlicensed .license-status__badge {
       background-color: red; }
-    .licenced .licence-status__badge {
+    .licensed .license-status__badge {
       background-color: green; }
-  .licence-status__status {
+  .license-status__status {
     font-weight: 600;
     vertical-align: middle; }
-  .licence-status__limits {
+  .license-status__limits {
     font-size: 13px;
     display: block;
     font-weight: 600;
     margin-left: 25px; }
-    .unlicenced .licence-status__limits {
+    .unlicensed .license-status__limits {
       color: red; }
 
-.licence-renew {
+.license-renew {
   display: flex;
   justify-content: space-between;
   margin: 20px 0; }
 
-.licence-infos {
+.license-infos {
   display: flex;
   align-items: center;
   font-size: 14px;
   margin-bottom: 20px; }
-  .licence-infos__label {
+  .license-infos__label {
     display: inline-block;
     margin-right: 5px; }
-  .licence-infos__icon {
+  .license-infos__icon {
     margin-left: 5px; }
-  .licence-infos--fingerprint code {
+  .license-infos--fingerprint code {
     text-decoration: dotted underline; }
-  .licence-infos--fingerprint .licence-infos__icon {
+  .license-infos--fingerprint .license-infos__icon {
     margin-left: auto; }
 
 .form-check-label {

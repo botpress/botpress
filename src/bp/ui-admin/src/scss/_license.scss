@@ -1,17 +1,17 @@
-// Licence
+// License
 
-.licence {
+.license {
   &-status {
     background-color: var(--c-neutral--light-2);
     border: 2px solid var(--c-neutral);
-    padding: .5rem;
+    padding: 0.5rem;
     margin-bottom: 1rem;
 
-    &.unlicenced {
+    &.unlicensed {
       border-color: red;
     }
 
-    &.licenced {
+    &.licensed {
       border-color: green;
     }
 
@@ -23,11 +23,11 @@
       width: 20px;
       vertical-align: middle;
 
-      .unlicenced & {
+      .unlicensed & {
         background-color: red;
       }
 
-      .licenced & {
+      .licensed & {
         background-color: green;
       }
     }
@@ -43,7 +43,7 @@
       font-weight: 600;
       margin-left: 25px;
 
-      .unlicenced & {
+      .unlicensed & {
         color: red;
       }
     }
@@ -75,7 +75,7 @@
         text-decoration: dotted underline;
       }
 
-      .licence-infos__icon {
+      .license-infos__icon {
         margin-left: auto;
       }
     }

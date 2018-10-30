@@ -11,7 +11,7 @@ import TeamsListPage from '../Pages/Teams/List'
 import TeamMembersPage from '../Pages/Teams/Members'
 import TeamRolesPage from '../Pages/Teams/Roles'
 import MePage from '../Pages/Me'
-import LicencePage from '../Pages/Licence'
+import LicensePage from '../Pages/License'
 import Landing from '../Pages/Landing'
 import LandingStep2 from '../Pages/LandingStep2'
 import ChangePassword from '../Pages/ChangePassword'
@@ -56,7 +56,7 @@ export const makeMainRoutes = () => {
           <PrivateRoute path="/" auth={auth} component={App}>
             <Switch>
               <Route exact path="/me" render={props => <MePage {...props} />} />
-              <Route exact path="/licence" render={props => <LicencePage {...props} />} />
+              <Route exact path="/license" render={props => <LicensePage {...props} />} />
               <Route
                 exact
                 from="/teams/:teamId"

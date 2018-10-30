@@ -1,10 +1,10 @@
 export default interface LicensingService {
   installProtection(): void
   refreshLicenseKey(): Promise<boolean>
-  replaceLicenseKey(): Promise<boolean>
+  replaceLicenseKey(licenseKey: string): Promise<boolean>
 
   getLicenseStatus(): Promise<LicenseStatus>
-  getLicenseInfo(): Promise<LicenseInfo>
+  getLicenseInfo(licenseKey?: string): Promise<LicenseInfo>
   getLicenseKey(): Promise<string>
   getFingerprint(fingerprintType: FingerprintType): Promise<string>
 }
