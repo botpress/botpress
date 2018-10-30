@@ -1,6 +1,6 @@
 ---
 id: embedding
-title: !!!Embedding the Webchat on a website
+title: Embedding the Webchat on a website
 ---
 
 Embedding a bot to your existing site is quite straightforward. You will need to deploy your bot to a server or hosting provider and make it accessible via a URL.
@@ -10,14 +10,14 @@ You will then be able to add the following script tag to the end of your `index.
 NB: Remember to replace <your-url-here> with the URL of your bot!
 
 ```html
-<script src="<your-url-here>/api/botpress-platform-webchat/inject.js"></script>
+<script src="<your-url-here>/api/ext/channel-web/inject.js"></script>
 ```
 
 After the import script above you need to initialize the bot to the `window` object with the script below.
 
 ```html
 <script>
-  window.botpressWebChat.init({ host: '<your-url-here>' })
+  window.botpressWebChat.init({ host: '<your-url-here>', botId: '<your-bot-id>' })
 </script>
 ```
 
@@ -29,7 +29,7 @@ If the default Botpress button doesn't work for you, it can be changed by adding
 
 ```html
 <script>
-  window.botpressWebChat.init({ host: '<your-url-here>', hideWidget: true })
+  window.botpressWebChat.init({ host: '<your-url-here>', botId: '<your-bot-id>' hideWidget: true })
 </script>
 ```
 
@@ -53,6 +53,7 @@ The Webchat view is customizable by passing additional params to the `init` func
 ```js
 window.botpressWebChat.init({
   host: '<host>',
+  botId: '<botId>', //The ID for your bot
   botName: 'Bot', // Name of your bot
   botAvatarUrl: null, // Default avatar URL of the image (e.g., 'https://avatars3.githubusercontent.com/u/1315508?v=4&s=400' )
   botConvoTitle: 'Technical Support', // Title of the first conversation with the bot

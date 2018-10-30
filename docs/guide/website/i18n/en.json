@@ -93,13 +93,13 @@
         "title": "!!Supported databases"
       },
       "recipes/embedding": {
-        "title": "!!!Embedding the Webchat on a website"
+        "title": "Embedding the Webchat on a website"
       },
       "recipes/hitl": {
-        "title": "!!HITL (Human-in-the-loop)"
+        "title": "HITL (Human-in-the-loop)"
       },
       "recipes/i18n": {
-        "title": "!!!i18n"
+        "title": "i18n"
       },
       "recipes/index": {
         "title": "What are they?"
@@ -123,7 +123,7 @@
         "title": "Shortlinks"
       },
       "recipes/timeout": {
-        "title": "!!!Timeout"
+        "title": "Timeout"
       },
       "recipes/extensions": {
         "title": "!!!Webchat Extensions"

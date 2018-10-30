@@ -1,13 +1,13 @@
 ---
 id: timeout
-title: !!!Timeout
+title: Timeout
 ---
 
 Occasionally a user may leave a conversation with your bot part way through the interaction, leaving it in an unwanted state.
 
 This could lead to the bot trying to answer the wrong question when the user returns to the conversation at a later time, which is a bad user experience.
 
-To prevent this Botpress has the ability to set the time-to-live on a session and how often these should be checked. You will find the following options in `botfile.js`.
+To prevent this Botpress has the ability to set the time-to-live on a session and how often these should be checked. You will find the following options in `data/global/botpress.config.json`.
 
 ```js
 dialogs: {
@@ -19,7 +19,11 @@ dialogs: {
 This means that if you started a conversation and then didn't respond for 2 minutes, the bot would set your session as expired.
 When you then resume the conversation, the bot will start from the beginning.
 
-# Performing actions on timeout
+## Receive event when a user timeout
+
+There is a [hook](../getting_started/hooks) that is called before the user's session timeouts.
+
+## Performing actions on timeout
 
 When a user's conversation session expires, you are able to trigger an action by specifying the node's name or by having a dedicated timeout flow.
 
