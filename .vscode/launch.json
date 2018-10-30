@@ -9,8 +9,6 @@
       "cwd": "${workspaceFolder}",
       "protocol": "inspector",
       "env": {
-        "JWT_SECRET": "secret",
-        // "BP_PRODUCTION": "true",
         "BP_MODULES_PATH": "${workspaceFolder}/modules",
         "NODE_PATH": "${workspaceFolder}/out/bp"
       },
