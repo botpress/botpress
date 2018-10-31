@@ -30,6 +30,8 @@ class List extends Component {
     this.setState({ isRenderEmailModalOpen: !this.state.isRenderEmailModalOpen })
   }
 
+  onInputKeyPress = e => e.key === 'Enter' && this.createUser()
+
   onUserNameChange = event => {
     const { error } = Joi.validate(event.target.value, UserNameValidationSchema)
 
@@ -124,6 +126,7 @@ Password: ${payload.tempPassword}`
             <Input
               id="userName"
               onChange={this.onUserNameChange}
+              onKeyPress={this.onInputKeyPress}
               invalid={!!this.state.createUserError}
               value={this.state.userName}
             />

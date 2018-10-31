@@ -63,6 +63,13 @@ class Bots extends Component {
     }
   }
 
+  onInputKeyPress = e => e.key === 'Enter' && this.createBot()
+
+  onBotNameChange = e => {
+    this.setState({ name: e.target.value })
+    this.generateBotId()
+  }
+
   createBot = async () => {
     const botForm = {
       id: this.state.id,
@@ -77,7 +84,8 @@ class Bots extends Component {
     this.toggleCreateBotModal()
   }
 
-  toggleCreateBotModal = () => this.setState({ isCreateBotModalOpen: !this.state.isCreateBotModalOpen })
+  toggleCreateBotModal = () =>
+    this.setState({ isCreateBotModalOpen: !this.state.isCreateBotModalOpen, id: '', name: '' })
 
   generateBotId() {
     const id = this.state.name
@@ -113,8 +121,8 @@ class Bots extends Component {
               type="text"
               id="name"
               value={this.state.name}
-              onChange={event => this.setState({ name: event.target.value })}
-              onBlur={() => this.generateBotId()}
+              onKeyPress={this.onInputKeyPress}
+              onChange={e => this.onBotNameChange(e)}
             />
             {!!this.state.errorCreateBot && <FormFeedback>{this.state.errorCreateBot.message}</FormFeedback>}
           </FormGroup>

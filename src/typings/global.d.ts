@@ -1,7 +1,13 @@
 declare namespace NodeJS {
+  export interface ExtraRequire {
+    addToNodePath(path: string): void
+    getPaths(): string[]
+    overwritePaths(paths: string[])
+  }
+
   export interface Global {
     printErrorDefault(err: Error): void
-    addToNodePath(path: string): void
+    require: ExtraRequire
   }
 
   export interface Process {
@@ -20,4 +26,3 @@ declare namespace NodeJS {
 
 declare var process: NodeJS.Process
 declare var global: NodeJS.Global
-declare var addToNodePath

@@ -3,7 +3,7 @@ id: licensing
 title: Licenses
 ---
 
-Botpress comes in 3 different flavors: Community, Professional and Enterprise.
+Botpress comes in 2 different flavors: Community and Professionnal
 
 ## Community
 
@@ -11,8 +11,4 @@ This edition is completely open-source. You are able to create an unlimited amou
 
 ## Professional
 
-This includes everything.
-
-## Enterprise
-
-Even more.
+Depending on your license, you may add a certain number of users which can access the administration panel.

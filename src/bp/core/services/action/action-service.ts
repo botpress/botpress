@@ -6,10 +6,10 @@ import { NodeVM } from 'vm2'
 
 import { GhostService } from '..'
 import { createForAction } from '../../api'
+import { requireAtPaths } from '../../modules/require'
 import { TYPES } from '../../types'
 
 import { ActionMetadata, extractMetadata } from './metadata'
-import { requireAtPaths } from './require'
 import { VmRunner } from './vm'
 
 @injectable()

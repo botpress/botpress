@@ -39,11 +39,11 @@ export default class ModuleResolver {
     const nodeModuleDir = path.resolve(modulePath, 'node_modules')
 
     if (fs.existsSync(nodeProductionModuleDir)) {
-      addToNodePath(nodeProductionModuleDir)
+      global.require.addToNodePath(nodeProductionModuleDir)
     }
 
     if (fs.existsSync(nodeModuleDir)) {
-      addToNodePath(nodeModuleDir)
+      global.require.addToNodePath(nodeModuleDir)
     }
   }
 

@@ -1,6 +1,6 @@
 ---
 id: deploying
-title: !!Deploying
+title: Deploying
 ---
 
 # 🚀 Deploying our bot
@@ -21,30 +21,18 @@ We're using Heroku because it's fast, easy and free to deploy and manage your bo
 
 ### Preparing the Docker image
 
-Create a file named `Dockerfile` in any directory, and copy your `data` folder in the same place. Example:
-
-```bash
-my-new-bot
-├── Dockerfile
-└── data
-    ├── bots
-    └── global
-```
-
-The Dockerfile content:
+To create a new bot from scratch, simply create a file named `Dockerfile` in any directory. Write this snippet in the file (and replace $VERSION with the latest one in [hub.docker.com](https://hub.docker.com/r/botpress/server/tags/))
 
 ```docker
-FROM botpress/server:11.0.0
-ADD . /botpress
+FROM botpress/server:$VERSION
 WORKDIR /botpress
 CMD ["./bp"]
 ```
 
 Then open a command prompt and type these commands:
 
-This command creates an application with a random name. Remember it.
-
 ```bash
+# This will create a new app with a random name. Copy the name, we'll need it later
 heroku create
 
 # Creating app... done, ⬢ glacial-inlet-29943
@@ -62,9 +50,30 @@ heroku container:push web --app $APP_NAME
 heroku container:release web --app $APP_NAME
 ```
 
+### Deploying with existing data
+
+If you have already built a bot and want to host it on Heroku, add your `data` folder in the same folder as the `Dockerfile`. The structure should look like this:
+
+```bash
+my-new-bot
+├── Dockerfile
+└── data
+    ├── bots
+    └── global
+```
+
+Edit the `Dockerfile` so it looks like this, then deploy it with the same instructions as before:
+
+```docker
+FROM botpress/server:$VERSION
+ADD . /botpress
+WORKDIR /botpress
+CMD ["./bp"]
+```
+
 ## Configuring our app
 
-Your bot is now live at the URL that Heroku just gave you in the last command run. If you open that URL, you'll notice that you are facing a login page. There is no default password but you will be invited to change it the first time you login.
+Your bot is now live at the URL that Heroku just gave you in the last command run. When you open this URL, the bot will ask you to choose a new password.
 
 ### Using Postgres as the database
 
@@ -72,61 +81,21 @@ By default, Botpress uses SQLite as a database for persistence. This doesn't wor
 
 ```bash
 # Get a free Postgres database
-heroku addons:create heroku-postgresql
+heroku addons:create heroku-postgresql --app $APP_NAME
 
 # Tell Botpress to use Postgres
-heroku config:set DATABASE=postgres
+heroku config:set DATABASE=postgres --app $APP_NAME
 ```
 
 And we're done!
 
 ## Website deployment
 
-You can embed the bot on your website with the following snippet. Just make sure to replace `<<HOST>>` by your Heroku URL, e.g. `https://glacial-inlet-45783.herokuapp.com`
+You can embed the bot on your website with the following snippet. Just make sure to replace `$HOST` by your Heroku URL, e.g. `https://glacial-inlet-45783.herokuapp.com`
 
 ```html
-<script src="<<HOST>>/api/botpress-platform-webchat/inject.js"></script>
-<script>window.botpressWebChat.init({ host: '<<HOST>>' })</script>
+<script src="$HOST/api/ext/channel-web/inject.js"></script>
+<script>window.botpressWebChat.init({ host: '$HOST', botId: '$BOTID' })</script>
 ```
 
-For more information about how to use the website widget, be sure to [read through this](https://github.com/botpress/botpress/tree/master/packages/channels/botpress-channel-web).
-
-## Deploying to Self-hosted Server
-
-Rather than Heroku you may choose to deploy to self-hosted server. This gives you more flexibility but may require deeper dev-ops knowledge. Having said that you can start with this simple deployment tutorial.
-
-1. Set up your self-hosted machine and ssh into it. We'll use DigitalOcean's droplet running Ubuntu in our example.
-2. Add nodejs-sources: `sudo curl -sL https://deb.nodesource.com/setup_8.x | bash`
-3. Install nodejs `sudo apt-get install -y nodejs build-essential`
-4. Install npm and pm2 globally `npm i -g npm && npm i -g pm2`
-5. Clone your app `git clone https://github.com/your/bot && cd bot`
-6. Install your app's dependencies: `npm install`
-7. [Setup nginx](https://doesnotscale.com/deploying-node-js-with-pm2-and-nginx/):
-
-   - Install nginx itself `sudo add-apt-repository ppa:nginx/stable && sudo apt-get update && sudo apt-get install nginx`
-   - Update your nginx configuration `sudo nano /etc/nginx/sites-available/bot`:
-
-     ```
-     server {
-       server_name your.domain.com;
-       listen 80;
-
-       location / {
-         proxy_set_header X-Real-IP $remote_addr;
-         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-         proxy_set_header Host $http_host;
-         proxy_set_header X-NginX-Proxy true;
-         proxy_pass http://127.0.0.1:3000;
-         proxy_redirect off;
-       }
-     }
-     ```
-
-   - Point default configuration to ours: `sudo rm /etc/nginx/sites-enabled && sudo ln -s /etc/nginx/sites-available/bot /etc/nginx/sites-enabled`
-   - Start nginx service: `sudo service nginx start`
-
-8. Start your node-server: `pm2 start npm -- start`
-
-At this point your bot should start and be available over the internet at port 80.
-
-We didn't cover here setting up of the Postgres and managing environment variables but there's plenty of tutorials on this topic. Note that since your bot is just a regular node-app most of the tutorials for the latter should work for you.
+For more information about how to use the website widget, be sure to [read through this](https://github.com/botpress/botpress/tree/master/modules/channel-web).
