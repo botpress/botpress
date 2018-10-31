@@ -16,7 +16,7 @@ class ProfileUpdate extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (!prevProps.profile) {
+    if (!prevProps.profile && this.props.profile) {
       this.displayName()
     }
   }

@@ -156,7 +156,7 @@ class Roles extends Component {
         title={`${this.props.team.name}'s roles`}
         helpText="Permissions lower in the list have higher precedence."
         activePage="roles"
-        currentTeam={this.props.team.id}
+        currentTeam={this.props.team}
         mainContent={this.renderBody()}
         sideMenu={this.renderSideMenu()}
       />

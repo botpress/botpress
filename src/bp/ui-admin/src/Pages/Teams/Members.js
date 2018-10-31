@@ -269,7 +269,7 @@ class Members extends Component {
       <SectionLayout
         title={`${this.props.team.name}'s members`}
         activePage="members"
-        currentTeam={this.props.team.id}
+        currentTeam={this.props.team}
         mainContent={this.renderMembers()}
         sideMenu={this.renderSideMenu()}
       />

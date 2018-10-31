@@ -222,7 +222,7 @@ class Bots extends Component {
         title={`${this.props.team.name}'s bots`}
         helpText="This page lists all the bots created under this team."
         activePage="bots"
-        currentTeam={this.props.team.id}
+        currentTeam={this.props.team}
         mainContent={this.renderBots()}
         sideMenu={this.renderCreateNewBotButton()}
       />

@@ -1,4 +1,3 @@
-import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
 
 import {
@@ -40,8 +39,8 @@ class Home extends Component {
       return null
     }
 
-    const { username, fullName} = this.props.profile
-  
+    const { username, fullName } = this.props.profile
+
     return (
       <UncontrolledDropdown nav inNavbar>
         <DropdownToggle nav caret>

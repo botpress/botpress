@@ -11,7 +11,7 @@ import _ from 'lodash'
 class Menu extends Component {
   constructor(props) {
     super(props)
-    this.state = { menu: [] }
+    this.state = { menu: [], currentTeam: undefined }
   }
 
   componentDidMount() {
@@ -26,7 +26,9 @@ class Menu extends Component {
   }
 
   generateMenu() {
-    const { activePage, currentTeamId } = this.props
+    const activePage = this.props.activePage
+    const currentTeamId = this.props.currentTeam && this.props.currentTeam.id
+
     const menu = [
       {
         title: 'Users',
@@ -34,13 +36,14 @@ class Menu extends Component {
         show: true,
         disabled: this.isCommunity(),
         link: '/users',
-        hasBadge: true
+        isPro: true
       },
       {
         title: 'Teams',
         active: activePage === 'teams',
         show: true,
         link: '/teams',
+        subHeader: this.props.currentTeam && this.props.currentTeam.name,
         childs: [
           {
             title: 'Bots',
@@ -53,14 +56,14 @@ class Menu extends Component {
             active: activePage === 'members',
             link: `/teams/${currentTeamId}/members`,
             show: this.checkPermissions('admin.team.members', 'read'),
-            hasBadge: true
+            isPro: true
           },
           {
             title: 'Roles',
             active: activePage === 'roles',
             link: `/teams/${currentTeamId}/roles`,
             show: this.checkPermissions('admin.team.roles', 'read'),
-            hasBadge: true
+            isPro: true
           }
         ]
       }
@@ -70,7 +73,7 @@ class Menu extends Component {
   }
 
   checkPermissions = (resource, operation) => {
-    if (!this.props.currentTeamId || !this.props.currentUserPermissions) {
+    if (!this.props.currentTeam || !this.props.currentUserPermissions) {
       return false
     }
 
@@ -84,10 +87,10 @@ class Menu extends Component {
         <Nav className="bp-menu-aside-level1">
           {filtered.map(section => (
             <NavItem key={section.title} active={section.active}>
-              <NavLink className="btn-sm" tag={Link} disabled={section.disabled || section.active} to={section.link}>
-                {section.title} {this.renderBadge(section.hasBadge)}
+              <NavLink className="btn-sm" tag={Link} disabled={section.disabled} to={section.link}>
+                {section.title} {this.renderBadge(section.isPro)}
               </NavLink>
-              {this.renderSubMenu(section.childs)}
+              {this.renderSubMenu(section.childs, section.subHeader)}
             </NavItem>
           ))}
         </Nav>
@@ -95,21 +98,20 @@ class Menu extends Component {
     )
   }
 
-  renderSubMenu(childs) {
+  renderSubMenu(childs, subHeader) {
     const filtered = _.filter(childs, { show: true })
     return (
       <Nav className="bp-menu-aside-level2">
-        {/* TODO link div below to active bot */}
-        <div className="bp-menu-aside-level2__botname">Welcome bot</div>
+        {subHeader && <div className="bp-menu-aside-level2__botname">{subHeader}</div>}
         {filtered.map(child => (
           <NavItem key={child.title} active={child.active}>
             <NavLink
               className="btn-sm"
               tag={Link}
-              disabled={child.disabled || child.active || this.isCommunity()}
+              disabled={child.disabled || (child.isPro && this.isCommunity())}
               to={child.link}
             >
-              {child.title} {this.renderBadge(child.hasBadge)}
+              {child.title} {this.renderBadge(child.isPro)}
             </NavLink>
           </NavItem>
         ))}

@@ -19,7 +19,7 @@ class Section extends Component {
     return (
       <Fragment>
         <aside className="bp-main-content-sidebar">
-          <Menu activePage={this.props.activePage} currentTeamId={this.props.currentTeam} />
+          <Menu activePage={this.props.activePage} currentTeam={this.props.currentTeam} />
         </aside>
         <div className="bp-main-content-main">
           <Row>
