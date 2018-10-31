@@ -46,5 +46,13 @@ export class LicenseRouter implements CustomRouter {
         return sendSuccess(res, 'License Key updated')
       })
     )
+
+    router.post(
+      '/refresh',
+      this.asyncMiddleware(async (req, res) => {
+        await svc.refreshLicenseKey()
+        return sendSuccess(res, 'License refreshed')
+      })
+    )
   }
 }
