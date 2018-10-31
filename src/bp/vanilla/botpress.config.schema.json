@@ -88,6 +88,10 @@
         ]
       }
     },
+    "licenseKey": {
+      "description": "The license key for the server.  Optionally you can use the BP_LICENSE_KEY env variable.\nYou can purchase a license on https://botpress.io\nFor usage with Botpress Pro/Enterprise.",
+      "type": "string"
+    },
     "allowStats": {
       "type": "boolean"
     }
@@ -99,6 +103,7 @@
     "ghost",
     "httpServer",
     "jwtSecret",
+    "licenseKey",
     "logs",
     "modules"
   ],

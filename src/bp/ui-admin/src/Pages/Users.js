@@ -1,15 +1,14 @@
 import React, { Component } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import Joi from 'joi-browser'
-import displaySections from '../sections'
-import UserList from '../Components/UserList'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { Button, Modal, FormGroup, Input, Label, FormFeedback, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
 import { MdGroupAdd } from 'react-icons/lib/md'
-import SectionLayout from '../Layouts/Section'
-import api from '../../api'
-import { fetchUsers } from '../../modules/user'
+import Joi from 'joi-browser'
+import UserList from './Components/UserList'
+import SectionLayout from './Layouts/Section'
+import api from '../api'
+import { fetchUsers } from '../modules/user'
 
 const UserNameValidationSchema = Joi.string()
   .email()
@@ -179,7 +178,7 @@ Password: ${payload.tempPassword}`
       <SectionLayout
         title="Users"
         helpText="Add or delete user"
-        sections={displaySections('users')}
+        activePage="users"
         mainContent={this.renderAllUsers()}
         sideMenu={this.renderSideMenu()}
       />

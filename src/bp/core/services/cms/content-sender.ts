@@ -18,6 +18,7 @@ export class ContentElementSender {
 
   // TODO: Test if the payload is parsing its template properly
   async sendContent(contentId: string, args: string, state, event) {
+    process.ASSERT_LICENSED()
     contentId = contentId.replace(/^#?/i, '')
 
     const { botId, channel, target, threadId } = event

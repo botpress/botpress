@@ -2,6 +2,7 @@ import { GhostService } from 'core/services'
 import { TYPES } from 'core/types'
 import { FatalError } from 'errors'
 import { inject, injectable } from 'inversify'
+import _ from 'lodash'
 import yn from 'yn'
 
 import { BotConfig } from './bot.config'
@@ -9,6 +10,7 @@ import { BotpressConfig } from './botpress.config'
 
 export interface ConfigProvider {
   getBotpressConfig(): Promise<BotpressConfig>
+  mergeBotpressConfig(partialConfig: Partial<BotpressConfig>): Promise<void>
   getBotConfig(botId: string): Promise<BotConfig>
   setBotConfig(botId: string, config: BotConfig): Promise<void>
 }
@@ -28,8 +30,15 @@ export class GhostConfigProvider implements ConfigProvider {
     config.httpServer.proxyPort = process.env.PORT ? parseInt(process.env.PORT) : config.httpServer.proxyPort
 
     config.ghost.enabled = yn(process.env.GHOST_ENABLED) || config.ghost.enabled
+    config.licenseKey = process.env.BP_LICENSE_KEY || config.licenseKey
 
     return config
+  }
+
+  async mergeBotpressConfig(partialConfig: Partial<BotpressConfig>): Promise<void> {
+    const content = await this.ghostService.global().readFileAsString('/', 'botpress.config.json')
+    const config = _.merge(JSON.parse(content), partialConfig)
+    await this.ghostService.global().upsertFile('/', 'botpress.config.json', JSON.stringify(config, undefined, 2))
   }
 
   async getBotConfig(botId: string): Promise<BotConfig> {

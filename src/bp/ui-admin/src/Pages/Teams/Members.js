@@ -29,7 +29,6 @@ import { fetchPermissions } from '../../modules/user'
 
 import SectionLayout from '../Layouts/Section'
 import LoadingSection from '../Components/LoadingSection'
-import { getMenu } from './menu'
 
 import api from '../../api'
 
@@ -266,16 +265,11 @@ class Members extends Component {
       return this.renderLoading()
     }
 
-    const sections = getMenu({
-      teamId: this.props.team.id,
-      currentPage: 'members',
-      userHasPermission: this.currentUserHasPermission
-    })
-
     return (
       <SectionLayout
         title={`${this.props.team.name}'s members`}
-        sections={sections}
+        activePage="members"
+        currentTeam={this.props.team.id}
         mainContent={this.renderMembers()}
         sideMenu={this.renderSideMenu()}
       />

@@ -1,3 +1,4 @@
+import LicensingService from 'common/licensing-service'
 import { DialogContainerModule } from 'core/services/dialog/dialog.inversify'
 import { ContainerModule, interfaces } from 'inversify'
 
@@ -12,6 +13,7 @@ import { SkillService } from './dialog/skill/service'
 import { GhostContainerModule } from './ghost/ghost.inversify'
 import { HookService } from './hook/hook-service'
 import { KeyValueStore } from './kvs/kvs'
+import CELicensingService from './licensing'
 import { LogsJanitor } from './logs/janitor'
 import { LogsService } from './logs/service'
 import MediaService from './media'
@@ -33,6 +35,11 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
   bind<ActionService>(TYPES.ActionService)
     .to(ActionService)
     .inSingletonScope()
+
+  bind<LicensingService>(TYPES.LicensingService)
+    .to(CELicensingService)
+    .inSingletonScope()
+    .when(() => process.env.EDITION === 'ce')
 
   bind<Queue>(TYPES.IncomingQueue).toDynamicValue((context: interfaces.Context) => {
     return new MemoryQueue('Incoming', context.container.getTagged(TYPES.Logger, 'name', 'IQueue'))

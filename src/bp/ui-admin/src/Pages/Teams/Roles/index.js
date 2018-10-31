@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react'
+import React, { Component } from 'react'
 
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
@@ -14,7 +14,6 @@ import { fetchPermissions } from '../../../modules/user'
 
 import SectionLayout from '../../Layouts/Section'
 import LoadingSection from '../../Components/LoadingSection'
-import { getMenu } from '../menu'
 
 import api from '../../../api'
 
@@ -152,17 +151,12 @@ class Roles extends Component {
       return this.renderLoading()
     }
 
-    const sections = getMenu({
-      teamId: this.props.team.id,
-      currentPage: 'roles',
-      userHasPermission: this.currentUserHasPermission
-    })
-
     return (
       <SectionLayout
         title={`${this.props.team.name}'s roles`}
         helpText="Permissions lower in the list have higher precedence."
-        sections={sections}
+        activePage="roles"
+        currentTeam={this.props.team.id}
         mainContent={this.renderBody()}
         sideMenu={this.renderSideMenu()}
       />

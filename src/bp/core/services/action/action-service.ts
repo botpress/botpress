@@ -103,8 +103,8 @@ export class ScopedActionService {
   }
 
   async runAction(actionName: string, dialogState: any, incomingEvent: any, actionArgs: any): Promise<any> {
+    process.ASSERT_LICENSED()
     this.logger.forBot(this.botId).debug(`Running "${actionName}"`)
-
     const action = await this.findAction(actionName)
     const code = await this.getActionScript(action)
     const api = await createForAction()

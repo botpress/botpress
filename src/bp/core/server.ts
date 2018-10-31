@@ -1,5 +1,6 @@
 import bodyParser from 'body-parser'
 import { AxiosBotConfig, Logger, RouterOptions } from 'botpress/sdk'
+import LicensingService from 'common/licensing-service'
 import errorHandler from 'errorhandler'
 import express from 'express'
 import { createServer, Server } from 'http'
@@ -55,7 +56,8 @@ export default class HTTPServer {
     @inject(TYPES.LogsService) logsService: LogsService,
     @inject(TYPES.NotificationsService) notificationService: NotificationsService,
     @inject(TYPES.SkillService) skillService: SkillService,
-    @inject(TYPES.GhostService) ghostService: GhostService
+    @inject(TYPES.GhostService) ghostService: GhostService,
+    @inject(TYPES.LicensingService) licenseService: LicensingService
   ) {
     this.app = express()
 
@@ -67,7 +69,7 @@ export default class HTTPServer {
 
     this.modulesRouter = new ModulesRouter(moduleLoader, skillService)
     this.authRouter = new AuthRouter(this.logger, this.authService, this.adminService)
-    this.adminRouter = new AdminRouter(this.logger, this.authService, this.adminService)
+    this.adminRouter = new AdminRouter(this.logger, this.authService, this.adminService, licenseService)
     this.shortlinksRouter = new ShortLinksRouter()
     this.botsRouter = new BotsRouter({
       actionService,
