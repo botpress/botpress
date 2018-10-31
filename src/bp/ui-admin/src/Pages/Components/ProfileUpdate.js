@@ -107,30 +107,19 @@ class ProfileUpdate extends Component {
   }
 
   renderSave() {
-    if (!this.state.isDirty) {
-      return null
-    }
-
     return (
-      <Button color="primary" onClick={() => this.updateProfile()}>
-        Save
-      </Button>
+      this.state.isDirty && (
+        <Button color="primary" onClick={() => this.updateProfile()}>
+          Save
+        </Button>
+      )
     )
   }
 
-  render() {
-    if (!this.props.renderAsModal) {
-      return this.renderForm()
-    } else {
-      return this.renderModal()
-    }
-  }
+  render = () => (this.props.renderAsModal ? this.renderModal() : this.renderForm())
 }
 
-const mapStateToProps = state => ({
-  profile: state.user.profile
-})
-
+const mapStateToProps = state => ({ profile: state.user.profile })
 const mapDispatchToProps = dispatch => bindActionCreators({ fetchProfile }, dispatch)
 
 export default connect(

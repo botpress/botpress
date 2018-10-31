@@ -100,18 +100,19 @@ class Menu extends Component {
     return (
       <Navbar className="bp-main-content-sidebar__nav">
         <Nav>
-          {filtered.map(child => (
-            <NavItem>
-              <NavLink
-                className="btn-sm"
-                tag={Link}
-                disabled={child.disabled || child.active || this.isCommunity()}
-                to={child.link}
-              >
-                {child.title}
-              </NavLink>
-            </NavItem>
-          ))}
+          {filtered &&
+            filtered.map(child => (
+              <NavItem>
+                <NavLink
+                  className="btn-sm"
+                  tag={Link}
+                  disabled={child.disabled || child.active || this.isCommunity()}
+                  to={child.link}
+                >
+                  {child.title}
+                </NavLink>
+              </NavItem>
+            ))}
         </Nav>
       </Navbar>
     )
