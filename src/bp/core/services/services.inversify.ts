@@ -39,7 +39,7 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
   bind<LicensingService>(TYPES.LicensingService)
     .to(CELicensingService)
     .inSingletonScope()
-    .when(() => process.env.EDITION === 'ce')
+    .when(() => process.BOTPRESS_EDITION === 'ce')
 
   bind<Queue>(TYPES.IncomingQueue).toDynamicValue((context: interfaces.Context) => {
     return new MemoryQueue('Incoming', context.container.getTagged(TYPES.Logger, 'name', 'IQueue'))

@@ -97,21 +97,19 @@ export class BotsRouter implements CustomRouter {
   private setupRoutes() {
     // Unauthenticated, don't return sensitive info here
     this.router.get('/studio-params', async (req, res) => {
-      // TODO If botId doesn't exist, throw an error
-
       const info = {
         botId: req.params.botId,
         authentication: {
-          enabled: true,
+          enabled: true, // TODO Remove this from UI, there is no more un-authenticated mode
           tokenDuration: ms('6h')
         },
         sendStatistics: true, // TODO Add way to opt out
         showGuidedTour: false, // TODO
         ghostEnabled: this.ghostService.isGhostEnabled,
-        flowEditorDisabled: false, // TODO
+        flowEditorDisabled: !process.IS_LICENSED,
         botpress: {
-          name: 'Botpress Lite', // TODO
-          version: '11.0.0' // TODO
+          name: 'Botpress Server',
+          version: process.BOTPRESS_VERSION
         }
       }
 
@@ -124,30 +122,6 @@ export class BotsRouter implements CustomRouter {
 
       res.send(bot)
     })
-
-    this.router.get(
-      '/middleware',
-      this.checkTokenHeader,
-      this.needPermissions('read', 'bot.middleware'),
-      async (req, res) => {
-        const botId = req.params.botId
-        // const middleware = await this.middlewareService.getMiddlewareForBot(botId)
-
-        res.send([])
-      }
-    )
-
-    this.router.post(
-      '/middleware',
-      this.checkTokenHeader,
-      this.needPermissions('write', 'bot.middleware'),
-      async (req, res) => {
-        const botId = req.params.botId
-        const { middleware } = req.body
-        // await this.middlewareService.setMiddlewareForBot(botId, middleware)
-        // res.send(await this.middlewareService.getMiddlewareForBot(botId))
-      }
-    )
 
     this.router.get(
       '/content/types',
