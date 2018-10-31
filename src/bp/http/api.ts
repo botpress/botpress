@@ -16,7 +16,7 @@ import { TYPES } from '../core/types'
 import { BASE_PATH, extractBotId, getApiBasePath, HttpProxy, noCache } from './common'
 
 @injectable()
-export class ProxyUI {
+export default class ProxyUI {
   public readonly app: express.Express
 
   constructor(

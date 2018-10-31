@@ -1,6 +1,5 @@
 import * as sdk from 'botpress/sdk'
 import { WellKnownFlags } from 'core/sdk/enums'
-import { ProxyUI } from 'http/api'
 import { inject, injectable, tagged } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import { Memoize } from 'lodash-decorators'
@@ -8,6 +7,8 @@ import moment from 'moment'
 import nanoid from 'nanoid'
 import path from 'path'
 import plur from 'plur'
+
+import ProxyUI from '../http/api'
 
 import { createForGlobalHooks } from './api'
 import { BotLoader } from './bot-loader'

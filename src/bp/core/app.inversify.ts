@@ -1,7 +1,8 @@
 import { Logger } from 'botpress/sdk'
-import { ProxyUI } from 'http/api'
 import { Container } from 'inversify'
 import { AppLifecycle } from 'lifecycle'
+
+import ProxyUI from '../http/api'
 
 import { BotpressAPIProvider } from './api'
 import { BotLoader } from './bot-loader'
