@@ -5,9 +5,6 @@
     "previous": "Previous",
     "tagline": "Guides and references for all you need to know about Botpress",
     "docs": {
-      "general/admin": {
-        "title": "Admin Panel"
-      },
       "general/botpressxx": {
         "title": "Migration to Botpress XX"
       },
@@ -30,7 +27,7 @@
         "title": "!!Content"
       },
       "getting_started/deploying": {
-        "title": "!!Deploying"
+        "title": "Deploying"
       },
       "getting_started/flows": {
         "title": "Flows"
@@ -78,7 +75,7 @@
         "title": "Views"
       },
       "recipes/analytics": {
-        "title": "!!Analytics"
+        "title": "Analytics"
       },
       "recipes/apis": {
         "title": "Using external APIs"
@@ -87,10 +84,10 @@
         "title": "!!Broadcasting"
       },
       "recipes/carousel": {
-        "title": "!!Carousel"
+        "title": "Carousel"
       },
       "recipes/databases": {
-        "title": "!!Supported databases"
+        "title": "Supported databases"
       },
       "recipes/embedding": {
         "title": "Embedding the Webchat on a website"
@@ -112,12 +109,6 @@
       },
       "recipes/proactive": {
         "title": "Proactive acting"
-      },
-      "recipes/sanitizing": {
-        "title": "!!!Sanitizing"
-      },
-      "recipes/scheduling": {
-        "title": "!!!Scheduling messages"
       },
       "recipes/shortlinks": {
         "title": "Shortlinks"

@@ -1,6 +1,6 @@
 {
   "docs": {
-    "General": ["general/welcome", "general/philosphy", "general/botpressxx", "general/admin", "general/licensing"],
+    "General": ["general/welcome", "general/philosphy", "general/botpressxx", "general/licensing"],
     "Getting Started": [
       "getting_started/index",
       "getting_started/install",
@@ -36,13 +36,9 @@
       "recipes/hitl",
       "recipes/i18n",
       "recipes/jumps",
-      "recipes/login",
       "recipes/proactive",
-      "recipes/sanitizing",
-      "recipes/scheduling",
       "recipes/shortlinks",
-      "recipes/timeout",
-      "recipes/extensions"
+      "recipes/timeout"
     ]
   }
 }
