@@ -10,7 +10,7 @@ import { DialogEngineV2 } from './engine-v2'
 import { FlowService } from './flow/service'
 import { InstructionProcessor } from './instruction/processor'
 import { SessionService } from './session/service'
-import { flowsStub } from './stubs'
+import { flowsStub, flowWithTimeoutNode, flowWithTimeoutProp, timeoutFlow } from './stubs'
 
 class DialogEngineTest extends DialogEngineV2 {
   async transition(sessionId, event, transitionTo) {
@@ -50,6 +50,12 @@ describe('Dialog Engine', () => {
     sessionService.updateSessionEvent.mockReturnValue(SESSION)
     flowService.loadAll.mockReturnValue(flowsStub)
     logger.forBot.mockReturnValue(logger)
+  }
+
+  const forceLoadFlows = () => {
+    beforeEach(async () => {
+      await dialogEngine.loadFlows(BOT_ID)
+    })
   }
 
   beforeEach(() => {
@@ -103,9 +109,7 @@ describe('Dialog Engine', () => {
   })
 
   describe('transition', () => {
-    beforeEach(async () => {
-      await dialogEngine.loadFlows(BOT_ID)
-    })
+    forceLoadFlows()
 
     it('transition to the start node of the flow', async () => {
       await dialogEngine.transition(SESSION_ID, EVENT, 'other.flow.json')
@@ -150,9 +154,7 @@ describe('Dialog Engine', () => {
   })
 
   describe('jump to', () => {
-    beforeEach(async () => {
-      await dialogEngine.loadFlows(BOT_ID)
-    })
+    forceLoadFlows()
 
     it('creates a session if it doesnt exists', async () => {
       sessionService.getSession.mockReturnValueOnce(undefined)
@@ -172,6 +174,48 @@ describe('Dialog Engine', () => {
 
     it('throws when the flow doesnt exists', async () => {
       expectAsync(dialogEngine.jumpTo(SESSION_ID, EVENT, 'doest exists'), x => x.toThrow())
+    })
+  })
+
+  describe('process timeout', () => {
+    beforeEach(async () => {
+      const session = { ...SESSION, context: { currentFlowName: 'timeout.flow.json', currentNodeName: 'entry' } }
+      sessionService.getSession.mockReturnValue(session)
+      await dialogEngine.loadFlows(BOT_ID)
+    })
+
+    it('checks for a timeout node in the current flow', async () => {
+      const flows = [flowWithTimeoutNode]
+      flowService.loadAll.mockReturnValue(flows)
+
+      await dialogEngine.processTimeout(BOT_ID, SESSION_ID, EVENT)
+      expect(sessionService.updateSession.mock.calls[0][0]).toHaveProperty('context.currentFlowName', 'main.flow.json')
+      expect(sessionService.updateSession.mock.calls[0][0]).toHaveProperty('context.currentNodeName', 'timeout')
+    })
+
+    it('checks for a timeout property in the current flow', async () => {
+      const flows = [flowWithTimeoutProp]
+      flowService.loadAll.mockReturnValue(flows)
+
+      await dialogEngine.processTimeout(BOT_ID, SESSION_ID, EVENT)
+      expect(sessionService.updateSession.mock.calls[0][0]).toHaveProperty('context.currentFlowName', 'main.flow.json')
+      expect(sessionService.updateSession.mock.calls[0][0]).toHaveProperty('context.currentNodeName', 'timeout')
+    })
+
+    it('checks for a timeout.flow.json', async () => {
+      const flows = [...flowsStub, timeoutFlow]
+      flowService.loadAll.mockReturnValue(flows)
+
+      await dialogEngine.processTimeout(BOT_ID, SESSION_ID, EVENT)
+      expect(sessionService.updateSession.mock.calls[0][0]).toHaveProperty(
+        'context.currentFlowName',
+        'timeout.flow.json'
+      )
+      expect(sessionService.updateSession.mock.calls[0][0]).toHaveProperty('context.currentNodeName', 'entry')
+    })
+
+    it('throws when no timeout flows or nodes were found', () => {
+      expectAsync(dialogEngine.processTimeout(BOT_ID, SESSION_ID, EVENT), x => x.toThrow())
     })
   })
 })
