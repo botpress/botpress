@@ -69,6 +69,8 @@ try {
 
   process.VERBOSITY_LEVEL = Number(argv.verbose)
   process.IS_PRODUCTION = argv.production || yn(process.env.BP_PRODUCTION)
+  process.IS_LICENSED = true
+  process.ASSERT_LICENSED = () => {}
 
   require('./bootstrap')
 } catch (err) {
