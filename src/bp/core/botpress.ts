@@ -177,11 +177,11 @@ export class Botpress {
 
   private async startServer() {
     await this.httpServer.start()
-    this.lifecycle.setDone(AppLifecycleEvents.HTTP_SERVER_READY)
   }
 
   private async startProxy() {
     await this.proxyUi.start()
+    this.lifecycle.setDone(AppLifecycleEvents.HTTP_SERVER_READY)
   }
 
   private startRealtime() {

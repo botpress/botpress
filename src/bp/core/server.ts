@@ -133,6 +133,9 @@ export default class HTTPServer {
     if (process.PORT !== config.port) {
       this.logger.warn(`Configured port ${config.port} is already in use. Using next port available: ${process.PORT}`)
       config.port = process.PORT
+      // If both ports are in use, the delay is too short between checks and it reports a false opened port
+      // TODO: Remove when the proxy is removed
+      await Promise.delay(200)
     }
 
     await Promise.fromCallback(callback => {

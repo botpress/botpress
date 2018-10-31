@@ -24,9 +24,15 @@ export default class EditLicense extends Component {
   async changeKey() {
     await api
       .getSecured()
-      .post('api/license/update', {
-        licenseKey: this.state.licenseKey
-      })
+      .post(
+        'api/license/update',
+        {
+          licenseKey: this.state.licenseKey
+        },
+        {
+          timeout: 10 * 1000 // 10s
+        }
+      )
       .then(() => {
         this.props.refresh && this.props.refresh()
         this.toggleModal()
