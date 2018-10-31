@@ -33,7 +33,7 @@ class BuyPage extends React.Component {
   componentDidUpdate(prevProps) {
     if (this.props.licensing !== prevProps.licensing) {
       this.props.licensing.license && this.displayStatus()
-      this.setState({ serverFingerprint: this.props.licensing.fingerprint + 'dd' })
+      this.setState({ serverFingerprint: this.props.licensing.fingerprint })
     }
   }
 
