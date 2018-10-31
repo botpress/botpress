@@ -6,6 +6,7 @@
     border: 2px solid var(--c-neutral);
     padding: 0.5rem;
     margin-bottom: 1rem;
+    display: flex;
 
     &.unlicensed {
       border-color: red;
@@ -45,6 +46,20 @@
 
       .unlicensed & {
         color: red;
+      }
+    }
+
+    &__refresh {
+      margin-left: auto;
+
+      .icon {
+        width: 20px;
+        height: auto;
+        fill: #696969;
+
+        &:hover {
+          fill: #393939;
+        }
       }
     }
   }

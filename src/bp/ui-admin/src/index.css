@@ -9,7 +9,7 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; }
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; }
 
 .container > .navbar {
   padding: 0; }
@@ -6694,7 +6694,8 @@ abbr {
   background-color: var(--c-neutral--light-2);
   border: 2px solid var(--c-neutral);
   padding: 0.5rem;
-  margin-bottom: 1rem; }
+  margin-bottom: 1rem;
+  display: flex; }
   .license-status.unlicensed {
     border-color: red; }
   .license-status.licensed {
@@ -6720,6 +6721,14 @@ abbr {
     margin-left: 25px; }
     .unlicensed .license-status__limits {
       color: red; }
+  .license-status__refresh {
+    margin-left: auto; }
+    .license-status__refresh .icon {
+      width: 20px;
+      height: auto;
+      fill: #696969; }
+      .license-status__refresh .icon:hover {
+        fill: #393939; }
 
 .license-renew {
   display: flex;
