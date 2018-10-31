@@ -1,5 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import { WellKnownFlags } from 'core/sdk/enums'
+import { ProxyUI } from 'http/api'
 import { inject, injectable, tagged } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import { Memoize } from 'lodash-decorators'
@@ -51,6 +52,7 @@ export class Botpress {
     private logger: sdk.Logger,
     @inject(TYPES.GhostService) private ghostService: GhostService,
     @inject(TYPES.HTTPServer) private httpServer: HTTPServer,
+    @inject(TYPES.ProxyUI) private proxyUi: ProxyUI,
     @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
     @inject(TYPES.BotLoader) private botLoader: BotLoader,
     @inject(TYPES.HookService) private hookService: HookService,
@@ -88,6 +90,7 @@ export class Botpress {
     await this.loadModules(options.modules)
     await this.startRealtime()
     await this.startServer()
+    await this.startProxy()
     await this.discoverBots()
 
     this.api = await createForGlobalHooks()
@@ -174,6 +177,10 @@ export class Botpress {
   private async startServer() {
     await this.httpServer.start()
     this.lifecycle.setDone(AppLifecycleEvents.HTTP_SERVER_READY)
+  }
+
+  private async startProxy() {
+    await this.proxyUi.start()
   }
 
   private startRealtime() {
