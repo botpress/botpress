@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import Module from 'module'
 import syspath from 'path'
 
@@ -6,17 +7,31 @@ const nativeBindingsPath = syspath.resolve(syspath.dirname(process.execPath), 'b
 const nativeExtensions = ['node_sqlite3.node', 'fse.node']
 
 function addToNodePath(path) {
-  const currentPath = process.env.NODE_PATH || ''
-
-  process.env.NODE_PATH = currentPath
-    .split(syspath.delimiter)
-    .filter(Boolean)
-    .concat(path)
-    .join(syspath.delimiter)
-  ; (Module as any)._initPaths()
+  overwritePaths(getPaths().concat(path))
 }
 
-global.addToNodePath = addToNodePath
+function reloadPaths() {
+  (Module as any)._initPaths()
+}
+
+function getPaths(): string[] {
+  const currentPath = process.env.NODE_PATH || ''
+  return currentPath
+    .split(syspath.delimiter)
+    .filter(Boolean)
+    .map(x => x.trim())
+}
+
+function overwritePaths(paths: string[]) {
+  process.env.NODE_PATH = _.uniq(paths).join(syspath.delimiter)
+  reloadPaths()
+}
+
+global.require = {
+  addToNodePath,
+  getPaths,
+  overwritePaths
+}
 
 addToNodePath(syspath.resolve(__dirname, '../')) // 'bp/' directory
 

@@ -6,8 +6,8 @@ import path from 'path'
 import { NodeVM } from 'vm2'
 
 import { GhostService } from '..'
+import { requireAtPaths } from '../../modules/require'
 import { TYPES } from '../../types'
-import { requireAtPaths } from '../action/require'
 import { VmRunner } from '../action/vm'
 export namespace Hooks {
   export interface BaseHook {
