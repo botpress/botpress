@@ -80,14 +80,14 @@ class Menu extends Component {
   render() {
     const filtered = _.filter(this.state.menu, { show: true })
     return (
-      <Navbar className="bp-main-content-sidebar__nav">
-        <Nav>
+      <Navbar>
+        <Nav className="bp-menu-aside-level1">
           {filtered.map(section => (
             <NavItem key={section.title} active={section.active}>
               <NavLink className="btn-sm" tag={Link} disabled={section.disabled || section.active} to={section.link}>
                 {section.title} {this.renderBadge(section.hasBadge)}
-                {this.renderSubMenu(section.childs)}
               </NavLink>
+              {this.renderSubMenu(section.childs)}
             </NavItem>
           ))}
         </Nav>
@@ -98,22 +98,22 @@ class Menu extends Component {
   renderSubMenu(childs) {
     const filtered = _.filter(childs, { show: true })
     return (
-      <Navbar className="bp-main-content-sidebar__nav">
-        <Nav>
-          {filtered.map(child => (
-            <NavItem>
-              <NavLink
-                className="btn-sm"
-                tag={Link}
-                disabled={child.disabled || child.active || this.isCommunity()}
-                to={child.link}
-              >
-                {child.title} {this.renderBadge(child.hasBadge)}
-              </NavLink>
-            </NavItem>
-          ))}
-        </Nav>
-      </Navbar>
+      <Nav className="bp-menu-aside-level2">
+        {/* TODO link div below to active bot */}
+        <div className="bp-menu-aside-level2__botname">Welcome bot</div>
+        {filtered.map(child => (
+          <NavItem key={child.title} active={child.active}>
+            <NavLink
+              className="btn-sm"
+              tag={Link}
+              disabled={child.disabled || child.active || this.isCommunity()}
+              to={child.link}
+            >
+              {child.title} {this.renderBadge(child.hasBadge)}
+            </NavLink>
+          </NavItem>
+        ))}
+      </Nav>
     )
   }
 

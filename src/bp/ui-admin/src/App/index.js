@@ -60,32 +60,6 @@ class Home extends Component {
     )
   }
 
-  renderSwitchTeam() {
-    if (!this.props.currentTeam) {
-      return null
-    }
-
-    return (
-      <UncontrolledDropdown nav inNavbar>
-        <DropdownToggle nav caret>
-          Teams
-        </DropdownToggle>
-        <DropdownMenu right>
-          {this.props.teams &&
-            _.take(this.props.teams, 5).map(team => {
-              return (
-                <DropdownItem key={team.id} onClick={() => this.props.history.push(`/teams/${team.id}`)}>
-                  {team.name}
-                </DropdownItem>
-              )
-            })}
-          <DropdownItem divider />
-          <DropdownItem onClick={() => this.props.history.push('/teams')}>See all</DropdownItem>
-        </DropdownMenu>
-      </UncontrolledDropdown>
-    )
-  }
-
   render() {
     return (
       <Fragment>
@@ -99,7 +73,6 @@ class Home extends Component {
             <NavbarToggler onClick={this.toggleMenu} />
             <Collapse isOpen={this.state.isMenuOpen} navbar>
               <Nav className="ml-auto" navbar>
-                {this.renderSwitchTeam()}
                 {this.renderProfileMenu()}
               </Nav>
             </Collapse>

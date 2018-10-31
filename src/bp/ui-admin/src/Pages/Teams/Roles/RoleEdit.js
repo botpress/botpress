@@ -347,7 +347,7 @@ export default class Role extends Component {
             <label>
               <strong>Role Permissions</strong>
             </label>
-            <div className="form-control">{this.renderAddRule()}</div>
+            {this.renderAddRule()}
           </FormGroup>
           {role.rules.map((rule, i) => (
             <Rule
