@@ -73,7 +73,7 @@ class BuyPage extends React.Component {
     return (
       <Fragment>
         <Row>
-          <Col sm="12" md="4">
+          <Col sm="12" md="5">
             {this.renderLicenseStatus()}
             <div className="license-renew">
               <EditLicense refresh={this.props.fetchLicensing} />
@@ -83,7 +83,7 @@ class BuyPage extends React.Component {
               </Button>
             </div>
           </Col>
-          <Col sm={{ size: '7', offset: 1 }}>
+          <Col sm="12" md="7">
             <div className="license-infos license-infos--fingerprint">
               <strong className="license-infos__label">Server fingerprint:</strong>
               <code>{this.state.serverFingerprint}</code>
