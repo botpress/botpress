@@ -39,12 +39,12 @@ class List extends Component {
   state = { isCreateTeamModalOpen: false, canCreateTeam: false, teamName: '', createTeamError: null }
 
   componentDidMount() {
-    this.props.fetchTeams()
+    !this.props.teams && this.props.fetchTeams()
   }
 
   componentDidUpdate(prevProps) {
-    if (!prevProps.teams) {
-      this.props.fetchTeams()
+    if (prevProps.teams != this.props.teams) {
+      !this.props.teams && this.props.fetchTeams()
     }
   }
 

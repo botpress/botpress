@@ -76,7 +76,7 @@ class BuyPage extends React.Component {
           <Col sm="12" md="4">
             {this.renderLicenseStatus()}
             <div className="license-renew">
-              <EditLicense refresh={this.props.fetchLicense} />
+              <EditLicense refresh={this.props.fetchLicensing} />
               <span className="license__or">or</span>
               <Button size="sm" color="link" onClick={() => this.buyLicense()}>
                 Buy license

@@ -31,11 +31,15 @@ class Menu extends Component {
       {
         title: 'Users',
         active: activePage === 'users',
-        link: '/users'
+        show: true,
+        disabled: this.isCommunity(),
+        link: '/users',
+        hasBadge: true
       },
       {
         title: 'Teams',
         active: activePage === 'teams',
+        show: true,
         link: '/teams',
         childs: [
           {
@@ -74,18 +78,14 @@ class Menu extends Component {
   }
 
   render() {
+    const filtered = _.filter(this.state.menu, { show: true })
     return (
       <Navbar className="bp-main-content-sidebar__nav">
         <Nav>
-          {this.state.menu.map(section => (
+          {filtered.map(section => (
             <NavItem key={section.title} active={section.active}>
-              <NavLink
-                className="btn-sm"
-                tag={Link}
-                disabled={section.disabled || section.active || this.isCommunity()}
-                to={section.link}
-              >
-                {section.title} {section.hasBadge && this.renderBadge(this.isCommunity())}
+              <NavLink className="btn-sm" tag={Link} disabled={section.disabled || section.active} to={section.link}>
+                {section.title} {this.renderBadge(section.hasBadge)}
                 {this.renderSubMenu(section.childs)}
               </NavLink>
             </NavItem>
@@ -100,30 +100,30 @@ class Menu extends Component {
     return (
       <Navbar className="bp-main-content-sidebar__nav">
         <Nav>
-          {filtered &&
-            filtered.map(child => (
-              <NavItem>
-                <NavLink
-                  className="btn-sm"
-                  tag={Link}
-                  disabled={child.disabled || child.active || this.isCommunity()}
-                  to={child.link}
-                >
-                  {child.title}
-                </NavLink>
-              </NavItem>
-            ))}
+          {filtered.map(child => (
+            <NavItem>
+              <NavLink
+                className="btn-sm"
+                tag={Link}
+                disabled={child.disabled || child.active || this.isCommunity()}
+                to={child.link}
+              >
+                {child.title} {this.renderBadge(child.hasBadge)}
+              </NavLink>
+            </NavItem>
+          ))}
         </Nav>
       </Navbar>
     )
   }
 
-  renderBadge = isDisplayed => (isDisplayed ? <Badge color="primary">Pro</Badge> : null)
+  renderBadge = isBadge => (isBadge && this.isCommunity() ? <Badge color="primary">Pro</Badge> : null)
   isCommunity = () => this.props.license && this.props.license.edition === 'ce'
 }
 
 const mapStateToProps = state => ({
   teams: state.teams.items,
+  license: state.license.license,
   currentUserPermissions: state.user.permissions[state.teams.teamId]
 })
 
