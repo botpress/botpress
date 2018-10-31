@@ -52,6 +52,8 @@ class List extends Component {
     this.setState({ isCreateTeamModalOpen: !this.state.isCreateTeamModalOpen })
   }
 
+  onInputKeyPress = e => e.key === 'Enter' && this.createTeam()
+
   onTeamNameChange = event => {
     const { error } = Joi.validate(event.target.value, TeamNameValidationSchema)
 
@@ -80,6 +82,7 @@ class List extends Component {
             <Input
               id="teamName"
               onChange={this.onTeamNameChange}
+              onKeyPress={this.onInputKeyPress}
               invalid={!!this.state.createTeamError}
               value={this.state.teamName}
             />
