@@ -13,7 +13,6 @@ import ModuleResolver from 'core/modules/resolver'
 import os from 'os'
 import { FatalError } from './errors'
 
-const { start: startProxy } = require('./http/api')
 const editions = { ce: 'Community', pro: 'Professional', ee: 'Enterprise' }
 
 async function start() {

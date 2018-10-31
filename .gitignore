@@ -42,6 +42,7 @@ node_modules
 /tmp
 test-report.html
 metadata.json
+edition.json
 
 # Botpress docs
 /docs/reference

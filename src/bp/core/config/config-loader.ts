@@ -6,7 +6,7 @@ import _ from 'lodash'
 import yn from 'yn'
 
 import { BotConfig } from './bot.config'
-import { BotpressConfig } from './botpress.config'
+import { BotpressConfig, DatabaseType } from './botpress.config'
 
 export interface ConfigProvider {
   getBotpressConfig(): Promise<BotpressConfig>
@@ -28,6 +28,7 @@ export class GhostConfigProvider implements ConfigProvider {
     const host = process.env.BP_HOST || config.httpServer.host
     config.httpServer.host = host === 'localhost' ? undefined : host
     config.httpServer.proxyPort = process.env.PORT ? parseInt(process.env.PORT) : config.httpServer.proxyPort
+    config.database.type = process.env.DATABASE ? <DatabaseType>process.env.DATABASE : config.database.type
 
     config.ghost.enabled = yn(process.env.GHOST_ENABLED) || config.ghost.enabled
     config.licenseKey = process.env.BP_LICENSE_KEY || config.licenseKey
