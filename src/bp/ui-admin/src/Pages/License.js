@@ -66,10 +66,6 @@ class BuyPage extends React.Component {
     )
   }
 
-  buyLicense() {
-    window.location = 'http://botpress.io'
-  }
-
   renderFingerprintStatus() {
     const { serverFingerprint, licenseFingerprint } = this.state
     return (
@@ -116,7 +112,7 @@ class BuyPage extends React.Component {
             <div className="license-renew">
               <EditLicense refresh={this.props.fetchLicensing} />
               <span className="license__or">or</span>
-              <Button size="sm" color="link" onClick={() => this.buyLicense()}>
+              <Button size="sm" color="link" href="http://botpress.io/my-account/buy" target="/blank">
                 Buy license
               </Button>
             </div>
