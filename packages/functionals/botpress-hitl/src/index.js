@@ -28,7 +28,7 @@ const incomingMiddleware = async (event, next) => {
 
   const message = await db.appendMessageToSession(event, session.id, 'in')
   event.bp.events.emit('hitl.message', message)
-  if ((!!session.paused || config.paused) && _.includes(['text', 'message'], event.type)) {
+  if ((!!session.paused || config.paused) && _.includes(['text', 'message', 'quick_reply'], event.type)) {
     event.bp.logger.debug('[hitl] Session paused, message swallowed:', event.text)
     // the session or bot is paused, swallow the message
     return
