@@ -157,7 +157,7 @@ export default class HTTPServer {
     const config = botpressConfig.httpServer
 
     return {
-      baseURL: `http://${config.host || 'localhost'}:${config.proxyPort}`,
+      baseURL: `http://${config.host || 'localhost'}:${process.PROXY_PORT}`,
       headers: {
         'X-Botpress-Bot-Id': botId,
         'X-Botpress-App': 'Studio'
