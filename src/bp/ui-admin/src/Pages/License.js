@@ -1,14 +1,13 @@
 import React, { Fragment } from 'react'
 
-import SectionLayout from '../Layouts/Section'
-import LoadingSection from '../Components/LoadingSection'
-import LicensePolicies from '../Components/LicensePolicies'
-import EditLicense from '../Components/EditLicense'
+import SectionLayout from './Layouts/Section'
+import LoadingSection from './Components/LoadingSection'
+import LicensePolicies from './Components/LicensePolicies'
+import EditLicense from './Components/EditLicense'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-import displaySections from '../sections'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { fetchLicense } from '../../modules/license'
+import { fetchLicensing } from '../modules/license'
 import { Button, Col, Row, Tooltip } from 'reactstrap'
 import moment from 'moment'
 
@@ -28,11 +27,11 @@ class BuyPage extends React.Component {
   }
 
   componentDidMount() {
-    this.props.fetchLicense()
+    this.props.fetchLicensing()
   }
 
   componentDidUpdate(prevProps) {
-    if (this.props.licensing != prevProps.licensing && this.props.licensing.license) {
+    if (this.props.licensing !== prevProps.licensing && this.props.licensing.license) {
       this.displayStatus()
     }
   }
@@ -167,7 +166,7 @@ class BuyPage extends React.Component {
     return (
       <SectionLayout
         title="License Status"
-        sections={displaySections('license')}
+        activePage="license"
         mainContent={this.state.loading ? renderLoading() : this.renderBody()}
       />
     )
@@ -175,7 +174,7 @@ class BuyPage extends React.Component {
 }
 
 const mapStateToProps = state => ({ loading: state.license.loading, licensing: state.license.licensing })
-const mapDispatchToProps = dispatch => bindActionCreators({ fetchLicense }, dispatch)
+const mapDispatchToProps = dispatch => bindActionCreators({ fetchLicensing }, dispatch)
 
 export default connect(
   mapStateToProps,

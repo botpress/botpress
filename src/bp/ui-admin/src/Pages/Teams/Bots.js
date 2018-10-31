@@ -5,7 +5,6 @@ import { MdCreate } from 'react-icons/lib/md'
 
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { checkRule } from '@botpress/util-roles'
 
 import jdenticon from 'jdenticon'
 
@@ -29,12 +28,11 @@ import {
 
 import _ from 'lodash'
 
-import { fetchTeamData, fetchLicense } from '../../modules/teams'
+import { fetchTeamData } from '../../modules/teams'
 import { fetchPermissions } from '../../modules/user'
 
 import SectionLayout from '../Layouts/Section'
 import LoadingSection from '../Components/LoadingSection'
-import { getMenu } from './menu'
 
 import api from '../../api'
 
@@ -52,7 +50,6 @@ class Bots extends Component {
   }
 
   componentDidMount() {
-    this.props.fetchLicense()
     this.props.fetchTeamData(this.props.teamId, { bots: true })
     this.props.fetchPermissions(this.props.teamId)
   }
@@ -69,7 +66,7 @@ class Bots extends Component {
   createBot = async () => {
     const botForm = {
       id: this.state.id,
-      name: this.state.name,
+      name: this.state.name
     }
 
     await api
@@ -136,13 +133,6 @@ class Bots extends Component {
       await api.getSecured().delete(`/api/teams/${this.props.teamId}/bots/${botId}`)
       await this.props.fetchTeamData(this.props.teamId)
     }
-  }
-
-  currentUserHasPermission = (resource, operation) => {
-    if (!this.props.currentUserPermissions) {
-      return false
-    }
-    return checkRule(this.props.currentUserPermissions, operation, resource)
   }
 
   renderEmptyBots() {
@@ -227,18 +217,12 @@ class Bots extends Component {
       jdenticon()
     }, 10)
 
-    const sections = getMenu({
-      teamId: this.props.team.id,
-      currentPage: 'bots',
-      userHasPermission: this.currentUserHasPermission
-    })
-
     return (
       <SectionLayout
         title={`${this.props.team.name}'s bots`}
         helpText="This page lists all the bots created under this team."
-        sections={sections}
-        license={this.props.license}
+        activePage="bots"
+        currentTeam={this.props.team.id}
         mainContent={this.renderBots()}
         sideMenu={this.renderCreateNewBotButton()}
       />
@@ -250,17 +234,14 @@ const mapStateToProps = state => ({
   bots: state.teams.bots,
   teamId: state.teams.teamId,
   team: state.teams.team,
-  loading: state.teams.loadingTeam,
-  currentUserPermissions: state.user.permissions[state.teams.teamId],
-  license: state.teams.license
+  loading: state.teams.loadingTeam
 })
 
 const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
       fetchTeamData,
-      fetchPermissions,
-      fetchLicense
+      fetchPermissions
     },
     dispatch
   )

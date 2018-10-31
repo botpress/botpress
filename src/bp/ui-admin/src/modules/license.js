@@ -1,25 +1,24 @@
 import api from '../api'
 
-export const FETCH_LICENSE_REQUESTED = 'user/FETCH_LICENSE_REQUESTED'
-export const FETCH_LICENSE_RECEIVED = 'user/FETCH_LICENSE_RECEIVED'
+export const FETCH_LICENSE_RECEIVED = 'license/FETCH_LICENSE_RECEIVED'
+export const FETCH_LICENSING_RECEIVED = 'license/FETCH_LICENSING_RECEIVED'
 
 const initialState = {
-  loading: false,
+  license: null,
   licensing: null
 }
 
 export default (state = initialState, action) => {
   switch (action.type) {
-    case FETCH_LICENSE_REQUESTED:
-      return {
-        ...state,
-        loading: true
-      }
-
     case FETCH_LICENSE_RECEIVED:
       return {
         ...state,
-        loading: false,
+        license: action.license
+      }
+
+    case FETCH_LICENSING_RECEIVED:
+      return {
+        ...state,
         licensing: action.licensing
       }
 
@@ -30,12 +29,21 @@ export default (state = initialState, action) => {
 
 export const fetchLicense = () => {
   return async dispatch => {
-    dispatch({ type: FETCH_LICENSE_REQUESTED })
+    const license = await api
+      .getAnonymous()
+      .get('/api/license')
+      .then(({ data }) => data)
 
+    dispatch({ type: FETCH_LICENSE_RECEIVED, license })
+  }
+}
+
+export const fetchLicensing = () => {
+  return async dispatch => {
     const { data } = await api.getSecured().get(`/api/license/status`)
 
     dispatch({
-      type: FETCH_LICENSE_RECEIVED,
+      type: FETCH_LICENSING_RECEIVED,
       licensing: data.payload
     })
   }

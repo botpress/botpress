@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import Joi from 'joi-browser'
-import displaySections from '../sections'
 
 import {
   ListGroup,
@@ -143,7 +142,7 @@ class List extends Component {
         helpText="These are the teams you are a member of.
           You can join an existing team by asking someone you know, or you can create your own team and invite others to
           collaborate with you."
-        sections={displaySections('teams')}
+        activePage="teams"
         mainContent={!this.props.teams || this.props.loading ? renderLoading() : this.renderAllTeams()}
         sideMenu={this.renderSideMenu()}
       />

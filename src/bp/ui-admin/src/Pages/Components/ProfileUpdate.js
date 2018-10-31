@@ -7,7 +7,7 @@ import api from '../../api'
 import { fetchProfile } from '../../modules/user'
 
 class ProfileUpdate extends Component {
-  state = { isInit: false, forceClose: false, firstName: '', lastName: '' }
+  state = { isInit: false, forceClose: false, firstName: '', lastName: '', isDirty: false }
 
   componentDidMount() {
     if (this.props.profile) {
@@ -42,7 +42,8 @@ class ProfileUpdate extends Component {
 
   onInputChanged = event => {
     this.setState({
-      [event.target.name]: event.target.value
+      [event.target.name]: event.target.value,
+      isDirty: true
     })
   }
 
@@ -106,6 +107,10 @@ class ProfileUpdate extends Component {
   }
 
   renderSave() {
+    if (!this.state.isDirty) {
+      return null
+    }
+
     return (
       <Button color="primary" onClick={() => this.updateProfile()}>
         Save

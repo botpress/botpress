@@ -1,10 +1,8 @@
 import React, { Component } from 'react'
+import { Row, Col } from 'reactstrap'
 
 import SectionLayout from '../Layouts/Section'
 import LoadingSection from '../Components/LoadingSection'
-
-import { Row, Col } from 'reactstrap'
-import displaySections from '../sections'
 import ChangePassword from '../Components/ChangePassword'
 import ProfileUpdate from '../Components/ProfileUpdate'
 
@@ -31,7 +29,7 @@ class Me extends Component {
     return (
       <SectionLayout
         title="Profile"
-        sections={displaySections('profile')}
+        activePage="profile"
         mainContent={this.state.loading ? renderLoading() : this.renderBody()}
       />
     )
