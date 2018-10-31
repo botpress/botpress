@@ -55,7 +55,7 @@ export class DialogEngineV2 {
 
     // Property type skill-call means that the node points to a subflow.
     // We skip this step if we're exiting from a subflow, otherwise it will result in an infinite loop.
-    if (currentNode.type === 'skill-call' && !this._exitingSubflow(session)) {
+    if (_.get(currentNode, 'type') === 'skill-call' && !this._exitingSubflow(session)) {
       await this._goToSubflow(botId, event, session, currentNode, currentFlow)
       return
     }
@@ -189,7 +189,7 @@ export class DialogEngineV2 {
     return this.sessionService.updateSessionEvent(sessionId, event)
   }
 
-  private async _transition(sessionId, event, transitionTo) {
+  protected async _transition(sessionId, event, transitionTo) {
     const session = await this.sessionService.getSession(sessionId)
     let context = session.context
 
@@ -282,7 +282,7 @@ export class DialogEngineV2 {
     await this.processEvent(session.id, event)
   }
 
-  private async _loadFlows(botId: string) {
+  protected async _loadFlows(botId: string) {
     const flows = await this.flowService.loadAll(botId)
     this._flowsByBot.set(botId, flows)
   }

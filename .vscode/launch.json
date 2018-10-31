@@ -4,12 +4,30 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Debug Launcher-CE",
+      "name": "Debug App",
       "program": "${workspaceFolder}/out/bp/index.js",
       "cwd": "${workspaceFolder}",
       "protocol": "inspector",
       "env": {
         "BP_PRODUCTION": "true",
+        "BP_MODULES_PATH": "${workspaceFolder}/modules",
+        "NODE_PATH": "${workspaceFolder}/out/bp"
+      },
+      "outFiles": ["${workspaceFolder}/out/**/*.js"],
+      "console": "integratedTerminal",
+      "sourceMaps": true,
+      "autoAttachChildProcesses": true
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Tests",
+      "program": "${workspaceRoot}/node_modules/.bin/jest",
+      "args": [
+        "-i" // Run in band
+      ],
+      "env": {
+        "EDITION": "ce",
         "BP_MODULES_PATH": "${workspaceFolder}/modules",
         "NODE_PATH": "${workspaceFolder}/out/bp"
       },
