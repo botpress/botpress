@@ -9,10 +9,15 @@ if (process.platform === 'win32') {
   bin = 'ft_osx'
 }
 
-const BINPATH = join(__dirname, bin)
+let BINPATH = join(__dirname, bin)
 
 export default class FTWrapper {
   binpath = BINPATH
+
+  static changeBinPath(newPath: string) {
+    BINPATH = newPath
+  }
+
   static supervised(
     trainingSetPath: string,
     modelOutPath: string,

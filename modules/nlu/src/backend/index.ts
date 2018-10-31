@@ -5,6 +5,7 @@ import fs from 'fs'
 import path from 'path'
 
 import api from './api'
+import FTWrapper from './fasttext/fasttext.wrapper'
 import ScopedNlu from './scopednlu'
 import { initBot, initModule } from './setup'
 
@@ -14,6 +15,11 @@ const botScopedNlu: Map<string, ScopedNlu> = new Map<string, ScopedNlu>()
 
 const onServerStarted = async (bp: SDK) => {
   await initModule(bp, botScopedNlu)
+
+  const config = await bp.config.getModuleConfig('nlu')
+  if (config.fastTextPath) {
+    FTWrapper.changeBinPath(config.fastTextPath)
+  }
 }
 
 const onServerReady = async (bp: SDK) => {
@@ -58,6 +64,7 @@ const config: sdk.ModuleConfig = {
   intentsDir: { type: 'string', required: true, default: './intents', env: 'NLU_INTENTS_DIR' },
   entitiesDir: { type: 'string', required: true, default: './entities', env: 'NLU_ENTITIES_DIR' },
   modelsDir: { type: 'string', required: true, default: './models', env: 'NLU_MODELS_DIR' },
+  fastTextPath: { type: 'string', required: false, default: '', env: 'NLU_FASTTEXT_PATH' },
 
   // Provider config
   provider: { type: 'string', required: true, default: 'native', env: 'NLU_PROVIDER' },

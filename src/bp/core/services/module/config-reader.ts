@@ -174,11 +174,15 @@ export default class ConfigReader {
     }
 
     return _.mapValues(config, (value, key) => {
-      const { type } = options[key]
-      if (transformers[type]) {
-        return transformers[type](value)
+      if (options[key] !== undefined) {
+        const { type } = options[key]
+        if (transformers[type]) {
+          return transformers[type](value)
+        } else {
+          return value
+        }
       } else {
-        return value
+        this.logger.warn(`Invalid configuration "${key}" found in module ${moduleId}`)
       }
     })
   }
