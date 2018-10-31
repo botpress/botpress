@@ -25,12 +25,13 @@ export class LicenseRouter implements CustomRouter {
       '/status',
       this.asyncMiddleware(async (req, res) => {
         const status = await svc.getLicenseStatus()
+        const fingerprint = await svc.getFingerprint('machine_v1')
         let info: LicenseInfo | undefined
         try {
           info = await svc.getLicenseInfo()
         } catch (err) {}
 
-        return sendSuccess(res, 'License status', { license: info, ...status })
+        return sendSuccess(res, 'License status', { fingerprint, license: info, ...status })
       })
     )
 

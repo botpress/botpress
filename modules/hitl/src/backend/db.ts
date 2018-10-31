@@ -86,7 +86,7 @@ export default class HitlDb {
       .then(migrateTable)
   }
 
-  createUserSession(event) {
+  createUserSession = async event => {
     let profileUrl = undefined
     let full_name =
       '#' +
@@ -111,15 +111,9 @@ export default class HitlDb {
       paused_trigger: undefined
     }
 
-    return this.knex
-      .insertAndRetrieve('hitl_sessions', session)
-      .then(([id]) =>
-        this.knex('hitl_sessions')
-          .where({ id })
-          .then()
-          .get(0)
-      )
-      .then(dbSession => ({ is_new_session: true, ...dbSession }))
+    const dbSession = await this.knex.insertAndRetrieve('hitl_sessions', session, '*')
+
+    return { is_new_session: true, ...dbSession }
   }
 
   async getUserSession(event) {

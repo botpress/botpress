@@ -8,7 +8,7 @@ import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { fetchLicensing } from '../modules/license'
-import { Button, Col, Row, Tooltip } from 'reactstrap'
+import { Button, Col, Row, Tooltip, Alert } from 'reactstrap'
 import moment from 'moment'
 
 class BuyPage extends React.Component {
@@ -31,8 +31,9 @@ class BuyPage extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (this.props.licensing !== prevProps.licensing && this.props.licensing.license) {
-      this.displayStatus()
+    if (this.props.licensing !== prevProps.licensing) {
+      this.props.licensing.license && this.displayStatus()
+      this.setState({ serverFingerprint: this.props.licensing.fingerprint + 'dd' })
     }
   }
 
@@ -43,7 +44,7 @@ class BuyPage extends React.Component {
     this.setState({
       isLicensed: status === 'licensed',
       isUnderLimits: status !== 'breached',
-      serverFingerprint: fingerprint,
+      licenseFingerprint: fingerprint,
       renewDate: moment(paidUntil).format('lll'),
       supportLevel: support
     })
@@ -69,6 +70,43 @@ class BuyPage extends React.Component {
     window.location = 'http://botpress.io'
   }
 
+  renderFingerprintStatus() {
+    const { serverFingerprint, licenseFingerprint } = this.state
+    return (
+      <Fragment>
+        <div className="license-infos license-infos--fingerprint">
+          <strong className="license-infos__label">Server fingerprint:</strong>
+          <code>{serverFingerprint}</code>
+          <CopyToClipboard text={serverFingerprint}>
+            <Button color="link" size="sm" className="license-infos__icon">
+              <svg href="#" id="TooltipCopy" height="15" viewBox="0 0 16 20" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M3.996 0H16v16h-4.004v4H0V4h3.996V0zM6 2v12h8V2H6zM2 6v12h8v-1.997H3.998V6H2z"
+                  fill="#4A4A4A"
+                  fillRule="evenodd"
+                />
+              </svg>
+            </Button>
+          </CopyToClipboard>
+          <Tooltip
+            placement="right"
+            isOpen={this.state.tooltipCopy}
+            target="TooltipCopy"
+            toggle={() => {
+              this.setState({ tooltipCopy: !this.state.tooltipCopy })
+            }}
+          >
+            Copy to clipboard
+          </Tooltip>
+        </div>
+        {licenseFingerprint !== undefined &&
+          serverFingerprint !== licenseFingerprint && (
+            <Alert color="danger">Your machine fingerprint doesn't match your license fingerprint.</Alert>
+          )}
+      </Fragment>
+    )
+  }
+
   renderBody() {
     return (
       <Fragment>
@@ -84,31 +122,7 @@ class BuyPage extends React.Component {
             </div>
           </Col>
           <Col sm="12" md="7">
-            <div className="license-infos license-infos--fingerprint">
-              <strong className="license-infos__label">Server fingerprint:</strong>
-              <code>{this.state.serverFingerprint}</code>
-              <CopyToClipboard text={this.state.serverFingerprint}>
-                <Button color="link" size="sm" className="license-infos__icon">
-                  <svg href="#" id="TooltipCopy" height="15" viewBox="0 0 16 20" xmlns="http://www.w3.org/2000/svg">
-                    <path
-                      d="M3.996 0H16v16h-4.004v4H0V4h3.996V0zM6 2v12h8V2H6zM2 6v12h8v-1.997H3.998V6H2z"
-                      fill="#4A4A4A"
-                      fillRule="evenodd"
-                    />
-                  </svg>
-                </Button>
-              </CopyToClipboard>
-              <Tooltip
-                placement="right"
-                isOpen={this.state.tooltipCopy}
-                target="TooltipCopy"
-                toggle={() => {
-                  this.setState({ tooltipCopy: !this.state.tooltipCopy })
-                }}
-              >
-                Copy to clipboard
-              </Tooltip>
-            </div>
+            {this.renderFingerprintStatus()}
             <hr />
             <div className="license-infos">
               <strong className="license-infos__label">Renew date:</strong>
