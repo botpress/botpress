@@ -30,55 +30,53 @@ export default class Analytics {
     await this._task.stop(this.botId)
   }
 
-  public getAnalyticsMetadata() {
-    return this._stats.getLastRun().then(ts => {
-      const run = moment(new Date(ts))
-      const then = moment(new Date()).subtract(30, 'minutes')
-      const elasped = moment.duration(then.diff(run)).humanize()
-      return { lastUpdated: elasped, size: this._getDBSize() }
-    })
+  public async getAnalyticsMetadata() {
+    const timestamp = await this._stats.getLastRun()
+    const lastRun = moment(timestamp)
+    const elasped = moment.duration(moment().diff(lastRun)).humanize()
+    return { lastUpdated: elasped, size: this._getDBSize() }
   }
 
   private async _updateData() {
-    this.bp.logger.forBot(this.botId).debug('Recompiling analytics')
+    this.bp.logger.forBot(this.botId).debug('Recompiling analytics ...')
 
     const totalUsers = await this._stats.getTotalUsers()
-    await this._savePartialData(this.botId, 'totalUsers', totalUsers || 0)
-
     const activeUsers = await this._stats.getDailyActiveUsers()
-    await this._savePartialData(this.botId, 'activeUsers', activeUsers)
-
-    const interactionRanges = await this._stats.getInteractionRanges()
-    await this._savePartialData(this.botId, 'interactionsRange', interactionRanges)
-
+    const interactionsRange = await this._stats.getInteractionRanges()
     const avgInteractions = await this._stats.getAverageInteractions()
     const nbUsers = await this._stats.getNumberOfUsers()
-    await this._savePartialData(this.botId, 'fictiveSpecificMetrics', {
-      numberOfInteractionInAverage: avgInteractions,
-      numberOfUsersToday: nbUsers.today,
-      numberOfUsersYesterday: nbUsers.yesterday,
-      numberOfUsersThisWeek: nbUsers.week
-    })
-
     const rentention = await this._stats.usersRetention()
-    await this._savePartialData(this.botId, 'retentionHeatMap', rentention)
-
     const busyHours = await this._stats.getBusyHours()
-    await this._savePartialData(this.botId, 'busyHoursHeatMap', busyHours)
+
+    await this._savePartialData(this.botId, 'analytics', {
+      totalUsers: totalUsers || 0,
+      activeUsers,
+      interactionsRange: interactionsRange,
+      fictiveSpecificMetrics: {
+        numberOfInteractionInAverage: avgInteractions,
+        numberOfUsersToday: nbUsers.today,
+        numberOfUsersYesterday: nbUsers.yesterday,
+        numberOfUsersThisWeek: nbUsers.week
+      },
+      retentionHeatMap: rentention,
+      busyHoursHeatMap: busyHours
+    })
     await this._stats.setLastRun()
+    this.bp.logger.forBot(this.botId).debug('Done.')
   }
 
   public async getChartsGraphData() {
+    const analytics = await this.bp.kvs.get(this.botId, 'analytics')
     return {
       loading: false,
       noData: false,
-      totalUsersChartData: (await this.bp.kvs.get(this.botId, 'totalUsers')) || [],
-      activeUsersChartData: (await this.bp.kvs.get(this.botId, 'activeUsers')) || [],
-      genderUsageChartData: (await this.bp.kvs.get(this.botId, 'genderUsage')) || [],
-      typicalConversationLengthInADay: (await this.bp.kvs.get(this.botId, 'interactionsRange')) || [],
-      specificMetricsForLastDays: (await this.bp.kvs.get(this.botId, 'fictiveSpecificMetrics')) || {},
-      retentionHeatMap: (await this.bp.kvs.get(this.botId, 'retentionHeatMap')) || [],
-      busyHoursHeatMap: (await this.bp.kvs.get(this.botId, 'busyHoursHeatMap')) || []
+      totalUsersChartData: analytics['totalUsers'] || [],
+      activeUsersChartData: analytics['activeUsers'] || [],
+      genderUsageChartData: analytics['genderUsage'] || [],
+      typicalConversationLengthInADay: analytics['interactionsRange'] || [],
+      specificMetricsForLastDays: analytics['fictiveSpecificMetrics'] || {},
+      retentionHeatMap: analytics['retentionHeatMap'] || [],
+      busyHoursHeatMap: analytics['busyHoursHeatMap'] || []
     }
   }
 
@@ -91,10 +89,7 @@ export default class Analytics {
   }
 
   private _getInterval() {
-    // TODO: Might be necessary to fix interval based on db size later on.
-    // TODO: Might be necessary to add a property in bot config.
-    // return this._getDBSize() < 5 ? ms('5m') : ms('1h')
-    return ms('5m')
+    return this._getDBSize() < 5 ? ms('5m') : ms('1h')
   }
 
   private async _savePartialData(botId: string, property, data) {
