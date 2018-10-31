@@ -44,10 +44,14 @@
 }
 
 .bp-main-content {
-  min-height: calc(100vh - 41px);
+  min-height: calc(100vh - 58px);
   display: grid;
   grid-template-areas: 'sidebar main';
   grid-template-columns: 150px 1fr;
+
+  .bp-header__warning + & {
+    min-height: calc(100vh - 92px);
+  }
 
   &-header {
     border-bottom: 1px solid var(--c-neutral--light-2);
@@ -164,7 +168,7 @@
     }
 
     .nav-item {
-      &.active .nav-link.disabled {
+      &.active .nav-link {
         background-color: #d9d9d9;
         border-bottom: 1px solid #c9c9c9;
         border-top: 1px solid #c9c9c9;
