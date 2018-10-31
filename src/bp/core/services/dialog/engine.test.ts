@@ -148,4 +148,30 @@ describe('Dialog Engine', () => {
       expect(sessionService.updateSession.mock.calls[0][0]).toHaveProperty('context.currentFlowName', 'main.flow.json')
     })
   })
+
+  describe('jump to', () => {
+    beforeEach(async () => {
+      await dialogEngine.loadFlows(BOT_ID)
+    })
+
+    it('creates a session if it doesnt exists', async () => {
+      sessionService.getSession.mockReturnValueOnce(undefined)
+
+      await dialogEngine.jumpTo(SESSION_ID, EVENT, 'other.flow.json')
+      expect(sessionService.createSession).toHaveBeenCalled()
+    })
+
+    it('skips the current flow to transition to another flow', async () => {
+      const session = { ...SESSION, context: { currentFlowName: 'main.flow.json', currentNodeName: 'entry' } }
+      sessionService.getSession.mockReturnValue(session)
+      await dialogEngine.jumpTo(SESSION_ID, EVENT, 'other.flow.json')
+
+      expect(sessionService.updateSession.mock.calls[0][0]).toHaveProperty('context.currentNodeName', 'entry')
+      expect(sessionService.updateSession.mock.calls[0][0]).toHaveProperty('context.currentFlowName', 'other.flow.json')
+    })
+
+    it('throws when the flow doesnt exists', async () => {
+      expectAsync(dialogEngine.jumpTo(SESSION_ID, EVENT, 'doest exists'), x => x.toThrow())
+    })
+  })
 })
