@@ -79,13 +79,13 @@ phases:
       - rm -rf **/node_production_modules
       - cp Dockerfile out_linux/binaries/
       - docker build -t $REPOSITORY_URI:$EDITION-$ARTIFACT_NAME out_linux/binaries
-      - docker tag $REPOSITORY_URI:$EDITION-$ARTIFACT_NAME $REPOSITORY_URI:commit-$IMAGE_TAG
+      - docker tag $REPOSITORY_URI:$EDITION-$ARTIFACT_NAME $REPOSITORY_URI:$DOCKER_TAG_COMMIT
       - rm out_linux/binaries/Dockerfile
 
   post_build:
     commands:
       - docker push $REPOSITORY_URI:$EDITION-$ARTIFACT_NAME
-      - docker push $REPOSITORY_URI:commit-$IMAGE_TAG
+      - docker push $REPOSITORY_URI:$DOCKER_TAG_COMMIT
       - ls -a out_darwin
       - ls -a out_win32
       - ls -a out_linux

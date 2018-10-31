@@ -40,12 +40,14 @@ class Home extends Component {
       return null
     }
 
+    const { username, fullName} = this.props.profile
+  
     return (
       <UncontrolledDropdown nav inNavbar>
         <DropdownToggle nav caret>
           <span className="user-profile">
             <img alt="" src={this.props.profile.picture} className="user-avatar" />
-            <span>{this.props.profile.username}</span>
+            <span>{fullName ? fullName : username}</span>
           </span>
         </DropdownToggle>
         <DropdownMenu right>

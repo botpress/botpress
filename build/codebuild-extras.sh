@@ -33,8 +33,10 @@ export REPOSITORY_URI=botpress/server
 export COMMIT_HASH=`echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7`
 export EDITION=${EDITION:=ce}
 export IMAGE_TAG=${COMMIT_HASH:=latest}
+export DOCKER_TAG_COMMIT=`echo commit-$(date +"%Y-%m-%d")-$IMAGE_TAG`
 echo "export ARTIFACT_NAME=$ARTIFACT_NAME"
 echo "export REPOSITORY_URI=$REPOSITORY_URI"
 echo "export COMMIT_HASH=$COMMIT_HASH"
 echo "export IMAGE_TAG=$IMAGE_TAG"
 echo "export EDITION=$EDITION"
+echo "export DOCKER_TAG_COMMIT=$DOCKER_TAG_COMMIT"

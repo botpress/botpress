@@ -54,7 +54,7 @@ class ProfileUpdate extends Component {
     })
 
     this.props.fetchProfile()
-    this.setState({ forceClose: true, successMsg: `Profile updated with success` })
+    this.setState({ forceClose: true, successMsg: `Profile updated with success`, isDirty: false })
 
     window.setTimeout(() => {
       this.setState({ successMsg: undefined })

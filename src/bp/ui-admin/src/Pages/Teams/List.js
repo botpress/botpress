@@ -43,7 +43,7 @@ class List extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.teams != this.props.teams) {
+    if (prevProps.teams !== this.props.teams) {
       !this.props.teams && this.props.fetchTeams()
     }
   }

@@ -28,7 +28,7 @@ There are some predefined defaults. However, you can specify ones via environmen
 docker run --detach \
            --name=botpress \
            --publish 3000:8080 \
-           --volume botpress_data:/var/lib/botpress \
+           --volume botpress_data:/botpress/data \
            --env  PORT=8080 \ # Don't forget to adjust "--publish" then
            --env  BP_HOST=0.0.0.0 \ # all zeroes means listen to all interfaces
            --env  NODE_ENV=production \
