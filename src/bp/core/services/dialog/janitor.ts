@@ -13,6 +13,7 @@ import { TYPES } from '../../types'
 import { Janitor } from '../janitor'
 
 import { DialogEngineV2 } from './engine-v2'
+import { SessionIdFactory } from './session/id-factory'
 import { SessionService } from './session/service'
 
 @injectable()
@@ -44,7 +45,8 @@ export class DialogJanitor extends Janitor {
     const botpressConfig = await this.getBotpresConfig()
     const botsConfigs = await this.botLoader.getAllBots()
     const botsIds = Array.from(botsConfigs.keys())
-    Promise.map(botsIds, async botId => {
+
+    await Promise.mapSeries(botsIds, async botId => {
       const botsConfigs = await this.botLoader.getAllBots()
       const botConfig = botsConfigs.get(botId)
       const expiryTime = ms(_.get(botConfig, 'dialog.timeoutInterval') || botpressConfig.dialog.timeoutInterval)
@@ -57,19 +59,23 @@ export class DialogJanitor extends Janitor {
         this.logger.forBot(botId).debug(`🔎 Found inactive sessions: ${sessionsIds.join(', ')}`)
       }
 
-      Promise.map(sessionsIds, async id => {
+      await Promise.mapSeries(sessionsIds, async id => {
         try {
+          const target = SessionIdFactory.createTargetFromId(id)
+
           // This event only exists so that processTimeout can call processEvent
           const fakeEvent = new IOEvent({
             type: 'timeout',
-            channel: 'none',
-            target: 'none',
+            channel: 'web',
+            target: target,
             direction: 'incoming',
-            payload: 'node',
+            payload: '',
             botId: botId
           })
           await this.dialogEngine.processTimeout(botId, id, fakeEvent)
         } catch (err) {
+          // We delete the session in both cases
+        } finally {
           await this.sessionService.deleteSession(id)
         }
       })

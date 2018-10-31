@@ -28,6 +28,7 @@ export class ProcessingError extends Error {
 
 class DialogEngineError extends Error {}
 class FlowNotFoundError extends DialogEngineError {}
+class NodeNotFoundError extends DialogEngineError {}
 
 // TODO: Rename when its safe to ditch V1
 // TODO: Add integration tests and use the default welcome-bot flow as a test bench
@@ -124,12 +125,25 @@ export class DialogEngineV2 {
 
   public async processTimeout(botId: string, sessionId: string, event: IO.Event) {
     this._logTimeout(botId)
-    const api = await createForGlobalHooks()
-    await this.hookService.executeHook(new Hooks.BeforeSessionTimeout(api, event))
+
+    // FIXME: Doesnt play well with tests
+    // const api = await createForGlobalHooks()
+    // await this.hookService.executeHook(new Hooks.BeforeSessionTimeout(api, event))
+
+    // This is the only place we dont want to catch node not found errors
+    const findNodeWithoutError = (flow, nodeName) => {
+      try {
+        const node = this._findNode(flow, nodeName)
+        return node
+      } catch (err) {
+        // ignore
+      }
+      return undefined
+    }
 
     const session = await this.sessionService.getSession(sessionId)
     const currentFlow = this._findFlow(botId, session.context.currentFlowName)
-    const currentNode = this._findNode(currentFlow, session.context.currentNodeName)
+    const currentNode = findNodeWithoutError(currentFlow, session.context.currentNodeName)
 
     // Check for a timeout property in the current node
     let timeoutNode = _.get(currentNode, 'timeout')
@@ -137,12 +151,15 @@ export class DialogEngineV2 {
 
     // Check for a timeout node in the current flow
     if (!timeoutNode) {
-      timeoutNode = this._findNode(timeoutFlow, 'timeout')
+      timeoutNode = findNodeWithoutError(timeoutFlow, 'timeout')
     }
 
     // Check for a timeout property in the current flow
     if (!timeoutNode) {
-      timeoutNode = _.get(timeoutFlow, 'timeout')
+      const timeoutNodeName = _.get(timeoutFlow, 'timeoutNode')
+      if (timeoutNodeName) {
+        timeoutNode = findNodeWithoutError(timeoutFlow, timeoutNodeName)
+      }
     }
 
     // Check for a timeout.flow.json and get the start node
@@ -153,7 +170,7 @@ export class DialogEngineV2 {
         // ignore
       }
       const startNodeName = timeoutFlow.startNode
-      timeoutNode = this._findNode(timeoutFlow, startNodeName)
+      timeoutNode = findNodeWithoutError(timeoutFlow, startNodeName)
     }
 
     if (!timeoutNode || !timeoutFlow) {
@@ -301,7 +318,11 @@ export class DialogEngineV2 {
   }
 
   private _findNode(flow, nodeName: string) {
-    return flow.nodes && flow.nodes.find(x => x.name === nodeName)
+    const node = flow.nodes && flow.nodes.find(x => x.name === nodeName)
+    if (!node) {
+      throw new NodeNotFoundError(`Could not find any node called "${nodeName}" under flow "${flow.name}"`)
+    }
+    return node
   }
 
   private _reportProcessingError(botId, error, session, instruction) {

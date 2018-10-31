@@ -77,3 +77,46 @@ export const flowsStub = [
     ]
   }
 ]
+
+export const flowWithTimeoutProp = {
+  name: 'main.flow.json',
+  startNode: 'entry',
+  timeoutNode: 'timeout',
+  nodes: [
+    {
+      id: 'bda0320009',
+      name: 'timeout',
+      onEnter: [],
+      onReceive: [],
+      next: []
+    }
+  ]
+}
+
+export const flowWithTimeoutNode = {
+  name: 'main.flow.json',
+  startNode: 'entry',
+  nodes: [
+    {
+      id: 'bda0320009',
+      name: 'timeout',
+      onEnter: [],
+      onReceive: [],
+      next: []
+    }
+  ]
+}
+
+export const timeoutFlow = {
+  name: 'timeout.flow.json',
+  startNode: 'entry',
+  nodes: [
+    {
+      id: 'bda0320009',
+      name: 'entry',
+      onEnter: [],
+      onReceive: [],
+      next: []
+    }
+  ]
+}
