@@ -40,7 +40,7 @@ export const fetchLicense = () => {
 
 export const fetchLicensing = () => {
   return async dispatch => {
-    const { data } = await api.getSecured().get(`/api/license/status`)
+    const { data } = await api.getSecured({ toastErrors: false }).get(`/api/license/status`)
 
     dispatch({
       type: FETCH_LICENSING_RECEIVED,
