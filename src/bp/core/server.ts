@@ -157,6 +157,10 @@ export default class HTTPServer {
     this.shortlinksRouter.createShortLink(name, destination, params)
   }
 
+  deleteShortLink(name: string) {
+    this.shortlinksRouter.deleteShortLink(name)
+  }
+
   async getAxiosConfigForBot(botId: string): Promise<AxiosBotConfig> {
     const botpressConfig = await this.configProvider.getBotpressConfig()
     const config = botpressConfig.httpServer
