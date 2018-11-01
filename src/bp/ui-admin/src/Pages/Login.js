@@ -2,12 +2,12 @@ import React, { Component, Fragment } from 'react'
 import { Redirect } from 'react-router-dom'
 import logo from '../media/nobg_white.png'
 
-import { Alert, Card, CardBody, CardTitle, Button, Input, CardText } from 'reactstrap'
+import { Alert, Card, CardBody, CardTitle, Button, Input, FormGroup, CardText } from 'reactstrap'
 
 export default class Login extends Component {
   state = { username: '', password: '', passwordExpired: false, error: null }
 
-  login = async ({ username, password, showError = true }={}) => {
+  login = async ({ username, password, showError = true } = {}) => {
     this.setState({ error: null })
 
     try {
@@ -50,24 +50,28 @@ export default class Login extends Component {
         <CardTitle>Botpress Admin Panel</CardTitle>
         <CardText>Login</CardText>
         {this.state.error && <Alert color="danger">{this.state.error}</Alert>}
-        <Input
-          value={this.state.username}
-          onChange={this.onInputChange('username')}
-          type="text"
-          name="username"
-          id="username"
-          onKeyPress={this.onInputKeyPress}
-          placeholder="Username"
-        />
-        <Input
-          value={this.state.password}
-          onChange={this.onInputChange('password')}
-          type="password"
-          name="password"
-          id="password"
-          onKeyPress={this.onInputKeyPress}
-          placeholder="Password"
-        />
+        <FormGroup>
+          <label htmlFor="username">Username</label>
+          <Input
+            value={this.state.username}
+            onChange={this.onInputChange('username')}
+            type="text"
+            name="username"
+            id="username"
+            onKeyPress={this.onInputKeyPress}
+          />
+        </FormGroup>
+        <FormGroup>
+          <label htmlFor="password">Password</label>
+          <Input
+            value={this.state.password}
+            onChange={this.onInputChange('password')}
+            type="password"
+            name="password"
+            id="password"
+            onKeyPress={this.onInputKeyPress}
+          />
+        </FormGroup>
         <p>
           <Button onClick={this.login}>Sign in</Button>
         </p>

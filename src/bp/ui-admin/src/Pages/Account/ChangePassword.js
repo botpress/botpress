@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react'
 import { Redirect } from 'react-router-dom'
 import logo from '../../media/nobg_white.png'
 
-import { Alert, Card, CardBody, CardTitle, Button, Input, CardText } from 'reactstrap'
+import { Alert, Card, CardBody, CardTitle, Button, Input, FormGroup, CardText } from 'reactstrap'
 
 export default class ChangePassword extends Component {
   constructor(props) {
@@ -62,24 +62,28 @@ export default class ChangePassword extends Component {
         <CardTitle>Botpress Admin Panel</CardTitle>
         <CardText>{this.getReasonText()}</CardText>
         {this.state.error && <Alert color="danger">{this.state.error}</Alert>}
-        <Input
-          value={this.state.newPassword}
-          onChange={this.onInputChange('newPassword')}
-          type="password"
-          name="newPassword"
-          id="newPassword"
-          onKeyPress={this.onInputKeyPress}
-          placeholder="Password"
-        />
-        <Input
-          value={this.state.confirmPassword}
-          onChange={this.onInputChange('confirmPassword')}
-          type="password"
-          name="confirmPassword"
-          id="confirmPassword"
-          onKeyPress={this.onInputKeyPress}
-          placeholder="Confirm"
-        />
+        <FormGroup>
+          <label htmlFor="newPassword">Password</label>
+          <Input
+            value={this.state.newPassword}
+            onChange={this.onInputChange('newPassword')}
+            type="password"
+            name="newPassword"
+            id="newPassword"
+            onKeyPress={this.onInputKeyPress}
+          />
+        </FormGroup>
+        <FormGroup>
+          <label htmlFor="confirmPassword">Confirm password</label>
+          <Input
+            value={this.state.confirmPassword}
+            onChange={this.onInputChange('confirmPassword')}
+            type="password"
+            name="confirmPassword"
+            id="confirmPassword"
+            onKeyPress={this.onInputKeyPress}
+          />
+        </FormGroup>
         <p>
           <Button onClick={this.login}>Change</Button>
         </p>

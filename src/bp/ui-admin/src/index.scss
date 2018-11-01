@@ -135,9 +135,11 @@ body {
 }
 
 .login-box {
-  input {
-    margin: 10px 0;
+  label {
+    display: block;
+    text-align: left;
   }
+
   button {
     width: 100%;
     margin-top: 10px;
