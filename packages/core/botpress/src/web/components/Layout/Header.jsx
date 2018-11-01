@@ -11,7 +11,7 @@ import { logout } from '~/util/Auth'
 import style from './Header.scss'
 import { viewModeChanged } from '~/actions'
 import PermissionsChecker from './PermissionsChecker'
-import { changeBot, fetchBotInformation, fetchAllBots } from '../../actions'
+import { fetchBotInformation, fetchAllBots } from '../../actions'
 
 class Header extends React.Component {
   state = {
@@ -95,6 +95,6 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch =>
-  bindActionCreators({ viewModeChanged, fetchBotInformation, changeBot, fetchAllBots }, dispatch)
+  bindActionCreators({ viewModeChanged, fetchBotInformation, fetchAllBots }, dispatch)
 
 export default connect(mapStateToProps, mapDispatchToProps)(Header)

@@ -174,12 +174,6 @@ export const fetchBotInformation = () => dispatch => {
   })
 }
 
-export const changeBot = () => dispatch => {
-  if (window.BOTPRESS_XX) {
-    // TODO Change bot logic goes here. Waiting for multi-bots logic
-  }
-}
-
 // Modules
 export const modulesReceived = createAction('MODULES/RECEIVED')
 export const fetchModules = () => dispatch => {
