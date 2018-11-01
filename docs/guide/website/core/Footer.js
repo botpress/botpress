@@ -24,7 +24,7 @@ class Footer extends React.Component {
         <section className="sitemap">
           <div>
             <h5>Docs</h5>
-            <a href={this.docUrl('getting_started/index')}>Getting Started</a>
+            <a href={this.docUrl('general/philosophy')}>Getting Started</a>
             <a href="https://botpress.io/docs/latest/reference/">API Reference</a>
           </div>
           <div>
@@ -32,7 +32,7 @@ class Footer extends React.Component {
             <a href="https://help.botpress.io/" target="_blank" rel="noreferrer noopener">
               help.botpress.io
             </a>
-            <a href="http://stackoverflow.com/questions/tagged/" target="_blank" rel="noreferrer noopener">
+            <a href="https://stackoverflow.com/search?q=botpress" target="_blank" rel="noreferrer noopener">
               Stack Overflow
             </a>
           </div>
@@ -50,6 +50,7 @@ class Footer extends React.Component {
             >
               Star
             </a>
+            <a href="https://twitter.com/getbotpress">Twitter</a>
           </div>
         </section>
 

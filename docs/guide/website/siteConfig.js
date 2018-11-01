@@ -9,7 +9,7 @@
 // site configuration options.
 
 const siteConfig = {
-  title: "| Developer's Guide",
+  title: "Botpress | Developer's Guide",
   tagline: 'Guides and references for all you need to know about Botpress',
   url: 'https://botpress.io',
   baseUrl: '/',
@@ -19,7 +19,7 @@ const siteConfig = {
 
   // TODO: Enable search once the site is up: https://docusaurus.io/docs/en/search
   headerLinks: [
-    { doc: 'getting_started/index', label: 'Docs' },
+    { doc: 'general/philosophy', label: 'Docs' },
     { href: '/docs/10.50', label: 'Botpress 10.x Docs' },
     { href: 'https://help.botpress.io/', label: 'Help' },
     { href: 'reference/', label: 'API' },
@@ -27,7 +27,7 @@ const siteConfig = {
     { search: true }
   ],
 
-  headerIcon: 'img/botpress.svg',
+  headerIcon: 'img/botpress_icon.svg',
   footerIcon: 'img/botpress.svg',
   favicon: 'img/favicon.png',
 
