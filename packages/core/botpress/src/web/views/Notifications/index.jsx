@@ -6,7 +6,7 @@ import _ from 'lodash'
 import NotificationComponent from '~/components/Notifications'
 import ContentWrapper from '~/components/Layout/ContentWrapper'
 import PageHeader from '~/components/Layout/PageHeader'
-
+import { fetchNotifications } from '~/actions'
 import styles from './style.scss'
 
 // TODO: extending components is discouraged,
@@ -72,4 +72,4 @@ class NotificationHub extends NotificationComponent {
 
 const mapStateToProps = state => ({ notifications: state.notifications })
 
-export default connect(mapStateToProps)(NotificationHub)
+export default connect(mapStateToProps, { fetchNotifications })(NotificationHub)

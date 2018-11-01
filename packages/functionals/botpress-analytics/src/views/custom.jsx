@@ -193,31 +193,30 @@ export default class CustomMetrics extends React.Component {
     )
 
     return (
-        <ResponsiveContainer width="100%" height={75}>
-          <Table responsive hover>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Event</th>
-                <th>Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map(row => {
-                if (row.count) {
-                  return (
-                    <tr>
-                      <td>{row.name}</td>
-                      <td>{row.value}</td>
-                      <td>{row.count}</td>
-                    </tr>
-                  )
-                }
-              } 
-              )}
-            </tbody>
-          </Table>
-        </ResponsiveContainer>
+      <ResponsiveContainer width="100%" height={75}>
+        <Table responsive hover>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Event</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.map(row => {
+              if (row.count) {
+                return (
+                  <tr>
+                    <td>{row.name}</td>
+                    <td>{row.value}</td>
+                    <td>{row.count}</td>
+                  </tr>
+                )
+              }
+            })}
+          </tbody>
+        </Table>
+      </ResponsiveContainer>
     )
   }
 

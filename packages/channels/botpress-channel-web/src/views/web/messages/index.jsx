@@ -95,12 +95,12 @@ export default class MessageList extends Component {
     const currentText = this.props.currentText
     const filterQuickReplies = this.props.filterQuickReplies
 
-    const filteredQuickReplies = quick_replies ? quick_replies.filter(
-      quick_reply => {
-        const regExp = new RegExp(currentText, "i");
-        return regExp.test(quick_reply.title);
-      }
-    ) : quick_replies;
+    const filteredQuickReplies = quick_replies
+      ? quick_replies.filter(quick_reply => {
+          const regExp = new RegExp(currentText, 'i')
+          return regExp.test(quick_reply.title)
+        })
+      : quick_replies
 
     return (
       <QuickReplies

@@ -8,10 +8,7 @@
     "menuIcon": "alarm_on",
     "webBundle": "bin/web.bundle.js"
   },
-  "keywords": [
-    "messenger",
-    "scheduler"
-  ],
+  "keywords": ["messenger", "scheduler"],
   "version-manager": {
     "warn": "",
     "botpress-check": ">= 0.1",
@@ -27,13 +24,8 @@
     "compile": "node webpack.js --compile"
   },
   "babel": {
-    "presets": [
-      "latest",
-      "stage-0"
-    ],
-    "plugins": [
-      "transform-object-rest-spread"
-    ]
+    "presets": ["latest", "stage-0"],
+    "plugins": ["transform-object-rest-spread"]
   },
   "repository": {
     "type": "git",

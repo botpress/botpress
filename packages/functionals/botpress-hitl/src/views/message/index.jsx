@@ -76,7 +76,11 @@ export default class Message extends React.Component {
 
   renderEvent() {
     const date = moment(this.props.content.ts).format('DD MMM YYYY [at] LT')
-    return <div className={style.message + ' ' + style.event}><p>User visit : {date}</p></div>
+    return (
+      <div className={style.message + ' ' + style.event}>
+        <p>User visit : {date}</p>
+      </div>
+    )
   }
 
   render() {

@@ -87,7 +87,7 @@ module.exports = ({ bp }) => {
   }
 
   const getters = {
-    table: async function (table, from, to) {
+    table: async function(table, from, to) {
       const knex = await bp.db.get()
 
       const variable = _.first(table.variables)

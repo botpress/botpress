@@ -4,7 +4,7 @@ import PropTypes from 'prop-types'
 import { Row, Col, Tooltip, OverlayTrigger } from 'react-bootstrap'
 import moment from 'moment'
 import classnames from 'classnames'
-
+import axios from 'axios'
 import EventBus from '~/util/EventBus'
 
 const getNotificationStyle = (styles, notification) =>
@@ -40,16 +40,31 @@ export default class NotificationComponent extends Component {
     this.context.router.history.push(notif.url)
   }
 
-  markAsRead(notif) {
-    EventBus.default.emit('notifications.read', notif.id)
+  markAsRead = async notif => {
+    if (!window.BOTPRESS_XX) {
+      EventBus.default.emit('notifications.read', notif.id)
+    } else {
+      await axios.post(`/api/notifications/${notif.id}/read`)
+      this.props.fetchNotifications()
+    }
   }
 
-  markAllAsRead = () => {
-    EventBus.default.emit('notifications.allRead')
+  markAllAsRead = async () => {
+    if (!window.BOTPRESS_XX) {
+      EventBus.default.emit('notifications.allRead')
+    } else {
+      await axios.post(`/api/notifications/read`)
+      this.props.fetchNotifications()
+    }
   }
 
-  trashAll = () => {
-    EventBus.default.emit('notifications.trashAll')
+  trashAll = async () => {
+    if (!window.BOTPRESS_XX) {
+      EventBus.default.emit('notifications.trashAll')
+    } else {
+      await axios.post(`/api/notifications/archive`)
+      this.props.fetchNotifications()
+    }
   }
 
   renderMarkAsReadButton(notification, index) {
@@ -77,7 +92,7 @@ export default class NotificationComponent extends Component {
   renderMenuItem(notification, index) {
     const ItemComponent = this.itemComponent
     const styles = this.styles
-    const date = moment(new Date(notification.date)).fromNow()
+    const date = moment(new Date(notification.date || notification.created_on)).fromNow()
     const className = getNotificationStyle(styles, notification)
     const checkButton = this.renderMarkAsReadButton(notification, index)
     const iconClass = classnames('icon', 'material-icons', this.styles.icon)
@@ -92,8 +107,8 @@ export default class NotificationComponent extends Component {
         <Row>
           <Col xs={11} onClick={() => this.onNotifClicked(notification)}>
             <strong className={styles.header}>
-              <i className={iconClass}>{notification.icon}</i>
-              &nbsp; {notification.name}
+              <i className={iconClass}>{notification.icon || notification.module_icon}</i>
+              &nbsp; {notification.name || notification.module_name}
             </strong>
             {this.renderMessage(notification.message)}
             <small className="text-muted">{date}</small>

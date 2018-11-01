@@ -44,3 +44,14 @@ export const downloadBlob = (name, blob) => {
   document.body.removeChild(link)
   window.URL.revokeObjectURL(url)
 }
+
+export const parseBotId = () => {
+  const botIdRegex = /^\/(studio|lite)\/(.+?)\//i
+  let matches = window.location.pathname.match(botIdRegex)
+
+  if (!matches || matches.length < 3 || !matches[1]) {
+    matches = (window.BP_BASE_PATH + '/').match(botIdRegex)
+  }
+
+  return (matches && matches[2]) || ''
+}

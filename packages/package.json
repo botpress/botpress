@@ -1,6 +1,7 @@
 {
   "name": "botpress-fake-root",
-  "description": "This package describes the dependencies needed to run things locally due to Babel, Lerna and Node nto always playing well together",
+  "description":
+    "This package describes the dependencies needed to run things locally due to Babel, Lerna and Node nto always playing well together",
   "version": "10.50.0",
   "private": true,
   "devDependencies": {

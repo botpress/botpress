@@ -16,10 +16,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "keywords": [
-    "analytics",
-    "botpress"
-  ],
+  "keywords": ["analytics", "botpress"],
   "version-manager": {
     "warn": "",
     "botpress-check": ">= 0.1",
