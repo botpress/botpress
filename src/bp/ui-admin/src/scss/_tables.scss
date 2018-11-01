@@ -1,0 +1,49 @@
+// Tables
+
+.bp-table {
+  font-size: 12px;
+  line-height: 1.25;
+  table-layout: fixed;
+
+  thead th {
+    border: none;
+  }
+
+  tr:nth-child(odd) td {
+    background-color: #f1f1f1;
+  }
+
+  th:last-child,
+  td:last-child {
+    text-align: right;
+  }
+
+  .btn-sm {
+    border: 0;
+    font-size: 12px;
+    margin: 0;
+    padding: 0 .5rem;
+    position: relative;
+
+    &:last-child:not(:first-child):before {
+      content: "";
+      background-color: #ccc;
+      display: inline-block;
+      height: 20px;
+      left: 0;
+      position: absolute;
+      width: 1px;
+    }
+  }
+
+  &__check {
+    color: green;
+    font-size: 16px;
+  }
+
+  .table-cell--ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}

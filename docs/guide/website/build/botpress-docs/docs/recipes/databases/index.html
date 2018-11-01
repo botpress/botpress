@@ -1,0 +1,74 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Supported databases · | Documentation</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Botpress comes with support for SQL databases out-the-box and can be accessed by:"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Supported databases · | Documentation"/><meta property="og:type" content="website"/><meta property="og:url" content="https://botpress.io/index.html"/><meta property="og:description" content="Botpress comes with support for SQL databases out-the-box and can be accessed by:"/><meta property="og:image" content="https://botpress.io/img/docusaurus.png"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://botpress.io/img/docusaurus.png"/><link rel="shortcut icon" href="/img/favicon.png"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><link rel="stylesheet" href="/css/main.css"/></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/"><img class="logo" src="/img/botpress.svg" alt="| Documentation"/><h2 class="headerTitleWithLogo">| Documentation</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/docs/getting_started/" target="_self">Docs</a></li><li class=""><a href="https://help.botpress.io/" target="_self">Help</a></li><li class=""><a href="https://botpress.io/docs/latest/reference/" target="_self">API</a></li><li class=""><a href="https://github.com/botpress" target="_self">Github</a></li><li class=""><a target="_self"></a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><i></i></div><h2><i>›</i><span>Recipes</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">Getting Started</h3><ul><li class="navListItem"><a class="navItem" href="/docs/getting_started/">What you will learn</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/philosphy">The Botpress Philosophy</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/install">Install</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/components">Components</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/templates">Templates</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/dashboard">Dashboard</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/content">Content</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/flows">Flows</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/actions">Actions</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/storage">Storage</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/skills">Skills</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/nlu">NLU</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/deploying">Deploying</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/changes">Changes</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Recipes</h3><ul><li class="navListItem"><a class="navItem" href="/docs/recipes/">What are they?</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/analytics">Analytics</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/apis">Using external APIs</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/broadcasting">Broadcasting</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/carousel">Carousel</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/docs/recipes/databases">Supported databases</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/embedding">Embedding the Webchat on a website</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/hitl">HITL (Human-in-the-loop)</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/i18n">i18n</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/jumps">Jump to</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/login">Login</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/modules">Modules</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/proactive">Proactive acting</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/sanitizing">Sanitizing</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/scheduling">Scheduling messages</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/shortlinks">Shortlinks</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/timeout">Timeout</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/extensions">Webchat Extensions</a></li></ul></div></div></section></div><script>
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              const headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                if (event.target.tagName === 'A') {
+                  document.body.classList.remove('tocActive');
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                if (!toggler) {
+                  return;
+                }
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer docMainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1 class="postHeaderTitle">Supported databases</h1></header><article><div><span><p>Botpress comes with support for SQL databases out-the-box and can be accessed by:</p>
+<ol>
+<li>The key-value store - This can be accessed via functions like <code>bp.kvs.get('key')</code> and <code>bp.kvs.get('key', 'value', 'path')</code></li>
+<li>A knex-instance - This allows you to work with the DB directly via <code>bp.db.get()</code></li>
+</ol>
+<h2><a class="anchor" aria-hidden="true" id="switching-db-to-postgres"></a><a href="#switching-db-to-postgres" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Switching DB to Postgres</h2>
+<p>By default Botpress uses SQLite as it's database. This will be fine for local development and for self-hosted installations but you may run into issues when hosting using services like Heroku.</p>
+<p>To fix this issue and to provide you with a more powerful database, Botpress also supports Postgres.
+Switching to it is straightforward.</p>
+<p>Firstly, check your botfile for the postgres-configuration section. By default it looks something like this:</p>
+<pre><code class="hljs css language-js">  <span class="hljs-comment">/*
+    Postgres configuration
+    If Postgres is not enabled, Botpress uses SQLite 3 (file-based database)
+  */</span>
+  postgres: {
+    <span class="hljs-attr">enabled</span>: process.env.DATABASE === <span class="hljs-string">'postgres'</span>,
+    <span class="hljs-attr">connection</span>: process.env.DATABASE_URL,
+    <span class="hljs-attr">host</span>: process.env.PG_HOST || <span class="hljs-string">'127.0.0.1'</span>,
+    <span class="hljs-attr">port</span>: process.env.PG_PORT || <span class="hljs-number">5432</span>,
+    <span class="hljs-attr">user</span>: process.env.PG_USER || <span class="hljs-string">''</span>,
+    <span class="hljs-attr">password</span>: process.env.PG_PASSWORD || <span class="hljs-string">''</span>,
+    <span class="hljs-attr">database</span>: process.env.PG_DB || <span class="hljs-string">''</span>,
+    <span class="hljs-attr">ssl</span>: process.env.PG_SSL || <span class="hljs-literal">false</span>
+  }
+</code></pre>
+<p>So to enable Postgres you just need to pass 2 environment variables: <code>DATABASE=postgres</code> and <code>DATABASE_URL=postgres://login:password@your-db-host.com:5432/your-db-name</code>. Please make sure you are using Postgres 9.5 or higher.</p>
+<h2><a class="anchor" aria-hidden="true" id="other-databases"></a><a href="#other-databases" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Other Databases</h2>
+<p>Botpress also comes with support for MongoDB or MySQL databases built in. They can be configured within your <code>index.js</code> file like this:</p>
+<pre><code class="hljs css language-js"><span class="hljs-comment">// MongoDB</span>
+<span class="hljs-keyword">const</span> { MongoClient } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'mongodb'</span>)
+<span class="hljs-keyword">const</span> mongoClient = <span class="hljs-keyword">await</span> MongoClient.connect(<span class="hljs-string">'mongodb://localhost:27017'</span>)
+process.on(<span class="hljs-string">'SIGINT'</span>, () =&gt; mongoClient.close()) <span class="hljs-comment">// Graceful connection shutdown on CTRL+C</span>
+bp.mongoDb = mongoClient.db(<span class="hljs-string">'myDbName'</span>)
+</code></pre>
+<pre><code class="hljs css language-js"><span class="hljs-comment">// MySQL</span>
+bp.mySqlDB = <span class="hljs-built_in">require</span>(<span class="hljs-string">'knex'</span>)({
+  <span class="hljs-attr">client</span>: <span class="hljs-string">'mysql'</span>,
+  <span class="hljs-attr">connection</span>: {
+    <span class="hljs-attr">host</span>: <span class="hljs-string">'127.0.0.1'</span>,
+    <span class="hljs-attr">user</span>: <span class="hljs-string">'your_database_user'</span>,
+    <span class="hljs-attr">password</span>: <span class="hljs-string">'your_database_password'</span>,
+    <span class="hljs-attr">database</span>: <span class="hljs-string">'myapp_test'</span>
+  }
+})
+process.on(<span class="hljs-string">'SIGINT'</span>, () =&gt; bp.mySqlDB.destroy())
+</code></pre>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/docs/recipes/carousel"><span class="arrow-prev">← </span><span>Previous</span></a><a class="docs-next button" href="/docs/recipes/embedding"><span>Next</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav docOnPageNav"><ul class="toc-headings"><li><a href="#switching-db-to-postgres">Switching DB to Postgres</a></li><li><a href="#other-databases">Other Databases</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/botpress.svg" alt="| Documentation" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/en/doc1.html">Getting Started (or other categories)</a><a href="/docs/en/doc2.html">Guides (or other categories)</a><a href="/docs/en/doc3.html">API Reference (or other categories)</a></div><div><h5>Community</h5><a href="/en/users.html">User Showcase</a><a href="http://stackoverflow.com/questions/tagged/" target="_blank" rel="noreferrer noopener">Stack Overflow</a><a href="https://discordapp.com/">Project Chat</a><a href="https://twitter.com/" target="_blank" rel="noreferrer noopener">Twitter</a></div><div><h5>More</h5><a href="/blog">Blog</a><a href="https://github.com/">GitHub</a><a class="github-button" data-icon="octicon-star" data-count-href="/facebook/docusaurus/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" rel="noreferrer noopener" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2018 Botpress, Inc.</section></footer></div></body></html>

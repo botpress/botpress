@@ -1,0 +1,42 @@
+.message {
+  margin: 10px;
+  max-width: 50%;
+
+  p {
+    display: block;
+    padding: 12px 18px 12px 18px;
+    border-radius: 20px;
+  }
+
+  img,
+  video {
+    max-width: 100%;
+    border-radius: 10px;
+  }
+
+  audio {
+    height: 50px;
+    padding: 10px;
+    border-radius: 10px;
+    background-color: #fafafa;
+  }
+}
+
+.fromUser {
+  float: left;
+  margin-left: 15px;
+
+  p {
+    background-color: #e6e6e6;
+  }
+}
+
+.fromBot {
+  float: right;
+  margin-right: 15px;
+
+  p {
+    background-color: #36bc98;
+    color: #fff;
+  }
+}

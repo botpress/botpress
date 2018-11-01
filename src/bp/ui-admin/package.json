@@ -1,0 +1,58 @@
+{
+  "name": "admin-ui",
+  "version": "0.0.1",
+  "private": true,
+  "publisher": "botpress",
+  "engines": {
+    "node": ">=10"
+  },
+  "dependencies": {
+    "@botpress/util-roles": "^10.36.1",
+    "auth0-js": "^9.3.3",
+    "axios": "^0.18.0",
+    "bluebird": "^3.5.1",
+    "bootstrap": "^4.1.0",
+    "classnames": "^2.2.5",
+    "jdenticon": "^2.0.0",
+    "joi-browser": "^13.0.1",
+    "moment": "^2.21.0",
+    "ms": "^2.1.1",
+    "nanoid": "^1.0.2",
+    "node-sass-chokidar": "^1.1.2",
+    "npm-run-all": "^4.1.2",
+    "query-string": "^5.1.0",
+    "react": "^16.4.0",
+    "react-copy-to-clipboard": "^5.0.1",
+    "react-dom": "^16.4.0",
+    "react-icons": "^2.2.7",
+    "react-redux": "^5.0.7",
+    "react-router-dom": "^4.2.2",
+    "react-router-redux": "^5.0.0-alpha.9",
+    "react-scripts": "^2.0.4",
+    "react-select": "^1.2.1",
+    "react-toastify": "^4.0.0-rc.4",
+    "reactstrap": "^5.0.0",
+    "redux": "^3.7.2",
+    "redux-thunk": "^2.2.0"
+  },
+  "scripts": {
+    "build-css": "node-sass-chokidar src/ -o src/",
+    "watch-css": "npm run build-css && node-sass-chokidar src/ -o src/ --watch --recursive",
+    "start-js": "cross-env BROWSER=none react-scripts start",
+    "start": "cross-env PUBLIC_URL=/admin npm-run-all -p watch-css start-js",
+    "start:dev": "cross-env PUBLIC_URL=/admin cross-env REACT_APP_API_URL=http://localhost:3001 cross-env PORT=3002 npm-run-all -p watch-css start-js",
+    "build-js": "react-scripts build",
+    "build": "cross-env PUBLIC_URL=/admin npm-run-all build-css build-js",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  },
+  "devDependencies": {
+    "cross-env": "^5.2.0"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
+}

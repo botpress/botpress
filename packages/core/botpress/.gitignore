@@ -1,4 +1,0 @@
-/tmp-bot
-/tests/config/*
-!/tests/config/*.example
-!/tests/config/env.js

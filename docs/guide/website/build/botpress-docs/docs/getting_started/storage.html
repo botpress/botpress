@@ -1,0 +1,179 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Storage · | Documentation</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="# 📚 Storage Mechanisms"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Storage · | Documentation"/><meta property="og:type" content="website"/><meta property="og:url" content="https://botpress.io/index.html"/><meta property="og:description" content="# 📚 Storage Mechanisms"/><meta property="og:image" content="https://botpress.io/img/docusaurus.png"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://botpress.io/img/docusaurus.png"/><link rel="shortcut icon" href="/img/favicon.png"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><link rel="stylesheet" href="/css/main.css"/></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/"><img class="logo" src="/img/botpress.svg" alt="| Documentation"/><h2 class="headerTitleWithLogo">| Documentation</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/docs/getting_started/" target="_self">Docs</a></li><li class=""><a href="https://help.botpress.io/" target="_self">Help</a></li><li class=""><a href="https://botpress.io/docs/latest/reference/" target="_self">API</a></li><li class=""><a href="https://github.com/botpress" target="_self">Github</a></li><li class=""><a target="_self"></a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><i></i></div><h2><i>›</i><span>Getting Started</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">Getting Started</h3><ul><li class="navListItem"><a class="navItem" href="/docs/getting_started/">What you will learn</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/philosphy">The Botpress Philosophy</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/install">Install</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/components">Components</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/templates">Templates</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/dashboard">Dashboard</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/content">Content</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/flows">Flows</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/actions">Actions</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/docs/getting_started/storage">Storage</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/skills">Skills</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/nlu">NLU</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/deploying">Deploying</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/changes">Changes</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Recipes</h3><ul><li class="navListItem"><a class="navItem" href="/docs/recipes/">What are they?</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/analytics">Analytics</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/apis">Using external APIs</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/broadcasting">Broadcasting</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/carousel">Carousel</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/databases">Supported databases</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/embedding">Embedding the Webchat on a website</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/hitl">HITL (Human-in-the-loop)</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/i18n">i18n</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/jumps">Jump to</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/login">Login</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/modules">Modules</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/proactive">Proactive acting</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/sanitizing">Sanitizing</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/scheduling">Scheduling messages</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/shortlinks">Shortlinks</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/timeout">Timeout</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/extensions">Webchat Extensions</a></li></ul></div></div></section></div><script>
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              const headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                if (event.target.tagName === 'A') {
+                  document.body.classList.remove('tocActive');
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                if (!toggler) {
+                  return;
+                }
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer docMainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1 class="postHeaderTitle">Storage</h1></header><article><div><span><h1><a class="anchor" aria-hidden="true" id="storage-mechanisms"></a><a href="#storage-mechanisms" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>📚 Storage Mechanisms</h1>
+<p>Even though Botpress has a built-in database, it aims to abtract most of the storage for you to simplify data management. Botpress does that by providing high-level APIs.</p>
+<h2><a class="anchor" aria-hidden="true" id="per-conversation-storage"></a><a href="#per-conversation-storage" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Per-conversation storage</h2>
+<p>In the context of a conversation, data should in most cases be stored in the <strong>state</strong> itself (see <a href="../trivia_actions">actions</a>).</p>
+<h3><a class="anchor" aria-hidden="true" id="alternatives"></a><a href="#alternatives" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Alternatives</h3>
+<p>If for some reason you don't want to store the data in the state (perhaps it is too large or too sensitive), we recommend you retrieve the <code>stateId</code> from the state. You can then use that <code>stateId</code> as the key for your external storage mechanism.</p>
+<pre><code class="hljs css language-js">storeLargePayload: <span class="hljs-function"><span class="hljs-params">state</span> =&gt;</span> {
+  <span class="hljs-keyword">const</span> stateId = state._stateId
+  <span class="hljs-comment">// Store something huge somewhere using the stateId as key</span>
+  <span class="hljs-keyword">return</span>
+},
+</code></pre>
+<h2><a class="anchor" aria-hidden="true" id="per-user-storage"></a><a href="#per-user-storage" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Per-user storage</h2>
+<p>If you want to store things about your users and you want that information to be persisted across multiple conversations, we suggest you use <code>User Tags</code>.</p>
+<pre><code class="hljs css language-js">storeAge: <span class="hljs-keyword">async</span> (state, event) =&gt; {
+  <span class="hljs-keyword">const</span> userId = event.user.id
+
+  <span class="hljs-comment">// Set the age</span>
+  <span class="hljs-comment">// Value can be anything, it will get serialized</span>
+  <span class="hljs-keyword">await</span> event.bp.users.tag(userId, <span class="hljs-string">'age'</span>, <span class="hljs-number">12</span>)
+
+  <span class="hljs-comment">// Get the age back</span>
+  <span class="hljs-keyword">const</span> age = <span class="hljs-keyword">await</span> event.bp.users.getTag(userId, <span class="hljs-string">'age'</span>)
+
+  <span class="hljs-comment">// Delete the age</span>
+  <span class="hljs-keyword">await</span> event.bp.users.untag(userId, <span class="hljs-string">'age'</span>)
+
+  <span class="hljs-keyword">return</span>
+},
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="alternatives-1"></a><a href="#alternatives-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Alternatives</h3>
+<p>If you prefer to store this information somewhere else, you can use the <code>userId</code> as the key for external storage.</p>
+<pre><code class="hljs css language-js">storeLargePayload: <span class="hljs-function">(<span class="hljs-params">state, event</span>) =&gt;</span> {
+  <span class="hljs-keyword">const</span> userId = event.user.id
+  <span class="hljs-comment">// Store something huge somewhere using the userId as key</span>
+  <span class="hljs-keyword">return</span>
+},
+</code></pre>
+<h2><a class="anchor" aria-hidden="true" id="global-storage"></a><a href="#global-storage" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Global storage</h2>
+<p>If you want to store things globally, you can use the built-in <a href="https://botpress.io/docs/latest/recipes/dbs/">Key-Value-Store (KVS)</a>.</p>
+<pre><code class="hljs css language-js">storeGlobal: <span class="hljs-keyword">async</span> (state, event) =&gt; {
+  <span class="hljs-keyword">const</span> kvs = event.bp.kvs
+
+  <span class="hljs-comment">// Set global variable</span>
+  <span class="hljs-keyword">await</span> kvs.set(<span class="hljs-string">'winner'</span>, { <span class="hljs-attr">name</span>: <span class="hljs-string">'Joe'</span> })
+
+
+  <span class="hljs-comment">// Get global variable</span>
+  <span class="hljs-keyword">const</span> winner = <span class="hljs-keyword">await</span> kvs.get(<span class="hljs-string">'winner'</span>)
+
+  <span class="hljs-keyword">return</span>
+},
+</code></pre>
+<h2><a class="anchor" aria-hidden="true" id="full-database"></a><a href="#full-database" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Full database</h2>
+<p>If none of the above works for you, you might want to consider using a built-in database (SQLite or Postgres). This is the most flexible option but obviously comes with more work on your end, as you'll have to manually create and maintain tables, rows and write SQL queries.</p>
+<p>Botpress uses the great <a href="http://knexjs.org"><strong>knex</strong></a> library to abstract the database layer. You may get an instance of <code>knex</code> with the following code:</p>
+<pre><code class="hljs css language-js"><span class="hljs-comment">// If you have access to `bp` directly</span>
+<span class="hljs-keyword">const</span> knex = <span class="hljs-keyword">await</span> bp.db.get()
+
+<span class="hljs-comment">// Instead if you have an event:</span>
+<span class="hljs-keyword">const</span> knex = <span class="hljs-keyword">await</span> event.bp.db.get()
+</code></pre>
+<hr>
+<h1><a class="anchor" aria-hidden="true" id="leaderboard"></a><a href="#leaderboard" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>🔨 Leaderboard</h1>
+<p>Now that we understand how to store data, how to write custom actions and how flows work, we have all the tools we need to finish implementing our leaderboard.</p>
+<h2><a class="anchor" aria-hidden="true" id="scoring-system"></a><a href="#scoring-system" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Scoring system</h2>
+<p>To determine the score of the user, we will take into account two variables:</p>
+<ul>
+<li>The total time it took to respond to all the questions</li>
+<li>The total score</li>
+</ul>
+<p>The score will be determined as follow: <code>SCORE / TIME_IN_MILLISECONDS * 1000 * 5000</code></p>
+<h3><a class="anchor" aria-hidden="true" id="computing-total-time"></a><a href="#computing-total-time" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Computing total time</h3>
+<p>To calculate the total time to answer, we will modify the <code>startGame</code> action to store the start time:</p>
+<pre><code class="hljs css language-diff">startGame: state =&gt; {
+  return {
+    ...state, // we clone the existing state
+<span class="hljs-addition">+    startTime: new Date(),</span>
+    count: 0, // we then reset the number of questions asked to `0`
+    score: 0 // and we reset the score to `0`
+  }
+},
+</code></pre>
+<p>Then we will create a new action called <code>endGame</code> as follow.</p>
+<blockquote>
+<p><strong>Note:</strong> Don't forget to import <code>moment</code> at the top of your file: <code>const moment = require('moment')</code></p>
+</blockquote>
+<pre><code class="hljs css language-js">endGame: <span class="hljs-function"><span class="hljs-params">state</span> =&gt;</span> {
+  <span class="hljs-comment">// assuming you declared moment at the top of this file</span>
+  <span class="hljs-comment">// const moment = require('moment')</span>
+  <span class="hljs-keyword">const</span> totalTimeInMs = moment().diff(moment(state.startTime))
+  <span class="hljs-keyword">const</span> totalScore = <span class="hljs-built_in">parseInt</span>(state.score / totalTimeInMs * <span class="hljs-number">1000</span> * <span class="hljs-number">5000</span>)
+
+  <span class="hljs-keyword">return</span> {
+    ...state,
+    <span class="hljs-attr">totalScore</span>: totalScore
+  }
+},
+</code></pre>
+<p><img src="{{site.baseurl}}/images/totalScore.jpg" alt="Calling the endGame"></p>
+<h2><a class="anchor" aria-hidden="true" id="storing-top-scores-in-kvs"></a><a href="#storing-top-scores-in-kvs" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Storing top scores in KVS</h2>
+<p>Now that the performance of the player is quantified, we can start recording a list of the best scores. Let's create an action that amends the leaderboard:</p>
+<pre><code class="hljs css language-js">amendLeaderboard: <span class="hljs-keyword">async</span> (state, event) =&gt; {
+  <span class="hljs-comment">// Let's pull our existing leaderboard or create an empty board if it doesn't exist</span>
+  <span class="hljs-keyword">let</span> board = (<span class="hljs-keyword">await</span> event.bp.kvs.get(<span class="hljs-string">'leaderboard'</span>)) || []
+
+  board.push({
+    <span class="hljs-attr">score</span>: state.totalScore,
+    <span class="hljs-attr">date</span>: moment().format(<span class="hljs-string">'dd MMM YYYY, hA'</span>),
+    <span class="hljs-attr">nickname</span>: state.nickname
+  })
+
+  <span class="hljs-comment">// Now let's take the top 5 only and re-save it</span>
+  board = _.take(_.orderBy(board, [<span class="hljs-string">'score'</span>], [<span class="hljs-string">'desc'</span>]), <span class="hljs-number">5</span>)
+  <span class="hljs-keyword">await</span> event.bp.kvs.set(<span class="hljs-string">'leaderboard'</span>, board)
+
+  <span class="hljs-comment">// Are we in top 5? (i.e. are we in the array)</span>
+  <span class="hljs-keyword">const</span> doesRanking = !!_.find(board, {
+    <span class="hljs-attr">score</span>: state.totalScore,
+    <span class="hljs-attr">nickname</span>: state.nickname
+  })
+
+  <span class="hljs-keyword">return</span> {
+    ...state,
+    <span class="hljs-attr">leaderboard</span>: board,
+    <span class="hljs-attr">doesRanking</span>: doesRanking
+  }
+},
+</code></pre>
+<p>Notice how we make use of the global storage (<code>event.bp.kvs</code>) to store the leaderboard, which is merely an ordered array of the best scores.</p>
+<h2><a class="anchor" aria-hidden="true" id="wrapping-up"></a><a href="#wrapping-up" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Wrapping up</h2>
+<p>Now that we have the single action that is in charge of storing the scores and determining if we're making the ranking or not, we need to consume that action in the flow.</p>
+<p>This is very straightforward, so we'll skip the details:</p>
+<p><img src="{{site.baseurl}}/images/leaderboardFlow.jpg" alt="Leaderboard flow nodes"></p>
+<h2><a class="anchor" aria-hidden="true" id="note-a"></a><a href="#note-a" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Note A</h2>
+<p>We need to pull the nickname in the state right after setting it to make sure that the state contains the user's nickname at all times.</p>
+<h2><a class="anchor" aria-hidden="true" id="note-b"></a><a href="#note-b" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Note B</h2>
+<p>This is a simple action that calls the specified renderer and pass-throughs all the arguments. In this case, we're using the <code>#leaderboard</code> renderer (which we will define in a minute).</p>
+<blockquote>
+<p>This is a new concept that you probably didn't know existed: we can call renderers directly in actions.</p>
+<p>You can call <strong><code>event.reply(rendererName, data)</code></strong>, which is just slightly different than sending Content Elements (they start with <code>#!</code> instead of <code>#</code>).</p>
+</blockquote>
+<h3><a class="anchor" aria-hidden="true" id="the-leaderboard-renderer"></a><a href="#the-leaderboard-renderer" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>The <code>#leaderboard</code> renderer</h3>
+<p>Add the following renderer in your <code>renderer.js</code> file:</p>
+<pre><code class="hljs css language-js">leaderboard: <span class="hljs-function"><span class="hljs-params">data</span> =&gt;</span> ({
+  <span class="hljs-attr">text</span>: data.leaderboard
+    .map(<span class="hljs-function">(<span class="hljs-params">entry, i</span>) =&gt;</span> <span class="hljs-string">`<span class="hljs-subst">${i + <span class="hljs-number">1</span>}</span>. <span class="hljs-subst">${entry.nickname}</span> with <span class="hljs-subst">${entry.score}</span>`</span>) <span class="hljs-comment">//</span>
+    .join(<span class="hljs-string">'\r\n'</span>),
+  <span class="hljs-attr">typing</span>: <span class="hljs-string">'2s'</span>
+})
+</code></pre>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/docs/getting_started/actions"><span class="arrow-prev">← </span><span>Previous</span></a><a class="docs-next button" href="/docs/getting_started/skills"><span>Next</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav docOnPageNav"><ul class="toc-headings"><li><a href="#per-conversation-storage">Per-conversation storage</a><ul class="toc-headings"><li><a href="#alternatives">Alternatives</a></li></ul></li><li><a href="#per-user-storage">Per-user storage</a><ul class="toc-headings"><li><a href="#alternatives-1">Alternatives</a></li></ul></li><li><a href="#global-storage">Global storage</a></li><li><a href="#full-database">Full database</a></li><li><a href="#scoring-system">Scoring system</a><ul class="toc-headings"><li><a href="#computing-total-time">Computing total time</a></li></ul></li><li><a href="#storing-top-scores-in-kvs">Storing top scores in KVS</a></li><li><a href="#wrapping-up">Wrapping up</a></li><li><a href="#note-a">Note A</a></li><li><a href="#note-b">Note B</a><ul class="toc-headings"><li><a href="#the-leaderboard-renderer">The <code>#leaderboard</code> renderer</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/botpress.svg" alt="| Documentation" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/en/doc1.html">Getting Started (or other categories)</a><a href="/docs/en/doc2.html">Guides (or other categories)</a><a href="/docs/en/doc3.html">API Reference (or other categories)</a></div><div><h5>Community</h5><a href="/en/users.html">User Showcase</a><a href="http://stackoverflow.com/questions/tagged/" target="_blank" rel="noreferrer noopener">Stack Overflow</a><a href="https://discordapp.com/">Project Chat</a><a href="https://twitter.com/" target="_blank" rel="noreferrer noopener">Twitter</a></div><div><h5>More</h5><a href="/blog">Blog</a><a href="https://github.com/">GitHub</a><a class="github-button" data-icon="octicon-star" data-count-href="/facebook/docusaurus/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" rel="noreferrer noopener" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2018 Botpress, Inc.</section></footer></div></body></html>

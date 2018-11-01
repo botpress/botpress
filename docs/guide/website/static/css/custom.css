@@ -1,0 +1,41 @@
+/* your custom css */
+
+@media only screen and (min-device-width: 360px) and (max-device-width: 736px) {
+}
+
+@media only screen and (min-width: 1024px) {
+}
+
+@media only screen and (max-width: 1023px) {
+}
+
+@media only screen and (min-width: 1400px) {
+}
+
+@media only screen and (min-width: 1500px) {
+}
+
+.blockElement.alignCenter.fourByGridBlock {
+  border: 1px solid #1b4af7;
+  border-radius: 3px;
+}
+
+.blockElement.alignCenter.fourByGridBlock p {
+  padding: 0 16px 0 16px;
+  text-align: left;
+}
+
+.fixedHeaderContainer {
+  background-color: #090909;
+}
+
+.logo {
+  margin-right: 5px !important;
+  filter: brightness(0) invert(1);
+}
+
+.mainLogo {
+  width: 30%;
+  display: inline-block;
+  filter: brightness(0);
+}

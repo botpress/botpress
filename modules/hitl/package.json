@@ -1,0 +1,33 @@
+{
+  "name": "@botpress/hitl",
+  "version": "10.43.0",
+  "description": "Official HITL (Human In The Loop) module for Botpress",
+  "main": "dist/backend/index.js",
+  "botpress": {
+    "src": "src",
+    "webBundle": "bin/web.bundle.js"
+  },
+  "keywords": [
+    "hitl",
+    "human in the loop",
+    "botpress"
+  ],
+  "scripts": {
+    "build": "./node_modules/.bin/module-builder build",
+    "watch": "./node_modules/.bin/module-builder watch"
+  },
+  "author": "Botpress",
+  "license": "AGPL-3.0-only",
+  "devDependencies": {
+    "@types/node": "^10.11.0",
+    "classnames": "^2.2.5",
+    "module-builder": "../../build/module-builder",
+    "react-audio-player": "^0.9.0",
+    "react-toggle": "^4.0.2"
+  },
+  "dependencies": {
+    "bluebird": "^3.4.7",
+    "lodash": "^4.17.4",
+    "moment": "^2.17.1"
+  }
+}

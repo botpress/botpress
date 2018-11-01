@@ -1,0 +1,122 @@
+version: 0.2
+
+env:
+  variables:
+    CHILD_CONCURRENCY: 1
+    GULP_SERIES: true
+    YARN_CACHE_DIR_WIN: /codebuild/output/.cache/yarn-win
+    YARN_CACHE_DIR_LINUX: /codebuild/output/.cache/yarn-linux
+    YARN_CACHE_DIR_DARWIN: /codebuild/output/.cache/yarn-darwin
+  parameter-store:
+    DOCKER_USERNAME: 'docker_username'
+    DOCKER_PASSWORD: 'docker_password'
+    GIT_PRO_SSH: 'bp_git_pro_ssh_codebuild'
+
+phases:
+  install:
+    commands:
+      - npm install -g yarn
+      - mkdir -p $YARN_CACHE_DIR_WIN
+      - mkdir -p $YARN_CACHE_DIR_LINUX
+      - mkdir -p $YARN_CACHE_DIR_DARWIN
+
+  pre_build:
+    commands:
+      # Add our encrypted SSH key to our keychain so we can checkout the "Pro" private submodule
+      - echo "$GIT_PRO_SSH" > pro-ssh
+      - chmod 400 pro-ssh
+      - eval "$(ssh-agent -s)"
+      - echo "" | ssh-add pro-ssh
+      # Docker setup
+      - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+      - echo "Edition = '$EDITION'"
+      - $(./build/codebuild-extras.sh)
+      - echo "BUILDING FOR '$ARTIFACT_NAME' edition '$EDITION'"
+      - yarn install
+      - (cd build/module-builder && yarn install && yarn build)
+
+  build:
+    commands:
+      - yarn config set cache-folder $YARN_CACHE_DIR_LINUX
+      - (cd src/bp/ui-admin && yarn install && yarn build)
+      # OSX Build
+      - yarn config set cache-folder $YARN_CACHE_DIR_DARWIN
+      - export npm_config_target_platform=darwin
+      # Twice because of potential OS-specific errors
+      - yarn install --force --ignore-engines
+      - yarn install --force --ignore-engines
+      - yarn run build --mac
+      - yarn run package --mac
+      - mkdir -p out/binaries/data/storage
+      - touch out/binaries/data/storage/.keep
+      - mv out out_darwin
+      - rm -rf **/node_modules
+      - rm -rf **/node_production_modules
+      - mkdir -p out
+      # # Windows Build
+      - yarn config set cache-folder $YARN_CACHE_DIR_WIN
+      - export npm_config_target_platform=windows
+      - yarn install --force --ignore-engines
+      - yarn install --force --ignore-engines
+      - yarn run build --win32
+      - yarn run package --win32
+      - mkdir -p out/binaries/data/storage
+      - touch out/binaries/data/storage/.keep
+      - mv out out_win32
+      - rm -rf **/node_modules
+      - rm -rf **/node_production_modules
+      - mkdir -p out
+      # Linux Build
+      - yarn config set cache-folder $YARN_CACHE_DIR_LINUX
+      - export npm_config_target_platform=linux
+      - yarn install --force --ignore-engines
+      - yarn run build --linux
+      - yarn run package --linux
+      - mkdir -p out/binaries/data/storage
+      - touch out/binaries/data/storage/.keep
+      - mv out out_linux
+      - rm -rf **/node_modules
+      - rm -rf **/node_production_modules
+      - cp Dockerfile out_linux/binaries/
+      - docker build -t $REPOSITORY_URI:$EDITION-$ARTIFACT_NAME out_linux/binaries
+      - docker tag $REPOSITORY_URI:$EDITION-$ARTIFACT_NAME $REPOSITORY_URI:$DOCKER_TAG_COMMIT
+      - rm out_linux/binaries/Dockerfile
+
+  post_build:
+    commands:
+      - docker push $REPOSITORY_URI:$EDITION-$ARTIFACT_NAME
+      - docker push $REPOSITORY_URI:$DOCKER_TAG_COMMIT
+      - ls -a out_darwin
+      - ls -a out_win32
+      - ls -a out_linux
+
+artifacts:
+  base-directory: $CODEBUILD_SRC_DIR
+  name: botpress-$EDITION-$ARTIFACT_NAME-all-x64.zip
+  files:
+    - 'out_*/**/*'
+
+  secondary-artifacts:
+    darwin:
+      base-directory: $CODEBUILD_SRC_DIR/out_darwin/binaries
+      name: botpress-$EDITION-$ARTIFACT_NAME-darwin-x64.zip
+      files:
+        - '**/*'
+
+    linux:
+      base-directory: $CODEBUILD_SRC_DIR/out_linux/binaries
+      name: botpress-$EDITION-$ARTIFACT_NAME-linux-x64.zip
+      files:
+        - '**/*'
+
+    windows:
+      base-directory: $CODEBUILD_SRC_DIR/out_win32/binaries
+      name: botpress-$EDITION-$ARTIFACT_NAME-win-x64.zip
+      files:
+        - '**/*'
+
+# cache:
+#   paths:
+#     - /codebuild/output/.cache/yarn-win/**/*
+#     - /codebuild/output/.cache/yarn-linux/**/*
+#     - /codebuild/output/.cache/yarn-darwin/**/*

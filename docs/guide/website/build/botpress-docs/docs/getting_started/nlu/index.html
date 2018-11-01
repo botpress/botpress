@@ -1,0 +1,114 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>NLU · | Documentation</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="# 📚 NLU"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="NLU · | Documentation"/><meta property="og:type" content="website"/><meta property="og:url" content="https://botpress.io/index.html"/><meta property="og:description" content="# 📚 NLU"/><meta property="og:image" content="https://botpress.io/img/docusaurus.png"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://botpress.io/img/docusaurus.png"/><link rel="shortcut icon" href="/img/favicon.png"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><link rel="stylesheet" href="/css/main.css"/></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/"><img class="logo" src="/img/botpress.svg" alt="| Documentation"/><h2 class="headerTitleWithLogo">| Documentation</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/docs/getting_started/" target="_self">Docs</a></li><li class=""><a href="https://help.botpress.io/" target="_self">Help</a></li><li class=""><a href="https://botpress.io/docs/latest/reference/" target="_self">API</a></li><li class=""><a href="https://github.com/botpress" target="_self">Github</a></li><li class=""><a target="_self"></a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><i></i></div><h2><i>›</i><span>Getting Started</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">Getting Started</h3><ul><li class="navListItem"><a class="navItem" href="/docs/getting_started/">What you will learn</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/philosphy">The Botpress Philosophy</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/install">Install</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/components">Components</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/templates">Templates</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/dashboard">Dashboard</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/content">Content</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/flows">Flows</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/actions">Actions</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/storage">Storage</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/skills">Skills</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/docs/getting_started/nlu">NLU</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/deploying">Deploying</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/changes">Changes</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Recipes</h3><ul><li class="navListItem"><a class="navItem" href="/docs/recipes/">What are they?</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/analytics">Analytics</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/apis">Using external APIs</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/broadcasting">Broadcasting</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/carousel">Carousel</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/databases">Supported databases</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/embedding">Embedding the Webchat on a website</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/hitl">HITL (Human-in-the-loop)</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/i18n">i18n</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/jumps">Jump to</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/login">Login</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/modules">Modules</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/proactive">Proactive acting</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/sanitizing">Sanitizing</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/scheduling">Scheduling messages</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/shortlinks">Shortlinks</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/timeout">Timeout</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/extensions">Webchat Extensions</a></li></ul></div></div></section></div><script>
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              const headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                if (event.target.tagName === 'A') {
+                  document.body.classList.remove('tocActive');
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                if (!toggler) {
+                  return;
+                }
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer docMainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1 class="postHeaderTitle">NLU</h1></header><article><div><span><h1><a class="anchor" aria-hidden="true" id="nlu"></a><a href="#nlu" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>📚 NLU</h1>
+<p>A bot tutorial wouldn't be complete without covering Natural Language Understanding (NLU).</p>
+<h2><a class="anchor" aria-hidden="true" id="the-botpress-nlu-module"></a><a href="#the-botpress-nlu-module" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>The <code>@botpress/nlu</code> module</h2>
+<p>Botpress has an official module for easily adding NLU to your bots. Let's start by installing this module:</p>
+<pre><code class="hljs css language-bash"><span class="hljs-comment"># using npm</span>
+npm install --save @botpress/nlu
+
+<span class="hljs-comment"># using yarn</span>
+yarn add @botpress/nlu
+</code></pre>
+<h2><a class="anchor" aria-hidden="true" id="providers"></a><a href="#providers" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Providers</h2>
+<p>In Botpress, NLU is acheived by connecting with 3rd-party providers such as <a href="http://nlu.rasa.ai">Rasa NLU</a>, <a href="https://www.luis.ai/">Microsoft LUIS</a>, <a href="dialogflow.com">Google DialogFlow</a> or <a href="https://www.ibm.com/watson/services/natural-language-understanding/">IBM Watson NLU</a>.</p>
+<blockquote>
+<p><strong>Note:</strong> For this tutorial, we will use the native (built-in) NLU engine, which is useful for testing purposes or simple classification. For more complex classification and entity extraction, consider <a href="https://github.com/botpress/botpress/tree/master/packages/functionals/botpress-nlu">Switching to Rasa or Luis</a>.</p>
+</blockquote>
+<h2><a class="anchor" aria-hidden="true" id="intent-classification"></a><a href="#intent-classification" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Intent Classification</h2>
+<p>Intent classification helps you detect the intent of the users. Examples:</p>
+<ul>
+<li><strong>User said:</strong> <em>&quot;I want to fly to Dubai&quot;</em> , <strong>Intent:</strong> <code>search_flight</code></li>
+<li><strong>User said:</strong> <em>&quot;My flight is delayed, help!&quot;</em> , <strong>Intent:</strong> <code>faq_flight_delayed</code></li>
+<li><strong>User said:</strong> <em>&quot;Can I bring a pet aboard?&quot;</em> , <strong>Intent:</strong> <code>faq_pet</code></li>
+</ul>
+<p>Intent classification is, in general, a better way than using keywords to understand what the user is trying to say.</p>
+<h2><a class="anchor" aria-hidden="true" id="entity-extraction"></a><a href="#entity-extraction" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Entity Extraction</h2>
+<p>Entity Extraction helps you extract and normalize known entities from phrases. Examples:</p>
+<ul>
+<li><strong>User said:</strong> <em>&quot;I want to fly to Dubai tomorrow&quot;</em> , <strong>Destination:</strong> <code>Dubai</code> , <strong>Date:</strong> <code>01 Jan 2018</code></li>
+</ul>
+<p>Entity Extraction is usually used in combination with Intent Classification.</p>
+<h2><a class="anchor" aria-hidden="true" id="how-it-works"></a><a href="#how-it-works" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>How it works</h2>
+<p>Botpress abstracts the different NLU providers and provides a clean, easy-to-use interface to do Intent Classification and Entity Extraction. The intents and entities are stored locally (by default in the <code>./entities</code> and <code>./intents</code> folders) and they follow the source code of your bot so that your NLU and bot logic are always in sync.  Importantly this means you have access to and control over your set up data.</p>
+<blockquote>
+<p>Since the details and inner workings differ from one provider to another, we invite you to read more about the NLU module directly on GitHub.</p>
+</blockquote>
+<h1><a class="anchor" aria-hidden="true" id="adding-nlu-to-our-bot"></a><a href="#adding-nlu-to-our-bot" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>🔨 Adding NLU to our bot</h1>
+<h2><a class="anchor" aria-hidden="true" id="creating-the-intents"></a><a href="#creating-the-intents" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Creating the intents</h2>
+<p>For this tutorial, there are two user intents that we want to support: <code>play</code> and <code>see_leaderboard</code>. A real production bot would usually try to understand more things and be more complete, but for this tutorial, it will be enough.</p>
+<p>First, install the <a href="https://github.com/botpress/botpress/tree/master/packages/functionals/botpress-nlu"><code>@botpress/nlu</code></a> module.</p>
+<p>Once that's done, restart your bot. You should see a new &quot;NLU&quot; item in the left menu. Open it.</p>
+<p>Click the &quot;Create new intent&quot; at the bottom and type <code>play</code>.</p>
+<p>Now let's add a couple of new utterances (variations) of what a user would usually type if he wanted to say to the bot that he wants to play a new game.  About 10 phrases should suffice to start. Don't forget to save the file once you're done.</p>
+<p>Do the same for the <code>leaderboard</code> intent.</p>
+<h3><a class="anchor" aria-hidden="true" id="training-the-model"></a><a href="#training-the-model" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Training the model</h3>
+<p>To train your bot using these new intents, simply restart the bot. You should see the training progress in the console.</p>
+<p><img src="{{site.baseurl}}/images/nluConsole.jpg" alt="Training status in console"></p>
+<h2><a class="anchor" aria-hidden="true" id="using-the-intents-in-flows"></a><a href="#using-the-intents-in-flows" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Using the intents in flows</h2>
+<p>The Botpress NLU makes it convenient to test which intent is currently detected by amending the incoming <code>event</code> and adding an <code>nlu</code> property to it. Let's see how that property looks:</p>
+<pre><code class="hljs css language-js">{ <span class="hljs-attr">intent</span>:
+   { <span class="hljs-attr">name</span>: <span class="hljs-string">'leaderboard'</span>,
+     <span class="hljs-attr">confidence</span>: <span class="hljs-number">0.47619047619047616</span>,
+     <span class="hljs-attr">provider</span>: <span class="hljs-string">'native'</span>,
+     <span class="hljs-attr">is</span>: [<span class="hljs-built_in">Function</span>: is] },
+  <span class="hljs-attr">entities</span>: [] }
+</code></pre>
+<p>We could very easily add a condition similar to the one below in the entry point node of the bot so that if the user starts the conversation with something like &quot;<em>Who's the best player?</em>&quot;, it would redirect him straight to the <code>leaderboard</code> flow.</p>
+<p><img src="{{site.baseurl}}/images/nluFlow.jpg" alt="Final flow"></p>
+<pre><code class="hljs css language-js">event.nlu.intent.name === <span class="hljs-string">'leaderboard'</span>
+<span class="hljs-comment">// or</span>
+event.nlu.intent.is(<span class="hljs-string">'leaderboard'</span>)
+</code></pre>
+<p>The latter example has the advantage of being case insensitive and is guaranteed to always be available by the NLU module, even if intent classification fails.</p>
+<p><img src="{{site.baseurl}}/images/nluLeaderboard.jpg" alt="Flowing to the leaderboard flow"></p>
+<h2><a class="anchor" aria-hidden="true" id="changing-the-nlu-provider"></a><a href="#changing-the-nlu-provider" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Changing the NLU provider</h2>
+<p>To change NLU-provider you basically need to change several env-variables so that app knows provider and credentials to use.</p>
+<pre><code class="hljs css language-bash">NLU_PROVIDER=luis <span class="hljs-comment"># can be native, dialogflow, rasa, luis, recast</span>
+
+<span class="hljs-comment"># Luis</span>
+NLU_LUIS_APP_ID
+NLU_LUIS_PROGRAMMATIC_KEY
+NLU_LUIS_APP_SECRET
+NLU_LUIS_APP_REGION <span class="hljs-comment"># Not required (default is westus)</span>
+
+<span class="hljs-comment"># DialogFlow</span>
+GOOGLE_PROJECT_ID
+GOOGLE_APPLICATION_CREDENTIALS
+
+<span class="hljs-comment"># RASA</span>
+NLU_RASA_URL <span class="hljs-comment"># Not required (default is http://localhost:5000/)</span>
+NLU_RASA_TOKEN <span class="hljs-comment"># Not required (none by default)</span>
+NLU_RASA_PROJECT <span class="hljs-comment"># Not required (default is botpress)</span>
+
+<span class="hljs-comment"># RECAST</span>
+NLU_RECAST_TOKEN
+NLU_RECAST_USER_SLUG
+NLU_RECAST_BOT_SLUG
+</code></pre>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/docs/getting_started/skills"><span class="arrow-prev">← </span><span>Previous</span></a><a class="docs-next button" href="/docs/getting_started/deploying"><span>Next</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav docOnPageNav"><ul class="toc-headings"><li><a href="#the-botpress-nlu-module">The <code>@botpress/nlu</code> module</a></li><li><a href="#providers">Providers</a></li><li><a href="#intent-classification">Intent Classification</a></li><li><a href="#entity-extraction">Entity Extraction</a></li><li><a href="#how-it-works">How it works</a></li><li><a href="#creating-the-intents">Creating the intents</a><ul class="toc-headings"><li><a href="#training-the-model">Training the model</a></li></ul></li><li><a href="#using-the-intents-in-flows">Using the intents in flows</a></li><li><a href="#changing-the-nlu-provider">Changing the NLU provider</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/botpress.svg" alt="| Documentation" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/en/doc1.html">Getting Started (or other categories)</a><a href="/docs/en/doc2.html">Guides (or other categories)</a><a href="/docs/en/doc3.html">API Reference (or other categories)</a></div><div><h5>Community</h5><a href="/en/users.html">User Showcase</a><a href="http://stackoverflow.com/questions/tagged/" target="_blank" rel="noreferrer noopener">Stack Overflow</a><a href="https://discordapp.com/">Project Chat</a><a href="https://twitter.com/" target="_blank" rel="noreferrer noopener">Twitter</a></div><div><h5>More</h5><a href="/blog">Blog</a><a href="https://github.com/">GitHub</a><a class="github-button" data-icon="octicon-star" data-count-href="/facebook/docusaurus/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" rel="noreferrer noopener" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2018 Botpress, Inc.</section></footer></div></body></html>
