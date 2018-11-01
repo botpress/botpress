@@ -97,8 +97,9 @@ body {
       text-decoration: none;
       background-color: #eee; }
 
-.login-box input {
-  margin: 10px 0; }
+.login-box label {
+  display: block;
+  text-align: left; }
 
 .login-box button {
   width: 100%;
