@@ -24,7 +24,7 @@
         "title": "Components"
       },
       "getting_started/content": {
-        "title": "!!Content"
+        "title": "Content"
       },
       "getting_started/deploying": {
         "title": "Deploying"
@@ -104,9 +104,6 @@
       "recipes/jumps": {
         "title": "Jump to"
       },
-      "recipes/login": {
-        "title": "!!!Login"
-      },
       "recipes/proactive": {
         "title": "Proactive acting"
       },
@@ -115,13 +112,11 @@
       },
       "recipes/timeout": {
         "title": "Timeout"
-      },
-      "recipes/extensions": {
-        "title": "!!!Webchat Extensions"
       }
     },
     "links": {
       "Docs": "Docs",
+      "Botpress 10.x Docs": "Botpress 10.x Docs",
       "Help": "Help",
       "API": "API",
       "Github": "Github"

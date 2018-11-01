@@ -1,6 +1,6 @@
 ---
 id: content
-title: !!Content
+title: Content
 ---
 
 # 📚 Types, Elements, Renderers

@@ -15,7 +15,25 @@ If you get the error `Error training model` on Linux, please check the instructi
 
 ## Use our Docker image
 
-The docker images simply loads the linux binary and sets up persistent storage. You may then easily create your Dockerfile based from this image and deploy it in the cloud. There is a tutorial in the [deploying](./deploying) section on how to easily deploy it on Heroku.
+Docker images are available on [DockerHub](https://hub.docker.com/r/botpress/server/tags/). Follow the instructions and you'll be up and running very quickly.
+
+1. Create a file named `Dockerfile` with the following content:
+
+```bash
+FROM botpress/server:$VERSION
+ADD . /botpress
+WORKDIR /botpress
+CMD ["./bp"]
+```
+
+If you already have a bot and you want to add it in your image, put your `data` folder in the same as your `Dockerfile`.
+
+2. Type these commands to build your image and run it :
+
+```bash
+docker build -t botpress .
+docker run botpress
+```
 
 ## Build from source <a class="toc" id="source" href="#source"></a>
 
