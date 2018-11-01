@@ -1,3 +1,4 @@
+import { Logger } from 'botpress/sdk'
 import { inject, injectable, optional, tagged } from 'inversify'
 import _ from 'lodash'
 import nanoid from 'nanoid'
@@ -5,7 +6,6 @@ import nanoid from 'nanoid'
 import { TYPES } from '../../types'
 
 import { defaultOptions, Job, JobWithEvent, JobWrapper, Queue, QueueOptions } from '.'
-import { Logger } from 'botpress/sdk'
 
 @injectable()
 export default class MemoryQueue implements Queue {

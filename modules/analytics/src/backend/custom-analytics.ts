@@ -99,11 +99,11 @@ export default ({ bp }) => {
         .groupBy('date')
         .then(rows => {
           return rows.map(row => {
-            return Object.assign(row, { count: parseInt(row.count) })
+            return { ...row, count: parseInt(row.count) }
           })
         })
 
-      return Object.assign({}, graph, { results: rows })
+      return { ...graph, results: rows }
     },
 
     async countUniq(graph, from, to) {
@@ -134,14 +134,14 @@ export default ({ bp }) => {
         return { date: n1.date, percent: percent > 1 ? 1 : percent }
       })
 
-      let percent = null
+      let percent = undefined
       if (graph.fnAvg) {
         const n1Uniq = await countUniqRecords(from, to, variable1)
         const n2Uniq = await countUniqRecords(from, to, variable2)
         percent = graph.fnAvg(n1Uniq, n2Uniq) * 100
       }
 
-      return Object.assign({}, graph, { results, percent })
+      return { ...graph, results, percent }
     },
 
     piechart: async function(graph, from, to) {
@@ -159,19 +159,16 @@ export default ({ bp }) => {
           return rows.map(row => {
             const name = _.drop(row.name.split('~')).join('~')
 
-            return Object.assign(row, {
-              name: _.isEmpty(name) ? 'unknown' : name,
-              count: parseInt(row.count)
-            })
+            return { ...row, name: _.isEmpty(name) ? 'unknown' : name, count: parseInt(row.count) }
           })
         })
 
-      return Object.assign({}, graph, { results: rows })
+      return { ...graph, results: rows }
     }
   }
 
   async function getAll(from, to) {
-    return Promise.map(graphs, graph => getters[graph.type](graph, from, to))
+    return Promise.map(graphs, graph => getters[graph['type']](graph, from, to))
   }
 
   return { increment, decrement, set, addGraph, getAll }

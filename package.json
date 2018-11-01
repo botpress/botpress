@@ -27,7 +27,8 @@
     "build:guide": "cd docs/guide/website && yarn run build",
     "start:admin": "cd src/bp/ui-admin && yarn start:dev",
     "build:admin": "cd src/bp/ui-admin && yarn && yarn build && ../../../node_modules/.bin/gulp copy-admin",
-    "commitmsg": "commitlint -e $GIT_PARAMS"
+    "commitmsg": "commitlint -e $GIT_PARAMS",
+    "tslint": "node_modules/.bin/tslint --project tslint.json"
   },
   "dependencies": {
     "axios": "^0.18.0",
@@ -125,6 +126,7 @@
   },
   "husky": {
     "hooks": {
+      "pre-commit": "yarn tslint",
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
   }
