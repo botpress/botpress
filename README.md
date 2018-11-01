@@ -32,7 +32,7 @@ Botpress is on a mission to make useful bots ubiquitous by powering developers w
   <img alt="Multi-bots" height="450" src=".github/assets/multi-bots.jpg">  
 </p>
 <p align="left">
-  <img alt="One-click" align="left" height="450" src=".github/assets/one_click.jpg">
+  <img alt="One-click" height="450" src=".github/assets/one_click.jpg">
 </p>
 
 ## Binaries
