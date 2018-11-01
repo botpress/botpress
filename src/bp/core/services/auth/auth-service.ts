@@ -29,7 +29,7 @@ export default class AuthService {
   }
 
   async getResources(): Promise<Resource[]> {
-    if (process.env.EDITION !== 'ce') {
+    if (process.BOTPRESS_EDITION !== 'ce') {
       const resources = require('professional/services/admin/pro-resources')
       return resources.PRO_RESOURCES
     }
