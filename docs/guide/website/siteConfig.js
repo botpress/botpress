@@ -12,7 +12,7 @@ const siteConfig = {
   title: "| Developer's Guide",
   tagline: 'Guides and references for all you need to know about Botpress',
   url: 'https://botpress.io',
-  baseUrl: '/',
+  baseUrl: '/docs/latest/',
   repoUrl: 'https://github.com/botpress/botpress',
   projectName: 'botpress-docs',
   organizationName: 'botpress',
