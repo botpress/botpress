@@ -24,16 +24,20 @@ If you feel awesome and want to support us in a small way, please consider starr
 
 <img alt="Botpress" width="250" src=".github/assets/star_us.gif">
 
+## Binaries
+
+You can download the binaries [here](https://s3.amazonaws.com/botpress-binaries/index.html).
+
 ## What's New in Botpress Server
 
 Botpress is on a mission to make useful bots ubiquitous by powering developers with the best possible tools to build & manage chatbots. We believe that in order to create great bots, significant time should be spent on user experience, **not** on the surrounding (and generic) features.
 
-<img alt="Multi-bots" height="150" src=".github/assets/multi-bots.jpg">
-<img alt="One-click" height="150" src=".github/assets/one_click.jpg">
-
-## Binaries
-
-You can download the binaries [here](https://s3.amazonaws.com/botpress-binaries/index.html).
+<p align="right">
+  <img alt="Multi-bots" height="450" src=".github/assets/multi-bots.jpg">  
+</p>
+<p align="left">
+  <img alt="One-click" height="450" src=".github/assets/one_click.jpg">
+</p>
 
 ## Quick Start
 
