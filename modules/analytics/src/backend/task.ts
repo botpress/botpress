@@ -10,14 +10,12 @@ export class UpdateTask {
     if (this._intervalRef) {
       throw new Error('The update is already running.')
     }
-    this._bp.logger.debug(`Started analytics for bot "${botId}"`)
     this._intervalRef = setInterval(this._runTaskWhenReady.bind(this), this._interval)
   }
 
   stop(botId) {
     clearInterval(this._intervalRef)
     this._intervalRef = undefined
-    this._bp.logger.debug(`Stopped analytics for bot "${botId}"`)
   }
 
   private async _runTaskWhenReady() {
