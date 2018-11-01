@@ -14,6 +14,7 @@ declare namespace NodeJS {
     VERBOSITY_LEVEL: number
     IS_PRODUCTION: boolean
     JWT_SECRET: string
+    HOST: string
     PORT: number
     PROXY_PORT: number
     PROJECT_LOCATION: string
