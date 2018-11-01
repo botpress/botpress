@@ -1,8 +1,8 @@
+import { LoggerEntry } from 'botpress/sdk'
 import { inject, injectable } from 'inversify'
 
-import { TYPES } from '../../types'
 import { LogsRepository } from '../../repositories/logs'
-import { LoggerEntry } from 'botpress/sdk'
+import { TYPES } from '../../types'
 
 @injectable()
 export class LogsService {

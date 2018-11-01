@@ -1,4 +1,4 @@
-import { resourceMatches, checkRule, enrichResources } from './auth'
+import { checkRule, enrichResources, resourceMatches } from './auth'
 
 test('resourceMatches', () => {
   expect(resourceMatches('', '')).toBe(true)
@@ -34,7 +34,7 @@ test('checkRule', () => {
     { op: '+w-r', res: '3.a' }
   ]
 
-  expect(checkRule(null, 'read', '1')).toBe(false)
+  expect(checkRule(undefined, 'read', '1')).toBe(false)
   expect(checkRule(rules, 'read', '1')).toBe(true)
   expect(checkRule(rules, 'write', '1')).toBe(false)
   expect(checkRule(rules, 'write', '1.a')).toBe(true)

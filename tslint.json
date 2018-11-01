@@ -10,7 +10,6 @@
         "grouped-imports": true
       }
     },
-    "no-floating-promises": true,
     "indent": [true, "spaces", 2],
     "one-line": [true, "check-open-brace", "check-whitespace"],
     "no-var-keyword": true,
