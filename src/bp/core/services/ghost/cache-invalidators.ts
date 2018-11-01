@@ -40,7 +40,9 @@ export namespace CacheInvalidators {
       this.cache = objectCache
 
       const watcher = chokidar.watch(path.join(process.PROJECT_LOCATION, './data'), {
-        ignoreInitial: true
+        ignoreInitial: true,
+        ignored: '**data/storage/**',
+        ignorePermissionErrors: true
       })
 
       watcher.on('add', this.handle)
