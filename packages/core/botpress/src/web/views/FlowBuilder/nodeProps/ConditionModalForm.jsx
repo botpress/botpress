@@ -171,9 +171,8 @@ export default class ConditionModalForm extends Component {
   }
 
   getNodeOptions() {
-    const { currentFlow: flow, currentNodeName } = this.props
-    const nodes = (flow && flow.nodes) || []
-    return nodes.filter(({ name }) => name !== currentNodeName).map(({ name }) => ({ label: name, value: name }))
+    const flow = this.props.currentFlow
+    return (flow && flow.nodes.map(({ name }) => ({ label: name, value: name }))) || []
   }
 
   renderNodesChoice() {
