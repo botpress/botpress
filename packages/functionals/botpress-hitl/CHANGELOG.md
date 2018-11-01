@@ -3,6 +3,78 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.50.0"></a>
+# [10.50.0](https://github.com/botpress/modules/compare/v10.49.0...v10.50.0) (2018-10-31)
+
+
+### Bug Fixes
+
+* **hitl:** swallow quick reply message type ([b74d928](https://github.com/botpress/modules/commit/b74d928))
+
+
+
+
+<a name="10.49.0"></a>
+# [10.49.0](https://github.com/botpress/modules/compare/v10.48.5...v10.49.0) (2018-10-30)
+
+
+
+
+**Note:** Version bump only for package @botpress/hitl
+
+<a name="10.48.5"></a>
+## [10.48.5](https://github.com/botpress/modules/compare/v10.48.4...v10.48.5) (2018-10-19)
+
+
+### Bug Fixes
+
+* **hitl:** display event inside conversation for hitl module ([21b7749](https://github.com/botpress/modules/commit/21b7749))
+* **hitl:** display messages of type quick_reply in hitl module ([e8ae668](https://github.com/botpress/modules/commit/e8ae668))
+* **hitl:** reset hitl_messages pg sequence (resolve [#1007](https://github.com/botpress/modules/issues/1007)) ([eb8bf71](https://github.com/botpress/modules/commit/eb8bf71))
+
+
+
+
+<a name="10.48.4"></a>
+## [10.48.4](https://github.com/botpress/modules/compare/v10.48.3...v10.48.4) (2018-10-17)
+
+
+
+
+**Note:** Version bump only for package @botpress/hitl
+
+<a name="10.48.3"></a>
+## [10.48.3](https://github.com/botpress/modules/compare/v10.48.2...v10.48.3) (2018-10-17)
+
+
+
+
+**Note:** Version bump only for package @botpress/hitl
+
+<a name="10.48.2"></a>
+## [10.48.2](https://github.com/botpress/modules/compare/v10.48.1...v10.48.2) (2018-10-17)
+
+
+
+
+**Note:** Version bump only for package @botpress/hitl
+
+<a name="10.48.1"></a>
+## [10.48.1](https://github.com/botpress/modules/compare/v10.48.0...v10.48.1) (2018-10-17)
+
+
+
+
+**Note:** Version bump only for package @botpress/hitl
+
+<a name="10.48.0"></a>
+# [10.48.0](https://github.com/botpress/modules/compare/v10.47.1...v10.48.0) (2018-10-16)
+
+
+
+
+**Note:** Version bump only for package @botpress/hitl
+
 <a name="10.47.1"></a>
 ## [10.47.1](https://github.com/botpress/modules/compare/v10.47.0...v10.47.1) (2018-10-15)
 

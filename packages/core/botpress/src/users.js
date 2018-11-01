@@ -134,13 +134,19 @@ module.exports = ({ db }) => {
       })
   }
 
-  // TODO: Fix this, list of tags is always empty
   const list = async (limit = 50, from = 0) => {
     const knex = await db.get()
 
     const isLite = helpers(knex).isLite()
 
-    const selectTags = isLite ? 'group_concat(tag) as tags' : "string_agg(tag, ',') as tags"
+    const TAG_VALUE_SEPARATOR = '::::'
+    const tagWithValue = `tag || '${TAG_VALUE_SEPARATOR}' || value`
+    const parseTagValues = tagAndValue => {
+      const [tag, value] = tagAndValue.split(TAG_VALUE_SEPARATOR)
+      return { tag, value }
+    }
+
+    const selectTags = isLite ? `group_concat(${tagWithValue}) as tags` : `string_agg(${tagWithValue}, ',') as tags`
 
     const subQuery = knex('users_tags')
       .select('userId', knex.raw(selectTags))
@@ -165,11 +171,10 @@ module.exports = ({ db }) => {
       .offset(from)
       .limit(limit)
       .then(users =>
-        users.map(x =>
-          Object.assign(x, {
-            tags: (x.tags && x.tags.split(',')) || []
-          })
-        )
+        users.map(x => ({
+          ...x,
+          tags: (x.tags && x.tags.split(',').map(parseTagValues)) || []
+        }))
       )
   }
 

@@ -23,6 +23,7 @@ The following properties can be configured either in the `qna.json` file or usin
 | `qnaMakerApiKey` | `QNA_MAKER_API_KEY` | No | | API-key for [Microsoft QnA Maker](https://www.qnamaker.ai). If provided QnA maker gets used to save items and search through them (instead of NLU-module)
 | `qnaMakerKnowledgebase` | `QNA_MAKER_KNOWLEDGEBASE` | No | `botpress` | Name of the QnA Maker knowledgebase to use
 | `qnaCategories` | `QNA_CATEGORIES` | No | | Comma-separated list of categories to use within QNA-module
+| `qnaShowTyping` | `QNA_SHOW_TYPING` | No | `0s` | The time of showing typing indicators
 
 # Usage
 
