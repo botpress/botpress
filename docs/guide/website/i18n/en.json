@@ -45,7 +45,7 @@
         "title": "NLU"
       },
       "getting_started/skills": {
-        "title": "!!Skills"
+        "title": "Skills"
       },
       "getting_started/storage": {
         "title": "Storage"
@@ -79,9 +79,6 @@
       },
       "recipes/apis": {
         "title": "Using external APIs"
-      },
-      "recipes/broadcasting": {
-        "title": "!!Broadcasting"
       },
       "recipes/carousel": {
         "title": "Carousel"

@@ -14,12 +14,17 @@ phases:
   build:
     commands:
       - yarn build:reference
-      - (cd docs/guide/website && yarn && yarn run build)
 
+      # Build doc for the current version number
+      - node build/docs/set_docusaurus_url.js "/docs/$PACKAGE_VERSION"
+      - yarn build:guide
       - aws s3 sync docs/guide/website/build/botpress-docs s3://botpress-docs/$PACKAGE_VERSION
       - aws s3 sync docs/reference/ s3://botpress-docs/$PACKAGE_VERSION/reference
 
+      # Build doc for the latest version
       - export PACKAGE_VERSION=$(if [ -z ${GITHUB_BRANCH+x} ]; then echo "latest"; else echo "$GITHUB_BRANCH"; fi)
+      - node build/docs/set_docusaurus_url.js "/docs/$PACKAGE_VERSION"
+      - yarn build:guide
       - aws s3 sync docs/guide/website/build/botpress-docs/ s3://botpress-docs/$PACKAGE_VERSION
       - aws s3 sync docs/reference/ s3://botpress-docs/$PACKAGE_VERSION/reference
 
