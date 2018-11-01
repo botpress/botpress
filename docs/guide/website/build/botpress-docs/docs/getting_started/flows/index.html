@@ -1,0 +1,165 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Flows · | Documentation</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="For this section, you&#x27;ll need to head to the dashboard and click on the &quot;Flows&quot; section. You should see a flow diagram with a bunch of boxes and links."/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Flows · | Documentation"/><meta property="og:type" content="website"/><meta property="og:url" content="https://botpress.io/index.html"/><meta property="og:description" content="For this section, you&#x27;ll need to head to the dashboard and click on the &quot;Flows&quot; section. You should see a flow diagram with a bunch of boxes and links."/><meta property="og:image" content="https://botpress.io/img/docusaurus.png"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://botpress.io/img/docusaurus.png"/><link rel="shortcut icon" href="/img/favicon.png"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><link rel="stylesheet" href="/css/main.css"/></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/"><img class="logo" src="/img/botpress.svg" alt="| Documentation"/><h2 class="headerTitleWithLogo">| Documentation</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/docs/getting_started/" target="_self">Docs</a></li><li class=""><a href="https://help.botpress.io/" target="_self">Help</a></li><li class=""><a href="https://botpress.io/docs/latest/reference/" target="_self">API</a></li><li class=""><a href="https://github.com/botpress" target="_self">Github</a></li><li class=""><a target="_self"></a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><i></i></div><h2><i>›</i><span>Getting Started</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">Getting Started</h3><ul><li class="navListItem"><a class="navItem" href="/docs/getting_started/">What you will learn</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/philosphy">The Botpress Philosophy</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/install">Install</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/components">Components</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/templates">Templates</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/dashboard">Dashboard</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/content">Content</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/docs/getting_started/flows">Flows</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/actions">Actions</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/storage">Storage</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/skills">Skills</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/nlu">NLU</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/deploying">Deploying</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/changes">Changes</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Recipes</h3><ul><li class="navListItem"><a class="navItem" href="/docs/recipes/">What are they?</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/analytics">Analytics</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/apis">Using external APIs</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/broadcasting">Broadcasting</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/carousel">Carousel</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/databases">Supported databases</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/embedding">Embedding the Webchat on a website</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/hitl">HITL (Human-in-the-loop)</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/i18n">i18n</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/jumps">Jump to</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/login">Login</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/modules">Modules</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/proactive">Proactive acting</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/sanitizing">Sanitizing</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/scheduling">Scheduling messages</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/shortlinks">Shortlinks</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/timeout">Timeout</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/extensions">Webchat Extensions</a></li></ul></div></div></section></div><script>
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              const headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                if (event.target.tagName === 'A') {
+                  document.body.classList.remove('tocActive');
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                if (!toggler) {
+                  return;
+                }
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer docMainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1 class="postHeaderTitle">Flows</h1></header><article><div><span><p>For this section, you'll need to head to the dashboard and click on the &quot;Flows&quot; section. You should see a flow diagram with a bunch of boxes and links.</p>
+<h1><a class="anchor" aria-hidden="true" id="state-flows-nodes-actions-transitions"></a><a href="#state-flows-nodes-actions-transitions" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>📚 State, Flows, Nodes, Actions, Transitions</h1>
+<p>Don't panic! Even though this view might seem confusing at first, it's straightforward once you understand how it works. The Flow Editor is built in a way that makes the experience consistent.</p>
+<p>Let's explore and understand the different concepts around Flow Management before we actually start playing with it.</p>
+<h2><a class="anchor" aria-hidden="true" id="flows"></a><a href="#flows" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Flows</h2>
+<p>Your bots conversation logic is specified in the flows. More complex bots are generally broken down into multiple smaller flows instead of just one, big flow. The reason for breaking down the bot into multiple flows is to ease maintainability and reusability.</p>
+<h3><a class="anchor" aria-hidden="true" id="lifecycle"></a><a href="#lifecycle" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Lifecycle</h3>
+<p>Our flow engine is event-based and is non-blocking by default, which means that a flow will execute all it can execute until it needs to wait.</p>
+<blockquote>
+<p><strong>Note:</strong> There are currently two reasons for a flow to &quot;wait&quot;:</p>
+<ul>
+<li>A node is marked as waiting for user input</li>
+<li>A node couldn't match a condition to transition to another node</li>
+</ul>
+</blockquote>
+<p>Almost all the logic is defined and happens in the <strong>Nodes</strong> (the boxes inside the flow). We say &quot;almost&quot; because there are two small exceptions to that rule: <strong>&quot;On Receive&quot;</strong> and <strong>&quot;Transitions&quot;</strong> events.</p>
+<h3><a class="anchor" aria-hidden="true" id="flow-wide-on-receive"></a><a href="#flow-wide-on-receive" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Flow-wide &quot;On Receive&quot;</h3>
+<p>The <em>On Receive</em> actions are <strong>executed for every new message received by the bot inside this flow</strong>.</p>
+<p>To define new <em>Flow-wide On Receive Actions</em>, navigate to the relevant flow, then double click anywhere on the checkered background to show the <em>Flow Properties Pop up</em>. Under the <em>On Receive</em> section, click the <em>Add Action</em> button to add a new action.
+<img src="{{site.baseurl}}/images/GettingStarted_TriviaFlows_FlowWideOnReceive.gif" alt="GIF showing how to show the Flow Properties pop up"></p>
+<blockquote>
+<p><strong>👓 Examples:</strong> Flow-wide On Receive</p>
+<ul>
+<li>Audit Trail: Record specific logs of messages received in the scope of this particular flow</li>
+<li>Authentication Gate: Run some authentication</li>
+<li>Sentiment Analysis: Making sure the sentiment of the conversation is staying healthy</li>
+</ul>
+</blockquote>
+<h3><a class="anchor" aria-hidden="true" id="flow-wide-transitions"></a><a href="#flow-wide-transitions" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Flow-wide &quot;Transitions&quot;</h3>
+<p>The <em>Transitions</em> are very closely related to <em>On Receive Actions</em>. The actions themselves can only run actions (and modify the
+), but they can't make the flow switch to another node. This is the role of <em>Transitions</em>.</p>
+<p><strong>A transition is defined by a condition and a destination.</strong> They can be seen as global conversation hooks in some way because they have the power to reroute the conversation to an entirely new node or flow.</p>
+<p>The <em>Flow-wide Transitions</em> are evaluated sequentially, and the first to match is the one that will be triggered (the others won't be tried). If no condition is matched, then nothing happens and the regular flow is continued.</p>
+<blockquote>
+<p><strong>👓 Examples:</strong> Flow-wide Transitions</p>
+<ul>
+<li>Authentication Gate: Re-route the user to the login flow if they are not authenticated</li>
+<li>Sentiment Analysis: Re-route the user to the human fallback node if the conversation is degrading</li>
+<li>Matching flow-wide intents such as &quot;<code>cancel</code>&quot; etc..</li>
+</ul>
+</blockquote>
+<h3><a class="anchor" aria-hidden="true" id="storage"></a><a href="#storage" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Storage</h3>
+<p>Flows are stored as JSON files in the bot's source files. In the context of this tutorial, the flows are stored in the <code>src/flows/</code> folder. Each flow is split into two files: the logic (<code>*.flow.json</code>) and the visual-specific properties (<code>*.ui.json</code>). The reason to split these is to make easier to maintain and review changes.</p>
+<ul>
+<li><code>*.ui.json</code> files can almost always be ignored from code reviews as they don't affect the functionality of the bot.</li>
+<li><code>*.flow.json</code> files could also, in theory, be created manually by developers instead of using the GUI. This is the case for <a href="./skills">Skills</a>, which we will cover later.</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="nodes"></a><a href="#nodes" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Nodes</h2>
+<p>Nodes are the primary units of the conversational logic of your bot. <strong>An active conversation</strong> (which we call a &quot;<strong>session</strong>&quot;) <strong>always has one and only one active node</strong>. A node generally transitions to another node or flow. When it doesn't, the conversation is ended. The next message from the user will then be part of an entirely new session.</p>
+<p>A <em>node</em> is separated into three different stages: <strong>onEnter</strong> (A), <strong>onReceive</strong> (B) and <strong>onNext</strong> (C).</p>
+<p><img src="{{site.baseurl}}/images/flow_node.png" alt="Typical Flow Node"></p>
+<h3><a class="anchor" aria-hidden="true" id="onenter"></a><a href="#onenter" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>onEnter</h3>
+<p><em>onEnter</em> is a list of actions that will be executed when the node is <strong>entered</strong>. If multiple actions are defined, all of them will be executed sequentially.</p>
+<h3><a class="anchor" aria-hidden="true" id="onreceive"></a><a href="#onreceive" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>onReceive</h3>
+<p><em>onReceive</em> is a list of actions that will be executed when the node receives a message while being the active node. As soon as there is an action defined, the node will automatically be waiting for user input (orange node).</p>
+<p>When this property is left unused, the node is non-blocking (black), which means it will flow straight from the <code>onEnter</code> to the <code>onNext</code>.</p>
+<p><img src="{{site.baseurl}}/images/node_blocking.png" alt="Blocking vs Non-Blocking Nodes"></p>
+<h3><a class="anchor" aria-hidden="true" id="onnext-transitions"></a><a href="#onnext-transitions" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>onNext / Transitions</h3>
+<p><em>onNext</em> (which can also be called Transitions) is exactly the same thing as <em>Flow-wide Transitions</em> except that the conditions are evaluated only after <code>onReceive</code> or <code>onEnter</code> have been executed.</p>
+<blockquote>
+<p><strong>Special cases</strong>: If no condition is defined, the default behavior is that the conversation ends.
+If there are conditions defined but none match, nothing happens, i.e., the current node stays active, and it will flow when a condition is matched. By default, the <code>onNext</code> will only be retried after <code>onReceive</code> is re-invoked.</p>
+</blockquote>
+<p>Nodes can flow to:</p>
+<ul>
+<li>Another node within the same flow</li>
+<li>Itself (i.e., loop back to itself)</li>
+<li>Another flow</li>
+<li>To the previous flow (see Flow Stacks)</li>
+<li>The end of the conversation</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="state"></a><a href="#state" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>State</h2>
+<p>Each conversation has a <strong>State</strong> associated with it. The state is created when the conversation session is started and is destroyed when the session is ended.</p>
+<p>In the context of this tutorial, this means that a state is created just before the &quot;<em>entry</em>&quot; node is entered and just after the &quot;<em>over</em>&quot; node is executed.</p>
+<p><img src="{{site.baseurl}}/images/stateLifetime.jpg" alt="Lifetime of a conversation state"></p>
+<blockquote>
+<p><strong>Note:</strong> The state is global to the conversation, so if the conversation spans multiple flows, <strong>the state is shared for all the flows</strong>.</p>
+</blockquote>
+<hr>
+<h1><a class="anchor" aria-hidden="true" id="hands-on"></a><a href="#hands-on" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>🔨 Hands-on</h1>
+<p>Now that you understand how flows and nodes work, let's jump into some use cases for our Trivia bot.</p>
+<h2><a class="anchor" aria-hidden="true" id="asking-5-questions-instead-of-3"></a><a href="#asking-5-questions-instead-of-3" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Asking 5 questions instead of 3</h2>
+<p>Let's start with something trivial. You should identify the black node called &quot;<em>next</em>&quot;.</p>
+<p>You'll notice the following Transition:</p>
+<pre><code class="hljs css language-js">state.count &gt;= <span class="hljs-number">3</span>
+</code></pre>
+<p>You can change <code>3</code> by <code>5</code> from the UI, then hit the &quot;Save&quot; icon at the top to persist the changes.</p>
+<p><img src="{{site.baseurl}}/images/node_transition.png" alt="Updating a transition from the UI"></p>
+<p>The recommended way to create and edit the flows is via the graphical interface. It is usually much quicker, faster and less error-prone.</p>
+<p>But for the sake of completeness of this tutorial and since we're technical folks and love code (right?) let's see how to do that in code instead. Open up the <code>src/flows/main.flow.json</code> and locate the &quot;<em>next</em>&quot; node. Let's update the code as follow:</p>
+<pre><code class="hljs css language-diff">{
+  "id": "11219c5913",
+  "name": "next",
+  "next": [
+    {
+<span class="hljs-deletion">-    "condition": "state.count &gt;= 3",</span>
+<span class="hljs-addition">+    "condition": "state.count &gt;= 5",</span>
+      "node": "over"
+</code></pre>
+<p>This is the first and only time that we'll edit the flows by code in this tutorial.</p>
+<h2><a class="anchor" aria-hidden="true" id="leaderboard-nicknames"></a><a href="#leaderboard-nicknames" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Leaderboard: Nicknames</h2>
+<p>OK, now that the bot asks a reasonable amount of questions, we want to build a leaderboard to push the gamification to another level!</p>
+<p>The first step to building a leaderboard is to ask the user for his nickname at the end of the game:</p>
+<p><img src="{{site.baseurl}}/images/ask_nickname.jpg" alt="Asking the user for his or her nickname"></p>
+<p>Now the bot will be asking the user for his or her nickname at the end of every game. But that's not what we want! We actually want to ask the user only if we don't already know what their nickname is.</p>
+<p>In order to do that, we will need to tell the bot to memorize the nickname of the user. That should be pretty easy as our Trivia template came with a function that does that for us: <code>setUserTag({ name, value })</code></p>
+<h3><a class="anchor" aria-hidden="true" id="calling-an-action-from-the-visual-flow-builder"></a><a href="#calling-an-action-from-the-visual-flow-builder" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Calling an action from the Visual Flow Builder</h3>
+<p>What we want is the following:</p>
+<ul>
+<li>WHEN the user tells the bot their nickname</li>
+<li>THEN we want to say &quot;<em>Thanks, <code>{{event.text}}</code> is an original nickname!</em>&quot;</li>
+<li>THEN we want to persist their nickname into a user-wide variable</li>
+</ul>
+<p>To do that, click on the &quot;<em>ask-name</em>&quot; node, then in the &quot;<em>On Receive</em>&quot; section, click <strong>Add action</strong>.</p>
+<p><img src="{{site.baseurl}}/images/setUserTag.jpg" alt="Set the nickname into user tag">
+<img src="{{site.baseurl}}/images/setUserTagNode.png" alt="Set the nickname into user tag (node)"></p>
+<p>What the <code>setUserTag({ name, value })</code> action does is that is saves anything (<code>value</code>) into a user storage variable (tag named <code>name</code>).</p>
+<blockquote>
+<p><strong>Note:</strong> Do not worry about how the <code>setUserTag</code> action is implemented, we will get to that in the very next section.</p>
+</blockquote>
+<h3><a class="anchor" aria-hidden="true" id="recalling-the-user-s-nickname"></a><a href="#recalling-the-user-s-nickname" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Recalling the user's nickname</h3>
+<p>OK, now that we persist the user's nickname somewhere, we also need to pull that nickname back when the user starts a new game.</p>
+<p>To do that, click on the &quot;<em>entry</em>&quot; node, then in the &quot;<em>On Enter</em>&quot; section, click <strong>Add action</strong>.</p>
+<p><img src="{{site.baseurl}}/images/getUserTag.jpg" alt="Get the nickname from user tag">
+<img src="{{site.baseurl}}/images/getUserTagNode.jpg" alt="Get the nickname from user tag (node)"></p>
+<p>What the <code>getUserTag({ name, into })</code> action does is load a tag (named <code>name</code>) <em>into</em> the state under a variable called <code>into</code>.</p>
+<h3><a class="anchor" aria-hidden="true" id="conditional-asking"></a><a href="#conditional-asking" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Conditional asking</h3>
+<p>The last step now is to only ask for the nickname when we don't know the nickname already. When this is the case, <code>getUserTag</code> should put <code>null</code> <em>into</em> the <em>&quot;nickname&quot;</em> state variable.</p>
+<p><img src="{{site.baseurl}}/images/nicknameCondition1.jpg" alt="Asking only when nickname is unknown">
+<img src="{{site.baseurl}}/images/nicknameCondition2.jpg" alt="Nickname is unknown condition"></p>
+<p>Finally, you want to end the flow if we already know the nickname:</p>
+<p><img src="{{site.baseurl}}/images/otherwiseCondition.jpg" alt="End flow otherwise">
+<img src="{{site.baseurl}}/images/otherwiseConditionResult.jpg" alt="End flow otherwise (result)"></p>
+<p>That's it! Your bot is now asking the user for their nickname once and then remembering it forever.</p>
+<blockquote>
+<p><strong>🌟 Tip:</strong> Say <code>/forget</code> to the bot to make it forget your <em>nickname</em>.</p>
+</blockquote>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/docs/getting_started/content"><span class="arrow-prev">← </span><span>Previous</span></a><a class="docs-next button" href="/docs/getting_started/actions"><span>Next</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav docOnPageNav"><ul class="toc-headings"><li><a href="#flows">Flows</a><ul class="toc-headings"><li><a href="#lifecycle">Lifecycle</a></li><li><a href="#flow-wide-on-receive">Flow-wide &quot;On Receive&quot;</a></li><li><a href="#flow-wide-transitions">Flow-wide &quot;Transitions&quot;</a></li><li><a href="#storage">Storage</a></li></ul></li><li><a href="#nodes">Nodes</a><ul class="toc-headings"><li><a href="#onenter">onEnter</a></li><li><a href="#onreceive">onReceive</a></li><li><a href="#onnext-transitions">onNext / Transitions</a></li></ul></li><li><a href="#state">State</a></li><li><a href="#asking-5-questions-instead-of-3">Asking 5 questions instead of 3</a></li><li><a href="#leaderboard-nicknames">Leaderboard: Nicknames</a><ul class="toc-headings"><li><a href="#calling-an-action-from-the-visual-flow-builder">Calling an action from the Visual Flow Builder</a></li><li><a href="#recalling-the-user-s-nickname">Recalling the user's nickname</a></li><li><a href="#conditional-asking">Conditional asking</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/botpress.svg" alt="| Documentation" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/en/doc1.html">Getting Started (or other categories)</a><a href="/docs/en/doc2.html">Guides (or other categories)</a><a href="/docs/en/doc3.html">API Reference (or other categories)</a></div><div><h5>Community</h5><a href="/en/users.html">User Showcase</a><a href="http://stackoverflow.com/questions/tagged/" target="_blank" rel="noreferrer noopener">Stack Overflow</a><a href="https://discordapp.com/">Project Chat</a><a href="https://twitter.com/" target="_blank" rel="noreferrer noopener">Twitter</a></div><div><h5>More</h5><a href="/blog">Blog</a><a href="https://github.com/">GitHub</a><a class="github-button" data-icon="octicon-star" data-count-href="/facebook/docusaurus/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" rel="noreferrer noopener" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2018 Botpress, Inc.</section></footer></div></body></html>

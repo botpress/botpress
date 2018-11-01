@@ -1,0 +1,12 @@
+{
+  "name": "botpress",
+  "version": "11.0.0",
+  "description": "The world's most powerful conversational engine",
+  "main": "index.js",
+  "bin": "index.js",
+  "private": true,
+  "pkg": {
+    "scripts": ["./core/**/*.js", "./*.js", "./professional/**/*.js"],
+    "assets": ["../../node_modules/vm2/lib/*.js", "./ui-admin/**", "./ui-studio/**"]
+  }
+}

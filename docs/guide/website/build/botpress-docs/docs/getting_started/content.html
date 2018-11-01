@@ -1,0 +1,135 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Content · | Documentation</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="# 📚 Types, Elements, Renderers"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Content · | Documentation"/><meta property="og:type" content="website"/><meta property="og:url" content="https://botpress.io/index.html"/><meta property="og:description" content="# 📚 Types, Elements, Renderers"/><meta property="og:image" content="https://botpress.io/img/docusaurus.png"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://botpress.io/img/docusaurus.png"/><link rel="shortcut icon" href="/img/favicon.png"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><link rel="stylesheet" href="/css/main.css"/></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/"><img class="logo" src="/img/botpress.svg" alt="| Documentation"/><h2 class="headerTitleWithLogo">| Documentation</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/docs/getting_started/" target="_self">Docs</a></li><li class=""><a href="https://help.botpress.io/" target="_self">Help</a></li><li class=""><a href="https://botpress.io/docs/latest/reference/" target="_self">API</a></li><li class=""><a href="https://github.com/botpress" target="_self">Github</a></li><li class=""><a target="_self"></a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><i></i></div><h2><i>›</i><span>Getting Started</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">Getting Started</h3><ul><li class="navListItem"><a class="navItem" href="/docs/getting_started/">What you will learn</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/philosphy">The Botpress Philosophy</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/install">Install</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/components">Components</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/templates">Templates</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/dashboard">Dashboard</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/docs/getting_started/content">Content</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/flows">Flows</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/actions">Actions</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/storage">Storage</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/skills">Skills</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/nlu">NLU</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/deploying">Deploying</a></li><li class="navListItem"><a class="navItem" href="/docs/getting_started/changes">Changes</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Recipes</h3><ul><li class="navListItem"><a class="navItem" href="/docs/recipes/">What are they?</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/analytics">Analytics</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/apis">Using external APIs</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/broadcasting">Broadcasting</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/carousel">Carousel</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/databases">Supported databases</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/embedding">Embedding the Webchat on a website</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/hitl">HITL (Human-in-the-loop)</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/i18n">i18n</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/jumps">Jump to</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/login">Login</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/modules">Modules</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/proactive">Proactive acting</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/sanitizing">Sanitizing</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/scheduling">Scheduling messages</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/shortlinks">Shortlinks</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/timeout">Timeout</a></li><li class="navListItem"><a class="navItem" href="/docs/recipes/extensions">Webchat Extensions</a></li></ul></div></div></section></div><script>
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              const headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                if (event.target.tagName === 'A') {
+                  document.body.classList.remove('tocActive');
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                if (!toggler) {
+                  return;
+                }
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer docMainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1 class="postHeaderTitle">Content</h1></header><article><div><span><h1><a class="anchor" aria-hidden="true" id="types-elements-renderers"></a><a href="#types-elements-renderers" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>📚 Types, Elements, Renderers</h1>
+<p>Before we start discussing how you can create and edit the content of your bot, we should understand the different concepts of the Content Management in Botpress.</p>
+<h2><a class="anchor" aria-hidden="true" id="content-type"></a><a href="#content-type" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Content Type</h2>
+<p>A <strong>Content Type</strong> describes a grouping of Content Elements sharing the same properties. They can describe anything and everything – they most often are domain-specific to your bot.</p>
+<p>In the context of this tutorial, the template shipped with two Content Types: <code>Text Message</code> and <code>Trivia Question</code>.</p>
+<blockquote>
+<p><strong>🌟 Tip</strong>: As a general rule, the more domain-specific the Content Types are, the easier it is to manage the bot for non-technical people.</p>
+</blockquote>
+<p>Content Types are very specific to the bots they are associated with. Here are some typical examples:</p>
+<ul>
+<li>A restaurant &quot;Menu&quot; and &quot;MenuPage&quot; types</li>
+<li>A &quot;QuestionWithChoices&quot; type</li>
+<li>An &quot;ImportantBroadcast&quot; type</li>
+</ul>
+<p>As you can see, Content Types on Botpress are much more specific than generalized &quot;message types&quot; on traditional bot building platforms.</p>
+<p>Content Types are defined by developers in JavaScript. Each Content Type has its own <code>.form.js</code> file and Botpress automatically finds and registers new Content Types based on the directory and naming convention of the file.</p>
+<p>In the context of this tutorial, the two Content Types are defined in the <code>src/content</code> folder.</p>
+<h2><a class="anchor" aria-hidden="true" id="content-element"></a><a href="#content-element" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Content Element</h2>
+<p>A <strong>Content Element</strong> is a single item of a particular Content Type. Content Types contain many Elements. An Element belongs to a single Content Type.</p>
+<p>All Content Elements of the same Content Type are stored within a single <code>.json</code> file under the <code>src/content_data</code> directory.</p>
+<p>[[Maybe provide examples]]</p>
+<h2><a class="anchor" aria-hidden="true" id="content-renderer"></a><a href="#content-renderer" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Content Renderer</h2>
+<p>A <strong>Content Renderer</strong> defines how a <strong>Content Type</strong> gets rendered on the different channels.</p>
+<blockquote>
+<p><strong>Note:</strong> This is critical because every channel is different and has a different set of functionalities. You want to be able to customize and leverage the features of the different platforms to offer the best user experience as possible.</p>
+</blockquote>
+<p>Content Renderers are defined by developers in JavaScript. They can be defined anywhere (usually at the bot startup) via the <code>bp.renderers.register</code> method.</p>
+<p>In the context of this tutorial, Content Renderers are defined in the <code>src/renderers.js</code> file.</p>
+<p>[[Maybe provide examples]]</p>
+<hr>
+<h1><a class="anchor" aria-hidden="true" id="hands-on"></a><a href="#hands-on" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>🔨 Hands-on</h1>
+<p>Now that you understand the concepts of Content Management, let's make a small change to our bot that covers all of the above concepts.</p>
+<h2><a class="anchor" aria-hidden="true" id="using-builtin-content-types"></a><a href="#using-builtin-content-types" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Using Builtin Content Types</h2>
+<p><code>@botpress/builtins</code> package provides you with several builtin content types that we found to be most commonly used. To make use of them you need to install that package and register builtins like this:</p>
+<pre><code class="hljs css language-js"><span class="hljs-keyword">const</span> { contentElements, contentRenderers, actions, setup } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'@botpress/builtins'</span>)
+
+<span class="hljs-keyword">await</span> setup(bp)
+
+<span class="hljs-comment">// Register built-in content elements</span>
+<span class="hljs-keyword">await</span> <span class="hljs-built_in">Promise</span>.all(
+  <span class="hljs-built_in">Object</span>.values(contentElements)
+    .map(<span class="hljs-function"><span class="hljs-params">schema</span> =&gt;</span> bp.contentManager.loadCategoryFromSchema(schema))
+)
+
+<span class="hljs-comment">// Register renderers for the built-in elements</span>
+_.toPairs(contentRenderers).forEach(<span class="hljs-function"><span class="hljs-params">params</span> =&gt;</span> bp.renderers.register(...params))
+
+<span class="hljs-comment">// Register built-in actions</span>
+<span class="hljs-keyword">await</span> bp.dialogEngine.registerActions(actions)
+</code></pre>
+<p>It may appear that builtins will suit your needs and you won't require creating custom schemas for them.</p>
+<h2><a class="anchor" aria-hidden="true" id="adding-new-trivia-questions"></a><a href="#adding-new-trivia-questions" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Adding new Trivia Questions</h2>
+<p>The easiest and recommended way to add new content is by using the GUI. Simple navigate to the bot dashboard and click the &quot;Content&quot; menu item.</p>
+<p>To add new Trivia Questions, click the &quot;Trivia Questions&quot; from the left menu and then click &quot;Add Content&quot;. A new form will show up, and you'll be able to easily define new questions!</p>
+<p>Immediately after the content is created, you can chat with the bot, and you should see your new question(s) appearing sometimes.</p>
+<blockquote>
+<p><strong>Note:</strong> You probably noticed that the questions are randomized. We'll explain how this is done in the <a href="./trivia_actions">Actions</a> chapter of this tutorial.</p>
+</blockquote>
+<h2><a class="anchor" aria-hidden="true" id="making-the-bot-less-boring"></a><a href="#making-the-bot-less-boring" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Making the bot less boring</h2>
+<p>The bot currently always says the same phrases over and over again. For the bot to be entertaining for the users, it should have multiple ways of saying things.</p>
+<h3><a class="anchor" aria-hidden="true" id="defining-variations-content-types"></a><a href="#defining-variations-content-types" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Defining variations (Content Types)</h3>
+<p>Let's open the <code>src/content/text.form.js</code> file. Notice how the form that you used in the GUI is defined in this file.</p>
+<blockquote>
+<p><strong>📌 Memo:</strong> Content Types are defined by the <a href="http://json-schema.org/">Standard JSON Schema Specification</a>. More specifically, <strong>we are using the excellent <a href="https://github.com/mozilla-services/react-jsonschema-form">react-jsonschema-form</a> library</strong> created and maintained by Mozilla.</p>
+</blockquote>
+<p>We will be adding a new <code>properties</code> entry called <code>&quot;variations&quot;</code>, which will be an array of strings:</p>
+<pre><code class="hljs css language-diff">properties: {
+  text: {
+    type: 'string',
+    title: 'Message'
+  },
+<span class="hljs-addition">+  variations: {</span>
+<span class="hljs-addition">+    type: 'array',</span>
+<span class="hljs-addition">+    title: 'Alternates (optional)',</span>
+<span class="hljs-addition">+    items: {</span>
+<span class="hljs-addition">+      type: 'string',</span>
+<span class="hljs-addition">+      default: ''</span>
+<span class="hljs-addition">+    }</span>
+<span class="hljs-addition">+  },</span>
+  typing: {
+    type: 'boolean',
+    title: 'Show typing indicators',
+    default: true
+  }
+}
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="picking-a-random-variation-content-renderer"></a><a href="#picking-a-random-variation-content-renderer" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Picking a random variation (Content Renderer)</h3>
+<p>Now that our &quot;Text Message&quot; allows you to define multiple variations, we need to make our bot pick one of the phrases. This is done by the Content Renderer.</p>
+<p>Open up the <code>src/renderers.js</code> file and locate the <code>text</code> renderer. This is the one we need to modify.</p>
+<p>Picking a random element from an array is easy but let's use Lodash's <a href="https://lodash.com/docs/4.17.5#sample"><code>sample</code></a> method, which is even easier than writing it ourselves.</p>
+<p>Add this at the top of the file:</p>
+<pre><code class="hljs css language-js"><span class="hljs-keyword">const</span> _ = <span class="hljs-built_in">require</span>(<span class="hljs-string">'lodash'</span>)
+</code></pre>
+<p>Then let's change the <code>text</code> renderer to reflect this:</p>
+<pre><code class="hljs css language-diff">text: data =&gt; {
+<span class="hljs-addition">+  const text = _.sample([data.text, ...(data.variations || [])])</span>
+<span class="hljs-deletion">-  return { text: data.text, typing: !!data.typing }</span>
+<span class="hljs-addition">+  return { text: text, typing: !!data.typing }</span>
+},
+</code></pre>
+<blockquote>
+<p><strong>Note:</strong> The use of the Spread Operator (<code>...</code>) requires Node.js 8.1+. We recommend you use the most recent LTS version of Node.js (8.9 at the time of writing this).</p>
+</blockquote>
+<p>It is possible to access state-variable within renderers through <code>data.state</code> reference. This may be useful e. g. for displaying translations based on user's language etc. But note that renderer function isn't <code>async</code> so if you need to perform some async-operations, you need to keep that logic in actions and save results into state-variables.</p>
+<h2><a class="anchor" aria-hidden="true" id="summary"></a><a href="#summary" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Summary</h2>
+<p>And we're done! You can edit the existing Content Elements to provide some alternate phrases, then open up the Chat Emulator and chat to your new bot!</p>
+<p>Hopefully, you'll find that our bot is now a bit less boring 😅</p>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/docs/getting_started/dashboard"><span class="arrow-prev">← </span><span>Previous</span></a><a class="docs-next button" href="/docs/getting_started/flows"><span>Next</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav docOnPageNav"><ul class="toc-headings"><li><a href="#content-type">Content Type</a></li><li><a href="#content-element">Content Element</a></li><li><a href="#content-renderer">Content Renderer</a></li><li><a href="#using-builtin-content-types">Using Builtin Content Types</a></li><li><a href="#adding-new-trivia-questions">Adding new Trivia Questions</a></li><li><a href="#making-the-bot-less-boring">Making the bot less boring</a><ul class="toc-headings"><li><a href="#defining-variations-content-types">Defining variations (Content Types)</a></li><li><a href="#picking-a-random-variation-content-renderer">Picking a random variation (Content Renderer)</a></li></ul></li><li><a href="#summary">Summary</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/botpress.svg" alt="| Documentation" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/en/doc1.html">Getting Started (or other categories)</a><a href="/docs/en/doc2.html">Guides (or other categories)</a><a href="/docs/en/doc3.html">API Reference (or other categories)</a></div><div><h5>Community</h5><a href="/en/users.html">User Showcase</a><a href="http://stackoverflow.com/questions/tagged/" target="_blank" rel="noreferrer noopener">Stack Overflow</a><a href="https://discordapp.com/">Project Chat</a><a href="https://twitter.com/" target="_blank" rel="noreferrer noopener">Twitter</a></div><div><h5>More</h5><a href="/blog">Blog</a><a href="https://github.com/">GitHub</a><a class="github-button" data-icon="octicon-star" data-count-href="/facebook/docusaurus/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" rel="noreferrer noopener" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2018 Botpress, Inc.</section></footer></div></body></html>

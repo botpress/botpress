@@ -1,0 +1,4 @@
+/bin
+/node_modules
+/dist
+botpress.d.ts

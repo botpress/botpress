@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "sourceMap": true,
+    "strict": false,
+    "declarationMap": true,
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "target": "es6",
+    "lib": ["es7"],
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "typeRoots": ["typings", "../node_modules/@types"],
+    "types": ["reflect-metadata", "jest", "bluebird-global", "node"]
+  },
+  "exclude": ["**/*.test.ts", "../out"]
+}

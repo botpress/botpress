@@ -1,0 +1,35 @@
+{
+  "name": "@botpress/nlu",
+  "version": "10.47.1",
+  "description": "Botpress NLU module",
+  "main": "dist/backend/index.js",
+  "scripts": {
+    "build": "./node_modules/.bin/module-builder build",
+    "watch": "./node_modules/.bin/module-builder watch",
+    "postinstall": "./node_modules/.bin/rimraf **/bmp-stuff.png"
+  },
+  "author": "Botpress, Inc.",
+  "license": "AGPL-3.0-only",
+  "devDependencies": {
+    "@types/node": "^10.11.3",
+    "classnames": "^2.2.5",
+    "draft-js": "^0.10.4",
+    "draftjs-utils": "^0.9.1",
+    "module-builder": "../../build/module-builder",
+    "react-select": "^1.2.1",
+    "react-splitter-layout": "^3.0.0"
+  },
+  "dependencies": {
+    "axios": "^0.17.1",
+    "bluebird": "^3.5.1",
+    "bluebird-retry": "^0.11.0",
+    "lodash": "^4.17.4",
+    "ms": "^2.1.1",
+    "nanoid": "^1.0.1",
+    "tmp": "^0.0.33",
+    "zscore": "^0.1.0"
+  },
+  "optionalDependencies": {
+    "dialogflow": "^0.5.0"
+  }
+}

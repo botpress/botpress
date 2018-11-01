@@ -1,0 +1,15 @@
+// Profile
+
+.profile {
+  &__avatar {
+    background: url('data:image/svg+xml;utf8,<svg width="16" height="16" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><path d="M11.537 8.835A5.957 5.957 0 0 1 8 10a5.957 5.957 0 0 1-3.537-1.165C1.823 10.144 0 12.86 0 16h16c0-3.14-1.823-5.856-4.463-7.165z" fill="#ddd"/><circle fill="#ddd" cx="8" cy="4" r="4"/><path d="M0 0h16v16H0z"/></g></svg>')
+      no-repeat center center;
+    background-size: contain;
+    border: 3px solid var(--c-neutral--light-1);
+    border-radius: 50%;
+    display: block;
+    height: 150px;
+    margin-bottom: 20px;
+    width: 150px;
+  }
+}

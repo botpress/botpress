@@ -1,0 +1,22 @@
+{
+  "$schema": "../../bot.config.schema.json",
+  "id": "welcome-bot",
+  "name": "Welcome Bot",
+  "description": "Welcome bot",
+  "active": true,
+  "version": "1.0.0",
+  "author": "Botpress, Inc.",
+  "license": "AGPL-3.0",
+  "imports": {
+    "modules": [],
+    "incomingMiddleware": [],
+    "outgoingMiddleware": [],
+    "contentTypes": ["builtin_text", "builtin_single-choice", "builtin_image", "builtin_carousel", "builtin_card"]
+  },
+  "dialog": {
+    "timeoutInterval": "5m"
+  },
+  "logs": {
+    "expiration": "1 week"
+  }
+}

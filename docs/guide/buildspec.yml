@@ -1,0 +1,31 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - npm install -g yarn
+
+  pre_build:
+    commands:
+      - yarn
+      - chmod +x ./build/source_version.sh
+      - export PACKAGE_VERSION=$(./build/source_version.sh)
+
+  build:
+    commands:
+      - yarn build:reference
+      - (cd docs/guide/website && yarn && yarn run build)
+
+      - aws s3 sync docs/guide/website/build/botpress-docs s3://botpress-docs/$PACKAGE_VERSION
+      - aws s3 sync docs/reference/ s3://botpress-docs/$PACKAGE_VERSION/reference
+
+      - export PACKAGE_VERSION=$(if [ -z ${GITHUB_BRANCH+x} ]; then echo "latest"; else echo "$GITHUB_BRANCH"; fi)
+      - aws s3 sync docs/guide/website/build/botpress-docs/ s3://botpress-docs/$PACKAGE_VERSION
+      - aws s3 sync docs/reference/ s3://botpress-docs/$PACKAGE_VERSION/reference
+
+      - > # Get all versions from S3 directory and put them into a "versions.txt" file
+        aws s3 ls s3://botpress-docs/ --recursive 
+        | grep -Eio '\s([0-9.A-Za-z]+)\/index\.html' 
+        | sed 's!/index.html!!g' > versions.txt
+      - node build/versions_builder.js > versions.json
+      - aws s3 cp versions.json s3://botpress-docs/

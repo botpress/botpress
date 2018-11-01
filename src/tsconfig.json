@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "sourceMap": true,
+    "strict": true,
+    // "declarationMap": true,
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "target": "es6",
+    "lib": ["es7"],
+    "noImplicitAny": false,
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "baseUrl": "./bp",
+    "outDir": "../out",
+    "typeRoots": ["./typings", "../node_modules/@types", "./bp/common"],
+    "types": ["reflect-metadata", "jest", "bluebird-global"]
+  },
+  "exclude": ["**/*.test.ts", "../out", "**/node_modules/**/*.ts"]
+}
