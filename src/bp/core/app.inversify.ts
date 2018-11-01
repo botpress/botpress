@@ -111,7 +111,7 @@ container.load(...DatabaseContainerModules)
 container.load(...RepositoriesContainerModules)
 container.load(...ServicesContainerModules)
 
-if (process.env.EDITION !== 'ce') {
+if (process.BOTPRESS_EDITION !== 'ce') {
   // Otherwise this will fail on compile when the submodule is not available.
   const ProContainerModule = require('professional/services/professionnal.inversify')
   container.load(ProContainerModule)

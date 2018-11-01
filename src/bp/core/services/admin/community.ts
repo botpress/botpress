@@ -39,7 +39,7 @@ export class CommunityAdminService implements AdminService {
     team: Joi.number().required()
   })
 
-  private edition = process.env.EDITION!
+  private edition = process.BOTPRESS_EDITION
 
   constructor(
     @inject(TYPES.Database) private database: Database,

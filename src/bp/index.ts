@@ -46,7 +46,6 @@ process.on('uncaughtException', err => {
 })
 
 try {
-  process.env.EDITION = metadataContent.edition
   let defaultVerbosity = process.pkg ? 0 : 2
   if (!isNaN(Number(process.env.VERBOSITY_LEVEL))) {
     defaultVerbosity = Number(process.env.VERBOSITY_LEVEL)
@@ -71,6 +70,8 @@ try {
   process.IS_PRODUCTION = argv.production || yn(process.env.BP_PRODUCTION)
   process.IS_LICENSED = true
   process.ASSERT_LICENSED = () => {}
+  process.BOTPRESS_VERSION = metadataContent.version
+  process.BOTPRESS_EDITION = metadataContent.edition
 
   require('./bootstrap')
 } catch (err) {

@@ -17,11 +17,18 @@ import { FatalError } from './errors'
 const editions = { ce: 'Community', pro: 'Professional', ee: 'Enterprise' }
 
 async function start() {
+  let currentEdition = editions[process.BOTPRESS_EDITION] + ' Edition'
+
+  if (process.BOTPRESS_EDITION === 'ce') {
+    currentEdition = chalk.cyan(currentEdition)
+  } else {
+    currentEdition = chalk.yellow(currentEdition)
+  }
+
   const logger = await Logger('Launcher')
   logger.info(chalk`========================================
-{bold ${center(`Botpress Server - ${editions[process.env.EDITION!]} Edition`, 40)}}
+{bold ${center(`Botpress Server - ${currentEdition}`, 40)}}
 {dim ${center(`Version ${sdk.version}`, 40)}}
-{yellow ${center(`Pre-release`, 40)}}
 ========================================`)
 
   global.printErrorDefault = err => {

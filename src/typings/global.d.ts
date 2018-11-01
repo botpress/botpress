@@ -21,6 +21,8 @@ declare namespace NodeJS {
     pkg: any
     IS_LICENSED: boolean
     ASSERT_LICENSED: Function
+    BOTPRESS_VERSION: string
+    BOTPRESS_EDITION: 'ce' | 'pro' | 'ee'
   }
 }
 
