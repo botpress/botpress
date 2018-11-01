@@ -170,7 +170,7 @@ class Bots extends Component {
         color="primary"
         size="sm"
       >
-        <MdCreate /> Create Bot Now
+        <MdCreate /> Create Bot
       </Button>
     )
   }
