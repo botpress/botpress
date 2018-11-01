@@ -20,6 +20,7 @@ const siteConfig = {
   // TODO: Enable search once the site is up: https://docusaurus.io/docs/en/search
   headerLinks: [
     { doc: 'getting_started/index', label: 'Docs' },
+    { href: '/docs/10.50', label: 'Botpress 10.x Docs' },
     { href: 'https://help.botpress.io/', label: 'Help' },
     { href: 'reference/', label: 'API' },
     { href: 'https://github.com/botpress', label: 'Github' },
