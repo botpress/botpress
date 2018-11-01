@@ -64,6 +64,11 @@ export default class Analytics {
 
   public async getChartsGraphData() {
     const analytics = await this.bp.kvs.get(this.botId, 'analytics')
+
+    if (!analytics) {
+      return {}
+    }
+
     return {
       loading: false,
       noData: false,
