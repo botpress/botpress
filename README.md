@@ -1,10 +1,10 @@
-<a href='http://botpress.io'><img src='https://raw.githubusercontent.com/botpress/botpress/master/.github/assets/botpress_xl.gif'></a>
+<a href='http://botpress.io'><img src='.github/assets/banner.gif'></a>
 
 # [Botpress](https://botpress.io) — The open-source bot platform
 
 [![CodeBuild](https://codebuild.us-east-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiamMxSkRSWTF6UHl6NjREN0tHajN0SHpUWUs3dnU4R1YvTDVFNTJYVHl1N3R2cStESnFHTitjeVBHV2Z2a21kK0tYMXZpbUl5YmVQaDFHSGFibGhtTHZzPSIsIml2UGFyYW1ldGVyU3BlYyI6IlhJK3FQSFZQb0VuQlpTWm8iLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)](https://console.aws.amazon.com/codebuild/home?region=us-east-1#/projects/botpress-server-binaries/view)
 
-Botpress is an open-source bot creation tool written in JavaScript. It is powered by a rich set of open-source modules built by the community. We like to say that **Botpress is like the WordPress of Chatbots**; anyone can create and reuse other people's modules.
+Botpress is an open-source bot creation tool written in TypeScript. It is powered by a rich set of open-source modules built by the community. We like to say that **Botpress is like the WordPress of bots**; anyone can create and reuse other people's modules.
 
 ##### Learn Botpress
 
@@ -14,13 +14,9 @@ Botpress is an open-source bot creation tool written in JavaScript. It is powere
 
 ##### Follow us
 
-| 🖥 [Website](https://botpress.io) | 💬 [Slack](https://slack.botpress.io) | 🚀 [Blog](https://botpress.io/blog) | 🐥 [Twitter](https://twitter.com/getbotpress) |
-| -------------------------------- | ------------------------------------- | ----------------------------------- | --------------------------------------------- |
+| 🖥 [Website](https://botpress.io) | 💬 [Community](https://help.botpress.io) | 🚀 [Blog](https://botpress.io/blog) | 🐥 [Twitter](https://twitter.com/getbotpress) |
+| -------------------------------- | ---------------------------------------- | ----------------------------------- | --------------------------------------------- |
 
-
----
-
-👉 Make sure you join our [Slack Community](https://slack.botpress.io) for help, announcements, gigs and fun!
 
 ## Support the project ⭐
 
@@ -28,15 +24,16 @@ If you feel awesome and want to support us in a small way, please consider starr
 
 <img alt="Botpress" width="250" src=".github/assets/star_us.gif">
 
-## What is Botpress
+## What's New in Botpress Server
 
 Botpress is on a mission to make useful bots ubiquitous by powering developers with the best possible tools to build & manage chatbots. We believe that in order to create great bots, significant time should be spent on user experience, **not** on the surrounding (and generic) features.
 
-<img alt="Botpress" height="150" src=".github/assets/shot_01.png"><img alt="Botpress" height="150" src=".github/assets/shot_02.png"><img alt="Botpress" height="150" src=".github/assets/shot_03.png">
+<img alt="Multi-bots" height="150" src=".github/assets/multi-bots.jpg">
+<img alt="One-click" height="150" src=".github/assets/one_click.jpg">
 
 ## Binaries
 
-You can download the binaries [here](TODO).
+You can download the binaries [here](https://s3.amazonaws.com/botpress-binaries/index.html).
 
 ## Quick Start
 
