@@ -21,7 +21,7 @@ const siteConfig = {
   headerLinks: [
     { doc: 'getting_started/index', label: 'Docs' },
     { href: 'https://help.botpress.io/', label: 'Help' },
-    { href: 'https://botpress.io/docs/latest/reference/', label: 'API' },
+    { href: 'reference/', label: 'API' },
     { href: 'https://github.com/botpress', label: 'Github' },
     { search: true }
   ],
@@ -31,7 +31,7 @@ const siteConfig = {
   favicon: 'img/favicon.png',
 
   colors: {
-    primaryColor: '#dc2319',
+    primaryColor: '#165FFB',
     secondaryColor: '#cfcfcf'
   },
 

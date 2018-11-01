@@ -38,8 +38,6 @@ export default class Analytics {
   }
 
   private async _updateData() {
-    this.bp.logger.forBot(this.botId).debug('Recompiling analytics ...')
-
     const totalUsers = await this._stats.getTotalUsers()
     const activeUsers = await this._stats.getDailyActiveUsers()
     const interactionsRange = await this._stats.getInteractionRanges()
@@ -62,7 +60,6 @@ export default class Analytics {
       busyHoursHeatMap: busyHours
     })
     await this._stats.setLastRun()
-    this.bp.logger.forBot(this.botId).debug('Done.')
   }
 
   public async getChartsGraphData() {
