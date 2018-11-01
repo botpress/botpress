@@ -1,6 +1,9 @@
+import { Logger } from 'botpress/sdk'
 import chokidar from 'chokidar'
-import { injectable } from 'inversify'
+import { inject, injectable, tagged } from 'inversify'
 import path from 'path'
+
+import { TYPES } from '../../types'
 
 import { ObjectCache } from '.'
 
@@ -30,6 +33,11 @@ export namespace CacheInvalidators {
 
   @injectable()
   export class FileChangedInvalidator {
+    constructor(
+      @inject(TYPES.Logger)
+      @tagged('name', 'CacheInvalidator')
+      private logger: Logger
+    ) {}
     watcher!: {
       start: Function
       stop: Function
@@ -48,6 +56,7 @@ export namespace CacheInvalidators {
       watcher.on('add', this.handle)
       watcher.on('change', this.handle)
       watcher.on('unlink', this.handle)
+      watcher.on('error', err => this.logger.attachError(err).error(`Watcher error`))
     }
 
     async stop() {
