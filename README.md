@@ -28,8 +28,13 @@ If you feel awesome and want to support us in a small way, please consider starr
 
 Botpress is on a mission to make useful bots ubiquitous by powering developers with the best possible tools to build & manage chatbots. We believe that in order to create great bots, significant time should be spent on user experience, **not** on the surrounding (and generic) features.
 
+---
+
 <img alt="Multi-bots" align="right" height="450" src=".github/assets/multi-bots.jpg">
+
 <img alt="One-click" align="left" height="450" src=".github/assets/one_click.jpg">
+
+---
 
 ## Binaries
 
