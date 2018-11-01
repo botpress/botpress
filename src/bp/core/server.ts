@@ -129,20 +129,22 @@ export default class HTTPServer {
       })
     })
 
+    process.HOST = config.host
     process.PORT = await portFinder.getPortPromise({ port: config.port })
     if (process.PORT !== config.port) {
       this.logger.warn(`Configured port ${config.port} is already in use. Using next port available: ${process.PORT}`)
-      config.port = process.PORT
+
       // If both ports are in use, the delay is too short between checks and it reports a false opened port
       // TODO: Remove when the proxy is removed
       await Promise.delay(200)
     }
 
+    const hostname = config.host === 'localhost' ? undefined : config.host
     await Promise.fromCallback(callback => {
-      this.httpServer.listen(config, callback)
+      this.httpServer.listen(process.PORT, hostname, config.backlog, callback)
     })
 
-    this.logger.info(`API listening on http://${config.host || 'localhost'}:${process.PORT}`)
+    this.logger.info(`API listening on http://${process.HOST}:${process.PORT}`)
 
     return this.app
   }
@@ -153,6 +155,10 @@ export default class HTTPServer {
 
   createShortLink(name: string, destination: string, params: any) {
     this.shortlinksRouter.createShortLink(name, destination, params)
+  }
+
+  deleteShortLink(name: string) {
+    this.shortlinksRouter.deleteShortLink(name)
   }
 
   async getAxiosConfigForBot(botId: string): Promise<AxiosBotConfig> {

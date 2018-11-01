@@ -42,4 +42,8 @@ export class ShortLinksRouter implements CustomRouter {
     const query = params ? `?${qs.stringify(params)}` : ''
     this.shortlinks.set(name, `${destination}${query}`)
   }
+
+  deleteShortLink(name: string) {
+    this.shortlinks.delete(name)
+  }
 }

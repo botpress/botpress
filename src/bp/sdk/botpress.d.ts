@@ -536,6 +536,13 @@ declare module 'botpress/sdk' {
     export function createShortLink(name: string, destination: string, params?: any): void
 
     /**
+     * Delete any previously created short link
+     *
+     * @param name - The name of the link to remove
+     */
+    export function deleteShortLink(name): void
+
+    /**
      * Create a new router for a module. Once created, use them to register new endpoints. Routers created
      * with this method are accessible via the url /api/ext/{routernName}
      *

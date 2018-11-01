@@ -33,7 +33,7 @@ export interface LogsConfig {
 export type BotpressConfig = {
   jwtSecret: string
   httpServer: {
-    host?: string
+    host: string
     port: number
     proxyPort: number
     backlog: number

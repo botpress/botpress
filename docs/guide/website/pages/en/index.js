@@ -96,7 +96,7 @@ const GuideCards = () => (
       },
       {
         content: 'New to Botpress? This step-by-step tutorial will get you up and running quickly.',
-        title: '<a href="general/philosphy">🚀 Getting Started</a>'
+        title: '<a href="docs/general/philosphy">🚀 Getting Started</a>'
       },
       {
         content: 'Guides and examples solving typical issues you may run into.',

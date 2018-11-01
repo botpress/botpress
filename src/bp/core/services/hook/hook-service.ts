@@ -147,7 +147,10 @@ export class HookService {
     const vm = new NodeVM({
       wrapper: 'none',
       console: 'inherit',
-      sandbox: hookScript.hook.args,
+      sandbox: {
+        ...hookScript.hook.args,
+        process: _.pick(process, 'HOST', 'PORT', 'PROXY_PORT')
+      },
       timeout: hookScript.hook.timeout,
       require: {
         external: true,
