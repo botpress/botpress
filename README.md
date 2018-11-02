@@ -6,6 +6,26 @@
 
 Botpress is an open-source bot creation tool written in TypeScript. It is powered by a rich set of open-source modules built by the community. We like to say that **Botpress is like the WordPress of bots**; anyone can create and reuse other people's modules.
 
+---
+
+### About V11
+
+#### ⚠️  Status
+
+Botpress Server (v11) is currently in beta and is **not considered ready for production usage** yet.  If you are looking for the latest stable version, please [see Botpress v10.x](https://github.com/botpress/botpress/tree/archive/10.x).
+
+#### What has changed
+
+There are 3 major differences between Botpress X (10.x) and Botpress Server (11.x).
+
+1. v11 is not an NPM library anymore – it is a standalone application.  We distribute binaries of v11 for OSX, Windows, Linux and Docker on a daily basis.
+
+2. v11 now supports multiple bots natively – thus the naming of Botpress Server.
+
+3. v11 is a complete backend rewrite to TypeScript.  We have made significant architectural changes that are not backward-compatible. *TODO: List of all changes*
+
+---
+
 ##### Learn Botpress
 
 | 📖 [v11 **Documentation**](https://botpress.io/docs) |
