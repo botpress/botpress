@@ -41,30 +41,18 @@ export default class NotificationComponent extends Component {
   }
 
   markAsRead = async notif => {
-    if (!window.BOTPRESS_XX) {
-      EventBus.default.emit('notifications.read', notif.id)
-    } else {
-      await axios.post(`/api/notifications/${notif.id}/read`)
-      this.props.fetchNotifications()
-    }
+    await axios.post(`/api/notifications/${notif.id}/read`)
+    this.props.fetchNotifications()
   }
 
   markAllAsRead = async () => {
-    if (!window.BOTPRESS_XX) {
-      EventBus.default.emit('notifications.allRead')
-    } else {
-      await axios.post(`/api/notifications/read`)
-      this.props.fetchNotifications()
-    }
+    await axios.post(`/api/notifications/read`)
+    this.props.fetchNotifications()
   }
 
   trashAll = async () => {
-    if (!window.BOTPRESS_XX) {
-      EventBus.default.emit('notifications.trashAll')
-    } else {
-      await axios.post(`/api/notifications/archive`)
-      this.props.fetchNotifications()
-    }
+    await axios.post(`/api/notifications/archive`)
+    this.props.fetchNotifications()
   }
 
   renderMarkAsReadButton(notification, index) {

@@ -24,7 +24,7 @@ if (token) {
   axios.defaults.headers.common['Authorization'] = `Bearer ${token.token}`
 }
 
-if (window.BOTPRESS_XX && axios && axios.defaults) {
+if (axios && axios.defaults) {
   axios.defaults.headers.common['X-Botpress-App'] = 'Studio'
   axios.defaults.headers.common['X-Botpress-Bot-Id'] = parseBotId()
 }

@@ -1,12 +1,11 @@
 import React from 'react'
-import { Router, Route, Switch } from 'react-router-dom'
+import { Router, Switch } from 'react-router-dom'
 import createBrowserHistory from 'history/createBrowserHistory'
 import queryString from 'query-string'
 import ReactGA from 'react-ga'
 
 import EnsureAuthenticated from '~/components/Authentication'
 import Layout from '~/components/Layout'
-import Login from '~/views/Login'
 
 // react-router doesn't do query parsing anymore since V4
 // https://github.com/ReactTraining/react-router/issues/4410
@@ -34,7 +33,6 @@ export default () => {
   return (
     <Router history={history} onUpdate={logPageView}>
       <Switch>
-        <Route exact path="/login" key="login-route" component={Login} />
         <AuthenticatedLayout />
       </Switch>
     </Router>

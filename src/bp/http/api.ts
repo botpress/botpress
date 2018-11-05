@@ -125,7 +125,6 @@ export default class ProxyUI {
               window.BP_SOCKET_URL = '${coreApiUrl}';
               window.BOTPRESS_VERSION = "${data.botpress.version}";
               window.APP_NAME = "${data.botpress.name}";
-              window.BOTPRESS_XX = true;
               window.NODE_ENV = "production";
               window.BOTPRESS_ENV = "dev";
               window.BOTPRESS_CLOUD_ENABLED = false;

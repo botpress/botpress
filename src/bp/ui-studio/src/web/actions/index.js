@@ -169,9 +169,7 @@ export const fetchBotInformation = () => dispatch => {
 
 export const botsReceived = createAction('BOTS/RECEIVED')
 export const fetchAllBots = () => dispatch => {
-  if (window.BOTPRESS_XX) {
-    axios.get('/api/teams/bots').then(res => dispatch(botsReceived(res.data)))
-  }
+  axios.get('/api/teams/bots').then(res => dispatch(botsReceived(res.data)))
 }
 
 // Modules

@@ -67,10 +67,6 @@ class SidebarFooter extends React.Component {
   }
 
   renderBotSelect() {
-    if (!window.BOTPRESS_XX) {
-      return null
-    }
-
     const options = (this.props.bots || []).map(bot => ({ value: bot.id, label: `${bot.team}/${bot.name}` }))
     const currentBot = _.get(this.props.bot, 'id') || _.get(options, '0.value')
     const selectClassNames = classnames(style.select, 'bp-select')

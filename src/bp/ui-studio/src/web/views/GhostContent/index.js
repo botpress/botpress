@@ -129,11 +129,6 @@ class GhostView extends Component {
           <p>
             Below are the changes you made to the bot since last sync. You need to eventually sync it up with the bot
             source code.&nbsp;
-            {!window.BOTPRESS_XX && (
-              <Button bsSize="small" bsStyle="info" onClick={this.showSyncHelp}>
-                Show me how to do it
-              </Button>
-            )}
           </p>
         </Alert>
         {this.renderDownload()}
@@ -155,7 +150,7 @@ class GhostView extends Component {
   renderDownload() {
     const { data } = this.state
     const hasChanges = Object.keys(data).length > 0
-    if (!window.BOTPRESS_XX || !hasChanges) {
+    if (!hasChanges) {
       return null
     }
 
