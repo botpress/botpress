@@ -60,8 +60,8 @@ export default class ProxyUI {
   }
 
   private setupStaticProxy({ app }) {
-    app.use('/fonts', express.static(path.join(__dirname, '../ui-studio/static/fonts')))
-    app.use('/img', express.static(path.join(__dirname, '../ui-studio/static/img')))
+    app.use('/fonts', express.static(path.join(__dirname, '../ui-studio/public/fonts')))
+    app.use('/img', express.static(path.join(__dirname, '../ui-studio/public/img')))
   }
 
   private setupStudioAppProxy({ coreApiUrl, app }) {
@@ -143,11 +143,11 @@ export default class ProxyUI {
       })
     )
 
-    app.use('/:app(studio)/:botId', express.static(path.join(__dirname, '../ui-studio/static')))
-    app.use('/:app(lite)/:botId?', express.static(path.join(__dirname, '../ui-studio/static/lite')))
-    app.use('/:app(lite)/:botId', express.static(path.join(__dirname, '../ui-studio/static'))) // Fallback Static Assets
+    app.use('/:app(studio)/:botId', express.static(path.join(__dirname, '../ui-studio/public')))
+    app.use('/:app(lite)/:botId?', express.static(path.join(__dirname, '../ui-studio/public/lite')))
+    app.use('/:app(lite)/:botId', express.static(path.join(__dirname, '../ui-studio/public'))) // Fallback Static Assets
     app.get(['/:app(studio)/:botId/*'], (req, res) => {
-      const absolutePath = path.join(__dirname, '../ui-studio/static/index.html')
+      const absolutePath = path.join(__dirname, '../ui-studio/public/index.html')
       res.contentType('text/html')
       res.sendFile(absolutePath)
     })

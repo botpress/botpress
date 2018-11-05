@@ -1,0 +1,178 @@
+process.traceDeprecation = true
+
+const chalk = require('chalk')
+const webpack = require('webpack')
+const path = require('path')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
+const isProduction = process.env.NODE_ENV === 'production'
+
+const webConfig = {
+  mode: isProduction ? 'production' : 'development',
+  bail: true,
+  devtool: isProduction ? 'source-map' : 'eval-source-map',
+  entry: {
+    web: './src/index.jsx',
+    lite: './src/lite.jsx'
+  },
+  output: {
+    path: path.resolve(__dirname, './public/js'),
+    publicPath: '$$BP_BASE_URL$$/js/',
+    filename: '[name].[chunkhash].js'
+  },
+  resolve: {
+    extensions: ['.js', '.jsx', '.css'],
+    alias: {
+      '~': path.resolve(__dirname, './src')
+    }
+  },
+  optimization: {
+    minimizer: [
+      new UglifyJSPlugin({
+        sourceMap: true,
+        cache: true
+      })
+    ],
+    splitChunks: {
+      chunks: 'async',
+      minChunks: 2,
+      automaticNameDelimiter: '~',
+      cacheGroups: {
+        commons: {
+          name: 'commons',
+          chunks: 'initial',
+          minSize: 0
+        },
+        default: {
+          minChunks: 2,
+          priority: -20,
+          reuseExistingChunk: true
+        }
+      }
+    },
+    occurrenceOrder: true
+  },
+  plugins: [
+    new HtmlWebpackPlugin({
+      inject: true,
+      hash: true,
+      template: './src/index.html',
+      filename: '../index.html',
+      chunks: ['commons', 'web']
+    }),
+    new HtmlWebpackPlugin({
+      inject: true,
+      hash: true,
+      template: './src/lite.html',
+      filename: '../lite/index.html',
+      chunks: ['commons', 'lite']
+    }),
+    new webpack.DefinePlugin({
+      'process.env': {
+        NODE_ENV: isProduction ? JSON.stringify('production') : JSON.stringify('development')
+      }
+    }),
+    new CopyWebpackPlugin([
+      {
+        from: path.resolve(__dirname, './src/img'),
+        to: path.resolve(__dirname, './public/img')
+      },
+      {
+        from: path.resolve(__dirname, './src/audio'),
+        to: path.resolve(__dirname, './public/audio')
+      }
+    ])
+  ],
+  module: {
+    rules: [
+      {
+        test: /\.jsx?$/i,
+        include: path.resolve(__dirname, 'src'),
+        use: [
+          { loader: 'thread-loader' },
+          {
+            loader: 'babel-loader',
+            options: {
+              presets: ['stage-3', ['env', { targets: { browsers: ['last 2 versions'] } }], 'react'],
+              plugins: ['transform-class-properties'],
+              compact: true,
+              babelrc: false,
+              cacheDirectory: true
+            }
+          }
+        ]
+      },
+      {
+        test: /\.scss$/,
+        use: [
+          {
+            loader: 'style-loader'
+          },
+          {
+            loader: 'css-loader',
+            options: {
+              modules: true,
+              importLoaders: 1,
+              localIdentName: '[name]__[local]___[hash:base64:5]'
+            }
+          },
+          {
+            loader: 'postcss-loader'
+          },
+          {
+            loader: 'sass-loader'
+          }
+        ]
+      },
+      {
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader']
+      },
+      {
+        test: /\.woff|\.woff2|\.svg|.eot|\.ttf/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: '[name].[ext]',
+              outputPath: '../fonts',
+              publicPath: '/fonts'
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
+
+const showNodeEnvWarning = () => {
+  if (!isProduction) {
+    console.log(
+      chalk.yellow('WARNING: You are currently building Botpress in development; NOT generating a production build')
+    )
+    console.log(chalk.yellow('Run with NODE_ENV=production to create a production build instead'))
+  }
+}
+
+const compiler = webpack(webConfig)
+const postProcess = (err, stats) => {
+  if (err) {
+    throw err
+  }
+  console.log(chalk.grey(stats.toString('minimal')))
+}
+
+if (process.argv.indexOf('--compile') !== -1) {
+  showNodeEnvWarning()
+  compiler.run(postProcess)
+} else if (process.argv.indexOf('--watch') !== -1) {
+  compiler.watch(
+    {
+      ignored: ['*', /!.\/src\//]
+    },
+    postProcess
+  )
+}
+
+module.exports = { web: webConfig }

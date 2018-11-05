@@ -1,0 +1,101 @@
+@import './palette.scss';
+
+// meaning inside modules
+:global(.component-mount) {
+  :global(.btn) {
+    font-size: 14px;
+    opacity: 0.75;
+    text-align: center;
+    padding-left: 20px;
+    padding-right: 20px;
+
+    transition: opacity 0.15s ease-in-out, background-color 0.15s ease-in-out;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  :global(.btn-success) {
+    color: $btn-text-color;
+    background-color: $btn-bg-color;
+    border-color: $btn-bg-color;
+    &:hover {
+      background-color: $btn-bg-color-hover;
+      border-color: $btn-bg-color-hover;
+      color: $btn-text-color;
+    }
+  }
+
+  :global(.btn-danger) {
+    background-color: #af4f4b;
+    border-color: #af4f4b;
+
+    &:hover {
+      background-color: #b13434;
+      border-color: #b13434;
+    }
+  }
+
+  :global(.btn-default) {
+    background-color: #b1b1b1;
+    border-color: #b1b1b1;
+
+    &:hover {
+      background-color: #a5a5a5;
+      border-color: #a5a5a5;
+    }
+  }
+
+  :global(.control-label) {
+    color: $content-color-normal;
+  }
+
+  :global(.react-tagsinput) {
+    background-color: #fff;
+    border-radius: 5px;
+    border: 1px solid #efefef;
+    transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+  }
+
+  :global(.react-tagsinput--focused) {
+    border-color: #56c0b2;
+    outline: 0;
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(86, 192, 178, 0.6);
+  }
+
+  :global(.react-tagsinput-tag) {
+    background-color: #efefef;
+    border-radius: 5px;
+    border: 1px solid #efefef;
+    color: #6d6d6d;
+  }
+
+  :global(.react-tagsinput-input) {
+    width: 200px;
+  }
+
+  :global(.form-control) {
+    box-shadow: none;
+    border-color: #efefef;
+
+    &:focus {
+      border-color: #56c0b2;
+      box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(86, 192, 178, 0.6);
+    }
+  }
+
+  :global(.input-group-addon) {
+    border-color: #efefef;
+  }
+
+  :global(.react-toggle--checked) {
+    :global(.react-toggle-thumb) {
+      border-color: #56c0b2;
+    }
+
+    :global(.react-toggle-track) {
+      background-color: #56c0b2 !important;
+    }
+  }
+}
