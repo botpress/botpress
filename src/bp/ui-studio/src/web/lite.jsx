@@ -1,12 +1,11 @@
 import 'babel-polyfill'
 import React from 'expose-loader?React!react'
 import ReactDOM from 'expose-loader?ReactDOM!react-dom'
-import PropTypes from 'expose-loader?PropTypes!prop-types'
-import ReactBootstrap from 'expose-loader?ReactBootstrap!react-bootstrap'
 import { connect } from 'react-redux'
 import { Provider } from 'react-redux'
 import queryString from 'query-string'
 import axios from 'axios'
+import { parseBotId } from './util'
 
 import store from './store'
 import { fetchModules } from './actions'
@@ -17,6 +16,11 @@ import { getToken, getUniqueVisitorId } from '~/util/Auth'
 const token = getToken()
 if (token) {
   axios.defaults.headers.common['Authorization'] = `Bearer ${token.token}`
+}
+
+if (window.BOTPRESS_XX && axios && axios.defaults) {
+  axios.defaults.headers.common['X-Botpress-App'] = 'Lite'
+  axios.defaults.headers.common['X-Botpress-Bot-Id'] = parseBotId()
 }
 
 const { m, v, ref } = queryString.parse(location.search)
@@ -64,7 +68,10 @@ class LiteView extends React.Component {
 
 const mapDispatchToProps = { fetchModules }
 const mapStateToProps = state => ({ modules: state.modules })
-const LiteViewConnected = connect(mapStateToProps, mapDispatchToProps)(LiteView)
+const LiteViewConnected = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(LiteView)
 
 ReactDOM.render(
   <Provider store={store}>

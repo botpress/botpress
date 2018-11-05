@@ -60,8 +60,8 @@ export default class ProxyUI {
   }
 
   private setupStaticProxy({ app }) {
-    app.use('/fonts', express.static(path.join(__dirname, '../ui-studio/public/fonts')))
-    app.use('/img', express.static(path.join(__dirname, '../ui-studio/public/img')))
+    app.use('/fonts', express.static(path.join(__dirname, '../ui-studio/public/web/fonts')))
+    app.use('/img', express.static(path.join(__dirname, '../ui-studio/public/web/img')))
   }
 
   private setupStudioAppProxy({ coreApiUrl, app }) {

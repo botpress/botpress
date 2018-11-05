@@ -99,34 +99,22 @@ class SidebarFooter extends React.Component {
     const aboutClassNames = classnames(style.about, 'bp-about')
     const adminClassNames = classnames(style.admin, 'bp-admin')
 
-    if (window.BOTPRESS_XX) {
-      return (
-        <div className={sidebarFooterClassNames}>
-          <div className={sidebarInnerClassNames}>
-            <a className={adminClassNames} href="../../admin" title="admin">
-              <i className="icon material-icons">home</i>
-              <span>Admin</span>
-            </a>
-            {this.renderBotSelect()}
-            <div className={productionClassNames}>{production}</div>
-            {this.renderLicenseStatus()}
-            <Link className={aboutClassNames} to="#" title="About" onClick={this.openAbout}>
-              About Botpress
-            </Link>
-          </div>
+    return (
+      <div className={sidebarFooterClassNames}>
+        <div className={sidebarInnerClassNames}>
+          <a className={adminClassNames} href="../../admin" title="admin">
+            <i className="icon material-icons">home</i>
+            <span>Admin</span>
+          </a>
+          {this.renderBotSelect()}
+          <div className={productionClassNames}>{production}</div>
+          {this.renderLicenseStatus()}
+          <Link className={aboutClassNames} to="#" title="About" onClick={this.openAbout}>
+            About Botpress
+          </Link>
         </div>
-      )
-    } else {
-      return (
-        <div className={sidebarFooterClassNames}>
-          <div className={sidebarInnerClassNames}>
-            <Link className={aboutClassNames} to="#" title="About" onClick={this.openAbout}>
-              About Botpress
-            </Link>
-          </div>
-        </div>
-      )
-    }
+      </div>
+    )
   }
 }
 

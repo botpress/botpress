@@ -7,6 +7,7 @@ import classnames from 'classnames'
 
 import styles from './style.scss'
 import { login } from '~/util/Auth'
+import { parseBotId } from '~/util'
 
 export default class LoginPage extends Component {
   static contextTypes = {
@@ -30,6 +31,13 @@ export default class LoginPage extends Component {
   componentDidMount() {
     const app = document.getElementById('app')
     app.className = classnames(app.className, 'bp-body-login')
+
+    if (window.BOTPRESS_XX) {
+      const botId = parseBotId()
+      const returnTo = this.props.location.query.returnTo || '/'
+      const finalDestination = `/studio/${botId}${returnTo}`
+      location.replace('/admin/login?returnTo=' + finalDestination)
+    }
   }
 
   handlePasswordChange = event => {
@@ -126,6 +134,10 @@ export default class LoginPage extends Component {
   }
 
   render() {
+    if (window.BOTPRESS_XX) {
+      return null // Authenticate using the /admin panel
+    }
+
     const hasChangedPassword = !!this.props.location.query.reset
     const hasAnError = !!this.state.error
 

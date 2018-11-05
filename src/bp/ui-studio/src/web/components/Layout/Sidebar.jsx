@@ -40,12 +40,6 @@ const BASIC_MENU_ITEMS = [
     path: '/flows',
     rule: { res: 'bot.flows', op: 'read' },
     icon: 'device_hub'
-  },
-  {
-    name: 'Middleware',
-    path: '/middleware',
-    rule: { res: 'bot.middleware.list', op: 'read' },
-    icon: 'settings'
   }
 ].filter(Boolean)
 

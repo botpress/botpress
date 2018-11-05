@@ -1,5 +1,5 @@
 import React from 'react'
-import { Router, Route, Link, Switch } from 'react-router-dom'
+import { Router, Route, Switch } from 'react-router-dom'
 import createBrowserHistory from 'history/createBrowserHistory'
 import queryString from 'query-string'
 import ReactGA from 'react-ga'

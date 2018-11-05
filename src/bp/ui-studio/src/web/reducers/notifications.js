@@ -5,7 +5,7 @@ import _ from 'lodash'
 import { allNotificationsReceived, newNotificationsReceived } from '~/actions'
 
 const defaultState = []
-const sound = new Howl({ src: ['/audio/notification.mp3'] })
+const sound = new Howl({ src: [window.BP_BASE_PATH + '/web/audio/notification.mp3'] })
 
 const reducer = handleActions(
   {
@@ -14,8 +14,8 @@ const reducer = handleActions(
       if (_.some(payload, { sound: true })) {
         sound.play()
       }
-
-      return [...state.unshift(...payload)]
+      state.unshift(...payload)
+      return [...state]
     }
   },
   defaultState
