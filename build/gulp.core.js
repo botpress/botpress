@@ -77,7 +77,7 @@ const copyAdmin = () => {
 }
 
 const copyStudio = () => {
-  return gulp.src('./src/bp/ui-studio/public/**/*').pipe(gulp.dest('./out/bp/ui-studio/public'))
+  return gulp.src('./src/bp/ui-studio/lib/**/*').pipe(gulp.dest('./out/bp/ui-studio/public'))
 }
 
 const buildSchemas = cb => {

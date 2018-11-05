@@ -13,18 +13,18 @@ const webConfig = {
   bail: true,
   devtool: isProduction ? 'source-map' : 'eval-source-map',
   entry: {
-    web: './src/index.jsx',
-    lite: './src/lite.jsx'
+    web: './src/web/index.jsx',
+    lite: './src/web/lite.jsx'
   },
   output: {
-    path: path.resolve(__dirname, './public/js'),
+    path: path.resolve(__dirname, './lib/js'),
     publicPath: '$$BP_BASE_URL$$/js/',
     filename: '[name].[chunkhash].js'
   },
   resolve: {
     extensions: ['.js', '.jsx', '.css'],
     alias: {
-      '~': path.resolve(__dirname, './src')
+      '~': path.resolve(__dirname, './src/web')
     }
   },
   optimization: {
@@ -57,14 +57,14 @@ const webConfig = {
     new HtmlWebpackPlugin({
       inject: true,
       hash: true,
-      template: './src/index.html',
+      template: './src/web/index.html',
       filename: '../index.html',
       chunks: ['commons', 'web']
     }),
     new HtmlWebpackPlugin({
       inject: true,
       hash: true,
-      template: './src/lite.html',
+      template: './src/web/lite.html',
       filename: '../lite/index.html',
       chunks: ['commons', 'lite']
     }),
@@ -75,12 +75,12 @@ const webConfig = {
     }),
     new CopyWebpackPlugin([
       {
-        from: path.resolve(__dirname, './src/img'),
-        to: path.resolve(__dirname, './public/img')
+        from: path.resolve(__dirname, './src/web/img'),
+        to: path.resolve(__dirname, './lib/web/img')
       },
       {
-        from: path.resolve(__dirname, './src/audio'),
-        to: path.resolve(__dirname, './public/audio')
+        from: path.resolve(__dirname, './src/web/audio'),
+        to: path.resolve(__dirname, './lib/web/audio')
       }
     ])
   ],
@@ -88,7 +88,7 @@ const webConfig = {
     rules: [
       {
         test: /\.jsx?$/i,
-        include: path.resolve(__dirname, 'src'),
+        include: path.resolve(__dirname, 'src/web'),
         use: [
           { loader: 'thread-loader' },
           {
@@ -106,9 +106,7 @@ const webConfig = {
       {
         test: /\.scss$/,
         use: [
-          {
-            loader: 'style-loader'
-          },
+          { loader: 'style-loader' },
           {
             loader: 'css-loader',
             options: {
@@ -117,12 +115,8 @@ const webConfig = {
               localIdentName: '[name]__[local]___[hash:base64:5]'
             }
           },
-          {
-            loader: 'postcss-loader'
-          },
-          {
-            loader: 'sass-loader'
-          }
+          { loader: 'postcss-loader' },
+          { loader: 'sass-loader' }
         ]
       },
       {
@@ -131,16 +125,7 @@ const webConfig = {
       },
       {
         test: /\.woff|\.woff2|\.svg|.eot|\.ttf/,
-        use: [
-          {
-            loader: 'file-loader',
-            options: {
-              name: '[name].[ext]',
-              outputPath: '../fonts',
-              publicPath: '/fonts'
-            }
-          }
-        ]
+        use: [{ loader: 'file-loader', options: { name: '../fonts/[name].[ext]' } }]
       }
     ]
   }
@@ -169,7 +154,7 @@ if (process.argv.indexOf('--compile') !== -1) {
 } else if (process.argv.indexOf('--watch') !== -1) {
   compiler.watch(
     {
-      ignored: ['*', /!.\/src\//]
+      ignored: ['*', /!.\/src\/web/]
     },
     postProcess
   )

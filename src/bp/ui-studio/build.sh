@@ -1,0 +1,8 @@
+echo "--> Cleaning up old build"
+rm -rf lib
+
+echo "--> Transpiling server code"
+npm run compile-server
+
+echo "--> bundling web UI"
+node ./webpack.web.js --compile

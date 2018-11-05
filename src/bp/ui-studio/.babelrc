@@ -1,0 +1,32 @@
+{
+  "presets": [
+    "stage-3",
+    [
+      "env",
+      {
+        "targets": {
+          "node": "8.9"
+        }
+      }
+    ],
+    "react"
+  ],
+  "plugins": ["transform-class-properties"],
+  "ignore": ["src/cli/templates/", "src/web/"],
+  "env": {
+    "tests": {
+      "plugins": [
+        "transform-class-properties",
+        [
+          "babel-plugin-root-import",
+          [
+            {
+              "rootPathPrefix": "~",
+              "rootPathSuffix": "./src"
+            }
+          ]
+        ]
+      ]
+    }
+  }
+}

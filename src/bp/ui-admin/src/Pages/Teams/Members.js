@@ -6,7 +6,6 @@ import { MdPersonAdd } from 'react-icons/lib/md'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import moment from 'moment'
-import { checkRule } from '@botpress/util-roles'
 import _ from 'lodash'
 
 import {
