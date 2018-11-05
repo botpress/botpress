@@ -41,6 +41,7 @@
         "backlog",
         "bodyLimit",
         "cors",
+        "host",
         "port",
         "proxyPort"
       ]
