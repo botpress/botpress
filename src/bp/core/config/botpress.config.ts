@@ -38,6 +38,7 @@ export type BotpressConfig = {
     proxyPort: number
     backlog: number
     bodyLimit: string | number
+    disableWsProxy: false
     cors: {
       enabled?: boolean
       origin?: string
