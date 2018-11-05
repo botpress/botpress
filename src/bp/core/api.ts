@@ -165,8 +165,8 @@ const cms = (cmsService: CMSService): typeof sdk.cms => {
     getContentElements(botId: string, ids: string[]): Promise<any[]> {
       return cmsService.getContentElements(botId, ids)
     },
-    listContentElements(botId: string, contentTypeId?: string): Promise<any> {
-      return cmsService.listContentElements(botId, contentTypeId)
+    listContentElements(botId: string, contentTypeId?: string, searchParams?: sdk.SearchParams): Promise<any> {
+      return cmsService.listContentElements(botId, contentTypeId, searchParams)
     },
     getAllContentTypes(botId?: string): Promise<any[]> {
       return cmsService.getAllContentTypes(botId)

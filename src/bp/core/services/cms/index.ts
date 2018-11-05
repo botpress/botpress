@@ -1,10 +1,4 @@
-export type SearchParams = {
-  searchTerm?: string
-  orderBy: string[]
-  from: number
-  count: number
-  ids?: string[]
-}
+import { SearchParams } from 'botpress/sdk'
 
 export const DefaultSearchParams: SearchParams = {
   orderBy: ['createdOn'],
