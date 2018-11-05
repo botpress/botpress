@@ -1,7 +1,7 @@
 import fs from 'fs'
 import _ from 'lodash'
 import moment from 'moment'
-import shortid from 'shortid'
+import nanoid from 'nanoid/generate'
 
 import db from './db'
 
@@ -54,7 +54,7 @@ const dropUsers = count => {
 }
 
 const generateName = () => {
-  return shortid.generate(_.random(5, 20, false))
+  return nanoid(_.random(5, 20, false))
 }
 
 const addUsers = (count, knex, date) => {
