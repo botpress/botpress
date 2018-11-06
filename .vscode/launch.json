@@ -9,11 +9,10 @@
       "cwd": "${workspaceFolder}",
       "protocol": "inspector",
       "env": {
-        "BP_PRODUCTION": "true",
         "BP_MODULES_PATH": "${workspaceFolder}/modules",
         "NODE_PATH": "${workspaceFolder}/out/bp"
       },
-      "outFiles": ["${workspaceFolder}/out/**/*.js"],
+      "outFiles": ["${workspaceFolder}/out/"],
       "console": "integratedTerminal",
       "sourceMaps": true,
       "autoAttachChildProcesses": true
@@ -21,18 +20,15 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Debug Tests",
-      "program": "${workspaceRoot}/node_modules/.bin/jest",
-      "args": [
-        "-i" // Run in band
-      ],
-      "env": {
-        "EDITION": "ce",
-        "BP_MODULES_PATH": "${workspaceFolder}/modules",
-        "NODE_PATH": "${workspaceFolder}/out/bp"
+      "name": "Debug Jest Tests",
+      "cwd": "${workspaceFolder}",
+      "args": ["--inspect-brk", "${workspaceFolder}/node_modules/.bin/jest", "--runInBand"],
+      "windows": {
+        "args": ["--inspect-brk", "${workspaceRoot}/node_modules/jest/bin/jest.js", "--runInBand"]
       },
-      "outFiles": ["${workspaceFolder}/out/**/*.js"],
+      "outFiles": ["${workspaceFolder}/out/"],
       "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
       "sourceMaps": true,
       "autoAttachChildProcesses": true
     }
