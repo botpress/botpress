@@ -67,7 +67,8 @@ export class EventEngine {
 
     this.outgoingQueue.subscribe(async event => {
       const { outgoing } = await this.getBotMiddlewareChains(event.botId)
-      await outgoing.run(event)
+      outgoing.run(event)
+      // FUTURE: We could notify other nodes that the message was successfully sent
     })
   }
 
