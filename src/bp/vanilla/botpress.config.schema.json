@@ -25,6 +25,12 @@
             "number"
           ]
         },
+        "disableWsProxy": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        },
         "cors": {
           "type": "object",
           "properties": {
@@ -41,6 +47,7 @@
         "backlog",
         "bodyLimit",
         "cors",
+        "disableWsProxy",
         "host",
         "port",
         "proxyPort"

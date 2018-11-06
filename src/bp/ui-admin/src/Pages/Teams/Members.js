@@ -7,6 +7,7 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import moment from 'moment'
 import _ from 'lodash'
+import { checkRule } from '../../App/auth'
 
 import {
   ListGroup,

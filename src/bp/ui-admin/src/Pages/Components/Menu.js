@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom'
 import { fetchLicense } from '../../modules/license'
 import { fetchPermissions } from '../../modules/user'
 import _ from 'lodash'
+import { checkRule } from '../../App/auth'
 
 class Menu extends Component {
   constructor(props) {
