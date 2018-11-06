@@ -104,16 +104,13 @@ export class DialogEngine {
 
   public async jumpTo(sessionId: string, event: IO.Event, targetFlowName: string, targetNodeName?: string) {
     const botId = event.botId
-    const session = await this._getOrCreateSession(sessionId, event)
     await this._loadFlows(botId)
 
+    const session = await this._getOrCreateSession(sessionId, event)
     const targetFlow = this._findFlow(botId, targetFlowName)
-    let targetNode
-    if (targetNodeName) {
-      targetNode = this._findNode(targetFlow, targetNodeName)
-    } else {
-      targetNode = this._findNode(targetFlow, targetFlow.startNode)
-    }
+    const targetNode = targetNodeName
+      ? this._findNode(targetFlow, targetNodeName)
+      : this._findNode(targetFlow, targetFlow.startNode)
 
     const context = {
       currentFlowName: targetFlow.name,
@@ -131,11 +128,18 @@ export class DialogEngine {
     // const api = await createForGlobalHooks()
     // await this.hookService.executeHook(new Hooks.BeforeSessionTimeout(api, event))
 
-    // This is the only place we dont want to catch node not found errors
+    // This is the only place we dont want to catch node or flow not found errors
     const findNodeWithoutError = (flow, nodeName) => {
       try {
-        const node = this._findNode(flow, nodeName)
-        return node
+        return this._findNode(flow, nodeName)
+      } catch (err) {
+        // ignore
+      }
+      return undefined
+    }
+    const findFlowWithoutError = flowName => {
+      try {
+        return this._findFlow(botId, flowName)
       } catch (err) {
         // ignore
       }
@@ -148,7 +152,7 @@ export class DialogEngine {
 
     // Check for a timeout property in the current node
     let timeoutNode = _.get(currentNode, 'timeout')
-    let timeoutFlow = currentFlow
+    let timeoutFlow: FlowView | undefined = currentFlow
 
     // Check for a timeout node in the current flow
     if (!timeoutNode) {
@@ -165,13 +169,11 @@ export class DialogEngine {
 
     // Check for a timeout.flow.json and get the start node
     if (!timeoutNode) {
-      try {
-        timeoutFlow = this._findFlow(botId, 'timeout.flow.json')
-      } catch (err) {
-        // ignore
+      timeoutFlow = findFlowWithoutError('timeout.flow.json')
+      if (timeoutFlow) {
+        const startNodeName = timeoutFlow.startNode
+        timeoutNode = findNodeWithoutError(timeoutFlow, startNodeName)
       }
-      const startNodeName = timeoutFlow.startNode
-      timeoutNode = findNodeWithoutError(timeoutFlow, startNodeName)
     }
 
     if (!timeoutNode || !timeoutFlow) {
