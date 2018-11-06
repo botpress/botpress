@@ -6,13 +6,13 @@ import { createSpyObject, expectAsync, MockObject } from '../../misc/utils'
 import { DialogSession } from '../../repositories'
 import { HookService } from '../hook/hook-service'
 
-import { DialogEngineV2 } from './engine-v2'
+import { DialogEngine } from './engine'
 import { FlowService } from './flow/service'
 import { InstructionProcessor } from './instruction/processor'
 import { SessionService } from './session/service'
 import { flowsStub, flowWithTimeoutNode, flowWithTimeoutProp, timeoutFlow } from './stubs'
 
-class DialogEngineTest extends DialogEngineV2 {
+class DialogEngineTest extends DialogEngine {
   async transition(sessionId, event, transitionTo) {
     await this._transition(sessionId, event, transitionTo)
   }

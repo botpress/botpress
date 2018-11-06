@@ -12,7 +12,7 @@ import { ConfigProvider } from '../../config/config-loader'
 import { TYPES } from '../../types'
 import { Janitor } from '../janitor'
 
-import { DialogEngineV2 } from './engine-v2'
+import { DialogEngine } from './engine'
 import { SessionIdFactory } from './session/id-factory'
 import { SessionService } from './session/service'
 
@@ -23,7 +23,7 @@ export class DialogJanitor extends Janitor {
     @tagged('name', 'DialogJanitor')
     protected logger: Logger,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
-    @inject(TYPES.DialogEngine) private dialogEngine: DialogEngineV2,
+    @inject(TYPES.DialogEngine) private dialogEngine: DialogEngine,
     @inject(TYPES.BotLoader) private botLoader: BotLoader,
     @inject(TYPES.SessionService) private sessionService: SessionService
   ) {
