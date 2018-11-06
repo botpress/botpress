@@ -1,4 +1,5 @@
 import { execFile, execFileSync } from 'child_process'
+import { EOL } from 'os'
 import { join } from 'path'
 import { Readable } from 'stream'
 
@@ -80,7 +81,7 @@ signal: ${err.signal}
     })
 
     let out: string = ''
-    result.stdin.end(inputText)
+    result.stdin.end(`${inputText}${EOL}`)
     result.stdout.on('data', chunk => {
       out += chunk
     })
