@@ -160,8 +160,11 @@ describe('Dialog Engine', () => {
     })
 
     it('creates a session if it doesnt exists', async () => {
-      flowService.loadAll.mockReturnValue(flowsStub)
-      sessionService.getSession.mockResolvedValueOnce(undefined)
+      flowService.loadAll.mockResolvedValue(flowsStub)
+      // First time it is not created, second time it has been created
+      sessionService.getSession.mockReset()
+      sessionService.getSession.mockReturnValue(undefined)
+      sessionService.createSession.mockResolvedValue(SESSION)
 
       await dialogEngine.jumpTo(SESSION_ID, EVENT, 'other.flow.json')
       expect(sessionService.createSession).toHaveBeenCalled()
