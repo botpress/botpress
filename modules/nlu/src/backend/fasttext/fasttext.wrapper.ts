@@ -1,4 +1,5 @@
 import { execFile, execFileSync } from 'child_process'
+import { EOL } from 'os'
 import { join } from 'path'
 import { Readable } from 'stream'
 
@@ -21,10 +22,10 @@ export default class FTWrapper {
   static supervised(
     trainingSetPath: string,
     modelOutPath: string,
-    learningRate: number = 1,
-    epoch: number = 500,
+    learningRate: number = 0.8,
+    epoch: number = 1000,
     bucket: number = 25000,
-    dim: number = 10,
+    dim: number = 15,
     wordGram: number = 3,
     minCount: number = 1,
     minn: number = 3,
@@ -80,7 +81,7 @@ signal: ${err.signal}
     })
 
     let out: string = ''
-    result.stdin.end(inputText)
+    result.stdin.end(`${inputText}${EOL}`)
     result.stdout.on('data', chunk => {
       out += chunk
     })

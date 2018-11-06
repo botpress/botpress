@@ -25,8 +25,7 @@ export class GhostConfigProvider implements ConfigProvider {
   async getBotpressConfig(): Promise<BotpressConfig> {
     const config = await this.getConfig<BotpressConfig>('botpress.config.json')
 
-    const host = process.env.BP_HOST || config.httpServer.host
-    config.httpServer.host = host === 'localhost' ? undefined : host
+    config.httpServer.host = process.env.BP_HOST || config.httpServer.host
     config.httpServer.proxyPort = process.env.PORT ? parseInt(process.env.PORT) : config.httpServer.proxyPort
     config.database.type = process.env.DATABASE ? <DatabaseType>process.env.DATABASE : config.database.type
     config.database.url = process.env.DATABASE_URL ? process.env.DATABASE_URL : config.database.url

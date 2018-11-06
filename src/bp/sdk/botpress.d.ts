@@ -523,6 +523,18 @@ declare module 'botpress/sdk' {
     enableJsonBodyParser: RouterCondition
   }
 
+  /**
+   * Search parameters when querying content elements
+   */
+  export type SearchParams = {
+    searchTerm?: string
+    /** An array of fields to order the query on */
+    orderBy?: string[]
+    from: number
+    count: number
+    ids?: string[]
+  }
+
   export namespace http {
     /**
      * Create a shortlink to any destination
@@ -534,6 +546,13 @@ declare module 'botpress/sdk' {
      * @param params - An optional query string to add at the end of the url. You may specify an object
      */
     export function createShortLink(name: string, destination: string, params?: any): void
+
+    /**
+     * Delete any previously created short link
+     *
+     * @param name - The name of the link to remove
+     */
+    export function deleteShortLink(name): void
 
     /**
      * Create a new router for a module. Once created, use them to register new endpoints. Routers created
@@ -721,7 +740,13 @@ declare module 'botpress/sdk' {
     export function getContentElement(botId: string, id: string): Promise<ContentElement>
 
     export function getContentElements(botId: string, ids: string[]): Promise<ContentElement[]>
-    export function listContentElements(botId: string, contentTypeId?: string): Promise<ContentElement[]>
+
+    export function listContentElements(
+      botId: string,
+      contentTypeId?: string,
+      searchParams?: SearchParams
+    ): Promise<ContentElement[]>
+
     export function getAllContentTypes(botId?: string): Promise<ContentType[]>
     /**
      * Use a specific content type renderer to parse the data and returns one or multiple payloads that may then be send to a user.

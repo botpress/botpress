@@ -1,5 +1,6 @@
 import { Logger } from 'botpress/sdk'
 import { inject, injectable, tagged } from 'inversify'
+import _ from 'lodash'
 import path from 'path'
 import { VError } from 'verror'
 import { NodeVM } from 'vm2'
@@ -127,7 +128,8 @@ export class ScopedActionService {
         bp: api,
         event: incomingEvent,
         state: dialogState,
-        args: actionArgs
+        args: actionArgs,
+        process: _.pick(process, 'HOST', 'PORT', 'PROXY_PORT', 'env')
       },
       require: {
         external: true,

@@ -33,9 +33,7 @@ export default class ProxyUI {
   async start() {
     const botpressConfig = await this.configProvider.getBotpressConfig()
     const config = botpressConfig.httpServer
-    const hostname = config.host === undefined ? 'localhost' : config.host
-    const coreApiUrl = `http://${hostname}:${process.PORT}`
-    const proxyHost = `http://${hostname}`
+    const coreApiUrl = `http://${process.HOST}:${process.PORT}`
 
     if (config.cors && config.cors.enabled) {
       this.app.use(cors(config.cors.origin ? { origin: config.cors.origin } : {}))
@@ -49,11 +47,11 @@ export default class ProxyUI {
     }
 
     const httpProxy = new HttpProxy(this.app, coreApiUrl)
-    const options = { httpProxy, coreApiUrl, app: this.app, proxyHost, proxyPort: process.PROXY_PORT }
+    const options = { httpProxy, coreApiUrl, app: this.app, proxyPort: process.PROXY_PORT }
 
     await this.setupStaticProxy(options)
     await this.setupAPIProxy(options)
-    await this.setupStudioAppProxy(options)
+    await this.setupStudioAppProxy(options, config.disableWsProxy)
     await this.setupAdminAppProxy(options)
 
     await Promise.fromCallback(callback => this.app.listen(process.PROXY_PORT, callback))
@@ -64,7 +62,7 @@ export default class ProxyUI {
     app.use('/img', express.static(path.join(__dirname, '../ui-studio/public/web/img')))
   }
 
-  private setupStudioAppProxy({ coreApiUrl, app }) {
+  private setupStudioAppProxy({ coreApiUrl, app }, disableWsProxy) {
     app.get('/studio', (req, res, next) => {
       res.redirect('/admin')
     })
@@ -122,7 +120,7 @@ export default class ProxyUI {
               // Common
               window.BASE_PATH = "/${app}";
               window.BP_BASE_PATH = "/${app}/${botId}";
-              window.BP_SOCKET_URL = '${coreApiUrl}';
+              window.BP_SOCKET_URL = '${disableWsProxy ? '' : coreApiUrl}';
               window.BOTPRESS_VERSION = "${data.botpress.version}";
               window.APP_NAME = "${data.botpress.name}";
               window.NODE_ENV = "production";
@@ -152,9 +150,18 @@ export default class ProxyUI {
     })
   }
 
-  private setupAPIProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
+  private setupAPIProxy({ httpProxy, coreApiUrl, app }) {
     httpProxy.proxyForBot('/api/bot/information', '/')
     httpProxy.proxyAdmin('/api/teams/bots', '/teams/bots')
+
+    app.get(
+      '/api/media/:botId/:mediaId',
+      proxy(coreApiUrl, {
+        proxyReqPathResolver: req => {
+          return `${BASE_PATH}/bots/${req.params.botId}/media/${req.params.mediaId}`
+        }
+      })
+    )
 
     app.post(
       '/api/middlewares/customizations',
@@ -510,7 +517,7 @@ export default class ProxyUI {
     )
   }
 
-  private setupAdminAppProxy({ httpProxy, coreApiUrl, app, proxyHost, proxyPort }) {
+  private setupAdminAppProxy({ coreApiUrl, app }) {
     const sanitizePath = path => path.replace('//', '/')
 
     app.get(

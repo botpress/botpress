@@ -104,8 +104,9 @@ export class DialogEngineV2 {
   }
 
   public async jumpTo(sessionId: string, event: IO.Event, targetFlowName: string, targetNodeName?: string) {
-    const session = await this._getOrCreateSession(sessionId, event)
     const botId = event.botId
+    const session = await this._getOrCreateSession(sessionId, event)
+    await this._loadFlows(botId)
 
     const targetFlow = this._findFlow(botId, targetFlowName)
     let targetNode
@@ -125,6 +126,7 @@ export class DialogEngineV2 {
 
   public async processTimeout(botId: string, sessionId: string, event: IO.Event) {
     this._logTimeout(botId)
+    await this._loadFlows(botId)
 
     // FIXME: Doesnt play well with tests
     // const api = await createForGlobalHooks()

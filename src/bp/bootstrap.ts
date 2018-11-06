@@ -92,10 +92,7 @@ async function start() {
 
   await Botpress.start({ modules })
 
-  let host = globalConfig.httpServer.host
-  host = host === undefined ? 'localhost' : host
-
-  logger.info(`UI Proxy running on http://${host}:${process.PROXY_PORT}/`)
+  logger.info(`UI Proxy running on http://${process.HOST}:${process.PROXY_PORT}/`)
 }
 
 start().catch(global.printErrorDefault)

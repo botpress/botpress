@@ -1,5 +1,5 @@
 import { Logger } from 'botpress/sdk'
-import { ContentElement, ContentType } from 'botpress/sdk'
+import { ContentElement, ContentType, SearchParams } from 'botpress/sdk'
 import { KnexExtension } from 'common/knex'
 import { inject, injectable, tagged } from 'inversify'
 import Knex from 'knex'
@@ -15,7 +15,7 @@ import { LoggerProvider } from '../../logger/logger'
 import { IDisposeOnExit } from '../../misc/interfaces'
 import { TYPES } from '../../types'
 
-import { DefaultSearchParams, SearchParams } from '.'
+import { DefaultSearchParams } from '.'
 import { CodeFile, SafeCodeSandbox } from './util'
 
 @injectable()
@@ -162,9 +162,12 @@ export class CMSService implements IDisposeOnExit {
     if (params.ids) {
       query = query.andWhere(builder => builder.whereIn('id', params.ids!))
     }
-    params.orderBy.forEach(column => {
-      query = query.orderBy(column)
-    })
+
+    if (params.orderBy) {
+      params.orderBy.forEach(column => {
+        query = query.orderBy(column)
+      })
+    }
 
     const dbElements = await query.offset(params.from).limit(params.count)
 

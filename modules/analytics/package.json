@@ -21,6 +21,6 @@
     "module-builder": "../../build/module-builder",
     "react-select": "^1.2.0",
     "recharts": "^1.0.0-beta.10",
-    "shortid": "^2.2.13"
+    "nanoid": "^2.0.0"
   }
 }

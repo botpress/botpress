@@ -31,6 +31,9 @@ const http = (httpServer: HTTPServer): typeof sdk.http => {
     createShortLink(name: string, destination: string, params?: any): void {
       httpServer.createShortLink(name, destination, params)
     },
+    deleteShortLink(name: string): void {
+      httpServer.deleteShortLink(name)
+    },
     createRouterForBot(routerName: string, options?: sdk.RouterOptions): any {
       const defaultRouterOptions = { checkAuthentication: true, enableJsonBodyParser: true }
       return httpServer.createRouterForBot(routerName, options || defaultRouterOptions)
@@ -162,8 +165,8 @@ const cms = (cmsService: CMSService): typeof sdk.cms => {
     getContentElements(botId: string, ids: string[]): Promise<any[]> {
       return cmsService.getContentElements(botId, ids)
     },
-    listContentElements(botId: string, contentTypeId?: string): Promise<any> {
-      return cmsService.listContentElements(botId, contentTypeId)
+    listContentElements(botId: string, contentTypeId?: string, searchParams?: sdk.SearchParams): Promise<any> {
+      return cmsService.listContentElements(botId, contentTypeId, searchParams)
     },
     getAllContentTypes(botId?: string): Promise<any[]> {
       return cmsService.getAllContentTypes(botId)

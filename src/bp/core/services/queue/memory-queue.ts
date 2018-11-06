@@ -44,23 +44,7 @@ export default class MemoryQueue implements Queue {
 
   getQueueId(job: Job): string {
     const event = (job as JobWithEvent).event || job
-
-    return (
-      (_.get(event, 'bot.id') ||
-        _.get(event, 'bot.botId') ||
-        _.get(event, 'botId') ||
-        _.get(event, 'raw.bot.id') ||
-        _.get(event, 'raw.botId') ||
-        'global') +
-      '::' +
-      (_.get(event, 'user.id') ||
-        _.get(event, 'user.userId') ||
-        _.get(event, 'userId') ||
-        _.get(event, 'raw.user.id') ||
-        _.get(event, 'raw.userId') ||
-        _.get(event, 'raw.to') ||
-        'default')
-    )
+    return `${event.botId}::${event.channel}::${event.target}`
   }
 
   async enqueue(job: Job, retries: number = 0, isPriority: boolean = false) {
