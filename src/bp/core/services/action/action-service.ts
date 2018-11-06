@@ -129,7 +129,7 @@ export class ScopedActionService {
         event: incomingEvent,
         state: dialogState,
         args: actionArgs,
-        process: _.pick(process, 'HOST', 'PORT', 'PROXY_PORT')
+        process: _.pick(process, 'HOST', 'PORT', 'PROXY_PORT', 'env')
       },
       require: {
         external: true,
