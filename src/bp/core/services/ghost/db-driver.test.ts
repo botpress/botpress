@@ -1,3 +1,5 @@
+import _ from 'lodash'
+
 import Database from '../../database'
 import { createDatabaseSuite } from '../../database/index.tests'
 import { expectAsync } from '../../misc/utils'
@@ -96,19 +98,19 @@ createDatabaseSuite('GhostDB Driver', function(database: Database) {
       await driver.upsertFile('/root2/d.txt', '...', false)
       await driver.deleteFile('/root2/d.txt', false)
 
-      const files = await driver.directoryListing('')
-      expect(files).toContain('/root1/a.txt')
-      expect(files).toContain('/root1/b.txt')
-      expect(files).toContain('/root2/c.txt')
-      expect(files).not.toContain('/root2/d.txt')
+      const files = await driver.directoryListing('/')
+      expect(files).toContain('root1/a.txt')
+      expect(files).toContain('root1/b.txt')
+      expect(files).toContain('root2/c.txt')
+      expect(files).not.toContain('root2/d.txt')
     })
     it('folder filter works', async () => {
       await driver.upsertFile('/root1/a.txt', '...', false)
       await driver.upsertFile('/root2/b.txt', '...', false)
 
       const files = await driver.directoryListing('/root1/')
-      expect(files).toContain('/root1/a.txt')
-      expect(files).not.toContain('/root2/b.txt')
+      expect(files).toContain('a.txt')
+      expect(files).not.toContain('b.txt')
     })
   })
 

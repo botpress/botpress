@@ -70,7 +70,7 @@ describe('Dialog Engine', () => {
   })
 
   describe('process event', () => {
-    it('load all flows', async () => {
+    it('load flows for bot', async () => {
       await dialogEngine.processEvent(SESSION_ID, EVENT)
       expect(flowService.loadAll).toHaveBeenCalled()
     })
@@ -154,10 +154,14 @@ describe('Dialog Engine', () => {
   })
 
   describe('jump to', () => {
-    forceLoadFlows()
+    it('load flows for bot', async () => {
+      await dialogEngine.processEvent(SESSION_ID, EVENT)
+      expect(flowService.loadAll).toHaveBeenCalled()
+    })
 
     it('creates a session if it doesnt exists', async () => {
-      sessionService.getSession.mockReturnValueOnce(undefined)
+      flowService.loadAll.mockReturnValue(flowsStub)
+      sessionService.getSession.mockReturnValue(undefined)
 
       await dialogEngine.jumpTo(SESSION_ID, EVENT, 'other.flow.json')
       expect(sessionService.createSession).toHaveBeenCalled()
@@ -181,7 +185,11 @@ describe('Dialog Engine', () => {
     beforeEach(async () => {
       const session = { ...SESSION, context: { currentFlowName: 'timeout.flow.json', currentNodeName: 'entry' } }
       sessionService.getSession.mockReturnValue(session)
-      await dialogEngine.loadFlows(BOT_ID)
+    })
+
+    it('load flows for bot', async () => {
+      await dialogEngine.processEvent(SESSION_ID, EVENT)
+      expect(flowService.loadAll).toHaveBeenCalled()
     })
 
     it('checks for a timeout node in the current flow', async () => {

@@ -282,7 +282,10 @@ export class ScopedGhostService {
   ): Promise<string[]> {
     try {
       const files = await this.primaryDriver.directoryListing(this.normalizeFolderName(rootFolder), exludes)
-      return files.filter(minimatch.filter(fileEndingPattern, { matchBase: true, nocase: true, noglobstar: false }))
+      if (files) {
+        return files.filter(minimatch.filter(fileEndingPattern, { matchBase: true, nocase: true, noglobstar: false }))
+      }
+      return []
     } catch (err) {
       if (err && err.message && err.message.includes('ENOENT')) {
         return []
