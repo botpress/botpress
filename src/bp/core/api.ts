@@ -16,7 +16,7 @@ import { Event, RealTimePayload } from './sdk/impl'
 import HTTPServer from './server'
 import { GhostService } from './services'
 import { CMSService } from './services/cms/cms-service'
-import { DialogEngineV2 } from './services/dialog/engine-v2'
+import { DialogEngine } from './services/dialog/engine'
 import { SessionIdFactory } from './services/dialog/session/id-factory'
 import { SessionService } from './services/dialog/session/service'
 import { ScopedGhostService } from './services/ghost/service'
@@ -58,7 +58,7 @@ const event = (eventEngine: EventEngine): typeof sdk.events => {
   }
 }
 
-const dialog = (dialogEngine: DialogEngineV2, sessionService: SessionService): typeof sdk.dialog => {
+const dialog = (dialogEngine: DialogEngine, sessionService: SessionService): typeof sdk.dialog => {
   return {
     async createId(event: sdk.IO.Event) {
       return SessionIdFactory.createIdFromEvent(event)
@@ -212,7 +212,7 @@ export class BotpressAPIProvider {
   cms: typeof sdk.cms
 
   constructor(
-    @inject(TYPES.DialogEngine) dialogEngine: DialogEngineV2,
+    @inject(TYPES.DialogEngine) dialogEngine: DialogEngine,
     @inject(TYPES.Database) db: Database,
     @inject(TYPES.EventEngine) eventEngine: EventEngine,
     @inject(TYPES.ModuleLoader) moduleLoader: ModuleLoader,

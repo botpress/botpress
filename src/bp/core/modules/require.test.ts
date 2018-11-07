@@ -13,11 +13,15 @@ describe('explodePath', () => {
     expect(result[1]).toEqual(path.resolve('/a/b/c/d/node_production_modules'))
     expect(result[2]).toEqual(path.resolve('/a/b/c/d/node_modules'))
 
-    expect(result[3]).toEqual(path.resolve('/a/b/c'))
-    expect(result[4]).toEqual(path.resolve('/a/b/c/node_production_modules'))
-    expect(result[5]).toEqual(path.resolve('/a/b/c/node_modules'))
+    expect(result[3]).toEqual(path.resolve('/a/b/c/node_production_modules'))
+    expect(result[4]).toEqual(path.resolve('/a/b/c/node_modules'))
 
-    expect(result[result.length - 3]).toEqual(path.resolve('/.'))
+    expect(result[5]).toEqual(path.resolve('/a/b/node_production_modules'))
+    expect(result[6]).toEqual(path.resolve('/a/b/node_modules'))
+
+    expect(result[7]).toEqual(path.resolve('/a/node_production_modules'))
+    expect(result[8]).toEqual(path.resolve('/a/node_modules'))
+
     expect(result[result.length - 2]).toEqual(path.resolve('/node_production_modules'))
     expect(result[result.length - 1]).toEqual(path.resolve('/node_modules'))
   })

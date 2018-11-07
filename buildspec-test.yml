@@ -10,6 +10,7 @@ env:
   parameter-store:
     DOCKER_USERNAME: 'docker_username'
     DOCKER_PASSWORD: 'docker_password'
+    POSTGRES_PASSWORD: 'postgres_password'
     GIT_PRO_SSH: 'bp_git_pro_ssh_codebuild'
 
 phases:
@@ -29,6 +30,7 @@ phases:
       - echo "" | ssh-add pro-ssh
       # Docker setup
       - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+      - docker run --name botpress_postgres -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -d postgres
       - echo "Edition = '$EDITION'"
       - $(./build/codebuild-extras.sh)
       - echo "BUILDING FOR '$ARTIFACT_NAME' edition '$EDITION'"
