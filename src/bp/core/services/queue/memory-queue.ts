@@ -5,13 +5,13 @@ import nanoid from 'nanoid'
 
 import { TYPES } from '../../types'
 
-import { defaultOptions, Job, JobWithEvent, JobWrapper, Queue, QueueOptions } from '.'
+import { defaultOptions, Job, JobWithEvent, JobWrapper, Queue, QueueConsummer, QueueOptions } from '.'
 
 @injectable()
 export default class MemoryQueue implements Queue {
-  private options: QueueOptions
-  private queue: Array<JobWrapper> = []
-  private subscribers: Array<Function> = []
+  private _options: QueueOptions
+  private _queue: Array<JobWrapper> = []
+  private _subscribers: Array<Function> = []
   private _lock: { [queueId: string]: boolean } = {}
   private _drain: NodeJS.Timer
 
@@ -22,8 +22,12 @@ export default class MemoryQueue implements Queue {
     private logger: Logger,
     @optional() options: Partial<QueueOptions> = {}
   ) {
-    this.options = { ...defaultOptions, ...options }
-    this._drain = setInterval(this.drain, this.options.drainInterval)
+    this._options = { ...defaultOptions, ...options }
+    this._drain = setInterval(this.drain, this._options.drainInterval)
+  }
+
+  get length() {
+    return this._queue.length
   }
 
   dispose = () => {
@@ -33,13 +37,13 @@ export default class MemoryQueue implements Queue {
   }
 
   drain = () => {
-    if (this.queue.length > 0) {
+    if (this._queue.length > 0) {
       this.tick()
     }
   }
 
   async isEmpty() {
-    return !this.queue.length
+    return !this._queue.length
   }
 
   getQueueId(job: Job): string {
@@ -50,59 +54,59 @@ export default class MemoryQueue implements Queue {
   async enqueue(job: Job, retries: number = 0, isPriority: boolean = false) {
     const jobWrapped: JobWrapper = { job, id: nanoid(), timestamp: new Date(), retries }
     if (isPriority) {
-      this.queue.unshift(jobWrapped)
+      this._queue.unshift(jobWrapped)
     } else {
-      this.queue.push(jobWrapped)
+      this._queue.push(jobWrapped)
     }
     this.tick()
   }
 
   async dequeue() {
-    return this.queue.shift()
+    return this._queue.shift()
   }
 
   async cancelAll(job: Job) {
     const jobQueueId = this.getQueueId(job)
-    this.queue = this.queue.filter(item => this.getQueueId(item.job) !== jobQueueId)
+    this._queue = this._queue.filter(item => this.getQueueId(item.job) !== jobQueueId)
   }
 
   async peek(job: Job) {
     const jobQueueId = this.getQueueId(job)
-    return this.queue.find(item => this.getQueueId(item.job) === jobQueueId)
+    return this._queue.find(item => this.getQueueId(item.job) === jobQueueId)
   }
 
   async tick() {
-    const toDequeueIdx = this.queue.findIndex(el => !this._lock[this.getQueueId(el.job)])
+    const toDequeueIdx = this._queue.findIndex(el => !this._lock[this.getQueueId(el.job)])
 
     if (toDequeueIdx === -1) {
       return
     }
 
-    const [{ job, retries }] = this.queue.splice(toDequeueIdx, 1)
+    const [{ job, retries }] = this._queue.splice(toDequeueIdx, 1)
     const queueId = this.getQueueId(job)
     this._lock[queueId] = true
 
     try {
-      await Promise.mapSeries(this.subscribers, fn => fn(job))
+      await Promise.mapSeries(this._subscribers, fn => fn(job))
     } catch (err) {
       this.logger.warn(`${this.name} queue failed to process job: ${err.message}`)
 
-      if (retries + 1 <= this.options.retries) {
+      if (retries + 1 <= this._options.retries) {
         this.enqueue(job, retries + 1, true)
       } else {
         this.logger.error(
-          `Retrying job within ${this.name} queue failed ${this.options.retries} times. Abandoning the job.`
+          `Retrying job within ${this.name} queue failed ${this._options.retries} times. Abandoning the job.`
         )
       }
     } finally {
       delete this._lock[queueId]
-      if (this.queue.length) {
+      if (this._queue.length) {
         this.tick()
       }
     }
   }
 
-  subscribe(fn: Function) {
-    this.subscribers.push(fn)
+  subscribe(fn: QueueConsummer) {
+    this._subscribers.push(fn)
   }
 }
