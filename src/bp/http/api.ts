@@ -58,8 +58,8 @@ export default class ProxyUI {
   }
 
   private setupStaticProxy({ app }) {
-    app.use('/fonts', express.static(path.join(__dirname, '../ui-studio/static/fonts')))
-    app.use('/img', express.static(path.join(__dirname, '../ui-studio/static/img')))
+    app.use('/fonts', express.static(path.join(__dirname, '../ui-studio/public/web/fonts')))
+    app.use('/img', express.static(path.join(__dirname, '../ui-studio/public/web/img')))
   }
 
   private setupStudioAppProxy({ coreApiUrl, app }, disableWsProxy) {
@@ -123,7 +123,6 @@ export default class ProxyUI {
               window.BP_SOCKET_URL = '${disableWsProxy ? '' : coreApiUrl}';
               window.BOTPRESS_VERSION = "${data.botpress.version}";
               window.APP_NAME = "${data.botpress.name}";
-              window.BOTPRESS_XX = true;
               window.NODE_ENV = "production";
               window.BOTPRESS_ENV = "dev";
               window.BOTPRESS_CLOUD_ENABLED = false;
@@ -141,11 +140,11 @@ export default class ProxyUI {
       })
     )
 
-    app.use('/:app(studio)/:botId', express.static(path.join(__dirname, '../ui-studio/static')))
-    app.use('/:app(lite)/:botId?', express.static(path.join(__dirname, '../ui-studio/static/lite')))
-    app.use('/:app(lite)/:botId', express.static(path.join(__dirname, '../ui-studio/static'))) // Fallback Static Assets
+    app.use('/:app(studio)/:botId', express.static(path.join(__dirname, '../ui-studio/public')))
+    app.use('/:app(lite)/:botId?', express.static(path.join(__dirname, '../ui-studio/public/lite')))
+    app.use('/:app(lite)/:botId', express.static(path.join(__dirname, '../ui-studio/public'))) // Fallback Static Assets
     app.get(['/:app(studio)/:botId/*'], (req, res) => {
-      const absolutePath = path.join(__dirname, '../ui-studio/static/index.html')
+      const absolutePath = path.join(__dirname, '../ui-studio/public/index.html')
       res.contentType('text/html')
       res.sendFile(absolutePath)
     })

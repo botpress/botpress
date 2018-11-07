@@ -1,0 +1,117 @@
+.container {
+  bottom: 20px;
+  display: block;
+  height: 56px;
+  right: 20px;
+  position: absolute;
+  width: 56px;
+  z-index: 100001;
+}
+
+.button {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  background-color: #242424;
+  color: #fff;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.13);
+  transition: background-color 0.12s cubic-bezier(0.2, 0.7, 0.5, 1), box-shadow 0.12s cubic-bezier(0.2, 0.7, 0.5, 1);
+
+  :global(.icon) {
+    font-size: 32px;
+    margin: 12px;
+  }
+
+  &:hover {
+    background-color: #3b3b3b;
+    box-shadow: 0 12px 24px 0 rgba(0, 0, 0, 0.13);
+  }
+
+  .icon {
+    position: absolute;
+    left: 0;
+  }
+
+  i {
+    transform: scale(0);
+    opacity: 0;
+    transition: transform 0.12s cubic-bezier(0.2, 0.7, 0.5, 1) 0ms, opacity 0.12s cubic-bezier(0.2, 0.7, 0.5, 1) 0ms;
+
+    &.show {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+}
+
+.menu {
+  ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    margin-top: -300px;
+  }
+
+  li {
+    border-radius: 50%;
+    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.13);
+    cursor: pointer;
+    height: 48px;
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    right: 4px;
+    transform: scale(0.8);
+    width: 48px;
+
+    :global(.icon) {
+      margin: 11px;
+    }
+
+    &.btn1 {
+      background-color: #fff;
+      transition: background-color 0.12s, transform 0.12s cubic-bezier(0.2, 0.7, 0.5, 1) 0ms,
+        opacity 0.12s cubic-bezier(0.2, 0.7, 0.5, 1) 0ms, bottom 0.12s cubic-bezier(0.2, 0.7, 0.5, 1) 0ms;
+
+      a {
+        color: #58d1b0;
+      }
+    }
+
+    &.btn2 {
+      background-color: #58d1b0;
+      transition: background-color 0.12s, transform 0.12s cubic-bezier(0.2, 0.7, 0.5, 1) 40ms,
+        opacity 0.12s cubic-bezier(0.2, 0.7, 0.5, 1) 40ms, bottom 0.12s cubic-bezier(0.2, 0.7, 0.5, 1) 40ms;
+
+      &:hover {
+        background-color: #5ee1bc;
+      }
+
+      a {
+        color: #fff;
+      }
+    }
+
+    &.btn3 {
+      background-color: #242424;
+      transition: background-color 0.12s, transform 0.12s cubic-bezier(0.2, 0.7, 0.5, 1) 80ms,
+        opacity 0.12s cubic-bezier(0.2, 0.7, 0.5, 1) 80ms, bottom 0.12s cubic-bezier(0.2, 0.7, 0.5, 1) 80ms;
+
+      &:hover {
+        background-color: #3b3b3b;
+      }
+
+      a {
+        color: #fff;
+      }
+    }
+
+    &.show {
+      opacity: 1;
+      transform: scale(1);
+      pointer-events: all;
+    }
+  }
+}
