@@ -42,7 +42,7 @@ export default class MemoryQueue implements Queue {
     }
   }
 
-  async isEmpty() {
+  isEmpty() {
     return !this._queue.length
   }
 

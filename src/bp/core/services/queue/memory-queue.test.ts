@@ -37,7 +37,7 @@ describe('Lite Queues', () => {
       queue.enqueue({ ...stubEvent, id: i }, 1)
     }
 
-    while (queue.length) {
+    while (!queue.isEmpty()) {
       await Promise.delay(1)
     }
 
@@ -57,7 +57,7 @@ describe('Lite Queues', () => {
       queue.enqueue({ ...stubEvent, id: i })
     }
 
-    while (queue.length) {
+    while (!queue.isEmpty()) {
       await Promise.delay(5)
     }
 
@@ -83,7 +83,7 @@ describe('Lite Queues', () => {
 
     queue.enqueue({ ...stubEvent, id: i })
 
-    while (queue.length) {
+    while (!queue.isEmpty()) {
       await Promise.delay(5)
     }
     await Promise.delay(5)
@@ -106,7 +106,7 @@ describe('Lite Queues', () => {
 
     queue.enqueue({ ...stubEvent, id: i })
 
-    while (queue.length) {
+    while (!queue.isEmpty()) {
       await Promise.delay(5)
     }
     await Promise.delay(5)
@@ -129,7 +129,7 @@ describe('Lite Queues', () => {
     queue.enqueue({ ...stubEvent, id: 2, target: 'b' }) // This message will be locked
     queue.enqueue({ ...stubEvent, id: 3, target: 'c' }) // But this message will process even if user 'a' is locked
 
-    while (queue.length) {
+    while (!queue.isEmpty()) {
       await Promise.delay(5)
     }
     await Promise.delay(5)
