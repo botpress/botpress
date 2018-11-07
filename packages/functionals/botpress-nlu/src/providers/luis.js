@@ -311,7 +311,7 @@ export default class LuisProvider extends Provider {
 
       const models = res.data
 
-      const percent = (models.length - _.filter(models, m => m.details.status === 'InProgress').length) / models.length
+      const percent = _.filter(models, m => m.details.status === 'Success').length / models.length
 
       const error = _.find(models, m => m.details.status === 'Fail')
 
