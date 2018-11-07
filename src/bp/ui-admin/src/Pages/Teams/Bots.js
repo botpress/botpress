@@ -3,7 +3,6 @@ import React, { Component } from 'react'
 import { IoIosBoxOutline } from 'react-icons/lib/io'
 import { MdCreate } from 'react-icons/lib/md'
 
-import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
 import jdenticon from 'jdenticon'
@@ -41,8 +40,7 @@ class Bots extends Component {
     isCreateBotModalOpen: false,
     errorCreateBot: undefined,
     id: '',
-    name: '',
-    description: ''
+    name: ''
   }
 
   renderLoading() {
@@ -66,19 +64,27 @@ class Bots extends Component {
   onInputKeyPress = e => e.key === 'Enter' && this.createBot()
 
   onBotNameChange = e => {
-    this.setState({ name: e.target.value })
-    this.generateBotId()
+    const name = e.target.value
+    const id = name
+      .toLowerCase()
+      .replace(/\s/g, '-')
+      .replace(/[$&+,:;=?@#|'<>.^*()%!]/g, '')
+
+    this.setState({
+      name,
+      id
+    })
   }
 
   createBot = async () => {
-    const botForm = {
+    const paylaod = {
       id: this.state.id,
       name: this.state.name
     }
 
     await api
       .getSecured()
-      .post(`/api/teams/${this.props.teamId}/bots`, botForm)
+      .post(`/api/teams/${this.props.teamId}/bots`, paylaod)
       .catch(err => this.setState({ errorCreateBot: err }))
     await this.props.fetchTeamData(this.props.teamId)
     this.toggleCreateBotModal()
@@ -86,14 +92,6 @@ class Bots extends Component {
 
   toggleCreateBotModal = () =>
     this.setState({ isCreateBotModalOpen: !this.state.isCreateBotModalOpen, id: '', name: '' })
-
-  generateBotId() {
-    const id = this.state.name
-      .toLowerCase()
-      .replace(/\s/g, '-')
-      .replace(/[$&+,:;=?@#|'<>.^*()%!]/g, '')
-    this.setState({ id })
-  }
 
   renderCreateBot() {
     return (
@@ -104,14 +102,7 @@ class Bots extends Component {
             <Label for="id">
               <strong>Identifier</strong>
             </Label>
-            <Input
-              placeholder="Auto-generated"
-              disabled="disabled"
-              type="text"
-              id="id"
-              value={this.state.id}
-              onChange={event => this.setState({ id: event.target.value })}
-            />
+            <Input placeholder="Auto-generated" disabled={true} type="text" id="id" value={this.state.id} />
           </FormGroup>
           <FormGroup>
             <Label for="name">
@@ -122,7 +113,7 @@ class Bots extends Component {
               id="name"
               value={this.state.name}
               onKeyPress={this.onInputKeyPress}
-              onChange={e => this.onBotNameChange(e)}
+              onChange={this.onBotNameChange}
             />
             {!!this.state.errorCreateBot && <FormFeedback>{this.state.errorCreateBot.message}</FormFeedback>}
           </FormGroup>
@@ -201,7 +192,6 @@ class Bots extends Component {
                         Delete
                       </Button>
                     </div>
-                    <small>{bot.description}</small>
                   </ListGroupItem>
                 )
               })}
@@ -245,14 +235,10 @@ const mapStateToProps = state => ({
   loading: state.teams.loadingTeam
 })
 
-const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    {
-      fetchTeamData,
-      fetchPermissions
-    },
-    dispatch
-  )
+const mapDispatchToProps = {
+  fetchTeamData,
+  fetchPermissions
+}
 
 export default connect(
   mapStateToProps,
