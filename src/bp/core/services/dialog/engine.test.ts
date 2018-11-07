@@ -44,18 +44,11 @@ describe('Dialog Engine', () => {
   const SESSION = new DialogSession(SESSION_ID, BOT_ID, {}, context, EVENT)
 
   const setupMocks = () => {
-    jest.resetAllMocks()
-    sessionService.getSession.mockReturnValue(SESSION)
-    sessionService.createSession.mockReturnValue(SESSION)
-    sessionService.updateSessionEvent.mockReturnValue(SESSION)
-    flowService.loadAll.mockReturnValue(flowsStub)
+    sessionService.getSession.mockResolvedValue(SESSION)
+    sessionService.createSession.mockResolvedValue(SESSION)
+    sessionService.updateSessionEvent.mockResolvedValue(SESSION)
+    flowService.loadAll.mockResolvedValue(flowsStub)
     logger.forBot.mockReturnValue(logger)
-  }
-
-  const forceLoadFlows = () => {
-    beforeEach(async () => {
-      await dialogEngine.loadFlows(BOT_ID)
-    })
   }
 
   beforeEach(() => {
@@ -69,10 +62,15 @@ describe('Dialog Engine', () => {
     )
   })
 
+  afterEach(() => {
+    jest.clearAllMocks()
+    jest.resetAllMocks()
+  })
+
   describe('process event', () => {
     it('load flows for bot', async () => {
       await dialogEngine.processEvent(SESSION_ID, EVENT)
-      expect(flowService.loadAll).toHaveBeenCalled()
+      expect(flowService.loadAll).toHaveBeenCalledWith(BOT_ID)
     })
 
     it('throws an error if flows were not found', async () => {
@@ -109,7 +107,9 @@ describe('Dialog Engine', () => {
   })
 
   describe('transition', () => {
-    forceLoadFlows()
+    beforeEach(async () => {
+      await dialogEngine.loadFlows(BOT_ID)
+    })
 
     it('transition to the start node of the flow', async () => {
       await dialogEngine.transition(SESSION_ID, EVENT, 'other.flow.json')
@@ -156,15 +156,15 @@ describe('Dialog Engine', () => {
   describe('jump to', () => {
     it('load flows for bot', async () => {
       await dialogEngine.processEvent(SESSION_ID, EVENT)
-      expect(flowService.loadAll).toHaveBeenCalled()
+      expect(flowService.loadAll).toHaveBeenCalledWith(BOT_ID)
     })
 
     it('creates a session if it doesnt exists', async () => {
       flowService.loadAll.mockResolvedValue(flowsStub)
-      // First time it is not created, second time it has been created
-      sessionService.getSession.mockReset()
-      sessionService.getSession.mockReturnValue(undefined)
-      sessionService.createSession.mockResolvedValue(SESSION)
+      sessionService.getSession
+        .mockResolvedValue(undefined) // default after successive calls
+        .mockResolvedValueOnce(undefined)
+        .mockResolvedValueOnce(SESSION)
 
       await dialogEngine.jumpTo(SESSION_ID, EVENT, 'other.flow.json')
       expect(sessionService.createSession).toHaveBeenCalled()
@@ -173,8 +173,8 @@ describe('Dialog Engine', () => {
     it('skips the current flow to transition to another flow', async () => {
       const session = { ...SESSION, context: { currentFlowName: 'main.flow.json', currentNodeName: 'entry' } }
       sessionService.getSession.mockResolvedValue(session)
-      await dialogEngine.jumpTo(SESSION_ID, EVENT, 'other.flow.json')
 
+      await dialogEngine.jumpTo(SESSION_ID, EVENT, 'other.flow.json')
       expect(sessionService.updateSession.mock.calls[0][0]).toHaveProperty('context.currentNodeName', 'entry')
       expect(sessionService.updateSession.mock.calls[0][0]).toHaveProperty('context.currentFlowName', 'other.flow.json')
     })
@@ -187,13 +187,11 @@ describe('Dialog Engine', () => {
   describe('process timeout', () => {
     it('load flows for bot', async () => {
       await dialogEngine.processEvent(SESSION_ID, EVENT)
-      expect(flowService.loadAll).toHaveBeenCalled()
+      expect(flowService.loadAll).toHaveBeenCalledWith(BOT_ID)
     })
 
     // it('checks for a timeout node in the current flow', async () => {
     //   const flows = [flowWithTimeoutNode]
-    //   const session = { ...SESSION, context: { currentFlowName: 'main.flow.json', currentNodeName: 'entry' } }
-    //   sessionService.getSession.mockResolvedValue(session)
     //   flowService.loadAll.mockResolvedValue(flows)
 
     //   await dialogEngine.processTimeout(BOT_ID, SESSION_ID, EVENT)
