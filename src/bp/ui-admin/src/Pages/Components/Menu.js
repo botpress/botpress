@@ -2,11 +2,11 @@ import React, { Component } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { Navbar, Nav, NavItem, NavLink, Badge } from 'reactstrap'
-import { checkRule } from '@botpress/util-roles'
 import { Link } from 'react-router-dom'
 import { fetchLicense } from '../../modules/license'
 import { fetchPermissions } from '../../modules/user'
 import _ from 'lodash'
+import { checkRule } from '../../App/auth'
 
 class Menu extends Component {
   constructor(props) {

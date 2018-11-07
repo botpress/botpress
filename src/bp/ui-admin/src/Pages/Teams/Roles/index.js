@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { checkRule } from '@botpress/util-roles'
 
 import { Button, Col, ListGroup, Row } from 'reactstrap'
 import { MdPersonAdd } from 'react-icons/lib/md'
@@ -14,6 +13,7 @@ import { fetchPermissions } from '../../../modules/user'
 
 import SectionLayout from '../../Layouts/Section'
 import LoadingSection from '../../Components/LoadingSection'
+import { checkRule } from '../../../App/auth'
 
 import api from '../../../api'
 

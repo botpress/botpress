@@ -1,5 +1,6 @@
 import { Logger } from 'botpress/sdk'
 import LicensingService from 'common/licensing-service'
+import { checkRule } from 'core/misc/auth'
 import { AdminService } from 'core/services/admin/service'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import { RequestHandler, Router } from 'express'
@@ -38,6 +39,12 @@ export class AdminRouter implements CustomRouter {
 
   setupRoutes() {
     const router = this.router
+
+    router.get('/permissions', async (req, res) => {
+      const { permissions, operation, resource } = req.body
+      const valid = checkRule(permissions, operation, resource)
+      res.send(valid)
+    })
 
     router.get('/all-permissions', async (req, res) => {
       res.json(await this.authService.getResources())
