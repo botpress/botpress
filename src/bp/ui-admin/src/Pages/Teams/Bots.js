@@ -70,21 +70,18 @@ class Bots extends Component {
       .replace(/\s/g, '-')
       .replace(/[$&+,:;=?@#|'<>.^*()%!]/g, '')
 
-    this.setState({
-      name,
-      id
-    })
+    this.setState({ name, id })
   }
 
   createBot = async () => {
-    const paylaod = {
-      id: this.state.id,
-      name: this.state.name
+    let id = this.state.id
+    if (id[id.length - 1] === '-') {
+      id = id.slice(0, id.length - 1)
     }
 
     await api
       .getSecured()
-      .post(`/api/teams/${this.props.teamId}/bots`, paylaod)
+      .post(`/api/teams/${this.props.teamId}/bots`, { id, name: this.state.name })
       .catch(err => this.setState({ errorCreateBot: err }))
     await this.props.fetchTeamData(this.props.teamId)
     this.toggleCreateBotModal()
