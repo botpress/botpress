@@ -1,6 +1,6 @@
 import { Logger } from 'botpress/sdk'
+import { checkRule } from 'common/auth'
 import LicensingService from 'common/licensing-service'
-import { checkRule } from 'core/misc/auth'
 import { AdminService } from 'core/services/admin/service'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import { RequestHandler, Router } from 'express'

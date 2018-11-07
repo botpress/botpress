@@ -13,7 +13,7 @@ import { fetchPermissions } from '../../../modules/user'
 
 import SectionLayout from '../../Layouts/Section'
 import LoadingSection from '../../Components/LoadingSection'
-import { checkRule } from '../../../App/auth'
+import { checkRule } from 'common/auth.js'
 
 import api from '../../../api'
 

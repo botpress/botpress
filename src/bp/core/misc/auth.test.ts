@@ -1,4 +1,6 @@
-import { checkRule, enrichResources, resourceMatches } from './auth'
+import { checkRule, resourceMatches } from '../../common/auth'
+
+import { enrichResources } from './resources'
 
 test('resourceMatches', () => {
   expect(resourceMatches('', '')).toBe(true)

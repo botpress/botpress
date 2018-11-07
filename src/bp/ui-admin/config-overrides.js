@@ -1,0 +1,8 @@
+const path = require('path')
+const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin')
+
+module.exports = function override(config, env) {
+  config.resolve.alias['common'] = path.join(__dirname, '../../../out/bp/common')
+  config.resolve.plugins = config.resolve.plugins.filter(p => !p instanceof ModuleScopePlugin)
+  return config
+}
