@@ -1,0 +1,19 @@
+version: '3'
+services:
+  postgres:
+    image: postgres:9.6.10
+    ports:
+      - 5432:5432
+  redis:
+    image: redis:alpine
+    ports: ['6379']
+  botpress:
+    build: ./
+    links:
+      - postgres
+      - redis
+    environment:
+      - PG_HOST=postgres
+      - PG_DB=postgres
+      - PG_USER=postgres
+      - PG_PORT=5432
