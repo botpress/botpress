@@ -2,7 +2,7 @@
 
 # [Botpress](https://botpress.io) — The open-source bot platform
 
-[![CodeBuild](https://codebuild.us-east-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiamMxSkRSWTF6UHl6NjREN0tHajN0SHpUWUs3dnU4R1YvTDVFNTJYVHl1N3R2cStESnFHTitjeVBHV2Z2a21kK0tYMXZpbUl5YmVQaDFHSGFibGhtTHZzPSIsIml2UGFyYW1ldGVyU3BlYyI6IlhJK3FQSFZQb0VuQlpTWm8iLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)](https://console.aws.amazon.com/codebuild/home?region=us-east-1#/projects/botpress-server-binaries/view)
+[![CodeBuild](https://codebuild.us-east-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiNTZoU0wzRmRQd29iWTFqVjliUzlvN0gzUUtoN25QVHlHMUhWYkZCWHpPQ3ZKQzFOMFh6Wm5EcHkxQW5SUmJuTFpLSDJXdURDVzNtRjM5d1BaU2pNUHhJPSIsIml2UGFyYW1ldGVyU3BlYyI6Iitoa0RBM091SnlXNTJwK2MiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)](https://console.aws.amazon.com/codesuite/codebuild/projects/botpress-ce-tests/history?region=us-east-1)
 
 Botpress is an open-source bot creation tool written in TypeScript. It is powered by a rich set of open-source modules built by the community. We like to say that **Botpress is like the WordPress of bots**; anyone can create and reuse other people's modules.
 

@@ -26,6 +26,10 @@ describe('Lite Queues', () => {
     queue = new MemoryQueue('name', logger.T, options)
   })
 
+  afterEach(() => {
+    queue.dispose()
+  })
+
   it('Respects order (sync)', async () => {
     const order: Number[] = []
 
