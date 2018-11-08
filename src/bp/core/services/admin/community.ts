@@ -150,6 +150,15 @@ export class CommunityAdminService implements AdminService {
     await this.botLoader.mountBot(bot.id, true)
   }
 
+  async updateBot(teamId: number, bot: Bot): Promise<void> {
+    this.stats.track('api', 'admin', 'updateBot')
+
+    const pristineBot = await this.getBot({ id: bot.id })
+    const updatedBot = { ...pristineBot, production: bot.production }
+
+    await this.knex(this.botsTable).update(updatedBot)
+  }
+
   async deleteBot(teamId: number, botId: string) {
     await this.knex(this.botsTable)
       .where({ team: teamId, id: botId })
@@ -162,7 +171,7 @@ export class CommunityAdminService implements AdminService {
   async listBots(teamId: number, offset?: number, limit?: number) {
     const query = this.knex(this.botsTable)
       .where({ team: teamId })
-      .select('id', 'name', 'description', 'created_at')
+      .select('*')
 
     if (offset && limit) {
       query.offset(offset).limit(limit)
@@ -307,6 +316,16 @@ export class CommunityAdminService implements AdminService {
     if (userId !== this.ROOT_ADMIN_ID) {
       throw new UnauthorizedAccessError(`Only root admin is allowed to use this`)
     }
+  }
+
+  // TODO: Move these methods into a repository.
+  protected async getBot(where: {}, select?: Array<keyof Bot>) {
+    return this.knex(this.botsTable)
+      .select(select || ['*'])
+      .where(where)
+      .limit(1)
+      .then<Partial<Bot>[]>(res => res)
+      .get(0)
   }
 
   protected async getRole(where: {}, select?: Array<keyof AuthRole>) {

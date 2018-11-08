@@ -36,6 +36,7 @@ export class BotsTable extends Table {
         table.string('description')
         table.string('author')
         table.string('license')
+        table.boolean('production').defaultTo(false)
         table.timestamps(true, true)
         table
           .integer('team')

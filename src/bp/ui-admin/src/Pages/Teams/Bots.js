@@ -4,6 +4,7 @@ import { IoIosBoxOutline } from 'react-icons/lib/io'
 import { MdCreate } from 'react-icons/lib/md'
 
 import { connect } from 'react-redux'
+import Toggle from 'react-toggle-switch'
 
 import jdenticon from 'jdenticon'
 
@@ -188,6 +189,7 @@ class Bots extends Component {
                       <Button color="link" onClick={() => this.deleteBot(bot.id)}>
                         Delete
                       </Button>
+                      <Toggle id="live-toggle" onClick={() => this.toggleProduction(bot)} on={bot.production} />
                     </div>
                   </ListGroupItem>
                 )
@@ -197,6 +199,11 @@ class Bots extends Component {
         </Row>
       </div>
     )
+  }
+
+  toggleProduction = async bot => {
+    await api.getSecured().put(`/api/teams/${this.props.teamId}/bots`, { id: bot.id, production: !bot.production })
+    this.props.fetchTeamData(this.props.teamId, { bots: true })
   }
 
   renderSideMenu() {

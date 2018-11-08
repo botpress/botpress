@@ -31,6 +31,7 @@
     "react-scripts": "^2.0.4",
     "react-select": "^1.2.1",
     "react-toastify": "^4.0.0-rc.4",
+    "react-toggle-switch": "^3.0.4",
     "reactstrap": "^5.0.0",
     "redux": "^3.7.2",
     "redux-thunk": "^2.2.0"

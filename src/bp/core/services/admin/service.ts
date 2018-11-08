@@ -18,6 +18,7 @@ export interface AdminService {
   listTeamRoles(teamId: number)
 
   addBot(teamId: number, bot: Bot): Promise<void>
+  updateBot(teamId: number, bot: Bot): Promise<void>
   deleteBot(teamId: number, botId: string)
   listBots(teamId: number, offset?: number, limit?: number)
 
