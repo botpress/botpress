@@ -3,6 +3,38 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.51.0"></a>
+# [10.51.0](https://github.com/botpress/botpress/compare/v10.50.0...v10.51.0) (2018-11-08)
+
+
+### Bug Fixes
+
+* **core:** added support for path prefixes ([b9c9aa7](https://github.com/botpress/botpress/commit/b9c9aa7))
+* **core-ui:** returnTo pathname based on router context ([340de33](https://github.com/botpress/botpress/commit/340de33))
+* **nlu:** fix Luis NLU fetching success training status ([5da5097](https://github.com/botpress/botpress/commit/5da5097))
+* **ui:** bot select dropdown styling ([ed2d485](https://github.com/botpress/botpress/commit/ed2d485))
+* **webchat:** fix acessing url-params (resolve [#721](https://github.com/botpress/botpress/issues/721)) ([#1086](https://github.com/botpress/botpress/issues/1086)) ([48c1724](https://github.com/botpress/botpress/commit/48c1724))
+* add admin link, move select bot, fix help btn ([1775808](https://github.com/botpress/botpress/commit/1775808))
+* remove unused method ([bbfbc6b](https://github.com/botpress/botpress/commit/bbfbc6b))
+* unlicensed in sidebarfooter ([2446ef0](https://github.com/botpress/botpress/commit/2446ef0))
+* wrap bot select in nav item ([68b1501](https://github.com/botpress/botpress/commit/68b1501))
+* **xx:** added admin link and hidden menu when not xx ([fdd676b](https://github.com/botpress/botpress/commit/fdd676b))
+* **xx:** minor ajustment for notifications ([74d9ae0](https://github.com/botpress/botpress/commit/74d9ae0))
+* **xx:** when receiving a new notification, others are disappearing ([35e87e4](https://github.com/botpress/botpress/commit/35e87e4))
+
+
+### Features
+
+* **core:** add bot select for botpress-xx ([c932b3d](https://github.com/botpress/botpress/commit/c932b3d))
+* **core:** implemented bot switch ([99e9287](https://github.com/botpress/botpress/commit/99e9287))
+* **core-ui:** lite views support multi-bot ([460892a](https://github.com/botpress/botpress/commit/460892a))
+* **xx:** disabled login screen in XX ([fb8ddeb](https://github.com/botpress/botpress/commit/fb8ddeb))
+* **xx:** ghost content export ([101ab0e](https://github.com/botpress/botpress/commit/101ab0e))
+* **xx:** notification support ([3cbfaac](https://github.com/botpress/botpress/commit/3cbfaac))
+
+
+
+
 <a name="10.50.0"></a>
 # [10.50.0](https://github.com/botpress/botpress/compare/v10.49.0...v10.50.0) (2018-10-31)
 

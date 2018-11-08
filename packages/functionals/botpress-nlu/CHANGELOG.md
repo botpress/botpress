@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.51.0"></a>
+# [10.51.0](https://github.com/botpress/modules/compare/v10.50.0...v10.51.0) (2018-11-08)
+
+
+### Bug Fixes
+
+* **nlu:** fix Luis NLU fetching success training status ([5da5097](https://github.com/botpress/modules/commit/5da5097))
+
+
+
+
 <a name="10.50.0"></a>
 # [10.50.0](https://github.com/botpress/modules/compare/v10.49.0...v10.50.0) (2018-10-31)
 

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.51.0"></a>
+# [10.51.0](https://github.com/botpress/modules/compare/v10.50.0...v10.51.0) (2018-11-08)
+
+
+### Bug Fixes
+
+* **webchat:** fix acessing url-params (resolve [#721](https://github.com/botpress/modules/issues/721)) ([#1086](https://github.com/botpress/modules/issues/1086)) ([48c1724](https://github.com/botpress/modules/commit/48c1724))
+
+
+
+
 <a name="10.50.0"></a>
 # [10.50.0](https://github.com/botpress/modules/compare/v10.49.0...v10.50.0) (2018-10-31)
 
