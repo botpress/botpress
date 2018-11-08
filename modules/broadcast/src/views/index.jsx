@@ -88,7 +88,7 @@ export default class BroadcastModule extends React.Component {
     this.setState({ loading: true })
 
     return this.getAxios()
-      .get('/api/ext/broadcast/broadcasts')
+      .get('/mod/broadcast/broadcasts')
       .then(res => {
         this.setState({
           loading: false,
@@ -133,7 +133,7 @@ export default class BroadcastModule extends React.Component {
   handleAddBroadcast() {
     const broadcast = this.extractBroadcastFromModal()
     this.getAxios()
-      .put('/api/ext/broadcast/broadcasts', broadcast)
+      .put('/mod/broadcast/broadcasts', broadcast)
       .then(this.fetchAllBroadcasts)
       .then(this.closeModal)
       .catch(this.handleRequestError)
@@ -143,7 +143,7 @@ export default class BroadcastModule extends React.Component {
     const broadcast = this.extractBroadcastFromModal()
     const { broadcastId: id } = this.state
     this.getAxios()
-      .post('/api/ext/broadcast/broadcasts', { id, ...broadcast })
+      .post('/mod/broadcast/broadcasts', { id, ...broadcast })
       .then(this.fetchAllBroadcasts)
       .then(this.closeModal)
       .catch(this.handleRequestError)
@@ -151,7 +151,7 @@ export default class BroadcastModule extends React.Component {
 
   handleRemoveBroadcast(id) {
     this.getAxios()
-      .delete('/api/ext/broadcast/broadcasts/' + id)
+      .delete('/mod/broadcast/broadcasts/' + id)
       .then(this.fetchAllBroadcasts)
       .catch(this.handleRequestError)
   }

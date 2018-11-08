@@ -126,7 +126,9 @@ export default class SkillsBuilder extends React.Component {
   })
 
   generateFlow = () => {
-    return axios.post(`/api/skills/${this.props.skillId}/generate`, this.data).then(({ data }) => data)
+    return axios
+      .post(`${window.API_PATH}/modules/${this.props.skillId}/flow/${this.props.skillId}/generate`, this.data)
+      .then(({ data }) => data)
   }
 
   render() {

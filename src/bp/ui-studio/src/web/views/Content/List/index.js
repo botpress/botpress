@@ -89,7 +89,7 @@ export default class ListView extends Component {
       <tr>
         <th />
         <th>Content Id</th>
-        <th>Category</th>
+        <th>Content Type</th>
         <th>Preview</th>
         <th>Created on</th>
       </tr>
@@ -97,7 +97,7 @@ export default class ListView extends Component {
   }
 
   renderContentItem = (m, i) => {
-    const handleEdit = () => !this.props.readOnly && this.props.handleEdit(m.id, m.categoryId)
+    const handleEdit = () => !this.props.readOnly && this.props.handleEdit(m.id, m.contentType)
     const checked = _.includes(this.state.checkedIds, m.id)
     const className = classnames(style.item, { [style.selected]: checked })
 
@@ -105,11 +105,11 @@ export default class ListView extends Component {
       <tr className={className} key={i}>
         {!this.props.readOnly && (
           <td style={{ width: '2%', minWidth: '34px' }}>
-            <Checkbox checked={checked} onClick={() => this.handleCheckboxChanged(m.id, m.categoryId)} />
+            <Checkbox checked={checked} onClick={() => this.handleCheckboxChanged(m.id, m.contentType)} />
           </td>
         )}
         <td style={{ width: '16%' }}>{'#!' + m.id}</td>
-        <td style={{ width: '8%' }}>{m.categoryId}</td>
+        <td style={{ width: '8%' }}>{m.contentType}</td>
         <td style={{ width: '58%' }}>{m.previewText}</td>
         <td style={{ width: '18%' }}>{moment(m.createdOn).format('MMMM Do YYYY, h:mm')}</td>
         {!this.props.readOnly && (

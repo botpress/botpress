@@ -13,7 +13,7 @@ window.addEventListener('message', ({ data }) => {
 })
 
 const init = ({ host = '', hideWidget = false, ...config }) => {
-  const cssHref = `${host}/api/ext/channel-web/inject.css`
+  const cssHref = `${host}/api/v1/bots/${config.botId}/mod/channel-web/inject.css`
   injectDOMElement('link', 'head', { rel: 'stylesheet', href: cssHref })
 
   const options = encodeURIComponent(JSON.stringify({ hideWidget, config }))

@@ -25,14 +25,14 @@ class SelectContent extends Component {
   constructor(props) {
     super(props)
 
-    const { categoryId = null } = props
+    const { contentType = null } = props
 
     this.state = {
       show: true,
-      categoryId,
-      hideCategoryInfo: !!categoryId,
+      contentType,
+      hideCategoryInfo: !!contentType,
       activeItemIndex: 0,
-      step: categoryId ? formSteps.MAIN : formSteps.INITIAL,
+      step: contentType ? formSteps.MAIN : formSteps.INITIAL,
       newItemCategory: null,
       searchTerm: '',
       newItemData: null
@@ -49,7 +49,7 @@ class SelectContent extends Component {
 
   componentWillReceiveProps(newProps) {
     const { categories } = newProps
-    if (!categories || this.state.step !== formSteps.INITIAL || this.state.categoryId) {
+    if (!categories || this.state.step !== formSteps.INITIAL || this.state.contentType) {
       return
     }
 
@@ -62,12 +62,12 @@ class SelectContent extends Component {
     return this.props.fetchContentItemsRecent({
       count: SEARCH_RESULTS_LIMIT,
       searchTerm: this.state.searchTerm,
-      categoryId: this.state.categoryId || 'all'
+      contentType: this.state.contentType || 'all'
     })
   }
 
   fetchContentItemsCount() {
-    return this.props.fetchContentItemsCount(this.state.categoryId)
+    return this.props.fetchContentItemsCount(this.state.contentType)
   }
 
   handleChangeActiveItem = e => {
@@ -99,7 +99,7 @@ class SelectContent extends Component {
   handleCreate = () => {
     this.props
       .upsertContentItem({
-        categoryId: this.state.newItemCategory.id,
+        contentType: this.state.newItemCategory.id,
         formData: this.state.newItemData
       })
       .then(this.resetCreateContent(true))
@@ -127,7 +127,7 @@ class SelectContent extends Component {
     return new Promise(resolve =>
       this.setState(stateUpdate, async () => {
         if (id) {
-          const { data: item } = await axios.get(`/api/content/items/${id}`)
+          const { data: item } = await axios.get(`${window.BOT_API_PATH}/content/elements/${id}`)
           this.handlePick(item)
         }
 
@@ -148,12 +148,12 @@ class SelectContent extends Component {
       return []
     }
 
-    const { categoryId } = this.state
-    return categoryId ? categories.filter(({ id }) => id === categoryId) : categories
+    const { contentType } = this.state
+    return contentType ? categories.filter(({ id }) => id === contentType) : categories
   }
 
-  setCurrentCategory(categoryId) {
-    this.setState({ categoryId }, () => {
+  setCurrentCategory(contentType) {
+    this.setState({ contentType }, () => {
       Promise.all([this.searchContentItems(), this.fetchContentItemsCount()]).then(() =>
         this.setState({ step: formSteps.MAIN })
       )
@@ -187,7 +187,7 @@ class SelectContent extends Component {
   }
 
   resetCurrentCategory = () => {
-    this.setState({ categoryId: null, step: formSteps.PICK_CATEGORY })
+    this.setState({ contentType: null, step: formSteps.PICK_CATEGORY })
   }
 
   renderCurrentCategoryInfo() {
@@ -197,12 +197,13 @@ class SelectContent extends Component {
       return null
     }
 
-    const { categoryId } = this.state
-    const title = categoryId ? categories.find(({ id }) => id === categoryId).title : 'All'
+    const { contentType } = this.state
+    const title = contentType ? categories.find(({ id }) => id === contentType).title : 'All'
 
     return (
       <p>
-        Currently Searching in: <strong>{title}</strong>.&nbsp;
+        Currently Searching in: <strong>{title}</strong>
+        .&nbsp;
         <button className="btn btn-warning btn-sm" onClick={this.resetCurrentCategory}>
           Change
         </button>
@@ -212,8 +213,8 @@ class SelectContent extends Component {
 
   getSearchDescription() {
     const { categories } = this.props
-    const { categoryId } = this.state
-    const title = categoryId ? categories.find(({ id }) => id === categoryId).title : 'all content elements'
+    const { contentType } = this.state
+    const title = contentType ? categories.find(({ id }) => id === contentType).title : 'all content elements'
     return `Search ${title} (${this.props.itemsCount})`
   }
 
@@ -263,7 +264,7 @@ class SelectContent extends Component {
               className={`list-group-item list-group-item-action ${i === this.state.activeItemIndex ? 'active' : ''}`}
               onClick={() => this.handlePick(contentItem)}
             >
-              {`[${contentItem.categoryId}] ${contentItem.previewText}`}
+              {`[${contentItem.contentType}] ${contentItem.previewText}`}
             </a>
           ))}
         </div>
@@ -281,7 +282,10 @@ class SelectContent extends Component {
   }
 
   render() {
-    const { state: { newItemCategory, show }, props: { container } } = this
+    const {
+      state: { newItemCategory, show },
+      props: { container }
+    } = this
     const schema = (newItemCategory || {}).schema || { json: {}, ui: {} }
 
     return (
@@ -318,4 +322,7 @@ const mapDispatchToProps = {
   upsertContentItem
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(SelectContent)
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(SelectContent)

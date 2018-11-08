@@ -145,7 +145,7 @@ export default class CustomMetrics extends React.Component {
     const range = this.getCurrentRange()
 
     return this.props.axios
-      .get('/api/ext/analytics/custom_metrics', {
+      .get('/mod/analytics/custom_metrics', {
         params: {
           from: range.from,
           to: range.to

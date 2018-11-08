@@ -31,6 +31,14 @@ export class ModulesRouter implements CustomRouter {
       }
     })
 
+    this.router.get('/skills', async (req, res, next) => {
+      try {
+        res.send(await this.moduleLoader.getAllSkills())
+      } catch (err) {
+        next(err)
+      }
+    })
+
     this.router.post('/:moduleName/flow/:flowName/generate', async (req, res) => {
       const flowGenerator = await this.moduleLoader.getFlowGenerator(req.params.moduleName, req.params.flowName)
 

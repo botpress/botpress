@@ -77,7 +77,7 @@ export class BotsRouter implements CustomRouter {
 
   getNewRouter(path: string, options: RouterOptions) {
     const router = Router({ mergeParams: true })
-    this.router.use('/ext/' + path, router)
+    this.router.use('/mod/' + path, router)
     return router
   }
 
@@ -94,26 +94,71 @@ export class BotsRouter implements CustomRouter {
     }
   }
 
+  private studioParams(botId) {
+    return {
+      botId,
+      authentication: {
+        enabled: true, // TODO Remove this from UI, there is no more un-authenticated mode
+        tokenDuration: ms('6h')
+      },
+      sendStatistics: true, // TODO Add way to opt out
+      showGuidedTour: false, // TODO
+      ghostEnabled: this.ghostService.isGhostEnabled,
+      flowEditorDisabled: !process.IS_LICENSED,
+      botpress: {
+        name: 'Botpress Server',
+        version: process.BOTPRESS_VERSION
+      }
+    }
+  }
+
   private setupRoutes() {
     // Unauthenticated, don't return sensitive info here
     this.router.get('/studio-params', async (req, res) => {
-      const info = {
-        botId: req.params.botId,
-        authentication: {
-          enabled: true, // TODO Remove this from UI, there is no more un-authenticated mode
-          tokenDuration: ms('6h')
-        },
-        sendStatistics: true, // TODO Add way to opt out
-        showGuidedTour: false, // TODO
-        ghostEnabled: this.ghostService.isGhostEnabled,
-        flowEditorDisabled: !process.IS_LICENSED,
-        botpress: {
-          name: 'Botpress Server',
-          version: process.BOTPRESS_VERSION
-        }
-      }
-
+      const info = this.studioParams(req.params.botId)
       res.send(info)
+    })
+
+    this.router.get('/:app(studio|lite)/js/env.js', async (req, res) => {
+      const { botId, app } = req.params
+      const data = this.studioParams(botId)
+      const liteEnv = `
+              // Lite Views Specific
+          `
+      const studioEnv = `
+              // Botpress Studio Specific
+              window.BOTPRESS_AUTH_FULL = ${data.authentication.enabled};
+              window.AUTH_TOKEN_DURATION = ${data.authentication.tokenDuration};
+              window.OPT_OUT_STATS = ${!data.sendStatistics};
+              window.SHOW_GUIDED_TOUR = ${data.showGuidedTour};
+              window.GHOST_ENABLED = ${data.ghostEnabled};
+              window.BOTPRESS_FLOW_EDITOR_DISABLED = ${data.flowEditorDisabled};
+              window.BOTPRESS_CLOUD_SETTINGS = {"botId":"","endpoint":"","teamId":"","env":"dev"};
+          `
+
+      const totalEnv = `
+          (function(window) {
+              // Common
+              window.API_PATH = "/api/v1";
+              window.BOT_ID = "${botId}";
+              window.BOT_API_PATH = "/api/v1/bots/${botId}";
+              window.BASE_PATH = "/${app}";
+              window.BP_BASE_PATH = "/${app}/${botId}";
+              window.BOTPRESS_VERSION = "${data.botpress.version}";
+              window.APP_NAME = "${data.botpress.name}";
+              window.NODE_ENV = "production";
+              window.BOTPRESS_ENV = "dev";
+              window.BOTPRESS_CLOUD_ENABLED = false;
+              window.DEV_MODE = true;
+              window.AUTH_ENABLED = ${data.authentication.enabled};
+              ${app === 'studio' ? studioEnv : ''}
+              ${app === 'lite' ? liteEnv : ''}
+              // End
+            })(typeof window != 'undefined' ? window : {})
+          `
+
+      res.contentType('text/javascript')
+      res.send(totalEnv)
     })
 
     this.router.get('/', this.checkTokenHeader, this.needPermissions('read', 'bot.information'), async (req, res) => {
@@ -221,7 +266,7 @@ export class BotsRouter implements CustomRouter {
     )
 
     this.router.post(
-      '/content/categories/all/bulk_delete',
+      '/content/elements/bulk_delete',
       this.checkTokenHeader,
       this.needPermissions('write', 'bot.content'),
       async (req, res) => {

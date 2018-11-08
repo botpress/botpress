@@ -53,9 +53,9 @@ export default class Storage implements QnaStorage {
   }
 
   async syncNlu() {
-    const { data: isNeeded } = await axios.get('/api/ext/nlu/sync/check', this.axiosConfig)
+    const { data: isNeeded } = await axios.get('/mod/nlu/sync/check', this.axiosConfig)
     if (isNeeded) {
-      await axios.get('/api/ext/nlu/sync', this.axiosConfig)
+      await axios.get('/mod/nlu/sync', this.axiosConfig)
     }
   }
 
@@ -63,7 +63,7 @@ export default class Storage implements QnaStorage {
   // Manual edit & save of each one is required for the intent to be created.
   async syncQnaToNlu() {
     const allQuestions = await this.fetchAllQuestions()
-    const { data: allIntents } = await axios.get(`/api/ext/nlu/intents`, this.axiosConfig)
+    const { data: allIntents } = await axios.get(`/mod/nlu/intents`, this.axiosConfig)
 
     for (const question of allQuestions) {
       const found = _.find(allIntents, intent => intent.name === getIntentId(question.id).toLowerCase())
@@ -74,7 +74,7 @@ export default class Storage implements QnaStorage {
           utterances: normalizeQuestions(question.data.questions)
         }
 
-        await axios.post(`/api/ext/nlu/intents/${getIntentId(question.id)}`, intent, this.axiosConfig)
+        await axios.post(`/mod/nlu/intents/${getIntentId(question.id)}`, intent, this.axiosConfig)
         this.bp.logger.info(`Created NLU intent for QNA ${question.id}`)
       }
     }
@@ -90,9 +90,9 @@ export default class Storage implements QnaStorage {
         utterances: normalizeQuestions(data.questions)
       }
 
-      axios.post(`/api/ext/nlu/intents/${getIntentId(id)}`, intent, this.axiosConfig)
+      axios.post(`/mod/nlu/intents/${getIntentId(id)}`, intent, this.axiosConfig)
     } else {
-      await axios.delete(`/api/ext/nlu/intents/${getIntentId(id)}`, this.axiosConfig)
+      await axios.delete(`/mod/nlu/intents/${getIntentId(id)}`, this.axiosConfig)
     }
 
     await this.syncNlu()
@@ -112,7 +112,7 @@ export default class Storage implements QnaStorage {
           entities: [],
           utterances: normalizeQuestions(data.questions)
         }
-        await axios.post(`/api/ext/nlu/intents/${getIntentId(id)}`, intent, this.axiosConfig)
+        await axios.post(`/mod/nlu/intents/${getIntentId(id)}`, intent, this.axiosConfig)
       }
 
       await this.bp.ghost
@@ -209,7 +209,7 @@ export default class Storage implements QnaStorage {
         const data = await this.getQuestion(id)
 
         if (data.data.enabled) {
-          axios.delete(`/api/ext/nlu/intents/${getIntentId(id)}`, this.axiosConfig)
+          axios.delete(`/mod/nlu/intents/${getIntentId(id)}`, this.axiosConfig)
         }
         await this.bp.ghost.forBot(this.botId).deleteFile(this.config.qnaDir, `${id}.json`)
       })
@@ -218,7 +218,7 @@ export default class Storage implements QnaStorage {
   }
 
   async answersOn(text) {
-    const extract = await axios.post('/api/ext/nlu/extract', { text }, this.axiosConfig)
+    const extract = await axios.post('/mod/nlu/extract', { text }, this.axiosConfig)
     const intents = _.chain([extract.data['intent'], ...extract.data['intents']])
       .uniqBy('name')
       .filter(({ name }) => name.startsWith('__qna__'))

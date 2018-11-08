@@ -60,7 +60,7 @@ class Roles extends Component {
     role = pick(role, 'name', 'description', 'rules')
     return api
       .getSecured()
-      .post(`/api/teams/${this.props.teamId}/roles`, role)
+      .post(`/admin/teams/${this.props.teamId}/roles`, role)
       .then(this.onRoleEditDone)
       .then(this.fetchRoles)
   }
@@ -70,7 +70,7 @@ class Roles extends Component {
     role = pick(role, 'name', 'description', 'rules')
     api
       .getSecured()
-      .patch(`/api/teams/${this.props.teamId}/roles/${id}`, role)
+      .patch(`/admin/teams/${this.props.teamId}/roles/${id}`, role)
       .then(this.onRoleEditDone)
       .then(this.fetchRoles)
   }
@@ -99,7 +99,7 @@ class Roles extends Component {
   onRoleDelete = id => () => {
     api
       .getSecured()
-      .delete(`/api/teams/${this.props.teamId}/roles/${id}`)
+      .delete(`/admin/teams/${this.props.teamId}/roles/${id}`)
       .then(this.fetchRoles)
   }
 

@@ -34,13 +34,15 @@ export const logout = () => {
   authEvents.emit('logout')
 }
 
-export const login = (user, password) => {
-  return axios.post('/api/login', { user, password }).then(result => {
-    if (result.data.success) {
-      setToken(result.data.token)
+export const login = (username, password) => {
+  return axios.post(`${window.API_PATH}/auth/login`, { username, password }).then(result => {
+    const { success, token, reason } = result.data.payload
+
+    if (success) {
+      setToken(token)
       authEvents.emit('login')
     } else {
-      throw new Error(result.data.reason)
+      throw new Error(reason)
     }
   })
 }

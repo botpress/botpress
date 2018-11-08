@@ -1,4 +1,4 @@
-import { Logger, ModuleDefinition, ModuleEntryPoint } from 'botpress/sdk'
+import { FlowGenerator, Logger, ModuleDefinition, ModuleEntryPoint } from 'botpress/sdk'
 import { ValidationError } from 'errors'
 import fse from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
@@ -202,9 +202,28 @@ export class ModuleLoader {
 
   public async getFlowGenerator(moduleName, flowName) {
     const module = this.getModule(moduleName)
-    const flow = _.find(module.flowGenerator, x => x.name === flowName)
+    const flow = _.find(module.flowGenerator, x => x.flowName === flowName)
 
     return flow && flow.generator
+  }
+
+  public async getAllSkills() {
+    const allSkills: FlowGenerator[] = []
+    const modules = this.getLoadedModules()
+
+    for (const module of modules) {
+      const entryPoint = this.getModule(module.name)
+      const skills = _.map(entryPoint.flowGenerator, 'skillName')
+
+      _.forEach(skills, skill =>
+        allSkills.push({
+          moduleName: module.name,
+          flowName: skill
+        })
+      )
+    }
+
+    return allSkills
   }
 
   private getModule(module: string) {

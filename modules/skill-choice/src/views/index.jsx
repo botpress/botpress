@@ -57,7 +57,7 @@ export default class TemplateModule extends React.Component {
   }
 
   fetchDefaultConfig = async () => {
-    const res = await this.props.bp.axios.get('/api/ext/skill-choice/config')
+    const res = await this.props.bp.axios.get('/mod/skill-choice/config')
     this.setState({ defaultConfig: res.data })
   }
 

@@ -17,9 +17,10 @@ const onServerReady = async (bp: SDK) => {
   await setup(bp)
 }
 
-const flowGenerator = [
+// TODO: One module can export multiple skills. Many changes in Studio
+const flowGenerator: sdk.FlowGenerator[] = [
   {
-    name: 'choice',
+    flowName: 'skill-choice',
     generator: skill_choice.generateFlow
   }
 ]

@@ -89,7 +89,7 @@ declare module 'botpress/sdk' {
     /** Additional metadata about the module */
     definition: ModuleDefinition
     /** An array of the flow generators used by skills in the module */
-    flowGenerator?: any
+    flowGenerator?: FlowGenerator[]
   }
 
   export interface ModuleDefinition {
@@ -107,6 +107,18 @@ declare module 'botpress/sdk' {
     menuText?: string
     /** Optionnaly specify a link to your page or github repo */
     homepage?: string
+  }
+
+  /**
+   * All skills must generate a flow to be useful. This object is used to register them.
+   */
+  export interface FlowGenerator {
+    /** The name of the generated flow (or name of the skill, same thing) */
+    flowName: string
+    /** The name of the module which generates the flow. It is automatically filled up when modules are discovered */
+    moduleName?: string
+    /** Function that receives data from the UI and provides a partial flow */
+    generator?: any
   }
 
   export interface ModulePluginEntry {
@@ -475,8 +487,6 @@ declare module 'botpress/sdk' {
      * @example http://localhost:3000/
      * */
     baseURL: string
-    /** This object includes the required headers to send the request to the selected bot */
-    headers: object
   }
 
   /**

@@ -65,7 +65,7 @@ class List extends Component {
   }
 
   async createTeam() {
-    await api.getSecured().post('/api/teams', {
+    await api.getSecured().post('/admin/teams', {
       name: this.state.teamName
     })
     this.setState({ isCreateTeamModalOpen: false, teamName: '', canCreateTeam: false, createTeamError: null })

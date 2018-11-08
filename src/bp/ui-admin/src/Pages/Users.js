@@ -45,7 +45,7 @@ class List extends Component {
   async createUser() {
     const {
       data: { payload }
-    } = await api.getSecured().post('/api/users', {
+    } = await api.getSecured().post('/admin/users', {
       username: this.state.userName
     })
 
@@ -71,7 +71,7 @@ Password: ${payload.tempPassword}`
     if (window.confirm(`Are you sure you want to reset ${user.username}'s password?`)) {
       const {
         data: { payload }
-      } = await api.getSecured().get(`/api/users/reset/${user.id}`)
+      } = await api.getSecured().get(`/admin/users/reset/${user.id}`)
 
       const message = `Your password has been reset.
      
@@ -89,7 +89,7 @@ Password: ${payload.tempPassword}`
 
   async deleteUser(user, list) {
     if (window.confirm(`Are you sure you want to delete ${user.username}'s account?`)) {
-      await api.getSecured().delete(`/api/users/${user.id}`)
+      await api.getSecured().delete(`/admin/users/${user.id}`)
     }
   }
 

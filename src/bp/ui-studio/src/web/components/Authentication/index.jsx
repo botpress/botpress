@@ -83,7 +83,7 @@ const ensureAuthenticated = WrappedComponent => {
     }
 
     checkAuth = () => {
-      axios.get('/api/ping').catch(err => {
+      axios.get(`${window.API_PATH}/auth/ping`).catch(err => {
         if (err.response.status === 401) {
           this.promptLogin()
         }

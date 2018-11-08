@@ -1,11 +1,16 @@
 import bodyParser from 'body-parser'
 import { AxiosBotConfig, Logger, RouterOptions } from 'botpress/sdk'
 import LicensingService from 'common/licensing-service'
+import cors from 'cors'
 import errorHandler from 'errorhandler'
 import express from 'express'
 import { createServer, Server } from 'http'
 import { inject, injectable, tagged } from 'inversify'
+import path from 'path'
 import portFinder from 'portfinder'
+import tamper from 'tamper'
+
+import _ from 'lodash'
 
 import { ConfigProvider } from './config/config-loader'
 import { ModuleLoader } from './module-loader'
@@ -23,7 +28,6 @@ import { LogsService } from './services/logs/service'
 import MediaService from './services/media'
 import { NotificationsService } from './services/notification/service'
 import { TYPES } from './types'
-
 const BASE_API_PATH = '/api/v1'
 
 const isProd = process.env.NODE_ENV === 'production'
@@ -102,11 +106,15 @@ export default class HTTPServer {
       })
     )
 
+    if (config.cors && config.cors.enabled) {
+      this.app.use(cors(config.cors.origin ? { origin: config.cors.origin } : {}))
+    }
+
     this.app.use(`${BASE_API_PATH}/auth`, this.authRouter.router)
     this.app.use(`${BASE_API_PATH}/admin`, this.adminRouter.router)
     this.app.use(`${BASE_API_PATH}/modules`, this.modulesRouter.router)
     this.app.use(`${BASE_API_PATH}/bots/:botId`, this.botsRouter.router)
-    this.app.use(`${BASE_API_PATH}/s`, this.shortlinksRouter.router)
+    this.app.use(`/s`, this.shortlinksRouter.router)
 
     this.app.use((err, req, res, next) => {
       const statusCode = err.status || 500
@@ -129,14 +137,12 @@ export default class HTTPServer {
       })
     })
 
+    this.adminSetup(this.app)
+
     process.HOST = config.host
     process.PORT = await portFinder.getPortPromise({ port: config.port })
     if (process.PORT !== config.port) {
       this.logger.warn(`Configured port ${config.port} is already in use. Using next port available: ${process.PORT}`)
-
-      // If both ports are in use, the delay is too short between checks and it reports a false opened port
-      // TODO: Remove when the proxy is removed
-      await Promise.delay(200)
     }
 
     const hostname = config.host === 'localhost' ? undefined : config.host
@@ -144,9 +150,77 @@ export default class HTTPServer {
       this.httpServer.listen(process.PORT, hostname, config.backlog, callback)
     })
 
-    this.logger.info(`API listening on http://${process.HOST}:${process.PORT}`)
-
     return this.app
+  }
+
+  // TODO: Find a better way to handle those
+  extractBotId(req) {
+    const regex = /\/(studio|lite)\/(.+?)\//i
+    const fromReferer = _.get((req.get('Referer') || '').match(regex), '2')
+    return req.get('X-Botpress-Bot-Id') || fromReferer
+  }
+
+  adminSetup(app) {
+    const extractBotId = this.extractBotId
+    app.use('/fonts', express.static(path.join(__dirname, '../ui-studio/public/fonts')))
+    app.use('/img', express.static(path.join(__dirname, '../ui-studio/public/img')))
+
+    app.get('/studio', (req, res, next) => {
+      res.redirect('/admin')
+    })
+
+    app.use(
+      '/:app(studio|lite)/:botId?',
+      (req, res, next) => {
+        // TODO Somehow req.params is overwritten by tamper below
+        req.originalParams = { ...req.params }
+        next()
+      },
+      tamper(function(req, res) {
+        const contentType = res.getHeaders()['content-type']
+        if (!contentType.includes('text/html')) {
+          return
+        }
+
+        return function(body) {
+          // tslint:disable-next-line:prefer-const
+          let { botId, app } = req.originalParams
+
+          if (!botId && app === 'lite') {
+            botId = extractBotId(req)
+          }
+
+          return body
+            .replace(/\$\$BP_BASE_URL\$\$/g, `/${app}/${botId}`)
+            .replace(/\$\$BP_API_PATH\$\$/g, `/api/v1/bots/${botId}`)
+        }
+      })
+    )
+
+    app.use('/:app(studio)/:botId', express.static(path.join(__dirname, '../ui-studio/public')))
+    app.use('/:app(lite)/:botId?', express.static(path.join(__dirname, '../ui-studio/public/lite')))
+    app.use('/:app(lite)/:botId', express.static(path.join(__dirname, '../ui-studio/public'))) // Fallback Static Assets
+    app.get(['/:app(studio)/:botId/*'], (req, res) => {
+      const absolutePath = path.join(__dirname, '../ui-studio/public/index.html')
+      res.contentType('text/html')
+      res.sendFile(absolutePath)
+    })
+
+    app.get('/api/community/hero', (req, res) => {
+      res.send({ hidden: true })
+    })
+
+    app.use('/admin', express.static(path.join(__dirname, '../ui-admin/public')))
+
+    app.get(['/admin', '/admin/*'], (req, res) => {
+      const absolutePath = path.join(__dirname, '../ui-admin/public/index.html')
+      res.contentType('text/html')
+      res.sendFile(absolutePath)
+    })
+
+    app.get('/', (req, res) => {
+      res.redirect('/admin')
+    })
   }
 
   createRouterForBot(router: string, options: RouterOptions) {
@@ -162,15 +236,8 @@ export default class HTTPServer {
   }
 
   async getAxiosConfigForBot(botId: string): Promise<AxiosBotConfig> {
-    const botpressConfig = await this.configProvider.getBotpressConfig()
-    const config = botpressConfig.httpServer
-
     return {
-      baseURL: `http://${config.host || 'localhost'}:${process.PROXY_PORT}`,
-      headers: {
-        'X-Botpress-Bot-Id': botId,
-        'X-Botpress-App': 'Studio'
-      }
+      baseURL: `http://${process.HOST || 'localhost'}:${process.PORT}/api/v1/bots/${botId}`
     }
   }
 }

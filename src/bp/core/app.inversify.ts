@@ -2,8 +2,6 @@ import { Logger } from 'botpress/sdk'
 import { Container } from 'inversify'
 import { AppLifecycle } from 'lifecycle'
 
-import ProxyUI from '../http/api'
-
 import { BotpressAPIProvider } from './api'
 import { BotLoader } from './bot-loader'
 import { Botpress } from './botpress'
@@ -75,10 +73,6 @@ container
 container
   .bind<HTTPServer>(TYPES.HTTPServer)
   .to(HTTPServer)
-  .inSingletonScope()
-container
-  .bind<ProxyUI>(TYPES.ProxyUI)
-  .to(ProxyUI)
   .inSingletonScope()
 container
   .bind<ConfigProvider>(TYPES.ConfigProvider)

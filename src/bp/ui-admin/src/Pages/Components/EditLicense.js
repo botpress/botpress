@@ -25,7 +25,7 @@ export default class EditLicense extends Component {
     await api
       .getSecured()
       .post(
-        'api/license/update',
+        'admin/license/update',
         {
           licenseKey: this.state.licenseKey
         },

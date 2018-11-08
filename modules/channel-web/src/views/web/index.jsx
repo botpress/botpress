@@ -24,7 +24,6 @@ if (!window.location.origin) {
     (window.location.port ? ':' + window.location.port : '')
 }
 
-const BOT_HOSTNAME = window.location.origin
 const ANIM_DURATION = 300
 
 const MIN_TIME_BETWEEN_SOUNDS = 10000 // 10 seconds
@@ -49,7 +48,10 @@ export default class Web extends React.Component {
 
     const { options } = queryString.parse(location.search)
     const { hideWidget, config } = JSON.parse(decodeURIComponent(options || '{}'))
-    this.axiosConfig = config.botId ? { headers: { 'X-Botpress-Bot-Id': config.botId } } : {}
+
+    this.axiosConfig = config.botId
+      ? { baseURL: `${window.location.origin}/api/v1/bots/${config.botId}` }
+      : { baseURL: `${window.BOT_API_PATH}` }
 
     this.state = {
       view: null,
@@ -117,7 +119,7 @@ export default class Web extends React.Component {
         this.handleSendMessage()
       } else {
         const userId = window.__BP_VISITOR_ID
-        const url = `${BOT_HOSTNAME}/api/ext/channel-web/events/${userId}`
+        const url = `/mod/channel-web/events/${userId}`
         return this.props.bp.axios.post(url, { type, payload }, this.axiosConfig)
       }
     }
@@ -239,7 +241,7 @@ export default class Web extends React.Component {
   fetchConversations = () => {
     const axios = this.props.bp.axios
     const userId = this.userId
-    const url = `${BOT_HOSTNAME}/api/ext/channel-web/conversations/${userId}`
+    const url = `/mod/channel-web/conversations/${userId}`
 
     return axios
       .get(url, this.axiosConfig)
@@ -261,7 +263,7 @@ export default class Web extends React.Component {
       this.setState({ currentConversationId: conversationIdToFetch })
     }
 
-    const url = `${BOT_HOSTNAME}/api/ext/channel-web/conversations/${userId}/${conversationIdToFetch}`
+    const url = `/mod/channel-web/conversations/${userId}/${conversationIdToFetch}`
 
     return axios.get(url, this.axiosConfig).then(({ data }) => {
       // Possible race condition if the current conversation changed while fetching
@@ -336,7 +338,7 @@ export default class Web extends React.Component {
   playSound() {
     if (!this.state.played && this.state.view !== 'convo') {
       // TODO: Remove this condition (view !== 'convo') and fix transition sounds
-      const audio = new Audio('/api/ext/channel-web/static/notification.mp3')
+      const audio = new Audio('/mod/channel-web/static/notification.mp3')
       audio.play()
 
       this.setState({
@@ -411,7 +413,7 @@ export default class Web extends React.Component {
 
   handleFileUploadSend = (title, payload, file) => {
     const userId = window.__BP_VISITOR_ID
-    const url = `${BOT_HOSTNAME}/api/ext/channel-web/messages/${userId}/files`
+    const url = `/mod/channel-web/messages/${userId}/files`
     const config = { params: { conversationId: this.state.currentConversationId }, ...this.axiosConfig }
 
     const data = new FormData()
@@ -422,7 +424,7 @@ export default class Web extends React.Component {
 
   handleSendData = data => {
     const userId = window.__BP_VISITOR_ID
-    const url = `${BOT_HOSTNAME}/api/ext/channel-web/messages/${userId}`
+    const url = `/mod/channel-web/messages/${userId}`
     const config = { params: { conversationId: this.state.currentConversationId }, ...this.axiosConfig }
 
     return this.props.bp.axios.post(url, data, config).then()
@@ -443,7 +445,7 @@ export default class Web extends React.Component {
 
   handleSessionReset = () => {
     const userId = window.__BP_VISITOR_ID
-    const url = `${BOT_HOSTNAME}/api/ext/channel-web/conversations/${userId}/${this.state.currentConversationId}/reset`
+    const url = `/mod/channel-web/conversations/${userId}/${this.state.currentConversationId}/reset`
     return this.props.bp.axios.post(url, {}, ...this.axiosConfig).then()
   }
 
@@ -494,7 +496,7 @@ export default class Web extends React.Component {
   createConversation = () => {
     this.setState({ currentConversation: null })
     const userId = window.__BP_VISITOR_ID
-    const url = `${BOT_HOSTNAME}/api/ext/channel-web/conversations/${userId}/new`
+    const url = `/mod/channel-web/conversations/${userId}/new`
 
     return this.props.bp.axios.post(url, {}, this.axiosConfig).then(this.fetchConversations)
   }
@@ -536,9 +538,7 @@ export default class Web extends React.Component {
 
   downloadConversation = async () => {
     const userId = window.__BP_VISITOR_ID
-    const url = `${BOT_HOSTNAME}/api/ext/channel-web/conversations/${userId}/${
-      this.state.currentConversationId
-    }/download/txt`
+    const url = `/mod/channel-web/conversations/${userId}/${this.state.currentConversationId}/download/txt`
     const file = (await this.props.bp.axios.get(url, this.axiosConfig)).data
     const blobFile = new Blob([file.txt])
 

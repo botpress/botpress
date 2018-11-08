@@ -8,8 +8,6 @@ import nanoid from 'nanoid'
 import path from 'path'
 import plur from 'plur'
 
-import ProxyUI from '../http/api'
-
 import { createForGlobalHooks } from './api'
 import { BotLoader } from './bot-loader'
 import { BotpressConfig } from './config/botpress.config'
@@ -53,7 +51,6 @@ export class Botpress {
     private logger: sdk.Logger,
     @inject(TYPES.GhostService) private ghostService: GhostService,
     @inject(TYPES.HTTPServer) private httpServer: HTTPServer,
-    @inject(TYPES.ProxyUI) private proxyUi: ProxyUI,
     @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
     @inject(TYPES.BotLoader) private botLoader: BotLoader,
     @inject(TYPES.HookService) private hookService: HookService,
@@ -91,7 +88,6 @@ export class Botpress {
     await this.loadModules(options.modules)
     await this.startRealtime()
     await this.startServer()
-    await this.startProxy()
     await this.discoverBots()
 
     this.api = await createForGlobalHooks()
@@ -177,10 +173,6 @@ export class Botpress {
 
   private async startServer() {
     await this.httpServer.start()
-  }
-
-  private async startProxy() {
-    await this.proxyUi.start()
     this.lifecycle.setDone(AppLifecycleEvents.HTTP_SERVER_READY)
   }
 

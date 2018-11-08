@@ -39,12 +39,12 @@ export default class InjectedModuleView extends React.Component {
 
       const shortName = moduleName.replace(/^botpress-/i, '').replace(/^@botpress\//i, '')
 
-      if (isLite) {
-        script.src = `/js/modules/${shortName}/${subView}`
-      } else {
-        script.src = `/js/modules/${shortName}`
+      let path = (isLite && subView) || 'index.js'
+      if (!path.endsWith('.js')) {
+        path = path + '.js'
       }
 
+      script.src = `${window.API_PATH}/modules/${shortName}/files?path=${path}`
       document.getElementsByTagName('head')[0].appendChild(script)
     } else {
       this.setState({ moduleComponent: null })
@@ -102,7 +102,7 @@ export default class InjectedModuleView extends React.Component {
 
     const bp = {
       events: EventBus.default,
-      axios,
+      axios: axios.create({ baseURL: window.BOT_API_PATH }),
       toast
     }
 
