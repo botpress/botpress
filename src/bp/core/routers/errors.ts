@@ -9,7 +9,8 @@
 export class ResponseError extends Error {
   errorCode: string
   statusCode: number
-  logError = true
+
+  skipLogging = false
 
   constructor(message: string, statusCode: number, errorCode: string) {
     super(message)

@@ -1,4 +1,4 @@
-import { Logger } from 'botpress/sdk'
+import { ghost, Logger } from 'botpress/sdk'
 import { BotLoader } from 'core/bot-loader'
 import { BotConfigFactory, BotConfigWriter } from 'core/config'
 import Database from 'core/database'
@@ -151,6 +151,8 @@ export class CommunityAdminService implements AdminService {
 
   async updateBot(bot: Bot): Promise<void> {
     this.stats.track('api', 'admin', 'updateBot')
+
+    // TODO: Activate ghost here
 
     await this.knex(this.botsTable)
       .where({ id: bot.id })
