@@ -19,9 +19,9 @@ const createClient = (clientOptions, { toastErrors }) => {
     response => response,
     error => {
       const wrappedError = _.get(error, 'response.data')
-      const code = _.get(wrappedError, 'code')
-      if (code) {
-        if (code === 'BP_0005') {
+      const errorCode = _.get(wrappedError, 'errorCode')
+      if (errorCode) {
+        if (errorCode === 'BP_0005') {
           return logout()
         }
         return Promise.reject(wrappedError)
@@ -35,17 +35,26 @@ const createClient = (clientOptions, { toastErrors }) => {
     client.interceptors.response.use(
       response => response,
       error => {
-        error.message &&
-          toast.error(error.message, {
-            position: toast.POSITION.TOP_RIGHT
-          })
+        const wrappedError = _.get(error, 'response.data')
+        const message = _.get(wrappedError, 'message')
+
+        if (wrappedError && message) {
+          showToast(message)
+        } else {
+          error.message && showToast(error.message)
+        }
 
         return Promise.reject(error)
       }
     )
   }
-
   return client
+}
+
+const showToast = message => {
+  toast.error(message, {
+    position: toast.POSITION.TOP_RIGHT
+  })
 }
 
 const overrideApiUrl = process.env.REACT_APP_API_URL ? { baseURL: `${process.env.REACT_APP_API_URL}/admin` } : {}

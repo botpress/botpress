@@ -8,13 +8,13 @@ import { BOTID_REGEX } from 'core/misc/validation'
 import { saltHashPassword } from 'core/services/auth/util'
 import { Statistics } from 'core/stats'
 import { TYPES } from 'core/types'
+import { InvalidParameterError } from 'errors'
 import { inject, injectable } from 'inversify'
 import Joi from 'joi'
 import Knex from 'knex'
 import _ from 'lodash'
 import nanoid from 'nanoid'
 
-import { GhostService } from '..'
 import { InvalidOperationError, UnauthorizedAccessError } from '../auth/errors'
 
 import communityRoles from './community-roles'
@@ -140,23 +140,24 @@ export class CommunityAdminService implements AdminService {
     bot.team = teamId
     const { error } = Joi.validate(bot, this.botValidationSchema)
     if (error) {
-      throw new Error(`An error occurred while creating the bot: ${error.message}`)
+      throw new InvalidParameterError(`An error occurred while creating the bot: ${error.message}`)
     }
 
     await this.knex(this.botsTable).insert(bot)
     const botConfig = this.botConfigFactory.createDefault({ id: bot.id, name: bot.name })
     await this.botConfigWriter.writeToFile(botConfig)
-
     await this.botLoader.mountBot(bot.id, true)
   }
 
-  async updateBot(teamId: number, bot: Bot): Promise<void> {
+  async updateBot(bot: Bot): Promise<void> {
     this.stats.track('api', 'admin', 'updateBot')
 
-    const pristineBot = await this.getBot({ id: bot.id })
-    const updatedBot = { ...pristineBot, production: bot.production }
-
-    await this.knex(this.botsTable).update(updatedBot)
+    await this.knex(this.botsTable)
+      .where({ id: bot.id })
+      .update({
+        production: bot.production,
+        updated_at: this.knex.date.now()
+      })
   }
 
   async deleteBot(teamId: number, botId: string) {

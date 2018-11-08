@@ -127,7 +127,13 @@ class List extends Component {
   renderSideMenu() {
     return (
       <div>
-        <Button className="float-right" color="primary" size="sm" onClick={this.toggleCreateTeamModalOpen}>
+        <Button
+          className="float-right"
+          color="primary"
+          size="sm"
+          onClick={this.toggleCreateTeamModalOpen}
+          hide={this.props.check}
+        >
           <MdGroupAdd /> Create team
         </Button>
         {this.renderCreateTeamModal()}

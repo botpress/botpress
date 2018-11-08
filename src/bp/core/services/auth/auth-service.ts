@@ -1,6 +1,6 @@
 import { Logger } from 'botpress/sdk'
 import { KnexExtension } from 'common/knex'
-import { inject, injectable, postConstruct, tagged } from 'inversify'
+import { inject, injectable, tagged } from 'inversify'
 import jsonwebtoken from 'jsonwebtoken'
 import Knex from 'knex'
 

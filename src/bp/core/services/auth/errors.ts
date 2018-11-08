@@ -1,4 +1,4 @@
-import { ResponseError } from 'core/errors'
+import { ResponseError } from 'core/routers/errors'
 
 export class AssertionError extends ResponseError {
   constructor(message: string) {

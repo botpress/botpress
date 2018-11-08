@@ -181,6 +181,7 @@ class Bots extends Component {
                 return (
                   <ListGroupItem key={'bot-' + bot.id}>
                     <ListGroupItemHeading>
+                      <Toggle id="live-toggle" onClick={() => this.toggleProduction(bot)} on={bot.production} />
                       <a className="title" href={`/studio/${bot.id}`}>
                         {bot.name}
                       </a>
@@ -189,7 +190,6 @@ class Bots extends Component {
                       <Button color="link" onClick={() => this.deleteBot(bot.id)}>
                         Delete
                       </Button>
-                      <Toggle id="live-toggle" onClick={() => this.toggleProduction(bot)} on={bot.production} />
                     </div>
                   </ListGroupItem>
                 )
