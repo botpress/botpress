@@ -98,7 +98,7 @@ class SidebarFooter extends React.Component {
     return (
       <div className={sidebarFooterClassNames}>
         <div className={sidebarInnerClassNames}>
-          <a className={adminClassNames} href="../../admin" title="admin">
+          <a className={adminClassNames} href="/admin" title="admin">
             <i className="icon material-icons">home</i>
             <span>Admin</span>
           </a>
