@@ -7,6 +7,7 @@ const typedoc = require('gulp-typedoc')
 const gulpif = require('gulp-if')
 const run = require('gulp-run')
 const file = require('gulp-file')
+const { symlink } = require('gulp')
 
 const buildJsonSchemas = require('./jsonschemas')
 const tsProject = ts.createProject(path.resolve(__dirname, '../src/tsconfig.json'))
@@ -76,8 +77,14 @@ const copyAdmin = () => {
   return gulp.src('./src/bp/ui-admin/build/**/*').pipe(gulp.dest('./out/bp/ui-admin/public'))
 }
 
-const copyStudio = () => {
-  return gulp.src('./src/bp/ui-studio/lib/**/*').pipe(gulp.dest('./out/bp/ui-studio/public'))
+const copyStudio = async cb => {
+  await rimraf('./out/bp/ui-studio/public', cb)
+  return gulp.src('./src/bp/ui-studio/public/**/*').pipe(gulp.dest('./out/bp/ui-studio/public'))
+}
+
+const createStudioSymlink = async cb => {
+  await rimraf('./out/bp/ui-studio/**', cb)
+  return gulp.src('./src/bp/ui-studio/public').pipe(symlink('./out/bp/ui-studio/', { type: 'dir' }))
 }
 
 const buildSchemas = cb => {
@@ -113,6 +120,7 @@ module.exports = {
   copyBotTemplate,
   copyAdmin,
   copyStudio,
+  createStudioSymlink,
   watch,
   wipe
 }

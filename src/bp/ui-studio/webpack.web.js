@@ -17,7 +17,7 @@ const webConfig = {
     lite: './src/web/lite.jsx'
   },
   output: {
-    path: path.resolve(__dirname, './lib/js'),
+    path: path.resolve(__dirname, './public/js'),
     publicPath: '$$BP_BASE_URL$$/js/',
     filename: '[name].[chunkhash].js'
   },
@@ -76,11 +76,11 @@ const webConfig = {
     new CopyWebpackPlugin([
       {
         from: path.resolve(__dirname, './src/web/img'),
-        to: path.resolve(__dirname, './lib/web/img')
+        to: path.resolve(__dirname, './public/web/img')
       },
       {
         from: path.resolve(__dirname, './src/web/audio'),
-        to: path.resolve(__dirname, './lib/web/audio')
+        to: path.resolve(__dirname, './public/web/audio')
       }
     ])
   ],
