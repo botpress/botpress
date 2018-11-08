@@ -333,10 +333,10 @@ module.exports = async (bp, config) => {
   router.get('/:userId/reference', async (req, res) => {
     try {
       const { params: { userId }, query: { ref: webchatUrlQuery } } = req
-      const state = await bp.dialogEngine.stateManager.getState(userId)
+      const state = await bp.dialogEngine.stateManager.getState(`webchat:${userId}`)
       const newState = { ...state, webchatUrlQuery }
 
-      await bp.dialogEngine.stateManager.setState(userId, newState)
+      await bp.dialogEngine.stateManager.setState(`webchat:${userId}`, newState)
 
       res.status(200)
     } catch (error) {
