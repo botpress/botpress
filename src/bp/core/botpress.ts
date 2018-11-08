@@ -1,5 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import { WellKnownFlags } from 'core/sdk/enums'
+import fse from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import { Memoize } from 'lodash-decorators'
@@ -86,6 +87,7 @@ export class Botpress {
     await this.initializeGhost()
     await this.initializeServices()
     await this.loadModules(options.modules)
+    await this.deployAssets()
     await this.startRealtime()
     await this.startServer()
     await this.discoverBots()
@@ -103,6 +105,12 @@ export class Botpress {
     }
 
     process.JWT_SECRET = jwtSecret
+  }
+
+  async deployAssets() {
+    const assets = path.resolve(process.PROJECT_LOCATION, 'assets')
+    fse.copySync(path.join(__dirname, '../ui-admin'), `${assets}/ui-admin`)
+    fse.copySync(path.join(__dirname, '../ui-studio'), `${assets}/ui-studio`)
   }
 
   async discoverBots(): Promise<void> {

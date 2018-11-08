@@ -4,13 +4,11 @@ import LicensingService from 'common/licensing-service'
 import cors from 'cors'
 import errorHandler from 'errorhandler'
 import express from 'express'
+import rewrite from 'express-urlrewrite'
 import { createServer, Server } from 'http'
 import { inject, injectable, tagged } from 'inversify'
 import path from 'path'
 import portFinder from 'portfinder'
-import tamper from 'tamper'
-
-import _ from 'lodash'
 
 import { ConfigProvider } from './config/config-loader'
 import { ModuleLoader } from './module-loader'
@@ -89,6 +87,8 @@ export default class HTTPServer {
     })
   }
 
+  resolveAsset = file => path.resolve(process.PROJECT_LOCATION, 'assets', file)
+
   async start() {
     const botpressConfig = await this.configProvider.getBotpressConfig()
     const config = botpressConfig.httpServer
@@ -109,6 +109,9 @@ export default class HTTPServer {
     if (config.cors && config.cors.enabled) {
       this.app.use(cors(config.cors.origin ? { origin: config.cors.origin } : {}))
     }
+
+    this.app.use('/assets', express.static(this.resolveAsset('')))
+    this.app.use(rewrite('/:app/:botId/env.js', '/api/v1/bots/:botId/:app/js/env.js'))
 
     this.app.use(`${BASE_API_PATH}/auth`, this.authRouter.router)
     this.app.use(`${BASE_API_PATH}/admin`, this.adminRouter.router)
@@ -137,7 +140,7 @@ export default class HTTPServer {
       })
     })
 
-    this.adminSetup(this.app)
+    this.setupStaticRoutes(this.app)
 
     process.HOST = config.host
     process.PORT = await portFinder.getPortPromise({ port: config.port })
@@ -153,74 +156,27 @@ export default class HTTPServer {
     return this.app
   }
 
-  // TODO: Find a better way to handle those
-  extractBotId(req) {
-    const regex = /\/(studio|lite)\/(.+?)\//i
-    const fromReferer = _.get((req.get('Referer') || '').match(regex), '2')
-    return req.get('X-Botpress-Bot-Id') || fromReferer
-  }
+  setupStaticRoutes(app) {
+    app.get('/studio', (req, res, next) => res.redirect('/admin'))
 
-  adminSetup(app) {
-    const extractBotId = this.extractBotId
-    app.use('/fonts', express.static(path.join(__dirname, '../ui-studio/public/fonts')))
-    app.use('/img', express.static(path.join(__dirname, '../ui-studio/public/img')))
+    app.use('/:app(studio)/:botId', express.static(this.resolveAsset('ui-studio/public')))
+    app.use('/:app(lite)/:botId?', express.static(this.resolveAsset('ui-studio/public/lite')))
+    app.use('/:app(lite)/:botId', express.static(this.resolveAsset('ui-studio/public')))
 
-    app.get('/studio', (req, res, next) => {
-      res.redirect('/admin')
-    })
-
-    app.use(
-      '/:app(studio|lite)/:botId?',
-      (req, res, next) => {
-        // TODO Somehow req.params is overwritten by tamper below
-        req.originalParams = { ...req.params }
-        next()
-      },
-      tamper(function(req, res) {
-        const contentType = res.getHeaders()['content-type']
-        if (!contentType.includes('text/html')) {
-          return
-        }
-
-        return function(body) {
-          // tslint:disable-next-line:prefer-const
-          let { botId, app } = req.originalParams
-
-          if (!botId && app === 'lite') {
-            botId = extractBotId(req)
-          }
-
-          return body
-            .replace(/\$\$BP_BASE_URL\$\$/g, `/${app}/${botId}`)
-            .replace(/\$\$BP_API_PATH\$\$/g, `/api/v1/bots/${botId}`)
-        }
-      })
-    )
-
-    app.use('/:app(studio)/:botId', express.static(path.join(__dirname, '../ui-studio/public')))
-    app.use('/:app(lite)/:botId?', express.static(path.join(__dirname, '../ui-studio/public/lite')))
-    app.use('/:app(lite)/:botId', express.static(path.join(__dirname, '../ui-studio/public'))) // Fallback Static Assets
     app.get(['/:app(studio)/:botId/*'], (req, res) => {
-      const absolutePath = path.join(__dirname, '../ui-studio/public/index.html')
       res.contentType('text/html')
-      res.sendFile(absolutePath)
+      res.sendFile(this.resolveAsset('ui-studio/public/index.html'))
     })
 
-    app.get('/api/community/hero', (req, res) => {
-      res.send({ hidden: true })
-    })
-
-    app.use('/admin', express.static(path.join(__dirname, '../ui-admin/public')))
+    app.use('/admin', express.static(this.resolveAsset('ui-admin/public')))
 
     app.get(['/admin', '/admin/*'], (req, res) => {
-      const absolutePath = path.join(__dirname, '../ui-admin/public/index.html')
       res.contentType('text/html')
-      res.sendFile(absolutePath)
+      res.sendFile(this.resolveAsset('ui-admin/public/index.html'))
     })
 
-    app.get('/', (req, res) => {
-      res.redirect('/admin')
-    })
+    app.get('/api/community/hero', (req, res) => res.send({ hidden: true }))
+    app.get('/', (req, res) => res.redirect('/admin'))
   }
 
   createRouterForBot(router: string, options: RouterOptions) {

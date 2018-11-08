@@ -143,6 +143,7 @@ export class ModuleLoader {
         await (module.onServerReady && module.onServerReady(api))
         this.loadModulesActions(name)
         this.loadModuleHooks(name)
+        this.loadModuleAssets(name)
       } catch (err) {
         this.logger.warn(`Error in module "${name}" 'onServerReady'. Module will still be loaded. Err: ${err.message}`)
       }
@@ -162,10 +163,23 @@ export class ModuleLoader {
     const resolver = new ModuleResolver(this.logger)
     const modulePath = await resolver.resolve('MODULES_ROOT/' + name)
     const moduleActionsDir = `${modulePath}/dist/actions`
+
     if (fse.pathExistsSync(moduleActionsDir)) {
       const globalActionsDir = `${process.PROJECT_LOCATION}/data/global/actions/${name}`
       fse.mkdirpSync(globalActionsDir)
       fse.copySync(moduleActionsDir, globalActionsDir)
+    }
+  }
+
+  private async loadModuleAssets(name: string) {
+    const resolver = new ModuleResolver(this.logger)
+    const modulePath = await resolver.resolve('MODULES_ROOT/' + name)
+    const modulesAssetsPath = `${modulePath}/assets/`
+
+    if (fse.pathExistsSync(modulesAssetsPath)) {
+      const assetsPath = `${process.PROJECT_LOCATION}/assets/modules/${name}`
+      fse.mkdirpSync(assetsPath)
+      fse.copySync(modulesAssetsPath, assetsPath)
     }
   }
 

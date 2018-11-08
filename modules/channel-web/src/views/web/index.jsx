@@ -47,7 +47,7 @@ export default class Web extends React.Component {
     super(props)
 
     const { options } = queryString.parse(location.search)
-    const { hideWidget, config } = JSON.parse(decodeURIComponent(options || '{}'))
+    const { config } = JSON.parse(decodeURIComponent(options || '{}'))
 
     this.axiosConfig = config.botId
       ? { baseURL: `${window.location.origin}/api/v1/bots/${config.botId}` }
@@ -64,7 +64,7 @@ export default class Web extends React.Component {
       currentConversation: null,
       currentConversationId: null,
       unreadCount: 0,
-      isButtonHidden: hideWidget
+      isButtonHidden: config.hideWidget
     }
   }
 

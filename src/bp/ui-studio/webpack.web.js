@@ -19,7 +19,7 @@ const webConfig = {
   },
   output: {
     path: path.resolve(__dirname, './public/js'),
-    publicPath: '$$BP_BASE_URL$$/js/',
+    publicPath: 'js/',
     filename: '[name].[chunkhash].js'
   },
   resolve: {
@@ -77,11 +77,15 @@ const webConfig = {
     new CopyWebpackPlugin([
       {
         from: path.resolve(__dirname, './src/web/img'),
-        to: path.resolve(__dirname, './public/web/img')
+        to: path.resolve(__dirname, './public/img')
       },
       {
         from: path.resolve(__dirname, './src/web/audio'),
-        to: path.resolve(__dirname, './public/web/audio')
+        to: path.resolve(__dirname, './public/audio')
+      },
+      {
+        from: path.resolve(__dirname, './src/web/external'),
+        to: path.resolve(__dirname, './public/external')
       }
     ]),
     new CleanWebpackPlugin(['public'])

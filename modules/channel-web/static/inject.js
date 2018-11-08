@@ -12,12 +12,13 @@ window.addEventListener('message', ({ data }) => {
   document.querySelector('#bp-widget').setAttribute('class', data.value)
 })
 
-const init = ({ host = '', hideWidget = false, ...config }) => {
-  const cssHref = `${host}/api/v1/bots/${config.botId}/mod/channel-web/inject.css`
+const init = config => {
+  const { host = '', botId = '' } = config
+  const cssHref = `${host}/api/v1/bots/${botId}/mod/channel-web/inject.css`
   injectDOMElement('link', 'head', { rel: 'stylesheet', href: cssHref })
 
-  const options = encodeURIComponent(JSON.stringify({ hideWidget, config }))
-  const iframeSrc = `${host}/lite/?m=channel-web&v=embedded&options=${options}`
+  const options = encodeURIComponent(JSON.stringify({ config }))
+  const iframeSrc = `${host}/lite/${botId}/?m=channel-web&v=embedded&options=${options}`
   const iframeHTML = `<iframe id='bp-widget' frameborder='0' src='${iframeSrc}' />`
   injectDOMElement('div', 'body', { id: 'bp-web-widget', innerHTML: iframeHTML })
 
