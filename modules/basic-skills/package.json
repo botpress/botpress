@@ -1,11 +1,11 @@
 {
-  "name": "@botpress/skill-choice",
+  "name": "@botpress/basic-skills",
   "version": "10.45.0",
   "description": "Botpress Skill that allows users to pick an option",
   "main": "dist/backend/index.js",
   "botpress": {
     "liteViews": {
-      "skill-choice": "./src/views/skill-choice.jsx"
+      "choice": "./src/views/choice.jsx"
     }
   },
   "webpack": {

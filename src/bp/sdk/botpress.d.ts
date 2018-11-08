@@ -483,7 +483,7 @@ declare module 'botpress/sdk' {
 
   /**
    * The AxiosBotConfig contains the axios configuration required to call the api of another module.
-   * @example: axios.get('/api/ext/module', axiosBotConfig)
+   * @example: axios.get('/mod/module', axiosBotConfig)
    */
   export interface AxiosBotConfig {
     /** The base url of the bot.
@@ -569,11 +569,11 @@ declare module 'botpress/sdk' {
 
     /**
      * Create a new router for a module. Once created, use them to register new endpoints. Routers created
-     * with this method are accessible via the url /api/ext/{routernName}
+     * with this method are accessible via the url /mod/{routernName}
      *
      * @example const router = bp.http.createRouterForBot('myModule')
      * @example router.get('/list', ...)
-     * @example axios.get('/api/ext/myModule/list')
+     * @example axios.get('/mod/myModule/list')
      * @param routerName - The name of the router
      * @param options - Additional options to apply to the router
      * @param router - The router

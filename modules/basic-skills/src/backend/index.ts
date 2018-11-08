@@ -4,8 +4,8 @@ import fs from 'fs'
 import _ from 'lodash'
 import path from 'path'
 
+import choice from './choice'
 import setup from './setup'
-import skill_choice from './skill-choice'
 
 export type Extension = {}
 
@@ -19,9 +19,9 @@ const onServerReady = async (bp: SDK) => {
 
 const skillsToRegister: sdk.Skill[] = [
   {
-    id: 'skill-choice',
+    id: 'choice',
     name: 'Choice',
-    flowGenerator: skill_choice.generateFlow
+    flowGenerator: choice.generateFlow
   }
 ]
 
@@ -30,7 +30,7 @@ const serveFile = async (filePath: string): Promise<Buffer> => {
 
   const mapping = {
     'index.js': path.join(__dirname, '../web/web.bundle.js'),
-    'skill-choice.js': path.join(__dirname, '../web/skill-choice.bundle.js')
+    'choice.js': path.join(__dirname, '../web/choice.bundle.js')
   }
 
   // Web views
@@ -78,7 +78,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   defaultConfigJson,
   serveFile: serveFile,
   definition: {
-    name: 'skill-choice',
+    name: 'basic-skills',
     menuIcon: 'fiber_smart_record',
     fullName: 'Basic Skills',
     homepage: 'https://botpress.io',
