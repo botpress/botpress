@@ -29,7 +29,7 @@
     "start:admin": "cd src/bp/ui-admin && yarn start:dev",
     "build:admin": "cd src/bp/ui-admin && yarn && yarn build && ../../../node_modules/.bin/gulp copy-admin",
     "start:studio": "yarn run gulp create-studio-symlink && cd src/bp/ui-studio && yarn watch",
-    "build:studio": "cd src/bp/ui-studio && yarn && yarn compile && ../../../node_modules/.bin/gulp copy-studio",
+    "build:studio": "cd src/bp/ui-studio && yarn && yarn build && ../../../node_modules/.bin/gulp copy-studio",
     "commitmsg": "commitlint -e $GIT_PARAMS",
     "tslint": "node_modules/.bin/tslint --project tslint.json"
   },

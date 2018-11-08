@@ -5,6 +5,7 @@ const webpack = require('webpack')
 const path = require('path')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const CleanWebpackPlugin = require('clean-webpack-plugin')
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
 const isProduction = process.env.NODE_ENV === 'production'
 
@@ -82,7 +83,8 @@ const webConfig = {
         from: path.resolve(__dirname, './src/web/audio'),
         to: path.resolve(__dirname, './public/web/audio')
       }
-    ])
+    ]),
+    new CleanWebpackPlugin(['public'])
   ],
   module: {
     rules: [

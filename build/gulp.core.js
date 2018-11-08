@@ -1,7 +1,7 @@
 const path = require('path')
 const gulp = require('gulp')
 const ts = require('gulp-typescript')
-const rimraf = require('rimraf')
+const rimraf = require('gulp-rimraf')
 const sourcemaps = require('gulp-sourcemaps')
 const typedoc = require('gulp-typedoc')
 const gulpif = require('gulp-if')
@@ -16,8 +16,8 @@ const wipe = () => {
   return gulp.src(['./node_modules', './out']).pipe(rimraf())
 }
 
-const clean = cb => {
-  rimraf('./out', cb)
+const clean = () => {
+  return gulp.src('./out', { allowEmpty: true }).pipe(rimraf())
 }
 
 const runningPro = process.env.EDITION === 'pro' || process.env.EDITION === 'ee'
@@ -77,13 +77,15 @@ const copyAdmin = () => {
   return gulp.src('./src/bp/ui-admin/build/**/*').pipe(gulp.dest('./out/bp/ui-admin/public'))
 }
 
-const copyStudio = async cb => {
-  await rimraf('./out/bp/ui-studio/public', cb)
+const cleanStudio = () => {
+  return gulp.src('./out/bp/ui-studio/public', { allowEmpty: true }).pipe(rimraf())
+}
+
+const copyStudio = () => {
   return gulp.src('./src/bp/ui-studio/public/**/*').pipe(gulp.dest('./out/bp/ui-studio/public'))
 }
 
-const createStudioSymlink = async cb => {
-  await rimraf('./out/bp/ui-studio/**', cb)
+const createStudioSymlink = () => {
   return gulp.src('./src/bp/ui-studio/public').pipe(symlink('./out/bp/ui-studio/', { type: 'dir' }))
 }
 
@@ -119,6 +121,7 @@ module.exports = {
   copyData,
   copyBotTemplate,
   copyAdmin,
+  cleanStudio,
   copyStudio,
   createStudioSymlink,
   watch,
