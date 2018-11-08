@@ -14,7 +14,7 @@ window.addEventListener('message', ({ data }) => {
 
 const init = config => {
   const { host = '', botId = '' } = config
-  const cssHref = `${host}/api/v1/bots/${botId}/mod/channel-web/inject.css`
+  const cssHref = `${host}/assets/modules/channel-web/inject.css`
   injectDOMElement('link', 'head', { rel: 'stylesheet', href: cssHref })
 
   const options = encodeURIComponent(JSON.stringify({ config }))

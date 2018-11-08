@@ -4,7 +4,7 @@ import WebComponent from './web'
 export const Web = WebComponent
 
 const INJECTION_ID = 'bp-channel-web-injection'
-const INJECTION_URL = `${window.BOT_API_PATH}/mod/channel-web/inject.js`
+const INJECTION_URL = `/assets/modules/channel-web/inject.js`
 
 export class WebBotpressUIInjection extends React.Component {
   componentWillMount() {
