@@ -46,7 +46,7 @@ describe('Lite Queues', () => {
     }
 
     expect(order.length).toEqual(10)
-    expect(order).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+    expect(order).toEqual([0, 1, 2, 2, 4, 5, 6, 7, 8, 9])
   })
 
   it('Respects order (async)', async () => {
