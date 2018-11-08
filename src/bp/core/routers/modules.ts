@@ -39,8 +39,8 @@ export class ModulesRouter implements CustomRouter {
       }
     })
 
-    this.router.post('/:moduleName/flow/:flowName/generate', async (req, res) => {
-      const flowGenerator = await this.moduleLoader.getFlowGenerator(req.params.moduleName, req.params.flowName)
+    this.router.post('/:moduleName/skill/:skillId/generateFlow', async (req, res) => {
+      const flowGenerator = await this.moduleLoader.getFlowGenerator(req.params.moduleName, req.params.skillId)
 
       if (!flowGenerator) {
         return res.status(404).send('Invalid module name or flow name')

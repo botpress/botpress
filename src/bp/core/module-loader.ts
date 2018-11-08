@@ -1,4 +1,4 @@
-import { FlowGenerator, Logger, ModuleDefinition, ModuleEntryPoint } from 'botpress/sdk'
+import { Logger, ModuleDefinition, ModuleEntryPoint, Skill } from 'botpress/sdk'
 import { ValidationError } from 'errors'
 import fse from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
@@ -21,7 +21,7 @@ const MODULE_SCHEMA = joi.object().keys({
   config: joi.object().optional(),
   defaultConfigJson: joi.string().optional(),
   serveFile: joi.func().optional(),
-  flowGenerator: joi.array().optional(),
+  skills: joi.array().optional(),
   definition: joi.object().keys({
     name: joi.string().required(),
     fullName: joi.string().optional(),
@@ -214,25 +214,26 @@ export class ModuleLoader {
     return def.serveFile!(path)
   }
 
-  public async getFlowGenerator(moduleName, flowName) {
+  public async getFlowGenerator(moduleName, skillId) {
     const module = this.getModule(moduleName)
-    const flow = _.find(module.flowGenerator, x => x.flowName === flowName)
+    const skill = _.find(module.skills, x => x.id === skillId)
 
-    return flow && flow.generator
+    return skill && skill.flowGenerator
   }
 
   public async getAllSkills() {
-    const allSkills: FlowGenerator[] = []
+    const allSkills: Skill[] = []
     const modules = this.getLoadedModules()
 
     for (const module of modules) {
       const entryPoint = this.getModule(module.name)
-      const skills = _.map(entryPoint.flowGenerator, 'skillName')
+      const skills = _.map(entryPoint.skills, e => _.pick(e, 'id', 'name'))
 
       _.forEach(skills, skill =>
         allSkills.push({
-          moduleName: module.name,
-          flowName: skill
+          id: skill.id,
+          name: skill.name,
+          moduleName: module.name
         })
       )
     }

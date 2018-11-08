@@ -17,11 +17,11 @@ const onServerReady = async (bp: SDK) => {
   await setup(bp)
 }
 
-// TODO: One module can export multiple skills. Many changes in Studio
-const flowGenerator: sdk.FlowGenerator[] = [
+const skillsToRegister: sdk.Skill[] = [
   {
-    flowName: 'skill-choice',
-    generator: skill_choice.generateFlow
+    id: 'skill-choice',
+    name: 'Choice',
+    flowGenerator: skill_choice.generateFlow
   }
 ]
 
@@ -29,7 +29,8 @@ const serveFile = async (filePath: string): Promise<Buffer> => {
   filePath = filePath.toLowerCase()
 
   const mapping = {
-    'index.js': path.join(__dirname, '../web/web.bundle.js')
+    'index.js': path.join(__dirname, '../web/web.bundle.js'),
+    'skill-choice.js': path.join(__dirname, '../web/skill-choice.bundle.js')
   }
 
   // Web views
@@ -85,7 +86,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
     plugins: [],
     moduleView: { stretched: true }
   },
-  flowGenerator
+  skills: skillsToRegister
 }
 
 export default entryPoint

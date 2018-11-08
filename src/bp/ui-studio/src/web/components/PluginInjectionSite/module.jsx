@@ -37,14 +37,12 @@ export default class InjectedModuleView extends React.Component {
         })
       }
 
-      const shortName = moduleName.replace(/^botpress-/i, '').replace(/^@botpress\//i, '')
-
       let path = (isLite && subView) || 'index.js'
       if (!path.endsWith('.js')) {
         path = path + '.js'
       }
 
-      script.src = `${window.API_PATH}/modules/${shortName}/files?path=${path}`
+      script.src = `${window.API_PATH}/modules/${moduleName}/files?path=${path}`
       document.getElementsByTagName('head')[0].appendChild(script)
     } else {
       this.setState({ moduleComponent: null })
