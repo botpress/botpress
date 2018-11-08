@@ -155,16 +155,7 @@ export const updateGlobalStyle = createAction('UI/UPDATE_GLOBAL_STYLE')
 
 // User
 export const userReceived = createAction('USER/RECEIVED')
-export const fetchUser = authEnabled => dispatch => {
-  if (!authEnabled) {
-    dispatch(
-      userReceived({
-        id: 'anonymous',
-        roles: null
-      })
-    )
-    return
-  }
+export const fetchUser = () => dispatch => {
   axios.get(`${window.API_PATH}/auth/me/profile`).then(res => {
     dispatch(userReceived(res.data && res.data.payload))
   })

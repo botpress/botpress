@@ -33,7 +33,7 @@ class App extends Component {
     this.props.fetchBotInformation()
     this.props.fetchLicense()
 
-    this.props.fetchUser(window.AUTH_ENABLED)
+    this.props.fetchUser()
   }
 
   componentDidMount() {

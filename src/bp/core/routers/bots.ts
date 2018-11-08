@@ -98,7 +98,6 @@ export class BotsRouter implements CustomRouter {
     return {
       botId,
       authentication: {
-        enabled: true, // TODO Remove this from UI, there is no more un-authenticated mode
         tokenDuration: ms('6h')
       },
       sendStatistics: true, // TODO Add way to opt out
@@ -127,7 +126,6 @@ export class BotsRouter implements CustomRouter {
           `
       const studioEnv = `
               // Botpress Studio Specific
-              window.BOTPRESS_AUTH_FULL = ${data.authentication.enabled};
               window.AUTH_TOKEN_DURATION = ${data.authentication.tokenDuration};
               window.OPT_OUT_STATS = ${!data.sendStatistics};
               window.SHOW_GUIDED_TOUR = ${data.showGuidedTour};
@@ -140,9 +138,8 @@ export class BotsRouter implements CustomRouter {
           (function(window) {
               // Common
               window.API_PATH = "/api/v1";
-              window.BOT_ID = "${botId}";
               window.BOT_API_PATH = "/api/v1/bots/${botId}";
-              window.BASE_PATH = "/${app}";
+              window.BOT_ID = "${botId}";
               window.BP_BASE_PATH = "/${app}/${botId}";
               window.BOTPRESS_VERSION = "${data.botpress.version}";
               window.APP_NAME = "${data.botpress.name}";
@@ -150,7 +147,6 @@ export class BotsRouter implements CustomRouter {
               window.BOTPRESS_ENV = "dev";
               window.BOTPRESS_CLOUD_ENABLED = false;
               window.DEV_MODE = true;
-              window.AUTH_ENABLED = ${data.authentication.enabled};
               ${app === 'studio' ? studioEnv : ''}
               ${app === 'lite' ? liteEnv : ''}
               // End

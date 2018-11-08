@@ -52,7 +52,7 @@ const ensureAuthenticated = WrappedComponent => {
     }
 
     setupAuth() {
-      if (!window.AUTH_ENABLED && !this.state.authorized) {
+      if (this.state.authorized) {
         this.setState({ authorized: true })
         return
       }
