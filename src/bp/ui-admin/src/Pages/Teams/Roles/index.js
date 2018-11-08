@@ -5,15 +5,13 @@ import { connect } from 'react-redux'
 
 import { Button, Col, ListGroup, Row } from 'reactstrap'
 import { MdPersonAdd } from 'react-icons/lib/md'
-
+import { checkRule } from 'common/auth'
 import { pick } from 'lodash'
 
 import { fetchTeamData, fetchExistingPermissions } from '../../../modules/teams'
 import { fetchPermissions } from '../../../modules/user'
-
 import SectionLayout from '../../Layouts/Section'
 import LoadingSection from '../../Components/LoadingSection'
-import { checkRule } from 'common/auth.js'
 
 import api from '../../../api'
 

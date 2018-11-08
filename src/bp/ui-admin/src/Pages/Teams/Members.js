@@ -5,7 +5,7 @@ import { MdPersonAdd } from 'react-icons/lib/md'
 
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { checkRule } from 'common/auth.js'
+import { checkRule } from 'common/auth'
 import moment from 'moment'
 import _ from 'lodash'
 
