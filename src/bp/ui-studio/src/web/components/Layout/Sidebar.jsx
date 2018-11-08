@@ -73,7 +73,7 @@ class Sidebar extends React.Component {
 
   renderModuleItem = module => {
     const path = `/modules/${module.name}`
-    const iconPath = `/img/modules/${module.name}.png`
+    const iconPath = `/assets/module/${module.name}/icon.png`
     const moduleIcon =
       module.menuIcon === 'custom' ? (
         <img className={classnames(style.customIcon, 'bp-custom-icon')} src={iconPath} />

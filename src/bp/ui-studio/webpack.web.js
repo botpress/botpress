@@ -19,7 +19,7 @@ const webConfig = {
   },
   output: {
     path: path.resolve(__dirname, './public/js'),
-    publicPath: 'js/',
+    publicPath: '/assets/ui-studio/public/js/',
     filename: '[name].[chunkhash].js'
   },
   resolve: {

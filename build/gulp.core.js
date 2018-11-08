@@ -81,12 +81,16 @@ const cleanStudio = () => {
   return gulp.src('./out/bp/ui-studio/public', { allowEmpty: true }).pipe(rimraf())
 }
 
+const cleanStudioAssets = () => {
+  return gulp.src('./out/bp/assets/ui-studio/public', { allowEmpty: true }).pipe(rimraf())
+}
+
 const copyStudio = () => {
   return gulp.src('./src/bp/ui-studio/public/**/*').pipe(gulp.dest('./out/bp/ui-studio/public'))
 }
 
 const createStudioSymlink = () => {
-  return gulp.src('./src/bp/ui-studio/public').pipe(symlink('./out/bp/ui-studio/', { type: 'dir' }))
+  return gulp.src('./src/bp/ui-studio/public').pipe(symlink('./out/bp/assets/ui-studio/', { type: 'dir' }))
 }
 
 const buildSchemas = cb => {
@@ -122,6 +126,7 @@ module.exports = {
   copyBotTemplate,
   copyAdmin,
   cleanStudio,
+  cleanStudioAssets,
   copyStudio,
   createStudioSymlink,
   watch,

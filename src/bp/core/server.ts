@@ -111,7 +111,7 @@ export default class HTTPServer {
     }
 
     this.app.use('/assets', express.static(this.resolveAsset('')))
-    this.app.use(rewrite('/:app/:botId/env.js', '/api/v1/bots/:botId/:app/js/env.js'))
+    this.app.use(rewrite('/:app/:botId/*env.js', '/api/v1/bots/:botId/:app/js/env.js'))
 
     this.app.use(`${BASE_API_PATH}/auth`, this.authRouter.router)
     this.app.use(`${BASE_API_PATH}/admin`, this.adminRouter.router)
