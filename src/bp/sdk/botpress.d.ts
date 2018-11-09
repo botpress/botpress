@@ -67,8 +67,6 @@ declare module 'botpress/sdk' {
     error(message: string, metadata?: any): void
   }
 
-  export type ModuleConfig = { [key: string]: ModuleConfigEntry }
-
   /**
    * The Module Entry Point is used by the module loader to bootstrap the module. It must be present in the index.js file
    * of the module. The path to the module must also be specified in the global botpress config.
@@ -80,10 +78,6 @@ declare module 'botpress/sdk' {
     onServerReady: ((bp: typeof import('botpress/sdk')) => void)
     onBotMount?: ((bp: typeof import('botpress/sdk'), botId: string) => void)
     onBotUnmount?: ((bp: typeof import('botpress/sdk'), botId: string) => void)
-    /** The configuration options of the module */
-    config: ModuleConfig
-    /** This is used to create the json config file if none is present */
-    defaultConfigJson?: string
     /** Additional metadata about the module */
     definition: ModuleDefinition
     /** An array of the flow generators used by skills in the module */
@@ -129,13 +123,6 @@ declare module 'botpress/sdk' {
 
   export interface ModuleViewOptions {
     stretched: boolean
-  }
-
-  export type ModuleConfigEntry = {
-    type: 'bool' | 'any' | 'string'
-    required: boolean
-    default: any
-    env?: string
   }
 
   export class RealTimePayload {
