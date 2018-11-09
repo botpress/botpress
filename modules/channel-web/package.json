@@ -1,7 +1,8 @@
 {
-  "name": "@botpress/channel-web",
+  "name": "channel-web",
   "version": "10.33.0",
   "description": "An embeddable webchat for Botpress",
+  "private": true,
   "main": "dist/backend/index.js",
   "botpress": {
     "liteViews": {
