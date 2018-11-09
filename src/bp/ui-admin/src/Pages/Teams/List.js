@@ -23,6 +23,7 @@ import {
 import moment from 'moment'
 import { MdGroupAdd } from 'react-icons/lib/md'
 import { fetchTeams } from '../../modules/teams'
+import { fetchLicense } from '../../modules/license'
 import SectionLayout from '../Layouts/Section'
 import LoadingSection from '../Components/LoadingSection'
 import api from '../../api'
@@ -39,6 +40,7 @@ class List extends Component {
   state = { isCreateTeamModalOpen: false, canCreateTeam: false, teamName: '', createTeamError: null }
 
   componentDidMount() {
+    !this.props.license && this.props.fetchLicense()
     !this.props.teams && this.props.fetchTeams()
   }
 
@@ -124,12 +126,22 @@ class List extends Component {
     )
   }
 
-  renderSideMenu() {
-    return (
-      <div>
+  isCommunity = () => this.props.license && this.props.license.edition === 'ce'
+
+  renderCreateTeamButton() {
+    if (!this.isCommunity()) {
+      return (
         <Button className="float-right" color="primary" size="sm" onClick={this.toggleCreateTeamModalOpen}>
           <MdGroupAdd /> Create team
         </Button>
+      )
+    }
+  }
+
+  renderSideMenu() {
+    return (
+      <div>
+        {this.renderCreateTeamButton()}
         {this.renderCreateTeamModal()}
         <ProfileUpdate renderAsModal="true" />
       </div>
@@ -155,12 +167,14 @@ class List extends Component {
 
 const mapStateToProps = state => ({
   teams: state.teams.items,
-  loading: state.teams.loadingTeams
+  loading: state.teams.loadingTeams,
+  license: state.license.license
 })
 
 const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
+      fetchLicense,
       fetchTeams
     },
     dispatch
