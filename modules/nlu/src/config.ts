@@ -4,7 +4,7 @@ export interface Config {
    */
   intentsDir: string
   /**
-   * @default ./entiries
+   * @default ./entities
    */
   entitiesDir: string
   /**
@@ -29,8 +29,8 @@ export interface Config {
   minimumConfidence: string
   /**
    * The maximum confidence after which it is considered a statistical error
-   * Mostly irrelevant except for NLU=native
-   * @default 1000
+   * Mostly irrelevant
+   * @default 100
    */
   maximumConfidence: string
 

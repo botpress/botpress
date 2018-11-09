@@ -1,59 +1,15 @@
 import { Logger, ModuleEntryPoint } from 'botpress/sdk'
 import fs from 'fs'
 import defaultJsonBuilder from 'json-schema-defaults'
-import json5 from 'json5'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
 import path from 'path'
 import { VError } from 'verror'
-import yn from 'yn'
 
 import { GhostService } from '../'
 
 import ModuleResolver from '../../modules/resolver'
 type Config = { [key: string]: any }
-
-const validations = {
-  any: (value, validation) => validation(value),
-  string: (value, validation) => typeof value === 'string' && validation(value),
-  choice: (value, validation) => _.includes(validation, value),
-  bool: (value, validation) => (yn(value) === true || yn(value) === false) && validation(value)
-}
-
-const transformers = {
-  bool: value => yn(value)
-}
-
-const defaultValues = {
-  any: undefined,
-  string: '',
-  bool: false
-}
-
-const amendOption = (option, name) => {
-  const validTypes = _.keys(validations)
-  if (!option.type || !_.includes(validTypes, option.type)) {
-    throw new Error(`Invalid type (${option.type || ''}) for config key (${name})`)
-  }
-
-  const validation = option.validation || (() => true)
-
-  if (option.default !== undefined && !validations[option.type](option.default, validation)) {
-    throw new Error(`Invalid default value (${option.default}) for (${name})`)
-  }
-
-  if (!option.default && !_.includes(_.keys(defaultValues), option.type)) {
-    throw new Error(`Default value is mandatory for type ${option.type} (${name})`)
-  }
-
-  return {
-    type: option.type,
-    required: option.required || false,
-    env: option.env || undefined,
-    default: option.default || defaultValues[option.type],
-    validation: validation
-  }
-}
 
 /**
  * Load configuration for a specific module in the following precedence order:
@@ -89,7 +45,7 @@ export default class ConfigReader {
         return JSON.parse(fs.readFileSync(configSchema, 'utf-8'))
       }
     } catch (err) {
-      this.logger.error(`Error while loading the config schema for module ${moduleId}`)
+      this.logger.attachError(err).error(`Error while loading the config schema for module "${moduleId}"`)
     }
     return {}
   }
@@ -102,7 +58,7 @@ export default class ConfigReader {
     const fileName = `${moduleId}.json`
     try {
       const json = await this.ghost.forBot(botId).readFileAsString('config', fileName)
-      return json5.parse(json)
+      return JSON.parse(json)
     } catch (e) {
       return {}
     }
@@ -112,7 +68,7 @@ export default class ConfigReader {
     const fileName = `${moduleId}.json`
     try {
       const json = await this.ghost.global().readFileAsString('config', fileName)
-      return json5.parse(json)
+      return JSON.parse(json)
     } catch (e) {
       throw new VError(e, `Could not load default config file for module "${moduleId}"`)
     }
@@ -125,7 +81,7 @@ export default class ConfigReader {
     for (const option of _.keys(options)) {
       const key = `BP_${moduleId}_${option}`.toUpperCase()
 
-      if (_.has(process.env, key)) {
+      if (key in process.env) {
         config[option] = process.env[key]
       }
     }
@@ -136,17 +92,14 @@ export default class ConfigReader {
   @Memoize()
   private async getModuleDefaultConfigFile(moduleId): Promise<any | undefined> {
     try {
-      const configSchema = await this.getModuleConfigSchema(moduleId)
-      if (configSchema) {
-        const defaultConfig = {
-          $schema: `../../../assets/modules/${moduleId}/config.schema.json`,
-          ...defaultJsonBuilder(configSchema)
-        }
-
-        return JSON.stringify(defaultConfig, undefined, 2)
+      const defaultConfig = {
+        $schema: `../../../assets/modules/${moduleId}/config.schema.json`,
+        ...defaultJsonBuilder(await this.getModuleConfigSchema(moduleId))
       }
+
+      return JSON.stringify(defaultConfig, undefined, 2)
     } catch (err) {
-      this.logger.warn(`Couldn't generate the default json for module ${moduleId}`)
+      this.logger.attachError(err).error(`Couldn't generate the default json for module "${moduleId}"`)
     }
   }
 
