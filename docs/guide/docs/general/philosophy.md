@@ -1,5 +1,5 @@
 ---
-id: philosphy
+id: philosophy
 title: Introduction
 ---
 

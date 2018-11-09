@@ -5,6 +5,7 @@ const webpack = require('webpack')
 const path = require('path')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const CleanWebpackPlugin = require('clean-webpack-plugin')
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
 const isProduction = process.env.NODE_ENV === 'production'
 
@@ -17,8 +18,8 @@ const webConfig = {
     lite: './src/web/lite.jsx'
   },
   output: {
-    path: path.resolve(__dirname, './lib/js'),
-    publicPath: '$$BP_BASE_URL$$/js/',
+    path: path.resolve(__dirname, './public/js'),
+    publicPath: '/assets/ui-studio/public/js/',
     filename: '[name].[chunkhash].js'
   },
   resolve: {
@@ -76,13 +77,18 @@ const webConfig = {
     new CopyWebpackPlugin([
       {
         from: path.resolve(__dirname, './src/web/img'),
-        to: path.resolve(__dirname, './lib/web/img')
+        to: path.resolve(__dirname, './public/img')
       },
       {
         from: path.resolve(__dirname, './src/web/audio'),
-        to: path.resolve(__dirname, './lib/web/audio')
+        to: path.resolve(__dirname, './public/audio')
+      },
+      {
+        from: path.resolve(__dirname, './src/web/external'),
+        to: path.resolve(__dirname, './public/external')
       }
-    ])
+    ]),
+    new CleanWebpackPlugin(['public'])
   ],
   module: {
     rules: [

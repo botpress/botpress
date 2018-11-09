@@ -3,7 +3,6 @@
   "httpServer": {
     "host": "localhost",
     "port": 3000,
-    "proxyPort": 3001,
     "bodyLimit": "100kb",
     "backlog": 0,
     "cors": {
@@ -49,7 +48,7 @@
       "enabled": true
     },
     {
-      "location": "MODULES_ROOT/skill-choice",
+      "location": "MODULES_ROOT/basic-skills",
       "enabled": true
     },
     {

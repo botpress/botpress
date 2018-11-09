@@ -72,7 +72,7 @@ class StatsHeader extends React.Component {
   }
 
   fetchMetadata() {
-    this.props.axios.get('/api/ext/analytics/metadata').then(({ data }) => {
+    this.props.axios.get('/mod/analytics/metadata').then(({ data }) => {
       this.setState({ ...data })
     })
   }
@@ -118,7 +118,7 @@ export default class AnalyticsModule extends React.Component {
   componentDidMount() {
     this.unmounting = false
 
-    this.props.bp.axios.get('/api/ext/analytics/graphs').then(({ data }) => {
+    this.props.bp.axios.get('/mod/analytics/graphs').then(({ data }) => {
       if (this.unmounting) {
         return
       }

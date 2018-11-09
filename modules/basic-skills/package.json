@@ -1,13 +1,13 @@
 {
-  "name": "@botpress/skill-choice",
+  "name": "basic-skills",
   "version": "10.45.0",
   "description": "Botpress Skill that allows users to pick an option",
+  "private": true,
   "main": "dist/backend/index.js",
   "botpress": {
-    "menuText": "Choice",
-    "menuIcon": "view_module",
-    "webBundle": "bin/web.bundle.js",
-    "noInterface": true
+    "liteViews": {
+      "choice": "./src/views/choice.jsx"
+    }
   },
   "webpack": {
     "externals": {
@@ -21,19 +21,16 @@
     "build": "./node_modules/.bin/module-builder build",
     "watch": "./node_modules/.bin/module-builder watch"
   },
-  "publishConfig": {
-    "access": "public"
-  },
   "author": "Botpress Team",
   "license": "AGPL-3.0-only",
   "devDependencies": {
     "@types/node": "^10.11.0",
     "classnames": "^2.2.5",
     "react-sortable-hoc": "^0.6.8",
-    "react-tag-input": "^5.0.2"
+    "react-tag-input": "^5.0.2",
+    "module-builder": "../../build/module-builder"
   },
   "dependencies": {
-    "bluebird": "^3.4.6",
-    "module-builder": "../../build/module-builder"
+    "bluebird": "^3.4.6"
   }
 }

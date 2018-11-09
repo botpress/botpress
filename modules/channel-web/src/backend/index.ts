@@ -61,29 +61,11 @@ const defaultConfigJson = `
 }
 `
 
-const serveFile = async (filePath: string): Promise<Buffer> => {
-  filePath = filePath.toLowerCase()
-
-  const mapping = {
-    'index.js': path.join(__dirname, '../web/web.bundle.js'),
-    'embedded.js': path.join(__dirname, '../web/embedded.bundle.js'),
-    'fullscreen.js': path.join(__dirname, '../web/fullscreen.bundle.js')
-  }
-
-  // Web views
-  if (mapping[filePath]) {
-    return fs.readFileSync(mapping[filePath])
-  }
-
-  return Buffer.from('')
-}
-
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
   onServerReady,
   config,
   defaultConfigJson,
-  serveFile,
   definition: {
     name: 'channel-web',
     menuIcon: 'chrome_reader_mode',

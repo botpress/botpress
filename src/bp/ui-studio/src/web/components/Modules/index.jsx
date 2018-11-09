@@ -19,7 +19,7 @@ class ModuleComponent extends React.Component {
   renderLeftSideModule() {
     const { docLink, icon, description, author, license, title, name } = this.props.module
     const isLoaded = this.props.isLoaded
-    const iconPath = `/img/modules/${name}.png`
+    const iconPath = `/assets/modules/${name}/icon.png`
 
     const hasCustomIcon = icon === 'custom' && isLoaded
     const moduleIcon = hasCustomIcon ? (

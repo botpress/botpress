@@ -3,14 +3,14 @@ import _ from 'lodash'
 import { SDK } from '.'
 
 export default async (bp: SDK) => {
-  const router = bp.http.createRouterForBot('skill-choice')
+  const router = bp.http.createRouterForBot('basic-skills')
 
-  router.get('/config', async (req, res) => {
-    const config = await bp.config.getModuleConfigForBot('skill-choice', req.params.botId)
+  router.get('/choice/config', async (req, res) => {
+    const config = await bp.config.getModuleConfigForBot('basic-skills', req.params.botId)
     res.send(_.pick(config, ['defaultContentElement', 'defaultContentRenderer', 'defaultMaxAttempts', 'matchNumbers']))
   })
 
-  const config = await bp.config.getModuleConfig('skill-choice')
+  const config = await bp.config.getModuleConfig('basic-skills')
   const checkCategoryAvailable = async () => {
     const categories = await bp.cms.getAllContentTypes().map(c => c.id)
 

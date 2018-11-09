@@ -33,7 +33,7 @@ export default class Module extends React.Component {
   }
 
   checkSync = () => {
-    return this.props.bp.axios.get('/api/ext/nlu/sync/check').then(res => {
+    return this.props.bp.axios.get('/mod/nlu/sync/check').then(res => {
       if (this.state.syncNeeded !== res.data) {
         this.setState({ syncNeeded: res.data })
       }
@@ -45,7 +45,7 @@ export default class Module extends React.Component {
   }
 
   fetchIntents = () => {
-    return this.props.bp.axios.get('/api/ext/nlu/intents').then(res => {
+    return this.props.bp.axios.get('/mod/nlu/intents').then(res => {
       const dataToSet = { intents: res.data }
 
       if (!this.state.currentIntent) {
@@ -93,7 +93,7 @@ export default class Module extends React.Component {
     }
 
     return this.props.bp.axios
-      .post(`/api/ext/nlu/intents/${name}`, {
+      .post(`/mod/nlu/intents/${name}`, {
         utterances: [],
         entities: []
       })

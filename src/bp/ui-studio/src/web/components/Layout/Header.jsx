@@ -28,10 +28,6 @@ class Header extends React.Component {
   }
 
   renderLogoutButton() {
-    if (!window.AUTH_ENABLED) {
-      return null
-    }
-
     const url = this.props.user.avatar_url
     const label = url ? <img src={url} /> : <i className="material-icons">account_circle</i>
 

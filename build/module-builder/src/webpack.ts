@@ -1,3 +1,4 @@
+import CleanWebpackPlugin from 'clean-webpack-plugin'
 import fs from 'fs'
 import _ from 'lodash'
 import path from 'path'
@@ -12,10 +13,10 @@ export function config(projectPath) {
 
   const web: webpack.Configuration = {
     mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
-    devtool: 'source-map',
+    devtool: process.env.NODE_ENV === 'production' ? false : 'source-map',
     entry: ['./src/views/index.jsx'],
     output: {
-      path: path.resolve(projectPath, './dist/web'),
+      path: path.resolve(projectPath, './assets/web'),
       publicPath: '/js/modules/',
       filename: 'web.bundle.js',
       libraryTarget: 'assign',
@@ -32,6 +33,7 @@ export function config(projectPath) {
     resolve: {
       extensions: ['.js', '.jsx']
     },
+    plugins: [new CleanWebpackPlugin([path.resolve(projectPath, './assets/web')], { root: projectPath })],
     module: {
       rules: [
         {
@@ -88,7 +90,7 @@ export function config(projectPath) {
   const lite: webpack.Configuration = Object.assign({}, web, {
     entry: liteViews,
     output: {
-      path: path.resolve(projectPath, './dist/web'),
+      path: path.resolve(projectPath, './assets/web'),
       publicPath: '/js/lite-modules/',
       filename: '[name].bundle.js',
       libraryTarget: 'assign',

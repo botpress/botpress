@@ -36,7 +36,7 @@ export default class TemplateModule extends React.Component {
 
   async refreshContent() {
     const id = this.state.contentId
-    const res = await this.props.bp.axios.get(`/api/content/items/${id}`)
+    const res = await this.props.bp.axios.get(`/content/elements/${id}`)
     return this.onContentChanged(res.data, true)
   }
 
@@ -57,7 +57,7 @@ export default class TemplateModule extends React.Component {
   }
 
   fetchDefaultConfig = async () => {
-    const res = await this.props.bp.axios.get('/api/ext/skill-choice/config')
+    const res = await this.props.bp.axios.get('/mod/basic-skills/choice/config')
     this.setState({ defaultConfig: res.data })
   }
 

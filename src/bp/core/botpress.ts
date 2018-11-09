@@ -1,5 +1,8 @@
 import * as sdk from 'botpress/sdk'
+import { copyDir } from 'core/misc/pkg-fs'
 import { WellKnownFlags } from 'core/sdk/enums'
+import fs from 'fs'
+import fse from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import { Memoize } from 'lodash-decorators'
@@ -7,8 +10,7 @@ import moment from 'moment'
 import nanoid from 'nanoid'
 import path from 'path'
 import plur from 'plur'
-
-import ProxyUI from '../http/api'
+import { basePort } from 'portfinder'
 
 import { createForGlobalHooks } from './api'
 import { BotLoader } from './bot-loader'
@@ -53,7 +55,6 @@ export class Botpress {
     private logger: sdk.Logger,
     @inject(TYPES.GhostService) private ghostService: GhostService,
     @inject(TYPES.HTTPServer) private httpServer: HTTPServer,
-    @inject(TYPES.ProxyUI) private proxyUi: ProxyUI,
     @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
     @inject(TYPES.BotLoader) private botLoader: BotLoader,
     @inject(TYPES.HookService) private hookService: HookService,
@@ -89,9 +90,9 @@ export class Botpress {
     await this.initializeGhost()
     await this.initializeServices()
     await this.loadModules(options.modules)
+    await this.deployAssets()
     await this.startRealtime()
     await this.startServer()
-    await this.startProxy()
     await this.discoverBots()
 
     this.api = await createForGlobalHooks()
@@ -109,9 +110,26 @@ export class Botpress {
     process.JWT_SECRET = jwtSecret
   }
 
-  async discoverBots(): Promise<void> {
-    await this.botLoader.loadAllBots()
+  async deployAssets() {
+    try {
+      const assets = path.resolve(process.PROJECT_LOCATION, 'assets')
+      await copyDir(path.join(__dirname, '../ui-admin'), `${assets}/ui-admin`)
 
+      // Avoids overwriting the folder when developping locally on the studio
+      if (fse.pathExistsSync(`${assets}/ui-studio/public`)) {
+        const studioPath = await fse.lstatSync(`${assets}/ui-studio/public`)
+        if (studioPath.isSymbolicLink()) {
+          return
+        }
+      }
+
+      await copyDir(path.join(__dirname, '../ui-studio'), `${assets}/ui-studio`)
+    } catch (err) {
+      this.logger.attachError(err).error('Error deploying assets')
+    }
+  }
+
+  async discoverBots(): Promise<void> {
     const botIds = await this.botLoader.getAllBotIds()
     for (const bot of botIds) {
       await this.botLoader.mountBot(bot)
@@ -177,10 +195,6 @@ export class Botpress {
 
   private async startServer() {
     await this.httpServer.start()
-  }
-
-  private async startProxy() {
-    await this.proxyUi.start()
     this.lifecycle.setDone(AppLifecycleEvents.HTTP_SERVER_READY)
   }
 

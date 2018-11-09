@@ -1,7 +1,8 @@
 {
-  "name": "@botpress/broadcast",
+  "name": "broadcast",
   "version": "10.43.0",
   "description": "Broadcast messages to all (or a subset) of your users",
+  "private": true,
   "main": "dist/backend/index.js",
   "scripts": {
     "build": "./node_modules/.bin/module-builder build",

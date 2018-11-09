@@ -74,7 +74,7 @@ class ActionItem extends Component {
     }
 
     const item = this.props.items[this.state.itemId]
-    const textContent = (item && `${item.categoryTitle} | ${item.previewText}`) || ''
+    const textContent = (item && `${item.schema && item.schema.title} | ${item.previewText}`) || ''
     const vars = {}
 
     const stripDots = str => str.replace(/\./g, '--dot--')
@@ -103,4 +103,7 @@ class ActionItem extends Component {
 const mapStateToProps = state => ({ items: state.content.itemsById })
 const mapDispatchToProps = { fetchContentItem, refreshFlowsLinks }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ActionItem)
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ActionItem)

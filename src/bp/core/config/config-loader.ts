@@ -26,7 +26,6 @@ export class GhostConfigProvider implements ConfigProvider {
     const config = await this.getConfig<BotpressConfig>('botpress.config.json')
 
     config.httpServer.host = process.env.BP_HOST || config.httpServer.host
-    config.httpServer.proxyPort = process.env.PORT ? parseInt(process.env.PORT) : config.httpServer.proxyPort
     config.database.type = process.env.DATABASE ? <DatabaseType>process.env.DATABASE : config.database.type
     config.database.url = process.env.DATABASE_URL ? process.env.DATABASE_URL : config.database.url
 
@@ -55,9 +54,15 @@ export class GhostConfigProvider implements ConfigProvider {
       let content: string
 
       if (botId) {
-        content = await this.ghostService.forBot(botId).readFileAsString('/', fileName)
+        content = await this.ghostService
+          .forBot(botId)
+          .readFileAsString('/', fileName)
+          .catch(_err => this.ghostService.forBot(botId, false).readFileAsString('/', fileName))
       } else {
-        content = await this.ghostService.global().readFileAsString('/', fileName)
+        content = await this.ghostService
+          .global()
+          .readFileAsString('/', fileName)
+          .catch(_err => this.ghostService.global(false).readFileAsString('/', fileName))
       }
 
       if (!content) {

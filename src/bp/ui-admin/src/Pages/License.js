@@ -61,7 +61,7 @@ class BuyPage extends React.Component {
   async refreshKey() {
     await api
       .getSecured()
-      .post('api/license/refresh', {
+      .post('/admin/license/refresh', {
         licenseKey: this.state.licenseKey
       })
       .then(() => this.props.fetchLicensing())

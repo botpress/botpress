@@ -48,7 +48,7 @@ class ProfileUpdate extends Component {
   }
 
   async updateProfile() {
-    await api.getSecured().post('api/auth/me/profile', {
+    await api.getSecured().post('/auth/me/profile', {
       firstname: this.state.firstName,
       lastname: this.state.lastName
     })

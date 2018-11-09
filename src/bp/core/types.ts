@@ -7,7 +7,6 @@ const TYPES = {
   ModuleLoader: Symbol.for('ModuleLoader'),
   Botpress: Symbol.for('Botpress'),
   HTTPServer: Symbol.for('HTTPServer'),
-  ProxyUI: Symbol.for('ProxyUI'),
   ConfigProvider: Symbol.for('ConfigProvider'),
   BotRepository: Symbol.for('BotRepository'),
   ProjectLocation: Symbol.for('ProjectLocation'),

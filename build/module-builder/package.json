@@ -47,6 +47,7 @@
     "@types/mkdirp": "^0.5.2",
     "@types/rimraf": "^2.0.2",
     "@types/webpack": "^4.4.12",
-    "babel-plugin-search-and-replace": "^0.3.0"
+    "babel-plugin-search-and-replace": "^0.3.0",
+    "clean-webpack-plugin": "^0.1.19"
   }
 }

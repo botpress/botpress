@@ -34,21 +34,6 @@ const onBotUnmount = async (bp: SDK, botId: string) => {
   botScopedNlu.delete(botId)
 }
 
-const serveFile = async (filePath: string): Promise<Buffer> => {
-  filePath = filePath.toLowerCase()
-
-  const mapping = {
-    'index.js': path.join(__dirname, '../web/web.bundle.js')
-  }
-
-  // Web views
-  if (mapping[filePath]) {
-    return fs.readFileSync(mapping[filePath])
-  }
-
-  return Buffer.from('')
-}
-
 const defaultConfigJson = `
 {
   "intentsDir": "./intents",
@@ -111,7 +96,6 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onBotUnmount,
   config,
   defaultConfigJson,
-  serveFile,
   definition: {
     name: 'nlu',
     moduleView: {

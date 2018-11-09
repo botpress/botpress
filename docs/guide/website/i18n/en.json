@@ -11,7 +11,7 @@
       "general/licensing": {
         "title": "Licenses"
       },
-      "general/philosphy": {
+      "general/philosophy": {
         "title": "Introduction"
       },
       "getting_started/actions": {
@@ -70,6 +70,9 @@
       },
       "modules/install": {
         "title": "Installation"
+      },
+      "modules/skill_creation": {
+        "title": "Skill creation"
       },
       "modules/views": {
         "title": "Views"
