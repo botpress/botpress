@@ -30,6 +30,7 @@ phases:
       # Docker setup
       - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
       - echo "Edition = '$EDITION'"
+      - chmod +x ./build/codebuild-extras.sh
       - $(./build/codebuild-extras.sh)
       - echo "BUILDING FOR '$ARTIFACT_NAME' edition '$EDITION'"
       - yarn install
