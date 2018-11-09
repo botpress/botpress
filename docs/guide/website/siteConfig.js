@@ -17,10 +17,14 @@ const siteConfig = {
   projectName: 'botpress-docs',
   organizationName: 'botpress',
 
-  // TODO: Enable search once the site is up: https://docusaurus.io/docs/en/search
+  algolia: {
+    apiKey: '570227d66d130d069630e7226c740158',
+    indexName: 'botpress'
+  },
+
   headerLinks: [
     { doc: 'general/philosophy', label: 'Docs' },
-    { href: '/docs/10.50', label: 'Botpress 10.x Docs' },
+    { href: '/docs/10.50', label: '10.x Docs' },
     { href: 'https://help.botpress.io/', label: 'Help' },
     { href: 'reference/', label: 'API' },
     { href: 'https://github.com/botpress', label: 'Github' },

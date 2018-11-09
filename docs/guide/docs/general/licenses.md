@@ -3,7 +3,7 @@ id: licensing
 title: Licenses
 ---
 
-Botpress comes in 2 different flavors: Community and Professionnal
+Botpress comes in 2 different flavors: Community and Professionnal!!!
 
 ## Community
 

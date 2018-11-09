@@ -28,7 +28,7 @@ phases:
       - aws s3 sync docs/guide/website/build/botpress-docs/ s3://botpress-docs/$PACKAGE_VERSION
       - aws s3 sync docs/reference/ s3://botpress-docs/$PACKAGE_VERSION/reference
 
-      - > # Get all versions from S3 directory and put them into a "versions.txt" file
+      - > # Get all versions from S3 directory and put them into a "versions.json" file
         aws s3 ls s3://botpress-docs/ --recursive 
         | grep -Eio '\s([0-9.A-Za-z]+)\/index\.html' 
         | sed 's!/index.html!!g' > versions.txt
