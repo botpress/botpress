@@ -5,23 +5,8 @@ import mapValues from 'lodash/mapValues'
 
 import { downloadBlob } from '~/util'
 
-const transformData = data => mapValues(data, entries => groupBy(entries, 'file'))
+const transformData = data => mapValues(data, entries => groupBy(entries, 'path'))
 
-/*const body = JSON.parse(proxyResData)
-          return _.mapValues(body, (revisions, folder) => {
-            return (
-              revisions &&
-              revisions.map(revision => {
-                const rpath = revision.path
-                const sfolder = path.sep + folder + path.sep
-                const file = rpath.substr(rpath.indexOf(sfolder) + sfolder.length)
-                return {
-                  ...revision,
-                  file
-                }
-              })
-            )
-          })*/
 export const fetchStatus = () =>
   axios.get(`${window.BOT_API_PATH}/versioning/pending`).then(({ data }) => {
     return transformData(data)

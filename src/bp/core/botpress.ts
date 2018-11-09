@@ -130,8 +130,6 @@ export class Botpress {
   }
 
   async discoverBots(): Promise<void> {
-    await this.botLoader.loadAllBots()
-
     const botIds = await this.botLoader.getAllBotIds()
     for (const bot of botIds) {
       await this.botLoader.mountBot(bot)

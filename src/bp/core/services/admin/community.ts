@@ -147,7 +147,7 @@ export class CommunityAdminService implements AdminService {
     const botConfig = this.botConfigFactory.createDefault({ id: bot.id, name: bot.name })
     await this.botConfigWriter.writeToFile(botConfig)
 
-    await this.botLoader.mountBot(bot.id, true)
+    await this.botLoader.mountBot(bot.id)
   }
 
   async deleteBot(teamId: number, botId: string) {

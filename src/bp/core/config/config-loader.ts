@@ -54,9 +54,15 @@ export class GhostConfigProvider implements ConfigProvider {
       let content: string
 
       if (botId) {
-        content = await this.ghostService.forBot(botId).readFileAsString('/', fileName)
+        content = await this.ghostService
+          .forBot(botId)
+          .readFileAsString('/', fileName)
+          .catch(_err => this.ghostService.forBot(botId, false).readFileAsString('/', fileName))
       } else {
-        content = await this.ghostService.global().readFileAsString('/', fileName)
+        content = await this.ghostService
+          .global()
+          .readFileAsString('/', fileName)
+          .catch(_err => this.ghostService.global(false).readFileAsString('/', fileName))
       }
 
       if (!content) {
