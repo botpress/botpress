@@ -12,15 +12,15 @@
   "dependencies": {
     "bluebird": "^3.4.6",
     "eventemitter2": "^2.1.3",
-    "lodash": "^4.16.6",
+    "lodash": "^4.17.11",
     "moment": "^2.15.2"
   },
   "devDependencies": {
     "@types/node": "^10.11.0",
     "classnames": "^2.2.5",
     "module-builder": "../../build/module-builder",
+    "nanoid": "^2.0.0",
     "react-select": "^1.2.0",
-    "recharts": "^1.0.0-beta.10",
-    "nanoid": "^2.0.0"
+    "recharts": "1.0.0"
   }
 }
