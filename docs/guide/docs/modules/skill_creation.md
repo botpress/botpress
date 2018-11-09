@@ -34,19 +34,7 @@ Open the file `package.json` of your module, and add this snippet of code. Chang
   },
 ```
 
-This tells the `module-builder` to create a bundle with your interface. We still need to tell him how to handle requests for the view.
-
-## Serving the bundle
-
-Here we need a way to return the bundle when the GUI is requested for that skill. Open your `index.ts` file, and add the mappings in the `serveFile` directive.
-
-```js
-const mapping = {
-  'index.js': path.join(__dirname, '../web/web.bundle.js'),
-  '$ID_OF_SKILL.js': path.join(__dirname, '../web/$ID_OF_SKILL.bundle.js'),
-  '$ID_OF_SKILL2.js': path.join(__dirname, '../web/$ID_OF_SKILL2.bundle.js')
-}
-```
+This tells the `module-builder` to create a bundle with your interface. The bundles will be available at `/assets/modules/$YOUR_MODULE/web/$ID_OF_SKILL.bundle.js`
 
 ## Creating the flow generator
 

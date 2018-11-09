@@ -43,7 +43,6 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onBotUnmount,
   config,
   defaultConfigJson,
-  serveFile,
   definition: {
     name: 'my-module',
     menuIcon: 'some-icon',
@@ -125,10 +124,6 @@ const { apiKey } = await bp.config.getModuleConfigForBot('mymodule', botId)
 ### defaultConfigJson
 
 When your module is run for the first time, this configuration will be copied in the configuration file. It will be deprecated in the future, to use the config defined earlier.
-
-### serveFile
-
-Tells Botpress what web bundle to serve to the user when a page is requested. [Read more abour views](./views)
 
 ### flowGenerator
 

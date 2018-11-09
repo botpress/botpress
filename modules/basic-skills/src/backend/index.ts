@@ -25,22 +25,6 @@ const skillsToRegister: sdk.Skill[] = [
   }
 ]
 
-const serveFile = async (filePath: string): Promise<Buffer> => {
-  filePath = filePath.toLowerCase()
-
-  const mapping = {
-    'index.js': path.join(__dirname, '../web/web.bundle.js'),
-    'choice.js': path.join(__dirname, '../web/choice.bundle.js')
-  }
-
-  // Web views
-  if (mapping[filePath]) {
-    return fs.readFileSync(mapping[filePath])
-  }
-
-  return new Buffer('')
-}
-
 const config: sdk.ModuleConfig = {
   defaultContentElement: {
     type: 'string',
@@ -76,7 +60,6 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onServerReady,
   config,
   defaultConfigJson,
-  serveFile: serveFile,
   definition: {
     name: 'basic-skills',
     menuIcon: 'fiber_smart_record',

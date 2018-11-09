@@ -17,20 +17,6 @@ export class ModulesRouter implements CustomRouter {
       res.json(this.moduleLoader.getLoadedModules())
     })
 
-    this.router.get('/:moduleName/files', async (req, res, next) => {
-      const { path: filePath } = req.query
-
-      if (!filePath) {
-        return next(new Error('Expected a file "path" defined'))
-      }
-
-      try {
-        res.send(await this.moduleLoader.getModuleFile(req.params.moduleName, filePath))
-      } catch (err) {
-        next(err)
-      }
-    })
-
     this.router.get('/skills', async (req, res, next) => {
       try {
         res.send(await this.moduleLoader.getAllSkills())

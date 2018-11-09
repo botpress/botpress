@@ -20,7 +20,6 @@ const MODULE_SCHEMA = joi.object().keys({
   onBotUnmount: joi.func().optional(),
   config: joi.object().optional(),
   defaultConfigJson: joi.string().optional(),
-  serveFile: joi.func().optional(),
   skills: joi.array().optional(),
   definition: joi.object().keys({
     name: joi.string().required(),
@@ -202,16 +201,6 @@ export class ModuleLoader {
   public getLoadedModules(): ModuleDefinition[] {
     const definitions = Array.from(this.entryPoints.values()).map(x => x.definition)
     return definitions
-  }
-
-  public getModuleFile(module: string, path: string): Promise<Buffer> {
-    const def = this.getModule(module)!
-
-    if (typeof def.serveFile !== 'function') {
-      throw new Error(`Module '${module} does not support serving files'`)
-    }
-
-    return def.serveFile!(path)
   }
 
   public async getFlowGenerator(moduleName, skillId) {

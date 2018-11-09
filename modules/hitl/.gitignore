@@ -1,4 +1,5 @@
 /bin
 /node_modules
 /dist
+/assets/web/
 botpress.d.ts
