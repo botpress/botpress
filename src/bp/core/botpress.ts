@@ -1,5 +1,7 @@
 import * as sdk from 'botpress/sdk'
+import { copyDir } from 'core/misc/pkg-fs'
 import { WellKnownFlags } from 'core/sdk/enums'
+import fs from 'fs'
 import fse from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
@@ -8,6 +10,7 @@ import moment from 'moment'
 import nanoid from 'nanoid'
 import path from 'path'
 import plur from 'plur'
+import { basePort } from 'portfinder'
 
 import { createForGlobalHooks } from './api'
 import { BotLoader } from './bot-loader'
@@ -108,18 +111,22 @@ export class Botpress {
   }
 
   async deployAssets() {
-    const assets = path.resolve(process.PROJECT_LOCATION, 'assets')
-    fse.copySync(path.join(__dirname, '../ui-admin'), `${assets}/ui-admin`)
+    try {
+      const assets = path.resolve(process.PROJECT_LOCATION, 'assets')
+      await copyDir(path.join(__dirname, '../ui-admin'), `${assets}/ui-admin`)
 
-    // Avoids overwriting the folder when developping locally on the studio
-    if (fse.pathExistsSync(`${assets}/ui-studio/public`)) {
-      const studioPath = await fse.lstatSync(`${assets}/ui-studio/public`)
-      if (studioPath.isSymbolicLink()) {
-        return
+      // Avoids overwriting the folder when developping locally on the studio
+      if (fse.pathExistsSync(`${assets}/ui-studio/public`)) {
+        const studioPath = await fse.lstatSync(`${assets}/ui-studio/public`)
+        if (studioPath.isSymbolicLink()) {
+          return
+        }
       }
-    }
 
-    fse.copySync(path.join(__dirname, '../ui-studio'), `${assets}/ui-studio`)
+      await copyDir(path.join(__dirname, '../ui-studio'), `${assets}/ui-studio`)
+    } catch (err) {
+      this.logger.attachError(err).error('Error deploying assets')
+    }
   }
 
   async discoverBots(): Promise<void> {
