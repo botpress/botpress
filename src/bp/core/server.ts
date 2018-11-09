@@ -69,7 +69,7 @@ export default class HTTPServer {
 
     this.httpServer = createServer(this.app)
 
-    this.modulesRouter = new ModulesRouter(moduleLoader, skillService)
+    this.modulesRouter = new ModulesRouter(this.logger, moduleLoader, skillService)
     this.authRouter = new AuthRouter(this.logger, this.authService, this.adminService)
     this.adminRouter = new AdminRouter(this.logger, this.authService, this.adminService, licenseService)
     this.shortlinksRouter = new ShortLinksRouter()
