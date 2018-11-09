@@ -38,16 +38,17 @@
   "scripts": {
     "build-css": "node-sass-chokidar src/ -o src/",
     "watch-css": "npm run build-css && node-sass-chokidar src/ -o src/ --watch --recursive",
-    "start-js": "cross-env BROWSER=none react-scripts start",
+    "start-js": "cross-env BROWSER=none react-app-rewired start",
     "start": "cross-env PUBLIC_URL=/admin npm-run-all -p watch-css start-js",
     "start:dev": "cross-env PUBLIC_URL=/admin cross-env REACT_APP_API_URL=http://localhost:3001 cross-env PORT=3002 npm-run-all -p watch-css start-js",
-    "build-js": "react-scripts build",
+    "build-js": "react-app-rewired build",
     "build": "cross-env PUBLIC_URL=/admin npm-run-all build-css build-js",
-    "test": "react-scripts test --env=jsdom",
+    "test": "react-app-rewired test --env=jsdom",
     "eject": "react-scripts eject"
   },
   "devDependencies": {
-    "cross-env": "^5.2.0"
+    "cross-env": "^5.2.0",
+    "react-app-rewired": "^1.6.2"
   },
   "browserslist": [
     ">0.2%",

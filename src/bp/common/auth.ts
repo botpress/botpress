@@ -1,5 +1,3 @@
-export { RESOURCES, enrichResources, Operation, Resource } from './resources'
-
 export const resourceMatches = (pattern: string, res: string) => {
   const separator = /[\/\.]/
   pattern = pattern || ''
