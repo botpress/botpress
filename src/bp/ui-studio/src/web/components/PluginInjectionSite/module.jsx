@@ -55,17 +55,12 @@ export default class InjectedModuleView extends React.Component {
   }
 
   setViewInState(moduleName, viewName, isLite) {
-    const lookupNames =
-      moduleName.startsWith('@botpress/') || moduleName.startsWith('botpress-')
-        ? [moduleName]
-        : ['@botpress/' + moduleName, 'botpress-' + moduleName]
-
     const viewResolve = name => {
       const prop = isLite ? 'default' : viewName
       return window.botpress && window.botpress[name] && window.botpress[name][prop]
     }
 
-    const module = viewResolve(lookupNames.find(viewResolve))
+    const module = viewResolve(moduleName)
 
     if (!module) {
       this.setState({

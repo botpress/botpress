@@ -1,7 +1,8 @@
 {
-  "name": "@botpress/basic-skills",
+  "name": "basic-skills",
   "version": "10.45.0",
   "description": "Botpress Skill that allows users to pick an option",
+  "private": true,
   "main": "dist/backend/index.js",
   "botpress": {
     "liteViews": {
