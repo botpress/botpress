@@ -1,0 +1,48 @@
+{
+  "version-11.0.0-docs": {
+    "General": [
+      "version-11.0.0-general/welcome",
+      "version-11.0.0-general/philosophy",
+      "version-11.0.0-general/botpressxx",
+      "version-11.0.0-general/licensing"
+    ],
+    "Getting Started": [
+      "version-11.0.0-getting_started/index",
+      "version-11.0.0-getting_started/install",
+      "version-11.0.0-getting_started/components",
+      "version-11.0.0-getting_started/content",
+      "version-11.0.0-getting_started/flows",
+      "version-11.0.0-getting_started/actions",
+      "version-11.0.0-getting_started/storage",
+      "version-11.0.0-getting_started/skills",
+      "version-11.0.0-getting_started/nlu",
+      "version-11.0.0-getting_started/hooks",
+      "version-11.0.0-getting_started/changes"
+    ],
+    "Modules": [
+      "version-11.0.0-modules/install",
+      "version-11.0.0-modules/create",
+      "version-11.0.0-modules/build",
+      "version-11.0.0-modules/api-endpoint",
+      "version-11.0.0-modules/views",
+      "version-11.0.0-modules/actions",
+      "version-11.0.0-modules/database",
+      "version-11.0.0-modules/skill_creation",
+      "version-11.0.0-modules/example"
+    ],
+    "Recipes": [
+      "version-11.0.0-recipes/index",
+      "version-11.0.0-recipes/analytics",
+      "version-11.0.0-recipes/apis",
+      "version-11.0.0-recipes/carousel",
+      "version-11.0.0-recipes/databases",
+      "version-11.0.0-recipes/embedding",
+      "version-11.0.0-recipes/hitl",
+      "version-11.0.0-recipes/i18n",
+      "version-11.0.0-recipes/jumps",
+      "version-11.0.0-recipes/proactive",
+      "version-11.0.0-recipes/shortlinks",
+      "version-11.0.0-recipes/timeout"
+    ]
+  }
+}
