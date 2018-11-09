@@ -15,7 +15,7 @@ import Knex from 'knex'
 import _ from 'lodash'
 import nanoid from 'nanoid'
 
-import { InvalidOperationError, UnauthorizedAccessError } from '../auth/errors'
+import { InvalidOperationError, NotFoundError, UnauthorizedAccessError } from '../auth/errors'
 
 import communityRoles from './community-roles'
 import { FeatureNotAvailableError } from './errors'
@@ -30,13 +30,18 @@ export class CommunityAdminService implements AdminService {
   protected botsTable = 'srv_bots'
   protected ROOT_ADMIN_ID = 1
 
-  protected botValidationSchema = Joi.object().keys({
+  protected botCreationSchema = Joi.object().keys({
     id: Joi.string()
       .regex(BOTID_REGEX)
       .required(),
     name: Joi.string().required(),
     description: Joi.string(),
     team: Joi.number().required()
+  })
+
+  protected botEditSchema = Joi.object().keys({
+    name: Joi.string().required(),
+    description: Joi.string().required()
   })
 
   private edition = process.BOTPRESS_EDITION
@@ -138,7 +143,7 @@ export class CommunityAdminService implements AdminService {
   async addBot(teamId: number, bot: Bot): Promise<void> {
     this.stats.track('api', 'admin', 'addBot')
     bot.team = teamId
-    const { error } = Joi.validate(bot, this.botValidationSchema)
+    const { error } = Joi.validate(bot, this.botCreationSchema)
     if (error) {
       throw new InvalidParameterError(`An error occurred while creating the bot: ${error.message}`)
     }
@@ -149,15 +154,24 @@ export class CommunityAdminService implements AdminService {
     await this.botLoader.mountBot(bot.id, true)
   }
 
-  async updateBot(bot: Bot): Promise<void> {
+  async updateBot(teamId: number, botId: string, bot: Bot): Promise<void> {
     this.stats.track('api', 'admin', 'updateBot')
 
-    // TODO: Activate ghost here
+    const actualBot = await this.getBot({ id: botId, team: teamId })
+    if (!actualBot) {
+      throw new UnauthorizedAccessError(`Team "${teamId}" could not access bot "${botId}"`)
+    }
+
+    const { error } = Joi.validate(bot, this.botEditSchema)
+    if (error) {
+      throw new InvalidParameterError(`An error occurred while updating the bot: ${error.message}`)
+    }
 
     await this.knex(this.botsTable)
-      .where({ id: bot.id })
+      .where({ id: botId, team: teamId })
       .update({
-        production: bot.production,
+        name: bot.name,
+        description: bot.description,
         updated_at: this.knex.date.now()
       })
   }

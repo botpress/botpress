@@ -66,7 +66,6 @@ export interface Bot {
   id: string
   name: string
   team: number
-  production: boolean
   description: string
   created_at: string
   updated_at: string

@@ -243,18 +243,19 @@ export class TeamsRouter implements CustomRouter {
     )
 
     router.put(
-      '/:teamId/bots', // Update bot
+      '/:teamId/bots/:botId', // Update bot
       this.asyncMiddleware(async (req, res) => {
-        const { teamId } = req.params
+        const { teamId, botId } = req.params
         const bot = <Bot>req.body
         const userId = req.dbUser.id
+
         await svc.assertUserMember(userId, teamId)
         await svc.assertUserPermission(userId, teamId, 'admin.team.bots', 'write')
-        await svc.updateBot(bot)
+        await svc.updateBot(teamId, botId, bot)
 
         return sendSuccess(res, 'Updated bot', {
-          botId: bot.id,
-          teamId: teamId
+          botId,
+          teamId
         })
       })
     )

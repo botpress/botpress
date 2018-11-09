@@ -40,16 +40,6 @@ export const success = (res: Response, message: string = 'Success', payload = {}
   })
 }
 
-export const error = (res: Response, status = 400, code?: string, message?: string, docs?: string) => {
-  res.status(status).json({
-    status: 'error',
-    type: 'Error',
-    code: code || status,
-    message: message || 'Unknown error',
-    docs: docs || 'https://botpress.io/docs'
-  })
-}
-
 export const checkTokenHeader = (authService: AuthService, audience?: string) => async (
   req: RequestWithUser,
   res: Response,
