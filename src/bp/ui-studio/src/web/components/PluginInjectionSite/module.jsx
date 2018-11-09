@@ -37,12 +37,14 @@ export default class InjectedModuleView extends React.Component {
         })
       }
 
-      let path = (isLite && subView) || 'index.js'
+      let path = (isLite && subView) || 'web.js'
       if (!path.endsWith('.js')) {
-        path = path + '.js'
+        path = path + '.bundle.js'
+      } else {
+        path = path.replace('.js', '.bundle.js')
       }
 
-      script.src = `${window.API_PATH}/modules/${moduleName}/files?path=${path}`
+      script.src = `/assets/modules/${moduleName}/web/${path}`
       document.getElementsByTagName('head')[0].appendChild(script)
     } else {
       this.setState({ moduleComponent: null })

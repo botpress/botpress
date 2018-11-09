@@ -84,8 +84,6 @@ declare module 'botpress/sdk' {
     config: ModuleConfig
     /** This is used to create the json config file if none is present */
     defaultConfigJson?: string
-    /** Used to expose the JS files for the frontend */
-    serveFile?: ((path: string) => Promise<Buffer>)
     /** Additional metadata about the module */
     definition: ModuleDefinition
     /** An array of the flow generators used by skills in the module */

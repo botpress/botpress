@@ -45,26 +45,10 @@ const onServerReady = async (bp: typeof sdk & Extension) => {
   await api(bp, db)
 }
 
-const serveFile = async (filePath: string): Promise<Buffer> => {
-  filePath = filePath.toLowerCase()
-
-  const mapping = {
-    'index.js': path.join(__dirname, '../web/web.bundle.js')
-  }
-
-  // Web views
-  if (mapping[filePath]) {
-    return fs.readFileSync(mapping[filePath])
-  }
-
-  return Buffer.from('')
-}
-
 const obj: sdk.ModuleEntryPoint = {
   onServerStarted,
   onServerReady,
   config: {},
-  serveFile,
   definition: {
     name: 'scheduler',
     menuIcon: 'alarm_on',
