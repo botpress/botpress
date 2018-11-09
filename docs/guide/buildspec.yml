@@ -14,7 +14,7 @@ phases:
   build:
     commands:
       - yarn build:reference
-      - node build/docs/set_docusaurus_url.js "/docs"
+      - node build/docs/set_docusaurus_url.js "/docs/"
       - yarn build:guide
 
       # Build doc for the current version number
