@@ -92,15 +92,15 @@ const GuideCards = () => (
     {[
       {
         content: 'Find all the code references you need in this always up-to-date API Reference.',
-        title: '<a href="reference/">📘 API Reference</a>'
+        title: '<a href="/docs/reference">📘 API Reference</a>'
       },
       {
         content: 'New to Botpress? This step-by-step tutorial will get you up and running quickly.',
-        title: '<a href="docs/general/philosophy">🚀 Getting Started</a>'
+        title: '<a href="/docs/general/philosophy">🚀 Getting Started</a>'
       },
       {
         content: 'Guides and examples solving typical issues you may run into.',
-        title: '<a href="recipes/">💡 Recipes</a>'
+        title: '<a href="/docs/recipes">💡 Recipes</a>'
       }
     ]}
   </Block>
