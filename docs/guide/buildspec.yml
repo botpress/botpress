@@ -20,16 +20,7 @@ phases:
       - aws s3 sync docs/guide/website/build/botpress-docs s3://botpress-docs/
 
       # Reference for both current version from package.json but also branch name / latest
-      - aws s3 sync docs/reference/ s3://botpress-docs/docs/$PACKAGE_VERSION/reference
-      - aws s3 sync .github s3://botpress-docs/docs/$PACKAGE_VERSION/reference/.github
-
-      - export PACKAGE_VERSION=$(if [ -z ${GITHUB_BRANCH+x} ]; then echo "latest"; else echo "$GITHUB_BRANCH"; fi)
-      - aws s3 sync docs/reference/ s3://botpress-docs/docs/$PACKAGE_VERSION/reference
-      - aws s3 sync .github s3://botpress-docs/docs/$PACKAGE_VERSION/reference/.github
-
-      - > # Get all versions from S3 directory and put them into a "versions.json" file
-        aws s3 ls s3://botpress-docs/ --recursive 
-        | grep -Eio '\s([0-9.A-Za-z]+)\/index\.html' 
-        | sed 's!/index.html!!g' > versions.txt
-      - node build/docs/versions_builder.js > available_versions.json
-      - aws s3 cp available_versions.json s3://botpress-docs/
+      - aws s3 sync docs/reference/ s3://botpress-reference/
+      - aws s3 sync docs/reference/ s3://botpress-reference/$PACKAGE_VERSION
+      - aws s3 sync .github s3://botpress-reference/.github
+      - aws s3 sync .github s3://botpress-reference/$PACKAGE_VERSION/.github
