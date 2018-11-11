@@ -22,7 +22,7 @@ When you then resume the conversation, the bot will start from the beginning.
 
 ## Receive event when a user timeout
 
-There is a [hook](../getting_started/hooks) that is called before the user's session timeouts.
+There is a [hook](../learn/hooks) that is called before the user's session timeouts.
 
 ## Performing actions on timeout
 

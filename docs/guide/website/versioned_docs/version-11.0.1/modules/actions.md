@@ -1,6 +1,7 @@
 ---
-id: actions
+id: version-11.0.1-actions
 title: Actions
+original_id: actions
 ---
 
 Actions are javascript snippets that are called by the Dialog Engine when an action is present on the node. All actions are executed in a virtual machine to prevent it to bring the bot down should there be a scripting error. Actions are discussed more thoroughly in the [getting started page](../learn/actions)

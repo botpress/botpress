@@ -5,49 +5,43 @@
     "previous": "Previous",
     "tagline": "Guides and references for all you need to know about Botpress",
     "docs": {
-      "general/botpressxx": {
-        "title": "Migration to Botpress XX"
-      },
-      "general/licensing": {
-        "title": "Licenses"
-      },
-      "general/philosophy": {
-        "title": "Introduction"
-      },
-      "getting_started/actions": {
-        "title": "Actions"
-      },
-      "getting_started/changes": {
-        "title": "Changes"
-      },
-      "getting_started/components": {
-        "title": "Components"
-      },
-      "getting_started/content": {
-        "title": "Content"
-      },
-      "getting_started/deploying": {
-        "title": "Deploying"
-      },
-      "getting_started/flows": {
-        "title": "Flows"
-      },
-      "getting_started/hooks": {
-        "title": "Hooks"
-      },
-      "getting_started/index": {
-        "title": "What you will learn"
-      },
-      "getting_started/install": {
+      "install": {
         "title": "Installation"
       },
-      "getting_started/nlu": {
+      "introduction": {
+        "title": "Introduction"
+      },
+      "learn/actions": {
+        "title": "Actions"
+      },
+      "learn/changes": {
+        "title": "Changes"
+      },
+      "learn/components": {
+        "title": "Components"
+      },
+      "learn/content": {
+        "title": "Content"
+      },
+      "learn/deploying": {
+        "title": "Deploying"
+      },
+      "learn/flows": {
+        "title": "Flows"
+      },
+      "learn/hooks": {
+        "title": "Hooks"
+      },
+      "learn/index": {
+        "title": "What you will learn"
+      },
+      "learn/nlu": {
         "title": "NLU"
       },
-      "getting_started/skills": {
+      "learn/skills": {
         "title": "Skills"
       },
-      "getting_started/storage": {
+      "learn/storage": {
         "title": "Storage"
       },
       "modules/actions": {
@@ -112,6 +106,9 @@
       },
       "recipes/timeout": {
         "title": "Timeout"
+      },
+      "release-notes": {
+        "title": "Migrating from 10.X"
       },
       "version-11.0.0-botpressxx": {
         "title": "Migration to Botpress XX"
@@ -216,24 +213,110 @@
         "title": "Actions"
       },
       "version-11.0.1-index": {
-        "title": "What you will learn"
+        "title": "What are they?"
       },
       "version-11.0.1-install": {
         "title": "Installation"
+      },
+      "version-11.0.1-introduction": {
+        "title": "Introduction"
+      },
+      "version-11.0.1-changes": {
+        "title": "Changes"
+      },
+      "version-11.0.1-components": {
+        "title": "Components"
+      },
+      "version-11.0.1-content": {
+        "title": "Content"
+      },
+      "version-11.0.1-deploying": {
+        "title": "Deploying"
+      },
+      "version-11.0.1-flows": {
+        "title": "Flows"
+      },
+      "version-11.0.1-hooks": {
+        "title": "Hooks"
+      },
+      "version-11.0.1-nlu": {
+        "title": "NLU"
+      },
+      "version-11.0.1-skills": {
+        "title": "Skills"
+      },
+      "version-11.0.1-storage": {
+        "title": "Storage"
+      },
+      "version-11.0.1-api-endpoint": {
+        "title": "API endpoint"
+      },
+      "version-11.0.1-build": {
+        "title": "Building"
+      },
+      "version-11.0.1-create": {
+        "title": "Creation"
+      },
+      "version-11.0.1-database": {
+        "title": "Database"
+      },
+      "version-11.0.1-example": {
+        "title": "Example"
+      },
+      "version-11.0.1-skill_creation": {
+        "title": "Skill creation"
+      },
+      "version-11.0.1-views": {
+        "title": "Views"
+      },
+      "version-11.0.1-analytics": {
+        "title": "Analytics"
+      },
+      "version-11.0.1-apis": {
+        "title": "Using external APIs"
+      },
+      "version-11.0.1-carousel": {
+        "title": "Carousel"
+      },
+      "version-11.0.1-databases": {
+        "title": "Supported databases"
+      },
+      "version-11.0.1-embedding": {
+        "title": "Embedding the Webchat on a website"
+      },
+      "version-11.0.1-hitl": {
+        "title": "HITL (Human-in-the-loop)"
+      },
+      "version-11.0.1-i18n": {
+        "title": "i18n"
+      },
+      "version-11.0.1-jumps": {
+        "title": "Jump to"
+      },
+      "version-11.0.1-proactive": {
+        "title": "Proactive acting"
+      },
+      "version-11.0.1-shortlinks": {
+        "title": "Shortlinks"
+      },
+      "version-11.0.1-timeout": {
+        "title": "Timeout"
+      },
+      "version-11.0.1-release-notes": {
+        "title": "Migrating from 10.X"
       }
     },
     "links": {
       "Docs": "Docs",
-      "10.x Docs": "10.x Docs",
-      "Help": "Help",
-      "API": "API",
+      "SDK": "SDK",
       "Github": "Github"
     },
     "categories": {
-      "General": "General",
       "Getting Started": "Getting Started",
+      "Learn": "Learn",
       "Modules": "Modules",
-      "Recipes": "Recipes"
+      "Recipes": "Recipes",
+      "General": "General"
     }
   },
   "pages-strings": {

@@ -1,6 +1,7 @@
 ---
-id: timeout
+id: version-11.0.1-timeout
 title: Timeout
+original_id: timeout
 ---
 
 Occasionally a user may leave a conversation with your bot part way through the interaction, leaving it in an unwanted state.

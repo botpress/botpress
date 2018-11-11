@@ -1,14 +1,14 @@
 ---
-id: version-11.0.0-botpressxx
-title: Migration to Botpress XX
-original_id: botpressxx
+id: version-11.0.1-release-notes
+title: Migrating from 10.X
+original_id: release-notes
 ---
 
 ## What's new
 
-The transition from Botpress to Botpress X was a huge game changer, and the latest one from Botpress X to Botpress XX is even bigger.
+The transition from Botpress to Botpress X was a huge game changer, and the latest one from Botpress X to Botpress Server (v11) is even bigger.
 
-With Botpress XX, we went back to the roots and completely rewrote the engine from scratch using Typescript. Multi-bot support was added natively. We are giving a much bigger place to modules, which can do a lot more than before. We expose a new SDK that makes it very easy to develop for Botpress.
+With Botpress Server, we went back to the roots and completely rewrote the engine from scratch using Typescript. Multi-bot support was added natively. We are giving a much bigger place to modules, which can do a lot more than before. We expose a new SDK that makes it very easy to develop for Botpress.
 
 Here is a summary of the biggest changes brought by this new edition:
 
@@ -25,9 +25,9 @@ Other minor changes:
 1. [Actions](./actions) may be [deployed by modules](../modules/actions)
 1. [Hooks](./hooks) have been added to replace `bp.hear` in your `index.js` file
 
-## How to migrate your bots to XX
+## How to migrate your bots to 11.0
 
-This guide will show you how to migrate your bot from Botpress X to Botpress XX.
+This guide will show you how to migrate your bot from Botpress X to Botpress Server.
 
 ### Bot content
 
@@ -75,7 +75,7 @@ Added column `botId`
 
 #### Table user_tags
 
-This concept was deprecated, there is no replacement in XX
+This concept was deprecated, there is no replacement in 11
 
 #### Table users
 

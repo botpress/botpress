@@ -4,7 +4,7 @@ title: Actions
 original_id: actions
 ---
 
-Actions are javascript snippets that are called by the Dialog Engine when an action is present on the node. All actions are executed in a virtual machine to prevent it to bring the bot down should there be a scripting error. Actions are discussed more thoroughly in the [getting started page](../getting_started/actions)
+Actions are javascript snippets that are called by the Dialog Engine when an action is present on the node. All actions are executed in a virtual machine to prevent it to bring the bot down should there be a scripting error. Actions are discussed more thoroughly in the [getting started page](../learn/actions)
 
 There is no way to register actions programatically, they must be present in the folder `data/global/actions` to be visible on the flow editor.
 
