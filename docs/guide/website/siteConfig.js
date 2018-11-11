@@ -19,7 +19,8 @@ const siteConfig = {
 
   algolia: {
     apiKey: '570227d66d130d069630e7226c740158',
-    indexName: 'botpress'
+    indexName: 'botpress',
+    facetFilters: ['version:VERSION']
   },
 
   headerLinks: [
