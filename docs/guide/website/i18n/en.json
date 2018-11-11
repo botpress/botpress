@@ -112,6 +112,114 @@
       },
       "recipes/timeout": {
         "title": "Timeout"
+      },
+      "version-11.0.0-botpressxx": {
+        "title": "Migration to Botpress XX"
+      },
+      "version-11.0.0-licensing": {
+        "title": "Licenses"
+      },
+      "version-11.0.0-philosophy": {
+        "title": "Introduction"
+      },
+      "version-11.0.0-actions": {
+        "title": "Actions"
+      },
+      "version-11.0.0-changes": {
+        "title": "Changes"
+      },
+      "version-11.0.0-components": {
+        "title": "Components"
+      },
+      "version-11.0.0-content": {
+        "title": "Content"
+      },
+      "version-11.0.0-deploying": {
+        "title": "Deploying"
+      },
+      "version-11.0.0-flows": {
+        "title": "Flows"
+      },
+      "version-11.0.0-hooks": {
+        "title": "Hooks"
+      },
+      "version-11.0.0-index": {
+        "title": "What are they?"
+      },
+      "version-11.0.0-install": {
+        "title": "Installation"
+      },
+      "version-11.0.0-nlu": {
+        "title": "NLU"
+      },
+      "version-11.0.0-skills": {
+        "title": "Skills"
+      },
+      "version-11.0.0-storage": {
+        "title": "Storage"
+      },
+      "version-11.0.0-api-endpoint": {
+        "title": "API endpoint"
+      },
+      "version-11.0.0-build": {
+        "title": "Building"
+      },
+      "version-11.0.0-create": {
+        "title": "Creation"
+      },
+      "version-11.0.0-database": {
+        "title": "Database"
+      },
+      "version-11.0.0-example": {
+        "title": "Example"
+      },
+      "version-11.0.0-skill_creation": {
+        "title": "Skill creation"
+      },
+      "version-11.0.0-views": {
+        "title": "Views"
+      },
+      "version-11.0.0-analytics": {
+        "title": "Analytics"
+      },
+      "version-11.0.0-apis": {
+        "title": "Using external APIs"
+      },
+      "version-11.0.0-carousel": {
+        "title": "Carousel"
+      },
+      "version-11.0.0-databases": {
+        "title": "Supported databases"
+      },
+      "version-11.0.0-embedding": {
+        "title": "Embedding the Webchat on a website"
+      },
+      "version-11.0.0-hitl": {
+        "title": "HITL (Human-in-the-loop)"
+      },
+      "version-11.0.0-i18n": {
+        "title": "i18n"
+      },
+      "version-11.0.0-jumps": {
+        "title": "Jump to"
+      },
+      "version-11.0.0-proactive": {
+        "title": "Proactive acting"
+      },
+      "version-11.0.0-shortlinks": {
+        "title": "Shortlinks"
+      },
+      "version-11.0.0-timeout": {
+        "title": "Timeout"
+      },
+      "version-11.0.1-actions": {
+        "title": "Actions"
+      },
+      "version-11.0.1-index": {
+        "title": "What you will learn"
+      },
+      "version-11.0.1-install": {
+        "title": "Installation"
       }
     },
     "links": {
