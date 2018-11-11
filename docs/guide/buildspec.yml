@@ -17,8 +17,8 @@ phases:
       - yarn build:guide
 
       # The documentation, which has built-in versioning
+      - cp docs/guide/website/build/botpress-docs/index.html docs/guide/website/build/botpress-docs/docs/index.html
       - aws s3 sync docs/guide/website/build/botpress-docs s3://botpress-docs/
-      - aws s3 sync docs/guide/website/build/botpress-docs/index.html s3://botpress-docs/docs/index.html
 
       # Reference for both current version from package.json but also branch name / latest
       - aws s3 sync docs/reference/ s3://botpress-reference/

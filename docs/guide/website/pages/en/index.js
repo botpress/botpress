@@ -86,7 +86,6 @@ const Block = props => (
   </Container>
 )
 
-// FIXME: Urls wont work here. We need to create our own card component
 const GuideCards = () => (
   <Block layout="fourColumn">
     {[
