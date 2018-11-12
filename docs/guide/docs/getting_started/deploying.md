@@ -94,7 +94,7 @@ And we're done!
 You can embed the bot on your website with the following snippet. Just make sure to replace `$HOST` by your Heroku URL, e.g. `https://glacial-inlet-45783.herokuapp.com`
 
 ```html
-<script src="$HOST/api/ext/channel-web/inject.js"></script>
+<script src="$HOST/assets/modules/channel-web/inject.js"></script>
 <script>window.botpressWebChat.init({ host: '$HOST', botId: '$BOTID' })</script>
 ```
 

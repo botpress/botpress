@@ -3,8 +3,10 @@ import fs from 'fs'
 import fse from 'fs-extra'
 import glob from 'glob'
 import mkdirp from 'mkdirp'
+import os from 'os'
 import path from 'path'
 import rimraf from 'rimraf'
+import { generateSchema, getProgramFromFiles } from 'typescript-json-schema'
 
 import { debug, error, normal } from './log'
 import { build as webpackBuild } from './webpack'
@@ -14,6 +16,7 @@ export default async (argv: any) => {
 
   await buildBackend(modulePath)
   await webpackBuild(modulePath)
+  await buildConfigSchema(modulePath)
 
   normal('Build completed')
 }
@@ -49,7 +52,7 @@ export async function buildBackend(modulePath: string) {
 
   const files = glob.sync('src/**/*.+(ts|js|jsx|tsx)', {
     cwd: modulePath,
-    ignore: ['**/*.d.ts', '**/views/**/*.*']
+    ignore: ['**/*.d.ts', '**/views/**/*.*', '**/config.ts']
   })
 
   rimraf.sync(path.join(modulePath, 'dist'))
@@ -96,4 +99,22 @@ export async function buildBackend(modulePath: string) {
       throw err
     }
   }
+}
+
+export async function buildConfigSchema(modulePath: string) {
+  const config = path.resolve(modulePath, 'src', 'config.ts')
+  if (!fs.existsSync(config)) {
+    return
+  }
+
+  const settings = {
+    required: true,
+    ignoreErrors: true
+  }
+
+  const program = getProgramFromFiles([config])
+  const definition = generateSchema(program, 'Config', settings)
+  const schema = JSON.stringify(definition, undefined, 2) + os.EOL + os.EOL
+
+  fs.writeFileSync(path.resolve(modulePath, 'assets', 'config.schema.json'), schema)
 }

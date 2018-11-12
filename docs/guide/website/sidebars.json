@@ -30,6 +30,7 @@
       "recipes/analytics",
       "recipes/apis",
       "recipes/carousel",
+      "recipes/deploying",
       "recipes/databases",
       "recipes/embedding",
       "recipes/hitl",

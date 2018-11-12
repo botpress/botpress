@@ -12,7 +12,7 @@ export default class TemplateModule extends React.Component {
   state = { dialogSessions: 0 }
 
   componentDidMount() {
-    fetch('/api/ext/dialog-sessions/count')
+    fetch('/mod/dialog-sessions/count')
       .then(res => res.json())
       .then(({ dialogSessions }) => this.setState({ dialogSessions }))
   }
@@ -24,7 +24,7 @@ export default class TemplateModule extends React.Component {
 }
 ```
 
-It is also possible to expose multiple views. Those new variations needs to be specified in your `package.json` file under the object `botpress.liteViews`. They will be available at `/assets/modules/$YOUR_MODULE/web/fullscreen.bundle.js`
+It is also possible to expose multiple views. Those new variations needs to be specified in your `package.json` file under the object `botpress.liteViews`. They will be available at `/assets/modules/$YOUR_MODULE/web/$VIEW_NAME.bundle.js`
 
 Let's say you want to provide a fullscreen version of your module:
 
@@ -37,5 +37,7 @@ package.json
   }
 }
 ```
+
+It will be accessible at `/assets/modules/$YOUR_MODULE/web/fullscreen.bundle.js`
 
 That's it - wasn't too difficult, right?

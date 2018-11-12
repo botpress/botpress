@@ -18,8 +18,6 @@ const MODULE_SCHEMA = joi.object().keys({
   onServerReady: joi.func().required(),
   onBotMount: joi.func().optional(),
   onBotUnmount: joi.func().optional(),
-  config: joi.object().optional(),
-  defaultConfigJson: joi.string().optional(),
   skills: joi.array().optional(),
   definition: joi.object().keys({
     name: joi.string().required(),
