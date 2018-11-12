@@ -46,5 +46,5 @@ metadata.json
 edition.json
 
 # Botpress docs
-/docs/reference
+/docs/reference/public
 /docs/guide/build

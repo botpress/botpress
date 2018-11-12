@@ -9,8 +9,7 @@ process.on('uncaughtException', err => {
 })
 
 const dataTasks = [core.createDirectories, core.copyData, core.copyBotTemplate]
-const uiTasks = [core.copyAdmin, core.copyStudio]
-const buildTasks = [core.fetchPro, core.writeEdition, core.buildTs, core.buildSchemas, ...dataTasks, ...uiTasks]
+const buildTasks = [core.fetchPro, core.writeEdition, core.buildTs, core.buildSchemas, ...dataTasks]
 
 gulp.task('create-studio-symlink', gulp.series([core.cleanStudioAssets, core.cleanStudio, core.createStudioSymlink]))
 gulp.task('copy-admin', core.copyAdmin)
