@@ -21,7 +21,7 @@ phases:
       - aws s3 sync docs/guide/website/build/botpress-docs s3://botpress-docs/
 
       # Reference for both current version from package.json but also branch name / latest
-      - aws s3 sync docs/reference/ s3://botpress-reference/
-      - aws s3 sync docs/reference/ s3://botpress-reference/$PACKAGE_VERSION
+      - aws s3 sync docs/reference/public s3://botpress-reference/
+      - aws s3 sync docs/reference/public s3://botpress-reference/$PACKAGE_VERSION
       - aws s3 sync .github s3://botpress-reference/.github
       - aws s3 sync .github s3://botpress-reference/$PACKAGE_VERSION/.github
