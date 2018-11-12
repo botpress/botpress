@@ -41,29 +41,8 @@
       "___modules/actions": {
         "title": "Actions"
       },
-      "___modules/api-endpoint": {
-        "title": "API endpoint"
-      },
-      "___modules/build": {
-        "title": "Building"
-      },
-      "___modules/create": {
-        "title": "Creation"
-      },
-      "___modules/database": {
-        "title": "Database"
-      },
-      "___modules/example": {
-        "title": "Example"
-      },
       "___modules/install": {
         "title": "Installation"
-      },
-      "___modules/skill_creation": {
-        "title": "Skill creation"
-      },
-      "___modules/views": {
-        "title": "Views"
       },
       "___recipes/analytics": {
         "title": "Analytics"
