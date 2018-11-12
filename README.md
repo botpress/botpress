@@ -10,19 +10,19 @@ Botpress is an open-source bot creation tool written in TypeScript. It is powere
 
 ### About V11
 
-#### ⚠️  Status
+#### ⚠️ Status
 
-Botpress Server (v11) is currently in beta and is **not considered ready for production usage** yet.  If you are looking for the latest stable version, please [see Botpress v10.x](https://github.com/botpress/botpress/tree/archive/10.x).
+Botpress Server (v11) is currently in beta and is **not considered ready for production usage** yet. If you are looking for the latest stable version, please [see Botpress v10.x](https://github.com/botpress/botpress/tree/archive/10.x).
 
 #### What has changed
 
 There are 3 major differences between Botpress X (10.x) and Botpress Server (11.x).
 
-1. v11 is not an NPM library anymore – it is a standalone application.  We distribute binaries of v11 for OSX, Windows, Linux and Docker on a daily basis.
+1. v11 is not an NPM library anymore – it is a standalone application. We distribute binaries of v11 for OSX, Windows, Linux and Docker on a daily basis.
 
 2. v11 now supports multiple bots natively – thus the naming of Botpress Server.
 
-3. v11 is a complete backend rewrite to TypeScript.  We have made significant architectural changes that are not backward-compatible. *TODO: List of all changes*
+3. v11 is a complete backend rewrite to TypeScript. We have made significant architectural changes that are not backward-compatible. _TODO: List of all changes_
 
 ---
 
@@ -89,7 +89,7 @@ We use [Docusaurus](https://docusaurus.io/en/) to create the Developer's Guide.
 
 We use [TypeDoc](https://github.com/TypeStrong/typedoc) the generate the SDK Reference directly from the source code.
 
-- Run `yarn build:reference` to generate the documentation. THe static files will appear under `/docs/reference/`.
+- Run `yarn build:reference` to generate the documentation. THe static files will appear under `/docs/reference/public`.
 
 ## Contributing
 
