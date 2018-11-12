@@ -1,43 +1,18 @@
 {
   "docs": {
-    "Getting Started": ["introduction", "release-notes", "installation"],
-    "Learn": [
-      "learn/index",
-      "learn/install",
-      "learn/components",
-      "learn/content",
-      "learn/flows",
-      "learn/actions",
-      "learn/storage",
-      "learn/skills",
-      "learn/nlu",
-      "learn/hooks",
-      "learn/changes"
+    "Getting Started": ["introduction", "installation", "troubleshoot", "quickstart"],
+    "Build": [
+      "build/overview",
+      "build/nlu",
+      "build/dialogs",
+      "build/code",
+      "build/memory",
+      "build/content",
+      "build/channels",
+      "build/debugging"
     ],
-    "Modules": [
-      "modules/install",
-      "modules/create",
-      "modules/build",
-      "modules/api-endpoint",
-      "modules/views",
-      "modules/actions",
-      "modules/database",
-      "modules/skill_creation",
-      "modules/example"
-    ],
-    "Recipes": [
-      "recipes/index",
-      "recipes/analytics",
-      "recipes/apis",
-      "recipes/carousel",
-      "recipes/databases",
-      "recipes/embedding",
-      "recipes/hitl",
-      "recipes/i18n",
-      "recipes/jumps",
-      "recipes/proactive",
-      "recipes/shortlinks",
-      "recipes/timeout"
-    ]
+    "Deploy": ["deploy/hosting"],
+    "Manage": ["manage/admins", "manage/analytics", "manage/sync-changes"],
+    "Developers": ["release-notes", "migrate", "create-module"]
   }
 }

@@ -1,0 +1,30 @@
+Getting Started
+	- Introduction > What is Botpress > Steps (Build, Deploy, Manage)
+	- Installation > Download > Install by Platform
+	- Troubleshoot
+	- Creating your first bot > Experience from start to finish…
+
+Building
+	- High-level Overview
+	- NLU > Intents, Entities, Language, QnAs
+	- Flows and Dialogs
+	- Custom Code > Hooks and Actions
+	- Bot Memory and Data Retention
+	- Content Management
+	- Channels
+	- Debugging
+
+Deployment
+	- Hosting & Environement
+	- Change Management & Source Control
+
+Managing
+	- Bot Administrators
+	- Analytics
+	- Syncing Changes
+
+Developers
+	- What’s new
+	- Migration Guide
+	- SDK Reference > TypeScript… Definition Files
+	- Creating Modules > Have a look at our existing modules > Where to place the folder

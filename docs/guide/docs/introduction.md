@@ -3,52 +3,35 @@ id: introduction
 title: Introduction
 ---
 
-Welcome to the Botpress Developer's Guide!
+Building bots is something new and sounds like a fun challenge for most developers. To be able to create software that converses in a natural way with humans is an exciting new reality. The problem is that you don’t want to spend hundreds of hours learning and putting together all the infrastructure and boilerplate code required to get a basic conversational backend up and running.
 
-Building bots is something new and sounds like a fun challenge for most developers.
-To be able to create software that converses in a natural way with humans is an exciting new reality.
+## What is Botpress
 
-But you don’t want to spend hundreds of hours learning and putting together all
-the infrastructure and boilerplate code required to get a basic conversational backend up and running.
+> Botpress is a **lightweight**, **fast** and **flexible** on-premise bot building platform.
 
-That’s where Botpress jumps in. We believe in making it super-fun and productive for developers
-to build high-quality bots. Botpress allows you to focus on the fun stuff and over-deliver in record time.
-Most importantly, you want a platform that you can trust is flexible enough to scale with
-any requirements that might come down the line.
+It is a complete platform that ships with all the tools you need to build, deploy and manage production-grade bots in record time. Here are some of the components that are installed by default:
 
-Botpress’ goal is to empower developers to create the highest quality bots as fun and as quickly as possible.
+- An NLU Engine
+- An administration dashboard
+- A visual flow editor
+- A chat emulator / debugger
+- Support for multiple messaging channels
 
-## Why Botpress is different
+### Why Botpress
 
-We enable technical people to easily create bots, but also enable non-technical people
-to manage and maintain them post-deployment.
+Botpress has many advantages over other platforms and frameworks:
 
-In this way, we’re different from Bot Framework and Botkit, because these frameworks only
-focus on the basic messaging infrastructure. We’re in reality much closer to a platform like
-Chatfuel or ManyChat, except that you can fully customize the bot in ways that are natural to developers.
+- It runs **fully on-prem**, so you have full control over the data that comes in and out
+- The core of the Botpress platform is **open-source**
+- Extremely **flexible** and developer-friendly
+- **Zero** external dependencies
 
-Although all of the above sounds too good to be true, Botpress is not for everyone.
-Botpress was built for developers and does not currently aim to allow non-developers
-to build bots (without a considerable learning curve).
+## How to build a bot
 
-Developers build bots, then non-technical people can manage them.
+There are three main steps involved in creating bots.
 
-## What’s new in Botpress Server
+Developers start by **Building** the bot, which consists of adding the necessary messaging channels, coding the necessary backend integrations your bot will need to interact with and creating the main dialog flows.
 
-### If you're coming from Botpress X
+Once done, you'll need to **Deploy** the bot somewhere, which could be on the cloud or your own infrastructure.
 
-Botpress Server is mostly compatible with Botpress X. Most of your bots may be transferred effortlessly. Flows, QNA, NLU and Content Elements are the same. The biggest changes are under the hood, and in the database (to support multi-bots). There are some changes to Content Types / Renderers. You can read about the migration of your bots [on this page]()./migration)
-
-### Botpress X
-
-Botpress X now allows non-technical users to create and edit the bot content through the Content Manager.
-
-The new Flow Builder and Dialog Manager make it much easier for developers to build and debug complex conversation flows.
-Since the new system is also entirely stateless, Botpress now fully and seamlessly scales to multiple instances.
-
-### Changes between Botpress 1.0/1.1 and Botpress X
-
-Botpress X isn’t meant to be backward compatible with Botpress 1.0/1.1, although your old bots should theoretically
-run without much change to the code. Be aware that we deprecated the Convos in favor of the new
-Flow Builder and Dialog Manager. For these reasons, we suggest that you bootstrap a new
-Botpress X bot and manually migrate the logic to Botpress X.
+Finally, you'll give access to the bot to more people so they can **Manage** the bot post-deployment. Managing a bot entails analyzing the conversations, refining the conversational experience by building new flows and to make it smarter by continuously improving the NLU.
