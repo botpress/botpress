@@ -61,11 +61,17 @@ You will notice on the left there are a couple of sections available. Some of th
 
 ### Test your bot
 
-Show the bot emulator and how you can test the bot live without leaving the Studio window. Reset button at the top.
+To test your bot, you can use the built-in chat emulator located in the top right corner (`1`). You can start over a new conversation with your bot by clicking the reset button (`2`).
+
+Open the chat window and say "_Hello_". The bot should greet you with something like "_TODO_".
+
+[TODO screenshot of chat emulator and reset button numbered]
 
 ### Question and Answer
 
-Add one QnA and show how the bot is updated in real-time
+One of the modules shipped by default with Botpress is the QnA (Question and Answer) module. This module allows you to easily and quickly add knowledge to your bot without having to create a flow or code anything. QnA uses the NLU Engine behind the scene to detect the questions and automatically answer them.
+
+Let's add a new question [TODO]
 
 ### Logs
 
