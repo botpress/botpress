@@ -33,13 +33,13 @@ const createClient = (clientOptions, { toastErrors }) => {
     client.interceptors.response.use(
       response => response,
       error => {
-        const wrappedError = _.get(error, 'response.data')
-        const message = _.get(wrappedError, 'message')
-
-        if (wrappedError && message) {
-          showToast(message)
+        const wrappedMessage = _.get(error, 'response.data.message')
+        if (wrappedMessage) {
+          showToast(wrappedMessage)
+        } else if (error.message) {
+          showToast(error.message)
         } else {
-          error.message && showToast(error.message)
+          showToast('Something wrong happened. Please try again later.')
         }
 
         return Promise.reject(error)
