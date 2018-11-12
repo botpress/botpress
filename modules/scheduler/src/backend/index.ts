@@ -1,8 +1,6 @@
 import 'bluebird-global'
 import sdk from 'botpress/sdk'
-import fs from 'fs'
 import _ from 'lodash'
-import path from 'path'
 
 import api from './api'
 import Daemon from './daemon'
@@ -48,7 +46,6 @@ const onServerReady = async (bp: typeof sdk & Extension) => {
 const obj: sdk.ModuleEntryPoint = {
   onServerStarted,
   onServerReady,
-  config: {},
   definition: {
     name: 'scheduler',
     menuIcon: 'alarm_on',

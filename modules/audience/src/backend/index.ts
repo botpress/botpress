@@ -1,6 +1,4 @@
 import sdk from 'botpress/sdk'
-import fs from 'fs'
-import path from 'path'
 
 import api from './api'
 
@@ -15,7 +13,6 @@ const onServerReady = async (bp: SDK) => {
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
   onServerReady,
-  config: {},
   definition: {
     name: 'audience',
     menuIcon: 'people',

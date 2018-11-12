@@ -1,59 +1,15 @@
-import { Logger, ModuleConfigEntry, ModuleEntryPoint } from 'botpress/sdk'
-import json5 from 'json5'
+import { Logger, ModuleEntryPoint } from 'botpress/sdk'
+import fs from 'fs'
+import defaultJsonBuilder from 'json-schema-defaults'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
+import path from 'path'
 import { VError } from 'verror'
-import yn from 'yn'
 
 import { GhostService } from '../'
 
+import ModuleResolver from '../../modules/resolver'
 type Config = { [key: string]: any }
-
-const validations = {
-  any: (value, validation) => validation(value),
-  string: (value, validation) => typeof value === 'string' && validation(value),
-  choice: (value, validation) => _.includes(validation, value),
-  bool: (value, validation) => (yn(value) === true || yn(value) === false) && validation(value)
-}
-
-const transformers = {
-  bool: value => yn(value)
-}
-
-const defaultValues = {
-  any: undefined,
-  string: '',
-  bool: false
-}
-
-const amendOption = (option, name) => {
-  const validTypes = _.keys(validations)
-  if (!option.type || !_.includes(validTypes, option.type)) {
-    throw new Error(`Invalid type (${option.type || ''}) for config key (${name})`)
-  }
-
-  const validation = option.validation || (() => true)
-
-  if (option.default !== undefined && !validations[option.type](option.default, validation)) {
-    throw new Error(`Invalid default value (${option.default}) for (${name})`)
-  }
-
-  if (!option.default && !_.includes(_.keys(defaultValues), option.type)) {
-    throw new Error(`Default value is mandatory for type ${option.type} (${name})`)
-  }
-
-  return {
-    type: option.type,
-    required: option.required || false,
-    env: option.env || undefined,
-    default: option.default || defaultValues[option.type],
-    validation: validation
-  }
-}
-
-const amendOptions = options => {
-  return _.mapValues(options, amendOption)
-}
 
 /**
  * Load configuration for a specific module in the following precedence order:
@@ -79,25 +35,30 @@ export default class ConfigReader {
   }
 
   @Memoize()
-  private getModuleOptions(moduleId: string): { [key: string]: ModuleConfigEntry } {
-    if (!this.modules.has(moduleId)) {
-      throw new Error(
-        `Could not load configuration options for module "${moduleId}". Module was not found or registered properly.`
-      )
-    }
+  private async getModuleConfigSchema(moduleId: string): Promise<any> {
+    const resolver = new ModuleResolver(this.logger)
+    const modulePath = await resolver.resolve('MODULES_ROOT/' + moduleId)
+    const configSchema = path.resolve(modulePath, 'assets', 'config.schema.json')
 
-    return amendOptions(this.modules.get(moduleId)!.config)
+    try {
+      if (fs.existsSync(configSchema)) {
+        return JSON.parse(fs.readFileSync(configSchema, 'utf-8'))
+      }
+    } catch (err) {
+      this.logger.attachError(err).error(`Error while loading the config schema for module "${moduleId}"`)
+    }
+    return {}
   }
 
   private async loadFromDefaultValues(moduleId) {
-    return _.mapValues(await this.getModuleOptions(moduleId), value => value.default)
+    return defaultJsonBuilder(await this.getModuleConfigSchema(moduleId))
   }
 
   private async loadFromBotConfigFile(moduleId: string, botId: string): Promise<any> {
     const fileName = `${moduleId}.json`
     try {
       const json = await this.ghost.forBot(botId).readFileAsString('config', fileName)
-      return json5.parse(json)
+      return JSON.parse(json)
     } catch (e) {
       return {}
     }
@@ -107,37 +68,44 @@ export default class ConfigReader {
     const fileName = `${moduleId}.json`
     try {
       const json = await this.ghost.global().readFileAsString('config', fileName)
-      return json5.parse(json)
+      return JSON.parse(json)
     } catch (e) {
       throw new VError(e, `Could not load default config file for module "${moduleId}"`)
     }
   }
 
-  private loadFromEnvVariables(moduleId: string) {
-    const options = this.getModuleOptions(moduleId)
+  private async loadFromEnvVariables(moduleId: string) {
+    const options = await this.loadFromDefaultValues(moduleId)
     const config = {}
 
-    _.mapValues(process.env, (value, key) => {
-      if (_.isNil(value)) {
-        return
+    for (const option of _.keys(options)) {
+      const key = `BP_${moduleId}_${option}`.toUpperCase()
+
+      if (key in process.env) {
+        config[option] = process.env[key]
       }
-      const entry = _.findKey(options, { env: key })
-      if (entry) {
-        config[entry] = value
-      }
-    })
+    }
 
     return config
   }
 
   @Memoize()
-  private getModuleDefaultConfigFile(moduleId): any | undefined {
-    return this.modules.get(moduleId)!.defaultConfigJson
+  private async getModuleDefaultConfigFile(moduleId): Promise<any | undefined> {
+    try {
+      const defaultConfig = {
+        $schema: `../../../assets/modules/${moduleId}/config.schema.json`,
+        ...defaultJsonBuilder(await this.getModuleConfigSchema(moduleId))
+      }
+
+      return JSON.stringify(defaultConfig, undefined, 2)
+    } catch (err) {
+      this.logger.attachError(err).error(`Couldn't generate the default json for module "${moduleId}"`)
+    }
   }
 
   private async isGlobalConfigurationFileMissing(moduleId: string): Promise<boolean> {
     try {
-      if (this.getModuleDefaultConfigFile(moduleId) === undefined) {
+      if ((await this.getModuleDefaultConfigFile(moduleId)) === undefined) {
         return false
       }
 
@@ -156,7 +124,7 @@ export default class ConfigReader {
   private async bootstrapGlobalConfigurationFiles() {
     for (const moduleId of this.modules.keys()) {
       if (await this.isGlobalConfigurationFileMissing(moduleId)) {
-        const config = this.getModuleDefaultConfigFile(moduleId)
+        const config = await this.getModuleDefaultConfigFile(moduleId)
         const fileName = `${moduleId}.json`
         await this.ghost.global().upsertFile('config', fileName, config)
         this.logger.debug(`Added missing "${fileName}" configuration file`)
@@ -165,7 +133,6 @@ export default class ConfigReader {
   }
 
   private async getMerged(moduleId: string, botId?: string): Promise<Config> {
-    const options = this.getModuleOptions(moduleId)
     let config = await this.loadFromDefaultValues(moduleId)
     config = { ...config, ...(await this.loadFromGlobalConfigFile(moduleId)) }
     config = { ...config, ...(await this.loadFromEnvVariables(moduleId)) }
@@ -173,18 +140,7 @@ export default class ConfigReader {
       config = { ...config, ...(await this.loadFromBotConfigFile(moduleId, botId)) }
     }
 
-    return _.mapValues(config, (value, key) => {
-      if (options[key] !== undefined) {
-        const { type } = options[key]
-        if (transformers[type]) {
-          return transformers[type](value)
-        } else {
-          return value
-        }
-      } else {
-        this.logger.warn(`Invalid configuration "${key}" found in module ${moduleId}`)
-      }
-    })
+    return config
   }
 
   @Memoize()

@@ -29,7 +29,6 @@ const onServerReady = async (bp: SDK) => {
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
   onServerReady,
-  config: {},
   definition: {
     name: 'broadcast',
     menuIcon: 'settings_input_antenna',

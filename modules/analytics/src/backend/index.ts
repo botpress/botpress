@@ -1,8 +1,6 @@
 import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
-import fs from 'fs'
 import _ from 'lodash'
-import path from 'path'
 
 import Analytics from './analytics'
 import api from './api'
@@ -52,7 +50,6 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onServerReady,
   onBotMount,
   onBotUnmount,
-  config: {},
   definition: {
     name: 'analytics',
     fullName: 'Analytics',

@@ -101,9 +101,11 @@ const buildSchemas = cb => {
 const buildReferenceDoc = () => {
   return gulp.src(['./src/bp/sdk/botpress.d.ts']).pipe(
     typedoc({
-      out: './docs/reference',
+      out: './docs/reference/public',
       mode: 'file',
-      name: 'Botpress | API Reference',
+      name: 'Botpress SDK',
+      readme: './docs/reference/README.md',
+      gaID: 'UA-90034220-1',
       includeDeclarations: true,
       ignoreCompilerErrors: true,
       version: true,
