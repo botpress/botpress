@@ -46,15 +46,9 @@ process.on('uncaughtException', err => {
 })
 
 try {
-  let defaultVerbosity = process.pkg ? 0 : 2
-  if (!isNaN(Number(process.env.VERBOSITY_LEVEL))) {
-    defaultVerbosity = Number(process.env.VERBOSITY_LEVEL)
-  }
-
   const argv = require('yargs')
     .option('verbose', {
       alias: 'v',
-      default: defaultVerbosity,
       description: 'verbosity level'
     })
     .option('production', {
@@ -66,8 +60,14 @@ try {
     .count('verbose')
     .help().argv
 
-  process.VERBOSITY_LEVEL = Number(argv.verbose)
   process.IS_PRODUCTION = argv.production || yn(process.env.BP_PRODUCTION)
+
+  let defaultVerbosity = process.IS_PRODUCTION ? 0 : 2
+  if (!isNaN(Number(process.env.VERBOSITY_LEVEL))) {
+    defaultVerbosity = Number(process.env.VERBOSITY_LEVEL)
+  }
+
+  process.VERBOSITY_LEVEL = argv.verbose ? Number(argv.verbose) : defaultVerbosity
   process.IS_LICENSED = true
   process.ASSERT_LICENSED = () => {}
   process.BOTPRESS_VERSION = metadataContent.version

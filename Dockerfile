@@ -5,5 +5,5 @@ RUN for file in `ls -1 *.tgz`; do mkdir ${file%.*} |tar -zxf $file -C ${file%.*}
 RUN rm -rf *.tgz
 WORKDIR /botpress
 RUN chmod +x bp
-EXPOSE 3001
+EXPOSE 3000
 CMD ["./bp"]

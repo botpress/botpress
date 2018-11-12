@@ -32,4 +32,4 @@ The first time you run Botpress, the built-in modules take some time to install.
 
 Once the modules are installed and loaded, you should see something similar to the screenshot below.
 
-![First Run](assets/install-start.png)
+![First Run](assets/install-start.jpg)
