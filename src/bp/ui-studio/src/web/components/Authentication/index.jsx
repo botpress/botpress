@@ -47,11 +47,12 @@ const ensureAuthenticated = WrappedComponent => {
       if (pathname !== '/login' && !urlToken) {
         this.context.router.history.push('/login?returnTo=' + pathname)
       }
+      window.location.href = '/admin'
       window.botpressWebChat && window.botpressWebChat.sendEvent({ type: 'hide' })
     }
 
     setupAuth() {
-      if (!window.AUTH_ENABLED && !this.state.authorized) {
+      if (this.state.authorized) {
         this.setState({ authorized: true })
         return
       }
@@ -83,7 +84,7 @@ const ensureAuthenticated = WrappedComponent => {
     }
 
     checkAuth = () => {
-      axios.get('/api/ping').catch(err => {
+      axios.get(`${window.API_PATH}/auth/ping`).catch(err => {
         if (err.response.status === 401) {
           this.promptLogin()
         }

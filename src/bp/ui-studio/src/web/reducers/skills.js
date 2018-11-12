@@ -1,6 +1,6 @@
 import { handleActions } from 'redux-actions'
 
-import { modulesReceived, buildNewSkill, cancelNewSkill, insertNewSkill, editSkill, updateSkill } from '~/actions'
+import { skillsReceived, buildNewSkill, cancelNewSkill, insertNewSkill, editSkill, updateSkill } from '~/actions'
 
 const defaultState = {
   installed: [],
@@ -16,13 +16,9 @@ const defaultState = {
 
 const reducer = handleActions(
   {
-    [modulesReceived]: (state, { payload }) => ({
+    [skillsReceived]: (state, { payload }) => ({
       ...state,
-      installed: payload.filter(module => module.name.startsWith('skill-')).map(module => ({
-        id: module.name,
-        name: module.menuText,
-        icon: module.menuIcon
-      }))
+      installed: payload
     }),
 
     [buildNewSkill]: (state, { payload }) => ({

@@ -11,6 +11,7 @@ import {
   fetchUser,
   fetchBotInformation,
   fetchModules,
+  fetchSkills,
   fetchNotifications,
   replaceNotifications,
   addNotifications
@@ -27,11 +28,12 @@ class App extends Component {
 
   fetchData = () => {
     this.props.fetchModules()
+    this.props.fetchSkills()
     this.props.fetchNotifications()
     this.props.fetchBotInformation()
     this.props.fetchLicense()
 
-    this.props.fetchUser(window.AUTH_ENABLED)
+    this.props.fetchUser()
   }
 
   componentDidMount() {
@@ -61,9 +63,13 @@ const mapDispatchToProps = {
   fetchUser,
   fetchBotInformation,
   fetchModules,
+  fetchSkills,
   fetchNotifications,
   replaceNotifications,
   addNotifications
 }
 
-export default connect(null, mapDispatchToProps)(App)
+export default connect(
+  null,
+  mapDispatchToProps
+)(App)

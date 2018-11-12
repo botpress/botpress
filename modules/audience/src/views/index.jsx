@@ -42,7 +42,7 @@ export default class AudienceModule extends React.Component {
     this.setState({ loading: true })
 
     try {
-      const { data } = await this.getAxios().post('/api/ext/audience/users', {
+      const { data } = await this.getAxios().post('/mod/audience/users', {
         from: this.state.page * LIMIT_PER_PAGE,
         limit: LIMIT_PER_PAGE
       })
@@ -59,7 +59,7 @@ export default class AudienceModule extends React.Component {
   }
 
   async fetchCount() {
-    const { data } = await this.getAxios().get('/api/ext/audience/users/count')
+    const { data } = await this.getAxios().get('/mod/audience/users/count')
 
     this.setState({
       count: data

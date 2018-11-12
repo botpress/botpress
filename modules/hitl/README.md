@@ -32,11 +32,11 @@ You can pause or resume any conversations from the UI.
 
 ## API
 
-### `POST /api/ext/hitl/sessions/{$id}/pause`
+### `POST /mod/hitl/sessions/{$id}/pause`
 
 Pause a specific conversation by using his `id`.
 
-### `POST /api/ext/hitl/sessions/{$id}/unpause`
+### `POST /mod/hitl/sessions/{$id}/unpause`
 
 Resume a conversation for a specific user.
 

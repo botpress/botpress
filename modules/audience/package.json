@@ -1,7 +1,8 @@
 {
-  "name": "@botpress/audience",
+  "name": "audience",
   "version": "10.43.0",
   "description": "Official Audience viewer for botpress",
+  "private": true,
   "main": "dist/backend/index.js",
   "keywords": [
     "audience",

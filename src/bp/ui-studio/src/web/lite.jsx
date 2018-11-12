@@ -18,11 +18,6 @@ if (token) {
   axios.defaults.headers.common['Authorization'] = `Bearer ${token.token}`
 }
 
-if (axios && axios.defaults) {
-  axios.defaults.headers.common['X-Botpress-App'] = 'Lite'
-  axios.defaults.headers.common['X-Botpress-Bot-Id'] = parseBotId()
-}
-
 const { m, v, ref } = queryString.parse(location.search)
 
 const alternateModuleNames = {

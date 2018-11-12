@@ -19,7 +19,7 @@ export default class RefWidget extends Component {
   handleChange = item => this.props.onChange(decorateRef(item.id))
 
   render() {
-    const { $category: categoryId, $subtype: subtype, type } = this.props.schema
+    const { $category: contentType, $subtype: subtype, type } = this.props.schema
     if (type !== 'string' || subtype !== 'ref') {
       return null
     }
@@ -28,9 +28,9 @@ export default class RefWidget extends Component {
       <ContentPickerWidget
         inputId={this.props.id}
         itemId={undecorateRef(this.props.value)}
-        categoryId={categoryId}
+        contentType={contentType}
         onChange={this.handleChange}
-        placeholder={this.props.placeholder || `Pick ${categoryId}`}
+        placeholder={this.props.placeholder || `Pick ${contentType}`}
       />
     )
   }

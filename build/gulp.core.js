@@ -1,12 +1,13 @@
 const path = require('path')
 const gulp = require('gulp')
 const ts = require('gulp-typescript')
-const rimraf = require('rimraf')
+const rimraf = require('gulp-rimraf')
 const sourcemaps = require('gulp-sourcemaps')
 const typedoc = require('gulp-typedoc')
 const gulpif = require('gulp-if')
 const run = require('gulp-run')
 const file = require('gulp-file')
+const { symlink } = require('gulp')
 
 const buildJsonSchemas = require('./jsonschemas')
 const tsProject = ts.createProject(path.resolve(__dirname, '../src/tsconfig.json'))
@@ -15,8 +16,8 @@ const wipe = () => {
   return gulp.src(['./node_modules', './out']).pipe(rimraf())
 }
 
-const clean = cb => {
-  rimraf('./out', cb)
+const clean = () => {
+  return gulp.src('./out', { allowEmpty: true }).pipe(rimraf())
 }
 
 const runningPro = process.env.EDITION === 'pro' || process.env.EDITION === 'ee'
@@ -76,8 +77,20 @@ const copyAdmin = () => {
   return gulp.src('./src/bp/ui-admin/build/**/*').pipe(gulp.dest('./out/bp/ui-admin/public'))
 }
 
+const cleanStudio = () => {
+  return gulp.src('./out/bp/ui-studio/public', { allowEmpty: true }).pipe(rimraf())
+}
+
+const cleanStudioAssets = () => {
+  return gulp.src('./out/bp/assets/ui-studio/public', { allowEmpty: true }).pipe(rimraf())
+}
+
 const copyStudio = () => {
-  return gulp.src('./src/bp/ui-studio/lib/**/*').pipe(gulp.dest('./out/bp/ui-studio/public'))
+  return gulp.src('./src/bp/ui-studio/public/**/*').pipe(gulp.dest('./out/bp/ui-studio/public'))
+}
+
+const createStudioSymlink = () => {
+  return gulp.src('./src/bp/ui-studio/public').pipe(symlink('./out/bp/assets/ui-studio/', { type: 'dir' }))
 }
 
 const buildSchemas = cb => {
@@ -112,7 +125,10 @@ module.exports = {
   copyData,
   copyBotTemplate,
   copyAdmin,
+  cleanStudio,
+  cleanStudioAssets,
   copyStudio,
+  createStudioSymlink,
   watch,
   wipe
 }

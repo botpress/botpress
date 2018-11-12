@@ -5,13 +5,9 @@ import moment from 'moment'
 import multer from 'multer'
 import multers3 from 'multer-s3'
 import path from 'path'
-import serveStatic from 'serve-static'
 
 import { SDK } from '.'
 import Database from './db'
-
-const injectScript = fs.readFileSync(path.join(__dirname, '../../static/inject.js')).toString()
-const injectStyle = fs.readFileSync(path.join(__dirname, '../../static/inject.css')).toString()
 
 const ERR_USER_ID_REQ = '`userId` is required and must be valid'
 const ERR_MSG_TYPE = '`type` is required and must be valid'
@@ -84,19 +80,6 @@ export default async (bp: SDK, db: Database) => {
       res.status(500).send(err && err.message)
     }
   }
-
-  router.get('/inject.js', (req, res) => {
-    res.contentType('text/javascript')
-    res.send(injectScript)
-  })
-
-  router.get('/inject.css', (req, res) => {
-    res.contentType('text/css')
-    res.send(injectStyle)
-  })
-
-  const staticFolder = path.join(__dirname /* dist/backend */, '../../static') // TODO FIXME Fix this, won't work when bundled
-  router.use('/static', serveStatic(staticFolder))
 
   // ?conversationId=xxx (optional)
   router.post(

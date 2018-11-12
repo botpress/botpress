@@ -46,7 +46,7 @@ export default class FormModal extends Component {
     if (!id) {
       return this.setState(this.defaultState)
     }
-    this.props.bp.axios.get(`/api/ext/qna/question/${id}`).then(({ data: { data: item } }) => {
+    this.props.bp.axios.get(`/mod/qna/question/${id}`).then(({ data: { data: item } }) => {
       this.setState({
         item,
         isRedirect: [ACTIONS.REDIRECT, ACTIONS.TEXT_REDIRECT].includes(item.action),
@@ -104,7 +104,7 @@ export default class FormModal extends Component {
       this.setState({ isValidForm: true })
     }
 
-    return this.props.bp.axios.post('/api/ext/qna/create', this.state.item).then(() => {
+    return this.props.bp.axios.post('/mod/qna/create', this.state.item).then(() => {
       this.props.fetchData()
       this.closeAndClear()
     })
@@ -128,7 +128,7 @@ export default class FormModal extends Component {
     } = this.props
 
     return this.props.bp.axios
-      .put(`/api/ext/qna/${this.props.id}`, this.state.item, {
+      .put(`/mod/qna/${this.props.id}`, this.state.item, {
         params: { ...page, question, categories: categories.map(({ value }) => value) }
       })
       .then(({ data }) => {

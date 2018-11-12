@@ -13,9 +13,6 @@
         "port": {
           "type": "number"
         },
-        "proxyPort": {
-          "type": "number"
-        },
         "backlog": {
           "type": "number"
         },
@@ -23,12 +20,6 @@
           "type": [
             "string",
             "number"
-          ]
-        },
-        "disableWsProxy": {
-          "type": "boolean",
-          "enum": [
-            false
           ]
         },
         "cors": {
@@ -47,10 +38,8 @@
         "backlog",
         "bodyLimit",
         "cors",
-        "disableWsProxy",
         "host",
-        "port",
-        "proxyPort"
+        "port"
       ]
     },
     "database": {

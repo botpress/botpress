@@ -1,6 +1,6 @@
 {
   "docs": {
-    "General": ["general/welcome", "general/philosphy", "general/botpressxx", "general/licensing"],
+    "General": ["general/welcome", "general/philosophy", "general/botpressxx", "general/licensing"],
     "Getting Started": [
       "getting_started/index",
       "getting_started/install",
@@ -22,6 +22,7 @@
       "modules/views",
       "modules/actions",
       "modules/database",
+      "modules/skill_creation",
       "modules/example"
     ],
     "Recipes": [
@@ -29,6 +30,7 @@
       "recipes/analytics",
       "recipes/apis",
       "recipes/carousel",
+      "recipes/deploying",
       "recipes/databases",
       "recipes/embedding",
       "recipes/hitl",

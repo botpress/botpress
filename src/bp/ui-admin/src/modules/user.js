@@ -71,7 +71,7 @@ export const fetchUsers = () => {
       type: FETCH_USERS_REQUESTED
     })
 
-    const { data: users } = await api.getSecured().get('/api/users')
+    const { data: users } = await api.getSecured().get('/admin/users')
 
     dispatch({
       type: FETCH_USERS_RECEIVED,
@@ -84,7 +84,7 @@ export const fetchProfile = () => {
   return async dispatch => {
     dispatch({ type: MY_PROFILE_REQUESTED })
 
-    const { data } = await api.getSecured().get('/api/auth/me/profile')
+    const { data } = await api.getSecured().get('/auth/me/profile')
 
     dispatch({
       type: MY_PROFILE_RECEIVED,
@@ -97,7 +97,7 @@ export const fetchPermissions = teamId => {
   return async dispatch => {
     dispatch({ type: MY_PERMISSIONS_REQUESTED })
 
-    const { data } = await api.getSecured().get(`/api/auth/me/permissions/${teamId}`)
+    const { data } = await api.getSecured().get(`/auth/me/permissions/${teamId}`)
 
     dispatch({
       type: MY_PERMISSIONS_RECEIVED,

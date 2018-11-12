@@ -23,10 +23,10 @@ There are several ways you can pause the conversation:
 
 - from the admin-panel, toggling the appropriate button
 - by performing an API-request:
-  - POST /api/ext/hitl/sessions/{$id}/pause
-  - POST /api/ext/hitl/sessions/{$id}/unpause
-  - POST /api/ext/hitl/channel/{$channel}/user/{$userId}/pause
-  - POST /api/ext/hitl/channel/{$channel}/user/{$userId}/unpause
+  - POST /mod/hitl/sessions/{$id}/pause
+  - POST /mod/hitl/sessions/{$id}/unpause
+  - POST /mod/hitl/channel/{$channel}/user/{$userId}/pause
+  - POST /mod/hitl/channel/{$channel}/user/{$userId}/unpause
 
 # Alerting agents
 

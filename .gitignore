@@ -39,6 +39,7 @@ node_modules
 
 # Botpress Build
 /out
+/.out
 /tmp
 test-report.html
 metadata.json

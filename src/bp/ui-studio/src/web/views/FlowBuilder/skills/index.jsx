@@ -126,7 +126,11 @@ export default class SkillsBuilder extends React.Component {
   })
 
   generateFlow = () => {
-    return axios.post(`/api/skills/${this.props.skillId}/generate`, this.data).then(({ data }) => data)
+    const skill = find(this.props.installedSkills, { id: this.props.skillId })
+
+    return axios
+      .post(`${window.API_PATH}/modules/${skill.moduleName}/skill/${skill.id}/generateFlow`, this.data)
+      .then(({ data }) => data)
   }
 
   render() {
@@ -149,7 +153,9 @@ export default class SkillsBuilder extends React.Component {
           {this.renderLoading()}
           {!this.state.loading && (
             <WrappedInjectedModule
-              moduleName={skill && skill.id}
+              moduleName={skill && skill.moduleName}
+              viewName={skill && skill.id}
+              lite={true}
               onNotFound={this.renderModuleNotFound}
               extraProps={this.state.moduleProps}
             />

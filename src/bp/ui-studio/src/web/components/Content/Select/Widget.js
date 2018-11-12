@@ -23,14 +23,15 @@ class ContentPickerWidget extends Component {
 
   editItem = () => {
     const { contentItem } = this.props
+
     this.setState({ showItemEdit: true, contentToEdit: (contentItem && contentItem.formData) || null })
   }
 
   handleUpdate = () => {
     const { contentItem, itemId } = this.props
-    const { categoryId } = contentItem
+    const { contentType } = contentItem
     this.props
-      .upsertContentItem({ modifyId: itemId, categoryId, formData: this.state.contentToEdit })
+      .upsertContentItem({ modifyId: itemId, contentType, formData: this.state.contentToEdit })
       .then(() => this.setState({ showItemEdit: false, contentToEdit: null }))
       .then(() => this.props.fetchContentItem(this.props.itemId, { force: true }))
       .then(this.props.onUpdate || (() => {}))
@@ -42,10 +43,10 @@ class ContentPickerWidget extends Component {
   }
 
   render() {
-    const { inputId, contentItem, categoryId, placeholder } = this.props
-
-    const schema = (contentItem && contentItem.categorySchema) || { json: {}, ui: {} }
-    const textContent = (contentItem && `${contentItem.categoryTitle} | ${contentItem.previewText}`) || ''
+    const { inputId, contentItem, placeholder } = this.props
+    const contentType = contentItem && contentItem.contentType
+    const schema = (contentItem && contentItem.schema) || { json: {}, ui: {} }
+    const textContent = (contentItem && `${schema.title} | ${contentItem.previewText}`) || ''
 
     return (
       <FormGroup>
@@ -57,7 +58,7 @@ class ContentPickerWidget extends Component {
                 <Glyphicon glyph="pencil" />
               </a>
             )}
-            <a onClick={() => window.botpress.pickContent({ categoryId }, this.onChange)}>
+            <a onClick={() => window.botpress.pickContent({ contentType }, this.onChange)}>
               <Glyphicon glyph="folder-open" />
             </a>
           </InputGroup.Addon>
@@ -78,7 +79,10 @@ class ContentPickerWidget extends Component {
 
 const mapDispatchToProps = { upsertContentItem, fetchContentItem }
 const mapStateToProps = ({ content: { itemsById } }, { itemId }) => ({ contentItem: itemsById[itemId] })
-const ConnectedContentPicker = connect(mapStateToProps, mapDispatchToProps)(ContentPickerWidget)
+const ConnectedContentPicker = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ContentPickerWidget)
 
 // Passing store explicitly since this component may be imported from another botpress-module
 export default props => <ConnectedContentPicker {...props} store={store} />

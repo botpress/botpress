@@ -67,8 +67,6 @@ declare module 'botpress/sdk' {
     error(message: string, metadata?: any): void
   }
 
-  export type ModuleConfig = { [key: string]: ModuleConfigEntry }
-
   /**
    * The Module Entry Point is used by the module loader to bootstrap the module. It must be present in the index.js file
    * of the module. The path to the module must also be specified in the global botpress config.
@@ -80,16 +78,10 @@ declare module 'botpress/sdk' {
     onServerReady: ((bp: typeof import('botpress/sdk')) => void)
     onBotMount?: ((bp: typeof import('botpress/sdk'), botId: string) => void)
     onBotUnmount?: ((bp: typeof import('botpress/sdk'), botId: string) => void)
-    /** The configuration options of the module */
-    config: ModuleConfig
-    /** This is used to create the json config file if none is present */
-    defaultConfigJson?: string
-    /** Used to expose the JS files for the frontend */
-    serveFile?: ((path: string) => Promise<Buffer>)
     /** Additional metadata about the module */
     definition: ModuleDefinition
     /** An array of the flow generators used by skills in the module */
-    flowGenerator?: any
+    skills?: Skill[]
   }
 
   export interface ModuleDefinition {
@@ -109,6 +101,21 @@ declare module 'botpress/sdk' {
     homepage?: string
   }
 
+  /**
+   * Skills are loaded automatically when the bot is started. They must be in the module's definition to be loaded.
+   * Each skills must have a flow generator and a view with the same name (skillId)
+   */
+  export interface Skill {
+    /** An identifier for the skill. Use only a-z_- characters. */
+    id: string
+    /** The name that will be displayed in the toolbar for the skill */
+    name: string
+    /** Name of the parent module. This field is filled automatically when they are loaded */
+    moduleName?: string
+    /** Function that receives data from the UI and provides a partial flow */
+    flowGenerator?: any
+  }
+
   export interface ModulePluginEntry {
     entry: 'WebBotpressUIInjection'
     position: 'overlay'
@@ -116,13 +123,6 @@ declare module 'botpress/sdk' {
 
   export interface ModuleViewOptions {
     stretched: boolean
-  }
-
-  export type ModuleConfigEntry = {
-    type: 'bool' | 'any' | 'string'
-    required: boolean
-    default: any
-    env?: string
   }
 
   export class RealTimePayload {
@@ -468,15 +468,13 @@ declare module 'botpress/sdk' {
 
   /**
    * The AxiosBotConfig contains the axios configuration required to call the api of another module.
-   * @example: axios.get('/api/ext/module', axiosBotConfig)
+   * @example: axios.get('/mod/module', axiosBotConfig)
    */
   export interface AxiosBotConfig {
     /** The base url of the bot.
      * @example http://localhost:3000/
      * */
     baseURL: string
-    /** This object includes the required headers to send the request to the selected bot */
-    headers: object
   }
 
   /**
@@ -556,11 +554,11 @@ declare module 'botpress/sdk' {
 
     /**
      * Create a new router for a module. Once created, use them to register new endpoints. Routers created
-     * with this method are accessible via the url /api/ext/{routernName}
+     * with this method are accessible via the url /mod/{routernName}
      *
      * @example const router = bp.http.createRouterForBot('myModule')
      * @example router.get('/list', ...)
-     * @example axios.get('/api/ext/myModule/list')
+     * @example axios.get('/mod/myModule/list')
      * @param routerName - The name of the router
      * @param options - Additional options to apply to the router
      * @param router - The router

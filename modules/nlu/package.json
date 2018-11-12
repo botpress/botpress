@@ -1,7 +1,8 @@
 {
-  "name": "@botpress/nlu",
+  "name": "nlu",
   "version": "10.47.1",
   "description": "Botpress NLU module",
+  "private": true,
   "main": "dist/backend/index.js",
   "scripts": {
     "build": "./node_modules/.bin/module-builder build",

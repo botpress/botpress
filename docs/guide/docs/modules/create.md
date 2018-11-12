@@ -41,9 +41,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
   onBotMount,
   onBotUnmount,
-  config,
-  defaultConfigJson,
-  serveFile,
+  skills,
   definition: {
     name: 'my-module',
     menuIcon: 'some-icon',
@@ -104,41 +102,16 @@ const onBotUnmount = async (botId: string) => {
 }
 ```
 
-### config
-
-Module configuration is handled by Botpress so you don't have to deal with configuration panels, validation or fetching/saving data.
-
-Adding new config options is easy. Please refer yourself to the [API Reference]() for possible parameters.
-
-```js
-const config: sdk.ModuleConfig = {
-  apiKey: { type: 'string', required: true, default: false, env: 'MYMODULE_APIKEY' }
-}
-```
-
-You can access the bot-specific configuration by calling `bp.config.getModuleConfigForBot(moduleName, botId)`, for example:
-
-```js
-const { apiKey } = await bp.config.getModuleConfigForBot('mymodule', botId)
-```
-
-### defaultConfigJson
-
-When your module is run for the first time, this configuration will be copied in the configuration file. It will be deprecated in the future, to use the config defined earlier.
-
-### serveFile
-
-Tells Botpress what web bundle to serve to the user when a page is requested. [Read more abour views](./views)
-
-### flowGenerator
+### skills
 
 When you create new skills, they need a way to generate the custom flow that will be used by the dialog engine. This method should export an object containing the name of the skill and the function to generate it.
 
 ```js
-const flowGenerator = [
+const skillsToRegister: sdk.Skill[] = [
   {
-    name: 'choice',
-    generator: skill_choice.generateFlow
+    id: 'choice',
+    name: 'Choice',
+    flowGenerator: choice.generateFlow
   }
 ]
 ```
