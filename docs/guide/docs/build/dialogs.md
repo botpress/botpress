@@ -7,13 +7,13 @@ Botpress use what we call the **Dialog Engine** to handle conversations. The Dia
 
 ## Overview
 
-The Dialog Engine use **Flows** that represents the overall conversationnal logic of a bot. A Flow is then composed of **Nodes** which execute a series of **Instructions**. Instructions are part of a Node lifecycle and can execute **Actions**. An Action is code, usually code that you have written yourself, code provided by Botpress or by others (more on that later).
+The Dialog Engine use [Flows](#flows) that represents the overall conversationnal logic of a bot. A Flow is then composed of [Nodes](#nodes) which execute a series of [Instructions](#node-lifecycle). Instructions are part of a Node lifecycle and can execute [Actions](#actions). An Action is code, usually code that you have written yourself, code provided by Botpress or by others (more on that later).
 
 ## Flows
 
 More complex bots are generally broken down into multiple smaller flows instead of just one, big flow. The reason for breaking down the bot into multiple flows is to ease maintainability and reusability.
 
-### Lifecycle
+### Flow Lifecycle
 
 A flow always starts at the `startNode` of its `*.flow.json` file. The start node indicate the name of the node on which to start. Once the node is selected, the Dialog Engine will enqueue the instructions of the active node (more on instructions later). Then it will process the instructions sequencially.
 
@@ -24,7 +24,7 @@ The Dialog Engine is event-based and is non-blocking by default, which means tha
 > - A node is marked as waiting for user input
 > - A node couldn't match a condition to transition to another node
 
-Once the first node is processed, the Dialog Engine will proceed to the next node in the flow until it reach the very end. Flows are pretty straight forward. Nodes also have a lifecycle of their own (more on that later). It is the nodes that do the heavy lifting in a flow. The flow only orchestrates them.
+Once the first node is processed, the Dialog Engine will proceed to the next node in the flow until it reach the very end. Flows are pretty straight forward. Nodes also have a [lifecycle](#node-lifecycle) of their own. It is the nodes that do the heavy lifting in a flow. The flow only orchestrates them.
 
 ### Storage
 
@@ -41,7 +41,7 @@ A _node_ is separated into three different stages: **onEnter** (A), **onReceive*
 
 ![Typical Flow Node](assets/flow_node.png)
 
-### Lifecycle
+### Node Lifecycle
 
 #### onEnter
 
@@ -121,3 +121,12 @@ Very similar to the Timeout Flow, the Timeout Node should be called `timeout` an
 Another option that requires some coding is to add the property `timeoutNode` to your `*.flow.json` file and assign it to name of the node that should handle the timeout. It can be any node, it doesn't need to be called a particular way.
 
 > ⚠ **Important:** Once the Dialog Engine has processed the timeout, it will **delete** the session.
+
+## Actions
+
+An **Action** is JavaScript code that is executed in a Node.js VM. It can be anything you want. Call an API, store something in the database or store something in the Key-value Store. Actions are called by onEnter and onReceive instructions. There is two types of Actions:
+
+- **Script**: A user defined Action that is used to run custom code.
+- **Output**: An output Action that is used to make a bot output something.
+
+> To learn more on Actions, please refer to the [Custom Code](TODO) section.
