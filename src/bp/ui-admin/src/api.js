@@ -1,6 +1,5 @@
 import Promise from 'bluebird'
 import axios from 'axios'
-import { toast } from 'react-toastify'
 import _ from 'lodash'
 import { pullToken, logout } from './Auth'
 
@@ -10,7 +9,6 @@ const defaultOptions = {
 
 const createClient = (clientOptions, { toastErrors }) => {
   const client = axios.create({
-    baseURL: '/admin',
     ...defaultOptions,
     ...clientOptions
   })
@@ -51,13 +49,9 @@ const createClient = (clientOptions, { toastErrors }) => {
   return client
 }
 
-const showToast = message => {
-  toast.error(message, {
-    position: toast.POSITION.TOP_RIGHT
-  })
-}
-
-const overrideApiUrl = process.env.REACT_APP_API_URL ? { baseURL: `${process.env.REACT_APP_API_URL}/admin` } : {}
+const overrideApiUrl = process.env.REACT_APP_API_URL
+  ? { baseURL: `${process.env.REACT_APP_API_URL}/api/v1` }
+  : { baseURL: `/api/v1` }
 
 export default {
   getSecured({ token, toastErrors = true } = {}) {

@@ -39,18 +39,18 @@ export class GhostService {
     this.config = config
   }
 
-  global(): ScopedGhostService {
+  global(ghostEnabled?: boolean): ScopedGhostService {
     return new ScopedGhostService(
       `./data/global`,
       this.diskDriver,
       this.dbDriver,
-      this.isGhostEnabled,
+      typeof ghostEnabled === 'undefined' ? this.isGhostEnabled : ghostEnabled,
       this.cache,
       this.logger
     )
   }
 
-  forBot(botId: string): ScopedGhostService {
+  forBot(botId: string, ghostEnabled?: boolean): ScopedGhostService {
     if (!isValidBotId(botId)) {
       throw new Error(`Invalid botId "${botId}"`)
     }
@@ -59,7 +59,7 @@ export class GhostService {
       `./data/bots/${botId}`,
       this.diskDriver,
       this.dbDriver,
-      this.isGhostEnabled,
+      typeof ghostEnabled === 'undefined' ? this.isGhostEnabled : ghostEnabled,
       this.cache,
       this.logger
     )

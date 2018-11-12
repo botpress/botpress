@@ -7,7 +7,7 @@ import moment from 'moment'
 
 import PageHeader from '~/components/Layout/PageHeader'
 import ContentWrapper from '~/components/Layout/ContentWrapper'
-import {downloadBlob} from '~/util'
+import { downloadBlob } from '~/util'
 
 import styles from './style.scss'
 
@@ -63,7 +63,7 @@ class LoggerView extends Component {
   }
 
   queryLogs = async () => {
-    const {data} = await axios.get('/api/logs', {
+    const { data } = await axios.get(`${window.BOT_API_PATH}/logs`, {
       params: {
         limit: this.state.limit
       }
@@ -88,8 +88,8 @@ class LoggerView extends Component {
   }
 
   downloadArchive = async () => {
-    const {data} = await axios.get('/api/logs/archive/', {responseType: 'blob'});
-    downloadBlob('logs.txt', data);
+    const { data } = await axios.get(`${window.BOT_API_PATH}/logs/archive`, { responseType: 'blob' })
+    downloadBlob('logs.txt', data)
   }
 
   render() {

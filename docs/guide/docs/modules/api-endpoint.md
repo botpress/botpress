@@ -18,7 +18,7 @@ Once you have this, you simply have to call the axios method of your choice, and
 extractNluContent: async () => {
   const axiosConfig = bp.http.getAxiosConfigForBot(event.botId)
   const text = event.payload.text
-  const data = await axios.post(`/api/ext/nlu/extract`, { text }, axiosConfig)
+  const data = await axios.post(`/mod/nlu/extract`, { text }, axiosConfig)
 }
 ```
 
@@ -27,7 +27,13 @@ extractNluContent: async () => {
 When a user is using your module's interface, a bot is already selected so you just need to call `bp.axios`. It is always passed down to your react components as a property.
 
 ```JS
-const result = await this.props.bp.axios.get('/api/ext/my-modyle/query')
+const result = await this.props.bp.axios.get('/mod/my-module/query')
+```
+
+If you need to communicate elsewhere, you need to remove the base url, for example:
+
+```JS
+const result = await this.props.bp.axios.get('https://google.com', { baseURL: '' })
 ```
 
 ## Creating an API endpoint
@@ -53,4 +59,4 @@ router.get('/count', async (req, res) => {
 })
 ```
 
-In the example above, we added a route handler that will be available via `/api/ext/dialog-sessions/count` which fetches data from the database and returns the data as json.
+In the example above, we added a route handler that will be available via `/mod/dialog-sessions/count` which fetches data from the database and returns the data as json.

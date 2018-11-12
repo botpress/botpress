@@ -9,7 +9,7 @@ import style from './style.scss'
 
 import _ from 'lodash'
 
-const api = route => '/api/ext/hitl/' + route
+const api = route => '/mod/hitl/' + route
 
 export default class HitlModule extends React.Component {
   constructor(props) {
@@ -102,7 +102,7 @@ export default class HitlModule extends React.Component {
 
   fetchAllSessions() {
     return this.getAxios()
-      .get('/api/ext/hitl/sessions?onlyPaused=' + this.state.onlyPaused)
+      .get('/mod/hitl/sessions?onlyPaused=' + this.state.onlyPaused)
       .then(res => {
         this.setState({
           loading: false,
@@ -125,7 +125,7 @@ export default class HitlModule extends React.Component {
 
   sendMessage(message) {
     const sessionId = this.state.currentSession.id
-    this.getAxios().post(`/api/ext/hitl/sessions/${sessionId}/message`, { message })
+    this.getAxios().post(`/mod/hitl/sessions/${sessionId}/message`, { message })
   }
 
   renderLoading() {

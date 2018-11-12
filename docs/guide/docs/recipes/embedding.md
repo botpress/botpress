@@ -3,14 +3,12 @@ id: embedding
 title: Embedding the Webchat on a website
 ---
 
-Embedding a bot to your existing site is quite straightforward. You will need to deploy your bot to a server or hosting provider and make it accessible via a URL.
-
-You will then be able to add the following script tag to the end of your `index.html` page.
+Embedding a bot to your existing site is quite straightforward. You will need to deploy your bot to a server or hosting provider and make it accessible via a URL. You will then be able to add the following script tag to the end of your `index.html` page.
 
 NB: Remember to replace <your-url-here> with the URL of your bot!
 
 ```html
-<script src="<your-url-here>/api/ext/channel-web/inject.js"></script>
+<script src="<your-url-here>/assets/modules/channel-web/inject.js"></script>
 ```
 
 After the import script above you need to initialize the bot to the `window` object with the script below.
@@ -22,6 +20,8 @@ After the import script above you need to initialize the bot to the `window` obj
 ```
 
 And that's it! Once you deploy the changes to your website, the bot will become available, and its button will appear.
+
+There is an example included in the default botpress installation at `http://localhost:3000/assets/modules/channel-web/examples/embedded-webchat.html`
 
 # Displaying and hiding the webchat programmatically from the website
 

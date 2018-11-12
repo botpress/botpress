@@ -1,8 +1,8 @@
-import { ghost, Logger } from 'botpress/sdk'
+import { Logger } from 'botpress/sdk'
+import { checkRule } from 'common/auth'
 import { BotLoader } from 'core/bot-loader'
 import { BotConfigFactory, BotConfigWriter } from 'core/config'
 import Database from 'core/database'
-import { checkRule } from 'core/misc/auth'
 import { AuthRole, AuthRoleDb, AuthRule, AuthTeam, AuthTeamMembership, AuthUser, Bot } from 'core/misc/interfaces'
 import { BOTID_REGEX } from 'core/misc/validation'
 import { saltHashPassword } from 'core/services/auth/util'
@@ -151,7 +151,7 @@ export class CommunityAdminService implements AdminService {
     await this.knex(this.botsTable).insert(bot)
     const botConfig = this.botConfigFactory.createDefault({ id: bot.id, name: bot.name })
     await this.botConfigWriter.writeToFile(botConfig)
-    await this.botLoader.mountBot(bot.id, true)
+    await this.botLoader.mountBot(bot.id)
   }
 
   async updateBot(teamId: number, botId: string, bot: Bot): Promise<void> {

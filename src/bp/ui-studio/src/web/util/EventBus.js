@@ -34,11 +34,9 @@ class EventBus extends EventEmitter2 {
       visitorId: getUniqueVisitorId()
     }
 
-    if (window.AUTH_ENABLED) {
-      const token = getToken()
-      if (token) {
-        Object.assign(query, { token: token.token })
-      }
+    const token = getToken()
+    if (token) {
+      Object.assign(query, { token: token.token })
     }
 
     if (this.adminSocket) {

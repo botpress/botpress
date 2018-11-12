@@ -47,7 +47,7 @@ export default class ActionModalForm extends Component {
   }
 
   fetchAvailableFunctions() {
-    return axios.get('/api/flows/available_actions').then(({ data }) => {
+    return axios.get(`${window.BOT_API_PATH}/actions`).then(({ data }) => {
       this.setState({ avActions: data })
     })
   }

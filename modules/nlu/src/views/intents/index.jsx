@@ -79,14 +79,14 @@ export default class IntentsEditor extends React.Component {
       return
     }
 
-    this.props.axios.delete(`/api/ext/nlu/intents/${this.props.intent.name}`).then(() => {
+    this.props.axios.delete(`/mod/nlu/intents/${this.props.intent.name}`).then(() => {
       this.props.reloadIntents && this.props.reloadIntents()
     })
   }
 
   saveIntent = () => {
     this.props.axios
-      .post(`/api/ext/nlu/intents/${this.props.intent.name}`, {
+      .post(`/mod/nlu/intents/${this.props.intent.name}`, {
         utterances: this.getCanonicalUtterances(),
         entities: this.state.entities
       })
@@ -120,7 +120,7 @@ export default class IntentsEditor extends React.Component {
   isDirty = () => this.initialHash && this.computeHash() !== this.initialHash
 
   fetchEntities = () => {
-    return this.props.axios.get(`/api/ext/nlu/entities`).then(res => res.data)
+    return this.props.axios.get(`/mod/nlu/entities`).then(res => res.data)
   }
 
   focusFirstUtterance = () => {

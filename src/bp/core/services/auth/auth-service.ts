@@ -5,8 +5,8 @@ import jsonwebtoken from 'jsonwebtoken'
 import Knex from 'knex'
 
 import Database from '../../database'
-import { Resource } from '../../misc/auth'
 import { AuthUser, TokenUser } from '../../misc/interfaces'
+import { Resource } from '../../misc/resources'
 import { TYPES } from '../../types'
 
 import { InvalidCredentialsError, PasswordExpiredError } from './errors'

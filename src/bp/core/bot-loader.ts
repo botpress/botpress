@@ -49,17 +49,10 @@ export class BotLoader {
     return bots
   }
 
-  async loadAllBots() {
-    const bots = await this.getAllBots()
-    await this.cms.preloadContentForAllBots(Array.from(bots.keys()))
-  }
-
-  async mountBot(botId: string, shouldLoadContentElements?: boolean) {
+  async mountBot(botId: string) {
     await this.ghost.forBot(botId).sync(['actions', 'content-elements', 'flows', 'intents'])
 
-    if (shouldLoadContentElements) {
-      await this.cms.loadContentElementsForBot(botId)
-    }
+    await this.cms.loadContentElementsForBot(botId)
 
     await this.moduleLoader.loadModulesForBot(botId)
 

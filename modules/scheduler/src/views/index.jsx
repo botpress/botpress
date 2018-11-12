@@ -22,7 +22,7 @@ import CreateModal from './create'
 
 import style from './style.scss'
 
-const api = route => '/api/ext/scheduler/' + route
+const api = route => '/mod/scheduler/' + route
 
 export default class SchedulerModule extends React.Component {
   constructor(props) {

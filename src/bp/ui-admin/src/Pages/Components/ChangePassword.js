@@ -30,7 +30,7 @@ class ChangePassword extends Component {
 
     await api
       .getSecured()
-      .post('api/auth/login', {
+      .post('/auth/login', {
         username: this.props.profile.username,
         password: this.state.password,
         newPassword: this.state.newPassword

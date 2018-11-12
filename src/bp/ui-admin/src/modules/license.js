@@ -31,7 +31,7 @@ export const fetchLicense = () => {
   return async dispatch => {
     const license = await api
       .getAnonymous()
-      .get('/api/license')
+      .get('/admin/license')
       .then(({ data }) => data)
 
     dispatch({ type: FETCH_LICENSE_RECEIVED, license })
@@ -40,7 +40,7 @@ export const fetchLicense = () => {
 
 export const fetchLicensing = () => {
   return async dispatch => {
-    const { data } = await api.getSecured({ toastErrors: false }).get(`/api/license/status`)
+    const { data } = await api.getSecured({ toastErrors: false }).get(`admin/license/status`)
 
     dispatch({
       type: FETCH_LICENSING_RECEIVED,

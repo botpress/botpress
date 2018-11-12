@@ -1,7 +1,8 @@
 {
-  "name": "@botpress/qna",
+  "name": "qna",
   "version": "10.47.1",
   "description": "Botpress Q&A module",
+  "private": true,
   "main": "dist/backend/index.js",
   "scripts": {
     "build": "./node_modules/.bin/module-builder build",

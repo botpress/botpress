@@ -5,7 +5,6 @@ import _ from 'lodash'
 import { VError } from 'verror'
 
 import { GhostService } from '..'
-import { BotConfig } from '../../config/bot.config'
 import { Event } from '../../sdk/impl'
 import { TYPES } from '../../types'
 import { CMSService } from '../cms/cms-service'
@@ -114,8 +113,6 @@ export class EventEngine {
     const incoming = new MiddlewareChain<sdk.IO.Event>()
     const outgoing = new MiddlewareChain<sdk.IO.Event>()
 
-    // const botConfig = (await this.ghost.forBot(botId).readFileAsObject('/', 'bot.config.json')) as BotConfig
-
     for (const mw of this.incomingMiddleware) {
       incoming.use(mw.handler)
     }
@@ -123,20 +120,6 @@ export class EventEngine {
     for (const mw of this.outgoingMiddleware) {
       outgoing.use(mw.handler)
     }
-
-    /*for (const name of botConfig.imports.incomingMiddleware) {
-      const mw = this.incomingMiddleware.find(mw => mw.name === name)
-      if (mw) {
-        incoming.use(mw.handler)
-      }
-    }
-
-    for (const name of botConfig.imports.outgoingMiddleware) {
-      const mw = this.outgoingMiddleware.find(mw => mw.name === name)
-      if (mw) {
-        outgoing.use(mw.handler)
-      }
-    }*/
 
     return { incoming, outgoing }
   }

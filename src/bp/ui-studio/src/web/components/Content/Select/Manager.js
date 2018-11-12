@@ -11,13 +11,13 @@ class SelectContentManager extends Component {
     super(props)
 
     window.botpress = window.botpress || {}
-    window.botpress.pickContent = ({ categoryId = null } = {}, callback) => {
+    window.botpress.pickContent = ({ contentType = null } = {}, callback) => {
       const id = nanoId()
       const rootEl = document.createElement('DIV')
       rootEl.setAttribute('data-select-content-container', id)
       document.getElementById('app').appendChild(rootEl)
       this.setState(({ selects }) => ({
-        selects: [...selects, { categoryId, callback, id, rootEl }]
+        selects: [...selects, { contentType, callback, id, rootEl }]
       }))
     }
   }
@@ -44,8 +44,8 @@ class SelectContentManager extends Component {
     const { selects } = this.state
     return (
       <div>
-        {selects.map(({ categoryId, callback, id, rootEl }, i) => (
-          <Select key={id} categoryId={categoryId} onSelect={callback} onClose={this.onClose(i)} container={rootEl} />
+        {selects.map(({ contentType, callback, id, rootEl }, i) => (
+          <Select key={id} contentType={contentType} onSelect={callback} onClose={this.onClose(i)} container={rootEl} />
         ))}
       </div>
     )

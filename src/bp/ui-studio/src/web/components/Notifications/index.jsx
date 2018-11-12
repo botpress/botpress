@@ -41,17 +41,17 @@ export default class NotificationComponent extends Component {
   }
 
   markAsRead = async notif => {
-    await axios.post(`/api/notifications/${notif.id}/read`)
+    await axios.post(`${window.BOT_API_PATH}/notifications/${notif.id}/read`)
     this.props.fetchNotifications()
   }
 
   markAllAsRead = async () => {
-    await axios.post(`/api/notifications/read`)
+    await axios.post(`${window.BOT_API_PATH}/notifications/read`)
     this.props.fetchNotifications()
   }
 
   trashAll = async () => {
-    await axios.post(`/api/notifications/archive`)
+    await axios.post(`${window.BOT_API_PATH}/notifications/archive`)
     this.props.fetchNotifications()
   }
 

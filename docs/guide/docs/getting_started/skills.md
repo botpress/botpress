@@ -13,11 +13,7 @@ They can be seen as reusable components between multiple flows or even multiple 
 
 ## Installing skills
 
-Skills are implemented under a special kind of Botpress module whose name starts with `skill-`. Many skills are open-source and available for you to install.
-
-### Installing the `choice` skill <a class="toc" id="installing-the-choice-skill" href="#installing-the-choice-skill"></a>
-
-To install a new skill, download the module package and add it to your bot. [Click here for instructions on how to download & install modules](../modules/install)
+Every skills must be exposed by a module. Modules can host any number of skills. All you need to do is install the required module and you will have access to its skills.
 
 ## Using skills
 
@@ -40,3 +36,7 @@ You can also visualize the generated skills from the GUI:
 Once a skill node has been generated, you may click on that node and click "Edit" on the left panel to edit that node, which will update the generated flow automatically behind the scenes.
 
 ![Editing a skill from GUI](assets/skillsEdit.jpg)
+
+## Creating a new skill
+
+To create a skill, you must first create a module. Please check the [advanced section](../modules/skill_creation) for all the details.

@@ -36,6 +36,7 @@
     "sass-loader": "^7.1.0",
     "style-loader": "^0.23.0",
     "tar": "^4.4.6",
+    "typescript-json-schema": "^0.33.0",
     "webpack": "^4.20.2",
     "yar": "^9.0.2",
     "yargs": "^12.0.2"
@@ -47,6 +48,7 @@
     "@types/mkdirp": "^0.5.2",
     "@types/rimraf": "^2.0.2",
     "@types/webpack": "^4.4.12",
-    "babel-plugin-search-and-replace": "^0.3.0"
+    "babel-plugin-search-and-replace": "^0.3.0",
+    "clean-webpack-plugin": "^0.1.19"
   }
 }

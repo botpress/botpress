@@ -1,7 +1,8 @@
 {
-  "name": "@botpress/hitl",
+  "name": "hitl",
   "version": "10.43.0",
   "description": "Official HITL (Human In The Loop) module for Botpress",
+  "private": true,
   "main": "dist/backend/index.js",
   "botpress": {
     "src": "src",

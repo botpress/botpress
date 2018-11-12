@@ -99,7 +99,7 @@ export default class CreateModal extends React.Component {
 
     const type = _.find(selectOptions, { id: this.state.expressionType }).type
 
-    const url = '/api/ext/scheduler/schedules'
+    const url = '/mod/scheduler/schedules'
     this.props.axios
       .put(url, {
         schedule_type: type,

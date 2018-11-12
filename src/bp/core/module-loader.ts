@@ -1,4 +1,4 @@
-import { Logger, ModuleDefinition, ModuleEntryPoint } from 'botpress/sdk'
+import { Logger, ModuleDefinition, ModuleEntryPoint, Skill } from 'botpress/sdk'
 import { ValidationError } from 'errors'
 import fse from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
@@ -18,10 +18,7 @@ const MODULE_SCHEMA = joi.object().keys({
   onServerReady: joi.func().required(),
   onBotMount: joi.func().optional(),
   onBotUnmount: joi.func().optional(),
-  config: joi.object().optional(),
-  defaultConfigJson: joi.string().optional(),
-  serveFile: joi.func().optional(),
-  flowGenerator: joi.array().optional(),
+  skills: joi.array().optional(),
   definition: joi.object().keys({
     name: joi.string().required(),
     fullName: joi.string().optional(),
@@ -143,6 +140,7 @@ export class ModuleLoader {
         await (module.onServerReady && module.onServerReady(api))
         this.loadModulesActions(name)
         this.loadModuleHooks(name)
+        this.loadModuleAssets(name)
       } catch (err) {
         this.logger.warn(`Error in module "${name}" 'onServerReady'. Module will still be loaded. Err: ${err.message}`)
       }
@@ -162,10 +160,23 @@ export class ModuleLoader {
     const resolver = new ModuleResolver(this.logger)
     const modulePath = await resolver.resolve('MODULES_ROOT/' + name)
     const moduleActionsDir = `${modulePath}/dist/actions`
+
     if (fse.pathExistsSync(moduleActionsDir)) {
       const globalActionsDir = `${process.PROJECT_LOCATION}/data/global/actions/${name}`
       fse.mkdirpSync(globalActionsDir)
       fse.copySync(moduleActionsDir, globalActionsDir)
+    }
+  }
+
+  private async loadModuleAssets(name: string) {
+    const resolver = new ModuleResolver(this.logger)
+    const modulePath = await resolver.resolve('MODULES_ROOT/' + name)
+    const modulesAssetsPath = `${modulePath}/assets/`
+
+    if (fse.pathExistsSync(modulesAssetsPath)) {
+      const assetsPath = `${process.PROJECT_LOCATION}/assets/modules/${name}`
+      fse.mkdirpSync(assetsPath)
+      fse.copySync(modulesAssetsPath, assetsPath)
     }
   }
 
@@ -190,21 +201,31 @@ export class ModuleLoader {
     return definitions
   }
 
-  public getModuleFile(module: string, path: string): Promise<Buffer> {
-    const def = this.getModule(module)!
+  public async getFlowGenerator(moduleName, skillId) {
+    const module = this.getModule(moduleName)
+    const skill = _.find(module.skills, x => x.id === skillId)
 
-    if (typeof def.serveFile !== 'function') {
-      throw new Error(`Module '${module} does not support serving files'`)
-    }
-
-    return def.serveFile!(path)
+    return skill && skill.flowGenerator
   }
 
-  public async getFlowGenerator(moduleName, flowName) {
-    const module = this.getModule(moduleName)
-    const flow = _.find(module.flowGenerator, x => x.name === flowName)
+  public async getAllSkills() {
+    const allSkills: Skill[] = []
+    const modules = this.getLoadedModules()
 
-    return flow && flow.generator
+    for (const module of modules) {
+      const entryPoint = this.getModule(module.name)
+      const skills = _.map(entryPoint.skills, e => _.pick(e, 'id', 'name'))
+
+      _.forEach(skills, skill =>
+        allSkills.push({
+          id: skill.id,
+          name: skill.name,
+          moduleName: module.name
+        })
+      )
+    }
+
+    return allSkills
   }
 
   private getModule(module: string) {

@@ -11,7 +11,7 @@
       "general/licensing": {
         "title": "Licenses"
       },
-      "general/philosphy": {
+      "general/philosophy": {
         "title": "Introduction"
       },
       "getting_started/actions": {
@@ -71,6 +71,9 @@
       "modules/install": {
         "title": "Installation"
       },
+      "modules/skill_creation": {
+        "title": "Skill creation"
+      },
       "modules/views": {
         "title": "Views"
       },
@@ -113,7 +116,7 @@
     },
     "links": {
       "Docs": "Docs",
-      "Botpress 10.x Docs": "Botpress 10.x Docs",
+      "10.x Docs": "10.x Docs",
       "Help": "Help",
       "API": "API",
       "Github": "Github"

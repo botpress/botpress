@@ -55,7 +55,7 @@ async function cleanup(modulePath) {
 
 async function zipFiles(modulePath, outPath) {
   const packageJson = require(path.join(modulePath, 'package.json'))
-  outPath = outPath.replace(/%name%/gi, packageJson.name.replace('@botpress/', '').replace(/[^\w-]/gi, '_'))
+  outPath = outPath.replace(/%name%/gi, packageJson.name.replace(/[^\w-]/gi, '_'))
   outPath = outPath.replace(/%version%/gi, packageJson.version.replace(/[^\w-]/gi, '_'))
 
   if (!path.isAbsolute(outPath)) {

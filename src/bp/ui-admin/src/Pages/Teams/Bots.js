@@ -82,7 +82,7 @@ class Bots extends Component {
 
     await api
       .getSecured()
-      .post(`/api/teams/${this.props.teamId}/bots`, { id, name: this.state.name })
+      .post(`/admin/teams/${this.props.teamId}/bots`, { id, name: this.state.name })
       .catch(err => this.setState({ errorCreateBot: err }))
     await this.props.fetchTeamData(this.props.teamId)
     this.toggleCreateBotModal()
@@ -196,7 +196,7 @@ class Bots extends Component {
 
   async deleteBot(botId) {
     if (window.confirm("Are you sure you want to delete this bot? This can't be undone.")) {
-      await api.getSecured().delete(`/api/teams/${this.props.teamId}/bots/${botId}`)
+      await api.getSecured().delete(`/admin/teams/${this.props.teamId}/bots/${botId}`)
       await this.props.fetchTeamData(this.props.teamId)
     }
   }

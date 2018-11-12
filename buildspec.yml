@@ -33,20 +33,19 @@ phases:
       - chmod +x ./build/codebuild-extras.sh
       - $(./build/codebuild-extras.sh)
       - echo "BUILDING FOR '$ARTIFACT_NAME' edition '$EDITION'"
-      - yarn install
-      - (cd build/module-builder && yarn install && yarn build)
+      - yarn config set cache-folder $YARN_CACHE_DIR_LINUX
+      - yarn
+      - yarn bootstrap
 
   build:
     commands:
-      - yarn config set cache-folder $YARN_CACHE_DIR_LINUX
-      - (cd src/bp/ui-admin && yarn install && yarn build)
       # OSX Build
       - yarn config set cache-folder $YARN_CACHE_DIR_DARWIN
       - export npm_config_target_platform=darwin
       # Twice because of potential OS-specific errors
       - yarn install --force --ignore-engines
       - yarn install --force --ignore-engines
-      - yarn run build --mac
+      - NODE_ENV=production yarn run build --mac
       - yarn run package --mac
       - mkdir -p out/binaries/data/storage
       - touch out/binaries/data/storage/.keep
@@ -59,7 +58,7 @@ phases:
       - export npm_config_target_platform=windows
       - yarn install --force --ignore-engines
       - yarn install --force --ignore-engines
-      - yarn run build --win32
+      - NODE_ENV=production yarn run build --win32
       - yarn run package --win32
       - mkdir -p out/binaries/data/storage
       - touch out/binaries/data/storage/.keep
@@ -71,7 +70,7 @@ phases:
       - yarn config set cache-folder $YARN_CACHE_DIR_LINUX
       - export npm_config_target_platform=linux
       - yarn install --force --ignore-engines
-      - yarn run build --linux
+      - NODE_ENV=production yarn run build --linux
       - yarn run package --linux
       - mkdir -p out/binaries/data/storage
       - touch out/binaries/data/storage/.keep

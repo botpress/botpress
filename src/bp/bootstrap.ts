@@ -91,7 +91,7 @@ async function start() {
 
   await Botpress.start({ modules })
 
-  logger.info(`UI Proxy running on http://${process.HOST}:${process.PROXY_PORT}/`)
+  logger.info(`Botpress is ready at http://${process.HOST}:${process.PORT}/`)
 }
 
 start().catch(global.printErrorDefault)

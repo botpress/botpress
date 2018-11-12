@@ -1,13 +1,17 @@
+import { Logger } from 'botpress/sdk'
 import { Router } from 'express'
 
 import { ModuleLoader } from '../module-loader'
 import { SkillService } from '../services/dialog/skill/service'
 
 import { CustomRouter } from '.'
+import { asyncMiddleware, error as sendError, success as sendSuccess } from './util'
 export class ModulesRouter implements CustomRouter {
   public readonly router: Router
+  private asyncMiddleware!: Function
 
-  constructor(private moduleLoader: ModuleLoader, private skillService: SkillService) {
+  constructor(logger: Logger, private moduleLoader: ModuleLoader, private skillService: SkillService) {
+    this.asyncMiddleware = asyncMiddleware({ logger })
     this.router = Router({ mergeParams: true })
     this.setupRoutes()
   }
@@ -17,32 +21,32 @@ export class ModulesRouter implements CustomRouter {
       res.json(this.moduleLoader.getLoadedModules())
     })
 
-    this.router.get('/:moduleName/files', async (req, res, next) => {
-      const { path: filePath } = req.query
+    this.router.get(
+      '/skills',
+      this.asyncMiddleware(async (req, res, next) => {
+        try {
+          res.send(await this.moduleLoader.getAllSkills())
+        } catch (err) {
+          next(err)
+        }
+      })
+    )
 
-      if (!filePath) {
-        return next(new Error('Expected a file "path" defined'))
-      }
+    this.router.post(
+      '/:moduleName/skill/:skillId/generateFlow',
+      this.asyncMiddleware(async (req, res) => {
+        const flowGenerator = await this.moduleLoader.getFlowGenerator(req.params.moduleName, req.params.skillId)
 
-      try {
-        res.send(await this.moduleLoader.getModuleFile(req.params.moduleName, filePath))
-      } catch (err) {
-        next(err)
-      }
-    })
+        if (!flowGenerator) {
+          return res.status(404).send('Invalid module name or flow name')
+        }
 
-    this.router.post('/:moduleName/flow/:flowName/generate', async (req, res) => {
-      const flowGenerator = await this.moduleLoader.getFlowGenerator(req.params.moduleName, req.params.flowName)
-
-      if (!flowGenerator) {
-        return res.status(404).send('Invalid module name or flow name')
-      }
-
-      try {
-        res.send(await this.skillService.finalizeFlow(flowGenerator(req.body)))
-      } catch (err) {
-        res.status(400).send(`Error while trying to generate the flow: ${err}`)
-      }
-    })
+        try {
+          res.send(await this.skillService.finalizeFlow(flowGenerator(req.body)))
+        } catch (err) {
+          res.status(400).send(`Error while trying to generate the flow: ${err}`)
+        }
+      })
+    )
   }
 }

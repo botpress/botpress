@@ -33,7 +33,7 @@ export default class BasicAuthentication {
   }
 
   async doLogin({ username, password, newPassword }) {
-    const { data } = await api.getAnonymous({ toastErrors: false }).post('/api/auth/login', {
+    const { data } = await api.getAnonymous({ toastErrors: false }).post('/auth/login', {
       username,
       password,
       newPassword

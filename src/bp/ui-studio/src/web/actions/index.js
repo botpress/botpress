@@ -1,7 +1,6 @@
 import { createAction } from 'redux-actions'
 import axios from 'axios'
 import _ from 'lodash'
-
 import BatchRunner from './BatchRunner'
 
 // Flows
@@ -11,7 +10,7 @@ export const receiveFlows = createAction('FLOWS/RECEIVE', flows => flows, () => 
 export const fetchFlows = () => dispatch => {
   dispatch(requestFlows())
 
-  axios.get('/api/flows/all').then(({ data }) => {
+  axios.get(`${window.BOT_API_PATH}/flows`).then(({ data }) => {
     const flows = _.keyBy(data, 'name')
     dispatch(receiveFlows(flows))
   })
@@ -24,6 +23,8 @@ export const saveAllFlows = () => (dispatch, getState) => {
   dispatch(requestSaveFlows())
 
   const flows = _.values(getState().flows.flowsByName).map(flow => ({
+    name: flow.name,
+    version: '0.0.1',
     flow: flow.name,
     location: flow.location,
     startNode: flow.startNode,
@@ -34,7 +35,7 @@ export const saveAllFlows = () => (dispatch, getState) => {
     timeoutNode: flow.timeoutNode
   }))
 
-  axios.post('/api/flows/save', flows).then(() => {
+  axios.post(`${window.BOT_API_PATH}/flows`, flows).then(() => {
     dispatch(receiveSaveFlows())
   })
 }
@@ -77,24 +78,34 @@ export const setDiagramAction = createAction('FLOWS/FLOW/SET_ACTION')
 // Content
 export const receiveContentCategories = createAction('CONTENT/CATEGORIES/RECEIVE')
 export const fetchContentCategories = () => dispatch =>
-  axios.get('/api/content/categories').then(({ data }) => {
+  axios.get(`${window.BOT_API_PATH}/content/types`).then(({ data }) => {
     dispatch(receiveContentCategories(data))
   })
 
 export const receiveContentItems = createAction('CONTENT/ITEMS/RECEIVE')
-export const fetchContentItems = ({ id, from, count, searchTerm }) => dispatch =>
-  axios
-    .get(`/api/content/items`, { params: { categoryId: id, from, count, searchTerm } })
+export const fetchContentItems = ({ id, from, count, searchTerm }) => dispatch => {
+  const allCategories = `${window.BOT_API_PATH}/content/elements`
+  const specificCategory = `${window.BOT_API_PATH}/content/${id}/elements`
+  return axios
+    .get(id && id != 'all' ? specificCategory : allCategories, {
+      params: { from, count, searchTerm }
+    })
     .then(({ data }) => dispatch(receiveContentItems(data)))
+}
 
 export const receiveContentItemsRecent = createAction('CONTENT/ITEMS/RECEIVE_RECENT')
-export const fetchContentItemsRecent = ({ searchTerm, count = 5, categoryId = 'all' }) => dispatch =>
-  axios
-    .get(`/api/content/items`, { params: { categoryId, count, searchTerm, orderBy: ['createdOn', 'desc'] } })
+export const fetchContentItemsRecent = ({ searchTerm, count = 5, contentType = 'all' }) => dispatch => {
+  const allCategories = `${window.BOT_API_PATH}/content/elements`
+  const specificCategory = `${window.BOT_API_PATH}/content/${contentType}/elements`
+  return axios
+    .get(contentType && contentType != 'all' ? specificCategory : allCategories, {
+      params: { count, searchTerm, orderBy: ['createdOn', 'desc'] }
+    })
     .then(({ data }) => dispatch(receiveContentItemsRecent(data)))
+}
 
 const getBatchedContentItems = ids =>
-  axios.get(`/api/content/items-batched/${ids.join(',')}`).then(({ data }) =>
+  axios.get(`${window.BOT_API_PATH}/content/elements?ids=${ids.join(',')}`).then(({ data }) =>
     data.reduce((acc, item, i) => {
       acc[ids[i]] = item
       return acc
@@ -105,7 +116,7 @@ const getBatchedContentRunner = BatchRunner(getBatchedContentItems)
 
 const getBatchedContentItem = id => getBatchedContentRunner.add(id)
 
-const getSingleContentItem = id => axios.get(`/api/content/items/${id}`).then(({ data }) => data)
+const getSingleContentItem = id => axios.get(`${window.BOT_API_PATH}/content/elements/${id}`).then(({ data }) => data)
 
 export const receiveContentItem = createAction('CONTENT/ITEMS/RECEIVE_ONE')
 export const fetchContentItem = (id, { force = false, batched = false } = {}) => (dispatch, getState) => {
@@ -118,20 +129,20 @@ export const fetchContentItem = (id, { force = false, batched = false } = {}) =>
 }
 
 export const receiveContentItemsCount = createAction('CONTENT/ITEMS/RECEIVE_COUNT')
-export const fetchContentItemsCount = (categoryId = 'all') => dispatch =>
+export const fetchContentItemsCount = (contentType = 'all') => dispatch =>
   axios
-    .get(`/api/content/items/count`, { params: { categoryId } })
+    .get(`${window.BOT_API_PATH}/content/elements/count`, { params: { contentType } })
     .then(data => dispatch(receiveContentItemsCount(data)))
 
-export const upsertContentItem = ({ categoryId, formData, modifyId }) => () =>
-  axios.post(`/api/content/categories/${categoryId}/items/${modifyId || ''}`, { formData })
+export const upsertContentItem = ({ contentType, formData, modifyId }) => () =>
+  axios.post(`${window.BOT_API_PATH}/content/${contentType}/elements/${modifyId || ''}`, { formData })
 
-export const deleteContentItems = data => () => axios.post('/api/content/categories/all/bulk_delete', data)
+export const deleteContentItems = data => () => axios.post(`${window.BOT_API_PATH}/content/elements/bulk_delete`, data)
 
 // License
 export const licenseChanged = createAction('LICENSE/CHANGED')
 export const fetchLicense = () => dispatch => {
-  axios.get('/api/license').then(({ data }) => {
+  axios.get(`${window.API_PATH}/admin/license`).then(({ data }) => {
     dispatch(licenseChanged(data))
   })
 }
@@ -144,39 +155,38 @@ export const updateGlobalStyle = createAction('UI/UPDATE_GLOBAL_STYLE')
 
 // User
 export const userReceived = createAction('USER/RECEIVED')
-export const fetchUser = authEnabled => dispatch => {
-  if (!authEnabled) {
-    dispatch(
-      userReceived({
-        id: 'anonymous',
-        roles: null
-      })
-    )
-    return
-  }
-  axios.get('/api/my-account').then(res => {
-    dispatch(userReceived(res.data))
+export const fetchUser = () => dispatch => {
+  axios.get(`${window.API_PATH}/auth/me/profile`).then(res => {
+    dispatch(userReceived(res.data && res.data.payload))
   })
 }
 
 // Bot
 export const botInfoReceived = createAction('BOT/INFO_RECEIVED')
 export const fetchBotInformation = () => dispatch => {
-  axios.get('/api/bot/information').then(information => {
+  axios.get(`${window.BOT_API_PATH}`).then(information => {
     dispatch(botInfoReceived(information.data))
   })
 }
 
 export const botsReceived = createAction('BOTS/RECEIVED')
 export const fetchAllBots = () => dispatch => {
-  axios.get('/api/teams/bots').then(res => dispatch(botsReceived(res.data)))
+  axios.get(`${window.API_PATH}/admin/teams/bots`).then(res => dispatch(botsReceived(res.data)))
 }
 
 // Modules
 export const modulesReceived = createAction('MODULES/RECEIVED')
 export const fetchModules = () => dispatch => {
-  axios.get('/api/modules').then(res => {
+  axios.get(`${window.API_PATH}/modules`).then(res => {
     dispatch(modulesReceived(res.data))
+  })
+}
+
+// Skills
+export const skillsReceived = createAction('SKILLS/RECEIVED')
+export const fetchSkills = () => dispatch => {
+  axios.get(`${window.API_PATH}/modules/skills`).then(res => {
+    dispatch(skillsReceived(res.data))
   })
 }
 
@@ -184,7 +194,7 @@ export const fetchModules = () => dispatch => {
 export const allNotificationsReceived = createAction('NOTIFICATIONS/ALL_RECEIVED')
 export const newNotificationsReceived = createAction('NOTIFICATIONS/NEW_RECEIVED')
 export const fetchNotifications = () => dispatch => {
-  axios.get('/api/notifications/inbox').then(res => {
+  axios.get(`${window.BOT_API_PATH}/notifications`).then(res => {
     dispatch(allNotificationsReceived(res.data))
   })
 }
@@ -213,7 +223,7 @@ export const requestEditSkill = nodeId => (dispatch, getState) => {
   flow &&
     dispatch(
       editSkill({
-        skillId: 'skill-' + node.skill,
+        skillId: node.skill,
         flowName: node.flow,
         nodeId: nodeId,
         data: flow.skillData

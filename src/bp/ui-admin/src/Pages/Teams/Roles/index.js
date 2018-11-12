@@ -5,15 +5,13 @@ import { connect } from 'react-redux'
 
 import { Button, Col, ListGroup, Row } from 'reactstrap'
 import { MdPersonAdd } from 'react-icons/lib/md'
-
+import { checkRule } from 'common/auth'
 import { pick } from 'lodash'
 
 import { fetchTeamData, fetchExistingPermissions } from '../../../modules/teams'
 import { fetchPermissions } from '../../../modules/user'
-
 import SectionLayout from '../../Layouts/Section'
 import LoadingSection from '../../Components/LoadingSection'
-import { checkRule } from '../../../App/auth'
 
 import api from '../../../api'
 
@@ -60,7 +58,7 @@ class Roles extends Component {
     role = pick(role, 'name', 'description', 'rules')
     return api
       .getSecured()
-      .post(`/api/teams/${this.props.teamId}/roles`, role)
+      .post(`/admin/teams/${this.props.teamId}/roles`, role)
       .then(this.onRoleEditDone)
       .then(this.fetchRoles)
   }
@@ -70,7 +68,7 @@ class Roles extends Component {
     role = pick(role, 'name', 'description', 'rules')
     api
       .getSecured()
-      .patch(`/api/teams/${this.props.teamId}/roles/${id}`, role)
+      .patch(`/admin/teams/${this.props.teamId}/roles/${id}`, role)
       .then(this.onRoleEditDone)
       .then(this.fetchRoles)
   }
@@ -99,7 +97,7 @@ class Roles extends Component {
   onRoleDelete = id => () => {
     api
       .getSecured()
-      .delete(`/api/teams/${this.props.teamId}/roles/${id}`)
+      .delete(`/admin/teams/${this.props.teamId}/roles/${id}`)
       .then(this.fetchRoles)
   }
 

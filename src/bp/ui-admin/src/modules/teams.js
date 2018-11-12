@@ -104,7 +104,7 @@ export const fetchTeams = () => {
       type: FETCH_TEAMS_REQUESTED
     })
 
-    const { data: teams } = await api.getSecured().get('/api/teams')
+    const { data: teams } = await api.getSecured().get('/admin/teams')
 
     dispatch({
       type: FETCH_TEAMS_RECEIVED,
@@ -137,24 +137,24 @@ export const fetchTeamData = (teamId, scopes = { bots: true, members: true, role
     const data = await Promise.props({
       teams: api
         .getSecured()
-        .get(`/api/teams`)
+        .get(`/admin/teams`)
         .then(({ data }) => data),
       bots: scopes.bots
         ? api
             .getSecured()
-            .get(`/api/teams/${teamId}/bots`)
+            .get(`/admin/teams/${teamId}/bots`)
             .then(({ data }) => data)
         : null,
       members: scopes.members
         ? api
             .getSecured()
-            .get(`/api/teams/${teamId}/members`)
+            .get(`/admin/teams/${teamId}/members`)
             .then(({ data }) => data)
         : null,
       roles: scopes.roles
         ? api
             .getSecured()
-            .get(`/api/teams/${teamId}/roles`)
+            .get(`/admin/teams/${teamId}/roles`)
             .then(({ data }) => data)
         : null
     })
@@ -178,7 +178,7 @@ export const fetchExistingPermissions = () => {
 
     const permissions = await api
       .getAnonymous()
-      .get('/api/all-permissions')
+      .get('/admin/all-permissions')
       .then(({ data }) => data)
 
     dispatch({ type: FETCH_PERMISSIONS_RECEIVED, permissions })

@@ -37,14 +37,14 @@ export default class InjectedModuleView extends React.Component {
         })
       }
 
-      const shortName = moduleName.replace(/^botpress-/i, '').replace(/^@botpress\//i, '')
-
-      if (isLite) {
-        script.src = `/js/modules/${shortName}/${subView}`
+      let path = (isLite && subView) || 'web.js'
+      if (!path.endsWith('.js')) {
+        path = path + '.bundle.js'
       } else {
-        script.src = `/js/modules/${shortName}`
+        path = path.replace('.js', '.bundle.js')
       }
 
+      script.src = `/assets/modules/${moduleName}/web/${path}`
       document.getElementsByTagName('head')[0].appendChild(script)
     } else {
       this.setState({ moduleComponent: null })
@@ -55,17 +55,12 @@ export default class InjectedModuleView extends React.Component {
   }
 
   setViewInState(moduleName, viewName, isLite) {
-    const lookupNames =
-      moduleName.startsWith('@botpress/') || moduleName.startsWith('botpress-')
-        ? [moduleName]
-        : ['@botpress/' + moduleName, 'botpress-' + moduleName]
-
     const viewResolve = name => {
       const prop = isLite ? 'default' : viewName
       return window.botpress && window.botpress[name] && window.botpress[name][prop]
     }
 
-    const module = viewResolve(lookupNames.find(viewResolve))
+    const module = viewResolve(moduleName)
 
     if (!module) {
       this.setState({
@@ -102,7 +97,7 @@ export default class InjectedModuleView extends React.Component {
 
     const bp = {
       events: EventBus.default,
-      axios,
+      axios: axios.create({ baseURL: window.BOT_API_PATH }),
       toast
     }
 

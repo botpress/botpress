@@ -5,9 +5,9 @@ import { MdPersonAdd } from 'react-icons/lib/md'
 
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
+import { checkRule } from 'common/auth'
 import moment from 'moment'
 import _ from 'lodash'
-import { checkRule } from '../../App/auth'
 
 import {
   ListGroup,
@@ -67,7 +67,7 @@ class Members extends Component {
 
   removeMember = async username => {
     if (window.confirm("Are you sure you want to remove this member form the team? This can't be undone.")) {
-      await api.getSecured().delete(`/api/teams/${this.props.teamId}/members/${username}`)
+      await api.getSecured().delete(`/admin/teams/${this.props.teamId}/members/${username}`)
       await this.props.fetchTeamData(this.props.teamId)
     }
   }
@@ -80,7 +80,7 @@ class Members extends Component {
   }
 
   addMember = async user => {
-    await api.getSecured().post(`/api/teams/${this.props.teamId}/members/${user.username}`, { role: 'default' })
+    await api.getSecured().post(`/admin/teams/${this.props.teamId}/members/${user.username}`, { role: 'default' })
     await this.props.fetchTeamData(this.props.teamId)
   }
 
@@ -150,7 +150,7 @@ class Members extends Component {
 
     api
       .getSecured()
-      .patch(`/api/teams/${this.props.teamId}/members/${member.username}`, { role })
+      .patch(`/admin/teams/${this.props.teamId}/members/${member.username}`, { role })
       .then(() => {
         this.setState({ changeRoleMember: null, newUserRole: '' })
       })

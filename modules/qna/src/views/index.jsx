@@ -53,7 +53,7 @@ export default class QnaAdmin extends Component {
   shouldAutofocus = true
 
   fetchFlows() {
-    this.props.bp.axios.get('/api/flows/all').then(({ data }) => {
+    this.props.bp.axios.get('/flows').then(({ data }) => {
       const flowsList = data.map(({ name }) => ({ label: name, value: name }))
 
       this.setState({ flows: data, flowsList })
@@ -62,7 +62,7 @@ export default class QnaAdmin extends Component {
 
   fetchData = (page = 1) => {
     const params = { limit: ITEMS_PER_PAGE, offset: (page - 1) * ITEMS_PER_PAGE }
-    this.props.bp.axios.get('/api/ext/qna/list', { params }).then(({ data }) => {
+    this.props.bp.axios.get('/mod/qna/list', { params }).then(({ data }) => {
       const quentionsOptions = data.items.map(({ id, data: { questions } }) => ({
         label: (questions || []).join(','),
         value: id
@@ -78,7 +78,7 @@ export default class QnaAdmin extends Component {
   }
 
   fetchCategories() {
-    this.props.bp.axios.get('/api/ext/qna/categories').then(({ data: { categories } }) => {
+    this.props.bp.axios.get('/mod/qna/categories').then(({ data: { categories } }) => {
       const categoryOptions = categories.map(category => ({ label: category, value: category }))
 
       this.setState({ categoryOptions })
@@ -101,7 +101,7 @@ export default class QnaAdmin extends Component {
     const categories = filterCategory.map(({ value }) => value)
 
     this.props.bp.axios
-      .get('/api/ext/qna/list', {
+      .get('/mod/qna/list', {
         params: {
           question,
           categories,
@@ -118,13 +118,13 @@ export default class QnaAdmin extends Component {
     formData.append('csv', this.state.csvToUpload)
 
     const headers = { 'Content-Type': 'multipart/form-data' }
-    const { data: csvStatusId } = await this.props.bp.axios.post('/api/ext/qna/import/csv', formData, { headers })
+    const { data: csvStatusId } = await this.props.bp.axios.post('/mod/qna/import/csv', formData, { headers })
 
     this.setState({ csvStatusId })
 
     while (this.state.csvStatusId) {
       try {
-        const { data: status } = await this.props.bp.axios.get(`/api/ext/qna/csv-upload-status/${csvStatusId}`)
+        const { data: status } = await this.props.bp.axios.get(`/mod/qna/csv-upload-status/${csvStatusId}`)
 
         this.setState({ csvUploadStatus: status })
 
@@ -144,7 +144,7 @@ export default class QnaAdmin extends Component {
 
   downloadCsv = () =>
     // We can't just download file directly due to security restrictions
-    this.props.bp.axios({ method: 'get', url: '/api/ext/qna/export/csv', responseType: 'blob' }).then(response => {
+    this.props.bp.axios({ method: 'get', url: '/mod/qna/export/csv', responseType: 'blob' }).then(response => {
       this.setState(
         {
           csvDownloadableLinkHref: window.URL.createObjectURL(new Blob([response.data])),
@@ -368,7 +368,7 @@ export default class QnaAdmin extends Component {
     }
 
     if (needDetelete) {
-      this.props.bp.axios.delete(`/api/ext/qna/${id}`, { params }).then(({ data }) => this.setState({ ...data }))
+      this.props.bp.axios.delete(`/mod/qna/${id}`, { params }).then(({ data }) => this.setState({ ...data }))
     }
   }
 
@@ -386,9 +386,7 @@ export default class QnaAdmin extends Component {
     }
 
     item.enabled = value
-    this.props.bp.axios
-      .put(`/api/ext/qna/${id}`, item, { params })
-      .then(({ data: { items } }) => this.setState({ items }))
+    this.props.bp.axios.put(`/mod/qna/${id}`, item, { params }).then(({ data: { items } }) => this.setState({ items }))
   }
 
   renderQustions = questions =>

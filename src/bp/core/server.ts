@@ -1,10 +1,13 @@
 import bodyParser from 'body-parser'
 import { AxiosBotConfig, Logger, RouterOptions } from 'botpress/sdk'
 import LicensingService from 'common/licensing-service'
+import cors from 'cors'
 import errorHandler from 'errorhandler'
 import express from 'express'
+import rewrite from 'express-urlrewrite'
 import { createServer, Server } from 'http'
 import { inject, injectable, tagged } from 'inversify'
+import path from 'path'
 import portFinder from 'portfinder'
 
 import { ConfigProvider } from './config/config-loader'
@@ -23,7 +26,6 @@ import { LogsService } from './services/logs/service'
 import MediaService from './services/media'
 import { NotificationsService } from './services/notification/service'
 import { TYPES } from './types'
-
 const BASE_API_PATH = '/api/v1'
 
 const isProd = process.env.NODE_ENV === 'production'
@@ -67,7 +69,7 @@ export default class HTTPServer {
 
     this.httpServer = createServer(this.app)
 
-    this.modulesRouter = new ModulesRouter(moduleLoader, skillService)
+    this.modulesRouter = new ModulesRouter(this.logger, moduleLoader, skillService)
     this.authRouter = new AuthRouter(this.logger, this.authService, this.adminService)
     this.adminRouter = new AdminRouter(this.logger, this.authService, this.adminService, licenseService)
     this.shortlinksRouter = new ShortLinksRouter()
@@ -84,6 +86,8 @@ export default class HTTPServer {
       ghostService
     })
   }
+
+  resolveAsset = file => path.resolve(process.PROJECT_LOCATION, 'assets', file)
 
   async start() {
     const botpressConfig = await this.configProvider.getBotpressConfig()
@@ -102,11 +106,18 @@ export default class HTTPServer {
       })
     )
 
+    if (config.cors && config.cors.enabled) {
+      this.app.use(cors(config.cors.origin ? { origin: config.cors.origin } : {}))
+    }
+
+    this.app.use('/assets', express.static(this.resolveAsset('')))
+    this.app.use(rewrite('/:app/:botId/*env.js', '/api/v1/bots/:botId/:app/js/env.js'))
+
     this.app.use(`${BASE_API_PATH}/auth`, this.authRouter.router)
     this.app.use(`${BASE_API_PATH}/admin`, this.adminRouter.router)
     this.app.use(`${BASE_API_PATH}/modules`, this.modulesRouter.router)
     this.app.use(`${BASE_API_PATH}/bots/:botId`, this.botsRouter.router)
-    this.app.use(`${BASE_API_PATH}/s`, this.shortlinksRouter.router)
+    this.app.use(`/s`, this.shortlinksRouter.router)
 
     this.app.use(function handleUnexpectedError(err, req, res, next) {
       const statusCode = err.statusCode || 500
@@ -125,14 +136,12 @@ export default class HTTPServer {
       })
     })
 
+    this.setupStaticRoutes(this.app)
+
     process.HOST = config.host
     process.PORT = await portFinder.getPortPromise({ port: config.port })
     if (process.PORT !== config.port) {
       this.logger.warn(`Configured port ${config.port} is already in use. Using next port available: ${process.PORT}`)
-
-      // If both ports are in use, the delay is too short between checks and it reports a false opened port
-      // TODO: Remove when the proxy is removed
-      await Promise.delay(200)
     }
 
     const hostname = config.host === 'localhost' ? undefined : config.host
@@ -140,9 +149,30 @@ export default class HTTPServer {
       this.httpServer.listen(process.PORT, hostname, config.backlog, callback)
     })
 
-    this.logger.info(`API listening on http://${process.HOST}:${process.PORT}`)
-
     return this.app
+  }
+
+  setupStaticRoutes(app) {
+    app.get('/studio', (req, res, next) => res.redirect('/admin'))
+
+    app.use('/:app(studio)/:botId', express.static(this.resolveAsset('ui-studio/public')))
+    app.use('/:app(lite)/:botId?', express.static(this.resolveAsset('ui-studio/public/lite')))
+    app.use('/:app(lite)/:botId', express.static(this.resolveAsset('ui-studio/public')))
+
+    app.get(['/:app(studio)/:botId/*'], (req, res) => {
+      res.contentType('text/html')
+      res.sendFile(this.resolveAsset('ui-studio/public/index.html'))
+    })
+
+    app.use('/admin', express.static(this.resolveAsset('ui-admin/public')))
+
+    app.get(['/admin', '/admin/*'], (req, res) => {
+      res.contentType('text/html')
+      res.sendFile(this.resolveAsset('ui-admin/public/index.html'))
+    })
+
+    app.get('/api/community/hero', (req, res) => res.send({ hidden: true }))
+    app.get('/', (req, res) => res.redirect('/admin'))
   }
 
   createRouterForBot(router: string, options: RouterOptions) {
@@ -158,15 +188,8 @@ export default class HTTPServer {
   }
 
   async getAxiosConfigForBot(botId: string): Promise<AxiosBotConfig> {
-    const botpressConfig = await this.configProvider.getBotpressConfig()
-    const config = botpressConfig.httpServer
-
     return {
-      baseURL: `http://${config.host || 'localhost'}:${process.PROXY_PORT}`,
-      headers: {
-        'X-Botpress-Bot-Id': botId,
-        'X-Botpress-App': 'Studio'
-      }
+      baseURL: `http://${process.HOST || 'localhost'}:${process.PORT}/api/v1/bots/${botId}`
     }
   }
 }

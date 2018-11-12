@@ -64,9 +64,9 @@ class ContentView extends Component {
     })
   }
 
-  currentCategoryId() {
+  currentContentType() {
     return this.state.modifyId
-      ? _.find(this.props.contentItems, { id: this.state.modifyId }).categoryId
+      ? _.find(this.props.contentItems, { id: this.state.modifyId }).contentType
       : this.state.selectedId
   }
 
@@ -87,9 +87,9 @@ class ContentView extends Component {
   }
 
   handleUpsert = () => {
-    const categoryId = this.currentCategoryId()
+    const contentType = this.currentContentType()
     this.props
-      .upsertContentItem({ categoryId, formData: this.state.contentToEdit, modifyId: this.state.modifyId })
+      .upsertContentItem({ contentType, formData: this.state.contentToEdit, modifyId: this.state.modifyId })
       .then(() => this.fetchCategoryItems(this.state.selectedId))
       .then(() => this.setState({ showModal: false }))
   }
@@ -98,7 +98,7 @@ class ContentView extends Component {
     return Promise.all(
       this.props.contentItems
         .filter(({ id }) => ids.includes(id))
-        .map(({ categoryId, formData }) => this.props.upsertContentItem({ formData, categoryId }))
+        .map(({ contentType, formData }) => this.props.upsertContentItem({ formData, contentType }))
     ).then(() => this.fetchCategoryItems(this.state.selectedId))
   }
 
@@ -142,7 +142,7 @@ class ContentView extends Component {
   renderBody() {
     const { selectedId = 'all', contentToEdit } = this.state
     const categories = this.props.categories || []
-    const selectedCategory = _.find(categories, { id: this.currentCategoryId() })
+    const selectedCategory = _.find(categories, { id: this.currentContentType() })
 
     const classNames = classnames(style.content, 'bp-content')
 
@@ -234,4 +234,7 @@ const mapDispatchToProps = {
   deleteContentItems
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ContentView)
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ContentView)
