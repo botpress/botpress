@@ -465,3 +465,19 @@ const entryPoint: sdk.ModuleEntryPoint = {
   skills: skillsToRegister
 }
 ```
+
+## Register Actions
+
+Modules can register new actions that will be available on the flow editor. Please check out the [Custom Code](../build/code) section for more informations about Actions.
+Those actions must be deployed to the `data/global/actions` folder to be recognized by Botpress. Here is how to do that:
+
+1. Create a folder named `actions` in `src`
+1. Add your javascript files in the folder
+1. When you build your module, your files will be copied in the `dist` folder
+1. At every startup, action files are copied in `data/global/actions/$MY_MODULE/`
+
+They are then accessible by the name `$MY_MODULE/$MY_ACTION` in any node or skill
+
+If your action requires external dependencies, you must add them on your module's `package.json` as dependencies. When the VM is initialized, we redirect `require` requests to the node_modules of its parent module.
+
+> Many dependencies are already included with Botpress and do not need to be added to your package (ex: lodash, axios, etc... )
