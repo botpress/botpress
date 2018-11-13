@@ -38,42 +38,6 @@
       "___modules/install": {
         "title": "Installation"
       },
-      "___recipes/analytics": {
-        "title": "Analytics"
-      },
-      "___recipes/apis": {
-        "title": "Using external APIs"
-      },
-      "___recipes/carousel": {
-        "title": "Carousel"
-      },
-      "___recipes/databases": {
-        "title": "Supported databases"
-      },
-      "___recipes/embedding": {
-        "title": "Embedding the Webchat on a website"
-      },
-      "___recipes/hitl": {
-        "title": "HITL (Human-in-the-loop)"
-      },
-      "___recipes/i18n": {
-        "title": "i18n"
-      },
-      "___recipes/index": {
-        "title": "What are they?"
-      },
-      "___recipes/jumps": {
-        "title": "Jump to"
-      },
-      "___recipes/proactive": {
-        "title": "Proactive acting"
-      },
-      "___recipes/shortlinks": {
-        "title": "Shortlinks"
-      },
-      "___recipes/timeout": {
-        "title": "Timeout"
-      },
       "build/channels": {
         "title": "Messaging Channels"
       },
@@ -127,6 +91,9 @@
       },
       "troubleshoot": {
         "title": "Troubleshoot"
+      },
+      "tutorials": {
+        "title": "Tutorials"
       },
       "version-11.0.0-botpressxx": {
         "title": "Migration to Botpress XX"

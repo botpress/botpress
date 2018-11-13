@@ -13,6 +13,6 @@
     ],
     "Deploy": ["deploy/hosting"],
     "Manage": ["manage/admins", "manage/analytics", "manage/sync-changes"],
-    "Developers": ["release-notes", "migrate", "create-module"]
+    "Developers": ["release-notes", "migrate", "create-module", "tutorials"]
   }
 }
