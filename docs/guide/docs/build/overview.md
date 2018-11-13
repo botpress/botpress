@@ -7,7 +7,7 @@ There are some concepts that you need to understand before you can build a chatb
 
 ### Dumb vs Smart
 
-A bot is simply a computer program that uses conversations as its main user interface. We call these interfaces **Conversational User Interfaces** (CUI). A bot can be **dumb** (don't understand much about conversations) or **smart** (understands language and communicates in a human-like way).
+A bot is simply a computer program that uses conversations as its main user interface. We call these interfaces **Conversational User Interfaces** (CUI). A bot can be **dumb** (don't understand much about conversations) or **smart** (understand language and communicate in a human-like way).
 
 While you can develop both kind of bots with Botpress, you will really benefit most of it if you're trying to build a smart bot.
 
