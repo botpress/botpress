@@ -67,7 +67,7 @@ export class PasswordExpiredError extends ResponseError {
 
 export class InvalidLicenseKey extends ResponseError {
   constructor(message?: string) {
-    super('Invalid License Key' + (message ? ' ' + message : ''), 400, 'BP_0010')
+    super('Invalid License Key' + (message ? ' ' + message : ''), 400, 'BP_0011')
   }
 
   type = 'InvalidLicenseKey'
