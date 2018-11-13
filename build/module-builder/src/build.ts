@@ -116,5 +116,6 @@ export async function buildConfigSchema(modulePath: string) {
   const definition = generateSchema(program, 'Config', settings)
   const schema = JSON.stringify(definition, undefined, 2) + os.EOL + os.EOL
 
+  mkdirp.sync(path.resolve(modulePath, 'assets'))
   fs.writeFileSync(path.resolve(modulePath, 'assets', 'config.schema.json'), schema)
 }
