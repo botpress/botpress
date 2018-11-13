@@ -13,7 +13,7 @@ export function config(projectPath) {
 
   const web: webpack.Configuration = {
     mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
-    devtool: process.env.NODE_ENV === 'production' ? false : 'source-map',
+    devtool: process.argv.find(x => x.toLowerCase() === '--nomap') ? false : 'source-map',
     entry: ['./src/views/index.jsx'],
     output: {
       path: path.resolve(projectPath, './assets/web'),

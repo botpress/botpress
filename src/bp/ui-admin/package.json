@@ -42,7 +42,7 @@
     "start": "cross-env PUBLIC_URL=/admin npm-run-all -p watch-css start-js",
     "start:dev": "cross-env PUBLIC_URL=/admin cross-env REACT_APP_API_URL=http://localhost:3000 cross-env PORT=3001 npm-run-all -p watch-css start-js",
     "build-js": "react-app-rewired build",
-    "build": "cross-env PUBLIC_URL=/admin npm-run-all build-css build-js",
+    "build": "yarn build-css && cross-env PUBLIC_URL=/admin yarn build-js",
     "test": "react-app-rewired test --env=jsdom",
     "eject": "react-scripts eject"
   },

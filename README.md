@@ -69,8 +69,7 @@ Botpress is on a mission to make useful bots ubiquitous by powering developers w
 
 If you have errors when building modules (timeout, random errors, etc), try the following:
 
-1. Set the environment variable GULP_SERIES=true before starting the build
-1. If it doesn't work, go in each module folder and type `yarn && yarn build`
+1. Go in each module folder and type `yarn && yarn build`
 
 ## Target a specific Botpress Edition
 

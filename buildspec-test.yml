@@ -3,7 +3,6 @@ version: 0.2
 env:
   variables:
     CHILD_CONCURRENCY: 1
-    GULP_SERIES: true
   parameter-store:
     GIT_PRO_SSH: 'bp_git_pro_ssh_codebuild'
 

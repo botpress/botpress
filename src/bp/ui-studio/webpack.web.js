@@ -12,7 +12,7 @@ const isProduction = process.env.NODE_ENV === 'production'
 const webConfig = {
   mode: isProduction ? 'production' : 'development',
   bail: true,
-  devtool: isProduction ? 'source-map' : 'eval-source-map',
+  devtool: process.argv.find(x => x.toLowerCase() === '--nomap') ? false : 'source-map',
   entry: {
     web: './src/web/index.jsx',
     lite: './src/web/lite.jsx'
