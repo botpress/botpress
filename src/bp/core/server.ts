@@ -3,7 +3,7 @@ import { AxiosBotConfig, Logger, RouterOptions } from 'botpress/sdk'
 import LicensingService from 'common/licensing-service'
 import cors from 'cors'
 import errorHandler from 'errorhandler'
-import { InvalidParameterError, UnlicensedError } from 'errors'
+import { UnlicensedError } from 'errors'
 import express from 'express'
 import rewrite from 'express-urlrewrite'
 import { createServer, Server } from 'http'
@@ -20,7 +20,7 @@ import { GhostService } from './services'
 import ActionService from './services/action/action-service'
 import { AdminService } from './services/admin/service'
 import AuthService from './services/auth/auth-service'
-import { InvalidLicenseKey, InvalidOperationError } from './services/auth/errors'
+import { InvalidLicenseKey } from './services/auth/errors'
 import { CMSService } from './services/cms/cms-service'
 import { FlowService } from './services/dialog/flow/service'
 import { SkillService } from './services/dialog/skill/service'
@@ -125,7 +125,7 @@ export default class HTTPServer {
       if (err instanceof UnlicensedError) {
         throw new InvalidLicenseKey(err.message)
       }
-      next()
+      next(err)
     })
 
     this.app.use(function handleUnexpectedError(err, req, res, next) {
