@@ -27,7 +27,7 @@ select VERSION in patch minor major "Specific Version"
         cd docs/guide/website && yarn $DOCS_VERSION_COMMAND $NEW_VERSION && cd ../../..
 
         # Create commit
-        git add docs/guide/*
+        git add -A
         git commit -m "v$NEW_VERSION"
         git tag -a "v$NEW_VERSION" -m "created tag v$NEW_VERSION"
         echo "-----"
