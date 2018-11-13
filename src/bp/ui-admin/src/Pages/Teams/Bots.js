@@ -91,7 +91,7 @@ class Bots extends Component {
   editBot = async () => {
     await api
       .getSecured()
-      .put(`/api/teams/${this.props.teamId}/bots/${this.state.id}`, {
+      .put(`/admin/teams/${this.props.teamId}/bots/${this.state.id}`, {
         name: this.state.name,
         description: this.state.description
       })
