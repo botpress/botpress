@@ -21,6 +21,7 @@ phases:
 
   pre_build:
     commands:
+      - /usr/local/bin/dockerd-entrypoint.sh
       # Add our encrypted SSH key to our keychain so we can checkout the "Pro" private submodule
       - echo "$GIT_PRO_SSH" > pro-ssh
       - chmod 400 pro-ssh
@@ -34,6 +35,7 @@ phases:
       - echo "BUILDING FOR '$ARTIFACT_NAME' edition '$EDITION'. GIT TAG = '$CODEBUILD_GIT_TAG'"
       - yarn
       - yarn build:modules-builder
+      - yarn build:core
       - yarn build:studio-prod
       - yarn build:admin-prod
 
