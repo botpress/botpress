@@ -34,6 +34,8 @@ phases:
       - echo "BUILDING FOR '$ARTIFACT_NAME' edition '$EDITION'"
       - yarn
       - yarn build:modules-builder
+      - yarn build:studio-prod
+      - yarn build:admin-prod
 
   build:
     commands:
@@ -43,7 +45,7 @@ phases:
       # Twice because of potential OS-specific errors
       - yarn install --force --ignore-engines
       - yarn install --force --ignore-engines
-      - yarn run build --mac
+      - yarn run build-prod --mac
       - yarn run package --mac
       - mkdir -p out/binaries/data/storage
       - touch out/binaries/data/storage/.keep
@@ -56,7 +58,7 @@ phases:
       - export npm_config_target_platform=windows
       - yarn install --force --ignore-engines
       - yarn install --force --ignore-engines
-      - yarn run build --win32
+      - yarn run build-prod --win32
       - yarn run package --win32
       - mkdir -p out/binaries/data/storage
       - touch out/binaries/data/storage/.keep
@@ -68,7 +70,7 @@ phases:
       - yarn config set cache-folder $YARN_CACHE_DIR_LINUX
       - export npm_config_target_platform=linux
       - yarn install --force --ignore-engines
-      - yarn run build --linux
+      - yarn run build-prod --linux
       - yarn run package --linux
       - mkdir -p out/binaries/data/storage
       - touch out/binaries/data/storage/.keep

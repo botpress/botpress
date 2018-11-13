@@ -17,7 +17,7 @@
     "start:admin": "cd src/bp/ui-admin && yarn start:dev",
     "start:studio": "yarn run gulp create-studio-symlink && cd src/bp/ui-studio && yarn watch",
     "build": "yarn build:core && yarn build:modules && yarn build:studio && yarn build:admin",
-    "build-prod": "yarn build:core && yarn build:modules --prod && yarn build:studio-prod && yarn build:admin-prod",
+    "build-prod": "yarn build:core && yarn build:modules --prod",
     "build:core": "./node_modules/.bin/gulp clean-build",
     "build:watch": "./node_modules/.bin/gulp build-watch",
     "build:modules": "./node_modules/.bin/gulp modules",
