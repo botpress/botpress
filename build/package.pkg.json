@@ -6,7 +6,7 @@
   "bin": "index.js",
   "private": true,
   "pkg": {
-    "scripts": ["./core/**/*.js", "./*.js", "./professional/**/*.js"],
+    "scripts": ["./core/**/*.js", "./*.js", "./pro/**/*.js", "./common/**/*.js"],
     "assets": ["../../node_modules/vm2/lib/*.js", "./ui-admin/**", "./ui-studio/**"]
   }
 }

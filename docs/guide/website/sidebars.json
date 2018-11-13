@@ -1,44 +1,17 @@
 {
   "docs": {
-    "General": ["general/welcome", "general/philosophy", "general/botpressxx", "general/licensing"],
-    "Getting Started": [
-      "getting_started/index",
-      "getting_started/install",
-      "getting_started/components",
-      "getting_started/content",
-      "getting_started/flows",
-      "getting_started/actions",
-      "getting_started/storage",
-      "getting_started/skills",
-      "getting_started/nlu",
-      "getting_started/hooks",
-      "getting_started/changes"
+    "Getting Started": ["introduction", "installation", "troubleshoot", "quickstart"],
+    "Build": [
+      "build/overview",
+      "build/nlu",
+      "build/dialogs",
+      "build/code",
+      "build/memory",
+      "build/content",
+      "build/channels",
+      "build/debugging"
     ],
-    "Modules": [
-      "modules/install",
-      "modules/create",
-      "modules/build",
-      "modules/api-endpoint",
-      "modules/views",
-      "modules/actions",
-      "modules/database",
-      "modules/skill_creation",
-      "modules/example"
-    ],
-    "Recipes": [
-      "recipes/index",
-      "recipes/analytics",
-      "recipes/apis",
-      "recipes/carousel",
-      "recipes/deploying",
-      "recipes/databases",
-      "recipes/embedding",
-      "recipes/hitl",
-      "recipes/i18n",
-      "recipes/jumps",
-      "recipes/proactive",
-      "recipes/shortlinks",
-      "recipes/timeout"
-    ]
+    "Deploy": ["deploy/hosting"],
+    "Developers": ["release-notes", "migrate", "create-module", "tutorials"]
   }
 }

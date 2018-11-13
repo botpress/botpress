@@ -34,11 +34,7 @@ class Header extends React.Component {
     return (
       <NavDropdown className={style.account} noCaret title={label} id="account-button">
         <MenuItem header>Signed in as</MenuItem>
-        <MenuItem disabled>
-          ✉️&nbsp;
-          {this.props.user.email}
-        </MenuItem>
-        <MenuItem disabled>
+        <MenuItem>
           👤&nbsp;
           {this.props.user.username}
         </MenuItem>

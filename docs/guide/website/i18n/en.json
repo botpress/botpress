@@ -5,127 +5,131 @@
     "previous": "Previous",
     "tagline": "Guides and references for all you need to know about Botpress",
     "docs": {
-      "general/botpressxx": {
-        "title": "Migration to Botpress XX"
+      "build/channels": {
+        "title": "Messaging Channels"
       },
-      "general/licensing": {
-        "title": "Licenses"
+      "build/code": {
+        "title": "Custom Code"
       },
-      "general/philosophy": {
-        "title": "Introduction"
+      "build/content": {
+        "title": "Content Management"
       },
-      "getting_started/actions": {
-        "title": "Actions"
+      "build/dialogs": {
+        "title": "Flows & Dialogs"
       },
-      "getting_started/changes": {
-        "title": "Changes"
+      "build/memory": {
+        "title": "Bot Memory and Data Retention"
       },
-      "getting_started/components": {
-        "title": "Components"
-      },
-      "getting_started/content": {
-        "title": "Content"
-      },
-      "getting_started/deploying": {
-        "title": "Deploying"
-      },
-      "getting_started/flows": {
-        "title": "Flows"
-      },
-      "getting_started/hooks": {
-        "title": "Hooks"
-      },
-      "getting_started/index": {
-        "title": "What you will learn"
-      },
-      "getting_started/install": {
-        "title": "Installation"
-      },
-      "getting_started/nlu": {
+      "build/nlu": {
         "title": "NLU"
       },
-      "getting_started/skills": {
-        "title": "Skills"
+      "build/overview": {
+        "title": "High-level Overview"
       },
-      "getting_started/storage": {
-        "title": "Storage"
+      "create-module": {
+        "title": "Creating Modules"
       },
-      "modules/actions": {
-        "title": "Actions"
+      "deploy/hosting": {
+        "title": "Hosting & Environment"
       },
-      "modules/api-endpoint": {
-        "title": "API endpoint"
-      },
-      "modules/build": {
-        "title": "Building"
-      },
-      "modules/create": {
-        "title": "Creation"
-      },
-      "modules/database": {
-        "title": "Database"
-      },
-      "modules/example": {
-        "title": "Example"
-      },
-      "modules/install": {
+      "installation": {
         "title": "Installation"
       },
-      "modules/skill_creation": {
-        "title": "Skill creation"
+      "introduction": {
+        "title": "Introduction"
       },
-      "modules/views": {
-        "title": "Views"
+      "manage/admins": {
+        "title": "Bot Administrators"
       },
-      "recipes/analytics": {
+      "manage/analytics": {
         "title": "Analytics"
       },
-      "recipes/apis": {
-        "title": "Using external APIs"
+      "manage/sync-changes": {
+        "title": "Syncing Changes"
       },
-      "recipes/carousel": {
-        "title": "Carousel"
+      "migrate": {
+        "title": "Migrating from 10.X"
       },
-      "recipes/databases": {
-        "title": "Supported databases"
+      "quickstart": {
+        "title": "Quick Start"
       },
-      "recipes/embedding": {
-        "title": "Embedding the Webchat on a website"
+      "release-notes": {
+        "title": "Release Notes"
       },
-      "recipes/hitl": {
-        "title": "HITL (Human-in-the-loop)"
+      "troubleshoot": {
+        "title": "Troubleshoot"
       },
-      "recipes/i18n": {
-        "title": "i18n"
+      "tutorials": {
+        "title": "Tutorials"
       },
-      "recipes/index": {
-        "title": "What are they?"
+      "version-11.0.1-channels": {
+        "title": "Messaging Channels"
       },
-      "recipes/jumps": {
-        "title": "Jump to"
+      "version-11.0.1-code": {
+        "title": "Custom Code"
       },
-      "recipes/proactive": {
-        "title": "Proactive acting"
+      "version-11.0.1-content": {
+        "title": "Content Management"
       },
-      "recipes/shortlinks": {
-        "title": "Shortlinks"
+      "version-11.0.1-dialogs": {
+        "title": "Flows & Dialogs"
       },
-      "recipes/timeout": {
-        "title": "Timeout"
+      "version-11.0.1-memory": {
+        "title": "Bot Memory and Data Retention"
+      },
+      "version-11.0.1-nlu": {
+        "title": "NLU"
+      },
+      "version-11.0.1-overview": {
+        "title": "High-level Overview"
+      },
+      "version-11.0.1-create-module": {
+        "title": "Creating Modules"
+      },
+      "version-11.0.1-hosting": {
+        "title": "Hosting & Environment"
+      },
+      "version-11.0.1-installation": {
+        "title": "Installation"
+      },
+      "version-11.0.1-introduction": {
+        "title": "Introduction"
+      },
+      "version-11.0.1-admins": {
+        "title": "Bot Administrators"
+      },
+      "version-11.0.1-analytics": {
+        "title": "Analytics"
+      },
+      "version-11.0.1-sync-changes": {
+        "title": "Syncing Changes"
+      },
+      "version-11.0.1-migrate": {
+        "title": "Migrating from 10.X"
+      },
+      "version-11.0.1-quickstart": {
+        "title": "Quick Start"
+      },
+      "version-11.0.1-release-notes": {
+        "title": "Release Notes"
+      },
+      "version-11.0.1-troubleshoot": {
+        "title": "Troubleshoot"
+      },
+      "version-11.0.1-tutorials": {
+        "title": "Tutorials"
       }
     },
     "links": {
       "Docs": "Docs",
-      "10.x Docs": "10.x Docs",
-      "Help": "Help",
-      "API": "API",
+      "SDK": "SDK",
       "Github": "Github"
     },
     "categories": {
-      "General": "General",
       "Getting Started": "Getting Started",
-      "Modules": "Modules",
-      "Recipes": "Recipes"
+      "Build": "Build",
+      "Deploy": "Deploy",
+      "Developers": "Developers"
     }
   },
   "pages-strings": {

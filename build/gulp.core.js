@@ -1,4 +1,5 @@
 const path = require('path')
+const fs = require('fs')
 const gulp = require('gulp')
 const ts = require('gulp-typescript')
 const rimraf = require('gulp-rimraf')
@@ -8,6 +9,8 @@ const gulpif = require('gulp-if')
 const run = require('gulp-run')
 const file = require('gulp-file')
 const { symlink } = require('gulp')
+const showdown = require('showdown')
+const cheerio = require('cheerio')
 
 const buildJsonSchemas = require('./jsonschemas')
 const tsProject = ts.createProject(path.resolve(__dirname, '../src/tsconfig.json'))
@@ -116,6 +119,33 @@ const buildReferenceDoc = () => {
   )
 }
 
+const alterReference = async () => {
+  const converter = new showdown.Converter()
+  const markdown = fs.readFileSync(path.join(__dirname, '../docs/reference/README.md'), 'utf8')
+  const html = converter.makeHtml(markdown)
+
+  const original = fs.readFileSync(path.join(__dirname, '../docs/reference/public/modules/_botpress_sdk_.html'), 'utf8')
+  const $ = cheerio.load(original)
+
+  $('.container-main .col-content > .tsd-comment')
+    .removeClass('tsd-comment')
+    .addClass('tsd-typography')
+    .html(html)
+
+  const newFile = $.html()
+
+  fs.writeFileSync(path.join(__dirname, '../docs/reference/public/modules/_botpress_sdk_.html'), newFile)
+
+  $('a').map(function() {
+    const href = $(this).attr('href')
+    if (href && href.startsWith('_botpress_sdk')) {
+      $(this).attr('href', 'modules/' + href)
+    }
+  })
+
+  fs.writeFileSync(path.join(__dirname, '../docs/reference/public/index.html'), $.html())
+}
+
 module.exports = {
   clean,
   fetchPro,
@@ -123,6 +153,7 @@ module.exports = {
   buildTs,
   buildSchemas,
   buildReferenceDoc,
+  alterReference,
   createDirectories,
   copyData,
   copyBotTemplate,

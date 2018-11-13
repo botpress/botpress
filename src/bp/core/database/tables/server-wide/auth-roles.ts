@@ -34,7 +34,7 @@ export class AuthRolesTable extends Table {
           if (process.BOTPRESS_EDITION === undefined || process.BOTPRESS_EDITION === 'ce') {
             await insertRoles(this.knex, this.name, communityRoles)
           } else {
-            const { roles } = require('professional/services/admin/pro-roles')
+            const { roles } = require('pro/services/admin/pro-roles')
             await insertRoles(this.knex, this.name, roles)
           }
         }
