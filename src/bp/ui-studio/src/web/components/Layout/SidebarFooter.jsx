@@ -54,7 +54,7 @@ class SidebarFooter extends React.Component {
   }
 
   renderLicenseStatus() {
-    if (!window.IS_LICENSED) {
+    if (!window.EDITION !== 'ce' && !window.IS_LICENSED) {
       const licenseClassNames = classnames(style.unlicensed, 'bp-unlicensed')
 
       return <div className={licenseClassNames}>Unlicensed</div>
@@ -102,12 +102,7 @@ class SidebarFooter extends React.Component {
             <i className="icon material-icons">home</i>
             <span>Admin</span>
           </a>
-          {this.renderBotSelect()}
-          <div className={productionClassNames}>{production}</div>
           {this.renderLicenseStatus()}
-          <Link className={aboutClassNames} to="#" title="About" onClick={this.openAbout}>
-            About Botpress
-          </Link>
         </div>
       </div>
     )
