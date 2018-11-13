@@ -35,9 +35,6 @@ phases:
       - echo "BUILDING FOR '$ARTIFACT_NAME' edition '$EDITION'. GIT TAG = '$CODEBUILD_GIT_TAG'"
       - yarn
       - yarn build:modules-builder
-      - yarn build:core
-      - yarn build:studio-prod
-      - yarn build:admin-prod
 
   build:
     commands:
