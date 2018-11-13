@@ -5,33 +5,6 @@
     "previous": "Previous",
     "tagline": "Guides and references for all you need to know about Botpress",
     "docs": {
-      "___learn/actions": {
-        "title": "Actions"
-      },
-      "___learn/changes": {
-        "title": "Changes"
-      },
-      "___learn/components": {
-        "title": "Components"
-      },
-      "___learn/content": {
-        "title": "Content"
-      },
-      "___learn/flows": {
-        "title": "Flows"
-      },
-      "___learn/index": {
-        "title": "What you will learn"
-      },
-      "___learn/nlu": {
-        "title": "NLU"
-      },
-      "___learn/skills": {
-        "title": "Skills"
-      },
-      "___learn/storage": {
-        "title": "Storage"
-      },
       "build/channels": {
         "title": "Messaging Channels"
       },
@@ -89,200 +62,62 @@
       "tutorials": {
         "title": "Tutorials"
       },
-      "version-11.0.0-botpressxx": {
-        "title": "Migration to Botpress XX"
+      "version-11.0.1-channels": {
+        "title": "Messaging Channels"
       },
-      "version-11.0.0-licensing": {
-        "title": "Licenses"
+      "version-11.0.1-code": {
+        "title": "Custom Code"
       },
-      "version-11.0.0-philosophy": {
-        "title": "Introduction"
+      "version-11.0.1-content": {
+        "title": "Content Management"
       },
-      "version-11.0.0-actions": {
-        "title": "Actions"
+      "version-11.0.1-dialogs": {
+        "title": "Flows & Dialogs"
       },
-      "version-11.0.0-changes": {
-        "title": "Changes"
+      "version-11.0.1-memory": {
+        "title": "Bot Memory and Data Retention"
       },
-      "version-11.0.0-components": {
-        "title": "Components"
-      },
-      "version-11.0.0-content": {
-        "title": "Content"
-      },
-      "version-11.0.0-deploying": {
-        "title": "Deploying"
-      },
-      "version-11.0.0-flows": {
-        "title": "Flows"
-      },
-      "version-11.0.0-hooks": {
-        "title": "Hooks"
-      },
-      "version-11.0.0-index": {
-        "title": "What are they?"
-      },
-      "version-11.0.0-install": {
-        "title": "Installation"
-      },
-      "version-11.0.0-nlu": {
+      "version-11.0.1-nlu": {
         "title": "NLU"
       },
-      "version-11.0.0-skills": {
-        "title": "Skills"
+      "version-11.0.1-overview": {
+        "title": "High-level Overview"
       },
-      "version-11.0.0-storage": {
-        "title": "Storage"
+      "version-11.0.1-create-module": {
+        "title": "Creating Modules"
       },
-      "version-11.0.0-api-endpoint": {
-        "title": "API endpoint"
+      "version-11.0.1-hosting": {
+        "title": "Hosting & Environment"
       },
-      "version-11.0.0-build": {
-        "title": "Building"
-      },
-      "version-11.0.0-create": {
-        "title": "Creation"
-      },
-      "version-11.0.0-database": {
-        "title": "Database"
-      },
-      "version-11.0.0-example": {
-        "title": "Example"
-      },
-      "version-11.0.0-skill_creation": {
-        "title": "Skill creation"
-      },
-      "version-11.0.0-views": {
-        "title": "Views"
-      },
-      "version-11.0.0-analytics": {
-        "title": "Analytics"
-      },
-      "version-11.0.0-apis": {
-        "title": "Using external APIs"
-      },
-      "version-11.0.0-carousel": {
-        "title": "Carousel"
-      },
-      "version-11.0.0-databases": {
-        "title": "Supported databases"
-      },
-      "version-11.0.0-embedding": {
-        "title": "Embedding the Webchat on a website"
-      },
-      "version-11.0.0-hitl": {
-        "title": "HITL (Human-in-the-loop)"
-      },
-      "version-11.0.0-i18n": {
-        "title": "i18n"
-      },
-      "version-11.0.0-jumps": {
-        "title": "Jump to"
-      },
-      "version-11.0.0-proactive": {
-        "title": "Proactive acting"
-      },
-      "version-11.0.0-shortlinks": {
-        "title": "Shortlinks"
-      },
-      "version-11.0.0-timeout": {
-        "title": "Timeout"
-      },
-      "version-11.0.1-actions": {
-        "title": "Actions"
-      },
-      "version-11.0.1-index": {
-        "title": "What are they?"
-      },
-      "version-11.0.1-install": {
+      "version-11.0.1-installation": {
         "title": "Installation"
       },
       "version-11.0.1-introduction": {
         "title": "Introduction"
       },
-      "version-11.0.1-changes": {
-        "title": "Changes"
-      },
-      "version-11.0.1-components": {
-        "title": "Components"
-      },
-      "version-11.0.1-content": {
-        "title": "Content"
-      },
-      "version-11.0.1-deploying": {
-        "title": "Deploying"
-      },
-      "version-11.0.1-flows": {
-        "title": "Flows"
-      },
-      "version-11.0.1-hooks": {
-        "title": "Hooks"
-      },
-      "version-11.0.1-nlu": {
-        "title": "NLU"
-      },
-      "version-11.0.1-skills": {
-        "title": "Skills"
-      },
-      "version-11.0.1-storage": {
-        "title": "Storage"
-      },
-      "version-11.0.1-api-endpoint": {
-        "title": "API endpoint"
-      },
-      "version-11.0.1-build": {
-        "title": "Building"
-      },
-      "version-11.0.1-create": {
-        "title": "Creation"
-      },
-      "version-11.0.1-database": {
-        "title": "Database"
-      },
-      "version-11.0.1-example": {
-        "title": "Example"
-      },
-      "version-11.0.1-skill_creation": {
-        "title": "Skill creation"
-      },
-      "version-11.0.1-views": {
-        "title": "Views"
+      "version-11.0.1-admins": {
+        "title": "Bot Administrators"
       },
       "version-11.0.1-analytics": {
         "title": "Analytics"
       },
-      "version-11.0.1-apis": {
-        "title": "Using external APIs"
+      "version-11.0.1-sync-changes": {
+        "title": "Syncing Changes"
       },
-      "version-11.0.1-carousel": {
-        "title": "Carousel"
+      "version-11.0.1-migrate": {
+        "title": "Migrating from 10.X"
       },
-      "version-11.0.1-databases": {
-        "title": "Supported databases"
-      },
-      "version-11.0.1-embedding": {
-        "title": "Embedding the Webchat on a website"
-      },
-      "version-11.0.1-hitl": {
-        "title": "HITL (Human-in-the-loop)"
-      },
-      "version-11.0.1-i18n": {
-        "title": "i18n"
-      },
-      "version-11.0.1-jumps": {
-        "title": "Jump to"
-      },
-      "version-11.0.1-proactive": {
-        "title": "Proactive acting"
-      },
-      "version-11.0.1-shortlinks": {
-        "title": "Shortlinks"
-      },
-      "version-11.0.1-timeout": {
-        "title": "Timeout"
+      "version-11.0.1-quickstart": {
+        "title": "Quick Start"
       },
       "version-11.0.1-release-notes": {
-        "title": "Migrating from 10.X"
+        "title": "Release Notes"
+      },
+      "version-11.0.1-troubleshoot": {
+        "title": "Troubleshoot"
+      },
+      "version-11.0.1-tutorials": {
+        "title": "Tutorials"
       }
     },
     "links": {
@@ -294,11 +129,7 @@
       "Getting Started": "Getting Started",
       "Build": "Build",
       "Deploy": "Deploy",
-      "Developers": "Developers",
-      "Learn": "Learn",
-      "Modules": "Modules",
-      "Recipes": "Recipes",
-      "General": "General"
+      "Developers": "Developers"
     }
   },
   "pages-strings": {

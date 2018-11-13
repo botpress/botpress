@@ -2,46 +2,28 @@
   "version-11.0.1-docs": {
     "Getting Started": [
       "version-11.0.1-introduction",
+      "version-11.0.1-installation",
+      "version-11.0.1-troubleshoot",
+      "version-11.0.1-quickstart"
+    ],
+    "Build": [
+      "version-11.0.1-build/overview",
+      "version-11.0.1-build/nlu",
+      "version-11.0.1-build/dialogs",
+      "version-11.0.1-build/code",
+      "version-11.0.1-build/memory",
+      "version-11.0.1-build/content",
+      "version-11.0.1-build/channels",
+      "version-11.0.1-build/debugging"
+    ],
+    "Deploy": [
+      "version-11.0.1-deploy/hosting"
+    ],
+    "Developers": [
       "version-11.0.1-release-notes",
-      "version-11.0.1-installation"
-    ],
-    "Learn": [
-      "version-11.0.1-learn/index",
-      "version-11.0.1-learn/install",
-      "version-11.0.1-learn/components",
-      "version-11.0.1-learn/content",
-      "version-11.0.1-learn/flows",
-      "version-11.0.1-learn/actions",
-      "version-11.0.1-learn/storage",
-      "version-11.0.1-learn/skills",
-      "version-11.0.1-learn/nlu",
-      "version-11.0.1-learn/hooks",
-      "version-11.0.1-learn/changes"
-    ],
-    "Modules": [
-      "version-11.0.1-modules/install",
-      "version-11.0.1-modules/create",
-      "version-11.0.1-modules/build",
-      "version-11.0.1-modules/api-endpoint",
-      "version-11.0.1-modules/views",
-      "version-11.0.1-modules/actions",
-      "version-11.0.1-modules/database",
-      "version-11.0.1-modules/skill_creation",
-      "version-11.0.1-modules/example"
-    ],
-    "Recipes": [
-      "version-11.0.1-recipes/index",
-      "version-11.0.1-recipes/analytics",
-      "version-11.0.1-recipes/apis",
-      "version-11.0.1-recipes/carousel",
-      "version-11.0.1-recipes/databases",
-      "version-11.0.1-recipes/embedding",
-      "version-11.0.1-recipes/hitl",
-      "version-11.0.1-recipes/i18n",
-      "version-11.0.1-recipes/jumps",
-      "version-11.0.1-recipes/proactive",
-      "version-11.0.1-recipes/shortlinks",
-      "version-11.0.1-recipes/timeout"
+      "version-11.0.1-migrate",
+      "version-11.0.1-create-module",
+      "version-11.0.1-tutorials"
     ]
   }
 }
