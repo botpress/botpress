@@ -107,7 +107,7 @@ container.load(...ServicesContainerModules)
 
 if (process.BOTPRESS_EDITION && process.BOTPRESS_EDITION !== 'ce') {
   // Otherwise this will fail on compile when the submodule is not available.
-  const ProContainerModule = require('professional/services/pro.inversify')
+  const ProContainerModule = require('pro/services/pro.inversify')
   container.load(ProContainerModule)
 }
 
