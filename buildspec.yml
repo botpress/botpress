@@ -32,7 +32,7 @@ phases:
       - echo "Edition = '$EDITION'"
       - chmod +x ./build/codebuild-extras.sh
       - $(./build/codebuild-extras.sh)
-      - echo "BUILDING FOR '$ARTIFACT_NAME' edition '$EDITION'"
+      - echo "BUILDING FOR '$ARTIFACT_NAME' edition '$EDITION'. GIT TAG = '$CODEBUILD_GIT_TAG'"
       - yarn
       - yarn build:modules-builder
       - yarn build:core
