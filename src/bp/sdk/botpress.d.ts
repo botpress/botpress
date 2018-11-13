@@ -689,9 +689,6 @@ declare module 'botpress/sdk' {
 
   /**
    * The Key Value Store is perfect to store any type of data as JSON.
-   * @param botId - The ID of the bot
-   * @param id - The element id
-   * @returns A content element
    */
   export namespace kvs {
     /**
