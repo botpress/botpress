@@ -2,6 +2,7 @@ import Promise from 'bluebird'
 import axios from 'axios'
 import _ from 'lodash'
 import { pullToken, logout } from './Auth'
+import { toast } from 'react-toastify'
 
 const defaultOptions = {
   timeout: 2000
@@ -47,6 +48,12 @@ const createClient = (clientOptions, { toastErrors }) => {
     )
   }
   return client
+}
+
+const showToast = message => {
+  toast.error(message, {
+    position: toast.POSITION.TOP_RIGHT
+  })
 }
 
 const overrideApiUrl = process.env.REACT_APP_API_URL

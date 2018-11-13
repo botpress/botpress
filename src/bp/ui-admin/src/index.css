@@ -1,4 +1,3 @@
-@import url(../node_modules/react-toggle-switch/dist/css/switch.min.css);
 :root {
   --c-neutral--dark-2: #000;
   --c-neutral--dark-1: #4a4a4a;
@@ -10,7 +9,7 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; }
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; }
 
 .container > .navbar {
   padding: 0; }
@@ -6766,6 +6765,3 @@ abbr {
 
 .is-block {
   display: block; }
-
-.switch .on {
-  background: #007bff; }
