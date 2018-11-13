@@ -12,9 +12,10 @@ export const asyncMiddleware = ({ logger }: { logger: Logger }) => (
   fn: (req: Request, res: Response, next?: NextFunction) => Promise<any>
 ) => (req: Request, res: Response, next: NextFunction) => {
   Promise.resolve(fn(req, res, next)).catch(err => {
-    if (err.logError) {
+    if (!err.skipLogging) {
       logger.attachError(err).debug(`Async request error ${err.message}`)
     }
+
     next(err)
   })
 }
@@ -36,16 +37,6 @@ export const success = (res: Response, message: string = 'Success', payload = {}
     status: 'success',
     message,
     payload
-  })
-}
-
-export const error = (res: Response, status = 400, code?: string, message?: string, docs?: string) => {
-  res.status(status).json({
-    status: 'error',
-    type: 'Error',
-    code: code || status,
-    message: message || 'Unknown error',
-    docs: docs || 'https://botpress.io/docs'
   })
 }
 

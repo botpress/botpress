@@ -1,4 +1,5 @@
 @import './_colors.scss';
+@import '../node_modules/react-toggle-switch/dist/css/switch.min.css';
 
 $theme-colors: (
   'dark': $dark-background
@@ -180,4 +181,10 @@ pre.code {
 
 .is-block {
   display: block;
+}
+
+.switch {
+  .on {
+    background: #007bff;
+  }
 }

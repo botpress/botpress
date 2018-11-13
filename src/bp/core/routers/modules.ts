@@ -5,7 +5,8 @@ import { ModuleLoader } from '../module-loader'
 import { SkillService } from '../services/dialog/skill/service'
 
 import { CustomRouter } from '.'
-import { asyncMiddleware, error as sendError, success as sendSuccess } from './util'
+import { asyncMiddleware } from './util'
+
 export class ModulesRouter implements CustomRouter {
   public readonly router: Router
   private asyncMiddleware!: Function

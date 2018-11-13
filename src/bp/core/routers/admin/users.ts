@@ -7,7 +7,7 @@ import _ from 'lodash'
 import { CustomRouter } from '..'
 import AuthService from '../../services/auth/auth-service'
 import { InvalidOperationError } from '../../services/auth/errors'
-import { asyncMiddleware, error as sendError, success as sendSuccess, validateBodySchema } from '../util'
+import { asyncMiddleware, success as sendSuccess, validateBodySchema } from '../util'
 
 export class UsersRouter implements CustomRouter {
   private asyncMiddleware!: Function

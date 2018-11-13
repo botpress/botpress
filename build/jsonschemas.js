@@ -20,11 +20,9 @@ module.exports = () => {
     const definition = TJS.generateSchema(program, typeName, settings)
     const json = JSON.stringify(definition, null, 2) + os.EOL + os.EOL
 
-    const filesToWrite = ['./out/bp/data', './src/bp/vanilla'].map(p => path.resolve(p, jsonFile))
-    filesToWrite.forEach(f => {
-      mkdirp.sync(path.dirname(f))
-      fs.writeFileSync(f, json)
-    })
+    const fileToWrite = path.resolve('./out/bp/data', jsonFile)
+    mkdirp.sync(path.dirname(fileToWrite))
+    fs.writeFileSync(fileToWrite, json)
   }
 
   writeSchema('BotpressConfig', 'botpress.config.schema.json')

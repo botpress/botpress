@@ -8,13 +8,13 @@ import { CustomRouter } from '..'
 import { Bot } from '../../misc/interfaces'
 import AuthService from '../../services/auth/auth-service'
 import { InvalidOperationError } from '../../services/auth/errors'
-import { asyncMiddleware, error as sendError, success as sendSuccess, validateBodySchema } from '../util'
+import { asyncMiddleware, success as sendSuccess, validateBodySchema } from '../util'
 
 export class TeamsRouter implements CustomRouter {
   private asyncMiddleware!: Function
   public readonly router: Router
 
-  constructor(logger: Logger, private authService: AuthService, private adminService: AdminService) {
+  constructor(private logger: Logger, private authService: AuthService, private adminService: AdminService) {
     this.asyncMiddleware = asyncMiddleware({ logger })
     this.router = Router({ mergeParams: true })
     this.setupRoutes()
@@ -233,15 +233,29 @@ export class TeamsRouter implements CustomRouter {
         const userId = req.dbUser.id
         await svc.assertUserMember(userId, teamId)
         await svc.assertUserPermission(userId, teamId, 'admin.team.bots', 'write')
-        try {
-          await svc.addBot(teamId, bot)
-        } catch (err) {
-          return sendError(res, 400, undefined, err.message)
-        }
+        await svc.addBot(teamId, bot)
 
         return sendSuccess(res, 'Added new bot', {
           botId: bot.id,
           teamId: teamId
+        })
+      })
+    )
+
+    router.put(
+      '/:teamId/bots/:botId', // Update bot
+      this.asyncMiddleware(async (req, res) => {
+        const { teamId, botId } = req.params
+        const bot = <Bot>req.body
+        const userId = req.dbUser.id
+
+        await svc.assertUserMember(userId, teamId)
+        await svc.assertUserPermission(userId, teamId, 'admin.team.bots', 'write')
+        await svc.updateBot(teamId, botId, bot)
+
+        return sendSuccess(res, 'Updated bot', {
+          botId,
+          teamId
         })
       })
     )

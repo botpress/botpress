@@ -1,4 +1,4 @@
-import { ResponseError } from 'core/errors'
+import { ResponseError } from 'core/routers/errors'
 
 export class AssertionError extends ResponseError {
   constructor(message: string) {
@@ -59,6 +59,7 @@ export class InvalidCredentialsError extends ResponseError {
 export class PasswordExpiredError extends ResponseError {
   constructor(message?: string) {
     super('Password Expired' + (message ? ' ' + message : ''), 400, 'BP_0010')
+    this.skipLogging = true
   }
 
   type = 'PasswordExpiredError'

@@ -5,7 +5,6 @@ import _ from 'lodash'
 import minimatch from 'minimatch'
 import mkdirp from 'mkdirp'
 import path from 'path'
-import stream from 'stream'
 import tmp from 'tmp'
 import { VError } from 'verror'
 

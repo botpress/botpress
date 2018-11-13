@@ -119,23 +119,19 @@ export default class HTTPServer {
     this.app.use(`${BASE_API_PATH}/bots/:botId`, this.botsRouter.router)
     this.app.use(`/s`, this.shortlinksRouter.router)
 
-    this.app.use((err, req, res, next) => {
-      const statusCode = err.status || 500
-      const code = err.code || 'BP_000'
-      const message = (err.code && err.message) || 'Unexpected error'
-      const devOnly = isProd
-        ? {}
-        : {
-            stack: err.stack,
-            full: err.message
-          }
+    this.app.use(function handleUnexpectedError(err, req, res, next) {
+      const statusCode = err.statusCode || 500
+      const errorCode = err.errorCode || 'BP_000'
+      const message = (err.errorCode && err.message) || 'Unexpected error'
+      const docs = err.docs || 'https://botpress.io/docs'
+      const devOnly = isProd ? {} : { showStackInDev: true, stack: err.stack, full: err.message }
 
       res.status(statusCode).json({
-        status: 'error',
-        code,
+        statusCode,
+        errorCode,
         type: err.type || Object.getPrototypeOf(err).name || 'Exception',
         message,
-        docs: err.docs || undefined,
+        docs,
         ...devOnly
       })
     })

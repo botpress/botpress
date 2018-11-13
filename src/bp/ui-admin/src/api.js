@@ -1,6 +1,5 @@
 import Promise from 'bluebird'
 import axios from 'axios'
-import { toast } from 'react-toastify'
 import _ from 'lodash'
 import { pullToken, logout } from './Auth'
 
@@ -18,9 +17,9 @@ const createClient = (clientOptions, { toastErrors }) => {
     response => response,
     error => {
       const wrappedError = _.get(error, 'response.data')
-      const code = _.get(wrappedError, 'code')
-      if (code) {
-        if (code === 'BP_0005') {
+      const errorCode = _.get(wrappedError, 'errorCode')
+      if (errorCode) {
+        if (errorCode === 'BP_0005') {
           return logout()
         }
         return Promise.reject(wrappedError)
@@ -34,16 +33,19 @@ const createClient = (clientOptions, { toastErrors }) => {
     client.interceptors.response.use(
       response => response,
       error => {
-        error.message &&
-          toast.error(error.message, {
-            position: toast.POSITION.TOP_RIGHT
-          })
+        const wrappedMessage = _.get(error, 'response.data.message')
+        if (wrappedMessage) {
+          showToast(wrappedMessage)
+        } else if (error.message) {
+          showToast(error.message)
+        } else {
+          showToast('Something wrong happened. Please try again later.')
+        }
 
         return Promise.reject(error)
       }
     )
   }
-
   return client
 }
 
