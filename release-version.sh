@@ -24,10 +24,9 @@ select VERSION in patch minor major "Specific Version"
         # Bump version
         yarn version --new-version $VERSION --no-git-tag-version
         NEW_VERSION=$(node -p "require('./package.json').version")
-        (cd docs/guide/website && yarn $DOCS_VERSION_COMMAND $NEW_VERSION)
+        cd docs/guide/website && yarn $DOCS_VERSION_COMMAND $NEW_VERSION && cd ../../..
 
         # Create commit
-        echo $PWD
         git add docs/guide/*
         git commit -m "v$NEW_VERSION"
         git tag -a "v$NEW_VERSION" -m "created tag v$NEW_VERSION"
