@@ -1,3 +1,4 @@
+@import url(../node_modules/react-toggle-switch/dist/css/switch.min.css);
 :root {
   --c-neutral--dark-2: #000;
   --c-neutral--dark-1: #4a4a4a;
@@ -6765,3 +6766,6 @@ abbr {
 
 .is-block {
   display: block; }
+
+.switch .on {
+  background: #007bff; }

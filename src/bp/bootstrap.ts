@@ -6,6 +6,7 @@ import './common/polyfills'
 
 import sdk from 'botpress/sdk'
 import chalk from 'chalk'
+import { BotpressEditions } from 'common/editions'
 import { Botpress, Config, Logger } from 'core/app'
 import center from 'core/logger/center'
 import { ModuleLoader } from 'core/module-loader'
@@ -14,10 +15,8 @@ import os from 'os'
 import path from 'path'
 import { FatalError } from './errors'
 
-const editions = { ce: 'Community', pro: 'Professional', ee: 'Enterprise' }
-
 async function start() {
-  let currentEdition = editions[process.BOTPRESS_EDITION] + ' Edition'
+  let currentEdition = BotpressEditions[process.BOTPRESS_EDITION] + ' Edition'
 
   if (process.BOTPRESS_EDITION === 'ce') {
     currentEdition = chalk.cyan(currentEdition)

@@ -1,8 +1,9 @@
-import { ResponseError } from 'core/errors'
+import { BotpressEditions } from 'common/editions'
+import { ResponseError } from 'core/routers/errors'
 
 export class FeatureNotAvailableError extends ResponseError {
   constructor(edition: string) {
-    super(`This feature is not available in the ${edition} edition of Botpress.`, 401, 'BP_001')
+    super(`Feature not available in Botpress ${BotpressEditions[edition]} Edition.`, 401, 'BP_001')
   }
 
   type = 'FeatureNotAvailableError'

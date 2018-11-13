@@ -8,14 +8,14 @@ import { BOTID_REGEX } from 'core/misc/validation'
 import { saltHashPassword } from 'core/services/auth/util'
 import { Statistics } from 'core/stats'
 import { TYPES } from 'core/types'
+import { InvalidParameterError } from 'errors'
 import { inject, injectable } from 'inversify'
 import Joi from 'joi'
 import Knex from 'knex'
 import _ from 'lodash'
 import nanoid from 'nanoid'
 
-import { GhostService } from '..'
-import { InvalidOperationError, UnauthorizedAccessError } from '../auth/errors'
+import { InvalidOperationError, NotFoundError, UnauthorizedAccessError } from '../auth/errors'
 
 import communityRoles from './community-roles'
 import { FeatureNotAvailableError } from './errors'
@@ -30,13 +30,18 @@ export class CommunityAdminService implements AdminService {
   protected botsTable = 'srv_bots'
   protected ROOT_ADMIN_ID = 1
 
-  protected botValidationSchema = Joi.object().keys({
+  protected botCreationSchema = Joi.object().keys({
     id: Joi.string()
       .regex(BOTID_REGEX)
       .required(),
     name: Joi.string().required(),
     description: Joi.string(),
     team: Joi.number().required()
+  })
+
+  protected botEditSchema = Joi.object().keys({
+    name: Joi.string().required(),
+    description: Joi.string().required()
   })
 
   private edition = process.BOTPRESS_EDITION
@@ -138,16 +143,37 @@ export class CommunityAdminService implements AdminService {
   async addBot(teamId: number, bot: Bot): Promise<void> {
     this.stats.track('api', 'admin', 'addBot')
     bot.team = teamId
-    const { error } = Joi.validate(bot, this.botValidationSchema)
+    const { error } = Joi.validate(bot, this.botCreationSchema)
     if (error) {
-      throw new Error(`An error occurred while creating the bot: ${error.message}`)
+      throw new InvalidParameterError(`An error occurred while creating the bot: ${error.message}`)
     }
 
     await this.knex(this.botsTable).insert(bot)
     const botConfig = this.botConfigFactory.createDefault({ id: bot.id, name: bot.name })
     await this.botConfigWriter.writeToFile(botConfig)
-
     await this.botLoader.mountBot(bot.id)
+  }
+
+  async updateBot(teamId: number, botId: string, bot: Bot): Promise<void> {
+    this.stats.track('api', 'admin', 'updateBot')
+
+    const actualBot = await this.getBot({ id: botId, team: teamId })
+    if (!actualBot) {
+      throw new UnauthorizedAccessError(`Team "${teamId}" could not access bot "${botId}"`)
+    }
+
+    const { error } = Joi.validate(bot, this.botEditSchema)
+    if (error) {
+      throw new InvalidParameterError(`An error occurred while updating the bot: ${error.message}`)
+    }
+
+    await this.knex(this.botsTable)
+      .where({ id: botId, team: teamId })
+      .update({
+        name: bot.name,
+        description: bot.description,
+        updated_at: this.knex.date.now()
+      })
   }
 
   async deleteBot(teamId: number, botId: string) {
@@ -162,7 +188,7 @@ export class CommunityAdminService implements AdminService {
   async listBots(teamId: number, offset?: number, limit?: number) {
     const query = this.knex(this.botsTable)
       .where({ team: teamId })
-      .select('id', 'name', 'description', 'created_at')
+      .select('*')
 
     if (offset && limit) {
       query.offset(offset).limit(limit)
@@ -307,6 +333,16 @@ export class CommunityAdminService implements AdminService {
     if (userId !== this.ROOT_ADMIN_ID) {
       throw new UnauthorizedAccessError(`Only root admin is allowed to use this`)
     }
+  }
+
+  // TODO: Move these methods into a repository.
+  protected async getBot(where: {}, select?: Array<keyof Bot>) {
+    return this.knex(this.botsTable)
+      .select(select || ['*'])
+      .where(where)
+      .limit(1)
+      .then<Partial<Bot>[]>(res => res)
+      .get(0)
   }
 
   protected async getRole(where: {}, select?: Array<keyof AuthRole>) {

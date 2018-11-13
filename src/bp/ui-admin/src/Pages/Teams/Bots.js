@@ -2,9 +2,7 @@ import React, { Component } from 'react'
 
 import { IoIosBoxOutline } from 'react-icons/lib/io'
 import { MdCreate } from 'react-icons/lib/md'
-
 import { connect } from 'react-redux'
-
 import jdenticon from 'jdenticon'
 
 import {
@@ -37,10 +35,13 @@ import api from '../../api'
 
 class Bots extends Component {
   state = {
+    isEditBotModalOpen: false,
     isCreateBotModalOpen: false,
     errorCreateBot: undefined,
+    errorEditBot: undefined,
     id: '',
-    name: ''
+    name: '',
+    description: ''
   }
 
   renderLoading() {
@@ -87,8 +88,39 @@ class Bots extends Component {
     this.toggleCreateBotModal()
   }
 
-  toggleCreateBotModal = () =>
+  editBot = async () => {
+    await api
+      .getSecured()
+      .put(`/api/teams/${this.props.teamId}/bots/${this.state.id}`, {
+        name: this.state.name,
+        description: this.state.description
+      })
+      .catch(err => this.setState({ errorEditBot: err }))
+    await this.props.fetchTeamData(this.props.teamId)
+    this.toggleEditBotModal()
+  }
+
+  toggleCreateBotModal = () => {
     this.setState({ isCreateBotModalOpen: !this.state.isCreateBotModalOpen, id: '', name: '' })
+  }
+
+  toggleEditBotModal = async bot => {
+    if (this.state.isEditBotModalOpen) {
+      this.setState({
+        isEditBotModalOpen: false,
+        id: '',
+        name: '',
+        description: ''
+      })
+    } else {
+      this.setState({
+        isEditBotModalOpen: true,
+        id: bot.id,
+        name: bot.name,
+        description: bot.description
+      })
+    }
+  }
 
   renderCreateBot() {
     return (
@@ -118,6 +150,44 @@ class Bots extends Component {
         <ModalFooter>
           <Button color="primary" onClick={this.createBot}>
             Create
+          </Button>
+        </ModalFooter>
+      </Modal>
+    )
+  }
+
+  renderEditBot() {
+    return (
+      <Modal isOpen={this.state.isEditBotModalOpen} toggle={this.toggleEditBotModal}>
+        <ModalHeader toggle={this.toggleEditBotModal}>Edit {this.state.name}</ModalHeader>
+        <ModalBody>
+          <FormGroup>
+            <Label for="name">
+              <strong>Name</strong>
+            </Label>
+            <Input
+              type="text"
+              id="name"
+              value={this.state.name}
+              onChange={e => this.setState({ name: e.target.value })}
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label for="description">
+              <strong>Description</strong>
+            </Label>
+            <Input
+              type="text"
+              id="description"
+              value={this.state.description}
+              onChange={e => this.setState({ description: e.target.value })}
+            />
+            {!!this.state.errorEditBot && <FormFeedback>{this.state.errorEditBot.message}</FormFeedback>}
+          </FormGroup>
+        </ModalBody>
+        <ModalFooter>
+          <Button color="primary" onClick={this.editBot}>
+            Edit
           </Button>
         </ModalFooter>
       </Modal>
@@ -175,6 +245,7 @@ class Bots extends Component {
         <Row>
           <Col xs={12} md={8}>
             {this.renderCreateBot()}
+            {this.renderEditBot()}
             <ListGroup>
               {bots.map(bot => {
                 return (
@@ -184,7 +255,11 @@ class Bots extends Component {
                         {bot.name}
                       </a>
                     </ListGroupItemHeading>
+                    <span>{bot.description}</span>
                     <div className="list-group-item__actions">
+                      <Button color="link" onClick={() => this.toggleEditBotModal(bot)}>
+                        Edit
+                      </Button>
                       <Button color="link" onClick={() => this.deleteBot(bot.id)}>
                         Delete
                       </Button>
