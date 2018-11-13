@@ -99,7 +99,7 @@ const GuideCards = () => (
       },
       {
         content: 'Guides and examples solving typical issues you may run into.',
-        title: '<a href="/docs/recipes">💡 Recipes</a>'
+        title: '<a href="/docs/tutorials">💡 Tutorials</a>'
       }
     ]}
   </Block>
