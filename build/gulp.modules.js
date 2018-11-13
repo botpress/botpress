@@ -61,9 +61,10 @@ const buildModule = (modulePath, cb) => {
   const targetOs = getTargetOSConfig()
   const linkCmd = process.env.LINK ? `&& yarn link "module-builder"` : ''
   const buildForProd = process.argv.find(x => x.toLowerCase() === '--prod') ? `cross-env NODE_ENV=production` : ''
+  const removeMap = process.argv.find(x => x.toLowerCase() === '--nomap') ? `--nomap` : ''
 
   exec(
-    `cross-env npm_config_target_platform=${targetOs} yarn ${linkCmd} && ${buildForProd} yarn build`,
+    `cross-env npm_config_target_platform=${targetOs} yarn ${linkCmd} && ${buildForProd} yarn build ${removeMap}`,
     { cwd: modulePath },
     (err, stdout, stderr) => {
       if (err) {
