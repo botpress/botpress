@@ -3,7 +3,9 @@ id: create-module
 title: Creating Modules
 ---
 
-# Not yet finalized, subject to breaking changes
+<br/>
+
+> ⚠️ Not yet finalized, subject to breaking changes
 
 ## Why should I create a module?
 

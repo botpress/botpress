@@ -3,4 +3,8 @@ id: channels
 title: Messaging Channels
 ---
 
-[TODO] Explain how to install and configure the different messaging channels
+## 🛠 Other channels
+
+> **We are in the progress of adding many more channels to Botpress Server.**
+>
+> If you would like to help us with that, pull requests are welcomed!
