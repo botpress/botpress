@@ -8,14 +8,13 @@ import { BOTID_REGEX } from 'core/misc/validation'
 import { saltHashPassword } from 'core/services/auth/util'
 import { Statistics } from 'core/stats'
 import { TYPES } from 'core/types'
-import { InvalidParameterError } from 'errors'
 import { inject, injectable } from 'inversify'
 import Joi from 'joi'
 import Knex from 'knex'
 import _ from 'lodash'
 import nanoid from 'nanoid'
 
-import { InvalidOperationError, NotFoundError, UnauthorizedAccessError } from '../auth/errors'
+import { InvalidOperationError, UnauthorizedAccessError } from '../auth/errors'
 
 import communityRoles from './community-roles'
 import { FeatureNotAvailableError } from './errors'
@@ -145,7 +144,7 @@ export class CommunityAdminService implements AdminService {
     bot.team = teamId
     const { error } = Joi.validate(bot, this.botCreationSchema)
     if (error) {
-      throw new InvalidParameterError(`An error occurred while creating the bot: ${error.message}`)
+      throw new InvalidOperationError(`An error occurred while creating the bot: ${error.message}`)
     }
 
     await this.knex(this.botsTable).insert(bot)
@@ -164,7 +163,7 @@ export class CommunityAdminService implements AdminService {
 
     const { error } = Joi.validate(bot, this.botEditSchema)
     if (error) {
-      throw new InvalidParameterError(`An error occurred while updating the bot: ${error.message}`)
+      throw new InvalidOperationError(`An error occurred while updating the bot: ${error.message}`)
     }
 
     await this.knex(this.botsTable)

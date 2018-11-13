@@ -125,6 +125,7 @@ export default class HTTPServer {
       if (err instanceof UnlicensedError) {
         throw new InvalidLicenseKey(err.message)
       }
+      next()
     })
 
     this.app.use(function handleUnexpectedError(err, req, res, next) {
