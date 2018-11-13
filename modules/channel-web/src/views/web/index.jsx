@@ -446,7 +446,7 @@ export default class Web extends React.Component {
   handleSessionReset = () => {
     const userId = window.__BP_VISITOR_ID
     const url = `/mod/channel-web/conversations/${userId}/${this.state.currentConversationId}/reset`
-    return this.props.bp.axios.post(url, {}, ...this.axiosConfig).then()
+    return this.props.bp.axios.post(url, {}, this.axiosConfig).then()
   }
 
   renderOpenIcon() {

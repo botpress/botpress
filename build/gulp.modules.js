@@ -59,9 +59,12 @@ const getTargetOSConfig = () => {
 
 const buildModule = (modulePath, cb) => {
   const targetOs = getTargetOSConfig()
-  const linkCmd = process.env.LINK ? ` && yarn link "module-builder"` : ''
+  const linkCmd = process.env.LINK ? `&& yarn link "module-builder"` : ''
+  const buildForProd = process.argv.find(x => x.toLowerCase() === '--prod') ? `cross-env NODE_ENV=production` : ''
+  const removeMap = process.argv.find(x => x.toLowerCase() === '--nomap') ? `--nomap` : ''
+
   exec(
-    `cross-env npm_config_target_platform=${targetOs} yarn${linkCmd} && yarn build`,
+    `cross-env npm_config_target_platform=${targetOs} yarn ${linkCmd} && ${buildForProd} yarn build ${removeMap}`,
     { cwd: modulePath },
     (err, stdout, stderr) => {
       if (err) {
@@ -100,11 +103,11 @@ const buildModules = () => {
     return taskName
   })
 
-  if (yn(process.env.GULP_SERIES)) {
-    return gulp.series(tasks)
+  if (yn(process.env.GULP_PARALLEL)) {
+    return gulp.parallel(tasks)
   }
 
-  return gulp.parallel(tasks)
+  return gulp.series(tasks)
 }
 
 const packageModules = () => {
