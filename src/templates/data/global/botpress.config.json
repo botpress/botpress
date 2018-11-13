@@ -41,7 +41,7 @@
     },
     {
       "location": "MODULES_ROOT/hitl",
-      "enabled": true
+      "enabled": false
     },
     {
       "location": "MODULES_ROOT/qna",
@@ -53,7 +53,7 @@
     },
     {
       "location": "MODULES_ROOT/audience",
-      "enabled": true
+      "enabled": false
     },
     {
       "location": "MODULES_ROOT/analytics",

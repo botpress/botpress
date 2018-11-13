@@ -84,6 +84,7 @@ We use [Docusaurus](https://docusaurus.io/en/) to create the Developer's Guide.
 
 - To start the development server, run `yarn start:guide`
 - To generate the static files, run `yarn build:guide`. The generated files will appear under `/docs/guide/build`
+- To deploy a new version of the documentation, run `yarn run version <version here>`
 
 ### SDK Reference
 

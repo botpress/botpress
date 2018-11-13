@@ -1,6 +1,6 @@
 {
   "name": "botpress",
-  "version": "11.0.0",
+  "version": "11.0.1",
   "description": "The world's most powerful conversational engine",
   "engines": {
     "node": ">=10"
@@ -94,6 +94,7 @@
     "@types/universal-analytics": "^0.4.2",
     "@types/verror": "^1.10.3",
     "babel-jest": "^23.6.0",
+    "cheerio": "^1.0.0-rc.2",
     "cross-env": "^5.2.0",
     "gulp": "^4.0.0",
     "gulp-cli": "^2.0.1",
@@ -116,6 +117,7 @@
     "pkg": "./pkg-v4.3.4.tgz",
     "prettier": "^1.14.3",
     "rimraf": "^2.6.2",
+    "showdown": "^1.9.0",
     "ts-jest": "^23.10.1",
     "tslint": "^5.11.0",
     "typedoc": "^0.13.0",

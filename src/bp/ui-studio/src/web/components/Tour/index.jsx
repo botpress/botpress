@@ -117,7 +117,7 @@ export default class GuidedTour extends React.Component {
             <a
               target="_blank"
               rel="noopener noreferrer"
-              href="https://botpress.io/docs/getting_started/trivia_deploying/#using-postgres-as-the-database"
+              href="https://botpress.io/docs/learn/trivia_deploying/#using-postgres-as-the-database"
             >
               enable the Postgres database
             </a>{' '}
@@ -135,7 +135,7 @@ export default class GuidedTour extends React.Component {
         <p>
           Deployment tutorials are{' '}
           <a
-            href="https://botpress.io/docs/getting_started/trivia_deploying/#deploying-to-self-hosted-server"
+            href="https://botpress.io/docs/learn/trivia_deploying/#deploying-to-self-hosted-server"
             target="_blank"
             rel="noopener noreferrer"
           >

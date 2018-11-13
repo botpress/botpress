@@ -1,0 +1,29 @@
+{
+  "version-11.0.1-docs": {
+    "Getting Started": [
+      "version-11.0.1-introduction",
+      "version-11.0.1-installation",
+      "version-11.0.1-troubleshoot",
+      "version-11.0.1-quickstart"
+    ],
+    "Build": [
+      "version-11.0.1-build/overview",
+      "version-11.0.1-build/nlu",
+      "version-11.0.1-build/dialogs",
+      "version-11.0.1-build/code",
+      "version-11.0.1-build/memory",
+      "version-11.0.1-build/content",
+      "version-11.0.1-build/channels",
+      "version-11.0.1-build/debugging"
+    ],
+    "Deploy": [
+      "version-11.0.1-deploy/hosting"
+    ],
+    "Developers": [
+      "version-11.0.1-release-notes",
+      "version-11.0.1-migrate",
+      "version-11.0.1-create-module",
+      "version-11.0.1-tutorials"
+    ]
+  }
+}

@@ -18,7 +18,7 @@ export interface Config {
   provider: string
   /**
    * Enable logging of debug messages
-   * @default false
+   * @default true
    */
   debugModeEnabled: boolean
   /**

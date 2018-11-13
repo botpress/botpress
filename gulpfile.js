@@ -14,7 +14,7 @@ const buildTasks = [core.fetchPro, core.writeEdition, core.buildTs, core.buildSc
 gulp.task('create-studio-symlink', gulp.series([core.cleanStudioAssets, core.cleanStudio, core.createStudioSymlink]))
 gulp.task('copy-admin', core.copyAdmin)
 gulp.task('copy-studio', gulp.series([core.cleanStudioAssets, core.cleanStudio, core.copyStudio]))
-gulp.task('build-reference', core.buildReferenceDoc)
+gulp.task('build-reference', gulp.series([core.buildReferenceDoc, core.alterReference]))
 gulp.task('clean-build', gulp.series([core.clean, ...buildTasks]))
 gulp.task('clean-build-watch', gulp.series([core.clean, ...buildTasks, core.watch]))
 gulp.task('build-watch', gulp.series([...buildTasks, core.watch]))

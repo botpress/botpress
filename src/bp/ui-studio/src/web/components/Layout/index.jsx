@@ -58,7 +58,7 @@ class Layout extends React.Component {
           <Header />
           <section className={classNames}>
             <Switch>
-              <Route exact path="/" render={() => <Redirect to="/dashboard" />} />
+              <Route exact path="/" render={() => <Redirect to="/flows" />} />
               <Route exact path="/dashboard" component={Dashboard} />
               <Route exact path="/middleware" component={Middleware} />
               <Route exact path="/content" component={Content} />
@@ -79,7 +79,6 @@ class Layout extends React.Component {
         />
         <AboutComponent opened={this.props.aboutModalOpened} />
         <PluginInjectionSite site="overlay" />
-        <HelpButton />
         <SelectContentManager />
         <BackendToast />
       </div>
@@ -96,4 +95,7 @@ const mapStateToProps = (state, ownProps) => ({
 
 const mapDispatchToProps = dispatch => bindActionCreators({ toggleLicenseModal, viewModeChanged }, dispatch)
 
-export default connect(mapStateToProps, mapDispatchToProps)(Layout)
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Layout)

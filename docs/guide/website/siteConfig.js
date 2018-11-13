@@ -11,7 +11,7 @@
 const siteConfig = {
   title: "Botpress | Developer's Guide",
   tagline: 'Guides and references for all you need to know about Botpress',
-  url: 'https://botpress.io',
+  url: 'https://botpress.io/docs',
   baseUrl: '/',
   repoUrl: 'https://github.com/botpress/botpress',
   projectName: 'botpress-docs',
@@ -19,15 +19,14 @@ const siteConfig = {
 
   algolia: {
     apiKey: '570227d66d130d069630e7226c740158',
-    indexName: 'botpress'
+    indexName: 'botpress',
+    facetFilters: ['version:VERSION']
   },
 
   headerLinks: [
-    { doc: 'general/philosophy', label: 'Docs' },
-    { href: '/docs/10.50', label: '10.x Docs' },
-    { href: 'https://help.botpress.io/', label: 'Help' },
-    { href: 'reference/', label: 'API' },
-    { href: 'https://github.com/botpress', label: 'Github' },
+    { doc: 'introduction', label: 'Docs' },
+    { href: 'https://botpress.io/reference/', label: 'SDK' },
+    { href: 'https://github.com/botpress/botpress', label: 'Github' },
     { search: true }
   ],
 

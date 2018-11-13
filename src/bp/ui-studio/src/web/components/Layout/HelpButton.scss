@@ -12,7 +12,7 @@
   position: relative;
   width: 56px;
   height: 56px;
-  background-color: #242424;
+  background-color: #181818;
   color: #fff;
   border-radius: 50%;
   cursor: pointer;
@@ -95,7 +95,7 @@
     }
 
     &.btn3 {
-      background-color: #242424;
+      background-color: #181818;
       transition: background-color 0.12s, transform 0.12s cubic-bezier(0.2, 0.7, 0.5, 1) 80ms,
         opacity 0.12s cubic-bezier(0.2, 0.7, 0.5, 1) 80ms, bottom 0.12s cubic-bezier(0.2, 0.7, 0.5, 1) 80ms;
 

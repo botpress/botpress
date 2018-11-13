@@ -33,7 +33,6 @@
     bottom: 0;
     width: 100%;
     opacity: 1;
-    padding-bottom: 10px;
   }
 
   .license {
@@ -46,8 +45,12 @@
   }
 
   .unlicensed {
-    color: #d84744;
+    background-color: #d84744;
     font-weight: bold;
+    padding: 5px;
+    color: #ffffff !important;
+    text-align: center;
+    margin: 5px 0 0 0 !important;
   }
 
   a:hover {
@@ -61,7 +64,6 @@
     display: flex;
     align-items: center;
     padding: 0 15px;
-    margin-bottom: 5px;
     line-height: 44px;
     text-decoration: none;
 

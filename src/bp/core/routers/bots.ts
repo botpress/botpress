@@ -107,7 +107,9 @@ export class BotsRouter implements CustomRouter {
       botpress: {
         name: 'Botpress Server',
         version: process.BOTPRESS_VERSION
-      }
+      },
+      isLicensed: process.IS_LICENSED,
+      edition: process.BOTPRESS_EDITION
     }
   }
 
@@ -132,6 +134,8 @@ export class BotsRouter implements CustomRouter {
               window.GHOST_ENABLED = ${data.ghostEnabled};
               window.BOTPRESS_FLOW_EDITOR_DISABLED = ${data.flowEditorDisabled};
               window.BOTPRESS_CLOUD_SETTINGS = {"botId":"","endpoint":"","teamId":"","env":"dev"};
+              window.IS_LICENSED = ${data.isLicensed};
+              window.EDITION = '${data.edition}';
           `
 
       const totalEnv = `
