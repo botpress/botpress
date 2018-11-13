@@ -32,12 +32,6 @@
       "___learn/storage": {
         "title": "Storage"
       },
-      "___modules/actions": {
-        "title": "Actions"
-      },
-      "___modules/install": {
-        "title": "Installation"
-      },
       "build/channels": {
         "title": "Messaging Channels"
       },
@@ -300,7 +294,6 @@
       "Getting Started": "Getting Started",
       "Build": "Build",
       "Deploy": "Deploy",
-      "Manage": "Manage",
       "Developers": "Developers",
       "Learn": "Learn",
       "Modules": "Modules",

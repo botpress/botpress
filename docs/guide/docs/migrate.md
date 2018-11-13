@@ -3,24 +3,6 @@ id: migrate
 title: Migrating from 10.X
 ---
 
-## Warning
-
-## Multi-bots
-
-## Modules
-
-## Configuration
-
-## SDK & APIs
-
-## Actions
-
-## Migration Tips
-
-Suggested Steps..
-
----
-
 ## How to migrate your bots to 11.0
 
 This guide will show you how to migrate your bot from Botpress X to Botpress Server.
