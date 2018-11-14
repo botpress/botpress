@@ -43,10 +43,6 @@ const copySdkDefinitions = () => {
   return stream
 }
 
-const copyBoilerplateFiles = cb => {
-  cb() // No boiletplate files for now
-}
-
 const getTargetOSConfig = () => {
   if (process.argv.find(x => x.toLowerCase() === '--win32')) {
     return 'win32'
@@ -90,6 +86,16 @@ const packageModule = (modulePath, cb) => {
     }
   )
 }
+const buildModuleBuilder = cb => {
+  exec(`yarn && yarn build`, { cwd: 'build/module-builder' }, (err, stdout, stderr) => {
+    if (err) {
+      console.error(stderr)
+      return cb(err)
+    }
+    console.log(stdout)
+    cb()
+  })
+}
 
 const buildModules = () => {
   const modules = getAllModulesRoot()
@@ -126,4 +132,8 @@ const packageModules = () => {
   return gulp.series(tasks)
 }
 
-module.exports = { copySdkDefinitions, copyBoilerplateFiles, buildModules, packageModules }
+const build = () => {
+  return gulp.series([buildModuleBuilder, copySdkDefinitions, buildModules()])
+}
+
+module.exports = { build, copySdkDefinitions, buildModules, packageModules, buildModuleBuilder }

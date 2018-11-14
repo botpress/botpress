@@ -4,9 +4,9 @@ const rimraf = require('gulp-rimraf')
 const { symlink } = require('gulp')
 
 const build = () => {
-  // gulp.task('build:studio', buildStudio)
-  // gulp.task('build:admin', buildAdmin)
-  return gulp.series([buildStudio, buildAdmin])
+  gulp.task('build:studio', gulp.series([buildStudio, cleanStudio, cleanStudioAssets, copyStudio]))
+  gulp.task('build:admin', gulp.series([buildAdmin, copyAdmin]))
+  return gulp.series(['build:studio', 'build:admin'])
 }
 
 const buildStudio = cb => {
@@ -31,10 +31,6 @@ const buildAdmin = cb => {
   })
 }
 
-const copyAssets = () => {
-  return gulp.series([copyAdmin, cleanStudio, cleanStudioAssets, copyStudio])
-}
-
 const copyAdmin = () => {
   return gulp.src('./src/bp/ui-admin/build/**/*').pipe(gulp.dest('./out/bp/ui-admin/public'))
 }
@@ -55,7 +51,30 @@ const createStudioSymlink = () => {
   return gulp.src('./src/bp/ui-studio/public').pipe(symlink('./out/bp/assets/ui-studio/', { type: 'dir' }))
 }
 
+const watchAdmin = cb => {
+  exec('yarn start:dev', { cwd: 'src/bp/ui-admin' }, (err, stdout, stderr) => {
+    if (err) {
+      console.error(stderr)
+      return cb(err)
+    }
+    cb()
+  })
+}
+
+const watch = cb => {
+  exec('yarn watch', { cwd: 'src/bp/ui-studio' }, (err, stdout, stderr) => {
+    if (err) {
+      console.error(stderr)
+      return cb(err)
+    }
+    cb()
+  })
+}
+
+const watchStudio = () => gulp.series([createStudioSymlink, watch])
+
 module.exports = {
   build,
-  copyAssets
+  watchStudio,
+  watchAdmin
 }
