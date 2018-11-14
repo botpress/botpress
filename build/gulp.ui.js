@@ -11,7 +11,8 @@ const build = () => {
 
 const buildStudio = cb => {
   const src = 'src/bp/ui-studio'
-  exec('yarn && yarn build', { cwd: src }, (err, stdout, stderr) => {
+  const cmd = process.argv.includes('--prod') ? 'yarn && yarn build:prod --nomap' : 'yarn && yarn build'
+  exec(cmd, { cwd: src }, (err, stdout, stderr) => {
     if (err) {
       console.error(stderr)
       return cb(err)
@@ -21,8 +22,9 @@ const buildStudio = cb => {
 }
 
 const buildAdmin = cb => {
+  const prod = process.argv.includes('--prod') ? '--nomap' : ''
   const src = 'src/bp/ui-admin'
-  exec('yarn && yarn build', { cwd: src }, (err, stdout, stderr) => {
+  exec(`yarn && yarn build ${prod}`, { cwd: src }, (err, stdout, stderr) => {
     if (err) {
       console.error(stderr)
       return cb(err)
