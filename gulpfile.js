@@ -10,27 +10,29 @@ process.on('uncaughtException', err => {
   process.exit(1)
 })
 
-gulp.task('watch', gulp.parallel([ui.watchStudio(), ui.watchAdmin]))
+gulp.task('watch', gulp.parallel([core.watch, ui.watchAll()]))
+gulp.task('watch:core', core.watch)
 gulp.task('watch:studio', ui.watchStudio())
 gulp.task('watch:admin', ui.watchAdmin)
+
+gulp.task('build', gulp.series([core.build(), modules.build(), ui.build()]))
 gulp.task('build:ui', ui.build())
-gulp.task('start:guide', docs.startDevServer)
+gulp.task('build:core', core.build())
+gulp.task('build:modules', gulp.series([modules.build()])) // FIXME: Fails on his own, but works in gulp build
+
 gulp.task('build:guide', docs.buildGuide)
 gulp.task('build:reference', docs.buildReference())
-gulp.task('build', gulp.series([core.build(), modules.build(), ui.build()]))
-gulp.task('build:core', core.build())
-gulp.task('watch:core', core.watch)
+
+gulp.task('start:guide', docs.startDevServer)
+
 gulp.task('package:core', package.packageCore())
 gulp.task(
   'package',
   gulp.series([
     package.packageApp,
-    ...(process.argv.includes('--skip-modules') ? [] : [modules.packageModules()]),
+    modules.packageModules(),
     package.copyData,
     package.copyTemplates,
     package.copyNativeExtensions
-  ])
+  ]) // FIXME: Fails
 )
-gulp.task('build:modules', modules.build())
-
-// gulp.task('create-studio-symlink', gulp.series([core.cleanStudioAssets, core.cleanStudio, core.createStudioSymlink]))

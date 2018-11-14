@@ -52,7 +52,7 @@ const createStudioSymlink = () => {
 }
 
 const watchAdmin = cb => {
-  exec('yarn start:dev', { cwd: 'src/bp/ui-admin' }, (err, stdout, stderr) => {
+  exec('yarn && yarn start:dev', { cwd: 'src/bp/ui-admin' }, (err, stdout, stderr) => {
     if (err) {
       console.error(stderr)
       return cb(err)
@@ -62,7 +62,7 @@ const watchAdmin = cb => {
 }
 
 const watch = cb => {
-  exec('yarn watch', { cwd: 'src/bp/ui-studio' }, (err, stdout, stderr) => {
+  exec('yarn && yarn watch', { cwd: 'src/bp/ui-studio' }, (err, stdout, stderr) => {
     if (err) {
       console.error(stderr)
       return cb(err)
@@ -71,10 +71,18 @@ const watch = cb => {
   })
 }
 
-const watchStudio = () => gulp.series([createStudioSymlink, watch])
+const watchStudio = () => {
+  return gulp.series([createStudioSymlink, watch])
+}
+
+const watchAll = () => {
+  return gulp.series([watchStudio(), watchAdmin])
+}
 
 module.exports = {
   build,
+  watchAll,
   watchStudio,
-  watchAdmin
+  watchAdmin,
+  createStudioSymlink
 }
