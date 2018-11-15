@@ -66,7 +66,7 @@ const buildSchemas = cb => {
   cb()
 }
 
-const build = isProd => {
+const build = () => {
   return gulp.series([
     maybeFetchPro,
     writeMetadata,

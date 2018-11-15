@@ -4,12 +4,14 @@ const package = require('./build/gulp.package')
 const gulp = require('gulp')
 const ui = require('./build/gulp.ui')
 const docs = require('./build/gulp.docs')
+const rimraf = require('rimraf')
 
 process.on('uncaughtException', err => {
-  console.error('An error occured in your gulpfile: ', err)
+  console.error('An error occurred in your gulpfile: ', err)
   process.exit(1)
 })
 
+gulp.task('clean', cb => rimraf('out', cb))
 gulp.task('watch', gulp.parallel([core.watch, ui.watchAll()]))
 gulp.task('watch:core', core.watch)
 gulp.task('watch:studio', ui.watchStudio())
