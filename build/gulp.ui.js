@@ -74,11 +74,11 @@ const watch = cb => {
 }
 
 const watchStudio = () => {
-  return gulp.series([createStudioSymlink, watch])
+  return gulp.series([cleanStudioAssets, createStudioSymlink, watch])
 }
 
 const watchAll = () => {
-  return gulp.series([watchStudio(), watchAdmin])
+  return gulp.parallel([watchStudio(), watchAdmin])
 }
 
 module.exports = {

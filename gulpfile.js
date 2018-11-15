@@ -18,7 +18,7 @@ gulp.task('watch:admin', ui.watchAdmin)
 gulp.task('build', gulp.series([core.build(), modules.build(), ui.build()]))
 gulp.task('build:ui', ui.build())
 gulp.task('build:core', core.build())
-gulp.task('build:modules', gulp.series([modules.build()])) // FIXME: Fails on his own, but works in gulp build
+gulp.task('build:modules', gulp.series([modules.build()]))
 
 gulp.task('build:guide', docs.buildGuide)
 gulp.task('build:reference', docs.buildReference())
