@@ -14,11 +14,16 @@ export class InstructionFactory {
     )
   }
 
-  static createOnReceive(node, flow): Instruction[] {
+  static createOnReceive(node, flow): Instruction[] | undefined {
     const flowReceive = _.get(flow, 'catchAll.onReceive', []) || []
-    const nodeReceive = _.get(node, 'onReceive', []) || []
 
-    return [...flowReceive, ...nodeReceive].map(
+    // We return undefined instead of an empty array so we can "wait" even when the array is empty
+    // Used for "wait for message"
+    if (!node.onReceive) {
+      return undefined
+    }
+
+    return [...flowReceive, ...node.onReceive].map(
       (x): Instruction => ({
         type: 'on-receive',
         fn: x
