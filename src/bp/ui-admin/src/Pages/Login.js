@@ -46,7 +46,6 @@ export default class Login extends Component {
 
   renderForm = () => {
     if (this.state.passwordExpired) {
-      console.log('redirect', this.state)
       return <Redirect to={{ pathname: '/ChangePassword', state: this.state }} />
     }
 
