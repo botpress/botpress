@@ -11,21 +11,14 @@ process.on('uncaughtException', err => {
   process.exit(1)
 })
 
-gulp.task('clean', cb => rimraf('out', cb))
-gulp.task('watch', gulp.parallel([core.watch, ui.watchAll()]))
-gulp.task('watch:core', core.watch)
-gulp.task('watch:studio', ui.watchStudio())
-gulp.task('watch:admin', ui.watchAdmin)
-
 gulp.task('build', gulp.series([core.build(), modules.build(), ui.build()]))
 gulp.task('build:ui', ui.build())
 gulp.task('build:core', core.build())
 gulp.task('build:modules', gulp.series([modules.build()]))
 
+gulp.task('start:guide', docs.startDevServer)
 gulp.task('build:guide', docs.buildGuide)
 gulp.task('build:reference', docs.buildReference())
-
-gulp.task('start:guide', docs.startDevServer)
 
 gulp.task('package:core', package.packageCore())
 gulp.task(
@@ -38,3 +31,11 @@ gulp.task(
     package.copyNativeExtensions
   ])
 )
+
+gulp.task('watch', gulp.parallel([core.watch, ui.watchAll()]))
+gulp.task('watch:core', core.watch)
+gulp.task('watch:studio', ui.watchStudio())
+gulp.task('watch:admin', ui.watchAdmin)
+
+gulp.task('clean:node', cb => rimraf('**/node_modules/**', cb))
+gulp.task('clean:out', cb => rimraf('out', cb))
