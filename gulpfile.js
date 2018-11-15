@@ -34,5 +34,5 @@ gulp.task(
     package.copyData,
     package.copyTemplates,
     package.copyNativeExtensions
-  ]) // FIXME: Fails
+  ])
 )
