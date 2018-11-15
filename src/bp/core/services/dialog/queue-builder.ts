@@ -28,10 +28,10 @@ export class InstructionsQueueBuilder {
       }
 
       const onReceive = InstructionFactory.createOnReceive(this.currentNode, this.currentFlow)
-      if (!_.isEmpty(onReceive)) {
+      if (onReceive) {
         this._queue.enqueue({ type: 'wait' })
+        this._queue.enqueue(...onReceive)
       }
-      this._queue.enqueue(...onReceive)
     }
 
     const transition = InstructionFactory.createTransition(this.currentNode, this.currentFlow)
