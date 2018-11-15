@@ -282,7 +282,8 @@ module.exports = {
       const categoryWrapper = this.isMicrosoftMakerUsed ? ['category'] : []
       const parseOptions = {
         fields: ['question', 'action', 'answer', 'answer2', ...categoryWrapper],
-        header: true
+        header: true,
+        withBOM: true
       }
 
       const json2csvParser = new Json2csvParser(parseOptions)
