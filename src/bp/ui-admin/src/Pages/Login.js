@@ -17,7 +17,11 @@ export default class Login extends Component {
       })
     } catch (err) {
       if (err.type === 'PasswordExpiredError') {
-        this.setState({ passwordExpired: true, username, password })
+        if (!this.state.username || !this.state.password) {
+          this.setState({ username, password })
+        }
+
+        this.setState({ passwordExpired: true })
       } else {
         showError && this.setState({ error: err.message })
       }
@@ -42,6 +46,7 @@ export default class Login extends Component {
 
   renderForm = () => {
     if (this.state.passwordExpired) {
+      console.log('redirect', this.state)
       return <Redirect to={{ pathname: '/ChangePassword', state: this.state }} />
     }
 
