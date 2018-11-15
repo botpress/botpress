@@ -1,34 +1,18 @@
 const path = require('path')
-const fs = require('fs')
 const gulp = require('gulp')
 const ts = require('gulp-typescript')
-const rimraf = require('gulp-rimraf')
 const sourcemaps = require('gulp-sourcemaps')
-const typedoc = require('gulp-typedoc')
 const gulpif = require('gulp-if')
 const run = require('gulp-run')
 const file = require('gulp-file')
-const { symlink } = require('gulp')
-const showdown = require('showdown')
-const cheerio = require('cheerio')
-
 const buildJsonSchemas = require('./jsonschemas')
-const tsProject = ts.createProject(path.resolve(__dirname, '../src/tsconfig.json'))
 
-const wipe = () => {
-  return gulp.src(['./node_modules', './out']).pipe(rimraf())
+const maybeFetchPro = () => {
+  const runningPro = process.env.EDITION === 'pro' || process.env.EDITION === 'ee'
+  return gulp.src('./').pipe(gulpif(runningPro, run('git submodule update --init', { verbosity: 2 })))
 }
 
-const clean = () => {
-  return gulp.src('./out', { allowEmpty: true }).pipe(rimraf())
-}
-
-const runningPro = process.env.EDITION === 'pro' || process.env.EDITION === 'ee'
-const fetchPro = () => {
-  return gulp.src('./').pipe(gulpif(runningPro, run('git submodule init && git submodule update', { verbosity: 2 })))
-}
-
-const writeEdition = () => {
+const writeMetadata = () => {
   const metadata = JSON.stringify(
     {
       edition: process.env.EDITION || 'ce',
@@ -41,7 +25,8 @@ const writeEdition = () => {
   return file('metadata.json', metadata, { src: true }).pipe(gulp.dest('./'))
 }
 
-const buildTs = () => {
+const tsProject = ts.createProject(path.resolve(__dirname, '../src/tsconfig.json'))
+const compileTypescript = () => {
   return tsProject
     .src()
     .pipe(sourcemaps.init())
@@ -58,17 +43,17 @@ const buildTs = () => {
 }
 
 const watch = () => {
-  return gulp.watch('./src/**/*.ts', buildTs)
+  return gulp.watch('./src/**/*.ts', compileTypescript)
 }
 
-const createDirectories = () => {
+const createOutputDirs = () => {
   return gulp
     .src('*.*', { read: false })
     .pipe(gulp.dest('./out/bp/data'))
     .pipe(gulp.dest('./out/bp/data/storage'))
 }
 
-const copyData = () => {
+const copyGlobalTemplate = () => {
   return gulp.src('./src/templates/data/**/*').pipe(gulp.dest('./out/bp/data', { overwrite: false }))
 }
 
@@ -76,92 +61,24 @@ const copyBotTemplate = () => {
   return gulp.src('./src/templates/bot-template/**/*').pipe(gulp.dest('./out/bp/templates/bot-template'))
 }
 
-const copyAdmin = () => {
-  return gulp.src('./src/bp/ui-admin/build/**/*').pipe(gulp.dest('./out/bp/ui-admin/public'))
-}
-
-const cleanStudio = () => {
-  return gulp.src('./out/bp/ui-studio/public', { allowEmpty: true }).pipe(rimraf())
-}
-
-const cleanStudioAssets = () => {
-  return gulp.src('./out/bp/assets/ui-studio/public', { allowEmpty: true }).pipe(rimraf())
-}
-
-const copyStudio = () => {
-  return gulp.src('./src/bp/ui-studio/public/**/*').pipe(gulp.dest('./out/bp/ui-studio/public'))
-}
-
-const createStudioSymlink = () => {
-  return gulp.src('./src/bp/ui-studio/public').pipe(symlink('./out/bp/assets/ui-studio/', { type: 'dir' }))
-}
-
 const buildSchemas = cb => {
   buildJsonSchemas()
   cb()
 }
 
-const buildReferenceDoc = () => {
-  return gulp.src(['./src/bp/sdk/botpress.d.ts']).pipe(
-    typedoc({
-      out: './docs/reference/public',
-      mode: 'file',
-      name: 'Botpress SDK',
-      readme: './docs/reference/README.md',
-      gaID: 'UA-90034220-1',
-      includeDeclarations: true,
-      ignoreCompilerErrors: true,
-      version: true,
-      excludeExternals: true,
-      excludePattern: '**/node_modules/**',
-      tsconfig: path.resolve(__dirname, '../src/tsconfig.json')
-    })
-  )
-}
-
-const alterReference = async () => {
-  const converter = new showdown.Converter()
-  const markdown = fs.readFileSync(path.join(__dirname, '../docs/reference/README.md'), 'utf8')
-  const html = converter.makeHtml(markdown)
-
-  const original = fs.readFileSync(path.join(__dirname, '../docs/reference/public/modules/_botpress_sdk_.html'), 'utf8')
-  const $ = cheerio.load(original)
-
-  $('.container-main .col-content > .tsd-comment')
-    .removeClass('tsd-comment')
-    .addClass('tsd-typography')
-    .html(html)
-
-  const newFile = $.html()
-
-  fs.writeFileSync(path.join(__dirname, '../docs/reference/public/modules/_botpress_sdk_.html'), newFile)
-
-  $('a').map(function() {
-    const href = $(this).attr('href')
-    if (href && href.startsWith('_botpress_sdk')) {
-      $(this).attr('href', 'modules/' + href)
-    }
-  })
-
-  fs.writeFileSync(path.join(__dirname, '../docs/reference/public/index.html'), $.html())
+const build = () => {
+  return gulp.series([
+    maybeFetchPro,
+    writeMetadata,
+    compileTypescript,
+    buildSchemas,
+    createOutputDirs,
+    copyGlobalTemplate,
+    copyBotTemplate
+  ])
 }
 
 module.exports = {
-  clean,
-  fetchPro,
-  writeEdition,
-  buildTs,
-  buildSchemas,
-  buildReferenceDoc,
-  alterReference,
-  createDirectories,
-  copyData,
-  copyBotTemplate,
-  copyAdmin,
-  cleanStudio,
-  cleanStudioAssets,
-  copyStudio,
-  createStudioSymlink,
-  watch,
-  wipe
+  build,
+  watch
 }

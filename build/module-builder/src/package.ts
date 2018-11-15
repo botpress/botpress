@@ -1,5 +1,4 @@
 import { exec } from 'child_process'
-import fs from 'fs'
 import glob from 'glob'
 import path from 'path'
 import rimraf from 'rimraf'

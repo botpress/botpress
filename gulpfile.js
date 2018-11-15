@@ -1,37 +1,41 @@
-const gulp = require('gulp')
 const core = require('./build/gulp.core')
 const modules = require('./build/gulp.modules')
 const package = require('./build/gulp.package')
+const gulp = require('gulp')
+const ui = require('./build/gulp.ui')
+const docs = require('./build/gulp.docs')
+const rimraf = require('rimraf')
 
 process.on('uncaughtException', err => {
-  console.error('An error coccured in your gulpfile: ', err)
+  console.error('An error occurred in your gulpfile: ', err)
   process.exit(1)
 })
 
-const dataTasks = [core.createDirectories, core.copyData, core.copyBotTemplate]
-const buildTasks = [core.fetchPro, core.writeEdition, core.buildTs, core.buildSchemas, ...dataTasks]
+gulp.task('build', gulp.series([core.build(), modules.build(), ui.build()]))
+gulp.task('build:ui', ui.build())
+gulp.task('build:core', core.build())
+gulp.task('build:modules', gulp.series([modules.build()]))
 
-gulp.task('create-studio-symlink', gulp.series([core.cleanStudioAssets, core.cleanStudio, core.createStudioSymlink]))
-gulp.task('copy-admin', core.copyAdmin)
-gulp.task('copy-studio', gulp.series([core.cleanStudioAssets, core.cleanStudio, core.copyStudio]))
-gulp.task('build-reference', gulp.series([core.buildReferenceDoc, core.alterReference]))
-gulp.task('clean-build', gulp.series([core.clean, ...buildTasks]))
-gulp.task('clean-build-watch', gulp.series([core.clean, ...buildTasks, core.watch]))
-gulp.task('build-watch', gulp.series([...buildTasks, core.watch]))
-gulp.task('watch', core.watch)
-gulp.task('clean', core.clean)
-gulp.task('modules', gulp.series([modules.copySdkDefinitions, modules.copyBoilerplateFiles, modules.buildModules()]))
-gulp.task(
-  'package:core',
-  gulp.series([package.packageApp, package.copyData, package.copyTemplates, package.copyNativeExtensions])
-)
+gulp.task('start:guide', docs.startDevServer)
+gulp.task('build:guide', docs.buildGuide)
+gulp.task('build:reference', docs.buildReference())
+
+gulp.task('package:core', package.packageCore())
 gulp.task(
   'package',
   gulp.series([
     package.packageApp,
-    ...(process.argv.includes('--skip-modules') ? [] : [modules.packageModules()]),
+    modules.packageModules(),
     package.copyData,
     package.copyTemplates,
     package.copyNativeExtensions
   ])
 )
+
+gulp.task('watch', gulp.parallel([core.watch, ui.watchAll()]))
+gulp.task('watch:core', core.watch)
+gulp.task('watch:studio', ui.watchStudio())
+gulp.task('watch:admin', ui.watchAdmin)
+
+gulp.task('clean:node', cb => rimraf('**/node_modules/**', cb))
+gulp.task('clean:out', cb => rimraf('out', cb))

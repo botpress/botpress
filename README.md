@@ -62,7 +62,7 @@ Botpress is on a mission to make useful bots ubiquitous by powering developers w
 ## Quick Start
 
 1. Run `yarn` to fetch node packages.
-1. Run `yarn bootstrap` to build the admin website and buid the app.
+1. Run `yarn build` to build the core, the UI and the modules.
 1. Run `yarn start` to start the server.
 
 ### Building issues

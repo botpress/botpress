@@ -71,7 +71,20 @@ const copyNativeExtensions = async () => {
   }
 }
 
+const packageCore = () => gulp.series([packageApp, copyData, copyTemplates, copyNativeExtensions])
+
+const package = modules => {
+  return gulp.series([
+    package.packageApp,
+    ...(process.argv.includes('--skip-modules') ? [] : modules),
+    package.copyData,
+    package.copyTemplates,
+    package.copyNativeExtensions
+  ])
+}
+
 module.exports = {
+  packageCore,
   packageApp,
   copyData,
   copyTemplates,
