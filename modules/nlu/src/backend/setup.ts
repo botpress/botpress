@@ -1,5 +1,6 @@
 import 'bluebird-global'
 import retry from 'bluebird-retry'
+import * as sdk from 'botpress/sdk'
 import moment from 'moment'
 import util from 'util'
 
@@ -17,14 +18,13 @@ export const initModule = async (bp: SDK, botScopedNlu: Map<string, ScopedNlu>) 
   bp.events.registerMiddleware({
     name: 'nlu.incoming',
     direction: 'incoming',
-    handler: async (event, next) => {
+    handler: async (event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) => {
       await processEvent(event)
       next()
     },
     order: 10,
     description:
-      'Process natural language in the form of text. Structured data with an action and parameters for that action is injected in the incoming message event.',
-    enabled: true
+      'Process natural language in the form of text. Structured data with an action and parameters for that action is injected in the incoming message event.'
   })
 
   async function processEvent(event) {

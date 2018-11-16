@@ -20,11 +20,10 @@ export default async (bp: SDK, db: Database) => {
     direction: 'outgoing',
     handler: outgoingHandler,
     name: 'web.sendMessages',
-    order: 100,
-    enabled: true
+    order: 100
   })
 
-  async function outgoingHandler(event: sdk.IO.Event, next: Function) {
+  async function outgoingHandler(event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) {
     if (event.channel !== 'web') {
       return next()
     }
@@ -34,7 +33,7 @@ export default async (bp: SDK, db: Database) => {
     const conversationId = event.threadId || (await db.getOrCreateRecentConversation(event.botId, userId))
 
     if (!_.includes(outgoingTypes, messageType)) {
-      return next('Unsupported event type: ' + event.type)
+      return next(new Error('Unsupported event type: ' + event.type))
     }
 
     if (messageType === 'typing') {
@@ -69,7 +68,8 @@ export default async (bp: SDK, db: Database) => {
       throw new Error(`Message type "${messageType}" not implemented yet`)
     }
 
-    // FIXME Make official API (BotpressAPI.events.updateStatus(event.id, 'done'))
+    next(undefined, false)
+    // TODO Make official API (BotpressAPI.events.updateStatus(event.id, 'done'))
   }
 }
 

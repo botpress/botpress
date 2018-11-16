@@ -197,6 +197,20 @@ declare module 'botpress/sdk' {
     }
 
     /**
+     * Call next with an error as first argument to throw an error
+     * Call next with true as second argument to swallow the event (i.e. stop the processing chain)
+     * Call next with no parameters or false as second argument to continue processing to next middleware
+     */
+    export type MiddlewareNextCallback = (error?: Error, swallow?: boolean) => void
+
+    /**
+     * The actual middleware function that gets executed. It receives an event and expects to call next()
+     * Not calling next() will result in a middleware timeout and will stop processing
+     * If you intentionally want to stop processing, call `next(null, false)`
+     */
+    export type MiddlewareHandler = (event: Event, next: MiddlewareNextCallback) => void
+
+    /**
      * The Middleware Definition is used by the event engine to register a middleware in the chain. The order in which they
      * are executed is important, since some may require previous processing, while others can swallow the events.
      * Incoming chain is executed when the bot receives an event.
@@ -209,10 +223,9 @@ declare module 'botpress/sdk' {
       /** The position in which this middleware should intercept messages in the middleware chain. */
       order: number
       /** A method with two parameters (event and a callback) used to handle the event */
-      handler: Function
+      handler: MiddlewareHandler
       /** Indicates if this middleware should act on incoming or outgoing events */
       direction: EventDirection
-      enabled: boolean
     }
 
     export interface EventConstructor {

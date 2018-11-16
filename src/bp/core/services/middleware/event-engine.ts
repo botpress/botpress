@@ -110,8 +110,8 @@ export class EventEngine {
   }
 
   private async getBotMiddlewareChains(botId: string) {
-    const incoming = new MiddlewareChain<sdk.IO.Event>()
-    const outgoing = new MiddlewareChain<sdk.IO.Event>()
+    const incoming = new MiddlewareChain()
+    const outgoing = new MiddlewareChain()
 
     for (const mw of this.incomingMiddleware) {
       incoming.use(mw.handler)
