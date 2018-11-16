@@ -65,7 +65,7 @@ export class PersistedConsoleLogger implements Logger {
       timestamp: moment().toISOString()
     }
 
-    if (this.willPersistMessage) {
+    if (this.willPersistMessage && level !== LoggerLevel.Debug) {
       this.loggerPersister.appendLog(entry)
     } else {
       // We reset it right away to prevent race conditions (since the persister might log a new message asynchronously)
