@@ -7,8 +7,6 @@ import ReactGA from 'react-ga'
 import EnsureAuthenticated from '~/components/Authentication'
 import Layout from '~/components/Layout'
 
-const sendStats = !window.OPT_OUT_STATS
-
 // react-router doesn't do query parsing anymore since V4
 // https://github.com/ReactTraining/react-router/issues/4410
 const addLocationQuery = history => {
@@ -21,7 +19,7 @@ const history = createBrowserHistory({ basename: window.BP_BASE_PATH + '/' })
 addLocationQuery(history)
 history.listen(() => {
   addLocationQuery(history)
-  if (sendStats) {
+  if (window.ALLOW_STATS) {
     logPageView()
   }
 })
@@ -32,7 +30,7 @@ const logPageView = () => {
 }
 
 export default () => {
-  if (sendStats) {
+  if (window.ALLOW_STATS) {
     ReactGA.initialize(window.ANALYTICS_ID, {
       gaOptions: {
         userId: window.UUID

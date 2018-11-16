@@ -23,7 +23,7 @@ export class WebBotpressUIInjection extends React.Component {
         enableReset: true,
         enableTranscriptDownload: true,
         botId: window.BOT_ID,
-        sendStatistics: window.OPT_OUT_STATS
+        allowStats: window.ALLOW_STATS
       })
 
     window.document.body.appendChild(script)
