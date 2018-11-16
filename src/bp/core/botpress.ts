@@ -212,8 +212,7 @@ Node: ${err.nodeName}`
       edition: process.BOTPRESS_EDITION,
       version: process.BOTPRESS_VERSION,
       license: process.IS_LICENSED,
-      production: process.IS_PRODUCTION,
-      modules: process.LOADED_MODULES
+      production: process.IS_PRODUCTION
     }
     this.stats.track('server', 'start', JSON.stringify(payload, undefined, 2))
   }
