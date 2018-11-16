@@ -1,7 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import { copyDir } from 'core/misc/pkg-fs'
-import { WellKnownFlags } from 'core/sdk/enums'
-import fs from 'fs'
+
 import fse from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
@@ -10,7 +9,6 @@ import moment from 'moment'
 import nanoid from 'nanoid'
 import path from 'path'
 import plur from 'plur'
-import { basePort } from 'portfinder'
 
 import { createForGlobalHooks } from './api'
 import { BotLoader } from './bot-loader'
@@ -22,6 +20,7 @@ import { ModuleLoader } from './module-loader'
 import HTTPServer from './server'
 import { GhostService } from './services'
 import { CMSService } from './services/cms/cms-service'
+import { DecisionEngine } from './services/dialog/decision-engine'
 import { DialogEngine, ProcessingError } from './services/dialog/engine'
 import { DialogJanitor } from './services/dialog/janitor'
 import { SessionIdFactory } from './services/dialog/session/id-factory'
@@ -62,6 +61,7 @@ export class Botpress {
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
     @inject(TYPES.CMSService) private cmsService: CMSService,
     @inject(TYPES.DialogEngine) private dialogEngine: DialogEngine,
+    @inject(TYPES.DecisionEngine) private decisionEngine: DecisionEngine,
     @inject(TYPES.LoggerProvider) private loggerProvider: LoggerProvider,
     @inject(TYPES.DialogJanitorRunner) private dialogJanitor: DialogJanitor,
     @inject(TYPES.LogJanitorRunner) private logJanitor: LogsJanitor,
@@ -153,10 +153,9 @@ export class Botpress {
 
     this.eventEngine.onAfterIncomingMiddleware = async (event: sdk.IO.Event) => {
       await this.hookService.executeHook(new Hooks.AfterIncomingMiddleware(this.api, event))
-      if (!event.hasFlag(WellKnownFlags.SKIP_DIALOG_ENGINE)) {
-        const sessionId = SessionIdFactory.createIdFromEvent(event)
-        await this.dialogEngine.processEvent(sessionId, event)
-      }
+
+      const sessionId = SessionIdFactory.createIdFromEvent(event)
+      await this.decisionEngine.processEvent(sessionId, event)
     }
 
     const flowLogger = await this.loggerProvider('DialogEngine')

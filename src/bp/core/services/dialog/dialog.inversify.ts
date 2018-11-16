@@ -1,6 +1,7 @@
 import { TYPES } from 'core/types'
 import { ContainerModule, interfaces } from 'inversify'
 
+import { DecisionEngine } from './decision-engine'
 import { DialogEngine } from './engine'
 import { FlowNavigator } from './flow/navigator'
 import { FlowService } from './flow/service'
@@ -13,6 +14,9 @@ import { SessionService } from './session/service'
 export const DialogContainerModule = new ContainerModule((bind: interfaces.Bind) => {
   bind<DialogEngine>(TYPES.DialogEngine)
     .to(DialogEngine)
+    .inSingletonScope()
+  bind<DecisionEngine>(TYPES.DecisionEngine)
+    .to(DecisionEngine)
     .inSingletonScope()
   bind<FlowNavigator>(TYPES.FlowNavigator)
     .to(FlowNavigator)

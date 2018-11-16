@@ -27,7 +27,8 @@ const eventSchema = {
   payload: joi.object().required(),
   botId: joi.string().required(),
   threadId: joi.string().optional(),
-  flags: joi.any().required()
+  flags: joi.any().required(),
+  suggestedReplies: joi.any()
 }
 
 const mwSchema = {
