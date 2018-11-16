@@ -140,7 +140,7 @@ export class CommunityAdminService implements AdminService {
   }
 
   async addBot(teamId: number, bot: Bot): Promise<void> {
-    this.stats.track('ce', 'addBot', bot.name)
+    this.stats.track('ce', 'addBot')
     bot.team = teamId
     const { error } = Joi.validate(bot, this.botCreationSchema)
     if (error) {
@@ -154,7 +154,7 @@ export class CommunityAdminService implements AdminService {
   }
 
   async updateBot(teamId: number, botId: string, bot: Bot): Promise<void> {
-    this.stats.track('ce', 'updateBot', bot.name)
+    this.stats.track('ce', 'updateBot')
 
     const actualBot = await this.getBot({ id: botId, team: teamId })
     if (!actualBot) {
@@ -199,7 +199,7 @@ export class CommunityAdminService implements AdminService {
   }
 
   async createNewTeam({ userId, name = 'Default Team' }: { userId: number; name?: string }) {
-    this.stats.track('ce', 'createTeam', name)
+    this.stats.track('ce', 'createTeam')
     const teamId = await this.knex.insertAndRetrieve<number>(this.teamsTable, {
       name
     })
