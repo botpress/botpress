@@ -37,18 +37,21 @@ export const initModule = async (bp: SDK, botScopedNlu: Map<string, ScopedNlu>) 
       return
     }
 
-    const previous = (await bp.kvs.get(event.botId, 'nlu/requestsLimit')) || {}
-    const hour = moment().startOf('hour')
-    const requestsCount = hour.isSame(previous.hour) ? previous.requestsCount : 0
+    if (botCtx.config.maximumRequestsPerHour > 0) {
+      // Ignore rate limiting if not a positive number
+      const previous = (await bp.kvs.get(event.botId, 'nlu/requestsLimit')) || {}
+      const hour = moment().startOf('hour')
+      const requestsCount = hour.isSame(previous.hour) ? previous.requestsCount : 0
 
-    await bp.kvs.set(event.botId, 'nlu/requestsLimit', { hour, requestsCount: requestsCount + 1 })
+      await bp.kvs.set(event.botId, 'nlu/requestsLimit', { hour, requestsCount: requestsCount + 1 })
 
-    const maximumRequestsPerHour = parseFloat(botCtx.config.maximumRequestsPerHour)
-    if (requestsCount > maximumRequestsPerHour) {
-      throw new Error(
-        `[NLU] Requests limit per hour exceeded: ${maximumRequestsPerHour} allowed ` +
-          `while getting ${requestsCount}. You can set higher value to NLU_MAX_REQUESTS_PER_HOUR.`
-      )
+      const maximumRequestsPerHour = parseFloat(botCtx.config.maximumRequestsPerHour)
+      if (requestsCount > maximumRequestsPerHour) {
+        throw new Error(
+          `[NLU] Requests limit per hour exceeded: ${maximumRequestsPerHour} allowed ` +
+            `while getting ${requestsCount}. You can set higher value to 'maximumRequestsPerHour' NLU config.`
+        )
+      }
     }
 
     let eventIntent = { confidence: undefined, name: undefined }
