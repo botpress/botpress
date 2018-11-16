@@ -581,11 +581,11 @@ bp.dialogEngine.onBeforeSessionTimeout((ctx, next) => {
     return state
   }
 
-  _getContext(stateId) {
+  async _getContext(stateId) {
     return this.stateManager.getState(stateId + '___context')
   }
 
-  _setContext(stateId, state) {
+  async _setContext(stateId, state) {
     return this.stateManager.setState(stateId + '___context', state)
   }
 

@@ -99,9 +99,10 @@ module.exports = ({ logger, middlewares, db, contentManager, botfile }) => {
   }
 
   const doSendContent = async (rendererFn, { rendererName, context, outputPlatform, incomingEvent }) => {
+    incomingEvent.onSend && (await incomingEvent.onSend()) // optional processing (context, etc); before render/send
     const messages = await invoke({ rendererFn, rendererName, context, outputPlatform, incomingEvent })
 
-    return Promise.mapSeries(messages, message => {
+    return Promise.mapSeries(messages, async message => {
       if (message.__internal) {
         if (message.type === 'wait') {
           return Promise.delay(message.wait)

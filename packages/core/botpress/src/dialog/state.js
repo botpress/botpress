@@ -38,7 +38,7 @@ module.exports = ({ db }) => {
           SET active_on = :now, state = :state
       `
 
-    return knex.raw(sql, params)
+    return knex.raw(sql, params).then(() => knex)
   }
 
   const _createEmptyState = stateId => ({ _stateId: stateId })
@@ -68,7 +68,7 @@ module.exports = ({ db }) => {
           SET created_on = :now, active_on = :now, state = :state
       `
 
-    await knex.raw(sql, params)
+    await knex.raw(sql, params).then(() => knex)
 
     return state
   }
@@ -111,7 +111,7 @@ module.exports = ({ db }) => {
    * @async
    * @memberof! DialogStateManager
    */
-  const setState = (stateId, state) => {
+  const setState = async (stateId, state) => {
     if (state != null && !isPlainObject(state)) {
       throw new Error('State must be a plain object')
     }
