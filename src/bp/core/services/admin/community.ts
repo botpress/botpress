@@ -154,7 +154,7 @@ export class CommunityAdminService implements AdminService {
   }
 
   async updateBot(teamId: number, botId: string, bot: Bot): Promise<void> {
-    this.stats.track('ce', 'updateBot')
+    this.stats.track('ce', 'updateBot', bot.name)
 
     const actualBot = await this.getBot({ id: botId, team: teamId })
     if (!actualBot) {

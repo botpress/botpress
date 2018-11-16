@@ -1,7 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import { copyDir } from 'core/misc/pkg-fs'
 import { WellKnownFlags } from 'core/sdk/enums'
-import fs from 'fs'
 import fse from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
@@ -10,7 +9,6 @@ import moment from 'moment'
 import nanoid from 'nanoid'
 import path from 'path'
 import plur from 'plur'
-import { basePort } from 'portfinder'
 
 import { createForGlobalHooks } from './api'
 import { BotLoader } from './bot-loader'
@@ -82,7 +80,7 @@ export class Botpress {
   }
 
   private async initialize(options: StartOptions) {
-    this.stats.track('server', 'start', process.BOTPRESS_EDITION)
+    this.trackStart()
     this.config = await this.loadConfiguration()
 
     await this.checkJwtSecret()
@@ -207,5 +205,16 @@ export class Botpress {
 Err: ${err.message}
 Flow: ${err.flowName}
 Node: ${err.nodeName}`
+  }
+
+  private trackStart() {
+    const payload = {
+      edition: process.BOTPRESS_EDITION,
+      version: process.BOTPRESS_VERSION,
+      license: process.IS_LICENSED,
+      production: process.IS_PRODUCTION,
+      modules: process.LOADED_MODULES
+    }
+    this.stats.track('server', 'start', JSON.stringify(payload, undefined, 2))
   }
 }
