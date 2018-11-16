@@ -1,0 +1,15 @@
+{
+  "name": "bench",
+  "version": "1.0.0",
+  "description": "Benchmark Utility for Botpress Server",
+  "main": "index.js",
+  "author": "Botpress, Inc.",
+  "license": "AGPL-3.0",
+  "private": true,
+  "scripts": {
+    "start": "artillery run ./stress_messages.yml"
+  },
+  "dependencies": {
+    "artillery": "^1.6.0-25"
+  }
+}
