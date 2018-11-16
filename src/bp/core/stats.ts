@@ -1,13 +1,11 @@
-import crypto from 'crypto'
+import { gaId, machineUUID } from 'common/stats'
 import { inject, injectable, postConstruct } from 'inversify'
-import { machineId } from 'node-machine-id'
-import os from 'os'
 import ua, { Visitor } from 'universal-analytics'
 
 import { ConfigProvider } from './config/config-loader'
 import { TYPES } from './types'
 
-export type StatsCategory = 'server' | 'bot' | 'api'
+export type StatsCategory = 'server' | 'bot' | 'auth' | 'license' | 'ce' | 'pro'
 
 @injectable()
 export class Statistics {
@@ -22,13 +20,8 @@ export class Statistics {
     const botpressConfig = await this.configProvider.getBotpressConfig()
     this._allowStats = botpressConfig.allowStats || true // Stats are activated by default
 
-    const mid = await machineId().catch(() => {
-      const hash = crypto.createHash('sha256')
-      hash.update(os.arch() + os.hostname() + os.platform() + os.type())
-      return hash.digest('hex')
-    })
-
-    this._visitor = ua('UA-90044826-3', mid, { strictCidFormat: false })
+    const uuid = await machineUUID()
+    this._visitor = ua(gaId, uuid, { strictCidFormat: false })
     this._queued.forEach(event => event())
     this._queued = []
   }

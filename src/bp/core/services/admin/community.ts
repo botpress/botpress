@@ -51,7 +51,7 @@ export class CommunityAdminService implements AdminService {
     @inject(TYPES.BotConfigFactory) private botConfigFactory: BotConfigFactory,
     @inject(TYPES.BotConfigWriter) private botConfigWriter: BotConfigWriter,
     @inject(TYPES.BotLoader) private botLoader: BotLoader,
-    @inject(TYPES.Statistics) private stats: Statistics
+    @inject(TYPES.Statistics) protected stats: Statistics
   ) {}
 
   protected get knex() {
@@ -140,7 +140,7 @@ export class CommunityAdminService implements AdminService {
   }
 
   async addBot(teamId: number, bot: Bot): Promise<void> {
-    this.stats.track('api', 'admin', 'addBot')
+    this.stats.track('ce', 'addBot', bot.name)
     bot.team = teamId
     const { error } = Joi.validate(bot, this.botCreationSchema)
     if (error) {
@@ -154,7 +154,7 @@ export class CommunityAdminService implements AdminService {
   }
 
   async updateBot(teamId: number, botId: string, bot: Bot): Promise<void> {
-    this.stats.track('api', 'admin', 'updateBot')
+    this.stats.track('ce', 'updateBot')
 
     const actualBot = await this.getBot({ id: botId, team: teamId })
     if (!actualBot) {
@@ -199,6 +199,7 @@ export class CommunityAdminService implements AdminService {
   }
 
   async createNewTeam({ userId, name = 'Default Team' }: { userId: number; name?: string }) {
+    this.stats.track('ce', 'createTeam', name)
     const teamId = await this.knex.insertAndRetrieve<number>(this.teamsTable, {
       name
     })

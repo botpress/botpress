@@ -5,6 +5,9 @@
 
 import { ContentElement } from 'botpress/sdk'
 import { Serialize } from 'cerialize'
+import { gaId, machineUUID } from 'common/stats'
+import { BotpressConfig } from 'core/config/botpress.config'
+import { ConfigProvider } from 'core/config/config-loader'
 import { GhostService } from 'core/services'
 import { AdminService } from 'core/services/admin/service'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
@@ -34,6 +37,7 @@ export class BotsRouter implements CustomRouter {
 
   private actionService: ActionService
   private botRepository: BotRepository
+  private configProvider: ConfigProvider
   private cmsService: CMSService
   private flowService: FlowService
   private mediaService: MediaService
@@ -44,10 +48,13 @@ export class BotsRouter implements CustomRouter {
   private ghostService: GhostService
   private checkTokenHeader: RequestHandler
   private needPermissions: (operation: string, resource: string) => RequestHandler
+  private machineId: string | undefined
+  private botpressConfig: BotpressConfig | undefined
 
   constructor(args: {
     actionService: ActionService
     botRepository: BotRepository
+    configProvider: ConfigProvider
     cmsService: CMSService
     flowService: FlowService
     mediaService: MediaService
@@ -59,6 +66,7 @@ export class BotsRouter implements CustomRouter {
   }) {
     this.actionService = args.actionService
     this.botRepository = args.botRepository
+    this.configProvider = args.configProvider
     this.cmsService = args.cmsService
     this.flowService = args.flowService
     this.mediaService = args.mediaService
@@ -72,6 +80,11 @@ export class BotsRouter implements CustomRouter {
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
 
     this.router = Router({ mergeParams: true })
+  }
+
+  async initialize() {
+    this.botpressConfig = await this.configProvider.getBotpressConfig()
+    this.machineId = await machineUUID()
     this.setupRoutes()
   }
 
@@ -81,7 +94,7 @@ export class BotsRouter implements CustomRouter {
     return router
   }
 
-  private augmentElement = async (element: ContentElement) => {
+  augmentElement = async (element: ContentElement) => {
     const contentType = await this.cmsService.getContentType(element.contentType)
     return {
       ...element,
@@ -100,7 +113,9 @@ export class BotsRouter implements CustomRouter {
       authentication: {
         tokenDuration: ms('6h')
       },
-      sendStatistics: true, // TODO Add way to opt out
+      sendStatistics: this.botpressConfig!.allowStats,
+      uuid: this.machineId,
+      gaId: gaId,
       showGuidedTour: false, // TODO
       ghostEnabled: this.ghostService.isGhostEnabled,
       flowEditorDisabled: !process.IS_LICENSED,
@@ -141,6 +156,8 @@ export class BotsRouter implements CustomRouter {
       const totalEnv = `
           (function(window) {
               // Common
+              window.UUID = "${data.uuid}"
+              window.ANALYTICS_ID = "${data.gaId}";
               window.API_PATH = "/api/v1";
               window.BOT_API_PATH = "/api/v1/bots/${botId}";
               window.BOT_ID = "${botId}";

@@ -82,7 +82,7 @@ export class Botpress {
   }
 
   private async initialize(options: StartOptions) {
-    this.stats.track('server', 'starting')
+    this.stats.track('server', 'start', process.BOTPRESS_EDITION)
     this.config = await this.loadConfiguration()
 
     await this.checkJwtSecret()
