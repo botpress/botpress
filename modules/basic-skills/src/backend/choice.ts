@@ -3,9 +3,9 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 const generateFlow = (data): sdk.FlowGenerationResult => {
-  const invalidTextData: any = {}
+  let onInvalidText = undefined
   if (data.config.invalidText && data.config.invalidText.length) {
-    invalidTextData.text = data.config.invalidText
+    onInvalidText = data.config.invalidText
   }
 
   const maxAttempts = data.config.nbMaxRetries
@@ -42,7 +42,10 @@ const generateFlow = (data): sdk.FlowGenerationResult => {
         }
       ],
       next: [
-        { condition: `state['skill-choice-invalid-count'] <= "3"`, node: 'sorry' },
+        {
+          condition: `state['skill-choice-invalid-count'] <= ${maxAttempts}`,
+          node: 'sorry'
+        },
         { condition: 'true', node: '#' }
       ]
     },
@@ -52,7 +55,7 @@ const generateFlow = (data): sdk.FlowGenerationResult => {
         {
           type: sdk.NodeActionType.RenderElement,
           name: `#!${data.contentId}`,
-          args: { ...invalidTextData, skill: 'choice' }
+          args: { ...{ skill: 'choice' }, ...(onInvalidText ? { text: onInvalidText } : {}) }
         }
       ],
       next: [{ condition: 'true', node: 'parse' }]
