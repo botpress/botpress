@@ -27,7 +27,7 @@ const generateFlow = (data): sdk.FlowGenerationResult => {
       onReceive: [
         {
           type: sdk.NodeActionType.RunAction,
-          name: 'skill-choice/parse_answer',
+          name: 'basic-skills/choice_parse_answer',
           args: data
         }
       ],
@@ -38,7 +38,7 @@ const generateFlow = (data): sdk.FlowGenerationResult => {
       onEnter: [
         {
           type: sdk.NodeActionType.RunAction,
-          name: 'skill-choice/invalid_answer'
+          name: 'basic-skills/choice_invalid_answer'
         }
       ],
       next: [
