@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.51.1"></a>
+## [10.51.1](https://github.com/botpress/botpress/compare/v10.51.0...v10.51.1) (2018-11-17)
+
+
+### Bug Fixes
+
+* **core:** add .env to .gitignore of new bot template (fix [#1107](https://github.com/botpress/botpress/issues/1107)) ([#1130](https://github.com/botpress/botpress/issues/1130)) ([debf21a](https://github.com/botpress/botpress/commit/debf21a))
+
+
+
+
 <a name="10.51.0"></a>
 # [10.51.0](https://github.com/botpress/botpress/compare/v10.50.0...v10.51.0) (2018-11-08)
 

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.51.1"></a>
+## [10.51.1](https://github.com/botpress/modules/compare/v10.51.0...v10.51.1) (2018-11-17)
+
+
+### Bug Fixes
+
+* **messenger:** add subscribed_fields required field ([#1099](https://github.com/botpress/modules/issues/1099)) ([3cd110c](https://github.com/botpress/modules/commit/3cd110c))
+
+
+
+
 <a name="10.51.0"></a>
 # [10.51.0](https://github.com/botpress/modules/compare/v10.50.0...v10.51.0) (2018-11-08)
 
