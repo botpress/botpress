@@ -64,7 +64,8 @@ export default class Web extends React.Component {
       currentConversation: null,
       currentConversationId: null,
       unreadCount: 0,
-      isButtonHidden: config.hideWidget
+      isButtonHidden: config.hideWidget,
+      isTransitioning: false
     }
   }
 
@@ -153,6 +154,11 @@ export default class Web extends React.Component {
   }
 
   handleSwitchView(view) {
+    if (this.state.isTransitioning) {
+      return
+    }
+    this.setState({ isTransitioning: true })
+
     if (view === 'side' && this.state.view !== 'side') {
       this.setState({
         opened: true,
@@ -164,7 +170,8 @@ export default class Web extends React.Component {
       setTimeout(() => {
         this.setState({
           sideTransition: 'fadeIn',
-          view: view
+          view: view,
+          isTransitioning: false
         })
       }, ANIM_DURATION + 10)
     }
@@ -173,7 +180,8 @@ export default class Web extends React.Component {
       setTimeout(() => {
         this.setState({
           convoTransition: 'fadeIn',
-          view: view
+          view: view,
+          isTransitioning: false
         })
       }, ANIM_DURATION)
     }
@@ -188,7 +196,8 @@ export default class Web extends React.Component {
         setTimeout(() => {
           this.setState({
             widgetTransition: 'fadeIn',
-            view: view
+            view: view,
+            isTransitioning: false
           })
         }, ANIM_DURATION)
       }
@@ -196,7 +205,8 @@ export default class Web extends React.Component {
 
     setTimeout(() => {
       this.setState({
-        view: view
+        view: view,
+        isTransitioning: false
       })
     }, ANIM_DURATION)
 
@@ -204,7 +214,8 @@ export default class Web extends React.Component {
       this.setState({
         widgetTransition: null,
         convoTransition: null,
-        sideTransition: this.state.sideTransition === 'fadeIn' ? 'fadeIn' : null
+        sideTransition: this.state.sideTransition === 'fadeIn' ? 'fadeIn' : null,
+        isTransitioning: false
       })
     }, ANIM_DURATION * 2.1)
   }
