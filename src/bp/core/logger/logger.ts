@@ -76,7 +76,7 @@ export class PersistedConsoleLogger implements Logger {
       message += ` [${this.attachedError.name}, ${this.attachedError.message}]`
     }
 
-    if (this.attachedError && this.displayLevel >= 1 && this.attachedError.stack) {
+    if (this.attachedError && this.displayLevel >= LogLevel.DEV && this.attachedError.stack) {
       message += chalk.grey(os.EOL + '----- STACK -----')
       message += chalk.grey(os.EOL + this.attachedError.stack)
     }
@@ -89,7 +89,7 @@ export class PersistedConsoleLogger implements Logger {
     const newLineIndent = chalk.dim(' '.repeat(`${timeFormat} ${displayName}`.length)) + ' '
     const indentedMessage = level === LoggerLevel.Error ? message : message.replace(/\r\n|\n/g, os.EOL + newLineIndent)
 
-    if (this.displayLevel >= (this.currentMessageLevel! || 0)) {
+    if (this.displayLevel >= this.currentMessageLevel!) {
       console.log(
         chalk`{grey ${time}} {${this.colors[level]}.bold ${displayName}} ${indentedMessage}${serializedMetadata}`
       )
