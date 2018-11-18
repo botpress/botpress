@@ -57,7 +57,7 @@ export class ActionStrategy implements InstructionStrategy {
     }
 
     const outputType = chunks[1]
-    let args
+    let args: object = {}
 
     if (params.length > 0) {
       try {
@@ -145,7 +145,7 @@ export class TransitionStrategy implements InstructionStrategy {
     const runner = new VmRunner()
     const code = `
     try {
-      return ${instruction.fn}
+      return ${instruction.fn};
     } catch (err) {
       if (err instanceof TypeError) {
         console.log(err)
