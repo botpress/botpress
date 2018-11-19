@@ -210,6 +210,7 @@ declare module 'botpress/sdk' {
       confidence: number
       /** An array of the raw payloads to send as an answer */
       payloads: any[]
+      intent?
     }
 
     export interface EventState {

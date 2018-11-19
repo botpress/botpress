@@ -127,7 +127,7 @@ export class ScopedActionService {
       sandbox: {
         bp: api,
         event: incomingEvent,
-        user: incomingEvent.state.user,
+        user: incomingEvent.state.user || {},
         state: incomingEvent.state.context.data || {},
         args: actionArgs,
         process: _.pick(process, 'HOST', 'PORT', 'env')
