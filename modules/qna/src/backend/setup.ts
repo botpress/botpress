@@ -26,9 +26,8 @@ export const initModule = async (bp: SDK, botScopedStorage: Map<string, QnaStora
         const config = bp.config.getModuleConfigForBot('qna', event.botId)
         const storage = botScopedStorage.get(event.botId)
 
-        if (!(await processEvent(event, { bp, storage, config }))) {
-          next()
-        }
+        await processEvent(event, { bp, storage, config })
+        next()
       }
     },
     order: 11, // must be after the NLU middleware and before the dialog middleware
@@ -36,51 +35,51 @@ export const initModule = async (bp: SDK, botScopedStorage: Map<string, QnaStora
     enabled: true
   })
 
+  const buildSuggestedReply = async (question, confidence, intent) => {
+    const payloads = []
+    if (question.action.includes('text')) {
+      const element = await bp.cms.renderElement('builtin_text', { text: question.answer, typing: true }, 'web')
+      payloads.push(...element)
+    }
+
+    if (question.action.includes('redirect')) {
+      payloads.push({ type: 'redirect', flow: question.redirectFlow, node: question.redirectNode })
+    }
+
+    return {
+      confidence,
+      payloads,
+      intent
+    }
+  }
+
+  const getQuestionForIntent = async (storage, intentName) => {
+    if (intentName && intentName.startsWith(NLU_PREFIX)) {
+      const qnaId = intentName.substring(NLU_PREFIX.length)
+      return (await storage.getQuestion(qnaId)).data
+    }
+  }
+
   const processEvent = async (event, { bp, storage, config }) => {
-    let answer
     if (config.qnaMakerApiKey) {
-      answer = (await storage.answersOn(event.text)).pop()
-      if (!answer) {
-        return false
-      }
-      bp.logger.debug('Matched question', answer.id)
-    } else {
-      // NB: we rely on NLU being loaded before we receive any event.
-      // I'm not sure yet if we can guarantee it
-      if (!(event.nlu || {}).intent || !event.nlu.intent.startsWith(NLU_PREFIX)) {
-        return false
+      const qnaQuestion = (await storage.answersOn(event.text)).pop()
+
+      if (qnaQuestion && qnaQuestion.enabled) {
+        event.suggestedReplies.push(await buildSuggestedReply(qnaQuestion, qnaQuestion.confidence, undefined))
       }
 
-      bp.logger.debug('Matched NLU intent', event.nlu.intent.name)
-      const id = event.nlu.intent.name.substring(NLU_PREFIX.length)
-      answer = (await storage.getQuestion(id)).data
+      return
     }
 
-    if (!answer.enabled) {
-      bp.logger.debug('Question disabled, skipping')
-      return false
+    if (!event.nlu || !event.nlu.intents) {
+      return
     }
 
-    if (answer.action.includes('text')) {
-      bp.logger.debug('Replying to recognized question with plain text answer', answer.id)
-
-      const payloads = await bp.cms.renderElement('builtin_text', { text: answer.answer, typing: true }, 'web')
-      bp.events.replyToEvent(event, payloads)
-
-      if (answer.action === 'text') {
-        event.setFlag(bp.IO.WellKnownFlags.SKIP_DIALOG_ENGINE, true)
-        return true
+    for (const intent of event.nlu.intents) {
+      const question = await getQuestionForIntent(storage, intent.name)
+      if (question && question.enabled) {
+        event.suggestedReplies.push(await buildSuggestedReply(question, intent.confidence, intent.name))
       }
-    }
-
-    if (answer.action.includes('redirect')) {
-      bp.logger.debug('Replying to recognized question with redirect', answer.id)
-
-      const sessionId = await bp.dialog.createId(event)
-      await bp.dialog.jumpTo(sessionId, event, answer.redirectFlow, answer.redirectNode)
-      // We return false here because the we only jump to the right flow/node and let
-      // the bot's natural middleware chain take care of processing the message the normal way
-      return false
     }
   }
 }

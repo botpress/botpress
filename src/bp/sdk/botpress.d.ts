@@ -155,6 +155,7 @@ declare module 'botpress/sdk' {
       payload: any
       threadId?: string
       botId: string
+      suggestedReplies?: SuggestedReply[]
     }
 
     /**
@@ -180,6 +181,8 @@ declare module 'botpress/sdk' {
       readonly threadId?: string
       /** A textual representation of the event */
       readonly preview: string
+      /** Array of possible suggestions that the Decision Engine can take  */
+      readonly suggestedReplies?: SuggestedReply[]
       /**
        * Check if the event has a specific flag
        * @param flag The flag symbol to verify. {@link IO.WellKnownFlags} to know more about existing flags
@@ -194,6 +197,13 @@ declare module 'botpress/sdk' {
        * @example event.setFlag(bp.IO.WellKnownFlags.SKIP_DIALOG_ENGINE, true)
        */
       setFlag(flag: symbol, value: boolean): void
+    }
+
+    export interface SuggestedReply {
+      /** Number between 0 and 1 indicating how confident the module is about its suggestion */
+      confidence: number
+      /** An array of the raw payloads to send as an answer */
+      payloads: any[]
     }
 
     /**
