@@ -25,15 +25,16 @@ export class StateManager {
   private LAST_MESSAGES_HISTORY_COUNT = 5
 
   public initialize() {
-    const stateLoader = async (event: sdk.IO.IncomingEvent, next) => {
+    const stateLoader = async (event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) => {
+      const incomingEvent = <sdk.IO.IncomingEvent>event
       const { result: user } = await this.userRepo.getOrCreate(event.channel, event.target)
-      event.state.user = user.attributes
+      incomingEvent.state.user = user.attributes
 
       const sessionId = SessionIdFactory.createIdFromEvent(event)
       const session = await this.sessionRepo.get(sessionId)
 
-      event.state.context = (session && session.context_data) || {}
-      event.state.session = (session && session.session_data) || { lastMessages: [] }
+      incomingEvent.state.context = (session && session.context_data) || {}
+      incomingEvent.state.session = (session && session.session_data) || { lastMessages: [] }
 
       next()
     }
@@ -43,7 +44,6 @@ export class StateManager {
       name: 'Session Loader',
       description: 'Loads user data and session',
       direction: 'incoming',
-      enabled: true,
       handler: stateLoader
     }
 
