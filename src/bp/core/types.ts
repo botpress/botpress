@@ -27,8 +27,7 @@ const TYPES = {
   EventEngine: Symbol.for('EventEngine'),
   DialogEngine: Symbol.for('DialogEngine'),
   DecisionEngine: Symbol.for('DecisionEngine'),
-  SessionRepository: Symbol.for('StateManager'),
-  SessionService: Symbol.for('SessionService'),
+  SessionRepository: Symbol.for('SessionRepository'),
   BotpressAPIProvider: Symbol.for('BotpressAPIProvider'),
   RealtimeService: Symbol.for('RealtimeService'),
   UserRepository: Symbol.for('UserRepository'),
@@ -61,7 +60,8 @@ const TYPES = {
   LicensingService: Symbol.for('LicensingService'),
   AppLifecycle: Symbol.for('AppLifecycle'),
   AuthRolesRepository: Symbol.for('AuthRolesRepository'),
-  Statistics: Symbol.for('Statistics')
+  Statistics: Symbol.for('Statistics'),
+  StateManager: Symbol.for('StateManager')
 }
 
 export { TYPES }

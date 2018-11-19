@@ -27,6 +27,7 @@ import { SessionIdFactory } from './services/dialog/session/id-factory'
 import { Hooks, HookService } from './services/hook/hook-service'
 import { LogsJanitor } from './services/logs/janitor'
 import { EventEngine } from './services/middleware/event-engine'
+import { StateManager } from './services/middleware/state-manager'
 import { NotificationsService } from './services/notification/service'
 import RealtimeService from './services/realtime'
 import { Statistics } from './stats'
@@ -67,7 +68,8 @@ export class Botpress {
     @inject(TYPES.LogJanitorRunner) private logJanitor: LogsJanitor,
     @inject(TYPES.LoggerPersister) private loggerPersister: LoggerPersister,
     @inject(TYPES.NotificationsService) private notificationService: NotificationsService,
-    @inject(TYPES.AppLifecycle) private lifecycle: AppLifecycle
+    @inject(TYPES.AppLifecycle) private lifecycle: AppLifecycle,
+    @inject(TYPES.StateManager) private stateManager: StateManager
   ) {
     this.version = '12.0.1'
     this.botpressPath = path.join(process.cwd(), 'dist')
@@ -157,6 +159,8 @@ export class Botpress {
       const sessionId = SessionIdFactory.createIdFromEvent(event)
       await this.decisionEngine.processEvent(sessionId, event)
     }
+
+    this.stateManager.initialize()
 
     const flowLogger = await this.loggerProvider('DialogEngine')
     this.dialogEngine.onProcessingError = err => {

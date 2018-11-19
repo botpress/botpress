@@ -1,4 +1,5 @@
 import { Logger } from 'botpress/sdk'
+import { SessionRepository } from 'core/repositories'
 import { IOEvent } from 'core/sdk/impl'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
@@ -14,7 +15,6 @@ import { Janitor } from '../janitor'
 
 import { DialogEngine } from './engine'
 import { SessionIdFactory } from './session/id-factory'
-import { SessionService } from './session/service'
 
 @injectable()
 export class DialogJanitor extends Janitor {
@@ -25,7 +25,7 @@ export class DialogJanitor extends Janitor {
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.DialogEngine) private dialogEngine: DialogEngine,
     @inject(TYPES.BotLoader) private botLoader: BotLoader,
-    @inject(TYPES.SessionService) private sessionService: SessionService
+    @inject(TYPES.SessionRepository) private sessionRepo: SessionRepository
   ) {
     super(logger)
   }
@@ -42,19 +42,13 @@ export class DialogJanitor extends Janitor {
 
   protected async runTask(): Promise<void> {
     // Bot config can change at runtime
-    const botpressConfig = await this.getBotpresConfig()
     const botsConfigs = await this.botLoader.getAllBots()
     const botsIds = Array.from(botsConfigs.keys())
 
     await Promise.mapSeries(botsIds, async botId => {
-      const botsConfigs = await this.botLoader.getAllBots()
-      const botConfig = botsConfigs.get(botId)
-      const expiryTime = ms(_.get(botConfig, 'dialog.timeoutInterval') || botpressConfig.dialog.timeoutInterval)
-      const outdatedDate = moment()
-        .subtract(expiryTime, 'ms')
-        .toDate()
+      await this.sessionRepo.deleteExpiredSessions(botId)
 
-      const sessionsIds = await this.sessionService.getStaleSessionsIds(botId, outdatedDate)
+      const sessionsIds = await this.sessionRepo.getExpiredContextSessionIds(botId)
       if (sessionsIds.length > 0) {
         this.logger.forBot(botId).debug(`🔎 Found inactive sessions: ${sessionsIds.join(', ')}`)
       }
@@ -72,11 +66,15 @@ export class DialogJanitor extends Janitor {
             payload: '',
             botId: botId
           })
+
           await this.dialogEngine.processTimeout(botId, id, fakeEvent)
         } catch (err) {
           // We delete the session in both cases
         } finally {
-          await this.sessionService.deleteSession(id)
+          const session = await this.sessionRepo.get(id)
+          session.context_data = undefined
+          session.context_expiry = undefined
+          await this.sessionRepo.update(session)
         }
       })
     })

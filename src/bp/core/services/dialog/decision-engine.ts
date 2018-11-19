@@ -5,6 +5,7 @@ import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 
 import { EventEngine } from '../middleware/event-engine'
+import { StateManager } from '../middleware/state-manager'
 
 import { DialogEngine } from './engine'
 
@@ -13,7 +14,8 @@ export class DecisionEngine {
   constructor(
     @inject(TYPES.Logger) private logger: Logger,
     @inject(TYPES.DialogEngine) private dialogEngine: DialogEngine,
-    @inject(TYPES.EventEngine) private eventEngine: EventEngine
+    @inject(TYPES.EventEngine) private eventEngine: EventEngine,
+    @inject(TYPES.StateManager) private stateManager: StateManager
   ) {}
 
   private minConfidence = 0.3
@@ -28,13 +30,24 @@ export class DecisionEngine {
     }
 
     if (!event.hasFlag(WellKnownFlags.SKIP_DIALOG_ENGINE)) {
-      await this.dialogEngine.processEvent(sessionId, event)
+      const processedEvent = await this.dialogEngine.processEvent(sessionId, event)
+      this.stateManager.persist(processedEvent, false)
     }
   }
 
   private async sendSuggestedReply(reply, sessionId, event) {
     const payloads = _.filter(reply.payloads, p => p.type !== 'redirect')
-    payloads && (await this.eventEngine.replyToEvent(event, payloads))
+    if (payloads) {
+      await this.eventEngine.replyToEvent(event, payloads)
+
+      event.state.session.lastMessages.unshift({
+        intent: reply.intent,
+        user: event.preview,
+        bot: _.find(payloads, p => p.text != undefined)
+      })
+
+      this.stateManager.persist(event, true)
+    }
 
     const redirect = _.find(reply.payloads, p => p.type === 'redirect')
     if (redirect && redirect.flow && redirect.node) {

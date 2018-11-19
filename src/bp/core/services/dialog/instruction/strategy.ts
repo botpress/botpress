@@ -27,7 +27,7 @@ export class StrategyFactory {
 }
 
 export interface InstructionStrategy {
-  processInstruction(botId: string, instruction: Instruction, state, event, context): Promise<ProcessingResult>
+  processInstruction(botId: string, instruction: Instruction, event): Promise<ProcessingResult>
 }
 
 @injectable()
@@ -40,15 +40,15 @@ export class ActionStrategy implements InstructionStrategy {
     @inject(TYPES.ContentElementSender) private contentElementSender: ContentElementSender
   ) {}
 
-  async processInstruction(botId, instruction, state, event, context): Promise<ProcessingResult> {
+  async processInstruction(botId, instruction, event): Promise<ProcessingResult> {
     if (instruction.fn.indexOf('say ') === 0) {
-      return this.invokeOutputProcessor(botId, instruction, state, event)
+      return this.invokeOutputProcessor(botId, instruction, event)
     } else {
-      return this.invokeAction(botId, instruction, state, event, context)
+      return this.invokeAction(botId, instruction, event)
     }
   }
 
-  private async invokeOutputProcessor(botId, instruction, state, event: IO.Event): Promise<ProcessingResult> {
+  private async invokeOutputProcessor(botId, instruction, event: IO.Event): Promise<ProcessingResult> {
     const chunks = instruction.fn.split(' ')
     const params = _.slice(chunks, 2).join(' ')
 
@@ -69,13 +69,18 @@ export class ActionStrategy implements InstructionStrategy {
 
     this.logger.debug(`Output "${outputType}"`)
 
-    await this.contentElementSender.sendContent(outputType, args, state, event)
+    event.state.session.lastMessages.unshift({
+      user: event.preview,
+      bot: outputType
+    })
+
+    await this.contentElementSender.sendContent(outputType, args, event)
 
     return ProcessingResult.none()
   }
 
   // TODO: Test for nested templating
-  private async invokeAction(botId, instruction, state, event, context): Promise<ProcessingResult> {
+  private async invokeAction(botId, instruction, event): Promise<ProcessingResult> {
     const chunks: string[] = instruction.fn.split(' ')
     const argsStr = _.tail(chunks).join(' ')
     const actionName = _.first(chunks)!
@@ -89,7 +94,7 @@ export class ActionStrategy implements InstructionStrategy {
       throw new Error(`Action "${actionName}" has invalid arguments (not a valid JSON string): ${argsStr}`)
     }
 
-    const view = { state, event }
+    const view = { event }
 
     args = _.mapValues(args, value => {
       if (this.containsTemplate(value)) {
@@ -104,10 +109,10 @@ export class ActionStrategy implements InstructionStrategy {
 
     const hasAction = await this.actionService.forBot(botId).hasAction(actionName)
     if (!hasAction) {
-      throw new Error(`Action "${actionName}" not found, ${context}, ${state}`)
+      throw new Error(`Action "${actionName}" not found, `)
     }
 
-    const result = await this.actionService.forBot(botId).runAction(actionName, state, event, args)
+    const result = await this.actionService.forBot(botId).runAction(actionName, event, args)
     // Will only trigger a state update when the state is returned
     return result === undefined ? ProcessingResult.none() : ProcessingResult.updateState(result)
   }
@@ -125,8 +130,8 @@ export class TransitionStrategy implements InstructionStrategy {
     private logger: Logger
   ) {}
 
-  async processInstruction(botId, instruction, state, event, context): Promise<ProcessingResult> {
-    const conditionSuccessful = await this.runCode(instruction, { state, event })
+  async processInstruction(botId, instruction, event): Promise<ProcessingResult> {
+    const conditionSuccessful = await this.runCode(instruction, { event, state: event.state.context.data })
 
     if (conditionSuccessful) {
       this.logger.forBot(botId).debug(`Condition "${instruction.fn}" OK for "${instruction.node}"`)
@@ -160,7 +165,7 @@ export class TransitionStrategy implements InstructionStrategy {
 
 @injectable()
 export class WaitStrategy implements InstructionStrategy {
-  async processInstruction(botId, instruction, state, event, context): Promise<ProcessingResult> {
+  async processInstruction(botId, instruction, event): Promise<ProcessingResult> {
     return ProcessingResult.wait()
   }
 }

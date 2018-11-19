@@ -17,7 +17,7 @@ export class ContentElementSender {
   ) {}
 
   // TODO: Test if the payload is parsing its template properly
-  async sendContent(contentId: string, args: object = {}, state, event) {
+  async sendContent(contentId: string, args: object = {}, event) {
     process.ASSERT_LICENSED()
     contentId = contentId.replace(/^#?/i, '')
 
@@ -32,7 +32,7 @@ export class ContentElementSender {
         throw new Error(`Content element "${contentId}" not found`)
       }
 
-      const view = { state, event }
+      const view = { state: event.state.context.data, event }
 
       _.set(content, 'previewPath', Mustache.render(content.previewText, view))
 

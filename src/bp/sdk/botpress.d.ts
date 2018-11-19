@@ -183,6 +183,7 @@ declare module 'botpress/sdk' {
       readonly preview: string
       /** Array of possible suggestions that the Decision Engine can take  */
       readonly suggestedReplies?: SuggestedReply[]
+      readonly state: any
       /**
        * Check if the event has a specific flag
        * @param flag The flag symbol to verify. {@link IO.WellKnownFlags} to know more about existing flags
@@ -232,18 +233,12 @@ declare module 'botpress/sdk' {
     export const Event: EventConstructor
   }
 
-  export type UserAttribute = { key: string; value: string; type: string }
-
-  export type UserAttributeMap = UserAttribute[] & {
-    get(key: string): string | undefined
-  }
-
   export type User = {
     id: string
     channel: string
     createdOn: Date
     updatedOn: Date
-    attributes: UserAttributeMap
+    attributes: any
     otherChannels?: User[]
   }
 
@@ -626,7 +621,7 @@ declare module 'botpress/sdk' {
     /**
      * Update attributes of a specific user
      */
-    export function updateAttributes(channel: string, userId: string, attributes: UserAttribute[]): Promise<void>
+    export function updateAttributes(channel: string, userId: string, attributes: any): Promise<void>
     export function getAllUsers(paging?: Paging): Promise<any>
     export function getUserCount(): Promise<any>
   }
@@ -656,19 +651,6 @@ declare module 'botpress/sdk' {
      * @param sessionId The Id of the session to delete
      */
     export function deleteSession(sessionId: string): Promise<void>
-    /**
-     * Gets the state object of a session
-     * @param sessionId The session Id from which to get the state
-     */
-    export function getState(sessionId: string): Promise<void>
-    /**
-     * Sets a new state for the session. **The state will be overwritten**.
-     * @param sessionId The Id of the session
-     * @param state The state object to set in the session.
-     * @example
-     * bp.dialog.setState(sessionId, {...state, newProp: 'a new property'})
-     */
-    export function setState(sessionId: string, state: State): Promise<void>
 
     /**
      * Jumps to a specific flow and optionaly a specific node. This is useful when the default flow behaviour needs to be bypassed.
