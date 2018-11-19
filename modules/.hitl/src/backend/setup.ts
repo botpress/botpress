@@ -10,8 +10,7 @@ export default async (bp: SDK, db: Database) => {
     direction: 'incoming',
     order: 2,
     handler: incomingHandler,
-    description: 'Captures incoming messages and if the session if paused, swallow the event.',
-    enabled: true
+    description: 'Captures incoming messages and if the session if paused, swallow the event.'
   })
 
   bp.events.registerMiddleware({
@@ -19,8 +18,7 @@ export default async (bp: SDK, db: Database) => {
     direction: 'outgoing',
     order: 50,
     handler: outgoingHandler,
-    description: 'Captures outgoing messages to show inside HITL.',
-    enabled: true
+    description: 'Captures outgoing messages to show inside HITL.'
   })
 
   async function incomingHandler(event: sdk.IO.Event, next) {

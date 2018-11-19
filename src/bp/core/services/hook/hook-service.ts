@@ -9,6 +9,7 @@ import { GhostService } from '..'
 import { requireAtPaths } from '../../modules/require'
 import { TYPES } from '../../types'
 import { VmRunner } from '../action/vm'
+import { ObjectCache } from '../ghost'
 export namespace Hooks {
   export interface BaseHook {
     readonly folder: string
@@ -92,12 +93,26 @@ class HookScript {
 
 @injectable()
 export class HookService {
+  private _scriptsCache: { [hookName: string]: HookScript[] } = {}
+
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'HookService')
     private logger: sdk.Logger,
-    @inject(TYPES.GhostService) private ghost: GhostService
-  ) {}
+    @inject(TYPES.GhostService) private ghost: GhostService,
+    @inject(TYPES.ObjectCache) private cache: ObjectCache
+  ) {
+    this._listenForCacheInvalidation()
+  }
+
+  private _listenForCacheInvalidation() {
+    this.cache.events.on('invalidation', key => {
+      if (key.toLowerCase().indexOf('/hooks/') > -1) {
+        // clear the cache if there's any file that has changed in the `hooks` folder
+        this._scriptsCache = {}
+      }
+    })
+  }
 
   async executeHook(hook: Hooks.BaseHook): Promise<void> {
     const scripts = await this.extractScripts(hook)
@@ -105,14 +120,23 @@ export class HookService {
   }
 
   private async extractScripts(hook: Hooks.BaseHook): Promise<HookScript[]> {
+    if (this._scriptsCache[hook.folder]) {
+      return this._scriptsCache[hook.folder]
+    }
+
     try {
       const filesPaths = await this.ghost.global().directoryListing('hooks/' + hook.folder, '*.js')
-      return Promise.map(filesPaths, async path => {
+
+      const scripts = await Promise.map(filesPaths, async path => {
         const script = await this.ghost.global().readFileAsString('hooks/' + hook.folder, path)
         const filename = path.replace(/^.*[\\\/]/, '')
         return new HookScript(hook, path, filename, script)
       })
+
+      this._scriptsCache[hook.folder] = scripts
+      return scripts
     } catch (err) {
+      this._scriptsCache[hook.folder] = []
       return []
     }
   }

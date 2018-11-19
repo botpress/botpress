@@ -1,13 +1,12 @@
 import * as sdk from 'botpress/sdk'
+import { TimedPerfCounter } from 'core/misc/timed-perf'
 import { inject, injectable, tagged } from 'inversify'
 import joi from 'joi'
 import _ from 'lodash'
 import { VError } from 'verror'
 
-import { GhostService } from '..'
 import { Event } from '../../sdk/impl'
 import { TYPES } from '../../types'
-import { CMSService } from '../cms/cms-service'
 import { Queue } from '../queue'
 
 import { MiddlewareChain } from './middleware'
@@ -48,13 +47,17 @@ export class EventEngine {
   public onBeforeIncomingMiddleware: ((event) => Promise<void>) | undefined
   public onAfterIncomingMiddleware: ((event) => Promise<void>) | undefined
 
+  private readonly _incomingPerf = new TimedPerfCounter('mw_incoming')
+  private readonly _outgoingPerf = new TimedPerfCounter('mw_outgoing')
+
+  private incomingMiddleware: sdk.IO.MiddlewareDefinition[] = []
+  private outgoingMiddleware: sdk.IO.MiddlewareDefinition[] = []
+
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'EventEngine')
     private logger: sdk.Logger,
     @inject(TYPES.IsProduction) private isProduction: boolean,
-    @inject(TYPES.GhostService) private ghost: GhostService,
-    @inject(TYPES.CMSService) private cms: CMSService,
     @inject(TYPES.IncomingQueue) private incomingQueue: Queue,
     @inject(TYPES.OutgoingQueue) private outgoingQueue: Queue
   ) {
@@ -63,16 +66,40 @@ export class EventEngine {
       const { incoming } = await this.getBotMiddlewareChains(event.botId)
       await incoming.run(event)
       this.onAfterIncomingMiddleware && (await this.onAfterIncomingMiddleware(event))
+      this._incomingPerf.record()
     })
 
     this.outgoingQueue.subscribe(async event => {
       const { outgoing } = await this.getBotMiddlewareChains(event.botId)
       await outgoing.run(event)
+      this._outgoingPerf.record()
     })
+
+    this.setupPerformanceHooks()
   }
 
-  private incomingMiddleware: sdk.IO.MiddlewareDefinition[] = []
-  private outgoingMiddleware: sdk.IO.MiddlewareDefinition[] = []
+  /**
+   * Outputs to the console the event I/O in real-time
+   * Usage: set `BP_DEBUG_IO` to `true`
+   */
+  private setupPerformanceHooks() {
+    if (!process.env.BP_DEBUG_IO) {
+      return
+    }
+
+    let totalIn = 0
+    let totalOut = 0
+
+    this._incomingPerf.subscribe(metric => {
+      totalIn += metric
+      this.logger.level(sdk.LogLevel.PRODUCTION).debug(`(perf) IN <- ${metric}/s | total = ${totalIn}`)
+    })
+
+    this._outgoingPerf.subscribe(metric => {
+      totalOut += metric
+      this.logger.level(sdk.LogLevel.PRODUCTION).debug(`(perf) OUT -> ${metric}/s | total = ${totalOut}`)
+    })
+  }
 
   register(middleware: sdk.IO.MiddlewareDefinition) {
     this.validateMiddleware(middleware)
@@ -111,8 +138,8 @@ export class EventEngine {
   }
 
   private async getBotMiddlewareChains(botId: string) {
-    const incoming = new MiddlewareChain<sdk.IO.Event>()
-    const outgoing = new MiddlewareChain<sdk.IO.Event>()
+    const incoming = new MiddlewareChain()
+    const outgoing = new MiddlewareChain()
 
     for (const mw of this.incomingMiddleware) {
       incoming.use(mw.handler)
