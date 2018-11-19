@@ -100,6 +100,7 @@
       "onEnter": [
         "say #!builtin_text-TtzrCV",
         "resetUserVariable {\"name\":\"nickname\"}",
+        "resetUserVariable {\"name\":\"numberOfConversations\"}",
         "say #!builtin_text-kKQ8C3"
       ],
       "onReceive": null
