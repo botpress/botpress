@@ -1,3 +1,4 @@
+import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import { SDK } from '.'
@@ -16,8 +17,7 @@ export default async (bp: SDK, interactionsToTrack: any) => {
     direction: 'incoming',
     handler: incomingMiddleware,
     order: 5,
-    description: 'Tracks incoming messages for Analytics purposes',
-    enabled: true
+    description: 'Tracks incoming messages for Analytics purposes'
   })
 
   bp.events.registerMiddleware({
@@ -25,11 +25,10 @@ export default async (bp: SDK, interactionsToTrack: any) => {
     direction: 'outgoing',
     handler: outgoingMiddleware,
     order: 5,
-    description: 'Tracks outgoing messages for Analytics purposes',
-    enabled: true
+    description: 'Tracks outgoing messages for Analytics purposes'
   })
 
-  function incomingMiddleware(event, next) {
+  function incomingMiddleware(event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) {
     if (!_.includes(interactionsToTrack, event.type)) {
       return next()
     }
@@ -44,7 +43,7 @@ export default async (bp: SDK, interactionsToTrack: any) => {
     next()
   }
 
-  function outgoingMiddleware(event, next) {
+  function outgoingMiddleware(event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) {
     if (!_.includes(interactionsToTrack, event.type)) {
       return next()
     }

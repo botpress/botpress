@@ -61,7 +61,7 @@ export interface Config {
   /**
    * The maximum number of requests per hour
    * Useful to make sure you don't overuse your budget on paid NLU-services (like LUIS)
-   * @default 1000
+   * @default -1
    */
   maximumRequestsPerHour: number
 }

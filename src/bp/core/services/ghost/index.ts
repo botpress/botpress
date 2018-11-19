@@ -1,3 +1,5 @@
+import { EventEmitter } from 'events'
+
 export interface StorageDriver {
   upsertFile(filePath: string, content: Buffer | string, recordRevision: boolean): Promise<void>
   readFile(filePath: string): Promise<Buffer>
@@ -8,6 +10,7 @@ export interface StorageDriver {
 }
 
 export interface ObjectCache {
+  readonly events: EventEmitter
   get<T>(key: string): Promise<T>
   set<T>(key: string, obj: T): Promise<void>
   has(key: string): Promise<boolean>
