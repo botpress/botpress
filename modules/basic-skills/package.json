@@ -26,11 +26,12 @@
   "devDependencies": {
     "@types/node": "^10.11.0",
     "classnames": "^2.2.5",
+    "module-builder": "../../build/module-builder",
     "react-sortable-hoc": "^0.6.8",
-    "react-tag-input": "^5.0.2",
-    "module-builder": "../../build/module-builder"
+    "react-tag-input": "^5.0.2"
   },
   "dependencies": {
-    "bluebird": "^3.4.6"
+    "bluebird": "^3.4.6",
+    "lodash": "^4.17.11"
   }
 }

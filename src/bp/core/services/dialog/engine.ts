@@ -242,7 +242,7 @@ export class DialogEngine {
         currentFlowName: parentFlow.name,
         queue: queue.toString()
       }
-      this._logExitFlow(event.botId, context.currentFlowName, context.currentFlowName, parentFlow, parentNode)
+      this._logExitFlow(event.botId, context.currentFlowName, context.currentFlowName, parentFlow.name, parentNode.name)
     } else if (transitionTo === 'END') {
       // END means the node has a transition of "end flow" in the flow editor
       await this.sessionService.deleteSession(sessionId)
@@ -343,7 +343,7 @@ export class DialogEngine {
   }
 
   private _logExitFlow(botId, currentFlow, currentNode, previousFlow, previousNode) {
-    this.logger.forBot(botId).debug(`(${currentFlow})[${currentNode}] << (${previousFlow})[${previousNode}]`)
+    this.logger.forBot(botId).debug(`(${previousFlow})[${previousNode}] >> (${currentFlow})[${currentNode}]`)
   }
 
   private _logEnterFlow(botId, currentFlow, currentNode, previousFlow, previousNode) {

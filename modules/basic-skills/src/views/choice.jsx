@@ -199,7 +199,7 @@ export default class TemplateModule extends React.Component {
           />
         </div>
         <div>
-          <label htmlFor="invalidText">On invalid choice, say this instead of repeating question:</label>
+          <label htmlFor="invalidText">On invalid choice, say this before repeating question:</label>
           <div>
             <textarea
               id="invalidText"

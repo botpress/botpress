@@ -17,7 +17,7 @@ export class ContentElementSender {
   ) {}
 
   // TODO: Test if the payload is parsing its template properly
-  async sendContent(contentId: string, args: string, state, event) {
+  async sendContent(contentId: string, args: object = {}, state, event) {
     process.ASSERT_LICENSED()
     contentId = contentId.replace(/^#?/i, '')
 
@@ -43,8 +43,7 @@ export class ContentElementSender {
       if (message) {
         _.set(content, 'formData.text', Mustache.render(message, view))
       }
-
-      renderedElements = await this.cms.renderElement(content.contentType, content.formData, channel)
+      renderedElements = await this.cms.renderElement(content.contentType, { ...content.formData, ...args }, channel)
     } else {
       renderedElements = await this.cms.renderElement(contentId, args, channel)
     }
