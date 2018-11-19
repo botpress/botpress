@@ -2,7 +2,6 @@
 
 import React from 'react'
 import classnames from 'classnames'
-import ReactGa from 'react-ga'
 
 // import { Emoji } from 'emoji-mart'
 
@@ -47,9 +46,9 @@ export default class Web extends React.Component {
   constructor(props) {
     super(props)
 
-    if (window.botpressWebChat && window.botpressWebChat.allowStats) {
+    if (window.botpressWebChat && window.botpressWebChat.sendUsageStats) {
       ReactGA.initialize('UA-90044826-2')
-      ReactGA.event({ category: 'WebChat', action: 'Rendered Embedded Webchat', nonInteraction: true })
+      ReactGA.event({ category: 'WebChat', action: 'render', nonInteraction: true })
     }
 
     const { options } = queryString.parse(location.search)

@@ -19,7 +19,7 @@ const history = createBrowserHistory({ basename: window.BP_BASE_PATH + '/' })
 addLocationQuery(history)
 history.listen(() => {
   addLocationQuery(history)
-  if (window.ALLOW_STATS) {
+  if (window.SEND_USAGE_STATS) {
     logPageView()
   }
 })
@@ -30,7 +30,7 @@ const logPageView = () => {
 }
 
 export default () => {
-  if (window.ALLOW_STATS) {
+  if (window.SEND_USAGE_STATS) {
     ReactGA.initialize(window.ANALYTICS_ID, {
       gaOptions: {
         userId: window.UUID

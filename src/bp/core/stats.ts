@@ -11,14 +11,14 @@ export type StatsCategory = 'server' | 'bot' | 'auth' | 'license' | 'ce' | 'pro'
 export class Statistics {
   private _visitor: Visitor | undefined
   private _queued: Function[] = []
-  private _allowStats!: boolean
+  private _sendUsageStats!: boolean
 
   constructor(@inject(TYPES.ConfigProvider) private configProvider: ConfigProvider) {}
 
   @postConstruct()
   public async init() {
     const botpressConfig = await this.configProvider.getBotpressConfig()
-    this._allowStats = botpressConfig.allowStats || true // Stats are activated by default
+    this._sendUsageStats = botpressConfig.sendUsageStats || true // Stats are activated by default
 
     const uuid = await machineUUID()
     this._visitor = ua(gaId, uuid, { strictCidFormat: false })
@@ -27,7 +27,7 @@ export class Statistics {
   }
 
   public track(category: StatsCategory, action: string, label: string = '', value: string | number = '') {
-    if (!this._allowStats) {
+    if (!this._sendUsageStats) {
       return
     }
 
