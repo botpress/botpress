@@ -35,7 +35,7 @@ export const initModule = async (bp: SDK, botScopedStorage: Map<string, QnaStora
     enabled: true
   })
 
-  const buildSuggestedReply = async (question, confidence) => {
+  const buildSuggestedReply = async (question, confidence, intent) => {
     const payloads = []
     if (question.action.includes('text')) {
       const element = await bp.cms.renderElement('builtin_text', { text: question.answer, typing: true }, 'web')
@@ -48,7 +48,8 @@ export const initModule = async (bp: SDK, botScopedStorage: Map<string, QnaStora
 
     return {
       confidence,
-      payloads
+      payloads,
+      intent
     }
   }
 
@@ -64,7 +65,7 @@ export const initModule = async (bp: SDK, botScopedStorage: Map<string, QnaStora
       const qnaQuestion = (await storage.answersOn(event.text)).pop()
 
       if (qnaQuestion && qnaQuestion.enabled) {
-        event.suggestedReplies.push(await buildSuggestedReply(qnaQuestion, qnaQuestion.confidence))
+        event.suggestedReplies.push(await buildSuggestedReply(qnaQuestion, qnaQuestion.confidence, undefined))
       }
 
       return
@@ -77,7 +78,7 @@ export const initModule = async (bp: SDK, botScopedStorage: Map<string, QnaStora
     for (const intent of event.nlu.intents) {
       const question = await getQuestionForIntent(storage, intent.name)
       if (question && question.enabled) {
-        event.suggestedReplies.push(await buildSuggestedReply(question, intent.confidence))
+        event.suggestedReplies.push(await buildSuggestedReply(question, intent.confidence, intent.name))
       }
     }
   }
