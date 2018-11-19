@@ -10,7 +10,6 @@ import Provider from './base'
 export default class NativeProvider extends Provider {
   private intentClassifier: FastTextClassifier
   private langDetector: LanguageDetector
-  private lastSyncCheck = 0
 
   constructor(config) {
     super({ ...config, name: 'native', entityKey: '@native' })
@@ -64,14 +63,6 @@ export default class NativeProvider extends Provider {
   }
 
   async extract(incomingEvent: sdk.IO.Event) {
-    // check only once every 30s max since a check is quite expensive
-    if (Date.now() - this.lastSyncCheck >= 30000) {
-      this.lastSyncCheck = Date.now()
-      if (await this.checkSyncNeeded()) {
-        await this.sync()
-      }
-    }
-
     const language = await this.langDetector.detectLang(incomingEvent.preview)
     const predictions = await this.intentClassifier.predict(incomingEvent.preview)
 
