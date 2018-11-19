@@ -48,7 +48,7 @@ export class ActionStrategy implements InstructionStrategy {
     }
   }
 
-  private async invokeOutputProcessor(botId, instruction, event: IO.Event): Promise<ProcessingResult> {
+  private async invokeOutputProcessor(botId, instruction, event: IO.IncomingEvent): Promise<ProcessingResult> {
     const chunks = instruction.fn.split(' ')
     const params = _.slice(chunks, 2).join(' ')
 
@@ -69,10 +69,12 @@ export class ActionStrategy implements InstructionStrategy {
 
     this.logger.debug(`Output "${outputType}"`)
 
-    event.state.session.lastMessages.unshift({
+    const message: IO.MessageHistory = {
       user: event.preview,
-      bot: outputType
-    })
+      reply: outputType
+    }
+
+    event.state.session.lastMessages.push(message)
 
     await this.contentElementSender.sendContent(outputType, args, event)
 

@@ -1,18 +1,18 @@
 import * as sdk from 'botpress/sdk'
 import { BotpressConfig } from 'core/config/botpress.config'
 import { ConfigProvider } from 'core/config/config-loader'
-import Database from 'core/database'
-import { inject, injectable, tagged } from 'inversify'
+import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
 import moment from 'moment'
 import ms from 'ms'
 
-import { DialogSession, SessionRepository, UserRepository } from '../../repositories'
+import { SessionRepository, UserRepository } from '../../repositories'
 import { TYPES } from '../../types'
 import { SessionIdFactory } from '../dialog/session/id-factory'
 
 import { EventEngine } from './event-engine'
+
 @injectable()
 export class StateManager {
   constructor(
@@ -25,21 +25,15 @@ export class StateManager {
   private LAST_MESSAGES_HISTORY_COUNT = 5
 
   public initialize() {
-    const stateLoader = async (event: sdk.IO.Event, next) => {
+    const stateLoader = async (event: sdk.IO.IncomingEvent, next) => {
       const { result: user } = await this.userRepo.getOrCreate(event.channel, event.target)
-      event.state['user'] = user.attributes
+      event.state.user = user.attributes
 
       const sessionId = SessionIdFactory.createIdFromEvent(event)
       const session = await this.sessionRepo.get(sessionId)
 
-      if (session) {
-        event.state.context = session.context_data
-        event.state.session = session.session_data
-      }
-
-      if (!_.get(event, 'state.session.lastMessages')) {
-        _.set(event, 'state.session.lastMessages', [])
-      }
+      event.state.context = (session && session.context_data) || {}
+      event.state.session = (session && session.session_data) || { lastMessages: [] }
 
       next()
     }
@@ -56,18 +50,18 @@ export class StateManager {
     this.eventEngine.register(sessionLoader)
   }
 
-  public async persist(event, ignoreContext) {
+  public async persist(event: sdk.IO.IncomingEvent, ignoreContext: boolean) {
     const { user, context, session } = event.state
     const sessionId = SessionIdFactory.createIdFromEvent(event)
 
-    this.userRepo.updateAttributes(event.channel, event.target, _.omitBy(user, _.isNil))
+    await this.userRepo.updateAttributes(event.channel, event.target, _.omitBy(user, _.isNil))
 
     // Take last 5 messages only
     if (session && session.lastMessages) {
-      session.lastMessages = _.slice(session.lastMessages, 0, this.LAST_MESSAGES_HISTORY_COUNT)
+      session.lastMessages = _.takeRight(session.lastMessages, this.LAST_MESSAGES_HISTORY_COUNT)
     }
 
-    const expiryDates = await this.getContextExpiryDate(event.botId)
+    const expiryDates = await this.getExpiryDates(event.botId)
     const dialogSession = await this.sessionRepo.getOrCreateSession(sessionId, event.botId)
 
     dialogSession.session_data = session || {}
@@ -81,19 +75,19 @@ export class StateManager {
     await this.sessionRepo.update(dialogSession)
   }
 
-  private async getContextExpiryDate(botId) {
+  private async getExpiryDates(botId: string) {
     const botpressConfig = await this.getBotpresConfig()
     const botConfig = await this.configProvider.getBotConfig(botId)
 
-    const expiryTimeContext = ms(_.get(botConfig, 'dialog.timeoutInterval') || botpressConfig.dialog.timeoutInterval)
-    const expiryTimeSession = ms(_.get(botConfig, 'dialog.timeoutInterval') || botpressConfig.dialog.timeoutInterval)
+    const contextExpireDate = ms(_.get(botConfig, 'dialog.timeoutInterval') || botpressConfig.dialog.timeoutInterval)
+    const sessionExpireDate = ms(_.get(botConfig, 'dialog.timeoutInterval') || botpressConfig.dialog.timeoutInterval)
 
     return {
       context: moment()
-        .add(expiryTimeContext, 'ms')
+        .add(contextExpireDate, 'ms')
         .toDate(),
       session: moment()
-        .add(expiryTimeSession, 'ms')
+        .add(sessionExpireDate, 'ms')
         .toDate()
     }
   }

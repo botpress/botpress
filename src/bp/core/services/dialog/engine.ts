@@ -41,7 +41,7 @@ export class DialogEngine {
     @inject(TYPES.HookService) private hookService: HookService
   ) {}
 
-  public async processEvent(sessionId: string, event: IO.Event) {
+  public async processEvent(sessionId: string, event: IO.IncomingEvent) {
     const botId = event.botId
     await this._loadFlows(botId)
 
@@ -100,7 +100,7 @@ export class DialogEngine {
     return event
   }
 
-  public async jumpTo(sessionId: string, event: IO.Event, targetFlowName: string, targetNodeName?: string) {
+  public async jumpTo(sessionId: string, event: IO.IncomingEvent, targetFlowName: string, targetNodeName?: string) {
     const botId = event.botId
     await this._loadFlows(botId)
 
@@ -113,7 +113,7 @@ export class DialogEngine {
     event.state.context.currentNode = targetNode.name
   }
 
-  public async processTimeout(botId: string, sessionId: string, event: IO.Event) {
+  public async processTimeout(botId: string, sessionId: string, event: IO.IncomingEvent) {
     this._logTimeout(botId)
     await this._loadFlows(botId)
 
@@ -139,7 +139,7 @@ export class DialogEngine {
       return undefined
     }
 
-    const currentFlow = this._findFlow(botId, event.state.context.currentFlow)
+    const currentFlow = this._findFlow(botId, event.state.context.currentFlow!)
     const currentNode = findNodeWithoutError(currentFlow, event.state.context.currentNode)
 
     // Check for a timeout property in the current node
@@ -193,7 +193,7 @@ export class DialogEngine {
   }
 
   protected async _transition(sessionId, event, transitionTo) {
-    let context = event.state.context
+    let context: IO.DialogContext = event.state.context
 
     if (transitionTo.includes('.flow.json')) {
       // Transition to other flow
@@ -224,20 +224,20 @@ export class DialogEngine {
         currentFlow: parentFlow.name,
         queue: queue.toString()
       }
-      this._logExitFlow(event.botId, context.currentFlowName, context.currentFlowName, parentFlow.name, parentNode.name)
+      this._logExitFlow(event.botId, context.currentFlow, context.currentFlow, parentFlow.name, parentNode.name)
     } else if (transitionTo === 'END') {
       // END means the node has a transition of "end flow" in the flow editor
-      event.state.context = undefined
+      delete event.state.context
       this._logEnd(event.botId)
       return event.state
     } else {
       // Transition to the target node in the current flow
-      // this._logTransition(event.botId, context!.currentFlowName, context!.currentNodeName, transitionTo)
+      this._logTransition(event.botId, context.currentFlow, context.currentNode, transitionTo)
       context = { ...context, currentNode: transitionTo }
     }
 
     event.state.context = context
-    return await this.processEvent(sessionId, event)
+    return this.processEvent(sessionId, event)
   }
 
   private async _goToSubflow(botId, event, sessionId, parentNode, parentFlow) {

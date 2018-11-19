@@ -1,29 +1,16 @@
-import { IO } from 'botpress/sdk'
+import * as sdk from 'botpress/sdk'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 
 import Database from '../database'
 import { TYPES } from '../types'
 
-export type DialogContext = {
-  previousFlow?: string
-  previousNode?: string
-  currentNode?: string
-  currentFlow?: string
-  queue?: string
-  data?: any
-}
-
-export type CurrentSession = {
-  lastMessages?: string[]
-}
-
 export class DialogSession {
   constructor(
     public id: string,
     public botId: string,
-    public context_data?: DialogContext,
-    public session_data?: CurrentSession
+    public context_data?: sdk.IO.DialogContext,
+    public session_data?: sdk.IO.CurrentSession
   ) {}
 
   // Timestamps are optionnal because they have default values in the database
@@ -40,7 +27,7 @@ export interface SessionRepository {
   getExpiredContextSessionIds(botId: string): Promise<string[]>
   deleteExpiredSessions(botId: string)
   delete(id: string)
-  update(session: DialogSession, ignoreDate?: boolean)
+  update(session: DialogSession)
 }
 
 @injectable()

@@ -181,9 +181,7 @@ declare module 'botpress/sdk' {
       readonly threadId?: string
       /** A textual representation of the event */
       readonly preview: string
-      /** Array of possible suggestions that the Decision Engine can take  */
-      readonly suggestedReplies?: SuggestedReply[]
-      readonly state: any
+
       /**
        * Check if the event has a specific flag
        * @param flag The flag symbol to verify. {@link IO.WellKnownFlags} to know more about existing flags
@@ -200,11 +198,43 @@ declare module 'botpress/sdk' {
       setFlag(flag: symbol, value: boolean): void
     }
 
+    export interface IncomingEvent extends Event {
+      /** Array of possible suggestions that the Decision Engine can take  */
+      readonly suggestedReplies?: SuggestedReply[]
+      /** Contains data related to the state of the event */
+      readonly state: EventState
+    }
+
     export interface SuggestedReply {
       /** Number between 0 and 1 indicating how confident the module is about its suggestion */
       confidence: number
       /** An array of the raw payloads to send as an answer */
       payloads: any[]
+    }
+
+    export interface EventState {
+      user: User
+      context: DialogContext
+      session: CurrentSession
+    }
+
+    export interface DialogContext {
+      previousFlow?: string
+      previousNode?: string
+      currentNode?: string
+      currentFlow?: string
+      queue?: string
+      data?: any
+    }
+
+    export interface CurrentSession {
+      lastMessages: MessageHistory[]
+    }
+
+    export interface MessageHistory {
+      intent?: string
+      user: string
+      reply: string
     }
 
     /**
@@ -645,7 +675,7 @@ declare module 'botpress/sdk' {
      * Calls the dialog engine to start processing an event.
      * @param event The event to be processed by the dialog engine
      */
-    export function processEvent(sessionId: string, event: IO.Event): Promise<void>
+    export function processEvent(sessionId: string, event: IO.IncomingEvent): Promise<void>
     /**
      * Deletes a session
      * @param sessionId The Id of the session to delete

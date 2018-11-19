@@ -20,7 +20,7 @@ export class DecisionEngine {
 
   private minConfidence = 0.3
 
-  public async processEvent(sessionId: string, event: IO.Event) {
+  public async processEvent(sessionId: string, event: IO.IncomingEvent) {
     if (event.suggestedReplies) {
       const bestMatch = _.first(_.sortBy(event.suggestedReplies, reply => -reply.confidence))
 
@@ -31,7 +31,7 @@ export class DecisionEngine {
 
     if (!event.hasFlag(WellKnownFlags.SKIP_DIALOG_ENGINE)) {
       const processedEvent = await this.dialogEngine.processEvent(sessionId, event)
-      this.stateManager.persist(processedEvent, false)
+      await this.stateManager.persist(processedEvent, false)
     }
   }
 
@@ -40,13 +40,14 @@ export class DecisionEngine {
     if (payloads) {
       await this.eventEngine.replyToEvent(event, payloads)
 
-      event.state.session.lastMessages.unshift({
+      const message: IO.MessageHistory = {
         intent: reply.intent,
         user: event.preview,
-        bot: _.find(payloads, p => p.text != undefined)
-      })
+        reply: _.find(payloads, p => p.text != undefined)
+      }
+      event.state.session.lastMessages.push(message)
 
-      this.stateManager.persist(event, true)
+      await this.stateManager.persist(event, true)
     }
 
     const redirect = _.find(reply.payloads, p => p.type === 'redirect')

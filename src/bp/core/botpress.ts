@@ -149,11 +149,11 @@ export class Botpress {
 
     await this.cmsService.initialize()
 
-    this.eventEngine.onBeforeIncomingMiddleware = async (event: sdk.IO.Event) => {
+    this.eventEngine.onBeforeIncomingMiddleware = async (event: sdk.IO.IncomingEvent) => {
       await this.hookService.executeHook(new Hooks.BeforeIncomingMiddleware(this.api, event))
     }
 
-    this.eventEngine.onAfterIncomingMiddleware = async (event: sdk.IO.Event) => {
+    this.eventEngine.onAfterIncomingMiddleware = async (event: sdk.IO.IncomingEvent) => {
       await this.hookService.executeHook(new Hooks.AfterIncomingMiddleware(this.api, event))
 
       const sessionId = SessionIdFactory.createIdFromEvent(event)

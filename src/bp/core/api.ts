@@ -62,7 +62,7 @@ const dialog = (dialogEngine: DialogEngine, sessionRepo: SessionRepository): typ
     async createId(event: sdk.IO.Event) {
       return SessionIdFactory.createIdFromEvent(event)
     },
-    async processEvent(sessionId: string, event: sdk.IO.Event): Promise<void> {
+    async processEvent(sessionId: string, event: sdk.IO.IncomingEvent): Promise<void> {
       await dialogEngine.processEvent(sessionId, event)
     },
     async deleteSession(userId: string): Promise<void> {
