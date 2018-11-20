@@ -3,7 +3,6 @@
 *  Licensed under the AGPL-3.0 license. See license.txt at project root for more information.
 *--------------------------------------------------------------------------------------------*/
 
-import { ContentElement } from 'botpress/sdk'
 import { Serialize } from 'cerialize'
 import { GhostService } from 'core/services'
 import { AdminService } from 'core/services/admin/service'
@@ -18,8 +17,6 @@ import { RouterOptions } from 'request'
 
 import { BotRepository } from '../repositories'
 import ActionService from '../services/action/action-service'
-import { DefaultSearchParams } from '../services/cms'
-import { CMS } from '../services/cms/cms'
 import { FlowView } from '../services/dialog'
 import { FlowService } from '../services/dialog/flow/service'
 import { LogsService } from '../services/logs/service'
@@ -34,7 +31,6 @@ export class BotsRouter implements CustomRouter {
 
   private actionService: ActionService
   private botRepository: BotRepository
-  private cmsService: CMS
   private flowService: FlowService
   private mediaService: MediaService
   private logsService: LogsService
@@ -48,7 +44,6 @@ export class BotsRouter implements CustomRouter {
   constructor(args: {
     actionService: ActionService
     botRepository: BotRepository
-    cmsService: CMS
     flowService: FlowService
     mediaService: MediaService
     logsService: LogsService
@@ -59,7 +54,6 @@ export class BotsRouter implements CustomRouter {
   }) {
     this.actionService = args.actionService
     this.botRepository = args.botRepository
-    this.cmsService = args.cmsService
     this.flowService = args.flowService
     this.mediaService = args.mediaService
     this.logsService = args.logsService
@@ -289,69 +283,5 @@ export class BotsRouter implements CustomRouter {
         res.sendStatus(201)
       }
     )
-
-    this.router.get(
-      '/versioning/pending',
-      this.checkTokenHeader,
-      this.needPermissions('read', 'bot.ghost_content'),
-      async (req, res) => {
-        res.send(await this.ghostService.forBot(req.params.botId).getPending())
-      }
-    )
-
-    this.router.get(
-      '/versioning/export',
-      this.checkTokenHeader,
-      this.needPermissions('read', 'bot.ghost_content'),
-      async (req, res) => {
-        const tarball = await this.ghostService.forBot(req.params.botId).exportArchive()
-        const name = 'archive_' + req.params.botId.replace(/\W/gi, '') + '_' + Date.now() + '.tgz'
-        res.writeHead(200, {
-          'Content-Type': 'application/tar+gzip',
-          'Content-Disposition': `attachment; filename=${name}`,
-          'Content-Length': tarball.length
-        })
-        res.end(tarball)
-      }
-    )
-
-    const archiveUploadMulter = multer({
-      limits: {
-        fileSize: 1024 * 1000 * 100 // 100mb
-      }
-    })
-
-    // TODO WIP Partial progress towards importing tarballs from the UI
-
-    // this.router.get(
-    //   '/versioning/import',
-    //   this.checkTokenHeader,
-    //   this.needPermissions('write', 'bot.ghost_content'),
-    //   archiveUploadMulter.single('file'),
-    //   async (req, res) => {
-    //     const buffer = req['file'].buffer
-    //     const botId = req.params.botId
-    //     await this.ghostService.forBot(botId).importArchive(buffer)
-    //     res.sendStatus(200)
-    //   }
-    // )
-
-    // Revision ID
-    this.router.post(
-      '/versioning/revert',
-      this.checkTokenHeader,
-      this.needPermissions('write', 'bot.ghost_content'),
-      async (req, res) => {
-        const revisionId = req.body.revision
-        const filePath = req.body.filePath
-        await this.ghostService.forBot(req.params.botId).revertFileRevision(filePath, revisionId)
-        res.sendStatus(200)
-      }
-    )
-
-    // bots/{botId}/talk?content=nlu;
-    this.router.post('/talk', this.checkTokenHeader, async (req, res) => {
-      const botId = req.params.botId
-    })
   }
 }

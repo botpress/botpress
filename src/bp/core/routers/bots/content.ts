@@ -8,7 +8,7 @@ import { RequestHandler, Router } from 'express'
 import { CustomRouter } from '..'
 import { checkTokenHeader, needPermissions } from '../util'
 
-export class BotsContentRouter implements CustomRouter {
+export class ContentRouter implements CustomRouter {
   public readonly router: Router
 
   private _checkTokenHeader: RequestHandler

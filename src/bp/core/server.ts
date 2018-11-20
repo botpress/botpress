@@ -15,7 +15,8 @@ import { ConfigProvider } from './config/config-loader'
 import { ModuleLoader } from './module-loader'
 import { BotRepository } from './repositories'
 import { AdminRouter, AuthRouter, BotsRouter, ModulesRouter } from './routers'
-import { BotsContentRouter } from './routers/bots/content'
+import { ContentRouter } from './routers/bots/content'
+import { VersioningRouter } from './routers/bots/versioning'
 import { ShortLinksRouter } from './routers/shortlinks'
 import { GhostService } from './services'
 import ActionService from './services/action/action-service'
@@ -41,9 +42,10 @@ export default class HTTPServer {
   private readonly authRouter: AuthRouter
   private readonly adminRouter: AdminRouter
   private readonly botsRouter: BotsRouter
-  private readonly contentRouter: BotsContentRouter
+  private readonly contentRouter: ContentRouter
   private readonly modulesRouter: ModulesRouter
   private readonly shortlinksRouter: ShortLinksRouter
+  private readonly versioningRouter: VersioningRouter
 
   constructor(
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
@@ -80,7 +82,6 @@ export default class HTTPServer {
     this.botsRouter = new BotsRouter({
       actionService,
       botRepository,
-      cmsService,
       flowService,
       mediaService,
       logsService,
@@ -89,8 +90,10 @@ export default class HTTPServer {
       adminService,
       ghostService
     })
-    this.contentRouter = new BotsContentRouter(this.adminService, this.authService, cmsService)
+    this.contentRouter = new ContentRouter(this.adminService, this.authService, cmsService)
+    this.versioningRouter = new VersioningRouter(this.adminService, this.authService, ghostService)
     this.botsRouter.router.use('/content', this.contentRouter.router)
+    this.botsRouter.router.use('/versioning', this.versioningRouter.router)
   }
 
   resolveAsset = file => path.resolve(process.PROJECT_LOCATION, 'assets', file)
