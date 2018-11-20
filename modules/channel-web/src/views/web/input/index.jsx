@@ -17,10 +17,16 @@ export default class Send extends Component {
     }
   }
 
-  handleKeyPress(e) {
+  handleKeyPress = e => {
     if (e.key === 'Enter') {
       this.props.send()
       e.preventDefault()
+    }
+  }
+
+  handleKeyDown = e => {
+    if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+      this.props.recallHistory(e.key)
     }
   }
 
@@ -37,7 +43,8 @@ export default class Send extends Component {
           placeholder={this.props.placeholder}
           onChange={this.props.change}
           value={this.props.text}
-          onKeyPress={::this.handleKeyPress}
+          onKeyPress={this.handleKeyPress}
+          onKeyDown={this.handleKeyDown}
           style={{
             color: this.props.config.textColorOnBackground
           }}

@@ -65,7 +65,9 @@ export default class Web extends React.Component {
       currentConversationId: null,
       unreadCount: 0,
       isButtonHidden: config.hideWidget,
-      isTransitioning: false
+      isTransitioning: false,
+      messageHistory: [],
+      historyPosition: -1
     }
   }
 
@@ -379,10 +381,21 @@ export default class Web extends React.Component {
   }
 
   handleSendMessage = () => {
+    this.setState({
+      messageHistory: _.take([this.state.textToSend, ...this.state.messageHistory], 10),
+      historyPosition: -1
+    })
+
     return this.handleSendData({ type: 'text', text: this.state.textToSend }).then(() => {
       this.handleSwitchView('side')
       this.setState({ textToSend: '' })
     })
+  }
+
+  handleRecallHistory = direction => {
+    const position = direction === 'ArrowUp' ? this.state.historyPosition + 1 : this.state.historyPosition - 1
+    const text = _.nth(this.state.messageHistory, position)
+    text && this.setState({ textToSend: text, historyPosition: position })
   }
 
   handleTextChanged = event => {
@@ -571,6 +584,7 @@ export default class Web extends React.Component {
         onResetSession={this.handleSessionReset}
         onSwitchConvo={this.handleSwitchConvo}
         onTextSend={this.handleSendMessage}
+        recallHistory={this.handleRecallHistory}
         onTextChanged={this.handleTextChanged}
         onQuickReplySend={this.handleSendQuickReply}
         onFormSend={this.handleSendForm}
