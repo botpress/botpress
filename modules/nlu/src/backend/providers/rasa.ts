@@ -231,7 +231,7 @@ export default class RasaProvider extends Provider {
     }
 
     const res = await this.client.post('/parse', {
-      q: incomingEvent.text,
+      q: incomingEvent.preview,
       project: this.getProjectName(),
       model: modelId
     })
