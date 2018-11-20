@@ -1,5 +1,13 @@
 const base = require('./_base.js')
 
+function render(data) {
+  return {
+    type: 'text',
+    markdown: true,
+    text: data.text
+  }
+}
+
 function renderForWeb(data) {
   const events = []
 
@@ -10,19 +18,18 @@ function renderForWeb(data) {
     })
   }
 
-  return [
-    ...events,
-    {
-      type: 'text',
-      markdown: true,
-      text: data.text
-    }
-  ]
+  return [...events, render(data)]
+}
+
+function renderForApi(data) {
+  return [render(data)]
 }
 
 function renderElement(data, channel) {
   if (channel === 'web') {
     return renderForWeb(data)
+  } else if (channel === 'api') {
+    return renderForApi(data)
   }
 
   return [] // TODO

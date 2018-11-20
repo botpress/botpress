@@ -7,7 +7,7 @@ import { UnlicensedError } from 'errors'
 import express from 'express'
 import rewrite from 'express-urlrewrite'
 import { createServer, Server } from 'http'
-import { inject, injectable, tagged } from 'inversify'
+import { inject, injectable, postConstruct, tagged } from 'inversify'
 import path from 'path'
 import portFinder from 'portfinder'
 
@@ -16,6 +16,7 @@ import { ModuleLoader } from './module-loader'
 import { BotRepository } from './repositories'
 import { AdminRouter, AuthRouter, BotsRouter, ModulesRouter } from './routers'
 import { ContentRouter } from './routers/bots/content'
+import { ConverseRouter } from './routers/bots/converse'
 import { VersioningRouter } from './routers/bots/versioning'
 import { ShortLinksRouter } from './routers/shortlinks'
 import { GhostService } from './services'
@@ -24,6 +25,7 @@ import { AdminService } from './services/admin/service'
 import AuthService from './services/auth/auth-service'
 import { InvalidLicenseKey } from './services/auth/errors'
 import { CMS } from './services/cms/cms'
+import { ConverseService } from './services/converse'
 import { FlowService } from './services/dialog/flow/service'
 import { SkillService } from './services/dialog/skill/service'
 import { LogsService } from './services/logs/service'
@@ -47,6 +49,8 @@ export default class HTTPServer {
   private readonly shortlinksRouter: ShortLinksRouter
   private readonly versioningRouter: VersioningRouter
 
+  private converseRouter: ConverseRouter | undefined
+
   constructor(
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.Logger)
@@ -65,7 +69,8 @@ export default class HTTPServer {
     @inject(TYPES.NotificationsService) notificationService: NotificationsService,
     @inject(TYPES.SkillService) skillService: SkillService,
     @inject(TYPES.GhostService) ghostService: GhostService,
-    @inject(TYPES.LicensingService) licenseService: LicensingService
+    @inject(TYPES.LicensingService) licenseService: LicensingService,
+    @inject(TYPES.ConverseService) private converseService: ConverseService
   ) {
     this.app = express()
 
@@ -92,8 +97,15 @@ export default class HTTPServer {
     })
     this.contentRouter = new ContentRouter(this.adminService, this.authService, cmsService)
     this.versioningRouter = new VersioningRouter(this.adminService, this.authService, ghostService)
+
     this.botsRouter.router.use('/content', this.contentRouter.router)
     this.botsRouter.router.use('/versioning', this.versioningRouter.router)
+  }
+
+  @postConstruct()
+  async initAsync() {
+    this.converseRouter = new ConverseRouter(this.converseService)
+    this.botsRouter.router.use('/converse', this.converseRouter.router)
   }
 
   resolveAsset = file => path.resolve(process.PROJECT_LOCATION, 'assets', file)

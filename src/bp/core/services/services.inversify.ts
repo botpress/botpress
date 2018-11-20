@@ -9,6 +9,7 @@ import { AdminContainerModule } from './admin/admin.inversify'
 import AuthService from './auth/auth-service'
 import { CMS } from './cms/cms'
 import { ContentElementSender } from './cms/content-sender'
+import { ConverseService } from './converse'
 import { SkillService } from './dialog/skill/service'
 import { GhostContainerModule } from './ghost/ghost.inversify'
 import { HookService } from './hook/hook-service'
@@ -87,6 +88,10 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
 
   bind<SkillService>(TYPES.SkillService)
     .to(SkillService)
+    .inSingletonScope()
+
+  bind<ConverseService>(TYPES.ConverseService)
+    .to(ConverseService)
     .inSingletonScope()
 })
 

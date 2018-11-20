@@ -1,5 +1,17 @@
 const base = require('./_base.js')
 
+function render(data) {
+  return {
+    on: 'webchat',
+    text: data.text,
+    quick_replies: data.choices.map(c => ({
+      title: c.title,
+      payload: c.value.toUpperCase()
+    })),
+    typing: data.typing
+  }
+}
+
 function renderForWeb(data) {
   const events = []
 
@@ -10,23 +22,18 @@ function renderForWeb(data) {
     })
   }
 
-  return [
-    ...events,
-    {
-      on: 'webchat',
-      text: data.text,
-      quick_replies: data.choices.map(c => ({
-        title: c.title,
-        payload: c.value.toUpperCase()
-      })),
-      typing: data.typing
-    }
-  ]
+  return [...events, render(data)]
+}
+
+function renderForApi(data) {
+  return [render(data)]
 }
 
 function renderElement(data, channel) {
   if (channel === 'web') {
     return renderForWeb(data)
+  } else if (channel === 'api') {
+    return renderForApi(data)
   }
 
   return [] // TODO Handle channel not supported

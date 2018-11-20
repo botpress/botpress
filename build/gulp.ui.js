@@ -74,7 +74,7 @@ const watch = cb => {
 }
 
 const watchStudio = () => {
-  return gulp.series([cleanStudioAssets, createStudioSymlink, watch])
+  return gulp.series([watch])
 }
 
 const watchAll = () => {

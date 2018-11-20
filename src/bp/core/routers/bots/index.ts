@@ -4,9 +4,16 @@
 *--------------------------------------------------------------------------------------------*/
 
 import { Serialize } from 'cerialize'
+import { BotRepository } from 'core/repositories'
 import { GhostService } from 'core/services'
+import ActionService from 'core/services/action/action-service'
 import { AdminService } from 'core/services/admin/service'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
+import { FlowView } from 'core/services/dialog'
+import { FlowService } from 'core/services/dialog/flow/service'
+import { LogsService } from 'core/services/logs/service'
+import MediaService from 'core/services/media'
+import { NotificationsService } from 'core/services/notification/service'
 import { RequestHandler, Router } from 'express'
 import _ from 'lodash'
 import moment from 'moment'
@@ -15,16 +22,8 @@ import multer from 'multer'
 import path from 'path'
 import { RouterOptions } from 'request'
 
-import { BotRepository } from '../repositories'
-import ActionService from '../services/action/action-service'
-import { FlowView } from '../services/dialog'
-import { FlowService } from '../services/dialog/flow/service'
-import { LogsService } from '../services/logs/service'
-import MediaService from '../services/media'
-import { NotificationsService } from '../services/notification/service'
-
-import { CustomRouter } from '.'
-import { checkTokenHeader, needPermissions } from './util'
+import { CustomRouter } from '..'
+import { checkTokenHeader, needPermissions } from '../util'
 
 export class BotsRouter implements CustomRouter {
   public readonly router: Router
@@ -38,8 +37,9 @@ export class BotsRouter implements CustomRouter {
   private authService: AuthService
   private adminService: AdminService
   private ghostService: GhostService
-  private checkTokenHeader: RequestHandler
-  private needPermissions: (operation: string, resource: string) => RequestHandler
+
+  private _checkTokenHeader: RequestHandler
+  private _needPermissions: (operation: string, resource: string) => RequestHandler
 
   constructor(args: {
     actionService: ActionService
@@ -62,8 +62,8 @@ export class BotsRouter implements CustomRouter {
     this.adminService = args.adminService
     this.ghostService = args.ghostService
 
-    this.needPermissions = needPermissions(this.adminService)
-    this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
+    this._needPermissions = needPermissions(this.adminService)
+    this._checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
 
     this.router = Router({ mergeParams: true })
     this.setupRoutes()
@@ -142,32 +142,42 @@ export class BotsRouter implements CustomRouter {
       res.send(totalEnv)
     })
 
-    this.router.get('/', this.checkTokenHeader, this.needPermissions('read', 'bot.information'), async (req, res) => {
+    this.router.get('/', this._checkTokenHeader, this._needPermissions('read', 'bot.information'), async (req, res) => {
       const botId = req.params.botId
       const bot = await this.botRepository.getBotById(botId)
 
       res.send(bot)
     })
 
-    this.router.get('/flows', this.checkTokenHeader, this.needPermissions('read', 'bot.flows'), async (req, res) => {
+    this.router.get('/flows', this._checkTokenHeader, this._needPermissions('read', 'bot.flows'), async (req, res) => {
       const botId = req.params.botId
       const flows = await this.flowService.loadAll(botId)
       res.send(flows)
     })
 
-    this.router.post('/flows', this.checkTokenHeader, this.needPermissions('write', 'bot.flows'), async (req, res) => {
-      const botId = req.params.botId
-      const flowViews = <FlowView[]>req.body
+    this.router.post(
+      '/flows',
+      this._checkTokenHeader,
+      this._needPermissions('write', 'bot.flows'),
+      async (req, res) => {
+        const botId = req.params.botId
+        const flowViews = <FlowView[]>req.body
 
-      await this.flowService.saveAll(botId, flowViews)
-      res.sendStatus(201)
-    })
+        await this.flowService.saveAll(botId, flowViews)
+        res.sendStatus(201)
+      }
+    )
 
-    this.router.get('/actions', this.checkTokenHeader, this.needPermissions('read', 'bot.flows'), async (req, res) => {
-      const botId = req.params.botId
-      const actions = await this.actionService.forBot(botId).listActions({ includeMetadata: true })
-      res.send(Serialize(actions))
-    })
+    this.router.get(
+      '/actions',
+      this._checkTokenHeader,
+      this._needPermissions('read', 'bot.flows'),
+      async (req, res) => {
+        const botId = req.params.botId
+        const actions = await this.actionService.forBot(botId).listActions({ includeMetadata: true })
+        res.send(Serialize(actions))
+      }
+    )
 
     const mediaUploadMulter = multer({
       limits: {
@@ -195,8 +205,8 @@ export class BotsRouter implements CustomRouter {
 
     this.router.post(
       '/media',
-      this.checkTokenHeader,
-      this.needPermissions('write', 'bot.media'),
+      this._checkTokenHeader,
+      this._needPermissions('write', 'bot.media'),
       mediaUploadMulter.single('file'),
       async (req, res) => {
         const botId = req.params.botId
@@ -206,7 +216,7 @@ export class BotsRouter implements CustomRouter {
       }
     )
 
-    this.router.get('/logs', this.checkTokenHeader, this.needPermissions('read', 'bot.logs'), async (req, res) => {
+    this.router.get('/logs', this._checkTokenHeader, this._needPermissions('read', 'bot.logs'), async (req, res) => {
       const limit = req.query.limit
       const botId = req.params.botId
       const logs = await this.logsService.getLogsForBot(botId, limit)
@@ -215,8 +225,8 @@ export class BotsRouter implements CustomRouter {
 
     this.router.get(
       '/logs/archive',
-      this.checkTokenHeader,
-      this.needPermissions('read', 'bot.logs'),
+      this._checkTokenHeader,
+      this._needPermissions('read', 'bot.logs'),
       async (req, res) => {
         const botId = req.params.botId
         const logs = await this.logsService.getLogsForBot(botId)
@@ -235,8 +245,8 @@ export class BotsRouter implements CustomRouter {
 
     this.router.get(
       '/notifications',
-      this.checkTokenHeader,
-      this.needPermissions('read', 'bot.notifications'),
+      this._checkTokenHeader,
+      this._needPermissions('read', 'bot.notifications'),
       async (req, res) => {
         const botId = req.params.botId
         const notifications = await this.notificationService.getInbox(botId)
@@ -246,8 +256,8 @@ export class BotsRouter implements CustomRouter {
 
     this.router.get(
       '/notifications/archive',
-      this.checkTokenHeader,
-      this.needPermissions('read', 'bot.notifications'),
+      this._checkTokenHeader,
+      this._needPermissions('read', 'bot.notifications'),
       async (req, res) => {
         const botId = req.params.botId
         const notifications = await this.notificationService.getArchived(botId)
@@ -257,8 +267,8 @@ export class BotsRouter implements CustomRouter {
 
     this.router.post(
       '/notifications/:notificationId?/read',
-      this.checkTokenHeader,
-      this.needPermissions('write', 'bot.notifications'),
+      this._checkTokenHeader,
+      this._needPermissions('write', 'bot.notifications'),
       async (req, res) => {
         const notificationId = req.params.notificationId
         const botId = req.params.botId
@@ -272,8 +282,8 @@ export class BotsRouter implements CustomRouter {
 
     this.router.post(
       '/notifications/:notificationId?/archive',
-      this.checkTokenHeader,
-      this.needPermissions('write', 'bot.notifications'),
+      this._checkTokenHeader,
+      this._needPermissions('write', 'bot.notifications'),
       async (req, res) => {
         const notificationId = req.params.notificationId
         const botId = req.params.botId

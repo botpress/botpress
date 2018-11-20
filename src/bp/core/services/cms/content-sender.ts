@@ -1,10 +1,10 @@
-import { reduce } from 'bluebird'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 import Mustache from 'mustache'
 
 import { Event } from '../../sdk/impl'
 import { TYPES } from '../../types'
+import { converseEvents } from '../converse'
 import { EventEngine } from '../middleware/event-engine'
 
 import { CMS } from './cms'
@@ -48,6 +48,13 @@ export class ContentElementSender {
     if (!_.isArray(renderedElements)) {
       renderedElements = [renderedElements]
     }
+
+    await converseEvents.emit('rendered', {
+      target: event.target,
+      response: renderedElements,
+      state: event.state,
+      nlu: 'todo' // TODO: Dont know from where we should get the output
+    })
 
     for (const element of renderedElements) {
       const event = Event({
