@@ -225,7 +225,7 @@ declare module 'botpress/sdk' {
       previousNode?: string
       currentNode?: string
       currentFlow?: string
-      queue?: string
+      queue?: object
       data?: any
     }
 
@@ -789,6 +789,14 @@ declare module 'botpress/sdk' {
      * @returns An array of payloads
      */
     export function renderElement(contentTypeId: string, payload: any, channel: string): Promise<object[]>
+    /**
+     * Sends a content element to the user. This method is used to send a specific content element, and can also be used
+     * to send custom content using a specific content type
+     * @param contentId - Can be either a content type or a content element id
+     * @param args - Additional arguments to pass (ex: payload)
+     * @param event - The method will use some parameters to correctly target the user
+     */
+    export function sendContent(contentId: string, args: object, event: IO.Event): Promise<void>
     export function createOrUpdateContentElement(
       botId: string,
       contentTypeId: string,

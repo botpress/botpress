@@ -32,7 +32,10 @@ export class ContentElementSender {
         throw new Error(`Content element "${contentId}" not found`)
       }
 
-      const view = { state: event.state.context.data, event }
+      const view = {
+        state: _.get(event, 'state.context.data') || {},
+        event
+      }
 
       _.set(content, 'previewPath', Mustache.render(content.previewText, view))
 

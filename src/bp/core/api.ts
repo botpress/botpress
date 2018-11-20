@@ -16,6 +16,7 @@ import { Event, RealTimePayload } from './sdk/impl'
 import HTTPServer from './server'
 import { GhostService } from './services'
 import { CMSService } from './services/cms/cms-service'
+import { ContentElementSender } from './services/cms/content-sender'
 import { DialogEngine } from './services/dialog/engine'
 import { SessionIdFactory } from './services/dialog/session/id-factory'
 import { ScopedGhostService } from './services/ghost/service'
@@ -150,7 +151,7 @@ const ghost = (ghostService: GhostService): typeof sdk.ghost => {
   }
 }
 
-const cms = (cmsService: CMSService): typeof sdk.cms => {
+const cms = (cmsService: CMSService, contentSender: ContentElementSender): typeof sdk.cms => {
   return {
     getContentElement(botId: string, id: string): Promise<any> {
       return cmsService.getContentElement(botId, id)
@@ -166,6 +167,9 @@ const cms = (cmsService: CMSService): typeof sdk.cms => {
     },
     renderElement(contentTypeId: string, payload: any, channel: string): Promise<any> {
       return cmsService.renderElement(contentTypeId, payload, channel)
+    },
+    sendContent(contentId: string, args: object, event: sdk.IO.Event): Promise<void> {
+      return contentSender.sendContent(contentId, args, event)
     },
     createOrUpdateContentElement(
       botId: string,
@@ -219,6 +223,7 @@ export class BotpressAPIProvider {
     @inject(TYPES.BotLoader) botLoader: BotLoader,
     @inject(TYPES.GhostService) ghostService: GhostService,
     @inject(TYPES.CMSService) cmsService: CMSService,
+    @inject(TYPES.ContentElementSender) contentSender: ContentElementSender,
     @inject(TYPES.ConfigProvider) configProfider: ConfigProvider
   ) {
     this.http = http(httpServer)
@@ -232,7 +237,7 @@ export class BotpressAPIProvider {
     this.notifications = notifications(notificationService)
     this.bots = bots(botLoader)
     this.ghost = ghost(ghostService)
-    this.cms = cms(cmsService)
+    this.cms = cms(cmsService, contentSender)
   }
 
   @Memoize()
