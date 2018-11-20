@@ -18,7 +18,7 @@ export class Statistics {
   @postConstruct()
   public async init() {
     const botpressConfig = await this.configProvider.getBotpressConfig()
-    this._sendUsageStats = botpressConfig.sendUsageStats || true // Stats are activated by default
+    this._sendUsageStats = botpressConfig.sendUsageStats
 
     const uuid = await machineUUID()
     this._visitor = ua(gaId, uuid, { strictCidFormat: false })
