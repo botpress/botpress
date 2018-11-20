@@ -130,7 +130,7 @@ export class ScopedActionService {
         user: incomingEvent.state.user,
         state: incomingEvent.state.context.data || {},
         args: actionArgs,
-        process: _.pick(process, 'HOST', 'PORT', 'env')
+        process: _.pick(process, 'HOST', 'PORT', 'EXTERNAL_URL', 'env')
       },
       require: {
         external: true,
