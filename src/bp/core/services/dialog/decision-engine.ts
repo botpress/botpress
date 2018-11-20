@@ -22,9 +22,9 @@ export class DecisionEngine {
 
   public async processEvent(sessionId: string, event: IO.IncomingEvent) {
     if (event.suggestedReplies) {
-      const bestMatch = this._findBestMath(event)
-      if (bestMatch) {
-        await this._sendSuggestedReply(bestMatch, sessionId, event)
+      const reply = this._findBestReply(event)
+      if (reply) {
+        await this._sendSuggestedReply(reply, sessionId, event)
       }
     }
 
@@ -34,12 +34,12 @@ export class DecisionEngine {
     }
   }
 
-  // If the user asks the same question, chances are he didnt get the response he wanted.
-  // So we cycle through the other suggested replies and return the next best reply with a high enough confidence.
-  protected _findBestMath(event: IO.IncomingEvent) {
+  protected _findBestReply(event: IO.IncomingEvent): IO.SuggestedReply | undefined {
     const replies = _.sortBy(event.suggestedReplies, reply => -reply.confidence)
     const lastMsg = _.last(event.state.session.lastMessages)
 
+    // If the user asks the same question, chances are he didnt get the response he wanted.
+    // So we cycle through the other suggested replies and return the next best reply with a high enough confidence.
     for (let i = 0; i < replies.length; i++) {
       const bestReplyIntent = replies[i].intent
       const lastMessageIntent = lastMsg && lastMsg.intent
@@ -55,10 +55,11 @@ export class DecisionEngine {
       }
     }
 
-    const bestMatch = replies[0]
-    if (this._isConfidentReply(bestMatch)) {
-      return bestMatch
+    const bestReply = replies[0]
+    if (this._isConfidentReply(bestReply)) {
+      return bestReply
     }
+    return
   }
 
   private _isConfidentReply(reply) {
