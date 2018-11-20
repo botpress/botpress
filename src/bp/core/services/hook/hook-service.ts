@@ -93,7 +93,7 @@ class HookScript {
 
 @injectable()
 export class HookService {
-  private _scriptsCache: { [hookName: string]: HookScript[] } = {}
+  private _scriptsCache: Map<string, HookScript[]> = new Map()
 
   constructor(
     @inject(TYPES.Logger)
@@ -109,7 +109,7 @@ export class HookService {
     this.cache.events.on('invalidation', key => {
       if (key.toLowerCase().indexOf('/hooks/') > -1) {
         // clear the cache if there's any file that has changed in the `hooks` folder
-        this._scriptsCache = {}
+        this._scriptsCache.clear()
       }
     })
   }
@@ -120,8 +120,8 @@ export class HookService {
   }
 
   private async extractScripts(hook: Hooks.BaseHook): Promise<HookScript[]> {
-    if (this._scriptsCache[hook.folder]) {
-      return this._scriptsCache[hook.folder]
+    if (this._scriptsCache.has(hook.folder)) {
+      return this._scriptsCache.get(hook.folder)!
     }
 
     try {
@@ -133,10 +133,10 @@ export class HookService {
         return new HookScript(hook, path, filename, script)
       })
 
-      this._scriptsCache[hook.folder] = scripts
+      this._scriptsCache.set(hook.folder, scripts)
       return scripts
     } catch (err) {
-      this._scriptsCache[hook.folder] = []
+      this._scriptsCache.delete(hook.folder)
       return []
     }
   }

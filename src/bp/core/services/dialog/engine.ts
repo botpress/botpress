@@ -41,7 +41,7 @@ export class DialogEngine {
     @inject(TYPES.HookService) private hookService: HookService
   ) {}
 
-  public async processEvent(sessionId: string, event: IO.IncomingEvent) {
+  public async processEvent(sessionId: string, event: IO.IncomingEvent): Promise<IO.IncomingEvent> {
     const botId = event.botId
     await this._loadFlows(botId)
 
@@ -52,7 +52,7 @@ export class DialogEngine {
     // Property type skill-call means that the node points to a subflow.
     // We skip this step if we're exiting from a subflow, otherwise it will result in an infinite loop.
     if (_.get(currentNode, 'type') === 'skill-call' && !this._exitingSubflow(event)) {
-      return await this._goToSubflow(botId, event, sessionId, currentNode, currentFlow)
+      return this._goToSubflow(botId, event, sessionId, currentNode, currentFlow)
     }
 
     let queue: InstructionQueue
@@ -76,14 +76,14 @@ export class DialogEngine {
 
       if (result.followUpAction === 'none') {
         context.queue = queue
-        return await this.processEvent(sessionId, event)
+        return this.processEvent(sessionId, event)
       } else if (result.followUpAction === 'update') {
         // We update the state that has been modified in an action.
         // The new state is returned in the instruction processor result.
         context.queue = queue
         context.data = result.options!.state
 
-        return await this.processEvent(sessionId, event)
+        return this.processEvent(sessionId, event)
       } else if (result.followUpAction === 'wait') {
         // We don't call processEvent, because we want to wait for the next event
         context.queue = queue
@@ -91,7 +91,7 @@ export class DialogEngine {
         // We reset the queue when we transition to another node.
         // This way the queue will be rebuilt from the next node.
         context.queue = undefined
-        return await this._transition(sessionId, event, result.options!.transitionTo!)
+        return this._transition(sessionId, event, result.options!.transitionTo!)
       }
     } catch (err) {
       this._reportProcessingError(botId, err, event, instruction)
@@ -229,7 +229,7 @@ export class DialogEngine {
       // END means the node has a transition of "end flow" in the flow editor
       delete event.state.context
       this._logEnd(event.botId)
-      return event.state
+      return event
     } else {
       // Transition to the target node in the current flow
       this._logTransition(event.botId, context.currentFlow, context.currentNode, transitionTo)
@@ -255,7 +255,7 @@ export class DialogEngine {
       previousNode: parentNode.name
     }
 
-    return await this.processEvent(sessionId, event)
+    return this.processEvent(sessionId, event)
   }
 
   protected async _loadFlows(botId: string) {

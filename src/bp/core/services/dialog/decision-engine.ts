@@ -18,14 +18,13 @@ export class DecisionEngine {
     @inject(TYPES.StateManager) private stateManager: StateManager
   ) {}
 
-  private minConfidence = 0.3
+  private readonly MIN_CONFIDENCE = 0.3
 
   public async processEvent(sessionId: string, event: IO.IncomingEvent) {
     if (event.suggestedReplies) {
-      const bestMatch = _.first(_.sortBy(event.suggestedReplies, reply => -reply.confidence))
-
-      if (bestMatch && bestMatch.confidence > this.minConfidence) {
-        await this.sendSuggestedReply(bestMatch, sessionId, event)
+      const reply = this._findBestReply(event)
+      if (reply) {
+        await this._sendSuggestedReply(reply, sessionId, event)
       }
     }
 
@@ -35,7 +34,39 @@ export class DecisionEngine {
     }
   }
 
-  private async sendSuggestedReply(reply, sessionId, event) {
+  protected _findBestReply(event: IO.IncomingEvent): IO.SuggestedReply | undefined {
+    const replies = _.sortBy(event.suggestedReplies, reply => -reply.confidence)
+    const lastMsg = _.last(event.state.session.lastMessages)
+
+    // If the user asks the same question, chances are he didnt get the response he wanted.
+    // So we cycle through the other suggested replies and return the next best reply with a high enough confidence.
+    for (let i = 0; i < replies.length; i++) {
+      const bestReplyIntent = replies[i].intent
+      const lastMessageIntent = lastMsg && lastMsg.intent
+
+      if (bestReplyIntent === lastMessageIntent) {
+        const nextBestReply = replies[i + 1]
+
+        if (this._isConfidentReply(nextBestReply)) {
+          return nextBestReply
+        } else {
+          return // If confidence is too low, we dont need to check other replies
+        }
+      }
+    }
+
+    const bestReply = replies[0]
+    if (this._isConfidentReply(bestReply)) {
+      return bestReply
+    }
+    return
+  }
+
+  private _isConfidentReply(reply) {
+    return reply && reply.confidence > this.MIN_CONFIDENCE
+  }
+
+  private async _sendSuggestedReply(reply, sessionId, event) {
     const payloads = _.filter(reply.payloads, p => p.type !== 'redirect')
     if (payloads) {
       await this.eventEngine.replyToEvent(event, payloads)
