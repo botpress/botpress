@@ -25,28 +25,22 @@ export class SkillService {
   }
 
   private parseActionQuery(nodes) {
-    const strNodes: string[] = []
-
-    if (nodes && nodes.length > 0) {
-      _.forEach(nodes, node => {
-        strNodes.push(this.actionToString(node))
-      })
+    if (typeof nodes === 'undefined') {
+      return undefined
     }
 
-    return strNodes
+    return (nodes && nodes.length && nodes.map(this.actionToString)) || []
   }
 
   private actionToString(action): string {
     let finalNode: string = ''
-
     if (action.type === NodeActionType.RunAction) {
       finalNode = action.args ? `${action.name} ${JSON.stringify(action.args)}` : action.name
-    } else if (action.type == NodeActionType.RenderText) {
+    } else if (action.type === NodeActionType.RenderText) {
       finalNode = `say #builtin_text ${action.name}`
-    } else if (action.type == NodeActionType.RenderElement) {
-      finalNode = _.isString(action.args)
-        ? `say ${action.name} ${action.args}`
-        : `say ${action.name} ${JSON.stringify(action.args)}`
+    } else if (action.type === NodeActionType.RenderElement) {
+      const args = action.args || {}
+      finalNode = _.isString(args) ? `say ${action.name} ${args}` : `say ${action.name} ${JSON.stringify(args)}`
     }
 
     return finalNode
@@ -56,7 +50,7 @@ export class SkillService {
     const defaultNode: FlowNode = {
       name: '',
       onEnter: [],
-      onReceive: [],
+      onReceive: undefined,
       next: []
     }
 
