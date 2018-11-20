@@ -103,7 +103,7 @@ export class ScopedActionService {
     return module => requireAtPaths(module, lookups)
   }
 
-  async runAction(actionName: string, dialogState: any, incomingEvent: any, actionArgs: any): Promise<any> {
+  async runAction(actionName: string, incomingEvent: any, actionArgs: any): Promise<any> {
     process.ASSERT_LICENSED()
     this.logger.forBot(this.botId).debug(`Running "${actionName}"`)
     const action = await this.findAction(actionName)
@@ -127,7 +127,8 @@ export class ScopedActionService {
       sandbox: {
         bp: api,
         event: incomingEvent,
-        state: dialogState,
+        user: incomingEvent.state.user,
+        state: incomingEvent.state.context.data || {},
         args: actionArgs,
         process: _.pick(process, 'HOST', 'PORT', 'env')
       },

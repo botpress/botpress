@@ -181,8 +181,7 @@ declare module 'botpress/sdk' {
       readonly threadId?: string
       /** A textual representation of the event */
       readonly preview: string
-      /** Array of possible suggestions that the Decision Engine can take  */
-      readonly suggestedReplies?: SuggestedReply[]
+
       /**
        * Check if the event has a specific flag
        * @param flag The flag symbol to verify. {@link IO.WellKnownFlags} to know more about existing flags
@@ -199,11 +198,45 @@ declare module 'botpress/sdk' {
       setFlag(flag: symbol, value: boolean): void
     }
 
+    export interface IncomingEvent extends Event {
+      /** Array of possible suggestions that the Decision Engine can take  */
+      readonly suggestedReplies?: SuggestedReply[]
+      /** Contains data related to the state of the event */
+      readonly state: EventState
+    }
+
     export interface SuggestedReply {
       /** Number between 0 and 1 indicating how confident the module is about its suggestion */
       confidence: number
       /** An array of the raw payloads to send as an answer */
       payloads: any[]
+      /** The intent of the reply given by the NLU */
+      intent?: string
+    }
+
+    export interface EventState {
+      user: User
+      context: DialogContext
+      session: CurrentSession
+    }
+
+    export interface DialogContext {
+      previousFlow?: string
+      previousNode?: string
+      currentNode?: string
+      currentFlow?: string
+      queue?: string
+      data?: any
+    }
+
+    export interface CurrentSession {
+      lastMessages: MessageHistory[]
+    }
+
+    export interface MessageHistory {
+      intent?: string
+      user: string
+      reply: string
     }
 
     /**
@@ -245,18 +278,12 @@ declare module 'botpress/sdk' {
     export const Event: EventConstructor
   }
 
-  export type UserAttribute = { key: string; value: string; type: string }
-
-  export type UserAttributeMap = UserAttribute[] & {
-    get(key: string): string | undefined
-  }
-
   export type User = {
     id: string
     channel: string
     createdOn: Date
     updatedOn: Date
-    attributes: UserAttributeMap
+    attributes: any
     otherChannels?: User[]
   }
 
@@ -639,7 +666,7 @@ declare module 'botpress/sdk' {
     /**
      * Update attributes of a specific user
      */
-    export function updateAttributes(channel: string, userId: string, attributes: UserAttribute[]): Promise<void>
+    export function updateAttributes(channel: string, userId: string, attributes: any): Promise<void>
     export function getAllUsers(paging?: Paging): Promise<any>
     export function getUserCount(): Promise<any>
   }
@@ -663,25 +690,12 @@ declare module 'botpress/sdk' {
      * Calls the dialog engine to start processing an event.
      * @param event The event to be processed by the dialog engine
      */
-    export function processEvent(sessionId: string, event: IO.Event): Promise<void>
+    export function processEvent(sessionId: string, event: IO.IncomingEvent): Promise<void>
     /**
      * Deletes a session
      * @param sessionId The Id of the session to delete
      */
     export function deleteSession(sessionId: string): Promise<void>
-    /**
-     * Gets the state object of a session
-     * @param sessionId The session Id from which to get the state
-     */
-    export function getState(sessionId: string): Promise<void>
-    /**
-     * Sets a new state for the session. **The state will be overwritten**.
-     * @param sessionId The Id of the session
-     * @param state The state object to set in the session.
-     * @example
-     * bp.dialog.setState(sessionId, {...state, newProp: 'a new property'})
-     */
-    export function setState(sessionId: string, state: State): Promise<void>
 
     /**
      * Jumps to a specific flow and optionaly a specific node. This is useful when the default flow behaviour needs to be bypassed.

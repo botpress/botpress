@@ -42,6 +42,7 @@ export class IOEvent implements sdk.IO.Event {
   public readonly threadId?: string
   public readonly preview: string
   public readonly suggestedReplies?: sdk.IO.SuggestedReply[]
+  public readonly state: any
   private readonly flags: any
 
   constructor(args: sdk.IO.EventCtorArgs) {
@@ -56,6 +57,7 @@ export class IOEvent implements sdk.IO.Event {
     this.id = args.id || Date.now() * 100000 + ((Math.random() * 100000) | 0)
     this.preview = args.preview || this.constructPreview()
     this.flags = {}
+    this.state = {}
 
     if (this.direction === 'incoming') {
       this.suggestedReplies = []
