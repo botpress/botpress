@@ -18,7 +18,7 @@ export class DecisionEngine {
     @inject(TYPES.StateManager) private stateManager: StateManager
   ) {}
 
-  private minConfidence = 0.3
+  private readonly MIN_CONFIDENCE = 0.3
 
   public async processEvent(sessionId: string, event: IO.IncomingEvent) {
     if (event.suggestedReplies) {
@@ -35,37 +35,34 @@ export class DecisionEngine {
   }
 
   // If the user asks the same question, chances are he didnt get the response he wanted.
-  // So we cycle through the other suggested replies.
+  // So we cycle through the other suggested replies and return the next best reply with a high enough confidence.
   protected _findBestMath(event: IO.IncomingEvent) {
     const replies = _.sortBy(event.suggestedReplies, reply => -reply.confidence)
     const lastMsg = _.last(event.state.session.lastMessages)
-    const bestMatch = _.first(replies)
 
-    // Return the first match if theres no previous messages
-    if (!lastMsg && bestMatch && bestMatch.confidence > this.minConfidence) {
-      console.log('First match', bestMatch)
-      return bestMatch
-    }
-
-    // When the previous message intent matches the intent of a reply
-    // Return the next best reply
     for (let i = 0; i < replies.length; i++) {
-      const replyIntent = replies[i].intent
-      const lastMsgIntent = lastMsg && lastMsg.intent
-      const lastMsgPreview = lastMsg && lastMsg.user
+      const bestReplyIntent = replies[i].intent
+      const lastMessageIntent = lastMsg && lastMsg.intent
 
-      const isSameIntent = replyIntent === lastMsgIntent
-      const isSameText = lastMsgPreview === event.payload.text
+      if (bestReplyIntent === lastMessageIntent) {
+        const nextBestReply = replies[i + 1]
 
-      if (isSameIntent || isSameText) {
-        const bestMatch = replies[i + 1]
-
-        if (bestMatch && bestMatch.confidence > this.minConfidence) {
-          console.log('Second match', bestMatch)
-          return bestMatch
+        if (this._isConfidentReply(nextBestReply)) {
+          return nextBestReply
+        } else {
+          return // If confidence is too low, we dont need to check other replies
         }
       }
     }
+
+    const bestMatch = replies[0]
+    if (this._isConfidentReply(bestMatch)) {
+      return bestMatch
+    }
+  }
+
+  private _isConfidentReply(reply) {
+    return reply && reply.confidence > this.MIN_CONFIDENCE
   }
 
   private async _sendSuggestedReply(reply, sessionId, event) {
