@@ -15,13 +15,14 @@ import { ConfigProvider } from './config/config-loader'
 import { ModuleLoader } from './module-loader'
 import { BotRepository } from './repositories'
 import { AdminRouter, AuthRouter, BotsRouter, ModulesRouter } from './routers'
+import { BotsContentRouter } from './routers/bots/content'
 import { ShortLinksRouter } from './routers/shortlinks'
 import { GhostService } from './services'
 import ActionService from './services/action/action-service'
 import { AdminService } from './services/admin/service'
 import AuthService from './services/auth/auth-service'
 import { InvalidLicenseKey } from './services/auth/errors'
-import { CMSService } from './services/cms/cms-service'
+import { CMS } from './services/cms/cms'
 import { FlowService } from './services/dialog/flow/service'
 import { SkillService } from './services/dialog/skill/service'
 import { LogsService } from './services/logs/service'
@@ -39,8 +40,9 @@ export default class HTTPServer {
 
   private readonly authRouter: AuthRouter
   private readonly adminRouter: AdminRouter
-  private readonly modulesRouter: ModulesRouter
   private readonly botsRouter: BotsRouter
+  private readonly contentRouter: BotsContentRouter
+  private readonly modulesRouter: ModulesRouter
   private readonly shortlinksRouter: ShortLinksRouter
 
   constructor(
@@ -50,7 +52,7 @@ export default class HTTPServer {
     private logger: Logger,
     @inject(TYPES.IsProduction) isProduction: boolean,
     @inject(TYPES.BotRepository) botRepository: BotRepository,
-    @inject(TYPES.CMSService) cmsService: CMSService,
+    @inject(TYPES.CMS) cmsService: CMS,
     @inject(TYPES.FlowService) flowService: FlowService,
     @inject(TYPES.ActionService) actionService: ActionService,
     @inject(TYPES.ModuleLoader) moduleLoader: ModuleLoader,
@@ -87,6 +89,8 @@ export default class HTTPServer {
       adminService,
       ghostService
     })
+    this.contentRouter = new BotsContentRouter(this.adminService, this.authService, cmsService)
+    this.botsRouter.router.use('/content', this.contentRouter.router)
   }
 
   resolveAsset = file => path.resolve(process.PROJECT_LOCATION, 'assets', file)

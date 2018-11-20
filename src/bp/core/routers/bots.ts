@@ -19,7 +19,7 @@ import { RouterOptions } from 'request'
 import { BotRepository } from '../repositories'
 import ActionService from '../services/action/action-service'
 import { DefaultSearchParams } from '../services/cms'
-import { CMSService } from '../services/cms/cms-service'
+import { CMS } from '../services/cms/cms'
 import { FlowView } from '../services/dialog'
 import { FlowService } from '../services/dialog/flow/service'
 import { LogsService } from '../services/logs/service'
@@ -34,7 +34,7 @@ export class BotsRouter implements CustomRouter {
 
   private actionService: ActionService
   private botRepository: BotRepository
-  private cmsService: CMSService
+  private cmsService: CMS
   private flowService: FlowService
   private mediaService: MediaService
   private logsService: LogsService
@@ -48,7 +48,7 @@ export class BotsRouter implements CustomRouter {
   constructor(args: {
     actionService: ActionService
     botRepository: BotRepository
-    cmsService: CMSService
+    cmsService: CMS
     flowService: FlowService
     mediaService: MediaService
     logsService: LogsService
@@ -79,19 +79,6 @@ export class BotsRouter implements CustomRouter {
     const router = Router({ mergeParams: true })
     this.router.use('/mod/' + path, router)
     return router
-  }
-
-  private augmentElement = async (element: ContentElement) => {
-    const contentType = await this.cmsService.getContentType(element.contentType)
-    return {
-      ...element,
-      schema: {
-        json: contentType.jsonSchema,
-        ui: contentType.uiSchema,
-        title: contentType.title,
-        renderer: contentType.id
-      }
-    }
   }
 
   private studioParams(botId) {
@@ -167,113 +154,6 @@ export class BotsRouter implements CustomRouter {
 
       res.send(bot)
     })
-
-    this.router.get(
-      '/content/types',
-      this.checkTokenHeader,
-      this.needPermissions('read', 'bot.content'),
-      async (req, res) => {
-        const botId = req.params.botId
-        const types = await this.cmsService.getAllContentTypes(botId)
-
-        const response = await Promise.map(types, async type => {
-          const count = await this.cmsService.countContentElementsForContentType(botId, type.id)
-          return {
-            id: type.id,
-            count,
-            title: type.title,
-            schema: {
-              json: type.jsonSchema,
-              ui: type.uiSchema,
-              title: type.title,
-              renderer: type.id
-            }
-          }
-        })
-
-        res.send(response)
-      }
-    )
-
-    this.router.get(
-      '/content/elements/count',
-      this.checkTokenHeader,
-      this.needPermissions('read', 'bot.content'),
-      async (req, res) => {
-        const botId = req.params.botId
-        const count = await this.cmsService.countContentElements(botId)
-        res.send({ count })
-      }
-    )
-
-    this.router.get(
-      '/content/:contentType?/elements',
-      this.checkTokenHeader,
-      this.needPermissions('read', 'bot.content'),
-      async (req, res) => {
-        const { botId, contentType } = req.params
-        const query = req.query || {}
-
-        const elements = await this.cmsService.listContentElements(botId, contentType, {
-          ...DefaultSearchParams,
-          count: Number(query.count) || DefaultSearchParams.count,
-          from: Number(query.from) || DefaultSearchParams.from,
-          searchTerm: query.searchTerm || DefaultSearchParams.searchTerm,
-          ids: (query.ids && query.ids.split(',')) || DefaultSearchParams.ids
-        })
-
-        const augmentedElements = await Promise.map(elements, this.augmentElement)
-        res.send(augmentedElements)
-      }
-    )
-
-    this.router.get(
-      '/content/:contentType?/elements/count',
-      this.checkTokenHeader,
-      this.needPermissions('read', 'bot.content'),
-      async (req, res) => {
-        const { botId, contentType } = req.params
-        const count = await this.cmsService.countContentElementsForContentType(botId, contentType)
-        res.send({ count })
-      }
-    )
-
-    this.router.get(
-      '/content/elements/:elementId',
-      this.checkTokenHeader,
-      this.needPermissions('read', 'bot.content'),
-      async (req, res) => {
-        const { botId, elementId } = req.params
-        const element = await this.cmsService.getContentElement(botId, elementId)
-        res.send(await this.augmentElement(element))
-      }
-    )
-
-    this.router.post(
-      '/content/:contentType/elements/:elementId?',
-      this.checkTokenHeader,
-      this.needPermissions('write', 'bot.content'),
-      async (req, res) => {
-        const { botId, contentType, elementId } = req.params
-        const element = await this.cmsService.createOrUpdateContentElement(
-          botId,
-          contentType,
-          req.body.formData,
-          elementId
-        )
-        res.send(element)
-      }
-    )
-
-    this.router.post(
-      '/content/elements/bulk_delete',
-      this.checkTokenHeader,
-      this.needPermissions('write', 'bot.content'),
-      async (req, res) => {
-        await this.cmsService.deleteContentElements(req.params.botId, req.body)
-        res.sendStatus(200)
-      }
-    )
 
     this.router.get('/flows', this.checkTokenHeader, this.needPermissions('read', 'bot.flows'), async (req, res) => {
       const botId = req.params.botId
@@ -468,5 +348,10 @@ export class BotsRouter implements CustomRouter {
         res.sendStatus(200)
       }
     )
+
+    // bots/{botId}/talk?content=nlu;
+    this.router.post('/talk', this.checkTokenHeader, async (req, res) => {
+      const botId = req.params.botId
+    })
   }
 }

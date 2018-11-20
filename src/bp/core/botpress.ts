@@ -19,7 +19,7 @@ import { LoggerPersister, LoggerProvider } from './logger'
 import { ModuleLoader } from './module-loader'
 import HTTPServer from './server'
 import { GhostService } from './services'
-import { CMSService } from './services/cms/cms-service'
+import { CMS } from './services/cms/cms'
 import { DecisionEngine } from './services/dialog/decision-engine'
 import { DialogEngine, ProcessingError } from './services/dialog/engine'
 import { DialogJanitor } from './services/dialog/janitor'
@@ -60,7 +60,7 @@ export class Botpress {
     @inject(TYPES.HookService) private hookService: HookService,
     @inject(TYPES.RealtimeService) private realtimeService: RealtimeService,
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
-    @inject(TYPES.CMSService) private cmsService: CMSService,
+    @inject(TYPES.CMS) private cmsService: CMS,
     @inject(TYPES.DialogEngine) private dialogEngine: DialogEngine,
     @inject(TYPES.DecisionEngine) private decisionEngine: DecisionEngine,
     @inject(TYPES.LoggerProvider) private loggerProvider: LoggerProvider,

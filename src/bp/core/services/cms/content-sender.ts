@@ -7,14 +7,11 @@ import { Event } from '../../sdk/impl'
 import { TYPES } from '../../types'
 import { EventEngine } from '../middleware/event-engine'
 
-import { CMSService } from './cms-service'
+import { CMS } from './cms'
 
 @injectable()
 export class ContentElementSender {
-  constructor(
-    @inject(TYPES.CMSService) private cms: CMSService,
-    @inject(TYPES.EventEngine) private eventEngine: EventEngine
-  ) {}
+  constructor(@inject(TYPES.CMS) private cms: CMS, @inject(TYPES.EventEngine) private eventEngine: EventEngine) {}
 
   // TODO: Test if the payload is parsing its template properly
   async sendContent(contentId: string, args: object = {}, event) {

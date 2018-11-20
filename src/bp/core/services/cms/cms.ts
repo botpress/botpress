@@ -9,7 +9,7 @@ import path from 'path'
 import plur from 'plur'
 import { VError } from 'verror'
 
-import { GhostService } from '../'
+import { GhostService } from '..'
 import { ConfigProvider } from '../../config/config-loader'
 import { LoggerProvider } from '../../logger/logger'
 import { IDisposeOnExit } from '../../misc/interfaces'
@@ -19,7 +19,7 @@ import { DefaultSearchParams } from '.'
 import { CodeFile, SafeCodeSandbox } from './util'
 
 @injectable()
-export class CMSService implements IDisposeOnExit {
+export class CMS implements IDisposeOnExit {
   private readonly contentTable = 'content_elements'
   private readonly typesDir = 'content-types'
   private readonly elementsDir = 'content-elements'

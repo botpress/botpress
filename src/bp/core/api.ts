@@ -15,7 +15,7 @@ import { SessionRepository, UserRepository } from './repositories'
 import { Event, RealTimePayload } from './sdk/impl'
 import HTTPServer from './server'
 import { GhostService } from './services'
-import { CMSService } from './services/cms/cms-service'
+import { CMS } from './services/cms/cms'
 import { DialogEngine } from './services/dialog/engine'
 import { SessionIdFactory } from './services/dialog/session/id-factory'
 import { ScopedGhostService } from './services/ghost/service'
@@ -150,7 +150,7 @@ const ghost = (ghostService: GhostService): typeof sdk.ghost => {
   }
 }
 
-const cms = (cmsService: CMSService): typeof sdk.cms => {
+const cms = (cmsService: CMS): typeof sdk.cms => {
   return {
     getContentElement(botId: string, id: string): Promise<any> {
       return cmsService.getContentElement(botId, id)
@@ -218,7 +218,7 @@ export class BotpressAPIProvider {
     @inject(TYPES.NotificationsService) notificationService: NotificationsService,
     @inject(TYPES.BotLoader) botLoader: BotLoader,
     @inject(TYPES.GhostService) ghostService: GhostService,
-    @inject(TYPES.CMSService) cmsService: CMSService,
+    @inject(TYPES.CMS) cmsService: CMS,
     @inject(TYPES.ConfigProvider) configProfider: ConfigProvider
   ) {
     this.http = http(httpServer)

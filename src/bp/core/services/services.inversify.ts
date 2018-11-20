@@ -7,7 +7,7 @@ import { TYPES } from '../types'
 import ActionService from './action/action-service'
 import { AdminContainerModule } from './admin/admin.inversify'
 import AuthService from './auth/auth-service'
-import { CMSService } from './cms/cms-service'
+import { CMS } from './cms/cms'
 import { ContentElementSender } from './cms/content-sender'
 import { SkillService } from './dialog/skill/service'
 import { GhostContainerModule } from './ghost/ghost.inversify'
@@ -24,8 +24,8 @@ import MemoryQueue from './queue/memory-queue'
 import RealtimeService from './realtime'
 
 const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
-  bind<CMSService>(TYPES.CMSService)
-    .to(CMSService)
+  bind<CMS>(TYPES.CMS)
+    .to(CMS)
     .inSingletonScope()
 
   bind<MediaService>(TYPES.MediaService)
