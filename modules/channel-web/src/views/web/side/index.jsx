@@ -248,6 +248,7 @@ export default class Side extends React.Component {
             send={this.props.onTextSend}
             change={this.props.onTextChanged}
             text={this.props.text}
+            recallHistory={this.props.recallHistory}
             focused={::this.handleFocus}
             config={this.props.config}
           />
