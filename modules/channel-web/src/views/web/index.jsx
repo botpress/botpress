@@ -28,6 +28,10 @@ const ANIM_DURATION = 300
 
 const MIN_TIME_BETWEEN_SOUNDS = 10000 // 10 seconds
 
+const HISTORY_STARTING_POINT = -1
+const HISTORY_MAX_MESSAGES = 10
+const HISTORY_UP = 'ArrowUp'
+
 const defaultOptions = {
   locale: 'en-US',
   botName: 'Bot',
@@ -67,7 +71,7 @@ export default class Web extends React.Component {
       isButtonHidden: config.hideWidget,
       isTransitioning: false,
       messageHistory: [],
-      historyPosition: -1
+      historyPosition: HISTORY_STARTING_POINT
     }
   }
 
@@ -382,8 +386,8 @@ export default class Web extends React.Component {
 
   handleSendMessage = () => {
     this.setState({
-      messageHistory: _.take([this.state.textToSend, ...this.state.messageHistory], 10),
-      historyPosition: -1
+      messageHistory: _.take([this.state.textToSend, ...this.state.messageHistory], HISTORY_MAX_MESSAGES),
+      historyPosition: HISTORY_STARTING_POINT
     })
 
     return this.handleSendData({ type: 'text', text: this.state.textToSend }).then(() => {
@@ -393,7 +397,7 @@ export default class Web extends React.Component {
   }
 
   handleRecallHistory = direction => {
-    const position = direction === 'ArrowUp' ? this.state.historyPosition + 1 : this.state.historyPosition - 1
+    const position = direction === HISTORY_UP ? this.state.historyPosition + 1 : this.state.historyPosition - 1
     const text = _.nth(this.state.messageHistory, position)
     text && this.setState({ textToSend: text, historyPosition: position })
   }
