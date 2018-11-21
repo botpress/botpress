@@ -162,13 +162,13 @@ export default class AudienceModule extends React.Component {
 
   renderUsers(users) {
     return _.mapValues(users, (user, key) => {
-      const picture_url = _.get(_.find(user.attributes, { key: 'picture_url' }), 'value')
-      const first_name = _.get(_.find(user.attributes, { key: 'first_name' }), 'value')
-      const last_name = _.get(_.find(user.attributes, { key: 'last_name' }), 'value')
+      //const picture_url = _.get(_.find(user.attributes, { key: 'picture_url' }), 'value')
+      //const first_name = _.get(_.find(user.attributes, { key: 'first_name' }), 'value')
+      //const last_name = _.get(_.find(user.attributes, { key: 'last_name' }), 'value')
 
       return (
         <tr key={key}>
-          <td style={{ width: '10%' }}>{this.renderProfilePicture(picture_url)}</td>
+          <td style={{ width: '10%' }}>{this.renderProfilePicture(user.picture_url)}</td>
           <td style={{ width: '24%' }}>{user.id}</td>
           <td style={{ width: '15%' }}>{this.renderName(user.first_name, user.last_name)}</td>
           <td style={{ width: '10%' }}>{_.upperFirst(user.platform)}</td>

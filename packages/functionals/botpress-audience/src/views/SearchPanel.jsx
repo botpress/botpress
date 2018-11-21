@@ -1,7 +1,7 @@
 import React from 'react'
 
 import SearchEntry from './SearchEntry'
-import { Button, ControlLabel, Form, Glyphicon } from 'react-bootstrap'
+import { Button, ControlLabel, Form, Glyphicon, ButtonGroup } from 'react-bootstrap'
 
 import _ from 'lodash'
 
@@ -14,6 +14,7 @@ export default class SearchPanel extends React.Component {
     this.searchUsers = this.searchUsers.bind(this)
     this.addRow = this.addRow.bind(this)
     this.disableRow = this.disableRow.bind(this)
+    this.resetSearch = this.resetSearch.bind(this)
 
     this.state = {
       search: [
@@ -138,16 +139,33 @@ export default class SearchPanel extends React.Component {
     })
   }
 
+  resetSearch() {
+    this.setState({
+      search: [
+        {
+          eval: true,
+          id: this.state.search.length + 1
+        }
+      ]
+    })
+
+    this.props.updateUsers(this.props.users)
+  }
+
   render() {
     return (
       <Form horizontal onSubmit={this.searchUsers}>
         <ControlLabel>Search Users</ControlLabel>
 
         {this.renderSearchEntries()}
-
-        <Button type="submit" onSubmit={this.searchUsers}>
-          Search
-        </Button>
+        <ButtonGroup>
+          <Button type="submit" onSubmit={this.searchUsers} bsStyle="info">
+            Search
+          </Button>
+          <Button onClick={this.resetSearch} bsStyle="danger">
+            Reset
+          </Button>
+        </ButtonGroup>
       </Form>
     )
   }
