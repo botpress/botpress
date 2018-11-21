@@ -385,7 +385,7 @@ export default class Web extends React.Component {
   }
 
   handleSendMessage = () => {
-    if (!this.state.textToSend || this.state.textToSend.length === 0) {
+    if (!this.state.textToSend || !this.state.textToSend.length) {
       return
     }
 
