@@ -3,6 +3,7 @@ import React from 'expose-loader?React!react'
 import ReactDOM from 'expose-loader?ReactDOM!react-dom'
 
 import axios from 'axios'
+import { HotKeys } from 'react-hotkeys'
 import { getToken } from '~/util/Auth'
 /* eslint-disable */
 import PropTypes from 'expose-loader?PropTypes!prop-types'
@@ -12,6 +13,7 @@ import { Provider } from 'react-redux'
 /* eslint-enable */
 
 import store from './store'
+import { keyMap } from './keyboardShortcuts'
 
 require('bootstrap/dist/css/bootstrap.css')
 require('storm-react-diagrams/dist/style.min.css')
@@ -28,7 +30,9 @@ const App = require('./components/App').default
 
 ReactDOM.render(
   <Provider store={store}>
-    <App />
+    <HotKeys keyMap={keyMap}>
+      <App />
+    </HotKeys>
   </Provider>,
   document.getElementById('app')
 )
