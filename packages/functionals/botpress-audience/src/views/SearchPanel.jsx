@@ -144,7 +144,7 @@ export default class SearchPanel extends React.Component {
       search: [
         {
           eval: true,
-          id: this.state.search.length + 1
+          id: 0
         }
       ]
     })
