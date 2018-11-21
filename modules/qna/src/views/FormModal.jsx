@@ -201,8 +201,13 @@ export default class FormModal extends Component {
               <span className={style.qnaReplyTitle}>Reply with:</span>
               <div className={style.qnaAnswer}>
                 <span className={style.qnaAnswerCheck}>
-                  <input type="checkbox" checked={this.state.isText} onChange={this.changeItemAction('isText')} />
-                  &nbsp; Type your answer
+                  <input
+                    id="reply"
+                    type="checkbox"
+                    checked={this.state.isText}
+                    onChange={this.changeItemAction('isText')}
+                  />
+                  <label htmlFor="reply">&nbsp; Type your answer</label>
                 </span>
                 <FormControl
                   className={classnames(style.qnaAnswerTextarea, {
@@ -222,12 +227,13 @@ export default class FormModal extends Component {
                 <div className={style.qnaRedirectToFlow}>
                   <span className={style.qnaRedirectToFlowCheck}>
                     <input
+                      id="redirect"
                       type="checkbox"
                       checked={this.state.isRedirect}
                       onChange={this.changeItemAction('isRedirect')}
                       className={style.qnaRedirectToFlowCheckCheckbox}
                     />
-                    &nbsp;Redirect to flow
+                    <label htmlFor="redirect">&nbsp;Redirect to flow</label>
                   </span>
                   <Select
                     className={classnames(style.qnaRedirectToFlowCheckSelect, {
