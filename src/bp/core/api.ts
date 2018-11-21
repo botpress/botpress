@@ -51,16 +51,16 @@ const event = (eventEngine: EventEngine): typeof sdk.events => {
     sendEvent(event: sdk.IO.Event): void {
       eventEngine.sendEvent(event)
     },
-    replyToEvent(event: sdk.IO.Event, payloads: any[]): void {
-      eventEngine.replyToEvent(event, payloads)
+    replyToEvent(eventDestination: sdk.IO.EventDestination, payloads: any[]): void {
+      eventEngine.replyToEvent(eventDestination, payloads)
     }
   }
 }
 
 const dialog = (dialogEngine: DialogEngine, sessionRepo: SessionRepository): typeof sdk.dialog => {
   return {
-    async createId(event: sdk.IO.Event) {
-      return SessionIdFactory.createIdFromEvent(event)
+    createId(eventDestination: sdk.IO.EventDestination) {
+      return SessionIdFactory.createIdFromEvent(eventDestination)
     },
     async processEvent(sessionId: string, event: sdk.IO.IncomingEvent): Promise<void> {
       await dialogEngine.processEvent(sessionId, event)
@@ -164,8 +164,8 @@ const cms = (cmsService: CMSService): typeof sdk.cms => {
     getAllContentTypes(botId?: string): Promise<any[]> {
       return cmsService.getAllContentTypes(botId)
     },
-    renderElement(contentTypeId: string, payload: any, channel: string): Promise<any> {
-      return cmsService.renderElement(contentTypeId, payload, channel)
+    renderElement(contentId: string, args: any, eventDestination: sdk.IO.EventDestination): Promise<any> {
+      return cmsService.renderElement(contentId, args, eventDestination)
     },
     createOrUpdateContentElement(
       botId: string,

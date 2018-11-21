@@ -121,7 +121,7 @@ export default class ConditionModalForm extends Component {
   }
 
   getSubflowOptions() {
-    return this.props.subflows.map(flow => ({
+    return this.props.subflows.filter(flow => !flow.startsWith('skills/')).map(flow => ({
       label: flow,
       value: flow
     }))

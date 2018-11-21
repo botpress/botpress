@@ -6,6 +6,7 @@ const INTENT_PREFIX = 'intent:'
  * Get a variable under this user's storage
  * @title Validate user choice
  * @category Skills
+ * @hidden true
  * @author Botpress, Inc.
  * @param {string} data - The parameters of the available choices
  */
