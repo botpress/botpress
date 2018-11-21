@@ -3,6 +3,7 @@ import SplitPane from 'react-split-pane'
 import { connect } from 'react-redux'
 import { withRouter } from 'react-router-dom'
 import _ from 'lodash'
+import { HotKeys } from 'react-hotkeys'
 
 import ContentWrapper from '~/components/Layout/ContentWrapper'
 import PageHeader from '~/components/Layout/PageHeader'
@@ -15,7 +16,7 @@ import Topbar from './containers/Topbar'
 import SkillsBuilder from './containers/SkillsBuilder'
 import NodeProps from './containers/NodeProps'
 
-import { switchFlow } from '~/actions'
+import { switchFlow, setDiagramAction } from '~/actions'
 import { getDirtyFlows } from '~/reducers'
 
 const style = require('./style.scss')
@@ -77,51 +78,58 @@ class FlowBuilder extends Component {
 
     const { readOnly } = this.state
 
-    return (
-      <ContentWrapper stretch={true} className={style.wrapper}>
-        <PageHeader className={style.header} width="100%">
-          <Topbar readOnly={readOnly} />
-        </PageHeader>
-        {!readOnly && (
-          <Toolbar
-            onSaveAllFlows={() => {
-              this.diagram.saveAllFlows()
-            }}
-            onCreateFlow={name => {
-              this.diagram.createFlow(name)
-            }}
-            onDelete={() => {
-              this.diagram.deleteSelectedElements()
-            }}
-            onCopy={() => {
-              this.diagram.copySelectedElementToBuffer()
-            }}
-            onPaste={() => {
-              this.diagram.pasteElementFromBuffer()
-            }}
-          />
-        )}
-        <div className={style.workspace}>
-          <SplitPane split="vertical" minSize={200} defaultSize={250}>
-            <div className={style.sidePanel}>
-              <SidePanel readOnly={readOnly} />
-            </div>
+    const keyHandlers = {
+      'flow-add-node': () => this.props.setDiagramAction('insert_node'),
+      'flow-save': () => this.diagram.saveAllFlows()
+    }
 
-            <div className={style.diagram}>
-              <Diagram
-                readOnly={readOnly}
-                ref={el => {
-                  if (!!el) {
-                    this.diagram = el.getWrappedInstance()
-                  }
-                }}
-              />
-            </div>
-          </SplitPane>
-          <SkillsBuilder />
-          <NodeProps readOnly={readOnly} show={this.props.showFlowNodeProps} />
-        </div>
-      </ContentWrapper>
+    return (
+      <HotKeys handlers={keyHandlers} focused>
+        <ContentWrapper stretch={true} className={style.wrapper}>
+          <PageHeader className={style.header} width="100%">
+            <Topbar readOnly={readOnly} />
+          </PageHeader>
+          {!readOnly && (
+            <Toolbar
+              onSaveAllFlows={() => {
+                this.diagram.saveAllFlows()
+              }}
+              onCreateFlow={name => {
+                this.diagram.createFlow(name)
+              }}
+              onDelete={() => {
+                this.diagram.deleteSelectedElements()
+              }}
+              onCopy={() => {
+                this.diagram.copySelectedElementToBuffer()
+              }}
+              onPaste={() => {
+                this.diagram.pasteElementFromBuffer()
+              }}
+            />
+          )}
+          <div className={style.workspace}>
+            <SplitPane split="vertical" minSize={200} defaultSize={250}>
+              <div className={style.sidePanel}>
+                <SidePanel readOnly={readOnly} />
+              </div>
+
+              <div className={style.diagram}>
+                <Diagram
+                  readOnly={readOnly}
+                  ref={el => {
+                    if (!!el) {
+                      this.diagram = el.getWrappedInstance()
+                    }
+                  }}
+                />
+              </div>
+            </SplitPane>
+            <SkillsBuilder />
+            <NodeProps readOnly={readOnly} show={this.props.showFlowNodeProps} />
+          </div>
+        </ContentWrapper>
+      </HotKeys>
     )
   }
 }
@@ -133,4 +141,7 @@ const mapStateToProps = state => ({
   user: state.user
 })
 
-export default connect(mapStateToProps, { switchFlow })(withRouter(FlowBuilder))
+export default connect(
+  mapStateToProps,
+  { switchFlow, setDiagramAction }
+)(withRouter(FlowBuilder))
