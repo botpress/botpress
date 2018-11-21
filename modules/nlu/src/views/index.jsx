@@ -192,9 +192,14 @@ export default class Module extends React.Component {
                     onChange={this.onFilterChanged}
                   />
                 </p>
-                <Checkbox checked={this.state.showHiddenIntents} onChange={this.toggleShowHiddenIntents}>
-                  Show hidden intents
-                </Checkbox>
+                <span className={style.checkboxContainer}>
+                  <Checkbox
+                    id="showHidden"
+                    checked={this.state.showHiddenIntents}
+                    onChange={this.toggleShowHiddenIntents}
+                  />
+                  <label htmlFor="showHidden">Show hidden intents</label>
+                </span>
               </div>
               <div className={style.list}>{this.renderCategory()}</div>
             </nav>
