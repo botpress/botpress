@@ -9,10 +9,7 @@ import { Route, Switch, Redirect } from 'react-router-dom'
 import Header from './Header'
 import Sidebar from './Sidebar'
 import SidebarFooter from './SidebarFooter'
-import HelpButton from './HelpButton'
 
-import LicenseComponent from '~/components/License'
-import AboutComponent from '~/components/About'
 import GuidedTour from '~/components/Tour'
 import SelectContentManager from '~/components/Content/Select/Manager'
 import Dashboard from '~/views/Dashboard'
@@ -27,7 +24,7 @@ import BackendToast from '~/components/Util/BackendToast'
 
 import PluginInjectionSite from '~/components/PluginInjectionSite'
 
-import { toggleLicenseModal, viewModeChanged } from '~/actions'
+import { viewModeChanged } from '~/actions'
 
 import style from './style.scss'
 
@@ -72,12 +69,6 @@ class Layout extends React.Component {
         </Sidebar>
         <SidebarFooter />
         <GuidedTour opened={window.SHOW_GUIDED_TOUR} />
-        <LicenseComponent
-          opened={this.props.licenseModalOpened}
-          license={{ text: this.props.license.text, name: this.props.license.name }}
-          toggleLicenseModal={this.props.toggleLicenseModal}
-        />
-        <AboutComponent opened={this.props.aboutModalOpened} />
         <PluginInjectionSite site="overlay" />
         <SelectContentManager />
         <BackendToast />
@@ -86,14 +77,12 @@ class Layout extends React.Component {
   }
 }
 
-const mapStateToProps = (state, ownProps) => ({
+const mapStateToProps = state => ({
   license: state.license,
-  licenseModalOpened: state.ui.licenseModalOpened,
-  aboutModalOpened: state.ui.aboutModalOpened,
   viewMode: state.ui.viewMode
 })
 
-const mapDispatchToProps = dispatch => bindActionCreators({ toggleLicenseModal, viewModeChanged }, dispatch)
+const mapDispatchToProps = dispatch => bindActionCreators({ viewModeChanged }, dispatch)
 
 export default connect(
   mapStateToProps,
