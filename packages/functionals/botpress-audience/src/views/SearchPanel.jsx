@@ -22,13 +22,11 @@ export default class SearchPanel extends React.Component {
           id: 0
         }
       ],
-      users: [],
       tags: this.getTagList(props.users)
     }
   }
 
   componentDidUpdate(props) {
-    console.log('Update', props.users)
     if (this.props.users !== props.users) {
       this.setState({
         tags: this.getTagList(props)
@@ -38,9 +36,7 @@ export default class SearchPanel extends React.Component {
 
   getAllUserTagNames(users) {
     return users.map(user => {
-      console.log('User: ', user)
       if (user.tags) {
-        console.log('Tags: ', user.tags)
         return user.tags.map(tag => {
           return tag.tag
         })
@@ -50,15 +46,11 @@ export default class SearchPanel extends React.Component {
   }
 
   getTagList(users) {
-    console.log('Tag List?', users)
     if (!users) {
       return ['No tags found']
     }
 
-    const tags = _.union(
-      //Join lists of user tag names
-      ...this.getAllUserTagNames(users)
-    )
+    const tags = _.union(...this.getAllUserTagNames(users))
 
     if (tags.length === 0) {
       return ['No tags found']
