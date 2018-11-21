@@ -67,13 +67,13 @@ export interface Config {
 
   /**
    *
-   * @default http://test.iqfepgas99.us-east-1.elasticbeanstalk.com
+   * @default http://duckling.botpress.io
    */
   ducklingURL: string
 
   /**
    *
-   * @default truee
+   * @default true
    */
   ducklingEnabled: Boolean
 }
