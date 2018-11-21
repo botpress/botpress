@@ -62,7 +62,7 @@ export default class AudienceModule extends React.Component {
   }
 
   async fetchCount() {
-    const { data } = await this.getAxios().get('/mod/audience/users/count')
+    const { data } = await this.getAxios().get('/api/botpress-audience/users/count')
 
     this.setState({
       count: data

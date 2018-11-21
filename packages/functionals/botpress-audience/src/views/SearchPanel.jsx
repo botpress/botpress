@@ -156,9 +156,6 @@ export default class SearchPanel extends React.Component {
         <Button type="submit" onSubmit={this.searchUsers}>
           Search
         </Button>
-        {/* <Button onClick={this.addRow} bsStyle="info">
-          <Glyphicon glyph="plus" />
-        </Button> */}
       </Form>
     )
   }
