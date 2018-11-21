@@ -64,4 +64,16 @@ export interface Config {
    * @default -1
    */
   maximumRequestsPerHour: number
+
+  /**
+   *
+   * @default http://test.iqfepgas99.us-east-1.elasticbeanstalk.com
+   */
+  ducklingURL: string
+
+  /**
+   *
+   * @default truee
+   */
+  ducklingEnabled: Boolean
 }
