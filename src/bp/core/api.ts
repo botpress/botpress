@@ -11,14 +11,13 @@ import { ConfigProvider } from './config/config-loader'
 import Database from './database'
 import { LoggerProvider } from './logger'
 import { ModuleLoader } from './module-loader'
-import { UserRepository } from './repositories'
+import { SessionRepository, UserRepository } from './repositories'
 import { Event, RealTimePayload } from './sdk/impl'
 import HTTPServer from './server'
 import { GhostService } from './services'
 import { CMSService } from './services/cms/cms-service'
 import { DialogEngine } from './services/dialog/engine'
 import { SessionIdFactory } from './services/dialog/session/id-factory'
-import { SessionService } from './services/dialog/session/service'
 import { ScopedGhostService } from './services/ghost/service'
 import { KeyValueStore } from './services/kvs/kvs'
 import { EventEngine } from './services/middleware/event-engine'
@@ -58,22 +57,16 @@ const event = (eventEngine: EventEngine): typeof sdk.events => {
   }
 }
 
-const dialog = (dialogEngine: DialogEngine, sessionService: SessionService): typeof sdk.dialog => {
+const dialog = (dialogEngine: DialogEngine, sessionRepo: SessionRepository): typeof sdk.dialog => {
   return {
     async createId(event: sdk.IO.Event) {
       return SessionIdFactory.createIdFromEvent(event)
     },
-    async processEvent(sessionId: string, event: sdk.IO.Event): Promise<void> {
+    async processEvent(sessionId: string, event: sdk.IO.IncomingEvent): Promise<void> {
       await dialogEngine.processEvent(sessionId, event)
     },
     async deleteSession(userId: string): Promise<void> {
-      await sessionService.deleteSession(userId)
-    },
-    async getState(userId: string): Promise<void> {
-      return sessionService.getStateForSession(userId)
-    },
-    async setState(userId: string, state: any): Promise<void> {
-      await sessionService.updateStateForSession(userId, state)
+      await sessionRepo.delete(userId)
     },
     async jumpTo(sessionId: string, event: any, flowName: string, nodeName?: string): Promise<void> {
       await dialogEngine.jumpTo(sessionId, event, flowName, nodeName)
@@ -220,7 +213,7 @@ export class BotpressAPIProvider {
     @inject(TYPES.HTTPServer) httpServer: HTTPServer,
     @inject(TYPES.UserRepository) userRepo: UserRepository,
     @inject(TYPES.RealtimeService) realtimeService: RealtimeService,
-    @inject(TYPES.SessionService) sessionService: SessionService,
+    @inject(TYPES.SessionRepository) sessionRepo: SessionRepository,
     @inject(TYPES.KeyValueStore) keyValueStore: KeyValueStore,
     @inject(TYPES.NotificationsService) notificationService: NotificationsService,
     @inject(TYPES.BotLoader) botLoader: BotLoader,
@@ -230,7 +223,7 @@ export class BotpressAPIProvider {
   ) {
     this.http = http(httpServer)
     this.events = event(eventEngine)
-    this.dialog = dialog(dialogEngine, sessionService)
+    this.dialog = dialog(dialogEngine, sessionRepo)
     this.config = config(moduleLoader, configProfider)
     this.realtime = new RealTimeAPI(realtimeService)
     this.database = db.knex

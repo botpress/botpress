@@ -105,7 +105,7 @@ export default class ListView extends Component {
       <tr className={className} key={i}>
         {!this.props.readOnly && (
           <td style={{ width: '2%', minWidth: '34px' }}>
-            <Checkbox checked={checked} onClick={() => this.handleCheckboxChanged(m.id, m.contentType)} />
+            <Checkbox checked={checked} onChange={() => this.handleCheckboxChanged(m.id, m.contentType)} />
           </td>
         )}
         <td style={{ width: '16%' }}>{'#!' + m.id}</td>
@@ -159,7 +159,7 @@ export default class ListView extends Component {
       <span>
         {!this.props.readOnly && (
           <Button onClick={this.handleAllCheckedChanged}>
-            <Checkbox checked={this.state.allChecked} onClick={this.handleAllCheckedChanged} />
+            <Checkbox checked={this.state.allChecked} onChange={this.handleAllCheckedChanged} />
           </Button>
         )}
         <Button onClick={this.props.handleRefresh} title="Refresh">

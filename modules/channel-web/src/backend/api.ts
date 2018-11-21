@@ -305,17 +305,17 @@ export default async (bp: SDK, db: Database) => {
     const { messages } = conversation
     const { result: user } = await bp.users.getOrCreateUser('web', conversation.userId)
     const timeFormat = 'MM/DD/YY HH:mm'
-
+    const fullName = `${user.attributes['first_name'] || ''} ${user.attributes['last_name'] || ''}`
     const metadata = `Title: ${conversation.title}\r\nCreated on: ${moment(conversation.created_on).format(
       timeFormat
-    )}\r\nUser: ${user.attributes.get('first_name')} ${user.attributes.get('last_name')}\r\n-----------------\r\n`
+    )}\r\nUser: ${fullName}\r\n-----------------\r\n`
 
     const messagesAsTxt = messages.map(message => {
       if (message.message_type === 'session_reset') {
         return ''
       }
-
-      return `[${moment(message.sent_on).format(timeFormat)}] ${message.full_name}: ${getMessageContent(message)}\r\n`
+      const userName = message.full_name.indexOf('undefined') > -1 ? 'User' : message.full_name
+      return `[${moment(message.sent_on).format(timeFormat)}] ${userName}: ${getMessageContent(message)}\r\n`
     })
 
     return [metadata, ...messagesAsTxt].join('')
