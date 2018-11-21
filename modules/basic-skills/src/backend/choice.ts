@@ -80,14 +80,14 @@ const createTransitions = data => {
     return {
       caption: `User picked [${choiceShort}]`,
       condition: `state['skill-choice-ret'] == "${choice}"`,
-      node: 'entry'
+      node: ''
     }
   })
 
   transitions.push({
     caption: 'On failure',
     condition: 'true',
-    node: 'entry'
+    node: ''
   })
 
   return transitions
