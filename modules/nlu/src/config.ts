@@ -67,7 +67,7 @@ export interface Config {
 
   /**
    *
-   * @default http://duckling.botpress.io
+   * @default https://duckling.botpress.io
    */
   ducklingURL: string
 
