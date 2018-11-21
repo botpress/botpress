@@ -51,8 +51,8 @@ const event = (eventEngine: EventEngine): typeof sdk.events => {
     sendEvent(event: sdk.IO.Event): void {
       eventEngine.sendEvent(event)
     },
-    replyToEvent(event: sdk.IO.Event, payloads: any[]): void {
-      eventEngine.replyToEvent(event, payloads)
+    replyToEvent(eventDestination: sdk.IO.EventDestination, payloads: any[]): void {
+      eventEngine.replyToEvent(eventDestination, payloads)
     }
   }
 }
@@ -164,8 +164,8 @@ const cms = (cmsService: CMSService): typeof sdk.cms => {
     getAllContentTypes(botId?: string): Promise<any[]> {
       return cmsService.getAllContentTypes(botId)
     },
-    renderElement(contentTypeId: string, payload: any, channel: string): Promise<any> {
-      return cmsService.renderElement(contentTypeId, payload, channel)
+    renderElement(contentTypeId: string, payload: any, eventDestination: sdk.IO.EventDestination): Promise<any> {
+      return cmsService.renderElement(contentTypeId, payload, eventDestination)
     },
     createOrUpdateContentElement(
       botId: string,
