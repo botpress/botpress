@@ -59,8 +59,8 @@ const event = (eventEngine: EventEngine): typeof sdk.events => {
 
 const dialog = (dialogEngine: DialogEngine, sessionRepo: SessionRepository): typeof sdk.dialog => {
   return {
-    async createId(event: sdk.IO.Event) {
-      return SessionIdFactory.createIdFromEvent(event)
+    createId(eventDestination: sdk.IO.EventDestination) {
+      return SessionIdFactory.createIdFromEvent(eventDestination)
     },
     async processEvent(sessionId: string, event: sdk.IO.IncomingEvent): Promise<void> {
       await dialogEngine.processEvent(sessionId, event)

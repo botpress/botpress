@@ -646,10 +646,10 @@ declare module 'botpress/sdk' {
      * and will send a complete event with each payloads. It is often paired with
      * {@link cms.renderElement} to generate payload for a specific content type
      *
-     * @param event - An original event to reply to
+     * @param eventDestination - The destination to identify the target
      * @param payloads - One or multiple payloads to send
      */
-    export function replyToEvent(event: IO.Event, payloads: any[]): void
+    export function replyToEvent(eventDestination: IO.EventDestination, payloads: any[]): void
   }
 
   export type GetOrCreateResult<T> = Promise<{
@@ -682,10 +682,10 @@ declare module 'botpress/sdk' {
    */
   export namespace dialog {
     /**
-     * Create a session Id from a Botpress Event
-     * @param event The event used to create the Dialog Session Id
+     * Create a session Id from an Event Destination
+     * @param eventDestination The event used to create the Dialog Session Id
      */
-    export function createId(event: IO.Event): Promise<string>
+    export function createId(eventDestination: IO.EventDestination): string
     /**
      * Calls the dialog engine to start processing an event.
      * @param event The event to be processed by the dialog engine
