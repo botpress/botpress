@@ -796,7 +796,7 @@ declare module 'botpress/sdk' {
      * @returns An array of payloads
      */
     export function renderElement(
-      contentTypeId: string,
+      contentId: string,
       args: any,
       eventDestination: IO.EventDestination
     ): Promise<object[]>
