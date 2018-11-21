@@ -3,7 +3,7 @@ import crypto from 'crypto'
 import { readFileSync } from 'fs'
 
 import { DucklingEntityExtractor } from '../entities/duckling/extractor'
-import { EntityExtractor } from '../entities/typings'
+import { EntityExtractor } from '../entities/entities'
 import FastTextClassifier from '../fasttext/classifier'
 import { LanguageDetector, LanguageDetectorProvider } from '../fasttext/language-detector'
 
@@ -18,7 +18,7 @@ export default class NativeProvider extends Provider {
     super({ ...config, name: 'native', entityKey: '@native' })
     this.intentClassifier = new FastTextClassifier()
     this.langDetector = LanguageDetectorProvider.getLanguageDetector()
-    this.knownEntityExtractor = new DucklingEntityExtractor(config.ducklingURL)
+    this.knownEntityExtractor = new DucklingEntityExtractor(this.config.ducklingURL, this.config.logger)
   }
 
   async init() {

@@ -1,6 +1,6 @@
 import Axios, { AxiosInstance } from 'axios'
 
-import Entity, { EntityBody, EntityMeta } from '../typings'
+import { Entity, EntityBody, EntityMeta } from '../entities'
 
 const mapMeta = (DEntity): EntityMeta => {
   return {
@@ -45,8 +45,10 @@ const mapBody = (dimension, rawVal): EntityBody => {
 
 export class DucklingEntityExtractor {
   client: AxiosInstance
+  logger: any
 
-  constructor(ducklingURL: string = '') {
+  constructor(ducklingURL: string = '', logger) {
+    this.logger = logger
     this.client = Axios.create({
       baseURL: ducklingURL,
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
@@ -64,8 +66,8 @@ export class DucklingEntityExtractor {
         meta: mapMeta(ent),
         data: mapBody(ent.dim, ent.value)
       }))
-    } catch {
-      console.error('error extracting duckling entities')
+    } catch (err) {
+      this.logger.debug('[Native] error extracting duckling entities')
       return []
     }
   }
