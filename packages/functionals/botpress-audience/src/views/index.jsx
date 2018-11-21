@@ -172,7 +172,7 @@ export default class AudienceModule extends React.Component {
           <td style={{ width: '24%' }}>{user.id}</td>
           <td style={{ width: '15%' }}>{this.renderName(user.first_name, user.last_name)}</td>
           <td style={{ width: '10%' }}>{_.upperFirst(user.platform)}</td>
-          <td style={{ width: '15%' }}>{this.renderCreatedOn(user.created_at)}</td>
+          <td style={{ width: '15%' }}>{this.renderCreatedOn(user.created_on)}</td>
           <td style={{ width: '21%' }}>{this.renderTags(user.tags)}</td>
           <td style={{ width: '5%' }}>{this.renderExtra(user.locale, user.timezone, user.gender)}</td>
         </tr>
