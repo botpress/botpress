@@ -45,11 +45,10 @@ export default class AudienceModule extends React.Component {
     this.setState({ loading: true })
 
     try {
-      const { data } = await this.getAxios().post('/mod/audience/users', {
+      const { data } = await this.getAxios().post('/api/botpress-audience/users', {
         from: this.state.page * LIMIT_PER_PAGE,
         limit: LIMIT_PER_PAGE
       })
-
       this.setState({
         loading: false,
         users: data,
@@ -141,7 +140,7 @@ export default class AudienceModule extends React.Component {
     return <div className={style.image}>{picture}</div>
   }
 
-  renderExtra({ locale, timezone, gender }) {
+  renderExtra(locale, timezone, gender) {
     if (!locale && !timezone && gender === 'unknown') {
       return 'No info'
     }
@@ -170,12 +169,12 @@ export default class AudienceModule extends React.Component {
       return (
         <tr key={key}>
           <td style={{ width: '10%' }}>{this.renderProfilePicture(picture_url)}</td>
-          <td style={{ width: '24%' }}>{user.user_id}</td>
+          <td style={{ width: '24%' }}>{user.id}</td>
           <td style={{ width: '15%' }}>{this.renderName(first_name, last_name)}</td>
-          <td style={{ width: '10%' }}>{_.upperFirst(user.channel)}</td>
+          <td style={{ width: '10%' }}>{_.upperFirst(user.platform)}</td>
           <td style={{ width: '15%' }}>{this.renderCreatedOn(user.created_at)}</td>
           <td style={{ width: '21%' }}>{this.renderTags(user.tags)}</td>
-          <td style={{ width: '5%' }}>{this.renderExtra(user.attributes)}</td>
+          <td style={{ width: '5%' }}>{this.renderExtra(user.locale, user.timezone, user.gender)}</td>
         </tr>
       )
     })
