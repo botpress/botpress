@@ -1,7 +1,7 @@
 import React from 'react'
 
 import SearchEntry from './SearchEntry'
-import { Button, ControlLabel, Form } from 'react-bootstrap'
+import { Button, ControlLabel, Form, Glyphicon } from 'react-bootstrap'
 
 import _ from 'lodash'
 
@@ -12,7 +12,8 @@ export default class SearchPanel extends React.Component {
     this.getTagList = this.getTagList.bind(this)
     this.updateSearch = this.updateSearch.bind(this)
     this.searchUsers = this.searchUsers.bind(this)
-    this.updateRows = this.updateRows.bind(this)
+    this.addRow = this.addRow.bind(this)
+    this.disableRow = this.disableRow.bind(this)
 
     this.state = {
       search: [
@@ -26,26 +27,40 @@ export default class SearchPanel extends React.Component {
     }
   }
 
+  componentDidUpdate(props) {
+    console.log('Update', props.users)
+    if (this.props.users !== props.users) {
+      this.setState({
+        tags: this.getTagList(props)
+      })
+    }
+  }
+
+  getAllUserTagNames(users) {
+    return users.map(user => {
+      console.log('User: ', user)
+      if (user.tags) {
+        console.log('Tags: ', user.tags)
+        return user.tags.map(tag => {
+          return tag.tag
+        })
+      }
+      return false
+    })
+  }
+
   getTagList(users) {
-    if (!users || !users.tags) {
+    console.log('Tag List?', users)
+    if (!users) {
       return ['No tags found']
     }
-    const tags = [
-      ...new Set(
-        _.concat(
-          ...users.map(user => {
-            if (user.tags) {
-              return user.tags.map(tag => {
-                return tag.tag
-              })
-            }
-            return false
-          })
-        )
-      )
-    ].sort()
 
-    if (tags.length <= 0) {
+    const tags = _.union(
+      //Join lists of user tag names
+      ...this.getAllUserTagNames(users)
+    )
+
+    if (tags.length === 0) {
       return ['No tags found']
     }
 
@@ -54,12 +69,18 @@ export default class SearchPanel extends React.Component {
 
   renderSearchEntries() {
     return this.state.search.map((e, i) => {
+      if (e.disabled) {
+        return null
+      }
       return (
         <SearchEntry
           key={e.id}
           index={i}
           updateSearch={this.updateSearch}
-          updateRows={this.updateRows}
+          updateRows={{
+            addRow: this.addRow,
+            disableRow: this.disableRow
+          }}
           lastItem={e.id == this.state.search.length - 1}
           users={this.props.users}
           tags={this.state.tags}
@@ -102,17 +123,26 @@ export default class SearchPanel extends React.Component {
     this.props.updateUsers(valid_users)
   }
 
-  updateRows(index, addRow = true) {
-    const new_search = [...this.state.search]
+  addRow() {
+    const search = [...this.state.search]
 
-    if (addRow) {
-      new_search.push(true)
-    } else {
-      new_search.splice(index, 1)
-    }
+    search.push({
+      id: search.length + 1,
+      eval: true
+    })
 
     this.setState({
-      search: new_search
+      search
+    })
+  }
+
+  disableRow(index) {
+    const search = [...this.state.search]
+
+    search[index].disabled = true
+
+    this.setState({
+      search
     })
   }
 
@@ -126,6 +156,9 @@ export default class SearchPanel extends React.Component {
         <Button type="submit" onSubmit={this.searchUsers}>
           Search
         </Button>
+        {/* <Button onClick={this.addRow} bsStyle="info">
+          <Glyphicon glyph="plus" />
+        </Button> */}
       </Form>
     )
   }

@@ -33,11 +33,11 @@ export default class SearchEntry extends React.Component {
   }
 
   addRow() {
-    this.props.updateRows(this.props.index, true)
+    this.props.updateRows.addRow()
   }
 
   removeRow() {
-    this.props.updateRows(this.props.index, false)
+    this.props.updateRows.disableRow(this.props.index)
   }
 
   render() {
@@ -60,7 +60,8 @@ export default class SearchEntry extends React.Component {
           {this.renderSearch()}
         </Col>
         <Col sm={3} md={2}>
-          {this.props.lastItem ? this.renderButtons() : null}
+          {/* {this.props.lastItem ? this.renderButtons() : null} */}
+          {this.renderButtons()}
         </Col>
       </FormGroup>
     )
