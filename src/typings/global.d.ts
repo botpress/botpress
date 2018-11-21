@@ -16,6 +16,7 @@ declare namespace NodeJS {
     JWT_SECRET: string
     HOST: string
     PORT: number
+    EXTERNAL_URL: string
     PROJECT_LOCATION: string
     LOADED_MODULES: { [module: string]: string }
     pkg: any
