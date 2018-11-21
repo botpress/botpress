@@ -18,7 +18,11 @@ export default class NativeProvider extends Provider {
     super({ ...config, name: 'native', entityKey: '@native' })
     this.intentClassifier = new FastTextClassifier()
     this.langDetector = LanguageDetectorProvider.getLanguageDetector()
-    this.knownEntityExtractor = new DucklingEntityExtractor(this.config.ducklingURL, this.config.logger)
+    this.knownEntityExtractor = new DucklingEntityExtractor(
+      this.config.ducklingEnabled,
+      this.config.ducklingURL,
+      this.config.logger
+    )
   }
 
   async init() {
