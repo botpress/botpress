@@ -230,7 +230,7 @@ declare module 'botpress/sdk' {
       previousNode?: string
       currentNode?: string
       currentFlow?: string
-      queue?: string
+      queue?: any
       data?: any
     }
 
