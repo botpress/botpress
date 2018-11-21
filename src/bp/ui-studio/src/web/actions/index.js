@@ -148,8 +148,6 @@ export const fetchLicense = () => dispatch => {
 }
 
 // UI
-export const toggleLicenseModal = createAction('UI/TOGGLE_LICENSE_MODAL')
-export const toggleAboutModal = createAction('UI/TOGGLE_ABOUT_MODAL')
 export const viewModeChanged = createAction('UI/VIEW_MODE_CHANGED')
 export const updateGlobalStyle = createAction('UI/UPDATE_GLOBAL_STYLE')
 

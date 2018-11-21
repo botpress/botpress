@@ -1,10 +1,8 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { Panel } from 'react-bootstrap'
 import classnames from 'classnames'
-import { toggleLicenseModal } from '~/actions'
 
 const style = require('./style.scss')
 
@@ -21,10 +19,6 @@ class InformationComponent extends React.Component {
     this.setState({
       loading: false
     })
-  }
-
-  openLicenseComponent = () => {
-    this.props.toggleLicenseModal()
   }
 
   render() {
@@ -45,12 +39,6 @@ class InformationComponent extends React.Component {
           <p className={classnames(style.informationVersion, 'bp-version')}>
             Version {this.props.botInformation.version}
           </p>
-          <p className={classnames(style.informationLicense, 'bp-license')}>
-            Licensed under{' '}
-            <a href="#" onClick={this.openLicenseComponent}>
-              {this.props.botInformation.license}
-            </a>
-          </p>
           <div className={classnames(style.whereFrom, 'bp-where-from')}>Info extracted from package.json</div>
         </Panel.Body>
       </Panel>
@@ -59,6 +47,8 @@ class InformationComponent extends React.Component {
 }
 
 const mapStateToProps = state => ({ botInformation: state.bot })
-const mapDispatchToProps = dispatch => bindActionCreators({ toggleLicenseModal }, dispatch)
 
-export default connect(mapStateToProps, mapDispatchToProps)(InformationComponent)
+export default connect(
+  mapStateToProps,
+  null
+)(InformationComponent)
