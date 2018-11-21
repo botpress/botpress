@@ -173,7 +173,7 @@ export class HookService {
       console: 'inherit',
       sandbox: {
         ...hookScript.hook.args,
-        process: _.pick(process, 'HOST', 'PORT', 'env')
+        process: _.pick(process, 'HOST', 'PORT', 'EXTERNAL_URL', 'env')
       },
       timeout: hookScript.hook.timeout,
       require: {

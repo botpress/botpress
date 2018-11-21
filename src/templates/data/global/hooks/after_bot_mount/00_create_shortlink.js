@@ -13,5 +13,5 @@ const params = {
   options: JSON.stringify(chatOptions)
 }
 
-// Bot will be available at http://$HOST:$PORT/s/$BOT_NAME
-bp.http.createShortLink(botId, `http://${process.HOST}:${process.PORT}/lite/${botId}/`, params)
+// Bot will be available at $EXTERNAL_URL/s/$BOT_NAME
+bp.http.createShortLink(botId, `${process.EXTERNAL_URL}/lite/${botId}/`, params)

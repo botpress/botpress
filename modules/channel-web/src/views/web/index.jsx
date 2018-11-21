@@ -385,6 +385,10 @@ export default class Web extends React.Component {
   }
 
   handleSendMessage = () => {
+    if (!this.state.textToSend || !this.state.textToSend.length) {
+      return
+    }
+
     this.setState({
       messageHistory: _.take([this.state.textToSend, ...this.state.messageHistory], HISTORY_MAX_MESSAGES),
       historyPosition: HISTORY_STARTING_POINT

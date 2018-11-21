@@ -168,6 +168,8 @@ export default class HTTPServer {
 
     process.HOST = config.host
     process.PORT = await portFinder.getPortPromise({ port: config.port })
+    process.EXTERNAL_URL = process.env.EXTERNAL_URL || config.externalUrl || `http://${process.HOST}:${process.PORT}`
+
     if (process.PORT !== config.port) {
       this.logger.warn(`Configured port ${config.port} is already in use. Using next port available: ${process.PORT}`)
     }
@@ -217,7 +219,7 @@ export default class HTTPServer {
 
   async getAxiosConfigForBot(botId: string): Promise<AxiosBotConfig> {
     return {
-      baseURL: `http://${process.HOST || 'localhost'}:${process.PORT}/api/v1/bots/${botId}`
+      baseURL: `${process.EXTERNAL_URL}/api/v1/bots/${botId}`
     }
   }
 }

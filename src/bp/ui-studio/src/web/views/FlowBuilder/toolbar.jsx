@@ -106,7 +106,7 @@ class Toolbar extends React.Component {
             disabled={window.BOTPRESS_FLOW_EDITOR_DISABLED || !hasUnsavedChanges}
             onClick={() => this.props.onSaveAllFlows && this.props.onSaveAllFlows()}
           >
-            <OverlayTrigger placement="bottom" overlay={createTooltip('saveAll', 'Save all')}>
+            <OverlayTrigger placement="bottom" overlay={createTooltip('saveAll', 'Save all (ctrl+s)')}>
               <i className="material-icons">save</i>
             </OverlayTrigger>
           </Button>
@@ -150,7 +150,7 @@ class Toolbar extends React.Component {
             active={isInsertNodeMode}
             onClick={toggleInsertMode('insert_node')}
           >
-            <OverlayTrigger placement="bottom" overlay={createTooltip('addNode', 'Insert New Node')}>
+            <OverlayTrigger placement="bottom" overlay={createTooltip('addNode', 'Insert New Node (ctrl+a)')}>
               <i className="material-icons">add_box</i>
             </OverlayTrigger>
           </Button>
@@ -178,4 +178,7 @@ class Toolbar extends React.Component {
 
 const mapDispatchToProps = dispatch => bindActionCreators({ updateGlobalStyle }, dispatch)
 
-export default connect(null, mapDispatchToProps)(Toolbar)
+export default connect(
+  null,
+  mapDispatchToProps
+)(Toolbar)
