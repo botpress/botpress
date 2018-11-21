@@ -1,10 +1,11 @@
 import React from 'react'
-import { Label, Col, Panel, Table, Button, Glyphicon, Popover, OverlayTrigger, Pager } from 'react-bootstrap'
+import { Label, Col, Panel, Table, Glyphicon, Popover, OverlayTrigger, Pager } from 'react-bootstrap'
 
 import _ from 'lodash'
 import moment from 'moment'
 
 import style from './style.scss'
+import SearchPanel from './SearchPanel'
 
 const LIMIT_PER_PAGE = 50
 const INTERVAL_FETCH_COUNT = 60000 // 1min
@@ -19,6 +20,8 @@ export default class AudienceModule extends React.Component {
     }
 
     this.fetchCount = this.fetchCount.bind(this)
+    this.updateUsers = this.updateUsers.bind(this)
+
     this.timer = null
   }
 
@@ -42,14 +45,15 @@ export default class AudienceModule extends React.Component {
     this.setState({ loading: true })
 
     try {
-      const { data } = await this.getAxios().post('/api/botpress-audience/users', {
+      const { data } = await this.getAxios().post('/mod/audience/users', {
         from: this.state.page * LIMIT_PER_PAGE,
         limit: LIMIT_PER_PAGE
       })
 
       this.setState({
         loading: false,
-        users: data
+        users: data,
+        all_users: data
       })
     } catch (err) {
       this.setState({
@@ -59,7 +63,7 @@ export default class AudienceModule extends React.Component {
   }
 
   async fetchCount() {
-    const { data } = await this.getAxios().get('/api/botpress-audience/users/count')
+    const { data } = await this.getAxios().get('/mod/audience/users/count')
 
     this.setState({
       count: data
@@ -159,15 +163,19 @@ export default class AudienceModule extends React.Component {
 
   renderUsers(users) {
     return _.mapValues(users, (user, key) => {
+      const picture_url = _.get(_.find(user.attributes, { key: 'picture_url' }), 'value')
+      const first_name = _.get(_.find(user.attributes, { key: 'first_name' }), 'value')
+      const last_name = _.get(_.find(user.attributes, { key: 'last_name' }), 'value')
+
       return (
         <tr key={key}>
-          <td style={{ width: '10%' }}>{this.renderProfilePicture(user.picture_url)}</td>
-          <td style={{ width: '24%' }}>{user.id}</td>
-          <td style={{ width: '15%' }}>{this.renderName(user.first_name, user.last_name)}</td>
-          <td style={{ width: '10%' }}>{_.upperFirst(user.platform)}</td>
-          <td style={{ width: '15%' }}>{this.renderCreatedOn(user.created_on)}</td>
+          <td style={{ width: '10%' }}>{this.renderProfilePicture(picture_url)}</td>
+          <td style={{ width: '24%' }}>{user.user_id}</td>
+          <td style={{ width: '15%' }}>{this.renderName(first_name, last_name)}</td>
+          <td style={{ width: '10%' }}>{_.upperFirst(user.channel)}</td>
+          <td style={{ width: '15%' }}>{this.renderCreatedOn(user.created_at)}</td>
           <td style={{ width: '21%' }}>{this.renderTags(user.tags)}</td>
-          <td style={{ width: '5%' }}>{this.renderExtra(user)}</td>
+          <td style={{ width: '5%' }}>{this.renderExtra(user.attributes)}</td>
         </tr>
       )
     })
@@ -187,7 +195,11 @@ export default class AudienceModule extends React.Component {
   renderEmptyMessage() {
     return (
       <div className={style.emptyMessage}>
-        <h5>No more row in your database of users...</h5>
+        <h5>
+          {this.state.all_users && this.state.all_users.length == 0
+            ? 'No more row in your database of users...'
+            : "Can't find any users..."}
+        </h5>
       </div>
     )
   }
@@ -195,14 +207,14 @@ export default class AudienceModule extends React.Component {
   renderPagination() {
     const previous =
       this.state.page > 0 ? (
-        <Pager.Item previous onClick={::this.handlePreviousClicked}>
+        <Pager.Item previous onClick={this.handlePreviousClicked}>
           &larr; Previous
         </Pager.Item>
       ) : null
 
     const next =
       this.state.count > (this.state.page + 1) * LIMIT_PER_PAGE ? (
-        <Pager.Item next onClick={::this.handleNextClicked}>
+        <Pager.Item next onClick={this.handleNextClicked}>
           Next &rarr;
         </Pager.Item>
       ) : null
@@ -221,11 +233,18 @@ export default class AudienceModule extends React.Component {
     return <div className={style.count}>Total: {text}</div>
   }
 
+  updateUsers(users) {
+    this.setState({
+      users
+    })
+  }
+
   renderAllContent() {
     return (
       <Col md={12}>
         <Panel>
           <Panel.Body>
+            <SearchPanel users={this.state.all_users} updateUsers={this.updateUsers} />
             {this.renderCount()}
             {_.isEmpty(this.state.users) ? this.renderEmptyMessage() : this.renderTable()}
             {this.renderPagination()}
