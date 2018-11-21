@@ -170,7 +170,7 @@ export default class AudienceModule extends React.Component {
         <tr key={key}>
           <td style={{ width: '10%' }}>{this.renderProfilePicture(picture_url)}</td>
           <td style={{ width: '24%' }}>{user.id}</td>
-          <td style={{ width: '15%' }}>{this.renderName(first_name, last_name)}</td>
+          <td style={{ width: '15%' }}>{this.renderName(user.first_name, user.last_name)}</td>
           <td style={{ width: '10%' }}>{_.upperFirst(user.platform)}</td>
           <td style={{ width: '15%' }}>{this.renderCreatedOn(user.created_at)}</td>
           <td style={{ width: '21%' }}>{this.renderTags(user.tags)}</td>
