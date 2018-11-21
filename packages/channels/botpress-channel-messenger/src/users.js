@@ -3,7 +3,8 @@ const _ = require('lodash')
 module.exports = function(bp, messenger) {
   function profileToDbEntry(profile) {
     return {
-      id: profile.id,
+      id: 'facebook:' + profile.id,
+      userId: profile.id,
       platform: 'facebook',
       gender: profile.gender,
       timezone: profile.timezone,
@@ -11,7 +12,7 @@ module.exports = function(bp, messenger) {
       picture_url: profile.profile_pic,
       first_name: profile.first_name,
       last_name: profile.last_name
-    }
+    };
   }
 
   function dbEntryToProfile(db) {
@@ -22,8 +23,9 @@ module.exports = function(bp, messenger) {
       profile_pic: db.picture_url,
       first_name: db.first_name,
       last_name: db.last_name,
-      id: db.userId
-    }
+      userId: db.userId,
+      id: 'facebook:' + db.userId
+    };
   }
 
   async function getOrFetchUserProfile(userId) {
