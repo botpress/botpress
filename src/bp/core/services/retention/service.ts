@@ -19,7 +19,7 @@ export interface ExpiredData {
 @injectable()
 export class DataRetentionService {
   private readonly tableName = 'data_retention'
-  private policies: RetentionPolicy[] | undefined
+  private policies: RetentionPolicy | undefined
   private DELETED_ATTR = 'D'
 
   constructor(
@@ -32,11 +32,16 @@ export class DataRetentionService {
     this.policies = config.dataRetention && config.dataRetention.policies
   }
 
-  async hasPolicy() {
-    return this.policies
+  hasPolicy(): boolean {
+    return !_.isEmpty(this.policies)
   }
 
-  async checkChanges(channel: string, user_id: string, beforeAttributes: any, afterAttributes: any) {
+  async updateExpirationForChangedFields(
+    channel: string,
+    user_id: string,
+    beforeAttributes: any,
+    afterAttributes: any
+  ) {
     const differences = diff(getPaths(beforeAttributes), getPaths(afterAttributes))
     if (!differences || !this.policies) {
       return

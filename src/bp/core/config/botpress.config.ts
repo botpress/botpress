@@ -71,10 +71,17 @@ export type BotpressConfig = {
 }
 
 export interface DataRetentionConfig {
+  /**
+   * The janitor will check for expired fields at the set interval (second, minute, hour, day)
+   * @example 1m
+   */
   janitorInterval: string
-  policies: RetentionPolicy[]
+  policies: RetentionPolicy
 }
 
+/**
+ * @example "profile.email": "30d"
+ */
 export type RetentionPolicy = {
   [key: string]: string
 }

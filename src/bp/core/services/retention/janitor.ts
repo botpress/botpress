@@ -24,7 +24,7 @@ export class DataRetentionJanitor extends Janitor {
     super(logger)
   }
 
-  @Memoize
+  @Memoize()
   private async getBotpressConfig(): Promise<BotpressConfig> {
     return this.configProvider.getBotpressConfig()
   }
@@ -35,14 +35,13 @@ export class DataRetentionJanitor extends Janitor {
   }
 
   protected async runTask(): Promise<void> {
-    const expiredData = await this.dataRetentionService.getExpired()
+    const expired = await this.dataRetentionService.getExpired()
 
-    for (const expired of expiredData) {
-      const { channel, user_id, field_path } = expired
+    await Promise.mapSeries(expired, async ({ channel, user_id, field_path }) => {
       const { result: user } = await this.userRepo.getOrCreate(channel, user_id)
 
       await this.userRepo.updateAttributes(channel, user.id, _.omit(user.attributes, field_path))
       await this.dataRetentionService.delete(channel, user_id, field_path)
-    }
+    })
   }
 }

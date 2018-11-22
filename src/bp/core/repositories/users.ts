@@ -81,7 +81,7 @@ export class KnexUserRepository implements UserRepository {
 
     if (await this.dataRetentionService.hasPolicy()) {
       const originalAttributes = await this.getAttributes(channel, user_id)
-      await this.dataRetentionService.checkChanges(channel, user_id, originalAttributes, attributes)
+      await this.dataRetentionService.updateExpirationForChangedFields(channel, user_id, originalAttributes, attributes)
     }
 
     await this.database
