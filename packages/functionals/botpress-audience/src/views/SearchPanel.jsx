@@ -1,7 +1,7 @@
 import React from 'react'
 
 import SearchEntry from './SearchEntry'
-import { Button, ControlLabel, Form, Glyphicon, ButtonGroup } from 'react-bootstrap'
+import { Button, ControlLabel, Form, ButtonGroup } from 'react-bootstrap'
 
 import _ from 'lodash'
 
