@@ -20,6 +20,7 @@ import { ModuleLoader } from './module-loader'
 import HTTPServer from './server'
 import { GhostService } from './services'
 import { CMS } from './services/cms/cms'
+import { converseApiEvents } from './services/converse'
 import { DecisionEngine } from './services/dialog/decision-engine'
 import { DialogEngine, ProcessingError } from './services/dialog/engine'
 import { DialogJanitor } from './services/dialog/janitor'
@@ -158,6 +159,7 @@ export class Botpress {
 
       const sessionId = SessionIdFactory.createIdFromEvent(event)
       await this.decisionEngine.processEvent(sessionId, event)
+      await converseApiEvents.emit('done', event)
     }
 
     this.stateManager.initialize()

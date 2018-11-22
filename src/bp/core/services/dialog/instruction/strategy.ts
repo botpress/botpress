@@ -1,4 +1,5 @@
 import { IO, Logger } from 'botpress/sdk'
+import { converseApiEvents } from 'core/services/converse'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import Mustache from 'mustache'
@@ -44,6 +45,7 @@ export class ActionStrategy implements InstructionStrategy {
     if (instruction.fn.indexOf('say ') === 0) {
       return this.invokeOutputProcessor(botId, instruction, event)
     } else {
+      await converseApiEvents.emit('action.running', event)
       return this.invokeAction(botId, instruction, event)
     }
   }

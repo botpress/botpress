@@ -4,7 +4,6 @@ import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 
-import { converseEvents } from '../converse'
 import { EventEngine } from '../middleware/event-engine'
 import { StateManager } from '../middleware/state-manager'
 
@@ -32,9 +31,6 @@ export class DecisionEngine {
     if (!event.hasFlag(WellKnownFlags.SKIP_DIALOG_ENGINE)) {
       const processedEvent = await this.dialogEngine.processEvent(sessionId, event)
       await this.stateManager.persist(processedEvent, false)
-      await converseEvents.emit('done', {
-        target: event.target
-      })
     }
   }
 

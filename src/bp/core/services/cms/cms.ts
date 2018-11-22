@@ -403,15 +403,6 @@ export class CMS implements IDisposeOnExit {
     return !contentType.computePreviewText ? 'No preview' : contentType.computePreviewText(formData)
   }
 
-  private computeData(contentTypeId, formData) {
-    const contentType = this.contentTypes.find(x => x.id === contentTypeId)
-    if (!contentType) {
-      throw new Error(`Unknown content type ${contentTypeId}`)
-    }
-
-    return !contentType.computeData ? formData : contentType.computeData(contentTypeId, formData)
-  }
-
   async renderElement(contentTypeId, payload, channel) {
     const contentType = await this.getContentType(contentTypeId)
     const additionnalData = { BOT_URL: process.EXTERNAL_URL }
