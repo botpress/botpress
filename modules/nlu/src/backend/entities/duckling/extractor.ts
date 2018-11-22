@@ -46,7 +46,7 @@ export class DucklingEntityExtractor {
         return {
           value: rawVal.value,
           unit: rawVal.grain,
-          extras: rawVal.values.lenght ? rawVal.values : {}
+          extras: rawVal.values.length ? rawVal.values : {}
         }
       default:
         return {

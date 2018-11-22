@@ -142,7 +142,7 @@ input text : `Let's go for a 5 miles run`
 
 We use [Duckling](https://github.com/facebook/duckling) under the hood for known entity extraction like Time, Ordinals and Quantities.
 
-At the moment, Duckling is hosted on our remote servers. If you don't want your data to be sent to our servers, you can either disable this feature by setting `ducklingEnabled` to `false` or host your own duckling server and change the `ducklingURL` to your the in your `data/global/config/nlu.json` file.
+At the moment, Duckling is hosted on our remote servers. If you don't want your data to be sent to our servers, you can either disable this feature by setting `ducklingEnabled` to `false` or host your own duckling server and change the `ducklingURL` to the `data/global/config/nlu.json` config file.
 
 ##### Example
 
