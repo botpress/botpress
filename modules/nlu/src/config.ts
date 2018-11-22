@@ -24,15 +24,15 @@ export interface Config {
   /**
    * The minimum confidence required (in %) for an intent to match
    * Set to '0' to always match
-   * @default 0.3
+   * @default 0.7
    */
-  minimumConfidence: string
+  minimumConfidence: number
   /**
    * The maximum confidence after which it is considered a statistical error
    * Mostly irrelevant
-   * @default 100
+   * @default 1
    */
-  maximumConfidence: string
+  maximumConfidence: number
 
   recastToken?: string
   recastUserSlug?: string

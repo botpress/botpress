@@ -1,12 +1,9 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
-import { Link, NavLink } from 'react-router-dom'
 import classnames from 'classnames'
 
-import { toggleLicenseModal, toggleAboutModal, fetchAllBots } from '~/actions'
 import Select from 'react-select'
 import _ from 'lodash'
 
@@ -21,36 +18,6 @@ class SidebarFooter extends React.Component {
 
   static contextTypes = {
     router: PropTypes.object.isRequired
-  }
-
-  componentDidMount() {
-    this.props.fetchAllBots()
-  }
-
-  openLicenseComponent = () => {
-    this.props.toggleLicenseModal()
-  }
-
-  openAbout = () => {
-    this.props.toggleAboutModal()
-  }
-
-  renderStatusDiv(message) {
-    const limit = this.props.license.limit
-
-    const statusClassNames = classnames(style.status, 'bp-status')
-
-    const dotClassNames = classnames(style.dot, 'bp-dot', {
-      [style.reached]: limit && limit.get('reached'),
-      ['bp-reached']: limit && limit.get('reached')
-    })
-
-    return (
-      <div className={statusClassNames}>
-        <div className={dotClassNames} />
-        {message}
-      </div>
-    )
   }
 
   renderLicenseStatus() {
@@ -116,10 +83,7 @@ const mapStateToProps = state => ({
   bots: state.bots
 })
 
-const mapDispatchToProps = dispatch =>
-  bindActionCreators({ toggleLicenseModal, toggleAboutModal, fetchAllBots }, dispatch)
-
 export default connect(
   mapStateToProps,
-  mapDispatchToProps
+  null
 )(SidebarFooter)

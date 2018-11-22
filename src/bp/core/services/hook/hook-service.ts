@@ -88,7 +88,7 @@ export namespace Hooks {
 }
 
 class HookScript {
-  constructor(public hook: Hooks.BaseHook, public path: string, public filename: string, public code: string) {}
+  constructor(public path: string, public filename: string, public code: string) {}
 }
 
 @injectable()
@@ -116,7 +116,7 @@ export class HookService {
 
   async executeHook(hook: Hooks.BaseHook): Promise<void> {
     const scripts = await this.extractScripts(hook)
-    await Promise.mapSeries(_.orderBy(scripts, ['filename'], ['asc']), script => this.runScript(script))
+    await Promise.mapSeries(_.orderBy(scripts, ['filename'], ['asc']), script => this.runScript(script, hook))
   }
 
   private async extractScripts(hook: Hooks.BaseHook): Promise<HookScript[]> {
@@ -130,7 +130,7 @@ export class HookService {
       const scripts = await Promise.map(filesPaths, async path => {
         const script = await this.ghost.global().readFileAsString('hooks/' + hook.folder, path)
         const filename = path.replace(/^.*[\\\/]/, '')
-        return new HookScript(hook, path, filename, script)
+        return new HookScript(path, filename, script)
       })
 
       this._scriptsCache.set(hook.folder, scripts)
@@ -155,11 +155,11 @@ export class HookService {
     return module => requireAtPaths(module, lookups)
   }
 
-  private async runScript(hookScript: HookScript) {
-    const hookPath = `/data/global/hooks/${hookScript.hook.folder}/${hookScript.path}.js`
+  private async runScript(hookScript: HookScript, hook: Hooks.BaseHook) {
+    const hookPath = `/data/global/hooks/${hook.folder}/${hookScript.path}.js`
     const dirPath = path.resolve(path.join(process.PROJECT_LOCATION, hookPath))
 
-    const _require = this._prepareRequire(path.dirname(dirPath), hookScript.hook.folder)
+    const _require = this._prepareRequire(path.dirname(dirPath), hook.folder)
 
     const modRequire = new Proxy(
       {},
@@ -172,23 +172,23 @@ export class HookService {
       wrapper: 'none',
       console: 'inherit',
       sandbox: {
-        ...hookScript.hook.args,
+        ...hook.args,
         process: _.pick(process, 'HOST', 'PORT', 'EXTERNAL_URL', 'env')
       },
-      timeout: hookScript.hook.timeout,
+      timeout: hook.timeout,
       require: {
         external: true,
         mock: modRequire
       }
     })
 
-    const botId = _.get(hookScript.hook.args, 'event.botId')
+    const botId = _.get(hook.args, 'event.botId')
     const vmRunner = new VmRunner()
 
     await vmRunner.runInVm(vm, hookScript.code, hookScript.path).catch(err => {
-      this.logScriptError(err, botId, hookScript.path, hookScript.hook.folder)
+      this.logScriptError(err, botId, hookScript.path, hook.folder)
     })
-    this.logScriptRun(botId, hookScript.path, hookScript.hook.folder)
+    this.logScriptRun(botId, hookScript.path, hook.folder)
   }
 
   private logScriptError(err, botId, path, folder) {

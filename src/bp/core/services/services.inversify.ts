@@ -8,7 +8,6 @@ import ActionService from './action/action-service'
 import { AdminContainerModule } from './admin/admin.inversify'
 import AuthService from './auth/auth-service'
 import { CMSService } from './cms/cms-service'
-import { ContentElementSender } from './cms/content-sender'
 import { SkillService } from './dialog/skill/service'
 import { GhostContainerModule } from './ghost/ghost.inversify'
 import { HookService } from './hook/hook-service'
@@ -79,10 +78,6 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
 
   bind<KeyValueStore>(TYPES.KeyValueStore)
     .to(KeyValueStore)
-    .inSingletonScope()
-
-  bind<ContentElementSender>(TYPES.ContentElementSender)
-    .to(ContentElementSender)
     .inSingletonScope()
 
   bind<SkillService>(TYPES.SkillService)

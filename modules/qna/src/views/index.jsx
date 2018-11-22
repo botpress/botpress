@@ -54,7 +54,9 @@ export default class QnaAdmin extends Component {
 
   fetchFlows() {
     this.props.bp.axios.get('/flows').then(({ data }) => {
-      const flowsList = data.map(({ name }) => ({ label: name, value: name }))
+      const flowsList = data
+        .filter(flow => !flow.name.startsWith('skills/'))
+        .map(({ name }) => ({ label: name, value: name }))
 
       this.setState({ flows: data, flowsList })
     })
