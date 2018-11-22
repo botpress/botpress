@@ -2,6 +2,30 @@ const base = require('./_base.js')
 const Card = require('./builtin_card')
 const url = require('url')
 
+function render(data) {
+  return {
+    text: ' ',
+    type: 'carousel',
+    elements: data.items.map(card => ({
+      title: card.title,
+      picture: card.image ? url.resolve(data.BOT_URL, card.image) : null,
+      subtitle: card.subtitle,
+      buttons: (card.actions || []).map(a => {
+        if (a.action === 'Say something') {
+          throw new Error('Webchat carousel does not support "Say something" action-buttons at the moment')
+        } else if (a.action === 'Open URL') {
+          return {
+            title: a.title,
+            url: a.url
+          }
+        } else {
+          throw new Error(`Webchat carousel does not support "${a.action}" action-buttons at the moment`)
+        }
+      })
+    }))
+  }
+}
+
 function renderForWeb(data) {
   const events = []
 
@@ -12,35 +36,18 @@ function renderForWeb(data) {
     })
   }
 
-  return [
-    ...events,
-    {
-      text: ' ',
-      type: 'carousel',
-      elements: data.items.map(card => ({
-        title: card.title,
-        picture: card.image ? url.resolve(data.BOT_URL, card.image) : null,
-        subtitle: card.subtitle,
-        buttons: (card.actions || []).map(a => {
-          if (a.action === 'Say something') {
-            throw new Error('Webchat carousel does not support "Say something" action-buttons at the moment')
-          } else if (a.action === 'Open URL') {
-            return {
-              title: a.title,
-              url: a.url
-            }
-          } else {
-            throw new Error(`Webchat carousel does not support "${a.action}" action-buttons at the moment`)
-          }
-        })
-      }))
-    }
-  ]
+  return [...events, render(data)]
+}
+
+function renderForApi(data) {
+  return [render(data)]
 }
 
 function renderElement(data, channel) {
   if (channel === 'web') {
     return renderForWeb(data)
+  } else if (channel === 'api') {
+    return renderForApi(data)
   }
 
   return [] // TODO Handle channel not supported
