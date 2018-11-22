@@ -70,9 +70,28 @@ export class ConverseService {
       target: userId,
       botId
     })
+
     await this.eventEngine.sendEvent(incomingEvent)
 
-    const timeoutPromise = new Promise(resolve => {
+    const timeoutPromise = this._createTimeoutPromise(userId)
+    const donePromise = this._createDonePromise(userId)
+
+    return Promise.race([timeoutPromise, donePromise])
+  }
+
+  private _createDonePromise(userId) {
+    return new Promise(resolve => {
+      converseApiEvents.on('done', event => {
+        if (event.target === userId) {
+          const json = this.jsonMap.get(event.target)
+          return resolve(json)
+        }
+      })
+    })
+  }
+
+  private _createTimeoutPromise(userId) {
+    return new Promise(resolve => {
       converseApiEvents.on('action.running', event => {
         if (event.target === userId) {
           // ignore
@@ -84,16 +103,6 @@ export class ConverseService {
         }
       })
     })
-    const donePromise = new Promise(resolve => {
-      converseApiEvents.on('done', event => {
-        if (event.target === userId) {
-          const json = this.jsonMap.get(event.target)
-          return resolve(json)
-        }
-      })
-    })
-
-    return Promise.race([timeoutPromise, donePromise])
   }
 
   private _handleCapturePayload(event) {
