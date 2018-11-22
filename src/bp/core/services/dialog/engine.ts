@@ -222,7 +222,7 @@ export class DialogEngine {
         ...context,
         currentNode: parentNode.name,
         currentFlow: parentFlow.name,
-        queue: queue.toString()
+        queue
       }
       this._logExitFlow(event.botId, context.currentFlow, context.currentFlow, parentFlow.name, parentNode.name)
     } else if (transitionTo === 'END') {

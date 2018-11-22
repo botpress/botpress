@@ -1,5 +1,7 @@
 import { IO, Logger } from 'botpress/sdk'
+import { CMS } from 'core/services/cms/cms'
 import { converseApiEvents } from 'core/services/converse'
+import { EventEngine } from 'core/services/middleware/event-engine'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import Mustache from 'mustache'
@@ -9,7 +11,6 @@ import { container } from '../../../app.inversify'
 import { TYPES } from '../../../types'
 import ActionService from '../../action/action-service'
 import { VmRunner } from '../../action/vm'
-import { ContentElementSender } from '../../cms/content-sender'
 
 import { Instruction, InstructionType, ProcessingResult } from '.'
 
@@ -38,7 +39,8 @@ export class ActionStrategy implements InstructionStrategy {
     @tagged('name', 'Actions')
     private logger: Logger,
     @inject(TYPES.ActionService) private actionService: ActionService,
-    @inject(TYPES.ContentElementSender) private contentElementSender: ContentElementSender
+    @inject(TYPES.EventEngine) private eventEngine: EventEngine,
+    @inject(TYPES.CMS) private cms: CMS
   ) {}
 
   async processInstruction(botId, instruction, event): Promise<ProcessingResult> {
@@ -78,7 +80,15 @@ export class ActionStrategy implements InstructionStrategy {
 
     event.state.session.lastMessages.push(message)
 
-    await this.contentElementSender.sendContent(outputType, args, event)
+    args = {
+      ...args,
+      state: _.get(event, 'state.context.data') || {},
+      user: _.get(event, 'state.user') || {}
+    }
+
+    const eventDestination = _.pick(event, ['channel', 'target', 'botId', 'threadId'])
+    const renderedElements = await this.cms.renderElement(outputType, args, eventDestination)
+    await this.eventEngine.replyToEvent(eventDestination, renderedElements)
 
     return ProcessingResult.none()
   }

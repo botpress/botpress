@@ -163,25 +163,16 @@ declare module 'botpress/sdk' {
      * that make up a conversation. That means the different message types (text, image, buttons, carousels etc) but also
      * the navigational events (chat open, user typing) and contextual events (user returned home, order delivered).
      */
-    export interface Event {
+    export type Event = EventDestination & {
       readonly id: Number
       /** The type of the event, i.e. image, text, timeout, etc */
       readonly type: string
-      /** The channel of communication, i.e web, messenger, twillio */
-      readonly channel: string
-      /** Who will receive this message, usually a user id */
-      readonly target: string
       /** Is it (in)coming from the user to the bot or (out)going from the bot to the user? */
       readonly direction: EventDirection
       /** The channel-specific raw payload */
       readonly payload: any
-      /** The id of the bot on which this event is relating to  */
-      readonly botId: string
-      /** The id of the thread this message is relating to (only on supported channels) */
-      readonly threadId?: string
       /** A textual representation of the event */
       readonly preview: string
-
       /**
        * Check if the event has a specific flag
        * @param flag The flag symbol to verify. {@link IO.WellKnownFlags} to know more about existing flags
@@ -196,6 +187,20 @@ declare module 'botpress/sdk' {
        * @example event.setFlag(bp.IO.WellKnownFlags.SKIP_DIALOG_ENGINE, true)
        */
       setFlag(flag: symbol, value: boolean): void
+    }
+
+    /**
+     * The EventDestination includes all the required parameters to correctly dispatch the event to the correct target
+     */
+    export interface EventDestination {
+      /** The channel of communication, i.e web, messenger, twillio */
+      readonly channel: string
+      /** Who will receive this message, usually a user id */
+      readonly target: string
+      /** The id of the bot on which this event is relating to  */
+      readonly botId: string
+      /** The id of the thread this message is relating to (only on supported channels) */
+      readonly threadId?: string
     }
 
     export interface IncomingEvent extends Event {
@@ -225,7 +230,7 @@ declare module 'botpress/sdk' {
       previousNode?: string
       currentNode?: string
       currentFlow?: string
-      queue?: string
+      queue?: any
       data?: any
     }
 
@@ -408,11 +413,6 @@ declare module 'botpress/sdk' {
      * This function resides in the javascript definition of the Content Type.
      */
     computePreviewText?: (formData: object) => string
-    /**
-     * Function that computes the form data of the content type.
-     * This function resides in the javascript definition of the Content Type.
-     */
-    computeData?: (typeId: string, formData: object) => object
   }
 
   /**
@@ -646,10 +646,10 @@ declare module 'botpress/sdk' {
      * and will send a complete event with each payloads. It is often paired with
      * {@link cms.renderElement} to generate payload for a specific content type
      *
-     * @param event - An original event to reply to
+     * @param eventDestination - The destination to identify the target
      * @param payloads - One or multiple payloads to send
      */
-    export function replyToEvent(event: IO.Event, payloads: any[]): void
+    export function replyToEvent(eventDestination: IO.EventDestination, payloads: any[]): void
   }
 
   export type GetOrCreateResult<T> = Promise<{
@@ -682,10 +682,10 @@ declare module 'botpress/sdk' {
    */
   export namespace dialog {
     /**
-     * Create a session Id from a Botpress Event
-     * @param event The event used to create the Dialog Session Id
+     * Create a session Id from an Event Destination
+     * @param eventDestination The event used to create the Dialog Session Id
      */
-    export function createId(event: IO.Event): Promise<string>
+    export function createId(eventDestination: IO.EventDestination): string
     /**
      * Calls the dialog engine to start processing an event.
      * @param event The event to be processed by the dialog engine
@@ -781,14 +781,26 @@ declare module 'botpress/sdk' {
 
     export function getAllContentTypes(botId?: string): Promise<ContentType[]>
     /**
-     * Use a specific content type renderer to parse the data and returns one or multiple payloads that may then be send to a user.
-     * The channel is important since the data is displayed differently on different platforms.
-     * @param contentTypeId - The ID of the content type
-     * @param payload - The payload must match the data that the content type requires
-     * @param channel - The name of the channel where the payload will be used
+     * Content Types can produce multiple payloads depending on the channel and the type of message. This method can generate
+     * payloads for a specific content element or generate them for a custom payload.
+     * They can then be sent to the event engine, which sends them through the outgoing middlewares, straight to the user
+     *
+     * @param contentId - Can be a ContentType (ex: "builtin_text") or a ContentElement (ex: "!builtin_text-s6x5c6")
+     * @param args - Required arguments by the content type (or the content element)
+     * @param eventDestination - The destination of the payload (to extract the botId and channel)
+     *
+     * @example const eventDestination = { target: 'user123', botId: 'welcome-bot', channel: 'web', threadId: 1 }
+     * @example const payloads = await bp.cms.renderElement('builtin_text', {type: 'text', text: 'hello'}, eventDestination)
+     * @example await bp.events.replyToEvent(eventDestination, payloads)
+     *
      * @returns An array of payloads
      */
-    export function renderElement(contentTypeId: string, payload: any, channel: string): Promise<object[]>
+    export function renderElement(
+      contentId: string,
+      args: any,
+      eventDestination: IO.EventDestination
+    ): Promise<object[]>
+
     export function createOrUpdateContentElement(
       botId: string,
       contentTypeId: string,
