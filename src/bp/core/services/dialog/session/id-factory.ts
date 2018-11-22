@@ -3,7 +3,7 @@ import { IO } from 'botpress/sdk'
 export class SessionIdFactory {
   static createIdFromEvent(eventDestination: IO.EventDestination) {
     const { channel, target, threadId } = eventDestination
-    return `${channel}::${target}::${threadId}`
+    return `${channel}::${target}${threadId ? `::${threadId}` : ''}`
   }
 
   static createTargetFromId(sessionId: string) {
