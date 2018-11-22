@@ -47,7 +47,7 @@ export class ActionStrategy implements InstructionStrategy {
     if (instruction.fn.indexOf('say ') === 0) {
       return this.invokeOutputProcessor(botId, instruction, event)
     } else {
-      await converseApiEvents.emit('action.running', event)
+      await converseApiEvents.emitAsync('action.running', event)
       return this.invokeAction(botId, instruction, event)
     }
   }

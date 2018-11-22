@@ -156,10 +156,9 @@ export class Botpress {
 
     this.eventEngine.onAfterIncomingMiddleware = async (event: sdk.IO.IncomingEvent) => {
       await this.hookService.executeHook(new Hooks.AfterIncomingMiddleware(this.api, event))
-
       const sessionId = SessionIdFactory.createIdFromEvent(event)
       await this.decisionEngine.processEvent(sessionId, event)
-      await converseApiEvents.emit('done', event)
+      await converseApiEvents.emitAsync('done', event)
     }
 
     this.stateManager.initialize()

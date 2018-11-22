@@ -9,7 +9,7 @@ import { Event } from '../sdk/impl'
 
 import { EventEngine } from './middleware/event-engine'
 
-export const converseApiEvents = new EventEmitter2({ maxListeners: 100 })
+export const converseApiEvents = new EventEmitter2()
 
 @injectable()
 export class ConverseService {
@@ -81,9 +81,10 @@ export class ConverseService {
 
   private _createDonePromise(userId) {
     return new Promise(resolve => {
-      converseApiEvents.on('done', event => {
+      converseApiEvents.once('done', event => {
         if (event.target === userId) {
           const json = this.jsonMap.get(event.target)
+          this.jsonMap.delete(event.target)
           return resolve(json)
         }
       })
@@ -115,18 +116,22 @@ export class ConverseService {
       }
       this.jsonMap.set(event.target, json)
     } else {
-      this.jsonMap.set(event.target, {})
+      const json = {
+        response: [event.payload],
+        state: _.get(event, 'state', {})
+      }
+      this.jsonMap.set(event.target, json)
     }
   }
 
   private _handleCaptureNlu(event) {
     if (this.jsonMap.has(event.target)) {
       let json = this.jsonMap.get(event.target)
-      const nlu = _.get(event, 'nlu', {})
-      json = { ...json, nlu }
+      json = { ...json, nlu: _.get(event, 'nlu', {}) }
       this.jsonMap.set(event.target, json)
     } else {
-      this.jsonMap.set(event.target, {})
+      const json = { nlu: _.get(event, 'nlu', {}) }
+      this.jsonMap.set(event.target, json)
     }
   }
 }
