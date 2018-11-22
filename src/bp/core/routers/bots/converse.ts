@@ -12,10 +12,6 @@ export class ConverseRouter implements CustomRouter {
     this.setupRoutes()
   }
 
-  // Listen for an event that tells the engine is done processing
-  // If the event match, return the content[]
-  // Check for timeout, if an action is running
-
   setupRoutes() {
     this.router.post('/:userId', async (req, res) => {
       const { userId, botId } = req.params

@@ -1,4 +1,3 @@
-import Database from 'core/database'
 import { UserRepository } from 'core/repositories'
 import { TYPES } from 'core/types'
 import { InvalidParameterError } from 'errors'
@@ -12,50 +11,11 @@ import { EventEngine } from './middleware/event-engine'
 
 export const converseApiEvents = new EventEmitter2({ maxListeners: 100 })
 
-export class ConverseResponseBuilder {
-  response: object[] = []
-  state: object[] | undefined
-  nlu: object[] | undefined
-
-  addResponse(response): this {
-    this.response.push(response)
-    return this
-  }
-
-  clearResponses(): this {
-    this.response = []
-    return this
-  }
-
-  withState(state): this {
-    this.state = state
-    return this
-  }
-
-  withNlu(nlu): this {
-    this.nlu = nlu
-    return this
-  }
-
-  build() {
-    let output = { response: this.response }
-    if (this.nlu) {
-      output = Object.assign({ nlu: this.nlu }, output)
-    }
-    if (this.state) {
-      output = Object.assign({ state: this.state }, output)
-    }
-    return output
-  }
-}
-
 @injectable()
 export class ConverseService {
-  // responsesPerEvent: Map<string, object[]> = new Map()
-  responseBuilderMap: Map<string, ConverseResponseBuilder> = new Map()
+  jsonMap: Map<string, object> = new Map()
 
   constructor(
-    @inject(TYPES.Database) private db: Database,
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
     @inject(TYPES.UserRepository) private userRepository: UserRepository
   ) {}
@@ -68,15 +28,7 @@ export class ConverseService {
       order: 10000,
       direction: 'outgoing',
       handler: (event, next) => {
-        if (this.responseBuilderMap.has(event.target)) {
-          const builder = this.responseBuilderMap.get(event.target) as ConverseResponseBuilder
-          builder.addResponse(event.payload)
-          event['state'] && builder.withState(event['state'])
-          this.responseBuilderMap.set(event.target, builder)
-        } else {
-          this.responseBuilderMap.set(event.target, new ConverseResponseBuilder())
-        }
-
+        this._handleCapturePayload(event)
         next()
       }
     })
@@ -86,20 +38,13 @@ export class ConverseService {
       order: 10000,
       direction: 'incoming',
       handler: (event, next) => {
-        if (this.responseBuilderMap.has(event.target)) {
-          const builder = this.responseBuilderMap.get(event.target) as ConverseResponseBuilder
-          event['nlu'] && builder.withNlu(event['nlu'])
-          this.responseBuilderMap.set(event.target, builder)
-        } else {
-          this.responseBuilderMap.set(event.target, new ConverseResponseBuilder())
-        }
-
+        this._handleCaptureNlu(event)
         next()
       }
     })
   }
 
-  async sendMessage(botId: string, userId: string, payload): Promise<any> {
+  public async sendMessage(botId: string, userId: string, payload): Promise<any> {
     if (!payload.text || !_.isString(payload.text) || payload.text.length > 360) {
       throw new InvalidParameterError('Text must be a valid string of less than 360 chars')
     }
@@ -130,29 +75,49 @@ export class ConverseService {
     const timeoutPromise = new Promise(resolve => {
       converseApiEvents.on('action.running', event => {
         if (event.target === userId) {
-          // Ignore. Let the action run.
+          // ignore
         } else {
           const wait = setTimeout(() => {
             clearTimeout(wait)
-            // TODO: Use reject on donePromise and use a proper Error
-            resolve({ error: 'Request timed out!' })
-          }, 100)
+            resolve({ error: 'Request timed out!' }) // TODO: Use reject on promise and use an error
+          }, 1000)
         }
       })
     })
     const donePromise = new Promise(resolve => {
       converseApiEvents.on('done', event => {
         if (event.target === userId) {
-          // const result = this.responsesPerEvent.get(res.target)
-          const builder = this.responseBuilderMap.get(event.target) as ConverseResponseBuilder
-          const response = builder.build()
-          // const responseCopy = _.cloneDeep(response) // Complete copy. Not a reference
-          // this.responseBuilderMap.delete(event.target)
-          // return resolve(responseCopy)
-          return resolve(response)
+          const json = this.jsonMap.get(event.target)
+          return resolve(json)
         }
       })
     })
+
     return Promise.race([timeoutPromise, donePromise])
+  }
+
+  private _handleCapturePayload(event) {
+    if (this.jsonMap.has(event.target)) {
+      let json = this.jsonMap.get(event.target)
+      json = {
+        ...json,
+        response: [..._.get(json, 'response', []), event.payload],
+        state: _.get(event, 'state', {})
+      }
+      this.jsonMap.set(event.target, json)
+    } else {
+      this.jsonMap.set(event.target, {})
+    }
+  }
+
+  private _handleCaptureNlu(event) {
+    if (this.jsonMap.has(event.target)) {
+      let json = this.jsonMap.get(event.target)
+      const nlu = _.get(event, 'nlu', {})
+      json = { ...json, nlu }
+      this.jsonMap.set(event.target, json)
+    } else {
+      this.jsonMap.set(event.target, {})
+    }
   }
 }
