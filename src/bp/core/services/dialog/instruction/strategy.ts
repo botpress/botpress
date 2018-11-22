@@ -1,5 +1,5 @@
 import { IO, Logger } from 'botpress/sdk'
-import { CMS } from 'core/services/cms/cms'
+import { CMSService } from 'core/services/cms'
 import { converseApiEvents } from 'core/services/converse'
 import { EventEngine } from 'core/services/middleware/event-engine'
 import { inject, injectable, tagged } from 'inversify'
@@ -40,14 +40,14 @@ export class ActionStrategy implements InstructionStrategy {
     private logger: Logger,
     @inject(TYPES.ActionService) private actionService: ActionService,
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
-    @inject(TYPES.CMS) private cms: CMS
+    @inject(TYPES.CMSService) private cms: CMSService
   ) {}
 
   async processInstruction(botId, instruction, event): Promise<ProcessingResult> {
     if (instruction.fn.indexOf('say ') === 0) {
       return this.invokeOutputProcessor(botId, instruction, event)
     } else {
-      await converseApiEvents.emitAsync('action.running', event)
+      await converseApiEvents.emitAsync(`action.${event.target}`, event)
       return this.invokeAction(botId, instruction, event)
     }
   }

@@ -8,7 +8,7 @@ import { ConfigProvider } from './config/config-loader'
 import Database from './database'
 import { ModuleLoader } from './module-loader'
 import { GhostService } from './services'
-import { CMS } from './services/cms/cms'
+import { CMSService } from './services/cms'
 import { Hooks, HookService } from './services/hook/hook-service'
 import { TYPES } from './types'
 
@@ -18,7 +18,7 @@ export class BotLoader {
     @inject(TYPES.Logger)
     @tagged('name', 'BotLoader')
     private logger: Logger,
-    @inject(TYPES.CMS) private cms: CMS,
+    @inject(TYPES.CMSService) private cms: CMSService,
     @inject(TYPES.Database) private database: Database,
     @inject(TYPES.GhostService) private ghost: GhostService,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,

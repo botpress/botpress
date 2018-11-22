@@ -12,7 +12,7 @@ const TYPES = {
   ProjectLocation: Symbol.for('ProjectLocation'),
   GhostService: Symbol.for('GhostService'),
   IsProduction: Symbol.for('IsProduction'),
-  CMS: Symbol.for('CMS'),
+  CMSService: Symbol.for('CMSService'),
   InMemoryDatabase: Symbol.for('InMemoryDatabase'),
   FlowService: Symbol.for('FlowService'),
   BotLoader: Symbol.for('BotLoader'),

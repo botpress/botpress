@@ -13,7 +13,8 @@ export const converseApiEvents = new EventEmitter2()
 
 @injectable()
 export class ConverseService {
-  jsonMap: Map<string, object> = new Map()
+  private readonly timeoutInMs = 2500
+  private jsonMap: Map<string, object> = new Map()
 
   constructor(
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
@@ -49,18 +50,7 @@ export class ConverseService {
       throw new InvalidParameterError('Text must be a valid string of less than 360 chars')
     }
 
-    const sanitizedPayload = _.pick(payload, ['text', 'type', 'data', 'raw'])
-
-    // We remove the password from the persisted messages for security reasons
-    if (payload.type === 'login_prompt') {
-      sanitizedPayload.data = _.omit(sanitizedPayload.data, ['password'])
-    }
-
-    if (payload.type === 'form') {
-      sanitizedPayload.data.formId = payload.formId
-    }
-
-    const { result: user } = await this.userRepository.getOrCreate('api', userId)
+    await this.userRepository.getOrCreate('api', userId)
 
     const incomingEvent = Event({
       type: 'text',
@@ -79,58 +69,83 @@ export class ConverseService {
     return Promise.race([timeoutPromise, donePromise])
   }
 
-  private _createDonePromise(userId) {
-    return new Promise(resolve => {
-      converseApiEvents.once('done', event => {
-        if (event.target === userId) {
+  private async _createDonePromise(userId) {
+    return new Promise((resolve, reject) => {
+      const doneEvent = `done.${userId}`
+
+      converseApiEvents.removeAllListeners(doneEvent)
+      converseApiEvents.once(doneEvent, event => {
+        if (this.jsonMap.has(event.target)) {
           const json = this.jsonMap.get(event.target)
           this.jsonMap.delete(event.target)
+
           return resolve(json)
+        } else {
+          return reject(`No responses found for event target "${event.target}".`)
         }
       })
     })
   }
 
-  private _createTimeoutPromise(userId) {
-    return new Promise(resolve => {
-      converseApiEvents.on('action.running', event => {
-        if (event.target === userId) {
-          // ignore
-        } else {
-          const wait = setTimeout(() => {
-            clearTimeout(wait)
-            resolve({ error: 'Request timed out!' }) // TODO: Use reject on promise and use an error
-          }, 1000)
-        }
+  private async _createTimeoutPromise(userId) {
+    return new Promise((resolve, reject) => {
+      const actionEvent = `action.${userId}`
+
+      converseApiEvents.on(actionEvent, event => {
+        return this._handleTimeout(event, reject)
       })
     })
+  }
+
+  private _handleTimeout(event, callback) {
+    const wait = setTimeout(() => {
+      clearTimeout(wait)
+      converseApiEvents.removeAllListeners(`action.${event.target}`)
+      converseApiEvents.removeAllListeners(`done.${event.target}`)
+      this.jsonMap.delete(event.target)
+
+      return callback('Request timed out.')
+    }, this.timeoutInMs)
   }
 
   private _handleCapturePayload(event) {
+    if (event.channel !== 'api') {
+      return
+    }
+
     if (this.jsonMap.has(event.target)) {
       let json = this.jsonMap.get(event.target)
+      const responses = _.get(json, 'responses', [])
+      const state = _.get(event, 'state', {})
       json = {
         ...json,
-        response: [..._.get(json, 'response', []), event.payload],
-        state: _.get(event, 'state', {})
+        responses: [...responses, event.payload],
+        state
       }
       this.jsonMap.set(event.target, json)
     } else {
+      const state = _.get(event, 'state', {})
       const json = {
-        response: [event.payload],
-        state: _.get(event, 'state', {})
+        responses: [event.payload],
+        state
       }
       this.jsonMap.set(event.target, json)
     }
   }
 
   private _handleCaptureNlu(event) {
+    if (event.channel !== 'api') {
+      return
+    }
+
     if (this.jsonMap.has(event.target)) {
       let json = this.jsonMap.get(event.target)
-      json = { ...json, nlu: _.get(event, 'nlu', {}) }
+      const nlu = _.get(event, 'nlu', {})
+      json = { ...json, nlu }
       this.jsonMap.set(event.target, json)
     } else {
-      const json = { nlu: _.get(event, 'nlu', {}) }
+      const nlu = _.get(event, 'nlu', {})
+      const json = { nlu }
       this.jsonMap.set(event.target, json)
     }
   }

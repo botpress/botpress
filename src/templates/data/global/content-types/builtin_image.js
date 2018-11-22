@@ -4,13 +4,6 @@ const url = require('url')
 const { tail } = _
 
 function render(data) {
-  return {
-    type: 'file',
-    url: url.resolve(data.BOT_URL, data.image)
-  }
-}
-
-function renderForWeb(data) {
   const events = []
 
   if (data.typing) {
@@ -20,18 +13,18 @@ function renderForWeb(data) {
     })
   }
 
-  return [...events, render(data)]
-}
-
-function renderForApi(data) {
-  return [render(data)]
+  return [
+    ...events,
+    {
+      type: 'file',
+      url: url.resolve(data.BOT_URL, data.image)
+    }
+  ]
 }
 
 function renderElement(data, channel) {
-  if (channel === 'web') {
-    return renderForWeb(data)
-  } else if (channel === 'api') {
-    return renderForApi(data)
+  if (channel === 'web' || channel === 'api') {
+    return render(data)
   }
 
   return [] // TODO Handle channel not supported
