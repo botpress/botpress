@@ -90,22 +90,17 @@ export class ConverseService {
   private async _createTimeoutPromise(userId) {
     return new Promise((resolve, reject) => {
       const actionEvent = `action.${userId}`
+      const wait = setTimeout(() => {
+        converseApiEvents.removeAllListeners(`action.${userId}`)
+        converseApiEvents.removeAllListeners(`done.${userId}`)
+        this.jsonMap.delete(userId)
+        reject('Request timed out.')
+      }, this.timeoutInMs)
 
-      converseApiEvents.on(actionEvent, event => {
-        return this._handleTimeout(event, reject)
+      converseApiEvents.on(actionEvent, () => {
+        clearTimeout(wait)
       })
     })
-  }
-
-  private _handleTimeout(event, callback) {
-    const wait = setTimeout(() => {
-      clearTimeout(wait)
-      converseApiEvents.removeAllListeners(`action.${event.target}`)
-      converseApiEvents.removeAllListeners(`done.${event.target}`)
-      this.jsonMap.delete(event.target)
-
-      return callback('Request timed out.')
-    }, this.timeoutInMs)
   }
 
   private _handleCapturePayload(event) {
