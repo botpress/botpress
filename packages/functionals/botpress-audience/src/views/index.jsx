@@ -140,7 +140,7 @@ export default class AudienceModule extends React.Component {
     return <div className={style.image}>{picture}</div>
   }
 
-  renderExtra(locale, timezone, gender) {
+  renderExtra({ locale, timezone, gender }) {
     if (!locale && !timezone && gender === 'unknown') {
       return 'No info'
     }
@@ -174,7 +174,7 @@ export default class AudienceModule extends React.Component {
           <td style={{ width: '10%' }}>{_.upperFirst(user.platform)}</td>
           <td style={{ width: '15%' }}>{this.renderCreatedOn(user.created_on)}</td>
           <td style={{ width: '21%' }}>{this.renderTags(user.tags)}</td>
-          <td style={{ width: '5%' }}>{this.renderExtra(user.locale, user.timezone, user.gender)}</td>
+          <td style={{ width: '5%' }}>{this.renderExtra(user)}</td>
         </tr>
       )
     })
@@ -206,14 +206,14 @@ export default class AudienceModule extends React.Component {
   renderPagination() {
     const previous =
       this.state.page > 0 ? (
-        <Pager.Item previous onClick={this.handlePreviousClicked}>
+        <Pager.Item previous onClick={::this.handlePreviousClicked}>
           &larr; Previous
         </Pager.Item>
       ) : null
 
     const next =
       this.state.count > (this.state.page + 1) * LIMIT_PER_PAGE ? (
-        <Pager.Item next onClick={this.handleNextClicked}>
+        <Pager.Item next onClick={::this.handleNextClicked}>
           Next &rarr;
         </Pager.Item>
       ) : null
