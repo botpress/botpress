@@ -81,8 +81,9 @@ export class ActionStrategy implements InstructionStrategy {
 
     args = {
       ...args,
-      state: _.get(event, 'state.context.data') || {},
-      user: _.get(event, 'state.user') || {}
+      user: _.get(event, 'state.user') || {},
+      session: _.get(event, 'state.session') || {},
+      temp: _.get(event, 'state.temp') || {}
     }
 
     const eventDestination = _.pick(event, ['channel', 'target', 'botId', 'threadId'])
@@ -125,9 +126,8 @@ export class ActionStrategy implements InstructionStrategy {
       throw new Error(`Action "${actionName}" not found, `)
     }
 
-    const result = await this.actionService.forBot(botId).runAction(actionName, event, args)
-    // Will only trigger a state update when the state is returned
-    return result === undefined ? ProcessingResult.none() : ProcessingResult.updateState(result)
+    await this.actionService.forBot(botId).runAction(actionName, event, args)
+    return ProcessingResult.none()
   }
 
   private containsTemplate(value: string) {
@@ -144,7 +144,12 @@ export class TransitionStrategy implements InstructionStrategy {
   ) {}
 
   async processInstruction(botId, instruction, event): Promise<ProcessingResult> {
-    const conditionSuccessful = await this.runCode(instruction, { event, state: event.state.context.data })
+    const conditionSuccessful = await this.runCode(instruction, {
+      event,
+      user: event.state.user,
+      temp: event.state.temp || {},
+      session: event.state.session
+    })
 
     if (conditionSuccessful) {
       this.logger.forBot(botId).debug(`Condition "${instruction.fn}" OK for "${instruction.node}"`)

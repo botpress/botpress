@@ -72,7 +72,8 @@ export class DialogJanitor extends Janitor {
           // We delete the session in both cases
         } finally {
           const session = await this.sessionRepo.get(id)
-          session.context_data = undefined
+          session.context = undefined
+          session.temp_data = undefined
           session.context_expiry = undefined
           await this.sessionRepo.update(session)
         }

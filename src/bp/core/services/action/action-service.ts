@@ -162,7 +162,8 @@ export class ScopedActionService {
         bp: api,
         event: incomingEvent,
         user: incomingEvent.state.user,
-        state: incomingEvent.state.context.data || {},
+        temp: incomingEvent.state.temp,
+        session: incomingEvent.state.session,
         args: actionArgs,
         process: _.pick(process, 'HOST', 'PORT', 'EXTERNAL_URL', 'env')
       },
