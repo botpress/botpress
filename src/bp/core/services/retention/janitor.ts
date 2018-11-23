@@ -47,7 +47,7 @@ export class DataRetentionJanitor extends Janitor {
         await this.dataRetentionService.delete(channel, user_id, field_path)
       })
 
-      if (expired.length === this.BATCH_SIZE) {
+      if (expired.length >= this.BATCH_SIZE) {
         expired = await this.dataRetentionService.getExpired(this.BATCH_SIZE)
       }
     }
