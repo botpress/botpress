@@ -1,6 +1,5 @@
 import * as sdk from 'botpress/sdk'
 import { copyDir } from 'core/misc/pkg-fs'
-
 import fse from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
@@ -85,7 +84,7 @@ export class Botpress {
   }
 
   private async initialize(options: StartOptions) {
-    this.stats.track('server', 'starting')
+    this.trackStart()
     this.config = await this.loadConfiguration()
 
     await this.checkJwtSecret()
@@ -211,5 +210,13 @@ export class Botpress {
 Err: ${err.message}
 Flow: ${err.flowName}
 Node: ${err.nodeName}`
+  }
+
+  private trackStart() {
+    this.stats.track(
+      'server',
+      'start',
+      `edition: ${process.BOTPRESS_EDITION}; version: ${process.BOTPRESS_VERSION}; licensed: ${process.IS_LICENSED}`
+    )
   }
 }

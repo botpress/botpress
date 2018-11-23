@@ -64,4 +64,16 @@ export interface Config {
    * @default -1
    */
   maximumRequestsPerHour: number
+
+  /**
+   *
+   * @default https://duckling.botpress.io
+   */
+  ducklingURL: string
+
+  /**
+   *
+   * @default true
+   */
+  ducklingEnabled: Boolean
 }

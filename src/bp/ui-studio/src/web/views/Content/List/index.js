@@ -110,7 +110,9 @@ export default class ListView extends Component {
         )}
         <td style={{ width: '16%' }}>{'#!' + m.id}</td>
         <td style={{ width: '8%' }}>{m.contentType}</td>
-        <td style={{ width: '58%' }}>{m.previewText}</td>
+        <td style={{ width: '58%' }} onClick={handleEdit}>
+          {m.previewText}
+        </td>
         <td style={{ width: '18%' }}>{moment(m.createdOn).format('MMMM Do YYYY, h:mm')}</td>
         {!this.props.readOnly && (
           <td>

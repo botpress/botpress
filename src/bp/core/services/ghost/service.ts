@@ -1,4 +1,5 @@
 import { Logger } from 'botpress/sdk'
+import { isValidBotId } from 'common/validation'
 import fse from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
@@ -9,7 +10,6 @@ import tmp from 'tmp'
 import { VError } from 'verror'
 
 import { BotpressConfig } from '../../config/botpress.config'
-import { isValidBotId } from '../../misc/validation'
 import { TYPES } from '../../types'
 
 import { GhostPendingRevisions, GhostPendingRevisionsWithContent, ObjectCache, StorageDriver } from '.'

@@ -2,6 +2,8 @@ import sdk from 'botpress/sdk'
 import crypto from 'crypto'
 import { readFileSync } from 'fs'
 
+import { DucklingEntityExtractor } from '../entities/duckling/extractor'
+import { EntityExtractor } from '../entities/entities'
 import FastTextClassifier from '../fasttext/classifier'
 import { LanguageDetector, LanguageDetectorProvider } from '../fasttext/language-detector'
 
@@ -10,11 +12,17 @@ import Provider from './base'
 export default class NativeProvider extends Provider {
   private intentClassifier: FastTextClassifier
   private langDetector: LanguageDetector
+  private knownEntityExtractor: EntityExtractor
 
   constructor(config) {
     super({ ...config, name: 'native', entityKey: '@native' })
     this.intentClassifier = new FastTextClassifier()
     this.langDetector = LanguageDetectorProvider.getLanguageDetector()
+    this.knownEntityExtractor = new DucklingEntityExtractor(
+      this.config.ducklingEnabled,
+      this.config.ducklingURL,
+      this.config.logger
+    )
   }
 
   async init() {
@@ -63,14 +71,19 @@ export default class NativeProvider extends Provider {
   }
 
   async extract(incomingEvent: sdk.IO.Event) {
-    const language = await this.langDetector.detectLang(incomingEvent.preview)
-    const predictions = await this.intentClassifier.predict(incomingEvent.preview)
+    const text = incomingEvent.preview
+    const language = await this.langDetector.detectLang(text)
+
+    const [predictions, entities] = await Promise.all([
+      this.intentClassifier.predict(text),
+      this.knownEntityExtractor.extract(text, language)
+    ])
 
     return {
       language,
+      entities,
       intent: predictions[0],
-      intents: predictions.map(p => ({ ...p, provider: 'native' })),
-      entities: []
+      intents: predictions.map(p => ({ ...p, provider: 'native' }))
     }
   }
 

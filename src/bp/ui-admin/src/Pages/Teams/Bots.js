@@ -4,6 +4,8 @@ import { IoIosBoxOutline } from 'react-icons/lib/io'
 import { MdCreate } from 'react-icons/lib/md'
 import { connect } from 'react-redux'
 import jdenticon from 'jdenticon'
+import { BotCreationSchema, BotEditSchema } from 'common/validation'
+import Joi from 'joi'
 
 import {
   ListGroup,
@@ -75,25 +77,45 @@ class Bots extends Component {
   }
 
   createBot = async () => {
+    const name = this.state.name
+    const teamId = this.props.teamId
     let id = this.state.id
+
     if (id[id.length - 1] === '-') {
       id = id.slice(0, id.length - 1)
     }
 
+    const { error } = Joi.validate({ id, name, team: teamId }, BotCreationSchema)
+    if (error) {
+      console.log(error)
+      this.setState({ errorCreateBot: error })
+      return
+    }
+
     await api
       .getSecured()
-      .post(`/admin/teams/${this.props.teamId}/bots`, { id, name: this.state.name })
+      .post(`/admin/teams/${teamId}/bots`, { id, name })
       .catch(err => this.setState({ errorCreateBot: err }))
     await this.props.fetchTeamData(this.props.teamId)
     this.toggleCreateBotModal()
   }
 
   editBot = async () => {
+    const id = this.state.id
+    const name = this.state.name
+    const description = this.state.description
+
+    const { error } = Joi.validate({ name, description }, BotEditSchema)
+    if (error) {
+      this.setState({ errorEditBot: error })
+      return
+    }
+
     await api
       .getSecured()
-      .put(`/admin/teams/${this.props.teamId}/bots/${this.state.id}`, {
-        name: this.state.name,
-        description: this.state.description
+      .put(`/admin/teams/${this.props.teamId}/bots/${id}`, {
+        name,
+        description
       })
       .catch(err => this.setState({ errorEditBot: err }))
     await this.props.fetchTeamData(this.props.teamId)
@@ -141,10 +163,11 @@ class Bots extends Component {
               type="text"
               id="name"
               value={this.state.name}
+              invalid={this.state.errorCreateBot || false}
               onKeyPress={this.onInputKeyPress}
               onChange={this.onBotNameChange}
             />
-            {!!this.state.errorCreateBot && <FormFeedback>{this.state.errorCreateBot.message}</FormFeedback>}
+            <FormFeedback>The bot name should have at least 4 characters.</FormFeedback>
           </FormGroup>
         </ModalBody>
         <ModalFooter>
@@ -169,8 +192,10 @@ class Bots extends Component {
               type="text"
               id="name"
               value={this.state.name}
+              invalid={this.state.errorEditBot || false}
               onChange={e => this.setState({ name: e.target.value })}
             />
+            <FormFeedback>The bot name should have at least 4 characters.</FormFeedback>
           </FormGroup>
           <FormGroup>
             <Label for="description">
@@ -180,9 +205,10 @@ class Bots extends Component {
               type="text"
               id="description"
               value={this.state.description}
+              invalid={this.state.errorEditBot || false}
               onChange={e => this.setState({ description: e.target.value })}
             />
-            {!!this.state.errorEditBot && <FormFeedback>{this.state.errorEditBot.message}</FormFeedback>}
+            <FormFeedback>The description should have at least 4 characters.</FormFeedback>
           </FormGroup>
         </ModalBody>
         <ModalFooter>
