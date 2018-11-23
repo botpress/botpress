@@ -1,5 +1,6 @@
 import Axios, { AxiosInstance } from 'axios'
 import * as sdk from 'botpress/sdk'
+import _ from 'lodash'
 
 export class DucklingEntityExtractor implements EntityExtractor {
   public static enabled: boolean
@@ -28,7 +29,7 @@ export class DucklingEntityExtractor implements EntityExtractor {
         `lang=${lang}&text=${text}&reftime=${Date.now()}&tz=${tz}`
       )
 
-      if (!data || !data.length) {
+      if (!_.isArray(data)) {
         throw new Error('Unexpected response from Duckling. Expected an array.')
       }
 

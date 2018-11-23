@@ -47,7 +47,7 @@ export const DefaultFastTextQueryArgs: FastTextQueryArgs = {
 export default class FastTextWrapper {
   public static LABEL_PREFIX = '__label__'
 
-  private static BINPATH = join(__dirname, bin)
+  private static BINPATH = join(__dirname, 'bin', bin)
   private static process_cache: { [key: string]: ChildProcess } = {}
   private static process_cache_lock: { [key: string]: boolean } = {}
   private static process_cache_expiry: { [key: string]: number } = {}
@@ -125,8 +125,8 @@ signal: ${err.signal}
 
     for (let i = 0; i < parts.length - 1; i += 2) {
       parsed.push({
-        name: parts[0].replace(this.LABEL_PREFIX, '').trim(),
-        confidence: parseFloat(parts[1])
+        name: parts[i].replace(this.LABEL_PREFIX, '').trim(),
+        confidence: parseFloat(parts[i + 1])
       })
     }
 
