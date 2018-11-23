@@ -9,8 +9,9 @@ config:
     order: 'sequence'
   processor: './functions.js'
 scenarios:
-  - name: Each user sends 'X' messages
+  - name: Each user sends 'X' messages to channel-web
     flow:
+      - log: Testing channel-web
       - function: 'setupTestId'
       - loop:
           - post:
