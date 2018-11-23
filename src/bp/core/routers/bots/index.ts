@@ -3,14 +3,20 @@
 *  Licensed under the AGPL-3.0 license. See license.txt at project root for more information.
 *--------------------------------------------------------------------------------------------*/
 
-import { ContentElement } from 'botpress/sdk'
 import { Serialize } from 'cerialize'
 import { gaId, machineUUID } from 'common/stats'
 import { BotpressConfig } from 'core/config/botpress.config'
 import { ConfigProvider } from 'core/config/config-loader'
+import { BotRepository } from 'core/repositories'
 import { GhostService } from 'core/services'
+import ActionService from 'core/services/action/action-service'
 import { AdminService } from 'core/services/admin/service'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
+import { FlowView } from 'core/services/dialog'
+import { FlowService } from 'core/services/dialog/flow/service'
+import { LogsService } from 'core/services/logs/service'
+import MediaService from 'core/services/media'
+import { NotificationsService } from 'core/services/notification/service'
 import { RequestHandler, Router } from 'express'
 import _ from 'lodash'
 import moment from 'moment'
@@ -19,18 +25,8 @@ import multer from 'multer'
 import path from 'path'
 import { RouterOptions } from 'request'
 
-import { BotRepository } from '../repositories'
-import ActionService from '../services/action/action-service'
-import { DefaultSearchParams } from '../services/cms'
-import { CMSService } from '../services/cms/cms-service'
-import { FlowView } from '../services/dialog'
-import { FlowService } from '../services/dialog/flow/service'
-import { LogsService } from '../services/logs/service'
-import MediaService from '../services/media'
-import { NotificationsService } from '../services/notification/service'
-
-import { CustomRouter } from '.'
-import { checkTokenHeader, needPermissions } from './util'
+import { CustomRouter } from '..'
+import { checkTokenHeader, needPermissions } from '../util'
 
 export class BotsRouter implements CustomRouter {
   public readonly router: Router
@@ -38,7 +34,6 @@ export class BotsRouter implements CustomRouter {
   private actionService: ActionService
   private botRepository: BotRepository
   private configProvider: ConfigProvider
-  private cmsService: CMSService
   private flowService: FlowService
   private mediaService: MediaService
   private logsService: LogsService
@@ -55,7 +50,6 @@ export class BotsRouter implements CustomRouter {
     actionService: ActionService
     botRepository: BotRepository
     configProvider: ConfigProvider
-    cmsService: CMSService
     flowService: FlowService
     mediaService: MediaService
     logsService: LogsService
@@ -67,7 +61,6 @@ export class BotsRouter implements CustomRouter {
     this.actionService = args.actionService
     this.botRepository = args.botRepository
     this.configProvider = args.configProvider
-    this.cmsService = args.cmsService
     this.flowService = args.flowService
     this.mediaService = args.mediaService
     this.logsService = args.logsService
@@ -92,19 +85,6 @@ export class BotsRouter implements CustomRouter {
     const router = Router({ mergeParams: true })
     this.router.use('/mod/' + path, router)
     return router
-  }
-
-  augmentElement = async (element: ContentElement) => {
-    const contentType = await this.cmsService.getContentType(element.contentType)
-    return {
-      ...element,
-      schema: {
-        json: contentType.jsonSchema,
-        ui: contentType.uiSchema,
-        title: contentType.title,
-        renderer: contentType.id
-      }
-    }
   }
 
   private studioParams(botId) {
@@ -184,114 +164,6 @@ export class BotsRouter implements CustomRouter {
 
       res.send(bot)
     })
-
-    this.router.get(
-      '/content/types',
-      this.checkTokenHeader,
-      this.needPermissions('read', 'bot.content'),
-      async (req, res) => {
-        const botId = req.params.botId
-        const types = await this.cmsService.getAllContentTypes(botId)
-
-        const response = await Promise.map(types, async type => {
-          const count = await this.cmsService.countContentElementsForContentType(botId, type.id)
-          return {
-            id: type.id,
-            count,
-            title: type.title,
-            schema: {
-              json: type.jsonSchema,
-              ui: type.uiSchema,
-              title: type.title,
-              renderer: type.id
-            }
-          }
-        })
-
-        res.send(response)
-      }
-    )
-
-    this.router.get(
-      '/content/elements/count',
-      this.checkTokenHeader,
-      this.needPermissions('read', 'bot.content'),
-      async (req, res) => {
-        const botId = req.params.botId
-        const count = await this.cmsService.countContentElements(botId)
-        res.send({ count })
-      }
-    )
-
-    this.router.get(
-      '/content/:contentType?/elements',
-      this.checkTokenHeader,
-      this.needPermissions('read', 'bot.content'),
-      async (req, res) => {
-        const { botId, contentType } = req.params
-        const query = req.query || {}
-
-        const elements = await this.cmsService.listContentElements(botId, contentType, {
-          ...DefaultSearchParams,
-          count: Number(query.count) || DefaultSearchParams.count,
-          from: Number(query.from) || DefaultSearchParams.from,
-          searchTerm: query.searchTerm || DefaultSearchParams.searchTerm,
-          orderBy: (query.orderBy && query.orderBy.split(',')) || DefaultSearchParams.orderBy,
-          ids: (query.ids && query.ids.split(',')) || DefaultSearchParams.ids
-        })
-
-        const augmentedElements = await Promise.map(elements, this.augmentElement)
-        res.send(augmentedElements)
-      }
-    )
-
-    this.router.get(
-      '/content/:contentType?/elements/count',
-      this.checkTokenHeader,
-      this.needPermissions('read', 'bot.content'),
-      async (req, res) => {
-        const { botId, contentType } = req.params
-        const count = await this.cmsService.countContentElementsForContentType(botId, contentType)
-        res.send({ count })
-      }
-    )
-
-    this.router.get(
-      '/content/elements/:elementId',
-      this.checkTokenHeader,
-      this.needPermissions('read', 'bot.content'),
-      async (req, res) => {
-        const { botId, elementId } = req.params
-        const element = await this.cmsService.getContentElement(botId, elementId)
-        res.send(await this.augmentElement(element))
-      }
-    )
-
-    this.router.post(
-      '/content/:contentType/elements/:elementId?',
-      this.checkTokenHeader,
-      this.needPermissions('write', 'bot.content'),
-      async (req, res) => {
-        const { botId, contentType, elementId } = req.params
-        const element = await this.cmsService.createOrUpdateContentElement(
-          botId,
-          contentType,
-          req.body.formData,
-          elementId
-        )
-        res.send(element)
-      }
-    )
-
-    this.router.post(
-      '/content/elements/bulk_delete',
-      this.checkTokenHeader,
-      this.needPermissions('write', 'bot.content'),
-      async (req, res) => {
-        await this.cmsService.deleteContentElements(req.params.botId, req.body)
-        res.sendStatus(200)
-      }
-    )
 
     this.router.get('/flows', this.checkTokenHeader, this.needPermissions('read', 'bot.flows'), async (req, res) => {
       const botId = req.params.botId
@@ -425,65 +297,6 @@ export class BotsRouter implements CustomRouter {
           ? await this.notificationService.archive(notificationId)
           : await this.notificationService.archiveAll(botId)
         res.sendStatus(201)
-      }
-    )
-
-    this.router.get(
-      '/versioning/pending',
-      this.checkTokenHeader,
-      this.needPermissions('read', 'bot.ghost_content'),
-      async (req, res) => {
-        res.send(await this.ghostService.forBot(req.params.botId).getPending())
-      }
-    )
-
-    this.router.get(
-      '/versioning/export',
-      this.checkTokenHeader,
-      this.needPermissions('read', 'bot.ghost_content'),
-      async (req, res) => {
-        const tarball = await this.ghostService.forBot(req.params.botId).exportArchive()
-        const name = 'archive_' + req.params.botId.replace(/\W/gi, '') + '_' + Date.now() + '.tgz'
-        res.writeHead(200, {
-          'Content-Type': 'application/tar+gzip',
-          'Content-Disposition': `attachment; filename=${name}`,
-          'Content-Length': tarball.length
-        })
-        res.end(tarball)
-      }
-    )
-
-    const archiveUploadMulter = multer({
-      limits: {
-        fileSize: 1024 * 1000 * 100 // 100mb
-      }
-    })
-
-    // TODO WIP Partial progress towards importing tarballs from the UI
-
-    // this.router.get(
-    //   '/versioning/import',
-    //   this.checkTokenHeader,
-    //   this.needPermissions('write', 'bot.ghost_content'),
-    //   archiveUploadMulter.single('file'),
-    //   async (req, res) => {
-    //     const buffer = req['file'].buffer
-    //     const botId = req.params.botId
-    //     await this.ghostService.forBot(botId).importArchive(buffer)
-    //     res.sendStatus(200)
-    //   }
-    // )
-
-    // Revision ID
-    this.router.post(
-      '/versioning/revert',
-      this.checkTokenHeader,
-      this.needPermissions('write', 'bot.ghost_content'),
-      async (req, res) => {
-        const revisionId = req.body.revision
-        const filePath = req.body.filePath
-        await this.ghostService.forBot(req.params.botId).revertFileRevision(filePath, revisionId)
-        res.sendStatus(200)
       }
     )
   }

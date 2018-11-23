@@ -9,12 +9,13 @@ config:
     order: 'sequence'
   processor: './functions.js'
 scenarios:
-  - name: Each user sends 'X' messages
+  - name: Each user sends 'X' messages to channel-api
     flow:
+      - log: Testing channel-api
       - function: 'setupTestId'
       - loop:
           - post:
-              url: '/api/v1/bots/welcome-bot/mod/channel-web/messages/{{ prefix }}{{ testId }}_{{ uuid }}'
+              url: '/api/v1/bots/welcome-bot/converse/{{ prefix }}{{ testId }}_{{ uuid }}'
               json:
                 type: 'text'
                 text: 'U{{ testId }}_{{ uuid }}|M{{ $loopCount }}'

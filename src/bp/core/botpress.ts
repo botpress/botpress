@@ -18,7 +18,8 @@ import { LoggerPersister, LoggerProvider } from './logger'
 import { ModuleLoader } from './module-loader'
 import HTTPServer from './server'
 import { GhostService } from './services'
-import { CMSService } from './services/cms/cms-service'
+import { CMSService } from './services/cms'
+import { converseApiEvents } from './services/converse'
 import { DecisionEngine } from './services/dialog/decision-engine'
 import { DialogEngine, ProcessingError } from './services/dialog/engine'
 import { DialogJanitor } from './services/dialog/janitor'
@@ -158,9 +159,9 @@ export class Botpress {
 
     this.eventEngine.onAfterIncomingMiddleware = async (event: sdk.IO.IncomingEvent) => {
       await this.hookService.executeHook(new Hooks.AfterIncomingMiddleware(this.api, event))
-
       const sessionId = SessionIdFactory.createIdFromEvent(event)
       await this.decisionEngine.processEvent(sessionId, event)
+      await converseApiEvents.emitAsync(`done.${event.target}`, event)
     }
 
     this.dataRetentionService.initialize()

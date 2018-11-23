@@ -63,7 +63,7 @@ const watchAdmin = cb => {
   })
 }
 
-const watch = cb => {
+const watchStudio = cb => {
   exec('yarn && yarn watch', { cwd: 'src/bp/ui-studio' }, (err, stdout, stderr) => {
     if (err) {
       console.error(stderr)
@@ -73,12 +73,8 @@ const watch = cb => {
   })
 }
 
-const watchStudio = () => {
-  return gulp.series([cleanStudioAssets, createStudioSymlink, watch])
-}
-
 const watchAll = () => {
-  return gulp.parallel([watchStudio(), watchAdmin])
+  return gulp.parallel([watchStudio, watchAdmin])
 }
 
 module.exports = {

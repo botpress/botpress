@@ -1,5 +1,6 @@
 import { IO, Logger } from 'botpress/sdk'
-import { CMSService } from 'core/services/cms/cms-service'
+import { CMSService } from 'core/services/cms'
+import { converseApiEvents } from 'core/services/converse'
 import { EventEngine } from 'core/services/middleware/event-engine'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
@@ -39,7 +40,7 @@ export class ActionStrategy implements InstructionStrategy {
     private logger: Logger,
     @inject(TYPES.ActionService) private actionService: ActionService,
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
-    @inject(TYPES.CMSService) private cmsService: CMSService
+    @inject(TYPES.CMSService) private cms: CMSService
   ) {}
 
   async processInstruction(botId, instruction, event): Promise<ProcessingResult> {
@@ -85,7 +86,7 @@ export class ActionStrategy implements InstructionStrategy {
     }
 
     const eventDestination = _.pick(event, ['channel', 'target', 'botId', 'threadId'])
-    const renderedElements = await this.cmsService.renderElement(outputType, args, eventDestination)
+    const renderedElements = await this.cms.renderElement(outputType, args, eventDestination)
     await this.eventEngine.replyToEvent(eventDestination, renderedElements)
 
     return ProcessingResult.none()

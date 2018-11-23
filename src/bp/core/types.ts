@@ -61,6 +61,7 @@ const TYPES = {
   AuthRolesRepository: Symbol.for('AuthRolesRepository'),
   Statistics: Symbol.for('Statistics'),
   StateManager: Symbol.for('StateManager'),
+  ConverseService: Symbol.for('ConverseService'),
   DataRetentionJanitor: Symbol.for('DataRetentionJanitor'),
   DataRetentionService: Symbol.for('DataRetentionService')
 }
