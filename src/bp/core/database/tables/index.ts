@@ -17,6 +17,7 @@ import {
   AuthUsersTable,
   BotsTable,
   ChannelUsersTable,
+  DataRetentionTable,
   MigrationsTable,
   ServerMetadataTable
 } from './server-wide'
@@ -36,7 +37,8 @@ const tables: (typeof Table)[] = [
   GhostFilesTable,
   GhostRevisionsTable,
   NotificationsTable,
-  KeyValueStoreTable
+  KeyValueStoreTable,
+  DataRetentionTable
 ]
 
 export default <(new (knex: Knex) => Table)[]>tables
