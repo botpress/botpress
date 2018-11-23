@@ -21,6 +21,7 @@ const tar = require('tar')
 @injectable()
 export class GhostService {
   private config: Partial<BotpressConfig> | undefined
+  private _scopedGhosts: Map<string, ScopedGhostService> = new Map()
 
   public get isGhostEnabled() {
     return _.get(this.config, 'ghost.enabled', false)
@@ -55,7 +56,11 @@ export class GhostService {
       throw new Error(`Invalid botId "${botId}"`)
     }
 
-    return new ScopedGhostService(
+    if (this._scopedGhosts.has(botId)) {
+      return this._scopedGhosts.get(botId)!
+    }
+
+    const scopedGhost = new ScopedGhostService(
       `./data/bots/${botId}`,
       this.diskDriver,
       this.dbDriver,
@@ -63,6 +68,9 @@ export class GhostService {
       this.cache,
       this.logger
     )
+
+    this._scopedGhosts.set(botId, scopedGhost)
+    return scopedGhost
   }
 }
 
