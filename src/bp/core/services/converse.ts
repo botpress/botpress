@@ -61,10 +61,10 @@ export class ConverseService {
       botId
     })
 
-    await this.eventEngine.sendEvent(incomingEvent)
-
     const timeoutPromise = this._createTimeoutPromise(userId)
     const donePromise = this._createDonePromise(userId)
+
+    await this.eventEngine.sendEvent(incomingEvent)
 
     return Promise.race([timeoutPromise, donePromise])
   }
