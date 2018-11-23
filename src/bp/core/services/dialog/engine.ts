@@ -75,7 +75,6 @@ export class DialogEngine {
     try {
       await converseApiEvents.emitAsync(`action.start.${event.target}`, event)
       const result = await this.instructionProcessor.process(botId, instruction, event)
-      await converseApiEvents.emitAsync(`action.end.${event.target}`, event)
 
       if (result.followUpAction === 'none') {
         context.queue = queue
@@ -98,6 +97,8 @@ export class DialogEngine {
       }
     } catch (err) {
       this._reportProcessingError(botId, err, event, instruction)
+    } finally {
+      await converseApiEvents.emitAsync(`action.end.${event.target}`, event)
     }
 
     return event
