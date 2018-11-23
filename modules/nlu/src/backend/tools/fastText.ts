@@ -60,22 +60,23 @@ export default class FastTextWrapper {
     }
   }
 
-  static async train(
-    trainingPath: string,
-    modelPath: string,
+  constructor(public readonly modelPath: string) {}
+
+  public async train(
+    trainingSetPath: string,
     args: Partial<FastTextTrainArgs> = DefaultFastTextTrainArgs
   ): Promise<void> {
     const fArgs = { ...DefaultFastTextTrainArgs, ...(args || {}) } as FastTextTrainArgs
 
     try {
       execFileSync(
-        this.BINPATH,
+        FastTextWrapper.BINPATH,
         [
           fArgs.method,
           '-input',
-          trainingPath,
+          trainingSetPath,
           '-output',
-          modelPath,
+          this.modelPath.replace(/\.bin$/i, ''),
           '-lr',
           fArgs.learningRate,
           '-epoch',
@@ -109,12 +110,11 @@ signal: ${err.signal}
     }
   }
 
-  public static async predict(
-    modelPath: string,
+  public async predict(
     sentence: string,
     k: number = DefaultFastTextQueryArgs.k
   ): Promise<{ name: string; confidence: number }[]> {
-    const result = await this.query(modelPath, sentence, { method: 'predict-prob', k })
+    const result = await FastTextWrapper._query(this.modelPath, sentence, { method: 'predict-prob', k })
 
     const parts = result.split(/\s|\n|\r/gi).filter(x => x.trim().length)
     const parsed: { name: string; confidence: number }[] = []
@@ -125,7 +125,7 @@ signal: ${err.signal}
 
     for (let i = 0; i < parts.length - 1; i += 2) {
       parsed.push({
-        name: parts[i].replace(this.LABEL_PREFIX, '').trim(),
+        name: parts[i].replace(FastTextWrapper.LABEL_PREFIX, '').trim(),
         confidence: parseFloat(parts[i + 1])
       })
     }
@@ -133,8 +133,8 @@ signal: ${err.signal}
     return parsed
   }
 
-  public static async wordVectors(modelPath: string, word: string): Promise<number[]> {
-    const result = await this.query(modelPath, word, { method: 'print-word-vectors' })
+  public async wordVectors(word: string): Promise<number[]> {
+    const result = await FastTextWrapper._query(this.modelPath, word, { method: 'print-word-vectors' })
 
     return result
       .split(/\s|\n|\r/gi)
@@ -143,7 +143,7 @@ signal: ${err.signal}
       .filter(x => !isNaN(x))
   }
 
-  private static async query(
+  private static async _query(
     modelPath: string,
     input: string,
     args: Partial<FastTextQueryArgs> = DefaultFastTextQueryArgs

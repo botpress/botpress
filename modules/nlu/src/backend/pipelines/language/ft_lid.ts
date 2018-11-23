@@ -10,10 +10,10 @@ import FastTextWrapper from '../../tools/fastText'
 const PRETRAINED_LID_176 = join(__dirname, '../../tools/pretrained/lid.176.ftz')
 
 export class FastTextIndentifier implements LanguageIdentifier {
-  private static modelPath: string
+  private static model: FastTextWrapper
 
   constructor(private readonly logger: Logger) {
-    if (!FastTextIndentifier.modelPath) {
+    if (!FastTextIndentifier.model) {
       FastTextIndentifier.initializeModel()
     }
   }
@@ -22,11 +22,11 @@ export class FastTextIndentifier implements LanguageIdentifier {
     const tmpFn = tmp.tmpNameSync()
     const modelBuff = readFileSync(PRETRAINED_LID_176)
     writeFileSync(tmpFn, modelBuff)
-    this.modelPath = tmpFn
+    this.model = new FastTextWrapper(tmpFn)
   }
 
   async identify(text: string): Promise<string> {
-    const res = await FastTextWrapper.predict(FastTextIndentifier.modelPath, text, 1)
+    const res = await FastTextIndentifier.model.predict(text, 1)
     return res[0].name
   }
 }

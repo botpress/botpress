@@ -13,7 +13,7 @@ interface TrainSet {
 export default class FastTextClassifier implements IntentClassifier {
   constructor(private readonly logger: Logger) {}
 
-  private modelPath = ''
+  private fastTextWrapper: FastTextWrapper
 
   public currentModelId: string | undefined
 
@@ -39,26 +39,27 @@ export default class FastTextClassifier implements IntentClassifier {
     await this._writeTrainingSet(intents, dataFn)
 
     const modelFn = tmp.tmpNameSync()
-    FastTextWrapper.train(dataFn, modelFn, { method: 'supervised' })
-    this.modelPath = `${modelFn}.bin`
+    const modelPath = `${modelFn}.bin`
+    this.fastTextWrapper = new FastTextWrapper(modelPath)
+
+    this.fastTextWrapper.train(dataFn, { method: 'supervised' })
     this.currentModelId = modelId
 
-    return this.modelPath
+    return modelPath
   }
 
   loadModel(model: Buffer, modelId?: string) {
     this.currentModelId = modelId
-
     const tmpFn = tmp.tmpNameSync()
     writeFileSync(tmpFn, model)
-    this.modelPath = tmpFn
+    this.fastTextWrapper = new FastTextWrapper(tmpFn)
   }
 
   public async predict(input: string): Promise<Predictions.Intent[]> {
-    if (!this.modelPath) {
+    if (!this.fastTextWrapper) {
       throw new Error('model is not set')
     }
 
-    return FastTextWrapper.predict(this.modelPath, this.sanitizeText(input), 5)
+    return this.fastTextWrapper.predict(this.sanitizeText(input), 5)
   }
 }
