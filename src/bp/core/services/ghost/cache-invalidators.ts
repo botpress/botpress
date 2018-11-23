@@ -47,9 +47,13 @@ export namespace CacheInvalidators {
     async install(objectCache: ObjectCache) {
       this.cache = objectCache
 
-      const watcher = chokidar.watch(path.join(process.PROJECT_LOCATION, './data'), {
+      const foldersToWatch = [
+        path.join(process.PROJECT_LOCATION, 'data', 'bots'),
+        path.join(process.PROJECT_LOCATION, 'data', 'global')
+      ]
+
+      const watcher = chokidar.watch(foldersToWatch, {
         ignoreInitial: true,
-        ignored: '**data/storage/**',
         ignorePermissionErrors: true
       })
 
