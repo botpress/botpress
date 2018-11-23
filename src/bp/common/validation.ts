@@ -1,0 +1,30 @@
+import Joi from 'joi'
+
+export const BOTID_REGEX = /^[A-Z0-9]+[A-Z0-9_-]{2,}[A-Z0-9]+$/i
+
+export const isValidBotId = (botId: string): boolean => BOTID_REGEX.test(botId)
+
+export const BotCreationSchema = Joi.object().keys({
+  id: Joi.string()
+    .regex(BOTID_REGEX)
+    .required(),
+  name: Joi.string()
+    .min(3)
+    .max(50)
+    .required(),
+  description: Joi.string()
+    .min(3)
+    .max(50),
+  team: Joi.number().required()
+})
+
+export const BotEditSchema = Joi.object().keys({
+  name: Joi.string()
+    .min(3)
+    .max(50)
+    .required(),
+  description: Joi.string()
+    .min(3)
+    .max(50)
+    .required()
+})

@@ -7,7 +7,7 @@ import { UnlicensedError } from 'errors'
 import express from 'express'
 import rewrite from 'express-urlrewrite'
 import { createServer, Server } from 'http'
-import { inject, injectable, tagged } from 'inversify'
+import { inject, injectable, postConstruct, tagged } from 'inversify'
 import path from 'path'
 import portFinder from 'portfinder'
 
@@ -78,6 +78,7 @@ export default class HTTPServer {
     this.botsRouter = new BotsRouter({
       actionService,
       botRepository,
+      configProvider,
       cmsService,
       flowService,
       mediaService,
@@ -87,6 +88,11 @@ export default class HTTPServer {
       adminService,
       ghostService
     })
+  }
+
+  @postConstruct()
+  async initialize() {
+    await this.botsRouter.initialize()
   }
 
   resolveAsset = file => path.resolve(process.PROJECT_LOCATION, 'assets', file)

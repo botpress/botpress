@@ -62,7 +62,7 @@ export type BotpressConfig = {
    * For usage with Botpress Pro/Enterprise.
    */
   licenseKey: string
-  allowStats: boolean
+  sendUsageStats: boolean
   /**
    * When this feature is enabled, fields saved as user attributes will be automatically erased when they expires. The timer is reset each time the value is modified
    * Setting a policy called "email": "30d" means that once an email is set, it will be removed in 30 days, unless it is changed in that timespan
