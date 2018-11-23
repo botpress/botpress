@@ -236,6 +236,7 @@ export class BotsRouter implements CustomRouter {
           count: Number(query.count) || DefaultSearchParams.count,
           from: Number(query.from) || DefaultSearchParams.from,
           searchTerm: query.searchTerm || DefaultSearchParams.searchTerm,
+          orderBy: (query.orderBy && query.orderBy.split(',')) || DefaultSearchParams.orderBy,
           ids: (query.ids && query.ids.split(',')) || DefaultSearchParams.ids
         })
 
