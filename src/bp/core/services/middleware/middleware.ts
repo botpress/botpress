@@ -7,7 +7,7 @@ type MiddlewareChainOptions = {
 }
 
 const defaultOptions = {
-  timeoutInMs: ms('1s')
+  timeoutInMs: ms('2s')
 }
 
 export class MiddlewareChain {

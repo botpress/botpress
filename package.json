@@ -28,6 +28,7 @@
     "chalk": "^2.4.1",
     "chokidar": "^2.0.4",
     "cors": "^2.8.4",
+    "deep-diff": "^1.0.2",
     "doctrine": "^2.1.0",
     "errorhandler": "^1.5.0",
     "eventemitter2": "^5.0.1",

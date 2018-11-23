@@ -63,4 +63,25 @@ export type BotpressConfig = {
    */
   licenseKey: string
   sendUsageStats: boolean
+  /**
+   * When this feature is enabled, fields saved as user attributes will be automatically erased when they expires. The timer is reset each time the value is modified
+   * Setting a policy called "email": "30d" means that once an email is set, it will be removed in 30 days, unless it is changed in that timespan
+   */
+  dataRetention?: DataRetentionConfig
+}
+
+export interface DataRetentionConfig {
+  /**
+   * The janitor will check for expired fields at the set interval (second, minute, hour, day)
+   * @example 1m
+   */
+  janitorInterval: string
+  policies: RetentionPolicy
+}
+
+/**
+ * @example "profile.email": "30d"
+ */
+export type RetentionPolicy = {
+  [key: string]: string
 }

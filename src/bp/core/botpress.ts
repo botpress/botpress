@@ -30,6 +30,8 @@ import { EventEngine } from './services/middleware/event-engine'
 import { StateManager } from './services/middleware/state-manager'
 import { NotificationsService } from './services/notification/service'
 import RealtimeService from './services/realtime'
+import { DataRetentionJanitor } from './services/retention/janitor'
+import { DataRetentionService } from './services/retention/service'
 import { Statistics } from './stats'
 import { TYPES } from './types'
 
@@ -69,7 +71,9 @@ export class Botpress {
     @inject(TYPES.LoggerPersister) private loggerPersister: LoggerPersister,
     @inject(TYPES.NotificationsService) private notificationService: NotificationsService,
     @inject(TYPES.AppLifecycle) private lifecycle: AppLifecycle,
-    @inject(TYPES.StateManager) private stateManager: StateManager
+    @inject(TYPES.StateManager) private stateManager: StateManager,
+    @inject(TYPES.DataRetentionJanitor) private dataRetentionJanitor: DataRetentionJanitor,
+    @inject(TYPES.DataRetentionService) private dataRetentionService: DataRetentionService
   ) {
     this.version = '12.0.1'
     this.botpressPath = path.join(process.cwd(), 'dist')
@@ -160,6 +164,7 @@ export class Botpress {
       await converseApiEvents.emitAsync(`done.${event.target}`, event)
     }
 
+    this.dataRetentionService.initialize()
     this.stateManager.initialize()
 
     const flowLogger = await this.loggerProvider('DialogEngine')
@@ -178,6 +183,10 @@ export class Botpress {
 
     await this.logJanitor.start()
     await this.dialogJanitor.start()
+
+    if (this.config!.dataRetention) {
+      await this.dataRetentionJanitor.start()
+    }
 
     await this.lifecycle.setDone(AppLifecycleEvents.SERVICES_READY)
   }
