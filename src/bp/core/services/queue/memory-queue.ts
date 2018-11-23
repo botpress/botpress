@@ -89,7 +89,7 @@ export default class MemoryQueue implements Queue {
     try {
       await Promise.mapSeries(this._subscribers, fn => fn(job))
     } catch (err) {
-      this.logger.warn(`${this.name} queue failed to process job: ${err.message}`)
+      this.logger.attachError(err).warn(`${this.name} queue failed to process job: ${err.message}`)
 
       if (retries + 1 <= this._options.retries) {
         this.enqueue(job, retries + 1, true)

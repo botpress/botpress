@@ -17,21 +17,30 @@ const addLocationQuery = history => {
 
 const history = createBrowserHistory({ basename: window.BP_BASE_PATH + '/' })
 addLocationQuery(history)
-history.listen(() => addLocationQuery(history))
+history.listen(() => {
+  addLocationQuery(history)
+  if (window.SEND_USAGE_STATS) {
+    logPageView()
+  }
+})
 
 const logPageView = () => {
-  ReactGA.set({ page: window.location.pathname })
-  ReactGA.pageview(window.location.pathname)
+  ReactGA.set({ page: history.location.pathname })
+  ReactGA.pageview(history.location.pathname)
 }
 
 export default () => {
-  if (!window.OPT_OUT_STATS) {
-    ReactGA.initialize('UA-90044826-1')
+  if (window.SEND_USAGE_STATS) {
+    ReactGA.initialize(window.ANALYTICS_ID, {
+      gaOptions: {
+        userId: window.UUID
+      }
+    })
   }
   const AuthenticatedLayout = EnsureAuthenticated(Layout)
 
   return (
-    <Router history={history} onUpdate={logPageView}>
+    <Router history={history}>
       <Switch>
         <AuthenticatedLayout />
       </Switch>

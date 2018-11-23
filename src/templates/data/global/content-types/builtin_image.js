@@ -3,7 +3,7 @@ const path = require('path')
 const url = require('url')
 const { tail } = _
 
-function renderForWeb(data) {
+function render(data) {
   const events = []
 
   if (data.typing) {
@@ -23,8 +23,8 @@ function renderForWeb(data) {
 }
 
 function renderElement(data, channel) {
-  if (channel === 'web') {
-    return renderForWeb(data)
+  if (channel === 'web' || channel === 'api') {
+    return render(data)
   }
 
   return [] // TODO Handle channel not supported

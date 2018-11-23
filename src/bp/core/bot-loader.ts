@@ -8,7 +8,7 @@ import { ConfigProvider } from './config/config-loader'
 import Database from './database'
 import { ModuleLoader } from './module-loader'
 import { GhostService } from './services'
-import { CMSService } from './services/cms/cms-service'
+import { CMSService } from './services/cms'
 import { Hooks, HookService } from './services/hook/hook-service'
 import { TYPES } from './types'
 

@@ -34,8 +34,9 @@ gulp.task(
 
 gulp.task('watch', gulp.parallel([core.watch, ui.watchAll()]))
 gulp.task('watch:core', core.watch)
-gulp.task('watch:studio', ui.watchStudio())
+gulp.task('watch:studio', ui.watchStudio)
 gulp.task('watch:admin', ui.watchAdmin)
 
 gulp.task('clean:node', cb => rimraf('**/node_modules/**', cb))
 gulp.task('clean:out', cb => rimraf('out', cb))
+gulp.task('clean:db', cb => rimraf('out/bp/data/storage/core.sqlite', cb))

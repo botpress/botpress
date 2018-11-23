@@ -88,7 +88,7 @@ export const fetchContentItems = ({ id, from, count, searchTerm }) => dispatch =
   const specificCategory = `${window.BOT_API_PATH}/content/${id}/elements`
   return axios
     .get(id && id != 'all' ? specificCategory : allCategories, {
-      params: { from, count, searchTerm }
+      params: { from, count, searchTerm, orderBy: 'modifiedOn' }
     })
     .then(({ data }) => dispatch(receiveContentItems(data)))
 }
