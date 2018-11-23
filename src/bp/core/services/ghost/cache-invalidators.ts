@@ -69,6 +69,7 @@ export namespace CacheInvalidators {
       }
 
       const relativePath = path.relative(process.PROJECT_LOCATION, path.dirname(file))
+      this.cache.events.emit('invalidation', relativePath)
       this.cache.invalidateStartingWith(relativePath)
     }
   }

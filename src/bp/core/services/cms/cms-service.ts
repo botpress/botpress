@@ -1,9 +1,10 @@
-import { Logger } from 'botpress/sdk'
+import { IO, Logger } from 'botpress/sdk'
 import { ContentElement, ContentType, SearchParams } from 'botpress/sdk'
 import { KnexExtension } from 'common/knex'
 import { inject, injectable, tagged } from 'inversify'
 import Knex from 'knex'
 import _ from 'lodash'
+import Mustache from 'mustache'
 import nanoid from 'nanoid'
 import path from 'path'
 import plur from 'plur'
@@ -403,19 +404,43 @@ export class CMSService implements IDisposeOnExit {
     return !contentType.computePreviewText ? 'No preview' : contentType.computePreviewText(formData)
   }
 
-  private computeData(contentTypeId, formData) {
-    const contentType = this.contentTypes.find(x => x.id === contentTypeId)
-    if (!contentType) {
-      throw new Error(`Unknown content type ${contentTypeId}`)
+  async renderElement(contentId, args, eventDestination: IO.EventDestination) {
+    const { botId, channel } = eventDestination
+    let contentType = contentId
+    contentId = contentId.replace(/^#?/i, '')
+
+    if (contentId.startsWith('!')) {
+      const content = await this.getContentElement(botId, contentId.substr(1)) // TODO handle errors
+
+      if (!content) {
+        throw new Error(`Content element "${contentId}" not found`)
+      }
+
+      _.set(content, 'previewPath', Mustache.render(content.previewText, args))
+
+      const text = _.get(content.formData, 'text')
+      const variations = _.get(content.formData, 'variations')
+
+      const message = _.sample([text, ...(variations || [])])
+      if (message) {
+        _.set(content, 'formData.text', Mustache.render(message, args))
+      }
+
+      contentType = content.contentType
+      args = {
+        ...args,
+        ...content.formData
+      }
     }
 
-    return !contentType.computeData ? formData : contentType.computeData(contentTypeId, formData)
-  }
+    const contentTypeRenderer = await this.getContentType(contentType)
+    const additionnalData = { BOT_URL: process.EXTERNAL_URL }
 
-  async renderElement(contentTypeId, payload, channel) {
-    const contentType = await this.getContentType(contentTypeId)
-    const additionnalData = { BOT_URL: 'http://localhost:3000' }
+    let payloads = await contentTypeRenderer.renderElement({ ...additionnalData, ...args }, channel)
+    if (!_.isArray(payloads)) {
+      payloads = [payloads]
+    }
 
-    return await contentType.renderElement({ ...additionnalData, ...payload }, channel)
+    return payloads
   }
 }

@@ -6,9 +6,9 @@ import { InstructionFactory } from './factory'
 export class InstructionQueue {
   instructions: Instruction[] = []
 
-  constructor(instructions?: string) {
+  constructor(instructions?: any) {
     if (instructions) {
-      this.instructions = JSON.parse(instructions)
+      this.instructions = instructions
     }
   }
 

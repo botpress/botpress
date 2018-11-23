@@ -1,3 +1,4 @@
+import { EventEmitter } from 'events'
 import { inject, injectable } from 'inversify'
 import LRU from 'lru-cache'
 
@@ -9,6 +10,7 @@ import { CacheInvalidators } from './cache-invalidators'
 @injectable()
 export default class MemoryObjectCache implements ObjectCache {
   cache: LRU.Cache<string, any>
+  public readonly events: EventEmitter = new EventEmitter()
 
   constructor(@inject(TYPES.FileCacheInvalidator) private cacheInvalidator: CacheInvalidators.FileChangedInvalidator) {
     this.cache = LRU({
@@ -26,6 +28,7 @@ export default class MemoryObjectCache implements ObjectCache {
 
   async set<T>(key: string, obj: T): Promise<void> {
     this.cache.set(key, obj)
+    this.events.emit('invalidation', key)
   }
 
   async has(key: string): Promise<boolean> {
@@ -34,13 +37,15 @@ export default class MemoryObjectCache implements ObjectCache {
 
   async invalidate(key: string): Promise<void> {
     this.cache.del(key)
+    this.events.emit('invalidation', key)
   }
 
   async invalidateStartingWith(prefix: string): Promise<void> {
     const keys = this.cache.keys().filter(x => {
-      return x.startsWith('buffer::' + prefix) || x.startsWith('string::' + prefix)
+      return x.startsWith('buffer::' + prefix) || x.startsWith('string::' + prefix) || x.startsWith('object::' + prefix)
     })
 
     keys.forEach(x => this.cache.del(x))
+    this.events.emit('invalidation', prefix)
   }
 }

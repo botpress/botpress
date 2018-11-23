@@ -1,4 +1,5 @@
 const ActionButton = require('./builtin_action_button.js')
+const Carousel = require('./builtin_carousel')
 
 module.exports = {
   id: 'builtin_card',
@@ -42,5 +43,5 @@ module.exports = {
   },
 
   computePreviewText: formData => `Card: ${formData.title}`,
-  renderElement: (data, channel) => Carousel([data], channel)
+  renderElement: (data, channel) => Carousel.renderElement({ items: [data], ...data }, channel)
 }

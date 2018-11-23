@@ -1,6 +1,5 @@
 import * as sdk from 'botpress/sdk'
 import { copyDir } from 'core/misc/pkg-fs'
-import { WellKnownFlags } from 'core/sdk/enums'
 import fse from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
@@ -20,12 +19,14 @@ import { ModuleLoader } from './module-loader'
 import HTTPServer from './server'
 import { GhostService } from './services'
 import { CMSService } from './services/cms/cms-service'
+import { DecisionEngine } from './services/dialog/decision-engine'
 import { DialogEngine, ProcessingError } from './services/dialog/engine'
 import { DialogJanitor } from './services/dialog/janitor'
 import { SessionIdFactory } from './services/dialog/session/id-factory'
 import { Hooks, HookService } from './services/hook/hook-service'
 import { LogsJanitor } from './services/logs/janitor'
 import { EventEngine } from './services/middleware/event-engine'
+import { StateManager } from './services/middleware/state-manager'
 import { NotificationsService } from './services/notification/service'
 import RealtimeService from './services/realtime'
 import { Statistics } from './stats'
@@ -60,12 +61,14 @@ export class Botpress {
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
     @inject(TYPES.CMSService) private cmsService: CMSService,
     @inject(TYPES.DialogEngine) private dialogEngine: DialogEngine,
+    @inject(TYPES.DecisionEngine) private decisionEngine: DecisionEngine,
     @inject(TYPES.LoggerProvider) private loggerProvider: LoggerProvider,
     @inject(TYPES.DialogJanitorRunner) private dialogJanitor: DialogJanitor,
     @inject(TYPES.LogJanitorRunner) private logJanitor: LogsJanitor,
     @inject(TYPES.LoggerPersister) private loggerPersister: LoggerPersister,
     @inject(TYPES.NotificationsService) private notificationService: NotificationsService,
-    @inject(TYPES.AppLifecycle) private lifecycle: AppLifecycle
+    @inject(TYPES.AppLifecycle) private lifecycle: AppLifecycle,
+    @inject(TYPES.StateManager) private stateManager: StateManager
   ) {
     this.version = '12.0.1'
     this.botpressPath = path.join(process.cwd(), 'dist')
@@ -145,17 +148,18 @@ export class Botpress {
 
     await this.cmsService.initialize()
 
-    this.eventEngine.onBeforeIncomingMiddleware = async (event: sdk.IO.Event) => {
+    this.eventEngine.onBeforeIncomingMiddleware = async (event: sdk.IO.IncomingEvent) => {
       await this.hookService.executeHook(new Hooks.BeforeIncomingMiddleware(this.api, event))
     }
 
-    this.eventEngine.onAfterIncomingMiddleware = async (event: sdk.IO.Event) => {
+    this.eventEngine.onAfterIncomingMiddleware = async (event: sdk.IO.IncomingEvent) => {
       await this.hookService.executeHook(new Hooks.AfterIncomingMiddleware(this.api, event))
-      if (!event.hasFlag(WellKnownFlags.SKIP_DIALOG_ENGINE)) {
-        const sessionId = SessionIdFactory.createIdFromEvent(event)
-        await this.dialogEngine.processEvent(sessionId, event)
-      }
+
+      const sessionId = SessionIdFactory.createIdFromEvent(event)
+      await this.decisionEngine.processEvent(sessionId, event)
     }
+
+    this.stateManager.initialize()
 
     const flowLogger = await this.loggerProvider('DialogEngine')
     this.dialogEngine.onProcessingError = err => {

@@ -1,7 +1,6 @@
-import { execFile, execFileSync } from 'child_process'
+import { ChildProcess, execFile, execFileSync } from 'child_process'
 import { EOL } from 'os'
 import { join } from 'path'
-import { Readable } from 'stream'
 
 let bin = 'ft_linux'
 if (process.platform === 'win32') {
@@ -14,6 +13,10 @@ let BINPATH = join(__dirname, bin)
 
 export default class FTWrapper {
   binpath = BINPATH
+
+  private static process_cache: { [key: string]: ChildProcess } = {}
+  private static process_cache_lock: { [key: string]: boolean } = {}
+  private static process_cache_expiry: { [key: string]: number } = {}
 
   static changeBinPath(newPath: string) {
     BINPATH = newPath
@@ -73,23 +76,81 @@ signal: ${err.signal}
     }
   }
 
-  static async predictProb(modelPath: string, inputText: string, numClass = 5): Promise<string> {
-    const args = ['predict-prob', modelPath, '-', numClass.toString()]
-    const result = execFile(BINPATH, args, {
-      encoding: 'utf8',
-      stdio: ['pipe', 'ignore', 'ignore']
-    })
+  private static _scheduleProcessCleanup(modelPath: string, expiry: number) {
+    setTimeout(async () => {
+      if (FTWrapper.process_cache_expiry[modelPath] !== expiry) {
+        return
+      }
 
-    let out: string = ''
-    result.stdin.end(`${inputText}${EOL}`)
-    result.stdout.on('data', chunk => {
-      out += chunk
-    })
+      while (FTWrapper.process_cache_lock[modelPath]) {
+        await Promise.delay(100) // wait until the lock was release
+        if (FTWrapper.process_cache_expiry[modelPath] !== expiry) {
+          return
+        }
+      }
 
-    return Promise.fromCallback<string>(cb => {
-      result.stdout.on('close', () => {
-        cb(undefined, out)
+      if (FTWrapper.process_cache[modelPath]) {
+        FTWrapper.process_cache[modelPath].kill()
+      }
+
+      delete FTWrapper.process_cache[modelPath]
+      delete FTWrapper.process_cache_expiry[modelPath]
+      delete FTWrapper.process_cache_lock[modelPath]
+    }, 5000) // kill the process if not called after a while
+  }
+
+  /** @description Spins a fastText process for the model in the background
+   * and keep it running until it's not used anymore. When used, the process i/o is locked so that
+   * there's only one producer and consumer of the streams at any given time.
+   */
+  private static async _acquireProcess(modelPath: string): Promise<ChildProcess> {
+    if (FTWrapper.process_cache_lock[modelPath] === true) {
+      await Promise.delay(1) // re-queue async task
+      return FTWrapper._acquireProcess(modelPath)
+    } else {
+      FTWrapper.process_cache_lock[modelPath] = true
+    }
+
+    try {
+      if (!FTWrapper.process_cache[modelPath]) {
+        const args = ['predict-prob', modelPath, '-', 5]
+
+        FTWrapper.process_cache[modelPath] = execFile(BINPATH, args, {
+          encoding: 'utf8',
+          stdio: ['pipe', 'ignore', 'ignore']
+        })
+
+        FTWrapper.process_cache[modelPath].stdout.on('close', () => {
+          delete FTWrapper.process_cache[modelPath]
+          delete FTWrapper.process_cache_expiry[modelPath]
+          delete FTWrapper.process_cache_lock[modelPath]
+        })
+      }
+
+      // Schedule expiry of the process
+      const expiry = Date.now() + 5000
+      FTWrapper.process_cache_expiry[modelPath] = expiry // in X seconds
+      FTWrapper._scheduleProcessCleanup(modelPath, expiry)
+
+      return FTWrapper.process_cache[modelPath]
+    } catch {
+      FTWrapper._releaseProcess(modelPath)
+    }
+  }
+
+  private static _releaseProcess(modelPath: string) {
+    delete FTWrapper.process_cache_lock[modelPath]
+  }
+
+  public static async predictProb(modelPath: string, inputText: string): Promise<string> {
+    try {
+      const process = await FTWrapper._acquireProcess(modelPath)
+      return new Promise<string>(resolve => {
+        process.stdin.write(`${inputText}${EOL}`)
+        process.stdout.once('data', resolve)
       })
-    })
+    } finally {
+      FTWrapper._releaseProcess(modelPath)
+    }
   }
 }

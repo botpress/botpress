@@ -1,6 +1,9 @@
 import { TYPES } from 'core/types'
 import { ContainerModule, interfaces } from 'inversify'
 
+import { StateManager } from '../middleware/state-manager'
+
+import { DecisionEngine } from './decision-engine'
 import { DialogEngine } from './engine'
 import { FlowNavigator } from './flow/navigator'
 import { FlowService } from './flow/service'
@@ -8,11 +11,13 @@ import { InstructionFactory } from './instruction/factory'
 import { InstructionProcessor } from './instruction/processor'
 import { ActionStrategy, StrategyFactory, TransitionStrategy, WaitStrategy } from './instruction/strategy'
 import { DialogJanitor } from './janitor'
-import { SessionService } from './session/service'
 
 export const DialogContainerModule = new ContainerModule((bind: interfaces.Bind) => {
   bind<DialogEngine>(TYPES.DialogEngine)
     .to(DialogEngine)
+    .inSingletonScope()
+  bind<DecisionEngine>(TYPES.DecisionEngine)
+    .to(DecisionEngine)
     .inSingletonScope()
   bind<FlowNavigator>(TYPES.FlowNavigator)
     .to(FlowNavigator)
@@ -41,7 +46,7 @@ export const DialogContainerModule = new ContainerModule((bind: interfaces.Bind)
   bind<DialogJanitor>(TYPES.DialogJanitorRunner)
     .to(DialogJanitor)
     .inSingletonScope()
-  bind<SessionService>(TYPES.SessionService)
-    .to(SessionService)
+  bind<StateManager>(TYPES.StateManager)
+    .to(StateManager)
     .inSingletonScope()
 })

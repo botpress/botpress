@@ -1,4 +1,4 @@
-import { Paging, User, UserAttribute, UserAttributeMap } from 'botpress/sdk'
+import { Paging, User } from 'botpress/sdk'
 import { inject, injectable } from 'inversify'
 import Knex from 'knex'
 
@@ -7,18 +7,9 @@ import { TYPES } from '../types'
 
 export interface UserRepository {
   getOrCreate(channel: string, id: string): Knex.GetOrCreateResult<User>
-  updateAttributes(channel: string, id: string, attributes: UserAttribute[]): Promise<void>
+  updateAttributes(channel: string, id: string, attributes: any): Promise<void>
   getAllUsers(paging?: Paging): Promise<any>
   getUserCount(): Promise<any>
-}
-
-function channelUserAttributes(arr: UserAttribute[] = []): UserAttributeMap {
-  (arr as UserAttributeMap).get = (key: string): string | undefined => {
-    const match = arr.find(x => x.key.toLowerCase() === key.toLowerCase())
-    return (match && match.value) || undefined
-  }
-
-  return arr as UserAttributeMap
 }
 
 @injectable()
@@ -46,7 +37,7 @@ export class KnexUserRepository implements UserRepository {
         id: id,
         createdOn: ug.created_at,
         updatedOn: ug.updated_at,
-        attributes: channelUserAttributes(this.database.knex.json.get(ug.attributes)),
+        attributes: this.database.knex.json.get(ug.attributes),
         otherChannels: []
       }
 
@@ -56,11 +47,11 @@ export class KnexUserRepository implements UserRepository {
     await this.database.knex(this.tableName).insert({
       channel,
       user_id: id,
-      attributes: this.database.knex.json.set([])
+      attributes: this.database.knex.json.set({})
     })
 
     const newUser: User = {
-      attributes: channelUserAttributes([]),
+      attributes: {},
       channel: channel,
       id,
       createdOn: new Date(),
@@ -71,12 +62,8 @@ export class KnexUserRepository implements UserRepository {
     return { result: newUser, created: true }
   }
 
-  async updateAttributes(channel: string, id: string, attributes: UserAttribute[]): Promise<void> {
+  async updateAttributes(channel: string, id: string, attributes: any): Promise<void> {
     channel = channel.toLowerCase()
-
-    if (!attributes || attributes.length === undefined) {
-      throw new Error('Attributes must be an array of ChannelUserAttribute')
-    }
 
     await this.database
       .knex(this.tableName)

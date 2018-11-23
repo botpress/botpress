@@ -26,8 +26,8 @@ const TYPES = {
   HookService: Symbol.for('HookService'),
   EventEngine: Symbol.for('EventEngine'),
   DialogEngine: Symbol.for('DialogEngine'),
-  SessionRepository: Symbol.for('StateManager'),
-  SessionService: Symbol.for('SessionService'),
+  DecisionEngine: Symbol.for('DecisionEngine'),
+  SessionRepository: Symbol.for('SessionRepository'),
   BotpressAPIProvider: Symbol.for('BotpressAPIProvider'),
   RealtimeService: Symbol.for('RealtimeService'),
   UserRepository: Symbol.for('UserRepository'),
@@ -54,13 +54,13 @@ const TYPES = {
   BotConfigFactory: Symbol.for('BotConfigFactory'),
   BotConfigWriter: Symbol.for('BotConfigWriter'),
   KeyValueStore: Symbol.for('KeyValueStore'),
-  ContentElementSender: Symbol.for('ContentElementSender'),
   SkillService: Symbol.for('SkillService'),
   AdminService: Symbol.for('AdminService'),
   LicensingService: Symbol.for('LicensingService'),
   AppLifecycle: Symbol.for('AppLifecycle'),
   AuthRolesRepository: Symbol.for('AuthRolesRepository'),
-  Statistics: Symbol.for('Statistics')
+  Statistics: Symbol.for('Statistics'),
+  StateManager: Symbol.for('StateManager')
 }
 
 export { TYPES }

@@ -41,6 +41,13 @@ export type BotpressConfig = {
       enabled?: boolean
       origin?: string
     }
+    /**
+     * Represents the complete base URL exposed externally by your bot. This is useful if you configure the bot
+     * locally and use NGINX as a reverse proxy to handle HTTPS. It should include the protocol and no trailing slash.
+     * If unset, it will be constructed from the real host/port
+     * @example https://botpress.io
+     */
+    externalUrl?: string
   }
   database: DatabaseConfig
   ghost: {

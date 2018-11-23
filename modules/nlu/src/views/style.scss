@@ -42,8 +42,9 @@ footer {
       padding: 5px;
       font-size: 14px;
     }
-    .checkbox input {
-      width: auto;
+
+    .checkboxContainer {
+      display: flex;
     }
   }
 

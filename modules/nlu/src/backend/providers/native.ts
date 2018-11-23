@@ -63,10 +63,6 @@ export default class NativeProvider extends Provider {
   }
 
   async extract(incomingEvent: sdk.IO.Event) {
-    if (await this.checkSyncNeeded()) {
-      await this.sync()
-    }
-
     const language = await this.langDetector.detectLang(incomingEvent.preview)
     const predictions = await this.intentClassifier.predict(incomingEvent.preview)
 

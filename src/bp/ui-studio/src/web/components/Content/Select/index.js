@@ -13,7 +13,7 @@ import axios from 'axios'
 
 const style = require('./style.scss')
 
-const SEARCH_RESULTS_LIMIT = 5
+const SEARCH_RESULTS_LIMIT = 10
 
 const formSteps = {
   INITIAL: 0,
