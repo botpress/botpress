@@ -13,6 +13,8 @@ import { DataRetentionService } from './service'
 
 @injectable()
 export class DataRetentionJanitor extends Janitor {
+  private BATCH_SIZE = 250
+
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'RetentionJanitor')
@@ -35,13 +37,19 @@ export class DataRetentionJanitor extends Janitor {
   }
 
   protected async runTask(): Promise<void> {
-    const expired = await this.dataRetentionService.getExpired()
+    let expired = await this.dataRetentionService.getExpired(this.BATCH_SIZE)
 
-    await Promise.mapSeries(expired, async ({ channel, user_id, field_path }) => {
-      const { result: user } = await this.userRepo.getOrCreate(channel, user_id)
+    while (expired.length > 0) {
+      await Promise.mapSeries(expired, async ({ channel, user_id, field_path }) => {
+        const { result: user } = await this.userRepo.getOrCreate(channel, user_id)
 
-      await this.userRepo.updateAttributes(channel, user.id, _.omit(user.attributes, field_path))
-      await this.dataRetentionService.delete(channel, user_id, field_path)
-    })
+        await this.userRepo.updateAttributes(channel, user.id, _.omit(user.attributes, field_path))
+        await this.dataRetentionService.delete(channel, user_id, field_path)
+      })
+
+      if (expired.length === this.BATCH_SIZE) {
+        expired = await this.dataRetentionService.getExpired(this.BATCH_SIZE)
+      }
+    }
   }
 }

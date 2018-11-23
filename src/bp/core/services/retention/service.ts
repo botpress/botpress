@@ -100,11 +100,11 @@ export class DataRetentionService {
       .del()
   }
 
-  async getExpired(): Promise<ExpiredData[]> {
+  async getExpired(batchSize): Promise<ExpiredData[]> {
     return await this.database
       .knex(this.tableName)
       .andWhere(this.database.knex.date.isBefore('expiry_date', new Date()))
       .select('channel', 'user_id', 'field_path')
-      .limit(250)
+      .limit(batchSize)
   }
 }
