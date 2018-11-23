@@ -3,6 +3,7 @@ import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 
+import { converseApiEvents } from '../converse'
 import { Hooks, HookService } from '../hook/hook-service'
 
 import { FlowView } from '.'
@@ -72,7 +73,9 @@ export class DialogEngine {
     }
 
     try {
+      await converseApiEvents.emitAsync(`action.start.${event.target}`, event)
       const result = await this.instructionProcessor.process(botId, instruction, event)
+      await converseApiEvents.emitAsync(`action.end.${event.target}`, event)
 
       if (result.followUpAction === 'none') {
         context.queue = queue

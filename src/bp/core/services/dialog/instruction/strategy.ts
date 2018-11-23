@@ -44,7 +44,6 @@ export class ActionStrategy implements InstructionStrategy {
   ) {}
 
   async processInstruction(botId, instruction, event): Promise<ProcessingResult> {
-    await converseApiEvents.emitAsync(`action.${event.target}`, event)
     if (instruction.fn.indexOf('say ') === 0) {
       return this.invokeOutputProcessor(botId, instruction, event)
     } else {

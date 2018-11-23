@@ -33,6 +33,7 @@ export class ConverseService {
         next()
       }
     })
+
     this.eventEngine.register({
       name: 'converse.capture.nlu',
       description: 'Captures the nlu output for the Converse API',
@@ -66,39 +67,46 @@ export class ConverseService {
 
     await this.eventEngine.sendEvent(incomingEvent)
 
-    return Promise.race([timeoutPromise, donePromise])
+    return Promise.race([timeoutPromise, donePromise]).finally(() => {
+      converseApiEvents.removeAllListeners(`done.${userId}`)
+      converseApiEvents.removeAllListeners(`action.start.${userId}`)
+      converseApiEvents.removeAllListeners(`action.end.${userId}`)
+      this.jsonMap.delete(userId)
+    })
   }
 
   private async _createDonePromise(userId) {
     return new Promise((resolve, reject) => {
-      const doneEvent = `done.${userId}`
-
-      converseApiEvents.removeAllListeners(doneEvent)
-      converseApiEvents.once(doneEvent, event => {
+      converseApiEvents.once(`done.${userId}`, event => {
         if (this.jsonMap.has(event.target)) {
           const json = this.jsonMap.get(event.target)
-          this.jsonMap.delete(event.target)
-
           return resolve(json)
         } else {
-          return reject(`No responses found for event target "${event.target}".`)
+          return reject(new Error(`No responses found for event target "${event.target}".`))
         }
       })
     })
   }
 
+  // Apply a timeout to prevent hanging in the middleware chain
   private async _createTimeoutPromise(userId) {
+    let actionRunning = false
+
     return new Promise((resolve, reject) => {
-      const actionEvent = `action.${userId}`
-      const wait = setTimeout(() => {
-        converseApiEvents.removeAllListeners(`action.${userId}`)
-        converseApiEvents.removeAllListeners(`done.${userId}`)
-        this.jsonMap.delete(userId)
-        reject('Request timed out.')
+      const timer = setTimeout(() => {
+        // We deactivate the timeout for actions because they have their own timeout check
+        if (!actionRunning) {
+          reject(new Error('Request timed out.'))
+        }
       }, this.timeoutInMs)
 
-      converseApiEvents.on(actionEvent, () => {
-        clearTimeout(wait)
+      converseApiEvents.on(`action.start.${userId}`, () => {
+        actionRunning = true
+      })
+
+      converseApiEvents.on(`action.end.${userId}`, () => {
+        actionRunning = false
+        timer.refresh()
       })
     })
   }
