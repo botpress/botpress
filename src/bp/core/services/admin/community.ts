@@ -1,10 +1,10 @@
 import { Logger } from 'botpress/sdk'
 import { checkRule } from 'common/auth'
+import { BotCreationSchema, BotEditSchema } from 'common/validation'
 import { BotLoader } from 'core/bot-loader'
 import { BotConfigFactory, BotConfigWriter } from 'core/config'
 import Database from 'core/database'
 import { AuthRole, AuthRoleDb, AuthRule, AuthTeam, AuthTeamMembership, AuthUser, Bot } from 'core/misc/interfaces'
-import { BOTID_REGEX } from 'core/misc/validation'
 import { saltHashPassword } from 'core/services/auth/util'
 import { Statistics } from 'core/stats'
 import { TYPES } from 'core/types'
@@ -29,20 +29,6 @@ export class CommunityAdminService implements AdminService {
   protected botsTable = 'srv_bots'
   protected ROOT_ADMIN_ID = 1
 
-  protected botCreationSchema = Joi.object().keys({
-    id: Joi.string()
-      .regex(BOTID_REGEX)
-      .required(),
-    name: Joi.string().required(),
-    description: Joi.string(),
-    team: Joi.number().required()
-  })
-
-  protected botEditSchema = Joi.object().keys({
-    name: Joi.string().required(),
-    description: Joi.string().required()
-  })
-
   private edition = process.BOTPRESS_EDITION
 
   constructor(
@@ -51,7 +37,7 @@ export class CommunityAdminService implements AdminService {
     @inject(TYPES.BotConfigFactory) private botConfigFactory: BotConfigFactory,
     @inject(TYPES.BotConfigWriter) private botConfigWriter: BotConfigWriter,
     @inject(TYPES.BotLoader) private botLoader: BotLoader,
-    @inject(TYPES.Statistics) private stats: Statistics
+    @inject(TYPES.Statistics) protected stats: Statistics
   ) {}
 
   protected get knex() {
@@ -140,9 +126,9 @@ export class CommunityAdminService implements AdminService {
   }
 
   async addBot(teamId: number, bot: Bot): Promise<void> {
-    this.stats.track('api', 'admin', 'addBot')
+    this.stats.track('ce', 'addBot')
     bot.team = teamId
-    const { error } = Joi.validate(bot, this.botCreationSchema)
+    const { error } = Joi.validate(bot, BotCreationSchema)
     if (error) {
       throw new InvalidOperationError(`An error occurred while creating the bot: ${error.message}`)
     }
@@ -154,14 +140,14 @@ export class CommunityAdminService implements AdminService {
   }
 
   async updateBot(teamId: number, botId: string, bot: Bot): Promise<void> {
-    this.stats.track('api', 'admin', 'updateBot')
+    this.stats.track('ce', 'updateBot')
 
     const actualBot = await this.getBot({ id: botId, team: teamId })
     if (!actualBot) {
       throw new UnauthorizedAccessError(`Team "${teamId}" could not access bot "${botId}"`)
     }
 
-    const { error } = Joi.validate(bot, this.botEditSchema)
+    const { error } = Joi.validate(bot, BotEditSchema)
     if (error) {
       throw new InvalidOperationError(`An error occurred while updating the bot: ${error.message}`)
     }
@@ -199,6 +185,7 @@ export class CommunityAdminService implements AdminService {
   }
 
   async createNewTeam({ userId, name = 'Default Team' }: { userId: number; name?: string }) {
+    this.stats.track('ce', 'createTeam')
     const teamId = await this.knex.insertAndRetrieve<number>(this.teamsTable, {
       name
     })
