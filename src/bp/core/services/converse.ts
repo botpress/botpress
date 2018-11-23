@@ -13,7 +13,7 @@ export const converseApiEvents = new EventEmitter2()
 
 @injectable()
 export class ConverseService {
-  private readonly timeoutInMs = 2500
+  private readonly timeoutInMs = 2000
   private jsonMap: Map<string, object> = new Map()
 
   constructor(
