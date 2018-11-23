@@ -11,16 +11,10 @@ export interface Config {
    * @default ./models
    */
   modelsDir: string
-  /**
-   * The name of the NLU provider. Can be native, rasa, luis
-   * @default native
-   */
-  provider: string
-  /**
-   * Enable logging of debug messages
-   * @default true
-   */
-  debugModeEnabled: boolean
+
+  /** If you compiled fastText yourself and need to point to its location */
+  fastTextPath?: string
+
   /**
    * The minimum confidence required (in %) for an intent to match
    * Set to '0' to always match
@@ -34,46 +28,13 @@ export interface Config {
    */
   maximumConfidence: number
 
-  recastToken?: string
-  recastUserSlug?: string
-  recastBotSlug?: string
-
   /**
-   * @default http://localhost:5000
-   */
-  rasaEndpoint: string
-  rasaToken: string
-  /**
-   * @default botpress
-   */
-  rasaProject: string
-
-  luisAppId: string
-  luisProgrammaticKey: string
-  luisAppSecret: string
-  /**
-   * @default westus
-   */
-  luisAppRegion: string
-
-  googleProjectId: string
-
-  /**
-   * The maximum number of requests per hour
-   * Useful to make sure you don't overuse your budget on paid NLU-services (like LUIS)
-   * @default -1
-   */
-  maximumRequestsPerHour: number
-
-  /**
-   *
    * @default https://duckling.botpress.io
    */
   ducklingURL: string
 
   /**
-   *
    * @default true
    */
-  ducklingEnabled: Boolean
+  ducklingEnabled: boolean
 }

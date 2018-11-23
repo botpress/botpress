@@ -1,33 +1,34 @@
-import { SDK } from '.'
-import ScopedNlu from './scopednlu'
+import * as sdk from 'botpress/sdk'
 
-export default async (bp: SDK, botScopedNlu: Map<string, ScopedNlu>) => {
+import ScopedEngine from './engine'
+
+export default async (bp: typeof sdk, nlus: EngineByBot) => {
   const router = bp.http.createRouterForBot('nlu')
 
   router.get('/intents', async (req, res) => {
-    res.send(await botScopedNlu.get(req.params.botId).storage.getIntents())
+    res.send(await (nlus[req.params.botId] as ScopedEngine).storage.getIntents())
   })
 
   router.get('/intents/:intent', async (req, res) => {
-    res.send(await botScopedNlu.get(req.params.botId).storage.getIntent(req.params.intent))
+    res.send(await (nlus[req.params.botId] as ScopedEngine).storage.getIntent(req.params.intent))
   })
 
   router.delete('/intents/:intent', async (req, res) => {
-    await botScopedNlu.get(req.params.botId).storage.deleteIntent(req.params.intent)
+    await (nlus[req.params.botId] as ScopedEngine).storage.deleteIntent(req.params.intent)
     res.sendStatus(200)
   })
 
   router.post('/intents/:intent', async (req, res) => {
-    await botScopedNlu.get(req.params.botId).storage.saveIntent(req.params.intent, req.body)
+    await (nlus[req.params.botId] as ScopedEngine).storage.saveIntent(req.params.intent, req.body)
     res.sendStatus(200)
   })
 
   router.get('/entities', async (req, res) => {
-    res.send((await botScopedNlu.get(req.params.botId).provider.getAvailableEntities()).map(x => x.name))
+    res.send([])
   })
 
   router.get('/sync/check', async (req, res) => {
-    res.send(await botScopedNlu.get(req.params.botId).provider.checkSyncNeeded())
+    res.send(await nlus[req.params.botId].checkSyncNeeded())
   })
 
   router.get('/sync', async (req, res) => {
@@ -36,7 +37,7 @@ export default async (bp: SDK, botScopedNlu: Map<string, ScopedNlu>) => {
         bp.RealTimePayload.forAdmins('toast.nlu-sync', { text: 'NLU Sync In Progress', type: 'info', time: 120000 })
       )
 
-      await botScopedNlu.get(req.params.botId).provider.sync()
+      await nlus[req.params.botId].sync()
       bp.realtime.sendPayload(
         bp.RealTimePayload.forAdmins('toast.nlu-sync', { text: 'NLU Sync Success', type: 'success' })
       )
@@ -62,7 +63,7 @@ export default async (bp: SDK, botScopedNlu: Map<string, ScopedNlu>) => {
     }
 
     try {
-      const result = await botScopedNlu.get(req.params.botId).provider.extract(eventText)
+      const result = await nlus[req.params.botId].extract(eventText)
       res.send(result)
     } catch (err) {
       res.status(500).send(`Error extracting NLU data from event: ${err}`)

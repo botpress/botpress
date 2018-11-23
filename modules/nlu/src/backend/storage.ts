@@ -1,15 +1,15 @@
+import * as sdk from 'botpress/sdk'
+
 import { ScopedGhostService } from 'botpress/sdk'
 import _ from 'lodash'
 import path from 'path'
 
-import { SDK } from '.'
+import { Config } from '../config'
 
-const formatFilename = name =>
+const sanitizeFilenameNoExt = name =>
   name
     .toLowerCase()
     .replace(/[^a-z0-9-_.]/gi, '_')
-    .replace('.entities.json', '')
-    .replace('.entity.json', '')
     .replace('.json', '')
     .replace('.utterances.txt', '')
 
@@ -19,20 +19,22 @@ export interface AvailableModel {
 }
 
 export default class Storage {
-  private ghost: ScopedGhostService
-  private intentsDir: string
-  private entitiesDir: string
-  private modelsDir: string
+  static ghostProvider: (botId: string) => sdk.ScopedGhostService
 
-  constructor(bp: SDK, config, botId) {
-    this.ghost = bp.ghost.forBot(botId)
+  private readonly ghost: ScopedGhostService
+  private readonly intentsDir: string
+  private readonly entitiesDir: string
+  private readonly modelsDir: string
+
+  constructor(config: Config, private readonly botId: string) {
     this.intentsDir = config.intentsDir
     this.entitiesDir = config.entitiesDir
     this.modelsDir = config.modelsDir
+    this.ghost = Storage.ghostProvider(this.botId)
   }
 
-  async saveIntent(intent, content) {
-    intent = formatFilename(intent)
+  public async saveIntent(intent, content) {
+    intent = sanitizeFilenameNoExt(intent)
 
     if (intent.length < 1) {
       throw new Error('Invalid intent name, expected at least one character')
@@ -53,8 +55,8 @@ export default class Storage {
     )
   }
 
-  async deleteIntent(intent) {
-    intent = formatFilename(intent)
+  public async deleteIntent(intent) {
+    intent = sanitizeFilenameNoExt(intent)
 
     if (intent.length < 1) {
       throw new Error('Invalid intent name, expected at least one character')
@@ -80,13 +82,13 @@ export default class Storage {
     }
   }
 
-  async getIntents() {
+  public async getIntents() {
     const intents = await this.ghost.directoryListing(this.intentsDir, '*.json')
     return Promise.mapSeries(intents, intent => this.getIntent(intent))
   }
 
-  async getIntent(intent) {
-    intent = formatFilename(intent)
+  public async getIntent(intent) {
+    intent = sanitizeFilenameNoExt(intent)
 
     if (intent.length < 1) {
       throw new Error('Invalid intent name, expected at least one character')
@@ -111,36 +113,16 @@ export default class Storage {
     }
   }
 
-  async getCustomEntities() {
-    const entities = await this.ghost.directoryListing(this.entitiesDir, '.json')
-
-    return Promise.mapSeries(entities, entity => this.getCustomEntity(entity))
+  public async getCustomEntities() {
+    return []
   }
 
-  async getCustomEntity(entity) {
-    entity = formatFilename(entity)
-
-    if (entity.length < 1) {
-      throw new Error('Invalid entity name, expected at least one character')
-    }
-
-    const filename = `${entity}.entity.json`
-
-    const definitionContent = await this.ghost.readFileAsString(this.entitiesDir, filename)
-    const definition = JSON.parse(definitionContent)
-
-    return {
-      name: entity,
-      definition: definition
-    }
-  }
-
-  async persistModel(modelBuffer: Buffer, modelName: string) {
+  public async persistModel(modelBuffer: Buffer, modelName: string) {
     // TODO Ghost to support streams?
     return this.ghost.upsertFile(this.modelsDir, modelName, modelBuffer)
   }
 
-  async getAvailableModels(): Promise<AvailableModel[]> {
+  public async getAvailableModels(): Promise<AvailableModel[]> {
     const models = await this.ghost.directoryListing(this.modelsDir, '*.bin')
     return models.map(x => {
       const fileName = path.basename(x, '.bin')
@@ -152,12 +134,12 @@ export default class Storage {
     })
   }
 
-  async modelExists(modelHash: string): Promise<boolean> {
+  public async modelExists(modelHash: string): Promise<boolean> {
     const models = await this.getAvailableModels()
     return !!_.find(models, m => m.hash === modelHash)
   }
 
-  async getModelAsBuffer(modelHash: string): Promise<Buffer> {
+  public async getModelAsBuffer(modelHash: string): Promise<Buffer> {
     const models = await this.ghost.directoryListing(this.modelsDir, '*.bin')
     const modelFn = _.find(models, m => m.indexOf(modelHash) !== -1)
 
