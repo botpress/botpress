@@ -2,24 +2,23 @@ import Axios, { AxiosInstance } from 'axios'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
+import { EntityExtractor } from '../../typings'
+
 export class DucklingEntityExtractor implements EntityExtractor {
   public static enabled: boolean
-  public static url: string
   public static client: AxiosInstance
 
   constructor(private readonly logger: sdk.Logger) {}
 
   static configure(enabled: boolean, url: string) {
     this.enabled = enabled
-    this.url = url
-
     this.client = Axios.create({
-      baseURL: this.url,
+      baseURL: url,
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     })
   }
 
-  public async extract(text: string, lang: string): Promise<Predictions.Entity[]> {
+  public async extract(text: string, lang: string): Promise<sdk.NLU.Entity[]> {
     if (!DucklingEntityExtractor.enabled) return []
 
     try {
@@ -49,7 +48,7 @@ export class DucklingEntityExtractor implements EntityExtractor {
     return Intl.DateTimeFormat().resolvedOptions().timeZone
   }
 
-  private _mapMeta(DEntity): Predictions.EntityMeta {
+  private _mapMeta(DEntity): sdk.NLU.EntityMeta {
     return {
       confidence: 1, // rule based extraction
       provider: 'native',
@@ -60,7 +59,7 @@ export class DucklingEntityExtractor implements EntityExtractor {
     }
   }
 
-  private _mapBody(dimension, rawVal): Predictions.EntityBody {
+  private _mapBody(dimension, rawVal): sdk.NLU.EntityBody {
     switch (dimension) {
       case 'duration':
         const normalized = rawVal.normalized

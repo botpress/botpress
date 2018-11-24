@@ -32,7 +32,7 @@ export class RealTimePayload {
 }
 
 export class IOEvent implements sdk.IO.Event {
-  public readonly id: Number
+  public readonly id: string
   public readonly type: string
   public readonly channel: string
   public readonly target: string
@@ -54,7 +54,7 @@ export class IOEvent implements sdk.IO.Event {
     this.botId = args.botId
 
     this.threadId = args.threadId ? args.threadId.toString() : undefined
-    this.id = args.id || Date.now() * 100000 + ((Math.random() * 100000) | 0)
+    this.id = args.id || (Date.now() * 100000 + ((Math.random() * 100000) | 0)).toString()
     this.preview = args.preview || this.constructPreview()
     this.flags = {}
     this.state = {}

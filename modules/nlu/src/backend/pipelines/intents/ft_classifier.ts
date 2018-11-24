@@ -1,9 +1,12 @@
-import { Logger } from 'botpress/sdk'
+import * as sdk from 'botpress/sdk'
 import { createWriteStream, writeFileSync } from 'fs'
 import { EOL } from 'os'
 import tmp from 'tmp'
 
-import FastTextWrapper from '../../tools/fastText'
+import FastTextWrapper, { Prediction } from '../../tools/fastText'
+import { IntentClassifier } from '../../typings'
+
+import { createIntentMatcher } from './matcher'
 
 interface TrainSet {
   name: string
@@ -11,7 +14,7 @@ interface TrainSet {
 }
 
 export default class FastTextClassifier implements IntentClassifier {
-  constructor(private readonly logger: Logger) {}
+  constructor(private readonly logger: sdk.Logger) {}
 
   private fastTextWrapper: FastTextWrapper
 
@@ -40,6 +43,8 @@ export default class FastTextClassifier implements IntentClassifier {
 
     const modelFn = tmp.tmpNameSync()
     const modelPath = `${modelFn}.bin`
+
+    // TODO: Add parameters Grid Search logic here
     this.fastTextWrapper = new FastTextWrapper(modelPath)
 
     this.fastTextWrapper.train(dataFn, { method: 'supervised' })
@@ -55,11 +60,24 @@ export default class FastTextClassifier implements IntentClassifier {
     this.fastTextWrapper = new FastTextWrapper(tmpFn)
   }
 
-  public async predict(input: string): Promise<Predictions.Intent[]> {
+  public async predict(input: string): Promise<sdk.NLU.Intent[]> {
     if (!this.fastTextWrapper) {
       throw new Error('model is not set')
     }
 
-    return this.fastTextWrapper.predict(this.sanitizeText(input), 5)
+    let intents: Prediction[] = await this.fastTextWrapper.predict(this.sanitizeText(input), 5)
+
+    if (!intents.length) {
+      intents = [{ name: 'none', confidence: 1 }]
+    }
+
+    return intents.map(
+      (intent): sdk.NLU.Intent => {
+        return {
+          ...intent,
+          matches: createIntentMatcher(intent.name)
+        }
+      }
+    )
   }
 }

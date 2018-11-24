@@ -6,15 +6,16 @@ import { readFileSync, writeFileSync } from 'fs'
 import tmp from 'tmp'
 
 import FastTextWrapper from '../../tools/fastText'
+import { LanguageIdentifier } from '../../typings'
 
 const PRETRAINED_LID_176 = join(__dirname, '../../tools/pretrained/lid.176.ftz')
 
-export class FastTextIndentifier implements LanguageIdentifier {
+export class FastTextLanguageId implements LanguageIdentifier {
   private static model: FastTextWrapper
 
   constructor(private readonly logger: Logger) {
-    if (!FastTextIndentifier.model) {
-      FastTextIndentifier.initializeModel()
+    if (!FastTextLanguageId.model) {
+      FastTextLanguageId.initializeModel()
     }
   }
 
@@ -26,7 +27,7 @@ export class FastTextIndentifier implements LanguageIdentifier {
   }
 
   async identify(text: string): Promise<string> {
-    const res = await FastTextIndentifier.model.predict(text, 1)
+    const res = await FastTextLanguageId.model.predict(text, 1)
     return res[0].name
   }
 }

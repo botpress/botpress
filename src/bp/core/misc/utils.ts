@@ -1,4 +1,16 @@
+import { Logger } from 'botpress/sdk'
+
 export type MockObject<T> = { T: T } & { readonly [key in keyof T]: jest.Mock }
+
+export function createMockLogger(): Logger {
+  const spy = createSpyObject<Logger>()
+  return Object.assign(spy, {
+    attachError: () => spy,
+    forBot: () => spy,
+    persist: () => spy,
+    level: () => spy
+  } as Partial<Logger>)
+}
 
 export function createSpyObject<T>(): MockObject<T> {
   const obj = {}

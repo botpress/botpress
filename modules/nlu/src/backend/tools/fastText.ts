@@ -10,6 +10,8 @@ if (process.platform === 'win32') {
   bin = 'ft_osx'
 }
 
+export type Prediction = { name: string; confidence: number }
+
 export type FastTextTrainArgs = {
   method: 'supervised' | 'skipgram' | 'cbow'
   learningRate: number
@@ -110,10 +112,7 @@ signal: ${err.signal}
     }
   }
 
-  public async predict(
-    sentence: string,
-    k: number = DefaultFastTextQueryArgs.k
-  ): Promise<{ name: string; confidence: number }[]> {
+  public async predict(sentence: string, k: number = DefaultFastTextQueryArgs.k): Promise<Prediction[]> {
     const result = await FastTextWrapper._query(this.modelPath, sentence, { method: 'predict-prob', k })
 
     const parts = result.split(/\s|\n|\r/gi).filter(x => x.trim().length)

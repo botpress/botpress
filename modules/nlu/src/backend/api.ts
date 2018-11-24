@@ -1,6 +1,7 @@
 import * as sdk from 'botpress/sdk'
 
 import ScopedEngine from './engine'
+import { EngineByBot } from './typings'
 
 export default async (bp: typeof sdk, nlus: EngineByBot) => {
   const router = bp.http.createRouterForBot('nlu')
@@ -24,7 +25,7 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
   })
 
   router.get('/entities', async (req, res) => {
-    res.send([])
+    res.send([]) // TODO: Add built-in entity extractions here
   })
 
   router.get('/sync/check', async (req, res) => {

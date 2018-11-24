@@ -3,14 +3,13 @@ import _ from 'lodash'
 import 'reflect-metadata'
 
 import { Event } from '../../../core/sdk/impl'
-import { PersistedConsoleLogger } from '../../logger'
-import { createSpyObject, MockObject } from '../../misc/utils'
+import { createMockLogger } from '../../misc/utils'
 
 import MemoryQueue from './memory-queue'
 
 describe('Lite Queues', () => {
   const options = { retries: 1 }
-  const logger: MockObject<PersistedConsoleLogger> = createSpyObject<PersistedConsoleLogger>()
+  const logger = createMockLogger()
   let queue: MemoryQueue
 
   const stubEvent = Event({
@@ -23,7 +22,7 @@ describe('Lite Queues', () => {
   })
 
   beforeEach(() => {
-    queue = new MemoryQueue('name', logger.T, options)
+    queue = new MemoryQueue('name', logger, options)
   })
 
   afterEach(() => {
@@ -31,14 +30,14 @@ describe('Lite Queues', () => {
   })
 
   it('Respects order (sync)', async () => {
-    const order: Number[] = []
+    const order: string[] = []
 
     queue.subscribe(async event => {
       order.push(event.id) // Sync processing
     })
 
     for (let i = 0; i < 10; i++) {
-      queue.enqueue({ ...stubEvent, id: i }, 1)
+      queue.enqueue({ ...stubEvent, id: i.toString() }, 1)
     }
 
     while (!queue.isEmpty()) {
@@ -46,19 +45,19 @@ describe('Lite Queues', () => {
     }
 
     expect(order.length).toEqual(10)
-    expect(order).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+    expect(order).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => n.toString()))
   })
 
   it('Respects order (async)', async () => {
-    const order: Number[] = []
+    const order: string[] = []
 
     queue.subscribe(async event => {
       await Promise.delay(1) // Async processing
-      order.push(event.id)
+      order.push(event.id.toString())
     })
 
     for (let i = 0; i < 10; i++) {
-      queue.enqueue({ ...stubEvent, id: i })
+      queue.enqueue({ ...stubEvent, id: i.toString() })
     }
 
     while (!queue.isEmpty()) {
@@ -68,11 +67,11 @@ describe('Lite Queues', () => {
     await Promise.delay(1)
 
     expect(order).toHaveLength(10)
-    expect(order).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+    expect(order).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(x => x.toString()))
   })
 
   it('Retries failed jobs once', async () => {
-    const order: Number[] = []
+    const order: string[] = []
 
     let i = 0
 
@@ -85,7 +84,7 @@ describe('Lite Queues', () => {
       order.push(event.id)
     })
 
-    queue.enqueue({ ...stubEvent, id: i })
+    queue.enqueue({ ...stubEvent, id: i.toString() })
 
     while (!queue.isEmpty()) {
       await Promise.delay(5)
@@ -98,7 +97,7 @@ describe('Lite Queues', () => {
   })
 
   it('Abandon retrying after two errors', async () => {
-    const order: Number[] = []
+    const order: string[] = []
     let i = 0
     queue.subscribe(async (event: any) => {
       if (i <= 1) {
@@ -108,7 +107,7 @@ describe('Lite Queues', () => {
       order.push(event.id)
     })
 
-    queue.enqueue({ ...stubEvent, id: i })
+    queue.enqueue({ ...stubEvent, id: i.toString() })
 
     while (!queue.isEmpty()) {
       await Promise.delay(5)
@@ -121,7 +120,7 @@ describe('Lite Queues', () => {
   })
 
   it('Runs in parallel for different users', async () => {
-    const order: Number[] = []
+    const order: string[] = []
     queue.subscribe(async (event: any) => {
       order.push(event.id)
       if (event.target === 'a') {
@@ -129,9 +128,9 @@ describe('Lite Queues', () => {
       }
     })
 
-    queue.enqueue({ ...stubEvent, id: 1, target: 'a' })
-    queue.enqueue({ ...stubEvent, id: 2, target: 'b' }) // This message will be locked
-    queue.enqueue({ ...stubEvent, id: 3, target: 'c' }) // But this message will process even if user 'a' is locked
+    queue.enqueue({ ...stubEvent, id: '1', target: 'a' })
+    queue.enqueue({ ...stubEvent, id: '2', target: 'b' }) // This message will be locked
+    queue.enqueue({ ...stubEvent, id: '3', target: 'c' }) // But this message will process even if user 'a' is locked
 
     while (!queue.isEmpty()) {
       await Promise.delay(5)
@@ -139,12 +138,12 @@ describe('Lite Queues', () => {
     await Promise.delay(5)
 
     expect(order).toHaveLength(3)
-    expect(order).toEqual([1, 2, 3])
+    expect(order).toEqual([1, 2, 3].map(x => x.toString()))
   })
 
   it('Cancels all only for requested user', async () => {
-    const userListA: Number[] = []
-    const userListB: Number[] = []
+    const userListA: string[] = []
+    const userListB: string[] = []
     queue.subscribe(async event => {
       await Promise.delay(1)
       if (event.target === 'a') {
@@ -156,17 +155,17 @@ describe('Lite Queues', () => {
     })
 
     for (let i = 0; i < 10; i++) {
-      queue.enqueue({ ...stubEvent, id: i, target: 'a' })
+      queue.enqueue({ ...stubEvent, id: i.toString(), target: 'a' })
     }
     queue.cancelAll({ ...stubEvent, target: 'a' })
     for (let i = 10; i < 20; i++) {
-      queue.enqueue({ ...stubEvent, id: i, target: 'b' })
+      queue.enqueue({ ...stubEvent, id: i.toString(), target: 'b' })
     }
 
     await Promise.delay(25)
 
     expect(userListA.length).toBeLessThan(10)
     expect(userListB.length).toEqual(10)
-    expect(userListB).toEqual([10, 11, 12, 13, 14, 15, 16, 17, 18, 19])
+    expect(userListB).toEqual([10, 11, 12, 13, 14, 15, 16, 17, 18, 19].map(x => x.toString()))
   })
 })

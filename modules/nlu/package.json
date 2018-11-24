@@ -12,6 +12,7 @@
   "author": "Botpress, Inc.",
   "license": "AGPL-3.0-only",
   "devDependencies": {
+    "@types/jest": "^23.3.9",
     "@types/node": "^10.11.3",
     "classnames": "^2.2.5",
     "draft-js": "^0.10.4",

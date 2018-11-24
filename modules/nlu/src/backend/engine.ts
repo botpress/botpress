@@ -7,13 +7,13 @@ import { Config } from '../config'
 
 import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor'
 import FastTextClassifier from './pipelines/intents/ft_classifier'
-import { FastTextIndentifier } from './pipelines/language/ft_lid'
+import { FastTextLanguageId } from './pipelines/language/ft_lid'
 import Storage from './storage'
+import { EntityExtractor, LanguageIdentifier } from './typings'
 
 export default class ScopedEngine {
   public readonly storage: Storage
-  public minConfidence: number
-  public maxConfidence: number
+  public confidenceTreshold: number
 
   private readonly intentClassifier: FastTextClassifier
   private readonly langDetector: LanguageIdentifier
@@ -29,20 +29,15 @@ export default class ScopedEngine {
   constructor(private logger: sdk.Logger, private botId: string, private readonly config: Config) {
     this.storage = new Storage(config, this.botId)
     this.intentClassifier = new FastTextClassifier(this.logger)
-    this.langDetector = new FastTextIndentifier(this.logger)
+    this.langDetector = new FastTextLanguageId(this.logger)
     this.knownEntityExtractor = new DucklingEntityExtractor(this.logger)
   }
 
   async init(): Promise<void> {
-    this.minConfidence = this.config.minimumConfidence
-    this.maxConfidence = this.config.maximumConfidence
+    this.confidenceTreshold = this.config.confidenceTreshold
 
-    if (isNaN(this.minConfidence) || this.minConfidence < 0 || this.minConfidence > 1) {
-      this.minConfidence = 0
-    }
-
-    if (isNaN(this.maxConfidence) || this.maxConfidence < 0) {
-      this.maxConfidence = 1
+    if (isNaN(this.confidenceTreshold) || this.confidenceTreshold < 0 || this.confidenceTreshold > 1) {
+      this.confidenceTreshold = 0.7
     }
 
     if (await this.checkSyncNeeded()) {
@@ -55,21 +50,28 @@ export default class ScopedEngine {
     const modelHash = this._getIntentsHash(intents)
 
     if (await this.storage.modelExists(modelHash)) {
-      this.logger.debug(`Restoring intents model '${modelHash}' from storage`)
-      const modelBuffer = await this.storage.getModelAsBuffer(modelHash)
-      await this.intentClassifier.loadModel(modelBuffer, modelHash)
-      return
+      await this._loadModel(modelHash)
     } else {
-      try {
-        this.logger.debug('The intents model needs to be updated, training model ...')
-        const modelPath = await this.intentClassifier.train(intents, modelHash)
-        const modelBuffer = fs.readFileSync(modelPath)
-        const modelName = `${Date.now()}__${modelHash}.bin`
-        await this.storage.persistModel(modelBuffer, modelName)
-        this.logger.debug('Intents done training')
-      } catch (err) {
-        return this.logger.attachError(err).error('Error training intents')
-      }
+      await this._trainModel(intents, modelHash)
+    }
+  }
+
+  private async _loadModel(modelHash: string) {
+    this.logger.debug(`Restoring intents model '${modelHash}' from storage`)
+    const modelBuffer = await this.storage.getModelAsBuffer(modelHash)
+    this.intentClassifier.loadModel(modelBuffer, modelHash)
+  }
+
+  private async _trainModel(intents: any[], modelHash: string) {
+    try {
+      this.logger.debug('The intents model needs to be updated, training model ...')
+      const modelPath = await this.intentClassifier.train(intents, modelHash)
+      const modelBuffer = fs.readFileSync(modelPath)
+      const modelName = `${Date.now()}__${modelHash}.bin`
+      await this.storage.persistModel(modelBuffer, modelName)
+      this.logger.debug('Intents done training')
+    } catch (err) {
+      return this.logger.attachError(err).error('Error training intents')
     }
   }
 
@@ -91,11 +93,11 @@ export default class ScopedEngine {
       .digest('hex')
   }
 
-  public async extract(incomingEvent: sdk.IO.Event): Promise<Predictions.ExtractResult> {
+  public async extract(incomingEvent: sdk.IO.Event): Promise<sdk.IO.EventUnderstanding> {
     return retry(() => this._extract(incomingEvent), this.retryPolicy)
   }
 
-  private async _extract(incomingEvent: sdk.IO.Event): Promise<Predictions.ExtractResult> {
+  private async _extract(incomingEvent: sdk.IO.Event): Promise<sdk.IO.EventUnderstanding> {
     const text = incomingEvent.preview
 
     const lang = await this.langDetector.identify(text)

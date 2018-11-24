@@ -1,24 +1,24 @@
 module.exports = {
   globals: {
     'ts-jest': {
-      tsConfig: '<rootDir>/tsconfig.json'
+      tsConfig: '<rootDir>/src/tsconfig.json'
     }
   },
-  setupFiles: ['<rootDir>/bp/import-rewire.ts'],
+  setupFiles: ['<rootDir>/src/bp/import-rewire.ts'],
   collectCoverage: false,
   verbose: true,
-  modulePaths: ['<rootDir>/bp/'],
+  modulePaths: ['<rootDir>/src/bp/'],
   moduleFileExtensions: ['js', 'json', 'jsx', 'ts', 'tsx'],
   transform: {
     '^.+\\.(ts|tsx)$': 'ts-jest'
   },
   moduleNameMapper: {
-    '^botpress/sdk$': '<rootDir>/bp/core/sdk_impl'
+    '^botpress/sdk$': '<rootDir>/src/bp/core/sdk_impl'
   },
   testMatch: ['**/(src|test)/**/*.test.(ts|js)'],
-  testPathIgnorePatterns: ['out', 'build'],
+  testPathIgnorePatterns: ['out', 'build', 'node_modules'],
   testEnvironment: 'node',
-  rootDir: 'src',
+  rootDir: '.',
   preset: 'ts-jest',
-  testResultsProcessor: '../node_modules/jest-html-reporter'
+  testResultsProcessor: './node_modules/jest-html-reporter'
 }
