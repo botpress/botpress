@@ -33,7 +33,7 @@ export default class Storage {
     this.ghost = Storage.ghostProvider(this.botId)
   }
 
-  public async saveIntent(intent, content) {
+  async saveIntent(intent, content) {
     intent = sanitizeFilenameNoExt(intent)
 
     if (intent.length < 1) {
@@ -55,7 +55,7 @@ export default class Storage {
     )
   }
 
-  public async deleteIntent(intent) {
+  async deleteIntent(intent) {
     intent = sanitizeFilenameNoExt(intent)
 
     if (intent.length < 1) {
@@ -82,12 +82,12 @@ export default class Storage {
     }
   }
 
-  public async getIntents() {
+  async getIntents() {
     const intents = await this.ghost.directoryListing(this.intentsDir, '*.json')
     return Promise.mapSeries(intents, intent => this.getIntent(intent))
   }
 
-  public async getIntent(intent) {
+  async getIntent(intent) {
     intent = sanitizeFilenameNoExt(intent)
 
     if (intent.length < 1) {
@@ -113,16 +113,16 @@ export default class Storage {
     }
   }
 
-  public async getCustomEntities() {
+  async getCustomEntities() {
     return []
   }
 
-  public async persistModel(modelBuffer: Buffer, modelName: string) {
+  async persistModel(modelBuffer: Buffer, modelName: string) {
     // TODO Ghost to support streams?
     return this.ghost.upsertFile(this.modelsDir, modelName, modelBuffer)
   }
 
-  public async getAvailableModels(): Promise<AvailableModel[]> {
+  async getAvailableModels(): Promise<AvailableModel[]> {
     const models = await this.ghost.directoryListing(this.modelsDir, '*.bin')
     return models.map(x => {
       const fileName = path.basename(x, '.bin')
@@ -134,12 +134,12 @@ export default class Storage {
     })
   }
 
-  public async modelExists(modelHash: string): Promise<boolean> {
+  async modelExists(modelHash: string): Promise<boolean> {
     const models = await this.getAvailableModels()
     return !!_.find(models, m => m.hash === modelHash)
   }
 
-  public async getModelAsBuffer(modelHash: string): Promise<Buffer> {
+  async getModelAsBuffer(modelHash: string): Promise<Buffer> {
     const models = await this.ghost.directoryListing(this.modelsDir, '*.bin')
     const modelFn = _.find(models, m => m.indexOf(modelHash) !== -1)
 

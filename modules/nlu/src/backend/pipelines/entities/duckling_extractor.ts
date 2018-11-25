@@ -12,10 +12,12 @@ export class DucklingEntityExtractor implements EntityExtractor {
 
   static configure(enabled: boolean, url: string) {
     this.enabled = enabled
-    this.client = Axios.create({
-      baseURL: url,
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-    })
+    if (enabled) {
+      this.client = Axios.create({
+        baseURL: url,
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      })
+    }
   }
 
   public async extract(text: string, lang: string): Promise<sdk.NLU.Entity[]> {

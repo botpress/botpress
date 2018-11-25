@@ -52,7 +52,7 @@ export default class FastTextWrapper {
   private static BINPATH = join(__dirname, 'bin', bin)
   private static process_cache: { [key: string]: ChildProcess } = {}
   private static process_cache_lock: { [key: string]: boolean } = {}
-  private static process_cache_expiry: { [key: string]: number } = {}
+  private static process_cache_expiry: { [key: string]: NodeJS.Timer } = {}
 
   static configure(newPath: string) {
     if (fs.existsSync(newPath)) {
@@ -168,17 +168,14 @@ signal: ${err.signal}
     }
   }
 
-  private static _scheduleProcessCleanup(modelPath: string, expiry: number) {
-    setTimeout(async () => {
-      if (this.process_cache_expiry[modelPath] !== expiry) {
-        return
-      }
+  private static _scheduleProcessCleanup(modelPath: string) {
+    if (this.process_cache_expiry[modelPath]) {
+      clearTimeout(this.process_cache_expiry[modelPath])
+    }
 
+    this.process_cache_expiry[modelPath] = setTimeout(async () => {
       while (this.process_cache_lock[modelPath]) {
-        await Promise.delay(100) // wait until the lock was release
-        if (this.process_cache_expiry[modelPath] !== expiry) {
-          return
-        }
+        await Promise.delay(50) // wait until the lock is released
       }
 
       if (this.process_cache[modelPath]) {
@@ -218,9 +215,7 @@ signal: ${err.signal}
       }
 
       // Schedule expiry of the process
-      const expiry = Date.now() + 5000
-      this.process_cache_expiry[modelPath] = expiry // in X seconds
-      this._scheduleProcessCleanup(modelPath, expiry)
+      this._scheduleProcessCleanup(modelPath)
 
       return this.process_cache[modelPath]
     } catch {
