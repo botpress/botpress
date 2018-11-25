@@ -6,8 +6,6 @@ import tmp from 'tmp'
 import FastTextWrapper, { Prediction } from '../../tools/fastText'
 import { IntentClassifier } from '../../typings'
 
-import { createIntentMatcher } from './matcher'
-
 interface TrainSet {
   name: string
   utterances: Array<string>
@@ -60,7 +58,7 @@ export default class FastTextClassifier implements IntentClassifier {
     this.fastTextWrapper = new FastTextWrapper(tmpFn)
   }
 
-  public async predict(input: string): Promise<sdk.NLU.Intent[]> {
+  public async predict(input: string): Promise<Prediction[]> {
     if (!this.fastTextWrapper) {
       throw new Error('model is not set')
     }
@@ -71,13 +69,6 @@ export default class FastTextClassifier implements IntentClassifier {
       intents = [{ name: 'none', confidence: 1 }]
     }
 
-    return intents.map(
-      (intent): sdk.NLU.Intent => {
-        return {
-          ...intent,
-          matches: createIntentMatcher(intent.name)
-        }
-      }
-    )
+    return intents
   }
 }

@@ -3,14 +3,14 @@ import fs from 'fs'
 import { EOL } from 'os'
 import { join } from 'path'
 
+import { Prediction } from '../typings'
+
 let bin = 'ft_linux'
 if (process.platform === 'win32') {
   bin = 'ft_win.exe'
 } else if (process.platform === 'darwin') {
   bin = 'ft_osx'
 }
-
-export type Prediction = { name: string; confidence: number }
 
 export type FastTextTrainArgs = {
   method: 'supervised' | 'skipgram' | 'cbow'

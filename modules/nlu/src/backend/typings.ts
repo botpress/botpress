@@ -1,6 +1,10 @@
 import sdk from 'botpress/sdk'
 
+import { Prediction } from './tools/fastText'
+
 export type EngineByBot = { [botId: string]: Engine }
+
+export type Prediction = { name: string; confidence: number }
 
 export interface Engine {
   sync(): Promise<void>
@@ -13,7 +17,7 @@ export interface EntityExtractor {
 }
 
 export interface IntentClassifier {
-  predict(input: string): Promise<sdk.NLU.Intent[]>
+  predict(input: string): Promise<Prediction[]>
 }
 
 export interface LanguageIdentifier {

@@ -1,4 +1,5 @@
 import { Logger } from 'botpress/sdk'
+import { printObject } from 'core/misc/print'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import path from 'path'
@@ -164,6 +165,7 @@ export class ScopedActionService {
         user: incomingEvent.state.user,
         state: incomingEvent.state.context.data || {},
         args: actionArgs,
+        printObject: printObject,
         process: _.pick(process, 'HOST', 'PORT', 'EXTERNAL_URL', 'env')
       },
       require: {

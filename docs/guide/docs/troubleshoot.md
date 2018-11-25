@@ -36,7 +36,7 @@ Then edit the NLU config file in `data/global/config/nlu.json` and add the `fast
 
 ```js
   // ...
-  "minimumConfidence": "0.3",
+  "confidenceTreshold": 0.7,
   "fastTextPath": "/home/ubuntu/fastText-0.1.0/fasttext"
   // ...
 ```

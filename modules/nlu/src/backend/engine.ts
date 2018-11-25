@@ -7,9 +7,10 @@ import { Config } from '../config'
 
 import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor'
 import FastTextClassifier from './pipelines/intents/ft_classifier'
+import { createIntentMatcher } from './pipelines/intents/matcher'
 import { FastTextLanguageId } from './pipelines/language/ft_lid'
 import Storage from './storage'
-import { EntityExtractor, LanguageIdentifier } from './typings'
+import { EntityExtractor, LanguageIdentifier, Prediction } from './typings'
 
 export default class ScopedEngine {
   public readonly storage: Storage
@@ -102,13 +103,17 @@ export default class ScopedEngine {
 
     const lang = await this.langDetector.identify(text)
     const entities = await this.knownEntityExtractor.extract(text, lang)
-    const intents = await this.intentClassifier.predict(text)
+    const intents: Prediction[] = await this.intentClassifier.predict(text)
+
+    const intent = intents.find(c => {
+      return c.confidence >= this.confidenceTreshold
+    }) || { confidence: 1.0, name: 'none' }
 
     return {
       language: lang,
       entities,
-      intent: intents[0],
-      intents: intents.map(p => ({ ...p, provider: 'native' }))
+      intent: { ...intent, matches: createIntentMatcher(intent.name) },
+      intents: intents.map(p => ({ ...p, matches: createIntentMatcher(p.name) }))
     }
   }
 }

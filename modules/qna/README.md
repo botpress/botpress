@@ -15,13 +15,13 @@ It either relies on the NLU module or on [Microsoft QnA Maker](https://www.qnama
 
 The following properties can be configured either in the `qna.json` file or using the environment variables:
 
-| Key | Environment Variable | Required | Default | |
-| ------------- | -------- | ----- | ---- | ---- |
-| `qnaDir` | `QNA_DIR` | No | `./qna` | The directory where the Q&A data is stored.
-| `textRenderer` | `QNA_TEXT_RENDERER` | No | `#builtin_text` (requires `@botpress/builtins` to be installed) | The _renderer_ used to format the text responses.
-| `exportCsvEncoding` | `QNA_EXPORT_CSV_ENCODING` | No | `utf8` | Encoding for CSV that can be exported from Q&A module
-| `qnaMakerApiKey` | `QNA_MAKER_API_KEY` | No | | API-key for [Microsoft QnA Maker](https://www.qnamaker.ai). If provided QnA maker gets used to save items and search through them (instead of NLU-module)
-| `qnaMakerKnowledgebase` | `QNA_MAKER_KNOWLEDGEBASE` | No | `botpress` | Name of the QnA Maker knowledgebase to use
+| Key                     | Environment Variable      | Required | Default                                                         |                                                                                                                                                           |
+| ----------------------- | ------------------------- | -------- | --------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `qnaDir`                | `QNA_DIR`                 | No       | `./qna`                                                         | The directory where the Q&A data is stored.                                                                                                               |
+| `textRenderer`          | `QNA_TEXT_RENDERER`       | No       | `#builtin_text` (requires `@botpress/builtins` to be installed) | The _renderer_ used to format the text responses.                                                                                                         |
+| `exportCsvEncoding`     | `QNA_EXPORT_CSV_ENCODING` | No       | `utf8`                                                          | Encoding for CSV that can be exported from Q&A module                                                                                                     |
+| `qnaMakerApiKey`        | `QNA_MAKER_API_KEY`       | No       |                                                                 | API-key for [Microsoft QnA Maker](https://www.qnamaker.ai). If provided QnA maker gets used to save items and search through them (instead of NLU-module) |
+| `qnaMakerKnowledgebase` | `QNA_MAKER_KNOWLEDGEBASE` | No       | `botpress`                                                      | Name of the QnA Maker knowledgebase to use                                                                                                                |
 
 # Usage
 
@@ -60,8 +60,7 @@ await bp.qna.import(questions, { format: 'json' })
 
 // Importing questions from csv-string
 // Note: consequtive questions with similar answer will be merged into one record with multiple questions
-const questionsCsv = 
-`"Question1","text","Answer1"
+const questionsCsv = `"Question1","text","Answer1"
 "Question2","text","Answer1"
 "Question3","redirect","main.flow.json#some-node"`
 await bp.qna.import(questions, { format: 'csv' })
@@ -72,7 +71,7 @@ const questionsExported = await bp.qna.export() // Should return structure simil
 
 const questionsFlatExported = await bp.qna.export({ flat: true })
 // Should return a flat structure with question-string in each record like this (might be useful for exporting to CSV):
-// 
+//
 // [
 //   { question: 'Question1', action: 'text', answer: 'Answer1' },
 //   { question: 'Question2', action: 'text', answer: 'Answer1' },
@@ -85,7 +84,7 @@ const answers = await bp.qna.answersOn('How can I reach you out?')
 // [ { questions: [ 'How can I reach you out?' ],
 //     answer: 'You could find us on Facebook!',
 //     id: 116,
-//     confidence: 100,
+//     confidence: 1,
 //     enabled: true,
 //     action: 'text' } ]
 ```
@@ -112,4 +111,3 @@ Botpress is dual-licensed under [AGPLv3](/licenses/LICENSE_AGPL3) and the [Botpr
 By default, any bot created with Botpress is licensed under AGPLv3, but you may change to the Botpress License from within your bot's web interface in a few clicks.
 
 For more information about how the dual-license works and why it works that way please see the <a href="https://botpress.io/faq">FAQS</a>.
-

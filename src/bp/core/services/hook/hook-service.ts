@@ -1,5 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import { IO } from 'botpress/sdk'
+import { printObject } from 'core/misc/print'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import path from 'path'
@@ -173,7 +174,8 @@ export class HookService {
       console: 'inherit',
       sandbox: {
         ...hook.args,
-        process: _.pick(process, 'HOST', 'PORT', 'EXTERNAL_URL', 'env')
+        process: _.pick(process, 'HOST', 'PORT', 'EXTERNAL_URL', 'env'),
+        printObject
       },
       timeout: hook.timeout,
       require: {
