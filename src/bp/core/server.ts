@@ -44,11 +44,11 @@ export default class HTTPServer {
   private readonly authRouter: AuthRouter
   private readonly adminRouter: AdminRouter
   private readonly botsRouter: BotsRouter
-  private readonly contentRouter: ContentRouter
+  private contentRouter!: ContentRouter
   private readonly modulesRouter: ModulesRouter
   private readonly shortlinksRouter: ShortLinksRouter
-  private readonly versioningRouter: VersioningRouter
-  private readonly converseRouter: ConverseRouter
+  private versioningRouter!: VersioningRouter
+  private converseRouter!: ConverseRouter
 
   constructor(
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
@@ -57,7 +57,7 @@ export default class HTTPServer {
     private logger: Logger,
     @inject(TYPES.IsProduction) isProduction: boolean,
     @inject(TYPES.BotRepository) botRepository: BotRepository,
-    @inject(TYPES.CMSService) cmsService: CMSService,
+    @inject(TYPES.CMSService) private cmsService: CMSService,
     @inject(TYPES.FlowService) flowService: FlowService,
     @inject(TYPES.ActionService) actionService: ActionService,
     @inject(TYPES.ModuleLoader) moduleLoader: ModuleLoader,
@@ -67,7 +67,7 @@ export default class HTTPServer {
     @inject(TYPES.LogsService) logsService: LogsService,
     @inject(TYPES.NotificationsService) notificationService: NotificationsService,
     @inject(TYPES.SkillService) skillService: SkillService,
-    @inject(TYPES.GhostService) ghostService: GhostService,
+    @inject(TYPES.GhostService) private ghostService: GhostService,
     @inject(TYPES.LicensingService) licenseService: LicensingService,
     @inject(TYPES.ConverseService) private converseService: ConverseService
   ) {
@@ -95,17 +95,17 @@ export default class HTTPServer {
       adminService,
       ghostService
     })
-    this.contentRouter = new ContentRouter(this.adminService, this.authService, cmsService)
-    this.versioningRouter = new VersioningRouter(this.adminService, this.authService, ghostService)
-    this.converseRouter = new ConverseRouter(this.converseService)
-    this.botsRouter.router.use('/content', this.contentRouter.router)
-    this.botsRouter.router.use('/converse', this.converseRouter.router)
-    this.botsRouter.router.use('/versioning', this.versioningRouter.router)
   }
 
   @postConstruct()
   async initialize() {
     await this.botsRouter.initialize()
+    this.contentRouter = new ContentRouter(this.adminService, this.authService, this.cmsService)
+    this.versioningRouter = new VersioningRouter(this.adminService, this.authService, this.ghostService)
+    this.converseRouter = new ConverseRouter(this.converseService)
+    this.botsRouter.router.use('/content', this.contentRouter.router)
+    this.botsRouter.router.use('/converse', this.converseRouter.router)
+    this.botsRouter.router.use('/versioning', this.versioningRouter.router)
   }
 
   resolveAsset = file => path.resolve(process.PROJECT_LOCATION, 'assets', file)

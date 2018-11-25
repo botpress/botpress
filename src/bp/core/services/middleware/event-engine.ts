@@ -124,9 +124,11 @@ export class EventEngine {
   }
 
   async replyToEvent(eventDestination: sdk.IO.EventDestination, payloads: any[]) {
+    const keys: (keyof sdk.IO.EventDestination)[] = ['botId', 'channel', 'target', 'threadId']
+
     for (const payload of payloads) {
       const replyEvent = Event({
-        ...eventDestination,
+        ..._.pick(eventDestination, keys),
         direction: 'outgoing',
         type: _.get(payload, 'type', 'default'),
         payload

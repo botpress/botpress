@@ -31,14 +31,22 @@ export const initModule = async (bp: SDK, botScopedStorage: Map<string, QnaStora
       }
     },
     order: 11, // must be after the NLU middleware and before the dialog middleware
-    description: 'Listen for predefined questions and send canned responses.',
-    enabled: true
+    description: 'Listen for predefined questions and send canned responses.'
   })
 
-  const buildSuggestedReply = async (question, confidence, intent) => {
+  const buildSuggestedReply = async (event, question, confidence, intent) => {
     const payloads = []
     if (question.action.includes('text')) {
-      const element = await bp.cms.renderElement('builtin_text', { text: question.answer, typing: true }, 'web')
+      const element = await bp.cms.renderElement(
+        'builtin_text',
+        { text: question.answer, typing: true },
+        {
+          botId: event.botId,
+          channel: event.channel,
+          target: event.target,
+          threadId: event.threadId
+        }
+      )
       payloads.push(...element)
     }
 
@@ -65,7 +73,7 @@ export const initModule = async (bp: SDK, botScopedStorage: Map<string, QnaStora
       const qnaQuestion = (await storage.answersOn(event.text)).pop()
 
       if (qnaQuestion && qnaQuestion.enabled) {
-        event.suggestedReplies.push(await buildSuggestedReply(qnaQuestion, qnaQuestion.confidence, undefined))
+        event.suggestedReplies.push(await buildSuggestedReply(event, qnaQuestion, qnaQuestion.confidence, undefined))
       }
 
       return
@@ -78,7 +86,7 @@ export const initModule = async (bp: SDK, botScopedStorage: Map<string, QnaStora
     for (const intent of event.nlu.intents) {
       const question = await getQuestionForIntent(storage, intent.name)
       if (question && question.enabled) {
-        event.suggestedReplies.push(await buildSuggestedReply(question, intent.confidence, intent.name))
+        event.suggestedReplies.push(await buildSuggestedReply(event, question, intent.confidence, intent.name))
       }
     }
   }

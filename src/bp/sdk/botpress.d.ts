@@ -133,6 +133,37 @@ declare module 'botpress/sdk' {
     public static forAdmins(eventName: string, payload: any): RealTimePayload
   }
 
+  export namespace NLU {
+    export interface Intent {
+      name: string
+      confidence: number
+      matches: (intentPattern: string) => boolean
+    }
+
+    export type IntentList = Intent[] & { includes: (intentName: string) => boolean }
+
+    export interface Entity {
+      type: string
+      meta: EntityMeta
+      data: EntityBody
+    }
+
+    export interface EntityBody {
+      extras: any
+      value: any
+      unit: string
+    }
+
+    export interface EntityMeta {
+      confidence: number
+      provider: string
+      source: string
+      start: number
+      end: number
+      raw: any
+    }
+  }
+
   export namespace IO {
     export type EventDirection = 'incoming' | 'outgoing'
     export namespace WellKnownFlags {
@@ -146,7 +177,7 @@ declare module 'botpress/sdk' {
      * These are the arguments required when creating a new {@link Event}
      */
     interface EventCtorArgs {
-      id?: Number
+      id?: string
       type: string
       channel: string
       target: string
@@ -164,7 +195,8 @@ declare module 'botpress/sdk' {
      * the navigational events (chat open, user typing) and contextual events (user returned home, order delivered).
      */
     export type Event = EventDestination & {
-      readonly id: Number
+      /** A sortable unique identifier for that event (time-based) */
+      readonly id: string
       /** The type of the event, i.e. image, text, timeout, etc */
       readonly type: string
       /** Is it (in)coming from the user to the bot or (out)going from the bot to the user? */
@@ -203,11 +235,20 @@ declare module 'botpress/sdk' {
       readonly threadId?: string
     }
 
+    export interface EventUnderstanding {
+      readonly intent: NLU.Intent
+      readonly intents: NLU.Intent[]
+      readonly language: string
+      readonly entities: NLU.Entity[]
+    }
+
     export interface IncomingEvent extends Event {
       /** Array of possible suggestions that the Decision Engine can take  */
       readonly suggestedReplies?: SuggestedReply[]
       /** Contains data related to the state of the event */
       readonly state: EventState
+      /** Holds NLU extraction results (when the event is natural language) */
+      readonly nlu?: EventUnderstanding
     }
 
     export interface SuggestedReply {

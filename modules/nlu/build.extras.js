@@ -1,3 +1,3 @@
 module.exports = {
-  copyFiles: ['src/backend/fasttext/ft_*', 'src/backend/fasttext/*.dll', 'src/backend/fasttext/models/*']
+  copyFiles: ['src/backend/tools/bin/ft_*', 'src/backend/fasttext/*.dll', 'src/backend/tools/pretrained/*']
 }

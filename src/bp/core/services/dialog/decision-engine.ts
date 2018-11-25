@@ -22,9 +22,9 @@ export class DecisionEngine {
 
   public async processEvent(sessionId: string, event: IO.IncomingEvent) {
     if (event.suggestedReplies) {
-      const reply = this._findBestReply(event)
-      if (reply) {
-        await this._sendSuggestedReply(reply, sessionId, event)
+      const bestReply = this._findBestReply(event)
+      if (bestReply) {
+        await this._sendSuggestedReply(bestReply, sessionId, event)
       }
     }
 
