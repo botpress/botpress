@@ -1,0 +1,438 @@
+$mainGreen: #1bb68a;
+
+.qna {
+  h4 {
+    margin-top: 0;
+    font-weight: bold;
+  }
+
+  :global(.panel-heading) {
+    padding: 5px 10px;
+
+    :global(.btn) {
+      padding: 0;
+      font-size: 12px;
+      margin-left: 10px;
+      margin-top: -6px;
+      margin-bottom: -3px;
+    }
+  }
+
+  :global(.panel-body) {
+    padding: 10px;
+  }
+}
+
+.paddedRow {
+  padding-bottom: 10px;
+}
+
+.questionToolbar {
+  :global(.btn) {
+    float: right;
+  }
+}
+
+.pale {
+  opacity: 0.8;
+}
+
+.strong {
+  &,
+  & *,
+  label {
+    font-weight: bold;
+  }
+}
+
+.csvContainer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+
+  .csvButton {
+    padding: 3px 17px;
+    font-weight: 900;
+    color: rgba(0, 0, 0, 0.45);
+    text-shadow: 1px 0;
+    border: 1px solid rgba(0, 0, 0, 0.45);
+
+    &:last-child {
+      margin-left: 20px;
+    }
+  }
+}
+
+.qnaContainer {
+  padding: 25px;
+}
+
+.qnaNavBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.qnaHeader {
+  margin-bottom: 60px;
+}
+
+.searchBar {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 0;
+}
+
+.serachQuestions,
+.serachCategory {
+  max-width: 300px;
+  width: 300px;
+  margin-right: 15px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  z-index: 4;
+
+  .dropdown-button {
+    border-left: none;
+  }
+}
+
+.serachQuestions {
+  height: 36px;
+}
+
+.qnaNavBarAddNew {
+  background-color: $mainGreen;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 8px 30px;
+  margin-bottom: 20px;
+
+  &:hover {
+    background-color: #108c67;
+  }
+
+  &:focus {
+    background-color: #108c67;
+
+    &:active {
+      background-color: #108c67;
+    }
+  }
+
+  &:active {
+    background-color: #108c67;
+  }
+}
+
+.itemQuestions {
+  display: flex;
+}
+
+.qnaItem {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  padding: 13px;
+}
+
+.itemContainer {
+  flex: 0 1 75%;
+}
+
+.itemQuestionsTitle,
+.itemAnswerTitle {
+  font-size: 18px;
+  font-weight: 600;
+  margin-right: 10px;
+}
+
+.questionsList {
+  display: flex;
+  flex-direction: column;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1bb68a;
+}
+
+.itemAnswerContainer {
+  margin-top: 5px;
+  display: flex;
+}
+
+.itemAnswer {
+  display: flex;
+  flex-direction: column;
+}
+
+.itemAnswerText {
+  color: rgb(182, 182, 182);
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.itemAction {
+  display: flex;
+  flex: 1 1 25%;
+  justify-content: flex-end;
+  align-items: flex-start;
+  padding-top: 15px;
+}
+
+.itemRedirect {
+  display: flex;
+}
+
+.toggleButton {
+  margin-bottom: 0;
+  margin-right: 30px;
+}
+
+.itemActionDelete {
+  margin-right: 30px;
+  cursor: pointer;
+
+  &:hover {
+    color: red;
+  }
+}
+
+.itemActionEdit {
+  cursor: pointer;
+
+  &:hover {
+    color: #2196f3;
+  }
+}
+
+.questionCategory {
+  font-weight: 600;
+  margin-top: 25px;
+  font-size: 16px;
+}
+
+.questionCategoryTitle {
+  color: #b6b6b6;
+}
+
+.newQnaModal {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
+.qnaModalBody,
+.qnaModalFooter {
+  background-color: #faf8fb;
+  padding-right: 30px;
+}
+
+.qnaModalHeader {
+  background-color: #d9d7da;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+
+  h4 {
+    font-weight: 900;
+    color: #000;
+  }
+}
+
+.qnaModalBody {
+  border-radius: 10px;
+}
+
+.qnaModalFooter {
+  border-top: none;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+.qnaCategoryTitle,
+.qnaQuestionsTitle,
+.qnaReplyTitle {
+  font-weight: 600;
+  color: #000;
+  font-size: 18px;
+}
+
+.qnaCategorySelect {
+  width: 250px;
+  margin-top: 5px;
+}
+
+.qnaQuestions {
+  margin-top: 50px;
+  display: flex;
+  flex-direction: column;
+}
+
+.qnaQuestionsHint {
+  color: #000;
+}
+
+.qnaQuestionsTextarea {
+  margin-top: 5px;
+}
+
+.qnaReply {
+  margin-top: 40px;
+}
+
+.qnaAnswer {
+  margin-top: 15px;
+}
+
+.qnaAnswerCheck {
+  display: flex;
+}
+
+.qnaAnswerTextarea {
+  margin-top: 5px;
+  width: calc(100% - 15px);
+  margin-left: 15px;
+}
+
+.qnaAndOr {
+  display: flex;
+  align-items: center;
+  width: calc(100% - 15px);
+  margin-left: 15px;
+  margin-top: 10px;
+}
+
+.qnaAndOrText {
+  font-weight: 600;
+  color: #000;
+  flex: 1 1 150px;
+  display: flex;
+  justify-content: center;
+}
+
+.qnaAndOrLine {
+  height: 2px;
+  background-color: #e5e3e6;
+  flex: 1 1 100%;
+}
+
+.qnaRedirect {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 5px;
+
+  @media (max-width: 475px) {
+    flex-wrap: wrap;
+  }
+}
+
+.qnaRedirectToFlow,
+.qnaRedirectNode {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 1 1 47%;
+  max-width: 47%;
+
+  @media (max-width: 475px) {
+    flex: 1 1 100%;
+    max-width: 100%;
+  }
+}
+
+.qnaRedirectNode {
+  @media (max-width: 475px) {
+    flex: 1 1 calc(100% - 15px);
+    max-width: calc(100% - 15px);
+    margin-left: 15px;
+    margin-top: 10px;
+  }
+}
+
+.qnaRedirectToFlowCheck {
+  display: flex;
+  align-items: center;
+  color: #000;
+
+  .qnaRedirectToFlowCheckCheckbox {
+    margin-top: 0;
+  }
+}
+
+.qnaRedirectToFlowCheckSelect,
+.qnaRedirectNodeSelect {
+  margin-top: 5px;
+}
+
+.qnaRedirectToFlowCheckSelect {
+  width: calc(100% - 15px);
+  margin-left: 15px;
+}
+
+.qnaRedirectNodeTitle {
+  color: #000;
+}
+
+.qnaModalFooterCancelBtn,
+.qnaModalFooterSaveBtn {
+  font-weight: 600;
+  font-size: 18px;
+  color: #fff;
+  line-height: 0.9em;
+  padding: 5px;
+  width: 120px;
+  background-color: #b2b0b3;
+}
+
+.qnaModalFooterCancelBtn {
+  margin-right: 20px;
+
+  &:hover,
+  &:focus,
+  &:active {
+    background-color: #9e9d9e;
+    color: #fff;
+  }
+
+  &:focus {
+    &:active {
+      background-color: #9e9d9e;
+      color: #fff;
+    }
+  }
+}
+
+.qnaModalFooterSaveBtn {
+  background-color: #14a77b;
+
+  &:hover,
+  &:focus,
+  &:active {
+    background-color: #108b66;
+    color: #fff;
+  }
+
+  &:focus {
+    &:active {
+      background-color: #108b66;
+      color: #fff;
+    }
+  }
+}
+
+.qnaCategoryError {
+  border-color: red;
+}
+
+.itemNode,
+.itemFlow {
+  font-weight: 900;
+  color: #686669;
+  margin-right: 30px;
+}
+
+.itemFlowName,
+.itemNodeName {
+  color: #8a888b;
+  font-weight: 500;
+}
