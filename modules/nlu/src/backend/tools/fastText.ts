@@ -165,21 +165,10 @@ signal: ${err.signal}
       return retry(
         () =>
           new Promise<string>((resolve, reject) => {
-            console.log('-->', input)
             const tmr = setTimeout(() => {
-              // if (this.process_cache[modelPath]) {
-              //   this.process_cache[modelPath].kill()
-              // }
-
-              // delete this.process_cache[modelPath]
-              // delete this.process_cache_expiry[modelPath]
-              // delete this.process_cache_lock[modelPath]
               reject()
             }, 100)
             process.stdin.write(`${input}${os.EOL}`)
-            process.stderr.on('data', dd => {
-              console.log(dd)
-            })
             process.stdout.once('data', dd => {
               clearTimeout(tmr)
               resolve(dd)
