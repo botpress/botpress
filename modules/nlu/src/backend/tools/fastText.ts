@@ -1,9 +1,12 @@
+import retry from 'bluebird-retry'
 import { ChildProcess, execFile, ExecFileOptions, execFileSync } from 'child_process'
 import fs from 'fs'
-import { EOL } from 'os'
+import os from 'os'
 import { join } from 'path'
 
 import { Prediction } from '../typings'
+
+const cnt = 0
 
 let bin = 'ft_linux'
 if (process.platform === 'win32') {
@@ -159,10 +162,31 @@ signal: ${err.signal}
 
     try {
       const process = await this._acquireProcess(modelPath, binArgs)
-      return new Promise<string>(resolve => {
-        process.stdin.write(`${input}${EOL}`)
-        process.stdout.once('data', resolve)
-      })
+      return retry(
+        () =>
+          new Promise<string>((resolve, reject) => {
+            console.log('-->', input)
+            const tmr = setTimeout(() => {
+              // if (this.process_cache[modelPath]) {
+              //   this.process_cache[modelPath].kill()
+              // }
+
+              // delete this.process_cache[modelPath]
+              // delete this.process_cache_expiry[modelPath]
+              // delete this.process_cache_lock[modelPath]
+              reject()
+            }, 100)
+            process.stdin.write(`${input}${os.EOL}`)
+            process.stderr.on('data', dd => {
+              console.log(dd)
+            })
+            process.stdout.once('data', dd => {
+              clearTimeout(tmr)
+              resolve(dd)
+            })
+          }),
+        2
+      )
     } finally {
       this._releaseProcess(modelPath)
     }
@@ -194,7 +218,7 @@ signal: ${err.signal}
    */
   private static async _acquireProcess(modelPath: string, args: string[]): Promise<ChildProcess> {
     if (this.process_cache_lock[modelPath] === true) {
-      await Promise.delay(1) // re-queue async task
+      await Promise.delay(5) // re-queue async task
       return this._acquireProcess(modelPath, args)
     } else {
       this.process_cache_lock[modelPath] = true
@@ -218,8 +242,9 @@ signal: ${err.signal}
       this._scheduleProcessCleanup(modelPath)
 
       return this.process_cache[modelPath]
-    } catch {
+    } catch (err) {
       this._releaseProcess(modelPath)
+      throw err
     }
   }
 
