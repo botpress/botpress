@@ -117,6 +117,16 @@ export default class Storage {
     return [] // TODO: Extract custom entities here
   }
 
+  async saveEntity(entity: string, content: any): Promise<void> {
+    const fileName = this._getEntityFileName(entity)
+    return this.ghost.upsertFile(this.entitiesDir, fileName, JSON.stringify(content))
+  }
+
+  async deleteEntity(entity: string): Promise<void> {
+    const fileName = this._getEntityFileName(entity)
+    return this.ghost.deleteFile(this.entitiesDir, fileName)
+  }
+
   async persistModel(modelBuffer: Buffer, modelName: string) {
     // TODO Ghost to support streams?
     return this.ghost.upsertFile(this.modelsDir, modelName, modelBuffer)
@@ -144,5 +154,14 @@ export default class Storage {
     const modelFn = _.find(models, m => m.indexOf(modelHash) !== -1)
 
     return this.ghost.readFileAsBuffer(this.modelsDir, modelFn)
+  }
+
+  private _getEntityFileName(entity: string) {
+    entity = sanitizeFilenameNoExt(entity)
+    if (entity.length < 1) {
+      throw new Error('Invalid entity name, expected at least one character')
+    }
+
+    return entity + '.json'
   }
 }
