@@ -28,11 +28,11 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
 
   router.get('/entities', async (req, res) => {
     const config = (await bp.config.getModuleConfig('nlu')) as Config
-    const duckingEnabled = config.ducklingEnabled
-    let duckingEntities = []
+    const ducklingEnabled = config.ducklingEnabled
+    let ducklingEntities = []
 
-    if (duckingEnabled) {
-      duckingEntities = [
+    if (ducklingEnabled) {
+      ducklingEntities = [
         'amountOfMoney',
         'distance',
         'duration',
@@ -49,7 +49,7 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     }
 
     const customEntities = await (nlus[req.params.botId] as ScopedEngine).storage.getCustomEntities()
-    return res.send([...duckingEntities, ...customEntities.map(e => e.name)])
+    return res.send([...ducklingEntities, ...customEntities.map(e => e.name)])
   })
 
   router.post('/entities', async (req, res) => {
