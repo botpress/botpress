@@ -3,8 +3,6 @@ import fs from 'fs'
 import { EOL } from 'os'
 import { join } from 'path'
 
-import { Prediction } from '../typings'
-
 let bin = 'ft_linux'
 if (process.platform === 'win32') {
   bin = 'ft_win.exe'
@@ -112,7 +110,10 @@ signal: ${err.signal}
     }
   }
 
-  public async predict(sentence: string, k: number = DefaultFastTextQueryArgs.k): Promise<Prediction[]> {
+  public async predict(
+    sentence: string,
+    k: number = DefaultFastTextQueryArgs.k
+  ): Promise<{ name: string; confidence: number }[]> {
     const result = await FastTextWrapper._query(this.modelPath, sentence, { method: 'predict-prob', k })
 
     const parts = result.split(/\s|\n|\r/gi).filter(x => x.trim().length)
