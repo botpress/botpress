@@ -1,5 +1,7 @@
 import * as sdk from 'botpress/sdk'
 
+import { Config } from '../config'
+
 import ScopedEngine from './engine'
 import { EngineByBot } from './typings'
 
@@ -25,7 +27,29 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
   })
 
   router.get('/entities', async (req, res) => {
-    res.send([]) // TODO: Add built-in entity extractions here
+    const config = (await bp.config.getModuleConfig('nlu')) as Config
+    const duckingEnabled = config.debugModeEnabled
+    let duckingEntities = []
+
+    if (duckingEnabled) {
+      duckingEntities = [
+        'amountOfMoney',
+        'distance',
+        'duration',
+        'email',
+        'numeral',
+        'ordinal',
+        'phoneNumber',
+        'quantity',
+        'temperature',
+        'time',
+        'url',
+        'volume'
+      ]
+    }
+
+    const customEntities = await (nlus[req.params.botId] as ScopedEngine).storage.getCustomEntities()
+    return res.send([...duckingEntities, ...customEntities.map(e => e.name)])
   })
 
   router.get('/sync/check', async (req, res) => {

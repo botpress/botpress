@@ -113,8 +113,8 @@ export default class Storage {
     }
   }
 
-  async getCustomEntities() {
-    return []
+  async getCustomEntities(): Promise<sdk.NLU.Entity[]> {
+    return [] // TODO: Extract custom entities here
   }
 
   async persistModel(modelBuffer: Buffer, modelName: string) {
