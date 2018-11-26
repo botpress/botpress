@@ -33,8 +33,15 @@ export default class Storage {
     this.ghost = Storage.ghostProvider(this.botId)
   }
 
-  async saveIntent(intent, content) {
+  async saveIntent(intent: string, content: sdk.NLU.Intent) {
     intent = sanitizeFilenameNoExt(intent)
+
+    await Promise.map(content.slots, async slot => {
+      const entity = await this.ghost.readFileAsString(this.entitiesDir, `${slot.entity}.json`)
+      if (!entity) {
+        throw Error(`Invalid entity "${slot.entity}" doesn\'t exists`)
+      }
+    })
 
     if (intent.length < 1) {
       throw new Error('Invalid intent name, expected at least one character')
@@ -43,16 +50,12 @@ export default class Storage {
     const utterancesFile = `${intent}.utterances.txt`
     const propertiesFile = `${intent}.json`
 
-    const utterances = content.utterances.join('\r\n') // \n To support windows as well
+    const utterances = content.utterances && content.utterances.join('\r\n') // \n To support windows as well
+    if (utterances) {
+      await this.ghost.upsertFile(this.intentsDir, utterancesFile, utterances)
+    }
 
-    await this.ghost.upsertFile(this.intentsDir, utterancesFile, utterances)
-    await this.ghost.upsertFile(
-      this.intentsDir,
-      propertiesFile,
-      JSON.stringify({
-        entities: content.entities
-      })
-    )
+    await this.ghost.upsertFile(this.intentsDir, propertiesFile, JSON.stringify(content))
   }
 
   async deleteIntent(intent) {

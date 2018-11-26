@@ -134,8 +134,15 @@ declare module 'botpress/sdk' {
   }
 
   export namespace NLU {
+    export interface IntentSlot {
+      name: string
+      entity: string
+    }
+
     export interface Intent {
       name: string
+      slots: IntentSlot[]
+      utterances: string[]
       confidence: number
       matches: (intentPattern: string) => boolean
     }
@@ -143,6 +150,7 @@ declare module 'botpress/sdk' {
     export type IntentList = Intent[] & { includes: (intentName: string) => boolean }
 
     export interface Entity {
+      name: string
       type: string
       meta: EntityMeta
       data: EntityBody
