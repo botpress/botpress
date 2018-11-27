@@ -24,8 +24,7 @@ const onServerStarted = async (bp: typeof sdk) => {
       next()
     },
     order: 15,
-    description: 'Finds content from Knowledge base files',
-    enabled: true
+    description: 'Finds content from Knowledge base files'
   })
 }
 
