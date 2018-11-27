@@ -44,7 +44,9 @@ export class DocumentClassifier {
 
     for (const idx in indexedSnippets) {
       const content = this._sanitize(indexedSnippets[idx].content)
-      fs.appendFileSync(trainFile, `${idx} ${content}${EOL}`)
+      if (content.length > 3) {
+        fs.appendFileSync(trainFile, `__label__${idx} ${content}${EOL}`)
+      }
     }
 
     const ft = new FastTextWrapper(fullModelPath)
@@ -56,7 +58,10 @@ export class DocumentClassifier {
   }
 
   private _sanitize(content: string): string {
-    return content.replace(/[^\w -]/gi, '').trim()
+    return content
+      .replace(/[^\w -]/gi, '')
+      .trim()
+      .toLowerCase()
   }
 
   async predict(text: string): Promise<{ snippet: Snippet; confidence: number }[]> {

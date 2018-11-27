@@ -31,7 +31,7 @@ export default async (bp: typeof sdk, indexers: IndexerByBot, classifiers: Class
 
   router.get('/query', async (req, res) => {
     const result = await classifiers[req.params.botId].predict(req.query.q)
-    console.log(result)
+    res.send(result)
   })
 
   router.get('/view/:doc', async (req, res) => {
