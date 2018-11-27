@@ -5,9 +5,9 @@ import { ClassifierByBot, IndexerByBot } from './typings'
 
 export default async (bp: typeof sdk, indexers: IndexerByBot, classifiers: ClassifierByBot) => {
   const KNOWLEDGE_FOLDER = 'knowledge'
-  const router = bp.http.createRouterForBot('knowledge')
   const acceptedMimeTypes = ['text/plain', 'application/pdf']
 
+  const router = bp.http.createRouterForBot('knowledge')
   router.get('/list', async (req, res) => {
     try {
       const docs = await bp.ghost.forBot(req.params.botId).directoryListing(KNOWLEDGE_FOLDER, '*.*')

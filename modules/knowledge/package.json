@@ -1,6 +1,6 @@
 {
   "name": "knowledge",
-  "version": "10.47.1",
+  "version": "1.0.0",
   "description": "Botpress Knowledge Sourcing",
   "private": true,
   "main": "dist/backend/index.js",

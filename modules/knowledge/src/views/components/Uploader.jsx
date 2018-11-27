@@ -33,7 +33,7 @@ export default class Uploader extends Component {
           />
         </div>
         {this.props.isUploading ? `Uploading: ${this.props.uploadProgress} %` : ''}
-        <p>{this.renderStatus()}</p>
+        <div className={style.spacing}>{this.renderStatus()}</div>
         <p>
           <Button onClick={() => this.dropzoneRef.current.open()}>Select files</Button>
         </p>

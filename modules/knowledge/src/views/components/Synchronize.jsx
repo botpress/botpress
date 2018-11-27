@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 
 import { Button, Alert } from 'react-bootstrap'
 import moment from 'moment'
+import style from '../style.scss'
+
 export default class QueryTester extends Component {
   render() {
     const lastSync = this.props.lastSyncTimestamp
@@ -17,7 +19,7 @@ export default class QueryTester extends Component {
         <Button onClick={this.props.onSync} disabled={this.props.isSyncInProgress} bsStyle="success">
           Sync now
         </Button>
-        <p>{this.renderStatus()}</p>
+        <div className={style.spacing}>{this.renderStatus()}</div>
       </div>
     )
   }
