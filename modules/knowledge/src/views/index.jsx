@@ -7,11 +7,11 @@ import {
   Button,
   Panel,
   FormControl,
-  Form,
   Tooltip,
   OverlayTrigger,
   FormGroup,
-  InputGroup
+  InputGroup,
+  Label
 } from 'react-bootstrap'
 import style from './style.scss'
 
@@ -61,7 +61,7 @@ export default class KnowledgeManager extends Component {
   }
 
   downloadDocument = doc => {
-    this.props.bp.axios({ method: 'get', url: `/mod/knowledge/view/${doc}d`, responseType: 'blob' }).then(response => {
+    this.props.bp.axios({ method: 'get', url: `/mod/knowledge/view/${doc}`, responseType: 'blob' }).then(response => {
       this.setState(
         {
           downloadLinkHref: window.URL.createObjectURL(new Blob([response.data])),
@@ -216,26 +216,42 @@ export default class KnowledgeManager extends Component {
   }
 
   renderResults() {
+    if (!this.state.testResults) {
+      return null
+    }
+
     return (
       <div>
-        <h3>Results</h3>
-        {this.state.testResults && this.state.testResults.map(r => this.renderResult(r))}
+        <h3>Top 5 Results</h3>
+        {this.state.testResults.map(result => {
+          const { name, paragraph, page } = result.snippet
+
+          return (
+            <div>
+              <font color="blue">{result.snippet.content}</font>
+              <br />
+              <br />
+              <a href="#" onClick={() => this.downloadDocument(name)}>
+                {name}
+              </a>
+              <br />
+              Confidence: {this.renderConfidence(result.confidence)} - page {page}, paragraph: {paragraph}
+              <hr />
+            </div>
+          )
+        })}
       </div>
     )
   }
 
-  renderResult(result) {
-    const { name, paragraph, page } = result.snippet
-    return (
-      <div>
-        {result.snippet.content}
-        <br />
-        <small>
-          Confidence: <strong>{result.confidence}</strong> - page {page}, paragraph: {paragraph} in file {name}
-        </small>
-        <hr />
-      </div>
-    )
+  renderConfidence(confidence) {
+    if (confidence >= 0.7) {
+      return <Label bsStyle="success">{confidence}</Label>
+    } else if (confidence < 0.7 && confidence >= 0.2) {
+      return <Label bsStyle="warning">{confidence}</Label>
+    } else {
+      return <Label>{confidence}</Label>
+    }
   }
 
   render() {
