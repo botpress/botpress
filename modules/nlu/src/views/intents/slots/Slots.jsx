@@ -117,6 +117,7 @@ export default class Slots extends React.Component {
   onSlotDeleted = slot => {
     const slots = [...this.getSlots().filter(s => s.id !== slot.id)]
     this.props.onSlotsChanged && this.props.onSlotsChanged(slots, { operation: 'deleted', name: slot.name })
+    this.updateSelectedSlot(slots.length ? slots[0] : null, slots.length ? 0 : null)
   }
 
   hasSelectedText = () => {
