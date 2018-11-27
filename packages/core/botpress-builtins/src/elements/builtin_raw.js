@@ -26,7 +26,9 @@ export default {
         payload: {
           type: 'string',
           title: 'Raw payload (JSON)'
-        }
+        },
+        ...base.messagingPurpose,
+        ...base.typingIndicators
       }
     }
   },

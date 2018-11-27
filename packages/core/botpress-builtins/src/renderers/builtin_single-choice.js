@@ -9,6 +9,8 @@ export default data => [
     on: 'facebook',
     text: data.text,
     quick_replies: takeVisible(data.choices).map(c => `<${c.value || c.action}> ${c.title || c.action}`),
+    messagingType: data.messagingType,
+    tag: data.messagingTag,
     typing: data.typing
   },
   {

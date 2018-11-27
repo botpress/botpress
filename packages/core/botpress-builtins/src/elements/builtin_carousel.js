@@ -18,6 +18,7 @@ export default {
       }
     },
     items: Card.jsonSchema,
+    ...base.messagingPurpose,
     ...base.typingIndicators
   },
 

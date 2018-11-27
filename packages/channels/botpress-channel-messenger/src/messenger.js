@@ -169,18 +169,17 @@ class Messenger extends EventEmitter {
   }
 
   sendMessage(recipientId, message, options, pageId) {
-    const req = () =>
-      this.sendRequest(
-        {
-          recipient: {
-            id: recipientId
-          },
-          message
-        },
-        null,
-        null,
-        pageId
-      )
+    const body = {
+      messaging_type: options.messagingType || 'RESPONSE',
+      recipient: {
+        id: recipientId
+      },
+      message
+    }
+    if (options.tag) {
+      body.tag = options.tag
+    }
+    const req = () => this.sendRequest(body, null, null, pageId)
 
     if (options && options.typing) {
       const autoTimeout = message && message.text ? 500 + message.text.length * 10 : 1000

@@ -26,6 +26,7 @@ export default {
         description: 'Some platforms require to name the images.',
         title: 'Title (optional)'
       },
+      ...base.messagingPurpose,
       ...base.typingIndicators
     }
   },

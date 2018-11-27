@@ -45,6 +45,8 @@ export default data => [
       }
     }),
 
+    messagingType: data.messagingType,
+    tag: data.messagingTag,
     typing: data.typing
   },
   {

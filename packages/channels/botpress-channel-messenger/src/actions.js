@@ -131,6 +131,8 @@ const createText = (userId, text, options) => {
       message: text,
       typing: options && options.typing,
       quick_replies: options && options.quick_replies,
+      messagingType: options && options.messagingType,
+      tag: options && options.tag,
       waitRead: options && options.waitRead,
       waitDelivery: options && options.waitDelivery
     }
@@ -169,6 +171,8 @@ const createAttachment = (userId, type, url, options) => {
       attachmentId: options && options.attachmentId,
       typing: options && options.typing,
       quick_replies: options && options.quick_replies,
+      messagingType: options && options.messagingType,
+      tag: options && options.tag,
       waitRead: options && options.waitRead,
       waitDelivery: options && options.waitDelivery
     }
@@ -196,6 +200,8 @@ const createTemplate = (userId, payload, options) => {
       payload: payload,
       typing: options && options.typing,
       quick_replies: options && options.quick_replies,
+      messagingType: options && options.messagingType,
+      tag: options && options.tag,
       waitRead: options && options.waitRead,
       waitDelivery: options && options.waitDelivery
     }

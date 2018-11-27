@@ -39,6 +39,8 @@ export default data =>
             }
           }),
           quick_replies: takeVisible(data.choices).map(c => `<${c.value || c.action}> ${c.title || c.action}`),
+          messagingType: data.messagingType,
+          tag: data.messagingTag,
           typing: data.typing
         }
       ]
@@ -47,6 +49,8 @@ export default data =>
           // on: '*',
           text: _.sample([data.text, ...(data.variations || [])]),
           quick_replies: takeVisible(data.choices).map(c => `<${c.value || c.action}> ${c.title || c.action}`),
+          messagingType: data.messagingType,
+          tag: data.messagingTag,
           typing: data.typing,
           markdown: true // Webchat only
         }

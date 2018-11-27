@@ -32,6 +32,7 @@ export default {
         title: 'Action Buttons',
         items: ActionButton.jsonSchema
       },
+      ...base.messagingPurpose,
       ...base.typingIndicators
     }
   },

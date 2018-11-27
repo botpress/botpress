@@ -8,6 +8,8 @@ export default data => [
   {
     on: 'facebook',
     image: url.resolve(data.BOT_URL, data.image),
+    messagingType: data.messagingType,
+    tag: data.messagingTag,
     typing: data.typing
   },
   {

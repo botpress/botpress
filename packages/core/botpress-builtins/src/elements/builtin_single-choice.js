@@ -30,6 +30,7 @@ export default {
         maxItems: 10,
         items: QuickReply.jsonSchema
       },
+      ...base.messagingPurpose,
       ...base.typingIndicators
     }
   },
