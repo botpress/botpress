@@ -82,7 +82,7 @@ export default class Slots extends React.Component {
     const slots = this.getSlots()
 
     let selectedSlotIndex = this.state.selectedSlotIndex + step
-    if (slots.length / selectedSlotIndex >= 1) {
+    if (selectedSlotIndex >= slots.length) {
       selectedSlotIndex = 0
     } else if (selectedSlotIndex < 0) {
       selectedSlotIndex = slots.length - 1
@@ -92,11 +92,11 @@ export default class Slots extends React.Component {
   }
 
   moveUp() {
-    this.changeSelectedSlot(1)
+    this.changeSelectedSlot(-1)
   }
 
   moveDown() {
-    this.changeSelectedSlot(-1)
+    this.changeSelectedSlot(1)
   }
 
   onSlotSave = (slot, operation) => {
