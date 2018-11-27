@@ -115,7 +115,7 @@ const TokenSpanFactory = ({ getEditorState, setEditorState, getEntity }) => prop
   )
 
   const className = classnames(
-    colors[`label-colors-${nluEntity.colors}`],
+    colors[`label-colors-${nluEntity.color}`],
     style[`entity-${entity.getType().toLowerCase()}`]
   )
 
@@ -294,10 +294,10 @@ export default class IntentEditor extends React.Component {
     return 'not-handled'
   }
 
-  tagSelected = entityId => {
+  tagSelected = entity => {
     const selection = this.state.editorState.getSelection()
     const contentState = this.state.editorState.getCurrentContent()
-    const contentStateWithEntity = contentState.createEntity('LABEL', 'MUTABLE', { entityId: entityId })
+    const contentStateWithEntity = contentState.createEntity('LABEL', 'MUTABLE', { entityId: entity.id })
 
     const entityKey = contentStateWithEntity.getLastCreatedEntityKey()
     const contentStateWithLink = Modifier.applyEntity(contentStateWithEntity, selection, entityKey)
@@ -322,13 +322,10 @@ export default class IntentEditor extends React.Component {
 
   onArrow = action => keyboardEvent => {
     const editor = this.props.getEntitiesEditor()
-    const selection = this.state.editorState.getSelection()
-
-    console.log(selection, selection.isCollapsed())
 
     if (editor) {
-      editor[action] && editor[action]()
       keyboardEvent.preventDefault()
+      editor[action] && editor[action]()
     }
   }
 
@@ -340,21 +337,16 @@ export default class IntentEditor extends React.Component {
     }
   }
 
+  updateSelectedText = selectedText => {
+    const slotEditor = this.props.getEntitiesEditor()
+    if (slotEditor) {
+      slotEditor.setSelection(selectedText)
+    }
+  }
+
   render() {
     const selectedText = getSelectionText(this.state.editorState)
-    const selectedEntity = getSelectionFirstEntity(this.state.editorState)
-    let selectedEntityId = null
-
-    if (selectedEntity) {
-      const entity = this.state.editorState.getCurrentContent().getEntity(selectedEntity)
-      selectedEntityId = entity.getData().entityId
-    }
-
-    const editor = this.props.getEntitiesEditor()
-
-    if (editor) {
-      editor.setSelection(selectedText, selectedEntityId, this)
-    }
+    this.updateSelectedText(selectedText)
 
     const onFocus = e => {
       this.setState({ hasFocus: true })
@@ -367,6 +359,7 @@ export default class IntentEditor extends React.Component {
         if (!currentTarget.contains(document.activeElement)) {
           this.updateCanonicalValue()
           this.setState({ hasFocus: false })
+          this.updateSelectedText(null)
         }
       })
     }
