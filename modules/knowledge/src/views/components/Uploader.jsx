@@ -32,7 +32,6 @@ export default class Uploader extends Component {
             overlay={tooltip}
           />
         </div>
-        {this.props.isUploading ? `Uploading: ${this.props.uploadProgress} %` : ''}
         <div className={style.spacing}>{this.renderStatus()}</div>
         <p>
           <Button onClick={() => this.dropzoneRef.current.open()}>Select files</Button>
@@ -42,6 +41,13 @@ export default class Uploader extends Component {
   }
 
   renderStatus() {
-    return this.props.status && <Alert bsStyle={this.props.isError ? 'danger' : 'success'}>{this.props.status}</Alert>
+    return (
+      this.props.status && (
+        <Alert bsStyle={this.props.isError ? 'danger' : 'success'}>
+          {this.props.status}
+          {this.props.isUploading ? ` - ${this.props.uploadProgress} % completed` : ''}
+        </Alert>
+      )
+    )
   }
 }
