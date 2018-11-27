@@ -1,66 +1,49 @@
 import React, { Component } from 'react'
-import Dropzone from 'react-dropzone'
-import {
-  Table,
-  Row,
-  Col,
-  Button,
-  Panel,
-  FormControl,
-  Tooltip,
-  OverlayTrigger,
-  FormGroup,
-  InputGroup,
-  Label
-} from 'react-bootstrap'
-import style from './style.scss'
+
+import FileList from './components/FileList'
+import QueryTester from './components/QueryTester'
+import Uploader from './components/Uploader'
+import Synchronize from './components/Synchronize'
+import { Row, Col, Panel } from 'react-bootstrap'
 
 export default class KnowledgeManager extends Component {
   constructor(props) {
     super(props)
 
     this.downloadLink = React.createRef()
-    this.dropzoneRef = React.createRef()
-    this.acceptedMimeTypes = 'text/plain,application/pdf'
 
     this.state = {
       uploadProgression: 0,
-      isUploading: false
+      isUploadInProgress: false,
+      isQueryInProgress: false,
+      isSyncInProgress: false,
+      isSyncError: false,
+      lastSyncTimestamp: undefined,
+      acceptedMimeTypes: ''
     }
   }
 
   componentDidMount() {
     this.fetchDocuments()
+    this.fetchStatus()
   }
 
-  fetchDocuments() {
+  fetchStatus = () => {
+    this.props.bp.axios.get('mod/knowledge/status').then(({ data }) => {
+      this.setState({
+        lastSyncTimestamp: data.lastSyncTimestamp && parseInt(data.lastSyncTimestamp),
+        acceptedMimeTypes: data.acceptedMimeTypes && data.acceptedMimeTypes.join(',')
+      })
+    })
+  }
+
+  fetchDocuments = () => {
     this.props.bp.axios.get('mod/knowledge/list').then(({ data }) => {
-      this.setState({ documents: data })
+      this.setState({ documents: data.map(doc => ({ id: doc, filename: doc })) })
     })
   }
 
-  onFilesDropped = async files => {
-    if (this.state.isUploading) {
-      return
-    }
-
-    const formData = new FormData()
-    files.map(file => formData.append('file', file))
-
-    await this.props.bp.axios.post('/mod/knowledge/upload', formData, {
-      onUploadProgress: progress => {
-        this.setState({
-          isUploading: true,
-          uploadProgression: Math.round((progress.loaded / progress.total) * 100)
-        })
-      }
-    })
-
-    this.setState({ isUploading: false })
-    this.fetchDocuments()
-  }
-
-  downloadDocument = doc => {
+  handleViewDocument = doc => {
     this.props.bp.axios({ method: 'get', url: `/mod/knowledge/view/${doc}`, responseType: 'blob' }).then(response => {
       this.setState(
         {
@@ -72,186 +55,96 @@ export default class KnowledgeManager extends Component {
     })
   }
 
-  deleteDocument = async doc => {
+  handleDeleteDocument = async doc => {
     if (confirm(`Do you really want to delete the document "${doc}"?`)) {
       await this.props.bp.axios.get(`/mod/knowledge/delete/${doc}`)
       this.fetchDocuments()
     }
   }
 
-  syncIndex = async () => {
-    await this.props.bp.axios.get(`/mod/knowledge/sync`)
-  }
-
-  sendQuery = async () => {
-    const { data } = await this.props.bp.axios.get('/mod/knowledge/query', {
-      params: { q: this.state.knowledgeTestField }
-    })
-
-    this.setState({
-      testResults: data
-    })
-  }
-
-  onQueryChanged = event => {
-    this.setState({
-      knowledgeTestField: event.target.value
-    })
-  }
-
-  onInputKeyPress = e => {
-    if (e.key === 'Enter') {
-      this.sendQuery()
+  handleDeleteSelected = async documents => {
+    if (confirm(`Do you really want to delete ${documents.length} documents?`)) {
+      await this.props.bp.axios.post(`/mod/knowledge/bulk_delete`, documents)
+      this.fetchDocuments()
     }
   }
 
-  renderFileList() {
-    return (
-      <div>
-        <h3>Indexed documents</h3>
-        <Table size="sm">
-          <thead>
-            <tr>
-              <th>Filename</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {this.state.documents &&
-              this.state.documents.map(doc => (
-                <tr key={doc}>
-                  <td>
-                    <a href="#" onClick={() => this.downloadDocument(doc)}>
-                      {doc}
-                    </a>
-                  </td>
-                  <td>
-                    <a href="#" onClick={() => this.deleteDocument(doc)}>
-                      Delete
-                    </a>
-                  </td>
-                </tr>
-              ))}
-          </tbody>
-        </Table>
-      </div>
-    )
+  handleFileUpload = async files => {
+    const formData = new FormData()
+    files.map(file => formData.append('file', file))
+
+    this.setState({ uploadStatus: 'Upload in progress...', isUploadError: false })
+
+    this.props.bp.axios
+      .post('/mod/knowledge/upload', formData, {
+        onUploadProgress: progress => {
+          this.setState({
+            isUploadInProgress: true,
+            uploadProgression: Math.round((progress.loaded / progress.total) * 100)
+          })
+        }
+      })
+      .then(() => {
+        this.setState({ uploadStatus: `Upload successful!`, isUploadInProgress: false })
+        this.clearWithDelay('uploadStatus')
+        this.fetchDocuments()
+      })
+      .catch(err => {
+        this.setState({
+          uploadStatus: `There was an error while uploading files: ${err}`,
+          isUploadError: true,
+          isUploadInProgress: false
+        })
+        this.clearWithDelay('uploadStatus')
+      })
   }
 
-  renderUploadZone() {
-    const tooltip = (
-      <Tooltip id="tooltip">
-        Supported file types: <strong>{this.acceptedMimeTypes}</strong>
-      </Tooltip>
-    )
-
-    return (
-      <div>
-        <h3>Index new documents</h3>
-        Drag & drop your documents below or click on the
-        <br /> "Select files" button &nbsp;
-        <OverlayTrigger placement="right" overlay={tooltip}>
-          <Button bsSize="xs">?</Button>
-        </OverlayTrigger>
-        <br />
-        <br />
-        <Dropzone
-          ref={this.dropzoneRef}
-          accept={this.acceptedMimeTypes}
-          onDrop={this.onFilesDropped}
-          className={style.dropzone}
-          overlay={tooltip}
-        />
-        {this.state.isUploading ? `Uploading: ${this.state.uploadProgression} %` : ''}
-        <br />
-        <Button onClick={() => this.dropzoneRef.current.open()}>Select files</Button>
-      </div>
-    )
-  }
-
-  renderSync() {
-    return (
-      <div>
-        <h3>Synchronization</h3>
-        Documents are automatically synchronized when added from this interface. Manual sync is required when added
-        manually
-        <br />
-        <br />
-        Last sync date: Never
-        <br />
-        <br />
-        <Button onClick={this.syncIndex} bsStyle="success">
-          Sync now
-        </Button>
-      </div>
-    )
-  }
-
-  renderTestKnowledge() {
-    return (
-      <Row>
-        <Col md={4}>
-          <div>
-            <h3>Test Knowledgebase</h3>
-            Type some text and see what would be the most probable answer from your bot
-            <br />
-            <FormGroup>
-              <InputGroup>
-                <FormControl
-                  value={this.state.knowledgeTestField}
-                  onChange={this.onQueryChanged}
-                  onKeyPress={this.onInputKeyPress}
-                  placeholder="Question"
-                  style={{ width: 400 }}
-                />
-                &nbsp;
-                <Button onClick={this.sendQuery}>Send</Button>
-              </InputGroup>
-            </FormGroup>
-          </div>
-        </Col>
-        <Col md={7}>{this.renderResults()}</Col>
-      </Row>
-    )
-  }
-
-  renderResults() {
-    if (!this.state.testResults) {
-      return null
+  handleQuerySearch = async queryText => {
+    if (this.state.isQueryInProgress) {
+      return
     }
+    this.setState({ isQueryInProgress: true })
 
-    return (
-      <div>
-        <h3>Top 5 Results</h3>
-        {this.state.testResults.map(result => {
-          const { name, paragraph, page } = result.snippet
-
-          return (
-            <div>
-              <font color="blue">{result.snippet.content}</font>
-              <br />
-              <br />
-              <a href="#" onClick={() => this.downloadDocument(name)}>
-                {name}
-              </a>
-              <br />
-              Confidence: {this.renderConfidence(result.confidence)} - page {page}, paragraph: {paragraph}
-              <hr />
-            </div>
-          )
-        })}
-      </div>
-    )
+    this.props.bp.axios
+      .get('/mod/knowledge/query', {
+        params: { q: queryText }
+      })
+      .then(({ data }) =>
+        this.setState({
+          queryResults: data,
+          isQueryInProgress: false
+        })
+      )
+      .catch(err => {
+        this.setState({ isQueryInProgress: false })
+      })
   }
 
-  renderConfidence(confidence) {
-    if (confidence >= 0.7) {
-      return <Label bsStyle="success">{confidence}</Label>
-    } else if (confidence < 0.7 && confidence >= 0.2) {
-      return <Label bsStyle="warning">{confidence}</Label>
-    } else {
-      return <Label>{confidence}</Label>
+  handleSynchronize = async () => {
+    if (!this.state.isSyncInProgress) {
+      this.setState({ syncMessage: 'Synchronization in progress...', isSyncError: false })
+
+      this.props.bp.axios
+        .get(`/mod/knowledge/sync`)
+        .then(() => {
+          this.setState({ syncMessage: 'Synchronization completed successfully' })
+          this.clearWithDelay('syncMessage')
+          this.fetchStatus()
+        })
+        .catch(() => {
+          this.setState({
+            syncMessage: `There was an eror while synchronizing. Please check the logs`,
+            isSyncError: true
+          })
+          this.clearWithDelay('syncMessage')
+        })
     }
+  }
+
+  clearWithDelay = field => {
+    window.setTimeout(() => {
+      this.setState({ [field]: undefined })
+    }, 2500)
   }
 
   render() {
@@ -259,21 +152,46 @@ export default class KnowledgeManager extends Component {
       <Panel>
         <a ref={this.downloadLink} href={this.state.downloadLinkHref} download={this.state.downloadLinkFileName} />
         <Panel.Body>
-          {this.renderTestKnowledge()}
+          <QueryTester
+            onQuerySearch={this.handleQuerySearch}
+            onView={this.handleViewDocument}
+            queryInProgress={this.state.isQueryInProgress}
+            queryResults={this.state.queryResults}
+          />
           <Row>
             <Col>
               <hr />
             </Col>
           </Row>
           <Row>
-            <Col md={4} xs={12}>
-              {this.renderFileList()}
+            <Col md={5} xs={12}>
+              <FileList
+                data={this.state.documents}
+                onDelete={this.handleDeleteDocument}
+                onView={this.handleViewDocument}
+                onRefresh={this.fetchDocuments}
+                onDeleteSelected={this.handleDeleteSelected}
+              />
             </Col>
             <Col md={3} xs={12}>
-              {this.renderUploadZone()}
+              <Uploader
+                mimeTypes={this.state.acceptedMimeTypes}
+                onRefresh={this.fetchDocuments}
+                onUpload={this.handleFileUpload}
+                isUploading={this.state.isUploadInProgress}
+                uploadProgress={this.state.uploadProgression}
+                status={this.state.uploadStatus}
+                isError={this.state.isUploadError}
+              />
             </Col>
             <Col md={3} xs={12}>
-              {this.renderSync()}
+              <Synchronize
+                onSync={this.handleSynchronize}
+                lastSyncTimestamp={this.state.lastSyncTimestamp}
+                isSyncInProgress={this.state.isSyncInProgress}
+                status={this.state.syncMessage}
+                isError={this.state.isSyncError}
+              />
             </Col>
           </Row>
         </Panel.Body>

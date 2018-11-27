@@ -6,6 +6,7 @@ import { ClassifierByBot, IndexerByBot } from './typings'
 export default async (bp: typeof sdk, indexers: IndexerByBot, classifiers: ClassifierByBot) => {
   const KNOWLEDGE_FOLDER = 'knowledge'
   const router = bp.http.createRouterForBot('knowledge')
+  const acceptedMimeTypes = ['text/plain', 'application/pdf']
 
   router.get('/list', async (req, res) => {
     try {
@@ -18,15 +19,23 @@ export default async (bp: typeof sdk, indexers: IndexerByBot, classifiers: Class
 
   router.get('/sync', async (req, res) => {
     try {
-      await indexers[req.params.botId].forceSync()
+      await indexers[req.params.botId].forceSync(true)
       res.sendStatus(200)
     } catch (err) {
       res.status(500).send(err.message || 'Error while syncing')
     }
   })
 
-  router.get('/lastSync', async (req, res) => {
-    res.sendStatus(200)
+  router.get('/status', async (req, res) => {
+    const lastModel = await classifiers[req.params.botId].getMostRecentModel()
+    if (!lastModel) {
+      return res.send({ acceptedMimeTypes })
+    }
+
+    return res.send({
+      lastSyncTimestamp: lastModel.replace(/\D/g, ''),
+      acceptedMimeTypes
+    })
   })
 
   router.get('/query', async (req, res) => {
@@ -55,6 +64,19 @@ export default async (bp: typeof sdk, indexers: IndexerByBot, classifiers: Class
       await bp.ghost.forBot(req.params.botId).deleteFile(KNOWLEDGE_FOLDER, req.params.doc)
       await indexers[req.params.botId].forceSync()
 
+      res.sendStatus(200)
+    } catch (err) {
+      res.status(400).send(err)
+    }
+  })
+
+  router.post('/bulk_delete', async (req, res) => {
+    try {
+      for (const file of req.body) {
+        await bp.ghost.forBot(req.params.botId).deleteFile(KNOWLEDGE_FOLDER, file)
+      }
+
+      await indexers[req.params.botId].forceSync()
       res.sendStatus(200)
     } catch (err) {
       res.status(400).send(err)

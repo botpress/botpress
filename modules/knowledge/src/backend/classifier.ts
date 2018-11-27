@@ -23,13 +23,19 @@ export class DocumentClassifier {
     this._ft = new FastTextWrapper(this._modelPath)
   }
 
-  async loadMostRecent() {
+  async getMostRecentModel(): Promise<string | undefined> {
     const ghost = DocumentClassifier.ghostProvider(this.botId)
     const files = await ghost.directoryListing('./models', '*.bin')
-
     const mostRecent = _.last(files.filter(f => f.startsWith('knowledge_')).sort())
 
-    if (mostRecent && mostRecent.length) {
+    return mostRecent && mostRecent.toString()
+  }
+
+  async loadMostRecent() {
+    const ghost = DocumentClassifier.ghostProvider(this.botId)
+    const mostRecent = await this.getMostRecentModel()
+
+    if (mostRecent) {
       const index = await ghost.readFileAsObject<{ [canonical: string]: Snippet }>(
         './models',
         mostRecent.replace('knowledge_', 'knowledge_meta_').replace('.bin', '.json')
