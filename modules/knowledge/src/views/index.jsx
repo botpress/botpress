@@ -71,8 +71,22 @@ export default class KnowledgeManager extends Component {
     await this.props.bp.axios.get(`/mod/knowledge/sync`)
   }
 
-  sendQuery = async query => {
-    //
+  sendQuery = async () => {
+    const result = await this.props.bp.axios.get('/mod/knowledge/query', {
+      params: { q: this.state.knowledgeTestField }
+    })
+  }
+
+  onQueryChanged = event => {
+    this.setState({
+      knowledgeTestField: event.target.value
+    })
+  }
+
+  onInputKeyPress = e => {
+    if (e.key === 'Enter') {
+      this.sendQuery()
+    }
   }
 
   renderFileList() {
@@ -166,7 +180,13 @@ export default class KnowledgeManager extends Component {
             Type some text and see what would be the most probable answer from your bot
             <br />
             <Form inline>
-              <FormControl value={this.state.knowledgeTestField} placeholder="Question" style={{ width: 400 }} />
+              <FormControl
+                value={this.state.knowledgeTestField}
+                onChange={this.onQueryChanged}
+                onKeyPress={this.onInputKeyPress}
+                placeholder="Question"
+                style={{ width: 400 }}
+              />
               &nbsp;
               <Button onClick={this.sendQuery}>Send</Button>
             </Form>

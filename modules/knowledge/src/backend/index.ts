@@ -4,9 +4,10 @@ import _ from 'lodash'
 import api from './api'
 import { DocumentClassifier } from './classifier'
 import { Indexer } from './indexer'
+import { ClassifierByBot, IndexerByBot } from './typings'
 
-const indexers: { [botId: string]: Indexer } = {}
-const classifiers: { [botId: string]: DocumentClassifier } = {}
+const indexers: IndexerByBot = {}
+const classifiers: ClassifierByBot = {}
 
 const onServerStarted = async (bp: typeof sdk) => {
   Indexer.ghostProvider = bp.ghost.forBot
@@ -30,7 +31,7 @@ const onServerStarted = async (bp: typeof sdk) => {
 }
 
 const onServerReady = async (bp: typeof sdk) => {
-  await api(bp, indexers)
+  await api(bp, indexers, classifiers)
 }
 
 const onBotMount = async (bp: typeof sdk, botId: string) => {

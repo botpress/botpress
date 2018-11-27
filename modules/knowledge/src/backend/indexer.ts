@@ -73,7 +73,8 @@ export class Indexer {
       }
 
       const tmpFile = tmpNameSync()
-      const fileBuff = await ghost.readFileAsBuffer('./knowledge', tmpFile)
+
+      const fileBuff = await ghost.readFileAsBuffer('./knowledge', file)
       fs.writeFileSync(tmpFile, fileBuff)
 
       const content = await converter(tmpFile)

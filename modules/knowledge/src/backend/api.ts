@@ -1,9 +1,9 @@
 import * as sdk from 'botpress/sdk'
 import multer from 'multer'
 
-import { IndexerByBot } from './typings'
+import { ClassifierByBot, IndexerByBot } from './typings'
 
-export default async (bp: typeof sdk, indexers: IndexerByBot) => {
+export default async (bp: typeof sdk, indexers: IndexerByBot, classifiers: ClassifierByBot) => {
   const KNOWLEDGE_FOLDER = 'knowledge'
   const router = bp.http.createRouterForBot('knowledge')
 
@@ -27,6 +27,11 @@ export default async (bp: typeof sdk, indexers: IndexerByBot) => {
 
   router.get('/lastSync', async (req, res) => {
     res.sendStatus(200)
+  })
+
+  router.get('/query', async (req, res) => {
+    const result = await classifiers[req.params.botId].predict(req.query.q)
+    console.log(result)
   })
 
   router.get('/view/:doc', async (req, res) => {
