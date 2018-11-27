@@ -1,446 +1,206 @@
 import React, { Component } from 'react'
-
-import {
-  FormGroup,
-  FormControl,
-  ControlLabel,
-  Checkbox,
-  Panel,
-  ButtonToolbar,
-  Button,
-  Well,
-  Modal,
-  HelpBlock,
-  Alert,
-  Pagination
-} from 'react-bootstrap'
-import Select from 'react-select'
-
-import classnames from 'classnames'
-import Promise from 'bluebird'
-
-import FormModal from './FormModal'
+import Dropzone from 'react-dropzone'
+import { Table, Row, Col, Button, Panel, FormControl, Form, Tooltip, OverlayTrigger } from 'react-bootstrap'
 import style from './style.scss'
-import './button.css'
 
-const ITEMS_PER_PAGE = 50
-const CSV_STATUS_POLL_INTERVAL = 1000
-
-export default class QnaAdmin extends Component {
+export default class KnowledgeManager extends Component {
   constructor(props) {
     super(props)
-    this.csvDownloadableLink = React.createRef()
-  }
 
-  state = {
-    items: [],
-    flows: null,
-    flowsList: [],
-    filter: '',
-    showBulkImport: undefined,
-    page: 1,
-    overallItemsCount: 0,
-    showQnAModal: false,
-    category: '',
-    QnAModalType: 'create',
-    quentionsOptions: [],
-    categoryOptions: [],
-    filterCategory: [],
-    filterQuestion: '',
-    selectedQuestion: []
-  }
+    this.downloadLink = React.createRef()
+    this.dropzoneRef = React.createRef()
+    this.acceptedMimeTypes = 'text/plain,application/pdf'
 
-  shouldAutofocus = true
-
-  fetchFlows() {
-    this.props.bp.axios.get('/flows').then(({ data }) => {
-      const flowsList = data.map(({ name }) => ({ label: name, value: name }))
-
-      this.setState({ flows: data, flowsList })
-    })
-  }
-
-  fetchData = (page = 1) => {
-    const params = { limit: ITEMS_PER_PAGE, offset: (page - 1) * ITEMS_PER_PAGE }
-    this.props.bp.axios.get('/mod/qna/list', { params }).then(({ data }) => {
-      const quentionsOptions = data.items.map(({ id, data: { questions } }) => ({
-        label: (questions || []).join(','),
-        value: id
-      }))
-
-      this.setState({
-        items: data.items,
-        overallItemsCount: data.count,
-        page,
-        quentionsOptions
-      })
-    })
-  }
-
-  fetchCategories() {
-    this.props.bp.axios.get('/mod/qna/categories').then(({ data: { categories } }) => {
-      const categoryOptions = categories.map(category => ({ label: category, value: category }))
-
-      this.setState({ categoryOptions })
-    })
+    this.state = {
+      uploadProgression: 0,
+      isUploading: false
+    }
   }
 
   componentDidMount() {
-    this.fetchData()
-    this.fetchFlows()
-    this.fetchCategories()
+    this.fetchDocuments()
   }
 
-  onCategoriesFilter = filterCategory => this.setState({ filterCategory }, this.filterQuestions)
-
-  onQuestioinsFilter = event => this.setState({ filterQuestion: event.target.value }, this.filterQuestions)
-
-  filterQuestions = (page = 1) => {
-    const { filterQuestion, filterCategory } = this.state
-    const question = filterQuestion
-    const categories = filterCategory.map(({ value }) => value)
-
-    this.props.bp.axios
-      .get('/mod/qna/list', {
-        params: {
-          question,
-          categories,
-          limit: ITEMS_PER_PAGE,
-          offset: (page - 1) * ITEMS_PER_PAGE
-        }
-      })
-      .then(({ data: { items, count } }) => this.setState({ items, overallItemsCount: count, page }))
+  fetchDocuments() {
+    this.props.bp.axios.get('mod/knowledge/list').then(({ data }) => {
+      this.setState({ documents: data })
+    })
   }
 
-  uploadCsv = async () => {
-    const formData = new FormData()
-    formData.set('isReplace', this.state.isCsvUploadReplace)
-    formData.append('csv', this.state.csvToUpload)
-
-    const headers = { 'Content-Type': 'multipart/form-data' }
-    const { data: csvStatusId } = await this.props.bp.axios.post('/mod/qna/import/csv', formData, { headers })
-
-    this.setState({ csvStatusId })
-
-    while (this.state.csvStatusId) {
-      try {
-        const { data: status } = await this.props.bp.axios.get(`/mod/qna/csv-upload-status/${csvStatusId}`)
-
-        this.setState({ csvUploadStatus: status })
-
-        if (status === 'Completed') {
-          this.setState({ csvStatusId: null, importCsvModalShow: false })
-          this.fetchData()
-        } else if (status.startsWith('Error')) {
-          this.setState({ csvStatusId: null })
-        }
-
-        await Promise.delay(CSV_STATUS_POLL_INTERVAL)
-      } catch (e) {
-        return this.setState({ csvUploadStatus: 'Server Error', csvStatusId: null })
-      }
+  onFilesDropped = async files => {
+    if (this.state.isUploading) {
+      return
     }
-  }
 
-  downloadCsv = () =>
-    // We can't just download file directly due to security restrictions
-    this.props.bp.axios({ method: 'get', url: '/mod/qna/export/csv', responseType: 'blob' }).then(response => {
-      this.setState(
-        {
-          csvDownloadableLinkHref: window.URL.createObjectURL(new Blob([response.data])),
-          csvDownloadableFileName: /filename=(.*\.csv)/.exec(response.headers['content-disposition'])[1]
-        },
-        () => this.csvDownloadableLink.current.click()
-      )
+    const formData = new FormData()
+    files.map(file => formData.append('file', file))
+
+    await this.props.bp.axios.post('/mod/knowledge/upload', formData, {
+      onUploadProgress: progress => {
+        this.setState({
+          isUploading: true,
+          uploadProgression: Math.round((progress.loaded / progress.total) * 100)
+        })
+      }
     })
 
-  renderPagination = () => {
-    const pagesCount = Math.ceil(this.state.overallItemsCount / ITEMS_PER_PAGE)
-    const { filterQuestion, filterCategory } = this.state
-    const isFilter = filterQuestion || filterCategory.length
+    this.setState({ isUploading: false })
+    this.fetchDocuments()
+  }
 
-    if (pagesCount <= 1) {
-      return null
+  downloadDocument = doc => {
+    this.props.bp.axios({ method: 'get', url: `/mod/knowledge/view/${doc}d`, responseType: 'blob' }).then(response => {
+      this.setState(
+        {
+          downloadLinkHref: window.URL.createObjectURL(new Blob([response.data])),
+          downloadLinkFileName: /filename=(.*\.*?)/.exec(response.headers['content-disposition'])[1]
+        },
+        () => this.downloadLink.current.click()
+      )
+    })
+  }
+
+  deleteDocument = async doc => {
+    if (confirm(`Do you really want to delete the document "${doc}"?`)) {
+      await this.props.bp.axios.get(`/mod/knowledge/delete/${doc}`)
+      this.fetchDocuments()
     }
+  }
 
-    const fetchPage = page => () => (isFilter ? this.filterQuestions(page) : this.fetchData(page))
-    const renderPageBtn = page => (
-      <Pagination.Item key={'page' + page} onClick={fetchPage(page)} active={this.state.page === page}>
-        {page}
-      </Pagination.Item>
-    )
+  syncIndex = async () => {
+    await this.props.bp.axios.get(`/mod/knowledge/sync`)
+  }
 
-    const firstPage = () => (isFilter ? this.filterQuestions(1) : this.fetchData(1))
-    const prevPage = () =>
-      this.state.page > 1 &&
-      (isFilter ? this.filterQuestions(this.state.page - 1) : this.fetchData(this.state.page - 1))
-    const nextPage = () =>
-      this.state.page < pagesCount &&
-      (isFilter ? this.filterQuestions(this.state.page + 1) : this.fetchData(this.state.page + 1))
-    const lastPage = () => (isFilter ? this.filterQuestions(pagesCount) : this.fetchData(pagesCount))
+  sendQuery = async query => {
+    //
+  }
 
+  renderFileList() {
     return (
-      <Pagination>
-        <Pagination.First onClick={firstPage} />
-        <Pagination.Prev onClick={prevPage} disabled={this.state.page === 1} />
-        {new Array(pagesCount).fill().map((_x, i) => {
-          const page = i + 1
-          if (Math.abs(this.state.page - page) === 5) {
-            return <Pagination.Ellipsis />
-          }
-          if (Math.abs(this.state.page - page) > 5) {
-            return null
-          }
-          return renderPageBtn(page)
-        })}
-        <Pagination.Next onClick={nextPage} disabled={this.state.page >= pagesCount} />
-        <Pagination.Last onClick={lastPage} />
-      </Pagination>
+      <div>
+        <h3>Indexed documents</h3>
+        <Table size="sm">
+          <thead>
+            <tr>
+              <th>Filename</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {this.state.documents &&
+              this.state.documents.map(doc => (
+                <tr key={doc}>
+                  <td>
+                    <a href="#" onClick={() => this.downloadDocument(doc)}>
+                      {doc}
+                    </a>
+                  </td>
+                  <td>
+                    <a href="#" onClick={() => this.deleteDocument(doc)}>
+                      Delete
+                    </a>
+                  </td>
+                </tr>
+              ))}
+          </tbody>
+        </Table>
+      </div>
     )
   }
 
-  renderImportModal() {
-    const { csvUploadStatus } = this.state
+  renderUploadZone() {
+    const tooltip = (
+      <Tooltip id="tooltip">
+        Supported file types: <strong>{this.acceptedMimeTypes}</strong>
+      </Tooltip>
+    )
 
     return (
-      <Modal show={this.state.importCsvModalShow} onHide={() => this.setState({ importCsvModalShow: false })}>
-        <Modal.Header closeButton>
-          <Modal.Title>Import CSV</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {csvUploadStatus && (
-            <Alert
-              bsStyle={csvUploadStatus.startsWith('Error') ? 'danger' : 'info'}
-              onDismiss={() => this.setState({ csvUploadStatus: null })}
-            >
-              <p>{this.state.csvUploadStatus}</p>
-            </Alert>
-          )}
-          <form>
-            <FormGroup>
-              <ControlLabel>CSV file</ControlLabel>
-              <FormControl
-                type="file"
-                accept=".csv"
-                onChange={e => this.setState({ csvToUpload: e.target.files[0] })}
-              />
-              <HelpBlock>CSV should be formatted &quot;question,answer_type,answer&quot;</HelpBlock>
-            </FormGroup>
-            <FormGroup>
-              <Checkbox
-                checked={this.state.isCsvUploadReplace}
-                onChange={e => this.setState({ isCsvUploadReplace: e.target.checked })}
-              >
-                Replace existing FAQs
-              </Checkbox>
-              <HelpBlock>Deletes existing FAQs and then uploads new ones from the file</HelpBlock>
-            </FormGroup>
-          </form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button bsStyle="primary" onClick={this.uploadCsv} disabled={!Boolean(this.state.csvToUpload)}>
-            Upload
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    )
-  }
-
-  renderQnAHeader = () => (
-    <FormGroup className={style.qnaHeader}>
-      <ButtonToolbar className={style.csvContainer}>
-        <Button
-          className={style.csvButton}
-          onClick={() =>
-            this.setState({
-              importCsvModalShow: true,
-              csvToUpload: null,
-              csvUploadStatus: null,
-              isCsvUploadReplace: false
-            })
-          }
-          type="button"
-        >
-          Import from CSV
-        </Button>
-        <Button className={style.csvButton} onClick={this.downloadCsv} type="button">
-          Export to CSV
-        </Button>
-        {this.renderImportModal()}
-      </ButtonToolbar>
-    </FormGroup>
-  )
-
-  renderSearch = () => (
-    <div className={classnames(style.qnaNavBar, 'qnaNavBar')}>
-      <div className={style.searchBar}>
-        <FormControl
-          className={style.serachQuestions}
-          value={this.state.filterQuestion}
-          onChange={this.onQuestioinsFilter}
-          placeholder="Filter questions"
+      <div>
+        <h3>Index new documents</h3>
+        Drag & drop your documents below or click on the
+        <br /> "Select files" button &nbsp;
+        <OverlayTrigger placement="right" overlay={tooltip}>
+          <Button bsSize="xs">?</Button>
+        </OverlayTrigger>
+        <br />
+        <br />
+        <Dropzone
+          ref={this.dropzoneRef}
+          accept={this.acceptedMimeTypes}
+          onDrop={this.onFilesDropped}
+          className={style.dropzone}
+          overlay={tooltip}
         />
-        {this.state.categoryOptions.length ? (
-          <Select
-            className={style.serachQuestions}
-            multi
-            value={this.state.filterCategory}
-            options={this.state.categoryOptions}
-            onChange={this.onCategoriesFilter}
-            placeholder="Filter caterories"
-          />
-        ) : null}
+        {this.state.isUploading ? `Uploading: ${this.state.uploadProgression} %` : ''}
+        <br />
+        <Button onClick={() => this.dropzoneRef.current.open()}>Select files</Button>
       </div>
-      <Button
-        className={style.qnaNavBarAddNew}
-        bsStyle="success"
-        onClick={() => this.setState({ QnAModalType: 'create', currentItemId: null, showQnAModal: true })}
-        type="button"
-      >
-        + Add new
-      </Button>
-    </div>
-  )
-
-  renderItem = ({ data: item, id }) => {
-    if (!id) {
-      return null
-    }
-
-    const isRedirect = item.redirectFlow && item.redirectNode
-
-    return (
-      <Well className={style.qnaItem} bsSize="small">
-        <div className={style.itemContainer}>
-          <div className={style.itemQuestions}>
-            <span className={style.itemQuestionsTitle}>Q: </span>
-            <div className={style.questionsList}>{this.renderQustions(item.questions)}</div>
-          </div>
-          <div className={style.itemAnswerContainer}>
-            <span className={style.itemAnswerTitle}>A: </span>
-            <div className={style.itemAnswer}>
-              <span className={style.itemAnswerText}>{item.answer}</span>
-              <div className={style.itemRedirect}>
-                {isRedirect ? (
-                  <div className={style.itemFlow}>
-                    Flow: <span className={style.itemFlowName}>{item.redirectFlow}</span>
-                  </div>
-                ) : null}
-                {isRedirect ? (
-                  <div className={style.itemNode}>
-                    Node: <span className={style.itemNodeName}>{item.redirectNode}</span>
-                  </div>
-                ) : null}
-              </div>
-            </div>
-          </div>
-          {item.category ? (
-            <div className={style.questionCategory}>
-              Category:{' '}
-              <span className={style.questionCategoryTitle}>
-                &nbsp;
-                {item.category}
-              </span>
-            </div>
-          ) : null}
-        </div>
-        <div className={style.itemAction}>
-          {this.toggleButton({ value: item.enabled, onChange: this.enabledItem(item, id) })}
-          <i className={classnames('material-icons', style.itemActionDelete)} onClick={this.deleteItem(id)}>
-            delete
-          </i>
-          <i className={classnames('material-icons', style.itemActionEdit)} onClick={this.editItem(id)}>
-            edit
-          </i>
-        </div>
-      </Well>
     )
   }
 
-  deleteItem = id => () => {
-    const needDetelete = confirm('Do you want delete question?')
-    const { filterQuestion, filterCategory, page } = this.state
-    const params = {
-      question: filterQuestion,
-      categories: filterCategory.map(({ value }) => value),
-      limit: ITEMS_PER_PAGE,
-      offset: (page - 1) * ITEMS_PER_PAGE
-    }
-
-    if (needDetelete) {
-      this.props.bp.axios.delete(`/mod/qna/${id}`, { params }).then(({ data }) => this.setState({ ...data }))
-    }
-  }
-
-  editItem = id => () => {
-    this.setState({ QnAModalType: 'edit', currentItemId: id, showQnAModal: true })
-  }
-
-  enabledItem = (item, id) => value => {
-    const { page, filterQuestion, filterCategory } = this.state
-    const params = {
-      limit: ITEMS_PER_PAGE,
-      offset: (page - 1) * ITEMS_PER_PAGE,
-      question: filterQuestion,
-      categories: filterCategory
-    }
-
-    item.enabled = value
-    this.props.bp.axios.put(`/mod/qna/${id}`, item, { params }).then(({ data: { items } }) => this.setState({ items }))
-  }
-
-  renderQustions = questions =>
-    questions.map(question => (
-      <div key={question} className={style.questionText}>
-        {question}
-      </div>
-    ))
-
-  toggleButton = ({ value, onChange }) => {
-    const toggleCssClass = classnames('slider', { checked: value })
-
+  renderSync() {
     return (
-      <label className={classnames('switch', style.toggleButton)}>
-        <input className="toggle-input" value={value} onChange={() => onChange(!value)} type="checkbox" />
-        <span className={toggleCssClass} />
-      </label>
+      <div>
+        <h3>Synchronization</h3>
+        Documents are automatically synchronized when added from this interface. Manual sync is required when added
+        manually
+        <br />
+        <br />
+        Last sync date: Never
+        <br />
+        <br />
+        <Button onClick={this.syncIndex} bsStyle="success">
+          Sync now
+        </Button>
+      </div>
     )
   }
 
-  closeQnAModal = () => this.setState({ showQnAModal: false, currentItemId: null })
-
-  questionsList = () => this.state.items.map(this.renderItem)
-
-  updateQuestion = ({ items }) => this.setState({ items })
+  renderTestKnowledge() {
+    return (
+      <Row>
+        <Col md={4}>
+          <div>
+            <h3>Test Knowledgebase</h3>
+            Type some text and see what would be the most probable answer from your bot
+            <br />
+            <Form inline>
+              <FormControl value={this.state.knowledgeTestField} placeholder="Question" style={{ width: 400 }} />
+              &nbsp;
+              <Button onClick={this.sendQuery}>Send</Button>
+            </Form>
+          </div>
+        </Col>
+        <Col md={7}>
+          <h3>Results</h3>
+        </Col>
+      </Row>
+    )
+  }
 
   render() {
     return (
-      <Panel className={classnames(style.qnaContainer, 'qnaContainer')}>
-        <a
-          ref={this.csvDownloadableLink}
-          href={this.state.csvDownloadableLinkHref}
-          download={this.state.csvDownloadableFileName}
-        />
+      <Panel>
+        <a ref={this.downloadLink} href={this.state.downloadLinkHref} download={this.state.downloadLinkFileName} />
         <Panel.Body>
-          {this.renderQnAHeader()}
-          {this.renderSearch()}
-          {this.renderPagination()}
-          {this.questionsList()}
-          {this.renderPagination()}
-          <FormModal
-            flows={this.state.flows}
-            flowsList={this.state.flowsList}
-            bp={this.props.bp}
-            showQnAModal={this.state.showQnAModal}
-            closeQnAModal={this.closeQnAModal}
-            categories={this.state.categoryOptions}
-            fetchData={this.fetchData}
-            id={this.state.currentItemId}
-            modalType={this.state.QnAModalType}
-            page={{ offset: (this.state.page - 1) * ITEMS_PER_PAGE, limit: ITEMS_PER_PAGE }}
-            updateQuestion={this.updateQuestion}
-            filters={{ question: this.state.filterQuestion, categories: this.state.filterCategory }}
-          />
+          {this.renderTestKnowledge()}
+          <Row>
+            <Col>
+              <hr />
+            </Col>
+          </Row>
+          <Row>
+            <Col md={4} xs={12}>
+              {this.renderFileList()}
+            </Col>
+            <Col md={3} xs={12}>
+              {this.renderUploadZone()}
+            </Col>
+            <Col md={3} xs={12}>
+              {this.renderSync()}
+            </Col>
+          </Row>
         </Panel.Body>
       </Panel>
     )

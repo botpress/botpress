@@ -1,6 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
+import api from './api'
 import { DocumentClassifier } from './classifier'
 import { Indexer } from './indexer'
 
@@ -28,7 +29,9 @@ const onServerStarted = async (bp: typeof sdk) => {
   })
 }
 
-const onServerReady = async (bp: typeof sdk) => {}
+const onServerReady = async (bp: typeof sdk) => {
+  await api(bp, indexers)
+}
 
 const onBotMount = async (bp: typeof sdk, botId: string) => {
   classifiers[botId] = new DocumentClassifier(botId)
@@ -47,13 +50,10 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onBotUnmount,
   definition: {
     name: 'knowledge',
-    menuIcon: 'question_answer',
+    menuIcon: 'library_books',
     menuText: 'Knowledge',
     fullName: 'knowledge',
-    homepage: 'https://botpress.io',
-    noInterface: true,
-    plugins: [],
-    moduleView: { stretched: true }
+    homepage: 'https://botpress.io'
   }
 }
 
