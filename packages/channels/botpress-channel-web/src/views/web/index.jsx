@@ -48,7 +48,8 @@ const defaultOptions = {
       buttonTitle: 'Get Started',
       message: ''
     }
-  }
+  },
+  filterQuickReplies: false
 }
 
 const injectDOMElement = (tagName, targetSelector, options = {}) => {
@@ -403,12 +404,14 @@ export default class Web extends React.Component {
     })
   }
 
-  handleSendQuickReply = (title, payload) =>
+  handleSendQuickReply = (title, payload) => {
     this.handleSendData({
       type: 'quick_reply',
       text: title,
       data: { payload }
     })
+    this.setState({ textToSend: '' })
+  }
 
   handleSendForm = (fields, formId, repr) =>
     this.handleSendData({

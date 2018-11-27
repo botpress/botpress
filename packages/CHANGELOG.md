@@ -3,6 +3,166 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.51.1"></a>
+## [10.51.1](https://github.com/botpress/botpress/compare/v10.51.0...v10.51.1) (2018-11-17)
+
+
+### Bug Fixes
+
+* **core:** add .env to .gitignore of new bot template (fix [#1107](https://github.com/botpress/botpress/issues/1107)) ([#1130](https://github.com/botpress/botpress/issues/1130)) ([debf21a](https://github.com/botpress/botpress/commit/debf21a))
+* **messenger:** add subscribed_fields required field ([#1099](https://github.com/botpress/botpress/issues/1099)) ([3cd110c](https://github.com/botpress/botpress/commit/3cd110c))
+* **qna:** add bom-symbol to exported csv ([#1125](https://github.com/botpress/botpress/issues/1125)) ([967c601](https://github.com/botpress/botpress/commit/967c601))
+
+
+
+
+<a name="10.51.0"></a>
+# [10.51.0](https://github.com/botpress/botpress/compare/v10.50.0...v10.51.0) (2018-11-08)
+
+
+### Bug Fixes
+
+* **core:** added support for path prefixes ([b9c9aa7](https://github.com/botpress/botpress/commit/b9c9aa7))
+* **core-ui:** returnTo pathname based on router context ([340de33](https://github.com/botpress/botpress/commit/340de33))
+* **nlu:** fix Luis NLU fetching success training status ([5da5097](https://github.com/botpress/botpress/commit/5da5097))
+* **ui:** bot select dropdown styling ([ed2d485](https://github.com/botpress/botpress/commit/ed2d485))
+* **webchat:** fix acessing url-params (resolve [#721](https://github.com/botpress/botpress/issues/721)) ([#1086](https://github.com/botpress/botpress/issues/1086)) ([48c1724](https://github.com/botpress/botpress/commit/48c1724))
+* add admin link, move select bot, fix help btn ([1775808](https://github.com/botpress/botpress/commit/1775808))
+* remove unused method ([bbfbc6b](https://github.com/botpress/botpress/commit/bbfbc6b))
+* unlicensed in sidebarfooter ([2446ef0](https://github.com/botpress/botpress/commit/2446ef0))
+* wrap bot select in nav item ([68b1501](https://github.com/botpress/botpress/commit/68b1501))
+* **xx:** added admin link and hidden menu when not xx ([fdd676b](https://github.com/botpress/botpress/commit/fdd676b))
+* **xx:** minor ajustment for notifications ([74d9ae0](https://github.com/botpress/botpress/commit/74d9ae0))
+* **xx:** when receiving a new notification, others are disappearing ([35e87e4](https://github.com/botpress/botpress/commit/35e87e4))
+
+
+### Features
+
+* **core:** add bot select for botpress-xx ([c932b3d](https://github.com/botpress/botpress/commit/c932b3d))
+* **core:** implemented bot switch ([99e9287](https://github.com/botpress/botpress/commit/99e9287))
+* **core-ui:** lite views support multi-bot ([460892a](https://github.com/botpress/botpress/commit/460892a))
+* **xx:** disabled login screen in XX ([fb8ddeb](https://github.com/botpress/botpress/commit/fb8ddeb))
+* **xx:** ghost content export ([101ab0e](https://github.com/botpress/botpress/commit/101ab0e))
+* **xx:** notification support ([3cbfaac](https://github.com/botpress/botpress/commit/3cbfaac))
+
+
+
+
+<a name="10.50.0"></a>
+# [10.50.0](https://github.com/botpress/botpress/compare/v10.49.0...v10.50.0) (2018-10-31)
+
+
+### Bug Fixes
+
+* **hitl:** swallow quick reply message type ([b74d928](https://github.com/botpress/botpress/commit/b74d928))
+
+
+### Features
+
+* **qna:** add typing time when bot answer to a question ([b97d074](https://github.com/botpress/botpress/commit/b97d074))
+
+
+
+
+<a name="10.49.0"></a>
+# [10.49.0](https://github.com/botpress/botpress/compare/v10.48.5...v10.49.0) (2018-10-30)
+
+
+### Features
+
+* **web:** add filterQuickReplies option into snippet ([964557e](https://github.com/botpress/botpress/commit/964557e))
+
+
+
+
+<a name="10.48.5"></a>
+## [10.48.5](https://github.com/botpress/botpress/compare/v10.48.4...v10.48.5) (2018-10-19)
+
+
+### Bug Fixes
+
+* **core:** fix rerunning module migrations ([ec6279b](https://github.com/botpress/botpress/commit/ec6279b))
+* **hitl:** display event inside conversation for hitl module ([21b7749](https://github.com/botpress/botpress/commit/21b7749))
+* **hitl:** display messages of type quick_reply in hitl module ([e8ae668](https://github.com/botpress/botpress/commit/e8ae668))
+* **hitl:** reset hitl_messages pg sequence (resolve [#1007](https://github.com/botpress/botpress/issues/1007)) ([eb8bf71](https://github.com/botpress/botpress/commit/eb8bf71))
+
+
+
+
+<a name="10.48.4"></a>
+## [10.48.4](https://github.com/botpress/botpress/compare/v10.48.3...v10.48.4) (2018-10-17)
+
+
+### Bug Fixes
+
+* **core:** fix ghost-content uniq index migration for sqlite ([#1033](https://github.com/botpress/botpress/issues/1033)) ([aef783b](https://github.com/botpress/botpress/commit/aef783b))
+
+
+
+
+<a name="10.48.3"></a>
+## [10.48.3](https://github.com/botpress/botpress/compare/v10.48.2...v10.48.3) (2018-10-17)
+
+
+### Bug Fixes
+
+* **core:** create missing files/folder during ghost-sync (resolve [#996](https://github.com/botpress/botpress/issues/996)) ([#1031](https://github.com/botpress/botpress/issues/1031)) ([8463aa2](https://github.com/botpress/botpress/commit/8463aa2))
+
+
+
+
+<a name="10.48.2"></a>
+## [10.48.2](https://github.com/botpress/botpress/compare/v10.48.1...v10.48.2) (2018-10-17)
+
+
+### Bug Fixes
+
+* **core:** fix missing migration error for existing bots (resolve [#1025](https://github.com/botpress/botpress/issues/1025)) ([#1029](https://github.com/botpress/botpress/issues/1029)) ([aa8fb30](https://github.com/botpress/botpress/commit/aa8fb30))
+
+
+
+
+<a name="10.48.1"></a>
+## [10.48.1](https://github.com/botpress/botpress/compare/v10.48.0...v10.48.1) (2018-10-17)
+
+
+### Bug Fixes
+
+* **core:** update tests on user list tags ([#1028](https://github.com/botpress/botpress/issues/1028)) ([055cbe4](https://github.com/botpress/botpress/commit/055cbe4))
+* **qna:** fix deleting questions for QnA-maker ([#1027](https://github.com/botpress/botpress/issues/1027)) ([3ed1788](https://github.com/botpress/botpress/commit/3ed1788))
+
+
+
+
+<a name="10.48.0"></a>
+# [10.48.0](https://github.com/botpress/botpress/compare/v10.47.1...v10.48.0) (2018-10-16)
+
+
+### Bug Fixes
+
+* **core:** fix fetching users' tags ([#1023](https://github.com/botpress/botpress/issues/1023)) ([afba620](https://github.com/botpress/botpress/commit/afba620))
+* **core:** remove ghost file uniq index migration (resolve [#1017](https://github.com/botpress/botpress/issues/1017)) ([#1018](https://github.com/botpress/botpress/issues/1018)) ([d91ee40](https://github.com/botpress/botpress/commit/d91ee40))
+* **web:** add padding to greeting message ([#1019](https://github.com/botpress/botpress/issues/1019)) ([5510176](https://github.com/botpress/botpress/commit/5510176))
+
+
+### Features
+
+* **analytics:** add table type to graphs ([#1021](https://github.com/botpress/botpress/issues/1021)) ([6dbe9c3](https://github.com/botpress/botpress/commit/6dbe9c3))
+
+
+
+
+<a name="10.47.1"></a>
+## [10.47.1](https://github.com/botpress/botpress/compare/v10.47.0...v10.47.1) (2018-10-15)
+
+
+### Bug Fixes
+
+* **qna:** fix accessing storage in async-functions (resolve [#1004](https://github.com/botpress/botpress/issues/1004)) ([#1015](https://github.com/botpress/botpress/issues/1015)) ([0da2824](https://github.com/botpress/botpress/commit/0da2824))
+
+
+
+
 <a name="10.47.0"></a>
 # [10.47.0](https://github.com/botpress/botpress/compare/v10.46.5...v10.47.0) (2018-10-10)
 

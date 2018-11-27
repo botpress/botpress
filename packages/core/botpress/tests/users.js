@@ -134,15 +134,16 @@ run('users', () => {
       await getUsers().tag('tests:dummy-1', 'hello3')
 
       const list = await getUsers().list()
+      const tagsList = tags => _.flatten(tags.map(({ tag }) => tag))
 
       expect(list).to.satisfy(arr => {
         const dummy1 = _.find(arr, { userId: 'dummy-1' })
-        return dummy1 && _.includes(dummy1.tags, 'HELLO1') && _.includes(dummy1.tags, 'HELLO3')
+        return dummy1 && _.includes(tagsList(dummy1.tags), 'HELLO1') && _.includes(tagsList(dummy1.tags), 'HELLO3')
       })
 
       expect(list).to.length(11)
-      expect(list[0].tags).to.length(0)
-      expect(list[1].tags).to.length(3)
+      expect(tagsList(list[0].tags)).to.length(0)
+      expect(tagsList(list[1].tags)).to.length(3)
     })
 
     itBoth('Paging works', async knex => {

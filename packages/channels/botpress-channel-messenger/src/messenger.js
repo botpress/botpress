@@ -651,8 +651,21 @@ class Messenger extends EventEmitter {
     const url =
       `https://graph.facebook.com/v${this.config.graphVersion}/me/subscribed_apps?access_token=` +
       this.getConfigVal('accessToken', pageId)
+    const subscribed_fields = [      
+      'feed',
+      'messages',
+      'message_deliveries',
+      'message_reads',
+      'messaging_referrals',
+      'messaging_postbacks',
+      'messaging_optins'
+    ]
 
-    return fetch(url, { method: 'POST' })
+    return fetch(url, {
+      method: 'POST',
+      body: JSON.stringify({ subscribed_fields }),
+      headers: { 'Content-Type': 'application/json' }
+    })
       .then(this._handleFacebookResponse)
       .then(res => res.json())
       .catch(err => console.log(err))

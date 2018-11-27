@@ -27,7 +27,7 @@ export const processEvent = async (event, { bp, storage, logger, config }) => {
 
   if (answer.action.includes('text')) {
     logger.debug('QnA: replying to recognized question with plain text answer', answer.id)
-    event.reply(config.textRenderer, { text: answer.answer })
+    event.reply(config.textRenderer, { text: answer.answer, typing: config.qnaShowTyping })
     // return `true` to prevent further middlewares from capturing the message
 
     if (answer.action === 'text') {

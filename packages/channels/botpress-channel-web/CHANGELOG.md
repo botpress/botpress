@@ -3,6 +3,103 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.51.1"></a>
+## [10.51.1](https://github.com/botpress/modules/compare/v10.51.0...v10.51.1) (2018-11-17)
+
+
+
+
+**Note:** Version bump only for package @botpress/channel-web
+
+<a name="10.51.0"></a>
+# [10.51.0](https://github.com/botpress/modules/compare/v10.50.0...v10.51.0) (2018-11-08)
+
+
+### Bug Fixes
+
+* **webchat:** fix acessing url-params (resolve [#721](https://github.com/botpress/modules/issues/721)) ([#1086](https://github.com/botpress/modules/issues/1086)) ([48c1724](https://github.com/botpress/modules/commit/48c1724))
+
+
+
+
+<a name="10.50.0"></a>
+# [10.50.0](https://github.com/botpress/modules/compare/v10.49.0...v10.50.0) (2018-10-31)
+
+
+
+
+**Note:** Version bump only for package @botpress/channel-web
+
+<a name="10.49.0"></a>
+# [10.49.0](https://github.com/botpress/modules/compare/v10.48.5...v10.49.0) (2018-10-30)
+
+
+### Features
+
+* **web:** add filterQuickReplies option into snippet ([964557e](https://github.com/botpress/modules/commit/964557e))
+
+
+
+
+<a name="10.48.5"></a>
+## [10.48.5](https://github.com/botpress/modules/compare/v10.48.4...v10.48.5) (2018-10-19)
+
+
+
+
+**Note:** Version bump only for package @botpress/channel-web
+
+<a name="10.48.4"></a>
+## [10.48.4](https://github.com/botpress/modules/compare/v10.48.3...v10.48.4) (2018-10-17)
+
+
+
+
+**Note:** Version bump only for package @botpress/channel-web
+
+<a name="10.48.3"></a>
+## [10.48.3](https://github.com/botpress/modules/compare/v10.48.2...v10.48.3) (2018-10-17)
+
+
+
+
+**Note:** Version bump only for package @botpress/channel-web
+
+<a name="10.48.2"></a>
+## [10.48.2](https://github.com/botpress/modules/compare/v10.48.1...v10.48.2) (2018-10-17)
+
+
+
+
+**Note:** Version bump only for package @botpress/channel-web
+
+<a name="10.48.1"></a>
+## [10.48.1](https://github.com/botpress/modules/compare/v10.48.0...v10.48.1) (2018-10-17)
+
+
+
+
+**Note:** Version bump only for package @botpress/channel-web
+
+<a name="10.48.0"></a>
+# [10.48.0](https://github.com/botpress/modules/compare/v10.47.1...v10.48.0) (2018-10-16)
+
+
+### Bug Fixes
+
+* **web:** add padding to greeting message ([#1019](https://github.com/botpress/modules/issues/1019)) ([5510176](https://github.com/botpress/modules/commit/5510176))
+
+
+
+
+<a name="10.47.1"></a>
+## [10.47.1](https://github.com/botpress/modules/compare/v10.47.0...v10.47.1) (2018-10-15)
+
+
+
+
+**Note:** Version bump only for package @botpress/channel-web
+
 <a name="10.47.0"></a>
 # [10.47.0](https://github.com/botpress/modules/compare/v10.46.5...v10.47.0) (2018-10-10)
 

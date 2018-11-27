@@ -160,6 +160,13 @@ export const fetchUser = authEnabled => dispatch => {
 }
 
 // Bot
+export const botsReceived = createAction('BOTS/RECEIVED')
+export const fetchAllBots = () => dispatch => {
+  if (window.BOTPRESS_XX) {
+    axios.get('/api/teams/bots').then(res => dispatch(botsReceived(res.data)))
+  }
+}
+
 export const botInfoReceived = createAction('BOT/INFO_RECEIVED')
 export const fetchBotInformation = () => dispatch => {
   axios.get('/api/bot/information').then(information => {

@@ -30,11 +30,9 @@
     border-top: 1px solid #565656;
     background-color: $sidebar-color;
     position: absolute;
-    bottom: 0px;
+    bottom: 0;
     width: 100%;
     opacity: 1;
-    padding-top: 10px;
-    padding-left: 20px;
     padding-bottom: 10px;
   }
 
@@ -56,13 +54,71 @@
     color: $sidebar-primary-color;
   }
 
-  .name {
+  .admin {
     font-size: 16px;
-    color: #c7c7c7;
+    color: #ccc;
+    border-bottom: 1px solid #2d2d2d;
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    margin-bottom: 5px;
+    line-height: 44px;
+    text-decoration: none;
+
+    &:hover {
+      background-color: #111;
+      color: #ccc;
+      text-decoration: none;
+    }
+
+    :global(.icon) {
+      display: inline;
+      vertical-align: middle;
+      color: #58d1b0;
+      padding: 0 10px 0 0;
+      font-size: 18px;
+    }
+  }
+
+  .select {
+    margin: 0 15px;
+
+    :global(.Select-control) {
+      background-color: transparent;
+      border: 0;
+      color: #c7c7c7;
+      font-size: 16px;
+    }
+
+    :global(.Select-placeholder),
+    :global(.Select-input) {
+      padding-left: 0;
+    }
+
+    :global(.Select.is-focused:not(.is-open) > .Select-control),
+    :global(.Select.is-open > .Select-control) {
+      background-color: transparent;
+    }
+
+    :global(.Select-menu-outer) {
+      background-color: #333;
+      border: 0;
+    }
   }
 
   .production {
-    margin-bottom: 10px;
+    margin: 10px 15px;
+  }
+
+  .about {
+    margin: 0 15px;
+  }
+
+  .unlicensed {
+    color: #d84744;
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 15px;
   }
 
   .logo {

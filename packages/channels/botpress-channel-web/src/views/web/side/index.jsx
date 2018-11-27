@@ -328,11 +328,13 @@ export default class Side extends React.Component {
       botAvatarUrl: this.props.config && this.props.config.botAvatarUrl,
       showUserName: this.props.config && this.props.config.showUserName,
       showUserAvatar: this.props.config && this.props.config.showUserAvatar,
+      filterQuickReplies: this.props.config && this.props.config.filterQuickReplies,
       onQuickReplySend: this.props.onQuickReplySend,
       onFormSend: this.props.onFormSend,
       onFileUploadSend: this.props.onFileUploadSend,
       onLoginPromptSend: this.props.onLoginPromptSend,
-      onSendData: this.props.onSendData
+      onSendData: this.props.onSendData,
+      currentText: this.props.text
     }
 
     const hasMessages = Array.isArray(messagesProps.messages) && messagesProps.messages.length

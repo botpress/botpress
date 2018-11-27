@@ -52,7 +52,7 @@
     "no-new-object": 2,
 
     "prettier/prettier": "error",
-
+    "react/display-name": 1,
     "react/prop-types": 0,
     "react/no-find-dom-node": 0
   }

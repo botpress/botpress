@@ -4,11 +4,13 @@ import ReactDOM from 'expose-loader?ReactDOM!react-dom'
 
 import axios from 'axios'
 import { getToken } from '~/util/Auth'
-
+import { parseBotId } from './util'
+/* eslint-disable */
 import PropTypes from 'expose-loader?PropTypes!prop-types'
 import ReactBootstrap from 'expose-loader?ReactBootstrap!react-bootstrap'
 import ContentPickerWidget from 'expose-loader?BotpressContentPicker!~/components/Content/Select/Widget'
 import { Provider } from 'react-redux'
+/* eslint-enable */
 
 import store from './store'
 
@@ -20,6 +22,11 @@ require('./theme.scss')
 const token = getToken()
 if (token) {
   axios.defaults.headers.common['Authorization'] = `Bearer ${token.token}`
+}
+
+if (window.BOTPRESS_XX && axios && axios.defaults) {
+  axios.defaults.headers.common['X-Botpress-App'] = 'Studio'
+  axios.defaults.headers.common['X-Botpress-Bot-Id'] = parseBotId()
 }
 
 // Do not use "import App from ..." as hoisting will screw up styling

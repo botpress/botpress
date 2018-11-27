@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import { NavDropdown, MenuItem } from 'react-bootstrap'
 import _ from 'lodash'
 import classnames from 'classnames'
+import { fetchNotifications } from '~/actions'
 
 import NotificationComponent from './index.jsx'
 import styles from './hubStyle.scss'
@@ -34,7 +35,7 @@ class NotificationHub extends NotificationComponent {
     const notifications = this.props.notifications || []
     const isEmpty = notifications.length === 0
     const displayedNotifications = _.take(notifications, NB_OF_NOTIFICATIONS_TO_DISPLAY)
-    const unread = _.filter(notifications, { read: false })
+    const unread = _.filter(notifications, notif => notif.read === false || notif.read === 0)
     const unreadCount = unread.length
 
     const hasAnyError = _.some(unread, notif => {
@@ -71,7 +72,7 @@ class NotificationHub extends NotificationComponent {
                 Mark all as read
               </a>
               &nbsp; &middot; &nbsp;
-              <a href="/notifications">Show all</a>
+              <a href={window.BP_BASE_PATH + '/notifications'}>Show all</a>
             </div>
           )}
         </MenuItem>
@@ -84,4 +85,4 @@ class NotificationHub extends NotificationComponent {
 
 const mapStateToProps = state => ({ notifications: state.notifications })
 
-export default connect(mapStateToProps)(NotificationHub)
+export default connect(mapStateToProps, { fetchNotifications })(NotificationHub)

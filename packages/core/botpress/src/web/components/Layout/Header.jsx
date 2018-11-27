@@ -11,10 +11,15 @@ import { logout } from '~/util/Auth'
 import style from './Header.scss'
 import { viewModeChanged } from '~/actions'
 import PermissionsChecker from './PermissionsChecker'
+import { fetchBotInformation, fetchAllBots } from '../../actions'
 
 class Header extends React.Component {
   state = {
     loading: true
+  }
+
+  componentDidMount() {
+    this.props.fetchAllBots()
   }
 
   handleFullscreen = () => {
@@ -65,7 +70,7 @@ class Header extends React.Component {
           <Nav pullRight>
             <NavItem onClick={this.handleFullscreen}>{this.renderFullScreenButton()}</NavItem>
             <PermissionsChecker user={this.props.user} res="bot.logs" op="read">
-              <NavItem href="/logs">
+              <NavItem href={window.BP_BASE_PATH + '/logs'}>
                 <Glyphicon glyph="list-alt" />
               </NavItem>
             </PermissionsChecker>
@@ -84,9 +89,12 @@ class Header extends React.Component {
 const mapStateToProps = state => ({
   user: state.user,
   viewMode: state.ui.viewMode,
-  customStyle: state.ui.customStyle
+  customStyle: state.ui.customStyle,
+  bot: state.bot,
+  bots: state.bots
 })
 
-const mapDispatchToProps = dispatch => bindActionCreators({ viewModeChanged }, dispatch)
+const mapDispatchToProps = dispatch =>
+  bindActionCreators({ viewModeChanged, fetchBotInformation, fetchAllBots }, dispatch)
 
 export default connect(mapStateToProps, mapDispatchToProps)(Header)
