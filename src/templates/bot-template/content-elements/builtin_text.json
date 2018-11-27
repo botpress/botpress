@@ -2,8 +2,11 @@
   {
     "id": "builtin_text-pSsHWg",
     "formData": {
-      "text": "👋, {{state.$r}}!",
-      "variations": ["Hello, {{state.$r}}!", "Welcome to Botpress, {{state.$r}}!"],
+      "text": "👋, {{user.nickname}}!",
+      "variations": [
+        "Hello, {{user.nickname}}!",
+        "Welcome to Botpress, {{user.nickname}}!"
+      ],
       "typing": true
     },
     "createdBy": "admin",
@@ -21,7 +24,7 @@
   {
     "id": "builtin_text-bFsOmf",
     "formData": {
-      "text": "We already spoke {{state.$r}} times!",
+      "text": "We already spoke {{temp.$r}} times!",
       "typing": true
     },
     "createdBy": "admin",
@@ -35,15 +38,6 @@
     },
     "createdBy": "admin",
     "createdOn": "2018-05-14T01:06:41.963Z"
-  },
-  {
-    "id": "builtin_text-KRrMLo",
-    "formData": {
-      "text": "Elephants are heavy!",
-      "typing": true
-    },
-    "createdBy": "admin",
-    "createdOn": "2018-05-24T11:40:33.034Z"
   },
   {
     "id": "builtin_text-z0J9qh",
@@ -71,5 +65,14 @@
     },
     "createdBy": "admin",
     "createdOn": "2018-05-14T01:17:55.317Z"
+  },
+  {
+    "id": "builtin_text-KRrMLo",
+    "formData": {
+      "text": "Elephants are heavy!",
+      "typing": true
+    },
+    "createdBy": "admin",
+    "createdOn": "2018-05-24T11:40:33.034Z"
   }
 ]

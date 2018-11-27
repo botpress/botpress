@@ -10,7 +10,8 @@ const getNumberOfConversations = async output => {
   const botId = event.botId
   const key = bp.kvs.getUserStorageKey(userId, 'numberOfConversations')
   const value = await bp.kvs.getStorageWithExpiry(botId, key)
-  return { ...state, [output]: value }
+
+  temp[output] = value
 }
 
 return getNumberOfConversations()
