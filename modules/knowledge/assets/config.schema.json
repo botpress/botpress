@@ -1,34 +1,13 @@
 {
   "type": "object",
   "properties": {
-    "qnaDir": {
-      "default": "./qna",
-      "type": "string"
-    },
-    "textRenderer": {
-      "default": "#builtin_text",
-      "type": "string"
-    },
-    "exportCsvEncoding": {
-      "default": "utf8",
-      "type": "string"
-    },
-    "qnaMakerApiKey": {
-      "type": "string"
-    },
-    "qnaMakerKnowledgebase": {
-      "default": "botpress",
-      "type": "string"
-    },
-    "qnaCategories": {
-      "description": "List of categories, separated by a comma",
+    "pdfToolPath": {
+      "default": "/usr/bin/pdftotext",
       "type": "string"
     }
   },
   "required": [
-    "exportCsvEncoding",
-    "qnaDir",
-    "textRenderer"
+    "pdfToolPath"
   ],
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

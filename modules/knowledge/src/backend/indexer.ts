@@ -1,10 +1,10 @@
 import * as sdk from 'botpress/sdk'
 import fs from 'fs'
 import _ from 'lodash'
-import { EOL } from 'os'
 import path from 'path'
-import tmp from 'tmp'
+import { tmpNameSync } from 'tmp'
 
+import { DocumentClassifier } from './classifier'
 import * as Converters from './converters'
 
 export interface Snippet {
@@ -20,7 +20,7 @@ export class Indexer {
   static converters: Converters.Converter[] = [Converters.Pdf]
   _forceSyncDebounce: (() => Promise<void>) & _.Cancelable
 
-  constructor(private readonly botId: string) {
+  constructor(private readonly botId: string, private readonly classifier: DocumentClassifier) {
     this._forceSyncDebounce = _.debounce(this._forceSync, 500)
   }
 
@@ -34,26 +34,33 @@ export class Indexer {
   }
 
   private async _forceSync() {
-    const ftModel = tmp.tmpNameSync({ postfix: '.txt' })
+    const modelName = Date.now()
+    const metadataFile = `knowledge_meta_${modelName}.json`
+    const modelFile = `knowledge_${modelName}.bin`
+
+    const tmpModelLoc = tmpNameSync({ postfix: '.bin' })
+
+    const snippetIndex: { [canonical: string]: Snippet } = {}
 
     for await (const snippets of this._pullDocuments()) {
       for (const snippet of snippets) {
         const label = this._snippetToCanonical(snippet)
-        fs.appendFileSync(ftModel, label + ' ' + snippet.content + EOL)
+        snippetIndex[label] = snippet
       }
     }
+
+    Indexer.ghostProvider(this.botId).upsertFile('./models', metadataFile, JSON.stringify(snippetIndex, undefined, 2))
+    await this.classifier.train(snippetIndex, tmpModelLoc)
+
+    const modelBuff: Buffer = fs.readFileSync(tmpModelLoc)
+    await Indexer.ghostProvider(this.botId).upsertFile('./models', modelFile, modelBuff)
+
+    await this.classifier.loadFromBuffer(snippetIndex, modelBuff)
   }
 
   private _snippetToCanonical(snippet: Snippet): string {
     return `__label__${snippet.source}___${snippet.name}___${snippet.page}___${snippet.paragraph}`
   }
-
-  private _canonicalToSnippet(canonical: string): Snippet {
-    const parts = canonical.split('___')
-    return { content: '', source: 'doc', name: parts[1], page: parts[2]!, paragraph: parts[3]! }
-  }
-
-  private async _setupWatcher() {}
 
   private async *_pullDocuments(): AsyncIterableIterator<Snippet[]> {
     const ghost = Indexer.ghostProvider(this.botId)
@@ -65,7 +72,11 @@ export class Indexer {
         continue
       }
 
-      const content = await converter(file)
+      const tmpFile = tmpNameSync()
+      const fileBuff = await ghost.readFileAsBuffer('./knowledge', tmpFile)
+      fs.writeFileSync(tmpFile, fileBuff)
+
+      const content = await converter(tmpFile)
       yield this._splitDocument(file, content)
     }
   }

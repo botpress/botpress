@@ -16,11 +16,11 @@ async function pdf(fullPath: string): Promise<string> {
     encoding: 'utf8'
   })
 }
-pdf.fileExtensions = ['pdf']
+pdf.fileExtensions = ['.pdf']
 export const Pdf: Converter = pdf
 
 async function text(fullPath): Promise<string> {
   return readFileSync(fullPath, 'utf8')
 }
-text.fileExtensions = ['txt', 'text', 'rtf']
+text.fileExtensions = ['.txt', '.text', '.rtf']
 export const Text: Converter = text

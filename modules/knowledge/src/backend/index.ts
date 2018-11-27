@@ -1,14 +1,15 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
+import { DocumentClassifier } from './classifier'
 import { Indexer } from './indexer'
-import { ModelStorage } from './storage'
 
 const indexers: { [botId: string]: Indexer } = {}
+const classifiers: { [botId: string]: DocumentClassifier } = {}
 
 const onServerStarted = async (bp: typeof sdk) => {
   Indexer.ghostProvider = bp.ghost.forBot
-  ModelStorage.ghostProvider = bp.ghost.forBot
+  DocumentClassifier.ghostProvider = bp.ghost.forBot
 
   bp.events.registerMiddleware({
     name: 'knowledge.incoming',
@@ -31,7 +32,9 @@ const onServerStarted = async (bp: typeof sdk) => {
 const onServerReady = async (bp: typeof sdk) => {}
 
 const onBotMount = async (bp: typeof sdk, botId: string) => {
-  indexers[botId] = new Indexer(botId)
+  classifiers[botId] = new DocumentClassifier(botId)
+  indexers[botId] = new Indexer(botId, classifiers[botId])
+  await classifiers[botId].loadMostRecent()
 }
 
 const onBotUnmount = async (bp: typeof sdk, botId: string) => {
