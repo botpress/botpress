@@ -8,33 +8,14 @@ import _ from 'lodash'
 import Editor from './draft/editor'
 
 import style from './style.scss'
-import EntitiesEditor from './entities/index'
+import Slots from './slots/Slots'
 
 export default class IntentsEditor extends React.Component {
   state = {
     initialUtterances: '',
     entitiesEditor: null,
     isDirty: false,
-    entities: [
-      // {
-      //   id: '0',
-      //   colors: 1,
-      //   name: 'DepartureDate',
-      //   type: '@native.date'
-      // },
-      // {
-      //   id: '1',
-      //   colors: 3,
-      //   name: 'ArrivalDate',
-      //   type: '@native.date'
-      // },
-      // {
-      //   id: '2',
-      //   colors: 5,
-      //   name: 'PassengerCount',
-      //   type: '@native.number'
-      // }
-    ],
+    entities: [],
     utterances: []
   }
 
@@ -111,6 +92,7 @@ export default class IntentsEditor extends React.Component {
       text: u
     }))
 
+  // TODO use somekind of web crypto to compute an actuall hash
   computeHash = () =>
     JSON.stringify({
       utterances: this.getCanonicalUtterances(),
@@ -118,10 +100,6 @@ export default class IntentsEditor extends React.Component {
     })
 
   isDirty = () => this.initialHash && this.computeHash() !== this.initialHash
-
-  fetchEntities = () => {
-    return this.props.axios.get(`/mod/nlu/entities`).then(res => res.data)
-  }
 
   focusFirstUtterance = () => {
     if (this.firstUtteranceRef) {
@@ -159,7 +137,7 @@ export default class IntentsEditor extends React.Component {
           return (
             <li key={`uttr-${utterance.id}`}>
               <Editor
-                getEntitiesEditor={() => this.entitiesEditor}
+                getEntitiesEditor={() => this.slotsEditor}
                 ref={el => {
                   if (i === 0) {
                     this.firstUtteranceRef = el
@@ -188,7 +166,8 @@ export default class IntentsEditor extends React.Component {
     )
   }
 
-  onEntitiesChanged = (entities, { operation, name, oldName } = {}) => {
+  onSlotsChanged = (entities, { operation, name, oldName } = {}) => {
+    debugger
     const replaceObj = { entities: entities }
 
     if (operation === 'deleted') {
@@ -258,11 +237,11 @@ export default class IntentsEditor extends React.Component {
         <SplitterLayout secondaryInitialSize={350} secondaryMinSize={200}>
           {this.renderEditor()}
           <div className={style.entitiesPanel}>
-            <EntitiesEditor
+            <Slots
+              ref={el => (this.slotsEditor = el)}
               axios={this.props.axios}
-              ref={el => (this.entitiesEditor = el)}
-              entities={this.state.entities}
-              onEntitiesChanged={this.onEntitiesChanged}
+              slots={this.state.entities}
+              onSlotsChanged={this.onSlotsChanged}
             />
           </div>
         </SplitterLayout>
