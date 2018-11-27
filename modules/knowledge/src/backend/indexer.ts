@@ -20,17 +20,21 @@ export class Indexer {
   static converters: Converters.Converter[] = [Converters.Pdf]
   _forceSyncDebounce: (() => Promise<void>) & _.Cancelable
 
-  constructor(private readonly botId: string, private readonly classifier: DocumentClassifier) {
+  constructor(
+    private readonly botId: string,
+    private readonly classifier: DocumentClassifier,
+    private readonly logger: sdk.Logger
+  ) {
     this._forceSyncDebounce = _.debounce(this._forceSync, 500)
   }
 
   async forceSync(skipDebounce: boolean = false) {
     if (skipDebounce) {
       this._forceSyncDebounce.cancel()
-      return this._forceSync()
+      await this._forceSync()
     }
 
-    return this._forceSyncDebounce()
+    await this._forceSyncDebounce()
   }
 
   private async _forceSync() {
@@ -67,18 +71,22 @@ export class Indexer {
     const files = await ghost.directoryListing('./knowledge', '*.*')
 
     for (const file of files) {
-      const converter = Indexer.converters.find(c => c.fileExtensions.includes(path.extname(file)))
-      if (!converter) {
-        continue
+      try {
+        const converter = Indexer.converters.find(c => c.fileExtensions.includes(path.extname(file)))
+        if (!converter) {
+          continue
+        }
+
+        const tmpFile = tmpNameSync()
+
+        const fileBuff = await ghost.readFileAsBuffer('./knowledge', file)
+        fs.writeFileSync(tmpFile, fileBuff)
+
+        const content = await converter(tmpFile)
+        yield this._splitDocument(file, content)
+      } catch (err) {
+        this.logger.attachError(err).warn(`Could not index file ${file}`)
       }
-
-      const tmpFile = tmpNameSync()
-
-      const fileBuff = await ghost.readFileAsBuffer('./knowledge', file)
-      fs.writeFileSync(tmpFile, fileBuff)
-
-      const content = await converter(tmpFile)
-      yield this._splitDocument(file, content)
     }
   }
 

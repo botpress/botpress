@@ -40,8 +40,12 @@ export default async (bp: typeof sdk, indexers: IndexerByBot, classifiers: Class
 
   router.get('/query', async (req, res) => {
     try {
-      const result = await classifiers[req.params.botId].predict(req.query.q)
-      res.status(200).send(result)
+      if (req.query.q && req.query.q.length) {
+        const result = await classifiers[req.params.botId].predict(req.query.q)
+        res.send(result)
+      } else {
+        res.send([])
+      }
     } catch (err) {
       res.status(400).send(err)
     }

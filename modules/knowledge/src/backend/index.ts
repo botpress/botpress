@@ -23,7 +23,7 @@ const onServerReady = async (bp: typeof sdk) => {
 
 const onBotMount = async (bp: typeof sdk, botId: string) => {
   classifiers[botId] = new DocumentClassifier(botId)
-  indexers[botId] = new Indexer(botId, classifiers[botId])
+  indexers[botId] = new Indexer(botId, classifiers[botId], bp.logger)
   await classifiers[botId].loadMostRecent()
 }
 
