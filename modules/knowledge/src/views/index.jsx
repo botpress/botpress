@@ -1,6 +1,18 @@
 import React, { Component } from 'react'
 import Dropzone from 'react-dropzone'
-import { Table, Row, Col, Button, Panel, FormControl, Form, Tooltip, OverlayTrigger } from 'react-bootstrap'
+import {
+  Table,
+  Row,
+  Col,
+  Button,
+  Panel,
+  FormControl,
+  Form,
+  Tooltip,
+  OverlayTrigger,
+  FormGroup,
+  InputGroup
+} from 'react-bootstrap'
 import style from './style.scss'
 
 export default class KnowledgeManager extends Component {
@@ -72,8 +84,12 @@ export default class KnowledgeManager extends Component {
   }
 
   sendQuery = async () => {
-    const result = await this.props.bp.axios.get('/mod/knowledge/query', {
+    const { data } = await this.props.bp.axios.get('/mod/knowledge/query', {
       params: { q: this.state.knowledgeTestField }
+    })
+
+    this.setState({
+      testResults: data
     })
   }
 
@@ -179,23 +195,46 @@ export default class KnowledgeManager extends Component {
             <h3>Test Knowledgebase</h3>
             Type some text and see what would be the most probable answer from your bot
             <br />
-            <Form inline>
-              <FormControl
-                value={this.state.knowledgeTestField}
-                onChange={this.onQueryChanged}
-                onKeyPress={this.onInputKeyPress}
-                placeholder="Question"
-                style={{ width: 400 }}
-              />
-              &nbsp;
-              <Button onClick={this.sendQuery}>Send</Button>
-            </Form>
+            <FormGroup>
+              <InputGroup>
+                <FormControl
+                  value={this.state.knowledgeTestField}
+                  onChange={this.onQueryChanged}
+                  onKeyPress={this.onInputKeyPress}
+                  placeholder="Question"
+                  style={{ width: 400 }}
+                />
+                &nbsp;
+                <Button onClick={this.sendQuery}>Send</Button>
+              </InputGroup>
+            </FormGroup>
           </div>
         </Col>
-        <Col md={7}>
-          <h3>Results</h3>
-        </Col>
+        <Col md={7}>{this.renderResults()}</Col>
       </Row>
+    )
+  }
+
+  renderResults() {
+    return (
+      <div>
+        <h3>Results</h3>
+        {this.state.testResults && this.state.testResults.map(r => this.renderResult(r))}
+      </div>
+    )
+  }
+
+  renderResult(result) {
+    const { name, paragraph, page } = result.snippet
+    return (
+      <div>
+        {result.snippet.content}
+        <br />
+        <small>
+          Confidence: <strong>{result.confidence}</strong> - page {page}, paragraph: {paragraph} in file {name}
+        </small>
+        <hr />
+      </div>
     )
   }
 
