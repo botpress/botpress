@@ -4,6 +4,7 @@ import _ from 'lodash'
 import api from './api'
 import { DocumentClassifier } from './classifier'
 import { Indexer } from './indexer'
+import { registerMiddleware } from './middleware'
 import { ClassifierByBot, IndexerByBot } from './typings'
 
 const indexers: IndexerByBot = {}
@@ -13,21 +14,7 @@ const onServerStarted = async (bp: typeof sdk) => {
   Indexer.ghostProvider = bp.ghost.forBot
   DocumentClassifier.ghostProvider = bp.ghost.forBot
 
-  bp.events.registerMiddleware({
-    name: 'knowledge.incoming',
-    direction: 'incoming',
-    handler: async (event, next) => {
-      if (event.type !== 'text') {
-        next()
-      }
-
-      // TODO Append suggested replies here
-
-      next()
-    },
-    order: 15,
-    description: 'Finds content from Knowledge base files'
-  })
+  await registerMiddleware(bp, classifiers)
 }
 
 const onServerReady = async (bp: typeof sdk) => {
