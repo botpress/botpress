@@ -48,9 +48,9 @@ export default class SlotModal extends React.Component {
   }
 
   initializeFromProps = props => {
-    const slot = props.slot
-    console.log('slotter', slot)
-    if (slot) this.setState({ ...slot, editing: true })
+    if (props.slot) {
+      this.setState({ ...props.slot, editing: true })
+    } else this.resetState()
   }
 
   resetState = () => this.setState({ ...INITIAL_STATE, availableEntities: this.state.availableEntities })

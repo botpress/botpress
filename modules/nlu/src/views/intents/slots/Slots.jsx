@@ -13,14 +13,25 @@ export default class Slots extends React.Component {
     selectedText: null,
     selectedSlot: null,
     slotModalVisible: false,
-    selectedSlotIndex: 0
+    selectedSlotIndex: null
   }
 
   intentEditor = null
 
-  tagSelectedText = entityId => {
-    this.intentEditor.tagSelected(entityId)
-    this.setState({ selectedText: null, selectedSlot: null })
+  componentDidMount() {
+    const slots = this.getSlots()
+    if (slots.length > 0) {
+      this.setState({
+        selectedSlot: slots[0],
+        selectedSlotIndex: 0
+      })
+    }
+  }
+
+  // this should be passed as props from intent editor (index.js)
+  tagSelectedText = () => {
+    this.intentEditor.tagSelected(this.state.selectedSlot)
+    this.setState({ selectedText: null })
   }
 
   executeRecommendedAction = intentEditor => {
@@ -41,63 +52,64 @@ export default class Slots extends React.Component {
     })
   }
 
-  showSlotModal = slot => {
+  showSlotModal = (slot, index) => {
     this.setState({
       slotModalVisible: true,
       selectedSlot: slot,
-      editingEntity: !!slot
+      selectedSlotIndex: index
     })
   }
 
-  setSelection = (selectedText, selectedSlot, intentEditor) => {
+  // This function is used by some other components, bad smell + be careful if you edit
+  setSelection = (selectedText, intentEditor) => {
     this.intentEditor = intentEditor
 
-    let selectedSlotIndex = 0
-
-    if (selectedSlot) {
-      selectedSlotIndex = _.findIndex(this.getSlots(), { id: selectedSlot })
-    }
-
-    this.setState({ selectedText, selectedSlot, selectedSlotIndex: selectedSlotIndex })
+    this.setState({ selectedText })
   }
 
   getSlots = () => {
     return this.props.slots || []
   }
 
-  moveUp() {
-    if (this.state.selectedSlotIndex === 0) {
-      this.setState({
-        selectedSlotIndex: this.getSlots().length - 1
-      })
-    } else {
-      this.setState({
-        selectedSlotIndex: Math.max(this.state.selectedSlotIndex - 1, 0)
-      })
+  updateSelectedSlot = (slot, index) => {
+    this.setState({
+      selectedSlot: slot,
+      selectedSlotIndex: index
+    })
+  }
+
+  changeSelectedSlot = step => {
+    const slots = this.getSlots()
+
+    let selectedSlotIndex = this.state.selectedSlotIndex + step
+    if (slots.length / selectedSlotIndex >= 1) {
+      selectedSlotIndex = 0
+    } else if (selectedSlotIndex < 0) {
+      selectedSlotIndex = slots.length - 1
     }
+
+    this.updateSelectedSlot(slots[selectedSlotIndex], selectedSlotIndex)
+  }
+
+  moveUp() {
+    this.changeSelectedSlot(1)
   }
 
   moveDown() {
-    if (this.state.selectedSlotIndex === this.getSlots().length - 1) {
-      this.setState({
-        selectedSlotIndex: 0
-      })
-    } else {
-      this.setState({
-        selectedSlotIndex: Math.min(this.state.selectedSlotIndex + 1, this.getSlots().length - 1)
-      })
-    }
+    this.changeSelectedSlot(-1)
   }
 
   onSlotSave = (slot, operation) => {
-    debugger
     let slots = [...this.getSlots()]
+    let index = this.state.selectedSlotIndex
     if (operation === 'modified') {
       slots = [...slots.slice(0, this.state.selectedSlotIndex), slot, ...slots.slice(this.state.selectedSlotIndex + 1)]
     } else {
+      index = slots.length
       slots = [...slots, slot]
     }
 
+    this.updateSelectedSlot(slot, index)
     const oldname = this.selectedSlot ? this.selectedSlot.name : ''
     this.props.onSlotsChanged && this.props.onSlotsChanged(slots, { operation, oldname, name: slot.name })
   }
@@ -119,8 +131,7 @@ export default class Slots extends React.Component {
     if (this.hasSelectedText()) {
       if (this.state.selectedText && this.state.selectedText.length) {
         this.recommendedAction = () => {
-          const slot = slots[this.state.selectEntityIndex]
-          this.tagSelectedText(slot.id)
+          this.tagSelectedText()
           return 'create-entity'
         }
       }
@@ -139,21 +150,21 @@ export default class Slots extends React.Component {
         <ul>
           {slots.map((slot, i) => {
             if (this.hasSelectedText()) {
-              return <ActionSlotItem key={slot.id} slot={slot} active={slot === this.selectedSlot} />
+              return <ActionSlotItem key={slot.id} slot={slot} active={slot.id === this.state.selectedSlot.id} />
             } else {
               return (
                 <SlotItem
                   key={slot.id}
                   slot={slot}
                   onDelete={this.onSlotDeleted}
-                  onEdit={this.showSlotModal.bind(this, slot)}
+                  onEdit={this.showSlotModal.bind(this, slot, i)}
                 />
               )
             }
           })}
         </ul>
-        <Button bsStyle="success" onClick={this.showSlotModal.bind(this, null)}>
-          Create new slot
+        <Button bsStyle="success" onClick={this.showSlotModal.bind(this, null, null)}>
+          Create a slot
         </Button>
       </div>
     )
@@ -162,7 +173,7 @@ export default class Slots extends React.Component {
   renderWithoutSlots = () => {
     if (this.hasSelectedText()) {
       this.recommendedAction = () => {
-        this.showSlotModal()
+        this.showSlotModal(null, null)
         return 'create-entity'
       }
     }
@@ -176,7 +187,7 @@ export default class Slots extends React.Component {
               Define a new slot in order to tag <span className={style.selectionText}>"{this.state.selectedText}"</span>
             </h3>
           )}
-          <Button bsSize="large" bsStyle="success" onClick={this.showSlotModal.bind(this, null)}>
+          <Button bsSize="large" bsStyle="success" onClick={this.showSlotModal.bind(this, null, null)}>
             Create a slot
           </Button>
           {this.hasSelectedText() && (
